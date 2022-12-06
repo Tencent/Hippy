@@ -13,224 +13,209 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.devsupport;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Application;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.openhippy.framework.BuildConfig;
 import com.tencent.mtt.hippy.HippyGlobalConfigs;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
-
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Stack;
 
-@SuppressWarnings({"unused"})
-public class DevServerImpl implements View.OnClickListener, DevServerInterface,
-    DevExceptionDialog.OnReloadListener,
-    DevRemoteDebugManager.RemoteDebugExceptionHandler, LiveReloadController.LiveReloadCallback {
+public class DevServerImpl implements DevServerInterface, View.OnClickListener,
+        DevExceptionDialog.OnReloadListener, LiveReloadController.LiveReloadCallback {
 
-  private static final String TAG = "DevServerImpl";
+    private static final String TAG = "DevServerImpl";
+    private final boolean mDebugMode;
+    @NonNull
+    private final DevServerHelper mFetchHelper;
+    @NonNull
+    private Stack<DevFloatButton> mDevButtonStack = new Stack<>();
+    @NonNull
+    private HashMap<Integer, DevFloatButton> mDevButtonMaps = new HashMap<>();
+    DevServerCallBack mServerCallBack;
+    DevExceptionDialog mExceptionDialog;
+    @Nullable
+    private DevServerConfig mServerConfig;
 
-  final DevServerHelper mFetchHelper;
-  DevServerCallBack mServerCallBack;
-  ProgressDialog mProgressDialog;
-  DevExceptionDialog mExceptionDialog;
-  private final DevServerConfig mServerConfig;
-  private final HashMap<Context, DevFloatButton> mHostButtonMap;
-  // 一个 DevServerImpl 实例可管理多个 HippyRootView 的调试，对应多个DebugButton
-  private final Stack<DevFloatButton> mDebugButtonStack;
-  private final LiveReloadController mLiveReloadController;
-
-  DevServerImpl(HippyGlobalConfigs configs, String serverHost, String bundleName, String remoteServerUrl) {
-    mFetchHelper = new DevServerHelper(configs, serverHost, remoteServerUrl);
-    mServerConfig = new DevServerConfig(serverHost, bundleName);
-    mDebugButtonStack = new Stack<>();
-    mHostButtonMap = new HashMap<>();
-    mLiveReloadController = new LiveReloadController(mFetchHelper);
-
-    showProgressDialog();
-  }
-
-  private void showProgressDialog() {
-    Context host = null;
-    if (mDebugButtonStack.size() > 0) {
-      host = mDebugButtonStack.peek().getContext();
-    }
-
-    if (host == null) {
-      return;
-    }
-
-    if (mProgressDialog == null) {
-      mProgressDialog = new ProgressDialog(host);
-      mProgressDialog.setCancelable(true);
-      mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-    }
-    mProgressDialog.show();
-  }
-
-  @Override
-  public void onClick(final View v) {
-    final boolean isLiveReloadEnable = mServerConfig.enableLiveDebug();
-    if (v.getContext() instanceof Application) {
-      LogUtils.e(TAG, "Hippy context is an Application, so can not show a dialog!");
-    } else {
-      new AlertDialog.Builder(v.getContext()).setItems(
-          new String[]{"Reload"},
-          new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-              if (which == 0) {
-                reload();
-              }
-            }
-          }).show();
-    }
-  }
-
-  void startLiveDebug() {
-    if (mServerConfig.enableLiveDebug()) {
-      mLiveReloadController.startLiveReload(this);
-    } else {
-      mLiveReloadController.stopLiveReload();
-    }
-
-  }
-
-  @Override
-  public String createResourceUrl(String resName) {
-    return mFetchHelper
-        .createBundleURL(mServerConfig.getServerHost(), resName, mServerConfig.enableRemoteDebug(),
-            false, false);
-  }
-
-  @Override
-  public void onLoadResourceSucceeded() {
-    if (mProgressDialog != null) {
-      mProgressDialog.dismiss();
-    }
-  }
-
-  @Override
-  public void onLoadResourceFailed(@NonNull String url, @Nullable String errorMessage) {
-    DevServerException exception = new DevServerException("Could not connect to development server." + "URL: " + url
-            + "  try to :adb reverse tcp:38989 tcp:38989 , message : " + errorMessage);
-    if (mDebugButtonStack.isEmpty()) {
-      mServerCallBack.onInitDevError(exception);
-    } else {
-      handleException(exception);
-    }
-  }
-
-  @Override
-  public String createDebugUrl(String host, String componentName, String debugClientId) {
-    return mFetchHelper.createDebugURL(host, !TextUtils.isEmpty(componentName) ? componentName :
-            mServerConfig.getBundleName(), debugClientId);
-  }
-
-  @Override
-  public void reload() {
-    if (mServerCallBack != null) {
-      mServerCallBack.onDevBundleReLoad();
-    }
-  }
-
-  @Override
-  public void setDevServerCallback(DevServerCallBack devServerCallback) {
-    this.mServerCallBack = devServerCallback;
-  }
-
-  @Override
-  public void attachToHost(Context context) {
-    DevFloatButton debugButton = new DevFloatButton(context);
-    debugButton.setOnClickListener(this);
-
-    if (context instanceof Activity) {
-      // 添加到Activity的根部，这就稳当了。
-      ViewGroup decorView = (ViewGroup)((Activity)context).getWindow().getDecorView();
-      decorView.addView(debugButton);
-    }
-
-    mHostButtonMap.put(context, debugButton);
-    mDebugButtonStack.push(debugButton);
-  }
-
-  @Override
-  public void detachFromHost(Context context) {
-    DevFloatButton button = mHostButtonMap.get(context);
-    if (button != null) {
-      mDebugButtonStack.remove(button);
-      mHostButtonMap.remove(context);
-      ViewParent parent = button.getParent();
-      if (parent instanceof ViewGroup) {
-        ((ViewGroup) parent).removeView(button);
-      }
-    }
-  }
-
-  @Override
-  public void handleException(final Throwable throwable) {
-    if (mProgressDialog != null) {
-      mProgressDialog.dismiss();
-    }
-
-    if (mDebugButtonStack.size() <= 0) {
-      return;
-    }
-
-    if (mExceptionDialog != null && mExceptionDialog.isShowing()) {
-      return;
-    }
-
-    UIThreadUtils.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        if (mDebugButtonStack.size() > 0) {
-          // 用栈顶那个context
-          mExceptionDialog = new DevExceptionDialog(mDebugButtonStack.peek().getContext());
-          mExceptionDialog.handleException(throwable);
-          mExceptionDialog.setOnReloadListener(DevServerImpl.this);
-          mExceptionDialog.show();
+    DevServerImpl(HippyGlobalConfigs configs, String serverHost, String bundleName,
+            String remoteServerUrl, boolean debugMode) {
+        mDebugMode = debugMode;
+        mFetchHelper = new DevServerHelper(configs, serverHost, remoteServerUrl);
+        if (mDebugMode) {
+            mServerConfig = new DevServerConfig(serverHost, bundleName);
         }
-      }
-    });
-
-  }
-
-  @Override
-  public void onReload() {
-    reload();
-  }
-
-  @SuppressWarnings("unused")
-  @Override
-  public void onHandleRemoteDebugException(Throwable t) {
-    if (mDebugButtonStack.isEmpty()) {
-      mServerCallBack.onInitDevError(t);
-    } else {
-      handleException(t);
     }
-  }
 
-  @Override
-  public void onCompileSuccess() {
-    reload();
-  }
+    private void handleItemsClick(int which) {
+        switch (which) {
+            case 0:
+                if (mDebugMode) {
+                    reload();
+                } else {
 
-  @Override
-  public void onLiveReloadReady() {
-    reload();
-  }
+                }
+                break;
+            case 1:
+                if (!mDebugMode) {
+                    reload();
+                }
+                break;
+            default:
+                LogUtils.w(TAG, "handleItemsClick: Unexpected item index " + which);
+        }
+
+    }
+
+    @Override
+    public void onClick(final View v) {
+        if (v.getContext() instanceof Application) {
+            LogUtils.e(TAG, "Hippy context is an Application, so can not show a dialog!");
+        } else {
+            String[] debugItems = {"Reload"};
+            //String[] developItems = {"Destroy", "Create"};
+            new AlertDialog.Builder(v.getContext()).setItems (
+                    debugItems,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (which == 0) {
+                                reload();
+                            }
+                        }
+                    }).show();
+        }
+    }
+
+    @Override
+    public void attachToHost(Context context, int rootId) {
+        if (!BuildConfig.DEBUG) {
+            return;
+        }
+        if (mDevButtonMaps == null) {
+            mDevButtonMaps = new HashMap<>();
+        }
+        if (mDevButtonMaps.get(rootId) != null) {
+            return;
+        }
+        DevFloatButton devButton = new DevFloatButton(context);
+        devButton.setOnClickListener(this);
+        if (context instanceof Activity) {
+            ViewGroup decorView = (ViewGroup) ((Activity) context).getWindow().getDecorView();
+            decorView.addView(devButton);
+        }
+        mDevButtonMaps.put(rootId, devButton);
+        mDevButtonStack.add(devButton);
+    }
+
+    @Override
+    public void detachFromHost(Context context, int rootId) {
+        if (!BuildConfig.DEBUG || mDevButtonMaps == null) {
+            return;
+        }
+        DevFloatButton button = mDevButtonMaps.get(rootId);
+        if (button != null) {
+            if (mDevButtonStack != null) {
+                mDevButtonStack.remove(rootId);
+            }
+            ViewParent parent = button.getParent();
+            if (parent instanceof ViewGroup) {
+                ((ViewGroup) parent).removeView(button);
+            }
+        }
+    }
+
+    @Override
+    @Nullable
+    public String createResourceUrl(String resName) {
+        if (mDebugMode) {
+            assert mServerConfig != null;
+            return mFetchHelper.createBundleURL(mServerConfig.getServerHost(), resName,
+                    mServerConfig.enableRemoteDebug(), false, false);
+        }
+        return null;
+    }
+
+    @Override
+    public void onLoadResourceFailed(@NonNull String url, @Nullable String errorMessage) {
+        DevServerException exception = new DevServerException(
+                "Could not connect to development server." + "URL: " + url
+                        + "  try to :adb reverse tcp:38989 tcp:38989 , message : " + errorMessage);
+        if (mDevButtonStack.isEmpty()) {
+            mServerCallBack.onInitDevError(exception);
+        } else {
+            handleException(exception);
+        }
+    }
+
+    @Override
+    @Nullable
+    public String createDebugUrl(String host, String componentName, String debugClientId) {
+        if (mDebugMode) {
+            assert mServerConfig != null;
+            if (TextUtils.isEmpty(componentName)) {
+                componentName = mServerConfig.getBundleName();
+            }
+            return mFetchHelper.createDebugURL(host, componentName, debugClientId);
+        }
+        return null;
+    }
+
+    @Override
+    public void reload() {
+        if (mServerCallBack != null) {
+            mServerCallBack.onDebugReLoad();
+        }
+    }
+
+    @Override
+    public void setDevServerCallback(DevServerCallBack devServerCallback) {
+        this.mServerCallBack = devServerCallback;
+    }
+
+    @Override
+    public void handleException(final Throwable throwable) {
+        UIThreadUtils.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mExceptionDialog != null && mExceptionDialog.isShowing()) {
+                    return;
+                }
+                DevFloatButton button = mDevButtonStack.peek();
+                if (button != null) {
+                    mExceptionDialog = new DevExceptionDialog(button.getContext());
+                    mExceptionDialog.handleException(throwable);
+                    mExceptionDialog.setOnReloadListener(DevServerImpl.this);
+                    mExceptionDialog.show();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onReload() {
+        reload();
+    }
+
+    @Override
+    public void onCompileSuccess() {
+        reload();
+    }
+
+    @Override
+    public void onLiveReloadReady() {
+        reload();
+    }
 }

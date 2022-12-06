@@ -374,7 +374,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     @MainThread
     @Override
-    public void onRootDestroy(int rootId) {
+    public void destroyRoot(int rootId) {
         if (mInstanceLifecycleEventListeners != null) {
             for (HippyInstanceLifecycleEventListener listener : mInstanceLifecycleEventListeners) {
                 listener.onInstanceDestroy(rootId);

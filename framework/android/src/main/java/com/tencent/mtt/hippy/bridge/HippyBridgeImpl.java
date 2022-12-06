@@ -307,9 +307,6 @@ public class HippyBridgeImpl implements HippyBridge, JSBridgeProxy, DevRemoteDeb
                                             holder.bytes.length);
                                     buffer.put(holder.bytes);
                                     mJsDriver.onResourceReady(buffer, resId);
-                                    if (devManager != null) {
-                                        devManager.onLoadResourceSucceeded();
-                                    }
                                 } else {
                                     mJsDriver.onResourceReady(null, resId);
                                     if (devManager != null) {

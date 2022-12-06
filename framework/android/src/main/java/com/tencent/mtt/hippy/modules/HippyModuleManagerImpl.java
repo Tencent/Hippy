@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.HippyEngineContext;
+import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
 import com.tencent.mtt.hippy.bridge.HippyCallNativeParams;
@@ -409,7 +410,7 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
                 if (roots.size() > 0) {
                     Object valueObj = roots.get(0);
                     if (valueObj instanceof Integer) {
-                        mContext.removeRootView((Integer) valueObj);
+                        ((HippyInstanceLifecycleEventListener) mContext).onInstanceDestroy((Integer) valueObj);
                     }
                 }
             }

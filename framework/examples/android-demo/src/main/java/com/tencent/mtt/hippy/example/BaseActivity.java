@@ -60,7 +60,6 @@ public class BaseActivity extends Activity implements EngineListener, DeviceEven
 	@Override
 	protected void onDestroy()
 	{
-		mEngineManager.destroyInstance(mInstance);
 		mEngineManager.removeEngineEventListener(this);
 		mEngineManager.destroyEngine();
 		super.onDestroy();

@@ -22,12 +22,14 @@ import android.os.Bundle;
 import android.view.ViewGroup;
 import android.view.Window;
 
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.adapter.DefaultLogAdapter;
 import com.tencent.mtt.hippy.adapter.exception.HippyExceptionHandlerAdapter;
+import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.example.adapter.MyImageLoader;
@@ -190,8 +192,12 @@ public class MyActivity extends Activity
 	@Override
 	protected void onDestroy() {
 		// 3/3. 摧毁hippy前端模块，摧毁hippy引擎
-		mHippyEngine.destroyModule(mHippyView);
-		mHippyEngine.destroyEngine();
+		mHippyEngine.destroyModule(mHippyView, new Callback<Boolean>() {
+			@Override
+			public void callback(@Nullable Boolean result, @Nullable Throwable e) {
+				mHippyEngine.destroyEngine();
+			}
+		});
 		super.onDestroy();
 	}
 

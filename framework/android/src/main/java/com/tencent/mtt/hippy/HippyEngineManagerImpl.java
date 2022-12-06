@@ -16,13 +16,13 @@
 package com.tencent.mtt.hippy;
 
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.openhippy.connector.DomManager;
@@ -64,7 +64,6 @@ import com.tencent.vfs.DefaultProcessor;
 import com.tencent.devtools.vfs.DevtoolsProcessor;
 import com.tencent.vfs.VfsManager;
 import com.openhippy.connector.JsDriver.V8InitParams;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,7 +94,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     /**
      * providers
      */
-    final List<HippyAPIProvider> mMouduleProviders;
+    final List<HippyAPIProvider> mModuleProviders;
     final List<ControllerProvider> mControllerProviders;
     /**
      * Dev support manager
@@ -119,8 +118,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     boolean mHasReportEngineLoadResult = false;
     private final HippyThirdPartyAdapter mThirdPartyAdapter;
     private final V8InitParams v8InitParams;
-    private int mDomInstanceId = -1;
     private DevtoolsManager mDevtoolsManager;
+    private HashMap<String, Object> mNativeParams;
+    @Nullable
+    private HashMap<Integer, Callback<Boolean>> mDestroyModuleListeners;
 
     final Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -151,7 +152,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         this.mGlobalConfigs = new HippyGlobalConfigs(params);
         this.mCoreBundleLoader = coreBundleLoader;
         this.mPreloadBundleLoader = preloadBundleLoader;
-        this.mMouduleProviders = params.moduleProviders;
+        this.mModuleProviders = params.moduleProviders;
         this.mControllerProviders = params.controllerProviders;
         this.mDebugMode = params.debugMode;
         this.mServerBundleName = params.debugMode ? params.debugBundleName : "";
@@ -210,18 +211,18 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
     }
 
-    protected void onDestroy() {
+    protected void onDestroyEngine() {
         mCurrentState = EngineState.DESTROYED;
-        destroyInstance(mRootView);
         if (mEngineContext != null) {
-            mEngineContext.destroy(false);
+            mEngineContext.destroy();
         }
-
         if (moduleLoadParams != null && moduleLoadParams.nativeParams != null) {
             moduleLoadParams.nativeParams.clear();
             moduleLoadParams = null;
         }
-
+        if (mNativeParams != null) {
+            mNativeParams.clear();
+        }
         mGlobalConfigs.destroyIfNeed();
         moduleListener = null;
         mRootView = null;
@@ -296,7 +297,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         if (jsBundleLoader != null) {
             return jsBundleLoader.getPath();
         }
-
         return null;
     }
 
@@ -339,7 +339,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
         if (mEngineContext != null) {
             mEngineContext.setComponentName(loadParams.componentName);
-            mEngineContext.setNativeParams(loadParams.nativeParams);
+            mNativeParams = loadParams.nativeParams;
         }
         if (loadParams.jsParams == null) {
             loadParams.jsParams = new HippyMap();
@@ -360,9 +360,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     public ViewGroup loadModule(ModuleLoadParams loadParams, ModuleListener listener) {
         moduleListener = listener;
         moduleLoadParams = loadParams;
-
         checkModuleLoadParams(loadParams);
-
         if (loadParams.bundleLoader != null) {
             jsBundleLoader = loadParams.bundleLoader;
         } else {
@@ -375,41 +373,33 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                         !TextUtils.isEmpty(loadParams.codeCacheTag), loadParams.codeCacheTag);
             }
         }
-
         mRootView = (ViewGroup) mEngineContext.createRootView(loadParams.context);
         if (mCurrentState == EngineState.DESTROYED) {
             notifyModuleLoaded(ModuleLoadStatus.STATUS_ENGINE_UNINIT,
                     "load module error wrong state, Engine destroyed");
             return null;
         }
-
-        mDevSupportManager.attachToHost(loadParams.context);
+        mDevSupportManager.attachToHost(loadParams.context, mRootView.getId());
         LogUtils.d(TAG, "internalLoadInstance start...");
         if (mCurrentState == EngineState.INITED) {
-            loadJsInstance();
+            loadJsModule();
         } else {
             notifyModuleLoaded(ModuleLoadStatus.STATUS_ENGINE_UNINIT,
                     "error wrong state, Engine state not INITED, state:" + mCurrentState);
         }
-
         return mRootView;
     }
 
+    @MainThread
     @Override
-    public void destroyModule(ViewGroup rootView) {
-        if (rootView == null) {
-            return;
+    public void destroyModule(@NonNull ViewGroup rootView, @NonNull Callback<Boolean> callback) {
+        int rootId = rootView.getId();
+        if (mDestroyModuleListeners == null) {
+            mDestroyModuleListeners = new HashMap<>();
         }
-        if (mDevSupportManager != null) {
-            Context context = rootView.getContext();
-            if (context instanceof ContextWrapper) {
-                mDevSupportManager.detachFromHost(((ContextWrapper) context).getBaseContext());
-            }
-        }
-        if (mEngineContext != null) {
-            if (mEngineContext.getBridgeManager() != null) {
-                mEngineContext.getBridgeManager().destroyInstance(rootView.getId());
-            }
+        mDestroyModuleListeners.put(rootId, callback);
+        if (mEngineContext != null && mEngineContext.getBridgeManager() != null) {
+            mEngineContext.getBridgeManager().destroyInstance(rootId);
         }
     }
 
@@ -568,19 +558,15 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         if (mCurrentState == EngineState.DESTROYED) {
             String errorMsg =
                     "restartEngineInBackground... error STATUS_WRONG_STATE, state=" + mCurrentState;
-            LogUtils.e(TAG, errorMsg);
             notifyEngineInitialized(EngineInitStatus.STATUS_WRONG_STATE, new Throwable(errorMsg));
             return;
         }
-
         if (mCurrentState != EngineState.INITING) {
             mCurrentState = EngineState.ONRESTART;
         }
-
-        if (mEngineContext != null) {
-            mEngineContext.destroy(onReLoad);
+        if (onReLoad && mEngineContext != null) {
+            mEngineContext.destroy();
         }
-
         try {
             mEngineContext = new HippyEngineContextImpl();
         } catch (RuntimeException e) {
@@ -588,10 +574,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             notifyEngineInitialized(EngineInitStatus.STATUS_INIT_EXCEPTION, e);
             return;
         }
-
         mEngineContext.getBridgeManager().initBridge(new Callback<Boolean>() {
             @Override
-            public void callback(Boolean param, Throwable e) {
+            public void callback(Boolean result, Throwable e) {
                 if (mCurrentState != EngineState.INITING
                         && mCurrentState != EngineState.ONRESTART) {
                     LogUtils.e(TAG,
@@ -601,14 +586,14 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 }
 
                 if (mCurrentState == EngineState.ONRESTART) {
-                    loadJsInstance();
+                    loadJsModule();
                 }
 
                 EngineState state = mCurrentState;
-                mCurrentState = param ? EngineState.INITED : EngineState.INITERRORED;
+                mCurrentState = result ? EngineState.INITED : EngineState.INITERRORED;
                 if (state != EngineState.ONRESTART) {
                     notifyEngineInitialized(
-                            param ? EngineInitStatus.STATUS_OK : EngineInitStatus.STATUS_ERR_BRIDGE,
+                            result ? EngineInitStatus.STATUS_OK : EngineInitStatus.STATUS_ERR_BRIDGE,
                             e);
                 } else {
                     LogUtils.e(TAG,
@@ -623,7 +608,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
      * After init engine callback, send load instance message to js invoke render If debug mode js
      * bundle load with common bundle after init engine
      */
-    private void loadJsInstance() {
+    private void loadJsModule() {
         if (mEngineContext == null || mRootView == null || moduleLoadParams == null) {
             notifyModuleLoaded(ModuleLoadStatus.STATUS_VARIABLE_NULL,
                     "load module error. mEngineContext=" + mEngineContext
@@ -631,7 +616,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                             + ", moduleLoadParams=" + moduleLoadParams);
             return;
         }
-
         if (!mDebugMode) {
             if (jsBundleLoader != null) {
                 mEngineContext.getBridgeManager()
@@ -642,7 +626,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 return;
             }
         }
-
         mEngineContext.getBridgeManager()
                 .loadInstance(moduleLoadParams.componentName, mRootView.getId(),
                         moduleLoadParams.jsParams);
@@ -652,13 +635,13 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
-    public void onDevBundleLoadReady(InputStream inputStream) {
-
-    }
-
-    @Override
-    public void onDevBundleReLoad() {
-        mEngineContext.destroyBridge(true);
+    public void onDebugReLoad() {
+        destroyModule(mRootView, new Callback<Boolean>() {
+            @Override
+            public void callback(@Nullable Boolean result, @Nullable Throwable e) {
+                mEngineContext.destroyBridge(true);
+            }
+        });
     }
 
     @Override
@@ -708,28 +691,22 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             HippyInstanceLifecycleEventListener {
 
         private String componentName;
-        private HashMap<String, Object> mNativeParams;
         private final HippyModuleManager mModuleManager;
         private final HippyBridgeManager mBridgeManager;
         private final VfsManager mVfsManager;
-        private final DomManager mDomManager;
-        private final JsDriver mJsDriver;
         private final NativeRenderer mNativeRenderer;
+        private final JsDriver mJsDriver;
+        private final DomManager mDomManager;
         volatile CopyOnWriteArrayList<HippyEngineLifecycleEventListener> mEngineLifecycleEventListeners;
 
         public HippyEngineContextImpl() throws RuntimeException {
-            mModuleManager = new HippyModuleManagerImpl(this, mMouduleProviders,
+            mModuleManager = new HippyModuleManagerImpl(this, mModuleProviders,
                     enableV8Serialization);
             mJsDriver = new JsDriver();
             mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader,
                     getBridgeType(), enableV8Serialization, mDebugMode,
                     mServerHost, mGroupId, mThirdPartyAdapter, v8InitParams, mJsDriver);
-            if (mDebugMode && mRootView != null) {
-                mDomManager = new DomManager(mDomInstanceId, mRootView.getId());
-            } else {
-                mDomManager = new DomManager();
-                mDomInstanceId = mDomManager.getInstanceId();
-            }
+            mDomManager = new DomManager();
             mNativeRenderer = new NativeRenderer();
             mDomManager.attachToRenderer(mNativeRenderer);
             mNativeRenderer.attachToDom(mDomManager);
@@ -770,6 +747,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         public void onRuntimeInitialized() {
             mJsDriver.attachToDom(mDomManager);
             if (mDebugMode && mRootView != null) {
+                mDomManager.createRoot(mRootView.getId());
                 mJsDriver.attachToRoot(mRootView.getId());
                 mNativeRenderer.onRuntimeInitialized(mRootView.getId());
                 mVfsManager.addProcessorAtFirst(new DevtoolsProcessor(getDevtoolsId()));
@@ -780,10 +758,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             return mNativeRenderer;
         }
 
-        public void removeRootView(int rootId) {
-            onInstanceDestroy(rootId);
-        }
-
         public void setComponentName(String componentName) {
             this.componentName = componentName;
         }
@@ -791,10 +765,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         @Override
         public String getComponentName() {
             return componentName;
-        }
-
-        public void setNativeParams(HashMap<String, Object> nativeParams) {
-            mNativeParams = nativeParams;
         }
 
         @Override
@@ -881,8 +851,14 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
         @Override
         public void onInstanceDestroy(int rootId) {
-            mNativeRenderer.onRootDestroy(rootId);
-            mDomManager.detachFromRoot(rootId);
+            if (mDestroyModuleListeners != null) {
+                Callback<Boolean> callback = mDestroyModuleListeners.get(rootId);
+                if (callback != null) {
+                    callback.callback(true, null);
+                }
+            }
+            mDomManager.destroyRoot(rootId);
+            mNativeRenderer.destroyRoot(rootId);
         }
 
         @Override
@@ -929,8 +905,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         @Nullable
         public View createRootView(@NonNull Context context) {
             View rootView = mNativeRenderer.createRootView(context);
-            mDomManager.attachToRoot(rootView.getId());
-            mJsDriver.attachToRoot(rootView.getId());
+            if (rootView != null) {
+                mDomManager.createRoot(rootView.getId());
+                mJsDriver.attachToRoot(rootView.getId());
+            }
             return rootView;
         }
 
@@ -942,7 +920,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                     if (isReload) {
                         restartEngineInBackground(true);
                     } else {
-                        onDestroy();
+                        onDestroyEngine();
                     }
                 }
             });
@@ -952,32 +930,20 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mBridgeManager.destroyBridge(isReload);
         }
 
-        public void destroy(boolean onReLoad) {
-            if (onReLoad && mRootView != null) {
-                onInstanceDestroy(mRootView.getId());
-            }
+        public void destroy() {
             mBridgeManager.destroy();
             mModuleManager.destroy();
-            if (!onReLoad) {
-                mDomManager.destroy();
-            }
+            mDomManager.destroy();
             mNativeRenderer.destroy();
-            mVfsManager.destroy();
-            onDestroyVfs(mVfsManager.getId());
             if (mEngineLifecycleEventListeners != null) {
                 mEngineLifecycleEventListeners.clear();
             }
-
             if (mVfsManager != null) {
                 mVfsManager.destroy();
                 onDestroyVfs(mVfsManager.getId());
             }
             if (mDevtoolsManager != null) {
-                mDevtoolsManager.destroy(onReLoad);
-            }
-
-            if (mNativeParams != null) {
-                mNativeParams.clear();
+                mDevtoolsManager.destroy(false);
             }
         }
     }

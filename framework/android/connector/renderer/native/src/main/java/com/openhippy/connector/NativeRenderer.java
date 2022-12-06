@@ -42,9 +42,9 @@ public class NativeRenderer implements Connector {
         }
     }
 
-    public void onRootDestroy(int rootId) {
+    public void destroyRoot(int rootId) {
         if (mRenderer != null) {
-            mRenderer.onRootDestroy(rootId);
+            mRenderer.destroyRoot(rootId);
         }
     }
 
@@ -84,13 +84,11 @@ public class NativeRenderer implements Connector {
 
     @Nullable
     public View createRootView(@NonNull Context context) {
+        View rootView = null;
         if (mRenderer != null) {
-            View view = mRenderer.createRootView(context);
-            if (view != null) {
-                createRoot(view.getId());
-            }
+            rootView = mRenderer.createRootView(context);
         }
-        return null;
+        return rootView;
     }
 
     public void onResume() {
@@ -111,8 +109,8 @@ public class NativeRenderer implements Connector {
         }
     }
 
-    public void attachToDom(@NonNull Connector rendererConnector) {
-        attachToDom(mInstanceId, rendererConnector.getInstanceId());
+    public void attachToDom(@NonNull Connector domConnector) {
+        attachToDom(mInstanceId, domConnector.getInstanceId());
     }
 
     @Override
@@ -145,8 +143,4 @@ public class NativeRenderer implements Connector {
     private native Object getNativeRendererInstance(int instanceId);
 
     private native void attachToDom(int mInstanceId, int domId);
-    private native void createRoot(int rootId);
-    private native void destroyRoot(int rootId);
-
-
 }

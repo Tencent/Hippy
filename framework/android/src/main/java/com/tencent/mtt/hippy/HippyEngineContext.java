@@ -70,6 +70,4 @@ public interface HippyEngineContext {
     void onRuntimeInitialized();
 
     void onBridgeDestroyed(boolean isReload, Throwable e);
-
-    void removeRootView(int rootId);
 }

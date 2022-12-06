@@ -24,57 +24,53 @@ import java.util.UUID;
 @SuppressWarnings({"unused"})
 public class DevSupportManager {
 
-  final DevServerInterface mDevImp;
-  final boolean mSupportDev;
-  private UUID mInstanceUUID = UUID.randomUUID();
+    final DevServerInterface mDevImp;
+    final boolean mSupportDev;
+    private UUID mInstanceUUID = UUID.randomUUID();
 
-  public DevSupportManager(HippyGlobalConfigs configs, boolean enableDev, String serverHost,
-      String bundleName, String remoteServerUrl) {
-    this.mDevImp = DevFactory.create(configs, enableDev, serverHost, bundleName, remoteServerUrl);
-    mSupportDev = enableDev;
-  }
+    public DevSupportManager(HippyGlobalConfigs configs, boolean debugMode, String serverHost,
+            String bundleName, String remoteServerUrl) {
+        mDevImp = new DevServerImpl(configs, serverHost, bundleName, remoteServerUrl, debugMode);
+        mSupportDev = debugMode;
+    }
 
-  public DevServerInterface getDevImp() {
-    return this.mDevImp;
-  }
+    public DevServerInterface getDevImp() {
+        return this.mDevImp;
+    }
 
-  public void setDevCallback(DevServerCallBack devCallback) {
-    mDevImp.setDevServerCallback(devCallback);
-  }
+    public void setDevCallback(DevServerCallBack devCallback) {
+        mDevImp.setDevServerCallback(devCallback);
+    }
 
-  public void attachToHost(Context context) {
-    mDevImp.attachToHost(context);
-  }
+    public void attachToHost(Context context, int rootId) {
+        mDevImp.attachToHost(context, rootId);
+    }
 
-  public void detachFromHost(Context context) {
-    mDevImp.detachFromHost(context);
-  }
+    public void detachFromHost(Context context, int rootId) {
+        mDevImp.detachFromHost(context, rootId);
+    }
 
-  public String createResourceUrl(String resName) {
-    return mDevImp.createResourceUrl(resName);
-  }
+    public String createResourceUrl(String resName) {
+        return mDevImp.createResourceUrl(resName);
+    }
 
-  public String createDebugUrl(String host) {
-    return mDevImp.createDebugUrl(host, null, mInstanceUUID.toString());
-  }
+    public String createDebugUrl(String host) {
+        return mDevImp.createDebugUrl(host, null, mInstanceUUID.toString());
+    }
 
-  public void handleException(Throwable throwable) {
-    mDevImp.handleException(throwable);
-  }
+    public void handleException(Throwable throwable) {
+        mDevImp.handleException(throwable);
+    }
 
-  public void onLoadResourceSucceeded() {
-    mDevImp.onLoadResourceSucceeded();
-  }
+    public void onLoadResourceFailed(@NonNull String url, @Nullable String errorMessage) {
+        mDevImp.onLoadResourceFailed(url, errorMessage);
+    }
 
-  public void onLoadResourceFailed(@NonNull String url, @Nullable String errorMessage) {
-    mDevImp.onLoadResourceFailed(url, errorMessage);
-  }
+    public String getDevInstanceUUID() {
+        return mInstanceUUID.toString();
+    }
 
-	public String getDevInstanceUUID() {
-	  return mInstanceUUID.toString();
-  }
-
-  public boolean isSupportDev() {
-	  return mSupportDev;
-  }
+    public boolean isSupportDev() {
+        return mSupportDev;
+    }
 }
