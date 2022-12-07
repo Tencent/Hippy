@@ -24,12 +24,15 @@
 #include "footstone/logging.h"
 #include "footstone/string_view_utils.h"
 #include "vfs/uri.h"
+#include "jni/jni_env.h"
 
 using string_view = footstone::string_view;
 using StringViewUtils = footstone::StringViewUtils;
 
 namespace hippy {
 inline namespace vfs {
+
+
 
 bool ReadAsset(const string_view& path,
                AAssetManager* aasset_manager,
@@ -73,6 +76,22 @@ bool ReadAsset(const string_view& path,
   return false;
 }
 
+AssetHandler::AssetHandler() {
+  auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  context_ = AssetHandler::GetAppContext(j_env);
+  auto j_context_class = j_env->GetObjectClass(context_->GetObj());
+  get_assets_method_id_ = j_env->GetMethodID(j_context_class, "getAssets", "()Landroid/content/res/AssetManager;");
+}
+
+std::shared_ptr<JavaRef> AssetHandler::GetAppContext(JNIEnv* j_env) {
+  auto activity_thread = j_env->FindClass("android/app/ActivityThread");
+  auto current_activity_method_id = j_env->GetStaticMethodID(activity_thread, "currentActivityThread", "()Landroid/app/ActivityThread;");
+  auto activity = j_env->CallStaticObjectMethod(activity_thread, current_activity_method_id);
+  auto get_application_method_id = j_env->GetMethodID(activity_thread, "getApplication", "()Landroid/app/Application;");
+  auto context = j_env->CallObjectMethod(activity, get_application_method_id);
+  return std::make_shared<JavaRef>(j_env, context);
+}
+
 void AssetHandler::RequestUntrustedContent(
     std::shared_ptr<SyncContext> ctx,
     std::function<std::shared_ptr<UriHandler>()> next) {
@@ -83,7 +102,11 @@ void AssetHandler::RequestUntrustedContent(
     ctx->code = UriHandler::RetCode::PathError;
     return;
   }
-  bool ret = ReadAsset(path, aasset_manager_, ctx->content, false);
+
+  auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  auto j_asset_manager = j_env->CallObjectMethod(context_->GetObj(), get_assets_method_id_);
+  auto asset_manager = AAssetManager_fromJava(j_env, j_asset_manager);
+  bool ret = ReadAsset(path, asset_manager, ctx->content, false);
   if (ret) {
     ctx->code = UriHandler::RetCode::Success;
   } else {
@@ -122,9 +145,15 @@ void AssetHandler::LoadByAsset(const string_view& path,
     ctx->cb(UriHandler::RetCode::DelegateError, {}, UriHandler::bytes());
     return;
   }
-  runner->PostTask([path, aasset_manager = aasset_manager_, is_auto_fill, ctx] {
+  auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  auto j_asset_manager = j_env->CallObjectMethod(context_->GetObj(), get_assets_method_id_);
+  auto manager = std::make_shared<JavaRef>(j_env, j_asset_manager);
+  runner->PostTask([path, manager, is_auto_fill, ctx] {
     UriHandler::bytes content;
-    bool ret = ReadAsset(path, aasset_manager, content, is_auto_fill);
+    auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+    bool ret = ReadAsset(path,
+                         AAssetManager_fromJava(j_env, manager->GetObj()),
+                         content, is_auto_fill);
     if (ret) {
       ctx->cb(UriHandler::RetCode::Success, {}, std::move(content));
     } else {

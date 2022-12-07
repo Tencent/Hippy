@@ -38,13 +38,10 @@ class AssetHandler : public UriHandler {
   using string_view = footstone::string_view;
   using TaskRunner = footstone::TaskRunner;
 
-  AssetHandler() = default;
+  AssetHandler();
   virtual ~AssetHandler() = default;
 
-  inline void SetAAssetManager(JNIEnv* j_env, jobject j_aasset_manager) {
-    auto  aasset_manager = AAssetManager_fromJava(j_env, j_aasset_manager);
-    aasset_manager_ = aasset_manager;
-  }
+  static std::shared_ptr<JavaRef> GetAppContext(JNIEnv* j_env);
 
   inline void SetWorkerTaskRunner(std::weak_ptr<TaskRunner> runner) {
     runner_ = runner;
@@ -62,7 +59,8 @@ class AssetHandler : public UriHandler {
                    std::function<std::shared_ptr<UriHandler>()> next,
                    bool is_auto_fill = false);
 
-  AAssetManager* aasset_manager_;
+  std::shared_ptr<JavaRef> context_;
+  jmethodID get_assets_method_id_;
   std::weak_ptr<TaskRunner> runner_;
 };
 
