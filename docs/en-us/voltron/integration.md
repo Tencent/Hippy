@@ -139,6 +139,8 @@ If you want to experience it quickly, you can develop it directly based on our [
     }
     ```
 
+    > Pub integration supports `arm64-v8a` and `armeabi-v7a` by default on the Android platform. If you need to support `x86` and `x86_64`, please use local integration, and iOS has no effect.
+
     > It should be noted that if **debugMode** is true, all parameters will be ignored and the test bundle will be loaded directly using npm local service
     
     > For more details, you can find it in [Voltron Demo](https://github.com/Tencent/Hippy/tree/master/framework/voltron/example/lib/voltron_demo_page.dart). Before the official release of version 3.0, read [Voltron Demo](https://github.com/Tencent/Hippy/tree/v3.0-dev/framework/voltron/example/lib/voltron_demo_page.dart)
