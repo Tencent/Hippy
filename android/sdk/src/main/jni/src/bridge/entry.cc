@@ -598,7 +598,6 @@ jlong InitInstance(JNIEnv* j_env,
     runtime->SetEngine(engine);
     engine->AsyncInit(param, std::move(engine_cb_map));
   }
-  engine->AsyncInit(param, std::move(engine_cb_map));
   runtime->SetScope(engine->CreateScope("", std::move(scope_cb_map)));
   TDF_BASE_DLOG(INFO) << "group = " << group;
   runtime->SetGroupId(group);
