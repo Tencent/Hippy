@@ -215,7 +215,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     protected void onDestroyEngine() {
         mCurrentState = EngineState.DESTROYED;
         if (mEngineContext != null) {
-            mEngineContext.destroy();
+            mEngineContext.destroy(false);
         }
         if (moduleLoadParams != null && moduleLoadParams.nativeParams != null) {
             moduleLoadParams.nativeParams.clear();
@@ -574,7 +574,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mCurrentState = EngineState.ONRESTART;
         }
         if (onReLoad && mEngineContext != null) {
-            mEngineContext.destroy();
+            mEngineContext.destroy(true);
         }
         try {
             mEngineContext = new HippyEngineContextImpl();
@@ -709,6 +709,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         volatile CopyOnWriteArrayList<HippyEngineLifecycleEventListener> mEngineLifecycleEventListeners;
 
         public HippyEngineContextImpl() throws RuntimeException {
+            mVfsManager = new VfsManager();
+            initVfsManager();
             mModuleManager = new HippyModuleManagerImpl(this, mModuleProviders,
                     enableV8Serialization);
             mJsDriver = new JsDriver();
@@ -731,8 +733,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 }
             }
             mNativeRenderer.init(controllers, mRootView);
-            mVfsManager = new VfsManager();
-            initVfsManager();
             mDevtoolsManager = new DevtoolsManager(mDebugMode);
             if (mDebugMode) {
                 initDevtoolsManager();
@@ -940,20 +940,20 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mBridgeManager.destroyBridge(isReload);
         }
 
-        public void destroy() {
+        public void destroy(boolean isReload) {
+            if (mDevtoolsManager != null) {
+                mDevtoolsManager.destroy(isReload);
+            }
+            mNativeRenderer.destroy();
+            mDomManager.destroy();
             mBridgeManager.destroy();
             mModuleManager.destroy();
-            mDomManager.destroy();
-            mNativeRenderer.destroy();
             if (mEngineLifecycleEventListeners != null) {
                 mEngineLifecycleEventListeners.clear();
             }
             if (mVfsManager != null) {
                 mVfsManager.destroy();
                 onDestroyVfs(mVfsManager.getId());
-            }
-            if (mDevtoolsManager != null) {
-                mDevtoolsManager.destroy(false);
             }
         }
     }
