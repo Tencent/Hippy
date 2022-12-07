@@ -21,6 +21,7 @@
 library voltron;
 
 export 'package:voltron_ffi/voltron_ffi.dart';
+export 'package:voltron_renderer/voltron_renderer.dart';
 export 'package:voltron_vfs/voltron_vfs.dart';
 
 export 'adapter.dart';

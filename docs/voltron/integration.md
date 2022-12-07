@@ -6,138 +6,139 @@
 
 ---
 
-# 使用 pub 集成
+# 前期准备
 
-正在开发中，请使用源码集成
+- 已经安装了 Flutter version>=3.0 并配置了环境变量
 
-# 使用源码直接集成
+# Demo 体验
 
-1. 克隆 Hippy 源码
+若想快速体验，可以直接基于我们的 [Voltron Demo](https://github.com/Tencent/Hippy/tree/master/framework/voltron/example) 来开发
 
-    ```shell
-    git clone https://github.com/Tencent/Hippy.git
-    ```
+> 注意使用相应的分支及tag，3.0正式发布前，请使用 [Voltron Demo](https://github.com/Tencent/Hippy/tree/v3.0-dev/framework/voltron/example)
 
-    > 注意使用相应的分支及tag，未合入主干前，请使用v3.0-dev分支
+# 快速接入
 
-2. 打开 Flutter 工程根目录下的 `pubspec.yaml`
+1. 创建一个 Flutter 工程
 
-    在 `dependencies` 下添加 `voltron` 依赖
+2. Pub 集成
 
-    ```yaml
-    voltron:
-      path: Hippy路径/framework/voltron
-    ```
+   在 `pubspec.yaml` 中添加 `Voltron` 依赖
 
-    在 `dependency_overrides` 下添加 `voltron_renderer` 依赖
+   ```yaml
+   dependencies:
+     voltron: ^0.0.1
+   ```
 
-    ```yaml
-    voltron_renderer:
-      path: Hippy路径/renderer/voltron
-    ```
+3. 源码集成（可选）
 
-3. 安装依赖
+   1. 克隆 Hippy 源码
+
+       ```shell
+       git clone https://github.com/Tencent/Hippy.git
+       ```
+
+       > 注意使用相应的分支及tag，未合入主干前，请使用v3.0-dev分支
+
+   2. 打开 Flutter 工程根目录下的 `pubspec.yaml`
+
+       在 `dependencies` 下添加 `voltron` 依赖
+
+       ```yaml
+       voltron:
+         path: Hippy路径/framework/voltron
+       ```
+
+4. 安装依赖
 
     ```shell
     flutter pub get
     ```
 
-4. 创建 `VoltronWidget`
-
-    这里可以直接参考 Hippy 工程路径`/framework/voltron/example/lib/page_test.dart`
+5. 使用 `Voltron`
 
     ```dart
-    class NewVoltronWidget extends StatefulWidget {
-        const NewVoltronWidget({Key? key}) : super(key: key);
-
-        @override
-        State<StatefulWidget> createState() {
-            return _NewVoltronWidgetState();
-        }
+    import 'package:flutter/material.dart';
+    import 'package:voltron/voltron.dart';
+    
+    class VoltronPage extends StatefulWidget {
+     VoltronPage();
+    
+     @override
+     State<StatefulWidget> createState() {
+       return _VoltronPageState();
+     }
     }
-
-    class _NewVoltronWidgetState extends State<NewVoltronWidget> {
-        PageStatus pageStatus = PageStatus.init;
-        late VoltronJSLoaderManager _loaderManager;
-        late VoltronJSLoader _jsLoader;
-
-        @override
-        void initState() {
-            super.initState();
-            var initParams = EngineInitParams();
-            // debugMode，打开后会忽略所有参数，直接使用 npm 本地服务加载测试 bundle
-            initParams.debugMode = false;
-            // 开启日志
-            initParams.enableLog = true;
-            // core bundle地址
-            initParams.coreJSAssetsPath = "assets/jsbundle/vendor.android.js";
-            // 缓存标记
-            initParams.codeCacheTag = "common";
-            // 自定义 provider
-            initParams.providers = [];
-            // 生成 loaderManager
-            _loaderManager = VoltronJSLoaderManager.createLoaderManager(
-                initParams,
-                (statusCode, msg) {
-                    LogUtils.i(
-                    'loadEngine',
-                    'code($statusCode), msg($msg)',
-                    );
-                    if (statusCode == EngineInitStatus.ok) {
-                    // 引擎创建成功
-                    } else {
-                    // 引擎创建失败
-                    }
-                },
-            );
-            var loadParams = ModuleLoadParams();
-            // 对应前端appName
-            loadParams.componentName = "Demo";
-            // 缓存标记
-            loadParams.codeCacheTag = "Demo";
-            // 业务bundle路径
-            loadParams.jsAssetsPath = "assets/jsbundle/index.android.js";
-            // 传入前端的参数
-            loadParams.jsParams = VoltronMap();
-            loadParams.jsParams?.push(
-                "msgFromNative",
-                "Hi js developer, I come from native code!",
-            );
-            // 生成loader
-            _jsLoader = _loaderManager.createLoader(
-                loadParams,
-                moduleListener: (status, msg) {
-                    LogUtils.i(
-                    "flutterRender",
-                    "loadModule status($status), msg ($msg)",
-                    );
-                    // 监听module加载情况
-                },
-            );
-        }
-
-        @override
-        void dispose() {
-            super.dispose();
-            _jsLoader.destroy();
-            _loaderManager.destroy();
-        }
-
-        @override
-        Widget build(BuildContext context) {
-            return Material(
-                child: Scaffold(
-                    body: VoltronWidget(
-                        loader: _jsLoader,
-                    ),
-                ),
-            );
-        }
+    
+    class _VoltronPageState extends State<VoltronPage> {
+     late VoltronJSLoaderManager _loaderManager;
+     late VoltronJSLoader _jsLoader;
+    
+     @override
+     void initState() {
+       super.initState();
+       _initVoltronData();
+     }
+    
+     void _initVoltronData() async {
+       var initParams = EngineInitParams();
+       initParams.debugMode = false;
+       initParams.enableLog = true;
+       initParams.coreJSAssetsPath = 'assets/jsbundle/vendor.android.js';
+       initParams.codeCacheTag = "common";
+       _loaderManager = VoltronJSLoaderManager.createLoaderManager(
+         initParams,
+         (statusCode, msg) {
+           LogUtils.i(
+             'loadEngine',
+             'code($statusCode), msg($msg)',
+           );
+         },
+       );
+       var loadParams = ModuleLoadParams();
+       loadParams.componentName = "Demo";
+       loadParams.codeCacheTag = "Demo";
+       loadParams.jsAssetsPath = 'assets/jsbundle/index.android.js';
+       loadParams.jsParams = VoltronMap();
+       loadParams.jsParams?.push(
+         "msgFromNative",
+         "Hi js developer, I come from native code!",
+       );
+       _jsLoader = _loaderManager.createLoader(
+         loadParams,
+         moduleListener: (status, msg) {
+           LogUtils.i(
+             "flutterRender",
+             "loadModule status($status), msg ($msg)",
+           );
+         },
+       );
+     }
+    
+     @override
+     void dispose() {
+       super.dispose();
+       _jsLoader.destroy();
+       _loaderManager.destroy();
+     }
+    
+     @override
+     Widget build(BuildContext context) {
+       return WillPopScope(
+         onWillPop: () async {
+           return !(_jsLoader.back(() {
+             Navigator.of(context).pop();
+           }));
+         },
+         child: Scaffold(
+           body: VoltronWidget(
+             loader: _jsLoader,
+           ),
+         ),
+       );
+     }
     }
     ```
 
-    > 需要注意，如果 **debugMode** 为YES的情况下，会忽略所有参数，直接使用 npm 本地服务加载测试 bundle
-
-## Demo体验
-
-若想快速体验，可以直接基于我们的 [Demo](https://github.com/Tencent/Hippy/tree/v3.0-dev/framework/voltron/example) 来开发
+    > 需要注意，如果 **debugMode** 为YES的情况下，会忽略所有参数，直接使用 npm 本地服务加载测试 bundle，
+    
+    > 其他使用说明，可直接参考 [Voltron Demo](https://github.com/Tencent/Hippy/tree/master/framework/voltron/example)，3.0正式发布前，请查看 [Voltron Demo](https://github.com/Tencent/Hippy/tree/v3.0-dev/framework/voltron/example)

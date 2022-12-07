@@ -24,7 +24,6 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:voltron/voltron.dart';
-import 'package:voltron_renderer/voltron_renderer.dart';
 
 import 'my_api_provider.dart';
 
