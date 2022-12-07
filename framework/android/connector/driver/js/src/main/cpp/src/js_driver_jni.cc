@@ -282,7 +282,6 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   runtime->GetScope()->SetUriLoader(loader);
   if (j_aasset_manager) {
     auto asset_handler = std::make_shared<hippy::AssetHandler>();
-    asset_handler->SetAAssetManager(j_env, j_aasset_manager);
     asset_handler->SetWorkerTaskRunner(runtime->GetEngine()->GetWorkerTaskRunner());
     loader->RegisterUriHandler(kAssetSchema, asset_handler);
   }
