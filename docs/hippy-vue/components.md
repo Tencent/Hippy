@@ -67,11 +67,11 @@
 | showsHorizontalScrollIndicator | 当此值设为 `false` 的时候，`ScrollView` 会隐藏水平的滚动条。`default: true` `（仅在 overflow-y/x: scroll 时适用）`| `boolean`                                                    | `iOS`    |
 | showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` `（仅在 overflow-y/x: scroll 时适用）`| `boolean`  | `iOS`   |
 | nativeBackgroundAndroid        | 配置水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: number }`； `borderless` 表示波纹是否有边界，默认false；`color` 波纹颜色；`rippleRadius` 波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用 setPressed 和 setHotspot 方法进行水波纹展示，详情参考相关`[demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue) | `Object`| `Android`    |
-| nestedScrollPriority*          | 嵌套滚动事件处理优先级，`default:self`。相当于同时设置 `nestedScrollLeftPriority`、 `nestedScrollTopPriority`、 `nestedScrollRightPriority`、 `nestedScrollBottomPriority`。 | `enum(self,parent,none)`         | ``Android(版本 2.16.0以上)`` |
-| nestedScrollLeftPriority       | **从右往左**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)`         | `Android(版本 2.16.0以上)` |
-| nestedScrollTopPriority        | **从下往上**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.16.0以上)` |
-| nestedScrollRightPriority | **从左往右**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.16.0以上)` |
-| nestedScrollBottomPriority | **从上往下**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.16.0以上)` |
+| nestedScrollPriority*          | 嵌套滚动事件处理优先级，`default:self`。相当于同时设置 `nestedScrollLeftPriority`、 `nestedScrollTopPriority`、 `nestedScrollRightPriority`、 `nestedScrollBottomPriority`。 `最低支持版本 2.16.0` | `enum(self,parent,none)`    | `Android` |
+| nestedScrollLeftPriority | 嵌套时**从右往左**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0`                                                                                              | `enum(self,parent,none)` | `Android` |
+| nestedScrollTopPriority | 嵌套时**从下往上**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0`                                                                                                         | `enum(self,parent,none)` | `Android` |
+| nestedScrollRightPriority | 嵌套时**从左往右**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0`                                                                                                         | `enum(self,parent,none)` | `Android` |
+| nestedScrollBottomPriority | 嵌套时**从上往下**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0`                                                                                                          | `enum(self,parent,none)` | `Android` |
 
 * nestedScrollPriority 的参数含义：
 
@@ -368,11 +368,11 @@ Hippy 的重点功能，高性能的可复用列表组件，在终端侧会被�
 | endReached | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `endReached` 回调。 | `Function`                                                  | `Android、iOS、Web-Renderer`    |
 | editable | 是否可编辑，开启侧滑删除时需要设置为 `true`。`最低支持版本2.9.0` | `boolean`                                                  | `iOS`    |
 | delText | 侧滑删除文本。`最低支持版本2.9.0` | `string`                                                  | `iOS`    |
-| nestedScrollPriority*      | 嵌套滚动事件处理优先级，`default:self`。相当于同时设置 `nestedScrollLeftPriority`、 `nestedScrollTopPriority`、 `nestedScrollRightPriority`、 `nestedScrollBottomPriority`。 | `enum(self,parent,none)` | `Android(版本 2.16.0以上)` |
-| nestedScrollLeftPriority   | **从右往左**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.16.0以上)` |
-| nestedScrollTopPriority | **从下往上**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.16.0以上)` |
-| nestedScrollRightPriority | **从左往右**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.16.0以上)` |
-| nestedScrollBottomPriority | **从上往下**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.16.0以上)` |
+| nestedScrollPriority*          | 嵌套滚动事件处理优先级，`default:self`。相当于同时设置 `nestedScrollLeftPriority`、 `nestedScrollTopPriority`、 `nestedScrollRightPriority`、 `nestedScrollBottomPriority`。 `最低支持版本 2.16.0` | `enum(self,parent,none)`    | `Android` |
+| nestedScrollLeftPriority | 嵌套时**从右往左**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0`                                                                                              | `enum(self,parent,none)` | `Android` |
+| nestedScrollTopPriority | 嵌套时**从下往上**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0`                                                                                                         | `enum(self,parent,none)` | `Android` |
+| nestedScrollRightPriority | 嵌套时**从左往右**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0`                                                                                                         | `enum(self,parent,none)` | `Android` |
+| nestedScrollBottomPriority | 嵌套时**从上往下**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0`                                                                                                          | `enum(self,parent,none)` | `Android` |
 
 * nestedScrollPriority 的参数含义：
 
@@ -425,15 +425,15 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 
 > 当设置`ul` 的 `:horizontal=true` 启用横向无限列表时，需显式设置 `li` 样式宽度
 
-| 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
-| --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
-| type            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。`注意：同一 type 的 item 组件由于复用可能不会走完整组件创建生命周期` | `number`              | `Android、iOS、Web-Renderer`    |
-| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官文](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS、Web-Renderer`    |
-| sticky       | 对应的 item 是否需要使用悬停效果（滚动到顶部时，会悬停在 ListView 顶部，不会滚出屏幕），需跟 `ul` 的 `rowShouldSticky` 配合使用 | `boolean`                                | `Android、iOS、Web-Renderer`
-| appear       | 当有`li`节点滑动进入屏幕时（曝光）触发，入参返回曝光的`li`节点对应索引值。 | `(index) => any` | `Android、iOS、Web-Renderer` |
-| disappear       | 当有`li`节点滑动离开屏幕时触发，入参返回离开的`li`节点对应索引值。 | `(index) => any` | `Android、iOS、Web-Renderer` |
-| willAppear       | 当有`li`节点至少一个像素滑动进入屏幕时（曝光）触发，入参返回曝光的`li`节点对应索引值。`最低支持版本2.3.0` | `(index) => any` | `Android、iOS` |
-| willDisappear       | 当有`li`节点至少一个像素滑动离开屏幕时触发，入参返回离开的`li`节点对应索引值。`最低支持版本2.3.0` | `(index) => any` | `Android、iOS` |
+| 参数            | 描述                                                                                                                            | 类型               | 支持平台                       |
+|---------------|-------------------------------------------------------------------------------------------------------------------------------|------------------|----------------------------|
+| type          | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。`注意：同一 type 的 item 组件由于复用可能不会走完整组件创建生命周期` | `number`         | `Android、iOS、Web-Renderer` |
+| key           | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官文](//cn.vuejs.org/v2/guide/list.html)                                                        | `string`         | `Android、iOS、Web-Renderer` |
+| sticky        | 对应的 item 是否需要使用悬停效果（滚动到顶部时，会悬停在 ListView 顶部，不会滚出屏幕），需跟 `ul` 的 `rowShouldSticky` 配合使用                                          | `boolean`        | `Android、iOS、Web-Renderer` |
+| appear        | 当有`li`节点滑动进入屏幕时（曝光）触发，入参返回曝光的`li`节点对应索引值。                                                                                     | `(index) => any` | `Android、iOS、Web-Renderer` |
+| disappear     | 当有`li`节点滑动离开屏幕时触发，入参返回离开的`li`节点对应索引值。                                                                                         | `(index) => any` | `Android、iOS、Web-Renderer` |
+| willAppear    | 当有`li`节点至少一个像素滑动进入屏幕时（曝光）触发，入参返回曝光的`li`节点对应索引值。`最低支持版本2.3.0`                                                                  | `(index) => any` | `Android、iOS`              |
+| willDisappear | 当有`li`节点至少一个像素滑动离开屏幕时触发，入参返回离开的`li`节点对应索引值。`最低支持版本2.3.0`                                                                      | `(index) => any` | `Android、iOS`              |
 
 ---
 
