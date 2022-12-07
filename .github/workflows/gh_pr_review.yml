@@ -11,11 +11,11 @@ jobs:
     steps:
     - name: Commit
       env:
-        DATA: ${{ toJSON(github.event) }}
+        REVIEW_INFO: ${{ toJSON(github.event) }}
       run: |
-        echo $DATA > ./data
+        echo $REVIEW_INFO > ./review_info
     - name: Push
       uses: actions/upload-artifact@v3
       with:
-        name: data
-        path: ./data
+        name: review_info
+        path: ./review_info
