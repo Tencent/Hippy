@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
   itemEvenText: {
     lineHeight: 40,
     color: 'white',
-    fontSize: 25,
+    fontSize: 20,
     textAlign: 'center',
   },
   itemOdd: {
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   },
   itemOddText: {
     lineHeight: 40,
-    fontSize: 25,
+    fontSize: 20,
     textAlign: 'center',
   },
 });
@@ -64,7 +64,6 @@ export default class NestedScrollExample extends React.Component {
     super(props);
     this.state = {
       layoutHeight: 0,
-      bannerHeight: 80,
       currentSlide: 0,
     };
   }
@@ -75,31 +74,26 @@ export default class NestedScrollExample extends React.Component {
   }
 
   render() {
-    const { layoutHeight, bannerHeight, currentSlide } = this.state;
-    console.log('currentSlide', currentSlide);
+    const { layoutHeight, currentSlide } = this.state;
     return (
       <ScrollView
         style={styles.demoWrap}
         scrollEventThrottle={50}
-        onLayout={e => this.setState({ layoutHeight: e.layout.height })}
-        onScroll={e => this.setState({ bannerHeight: Math.min(150 - e.contentOffset.y, 80) })}>
+        onLayout={e => this.setState({ layoutHeight: e.layout.height })} >
         <View style={styles.banner}>
-          <Text style={[styles.bannerText, { height: bannerHeight, fontSize: bannerHeight }]}>
-            Banner
-          </Text>
         </View>
         <View style={styles.tabs}>
           <Text
             key="tab1"
             style={(currentSlide === 0) ? styles.tabSelected : styles.tabText}
             onClick={() => this.selectPage(0)}>
-            tab 1
+            tab 1 (parent first)
           </Text>
           <Text
             key="tab2"
             style={(currentSlide === 1) ? styles.tabSelected : styles.tabText}
             onClick={() => this.selectPage(1)}>
-            tab 2
+            tab 2 (self first)
           </Text>
         </View>
         <ViewPager
@@ -107,19 +101,24 @@ export default class NestedScrollExample extends React.Component {
           initialPage={currentSlide}
           style={{ height: layoutHeight - 80 }}
           onPageSelected={e => this.setState({ currentSlide: e.position })}>
-          <ListView nestedScrollTopPriority="parent" key="slide1"
+          <ListView nestedScrollTopPriority={'parent'} key={'slide1'}
             numberOfRows={30}
             getRowKey={i => `item${i}`}
+            initialListSize={30}
             renderRow={i => (
               <Text style={i % 2 ? styles.itemEvenText : styles.itemOddText}>Item {i}</Text>
             )}
             getRowStyle={i => (i % 2 ? styles.itemEven : styles.itemOdd)}
           />
-          <View key="slide2" style={{ flex: 1, justifyContent: 'space-around' }}>
-            <Text style={{ textAlign: 'center' }}>
-              I&apos;m Slide 2
-            </Text>
-          </View>
+          <ListView nestedScrollTopPriority={'self'} key={'slide2'}
+                    numberOfRows={30}
+                    getRowKey={i => `item${i}`}
+                    initialListSize={30}
+                    renderRow={i => (
+                        <Text style={i % 2 ? styles.itemEvenText : styles.itemOddText}>Item {i}</Text>
+                    )}
+                    getRowStyle={i => (i % 2 ? styles.itemEven : styles.itemOdd)}
+          />
         </ViewPager >
       </ScrollView >);
   }

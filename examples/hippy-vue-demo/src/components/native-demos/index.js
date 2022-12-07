@@ -36,13 +36,13 @@ if (Vue.Native) {
       name: 'waterfall 组件',
       component: demoWaterfall,
     },
+    demoNestedScroll: {
+      name: 'nested scroll 示例',
+      component: demoNestedScroll,
+    },
     demoSetNativeProps: {
       name: 'setNativeProps',
       component: demoSetNativeProps,
-    },
-    demoNestedScroll: {
-      name: 'Nested Scroll 示例',
-      component: demoNestedScroll,
     },
   });
 }
