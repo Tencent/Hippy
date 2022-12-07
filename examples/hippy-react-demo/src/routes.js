@@ -130,14 +130,6 @@ export default [
     },
   },
   {
-    path: '/NestedScroll',
-    name: 'Nested Scroll 示例',
-    component: PAGE_LIST.NestedScroll,
-    meta: {
-      style: 1,
-    },
-  },
-  {
     path: '/WebView',
     name: 'WebView 组件',
     component: PAGE_LIST.WebView,

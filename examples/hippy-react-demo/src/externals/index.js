@@ -6,4 +6,3 @@ export { default as SetNativeProps } from './SetNativeProps';
 export { default as DynamicImport } from './DyanmicImport';
 export { default as Localization } from './Localization';
 export { default as Turbo } from './Turbo';
-export { default as NestedScroll } from './NestedScroll';
