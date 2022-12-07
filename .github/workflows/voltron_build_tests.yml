@@ -61,6 +61,16 @@ jobs:
           channel: 'stable'
       - name: Build for Android
         run: flutter build apk
+  voltron_ios_xcframework_build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Build framework for iOS
+        run: python3 script/build.py -os ios -arch all -rebuild
+        working-directory: framework/voltron
   voltron_ios_flutter_build:
     runs-on: macos-latest
     steps:
