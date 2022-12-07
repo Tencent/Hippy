@@ -195,8 +195,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          echo "released js_npm_dist_tag_name is '${{ github.event.inputs.js_npm_dist_tag_name }}'"
-          npx lerna publish from-package --ignore-scripts --yes --dist-tag ${{ github.event.inputs.js_npm_dist_tag_name }}
+          lerna publish from-package --ignore-scripts --yes --dist-tag ${{ github.event.inputs.js_npm_dist_tag_name }}
       - name: Change tag to latest
         if: github.event.inputs.is_npm_version_to_latest_tag == 'true'
         env:
