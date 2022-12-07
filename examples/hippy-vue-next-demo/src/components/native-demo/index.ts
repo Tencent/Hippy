@@ -32,13 +32,13 @@ const demos = {
     name: 'waterfall 组件',
     component: demoWaterfall,
   },
-  demoSetNativeProps: {
-    name: 'setNativeProps',
-    component: demoSetNativeProps,
-  },
   demoNestedScroll: {
     name: 'nested scroll 示例',
     component: demoNestedScroll,
+  },
+  demoSetNativeProps: {
+    name: 'setNativeProps',
+    component: demoSetNativeProps,
   },
 };
 
