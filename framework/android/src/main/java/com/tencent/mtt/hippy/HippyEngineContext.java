@@ -67,9 +67,7 @@ public interface HippyEngineContext {
 
     int getDevtoolsId();
 
-    void onRuntimeInitialized(long runtimeId);
+    void onRuntimeInitialized();
 
     void onBridgeDestroyed(boolean isReload, Throwable e);
-
-    void removeRootView(int rootId);
 }

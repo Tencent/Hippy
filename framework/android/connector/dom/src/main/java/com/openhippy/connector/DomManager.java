@@ -27,11 +27,6 @@ public class DomManager implements Connector {
         mInstanceId = createDomManager();
     }
 
-    public DomManager(int instanceId, int rootId) {
-        mInstanceId = instanceId;
-        attachToRoot(rootId);
-    }
-
     @Override
     public void destroy() {
         destroyDomManager(mInstanceId);
@@ -46,12 +41,12 @@ public class DomManager implements Connector {
         onAttachToRenderer(mInstanceId, rendererConnector.getInstanceId());
     }
 
-    public void attachToRoot(int rootId) {
-
+    public void createRoot(int rootId) {
+        createRootNode(rootId);
     }
 
-    public void detachFromRoot(int rootId) {
-
+    public void destroyRoot(int rootId) {
+        destroyRootNode(rootId);
     }
 
     /**
@@ -74,5 +69,9 @@ public class DomManager implements Connector {
      * @param domManagerId the unique id of native (C++) dom manager
      */
     private native void destroyDomManager(int domManagerId);
+
+    private native void createRootNode(int rootId);
+
+    private native void destroyRootNode(int rootId);
 
 }

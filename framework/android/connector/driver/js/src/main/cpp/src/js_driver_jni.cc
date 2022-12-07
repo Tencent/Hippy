@@ -62,13 +62,13 @@ inline namespace connector {
 inline namespace driver {
 
 REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
-             "createJsDriver",
+             "onCreate",
              "([BZZZLcom/openhippy/connector/NativeCallback;"
              "JILcom/openhippy/connector/JsDriver$V8InitParams;I)I",
              CreateJsDriver)
 
 REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
-             "destroyJsDriver",
+             "onDestroy",
              "(IZZLcom/openhippy/connector/NativeCallback;)V",
              DestroyJsDriver)
 
@@ -89,12 +89,12 @@ REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
              RunScriptFromUri)
 
 REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
-             "onAttachToRoot",
+             "attachToRoot",
              "(II)V",
              SetRootNode)
 
 REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
-             "onAttachToDom",
+             "attachToDom",
              "(II)V",
              SetDomManager)
 

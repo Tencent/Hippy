@@ -51,7 +51,7 @@ endif ()
 
 # region jni
 GlobalPackages_Add(jni)
-target_link_libraries(${PROJECT_NAME} PRIVATE jni)
+target_link_libraries(${PROJECT_NAME} PUBLIC jni)
 # endregion
 
 # region footstone
@@ -83,5 +83,5 @@ target_link_libraries(${PROJECT_NAME} PUBLIC devtools_integration_native)
 set(SOURCE_SET
     src/devtools_jni.cc)
 
-target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
+target_sources(${PROJECT_NAME} PUBLIC ${SOURCE_SET})
 # endregion

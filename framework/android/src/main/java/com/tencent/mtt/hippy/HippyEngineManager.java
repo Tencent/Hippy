@@ -59,10 +59,6 @@ public abstract class HippyEngineManager extends HippyEngine {
 
   public abstract ViewGroup loadInstance(HippyRootViewParams params, ModuleListener listener);
 
-  public void destroyInstance(ViewGroup rootView) {
-    destroyModule(rootView);
-  }
-
   public abstract HippyEngineContext getCurrentEngineContext();
 
   public void putExtendData(String key, Object value) {

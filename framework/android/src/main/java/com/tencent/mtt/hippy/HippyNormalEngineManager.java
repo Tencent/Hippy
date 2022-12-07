@@ -31,8 +31,8 @@ public final class HippyNormalEngineManager extends HippyEngineManagerImpl {
   }
 
   @Override
-  protected void onDestroy() {
-    super.onDestroy();
+  protected void onDestroyEngine() {
+    super.onDestroyEngine();
     synchronized (mLock) {
       if (mThreadExecutor != null) {
         mThreadExecutor.destroy();
