@@ -29,6 +29,8 @@ import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent.Priority;
+import com.tencent.mtt.hippy.views.common.HippyNestedScrollHelper;
 import com.tencent.mtt.supportui.views.viewpager.ViewPager;
 
 @SuppressWarnings({"unused"})
@@ -321,6 +323,17 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
   public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed) {
     // viewpager does not support nested scrolling, only when it cannot scroll, will the event from
     // child be passed to the ancestor
+    if (!mCaptured) {
+      if (mAxes == SCROLL_AXIS_HORIZONTAL && dx != 0) {
+        if (HippyNestedScrollHelper.priorityOfX(target, dx) == Priority.PARENT) {
+          mCaptured = canScrollHorizontally(dx);
+        }
+      } else if (mAxes == SCROLL_AXIS_VERTICAL && dy != 0) {
+        if (HippyNestedScrollHelper.priorityOfY(target, dy) == Priority.PARENT) {
+          mCaptured = canScrollVertically(dy);
+        }
+      }
+    }
     if (mCaptured) {
       if (mAxes == SCROLL_AXIS_HORIZONTAL) {
         fakeDragBy(-dx);
@@ -340,9 +353,13 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
     // child be passed to the ancestor
     if (!mCaptured) {
       if (mAxes == SCROLL_AXIS_HORIZONTAL && dxUnconsumed != 0) {
-        mCaptured = canScrollHorizontally(dxUnconsumed);
+        if (HippyNestedScrollHelper.priorityOfX(target, dxUnconsumed) == Priority.SELF) {
+          mCaptured = canScrollHorizontally(dxUnconsumed);
+        }
       } else if (mAxes == SCROLL_AXIS_VERTICAL && dyUnconsumed != 0) {
-        mCaptured = canScrollVertically(dyUnconsumed);
+        if (HippyNestedScrollHelper.priorityOfY(target, dyUnconsumed) == Priority.SELF) {
+          mCaptured = canScrollVertically(dyUnconsumed);
+        }
       }
     }
     if (mCaptured) {
