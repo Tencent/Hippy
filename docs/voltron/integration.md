@@ -141,4 +141,4 @@
 
     > 需要注意，如果 **debugMode** 为YES的情况下，会忽略所有参数，直接使用 npm 本地服务加载测试 bundle，
     
-    > 其他使用说明，可直接参考 [Voltron Demo](https://github.com/Tencent/Hippy/tree/master/framework/voltron/example)，3.0正式发布前，请查看 [Voltron Demo](https://github.com/Tencent/Hippy/tree/v3.0-dev/framework/voltron/example)
+    > 其他使用说明，可直接参考 [Voltron Demo](https://github.com/Tencent/Hippy/tree/master/framework/voltron/example/lib/voltron_demo_page.dart)，3.0正式发布前，请查看 [Voltron Demo](https://github.com/Tencent/Hippy/tree/v3.0-dev/framework/voltron/example/lib/voltron_demo_page.dart)

@@ -141,5 +141,5 @@ If you want to experience it quickly, you can develop it directly based on our [
 
     > It should be noted that if **debugMode** is true, all parameters will be ignored and the test bundle will be loaded directly using npm local service
     
-    > For more details, you can find it in [Voltron Demo](https://github.com/Tencent/Hippy/tree/master/framework/voltron/example). Before the official release of version 3.0, read [Voltron Demo](https://github.com/Tencent/Hippy/tree/v3.0-dev/framework/voltron/example)
+    > For more details, you can find it in [Voltron Demo](https://github.com/Tencent/Hippy/tree/master/framework/voltron/example/lib/voltron_demo_page.dart). Before the official release of version 3.0, read [Voltron Demo](https://github.com/Tencent/Hippy/tree/v3.0-dev/framework/voltron/example/lib/voltron_demo_page.dart)
    
