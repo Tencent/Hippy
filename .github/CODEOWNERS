@@ -54,8 +54,7 @@ CMakeLists.txt @medns
 /examples/android-demo/res/ @zoomchan-cxj
 /examples/ios-demo/ @ozonelmy
 /examples/ios-demo/res/ @zoomchan-cxj
-/examples/hippy-react-demo/ @zoomchan-cxj
-/examples/hippy-vue-demo/ @zoomchan-cxj
+/examples/hippy-*-demo/ @zoomchan-cxj
 
 # layout related
 /layout/ @ilikethese @churchill-zhang
