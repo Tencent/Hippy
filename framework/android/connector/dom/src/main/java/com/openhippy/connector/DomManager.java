@@ -42,11 +42,11 @@ public class DomManager implements Connector {
     }
 
     public void createRoot(int rootId) {
-        createRoot(rootId);
+        createRootNode(rootId);
     }
 
     public void destroyRoot(int rootId) {
-        destroyRoot(rootId);
+        destroyRootNode(rootId);
     }
 
     /**
