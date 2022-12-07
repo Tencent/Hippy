@@ -1,12 +1,19 @@
+/* Tencent is pleased to support the open source community by making Hippy available.
+ * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.tencent.mtt.supportui.views.viewpager;
-
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-
-import com.tencent.mtt.supportui.utils.ViewCompatTool;
-import com.tencent.mtt.supportui.views.ScrollChecker;
 
 import android.content.Context;
 import android.content.res.Configuration;
@@ -35,6 +42,12 @@ import android.view.ViewTreeObserver.OnPreDrawListener;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
+import com.tencent.mtt.supportui.utils.ViewCompatTool;
+import com.tencent.mtt.supportui.views.ScrollChecker;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Created by leonardgong on 2018/4/19 0007.
@@ -2819,7 +2832,7 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 				if (mIsVertical)
 				{
 					if (!mScrollEnabled
-							|| (dy != 0 && !isGutterDrag(mLastMotionY, dy) && (!ignoreCheck && checkChildCanScroll((int) dx, (int) x, (int) y))))
+							|| (dy != 0 && !isGutterDrag(mLastMotionY, dy) && (!ignoreCheck && checkChildCanScroll((int) dy, (int) x, (int) y))))
 					{
 						// Nested view has scrollable area under this point. Let
 						// it
@@ -2851,7 +2864,7 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 					if (DEBUG)
 						Log.v(TAG, "Starting drag!");
 
-					if (onStartDrag(dx < 0))
+					if (onStartDrag((mIsVertical ? dy : dx) < 0))
 					{
 						mIsBeingDragged = true;
 						setScrollState(SCROLL_STATE_DRAGGING);
@@ -3880,13 +3893,13 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 		return verticalCanScroll(direction);
 	}
 
-	protected boolean onStartDrag(boolean left) {
-		if (left) {
-			return horizontalCanScroll(1);
-		} else {
-			return horizontalCanScroll(-1);
-		}
-	}
+    protected boolean onStartDrag(boolean start) {
+        if (mIsVertical) {
+            return verticalCanScroll(start ? 1 : -1);
+        } else {
+            return horizontalCanScroll(start ? 1 : -1);
+        }
+    }
 
 	/**
 	 * Start a fake drag of the pager.
@@ -3950,12 +3963,12 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 		velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
 		int initialVelocity = (int) velocityTracker.getXVelocity(mActivePointerId);
 		mPopulatePending = true;
-		final int width = getClientWidth();
-		final int scrollX = getScrollX();
+		final int size = getClientSize();
+		final int scrollPos = mIsVertical ? getScrollY() : getScrollX();
 		final ItemInfo ii = infoForCurrentScrollPosition();
 		final int currentPage = ii.position;
-		final float pageOffset = (((float) scrollX / width) - ii.offset) / ii.sizeFactor;
-		final int totalDelta = (int) (mLastMotionX - mInitialMotionX);
+		final float pageOffset = (((float) scrollPos / size) - ii.offset) / ii.sizeFactor;
+		final int totalDelta = (int) (mIsVertical ? mLastMotionY - mInitialMotionY : mLastMotionX - mInitialMotionX);
 		int nextPage = determineTargetPage(currentPage, pageOffset, initialVelocity, totalDelta);
 		setCurrentItemInternal(nextPage, true, true, 0, initialVelocity);
 		endDrag();
@@ -3967,53 +3980,64 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 	 * Fake drag by an offset in pixels. You must have called
 	 * {@link #beginFakeDrag()} first.
 	 *
-	 * @param xOffset Offset in pixels to drag by.
+	 * @param offset Offset in pixels to drag by.
 	 * @see #beginFakeDrag()
 	 * @see #endFakeDrag()
 	 */
-	public void fakeDragBy(float xOffset)
+	public void fakeDragBy(float offset)
 	{
 		if (!mFakeDragging)
 		{
 			throw new IllegalStateException("No fake drag in progress. Call beginFakeDrag first.");
 		}
 
-		mLastMotionX += xOffset;
+        if (mIsVertical) {
+            mLastMotionY += offset;
+        } else {
+            mLastMotionX += offset;
+        }
 
-		float oldScrollX = getScrollX();
-		float scrollX = oldScrollX - xOffset;
-		final int width = getClientWidth();
+        float oldScrollPos = mIsVertical ? getScrollY() : getScrollX();
+        float scrollPos = oldScrollPos - offset;
+        final int range = mIsVertical ? getClientHeight() : getClientWidth();
 
-		float leftBound = width * mFirstOffset;
-		float rightBound = width * mLastOffset;
+        float startBound = range * mFirstOffset;
+        float endBound = range * mLastOffset;
 
 		final ItemInfo firstItem = mItems.get(0);
 		final ItemInfo lastItem = mItems.get(mItems.size() - 1);
 		if (firstItem.position != 0)
 		{
-			leftBound = firstItem.offset * width;
+			startBound = firstItem.offset * range;
 		}
 		if (lastItem.position != mAdapter.getCount() - 1)
 		{
-			rightBound = lastItem.offset * width;
+			endBound = lastItem.offset * range;
 		}
 
-		if (scrollX < leftBound)
+		if (scrollPos < startBound)
 		{
-			scrollX = leftBound;
+			scrollPos = startBound;
 		}
-		else if (scrollX > rightBound)
+		else if (scrollPos > endBound)
 		{
-			scrollX = rightBound;
+			scrollPos = endBound;
 		}
 		// Don't lose the rounded component
-		mLastMotionX += scrollX - (int) scrollX;
-		scrollTo((int) scrollX, getScrollY());
-		pageScrolled((int) scrollX);
+        if (mIsVertical) {
+            mLastMotionY += scrollPos - (int) scrollPos;
+            scrollTo(getScrollX(), (int) scrollPos);
+        } else {
+            mLastMotionX += scrollPos - (int) scrollPos;
+            scrollTo((int) scrollPos, getScrollY());
+        }
+        pageScrolled((int) scrollPos);
 
 		// Synthesize an event for the VelocityTracker.
 		final long time = SystemClock.uptimeMillis();
-		final MotionEvent ev = MotionEvent.obtain(mFakeDragBeginTime, time, MotionEvent.ACTION_MOVE, mLastMotionX, 0, 0);
+        final float x = mIsVertical ? 0 : mLastMotionX;
+        final float y = mIsVertical ? mLastMotionY : 0;
+        final MotionEvent ev = MotionEvent.obtain(mFakeDragBeginTime, time, MotionEvent.ACTION_MOVE, x, y, 0);
 		mVelocityTracker.addMovement(ev);
 		ev.recycle();
 	}
@@ -4705,13 +4729,21 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 	@Override
 	public boolean verticalCanScroll(int dis)
 	{
-		return false;
+    if (!mCanScroll || !mIsVertical) {
+      return false;
+    }
+    if (dis < 0) {
+      return mCurItem > 0;
+    } else if (dis > 0) {
+      return mCurItem < getPageCount() - 1;
+    }
+    return false;
 	}
 
 	@Override
 	public boolean horizontalCanScroll(int dis)
 	{
-		if (!mCanScroll)
+		if (!mCanScroll || mIsVertical)
 		{
 			return false;
 		}
