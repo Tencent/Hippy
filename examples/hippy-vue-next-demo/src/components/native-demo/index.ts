@@ -5,6 +5,7 @@ import demoVueNative from './demo-vue-native.vue';
 import demoPullHeaderFooter from './demo-pull-header-footer.vue';
 import demoSwiper from './demo-swiper.vue';
 import demoWaterfall from './demo-waterfall.vue';
+import demoNestedScroll from './demo-nested-scroll.vue';
 
 const demos = {
   demoNative: {
@@ -30,6 +31,10 @@ const demos = {
   demoWaterfall: {
     name: 'waterfall 组件',
     component: demoWaterfall,
+  },
+  demoNestedScroll: {
+    name: 'nested scroll 示例',
+    component: demoNestedScroll,
   },
   demoSetNativeProps: {
     name: 'setNativeProps',
