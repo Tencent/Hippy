@@ -131,6 +131,19 @@ import icon from './qb_icon_new.png';
 | editable   | 是否可编辑，开启侧滑删除时需要设置为 `true`。`最低支持版本2.9.0` | `boolean`                                                   | `iOS`    |
 | delText   | 侧滑删除文本。`最低支持版本2.9.0` | `string`                                                   | `iOS`    |
 | onDelete   | 在列表项侧滑删除时调起。`最低支持版本2.9.0` | `(nativeEvent: { index: number}) => void`                                                   | `iOS`    |
+| nestedScrollPriority* | 嵌套滚动事件处理优先级，`default:self`。相当于同时设置 `nestedScrollLeftPriority`、 `nestedScrollTopPriority`、 `nestedScrollRightPriority`、 `nestedScrollBottomPriority`。 | `enum(self,parent,none)` | `Android(版本 2.16.0以上)` |
+| nestedScrollLeftPriority | **从右往左**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.16.0以上)` |
+| nestedScrollTopPriority | **从下往上**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.16.0以上)` |
+| nestedScrollRightPriority | **从左往右**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.16.0以上)` |
+| nestedScrollBottomPriority | **从上往下**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.16.0以上)` |
+
+* nestedScrollPriority 的参数含义：
+
+  * `self`（默认值）：当前组件优先，滚动事件将先由当前组件消费，剩余部分传递给父组件消费；
+
+  * `parent`：父组件优先，滚动事件将先由父组件消费，剩余部分再由当前组件消费；
+
+  * `none`：不允许嵌套滚动，滚动事件将不会传递给父组件。
 
 ## 方法
 
@@ -251,6 +264,19 @@ import icon from './qb_icon_new.png';
 | showScrollIndicator            | 是否显示滚动条。 `default: false` | `boolean`  | `Android、hippy-react-web` |
 | showsHorizontalScrollIndicator | 当此值设为 `false` 的时候，`ScrollView` 会隐藏水平的滚动条。`default: true` | `boolean`                                                    | `iOS`    |
 | showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` | `boolean`                                                    | `iOS`    |
+| nestedScrollPriority*          | 嵌套滚动事件处理优先级，`default:self`。相当于同时设置 `nestedScrollLeftPriority`、 `nestedScrollTopPriority`、 `nestedScrollRightPriority`、 `nestedScrollBottomPriority`。 | `enum(self,parent,none)`                                     | ``Android(版本 2.16.0以上)`` |
+| nestedScrollLeftPriority | **从右往左**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.16.0以上)` |
+| nestedScrollTopPriority | **从下往上**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.16.0以上)` |
+| nestedScrollRightPriority | **从左往右**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.16.0以上)` |
+| nestedScrollBottomPriority | **从上往下**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.16.0以上)` |
+
+* nestedScrollPriority 的参数含义：
+
+  * `self`（默认值）：当前组件优先，滚动事件将先由当前组件消费，剩余部分传递给父组件消费；
+
+  * `parent`：父组件优先，滚动事件将先由父组件消费，剩余部分再由当前组件消费；
+
+  * `none`：不允许嵌套滚动，滚动事件将不会传递给父组件。
 
 ## 方法
 
