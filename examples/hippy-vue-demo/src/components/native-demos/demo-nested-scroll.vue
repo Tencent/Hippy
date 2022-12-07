@@ -1,24 +1,18 @@
 <template>
   <div
     id="demo-wrap"
-    scrollEventThrottle="50"
-    @layout="onlayout"
-    @scroll="onscroll"
+    @layout="onLayout"
   >
     <div id="demo-content">
-      <div id="banner">
-        <p :style="{ height: bannerHeight, 'font-size': bannerHeight, }">
-          Banner
-        </p>
-      </div>
+      <div id="banner" />
       <div id="tabs">
         <p
           v-for="n in 2"
           :key="('tab' + n)"
           :class="(currentSlide === n - 1) ? 'selected' : ''"
-          @click="ontabclick(n)"
+          @click="onTabClick(n)"
         >
-          tab {{ n }}
+          tab {{ n }} {{ n === 1 ? '(parent first)' : '(self first)' }}
         </p>
       </div>
       <swiper
@@ -27,9 +21,8 @@
         need-animation
         :current="currentSlide"
         :style="{ height: layoutHeight - 80 }"
-        @dropped="ondropped"
+        @dropped="onDropped"
       >
-        <!-- slides -->
         <swiper-slide key="slide1">
           <ul nestedScrollTopPriority="parent">
             <li
@@ -42,11 +35,15 @@
           </ul>
         </swiper-slide>
         <swiper-slide key="slide2">
-          <div style="flex: 1; justify-content: space-around">
-            <p style="text-align: center">
-              I'm Slide 2
-            </p>
-          </div>
+          <ul nestedScrollTopPriority="self">
+            <li
+              v-for="n in 30"
+              :key="('item' + n)"
+              :class="(n % 2) ? 'item-even' : 'item-odd'"
+            >
+              <p>Item {{ n }}</p>
+            </li>
+          </ul>
         </swiper-slide>
       </swiper>
     </div>
@@ -58,22 +55,18 @@ export default {
   data() {
     return {
       layoutHeight: 0,
-      bannerHeight: 80,
       currentSlide: 0,
     };
   },
   methods: {
-    onlayout(e) {
+    onLayout(e) {
       this.layoutHeight = e.height;
     },
-    onscroll(e) {
-      this.bannerHeight = Math.min(150 - e.offsetY, 80);
-    },
-    ontabclick(i) {
+    onTabClick(i) {
       console.log('onclick', i);
       this.currentSlide = i - 1;
     },
-    ondropped(e) {
+    onDropped(e) {
       this.currentSlide = e.currentSlide;
     },
   },
@@ -91,9 +84,9 @@ export default {
 }
 
 #banner {
-    background-image: url(https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png);
+    background-image: url('https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png');
     background-size: cover;
-    height: 150;
+    height: 150px;
     justify-content: flex-end;
 }
 
@@ -104,7 +97,7 @@ export default {
 
 #tabs {
     flex-direction: row;
-    height: 30;
+    height: 30px;
 }
 
 #tabs p {
@@ -119,24 +112,24 @@ export default {
 }
 
 .item-even {
-    height: 40;
+    height: 40px;
 }
 
 .item-even p {
-    line-height: 40;
-    font-size: 25;
+    line-height: 40px;
+    font-size: 20px;
     text-align: center;
 }
 
 .item-odd {
-    height: 40;
+    height: 40px;
     background-color: gray;
 }
 
 .item-odd p {
-    line-height: 40;
+    line-height: 40px;
     color: white;
-    font-size: 25;
+    font-size: 20px;
     text-align: center;
 }
 </style>
