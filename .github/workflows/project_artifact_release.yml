@@ -186,16 +186,21 @@ jobs:
         run: npm ci && lerna bootstrap --no-ci
       - name: Build packages
         run: npm run build
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          registry-url: 'https://registry.npmjs.org'
       - name: Publish to NPM
         if: github.event.inputs.js_npm_dist_tag_name != null && (github.event.inputs.registry_choice == 'Both' || github.event.inputs.registry_choice == 'Default')
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          lerna publish from-package --ignore-scripts --yes --dist-tag ${{ github.event.inputs.js_npm_dist_tag_name }}
+          echo "released js_npm_dist_tag_name is '${{ github.event.inputs.js_npm_dist_tag_name }}'"
+          npx lerna publish from-package --ignore-scripts --yes --dist-tag ${{ github.event.inputs.js_npm_dist_tag_name }}
       - name: Change tag to latest
         if: github.event.inputs.is_npm_version_to_latest_tag == 'true'
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           npm run release:tag-to-latest ${{ github.event.inputs.version_name }}  
         
