@@ -28,6 +28,7 @@ import androidx.annotation.Nullable;
 import com.openhippy.connector.DomManager;
 import com.openhippy.connector.JsDriver;
 import com.openhippy.connector.NativeRenderer;
+import com.openhippy.framework.BuildConfig;
 import com.tencent.devtools.DevtoolsManager;
 import com.tencent.mtt.hippy.adapter.device.HippyDeviceAdapter;
 import com.tencent.mtt.hippy.adapter.executor.HippyExecutorSupplierAdapter;
@@ -219,6 +220,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         if (moduleLoadParams != null && moduleLoadParams.nativeParams != null) {
             moduleLoadParams.nativeParams.clear();
             moduleLoadParams = null;
+        }
+        if (mDestroyModuleListeners != null) {
+            mDestroyModuleListeners.clear();
+            mDestroyModuleListeners = null;
         }
         if (mNativeParams != null) {
             mNativeParams.clear();
@@ -414,26 +419,30 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
     @Override
     public void onEnginePause() {
-        if (mEngineContext.mEngineLifecycleEventListeners != null) {
-            for (HippyEngineLifecycleEventListener listener : mEngineContext.mEngineLifecycleEventListeners) {
-                if (listener != null) {
-                    listener.onEnginePause();
+        if (mEngineContext != null) {
+            if (mEngineContext.mEngineLifecycleEventListeners != null) {
+                for (HippyEngineLifecycleEventListener listener : mEngineContext.mEngineLifecycleEventListeners) {
+                    if (listener != null) {
+                        listener.onEnginePause();
+                    }
                 }
             }
+            mEngineContext.onInstancePause();
         }
-        mEngineContext.onInstancePause();
     }
 
     @Override
     public void onEngineResume() {
-        if (mEngineContext.mEngineLifecycleEventListeners != null) {
-            for (HippyEngineLifecycleEventListener listener : mEngineContext.mEngineLifecycleEventListeners) {
-                if (listener != null) {
-                    listener.onEngineResume();
+        if (mEngineContext != null) {
+            if (mEngineContext.mEngineLifecycleEventListeners != null) {
+                for (HippyEngineLifecycleEventListener listener : mEngineContext.mEngineLifecycleEventListeners) {
+                    if (listener != null) {
+                        listener.onEngineResume();
+                    }
                 }
             }
+            mEngineContext.onInstanceResume();
         }
-        mEngineContext.onInstanceResume();
     }
 
     @Override
@@ -746,7 +755,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         @Override
         public void onRuntimeInitialized() {
             mJsDriver.attachToDom(mDomManager);
-            if (mDebugMode && mRootView != null) {
+            if (mRootView != null && (mDebugMode || BuildConfig.DEBUG)) {
                 mDomManager.createRoot(mRootView.getId());
                 mJsDriver.attachToRoot(mRootView.getId());
                 mNativeRenderer.onRuntimeInitialized(mRootView.getId());
@@ -856,6 +865,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 if (callback != null) {
                     callback.callback(true, null);
                 }
+                mDestroyModuleListeners.remove(rootId);
             }
             mDomManager.destroyRoot(rootId);
             mNativeRenderer.destroyRoot(rootId);
