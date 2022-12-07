@@ -460,6 +460,9 @@ public class HippyVerticalScrollView extends NestedScrollView implements HippyVi
       myConsumed = getScrollY() - oldScrollY;
       dyConsumed += myConsumed;
       dyUnconsumed -= myConsumed;
+      if (consumed != null) {
+          consumed[1] += myConsumed;
+      }
     }
     // Then dispatch to the parent for processing
     int parentDx = HippyNestedScrollHelper.priorityOfX(this, dxUnconsumed) == Priority.NONE ? 0 : dxUnconsumed;
