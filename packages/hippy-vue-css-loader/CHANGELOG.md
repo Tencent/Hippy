@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.15.5](https://github.com/Tencent/Hippy/compare/2.15.4...2.15.5) (2022-12-07)
+
+**Note:** Version bump only for package @hippy/vue-css-loader
+
+
+
+
+
 ## [2.15.4](https://github.com/Tencent/Hippy/compare/2.15.3...2.15.4) (2022-12-05)
 
 

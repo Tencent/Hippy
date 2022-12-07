@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.15.5](https://github.com/Tencent/Hippy/compare/2.15.4...2.15.5) (2022-12-07)
+
+
+### Bug Fixes
+
+* **core:** fix reload bug for inspector ([244dc8f](https://github.com/Tencent/Hippy/commit/244dc8f66dccb5dcb3aa9069d7ec92be8ed1260b))
+
+
+### Features
+
+* **workflows:** add auto-merge labeler in PR ([a8b0ad0](https://github.com/Tencent/Hippy/commit/a8b0ad0187c9ed2cb93a6e22bcd4ca174f56793e))
+* **workflows:** add PR review notification ([9653aab](https://github.com/Tencent/Hippy/commit/9653aab80dd411b80348e98090b158968474e259))
+* **workflows:** change license check configuration file path ([d9bfc48](https://github.com/Tencent/Hippy/commit/d9bfc489cda20f7576c306bbe593554c0a9c3f9f))
+* **workflows:** change stale label name ([8c0c6df](https://github.com/Tencent/Hippy/commit/8c0c6dfc5f0608d183f6c817c562c61b20a90365))
+
+
+
+
+
 ## [2.15.4](https://github.com/Tencent/Hippy/compare/2.15.3...2.15.4) (2022-12-05)
 
 
