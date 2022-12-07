@@ -15,23 +15,20 @@
  */
 package com.tencent.mtt.hippy.views.viewpager;
 
-import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import android.view.MotionEvent;
-import android.view.View;
-
-import androidx.annotation.NonNull;
-
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent.Priority;
-import com.tencent.mtt.hippy.views.common.HippyNestedScrollHelper;
 import com.tencent.mtt.supportui.views.viewpager.ViewPager;
+
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.TextUtils;
+import android.view.MotionEvent;
+import android.view.View;
 
 @SuppressWarnings({"unused"})
 public class HippyViewPager extends ViewPager implements HippyViewBase {
@@ -54,17 +51,8 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
   private ViewPagerPageChangeListener mPageListener;
   private final Handler mHandler = new Handler(Looper.getMainLooper());
   private Promise mCallBackPromise;
-  private int mAxes;
-  /**
-   * Captured means scrolling occurs, consume the entire scrolling (or nested scrolling) event and
-   * do not dispatch to parent in this state
-   */
-  private boolean mCaptured = false;
-  // Reusable int array to be passed to method calls that mutate it in order to "return" two ints.
-  private final int[] mScrollOffsetPair = new int[2];
-  private int mNestedScrollOffset = 0;
 
-  private void init(Context context, boolean isVertical) {
+  private void init(Context context) {
     setCallPageChangedOnFirstLayout(true);
     setEnableReLayoutOnAttachToWindow(false);
 
@@ -73,9 +61,6 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
     setAdapter(createAdapter(context));
     setLeftDragOutSizeEnabled(false);
     setRightDragOutSizeEnabled(false);
-    // enable nested scrolling
-    setNestedScrollingEnabled(true);
-    mAxes = isVertical ? SCROLL_AXIS_VERTICAL : SCROLL_AXIS_HORIZONTAL;
 
     if (I18nUtil.isRTL()) {
       setRotationY(180f);
@@ -92,12 +77,12 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
 
   public HippyViewPager(Context context, boolean isVertical) {
     super(context, isVertical);
-    init(context, isVertical);
+    init(context);
   }
 
   public HippyViewPager(Context context) {
     super(context);
-    init(context, false);
+    init(context);
   }
 
   public void setCallBackPromise(Promise promise) {
@@ -165,43 +150,12 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
   }
 
   @Override
-  public boolean dispatchTouchEvent(MotionEvent ev) {
-    if (hasNestedScrollingParent() && mNestedScrollOffset != 0) {
-      // After the nested scroll occurs, the current View position has changed. The coordinate
-      // origin of ev.getX() and mLastMotionX/Y is different, and the ev offset needs to be
-      // corrected.
-      MotionEvent transformEv = MotionEvent.obtain(ev);
-      if (mAxes == SCROLL_AXIS_HORIZONTAL) {
-          transformEv.offsetLocation(mNestedScrollOffset, 0);
-      } else {
-          transformEv.offsetLocation(0, mNestedScrollOffset);
-      }
-      boolean result = super.dispatchTouchEvent(transformEv);
-      transformEv.recycle();
-      return result;
-    }
-    return super.dispatchTouchEvent(ev);
-  }
-
-  @Override
   public boolean onInterceptTouchEvent(MotionEvent ev) {
-    if (!isScrollEnabled() || getNestedScrollAxes() != SCROLL_AXIS_NONE) {
+    if (!isScrollEnabled()) {
       return false;
     }
-    boolean result = super.onInterceptTouchEvent(ev);
-    switch (ev.getAction() & MotionEvent.ACTION_MASK) {
-        case MotionEvent.ACTION_DOWN:
-            mNestedScrollOffset = 0;
-            startNestedScroll(mAxes);
-            break;
-        case MotionEvent.ACTION_CANCEL:
-        case MotionEvent.ACTION_UP:
-            stopNestedScroll();
-            break;
-        default:
-            break;
-    }
-    return result;
+
+    return super.onInterceptTouchEvent(ev);
   }
 
   @Override
@@ -209,23 +163,8 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
     if (!isScrollEnabled()) {
       return false;
     }
-    boolean result = super.onTouchEvent(ev);
-    if (result) {
-      switch (ev.getAction() & MotionEvent.ACTION_MASK) {
-        case MotionEvent.ACTION_DOWN:
-          mNestedScrollOffset = 0;
-          startNestedScroll(mAxes);
-          break;
-        case MotionEvent.ACTION_CANCEL:
-        case MotionEvent.ACTION_UP:
-          mCaptured = false;
-          stopNestedScroll();
-          break;
-        default:
-          break;
-      }
-    }
-    return result;
+
+    return super.onTouchEvent(ev);
   }
 
   @Override
@@ -303,151 +242,5 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
 
   public void triggerRequestLayout() {
     mHandler.post(mMeasureAndLayout);
-  }
-
-  @Override
-  public boolean onStartNestedScroll(@NonNull View child, @NonNull View target, int axes) {
-    if (!isScrollEnabled()) {
-      return false;
-    }
-    return (axes & mAxes) != 0;
-  }
-
-  @Override
-  public void onNestedScrollAccepted(@NonNull View child, @NonNull View target, int axes) {
-    super.onNestedScrollAccepted(child, target, axes);
-    startNestedScroll(axes);
-  }
-
-  @Override
-  public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed) {
-    // viewpager does not support nested scrolling, only when it cannot scroll, will the event from
-    // child be passed to the ancestor
-    if (!mCaptured) {
-      if (mAxes == SCROLL_AXIS_HORIZONTAL && dx != 0) {
-        if (HippyNestedScrollHelper.priorityOfX(target, dx) == Priority.PARENT) {
-          mCaptured = canScrollHorizontally(dx);
-        }
-      } else if (mAxes == SCROLL_AXIS_VERTICAL && dy != 0) {
-        if (HippyNestedScrollHelper.priorityOfY(target, dy) == Priority.PARENT) {
-          mCaptured = canScrollVertically(dy);
-        }
-      }
-    }
-    if (mCaptured) {
-      if (mAxes == SCROLL_AXIS_HORIZONTAL) {
-        fakeDragBy(-dx);
-        consumed[0] += dx;
-      } else {
-        fakeDragBy(-dy);
-        consumed[1] += dy;
-      }
-    } else if (dx != 0 || dy != 0) {
-      dispatchNestedPreScroll(dx, dy, consumed, null);
-    }
-  }
-
-  @Override
-  public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
-    // viewpager does not support nested scrolling, only when it cannot scroll, will the event from
-    // child be passed to the ancestor
-    if (!mCaptured) {
-      if (mAxes == SCROLL_AXIS_HORIZONTAL && dxUnconsumed != 0) {
-        if (HippyNestedScrollHelper.priorityOfX(target, dxUnconsumed) == Priority.SELF) {
-          mCaptured = canScrollHorizontally(dxUnconsumed);
-        }
-      } else if (mAxes == SCROLL_AXIS_VERTICAL && dyUnconsumed != 0) {
-        if (HippyNestedScrollHelper.priorityOfY(target, dyUnconsumed) == Priority.SELF) {
-          mCaptured = canScrollVertically(dyUnconsumed);
-        }
-      }
-    }
-    if (mCaptured) {
-      if (mAxes == SCROLL_AXIS_HORIZONTAL) {
-        fakeDragBy(-dxUnconsumed);
-      } else {
-        fakeDragBy(-dyUnconsumed);
-      }
-    } else if (dxUnconsumed != 0 || dyUnconsumed != 0) {
-      dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, null);
-    }
-  }
-
-  @Override
-  public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
-    // Consume any fling event from child to prevent the child View from triggering non-touch
-    // scrolling at the same time when endFakeDrag()
-    return mCaptured;
-  }
-
-  @Override
-  public void onStopNestedScroll(View child) {
-    // Nested scrolling API may trigger out of order, check fake dragging state to prevent
-    // ViewPager from throwing IllegalStateException
-    if (isFakeDragging()) {
-      endFakeDrag();
-    }
-    mCaptured = false;
-    stopNestedScroll();
-  }
-
-  @Override
-  public void fakeDragBy(float offset) {
-    // Nested scrolling API may trigger out of order, check fake dragging state to prevent
-    // ViewPager from throwing IllegalStateException
-    if (isFakeDragging() || beginFakeDrag()) {
-      super.fakeDragBy(offset);
-    }
-  }
-
-  @Override
-  protected boolean onStartDrag(boolean start) {
-    if (super.onStartDrag(start)) {
-      mCaptured = true;
-      return true;
-    }
-    return hasNestedScrollingParent();
-  }
-
-  @Override
-  protected boolean performDrag(float x) {
-    // Dispatch nested scrolling event only when it cannot scroll
-    if (!mCaptured) {
-      int dx = 0;
-      int dy = 0;
-      boolean horizontal = mAxes == SCROLL_AXIS_HORIZONTAL;
-      if (horizontal) {
-        dx = Math.round(mLastMotionX - x);
-      } else {
-        dy = Math.round(mLastMotionY - x);
-      }
-      if (dx == 0 && dy == 0) {
-        return false;
-      }
-      if (dispatchNestedPreScroll(dx, dy ,null, mScrollOffsetPair)) {
-        if (horizontal) {
-          mNestedScrollOffset += mScrollOffsetPair[0];
-          mLastMotionX = x;
-        } else {
-          mNestedScrollOffset += mScrollOffsetPair[1];
-          mLastMotionY = x;
-        }
-        return false;
-      }
-      mCaptured = horizontal ? horizontalCanScroll(dx) : verticalCanScroll(dy);
-      if (!mCaptured) {
-        if (dispatchNestedScroll(0, 0, dx, dy, mScrollOffsetPair)) {
-          if (horizontal) {
-            mNestedScrollOffset += mScrollOffsetPair[0];
-            mLastMotionX = x;
-          } else {
-            mNestedScrollOffset += mScrollOffsetPair[1];
-            mLastMotionY = x;
-          }
-        }
-        return false;
-      }
-    }
-    return super.performDrag(x);
   }
 }

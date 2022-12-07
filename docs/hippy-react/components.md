@@ -131,19 +131,6 @@ import icon from './qb_icon_new.png';
 | editable   | 是否可编辑，开启侧滑删除时需要设置为 `true`。`最低支持版本2.9.0` | `boolean`                                                   | `iOS`    |
 | delText   | 侧滑删除文本。`最低支持版本2.9.0` | `string`                                                   | `iOS`    |
 | onDelete   | 在列表项侧滑删除时调起。`最低支持版本2.9.0` | `(nativeEvent: { index: number}) => void`                                                   | `iOS`    |
-| nestedScrollPriority*          | 嵌套滚动事件处理优先级，`default:self`。相当于同时设置 `nestedScrollLeftPriority`、 `nestedScrollTopPriority`、 `nestedScrollRightPriority`、 `nestedScrollBottomPriority`。 `最低支持版本 2.16.0` | `enum(self,parent,none)`    | `Android` |
-| nestedScrollLeftPriority | 嵌套时**从右往左**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0`                                                                                              | `enum(self,parent,none)` | `Android` |
-| nestedScrollTopPriority | 嵌套时**从下往上**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0`                                                                                                         | `enum(self,parent,none)` | `Android` |
-| nestedScrollRightPriority | 嵌套时**从左往右**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0`                                                                                                         | `enum(self,parent,none)` | `Android` |
-| nestedScrollBottomPriority | 嵌套时**从上往下**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0`                                                                                                          | `enum(self,parent,none)` | `Android` |
-
-* nestedScrollPriority 的参数含义：
-
-  * `self`（默认值）：当前组件优先，滚动事件将先由当前组件消费，剩余部分传递给父组件消费；
-
-  * `parent`：父组件优先，滚动事件将先由父组件消费，剩余部分再由当前组件消费；
-
-  * `none`：不允许嵌套滚动，滚动事件将不会传递给父组件。
 
 ## 方法
 
@@ -247,36 +234,23 @@ import icon from './qb_icon_new.png';
 
 ## 参数
 
-| 参数                           | 描述                                                                                                                                                                   | 类型                                                         | 支持平台 |
-| ------------------------------ |----------------------------------------------------------------------------------------------------------------------------------------------------------------------| ------------------------------------------------------------ | -------- |
-| bounces | 是否开启回弹效果，默认 `true`                                                                                                                                                   | `boolean`                                                  | `iOS`    |
-| contentContainerStyle          | 这些样式会应用到一个内层的内容容器上，所有的子视图都会包裹在内容容器内。                                                                                                                                 | `StyleSheet`                                                 | `Android、iOS、hippy-react-web、Web-Renderer` |
-| horizontal                     | 当此属性为 `true` 的时候，所有的子视图会在水平方向上排成一行，而不是默认的在垂直方向上排成一列                                                                                                                  | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
-| onMomentumScrollBegin          | 在 `ScrollView` 滑动开始的时候调起。                                                                                                                                            | `(obj: { contentOffset: { x: number, y: number } }) => any`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
-| onMomentumScrollEnd            | 在 `ScrollView` 滑动结束的时候调起。                                                                                                                                            | `(obj: { contentOffset: { x: number, y: number } }) => any`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
-| onScroll                       | 在滚动的过程中，每帧最多调用一次此回调函数。                                                                                                                                               | `(obj: { contentOffset: { x: number, y: number } }) => any`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
-| onScrollBeginDrag              | 当用户开始拖拽 `ScrollView` 时调用。                                                                                                                                            | `(obj: { contentOffset: { x: number, y: number } }) => any`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
-| onScrollEndDrag                | 当用户停止拖拽 `ScrollView` 或者放手让 `ScrollView` 开始滑动的时候调用。                                                                                                                   | `(obj: { contentOffset: { x: number, y: number } }) => any`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
-| pagingEnabled                  | 当值为 `true` 时，滚动条会停在滚动视图的尺寸的整数倍位置。这个可以用在水平分页上。`default: false`                                                                                                        | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
-| scrollEventThrottle            | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件。                                                                                                                  | `number`                                                     | `Android、iOS、hippy-react-web、Web-Renderer` |
-| scrollIndicatorInsets          | 决定滚动条距离视图边缘的坐标。这个值应该和contentInset一样。                                                                                                                                 | `{ top: number, left: number, bottom: number, right: number }` | `Android、iOS`  |
-| scrollEnabled                  | 当值为 `false` 的时候，内容不能滚动。`default: true`                                                                                                                               | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
-| showScrollIndicator            | 是否显示滚动条。 `default: false`                                                                                                                                            | `boolean`  | `Android、hippy-react-web` |
-| showsHorizontalScrollIndicator | 当此值设为 `false` 的时候，`ScrollView` 会隐藏水平的滚动条。`default: true`                                                                                                             | `boolean`                                                    | `iOS`    |
-| showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true`                                                                                                            | `boolean`                                                    | `iOS`    |
-| nestedScrollPriority*          | 嵌套滚动事件处理优先级，`default:self`。相当于同时设置 `nestedScrollLeftPriority`、 `nestedScrollTopPriority`、 `nestedScrollRightPriority`、 `nestedScrollBottomPriority`。 `最低支持版本 2.16.0` | `enum(self,parent,none)`    | `Android` |
-| nestedScrollLeftPriority | 嵌套时**从右往左**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0`                                                                                              | `enum(self,parent,none)` | `Android` |
-| nestedScrollTopPriority | 嵌套时**从下往上**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0`                                                                                                         | `enum(self,parent,none)` | `Android` |
-| nestedScrollRightPriority | 嵌套时**从左往右**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0`                                                                                                         | `enum(self,parent,none)` | `Android` |
-| nestedScrollBottomPriority | 嵌套时**从上往下**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0`                                                                                                          | `enum(self,parent,none)` | `Android` |
-
-* nestedScrollPriority 的参数含义：
-
-  * `self`（默认值）：当前组件优先，滚动事件将先由当前组件消费，剩余部分传递给父组件消费；
-
-  * `parent`：父组件优先，滚动事件将先由父组件消费，剩余部分再由当前组件消费；
-
-  * `none`：不允许嵌套滚动，滚动事件将不会传递给父组件。
+| 参数                           | 描述                                                         | 类型                                                         | 支持平台 |
+| ------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | -------- |
+| bounces | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `iOS`    |
+| contentContainerStyle          | 这些样式会应用到一个内层的内容容器上，所有的子视图都会包裹在内容容器内。 | `StyleSheet`                                                 | `Android、iOS、hippy-react-web、Web-Renderer` |
+| horizontal                     | 当此属性为 `true` 的时候，所有的子视图会在水平方向上排成一行，而不是默认的在垂直方向上排成一列 | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onMomentumScrollBegin          | 在 `ScrollView` 滑动开始的时候调起。                         | `(obj: { contentOffset: { x: number, y: number } }) => any`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onMomentumScrollEnd            | 在 `ScrollView` 滑动结束的时候调起。                         | `(obj: { contentOffset: { x: number, y: number } }) => any`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onScroll                       | 在滚动的过程中，每帧最多调用一次此回调函数。                 | `(obj: { contentOffset: { x: number, y: number } }) => any`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onScrollBeginDrag              | 当用户开始拖拽 `ScrollView` 时调用。                         | `(obj: { contentOffset: { x: number, y: number } }) => any`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onScrollEndDrag                | 当用户停止拖拽 `ScrollView` 或者放手让 `ScrollView` 开始滑动的时候调用。 | `(obj: { contentOffset: { x: number, y: number } }) => any`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| pagingEnabled                  | 当值为 `true` 时，滚动条会停在滚动视图的尺寸的整数倍位置。这个可以用在水平分页上。`default: false` | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
+| scrollEventThrottle            | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件。 | `number`                                                     | `Android、iOS、hippy-react-web、Web-Renderer` |
+| scrollIndicatorInsets          | 决定滚动条距离视图边缘的坐标。这个值应该和contentInset一样。 | `{ top: number, left: number, bottom: number, right: number }` | `Android、iOS`    |
+| scrollEnabled                  | 当值为 `false` 的时候，内容不能滚动。`default: true`                        | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
+| showScrollIndicator            | 是否显示滚动条。 `default: false` | `boolean`  | `Android、hippy-react-web` |
+| showsHorizontalScrollIndicator | 当此值设为 `false` 的时候，`ScrollView` 会隐藏水平的滚动条。`default: true` | `boolean`                                                    | `iOS`    |
+| showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` | `boolean`                                                    | `iOS`    |
 
 ## 方法
 
@@ -539,25 +513,25 @@ import icon from './qb_icon_new.png';
 
 ## 参数
 
-| 参数                | 描述                                                                                                                                                                                                                                  | 类型                                                                                                                                                 | 支持平台          |
-|-------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
-| numberOfColumns   | 瀑布流列数量 ， `Default: 2`                                                                                                                                                                                                               | `number`                                                                                                                                           | `Android、iOS` |
-| numberOfItems     | 瀑布流 item 总个数                                                                                                                                                                                                                        | `number`                                                                                                                                           | `Android、iOS` |
-| columnSpacing     | 瀑布流每列之前的水平间距                                                                                                                                                                                                                        | `number`                                                                                                                                           | `Android、iOS` |
-| interItemSpacing  | item 间的垂直间距                                                                                                                                                                                                                         | `number`                                                                                                                                           | `Android、iOS` |
-| contentInset      | 内容缩进 ，默认值 `{ top:0, left:0, bottom:0, right:0 }`                                                                                                                                                                                    | `Object`                                                                                                                                           | `Android、iOS` |
-| renderItem        | 这里的入参是当前 item 的 index，在这里可以凭借 index 获取到瀑布流一个具体单元格的数据，从而决定如何渲染这个单元格。                                                                                                                                                                 | `(index: number) => React.ReactElement`                                                                                                            | `Android、iOS` |
-| renderBanner      | 如何渲染 Banner。（`Android` 最低支持版本 `2.15.0`）                                                                                                                                                                                             | `() => React.ReactElement`                                                                                                                         | `Android、iOS` |
-| getItemStyle      | 设置`WaterfallItem`容器的样式。                                                                                                                                                                                                             | `(index: number) => styleObject`                                                                                                                   | `Android、iOS` |
-| getItemType       | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升list 性能。                                                                                                                                                 | `(index: number) => number`                                                                                                                        | `Android、iOS` |
-| getItemKey        | 指定一个函数，在其中返回对应条目的 Key 值，详见 [React 官文](//reactjs.org/docs/lists-and-keys.html)                                                                                                                                                       | `(index: number) => any`                                                                                                                           | `Android、iOS` |
-| preloadItemNumber | 滑动到瀑布流底部前提前预加载的 item 数量                                                                                                                                                                                                             | `number`                                                                                                                                           | `Android、iOS` |
-| onEndReached      | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。                                                                                                                                                                                   | `Function`                                                                                                                                         | `Android、iOS` |
-| containPullHeader | 是否包含`PullHeader`组件，默认 `false` ；`Android` 暂不支持，可暂时用 `RefreshWrapper` 组件替代                                                                                                                                                            | `boolean`                                                                                                                                          | `iOS`         |
-| renderPullHeader  | 如何渲染 `PullHeader`，此时 `containPullHeader` 默认设置成 `true`                                                                                                                                                                               | `() => React.ReactElement`                                                                                                                         | `iOS`         |
-| containPullFooter | 是否包含`PullFooter`组件，默认 `false`                                                                                                                                                                                                       | `boolean`                                                                                                                                          | `Android、iOS` |
-| renderPullFooter  | 如何渲染 `PullFooter`，此时 `containPullFooter` 默认设置成 `true`                                                                                                                                                                               | `() => React.ReactElement`                                                                                                                         | `Android、iOS` |
-| onScroll          | 当触发 `WaterFall` 的滑动事件时回调。`startEdgePos`表示距离 List 顶部边缘滚动偏移量；`endEdgePos`表示距离 List 底部边缘滚动偏移量；`firstVisibleRowIndex`表示当前可见区域内第一个元素的索引；`lastVisibleRowIndex`表示当前可见区域内最后一个元素的索引；`visibleRowFrames`表示当前可见区域内所有 item 的信息(x，y，width，height) | `nativeEvent: { startEdgePos: number, endEdgePos: number, firstVisibleRowIndex: number, lastVisibleRowIndex: number, visibleRowFrames: Object[] }` | `Android、iOS` |
+| 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
+| --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | ------------------ |
+| numberOfColumns | 瀑布流列数量 ， `Default: 2` | `number` | `Android、iOS` |
+| numberOfItems | 瀑布流 item 总个数 | `number` | `Android、iOS`|
+| columnSpacing     | 瀑布流每列之前的水平间距  | `number`   | `Android、iOS`    |
+| interItemSpacing  | item 间的垂直间距  | `number`   | `Android、iOS`  |
+| contentInset      | 内容缩进 ，默认值 `{ top:0, left:0, bottom:0, right:0 }`  | `Object`   | `Android、iOS`   |
+| renderItem             | 这里的入参是当前 item 的 index，在这里可以凭借 index 获取到瀑布流一个具体单元格的数据，从而决定如何渲染这个单元格。 | `(index: number) => React.ReactElement`                                   | `Android、iOS`    |
+| renderBanner | 如何渲染 Banner。（`Android` 最低支持版本 `2.15.0`） | `() => React.ReactElement` |  `Android、iOS`
+| getItemStyle           | 设置`WaterfallItem`容器的样式。  | `(index: number) => styleObject`                                    | `Android、iOS`    |
+| getItemType            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升list 性能。 | `(index: number) => number`                                    | `Android、iOS`    |
+| getItemKey             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [React 官文](//reactjs.org/docs/lists-and-keys.html) | `(index: number) => any`                                    | `Android、iOS`    |
+| preloadItemNumber     | 滑动到瀑布流底部前提前预加载的 item 数量 | `number` | `Android、iOS` |
+| onEndReached          | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。 | `Function`                                                  | `Android、iOS`    |
+| containPullHeader | 是否包含`PullHeader`组件，默认 `false` ；`Android` 暂不支持，可暂时用 `RefreshWrapper` 组件替代  | `boolean`  | `iOS`    |
+| renderPullHeader | 如何渲染 `PullHeader`，此时 `containPullHeader` 默认设置成 `true` |  `() => React.ReactElement` | `iOS`    |
+| containPullFooter | 是否包含`PullFooter`组件，默认 `false`  | `boolean`  | `Android、iOS`    |
+| renderPullFooter | 如何渲染 `PullFooter`，此时 `containPullFooter` 默认设置成 `true` |  `() => React.ReactElement` | `Android、iOS` |
+| onScroll              | 当触发 `WaterFall` 的滑动事件时回调。`startEdgePos`表示距离 List 顶部边缘滚动偏移量；`endEdgePos`表示距离 List 底部边缘滚动偏移量；`firstVisibleRowIndex`表示当前可见区域内第一个元素的索引；`lastVisibleRowIndex`表示当前可见区域内最后一个元素的索引；`visibleRowFrames`表示当前可见区域内所有 item 的信息(x，y，width，height)    | `nativeEvent: { startEdgePos: number, endEdgePos: number, firstVisibleRowIndex: number, lastVisibleRowIndex: number, visibleRowFrames: Object[] }` | `Android、iOS`
 
 ## 方法
 
