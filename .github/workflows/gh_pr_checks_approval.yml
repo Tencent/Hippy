@@ -7,10 +7,6 @@ on:
       - main
 
 env:
-  greetings_message: |
-    👋 Thanks for your contributing!
-
-    Our collaborators will review your pull request after all status checks have been passed.
   safety_changes_message: |
     After a quick scan, I have approved%sworkflow%s to run.
   risky_changes_message: |
@@ -21,26 +17,8 @@ env:
 jobs:
   pull_request_checks_approval:
     if: github.repository == 'Tencent/Hippy'
-    permissions:
-      actions: write
-      pull-requests: write
     runs-on: ubuntu-latest
     steps:
-    - name: Greetings
-      if: github.event.action == 'opened'
-      uses: actions/github-script@v6.3.3
-      with:
-        script: |
-          const { owner, repo } = context.repo;
-          const { pull_request } = context.payload;
-          const { issues } = github.rest;
-
-          await issues.createComment({
-            owner,
-            repo,
-            issue_number: pull_request.number,
-            body: process.env['greetings_message'],
-          });
     - name: Token
       uses: navikt/github-app-token-generator@v1
       id: get-token
