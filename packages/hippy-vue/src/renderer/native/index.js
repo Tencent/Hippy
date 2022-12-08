@@ -36,6 +36,7 @@ import {
   isFunction,
   capitalizeFirstLetter,
   convertImageLocalPath,
+  getBeforeRenderToNative,
 } from '../../util';
 import {
   isRTL,
@@ -279,11 +280,12 @@ function parseViewComponent(targetNode, nativeNode, style) {
     }
     // Change the ScrollView child collapsable attribute
     if (nativeNode.name === 'ScrollView') {
-      if (targetNode.childNodes.length !== 1) {
+      const realNodes = targetNode.childNodes.filter(child => !child.meta.skipAddToDom);
+      if (realNodes.length !== 1) {
         warn('Only one child node is acceptable for View with overflow');
       }
-      if (targetNode.childNodes.length) {
-        targetNode.childNodes[0].setStyle('collapsable', false);
+      if (realNodes.length) {
+        realNodes[0].setStyle('collapsable', false);
       }
     }
     if (style.backgroundImage) {
@@ -291,6 +293,27 @@ function parseViewComponent(targetNode, nativeNode, style) {
     }
   }
 }
+
+
+/**
+ * getElemCss
+ * @param {ElementNode} element
+ * @returns {{}}
+ */
+function getElemCss(element) {
+  const style = Object.create(null);
+  try {
+    getCssMap().query(element).selectors.forEach((matchedSelector) => {
+      if (!isStyleMatched(matchedSelector, element)) return;
+      matchedSelector.ruleSet.declarations.forEach((cssStyle) => {
+        style[cssStyle.property] = cssStyle.value;
+      });
+    });
+  } catch (err) {
+    console.error('getDomCss Error:', err);
+  }
+  return style;
+};
 
 /**
  * Get target node attributes, use to chrome devTool tag attribute show while debugging
@@ -325,20 +348,8 @@ function renderToNative(rootViewId, targetNode) {
   if (!targetNode.meta.component) {
     throw new Error(`Specific tag is not supported yet: ${targetNode.tagName}`);
   }
-  let style = {};
-  // Apply styles when the targetNode attach to document at first time.
-  if (targetNode.meta.component.defaultNativeStyle) {
-    style = { ...targetNode.meta.component.defaultNativeStyle };
-  }
-  // Apply styles from CSS
-  const matchedSelectors = getCssMap().query(targetNode);
-  matchedSelectors.selectors.forEach((matchedSelector) => {
-    if (!isStyleMatched(matchedSelector, targetNode)) return;
-    matchedSelector.ruleSet.declarations.forEach((cssStyle) => {
-      style[cssStyle.property] = cssStyle.value;
-    });
-  });
-  // Apply style from style attribute.
+
+  let style = getElemCss(targetNode);
   style = { ...style, ...targetNode.style };
 
   // Convert to real native event
@@ -359,6 +370,15 @@ function renderToNative(rootViewId, targetNode) {
       }
     });
   }
+
+  getBeforeRenderToNative()(targetNode, style);
+
+  // use defaultNativeStyle later to avoid incorrect compute style from inherit node
+  // in beforeRenderToNative hook
+  if (targetNode.meta.component.defaultNativeStyle) {
+    style = { ...targetNode.meta.component.defaultNativeStyle, ...style };
+  }
+
   // Translate to native node
   const nativeNode = {
     id: targetNode.nodeId,
@@ -516,4 +536,5 @@ export {
   removeChild,
   updateChild,
   updateWithChildren,
+  getElemCss,
 };

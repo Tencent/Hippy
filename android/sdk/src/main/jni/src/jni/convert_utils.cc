@@ -709,6 +709,7 @@ std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ConvertUtils::ToJsMap(T
   for (auto i = 0; i < size; i += 2) {
     param[value[i]] = value[i + 1];
   }
+  env->DeleteLocalRef(array);
   return std::make_tuple(true, "", v8_ctx->CreateMap(param));
 }
 
