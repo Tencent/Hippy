@@ -10,10 +10,6 @@ on:
     types:
       - labeled
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
   squash_merge_action:
     if: github.event.label.name == 'action(squash-merge)' && github.repository == 'Tencent/Hippy'
@@ -59,11 +55,17 @@ jobs:
           fi
         fi
         exit 0
+    - name: Token
+      uses: navikt/github-app-token-generator@v1
+      id: get-token
+      with:
+        private-key: ${{ secrets.ACTION_PRIVATE_KEY }}
+        app-id: ${{ secrets.ACTION_APP_ID }}
     - name: Squash
       id: squash
       if: ${{ !steps.commitlint.outputs.failed_result }}
       env:
-        GH_TOKEN: ${{ github.token }}
+        GH_TOKEN: ${{ steps.get-token.outputs.token }}
       shell: bash {0}
       run: |
         result=`gh pr merge ${{ github.event.pull_request.number }} --squash --auto --repo $GITHUB_REPOSITORY 2>&1`
@@ -96,6 +98,7 @@ jobs:
 
           @${{ github.event.sender.login }}
       with:
+        github-token: ${{ steps.get-token.outputs.token }}
         script: |
           const { pull_request } = context.payload;
           const { issues } = github.rest;
