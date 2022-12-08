@@ -69,7 +69,7 @@ jobs:
         with:
           python-version: '3.10'
       - name: Build framework for iOS
-        run: python3 script/build.py -os ios -arch all -rebuild
+        run: python3 script/build.py -os ios -arch arm64 -rebuild
         working-directory: framework/voltron
   voltron_ios_flutter_build:
     runs-on: macos-latest
