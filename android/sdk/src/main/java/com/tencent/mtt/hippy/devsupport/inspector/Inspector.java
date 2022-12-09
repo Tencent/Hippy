@@ -163,11 +163,14 @@ public class Inspector implements BatchListener {
   }
 
   public void updateContextName(String name) {
+    if (getContext() == null) {
+      return;
+    }
     try {
       JSONObject contextObj = new JSONObject();
       contextObj.put("contextName", name);
 
-      Context context = mContextRef.get().getGlobalConfigs().getContext();
+      Context context = getContext().getGlobalConfigs().getContext();
       String packageName = "";
       String versionName = "";
       if (context != null) {
