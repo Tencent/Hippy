@@ -8,65 +8,65 @@
 #  https://help.github.com/en/articles/about-code-owners
 #
 
-* @ilikethese @churchill-zhang @zoomchan-cxj @siguangli @ozonelmy @medns
+# universal files
+* @zoomchan-cxj
 
-*.js @zoomchan-cxj
-*.ts @zoomchan-cxj
-*.java @siguangli
-*.cc @churchill-zhang @ilikethese @medns
-*.h @ozonelmy
-*.m @ozonelmy
-*.mm @ozonelmy
-
-CMakeLists.txt @medns
-*.cmake @medns
-
-# ci, build & doc related
-/.github/ @zoomchan-cxj
-/.gitattributes @zoomchan-cxj
-/.husky/ @zoomchan-cxj
-/docker/ @medns
-/buildconfig/ @medns
-/docs/ @zoomchan-cxj
-/.editorconfig @zoomchan-cxj
-/.gitignore @zoomchan-cxj
-/.markdownlintrc.json @zoomchan-cxj
-
-# core related
+# driver: js
+/.eslintignore @zoomchan-cxj
+/.eslintrc.js @zoomchan-cxj
+/.nycrc @zoomchan-cxj
+/ava.config.js @zoomchan-cxj
 /core/ @churchill-zhang
 /core/js/ @zoomchan-cxj
+/packages/ @zoomchan-cxj
 
-# android related
+# framework: android
 /android/ @siguangli
-/gradle/ @siguangli
+
+# framework: ios
+/ios/ @ozonelmy
+
+# dom: layout
+/layout/ @ilikethese
+
+# gh: workflow/template/owner etc.
+/.github/ @zoomchan-cxj
+/.github/workflows/ @zoomchan-cxj
+/.github/ISSUE_TEMPLATE/ @zoomchan-cxj
+/.github/PULL_REQUEST_TEMPLATE.md @zoomchan-cxj
+/.github/CODEOWNERS @zoomchan-cxj
+/docker/ @medns
+
+# doc: example
+/examples/ @zoomchan-cxj
+/examples/hippy-*-demo/ @zoomchan-cxj
+/examples/android-demo/ @siguangli
+/examples/android-demo/res/ @zoomchan-cxj
+/examples/ios-demo/ @ozonelmy
+/examples/ios-demo/res/ @zoomchan-cxj
+
+# doc: pages
+/*.md @zoomchan-cxj
+/docs/ @zoomchan-cxj
+
+# build: gradle
 /gradle.properties @siguangli
 /gradlew @siguangli
 /gradlew.bat @siguangli
 /setting.gradle @siguangli
 /build.gradle @siguangli
+/gradle/ @siguangli
 
-# iOS related
-/ios/ @ozonelmy
-/hippy.podspec @ozonelmy
+# build: xcode
+/hippy.podspec
+/Hippy.xcworkspace/ @ozonelmy
 
-# examples related
-/examples/android-demo/ @siguangli
-/examples/android-demo/res/ @zoomchan-cxj
-/examples/ios-demo/ @ozonelmy
-/examples/ios-demo/res/ @zoomchan-cxj
-/examples/hippy-*-demo/ @zoomchan-cxj
+# build: cmake
+/buildconfig/ @medns
+/buildconfig/cmake/ @medns
 
-# layout related
-/layout/ @ilikethese @churchill-zhang
-
-# js sdk related
-/packages/ @zoomchan-cxj
-/scripts/ @zoomchan-cxj
+# build: js
+/tsdoc.json @zoomchan-cxj
 /tsconfig.json @zoomchan-cxj
-/package.json @zoomchan-cxj
-/package-lock.json @zoomchan-cxj
-/.eslintignore @zoomchan-cxj
-/.nycrc @zoomchan-cxj
 /lerna.json @zoomchan-cxj
-
-
+/scripts/ @zoomchan-cxj
