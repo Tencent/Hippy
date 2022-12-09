@@ -27,8 +27,8 @@ jobs:
       uses: navikt/github-app-token-generator@v1
       id: get-token
       with:
-        private-key: ${{ secrets.BOT_APP_KEY }}
-        app-id: ${{ secrets.BOT_APP_ID }}
+        private-key: ${{ secrets.PRIVATE_KEY }}
+        app-id: ${{ secrets.APP_ID }}
     - name: Greetings
       uses: actions/github-script@v6.1.0
       with:
@@ -58,8 +58,8 @@ jobs:
       uses: navikt/github-app-token-generator@v1
       id: get-token
       with:
-        private-key: ${{ secrets.BOT_APP_KEY }}
-        app-id: ${{ secrets.BOT_APP_ID }}
+        private-key: ${{ secrets.PRIVATE_KEY }}
+        app-id: ${{ secrets.APP_ID }}
     - name: Action
       uses: actions/github-script@v6.3.3
       with:
@@ -73,7 +73,7 @@ jobs:
 
           p.push(issues.addLabels({
             issue_number: issue.number,
-            labels: [ 'need: help' ],
+            labels: [ 'needs: help' ],
             ...context.repo,
           }));
 
