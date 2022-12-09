@@ -223,9 +223,17 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     CGSize _size;
 }
 
-@property (nonatomic) HippyAnimatedImageOperation *animatedImageOperation;
-@property (atomic, strong) NSString *pendingImageSourceUri;  // The image source that's being loaded from the network
-@property (atomic, strong) NSString *imageSourceUri;         // The image source that's currently displayed
+/// Animated Image Operation (should avoid multi-thread manipulation)
+@property (nonatomic, strong) HippyAnimatedImageOperation *animatedImageOperation;
+
+/// Animated Image Manipulation Lock
+@property (nonatomic, strong) NSLock *animatedImageOpLock;
+
+/// The image source that's being loaded from the network
+@property (atomic, strong) NSString *pendingImageSourceUri;
+
+/// The image source that's currently displayed
+@property (atomic, strong) NSString *imageSourceUri;
 
 @end
 
@@ -356,27 +364,28 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
 }
 
 static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProviderProtocol> instance,
-                                           NSString *imageUrl, BOOL isAnimatedImage) {
-    if (!imageView) {
-        return;
-    }
+                                    NSString *imageUrl, BOOL isAnimatedImage, NSData * _Nullable imgDataToBeCached) {
+    if (!imageView) return;
     if (isAnimatedImage) {
-        if (imageView->_animatedImageOperation) {
-            [imageView->_animatedImageOperation cancel];
+        [imageView.animatedImageOpLock lock];
+        if (imageView.animatedImageOperation) {
+            [imageView.animatedImageOperation cancel];
         }
-        imageView->_animatedImageOperation = [[HippyAnimatedImageOperation alloc] initWithAnimatedImageProvider:instance
-                                                                                                       imageView:imageView
-                                                                                                        imageURL:imageUrl];
-        [animated_image_queue() addOperation:imageView->_animatedImageOperation];
+        imageView.animatedImageOperation = [[HippyAnimatedImageOperation alloc] initWithAnimatedImageProvider:instance
+                                                                                                    imageView:imageView
+                                                                                                     imageURL:imageUrl];
+        [animated_image_queue() addOperation:imageView.animatedImageOperation];
+        [imageView.animatedImageOpLock unlock];
     } else {
-        __weak HippyImageView *weakSelf = imageView;
+        __weak __typeof(imageView)weakSelf = imageView;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            __strong HippyImageView *strongSelf = weakSelf;
-            if (!strongSelf) {
-                return;
-            }
+            __strong __typeof(weakSelf)strongSelf = weakSelf;
+            if (!strongSelf) return;
             UIImage *image = [instance image];
             if (image) {
+                if (imgDataToBeCached) {
+                    [[HippyImageCacheManager sharedInstance] setImageCacheData:imgDataToBeCached forURLString:imageUrl];
+                }
                 [strongSelf loadImage:image url:imageUrl error:nil needBlur:YES needCache:YES];
             } else {
                 NSString *errorMessage = [NSString stringWithFormat:@"image data unavailable for uri %@", imageUrl];
@@ -406,7 +415,7 @@ static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProv
             id<HippyImageProviderProtocol> instance = [ipClass imageProviderInstanceForData:data];
             if (instance) {
                 BOOL isAnimatedImage = [instance imageCount] > 1;
-                decodeAndLoadImageAsync(self, instance, uri, isAnimatedImage);
+                decodeAndLoadImageAsync(self, instance, uri, isAnimatedImage, nil);
                 return;
             }
         }
@@ -427,7 +436,7 @@ static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProv
                 Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(imageData, strongBridge);
                 id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:imageData];
                 BOOL isAnimatedImage = [ipClass isAnimatedImage:imageData];
-                decodeAndLoadImageAsync(self, instance, source_url.absoluteString, isAnimatedImage);
+                decodeAndLoadImageAsync(self, instance, source_url.absoluteString, isAnimatedImage, nil);
             } else {
                 NSString *errorMessage = [NSString stringWithFormat:@"local image data not exist %@", source_url.absoluteString];
                 NSError *error = imageErrorFromParams(ImageDataNotExist, errorMessage);
@@ -451,7 +460,7 @@ static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProv
                 Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(imageData, strongBridge);
                 id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:imageData];
                 BOOL isAnimatedImage = [ipClass isAnimatedImage:imageData];
-                decodeAndLoadImageAsync(strongSelf, instance, uri, isAnimatedImage);
+                decodeAndLoadImageAsync(strongSelf, instance, uri, isAnimatedImage, nil);
             }
         };
 
@@ -476,7 +485,7 @@ static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProv
                     Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(data, strongBridge);
                     id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:data];
                     BOOL isAnimatedImage = [ipClass isAnimatedImage:data];
-                    decodeAndLoadImageAsync(strongSelf, instance, uri, isAnimatedImage);
+                    decodeAndLoadImageAsync(strongSelf, instance, uri, isAnimatedImage, nil);
                 }];
         };
 
@@ -515,8 +524,12 @@ static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProv
     self.pendingImageSourceUri = nil;
     NSDictionary *source = [self.source firstObject];
     if (_bridge.imageLoader) {
-        [_animatedImageOperation cancel];
-        _animatedImageOperation = nil;
+        [self.animatedImageOpLock lock];
+        if (self.animatedImageOperation) {
+            [self.animatedImageOperation cancel];
+            self.animatedImageOperation = nil;
+        }
+        [self.animatedImageOpLock unlock];
         [_bridge.imageLoader cancelImageDownload:self withUrl:source[@"uri"]];
     } else {
         [_task cancel];
@@ -574,24 +587,7 @@ static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProv
                 Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(_data, self.bridge);
                 id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:_data];
                 BOOL isAnimatedImage = [ipClass isAnimatedImage:_data];
-                if (isAnimatedImage) {
-                    if (_animatedImageOperation) {
-                        [_animatedImageOperation cancel];
-                    }
-                    _animatedImageOperation = [[HippyAnimatedImageOperation alloc] initWithAnimatedImageProvider:instance imageView:self
-                                                                                                        imageURL:urlString];
-                    [animated_image_queue() addOperation:_animatedImageOperation];
-                } else {
-                    UIImage *image = [instance image];
-                    if (image) {
-                        [[HippyImageCacheManager sharedInstance] setImageCacheData:_data forURLString:urlString];
-                        [self loadImage:image url:urlString error:nil needBlur:YES needCache:YES];
-                    } else {
-                        NSString *errorMessage = [NSString stringWithFormat:@"image data unavailable %@", urlString];
-                        NSError *theError = imageErrorFromParams(ImageDataUnavailable, errorMessage);
-                        [self loadImage:nil url:urlString error:theError needBlur:YES needCache:NO];
-                    }
-                }
+                decodeAndLoadImageAsync(self, instance, urlString, isAnimatedImage, _data);
             } else {
                 NSURLResponse *response = [task response];
                 if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
@@ -867,6 +863,19 @@ static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProv
         provider.downSample = _downSample;
     }
     return instance;
+}
+
+#pragma mark - Private Accessories
+
+- (NSLock *)animatedImageOpLock {
+    if (!_animatedImageOpLock) {
+        @synchronized (self) {
+            if (!_animatedImageOpLock) {
+                _animatedImageOpLock = [[NSLock alloc] init];
+            }
+        }
+    }
+    return _animatedImageOpLock;
 }
 
 @end
