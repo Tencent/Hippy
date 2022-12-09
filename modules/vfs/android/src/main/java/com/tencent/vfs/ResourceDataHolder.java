@@ -112,4 +112,17 @@ public class ResourceDataHolder {
             bytes = resBytes;
         }
     }
+
+    @Nullable
+    public byte[] getBytes() {
+        if (transferType == TransferType.NORMAL) {
+            return bytes;
+        } else if (buffer != null) {
+            buffer.flip();
+            byte[] bytes = new byte[buffer.remaining()];
+            buffer.get(bytes);
+            return bytes;
+        }
+        return null;
+    }
 }

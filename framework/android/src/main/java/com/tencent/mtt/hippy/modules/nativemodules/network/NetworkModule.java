@@ -131,12 +131,8 @@ public class NetworkModule extends HippyNativeModuleBase {
         responseObject.set("respHeaders", headerObject);
         String body = "";
         try {
-            if (dataHolder.transferType == TransferType.NORMAL && dataHolder.bytes != null) {
-                body = new String(dataHolder.bytes, StandardCharsets.UTF_8);
-            } else if (dataHolder.buffer != null) {
-                dataHolder.buffer.flip();
-                byte[] bytes = new byte[dataHolder.buffer.remaining()];
-                dataHolder.buffer.get(bytes);
+            byte[] bytes = dataHolder.getBytes();
+            if (bytes != null) {
                 body = new String(bytes, StandardCharsets.UTF_8);
             }
         } catch (Exception e) {

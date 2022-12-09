@@ -18,20 +18,17 @@ package com.tencent.renderer.component.image;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 public interface ImageLoaderAdapter {
 
-    void fetchImage(@NonNull String url, @NonNull ImageRequestListener listener,
-            @Nullable Object params);
-
-    void getLocalImage(@NonNull String source, @NonNull ImageRequestListener listener,
-            @Nullable Executor executor, int width, int height);
+    void fetchImageAsync(@NonNull String url, @NonNull ImageRequestListener listener,
+            @Nullable Map<String, Object> initProps, int width, int height);
 
     @Nullable
-    ImageDataSupplier getLocalImage(@NonNull String source, int width, int height);
-
-    void saveImageToCache(@NonNull ImageDataSupplier data);
+    ImageDataSupplier fetchImageSync(@NonNull String url, @Nullable Map<String, Object> initProps,
+            int width, int height);
 
     @Nullable
     ImageDataSupplier getImageFromCache(@NonNull String source);

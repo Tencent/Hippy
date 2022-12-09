@@ -58,7 +58,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.ControllerProvider;
-import com.tencent.renderer.JSFrameworkProxy;
+import com.tencent.renderer.FrameworkProxy;
 import com.tencent.renderer.component.image.ImageLoaderAdapter;
 import com.tencent.renderer.component.text.FontAdapter;
 import com.tencent.vfs.DefaultProcessor;
@@ -73,7 +73,7 @@ import java.util.concurrent.Executor;
 
 @SuppressWarnings({"deprecation", "unused"})
 public abstract class HippyEngineManagerImpl extends HippyEngineManager implements
-        DevServerCallBack, JSFrameworkProxy, ThreadExecutor.UncaughtExceptionHandler {
+        DevServerCallBack, FrameworkProxy, ThreadExecutor.UncaughtExceptionHandler {
 
     static final String TAG = "HippyEngineManagerImpl";
 
@@ -272,13 +272,18 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
-    public ImageLoaderAdapter getImageLoaderAdapter() {
+    public ImageLoaderAdapter getImageLoader() {
         return mEngineContext.getGlobalConfigs().getImageLoaderAdapter();
     }
 
     @Override
     public FontAdapter getFontAdapter() {
         return mEngineContext.getGlobalConfigs().getFontScaleAdapter();
+    }
+
+    @NonNull
+    public VfsManager getVfsManager() {
+        return mEngineContext.getVfsManager();
     }
 
     @Nullable

@@ -30,6 +30,7 @@ import com.tencent.renderer.component.text.FontAdapter;
 import com.tencent.renderer.node.VirtualNode;
 
 import com.tencent.renderer.utils.EventUtils.EventType;
+import com.tencent.vfs.VfsManager;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
@@ -47,7 +48,10 @@ public interface NativeRender extends RenderExceptionHandler {
     String getBundlePath();
 
     @Nullable
-    ImageLoaderAdapter getImageLoaderAdapter();
+    ImageLoaderAdapter getImageLoader();
+
+    @Nullable
+    VfsManager getVfsManager();
 
     @Nullable
     FontAdapter getFontAdapter();

@@ -29,7 +29,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 
-import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.node.RenderNode;
 import com.tencent.renderer.component.Component;
 import com.tencent.renderer.component.drawable.ContentDrawable.ScaleType;
@@ -40,7 +39,6 @@ import com.tencent.vfs.UrlUtils;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 public class ImageComponent extends Component {
 
@@ -49,7 +47,7 @@ public class ImageComponent extends Component {
     @Nullable
     private String mDefaultUri;
     @Nullable
-    private ImageLoaderAdapter mImageLoaderAdapter;
+    private ImageLoaderAdapter mImageLoader;
     @Nullable
     private String mBundlePath;
     @Nullable
@@ -81,7 +79,7 @@ public class ImageComponent extends Component {
     }
 
     private void init(@NonNull RenderNode node, @Nullable Component component) {
-        mImageLoaderAdapter = node.getNativeRender().getImageLoaderAdapter();
+        mImageLoader = node.getNativeRender().getImageLoader();
         mBundlePath = node.getNativeRender().getBundlePath();
         if (component != null) {
             mBackgroundDrawable = component.getBackgroundDrawable();
@@ -208,11 +206,6 @@ public class ImageComponent extends Component {
                 ensureContentDrawable().setContentBitmap(imageData.getBitmap());
             }
         }
-        // Only bitmap decoded inside the SDK need to be cached
-        if (!loadFromCache && imageData.isRecyclable()) {
-            assert mImageLoaderAdapter != null;
-            mImageLoaderAdapter.saveImageToCache(imageData);
-        }
         imageData.attached();
         postInvalidateDelayed(0);
     }
@@ -240,47 +233,15 @@ public class ImageComponent extends Component {
         EventUtils.sendComponentEvent(mHostRef.get(), EVENT_IMAGE_LOAD_PROGRESS, params);
     }
 
-    private void doFetchLocalImage(final String uri, final ImageSourceType sourceType) {
+    private void doFetchImage(final String uri, final ImageSourceType sourceType) {
         int width = (mHostRef.get() != null) ? mHostRef.get().getWidth() : 0;
         int height = (mHostRef.get() != null) ? mHostRef.get().getHeight() : 0;
-        Executor executor = null;
-        assert mImageLoaderAdapter != null;
-        if (mHostRef.get() != null) {
-            NativeRender nativeRender = mHostRef.get().getNativeRender();
-            executor = nativeRender.getBackgroundExecutor();
-        }
-        mImageLoaderAdapter.getLocalImage(uri, new ImageRequestListener() {
-            @Override
-            public void onRequestStart(ImageDataSupplier imageData) {
-            }
-
-            @Override
-            public void onRequestProgress(float total, float loaded) {
-            }
-
-            @Override
-            public void onRequestSuccess(ImageDataSupplier imageData) {
-                onFetchImageSuccess(uri, sourceType, imageData, false);
-            }
-
-            @Override
-            public void onRequestFail(Throwable throwable) {
-                if (sourceType == ImageSourceType.SRC) {
-                    onFetchImageFail();
-                } else {
-                    mDefaultImageFetchState = ImageFetchState.UNLOAD;
-                }
-            }
-        }, executor, width, height);
-    }
-
-    private void doFetchRemoteImage(final String uri, final ImageSourceType sourceType) {
         Map<String, Object> params = new HashMap<>();
         if (mHostRef.get() != null) {
             params.put("props", mHostRef.get().getProps());
         }
-        assert mImageLoaderAdapter != null;
-        mImageLoaderAdapter.fetchImage(uri, new ImageRequestListener() {
+        assert mImageLoader != null;
+        mImageLoader.fetchImageAsync(uri, new ImageRequestListener() {
             @Override
             public void onRequestStart(ImageDataSupplier imageData) {
             }
@@ -294,7 +255,7 @@ public class ImageComponent extends Component {
 
             @Override
             public void onRequestSuccess(ImageDataSupplier imageData) {
-                // Should check the remote request data returned from the host, if the data is
+                // Should check the request data returned from the host, if the data is
                 // invalid, the request is considered to have failed
                 if (imageData.checkImageData()) {
                     onFetchImageSuccess(uri, sourceType, imageData, false);
@@ -311,14 +272,14 @@ public class ImageComponent extends Component {
                     mDefaultImageFetchState = ImageFetchState.UNLOAD;
                 }
             }
-        }, params);
+        }, params, width, height);
     }
 
     private void fetchImageWithUrl(String uri, ImageSourceType sourceType) {
-        if (TextUtils.isEmpty(uri) || mImageLoaderAdapter == null) {
+        if (TextUtils.isEmpty(uri) || mImageLoader == null) {
             return;
         }
-        ImageDataSupplier imageData = mImageLoaderAdapter.getImageFromCache(uri);
+        ImageDataSupplier imageData = mImageLoader.getImageFromCache(uri);
         if (imageData != null) {
             onFetchImageSuccess(uri, sourceType, imageData, true);
             return;
@@ -329,11 +290,9 @@ public class ImageComponent extends Component {
             mDefaultImageFetchState = ImageFetchState.LOADING;
         }
         if (UrlUtils.isWebUrl(uri)) {
-            String tempUrl = uri.trim().replaceAll(" ", "%20");
-            doFetchRemoteImage(tempUrl, sourceType);
-        } else {
-            doFetchLocalImage(uri, sourceType);
+            uri = uri.trim().replaceAll(" ", "%20");
         }
+        doFetchImage(uri, sourceType);
     }
 
     private String convertToLocalPathIfNeeded(String uri) {

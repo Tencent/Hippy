@@ -16,6 +16,9 @@
 
 package com.tencent.mtt.hippy;
 
+import static com.tencent.vfs.UrlUtils.PREFIX_ASSETS;
+import static com.tencent.vfs.UrlUtils.PREFIX_FILE;
+
 import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.adapter.executor.HippyExecutorSupplierAdapter;
 import com.tencent.mtt.hippy.adapter.http.HippyHttpAdapter;
@@ -30,8 +33,6 @@ import java.io.InputStream;
 public class HippyResourceLoader implements ResourceLoader {
 
     private static final String TAG = "HippyResourceLoader";
-    private static final String PREFIX_FILE = "file://";
-    private static final String PREFIX_ASSETS = "assets://";
     private final Object mRemoteSyncObject = new Object();
     private final HippyEngineContext mEngineContext;
 
@@ -51,7 +52,7 @@ public class HippyResourceLoader implements ResourceLoader {
             @NonNull final ProcessorCallback callback) {
         if (UrlUtils.isWebUrl(holder.uri)) {
             loadRemoteResource(holder, callback);
-        } else if (holder.uri.startsWith(PREFIX_FILE) || holder.uri.startsWith(PREFIX_ASSETS)) {
+        } else if (UrlUtils.isLocalUrl(holder.uri)) {
             HippyExecutorSupplierAdapter executorAdapter = mEngineContext.getGlobalConfigs().getExecutorSupplierAdapter();
             executorAdapter.getBackgroundTaskExecutor().execute(new Runnable() {
                 @Override
@@ -100,7 +101,7 @@ public class HippyResourceLoader implements ResourceLoader {
 
     @Override
     public boolean fetchResourceSync(@NonNull ResourceDataHolder holder) {
-        if (holder.uri.startsWith(PREFIX_FILE) || holder.uri.startsWith(PREFIX_ASSETS)) {
+        if (UrlUtils.isLocalUrl(holder.uri)) {
             loadLocalFileResource(holder);
         } else if (UrlUtils.isWebUrl(holder.uri)) {
             loadRemoteResource(holder, new ProcessorCallback() {

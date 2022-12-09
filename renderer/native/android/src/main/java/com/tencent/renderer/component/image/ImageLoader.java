@@ -23,16 +23,23 @@ import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.pool.ImageDataPool;
 import com.tencent.renderer.pool.Pool;
 
-import java.util.concurrent.Executor;
+import com.tencent.vfs.ResourceDataHolder;
+import com.tencent.vfs.VfsManager;
+import com.tencent.vfs.VfsManager.FetchResourceCallback;
+import java.util.HashMap;
+import java.util.Map;
 
-public abstract class ImageLoader implements ImageLoaderAdapter {
+public class ImageLoader implements ImageLoaderAdapter {
+
+    public static final String REQUEST_CONTENT_TYPE = "Content-Type";
+    public static final String REQUEST_CONTENT_TYPE_IMAGE = "image";
+    private final VfsManager mVfsManager;
 
     @NonNull
     private final Pool<Integer, ImageDataSupplier> mImagePool = new ImageDataPool();
 
-    @Override
-    public void saveImageToCache(@NonNull ImageDataSupplier data) {
-        mImagePool.release(data);
+    public ImageLoader(VfsManager vfsManager) {
+        mVfsManager = vfsManager;
     }
 
     @Nullable
@@ -40,54 +47,85 @@ public abstract class ImageLoader implements ImageLoaderAdapter {
         return mImagePool.acquire(ImageDataHolder.generateSourceKey(source));
     }
 
-    @Override
-    public void getLocalImage(@NonNull final String source,
-            @NonNull final ImageRequestListener listener, @Nullable Executor executor,
-            final int width, final int height) {
-        if (!UIThreadUtils.isOnUiThread() || executor == null) {
-            ImageDataSupplier supplier = getLocalImageImpl(source, width, height);
-            if (supplier == null) {
-                listener.onRequestFail(null);
-            } else {
-                listener.onRequestSuccess(supplier);
-            }
-        } else {
-            Runnable task = new Runnable() {
-                @Override
-                public void run() {
-                    final ImageDataSupplier supplier = getLocalImageImpl(source, width, height);
-                    UIThreadUtils.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (supplier == null) {
-                                listener.onRequestFail(null);
-                            } else {
-                                listener.onRequestSuccess(supplier);
-                            }
-                        }
-                    });
+    private void doCallback(@NonNull final ResourceDataHolder dataHolder,
+            @Nullable final ImageDataHolder imageHolder,
+            @NonNull final ImageRequestListener listener) {
+        UIThreadUtils.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (dataHolder.resultCode != ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE) {
+                    listener.onRequestFail(new RuntimeException(dataHolder.errorMessage));
+                } else if (imageHolder == null || !imageHolder.checkImageData()) {
+                    listener.onRequestFail(new RuntimeException(""));
+                } else {
+                    listener.onRequestSuccess(imageHolder);
                 }
-            };
-            executor.execute(task);
-        }
+            }
+        });
     }
 
-    @Override
-    @Nullable
-    public ImageDataSupplier getLocalImage(@NonNull String source, int width, int height) {
-        return getLocalImageImpl(source, width, height);
+    private void saveImageToCache(@NonNull ImageDataSupplier data) {
+        mImagePool.release(data);
+    }
+
+    @NonNull
+    private HashMap<String, String> generateRequestParams(@Nullable Map<String, Object> initProps,
+            int width, int height) {
+        HashMap<String, String> requestParams = new HashMap<>();
+        requestParams.put("width", String.valueOf(width));
+        requestParams.put("height", String.valueOf(height));
+        requestParams.put(REQUEST_CONTENT_TYPE, REQUEST_CONTENT_TYPE_IMAGE);
+        return requestParams;
     }
 
     @Nullable
-    private ImageDataSupplier getLocalImageImpl(@NonNull String source, int width, int height) {
-        ImageDataHolder dataHolder = new ImageDataHolder(source, width, height);
-        dataHolder.loadImageResource();
-        // The source decoding may fail, if bitmap and gif movie does not exist,
-        // return null object directly.
-        if (!dataHolder.checkImageData()) {
+    public ImageDataSupplier fetchImageSync(@NonNull String url,
+            @Nullable Map<String, Object> initProps, int width, int height) {
+        HashMap<String, String> requestParams = generateRequestParams(initProps, width, height);
+        ResourceDataHolder dataHolder = mVfsManager.fetchResourceSync(url, null, requestParams);
+        byte[] bytes = dataHolder.getBytes();
+        if (dataHolder.resultCode
+                != ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE || bytes == null) {
             return null;
         }
-        return dataHolder;
+        ImageDataHolder imageHolder = new ImageDataHolder(url, width, height);
+        imageHolder.setData(bytes);
+        if (!imageHolder.checkImageData()) {
+            // The source decoding may fail, if bitmap and gif movie does not exist,
+            // return null directly.
+            return null;
+        }
+        saveImageToCache(imageHolder);
+        return imageHolder;
+    }
+
+    @Override
+    public void fetchImageAsync(@NonNull final String url,
+            @NonNull final ImageRequestListener listener,
+            @Nullable Map<String, Object> initProps, final int width, final int height) {
+        HashMap<String, String> requestParams = generateRequestParams(initProps, width, height);
+        mVfsManager.fetchResourceAsync(url, null, requestParams,
+                new FetchResourceCallback() {
+                    @Override
+                    public void onFetchCompleted(@NonNull final ResourceDataHolder dataHolder) {
+                        byte[] bytes = dataHolder.getBytes();
+                        if (dataHolder.resultCode
+                                != ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE || bytes == null) {
+                            doCallback(dataHolder, null, listener);
+                        } else {
+                            ImageDataHolder imageHolder = new ImageDataHolder(url, width, height);
+                            imageHolder.setData(bytes);
+                            if (!imageHolder.checkImageData()) {
+                                // The source decoding may fail, if bitmap and gif movie does not exist,
+                                // callback request failed.
+                                doCallback(dataHolder, null, listener);
+                            } else {
+                                saveImageToCache(imageHolder);
+                                doCallback(dataHolder, imageHolder, listener);
+                            }
+                        }
+                    }
+                });
     }
 
     public void clear() {
