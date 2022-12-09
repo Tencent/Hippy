@@ -22,7 +22,6 @@
 
 #import "HPAsserts.h"
 #import "HPConvert.h"
-#import "HPDefaultImageProvider.h"
 #import "HPImageProviderProtocol.h"
 #import "HPToolUtils.h"
 #import "NativeRenderComponentProtocol.h"
@@ -155,7 +154,8 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     
     __weak HPUriLoader *_HPUriLoader;
     std::shared_ptr<VFSUriLoader> _VFSUriLoader;
-    Class<HPImageProviderProtocol> _imageProviderCls;
+    NSMutableArray<Class<HPImageProviderProtocol>> *_imageProviders;
+    std::mutex _imageProviderMutex;
 }
 
 @end
@@ -1282,14 +1282,20 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     return tmpProps;
 }
 
-- (void)setImageProviderClass:(Class<HPImageProviderProtocol>)cls {
-    if (_imageProviderCls != cls) {
-        _imageProviderCls = cls;
+- (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls {
+    HPAssertParam(cls);
+    std::lock_guard<std::mutex> lock(_imageProviderMutex);
+    if (!_imageProviders) {
+        _imageProviders = [NSMutableArray arrayWithCapacity:8];
     }
+    [_imageProviders addObject:cls];
 }
-
-- (Class<HPImageProviderProtocol>)imageProviderClass {
-    return _imageProviderCls?:[HPDefaultImageProvider class];
+- (NSArray<Class<HPImageProviderProtocol>> *)imageProviderClasses {
+    std::lock_guard<std::mutex> lock(_imageProviderMutex);
+    if (!_imageProviders) {
+        _imageProviders = [NSMutableArray arrayWithCapacity:8];
+    }
+    return [_imageProviders copy];
 }
 
 - (void)setHPUriLoader:(HPUriLoader *)loader {

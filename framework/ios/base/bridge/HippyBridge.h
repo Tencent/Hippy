@@ -135,9 +135,15 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 - (void)loadBundleURLs:(NSArray<NSURL *> *)bundleURLs;
 
-@property(nonatomic, strong)Class<HPImageProviderProtocol> imageProviderClass;
 @property(nonatomic, strong)HPUriLoader *HPUriLoader;
 @property(nonatomic, assign)std::weak_ptr<VFSUriLoader> VFSUriLoader;
+
+/**
+ * Image provider method
+ * Users adds or obtains image providers in the following methods
+ */
+- (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls;
+- (NSArray<Class<HPImageProviderProtocol>> *)imageProviderClasses;
 
 /**
  * Set basic configuration for native render

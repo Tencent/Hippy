@@ -24,16 +24,15 @@
 
 #import "HippyBridge+VFSLoader.h"
 #import "HippyImageLoaderModule.h"
-#import "HPDefaultImageProvider.h"
 #import "HPToolUtils.h"
 #import "HippyDefines.h"
 
 static NSString *const kImageLoaderModuleErrorDomain = @"kImageLoaderModuleErrorDomain";
 static NSUInteger const ImageLoaderErrorParseError = 2;
 static NSUInteger const ImageLoaderErrorRequestError = 3;
+static NSUInteger const ImageLoaderErrorNoProviderError = 4;
 
 @interface HippyImageLoaderModule () {
-    Class<HPImageProviderProtocol> _imageProviderClass;
 }
 
 @end
@@ -44,6 +43,18 @@ HIPPY_EXPORT_MODULE(ImageLoaderModule)
 
 @synthesize bridge = _bridge;
 
+- (id<HPImageProviderProtocol>)imageProviderForData:(NSData *)data {
+    NSArray<Class<HPImageProviderProtocol>> *providers = [self.bridge imageProviderClasses];
+    for (Class<HPImageProviderProtocol> cls in providers) {
+        if ([cls canHandleData:data]) {
+            id<HPImageProviderProtocol> object = [[(Class)cls alloc] init];
+            [object setImageData:data];
+            return object;
+        }
+    }
+    return nil;
+}
+
 // clang-format off
 HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveBlock)resolve rejecter:(HippyPromiseRejectBlock)reject) {
     [self.bridge loadContentsAsynchronouslyFromUrl:urlString
@@ -52,15 +63,17 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
                                               body:nil
                                  completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         if (!error) {
-            UIImage *retImage = nil;
-            Class<HPImageProviderProtocol> imageProviderClass = [self imageProviderClass];
-            if ([imageProviderClass canHandleData:data]) {
-                id <HPImageProviderProtocol> imageProvider = [[(Class) imageProviderClass alloc] init];
-                imageProvider.scale = [[UIScreen mainScreen] scale];
-                imageProvider.imageDataPath = urlString;
-                [imageProvider setImageData:data];
-                retImage = [imageProvider image];
+            id<HPImageProviderProtocol> imageProvider = [self imageProviderForData:data];
+            if (!imageProvider) {
+                NSError *error = [NSError errorWithDomain:kImageLoaderModuleErrorDomain
+                                                     code:ImageLoaderErrorParseError userInfo:@{@"reason": @"no image provider error"}];
+                NSString *errorKey = [NSString stringWithFormat:@"%lu", ImageLoaderErrorNoProviderError];
+                reject(errorKey, @"image parse error", error);
+                return;
             }
+            imageProvider.imageDataPath = urlString;
+            [imageProvider setImageData:data];
+            UIImage *retImage = [imageProvider image];
             if (retImage) {
                 NSDictionary *dic = @{@"width": @(retImage.size.width), @"height": @(retImage.size.height)};
                 resolve(dic);
@@ -91,9 +104,5 @@ HIPPY_EXPORT_METHOD(prefetch:(NSString *)urlString) {
     }];
 }
 // clang-format on
-
-- (Class<HPImageProviderProtocol>)imageProviderClass {
-    return self.bridge.imageProviderClass;
-}
 
 @end
