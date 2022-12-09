@@ -73,7 +73,7 @@ jobs:
 
           p.push(issues.addLabels({
             issue_number: issue.number,
-            labels: [ 'needs: help' ],
+            labels: [ 'need: help' ],
             ...context.repo,
           }));
 
