@@ -517,7 +517,6 @@ static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProv
     if (_bridge.imageLoader) {
         [_animatedImageOperation cancel];
         _animatedImageOperation = nil;
-        self.animatedImage = nil;
         [_bridge.imageLoader cancelImageDownload:self withUrl:source[@"uri"]];
     } else {
         [_task cancel];
