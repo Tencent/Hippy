@@ -200,12 +200,22 @@ bool BridgeImpl::RunScriptFromUri(int64_t runtime_id,
         return false;
     }
     auto uri_str = voltron::C16CharToString(uri);
+    auto code_cache_dir = voltron::C16CharToString(code_cache_dir_str);
     dispatch_async(HippyBridgeQueue(), ^{
         VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
         auto wrapper = voltron::VfsWrapper::GetWrapper(vfs_id);
         FOOTSTONE_CHECK(wrapper != nullptr);
         auto scope = bridge.jscExecutor.pScope;
         FOOTSTONE_CHECK(scope != nullptr);
+        NSString *uriStr = CStringToNSString(uri_str);
+        NSRange lastSep = [uriStr rangeOfString:@"/" options:NSBackwardsSearch];
+        NSString *basePath = [uriStr substringToIndex:lastSep.location + 1];
+        NSString *scriptName = [uriStr substringFromIndex:lastSep.location + 1];
+        FOOTSTONE_LOG(INFO) << "runScriptFromUri uri = " << uri_str
+                             << ", script_name = " << [scriptName UTF8String]
+                             << ", base_path = " << [basePath UTF8String]
+                             << ", code_cache_dir = " << code_cache_dir;
+        scope->GetContext()->SetGlobalStrVar("__HIPPYCURDIR__", footstone::stringview::string_view::new_from_utf8([basePath UTF8String]));
         scope->SetUriLoader(wrapper->GetLoader());
 
 #ifdef ENABLE_INSPECTOR
@@ -226,7 +236,6 @@ bool BridgeImpl::RunScriptFromUri(int64_t runtime_id,
         loader->RequestUntrustedContent(uri_str.data(), {}, code, meta, content);
 
         NSData *data = [NSData dataWithBytes: content.c_str() length: content.size()];
-        NSString *scriptName = [CStringToNSString(uri_str) lastPathComponent];
         [bridge executeScript:data url:[NSURL URLWithString:scriptName] completion:^(NSError * _Nonnull error) {
             BOOL succ = (error == nil);
             callback(succ ? 1 : 0);

@@ -22,7 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:voltron_renderer/voltron_renderer.dart';
+import 'package:voltron/voltron.dart';
 
 class QrController extends BaseViewController<QrRenderViewModel> {
   static const String kClassName = "QrView";

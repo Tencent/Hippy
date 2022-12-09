@@ -21,6 +21,10 @@
 #
 
 name: voltron_ffi
+description: voltron ffi module
+version: 0.0.1
+homepage: https://hippyjs.org
+repository: https://github.com/Tencent/Hippy
 
 environment:
   sdk: ">=2.17.6 <3.0.0"

@@ -19,7 +19,6 @@
 //
 
 import 'package:voltron/voltron.dart';
-import 'package:voltron_renderer/voltron_renderer.dart';
 import './module/test_module.dart';
 import './view/qr_view.dart';
 

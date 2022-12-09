@@ -20,7 +20,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:voltron/voltron.dart';
-import 'package:voltron_renderer/voltron_renderer.dart';
 import '../base_voltron_page.dart';
 
 class TestModule extends VoltronNativeModule {
