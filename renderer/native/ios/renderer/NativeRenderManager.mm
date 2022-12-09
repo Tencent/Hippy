@@ -181,12 +181,22 @@ void NativeRenderManager::SetUICreationLazilyEnabled(bool enabled) {
     renderImpl_.uiCreationLazilyEnabled = enabled;
 }
 
-void NativeRenderManager::SetImageProviderClass(Class<HPImageProviderProtocol> cls) {
-    renderImpl_.imageProviderClass = cls;
+void NativeRenderManager::AddImageProviderClass(Class<HPImageProviderProtocol> cls) {
+    @autoreleasepool {
+        [renderImpl_ addImageProviderClass:cls];
+    }
 }
+
+NSArray<Class<HPImageProviderProtocol>> *NativeRenderManager::GetImageProviderClasses() {
+    @autoreleasepool {
+        return [renderImpl_ imageProviderClasses];
+    }
+}
+
 void NativeRenderManager::SetHPUriLoader(HPUriLoader *loader) {
     renderImpl_.HPUriLoader = loader;
 }
+
 void NativeRenderManager::SetVFSUriLoader(std::shared_ptr<VFSUriLoader> loader) {
     renderImpl_.VFSUriLoader = loader;
 }

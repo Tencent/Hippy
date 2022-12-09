@@ -78,7 +78,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
 };
 
 @interface HippyBridge() {
-    NSSet<Class<HPImageProviderProtocol>> *_imageProviders;
+    NSMutableArray<Class<HPImageProviderProtocol>> *_imageProviders;
     __weak id<HippyMethodInterceptorProtocol> _methodInterceptor;
     HippyModulesSetup *_moduleSetup;
     __weak NSOperation *_lastOperation;
@@ -95,6 +95,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     NSURL *_sandboxDirectory;
     std::shared_ptr<VFSUriLoader> _uriLoader;
     HPUriLoader *_hpLoader;
+    std::mutex _imageProviderMutex;
 }
 
 @property(readwrite, assign) NSUInteger currentIndexOfBundleExecuted;
@@ -189,17 +190,20 @@ dispatch_queue_t HippyBridgeQueue() {
     return [_moduleSetup moduleForClass:moduleClass];
 }
 
-- (NSSet<Class<HPImageProviderProtocol>> *)imageProviders {
+- (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls {
+    HPAssertParam(cls);
+    std::lock_guard<std::mutex> lock(_imageProviderMutex);
     if (!_imageProviders) {
-        NSMutableSet *set = [NSMutableSet setWithCapacity:8];
-        for (Class moduleClass in self.moduleClasses) {
-            if ([moduleClass conformsToProtocol:@protocol(HPImageProviderProtocol)]) {
-                [set addObject:moduleClass];
-            }
-        }
-        _imageProviders = [NSSet setWithSet:set];
+        _imageProviders = [NSMutableArray arrayWithCapacity:8];
     }
-    return _imageProviders;
+    [_imageProviders addObject:cls];
+}
+- (NSArray<Class<HPImageProviderProtocol>> *)imageProviderClasses {
+    std::lock_guard<std::mutex> lock(_imageProviderMutex);
+    if (!_imageProviders) {
+        _imageProviders = [NSMutableArray arrayWithCapacity:8];
+    }
+    return [_imageProviders copy];
 }
 
 - (NSArray *)modulesConformingToProtocol:(Protocol *)protocol {
@@ -406,10 +410,6 @@ dispatch_queue_t HippyBridgeQueue() {
     if (_hpLoader != hploader) {
         _hpLoader = hploader;
     }
-}
-
-- (Class<HPImageProviderProtocol>)imageProviderClass {
-    return [[self imageProviders] anyObject];
 }
 
 - (HPUriLoader *)HPUriLoader {

@@ -175,14 +175,14 @@ public:
      * @discussion when true, ui hierarchy will not be created automatically, default is false
      */
     void SetUICreationLazilyEnabled(bool enabled);
-
+    
     /**
-     * Set image provider class
-     *
-     * @param cls image provider class
-     * @discussion image provider is responsible to create image instance, if image data is unrecognizable by default.
+     * Image provider method
+     * Users adds or obtains image providers in the following methods
      */
-    void SetImageProviderClass(Class<HPImageProviderProtocol> cls);
+    void AddImageProviderClass(Class<HPImageProviderProtocol> cls);
+    
+    NSArray<Class<HPImageProviderProtocol>> *GetImageProviderClasses();
     
     /**
      * Set vfs uri loader of OC version

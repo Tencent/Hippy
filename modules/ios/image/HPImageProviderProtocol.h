@@ -39,11 +39,6 @@
 @property(nonatomic, copy)NSString *imageDataPath;
 
 /**
- * Image scale
- */
-@property(nonatomic, assign)double scale;
-
-/**
  * Set image data for provider
  *
  * @param data Image data

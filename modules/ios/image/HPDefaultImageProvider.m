@@ -36,7 +36,6 @@
 @implementation HPDefaultImageProvider
 
 @synthesize imageDataPath;
-@synthesize scale;
 
 + (BOOL)canHandleData:(NSData *)data {
     return YES;
@@ -45,15 +44,6 @@
 + (BOOL)isAnimatedImage:(NSData *)data {
     BOOL ret = [data datatype_isAnimatedImage];
     return ret;
-}
-
-- (instancetype)initWithData:(NSData *)data {
-    self = [super init];
-    if (self) {
-        [self setImageData:data];
-        self.scale = 1.f;
-    }
-    return self;
 }
 
 - (void)setImageData:(NSData *)imageData {
@@ -65,12 +55,12 @@
 }
 
 - (UIImage *)image {
-    if (nil == _image) {
+    CGFloat scale = [UIScreen mainScreen].scale;
+    if (!_image) {
         if (_data) {
             CGFloat view_width = _imageViewSize.width;
             CGFloat view_height = _imageViewSize.height;
             if (_downSample && view_width > 0 && view_height > 0) {
-                CGFloat scale = self.scale;
                 NSDictionary *options = @{ (NSString *)kCGImageSourceShouldCache: @(NO) };
                 CGImageSourceRef ref = CGImageSourceCreateWithData((__bridge CFDataRef)_data, (__bridge CFDictionaryRef)options);
                 if (ref) {
@@ -92,7 +82,7 @@
                                 (NSString *)kCGImageSourceThumbnailMaxPixelSize: @(maxDimensionInPixels)
                             };
                             CGImageRef downsampleImageRef = CGImageSourceCreateThumbnailAtIndex(ref, 0, (__bridge CFDictionaryRef)downsampleOptions);
-                            _image = [UIImage imageWithCGImage:downsampleImageRef];
+                            _image = [UIImage imageWithCGImage:downsampleImageRef scale:scale orientation:UIImageOrientationUp];
                             CGImageRelease(downsampleImageRef);
                         }
                         CFRelease(properties);
@@ -105,7 +95,7 @@
         }
     }
     if (!_image) {
-        _image = [UIImage imageWithData:_data scale:self.scale];
+        _image = [UIImage imageWithData:_data scale:scale];
     }
     return _image;
 }

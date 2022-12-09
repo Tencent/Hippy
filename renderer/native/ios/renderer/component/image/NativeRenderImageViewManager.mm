@@ -21,7 +21,6 @@
  */
 
 #import "HPAsserts.h"
-#import "HPDefaultImageProvider.h"
 #import "HPToolUtils.h"
 #import "HPUriLoader.h"
 #import "NativeRenderImageViewManager.h"
@@ -30,8 +29,6 @@
 #import "TypeConverter.h"
 
 @interface NativeRenderImageViewManager () {
-    Class<HPImageProviderProtocol> _imageProviderClass;
-    NSUInteger _sequence;
 }
 
 @end
@@ -72,18 +69,26 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
     HPUriLoader *loader = [[self renderImpl] HPUriLoader];
     [loader requestContentAsync:path method:nil headers:nil body:nil
                          result:^(NSData * _Nullable data, NSURLResponse * _Nonnull response, NSError * _Nullable error) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            NativeRenderImageView *strongView = weakView;
-            if (strongView) {
-                Class cls = [self imageProviderClass];
-                id<HPImageProviderProtocol> imageProvider = [[cls alloc] init];
-                imageProvider.scale = [[UIScreen mainScreen] scale];
-                imageProvider.imageDataPath = standardizeAssetUrlString;
-                [imageProvider setImageData:data];
-                [strongView setImageProvider:imageProvider];
-                [strongView reloadImage];
+        NativeRenderImpl *renderImpl = self.renderImpl;
+        id<HPImageProviderProtocol> imageProvider = nil;
+        if (renderImpl) {
+            for (Class<HPImageProviderProtocol> cls in [renderImpl imageProviderClasses]) {
+                if ([cls canHandleData:data]) {
+                    imageProvider = [[(Class)cls alloc] init];
+                    break;
+                }
             }
-        });
+            HPAssert(imageProvider, @"Image Provider is required");
+            imageProvider.imageDataPath = standardizeAssetUrlString;
+            [imageProvider setImageData:data];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NativeRenderImageView *strongView = weakView;
+                if (strongView) {
+                    [strongView setImageProvider:imageProvider];
+                    [strongView reloadImage];
+                }
+            });
+        }
     }];
 }
 
@@ -111,15 +116,6 @@ NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(BottomRight)
 
 - (UIView *)view {
     return [[NativeRenderImageView alloc] init];
-}
-
-- (Class<HPImageProviderProtocol>)imageProviderClass {
-    return [[self renderImpl] imageProviderClass];
-}
-
-- (id<HPImageProviderProtocol>)getNewImageProviderInstance {
-    Class cls = [self imageProviderClass];
-    return [[cls alloc] init];
 }
 
 @end

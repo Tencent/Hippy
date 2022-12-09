@@ -111,6 +111,7 @@ static NSString *const engineKey = @"Demo";
     bridge.contextName = @"Demo";
     bridge.moduleName = @"Demo";
     bridge.methodInterceptor = self;
+    [bridge addImageProviderClass:[HPDefaultImageProvider class]];
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self.view addSubview:rootView];
     
@@ -136,6 +137,8 @@ static NSString *const engineKey = @"Demo";
     _nativeRenderManager = std::make_shared<NativeRenderManager>();
     //set dom manager
     _nativeRenderManager->SetDomManager(domManager);
+    //set image provider for native render manager
+    _nativeRenderManager->AddImageProviderClass([HPDefaultImageProvider class]);
     //set vfs for bridge & native render manager
     RegisterVFSLoaderForBridge(bridge, _nativeRenderManager);
     //set rendermanager for dommanager

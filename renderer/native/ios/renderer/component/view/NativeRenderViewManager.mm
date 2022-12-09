@@ -23,7 +23,7 @@
 #import "HPAsserts.h"
 #import "HPConvert.h"
 #import "HPConvert+NativeRender.h"
-#import "HPDefaultImageProvider.h"
+#import "HPImageProviderProtocol.h"
 #import "HPToolUtils.h"
 #import "HPUriLoader.h"
 #import "NativeRenderGradientObject.h"
@@ -178,17 +178,25 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, NativeRenderView) 
     [loader requestContentAsync:path method:nil
                         headers:nil body:nil
                          result:^(NSData * _Nullable data, NSURLResponse * _Nonnull response, NSError * _Nullable error) {
-        HPDefaultImageProvider *imageProvider = [[HPDefaultImageProvider alloc] init];
-        imageProvider.imageDataPath = standardizeAssetUrlString;
-        [imageProvider setImageData:data];
-        imageProvider.scale = [[UIScreen mainScreen] scale];
-        UIImage *backgroundImage = [imageProvider image];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            NativeRenderView *strongView = weakView;
-            if (strongView) {
-                strongView.backgroundImage = backgroundImage;
+        NativeRenderImpl *renderImpl = self.renderImpl;
+        id<HPImageProviderProtocol> imageProvider = nil;
+        if (renderImpl) {
+            for (Class<HPImageProviderProtocol> cls in [renderImpl imageProviderClasses]) {
+                if ([cls canHandleData:data]) {
+                    imageProvider = [[(Class)cls alloc] init];
+                    break;
+                }
             }
-        });
+            imageProvider.imageDataPath = standardizeAssetUrlString;
+            [imageProvider setImageData:data];
+            UIImage *backgroundImage = [imageProvider image];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NativeRenderView *strongView = weakView;
+                if (strongView) {
+                    strongView.backgroundImage = backgroundImage;
+                }
+            });
+        }
     }];
 }
 
