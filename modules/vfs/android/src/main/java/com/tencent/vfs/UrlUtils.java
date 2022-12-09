@@ -16,9 +16,15 @@
 
 package com.tencent.vfs;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class UrlUtils {
+
+    public static final String PREFIX_FILE = "file://";
+    public static final String PREFIX_ASSETS = "assets://";
+    public static final String PREFIX_BASE64_DATA = "data:";
+    public static final String PREFIX_BASE64 = ";base64,";
 
     /**
      * @return true if this url is an http link.
@@ -41,7 +47,7 @@ public class UrlUtils {
      */
     public static boolean isFileUrl(@Nullable String url) {
         return (null != url) && (url.length() > 6) && url.substring(0, 7)
-                .equalsIgnoreCase("file://");
+                .equalsIgnoreCase(PREFIX_FILE);
     }
 
     /**
@@ -49,5 +55,12 @@ public class UrlUtils {
      */
     public static boolean isWebUrl(@Nullable String url) {
         return isHttpUrl(url) || isHttpsUrl(url);
+    }
+
+    public static boolean isLocalUrl(@NonNull String url) {
+        if (url.startsWith(PREFIX_FILE) || url.startsWith(PREFIX_ASSETS)) {
+            return true;
+        }
+        return url.startsWith(PREFIX_BASE64_DATA) && url.contains(PREFIX_BASE64);
     }
 }

@@ -184,7 +184,7 @@ public class TextImageSpan extends ImageSpan {
 
     @MainThread
     private void loadImageWithUrl(@Nullable final String url) {
-        ImageLoaderAdapter adapter = mNativeRenderer.getImageLoaderAdapter();
+        ImageLoaderAdapter adapter = mNativeRenderer.getImageLoader();
         if (TextUtils.isEmpty(url) || mImageLoadState == STATE_LOADING
                 || adapter == null) {
             return;

@@ -16,18 +16,23 @@
 
 package com.tencent.renderer;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.renderer.component.image.ImageLoaderAdapter;
 import com.tencent.renderer.component.text.FontAdapter;
+import com.tencent.vfs.VfsManager;
 import java.util.concurrent.Executor;
 
 public interface FrameworkProxy {
 
     @Nullable
-    ImageLoaderAdapter getImageLoaderAdapter();
+    ImageLoaderAdapter getImageLoader();
 
     @Nullable
     FontAdapter getFontAdapter();
+
+    @NonNull
+    VfsManager getVfsManager();
 
     @Nullable
     Executor getBackgroundExecutor();
@@ -35,4 +40,11 @@ public interface FrameworkProxy {
     void onFirstViewAdded();
 
     void handleNativeException(Exception exception);
+
+    void updateDimension(int width, int height, boolean shouldUseScreenDisplay,
+            boolean systemUiVisibilityChanged);
+
+    Object getCustomViewCreator();
+
+    String getBundlePath();
 }

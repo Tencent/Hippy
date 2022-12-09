@@ -278,9 +278,9 @@ public class ImageDataHolder implements ImageDataSupplier {
             return sampleSize;
         }
         if (outWidth >= outHeight) {
-            sampleSize = (int) (outWidth / mWidth);
+            sampleSize = outWidth / mWidth;
         } else {
-            sampleSize = (int) (outHeight / mHeight);
+            sampleSize = outHeight / mHeight;
         }
         if (sampleSize < 1) {
             sampleSize = 1;

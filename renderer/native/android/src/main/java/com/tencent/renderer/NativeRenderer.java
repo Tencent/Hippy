@@ -43,6 +43,7 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.views.image.HippyImageViewController;
 import com.tencent.mtt.hippy.views.text.HippyTextViewController;
+import com.tencent.renderer.component.image.ImageLoader;
 import com.tencent.renderer.component.image.ImageLoaderAdapter;
 import com.tencent.renderer.component.text.FontAdapter;
 import com.tencent.renderer.component.text.TextRenderSupplier;
@@ -58,6 +59,7 @@ import com.tencent.renderer.serialization.Serializer;
 import com.tencent.renderer.utils.DisplayUtils;
 import com.tencent.renderer.utils.EventUtils.EventType;
 
+import com.tencent.vfs.VfsManager;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -115,10 +117,11 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     private final VirtualNodeManager mVirtualNodeManager;
     @Nullable
     private ExecutorService mBackgroundExecutor;
+    @Nullable
+    private ImageLoaderAdapter mImageLoader;
 
     public NativeRenderer() {
         mRenderProvider = new NativeRenderProvider(this);
-//        NativeRendererManager.addNativeRendererInstance(mRenderProvider.getInstanceId(), this);
         // Should restrictions the capacity of ui task queue, to avoid js make huge amount of
         // node operation cause OOM.
         mUITaskQueue = new LinkedBlockingQueue<>(MAX_UI_TASK_QUEUE_CAPACITY);
@@ -159,47 +162,46 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
+    @Nullable
     public Object getCustomViewCreator() {
-        if (checkJSFrameworkProxy()) {
-            return ((JSFrameworkProxy) mFrameworkProxy).getCustomViewCreator();
-        }
-        return null;
-    }
-
-    @Override
-    public String getBundlePath() {
-        if (checkJSFrameworkProxy()) {
-            return ((JSFrameworkProxy) mFrameworkProxy).getBundlePath();
-        }
-        return null;
+        return (mFrameworkProxy != null) ? mFrameworkProxy.getCustomViewCreator() : null;
     }
 
     @Override
     @Nullable
-    public ImageLoaderAdapter getImageLoaderAdapter() {
-        if (mFrameworkProxy != null) {
-            return mFrameworkProxy.getImageLoaderAdapter();
+    public String getBundlePath() {
+        return (mFrameworkProxy != null) ? mFrameworkProxy.getBundlePath() : null;
+    }
+
+    @Override
+    @Nullable
+    public ImageLoaderAdapter getImageLoader() {
+        if (mFrameworkProxy != null && mFrameworkProxy.getImageLoader() != null) {
+            return mFrameworkProxy.getImageLoader();
         }
-        return null;
+        if (mImageLoader == null) {
+            mImageLoader = new ImageLoader(mFrameworkProxy.getVfsManager());
+        }
+        return mImageLoader;
+    }
+
+    @Override
+    @Nullable
+    public VfsManager getVfsManager() {
+        return (mFrameworkProxy != null) ? mFrameworkProxy.getVfsManager() : null;
     }
 
     @Override
     @Nullable
     public FontAdapter getFontAdapter() {
-        if (mFrameworkProxy != null) {
-            return mFrameworkProxy.getFontAdapter();
-        }
-        return null;
+        return (mFrameworkProxy != null) ? mFrameworkProxy.getFontAdapter() : null;
     }
 
     @Override
     @Nullable
     public Executor getBackgroundExecutor() {
-        if (mFrameworkProxy != null) {
-            Executor executor = mFrameworkProxy.getBackgroundExecutor();
-            if (executor != null) {
-                return executor;
-            }
+        if (mFrameworkProxy != null && mFrameworkProxy.getBackgroundExecutor() != null) {
+            return mFrameworkProxy.getBackgroundExecutor();
         }
         if (mBackgroundExecutor == null) {
             mBackgroundExecutor = Executors.newSingleThreadExecutor();
@@ -322,9 +324,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     @Override
     public void updateDimension(int width, int height, boolean shouldUseScreenDisplay,
             boolean systemUiVisibilityChanged) {
-        if (checkJSFrameworkProxy()) {
-            ((JSFrameworkProxy) mFrameworkProxy).updateDimension(width, height,
-                    shouldUseScreenDisplay, systemUiVisibilityChanged);
+        if (mFrameworkProxy != null) {
+            mFrameworkProxy.updateDimension(width, height, shouldUseScreenDisplay, systemUiVisibilityChanged);
         }
     }
 
@@ -827,10 +828,6 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                                 - start));
             }
         });
-    }
-
-    private boolean checkJSFrameworkProxy() {
-        return mFrameworkProxy instanceof JSFrameworkProxy;
     }
 
     /**
