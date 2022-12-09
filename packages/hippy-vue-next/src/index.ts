@@ -50,7 +50,13 @@ import type { NativeApiType } from './runtime/native';
 import './runtime/event/hippy-event-dispatcher';
 import './runtime/websocket/websocket';
 import type { HippyNode } from './runtime/node/hippy-node';
-import { setBeforeLoadStyle, setSilent, setTrimWhitespace, trace } from './util';
+import {
+  setBeforeLoadStyle,
+  setSilent,
+  setTrimWhitespace,
+  trace,
+  setBeforeRenderToNative,
+} from './util';
 import type { HippyCachedInstanceType } from './util/instance';
 import {
   getHippyCachedInstance,
@@ -264,6 +270,22 @@ export const createApp = (
 
   // return hippy vue instance
   return hippyApp;
+};
+
+/*
+ * used to validate beforeRenderToNative hook
+ * when ElementNode or ViewNode have breaking changes, add version number to disable
+ * beforeRenderToNative hook
+ */
+const BEFORE_RENDER_TO_NATIVE_HOOK_VERSION = 1;
+export const _setBeforeRenderToNative = (hook, version) => {
+  if (isFunction(hook)) {
+    if (BEFORE_RENDER_TO_NATIVE_HOOK_VERSION === version) {
+      setBeforeRenderToNative(hook);
+    } else {
+      console.error('_setBeforeRenderToNative API had changed, the hook function will be ignored!');
+    }
+  }
 };
 
 export type {
