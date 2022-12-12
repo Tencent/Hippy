@@ -17,9 +17,12 @@
 package com.tencent.mtt.hippy;
 
 import static com.tencent.vfs.UrlUtils.PREFIX_ASSETS;
+import static com.tencent.vfs.UrlUtils.PREFIX_BASE64;
 import static com.tencent.vfs.UrlUtils.PREFIX_FILE;
 
+import android.util.Base64;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.adapter.executor.HippyExecutorSupplierAdapter;
 import com.tencent.mtt.hippy.adapter.http.HippyHttpAdapter;
 import com.tencent.mtt.hippy.utils.ContextHolder;
@@ -32,7 +35,6 @@ import java.io.InputStream;
 
 public class HippyResourceLoader implements ResourceLoader {
 
-    private static final String TAG = "HippyResourceLoader";
     private final Object mRemoteSyncObject = new Object();
     private final HippyEngineContext mEngineContext;
 
@@ -53,7 +55,8 @@ public class HippyResourceLoader implements ResourceLoader {
         if (UrlUtils.isWebUrl(holder.uri)) {
             loadRemoteResource(holder, callback);
         } else if (UrlUtils.isLocalUrl(holder.uri)) {
-            HippyExecutorSupplierAdapter executorAdapter = mEngineContext.getGlobalConfigs().getExecutorSupplierAdapter();
+            HippyExecutorSupplierAdapter executorAdapter = mEngineContext.getGlobalConfigs()
+                    .getExecutorSupplierAdapter();
             executorAdapter.getBackgroundTaskExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
@@ -73,21 +76,49 @@ public class HippyResourceLoader implements ResourceLoader {
         httpAdapter.fetch(holder, mEngineContext.getNativeParams(), callback);
     }
 
+    private void onLoadLocalResourceFailed(@NonNull final ResourceDataHolder holder,
+            @Nullable Throwable throwable) {
+        holder.resultCode = FetchResultCode.ERR_OPEN_LOCAL_FILE.ordinal();
+        if (throwable != null) {
+            holder.errorMessage = throwable.getMessage();
+        }
+    }
+
+    private void loadBase64Resource(@NonNull final ResourceDataHolder holder) {
+        try {
+            int base64Index = holder.uri.indexOf(PREFIX_BASE64);
+            if (base64Index >= 0) {
+                base64Index += PREFIX_BASE64.length();
+                String base64String = holder.uri.substring(base64Index);
+                holder.bytes = Base64.decode(base64String, Base64.DEFAULT);
+                holder.resultCode = FetchResultCode.OK.ordinal();
+            }
+        } catch (Exception e) {
+            onLoadLocalResourceFailed(holder, e);
+        }
+    }
+
     private void loadLocalFileResource(@NonNull final ResourceDataHolder holder) {
-        String fileName = holder.uri;
-        if (holder.uri.startsWith(PREFIX_FILE)) {
+        if (UrlUtils.isBase64Url(holder.uri)) {
+            loadBase64Resource(holder);
+            return;
+        }
+        String fileName;
+        if (UrlUtils.isFileUrl(holder.uri)) {
             fileName = holder.uri.substring(PREFIX_FILE.length());
-        } else if (holder.uri.startsWith(PREFIX_ASSETS)) {
+        } else if (UrlUtils.isAssetsUrl(holder.uri)) {
             fileName = holder.uri.substring(PREFIX_ASSETS.length());
+        } else {
+            holder.resultCode = FetchResultCode.ERR_UNKNOWN_SCHEME.ordinal();
+            return;
         }
         InputStream inputStream = null;
         try {
             inputStream = ContextHolder.getAppContext().getAssets().open(fileName);
             holder.readResourceDataFromStream(inputStream);
             holder.resultCode = FetchResultCode.OK.ordinal();
-        } catch (IOException e) {
-            holder.resultCode = FetchResultCode.ERR_OPEN_LOCAL_FILE.ordinal();
-            holder.errorMessage = "Load " + holder.uri + " failed! " + e.getMessage();
+        } catch (IOException | NullPointerException e) {
+            onLoadLocalResourceFailed(holder, e);
         } finally {
             if (inputStream != null) {
                 try {

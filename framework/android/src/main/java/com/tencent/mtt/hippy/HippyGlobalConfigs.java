@@ -61,11 +61,6 @@ public class HippyGlobalConfigs {
   private final HippyHttpAdapter mHttpAdapter;
 
   /**
-   * Image loader adapter
-   */
-  private final ImageLoaderAdapter mImageLoaderAdapter;
-
-  /**
    * Storage adapter
    */
   private final HippyStorageAdapter mStorageAdapter;
@@ -104,7 +99,6 @@ public class HippyGlobalConfigs {
     this.mSharedPreferencesAdapter = params.sharedPreferencesAdapter;
     this.mExceptionHandler = params.exceptionHandler;
     this.mHttpAdapter = params.httpAdapter;
-    this.mImageLoaderAdapter = params.imageLoader;
     this.mStorageAdapter = params.storageAdapter;
     this.mExecutorSupplierAdapter = params.executorSupplier;
     this.mEngineMonitorAdapter = params.engineMonitor;
@@ -128,7 +122,6 @@ public class HippyGlobalConfigs {
     this.mSharedPreferencesAdapter = sharedPreferencesAdapter;
     this.mExceptionHandler = exceptionHandler;
     this.mHttpAdapter = httpAdapter;
-    this.mImageLoaderAdapter = imageLoaderAdapter;
     this.mStorageAdapter = storageAdapter;
     this.mExecutorSupplierAdapter = executorSupplierAdapter;
     this.mEngineMonitorAdapter = engineMonitorAdapter;
@@ -148,9 +141,6 @@ public class HippyGlobalConfigs {
       }
       if (mExecutorSupplierAdapter != null) {
         mExecutorSupplierAdapter.destroyIfNeed();
-      }
-      if (mImageLoaderAdapter != null) {
-        mImageLoaderAdapter.destroyIfNeed();
       }
       mContext = null;
     } catch (Throwable e) {
@@ -190,10 +180,6 @@ public class HippyGlobalConfigs {
     return mContext;
   }
 
-  public ImageLoaderAdapter getImageLoaderAdapter() {
-    return mImageLoaderAdapter;
-  }
-
   public HippyStorageAdapter getStorageAdapter() {
     return mStorageAdapter;
   }
@@ -212,7 +198,6 @@ public class HippyGlobalConfigs {
     params.sharedPreferencesAdapter = mSharedPreferencesAdapter;
     params.exceptionHandler = mExceptionHandler;
     params.httpAdapter = mHttpAdapter;
-    params.imageLoader = mImageLoaderAdapter;
     params.storageAdapter = mStorageAdapter;
     params.executorSupplier = mExecutorSupplierAdapter;
     params.engineMonitor = mEngineMonitorAdapter;

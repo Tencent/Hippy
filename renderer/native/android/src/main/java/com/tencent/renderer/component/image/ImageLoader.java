@@ -19,6 +19,7 @@ package com.tencent.renderer.component.image;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.pool.ImageDataPool;
 import com.tencent.renderer.pool.Pool;
@@ -75,6 +76,18 @@ public class ImageLoader implements ImageLoaderAdapter {
         requestParams.put("width", String.valueOf(width));
         requestParams.put("height", String.valueOf(height));
         requestParams.put(REQUEST_CONTENT_TYPE, REQUEST_CONTENT_TYPE_IMAGE);
+        try {
+            if (initProps != null) {
+                requestParams.put(NodeProps.CUSTOM_PROP_IMAGE_TYPE,
+                        String.valueOf(initProps.get(NodeProps.CUSTOM_PROP_IMAGE_TYPE)));
+                requestParams.put(NodeProps.REPEAT_COUNT,
+                        String.valueOf(initProps.get(NodeProps.REPEAT_COUNT)));
+                requestParams.put(NodeProps.CUSTOM_PROP_ISGIF,
+                        String.valueOf(initProps.get(NodeProps.CUSTOM_PROP_ISGIF)));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return requestParams;
     }
 

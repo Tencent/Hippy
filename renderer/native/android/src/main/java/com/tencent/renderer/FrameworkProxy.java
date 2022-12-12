@@ -26,9 +26,6 @@ import java.util.concurrent.Executor;
 public interface FrameworkProxy {
 
     @Nullable
-    ImageLoaderAdapter getImageLoader();
-
-    @Nullable
     FontAdapter getFontAdapter();
 
     @NonNull
