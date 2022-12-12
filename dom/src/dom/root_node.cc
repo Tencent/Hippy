@@ -133,7 +133,9 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
     dom_node->SetDeleteProps(delete_value);
     node_info->dom_node->SetDiffStyle(diff_value);
     node_info->dom_node->SetDeleteProps(delete_value);
-    dom_node->UpdateLayoutStyleInfo(*style_update);
+    if (style_update != nullptr) {
+      dom_node->UpdateLayoutStyleInfo(*style_update);
+    }
     auto event = std::make_shared<DomEvent>(kDomUpdated, dom_node, nullptr);
     dom_node->HandleEvent(event);
   }
