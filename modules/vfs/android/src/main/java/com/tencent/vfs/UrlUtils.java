@@ -16,7 +16,6 @@
 
 package com.tencent.vfs;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class UrlUtils {
@@ -57,10 +56,18 @@ public class UrlUtils {
         return isHttpUrl(url) || isHttpsUrl(url);
     }
 
-    public static boolean isLocalUrl(@NonNull String url) {
-        if (url.startsWith(PREFIX_FILE) || url.startsWith(PREFIX_ASSETS)) {
+    public static boolean isAssetsUrl(@Nullable String url) {
+        return (null != url) && url.startsWith(PREFIX_ASSETS);
+    }
+
+    public static boolean isLocalUrl(@Nullable String url) {
+        if (isFileUrl(url) || isAssetsUrl(url)) {
             return true;
         }
-        return url.startsWith(PREFIX_BASE64_DATA) && url.contains(PREFIX_BASE64);
+        return isBase64Url(url);
+    }
+
+    public static boolean isBase64Url(@Nullable String url) {
+        return (null != url) && url.startsWith(PREFIX_BASE64_DATA) && url.contains(PREFIX_BASE64);
     }
 }

@@ -37,8 +37,6 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
@@ -100,18 +98,8 @@ public class TextImageSpan extends ImageSpan {
     }
 
     public void setUrl(@Nullable final String url) {
-        if (TextUtils.isEmpty(url)) {
-            return;
-        }
-        if (UIThreadUtils.isOnUiThread()) {
+        if (!TextUtils.isEmpty(url)) {
             loadImageWithUrl(url);
-        } else {
-            UIThreadUtils.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    loadImageWithUrl(url);
-                }
-            });
         }
     }
 
@@ -183,25 +171,49 @@ public class TextImageSpan extends ImageSpan {
     }
 
     @MainThread
-    private void loadImageWithUrl(@Nullable final String url) {
-        ImageLoaderAdapter adapter = mNativeRenderer.getImageLoader();
-        if (TextUtils.isEmpty(url) || mImageLoadState == STATE_LOADING
-                || adapter == null) {
+    private void loadImageWithUrl(@NonNull final String url) {
+        ImageLoaderAdapter imageLoader = mNativeRenderer.getImageLoader();
+        if (mImageLoadState == STATE_LOADING || imageLoader == null) {
             return;
         }
-        if (shouldUseFetchImageMode(url)) {
-            final HippyMap props = new HippyMap();
-            props.pushBoolean(NodeProps.CUSTOM_PROP_ISGIF, false);
-            props.pushInt(NodeProps.WIDTH, mWidth);
-            props.pushInt(NodeProps.HEIGHT, mHeight);
-            doFetchImage(url, props, adapter);
-        } else {
-            assert url != null;
-            ImageDataSupplier supplier = adapter.getLocalImage(url, mWidth, mHeight);
-            if (supplier instanceof ImageDataHolder) {
-                shouldReplaceDrawable((ImageDataHolder) supplier);
+        mImageLoadState = STATE_LOADING;
+        imageLoader.fetchImageAsync(url, new ImageRequestListener() {
+            @Override
+            public void onRequestStart(ImageDataSupplier imageData) {
             }
-        }
+
+            @Override
+            public void onRequestProgress(float total, float loaded) {
+            }
+
+            @Override
+            public void onRequestSuccess(final ImageDataSupplier imageData) {
+                if (UIThreadUtils.isOnUiThread()) {
+                    handleFetchImageResult(imageData);
+                } else {
+                    UIThreadUtils.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            handleFetchImageResult(imageData);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onRequestFail(Throwable throwable) {
+                if (UIThreadUtils.isOnUiThread()) {
+                    handleFetchImageResult(null);
+                } else {
+                    UIThreadUtils.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            handleFetchImageResult(null);
+                        }
+                    });
+                }
+            }
+        }, null, mWidth, mHeight);
     }
 
     private void drawGIF(Canvas canvas, float left, float top, int width, int height) {
@@ -239,11 +251,7 @@ public class TextImageSpan extends ImageSpan {
     }
 
     @SuppressLint("DiscouragedPrivateApi")
-    private void shouldReplaceDrawable(ImageDataHolder supplier) {
-        if (supplier == null) {
-            mImageLoadState = STATE_UNLOAD;
-            return;
-        }
+    private void shouldReplaceDrawable(@NonNull ImageDataHolder supplier) {
         Bitmap bitmap = supplier.getBitmap();
         if (bitmap != null) {
             Resources resources = ContextHolder.getAppContext().getResources();
@@ -287,47 +295,6 @@ public class TextImageSpan extends ImageSpan {
         }
         mNativeRenderer.dispatchEvent(mRootId, mId, eventName, null, false, false,
                 EventType.EVENT_TYPE_COMPONENT);
-    }
-
-    private void doFetchImage(String url, HippyMap props, ImageLoaderAdapter adapter) {
-        mImageLoadState = STATE_LOADING;
-        adapter.fetchImage(url, new ImageRequestListener() {
-            @Override
-            public void onRequestStart(ImageDataSupplier imageData) {
-            }
-
-            @Override
-            public void onRequestProgress(float total, float loaded) {
-            }
-
-            @Override
-            public void onRequestSuccess(final ImageDataSupplier imageData) {
-                if (UIThreadUtils.isOnUiThread()) {
-                    handleFetchImageResult(imageData);
-                } else {
-                    UIThreadUtils.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            handleFetchImageResult(imageData);
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onRequestFail(Throwable throwable) {
-                if (UIThreadUtils.isOnUiThread()) {
-                    handleFetchImageResult(null);
-                } else {
-                    UIThreadUtils.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            handleFetchImageResult(null);
-                        }
-                    });
-                }
-            }
-        }, props);
     }
 
     private interface IAlignConfig {

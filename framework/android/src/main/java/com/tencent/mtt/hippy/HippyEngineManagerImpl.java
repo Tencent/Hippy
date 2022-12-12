@@ -272,11 +272,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
-    public ImageLoaderAdapter getImageLoader() {
-        return mEngineContext.getGlobalConfigs().getImageLoaderAdapter();
-    }
-
-    @Override
     public FontAdapter getFontAdapter() {
         return mEngineContext.getGlobalConfigs().getFontScaleAdapter();
     }

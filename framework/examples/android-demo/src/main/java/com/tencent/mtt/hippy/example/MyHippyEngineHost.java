@@ -8,7 +8,6 @@ import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyAssetBundleLoader;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.example.adapter.MyExceptionHandler;
-import com.tencent.mtt.hippy.example.adapter.MyImageLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +41,7 @@ public class MyHippyEngineHost extends HippyEngineHost
 	@Override
 	public HippyGlobalConfigs getHippyGlobalConfigs()
 	{
-		return new HippyGlobalConfigs.Builder().setContext(mApplication).setExceptionHandler(new MyExceptionHandler()).setImageLoaderAdapter(new MyImageLoader(mApplication)).build();
+		return new HippyGlobalConfigs.Builder().setContext(mApplication).setExceptionHandler(new MyExceptionHandler()).build();
 	}
 
 	@Override

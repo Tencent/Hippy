@@ -88,9 +88,10 @@ public class ImageVirtualNode extends VirtualNode {
     @NonNull
     protected TextImageSpan createImageSpan() {
         Drawable drawable = null;
-        ImageLoaderAdapter adapter = mNativeRenderer.getImageLoader();
-        if (mDefaultSource != null && adapter != null) {
-            ImageDataSupplier supplier = adapter.getLocalImage(mDefaultSource, mWidth, mHeight);
+        ImageLoaderAdapter imageLoader = mNativeRenderer.getImageLoader();
+        if (mDefaultSource != null && imageLoader != null) {
+            ImageDataSupplier supplier = imageLoader.fetchImageSync(mDefaultSource, null, mWidth,
+                    mHeight);
             Bitmap bitmap = supplier.getBitmap();
             if (bitmap != null) {
                 Resources resources = ContextHolder.getAppContext().getResources();
