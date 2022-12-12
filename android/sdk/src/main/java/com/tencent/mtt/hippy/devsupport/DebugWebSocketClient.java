@@ -104,6 +104,10 @@ public class DebugWebSocketClient implements WebSocketClient.WebSocketListener {
   @Override
   public void onDisconnect(int code, String reason) {
     LogUtils.d("onDisconnect","code:" + code + ",reason:" + reason);
+    if (mConnectCallback != null) {
+      mConnectCallback.onFailure(new Exception(reason));
+      mConnectCallback = null;
+    }
     if (code == 0 && (WebSocketClient.DISCONNECT_REASON_EOF.equals(reason)
             || WebSocketClient.DISCONNECT_REASON_CONNECT.equals(reason))) {
       reconnect();
@@ -114,8 +118,6 @@ public class DebugWebSocketClient implements WebSocketClient.WebSocketListener {
   }
 
   private void abort(Throwable cause) {
-    closeQuietly();
-
     // Trigger failure callbacks
     if (mConnectCallback != null) {
       mConnectCallback.onFailure(cause);
@@ -125,6 +127,8 @@ public class DebugWebSocketClient implements WebSocketClient.WebSocketListener {
       callback.onFailure(cause);
     }
     mCallbacks.clear();
+
+    closeQuietly();
   }
 
   public interface JSDebuggerCallback {
