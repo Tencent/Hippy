@@ -358,6 +358,7 @@ void SetDomManager(JNIEnv* j_env,
 
 static jint JNI_OnLoad(__unused JavaVM* j_vm, __unused void* reserved) {
   auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  hippy::AssetHandler::Init(j_env);
   hippy::ExceptionHandler::Init(j_env);
   hippy::ConvertUtils::Init(j_env);
   hippy::JavaTurboModule::Init(j_env);
@@ -369,9 +370,10 @@ static jint JNI_OnLoad(__unused JavaVM* j_vm, __unused void* reserved) {
 static void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
   auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   hippy::napi::V8VM::PlatformDestroy();
-  hippy::ConvertUtils::Destroy(j_env);
-  hippy::JavaTurboModule::Destroy(j_env);
   hippy::TurboModuleManager::Destroy(j_env);
+  hippy::JavaTurboModule::Destroy(j_env);
+  hippy::ConvertUtils::Destroy(j_env);
+  hippy::AssetHandler::Destroy(j_env);
 }
 
 REGISTER_JNI_ONLOAD(JNI_OnLoad)

@@ -32,7 +32,8 @@ using StringViewUtils = footstone::StringViewUtils;
 namespace hippy {
 inline namespace vfs {
 
-
+static jclass j_context_holder_class;
+static jmethodID j_get_app_context_mothod_id;
 
 bool ReadAsset(const string_view& path,
                AAssetManager* aasset_manager,
@@ -76,20 +77,15 @@ bool ReadAsset(const string_view& path,
   return false;
 }
 
-AssetHandler::AssetHandler() {
-  auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-  context_ = AssetHandler::GetAppContext(j_env);
-  auto j_context_class = j_env->GetObjectClass(context_->GetObj());
-  get_assets_method_id_ = j_env->GetMethodID(j_context_class, "getAssets", "()Landroid/content/res/AssetManager;");
+void AssetHandler::Init(JNIEnv* j_env) {
+  j_context_holder_class = reinterpret_cast<jclass>(j_env->NewGlobalRef(
+      j_env->FindClass("com/tencent/mtt/hippy/utils/ContextHolder")));
+  j_get_app_context_mothod_id = j_env->GetStaticMethodID(
+      j_context_holder_class, "getAppContext","()Landroid/content/Context;");
 }
 
-std::shared_ptr<JavaRef> AssetHandler::GetAppContext(JNIEnv* j_env) {
-  auto activity_thread = j_env->FindClass("android/app/ActivityThread");
-  auto current_activity_method_id = j_env->GetStaticMethodID(activity_thread, "currentActivityThread", "()Landroid/app/ActivityThread;");
-  auto activity = j_env->CallStaticObjectMethod(activity_thread, current_activity_method_id);
-  auto get_application_method_id = j_env->GetMethodID(activity_thread, "getApplication", "()Landroid/app/Application;");
-  auto context = j_env->CallObjectMethod(activity, get_application_method_id);
-  return std::make_shared<JavaRef>(j_env, context);
+void AssetHandler::Destroy(JNIEnv* j_env) {
+  j_env->DeleteGlobalRef(j_context_holder_class);
 }
 
 void AssetHandler::RequestUntrustedContent(
@@ -104,7 +100,10 @@ void AssetHandler::RequestUntrustedContent(
   }
 
   auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-  auto j_asset_manager = j_env->CallObjectMethod(context_->GetObj(), get_assets_method_id_);
+  auto j_context = j_env->CallStaticObjectMethod(j_context_holder_class, j_get_app_context_mothod_id);
+  auto j_context_class = j_env->GetObjectClass(j_context);
+  auto j_get_assets_method_id = j_env->GetMethodID(j_context_class, "getAssets", "()Landroid/content/res/AssetManager;");
+  auto j_asset_manager = j_env->CallObjectMethod(j_context, j_get_assets_method_id);
   auto asset_manager = AAssetManager_fromJava(j_env, j_asset_manager);
   bool ret = ReadAsset(path, asset_manager, ctx->content, false);
   if (ret) {
@@ -146,7 +145,10 @@ void AssetHandler::LoadByAsset(const string_view& path,
     return;
   }
   auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-  auto j_asset_manager = j_env->CallObjectMethod(context_->GetObj(), get_assets_method_id_);
+  auto j_context = j_env->CallStaticObjectMethod(j_context_holder_class, j_get_app_context_mothod_id);
+  auto j_context_class = j_env->GetObjectClass(j_context);
+  auto j_get_assets_method_id = j_env->GetMethodID(j_context_class, "getAssets", "()Landroid/content/res/AssetManager;");
+  auto j_asset_manager = j_env->CallObjectMethod(j_context, j_get_assets_method_id);
   auto manager = std::make_shared<JavaRef>(j_env, j_asset_manager);
   runner->PostTask([path, manager, is_auto_fill, ctx] {
     UriHandler::bytes content;
