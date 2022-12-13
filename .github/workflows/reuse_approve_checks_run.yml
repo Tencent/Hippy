@@ -1,0 +1,104 @@
+name: '[reuse] approve checks run'
+
+on:
+  workflow_call:
+    inputs:
+      pull_request_number:
+        description: 'Pull request number'
+        required: true
+        type: number
+      pull_request_head_sha:
+        description: 'Pull request head sha'
+        required: true
+        type: string
+      requied_privilege_escalation:
+        description: 'Privilege escalation required'
+        required: false
+        default: false
+        type: boolean
+    outputs:
+      pull_request_number:
+        description: 'Pull request number'
+        value: ${{ inputs.pull_request_number }}
+      pull_request_head_sha:
+        description: 'Pull request head sha'
+        value: ${{ inputs.pull_request_head_sha }}
+      action_required:
+        description: "Checks require approve"
+        value: ${{ jobs.approve_checks_run.outputs.action_required }}
+      included_risk_files:
+        description: "Contains risk files"
+        value: ${{ jobs.approve_checks_run.outputs.included_risk_files }}
+
+jobs:
+  approve_checks_run:
+    runs-on: ubuntu-latest
+    outputs:
+      included_risk_files: ${{ steps.action.outputs.included_risk_files }}
+      action_required: ${{ steps.action.outputs.action_required }}
+      workflow_runs: ${{ steps.action.outputs.workflow_runs }}
+    steps:
+    - name: Action
+      id: action
+      uses: actions/github-script@v6.3.3
+      with:
+        script: |
+          const { actions, pulls } = github.rest;
+          const fs = require('fs');
+          const os = require('os');
+
+          const per_page = 100;
+
+          let workflow_runs = (await github.paginate(actions.listWorkflowRunsForRepo, {
+            per_page,
+            event: 'pull_request',
+            status: 'action_required',
+            ...context.repo
+          })).filter(workflow_run => workflow_run.head_sha === '${{ inputs.pull_request_head_sha }}').map(workflow_run => workflow_run.id);
+          if (workflow_runs.length === 0) {
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `action_required=false${os.EOL}`, { encoding: 'utf8' });
+            return;
+          }
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `action_required=true${os.EOL}`, { encoding: 'utf8' });
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `workflow_runs=${JSON.stringify(workflow_runs)}${os.EOL}`, { encoding: 'utf8' });
+
+          const [includedRiskFiles] = await github.paginate(pulls.listFiles, {
+            per_page,
+            pull_number: ${{ inputs.pull_request_number }},
+            ...context.repo
+          }, ({ data: files }, done) => {
+            if (files.some(file => file.filename.startsWith('.github/workflows'))) {
+              done();
+              return [true];
+            }
+            return [];
+          });
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `included_risk_files=${includedRiskFiles}${os.EOL}`, { encoding: 'utf8' });
+
+          if (!includedRiskFiles) {
+            await Promise.all(workflow_runs.map(workflow_run => actions.approveWorkflowRun({
+              run_id: workflow_run,
+              ...context.repo
+            })));
+          }
+
+  approve_checks_run_privileged:
+    needs: approve_checks_run
+    if: needs.approve_checks_run.outputs.included_risk_files == 'true' && inputs.requied_privilege_escalation == true
+    environment: github-actions-privileged
+    runs-on: ubuntu-latest
+    steps:
+    - name: Action
+      id: action
+      env:
+        workflow_runs: ${{ needs.approve_checks_run.outputs.workflow_runs }}
+      uses: actions/github-script@v6.1.0
+      with:
+        script: |
+          const { actions } = github.rest;
+
+          const workflow_runs = JSON.parse(process.env.workflow_runs);
+          await Promise.all(workflow_runs.map(workflow_run => actions.approveWorkflowRun({
+            run_id: workflow_run,
+            ...context.repo
+          })));
