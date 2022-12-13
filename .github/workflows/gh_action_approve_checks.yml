@@ -26,8 +26,8 @@ jobs:
       uses: navikt/github-app-token-generator@v1
       id: get-token
       with:
-        private-key: ${{ secrets.ACTION_PRIVATE_KEY }}
-        app-id: ${{ secrets.ACTION_APP_ID }}
+        private-key: ${{ secrets.PRIVATE_KEY }}
+        app-id: ${{ secrets.APP_ID }}
     - name: Action
       uses: actions/github-script@v6.3.3
       env:
@@ -124,8 +124,8 @@ jobs:
       uses: navikt/github-app-token-generator@v1
       id: get-token
       with:
-        private-key: ${{ secrets.ACTION_PRIVATE_KEY }}
-        app-id: ${{ secrets.ACTION_APP_ID }}
+        private-key: ${{ secrets.PRIVATE_KEY }}
+        app-id: ${{ secrets.APP_ID }}
     - name: Action
       uses: actions/github-script@v6.3.3
       with:
