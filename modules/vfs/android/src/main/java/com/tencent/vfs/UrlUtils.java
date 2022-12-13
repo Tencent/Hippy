@@ -56,10 +56,16 @@ public class UrlUtils {
         return isHttpUrl(url) || isHttpsUrl(url);
     }
 
+    /**
+     * @return true if this url is an assets file path.
+     */
     public static boolean isAssetsUrl(@Nullable String url) {
         return (null != url) && url.startsWith(PREFIX_ASSETS);
     }
 
+    /**
+     * @return true if this url is an local source.
+     */
     public static boolean isLocalUrl(@Nullable String url) {
         if (isFileUrl(url) || isAssetsUrl(url)) {
             return true;
@@ -67,6 +73,9 @@ public class UrlUtils {
         return isBase64Url(url);
     }
 
+    /**
+     * @return true if this url is an base64 source.
+     */
     public static boolean isBase64Url(@Nullable String url) {
         return (null != url) && url.startsWith(PREFIX_BASE64_DATA) && url.contains(PREFIX_BASE64);
     }

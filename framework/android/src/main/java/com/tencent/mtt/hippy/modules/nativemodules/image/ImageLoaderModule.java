@@ -82,6 +82,11 @@ public class ImageLoaderModule extends HippyNativeModuleBase {
                             decodeImageData(url, bytes, promise);
                         }
                     }
+
+                    @Override
+                    public void onFetchProgress(float total, float loaded) {
+                        // Nothing need to do here.
+                    }
                 });
     }
 
@@ -91,7 +96,12 @@ public class ImageLoaderModule extends HippyNativeModuleBase {
                 new FetchResourceCallback() {
                     @Override
                     public void onFetchCompleted(@NonNull final ResourceDataHolder dataHolder) {
+                        // Nothing need to do here.
+                    }
 
+                    @Override
+                    public void onFetchProgress(float total, float loaded) {
+                        // Nothing need to do here.
                     }
                 });
     }

@@ -57,6 +57,7 @@ import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 
 import com.tencent.renderer.ControllerProvider;
 import com.tencent.renderer.component.image.ImageLoaderAdapter;
+import com.tencent.vfs.Processor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -239,6 +240,7 @@ public abstract class HippyEngine {
     // 可选参数 自定义的，用来提供Native modules、JavaScript modules、View controllers的管理器。1个或多个
     public List<HippyAPIProvider> moduleProviders;
     public List<ControllerProvider> controllerProviders;
+    public List<Processor> processors;
     //Optional  is use V8 serialization or json
     public boolean enableV8Serialization = true;
     // 可选参数 是否打印引擎的完整的log。默认为false

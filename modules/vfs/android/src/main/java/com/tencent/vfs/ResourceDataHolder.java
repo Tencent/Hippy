@@ -56,7 +56,7 @@ public class ResourceDataHolder {
     public FetchResourceCallback callback;
     public TransferType transferType = TransferType.NORMAL;
     public RequestFrom requestFrom;
-    public int nativeId;
+    public int nativeRequestId;
     public int index = -1;
     // The resource loading error code is defined by the processor itself,
     // a value other than 0 indicates failure, and a value of 0 indicates success.
@@ -76,18 +76,18 @@ public class ResourceDataHolder {
             @Nullable HashMap<String, String> requestHeaders,
             @Nullable HashMap<String, String> requestParams,
             @Nullable FetchResourceCallback callback,
-            RequestFrom from, int nativeId) {
+            RequestFrom from, int nativeRequestId) {
         this.callback = callback;
-        init(uri, requestHeaders, requestParams, from, nativeId);
+        init(uri, requestHeaders, requestParams, from, nativeRequestId);
     }
 
     private void init(@NonNull String uri, @Nullable HashMap<String, String> requestHeaders,
-            @Nullable HashMap<String, String> requestParams, RequestFrom from, int nativeId) {
+            @Nullable HashMap<String, String> requestParams, RequestFrom from, int nativeRequestId) {
         this.uri = uri;
         this.requestHeaders = requestHeaders;
         this.requestParams = requestParams;
         this.requestFrom = from;
-        this.nativeId = nativeId;
+        this.nativeRequestId = nativeRequestId;
     }
 
     public void addResponseHeaderProperty(@NonNull String key, @NonNull String Property) {

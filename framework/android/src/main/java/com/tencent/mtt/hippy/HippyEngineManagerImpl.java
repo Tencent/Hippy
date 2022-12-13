@@ -63,8 +63,10 @@ import com.tencent.renderer.component.image.ImageLoaderAdapter;
 import com.tencent.renderer.component.text.FontAdapter;
 import com.tencent.vfs.DefaultProcessor;
 import com.tencent.devtools.vfs.DevtoolsProcessor;
+import com.tencent.vfs.Processor;
 import com.tencent.vfs.VfsManager;
 import com.openhippy.connector.JsDriver.V8InitParams;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,6 +99,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
      */
     final List<HippyAPIProvider> mModuleProviders;
     final List<ControllerProvider> mControllerProviders;
+    List<Processor> mProcessors;
     /**
      * Dev support manager
      */
@@ -119,7 +122,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     boolean mHasReportEngineLoadResult = false;
     private final HippyThirdPartyAdapter mThirdPartyAdapter;
     private final V8InitParams v8InitParams;
-    private DevtoolsManager mDevtoolsManager;
     private HashMap<String, Object> mNativeParams;
     @Nullable
     private HashMap<Integer, Callback<Boolean>> mDestroyModuleListeners;
@@ -139,7 +141,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
     HippyEngineManagerImpl(EngineInitParams params, HippyBundleLoader preloadBundleLoader) {
         super();
-
         // create core bundle loader
         HippyBundleLoader coreBundleLoader = null;
         if (!TextUtils.isEmpty(params.coreJSAssetsPath)) {
@@ -149,26 +150,23 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             coreBundleLoader = new HippyFileBundleLoader(params.coreJSFilePath,
                     !TextUtils.isEmpty(params.codeCacheTag), params.codeCacheTag);
         }
-
-        this.mGlobalConfigs = new HippyGlobalConfigs(params);
-        this.mCoreBundleLoader = coreBundleLoader;
-        this.mPreloadBundleLoader = preloadBundleLoader;
-        this.mModuleProviders = params.moduleProviders;
-        this.mControllerProviders = params.controllerProviders;
-        this.mDebugMode = params.debugMode;
-        this.mServerBundleName = params.debugMode ? params.debugBundleName : "";
-        this.mStartTimeMonitor = new TimeMonitor(!params.debugMode);
-        this.enableV8Serialization = params.enableV8Serialization;
-        this.mServerHost = params.debugServerHost;
-        this.mRemoteServerUrl = params.remoteServerUrl;
-        this.mGroupId = params.groupId;
-        this.mThirdPartyAdapter = params.thirdPartyAdapter;
-        this.v8InitParams = params.v8InitParams;
+        mGlobalConfigs = new HippyGlobalConfigs(params);
+        mCoreBundleLoader = coreBundleLoader;
+        mPreloadBundleLoader = preloadBundleLoader;
+        mModuleProviders = params.moduleProviders;
+        mControllerProviders = params.controllerProviders;
+        mProcessors = params.processors;
+        mDebugMode = params.debugMode;
+        mServerBundleName = params.debugMode ? params.debugBundleName : "";
+        mStartTimeMonitor = new TimeMonitor(!params.debugMode);
+        enableV8Serialization = params.enableV8Serialization;
+        mServerHost = params.debugServerHost;
+        mRemoteServerUrl = params.remoteServerUrl;
+        mGroupId = params.groupId;
+        mThirdPartyAdapter = params.thirdPartyAdapter;
+        v8InitParams = params.v8InitParams;
     }
 
-    /**
-     * 初始化引擎。这个method，可重入。也就是允许重复调用，而不会导致异常
-     */
     @Override
     public void initEngine(EngineListener listener) {
         if (mCurrentState != EngineState.UNINIT) {
@@ -224,6 +222,15 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         if (mDestroyModuleListeners != null) {
             mDestroyModuleListeners.clear();
             mDestroyModuleListeners = null;
+        }
+        if (mModuleProviders != null) {
+            mModuleProviders.clear();
+        }
+        if (mControllerProviders != null) {
+            mControllerProviders.clear();
+        }
+        if (mProcessors != null) {
+            mProcessors.clear();
         }
         if (mNativeParams != null) {
             mNativeParams.clear();
@@ -700,17 +707,36 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             HippyInstanceLifecycleEventListener {
 
         private String componentName;
+        @NonNull
         private final HippyModuleManager mModuleManager;
+        @NonNull
         private final HippyBridgeManager mBridgeManager;
-        private final VfsManager mVfsManager;
+        @NonNull
         private final NativeRenderer mNativeRenderer;
+        @NonNull
         private final JsDriver mJsDriver;
+        @NonNull
         private final DomManager mDomManager;
+        @NonNull
+        private final VfsManager mVfsManager;
+        @Nullable
+        private DevtoolsManager mDevtoolsManager;
+        @Nullable
         volatile CopyOnWriteArrayList<HippyEngineLifecycleEventListener> mEngineLifecycleEventListeners;
 
         public HippyEngineContextImpl() throws RuntimeException {
-            mVfsManager = new VfsManager();
-            initVfsManager();
+            mVfsManager = (mProcessors != null) ? new VfsManager(mProcessors) : new VfsManager();
+            mVfsManager.setId(onCreateVfs(mVfsManager));
+            DefaultProcessor processor = new DefaultProcessor(new HippyResourceLoader(this));
+            mVfsManager.addProcessorAtLast(processor);
+            if (mDebugMode) {
+                mDevtoolsManager = new DevtoolsManager(true);
+                String localCachePath = getGlobalConfigs().getContext().getCacheDir()
+                        .getAbsolutePath();
+                mDevtoolsManager.create(localCachePath,
+                        getDevSupportManager().createDebugUrl(mServerHost));
+                mVfsManager.addProcessorAtFirst(new DevtoolsProcessor(mDevtoolsManager.getId()));
+            }
             mModuleManager = new HippyModuleManagerImpl(this, mModuleProviders,
                     enableV8Serialization);
             mJsDriver = new JsDriver();
@@ -733,23 +759,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 }
             }
             mNativeRenderer.init(controllers, mRootView);
-            mDevtoolsManager = new DevtoolsManager(mDebugMode);
-            if (mDebugMode) {
-                initDevtoolsManager();
-            }
-        }
-
-        private void initVfsManager() {
-            assert mVfsManager != null;
-            mVfsManager.setId(onCreateVfs(mVfsManager));
-            DefaultProcessor processor = new DefaultProcessor(new HippyResourceLoader(this));
-            mVfsManager.addProcessor(processor);
-        }
-
-        private void initDevtoolsManager() {
-            String localCachePath = getGlobalConfigs().getContext().getCacheDir()
-                    .getAbsolutePath();
-            mDevtoolsManager.create(localCachePath, getDevSupportManager().createDebugUrl(mServerHost));
         }
 
         @Override
@@ -759,7 +768,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 mDomManager.createRoot(mRootView.getId());
                 mJsDriver.attachToRoot(mRootView.getId());
                 mNativeRenderer.onRuntimeInitialized(mRootView.getId());
-                mVfsManager.addProcessorAtFirst(new DevtoolsProcessor(getDevtoolsId()));
             }
         }
 
@@ -904,7 +912,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
 
         public int getDevtoolsId() {
-            return mDevtoolsManager.getId();
+            return mDevtoolsManager != null ? mDevtoolsManager.getId() : -1;
         }
 
         @Override
@@ -948,12 +956,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mDomManager.destroy();
             mBridgeManager.destroy();
             mModuleManager.destroy();
+            mVfsManager.destroy();
+            onDestroyVfs(mVfsManager.getId());
             if (mEngineLifecycleEventListeners != null) {
                 mEngineLifecycleEventListeners.clear();
-            }
-            if (mVfsManager != null) {
-                mVfsManager.destroy();
-                onDestroyVfs(mVfsManager.getId());
             }
         }
     }

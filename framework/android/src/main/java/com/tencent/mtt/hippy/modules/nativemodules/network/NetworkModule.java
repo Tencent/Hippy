@@ -176,6 +176,11 @@ public class NetworkModule extends HippyNativeModuleBase {
                                     "Load remote resource failed: " + dataHolder.errorMessage);
                         }
                     }
+
+                    @Override
+                    public void onFetchProgress(float total, float loaded) {
+                        // Nothing need to do here.
+                    }
                 });
     }
 
