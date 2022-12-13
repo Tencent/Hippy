@@ -1,0 +1,21 @@
+name: '[gh] pull request merge guard'
+
+on:
+  pull_request_target:
+    types:
+      - auto_merge_enabled
+      - auto_merge_disabled
+
+jobs:
+  merge_guard:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Enabled
+      if: github.repository == 'Tencent/Hippy' && github.event.action == 'auto_merge_enabled'
+      run: |
+        echo "Auto-merge is enabled by a ${{ github.event.sender.login }}. ${{ github.event.sender.type == 'Bot' && 'Passing' || 'Blocking' }}."
+        exit ${{ github.event.sender.type == 'Bot' && '0' || '-1' }}
+    - name: Disabled
+      if: github.repository == 'Tencent/Hippy' && github.event.action == 'auto_merge_disabled'
+      run: |
+        exit -1
