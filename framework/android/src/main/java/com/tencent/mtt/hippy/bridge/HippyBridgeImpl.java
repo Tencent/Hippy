@@ -314,6 +314,11 @@ public class HippyBridgeImpl implements HippyBridge, JSBridgeProxy, DevRemoteDeb
                                     }
                                 }
                             }
+
+                            @Override
+                            public void onFetchProgress(float total, float loaded) {
+                                // Nothing need to do here.
+                            }
                         });
             }
         });

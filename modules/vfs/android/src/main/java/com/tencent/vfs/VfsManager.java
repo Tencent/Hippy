@@ -21,12 +21,22 @@ import androidx.annotation.Nullable;
 
 import com.tencent.vfs.ResourceDataHolder.RequestFrom;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class VfsManager {
 
-    private final CopyOnWriteArrayList<Processor> mProcessorChain = new CopyOnWriteArrayList<>();
+    @NonNull
+    private final CopyOnWriteArrayList<Processor> mProcessorChain;
     private int mId;
+
+    public VfsManager(@NonNull List<Processor> processors) {
+        mProcessorChain = new CopyOnWriteArrayList<>(processors);
+    }
+
+    public VfsManager() {
+        mProcessorChain = new CopyOnWriteArrayList<>();
+    }
 
     public void setId(int id) {
         mId = id;
@@ -36,8 +46,10 @@ public class VfsManager {
         return mId;
     }
 
-    public void addProcessor(@NonNull Processor processor) {
-        addProcessorAtFirst(processor);
+    public void addProcessor(int index, @NonNull Processor processor) {
+        if (index < mProcessorChain.size()) {
+            mProcessorChain.add(index, processor);
+        }
     }
 
     public void addProcessorAtFirst(@NonNull Processor processor) {
@@ -87,9 +99,9 @@ public class VfsManager {
     private void fetchResourceAsyncImpl(@NonNull String uri,
             @Nullable HashMap<String, String> requestHeaders,
             @Nullable HashMap<String, String> requestParams,
-            @Nullable FetchResourceCallback callback, RequestFrom from, int nativeId) {
+            @Nullable FetchResourceCallback callback, RequestFrom from, int nativeRequestId) {
         ResourceDataHolder holder = new ResourceDataHolder(uri, requestHeaders, requestParams,
-                callback, from, nativeId);
+                callback, from, nativeRequestId);
         traverseForward(holder, false);
     }
 
@@ -169,6 +181,13 @@ public class VfsManager {
             public void onFetchCompleted(@NonNull ResourceDataHolder dataHolder) {
                 traverseGoBack(holder, false);
             }
+
+            @Override
+            public void onFetchProgress(float total, float loaded) {
+                if (holder.callback != null) {
+                    holder.callback.onFetchProgress(total, loaded);
+                }
+            }
         });
     }
 
@@ -202,21 +221,40 @@ public class VfsManager {
 
     public interface FetchResourceCallback {
 
+        /**
+         * After the process chain traversal is completed, we need to call this method to
+         * return the processing results to the original request initiator.
+         *
+         * @param dataHolder holder of resources fetch result
+         */
         void onFetchCompleted(@NonNull ResourceDataHolder dataHolder);
+
+        /**
+         * Return the current progress when loading resources.
+         *
+         * @param total the total size of resources
+         * @param loaded the current progress has loaded
+         */
+        void onFetchProgress(float total, float loaded);
     }
 
     public void doLocalTraversalsAsync(@NonNull String uri,
             @Nullable HashMap<String, String> requestHeaders,
             @Nullable HashMap<String, String> requestParams,
-            int nativeId) {
+            int nativeRequestId, final int progressCallbackId) {
         FetchResourceCallback callback = new FetchResourceCallback() {
             @Override
             public void onFetchCompleted(@NonNull ResourceDataHolder dataHolder) {
                 onTraversalsEndAsync(dataHolder);
             }
+
+            @Override
+            public void onFetchProgress(float total, float loaded) {
+                onProgress(progressCallbackId, total, loaded);
+            }
         };
         fetchResourceAsyncImpl(uri, requestHeaders, requestParams, callback, RequestFrom.NATIVE,
-                nativeId);
+                nativeRequestId);
     }
 
     public ResourceDataHolder doLocalTraversalsSync(@NonNull String uri,
@@ -241,4 +279,7 @@ public class VfsManager {
      */
     @SuppressWarnings("JavaJniMissingFunction")
     private native void onTraversalsEndAsync(ResourceDataHolder holder);
+
+    @SuppressWarnings("JavaJniMissingFunction")
+    private native void onProgress(int callbackId, float total, float loaded);
 }

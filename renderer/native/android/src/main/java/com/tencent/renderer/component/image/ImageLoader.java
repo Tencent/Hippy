@@ -34,12 +34,13 @@ public class ImageLoader implements ImageLoaderAdapter {
 
     public static final String REQUEST_CONTENT_TYPE = "Content-Type";
     public static final String REQUEST_CONTENT_TYPE_IMAGE = "image";
+    @NonNull
     private final VfsManager mVfsManager;
 
     @NonNull
     private final Pool<Integer, ImageDataSupplier> mImagePool = new ImageDataPool();
 
-    public ImageLoader(VfsManager vfsManager) {
+    public ImageLoader(@NonNull VfsManager vfsManager) {
         mVfsManager = vfsManager;
     }
 
@@ -137,6 +138,11 @@ public class ImageLoader implements ImageLoaderAdapter {
                                 doCallback(dataHolder, imageHolder, listener);
                             }
                         }
+                    }
+
+                    @Override
+                    public void onFetchProgress(float total, float loaded) {
+                        listener.onRequestProgress(total, loaded);
                     }
                 });
     }

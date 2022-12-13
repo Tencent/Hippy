@@ -176,8 +176,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     @Override
     @Nullable
     public ImageLoaderAdapter getImageLoader() {
-        if (mImageLoader == null) {
-            mImageLoader = new ImageLoader(mFrameworkProxy.getVfsManager());
+        if (mImageLoader == null && getVfsManager() != null) {
+            mImageLoader = new ImageLoader(getVfsManager());
         }
         return mImageLoader;
     }

@@ -99,7 +99,7 @@ static jint JNI_OnLoad(__unused JavaVM* j_vm, __unused void* reserved) {
   j_holder_req_param_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "requestParams", "Ljava/util/HashMap;");
   j_holder_rsp_header_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "responseHeaders", "Ljava/util/HashMap;");
   j_holder_ret_code_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "resultCode", "I");
-  j_holder_native_id_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "nativeId", "I");
+  j_holder_native_id_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "nativeRequestId", "I");
   j_holder_error_message_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "errorMessage", "Ljava/lang/String;");
   j_holder_processor_tag_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "processorTag", "Ljava/lang/String;");
 

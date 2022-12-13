@@ -44,6 +44,12 @@ REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
 
 // call from java
 REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
+             "onProgress",
+             "(IFF)V",
+             OnJniDelegateInvokeProgress)
+
+// call from java
+REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
              "doNativeTraversalsAsync",
              "(ILcom/tencent/vfs/ResourceDataHolder;Lcom/tencent/vfs/VfsManager$FetchResourceCallback;)V",
              OnJniDelegateInvokeAsync)
@@ -92,7 +98,7 @@ static jint JNI_OnLoad(__unused JavaVM* j_vm, __unused void* reserved) {
                          "(Ljava/lang/String;Ljava/util/HashMap;Ljava/util/HashMap;)Lcom/tencent/vfs/ResourceDataHolder;");
   j_call_jni_delegate_async_method_id =
       j_env->GetMethodID(j_vfs_manager_clazz, "doLocalTraversalsAsync",
-                         "(Ljava/lang/String;Ljava/util/HashMap;Ljava/util/HashMap;I)V");
+                         "(Ljava/lang/String;Ljava/util/HashMap;Ljava/util/HashMap;II)V");
 
   return JNI_VERSION_1_4;
 }
@@ -176,7 +182,7 @@ void JniDelegateHandler::RequestUntrustedContent(
                         j_uri,
                         j_headers_map,
                         j_params_map,
-                        footstone::checked_numeric_cast<uint32_t, jint>(id));
+                        footstone::checked_numeric_cast<uint32_t, jint>(id), 0);
 }
 
 // call from c++
@@ -205,6 +211,10 @@ void OnJniDelegateCallback(JNIEnv* j_env, __unused jobject j_object, jobject j_h
   auto rsp_map = resource_holder->GetRspMeta(j_env);
   auto content = resource_holder->GetContent(j_env);
   cb(ret_code, rsp_map, content);
+}
+
+void OnJniDelegateInvokeProgress(JNIEnv* j_env, __unused jobject j_object, jint j_id, jfloat j_total, jfloat j_loaded) {
+
 }
 
 // call from java

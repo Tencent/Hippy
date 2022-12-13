@@ -55,16 +55,19 @@ public class ControllerUpdateManger<T, G> {
     @Nullable
     private T mCustomPropsController;
 
+    static {
+        initComponentPropsMap();
+    }
+
     public ControllerUpdateManger(@NonNull Renderer renderer) {
         mRenderer = renderer;
-        initPropsMap();
     }
 
     public void setCustomPropsController(T controller) {
         mCustomPropsController = controller;
     }
 
-    private void collectMethodHolder(@NonNull Class<?> cls,
+    private static void collectMethodHolder(@NonNull Class<?> cls,
             @NonNull Map<String, PropertyMethodHolder> methodHolderMap) {
         Method[] methods = cls.getMethods();
         for (Method method : methods) {
@@ -88,7 +91,7 @@ public class ControllerUpdateManger<T, G> {
         return sComponentPropsMethodMap.containsKey(key);
     }
 
-    private void initPropsMap() {
+    private static void initComponentPropsMap() {
         collectMethodHolder(ComponentController.class, sComponentPropsMethodMap);
         collectMethodHolder(ImageComponentController.class, sComponentPropsMethodMap);
         Method[] methods = TextVirtualNode.class.getMethods();
