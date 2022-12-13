@@ -9,7 +9,7 @@ on:
     types: [ completed ]
 
 jobs:
-  review_requested_notification:
+  request_notification:
     if: github.repository == 'Tencent/Hippy' && github.event.action == 'review_requested' && github.event.requested_reviewer.type == 'User'
     runs-on: ubuntu-latest
     steps:
@@ -66,87 +66,57 @@ jobs:
             }
           });
 
-  request_review_target:
-    if: github.event.action == 'completed' && github.event.workflow_run.conclusion == 'success'
-    runs-on: ubuntu-latest
-    outputs:
-      action: ${{ steps.parse.outputs.action }}
-      review_state: ${{ steps.parse.outputs.review_state }}
-      pull_request_number: ${{ steps.parse.outputs.pull_request_number }}
-      sender: ${{ steps.parse.outputs.sender }}
-      raw: ${{ steps.parse.outputs.raw }}
-    steps:
-    - name: Pull
-      uses: actions/github-script@v6.3.3
-      with:
-        script: |
-          const { workflow_run } = context.payload;
-          const { actions } = github.rest;
-          const fs = require('fs');
-
-          const { data: { artifacts } } = await actions.listWorkflowRunArtifacts({
-             run_id: workflow_run.id,
-             ...context.repo
-          });
-          const [ artifact ] = artifacts.filter((artifact) => {
-            return artifact.name == "review_info"
-          });
-          if (!artifact) {
-            throw new Error(`Missing review_info artifact generated in parent workflow(${workflow_run.id})`);
-          }
-
-          const download = await actions.downloadArtifact({
-             artifact_id: artifact.id,
-             archive_format: 'zip',
-             ...context.repo
-          });
-          fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/review_info.zip`, Buffer.from(download.data));
-    - name: Parse
-      id: parse
-      shell: python
-      run: |
-        import zipfile
-        import json
-        import os
-
-        with zipfile.ZipFile("review_info.zip", "r") as zip_ref:
-          buf = zip_ref.read("review_info")
-          review_info = json.loads(buf)
-          with open(os.getenv("GITHUB_OUTPUT"), 'w', encoding='utf-8') as file:
-            file.write("action=%s\n" % review_info["action"])
-            file.write("review_state=%s\n" % review_info["review"]["state"])
-            file.write("pull_request_number=%s\n" % review_info["pull_request"]["number"])
-            file.write("sender=%s\n" % review_info["sender"]["login"])
-            file.write("raw=%s\n" % json.dumps(review_info))
+  call_get_workflow_output:
+    if: github.repository == 'Tencent/Hippy' && github.event.action == 'completed' && github.event.workflow_run.conclusion == 'success'
+    uses: ./.github/workflows/reuse_get_workflow_output.yml
+    with:
+      workflow_run: ${{ github.event.workflow_run.id }}
 
   changes_requested_comment:
-    needs: request_review_target
-    if: needs.request_review_target.outputs.action == 'submitted' && needs.request_review_target.outputs.review_state == 'changes_requested'
+    needs: call_get_workflow_output
+    if: needs.call_get_workflow_output.outputs.action == 'submitted'
     runs-on: ubuntu-latest
     env:
       MESSAGE: |
-        Hi, @${{ needs.request_review_target.outputs.sender }}.
+        Hi, @${{ needs.call_get_workflow_output.outputs.sender }}.
 
         I noticed that our reviewers requested changes to this pull request.
         When you're done, **click the `Re-request review` button in the right sidebar(shown below)** to notify the reviewer.
         ![Re-request review button in the right sidebar](https://docs.github.com/assets/cb-4714/images/help/pull_requests/request-re-review.png)
     steps:
+    - name: Parse
+      id: parse_workflow_output
+      env:
+        RAW: ${{ needs.call_get_workflow_output.outputs.raw }}
+      shell: python
+      run: |
+        import json
+        import os
+
+        raw = os.getenv("RAW")
+        data = json.loads(raw)
+        with open(os.getenv("GITHUB_OUTPUT"), 'w', encoding='utf-8') as file:
+          file.write("review_state=%s\n" % data["review"]["state"])
+          file.write("pull_request_number=%s\n" % data["pull_request"]["number"])
+    - name: Find
+      id: find_comment
+      if: steps.parse_workflow_output.outputs.review_state == 'changes_requested'
+      uses: peter-evans/find-comment@v2.1.0
+      with:
+        issue-number: ${{ steps.parse_workflow_output.outputs.pull_request_number }}
+        body-includes: ${{ env.MESSAGE }}
     - name: Token
-      uses: navikt/github-app-token-generator@v1
       id: get-token
+      if: steps.find_comment.outputs.comment-id == '' && steps.parse_workflow_output.outputs.review_state == 'changes_requested'
+      uses: navikt/github-app-token-generator@v1
       with:
         private-key: ${{ secrets.PRIVATE_KEY }}
         app-id: ${{ secrets.APP_ID }}
-    - name: Find
-      uses: peter-evans/find-comment@v2.1.0
-      id: find
-      with:
-        issue-number: ${{ needs.request_review_target.outputs.pull_request_number }}
-        body-includes: ${{ env.MESSAGE }}
     - name: Comment
-      if: steps.find.outputs.comment-id == ''
       uses: peter-evans/create-or-update-comment@v2
+      if: steps.get-token.outputs.token != ''
       with:
-        issue-number: ${{ needs.request_review_target.outputs.pull_request_number }}
-        reactions: eyes
+        token: ${{ steps.get-token.outputs.token }}
+        issue-number: ${{ steps.parse_workflow_output.outputs.pull_request_number }}
         body: ${{ env.MESSAGE }}
+        reactions: eyes
