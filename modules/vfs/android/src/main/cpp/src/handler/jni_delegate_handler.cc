@@ -182,7 +182,7 @@ void JniDelegateHandler::RequestUntrustedContent(
                         j_uri,
                         j_headers_map,
                         j_params_map,
-                        footstone::checked_numeric_cast<uint32_t, jint>(id), 0);
+                        footstone::checked_numeric_cast<uint32_t, jint>(id), -1);
 }
 
 // call from c++
