@@ -49,7 +49,6 @@ static const CGFloat gDefaultFontSize = 14.f;
 @interface HippyShadowText () <NSLayoutManagerDelegate>
 {
     BOOL _hasTextAttachment; // for speeding up typesetting calculations
-    CGFloat _maximumFontLineHeight; // for text baselineOffset calculation when with attachment
 }
 
 @end
@@ -284,7 +283,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 float marginV = MTTNodeLayoutGetMargin(child.nodeRef, CSSTop) + MTTNodeLayoutGetMargin(child.nodeRef, CSSBottom);
                 CGFloat roundedHeightWithMargin = x5RoundPixelValue(height + marginV);
                 
-                CGFloat positionY;
+                CGFloat positionY = .0f;
                 switch (child.verticalAlignType) {
                     case HippyTextAttachmentVerticalAlignBottom: {
                         positionY = CGRectGetMaxY(lineRect) - roundedHeightWithMargin;
@@ -301,12 +300,13 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                         positionY = CGRectGetMinY(lineRect);
                         break;
                     }
-                    default: {
-                        // default is middle
+                    case HippyTextAttachmentVerticalAlignMiddle: {
                         positionY = CGRectGetMinY(lineRect) +
                         (CGRectGetHeight(lineRect) - roundedHeightWithMargin) / 2.0f - child.verticalAlignOffset;
                         break;
                     }
+                    default:
+                        break;
                 }
                 
                 CGRect childFrame = CGRectMake(textFrame.origin.x + location.x + left,
@@ -592,8 +592,9 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
         /**
          * for keeping text vertical center, we need to set baseline offset
+         * Note: baseline offset adjustment of text with attachment is in NSLayoutManagerDelegate's imp
          */
-        if (lineHeight > fontLineHeight) {
+        if (!_hasTextAttachment && (lineHeight > fontLineHeight)) {
             CGFloat baselineOffset = (newLineHeight - maximumFontLineHeight) / 2.0f;
             if (baselineOffset > .0f) {
                 [attributedString addAttribute:NSBaselineOffsetAttributeName value:@(baselineOffset)
@@ -601,7 +602,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             }
         }
     }
-    _maximumFontLineHeight = maximumFontLineHeight;
     
     
     // Text decoration
@@ -862,10 +862,14 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
             }
         }];
         
-        if (isAlignBaseline) {
-            // calculate the position of 'baseline' for later layout
-            __block UIFont *maxFont = nil;
-            [layoutManager.textStorage enumerateAttribute:NSFontAttributeName inRange:glyphRange options:0
+        // find the max font
+        __block UIFont *maxFont = nil;
+        HippyTextAttachmentVerticalAlign textVerticalAlignType = self.verticalAlignType;
+        if (isAlignBaseline ||
+            HippyTextAttachmentVerticalAlignTop == textVerticalAlignType ||
+            HippyTextAttachmentVerticalAlignMiddle == textVerticalAlignType) {
+            [layoutManager.textStorage enumerateAttribute:NSFontAttributeName
+                                                  inRange:glyphRange options:0
                                                usingBlock:^(id  _Nullable value, NSRange range, BOOL * _Nonnull stop) {
                 UIFont *currentFont = (UIFont *)value;
                 if (currentFont) {
@@ -874,16 +878,39 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
                     }
                 }
             }];
+        }
+        
+        if (isAlignBaseline) {
+            // calculate the position of 'baseline' for later layout
+            NSParameterAssert(maxFont != nil);
             CGFloat baselineToBottom = abs(maxFont.descender) + abs(maxFont.leading);
             [layoutManager.textStorage addAttribute:HippyVerticalAlignBaselineOffsetAttributeName
                                               value:@(baselineToBottom) range:glyphRange];
         }
         
-        if (maxAttachmentHeight > _lineHeight) {
+        // adjust baseline of text
+        if (HippyTextAttachmentVerticalAlignBaseline != textVerticalAlignType) {
             CGFloat baselineToBottom = CGRectGetHeight(*lineFragmentUsedRect) - *baselineOffset;
-            // adjust baselineOffset if attachment height is larger than font height
-            *baselineOffset = ((CGRectGetHeight(*lineFragmentUsedRect) + _lineHeight) / 2.f) - baselineToBottom;
-            return YES;
+            switch (textVerticalAlignType) {
+                case HippyTextAttachmentVerticalAlignMiddle: {
+                    NSParameterAssert(maxFont != nil);
+                    *baselineOffset = ((CGRectGetHeight(*lineFragmentUsedRect) + maxFont.lineHeight) / 2.f)
+                                    - baselineToBottom - self.verticalAlignOffset;
+                    break;
+                }
+                case HippyTextAttachmentVerticalAlignTop: {
+                    NSParameterAssert(maxFont != nil);
+                    *baselineOffset = maxFont.lineHeight - baselineToBottom;
+                    break;
+                }
+                case HippyTextAttachmentVerticalAlignBottom: {
+                    *baselineOffset = CGRectGetHeight(*lineFragmentUsedRect) - baselineToBottom;
+                    break;
+                }
+                default:
+                    break;
+            }
+            return YES; // return YES to use the modified rects.
         }
     }
     return NO;
