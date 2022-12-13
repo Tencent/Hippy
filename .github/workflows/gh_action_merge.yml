@@ -10,6 +10,21 @@ on:
     types:
       - labeled
 
+env:
+  OUTPUT_FUNCTION: |
+    function output {
+      if [ $1 -ne 0 ]; then
+          if [[ -z "$2" ]]; then
+            echo "failed_result=(empty response)" >> $GITHUB_OUTPUT
+          else
+            echo "failed_result<<EOF" >> $GITHUB_OUTPUT
+            echo "$2" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
+          exit 0
+      fi
+    }
+
 jobs:
   squash_merge_action:
     if: github.event.label.name == 'action(squash-merge)' && github.repository == 'Tencent/Hippy'
@@ -49,19 +64,11 @@ jobs:
         PULL_REQUEST_TITLE: ${{ github.event.pull_request.title }}
       shell: bash {0}
       run: |
+        ${{ env.OUTPUT_FUNCTION }}
         if [ ${{ github.event.pull_request.commits }} -gt 1 ]; then
           result=`echo $PULL_REQUEST_TITLE | npx commitlint -c false 2>&1`
-          if [ $? -ne 0 ]; then
-            if [[ -z $result ]]; then
-              echo "failed_result=(empty response)" >> $GITHUB_OUTPUT
-            else
-              echo "failed_result<<EOF" >> $GITHUB_OUTPUT
-              echo "$result" >> $GITHUB_OUTPUT
-              echo "EOF" >> $GITHUB_OUTPUT
-            fi
-          fi
+          output $? "$result"
         fi
-        exit 0
     - name: Squash
       id: squash
       if: ${{ !steps.commitlint.outputs.failed_result }}
@@ -69,17 +76,11 @@ jobs:
         GH_TOKEN: ${{ steps.get-token.outputs.token }}
       shell: bash {0}
       run: |
+        ${{ env.OUTPUT_FUNCTION }}
+        result=`gh pr merge ${{ github.event.pull_request.number }} --disable-auto --repo $GITHUB_REPOSITORY 2>&1`
+        output $? "$result"
         result=`gh pr merge ${{ github.event.pull_request.number }} --squash --auto --repo $GITHUB_REPOSITORY 2>&1`
-        if [ $? -ne 0 ]; then
-            if [[ -z $result ]]; then
-              echo "failed_result=(empty response)" >> $GITHUB_OUTPUT
-            else
-              echo "failed_result<<EOF" >> $GITHUB_OUTPUT
-              echo "$result" >> $GITHUB_OUTPUT
-              echo "EOF" >> $GITHUB_OUTPUT
-            fi
-        fi
-        exit 0
+        output $? "$result"
     - name: Comment
       uses: actions/github-script@v6.3.3
       env:
@@ -193,10 +194,10 @@ jobs:
                     text_color: "2c974b"
                   }, {
                     name: "reject_btn",
-                    text: "Mark as Reject",
+                    text: "Mark as Rejected",
                     type: "button",
-                    value: "Mark as Reject",
-                    replace_text: "Already Reject",
+                    value: "Mark as Rejected",
+                    replace_text: "Already Rejected",
                     border_color: "cf222e",
                     text_color: "cf222e"
                   }, {
@@ -238,17 +239,11 @@ jobs:
         GH_TOKEN: ${{ steps.get-token.outputs.token }}
       shell: bash {0}
       run: |
+        ${{ env.OUTPUT_FUNCTION }}
+        result=`gh pr merge ${{ github.event.pull_request.number }} --disable-auto --repo $GITHUB_REPOSITORY 2>&1`
+        output $? "$result"
         result=`gh pr merge ${{ github.event.pull_request.number }} --rebase --auto --repo $GITHUB_REPOSITORY 2>&1`
-        if [ $? -ne 0 ]; then
-            if [[ -z $result ]]; then
-              echo "failed_result=(empty response)" >> $GITHUB_OUTPUT
-            else
-              echo "failed_result<<EOF" >> $GITHUB_OUTPUT
-              echo "$result" >> $GITHUB_OUTPUT
-              echo "EOF" >> $GITHUB_OUTPUT
-            fi
-        fi
-        exit 0
+        output $? "$result"
     - name: Comment
       uses: actions/github-script@v6.3.3
       env:
