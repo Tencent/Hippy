@@ -189,7 +189,7 @@ void Scope::SaveFunctionData(std::unique_ptr<hippy::napi::FunctionData> data) {
 hippy::dom::EventListenerInfo Scope::AddListener(const EventListenerInfo& event_listener_info) {
   uint32_t dom_id = event_listener_info.dom_id;
   const std::string& event_name = event_listener_info.event_name;
-  const auto& js_function = event_listener_info.callback;
+  const auto& js_function = event_listener_info.callback.lock();
   FOOTSTONE_DCHECK(js_function != nullptr);
   const bool added = HasListener(event_listener_info);
   if (added)  {
@@ -222,7 +222,10 @@ hippy::dom::EventListenerInfo Scope::AddListener(const EventListenerInfo& event_
     auto context = weak_context.lock();
     if (context) {
       std::shared_ptr<hippy::dom::DomEvent> copied_event = event;
-      context->CallDomEvent(weak_scope, event_listener_info.callback, copied_event);
+      auto callback = event_listener_info.callback.lock();
+      FOOTSTONE_DCHECK(callback != nullptr);
+      if (callback == nullptr) return;
+      context->CallDomEvent(weak_scope, callback, copied_event);
     }
   }};
 }
@@ -230,7 +233,7 @@ hippy::dom::EventListenerInfo Scope::AddListener(const EventListenerInfo& event_
 hippy::dom::EventListenerInfo Scope::RemoveListener(const EventListenerInfo& event_listener_info) {
   uint32_t dom_id = event_listener_info.dom_id;
   const std::string& event_name = event_listener_info.event_name;
-  const auto& js_function = event_listener_info.callback;
+  const auto& js_function = event_listener_info.callback.lock();
   FOOTSTONE_DCHECK(js_function != nullptr);
 
   hippy::dom::EventListenerInfo result{dom_id, event_name, event_listener_info.use_capture,
@@ -257,7 +260,7 @@ hippy::dom::EventListenerInfo Scope::RemoveListener(const EventListenerInfo& eve
 bool Scope::HasListener(const EventListenerInfo& event_listener_info) {
   uint32_t dom_id = event_listener_info.dom_id;
   const std::string& event_name = event_listener_info.event_name;
-  const auto& js_function = event_listener_info.callback;
+  const auto& js_function = event_listener_info.callback.lock();
   FOOTSTONE_DCHECK(js_function != nullptr);
 
   auto id_it = bind_listener_map_.find(dom_id);
@@ -284,7 +287,7 @@ bool Scope::HasListener(const EventListenerInfo& event_listener_info) {
 uint64_t Scope::GetListenerId(const EventListenerInfo& event_listener_info) {
   uint32_t dom_id = event_listener_info.dom_id;
   const std::string& event_name = event_listener_info.event_name;
-  const auto& js_function = event_listener_info.callback;
+  const auto& js_function = event_listener_info.callback.lock();
   FOOTSTONE_DCHECK(js_function != nullptr);
 
   auto event_node_it = bind_listener_map_.find(dom_id);
