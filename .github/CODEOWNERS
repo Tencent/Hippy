@@ -80,6 +80,9 @@ CMakeLists.txt @medns
 # module: footstone
 /modules/footstone/ @churchill-zhang
 
+# devtools: backend
+/devtools/ @churchill-zhang @medns
+
 # gh: workflow/template/owner etc.
 /.github/ @zoomchan-cxj
 /.github/workflows/ @zoomchan-cxj
