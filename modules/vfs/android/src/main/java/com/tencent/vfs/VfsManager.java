@@ -250,7 +250,9 @@ public class VfsManager {
 
             @Override
             public void onFetchProgress(float total, float loaded) {
-                onProgress(progressCallbackId, total, loaded);
+                if (progressCallbackId >= 0) {
+                    onProgress(progressCallbackId, total, loaded);
+                }
             }
         };
         fetchResourceAsyncImpl(uri, requestHeaders, requestParams, callback, RequestFrom.NATIVE,
