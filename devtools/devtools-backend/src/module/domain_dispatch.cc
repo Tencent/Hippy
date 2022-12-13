@@ -85,10 +85,10 @@ void DomainDispatch::RegisterDomainHandler(const std::shared_ptr<BaseDomain>& ba
 void DomainDispatch::ClearDomainHandler() { domain_register_map_.clear(); }
 
 bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
-  FOOTSTONE_DLOG(INFO) << "DomainDispatch, receive data from frontend: " << data_string.c_str();
+  FOOTSTONE_DLOG(INFO) << kDevToolsTag << "DomainDispatch, receive data from frontend: " << data_string.c_str();
   nlohmann::json data_json = nlohmann::json::parse(data_string, nullptr, false);
   if (data_json.is_discarded()) {
-    FOOTSTONE_DLOG(ERROR) << "DomainDispatch, parse input json is invalid";
+    FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "DomainDispatch, parse input json is invalid";
     return false;
   }
   // parse id
@@ -146,7 +146,7 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
 
 void DomainDispatch::DispatchToVm(const std::string& data) {
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
-  FOOTSTONE_DLOG(INFO) << "JSDebugger, params=" << data.c_str();
+  FOOTSTONE_DLOG(INFO) << kDevToolsTag << "JSDebugger, params=" << data.c_str();
   auto vm_request = data_channel_->GetProvider()->vm_request_adapter;
   if (vm_request) {
     vm_request->SendMsgToVm(data);
@@ -156,7 +156,7 @@ void DomainDispatch::DispatchToVm(const std::string& data) {
 
 void DomainDispatch::SendDataToFrontend(int32_t id, bool is_success, const std::string& result) {
   if (result.empty()) {
-    FOOTSTONE_DLOG(ERROR) << "send data to frontend, but msg is empty";
+    FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "send data to frontend, but msg is empty";
     return;
   }
   nlohmann::json rsp_json = nlohmann::json::object();

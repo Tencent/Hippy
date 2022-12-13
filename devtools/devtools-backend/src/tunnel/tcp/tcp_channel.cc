@@ -43,7 +43,7 @@ void TcpChannel::Connect(ReceiveDataHandler handler) {
   frame_codec_.SetEncodeCallback([WEAK_THIS](void *data, int32_t len) {
     DEFINE_AND_CHECK_SELF(TcpChannel)
     if (self->client_fd_ < 0) {
-      FOOTSTONE_DLOG(ERROR) << "TcpChannel, client_fd_ < 0.";
+      FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "TcpChannel, client_fd_ < 0.";
       return;
     }
     send(self->client_fd_, data, static_cast<size_t>(len), 0);
@@ -94,13 +94,13 @@ bool TcpChannel::StartServer(const std::string &host, int port) {
     return false;
   }
   if (bind(socket_fd_, (struct sockaddr *)&server_address_, sizeof(server_address_)) < 0) {
-    FOOTSTONE_DLOG(ERROR) << "TcpChannel, StartServer bind fail.";
+    FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "TcpChannel, StartServer bind fail.";
     close(socket_fd_);
     return false;
   }
 
   if (listen(socket_fd_, 5) < 0) {
-    FOOTSTONE_DLOG(ERROR) << "TcpChannel, StartServer listen fail.";
+    FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "TcpChannel, StartServer listen fail.";
     close(socket_fd_);
     return false;
   }
@@ -108,7 +108,7 @@ bool TcpChannel::StartServer(const std::string &host, int port) {
 }
 
 void TcpChannel::SetStarting(bool starting) {
-  FOOTSTONE_DLOG(INFO) << "TcpChannel, SetStarting starting=%d." << starting;
+  FOOTSTONE_DLOG(INFO) << kDevToolsTag << "TcpChannel, SetStarting starting=%d." << starting;
   if (is_starting_ == starting) {
     return;
   }
@@ -132,7 +132,7 @@ void TcpChannel::SetStarting(bool starting) {
 void TcpChannel::AcceptClient() {
   while (socket_fd_ != kNullSocket) {
     int fd = accept(socket_fd_, nullptr, nullptr);
-    FOOTSTONE_DLOG(INFO) << "TcpChannel, AcceptClient fd=%d." << fd;
+    FOOTSTONE_DLOG(INFO) << kDevToolsTag << "TcpChannel, AcceptClient fd=%d." << fd;
     if (fd < 0) {
       if (errno != EWOULDBLOCK) {
         SetStarting(false);
@@ -147,13 +147,13 @@ void TcpChannel::AcceptClient() {
       close(client_fd_);
     }
     client_fd_ = fd;
-    FOOTSTONE_DLOG(INFO) << "TcpChannel, AcceptClient success, client_fd_=%d." << client_fd_;
+    FOOTSTONE_DLOG(INFO) << kDevToolsTag << "TcpChannel, AcceptClient success, client_fd_=%d." << client_fd_;
     SetConnecting(true, "");
   }
 }
 
 void TcpChannel::SetConnecting(bool connected, const std::string &error) {
-  FOOTSTONE_DLOG(INFO) << "TcpChannel, SetConnecting connected=%d." << connected;
+  FOOTSTONE_DLOG(INFO) << kDevToolsTag << "TcpChannel, SetConnecting connected=%d." << connected;
   if (is_connecting == connected) {
     return;
   }
@@ -181,7 +181,7 @@ void TcpChannel::ListenerAndResponse(int32_t client_fd) {
   while (client_fd_ != kNullSocket) {
     fd_set read_fds = fds;
     int ret_sel = select(client_fd + 1, &read_fds, nullptr, nullptr, nullptr);
-    FOOTSTONE_DLOG(INFO) << "TcpChannel, ListenerAndResponse ret_sel=%d." << ret_sel;
+    FOOTSTONE_DLOG(INFO) << kDevToolsTag << "TcpChannel, ListenerAndResponse ret_sel=%d." << ret_sel;
     if (ret_sel < 0) {
       SetConnecting(false, "");
       break;
@@ -196,9 +196,9 @@ void TcpChannel::ListenerAndResponse(int32_t client_fd) {
     // read data
     char buffer[kBufferSize];
     int read_len = socket_receive_timeout(client_fd, buffer, kBufferSize, 0, 100);
-    FOOTSTONE_DLOG(INFO) << "TcpChannel, ListenerAndResponse read_len=%d." << read_len;
+    FOOTSTONE_DLOG(INFO) << kDevToolsTag << "TcpChannel, ListenerAndResponse read_len=%d." << read_len;
     if (read_len <= 0) {
-      FOOTSTONE_DLOG(INFO) << "TcpChannel, ListenerAndResponse read fail error=" << strerror(errno);
+      FOOTSTONE_DLOG(INFO) << kDevToolsTag << "TcpChannel, ListenerAndResponse read fail error=" << strerror(errno);
 #ifdef WIN32
       if (read_len == -WSAEINTR || read_len == -WSAEWOULDBLOCK) {
 #else

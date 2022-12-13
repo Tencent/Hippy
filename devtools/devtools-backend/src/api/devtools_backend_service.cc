@@ -30,7 +30,7 @@
 namespace hippy::devtools {
 DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig& devtools_config,
                                                std::shared_ptr<footstone::WorkerManager> worker_manager) {
-  FOOTSTONE_DLOG(INFO) << "DevtoolsBackendService create framework:" << devtools_config.framework
+  FOOTSTONE_DLOG(INFO) << kDevToolsTag << "DevtoolsBackendService create framework:" << devtools_config.framework
                        << ",tunnel:" << devtools_config.tunnel;
   auto data_provider = std::make_shared<DataProvider>();
   auto notification_center = std::make_shared<NotificationCenter>();
@@ -46,7 +46,7 @@ DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig& devtools_co
   }
 }
 
-DevtoolsBackendService::~DevtoolsBackendService() { FOOTSTONE_DLOG(INFO) << "~DevtoolsBackendService"; }
+DevtoolsBackendService::~DevtoolsBackendService() { FOOTSTONE_DLOG(INFO) << kDevToolsTag << "~DevtoolsBackendService"; }
 
 void DevtoolsBackendService::Create() {
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
@@ -59,7 +59,7 @@ void DevtoolsBackendService::Create() {
 }
 
 void DevtoolsBackendService::Destroy(bool is_reload) {
-  FOOTSTONE_DLOG(INFO) << "Destroy is_reload: %d" << is_reload;
+  FOOTSTONE_DLOG(INFO) << kDevToolsTag << "Destroy is_reload: %d" << is_reload;
   tunnel_service_->Close(is_reload);
   domain_dispatch_->ClearDomainHandler();
 }

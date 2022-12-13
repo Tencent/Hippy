@@ -21,6 +21,7 @@
 #pragma once
 #include <string>
 #include "api/devtools_config.h"
+#include "api/devtools_define.h"
 
 namespace hippy::devtools {
 constexpr uint8_t kTaskFlag = 210;  // message flag

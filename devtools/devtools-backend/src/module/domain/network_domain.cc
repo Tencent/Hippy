@@ -42,7 +42,7 @@ void NetworkDomain::OnResponseReceived(const std::string& request_id, DevtoolsHt
 void NetworkDomain::RegisterCallback() {}
 
 void NetworkDomain::GetResponseBody(const NetworkResponseBodyRequest& request) {
-  FOOTSTONE_DLOG(INFO) << "NetworkDomain::GetResponseBody";
+  FOOTSTONE_DLOG(INFO) << kDevToolsTag << "NetworkDomain::GetResponseBody";
   std::string request_id = request.GetRequestId();
   auto find_response = response_map_.find(request_id);
   if (find_response != response_map_.end()) {
@@ -65,7 +65,7 @@ void NetworkDomain::GetResponseBody(const NetworkResponseBodyRequest& request) {
     }
   } else {
     ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "not support get network body");
-    FOOTSTONE_DLOG(ERROR) << "NetworkDomain::GetResponseBody not support get network body";
+    FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "NetworkDomain::GetResponseBody not support get network body";
   }
 }
 }  // namespace hippy::devtools

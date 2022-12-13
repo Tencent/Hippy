@@ -23,6 +23,8 @@
 #include <map>
 #include <memory>
 #include <string>
+
+#include "api/devtools_define.h"
 #include "api/devtools_data_provider.h"
 #include "api/devtools_notification_center.h"
 #include "module/domain_propos.h"

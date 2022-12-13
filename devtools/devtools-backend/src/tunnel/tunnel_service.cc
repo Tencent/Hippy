@@ -39,7 +39,7 @@ TunnelService::TunnelService(std::shared_ptr<DomainDispatch> dispatch, const Dev
 }
 
 void TunnelService::Connect() {
-  FOOTSTONE_DLOG(INFO) << "TunnelService, start connect.";
+  FOOTSTONE_DLOG(INFO) << kDevToolsTag << "TunnelService, start connect.";
   channel_->Connect([WEAK_THIS](const std::string& msg, int flag) {
     if (flag == kTaskFlag) {
       DEFINE_AND_CHECK_SELF(TunnelService)

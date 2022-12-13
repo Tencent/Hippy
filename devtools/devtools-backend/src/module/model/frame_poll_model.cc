@@ -50,7 +50,7 @@ void FramePollModel::InitTask() {
 
 void FramePollModel::StartPoll() {
   if (!provider_) {
-    FOOTSTONE_DLOG(ERROR) << "StartPoll provider is null";
+    FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "StartPoll provider is null";
     return;
   }
   AddFrameCallback();
@@ -67,7 +67,7 @@ void FramePollModel::AddFrameCallback() {
         DEFINE_AND_CHECK_SELF(FramePollModel)
         std::lock_guard<std::recursive_mutex> lock(self->mutex_);
         self->frame_is_dirty_ = true;
-        FOOTSTONE_DLOG(INFO) << "AddFrameCallback frame dirty callback";
+        FOOTSTONE_DLOG(INFO) << kDevToolsTag << "AddFrameCallback frame dirty callback";
       });
     }
     had_add_frame_callback_ = true;
@@ -76,7 +76,7 @@ void FramePollModel::AddFrameCallback() {
 
 void FramePollModel::StopPoll() {
   if (!provider_) {
-    FOOTSTONE_DLOG(ERROR) << "StopPoll provider is null";
+    FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "StopPoll provider is null";
     return;
   }
   RemoveFrameCallback();

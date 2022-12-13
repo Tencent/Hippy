@@ -45,10 +45,10 @@ WebSocketChannel::WebSocketChannel(const std::string& ws_uri) {
 
 void WebSocketChannel::Connect(ReceiveDataHandler handler) {
   if (ws_uri_.empty()) {
-    FOOTSTONE_DLOG(ERROR) << "websocket uri is empty, connect error";
+    FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "websocket uri is empty, connect error";
     return;
   }
-  FOOTSTONE_DLOG(INFO) << "websocket connect url:" << ws_uri_.c_str();
+  FOOTSTONE_DLOG(INFO) << kDevToolsTag << "websocket connect url:" << ws_uri_.c_str();
   data_handler_ = handler;
   ws_client_.set_socket_init_handler(
       [WEAK_THIS](const websocketpp::connection_hdl& handle, websocketpp::lib::asio::ip::tcp::socket& socket) {
@@ -88,10 +88,10 @@ void WebSocketChannel::Send(const std::string& rsp_data) {
 
 void WebSocketChannel::Close(int32_t code, const std::string& reason) {
   if (!connection_hdl_.lock()) {
-    FOOTSTONE_DLOG(ERROR) << "send message error, handler is null";
+    FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "send message error, handler is null";
     return;
   }
-  FOOTSTONE_DLOG(INFO) << "close websocket, code: %d, reason: " << code << reason.c_str();
+  FOOTSTONE_DLOG(INFO) << kDevToolsTag << "close websocket, code: %d, reason: " << code << reason.c_str();
   websocketpp::lib::error_code error_code;
   ws_client_.close(connection_hdl_, static_cast<websocketpp::close::status::value>(code), reason, error_code);
   ws_client_.stop_perpetual();
@@ -106,12 +106,12 @@ void WebSocketChannel::StartConnect(const std::string& ws_uri) {
     return;
   }
 
-  FOOTSTONE_DLOG(INFO) << "websocket start connect";
+  FOOTSTONE_DLOG(INFO) << kDevToolsTag << "websocket start connect";
   ws_client_.connect(con);
 }
 
 void WebSocketChannel::HandleSocketInit(const websocketpp::connection_hdl& handle) {
-  FOOTSTONE_DLOG(INFO) << "websocket init";
+  FOOTSTONE_DLOG(INFO) << kDevToolsTag << "websocket init";
 }
 
 void WebSocketChannel::HandleSocketConnectFail(const websocketpp::connection_hdl& handle) {
@@ -120,7 +120,7 @@ void WebSocketChannel::HandleSocketConnectFail(const websocketpp::connection_hdl
   // set handle nullptr when connect fail
   data_handler_ = nullptr;
   unset_messages_.clear();
-  FOOTSTONE_DLOG(INFO) << "websocket connect fail, state: " << con->get_state()
+  FOOTSTONE_DLOG(INFO) << kDevToolsTag << "websocket connect fail, state: " << con->get_state()
                        << ", error message:" << con->get_ec().message().c_str()
                        << ", local close code:" << con->get_local_close_code()
                        << ", local close reason: " << con->get_local_close_reason().c_str()
@@ -130,7 +130,7 @@ void WebSocketChannel::HandleSocketConnectFail(const websocketpp::connection_hdl
 
 void WebSocketChannel::HandleSocketConnectOpen(const websocketpp::connection_hdl& handle) {
   connection_hdl_ = handle.lock();
-  FOOTSTONE_DLOG(INFO) << "websocket connect open";
+  FOOTSTONE_DLOG(INFO) << kDevToolsTag << "websocket connect open";
   if (!connection_hdl_.lock() || unset_messages_.empty()) {
     return;
   }
@@ -156,7 +156,7 @@ void WebSocketChannel::HandleSocketConnectClose(const websocketpp::connection_hd
   // set handle nullptr when connect fail
   data_handler_ = nullptr;
   unset_messages_.clear();
-  FOOTSTONE_DLOG(INFO) << "websocket connect close, state: " << con->get_state()
+  FOOTSTONE_DLOG(INFO) << kDevToolsTag << "websocket connect close, state: " << con->get_state()
                        << ", error message:" << con->get_ec().message().c_str()
                        << ", local close code:" << con->get_local_close_code()
                        << ", local close reason: " << con->get_local_close_reason().c_str()

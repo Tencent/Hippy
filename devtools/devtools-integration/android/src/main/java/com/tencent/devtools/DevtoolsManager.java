@@ -41,6 +41,18 @@ public class DevtoolsManager {
         }
     }
 
+    public void bind(int driverId, int domId, int renderId) {
+        if (mDebugMode) {
+            onBindDevtools(getId(), driverId, domId, renderId);
+        }
+    }
+
+    public void attachToRoot(int rootId) {
+        if (mDebugMode) {
+            onAttachToRoot(getId(), rootId);
+        }
+    }
+
     /**
      * create devtools jni
      */
@@ -52,4 +64,16 @@ public class DevtoolsManager {
      */
     @SuppressWarnings("JavaJniMissingFunction")
     private native void onDestroyDevtools(int devtoolsId, boolean isReload);
+
+    /**
+     * bind devtools jni for driver, dom and render id
+     */
+    @SuppressWarnings("JavaJniMissingFunction")
+    private native void onBindDevtools(int devtoolsId, int driverId, int domId, int renderId);
+
+    /**
+     * attach rootId jni
+     */
+    @SuppressWarnings("JavaJniMissingFunction")
+    private native void onAttachToRoot(int devtoolsId, int rootId);
 }

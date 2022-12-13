@@ -27,6 +27,7 @@
 #include "api/devtools_config.h"
 #include "api/devtools_data_channel.h"
 #include "api/devtools_data_provider.h"
+#include "api/devtools_define.h"
 #include "api/devtools_notification_center.h"
 #include "footstone/worker_manager.h"
 #include "tunnel/tunnel_service.h"
