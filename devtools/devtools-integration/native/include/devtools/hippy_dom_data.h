@@ -19,11 +19,12 @@
  */
 #pragma once
 
+#include "dom/dom_manager.h"
 #include "dom/root_node.h"
 
 namespace hippy::devtools {
 struct HippyDomData {
-  uint32_t dom_id;
+  std::weak_ptr<DomManager> dom_manager;
   std::weak_ptr<RootNode> root_node;
 };
 }  // namespace hippy::devtools

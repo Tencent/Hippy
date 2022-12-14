@@ -52,7 +52,7 @@ void HippyDomTreeAdapter::UpdateDomTree(hippy::devtools::UpdateDomNodeMetas meta
         style_map.insert({meta.GetKey(), std::make_shared<footstone::value::HippyValue>(meta.ToString())});
       }
     }
-    std::shared_ptr<DomManager> dom_manager = DomManager::Find(hippy_dom->dom_id);
+    std::shared_ptr<DomManager> dom_manager = hippy_dom->dom_manager.lock();
     if (dom_manager) {
       auto node = dom_manager->GetNode(hippy_dom->root_node, static_cast<uint32_t>(node_id));
       node->UpdateProperties(style_map, std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>{});
@@ -60,7 +60,7 @@ void HippyDomTreeAdapter::UpdateDomTree(hippy::devtools::UpdateDomNodeMetas meta
     }
     callback(is_success);
   };
-  DevToolsUtil::PostDomTask(hippy_dom_->dom_id, func);
+  DevToolsUtil::PostDomTask(hippy_dom_->dom_manager, func);
 }
 
 void HippyDomTreeAdapter::GetDomTree(DumpDomTreeCallback callback) {
@@ -73,7 +73,7 @@ void HippyDomTreeAdapter::GetDomTree(DumpDomTreeCallback callback) {
     if (!hippy_dom) {
       return;
     }
-    std::shared_ptr<DomManager> dom_manager = DomManager::Find(hippy_dom->dom_id);
+    std::shared_ptr<DomManager> dom_manager = hippy_dom->dom_manager.lock();
     if (dom_manager) {
       auto root_node = hippy_dom->root_node.lock();
       if (root_node) {
@@ -82,7 +82,7 @@ void HippyDomTreeAdapter::GetDomTree(DumpDomTreeCallback callback) {
       }
     }
   };
-  DevToolsUtil::PostDomTask(hippy_dom_->dom_id, func);
+  DevToolsUtil::PostDomTask(hippy_dom_->dom_manager, func);
 }
 
 void HippyDomTreeAdapter::GetDomainData(int32_t node_id,
@@ -103,13 +103,13 @@ void HippyDomTreeAdapter::GetDomainData(int32_t node_id,
     if (!root_node) {
       return;
     }
-    auto dom_manager = DomManager::Find(hippy_dom->dom_id);
+    auto dom_manager = hippy_dom->dom_manager.lock();
     auto node = dom_manager->GetNode(root_node, is_root ? root_node->GetId() : static_cast<uint32_t>(node_id));
     assert(node != nullptr);
     hippy::devtools::DomainMetas metas = DevToolsUtil::GetDomDomainData(root_node, node, depth, dom_manager);
     callback(metas);
   };
-  DevToolsUtil::PostDomTask(hippy_dom_->dom_id, func);
+  DevToolsUtil::PostDomTask(hippy_dom_->dom_manager, func);
 }
 
 void HippyDomTreeAdapter::GetNodeIdByLocation(double x, double y, NodeLocationCallback callback) {
@@ -126,10 +126,10 @@ void HippyDomTreeAdapter::GetNodeIdByLocation(double x, double y, NodeLocationCa
     if (!root_node) {
       return;
     }
-    auto dom_manager = DomManager::Find(hippy_dom->dom_id);
+    auto dom_manager = hippy_dom->dom_manager.lock();
     callback(DevToolsUtil::GetNodeIdByDomLocation(root_node, x, y));
   };
-  DevToolsUtil::PostDomTask(hippy_dom_->dom_id, func);
+  DevToolsUtil::PostDomTask(hippy_dom_->dom_manager, func);
 }
 
 void HippyDomTreeAdapter::GetPushNodeByPath(PushNodePath path, PushNodeByPathCallback callback) {
@@ -139,13 +139,13 @@ void HippyDomTreeAdapter::GetPushNodeByPath(PushNodePath path, PushNodeByPathCal
   std::weak_ptr<HippyDomData> weak_hippy_dom = hippy_dom_;
   auto func = [weak_hippy_dom, path, callback]() {
     std::shared_ptr<HippyDomData> hippy_dom = weak_hippy_dom.lock();
-    auto dom_manager = DomManager::Find(hippy_dom->dom_id);
+    auto dom_manager = hippy_dom->dom_manager.lock();
     auto root_node = hippy_dom->root_node.lock();
     if (!root_node) {
       return;
     }
     callback(DevToolsUtil::GetPushNodeByPath(root_node, path));
   };
-  DevToolsUtil::PostDomTask(hippy_dom_->dom_id, func);
+  DevToolsUtil::PostDomTask(hippy_dom_->dom_manager, func);
 }
 }  // namespace hippy::devtools

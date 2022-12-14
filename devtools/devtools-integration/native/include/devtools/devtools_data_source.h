@@ -52,9 +52,9 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
   DevtoolsDataSource(const std::string& ws_url, std::shared_ptr<footstone::WorkerManager> worker_manager);
   ~DevtoolsDataSource() = default;
   /**
-   * @brief bind framework runtime, dom and render id, so that devtools can access and collect data
+   * @brief bind dom, so that devtools can access and collect data
    */
-  void Bind(uint32_t runtime_id, uint32_t dom_id, uint32_t render_id);
+  void Bind(const std::weak_ptr<DomManager>& dom_manager);
   /**
    * @brief destroy devtools, need notify is_reload
    * @param is_reload create a new instance or just reload bundle, if true, the devtools frontend will reuse and not

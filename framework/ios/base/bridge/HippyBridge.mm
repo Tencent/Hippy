@@ -746,7 +746,7 @@ dispatch_queue_t HippyBridgeQueue() {
         auto devtools_data_source = strongSelf->_javaScriptExecutor.pScope->GetDevtoolsDataSource();
         if (devtools_data_source) {
             hippy::DomManager::Insert(domManager);
-            strongSelf->_javaScriptExecutor.pScope->GetDevtoolsDataSource()->Bind(0, domManager->GetId(), 0); // runtime_id for iOS is useless, set 0
+            strongSelf->_javaScriptExecutor.pScope->GetDevtoolsDataSource()->Bind(domManager);
             devtools_data_source->SetRootNode(rootNode);
         }
       #endif
