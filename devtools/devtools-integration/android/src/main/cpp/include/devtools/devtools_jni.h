@@ -42,6 +42,19 @@ void OnDestroyDevtools(JNIEnv* j_env,
                        jint j_id,
                        jboolean j_is_reload);
 
+
+void OnBindDevtools(JNIEnv* j_env,
+                    __unused jobject j_object,
+                    jint j_devtools_id,
+                    jint j_driver_id,
+                    jint j_dom_id,
+                    jint j_render_id);
+
+void OnAttachToRoot(JNIEnv* j_env,
+                    __unused jobject j_object,
+                    jint j_devtools_id,
+                    jint j_root_id);
+
 void OnNetworkRequestInvoke(JNIEnv* j_env,
                             __unused jobject j_object,
                             jint j_devtools_id,

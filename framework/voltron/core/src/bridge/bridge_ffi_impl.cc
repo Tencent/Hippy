@@ -284,7 +284,7 @@ EXTERN_C void DoBindDomAndRender(uint32_t dom_manager_id, int32_t engine_id, uin
 #ifdef ENABLE_INSPECTOR
   auto devtools_data_source = scope->GetDevtoolsDataSource();
   if (devtools_data_source) {
-    devtools_data_source->Bind(static_cast<int32_t>(runtime_id), dom_manager_id, static_cast<int32_t>(render_id));
+    devtools_data_source->Bind(static_cast<uint32_t>(runtime_id), dom_manager_id, render_id);
   }
 #endif
 }

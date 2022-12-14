@@ -181,7 +181,7 @@ nlohmann::json DomModel::BuildTextNodeJson() {
 nlohmann::json DomModel::BuildBoxModelBorder() {
   auto border = nlohmann::json::array();
   if (!provider_ || !provider_->screen_adapter) {
-    FOOTSTONE_DLOG(ERROR) << "DOMModel::GetBoxModelBorder ScreenAdapter is null";
+    FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "DOMModel::GetBoxModelBorder ScreenAdapter is null";
     return border;
   }
   auto x = AddScreenScaleFactor(provider_->screen_adapter, x_);
@@ -216,7 +216,7 @@ nlohmann::json DomModel::BuildBoxModelBorder() {
 nlohmann::json DomModel::BuildBoxModelPadding(const nlohmann::json& border) {
   auto padding = nlohmann::json::array();
   if (!border.is_array()) {
-    FOOTSTONE_DLOG(ERROR) << "DOMModel, BoxModelPadding, border isn't array";
+    FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "DOMModel, BoxModelPadding, border isn't array";
     return padding;
   }
   std::vector<std::string> keys = {kBorderWidth, kBorderLeftWidth, kBorderTopWidth, kBorderRightWidth,
@@ -256,7 +256,7 @@ nlohmann::json DomModel::BuildBoxModelPadding(const nlohmann::json& border) {
 nlohmann::json DomModel::BuildBoxModelContent(const nlohmann::json& padding) {
   auto content = nlohmann::json::array();
   if (!padding.is_array()) {
-    FOOTSTONE_DLOG(ERROR) << "DOMModel, BoxModelContent, padding isn't array";
+    FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "DOMModel, BoxModelContent, padding isn't array";
     return content;
   }
   std::vector<std::string> keys = {kPadding, kPaddingLeft, kPaddingTop, kPaddingRight, kPaddingBottom};
@@ -295,7 +295,7 @@ nlohmann::json DomModel::BuildBoxModelContent(const nlohmann::json& padding) {
 nlohmann::json DomModel::BuildBoxModelMargin(const nlohmann::json& border) {
   auto margin = nlohmann::json::array();
   if (!border.is_array()) {
-    FOOTSTONE_DLOG(ERROR) << "DOMModel, BoxModelMargin, border isn't array";
+    FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "DOMModel, BoxModelMargin, border isn't array";
     return margin;
   }
   std::vector<std::string> keys = {kMargin, kMarginLeft, kMarginTop, kMarginRight, kMarginBottom};
@@ -353,7 +353,7 @@ nlohmann::json DomModel::BuildNodeBasicJson(DomNodeType node_type) {
 nlohmann::json DomModel::BuildAttributesObjectToArray() {
   nlohmann::json attributes_array = nlohmann::json::array();
   if (!attributes_.is_object()) {
-    FOOTSTONE_DLOG(ERROR) << "DOMModel, attributes isn't object, parse error, return empty";
+    FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "DOMModel, attributes isn't object, parse error, return empty";
     return attributes_array;
   }
   for (auto& attribute : attributes_.items()) {
@@ -383,15 +383,15 @@ nlohmann::json DomModel::BuildAttributesObjectToArray() {
 std::vector<int32_t> DomModel::GetLeftTopRightBottomValueFromStyle(std::vector<std::string> keys) {
   std::vector<int32_t> result;
   if (keys.size() < 5) {
-    FOOTSTONE_DLOG(ERROR) << "DOMModel::GetLeftTopRightBottomValueFromStyle keys is empty";
+    FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "DOMModel::GetLeftTopRightBottomValueFromStyle keys is empty";
     return result;
   }
   if (!provider_ || !provider_->screen_adapter) {
-    FOOTSTONE_DLOG(ERROR) << "DOMModel::GetLeftTopRightBottomValueFromStyle ScreenAdapter is null";
+    FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "DOMModel::GetLeftTopRightBottomValueFromStyle ScreenAdapter is null";
     return result;
   }
   if (!style_.is_object()) {
-    FOOTSTONE_DLOG(ERROR) << "DOMModel, GetLeftTopRightBottomValueFromStyle, style isn't object";
+    FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "DOMModel, GetLeftTopRightBottomValueFromStyle, style isn't object";
     return result;
   }
   // keys [width, left_width, top_width, right_width, bottom_width]

@@ -19,6 +19,7 @@
  */
 #ifdef JS_V8
 
+#include "api/devtools_define.h"
 #include "devtools/v8/trace_control.h"
 
 #include <fstream>
@@ -33,7 +34,7 @@ constexpr char kTraceIncludedCategoryV8[] = "v8";
 
 bool TraceControl::OpenCacheFile() {
   if (cache_file_dir_.empty() || std::string::npos != cache_file_dir_.find("..")) {
-    FOOTSTONE_LOG(ERROR) << "TraceControl cache_file_dir_ is invalid";
+    FOOTSTONE_LOG(ERROR) << kDevToolsTag << "TraceControl cache_file_dir_ is invalid";
     return false;
   }
   if (!cache_file_path_.empty()) {  // delete old file
@@ -78,7 +79,7 @@ std::string TraceControl::GetTracingContent(const std::string& params_key) {
     buffer << ifs.rdbuf();
     std::string tracing_content = buffer.str();
     ifs.close();
-    FOOTSTONE_LOG(INFO) << "TraceControl content:" << tracing_content;
+    FOOTSTONE_LOG(INFO) << kDevToolsTag << "TraceControl content:" << tracing_content;
     if (!tracing_content.empty() && tracing_content[0] == ',') {
       tracing_content = tracing_content.substr(1);
     }

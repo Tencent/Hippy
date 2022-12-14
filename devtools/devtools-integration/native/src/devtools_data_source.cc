@@ -57,7 +57,7 @@ DevtoolsDataSource::DevtoolsDataSource(const std::string& ws_url,
   devtools_service_->Create();
 }
 
-void DevtoolsDataSource::Bind(int32_t runtime_id, uint32_t dom_id, int32_t render_id) {
+void DevtoolsDataSource::Bind(uint32_t runtime_id, uint32_t dom_id, uint32_t render_id) {
   // bind hippy runtime, dom and render
   hippy_dom_ = std::make_shared<HippyDomData>();
   hippy_dom_->dom_id = dom_id;
@@ -67,7 +67,7 @@ void DevtoolsDataSource::Bind(int32_t runtime_id, uint32_t dom_id, int32_t rende
   data_provider->dom_tree_adapter = std::make_shared<HippyDomTreeAdapter>(hippy_dom_);
   data_provider->screen_adapter = std::make_shared<HippyScreenAdapter>(hippy_dom_);
   data_provider->tracing_adapter = std::make_shared<HippyTracingAdapter>();
-  FOOTSTONE_DLOG(INFO) << "TDF_Backend DevtoolsDataSource Bind data_provider:" << &devtools_service_;
+  FOOTSTONE_DLOG(INFO) << kDevToolsTag << "DevtoolsDataSource Bind dom_id:" << dom_id;
 }
 
 void DevtoolsDataSource::Destroy(bool is_reload) {
@@ -90,7 +90,6 @@ void DevtoolsDataSource::SetVmRequestHandler(HippyVmRequestAdapter::VmRequestHan
 
 void DevtoolsDataSource::SetRootNode(const std::weak_ptr<RootNode>& weak_root_node) {
   hippy_dom_->root_node = weak_root_node;
-
   auto func = [weak_root_node, WEAK_THIS] {
     DEFINE_AND_CHECK_SELF(DevtoolsDataSource)
     // add root node listen for dom tree update
