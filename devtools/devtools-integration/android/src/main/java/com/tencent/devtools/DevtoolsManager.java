@@ -16,6 +16,8 @@
 
 package com.tencent.devtools;
 
+import android.view.View;
+import androidx.annotation.NonNull;
 import com.openhippy.connector.Connector;
 
 public class DevtoolsManager {
@@ -49,9 +51,9 @@ public class DevtoolsManager {
         }
     }
 
-    public void attachToRoot(int rootId) {
+    public void attachToRoot(@NonNull View root) {
         if (mDebugMode) {
-            onAttachToRoot(getId(), rootId);
+            onAttachToRoot(getId(), root.getId());
         }
     }
 

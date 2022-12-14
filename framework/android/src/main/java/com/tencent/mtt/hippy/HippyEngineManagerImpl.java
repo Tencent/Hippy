@@ -929,7 +929,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 mDomManager.createRoot(rootView);
                 mJsDriver.attachToRoot(rootView);
                 if (mDevtoolsManager != null) {
-                    mDevtoolsManager.attachToRoot(rootView.getId());
+                    mDevtoolsManager.attachToRoot(rootView);
                 }
             }
             return rootView;
