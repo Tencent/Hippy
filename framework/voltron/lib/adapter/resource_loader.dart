@@ -19,9 +19,11 @@
 //
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart';
 import 'package:voltron/adapter/http.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
@@ -81,7 +83,9 @@ class VoltronResourceLoader with ResourceLoader {
     VoltronHttpRequest request = VoltronHttpRequest(url: holder.url);
     _httpAdapter.sendRequest(request).then((response) {
       if (response.statusCode == 200) {
-        holder.buffer = Uint8List.fromList(response.data.toString().codeUnits);
+        var dataStr = response.data.toString();
+        final units = utf8.encode(dataStr);
+        holder.buffer = Uint8List.fromList(units);
         setResponseHeaderToHolder(holder, response);
       } else {
         holder.resultCode = FetchResultCode.remoteRequestFailedError;
