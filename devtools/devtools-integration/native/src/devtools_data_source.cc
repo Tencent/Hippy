@@ -57,17 +57,15 @@ DevtoolsDataSource::DevtoolsDataSource(const std::string& ws_url,
   devtools_service_->Create();
 }
 
-void DevtoolsDataSource::Bind(uint32_t runtime_id, uint32_t dom_id, uint32_t render_id) {
-  // bind hippy runtime, dom and render
+void DevtoolsDataSource::Bind(const std::weak_ptr<DomManager>& dom_manager) {
   hippy_dom_ = std::make_shared<HippyDomData>();
-  hippy_dom_->dom_id = dom_id;
-  // runtime_id, render_id will use to collect data when they are ready
+  hippy_dom_->dom_manager = dom_manager;
 
   auto data_provider = GetDataProvider();
   data_provider->dom_tree_adapter = std::make_shared<HippyDomTreeAdapter>(hippy_dom_);
   data_provider->screen_adapter = std::make_shared<HippyScreenAdapter>(hippy_dom_);
   data_provider->tracing_adapter = std::make_shared<HippyTracingAdapter>();
-  FOOTSTONE_DLOG(INFO) << kDevToolsTag << "DevtoolsDataSource Bind dom_id:" << dom_id;
+  FOOTSTONE_DLOG(INFO) << kDevToolsTag << "DevtoolsDataSource Bind dom";
 }
 
 void DevtoolsDataSource::Destroy(bool is_reload) {
@@ -77,7 +75,7 @@ void DevtoolsDataSource::Destroy(bool is_reload) {
     DEFINE_AND_CHECK_SELF(DevtoolsDataSource)
     self->RemoveRootNodeListener(self->hippy_dom_->root_node);
   };
-  DevToolsUtil::PostDomTask(hippy_dom_->dom_id, func);
+  DevToolsUtil::PostDomTask(hippy_dom_->dom_manager, func);
 }
 
 void DevtoolsDataSource::SetContextName(const std::string& context_name) {
@@ -95,16 +93,16 @@ void DevtoolsDataSource::SetRootNode(const std::weak_ptr<RootNode>& weak_root_no
     // add root node listen for dom tree update
     self->AddRootNodeListener(weak_root_node);
   };
-  DevToolsUtil::PostDomTask(hippy_dom_->dom_id, func);
+  DevToolsUtil::PostDomTask(hippy_dom_->dom_manager, func);
 }
 
 void DevtoolsDataSource::AddRootNodeListener(const std::weak_ptr<RootNode>& weak_root_node) {
   listener_id_ = hippy::dom::FetchListenerId();
-  auto dom_manager = DomManager::Find(hippy_dom_->dom_id);
+  auto dom_manager = hippy_dom_->dom_manager.lock();
   auto root_node = weak_root_node.lock();
   if (dom_manager && root_node) {
     dom_manager->AddEventListener(
-        weak_root_node, hippy_dom_->dom_id, kDomTreeUpdated, listener_id_, true,
+        root_node, root_node->GetId(), kDomTreeUpdated, listener_id_, true,
         [WEAK_THIS](const std::shared_ptr<DomEvent>& event) {
           DEFINE_AND_CHECK_SELF(DevtoolsDataSource)
           self->GetNotificationCenter()->dom_tree_notification->NotifyDocumentUpdate();
@@ -113,7 +111,7 @@ void DevtoolsDataSource::AddRootNodeListener(const std::weak_ptr<RootNode>& weak
 }
 
 void DevtoolsDataSource::RemoveRootNodeListener(const std::weak_ptr<RootNode>& weak_root_node) {
-  auto dom_manager = DomManager::Find(hippy_dom_->dom_id);
+  auto dom_manager = hippy_dom_->dom_manager.lock();
   auto root_node = weak_root_node.lock();
   if (dom_manager && root_node) {
     dom_manager->RemoveEventListener(root_node, root_node->GetId(), kDomTreeUpdated, listener_id_);

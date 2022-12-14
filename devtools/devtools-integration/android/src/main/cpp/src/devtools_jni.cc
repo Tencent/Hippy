@@ -115,10 +115,12 @@ void OnBindDevtools(JNIEnv* j_env,
                     jint j_render_id) {
   auto devtools_id = static_cast<uint32_t>(j_devtools_id);
   auto devtools_data_source = devtools::DevtoolsDataSource::Find(devtools_id);
-  auto driver_id = static_cast<uint32_t>(j_driver_id);
-  auto dom_id = static_cast<uint32_t>(j_dom_id);
-  auto render_id = static_cast<uint32_t>(j_render_id);
-  devtools_data_source->Bind(driver_id, dom_id, render_id);
+  auto dom_manager_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_dom_id);
+  std::any dom_manager;
+  auto flag = hippy::global_data_holder.Find(dom_manager_id, dom_manager);
+  FOOTSTONE_CHECK(flag);
+  auto dom_manager_object = std::any_cast<std::shared_ptr<DomManager>>(dom_manager);
+  devtools_data_source->Bind(dom_manager_object);
 }
 
 void OnAttachToRoot(JNIEnv* j_env,
