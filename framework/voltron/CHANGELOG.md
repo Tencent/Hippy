@@ -1,3 +1,15 @@
+## 0.0.6
+
+- fix android c++ libs
+
+## 0.0.5
+
+- change c++ stl to c++_static
+
+## 0.0.4
+
+- fix android local cmake error
+
 ## 0.0.3
 
 - fix ios dynamic import
