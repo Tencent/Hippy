@@ -55,10 +55,9 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: BaseVoltronPage(
-        debugMode: true,
-        // isHome: true,
-        // coreBundle: "assets/jsbundle/vendor.android.js",
-        // indexBundle: "assets/jsbundle/index.android.js",
+        isHome: true,
+        coreBundle: "assets/jsbundle/vendor.android.js",
+        indexBundle: "assets/jsbundle/index.android.js",
       ),
     );
   }
