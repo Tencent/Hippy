@@ -111,7 +111,7 @@ nlohmann::json CssModel::UpdateDomTreeAndGetStyleTextJson(const nlohmann::json& 
   if (dom_tree_adapter) {
     auto update_node_id = node_id_;
     dom_tree_adapter->UpdateDomTree(result_metas, [update_node_id](const bool is_success) {
-      FOOTSTONE_DLOG(INFO) << "CSS, update dom tree, id: %ld, success: %d" << update_node_id << is_success;
+      FOOTSTONE_DLOG(INFO) << kDevToolsTag << "CSS, update dom tree, id: %ld, success: %d" << update_node_id << is_success;
     });
   }
   return BuildCssStyle();

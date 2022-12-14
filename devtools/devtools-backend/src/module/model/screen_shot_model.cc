@@ -38,7 +38,7 @@ void ScreenShotModel::ReqScreenShotToResponse() {
     if (response_callback) {
       response_callback(ScreenShotResponse(image, width, height));
     }
-    FOOTSTONE_DLOG(INFO) << "ScreenShotModel ReqScreenShotToResponse end";
+    FOOTSTONE_DLOG(INFO) << kDevToolsTag << "ScreenShotModel ReqScreenShotToResponse end";
   });
 }
 
@@ -49,7 +49,7 @@ void ScreenShotModel::ReqScreenShotToSendEvent() {
     if (event_callback) {
       event_callback(ScreenShotResponse(image_base64, width, height));
     }
-    FOOTSTONE_DLOG(INFO) << "ScreenShotModel ReqScreenShotToSendEvent end";
+    FOOTSTONE_DLOG(INFO) << kDevToolsTag << "ScreenShotModel ReqScreenShotToSendEvent end";
   });
 }
 
@@ -59,10 +59,9 @@ void ScreenShotModel::ReqScreenShot(ScreenAdapter::CoreScreenshotCallback screen
     return;
   }
   if (!provider_) {
-    FOOTSTONE_DLOG(ERROR) << "ScreenShotModel provider is null";
+    FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "ScreenShotModel provider is null";
     return;
   }
-  FOOTSTONE_DLOG(INFO) << "ScreenShotModel ReqScreenShot start";
   auto screen_adapter = provider_->screen_adapter;
   if (!screen_adapter) {
     return;

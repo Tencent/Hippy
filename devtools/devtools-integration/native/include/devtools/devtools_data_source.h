@@ -54,7 +54,7 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
   /**
    * @brief bind framework runtime, dom and render id, so that devtools can access and collect data
    */
-  void Bind(int32_t runtime_id, uint32_t dom_id, int32_t render_id);
+  void Bind(uint32_t runtime_id, uint32_t dom_id, uint32_t render_id);
   /**
    * @brief destroy devtools, need notify is_reload
    * @param is_reload create a new instance or just reload bundle, if true, the devtools frontend will reuse and not

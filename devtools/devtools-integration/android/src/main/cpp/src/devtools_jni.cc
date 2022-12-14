@@ -49,6 +49,16 @@ REGISTER_JNI("com/tencent/devtools/DevtoolsManager",  // NOLINT(cert-err58-cpp)
              "(IZ)V",
              OnDestroyDevtools)
 
+REGISTER_JNI("com/tencent/devtools/DevtoolsManager",  // NOLINT(cert-err58-cpp)
+             "onBindDevtools",
+             "(IIII)V",
+             OnBindDevtools)
+
+REGISTER_JNI("com/tencent/devtools/DevtoolsManager",  // NOLINT(cert-err58-cpp)
+             "onAttachToRoot",
+             "(II)V",
+             OnAttachToRoot)
+
 REGISTER_JNI("com/tencent/devtools/vfs/DevtoolsProcessor",  // NOLINT(cert-err58-cpp)
              "onNetworkRequest",
              "(ILjava/lang/String;Lcom/tencent/vfs/ResourceDataHolder;)V",
@@ -58,8 +68,6 @@ REGISTER_JNI("com/tencent/devtools/vfs/DevtoolsProcessor",  // NOLINT(cert-err58
              "onNetworkResponse",
              "(ILjava/lang/String;Lcom/tencent/vfs/ResourceDataHolder;)V",
              OnNetworkResponseInvoke)
-
-
 
 // needs to call by JNI_OnLoad
 void DevtoolsJni::Init(JavaVM* j_vm, void* reserved) {}
@@ -84,7 +92,7 @@ jint OnCreateDevtools(JNIEnv* j_env,
       worker_manager);
   uint32_t id = devtools::DevtoolsDataSource::Insert(devtools_data_source);
   JNIEnvironment::ClearJEnvException(j_env);
-  FOOTSTONE_DLOG(INFO) << "OnCreateDevtools id=" << id;
+  FOOTSTONE_DLOG(INFO) << kDevToolsTag << "OnCreateDevtools id=" << id;
   return footstone::checked_numeric_cast<uint32_t, jint>(id);
 }
 
@@ -93,10 +101,42 @@ void OnDestroyDevtools(JNIEnv* j_env, __unused jobject j_object, jint j_devtools
   auto devtools_data_source = devtools::DevtoolsDataSource::Find(devtools_id);
   devtools_data_source->Destroy(static_cast<bool>(j_is_reload));
   bool flag = devtools::DevtoolsDataSource::Erase(devtools_id);
-  FOOTSTONE_DLOG(INFO) << "OnDestroyDevtools devtools_id=" << devtools_id << ",flag=" << flag;
+  FOOTSTONE_DLOG(INFO) << kDevToolsTag << "OnDestroyDevtools devtools_id=" << devtools_id << ",flag=" << flag;
   FOOTSTONE_DCHECK(flag);
   JNIEnvironment::ClearJEnvException(j_env);
   worker_manager->Terminate();
+}
+
+void OnBindDevtools(JNIEnv* j_env,
+                    __unused jobject j_object,
+                    jint j_devtools_id,
+                    jint j_driver_id,
+                    jint j_dom_id,
+                    jint j_render_id) {
+  auto devtools_id = static_cast<uint32_t>(j_devtools_id);
+  auto devtools_data_source = devtools::DevtoolsDataSource::Find(devtools_id);
+  auto driver_id = static_cast<uint32_t>(j_driver_id);
+  auto dom_id = static_cast<uint32_t>(j_dom_id);
+  auto render_id = static_cast<uint32_t>(j_render_id);
+  devtools_data_source->Bind(driver_id, dom_id, render_id);
+}
+
+void OnAttachToRoot(JNIEnv* j_env,
+                    __unused jobject j_object,
+                    jint j_devtools_id,
+                    jint j_root_id) {
+  auto& root_map = RootNode::PersistentMap();
+  std::shared_ptr<RootNode> root_node;
+  uint32_t root_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_root_id);
+  auto ret = root_map.Find(root_id, root_node);
+  if (!ret) {
+    FOOTSTONE_DLOG(WARNING) << kDevToolsTag << "OnAttachToRoot root_node is nullptr";
+    return;
+  }
+  FOOTSTONE_DLOG(INFO) << kDevToolsTag << "OnAttachToRoot root_id=" << root_id;
+  auto devtools_id = static_cast<uint32_t>(j_devtools_id);
+  auto devtools_data_source = devtools::DevtoolsDataSource::Find(devtools_id);
+  devtools_data_source->SetRootNode(root_node);
 }
 
 /**

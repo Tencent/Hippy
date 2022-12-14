@@ -17,6 +17,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include "api/devtools_define.h"
 #include "devtools/devtools_utils.h"
 
 namespace hippy::devtools {
@@ -151,7 +153,7 @@ bool DevToolsUtil::IsLocationHitNode(const std::shared_ptr<DomNode>& dom_node, d
 
 std::string DevToolsUtil::ParseDomValue(const HippyValue& dom_value) {
   if (!dom_value.IsObject()) {
-    FOOTSTONE_DLOG(INFO) << "ParseTotalProps, node props is not object";
+    FOOTSTONE_DLOG(INFO) << kDevToolsTag << "ParseTotalProps, node props is not object";
     return "{}";
   }
   std::string node_str = "{";
@@ -226,7 +228,7 @@ std::string DevToolsUtil::ParseDomValue(const HippyValue& dom_value) {
 
 std::string DevToolsUtil::ParseNodeKeyProps(const std::string& node_key, const NodePropsUnorderedMap& node_props) {
   if (!node_props || node_props->empty()) {
-    FOOTSTONE_DLOG(INFO) << "ParseNodeKeyProps, node props is not object";
+    FOOTSTONE_DLOG(INFO) << kDevToolsTag << "ParseNodeKeyProps, node props is not object";
     return node_key == kAttributes ? "{}" : "";
   }
   if (!node_key.empty()) {
@@ -248,7 +250,7 @@ std::string DevToolsUtil::ParseNodeKeyProps(const std::string& node_key, const N
 
 std::string DevToolsUtil::ParseNodeProps(const NodePropsUnorderedMap& node_props) {
   if (!node_props || node_props->empty()) {
-    FOOTSTONE_DLOG(INFO) << "ParseNodeProps, node props is not object";
+    FOOTSTONE_DLOG(INFO) << kDevToolsTag << "ParseNodeProps, node props is not object";
     return "{}";
   }
   std::string node_str = "{";
@@ -262,7 +264,7 @@ std::string DevToolsUtil::ParseNodeProps(const NodePropsUnorderedMap& node_props
 
 std::string DevToolsUtil::ParseNodeProps(const std::unordered_map<std::string, HippyValue>& node_props) {
   if (node_props.empty()) {
-    FOOTSTONE_DLOG(INFO) << "ParseNodeProps, node props is not object";
+    FOOTSTONE_DLOG(INFO) << kDevToolsTag << "ParseNodeProps, node props is not object";
     return "{}";
   }
   std::string node_str = "{";

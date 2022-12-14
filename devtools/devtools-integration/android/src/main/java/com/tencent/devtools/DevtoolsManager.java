@@ -16,6 +16,10 @@
 
 package com.tencent.devtools;
 
+import android.view.View;
+import androidx.annotation.NonNull;
+import com.openhippy.connector.Connector;
+
 public class DevtoolsManager {
 
     private final boolean mDebugMode;
@@ -41,6 +45,18 @@ public class DevtoolsManager {
         }
     }
 
+    public void bind(Connector driver, Connector dom, Connector render) {
+        if (mDebugMode) {
+            onBindDevtools(getId(), driver.getInstanceId(), dom.getInstanceId(), render.getInstanceId());
+        }
+    }
+
+    public void attachToRoot(@NonNull View root) {
+        if (mDebugMode) {
+            onAttachToRoot(getId(), root.getId());
+        }
+    }
+
     /**
      * create devtools jni
      */
@@ -52,4 +68,16 @@ public class DevtoolsManager {
      */
     @SuppressWarnings("JavaJniMissingFunction")
     private native void onDestroyDevtools(int devtoolsId, boolean isReload);
+
+    /**
+     * bind devtools jni for driver, dom and render id
+     */
+    @SuppressWarnings("JavaJniMissingFunction")
+    private native void onBindDevtools(int devtoolsId, int driverId, int domId, int renderId);
+
+    /**
+     * attach rootId jni
+     */
+    @SuppressWarnings("JavaJniMissingFunction")
+    private native void onAttachToRoot(int devtoolsId, int rootId);
 }

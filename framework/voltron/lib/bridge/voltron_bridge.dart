@@ -69,8 +69,6 @@ class VoltronBridgeManager implements Destroyable {
   int _v8RuntimeId = 0;
   final int _engineId;
 
-  int _devtoolsId = 0;
-
   ModuleListener? _loadModuleListener;
 
   VoltronBundleLoader? get coreBundleLoader => _coreBundleLoader;
@@ -95,10 +93,11 @@ class VoltronBridgeManager implements Destroyable {
     initCodeCacheDir();
   }
 
-  Future<void> _handleVoltronInspectorInit() async {
+  Future<int> _handleVoltronInspectorInit() async {
+    int devtoolsId = 0;
     if (_isDevModule) {
       var tracingDataDir = await _context.devSupportManager.getTracingDataDir();
-      _devtoolsId = await VoltronApi.createDevtools(
+       devtoolsId = await VoltronApi.createDevtools(
         workerManagerId: _context.renderContext.workerManagerId,
         dataDir: tracingDataDir,
         wsUrl: _context.devSupportManager.createDebugUrl(_debugServerHost));
@@ -108,6 +107,7 @@ class VoltronBridgeManager implements Destroyable {
         networkModule.responseReceivedHook = NetworkInspector().onResponseReceived;
       }
     }
+    return devtoolsId;
   }
 
   void bindDomAndRender({
@@ -134,7 +134,7 @@ class VoltronBridgeManager implements Destroyable {
 
   Future<dynamic> initBridge(Callback callback) async {
     try {
-      _handleVoltronInspectorInit();
+      int devtoolsId = await _handleVoltronInspectorInit();
       _context.startTimeMonitor.startEvent(EngineMonitorEventKey.engineLoadEventInitBridge);
       _v8RuntimeId = await VoltronApi.initJsFrameWork(
         globalConfig: getGlobalConfigs(),
@@ -182,7 +182,7 @@ class VoltronBridgeManager implements Destroyable {
             callback(_isFrameWorkInit, null);
           }
         },
-        devtoolsId: _devtoolsId,
+        devtoolsId: devtoolsId,
       );
     } catch (e) {
       _isFrameWorkInit = false;
