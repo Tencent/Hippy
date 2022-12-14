@@ -48,9 +48,9 @@ public class NativeRenderer implements Connector {
         }
     }
 
-    public void onRuntimeInitialized(int rootId) {
+    public void onRuntimeInitialized(@NonNull View root) {
         if (mRenderer != null) {
-            mRenderer.onRuntimeInitialized(rootId);
+            mRenderer.onRuntimeInitialized(root.getId());
         }
     }
 

@@ -59,17 +59,16 @@ import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.ControllerProvider;
 import com.tencent.renderer.FrameworkProxy;
-import com.tencent.renderer.component.image.ImageLoaderAdapter;
 import com.tencent.renderer.component.text.FontAdapter;
 import com.tencent.vfs.DefaultProcessor;
 import com.tencent.devtools.vfs.DevtoolsProcessor;
 import com.tencent.vfs.Processor;
 import com.tencent.vfs.VfsManager;
 import com.openhippy.connector.JsDriver.V8InitParams;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
@@ -386,7 +385,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             }
         }
         mRootView = (ViewGroup) mEngineContext.createRootView(loadParams.context);
-        if (mCurrentState == EngineState.DESTROYED) {
+        if (mCurrentState == EngineState.DESTROYED || mRootView == null) {
             notifyModuleLoaded(ModuleLoadStatus.STATUS_ENGINE_UNINIT,
                     "load module error wrong state, Engine destroyed");
             return null;
@@ -765,9 +764,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         public void onRuntimeInitialized() {
             mJsDriver.attachToDom(mDomManager);
             if (mRootView != null && (mDebugMode || BuildConfig.DEBUG)) {
-                mDomManager.createRoot(mRootView.getId());
-                mJsDriver.attachToRoot(mRootView.getId());
-                mNativeRenderer.onRuntimeInitialized(mRootView.getId());
+                mDomManager.createRoot(mRootView);
+                mJsDriver.attachToRoot(mRootView);
+                mNativeRenderer.onRuntimeInitialized(mRootView);
             }
         }
 
@@ -924,8 +923,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         public View createRootView(@NonNull Context context) {
             View rootView = mNativeRenderer.createRootView(context);
             if (rootView != null) {
-                mDomManager.createRoot(rootView.getId());
-                mJsDriver.attachToRoot(rootView.getId());
+                mDomManager.createRoot(rootView);
+                mJsDriver.attachToRoot(rootView);
             }
             return rootView;
         }
