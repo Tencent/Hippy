@@ -60,7 +60,7 @@ DomManager::DomManager() {
 }
 
 DomManager::~DomManager() {
-  worker_manager_->Terminate();
+  worker_manager_ = nullptr;
 }
 
 void DomManager::Insert(const std::shared_ptr<DomManager>& dom_manager) {
