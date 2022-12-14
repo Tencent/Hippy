@@ -23,7 +23,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart';
 import 'package:voltron/adapter/http.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
