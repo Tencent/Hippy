@@ -50,7 +50,7 @@ class DevToolsUtil {
   static DomPushNodePathMetas GetPushNodeByPath(const std::shared_ptr<DomNode>& dom_node,
                                                 std::vector<std::map<std::string, int32_t>> path);
 
-  static void PostDomTask(uint32_t dom_id, std::function<void()> func);
+  static void PostDomTask(const std::weak_ptr<DomManager>& weak_dom_manager, std::function<void()> func);
 
  private:
   static std::shared_ptr<DomNode> GetHitNode(const std::shared_ptr<DomNode>& node, double x, double y);
