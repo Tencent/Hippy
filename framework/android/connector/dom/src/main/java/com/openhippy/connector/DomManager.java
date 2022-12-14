@@ -16,6 +16,7 @@
 
 package com.openhippy.connector;
 
+import android.view.View;
 import androidx.annotation.NonNull;
 
 @SuppressWarnings("JavaJniMissingFunction")
@@ -41,8 +42,8 @@ public class DomManager implements Connector {
         onAttachToRenderer(mInstanceId, rendererConnector.getInstanceId());
     }
 
-    public void createRoot(int rootId) {
-        createRootNode(rootId);
+    public void createRoot(@NonNull View root) {
+        createRootNode(root.getId());
     }
 
     public void destroyRoot(int rootId) {

@@ -17,6 +17,7 @@
 package com.openhippy.connector;
 
 import android.content.res.AssetManager;
+import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import java.lang.ref.WeakReference;
@@ -112,8 +113,8 @@ public class JsDriver implements Connector {
         attachToDom(mInstanceId, domConnector.getInstanceId());
     }
 
-    public void attachToRoot(int rootId) {
-        attachToRoot(mInstanceId, rootId);
+    public void attachToRoot(@NonNull View root) {
+        attachToRoot(mInstanceId, root.getId());
     }
 
     /**
