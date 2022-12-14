@@ -16,6 +16,8 @@
 
 package com.tencent.devtools;
 
+import com.openhippy.connector.Connector;
+
 public class DevtoolsManager {
 
     private final boolean mDebugMode;
@@ -41,9 +43,9 @@ public class DevtoolsManager {
         }
     }
 
-    public void bind(int driverId, int domId, int renderId) {
+    public void bind(Connector driver, Connector dom, Connector render) {
         if (mDebugMode) {
-            onBindDevtools(getId(), driverId, domId, renderId);
+            onBindDevtools(getId(), driver.getInstanceId(), dom.getInstanceId(), render.getInstanceId());
         }
     }
 

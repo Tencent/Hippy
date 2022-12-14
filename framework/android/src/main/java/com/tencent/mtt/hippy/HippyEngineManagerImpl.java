@@ -769,8 +769,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 mNativeRenderer.onRuntimeInitialized(mRootView);
             }
             if (mDevtoolsManager != null) {
-                mDevtoolsManager.bind(mJsDriver.getInstanceId(), mDomManager.getInstanceId(),
-                        mNativeRenderer.getInstanceId());
+                mDevtoolsManager.bind(mJsDriver, mDomManager, mNativeRenderer);
             }
         }
 
