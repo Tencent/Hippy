@@ -59,10 +59,6 @@ DomManager::DomManager() {
   id_ = global_dom_manager_key.fetch_add(1);
 }
 
-DomManager::~DomManager() {
-  worker_manager_ = nullptr;
-}
-
 void DomManager::Insert(const std::shared_ptr<DomManager>& dom_manager) {
   std::lock_guard<std::mutex> lock(mutex);
   dom_manager_map[dom_manager->id_] = dom_manager;
