@@ -34,7 +34,7 @@ CMakeLists.txt @medns
 
 # framework: android
 /framework/android/ @siguangli
-/framework/android/src/main/cpp/ @churchill-zhang
+/framework/android/**/src/main/cpp/ @churchill-zhang
 
 # framework: ios
 /framework/ios/ @ozonelmy
@@ -50,20 +50,21 @@ CMakeLists.txt @medns
 
 # renderer: native
 /renderer/native/android/ @siguangli
-/renderer/native/android/src/main/cpp/ @churchill-zhang
 /renderer/native/ios/ @ozonelmy
 
 # renderer: tdf
 /renderer/tdf/ @medns
-/renderer/tdf/android/src/main/java/ @siguangli
+/renderer/tdf/android/ @siguangli
+/renderer/tdf/android/**/src/main/cpp/ @churchill-zhang
+/renderer/tdf/ios/ @ozonelmy
 
 # renderer: voltron
 /renderer/voltron/ @lvfen @skindhu
 
 # module: vfs
-/modules/vfs/ @medns
+/modules/vfs/ @churchill-zhang
 /modules/vfs/android/ @siguangli
-/modules/vfs/android/src/main/cpp/ @churchill-zhang
+/modules/vfs/android/**/src/main/cpp/ @churchill-zhang
 /modules/vfs/ios/ @ozonelmy
 /modules/vfs/voltron/ @lvfen @skindhu
 
@@ -81,15 +82,10 @@ CMakeLists.txt @medns
 /modules/footstone/ @churchill-zhang
 
 # devtools: backend
-/devtools/ @churchill-zhang @medns
+/devtools/ @lavnFan
 
-# gh: workflow/template/owner etc.
+# gh: config
 /.github/ @zoomchan-cxj
-/.github/workflows/ @zoomchan-cxj
-/.github/ISSUE_TEMPLATE/ @zoomchan-cxj
-/.github/PULL_REQUEST_TEMPLATE.md @zoomchan-cxj
-/.github/CODEOWNERS @zoomchan-cxj
-/docker/ @medns
 
 # doc: example
 /framework/examples/android-demo/ @siguangli
@@ -113,6 +109,8 @@ CMakeLists.txt @medns
 /hippy.podspec
 /Hippy.xcworkspace/ @ozonelmy
 
-# build: cmake
+# build: config
 /buildconfig/ @medns
-/buildconfig/cmake/ @medns
+
+# build: docker
+/docker/ @medns
