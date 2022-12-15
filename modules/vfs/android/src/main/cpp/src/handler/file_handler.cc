@@ -34,7 +34,7 @@ void FileHandler::RequestUntrustedContent(std::shared_ptr<RequestJob> request,
                                           std::shared_ptr<JobResponse> response,
                                           std::function<std::shared_ptr<UriHandler>()> next) {
   string_view uri = request->GetUri();
-  std::shared_ptr<Uri> uri_obj = Uri::Create(uri);
+  auto uri_obj = Uri::Create(uri);
   string_view path = uri_obj->GetPath();
   if (path.encoding() == string_view::Encoding::Unknown) {
     response->SetRetCode(hippy::JobResponse::RetCode::PathError);

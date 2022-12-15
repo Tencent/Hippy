@@ -37,10 +37,12 @@ class FileHandler : public hippy::UriHandler {
   }
 
   virtual void RequestUntrustedContent(
-      std::shared_ptr<SyncContext> ctx,
+      std::shared_ptr<RequestJob> request,
+      std::shared_ptr<JobResponse> response,
       std::function<std::shared_ptr<UriHandler>()> next) override;
   virtual void RequestUntrustedContent(
-      std::shared_ptr<ASyncContext> ctx,
+      std::shared_ptr<RequestJob> request,
+      std::function<void(std::shared_ptr<JobResponse>)> cb,
       std::function<std::shared_ptr<UriHandler>()> next) override;
  private:
   void LoadByFile(const std::string &path,
