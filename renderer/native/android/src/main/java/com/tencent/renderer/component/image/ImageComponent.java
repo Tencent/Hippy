@@ -247,7 +247,7 @@ public class ImageComponent extends Component {
             }
 
             @Override
-            public void onRequestProgress(float total, float loaded) {
+            public void onRequestProgress(long total, long loaded) {
                 if (sourceType == ImageSourceType.SRC) {
                     onFetchImageProgress(total, loaded);
                 }

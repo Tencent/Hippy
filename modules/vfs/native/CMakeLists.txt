@@ -43,6 +43,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # region source set
 set(SOURCE_SET
   src/file.cc
+  src/request_job.cc
+        src/job_response.cc
   src/uri_loader.cc)
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
 # endregion

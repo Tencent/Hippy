@@ -89,13 +89,13 @@ void AssetHandler::Destroy(JNIEnv* j_env) {
 }
 
 void AssetHandler::RequestUntrustedContent(
-    std::shared_ptr<SyncContext> ctx,
+    std::shared_ptr<RequestJob> request,
+    std::shared_ptr<JobResponse> response,
     std::function<std::shared_ptr<UriHandler>()> next) {
-  string_view uri = ctx->uri;
-  std::shared_ptr<Uri> uri_obj = Uri::Create(uri);
+  auto uri_obj = Uri::Create(request->GetUri());
   string_view path = uri_obj->GetPath();
   if (path.encoding() == string_view::Encoding::Unknown) {
-    ctx->code = UriHandler::RetCode::PathError;
+    response->SetRetCode(hippy::JobResponse::RetCode::PathError);
     return;
   }
 
@@ -105,43 +105,43 @@ void AssetHandler::RequestUntrustedContent(
   auto j_get_assets_method_id = j_env->GetMethodID(j_context_class, "getAssets", "()Landroid/content/res/AssetManager;");
   auto j_asset_manager = j_env->CallObjectMethod(j_context, j_get_assets_method_id);
   auto asset_manager = AAssetManager_fromJava(j_env, j_asset_manager);
-  bool ret = ReadAsset(path, asset_manager, ctx->content, false);
+  bool ret = ReadAsset(path, asset_manager, response->GetContent(), false);
   if (ret) {
-    ctx->code = UriHandler::RetCode::Success;
+    response->SetRetCode(hippy::JobResponse::RetCode::Success);
   } else {
-    ctx->code = UriHandler::RetCode::Failed;
+    response->SetRetCode(hippy::JobResponse::RetCode::Failed);
   }
   auto next_handler = next();
   if (next_handler) {
-    next_handler->RequestUntrustedContent(ctx, next);
+    next_handler->RequestUntrustedContent(request, response, next);
   }
 }
 
 void AssetHandler::RequestUntrustedContent(
-    std::shared_ptr<ASyncContext> ctx,
+    std::shared_ptr<RequestJob> request,
+    std::function<void(std::shared_ptr<JobResponse>)> cb,
     std::function<std::shared_ptr<UriHandler>()> next) {
-  string_view uri = ctx->uri;
-  std::shared_ptr<Uri> uri_obj = Uri::Create(uri);
+  auto uri_obj = Uri::Create(request->GetUri());
   string_view path = uri_obj->GetPath();
   if (path.encoding() == string_view::Encoding::Unknown) {
-    ctx->cb(UriHandler::RetCode::PathError, {}, UriHandler::bytes());
+    cb(std::make_shared<JobResponse>(UriHandler::RetCode::PathError));
     return;
   }
-  auto new_cb = [orig_cb = ctx->cb](RetCode code , std::unordered_map<std::string, std::string> meta, bytes content) {
-    orig_cb(code, std::move(meta), std::move(content));
+  auto new_cb = [orig_cb = cb](std::shared_ptr<JobResponse> response) {
+    orig_cb(response);
   };
-  ctx->cb = new_cb;
-  LoadByAsset(path, ctx, next);
+  LoadByAsset(path, request, new_cb, next);
 }
 
 void AssetHandler::LoadByAsset(const string_view& path,
-                               std::shared_ptr<ASyncContext> ctx,
+                               std::shared_ptr<RequestJob> request,
+                               std::function<void(std::shared_ptr<JobResponse>)> cb,
                                std::function<std::shared_ptr<UriHandler>()> next,
                                bool is_auto_fill) {
   FOOTSTONE_DLOG(INFO) << "ReadAssetFile file_path = " << path;
   auto runner = runner_.lock();
   if (!runner) {
-    ctx->cb(UriHandler::RetCode::DelegateError, {}, UriHandler::bytes());
+    cb(std::make_shared<JobResponse>(UriHandler::RetCode::DelegateError));
     return;
   }
   auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
@@ -150,16 +150,17 @@ void AssetHandler::LoadByAsset(const string_view& path,
   auto j_get_assets_method_id = j_env->GetMethodID(j_context_class, "getAssets", "()Landroid/content/res/AssetManager;");
   auto j_asset_manager = j_env->CallObjectMethod(j_context, j_get_assets_method_id);
   auto manager = std::make_shared<JavaRef>(j_env, j_asset_manager);
-  runner->PostTask([path, manager, is_auto_fill, ctx] {
+  runner->PostTask([path, manager, cb, is_auto_fill] {
     UriHandler::bytes content;
     auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
     bool ret = ReadAsset(path,
                          AAssetManager_fromJava(j_env, manager->GetObj()),
                          content, is_auto_fill);
     if (ret) {
-      ctx->cb(UriHandler::RetCode::Success, {}, std::move(content));
+      cb(std::make_shared<JobResponse>(hippy::JobResponse::RetCode::Success, "",
+                                       std::unordered_map<std::string, std::string>{}, std::move(content)));
     } else {
-      ctx->cb(UriHandler::RetCode::Failed, {}, std::move(content));
+      cb(std::make_shared<JobResponse>(hippy::JobResponse::RetCode::Failed));
     }
   });
 }

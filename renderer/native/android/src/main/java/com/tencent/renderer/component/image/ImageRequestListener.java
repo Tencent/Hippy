@@ -36,5 +36,5 @@ public interface ImageRequestListener {
     /**
      * Notify image request on progress
      */
-    void onRequestProgress(float total, float loaded);
+    void onRequestProgress(long total, long loaded);
 }

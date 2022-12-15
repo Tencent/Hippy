@@ -22,6 +22,9 @@
 
 #include "vfs/handler/uri_handler.h"
 
+#include "vfs/request_job.h"
+#include "vfs/job_response.h"
+
 #include <list>
 #include <mutex>
 #include <string>
@@ -35,7 +38,7 @@ class UriLoader: public std::enable_shared_from_this<UriLoader> {
  public:
   using string_view = footstone::string_view;
   using bytes = vfs::UriHandler::bytes;
-  using RetCode = vfs::UriHandler::RetCode;
+  using RetCode = vfs::JobResponse::RetCode;
 
   UriLoader() = default;
   virtual ~UriLoader() = default;
@@ -56,6 +59,9 @@ class UriLoader: public std::enable_shared_from_this<UriLoader> {
       RetCode& code,
       std::unordered_map<std::string, std::string>& rsp_meta,
       bytes& content);
+
+  virtual void RequestUntrustedContent(const std::shared_ptr<RequestJob>& request, std::shared_ptr<JobResponse> response);
+  virtual void RequestUntrustedContent(const std::shared_ptr<RequestJob>& request, const std::function<void(std::shared_ptr<JobResponse>)>& cb);
 
   inline void PushDefaultHandler(std::shared_ptr<UriHandler> handler) {
     default_handler_list_.push_back(handler);

@@ -183,7 +183,7 @@ public class VfsManager {
             }
 
             @Override
-            public void onFetchProgress(float total, float loaded) {
+            public void onFetchProgress(long total, long loaded) {
                 if (holder.callback != null) {
                     holder.callback.onFetchProgress(total, loaded);
                 }
@@ -235,7 +235,7 @@ public class VfsManager {
          * @param total the total size of resources
          * @param loaded the current progress has loaded
          */
-        void onFetchProgress(float total, float loaded);
+        void onFetchProgress(long total, long loaded);
     }
 
     public void doLocalTraversalsAsync(@NonNull String uri,
@@ -249,7 +249,7 @@ public class VfsManager {
             }
 
             @Override
-            public void onFetchProgress(float total, float loaded) {
+            public void onFetchProgress(long total, long loaded) {
                 if (progressCallbackId >= 0) {
                     onProgress(progressCallbackId, total, loaded);
                 }
@@ -283,5 +283,5 @@ public class VfsManager {
     private native void onTraversalsEndAsync(ResourceDataHolder holder);
 
     @SuppressWarnings("JavaJniMissingFunction")
-    private native void onProgress(int callbackId, float total, float loaded);
+    private native void onProgress(int callbackId, long total, long loaded);
 }

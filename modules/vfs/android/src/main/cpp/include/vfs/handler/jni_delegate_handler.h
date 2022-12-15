@@ -35,10 +35,13 @@ class JniDelegateHandler : public UriHandler, public std::enable_shared_from_thi
   using string_view = footstone::string_view;
   struct JniDelegateHandlerAsyncWrapper {
     std::weak_ptr<JniDelegateHandler> delegate;
-    std::shared_ptr<ASyncContext> context;
-    JniDelegateHandlerAsyncWrapper(std::weak_ptr<JniDelegateHandler> delegate, std::shared_ptr<ASyncContext> context) {
+    std::shared_ptr<RequestJob> request;
+    std::function<void(std::shared_ptr<JobResponse>)> cb;
+    JniDelegateHandlerAsyncWrapper(std::weak_ptr<JniDelegateHandler> delegate, std::shared_ptr<RequestJob> request,
+                                   const std::function<void(std::shared_ptr<JobResponse>)>& cb) {
       this->delegate = delegate;
-      this->context = context;
+      this->request = request;
+      this->cb = cb;
     }
   };
   using AsyncWrapperMap = footstone::PersistentObjectMap<uint32_t, std::shared_ptr<JniDelegateHandlerAsyncWrapper>>;
@@ -48,10 +51,12 @@ class JniDelegateHandler : public UriHandler, public std::enable_shared_from_thi
   virtual ~JniDelegateHandler() = default;
 
   virtual void RequestUntrustedContent(
-      std::shared_ptr<SyncContext> ctx,
+      std::shared_ptr<RequestJob> request,
+      std::shared_ptr<JobResponse> response,
       std::function<std::shared_ptr<UriHandler>()> next) override;
   virtual void RequestUntrustedContent(
-      std::shared_ptr<ASyncContext> ctx,
+      std::shared_ptr<RequestJob> request,
+      std::function<void(std::shared_ptr<JobResponse>)> cb,
       std::function<std::shared_ptr<UriHandler>()> next) override;
 
   static inline AsyncWrapperMap& GetAsyncWrapperMap() {
@@ -67,7 +72,7 @@ class JniDelegateHandler : public UriHandler, public std::enable_shared_from_thi
 void OnJniDelegateCallback(JNIEnv* j_env, __unused jobject j_object, jobject j_holder);
 void OnJniDelegateInvokeAsync(JNIEnv* j_env, __unused jobject j_object, jint j_id, jobject j_holder, jobject j_cb);
 void OnJniDelegateInvokeSync(JNIEnv* j_env, __unused jobject j_object, jint j_id, jobject j_holder);
-void OnJniDelegateInvokeProgress(JNIEnv* j_env, __unused jobject j_object, jint j_id, jfloat j_total, jfloat j_loaded);
+void OnJniDelegateInvokeProgress(JNIEnv* j_env, __unused jobject j_object, jint j_id, jlong j_total, jlong j_loaded);
 
 }
 }

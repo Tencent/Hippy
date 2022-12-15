@@ -141,7 +141,7 @@ public class ImageLoader implements ImageLoaderAdapter {
                     }
 
                     @Override
-                    public void onFetchProgress(float total, float loaded) {
+                    public void onFetchProgress(long total, long loaded) {
                         listener.onRequestProgress(total, loaded);
                     }
                 });
