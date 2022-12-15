@@ -11,6 +11,10 @@
 # universal files
 * @zoomchan-cxj
 
+# cmake related
+*.cmake @medns
+CMakeLists.txt @medns
+
 # driver: js
 /.eslintignore @zoomchan-cxj
 /.eslintrc.js @zoomchan-cxj
@@ -22,6 +26,7 @@
 
 # framework: android
 /android/ @siguangli
+/android/**/src/main/jni/ @churchill-zhang
 
 # framework: ios
 /ios/ @ozonelmy
@@ -29,13 +34,8 @@
 # dom: layout
 /layout/ @ilikethese
 
-# gh: workflow/template/owner etc.
+# gh: config
 /.github/ @zoomchan-cxj
-/.github/workflows/ @zoomchan-cxj
-/.github/ISSUE_TEMPLATE/ @zoomchan-cxj
-/.github/PULL_REQUEST_TEMPLATE.md @zoomchan-cxj
-/.github/CODEOWNERS @zoomchan-cxj
-/docker/ @medns
 
 # doc: example
 /examples/ @zoomchan-cxj
@@ -44,6 +44,7 @@
 /examples/android-demo/res/ @zoomchan-cxj
 /examples/ios-demo/ @ozonelmy
 /examples/ios-demo/res/ @zoomchan-cxj
+/static/ @zoomchan-cxj
 
 # doc: pages
 /*.md @zoomchan-cxj
@@ -61,12 +62,14 @@
 /hippy.podspec
 /Hippy.xcworkspace/ @ozonelmy
 
-# build: cmake
+# build: config
 /buildconfig/ @medns
-/buildconfig/cmake/ @medns
 
 # build: js
 /tsdoc.json @zoomchan-cxj
 /tsconfig.json @zoomchan-cxj
 /lerna.json @zoomchan-cxj
 /scripts/ @zoomchan-cxj
+
+# build: docker
+/docker/ @medns
