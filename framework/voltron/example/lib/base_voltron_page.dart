@@ -195,7 +195,7 @@ class _BaseVoltronPageState extends State<BaseVoltronPage> {
       onWillPop: () async {
         return !(_jsLoader.back(() {
           Navigator.of(context).pop();
-          if (!widget.isHome) {
+          if (widget.isHome) {
             SystemNavigator.pop();
           }
         }));

@@ -245,8 +245,8 @@ bool BridgeImpl::RunScriptFromUri(int64_t runtime_id,
 }
 
 void BridgeImpl::Destroy(int64_t runtime_id, std::function<void(int64_t)> callback, bool is_reload) {
-    [getKeepContainer() removeObjectForKey:[NSString stringWithFormat:@"%lld", runtime_id]];
     VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
+    [getKeepContainer() removeObjectForKey:[NSString stringWithFormat:@"%lld", runtime_id]];
 #if ENABLE_INSPECTOR
     // destory devtools
     auto scope = bridge.jscExecutor.pScope;

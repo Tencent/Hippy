@@ -96,11 +96,13 @@ class VoltronBridgeManager implements Destroyable {
   Future<int> _handleVoltronInspectorInit() async {
     int devtoolsId = 0;
     if (_isDevModule) {
+      assert(_context.devtoolsManager != null);
       var tracingDataDir = await _context.devSupportManager.getTracingDataDir();
-       devtoolsId = await VoltronApi.createDevtools(
+      devtoolsId = await _context.devtoolsManager!.create(
         workerManagerId: _context.renderContext.workerManagerId,
         dataDir: tracingDataDir,
-        wsUrl: _context.devSupportManager.createDebugUrl(_debugServerHost));
+        wsUrl: _context.devSupportManager.createDebugUrl(_debugServerHost),
+      );
       final networkModule = _context.moduleManager.nativeModule[NetworkModule.kNetworkModuleName];
       if (networkModule is NetworkModule) {
         networkModule.requestWillBeSentHook = NetworkInspector().onRequestWillBeSent;
