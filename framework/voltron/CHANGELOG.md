@@ -1,3 +1,7 @@
+## 0.0.7
+
+- fix voltron reload
+
 ## 0.0.6
 
 - fix android c++ libs

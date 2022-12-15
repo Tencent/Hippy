@@ -21,6 +21,7 @@
 import 'dart:collection';
 
 import 'package:voltron/adapter/resource_loader.dart';
+import 'package:voltron/devtools/devtools_manager.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
 import 'package:voltron_vfs/voltron_vfs.dart';
 
@@ -51,6 +52,8 @@ class EngineContext with RenderContextProxy {
   // Dev support manager
   late DevSupportManager _devSupportManager;
 
+  DevtoolsManager? _devtoolsManager;
+
   // vfs manager
   late VfsManager _vfsManager;
 
@@ -74,6 +77,8 @@ class EngineContext with RenderContextProxy {
   DevSupportManager get devSupportManager => _devSupportManager;
 
   RenderManager get renderManager => _renderContext.renderManager;
+
+  DevtoolsManager? get devtoolsManager => _devtoolsManager;
 
   TimeMonitor get startTimeMonitor => _startTimeMonitor;
 
@@ -116,6 +121,9 @@ class EngineContext with RenderContextProxy {
       domHolder,
       rootViewModelMap,
     );
+    if (_isDevMode) {
+      _devtoolsManager = DevtoolsManager(true);
+    }
     _moduleManager = ModuleManager(this, apiProviders);
     _dimensionChecker = JSDimensionChecker(globalConfigs.deviceAdapter, _moduleManager);
     _bridgeManager = VoltronBridgeManager(
@@ -227,6 +235,7 @@ class EngineContext with RenderContextProxy {
         viewModel.restart();
       });
     }
+    _devtoolsManager?.destroy(isReload: isReload);
     _bridgeManager.destroy();
     _moduleManager.destroy();
     _vfsManager.destroy();
