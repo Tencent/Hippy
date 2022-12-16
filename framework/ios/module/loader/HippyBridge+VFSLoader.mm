@@ -63,7 +63,7 @@ static NSDictionary *AssembleParams(NSDictionary<NSString *, NSString *> *_Nulla
                 completionHandler(retData, retResponse, retError);
             };
             NSDictionary *params = AssembleParams(httpHeaders, method, body);
-            loader->loadContentsAsynchronously(urlString, params, completion);
+            loader->loadContentsAsynchronously(urlString, params, body, progress, completion);
         }
     }
 }
@@ -82,7 +82,7 @@ static NSDictionary *AssembleParams(NSDictionary<NSString *, NSString *> *_Nulla
         auto loader = [self VFSUriLoader].lock();
         if (loader) {
             NSDictionary *params = AssembleParams(httpHeaders, method, body);
-            return loader->loadContentsSynchronously(urlString, params, response, error);
+            return loader->loadContentsSynchronously(urlString, params, body, response, error);
         }
     }
     return nil;

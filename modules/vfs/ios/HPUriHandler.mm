@@ -132,7 +132,7 @@ static const char *progressKey = nullptr;
         if (httpHeaders) {
             [map addEntriesFromDictionary:httpHeaders];
         }
-        loader->loadContentsAsynchronously(urlString, [map copy], result);
+        loader->loadContentsAsynchronously(urlString, [map copy], nil, nullptr, result);
     }
 }
 
@@ -153,7 +153,7 @@ static const char *progressKey = nullptr;
         if (httpHeaders) {
             [map addEntriesFromDictionary:httpHeaders];
         }
-        return loader->loadContentsSynchronously(urlString, [map copy], response, error);
+        return loader->loadContentsSynchronously(urlString, [map copy], data, response, error);
     }
     return nil;
 }

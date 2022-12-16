@@ -41,15 +41,13 @@ class VFSUriLoader : public hippy::vfs::UriLoader {
     //Foundation API convenient methods
     using URILoaderCompletion = std::function<void(NSData *, NSURLResponse *, NSError *)>;
     using URILoaderProgress = std::function<void(int64_t current, int64_t total)>;
-    virtual void loadContentsAsynchronously(NSString *urlString, NSDictionary *headers, URILoaderCompletion completion);
-    virtual void loadContentsAsynchronously(NSString *urlString, NSDictionary *headers, URILoaderProgress progress, URILoaderCompletion completion);
+    virtual void loadContentsAsynchronously(NSString *urlString, NSDictionary *headers, NSData *data, URILoaderProgress progress, URILoaderCompletion completion);
 
     typedef void(^URILoaderCompletionBlock)(NSData *, NSURLResponse *, NSError *);
     typedef void(^URILoaderProgressBlock)(NSUInteger, NSUInteger);
-    void loadContentsAsynchronously(NSString *urlString, NSDictionary *headers, URILoaderCompletionBlock block);
-    void loadContentsAsynchronously(NSString *urlString, NSDictionary *headers, URILoaderProgressBlock progress, URILoaderCompletionBlock block);
+    virtual void loadContentsAsynchronously(NSString *urlString, NSDictionary *headers, NSData *data, URILoaderProgressBlock progress, URILoaderCompletionBlock block);
 
-    virtual NSData *loadContentsSynchronously(NSString *urlString, NSDictionary *headers, NSURLResponse **response, NSError **error);
+    virtual NSData *loadContentsSynchronously(NSString *urlString, NSDictionary *headers, NSData *data, NSURLResponse **response, NSError **error);
     
     bool enableForward_;
 };
