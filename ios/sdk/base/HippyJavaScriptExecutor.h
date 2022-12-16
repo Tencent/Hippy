@@ -90,7 +90,10 @@ class Scope;
 /**
  * Runs an application script, and notifies of the script load being complete via `onComplete`.
  */
-- (void)executeApplicationScript:(NSData *)script sourceURL:(NSURL *)sourceURL onComplete:(HippyJavaScriptCompleteBlock)onComplete;
+- (void)executeApplicationScript:(NSData *)script
+                       sourceURL:(NSURL *)sourceURL
+                  isCommonBundle:(BOOL)isCommonBundle
+                      onComplete:(HippyJavaScriptCompleteBlock)onComplete;
 
 - (void)injectJSONText:(NSString *)script asGlobalObjectNamed:(NSString *)objectName callback:(HippyJavaScriptCompleteBlock)onComplete;
 

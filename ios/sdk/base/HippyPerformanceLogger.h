@@ -23,30 +23,38 @@
 #import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSUInteger, HippyPLTag) {
-    HippyPLScriptDownload = 0,
-    HippyPLScriptExecution,
-    HippyPLRAMBundleLoad,
-    HippyPLRAMStartupCodeSize,
-    HippyPLRAMStartupNativeRequires,
-    HippyPLRAMStartupNativeRequiresCount,
-    HippyPLRAMNativeRequires,
-    HippyPLRAMNativeRequiresCount,
-    HippyPLNativeModuleInit,
-    HippyPLNativeModuleMainThread,
-    HippyPLNativeModulePrepareConfig,
-    HippyPLNativeModuleInjectConfig,
-    HippyPLNativeModuleMainThreadUsesCount,
-    HippyPLJSCWrapperOpenLibrary,
-    HippyPLJSCExecutorSetup,
-    HippyPLBridgeStartup,
-    HippyPLTTI,
-    HippyPLBundleSize,
-    HippySecondaryStartup,
-    HippySecondaryLoadSource,
-    HippySecondaryExecuteSource,
-    HippyCommonLoadSource,
-    HippyExecuteSource,
-    HippyFeedsTimeCost,
+    // Native module related
+    HippyPLNativeModuleInit = 0, // native module init
+    HippyPLNativeModuleMainThread, // native module主线程初始化时间
+    HippyPLNativeModulePrepareConfig, // native module config时间
+    HippyPLNativeModuleInjectConfig, // native module inject时间
+    HippyPLNativeModuleMainThreadUsesCount, // native module 主线程计数
+    
+    // JSCExecutor related
+    HippyPLJSCExecutorSetup, // JSCExecutor初始化
+    HippyPLJSExecutorScopeInit, // JSCExecutor Scope初始化
+    
+    // Common bundle related
+    HippyPLCommonBundleSize, // common包大小
+    HippyPLCommonStartup, // common包加载到执行完成总耗时
+    HippyPLCommonLoadSource, // common包IO读取耗时(加载或下载)，原HippyPLScriptDownload
+    HippyPLCommonExecuteSource, // common包enqueue执行耗时（包含等待耗时）
+    HippyPLCommonScriptExecution, // common包执行耗时（底层实际执行）
+    
+    // Secondary bundle related
+    HippyPLSecondaryBundleSize, // 业务包大小
+    HippyPLSecondaryStartup, // 业务包加载到执行完成总耗时
+    HippyPLSecondaryLoadSource, // 业务包IO读取耗时(加载或下载)
+    HippyPLSecondaryExecuteSource, // 业务包enqueue执行耗时（包含等待耗时）
+    HippyPLSecondaryScriptExecution, // 业务包执行耗时（底层实际执行）
+    
+    // Important indicators
+    HippyPLBridgeStartup, // Bridge启动到完成耗时
+    HippyPLRunApplication, // JS入口函数执行到首帧耗时
+    HippyPLTTI, // RootView创建到首帧耗时（FP）
+    HippyPLFP = HippyPLTTI, // RootView创建到首帧耗时（FP）
+    HippyPLFCP, // 预留标签
+    
     HippyPLSize
 };
 
