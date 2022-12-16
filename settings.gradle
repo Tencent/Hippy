@@ -1,7 +1,7 @@
 include 'renderer-native'
 project(':renderer-native').projectDir = new File('renderer/native/android')
 
-if (ENABLE_TDF_RENDER == "true") {
+if (INCLUDE_MODULES.toLowerCase().contains('renderer-tdf')) {
     include 'renderer-tdf'
     project(':renderer-tdf').projectDir = new File('renderer/tdf/android')
 }
