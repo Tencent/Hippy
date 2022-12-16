@@ -108,7 +108,6 @@ void ImageViewNode::SetDefaultSrc(const std::string &src) {
 }
 
 void ImageViewNode::SetSrc(const std::string &src) {
-  if (src == image_src_) return;
   image_src_ = src;
   LoadImage(image_src_);
 }
@@ -128,6 +127,13 @@ void ImageViewNode::LoadImage(std::string url) {
   }
 
   if (auto image_view = GetView<tdfcore::ImageView>()) {
+    if (auto current_image = image_view->GetImage()) {
+      auto current_url = current_image->GetUrl();
+      if (!current_url.empty() && current_url == url) {
+        return;
+      }
+    }
+
     image_view->SetImage(TDF_MAKE_SHARED(tdfcore::Image, url));
   }
 }
