@@ -194,7 +194,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   /**
    * @brief Be called when a related DomNode is Deleted.
    */
-  void OnDelete();
+  virtual void OnDelete();
 
   virtual void HandleLayoutUpdate(hippy::LayoutResult layout_result);
 
