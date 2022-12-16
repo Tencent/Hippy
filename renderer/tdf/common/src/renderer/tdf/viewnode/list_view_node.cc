@@ -207,6 +207,11 @@ void ListViewItemNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   UpdateViewType(dom_style);
 }
 
+void ListViewItemNode::OnDelete() {
+  Detach(false);
+  ViewNode::OnDelete();
+}
+
 std::shared_ptr<tdfcore::View> ListViewDataSource::GetItem(
     int64_t index, const std::shared_ptr<tdfcore::CustomLayoutView>& custom_layout_view) {
   FOOTSTONE_DCHECK(!list_view_node_.expired());

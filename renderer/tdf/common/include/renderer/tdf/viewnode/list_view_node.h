@@ -81,6 +81,7 @@ class ListViewItemNode : public ViewNode {
 
   void UpdateViewType(const DomStyleMap& dom_style);
 
+  void OnDelete() override;
  protected:
   void HandleStyleUpdate(const DomStyleMap& dom_style) override;
 
