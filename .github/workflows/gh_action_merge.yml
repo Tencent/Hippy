@@ -36,7 +36,7 @@ jobs:
       with:
         private-key: ${{ secrets.ACTION_PRIVATE_KEY }}
         app-id: ${{ secrets.ACTION_APP_ID }}
-    - name: Check
+    - name: Reset
       if: "contains(github.event.pull_request.labels.*.name, 'action(squash-merge): failed')"
       uses: actions-ecosystem/action-remove-labels@v1.3.0
       with:
@@ -71,7 +71,7 @@ jobs:
         fi
     - name: Squash
       id: squash
-      if: ${{ !steps.commitlint.outputs.failed_result }}
+      if: ${{ !steps.commitlint.outputs.failed_result && github.event.pull_request.user.login != github.event.sender.login }}
       env:
         GH_TOKEN: ${{ steps.get-token.outputs.token }}
       shell: bash {0}
@@ -102,15 +102,18 @@ jobs:
       with:
         github-token: ${{ steps.get-token.outputs.token }}
         script: |
-          const { pull_request } = context.payload;
+          const { pull_request, sender } = context.payload;
           const { issues } = github.rest;
           const util = require('util');
-
+          const os = require('os');
+          
           let body;
           if (process.env.CHECK_RESULT) {
             body = util.format(process.env.FAILED_MESSAGE, 'pull request title does not meet the [Convention Commit](https://conventionalcommits.org/) guideline', process.env.CHECK_RESULT);
           } else if (process.env.SQUASH_RESULT) {
             body = util.format(process.env.FAILED_MESSAGE, 'auto squash and merge failed', process.env.SQUASH_RESULT);
+          } else if (pull_request.user.login === sender.login) {
+            body = util.format(process.env.FAILED_MESSAGE, 'cannot squash and merge your own pull request', `(empty response)`);
           }
 
           const p = [];
