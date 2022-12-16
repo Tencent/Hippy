@@ -37,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
                     headers:(NSDictionary<NSString *, NSString *> *)httpHeaders
                        body:(NSData *)data
                        next:(HPUriHandler *_Nullable(^)(void))next
+                   progress:(void(^)(NSUInteger current, NSUInteger total))progress
                      result:(void(^)(NSData *_Nullable, NSURLResponse *, NSError *))result;
 
 - (NSData *)requestContentSync:(NSString *)urlString

@@ -26,8 +26,13 @@
 #import "NSURLResponse+ToUnorderedMap.h"
 #import "TypeConverter.h"
 #import "HPUriLoader.h"
+#import "NSURLSessionDataProgress.h"
+
+#include <objc/runtime.h>
 
 #include "VFSDefines.h"
+
+static char *progressKey = nullptr;
 
 static bool CheckRequestFromCPP(const std::unordered_map<std::string, std::string> &headers) {
     auto find = headers.find(kRequestOrigin);
@@ -55,6 +60,34 @@ static NSDictionary<NSString *, NSString *> *HttpHeadersFromMap(const std::unord
     return [headersMap copy];
 }
 
+static NSDictionary<NSString *, NSString *> *HttpHeadersFromMap(const std::unordered_map<std::string, std::string> &headers, const std::unordered_map<std::string, std::string> &additialInfo) {
+    NSMutableDictionary<NSString *, NSString *> *headersMap = [NSMutableDictionary dictionaryWithCapacity:headers.size() + additialInfo.size()];
+    for (const auto &it : headers) {
+        if (0 == strcasecmp(kHeaderMethod, it.first.c_str())) {
+            continue;
+        }
+        else if (0 == strcasecmp(kHeaderBody, it.first.c_str())) {
+            continue;
+        }
+        NSString *headerKey = [NSString stringWithUTF8String:it.first.c_str()];
+        NSString *headerValue = [NSString stringWithUTF8String:it.second.c_str()];
+        [headersMap setObject:headerValue forKey:headerKey];
+    }
+    for (const auto &it : additialInfo) {
+        if (0 == strcasecmp(kHeaderMethod, it.first.c_str())) {
+            continue;
+        }
+        else if (0 == strcasecmp(kHeaderBody, it.first.c_str())) {
+            continue;
+        }
+        NSString *headerKey = [NSString stringWithUTF8String:it.first.c_str()];
+        NSString *headerValue = [NSString stringWithUTF8String:it.second.c_str()];
+        [headersMap setObject:headerValue forKey:headerKey];
+    }
+    return [headersMap copy];
+}
+
+
 static NSURLRequest *RequestFromUriWithHeaders(const footstone::string_view &uri,
                                                      const std::unordered_map<std::string, std::string> &headers) {
     NSURL *url = StringViewToNSURL(uri);
@@ -66,140 +99,99 @@ static NSURLRequest *RequestFromUriWithHeaders(const footstone::string_view &uri
     return [request copy];
 }
 
-hippy::vfs::UriHandler::RetCode RetCodeFromNSError(NSError *error) {
-    hippy::vfs::UriHandler::RetCode retCode = hippy::vfs::UriHandler::RetCode::Failed;
-    if ([[error domain] isEqualToString:NSURLErrorDomain]) {
-        switch ([error code]) {
-            case NSURLErrorBadURL:
-            case NSURLErrorUnsupportedURL:
-            case NSURLErrorDNSLookupFailed:
-                retCode = hippy::vfs::UriHandler::RetCode::UriError;
-                break;
-            case NSURLErrorCannotFindHost:
-            case NSURLErrorCannotConnectToHost:
-            case NSURLErrorNetworkConnectionLost:
-            case NSURLErrorFileIsDirectory:
-            case NSURLErrorNoPermissionsToReadFile:
-                retCode = hippy::vfs::UriHandler::RetCode::PathError;
-                break;
-            case NSURLErrorResourceUnavailable:
-                retCode = hippy::vfs::UriHandler::RetCode::ResourceNotFound;
-                break;
-            case NSURLErrorNotConnectedToInternet:
-            case NSURLErrorUserCancelledAuthentication:
-            case NSURLErrorUserAuthenticationRequired:
-            case NSURLErrorCannotDecodeRawData:
-            case NSURLErrorCannotDecodeContentData:
-            case NSURLErrorCannotParseResponse:
-            case NSURLErrorAppTransportSecurityRequiresSecureConnection:
-                retCode = hippy::vfs::UriHandler::RetCode::DelegateError;
-                break;
-            case NSURLErrorTimedOut:
-                retCode = hippy::vfs::UriHandler::RetCode::Timeout;
-                break;
-            default:
-                break;
-        }
-    }
-    return retCode;
-}
-
-void VFSUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::vfs::UriHandler::SyncContext> ctx,
-                                               std::function<std::shared_ptr<hippy::vfs::UriHandler>()> next) {
-    if (CheckRequestFromCPP(ctx->req_meta)) {
-        ctx->code = hippy::vfs::UriHandler::RetCode::SchemeNotRegister;
+void VFSUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob> request,
+                                            std::shared_ptr<hippy::JobResponse> response,
+                                            std::function<std::shared_ptr<UriHandler>()> next) {
+    if (CheckRequestFromCPP(request->GetMeta())) {
+        response->SetRetCode(hippy::vfs::UriHandler::RetCode::SchemeNotRegister);
         return;
     }
-    NSURLRequest *request = RequestFromUriWithHeaders(ctx->uri, ctx->req_meta);
+    NSURLRequest *req = RequestFromUriWithHeaders(request->GetUri(), request->GetMeta());
     if (!request) {
         auto nextHandler = next();
         if (nextHandler) {
-            nextHandler->RequestUntrustedContent(ctx, next);
+            nextHandler->RequestUntrustedContent(request, response, next);
         }
         else {
             //try to get next loader
             HPUriLoader *loader = GetLoader();
             if (loader) {
-                ForwardToHPUriLoader(std::move(ctx));
+                ForwardToHPUriLoader(request, response);
             }
             else {
-                ctx->code = hippy::vfs::UriHandler::RetCode::UriError;
+                response->SetRetCode(hippy::vfs::UriHandler::RetCode::UriError);
             }
         }
         return;
     }
     typedef void (^DataTaskResponse)(NSData * data, NSURLResponse *response, NSError *error);
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-    DataTaskResponse response = ^(NSData * data, NSURLResponse *response, NSError *error){
+    DataTaskResponse rsp = ^(NSData * data, NSURLResponse *resp, NSError *error){
         if (error) {
-            ctx->code = RetCodeFromNSError(error);
+            response->SetRetCode(RetCodeFromNSError(error));
+            NSString *errorMsg = [error localizedFailureReason];
+            response->SetErrorMessage(NSStringToU8StringView(errorMsg));
         }
         else {
-            ctx->code = hippy::vfs::UriHandler::RetCode::Success;
+            response->SetRetCode(hippy::vfs::UriHandler::RetCode::Success);
             std::string content(reinterpret_cast<const char *>([data bytes]) , [data length]);
-            ctx->content = content;
-            std::unordered_map<std::string, std::string> respMap = [response toUnorderedMap];
-            ctx->rsp_meta = std::move(respMap);
+            response->SetContent(std::move(content));
+            std::unordered_map<std::string, std::string> respMap = [resp toUnorderedMap];
+            response->SetMeta(std::move(respMap));
         }
         dispatch_semaphore_signal(sem);
     };
-    NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:response];
+    NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:req completionHandler:rsp];
     [dataTask resume];
     dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
 }
 
-void VFSUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::vfs::UriHandler::ASyncContext> ctx,
-                                               std::function<std::shared_ptr<hippy::vfs::UriHandler>()> next) {
-    if (CheckRequestFromCPP(ctx->req_meta)) {
+void VFSUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob> request,
+                                            std::function<void(std::shared_ptr<hippy::JobResponse>)> cb,
+                                            std::function<std::shared_ptr<UriHandler>()> next) {
+    if (CheckRequestFromCPP(request->GetMeta())) {
         std::unordered_map<std::string, std::string> map;
         bytes contents = "";
-        ctx->cb(hippy::vfs::UriHandler::RetCode::SchemeNotRegister, map, contents);
+        auto job_resp = std::make_shared<hippy::JobResponse>(hippy::vfs::UriHandler::RetCode::SchemeNotRegister);
+        cb(job_resp);
         return;
     }
-    NSURLRequest *request = RequestFromUriWithHeaders(ctx->uri, ctx->req_meta);
-    if (!request) {
+    NSURLRequest *req = RequestFromUriWithHeaders(request->GetUri(), request->GetMeta());
+    if (!req) {
         auto nextHandler = next();
         if (nextHandler) {
-            nextHandler->RequestUntrustedContent(ctx, next);
+            nextHandler->RequestUntrustedContent(request, cb, next);
         }
         else {
             //try to get next loader
             HPUriLoader *loader = GetLoader();
             if (loader) {
-                ForwardToHPUriLoader(std::move(ctx));
+                ForwardToHPUriLoader(request, cb);
             }
             else {
                 std::unordered_map<std::string, std::string> map;
                 bytes contents = "";
-                ctx->cb(hippy::vfs::UriHandler::RetCode::UriError, map, contents);
+                auto job_resp = std::make_shared<hippy::JobResponse>(hippy::vfs::UriHandler::RetCode::UriError);
+                cb(job_resp);
             }
         }
         return;
     }
-    typedef void (^DataTaskResponse)(NSData * data, NSURLResponse *response, NSError *error);
-    DataTaskResponse response = ^(NSData * data, NSURLResponse *response, NSError *error){
-        if (error) {
-            std::unordered_map<std::string, std::string> map;
-            bytes contents;
-            ctx->cb(RetCodeFromNSError(error), map, contents);
-        }
-        else {
-            std::string content(reinterpret_cast<const char *>([data bytes]) , [data length]);
-            std::unordered_map<std::string, std::string> respMap = [response toUnorderedMap];
-            ctx->cb(hippy::vfs::UriHandler::RetCode::Success, respMap, content);
-        }
-    };
-    NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:response];
+    NSURLSessionDataProgress *dataProgress = [[NSURLSessionDataProgress alloc] initWithRequestJob:request responseCallback:cb];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:dataProgress delegateQueue:nil];
+    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:req];
+    objc_setAssociatedObject(dataTask, &progressKey, dataProgress, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     [dataTask resume];
 }
 
-void VFSUriHandler::ForwardToHPUriLoader(std::shared_ptr<hippy::vfs::UriHandler::ASyncContext> ctx) {
+void VFSUriHandler::ForwardToHPUriLoader(std::shared_ptr<hippy::RequestJob> request,
+                                         std::function<void(std::shared_ptr<hippy::JobResponse>)> cb) {
     HPUriLoader *loader = GetLoader();
     if (!loader) {
         return;
     }
-    NSString *urlString = StringViewToNSString(ctx->uri);
-    auto &map = ctx->req_meta;
+    NSString *urlString = StringViewToNSString(request->GetUri());
+    auto &map = request->GetMeta();
     auto search = map.find(kHeaderBody);
     NSData *body = nil;
     if (map.end() != search) {
@@ -214,24 +206,30 @@ void VFSUriHandler::ForwardToHPUriLoader(std::shared_ptr<hippy::vfs::UriHandler:
     else {
         method = body?@"post":@"get";
     }
-    map[kRequestOrigin] = kRequestFromCPP;
-    NSDictionary<NSString *, NSString *> *headers = HttpHeadersFromMap(map);
-    auto cb = ctx->cb;
-    [loader requestContentAsync:urlString method:method headers:headers body:body result:^(NSData *data, NSURLResponse *response, NSError *error) {
+    std::unordered_map<std::string, std::string> additionInfo;
+    additionInfo[kRequestOrigin] = kRequestFromCPP;
+    NSDictionary<NSString *, NSString *> *headers = HttpHeadersFromMap(map, additionInfo);
+    [loader requestContentAsync:urlString method:method headers:headers body:body progress:^(NSUInteger current, NSUInteger total) {
+        auto progressCallback = request->GetProgressCallback();
+        if (progressCallback) {
+            progressCallback(current, total);
+        }
+    } result:^(NSData *data, NSURLResponse *response, NSError *error) {
         auto code = RetCodeFromNSError(error);
         auto res_map = [response toUnorderedMap];
         std::string contents(reinterpret_cast<const char *>([data bytes]), [data length]);
-        cb(code, res_map, contents);
+        auto jobResp = std::make_shared<hippy::JobResponse>(code, NSStringToU16StringView([error localizedFailureReason]), res_map, std::move(contents));
     }];
 }
 
-void VFSUriHandler::ForwardToHPUriLoader(std::shared_ptr<hippy::vfs::UriHandler::SyncContext> ctx) {
+void VFSUriHandler::ForwardToHPUriLoader(std::shared_ptr<hippy::RequestJob> request,
+                                         std::shared_ptr<hippy::JobResponse> response) {
     HPUriLoader *loader = GetLoader();
     if (!loader) {
         return;
     }
-    NSString *urlString = StringViewToNSString(ctx->uri);
-    auto &map = ctx->req_meta;
+    NSString *urlString = StringViewToNSString(request->GetUri());
+    auto &map = request->GetMeta();
     auto search = map.find(kHeaderBody);
     NSData *body = nil;
     if (map.end() != search) {
@@ -246,15 +244,16 @@ void VFSUriHandler::ForwardToHPUriLoader(std::shared_ptr<hippy::vfs::UriHandler:
     else {
         method = body?@"post":@"get";
     }
-    map[kRequestOrigin] = kRequestFromCPP;
-    NSDictionary<NSString *, NSString *> *headers = HttpHeadersFromMap(map);
-    NSURLResponse *response = nil;
+    std::unordered_map<std::string, std::string> additionInfo;
+    additionInfo[kRequestOrigin] = kRequestFromCPP;
+    NSDictionary<NSString *, NSString *> *headers = HttpHeadersFromMap(map, additionInfo);
+    NSURLResponse *resp = nil;
     NSError *error = nil;
-    NSData *responseData = [loader requestContentSync:urlString method:method headers:headers body:body response:&response error:&error];
+    NSData *responseData = [loader requestContentSync:urlString method:method headers:headers body:body response:&resp error:&error];
     auto code = RetCodeFromNSError(error);
-    auto res_map = [response toUnorderedMap];
+    auto res_map = [resp toUnorderedMap];
     std::string contents(reinterpret_cast<const char *>([responseData bytes]), [responseData length]);
-    ctx->rsp_meta = std::move(res_map);
-    ctx->code = code;
-    ctx->content = contents;
+    response->SetMeta(std::move(res_map));
+    response->SetRetCode(code);
+    response->SetContent(std::move(contents));
 }

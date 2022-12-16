@@ -46,6 +46,7 @@ static NSDictionary *AssembleParams(NSDictionary<NSString *, NSString *> *_Nulla
                                    method:(NSString *_Nullable)method
                                    params:(NSDictionary<NSString *, NSString *> *)httpHeaders
                                      body:(NSData *)body
+                                 progress:(void(^)(NSUInteger current, NSUInteger total))progress
                         completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
     if (!urlString || !completionHandler) {
         return;
@@ -53,7 +54,7 @@ static NSDictionary *AssembleParams(NSDictionary<NSString *, NSString *> *_Nulla
     
     HPUriLoader *loader = [self HPUriLoader];
     if (loader) {
-        [loader requestContentAsync:urlString method:method headers:httpHeaders body:body result:completionHandler];
+        [loader requestContentAsync:urlString method:method headers:httpHeaders body:body progress:progress result:completionHandler];
     }
     else {
         auto loader = [self VFSUriLoader].lock();

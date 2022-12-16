@@ -46,6 +46,12 @@ void VFSUriLoader::loadContentsAsynchronously(NSString *urlString, NSDictionary 
     RequestUntrustedContent(uri, meta, cb);
 }
 
+void VFSUriLoader::loadContentsAsynchronously(NSString *urlString, NSDictionary *headers,
+                                              URILoaderProgress progress, URILoaderCompletion completion) {
+    //todo vfs loader
+    FOOTSTONE_UNIMPLEMENTED();
+}
+
 void VFSUriLoader::loadContentsAsynchronously(NSString *urlString, NSDictionary *headers, URILoaderCompletionBlock block) {
     if (!urlString || !block) {
         return;
@@ -60,6 +66,12 @@ void VFSUriLoader::loadContentsAsynchronously(NSString *urlString, NSDictionary 
         block(data, response, error);
     };
     RequestUntrustedContent(uri, meta, cb);
+}
+
+void VFSUriLoader::loadContentsAsynchronously(NSString *urlString, NSDictionary *headers,
+                                              URILoaderProgressBlock progress, URILoaderCompletionBlock block) {
+    //todo vfs loader
+    FOOTSTONE_UNIMPLEMENTED();
 }
 
 NSData *VFSUriLoader::loadContentsSynchronously(NSString *urlString, NSDictionary *headers, NSURLResponse **response, NSError **error) {

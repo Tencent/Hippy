@@ -84,6 +84,7 @@ static BOOL CheckRequestFromOC(NSDictionary<NSString *, NSString *> *header) {
 - (void)requestContentAsync:(NSString *)urlString method:(NSString *)method
                     headers:(NSDictionary<NSString *, NSString *> *)httpHeaders
                        body:(NSData *)data
+                   progress:(void(^)(NSUInteger current, NSUInteger total))progress
                      result:(void(^)(NSData *_Nullable data, NSURLResponse *response, NSError *error))result {
     if (CheckRequestFromOC(httpHeaders)) {
         return;
@@ -107,7 +108,7 @@ static BOOL CheckRequestFromOC(NSDictionary<NSString *, NSString *> *header) {
         }
         [strongLoader getNextHandler:&currentHandler currentList:&currentListOfHandlers];
         return currentHandler;
-    } result:result];
+    } progress:progress result:result];
 }
 
 - (NSData *)requestContentSync:(NSString *)urlString method:(NSString *)method

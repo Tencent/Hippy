@@ -40,6 +40,7 @@
 - (void)requestContentAsync:(NSString *)urlString method:(NSString *)method
                     headers:(NSDictionary<NSString *,NSString *> *)httpHeaders body:(NSData *)data
                        next:(HPUriHandler * _Nullable (^)())next
+                   progress:(void(^)(NSUInteger current, NSUInteger total))progress
                      result:(void (^)(NSData * _Nullable, NSURLResponse * _Nonnull, NSError * _Nonnull))result {
     HippyBridge *bridge = self.bridge;
     if (!bridge) {
@@ -48,7 +49,7 @@
     if ([HippyBridge isHippyLocalFileURLString:urlString]) {
         urlString = [bridge absoluteStringFromHippyLocalFileURLString:urlString];
     }
-    [super requestContentAsync:urlString method:method headers:httpHeaders body:data next:next result:result];
+    [super requestContentAsync:urlString method:method headers:httpHeaders body:data next:next progress:progress result:result];
 }
 
 - (NSData *)requestContentSync:(NSString *)urlString

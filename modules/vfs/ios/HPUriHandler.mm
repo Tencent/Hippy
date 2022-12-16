@@ -22,9 +22,14 @@
 
 #import "HPToolUtils.h"
 #import "HPUriHandler.h"
+#import "NSURLSessionDataProgress.h"
+
+#include <objc/runtime.h>
 
 #include "VFSUriLoader.h"
 #include "VFSDefines.h"
+
+static const char *progressKey = nullptr;
 
 @implementation HPUriHandler
 
@@ -33,6 +38,7 @@
                     headers:(NSDictionary<NSString *, NSString *> *)httpHeaders
                        body:(NSData *)data
                        next:(HPUriHandler *_Nullable(^)(void))next
+                   progress:(void(^)(NSUInteger current, NSUInteger total))progress
                      result:(void(^)(NSData *_Nullable data, NSURLResponse *response, NSError *error))result {
     NSMutableURLRequest *request = nil;
     NSURL *url = HPURLWithString(urlString, nil);
@@ -43,7 +49,7 @@
         if (next) {
             HPUriHandler *nextHandler = next();
             if (nextHandler) {
-                [nextHandler requestContentAsync:urlString method:method headers:httpHeaders body:data next:next result:result];
+                [nextHandler requestContentAsync:urlString method:method headers:httpHeaders body:data next:next progress:progress result:result];
             }
             else {
                 [self forwardToVFSUriLoaderAsync:urlString method:method headers:httpHeaders body:data result:result];
@@ -54,8 +60,14 @@
     [request setHTTPMethod:method];
     [request setAllHTTPHeaderFields:httpHeaders];
     [request setHTTPBody:data];
-    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:result] resume];
+    NSURLSessionDataProgress *dataProgress = [[NSURLSessionDataProgress alloc] initWithProgress:progress result:result];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:dataProgress delegateQueue:nil];
+    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request];
+    objc_setAssociatedObject(dataTask, &progressKey, dataProgress, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    [dataTask resume];
 }
+
+
 
 - (NSData *)requestContentSync:(NSString *)urlString
                         method:(NSString *)method

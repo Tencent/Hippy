@@ -42,7 +42,8 @@ class VFSUriLoader;
                      method:(NSString *_Nullable)method
                     headers:(NSDictionary<NSString *, NSString *> *_Nullable)httpHeaders
                        body:(NSData *_Nullable)data
-                     result:(void(^)(NSData *_Nullable, NSURLResponse *, NSError *_Nullable))result;
+                   progress:(void(^_Nullable)(NSUInteger current, NSUInteger total))progress
+                     result:(void(^_Nullable)(NSData *_Nullable, NSURLResponse *, NSError *_Nullable))result;
 
 - (NSData *)requestContentSync:(NSString *)urlString method:(NSString *_Nullable)method
                        headers:(NSDictionary<NSString *, NSString *> *_Nullable)httpHeaders

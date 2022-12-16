@@ -30,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
                                    method:(NSString *_Nullable)method
                                    params:(NSDictionary<NSString *, NSString *> *_Nullable)httpHeaders
                                      body:(NSData *_Nullable)body
+                                 progress:(void(^ _Nullable)(NSUInteger current, NSUInteger total))progress
                         completionHandler:(void (^)(NSData *_Nullable data, NSURLResponse *_Nullable response, NSError *_Nullable error))completionHandler;
 
 - (NSData *)loadContentsSynchronouslyFromUrl:(NSString *)urlString

@@ -177,6 +177,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, NativeRenderView) 
     HPUriLoader *loader = [[self renderImpl] HPUriLoader];
     [loader requestContentAsync:path method:nil
                         headers:nil body:nil
+                       progress:nil
                          result:^(NSData * _Nullable data, NSURLResponse * _Nonnull response, NSError * _Nullable error) {
         NativeRenderImpl *renderImpl = self.renderImpl;
         id<HPImageProviderProtocol> imageProvider = nil;
