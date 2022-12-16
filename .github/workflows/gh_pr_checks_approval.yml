@@ -112,8 +112,8 @@ jobs:
       if: steps.find_comment.outputs.comment-id == ''
       uses: navikt/github-app-token-generator@v1
       with:
-        private-key: ${{ secrets.PRIVATE_KEY }}
-        app-id: ${{ secrets.APP_ID }}
+        private-key: ${{ secrets.BOT_APP_KEY }}
+        app-id: ${{ secrets.BOT_APP_ID }}
     - name: Comment
       uses: peter-evans/create-or-update-comment@v2
       if: steps.get-token.outputs.token != ''
