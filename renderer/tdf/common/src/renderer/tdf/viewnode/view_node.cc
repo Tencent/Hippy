@@ -25,6 +25,21 @@
 
 #include "core/common/color.h"
 #include "core/support/text/UTF.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wsign-compare"
+#pragma clang diagnostic ignored "-Wextra-semi"
+#pragma clang diagnostic ignored "-Wc++98-compat-extra-semi"
+#pragma clang diagnostic ignored "-Wignored-qualifiers"
+#pragma clang diagnostic ignored "-Wimplicit-float-conversion"
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wfloat-conversion"
+#pragma clang diagnostic ignored "-Wshadow"
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
+#include "tdfui/view/text/text_view.h"
+#include "tdfui/view/text/text_input_view.h"
+#include "tdfui/view/image_view.h"
+#pragma clang diagnostic pop
 #include "dom/node_props.h"
 #include "dom/scene.h"
 #include "footstone/hippy_value.h"
@@ -545,15 +560,13 @@ std::shared_ptr<ViewNode> ViewNode::RemoveChildAt(int32_t index) {
 
 bool ViewNode::IsAttachViewMatch(const std::shared_ptr<ViewNode>& node, const std::shared_ptr<tdfcore::View>& view) {
   auto node_type = node->GetViewName();
-  auto view_type = view->GetType().GetName();
-  if (!view_type) {
-    view_type = "";
-  }
-  if ((node_type == kTextViewName && std::string(view_type) != "tdfcore::TextView")
-   || (node_type == kImageViewName && std::string(view_type) != "tdfcore::ImageView")) {
+  auto view_type = view->GetType();
+  if ((node_type == kViewName && !(view_type == tdfcore::View::ClassType()))
+      || (node_type == kTextViewName && !(view_type == tdfcore::TextView::ClassType()))
+      || (node_type == kImageViewName && !(view_type == tdfcore::ImageView::ClassType()))
+      || (node_type == kTextInputViewName && !(view_type == tdfcore::TextInputView::ClassType()))) {
     return false;
   }
-  // TODO(etkmao): maybe to check other node type
   return true;
 }
 
