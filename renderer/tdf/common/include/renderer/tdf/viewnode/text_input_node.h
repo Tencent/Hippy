@@ -35,6 +35,7 @@
 #include "tdfui/view/text/text_input_view.h"
 #pragma clang diagnostic pop
 
+#include "renderer/tdf/viewnode/view_names.h"
 #include "renderer/tdf/viewnode/view_node.h"
 
 namespace hippy {
@@ -136,6 +137,8 @@ class TextInputNode : public ViewNode {
  public:
   explicit TextInputNode(const RenderInfo info);
   ~TextInputNode() override;
+
+  std::string GetViewName() const override { return kTextInputViewName; }
 
   void CallFunction(const std::string& function_name, const DomArgument& param, const uint32_t call_back_id) override;
 
