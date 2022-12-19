@@ -78,9 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MESSAGE: |
-        Hi, @${{ needs.call_get_workflow_output.outputs.sender }}.
-
-        I noticed that our reviewers requested changes to this pull request.
+        Hi, @{0}, I noticed that our reviewers requested changes to this pull request.
         When you're done, **click the `Re-request review` button in the right sidebar(shown below)** to notify the reviewer.
         ![Re-request review button in the right sidebar](https://docs.github.com/assets/cb-4714/images/help/pull_requests/request-re-review.png)
     steps:
@@ -98,25 +96,26 @@ jobs:
         with open(os.getenv("GITHUB_OUTPUT"), 'w', encoding='utf-8') as file:
           file.write("review_state=%s\n" % data["review"]["state"])
           file.write("pull_request_number=%s\n" % data["pull_request"]["number"])
+          file.write("pull_request_user=%s\n" % data["pull_request"]["user"]["login"])
     - name: Find
       id: find_comment
       if: steps.parse_workflow_output.outputs.review_state == 'changes_requested'
       uses: peter-evans/find-comment@v2.1.0
       with:
         issue-number: ${{ steps.parse_workflow_output.outputs.pull_request_number }}
-        body-includes: ${{ env.MESSAGE }}
+        body-includes: ${{ format(env.MESSAGE, steps.parse_workflow_output.outputs.pull_request_user) }}
     - name: Token
       id: get-token
       if: steps.find_comment.outputs.comment-id == '' && steps.parse_workflow_output.outputs.review_state == 'changes_requested'
       uses: navikt/github-app-token-generator@v1
       with:
-        private-key: ${{ secrets.PRIVATE_KEY }}
-        app-id: ${{ secrets.APP_ID }}
+        private-key: ${{ secrets.BOT_APP_KEY }}
+        app-id: ${{ secrets.BOT_APP_ID }}
     - name: Comment
       uses: peter-evans/create-or-update-comment@v2
       if: steps.get-token.outputs.token != ''
       with:
         token: ${{ steps.get-token.outputs.token }}
         issue-number: ${{ steps.parse_workflow_output.outputs.pull_request_number }}
-        body: ${{ env.MESSAGE }}
+        body: ${{ format(env.MESSAGE, steps.parse_workflow_output.outputs.pull_request_user) }}
         reactions: eyes
