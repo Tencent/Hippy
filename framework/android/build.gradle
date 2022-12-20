@@ -24,7 +24,6 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.kezong.fat-aar'
 apply from: './publish.gradle'
 
-def ENABLE_TDF_RENDER = INCLUDE_MODULES.toLowerCase().contains('renderer-tdf')
 android {
     archivesBaseName = ARCHIVES_BASE_NAME
     compileSdkVersion COMPILE_VERSION as int
@@ -100,7 +99,6 @@ android {
                             "-DCMAKE_BUILD_TYPE=Debug",
                             "-DENABLE_INSPECTOR=$ENABLE_INSPECTOR",
                             "-DANDROID_STL=$ANDROID_STL",
-                            "-DENABLE_TDF_RENDER=${ENABLE_TDF_RENDER}",
                             "-DV8_COMPONENT=$V8_COMPONENT",
                             "-DTDF_CORE_VERSION=$TDF_CORE_VERSION",
                             "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
@@ -138,18 +136,20 @@ android {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    embed project(path: ':connector-support', configuration: 'default')
     embed project(path: ':serialization', configuration: 'default')
     embed project(path: ':hippy-support', configuration: 'default')
     embed project(path: ':vfs', configuration: 'default')
-    embed project(path: ':connector-dom', configuration: 'default')
-    embed project(path: ':connector-driver-js', configuration: 'default')
     embed project(path: ':devtools-integration', configuration: 'default')
-    if (INCLUDE_MODULES.toLowerCase().contains('renderer-native')) {
+    embed project(path: ':connector-support', configuration: 'default')
+    embed project(path: ':connector-dom', configuration: 'default')
+    if (INCLUDE_DRIVER_JS.toBoolean()) {
+        embed project(path: ':connector-driver-js', configuration: 'default')
+    }
+    if (INCLUDE_RENDERER_NATIVE.toBoolean()) {
         embed project(path: ':connector-renderer-native', configuration: 'default')
         compileOnly project(path: ':renderer-native')
     }
-    if (INCLUDE_MODULES.toLowerCase().contains('renderer-tdf')) {
+    if (INCLUDE_RENDERER_TDF.toBoolean()) {
         embed project(path: ':connector-renderer-tdf', configuration: 'default')
     }
     //noinspection GradleDependency
