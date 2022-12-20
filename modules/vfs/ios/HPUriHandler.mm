@@ -52,7 +52,7 @@ static const char *progressKey = nullptr;
                 [nextHandler requestContentAsync:urlString method:method headers:httpHeaders body:data next:next progress:progress result:result];
             }
             else {
-                [self forwardToVFSUriLoaderAsync:urlString method:method headers:httpHeaders body:data result:result];
+                [self forwardToVFSUriLoaderAsync:urlString method:method headers:httpHeaders body:data progress:progress result:result];
             }
         }
         return;
@@ -118,6 +118,7 @@ static const char *progressKey = nullptr;
                             method:(NSString *)method
                            headers:(NSDictionary<NSString *, NSString *> *)httpHeaders
                               body:(NSData *)data
+                          progress:(void(^)(NSUInteger current, NSUInteger total))progress
                             result:(void(^)(NSData *_Nullable data, NSURLResponse *response, NSError *error))result {
     auto loader = _uriLoader.lock();
     if (loader) {
@@ -132,7 +133,7 @@ static const char *progressKey = nullptr;
         if (httpHeaders) {
             [map addEntriesFromDictionary:httpHeaders];
         }
-        loader->loadContentsAsynchronously(urlString, [map copy], nil, nullptr, result);
+        loader->loadContentsAsynchronously(urlString, [map copy], data, progress, result);
     }
 }
 

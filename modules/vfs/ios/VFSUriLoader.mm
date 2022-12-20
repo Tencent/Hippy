@@ -71,7 +71,9 @@ void VFSUriLoader::loadContentsAsynchronously(NSString *urlString,
     string_view uri = NSStringToU16StringView(urlString);
     std::unordered_map<std::string, std::string> meta = NSDictionaryToStringUnorderedMap(headers);
     auto progressCallback = [progress](int64_t current, int64_t total){
-        progress(current, total);
+        if (progress) {
+            progress(current, total);
+        }
     };
     std::string postContents = "";
     if (data) {
