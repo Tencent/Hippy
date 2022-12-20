@@ -91,6 +91,21 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
         }
     }
 
+    private void handleRedirectRequest(@NonNull final HippyHttpRequest request,
+            @NonNull final HttpTaskCallback callback, @NonNull HttpURLConnection connection) {
+        String location = connection.getHeaderField("Location");
+        if (TextUtils.isEmpty(location)) {
+            callback.onTaskFailed(request, new IllegalStateException (
+                    "Redirect location field is empty!"));
+        } else if (request.getAndIncrementRedirectTimes() > 2) {
+            callback.onTaskFailed(request, new IllegalStateException (
+                    "Redirect more than 3 times!"));
+        } else {
+            request.setUrl(location);
+            sendRequest(request, callback);
+        }
+    }
+
     @Override
     public void sendRequest(@NonNull final HippyHttpRequest request,
             @NonNull final HttpTaskCallback callback) {
@@ -103,8 +118,12 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
                     connection = createConnection(request);
                     fillHeader(connection, request);
                     fillPostBody(connection, request);
-                    response = createResponse(connection);
-                    callback.onTaskSuccess(request, response);
+                    if (connection.getResponseCode() == 302) {
+                        handleRedirectRequest(request, callback, connection);
+                    } else {
+                        response = createResponse(connection);
+                        callback.onTaskSuccess(request, response);
+                    }
                 } catch (Throwable e) {
                     callback.onTaskFailed(request, e);
                 } finally {
@@ -416,8 +435,6 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
 
     private URL toURL(String url) throws MalformedURLException {
         URL _URL = new URL(url);
-
-        // 有个别 URL 在 path 和 querystring 之间缺少 / 符号，需补上
         if (_URL.getPath() == null || "".equals(_URL.getPath())) {
             if (_URL.getFile() != null && _URL.getFile().startsWith("?")) {
                 // 补斜杠符号
@@ -427,8 +444,6 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
                             + '/'
                             + url.substring(idx);
                     _URL = new URL(sb);
-
-                    // System.out.println("toURL : " + _URL.toString());
                 }
             }
 
