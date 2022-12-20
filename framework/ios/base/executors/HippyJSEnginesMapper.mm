@@ -39,7 +39,8 @@ void EngineResource::Setup(const std::string name) {
     task_runner->SetWorker(dom_worker_);
     dom_manager_ = std::make_shared<hippy::DomManager>();
     dom_manager_->SetTaskRunner(task_runner);
-    engine_ = std::make_shared<hippy::Engine>(task_runner, nullptr);
+    engine_ = std::make_shared<hippy::Engine>();
+    engine_->AsyncInit(task_runner, nullptr);
 }
 
 EngineResource::EngineResource(const std::string name) {

@@ -98,7 +98,13 @@ jint CreateDomManager(__unused JNIEnv* j_env, __unused jobject j_obj) {
 
 void DestroyDomManager(__unused JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id) {
   auto dom_manager_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_dom_id);
-  auto flag = hippy::global_data_holder.Erase(dom_manager_id);
+  std::any dom_manager;
+  auto flag = hippy::global_data_holder.Find(dom_manager_id, dom_manager);
+  FOOTSTONE_CHECK(flag);
+  auto dom_manager_object = std::any_cast<std::shared_ptr<DomManager>>(dom_manager);
+  auto worker_manager = dom_manager_object->GetWorkerManager();
+  worker_manager->Terminate();
+  flag = hippy::global_data_holder.Erase(dom_manager_id);
   FOOTSTONE_DCHECK(flag);
 }
 

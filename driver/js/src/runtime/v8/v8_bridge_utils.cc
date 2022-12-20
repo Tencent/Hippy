@@ -183,14 +183,15 @@ int32_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
     }
   }
   if (!engine) {
-    auto worker_runner = worker_manager->CreateTaskRunner(kWorkerRunnerName);
-    engine = std::make_shared<Engine>(task_runner, worker_runner, std::move(engine_cb_map), param);
+    engine = std::make_shared<Engine>();
     if (group != kDefaultGroupId) {
       std::lock_guard<std::mutex> lock(engine_mutex);
       reuse_engine_map[group] = std::make_pair(engine, 1);
     }
   }
   runtime->SetEngine(engine);
+  auto worker_runner = worker_manager->CreateTaskRunner(kWorkerRunnerName);
+  engine->AsyncInit(task_runner, worker_runner, std::move(engine_cb_map), param);
   auto scope = engine->CreateScope("", std::move(scope_cb_map));
   runtime->SetScope(scope);
   FOOTSTONE_DLOG(INFO) << "group = " << group;
