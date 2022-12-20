@@ -734,7 +734,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                         .getAbsolutePath();
                 mDevtoolsManager.create(localCachePath,
                         getDevSupportManager().createDebugUrl(mServerHost));
-                mVfsManager.addProcessorAtFirst(new DevtoolsProcessor(mDevtoolsManager.getId()));
+                //mVfsManager.addProcessorAtFirst(new DevtoolsProcessor(mDevtoolsManager.getId()));
             }
             mModuleManager = new HippyModuleManagerImpl(this, mModuleProviders,
                     enableV8Serialization);
