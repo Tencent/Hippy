@@ -73,7 +73,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   using WorkerManager = footstone::WorkerManager;
 
   DomManager();
-  ~DomManager();
+  ~DomManager() = default;
 
   DomManager(DomManager&) = delete;
   DomManager& operator=(DomManager&) = delete;

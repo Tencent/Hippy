@@ -55,7 +55,8 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
         ref.second++;
         return ref.first;
     } else {
-        std::shared_ptr<hippy::Engine> engine = std::make_shared<hippy::Engine>(nullptr, nullptr);
+        auto engine = std::make_shared<hippy::Engine>();
+        engine->AsyncInit(nullptr, nullptr);
         [self setEngine:engine forKey:key];
         return engine;
     }
