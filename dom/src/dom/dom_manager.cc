@@ -191,21 +191,26 @@ void DomManager::RemoveEventListener(const std::weak_ptr<RootNode>& weak_root_no
   node->RemoveEventListener(name, listener_id);
 }
 
-void DomManager::CallFunction(const std::weak_ptr<RootNode>& weak_root_node, uint32_t id, const std::string& name,
-                              const DomArgument& param, const CallFunctionCallback& cb) {
-  auto root_node = weak_root_node.lock();
-  if (!root_node) {
-    return;
-  }
-  root_node->CallFunction(id, name, param, cb);
-}
-
 void DomManager::SetRootSize(const std::weak_ptr<RootNode>& weak_root_node, float width, float height) {
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return;
   }
   root_node->SetRootSize(width, height);
+}
+
+void DomManager::CallFunction(const std::weak_ptr<RootNode>& weak_root_node, uint32_t id, const std::string& name,
+                              const DomArgument& param, const CallFunctionCallback& cb) {
+  auto root_node = weak_root_node.lock();
+  if (!root_node) {
+    return;
+  }
+  auto render_manager = render_manager_.lock();
+  FOOTSTONE_DCHECK(render_manager);
+  if (!render_manager) {
+    return;
+  }
+  root_node->CallFunction(id, name, param, render_manager, cb);
 }
 
 void DomManager::DoLayout(const std::weak_ptr<RootNode>& weak_root_node) {

@@ -377,7 +377,8 @@ void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode
   }
 }
 
-void DomNode::CallFunction(const std::string& name, const DomArgument& param, const CallFunctionCallback& cb) {
+void DomNode::CallFunction(const std::string& name, const DomArgument& param,
+                           const std::shared_ptr<RenderManager>& render_manager, const CallFunctionCallback& cb) {
   if (!func_cb_map_) {
     func_cb_map_ =
         std::make_shared<std::unordered_map<std::string, std::unordered_map<uint32_t, CallFunctionCallback>>>();
@@ -388,18 +389,6 @@ void DomNode::CallFunction(const std::string& name, const DomArgument& param, co
     current_callback_id_ += 1;
     cb_id = current_callback_id_;
     (*func_cb_map_)[name][current_callback_id_] = cb;
-  }
-  auto root_node = root_node_.lock();
-  if (!root_node) {
-    return;
-  }
-  auto dom_manager = root_node->GetDomManager().lock();
-  if (!dom_manager) {
-    return;
-  }
-  auto render_manager = dom_manager->GetRenderManager().lock();
-  if (!render_manager) {
-    return;
   }
   render_manager->CallFunction(root_node_, weak_from_this(), name, param, cb_id);
 }

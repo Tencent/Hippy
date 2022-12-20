@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class HippyHttpRequest {
 
@@ -39,6 +40,8 @@ public class HippyHttpRequest {
     private int mConnectTimeout = DEFAULT_TIMEOUT_MS;
     private int mReadTimeout = DEFAULT_TIMEOUT_MS;
     private boolean mUseCaches = true;
+    @Nullable
+    private AtomicInteger mRedirectTimes;
     @Nullable
     private String mUrl;
     @NonNull
@@ -81,6 +84,13 @@ public class HippyHttpRequest {
 
     public void addHeader(String name, String value) {
         mHeaders.put(name, value);
+    }
+
+    public int getAndIncrementRedirectTimes() {
+        if (mRedirectTimes == null) {
+            mRedirectTimes = new AtomicInteger();
+        }
+        return mRedirectTimes.getAndIncrement();
     }
 
     @NonNull
