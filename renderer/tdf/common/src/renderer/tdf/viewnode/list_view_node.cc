@@ -233,7 +233,9 @@ void ListViewDataSource::UpdateItem(int64_t index, const std::shared_ptr<tdfcore
   auto new_index = static_cast<uint64_t>(index);
   auto node = list_view_node_.lock()->GetChildren()[new_index];
   auto dom_node = node->GetDomNode();
-  FOOTSTONE_DCHECK(dom_node);
+  if (!dom_node) {
+    return;
+  }
   auto layout_result = dom_node->GetRenderLayoutResult();
   auto origin_left = item->GetFrame().left;
   auto origin_top = item->GetFrame().top;
