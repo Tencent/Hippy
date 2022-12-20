@@ -107,14 +107,6 @@ typedef void (^URLSessionDataResult)(NSData *, NSURLResponse *, NSError *);
     return self;
 }
 
-- (std::shared_ptr<hippy::RequestJob>)request {
-    return _requestJob;
-}
-
-- (std::function<void(std::shared_ptr<hippy::JobResponse>)>)responseCallback {
-    return _cb;
-}
-
 - (void)URLSession:(NSURLSession *)session
               task:(NSURLSessionTask *)task
 didCompleteWithError:(nullable NSError *)error {
