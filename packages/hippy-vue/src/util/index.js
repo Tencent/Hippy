@@ -42,6 +42,16 @@ let _Vue;
  * @returns {Object} decl - Processed declaration, original declaration by default.
  */
 let _beforeLoadStyle = decl => decl;
+
+/**
+ * before render ElementNode hook
+ *
+ * Use for do some hack to dom tree, such as fixed position, style inherit
+ * percentage unit, style variables etc.
+ *
+ * @param {Object} el - ElementNode
+ * @param {Object} style - computed style sheet
+ */
 let _beforeRenderToNative = () => {};
 
 function setVue(Vue) {

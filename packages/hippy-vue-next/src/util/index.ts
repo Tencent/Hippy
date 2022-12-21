@@ -22,7 +22,12 @@
 
 import type { ComponentPublicInstance } from '@vue/runtime-core';
 import { capitalize } from '@vue/shared';
-import type { NeedToTyped, CommonMapParams, CallbackType } from '../types';
+import type {
+  NeedToTyped,
+  CommonMapParams,
+  CallbackType,
+  NativeNodeProps,
+} from '../types';
 import { HIPPY_DEBUG_ADDRESS, HIPPY_STATIC_PROTOCOL, IS_PROD } from '../config';
 import { type HippyElement } from '../runtime/element/hippy-element';
 
@@ -144,6 +149,23 @@ export function setBeforeLoadStyle(beforeLoadStyle: CallbackType): void {
 export function getBeforeLoadStyle(): CallbackType {
   return beforeLoadStyleHook;
 }
+
+/**
+ * before render ElementNode hook
+ *
+ * Use for do some hack to dom tree, such as fixed position, style inherit
+ * percentage unit, style variables etc.
+ */
+let beforeRenderToNativeHook = (_el: HippyElement, _style: NativeNodeProps) => {};
+
+export function setBeforeRenderToNative(beforeRenderToNative) {
+  beforeRenderToNativeHook = beforeRenderToNative;
+}
+
+export function getBeforeRenderToNative() {
+  return beforeRenderToNativeHook;
+}
+
 
 /**
  * Convert unicode format string to char type
