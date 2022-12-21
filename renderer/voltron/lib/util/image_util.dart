@@ -31,7 +31,7 @@ ImageProvider getImage(String src) {
     image = FileImage(File(src.replaceFirst('file://', '')));
   } else if (src.startsWith('data:')){ // base 64
     var base64Str = src.split('base64,').last;
-    image = imageFromBase64String(base64Str);
+    image = imageFromBase64String(base64Str.replaceAll(RegExp(r'\s'), ''));
   } else {
     image = NetworkImage(src);
   }

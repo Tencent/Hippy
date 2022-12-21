@@ -31,8 +31,7 @@ class ImageVirtualNode extends VirtualNode {
   static const String propVerticalAlignment = "verticalAlignment";
   static const String propVerticalAlign = "verticalAlign";
 
-  static ImageSpanMethodProvider sImageSpanMethodProvider =
-      ImageSpanMethodProvider();
+  static ImageSpanMethodProvider sImageSpanMethodProvider = ImageSpanMethodProvider();
 
   double mWidth = 0.0;
   double mHeight = 0.0;
@@ -155,91 +154,97 @@ class ImageVirtualNode extends VirtualNode {
       var src = imgSrc;
       var isFirstLoad = _isFirstLoad;
       _isFirstLoad = false;
-      var img = getImage(imgSrc);
-      if (_imageEventTypes.isNotEmpty) {
-        if (imgSrc == src && isFirstLoad) {
-          _sendComponentEvent(
-            "loadStart",
-            VoltronMap(),
-          );
-        }
-        img.resolve(const ImageConfiguration()).addListener(ImageStreamListener(
-              (image, flag) {
-                if (imgSrc == src && isFirstLoad) {
-                  _sendComponentEvent(
-                    "load",
-                    VoltronMap(),
-                  );
-                  _sendComponentEvent(
-                    "loadEnd",
-                    VoltronMap(),
-                  );
-                }
-              },
-              onChunk: (event) {
-                if (imgSrc == src && isFirstLoad) {
-                  var total = event.expectedTotalBytes;
-                  var loaded = event.cumulativeBytesLoaded;
-                  if (loaded > 0 && total is int && total > 0) {
-                    var params = VoltronMap();
-                    params.push('loaded', loaded);
-                    params.push('total', total);
+      try {
+        /// getImage will throw base64 error
+        var img = getImage(imgSrc);
+        if (_imageEventTypes.isNotEmpty) {
+          if (imgSrc == src && isFirstLoad) {
+            _sendComponentEvent(
+              "loadStart",
+              VoltronMap(),
+            );
+          }
+          img.resolve(const ImageConfiguration()).addListener(ImageStreamListener(
+                (image, flag) {
+                  if (imgSrc == src && isFirstLoad) {
                     _sendComponentEvent(
-                      "progress",
-                      params,
+                      "load",
+                      VoltronMap(),
+                    );
+                    _sendComponentEvent(
+                      "loadEnd",
+                      VoltronMap(),
                     );
                   }
-                }
-              },
-              onError: (exception, stackTrace) {
-                if (imgSrc == src && isFirstLoad) {
-                  _sendComponentEvent(
-                    "error",
-                    VoltronMap(),
-                  );
-                  _sendComponentEvent(
-                    "loadEnd",
-                    VoltronMap(),
-                  );
-                }
-              },
-            ));
-      }
-      Widget current = Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: img,
-            alignment: Alignment.center,
-            repeat: ImageRepeat.noRepeat,
-            fit: BoxFit.fill,
+                },
+                onChunk: (event) {
+                  if (imgSrc == src && isFirstLoad) {
+                    var total = event.expectedTotalBytes;
+                    var loaded = event.cumulativeBytesLoaded;
+                    if (loaded > 0 && total is int && total > 0) {
+                      var params = VoltronMap();
+                      params.push('loaded', loaded);
+                      params.push('total', total);
+                      _sendComponentEvent(
+                        "progress",
+                        params,
+                      );
+                    }
+                  }
+                },
+                onError: (exception, stackTrace) {
+                  if (imgSrc == src && isFirstLoad) {
+                    _sendComponentEvent(
+                      "error",
+                      VoltronMap(),
+                    );
+                    _sendComponentEvent(
+                      "loadEnd",
+                      VoltronMap(),
+                    );
+                  }
+                },
+              ));
+        }
+        Widget current = Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: img,
+              alignment: Alignment.center,
+              repeat: ImageRepeat.noRepeat,
+              fit: BoxFit.fill,
+            ),
           ),
-        ),
-        width: mWidth,
-        height: mHeight,
-      );
-      if (nativeGestureDispatcher.needListener()) {
-        current = Listener(
-          behavior: HitTestBehavior.opaque,
-          onPointerDown: (event) =>
-              nativeGestureDispatcher.handleOnTouchEvent(event),
-          onPointerCancel: (event) =>
-              nativeGestureDispatcher.handleOnTouchEvent(event),
-          onPointerMove: (event) =>
-              nativeGestureDispatcher.handleOnTouchEvent(event),
-          onPointerUp: (event) =>
-              nativeGestureDispatcher.handleOnTouchEvent(event),
-          child: GestureDetector(
-            onTap: () => nativeGestureDispatcher.handleClick(),
-            onLongPress: () => nativeGestureDispatcher.handleLongClick(),
-            child: current,
+          width: mWidth,
+          height: mHeight,
+        );
+        if (nativeGestureDispatcher.needListener()) {
+          current = Listener(
+            behavior: HitTestBehavior.opaque,
+            onPointerDown: (event) => nativeGestureDispatcher.handleOnTouchEvent(event),
+            onPointerCancel: (event) => nativeGestureDispatcher.handleOnTouchEvent(event),
+            onPointerMove: (event) => nativeGestureDispatcher.handleOnTouchEvent(event),
+            onPointerUp: (event) => nativeGestureDispatcher.handleOnTouchEvent(event),
+            child: GestureDetector(
+              onTap: () => nativeGestureDispatcher.handleClick(),
+              onLongPress: () => nativeGestureDispatcher.handleLongClick(),
+              child: current,
+            ),
+          );
+        }
+        return WidgetSpan(
+          alignment: _verticalAlignment,
+          baseline: TextBaseline.alphabetic,
+          child: current,
+        );
+      } catch (e) {
+        return const WidgetSpan(
+          child: SizedBox(
+            width: 0,
+            height: 0,
           ),
         );
       }
-      return WidgetSpan(
-        alignment: _verticalAlignment,
-        baseline: TextBaseline.alphabetic,
-        child: current,
-      );
     } else {
       return const WidgetSpan(
         child: SizedBox(
