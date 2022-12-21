@@ -243,7 +243,6 @@
 		F4C928E6291C9B3A0078351C /* log_settings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_settings.h; sourceTree = "<group>"; };
 		F4C928E7291C9B3A0078351C /* persistent_object_map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = persistent_object_map.h; sourceTree = "<group>"; };
 		F4C928E8291C9B3A0078351C /* unicode_string_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = unicode_string_view.h; sourceTree = "<group>"; };
-		F4C928F2291C9B3A0078351C /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		F4C928F3291C9B3A0078351C /* logging.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = logging.cc; sourceTree = "<group>"; };
 		F4C928F5291C9B3A0078351C /* log_settings_state.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_settings_state.cc; sourceTree = "<group>"; };
 		F4C928F7291C9B3A0078351C /* log_settings.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_settings.cc; sourceTree = "<group>"; };
@@ -801,7 +800,6 @@
 		F4C928F1291C9B3A0078351C /* ios */ = {
 			isa = PBXGroup;
 			children = (
-				F4C928F2291C9B3A0078351C /* CMakeLists.txt */,
 				F4C928F3291C9B3A0078351C /* logging.cc */,
 			);
 			path = ios;
