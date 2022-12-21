@@ -4,78 +4,80 @@
     class="demo-input"
     @click="blurAllInput"
   >
-    <label>文本:</label>
-    <input
-      ref="input"
-      v-model="text"
-      placeholder="Text"
-      caret-color="yellow"
-      underline-color-android="grey"
-      placeholder-text-color="#40b883"
-      :editable="true"
-      class="input"
-      @click="stopPropagation"
-      @keyboardWillShow="onKeyboardWillShow"
-      @keyboardWillHide="onKeyboardWillHide"
-      @blur="onBlur"
-      @focus="onFocus"
-    >
-    <div>
-      <span>文本内容为：</span>
-      <span>{{ text }}</span>
+    <div class="demo-input-container">
+      <label>文本:</label>
+      <input
+        ref="input"
+        v-model="text"
+        placeholder="Text"
+        caret-color="yellow"
+        underline-color-android="grey"
+        placeholder-text-color="#40b883"
+        :editable="true"
+        class="input"
+        @click="stopPropagation"
+        @keyboardWillShow="onKeyboardWillShow"
+        @keyboardWillHide="onKeyboardWillHide"
+        @blur="onBlur"
+        @focus="onFocus"
+      >
+      <div>
+        <span>文本内容为：</span>
+        <span>{{ text }}</span>
+      </div>
+      <div><span>{{ `事件: ${event} | isFocused: ${isFocused}` }}</span></div>
+      <button
+        class="input-button"
+        @click="clearTextContent"
+      >
+        <span>清空文本内容</span>
+      </button>
+      <button
+        class="input-button"
+        @click="focus"
+      >
+        <span>Focus</span>
+      </button>
+      <button
+        class="input-button"
+        @click="blur"
+      >
+        <span>Blur</span>
+      </button>
+      <label>数字:</label>
+      <input
+        type="number"
+        caret-color="yellow"
+        underline-color-android="grey"
+        placeholder-text-color="#40b883"
+        placeholder="Number"
+        class="input"
+        @change="textChange"
+        @click="stopPropagation"
+      >
+      <label>密码:</label>
+      <input
+        type="password"
+        caret-color="yellow"
+        underline-color-android="grey"
+        placeholder-text-color="#40b883"
+        placeholder="Password"
+        class="input"
+        @change="textChange"
+        @click="stopPropagation"
+      >
+      <label>文本（限制5个字符）:</label>
+      <input
+        :maxlength="5"
+        caret-color="yellow"
+        underline-color-android="grey"
+        placeholder-text-color="#40b883"
+        placeholder="5 个字符"
+        class="input"
+        @change="textChange"
+        @click="stopPropagation"
+      >
     </div>
-    <div><span>{{ `事件: ${event} | isFocused: ${isFocused}` }}</span></div>
-    <button
-      class="input-button"
-      @click="clearTextContent"
-    >
-      <span>清空文本内容</span>
-    </button>
-    <button
-      class="input-button"
-      @click="focus"
-    >
-      <span>Focus</span>
-    </button>
-    <button
-      class="input-button"
-      @click="blur"
-    >
-      <span>Blur</span>
-    </button>
-    <label>数字:</label>
-    <input
-      type="number"
-      caret-color="yellow"
-      underline-color-android="grey"
-      placeholder-text-color="#40b883"
-      placeholder="Number"
-      class="input"
-      @change="textChange"
-      @click="stopPropagation"
-    >
-    <label>密码:</label>
-    <input
-      type="password"
-      caret-color="yellow"
-      underline-color-android="grey"
-      placeholder-text-color="#40b883"
-      placeholder="Password"
-      class="input"
-      @change="textChange"
-      @click="stopPropagation"
-    >
-    <label>文本（限制5个字符）:</label>
-    <input
-      :maxlength="5"
-      caret-color="yellow"
-      underline-color-android="grey"
-      placeholder-text-color="#40b883"
-      placeholder="5 个字符"
-      class="input"
-      @change="textChange"
-      @click="stopPropagation"
-    >
   </div>
 </template>
 
@@ -151,12 +153,16 @@ export default {
 
 <style scoped>
 .demo-input {
-  display: flex;
+  overflow-y: scroll;
   flex: 1;
-  align-items: center;
-  flex-direction: column;
   margin: 7px;
 }
+
+.demo-input .demo-input-container {
+  display: flex;
+  flex-direction: column;
+}
+
 .demo-input .input {
   width: 300px;
   height: 48px;
