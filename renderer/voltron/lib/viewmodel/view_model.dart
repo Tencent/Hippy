@@ -775,14 +775,20 @@ class RenderViewModel extends ChangeNotifier {
     var alignX = alignMap[backgroundPositionX] ?? -1.0;
     var alignY = alignMap[backgroundPositionY] ?? -1.0;
     var alignment = Alignment(alignX, alignY);
-    // 背景图不为空使用背景图
-    return DecorationImage(
-      alignment: alignment,
-      image: getImage(bgImg),
-      repeat: resizeModeToImageRepeat(backgroundImgRepeat),
-      scale: 1.0,
-      fit: imgFit,
-    );
+    try {
+      /// catch getImage throw base64 error
+      var imageProvider = getImage(bgImg);
+      return DecorationImage(
+        alignment: alignment,
+        image: imageProvider,
+        repeat: resizeModeToImageRepeat(backgroundImgRepeat),
+        scale: 1.0,
+        fit: imgFit,
+      );
+    } catch (e) {
+      LogUtils.e('DecorationImage', 'getImage fail, bgImg: ${bgImg}, error: ${e.toString()}');
+    }
+    return null;
   }
 
   BorderStyle parseBorderStyle(String? borderStyle) {
