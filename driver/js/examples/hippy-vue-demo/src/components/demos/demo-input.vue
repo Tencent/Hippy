@@ -1,10 +1,12 @@
 <template>
   <div
-    ref="inputDemo"
     class="demo-input"
     @click="blurAllInput"
   >
-    <div class="demo-input-container">
+    <div
+      ref="inputDemo"
+      class="demo-input-container"
+    >
       <label>文本:</label>
       <input
         ref="input"
