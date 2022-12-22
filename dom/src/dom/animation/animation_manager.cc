@@ -295,7 +295,7 @@ void AnimationManager::DeleteAnimationMap(const std::shared_ptr<DomNode>& dom_no
 
 void AnimationManager::UpdateCubicBezierAnimation(double current,
                                                   uint32_t related_animation_id,
-                                                  std::vector<std::shared_ptr<DomNode>>& update_nodes) {
+                                                  std::unordered_map<uint32_t, std::shared_ptr<DomNode>>& update_node_map) {
   auto root_node = root_node_.lock();
   if (!root_node) {
     return;
@@ -314,7 +314,10 @@ void AnimationManager::UpdateCubicBezierAnimation(double current,
     if (prop_it == props.end()) {
       continue;
     }
-    auto dom_node = root_node->GetNode(node_props_it->first);
+    auto dom_node = update_node_map[dom_node_id];
+    if (!dom_node) {
+      dom_node = root_node->GetNode(dom_node_id);
+    }
     if (!dom_node) {
       continue;
     }
@@ -326,7 +329,7 @@ void AnimationManager::UpdateCubicBezierAnimation(double current,
 
     dom_node->SetDiffStyle(std::make_shared<
         std::unordered_map<std::string, std::shared_ptr<HippyValue>>>(std::move(diff_value)));
-    update_nodes.push_back(dom_node);
+    update_node_map[dom_node_id] = dom_node;
   }
 }
 
@@ -343,7 +346,7 @@ std::shared_ptr<RenderManager> AnimationManager::GetRenderManager() {
 }
 
 void AnimationManager::UpdateAnimation(const std::shared_ptr<Animation>& animation, uint64_t now,
-                                       std::vector<std::shared_ptr<DomNode>>& update_nodes) {
+                                       std::unordered_map<uint32_t, std::shared_ptr<DomNode>>& update_node_map) {
   auto animation_id = animation->GetId();
   auto parent_id = animation->GetParentId();
   auto related_animation_id = parent_id;
@@ -352,8 +355,8 @@ void AnimationManager::UpdateAnimation(const std::shared_ptr<Animation>& animati
   }
 
   // on_run is called synchronously
-  animation->Run(now, [this, related_animation_id, &update_nodes](double current) {
-    UpdateCubicBezierAnimation(current, related_animation_id, update_nodes);
+  animation->Run(now, [this, related_animation_id, &update_node_map](double current) {
+    UpdateCubicBezierAnimation(current, related_animation_id, update_node_map);
   });
 }
 
@@ -368,10 +371,15 @@ void AnimationManager::UpdateAnimations() {
   }
 
   auto now = footstone::time::MonotonicallyIncreasingTime();
-  std::vector<std::shared_ptr<DomNode>> update_nodes;
+  std::unordered_map<uint32_t, std::shared_ptr<DomNode>> update_node_map;
   // xcode crash if we change for to loop
   for (std::vector<std::shared_ptr<Animation>>::size_type i = 0; i < active_animations_.size(); ++i) {
-    UpdateAnimation(active_animations_[i], now, update_nodes);
+    UpdateAnimation(active_animations_[i], now, update_node_map);
+  }
+  std::vector<std::shared_ptr<DomNode>> update_nodes;
+  update_nodes.reserve(update_node_map.size());
+  for (const auto& [key, value]: update_node_map) {
+    update_nodes.push_back(value);
   }
   dom_manager->UpdateAnimation(root_node_, std::move(update_nodes));
   dom_manager->EndBatch(root_node_);

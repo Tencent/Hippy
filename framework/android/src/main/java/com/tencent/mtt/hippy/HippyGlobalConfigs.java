@@ -112,7 +112,6 @@ public class HippyGlobalConfigs {
   private HippyGlobalConfigs(Context context,
       HippySharedPreferencesAdapter sharedPreferencesAdapter,
       HippyExceptionHandlerAdapter exceptionHandler, HippyHttpAdapter httpAdapter,
-      ImageLoaderAdapter imageLoaderAdapter,
       HippyExecutorSupplierAdapter executorSupplierAdapter, HippyStorageAdapter storageAdapter,
       HippyEngineMonitorAdapter engineMonitorAdapter,
       HippyFontScaleAdapter hippyFontScaleAdapter, HippySoLoaderAdapter hippySoLoaderAdapter,
@@ -219,8 +218,6 @@ public class HippyGlobalConfigs {
 
     private HippyHttpAdapter mHttpAdapter;
 
-    private ImageLoaderAdapter mImageLoaderAdapter;
-
     private HippyStorageAdapter mStorageAdapter;
 
     private HippyExecutorSupplierAdapter mExecutorSupplierAdapter;
@@ -282,11 +279,6 @@ public class HippyGlobalConfigs {
       return this;
     }
 
-    public Builder setImageLoaderAdapter(ImageLoaderAdapter adapter) {
-      this.mImageLoaderAdapter = adapter;
-      return this;
-    }
-
     public Builder setStorageAdapter(HippyStorageAdapter adapter) {
       this.mStorageAdapter = adapter;
       return this;
@@ -339,14 +331,9 @@ public class HippyGlobalConfigs {
       if (mLogAdapter == null) {
         mLogAdapter = new DefaultLogAdapter();
       }
-      if (mImageLoaderAdapter == null) {
-        throw new IllegalArgumentException(
-            "HippyGlobalConfigs ImageLoaderAdapter must is not null!");
-      }
-
       @SuppressWarnings("UnnecessaryLocalVariable") HippyGlobalConfigs configs = new HippyGlobalConfigs(
           mContext, mSharedPreferencesAdapter, mExceptionHandler,
-          mHttpAdapter, mImageLoaderAdapter, mExecutorSupplierAdapter, mStorageAdapter,
+          mHttpAdapter, mExecutorSupplierAdapter, mStorageAdapter,
           mEngineMonitorAdapter, mFontScaleAdapter,
           mSoLoaderAdapter, mDeviceAdapter, mLogAdapter);
       return configs;
