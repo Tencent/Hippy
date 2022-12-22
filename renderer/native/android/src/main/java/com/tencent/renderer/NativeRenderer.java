@@ -145,7 +145,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     public void init(@Nullable List<Class<?>> controllers, @Nullable ViewGroup rootView) {
         mRenderManager.init(controllers);
         if (rootView instanceof HippyRootView) {
-            mRenderManager.createRootNode(rootView.getId());
+            mRenderManager.createRootNode(rootView.getId(), getInstanceId());
             mRenderManager.addRootView(rootView);
             Context context = rootView.getContext();
             if (context instanceof NativeRenderContext) {
@@ -256,7 +256,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     public View createRootView(@NonNull Context context) {
         int rootId = sRootIdCounter.addAndGet(ROOT_VIEW_ID_INCREMENT);
         HippyRootView rootView = new HippyRootView(context, mRenderProvider.getInstanceId(), rootId);
-        mRenderManager.createRootNode(rootId);
+        mRenderManager.createRootNode(rootId, getInstanceId());
         mRenderManager.addRootView(rootView);
         return rootView;
     }
@@ -878,7 +878,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                     snapshotMap.get(SNAPSHOT_UPDATE_LAYOUT));
             rootView = new HippyRootView(context, mRenderProvider.getInstanceId(),
                     SCREEN_SNAPSHOT_ROOT_ID);
-            mRenderManager.createRootNode(SCREEN_SNAPSHOT_ROOT_ID);
+            mRenderManager.createRootNode(SCREEN_SNAPSHOT_ROOT_ID, getInstanceId());
             mRenderManager.addRootView(rootView);
             createNode(SCREEN_SNAPSHOT_ROOT_ID, nodeList);
             updateLayout(SCREEN_SNAPSHOT_ROOT_ID, layoutList);

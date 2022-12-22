@@ -107,7 +107,8 @@ class AnimationManager
 
  private:
   void EmplaceNodeProp(const std::shared_ptr<DomNode>& node, const std::string& prop, uint32_t animation_id);
-  void UpdateAnimation(const std::shared_ptr<Animation>& animation, uint64_t now, std::vector<std::shared_ptr<DomNode>>& update_nodes);
+  void UpdateAnimation(const std::shared_ptr<Animation>& animation, uint64_t now,
+                       std::unordered_map<uint32_t, std::shared_ptr<DomNode>>& update_node_map);
   void ParseAnimation(const std::shared_ptr<DomNode>& node);
   void FetchAnimationsFromObject(const std::string& prop,
                                  const std::shared_ptr<HippyValue>& value,
@@ -116,7 +117,7 @@ class AnimationManager
                                 std::unordered_map<uint32_t, std::string>& result);
   void UpdateCubicBezierAnimation(double current,
                                   uint32_t related_animation_id,
-                                  std::vector<std::shared_ptr<DomNode>>& update_nodes);
+                                  std::unordered_map<uint32_t, std::shared_ptr<DomNode>>& update_node_map);
   std::shared_ptr<RenderManager> GetRenderManager();
 
   std::weak_ptr<RootNode> root_node_;

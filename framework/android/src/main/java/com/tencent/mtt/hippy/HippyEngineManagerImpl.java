@@ -765,6 +765,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mJsDriver.attachToDom(mDomManager);
             if (mRootView != null && (mDebugMode || BuildConfig.DEBUG)) {
                 mDomManager.createRoot(mRootView);
+                mDomManager.attachToRoot(mRootView);
                 mJsDriver.attachToRoot(mRootView);
                 mNativeRenderer.onRuntimeInitialized(mRootView);
             }
@@ -927,6 +928,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             View rootView = mNativeRenderer.createRootView(context);
             if (rootView != null) {
                 mDomManager.createRoot(rootView);
+                mDomManager.attachToRoot(rootView);
                 mJsDriver.attachToRoot(rootView);
                 if (mDevtoolsManager != null) {
                     mDevtoolsManager.attachToRoot(rootView);

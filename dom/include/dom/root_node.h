@@ -54,9 +54,7 @@ class RootNode : public DomNode {
   void MoveDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
   void DeleteDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
   void UpdateAnimation(std::vector<std::shared_ptr<DomNode>>&& nodes);
-  void CallFunction(uint32_t id, const std::string& name, const DomArgument& param,
-                    const std::shared_ptr<RenderManager>& render_manager,
-                    const CallFunctionCallback& cb);
+  void CallFunction(uint32_t id, const std::string& name, const DomArgument& param, const CallFunctionCallback& cb);
   void SyncWithRenderManager(const std::shared_ptr<RenderManager>& render_manager);
   void DoAndFlushLayout(const std::shared_ptr<RenderManager>& render_manager);
   void AddEvent(uint32_t id, const std::string& event_name);

@@ -47,7 +47,6 @@ uint64_t HippyScreenAdapter::AddPostFrameCallback(std::function<void()> callback
   if (!children.empty()) {
     hippy::dom::DomArgument argument = makeFrameCallbackArgument(frame_callback_id_);
     children[0]->CallFunction(kAddFrameCallback, argument,
-                              render_manager,
                               [WEAK_THIS, callback](std::shared_ptr<hippy::dom::DomArgument> arg) {
                                 DEFINE_AND_CHECK_SELF(HippyScreenAdapter)
                                 self->supportDirtyCallback = true;
@@ -68,7 +67,6 @@ void HippyScreenAdapter::RemovePostFrameCallback(uint64_t id) {
   if (!children.empty()) {
     hippy::dom::DomArgument argument = makeFrameCallbackArgument(id);
     children[0]->CallFunction(kRemoveFrameCallback, argument,
-                              render_manager,
                               [](std::shared_ptr<hippy::dom::DomArgument> arg) {});
   }
 }
@@ -112,7 +110,7 @@ void HippyScreenAdapter::GetScreenShot(const hippy::devtools::ScreenRequest& req
       self->screen_scale_ = base64_dom_value.find(kScreenScale)->second.ToDoubleChecked();
       callback(base64_str, width, height);
     };
-    children[0]->CallFunction(kGetScreenShot, argument, render_manager, screen_shot_callback);
+    children[0]->CallFunction(kGetScreenShot, argument, screen_shot_callback);
   }
 }
 

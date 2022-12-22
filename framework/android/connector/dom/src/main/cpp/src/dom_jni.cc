@@ -61,6 +61,11 @@ REGISTER_JNI("com/openhippy/connector/DomManager", // NOLINT(cert-err58-cpp)
              "(I)V",
              DestroyRoot)
 
+REGISTER_JNI("com/openhippy/connector/DomManager", // NOLINT(cert-err58-cpp)
+             "setDomManager",
+             "(II)V",
+             SetDomManager)
+
 using WorkerManager = footstone::WorkerManager;
 
 constexpr uint32_t kPoolSize = 2;
@@ -83,6 +88,25 @@ void DestroyRoot(JNIEnv* j_env,
   auto& persistent_map = RootNode::PersistentMap();
   auto flag = persistent_map.Erase(root_id);
   FOOTSTONE_DCHECK(flag);
+}
+
+void SetDomManager(JNIEnv* j_env,
+                   __unused jobject j_obj,
+                   jint j_root_id,
+                   jint j_dom_id) {
+  auto root_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_root_id);
+  std::shared_ptr<RootNode> root_node;
+  auto& persistent_map = RootNode::PersistentMap();
+  auto flag = persistent_map.Find(root_id, root_node);
+  FOOTSTONE_CHECK(flag);
+
+  auto dom_manager_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_dom_id);
+  std::any dom_manager;
+  flag = hippy::global_data_holder.Find(dom_manager_id, dom_manager);
+  FOOTSTONE_CHECK(flag);
+  auto dom_manager_object = std::any_cast<std::shared_ptr<DomManager>>(dom_manager);
+
+  root_node->SetDomManager(dom_manager_object);
 }
 
 jint CreateDomManager(__unused JNIEnv* j_env, __unused jobject j_obj) {
