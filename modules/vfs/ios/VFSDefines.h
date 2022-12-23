@@ -23,11 +23,20 @@
 #ifndef VFSDefines_h
 #define VFSDefines_h
 
+#include <functional>
+#include <memory>
+
 constexpr char kRequestOrigin[] = "kRequestOrigin";
 constexpr char kRequestFromCPP[] = "kRequestFromCPP";
 constexpr char kRequestFromOC[] = "kRequestFromOC";
 
 constexpr char kHeaderBody[] = "kHeaderBody";
 constexpr char kHeaderMethod[] = "kHeaderMethod";
+
+class VFSUriHandler;
+
+typedef void(^VFSHandlerProgressBlock)(NSUInteger, NSUInteger);
+typedef void(^VFSHandlerCompletionBlock)(NSData *, NSURLResponse *, NSError *);
+typedef std::shared_ptr<VFSUriHandler>(^VFSGetNextHandlerBlock)();
 
 #endif /* VFSDefines_h */

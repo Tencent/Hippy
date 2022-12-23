@@ -35,7 +35,7 @@
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
 
-@class NativeRenderAnimationViewParams, NativeRenderObjectView, HPUriLoader, NativeRenderImpl;
+@class NativeRenderAnimationViewParams, NativeRenderObjectView, NativeRenderImpl;
 
 class VFSUriLoader;
 
@@ -48,7 +48,6 @@ class VFSUriLoader;
 
 @property(nonatomic, assign) BOOL uiCreationLazilyEnabled;
 
-@property(nonatomic, strong) HPUriLoader *HPUriLoader;
 @property(nonatomic, assign) std::shared_ptr<VFSUriLoader> VFSUriLoader;
 @property(nonatomic, readonly) std::weak_ptr<hippy::DomManager> domManager;
 @property(nonatomic, readonly) NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry;

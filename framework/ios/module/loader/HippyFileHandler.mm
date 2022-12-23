@@ -21,52 +21,45 @@
  */
 
 #import "HippyBridge.h"
-#import "HippyFileHandler.h"
+#import "HPToolUtils.h"
 
-@implementation HippyFileHandler
+#include "HippyFileHandler.h"
 
-- (instancetype)init {
-    return [self initWithBridge:nil];
+HippyFileHandler::HippyFileHandler(HippyBridge *bridge) {
+    bridge_ = bridge;
 }
 
-- (instancetype)initWithBridge:(HippyBridge *)bridge {
-    self = [super init];
-    if (self) {
-        self.bridge = bridge;
+void HippyFileHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob> request,
+                                               std::shared_ptr<hippy::JobResponse> response,
+                                               std::function<std::shared_ptr<UriHandler>()> next) {
+    FOOTSTONE_UNIMPLEMENTED();
+}
+
+void HippyFileHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob> request,
+                                               std::function<void(std::shared_ptr<hippy::JobResponse>)> cb,
+                                               std::function<std::shared_ptr<UriHandler>()> next) {
+    FOOTSTONE_UNIMPLEMENTED();
+}
+
+void HippyFileHandler::RequestUntrustedContent(NSURLRequest *request, VFSHandlerProgressBlock progress,
+                                               VFSHandlerCompletionBlock completion, VFSGetNextHandlerBlock next) {
+    HippyBridge *bridge = bridge_;
+    if (!completion) {
+        return;
     }
-    return self;
-}
-
-- (void)requestContentAsync:(NSString *)urlString method:(NSString *)method
-                    headers:(NSDictionary<NSString *,NSString *> *)httpHeaders body:(NSData *)data
-                       next:(HPUriHandler * _Nullable (^)())next
-                   progress:(void(^)(NSUInteger current, NSUInteger total))progress
-                     result:(void (^)(NSData * _Nullable, NSURLResponse * _Nonnull, NSError * _Nonnull))result {
-    HippyBridge *bridge = self.bridge;
-    if (!bridge) {
+    if (!bridge || !request) {
+        completion(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
+        return;
+    }
+    NSString *urlString = [[request URL] absoluteString];
+    if (!urlString) {
+        completion(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
         return;
     }
     if ([HippyBridge isHippyLocalFileURLString:urlString]) {
         urlString = [bridge absoluteStringFromHippyLocalFileURLString:urlString];
     }
-    [super requestContentAsync:urlString method:method headers:httpHeaders body:data next:next progress:progress result:result];
+    NSMutableURLRequest *req = [request mutableCopy];
+    [req setURL:HPURLWithString(urlString, nil)];
+    VFSUriHandler::RequestUntrustedContent(req, progress, completion, next);
 }
-
-- (NSData *)requestContentSync:(NSString *)urlString
-                        method:(NSString *_Nullable)method
-                       headers:(NSDictionary<NSString *, NSString *> *_Nullable)httpHeaders
-                          body:(NSData *_Nullable)data
-                          next:(HPUriHandler *_Nullable(^)(void))next
-                      response:(NSURLResponse *_Nullable*_Nullable)response
-                         error:(NSError *_Nullable*_Nullable)error {
-    HippyBridge *bridge = self.bridge;
-    if (!bridge) {
-        return nil;
-    }
-    if ([HippyBridge isHippyLocalFileURLString:urlString]) {
-        urlString = [bridge absoluteStringFromHippyLocalFileURLString:urlString];
-    }
-    return [super requestContentSync:urlString method:method headers:httpHeaders body:data next:next response:response error:error];
-}
-
-@end

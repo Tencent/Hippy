@@ -28,6 +28,9 @@
 #include "vfs/request_job.h"
 
 hippy::vfs::UriHandler::RetCode RetCodeFromNSError(NSError *error) {
+    if (!error) {
+        return hippy::vfs::UriHandler::RetCode::Success;
+    }
     hippy::vfs::UriHandler::RetCode retCode = hippy::vfs::UriHandler::RetCode::Failed;
     if ([[error domain] isEqualToString:NSURLErrorDomain]) {
         switch ([error code]) {
@@ -97,8 +100,8 @@ typedef void (^URLSessionDataResult)(NSData *, NSURLResponse *, NSError *);
     return self;
 }
 
-- (instancetype)initWithProgress:(void(^)(NSUInteger , NSUInteger))progress
-                          result:(void(^)(NSData *_Nullable data, NSURLResponse *response, NSError *_Nullable error))result {
+- (instancetype)initWithProgress:(VFSHandlerProgressBlock)progress
+                          result:(VFSHandlerCompletionBlock)result {
     self = [super init];
     if (self) {
         _progress = [progress copy];

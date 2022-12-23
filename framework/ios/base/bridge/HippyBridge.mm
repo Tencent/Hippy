@@ -49,7 +49,6 @@
 #import "HPInvalidating.h"
 #import "HPLog.h"
 #import "HPToolUtils.h"
-#import "HPUriLoader.h"
 #import "TypeConverter.h"
 #import "VFSUriLoader.h"
 
@@ -58,7 +57,6 @@
 
 #include "dom/scene.h"
 #include "driver/scope.h"
-#include "VFSUriHandler.h"
 
 #ifdef ENABLE_INSPECTOR
 #include "devtools/vfs/devtools_handler.h"

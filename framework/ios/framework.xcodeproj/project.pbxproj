@@ -398,8 +398,8 @@
 			children = (
 				F44E1B2829248B7F0091BCA4 /* HippyBridge+VFSLoader.h */,
 				F44E1B2929248B7F0091BCA4 /* HippyBridge+VFSLoader.mm */,
-				F44E1B2A29248B7F0091BCA4 /* HippyFileHandler.mm */,
 				F44E1B2B29248B7F0091BCA4 /* HippyFileHandler.h */,
+				F44E1B2A29248B7F0091BCA4 /* HippyFileHandler.mm */,
 			);
 			path = loader;
 			sourceTree = "<group>";

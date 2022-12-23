@@ -25,6 +25,7 @@
 #include <functional>
 #include <memory>
 
+#include "VFSDefines.h"
 #include "vfs/handler/uri_handler.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -43,8 +44,8 @@ hippy::vfs::UriHandler::RetCode RetCodeFromNSError(NSError *error);
 - (instancetype)initWithRequestJob:(const std::shared_ptr<hippy::RequestJob> &)requestJob
                   responseCallback:(std::function<void(std::shared_ptr<hippy::JobResponse>)>)cb;
 
-- (instancetype)initWithProgress:(void(^)(NSUInteger , NSUInteger))progress
-                          result:(void(^)(NSData *_Nullable data, NSURLResponse *response, NSError *_Nullable error))result;
+- (instancetype)initWithProgress:(VFSHandlerProgressBlock)progress
+                          result:(VFSHandlerCompletionBlock)result;
 
 @end
 

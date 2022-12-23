@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		F42AF65C2926292A00CD0CF6 /* NSURLResponse+ToUnorderedMap.mm in Sources */ = {isa = PBXBuildFile; fileRef = F42AF65B2926292A00CD0CF6 /* NSURLResponse+ToUnorderedMap.mm */; };
-		F44E1AA629247F880091BCA4 /* HPUriHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1A9F29247F880091BCA4 /* HPUriHandler.mm */; };
-		F44E1AA729247F880091BCA4 /* HPUriLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AA029247F880091BCA4 /* HPUriLoader.mm */; };
 		F44E1AA829247F880091BCA4 /* VFSUriLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AA329247F880091BCA4 /* VFSUriLoader.mm */; };
 		F44E1AA929247F880091BCA4 /* VFSUriHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AA529247F880091BCA4 /* VFSUriHandler.mm */; };
 		F44E1AB529247FBD0091BCA4 /* file.cc in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AB329247FBD0091BCA4 /* file.cc */; };
@@ -37,12 +35,8 @@
 		F44E1A9129247F590091BCA4 /* libVFS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libVFS.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F44E1A9D29247F880091BCA4 /* VFSDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VFSDefines.h; sourceTree = "<group>"; };
 		F44E1A9E29247F880091BCA4 /* VFSUriHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VFSUriHandler.h; sourceTree = "<group>"; };
-		F44E1A9F29247F880091BCA4 /* HPUriHandler.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HPUriHandler.mm; sourceTree = "<group>"; };
-		F44E1AA029247F880091BCA4 /* HPUriLoader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HPUriLoader.mm; sourceTree = "<group>"; };
 		F44E1AA129247F880091BCA4 /* VFSUriLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VFSUriLoader.h; sourceTree = "<group>"; };
-		F44E1AA229247F880091BCA4 /* HPUriHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPUriHandler.h; sourceTree = "<group>"; };
 		F44E1AA329247F880091BCA4 /* VFSUriLoader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VFSUriLoader.mm; sourceTree = "<group>"; };
-		F44E1AA429247F880091BCA4 /* HPUriLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPUriLoader.h; sourceTree = "<group>"; };
 		F44E1AA529247F880091BCA4 /* VFSUriHandler.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VFSUriHandler.mm; sourceTree = "<group>"; };
 		F44E1AAF29247FBD0091BCA4 /* uri_handler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uri_handler.h; sourceTree = "<group>"; };
 		F44E1AB029247FBD0091BCA4 /* uri_loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uri_loader.h; sourceTree = "<group>"; };
@@ -139,10 +133,6 @@
 			children = (
 				F42AF65A2926292A00CD0CF6 /* NSURLResponse+ToUnorderedMap.h */,
 				F42AF65B2926292A00CD0CF6 /* NSURLResponse+ToUnorderedMap.mm */,
-				F44E1AA229247F880091BCA4 /* HPUriHandler.h */,
-				F44E1A9F29247F880091BCA4 /* HPUriHandler.mm */,
-				F44E1AA429247F880091BCA4 /* HPUriLoader.h */,
-				F44E1AA029247F880091BCA4 /* HPUriLoader.mm */,
 				F44E1A9D29247F880091BCA4 /* VFSDefines.h */,
 				F44E1A9E29247F880091BCA4 /* VFSUriHandler.h */,
 				F44E1AA529247F880091BCA4 /* VFSUriHandler.mm */,
@@ -216,9 +206,7 @@
 				F42AF65C2926292A00CD0CF6 /* NSURLResponse+ToUnorderedMap.mm in Sources */,
 				F49A650F294C155E008492B2 /* request_job.cc in Sources */,
 				F49A650B294C0F42008492B2 /* NSURLSessionDataProgress.mm in Sources */,
-				F44E1AA629247F880091BCA4 /* HPUriHandler.mm in Sources */,
 				F44E1AA929247F880091BCA4 /* VFSUriHandler.mm in Sources */,
-				F44E1AA729247F880091BCA4 /* HPUriLoader.mm in Sources */,
 				F49A650E294C155E008492B2 /* job_response.cc in Sources */,
 				F44E1AA829247F880091BCA4 /* VFSUriLoader.mm in Sources */,
 			);
