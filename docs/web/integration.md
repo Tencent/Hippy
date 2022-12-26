@@ -13,7 +13,7 @@
 
 # Demo 体验
 
-若想快速体验，可以直接基于我们的 [HippyReact Web Demo](https://github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 和 
+若想快速体验，可以直接基于我们的 [HippyReact Web Demo](https://github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 和
 [HippyVue Web Demo](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo) 来体验
 
 ## npm script
@@ -22,10 +22,9 @@
 
 ```json
   "scripts": {
-    "web:dev": "npm run hippy:dev & node ./scripts/env-polyfill.js webpack serve --config ./scripts/hippy-webpack.web-renderer.dev.js",
-    "web:build": "node ./scripts/env-polyfill.js
-webpack --config ./scripts/hippy-webpack.web-renderer.js"
-  }
+"web:dev": "node ./scripts/env-polyfill.js webpack serve --config ./scripts/hippy-webpack.web-renderer.dev.js",
+"web:build": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.web-renderer.js"
+}
 ```
 
 ## 启动调试
@@ -73,12 +72,8 @@ npm install -S @hippy/web-renderer
 在入口文件内添加：
 
 ```javascript
-// 1. 导入 web renderer
+// 导入 web renderer
 import { HippyWebEngine, HippyWebModule } from '@hippy/web-renderer';
-
-// 2. 导入业务 bundle 的入口文件，需放在 web renderer 导入之后
-
-// 3. 创建 web engine，如果有业务自定义模块和组件，从此处传入
 ```
 
 ## 加载业务 Bundle
@@ -116,18 +111,12 @@ const engine = HippyWebEngine.create();
 import { HippyCallBack, HippyWebEngine, HippyWebModule, View } from '@hippy/web-renderer';
 // 导入业务 bundle 的入口文件，需放在 web renderer 导入之后
 import './main';
-
-
-const engine = HippyWebEngine.create();
 ```
 
-## 启动 WebRenderer
+## 创建 WebRenderer 实例
 
-加载完业务 bundle 后，调用相关 API 创建并启动 WebRenderer
-
-```js
-// 创建 web engine，如果有业务自定义模块和组件，从此处传入
-// 如果只使用官方模块和组件，则直接使用 const engine = HippyWebEngine.create() 即可
+```javascript
+// 调用 HippyWebEngine 的 create 方法创建实例，如果有业务自定义模块和组件，从此处传入，如果只使用官方模块和组件，则直接使用 const engine = HippyWebEngine.create() 即可
 const engine = HippyWebEngine.create({
   modules: {
     CustomCommonModule,
@@ -136,7 +125,13 @@ const engine = HippyWebEngine.create({
     CustomPageView,
   },
 });
+```
 
+## 启动 WebRenderer
+
+加载完业务 bundle 后，调用 WebRenderer 实例的 start 方法启动业务
+
+```js
 // 启动 web renderer
 engine.start({
   // 挂载的 dom id
@@ -144,7 +139,7 @@ engine.start({
   // 模块名
   name: 'module-name',
   // 模块启动参数，业务自定义,
-  // hippy-react 可以从 入口文件props里获取，hippy-vue可以从 app.$options.$superProps 里获取
+  // hippy-react 可以从 入口文件 props 里获取，hippy-vue 可以从 app.$options.$superProps 里获取
   params: {
     path: '/home',
     singleModule: true,
@@ -154,3 +149,6 @@ engine.start({
   },
 });
 ```
+
+
+>注：目前有一些业务，在 h5 场景复用 WebRenderer 渲染 Hippy 实现的组件。那么会有 h5 和 WebRenderer 共存的问题，因为 WebRenderer 覆盖了浏览器原生API：localstorage、fetch、cookie等，这可能会和一些标准的 web 库有冲突。建议有这样需求的开发者使用 iframe 或者微前端的方案来进行环境隔离。
