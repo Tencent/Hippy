@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
+import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.pool.ImageDataPool;
 import com.tencent.renderer.pool.Pool;
 
@@ -49,21 +50,49 @@ public class ImageLoader implements ImageLoaderAdapter {
         return mImagePool.acquire(ImageDataHolder.generateSourceKey(source));
     }
 
-    private void doCallback(@NonNull final ResourceDataHolder dataHolder,
-            @Nullable final ImageDataHolder imageHolder,
-            @NonNull final ImageRequestListener listener) {
-        UIThreadUtils.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (dataHolder.resultCode != ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE) {
-                    listener.onRequestFail(new RuntimeException(dataHolder.errorMessage));
-                } else if (imageHolder == null || !imageHolder.checkImageData()) {
-                    listener.onRequestFail(new RuntimeException(""));
+    private void handleResourceData(@NonNull String url,
+            @NonNull final ResourceDataHolder dataHolder,
+            @NonNull final ImageRequestListener listener, int width, int height) {
+        Runnable callbackTask = null;
+        String errorMessage = null;
+        byte[] bytes = dataHolder.getBytes();
+        if (dataHolder.resultCode
+                == ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE && bytes != null) {
+            final ImageDataHolder imageHolder = new ImageDataHolder(url, width, height);
+            try {
+                imageHolder.setData(bytes);
+                if (imageHolder.checkImageData()) {
+                    callbackTask = new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onRequestSuccess(imageHolder);
+                        }
+                    };
+                    saveImageToCache(imageHolder);
                 } else {
-                    listener.onRequestSuccess(imageHolder);
+                    errorMessage = "Image data decoding failed!";
                 }
+            } catch (NativeRenderException e) {
+                e.printStackTrace();
+                errorMessage = e.getMessage();
             }
-        });
+        } else {
+            errorMessage = dataHolder.errorMessage;
+        }
+        if (callbackTask == null) {
+            final String error = (errorMessage != null) ? errorMessage : "";
+            callbackTask = new Runnable() {
+                @Override
+                public void run() {
+                    listener.onRequestFail(new RuntimeException(error));
+                }
+            };
+        }
+        if (UIThreadUtils.isOnUiThread()) {
+            callbackTask.run();
+        } else {
+            UIThreadUtils.runOnUiThread(callbackTask);
+        }
     }
 
     private void saveImageToCache(@NonNull ImageDataSupplier data) {
@@ -103,14 +132,16 @@ public class ImageLoader implements ImageLoaderAdapter {
             return null;
         }
         ImageDataHolder imageHolder = new ImageDataHolder(url, width, height);
-        imageHolder.setData(bytes);
-        if (!imageHolder.checkImageData()) {
-            // The source decoding may fail, if bitmap and gif movie does not exist,
-            // return null directly.
-            return null;
+        try {
+            imageHolder.setData(bytes);
+            if (imageHolder.checkImageData()) {
+                saveImageToCache(imageHolder);
+                return imageHolder;
+            }
+        } catch (NativeRenderException e) {
+            e.printStackTrace();
         }
-        saveImageToCache(imageHolder);
-        return imageHolder;
+        return null;
     }
 
     @Override
@@ -122,22 +153,7 @@ public class ImageLoader implements ImageLoaderAdapter {
                 new FetchResourceCallback() {
                     @Override
                     public void onFetchCompleted(@NonNull final ResourceDataHolder dataHolder) {
-                        byte[] bytes = dataHolder.getBytes();
-                        if (dataHolder.resultCode
-                                != ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE || bytes == null) {
-                            doCallback(dataHolder, null, listener);
-                        } else {
-                            ImageDataHolder imageHolder = new ImageDataHolder(url, width, height);
-                            imageHolder.setData(bytes);
-                            if (!imageHolder.checkImageData()) {
-                                // The source decoding may fail, if bitmap and gif movie does not exist,
-                                // callback request failed.
-                                doCallback(dataHolder, null, listener);
-                            } else {
-                                saveImageToCache(imageHolder);
-                                doCallback(dataHolder, imageHolder, listener);
-                            }
-                        }
+                        handleResourceData(url, dataHolder, listener, width, height);
                     }
 
                     @Override
@@ -149,9 +165,5 @@ public class ImageLoader implements ImageLoaderAdapter {
 
     public void clear() {
         mImagePool.clear();
-    }
-
-    public void destroyIfNeed() {
-        clear();
     }
 }

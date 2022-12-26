@@ -16,6 +16,8 @@
 
 package com.tencent.renderer.component.image;
 
+import androidx.annotation.Nullable;
+
 public interface ImageRequestListener {
 
     /**
@@ -31,7 +33,7 @@ public interface ImageRequestListener {
     /**
      * Notify image request failed
      */
-    void onRequestFail(Throwable throwable);
+    void onRequestFail(@Nullable Throwable throwable);
 
     /**
      * Notify image request on progress
