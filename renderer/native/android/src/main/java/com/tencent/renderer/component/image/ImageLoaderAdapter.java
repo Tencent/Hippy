@@ -19,7 +19,6 @@ package com.tencent.renderer.component.image;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 public interface ImageLoaderAdapter {
 
@@ -32,8 +31,6 @@ public interface ImageLoaderAdapter {
 
     @Nullable
     ImageDataSupplier getImageFromCache(@NonNull String source);
-
-    void destroyIfNeed();
 
     void clear();
 }

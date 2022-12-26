@@ -16,13 +16,15 @@
 
 package com.tencent.renderer.component.image;
 
+import static com.tencent.renderer.NativeRenderException.ExceptionCode.IMAGE_DATA_DECODE_ERR;
+
 import android.graphics.ImageDecoder;
 import android.os.Build.VERSION_CODES;
 import androidx.annotation.RequiresApi;
+import com.tencent.renderer.NativeRenderException;
+import com.tencent.renderer.utils.ImageDataUtils;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import com.tencent.mtt.hippy.utils.ContextHolder;
 
@@ -30,7 +32,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Movie;
 import android.graphics.drawable.Drawable;
-import android.util.Base64;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -58,6 +59,8 @@ public class ImageDataHolder implements ImageDataSupplier {
     private Bitmap mBitmap;
     @Nullable
     private String mImageType;
+    @Nullable
+    private BitmapFactory.Options mOptions;
 
     public ImageDataHolder(@NonNull String source) {
         mSource = source;
@@ -203,16 +206,21 @@ public class ImageDataHolder implements ImageDataSupplier {
         mDrawable = drawable;
     }
 
-    public void setData(byte[] data) {
-        if (isGif(data)) {
-            mGifMovie = Movie.decodeByteArray(data, 0, data.length);
-            mBitmap = null;
-        } else {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                decodeLocalFileForTarget28(ByteBuffer.wrap(data));
+    public void setData(@NonNull byte[] data) throws NativeRenderException {
+        try {
+            mOptions = ImageDataUtils.generateBitmapOptions(data);
+            if (ImageDataUtils.isGif(mOptions)) {
+                mGifMovie = Movie.decodeByteArray(data, 0, data.length);
+                mBitmap = null;
             } else {
-                decodeImageData(data);
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                    decodeLocalFileForTarget28(ByteBuffer.wrap(data));
+                } else {
+                    decodeImageData(data);
+                }
             }
+        } catch (OutOfMemoryError | Exception e) {
+            throw new NativeRenderException(IMAGE_DATA_DECODE_ERR, e.getMessage());
         }
     }
 
@@ -237,34 +245,22 @@ public class ImageDataHolder implements ImageDataSupplier {
     }
 
     @RequiresApi(api = VERSION_CODES.P)
-    private void decodeLocalFileForTarget28(@NonNull File file) {
-        try {
-            ImageDecoder.Source source = ImageDecoder.createSource(file);
-            decodeImageSource(source);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void decodeLocalFileForTarget28(@NonNull File file) throws IOException {
+        ImageDecoder.Source source = ImageDecoder.createSource(file);
+        decodeImageSource(source);
     }
 
     @RequiresApi(api = VERSION_CODES.P)
-    private void decodeLocalFileForTarget28(@NonNull String fileName) {
-        try {
-            ImageDecoder.Source source = ImageDecoder.createSource(
-                    ContextHolder.getAppContext().getAssets(), fileName);
-            decodeImageSource(source);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void decodeLocalFileForTarget28(@NonNull String fileName) throws IOException {
+        ImageDecoder.Source source = ImageDecoder.createSource(
+                ContextHolder.getAppContext().getAssets(), fileName);
+        decodeImageSource(source);
     }
 
     @RequiresApi(api = VERSION_CODES.P)
-    private void decodeLocalFileForTarget28(@NonNull ByteBuffer buffer) {
-        try {
-            ImageDecoder.Source source = ImageDecoder.createSource(buffer);
-            decodeImageSource(source);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void decodeLocalFileForTarget28(@NonNull ByteBuffer buffer) throws IOException {
+        ImageDecoder.Source source = ImageDecoder.createSource(buffer);
+        decodeImageSource(source);
     }
 
     private int getSampleSize(int outWidth, int outHeight) {
@@ -286,33 +282,16 @@ public class ImageDataHolder implements ImageDataSupplier {
     }
 
     private void decodeImageData(@Nullable byte[] data) {
-        if (data == null || data.length <= 0) {
+        if (data == null || data.length <= 0 || mOptions == null) {
             return;
         }
-        try {
-            // When using the BitmapFactory decoding provided by the old version of Android system,
-            // we need to sample the image to scale in order to prevent the decoding memory
-            // growth caused by large images.
-            final BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeByteArray(data, 0, data.length, options);
-            options.inSampleSize = getSampleSize(options.outWidth, options.outHeight);
-            options.inJustDecodeBounds = false;
-            mBitmap = BitmapFactory.decodeByteArray(data, 0, data.length, options);
-            mGifMovie = null;
-            setStateFlag(FLAG_RECYCLABLE);
-        } catch (OutOfMemoryError | Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private boolean isGif(byte[] bytes) {
-        if (bytes == null || bytes.length < 3) {
-            return false;
-        }
-        byte b0 = bytes[0];
-        byte b1 = bytes[1];
-        byte b2 = bytes[2];
-        return b0 == (byte) 'G' && b1 == (byte) 'I' && b2 == (byte) 'F';
+        // When using the BitmapFactory decoding provided by the old version of Android system,
+        // we need to sample the image to scale in order to prevent the decoding memory
+        // growth caused by large images.
+        mOptions.inSampleSize = getSampleSize(mOptions.outWidth, mOptions.outHeight);
+        mOptions.inJustDecodeBounds = false;
+        mBitmap = BitmapFactory.decodeByteArray(data, 0, data.length, mOptions);
+        mGifMovie = null;
+        setStateFlag(FLAG_RECYCLABLE);
     }
 }
