@@ -1,0 +1,143 @@
+name: '[gh] action approve checks'
+
+on:
+  pull_request_target:
+    branches:
+      - master
+      - main
+      - v3.0-dev
+      - v3.0
+    types:
+      - labeled
+
+jobs:
+  call_approval_checks_run:
+    if: github.event.label.name == 'action(approve-checks)' && github.repository == 'Tencent/Hippy'
+    uses: ./.github/workflows/reuse_approve_checks_run.yml
+    with:
+      pull_request_number: ${{ github.event.pull_request.number }}
+      pull_request_head_sha: ${{ github.event.pull_request.head.sha }}
+
+  approve_checks_action:
+    needs: call_approval_checks_run
+    runs-on: ubuntu-latest
+    steps:
+    - name: Token
+      uses: navikt/github-app-token-generator@v1
+      id: get-token
+      with:
+        private-key: ${{ secrets.ACTION_PRIVATE_KEY }}
+        app-id: ${{ secrets.ACTION_APP_ID }}
+    - name: Action
+      uses: actions/github-script@v6.3.3
+      env:
+        COMMENT_MESSAGE: |
+          :lock: The current `approve-checks` action execution requires privilege escalation.
+
+          Please wait for approval of admin team member ...
+
+          @${{ github.event.sender.login }}
+        WECHAT_WORK_MESSAGE: |
+          [${{ github.event.sender.login }}](https://github.com/${{ github.event.sender.login }}) requested privilege escalation action on [#${{ github.event.pull_request.number }}](${{ github.event.pull_request.html_url }}) pull request.
+          > ${{ github.event.pull_request.title }}
+          > [${{ github.event.pull_request.html_url }}](${{ github.event.pull_request.html_url }})
+        PRIVILEGE_ESCALATION: ${{ needs.call_approval_checks_run.outputs.included_risk_files }}
+      with:
+        github-token: ${{ steps.get-token.outputs.token }}
+        script: |
+          const { pull_request } = context.payload;
+          const { issues } = github.rest;
+
+          const p = [];
+          if (process.env.PRIVILEGE_ESCALATION == 'true') {
+            p.push(issues.createComment({
+              issue_number: pull_request.number,
+              body: process.env.COMMENT_MESSAGE,
+              ...context.repo
+            }));
+            p.push(github.request("POST ${{ secrets.WECHAT_WORK_BOT_WEBHOOK }}", {
+              headers: {
+                "content-type": "application/json"
+              },
+              data: {
+                chatid: "${{ secrets.WECHAT_WORK_ADMIN_CHAT_ID }}",
+                msgtype: "markdown",
+                markdown: {
+                  content: process.env.WECHAT_WORK_MESSAGE,
+                  attachments: [{
+                    callback_id: "approve",
+                    actions: [{
+                      name: "approve_btn",
+                      text: "Mark as Approved",
+                      type: "button",
+                      value: "Mark as Approved",
+                      replace_text: "Already approved",
+                      border_color: "2c974b",
+                      text_color: "2c974b"
+                    }, {
+                      name: "reject_btn",
+                      text: "Mark as Rejected",
+                      type: "button",
+                      value: "Mark as Rejected",
+                      replace_text: "Already Rejected",
+                      border_color: "cf222e",
+                      text_color: "cf222e"
+                    }, {
+                      name: "ignored_btn",
+                      text: "Mark as Ignored",
+                      type: "button",
+                      value: "Mark as Ignored",
+                      replace_text: "Already Ignored",
+                      border_color: "6e7781",
+                      text_color: "6e7781"
+                    }]
+                  }]
+                }
+              }
+            }));
+          } else {
+            p.push(issues.removeLabel({
+              issue_number: pull_request.number,
+              name: 'action(approve-checks)',
+              ...context.repo,
+            }).catch(e => {
+              console.error('issues.removeLabel', e);
+            }));
+          }
+
+          await Promise.all(p);
+
+  call_approval_checks_run_privileged:
+    needs: [ call_approval_checks_run, approve_checks_action ]
+    if: needs.call_approval_checks_run.outputs.included_risk_files == 'true'
+    uses: ./.github/workflows/reuse_approve_checks_run.yml
+    with:
+      pull_request_number: ${{ github.event.pull_request.number }}
+      pull_request_head_sha: ${{ github.event.pull_request.head.sha }}
+      requied_privilege_escalation: true
+
+  approve_checks_action_privileged:
+    needs: call_approval_checks_run_privileged
+    runs-on: ubuntu-latest
+    steps:
+    - name: Token
+      uses: navikt/github-app-token-generator@v1
+      id: get-token
+      with:
+        private-key: ${{ secrets.ACTION_PRIVATE_KEY }}
+        app-id: ${{ secrets.ACTION_APP_ID }}
+    - name: Action
+      uses: actions/github-script@v6.3.3
+      with:
+        github-token: ${{ steps.get-token.outputs.token }}
+        script: |
+          const { pull_request } = context.payload;
+          const { issues } = github.rest;
+
+          await issues.removeLabel({
+            issue_number: pull_request.number,
+            name: 'action(approve-checks)',
+            ...context.repo,
+          }).catch(e => {
+            console.error('issues.removeLabel', e);
+          });

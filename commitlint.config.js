@@ -30,7 +30,29 @@ module.exports = {
   ],
   plugins: ['commitlint-plugin-function-rules'],
   rules: {
-    'header-max-length': [2, 'always', 72],
+    'function-rules/header-max-length': [
+      2,
+      'always',
+      (parsed) => {
+        const { header } = parsed;
+        if (!header) return [false, 'header cannot be empty'];
+        let prTextIndex = -1;
+        const regResult = /\s*\(#\w+\)$/.exec(header);
+        if (regResult && typeof regResult.index === 'number') {
+          prTextIndex = regResult.index;
+          console.log(`This commit message header has PR number texts at position ${prTextIndex}, which will be ignored.`);
+        }
+        let { length } = header;
+        if (prTextIndex !== -1) {
+          length = prTextIndex;
+        }
+        const maxLength = 72;
+        if (length <= maxLength) {
+          return [true];
+        }
+        return [false, `header must not be longer than ${maxLength} characters, current length i ${length}`];
+      },
+    ],
     'header-min-length': [0],
     'function-rules/header-min-length': [
       2,
@@ -39,11 +61,11 @@ module.exports = {
         const { subject } = parsed;
         if (!subject) return [false, 'header subject cannot be empty'];
         const { length } = subject;
-        const minLength = 8;
+        const minLength = 15;
         if (length >= minLength) {
           return [true];
         }
-        return [false, `header subject cannot be shorter than ${minLength} characters, current length is ${length}`];
+        return [false, `header subject must not be shorter than ${minLength} characters, current length is ${length}`];
       },
     ],
     'type-enum': [
