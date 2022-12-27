@@ -1,3 +1,7 @@
+## 0.0.3
+
+- fix 3.0 bind events
+
 ## 0.0.2
 
 - catch voltron image base64 decode error

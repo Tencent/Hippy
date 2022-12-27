@@ -24,21 +24,15 @@ import 'package:flutter/widgets.dart';
 import '../common.dart';
 import '../controller.dart';
 import '../render.dart';
+import '../style.dart';
 import '../viewmodel.dart';
 import '../widget.dart';
 
 class ModalController extends GroupController<ModalRenderViewModel, ModalRenderNode> {
   static const String kClassName = "Modal";
 
-  static const String kAnimationSwitch = "animated";
-  static const String kAnimationType = "animationType";
-  static const String kAnimationDuration = 'animationDuration';
-  static const String kBarrierColorReact = 'barrierColor';
-  static const String kBarrierColorVue = 'barrier-color';
-  static const String kImmersionStatusBar = "immersionStatusBar";
-  static const String kDarkStatusBarText = "darkStatusBarText";
-  static const String kTransparent = "transparent";
-  static const String kResizeToAvoidBottomInset = "resizeToAvoidBottomInset";
+  static const String kEventOnRequestClose = "requestclose";
+  static const String kEventOnShow = "show";
 
   @override
   ModalRenderNode createRenderNode(
@@ -69,64 +63,58 @@ class ModalController extends GroupController<ModalRenderViewModel, ModalRenderN
 
   @override
   Map<String, ControllerMethodProp> get groupExtraMethodProp => {
-        kAnimationSwitch: ControllerMethodProp(setAnimationSwitch, true),
-        kAnimationType: ControllerMethodProp(setAnimationType, "none"),
-        kAnimationDuration: ControllerMethodProp(setAnimationDuration, 200),
-        kBarrierColorReact: ControllerMethodProp(setBarrierColorReact, 0x01ffffff),
-        kBarrierColorVue: ControllerMethodProp(setBarrierColorVue, 0x01ffffff),
-        kImmersionStatusBar: ControllerMethodProp(setEnterImmersionStatusBar, false),
-        kDarkStatusBarText: ControllerMethodProp(setImmersionStatusBarTextDarkColor, false),
-        kTransparent: ControllerMethodProp(setTransparent, false),
-        kResizeToAvoidBottomInset: ControllerMethodProp(setResizeToAvoidBottomInset, true)
+        NodeProps.kAnimationSwitch: ControllerMethodProp(setAnimationSwitch, true),
+        NodeProps.kAnimationType: ControllerMethodProp(setAnimationType, "none"),
+        NodeProps.kAnimationDuration: ControllerMethodProp(setAnimationDuration, 200),
+        NodeProps.kBarrierColorReact: ControllerMethodProp(setBarrierColorReact, 0x01ffffff),
+        NodeProps.kBarrierColorVue: ControllerMethodProp(setBarrierColorVue, 0x01ffffff),
+        NodeProps.kImmersionStatusBar: ControllerMethodProp(setEnterImmersionStatusBar, false),
+        NodeProps.kDarkStatusBarText:
+            ControllerMethodProp(setImmersionStatusBarTextDarkColor, false),
+        NodeProps.kTransparent: ControllerMethodProp(setTransparent, false),
       };
 
   @override
   String get name => kClassName;
 
-  @ControllerProps(kAnimationSwitch)
+  @ControllerProps(NodeProps.kAnimationSwitch)
   void setAnimationSwitch(ModalRenderViewModel renderViewModel, bool animationSwitch) {
     renderViewModel.animationSwitch = animationSwitch;
   }
 
-  @ControllerProps(kAnimationType)
+  @ControllerProps(NodeProps.kAnimationType)
   void setAnimationType(ModalRenderViewModel renderViewModel, String animationType) {
     renderViewModel.animationType = animationType;
   }
 
-  @ControllerProps(kAnimationDuration)
+  @ControllerProps(NodeProps.kAnimationDuration)
   void setAnimationDuration(ModalRenderViewModel renderViewModel, int animationDuration) {
     renderViewModel.animationDuration = animationDuration;
   }
 
-  @ControllerProps(kBarrierColorReact)
+  @ControllerProps(NodeProps.kBarrierColorReact)
   void setBarrierColorReact(ModalRenderViewModel renderViewModel, int barrierColor) {
     renderViewModel.barrierColor = barrierColor;
   }
 
-  @ControllerProps(kBarrierColorVue)
+  @ControllerProps(NodeProps.kBarrierColorVue)
   void setBarrierColorVue(ModalRenderViewModel renderViewModel, int barrierColor) {
     renderViewModel.barrierColor = barrierColor;
   }
 
-  @ControllerProps(kImmersionStatusBar)
+  @ControllerProps(NodeProps.kImmersionStatusBar)
   void setEnterImmersionStatusBar(ModalRenderViewModel renderViewModel, bool immersionStatusBar) {
     renderViewModel.immersionStatusBar = immersionStatusBar;
   }
 
-  @ControllerProps(kDarkStatusBarText)
+  @ControllerProps(NodeProps.kDarkStatusBarText)
   void setImmersionStatusBarTextDarkColor(
       ModalRenderViewModel renderViewModel, bool statusBarTextDarkColor) {
     renderViewModel.statusBarTextDarkColor = statusBarTextDarkColor;
   }
 
-  @ControllerProps(kTransparent)
+  @ControllerProps(NodeProps.kTransparent)
   void setTransparent(ModalRenderViewModel renderViewModel, bool transparent) {
     renderViewModel.transparent = transparent;
-  }
-
-  @ControllerProps(kResizeToAvoidBottomInset)
-  void setResizeToAvoidBottomInset(
-      ModalRenderViewModel renderViewModel, bool resizeToAvoidBottomInset) {
-    renderViewModel.resizeToAvoidBottomInset = resizeToAvoidBottomInset;
   }
 }

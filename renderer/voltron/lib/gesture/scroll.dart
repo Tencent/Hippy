@@ -21,6 +21,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:voltron_renderer/common.dart';
 
 import '../render.dart';
@@ -41,7 +42,14 @@ class NativeScrollGestureDispatcher extends NativeGestureDispatcher {
   bool scrollEnable = true;
   int scrollEventThrottle = 400;
   int preloadItemNumber = 0;
-  bool exposureEventEnabled = false;
+  bool appearEventEnable = false;
+  bool disAppearEventEnable = false;
+  bool willAppearEventEnable = false;
+  bool willDisAppearEventEnable = false;
+  Set<int> appearEventEnableIdList = {};
+  Set<int> disAppearEventEnableIdList = {};
+  Set<int> willAppearEventEnableIdList = {};
+  Set<int> willDisAppearEventEnableIdList = {};
   Stopwatch stopwatch = Stopwatch();
 
   NativeScrollGestureDispatcher({
@@ -56,6 +64,16 @@ class NativeScrollGestureDispatcher extends NativeGestureDispatcher {
 
   @override
   bool get enableScroll => scrollEnable;
+
+  bool get exposureEventEnabled =>
+      appearEventEnable ||
+      disAppearEventEnable ||
+      willAppearEventEnable ||
+      willDisAppearEventEnable ||
+      appearEventEnableIdList.isNotEmpty ||
+      disAppearEventEnableIdList.isNotEmpty ||
+      willAppearEventEnableIdList.isNotEmpty ||
+      willDisAppearEventEnableIdList.isNotEmpty;
 
   bool get needListenScroll =>
       scrollBeginDragEventEnable ||
@@ -147,10 +165,11 @@ class NativeScrollGestureDispatcher extends NativeGestureDispatcher {
     }
   }
 
-  void sendExposureEvent(RenderViewModel viewModel, String eventName) {
+  void sendExposureEvent(
+      RenderViewModel listViewModel, RenderViewModel listItemViewModel, String eventName) {
     _context.renderBridgeManager.sendComponentEvent(
       _rootId,
-      _id,
+      listItemViewModel.id,
       eventName,
       {},
     );

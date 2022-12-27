@@ -28,18 +28,16 @@ import '../style.dart';
 import '../viewmodel.dart';
 import '../widget.dart';
 
-class WaterfallViewController extends BaseViewController<WaterfallViewModel> {
+class WaterfallViewController extends BaseGroupController<WaterfallViewModel> {
   static const String kClassName = "WaterfallView";
 
-  static const String numberOfColumns = "numberOfColumns";
-  static const String numberOfItems = "numberOfItems";
-  static const String columnSpacing = "columnSpacing";
-  static const String interItemSpacing = "interItemSpacing";
-  static const String contentInset = "contentInset";
-  static const String preloadItemNumber = "preloadItemNumber";
-  static const String containBannerView = "containBannerView";
-  static const String containPullHeader = "containPullHeader";
-  static const String containPullFooter = "containPullFooter";
+  /// 3.0 bind events
+  static const String kEventOnScroll = "scroll";
+  static const String kEventOnMomentumScrollBegin = "momentumscrollbegin";
+  static const String kEventOnMomentumScrollEnd = "momentumscrollend";
+  static const String kEventOnScrollBeginDrag = "scrollbegindrag";
+  static const String kEventOnScrollEndDrag = "scrollenddrag";
+  static const String kEventOnEndReached = "endreached";
 
   @override
   WaterfallViewModel createRenderViewModel(RenderNode node, RenderContext context) {
@@ -52,40 +50,37 @@ class WaterfallViewController extends BaseViewController<WaterfallViewModel> {
   }
 
   @override
-  Map<String, ControllerMethodProp> get extendRegisteredMethodProp {
-    var extraMap = <String, ControllerMethodProp>{};
-    extraMap[numberOfColumns] = ControllerMethodProp(setNumberOfColumns, 1);
-    extraMap[numberOfItems] = ControllerMethodProp(setNumberOfItems, 0);
-    extraMap[columnSpacing] = ControllerMethodProp(setColumnSpacing, 0.0);
-    extraMap[interItemSpacing] = ControllerMethodProp(setInterItemSpacing, 0.0);
-    extraMap[contentInset] = ControllerMethodProp(setContentInset, null);
-    extraMap[containBannerView] = ControllerMethodProp(setContainBannerView, false);
-    extraMap[containPullFooter] = ControllerMethodProp(setContainPullFooter, false);
-    extraMap[NodeProps.kOnEndReached] = ControllerMethodProp(setOnEndReached, true);
-    return extraMap;
-  }
+  Map<String, ControllerMethodProp> get groupExtraMethodProp => {
+        NodeProps.numberOfColumns: ControllerMethodProp(setNumberOfColumns, 1),
+        NodeProps.numberOfItems: ControllerMethodProp(setNumberOfItems, 0),
+        NodeProps.columnSpacing: ControllerMethodProp(setColumnSpacing, 0.0),
+        NodeProps.interItemSpacing: ControllerMethodProp(setInterItemSpacing, 0.0),
+        NodeProps.contentInset: ControllerMethodProp(setContentInset, null),
+        NodeProps.containBannerView: ControllerMethodProp(setContainBannerView, false),
+        NodeProps.containPullFooter: ControllerMethodProp(setContainPullFooter, false),
+      };
 
-  @ControllerProps(numberOfColumns)
+  @ControllerProps(NodeProps.numberOfColumns)
   void setNumberOfColumns(WaterfallViewModel renderViewModel, int numberOfColumns) {
     renderViewModel.numberOfColumns = numberOfColumns;
   }
 
-  @ControllerProps(numberOfItems)
+  @ControllerProps(NodeProps.numberOfItems)
   void setNumberOfItems(WaterfallViewModel renderViewModel, int numberOfItems) {
     renderViewModel.numberOfItems = numberOfItems;
   }
 
-  @ControllerProps(columnSpacing)
+  @ControllerProps(NodeProps.columnSpacing)
   void setColumnSpacing(WaterfallViewModel renderViewModel, double columnSpacing) {
     renderViewModel.columnSpacing = columnSpacing;
   }
 
-  @ControllerProps(interItemSpacing)
+  @ControllerProps(NodeProps.interItemSpacing)
   void setInterItemSpacing(WaterfallViewModel renderViewModel, double interItemSpacing) {
     renderViewModel.interItemSpacing = interItemSpacing;
   }
 
-  @ControllerProps(contentInset)
+  @ControllerProps(NodeProps.contentInset)
   void setContentInset(WaterfallViewModel renderViewModel, VoltronMap? contentInset) {
     if (contentInset != null) {
       var top = contentInset.get<double>('top');
@@ -103,19 +98,77 @@ class WaterfallViewController extends BaseViewController<WaterfallViewModel> {
     }
   }
 
-  @ControllerProps(containBannerView)
+  @ControllerProps(NodeProps.containBannerView)
   void setContainBannerView(WaterfallViewModel renderViewModel, bool containBannerView) {
     renderViewModel.containBannerView = containBannerView;
   }
 
-  @ControllerProps(containPullFooter)
+  @ControllerProps(NodeProps.containPullFooter)
   void setContainPullFooter(WaterfallViewModel renderViewModel, bool containPullFooter) {
     renderViewModel.containPullFooter = containPullFooter;
+  }
+
+  /// 2.0 bind events
+  @ControllerProps(NodeProps.kOnScrollBeginDrag)
+  void setScrollBeginDragEventEnable(WaterfallViewModel renderViewModel, bool flag) {
+    renderViewModel.scrollGestureDispatcher.scrollBeginDragEventEnable = flag;
+  }
+
+  @ControllerProps(NodeProps.kOnScrollEndDrag)
+  void setScrollEndDragEventEnable(WaterfallViewModel renderViewModel, bool flag) {
+    renderViewModel.scrollGestureDispatcher.scrollEndDragEventEnable = flag;
+  }
+
+  @ControllerProps(NodeProps.kOnMomentumScrollBegin)
+  void setMomentumScrollBeginEventEnable(WaterfallViewModel renderViewModel, bool flag) {
+    renderViewModel.scrollGestureDispatcher.momentumScrollBeginEventEnable = flag;
+  }
+
+  @ControllerProps(NodeProps.kOnMomentumScrollEnd)
+  void setMomentumScrollEndEventEnable(WaterfallViewModel renderViewModel, bool flag) {
+    renderViewModel.scrollGestureDispatcher.momentumScrollEndEventEnable = flag;
+  }
+
+  @ControllerProps(NodeProps.kOnScrollEnable)
+  void setScrollEventEnable(WaterfallViewModel renderViewModel, bool flag) {
+    renderViewModel.scrollGestureDispatcher.scrollEventEnable = flag;
   }
 
   @ControllerProps(NodeProps.kOnEndReached)
   void setOnEndReached(WaterfallViewModel renderViewModel, bool flag) {
     renderViewModel.scrollGestureDispatcher.endReachedEventEnable = true;
+  }
+
+  @override
+  void updateEvents(
+    WaterfallViewModel renderViewModel,
+    Set<EventHolder> holders,
+  ) {
+    super.updateEvents(renderViewModel, holders);
+    if (holders.isNotEmpty) {
+      for (var holder in holders) {
+        switch (holder.eventName) {
+          case kEventOnScroll:
+            setScrollEventEnable(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnScrollBeginDrag:
+            setScrollBeginDragEventEnable(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnScrollEndDrag:
+            setScrollEndDragEventEnable(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnMomentumScrollBegin:
+            setMomentumScrollBeginEventEnable(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnMomentumScrollEnd:
+            setMomentumScrollEndEventEnable(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnEndReached:
+            setOnEndReached(renderViewModel, holder.isAdd);
+            break;
+        }
+      }
+    }
   }
 
   @override
