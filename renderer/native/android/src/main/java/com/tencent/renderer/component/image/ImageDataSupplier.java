@@ -38,6 +38,8 @@ public interface ImageDataSupplier {
 
     boolean isRecyclable();
 
+    boolean isAnimated();
+
     @NonNull
     String getSource();
 

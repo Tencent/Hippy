@@ -19,10 +19,16 @@ package com.tencent.renderer.component.image;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.IMAGE_DATA_DECODE_ERR;
 
 import android.graphics.ImageDecoder;
+import android.graphics.ImageDecoder.ImageInfo;
+import android.graphics.ImageDecoder.OnHeaderDecodedListener;
+import android.graphics.ImageDecoder.Source;
 import android.os.Build.VERSION_CODES;
+
 import androidx.annotation.RequiresApi;
+
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.utils.ImageDataUtils;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -35,16 +41,23 @@ import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import java.nio.ByteBuffer;
 
 public class ImageDataHolder implements ImageDataSupplier {
 
     private static final int MAX_SOURCE_KEY_LEN = 32;
-    /** Mark that the image data has been cached. */
+    /**
+     * Mark that the image data has been cached.
+     */
     private static final int FLAG_CACHED = 0x00000001;
-    /** Mark that the image data has been attached to the view. */
+    /**
+     * Mark that the image data has been attached to the view.
+     */
     private static final int FLAG_ATTACHED = 0x00000002;
-    /** Mark that image data is decoded internally and needs to recycle. */
+    /**
+     * Mark that image data is decoded internally and needs to recycle.
+     */
     private static final int FLAG_RECYCLABLE = 0x00000004;
     private int mStateFlags = 0;
     private int mWidth;
@@ -141,7 +154,7 @@ public class ImageDataHolder implements ImageDataSupplier {
     @Override
     @Nullable
     public Bitmap getBitmap() {
-        return mBitmap;
+        return mBitmap != null && !mBitmap.isRecycled() ? mBitmap : null;
     }
 
     @Override
@@ -164,7 +177,17 @@ public class ImageDataHolder implements ImageDataSupplier {
 
     @Override
     public boolean checkImageData() {
-        return (mBitmap != null && !mBitmap.isRecycled()) || mGifMovie != null;
+        if (mOptions == null) {
+            return false;
+        }
+        if (ImageDataUtils.isJpeg(mOptions) || ImageDataUtils.isPng(mOptions)) {
+            return mBitmap != null && !mBitmap.isRecycled();
+        }
+        if (ImageDataUtils.isGif(mOptions) && (android.os.Build.VERSION.SDK_INT
+                < android.os.Build.VERSION_CODES.P)) {
+            return mGifMovie != null;
+        }
+        return mDrawable != null;
     }
 
     @Override
@@ -174,24 +197,17 @@ public class ImageDataHolder implements ImageDataSupplier {
 
     @Override
     public int getImageWidth() {
-        if (mBitmap != null) {
-            return mBitmap.getWidth();
-        }
-        if (mGifMovie != null) {
-            return mGifMovie.width();
-        }
-        return 0;
+        return (mOptions != null) ? mOptions.outWidth : 0;
     }
 
     @Override
     public int getImageHeight() {
-        if (mBitmap != null) {
-            return mBitmap.getHeight();
-        }
-        if (mGifMovie != null) {
-            return mGifMovie.height();
-        }
-        return 0;
+        return (mOptions != null) ? mOptions.outHeight : 0;
+    }
+
+    @Override
+    public boolean isAnimated() {
+        return mOptions != null && ImageDataUtils.isGif(mOptions);
     }
 
     public String getImageType() {
@@ -210,14 +226,21 @@ public class ImageDataHolder implements ImageDataSupplier {
         try {
             mOptions = ImageDataUtils.generateBitmapOptions(data);
             if (ImageDataUtils.isGif(mOptions)) {
-                mGifMovie = Movie.decodeByteArray(data, 0, data.length);
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                    mDrawable = decodeGifForTarget28(data);
+                } else {
+                    mGifMovie = Movie.decodeByteArray(data, 0, data.length);
+                }
                 mBitmap = null;
-            } else {
+            } else if (ImageDataUtils.isJpeg(mOptions) || ImageDataUtils.isPng(mOptions)) {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
                     decodeLocalFileForTarget28(ByteBuffer.wrap(data));
                 } else {
-                    decodeImageData(data);
+                    decodeBitmap(data);
                 }
+                mGifMovie = null;
+            } else {
+                throw new RuntimeException("Unsupported picture type!");
             }
         } catch (OutOfMemoryError | Exception e) {
             throw new NativeRenderException(IMAGE_DATA_DECODE_ERR, e.getMessage());
@@ -227,15 +250,28 @@ public class ImageDataHolder implements ImageDataSupplier {
     public void setData(Bitmap bitmap) {
         mBitmap = bitmap;
         mGifMovie = null;
+        mDrawable = null;
         resetStateFlag(FLAG_RECYCLABLE);
     }
 
-    public boolean isAnimated() {
-        return mGifMovie != null;
+    @RequiresApi(api = VERSION_CODES.P)
+    @NonNull
+    private Drawable decodeGifForTarget28(@NonNull byte[] data) throws IOException {
+        ImageDecoder.Source source = ImageDecoder.createSource(ByteBuffer.wrap(data));
+        return ImageDecoder.decodeDrawable(source,
+                new OnHeaderDecodedListener() {
+                    @Override
+                    public void onHeaderDecoded(@NonNull ImageDecoder decoder,
+                            @NonNull ImageInfo info, @NonNull Source source1) {
+                        // This is a synchronous callback, although the callback parameter is not
+                        // used at present, it is still reserved, image width and height can also be
+                        // obtained through mOptions.
+                    }
+                });
     }
 
     @RequiresApi(api = VERSION_CODES.P)
-    private void decodeImageSource(@Nullable ImageDecoder.Source source)
+    private void decodeBitmapForTarget28(@Nullable ImageDecoder.Source source)
             throws IOException {
         if (source != null) {
             mBitmap = ImageDecoder.decodeBitmap(source);
@@ -247,25 +283,25 @@ public class ImageDataHolder implements ImageDataSupplier {
     @RequiresApi(api = VERSION_CODES.P)
     private void decodeLocalFileForTarget28(@NonNull File file) throws IOException {
         ImageDecoder.Source source = ImageDecoder.createSource(file);
-        decodeImageSource(source);
+        decodeBitmapForTarget28(source);
     }
 
     @RequiresApi(api = VERSION_CODES.P)
     private void decodeLocalFileForTarget28(@NonNull String fileName) throws IOException {
         ImageDecoder.Source source = ImageDecoder.createSource(
                 ContextHolder.getAppContext().getAssets(), fileName);
-        decodeImageSource(source);
+        decodeBitmapForTarget28(source);
     }
 
     @RequiresApi(api = VERSION_CODES.P)
     private void decodeLocalFileForTarget28(@NonNull ByteBuffer buffer) throws IOException {
         ImageDecoder.Source source = ImageDecoder.createSource(buffer);
-        decodeImageSource(source);
+        decodeBitmapForTarget28(source);
     }
 
     private int getSampleSize(int outWidth, int outHeight) {
         int sampleSize = 1;
-        if (mWidth <=0 || mHeight <= 0) {
+        if (mWidth <= 0 || mHeight <= 0) {
             return sampleSize;
         }
         if (outWidth >= outHeight) {
@@ -281,7 +317,7 @@ public class ImageDataHolder implements ImageDataSupplier {
         return sampleSize;
     }
 
-    private void decodeImageData(@Nullable byte[] data) {
+    private void decodeBitmap(@Nullable byte[] data) {
         if (data == null || data.length <= 0 || mOptions == null) {
             return;
         }

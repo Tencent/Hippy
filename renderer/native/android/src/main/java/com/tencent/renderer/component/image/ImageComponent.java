@@ -22,6 +22,8 @@ import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_LOAD_PROGRESS;
 import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_LOAD_START;
 import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_ON_LOAD;
 
+import android.graphics.drawable.AnimatedImageDrawable;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 
 import androidx.annotation.ColorInt;
@@ -51,9 +53,9 @@ public class ImageComponent extends Component {
     @Nullable
     private String mBundlePath;
     @Nullable
-    private ImageDataSupplier mImageData;
+    private ImageDataSupplier mImageHolder;
     @Nullable
-    private ImageDataSupplier mDefaultImageData;
+    private ImageDataSupplier mDefaultImageHolder;
     private ImageFetchState mImageFetchState = ImageFetchState.UNLOAD;
     private ImageFetchState mDefaultImageFetchState = ImageFetchState.UNLOAD;
 
@@ -90,11 +92,11 @@ public class ImageComponent extends Component {
     }
 
     private void fetchImageIfNeeded() {
-        if ((mDefaultImageData == null || !mDefaultImageData.checkImageData())
+        if ((mDefaultImageHolder == null || !mDefaultImageHolder.checkImageData())
                 && mDefaultImageFetchState == ImageFetchState.UNLOAD) {
             fetchImageWithUrl(mDefaultUri, ImageSourceType.DEFAULT);
         }
-        if ((mImageData == null || !mImageData.checkImageData())
+        if ((mImageHolder == null || !mImageHolder.checkImageData())
                 && mImageFetchState == ImageFetchState.UNLOAD) {
             fetchImageWithUrl(mUri, ImageSourceType.SRC);
         }
@@ -116,15 +118,15 @@ public class ImageComponent extends Component {
     @Override
     public void clear() {
         super.clear();
-        if (mImageData != null) {
-            mImageData.detached();
-            mImageData.clear();
-            mImageData = null;
+        if (mImageHolder != null) {
+            mImageHolder.detached();
+            mImageHolder.clear();
+            mImageHolder = null;
         }
-        if (mDefaultImageData != null) {
-            mDefaultImageData.detached();
-            mDefaultImageData.clear();
-            mDefaultImageData = null;
+        if (mDefaultImageHolder != null) {
+            mDefaultImageHolder.detached();
+            mDefaultImageHolder.clear();
+            mDefaultImageHolder = null;
         }
     }
 
@@ -174,16 +176,28 @@ public class ImageComponent extends Component {
         }
     }
 
+    private void setImageData(@NonNull ImageDataSupplier imageHolder) {
+        mImageHolder = imageHolder;
+        Drawable drawable = imageHolder.getDrawable();
+        if (drawable != null) {
+            drawable.setCallback(this);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                if (drawable instanceof AnimatedImageDrawable) {
+                    ((AnimatedImageDrawable) drawable).start();
+                }
+            }
+        }
+        ensureContentDrawable().setImageData(imageHolder);
+    }
+
     private void onFetchImageSuccess(@NonNull String uri, ImageSourceType sourceType,
             @NonNull ImageDataSupplier imageData, boolean loadFromCache) {
         if (sourceType == ImageSourceType.SRC) {
             if (!uri.equals(mUri)) {
                 return;
             }
-            mImageData = imageData;
             mImageFetchState = ImageFetchState.LOADED;
-            ensureContentDrawable().setContentBitmap(imageData.getBitmap());
-            ensureContentDrawable().setGifMovie(imageData.getGifMovie());
+            setImageData(imageData);
             if (mHostRef.get() != null && !loadFromCache) {
                 // send onLoad event
                 EventUtils.sendComponentEvent(mHostRef.get(), EVENT_IMAGE_ON_LOAD, null);
@@ -200,10 +214,10 @@ public class ImageComponent extends Component {
             if (!uri.equals(mDefaultUri)) {
                 return;
             }
-            mDefaultImageData = imageData;
+            mDefaultImageHolder = imageData;
             mDefaultImageFetchState = ImageFetchState.LOADED;
-            if (mImageData == null || !mImageData.checkImageData()) {
-                ensureContentDrawable().setContentBitmap(imageData.getBitmap());
+            if (mImageHolder == null || !mImageHolder.checkImageData()) {
+                setImageData(imageData);
             }
         }
         imageData.attached();
