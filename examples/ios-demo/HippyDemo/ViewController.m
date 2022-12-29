@@ -37,7 +37,7 @@
     // Do any additional setup after loading the view.
 
     HippySetLogFunction(^(HippyLogLevel level, HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message) {
-        NSLog(@"hippy says:%@ in file %@ at line %@", message, fileName, lineNumber);
+        NSLog(@"hippy says:%@ in file [%@:%d]", message, fileName, lineNumber.intValue);
     });
 
     
