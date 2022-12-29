@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2017-2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,7 @@ const ContextifyModule = internalBinding('ContextifyModule');
 
 global.dynamicLoad = (path, encode, cb) => {
   let requestPath = path || '';
-  const isSchema = ['https://', 'http://', '//'].some(schema => requestPath.indexOf(schema) === 0);
+  const isSchema = /^(.+:\/\/)|^(\/\/)/.test(path);
   if (!isSchema) {
     requestPath = global.__HIPPYCURDIR__ + path;
   }
