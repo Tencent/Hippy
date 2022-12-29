@@ -1,3 +1,7 @@
+## 0.0.4
+
+- fix toDeepVoltronMap func
+
 ## 0.0.3
 
 - fix 3.0 bind events

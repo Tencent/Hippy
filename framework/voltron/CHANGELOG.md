@@ -1,3 +1,7 @@
+## 0.0.10
+
+- update voltron_render to 0.0.4 to fix toDeepVoltronMap func
+
 ## 0.0.9
 
 - update voltron_render to 0.0.3 to fix 3.0 events binding
