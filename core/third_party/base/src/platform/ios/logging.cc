@@ -16,7 +16,9 @@ namespace {
 const char* const kLogSeverityNames[TDF_LOG_NUM_SEVERITIES] = {"INFO", "WARNING", "ERROR", "FATAL"};
 
 const char* GetNameForLogSeverity(LogSeverity severity) {
-  if (severity >= LOG_INFO && severity < TDF_LOG_NUM_SEVERITIES) return kLogSeverityNames[severity];
+  if (severity >= TDF_LOG_INFO && severity < TDF_LOG_NUM_SEVERITIES) {
+    return kLogSeverityNames[severity];
+  }
   return "UNKNOWN";
 }
 
@@ -45,12 +47,13 @@ std::mutex LogMessage::mutex_;
 LogMessage::LogMessage(LogSeverity severity, const char* file, int line, const char* condition)
     : severity_(severity), file_(file), line_(line) {
   stream_ << "[";
-  if (severity >= LOG_INFO)
+  if (severity >= TDF_LOG_INFO) {
     stream_ << GetNameForLogSeverity(severity);
-  else
-    stream_ << "VERBOSE" << -severity;
-  stream_ << ":" << (severity > LOG_INFO ? StripDots(file_) : StripPath(file_)) << "(" << line_
-          << ")] ";
+  } else {
+    stream_ << "VERBOSE" << -TDF_LOG_FATAL;
+  }
+  stream_ << ":" << (severity > TDF_LOG_FATAL ? StripDots(file_) : StripPath(file_))
+        << "(" << line_ << ")] ";
 
   if (condition) stream_ << "Check failed: " << condition << ". ";
 }
