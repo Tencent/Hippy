@@ -64,9 +64,6 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
   std::u16string schema_str = schema.utf16_value();
   if (schema_str == u"file") {
     return LoadByFile(path, cb);
-  } else if (schema_str == u"http" || schema_str == u"https" ||
-             schema_str == u"debug") {
-    return LoadByHttp(uri, cb);
   } else if (schema_str == u"asset") {
     if (aasset_manager_) {
       return LoadByAsset(path, cb, false);
@@ -75,9 +72,7 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
     cb(u8string());
     return false;
   } else {
-    TDF_BASE_DLOG(ERROR) << "schema error, schema = " << schema;
-    cb(u8string());
-    return false;
+    return LoadByJni(uri, cb);
   }
 }
 
@@ -110,7 +105,7 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
         [p = std::move(promise)](u8string bytes) mutable {
           p.set_value(std::move(bytes));
         });
-    bool ret = LoadByHttp(uri, cb);
+    bool ret = LoadByJni(uri, cb);
     content = read_file_future.get();
     return ret;
   } else if (schema_str == u"asset") {
@@ -162,8 +157,8 @@ bool ADRLoader::LoadByAsset(const unicode_string_view& path,
   return true;
 }
 
-bool ADRLoader::LoadByHttp(const unicode_string_view& uri,
-                           const std::function<void(u8string)>& cb) {
+bool ADRLoader::LoadByJni(const unicode_string_view& uri,
+                          const std::function<void(u8string)>& cb) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
 

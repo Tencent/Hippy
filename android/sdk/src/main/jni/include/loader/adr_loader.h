@@ -101,8 +101,8 @@ class ADRLoader : public hippy::base::UriLoader {
   bool LoadByAsset(const unicode_string_view& file_path,
                    const std::function<void(u8string)>& cb,
                    bool is_auto_fill = false);
-  bool LoadByHttp(const unicode_string_view& uri,
-                  const std::function<void(u8string)>& cb);
+  bool LoadByJni(const unicode_string_view& uri,
+                 const std::function<void(u8string)>& cb);
 
   std::shared_ptr<JavaRef> bridge_;
   AAssetManager* aasset_manager_;
