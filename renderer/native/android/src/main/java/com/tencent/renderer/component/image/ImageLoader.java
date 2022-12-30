@@ -112,8 +112,6 @@ public class ImageLoader implements ImageLoaderAdapter {
                         String.valueOf(initProps.get(NodeProps.CUSTOM_PROP_IMAGE_TYPE)));
                 requestParams.put(NodeProps.REPEAT_COUNT,
                         String.valueOf(initProps.get(NodeProps.REPEAT_COUNT)));
-                requestParams.put(NodeProps.CUSTOM_PROP_ISGIF,
-                        String.valueOf(initProps.get(NodeProps.CUSTOM_PROP_ISGIF)));
             }
         } catch (Exception e) {
             e.printStackTrace();

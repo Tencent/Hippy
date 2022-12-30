@@ -88,7 +88,13 @@ public class ContentDrawable extends Drawable {
         mBackgroundHolder = holder;
     }
 
-
+    @Override
+    public void setBounds(int left, int top, int right, int bottom) {
+        super.setBounds(left, top, right, bottom);
+        if (mImageHolder != null && mImageHolder.getDrawable() != null) {
+            mImageHolder.getDrawable().setBounds(left, top, right, bottom);
+        }
+    }
 
     @Override
     protected void onBoundsChange(Rect bounds) {

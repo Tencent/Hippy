@@ -47,6 +47,10 @@ public interface ImageDataSupplier {
 
     int getImageHeight();
 
+    int getLayoutWidth();
+
+    int getLayoutHeight();
+
     void clear();
 
     void attached();

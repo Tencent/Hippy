@@ -181,11 +181,6 @@ public class ImageComponent extends Component {
         Drawable drawable = imageHolder.getDrawable();
         if (drawable != null) {
             drawable.setCallback(this);
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                if (drawable instanceof AnimatedImageDrawable) {
-                    ((AnimatedImageDrawable) drawable).start();
-                }
-            }
         }
         ensureContentDrawable().setImageData(imageHolder);
     }
@@ -294,7 +289,7 @@ public class ImageComponent extends Component {
             return;
         }
         ImageDataSupplier imageData = mImageLoader.getImageFromCache(uri);
-        if (imageData != null) {
+        if (imageData != null && imageData.checkImageData()) {
             onFetchImageSuccess(uri, sourceType, imageData, true);
             return;
         }
