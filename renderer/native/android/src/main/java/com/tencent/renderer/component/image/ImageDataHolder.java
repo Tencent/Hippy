@@ -71,8 +71,6 @@ public class ImageDataHolder implements ImageDataSupplier {
     @Nullable
     private Bitmap mBitmap;
     @Nullable
-    private String mImageType;
-    @Nullable
     private BitmapFactory.Options mOptions;
 
     public ImageDataHolder(@NonNull String source) {
@@ -206,16 +204,23 @@ public class ImageDataHolder implements ImageDataSupplier {
     }
 
     @Override
+    public int getLayoutWidth() {
+        return mWidth;
+    }
+
+    @Override
+    public int getLayoutHeight() {
+        return mHeight;
+    }
+
+    @Override
     public boolean isAnimated() {
         return mOptions != null && ImageDataUtils.isGif(mOptions);
     }
 
+    @Nullable
     public String getImageType() {
-        return mImageType;
-    }
-
-    public void setImageType(String type) {
-        mImageType = type;
+        return mOptions != null ? mOptions.outMimeType : null;
     }
 
     public void setDrawable(Drawable drawable) {
@@ -226,11 +231,7 @@ public class ImageDataHolder implements ImageDataSupplier {
         try {
             mOptions = ImageDataUtils.generateBitmapOptions(data);
             if (ImageDataUtils.isGif(mOptions)) {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                    mDrawable = decodeGifForTarget28(data);
-                } else {
-                    mGifMovie = Movie.decodeByteArray(data, 0, data.length);
-                }
+                mGifMovie = Movie.decodeByteArray(data, 0, data.length);
                 mBitmap = null;
             } else if (ImageDataUtils.isJpeg(mOptions) || ImageDataUtils.isPng(mOptions)) {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
@@ -254,18 +255,29 @@ public class ImageDataHolder implements ImageDataSupplier {
         resetStateFlag(FLAG_RECYCLABLE);
     }
 
+    /**
+     * Decode image data with ImageDecoder.
+     *
+     * <p>
+     * Warning! AnimatedImageDrawable start will cause crash in some android platform when use
+     * ImageDecoder createSource API with ByteBuffer.
+     * Therefore, AnimatedImageDrawable is not supported at present.
+     * <p/>
+     *
+     */
     @RequiresApi(api = VERSION_CODES.P)
     @NonNull
     private Drawable decodeGifForTarget28(@NonNull byte[] data) throws IOException {
+        // There is a CRASH problem, it's caused by an Android framework issue(https://issuetracker.google.com/issues/139371066).
+        // You can work around the issue by not using a ByteBuffer.
+        // For instance, writing the ByteBuffer to a File then using ImageDecoder.createSource(file)
+        // will work around the issue
         ImageDecoder.Source source = ImageDecoder.createSource(ByteBuffer.wrap(data));
         return ImageDecoder.decodeDrawable(source,
                 new OnHeaderDecodedListener() {
                     @Override
                     public void onHeaderDecoded(@NonNull ImageDecoder decoder,
                             @NonNull ImageInfo info, @NonNull Source source1) {
-                        // This is a synchronous callback, although the callback parameter is not
-                        // used at present, it is still reserved, image width and height can also be
-                        // obtained through mOptions.
                     }
                 });
     }
