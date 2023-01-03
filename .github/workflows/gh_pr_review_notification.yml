@@ -25,6 +25,8 @@ jobs:
           > ${{ github.event.pull_request.title }}
           > [${{ github.event.pull_request.html_url }}](${{ github.event.pull_request.html_url }})
           > [%s changed files](${{ github.event.pull_request.html_url }}/files) with <font color="info">%s additions</font> and <font color="warning">%s deletions</font>
+
+          <@%s>
         WECHAT_WORK_USERS: ${{ secrets.WECHAT_WORK_USERS }}
       with:
         script: |
@@ -45,7 +47,7 @@ jobs:
               visible_to_user: userid,
               msgtype: "markdown",
               markdown: {
-                content: format(process.env.MESSAGE, (${{ github.event.pull_request.changed_files }}).toLocaleString(), (${{ github.event.pull_request.additions }}).toLocaleString(), (${{ github.event.pull_request.deletions }}).toLocaleString()),
+                content: format(process.env.MESSAGE, (${{ github.event.pull_request.changed_files }}).toLocaleString(), (${{ github.event.pull_request.additions }}).toLocaleString(), (${{ github.event.pull_request.deletions }}).toLocaleString(), userid),
                 attachments: [{
                   callback_id: "review",
                   actions: [{
