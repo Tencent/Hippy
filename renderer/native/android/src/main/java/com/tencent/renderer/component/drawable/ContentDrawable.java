@@ -55,6 +55,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 
+import com.tencent.renderer.component.image.ImageDataSupplier;
+
 public class ContentDrawable extends Drawable {
 
     private int mTintColor;
@@ -67,9 +69,7 @@ public class ContentDrawable extends Drawable {
     @Nullable
     private Paint mPaint;
     @Nullable
-    private Bitmap mContentBitmap;
-    @Nullable
-    private Movie mGifMovie;
+    private ImageDataSupplier mImageHolder;
     @Nullable
     private GifMovieState mGifMovieState;
     @Nullable
@@ -86,6 +86,14 @@ public class ContentDrawable extends Drawable {
 
     public void setBackgroundHolder(@Nullable BackgroundHolder holder) {
         mBackgroundHolder = holder;
+    }
+
+    @Override
+    public void setBounds(int left, int top, int right, int bottom) {
+        super.setBounds(left, top, right, bottom);
+        if (mImageHolder != null && mImageHolder.getDrawable() != null) {
+            mImageHolder.getDrawable().setBounds(left, top, right, bottom);
+        }
     }
 
     @Override
@@ -119,17 +127,11 @@ public class ContentDrawable extends Drawable {
     }
 
     public void clear() {
-        mContentBitmap = null;
-        mGifMovie = null;
         mGifMovieState = null;
     }
 
-    public void setContentBitmap(@Nullable Bitmap bitmap) {
-        mContentBitmap = bitmap;
-    }
-
-    public void setGifMovie(@Nullable Movie gifMovie) {
-        mGifMovie = gifMovie;
+    public void setImageData(@NonNull ImageDataSupplier imageHolder) {
+        mImageHolder = imageHolder;
     }
 
     private void updateContentRegionIfNeeded() {
@@ -144,7 +146,7 @@ public class ContentDrawable extends Drawable {
 
     @Override
     public void draw(@NonNull Canvas canvas) {
-        if (getBounds().width() == 0 || getBounds().height() == 0) {
+        if (getBounds().width() == 0 || getBounds().height() == 0 || mImageHolder == null) {
             return;
         }
         updateContentRegionIfNeeded();
@@ -156,7 +158,11 @@ public class ContentDrawable extends Drawable {
         } else {
             canvas.clipRect(mContentRegion);
         }
-        if (mContentBitmap != null && !mContentBitmap.isRecycled()) {
+        if (mImageHolder.getDrawable() != null) {
+            mImageHolder.getDrawable().draw(canvas);
+        } else if (mImageHolder.isAnimated()) {
+            drawGif(canvas, mImageHolder.getGifMovie());
+        } else {
             if (mPaint == null) {
                 mPaint = new Paint();
             } else {
@@ -166,18 +172,18 @@ public class ContentDrawable extends Drawable {
             if (mTintColor != Color.TRANSPARENT) {
                 mPaint.setColorFilter(new PorterDuffColorFilter(mTintColor, mTintColorBlendMode));
             }
-            drawBitmap(canvas);
-        } else if (mGifMovie != null) {
-            drawGif(canvas);
+            Bitmap bitmap = mImageHolder.getBitmap();
+            if (bitmap != null) {
+                drawBitmap(canvas, bitmap);
+            }
         }
         canvas.restore();
     }
 
-    private void updateBitmapMatrix() {
-        assert mContentBitmap != null;
+    private void updateBitmapMatrix(@NonNull Bitmap bitmap) {
         final RectF dst = new RectF(mContentRegion);
-        final float bitmapWidth = mContentBitmap.getWidth();
-        final float bitmapHeight = mContentBitmap.getHeight();
+        final float bitmapWidth = bitmap.getWidth();
+        final float bitmapHeight = bitmap.getHeight();
         final float width = dst.width();
         final float height = dst.height();
         final float xScale = width / bitmapWidth;
@@ -219,30 +225,31 @@ public class ContentDrawable extends Drawable {
         dst.left += mImagePositionX;
         dst.right += mImagePositionX;
         mBitmapMatrix.setRectToRect(
-                new RectF(0, 0, mContentBitmap.getWidth(), mContentBitmap.getHeight()),
+                new RectF(0, 0, bitmap.getWidth(), bitmap.getHeight()),
                 dst, Matrix.ScaleToFit.FILL);
     }
 
-    private void drawBitmap(@NonNull Canvas canvas) {
-        assert mContentBitmap != null;
+    private void drawBitmap(@NonNull Canvas canvas, @NonNull Bitmap bitmap) {
         assert mPaint != null;
-        updateBitmapMatrix();
+        updateBitmapMatrix(bitmap);
         if (mScaleType == ScaleType.REPEAT) {
-            BitmapShader bitmapShader = new BitmapShader(mContentBitmap, Shader.TileMode.REPEAT,
+            BitmapShader bitmapShader = new BitmapShader(bitmap, Shader.TileMode.REPEAT,
                     Shader.TileMode.REPEAT);
             mPaint.setShader(bitmapShader);
         }
         mPaint.setFilterBitmap(true);
-        canvas.drawBitmap(mContentBitmap, mBitmapMatrix, mPaint);
+        canvas.drawBitmap(bitmap, mBitmapMatrix, mPaint);
     }
 
-    private void drawGif(@NonNull Canvas canvas) {
+    private void drawGif(@NonNull Canvas canvas, @Nullable Movie movie) {
+        if (movie == null) {
+            return;
+        }
         if (mGifMovieState == null) {
             mGifMovieState = new GifMovieState();
         }
-        mGifMovieState.update(mContentRegion);
-        assert mGifMovie != null;
-        int duration = mGifMovie.duration();
+        mGifMovieState.update(mContentRegion, movie);
+        int duration = movie.duration();
         if (duration == 0) {
             duration = 1000;
         }
@@ -256,10 +263,10 @@ public class ContentDrawable extends Drawable {
         mGifMovieState.lastPlayTime = now;
         int progress =
                 mGifMovieState.progress > Integer.MAX_VALUE ? 0 : (int) mGifMovieState.progress;
-        mGifMovie.setTime(progress);
+        movie.setTime(progress);
         canvas.save();
         canvas.scale(mGifMovieState.scaleX, mGifMovieState.scaleY);
-        mGifMovie.draw(canvas, mGifMovieState.startX, mGifMovieState.startY + 1.0f);
+        movie.draw(canvas, mGifMovieState.startX, mGifMovieState.startY + 1.0f);
         canvas.restore();
         scheduleSelf(new Runnable() {
             @Override
@@ -342,7 +349,7 @@ public class ContentDrawable extends Drawable {
         public long lastPlayTime = -1;
         private boolean updateRequired = true;
 
-        public void update(@NonNull RectF dst) {
+        public void update(@NonNull RectF dst, @NonNull Movie movie) {
             if (!updateRequired) {
                 return;
             }
@@ -350,12 +357,11 @@ public class ContentDrawable extends Drawable {
             startY = 0;
             scaleX = 1;
             scaleY = 1;
-            assert mGifMovie != null;
-            if (mGifMovie.width() <= 0 || mGifMovie.height() <= 0) {
+            if (movie.width() <= 0 || movie.height() <= 0) {
                 return;
             }
-            scaleX = dst.width() / mGifMovie.width();
-            scaleY = dst.height() / mGifMovie.height();
+            scaleX = dst.width() / movie.width();
+            scaleY = dst.height() / movie.height();
             switch (mScaleType) {
                 case CENTER:
                     // fall through
@@ -381,8 +387,8 @@ public class ContentDrawable extends Drawable {
                     break;
             }
             if (mScaleType != ScaleType.ORIGIN) {
-                startX = (dst.width() / scaleX - mGifMovie.width()) / 2.0f;
-                startY = (dst.height() / scaleY - mGifMovie.height()) / 2.0f;
+                startX = (dst.width() / scaleX - movie.width()) / 2.0f;
+                startY = (dst.height() / scaleY - movie.height()) / 2.0f;
             }
             updateRequired = false;
         }

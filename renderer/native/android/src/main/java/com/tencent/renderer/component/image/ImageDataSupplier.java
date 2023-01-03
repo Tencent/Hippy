@@ -38,12 +38,18 @@ public interface ImageDataSupplier {
 
     boolean isRecyclable();
 
+    boolean isAnimated();
+
     @NonNull
     String getSource();
 
     int getImageWidth();
 
     int getImageHeight();
+
+    int getLayoutWidth();
+
+    int getLayoutHeight();
 
     void clear();
 

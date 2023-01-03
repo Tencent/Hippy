@@ -180,7 +180,7 @@ public class Component implements Drawable.Callback {
      * Get background layer drawable
      *
      * <p>At present, display RippleDrawable by setting the view background, it may not be the best
-     * implementation, because we cannot flatten the view for ripple effect.
+     * implementation, because we cannot flatten the view for ripple effect.</p>
      *
      * @return the background drawable {@link LayerDrawable}
      */
