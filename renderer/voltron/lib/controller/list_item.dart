@@ -29,10 +29,10 @@ import '../widget.dart';
 class ListItemViewController extends GroupController<ListItemViewModel, ListItemRenderNode> {
   static const String kClassName = "ListViewItem";
 
-  static const onWillAppear = "onWillAppear";
-  static const willAppear = "onAppear";
-  static const onWillDisappear = "onWillDisappear";
-  static const onDisappear = "onDisappear";
+  static const String kEventOnAppear = "appear";
+  static const String kEventOnDisAppear = "disappear";
+  static const String kEventOnWillAppear = "willappear";
+  static const String kEventOnWillDisAppear = "willdisappear";
 
   @override
   Widget createWidget(BuildContext context, ListItemViewModel viewModel) {
@@ -77,4 +77,50 @@ class ListItemViewController extends GroupController<ListItemViewModel, ListItem
 
   @override
   Map<String, ControllerMethodProp> get groupExtraMethodProp => {};
+
+  @override
+  void updateEvents(
+    ListItemViewModel renderViewModel,
+    Set<EventHolder> holders,
+  ) {
+    super.updateEvents(renderViewModel, holders);
+    if (holders.isNotEmpty) {
+      var pv = renderViewModel.parent;
+      if (pv is ListViewModel) {
+        for (var holder in holders) {
+          switch (holder.eventName) {
+            case kEventOnAppear:
+              if (holder.isAdd) {
+                pv.scrollGestureDispatcher.appearEventEnableIdList.add(renderViewModel.id);
+              } else {
+                pv.scrollGestureDispatcher.appearEventEnableIdList.remove(renderViewModel.id);
+              }
+              break;
+            case kEventOnDisAppear:
+              if (holder.isAdd) {
+                pv.scrollGestureDispatcher.disAppearEventEnableIdList.add(renderViewModel.id);
+              } else {
+                pv.scrollGestureDispatcher.disAppearEventEnableIdList.remove(renderViewModel.id);
+              }
+              break;
+            case kEventOnWillAppear:
+              if (holder.isAdd) {
+                pv.scrollGestureDispatcher.willAppearEventEnableIdList.add(renderViewModel.id);
+              } else {
+                pv.scrollGestureDispatcher.willAppearEventEnableIdList.remove(renderViewModel.id);
+              }
+              break;
+            case kEventOnWillDisAppear:
+              if (holder.isAdd) {
+                pv.scrollGestureDispatcher.willDisAppearEventEnableIdList.add(renderViewModel.id);
+              } else {
+                pv.scrollGestureDispatcher.willDisAppearEventEnableIdList
+                    .remove(renderViewModel.id);
+              }
+              break;
+          }
+        }
+      }
+    }
+  }
 }

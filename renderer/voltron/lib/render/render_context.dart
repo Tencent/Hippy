@@ -178,8 +178,8 @@ abstract class RenderContext<T extends LoadInstanceContext> with RenderContextPr
     _renderManager.destroy();
     _virtualNodeManager.destroy();
     if (!isReload) {
-      _renderBridgeManager.destroyWorkerManager(workerManagerId);
       _domHolder.destroy();
+      _renderBridgeManager.destroyWorkerManager(workerManagerId);
       _renderBridgeManager.destroy();
     }
   }

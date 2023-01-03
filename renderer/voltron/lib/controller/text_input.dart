@@ -32,43 +32,23 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
   static const String kClassName = "TextInput";
   static const String kTag = "TextInputController";
 
-  // props
-  static const String kDefaultValue = "defaultValue";
-  static const String kValidator = "validator";
-  static const String kEditable = "editable";
-  static const String kCaretColorReact = "caret-color";
-  static const String kCaretColorVue = "caretColor";
-  static const String kMultiline = "multiline";
-  static const String kReturnKeyType = "returnKeyType";
-  static const String kKeyboardType = "keyboardType";
-  static const String kMaxLengthProp = "maxLength";
-  static const String kOnSelectionChange = "onSelectionChange";
-  static const String kValueProp = "value";
-  static const String kPlaceholder = "placeholder";
-  static const String kPlaceholderTextColorReact = "placeholder-text-color";
-  static const String kPlaceholderTextColorVue = "placeholderTextColor";
-  static const String kNumberOfLines = "numberOfLines";
-  static const String kUnderlineColor = "underlineColorAndroid";
-  static const String kLineHeight = "lineHeight";
+  static const String kEventOnFocus = "focus";
+  static const String kEventOnBlur = "blur";
+  static const String kEventOnChangeText = "changetext";
+  static const String kEventOnKeyboardWillShow = "keyboardwillshow";
+  static const String kEventOnKeyboardWillHide = "keyboardwillhide";
+  static const String kEventOnEndEditing = "endediting";
+  static const String kEventOnSelectionChange = "selectionchange";
 
-  /// listen event
-  static const String kOnChangeText = "onChangeText";
-  static const String kOnEndEditing = "onEndEditing";
-  static const String kOnFocus = "onFocus";
-  static const String kOnBlur = "onBlur";
-  static const String kOnContentSizeChange = "onContentSizeChange";
-  static const String kOnKeyboardWillShow = "onKeyboardWillShow";
-  static const String kOnKeyboardWillHide = "onKeyboardWillHide";
-
-  /// fire event
-  static const String kClearFunction = "clear";
-  static const String kCommandFocus = "focusTextInput";
-  static const String kCommandBlur = "blurTextInput";
-  static const String kCommandGetValue = "getValue";
-  static const String kCommandSetValue = "setValue";
+  /// func
+  static const String kFuncClear = "clear";
+  static const String kFuncFocus = "focusTextInput";
+  static const String kFuncBlur = "blurTextInput";
+  static const String kFuncGetValue = "getValue";
+  static const String kFuncSetValue = "setValue";
 
   // 注意这里由于js侧使用了错误拼写，这里暂时不能修改成正确的拼写，否则会导致无法成功调用
-  static const String kCommandKeyboardDismiss = "dissmiss";
+  static const String kFuncDismiss = "dissmiss";
 
   @override
   TextInputRenderViewModel createRenderViewModel(RenderNode node, RenderContext context) {
@@ -84,27 +64,30 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
   Map<String, ControllerMethodProp> get extendRegisteredMethodProp => {
         /// props
         NodeProps.kFontSize: ControllerMethodProp(setFontSize, NodeProps.kDefaultFontSizeSp),
-        kDefaultValue: ControllerMethodProp(setDefaultValue, ""),
-        kValidator: ControllerMethodProp(setValidator, ""),
-        kEditable: ControllerMethodProp(setEditable, true),
-        kCaretColorReact: ControllerMethodProp(setCaretColor, Colors.transparent.value),
-        kCaretColorVue: ControllerMethodProp(setCaretColorAlias, Colors.transparent.value),
-        kMultiline: ControllerMethodProp(multiLine, true),
-        kReturnKeyType: ControllerMethodProp(setReturnKeyType, ""),
-        kKeyboardType: ControllerMethodProp(setKeyboardType, ""),
+        NodeProps.kDefaultValue: ControllerMethodProp(setDefaultValue, ""),
+        NodeProps.kValidator: ControllerMethodProp(setValidator, ""),
+        NodeProps.kEditable: ControllerMethodProp(setEditable, true),
+        NodeProps.kCaretColorReact: ControllerMethodProp(setCaretColor, Colors.transparent.value),
+        NodeProps.kCaretColorVue:
+            ControllerMethodProp(setCaretColorAlias, Colors.transparent.value),
+        NodeProps.kMultiline: ControllerMethodProp(multiLine, true),
+        NodeProps.kReturnKeyType: ControllerMethodProp(setReturnKeyType, ""),
+        NodeProps.kKeyboardType: ControllerMethodProp(setKeyboardType, ""),
         NodeProps.kFontStyle: ControllerMethodProp(setFontStyle, "normal"),
         NodeProps.kFontFamily: ControllerMethodProp(setFontFamily, "normal"),
         NodeProps.kFontWeight: ControllerMethodProp(setFontWeight, "normal"),
         NodeProps.kLineHeight: ControllerMethodProp(setLineHeight, 0.0),
-        kMaxLengthProp: ControllerMethodProp(maxLength, -1),
-        kOnSelectionChange: ControllerMethodProp(setOnSelectionChange, false),
+        NodeProps.kMaxLengthProp: ControllerMethodProp(maxLength, -1),
+        NodeProps.kOnSelectionChange: ControllerMethodProp(setOnSelectionChange, false),
         NodeProps.kLetterSpacing: ControllerMethodProp(letterSpacing, -1.0),
-        kValueProp: ControllerMethodProp(value, ""),
-        kPlaceholder: ControllerMethodProp(placeHolder, ""),
-        kPlaceholderTextColorVue: ControllerMethodProp(setTextHitColorVue, 0xFF888888),
-        kPlaceholderTextColorReact: ControllerMethodProp(setTextHitColorReact, 0xFF888888),
-        kNumberOfLines: ControllerMethodProp(setMaxLines, kMaxLineCount),
-        kUnderlineColor: ControllerMethodProp(setUnderlineColor, Colors.transparent.value),
+        NodeProps.kValueProp: ControllerMethodProp(value, ""),
+        NodeProps.kPlaceholder: ControllerMethodProp(placeHolder, ""),
+        NodeProps.kPlaceholderTextColorVue: ControllerMethodProp(setTextHitColorVue, 0xFF888888),
+        NodeProps.kPlaceholderTextColorReact:
+            ControllerMethodProp(setTextHitColorReact, 0xFF888888),
+        NodeProps.kNumberOfLines: ControllerMethodProp(setMaxLines, kMaxLineCount),
+        NodeProps.kUnderlineColor:
+            ControllerMethodProp(setUnderlineColor, Colors.transparent.value),
         NodeProps.kColor: ControllerMethodProp(setColor, Colors.transparent.value),
         NodeProps.kTextAlign: ControllerMethodProp(setTextAlign, "auto"),
         NodeProps.kTextAlignVertical: ControllerMethodProp(setTextAlignVertical, "auto"),
@@ -113,13 +96,13 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
         NodeProps.kPaddingBottom: ControllerMethodProp(setPaddingBottom, 0.0),
         NodeProps.kPaddingLeft: ControllerMethodProp(setPaddingLeft, 0.0),
         // listen
-        kOnChangeText: ControllerMethodProp(setOnChangeText, true),
-        kOnEndEditing: ControllerMethodProp(setEndEditing, true),
-        kOnFocus: ControllerMethodProp(setOnFocus, true),
-        kOnBlur: ControllerMethodProp(setBlur, true),
-        kOnContentSizeChange: ControllerMethodProp(setOnContentSizeChange, true),
-        kOnKeyboardWillShow: ControllerMethodProp(setOnKeyboardWillShow, true),
-        kOnKeyboardWillHide: ControllerMethodProp(setOnKeyboardWillHide, true),
+        NodeProps.kOnChangeText: ControllerMethodProp(setOnChangeText, true),
+        NodeProps.kOnEndEditing: ControllerMethodProp(setOnEndEditing, true),
+        NodeProps.kOnFocus: ControllerMethodProp(setOnFocus, true),
+        NodeProps.kOnBlur: ControllerMethodProp(setOnBlur, true),
+        NodeProps.kOnContentSizeChange: ControllerMethodProp(setOnContentSizeChange, true),
+        NodeProps.kOnKeyboardWillShow: ControllerMethodProp(setOnKeyboardWillShow, true),
+        NodeProps.kOnKeyboardWillHide: ControllerMethodProp(setOnKeyboardWillHide, true),
       };
 
   @override
@@ -130,45 +113,45 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
     renderViewModel.fontSize = fontSize;
   }
 
-  @ControllerProps(kDefaultValue)
+  @ControllerProps(NodeProps.kDefaultValue)
   void setDefaultValue(TextInputRenderViewModel renderViewModel, String defaultValue) {
     renderViewModel.setValue(defaultValue);
   }
 
-  @ControllerProps(kValidator)
+  @ControllerProps(NodeProps.kValidator)
   void setValidator(TextInputRenderViewModel renderViewModel, String strValidator) {
     renderViewModel.dispatcher.validator = strValidator;
   }
 
-  @ControllerProps(kEditable)
+  @ControllerProps(NodeProps.kEditable)
   void setEditable(TextInputRenderViewModel renderViewModel, bool editable) {
     renderViewModel.editable = editable;
   }
 
   // 设置输入光标颜色  RN 语法 caret-color
-  @ControllerProps(kCaretColorReact)
+  @ControllerProps(NodeProps.kCaretColorReact)
   void setCaretColor(TextInputRenderViewModel renderViewModel, int cursorColor) {
     renderViewModel.cursorColor = cursorColor;
   }
 
   //  设置输入光标颜色
   //For Vue.vue的前端语法，会把caret-color转化成caretColor
-  @ControllerProps(kCaretColorVue)
+  @ControllerProps(NodeProps.kCaretColorVue)
   void setCaretColorAlias(TextInputRenderViewModel renderViewModel, int cursorColor) {
     renderViewModel.cursorColor = cursorColor;
   }
 
-  @ControllerProps(kMultiline)
+  @ControllerProps(NodeProps.kMultiline)
   void multiLine(TextInputRenderViewModel renderViewModel, bool multiline) {
     renderViewModel.setMultiLine(multiline);
   }
 
-  @ControllerProps(kReturnKeyType)
+  @ControllerProps(NodeProps.kReturnKeyType)
   void setReturnKeyType(TextInputRenderViewModel renderViewModel, String returnKeyType) {
     renderViewModel.setTextInputType(returnKeyType);
   }
 
-  @ControllerProps(kKeyboardType)
+  @ControllerProps(NodeProps.kKeyboardType)
   void setKeyboardType(TextInputRenderViewModel renderViewModel, String keyboardType) {
     renderViewModel.setKeyboardType(keyboardType);
   }
@@ -193,14 +176,14 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
     renderViewModel.fontFamily = fontFamily;
   }
 
-  @ControllerProps(kMaxLengthProp)
+  @ControllerProps(NodeProps.kMaxLengthProp)
   void maxLength(TextInputRenderViewModel renderViewModel, int maxLength) {
     renderViewModel.maxLength = maxLength;
   }
 
-  @ControllerProps(kOnSelectionChange)
+  @ControllerProps(NodeProps.kOnSelectionChange)
   void setOnSelectionChange(TextInputRenderViewModel renderViewModel, bool change) {
-    renderViewModel.dispatcher.listenSelectionChange = change;
+    renderViewModel.dispatcher.selectionChangeEventEnable = change;
   }
 
   @ControllerProps(NodeProps.kLetterSpacing)
@@ -208,69 +191,69 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
     renderViewModel.letterSpacing = letterSpacing;
   }
 
-  @ControllerProps(kValueProp)
+  @ControllerProps(NodeProps.kValueProp)
   void value(TextInputRenderViewModel renderViewModel, String value) {
     renderViewModel.setValue(value);
   }
 
-  @ControllerProps(kPlaceholder)
+  @ControllerProps(NodeProps.kPlaceholder)
   void placeHolder(TextInputRenderViewModel renderViewModel, String placeholder) {
     renderViewModel.hint = placeholder;
   }
 
-  @ControllerProps(kPlaceholderTextColorVue)
+  @ControllerProps(NodeProps.kPlaceholderTextColorVue)
   void setTextHitColorVue(TextInputRenderViewModel renderViewModel, int color) {
     renderViewModel.hintTextColor = color;
   }
 
-  @ControllerProps(kPlaceholderTextColorReact)
+  @ControllerProps(NodeProps.kPlaceholderTextColorReact)
   void setTextHitColorReact(TextInputRenderViewModel renderViewModel, int color) {
     renderViewModel.hintTextColor = color;
   }
 
-  @ControllerProps(kNumberOfLines)
+  @ControllerProps(NodeProps.kNumberOfLines)
   void setMaxLines(TextInputRenderViewModel renderViewModel, int numberOfLine) {
     renderViewModel.numberOfLine = numberOfLine;
   }
 
-  @ControllerProps(kUnderlineColor)
+  @ControllerProps(NodeProps.kUnderlineColor)
   void setUnderlineColor(TextInputRenderViewModel renderViewModel, int underlineColor) {
     renderViewModel.underLineColor = underlineColor;
   }
 
-  @ControllerProps(kOnChangeText)
-  void setOnChangeText(TextInputRenderViewModel renderViewModel, bool change) {
-    renderViewModel.dispatcher.listenChangeText = change;
-  }
-
-  @ControllerProps(kOnEndEditing)
-  void setEndEditing(TextInputRenderViewModel renderViewModel, bool change) {
-    renderViewModel.dispatcher.listenEndEditing = change;
-  }
-
-  @ControllerProps(kOnFocus)
+  @ControllerProps(NodeProps.kOnFocus)
   void setOnFocus(TextInputRenderViewModel renderViewModel, bool change) {
-    renderViewModel.dispatcher.listenFocus = change;
+    renderViewModel.dispatcher.focusEventEnable = change;
   }
 
-  @ControllerProps(kOnBlur)
-  void setBlur(TextInputRenderViewModel renderViewModel, bool change) {
-    renderViewModel.dispatcher.listenFocus = change;
+  @ControllerProps(NodeProps.kOnBlur)
+  void setOnBlur(TextInputRenderViewModel renderViewModel, bool change) {
+    renderViewModel.dispatcher.blurEventEnable = change;
   }
 
-  @ControllerProps(kOnContentSizeChange)
+  @ControllerProps(NodeProps.kOnChangeText)
+  void setOnChangeText(TextInputRenderViewModel renderViewModel, bool change) {
+    renderViewModel.dispatcher.changeTextEventEnable = change;
+  }
+
+  @ControllerProps(NodeProps.kOnContentSizeChange)
   void setOnContentSizeChange(TextInputRenderViewModel renderViewModel, bool contentSizeChange) {
-    renderViewModel.dispatcher.listenContentSizeChange = contentSizeChange;
+    renderViewModel.dispatcher.contentSizeChangeEventEnable = contentSizeChange;
   }
 
-  @ControllerProps(kOnKeyboardWillShow)
+  @ControllerProps(NodeProps.kOnKeyboardWillShow)
   void setOnKeyboardWillShow(TextInputRenderViewModel renderViewModel, bool change) {
-    renderViewModel.dispatcher.listenKeyboardWillShow = change;
+    renderViewModel.dispatcher.keyboardWillShowEventEnable = change;
   }
 
-  @ControllerProps(kOnKeyboardWillShow)
+  @ControllerProps(NodeProps.kOnKeyboardWillShow)
   void setOnKeyboardWillHide(TextInputRenderViewModel renderViewModel, bool change) {
-    renderViewModel.dispatcher.listenKeyboardWillHide = change;
+    renderViewModel.dispatcher.keyboardWillHideEventEnable = change;
+  }
+
+  @ControllerProps(NodeProps.kOnEndEditing)
+  void setOnEndEditing(TextInputRenderViewModel renderViewModel, bool change) {
+    renderViewModel.dispatcher.endEditingEventEnable = change;
   }
 
   @ControllerProps(NodeProps.kColor)
@@ -341,10 +324,45 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
   }
 
   @override
+  void updateEvents(
+    TextInputRenderViewModel renderViewModel,
+    Set<EventHolder> holders,
+  ) {
+    super.updateEvents(renderViewModel, holders);
+    if (holders.isNotEmpty) {
+      for (var holder in holders) {
+        switch (holder.eventName) {
+          case kEventOnFocus:
+            setOnFocus(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnBlur:
+            setOnBlur(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnChangeText:
+            setOnChangeText(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnKeyboardWillShow:
+            setOnKeyboardWillShow(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnKeyboardWillHide:
+            setOnKeyboardWillHide(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnEndEditing:
+            setOnEndEditing(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnSelectionChange:
+            setOnSelectionChange(renderViewModel, holder.isAdd);
+            break;
+        }
+      }
+    }
+  }
+
+  @override
   void dispatchFunction(TextInputRenderViewModel viewModel, String functionName, VoltronArray array,
       {Promise? promise}) {
     switch (functionName) {
-      case kCommandSetValue:
+      case kFuncSetValue:
         var value = array.getString(0);
         if (value != null) {
           int? pos = array.get<int>(1) ?? value.length;
@@ -352,19 +370,19 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
           viewModel.dispatcher.jsSetValue(array.getString(0), pos);
         }
         break;
-      case kClearFunction:
+      case kFuncClear:
         viewModel.dispatcher.jsSetValue("", 0);
         break;
-      case kCommandFocus:
+      case kFuncFocus:
         viewModel.focus();
         break;
-      case kCommandKeyboardDismiss:
+      case kFuncDismiss:
         viewModel.dismiss();
         break;
-      case kCommandBlur:
+      case kFuncBlur:
         viewModel.blur();
         break;
-      case kCommandGetValue:
+      case kFuncGetValue:
         if (promise != null) {
           var resultMap = viewModel.dispatcher.jsGetValue();
           promise.resolve(resultMap);
@@ -522,13 +540,14 @@ class TextInputDispatcher {
   String validator = "";
 
   // 事件相关
-  bool listenSelectionChange = false;
-  bool listenChangeText = false;
-  bool listenEndEditing = false;
-  bool listenFocus = false;
-  bool listenContentSizeChange = false;
-  bool listenKeyboardWillShow = false;
-  bool listenKeyboardWillHide = false;
+  bool focusEventEnable = false;
+  bool blurEventEnable = false;
+  bool selectionChangeEventEnable = false;
+  bool changeTextEventEnable = false;
+  bool endEditingEventEnable = false;
+  bool contentSizeChangeEventEnable = false;
+  bool keyboardWillShowEventEnable = false;
+  bool keyboardWillHideEventEnable = false;
 
   RenderContext context;
   int rootId;
@@ -545,34 +564,39 @@ class TextInputDispatcher {
   TextInputDispatcher(this.context, this.rootId, this.id, this.controller);
 
   void onSelectionChanged(int selStart, int selEnd) {
-    if (listenSelectionChange) {
+    if (selectionChangeEventEnable) {
       var selection = VoltronMap();
       selection.push("start", selStart);
       selection.push("end", selEnd);
       var paramsMap = VoltronMap();
       paramsMap.push("selection", selection);
-      context.renderBridgeManager.sendComponentEvent(rootId, id, "selectionchange", paramsMap);
+      context.renderBridgeManager.sendComponentEvent(
+        rootId,
+        id,
+        TextInputController.kEventOnSelectionChange,
+        paramsMap,
+      );
     }
   }
 
   void onFocusChange(bool focus) {
     if (hasFocus != focus) {
       hasFocus = focus;
-      if (listenFocus) {
+      if (focusEventEnable || blurEventEnable) {
         var paramsMap = VoltronMap();
         paramsMap.push("text", text);
         if (hasFocus) {
           context.renderBridgeManager.sendComponentEvent(
             rootId,
             id,
-            "focus",
+            TextInputController.kEventOnFocus,
             paramsMap,
           );
         } else {
           context.renderBridgeManager.sendComponentEvent(
             rootId,
             id,
-            "blur",
+            TextInputController.kEventOnBlur,
             paramsMap,
           );
         }
@@ -581,10 +605,15 @@ class TextInputDispatcher {
   }
 
   void onEndEdit() {
-    if (listenEndEditing) {
+    if (endEditingEventEnable) {
       var paramsMap = VoltronMap();
       paramsMap.push("text", text);
-      context.renderBridgeManager.sendComponentEvent(rootId, id, "endediting", paramsMap);
+      context.renderBridgeManager.sendComponentEvent(
+        rootId,
+        id,
+        TextInputController.kEventOnEndEditing,
+        paramsMap,
+      );
     }
   }
 
@@ -603,7 +632,12 @@ class TextInputDispatcher {
         //如果是前端设置下来的值,不再需要回调给前端.
         var paramsMap = VoltronMap();
         paramsMap.push("text", changeText);
-        context.renderBridgeManager.sendComponentEvent(rootId, id, "changetext", paramsMap);
+        context.renderBridgeManager.sendComponentEvent(
+          rootId,
+          id,
+          TextInputController.kEventOnChangeText,
+          paramsMap,
+        );
         LogUtils.d(
           TextInputController.kTag,
           "afterTextChanged 1 通知前端文本变化=$changeText",
@@ -621,7 +655,9 @@ class TextInputDispatcher {
           //丢弃当前的内容,回退到上一次的值.上一次的值检查过,肯定是符合正则表达式的.
           controller.value = TextEditingValue(
             text: _oldText,
-            selection: TextSelection.collapsed(offset: _oldText.length),
+            selection: TextSelection.collapsed(
+              offset: _oldText.length,
+            ),
           );
           //上一步的setText,将触发新一轮的beforeTextChanged,onTextChanged,afterTextChanged
           //为了避免前端收到两次内容同样的通知.记录一下正则匹配设置回去的值.
@@ -646,7 +682,7 @@ class TextInputDispatcher {
             context.renderBridgeManager.sendComponentEvent(
               rootId,
               id,
-              "changetext",
+              TextInputController.kEventOnChangeText,
               paramsMap,
             );
             LogUtils.d(
@@ -677,7 +713,10 @@ class TextInputDispatcher {
       controller.value = TextEditingValue(
         text: _jsSetValue,
         selection: TextSelection.fromPosition(
-          TextPosition(offset: offset, affinity: TextAffinity.downstream),
+          TextPosition(
+            offset: offset,
+            affinity: TextAffinity.downstream,
+          ),
         ),
       );
       // 这里设置时候也要通知到前端
@@ -686,7 +725,7 @@ class TextInputDispatcher {
       context.renderBridgeManager.sendComponentEvent(
         rootId,
         id,
-        "changetext",
+        TextInputController.kEventOnChangeText,
         paramsMap,
       );
     }
@@ -699,25 +738,25 @@ class TextInputDispatcher {
   }
 
   void onKeyboardWillShow(int height) {
-    if (listenKeyboardWillShow) {
+    if (keyboardWillShowEventEnable) {
       var paramsMap = VoltronMap();
       paramsMap.push<int>("keyboardHeight", height);
       context.renderBridgeManager.sendComponentEvent(
         rootId,
         id,
-        "keyboardWillShow",
+        TextInputController.kEventOnKeyboardWillShow,
         paramsMap,
       );
     }
   }
 
   void onKeyboardWillHide() {
-    if (listenKeyboardWillShow) {
+    if (keyboardWillShowEventEnable) {
       var paramsMap = VoltronMap();
       context.renderBridgeManager.sendComponentEvent(
         rootId,
         id,
-        "keyboardWillHide",
+        TextInputController.kEventOnKeyboardWillHide,
         paramsMap,
       );
     }

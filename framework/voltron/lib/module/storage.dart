@@ -50,7 +50,7 @@ class StorageModule extends VoltronNativeModule {
     }
     storageAdapter.multiGet(keys).then((result) {
       if (result == null || result.isEmpty) {
-        promise.resolve(null);
+        promise.resolve([]);
         return;
       }
       var data = VoltronArray();

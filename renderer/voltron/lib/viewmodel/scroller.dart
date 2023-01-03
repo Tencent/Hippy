@@ -32,7 +32,6 @@ class ScrollViewRenderViewModel extends ScrollableModel {
   bool pagingEnable = false;
   double _initOffset = 0;
   bool flingEnable = false;
-  bool scrollAnimationEndEventEnable = false;
   bool showScrollIndicator = false;
   bool isHorizontal = false;
   bool bounces = true;
@@ -94,7 +93,6 @@ class ScrollViewRenderViewModel extends ScrollableModel {
   ]) : super.copy(id, instanceId, className, context, viewModel) {
     pagingEnable = viewModel.pagingEnable;
     flingEnable = viewModel.flingEnable;
-    scrollAnimationEndEventEnable = viewModel.scrollAnimationEndEventEnable;
     showScrollIndicator = viewModel.showScrollIndicator;
     isHorizontal = viewModel.isHorizontal;
     scrollGestureDispatcher = viewModel.scrollGestureDispatcher;
@@ -120,7 +118,6 @@ class ScrollViewRenderViewModel extends ScrollableModel {
     return other is ScrollViewRenderViewModel &&
         pagingEnable == other.pagingEnable &&
         flingEnable == other.flingEnable &&
-        scrollAnimationEndEventEnable == other.scrollAnimationEndEventEnable &&
         showScrollIndicator == other.showScrollIndicator &&
         isHorizontal == other.isHorizontal &&
         bounces == other.bounces &&
@@ -131,7 +128,6 @@ class ScrollViewRenderViewModel extends ScrollableModel {
   int get hashCode =>
       pagingEnable.hashCode |
       flingEnable.hashCode |
-      scrollAnimationEndEventEnable.hashCode |
       showScrollIndicator.hashCode |
       isHorizontal.hashCode |
       bounces.hashCode |
