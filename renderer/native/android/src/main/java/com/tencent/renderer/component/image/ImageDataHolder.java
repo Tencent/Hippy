@@ -147,6 +147,7 @@ public class ImageDataHolder implements ImageDataSupplier {
         }
         mGifMovie = null;
         mDrawable = null;
+        mOptions = null;
     }
 
     @Override
@@ -178,14 +179,16 @@ public class ImageDataHolder implements ImageDataSupplier {
         if (mOptions == null) {
             return false;
         }
+        if (mDrawable != null) {
+            return true;
+        }
         if (ImageDataUtils.isJpeg(mOptions) || ImageDataUtils.isPng(mOptions)) {
             return mBitmap != null && !mBitmap.isRecycled();
         }
-        if (ImageDataUtils.isGif(mOptions) && (android.os.Build.VERSION.SDK_INT
-                < android.os.Build.VERSION_CODES.P)) {
+        if (ImageDataUtils.isGif(mOptions)) {
             return mGifMovie != null;
         }
-        return mDrawable != null;
+        return false;
     }
 
     @Override
@@ -227,19 +230,27 @@ public class ImageDataHolder implements ImageDataSupplier {
         mDrawable = drawable;
     }
 
-    public void setData(@NonNull byte[] data) throws NativeRenderException {
+    public void decodeImageData(@NonNull byte[] data,
+            @Nullable ImageDecoderAdapter imageDecoderAdapter) throws NativeRenderException {
         try {
             mOptions = ImageDataUtils.generateBitmapOptions(data);
+            if (imageDecoderAdapter != null) {
+                if (imageDecoderAdapter.decodeImageData(data, this, mOptions)) {
+                    return;
+                }
+            }
             if (ImageDataUtils.isGif(mOptions)) {
+                // Because AnimatedImageDrawable has too many restrictions, Movie is still used
+                // as the default GIF playback mode, to avoid the playback problem caused by Movie,
+                // we recommend using an external drawable method to play GIF, such as android gif
+                // drawable.
                 mGifMovie = Movie.decodeByteArray(data, 0, data.length);
-                mBitmap = null;
             } else if (ImageDataUtils.isJpeg(mOptions) || ImageDataUtils.isPng(mOptions)) {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                    decodeLocalFileForTarget28(ByteBuffer.wrap(data));
+                    decodeImageForTarget28(data);
                 } else {
-                    decodeBitmap(data);
+                    decodeImage(data);
                 }
-                mGifMovie = null;
             } else {
                 throw new RuntimeException("Unsupported picture type!");
             }
@@ -248,10 +259,8 @@ public class ImageDataHolder implements ImageDataSupplier {
         }
     }
 
-    public void setData(Bitmap bitmap) {
+    public void setBitmap(Bitmap bitmap) {
         mBitmap = bitmap;
-        mGifMovie = null;
-        mDrawable = null;
         resetStateFlag(FLAG_RECYCLABLE);
     }
 
@@ -260,15 +269,15 @@ public class ImageDataHolder implements ImageDataSupplier {
      *
      * <p>
      * Warning! AnimatedImageDrawable start will cause crash in some android platform when use
-     * ImageDecoder createSource API with ByteBuffer.
-     * Therefore, AnimatedImageDrawable is not supported at present.
+     * ImageDecoder createSource API with ByteBuffer. Therefore, AnimatedImageDrawable is not
+     * supported at present.
      * <p/>
-     *
      */
     @RequiresApi(api = VERSION_CODES.P)
     @NonNull
     private Drawable decodeGifForTarget28(@NonNull byte[] data) throws IOException {
-        // There is a CRASH problem, it's caused by an Android framework issue(https://issuetracker.google.com/issues/139371066).
+        // There is a CRASH problem, it's caused by an Android framework issue
+        // (https://issuetracker.google.com/issues/139371066).
         // You can work around the issue by not using a ByteBuffer.
         // For instance, writing the ByteBuffer to a File then using ImageDecoder.createSource(file)
         // will work around the issue
@@ -306,8 +315,8 @@ public class ImageDataHolder implements ImageDataSupplier {
     }
 
     @RequiresApi(api = VERSION_CODES.P)
-    private void decodeLocalFileForTarget28(@NonNull ByteBuffer buffer) throws IOException {
-        ImageDecoder.Source source = ImageDecoder.createSource(buffer);
+    private void decodeImageForTarget28(@NonNull byte[] data) throws IOException {
+        ImageDecoder.Source source = ImageDecoder.createSource(ByteBuffer.wrap(data));
         decodeBitmapForTarget28(source);
     }
 
@@ -329,7 +338,7 @@ public class ImageDataHolder implements ImageDataSupplier {
         return sampleSize;
     }
 
-    private void decodeBitmap(@Nullable byte[] data) {
+    private void decodeImage(@Nullable byte[] data) {
         if (data == null || data.length <= 0 || mOptions == null) {
             return;
         }

@@ -22,7 +22,6 @@ import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_LOAD_PROGRESS;
 import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_LOAD_START;
 import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_ON_LOAD;
 
-import android.graphics.drawable.AnimatedImageDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 
@@ -169,7 +168,6 @@ public class ImageComponent extends Component {
     }
 
     protected void onFetchImageStart() {
-        mImageFetchState = ImageFetchState.LOADING;
         if (mHostRef.get() != null) {
             // send onLoadStart event
             EventUtils.sendComponentEvent(mHostRef.get(), EVENT_IMAGE_LOAD_START, null);
@@ -177,7 +175,6 @@ public class ImageComponent extends Component {
     }
 
     private void setImageData(@NonNull ImageDataSupplier imageHolder) {
-        mImageHolder = imageHolder;
         Drawable drawable = imageHolder.getDrawable();
         if (drawable != null) {
             drawable.setCallback(this);
@@ -186,21 +183,22 @@ public class ImageComponent extends Component {
     }
 
     private void onFetchImageSuccess(@NonNull String uri, ImageSourceType sourceType,
-            @NonNull ImageDataSupplier imageData, boolean loadFromCache) {
+            @NonNull ImageDataSupplier imageHolder, boolean loadFromCache) {
         if (sourceType == ImageSourceType.SRC) {
             if (!uri.equals(mUri)) {
                 return;
             }
+            mImageHolder = imageHolder;
             mImageFetchState = ImageFetchState.LOADED;
-            setImageData(imageData);
+            setImageData(imageHolder);
             if (mHostRef.get() != null && !loadFromCache) {
                 // send onLoad event
                 EventUtils.sendComponentEvent(mHostRef.get(), EVENT_IMAGE_ON_LOAD, null);
                 HashMap<String, Object> params = new HashMap<>();
                 params.put("success", 1);
                 HashMap<String, Object> imageSize = new HashMap<>();
-                imageSize.put("width", imageData.getImageWidth());
-                imageSize.put("height", imageData.getImageHeight());
+                imageSize.put("width", imageHolder.getImageWidth());
+                imageSize.put("height", imageHolder.getImageHeight());
                 params.put("image", imageSize);
                 // send onLoadEnd event
                 EventUtils.sendComponentEvent(mHostRef.get(), EVENT_IMAGE_LOAD_END, params);
@@ -209,13 +207,13 @@ public class ImageComponent extends Component {
             if (!uri.equals(mDefaultUri)) {
                 return;
             }
-            mDefaultImageHolder = imageData;
+            mDefaultImageHolder = imageHolder;
             mDefaultImageFetchState = ImageFetchState.LOADED;
             if (mImageHolder == null || !mImageHolder.checkImageData()) {
-                setImageData(imageData);
+                setImageData(imageHolder);
             }
         }
-        imageData.attached();
+        imageHolder.attached();
         postInvalidateDelayed(0);
     }
 
@@ -264,13 +262,7 @@ public class ImageComponent extends Component {
 
             @Override
             public void onRequestSuccess(ImageDataSupplier imageData) {
-                // Should check the request data returned from the host, if the data is
-                // invalid, the request is considered to have failed
-                if (imageData.checkImageData()) {
-                    onFetchImageSuccess(uri, sourceType, imageData, false);
-                } else {
-                    onRequestFail(null);
-                }
+                onFetchImageSuccess(uri, sourceType, imageData, false);
             }
 
             @Override
@@ -294,6 +286,7 @@ public class ImageComponent extends Component {
             return;
         }
         if (sourceType == ImageSourceType.SRC) {
+            mImageFetchState = ImageFetchState.LOADING;
             onFetchImageStart();
         } else {
             mDefaultImageFetchState = ImageFetchState.LOADING;

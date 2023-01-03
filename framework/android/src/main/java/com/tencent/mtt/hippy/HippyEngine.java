@@ -56,7 +56,7 @@ import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 
 import com.tencent.renderer.ControllerProvider;
-import com.tencent.renderer.component.image.ImageLoaderAdapter;
+import com.tencent.renderer.component.image.ImageDecoderAdapter;
 import com.tencent.vfs.Processor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -248,6 +248,7 @@ public abstract class HippyEngine {
     // 可选参数 code cache的名字，如果设置为空，则不启用code cache，默认为 ""
     public String codeCacheTag = "";
 
+    public ImageDecoderAdapter imageDecoderAdapter;
     //可选参数 接收RuntimeId
     public HippyThirdPartyAdapter thirdPartyAdapter;
 

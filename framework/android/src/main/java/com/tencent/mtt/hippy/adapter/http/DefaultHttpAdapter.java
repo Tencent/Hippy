@@ -240,7 +240,7 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
                 holder.requestParams, nativeParams);
         httpRequest.setUrl(holder.uri);
         httpRequest.setConnectTimeout(10 * 1000);
-        httpRequest.setReadTimeout(10 * 1000);
+        httpRequest.setReadTimeout(20 * 1000);
         httpRequest.setUseCaches(false);
         return httpRequest;
     }
