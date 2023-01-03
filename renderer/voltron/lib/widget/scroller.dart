@@ -21,6 +21,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../controller.dart';
 import '../gesture.dart';
 import '../util.dart';
 import '../viewmodel.dart';
@@ -40,7 +41,8 @@ class ScrollViewWidget extends FRStatefulWidget {
 class _ScrollViewWidgetState extends FRState<ScrollViewWidget> {
   @override
   Widget build(BuildContext context) {
-    LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build scroller widget");
+    LogUtils.dWidget(
+        "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build scroller widget");
     return ChangeNotifierProvider.value(
       value: widget._viewModel,
       child: Selector<ScrollViewRenderViewModel, ScrollViewRenderViewModel>(
@@ -67,7 +69,8 @@ class _ScrollViewWidgetState extends FRState<ScrollViewWidget> {
   }
 
   Widget scrollView(ScrollViewDetailRenderViewModel widgetModel) {
-    LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build scroller inner widget");
+    LogUtils.dWidget(
+        "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build scroller inner widget");
     if (widgetModel.children.isEmpty) {
       return Container();
     }
@@ -80,11 +83,9 @@ class _ScrollViewWidgetState extends FRState<ScrollViewWidget> {
       physics = const NeverScrollableScrollPhysics();
     } else {
       if (widgetModel.pagingEnable) {
-        physics =
-            const PageScrollPhysics().applyTo(const BouncingScrollPhysics());
+        physics = const PageScrollPhysics().applyTo(const BouncingScrollPhysics());
         if (!widgetModel.bounces) {
-          physics =
-              const PageScrollPhysics().applyTo(const ClampingScrollPhysics());
+          physics = const PageScrollPhysics().applyTo(const ClampingScrollPhysics());
         }
       }
     }
@@ -140,7 +141,7 @@ class ScrollNotificationListener extends StatefulWidget {
     this.isHorizontal = false,
     required this.viewModel,
     Key? key,
-  }): super(key: key);
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -148,8 +149,7 @@ class ScrollNotificationListener extends StatefulWidget {
   }
 }
 
-class _ScrollNotificationListenerState
-    extends State<ScrollNotificationListener> {
+class _ScrollNotificationListenerState extends State<ScrollNotificationListener> {
   static const double kExtraScrollEndOffset = 5;
   bool _scrollFlingStartHandle = false;
   bool _hasReachEnd = false;
@@ -225,6 +225,11 @@ class _ScrollNotificationListenerState
               }
             }
 
+            /// check children expose if need
+            if (widget.scrollGestureDispatcher.exposureEventEnabled) {
+              checkExpose(scrollNotification.metrics.pixels);
+            }
+
             if (judgeReachEnd(
               scrollNotification.metrics.pixels,
               scrollNotification.metrics.maxScrollExtent,
@@ -257,16 +262,87 @@ class _ScrollNotificationListenerState
 
     var extraOffset = 0.0;
     for (var i = 1; i <= preloadNumber; i++) {
-      extraOffset +=
-          widget.viewModel.children?[widget.viewModel.childCount - i].height ??
-              0;
-      if (curScrollOffset + extraOffset + kExtraScrollEndOffset >=
-          maxScrollOffset) {
+      extraOffset += widget.viewModel.children?[widget.viewModel.childCount - i].height ?? 0;
+      if (curScrollOffset + extraOffset + kExtraScrollEndOffset >= maxScrollOffset) {
         return true;
       }
     }
 
     return false;
+  }
+
+  void checkExpose(double curScrollOffset) {
+    var widgetViewModel = widget.viewModel;
+    if (widgetViewModel is ListViewModel) {
+      var start = 0;
+      var end = widgetViewModel.horizontal ? widgetViewModel.width : widgetViewModel.height;
+      if (end != null) {
+        var visibleStart = start + curScrollOffset;
+        var visibleEnd = end + curScrollOffset;
+        for (var childViewModel in widgetViewModel.children) {
+          var myStart =
+              widgetViewModel.horizontal ? childViewModel.layoutX : childViewModel.layoutY;
+          var myHeight = widgetViewModel.horizontal ? childViewModel.width : childViewModel.height;
+          if (myStart != null && myHeight != null && childViewModel is ListItemViewModel) {
+            var myEnd = myStart + myHeight;
+            var correctingValueForDisappear = myHeight * 0.1;
+            var currentExposureState = childViewModel.exposureState;
+            if (myEnd <= (visibleStart + correctingValueForDisappear) ||
+                myStart >= (visibleEnd - correctingValueForDisappear)) {
+              if (currentExposureState != ListItemViewModel.exposureStateDisappear) {
+                if (currentExposureState == ListItemViewModel.exposureStateAppear) {
+                  widget.scrollGestureDispatcher.sendExposureEvent(
+                    widgetViewModel,
+                    childViewModel,
+                    ListItemViewController.kEventOnWillDisAppear,
+                  );
+                }
+                widget.scrollGestureDispatcher.sendExposureEvent(
+                  widgetViewModel,
+                  childViewModel,
+                  ListItemViewController.kEventOnWillDisAppear,
+                );
+                childViewModel.exposureState = ListItemViewModel.exposureStateDisappear;
+              }
+            } else if ((myStart < visibleStart && myEnd > visibleStart) ||
+                (myStart < visibleEnd && myEnd > visibleEnd)) {
+              if (currentExposureState == ListItemViewModel.exposureStateAppear) {
+                widget.scrollGestureDispatcher.sendExposureEvent(
+                  widgetViewModel,
+                  childViewModel,
+                  ListItemViewController.kEventOnWillDisAppear,
+                );
+                childViewModel.exposureState = ListItemViewModel.exposureStateWillDisappear;
+              } else if (currentExposureState == ListItemViewModel.exposureStateDisappear) {
+                widget.scrollGestureDispatcher.sendExposureEvent(
+                  widgetViewModel,
+                  childViewModel,
+                  ListItemViewController.kEventOnWillAppear,
+                );
+                childViewModel.exposureState = ListItemViewModel.exposureStateWillAppear;
+              }
+            } else if ((myStart >= visibleStart && myEnd <= visibleEnd) ||
+                (myStart <= visibleStart && myEnd > visibleEnd)) {
+              if (currentExposureState != ListItemViewModel.exposureStateAppear) {
+                if (currentExposureState == ListItemViewModel.exposureStateDisappear) {
+                  widget.scrollGestureDispatcher.sendExposureEvent(
+                    widgetViewModel,
+                    childViewModel,
+                    ListItemViewController.kEventOnWillAppear,
+                  );
+                }
+                widget.scrollGestureDispatcher.sendExposureEvent(
+                  widgetViewModel,
+                  childViewModel,
+                  ListItemViewController.kEventOnAppear,
+                );
+                childViewModel.exposureState = ListItemViewModel.exposureStateAppear;
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
   Size _scrollSize(ScrollNotification notification) {

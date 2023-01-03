@@ -33,7 +33,7 @@ import '../widget.dart';
 class ImageController extends BaseViewController<ImageRenderViewModel> {
   static const String kClassName = "Image";
 
-  // new 3.0 eventName
+  // 3.0 bind events
   static const String kEventOnLoad = 'load';
   static const String kEventOnLoadStart = 'loadstart';
   static const String kEventOnLoadEnd = 'loadend';
@@ -53,6 +53,7 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
   @override
   Map<String, ControllerMethodProp> get extendRegisteredMethodProp {
     var extraMap = <String, ControllerMethodProp>{};
+
     /// props
     extraMap[NodeProps.kSrc] = ControllerMethodProp(setUrl, '');
     extraMap[NodeProps.kSource] = ControllerMethodProp(setSource, null);
@@ -60,7 +61,8 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
     extraMap[NodeProps.kCapInsets] = ControllerMethodProp(setCapInsets, null);
     extraMap[NodeProps.kDefaultSource] = ControllerMethodProp(setDefaultSource, '');
     extraMap[NodeProps.kTintColor] = ControllerMethodProp(setTintColor, Colors.transparent.value);
-    /// listen
+
+    /// 2.0 bind events
     extraMap[NodeProps.kOnLoad] = ControllerMethodProp(setOnLoad, true);
     extraMap[NodeProps.kOnLoadStart] = ControllerMethodProp(setOnLoadStart, true);
     extraMap[NodeProps.kOnLoadEnd] = ControllerMethodProp(setOnLoadEnd, true);
@@ -125,6 +127,22 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
     }
   }
 
+  @ControllerProps(NodeProps.kCapInsets)
+  void setCapInsets(ImageRenderViewModel renderViewModel, VoltronMap? capInsetsMap) {
+    if (capInsetsMap != null) {
+      renderViewModel.capInsets = CapInsets(
+        left: capInsetsMap.get<double>('left') ?? capInsetsMap.get<int>('left')?.toDouble() ?? 0.0,
+        top: capInsetsMap.get<double>('top') ?? capInsetsMap.get<int>('top')?.toDouble() ?? 0.0,
+        right:
+            capInsetsMap.get<double>('right') ?? capInsetsMap.get<int>('right')?.toDouble() ?? 0.0,
+        bottom: capInsetsMap.get<double>('bottom') ??
+            capInsetsMap.get<int>('bottom')?.toDouble() ??
+            0.0,
+      );
+    }
+  }
+
+  /// 2.0 bind events
   @ControllerProps(NodeProps.kOnLoad)
   void setOnLoad(ImageRenderViewModel renderViewModel, bool enable) {
     setEventType(NodeProps.kOnLoad, renderViewModel, enable);
@@ -150,19 +168,7 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
     setEventType(NodeProps.kOnProgress, renderViewModel, enable);
   }
 
-  @ControllerProps(NodeProps.kCapInsets)
-  void setCapInsets(ImageRenderViewModel renderViewModel, VoltronMap? capInsetsMap) {
-    if (capInsetsMap != null) {
-      renderViewModel.capInsets = CapInsets(
-        left: capInsetsMap.get<double>('left') ?? capInsetsMap.get<int>('left')?.toDouble() ?? 0.0,
-        top: capInsetsMap.get<double>('top') ?? capInsetsMap.get<int>('top')?.toDouble() ?? 0.0,
-        right: capInsetsMap.get<double>('right') ?? capInsetsMap.get<int>('right')?.toDouble() ?? 0.0,
-        bottom: capInsetsMap.get<double>('bottom') ?? capInsetsMap.get<int>('bottom')?.toDouble() ?? 0.0,
-      );
-    }
-
-  }
-
+  /// 3.0 bind events
   @override
   void updateEvents(
     ImageRenderViewModel renderViewModel,

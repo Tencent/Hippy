@@ -160,8 +160,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void SetStyleMap(std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> style) {
     style_map_ = style;
   }
-  void CallFunction(const std::string& name, const DomArgument& param,
-                    const std::shared_ptr<RenderManager>& render_manager, const CallFunctionCallback& cb);
+  void CallFunction(const std::string& name, const DomArgument& param, const CallFunctionCallback& cb);
   const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> GetExtStyle() {
     return dom_ext_map_;
   }

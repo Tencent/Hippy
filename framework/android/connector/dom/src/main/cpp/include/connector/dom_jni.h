@@ -43,6 +43,11 @@ void DestroyRoot(JNIEnv* j_env,
                  __unused jobject j_obj,
                  jint j_root_id);
 
+void SetDomManager(JNIEnv* j_env,
+                  __unused jobject j_obj,
+                  jint j_root_id,
+                  jint j_dom_id);
+
 void SetRenderManager(JNIEnv* j_env,
                       __unused jobject j_obj,
                       jint j_dom_manager_id,

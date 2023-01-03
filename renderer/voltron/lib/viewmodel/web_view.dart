@@ -31,12 +31,10 @@ class WebViewModel extends GroupViewModel {
   String src = '';
   String? userAgent;
   String method = 'get';
-  bool onLoadStartEnable = false;
-  bool onErrorEnable = false;
-  bool onLoadEndEnable = false;
-  bool onLoadEnable = false;
-
-  bool onLoadFileFlag = false;
+  bool onLoadStartEventEnable = false;
+  bool onErrorEventEnable = false;
+  bool onLoadEndEventEnable = false;
+  bool onLoadEventEnable = false;
 
   WebViewModel(
     int id,
@@ -53,20 +51,20 @@ class WebViewModel extends GroupViewModel {
     WebViewModel viewModel,
   ) : super.copy(id, instanceId, className, context, viewModel) {
     src = viewModel.src;
-    onLoadStartEnable = viewModel.onLoadStartEnable;
-    onLoadEndEnable = viewModel.onLoadEndEnable;
-    onErrorEnable = viewModel.onErrorEnable;
-    onLoadEnable = viewModel.onLoadEnable;
+    onLoadStartEventEnable = viewModel.onLoadStartEventEnable;
+    onLoadEndEventEnable = viewModel.onLoadEndEventEnable;
+    onErrorEventEnable = viewModel.onErrorEventEnable;
+    onLoadEventEnable = viewModel.onLoadEventEnable;
   }
 
   @override
   bool operator ==(Object other) {
     return other is WebViewModel &&
         src == other.src &&
-        onLoadStartEnable == other.onLoadStartEnable &&
-        onLoadEndEnable == other.onLoadEndEnable &&
-        onErrorEnable == other.onErrorEnable &&
-        onLoadEnable == other.onLoadEnable &&
+        onLoadStartEventEnable == other.onLoadStartEventEnable &&
+        onLoadEndEventEnable == other.onLoadEndEventEnable &&
+        onErrorEventEnable == other.onErrorEventEnable &&
+        onLoadEventEnable == other.onLoadEventEnable &&
         super == (other);
   }
 
@@ -74,10 +72,10 @@ class WebViewModel extends GroupViewModel {
   int get hashCode =>
       super.hashCode |
       src.hashCode |
-      onLoadStartEnable.hashCode |
-      onLoadEndEnable.hashCode |
-      onErrorEnable.hashCode |
-      onLoadEnable.hashCode;
+      onLoadStartEventEnable.hashCode |
+      onLoadEndEventEnable.hashCode |
+      onErrorEventEnable.hashCode |
+      onLoadEventEnable.hashCode;
 
   void sendEvent(String eventName, VoltronMap params) {
     context.renderBridgeManager.sendComponentEvent(rootId, id, eventName, params);
@@ -86,32 +84,34 @@ class WebViewModel extends GroupViewModel {
   void onLoadStart(String url) {
     var params = VoltronMap();
     params.push('url', url);
-    sendEvent(WebViewViewController.kOnLoadStart, VoltronMap());
+    sendEvent(WebViewViewController.kEventOnLoadStart, VoltronMap());
   }
 
-  void onLoad() {
-    if (onLoadFileFlag) return;
+  void onLoad(String url) {
     var params = VoltronMap();
     params.push('url', src);
-    sendEvent(WebViewViewController.kOnLoad, params);
+    sendEvent(WebViewViewController.kEventOnLoad, params);
   }
 
-  void onLoadEnd(String url) {
+  void onLoadEnd(String url, bool success, String msg) {
     var params = VoltronMap();
-    params.push('success', true);
+    params.push('success', success);
     params.push('url', url);
-    sendEvent(WebViewViewController.kOnLoadEnd, params);
+    params.push('error', msg);
+    sendEvent(WebViewViewController.kEventOnLoadEnd, params);
   }
 
   void onLoadError(WebResourceError error) {
     if (Platform.isIOS) {
       var params = VoltronMap();
+      params.push('url', error.failingUrl);
       params.push('success', false);
-      sendEvent(WebViewViewController.kOnLoadEnd, params);
+      params.push('error', error.toString());
+      sendEvent(WebViewViewController.kEventOnLoadEnd, params);
     }
     var params = VoltronMap();
     params.push('errorCode', error.errorCode);
     params.push('error', error.description);
-    sendEvent(WebViewViewController.kOnError, params);
+    sendEvent(WebViewViewController.kEventOnError, params);
   }
 }

@@ -86,8 +86,16 @@ class ImageRenderViewModel extends RenderViewModel {
       return;
     } else {
       dispatchedEvent = {};
-      var img = getImage(src);
-      img.resolve(const ImageConfiguration()).addListener(
+      ImageProvider? imageProvider;
+      try {
+        imageProvider = getImage(src);
+      } catch (e) {
+        LogUtils.e('loadImage', 'getImage fail, url: $src, error: ${e.toString()}');
+        imageEventDispatcher.handleOnError();
+        imageEventDispatcher.handleOnLoadEnd();
+      }
+
+      imageProvider?.resolve(const ImageConfiguration()).addListener(
             ImageStreamListener(
               (image, flag) {
                 if (isDispose) return;
@@ -124,7 +132,7 @@ class ImageRenderViewModel extends RenderViewModel {
               },
             ),
           );
-      image = img;
+      image = imageProvider;
     }
   }
 }

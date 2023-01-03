@@ -117,12 +117,12 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
                            uint32_t id,
                            const std::string& name,
                            uint64_t listener_id);
-  static void SetRootSize(const std::weak_ptr<RootNode>& weak_root_node, float width, float height);
-  void CallFunction(const std::weak_ptr<RootNode>& weak_root_node,
+  static void CallFunction(const std::weak_ptr<RootNode>& weak_root_node,
                     uint32_t id,
                     const std::string& name,
                     const DomArgument& param,
                     const CallFunctionCallback& cb);
+  static void SetRootSize(const std::weak_ptr<RootNode>& weak_root_node, float width, float height);
   void DoLayout(const std::weak_ptr<RootNode>& weak_root_node);
   void PostTask(const Scene&& scene);
   uint32_t PostDelayedTask(const Scene&& scene, uint64_t delay);

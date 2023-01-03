@@ -221,11 +221,10 @@ void RootNode::UpdateAnimation(std::vector<std::shared_ptr<DomNode>>&& nodes) {
 }
 
 void RootNode::CallFunction(uint32_t id, const std::string& name, const DomArgument& param,
-                            const std::shared_ptr<RenderManager>& render_manager,
                             const CallFunctionCallback& cb) {
   auto node = GetNode(id);
   if (node) {
-    node->CallFunction(name, param, render_manager, cb);
+    node->CallFunction(name, param, cb);
   }
 }
 

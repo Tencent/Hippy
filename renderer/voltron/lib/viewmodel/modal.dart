@@ -20,6 +20,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:voltron_renderer/controller.dart';
 
 import '../engine.dart';
 import '../render.dart';
@@ -27,8 +28,7 @@ import '../util.dart';
 import '../widget.dart';
 import 'group.dart';
 
-class ModalRenderViewModel extends GroupViewModel
-    implements InstanceLifecycleEventListener {
+class ModalRenderViewModel extends GroupViewModel implements InstanceLifecycleEventListener {
   bool animationSwitch = true;
   String animationType = "none";
   int animationDuration = 200;
@@ -36,7 +36,6 @@ class ModalRenderViewModel extends GroupViewModel
   bool immersionStatusBar = true;
   bool statusBarTextDarkColor = false;
   bool transparent = true;
-  bool resizeToAvoidBottomInset = true;
 
   bool canDialogShow = true;
   bool isShowDialog = false;
@@ -69,7 +68,6 @@ class ModalRenderViewModel extends GroupViewModel
     immersionStatusBar = viewModel.immersionStatusBar;
     statusBarTextDarkColor = viewModel.statusBarTextDarkColor;
     transparent = viewModel.transparent;
-    resizeToAvoidBottomInset = viewModel.resizeToAvoidBottomInset;
     canDialogShow = viewModel.canDialogShow;
     oldWidth = viewModel.oldWidth;
     oldHeight = viewModel.oldHeight;
@@ -86,7 +84,6 @@ class ModalRenderViewModel extends GroupViewModel
         immersionStatusBar == other.immersionStatusBar &&
         statusBarTextDarkColor == other.statusBarTextDarkColor &&
         transparent == other.transparent &&
-        resizeToAvoidBottomInset == other.resizeToAvoidBottomInset &&
         canDialogShow == other.canDialogShow &&
         oldWidth == other.oldWidth &&
         oldHeight == other.oldHeight;
@@ -101,7 +98,6 @@ class ModalRenderViewModel extends GroupViewModel
       immersionStatusBar.hashCode |
       statusBarTextDarkColor.hashCode |
       transparent.hashCode |
-      resizeToAvoidBottomInset.hashCode |
       canDialogShow.hashCode |
       oldHeight.hashCode |
       oldHeight.hashCode;
@@ -139,8 +135,7 @@ class ModalRenderViewModel extends GroupViewModel
   }
 
   void registerFrameCallback() {
-    if (context.getInstance(rootId)?.viewExecutorList.contains(doFrame) ==
-        false) {
+    if (context.getInstance(rootId)?.viewExecutorList.contains(doFrame) == false) {
       context.getInstance(rootId)?.viewExecutorList.add(doFrame);
     }
   }
@@ -185,8 +180,7 @@ class ModalRenderViewModel extends GroupViewModel
         durationTime = animationDuration;
       }
       showGeneralDialog(
-        barrierLabel:
-            MaterialLocalizations.of(buildContext).modalBarrierDismissLabel,
+        barrierLabel: MaterialLocalizations.of(buildContext).modalBarrierDismissLabel,
         barrierDismissible: true,
         barrierColor: Color(barrierColor),
         context: buildContext,
@@ -221,11 +215,9 @@ class ModalRenderViewModel extends GroupViewModel
       type: MaterialType.transparency,
       child: Scaffold(
         backgroundColor: const Color(0x01ffffff),
-        resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+        resizeToAvoidBottomInset: true,
         body: AnnotatedRegion<SystemUiOverlayStyle>(
-          value: statusBarTextDarkColor
-              ? SystemUiOverlayStyle.dark
-              : SystemUiOverlayStyle.light,
+          value: statusBarTextDarkColor ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
           child: WillPopScope(
             onWillPop: () async {
               onRequestClose();
@@ -242,7 +234,7 @@ class ModalRenderViewModel extends GroupViewModel
     context.renderBridgeManager.sendComponentEvent(
       rootId,
       id,
-      "requestClose",
+      ModalController.kEventOnRequestClose,
       {},
     );
   }
@@ -251,7 +243,7 @@ class ModalRenderViewModel extends GroupViewModel
     context.renderBridgeManager.sendComponentEvent(
       rootId,
       id,
-      "show",
+      ModalController.kEventOnShow,
       {},
     );
   }

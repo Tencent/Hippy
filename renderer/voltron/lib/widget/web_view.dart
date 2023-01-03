@@ -49,7 +49,8 @@ class WebViewWidgetState extends FRState<WebViewWidget> {
 
   @override
   Widget build(BuildContext context) {
-    LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build web view widget");
+    LogUtils.dWidget(
+        "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build web view widget");
     return ChangeNotifierProvider.value(
       value: widget._viewModel,
       child: Selector<WebViewModel, WebViewModel>(
@@ -73,17 +74,17 @@ class WebViewWidgetState extends FRState<WebViewWidget> {
   }
 
   Widget _webWidget(WebViewModel viewModel) {
-    LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build web view inner widget");
+    LogUtils.dWidget(
+        "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build web view inner widget");
     return WebView(
       initialUrl: viewModel.src,
       userAgent: viewModel.userAgent,
       javascriptMode: JavascriptMode.unrestricted,
       onPageStarted: viewModel.onLoadStart,
-      onProgress: (progress) {
-        viewModel.onLoad();
-      },
+      onProgress: (progress) {},
       onPageFinished: (url) {
-        viewModel.onLoadEnd(url);
+        viewModel.onLoad(url);
+        viewModel.onLoadEnd(url, true, "");
       },
       onWebResourceError: viewModel.onLoadError,
     );
