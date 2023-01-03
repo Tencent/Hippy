@@ -37,17 +37,18 @@ class FileHandler : public hippy::UriHandler {
   }
 
   virtual void RequestUntrustedContent(
-      std::shared_ptr<RequestJob> request,
-      std::shared_ptr<JobResponse> response,
+      std::shared_ptr<hippy::RequestJob> request,
+      std::shared_ptr<hippy::JobResponse> response,
       std::function<std::shared_ptr<UriHandler>()> next) override;
   virtual void RequestUntrustedContent(
-      std::shared_ptr<RequestJob> request,
-      std::function<void(std::shared_ptr<JobResponse>)> cb,
+      std::shared_ptr<hippy::RequestJob> request,
+      std::function<void(std::shared_ptr<hippy::JobResponse>)> cb,
       std::function<std::shared_ptr<UriHandler>()> next) override;
  private:
-  void LoadByFile(const std::string &path,
-                  std::shared_ptr<ASyncContext> ctx,
-                  std::function<std::shared_ptr<UriHandler>()> next);
+  void LoadByFile(const std::string& path,
+                  std::shared_ptr<hippy::RequestJob> request,
+                  std::function<void(std::shared_ptr<hippy::JobResponse>)> cb,
+                  const std::function<std::shared_ptr<UriHandler>()>& next);
 
   std::weak_ptr<TaskRunner> runner_;
 };

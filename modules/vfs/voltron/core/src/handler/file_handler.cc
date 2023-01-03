@@ -20,6 +20,8 @@
 
 #include "handler/file_handler.h"
 
+#include <utility>
+
 #include "footstone/string_view_utils.h"
 #include "footstone/task.h"
 #include "vfs/file.h"
@@ -27,8 +29,9 @@
 
 namespace voltron {
 
-void FileHandler::RequestUntrustedContent(std::shared_ptr<SyncContext> ctx,
-                                           std::function<std::shared_ptr<UriHandler>()> next) {
+void FileHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob> request,
+                                          std::shared_ptr<hippy::JobResponse> response,
+                                          std::function<std::shared_ptr<UriHandler>()> next) {
   string_view uri = request->GetUri();
   std::shared_ptr<Url> uri_obj =
       std::make_shared<Url>(footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::CovertToUtf8(
@@ -40,7 +43,7 @@ void FileHandler::RequestUntrustedContent(std::shared_ptr<SyncContext> ctx,
     return;
   }
   string_view path_view = string_view::new_from_utf8(path.c_str(), path.size());
-  bool ret = hippy::HippyFile::ReadFile(path_view, ctx->content, false);
+  bool ret = hippy::HippyFile::ReadFile(path_view, response->GetContent(), false);
   if (ret) {
     response->SetRetCode(UriHandler::RetCode::Success);
   } else {
@@ -53,8 +56,8 @@ void FileHandler::RequestUntrustedContent(std::shared_ptr<SyncContext> ctx,
 }
 
 void FileHandler::RequestUntrustedContent(
-    std::shared_ptr<RequestJob> request,
-    std::function<void(std::shared_ptr<JobResponse>)> cb,
+    std::shared_ptr<hippy::RequestJob> request,
+    std::function<void(std::shared_ptr<hippy::JobResponse>)> cb,
     std::function<std::shared_ptr<UriHandler>()> next) {
   string_view uri = request->GetUri();
   std::shared_ptr<Url> uri_obj =
@@ -63,33 +66,33 @@ void FileHandler::RequestUntrustedContent(
           uri.encoding()).utf8_value()));
   std::string path = uri_obj->path();
   if (path.empty()) {
-    cb(std::make_shared<JobResponse>(UriHandler::RetCode::PathError));
+    cb(std::make_shared<hippy::JobResponse>(UriHandler::RetCode::PathError));
     return;
   }
-  auto new_cb = [orig_cb = cb](std::shared_ptr<JobResponse> response) {
-    orig_cb(response);
+  auto new_cb = [orig_cb = cb](std::shared_ptr<hippy::JobResponse> response) {
+    orig_cb(std::move(response));
   };
   LoadByFile(path, request, new_cb, next);
 }
 
-void FileHandler::LoadByFile(const string_view& path,
-                             std::shared_ptr<RequestJob> request,
-                             std::function<void(std::shared_ptr<JobResponse>)> cb,
-                             std::function<std::shared_ptr<UriHandler>()> next) {
+void FileHandler::LoadByFile(const std::string& path,
+                             std::shared_ptr<hippy::RequestJob> request,
+                             std::function<void(std::shared_ptr<hippy::JobResponse>)> cb,
+                             const std::function<std::shared_ptr<UriHandler>()>& next) {
   auto runner = runner_.lock();
   if (!runner) {
-    cb(std::make_shared<JobResponse>(UriHandler::RetCode::DelegateError));
+    cb(std::make_shared<hippy::JobResponse>(UriHandler::RetCode::DelegateError));
     return;
   }
-  runner->PostTask([path, ctx, next] {
+  runner->PostTask([path, cb, next] {
     UriHandler::bytes content;
     string_view path_view = string_view::new_from_utf8(path.c_str(), path.size());
     bool ret = hippy::HippyFile::ReadFile(path_view, content, false);
     if (ret) {
-      cb(std::make_shared<JobResponse>(hippy::JobResponse::RetCode::Success, "",
+      cb(std::make_shared<hippy::JobResponse>(hippy::JobResponse::RetCode::Success, "",
                                        std::unordered_map<std::string, std::string>{}, std::move(content)));
     } else {
-      cb(std::make_shared<JobResponse>(hippy::JobResponse::RetCode::Failed));
+      cb(std::make_shared<hippy::JobResponse>(hippy::JobResponse::RetCode::Failed));
     }
   });
 }
