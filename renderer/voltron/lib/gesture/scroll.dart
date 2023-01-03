@@ -29,7 +29,6 @@ import '../viewmodel.dart';
 import 'dispatcher.dart';
 
 class NativeScrollGestureDispatcher extends NativeGestureDispatcher {
-  late int _id;
   late int _rootId;
   late RenderContext _context;
 
@@ -57,7 +56,6 @@ class NativeScrollGestureDispatcher extends NativeGestureDispatcher {
     required int id,
     required RenderContext context,
   }) : super(rootId: rootId, id: id, context: context) {
-    _id = id;
     _rootId = rootId;
     _context = context;
   }
