@@ -7,6 +7,10 @@ on:
     workflows:
       - \[gh\] pull request review
     types: [ completed ]
+  workflow_dispatch:
+  schedule:
+    # Run every day at 21:00 UTC(05:00 UTC+08:00).
+    - cron: '0 21 * * *'
 
 jobs:
   request_notification:
@@ -119,3 +123,72 @@ jobs:
         issue-number: ${{ steps.parse_workflow_output.outputs.pull_request_number }}
         body: ${{ format(env.MESSAGE, steps.parse_workflow_output.outputs.pull_request_user) }}
         reactions: eyes
+
+  requested_reviewers_notification:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Notice
+      uses: actions/github-script@v6.3.3
+      env:
+        WECHAT_WORK_USERS: ${{ secrets.WECHAT_WORK_USERS }}
+      with:
+        script: |
+          const { pulls } = github.rest;
+          const os = require('os');
+
+          const pull_requests = await github.paginate(pulls.list, {
+            per_page: 100,
+            state: 'open',
+            ...context.repo
+          });
+
+          const requested_reviewers = await Promise.all(
+            pull_requests.map(
+              pull => pulls.listRequestedReviewers({
+                per_page: 100,
+                pull_number: pull.number,
+                ...context.repo
+              }).then(({ data }) => data)
+            )
+          );
+
+          if (pull_requests.length !== requested_reviewers.length) {
+            throw new Error("The length of pull_requests and requested_reviewers is not equal");
+          }
+
+          const wechat_work_users = JSON.parse(process.env.WECHAT_WORK_USERS);
+          const notification_users = {};
+
+          pull_requests.forEach((pull, index) => {
+            requested_reviewers[index].users.forEach(reviewer => {
+              if (reviewer.type === 'User') {
+                const user_id = wechat_work_users[reviewer.login];
+                if (user_id) {
+                  (notification_users[user_id] ||= []).push(pull);
+                }
+              }
+            });
+          });
+
+          await Promise.all(Object.entries(notification_users).map(([user_id, pulls]) => {
+            const content = [];
+            content.push(`<font color="warning">${pulls.length}</font> pull requests are awaiting on your review.`);
+            content.push(...pulls.map(pull => `> [#${pull.number}](${pull.html_url}) ${pull.title}`));
+            content.push('');
+            content.push(`<@${user_id}>`);
+
+            return github.request("POST ${{ secrets.WECHAT_WORK_BOT_WEBHOOK }}", {
+              headers: {
+                "content-type": "application/json"
+              },
+              data: {
+                chatid: "${{ secrets.WECHAT_WORK_CHAT_ID }}",
+                visible_to_user: user_id,
+                msgtype: "markdown",
+                markdown: {
+                  content: content.join(os.EOL)
+                }
+              }
+            });
+          }));
