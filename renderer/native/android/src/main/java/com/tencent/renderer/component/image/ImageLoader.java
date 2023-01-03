@@ -28,6 +28,8 @@ import com.tencent.renderer.pool.Pool;
 import com.tencent.vfs.ResourceDataHolder;
 import com.tencent.vfs.VfsManager;
 import com.tencent.vfs.VfsManager.FetchResourceCallback;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,12 +39,17 @@ public class ImageLoader implements ImageLoaderAdapter {
     public static final String REQUEST_CONTENT_TYPE_IMAGE = "image";
     @NonNull
     private final VfsManager mVfsManager;
-
+    @Nullable
+    private final ImageDecoderAdapter mImageDecoderAdapter;
+    @Nullable
+    private HashMap<Integer, ArrayList<ImageRequestListener>> mListenersMap;
     @NonNull
     private final Pool<Integer, ImageDataSupplier> mImagePool = new ImageDataPool();
 
-    public ImageLoader(@NonNull VfsManager vfsManager) {
+    public ImageLoader(@NonNull VfsManager vfsManager,
+            @Nullable ImageDecoderAdapter imageDecoderAdapter) {
         mVfsManager = vfsManager;
+        mImageDecoderAdapter = imageDecoderAdapter;
     }
 
     @Nullable
@@ -50,48 +57,90 @@ public class ImageLoader implements ImageLoaderAdapter {
         return mImagePool.acquire(ImageDataHolder.generateSourceKey(source));
     }
 
-    private void handleResourceData(@NonNull String url,
-            @NonNull final ResourceDataHolder dataHolder,
-            @NonNull final ImageRequestListener listener, int width, int height) {
-        Runnable callbackTask = null;
+    private void doListenerCallback(@NonNull final ImageRequestListener listener,
+            @Nullable final ImageDataHolder imageHolder,
+            @NonNull final String errorMessage) {
+        if (imageHolder != null) {
+            listener.onRequestSuccess(imageHolder);
+        } else {
+            listener.onRequestFail(new RuntimeException(errorMessage));
+        }
+    }
+
+    private Runnable generateCallbackRunnable(final int urlKey,
+            @Nullable final ImageDataHolder imageHolder,
+            @Nullable String errorMessage) {
+        final String error = (errorMessage != null) ? errorMessage : "";
+        return new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<ImageRequestListener> listeners =
+                        (mListenersMap != null) ? mListenersMap.get(urlKey) : null;
+                mListenersMap.remove(urlKey);
+                if (listeners != null && listeners.size() > 0) {
+                    for (ImageRequestListener listener : listeners) {
+                        if (listener != null) {
+                            doListenerCallback(listener, imageHolder, error);
+                        }
+                    }
+                }
+            }
+        };
+    }
+
+    private void handleResourceData(@NonNull String url, final int urlKey,
+            @NonNull final ResourceDataHolder dataHolder, int width, int height) {
+        ImageDataHolder imageHolder = null;
         String errorMessage = null;
         byte[] bytes = dataHolder.getBytes();
         if (dataHolder.resultCode
                 == ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE && bytes != null) {
-            final ImageDataHolder imageHolder = new ImageDataHolder(url, width, height);
+            imageHolder = new ImageDataHolder(url, width, height);
             try {
-                imageHolder.setData(bytes);
+                imageHolder.decodeImageData(bytes, mImageDecoderAdapter);
+                // Should check the request data returned from the host, if the data is
+                // invalid, the request is considered to have failed
                 if (imageHolder.checkImageData()) {
-                    callbackTask = new Runnable() {
-                        @Override
-                        public void run() {
-                            listener.onRequestSuccess(imageHolder);
-                        }
-                    };
                     saveImageToCache(imageHolder);
                 } else {
+                    imageHolder = null;
                     errorMessage = "Image data decoding failed!";
                 }
             } catch (NativeRenderException e) {
                 e.printStackTrace();
+                imageHolder = null;
                 errorMessage = e.getMessage();
             }
         } else {
             errorMessage = dataHolder.errorMessage;
         }
-        if (callbackTask == null) {
-            final String error = (errorMessage != null) ? errorMessage : "";
-            callbackTask = new Runnable() {
-                @Override
-                public void run() {
-                    listener.onRequestFail(new RuntimeException(error));
-                }
-            };
-        }
+        Runnable callbackRunnable = generateCallbackRunnable(urlKey, imageHolder, errorMessage);
         if (UIThreadUtils.isOnUiThread()) {
-            callbackTask.run();
+            callbackRunnable.run();
         } else {
-            UIThreadUtils.runOnUiThread(callbackTask);
+            UIThreadUtils.runOnUiThread(callbackRunnable);
+        }
+    }
+
+    private void handleRequestProgress(final float total, final float loaded, final int urlKey) {
+        Runnable progressRunnable = new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<ImageRequestListener> listeners =
+                        (mListenersMap != null) ? mListenersMap.get(urlKey) : null;
+                if (listeners != null) {
+                    for (ImageRequestListener listener : listeners) {
+                        if (listener != null) {
+                            listener.onRequestProgress(total, loaded);
+                        }
+                    }
+                }
+            }
+        };
+        if (UIThreadUtils.isOnUiThread()) {
+            progressRunnable.run();
+        } else {
+            UIThreadUtils.runOnUiThread(progressRunnable);
         }
     }
 
@@ -131,7 +180,7 @@ public class ImageLoader implements ImageLoaderAdapter {
         }
         ImageDataHolder imageHolder = new ImageDataHolder(url, width, height);
         try {
-            imageHolder.setData(bytes);
+            imageHolder.decodeImageData(bytes, mImageDecoderAdapter);
             if (imageHolder.checkImageData()) {
                 saveImageToCache(imageHolder);
                 return imageHolder;
@@ -142,26 +191,57 @@ public class ImageLoader implements ImageLoaderAdapter {
         return null;
     }
 
+    private boolean checkRepeatRequest(int urlKey, @NonNull final ImageRequestListener listener) {
+        if (mListenersMap == null) {
+            mListenersMap = new HashMap<>();
+        }
+        ArrayList<ImageRequestListener> listenerList = mListenersMap.get(urlKey);
+        if (listenerList != null) {
+            listenerList.add(listener);
+            return true;
+        }
+        ArrayList<ImageRequestListener> listeners = new ArrayList<>();
+        listeners.add(listener);
+        mListenersMap.put(urlKey, listeners);
+        return false;
+    }
+
     @Override
     public void fetchImageAsync(@NonNull final String url,
             @NonNull final ImageRequestListener listener,
             @Nullable Map<String, Object> initProps, final int width, final int height) {
+        final int urlKey = ImageDataHolder.generateSourceKey(url);
+        // If the same image uri repeatedly requests, we need to filter these repeated requests
+        // to avoid wasting system resources
+        if (checkRepeatRequest(urlKey, listener)) {
+            return;
+        }
         HashMap<String, String> requestParams = generateRequestParams(initProps, width, height);
         mVfsManager.fetchResourceAsync(url, null, requestParams,
                 new FetchResourceCallback() {
                     @Override
                     public void onFetchCompleted(@NonNull final ResourceDataHolder dataHolder) {
-                        handleResourceData(url, dataHolder, listener, width, height);
+                        handleResourceData(url, urlKey, dataHolder, width, height);
                     }
 
                     @Override
                     public void onFetchProgress(float total, float loaded) {
-                        listener.onRequestProgress(total, loaded);
+                        handleRequestProgress(total, loaded, urlKey);
                     }
                 });
     }
 
+    @Override
     public void clear() {
         mImagePool.clear();
+    }
+
+    @Override
+    public void destroy() {
+        clear();
+        if (mListenersMap != null) {
+            mListenersMap.clear();
+            mListenersMap = null;
+        }
     }
 }

@@ -59,6 +59,7 @@ import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.ControllerProvider;
 import com.tencent.renderer.FrameworkProxy;
+import com.tencent.renderer.component.image.ImageDecoderAdapter;
 import com.tencent.renderer.component.text.FontAdapter;
 import com.tencent.vfs.DefaultProcessor;
 import com.tencent.devtools.vfs.DevtoolsProcessor;
@@ -280,6 +281,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     @Override
     public FontAdapter getFontAdapter() {
         return mEngineContext.getGlobalConfigs().getFontScaleAdapter();
+    }
+
+    @Override
+    public ImageDecoderAdapter getImageDecoderAdapter() {
+        return mEngineContext.getGlobalConfigs().getImageDecoderAdapter();
     }
 
     @NonNull
