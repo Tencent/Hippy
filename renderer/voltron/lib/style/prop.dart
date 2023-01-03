@@ -50,7 +50,9 @@ mixin StyleMethodPropConsumer {
 }
 
 class NodeProps {
-  static const int kTransparent = 0;
+  ///
+  /// Props
+  /// 布局相关
   static const String kAlignItems = "alignItems";
   static const String kAlignSelf = "alignSelf";
   static const String kOverflow = "overflow";
@@ -95,6 +97,7 @@ class NodeProps {
   static const String kMinHeight = "minHeight";
   static const String kMaxHeight = "maxHeight";
 
+  /// border
   static const String kBorderWidth = "borderWidth";
   static const String kBorderLeftWidth = "borderLeftWidth";
   static const String kBorderTopWidth = "borderTopWidth";
@@ -107,6 +110,12 @@ class NodeProps {
   static const String kBorderRightColor = "borderRightColor";
   static const String kBorderBottomColor = "borderBottomColor";
   static const String kBorderStyle = "borderStyle";
+
+  static const String kBorderRadius = "borderRadius";
+  static const String kBorderTopLeftRadius = "borderTopLeftRadius";
+  static const String kBorderTopRightRadius = "borderTopRightRadius";
+  static const String kBorderBottomLeftRadius = "borderBottomLeftRadius";
+  static const String kBorderBottomRightRadius = "borderBottomRightRadius";
 
   // hippy linear-gradient
   static const String linearGradient = "linearGradient";
@@ -139,8 +148,6 @@ class NodeProps {
   static const String kFontWeight = "fontWeight";
   static const String kFontStyle = "fontStyle";
   static const String kFontFamily = "fontFamily";
-  static const String kLineHeight = "lineHeight";
-  static const String kNumberOfLines = "numberOfLines";
   static const String kEllipsizeMode = "ellipsizeMode";
   static const String kOn = "on";
   static const String kResizeMode = "resizeMode";
@@ -158,48 +165,139 @@ class NodeProps {
   static const String kPropShadowColor = "textShadowColor";
   static const String kPropEnableScale = "enableScale";
   static const String kSrc = "src";
+  static const String kTransform = "transform";
+  static const String kTransformOrigin = "transformOrigin";
+  static const String kZIndex = "zIndex";
+  static const double kDefaultFontSizeSp = 14.0;
+
+  // for both image and web_view
   static const String kSource = "source";
   static const String kTintColor = "tintColor";
   static const String kBounceTime = "bounceTime";
   static const String kCapInsets = "capInsets";
   static const String kDefaultSource = "defaultSource";
-  static const String kLevel = "level";
-  static const String kVersion = "version";
 
+  /// web_view
+  static const String kUserAgent = "userAgent";
+  static const String kMethod = "method";
+
+  static const String kVisible = "visible";
+  static const String kRepeatCount = "repeatCount";
+
+  /// scroll
+  static const String kScrollEnable = "scrollEnabled";
+  static const String kScrollEventThrottle = "scrollEventThrottle";
+  static const String kShowScrollIndicator = "showScrollIndicator";
+  static const String kShowsHorizontalScrollIndicator = "showsHorizontalScrollIndicator";
+  static const String kShowsVerticalScrollIndicator = "showsVerticalScrollIndicator";
+  static const String kOnScrollAnimationEnd = "onScrollAnimationEnd";
+  static const String kFlingEnabled = "flingEnabled";
+  static const String kContentOffsetForReuse = "contentOffset4Reuse";
+  static const String kPagingEnabled = "pagingEnabled";
+  static const String kBounces = "bounces";
+
+  /// list
+  static const kHorizontal = "horizontal";
+  static const kRowShouldSticky = "rowShouldSticky";
+  static const kPreloadItemSize = "preloadItemSize";
+  static const kPreloadItemNumber = "preloadItemNumber";
+  static const kInitContentOffset = "initialContentOffset";
+  static const kOverScrollEnabled = "overScrollEnabled";
+
+  /// view_pager
+  static const kInitialPage = "initialPage";
+  static const kPageMargin = "pageMarginFact";
+  static const kDirection = "direction";
+
+  /// modal
+  static const String kAnimationSwitch = "animated";
+  static const String kAnimationType = "animationType";
+  static const String kAnimationDuration = 'animationDuration';
+  static const String kBarrierColorReact = 'barrierColor';
+  static const String kBarrierColorVue = 'barrier-color';
+  static const String kImmersionStatusBar = "immersionStatusBar";
+  static const String kDarkStatusBarText = "darkStatusBarText";
+  static const String kTransparent = "transparent";
+
+  /// text_input
+  /// props
+  static const String kDefaultValue = "defaultValue";
+  static const String kValidator = "validator";
+  static const String kEditable = "editable";
+  static const String kCaretColorReact = "caret-color";
+  static const String kCaretColorVue = "caretColor";
+  static const String kMultiline = "multiline";
+  static const String kReturnKeyType = "returnKeyType";
+  static const String kKeyboardType = "keyboardType";
+  static const String kMaxLengthProp = "maxLength";
+  static const String kOnSelectionChange = "onSelectionChange";
+  static const String kValueProp = "value";
+  static const String kPlaceholder = "placeholder";
+  static const String kPlaceholderTextColorReact = "placeholder-text-color";
+  static const String kPlaceholderTextColorVue = "placeholderTextColor";
+  static const String kNumberOfLines = "numberOfLines";
+  static const String kUnderlineColor = "underlineColorAndroid";
+  static const String kLineHeight = "lineHeight";
+
+  /// waterfall
+  static const String numberOfColumns = "numberOfColumns";
+  static const String numberOfItems = "numberOfItems";
+  static const String columnSpacing = "columnSpacing";
+  static const String interItemSpacing = "interItemSpacing";
+  static const String contentInset = "contentInset";
+  static const String preloadItemNumber = "preloadItemNumber";
+  static const String containBannerView = "containBannerView";
+  static const String containPullHeader = "containPullHeader";
+  static const String containPullFooter = "containPullFooter";
+
+  ///
+  /// 2.0 bind Event
+  /// 兼容2.0旧版本事件开关以属性方式传入
+  /// touch相关，voltron暂不支持
   static const String kOnInterceptTouchEvent = "onInterceptTouchEvent";
   static const String kOnInterceptPullUpEvent = "onInterceptPullUpEvent";
 
-  static const String kBorderRadius = "borderRadius";
-  static const String kBorderTopLeftRadius = "borderTopLeftRadius";
-  static const String kBorderTopRightRadius = "borderTopRightRadius";
-  static const String kBorderBottomLeftRadius = "borderBottomLeftRadius";
-  static const String kBorderBottomRightRadius = "borderBottomRightRadius";
-
+  /// scroll
   static const String kOnScrollBeginDrag = "onScrollBeginDrag";
   static const String kOnScrollEndDrag = "onScrollEndDrag";
   static const String kOnMomentumScrollBegin = "onMomentumScrollBegin";
   static const String kOnMomentumScrollEnd = "onMomentumScrollEnd";
   static const String kOnScrollEnable = "onScroll";
   static const String kOnEndReached = "onEndReached";
-  static const String kScrollEnable = "scrollEnabled";
-  static const String kScrollEventThrottle = "scrollEventThrottle";
 
+  /// list
+  static const String kOnAppear = "onAppear";
+  static const String kOnDisAppear = "onDisAppear";
+  static const String kOnWillAppear = "onWillAppear";
+  static const String kOnWillDisAppear = "onWillDisAppear";
+
+  /// image and web_view
   static const String kOnLoad = "onLoad";
   static const String kOnLoadEnd = "onLoadEnd";
   static const String kOnLoadStart = "onLoadStart";
   static const String kOnError = "onError";
   static const String kOnProgress = "onProgress";
 
-  static const String kTransform = "transform";
-  static const String kTransformOrigin = "transformOrigin";
-  static const String kZIndex = "zIndex";
+  /// text input
+  static const String kOnChangeText = "onChangeText";
+  static const String kOnEndEditing = "onEndEditing";
+  static const String kOnFocus = "onFocus";
+  static const String kOnBlur = "onBlur";
+  static const String kOnContentSizeChange = "onContentSizeChange";
+  static const String kOnKeyboardWillShow = "onKeyboardWillShow";
+  static const String kOnKeyboardWillHide = "onKeyboardWillHide";
 
-  static const double kDefaultFontSizeSp = 14.0;
+  /// view pager
+  static const String kOnPageSelected = "onPageSelected";
+  static const String kOnPageScroll = "onPageScroll";
+  static const String kOnPageScrollStateChanged = "onPageScrollStateChanged";
 
-  static const String kViewClassName = "View";
+  /// virtual node
+  /// 虚拟节点支持
   static const String kTextClassName = "Text";
   static const String kImageClassName = "Image";
 
+  /// style
   /// 节点样式，包含内联样式
   static const String kStyle = "style";
   static const String kAttributes = 'attributes';
@@ -214,9 +312,6 @@ class NodeProps {
   static const String kNextFocusLeftId = "nextFocusLeftId";
   static const String kNextFocusRightId = "nextFocusRightId";
   static const String kRequestFocus = "requestFocus";
-
-  static const String kVisible = "visible";
-  static const String kRepeatCount = "repeatCount";
 
   static final HashSet<String> _justLayoutPropSet = HashSet<String>();
   static HashSet<String> get justLayoutPropSet {
@@ -272,7 +367,7 @@ class NodeProps {
       case kOpacity:
         return map.isNull(kOpacity) || map.get<double>(kOpacity) == 1;
       case kBorderRadius:
-        if (map.containsKey(kBackgroundColor) && map.get<int>(kBackgroundColor) != kTransparent) {
+        if (map.containsKey(kBackgroundColor) && map.get<int>(kBackgroundColor) != 0) {
           return false;
         }
         if (map.containsKey(kBorderWidth) &&
@@ -282,13 +377,13 @@ class NodeProps {
         }
         return true;
       case kBorderLeftColor:
-        return map.get<int>(kBorderLeftColor) == kTransparent;
+        return map.get<int>(kBorderLeftColor) == 0;
       case kBorderRightColor:
-        return map.get<int>(kBorderRightColor) == kTransparent;
+        return map.get<int>(kBorderRightColor) == 0;
       case kBorderTopColor:
-        return map.get<int>(kBorderTopColor) == kTransparent;
+        return map.get<int>(kBorderTopColor) == 0;
       case kBorderBottomColor:
-        return map.get<int>(kBorderBottomColor) == kTransparent;
+        return map.get<int>(kBorderBottomColor) == 0;
       case kBorderWidth:
         return map.isNull(kBorderWidth) || map.get<double>(kBorderWidth) == 0;
       case kBorderLeftWidth:

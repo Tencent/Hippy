@@ -31,12 +31,11 @@ import '../widget.dart';
 class WebViewViewController extends BaseViewController<WebViewModel> {
   static const String kClassName = "WebView";
 
-  static const String kUserAgent = "userAgent";
-  static const String kMethod = "method";
-  static const String kOnLoad = "onLoad";
-  static const String kOnLoadStart = "onLoadStart";
-  static const String kOnLoadEnd = "onLoadEnd";
-  static const String kOnError = "onError";
+  // 兼容3.0新事件绑定方式
+  static const String kEventOnLoad = "load";
+  static const String kEventOnLoadStart = "loadstart";
+  static const String kEventOnLoadEnd = "loadend";
+  static const String kEventOnError = "error";
 
   @override
   WebViewModel createRenderViewModel(RenderNode node, RenderContext context) {
@@ -52,12 +51,12 @@ class WebViewViewController extends BaseViewController<WebViewModel> {
   Map<String, ControllerMethodProp> get extendRegisteredMethodProp {
     var extraMap = <String, ControllerMethodProp>{};
     extraMap[NodeProps.kSource] = ControllerMethodProp(setSource, null);
-    extraMap[kUserAgent] = ControllerMethodProp(setUserAgent, '');
-    extraMap[kMethod] = ControllerMethodProp(setMethod, '');
-    extraMap[kOnLoad] = ControllerMethodProp(setOnLoad, true);
-    extraMap[kOnLoadStart] = ControllerMethodProp(setOnLoadStart, true);
-    extraMap[kOnLoadEnd] = ControllerMethodProp(setOnLoadEnd, true);
-    extraMap[kOnError] = ControllerMethodProp(setOnError, true);
+    extraMap[NodeProps.kUserAgent] = ControllerMethodProp(setUserAgent, '');
+    extraMap[NodeProps.kMethod] = ControllerMethodProp(setMethod, '');
+    extraMap[NodeProps.kOnLoad] = ControllerMethodProp(setOnLoad, true);
+    extraMap[NodeProps.kOnLoadStart] = ControllerMethodProp(setOnLoadStart, true);
+    extraMap[NodeProps.kOnLoadEnd] = ControllerMethodProp(setOnLoadEnd, true);
+    extraMap[NodeProps.kOnError] = ControllerMethodProp(setOnError, true);
 
     return extraMap;
   }
@@ -70,36 +69,62 @@ class WebViewViewController extends BaseViewController<WebViewModel> {
     }
   }
 
-  @ControllerProps(kUserAgent)
+  @ControllerProps(NodeProps.kUserAgent)
   void setUserAgent(WebViewModel renderViewModel, String ua) {
     if (ua != renderViewModel.userAgent) {
       renderViewModel.userAgent = ua;
     }
   }
 
-  @ControllerProps(kMethod)
+  @ControllerProps(NodeProps.kMethod)
   void setMethod(WebViewModel renderViewModel, String method) {
     renderViewModel.method = method;
   }
 
-  @ControllerProps(kOnLoadStart)
+  @ControllerProps(NodeProps.kOnLoadStart)
   void setOnLoadStart(WebViewModel renderViewModel, bool flag) {
-    renderViewModel.onLoadStartEnable = flag;
+    renderViewModel.onLoadStartEventEnable = flag;
   }
 
-  @ControllerProps(kOnError)
+  @ControllerProps(NodeProps.kOnError)
   void setOnError(WebViewModel renderViewModel, bool flag) {
-    renderViewModel.onErrorEnable = flag;
+    renderViewModel.onErrorEventEnable = flag;
   }
 
-  @ControllerProps(kOnLoadEnd)
+  @ControllerProps(NodeProps.kOnLoadEnd)
   void setOnLoadEnd(WebViewModel renderViewModel, bool flag) {
-    renderViewModel.onLoadEndEnable = flag;
+    renderViewModel.onLoadEndEventEnable = flag;
   }
 
-  @ControllerProps(kOnLoad)
+  @ControllerProps(NodeProps.kOnLoad)
   void setOnLoad(WebViewModel renderViewModel, bool flag) {
-    renderViewModel.onLoadEnable = flag;
+    renderViewModel.onLoadEventEnable = flag;
+  }
+
+  @override
+  void updateEvents(
+    WebViewModel renderViewModel,
+    Set<EventHolder> holders,
+  ) {
+    super.updateEvents(renderViewModel, holders);
+    if (holders.isNotEmpty) {
+      for (var holder in holders) {
+        switch (holder.eventName) {
+          case kEventOnLoad:
+            setOnLoad(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnLoadStart:
+            setOnLoadStart(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnLoadEnd:
+            setOnLoadEnd(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnError:
+            setOnError(renderViewModel, holder.isAdd);
+            break;
+        }
+      }
+    }
   }
 
   @override

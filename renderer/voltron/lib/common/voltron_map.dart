@@ -182,6 +182,10 @@ class VoltronMap {
         voltronMap.push(entry.key, (entry.value as Map).toVoltronMap());
       } else if (entry.value is List) {
         voltronMap.push(entry.key, (entry.value as List).toVoltronArray());
+      } else if (entry.value is VoltronMap) {
+        voltronMap.push(entry.key, (entry.value as VoltronMap).toDeepVoltronMap());
+      } else if (entry.value is VoltronArray) {
+        voltronMap.push(entry.key, (entry.value as VoltronArray).toDeepVoltronArray());
       } else {
         voltronMap.push(entry.key, entry.value);
       }

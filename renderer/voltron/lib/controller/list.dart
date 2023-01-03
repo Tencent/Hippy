@@ -40,18 +40,21 @@ typedef RefreshWrapperDelegate = RefreshConfiguration Function({
 class ListViewController extends BaseGroupController<ListViewModel> {
   static const String kClassName = "ListView";
 
-  static const kHorizontal = "horizontal";
-  static const kShowScrollIndicator = "showScrollIndicator";
-  static const kRowShouldSticky = "rowShouldSticky";
-  static const kPreloadItemSize = "preloadItemSize";
-  static const kPreloadItemNumber = "preloadItemNumber";
-  static const kInitContentOffset = "initialContentOffset";
-  static const kBounces = "bounces";
-  static const kOverScrollEnabled = "overScrollEnabled";
-  static const kExposureEventEnabled = "exposureEventEnabled";
+  /// func
+  static const kFuncScrollToIndex = "scrollToIndex";
+  static const kFuncScrollToContentOffset = "scrollToContentOffset";
 
-  static const kScrollToIndex = "scrollToIndex";
-  static const kScrollToContentOffset = "scrollToContentOffset";
+  /// 3.0 bind events
+  static const String kEventOnScroll = "scroll";
+  static const String kEventOnMomentumScrollBegin = "momentumscrollbegin";
+  static const String kEventOnMomentumScrollEnd = "momentumscrollend";
+  static const String kEventOnScrollBeginDrag = "scrollbegindrag";
+  static const String kEventOnScrollEndDrag = "scrollenddrag";
+  static const String kEventOnEndReached = "endreached";
+  static const String kEventOnAppear = "appear";
+  static const String kEventOnDisAppear = "disappear";
+  static const String kEventOnWillAppear = "willappear";
+  static const String kEventOnWillDisAppear = "willdisappear";
 
   @override
   Widget createWidget(BuildContext context, ListViewModel viewModel) {
@@ -68,77 +71,48 @@ class ListViewController extends BaseGroupController<ListViewModel> {
 
   @override
   Map<String, ControllerMethodProp> get groupExtraMethodProp => {
-        kRowShouldSticky: ControllerMethodProp(setRowShouldSticky, false),
-        kHorizontal: ControllerMethodProp(setHorizontal, false),
+        NodeProps.kRowShouldSticky: ControllerMethodProp(setRowShouldSticky, false),
+        NodeProps.kHorizontal: ControllerMethodProp(setHorizontal, false),
+        NodeProps.kScrollEnable: ControllerMethodProp(setScrollEnable, true),
+        NodeProps.kScrollEventThrottle: ControllerMethodProp(setScrollEventThrottle, 30),
+        NodeProps.kShowScrollIndicator: ControllerMethodProp(setShowScrollIndicator, false),
+        NodeProps.kPreloadItemSize: ControllerMethodProp(setPreloadItemSize, 0.0),
+        NodeProps.kInitContentOffset: ControllerMethodProp(setInitContentOffset, 0.0),
+        NodeProps.kPreloadItemNumber: ControllerMethodProp(setPreloadItemNumber, 0),
+        NodeProps.kBounces: ControllerMethodProp(setBounces, true),
+        NodeProps.kOverScrollEnabled: ControllerMethodProp(setOverScrollEnabled, true),
+        NodeProps.kPaddingTop: ControllerMethodProp(setPaddingTop, 0.0),
+        NodeProps.kPaddingRight: ControllerMethodProp(setPaddingRight, 0.0),
+        NodeProps.kPaddingBottom: ControllerMethodProp(setPaddingBottom, 0.0),
+        NodeProps.kPaddingLeft: ControllerMethodProp(setPaddingLeft, 0.0),
+        // 2.0 bind events
+        NodeProps.kOnScrollEnable: ControllerMethodProp(setScrollEventEnable, false),
         NodeProps.kOnScrollBeginDrag: ControllerMethodProp(setScrollBeginDragEventEnable, false),
         NodeProps.kOnScrollEndDrag: ControllerMethodProp(setScrollEndDragEventEnable, false),
         NodeProps.kOnMomentumScrollBegin:
             ControllerMethodProp(setMomentumScrollBeginEventEnable, false),
         NodeProps.kOnMomentumScrollEnd:
             ControllerMethodProp(setMomentumScrollEndEventEnable, false),
-        NodeProps.kOnScrollEnable: ControllerMethodProp(setOnScrollEventEnable, false),
         NodeProps.kOnEndReached: ControllerMethodProp(setOnEndReached, true),
-        NodeProps.kScrollEnable: ControllerMethodProp(setScrollEnable, true),
-        NodeProps.kScrollEventThrottle: ControllerMethodProp(setScrollEventThrottle, 30),
-        kShowScrollIndicator: ControllerMethodProp(setShowScrollIndicator, false),
-        kPreloadItemSize: ControllerMethodProp(setPreloadItemSize, 0.0),
-        kInitContentOffset: ControllerMethodProp(setInitContentOffset, 0.0),
-        kPreloadItemNumber: ControllerMethodProp(setPreloadItemNumber, 0),
-        kBounces: ControllerMethodProp(setBounces, true),
-        kOverScrollEnabled: ControllerMethodProp(setOverScrollEnabled, true),
-        kExposureEventEnabled: ControllerMethodProp(setExposureEventEnabled, false),
-        NodeProps.kPaddingTop: ControllerMethodProp(setPaddingTop, 0.0),
-        NodeProps.kPaddingRight: ControllerMethodProp(setPaddingRight, 0.0),
-        NodeProps.kPaddingBottom: ControllerMethodProp(setPaddingBottom, 0.0),
-        NodeProps.kPaddingLeft: ControllerMethodProp(setPaddingLeft, 0.0),
+        NodeProps.kOnAppear: ControllerMethodProp(setOnAppear, true),
+        NodeProps.kOnDisAppear: ControllerMethodProp(setOnDisAppear, true),
+        NodeProps.kOnWillAppear: ControllerMethodProp(setOnWillAppear, true),
+        NodeProps.kOnWillDisAppear: ControllerMethodProp(setOnWillDisAppear, true),
       };
 
-  @ControllerProps(kRowShouldSticky)
+  @ControllerProps(NodeProps.kRowShouldSticky)
   void setRowShouldSticky(ListViewModel renderViewModel, bool enable) {
     renderViewModel.hasStickyItem = enable;
   }
 
-  @ControllerProps(kHorizontal)
+  @ControllerProps(NodeProps.kHorizontal)
   void setHorizontal(ListViewModel renderViewModel, bool enable) {
     renderViewModel.horizontal = enable;
   }
 
-  @ControllerProps(kShowScrollIndicator)
+  @ControllerProps(NodeProps.kShowScrollIndicator)
   void setShowScrollIndicator(ListViewModel renderViewModel, bool enable) {
     renderViewModel.showScrollIndicator = enable;
-  }
-
-  @ControllerProps(NodeProps.kOnScrollBeginDrag)
-  void setScrollBeginDragEventEnable(ListViewModel renderViewModel, bool flag) {
-    renderViewModel.scrollGestureDispatcher.scrollBeginDragEventEnable = flag;
-  }
-
-  @ControllerProps(NodeProps.kOnScrollEndDrag)
-  void setScrollEndDragEventEnable(ListViewModel renderViewModel, bool flag) {
-    renderViewModel.scrollGestureDispatcher.scrollEndDragEventEnable = flag;
-  }
-
-  @ControllerProps(NodeProps.kOnMomentumScrollBegin)
-  void setMomentumScrollBeginEventEnable(
-    ListViewModel renderViewModel,
-    bool flag,
-  ) {
-    renderViewModel.scrollGestureDispatcher.momentumScrollBeginEventEnable = flag;
-  }
-
-  @ControllerProps(NodeProps.kOnMomentumScrollEnd)
-  void setMomentumScrollEndEventEnable(ListViewModel renderViewModel, bool flag) {
-    renderViewModel.scrollGestureDispatcher.momentumScrollEndEventEnable = flag;
-  }
-
-  @ControllerProps(NodeProps.kOnScrollEnable)
-  void setOnScrollEventEnable(ListViewModel renderViewModel, bool flag) {
-    renderViewModel.scrollGestureDispatcher.scrollEventEnable = flag;
-  }
-
-  @ControllerProps(NodeProps.kOnEndReached)
-  void setOnEndReached(ListViewModel renderViewModel, bool flag) {
-    renderViewModel.scrollGestureDispatcher.endReachedEventEnable = true;
   }
 
   @ControllerProps(NodeProps.kScrollEnable)
@@ -151,17 +125,17 @@ class ListViewController extends BaseGroupController<ListViewModel> {
     renderViewModel.scrollGestureDispatcher.scrollEventThrottle = scrollEventThrottle;
   }
 
-  @ControllerProps(kPreloadItemSize)
+  @ControllerProps(NodeProps.kPreloadItemSize)
   void setPreloadItemSize(ListViewModel renderViewModel, double preloadItemSize) {
     renderViewModel.preloadSize = preloadItemSize;
   }
 
-  @ControllerProps(kInitContentOffset)
+  @ControllerProps(NodeProps.kInitContentOffset)
   void setInitContentOffset(ListViewModel renderViewModel, double offset) {
     renderViewModel.initOffset = offset;
   }
 
-  @ControllerProps(kPreloadItemNumber)
+  @ControllerProps(NodeProps.kPreloadItemNumber)
   void setPreloadItemNumber(ListViewModel renderViewModel, int number) {
     var gestureDispatcher = renderViewModel.gestureDispatcher;
     if (gestureDispatcher is NativeScrollGestureDispatcher) {
@@ -169,21 +143,45 @@ class ListViewController extends BaseGroupController<ListViewModel> {
     }
   }
 
-  @ControllerProps(kBounces)
+  @ControllerProps(NodeProps.kBounces)
   void setBounces(ListViewModel renderViewModel, bool enable) {
     renderViewModel.bounces = enable;
   }
 
-  @ControllerProps(kBounces)
+  @ControllerProps(NodeProps.kOverScrollEnabled)
   void setOverScrollEnabled(ListViewModel renderViewModel, bool enable) {
     renderViewModel.bounces = enable;
   }
 
-  @ControllerProps(kExposureEventEnabled)
-  void setExposureEventEnabled(ListViewModel renderViewModel, bool enable) {
+  @ControllerProps(NodeProps.kOnAppear)
+  void setOnAppear(ListViewModel renderViewModel, bool enable) {
     var gestureDispatcher = renderViewModel.gestureDispatcher;
     if (gestureDispatcher is NativeScrollGestureDispatcher) {
-      gestureDispatcher.exposureEventEnabled = enable;
+      gestureDispatcher.appearEventEnable = enable;
+    }
+  }
+
+  @ControllerProps(NodeProps.kOnDisAppear)
+  void setOnDisAppear(ListViewModel renderViewModel, bool enable) {
+    var gestureDispatcher = renderViewModel.gestureDispatcher;
+    if (gestureDispatcher is NativeScrollGestureDispatcher) {
+      gestureDispatcher.disAppearEventEnable = enable;
+    }
+  }
+
+  @ControllerProps(NodeProps.kOnWillAppear)
+  void setOnWillAppear(ListViewModel renderViewModel, bool enable) {
+    var gestureDispatcher = renderViewModel.gestureDispatcher;
+    if (gestureDispatcher is NativeScrollGestureDispatcher) {
+      gestureDispatcher.willAppearEventEnable = enable;
+    }
+  }
+
+  @ControllerProps(NodeProps.kOnWillDisAppear)
+  void setOnWillDisAppear(ListViewModel renderViewModel, bool enable) {
+    var gestureDispatcher = renderViewModel.gestureDispatcher;
+    if (gestureDispatcher is NativeScrollGestureDispatcher) {
+      gestureDispatcher.willDisAppearEventEnable = enable;
     }
   }
 
@@ -231,6 +229,84 @@ class ListViewController extends BaseGroupController<ListViewModel> {
     }
   }
 
+  /// 2.0 bind events
+  @ControllerProps(NodeProps.kOnScrollBeginDrag)
+  void setScrollBeginDragEventEnable(ListViewModel renderViewModel, bool flag) {
+    renderViewModel.scrollGestureDispatcher.scrollBeginDragEventEnable = flag;
+  }
+
+  @ControllerProps(NodeProps.kOnScrollEndDrag)
+  void setScrollEndDragEventEnable(ListViewModel renderViewModel, bool flag) {
+    renderViewModel.scrollGestureDispatcher.scrollEndDragEventEnable = flag;
+  }
+
+  @ControllerProps(NodeProps.kOnMomentumScrollBegin)
+  void setMomentumScrollBeginEventEnable(
+    ListViewModel renderViewModel,
+    bool flag,
+  ) {
+    renderViewModel.scrollGestureDispatcher.momentumScrollBeginEventEnable = flag;
+  }
+
+  @ControllerProps(NodeProps.kOnMomentumScrollEnd)
+  void setMomentumScrollEndEventEnable(ListViewModel renderViewModel, bool flag) {
+    renderViewModel.scrollGestureDispatcher.momentumScrollEndEventEnable = flag;
+  }
+
+  @ControllerProps(NodeProps.kOnScrollEnable)
+  void setScrollEventEnable(ListViewModel renderViewModel, bool flag) {
+    renderViewModel.scrollGestureDispatcher.scrollEventEnable = flag;
+  }
+
+  @ControllerProps(NodeProps.kOnEndReached)
+  void setOnEndReached(ListViewModel renderViewModel, bool flag) {
+    renderViewModel.scrollGestureDispatcher.endReachedEventEnable = true;
+  }
+
+  @override
+  void updateEvents(
+    ListViewModel renderViewModel,
+    Set<EventHolder> holders,
+  ) {
+    super.updateEvents(renderViewModel, holders);
+    if (holders.isNotEmpty) {
+      for (var holder in holders) {
+        switch (holder.eventName) {
+          case kEventOnScroll:
+            setScrollEventEnable(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnScrollBeginDrag:
+            setScrollBeginDragEventEnable(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnScrollEndDrag:
+            setScrollEndDragEventEnable(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnMomentumScrollBegin:
+            setMomentumScrollBeginEventEnable(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnMomentumScrollEnd:
+            setMomentumScrollEndEventEnable(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnEndReached:
+            setOnEndReached(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnAppear:
+            setOnAppear(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnDisAppear:
+            setOnDisAppear(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnWillAppear:
+            setOnWillAppear(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnWillDisAppear:
+            setOnWillDisAppear(renderViewModel, holder.isAdd);
+            break;
+        }
+      }
+    }
+  }
+
   @override
   void dispatchFunction(
     ListViewModel viewModel,
@@ -239,7 +315,7 @@ class ListViewController extends BaseGroupController<ListViewModel> {
     Promise? promise,
   }) {
     super.dispatchFunction(viewModel, functionName, array, promise: promise);
-    if (functionName == kScrollToIndex) {
+    if (functionName == kFuncScrollToIndex) {
       // list滑动到某个item
       var yIndex = array.get<int>(1) ?? -1;
       var animated = array.get<bool>(2) ?? false;
@@ -251,7 +327,7 @@ class ListViewController extends BaseGroupController<ListViewModel> {
       }
       LogUtils.d("list_scroll", "scroll to index:$yIndex");
       viewModel.scrollToIndex(yIndex, duration, animated);
-    } else if (functionName == kScrollToContentOffset) {
+    } else if (functionName == kFuncScrollToContentOffset) {
       // list滑动到某个距离
       var yOffset = array.get<double>(1) ?? array.get<int>(1)?.toDouble() ?? 0.0;
       var animated = array.get<bool>(2) ?? false;

@@ -27,6 +27,9 @@ import 'package:voltron/voltron.dart';
 class QrController extends BaseViewController<QrRenderViewModel> {
   static const String kClassName = "QrView";
 
+  static const String kText = "text";
+  static const String kLevel = "level";
+
   @override
   Widget createWidget(BuildContext context, QrRenderViewModel viewModel) {
     return QrWidget(viewModel);
@@ -48,18 +51,17 @@ class QrController extends BaseViewController<QrRenderViewModel> {
   @override
   Map<String, ControllerMethodProp> get extendRegisteredMethodProp {
     var extraMap = <String, ControllerMethodProp>{};
-    extraMap[NodeProps.kText] = ControllerMethodProp(setText, '');
-    extraMap[NodeProps.kLevel] =
-        ControllerMethodProp(setLevel, enumValueToString(QrErrorCorrectLevel.L));
+    extraMap[kText] = ControllerMethodProp(setText, '');
+    extraMap[kLevel] = ControllerMethodProp(setLevel, enumValueToString(QrErrorCorrectLevel.L));
     return extraMap;
   }
 
-  @ControllerProps(NodeProps.kText)
+  @ControllerProps(kText)
   void setText(QrRenderViewModel viewModel, String text) {
     viewModel.text = text;
   }
 
-  @ControllerProps(NodeProps.kLevel)
+  @ControllerProps(kLevel)
   void setLevel(QrRenderViewModel viewModel, String level) {
     switch (level) {
       case 'l':

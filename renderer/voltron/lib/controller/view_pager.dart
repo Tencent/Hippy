@@ -29,11 +29,13 @@ import '../widget.dart';
 
 class ViewPagerController extends BaseGroupController<ViewPagerRenderViewModel> {
   static const String kClassName = "ViewPager";
-  static const kInitialPage = "initialPage";
-  static const kPageMargin = "pageMarginFact";
-  static const kBounces = "bounces";
-  static const kDirection = "direction";
 
+  /// 3.0 bind events
+  static const String kEventOnPageSelected = 'pageselected';
+  static const String kEventOnPageScroll = 'pagescroll';
+  static const String kEventOnPageScrollStateChanged = 'pagescrollstatechanged';
+
+  /// func
   static const String kFuncSetPage = "setPage";
   static const String kFuncSetPageWidthOutAnim = "setPageWithoutAnimation";
 
@@ -60,27 +62,31 @@ class ViewPagerController extends BaseGroupController<ViewPagerRenderViewModel> 
 
   @override
   Map<String, ControllerMethodProp> get groupExtraMethodProp => {
-        kInitialPage: ControllerMethodProp(setInitialPage, 0),
-        kBounces: ControllerMethodProp(setBounces, false),
-        kDirection: ControllerMethodProp(setDirection, ''),
+        NodeProps.kInitialPage: ControllerMethodProp(setInitialPage, 0),
+        NodeProps.kBounces: ControllerMethodProp(setBounces, false),
+        NodeProps.kDirection: ControllerMethodProp(setDirection, ''),
         NodeProps.kScrollEnable: ControllerMethodProp(setScrollEnabled, true),
-        kPageMargin: ControllerMethodProp(setPageMargin, 0.0),
+        NodeProps.kPageMargin: ControllerMethodProp(setPageMargin, 0.0),
+        NodeProps.kOnPageSelected: ControllerMethodProp(setOnPageSelected, true),
+        NodeProps.kOnPageScroll: ControllerMethodProp(setOnPageScroll, true),
+        NodeProps.kOnPageScrollStateChanged:
+            ControllerMethodProp(setOnPageScrollStateChanged, true),
       };
 
   @override
   String get name => kClassName;
 
-  @ControllerProps(kInitialPage)
+  @ControllerProps(NodeProps.kInitialPage)
   void setInitialPage(ViewPagerRenderViewModel renderViewModel, int initialPage) {
     renderViewModel.initialPage = initialPage;
   }
 
-  @ControllerProps(kBounces)
+  @ControllerProps(NodeProps.kBounces)
   void setBounces(ViewPagerRenderViewModel renderViewModel, bool flag) {
     renderViewModel.bounces = flag;
   }
 
-  @ControllerProps(kDirection)
+  @ControllerProps(NodeProps.kDirection)
   void setDirection(ViewPagerRenderViewModel renderViewModel, String direction) {
     if (direction == 'vertical') {
       renderViewModel.isVertical = true;
@@ -96,15 +102,56 @@ class ViewPagerController extends BaseGroupController<ViewPagerRenderViewModel> 
 
   /// 在Android和iOS中这个属性为pageMargin，传入的是绝对值
   /// flutter中该属性传入的是比例，属性为pageMarginFact
-  @ControllerProps(kPageMargin)
+  @ControllerProps(NodeProps.kPageMargin)
   void setPageMargin(ViewPagerRenderViewModel renderViewModel, double margin) {
     renderViewModel.pageMargin = margin;
   }
 
+  @ControllerProps(NodeProps.kOnPageSelected)
+  void setOnPageSelected(ViewPagerRenderViewModel renderViewModel, bool enable) {
+    renderViewModel.onPageSelectedEventEnable = enable;
+  }
+
+  @ControllerProps(NodeProps.kOnPageScroll)
+  void setOnPageScroll(ViewPagerRenderViewModel renderViewModel, bool enable) {
+    renderViewModel.onPageScrollEventEnable = enable;
+  }
+
+  @ControllerProps(NodeProps.kOnPageScrollStateChanged)
+  void setOnPageScrollStateChanged(ViewPagerRenderViewModel renderViewModel, bool enable) {
+    renderViewModel.onPageScrollStateChangedEventEnable = enable;
+  }
+
+  @override
+  void updateEvents(
+    ViewPagerRenderViewModel renderViewModel,
+    Set<EventHolder> holders,
+  ) {
+    super.updateEvents(renderViewModel, holders);
+    if (holders.isNotEmpty) {
+      for (var holder in holders) {
+        switch (holder.eventName) {
+          case kEventOnPageSelected:
+            setOnPageSelected(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnPageScroll:
+            setOnPageScroll(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnPageScrollStateChanged:
+            setOnPageScrollStateChanged(renderViewModel, holder.isAdd);
+            break;
+        }
+      }
+    }
+  }
+
   @override
   void dispatchFunction(
-      ViewPagerRenderViewModel? viewModel, String functionName, VoltronArray array,
-      {Promise? promise}) {
+    ViewPagerRenderViewModel? viewModel,
+    String functionName,
+    VoltronArray array, {
+    Promise? promise,
+  }) {
     if (viewModel == null) {
       return;
     }
