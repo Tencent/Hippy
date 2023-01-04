@@ -91,6 +91,8 @@ const UIManagerModuleDemo = function UIManagerModuleDemo() {
   // Get the window size after component attached to DOM
   useEffect(() => {
     const screen = Dimensions.get('screen');
+    console.log('screen', screen);
+    console.log('window', Dimensions.get('window'));
     ({ width: windowWidth, height: windowHeight } = screen);
   });
 
