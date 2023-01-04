@@ -21,8 +21,6 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Resources;
-import android.content.res.Resources.NotFoundException;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Build;
@@ -44,7 +42,6 @@ import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 @SuppressWarnings({"unused"})
@@ -375,29 +372,14 @@ public class HippyModalHostView extends HippyViewGroup implements
 
   @SuppressWarnings("SameReturnValue")
   protected int getThemeResId() {
-    return 0;
+      return android.R.style.Theme_Translucent_NoTitleBar;
   }
 
   protected Dialog createDialog(Context context) {
     int themeResId = getThemeResId();
-    if (context != null) {
-      Resources res = context.getResources();
-      themeResId = res.getIdentifier("HippyFullScreenDialog", "style", context.getPackageName());
-    }
 
     assert context != null;
-    Dialog dialog = new Dialog(context, themeResId);
-    if (themeResId == 0) {
-      Window window = dialog.getWindow();
-      if (window != null) {
-        window.requestFeature(Window.FEATURE_NO_TITLE);
-        window.setBackgroundDrawableResource(android.R.color.transparent);
-        window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams
-            .MATCH_PARENT);
-      }
-    }
-
-    return dialog;
+    return new Dialog(context, themeResId);
   }
 
   protected View createContentView(View hostView) {
