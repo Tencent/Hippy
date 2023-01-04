@@ -43,6 +43,7 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.views.image.HippyImageViewController;
 import com.tencent.mtt.hippy.views.text.HippyTextViewController;
+import com.tencent.renderer.component.image.ImageDecoderAdapter;
 import com.tencent.renderer.component.image.ImageLoader;
 import com.tencent.renderer.component.image.ImageLoaderAdapter;
 import com.tencent.renderer.component.text.FontAdapter;
@@ -177,7 +178,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     @Nullable
     public ImageLoaderAdapter getImageLoader() {
         if (mImageLoader == null && getVfsManager() != null) {
-            mImageLoader = new ImageLoader(getVfsManager());
+            mImageLoader = new ImageLoader(getVfsManager(), getImageDecoderAdapter());
         }
         return mImageLoader;
     }
@@ -186,6 +187,12 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     @Nullable
     public VfsManager getVfsManager() {
         return (mFrameworkProxy != null) ? mFrameworkProxy.getVfsManager() : null;
+    }
+
+    @Override
+    @Nullable
+    public ImageDecoderAdapter getImageDecoderAdapter() {
+        return (mFrameworkProxy != null) ? mFrameworkProxy.getImageDecoderAdapter() : null;
     }
 
     @Override
@@ -246,6 +253,9 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         mRenderManager.destroy();
         if (mInstanceLifecycleEventListeners != null) {
             mInstanceLifecycleEventListeners.clear();
+        }
+        if (mImageLoader != null) {
+            mImageLoader.destroy();
         }
         mFrameworkProxy = null;
         NativeRendererManager.removeNativeRendererInstance(mRenderProvider.getInstanceId());
