@@ -42,29 +42,37 @@ function getProcessedDimensions(nativeDimensions) {
   const { nativeWindow, nativeScreen } = transferToUnifiedDimensions(nativeDimensions);
   if (nativeWindow) {
     // android is physical resolution, divided by scale needed
-    global.__HIPPYNATIVEGLOBAL__.OS === 'ios'
-      ? window = nativeWindow
-      : window = {
-        width: nativeWindow.width / nativeWindow.scale,
-        height: nativeWindow.height / nativeWindow.scale,
-        scale: nativeWindow.scale,
-        fontScale: nativeWindow.fontScale,
-        statusBarHeight: nativeWindow.statusBarHeight / nativeWindow.scale,
-        navigatorBarHeight: nativeWindow.navigationBarHeight / nativeWindow.scale,
+    if (global.__HIPPYNATIVEGLOBAL__.OS === 'ios') {
+      window = nativeWindow;
+    } else {
+      const { width, scale, height, fontScale, statusBarHeight, navigationBarHeight, ...options } = nativeWindow;
+      window = {
+        scale,
+        fontScale,
+        width: width / scale,
+        height: height / scale,
+        statusBarHeight: statusBarHeight / scale,
+        navigatorBarHeight: navigationBarHeight / scale,
+        ...options,
       };
+    }
   }
   if (nativeScreen) {
     // android is physical resolution, divided by scale needed
-    global.__HIPPYNATIVEGLOBAL__.OS === 'ios'
-      ? screen = nativeScreen
-      : screen = {
-        width: nativeScreen.width / nativeScreen.scale,
-        height: nativeScreen.height / nativeScreen.scale,
-        scale: nativeScreen.scale,
-        fontScale: nativeScreen.fontScale,
-        statusBarHeight: nativeScreen.statusBarHeight,
-        navigatorBarHeight: nativeScreen.navigationBarHeight / nativeScreen.scale,
+    if (global.__HIPPYNATIVEGLOBAL__.OS === 'ios') {
+      screen = nativeScreen;
+    } else {
+      const { width, scale, height, fontScale, statusBarHeight, navigationBarHeight, ...options } = nativeScreen;
+      screen = {
+        scale,
+        fontScale,
+        statusBarHeight,
+        width: width / scale,
+        height: height / scale,
+        navigatorBarHeight: navigationBarHeight / scale,
+        ...options,
       };
+    }
   }
   return {
     window,
