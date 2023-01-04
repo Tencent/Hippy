@@ -193,10 +193,6 @@ NSArray<Class<HPImageProviderProtocol>> *NativeRenderManager::GetImageProviderCl
     }
 }
 
-void NativeRenderManager::SetHPUriLoader(HPUriLoader *loader) {
-    renderImpl_.HPUriLoader = loader;
-}
-
 void NativeRenderManager::SetVFSUriLoader(std::shared_ptr<VFSUriLoader> loader) {
     renderImpl_.VFSUriLoader = loader;
 }

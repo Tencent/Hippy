@@ -20,18 +20,33 @@
  *
  */
 
-#import "HippyBridge.h"
+#import <Foundation/Foundation.h>
+
+#include <functional>
+#include <memory>
+
+#include "VFSDefines.h"
+#include "vfs/handler/uri_handler.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface HippyBridge (VFSLoader)
+namespace hippy {
+inline namespace vfs {
+class RequestJob;
+class JobResponse;
+};
+};
 
-- (void)loadContentsAsynchronouslyFromUrl:(NSString *)urlString
-                                   method:(NSString *_Nullable)method
-                                   params:(NSDictionary<NSString *, NSString *> *_Nullable)httpHeaders
-                                     body:(NSData *_Nullable)body
-                                 progress:(void(^ _Nullable)(NSUInteger current, NSUInteger total))progress
-                        completionHandler:(void (^)(NSData *_Nullable data, NSURLResponse *_Nullable response, NSError *_Nullable error))completionHandler;
+hippy::vfs::UriHandler::RetCode RetCodeFromNSError(NSError *error);
+
+@interface NSURLSessionDataProgress : NSObject<NSURLSessionDataDelegate>
+
+- (instancetype)initWithRequestJob:(const std::shared_ptr<hippy::RequestJob> &)requestJob
+                  responseCallback:(std::function<void(std::shared_ptr<hippy::JobResponse>)>)cb;
+
+- (instancetype)initWithProgress:(VFSHandlerProgressBlock)progress
+                          result:(VFSHandlerCompletionBlock)result;
+
 @end
 
 NS_ASSUME_NONNULL_END

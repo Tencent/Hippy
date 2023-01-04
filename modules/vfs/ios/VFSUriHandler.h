@@ -20,27 +20,28 @@
  *
  */
 
+#include "VFSDefines.h"
 #include "vfs/handler/uri_handler.h"
 
 @class NSError;
-@class HPUriLoader;
 
-hippy::vfs::UriHandler::RetCode RetCodeFromNSError(NSError *error);
+class VFSUriLoader;
 
 class VFSUriHandler : public hippy::vfs::UriHandler {
   public:
     virtual void RequestUntrustedContent(
-        std::shared_ptr<hippy::vfs::UriHandler::SyncContext> ctx,
-        std::function<std::shared_ptr<hippy::vfs::UriHandler>()> next);
+        std::shared_ptr<hippy::RequestJob> request,
+        std::shared_ptr<hippy::JobResponse> response,
+        std::function<std::shared_ptr<UriHandler>()> next) override;
     virtual void RequestUntrustedContent(
-        std::shared_ptr<hippy::vfs::UriHandler::ASyncContext> ctx,
-        std::function<std::shared_ptr<hippy::vfs::UriHandler>()> next);
+        std::shared_ptr<hippy::RequestJob> request,
+        std::function<void(std::shared_ptr<hippy::JobResponse>)> cb,
+        std::function<std::shared_ptr<UriHandler>()> next) override;
 
-    inline HPUriLoader *GetLoader(){return loader_;}
-    inline void SetLoader(HPUriLoader *loader){loader_ = loader;}
-    
+    virtual void RequestUntrustedContent(NSURLRequest *request, VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion, VFSGetNextHandlerBlock next);
+    inline void SetLoader(const std::shared_ptr<VFSUriLoader> &loader){weakLoader_ = loader;}
+    inline std::weak_ptr<VFSUriLoader> GetLoader() const {return weakLoader_;}
+        
   private:
-    void ForwardToHPUriLoader(std::shared_ptr<hippy::vfs::UriHandler::ASyncContext> ctx);
-    void ForwardToHPUriLoader(std::shared_ptr<hippy::vfs::UriHandler::SyncContext> ctx);
-    __weak HPUriLoader *loader_;
+    std::weak_ptr<VFSUriLoader> weakLoader_;
 };

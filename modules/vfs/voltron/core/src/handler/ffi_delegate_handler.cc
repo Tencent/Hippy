@@ -30,31 +30,33 @@ FfiDelegateHandler::FfiDelegateHandler(uint32_t wrapper_id): wrapper_id_(wrapper
 
 }
 
-void FfiDelegateHandler::RequestUntrustedContent(std::shared_ptr<SyncContext> ctx,
-                                          std::function<std::shared_ptr<UriHandler>()> next) {
+void FfiDelegateHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob> request,
+                                                 std::shared_ptr<hippy::JobResponse> response,
+                                                 std::function<std::shared_ptr<UriHandler>()> next) {
   bool notified = false;
 
   FOOTSTONE_DCHECK(!next()) << "ffi delegate must be the last handler";
-  if (ctx->req_meta[kCallFromKey] == kCallFromDart) {
-    ctx->code = RetCode::SchemeNotRegister;
+  auto req_meta = request->GetMeta();
+  if (req_meta[kCallFromKey] == kCallFromDart) {
+    response->SetRetCode(RetCode::SchemeNotRegister);
     return;
   }
 
   auto wrapper = voltron::VfsWrapper::GetWrapper(wrapper_id_);
   if (!wrapper) {
-    ctx->code = RetCode::Failed;
+    response->SetRetCode(RetCode::Failed);
     return;
   }
 
-  wrapper->InvokeDart(ctx->uri,
-                      ctx->req_meta,
-                      [this, &ctx, &notified](RetCode code,
+  wrapper->InvokeDart(request->GetUri(),
+                      req_meta,
+                      [this, &response, &notified](RetCode code,
                                               std::unordered_map<std::string, std::string> meta,
                                               bytes content) {
-                        ctx->code = code;
+                        response->SetRetCode(code);
                         if (code == RetCode::Success) {
-                          ctx->rsp_meta = std::move(meta);
-                          ctx->content = std::move(content);
+                          response->SetMeta(std::move(meta));
+                          response->SetContent(std::move(content));
                         }
 
                         std::unique_lock<std::mutex> lock(mutex_);
@@ -68,26 +70,29 @@ void FfiDelegateHandler::RequestUntrustedContent(std::shared_ptr<SyncContext> ct
 }
 
 void FfiDelegateHandler::RequestUntrustedContent(
-    std::shared_ptr<ASyncContext> ctx,
+    std::shared_ptr<hippy::RequestJob> request,
+    std::function<void(std::shared_ptr<hippy::JobResponse>)> cb,
     std::function<std::shared_ptr<UriHandler>()> next) {
   FOOTSTONE_DCHECK(!next()) << "ffi delegate must be the last handler";
-  if (ctx->req_meta[kCallFromKey] == kCallFromDart) {
-    ctx->cb(UriHandler::RetCode::SchemeNotRegister, {}, {});
+  auto req_meta = request->GetMeta();
+  if (req_meta[kCallFromKey] == kCallFromDart) {
+    cb(std::make_shared<hippy::JobResponse>(hippy::JobResponse::RetCode::SchemeNotRegister));
     return;
   }
 
   auto wrapper = voltron::VfsWrapper::GetWrapper(wrapper_id_);
   if (!wrapper) {
-    ctx->cb(UriHandler::RetCode::Failed, {}, {});
+    cb(std::make_shared<hippy::JobResponse>(hippy::JobResponse::RetCode::Failed));
     return;
   }
 
-  wrapper->InvokeDart(ctx->uri,
-                      ctx->req_meta,
-                      [orig_cb = ctx->cb](RetCode code,
-                                          std::unordered_map<std::string, std::string> meta,
-                                          bytes content) {
-                        orig_cb(code, std::move(meta), std::move(content));
+  wrapper->InvokeDart(request->GetUri(),
+                      req_meta,
+                      [cb](RetCode code,
+                          std::unordered_map<std::string, std::string> meta,
+                          bytes content) {
+                        cb(std::make_shared<hippy::JobResponse>(code, "",
+                                                         std::move(meta), std::move(content)));
                       });
 }
 

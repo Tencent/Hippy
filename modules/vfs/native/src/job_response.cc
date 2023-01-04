@@ -18,39 +18,27 @@
  * limitations under the License.
  */
 
-#pragma once
-
-#include <functional>
-#include <memory>
-#include <string>
-#include <unordered_map>
-
-#include "footstone/string_view.h"
-#include "vfs/request_job.h"
 #include "vfs/job_response.h"
+
+#include <utility>
 
 namespace hippy {
 inline namespace vfs {
 
-class UriHandler {
- public:
-  using bytes = std::string;
-  using string_view = footstone::string_view;
-  using RetCode = hippy::JobResponse::RetCode;
+JobResponse::JobResponse(RetCode code, const string_view& err_msg,
+                         std::unordered_map<std::string, std::string> meta,
+                         bytes&& content)
+    : code_(code), err_msg_(err_msg), meta_(std::move(meta)), content_(std::move(content)) {}
 
-  UriHandler() = default;
-  virtual ~UriHandler() = default;
+JobResponse::JobResponse(JobResponse::RetCode code): JobResponse(code, "", {}, "") {}
 
-  virtual void RequestUntrustedContent(
-      std::shared_ptr<RequestJob> request,
-      std::shared_ptr<JobResponse> response,
-      std::function<std::shared_ptr<UriHandler>()> next) = 0;
-  virtual void RequestUntrustedContent(
-      std::shared_ptr<RequestJob> request,
-      std::function<void(std::shared_ptr<JobResponse>)> cb,
-      std::function<std::shared_ptr<UriHandler>()> next) = 0;
-};
+JobResponse::JobResponse() : JobResponse(RetCode::Success) {}
+
+JobResponse::bytes JobResponse::ReleaseContent() {
+  auto ret = std::move(content_);
+  content_ = "";
+  return ret;
+}
 
 }
 }
-

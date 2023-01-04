@@ -34,10 +34,12 @@ class FfiDelegateHandler : public hippy::UriHandler {
   virtual ~FfiDelegateHandler();
 
   virtual void RequestUntrustedContent(
-      std::shared_ptr<SyncContext> ctx,
+      std::shared_ptr<hippy::RequestJob> request,
+      std::shared_ptr<hippy::JobResponse> response,
       std::function<std::shared_ptr<UriHandler>()> next) override;
   virtual void RequestUntrustedContent(
-      std::shared_ptr<ASyncContext> ctx,
+      std::shared_ptr<hippy::RequestJob> request,
+      std::function<void(std::shared_ptr<hippy::JobResponse>)> cb,
       std::function<std::shared_ptr<UriHandler>()> next) override;
 
  private:

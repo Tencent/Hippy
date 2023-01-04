@@ -122,7 +122,7 @@ public class ImageLoader implements ImageLoaderAdapter {
         }
     }
 
-    private void handleRequestProgress(final float total, final float loaded, final int urlKey) {
+    private void handleRequestProgress(final long total, final long loaded, final int urlKey) {
         Runnable progressRunnable = new Runnable() {
             @Override
             public void run() {
@@ -225,7 +225,7 @@ public class ImageLoader implements ImageLoaderAdapter {
                     }
 
                     @Override
-                    public void onFetchProgress(float total, float loaded) {
+                    public void onFetchProgress(long total, long loaded) {
                         handleRequestProgress(total, loaded, urlKey);
                     }
                 });

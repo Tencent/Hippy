@@ -152,7 +152,6 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     NSMutableDictionary<NSString *, id> *_viewManagers;
     NSDictionary<NSString *, Class> *_extraComponent;
     
-    __weak HPUriLoader *_HPUriLoader;
     std::shared_ptr<VFSUriLoader> _VFSUriLoader;
     NSMutableArray<Class<HPImageProviderProtocol>> *_imageProviders;
     std::mutex _imageProviderMutex;
@@ -1296,16 +1295,6 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         _imageProviders = [NSMutableArray arrayWithCapacity:8];
     }
     return [_imageProviders copy];
-}
-
-- (void)setHPUriLoader:(HPUriLoader *)loader {
-    if (_HPUriLoader != loader) {
-        _HPUriLoader = loader;
-    }
-}
-
-- (HPUriLoader *)HPUriLoader {
-    return _HPUriLoader;
 }
 
 - (void)setVFSUriLoader:(std::shared_ptr<VFSUriLoader>)loader {

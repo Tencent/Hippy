@@ -72,6 +72,7 @@
                                        method:@"get"
                                        params:nil
                                          body:nil
+                                     progress:nil
                             completionHandler:^(NSData * _Nonnull data, NSURLResponse * _Nonnull response, NSError * _Nonnull error) {
         HippyBundleLoadOperation *strongSelf = weakSelf;
         if (!strongSelf || strongSelf.cancelled) {

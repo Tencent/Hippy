@@ -25,58 +25,159 @@
 #import "TypeConverter.h"
 #import "HPToolUtils.h"
 
+#include <functional>
+#include <unordered_map>
+
+#include "footstone/string_view_utils.h"
+
 NSString *const VFSErrorDomain = @"VFSErrorDomain";
 NSString *const VFSParamsMethod = @"VFSParamsMethod";
 NSString *const VFSParamsHeaders = @"VFSParamsHeaders";
 NSString *const VFSParamsBody = @"VFSParamsBody";
 
-void VFSUriLoader::loadContentsAsynchronously(NSString *urlString, NSDictionary *headers, URILoaderCompletion completion) {
-    if (!urlString || !completion) {
-        return;
+void VFSUriLoader::RegisterConvenientUriHandler(NSString *scheme,
+                                                const std::shared_ptr<VFSUriHandler>& handler) {
+    std::lock_guard<std::mutex> lock(convenintMutex_);
+    auto it = convenint_handler_map_.find([scheme hash]);
+    if (convenint_handler_map_.end() == it) {
+        convenint_handler_map_[[scheme hash]] = default_convenient_handlers_;
+        convenint_handler_map_[[scheme hash]].push_front(handler);
     }
-    string_view uri = NSStringToU16StringView(urlString);
-    std::unordered_map<std::string, std::string> meta = NSDictionaryToStringUnorderedMap(headers);
-    auto cb = [completion, urlString](RetCode code, std::unordered_map<std::string, std::string> map, bytes contents){
-        NSURL *url = HPURLWithString(urlString, nil);
-        NSData *data = [NSData dataWithBytes:reinterpret_cast<const void *>(contents.c_str()) length:contents.length()];
-        NSURLResponse *response = ResponseMapToURLResponse(url, map, contents.length());
-        NSError *error = GetVFSError(code, urlString, response);
-        completion(data, response, error);
-    };
-    RequestUntrustedContent(uri, meta, cb);
+    else {
+        it->second.push_front(handler);
+    }
+    handler->SetLoader(std::static_pointer_cast<VFSUriLoader>(shared_from_this()));
 }
 
-void VFSUriLoader::loadContentsAsynchronously(NSString *urlString, NSDictionary *headers, URILoaderCompletionBlock block) {
-    if (!urlString || !block) {
-        return;
+void VFSUriLoader::AddConvenientDefaultHandler(const std::shared_ptr<VFSUriHandler>& handler) {
+    std::lock_guard<std::mutex> lock(convenintMutex_);
+    default_convenient_handlers_.push_front(handler);
+    for (auto &it : convenint_handler_map_) {
+        it.second.push_back(handler);
     }
-    string_view uri = NSStringToU16StringView(urlString);
-    std::unordered_map<std::string, std::string> meta = NSDictionaryToStringUnorderedMap(headers);
-    auto cb = [block, urlString](RetCode code, std::unordered_map<std::string, std::string> map, bytes contents){
-        NSURL *url = HPURLWithString(urlString, nil);
-        NSData *data = [NSData dataWithBytes:reinterpret_cast<const void *>(contents.c_str()) length:contents.length()];
-        NSURLResponse *response = ResponseMapToURLResponse(url, map, contents.length());
-        NSError *error = GetVFSError(code, urlString, response);
-        block(data, response, error);
-    };
-    RequestUntrustedContent(uri, meta, cb);
 }
 
-NSData *VFSUriLoader::loadContentsSynchronously(NSString *urlString, NSDictionary *headers, NSURLResponse **response, NSError **error) {
-    if (!urlString) {
+const std::list<std::shared_ptr<VFSUriHandler>> &VFSUriLoader::GetConvenientDefaultHandlers() {
+    std::lock_guard<std::mutex> lock(convenintMutex_);
+    return default_convenient_handlers_;
+}
+
+void VFSUriLoader::RequestUntrustedContent(const string_view& uri,
+                                           const std::unordered_map<std::string, std::string>& meta,
+                                           std::function<void(RetCode, std::unordered_map<std::string, std::string>, bytes)> cb) {
+    hippy::vfs::UriLoader::RequestUntrustedContent(uri, meta, cb);
+}
+
+void VFSUriLoader::RequestUntrustedContent(const string_view& uri,
+                                           const std::unordered_map<std::string, std::string>& req_meta,
+                                           RetCode& code,
+                                           std::unordered_map<std::string, std::string>& rsp_meta,
+                                           bytes& content) {
+    hippy::vfs::UriLoader::RequestUntrustedContent(uri, req_meta, code, rsp_meta, content);
+}
+
+void VFSUriLoader::RequestUntrustedContent(const std::shared_ptr<hippy::RequestJob>& request,
+                                           std::shared_ptr<hippy::JobResponse> response) {
+    hippy::vfs::UriLoader::RequestUntrustedContent(request, response);
+}
+void VFSUriLoader::RequestUntrustedContent(const std::shared_ptr<hippy::RequestJob>& request,
+                                           const std::function<void(std::shared_ptr<hippy::JobResponse>)>& cb) {
+    hippy::vfs::UriLoader::RequestUntrustedContent(request, cb);
+}
+
+void VFSUriLoader::RequestUntrustedContent(NSString *urlString, VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion) {
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]];
+    RequestUntrustedContent(request, progress, completion);
+}
+
+void VFSUriLoader::RequestUntrustedContent(NSString *urlString, NSString *method, NSDictionary<NSString *, NSString *> *httpHeader, NSData *body, VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion) {
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
+    if (method) {
+        [request setHTTPMethod:method];
+    }
+    if (httpHeader) {
+        for (NSString *key in httpHeader) {
+            [request setValue:httpHeader[key] forHTTPHeaderField:key];
+        }
+    }
+    if (body) {
+        [request setHTTPBody:body];
+    }
+    RequestUntrustedContent(request, progress, completion);
+}
+
+void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request, VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion) {
+    if (!request || !completion) {
+        return;
+    }
+    NSURL *requestURL = [request URL];
+    NSString *scheme = [requestURL scheme];
+    __block std::list<std::shared_ptr<VFSUriHandler>>::iterator cur_convenient_it;
+    __block std::list<std::shared_ptr<VFSUriHandler>>::iterator end_convenient_it;
+    {
+        std::lock_guard<std::mutex> lock(convenintMutex_);
+        auto find = convenint_handler_map_.find([scheme hash]);
+        if (convenint_handler_map_.end() != find) {
+            auto &scheme_handler_list = find->second;
+            cur_convenient_it = scheme_handler_list.begin();
+            end_convenient_it = scheme_handler_list.end();
+        }
+        else {
+            cur_convenient_it = default_convenient_handlers_.begin();
+            end_convenient_it = default_convenient_handlers_.end();
+        }
+    }
+    VFSGetNextHandlerBlock block =^std::shared_ptr<VFSUriHandler>(void){
+        return GetNextConvinentHandler(cur_convenient_it, end_convenient_it);
+    };
+    auto &cur_convenient = (*cur_convenient_it);
+    //check if convenient loader exists, or forward to cpp loader
+    if (cur_convenient) {
+        cur_convenient->RequestUntrustedContent(request, progress, completion, block);
+    }
+    else {
+        string_view uri = NSStringToU8StringView([requestURL absoluteString]);
+        auto meta = NSDictionaryToStringUnorderedMap([request allHTTPHeaderFields]);
+        auto progressCallback = [progress](int64_t current, int64_t total){
+            if (progress) {
+                progress(current, total);
+            }
+        };
+        std::string contents = "";
+        NSData *body = [request HTTPBody];
+        if (body) {
+            contents = std::string(reinterpret_cast<const char *>([[request HTTPBody] bytes]) , [[request HTTPBody] length]);
+        }
+        auto requestJob = std::make_shared<hippy::RequestJob>(uri, meta, progressCallback, std::move(contents));
+        auto responseCallback = [completion, requestURL](std::shared_ptr<hippy::JobResponse> cb){
+            if (completion) {
+                NSData *data = [NSData dataWithBytes:cb->GetContent().data() length:cb->GetContent().length()];
+                NSURLResponse *response = ResponseMapToURLResponse(requestURL, cb->GetMeta(), cb->GetContent().length());
+                NSError *error = nil;
+                if (!footstone::StringViewUtils::IsEmpty(cb->GetErrorMessage())) {
+                    NSString *errorMsg = StringViewToNSString(cb->GetErrorMessage());
+                    NSDictionary *userInfo = @{NSURLErrorFailingURLErrorKey: requestURL,
+                                               NSURLErrorFailingURLStringErrorKey: [requestURL absoluteString],
+                                               @"NSURLErrorFailingInfo": errorMsg};
+                    NSInteger code = static_cast<NSInteger>(cb->GetRetCode());
+                    error = [NSError errorWithDomain:NSURLErrorDomain code:code userInfo:userInfo];
+                }
+                completion(data, response, error);
+            }
+        };
+        RequestUntrustedContent(requestJob, responseCallback);
+    }
+}
+
+std::shared_ptr<VFSUriHandler> VFSUriLoader::GetNextConvinentHandler(std::list<std::shared_ptr<VFSUriHandler>>::iterator &cur_con_handler_it,
+                                                                     const std::list<std::shared_ptr<VFSUriHandler>>::iterator &end_con_handler_it) {
+    std::lock_guard<std::mutex> lock(convenintMutex_);
+    FOOTSTONE_CHECK(cur_con_handler_it != end_con_handler_it);
+    cur_con_handler_it++;
+    if (cur_con_handler_it == end_con_handler_it) {
         return nil;
     }
-    string_view uri = NSStringToU16StringView(urlString);
-    std::unordered_map<std::string, std::string> meta = NSDictionaryToStringUnorderedMap(headers);
-    RetCode code;
-    std::unordered_map<std::string, std::string> rspMeta;
-    bytes contents;
-    RequestUntrustedContent(uri, meta, code, rspMeta, contents);
-    NSURL *url = HPURLWithString(urlString, nil);
-    *response = ResponseMapToURLResponse(url, rspMeta, contents.length());
-    *error = GetVFSError(code, urlString, *response);
-    NSData *data = [NSData dataWithBytes:reinterpret_cast<const void *>(contents.c_str()) length:contents.length()];
-    return data;
+    return *cur_con_handler_it;
 }
 
 NSError *GetVFSError(hippy::vfs::UriHandler::RetCode retCode, NSString *urlString, NSURLResponse *response) {

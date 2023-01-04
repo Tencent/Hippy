@@ -23,8 +23,6 @@
 #include "footstone/string_view_utils.h"
 
 using StringViewUtils = footstone::StringViewUtils;
-using SyncContext = hippy::UriHandler::SyncContext;
-using ASyncContext = hippy::UriHandler::ASyncContext;
 
 namespace hippy {
 inline namespace vfs {
@@ -52,8 +50,55 @@ void UriLoader::RegisterUriInterceptor(const std::shared_ptr<UriHandler>& handle
 void UriLoader::RequestUntrustedContent(const string_view& uri,
                                         const std::unordered_map<std::string, std::string>& meta,
                                         std::function<void(RetCode, std::unordered_map<std::string, std::string>, bytes)> cb) {
+  auto request = std::make_shared<RequestJob>(uri, meta);
+  std::function<void(std::shared_ptr<JobResponse>)> response_cb = [cb](const std::shared_ptr<JobResponse>& rsp) {
+    cb(rsp->GetRetCode(), rsp->GetMeta(), rsp->ReleaseContent());
+  };
+  RequestUntrustedContent(request, response_cb);
+}
+
+void UriLoader::RequestUntrustedContent(const string_view& uri,
+                                        const std::unordered_map<std::string, std::string>& req_meta,
+                                        RetCode& code,
+                                        std::unordered_map<std::string, std::string>& rsp_meta,
+                                        bytes& content) {
+  auto request = std::make_shared<RequestJob>(uri, req_meta);
+  auto response = std::make_shared<JobResponse>();
+  RequestUntrustedContent(request, response);
+  code = response->GetRetCode();
+  rsp_meta = response->GetMeta();
+  content = response->ReleaseContent();
+}
+
+void UriLoader::RequestUntrustedContent(const std::shared_ptr<RequestJob>& request, std::shared_ptr<JobResponse> response) {
+  auto uri = request->GetUri();
   auto scheme = GetScheme(uri);
-  auto ctx = std::make_shared<ASyncContext>(uri, meta, cb);
+  std::list<std::shared_ptr<UriHandler>>::iterator cur_it;
+  std::list<std::shared_ptr<UriHandler>>::iterator end_it;
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    const auto& scheme_it = router_.find(scheme);
+    if (scheme.empty() || scheme_it == router_.end()) { // get scheme failed or scheme not register
+      FOOTSTONE_CHECK(!default_handler_list_.empty());
+      cur_it = default_handler_list_.begin();
+      end_it = default_handler_list_.end();
+    } else {
+      FOOTSTONE_DCHECK(!scheme_it->second.empty());
+      cur_it = scheme_it->second.begin();
+      end_it = scheme_it->second.end();
+    }
+  }
+
+  std::function<std::shared_ptr<UriHandler>()> next = [this, &cur_it, end_it]() -> std::shared_ptr<UriHandler> {
+    return this->GetNextHandler(cur_it, end_it);
+  };
+  (*cur_it)->RequestUntrustedContent(request, response, next);
+}
+
+void UriLoader::RequestUntrustedContent(const std::shared_ptr<RequestJob>& request,
+                                        const std::function<void(std::shared_ptr<JobResponse>)>& cb) {
+  auto uri = request->GetUri();
+  auto scheme = GetScheme(uri);
   std::shared_ptr<std::list<std::shared_ptr<UriHandler>>::iterator> cur_it;
   std::shared_ptr<std::list<std::shared_ptr<UriHandler>>::iterator> end_it;
   bytes content;
@@ -78,40 +123,7 @@ void UriLoader::RequestUntrustedContent(const string_view& uri,
     }
     return self->GetNextHandler(*cur_it, *end_it);
   };
-  (**cur_it)->RequestUntrustedContent(ctx, next);
-}
-
-void UriLoader::RequestUntrustedContent(const string_view& uri,
-                                        const std::unordered_map<std::string, std::string>& req_meta,
-                                        RetCode& code,
-                                        std::unordered_map<std::string, std::string>& rsp_meta,
-                                        bytes& content) {
-  auto ctx = std::make_shared<SyncContext>(uri, req_meta);
-  auto scheme = GetScheme(uri);
-  std::list<std::shared_ptr<UriHandler>>::iterator cur_it;
-  std::list<std::shared_ptr<UriHandler>>::iterator end_it;
-  {
-    std::lock_guard<std::mutex> lock(mutex_);
-    const auto& scheme_it = router_.find(scheme);
-    if (scheme.empty() || scheme_it == router_.end()) { // get scheme failed or scheme not register
-      FOOTSTONE_CHECK(!default_handler_list_.empty());
-      cur_it = default_handler_list_.begin();
-      end_it = default_handler_list_.end();
-    } else {
-      FOOTSTONE_DCHECK(!scheme_it->second.empty());
-      cur_it = scheme_it->second.begin();
-      end_it = scheme_it->second.end();
-    }
-  }
-
-  std::function<std::shared_ptr<UriHandler>()> next = [this, &cur_it, end_it]() -> std::shared_ptr<UriHandler> {
-    return this->GetNextHandler(cur_it, end_it);
-  };
-  (*cur_it)->RequestUntrustedContent(ctx, next);
-
-  code = ctx->code;
-  rsp_meta = std::move(ctx->rsp_meta);
-  content = std::move(ctx->content);
+  (**cur_it)->RequestUntrustedContent(request, cb, next);
 }
 
 std::shared_ptr<UriHandler> UriLoader::GetNextHandler(std::list<std::shared_ptr<UriHandler>>::iterator& cur,

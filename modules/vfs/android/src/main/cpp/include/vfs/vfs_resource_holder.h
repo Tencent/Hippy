@@ -42,9 +42,6 @@ class ResourceHolder {
   explicit ResourceHolder(jobject j_holder) : j_holder_(j_holder) {}
   ~ResourceHolder();
 
-  static bool Init();
-  static bool Destroy();
-
   uint32_t GetNativeId(JNIEnv* j_env);
   string_view GetUri(JNIEnv* j_env);
   RetCode GetCode(JNIEnv* j_env);

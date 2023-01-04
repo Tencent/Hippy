@@ -182,7 +182,7 @@ public class TextImageSpan extends ImageSpan {
             }
 
             @Override
-            public void onRequestProgress(float total, float loaded) {
+            public void onRequestProgress(long total, long loaded) {
             }
 
             @Override

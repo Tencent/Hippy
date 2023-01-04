@@ -25,7 +25,6 @@
 #import "HPConvert+NativeRender.h"
 #import "HPImageProviderProtocol.h"
 #import "HPToolUtils.h"
-#import "HPUriLoader.h"
 #import "NativeRenderGradientObject.h"
 #import "NativeRenderImpl.h"
 #import "NativeRenderObjectView.h"
@@ -35,6 +34,8 @@
 #import "UIView+NativeRender.h"
 
 #include <objc/runtime.h>
+
+#include "VFSUriLoader.h"
 
 @interface NativeRenderViewManager () {
     NSUInteger _sequence;
@@ -174,10 +175,11 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, NativeRenderView) 
     }
     NSString *standardizeAssetUrlString = path;
     __weak NativeRenderView *weakView = view;
-    HPUriLoader *loader = [[self renderImpl] HPUriLoader];
-    [loader requestContentAsync:path method:nil
-                        headers:nil body:nil
-                         result:^(NSData * _Nullable data, NSURLResponse * _Nonnull response, NSError * _Nullable error) {
+    auto loader = [[self renderImpl] VFSUriLoader];
+    if (!loader) {
+        return;
+    }
+    loader->RequestUntrustedContent(path, nil, ^(NSData *data, NSURLResponse *response, NSError *error) {
         NativeRenderImpl *renderImpl = self.renderImpl;
         id<HPImageProviderProtocol> imageProvider = nil;
         if (renderImpl) {
@@ -197,7 +199,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, NativeRenderView) 
                 }
             });
         }
-    }];
+    });
 }
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(linearGradient, NSDictionary, NativeRenderView) {
