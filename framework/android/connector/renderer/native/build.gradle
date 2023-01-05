@@ -41,6 +41,8 @@ android {
 dependencies {
     embed project(path: ':renderer-native', configuration: 'default')
 
+    embed project(path: ':renderer-tdf', configuration: 'default')
+
     compileOnly project(path: ':connector-support')
     compileOnly project(path: ':hippy-support')
     compileOnly project(path: ':vfs')

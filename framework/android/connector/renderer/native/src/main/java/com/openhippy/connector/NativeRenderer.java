@@ -16,27 +16,18 @@
 
 package com.openhippy.connector;
 
-import android.content.Context;
-import android.view.View;
-import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.tencent.mtt.hippy.common.Callback;
-import com.tencent.renderer.FrameworkProxy;
-import com.tencent.renderer.NativeRenderProxy;
-import java.util.List;
-import java.util.Map;
+import com.tencent.renderer.RenderProxy;
 
 @SuppressWarnings("JavaJniMissingFunction")
-public class NativeRenderer implements Connector {
+public class NativeRenderer extends RenderConnector {
 
-    private final int mInstanceId;
-    @Nullable
-    private NativeRenderProxy mRenderer;
+    private int mInstanceId;
 
-    public NativeRenderer() {
+    @Override public RenderProxy initRenderProxy() {
         mInstanceId = createNativeRenderManager();
         Object obj = getNativeRendererInstance(mInstanceId);
+<<<<<<< HEAD
         if (obj instanceof NativeRenderProxy) {
             mRenderer = (NativeRenderProxy) obj;
         }

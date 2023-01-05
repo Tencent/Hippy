@@ -72,6 +72,10 @@ dependencies {
         api project(path: ':hippy-framework')
         compileOnly project(path: ':hippy-support')
         compileOnly project(path: ':renderer-native')
+        if (ENABLE_TDF_RENDER == "true") {
+            compileOnly project(path: ':renderer-tdf')
+            //api project(path: ':connector-renderer-tdf')
+        }
     }
     // noinspection GradleDependency
     api deps.annotation
