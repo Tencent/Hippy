@@ -349,7 +349,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
                     return;
                 }
                 DevSupportManager devManager = mContext.getDevSupportManager();
-                if (TextUtils.isEmpty(uri) || !UrlUtils.isWebUrl(uri) || devManager == null) {
+                if (TextUtils.isEmpty(uri) || devManager == null) {
                     LogUtils.e("HippyBridgeImpl",
                             "fetchResourceWithUri: can not call loadRemoteResource with " + uri);
                     return;
