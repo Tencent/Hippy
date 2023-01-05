@@ -39,7 +39,7 @@ android {
 
 dependencies {
     compileOnly project(path: ':connector-support')
-    compileOnly project(path: ':renderer-support')
+    compileOnly project(path: ':renderer-native')
     compileOnly project(path: ':renderer-tdf')
     compileOnly project(path: ':hippy-support')
     compileOnly project(path: ':vfs')
