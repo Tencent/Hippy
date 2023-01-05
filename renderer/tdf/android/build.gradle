@@ -39,6 +39,7 @@ android {
 dependencies {
   compileOnly project(path: ':vfs')
   compileOnly project(path: ':hippy-support')
+  compileOnly project(path: ':renderer-support')
   compileOnly project(path: ':serialization')
   // tdf render need ControllerManager from native manager
   compileOnly project(path: ':renderer-native')
