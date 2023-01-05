@@ -1,0 +1,6 @@
+
+ext {
+    subMoudleDeps=[
+            connector_renderer_native_deps: 'renderer-native'
+    ]
+}

@@ -23,6 +23,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.kezong.fat-aar'
 apply from: './publish.gradle'
+apply from: './sub-module-deps.gradle'
 
 android {
     archivesBaseName = ARCHIVES_BASE_NAME
@@ -142,15 +143,22 @@ dependencies {
     embed project(path: ':devtools-integration', configuration: 'default')
     embed project(path: ':connector-support', configuration: 'default')
     embed project(path: ':connector-dom', configuration: 'default')
-    if (INCLUDE_DRIVER_JS.toBoolean()) {
-        embed project(path: ':connector-driver-js', configuration: 'default')
-    }
-    if (INCLUDE_RENDERER_NATIVE.toBoolean()) {
-        embed project(path: ':connector-renderer-native', configuration: 'default')
-        compileOnly project(path: ':renderer-native')
-    }
-    if (INCLUDE_RENDERER_TDF.toBoolean()) {
-        embed project(path: ':connector-renderer-tdf', configuration: 'default')
+    def modules = MODULES.substring(1, MODULES.length() - 1).split(',')
+    for (String module : modules) {
+        if (module.matches("^[a-zA-Z]:/.*") || module.matches("^/.*")) {
+            ArrayList<String> paths = module.split('/')
+            paths.remove(0)
+            def subProjectName = paths.join('-')
+            embed project(path: ":$subProjectName", configuration: 'default')
+        } else {
+            def subProjectName = 'connector-' + module.replace("/", "-")
+            embed project(path: ":$subProjectName", configuration: 'default')
+            def subDependenciesKey = 'connector_' + module.replace("/", "_") + '_deps'
+            if (subMoudleDeps.containsKey(subDependenciesKey)) {
+                def subDeps = subMoudleDeps.get(subDependenciesKey)
+                compileOnly project(path: ":$subDeps")
+            }
+        }
     }
     //noinspection GradleDependency
     implementation deps.annotation

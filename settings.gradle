@@ -5,23 +5,8 @@ project(':connector-support').projectDir = new File('framework/android/connector
 include 'connector-dom'
 project(':connector-dom').projectDir = new File('framework/android/connector/dom')
 
-if (INCLUDE_DRIVER_JS.toBoolean()) {
-    include 'connector-driver-js'
-    project(':connector-driver-js').projectDir = new File('framework/android/connector/driver/js')
-}
-
-if (INCLUDE_RENDERER_NATIVE.toBoolean()) {
-    include 'connector-renderer-native'
-    project(':connector-renderer-native').projectDir = new File('framework/android/connector/renderer/native')
-
-    include 'renderer-native'
-    project(':renderer-native').projectDir = new File('renderer/native/android')
-}
-
-if (INCLUDE_RENDERER_TDF.toBoolean()) {
-    include 'renderer-tdf'
-    project(':renderer-tdf').projectDir = new File('renderer/tdf/android')
-}
+include 'renderer-native'
+project(':renderer-native').projectDir = new File('renderer/native/android')
 
 include 'hippy-support'
 project(':hippy-support').projectDir = new File('modules/android/hippy_support')
@@ -40,4 +25,20 @@ project(':devtools-integration').projectDir = new File('devtools/devtools-integr
 
 include 'example'
 project(':example').projectDir = new File('framework/examples/android-demo')
+
+def modules = MODULES.substring(1, MODULES.length() - 1).split(',')
+for (String module : modules) {
+    if (module.matches("^[a-zA-Z]:/.*") || module.matches("^/.*")) {
+        ArrayList<String> paths = module.split('/')
+        paths.remove(0)
+        def subProjectName = paths.join('-')
+        include "$subProjectName"
+        project(":$subProjectName").projectDir = new File(module)
+    } else {
+        def subProjectName = 'connector-' + module.replace("/", "-")
+        def projectPath = 'framework/android/connector/' + module
+        include "$subProjectName"
+        project(":$subProjectName").projectDir = new File(projectPath)
+    }
+}
 
