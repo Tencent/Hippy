@@ -26,12 +26,6 @@
 #import "UIView+MountEvent.h"
 #import "UIView+DirectionalLayout.h"
 
-@interface NativeRenderCustomScrollView : UIScrollView <UIGestureRecognizerDelegate>
-
-@property (nonatomic, assign) BOOL centerContent;
-
-@end
-
 @implementation NativeRenderCustomScrollView
 
 - (instancetype)initWithFrame:(CGRect)frame {
@@ -165,7 +159,7 @@ static inline BOOL CGPointIsNull(CGPoint point) {
 
 @end
 
-@implementation NativeRenderScrollView {
+@interface NativeRenderScrollView () {
     NativeRenderCustomScrollView *_scrollView;
     UIView *_contentView;
     NSTimeInterval _lastScrollDispatchTime;
@@ -183,11 +177,12 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     BOOL _showScrollIndicator[2];
 }
 
+@end
+
+@implementation NativeRenderScrollView
+
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
-        _scrollView = [[NativeRenderCustomScrollView alloc] initWithFrame:CGRectZero];
-        _scrollView.delegate = self;
-        _scrollView.delaysContentTouches = NO;
         _contentSize = CGSizeZero;
         _lastClippedToRect = CGRectNull;
 
@@ -197,10 +192,18 @@ static inline BOOL CGPointIsNull(CGPoint point) {
         _scrollListeners = [NSHashTable weakObjectsHashTable];
         _contentOffsetCache = [NSMutableDictionary dictionaryWithCapacity:32];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+        _scrollView = [self loadScrollView];
         [self addSubview:_scrollView];
         [self applyLayoutDirectionIfNeeded];
     }
     return self;
+}
+
+- (NativeRenderCustomScrollView *)loadScrollView {
+    NativeRenderCustomScrollView *scrollview = [[NativeRenderCustomScrollView alloc] initWithFrame:CGRectZero];
+    scrollview.delegate = self;
+    scrollview.delaysContentTouches = NO;
+    return scrollview;
 }
 
 - (void)didReceiveMemoryWarning {
