@@ -143,6 +143,13 @@ public class NativeRenderException extends RuntimeException {
          * @see com.tencent.renderer.node.RenderNode#checkHostViewReused()
          */
         REUSE_VIEW_HAS_ABANDONED_NODE_ERR,
+
+        /**
+         * If decoding image data encounters an exception
+         *
+         * @see com.tencent.renderer.component.image.ImageDataHolder#setData(byte[])
+         */
+        IMAGE_DATA_DECODE_ERR,
     }
 
     public ExceptionCode mCode;

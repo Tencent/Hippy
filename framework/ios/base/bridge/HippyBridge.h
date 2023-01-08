@@ -41,7 +41,6 @@
 @class HippyPerformanceLogger;
 @class HippyJSExecutor;
 @class HippyModuleData;
-@class HPUriLoader;
 
 class VFSUriLoader;
 
@@ -135,7 +134,6 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 - (void)loadBundleURLs:(NSArray<NSURL *> *)bundleURLs;
 
-@property(nonatomic, strong)HPUriLoader *HPUriLoader;
 @property(nonatomic, assign)std::weak_ptr<VFSUriLoader> VFSUriLoader;
 
 /**

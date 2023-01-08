@@ -22,11 +22,12 @@
 
 #import "HPAsserts.h"
 #import "HPToolUtils.h"
-#import "HPUriLoader.h"
 #import "NativeRenderImageViewManager.h"
 #import "NativeRenderImageView.h"
 #import "NativeRenderImpl.h"
 #import "TypeConverter.h"
+
+#include "VFSUriLoader.h"
 
 @interface NativeRenderImageViewManager () {
 }
@@ -66,9 +67,11 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
     }
     NSString *standardizeAssetUrlString = path;
     __weak NativeRenderImageView *weakView = view;
-    HPUriLoader *loader = [[self renderImpl] HPUriLoader];
-    [loader requestContentAsync:path method:nil headers:nil body:nil
-                         result:^(NSData * _Nullable data, NSURLResponse * _Nonnull response, NSError * _Nullable error) {
+    auto loader = [[self renderImpl] VFSUriLoader];
+    if (!loader) {
+        return;
+    }
+    loader->RequestUntrustedContent(path, nil, ^(NSData *data, NSURLResponse *response, NSError *error) {
         NativeRenderImpl *renderImpl = self.renderImpl;
         id<HPImageProviderProtocol> imageProvider = nil;
         if (renderImpl) {
@@ -89,7 +92,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
                 }
             });
         }
-    }];
+    });
 }
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, NativeRenderImageView) {

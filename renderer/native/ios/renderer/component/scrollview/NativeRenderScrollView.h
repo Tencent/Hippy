@@ -26,7 +26,19 @@
 
 @protocol UIScrollViewDelegate;
 
+@interface NativeRenderCustomScrollView : UIScrollView <UIGestureRecognizerDelegate>
+
+@property (nonatomic, assign) BOOL centerContent;
+
+@end
+
 @interface NativeRenderScrollView : NativeRenderView <UIScrollViewDelegate, NativeRenderScrollableProtocol>
+
+/**
+ * This is where subclasses should create their custom scroll view hierarchy if they dont want to use default scroll view.
+ * Should never be called directly.
+ */
+- (NativeRenderCustomScrollView *)loadScrollView;
 
 /**
  * The `NativeRenderScrollView` may have at most one single subview. This will ensure
@@ -44,7 +56,7 @@
 @property (nonatomic, assign) CGSize contentSize;
 
 /**
- * The underlying scrollView (TODO: can we remove this?)
+ * Get the underlying scrollview.
  */
 @property (nonatomic, readonly) UIScrollView *scrollView;
 

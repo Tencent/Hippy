@@ -185,13 +185,6 @@ public:
     NSArray<Class<HPImageProviderProtocol>> *GetImageProviderClasses();
     
     /**
-     * Set vfs uri loader of OC version
-     *
-     *@param loader vfs uri loader instance
-     */
-    void SetHPUriLoader(HPUriLoader *loader);
-    
-    /**
      * Set vfs uri loader of CPP version
      *
      *@param loader vfs url loader instance

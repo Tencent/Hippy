@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy;
 
 import android.content.Context;
@@ -38,322 +39,324 @@ import com.tencent.mtt.hippy.adapter.soloader.HippySoLoaderAdapter;
 import com.tencent.mtt.hippy.adapter.storage.DefaultStorageAdapter;
 import com.tencent.mtt.hippy.adapter.storage.HippyStorageAdapter;
 import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.renderer.component.image.ImageLoaderAdapter;
+import com.tencent.renderer.component.image.ImageDecoderAdapter;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class HippyGlobalConfigs {
 
-  /**
-   * SharedPreferences
-   */
-  private final HippySharedPreferencesAdapter mSharedPreferencesAdapter;
-
-  private Context mContext;
-
-  /**
-   * Crash Handler
-   */
-  private final HippyExceptionHandlerAdapter mExceptionHandler;
-
-  /**
-   * Http request adapter
-   */
-  private final HippyHttpAdapter mHttpAdapter;
-
-  /**
-   * Storage adapter
-   */
-  private final HippyStorageAdapter mStorageAdapter;
-
-  /**
-   * Executor Supplier adapter
-   */
-  private final HippyExecutorSupplierAdapter mExecutorSupplierAdapter;
-
-  /**
-   * Engine Monitor adapter
-   */
-  private final HippyEngineMonitorAdapter mEngineMonitorAdapter;
-
-
-  /**
-   * font scale adapter
-   */
-  private final HippyFontScaleAdapter mFontScaleAdapter;
-
-
-  private final HippySoLoaderAdapter mSoLoaderAdapter;
-
-  /**
-   * device adapter
-   */
-  private final HippyDeviceAdapter mDeviceAdapter;
-
-
-  private final HippyLogAdapter mLogAdapter;
-
-  private boolean mEnableTurbo;
-
-  public HippyGlobalConfigs(HippyEngine.EngineInitParams params) {
-    this.mContext = params.context;
-    this.mSharedPreferencesAdapter = params.sharedPreferencesAdapter;
-    this.mExceptionHandler = params.exceptionHandler;
-    this.mHttpAdapter = params.httpAdapter;
-    this.mStorageAdapter = params.storageAdapter;
-    this.mExecutorSupplierAdapter = params.executorSupplier;
-    this.mEngineMonitorAdapter = params.engineMonitor;
-    this.mFontScaleAdapter = params.fontScaleAdapter;
-    this.mSoLoaderAdapter = params.soLoader;
-    this.mDeviceAdapter = params.deviceAdapter;
-    this.mLogAdapter = params.logAdapter;
-    this.mEnableTurbo = params.enableTurbo;
-  }
-
-  private HippyGlobalConfigs(Context context,
-      HippySharedPreferencesAdapter sharedPreferencesAdapter,
-      HippyExceptionHandlerAdapter exceptionHandler, HippyHttpAdapter httpAdapter,
-      ImageLoaderAdapter imageLoaderAdapter,
-      HippyExecutorSupplierAdapter executorSupplierAdapter, HippyStorageAdapter storageAdapter,
-      HippyEngineMonitorAdapter engineMonitorAdapter,
-      HippyFontScaleAdapter hippyFontScaleAdapter, HippySoLoaderAdapter hippySoLoaderAdapter,
-      HippyDeviceAdapter hippyDeviceAdapter,
-      HippyLogAdapter hippyLogAdapter) {
-    this.mContext = context;
-    this.mSharedPreferencesAdapter = sharedPreferencesAdapter;
-    this.mExceptionHandler = exceptionHandler;
-    this.mHttpAdapter = httpAdapter;
-    this.mStorageAdapter = storageAdapter;
-    this.mExecutorSupplierAdapter = executorSupplierAdapter;
-    this.mEngineMonitorAdapter = engineMonitorAdapter;
-    this.mFontScaleAdapter = hippyFontScaleAdapter;
-    this.mSoLoaderAdapter = hippySoLoaderAdapter;
-    this.mDeviceAdapter = hippyDeviceAdapter;
-    this.mLogAdapter = hippyLogAdapter;
-  }
-
-  public void destroyIfNeed() {
-    try {
-      if (mHttpAdapter != null) {
-        mHttpAdapter.destroyIfNeed();
-      }
-      if (mStorageAdapter != null) {
-        mStorageAdapter.destroyIfNeed();
-      }
-      if (mExecutorSupplierAdapter != null) {
-        mExecutorSupplierAdapter.destroyIfNeed();
-      }
-      mContext = null;
-    } catch (Throwable e) {
-      LogUtils.d("HippyGlobalConfigs", "destroyIfNeed: " + e.getMessage());
-    }
-  }
-
-  public HippyLogAdapter getLogAdapter() {
-    return mLogAdapter;
-  }
-
-  public HippySoLoaderAdapter getSoLoaderAdapter() {
-    return mSoLoaderAdapter;
-  }
-
-  public HippySharedPreferencesAdapter getSharedPreferencesAdapter() {
-    return mSharedPreferencesAdapter;
-  }
-
-  public HippyExceptionHandlerAdapter getExceptionHandler() {
-    return mExceptionHandler;
-  }
-
-  public HippyFontScaleAdapter getFontScaleAdapter() {
-    return mFontScaleAdapter;
-  }
-
-  public HippyDeviceAdapter getDeviceAdapter() {
-    return mDeviceAdapter;
-  }
-
-  public HippyHttpAdapter getHttpAdapter() {
-    return mHttpAdapter;
-  }
-
-  public Context getContext() {
-    return mContext;
-  }
-
-  public HippyStorageAdapter getStorageAdapter() {
-    return mStorageAdapter;
-  }
-
-  public HippyExecutorSupplierAdapter getExecutorSupplierAdapter() {
-    return mExecutorSupplierAdapter;
-  }
-
-  public HippyEngineMonitorAdapter getEngineMonitorAdapter() {
-    return mEngineMonitorAdapter;
-  }
-
-  @Deprecated
-  public void toDebug(HippyEngine.EngineInitParams params) {
-    params.context = mContext;
-    params.sharedPreferencesAdapter = mSharedPreferencesAdapter;
-    params.exceptionHandler = mExceptionHandler;
-    params.httpAdapter = mHttpAdapter;
-    params.storageAdapter = mStorageAdapter;
-    params.executorSupplier = mExecutorSupplierAdapter;
-    params.engineMonitor = mEngineMonitorAdapter;
-    params.fontScaleAdapter = mFontScaleAdapter;
-    params.soLoader = mSoLoaderAdapter;
-    params.deviceAdapter = mDeviceAdapter;
-    params.logAdapter = mLogAdapter;
-    params.enableTurbo = true;
-  }
-
-  @SuppressWarnings({"unused"})
-  public static class Builder {
-
-    private HippySharedPreferencesAdapter mSharedPreferencesAdapter;
+    /**
+     * SharedPreferences
+     */
+    private final HippySharedPreferencesAdapter mSharedPreferencesAdapter;
 
     private Context mContext;
 
-    private HippyExceptionHandlerAdapter mExceptionHandler;
+    /**
+     * Crash Handler
+     */
+    private final HippyExceptionHandlerAdapter mExceptionHandler;
 
-    private HippyHttpAdapter mHttpAdapter;
+    /**
+     * Http request adapter
+     */
+    private final HippyHttpAdapter mHttpAdapter;
 
-    private ImageLoaderAdapter mImageLoaderAdapter;
+    /**
+     * Storage adapter
+     */
+    private final HippyStorageAdapter mStorageAdapter;
 
-    private HippyStorageAdapter mStorageAdapter;
+    /**
+     * Executor Supplier adapter
+     */
+    private final HippyExecutorSupplierAdapter mExecutorSupplierAdapter;
 
-    private HippyExecutorSupplierAdapter mExecutorSupplierAdapter;
+    /**
+     * Engine Monitor adapter
+     */
+    private final HippyEngineMonitorAdapter mEngineMonitorAdapter;
 
-    private HippyEngineMonitorAdapter mEngineMonitorAdapter;
+
+    /**
+     * font scale adapter
+     */
+    private final HippyFontScaleAdapter mFontScaleAdapter;
+
+    private final ImageDecoderAdapter mImageDecoderAdapter;
+
+    private final HippySoLoaderAdapter mSoLoaderAdapter;
+
+    /**
+     * device adapter
+     */
+    private final HippyDeviceAdapter mDeviceAdapter;
 
 
-    private HippyFontScaleAdapter mFontScaleAdapter;
+    private final HippyLogAdapter mLogAdapter;
 
-    private HippySoLoaderAdapter mSoLoaderAdapter;
+    private boolean mEnableTurbo;
 
-    private HippyDeviceAdapter mDeviceAdapter;
+    public HippyGlobalConfigs(HippyEngine.EngineInitParams params) {
+        mContext = params.context;
+        mSharedPreferencesAdapter = params.sharedPreferencesAdapter;
+        mExceptionHandler = params.exceptionHandler;
+        mHttpAdapter = params.httpAdapter;
+        mStorageAdapter = params.storageAdapter;
+        mExecutorSupplierAdapter = params.executorSupplier;
+        mEngineMonitorAdapter = params.engineMonitor;
+        mFontScaleAdapter = params.fontScaleAdapter;
+        mSoLoaderAdapter = params.soLoader;
+        mDeviceAdapter = params.deviceAdapter;
+        mLogAdapter = params.logAdapter;
+        mEnableTurbo = params.enableTurbo;
+        mImageDecoderAdapter = params.imageDecoderAdapter;
+    }
 
-    private HippyLogAdapter mLogAdapter;
+    private HippyGlobalConfigs(Context context,
+            HippySharedPreferencesAdapter sharedPreferencesAdapter,
+            HippyExceptionHandlerAdapter exceptionHandler,
+            HippyHttpAdapter httpAdapter,
+            HippyExecutorSupplierAdapter executorSupplierAdapter,
+            HippyStorageAdapter storageAdapter,
+            HippyEngineMonitorAdapter engineMonitorAdapter,
+            HippyFontScaleAdapter hippyFontScaleAdapter,
+            HippySoLoaderAdapter hippySoLoaderAdapter,
+            HippyDeviceAdapter hippyDeviceAdapter,
+            HippyLogAdapter hippyLogAdapter,
+            ImageDecoderAdapter imageDecoderAdapter) {
+        mContext = context;
+        mSharedPreferencesAdapter = sharedPreferencesAdapter;
+        mExceptionHandler = exceptionHandler;
+        mHttpAdapter = httpAdapter;
+        mStorageAdapter = storageAdapter;
+        mExecutorSupplierAdapter = executorSupplierAdapter;
+        mEngineMonitorAdapter = engineMonitorAdapter;
+        mFontScaleAdapter = hippyFontScaleAdapter;
+        mSoLoaderAdapter = hippySoLoaderAdapter;
+        mDeviceAdapter = hippyDeviceAdapter;
+        mLogAdapter = hippyLogAdapter;
+        mImageDecoderAdapter = imageDecoderAdapter;
+    }
 
+    public void destroyIfNeed() {
+        try {
+            if (mHttpAdapter != null) {
+                mHttpAdapter.destroyIfNeed();
+            }
+            if (mStorageAdapter != null) {
+                mStorageAdapter.destroyIfNeed();
+            }
+            if (mExecutorSupplierAdapter != null) {
+                mExecutorSupplierAdapter.destroyIfNeed();
+            }
+            if (mImageDecoderAdapter != null) {
+                mImageDecoderAdapter.destroyIfNeeded();
+            }
+            mContext = null;
+        } catch (Throwable e) {
+            LogUtils.d("HippyGlobalConfigs", "destroyIfNeed: " + e.getMessage());
+        }
+    }
 
     public HippyLogAdapter getLogAdapter() {
-      return mLogAdapter;
+        return mLogAdapter;
     }
 
-    public Builder setLogAdapter(HippyLogAdapter mLogAdapter) {
-      this.mLogAdapter = mLogAdapter;
-      return this;
+    public HippySoLoaderAdapter getSoLoaderAdapter() {
+        return mSoLoaderAdapter;
     }
 
-    public Builder setSharedPreferencesAdapter(HippySharedPreferencesAdapter adapter) {
-      this.mSharedPreferencesAdapter = adapter;
-      return this;
+    public HippySharedPreferencesAdapter getSharedPreferencesAdapter() {
+        return mSharedPreferencesAdapter;
     }
 
-    public Builder setSoLoaderAdapter(HippySoLoaderAdapter mSoLoaderAdapter) {
-      this.mSoLoaderAdapter = mSoLoaderAdapter;
-      return this;
+    public HippyExceptionHandlerAdapter getExceptionHandler() {
+        return mExceptionHandler;
     }
 
-    public Builder setDeviceAdapter(HippyDeviceAdapter mDeviceAdapter) {
-      this.mDeviceAdapter = mDeviceAdapter;
-      return this;
+    public HippyFontScaleAdapter getFontScaleAdapter() {
+        return mFontScaleAdapter;
     }
 
-    public Builder setContext(Context context) {
-      this.mContext = context;
-      return this;
+    public ImageDecoderAdapter getImageDecoderAdapter() {
+        return mImageDecoderAdapter;
     }
 
-
-    public Builder setExceptionHandler(HippyExceptionHandlerAdapter exceptionHandler) {
-      this.mExceptionHandler = exceptionHandler;
-      return this;
+    public HippyDeviceAdapter getDeviceAdapter() {
+        return mDeviceAdapter;
     }
 
-    public Builder setFontScaleAdapter(HippyFontScaleAdapter hippyFontScaleAdapter) {
-      this.mFontScaleAdapter = hippyFontScaleAdapter;
-      return this;
+    public HippyHttpAdapter getHttpAdapter() {
+        return mHttpAdapter;
     }
 
-    public Builder setHttpAdapter(HippyHttpAdapter httpAdapter) {
-      this.mHttpAdapter = httpAdapter;
-      return this;
+    public Context getContext() {
+        return mContext;
     }
 
-    public Builder setImageLoaderAdapter(ImageLoaderAdapter adapter) {
-      this.mImageLoaderAdapter = adapter;
-      return this;
+    public HippyStorageAdapter getStorageAdapter() {
+        return mStorageAdapter;
     }
 
-    public Builder setStorageAdapter(HippyStorageAdapter adapter) {
-      this.mStorageAdapter = adapter;
-      return this;
+    public HippyExecutorSupplierAdapter getExecutorSupplierAdapter() {
+        return mExecutorSupplierAdapter;
     }
 
-    public Builder setExecutorSupplierAdapter(HippyExecutorSupplierAdapter adapter) {
-      this.mExecutorSupplierAdapter = adapter;
-      return this;
-    }
-
-    public Builder setEngineMonitorAdapter(HippyEngineMonitorAdapter adapter) {
-      this.mEngineMonitorAdapter = adapter;
-      return this;
+    public HippyEngineMonitorAdapter getEngineMonitorAdapter() {
+        return mEngineMonitorAdapter;
     }
 
     @Deprecated
-    public HippyGlobalConfigs build() {
-      if (mContext == null) {
-        throw new IllegalArgumentException("HippyGlobalConfigs Context must is not null!");
-      }
-      if (mSharedPreferencesAdapter == null) {
-        mSharedPreferencesAdapter = new DefaultSharedPreferencesAdapter(mContext);
-      }
-      if (mExceptionHandler == null) {
-        mExceptionHandler = new DefaultExceptionHandler();
-      }
-      if (mHttpAdapter == null) {
-        mHttpAdapter = new DefaultHttpAdapter();
-      }
-      if (mExecutorSupplierAdapter == null) {
-        mExecutorSupplierAdapter = new DefaultExecutorSupplierAdapter();
-      }
-      if (mStorageAdapter == null) {
-        mStorageAdapter = new DefaultStorageAdapter(mContext,
-            mExecutorSupplierAdapter.getDBExecutor());
-      }
-      if (mEngineMonitorAdapter == null) {
-        mEngineMonitorAdapter = new DefaultEngineMonitorAdapter();
-      }
-
-      if (mFontScaleAdapter == null) {
-        mFontScaleAdapter = new DefaultFontScaleAdapter();
-      }
-      if (mSoLoaderAdapter == null) {
-        mSoLoaderAdapter = new DefaultSoLoaderAdapter();
-      }
-      if (mDeviceAdapter == null) {
-        mDeviceAdapter = new DefaultDeviceAdapter();
-      }
-      if (mLogAdapter == null) {
-        mLogAdapter = new DefaultLogAdapter();
-      }
-      if (mImageLoaderAdapter == null) {
-        throw new IllegalArgumentException(
-            "HippyGlobalConfigs ImageLoaderAdapter must is not null!");
-      }
-
-      @SuppressWarnings("UnnecessaryLocalVariable") HippyGlobalConfigs configs = new HippyGlobalConfigs(
-          mContext, mSharedPreferencesAdapter, mExceptionHandler,
-          mHttpAdapter, mImageLoaderAdapter, mExecutorSupplierAdapter, mStorageAdapter,
-          mEngineMonitorAdapter, mFontScaleAdapter,
-          mSoLoaderAdapter, mDeviceAdapter, mLogAdapter);
-      return configs;
+    public void toDebug(HippyEngine.EngineInitParams params) {
+        params.context = mContext;
+        params.sharedPreferencesAdapter = mSharedPreferencesAdapter;
+        params.exceptionHandler = mExceptionHandler;
+        params.httpAdapter = mHttpAdapter;
+        params.storageAdapter = mStorageAdapter;
+        params.executorSupplier = mExecutorSupplierAdapter;
+        params.engineMonitor = mEngineMonitorAdapter;
+        params.fontScaleAdapter = mFontScaleAdapter;
+        params.soLoader = mSoLoaderAdapter;
+        params.deviceAdapter = mDeviceAdapter;
+        params.logAdapter = mLogAdapter;
+        params.enableTurbo = true;
     }
-  }
 
-  public boolean enableTurbo() {
-    return mEnableTurbo;
-  }
+    @SuppressWarnings({"unused"})
+    public static class Builder {
+
+        private HippySharedPreferencesAdapter mSharedPreferencesAdapter;
+
+        private Context mContext;
+
+        private HippyExceptionHandlerAdapter mExceptionHandler;
+
+        private HippyHttpAdapter mHttpAdapter;
+
+        private HippyStorageAdapter mStorageAdapter;
+
+        private HippyExecutorSupplierAdapter mExecutorSupplierAdapter;
+
+        private HippyEngineMonitorAdapter mEngineMonitorAdapter;
+
+        private HippyFontScaleAdapter mFontScaleAdapter;
+
+        private ImageDecoderAdapter mImageDecoderAdapter;
+
+        private HippySoLoaderAdapter mSoLoaderAdapter;
+
+        private HippyDeviceAdapter mDeviceAdapter;
+
+        private HippyLogAdapter mLogAdapter;
+
+
+        public HippyLogAdapter getLogAdapter() {
+            return mLogAdapter;
+        }
+
+        public Builder setLogAdapter(HippyLogAdapter mLogAdapter) {
+            this.mLogAdapter = mLogAdapter;
+            return this;
+        }
+
+        public Builder setSharedPreferencesAdapter(HippySharedPreferencesAdapter adapter) {
+            this.mSharedPreferencesAdapter = adapter;
+            return this;
+        }
+
+        public Builder setSoLoaderAdapter(HippySoLoaderAdapter mSoLoaderAdapter) {
+            this.mSoLoaderAdapter = mSoLoaderAdapter;
+            return this;
+        }
+
+        public Builder setDeviceAdapter(HippyDeviceAdapter mDeviceAdapter) {
+            this.mDeviceAdapter = mDeviceAdapter;
+            return this;
+        }
+
+        public Builder setContext(Context context) {
+            this.mContext = context;
+            return this;
+        }
+
+
+        public Builder setExceptionHandler(HippyExceptionHandlerAdapter exceptionHandler) {
+            this.mExceptionHandler = exceptionHandler;
+            return this;
+        }
+
+        public Builder setFontScaleAdapter(HippyFontScaleAdapter hippyFontScaleAdapter) {
+            this.mFontScaleAdapter = hippyFontScaleAdapter;
+            return this;
+        }
+
+        public Builder setHttpAdapter(HippyHttpAdapter httpAdapter) {
+            this.mHttpAdapter = httpAdapter;
+            return this;
+        }
+
+        public Builder setStorageAdapter(HippyStorageAdapter adapter) {
+            this.mStorageAdapter = adapter;
+            return this;
+        }
+
+        public Builder setExecutorSupplierAdapter(HippyExecutorSupplierAdapter adapter) {
+            this.mExecutorSupplierAdapter = adapter;
+            return this;
+        }
+
+        public Builder setEngineMonitorAdapter(HippyEngineMonitorAdapter adapter) {
+            this.mEngineMonitorAdapter = adapter;
+            return this;
+        }
+
+        @Deprecated
+        public HippyGlobalConfigs build() {
+            if (mContext == null) {
+                throw new IllegalArgumentException("HippyGlobalConfigs Context must is not null!");
+            }
+            if (mSharedPreferencesAdapter == null) {
+                mSharedPreferencesAdapter = new DefaultSharedPreferencesAdapter(mContext);
+            }
+            if (mExceptionHandler == null) {
+                mExceptionHandler = new DefaultExceptionHandler();
+            }
+            if (mHttpAdapter == null) {
+                mHttpAdapter = new DefaultHttpAdapter();
+            }
+            if (mExecutorSupplierAdapter == null) {
+                mExecutorSupplierAdapter = new DefaultExecutorSupplierAdapter();
+            }
+            if (mStorageAdapter == null) {
+                mStorageAdapter = new DefaultStorageAdapter(mContext,
+                        mExecutorSupplierAdapter.getDBExecutor());
+            }
+            if (mEngineMonitorAdapter == null) {
+                mEngineMonitorAdapter = new DefaultEngineMonitorAdapter();
+            }
+
+            if (mFontScaleAdapter == null) {
+                mFontScaleAdapter = new DefaultFontScaleAdapter();
+            }
+            if (mSoLoaderAdapter == null) {
+                mSoLoaderAdapter = new DefaultSoLoaderAdapter();
+            }
+            if (mDeviceAdapter == null) {
+                mDeviceAdapter = new DefaultDeviceAdapter();
+            }
+            if (mLogAdapter == null) {
+                mLogAdapter = new DefaultLogAdapter();
+            }
+            @SuppressWarnings("UnnecessaryLocalVariable") HippyGlobalConfigs configs = new HippyGlobalConfigs(
+                    mContext, mSharedPreferencesAdapter, mExceptionHandler,
+                    mHttpAdapter, mExecutorSupplierAdapter, mStorageAdapter,
+                    mEngineMonitorAdapter, mFontScaleAdapter,
+                    mSoLoaderAdapter, mDeviceAdapter, mLogAdapter, mImageDecoderAdapter);
+            return configs;
+        }
+    }
+
+    public boolean enableTurbo() {
+        return mEnableTurbo;
+    }
 }

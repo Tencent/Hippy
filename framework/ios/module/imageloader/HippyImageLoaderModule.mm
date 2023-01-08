@@ -61,6 +61,7 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
                                             method:@"Get"
                                             params:nil
                                               body:nil
+                                          progress:nil
                                  completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         if (!error) {
             id<HPImageProviderProtocol> imageProvider = [self imageProviderForData:data];
@@ -99,6 +100,7 @@ HIPPY_EXPORT_METHOD(prefetch:(NSString *)urlString) {
                                             method:@"Get"
                                             params:nil
                                               body:nil
+                                          progress:nil
                                  completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
 
     }];

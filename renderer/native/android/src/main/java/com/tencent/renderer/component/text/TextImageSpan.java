@@ -38,7 +38,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.utils.ContextHolder;
-import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.component.image.ImageDataHolder;
@@ -183,35 +182,17 @@ public class TextImageSpan extends ImageSpan {
             }
 
             @Override
-            public void onRequestProgress(float total, float loaded) {
+            public void onRequestProgress(long total, long loaded) {
             }
 
             @Override
             public void onRequestSuccess(final ImageDataSupplier imageData) {
-                if (UIThreadUtils.isOnUiThread()) {
-                    handleFetchImageResult(imageData);
-                } else {
-                    UIThreadUtils.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            handleFetchImageResult(imageData);
-                        }
-                    });
-                }
+                handleFetchImageResult(imageData);
             }
 
             @Override
             public void onRequestFail(Throwable throwable) {
-                if (UIThreadUtils.isOnUiThread()) {
-                    handleFetchImageResult(null);
-                } else {
-                    UIThreadUtils.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            handleFetchImageResult(null);
-                        }
-                    });
-                }
+                handleFetchImageResult(null);
             }
         }, null, mWidth, mHeight);
     }
@@ -251,11 +232,13 @@ public class TextImageSpan extends ImageSpan {
     }
 
     @SuppressLint("DiscouragedPrivateApi")
-    private void shouldReplaceDrawable(@NonNull ImageDataHolder supplier) {
-        Bitmap bitmap = supplier.getBitmap();
-        if (bitmap != null) {
+    private void shouldReplaceDrawable(@NonNull ImageDataHolder imageHolder) {
+        Drawable imageDrawable = imageHolder.getDrawable();
+        Bitmap bitmap = imageHolder.getBitmap();
+        if (imageDrawable != null || bitmap != null) {
             Resources resources = ContextHolder.getAppContext().getResources();
-            BitmapDrawable drawable = new BitmapDrawable(resources, bitmap);
+            Drawable drawable = imageDrawable != null ? imageDrawable :
+                    new BitmapDrawable(resources, bitmap);
             int w = (mWidth == 0) ? drawable.getIntrinsicWidth() : mWidth;
             int h = (mHeight == 0) ? drawable.getIntrinsicHeight() : mHeight;
             drawable.setBounds(0, 0, w, h);
@@ -272,25 +255,23 @@ public class TextImageSpan extends ImageSpan {
             } catch (IllegalAccessException | NoSuchFieldException ignored) {
                 // Reflective access likely to remove in future Android releases
             }
-            mImageLoadState = STATE_LOADED;
-        } else if (supplier.isAnimated()) {
-            mGifMovie = supplier.getGifMovie();
-            mImageLoadState = STATE_LOADED;
-        } else {
-            mImageLoadState = STATE_UNLOAD;
+        } else if (imageHolder.isAnimated()) {
+            mGifMovie = imageHolder.getGifMovie();
         }
+        imageHolder.attached();
         postInvalidateDelayed(0);
     }
 
-    private void handleFetchImageResult(@Nullable final ImageDataSupplier supplier) {
+    private void handleFetchImageResult(@Nullable final ImageDataSupplier imageHolder) {
         String eventName;
-        if (supplier == null) {
+        if (imageHolder == null || !imageHolder.checkImageData()) {
             mImageLoadState = STATE_UNLOAD;
             eventName = EVENT_IMAGE_LOAD_ERROR;
         } else {
-            if (supplier instanceof ImageDataHolder) {
-                shouldReplaceDrawable((ImageDataHolder) supplier);
+            if (imageHolder instanceof ImageDataHolder) {
+                shouldReplaceDrawable((ImageDataHolder) imageHolder);
             }
+            mImageLoadState = STATE_LOADED;
             eventName = EVENT_IMAGE_ON_LOAD;
         }
         mNativeRenderer.dispatchEvent(mRootId, mId, eventName, null, false, false,

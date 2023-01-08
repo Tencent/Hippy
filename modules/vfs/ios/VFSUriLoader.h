@@ -22,6 +22,7 @@
 
 #import <Foundation/Foundation.h>
 
+#include "VFSDefines.h"
 #include "vfs/uri_loader.h"
 
 extern NSString *const VFSErrorDomain;
@@ -30,6 +31,7 @@ extern NSString *const VFSParamsHeaders;
 extern NSString *const VFSParamsBody;
 
 @class HPUriLoader;
+class VFSUriHandler;
 
 extern NSError *GetVFSError(hippy::vfs::UriHandler::RetCode retCode, NSString *urlString, NSURLResponse *response);
 
@@ -38,13 +40,34 @@ class VFSUriLoader : public hippy::vfs::UriLoader {
     VFSUriLoader() = default;
     ~VFSUriLoader() = default;
 
+    virtual void RequestUntrustedContent(
+        const string_view& uri,
+        const std::unordered_map<std::string, std::string>& meta,
+        std::function<void(RetCode, std::unordered_map<std::string, std::string>, bytes)> cb) override;
+
+    virtual void RequestUntrustedContent(
+        const string_view& uri,
+        const std::unordered_map<std::string, std::string>& req_meta,
+        RetCode& code,
+        std::unordered_map<std::string, std::string>& rsp_meta,
+        bytes& content) override;
+
+    virtual void RequestUntrustedContent(const std::shared_ptr<hippy::RequestJob>& request, std::shared_ptr<hippy::JobResponse> response) override;
+    virtual void RequestUntrustedContent(const std::shared_ptr<hippy::RequestJob>& request, const std::function<void(std::shared_ptr<hippy::JobResponse>)>& cb) override;
+
     //Foundation API convenient methods
-    using URILoaderCompletion = std::function<void(NSData *, NSURLResponse *, NSError *)>;
-    virtual void loadContentsAsynchronously(NSString *urlString, NSDictionary *headers, URILoaderCompletion completion);
-    
-    typedef void(^URILoaderCompletionBlock)(NSData *, NSURLResponse *, NSError *);
-    void loadContentsAsynchronously(NSString *urlString, NSDictionary *headers, URILoaderCompletionBlock block);
-    virtual NSData *loadContentsSynchronously(NSString *urlString, NSDictionary *headers, NSURLResponse **response, NSError **error);
-    
-    bool enableForward_;
+    virtual void RegisterConvenientUriHandler(NSString *scheme,
+                                              const std::shared_ptr<VFSUriHandler>& handler);
+
+    virtual void AddConvenientDefaultHandler(const std::shared_ptr<VFSUriHandler>& handler);
+    virtual const std::list<std::shared_ptr<VFSUriHandler>> &GetConvenientDefaultHandlers();
+    virtual void RequestUntrustedContent(NSString *urlString, VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion);
+    virtual void RequestUntrustedContent(NSString *urlString, NSString *method, NSDictionary<NSString *, NSString *> *httpHeader, NSData *body, VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion);
+    virtual void RequestUntrustedContent(NSURLRequest *request, VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion);
+  private:
+    std::shared_ptr<VFSUriHandler> GetNextConvinentHandler(std::list<std::shared_ptr<VFSUriHandler>>::iterator &cur_con_handler_it,
+                                                           const std::list<std::shared_ptr<VFSUriHandler>>::iterator &end_con_handler_it);
+    std::list<std::shared_ptr<VFSUriHandler>> default_convenient_handlers_;
+    std::unordered_map<NSUInteger, std::list<std::shared_ptr<VFSUriHandler>>> convenint_handler_map_;
+    std::mutex convenintMutex_;
 };

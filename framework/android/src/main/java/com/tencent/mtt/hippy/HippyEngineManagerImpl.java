@@ -59,6 +59,7 @@ import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.ControllerProvider;
 import com.tencent.renderer.FrameworkProxy;
+import com.tencent.renderer.component.image.ImageDecoderAdapter;
 import com.tencent.renderer.component.text.FontAdapter;
 import com.tencent.vfs.DefaultProcessor;
 import com.tencent.devtools.vfs.DevtoolsProcessor;
@@ -68,7 +69,6 @@ import com.openhippy.connector.JsDriver.V8InitParams;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
@@ -280,6 +280,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     @Override
     public FontAdapter getFontAdapter() {
         return mEngineContext.getGlobalConfigs().getFontScaleAdapter();
+    }
+
+    @Override
+    public ImageDecoderAdapter getImageDecoderAdapter() {
+        return mEngineContext.getGlobalConfigs().getImageDecoderAdapter();
     }
 
     @NonNull
@@ -579,11 +584,17 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         if (mCurrentState != EngineState.INITING) {
             mCurrentState = EngineState.ONRESTART;
         }
+        DomManager domManager = null;
         if (onReLoad && mEngineContext != null) {
-            mEngineContext.destroy(true);
+            if (mDebugMode) {
+                domManager = mEngineContext.getDomManager();
+                mEngineContext.destroy(true);
+            } else {
+                mEngineContext.destroy(false);
+            }
         }
         try {
-            mEngineContext = new HippyEngineContextImpl();
+            mEngineContext = new HippyEngineContextImpl(domManager);
         } catch (RuntimeException e) {
             LogUtils.e(TAG, "new HippyEngineContextImpl(): " + e.getMessage());
             notifyEngineInitialized(EngineInitStatus.STATUS_INIT_EXCEPTION, e);
@@ -713,9 +724,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         @NonNull
         private final NativeRenderer mNativeRenderer;
         @NonNull
-        private final JsDriver mJsDriver;
-        @NonNull
         private final DomManager mDomManager;
+        @NonNull
+        private final JsDriver mJsDriver;
         @NonNull
         private final VfsManager mVfsManager;
         @Nullable
@@ -723,7 +734,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         @Nullable
         volatile CopyOnWriteArrayList<HippyEngineLifecycleEventListener> mEngineLifecycleEventListeners;
 
-        public HippyEngineContextImpl() throws RuntimeException {
+        public HippyEngineContextImpl(@Nullable DomManager domManager) throws RuntimeException {
             mVfsManager = (mProcessors != null) ? new VfsManager(mProcessors) : new VfsManager();
             mVfsManager.setId(onCreateVfs(mVfsManager));
             DefaultProcessor processor = new DefaultProcessor(new HippyResourceLoader(this));
@@ -734,7 +745,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                         .getAbsolutePath();
                 mDevtoolsManager.create(localCachePath,
                         getDevSupportManager().createDebugUrl(mServerHost));
-                mVfsManager.addProcessorAtFirst(new DevtoolsProcessor(mDevtoolsManager.getId()));
+                //mVfsManager.addProcessorAtFirst(new DevtoolsProcessor(mDevtoolsManager.getId()));
             }
             mModuleManager = new HippyModuleManagerImpl(this, mModuleProviders,
                     enableV8Serialization);
@@ -742,7 +753,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader,
                     getBridgeType(), enableV8Serialization, mDebugMode,
                     mServerHost, mGroupId, mThirdPartyAdapter, v8InitParams, mJsDriver);
-            mDomManager = new DomManager();
+            mDomManager = (domManager != null) ? domManager : new DomManager();
             mNativeRenderer = new NativeRenderer();
             mDomManager.attachToRenderer(mNativeRenderer);
             mNativeRenderer.attachToDom(mDomManager);
@@ -765,6 +776,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mJsDriver.attachToDom(mDomManager);
             if (mRootView != null && (mDebugMode || BuildConfig.DEBUG)) {
                 mDomManager.createRoot(mRootView);
+                mDomManager.attachToRoot(mRootView);
                 mJsDriver.attachToRoot(mRootView);
                 mNativeRenderer.onRuntimeInitialized(mRootView);
             }
@@ -773,6 +785,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             }
         }
 
+        @NonNull
+        DomManager getDomManager() {
+            return mDomManager;
+        }
+
+        @NonNull
         NativeRenderer getNativeRenderer() {
             return mNativeRenderer;
         }
@@ -927,6 +945,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             View rootView = mNativeRenderer.createRootView(context);
             if (rootView != null) {
                 mDomManager.createRoot(rootView);
+                mDomManager.attachToRoot(rootView);
                 mJsDriver.attachToRoot(rootView);
                 if (mDevtoolsManager != null) {
                     mDevtoolsManager.attachToRoot(rootView);
@@ -958,7 +977,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 mDevtoolsManager.destroy(isReload);
             }
             mNativeRenderer.destroy();
-            mDomManager.destroy();
+            if (!isReload) {
+                mDomManager.destroy();
+            }
             mBridgeManager.destroy();
             mModuleManager.destroy();
             mVfsManager.destroy();

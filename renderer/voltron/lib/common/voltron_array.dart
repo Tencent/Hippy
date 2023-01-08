@@ -91,6 +91,10 @@ class VoltronArray {
         voltronArray.push(element.toVoltronMap());
       } else if (element is List) {
         voltronArray.push(element.toVoltronArray());
+      } else if (element is VoltronMap) {
+        voltronArray.push(element.toDeepVoltronMap());
+      } else if (element is VoltronArray) {
+        voltronArray.push(element.toDeepVoltronArray());
       } else {
         voltronArray.push(element);
       }

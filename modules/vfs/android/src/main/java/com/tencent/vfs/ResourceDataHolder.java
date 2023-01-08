@@ -16,6 +16,8 @@
 
 package com.tencent.vfs;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -99,7 +101,7 @@ public class ResourceDataHolder {
 
     public void readResourceDataFromStream(@NonNull InputStream inputStream) throws IOException {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        byte[] b = new byte[2048];
+        byte[] b = new byte[8192];
         int size;
         while ((size = inputStream.read(b)) > 0) {
             output.write(b, 0, size);

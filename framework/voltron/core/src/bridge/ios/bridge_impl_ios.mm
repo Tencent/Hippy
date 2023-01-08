@@ -178,7 +178,8 @@ int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platf
         FOOTSTONE_DCHECK(dom_manager);
         std::shared_ptr<footstone::TaskRunner> dom_task_runner = dom_manager->GetTaskRunner();
         FOOTSTONE_DCHECK(dom_task_runner);
-        std::shared_ptr<hippy::Engine> engine = std::make_shared<hippy::Engine>(dom_task_runner, nullptr);
+        auto engine = std::make_shared<hippy::Engine>();
+        engine->AsyncInit(dom_task_runner, nullptr);
         [[VoltronJSEnginesMapper defaultInstance] setEngine:engine forKey: executorKey];
         
         [bridge initJSFramework:globalConfig execurotKey:executorKey workerManager:worker_sp devtoolsId:devtoolsId debugMode:debugMode completion:^(BOOL succ) {

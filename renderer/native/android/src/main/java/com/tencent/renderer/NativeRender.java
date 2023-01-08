@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 
+import com.tencent.renderer.component.image.ImageDecoderAdapter;
 import com.tencent.renderer.component.image.ImageLoaderAdapter;
 import com.tencent.renderer.component.text.FontAdapter;
 import com.tencent.renderer.node.VirtualNode;
@@ -55,6 +56,9 @@ public interface NativeRender extends RenderExceptionHandler {
 
     @Nullable
     FontAdapter getFontAdapter();
+
+    @Nullable
+    ImageDecoderAdapter getImageDecoderAdapter();
 
     @Nullable
     Executor getBackgroundExecutor();

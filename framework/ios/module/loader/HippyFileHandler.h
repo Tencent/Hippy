@@ -20,18 +20,26 @@
  *
  */
 
-#import "HPUriHandler.h"
-
-NS_ASSUME_NONNULL_BEGIN
+#include "VFSUriHandler.h"
 
 @class HippyBridge;
 
-@interface HippyFileHandler : HPUriHandler
+class HippyFileHandler : public VFSUriHandler {
+public:
+    HippyFileHandler() = delete;
+    HippyFileHandler(HippyBridge *bridge);
+    
+    virtual void RequestUntrustedContent(
+        std::shared_ptr<hippy::RequestJob> request,
+        std::shared_ptr<hippy::JobResponse> response,
+        std::function<std::shared_ptr<UriHandler>()> next) override;
+    virtual void RequestUntrustedContent(
+        std::shared_ptr<hippy::RequestJob> request,
+        std::function<void(std::shared_ptr<hippy::JobResponse>)> cb,
+        std::function<std::shared_ptr<UriHandler>()> next) override;
 
-- (instancetype)initWithBridge:(HippyBridge *_Nullable)bridge NS_DESIGNATED_INITIALIZER;
-
-@property(nonatomic, weak) HippyBridge *bridge;
-
-@end
-
-NS_ASSUME_NONNULL_END
+    virtual void RequestUntrustedContent(NSURLRequest *request, VFSHandlerProgressBlock progress,
+                                         VFSHandlerCompletionBlock completion, VFSGetNextHandlerBlock next) override;
+private:
+    __weak HippyBridge *bridge_;
+};

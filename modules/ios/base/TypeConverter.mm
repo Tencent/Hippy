@@ -28,6 +28,9 @@
 using string_view = footstone::string_view;
 
 string_view NSStringToU8StringView(NSString* str) {
+    if (!str) {
+        return "";
+    }
     std::string u8([str UTF8String]);
     return string_view(reinterpret_cast<const string_view::char8_t_*>(u8.c_str()), u8.length());
 }

@@ -36,14 +36,17 @@ class FileHandler : public UriHandler {
   virtual ~FileHandler() = default;
 
   virtual void RequestUntrustedContent(
-      std::shared_ptr<SyncContext> ctx,
+      std::shared_ptr<RequestJob> request,
+      std::shared_ptr<JobResponse> response,
       std::function<std::shared_ptr<UriHandler>()> next) override;
   virtual void RequestUntrustedContent(
-      std::shared_ptr<ASyncContext> ctx,
+      std::shared_ptr<RequestJob> request,
+      std::function<void(std::shared_ptr<JobResponse>)> cb,
       std::function<std::shared_ptr<UriHandler>()> next) override;
  private:
   void LoadByFile(const string_view& path,
-                  std::shared_ptr<ASyncContext> ctx,
+                  std::shared_ptr<RequestJob> request,
+                  std::function<void(std::shared_ptr<JobResponse>)> cb,
                   std::function<std::shared_ptr<UriHandler>()> next);
 
   std::weak_ptr<TaskRunner> runner_;

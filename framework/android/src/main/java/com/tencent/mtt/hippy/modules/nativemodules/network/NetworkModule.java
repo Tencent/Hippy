@@ -178,7 +178,7 @@ public class NetworkModule extends HippyNativeModuleBase {
                     }
 
                     @Override
-                    public void onFetchProgress(float total, float loaded) {
+                    public void onFetchProgress(long total, long loaded) {
                         // Nothing need to do here.
                     }
                 });

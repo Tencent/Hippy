@@ -49,11 +49,10 @@ public class RenderManager {
     private static final String TAG = "RenderManager";
     @NonNull
     private final ControllerManager mControllerManager;
-    private final int mRendererId;
+    @NonNull
     private final Map<Integer, List<RenderNode>> mUIUpdateNodes = new HashMap<>();
 
     public RenderManager(Renderer renderer) {
-        mRendererId = renderer.getInstanceId();
         mControllerManager = new ControllerManager(renderer);
     }
 
@@ -74,8 +73,8 @@ public class RenderManager {
         return mControllerManager.getRootView(rootId);
     }
 
-    public void createRootNode(int id) {
-        RootRenderNode node = new RootRenderNode(id, id, mRendererId, NodeProps.ROOT_NODE,
+    public void createRootNode(int id, int rendererId) {
+        RootRenderNode node = new RootRenderNode(id, id, rendererId, NodeProps.ROOT_NODE,
                 mControllerManager);
         NativeRendererManager.addRootNode(node);
     }

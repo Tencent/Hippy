@@ -50,6 +50,10 @@ public class DomManager implements Connector {
         destroyRootNode(rootId);
     }
 
+    public void attachToRoot(View root) {
+        setDomManager(root.getId(), mInstanceId);
+    }
+
     /**
      * Attach to renderer with specified id.
      *
@@ -74,5 +78,7 @@ public class DomManager implements Connector {
     private native void createRootNode(int rootId);
 
     private native void destroyRootNode(int rootId);
+
+    private native void setDomManager(int rootId, int domManagerId);
 
 }
