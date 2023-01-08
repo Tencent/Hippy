@@ -54,7 +54,7 @@ CMakeLists.txt @medns
 /gradle.properties @siguangli
 /gradlew @siguangli
 /gradlew.bat @siguangli
-/setting.gradle @siguangli
+/settings.gradle @siguangli
 /build.gradle @siguangli
 /gradle/ @siguangli
 
