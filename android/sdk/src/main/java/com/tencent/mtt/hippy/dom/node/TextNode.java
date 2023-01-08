@@ -749,24 +749,24 @@ public class TextNode extends StyleNode {
     } catch (Throwable e) {
       LogUtils.d("TextNode", "createLayout: " + e.getMessage());
     }
-    float desiredWidth = boring == null ? Layout.getDesiredWidth(text, textPaint) : Float.NaN;
 
     boolean unconstrainedWidth = widthMode == FlexMeasureMode.UNDEFINED || width < 0;
-    if (boring == null && (unconstrainedWidth || (!FlexConstants.isUndefined(desiredWidth)
-        && desiredWidth <= width))) {
-      layout = buildStaticLayout(text, textPaint, (int)Math.ceil(desiredWidth));
-    } else if (boring != null && (unconstrainedWidth || boring.width <= width)) {
+    if (boring != null && (unconstrainedWidth || boring.width <= width)) {
       layout = BoringLayout.make(text, textPaint, boring.width, mTextAlign, getLineSpacingMultiplier(), mLineSpacingExtra, boring, true);
     } else {
-      layout = buildStaticLayout(text, textPaint, (int)Math.ceil(width));
-    }
-    if (mNumberOfLines != UNSET && mNumberOfLines > 0) {
-      if (layout.getLineCount() > mNumberOfLines) {
-        int lastLineStart = layout.getLineStart(mNumberOfLines - 1);
-        int lastLineEnd = layout.getLineEnd(mNumberOfLines - 1);
-        if (lastLineStart < lastLineEnd) {
-          int measureWidth = (int)Math.ceil(unconstrainedWidth ? desiredWidth : width);
-          layout = truncateLayoutWithNumberOfLine(layout, measureWidth, mNumberOfLines);
+      float desiredWidth = Layout.getDesiredWidth(text, textPaint);
+      if (!unconstrainedWidth && (widthMode == FlexMeasureMode.EXACTLY || desiredWidth > width)) {
+          desiredWidth = width;
+      }
+      layout = buildStaticLayout(text, textPaint, (int) Math.ceil(desiredWidth));
+      if (mNumberOfLines != UNSET && mNumberOfLines > 0) {
+        if (layout.getLineCount() > mNumberOfLines) {
+          int lastLineStart = layout.getLineStart(mNumberOfLines - 1);
+          int lastLineEnd = layout.getLineEnd(mNumberOfLines - 1);
+          if (lastLineStart < lastLineEnd) {
+            int measureWidth = (int)Math.ceil(unconstrainedWidth ? desiredWidth : width);
+            layout = truncateLayoutWithNumberOfLine(layout, measureWidth, mNumberOfLines);
+          }
         }
       }
     }
