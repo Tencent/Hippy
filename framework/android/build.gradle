@@ -23,7 +23,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.kezong.fat-aar'
 apply from: './publish.gradle'
-apply from: './sub-module-deps.gradle'
 
 android {
     archivesBaseName = ARCHIVES_BASE_NAME
@@ -153,13 +152,9 @@ dependencies {
         } else {
             def subProjectName = 'connector-' + module.replace("/", "-")
             embed project(path: ":$subProjectName", configuration: 'default')
-            def subDependenciesKey = 'connector_' + module.replace("/", "_") + '_deps'
-            if (subMoudleDeps.containsKey(subDependenciesKey)) {
-                def subDeps = subMoudleDeps.get(subDependenciesKey)
-                compileOnly project(path: ":$subDeps")
-            }
         }
     }
+    compileOnly project(path: ':renderer-native')
     //noinspection GradleDependency
     implementation deps.annotation
 
