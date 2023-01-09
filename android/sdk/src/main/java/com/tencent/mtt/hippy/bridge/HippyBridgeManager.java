@@ -59,4 +59,6 @@ public interface HippyBridgeManager {
   HippyThirdPartyAdapter getThirdPartyAdapter();
 
   long getV8RuntimeId();
+
+  void connectDebugUrl(String wsDebugUrl);
 }
