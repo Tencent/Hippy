@@ -55,6 +55,7 @@ if ("${LAYOUT_ENGINE}" STREQUAL "Yoga")
 elseif ("${LAYOUT_ENGINE}" STREQUAL "Taitank")
   InfraPackage_Add(taitank
       REMOTE "dom/third_party/taitank/1.0.1/git-repo.tgz"
+      LOCAL "third_party/taitank"
       )
   target_include_directories(${PROJECT_NAME} PUBLIC ${taitank_SOURCE_DIR}/src)
   target_link_libraries(${PROJECT_NAME} PRIVATE taitank)
