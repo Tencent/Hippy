@@ -53,8 +53,10 @@ if ("${LAYOUT_ENGINE}" STREQUAL "Yoga")
   target_compile_definitions(${PROJECT_NAME} PRIVATE "USE_YOGA")
   target_link_libraries(${PROJECT_NAME} PRIVATE yogacore)
 elseif ("${LAYOUT_ENGINE}" STREQUAL "Taitank")
-  target_compile_definitions(${PROJECT_NAME} PRIVATE "USE_TAITANK")
-  add_subdirectory(${PROJECT_ROOT_DIR}/layout ${CMAKE_CURRENT_BINARY_DIR}/taitank)
+  InfraPackage_Add(taitank
+      REMOTE "dom/third_party/taitank/1.0.1/git-repo.tgz"
+      )
+  target_include_directories(${PROJECT_NAME} PUBLIC ${taitank_SOURCE_DIR}/src)
   target_link_libraries(${PROJECT_NAME} PRIVATE taitank)
 else ()
   message(FATAL_ERROR "Layout Engine ${LAYOUT_ENGINE} is not supported")

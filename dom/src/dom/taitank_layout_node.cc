@@ -35,70 +35,70 @@ static std::atomic<int64_t> global_measure_function_key{0};
 static std::map<int64_t, MeasureFunction> measure_function_map;
 static std::mutex mutex;
 
-const std::map<std::string, OverflowType> kOverflowMap = {{"visible", OverflowType::OverflowVisible},
-                                                          {"hidden", OverflowType::OverflowHidden},
-                                                          {"scroll", OverflowType::OverflowScroll}};
+const std::map<std::string, OverflowType> kOverflowMap = {{"visible", OverflowType::OVERFLOW_VISIBLE},
+                                                          {"hidden", OverflowType::OVERFLOW_HIDDEN},
+                                                          {"scroll", OverflowType::OVERFLOW_SCROLL}};
 
 const std::map<std::string, FlexDirection> kFlexDirectionMap = {
-    {"row", FlexDirection::FLexDirectionRow},
-    {"row-reverse", FlexDirection::FLexDirectionRowReverse},
-    {"column", FlexDirection::FLexDirectionColumn},
-    {"column-reverse", FlexDirection::FLexDirectionColumnReverse}};
+    {"row", FlexDirection::FLEX_DIRECTION_ROW},
+    {"row-reverse", FlexDirection::FLEX_DIRECTION_ROW_REVERSE},
+    {"column", FlexDirection::FLEX_DIRECTION_COLUMN},
+    {"column-reverse", FlexDirection::FLEX_DIRECTION_COLUNM_REVERSE}};
 
-const std::map<std::string, FlexWrapMode> kWrapModeMap = {{"nowrap", FlexWrapMode::FlexNoWrap},
-                                                          {"wrap", FlexWrapMode::FlexWrap},
-                                                          {"wrap-reverse", FlexWrapMode::FlexWrapReverse}};
+const std::map<std::string, FlexWrapMode> kWrapModeMap = {{"nowrap", FlexWrapMode::FLEX_NO_WRAP},
+                                                          {"wrap", FlexWrapMode::FLEX_WRAP},
+                                                          {"wrap-reverse", FlexWrapMode::FLEX_WRAP_REVERSE}};
 
-const std::map<std::string, FlexAlign> kJustifyMap = {{"flex-start", FlexAlign::FlexAlignStart},
-                                                      {"center", FlexAlign::FlexAlignCenter},
-                                                      {"flex-end", FlexAlign::FlexAlignEnd},
-                                                      {"space-between", FlexAlign::FlexAlignSpaceBetween},
-                                                      {"space-around", FlexAlign::FlexAlignSpaceAround},
-                                                      {"space-evenly", FlexAlign::FlexAlignSpaceEvenly}};
+const std::map<std::string, FlexAlign> kJustifyMap = {{"flex-start", FlexAlign::FLEX_ALIGN_START},
+                                                      {"center", FlexAlign::FLEX_ALIGN_CENTER},
+                                                      {"flex-end", FlexAlign::FLEX_ALIGN_END},
+                                                      {"space-between", FlexAlign::FLEX_ALIGN_SPACE_BETWEEN},
+                                                      {"space-around", FlexAlign::FLEX_ALIGN_SPACE_AROUND},
+                                                      {"space-evenly", FlexAlign::FLEX_ALIGN_SPACE_EVENLY}};
 
-const std::map<std::string, FlexAlign> kAlignMap = {{"auto", FlexAlign::FlexAlignAuto},
-                                                    {"flex-start", FlexAlign::FlexAlignStart},
-                                                    {"center", FlexAlign::FlexAlignCenter},
-                                                    {"flex-end", FlexAlign::FlexAlignEnd},
-                                                    {"stretch", FlexAlign::FlexAlignStretch},
-                                                    {"baseline", FlexAlign::FlexAlignBaseline},
-                                                    {"space-between", FlexAlign::FlexAlignSpaceBetween},
-                                                    {"space-around", FlexAlign::FlexAlignSpaceAround}};
+const std::map<std::string, FlexAlign> kAlignMap = {{"auto", FlexAlign::FLEX_ALIGN_AUTO},
+                                                    {"flex-start", FlexAlign::FLEX_ALIGN_START},
+                                                    {"center", FlexAlign::FLEX_ALIGN_CENTER},
+                                                    {"flex-end", FlexAlign::FLEX_ALIGN_END},
+                                                    {"stretch", FlexAlign::FLEX_ALIGN_STRETCH},
+                                                    {"baseline", FlexAlign::FLEX_ALIGN_BASE_LINE},
+                                                    {"space-between", FlexAlign::FLEX_ALIGN_SPACE_BETWEEN},
+                                                    {"space-around", FlexAlign::FLEX_ALIGN_SPACE_AROUND}};
 
-const std::map<std::string, CSSDirection> kMarginMap = {{kMargin, CSSDirection::CSSAll},
-                                                        {kMarginVertical, CSSDirection::CSSVertical},
-                                                        {kMarginHorizontal, CSSDirection::CSSHorizontal},
-                                                        {kMarginLeft, CSSDirection::CSSLeft},
-                                                        {kMarginRight, CSSDirection::CSSRight},
-                                                        {kMarginTop, CSSDirection::CSSTop},
-                                                        {kMarginBottom, CSSDirection::CSSBottom}};
+const std::map<std::string, CSSDirection> kMarginMap = {{kMargin, CSSDirection::CSS_ALL},
+                                                        {kMarginVertical, CSSDirection::CSS_VERTICAL},
+                                                        {kMarginHorizontal, CSSDirection::CSS_HORIZONTAL},
+                                                        {kMarginLeft, CSSDirection::CSS_LEFT},
+                                                        {kMarginRight, CSSDirection::CSS_RIGHT},
+                                                        {kMarginTop, CSSDirection::CSS_TOP},
+                                                        {kMarginBottom, CSSDirection::CSS_BOTTOM}};
 
-const std::map<std::string, CSSDirection> kPaddingMap = {{kPadding, CSSDirection::CSSAll},
-                                                         {kPaddingVertical, CSSDirection::CSSVertical},
-                                                         {kPaddingHorizontal, CSSDirection::CSSHorizontal},
-                                                         {kPaddingLeft, CSSDirection::CSSLeft},
-                                                         {kPaddingRight, CSSDirection::CSSRight},
-                                                         {kPaddingTop, CSSDirection::CSSTop},
-                                                         {kPaddingBottom, CSSDirection::CSSBottom}};
+const std::map<std::string, CSSDirection> kPaddingMap = {{kPadding, CSSDirection::CSS_ALL},
+                                                         {kPaddingVertical, CSSDirection::CSS_VERTICAL},
+                                                         {kPaddingHorizontal, CSSDirection::CSS_HORIZONTAL},
+                                                         {kPaddingLeft, CSSDirection::CSS_LEFT},
+                                                         {kPaddingRight, CSSDirection::CSS_RIGHT},
+                                                         {kPaddingTop, CSSDirection::CSS_TOP},
+                                                         {kPaddingBottom, CSSDirection::CSS_BOTTOM}};
 
-const std::map<std::string, CSSDirection> kPositionMap = {{kLeft, CSSDirection::CSSLeft},
-                                                          {kRight, CSSDirection::CSSRight},
-                                                          {kTop, CSSDirection::CSSTop},
-                                                          {kBottom, CSSDirection::CSSBottom}};
+const std::map<std::string, CSSDirection> kPositionMap = {{kLeft, CSSDirection::CSS_LEFT},
+                                                          {kRight, CSSDirection::CSS_RIGHT},
+                                                          {kTop, CSSDirection::CSS_TOP},
+                                                          {kBottom, CSSDirection::CSS_BOTTOM}};
 
-const std::map<std::string, CSSDirection> kBorderMap = {{kBorderWidth, CSSDirection::CSSAll},
-                                                        {kBorderLeftWidth, CSSDirection::CSSLeft},
-                                                        {kBorderTopWidth, CSSDirection::CSSTop},
-                                                        {kBorderRightWidth, CSSDirection::CSSRight},
-                                                        {kBorderBottomWidth, CSSDirection::CSSBottom}};
+const std::map<std::string, CSSDirection> kBorderMap = {{kBorderWidth, CSSDirection::CSS_LEFT},
+                                                        {kBorderLeftWidth, CSSDirection::CSS_LEFT},
+                                                        {kBorderTopWidth, CSSDirection::CSS_TOP},
+                                                        {kBorderRightWidth, CSSDirection::CSS_RIGHT},
+                                                        {kBorderBottomWidth, CSSDirection::CSS_BOTTOM}};
 
-const std::map<std::string, PositionType> kPositionTypeMap = {{"relative", PositionType::PositionTypeRelative},
-                                                              {"absolute", PositionType::PositionTypeAbsolute}};
+const std::map<std::string, PositionType> kPositionTypeMap = {{"relative", PositionType::POSITION_TYPE_RELATIVE},
+                                                              {"absolute", PositionType::POSITION_TYPE_ABSOLUTE}};
 
-const std::map<std::string, DisplayType> kDisplayTypeMap = {{"none", DisplayType::DisplayTypeNone}};
+const std::map<std::string, DisplayType> kDisplayTypeMap = {{"none", DisplayType::DISPLAY_TYPE_NONE}};
 
-const std::map<std::string, HPDirection> kDirectionMap = {
-    {"inherit", DirectionInherit}, {"ltr", DirectionLTR}, {"rtl", DirectionRTL}};
+const std::map<std::string, TaitankDirection> kDirectionMap = {
+    {"inherit", DIRECTION_INHERIT}, {"ltr", DIRECTION_LTR}, {"rtl", DIRECTION_RTL}};
 
 #define TAITANK_GET_STYLE_DECL(NAME, TYPE, DEFAULT)      \
   static TYPE GetStyle##NAME(const std::string& key) {   \
@@ -107,29 +107,29 @@ const std::map<std::string, HPDirection> kDirectionMap = {
     return DEFAULT;                                      \
   }
 
-TAITANK_GET_STYLE_DECL(Overflow, OverflowType, OverflowType::OverflowVisible)
+TAITANK_GET_STYLE_DECL(Overflow, OverflowType, OverflowType::OVERFLOW_VISIBLE)
 
-TAITANK_GET_STYLE_DECL(FlexDirection, FlexDirection, FlexDirection::FLexDirectionColumn)
+TAITANK_GET_STYLE_DECL(FlexDirection, FlexDirection, FlexDirection::FLEX_DIRECTION_COLUMN)
 
-TAITANK_GET_STYLE_DECL(WrapMode, FlexWrapMode, FlexWrapMode::FlexNoWrap)
+TAITANK_GET_STYLE_DECL(WrapMode, FlexWrapMode, FlexWrapMode::FLEX_NO_WRAP)
 
-TAITANK_GET_STYLE_DECL(Justify, FlexAlign, FlexAlign::FlexAlignStart)
+TAITANK_GET_STYLE_DECL(Justify, FlexAlign, FlexAlign::FLEX_ALIGN_START)
 
-TAITANK_GET_STYLE_DECL(Align, FlexAlign, FlexAlign::FlexAlignStretch)
+TAITANK_GET_STYLE_DECL(Align, FlexAlign, FlexAlign::FLEX_ALIGN_STRETCH)
 
-TAITANK_GET_STYLE_DECL(Margin, CSSDirection, CSSDirection::CSSNONE)
+TAITANK_GET_STYLE_DECL(Margin, CSSDirection, CSSDirection::CSS_NONE)
 
-TAITANK_GET_STYLE_DECL(Padding, CSSDirection, CSSDirection::CSSNONE)
+TAITANK_GET_STYLE_DECL(Padding, CSSDirection, CSSDirection::CSS_NONE)
 
-TAITANK_GET_STYLE_DECL(Border, CSSDirection, CSSDirection::CSSNONE)
+TAITANK_GET_STYLE_DECL(Border, CSSDirection, CSSDirection::CSS_NONE)
 
-TAITANK_GET_STYLE_DECL(Position, CSSDirection, CSSDirection::CSSNONE)
+TAITANK_GET_STYLE_DECL(Position, CSSDirection, CSSDirection::CSS_NONE)
 
-TAITANK_GET_STYLE_DECL(PositionType, PositionType, PositionType::PositionTypeRelative)
+TAITANK_GET_STYLE_DECL(PositionType, PositionType, PositionType::POSITION_TYPE_RELATIVE)
 
-TAITANK_GET_STYLE_DECL(DisplayType, DisplayType, DisplayType::DisplayTypeFlex)
+TAITANK_GET_STYLE_DECL(DisplayType, DisplayType, DisplayType::DISPLAY_TYPE_FLEX)
 
-TAITANK_GET_STYLE_DECL(Direction, HPDirection, HPDirection::DirectionLTR)
+TAITANK_GET_STYLE_DECL(Direction, TaitankDirection, TaitankDirection::DIRECTION_LTR)
 
 #define SET_STYLE_VALUE(NAME, DEFAULT)                                                   \
   auto dom_value = style_map.find(k##NAME)->second;                                      \
@@ -158,13 +158,13 @@ static void CheckValueType(footstone::value::HippyValue::Type type) {
 }
 
 static LayoutMeasureMode ToLayoutMeasureMode(MeasureMode measure_mode) {
-  if (measure_mode == MeasureMode::MeasureModeUndefined) {
+  if (measure_mode == MeasureMode::MEASURE_MODE_UNDEFINED) {
     return LayoutMeasureMode::Undefined;
   }
-  if (measure_mode == MeasureMode::MeasureModeExactly) {
+  if (measure_mode == MeasureMode::MEASURE_MODE_EXACTLY) {
     return LayoutMeasureMode::Exactly;
   }
-  if (measure_mode == MeasureMode::MeasureModeAtMost) {
+  if (measure_mode == MeasureMode::MEASURE_MODE_AT_MOST) {
     return LayoutMeasureMode::AtMost;
   }
   FOOTSTONE_UNREACHABLE();
@@ -172,13 +172,13 @@ static LayoutMeasureMode ToLayoutMeasureMode(MeasureMode measure_mode) {
 
 static CSSDirection GetCSSDirectionFromEdge(Edge edge) {
   if (Edge::EdgeLeft == edge) {
-    return CSSDirection::CSSLeft;
+    return CSSDirection::CSS_LEFT;
   } else if (Edge::EdgeTop == edge) {
-    return CSSDirection::CSSTop;
+    return CSSDirection::CSS_TOP;
   } else if (Edge::EdgeRight == edge) {
-    return CSSDirection::CSSRight;
+    return CSSDirection::CSS_RIGHT;
   } else if (Edge::EdgeBottom == edge) {
-    return CSSDirection::CSSBottom;
+    return CSSDirection::CSS_BOTTOM;
   } else {
     FOOTSTONE_UNREACHABLE();
   }
@@ -186,7 +186,7 @@ static CSSDirection GetCSSDirectionFromEdge(Edge edge) {
 
 TaitankLayoutNode::TaitankLayoutNode() : key_(global_measure_function_key.fetch_add(1)) { Allocate(); }
 
-TaitankLayoutNode::TaitankLayoutNode(HPNodeRef engine_node_)
+TaitankLayoutNode::TaitankLayoutNode(TaitankNodeRef engine_node_)
     : engine_node_(engine_node_), key_(global_measure_function_key.fetch_add(1)) {}
 
 TaitankLayoutNode::~TaitankLayoutNode() {
@@ -199,17 +199,17 @@ TaitankLayoutNode::~TaitankLayoutNode() {
 void TaitankLayoutNode::CalculateLayout(float parent_width, float parent_height, Direction direction,
                                         void* layout_context) {
   assert(engine_node_ != nullptr);
-  HPDirection taitank_direction;
+  TaitankDirection taitank_direction;
   if (direction == Direction::Inherit) {
-    taitank_direction = HPDirection::DirectionInherit;
+    taitank_direction = TaitankDirection::DIRECTION_INHERIT;
   } else if (direction == Direction::LTR) {
-    taitank_direction = HPDirection::DirectionLTR;
+    taitank_direction = TaitankDirection::DIRECTION_LTR;
   } else if (direction == Direction::RTL) {
-    taitank_direction = HPDirection::DirectionRTL;
+    taitank_direction = TaitankDirection::DIRECTION_RTL;
   } else {
     FOOTSTONE_UNREACHABLE();
   }
-  engine_node_->layout(parent_width, parent_height, engine_node_->GetConfig(), taitank_direction, layout_context);
+  engine_node_->Layout(parent_width, parent_height, engine_node_->GetConfig(), taitank_direction, layout_context);
 }
 
 void TaitankLayoutNode::SetLayoutStyles(
@@ -271,42 +271,42 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<f
   }
   if (style_map.find(kFlexDirection) != style_map.end()) {
     if (style_map.find(kFlexDirection)->second == nullptr) {
-      SetFlexDirection(FlexDirection::FLexDirectionColumn);
+      SetFlexDirection(FlexDirection::FLEX_DIRECTION_COLUMN);
     } else {
       SetFlexDirection(GetStyleFlexDirection(style_map.find(kFlexDirection)->second->ToStringChecked()));
     }
   }
   if (style_map.find(kFlexWrap) != style_map.end()) {
     if (style_map.find(kFlexWrap)->second == nullptr) {
-      SetFlexWrap(FlexWrapMode::FlexNoWrap);
+      SetFlexWrap(FlexWrapMode::FLEX_NO_WRAP);
     } else {
       SetFlexWrap(GetStyleWrapMode(style_map.find(kFlexWrap)->second->ToStringChecked()));
     }
   }
   if (style_map.find(kAilgnSelf) != style_map.end()) {
     if (style_map.find(kAilgnSelf)->second == nullptr) {
-      SetAlignSelf(FlexAlign::FlexAlignAuto);
+      SetAlignSelf(FlexAlign::FLEX_ALIGN_AUTO);
     } else {
       SetAlignSelf(GetStyleAlign(style_map.find(kAilgnSelf)->second->ToStringChecked()));
     }
   }
   if (style_map.find(kAlignItems) != style_map.end()) {
     if (style_map.find(kAlignItems)->second == nullptr) {
-      SetAlignItems(FlexAlign::FlexAlignStretch);
+      SetAlignItems(FlexAlign::FLEX_ALIGN_STRETCH);
     } else {
       SetAlignItems(GetStyleAlign(style_map.find(kAlignItems)->second->ToStringChecked()));
     }
   }
   if (style_map.find(kJustifyContent) != style_map.end()) {
     if (style_map.find(kJustifyContent)->second == nullptr) {
-      SetJustifyContent(FlexAlign::FlexAlignStart);
+      SetJustifyContent(FlexAlign::FLEX_ALIGN_START);
     } else {
       SetJustifyContent(GetStyleJustify(style_map.find(kJustifyContent)->second->ToStringChecked()));
     }
   }
   if (style_map.find(kOverflow) != style_map.end()) {
     if (style_map.find(kOverflow)->second == nullptr) {
-      SetOverflow(OverflowType::OverflowVisible);
+      SetOverflow(OverflowType::OVERFLOW_VISIBLE);
     } else {
       SetOverflow(GetStyleOverflow(style_map.find(kOverflow)->second->ToStringChecked()));
     }
@@ -385,103 +385,103 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<f
   }
   if (style_map.find(kPosition) != style_map.end()) {
     if (style_map.find(kPosition)->second == nullptr) {
-      SetPositionType(PositionType::PositionTypeRelative);
+      SetPositionType(PositionType::POSITION_TYPE_RELATIVE);
     } else {
       SetPositionType(GetStylePositionType(style_map.find(kPosition)->second->ToStringChecked()));
     }
   }
 }
 
-static HPSize TaitankMeasureFunction(HPNodeRef node, float width, MeasureMode width_measrue_mode, float height,
+static TaitankSize TaitankMeasureFunction(TaitankNodeRef node, float width, MeasureMode width_measrue_mode, float height,
                                      MeasureMode height_measure_mode, void* context) {
-  auto taitank_node = reinterpret_cast<TaitankLayoutNode*>(node->getContext());
+  auto taitank_node = reinterpret_cast<TaitankLayoutNode*>(node->GetContext());
   int64_t key = taitank_node->GetKey();
   auto iter = measure_function_map.find(key);
   if (iter != measure_function_map.end()) {
     auto size = iter->second(width, ToLayoutMeasureMode(width_measrue_mode), height,
                              ToLayoutMeasureMode(height_measure_mode), context);
-    HPSize result;
+    TaitankSize result;
     result.width = size.width;
     result.height = size.height;
     return result;
   }
-  return HPSize{0, 0};
+  return TaitankSize{0, 0};
 }
 
 void TaitankLayoutNode::SetMeasureFunction(MeasureFunction measure_function) {
   assert(engine_node_ != nullptr);
   measure_function_map[key_] = measure_function;
-  engine_node_->setContext(reinterpret_cast<void*>(this));
-  engine_node_->setMeasureFunc(TaitankMeasureFunction);
+  engine_node_->SetContext(reinterpret_cast<void*>(this));
+  engine_node_->SetMeasureFunction(TaitankMeasureFunction);
 }
 
 float TaitankLayoutNode::GetLeft() {
   assert(engine_node_ != nullptr);
-  return engine_node_->result.position[CSSLeft];
+  return engine_node_->layout_result_.position[CSS_LEFT];
 }
 
 float TaitankLayoutNode::GetTop() {
   assert(engine_node_ != nullptr);
-  return engine_node_->result.position[CSSTop];
+  return engine_node_->layout_result_.position[CSS_TOP];
 }
 
 float TaitankLayoutNode::GetRight() {
   assert(engine_node_ != nullptr);
-  return engine_node_->result.position[CSSRight];
+  return engine_node_->layout_result_.position[CSS_RIGHT];
 }
 
 float TaitankLayoutNode::GetBottom() {
   assert(engine_node_ != nullptr);
-  return engine_node_->result.position[CSSBottom];
+  return engine_node_->layout_result_.position[CSS_BOTTOM];
 }
 
 float TaitankLayoutNode::GetWidth() {
   assert(engine_node_ != nullptr);
-  return engine_node_->result.dim[DimWidth];
+  return engine_node_->layout_result_.dim[DIMENSION_WIDTH];
 }
 
 float TaitankLayoutNode::GetHeight() {
   assert(engine_node_ != nullptr);
-  return engine_node_->result.dim[DimHeight];
+  return engine_node_->layout_result_.dim[DIMENSION_HEIGHT];
 }
 
 float TaitankLayoutNode::GetMargin(Edge edge) {
   assert(engine_node_ != nullptr);
   CSSDirection css_direction = GetCSSDirectionFromEdge(edge);
-  return engine_node_->result.margin[css_direction];
+  return engine_node_->layout_result_.margin[css_direction];
 }
 
 float TaitankLayoutNode::GetPadding(Edge edge) {
   assert(engine_node_ != nullptr);
   CSSDirection css_direction = GetCSSDirectionFromEdge(edge);
-  return engine_node_->result.padding[css_direction];
+  return engine_node_->layout_result_.padding[css_direction];
 }
 
 float TaitankLayoutNode::GetBorder(Edge edge) {
   assert(engine_node_ != nullptr);
   CSSDirection css_direction = GetCSSDirectionFromEdge(edge);
-  return engine_node_->result.border[css_direction];
+  return engine_node_->layout_result_.border[css_direction];
 }
 
 float TaitankLayoutNode::GetStyleWidth() {
-  return engine_node_->style.dim[DimWidth];
+  return engine_node_->style_.dim_[DIMENSION_WIDTH];
 }
 
 float TaitankLayoutNode::GetStyleHeight() {
-  return engine_node_->style.dim[DimHeight];
+  return engine_node_->style_.dim_[DIMENSION_HEIGHT];
 }
 
 bool TaitankLayoutNode::LayoutHadOverflow() {
   assert(engine_node_ != nullptr);
-  return engine_node_->result.hadOverflow;
+  return engine_node_->layout_result_.had_overflow;
 }
 
 void TaitankLayoutNode::InsertChild(std::shared_ptr<LayoutNode> child, uint32_t index) {
   assert(engine_node_ != nullptr);
-  if (engine_node_->measure != nullptr) return;
+  if (engine_node_->measure_ != nullptr) return;
   auto node = std::static_pointer_cast<TaitankLayoutNode>(child);
   assert(node->GetLayoutEngineNodeRef() != nullptr);
-  engine_node_->insertChild(node->GetLayoutEngineNodeRef(), index);
+  engine_node_->InsertChild(node->GetLayoutEngineNodeRef(), index);
   children_.insert(children_.begin() + static_cast<int>(index), node);
   node->parent_ = shared_from_this();
 }
@@ -490,7 +490,7 @@ void TaitankLayoutNode::RemoveChild(const std::shared_ptr<LayoutNode> child) {
   assert(engine_node_ != nullptr);
   auto node = std::static_pointer_cast<TaitankLayoutNode>(child);
   assert(node->GetLayoutEngineNodeRef() != nullptr);
-  engine_node_->removeChild(node->GetLayoutEngineNodeRef());
+  engine_node_->RemoveChild(node->GetLayoutEngineNodeRef());
   auto iter = std::find(children_.begin(), children_.end(), node);
   if (iter != children_.end()) {
     children_.erase(iter);
@@ -499,111 +499,111 @@ void TaitankLayoutNode::RemoveChild(const std::shared_ptr<LayoutNode> child) {
 
 bool TaitankLayoutNode::HasNewLayout() {
   assert(engine_node_ != nullptr);
-  return engine_node_->hasNewLayout();
+  return engine_node_->GetHasNewLayout();
 }
 
 void TaitankLayoutNode::SetHasNewLayout(bool has_new_layout) {
   assert(engine_node_ != nullptr);
-  engine_node_->setHasNewLayout(has_new_layout);
+  engine_node_->SetHasNewLayout(has_new_layout);
 }
 
 void TaitankLayoutNode::MarkDirty() {
   assert(engine_node_ != nullptr);
-  engine_node_->markAsDirty();
+  engine_node_->MarkAsDirty();
 }
 
 bool TaitankLayoutNode::IsDirty() {
   assert(engine_node_ != nullptr);
-  return engine_node_->isDirty;
+  return engine_node_->is_dirty_;
 }
 
 void TaitankLayoutNode::Print() {
   assert(engine_node_ != nullptr);
-  engine_node_->printNode();
+  engine_node_->PrintNode();
 }
 
 bool TaitankLayoutNode::Reset() {
   assert(engine_node_ != nullptr);
-  if (engine_node_->childCount() != 0 || engine_node_->getParent() != nullptr) return false;
-  return engine_node_->reset();
+  if (engine_node_->ChildCount() != 0 || engine_node_->GetParent() != nullptr) return false;
+  return engine_node_->Reset();
 }
 
-void TaitankLayoutNode::SetDirection(HPDirection direction) {
+void TaitankLayoutNode::SetDirection(TaitankDirection direction) {
   assert(engine_node_ != nullptr);
-  if (engine_node_->style.direction == direction) return;
-  engine_node_->style.direction = direction;
-  engine_node_->markAsDirty();
+  if (engine_node_->style_.direction_ == direction) return;
+  engine_node_->style_.direction_ = direction;
+  engine_node_->MarkAsDirty();
 }
 
 void TaitankLayoutNode::SetWidth(float width) {
   assert(engine_node_ != nullptr);
-  if (FloatIsEqual(engine_node_->style.dim[DimWidth], width)) {
+  if (FloatIsEqual(engine_node_->style_.dim_[DIMENSION_WIDTH], width)) {
     return;
   }
-  engine_node_->style.dim[DimWidth] = width;
-  engine_node_->markAsDirty();
+  engine_node_->style_.dim_[DIMENSION_WIDTH] = width;
+  engine_node_->MarkAsDirty();
 }
 
 void TaitankLayoutNode::SetHeight(float height) {
   assert(engine_node_ != nullptr);
-  if (FloatIsEqual(engine_node_->style.dim[DimHeight], height)) return;
-  engine_node_->style.dim[DimHeight] = height;
-  engine_node_->markAsDirty();
+  if (FloatIsEqual(engine_node_->style_.dim_[DIMENSION_HEIGHT], height)) return;
+  engine_node_->style_.dim_[DIMENSION_HEIGHT] = height;
+  engine_node_->MarkAsDirty();
 }
 
 void TaitankLayoutNode::SetPosition(Edge edge, float position) {
   assert(engine_node_ != nullptr);
   CSSDirection css_direction = GetCSSDirectionFromEdge(edge);
-  if (FloatIsEqual(engine_node_->style.position[css_direction], position)) return;
-  if (engine_node_->style.setPosition(css_direction, position)) {
-    engine_node_->markAsDirty();
+  if (FloatIsEqual(engine_node_->style_.position_[css_direction], position)) return;
+  if (engine_node_->style_.SetPosition(css_direction, position)) {
+    engine_node_->MarkAsDirty();
   }
 }
 
 void TaitankLayoutNode::SetScaleFactor(float sacle_factor) {
   assert(engine_node_ != nullptr);
-  HPConfigRef config = engine_node_->GetConfig();
+  TaitankConfigRef config = engine_node_->GetConfig();
   config->SetScaleFactor(sacle_factor);
 }
 
 void TaitankLayoutNode::SetMaxWidth(float max_width) {
   assert(engine_node_ != nullptr);
-  if (FloatIsEqual(engine_node_->style.maxDim[DimWidth], max_width)) return;
-  engine_node_->style.maxDim[DimWidth] = max_width;
-  engine_node_->markAsDirty();
+  if (FloatIsEqual(engine_node_->style_.max_dim_[DIMENSION_WIDTH], max_width)) return;
+  engine_node_->style_.max_dim_[DIMENSION_WIDTH] = max_width;
+  engine_node_->MarkAsDirty();
 }
 
 void TaitankLayoutNode::SetMaxHeight(float max_height) {
   assert(engine_node_ != nullptr);
-  if (FloatIsEqual(engine_node_->style.maxDim[DimHeight], max_height)) return;
-  engine_node_->style.maxDim[DimHeight] = max_height;
-  engine_node_->markAsDirty();
+  if (FloatIsEqual(engine_node_->style_.max_dim_[DIMENSION_HEIGHT], max_height)) return;
+  engine_node_->style_.max_dim_[DIMENSION_HEIGHT] = max_height;
+  engine_node_->MarkAsDirty();
 }
 
 void TaitankLayoutNode::SetMinWidth(float min_width) {
   assert(engine_node_ != nullptr);
-  if (FloatIsEqual(engine_node_->style.minDim[DimWidth], min_width)) return;
-  engine_node_->style.minDim[DimWidth] = min_width;
-  engine_node_->markAsDirty();
+  if (FloatIsEqual(engine_node_->style_.min_dim_[DIMENSION_WIDTH], min_width)) return;
+  engine_node_->style_.min_dim_[DIMENSION_WIDTH] = min_width;
+  engine_node_->MarkAsDirty();
 }
 
 void TaitankLayoutNode::SetMinHeight(float min_height) {
   assert(engine_node_ != nullptr);
-  if (FloatIsEqual(engine_node_->style.minDim[DimHeight], min_height)) return;
-  engine_node_->style.minDim[DimHeight] = min_height;
-  engine_node_->markAsDirty();
+  if (FloatIsEqual(engine_node_->style_.min_dim_[DIMENSION_HEIGHT], min_height)) return;
+  engine_node_->style_.min_dim_[DIMENSION_HEIGHT] = min_height;
+  engine_node_->MarkAsDirty();
 }
 
 void TaitankLayoutNode::SetFlexBasis(float flex_basis) {
   assert(engine_node_ != nullptr);
-  if (FloatIsEqual(engine_node_->style.flexBasis, flex_basis)) return;
-  engine_node_->style.flexBasis = flex_basis;
-  engine_node_->markAsDirty();
+  if (FloatIsEqual(engine_node_->style_.flex_basis_, flex_basis)) return;
+  engine_node_->style_.flex_basis_ = flex_basis;
+  engine_node_->MarkAsDirty();
 }
 
 void TaitankLayoutNode::SetFlex(float flex) {
   assert(engine_node_ != nullptr);
-  if (FloatIsEqual(engine_node_->style.flex, flex)) return;
+  if (FloatIsEqual(engine_node_->style_.flex_, flex)) return;
   if (FloatIsEqual(flex, 0.0f)) {
     SetFlexGrow(0.0f);
     SetFlexShrink(0.0f);
@@ -614,50 +614,50 @@ void TaitankLayoutNode::SetFlex(float flex) {
     SetFlexGrow(0.0f);
     SetFlexShrink(-flex);
   }
-  engine_node_->style.flex = flex;
-  engine_node_->markAsDirty();
+  engine_node_->style_.flex_ = flex;
+  engine_node_->MarkAsDirty();
 }
 
 void TaitankLayoutNode::SetFlexGrow(float flex_grow) {
   assert(engine_node_ != nullptr);
-  if (FloatIsEqual(engine_node_->style.flexGrow, flex_grow)) return;
-  engine_node_->style.flexGrow = flex_grow;
-  engine_node_->markAsDirty();
+  if (FloatIsEqual(engine_node_->style_.flex_grow_, flex_grow)) return;
+  engine_node_->style_.flex_grow_ = flex_grow;
+  engine_node_->MarkAsDirty();
 }
 
 void TaitankLayoutNode::SetFlexShrink(float flex_shrink) {
   assert(engine_node_ != nullptr);
-  if (FloatIsEqual(engine_node_->style.flexShrink, flex_shrink)) return;
-  engine_node_->style.flexShrink = flex_shrink;
-  engine_node_->markAsDirty();
+  if (FloatIsEqual(engine_node_->style_.flex_shrink_, flex_shrink)) return;
+  engine_node_->style_.flex_shrink_ = flex_shrink;
+  engine_node_->MarkAsDirty();
 }
 
 void TaitankLayoutNode::SetFlexDirection(FlexDirection flex_direction) {
   assert(engine_node_ != nullptr);
-  if (engine_node_->style.flexDirection == flex_direction) return;
-  engine_node_->style.flexDirection = flex_direction;
-  engine_node_->markAsDirty();
+  if (engine_node_->style_.flex_direction_ == flex_direction) return;
+  engine_node_->style_.flex_direction_ = flex_direction;
+  engine_node_->MarkAsDirty();
 }
 
 void TaitankLayoutNode::SetPositionType(PositionType position_type) {
   assert(engine_node_ != nullptr);
-  if (engine_node_->style.positionType == position_type) return;
-  engine_node_->style.positionType = position_type;
-  engine_node_->markAsDirty();
+  if (engine_node_->style_.position_type_ == position_type) return;
+  engine_node_->style_.position_type_ = position_type;
+  engine_node_->MarkAsDirty();
 }
 
 void TaitankLayoutNode::SetPosition(CSSDirection css_direction, float position) {
   assert(engine_node_ != nullptr);
-  if (FloatIsEqual(engine_node_->style.position[css_direction], position)) return;
-  if (engine_node_->style.setPosition(css_direction, position)) {
-    engine_node_->markAsDirty();
+  if (FloatIsEqual(engine_node_->style_.position_[css_direction], position)) return;
+  if (engine_node_->style_.SetPosition(css_direction, position)) {
+    engine_node_->MarkAsDirty();
   }
 }
 
 void TaitankLayoutNode::SetMargin(CSSDirection css_direction, float margin) {
   assert(engine_node_ != nullptr);
-  if (engine_node_->style.setMargin(css_direction, margin)) {
-    engine_node_->markAsDirty();
+  if (engine_node_->style_.SetMargin(css_direction, margin)) {
+    engine_node_->MarkAsDirty();
   }
 }
 
@@ -665,73 +665,73 @@ void TaitankLayoutNode::SetMarginAuto(CSSDirection css_direction) { SetMargin(cs
 
 void TaitankLayoutNode::SetPadding(CSSDirection css_direction, float padding) {
   assert(engine_node_ != nullptr);
-  if (engine_node_->style.setPadding(css_direction, padding)) {
-    engine_node_->markAsDirty();
+  if (engine_node_->style_.SetPadding(css_direction, padding)) {
+    engine_node_->MarkAsDirty();
   }
 }
 
 void TaitankLayoutNode::SetBorder(CSSDirection css_direction, float border) {
   assert(engine_node_ != nullptr);
-  if (engine_node_->style.setBorder(css_direction, border)) {
-    engine_node_->markAsDirty();
+  if (engine_node_->style_.SetBorder(css_direction, border)) {
+    engine_node_->MarkAsDirty();
   }
 }
 
 void TaitankLayoutNode::SetFlexWrap(FlexWrapMode wrap_mode) {
   assert(engine_node_ != nullptr);
-  if (engine_node_->style.flexWrap == wrap_mode) return;
+  if (engine_node_->style_.flex_wrap_ == wrap_mode) return;
 
-  engine_node_->style.flexWrap = wrap_mode;
-  engine_node_->markAsDirty();
+  engine_node_->style_.flex_wrap_ = wrap_mode;
+  engine_node_->MarkAsDirty();
 }
 
 void TaitankLayoutNode::SetJustifyContent(FlexAlign justify) {
   assert(engine_node_ != nullptr);
-  if (engine_node_->style.justifyContent == justify) return;
-  engine_node_->style.justifyContent = justify;
-  engine_node_->markAsDirty();
+  if (engine_node_->style_.justify_content_ == justify) return;
+  engine_node_->style_.justify_content_ = justify;
+  engine_node_->MarkAsDirty();
 }
 
 void TaitankLayoutNode::SetAlignContent(FlexAlign align_content) {
   assert(engine_node_ != nullptr);
-  if (engine_node_->style.alignContent == align_content) return;
-  engine_node_->style.alignContent = align_content;
-  engine_node_->markAsDirty();
+  if (engine_node_->style_.align_content_ == align_content) return;
+  engine_node_->style_.align_content_ = align_content;
+  engine_node_->MarkAsDirty();
 }
 
 void TaitankLayoutNode::SetAlignItems(FlexAlign align_items) {
   assert(engine_node_ != nullptr);
-  if (engine_node_->style.alignItems == align_items) return;
-  engine_node_->style.alignItems = align_items;
-  engine_node_->markAsDirty();
+  if (engine_node_->style_.align_items_ == align_items) return;
+  engine_node_->style_.align_items_ = align_items;
+  engine_node_->MarkAsDirty();
 }
 
 void TaitankLayoutNode::SetAlignSelf(FlexAlign align_self) {
   assert(engine_node_ != nullptr);
-  if (engine_node_->style.alignSelf == align_self) return;
-  engine_node_->style.alignSelf = align_self;
-  engine_node_->markAsDirty();
+  if (engine_node_->style_.align_self_ == align_self) return;
+  engine_node_->style_.align_self_ = align_self;
+  engine_node_->MarkAsDirty();
 }
 
 void TaitankLayoutNode::SetDisplay(DisplayType display_type) {
   assert(engine_node_ != nullptr);
-  engine_node_->setDisplayType(display_type);
+  engine_node_->SetDisplayType(display_type);
 }
 
 void TaitankLayoutNode::SetNodeType(NodeType node_type) {
   assert(engine_node_ != nullptr);
-  if (node_type == engine_node_->style.nodeType) return;
-  engine_node_->style.nodeType = node_type;
+  if (node_type == engine_node_->style_.node_type_) return;
+  engine_node_->style_.node_type_ = node_type;
 }
 
 void TaitankLayoutNode::SetOverflow(OverflowType overflow_type) {
   assert(engine_node_ != nullptr);
-  if (overflow_type == engine_node_->style.overflowType) return;
-  engine_node_->style.overflowType = overflow_type;
-  engine_node_->markAsDirty();
+  if (overflow_type == engine_node_->style_.overflow_type_) return;
+  engine_node_->style_.overflow_type_ = overflow_type;
+  engine_node_->MarkAsDirty();
 }
 
-void TaitankLayoutNode::Allocate() { engine_node_ = new HPNode(); }
+void TaitankLayoutNode::Allocate() { engine_node_ = new TaitankNode(); }
 
 void TaitankLayoutNode::Deallocate() {
   if (engine_node_ == nullptr) return;
