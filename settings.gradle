@@ -1,3 +1,4 @@
+import java.nio.file.Paths
 
 include 'connector-support'
 project(':connector-support').projectDir = new File('framework/android/connector/support')
@@ -26,17 +27,18 @@ project(':devtools-integration').projectDir = new File('devtools/devtools-integr
 include 'example'
 project(':example').projectDir = new File('framework/examples/android-demo')
 
-def modules = MODULES.substring(1, MODULES.length() - 1).split(',')
+def modules = MODULES.split(',')
 for (String module : modules) {
-    if (module.matches("^[a-zA-Z]:/.*") || module.matches("^/.*")) {
+    String path = module.trim()
+    if (Paths.get(path).isAbsolute()) {
         ArrayList<String> paths = module.split('/')
         paths.remove(0)
         def subProjectName = paths.join('-')
         include "$subProjectName"
-        project(":$subProjectName").projectDir = new File(module)
+        project(":$subProjectName").projectDir = new File(path)
     } else {
         def subProjectName = 'connector-' + module.replace("/", "-")
-        def projectPath = 'framework/android/connector/' + module
+        def projectPath = 'framework/android/connector/' + path
         include "$subProjectName"
         project(":$subProjectName").projectDir = new File(projectPath)
     }

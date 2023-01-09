@@ -1,3 +1,5 @@
+import java.nio.file.Paths
+
 /*
  *
  * Tencent is pleased to support the open source community by making
@@ -142,15 +144,16 @@ dependencies {
     embed project(path: ':devtools-integration', configuration: 'default')
     embed project(path: ':connector-support', configuration: 'default')
     embed project(path: ':connector-dom', configuration: 'default')
-    def modules = MODULES.substring(1, MODULES.length() - 1).split(',')
+    def modules = MODULES.split(',')
     for (String module : modules) {
-        if (module.matches("^[a-zA-Z]:/.*") || module.matches("^/.*")) {
-            ArrayList<String> paths = module.split('/')
+        String path = module.trim()
+        if (Paths.get(path).isAbsolute()) {
+            ArrayList<String> paths = path.split('/')
             paths.remove(0)
             def subProjectName = paths.join('-')
             embed project(path: ":$subProjectName", configuration: 'default')
         } else {
-            def subProjectName = 'connector-' + module.replace("/", "-")
+            def subProjectName = 'connector-' + path.replace("/", "-")
             embed project(path: ":$subProjectName", configuration: 'default')
         }
     }
