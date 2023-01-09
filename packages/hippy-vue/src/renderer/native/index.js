@@ -390,10 +390,10 @@ function renderToNative(rootViewId, targetNode) {
       ...events,
       style,
     },
+    tagName: targetNode.tagName,
   };
   // Add nativeNode attributes info for Element debugging
   if (isDev()) {
-    nativeNode.tagName = targetNode.tagName;
     nativeNode.props.attributes = getTargetNodeAttributes(targetNode);
   }
   parseViewComponent(targetNode, nativeNode, style);

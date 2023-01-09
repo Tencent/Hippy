@@ -47,6 +47,10 @@ public class DevServerHelper {
     mServerHost = serverHost;
     mRemoteServerData = new DevRemoteServerData(remoteServerUrl);
   }
+  // 单独设置remoteServerUrl的解析
+  public void setRemoteServerData(String wsDebugUrl) {
+    mRemoteServerData = new DevRemoteServerData(wsDebugUrl);
+  }
 
   public String createBundleURL(String host, String bundleName, boolean devMode, boolean hmr,
     boolean jsMinify) {
