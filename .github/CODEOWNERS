@@ -44,7 +44,7 @@ CMakeLists.txt @medns
 /examples/android-demo/res/ @zoomchan-cxj
 /examples/ios-demo/ @ozonelmy
 /examples/ios-demo/res/ @zoomchan-cxj
-/static/ @zoomchan-cxj
+/examples/static/ @zoomchan-cxj
 
 # doc: pages
 /*.md @zoomchan-cxj

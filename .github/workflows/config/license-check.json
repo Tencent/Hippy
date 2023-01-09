@@ -34,7 +34,7 @@
     ".github/**",
     ".husky/**",
     "docs/**",
-    "static/**",
+    "examples/static/**",
     "examples/android-demo/res/**",
     "examples/ios-demo/res/**",
     "examples/hippy-**-demo/**"

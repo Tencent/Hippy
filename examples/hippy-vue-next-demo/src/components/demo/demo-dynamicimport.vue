@@ -50,7 +50,7 @@ export default defineComponent({
      */
     AsyncComponentFromHttp: defineAsyncComponent(async () => (process.env.NODE_ENV === 'development'
       ? import(/* webpackMode: "lazy", webpackChunkName: "asyncComponentFromHttp" */ './dynamicImport/async-component-http.vue')
-      : import(/* webpackMode: "lazy",customChunkPath: "https://raw.githubusercontent.com/Tencent/Hippy/master/static/hippy-vue-next/", webpackChunkName: "asyncComponentFromHttp" */ './dynamicImport/async-component-http.vue'))),
+      : import(/* webpackMode: "lazy",customChunkPath: "https://raw.githubusercontent.com/Tencent/Hippy/master/examples/static/hippy-vue-next/", webpackChunkName: "asyncComponentFromHttp" */ './dynamicImport/async-component-http.vue'))),
   },
   setup() {
     const loaded = ref(false);

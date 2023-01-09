@@ -67,7 +67,7 @@ export default class DynamicImportDemo extends React.Component {
         })
         .catch(err => console.error('import async remote component error', err));
     } else {
-      import(/* webpackMode: "lazy",customChunkPath: "https://raw.githubusercontent.com/Tencent/Hippy/master/static/hippy-react/", webpackChunkName: "asyncComponentFromHttp" */'./AsyncComponentHttp')
+      import(/* webpackMode: "lazy",customChunkPath: "https://raw.githubusercontent.com/Tencent/Hippy/master/examples/static/hippy-react/", webpackChunkName: "asyncComponentFromHttp" */'./AsyncComponentHttp')
         .then((component) => {
           this.setState({
             AsyncComponentFromHttp: component.default || component,
