@@ -186,10 +186,10 @@ function renderToNative(rootViewId: number, targetNode: Element): HippyTypes.Nat
       ...getNativeProps(targetNode),
       style: targetNode.style,
     },
+    tagName: targetNode.nativeName,
   };
   // Add nativeNode attributes info for debugging
   if (isDev()) {
-    nativeNode.tagName = targetNode.nativeName;
     nativeNode.props!.attributes = getTargetNodeAttributes(targetNode);
   }
   return nativeNode;

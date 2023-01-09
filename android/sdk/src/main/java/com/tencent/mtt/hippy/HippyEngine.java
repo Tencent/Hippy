@@ -70,6 +70,7 @@ public abstract class HippyEngine {
   // Engine所属的分组ID，同一个组共享线程和isolate，不同context
   protected int mGroupId;
   ModuleListener mModuleListener;
+  DebugMode mDebugMode;
 
   private static HippyLogAdapter sLogAdapter = null;
   @SuppressWarnings("JavaJniMissingFunction")
@@ -153,9 +154,13 @@ public abstract class HippyEngine {
 
   public abstract void initEngine(EngineListener listener);
 
-  // 是否调试模式
-  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-  public abstract boolean isDebugMode();
+  // debug mode is including DebugMode.Dev mode and DebugMode.UserLocal mode
+  public boolean isDebugMode() { return mDebugMode != DebugMode.None; }
+
+  // Dev mode is one of the debug mode
+  public boolean isDevMode() {
+    return mDebugMode == DebugMode.Dev;
+  }
 
   /**
    * destroy the hippy engine All hippy instance will be destroyed
@@ -227,6 +232,12 @@ public abstract class HippyEngine {
     DESTROYED
   }
 
+  public enum DebugMode {
+    None, // production
+    Dev,
+    UserLocal, // open Hippy remote debug in production. just like debugMode=None but use local bundle, not from remote server
+  }
+
   public static class V8InitParams {
     public long initialHeapSize;
     public long maximumHeapSize;
@@ -249,7 +260,7 @@ public abstract class HippyEngine {
     public HippyBundleLoader jsPreloadAssetsPath;
     // 可选参数 指定需要预加载的业务模块bundle 文件路径
     public HippyBundleLoader jsPreloadFilePath;
-    public boolean debugMode = false;
+    public DebugMode debugMode = DebugMode.None;
     // 可选参数 是否开启调试模式，默认为false，不开启
     // 可选参数 Hippy Server的jsbundle名字，默认为"index.bundle"。debugMode = true时有效
     public String debugBundleName = "index.bundle";
@@ -342,7 +353,7 @@ public abstract class HippyEngine {
         providers = new ArrayList<>();
       }
       providers.add(0, new HippyCoreAPI());
-      if (!debugMode) {
+      if (debugMode != DebugMode.Dev) {
         if (TextUtils.isEmpty(coreJSAssetsPath) && TextUtils.isEmpty(coreJSFilePath)) {
           throw new RuntimeException(
               "Hippy: debugMode=true, initParams.coreJSAssetsPath and coreJSFilePath both null!");

@@ -118,6 +118,11 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface,
   }
 
   @Override
+  public void setRemoteServerData(String wsDebugUrl) {
+      mFetchHelper.setRemoteServerData(wsDebugUrl);
+  }
+
+  @Override
   public void loadRemoteResource(String url, final DevServerCallBack serverCallBack) {
     mFetchHelper.fetchBundleFromURL(new BundleFetchCallBack() {
       @Override

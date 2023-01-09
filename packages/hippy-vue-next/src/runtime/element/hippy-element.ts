@@ -739,11 +739,11 @@ export class HippyElement extends HippyNode {
         // node style
         style,
       },
+      tagName: this.tagName,
     };
 
     // hack in dev environment, added properties for chrome inspector debugging
     if (!IS_PROD) {
-      elementExtraAttributes.tagName = this.tagName;
       if (elementExtraAttributes.props) {
         elementExtraAttributes.props.attributes = this.getNodeAttributes();
       }
