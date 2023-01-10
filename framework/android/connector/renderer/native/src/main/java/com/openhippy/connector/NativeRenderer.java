@@ -54,9 +54,9 @@ public class NativeRenderer implements Connector {
         }
     }
 
-    public void recordSnapshot(int rootId, @NonNull final Callback<byte[]> callback) {
+    public void recordSnapshot(@NonNull View rootView, @NonNull final Callback<byte[]> callback) {
         if (mRenderer != null) {
-            mRenderer.recordSnapshot(rootId, callback);
+            mRenderer.recordSnapshot(rootView.getId(), callback);
         }
     }
 

@@ -1,10 +1,13 @@
+import java.nio.file.Paths
+
+include 'connector-support'
+project(':connector-support').projectDir = new File('framework/android/connector/support')
+
+include 'connector-dom'
+project(':connector-dom').projectDir = new File('framework/android/connector/dom')
+
 include 'renderer-native'
 project(':renderer-native').projectDir = new File('renderer/native/android')
-
-if (ENABLE_TDF_RENDER == "true") {
-    include 'renderer-tdf'
-    project(':renderer-tdf').projectDir = new File('renderer/tdf/android')
-}
 
 include 'hippy-support'
 project(':hippy-support').projectDir = new File('modules/android/hippy_support')
@@ -21,18 +24,23 @@ project(':vfs').projectDir = new File('modules/vfs/android')
 include 'devtools-integration'
 project(':devtools-integration').projectDir = new File('devtools/devtools-integration/android')
 
-include 'connector-dom'
-project(':connector-dom').projectDir = new File('framework/android/connector/dom')
-
-include 'connector-driver-js'
-project(':connector-driver-js').projectDir = new File('framework/android/connector/driver/js')
-
-include 'connector-renderer-native'
-project(':connector-renderer-native').projectDir = new File('framework/android/connector/renderer/native')
-
-include 'connector-support'
-project(':connector-support').projectDir = new File('framework/android/connector/support')
-
 include 'example'
 project(':example').projectDir = new File('framework/examples/android-demo')
-include ':android'
+
+def modules = MODULES.split(',')
+for (String module : modules) {
+    String path = module.trim()
+    if (Paths.get(path).isAbsolute()) {
+        ArrayList<String> paths = module.split('/')
+        paths.remove(0)
+        def subProjectName = paths.join('-')
+        include "$subProjectName"
+        project(":$subProjectName").projectDir = new File(path)
+    } else {
+        def subProjectName = 'connector-' + module.replace("/", "-")
+        def projectPath = 'framework/android/connector/' + path
+        include "$subProjectName"
+        project(":$subProjectName").projectDir = new File(projectPath)
+    }
+}
+
