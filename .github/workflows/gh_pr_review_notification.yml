@@ -139,11 +139,11 @@ jobs:
           const { pulls } = github.rest;
           const os = require('os');
 
-          const pull_requests = await github.paginate(pulls.list, {
+          const pull_requests = (await github.paginate(pulls.list, {
             per_page: 100,
             state: 'open',
             ...context.repo
-          });
+          })).filter(pull => pull.draft === false);
 
           const requested_reviewers = await Promise.all(
             pull_requests.map(
