@@ -1,3 +1,5 @@
+import java.nio.file.Paths
+
 /*
  *
  * Tencent is pleased to support the open source community by making
@@ -21,263 +23,272 @@
  */
 
 apply plugin: 'com.android.library'
+apply plugin: 'com.kezong.fat-aar'
 apply from: './publish.gradle'
 
 android {
-  archivesBaseName = ARCHIVES_BASE_NAME
-  compileSdkVersion COMPILE_VERSION as int
-  ndkVersion = NDK_VERSION
-  defaultConfig {
-    minSdkVersion MIN_VERSION as int
-    targetSdkVersion TARGET_VERSION as int
-    versionName VERSION_NAME
+    archivesBaseName = ARCHIVES_BASE_NAME
+    compileSdkVersion COMPILE_VERSION as int
+    ndkVersion = NDK_VERSION
+    defaultConfig {
+        minSdkVersion MIN_VERSION as int
+        targetSdkVersion TARGET_VERSION as int
+        versionName VERSION_NAME
 
-    // 保证app使用aar时，会自动将该proguard文件添加到本身的proguard规则中
-    consumerProguardFiles 'proguard-rules.pro'
+        // 保证app使用aar时，会自动将该proguard文件添加到本身的proguard规则中
+        consumerProguardFiles 'proguard-rules.pro'
 
-    buildConfigField("boolean", "ENABLE_SO_DOWNLOAD", ENABLE_SO_DOWNLOAD)
+        buildConfigField("boolean", "ENABLE_SO_LOAD_EXTERNAL", ENABLE_SO_LOAD_EXTERNAL)
 
-    packagingOptions {
-      if (!INCLUDE_ABI_ARMEABI.toBoolean()) {
-        exclude 'lib/armeabi/*'
-      }
-      if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean() && !INCLUDE_ABI_ARMEABI.toBoolean()) {
-        exclude 'lib/armeabi-v7a/*'
-      }
-      if (!INCLUDE_ABI_ARM64_V8A.toBoolean()) {
-        exclude 'lib/arm64-v8a/*'
-      }
-      if (!INCLUDE_ABI_X86.toBoolean()) {
-        exclude 'lib/x86/*'
-      }
-      if (!INCLUDE_ABI_X86_64.toBoolean()) {
-        exclude 'lib/x86_64/*'
-      }
-    }
-  }
-
-  buildTypes {
-    release {
-      minifyEnabled false
-      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-      externalNativeBuild {
-        cmake {
-          arguments "-DJS_ENGINE=V8",
-                  "-DANDROID_CPP_FEATURES=no-rtti no-exceptions",
-                  "-DANDROID_PLATFORM=android-21",
-                  "-DANDROID_ARM_NEON=${INCLUDE_ABI_ARMEABI.toBoolean() ? 'FALSE' : 'TRUE'}",
-                  "-DCMAKE_BUILD_TYPE=Release",
-                  "-DANDROID_STL=$ANDROID_STL",
-                  "-DV8_COMPONENT=$V8_COMPONENT",
-                  "-DTDF_CORE_VERSION=$TDF_CORE_VERSION",
-                  "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
-
-          if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
-            abiFilters 'armeabi-v7a'
-          }
-          if (INCLUDE_ABI_ARM64_V8A.toBoolean()) {
-            abiFilters 'arm64-v8a'
-          }
-          if (INCLUDE_ABI_X86.toBoolean()) {
-            abiFilters 'x86'
-          }
-          if (INCLUDE_ABI_X86_64.toBoolean()) {
-            abiFilters 'x86_64'
-          }
+        packagingOptions {
+            if (!INCLUDE_ABI_ARMEABI.toBoolean()) {
+                exclude 'lib/armeabi/*'
+            }
+            if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean() && !INCLUDE_ABI_ARMEABI.toBoolean()) {
+                exclude 'lib/armeabi-v7a/*'
+            }
+            if (!INCLUDE_ABI_ARM64_V8A.toBoolean()) {
+                exclude 'lib/arm64-v8a/*'
+            }
+            if (!INCLUDE_ABI_X86.toBoolean()) {
+                exclude 'lib/x86/*'
+            }
+            if (!INCLUDE_ABI_X86_64.toBoolean()) {
+                exclude 'lib/x86_64/*'
+            }
         }
-      }
     }
-    debug {
-      minifyEnabled false
-      externalNativeBuild {
-        cmake {
-          arguments "-DJS_ENGINE=V8",
-                  "-DANDROID_CPP_FEATURES=no-rtti no-exceptions",
-                  "-DANDROID_PLATFORM=android-21",
-                  "-DANDROID_ARM_NEON=${INCLUDE_ABI_ARMEABI.toBoolean() ? 'FALSE' : 'TRUE'}",
-                  "-DCMAKE_BUILD_TYPE=Debug",
-                  "-DENABLE_INSPECTOR=$ENABLE_INSPECTOR",
-                  "-DANDROID_STL=$ANDROID_STL",
-                  "-DENABLE_TDF_RENDER=${ENABLE_TDF_RENDER}",
-                  "-DV8_COMPONENT=$V8_COMPONENT",
-                  "-DTDF_CORE_VERSION=$TDF_CORE_VERSION",
-                  "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
 
-          if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
-            abiFilters 'armeabi-v7a'
-          }
-          if (INCLUDE_ABI_ARM64_V8A.toBoolean()) {
-            abiFilters 'arm64-v8a'
-          }
-          if (INCLUDE_ABI_X86.toBoolean()) {
-            abiFilters 'x86'
-          }
-          if (INCLUDE_ABI_X86_64.toBoolean()) {
-            abiFilters 'x86_64'
-          }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            externalNativeBuild {
+                cmake {
+                    arguments "-DJS_ENGINE=V8",
+                            "-DANDROID_CPP_FEATURES=no-rtti no-exceptions",
+                            "-DANDROID_PLATFORM=android-21",
+                            "-DANDROID_ARM_NEON=${INCLUDE_ABI_ARMEABI.toBoolean() ? 'FALSE' : 'TRUE'}",
+                            "-DCMAKE_BUILD_TYPE=Release",
+                            "-DANDROID_STL=$ANDROID_STL",
+                            "-DV8_COMPONENT=$V8_COMPONENT",
+                            "-DTDF_CORE_VERSION=$TDF_CORE_VERSION",
+                            "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
+
+                    if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
+                        abiFilters 'armeabi-v7a'
+                    }
+                    if (INCLUDE_ABI_ARM64_V8A.toBoolean()) {
+                        abiFilters 'arm64-v8a'
+                    }
+                    if (INCLUDE_ABI_X86.toBoolean()) {
+                        abiFilters 'x86'
+                    }
+                    if (INCLUDE_ABI_X86_64.toBoolean()) {
+                        abiFilters 'x86_64'
+                    }
+                }
+            }
         }
-      }
-    }
-  }
+        debug {
+            minifyEnabled false
+            externalNativeBuild {
+                cmake {
+                    arguments "-DJS_ENGINE=V8",
+                            "-DANDROID_CPP_FEATURES=no-rtti no-exceptions",
+                            "-DANDROID_PLATFORM=android-21",
+                            "-DANDROID_ARM_NEON=${INCLUDE_ABI_ARMEABI.toBoolean() ? 'FALSE' : 'TRUE'}",
+                            "-DCMAKE_BUILD_TYPE=Debug",
+                            "-DENABLE_INSPECTOR=$ENABLE_INSPECTOR",
+                            "-DANDROID_STL=$ANDROID_STL",
+                            "-DV8_COMPONENT=$V8_COMPONENT",
+                            "-DTDF_CORE_VERSION=$TDF_CORE_VERSION",
+                            "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
 
-  if (!SKIP_CMAKE_AND_NINJA.toBoolean() && System.getenv('skipCmakeAndNinja') == null) {
-    externalNativeBuild {
-      cmake {
-        version CMAKE_VERSION
-        path "src/main/cpp/CMakeLists.txt"
-      }
+                    if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
+                        abiFilters 'armeabi-v7a'
+                    }
+                    if (INCLUDE_ABI_ARM64_V8A.toBoolean()) {
+                        abiFilters 'arm64-v8a'
+                    }
+                    if (INCLUDE_ABI_X86.toBoolean()) {
+                        abiFilters 'x86'
+                    }
+                    if (INCLUDE_ABI_X86_64.toBoolean()) {
+                        abiFilters 'x86_64'
+                    }
+                }
+            }
+        }
     }
-  }
 
-  tasks.withType(JavaCompile) {
-    options.encoding = "UTF-8"
-  }
+    if (!SKIP_CMAKE_AND_NINJA.toBoolean() && System.getenv('skipCmakeAndNinja') == null) {
+        externalNativeBuild {
+            cmake {
+                version CMAKE_VERSION
+                path "src/main/cpp/CMakeLists.txt"
+            }
+        }
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+    }
 }
 
 dependencies {
-  api fileTree(dir: 'libs', include: ['*.jar'])
-  compileOnly project(path: ':hippy-support')
-  compileOnly project(path: ':renderer-native')
-  if (ENABLE_TDF_RENDER == "true") {
-    compileOnly project(path: ':renderer-tdf')
-  }
-  compileOnly project(path: ':serialization')
-  compileOnly project(path: ':vfs')
-  compileOnly project(path: ':devtools-integration')
-  compileOnly project(path: ':connector-dom')
-  compileOnly project(path: ':connector-driver-js')
-  compileOnly project(path: ':connector-renderer-native')
-  compileOnly project(path: ':connector-support')
-  //noinspection GradleDependency
-  implementation deps.annotation
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    embed project(path: ':serialization', configuration: 'default')
+    embed project(path: ':hippy-support', configuration: 'default')
+    embed project(path: ':vfs', configuration: 'default')
+    embed project(path: ':devtools-integration', configuration: 'default')
+    embed project(path: ':connector-support', configuration: 'default')
+    embed project(path: ':connector-dom', configuration: 'default')
+    def modules = MODULES.split(',')
+    for (String module : modules) {
+        String path = module.trim()
+        if (Paths.get(path).isAbsolute()) {
+            ArrayList<String> paths = path.split('/')
+            paths.remove(0)
+            def subProjectName = paths.join('-')
+            embed project(path: ":$subProjectName", configuration: 'default')
+        } else {
+            def subProjectName = 'connector-' + path.replace("/", "-")
+            embed project(path: ":$subProjectName", configuration: 'default')
+        }
+    }
+    compileOnly project(path: ':renderer-native')
+    //noinspection GradleDependency
+    implementation deps.annotation
 
-  testImplementation deps.junit
-  testImplementation deps.mockito_core
-  testImplementation deps.mockito_android
-  testImplementation deps.powermock_module_junit
-  testImplementation deps.powermock_api_mockito2
-  testImplementation deps.powermock_core
-  testImplementation deps.powermock_module_junit4_rule
-  testImplementation deps.powermock_classloading_xstream
-  testImplementation deps.robolectric
+    testImplementation deps.junit
+    testImplementation deps.mockito_core
+    testImplementation deps.mockito_android
+    testImplementation deps.powermock_module_junit
+    testImplementation deps.powermock_api_mockito2
+    testImplementation deps.powermock_core
+    testImplementation deps.powermock_module_junit4_rule
+    testImplementation deps.powermock_classloading_xstream
+    testImplementation deps.robolectric
 }
 
 project.tasks.whenTaskAdded { task ->
-  if (task.name == 'assembleRelease') {
-    task.finalizedBy dealAfterAssembleRelease
-  }
+    if (task.name == 'assembleRelease') {
+        task.finalizedBy dealAfterAssembleRelease
+    }
 
-  if (task.name == 'assembleDebug') {
-    task.finalizedBy dealAfterAssembleDebug
-  }
+    if (task.name == 'assembleDebug') {
+        task.finalizedBy dealAfterAssembleDebug
+    }
 
-  if (task.name == 'mergeReleaseNativeLibs') {
-    task.finalizedBy dealAfterMergeReleaseNativeLibs
-  }
+    if (task.name == 'mergeReleaseNativeLibs') {
+        task.finalizedBy dealAfterMergeReleaseNativeLibs
+    }
 
-  if (task.name == 'mergeDebugNativeLibs') {
-    task.finalizedBy dealAfterMergeDebugNativeLibs
-  }
+    if (task.name == 'mergeDebugNativeLibs') {
+        task.finalizedBy dealAfterMergeDebugNativeLibs
+    }
 
-  if (task.name == 'stripReleaseDebugSymbols') {
-    task.finalizedBy dealAfterStripReleaseDebugSymbols
-  }
+    if (task.name == 'stripReleaseDebugSymbols') {
+        task.finalizedBy dealAfterStripReleaseDebugSymbols
+    }
 
-  if (task.name == 'stripDebugDebugSymbols') {
-    task.finalizedBy dealAfterStripDebugDebugSymbols
-  }
+    if (task.name == 'stripDebugDebugSymbols') {
+        task.finalizedBy dealAfterStripDebugDebugSymbols
+    }
 }
 
 def dealAfterMergeNativeLibs(mergedNativeLibsPath) {
-  EXCLUDE_LIBRARY_FILES.tokenize(";").each{filename ->
-    if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
-      delete "$mergedNativeLibsPath/armeabi-v7a/$filename"
+    EXCLUDE_LIBRARY_FILES.tokenize(";").each { filename ->
+        if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
+            delete "$mergedNativeLibsPath/armeabi-v7a/$filename"
+        }
+        if (INCLUDE_ABI_ARM64_V8A.toBoolean()) {
+            delete "$mergedNativeLibsPath/arm64-v8a/$filename"
+        }
+        if (INCLUDE_ABI_X86.toBoolean()) {
+            delete "$mergedNativeLibsPath/x86/$filename"
+        }
+        if (INCLUDE_ABI_X86_64.toBoolean()) {
+            delete "$mergedNativeLibsPath/x86_64/$filename"
+        }
     }
-    if (INCLUDE_ABI_ARM64_V8A.toBoolean()) {
-      delete "$mergedNativeLibsPath/arm64-v8a/$filename"
-    }
-    if (INCLUDE_ABI_X86.toBoolean()) {
-      delete "$mergedNativeLibsPath/x86/$filename"
-    }
-    if (INCLUDE_ABI_X86_64.toBoolean()) {
-      delete "$mergedNativeLibsPath/x86_64/$filename"
-    }
-  }
 }
 
 def MERGED_NATIVE_LIBS_PATH = "$buildDir/intermediates/merged_native_libs"
 task dealAfterMergeReleaseNativeLibs() {
-  doLast {
-    dealAfterMergeNativeLibs("$MERGED_NATIVE_LIBS_PATH/release/out/lib")
-  }
+    doLast {
+        dealAfterMergeNativeLibs("$MERGED_NATIVE_LIBS_PATH/release/out/lib")
+    }
 }
 
 task dealAfterMergeDebugNativeLibs() {
-  doLast {
-    dealAfterMergeNativeLibs("$MERGED_NATIVE_LIBS_PATH/debug/out/lib")
-  }
+    doLast {
+        dealAfterMergeNativeLibs("$MERGED_NATIVE_LIBS_PATH/debug/out/lib")
+    }
 }
 
 def dealAfterStripSymbols(strippedNativeLibsPath) {
-  delete "$strippedNativeLibsPath/armeabi"
-  if (INCLUDE_ABI_ARMEABI.toBoolean()) {
-    copy {
-      from "$strippedNativeLibsPath/armeabi-v7a"
-      into "$strippedNativeLibsPath/armeabi"
+    delete "$strippedNativeLibsPath/armeabi"
+    if (INCLUDE_ABI_ARMEABI.toBoolean()) {
+        copy {
+            from "$strippedNativeLibsPath/armeabi-v7a"
+            into "$strippedNativeLibsPath/armeabi"
+        }
+        if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
+            delete "$strippedNativeLibsPath/armeabi-v7a"
+        }
     }
-    if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
-      delete "$strippedNativeLibsPath/armeabi-v7a"
-    }
-  }
 }
 
 def STRIPPED_NATIVE_LIBS_PATH = "$buildDir/intermediates/stripped_native_libs"
 task dealAfterStripReleaseDebugSymbols() {
-  doLast {
-    dealAfterStripSymbols("$STRIPPED_NATIVE_LIBS_PATH/release/out/lib")
-  }
+    doLast {
+        dealAfterStripSymbols("$STRIPPED_NATIVE_LIBS_PATH/release/out/lib")
+    }
 }
 
 task dealAfterStripDebugDebugSymbols() {
-  doLast {
-    dealAfterStripSymbols("$STRIPPED_NATIVE_LIBS_PATH/debug/out/lib")
-  }
+    doLast {
+        dealAfterStripSymbols("$STRIPPED_NATIVE_LIBS_PATH/debug/out/lib")
+    }
 }
 
 def dealAfterAssemble(outputPath, buildType) {
-  file("$outputPath/$buildType").deleteDir()
-  File target = file("$outputPath/$ARCHIVES_BASE_NAME" + ".aar")
-  delete target
-  file(outputPath).list().each{fileName ->
-    if (fileName.contains(buildType + ".aar")) {
-      copy {
-        from zipTree("$outputPath/$fileName")
-        into "$outputPath/$buildType"
-      }
-      copy {
-        from "$outputPath/$buildType"
-        into outputPath
-        include 'classes.jar'
-        rename 'classes.jar', 'hippy.jar'
-      }
-      file("$outputPath/$fileName").renameTo(target)
+    file("$outputPath/$buildType").deleteDir()
+    File target = file("$outputPath/$ARCHIVES_BASE_NAME" + ".aar")
+    delete target
+    file(outputPath).list().each { fileName ->
+        if (fileName.contains(buildType + ".aar")) {
+            copy {
+                from zipTree("$outputPath/$fileName")
+                into "$outputPath/$buildType"
+            }
+            copy {
+                from "$outputPath/$buildType"
+                into outputPath
+                include 'classes.jar'
+                rename 'classes.jar', 'hippy.jar'
+            }
+            file("$outputPath/$fileName").renameTo(target)
+        }
     }
-  }
 }
 
 def OUTPUT_PATH = "$buildDir/outputs/aar"
 task dealAfterAssembleDebug() {
-  doLast {
-    dealAfterAssemble(OUTPUT_PATH, "debug")
-  }
+    doLast {
+        dealAfterAssemble(OUTPUT_PATH, "debug")
+    }
 }
 
 task dealAfterAssembleRelease() {
-  doLast {
-    dealAfterAssemble(OUTPUT_PATH, "release")
-    copy {
-      from "$OUTPUT_PATH/$ARCHIVES_BASE_NAME-release.aar"
-      into "$projectDir.absolutePath/../examples/android-demo/example/libs"
+    doLast {
+        dealAfterAssemble(OUTPUT_PATH, "release")
+        def fileName = "$OUTPUT_PATH/$ARCHIVES_BASE_NAME" + ".aar"
+        copy {
+            from fileName
+            into "$projectDir.absolutePath/../examples/android-demo/libs"
+        }
     }
-  }
 }

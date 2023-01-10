@@ -321,9 +321,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         mGlobalConfigs.getExceptionHandler().handleNativeException(exception, true);
     }
 
-    public void recordSnapshot(int rootId, @NonNull final Callback<byte[]> callback) {
+    public void recordSnapshot(@NonNull View rootView, @NonNull final Callback<byte[]> callback) {
         if (mEngineContext != null && mEngineContext.getNativeRenderer() != null) {
-            mEngineContext.getNativeRenderer().recordSnapshot(rootId, callback);
+            mEngineContext.getNativeRenderer().recordSnapshot(rootView, callback);
         }
     }
 

@@ -195,7 +195,7 @@ public abstract class HippyEngine {
 
   public abstract HippyEngineContext getEngineContext();
 
-  public abstract void recordSnapshot(int rootId, @NonNull final Callback<byte[]> callback);
+  public abstract void recordSnapshot(@NonNull View rootView, @NonNull final Callback<byte[]> callback);
 
   public abstract View replaySnapshot(@NonNull Context context, byte[] buffer);
 
