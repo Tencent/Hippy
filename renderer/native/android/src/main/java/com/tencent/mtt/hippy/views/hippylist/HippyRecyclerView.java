@@ -98,12 +98,13 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         this.headerHost = headerHost;
     }
 
-    public void initRecyclerView() {
-        setAdapter(new HippyRecyclerListAdapter<HippyRecyclerView>(this));
+    public void initRecyclerView(boolean hasStableIds) {
+        Adapter adapter = new HippyRecyclerListAdapter<HippyRecyclerView>(this);
+        adapter.setHasStableIds(hasStableIds);
+        setAdapter(adapter);
         intEventHelper();
         setItemViewCacheSize(DEFAULT_ITEM_VIEW_CACHE_SIZE);
     }
-
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {

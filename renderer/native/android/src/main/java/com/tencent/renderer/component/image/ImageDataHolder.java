@@ -259,9 +259,21 @@ public class ImageDataHolder implements ImageDataSupplier {
         }
     }
 
-    public void setBitmap(Bitmap bitmap) {
+    /**
+     * Set bitmap to image holder.
+     *
+     * @param bitmap {@link Bitmap}.
+     * @param isRecyclable should recycle by sdk {@code true} the bitmap lifecycle is managed by the SDK
+     * {@code false} the bitmap lifecycle is managed by the Provider
+     *
+     */
+    public void setBitmap(Bitmap bitmap, boolean isRecyclable) {
         mBitmap = bitmap;
-        resetStateFlag(FLAG_RECYCLABLE);
+        if (isRecyclable) {
+            setStateFlag(FLAG_RECYCLABLE);
+        } else {
+            resetStateFlag(FLAG_RECYCLABLE);
+        }
     }
 
     /**
