@@ -158,4 +158,5 @@ public class NodeProps {
     public static final String ATTRIBUTES = "attributes";
     public static final String BACKGROUND_RIPPLE = "nativeBackgroundAndroid";
     public static final String OVER_PULL = "bounces";
+    public static final String HAS_STABLE_IDS = "hasStableIds";
 }

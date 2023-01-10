@@ -23,7 +23,7 @@ import java.util.Map;
 
 public class MapUtils {
 
-    public static int getIntValue(@NonNull Map<String, Object> params, String key) {
+    public static int getIntValue(@NonNull Map<String, Object> params, @NonNull String key) {
         Object element = params.get(key);
         if (element instanceof Number) {
             return ((Number) element).intValue();
@@ -31,17 +31,36 @@ public class MapUtils {
         return 0;
     }
 
+    public static int getIntValue(@NonNull Map<String, Object> params, @NonNull String key,
+            int defaultValue) {
+        Object element = params.get(key);
+        if (element instanceof Number) {
+            return ((Number) element).intValue();
+        }
+        return defaultValue;
+    }
+
     @SuppressWarnings("unused")
-    public static float getFloatValue(@NonNull Map<String, Object> params, String key) {
+    public static float getFloatValue(@NonNull Map<String, Object> params, @NonNull String key) {
         Object element = params.get(key);
         if (element instanceof Number) {
             return ((Number) element).floatValue();
         }
-        return 0;
+        return 0.0f;
     }
 
     @SuppressWarnings("unused")
-    public static double getDoubleValue(@NonNull Map<String, Object> params, String key) {
+    public static float getFloatValue(@NonNull Map<String, Object> params, @NonNull String key,
+            float defaultValue) {
+        Object element = params.get(key);
+        if (element instanceof Number) {
+            return ((Number) element).floatValue();
+        }
+        return defaultValue;
+    }
+
+    @SuppressWarnings("unused")
+    public static double getDoubleValue(@NonNull Map<String, Object> params, @NonNull String key) {
         Object element = params.get(key);
         if (element instanceof Number) {
             return ((Number) element).doubleValue();
@@ -50,8 +69,18 @@ public class MapUtils {
     }
 
     @SuppressWarnings("unused")
+    public static double getDoubleValue(@NonNull Map<String, Object> params, @NonNull String key,
+            double defaultValue) {
+        Object element = params.get(key);
+        if (element instanceof Number) {
+            return ((Number) element).doubleValue();
+        }
+        return defaultValue;
+    }
+
+    @SuppressWarnings("unused")
     @Nullable
-    public static String getStringValue(@NonNull Map<String, Object> params, String key) {
+    public static String getStringValue(@NonNull Map<String, Object> params, @NonNull String key) {
         Object element = params.get(key);
         if (element instanceof String) {
             return ((String) element);
@@ -59,11 +88,32 @@ public class MapUtils {
         return null;
     }
 
-    public static boolean getBooleanValue(@NonNull Map<String, Object> params, String key) {
+    @SuppressWarnings("unused")
+    @Nullable
+    public static String getStringValue(@NonNull Map<String, Object> params, @NonNull String key,
+            @Nullable String defaultValue) {
+        Object element = params.get(key);
+        if (element instanceof String) {
+            return ((String) element);
+        }
+        return defaultValue;
+    }
+
+    public static boolean getBooleanValue(@NonNull Map<String, Object> params,
+            @NonNull String key) {
         Object element = params.get(key);
         if (element instanceof Boolean) {
             return ((boolean) element);
         }
         return false;
+    }
+
+    public static boolean getBooleanValue(@NonNull Map<String, Object> params, @NonNull String key,
+            boolean defaultValue) {
+        Object element = params.get(key);
+        if (element instanceof Boolean) {
+            return ((boolean) element);
+        }
+        return defaultValue;
     }
 }
