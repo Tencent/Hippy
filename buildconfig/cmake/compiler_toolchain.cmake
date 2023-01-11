@@ -47,6 +47,15 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang") # based on LLVM 12
       -Os)
 
   if (ANDROID_NDK)
+    # Android NDK default to -fno-addrsig
+    # in order to support linkers other than LLD [1],
+    # but we only uses LLD linker, so enable faddrsing to produce
+    # a special section `.llvm_addrsig` to support ICF (Identical Code Folding) [2].
+    #
+    # [1] https://reviews.llvm.org/D56456
+    # [2] https://github.com/android/ndk/issues/1670#issuecomment-1040941456
+    list(APPEND COMPILE_OPTIONS -faddrsig)
+
     if (${ANDROID_ABI} STREQUAL "armeabi-v7a")
       list(APPEND COMPILE_OPTIONS -mfloat-abi=softfp)
     elseif (${ANDROID_ABI} STREQUAL "arm64-v8a")
