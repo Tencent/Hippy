@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.kezong.fat-aar'
 
 allprojects {
     repositories {
@@ -38,11 +39,11 @@ android {
 }
 
 dependencies {
-    compileOnly project(path: ':connector-support')
+    embed project(path: ':renderer-tdf', configuration: 'default')
+
     compileOnly project(path: ':renderer-native')
-    compileOnly project(path: ':renderer-tdf')
+    compileOnly project(path: ':connector-support')
     compileOnly project(path: ':hippy-support')
-    compileOnly project(path: ':vfs')
 
     implementation 'androidx.annotation:annotation:1.0.0'
 }

@@ -1,0 +1,3 @@
+include 'renderer-tdf'
+project(':renderer-tdf').projectDir = new File('renderer/tdf/android')
+

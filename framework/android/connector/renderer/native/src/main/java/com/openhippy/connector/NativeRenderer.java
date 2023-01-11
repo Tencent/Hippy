@@ -27,77 +27,7 @@ public class NativeRenderer extends RenderConnector {
     @Override public RenderProxy initRenderProxy() {
         mInstanceId = createNativeRenderManager();
         Object obj = getNativeRendererInstance(mInstanceId);
-<<<<<<< HEAD
-        if (obj instanceof NativeRenderProxy) {
-            mRenderer = (NativeRenderProxy) obj;
-        }
-    }
-
-    public void destroyRoot(int rootId) {
-        if (mRenderer != null) {
-            mRenderer.destroyRoot(rootId);
-        }
-    }
-
-    public void onRuntimeInitialized(@NonNull View root) {
-        if (mRenderer != null) {
-            mRenderer.onRuntimeInitialized(root.getId());
-        }
-    }
-
-    public void recordSnapshot(@NonNull View rootView, @NonNull final Callback<byte[]> callback) {
-        if (mRenderer != null) {
-            mRenderer.recordSnapshot(rootView.getId(), callback);
-        }
-    }
-
-    @Nullable
-    public View replaySnapshot(@NonNull Context context, @NonNull byte[] buffer) {
-        if (mRenderer != null) {
-            return mRenderer.replaySnapshot(context, buffer);
-        }
-        return null;
-    }
-
-    @Nullable
-    public View replaySnapshot(@NonNull Context context, @NonNull Map<String, Object> snapshotMap) {
-        if (mRenderer != null) {
-            return mRenderer.replaySnapshot(context, snapshotMap);
-        }
-        return null;
-    }
-
-    public void setFrameworkProxy(@NonNull FrameworkProxy proxy) {
-        if (mRenderer != null) {
-            mRenderer.setFrameworkProxy(proxy);
-        }
-    }
-
-    @Nullable
-    public View createRootView(@NonNull Context context) {
-        View rootView = null;
-        if (mRenderer != null) {
-            rootView = mRenderer.createRootView(context);
-        }
-        return rootView;
-    }
-
-    public void onResume() {
-        if (mRenderer != null) {
-            mRenderer.onResume();
-        }
-    }
-
-    public void onPause() {
-        if (mRenderer != null) {
-            mRenderer.onPause();
-        }
-    }
-
-    public void init(@Nullable List<Class<?>> controllers, @Nullable ViewGroup rootView) {
-        if (mRenderer != null) {
-            mRenderer.init(controllers, rootView);
-        }
+        return (RenderProxy) obj;
     }
 
     public void attachToDom(@NonNull Connector domConnector) {

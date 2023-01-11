@@ -319,6 +319,6 @@ void TDFRenderManager::CallFunction(std::weak_ptr<RootNode> root_node, std::weak
 
 #undef GET_SHELL
 #undef FOR_EACH_TEXT_NODE
-}  // namespace hippy
+}  // namespace tdf
 }  // namespace render
-}  // namespace tdf // namespace hippy
+}  // namespace hippy

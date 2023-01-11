@@ -321,13 +321,13 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     public void recordSnapshot(@NonNull View rootView, @NonNull final Callback<byte[]> callback) {
-        if (mEngineContext != null && mEngineContext.getNativeRenderer() != null) {
-            mEngineContext.getRenderer().recordSnapshot(rootView, callback);
+        if (mEngineContext != null) {
+            mEngineContext.getRenderer().recordSnapshot(rootView.getId(), callback);
         }
     }
 
     public View replaySnapshot(@NonNull Context context, @NonNull byte[] buffer) {
-        if (mEngineContext != null && mEngineContext.getRenderer() != null) {
+        if (mEngineContext != null) {
             mEngineContext.getRenderer().replaySnapshot(context, buffer);
         }
         return null;

@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-project("tdf_renderer_connector")
+project("connector_renderer_tdf")
 
 get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../../.." REALPATH)
 
@@ -31,7 +31,7 @@ set(CMAKE_CXX_STANDARD 17)
 add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
-target_compile_definitions(${PROJECT_NAME} INTERFACE "ANDROID_NATIVE_RENDERER")
+target_compile_definitions(${PROJECT_NAME} INTERFACE "ANDROID_TDF_RENDERER")
 # endregion
 
 # region dom
@@ -50,7 +50,7 @@ GlobalPackages_Add(jni)
 target_link_libraries(${PROJECT_NAME} PRIVATE jni)
 # endregion
 
-# region native renderer
+# region tdf renderer
 add_subdirectory(${PROJECT_ROOT_DIR}/renderer/tdf/android/src/main/cpp
         ${CMAKE_CURRENT_BINARY_DIR}/renderer/tdf)
 target_link_libraries(${PROJECT_NAME} PUBLIC tdf_renderer)
