@@ -46,6 +46,9 @@ if (${ANDROID_STL} STREQUAL "c++_static")
       "-Wl,--exclude-libs,libc++_static.a"
       "-Wl,--exclude-libs,libc++abi.a")
 endif ()
+# enable Safe ICF (Identical Code Folding) to optimize binary size
+target_link_options(${PROJECT_NAME} PRIVATE
+      "-Wl,--icf=safe")
 # endregion
 
 # region vfs
