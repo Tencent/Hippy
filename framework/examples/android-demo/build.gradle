@@ -72,10 +72,6 @@ dependencies {
         api project(path: ':hippy-framework')
         compileOnly project(path: ':hippy-support')
         compileOnly project(path: ':renderer-native')
-        if (ENABLE_TDF_RENDER == "true") {
-            compileOnly project(path: ':renderer-tdf')
-            //api project(path: ':connector-renderer-tdf')
-        }
     }
 
     // TODO(vimerzhao): needed by render-tdf.Due to `embed` don't support indirect dependency,I temporarily write here
