@@ -1,0 +1,59 @@
+name: '[reuse] classify commits'
+
+on:
+  workflow_call:
+    inputs:
+      pull_request_number:
+        description: 'Pull request number'
+        required: true
+        type: number
+    outputs:
+      merge_commits_sha:
+        description: 'Merge commits sha'
+        value: ${{ jobs.classify_commits.outputs.merge_commits_sha }}
+      merge_commits_count:
+        description: 'Merge commits count'
+        value: ${{ jobs.classify_commits.outputs.merge_commits_count }}
+      normal_commits_sha:
+        description: 'Normal commits sha'
+        value: ${{ jobs.classify_commits.outputs.normal_commits_sha }}
+      normal_commits_count:
+        description: 'Normal commits count'
+        value: ${{ jobs.classify_commits.outputs.normal_commits_count }}
+
+jobs:
+  classify_commits:
+    runs-on: ubuntu-latest
+    outputs:
+      merge_commits_sha: ${{ steps.action.outputs.merge_commits_sha }}
+      merge_commits_count: ${{ steps.action.outputs.merge_commits_count }}
+      normal_commits_sha: ${{ steps.action.outputs.normal_commits_sha }}
+      normal_commits_count: ${{ steps.action.outputs.normal_commits_count }}
+    steps:
+    - name: Action
+      id: action
+      uses: actions/github-script@v6.3.3
+      with:
+        script: |
+          const { pulls } = github.rest;
+          const fs = require('fs');
+          const os = require('os');
+
+          const commits = (await github.paginate(pulls.listCommits, {
+            per_page: 100,
+            pull_number: ${{ inputs.pull_request_number }},
+            ...context.repo
+          }));
+
+          if (commits.length >= 250) { // exceeded maximum of 250 commits per pull request
+            return;
+          }
+
+          const merge_commits = [];
+          const normal_commits = [];
+          commits.forEach(commit => commit.parents.length > 1 ? merge_commits.push(commit.sha) : normal_commits.push(commit.sha));
+
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `merge_commits_sha=${JSON.stringify(merge_commits)}${os.EOL}`, { encoding: 'utf8' });
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `merge_commits_count=${merge_commits.length}${os.EOL}`, { encoding: 'utf8' });
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `normal_commits_sha=${JSON.stringify(normal_commits)}${os.EOL}`, { encoding: 'utf8' });
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `normal_commits_count=${normal_commits.length}${os.EOL}`, { encoding: 'utf8' });
