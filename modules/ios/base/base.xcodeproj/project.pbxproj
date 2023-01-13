@@ -38,7 +38,7 @@
 		F47914822924C79000B2DBB6 /* HPAsserts.mm in Sources */ = {isa = PBXBuildFile; fileRef = F47914672924C78F00B2DBB6 /* HPAsserts.mm */; };
 		F47914832924C79000B2DBB6 /* HPDriverStackFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = F47914692924C78F00B2DBB6 /* HPDriverStackFrame.m */; };
 		F47914842924C79000B2DBB6 /* HPLog.mm in Sources */ = {isa = PBXBuildFile; fileRef = F479146B2924C78F00B2DBB6 /* HPLog.mm */; };
-		F47914862924C79000B2DBB6 /* OCTypeToDomArgument.mm in Sources */ = {isa = PBXBuildFile; fileRef = F479146F2924C79000B2DBB6 /* OCTypeToDomArgument.mm */; };
+		F47914862924C79000B2DBB6 /* HippyValueOCBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = F479146F2924C79000B2DBB6 /* HippyValueOCBridge.mm */; };
 		F47914882924C79000B2DBB6 /* HPI18nUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F47914732924C79000B2DBB6 /* HPI18nUtils.m */; };
 		F47914892924C79000B2DBB6 /* TypeConverter.mm in Sources */ = {isa = PBXBuildFile; fileRef = F47914762924C79000B2DBB6 /* TypeConverter.mm */; };
 		F479148A2924C79000B2DBB6 /* HPConvert.mm in Sources */ = {isa = PBXBuildFile; fileRef = F47914782924C79000B2DBB6 /* HPConvert.mm */; };
@@ -62,6 +62,7 @@
 		F47914DF2924D10C00B2DBB6 /* deserializer.cc in Sources */ = {isa = PBXBuildFile; fileRef = F47914C82924D10C00B2DBB6 /* deserializer.cc */; };
 		F47914E02924D10C00B2DBB6 /* worker.cc in Sources */ = {isa = PBXBuildFile; fileRef = F47914C92924D10C00B2DBB6 /* worker.cc */; };
 		F47914E12924D10C00B2DBB6 /* idle_timer.cc in Sources */ = {isa = PBXBuildFile; fileRef = F47914CA2924D10C00B2DBB6 /* idle_timer.cc */; };
+		F48284782971372300085A05 /* DomOCBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = F48284772971372300085A05 /* DomOCBridge.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -141,10 +142,10 @@
 		F47914672924C78F00B2DBB6 /* HPAsserts.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HPAsserts.mm; sourceTree = "<group>"; };
 		F47914682924C78F00B2DBB6 /* TypeConverter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TypeConverter.h; sourceTree = "<group>"; };
 		F47914692924C78F00B2DBB6 /* HPDriverStackFrame.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPDriverStackFrame.m; sourceTree = "<group>"; };
-		F479146A2924C78F00B2DBB6 /* OCTypeToDomArgument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCTypeToDomArgument.h; sourceTree = "<group>"; };
+		F479146A2924C78F00B2DBB6 /* HippyValueOCBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyValueOCBridge.h; sourceTree = "<group>"; };
 		F479146B2924C78F00B2DBB6 /* HPLog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HPLog.mm; sourceTree = "<group>"; };
 		F479146D2924C78F00B2DBB6 /* HPParserUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPParserUtils.h; sourceTree = "<group>"; };
-		F479146F2924C79000B2DBB6 /* OCTypeToDomArgument.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OCTypeToDomArgument.mm; sourceTree = "<group>"; };
+		F479146F2924C79000B2DBB6 /* HippyValueOCBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyValueOCBridge.mm; sourceTree = "<group>"; };
 		F47914702924C79000B2DBB6 /* HPConvert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPConvert.h; sourceTree = "<group>"; };
 		F47914722924C79000B2DBB6 /* HPToolUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPToolUtils.h; sourceTree = "<group>"; };
 		F47914732924C79000B2DBB6 /* HPI18nUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPI18nUtils.m; sourceTree = "<group>"; };
@@ -203,6 +204,8 @@
 		F47914C92924D10C00B2DBB6 /* worker.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worker.cc; sourceTree = "<group>"; };
 		F47914CA2924D10C00B2DBB6 /* idle_timer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = idle_timer.cc; sourceTree = "<group>"; };
 		F47914E32924D28400B2DBB6 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.0.sdk/System/Library/Frameworks/CoreServices.framework; sourceTree = DEVELOPER_DIR; };
+		F48284762971372300085A05 /* DomOCBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DomOCBridge.h; sourceTree = "<group>"; };
+		F48284772971372300085A05 /* DomOCBridge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DomOCBridge.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -251,6 +254,7 @@
 		F43FD953292F086500620474 /* dom */ = {
 			isa = PBXGroup;
 			children = (
+				F4828475297136A800085A05 /* ios */,
 				F43FD955292F086500620474 /* include */,
 				F43FD976292F086500620474 /* src */,
 			);
@@ -381,8 +385,8 @@
 				F47914722924C79000B2DBB6 /* HPToolUtils.h */,
 				F479145F2924C78F00B2DBB6 /* HPToolUtils.m */,
 				F47914742924C79000B2DBB6 /* MacroDefines.h */,
-				F479146A2924C78F00B2DBB6 /* OCTypeToDomArgument.h */,
-				F479146F2924C79000B2DBB6 /* OCTypeToDomArgument.mm */,
+				F479146A2924C78F00B2DBB6 /* HippyValueOCBridge.h */,
+				F479146F2924C79000B2DBB6 /* HippyValueOCBridge.mm */,
 				F47914682924C78F00B2DBB6 /* TypeConverter.h */,
 				F47914762924C79000B2DBB6 /* TypeConverter.mm */,
 				F47914542924C77200B2DBB6 /* Products */,
@@ -519,6 +523,15 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		F4828475297136A800085A05 /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				F48284762971372300085A05 /* DomOCBridge.h */,
+				F48284772971372300085A05 /* DomOCBridge.mm */,
+			);
+			path = ios;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -585,7 +598,7 @@
 				F43FD997292F086500620474 /* dom_argument.cc in Sources */,
 				F43FD94E292F084F00620474 /* HPNode.cpp in Sources */,
 				F47914892924C79000B2DBB6 /* TypeConverter.mm in Sources */,
-				F47914862924C79000B2DBB6 /* OCTypeToDomArgument.mm in Sources */,
+				F47914862924C79000B2DBB6 /* HippyValueOCBridge.mm in Sources */,
 				F47914D72924D10C00B2DBB6 /* base_timer.cc in Sources */,
 				F47914CC2924D10C00B2DBB6 /* log_settings.cc in Sources */,
 				F43FD99C292F086500620474 /* cubic_bezier_animation.cc in Sources */,
@@ -631,6 +644,7 @@
 				F47914D12924D10C00B2DBB6 /* looper_driver.cc in Sources */,
 				F47914882924C79000B2DBB6 /* HPI18nUtils.m in Sources */,
 				F43FD94D292F084F00620474 /* HPUtil.cpp in Sources */,
+				F48284782971372300085A05 /* DomOCBridge.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

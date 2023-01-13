@@ -80,8 +80,8 @@ Pod::Spec.new do |s|
   s.subspec 'dom' do |dom|
     puts 'hippy subspec \'dom\' read begin'
     dom.libraries = 'c++'
-    dom.source_files = ['dom/include/**/*.h', 'dom/src/**/*.cc']
-    dom.public_header_files = 'dom/include/**/*.h'
+    dom.source_files = ['dom/include/**/*.h', 'dom/src/**/*.cc', 'dom/ios/*.*']
+    dom.public_header_files = ['dom/include/**/*.h', 'dom/ios/*.h']
     dom.exclude_files = ['dom/src/dom/*unittests.cc', 'dom/src/dom/tools', 'dom/src/dom/yoga_layout_node.cc']
     dom.pod_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/dom/include/'

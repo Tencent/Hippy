@@ -41,7 +41,7 @@
 #import "HippyRedBox.h"
 #import "HippyTurboModule.h"
 #import "HippyUtils.h"
-
+#import "HippyValueOCBridge.h"
 #import "HPAsserts.h"
 #import "HPConvert.h"
 #import "HPDefaultImageProvider.h"
@@ -382,7 +382,7 @@ dispatch_queue_t HippyBridgeQueue() {
                             @"id": rootTag,
                             @"params": props ?: @{},
                             @"version": HippySDKVersion};
-    footstone::value::HippyValue value = OCTypeToDomValue(param);
+    footstone::value::HippyValue value = [param toHippyValue];
     std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
     self.javaScriptExecutor.pScope->LoadInstance(domValue);
 }

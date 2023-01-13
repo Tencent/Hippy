@@ -30,8 +30,6 @@
 
 #include "footstone/string_view.h"
 #include "footstone/hippy_value.h"
-#include "dom/dom_listener.h"
-#include "dom/dom_node.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -49,24 +47,12 @@ std::unordered_map<std::string, std::string> NSDictionaryToStringUnorderedMap(NS
 
 HP_EXTERN NSURLResponse *ResponseMapToURLResponse(NSURL *url, const std::unordered_map<std::string, std::string> &headerMap, size_t contentsLength);
 
-HP_EXTERN id domValueToOCType(const footstone::value::HippyValue *const pDomValue);
+HP_EXTERN id HippyValueToOCType(const footstone::value::HippyValue *const pHippyValue);
 
-extern footstone::value::HippyValue OCTypeToDomValue(id value);
+HP_EXTERN NSDictionary *UnorderedMapHippyValueToDictionary(const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>> &domValuesObject);
 
-HP_EXTERN NSDictionary *unorderedMapDomValueToDictionary(const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>> &domValuesObject);
+extern std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>> DictionaryToUnorderedMapDomValue(NSDictionary *dictionary);
 
-extern std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>> dictionaryToUnorderedMapDomValue(NSDictionary *dictionary);
-
-HP_EXTERN CGRect CGRectMakeFromLayoutResult(hippy::LayoutResult result);
-
-HP_EXTERN UIEdgeInsets UIEdgeInsetsFromLayoutResult(hippy::LayoutResult result);
-
-HP_EXTERN CGSize CGSizeMakeFromLayoutResult(hippy::LayoutResult result);
-
-HP_EXTERN CGRect CGRectMakeFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode);
-
-HP_EXTERN NSNumber *domValueToNumber(const footstone::value::HippyValue *const pDomValue);
-
-HP_EXTERN NSDictionary *stylesFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode);
+HP_EXTERN NSNumber *HippyValueToNumber(const footstone::value::HippyValue *const pDomValue);
 
 NS_ASSUME_NONNULL_END

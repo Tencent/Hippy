@@ -21,37 +21,50 @@
  */
 
 #import <Foundation/Foundation.h>
-#include "footstone/hippy_value.h"
+#import <UIKit/UIGeometry.h>
+
+#import "MacroDefines.h"
+
 #include "dom/dom_argument.h"
+#include "dom/dom_listener.h"
+#include "dom/dom_node.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol OCTypeToFunctionCallbackType <NSObject>
-
-- (footstone::value::HippyValue)toDomValue;
+@protocol DomOCBridgeProtocol <NSObject>
 
 - (hippy::DomArgument)toDomArgument;
 
 @end
 
-@interface NSObject (DomArgument)<OCTypeToFunctionCallbackType>
+@interface NSObject (DomOCBridge)<DomOCBridgeProtocol>
 
 @end
 
-@interface NSArray (DomArgument)<OCTypeToFunctionCallbackType>
+@interface NSArray (DomOCBridge)<DomOCBridgeProtocol>
 
 @end
 
-@interface NSDictionary (DomArgument)<OCTypeToFunctionCallbackType>
+@interface NSDictionary (DomOCBridge)<DomOCBridgeProtocol>
 
 @end
 
-@interface NSNumber (DomArgument)<OCTypeToFunctionCallbackType>
+@interface NSNumber (DomOCBridge)<DomOCBridgeProtocol>
 
 @end
 
-@interface NSString (DomArgument)<OCTypeToFunctionCallbackType>
+@interface NSString (DomOCBridge)<DomOCBridgeProtocol>
 
 @end
+
+HP_EXTERN CGRect CGRectMakeFromLayoutResult(hippy::LayoutResult result);
+
+HP_EXTERN UIEdgeInsets UIEdgeInsetsFromLayoutResult(hippy::LayoutResult result);
+
+HP_EXTERN CGSize CGSizeMakeFromLayoutResult(hippy::LayoutResult result);
+
+HP_EXTERN CGRect CGRectMakeFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode);
+
+HP_EXTERN NSDictionary *stylesFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode);
 
 NS_ASSUME_NONNULL_END

@@ -35,6 +35,7 @@
 #import "NativeRenderRootView.h"
 #import "UIView+NativeRender.h"
 #import "ViewController.h"
+#import "HippyValueOCBridge.h"
 
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
@@ -195,7 +196,7 @@ static NSString *const engineKey = @"Demo";
             [obj performSelector:@selector(invalidate)];
         }
         NSDictionary *param = @{@"id": [obj componentTag]};
-        footstone::value::HippyValue value = OCTypeToDomValue(param);
+        footstone::value::HippyValue value = [param toHippyValue];
         std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
         bridge.javaScriptExecutor.pScope->UnloadInstance(domValue);
     }];
@@ -335,7 +336,7 @@ std::string mock;
             }
             else if ([key isEqualToString:@"props"]) {
                 id props = mockNode[key];
-                auto all_props = dictionaryToUnorderedMapDomValue(props);
+                auto all_props = DictionaryToUnorderedMapDomValue(props);
                 auto style_props = all_props["style"];
                 if (style_props) {
                     if (footstone::value::HippyValue::Type::kObject == style_props->GetType()) {

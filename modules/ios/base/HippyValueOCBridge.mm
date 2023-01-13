@@ -20,42 +20,37 @@
  * limitations under the License.
  */
 
-#import "OCTypeToDomArgument.h"
+#import "HippyValueOCBridge.h"
 
 using HippyValue = footstone::value::HippyValue;
-using DomArgument = hippy::DomArgument;
 
 @implementation NSObject (DomArgument)
 
-- (HippyValue)toDomValue {
+- (HippyValue)toHippyValue {
     return HippyValue::Undefined();
-}
-
-- (DomArgument)toDomArgument {
-    return DomArgument([self toDomValue]);
 }
 
 @end
 
-@implementation NSArray (DomArgument)
+@implementation NSArray (HippyValueOCBridge)
 
-- (HippyValue)toDomValue {
+- (HippyValue)toHippyValue {
     HippyValue::DomValueArrayType array;
     for (NSObject *obj in self) {
-        array.push_back([obj toDomValue]);
+        array.push_back([obj toHippyValue]);
     }
     return HippyValue(array);
 }
 
 @end
 
-@implementation NSDictionary (DomArgument)
+@implementation NSDictionary (HippyValueOCBridge)
 
-- (HippyValue)toDomValue {
+- (HippyValue)toHippyValue {
     __block HippyValue::HippyValueObjectType domObj([self count]);
     [self enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         std::string objKey = [key UTF8String];
-        HippyValue value = [obj toDomValue];
+        HippyValue value = [obj toHippyValue];
         domObj[objKey] = value;
     }];
     return HippyValue(domObj);
@@ -63,9 +58,9 @@ using DomArgument = hippy::DomArgument;
 
 @end
 
-@implementation NSNumber (DomArgument)
+@implementation NSNumber (HippyValueOCBridge)
 
-- (HippyValue)toDomValue {
+- (HippyValue)toHippyValue {
     const char *objcType = [self objCType];
     if (0 == strcmp(objcType, @encode(float)) ||
         0 == strcmp(objcType, @encode(double))) {
@@ -81,9 +76,9 @@ using DomArgument = hippy::DomArgument;
 
 @end
 
-@implementation NSString (DomArgument)
+@implementation NSString (HippyValueOCBridge)
 
-- (HippyValue)toDomValue {
+- (HippyValue)toHippyValue {
     return HippyValue([self UTF8String]);
 }
 

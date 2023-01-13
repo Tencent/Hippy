@@ -20,6 +20,7 @@
  * limitations under the License.
  */
 
+#import "DomOCBridge.h"
 #import "HPAsserts.h"
 #import "HPConvert.h"
 #import "HPImageProviderProtocol.h"
@@ -32,7 +33,7 @@
 #import "NativeRenderObjectView.h"
 #import "NativeRenderView.h"
 #import "NativeRenderViewManager.h"
-#import "OCTypeToDomArgument.h"
+#import "HippyValueOCBridge.h"
 #import "RenderVsyncManager.h"
 #import "UIView+DomEvent.h"
 #import "UIView+NativeRender.h"
@@ -731,8 +732,8 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     NSNumber *rootTag = @(strongRootNode->GetId());
     for (const auto &node : nodes) {
         NSNumber *componentTag = @(node->GetRenderInfo().id);
-        NSDictionary *styleProps = unorderedMapDomValueToDictionary(node->GetStyleMap());
-        NSDictionary *extProps = unorderedMapDomValueToDictionary(node->GetExtStyle());
+        NSDictionary *styleProps = UnorderedMapHippyValueToDictionary(node->GetStyleMap());
+        NSDictionary *extProps = UnorderedMapHippyValueToDictionary(node->GetExtStyle());
         NSMutableDictionary *props = [NSMutableDictionary dictionaryWithDictionary:styleProps];
         [props addEntriesFromDictionary:extProps];
         [self updateView:componentTag onRootTag:rootTag props:props];
@@ -827,7 +828,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     NSMutableArray *finalParams = [NSMutableArray arrayWithCapacity:8];
     [finalParams addObject:@(componentTag)];
     if (DomValueType::kArray == type) {
-        NSArray * paramsArray = domValueToOCType(&params);
+        NSArray * paramsArray = HippyValueToOCType(&params);
         NSAssert([paramsArray isKindOfClass:[NSArray class]], @"dispatch function method params type error");
         if ([paramsArray isKindOfClass:[NSArray class]]) {
             for (id param in paramsArray) {
@@ -1215,7 +1216,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
                 if (strongSelf) {
                     [strongSelf domNodeForComponentTag:node_id onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> domNode) {
                         if (domNode) {
-                            HippyValue value = [body toDomValue];
+                            HippyValue value = [body toHippyValue];
                             std::shared_ptr<HippyValue> domValue = std::make_shared<HippyValue>(std::move(value));
                             auto event = std::make_shared<DomEvent>(name_, domNode, canBePreventedInCapturing,
                                                                     canBePreventedInBubbling, domValue);
