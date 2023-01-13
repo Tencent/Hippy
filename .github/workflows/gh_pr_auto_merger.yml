@@ -98,7 +98,7 @@ jobs:
           p.push(issues.addLabels({
             ...context.repo,
             issue_number: ${{ needs.get_decision.outputs.pull_request_number }},
-            labels: [ 'action(rebase-merge)2' ]
+            labels: [ 'action(rebase-merge)' ]
           }));
 
           p.push(issues.createComment({
