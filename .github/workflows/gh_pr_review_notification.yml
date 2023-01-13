@@ -9,8 +9,8 @@ on:
     types: [ completed ]
   workflow_dispatch:
   schedule:
-    # Run every day at 21:00 UTC(05:00 UTC+08:00).
-    - cron: '0 21 * * *'
+    # Run every day at 23:30 UTC(07:30 UTC+08:00).
+    - cron: '30 23 * * *'
 
 jobs:
   request_notification:
