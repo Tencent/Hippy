@@ -7,9 +7,9 @@ on:
     types: [ completed ]
 
 env:
- GREETINGS_MESSAGE: ':tada: It seems that this pull request has been approved by all required reviewers and only contains one normal commit.'
- AUTO_MERGE_MESSAGE: I will rebase and merge it automatically via add `action(rebase-merge)` label.
- MANUAL_MERGE_MESSAGE: I will notify admin team member to merge it manually, please wait a moment.
+ GREETINGS_MESSAGE: ':tada: It seems that this pull request has been approved by all required reviewers.'
+ AUTO_MERGE_MESSAGE: As it only contains one normal commit, I will rebase and merge it automatically via add `action(rebase-merge)` label.
+ MANUAL_MERGE_MESSAGE: But it has more than one normal commit, I will notify admin team member to merge it manually, please wait a moment.
 
 jobs:
   call_get_workflow_output:
