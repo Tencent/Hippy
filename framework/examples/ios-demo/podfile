@@ -6,15 +6,6 @@ workspace 'HippyDemo.xcworkspace'
 
 target "HippyDemo" do
     pod 'Hippy', :path => '../../..'
-    pod 'HippyBase', :path => '../../../modules/ios'
-    pod 'HippyFootstone', :path => '../../../modules/footstone'
-    pod 'HippyDom', :path => '../../../dom'
-    pod 'HippyVFS', :path => '../../../modules/vfs'
-    pod 'HippyJSDriver', :path => '../../../driver/js'
-    pod 'HippyFramework', :path => '../../../framework/ios'
-    pod 'HippyLayout', :path => '../../../layout'
-    pod 'HippyNativeRender', :path => '../../../renderer/native/ios'
-    pod 'HippyDevTools', :path => '../../../devtools'
 end
 
 _base_dir_ = File.dirname(__FILE__)
@@ -39,43 +30,37 @@ end
 
 post_install do |installer|
     #we need to change search path from ${PODS_ROOT}/hippyxxx to local path
-    targets = ['HippyBase', 'HippyDom', 'HippyVFS', 'HippyFootstone', 'HippyLayout', 'HippyJSDriver', 'HippyFramework', 'HippyNativeRender', 'HippyDevTools']
-    targets.each do |target|
-        puts "target name is #{target}"
-        _target_debug_config_dir_ = File.join("#{_base_dir_}", "Pods/Target Support Files", "#{target}", "#{target}.debug.xcconfig")
-        _target_release_config_dir_ = File.join("#{_base_dir_}", "Pods/Target Support Files", "#{target}", "#{target}.release.xcconfig")
-        #need to change search path for targets 
-        rewriteConfigFile("#{_target_debug_config_dir_}", "${PODS_ROOT}/HippyJSDriver", "#{_hippy_dir_}")
-        rewriteConfigFile("#{_target_release_config_dir_}", "${PODS_ROOT}/HippyJSDriver", "#{_hippy_dir_}")
+    # targets = ['HippyBase', 'HippyDom', 'HippyVFS', 'HippyFootstone', 'HippyLayout', 'HippyJSDriver', 'HippyFramework', 'HippyNativeRender', 'HippyDevTools']
+    # targets.each do |target|
+    #     puts "target name is #{target}"
+    #     _target_debug_config_dir_ = File.join("#{_base_dir_}", "Pods/Target Support Files", "#{target}", "#{target}.debug.xcconfig")
+    #     _target_release_config_dir_ = File.join("#{_base_dir_}", "Pods/Target Support Files", "#{target}", "#{target}.release.xcconfig")
+    #     #need to change search path for targets 
+    #     rewriteConfigFile("#{_target_debug_config_dir_}", "${PODS_ROOT}/HippyJSDriver", "#{_hippy_dir_}")
+    #     rewriteConfigFile("#{_target_release_config_dir_}", "${PODS_ROOT}/HippyJSDriver", "#{_hippy_dir_}")
 
-        rewriteConfigFile("#{_target_debug_config_dir_}", "${PODS_ROOT}/HippyDevTools", "#{_hippy_dir_}")
-        rewriteConfigFile("#{_target_release_config_dir_}", "${PODS_ROOT}/HippyDevTools", "#{_hippy_dir_}")
+    #     rewriteConfigFile("#{_target_debug_config_dir_}", "${PODS_ROOT}/HippyDevTools", "#{_hippy_dir_}")
+    #     rewriteConfigFile("#{_target_release_config_dir_}", "${PODS_ROOT}/HippyDevTools", "#{_hippy_dir_}")
 
-        rewriteConfigFile("#{_target_debug_config_dir_}", "${PODS_ROOT}/HippyDom", "#{_hippy_dir_}")
-        rewriteConfigFile("#{_target_release_config_dir_}", "${PODS_ROOT}/HippyDom", "#{_hippy_dir_}")
+    #     rewriteConfigFile("#{_target_debug_config_dir_}", "${PODS_ROOT}/HippyDom", "#{_hippy_dir_}")
+    #     rewriteConfigFile("#{_target_release_config_dir_}", "${PODS_ROOT}/HippyDom", "#{_hippy_dir_}")
 
-        rewriteConfigFile("#{_target_debug_config_dir_}", "${PODS_ROOT}/HippyVFS", "#{_hippy_dir_}")
-        rewriteConfigFile("#{_target_release_config_dir_}", "${PODS_ROOT}/HippyVFS", "#{_hippy_dir_}")
+    #     rewriteConfigFile("#{_target_debug_config_dir_}", "${PODS_ROOT}/HippyVFS", "#{_hippy_dir_}")
+    #     rewriteConfigFile("#{_target_release_config_dir_}", "${PODS_ROOT}/HippyVFS", "#{_hippy_dir_}")
 
-        rewriteConfigFile("#{_target_debug_config_dir_}", "${PODS_ROOT}/HippyFootstone", "#{_hippy_dir_}")
-        rewriteConfigFile("#{_target_release_config_dir_}", "${PODS_ROOT}/HippyFootstone", "#{_hippy_dir_}")
+    #     rewriteConfigFile("#{_target_debug_config_dir_}", "${PODS_ROOT}/HippyFootstone", "#{_hippy_dir_}")
+    #     rewriteConfigFile("#{_target_release_config_dir_}", "${PODS_ROOT}/HippyFootstone", "#{_hippy_dir_}")
 
-        rewriteConfigFile("#{_target_debug_config_dir_}", "${PODS_ROOT}/HippyLayout", "#{_hippy_dir_}")
-        rewriteConfigFile("#{_target_release_config_dir_}", "${PODS_ROOT}/HippyLayout", "#{_hippy_dir_}")
+    #     rewriteConfigFile("#{_target_debug_config_dir_}", "${PODS_ROOT}/HippyLayout", "#{_hippy_dir_}")
+    #     rewriteConfigFile("#{_target_release_config_dir_}", "${PODS_ROOT}/HippyLayout", "#{_hippy_dir_}")
 
-    end
+    # end
+    _target_debug_config_dir_ = File.join("#{_base_dir_}", "Pods/Target Support Files", "Hippy", "Hippy.debug.xcconfig")
+    _target_release_config_dir_ = File.join("#{_base_dir_}", "Pods/Target Support Files", "Hippy", "Hippy.release.xcconfig")
+    rewriteConfigFile("#{_target_debug_config_dir_}", "${PODS_ROOT}/hippy", "#{_hippy_dir_}")
+    rewriteConfigFile("#{_target_release_config_dir_}", "${PODS_ROOT}/hippy", "#{_hippy_dir_}")
 
     #change search path for HippyDemo
-    rewriteConfigFile("#{_pod_debug_config_dir_}", "${PODS_ROOT}/HippyDom", "#{_hippy_dir_}")
-    rewriteConfigFile("#{_pod_debug_config_dir_}", "${PODS_ROOT}/HippyFootstone", "#{_hippy_dir_}")
-    rewriteConfigFile("#{_pod_debug_config_dir_}", "${PODS_ROOT}/HippyVFS", "#{_hippy_dir_}")
-    rewriteConfigFile("#{_pod_debug_config_dir_}", "${PODS_ROOT}/HippyJSDriver", "#{_hippy_dir_}")
-    rewriteConfigFile("#{_pod_debug_config_dir_}", "${PODS_ROOT}/HippyDevTools", "#{_hippy_dir_}")
-
-
-    rewriteConfigFile("#{_pod_release_config_dir_}", "${PODS_ROOT}/HippyDom", "#{_hippy_dir_}")
-    rewriteConfigFile("#{_pod_release_config_dir_}", "${PODS_ROOT}/HippyFootstone", "#{_hippy_dir_}")
-    rewriteConfigFile("#{_pod_release_config_dir_}", "${PODS_ROOT}/HippyVFS", "#{_hippy_dir_}")
-    rewriteConfigFile("#{_pod_release_config_dir_}", "${PODS_ROOT}/HippyJSDriver", "#{_hippy_dir_}")
-    rewriteConfigFile("#{_pod_release_config_dir_}", "${PODS_ROOT}/HippyDevTools", "#{_hippy_dir_}")
+    rewriteConfigFile("#{_pod_debug_config_dir_}", "${PODS_ROOT}/hippy", "#{_hippy_dir_}")
+    rewriteConfigFile("#{_pod_release_config_dir_}", "${PODS_ROOT}/hippy", "#{_hippy_dir_}")
 end
