@@ -1,3 +1,7 @@
+## 0.0.11
+
+- update voltron_render to 0.0.5 to fix workerManager destroy crash
+
 ## 0.0.10
 
 - update voltron_render to 0.0.4 to fix toDeepVoltronMap func

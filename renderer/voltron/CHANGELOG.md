@@ -1,3 +1,7 @@
+## 0.0.5
+
+- fix workerManager destroy crash
+
 ## 0.0.4
 
 - fix toDeepVoltronMap func
