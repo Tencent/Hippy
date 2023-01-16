@@ -11,16 +11,14 @@ jobs:
     if: github.repository == 'Tencent/Hippy'
     runs-on: ubuntu-latest
     steps:
-    - name: Token
-      uses: navikt/github-app-token-generator@v1
-      id: get-token
-      with:
-        private-key: ${{ secrets.ACTION_PRIVATE_KEY }}
-        app-id: ${{ secrets.ACTION_APP_ID }}
     - name: Updater
       uses: actions/github-script@v6.3.3
       with:
-        github-token: ${{ steps.get-token.outputs.token }}
+        # Because the Github App Token, Github Token, and Fine-grained PAT
+        # cannot obtain the permission to update the workflow files in the head branch,
+        # so use classic PAT to avoid failures caused by modification of workflow files.
+        # TODO: use Github App Token or Github Token if permission is granted in the future.
+        github-token: ${{ secrets.BOT_PAT }}
         script: |
           const { pulls, repos } = github.rest;
 
