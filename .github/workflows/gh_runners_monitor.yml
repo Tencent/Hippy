@@ -1,0 +1,51 @@
+name: '[gh] self-hosted runners monitor'
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run every 12th hour.
+    - cron: '0 */12 * * *'
+
+jobs:
+  runners_monitor:
+    if: github.repository == 'Tencent/Hippy'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Token
+      uses: navikt/github-app-token-generator@v1
+      id: get-token
+      with:
+        private-key: ${{ secrets.BOT_APP_KEY }}
+        app-id: ${{ secrets.BOT_APP_ID }}
+    - name: Monitor
+      uses: actions/github-script@v6.3.3
+      with:
+        github-token: ${{ steps.get-token.outputs.token }}
+        script: |
+          const { actions } = github.rest;
+          const os = require('os');
+
+          const runners = await github.paginate(actions.listSelfHostedRunnersForRepo, {
+            per_page: 100,
+            ...context.repo
+          });
+          const offline_runners = runners.filter(runner => runner.status === 'offline');
+
+          if (offline_runners.length > 0) {
+            const content = [];
+            content.push(`<font color="warning">${offline_runners.length}/${runners.length}</font> self-hosted runners are offline.`);
+            content.push(...offline_runners.map(runner => `> ${runner.name}`));
+
+            await github.request("POST ${{ secrets.WECHAT_WORK_BOT_WEBHOOK }}", {
+              headers: {
+                "content-type": "application/json"
+              },
+              data: {
+                chatid: "${{ secrets.WECHAT_WORK_ADMIN_CHAT_ID }}",
+                msgtype: "markdown",
+                markdown: {
+                  content: content.join(os.EOL)
+                }
+              }
+            });
+          }
