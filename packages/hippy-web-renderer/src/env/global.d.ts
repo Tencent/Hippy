@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { HippyWebModule } from '../base/base-unit';
+import { HippyWebModule } from '../base';
 import { dealloc } from './event';
 import { nativeGlobal } from './native-global';
 import { emitter, hippyRegister } from './others';
@@ -60,12 +60,15 @@ declare global {
 
   var __WebSocket: typeof WebSocket;
 
+  // @ts-ignore
   var Hippy: HippyGlobalObject;
 
   var __ISHIPPY__: boolean;
 
+  // @ts-ignore
   var __GLOBAL__: HippyJsGlobal;
 
+  // @ts-ignore
   var __HIPPYNATIVEGLOBAL__: typeof nativeGlobal;
 
   var flushQueueImmediate: any;
