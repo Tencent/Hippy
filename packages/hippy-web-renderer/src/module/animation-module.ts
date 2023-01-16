@@ -81,7 +81,7 @@ export class AnimationModule extends HippyWebModule {
   }
 
   public resumeAnimation(animationId: number) {
-    if (!!this.isValidAnimationId(animationId)) {
+    if (!this.isValidAnimationId(animationId)) {
       warn('hippy', 'animation resume failed, animationId not find animation object', animationId);
       return;
     }
