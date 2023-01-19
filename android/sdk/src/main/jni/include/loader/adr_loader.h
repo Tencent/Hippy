@@ -104,6 +104,13 @@ class ADRLoader : public hippy::base::UriLoader {
   bool LoadByJni(const unicode_string_view& uri,
                  const std::function<void(u8string)>& cb);
 
+  bool RequestUntrustedContentInternal(const unicode_string_view& uri,
+                               u8string& str);
+
+  void ReportUriLoadTime(const unicode_string_view& uri,
+                         long long start_millis,
+                         long long end_millis);
+
   std::shared_ptr<JavaRef> bridge_;
   AAssetManager* aasset_manager_;
   std::weak_ptr<WorkerTaskRunner> runner_;

@@ -62,6 +62,17 @@ public class HippyAssetBundleLoader implements HippyBundleLoader {
     }
 
     AssetManager assetManager = mContext.getAssets();
+    String uri = getUri();
+    boolean ret = bridge
+        .runScriptFromUri(uri, assetManager, mCanUseCodeCache, mCodeCacheTag, callback);
+    LogUtils.d("HippyAssetBundleLoader", "load: ret" + ret);
+  }
+
+  @Override
+  public String getUri() {
+    if (TextUtils.isEmpty(mAssetPath)) {
+      return null;
+    }
     String uri = mAssetPath;
     if (!mAssetPath.startsWith(URI_SCHEME_ASSETS)) {
       if (mAssetPath.startsWith("/")) {
@@ -70,10 +81,7 @@ public class HippyAssetBundleLoader implements HippyBundleLoader {
         uri = URI_SCHEME_ASSETS + "/" + mAssetPath;
       }
     }
-
-    boolean ret = bridge
-        .runScriptFromUri(uri, assetManager, mCanUseCodeCache, mCodeCacheTag, callback);
-    LogUtils.d("HippyAssetBundleLoader", "load: ret" + ret);
+    return uri;
   }
 
   @Override

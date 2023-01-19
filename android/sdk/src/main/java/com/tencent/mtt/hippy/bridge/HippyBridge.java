@@ -18,8 +18,10 @@ package com.tencent.mtt.hippy.bridge;
 
 import android.content.res.AssetManager;
 
+import android.util.Pair;
 import androidx.annotation.NonNull;
 
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.common.Callback;
 
 import java.nio.ByteBuffer;
@@ -50,6 +52,9 @@ public interface HippyBridge {
             int length);
 
     long getV8RuntimeId();
+
+    @Nullable
+    Pair<Long, Long> getLoadUriTime(String uri);
 
     interface BridgeCallback {
 

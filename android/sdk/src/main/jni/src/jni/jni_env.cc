@@ -60,6 +60,10 @@ void JNIEnvironment::init(JavaVM* j_vm, JNIEnv* j_env) {
 
   wrapper_.j_fetch_resource_method_id = j_env->GetMethodID(
       j_hippy_bridge_cls, "fetchResourceWithUri", "(Ljava/lang/String;J)V");
+
+  wrapper_.j_report_uri_load_time_id =
+      j_env->GetMethodID(j_hippy_bridge_cls, "reportLoadUriTime", "(Ljava/lang/String;JJ)V");
+
   j_env->DeleteLocalRef(j_hippy_bridge_cls);
 
   if (j_env->ExceptionCheck()) {

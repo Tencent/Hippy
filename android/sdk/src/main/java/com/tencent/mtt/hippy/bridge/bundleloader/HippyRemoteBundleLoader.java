@@ -56,8 +56,14 @@ public class HippyRemoteBundleLoader implements HippyBundleLoader {
       return;
     }
 
-    boolean ret = bridge.runScriptFromUri(mUrl, null, mCanUseCodeCache, mCodeCacheTag, callback);
+    String uri = getUri();
+    boolean ret = bridge.runScriptFromUri(uri, null, mCanUseCodeCache, mCodeCacheTag, callback);
     LogUtils.d("HippyRemoteBundleLoader", "load: ret" + ret);
+  }
+
+  @Override
+  public String getUri() {
+    return mUrl;
   }
 
   @Override

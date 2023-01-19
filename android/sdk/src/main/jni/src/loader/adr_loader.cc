@@ -76,7 +76,21 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
   }
 }
 
-bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
+bool ADRLoader::RequestUntrustedContent(const unicode_string_view &uri, u8string &str) {
+  auto load_start_millis = std::chrono::time_point_cast<std::chrono::milliseconds>(
+      std::chrono::system_clock::now())
+      .time_since_epoch()
+      .count();
+  auto ret = RequestUntrustedContentInternal(uri, str);
+  auto load_end_millis = std::chrono::time_point_cast<std::chrono::milliseconds>(
+      std::chrono::system_clock::now())
+      .time_since_epoch()
+      .count();
+  ReportUriLoadTime(uri, load_start_millis, load_end_millis);
+  return ret;
+}
+
+bool ADRLoader::RequestUntrustedContentInternal(const unicode_string_view& uri,
                                         u8string& content) {
   std::shared_ptr<Uri> uri_obj = Uri::Create(uri);
   if (!uri_obj) {
@@ -244,4 +258,20 @@ int64_t ADRLoader::SetRequestCB(const std::function<void(u8string)>& cb) {
   int64_t id = global_request_id.fetch_add(1);
   request_map_.insert({id, cb});
   return id;
+}
+
+void ADRLoader::ReportUriLoadTime(const unicode_string_view &uri,
+                                  long long int start_millis,
+                                  long long int end_millis) {
+  std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
+  JNIEnv* j_env = instance->AttachCurrentThread();
+
+  if (instance->GetMethods().j_report_uri_load_time_id) {
+    jstring j_uri = JniUtils::StrViewToJString(j_env, uri);
+    j_env->CallVoidMethod(bridge_->GetObj(),
+                          instance->GetMethods().j_report_uri_load_time_id,
+                          j_uri, start_millis, end_millis);
+    JNIEnvironment::ClearJEnvException(j_env);
+    j_env->DeleteLocalRef(j_uri);
+  }
 }

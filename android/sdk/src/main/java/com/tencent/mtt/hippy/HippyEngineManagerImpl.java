@@ -288,9 +288,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     if (onLoadCompleteListener != null) {
       view.setOnLoadCompleteListener(onLoadCompleteListener);
     }
-    view.setTimeMonitor(new TimeMonitor(!mDebugMode));
-    view.getTimeMonitor().begine();
-    view.getTimeMonitor().startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_WAIT_ENGINE);
+    TimeMonitor timeMonitor = new TimeMonitor(!mDebugMode);
+    timeMonitor.setParent(mStartTimeMonitor);
+    timeMonitor.begine();
+    timeMonitor.startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_WAIT_ENGINE);
+    timeMonitor.startSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_FP);
+    view.setTimeMonitor(timeMonitor);
     view.setOnResumeAndPauseListener(this);
     view.setOnSizeChangedListener(this);
     view.attachEngineManager(this);
@@ -582,9 +585,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     final HippyInstanceContext context = new HippyInstanceContext(loadParams.context, loadParams);
     context.setEngineContext(mEngineContext);
     final HippyRootView tempRootView = new HippyRootView(context, loadParams);
-    tempRootView.setTimeMonitor(new TimeMonitor(true));
-    tempRootView.getTimeMonitor().begine();
-    tempRootView.getTimeMonitor().startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_RESTORE_INSTANCE_STATE);
+    TimeMonitor timeMonitor = new TimeMonitor(true);
+    timeMonitor.setParent(mStartTimeMonitor);
+    timeMonitor.begine();
+    timeMonitor.startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_RESTORE_INSTANCE_STATE);
+    tempRootView.setTimeMonitor(timeMonitor);
     tempRootView.setOnSizeChangedListener(this);
     final int tempRootId = tempRootView.getId();
     renderManager.getControllerManager().addFakeRootView(tempRootView);
@@ -716,34 +721,27 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
       preloadModule(mPreloadBundleLoader);
     }
 
-    if (UIThreadUtils.isOnUiThread()) {
-      mStartTimeMonitor.end();
-      reportEngineLoadResult(
-          mCurrentState == EngineState.INITED ? HippyEngineMonitorAdapter.ENGINE_LOAD_RESULT_SUCCESS
+    Runnable action = new Runnable() {
+      @Override
+      public void run() {
+        if (mCurrentState != EngineState.DESTROYED) {
+          mStartTimeMonitor.end();
+          mStartTimeMonitor.endSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_BRIDGE_STARTUP);
+          reportEngineLoadResult(mCurrentState == EngineState.INITED
+              ? HippyEngineMonitorAdapter.ENGINE_LOAD_RESULT_SUCCESS
               : HippyEngineMonitorAdapter.ENGINE_LOAD_RESULT_ERROR, e);
-      for (EngineListener listener : mEventListeners) {
-        listener.onInitialized(statusCode, e == null ? null : e.toString());
-      }
-      mEventListeners.clear();
-    } else {
-      final EngineInitStatus code = statusCode;
-      final Throwable error = e;
-      UIThreadUtils.runOnUiThread(new Runnable() {
-        @Override
-        public void run() {
-          if (mCurrentState != EngineState.DESTROYED) {
-            mStartTimeMonitor.end();
-            reportEngineLoadResult(mCurrentState == EngineState.INITED
-                ? HippyEngineMonitorAdapter.ENGINE_LOAD_RESULT_SUCCESS
-                : HippyEngineMonitorAdapter.ENGINE_LOAD_RESULT_ERROR, error);
-          }
-
-          for (EngineListener listener : mEventListeners) {
-            listener.onInitialized(code, error == null ? null : error.toString());
-          }
-          mEventListeners.clear();
         }
-      });
+
+        for (EngineListener listener : mEventListeners) {
+          listener.onInitialized(statusCode, e == null ? null : e.toString());
+        }
+        mEventListeners.clear();
+      }
+    };
+    if (UIThreadUtils.isOnUiThread()) {
+      action.run();
+    } else {
+      UIThreadUtils.runOnUiThread(action);
     }
   }
 
@@ -767,6 +765,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
     mStartTimeMonitor.begine();
     mStartTimeMonitor.startEvent(HippyEngineMonitorEvent.ENGINE_LOAD_EVENT_INIT_INSTANCE);
+    mStartTimeMonitor.clearSeparateEvents();
+    mStartTimeMonitor.startSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_BRIDGE_STARTUP);
+    mStartTimeMonitor.startSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_INIT_JS_FRAMEWORK);
     if (mCurrentState != EngineState.INITING) {
       mCurrentState = EngineState.ONRESTART;
     }
@@ -776,6 +777,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     mEngineContext.getBridgeManager().initBridge(new Callback<Boolean>() {
       @Override
       public void callback(Boolean param, Throwable e) {
+        mStartTimeMonitor.endSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_COMMON_EXECUTE_SOURCE);
         if (mCurrentState != EngineState.INITING && mCurrentState != EngineState.ONRESTART) {
           LogUtils.e(TAG, "initBridge callback error STATUS_WRONG_STATE, state=" + mCurrentState);
           notifyEngineInitialized(EngineInitStatus.STATUS_WRONG_STATE, e);

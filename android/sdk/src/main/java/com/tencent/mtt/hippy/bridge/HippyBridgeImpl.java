@@ -16,12 +16,22 @@
 
 package com.tencent.mtt.hippy.bridge;
 
+import android.content.Context;
+import android.content.res.AssetManager;
+import android.text.TextUtils;
+import android.util.Pair;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngine.V8InitParams;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.common.Callback;
+import com.tencent.mtt.hippy.common.HippyArray;
+import com.tencent.mtt.hippy.devsupport.DebugWebSocketClient;
+import com.tencent.mtt.hippy.devsupport.DevRemoteDebugProxy;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
+import com.tencent.mtt.hippy.devsupport.inspector.Inspector;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleInfo;
 import com.tencent.mtt.hippy.serialization.PrimitiveValueDeserializer;
@@ -30,33 +40,21 @@ import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
 import com.tencent.mtt.hippy.serialization.nio.reader.SafeDirectReader;
 import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
 import com.tencent.mtt.hippy.serialization.string.InternalizedStringTable;
-import com.tencent.mtt.hippy.devsupport.inspector.Inspector;
+import com.tencent.mtt.hippy.utils.ArgumentUtils;
+import com.tencent.mtt.hippy.utils.FileUtils;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
-import com.tencent.mtt.hippy.utils.UrlUtils;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-
-import android.content.Context;
-import android.content.res.AssetManager;
-import android.text.TextUtils;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.tencent.mtt.hippy.common.HippyArray;
-import com.tencent.mtt.hippy.devsupport.DebugWebSocketClient;
-import com.tencent.mtt.hippy.devsupport.DevRemoteDebugProxy;
-import com.tencent.mtt.hippy.utils.ArgumentUtils;
-import com.tencent.mtt.hippy.utils.FileUtils;
-import com.tencent.mtt.hippy.utils.LogUtils;
-
-import java.nio.ByteOrder;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @SuppressWarnings({"unused", "JavaJniMissingFunction"})
 public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnReceiveDataListener {
@@ -87,6 +85,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     private BinaryReader mSafeDirectReader;
     private final HippyEngine.V8InitParams v8InitParams;
     private Inspector mInspector;
+    private final Map<String, Pair<Long, Long>> mUriLoadedTimestamps = Collections.synchronizedMap(
+        new HashMap<>());
 
     public HippyBridgeImpl(HippyEngineContext engineContext, BridgeCallback callback,
             boolean singleThreadMode, boolean enableV8Serialization, boolean isDevModule,
@@ -471,5 +471,16 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
                 callFunction("onWebsocketMsg", null, msg.getBytes(StandardCharsets.UTF_16LE));
             }
         }
+    }
+
+    @SuppressWarnings("unused")
+    public void reportLoadUriTime(String uri, long startMillis, long endMillis) {
+        mUriLoadedTimestamps.put(uri, new Pair<>(startMillis, endMillis));
+    }
+
+    @Nullable
+    @Override
+    public Pair<Long, Long> getLoadUriTime(String uri) {
+        return mUriLoadedTimestamps.get(uri);
     }
 }

@@ -232,5 +232,20 @@ void CallJavaMethod(jobject j_obj, jlong j_value, jstring j_msg) {
   j_env->DeleteLocalRef(j_class);
 }
 
+void ReportUriLoadTime(jobject j_obj, jstring j_uri, jlong j_start_millis, jlong j_end_millis) {
+  if (!j_obj) {
+    TDF_BASE_DLOG(INFO) << "ReportUriLoadTime j_obj is nullptr";
+    return;
+  }
+
+  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  jclass j_class = j_env->GetObjectClass(j_obj);
+  if (!j_class) {
+    TDF_BASE_LOG(ERROR) << "CallJavaMethod j_class error";
+    return;
+  }
+
+}
+
 }  // namespace bridge
 }  // namespace hippy

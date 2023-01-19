@@ -16,13 +16,14 @@
 
 | 分类  | 指标  | Android对应Key  | iOS对应Key  |
 |:----------|:----------|:----------|:----------|
-| vendor包    | vendor包加载耗时    | Cell 3    |  HippyPLCommonLoadSource   |
-| vendor包    | vendor包执行耗时    | Cell 3    | HippyPLCommonExecuteSource   |
-| 业务包    | 业务包加载耗时    | Cell 3    | HippyPLSecondaryLoadSource    |
-| 业务包    | 业务包执行耗时    | Cell 3    | HippyPLSecondaryExecuteSource    |
-| 整体    | Bridge启动耗时    | Cell 3    | HippyPLBridgeStartup   |
-| 整体    | JS入口执行耗时    | Cell 3    | HippyPLRunApplication    |
-| 整体    | FP耗时    | Cell 3    | HippyPLFP    |
+| JS引擎 | 初始化JS引擎耗时 | InitJsFramework |  |
+| vendor包    | vendor包加载耗时    | CommonLoadSource |  HippyPLCommonLoadSource   |
+| vendor包    | vendor包执行耗时    | CommonExecuteSource | HippyPLCommonExecuteSource   |
+| 业务包    | 业务包加载耗时    | SecondaryLoadSource | HippyPLSecondaryLoadSource    |
+| 业务包    | 业务包执行耗时    | SecondaryExecuteSource | HippyPLSecondaryExecuteSource    |
+| 整体    | Bridge启动耗时    | BridgeStartup | HippyPLBridgeStartup   |
+| 整体    | JS入口执行耗时    | RunApplication | HippyPLRunApplication    |
+| 整体    | FP耗时    | FP   | HippyPLFP    |
 
 
 

@@ -56,10 +56,19 @@ public class HippyFileBundleLoader implements HippyBundleLoader {
       return;
     }
 
-    String uri =
-        (!mFilePath.startsWith(URI_SCHEME_FILE)) ? (URI_SCHEME_FILE + mFilePath) : mFilePath;
+    String uri = getUri();
     boolean ret = bridge.runScriptFromUri(uri, null, mCanUseCodeCache, mCodeCacheTag, callback);
     LogUtils.d("HippyFileBundleLoader", "load: ret" + ret);
+  }
+
+  @Override
+  public String getUri() {
+    if (TextUtils.isEmpty(mFilePath)) {
+      return null;
+    }
+    String uri =
+        (!mFilePath.startsWith(URI_SCHEME_FILE)) ? (URI_SCHEME_FILE + mFilePath) : mFilePath;
+    return uri;
   }
 
   @Override

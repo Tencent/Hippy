@@ -47,5 +47,7 @@ void CallFunctionByDirectBuffer(JNIEnv* j_env,
                                 jint j_offset,
                                 jint j_length);
 
+void ReportUriLoadTime(jobject j_obj, jstring j_uri, jlong j_start_millis, jlong j_end_millis);
+
 }  // namespace bridge
 }  // namespace hippy
