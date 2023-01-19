@@ -57,13 +57,52 @@ initParams.engineMonitor = new MyEngineMonitorAdapter();
 HippyEngine engine = HippyEngine.create(initParams);
 ```
 
-#### 2. 获取性能数据[WIP]
+#### 2. 获取性能数据
+
+推荐在reportModuleLoadComplete之后调用，以便获取完整的性能数据。
+
+终端获取方法为
 
 ```java
-HippyEngineContext context;
-PerformanceLoadData data = context.getPerformanceLoadData();
-
+TimeMonitor monitor = rootView == null ? null : rootView.getTimeMonitor();
+if (monitor != null) {
+    List<HippyEngineMonitorEvent> list = monitor.getAllSeparateEvents();
+}
 ```
+
+前端获取方法为
+
+```js
+const instanceId = __GLOBAL__.appRegister[appName].id;
+const result = await Hippy.bridge.callNativeWithPromise('PerformanceLogger', 'getAll', instanceId);
+```
+
+执行成功返回
+
+```json
+{ result: [{
+    eventName: string,
+    startTime: number,
+    endTime: number,
+}, ...] }
+```
+
+执行失败返回
+
+```json
+{ errMsg: 'invalid instanceId' }
+```
+
+
+
+#### 3. 前端添加自定义字段
+
+```js
+const instanceId = __GLOBAL__.appRegister[appName].id;
+Hippy.bridge.callNative('PerformanceLogger', 'markStart', instanceId, 'MyEvent', Date.now());
+Hippy.bridge.callNative('PerformanceLogger', 'markEnd', instanceId, 'MyEvent', Date.now());
+```
+
 
 
 ### iOS API 指引
