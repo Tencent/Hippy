@@ -48,8 +48,8 @@ Pod::Spec.new do |s|
   s.subspec 'Layout' do |layout|
     puts 'hippy subspec \'layout\' read begin'
     layout.libraries = 'c++'
-    layout.source_files = 'layout/engine/*.{h,cpp}'
-    layout.public_header_files = 'layout/engine/*.h'
+    layout.source_files = ['layout/engine/*.{h,cpp}', 'modules/ios/layoututils/*.{h,m}']
+    layout.public_header_files = ['layout/engine/*.h', 'modules/ios/layoututils/*.h']
     layout.pod_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/layout' + 
                               ' ${PODS_ROOT}/hippy/layout/engine'
@@ -60,8 +60,8 @@ Pod::Spec.new do |s|
   s.subspec 'Footstone' do |footstone|
     puts 'hippy subspec \'footstone\' read begin'
     footstone.libraries = 'c++'
-    footstone.source_files = 'modules/footstone/**/*.{h,cc}'
-    footstone.public_header_files = 'modules/footstone/**/*.h'
+    footstone.source_files = ['modules/footstone/**/*.{h,cc}', 'modules/ios/footstoneutils/*.{h,mm}']
+    footstone.public_header_files = ['modules/footstone/**/*.h', 'modules/ios/footstoneutils/*.h']
     footstone.exclude_files = ['modules/footstone/include/footstone/platform/adr', 'modules/footstone/src/platform/adr']
     footstone.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
@@ -86,8 +86,8 @@ Pod::Spec.new do |s|
   s.subspec 'Dom' do |dom|
     puts 'hippy subspec \'dom\' read begin'
     dom.libraries = 'c++'
-    dom.source_files = ['dom/include/**/*.h', 'dom/src/**/*.cc']
-    dom.public_header_files = 'dom/include/**/*.h'
+    dom.source_files = ['dom/include/**/*.h', 'dom/src/**/*.cc', 'modules/ios/domutils/*.{h,mm}']
+    dom.public_header_files = ['dom/include/**/*.h', 'modules/ios/domutils/*.h']
     dom.exclude_files = ['dom/src/dom/*unittests.cc', 'dom/src/dom/tools', 'dom/src/dom/yoga_layout_node.cc']
     dom.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
@@ -96,14 +96,15 @@ Pod::Spec.new do |s|
     dom.user_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/dom/include/'
     }
+    dom.dependency 'Hippy/Footstone'
     puts 'hippy subspec \'dom\' read end'
   end 
 
   s.subspec 'Base' do |base|
     puts 'hippy subspec \'base\' read begin'
     base.libraries = 'c++'
-    base.public_header_files = 'modules/ios/base/*.h'
-    base.source_files = 'modules/ios/base/*.{h,m,mm}'
+    base.source_files = ['modules/ios/base/*.{h,m,mm}', 'modules/ios/logutils/*.{h,mm}']
+    base.public_header_files = ['modules/ios/base/*.h', 'modules/ios/logutils/*.h']
     puts 'hippy subspec \'base\' read end'
   end
 

@@ -33,6 +33,7 @@
 #import "UIView+NativeRender.h"
 #import "NativeRenderImpl.h"
 #import "HippyJSExecutor.h"
+#import "HPOCToHippyValue.h"
 
 #include "driver/scope.h"
 
@@ -170,7 +171,7 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
             [obj performSelector:@selector(invalidate)];
         }
         NSDictionary *param = @{@"id": [obj componentTag]};
-        footstone::value::HippyValue value = OCTypeToDomValue(param);
+        footstone::value::HippyValue value = [param toHippyValue];
         std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
         bridge.javaScriptExecutor.pScope->UnloadInstance(domValue);
     }];

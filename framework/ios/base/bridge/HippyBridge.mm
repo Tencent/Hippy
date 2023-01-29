@@ -48,6 +48,7 @@
 #import "HPI18nUtils.h"
 #import "HPInvalidating.h"
 #import "HPLog.h"
+#import "HPOCToHippyValue.h"
 #import "HPToolUtils.h"
 #import "TypeConverter.h"
 #import "VFSUriLoader.h"
@@ -388,7 +389,7 @@ dispatch_queue_t HippyBridgeQueue() {
                             @"id": rootTag,
                             @"params": props ?: @{},
                             @"version": HippySDKVersion};
-    footstone::value::HippyValue value = OCTypeToDomValue(param);
+    footstone::value::HippyValue value = [param toHippyValue];
     std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
     self.javaScriptExecutor.pScope->LoadInstance(domValue);
 }

@@ -21,7 +21,10 @@
  */
 
 #import "HPAsserts.h"
-#import "HPConvert.h"
+#import "HPDomUtils.h"
+#import "HPFootstoneUtils.h"
+#import "HPOCToDomArgument.h"
+#import "HPOCToHippyValue.h"
 #import "HPImageProviderProtocol.h"
 #import "HPToolUtils.h"
 #import "NativeRenderComponentProtocol.h"
@@ -32,7 +35,6 @@
 #import "NativeRenderObjectView.h"
 #import "NativeRenderView.h"
 #import "NativeRenderViewManager.h"
-#import "OCTypeToDomArgument.h"
 #import "RenderVsyncManager.h"
 #import "UIView+DomEvent.h"
 #import "UIView+NativeRender.h"
@@ -477,7 +479,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     NSNumber *componentTag = @(domNode->GetId());
     NSString *viewName = [NSString stringWithUTF8String:domNode->GetViewName().c_str()];
     NSString *tagName = [NSString stringWithUTF8String:domNode->GetTagName().c_str()];
-    NSMutableDictionary *props = [stylesFromDomNode(domNode) mutableCopy];
+    NSMutableDictionary *props = [StylesFromDomNode(domNode) mutableCopy];
     NativeRenderComponentData *componentData = [self componentDataForViewName:viewName];
     NativeRenderObjectView *renderObject = [componentData createRenderObjectViewWithTag:componentTag];
     renderObject.rootNode = rootNode;
@@ -731,8 +733,8 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     NSNumber *rootTag = @(strongRootNode->GetId());
     for (const auto &node : nodes) {
         NSNumber *componentTag = @(node->GetRenderInfo().id);
-        NSDictionary *styleProps = unorderedMapDomValueToDictionary(node->GetStyleMap());
-        NSDictionary *extProps = unorderedMapDomValueToDictionary(node->GetExtStyle());
+        NSDictionary *styleProps = UnorderedMapDomValueToDictionary(node->GetStyleMap());
+        NSDictionary *extProps = UnorderedMapDomValueToDictionary(node->GetExtStyle());
         NSMutableDictionary *props = [NSMutableDictionary dictionaryWithDictionary:styleProps];
         [props addEntriesFromDictionary:extProps];
         [self updateView:componentTag onRootTag:rootTag props:props];
@@ -827,7 +829,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     NSMutableArray *finalParams = [NSMutableArray arrayWithCapacity:8];
     [finalParams addObject:@(componentTag)];
     if (DomValueType::kArray == type) {
-        NSArray * paramsArray = domValueToOCType(&params);
+        NSArray * paramsArray = DomValueToOCType(&params);
         NSAssert([paramsArray isKindOfClass:[NSArray class]], @"dispatch function method params type error");
         if ([paramsArray isKindOfClass:[NSArray class]]) {
             for (id param in paramsArray) {
@@ -1215,7 +1217,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
                 if (strongSelf) {
                     [strongSelf domNodeForComponentTag:node_id onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> domNode) {
                         if (domNode) {
-                            HippyValue value = [body toDomValue];
+                            HippyValue value = [body toHippyValue];
                             std::shared_ptr<HippyValue> domValue = std::make_shared<HippyValue>(std::move(value));
                             auto event = std::make_shared<DomEvent>(name_, domNode, canBePreventedInCapturing,
                                                                     canBePreventedInBubbling, domValue);

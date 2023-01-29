@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -20,37 +20,20 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-#include "footstone/hippy_value.h"
-#include "dom/dom_argument.h"
+#import "HPConvert.h"
+
+#include "Flex.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol OCTypeToFunctionCallbackType <NSObject>
+@interface HPConvert (HPLayout)
 
-- (footstone::value::HippyValue)toDomValue;
-
-- (hippy::DomArgument)toDomArgument;
-
-@end
-
-@interface NSObject (DomArgument)<OCTypeToFunctionCallbackType>
-
-@end
-
-@interface NSArray (DomArgument)<OCTypeToFunctionCallbackType>
-
-@end
-
-@interface NSDictionary (DomArgument)<OCTypeToFunctionCallbackType>
-
-@end
-
-@interface NSNumber (DomArgument)<OCTypeToFunctionCallbackType>
-
-@end
-
-@interface NSString (DomArgument)<OCTypeToFunctionCallbackType>
++ (OverflowType)OverflowType:(id)json;
++ (FlexDirection)FlexDirection:(id)json;
++ (FlexAlign)FlexAlign:(id)json;
++ (PositionType)PositionType:(id)json;
++ (FlexWrapMode)FlexWrapMode:(id)json;
++ (DisplayType)DisplayType:(id)json;
 
 @end
 

@@ -22,16 +22,17 @@
 
 #import <Foundation/Foundation.h>
 
-#import "VFSUriHandler.h"
+#import "HPFootstoneUtils.h"
 #import "NSURLResponse+ToUnorderedMap.h"
-#import "TypeConverter.h"
-#import "VFSUriLoader.h"
 #import "NSURLSessionDataProgress.h"
+#import "TypeConverter.h"
+#import "VFSUriHandler.h"
+#import "VFSUriLoader.h"
 
 #include <objc/runtime.h>
 
-#include "vfs/uri_loader.h"
 #include "footstone/string_view_utils.h"
+#include "vfs/uri_loader.h"
 
 static char *progressKey = nullptr;
 

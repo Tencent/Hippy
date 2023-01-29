@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -20,42 +20,27 @@
  * limitations under the License.
  */
 
-#import "OCTypeToDomArgument.h"
+#import "HPOCToHippyValue.h"
 
-using HippyValue = footstone::value::HippyValue;
-using DomArgument = hippy::DomArgument;
+#include "footstone/hippy_value.h"
 
-@implementation NSObject (DomArgument)
+using HippyValue = footstone::HippyValue;
 
-- (HippyValue)toDomValue {
+@implementation NSObject (ToHippyValue)
+
+- (HippyValue)toHippyValue {
     return HippyValue::Undefined();
 }
 
-- (DomArgument)toDomArgument {
-    return DomArgument([self toDomValue]);
-}
-
 @end
 
-@implementation NSArray (DomArgument)
+@implementation NSDictionary (ToHippyValue)
 
-- (HippyValue)toDomValue {
-    HippyValue::DomValueArrayType array;
-    for (NSObject *obj in self) {
-        array.push_back([obj toDomValue]);
-    }
-    return HippyValue(array);
-}
-
-@end
-
-@implementation NSDictionary (DomArgument)
-
-- (HippyValue)toDomValue {
+- (HippyValue)toHippyValue {
     __block HippyValue::HippyValueObjectType domObj([self count]);
     [self enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         std::string objKey = [key UTF8String];
-        HippyValue value = [obj toDomValue];
+        HippyValue value = [obj toHippyValue];
         domObj[objKey] = value;
     }];
     return HippyValue(domObj);
@@ -63,9 +48,21 @@ using DomArgument = hippy::DomArgument;
 
 @end
 
-@implementation NSNumber (DomArgument)
+@implementation NSArray (ToHippyValue)
 
-- (HippyValue)toDomValue {
+- (HippyValue)toHippyValue {
+    HippyValue::DomValueArrayType array;
+    for (NSObject *obj in self) {
+        array.push_back([obj toHippyValue]);
+    }
+    return HippyValue(array);
+}
+
+@end
+
+@implementation NSNumber (ToHippyValue)
+
+- (HippyValue)toHippyValue {
     const char *objcType = [self objCType];
     if (0 == strcmp(objcType, @encode(float)) ||
         0 == strcmp(objcType, @encode(double))) {
@@ -81,9 +78,9 @@ using DomArgument = hippy::DomArgument;
 
 @end
 
-@implementation NSString (DomArgument)
+@implementation NSString (ToHippyValue)
 
-- (HippyValue)toDomValue {
+- (HippyValue)toHippyValue {
     return HippyValue([self UTF8String]);
 }
 

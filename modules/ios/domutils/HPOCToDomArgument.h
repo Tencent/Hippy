@@ -21,20 +21,23 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
 
-#import "MacroDefines.h"
-
-#include <string>
-#include <unordered_map>
+namespace hippy {
+inline namespace dom {
+class DomArgument;
+};
+};
 
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol OCToDomArgument <NSObject>
 
-HP_EXTERN NSDictionary<NSString *, NSString *> *StringUnorderedMapToNSDictionary(const std::unordered_map<std::string, std::string> &);
+- (hippy::DomArgument)toDomArgument;
 
-std::unordered_map<std::string, std::string> NSDictionaryToStringUnorderedMap(NSDictionary<NSString *, NSString *> *dictionary);
+@end
 
-HP_EXTERN NSURLResponse *ResponseMapToURLResponse(NSURL *url, const std::unordered_map<std::string, std::string> &headerMap, size_t contentsLength);
+@interface NSObject (HPOCToDomArgument)
+
+@end
 
 NS_ASSUME_NONNULL_END

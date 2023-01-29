@@ -21,20 +21,42 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-
-#import "MacroDefines.h"
 
 #include <string>
 #include <unordered_map>
 
 NS_ASSUME_NONNULL_BEGIN
 
+namespace footstone {
+inline namespace value {
+class HippyValue;
+};
+};
 
-HP_EXTERN NSDictionary<NSString *, NSString *> *StringUnorderedMapToNSDictionary(const std::unordered_map<std::string, std::string> &);
+@protocol OCToHippyValue <NSObject>
 
-std::unordered_map<std::string, std::string> NSDictionaryToStringUnorderedMap(NSDictionary<NSString *, NSString *> *dictionary);
+- (footstone::value::HippyValue)toHippyValue;
 
-HP_EXTERN NSURLResponse *ResponseMapToURLResponse(NSURL *url, const std::unordered_map<std::string, std::string> &headerMap, size_t contentsLength);
+@end
+
+@interface NSObject (ToHippyValue)<OCToHippyValue>
+
+@end
+
+@interface NSDictionary (ToHippyValue)<OCToHippyValue>
+
+@end
+
+@interface NSArray (ToHippyValue)<OCToHippyValue>
+
+@end
+
+@interface NSNumber (ToHippyValue)<OCToHippyValue>
+
+@end
+
+@interface NSString (ToHippyValue)<OCToHippyValue>
+
+@end
 
 NS_ASSUME_NONNULL_END

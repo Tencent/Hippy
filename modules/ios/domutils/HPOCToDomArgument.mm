@@ -20,21 +20,16 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
+#import "HPOCToDomArgument.h"
 
-#import "MacroDefines.h"
+#import "HPOCToHippyValue.h"
 
-#include <string>
-#include <unordered_map>
+#include "dom/dom_argument.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation NSObject (HPOCToDomArgument)
 
+- (hippy::DomArgument)toDomArgument {
+    return hippy::DomArgument([self toHippyValue]);
+}
 
-HP_EXTERN NSDictionary<NSString *, NSString *> *StringUnorderedMapToNSDictionary(const std::unordered_map<std::string, std::string> &);
-
-std::unordered_map<std::string, std::string> NSDictionaryToStringUnorderedMap(NSDictionary<NSString *, NSString *> *dictionary);
-
-HP_EXTERN NSURLResponse *ResponseMapToURLResponse(NSURL *url, const std::unordered_map<std::string, std::string> &headerMap, size_t contentsLength);
-
-NS_ASSUME_NONNULL_END
+@end

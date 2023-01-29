@@ -25,16 +25,25 @@
 
 #import "MacroDefines.h"
 
-#include <string>
-#include <unordered_map>
+#include <memory>
+
+namespace hippy {
+inline namespace dom {
+struct LayoutResult;
+class DomNode;
+};
+};
 
 NS_ASSUME_NONNULL_BEGIN
 
+HP_EXTERN CGRect CGRectMakeFromLayoutResult(hippy::LayoutResult result);
 
-HP_EXTERN NSDictionary<NSString *, NSString *> *StringUnorderedMapToNSDictionary(const std::unordered_map<std::string, std::string> &);
+HP_EXTERN UIEdgeInsets UIEdgeInsetsFromLayoutResult(hippy::LayoutResult result);
 
-std::unordered_map<std::string, std::string> NSDictionaryToStringUnorderedMap(NSDictionary<NSString *, NSString *> *dictionary);
+HP_EXTERN CGSize CGSizeMakeFromLayoutResult(hippy::LayoutResult result);
 
-HP_EXTERN NSURLResponse *ResponseMapToURLResponse(NSURL *url, const std::unordered_map<std::string, std::string> &headerMap, size_t contentsLength);
+HP_EXTERN CGRect CGRectMakeFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode);
+
+HP_EXTERN NSDictionary *StylesFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode);
 
 NS_ASSUME_NONNULL_END

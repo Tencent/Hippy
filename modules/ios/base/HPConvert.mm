@@ -608,40 +608,4 @@ static id HPConvertPropertyListValue(id json) {
 
 HP_ENUM_CONVERTER(css_backface_visibility_t, (@{ @"hidden": @NO, @"visible": @YES }), YES, boolValue)
 
-// hplayout
-HP_ENUM_CONVERTER(OverflowType, (@{
-    @"hidden": @(OverflowHidden),
-    @"visible": @(OverflowVisible),
-    @"scroll": @(OverflowScroll),
-}),
-OverflowVisible, intValue)
-
-HP_ENUM_CONVERTER(FlexDirection, (@{
-    @"row": @(FLexDirectionRow),
-    @"row-reverse": @(FLexDirectionRowReverse),
-    @"column": @(FLexDirectionColumn),
-    @"column-reverse": @(FLexDirectionColumnReverse)
-}),
-FLexDirectionColumn, intValue)
-
-HP_ENUM_CONVERTER(FlexAlign, (@{
-    @"auto": @(FlexAlignAuto),
-    @"flex-start": @(FlexAlignStart),
-    @"flex-end": @(FlexAlignEnd),
-    @"center": @(FlexAlignCenter),
-    @"space-between": @(FlexAlignSpaceBetween),
-    @"stretch": @(FlexAlignStretch),
-    @"baseline": @(FlexAlignBaseline),
-    @"space-around": @(FlexAlignSpaceAround),
-    @"space-evenly": @(FlexAlignSpaceEvenly)
-}),
-FlexAlignAuto, intValue)
-
-HP_ENUM_CONVERTER(PositionType, (@{ @"absolute": @(PositionTypeAbsolute), @"relative": @(PositionTypeRelative) }), PositionTypeRelative, intValue)
-
-HP_ENUM_CONVERTER(FlexWrapMode, (@{ @"wrap": @(FlexWrap), @"nowrap": @(FlexNoWrap), @"wrap-reverse": @(FlexWrapReverse) }), FlexNoWrap, intValue)
-
-HP_ENUM_CONVERTER(
-    DisplayType, (@{ @"flex": @(DisplayTypeFlex), @"block": @(DisplayTypeFlex), @"none": @(DisplayTypeNone) }), DisplayTypeFlex, intValue)
-
 @end
