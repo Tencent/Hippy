@@ -23,6 +23,7 @@
 #import "HippyJSExecutor.h"
 #import "HippyOCTurboModule.h"
 #import "HippyTurboModuleManager.h"
+#import "HippyJSExecutor.h"
 #import "HPAsserts.h"
 #import "HPLog.h"
 #import "HPToolUtils.h"
@@ -34,12 +35,9 @@
 #include "footstone/string_view_utils.h"
 #include "driver/napi/js_native_turbo.h"
 
-
-using namespace hippy;
-using namespace napi;
-
 using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
+using HippyTurboModule = hippy::HippyTurboModule;
 
 @interface HippyOCTurboModule () {
     std::shared_ptr<HippyTurboModule> _turboModule;
@@ -63,11 +61,11 @@ HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
         _turboModule = std::make_shared<HippyTurboModule>(std::string([moduleName UTF8String]));
 
         __weak HippyOCTurboModule *weakSelf = self;
-        _turboModule->callback_ = [weakSelf](const TurboEnv& env,
-                                             const std::shared_ptr<napi::CtxValue> &thisVal,
-                                             const std::shared_ptr<napi::CtxValue> *args,
-                                             size_t count) -> std::shared_ptr<napi::CtxValue> {
-            std::shared_ptr<napi::Ctx> context = env.context_;
+        _turboModule->callback_ = [weakSelf](const hippy::TurboEnv& env,
+                                             const std::shared_ptr<hippy::napi::CtxValue> &thisVal,
+                                             const std::shared_ptr<hippy::napi::CtxValue> *args,
+                                             size_t count) -> std::shared_ptr<hippy::napi::CtxValue> {
+            std::shared_ptr<hippy::napi::Ctx> context = env.context_;
 
             // get method name
             string_view name;
@@ -79,14 +77,14 @@ HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
             NSInteger argumentCount = static_cast<long>(count);
             NSMutableArray *argumentArray = @[].mutableCopy;
             for (NSInteger i = 0; i < argumentCount; i++) {
-                std::shared_ptr<napi::CtxValue> ctxValue = *(args + i);
+                std::shared_ptr<hippy::napi::CtxValue> ctxValue = *(args + i);
                 [argumentArray addObject:convertCtxValueToObjcObject(context, ctxValue, weakSelf)?: [NSNull null]];
             }
 
             id objcRes = [weakSelf invokeObjCMethodWithName:[NSString stringWithUTF8String:methodName.c_str()]
                                               argumentCount:argumentCount
                                               argumentArray:argumentArray];
-            std::shared_ptr<napi::CtxValue> result = convertObjcObjectToCtxValue(context, objcRes, weakSelf);
+            std::shared_ptr<hippy::napi::CtxValue> result = convertObjcObjectToCtxValue(context, objcRes, weakSelf);
             return result;
         };
     }
@@ -143,11 +141,11 @@ HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
 
 #pragma mark -
 
-static std::shared_ptr<napi::CtxValue> convertObjcObjectToCtxValue(const std::shared_ptr<napi::Ctx> &context,
+static std::shared_ptr<hippy::napi::CtxValue> convertObjcObjectToCtxValue(const std::shared_ptr<hippy::napi::Ctx> &context,
                                                                    id objcObject,
                                                                    HippyOCTurboModule *module) {
 
-    std::shared_ptr<napi::CtxValue> result;
+    std::shared_ptr<hippy::napi::CtxValue> result;
 
     if ([objcObject isKindOfClass:[NSString class]]) {
         std::string str = [((NSString *)objcObject) UTF8String];
@@ -171,31 +169,31 @@ static std::shared_ptr<napi::CtxValue> convertObjcObjectToCtxValue(const std::sh
     return result;
 }
 
-static std::shared_ptr<napi::CtxValue> convertNSDictionaryToCtxValue(const std::shared_ptr<napi::Ctx> &context,
-                                                                     NSDictionary *dict,
-                                                                     HippyOCTurboModule *module) {
+static std::shared_ptr<hippy::napi::CtxValue> convertNSDictionaryToCtxValue(const std::shared_ptr<hippy::napi::Ctx> &context,
+                                                                            NSDictionary *dict,
+                                                                            HippyOCTurboModule *module) {
     if (!dict) {
         return context->CreateNull();
     }
     return [dict convertToCtxValue:context];
 }
 
-static std::shared_ptr<napi::CtxValue> convertNSArrayToCtxValue(const std::shared_ptr<napi::Ctx> &context,
-                                                                NSArray *array,
-                                                                HippyOCTurboModule *module) {
+static std::shared_ptr<hippy::napi::CtxValue> convertNSArrayToCtxValue(const std::shared_ptr<hippy::napi::Ctx> &context,
+                                                                       NSArray *array,
+                                                                       HippyOCTurboModule *module) {
     if (!array) {
         return context->CreateNull();
     }
 
     size_t size = static_cast<size_t>(array.count);
-    std::shared_ptr<napi::CtxValue> buffer[size];
+    std::shared_ptr<hippy::napi::CtxValue> buffer[size];
     for (size_t idx = 0; idx < array.count; idx++) {
         buffer[idx] = convertObjcObjectToCtxValue(context, array[idx], module);
     }
     return context->CreateArray(size, buffer);
 }
 
-static std::shared_ptr<napi::CtxValue> convertNSObjectToCtxValue(const std::shared_ptr<napi::Ctx> &context,
+static std::shared_ptr<hippy::napi::CtxValue> convertNSObjectToCtxValue(const std::shared_ptr<hippy::napi::Ctx> &context,
                                                                 id objcObject,
                                                                 HippyOCTurboModule *module) {
     HippyJSExecutor *jsExecutor = (HippyJSExecutor *)module.bridge.javaScriptExecutor;
@@ -219,8 +217,8 @@ static std::shared_ptr<napi::CtxValue> convertNSObjectToCtxValue(const std::shar
 /// object           : NSDictionary
 /// JSON             : NSArray & NSDictionary
 
-static id convertCtxValueToObjcObject(const std::shared_ptr<napi::Ctx> &context,
-                                      const std::shared_ptr<napi::CtxValue> &value,
+static id convertCtxValueToObjcObject(const std::shared_ptr<hippy::napi::Ctx> &context,
+                                      const std::shared_ptr<hippy::napi::CtxValue> &value,
                                       HippyOCTurboModule *module) {
     id objcObject;
     double numberResult;
@@ -254,8 +252,8 @@ static id convertCtxValueToObjcObject(const std::shared_ptr<napi::Ctx> &context,
     return objcObject;
 }
 
-static id convertJSIObjectToNSObject(const std::shared_ptr<napi::Ctx> &context,
-                                     const std::shared_ptr<napi::CtxValue> &value) {
+static id convertJSIObjectToNSObject(const std::shared_ptr<hippy::napi::Ctx> &context,
+                                     const std::shared_ptr<hippy::napi::CtxValue> &value) {
     string_view result;
     if (!context->GetValueJson(value, &result)) {
         return nil;
@@ -271,20 +269,20 @@ static id convertJSIObjectToNSObject(const std::shared_ptr<napi::Ctx> &context,
     return objcObject;
 }
 
-static NSArray *convertJSIArrayToNSArray(const std::shared_ptr<napi::Ctx> &context,
-                                         const std::shared_ptr<napi::CtxValue> &value,
+static NSArray *convertJSIArrayToNSArray(const std::shared_ptr<hippy::napi::Ctx> &context,
+                                         const std::shared_ptr<hippy::napi::CtxValue> &value,
                                          HippyOCTurboModule *module) {
     size_t length = context->GetArrayLength(value);
     NSMutableArray *result = [NSMutableArray new];
     for (uint32_t i = 0; i < length; i++) {
-        std::shared_ptr<napi::CtxValue> v = context->CopyArrayElement(value, i);
+        std::shared_ptr<hippy::napi::CtxValue> v = context->CopyArrayElement(value, i);
         [result addObject:convertCtxValueToObjcObject(context, v, module) ?: [NSNull null]];
     }
     return [result copy];
 }
 
-static NSObject *convertJSIObjectToTurboObject(const std::shared_ptr<napi::Ctx> &context,
-                                               const std::shared_ptr<napi::CtxValue> &value,
+static NSObject *convertJSIObjectToTurboObject(const std::shared_ptr<hippy::napi::Ctx> &context,
+                                               const std::shared_ptr<hippy::napi::CtxValue> &value,
                                                HippyOCTurboModule *module) {
     HippyTurboModuleManager *turboManager = module.bridge.turboModuleManager;
     NSString *moduleNameStr = [turboManager turboModuleNameForJSObject:value];
@@ -295,8 +293,8 @@ static NSObject *convertJSIObjectToTurboObject(const std::shared_ptr<napi::Ctx> 
     return nil;
 }
 
-static NSDictionary *convertJSIObjectToNSDictionary(const std::shared_ptr<napi::Ctx> &context,
-                                                    const std::shared_ptr<napi::CtxValue> &value,
+static NSDictionary *convertJSIObjectToNSDictionary(const std::shared_ptr<hippy::napi::Ctx> &context,
+                                                    const std::shared_ptr<hippy::napi::CtxValue> &value,
                                                     HippyOCTurboModule *module) {
     if (!context->IsObject(value)) {
         return nil;

@@ -9,17 +9,20 @@ on:
       - v3.0
     paths:
       - 'framework/ios/**'
-      - 'driver/js/lib/**'
+      - 'framework/examples/ios-demo/**'
       - 'driver/js/src/**'
       - 'driver/js/include/**'
-      - 'driver/js/CMakeLists.txt'
-      - 'dom/**'
+      - 'dom/include/**'
+      - 'dom/src/**'
       - 'layout/engine/**'
       - 'modules/ios/**'
       - 'modules/footstone/**'
+      - 'modules/vfs/ios/**'
+      - 'modules/vfs/native/**'
       - 'renderer/native/ios/**'
       - 'devtools/devtools-backend/**'
-      - 'hippy.podspec'
+      - 'HippySDK.xcworkspace/**'
+      - 'Hippy.podspec'
 
 jobs:
   ios_build_tests:
@@ -37,23 +40,34 @@ jobs:
         uses: actions/checkout@v3
         with:
           lfs: true
+      - name: Xcodegen
+        uses: xavierLowmiller/xcodegen-action@1.1.2
+        with:
+          spec: framework/examples/ios-demo/project.yml
+          version: '2.32.0'
       - name: Build
+        working-directory:
         run: |
+          function build {
+            xcodebuild -workspace "$1" -list | \
+            sed -n '/Schemes/,/^$/p' | \
+            grep -v "Schemes:" | \
+            grep -v '^\s*$' | \
+            while read scheme; do
+              echo "Building $scheme ..."
+              xcodebuild build \
+                -destination "generic/platform=iOS" \
+                -workspace "$1" \
+                -scheme "$scheme" \
+                -configuration "$2" \
+                CODE_SIGN_IDENTITY="" \
+                CODE_SIGNING_REQUIRED=NO \
+                CODE_SIGNING_ALLOWED=NO
+            done
+          }
+
+          ./xcodeinitscript.sh
+          build 'HippySDK.xcworkspace' '${{ matrix.configuration }}'
           pushd framework/examples/ios-demo
-          ./cmakebuild.sh
+          build 'HippyDemo.xcworkspace' '${{ matrix.configuration }}'
           popd
-          xcodebuild -workspace 'Hippy.xcworkspace' -list | \
-          sed -n '/Schemes/,/^$/p' | \
-          grep -v "Schemes:" | \
-          grep -v '^\s*$' | \
-          while read scheme; do
-            echo "Building ${scheme}…"
-            xcodebuild build \
-              -destination "generic/platform=iOS" \
-              -workspace "Hippy.xcworkspace" \
-              -scheme "${scheme}" \
-              -configuration "${{ matrix.configuration }}" \
-              CODE_SIGN_IDENTITY="" \
-              CODE_SIGNING_REQUIRED=NO \
-              CODE_SIGNING_ALLOWED=NO
-          done

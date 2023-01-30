@@ -30,7 +30,6 @@
 #import "NativeRenderUtils.h"
 
 #include "dom/layout_node.h"
-#include "dom/taitank_layout_node.h"
 
 NSString *const NativeRenderRenderObjectAttributeName = @"NativeRenderRenderObjectAttributeName";
 NSString *const NativeRenderIsHighlightedAttributeName = @"IsHighlightedAttributeName";

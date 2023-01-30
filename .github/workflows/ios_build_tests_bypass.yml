@@ -9,17 +9,20 @@ on:
       - v3.0
     paths-ignore:
       - 'framework/ios/**'
-      - 'driver/js/lib/**'
+      - 'framework/examples/ios-demo/**'
       - 'driver/js/src/**'
       - 'driver/js/include/**'
-      - 'driver/js/CMakeLists.txt'
-      - 'dom/**'
+      - 'dom/include/**'
+      - 'dom/src/**'
       - 'layout/engine/**'
       - 'modules/ios/**'
       - 'modules/footstone/**'
+      - 'modules/vfs/ios/**'
+      - 'modules/vfs/native/**'
       - 'renderer/native/ios/**'
       - 'devtools/devtools-backend/**'
-      - 'hippy.podspec'
+      - 'HippySDK.xcworkspace/**'
+      - 'Hippy.podspec'
 
 jobs:
   ios_build_tests:

@@ -106,8 +106,9 @@ CMakeLists.txt @medns
 /gradle/ @siguangli
 
 # build: xcode
-/hippy.podspec
-/Hippy.xcworkspace/ @ozonelmy
+/HippySDK.xcworkspace/ @ozonelmy
+/Hippy.podspec @ozonelmy
+/xcodeinitscript.sh @ozonelmy
 
 # build: config
 /buildconfig/ @medns

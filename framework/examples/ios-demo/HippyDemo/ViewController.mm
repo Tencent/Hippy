@@ -35,6 +35,7 @@
 #import "NativeRenderRootView.h"
 #import "UIView+NativeRender.h"
 #import "ViewController.h"
+#import "HPOCToHippyValue.h"
 
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
@@ -195,7 +196,7 @@ static NSString *const engineKey = @"Demo";
             [obj performSelector:@selector(invalidate)];
         }
         NSDictionary *param = @{@"id": [obj componentTag]};
-        footstone::value::HippyValue value = OCTypeToDomValue(param);
+        footstone::value::HippyValue value = [param toHippyValue];
         std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
         bridge.javaScriptExecutor.pScope->UnloadInstance(domValue);
     }];
@@ -308,6 +309,17 @@ std::string mock;
 
         _domManager->SetRenderManager(_nativeRenderManager);
     }
+}
+
+static std::unordered_map<std::string, std::shared_ptr<footstone::HippyValue>> dictionaryToUnorderedMapDomValue(NSDictionary *dictionary) {
+    std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>> style;
+    for (NSString *key in dictionary) {
+        id value = dictionary[key];
+        std::string style_key = [key UTF8String];
+        footstone::value::HippyValue dom_value = [value toHippyValue];
+        style[style_key] = std::make_shared<footstone::value::HippyValue>(std::move(dom_value));
+    }
+    return style;
 }
 
 - (std::vector<std::shared_ptr<hippy::DomNode>>) mockNodesData {

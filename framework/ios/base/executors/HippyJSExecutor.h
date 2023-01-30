@@ -26,15 +26,22 @@
 #import "HPInvalidating.h"
 
 #include <memory>
-#include "driver/napi/js_native_api_types.h"
-#include "vfs/uri_loader.h"
 
 namespace hippy {
 inline namespace driver {
 
+inline namespace napi {
+class CtxValue;
+}
+
 class Scope;
 
 }
+
+inline namespace vfs {
+class UriLoader;
+}
+
 }
 
 @class HippyBridge;

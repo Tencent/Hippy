@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   puts 'hippy.podspec read begins'
-  s.name             = 'hippy'
+  s.name             = 'Hippy'
   s.version          = '3.0.0'
   s.summary          = 'Hippy Cross Platform Framework'
 
@@ -27,40 +27,46 @@ Pod::Spec.new do |s|
   s.source           = {:git => 'https://github.com/Tencent/Hippy.git', :tag => s.version}
   s.platform = :ios
   s.ios.deployment_target = '10.0'
-  s.source_files = 'framework/ios/**/*.{h,m,c,mm,s,cpp,cc}'
-  s.public_header_files = 'framework/ios/**/*.h'
-  s.exclude_files = ['framework/ios/base/enginewrapper/v8', 'framework/ios/utils/v8']
-  s.libraries = 'c++'
-  s.pod_target_xcconfig = {
-    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-    'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/framework/ios/**/*.h'
-  }
 
   #prepare_command not working for subspecs,so we remove devtools script from devtools subspec to root
   s.prepare_command = <<-CMD
-      cd framework/examples/ios-demo && ./cmakebuild.sh && cd ../../..
+      ./xcodeinitscript.sh
   CMD
 
+  s.subspec 'Framework' do |framework|
+    puts 'hippy subspec \'framework\' read begin'
+    framework.source_files = 'framework/ios/**/*.{h,m,c,mm,s,cpp,cc}'
+    framework.public_header_files = 'framework/ios/**/*.h'
+    framework.exclude_files = ['framework/ios/base/enginewrapper/v8', 'framework/ios/utils/v8']
+    framework.libraries = 'c++'
+    framework.pod_target_xcconfig = {
+      'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+    }
+    puts 'hippy subspec \'framework\' read end'
+  end
 
-  s.subspec 'layout' do |layout|
+  s.subspec 'Layout' do |layout|
     puts 'hippy subspec \'layout\' read begin'
     layout.libraries = 'c++'
-    layout.source_files = 'layout/engine/*.{h,cpp}'
-    layout.public_header_files = 'layout/engine/*.h'
+    layout.source_files = ['layout/engine/*.{h,cpp}', 'modules/ios/layoututils/*.{h,m}']
+    layout.public_header_files = ['layout/engine/*.h', 'modules/ios/layoututils/*.h']
     layout.pod_target_xcconfig = {
-      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/layout'
+      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/layout' + 
+                              ' ${PODS_ROOT}/hippy/layout/engine'
     }
     puts 'hippy subspec \'layout\' read end'
   end
 
-  s.subspec 'footstone' do |footstone|
+  s.subspec 'Footstone' do |footstone|
     puts 'hippy subspec \'footstone\' read begin'
     footstone.libraries = 'c++'
-    footstone.source_files = 'modules/footstone/**/*.{h,cc}'
-    footstone.public_header_files = 'modules/footstone/**/*.h'
+    footstone.source_files = ['modules/footstone/**/*.{h,cc}', 'modules/ios/footstoneutils/*.{h,mm}']
+    footstone.public_header_files = ['modules/footstone/**/*.h', 'modules/ios/footstoneutils/*.h']
     footstone.exclude_files = ['modules/footstone/include/footstone/platform/adr', 'modules/footstone/src/platform/adr']
     footstone.pod_target_xcconfig = {
-      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/modules/footstone/include ${PODS_ROOT}/hippy/modules/footstone'
+      'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/modules/footstone/include' + 
+                              ' ${PODS_ROOT}/hippy/modules/footstone'
     }
     footstone.user_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/modules/footstone/include'
@@ -68,7 +74,7 @@ Pod::Spec.new do |s|
     puts 'hippy subspec \'footstone\' read end'
   end
 
-  s.subspec 'image' do |image|
+  s.subspec 'Image' do |image|
     puts 'hippy subspec \'image\' read begin'
     image.libraries = 'c++'
     image.frameworks = 'CoreServices'
@@ -77,56 +83,47 @@ Pod::Spec.new do |s|
     puts 'hippy subspec \'image\' read end'
   end
 
-  s.subspec 'dom' do |dom|
+  s.subspec 'Dom' do |dom|
     puts 'hippy subspec \'dom\' read begin'
     dom.libraries = 'c++'
-    dom.source_files = ['dom/include/**/*.h', 'dom/src/**/*.cc']
-    dom.public_header_files = 'dom/include/**/*.h'
+    dom.source_files = ['dom/include/**/*.h', 'dom/src/**/*.cc', 'modules/ios/domutils/*.{h,mm}']
+    dom.public_header_files = ['dom/include/**/*.h', 'modules/ios/domutils/*.h']
     dom.exclude_files = ['dom/src/dom/*unittests.cc', 'dom/src/dom/tools', 'dom/src/dom/yoga_layout_node.cc']
     dom.pod_target_xcconfig = {
+      'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
       'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/dom/include/'
     }
     dom.user_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/dom/include/'
     }
+    dom.dependency 'Hippy/Footstone'
     puts 'hippy subspec \'dom\' read end'
   end 
 
-  s.subspec 'base' do |base|
+  s.subspec 'Base' do |base|
     puts 'hippy subspec \'base\' read begin'
     base.libraries = 'c++'
-    base.public_header_files = 'modules/ios/base/*.h'
-    base.source_files = 'modules/ios/base/*.{h,m,mm}'
-    base.pod_target_xcconfig = {
-      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/modules/ios/base'
-    }
-    base.user_target_xcconfig = {
-      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/modules/ios/base'
-    }
-    base.dependency 'hippy/dom'
-    base.dependency 'hippy/footstone'
-    base.dependency 'hippy/layout'
+    base.source_files = ['modules/ios/base/*.{h,m,mm}', 'modules/ios/logutils/*.{h,mm}']
+    base.public_header_files = ['modules/ios/base/*.h', 'modules/ios/logutils/*.h']
     puts 'hippy subspec \'base\' read end'
   end
 
-
-  s.subspec 'vfs' do |vfs|
+  s.subspec 'VFS' do |vfs|
     puts 'hippy subspec \'vfs\' read begin'
     vfs.libraries = 'c++'
     vfs.source_files = ['modules/vfs/native/**/*.{h,cc}', 'modules/vfs/ios/*.{h,m,mm}']
     vfs.public_header_files = ['modules/vfs/native/include/vfs/*.h', 'modules/vfs/ios/*.h']
     vfs.pod_target_xcconfig = {
-      # 'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17'
+      'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
       'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/modules/vfs/native/include'
     }
     vfs.user_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/modules/vfs/native/include'
     }
-    vfs.dependency 'hippy/base'
     puts 'hippy subspec \'vfs\' read end'
   end
 
-  s.subspec 'driver' do |driver|
+  s.subspec 'JSDriver' do |driver|
     puts 'hippy subspec \'driver\' read begin'
     driver.libraries = 'c++'
     driver.frameworks = 'JavaScriptCore'
@@ -143,7 +140,7 @@ Pod::Spec.new do |s|
     puts 'hippy subspec \'driver\' read end'
   end 
 
-  s.subspec 'nativerender' do |render|
+  s.subspec 'NativeRender' do |render|
     puts 'hippy subspec \'nativerender\' read begin'
     render.libraries = 'c++'
     render.source_files = 'renderer/native/ios/**/*.{h,m,mm}'
@@ -152,7 +149,7 @@ Pod::Spec.new do |s|
   end 
 
   #devtools subspec
-  s.subspec 'devtools' do |devtools|
+  s.subspec 'DevTools' do |devtools|
     puts 'hippy subspec \'devtools\' read begin'
     devtools.libraries = 'c++'
     devtools.exclude_files = [
@@ -189,16 +186,25 @@ Pod::Spec.new do |s|
       'devtools/devtools-backend/**/*.{h,hpp,cc}',
     ]
     devtools.pod_target_xcconfig = {
-      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/devtools/devtools-integration/ios/DevtoolsBackend/_deps/asio-src/asio/include ${PODS_ROOT}/hippy/devtools/devtools-integration/ios/DevtoolsBackend/_deps/json-src/include ${PODS_ROOT}/hippy/devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/include ${PODS_ROOT}/hippy/devtools/devtools-integration/ios/DevtoolsBackend/_deps/websocketpp-src ${PODS_ROOT}/hippy/devtools/devtools-integration/native/include ${PODS_ROOT}/hippy/devtools/devtools-backend/include ${PODS_ROOT}/hippy/devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/lib/arch',
-      'GCC_PREPROCESSOR_DEFINITIONS' => 'ENABLE_INSPECTOR=1 ASIO_NO_TYPEID ASIO_NO_EXCEPTIONS ASIO_DISABLE_ALIGNOF _WEBSOCKETPP_NO_EXCEPTIONS_ JSON_NOEXCEPTION BASE64_STATIC_DEFINE'
+      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/devtools/devtools-integration/ios/DevtoolsBackend/_deps/asio-src/asio/include' +
+                              ' ${PODS_ROOT}/hippy/devtools/devtools-integration/ios/DevtoolsBackend/_deps/json-src/include' +
+                              ' ${PODS_ROOT}/hippy/devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/include' +
+                              ' ${PODS_ROOT}/hippy/devtools/devtools-integration/ios/DevtoolsBackend/_deps/websocketpp-src' +
+                              ' ${PODS_ROOT}/hippy/devtools/devtools-integration/native/include' +
+                              ' ${PODS_ROOT}/hippy/devtools/devtools-backend/include' +
+                              ' ${PODS_ROOT}/hippy/devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/lib/arch',
+      'GCC_PREPROCESSOR_DEFINITIONS' => 'ENABLE_INSPECTOR=1 ASIO_NO_TYPEID ASIO_NO_EXCEPTIONS ASIO_DISABLE_ALIGNOF _WEBSOCKETPP_NO_EXCEPTIONS_ JSON_NOEXCEPTION BASE64_STATIC_DEFINE',
+      'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17'
     }
     devtools.user_target_xcconfig = {
-      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/devtools/devtools-backend/include ${PODS_ROOT}/hippy/devtools/devtools-integration/native/include ${PODS_ROOT}/hippy/devtools/devtools-integration/ios/DevtoolsBackend/_deps/json-src/include',
+      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/devtools/devtools-backend/include' +
+                              ' ${PODS_ROOT}/hippy/devtools/devtools-integration/native/include' +
+                              ' ${PODS_ROOT}/hippy/devtools/devtools-integration/ios/DevtoolsBackend/_deps/json-src/include',
       'GCC_PREPROCESSOR_DEFINITIONS' => 'ENABLE_INSPECTOR=1'
     }
     #base64 contains mutiple files named 'codec.c' in different paths, so we need to keep file structure to avoid files overridings.
-    devtools.header_mappings_dir = 'devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src'
-    devtools.preserve_path = 'devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src'
+    # devtools.header_mappings_dir = 'devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src'
+    devtools.preserve_path = 'devtools'
     puts 'hippy subspec \'devtools\' read end'
   end
 

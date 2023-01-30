@@ -37,6 +37,7 @@
 #import "HippyTurboModuleManager.h"
 #import "HPLog.h"
 #import "HPToolUtils.h"
+#import "HPFootstoneUtils.h"
 #import "NSObject+CtxValue.h"
 #import "TypeConverter.h"
 
