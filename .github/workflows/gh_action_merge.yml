@@ -149,15 +149,32 @@ jobs:
     needs: call_classify_commits
     if: github.event.label.name == 'action(rebase-merge)'
     runs-on: ubuntu-latest
+    outputs:
+      permission: ${{ steps.get-permission.outputs.permission }}
     steps:
+    - name: Permission
+      id: get-permission
+      uses: actions/github-script@v6.3.3
+      with:
+        script: |
+          const { repos } = github.rest;
+          const fs = require('fs');
+          const os = require('os');
+
+          const { data: { permission } } = await repos.getCollaboratorPermissionLevel({
+            ...context.repo,
+            username: "${{ github.event.sender.login }}"
+          });
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `permission=${permission}${os.EOL}`, { encoding: 'utf8' });
     - name: Token
       uses: navikt/github-app-token-generator@v1
+      if: steps.get-permission.outputs.permission != 'admin' && needs.call_classify_commits.outputs.normal_commits_count > 1
       id: get-token
       with:
         private-key: ${{ secrets.ACTION_PRIVATE_KEY }}
         app-id: ${{ secrets.ACTION_APP_ID }}
     - name: Comment
-      if: needs.call_classify_commits.outputs.normal_commits_count > 1
+      if: steps.get-token.outputs.token
       env:
         COMMENT_MESSAGE: |
           :lock: `rebase-merge` action execution needs privilege escalation.
@@ -231,7 +248,7 @@ jobs:
   rebase_merge_action:
     needs: [ rebase_merge_action_preparation, call_classify_commits ]
     runs-on: ubuntu-latest
-    environment: ${{ needs.call_classify_commits.outputs.normal_commits_count > 1 && 'github-actions-privileged' || '' }}
+    environment: ${{ (needs.rebase_merge_action_preparation.outputs.permission != 'admin' && needs.call_classify_commits.outputs.normal_commits_count > 1) && 'github-actions-privileged' || '' }}
     steps:
     - name: Token
       uses: navikt/github-app-token-generator@v1
