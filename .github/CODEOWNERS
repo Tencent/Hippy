@@ -34,7 +34,7 @@ CMakeLists.txt @medns
 
 # framework: android
 /framework/android/ @siguangli
-/framework/android/**/src/main/cpp/ @churchill-zhang
+/framework/android/**/src/main/cpp/ @churchill-zhang @ilikethese
 
 # framework: ios
 /framework/ios/ @ozonelmy
@@ -46,7 +46,7 @@ CMakeLists.txt @medns
 /layout/ @ilikethese
 
 # dom: others
-/dom/ @churchill-zhang
+/dom/ @churchill-zhang @ilikethese
 
 # renderer: native
 /renderer/native/android/ @siguangli
@@ -62,9 +62,9 @@ CMakeLists.txt @medns
 /renderer/voltron/ @lvfen @skindhu
 
 # module: vfs
-/modules/vfs/ @churchill-zhang
+/modules/vfs/ @churchill-zhang @ilikethese
 /modules/vfs/android/ @siguangli
-/modules/vfs/android/**/src/main/cpp/ @churchill-zhang
+/modules/vfs/android/**/src/main/cpp/ @churchill-zhang @ilikethese
 /modules/vfs/ios/ @ozonelmy
 /modules/vfs/voltron/ @lvfen @skindhu
 
@@ -73,13 +73,13 @@ CMakeLists.txt @medns
 
 # module: android
 /modules/android/ @siguangli
-/modules/android/jni/ @churchill-zhang
+/modules/android/jni/ @churchill-zhang @ilikethese
 
 # module: ios
 /modules/ios/ @ozonelmy
 
 # module: footstone
-/modules/footstone/ @churchill-zhang
+/modules/footstone/ @churchill-zhang @ilikethese
 
 # devtools: backend
 /devtools/ @lavnFan
