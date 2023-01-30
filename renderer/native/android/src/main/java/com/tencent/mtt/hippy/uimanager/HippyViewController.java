@@ -369,21 +369,13 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     public void dispatchFunction(@NonNull T view, @NonNull String functionName,
             @NonNull List params, @NonNull Promise promise) {
         switch (functionName) {
-            case DevtoolsUtil.GET_SCREEN_SHOT:
-                DevtoolsUtil.getScreenShot(view, promise);
-                break;
-            case DevtoolsUtil.ADD_FRAME_CALLBACK:
-                DevtoolsUtil.addFrameCallback(params, view, promise);
-                break;
-            case DevtoolsUtil.REMOVE_FRAME_CALLBACK:
-                DevtoolsUtil.removeFrameCallback(params, view, promise);
-                break;
             case MEASURE_IN_WINDOW:
                 measureInWindow(view, promise);
                 break;
             default:
                 break;
         }
+        DevtoolsUtil.dispatchDevtoolsFunction(view, functionName, params, promise);
     }
 
     public void onBatchComplete(@NonNull T view) {
