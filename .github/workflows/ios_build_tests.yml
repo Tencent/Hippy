@@ -21,11 +21,11 @@ on:
       - 'modules/vfs/native/**'
       - 'renderer/native/ios/**'
       - 'devtools/devtools-backend/**'
-      - 'HippySDK.xcworkspace'
-      - '*.podspec'
+      - 'HippySDK.xcworkspace/**'
+      - 'Hippy.podspec'
 
 jobs:
-  ios_demo_build_tests:
+  ios_build_tests:
     runs-on: macos-latest
     strategy:
       matrix:
@@ -46,53 +46,28 @@ jobs:
           spec: framework/examples/ios-demo/project.yml
           version: '2.32.0'
       - name: Build
-        working-directory: framework/examples/ios-demo
+        working-directory:
         run: |
-          xcodebuild -workspace 'HippyDemo.xcworkspace' -list | \
-          sed -n '/Schemes/,/^$/p' | \
-          grep -v "Schemes:" | \
-          grep -v '^\s*$' | \
-          while read scheme; do
-            echo "Building ${scheme}…"
-            xcodebuild build \
-              -destination "generic/platform=iOS" \
-              -workspace "HippyDemo.xcworkspace" \
-              -scheme "${scheme}" \
-              -configuration "${{ matrix.configuration }}" \
-              CODE_SIGN_IDENTITY="" \
-              CODE_SIGNING_REQUIRED=NO \
-              CODE_SIGNING_ALLOWED=NO
-          done
-  ios_sdk_build_tests:
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        type: [debug, release]
-        include:
-          - type: debug
-            configuration: Debug
-          - type: release
-            configuration: Release
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-        with:
-          lfs: true
-      - name: Build
-        run: |
-          ./xcodeinitscript.sh && \
-          xcodebuild -workspace 'HippySDK.xcworkspace' -list | \
-          sed -n '/Schemes/,/^$/p' | \
-          grep -v "Schemes:" | \
-          grep -v '^\s*$' | \
-          while read scheme; do
-            echo "Building ${scheme}…"
-            xcodebuild build \
-              -destination "generic/platform=iOS" \
-              -workspace "HippySDK.xcworkspace" \
-              -scheme "${scheme}" \
-              -configuration "${{ matrix.configuration }}" \
-              CODE_SIGN_IDENTITY="" \
-              CODE_SIGNING_REQUIRED=NO \
-              CODE_SIGNING_ALLOWED=NO
-          done
+          function build {
+            xcodebuild -workspace "$1" -list | \
+            sed -n '/Schemes/,/^$/p' | \
+            grep -v "Schemes:" | \
+            grep -v '^\s*$' | \
+            while read scheme; do
+              echo "Building $scheme ..."
+              xcodebuild build \
+                -destination "generic/platform=iOS" \
+                -workspace "$1" \
+                -scheme "$scheme" \
+                -configuration "$2" \
+                CODE_SIGN_IDENTITY="" \
+                CODE_SIGNING_REQUIRED=NO \
+                CODE_SIGNING_ALLOWED=NO
+            done
+          }
+
+          ./xcodeinitscript.sh
+          build 'HippySDK.xcworkspace' '${{ matrix.configuration }}'
+          pushd framework/examples/ios-demo
+          build 'HippyDemo.xcworkspace' '${{ matrix.configuration }}'
+          popd

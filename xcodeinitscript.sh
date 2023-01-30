@@ -19,8 +19,7 @@
 # limitations under the License.
 #
 echo -e "\033[33m cmake build begin\033[0m"
-if [[ ! `command -v cmake` ]] 
-then
+if [[ ! `command -v cmake` ]]; then
 	echo "\033[31m cmake is not installed, install cmake first \033[0m"
 	exit 1
 fi
