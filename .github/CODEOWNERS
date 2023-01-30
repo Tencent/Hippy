@@ -20,13 +20,13 @@ CMakeLists.txt @medns
 /.eslintrc.js @zoomchan-cxj
 /.nycrc @zoomchan-cxj
 /ava.config.js @zoomchan-cxj
-/core/ @churchill-zhang
+/core/ @churchill-zhang @ilikethese
 /core/js/ @zoomchan-cxj
 /packages/ @zoomchan-cxj
 
 # framework: android
 /android/ @siguangli
-/android/**/src/main/jni/ @churchill-zhang
+/android/**/src/main/jni/ @churchill-zhang @ilikethese
 
 # framework: ios
 /ios/ @ozonelmy
