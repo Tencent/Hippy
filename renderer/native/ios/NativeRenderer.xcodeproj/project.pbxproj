@@ -906,6 +906,7 @@
 					"$(SRCROOT)/../../../modules/vfs/ios",
 					"$(SRCROOT)/../../../modules/vfs/native/include",
 					"$(SRCROOT)/../../../layout/engine",
+					"$(SRCROOT)/../../../dom/include",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				OTHER_LDFLAGS = "-ObjC";
@@ -929,6 +930,7 @@
 					"$(SRCROOT)/../../../modules/vfs/ios",
 					"$(SRCROOT)/../../../modules/vfs/native/include",
 					"$(SRCROOT)/../../../layout/engine",
+					"$(SRCROOT)/../../../dom/include",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				OTHER_LDFLAGS = "-ObjC";

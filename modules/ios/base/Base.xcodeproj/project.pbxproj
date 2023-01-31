@@ -7,36 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F43FD94B292F084F00620474 /* HPStyle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F43FD905292F084F00620474 /* HPStyle.cpp */; };
-		F43FD94C292F084F00620474 /* HPConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F43FD907292F084F00620474 /* HPConfig.cpp */; };
-		F43FD94D292F084F00620474 /* HPUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F43FD908292F084F00620474 /* HPUtil.cpp */; };
-		F43FD94E292F084F00620474 /* HPNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F43FD90C292F084F00620474 /* HPNode.cpp */; };
-		F43FD94F292F084F00620474 /* Flex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F43FD90E292F084F00620474 /* Flex.cpp */; };
-		F43FD950292F084F00620474 /* FlexLine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F43FD90F292F084F00620474 /* FlexLine.cpp */; };
-		F43FD951292F084F00620474 /* Hippy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F43FD910292F084F00620474 /* Hippy.cpp */; };
-		F43FD952292F084F00620474 /* HPLayoutCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F43FD912292F084F00620474 /* HPLayoutCache.cpp */; };
-		F43FD993292F086500620474 /* root_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43FD979292F086500620474 /* root_node.cc */; };
-		F43FD994292F086500620474 /* tools.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43FD97B292F086500620474 /* tools.cc */; };
-		F43FD995292F086500620474 /* dom_event.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43FD97C292F086500620474 /* dom_event.cc */; };
-		F43FD996292F086500620474 /* dom_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43FD97D292F086500620474 /* dom_manager.cc */; };
-		F43FD997292F086500620474 /* dom_argument.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43FD97E292F086500620474 /* dom_argument.cc */; };
-		F43FD998292F086500620474 /* diff_utils.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43FD97F292F086500620474 /* diff_utils.cc */; };
-		F43FD999292F086500620474 /* animation_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43FD981292F086500620474 /* animation_manager.cc */; };
-		F43FD99A292F086500620474 /* animation_math.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43FD982292F086500620474 /* animation_math.cc */; };
-		F43FD99B292F086500620474 /* animation.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43FD983292F086500620474 /* animation.cc */; };
-		F43FD99C292F086500620474 /* cubic_bezier_animation.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43FD984292F086500620474 /* cubic_bezier_animation.cc */; };
-		F43FD99D292F086500620474 /* animation_set.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43FD985292F086500620474 /* animation_set.cc */; };
-		F43FD99F292F086500620474 /* scene_builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43FD987292F086500620474 /* scene_builder.cc */; };
-		F43FD9A1292F086500620474 /* taitank_layout_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43FD989292F086500620474 /* taitank_layout_node.cc */; };
-		F43FD9A3292F086500620474 /* dom_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43FD98B292F086500620474 /* dom_node.cc */; };
-		F43FD9A5292F086500620474 /* scene.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43FD98D292F086500620474 /* scene.cc */; };
-		F43FD9A6292F086500620474 /* dom_listener.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43FD98E292F086500620474 /* dom_listener.cc */; };
-		F43FD9A7292F086500620474 /* layer_optimized_render_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43FD98F292F086500620474 /* layer_optimized_render_manager.cc */; };
-		F43FD9A8292F086500620474 /* layout_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43FD990292F086500620474 /* layout_node.cc */; };
 		F45D84D02985FF47003049C7 /* HPFootstoneUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D84CF2985FF47003049C7 /* HPFootstoneUtils.mm */; };
 		F45D84D329860533003049C7 /* HPOCToHippyValue.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D84D229860533003049C7 /* HPOCToHippyValue.mm */; };
 		F45D84D5298606EB003049C7 /* HPDomUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D84D4298606EB003049C7 /* HPDomUtils.mm */; };
-		F45D84DA29861135003049C7 /* HPConvert+HPLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = F45D84D929861135003049C7 /* HPConvert+HPLayout.m */; };
 		F45D84E029861A90003049C7 /* HPOCToDomArgument.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D84DF29861A90003049C7 /* HPOCToDomArgument.mm */; };
 		F45D84E4298622D9003049C7 /* HPLogUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D84E3298622D9003049C7 /* HPLogUtils.mm */; };
 		F479147F2924C79000B2DBB6 /* HPToolUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F479145F2924C78F00B2DBB6 /* HPToolUtils.m */; };
@@ -82,69 +55,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		F43FD905292F084F00620474 /* HPStyle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HPStyle.cpp; sourceTree = "<group>"; };
-		F43FD906292F084F00620474 /* FlexLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlexLine.h; sourceTree = "<group>"; };
-		F43FD907292F084F00620474 /* HPConfig.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HPConfig.cpp; sourceTree = "<group>"; };
-		F43FD908292F084F00620474 /* HPUtil.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HPUtil.cpp; sourceTree = "<group>"; };
-		F43FD909292F084F00620474 /* HPNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNode.h; sourceTree = "<group>"; };
-		F43FD90A292F084F00620474 /* Flex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Flex.h; sourceTree = "<group>"; };
-		F43FD90B292F084F00620474 /* HPConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPConfig.h; sourceTree = "<group>"; };
-		F43FD90C292F084F00620474 /* HPNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HPNode.cpp; sourceTree = "<group>"; };
-		F43FD90D292F084F00620474 /* Hippy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Hippy.h; sourceTree = "<group>"; };
-		F43FD90E292F084F00620474 /* Flex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Flex.cpp; sourceTree = "<group>"; };
-		F43FD90F292F084F00620474 /* FlexLine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlexLine.cpp; sourceTree = "<group>"; };
-		F43FD910292F084F00620474 /* Hippy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Hippy.cpp; sourceTree = "<group>"; };
-		F43FD911292F084F00620474 /* HPLayoutCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPLayoutCache.h; sourceTree = "<group>"; };
-		F43FD912292F084F00620474 /* HPLayoutCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HPLayoutCache.cpp; sourceTree = "<group>"; };
-		F43FD913292F084F00620474 /* HPUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPUtil.h; sourceTree = "<group>"; };
-		F43FD914292F084F00620474 /* HPStyle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPStyle.h; sourceTree = "<group>"; };
-		F43FD957292F086500620474 /* root_node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = root_node.h; sourceTree = "<group>"; };
-		F43FD958292F086500620474 /* dom_action_interceptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_action_interceptor.h; sourceTree = "<group>"; };
-		F43FD95A292F086500620474 /* tools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tools.h; sourceTree = "<group>"; };
-		F43FD95B292F086500620474 /* diff_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = diff_utils.h; sourceTree = "<group>"; };
-		F43FD95C292F086500620474 /* layout_node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = layout_node.h; sourceTree = "<group>"; };
-		F43FD95D292F086500620474 /* dom_argument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_argument.h; sourceTree = "<group>"; };
-		F43FD95E292F086500620474 /* dom_listener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_listener.h; sourceTree = "<group>"; };
-		F43FD960292F086500620474 /* taitank_layout_node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = taitank_layout_node.h; sourceTree = "<group>"; };
-		F43FD961292F086500620474 /* dom_node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_node.h; sourceTree = "<group>"; };
-		F43FD963292F086500620474 /* animation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = animation.h; sourceTree = "<group>"; };
-		F43FD964292F086500620474 /* animation_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = animation_manager.h; sourceTree = "<group>"; };
-		F43FD965292F086500620474 /* animation_math.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = animation_math.h; sourceTree = "<group>"; };
-		F43FD966292F086500620474 /* cubic_bezier_animation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cubic_bezier_animation.h; sourceTree = "<group>"; };
-		F43FD967292F086500620474 /* animation_set.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = animation_set.h; sourceTree = "<group>"; };
-		F43FD968292F086500620474 /* render_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = render_manager.h; sourceTree = "<group>"; };
-		F43FD969292F086500620474 /* dom_event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_event.h; sourceTree = "<group>"; };
-		F43FD96A292F086500620474 /* node_props.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = node_props.h; sourceTree = "<group>"; };
-		F43FD96B292F086500620474 /* scene_builder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scene_builder.h; sourceTree = "<group>"; };
-		F43FD96C292F086500620474 /* layer_optimized_render_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = layer_optimized_render_manager.h; sourceTree = "<group>"; };
-		F43FD96D292F086500620474 /* dom_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_manager.h; sourceTree = "<group>"; };
-		F43FD96E292F086500620474 /* scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scene.h; sourceTree = "<group>"; };
-		F43FD979292F086500620474 /* root_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = root_node.cc; sourceTree = "<group>"; };
-		F43FD97B292F086500620474 /* tools.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tools.cc; sourceTree = "<group>"; };
-		F43FD97C292F086500620474 /* dom_event.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_event.cc; sourceTree = "<group>"; };
-		F43FD97D292F086500620474 /* dom_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_manager.cc; sourceTree = "<group>"; };
-		F43FD97E292F086500620474 /* dom_argument.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_argument.cc; sourceTree = "<group>"; };
-		F43FD97F292F086500620474 /* diff_utils.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = diff_utils.cc; sourceTree = "<group>"; };
-		F43FD981292F086500620474 /* animation_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = animation_manager.cc; sourceTree = "<group>"; };
-		F43FD982292F086500620474 /* animation_math.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = animation_math.cc; sourceTree = "<group>"; };
-		F43FD983292F086500620474 /* animation.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = animation.cc; sourceTree = "<group>"; };
-		F43FD984292F086500620474 /* cubic_bezier_animation.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cubic_bezier_animation.cc; sourceTree = "<group>"; };
-		F43FD985292F086500620474 /* animation_set.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = animation_set.cc; sourceTree = "<group>"; };
-		F43FD987292F086500620474 /* scene_builder.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scene_builder.cc; sourceTree = "<group>"; };
-		F43FD989292F086500620474 /* taitank_layout_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = taitank_layout_node.cc; sourceTree = "<group>"; };
-		F43FD98B292F086500620474 /* dom_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_node.cc; sourceTree = "<group>"; };
-		F43FD98D292F086500620474 /* scene.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scene.cc; sourceTree = "<group>"; };
-		F43FD98E292F086500620474 /* dom_listener.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_listener.cc; sourceTree = "<group>"; };
-		F43FD98F292F086500620474 /* layer_optimized_render_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = layer_optimized_render_manager.cc; sourceTree = "<group>"; };
-		F43FD990292F086500620474 /* layout_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = layout_node.cc; sourceTree = "<group>"; };
 		F45D84CE2985FF47003049C7 /* HPFootstoneUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HPFootstoneUtils.h; sourceTree = "<group>"; };
 		F45D84CF2985FF47003049C7 /* HPFootstoneUtils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HPFootstoneUtils.mm; sourceTree = "<group>"; };
 		F45D84D129860523003049C7 /* HPOCToHippyValue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HPOCToHippyValue.h; sourceTree = "<group>"; };
 		F45D84D229860533003049C7 /* HPOCToHippyValue.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HPOCToHippyValue.mm; sourceTree = "<group>"; };
 		F45D84D4298606EB003049C7 /* HPDomUtils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HPDomUtils.mm; sourceTree = "<group>"; };
 		F45D84D6298606FD003049C7 /* HPDomUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HPDomUtils.h; sourceTree = "<group>"; };
-		F45D84D829861135003049C7 /* HPConvert+HPLayout.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "HPConvert+HPLayout.h"; sourceTree = "<group>"; };
-		F45D84D929861135003049C7 /* HPConvert+HPLayout.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "HPConvert+HPLayout.m"; sourceTree = "<group>"; };
 		F45D84DE29861A90003049C7 /* HPOCToDomArgument.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HPOCToDomArgument.h; sourceTree = "<group>"; };
 		F45D84DF29861A90003049C7 /* HPOCToDomArgument.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HPOCToDomArgument.mm; sourceTree = "<group>"; };
 		F45D84E2298622D9003049C7 /* HPLogUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HPLogUtils.h; sourceTree = "<group>"; };
@@ -231,159 +147,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		F43FD8AA292F084E00620474 /* layout */ = {
-			isa = PBXGroup;
-			children = (
-				F43FD904292F084F00620474 /* engine */,
-			);
-			name = layout;
-			path = ../../../layout;
-			sourceTree = "<group>";
-		};
-		F43FD904292F084F00620474 /* engine */ = {
-			isa = PBXGroup;
-			children = (
-				F43FD905292F084F00620474 /* HPStyle.cpp */,
-				F43FD906292F084F00620474 /* FlexLine.h */,
-				F43FD907292F084F00620474 /* HPConfig.cpp */,
-				F43FD908292F084F00620474 /* HPUtil.cpp */,
-				F43FD909292F084F00620474 /* HPNode.h */,
-				F43FD90A292F084F00620474 /* Flex.h */,
-				F43FD90B292F084F00620474 /* HPConfig.h */,
-				F43FD90C292F084F00620474 /* HPNode.cpp */,
-				F43FD90D292F084F00620474 /* Hippy.h */,
-				F43FD90E292F084F00620474 /* Flex.cpp */,
-				F43FD90F292F084F00620474 /* FlexLine.cpp */,
-				F43FD910292F084F00620474 /* Hippy.cpp */,
-				F43FD911292F084F00620474 /* HPLayoutCache.h */,
-				F43FD912292F084F00620474 /* HPLayoutCache.cpp */,
-				F43FD913292F084F00620474 /* HPUtil.h */,
-				F43FD914292F084F00620474 /* HPStyle.h */,
-			);
-			path = engine;
-			sourceTree = "<group>";
-		};
-		F43FD953292F086500620474 /* dom */ = {
-			isa = PBXGroup;
-			children = (
-				F43FD955292F086500620474 /* include */,
-				F43FD976292F086500620474 /* src */,
-			);
-			name = dom;
-			path = ../../../dom;
-			sourceTree = "<group>";
-		};
-		F43FD955292F086500620474 /* include */ = {
-			isa = PBXGroup;
-			children = (
-				F43FD956292F086500620474 /* dom */,
-			);
-			path = include;
-			sourceTree = "<group>";
-		};
-		F43FD956292F086500620474 /* dom */ = {
-			isa = PBXGroup;
-			children = (
-				F43FD957292F086500620474 /* root_node.h */,
-				F43FD958292F086500620474 /* dom_action_interceptor.h */,
-				F43FD959292F086500620474 /* tools */,
-				F43FD95B292F086500620474 /* diff_utils.h */,
-				F43FD95C292F086500620474 /* layout_node.h */,
-				F43FD95D292F086500620474 /* dom_argument.h */,
-				F43FD95E292F086500620474 /* dom_listener.h */,
-				F43FD960292F086500620474 /* taitank_layout_node.h */,
-				F43FD961292F086500620474 /* dom_node.h */,
-				F43FD962292F086500620474 /* animation */,
-				F43FD968292F086500620474 /* render_manager.h */,
-				F43FD969292F086500620474 /* dom_event.h */,
-				F43FD96A292F086500620474 /* node_props.h */,
-				F43FD96B292F086500620474 /* scene_builder.h */,
-				F43FD96C292F086500620474 /* layer_optimized_render_manager.h */,
-				F43FD96D292F086500620474 /* dom_manager.h */,
-				F43FD96E292F086500620474 /* scene.h */,
-			);
-			path = dom;
-			sourceTree = "<group>";
-		};
-		F43FD959292F086500620474 /* tools */ = {
-			isa = PBXGroup;
-			children = (
-				F43FD95A292F086500620474 /* tools.h */,
-			);
-			path = tools;
-			sourceTree = "<group>";
-		};
-		F43FD962292F086500620474 /* animation */ = {
-			isa = PBXGroup;
-			children = (
-				F43FD963292F086500620474 /* animation.h */,
-				F43FD964292F086500620474 /* animation_manager.h */,
-				F43FD965292F086500620474 /* animation_math.h */,
-				F43FD966292F086500620474 /* cubic_bezier_animation.h */,
-				F43FD967292F086500620474 /* animation_set.h */,
-			);
-			path = animation;
-			sourceTree = "<group>";
-		};
-		F43FD976292F086500620474 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				F43FD977292F086500620474 /* dom */,
-			);
-			path = src;
-			sourceTree = "<group>";
-		};
-		F43FD977292F086500620474 /* dom */ = {
-			isa = PBXGroup;
-			children = (
-				F43FD979292F086500620474 /* root_node.cc */,
-				F43FD97A292F086500620474 /* tools */,
-				F43FD97C292F086500620474 /* dom_event.cc */,
-				F43FD97D292F086500620474 /* dom_manager.cc */,
-				F43FD97E292F086500620474 /* dom_argument.cc */,
-				F43FD97F292F086500620474 /* diff_utils.cc */,
-				F43FD980292F086500620474 /* animation */,
-				F43FD987292F086500620474 /* scene_builder.cc */,
-				F43FD989292F086500620474 /* taitank_layout_node.cc */,
-				F43FD98B292F086500620474 /* dom_node.cc */,
-				F43FD98D292F086500620474 /* scene.cc */,
-				F43FD98E292F086500620474 /* dom_listener.cc */,
-				F43FD98F292F086500620474 /* layer_optimized_render_manager.cc */,
-				F43FD990292F086500620474 /* layout_node.cc */,
-			);
-			path = dom;
-			sourceTree = "<group>";
-		};
-		F43FD97A292F086500620474 /* tools */ = {
-			isa = PBXGroup;
-			children = (
-				F43FD97B292F086500620474 /* tools.cc */,
-			);
-			path = tools;
-			sourceTree = "<group>";
-		};
-		F43FD980292F086500620474 /* animation */ = {
-			isa = PBXGroup;
-			children = (
-				F43FD981292F086500620474 /* animation_manager.cc */,
-				F43FD982292F086500620474 /* animation_math.cc */,
-				F43FD983292F086500620474 /* animation.cc */,
-				F43FD984292F086500620474 /* cubic_bezier_animation.cc */,
-				F43FD985292F086500620474 /* animation_set.cc */,
-			);
-			path = animation;
-			sourceTree = "<group>";
-		};
-		F45D84CB2985FF0C003049C7 /* layoututils */ = {
-			isa = PBXGroup;
-			children = (
-				F45D84D829861135003049C7 /* HPConvert+HPLayout.h */,
-				F45D84D929861135003049C7 /* HPConvert+HPLayout.m */,
-			);
-			name = layoututils;
-			path = ../layoututils;
-			sourceTree = "<group>";
-		};
 		F45D84CC2985FF0C003049C7 /* footstoneutils */ = {
 			isa = PBXGroup;
 			children = (
@@ -424,9 +187,6 @@
 				F45D84E129861BE3003049C7 /* logutils */,
 				F45D84CD2985FF0C003049C7 /* domutils */,
 				F45D84CC2985FF0C003049C7 /* footstoneutils */,
-				F45D84CB2985FF0C003049C7 /* layoututils */,
-				F43FD953292F086500620474 /* dom */,
-				F43FD8AA292F084E00620474 /* layout */,
 				F479148B2924D10C00B2DBB6 /* footstone */,
 				F47914752924C79000B2DBB6 /* HPAsserts.h */,
 				F47914672924C78F00B2DBB6 /* HPAsserts.mm */,
@@ -637,66 +397,39 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F43FD99B292F086500620474 /* animation.cc in Sources */,
 				F45D84D329860533003049C7 /* HPOCToHippyValue.mm in Sources */,
-				F43FD99A292F086500620474 /* animation_math.cc in Sources */,
 				F47914E02924D10C00B2DBB6 /* worker.cc in Sources */,
 				F47914E12924D10C00B2DBB6 /* idle_timer.cc in Sources */,
 				F47914CB2924D10C00B2DBB6 /* log_settings_state.cc in Sources */,
-				F43FD996292F086500620474 /* dom_manager.cc in Sources */,
-				F43FD997292F086500620474 /* dom_argument.cc in Sources */,
-				F43FD94E292F084F00620474 /* HPNode.cpp in Sources */,
-				F45D84DA29861135003049C7 /* HPConvert+HPLayout.m in Sources */,
 				F47914892924C79000B2DBB6 /* TypeConverter.mm in Sources */,
 				F47914D72924D10C00B2DBB6 /* base_timer.cc in Sources */,
 				F47914CC2924D10C00B2DBB6 /* log_settings.cc in Sources */,
-				F43FD99C292F086500620474 /* cubic_bezier_animation.cc in Sources */,
-				F43FD993292F086500620474 /* root_node.cc in Sources */,
 				F47914812924C79000B2DBB6 /* HPParserUtils.m in Sources */,
 				F47914822924C79000B2DBB6 /* HPAsserts.mm in Sources */,
-				F43FD9A7292F086500620474 /* layer_optimized_render_manager.cc in Sources */,
 				F45D84D5298606EB003049C7 /* HPDomUtils.mm in Sources */,
-				F43FD999292F086500620474 /* animation_manager.cc in Sources */,
 				F47914DA2924D10C00B2DBB6 /* idle_task.cc in Sources */,
-				F43FD94F292F084F00620474 /* Flex.cpp in Sources */,
-				F43FD9A5292F086500620474 /* scene.cc in Sources */,
 				F47914D62924D10C00B2DBB6 /* hippy_value.cc in Sources */,
-				F43FD9A6292F086500620474 /* dom_listener.cc in Sources */,
 				F479148A2924C79000B2DBB6 /* HPConvert.mm in Sources */,
-				F43FD994292F086500620474 /* tools.cc in Sources */,
 				F47914842924C79000B2DBB6 /* HPLog.mm in Sources */,
 				F47914DE2924D10C00B2DBB6 /* task.cc in Sources */,
-				F43FD94B292F084F00620474 /* HPStyle.cpp in Sources */,
 				F47914D92924D10C00B2DBB6 /* serializer.cc in Sources */,
 				F47914DF2924D10C00B2DBB6 /* deserializer.cc in Sources */,
 				F47914DC2924D10C00B2DBB6 /* repeating_timer.cc in Sources */,
 				F47914D32924D10C00B2DBB6 /* worker_impl.cc in Sources */,
-				F43FD952292F084F00620474 /* HPLayoutCache.cpp in Sources */,
-				F43FD9A1292F086500620474 /* taitank_layout_node.cc in Sources */,
-				F43FD951292F084F00620474 /* Hippy.cpp in Sources */,
 				F45D84E029861A90003049C7 /* HPOCToDomArgument.mm in Sources */,
 				F47914DB2924D10C00B2DBB6 /* cv_driver.cc in Sources */,
 				F47914D42924D10C00B2DBB6 /* string_utils.cc in Sources */,
-				F43FD950292F084F00620474 /* FlexLine.cpp in Sources */,
 				F47914D52924D10C00B2DBB6 /* worker_manager.cc in Sources */,
 				F479147F2924C79000B2DBB6 /* HPToolUtils.m in Sources */,
 				F47914832924C79000B2DBB6 /* HPDriverStackFrame.m in Sources */,
-				F43FD995292F086500620474 /* dom_event.cc in Sources */,
 				F47914CD2924D10C00B2DBB6 /* one_shot_timer.cc in Sources */,
-				F43FD94C292F084F00620474 /* HPConfig.cpp in Sources */,
 				F47914DD2924D10C00B2DBB6 /* task_runner.cc in Sources */,
 				F47914D22924D10C00B2DBB6 /* logging.cc in Sources */,
-				F43FD9A8292F086500620474 /* layout_node.cc in Sources */,
 				F45D84D02985FF47003049C7 /* HPFootstoneUtils.mm in Sources */,
 				F47914D82924D10C00B2DBB6 /* string_view.cc in Sources */,
-				F43FD99D292F086500620474 /* animation_set.cc in Sources */,
-				F43FD998292F086500620474 /* diff_utils.cc in Sources */,
-				F43FD99F292F086500620474 /* scene_builder.cc in Sources */,
-				F43FD9A3292F086500620474 /* dom_node.cc in Sources */,
 				F47914D12924D10C00B2DBB6 /* looper_driver.cc in Sources */,
 				F47914882924C79000B2DBB6 /* HPI18nUtils.m in Sources */,
 				F45D84E4298622D9003049C7 /* HPLogUtils.mm in Sources */,
-				F43FD94D292F084F00620474 /* HPUtil.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

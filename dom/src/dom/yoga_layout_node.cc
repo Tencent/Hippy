@@ -2,7 +2,7 @@
 
 #include <map>
 
-#include "Yoga.h"
+#include "yoga/Yoga.h"
 #include "footstone/logging.h"
 #include "dom/node_props.h"
 

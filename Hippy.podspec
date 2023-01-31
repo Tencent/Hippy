@@ -83,23 +83,6 @@ Pod::Spec.new do |s|
     puts 'hippy subspec \'image\' read end'
   end
 
-  s.subspec 'Dom' do |dom|
-    puts 'hippy subspec \'dom\' read begin'
-    dom.libraries = 'c++'
-    dom.source_files = ['dom/include/**/*.h', 'dom/src/**/*.cc', 'modules/ios/domutils/*.{h,mm}']
-    dom.public_header_files = ['dom/include/**/*.h', 'modules/ios/domutils/*.h']
-    dom.exclude_files = ['dom/src/dom/*unittests.cc', 'dom/src/dom/tools', 'dom/src/dom/yoga_layout_node.cc']
-    dom.pod_target_xcconfig = {
-      'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/dom/include/'
-    }
-    dom.user_target_xcconfig = {
-      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/dom/include/'
-    }
-    dom.dependency 'Hippy/Footstone'
-    puts 'hippy subspec \'dom\' read end'
-  end 
-
   s.subspec 'Base' do |base|
     puts 'hippy subspec \'base\' read begin'
     base.libraries = 'c++'
@@ -148,6 +131,25 @@ Pod::Spec.new do |s|
     puts 'hippy subspec \'nativerenderer\' read end'
   end 
 
+  s.subspec 'Dom' do |dom|
+    puts 'hippy subspec \'dom\' read begin'
+    dom.libraries = 'c++'
+    dom.source_files = ['dom/include/**/*.h', 'dom/src/**/*.cc', 'modules/ios/domutils/*.{h,mm}', 'dom/dom_project/_deps/{taitank,yoga}-src/src/*.{h,cc}']
+    dom.public_header_files = ['dom/include/**/*.h', 'modules/ios/domutils/*.h']
+    dom.exclude_files = ['dom/src/dom/*unittests.cc', 'dom/src/dom/tools', 'dom/src/dom/yoga_layout_node.cc', 
+    #  'dom/src/dom/taitank_layout_node.cc'
+    ]
+    dom.pod_target_xcconfig = {
+      'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/dom/include/'
+    }
+    dom.user_target_xcconfig = {
+      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/dom/include/'
+    }
+    dom.dependency 'Hippy/Footstone'
+    puts 'hippy subspec \'dom\' read end'
+  end 
+
   #devtools subspec
   s.subspec 'DevTools' do |devtools|
     puts 'hippy subspec \'devtools\' read begin'
@@ -159,6 +161,13 @@ Pod::Spec.new do |s|
       #test files
       'devtools/devtools-integration/ios/DevtoolsBackend/_deps/**/*test*/**/*',
       'devtools/devtools-integration/ios/DevtoolsBackend/_deps/**/*test*',
+      #benchmark files
+      'devtools/devtools-integration/ios/DevtoolsBackend/_deps/**/benchmark/**',
+      #js files
+      'devtools/devtools-integration/ios/DevtoolsBackend/_deps/**/javascript/**',
+      #Dom includes all taitank or yoga files, and Devtools dependends on Dom, so let Dom does the including work, otherwise, 'duplicated symbols' error occurs
+      #taitank or yoga files
+      'devtools/devtools-integration/ios/DevtoolsBackend/_deps/taitank-*/**/*',
       #other files
       'devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/lib/lib_openmp.c',
       'devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/lib/tables/table_generator.c',
@@ -202,8 +211,9 @@ Pod::Spec.new do |s|
                               ' ${PODS_ROOT}/hippy/devtools/devtools-integration/ios/DevtoolsBackend/_deps/json-src/include',
       'GCC_PREPROCESSOR_DEFINITIONS' => 'ENABLE_INSPECTOR=1'
     }
-    #base64 contains mutiple files named 'codec.c' in different paths, so we need to keep file structure to avoid files overridings.
-    # devtools.header_mappings_dir = 'devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src'
+    devtools.dependency 'Hippy/Footstone'
+    devtools.dependency 'Hippy/Dom'
+    devtools.dependency 'Hippy/VFS'
     devtools.preserve_path = 'devtools'
     puts 'hippy subspec \'devtools\' read end'
   end

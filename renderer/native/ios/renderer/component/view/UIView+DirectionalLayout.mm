@@ -27,32 +27,32 @@
 
 @implementation UIView (DirectionalLayout)
 
-- (void)setLayoutDirection:(HPDirection)direction {
+- (void)setLayoutDirection:(hippy::Direction)direction {
     objc_setAssociatedObject(self, @selector(layoutDirection), @(direction), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     self.confirmedLayoutDirection = direction;
 }
 
-- (HPDirection)layoutDirection {
+- (hippy::Direction)layoutDirection {
     NSNumber *number = objc_getAssociatedObject(self, _cmd);
-    return (HPDirection)[number intValue];
+    return (hippy::Direction)[number intValue];
 }
 
-- (void)setConfirmedLayoutDirection:(HPDirection)confirmedDirection {
+- (void)setConfirmedLayoutDirection:(hippy::Direction)confirmedDirection {
     objc_setAssociatedObject(self, @selector(confirmedLayoutDirection), @(confirmedDirection), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (HPDirection)confirmedLayoutDirection {
+- (hippy::Direction)confirmedLayoutDirection {
     NSNumber *number = objc_getAssociatedObject(self, _cmd);
-    return (HPDirection)[number intValue];
+    return (hippy::Direction)[number intValue];
 }
 
 - (BOOL)isLayoutSubviewsRTL {
-    BOOL layoutRTL = DirectionRTL == self.confirmedLayoutDirection;
+    BOOL layoutRTL = hippy::RTL == self.confirmedLayoutDirection;
     return layoutRTL;
 }
 
-- (void)checkLayoutDirection:(NSMutableSet<UIView *> *)viewsSet direction:(HPDirection *)direction{
-    if (DirectionInherit == self.confirmedLayoutDirection) {
+- (void)checkLayoutDirection:(NSMutableSet<UIView *> *)viewsSet direction:(hippy::Direction *)direction{
+    if (hippy::Inherit == self.confirmedLayoutDirection) {
         [viewsSet addObject:self];
         [(UIView *)[self parentComponent] checkLayoutDirection:viewsSet direction:direction];
     }
@@ -61,8 +61,8 @@
     }
 }
 
-- (void)superviewLayoutDirectionChangedTo:(HPDirection)direction {
-    if (DirectionInherit == self.layoutDirection) {
+- (void)superviewLayoutDirectionChangedTo:(hippy::Direction)direction {
+    if (hippy::Inherit == self.layoutDirection) {
         self.confirmedLayoutDirection = [self superview].confirmedLayoutDirection;
         for (UIView *subview in self.subcomponents) {
             [subview superviewLayoutDirectionChangedTo:self.confirmedLayoutDirection];
@@ -70,7 +70,7 @@
     }
 }
 
-- (void)applyLayoutDirectionFromParent:(HPDirection)direction {
+- (void)applyLayoutDirectionFromParent:(hippy::Direction)direction {
     for (UIView *subview in self.subviews) {
         [subview applyLayoutDirectionFromParent:direction];
     }
