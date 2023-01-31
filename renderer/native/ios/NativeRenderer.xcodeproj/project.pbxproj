@@ -108,7 +108,7 @@
 /* Begin PBXFileReference section */
 		F42AF657292611B700CD0CF6 /* NativeRenderUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeRenderUtils.h; sourceTree = "<group>"; };
 		F42AF658292611B700CD0CF6 /* NativeRenderUtils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = NativeRenderUtils.mm; sourceTree = "<group>"; };
-		F44E1B83292490060091BCA4 /* libNativeRender.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libNativeRender.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		F44E1B83292490060091BCA4 /* libNativeRenderer.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libNativeRenderer.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F44E1B902924902C0091BCA4 /* RenderVsyncManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RenderVsyncManager.mm; sourceTree = "<group>"; };
 		F44E1B912924902C0091BCA4 /* NativeRenderComponentData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NativeRenderComponentData.mm; sourceTree = "<group>"; };
 		F44E1B922924902C0091BCA4 /* NativeRenderRootView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderRootView.h; sourceTree = "<group>"; };
@@ -306,7 +306,7 @@
 		F44E1B84292490060091BCA4 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				F44E1B83292490060091BCA4 /* libNativeRender.a */,
+				F44E1B83292490060091BCA4 /* libNativeRenderer.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -638,9 +638,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		F44E1B82292490060091BCA4 /* NativeRender */ = {
+		F44E1B82292490060091BCA4 /* NativeRenderer */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F44E1B8C292490060091BCA4 /* Build configuration list for PBXNativeTarget "NativeRender" */;
+			buildConfigurationList = F44E1B8C292490060091BCA4 /* Build configuration list for PBXNativeTarget "NativeRenderer" */;
 			buildPhases = (
 				F44E1B7F292490060091BCA4 /* Sources */,
 				F44E1B80292490060091BCA4 /* Frameworks */,
@@ -650,9 +650,9 @@
 			);
 			dependencies = (
 			);
-			name = NativeRender;
+			name = NativeRenderer;
 			productName = nativerender;
-			productReference = F44E1B83292490060091BCA4 /* libNativeRender.a */;
+			productReference = F44E1B83292490060091BCA4 /* libNativeRenderer.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -669,7 +669,7 @@
 					};
 				};
 			};
-			buildConfigurationList = F44E1B7E292490060091BCA4 /* Build configuration list for PBXProject "NativeRender" */;
+			buildConfigurationList = F44E1B7E292490060091BCA4 /* Build configuration list for PBXProject "NativeRenderer" */;
 			compatibilityVersion = "Xcode 10.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -682,7 +682,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				F44E1B82292490060091BCA4 /* NativeRender */,
+				F44E1B82292490060091BCA4 /* NativeRenderer */,
 			);
 		};
 /* End PBXProject section */
@@ -941,7 +941,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		F44E1B7E292490060091BCA4 /* Build configuration list for PBXProject "NativeRender" */ = {
+		F44E1B7E292490060091BCA4 /* Build configuration list for PBXProject "NativeRenderer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F44E1B8A292490060091BCA4 /* Debug */,
@@ -950,7 +950,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F44E1B8C292490060091BCA4 /* Build configuration list for PBXNativeTarget "NativeRender" */ = {
+		F44E1B8C292490060091BCA4 /* Build configuration list for PBXNativeTarget "NativeRenderer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F44E1B8D292490060091BCA4 /* Debug */,

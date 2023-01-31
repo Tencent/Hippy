@@ -140,12 +140,12 @@ Pod::Spec.new do |s|
     puts 'hippy subspec \'driver\' read end'
   end 
 
-  s.subspec 'NativeRender' do |render|
-    puts 'hippy subspec \'nativerender\' read begin'
-    render.libraries = 'c++'
-    render.source_files = 'renderer/native/ios/**/*.{h,m,mm}'
-    render.public_header_files = 'renderer/native/ios/**/*.h'
-    puts 'hippy subspec \'nativerender\' read end'
+  s.subspec 'NativeRenderer' do |renderer|
+    puts 'hippy subspec \'nativerenderer\' read begin'
+    renderer.libraries = 'c++'
+    renderer.source_files = 'renderer/native/ios/**/*.{h,m,mm}'
+    renderer.public_header_files = 'renderer/native/ios/**/*.h'
+    puts 'hippy subspec \'nativerenderer\' read end'
   end 
 
   #devtools subspec
