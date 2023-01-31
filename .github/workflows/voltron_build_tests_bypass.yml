@@ -41,7 +41,7 @@ jobs:
         run: |
           echo "No build test required"
   voltron_ios_flutter_build:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest # use ubuntu to replace macos in order to save macos resources and improve efficiency
     steps:
       - name: Build Test Bypass
         run: |
