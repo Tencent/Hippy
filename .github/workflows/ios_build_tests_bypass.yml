@@ -10,6 +10,10 @@ on:
       - 'core/**'
       - 'hippy.podspec'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   ios_build_tests:
     runs-on: macos-latest
