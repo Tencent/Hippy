@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		F42AF65629260E3400CD0CF6 /* HippyUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F42AF65529260E3400CD0CF6 /* HippyUtils.m */; };
+		F4311E012988BB4F00B4BB9F /* libNativeRenderer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4311E002988BB4F00B4BB9F /* libNativeRenderer.a */; };
 		F44E1B4D29248B7F0091BCA4 /* HippyPerformanceLogger.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1ACE29248B7F0091BCA4 /* HippyPerformanceLogger.mm */; };
 		F44E1B4E29248B7F0091BCA4 /* HippyDeviceBaseInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AD029248B7F0091BCA4 /* HippyDeviceBaseInfo.mm */; };
 		F44E1B4F29248B7F0091BCA4 /* HippyBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AD729248B7F0091BCA4 /* HippyBridge.mm */; };
@@ -97,7 +98,6 @@
 		F4827F772970206800085A05 /* HippyTurboModuleManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B1729248B7F0091BCA4 /* HippyTurboModuleManager.mm */; };
 		F4827F812970209800085A05 /* libBase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4827F802970209800085A05 /* libBase.a */; };
 		F4827F832970209800085A05 /* libImage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4827F822970209800085A05 /* libImage.a */; };
-		F4827F852970209800085A05 /* libNativeRender.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4827F842970209800085A05 /* libNativeRender.a */; };
 		F4827F872970209800085A05 /* libVFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4827F862970209800085A05 /* libVFS.a */; };
 		F4827F882970209B00085A05 /* libFramework.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F44E1AC129248B520091BCA4 /* libFramework.a */; };
 /* End PBXBuildFile section */
@@ -136,6 +136,7 @@
 /* Begin PBXFileReference section */
 		F42AF65429260E3400CD0CF6 /* HippyUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyUtils.h; sourceTree = "<group>"; };
 		F42AF65529260E3400CD0CF6 /* HippyUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyUtils.m; sourceTree = "<group>"; };
+		F4311E002988BB4F00B4BB9F /* libNativeRenderer.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libNativeRenderer.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F44E1AC129248B520091BCA4 /* libFramework.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libFramework.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F44E1ACE29248B7F0091BCA4 /* HippyPerformanceLogger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyPerformanceLogger.mm; sourceTree = "<group>"; };
 		F44E1ACF29248B7F0091BCA4 /* HippyMethodInterceptorProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyMethodInterceptorProtocol.h; sourceTree = "<group>"; };
@@ -254,7 +255,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F4827F882970209B00085A05 /* libFramework.a in Frameworks */,
-				F4827F852970209800085A05 /* libNativeRender.a in Frameworks */,
+				F4311E012988BB4F00B4BB9F /* libNativeRenderer.a in Frameworks */,
 				F4827F872970209800085A05 /* libVFS.a in Frameworks */,
 				F4827F812970209800085A05 /* libBase.a in Frameworks */,
 				F4827F832970209800085A05 /* libImage.a in Frameworks */,
@@ -583,6 +584,7 @@
 		F4827F3D29701F4900085A05 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F4311E002988BB4F00B4BB9F /* libNativeRenderer.a */,
 				F4827F802970209800085A05 /* libBase.a */,
 				F4827F822970209800085A05 /* libImage.a */,
 				F4827F842970209800085A05 /* libNativeRender.a */,
