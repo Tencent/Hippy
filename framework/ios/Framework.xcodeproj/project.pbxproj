@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		F42AF65629260E3400CD0CF6 /* HippyUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F42AF65529260E3400CD0CF6 /* HippyUtils.m */; };
 		F4311E012988BB4F00B4BB9F /* libNativeRenderer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4311E002988BB4F00B4BB9F /* libNativeRenderer.a */; };
+		F4311E032988C00F00B4BB9F /* libdevtools_backend.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4311E022988C00F00B4BB9F /* libdevtools_backend.a */; };
+		F4311E052988C71300B4BB9F /* libdevtools_integration_native.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4311E042988C71300B4BB9F /* libdevtools_integration_native.a */; };
 		F44E1B4D29248B7F0091BCA4 /* HippyPerformanceLogger.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1ACE29248B7F0091BCA4 /* HippyPerformanceLogger.mm */; };
 		F44E1B4E29248B7F0091BCA4 /* HippyDeviceBaseInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AD029248B7F0091BCA4 /* HippyDeviceBaseInfo.mm */; };
 		F44E1B4F29248B7F0091BCA4 /* HippyBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AD729248B7F0091BCA4 /* HippyBridge.mm */; };
@@ -137,6 +139,8 @@
 		F42AF65429260E3400CD0CF6 /* HippyUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyUtils.h; sourceTree = "<group>"; };
 		F42AF65529260E3400CD0CF6 /* HippyUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyUtils.m; sourceTree = "<group>"; };
 		F4311E002988BB4F00B4BB9F /* libNativeRenderer.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libNativeRenderer.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4311E022988C00F00B4BB9F /* libdevtools_backend.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libdevtools_backend.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4311E042988C71300B4BB9F /* libdevtools_integration_native.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libdevtools_integration_native.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F44E1AC129248B520091BCA4 /* libFramework.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libFramework.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F44E1ACE29248B7F0091BCA4 /* HippyPerformanceLogger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyPerformanceLogger.mm; sourceTree = "<group>"; };
 		F44E1ACF29248B7F0091BCA4 /* HippyMethodInterceptorProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyMethodInterceptorProtocol.h; sourceTree = "<group>"; };
@@ -258,6 +262,8 @@
 				F4311E012988BB4F00B4BB9F /* libNativeRenderer.a in Frameworks */,
 				F4827F872970209800085A05 /* libVFS.a in Frameworks */,
 				F4827F812970209800085A05 /* libBase.a in Frameworks */,
+				F4311E032988C00F00B4BB9F /* libdevtools_backend.a in Frameworks */,
+				F4311E052988C71300B4BB9F /* libdevtools_integration_native.a in Frameworks */,
 				F4827F832970209800085A05 /* libImage.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -584,6 +590,8 @@
 		F4827F3D29701F4900085A05 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F4311E042988C71300B4BB9F /* libdevtools_integration_native.a */,
+				F4311E022988C00F00B4BB9F /* libdevtools_backend.a */,
 				F4311E002988BB4F00B4BB9F /* libNativeRenderer.a */,
 				F4827F802970209800085A05 /* libBase.a */,
 				F4827F822970209800085A05 /* libImage.a */,
@@ -975,6 +983,10 @@
 					"$(SRCROOT)/../../devtools/devtools-integration/ios/DevtoolsBackend/_deps/json-src/include",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LIBRARY_SEARCH_PATHS = (
+					"${SRCROOT}/../../devtools/devtools-integration/ios/DevtoolsBackend/devtools-integration/native/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}",
+					"${SRCROOT}/../../devtools/devtools-integration/ios/DevtoolsBackend/devtools-integration/native/infa_packages/devtools_backend/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1005,6 +1017,10 @@
 					"$(SRCROOT)/../../devtools/devtools-integration/ios/DevtoolsBackend/_deps/json-src/include",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LIBRARY_SEARCH_PATHS = (
+					"${SRCROOT}/../../devtools/devtools-integration/ios/DevtoolsBackend/devtools-integration/native/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}",
+					"${SRCROOT}/../../devtools/devtools-integration/ios/DevtoolsBackend/devtools-integration/native/infa_packages/devtools_backend/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
