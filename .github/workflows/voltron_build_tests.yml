@@ -14,9 +14,15 @@ on:
       - 'dom/**'
       - 'driver/js/include/**'
       - 'driver/js/src/**'
+
 defaults:
   run:
     working-directory: framework/voltron/example
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   voltron_framework_flutter_analyze:
     runs-on: ubuntu-latest
@@ -29,6 +35,7 @@ jobs:
       - name: framework flutter analyze
         run: flutter analyze
         working-directory: framework/voltron
+
   voltron_renderer_flutter_analyze:
     runs-on: ubuntu-latest
     steps:
@@ -40,6 +47,7 @@ jobs:
       - name: renderer flutter analyze
         run: flutter analyze
         working-directory: renderer/voltron
+
   voltron_renderer_flutter_test:
     runs-on: ubuntu-latest
     steps:
@@ -51,6 +59,7 @@ jobs:
       - name: renderer flutter test
         run: flutter test
         working-directory: renderer/voltron
+
   voltron_android_flutter_build:
     runs-on: ubuntu-latest
     steps:
@@ -61,6 +70,7 @@ jobs:
           channel: 'stable'
       - name: Build for Android
         run: flutter build apk
+
   voltron_ios_xcframework_build:
     runs-on: macos-latest
     steps:
@@ -71,6 +81,7 @@ jobs:
       - name: Build framework for iOS
         run: python3 script/build.py -os ios -arch arm64 -rebuild
         working-directory: framework/voltron
+
   voltron_ios_flutter_build:
     runs-on: macos-latest
     steps:
