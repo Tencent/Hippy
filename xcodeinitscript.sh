@@ -23,6 +23,7 @@ if [[ ! `command -v cmake` ]]; then
 	echo "\033[31m cmake is not installed, install cmake first \033[0m"
 	exit 1
 fi
+
 root_dir=`pwd`
 ios_tool_chain_path=${root_dir}/buildconfig/cmake/ios.toolchain.cmake
 #devtools project
@@ -34,5 +35,5 @@ echo -e "\033[33m devtools cmake build end\033[0m"
 #layout project - use taitank by deault
 cd ${root_dir}/dom
 rm -rf ./dom_project
-cmake ./CMakeLists.txt -B ./dom_project -G Xcode -DMODULE_TOOLS=YES -DCMAKE_TOOLCHAIN_FILE=${ios_tool_chain_path} -DPLATFORM=OS64COMBINED -DDEPLOYMENT_TARGET=11.0 -DLAYOUT_ENGINE=Taitank
+cmake ./CMakeLists.txt -B ./dom_project -G Xcode -DMODULE_TOOLS=YES -DCMAKE_TOOLCHAIN_FILE=${ios_tool_chain_path} -DPLATFORM=OS64COMBINED -DDEPLOYMENT_TARGET=11.0 -DLAYOUT_ENGINE=${1}
 echo -e "\033[33m dom cmake build end\033[0m"

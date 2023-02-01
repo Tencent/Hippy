@@ -6,7 +6,12 @@
 # To learn more about a Podspec see https://guides.cocoapods.org/syntax/podspec.html
 #
 
+layout_engine = "Taitank"
 Pod::Spec.new do |s|
+  if ENV["layout_engine"]
+    layout_engine = ENV["layout_engine"];
+  end
+  puts "#{layout_engine}"
   puts 'hippy.podspec read begins'
   s.name             = 'Hippy'
   s.version          = '3.0.0'
@@ -30,7 +35,7 @@ Pod::Spec.new do |s|
 
   #prepare_command not working for subspecs,so we remove devtools script from devtools subspec to root
   s.prepare_command = <<-CMD
-      ./xcodeinitscript.sh
+      ./xcodeinitscript.sh "#{layout_engine}"
   CMD
 
   s.subspec 'Framework' do |framework|
@@ -133,15 +138,27 @@ Pod::Spec.new do |s|
 
   s.subspec 'Dom' do |dom|
     puts 'hippy subspec \'dom\' read begin'
+    dom_source_files = Array['dom/include/**/*.h', 'dom/src/**/*.cc', 'modules/ios/domutils/*.{h,mm}']
+    dom_exclude_files = Array['dom/src/dom/*unittests.cc', 'dom/src/dom/tools']
+    dom_pod_target_header_path = '${PODS_ROOT}/hippy/dom/include/'
+    if layout_engine == "Taitank"
+      dom_source_files.append('dom/dom_project/_deps/taitank-src/src/*.{h,cc}')
+      dom_exclude_files.append('dom/include/dom/yoga_layout_node.h')
+      dom_exclude_files.append('dom/src/dom/yoga_layout_node.cc')
+    elsif layout_engine == "Yoga"
+      dom_source_files.append('dom/dom_project/_deps/yoga-src/yoga/**/*.{c,h,cpp}')
+      dom_exclude_files.append('dom/include/dom/taitank_layout_node.h')
+      dom_exclude_files.append('dom/src/dom/taitank_layout_node.cc')
+      dom_pod_target_header_path += ' ${PODS_ROOT}/hippy/dom/dom_project/_deps/yoga-src'
+    end
+
     dom.libraries = 'c++'
-    dom.source_files = ['dom/include/**/*.h', 'dom/src/**/*.cc', 'modules/ios/domutils/*.{h,mm}', 'dom/dom_project/_deps/{taitank,yoga}-src/src/*.{h,cc}']
+    dom.source_files = dom_source_files 
     dom.public_header_files = ['dom/include/**/*.h', 'modules/ios/domutils/*.h']
-    dom.exclude_files = ['dom/src/dom/*unittests.cc', 'dom/src/dom/tools', 'dom/src/dom/yoga_layout_node.cc', 
-    #  'dom/src/dom/taitank_layout_node.cc'
-    ]
+    dom.exclude_files = dom_exclude_files
     dom.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/dom/include/'
+      'HEADER_SEARCH_PATHS' => dom_pod_target_header_path
     }
     dom.user_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/dom/include/'
@@ -167,6 +184,7 @@ Pod::Spec.new do |s|
       'devtools/devtools-integration/ios/DevtoolsBackend/_deps/**/javascript/**',
       #Dom includes all taitank or yoga files, and Devtools dependends on Dom, so let Dom does the including work, otherwise, 'duplicated symbols' error occurs
       #taitank or yoga files
+      #currently Devtools specify taitank layout 
       'devtools/devtools-integration/ios/DevtoolsBackend/_deps/taitank-*/**/*',
       #other files
       'devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/lib/lib_openmp.c',

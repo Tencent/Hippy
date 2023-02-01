@@ -365,7 +365,7 @@ void YogaLayoutNode::MarkDirty() { YGNodeMarkDirty(yoga_node_); }
 
 void YogaLayoutNode::Print() {
 #ifdef DEBUG
-  YGNodePrint(yoga_node_, YGPrintOptionsLayout | YGPrintOptionsStyle | YGPrintOptionsChildren);
+  YGNodePrint(yoga_node_, (YGPrintOptions)(YGPrintOptionsLayout | YGPrintOptionsStyle | YGPrintOptionsChildren));
 #endif
 }
 
