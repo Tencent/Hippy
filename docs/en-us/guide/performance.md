@@ -1,12 +1,125 @@
 # Performance
 
-Provide global `performance` to get performance data. 
+## SDK startup performance indicators
+
+### Introduce
+
+The loading and execution process of `Hippy` Native SDK is shown in the figure below:
+
+![hippy-launch-steps](../assets/img/hippy-launch-steps.png)
+
+Corresponding to the above stages, `Hippy` Native SDK provides the corresponding time-consuming and other performance indicators for developers to obtain, as shown in the following table:
+
+| Category | Description | Key for Android | Key for iOS |
+| :------- | :--------------- | :--------------------- | :---------------------------- |
+| JS engine | Initialize JS engine | InitJsFramework | -- |
+| Vendor bundle | Vendor bundle loading | CommonLoadSource | HippyPLCommonLoadSource |
+| Vendor bundle | Vendor bundle execution | CommonExecuteSource | HippyPLCommonExecuteSource |
+| Business bundle | Business bundle loading | SecondaryLoadSource | HippyPLSecondaryLoadSource |
+| Business bundle | Business bundle execution | SecondaryExecuteSource | HippyPLSecondaryExecuteSource |
+| Overall | Bridge startup | BridgeStartup | HippyPLBridgeStartup |
+| Overall | JS entry execution | RunApplication | HippyPLRunApplication |
+| Overall | First Paint | FP | HippyPLFP |
+
+
+
+
+### Native get performance data
+
+#### Android API Guidelines
+
+##### 1. Inject `HippyEngineMonitorAdapter`
+
+```java
+public class MyEngineMonitorAdapter extends DefaultEngineMonitorAdapter {
+    @Override
+    public void reportEngineLoadResult(int code, int loadTime,
+        List<HippyEngineMonitorEvent> loadEvents, Throwable e) {
+        // Engine creation completed callback
+    }
+
+    @Override
+    public void reportModuleLoadComplete(HippyRootView rootView, int loadTime,
+        List<HippyEngineMonitorEvent> loadEvents) {
+        // Business JS execute and first paint completed callback
+    }
+}
+```
+
+```java
+HippyEngine.EngineInitParams initParams = new HippyEngine.EngineInitParams();
+initParams.engineMonitor = new MyEngineMonitorAdapter();
+...
+HippyEngine engine = HippyEngine.create(initParams);
+```
+
+##### 2. Get performance data
+
+It is recommended to call after reportModuleLoadComplete to obtain complete performance data.
+
+Use as
+
+```java
+TimeMonitor monitor = rootView == null ? null : rootView.getTimeMonitor();
+if (monitor != null) {
+    List<HippyEngineMonitorEvent> list = monitor.getAllSeparateEvents();
+}
+```
+
+#### iOS API Guidelines
+
+It is recommended to obtain performance indicators after HippyRootView is loaded (that is, after receiving `HippyContentDidAppearNotification` notification).
+
+Use as
+
+```objc
+int64_t duration = [bridge.performanceLogger durationForTag:HippyPLxxxTag];
+```
+
+
+
+### JS get performance data
+
+#### Get performance data
+
+```js
+const instanceId = __GLOBAL__.appRegister[appName].id;
+const result = await Hippy.bridge.callNativeWithPromise('PerformanceLogger', 'getAll', instanceId);
+```
+
+Result for execute successfully
+
+```json
+{ result: [{
+    eventName: string,
+    startTime: number,
+    endTime: number,
+}, ...] }
+```
+
+Result for execute failed
+
+```json
+{ errMsg: 'invalid instanceId' }
+```
+
+#### Add custom data
+
+```js
+const instanceId = __GLOBAL__.appRegister[appName].id;
+Hippy.bridge.callNative('PerformanceLogger', 'markStart', instanceId, 'MyEvent', Date.now());
+Hippy.bridge.callNative('PerformanceLogger', 'markEnd', instanceId, 'MyEvent', Date.now());
+```
+
 
 ---
 
-# memory
+## memory
+
+Provide global `performance` to get performance data. 
 
 `performance.memory` return statistics about the js heap (Only android supported, iOS will return `undefined`）。
+
 > Minimum supported version `2.15.0`
 
 ```javascript
@@ -27,3 +140,4 @@ global.performance.memory = undefined || {
 }
 
 ```
+

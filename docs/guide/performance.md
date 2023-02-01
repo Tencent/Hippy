@@ -2,37 +2,35 @@
 
 ---
 
-# 数据上报
+## SDK启动加载性能指标
 
-# 获取SDK性能指标
-
-## 介绍
+### 介绍
 
 `Hippy` Native SDK的加载执行过程如下图所示：
 
-[TODO:加载图,xxx](hippy加载图.png)
+![hippy-launch-steps](../assets/img/hippy-launch-steps.png)
 
 对应上述各个阶段，`Hippy` Native SDK提供了对应的耗时等性能指标方便开发者获取，如下表所示：
 
 | 分类  | 指标  | Android对应Key  | iOS对应Key  |
 |:----------|:----------|:----------|:----------|
-| JS引擎 | 初始化JS引擎耗时 | InitJsFramework |  |
+| JS引擎 | 初始化JS引擎耗时 | InitJsFramework | -- |
 | vendor包    | vendor包加载耗时    | CommonLoadSource |  HippyPLCommonLoadSource   |
 | vendor包    | vendor包执行耗时    | CommonExecuteSource | HippyPLCommonExecuteSource   |
 | 业务包    | 业务包加载耗时    | SecondaryLoadSource | HippyPLSecondaryLoadSource    |
 | 业务包    | 业务包执行耗时    | SecondaryExecuteSource | HippyPLSecondaryExecuteSource    |
 | 整体    | Bridge启动耗时    | BridgeStartup | HippyPLBridgeStartup   |
 | 整体    | JS入口执行耗时    | RunApplication | HippyPLRunApplication    |
-| 整体    | FP耗时    | FP   | HippyPLFP    |
+| 整体    | 首帧耗时  | FP   | HippyPLFP    |
 
 
 
 
-## Native 获取性能数据
+### Native 获取性能数据
 
-### Android API 指引
+#### Android API 指引
 
-#### 1. 注入`HippyEngineMonitorAdapter`
+##### 1. 注入`HippyEngineMonitorAdapter`
 
 ```java
 public class MyEngineMonitorAdapter extends DefaultEngineMonitorAdapter {
@@ -57,11 +55,11 @@ initParams.engineMonitor = new MyEngineMonitorAdapter();
 HippyEngine engine = HippyEngine.create(initParams);
 ```
 
-#### 2. 获取性能数据
+##### 2. 获取性能数据
 
 推荐在reportModuleLoadComplete之后调用，以便获取完整的性能数据。
 
-终端获取方法为
+使用方法为
 
 ```java
 TimeMonitor monitor = rootView == null ? null : rootView.getTimeMonitor();
@@ -70,7 +68,20 @@ if (monitor != null) {
 }
 ```
 
-前端获取方法为
+#### iOS API 指引
+
+推荐在HippyRootView加载完成（即收到`HippyContentDidAppearNotification` 通知后）进行性能指标的获取。
+使用方式为
+
+```objc
+int64_t duration = [bridge.performanceLogger durationForTag:HippyPLxxxTag];
+```
+
+
+
+### JS 获取性能数据
+
+#### 获取性能数据方法
 
 ```js
 const instanceId = __GLOBAL__.appRegister[appName].id;
@@ -93,9 +104,7 @@ const result = await Hippy.bridge.callNativeWithPromise('PerformanceLogger', 'ge
 { errMsg: 'invalid instanceId' }
 ```
 
-
-
-#### 3. 前端添加自定义字段
+#### 添加自定义数据方法
 
 ```js
 const instanceId = __GLOBAL__.appRegister[appName].id;
@@ -105,26 +114,11 @@ Hippy.bridge.callNative('PerformanceLogger', 'markEnd', instanceId, 'MyEvent', D
 
 
 
-### iOS API 指引
-
-推荐在HippyRootView加载完成（即收到`HippyContentDidAppearNotification` 通知后）进行性能指标的获取。
-使用方式为
-
-```objc
-int64_t duration = [bridge.performanceLogger durationForTag:HippyPLxxxTag];
-```
-
-
-
-## JS 获取性能数据
-
-TODO：
-
 
 ---
 
 
-# memory
+## Memory
 
 提供全局 `performance` 对象，用于获取性能数据。
 
@@ -142,3 +136,4 @@ global.performance.memory = undefined || {
 }
 
 ```
+
