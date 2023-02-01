@@ -5,6 +5,7 @@ on:
     types:
       - auto_merge_enabled
       - auto_merge_disabled
+      - synchronize
 
 jobs:
   merge_guard:
@@ -19,3 +20,8 @@ jobs:
       if: github.repository == 'Tencent/Hippy' && github.event.action == 'auto_merge_disabled'
       run: |
         exit -1
+    - name: Synchronize # Update Branch
+      if: github.event.action == 'synchronize' && github.event.pull_request.auto_merge
+      run: |
+        echo "Auto-merge is enabled by a ${{ github.event.pull_request.auto_merge.enabled_by.login }}. ${{ github.event.pull_request.auto_merge.enabled_by.type == 'Bot' && 'Passing' || 'Blocking' }}."
+        exit ${{ github.event.pull_request.auto_merge.enabled_by.type == 'Bot' && '0' || '-1' }}
