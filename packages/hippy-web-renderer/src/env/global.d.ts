@@ -41,6 +41,13 @@ declare global {
     document: typeof document,
   }
 
+  interface HippyDeviceInfo {
+    platform: any,
+    window: any,
+    screen: any,
+    pixelRatio: any,
+  }
+
   interface HippyJsGlobal {
     moduleCallId: number;
     moduleCallList: any;
