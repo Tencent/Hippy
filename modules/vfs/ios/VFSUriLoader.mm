@@ -20,10 +20,11 @@
  *
  */
 
+#import "HPFootstoneUtils.h"
+#import "HPToolUtils.h"
+#import "TypeConverter.h"
 #import "VFSUriLoader.h"
 #import "VFSUriHandler.h"
-#import "TypeConverter.h"
-#import "HPToolUtils.h"
 
 #include <functional>
 #include <unordered_map>

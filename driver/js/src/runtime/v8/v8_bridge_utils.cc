@@ -104,7 +104,7 @@ int32_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
     isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(runtime_id));
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
     std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
-    if (runtime->IsDebug()) {
+    if (runtime->IsDebug() && !runtime->GetEngine()->GetInspectorClient()) {
       auto inspector = std::make_shared<V8InspectorClientImpl>(runtime->GetEngine()->GetJsTaskRunner());
       runtime->GetEngine()->SetInspectorClient(inspector);
     }

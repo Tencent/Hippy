@@ -33,12 +33,17 @@
 		F43FD9A6292F086500620474 /* dom_listener.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43FD98E292F086500620474 /* dom_listener.cc */; };
 		F43FD9A7292F086500620474 /* layer_optimized_render_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43FD98F292F086500620474 /* layer_optimized_render_manager.cc */; };
 		F43FD9A8292F086500620474 /* layout_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43FD990292F086500620474 /* layout_node.cc */; };
+		F45D84D02985FF47003049C7 /* HPFootstoneUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D84CF2985FF47003049C7 /* HPFootstoneUtils.mm */; };
+		F45D84D329860533003049C7 /* HPOCToHippyValue.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D84D229860533003049C7 /* HPOCToHippyValue.mm */; };
+		F45D84D5298606EB003049C7 /* HPDomUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D84D4298606EB003049C7 /* HPDomUtils.mm */; };
+		F45D84DA29861135003049C7 /* HPConvert+HPLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = F45D84D929861135003049C7 /* HPConvert+HPLayout.m */; };
+		F45D84E029861A90003049C7 /* HPOCToDomArgument.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D84DF29861A90003049C7 /* HPOCToDomArgument.mm */; };
+		F45D84E4298622D9003049C7 /* HPLogUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D84E3298622D9003049C7 /* HPLogUtils.mm */; };
 		F479147F2924C79000B2DBB6 /* HPToolUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F479145F2924C78F00B2DBB6 /* HPToolUtils.m */; };
 		F47914812924C79000B2DBB6 /* HPParserUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F47914642924C78F00B2DBB6 /* HPParserUtils.m */; };
 		F47914822924C79000B2DBB6 /* HPAsserts.mm in Sources */ = {isa = PBXBuildFile; fileRef = F47914672924C78F00B2DBB6 /* HPAsserts.mm */; };
 		F47914832924C79000B2DBB6 /* HPDriverStackFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = F47914692924C78F00B2DBB6 /* HPDriverStackFrame.m */; };
 		F47914842924C79000B2DBB6 /* HPLog.mm in Sources */ = {isa = PBXBuildFile; fileRef = F479146B2924C78F00B2DBB6 /* HPLog.mm */; };
-		F47914862924C79000B2DBB6 /* OCTypeToDomArgument.mm in Sources */ = {isa = PBXBuildFile; fileRef = F479146F2924C79000B2DBB6 /* OCTypeToDomArgument.mm */; };
 		F47914882924C79000B2DBB6 /* HPI18nUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F47914732924C79000B2DBB6 /* HPI18nUtils.m */; };
 		F47914892924C79000B2DBB6 /* TypeConverter.mm in Sources */ = {isa = PBXBuildFile; fileRef = F47914762924C79000B2DBB6 /* TypeConverter.mm */; };
 		F479148A2924C79000B2DBB6 /* HPConvert.mm in Sources */ = {isa = PBXBuildFile; fileRef = F47914782924C79000B2DBB6 /* HPConvert.mm */; };
@@ -132,6 +137,18 @@
 		F43FD98E292F086500620474 /* dom_listener.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_listener.cc; sourceTree = "<group>"; };
 		F43FD98F292F086500620474 /* layer_optimized_render_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = layer_optimized_render_manager.cc; sourceTree = "<group>"; };
 		F43FD990292F086500620474 /* layout_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = layout_node.cc; sourceTree = "<group>"; };
+		F45D84CE2985FF47003049C7 /* HPFootstoneUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HPFootstoneUtils.h; sourceTree = "<group>"; };
+		F45D84CF2985FF47003049C7 /* HPFootstoneUtils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HPFootstoneUtils.mm; sourceTree = "<group>"; };
+		F45D84D129860523003049C7 /* HPOCToHippyValue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HPOCToHippyValue.h; sourceTree = "<group>"; };
+		F45D84D229860533003049C7 /* HPOCToHippyValue.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HPOCToHippyValue.mm; sourceTree = "<group>"; };
+		F45D84D4298606EB003049C7 /* HPDomUtils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HPDomUtils.mm; sourceTree = "<group>"; };
+		F45D84D6298606FD003049C7 /* HPDomUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HPDomUtils.h; sourceTree = "<group>"; };
+		F45D84D829861135003049C7 /* HPConvert+HPLayout.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "HPConvert+HPLayout.h"; sourceTree = "<group>"; };
+		F45D84D929861135003049C7 /* HPConvert+HPLayout.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "HPConvert+HPLayout.m"; sourceTree = "<group>"; };
+		F45D84DE29861A90003049C7 /* HPOCToDomArgument.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HPOCToDomArgument.h; sourceTree = "<group>"; };
+		F45D84DF29861A90003049C7 /* HPOCToDomArgument.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HPOCToDomArgument.mm; sourceTree = "<group>"; };
+		F45D84E2298622D9003049C7 /* HPLogUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HPLogUtils.h; sourceTree = "<group>"; };
+		F45D84E3298622D9003049C7 /* HPLogUtils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HPLogUtils.mm; sourceTree = "<group>"; };
 		F47914532924C77200B2DBB6 /* libBase.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libBase.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F479145F2924C78F00B2DBB6 /* HPToolUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPToolUtils.m; sourceTree = "<group>"; };
 		F47914602924C78F00B2DBB6 /* HPLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPLog.h; sourceTree = "<group>"; };
@@ -141,10 +158,8 @@
 		F47914672924C78F00B2DBB6 /* HPAsserts.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HPAsserts.mm; sourceTree = "<group>"; };
 		F47914682924C78F00B2DBB6 /* TypeConverter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TypeConverter.h; sourceTree = "<group>"; };
 		F47914692924C78F00B2DBB6 /* HPDriverStackFrame.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPDriverStackFrame.m; sourceTree = "<group>"; };
-		F479146A2924C78F00B2DBB6 /* OCTypeToDomArgument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCTypeToDomArgument.h; sourceTree = "<group>"; };
 		F479146B2924C78F00B2DBB6 /* HPLog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HPLog.mm; sourceTree = "<group>"; };
 		F479146D2924C78F00B2DBB6 /* HPParserUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPParserUtils.h; sourceTree = "<group>"; };
-		F479146F2924C79000B2DBB6 /* OCTypeToDomArgument.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OCTypeToDomArgument.mm; sourceTree = "<group>"; };
 		F47914702924C79000B2DBB6 /* HPConvert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPConvert.h; sourceTree = "<group>"; };
 		F47914722924C79000B2DBB6 /* HPToolUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPToolUtils.h; sourceTree = "<group>"; };
 		F47914732924C79000B2DBB6 /* HPI18nUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPI18nUtils.m; sourceTree = "<group>"; };
@@ -359,9 +374,57 @@
 			path = animation;
 			sourceTree = "<group>";
 		};
+		F45D84CB2985FF0C003049C7 /* layoututils */ = {
+			isa = PBXGroup;
+			children = (
+				F45D84D829861135003049C7 /* HPConvert+HPLayout.h */,
+				F45D84D929861135003049C7 /* HPConvert+HPLayout.m */,
+			);
+			name = layoututils;
+			path = ../layoututils;
+			sourceTree = "<group>";
+		};
+		F45D84CC2985FF0C003049C7 /* footstoneutils */ = {
+			isa = PBXGroup;
+			children = (
+				F45D84CE2985FF47003049C7 /* HPFootstoneUtils.h */,
+				F45D84CF2985FF47003049C7 /* HPFootstoneUtils.mm */,
+				F45D84D129860523003049C7 /* HPOCToHippyValue.h */,
+				F45D84D229860533003049C7 /* HPOCToHippyValue.mm */,
+			);
+			name = footstoneutils;
+			path = ../footstoneutils;
+			sourceTree = "<group>";
+		};
+		F45D84CD2985FF0C003049C7 /* domutils */ = {
+			isa = PBXGroup;
+			children = (
+				F45D84D6298606FD003049C7 /* HPDomUtils.h */,
+				F45D84D4298606EB003049C7 /* HPDomUtils.mm */,
+				F45D84DE29861A90003049C7 /* HPOCToDomArgument.h */,
+				F45D84DF29861A90003049C7 /* HPOCToDomArgument.mm */,
+			);
+			name = domutils;
+			path = ../domutils;
+			sourceTree = "<group>";
+		};
+		F45D84E129861BE3003049C7 /* logutils */ = {
+			isa = PBXGroup;
+			children = (
+				F45D84E2298622D9003049C7 /* HPLogUtils.h */,
+				F45D84E3298622D9003049C7 /* HPLogUtils.mm */,
+			);
+			name = logutils;
+			path = ../logutils;
+			sourceTree = "<group>";
+		};
 		F479144A2924C77200B2DBB6 = {
 			isa = PBXGroup;
 			children = (
+				F45D84E129861BE3003049C7 /* logutils */,
+				F45D84CD2985FF0C003049C7 /* domutils */,
+				F45D84CC2985FF0C003049C7 /* footstoneutils */,
+				F45D84CB2985FF0C003049C7 /* layoututils */,
 				F43FD953292F086500620474 /* dom */,
 				F43FD8AA292F084E00620474 /* layout */,
 				F479148B2924D10C00B2DBB6 /* footstone */,
@@ -381,8 +444,6 @@
 				F47914722924C79000B2DBB6 /* HPToolUtils.h */,
 				F479145F2924C78F00B2DBB6 /* HPToolUtils.m */,
 				F47914742924C79000B2DBB6 /* MacroDefines.h */,
-				F479146A2924C78F00B2DBB6 /* OCTypeToDomArgument.h */,
-				F479146F2924C79000B2DBB6 /* OCTypeToDomArgument.mm */,
 				F47914682924C78F00B2DBB6 /* TypeConverter.h */,
 				F47914762924C79000B2DBB6 /* TypeConverter.mm */,
 				F47914542924C77200B2DBB6 /* Products */,
@@ -577,6 +638,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F43FD99B292F086500620474 /* animation.cc in Sources */,
+				F45D84D329860533003049C7 /* HPOCToHippyValue.mm in Sources */,
 				F43FD99A292F086500620474 /* animation_math.cc in Sources */,
 				F47914E02924D10C00B2DBB6 /* worker.cc in Sources */,
 				F47914E12924D10C00B2DBB6 /* idle_timer.cc in Sources */,
@@ -584,8 +646,8 @@
 				F43FD996292F086500620474 /* dom_manager.cc in Sources */,
 				F43FD997292F086500620474 /* dom_argument.cc in Sources */,
 				F43FD94E292F084F00620474 /* HPNode.cpp in Sources */,
+				F45D84DA29861135003049C7 /* HPConvert+HPLayout.m in Sources */,
 				F47914892924C79000B2DBB6 /* TypeConverter.mm in Sources */,
-				F47914862924C79000B2DBB6 /* OCTypeToDomArgument.mm in Sources */,
 				F47914D72924D10C00B2DBB6 /* base_timer.cc in Sources */,
 				F47914CC2924D10C00B2DBB6 /* log_settings.cc in Sources */,
 				F43FD99C292F086500620474 /* cubic_bezier_animation.cc in Sources */,
@@ -593,6 +655,7 @@
 				F47914812924C79000B2DBB6 /* HPParserUtils.m in Sources */,
 				F47914822924C79000B2DBB6 /* HPAsserts.mm in Sources */,
 				F43FD9A7292F086500620474 /* layer_optimized_render_manager.cc in Sources */,
+				F45D84D5298606EB003049C7 /* HPDomUtils.mm in Sources */,
 				F43FD999292F086500620474 /* animation_manager.cc in Sources */,
 				F47914DA2924D10C00B2DBB6 /* idle_task.cc in Sources */,
 				F43FD94F292F084F00620474 /* Flex.cpp in Sources */,
@@ -611,6 +674,7 @@
 				F43FD952292F084F00620474 /* HPLayoutCache.cpp in Sources */,
 				F43FD9A1292F086500620474 /* taitank_layout_node.cc in Sources */,
 				F43FD951292F084F00620474 /* Hippy.cpp in Sources */,
+				F45D84E029861A90003049C7 /* HPOCToDomArgument.mm in Sources */,
 				F47914DB2924D10C00B2DBB6 /* cv_driver.cc in Sources */,
 				F47914D42924D10C00B2DBB6 /* string_utils.cc in Sources */,
 				F43FD950292F084F00620474 /* FlexLine.cpp in Sources */,
@@ -623,6 +687,7 @@
 				F47914DD2924D10C00B2DBB6 /* task_runner.cc in Sources */,
 				F47914D22924D10C00B2DBB6 /* logging.cc in Sources */,
 				F43FD9A8292F086500620474 /* layout_node.cc in Sources */,
+				F45D84D02985FF47003049C7 /* HPFootstoneUtils.mm in Sources */,
 				F47914D82924D10C00B2DBB6 /* string_view.cc in Sources */,
 				F43FD99D292F086500620474 /* animation_set.cc in Sources */,
 				F43FD998292F086500620474 /* diff_utils.cc in Sources */,
@@ -630,6 +695,7 @@
 				F43FD9A3292F086500620474 /* dom_node.cc in Sources */,
 				F47914D12924D10C00B2DBB6 /* looper_driver.cc in Sources */,
 				F47914882924C79000B2DBB6 /* HPI18nUtils.m in Sources */,
+				F45D84E4298622D9003049C7 /* HPLogUtils.mm in Sources */,
 				F43FD94D292F084F00620474 /* HPUtil.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

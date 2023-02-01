@@ -32,6 +32,7 @@
 #import "NativeRenderView.h"
 #import "UIView+DirectionalLayout.h"
 #import "UIView+NativeRender.h"
+#import "HPConvert+HPLayout.h"
 
 #include <objc/runtime.h>
 

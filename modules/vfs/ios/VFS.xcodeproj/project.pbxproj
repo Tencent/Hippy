@@ -336,6 +336,7 @@
 					"$(SRCROOT)/../../footstone/include",
 					"$(SRCROOT)/../../ios/base",
 					"$(SRCROOT)/../../../dom/include",
+					"$(SRCROOT)/../../ios/footstoneutils",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				OTHER_LDFLAGS = "-ObjC";
@@ -356,6 +357,7 @@
 					"$(SRCROOT)/../../footstone/include",
 					"$(SRCROOT)/../../ios/base",
 					"$(SRCROOT)/../../../dom/include",
+					"$(SRCROOT)/../../ios/footstoneutils",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				OTHER_LDFLAGS = "-ObjC";

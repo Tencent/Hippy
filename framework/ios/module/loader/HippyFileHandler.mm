@@ -24,6 +24,7 @@
 #import "HPToolUtils.h"
 
 #include "HippyFileHandler.h"
+#include "footstone/logging.h"
 
 HippyFileHandler::HippyFileHandler(HippyBridge *bridge) {
     bridge_ = bridge;

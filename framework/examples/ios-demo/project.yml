@@ -1,0 +1,23 @@
+name: HippyDemo
+options:
+  createIntermediateGroups: true
+  bundleIdPrefix: "com.tencent"
+  xcodeVersion: "10.0"
+  postGenCommand: pod update
+targets:
+  HippyDemo:
+    type: application
+    platform: iOS
+    deploymentTarget: "11.0"
+    settings:
+      OTHER_LDFLAGS: "-ObjC -force_load \"${PODS_CONFIGURATION_BUILD_DIR}/Hippy/libHippy.a\""
+      TARGETED_DEVICE_FAMILY: "1"
+      CLANG_CXX_LANGUAGE_STANDARD: "c++17"
+    sources:
+      - path: HippyDemo
+      - path: fonts
+        buildPhase: 
+          copyFiles:
+            destination: "resources"
+      - path: res
+        type: "folder"

@@ -25,74 +25,6 @@
 #include <string>
 #include <mutex>
 
-#include "footstone/log_level.h"
-#include "footstone/logging.h"
-#include "footstone/logging.h"
-
-#pragma mark TDFLog Binding
-using LogSeverity = footstone::LogSeverity;
-static HPLogLevel logSeverityToLogLevel(LogSeverity severity) {
-    HPLogLevel level = HPLogLevelInfo;
-    switch (severity) {
-        case LogSeverity::TDF_LOG_WARNING:
-            level = HPLogLevelWarning;
-            break;
-        case LogSeverity::TDF_LOG_ERROR:
-            level = HPLogLevelError;
-            break;
-        case LogSeverity::TDF_LOG_FATAL:
-            level = HPLogLevelFatal;
-            break;
-        default:
-            break;
-    }
-    return level;
-}
-
-static BOOL GetFileNameAndLineNumberFromLogMessage(NSString *message, NSString **fileName, int *lineNumber) {
-    //[INFO:cubic_bezier_animation.cc(146)] animation exec_time_ = 514, delay = 500, duration = 1000
-    NSUInteger locationOfColon = [message rangeOfString:@":"].location;
-    if (NSNotFound == locationOfColon) {
-        return NO;
-    }
-    NSUInteger locationOfLeftBracket = [message rangeOfString:@"("].location;
-    if (NSNotFound == locationOfLeftBracket) {
-        return NO;
-    }
-    if (locationOfLeftBracket <= locationOfColon) {
-        return NO;
-    }
-    NSString *name = [message substringWithRange:NSMakeRange(locationOfColon + 1, locationOfLeftBracket - locationOfColon - 1)];
-    *fileName = [name copy];
-    NSUInteger locationOfRightBracket = [message rangeOfString:@")"].location;
-    if (NSNotFound == locationOfRightBracket || locationOfRightBracket <= locationOfLeftBracket) {
-        return YES;
-    }
-    NSString *number = [message substringWithRange:NSMakeRange(locationOfLeftBracket + 1, locationOfRightBracket - locationOfLeftBracket - 1)];
-    *lineNumber = [number intValue];
-    return YES;
-}
-
-static void registerTDFLogHandler() {
-    static std::once_flag flag;
-    std::call_once(flag, [](){
-        auto logFunction = [](const std::ostringstream &stream, LogSeverity serverity) {
-            @autoreleasepool {
-                std::string string = stream.str();
-                if (string.length()) {
-                    NSString *message = [NSString stringWithUTF8String:string.c_str()];
-                    NSString *fileName = nil;
-                    int lineNumber = 0;
-                    if (GetFileNameAndLineNumberFromLogMessage(message, &fileName, &lineNumber)) {
-                        HPLogNativeInternal(logSeverityToLogLevel(serverity), [fileName UTF8String], lineNumber, nil, @"%@", message);
-                    }
-                }
-            }
-        };
-        footstone::LogMessage::InitializeDelegate(logFunction);
-    });
-}
-
 #pragma mark NativeLog Methods
 
 static NSString *const HPLogFunctionStack = @"HPLogFunctionStack";
@@ -132,7 +64,6 @@ HPLogFunction HPDefaultLogFunction
       };
 
 void HPSetLogFunction(HPLogFunction logFunction) {
-    registerTDFLogHandler();
     HPCurrentLogFunction = logFunction;
 }
 

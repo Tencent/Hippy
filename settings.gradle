@@ -6,9 +6,6 @@ project(':connector-support').projectDir = new File('framework/android/connector
 include 'connector-dom'
 project(':connector-dom').projectDir = new File('framework/android/connector/dom')
 
-include 'renderer-native'
-project(':renderer-native').projectDir = new File('renderer/native/android')
-
 include 'hippy-support'
 project(':hippy-support').projectDir = new File('modules/android/hippy_support')
 
@@ -30,17 +27,24 @@ project(':example').projectDir = new File('framework/examples/android-demo')
 def modules = MODULES.split(',')
 for (String module : modules) {
     String path = module.trim()
+    def subSettingGradle
     if (Paths.get(path).isAbsolute()) {
         ArrayList<String> paths = module.split('/')
         paths.remove(0)
         def subProjectName = paths.join('-')
+        subSettingGradle = path + '/settings.gradle'
         include "$subProjectName"
         project(":$subProjectName").projectDir = new File(path)
     } else {
         def subProjectName = 'connector-' + module.replace("/", "-")
         def projectPath = 'framework/android/connector/' + path
+        subSettingGradle = projectPath + '/settings.gradle'
         include "$subProjectName"
         project(":$subProjectName").projectDir = new File(projectPath)
+    }
+    File target = file(subSettingGradle)
+    if (target.exists()) {
+        apply from: "./$subSettingGradle"
     }
 }
 

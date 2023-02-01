@@ -24,8 +24,6 @@
 
 #import "HPLog.h"
 
-#include "Flex.h"
-
 /**
  * This class provides a collection of conversion functions for mapping
  * JSON objects to native types and classes. These are useful when writing
@@ -111,13 +109,6 @@ typedef id NSPropertyList;
 
 typedef BOOL css_backface_visibility_t;
 + (css_backface_visibility_t)css_backface_visibility_t:(id)json;
-// hplayout
-+ (OverflowType)OverflowType:(id)json;
-+ (FlexDirection)FlexDirection:(id)json;
-+ (FlexAlign)FlexAlign:(id)json;
-+ (PositionType)PositionType:(id)json;
-+ (FlexWrapMode)FlexWrapMode:(id)json;
-+ (DisplayType)DisplayType:(id)json;
 
 @end
 

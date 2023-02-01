@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		F42AF65629260E3400CD0CF6 /* HippyUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F42AF65529260E3400CD0CF6 /* HippyUtils.m */; };
+		F4311E012988BB4F00B4BB9F /* libNativeRenderer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4311E002988BB4F00B4BB9F /* libNativeRenderer.a */; };
+		F4311E032988C00F00B4BB9F /* libdevtools_backend.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4311E022988C00F00B4BB9F /* libdevtools_backend.a */; };
+		F4311E052988C71300B4BB9F /* libdevtools_integration_native.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4311E042988C71300B4BB9F /* libdevtools_integration_native.a */; };
 		F44E1B4D29248B7F0091BCA4 /* HippyPerformanceLogger.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1ACE29248B7F0091BCA4 /* HippyPerformanceLogger.mm */; };
 		F44E1B4E29248B7F0091BCA4 /* HippyDeviceBaseInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AD029248B7F0091BCA4 /* HippyDeviceBaseInfo.mm */; };
 		F44E1B4F29248B7F0091BCA4 /* HippyBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AD729248B7F0091BCA4 /* HippyBridge.mm */; };
@@ -51,10 +54,77 @@
 		F44E1B7729248B7F0091BCA4 /* HippySRSIMDHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B4729248B7F0091BCA4 /* HippySRSIMDHelpers.m */; };
 		F44E1B7829248B7F0091BCA4 /* HippyWebSocketManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B4829248B7F0091BCA4 /* HippyWebSocketManager.m */; };
 		F44E1B7929248B7F0091BCA4 /* HippyDevInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B4C29248B7F0091BCA4 /* HippyDevInfo.m */; };
+		F4827F4C2970206800085A05 /* HippyClipboardModule.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B3F29248B7F0091BCA4 /* HippyClipboardModule.m */; };
+		F4827F4D2970206800085A05 /* HippySRSIMDHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B4729248B7F0091BCA4 /* HippySRSIMDHelpers.m */; };
+		F4827F4E2970206800085A05 /* HippyNetInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B2129248B7F0091BCA4 /* HippyNetInfo.mm */; };
+		F4827F4F2970206800085A05 /* HippyBundleOperationQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AF729248B7F0091BCA4 /* HippyBundleOperationQueue.m */; };
+		F4827F502970206800085A05 /* HippySRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B4629248B7F0091BCA4 /* HippySRWebSocket.m */; };
+		F4827F512970206800085A05 /* HippyBundleLoadOperation.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AFE29248B7F0091BCA4 /* HippyBundleLoadOperation.mm */; };
+		F4827F522970206800085A05 /* NSObject+JSValue.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B0D29248B7F0091BCA4 /* NSObject+JSValue.m */; };
+		F4827F532970206800085A05 /* HippyExceptionModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B3929248B7F0091BCA4 /* HippyExceptionModule.mm */; };
+		F4827F542970206800085A05 /* HippyModulesSetup.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AF029248B7F0091BCA4 /* HippyModulesSetup.mm */; };
+		F4827F552970206800085A05 /* HippyJSExecutor.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1ADF29248B7F0091BCA4 /* HippyJSExecutor.mm */; };
+		F4827F562970206800085A05 /* native_source_code_ios.cc in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AE229248B7F0091BCA4 /* native_source_code_ios.cc */; };
+		F4827F572970206800085A05 /* HippyInstanceLoadBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B0729248B7F0091BCA4 /* HippyInstanceLoadBlock.m */; };
+		F4827F582970206800085A05 /* HippyEventObserverModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B2E29248B7F0091BCA4 /* HippyEventObserverModule.mm */; };
+		F4827F592970206800085A05 /* HippyTiming.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B2529248B7F0091BCA4 /* HippyTiming.mm */; };
+		F4827F5A2970206800085A05 /* HippyNetWork.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B1A29248B7F0091BCA4 /* HippyNetWork.mm */; };
+		F4827F5B2970206800085A05 /* HippyOCTurboModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B1629248B7F0091BCA4 /* HippyOCTurboModule.mm */; };
+		F4827F5C2970206800085A05 /* HippyFrameUpdate.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AF429248B7F0091BCA4 /* HippyFrameUpdate.m */; };
+		F4827F5D2970206800085A05 /* HippyBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AD729248B7F0091BCA4 /* HippyBridge.mm */; };
+		F4827F5E2970206800085A05 /* HippyRedBox.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B3529248B7F0091BCA4 /* HippyRedBox.mm */; };
+		F4827F5F2970206800085A05 /* HippyNetInfoIntenal.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B2229248B7F0091BCA4 /* HippyNetInfoIntenal.m */; };
+		F4827F602970206800085A05 /* NSObject+CtxValue.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B0429248B7F0091BCA4 /* NSObject+CtxValue.mm */; };
+		F4827F612970206800085A05 /* HippyKeyCommands.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AE129248B7F0091BCA4 /* HippyKeyCommands.m */; };
+		F4827F622970206800085A05 /* HippyImageLoaderModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B3B29248B7F0091BCA4 /* HippyImageLoaderModule.mm */; };
+		F4827F632970206800085A05 /* HippyJSEnginesMapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AE029248B7F0091BCA4 /* HippyJSEnginesMapper.mm */; };
+		F4827F642970206800085A05 /* HippyModuleData.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AF329248B7F0091BCA4 /* HippyModuleData.mm */; };
+		F4827F652970206800085A05 /* HippyPerformanceLogger.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1ACE29248B7F0091BCA4 /* HippyPerformanceLogger.mm */; };
+		F4827F662970206800085A05 /* HippyUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F42AF65529260E3400CD0CF6 /* HippyUtils.m */; };
+		F4827F672970206800085A05 /* NSObject+HippyTurbo.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B1829248B7F0091BCA4 /* NSObject+HippyTurbo.mm */; };
+		F4827F682970206800085A05 /* HippyBridge+VFSLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B2929248B7F0091BCA4 /* HippyBridge+VFSLoader.mm */; };
+		F4827F692970206800085A05 /* HippyFileHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B2A29248B7F0091BCA4 /* HippyFileHandler.mm */; };
+		F4827F6A2970206800085A05 /* HippyErrorInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B0B29248B7F0091BCA4 /* HippyErrorInfo.m */; };
+		F4827F6B2970206800085A05 /* HippyDevMenu.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B3329248B7F0091BCA4 /* HippyDevMenu.mm */; };
+		F4827F6C2970206800085A05 /* HippyJSCContextWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AE929248B7F0091BCA4 /* HippyJSCContextWrapper.mm */; };
+		F4827F6D2970206800085A05 /* HippyEventDispatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AEC29248B7F0091BCA4 /* HippyEventDispatcher.mm */; };
+		F4827F6E2970206800085A05 /* HippyWebSocketManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B4829248B7F0091BCA4 /* HippyWebSocketManager.m */; };
+		F4827F6F2970206800085A05 /* HippyDeviceBaseInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AD029248B7F0091BCA4 /* HippyDeviceBaseInfo.mm */; };
+		F4827F702970206800085A05 /* HippyRootViewManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B1E29248B7F0091BCA4 /* HippyRootViewManager.mm */; };
+		F4827F712970206800085A05 /* HippyAsyncLocalStorage.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B3029248B7F0091BCA4 /* HippyAsyncLocalStorage.mm */; };
+		F4827F722970206800085A05 /* HippyBundleExecutionOperation.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AFB29248B7F0091BCA4 /* HippyBundleExecutionOperation.mm */; };
+		F4827F732970206800085A05 /* HippyBundleURLProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AF829248B7F0091BCA4 /* HippyBundleURLProvider.m */; };
+		F4827F742970206800085A05 /* HippyDisplayLink.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AF529248B7F0091BCA4 /* HippyDisplayLink.m */; };
+		F4827F752970206800085A05 /* HippyModuleMethod.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AED29248B7F0091BCA4 /* HippyModuleMethod.mm */; };
+		F4827F762970206800085A05 /* HippyDevInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B4C29248B7F0091BCA4 /* HippyDevInfo.m */; };
+		F4827F772970206800085A05 /* HippyTurboModuleManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B1729248B7F0091BCA4 /* HippyTurboModuleManager.mm */; };
+		F4827F812970209800085A05 /* libBase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4827F802970209800085A05 /* libBase.a */; };
+		F4827F832970209800085A05 /* libImage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4827F822970209800085A05 /* libImage.a */; };
+		F4827F872970209800085A05 /* libVFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4827F862970209800085A05 /* libVFS.a */; };
+		F4827F882970209B00085A05 /* libFramework.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F44E1AC129248B520091BCA4 /* libFramework.a */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F4827F7E2970208A00085A05 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F44E1AB929248B520091BCA4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F44E1AC029248B520091BCA4;
+			remoteInfo = Framework;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		F44E1ABF29248B520091BCA4 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4827F792970206800085A05 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "include/$(PRODUCT_NAME)";
@@ -68,6 +138,9 @@
 /* Begin PBXFileReference section */
 		F42AF65429260E3400CD0CF6 /* HippyUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyUtils.h; sourceTree = "<group>"; };
 		F42AF65529260E3400CD0CF6 /* HippyUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyUtils.m; sourceTree = "<group>"; };
+		F4311E002988BB4F00B4BB9F /* libNativeRenderer.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libNativeRenderer.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4311E022988C00F00B4BB9F /* libdevtools_backend.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libdevtools_backend.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4311E042988C71300B4BB9F /* libdevtools_integration_native.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libdevtools_integration_native.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F44E1AC129248B520091BCA4 /* libFramework.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libFramework.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F44E1ACE29248B7F0091BCA4 /* HippyPerformanceLogger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyPerformanceLogger.mm; sourceTree = "<group>"; };
 		F44E1ACF29248B7F0091BCA4 /* HippyMethodInterceptorProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyMethodInterceptorProtocol.h; sourceTree = "<group>"; };
@@ -166,6 +239,11 @@
 		F44E1B4929248B7F0091BCA4 /* HippySRWebSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippySRWebSocket.h; sourceTree = "<group>"; };
 		F44E1B4B29248B7F0091BCA4 /* HippyDevInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyDevInfo.h; sourceTree = "<group>"; };
 		F44E1B4C29248B7F0091BCA4 /* HippyDevInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyDevInfo.m; sourceTree = "<group>"; };
+		F4827F7D2970206800085A05 /* libHippySDK.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libHippySDK.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4827F802970209800085A05 /* libBase.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libBase.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4827F822970209800085A05 /* libImage.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libImage.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4827F842970209800085A05 /* libNativeRender.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libNativeRender.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4827F862970209800085A05 /* libVFS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libVFS.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -173,6 +251,20 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4827F782970206800085A05 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F4827F882970209B00085A05 /* libFramework.a in Frameworks */,
+				F4311E012988BB4F00B4BB9F /* libNativeRenderer.a in Frameworks */,
+				F4827F872970209800085A05 /* libVFS.a in Frameworks */,
+				F4827F812970209800085A05 /* libBase.a in Frameworks */,
+				F4311E032988C00F00B4BB9F /* libdevtools_backend.a in Frameworks */,
+				F4311E052988C71300B4BB9F /* libdevtools_integration_native.a in Frameworks */,
+				F4827F832970209800085A05 /* libImage.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -187,6 +279,7 @@
 				F44E1B0F29248B7F0091BCA4 /* module */,
 				F44E1AFF29248B7F0091BCA4 /* utils */,
 				F44E1AC229248B520091BCA4 /* Products */,
+				F4827F3D29701F4900085A05 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -194,6 +287,7 @@
 			isa = PBXGroup;
 			children = (
 				F44E1AC129248B520091BCA4 /* libFramework.a */,
+				F4827F7D2970206800085A05 /* libHippySDK.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -493,6 +587,20 @@
 			path = devtools;
 			sourceTree = "<group>";
 		};
+		F4827F3D29701F4900085A05 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F4311E042988C71300B4BB9F /* libdevtools_integration_native.a */,
+				F4311E022988C00F00B4BB9F /* libdevtools_backend.a */,
+				F4311E002988BB4F00B4BB9F /* libNativeRenderer.a */,
+				F4827F802970209800085A05 /* libBase.a */,
+				F4827F822970209800085A05 /* libImage.a */,
+				F4827F842970209800085A05 /* libNativeRender.a */,
+				F4827F862970209800085A05 /* libVFS.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -511,6 +619,24 @@
 			name = Framework;
 			productName = framework;
 			productReference = F44E1AC129248B520091BCA4 /* libFramework.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		F4827F4A2970206800085A05 /* HippySDK */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F4827F7A2970206800085A05 /* Build configuration list for PBXNativeTarget "HippySDK" */;
+			buildPhases = (
+				F4827F4B2970206800085A05 /* Sources */,
+				F4827F782970206800085A05 /* Frameworks */,
+				F4827F792970206800085A05 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F4827F7F2970208A00085A05 /* PBXTargetDependency */,
+			);
+			name = HippySDK;
+			productName = framework;
+			productReference = F4827F7D2970206800085A05 /* libHippySDK.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -541,6 +667,7 @@
 			projectRoot = "";
 			targets = (
 				F44E1AC029248B520091BCA4 /* Framework */,
+				F4827F4A2970206800085A05 /* HippySDK */,
 			);
 		};
 /* End PBXProject section */
@@ -597,7 +724,66 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F4827F4B2970206800085A05 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F4827F4C2970206800085A05 /* HippyClipboardModule.m in Sources */,
+				F4827F4D2970206800085A05 /* HippySRSIMDHelpers.m in Sources */,
+				F4827F4E2970206800085A05 /* HippyNetInfo.mm in Sources */,
+				F4827F4F2970206800085A05 /* HippyBundleOperationQueue.m in Sources */,
+				F4827F502970206800085A05 /* HippySRWebSocket.m in Sources */,
+				F4827F512970206800085A05 /* HippyBundleLoadOperation.mm in Sources */,
+				F4827F522970206800085A05 /* NSObject+JSValue.m in Sources */,
+				F4827F532970206800085A05 /* HippyExceptionModule.mm in Sources */,
+				F4827F542970206800085A05 /* HippyModulesSetup.mm in Sources */,
+				F4827F552970206800085A05 /* HippyJSExecutor.mm in Sources */,
+				F4827F562970206800085A05 /* native_source_code_ios.cc in Sources */,
+				F4827F572970206800085A05 /* HippyInstanceLoadBlock.m in Sources */,
+				F4827F582970206800085A05 /* HippyEventObserverModule.mm in Sources */,
+				F4827F592970206800085A05 /* HippyTiming.mm in Sources */,
+				F4827F5A2970206800085A05 /* HippyNetWork.mm in Sources */,
+				F4827F5B2970206800085A05 /* HippyOCTurboModule.mm in Sources */,
+				F4827F5C2970206800085A05 /* HippyFrameUpdate.m in Sources */,
+				F4827F5D2970206800085A05 /* HippyBridge.mm in Sources */,
+				F4827F5E2970206800085A05 /* HippyRedBox.mm in Sources */,
+				F4827F5F2970206800085A05 /* HippyNetInfoIntenal.m in Sources */,
+				F4827F602970206800085A05 /* NSObject+CtxValue.mm in Sources */,
+				F4827F612970206800085A05 /* HippyKeyCommands.m in Sources */,
+				F4827F622970206800085A05 /* HippyImageLoaderModule.mm in Sources */,
+				F4827F632970206800085A05 /* HippyJSEnginesMapper.mm in Sources */,
+				F4827F642970206800085A05 /* HippyModuleData.mm in Sources */,
+				F4827F652970206800085A05 /* HippyPerformanceLogger.mm in Sources */,
+				F4827F662970206800085A05 /* HippyUtils.m in Sources */,
+				F4827F672970206800085A05 /* NSObject+HippyTurbo.mm in Sources */,
+				F4827F682970206800085A05 /* HippyBridge+VFSLoader.mm in Sources */,
+				F4827F692970206800085A05 /* HippyFileHandler.mm in Sources */,
+				F4827F6A2970206800085A05 /* HippyErrorInfo.m in Sources */,
+				F4827F6B2970206800085A05 /* HippyDevMenu.mm in Sources */,
+				F4827F6C2970206800085A05 /* HippyJSCContextWrapper.mm in Sources */,
+				F4827F6D2970206800085A05 /* HippyEventDispatcher.mm in Sources */,
+				F4827F6E2970206800085A05 /* HippyWebSocketManager.m in Sources */,
+				F4827F6F2970206800085A05 /* HippyDeviceBaseInfo.mm in Sources */,
+				F4827F702970206800085A05 /* HippyRootViewManager.mm in Sources */,
+				F4827F712970206800085A05 /* HippyAsyncLocalStorage.mm in Sources */,
+				F4827F722970206800085A05 /* HippyBundleExecutionOperation.mm in Sources */,
+				F4827F732970206800085A05 /* HippyBundleURLProvider.m in Sources */,
+				F4827F742970206800085A05 /* HippyDisplayLink.m in Sources */,
+				F4827F752970206800085A05 /* HippyModuleMethod.mm in Sources */,
+				F4827F762970206800085A05 /* HippyDevInfo.m in Sources */,
+				F4827F772970206800085A05 /* HippyTurboModuleManager.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F4827F7F2970208A00085A05 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F44E1AC029248B520091BCA4 /* Framework */;
+			targetProxy = F4827F7E2970208A00085A05 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		F44E1AC829248B520091BCA4 /* Debug */ = {
@@ -772,6 +958,76 @@
 			};
 			name = Release;
 		};
+		F4827F7B2970206800085A05 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CODE_SIGN_STYLE = Automatic;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"ENABLE_INSPECTOR=1",
+					"JS_USE_JSC=1",
+					"V8_WITHOUT_INSPECTOR=1",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../modules/ios/**",
+					"$(SRCROOT)/../../modules/vfs/ios",
+					"$(SRCROOT)/../../modules/vfs/native/include",
+					"$(SRCROOT)/../../modules/footstone/include",
+					"$(SRCROOT)/../../driver/js/include",
+					"$(SRCROOT)/../../layout/engine",
+					"$(SRCROOT)/../../dom/include",
+					"$(SRCROOT)/../../devtools/devtools-integration/native/include",
+					"$(SRCROOT)/../../devtools/devtools-backend/include",
+					"$(SRCROOT)/../../devtools/devtools-integration/ios/DevtoolsBackend/_deps/json-src/include",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LIBRARY_SEARCH_PATHS = (
+					"${SRCROOT}/../../devtools/devtools-integration/ios/DevtoolsBackend/devtools-integration/native/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}",
+					"${SRCROOT}/../../devtools/devtools-integration/ios/DevtoolsBackend/devtools-integration/native/infa_packages/devtools_backend/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F4827F7C2970206800085A05 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CODE_SIGN_STYLE = Automatic;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"JS_USE_JSC=1",
+					"NDEBUG=1",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../modules/ios/**",
+					"$(SRCROOT)/../../modules/vfs/ios",
+					"$(SRCROOT)/../../modules/vfs/native/include",
+					"$(SRCROOT)/../../modules/footstone/include",
+					"$(SRCROOT)/../../driver/js/include",
+					"$(SRCROOT)/../../layout/engine",
+					"$(SRCROOT)/../../dom/include",
+					"$(SRCROOT)/../../devtools/devtools-integration/native/include",
+					"$(SRCROOT)/../../devtools/devtools-backend/include",
+					"$(SRCROOT)/../../devtools/devtools-integration/ios/DevtoolsBackend/_deps/json-src/include",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LIBRARY_SEARCH_PATHS = (
+					"${SRCROOT}/../../devtools/devtools-integration/ios/DevtoolsBackend/devtools-integration/native/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}",
+					"${SRCROOT}/../../devtools/devtools-integration/ios/DevtoolsBackend/devtools-integration/native/infa_packages/devtools_backend/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -789,6 +1045,15 @@
 			buildConfigurations = (
 				F44E1ACB29248B520091BCA4 /* Debug */,
 				F44E1ACC29248B520091BCA4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F4827F7A2970206800085A05 /* Build configuration list for PBXNativeTarget "HippySDK" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F4827F7B2970206800085A05 /* Debug */,
+				F4827F7C2970206800085A05 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

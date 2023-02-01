@@ -482,7 +482,9 @@ class VoltronJSEngine
     _currentState = EngineState.destroyed;
     _engineContext?.renderContext.forEachInstance(destroyInstance);
     _eventListenerList.clear();
-    _engineContext?.destroy(false);
+    _engineContext?.destroyBridge((res) {
+      _engineContext?.destroy(false);
+    }, false);
     _globalConfigs.destroy();
   }
 

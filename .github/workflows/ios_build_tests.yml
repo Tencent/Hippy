@@ -9,17 +9,44 @@ on:
       - v3.0
     paths:
       - 'framework/ios/**'
-      - 'driver/js/lib/**'
+      - 'framework/examples/ios-demo/**'
       - 'driver/js/src/**'
       - 'driver/js/include/**'
-      - 'driver/js/CMakeLists.txt'
-      - 'dom/**'
+      - 'dom/include/**'
+      - 'dom/src/**'
       - 'layout/engine/**'
       - 'modules/ios/**'
       - 'modules/footstone/**'
+      - 'modules/vfs/ios/**'
+      - 'modules/vfs/native/**'
       - 'renderer/native/ios/**'
       - 'devtools/devtools-backend/**'
-      - 'hippy.podspec'
+      - 'HippySDK.xcworkspace/**'
+      - 'Hippy.podspec'
+
+env:
+  BUILD_FUNCTION: |
+    function build {
+      xcodebuild -workspace "$1" -list | \
+      sed -n '/Schemes/,/^$/p' | \
+      grep -v "Schemes:" | \
+      grep -v '^\s*$' | \
+      while read scheme; do
+        echo "Building $scheme ..."
+        xcodebuild build \
+          -destination "generic/platform=iOS" \
+          -workspace "$1" \
+          -scheme "$scheme" \
+          -configuration "$2" \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO
+      done
+    }
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   ios_build_tests:
@@ -27,33 +54,34 @@ jobs:
     strategy:
       matrix:
         type: [debug, release]
+        target: [sdk, demo]
         include:
           - type: debug
             configuration: Debug
           - type: release
             configuration: Release
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v3
         with:
           lfs: true
-      - name: Build
+      - name: Xcodegen
+        if: matrix.target == 'demo'
+        uses: xavierLowmiller/xcodegen-action@1.1.2
+        with:
+          spec: framework/examples/ios-demo/project.yml
+          version: '2.32.0'
+      - name: SDK
+        if: matrix.target == 'sdk'
         run: |
-          pushd framework/examples/ios-demo
-          ./cmakebuild.sh
-          popd
-          xcodebuild -workspace 'Hippy.xcworkspace' -list | \
-          sed -n '/Schemes/,/^$/p' | \
-          grep -v "Schemes:" | \
-          grep -v '^\s*$' | \
-          while read scheme; do
-            echo "Building ${scheme}…"
-            xcodebuild build \
-              -destination "generic/platform=iOS" \
-              -workspace "Hippy.xcworkspace" \
-              -scheme "${scheme}" \
-              -configuration "${{ matrix.configuration }}" \
-              CODE_SIGN_IDENTITY="" \
-              CODE_SIGNING_REQUIRED=NO \
-              CODE_SIGNING_ALLOWED=NO
-          done
+          ${{ env.BUILD_FUNCTION }}
+
+          ./xcodeinitscript.sh
+          build 'HippySDK.xcworkspace' '${{ matrix.configuration }}'
+      - name: Demo
+        if: matrix.target == 'demo'
+        working-directory: framework/examples/ios-demo
+        run: |
+          ${{ env.BUILD_FUNCTION }}
+
+          build 'HippyDemo.xcworkspace' '${{ matrix.configuration }}'

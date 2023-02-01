@@ -23,6 +23,7 @@
 #import "NSURLSessionDataProgress.h"
 #import "TypeConverter.h"
 #import "NSURLResponse+ToUnorderedMap.h"
+#import "HPFootstoneUtils.h"
 
 #include "vfs/job_response.h"
 #include "vfs/request_job.h"

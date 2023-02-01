@@ -62,7 +62,9 @@ void HippyScreenAdapter::RemovePostFrameCallback(uint64_t id) {
   auto render_manager = dom_manager->GetRenderManager().lock();
   FOOTSTONE_CHECK(render_manager);
   auto root_node = hippy_dom_->root_node.lock();
-  FOOTSTONE_CHECK(root_node);
+  if (!root_node) {
+    return;
+  }
   auto children = root_node->GetChildren();
   if (!children.empty()) {
     hippy::dom::DomArgument argument = makeFrameCallbackArgument(id);
@@ -87,7 +89,9 @@ void HippyScreenAdapter::GetScreenShot(const hippy::devtools::ScreenRequest& req
   auto render_manager = dom_manager->GetRenderManager().lock();
   FOOTSTONE_CHECK(render_manager);
   auto root_node = hippy_dom_->root_node.lock();
-  FOOTSTONE_CHECK(root_node);
+  if (!root_node) {
+    return;
+  }
   auto children = root_node->GetChildren();
   if (!children.empty()) {
     hippy::dom::DomArgument argument = makeScreenRequestArgument(request);

@@ -32,17 +32,18 @@
 
 #include <memory>
 
-#include "dom/animation/animation_manager.h"
-#include "dom/dom_manager.h"
-#include "dom/render_manager.h"
-#include "footstone/worker_manager.h"
-#include "vfs/uri_loader.h"
-
 @class HippyPerformanceLogger;
 @class HippyJSExecutor;
 @class HippyModuleData;
 
 class VFSUriLoader;
+
+namespace hippy {
+inline namespace dom {
+class DomManager;
+class RootNode;
+};
+};
 
 /**
  * Indicate hippy sdk version

@@ -1,0 +1,3 @@
+include 'renderer-native'
+project(':renderer-native').projectDir = new File('renderer/native/android')
+

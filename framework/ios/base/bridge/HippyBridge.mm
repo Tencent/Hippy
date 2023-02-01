@@ -48,6 +48,7 @@
 #import "HPI18nUtils.h"
 #import "HPInvalidating.h"
 #import "HPLog.h"
+#import "HPOCToHippyValue.h"
 #import "HPToolUtils.h"
 #import "TypeConverter.h"
 #import "VFSUriLoader.h"
@@ -55,8 +56,14 @@
 #include <objc/runtime.h>
 #include <sys/utsname.h>
 
+#include "dom/animation/animation_manager.h"
+#include "dom/dom_manager.h"
 #include "dom/scene.h"
+#include "dom/render_manager.h"
 #include "driver/scope.h"
+#include "footstone/worker_manager.h"
+#include "vfs/uri_loader.h"
+#include "VFSUriHandler.h"
 
 #ifdef ENABLE_INSPECTOR
 #include "devtools/vfs/devtools_handler.h"
@@ -382,7 +389,7 @@ dispatch_queue_t HippyBridgeQueue() {
                             @"id": rootTag,
                             @"params": props ?: @{},
                             @"version": HippySDKVersion};
-    footstone::value::HippyValue value = OCTypeToDomValue(param);
+    footstone::value::HippyValue value = [param toHippyValue];
     std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
     self.javaScriptExecutor.pScope->LoadInstance(domValue);
 }
