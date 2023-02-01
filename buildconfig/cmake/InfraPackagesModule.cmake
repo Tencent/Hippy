@@ -84,7 +84,12 @@ macro(InfraPackage_Add packageName)
       list(APPEND FetchContent_Declare_ARG URL_HASH ${ARG_REMOTE_HASH})
     endif ()
 
+    cmake_policy(PUSH)
+    if (POLICY CMP0135)
+      cmake_policy(SET CMP0135 NEW) # valid for DOWNLOAD_EXTRACT_TIMESTAMP option in CMake 3.24 and later
+    endif ()
     FetchContent_Declare(${FetchContent_Declare_ARG})
+    cmake_policy(POP)
     FetchContent_MakeAvailable(${packageNameLower})
     set(__return True)
   endif ()
