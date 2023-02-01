@@ -778,6 +778,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 mDomManager.createRoot(mRootView);
                 mDomManager.attachToRoot(mRootView);
                 mJsDriver.attachToRoot(mRootView);
+                if (mDevtoolsManager != null) {
+                    mDevtoolsManager.attachToRoot(mRootView);
+                }
                 mNativeRenderer.onRuntimeInitialized(mRootView);
             }
             if (mDevtoolsManager != null) {
