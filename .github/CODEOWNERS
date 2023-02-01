@@ -70,6 +70,3 @@ CMakeLists.txt @medns
 /tsconfig.json @zoomchan-cxj
 /lerna.json @zoomchan-cxj
 /scripts/ @zoomchan-cxj
-
-# build: docker
-/docker/ @medns
