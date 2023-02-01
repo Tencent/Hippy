@@ -50,18 +50,6 @@ Pod::Spec.new do |s|
     puts 'hippy subspec \'framework\' read end'
   end
 
-  s.subspec 'Layout' do |layout|
-    puts 'hippy subspec \'layout\' read begin'
-    layout.libraries = 'c++'
-    layout.source_files = ['layout/engine/*.{h,cpp}', 'modules/ios/layoututils/*.{h,m}']
-    layout.public_header_files = ['layout/engine/*.h', 'modules/ios/layoututils/*.h']
-    layout.pod_target_xcconfig = {
-      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/layout' + 
-                              ' ${PODS_ROOT}/hippy/layout/engine'
-    }
-    puts 'hippy subspec \'layout\' read end'
-  end
-
   s.subspec 'Footstone' do |footstone|
     puts 'hippy subspec \'footstone\' read begin'
     footstone.libraries = 'c++'
@@ -76,6 +64,7 @@ Pod::Spec.new do |s|
     footstone.user_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/modules/footstone/include'
     }
+    footstone.preserve_path = 'modules/footstone'
     puts 'hippy subspec \'footstone\' read end'
   end
 
@@ -108,6 +97,7 @@ Pod::Spec.new do |s|
     vfs.user_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/modules/vfs/native/include'
     }
+    vfs.preserve_path = 'modules/vfs/native'
     puts 'hippy subspec \'vfs\' read end'
   end
 
@@ -125,6 +115,7 @@ Pod::Spec.new do |s|
       'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/driver/js/include/', 
       'GCC_PREPROCESSOR_DEFINITIONS' => 'JS_USE_JSC=1'
     }
+    driver.preserve_path = 'driver/js'
     puts 'hippy subspec \'driver\' read end'
   end 
 
@@ -164,6 +155,7 @@ Pod::Spec.new do |s|
       'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/dom/include/'
     }
     dom.dependency 'Hippy/Footstone'
+    dom.preserve_path = 'dom'
     puts 'hippy subspec \'dom\' read end'
   end 
 
