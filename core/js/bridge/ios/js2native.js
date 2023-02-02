@@ -30,9 +30,9 @@ const getModuleName = (originModuleName) => {
   return originModuleName;
 };
 
-const getMethodName = (originMethodName, setName) => {
-  if (setName) {
-    return setName;
+const getMethodName = (originMethodName, realMethodName) => {
+  if (realMethodName) {
+    return realMethodName;
   }
   if (originMethodName === 'createNode') {
     return 'insertChildren';
@@ -123,33 +123,39 @@ Hippy.bridge.callNative = (...callArguments) => {
       return;
     }
   } else {
-    let setName = '';
-    if (nativeModuleName === 'UIManagerModule' && nativeMethodName === 'createNode') {
-      setName = 'createView';
-    } else if (nativeModuleName === 'UIManagerModule' && nativeMethodName === 'updateNode') {
-      setName = 'updateView';
-    } else if (nativeModuleName === 'UIManagerModule' && nativeMethodName === 'deleteNode') {
-      setName = 'manageChildren';
+    let realNativeMethodName = '';
+    if (nativeModuleName === 'UIManagerModule') {
+      switch (nativeMethodName) {
+        case 'createNode':
+          realNativeMethodName = 'createView';
+          break;
+        case 'updateNode':
+          realNativeMethodName = 'updateView';
+          break;
+        case 'deleteNode':
+          realNativeMethodName = 'manageChildren';
+          break;
+      }
     }
 
     const NativeModule = __GLOBAL__.NativeModules[getModuleName(nativeModuleName)];
-
-    if (NativeModule && NativeModule[getMethodName(nativeMethodName, setName)]) {
-      const callModuleMethod = NativeModule[getMethodName(nativeMethodName, setName)];
+    const methodName = getMethodName(nativeMethodName, realNativeMethodName);
+    if (NativeModule && NativeModule[methodName]) {
+      const callModuleMethod = NativeModule[methodName];
       const param = [];
       for (let i = 2; i < callArguments.length; i += 1) {
         param.push(callArguments[i]);
       }
-
+      const [rootId, nodes] = param;
       if (nativeModuleName === 'UIManagerModule' && nativeMethodName === 'createNode') {
-        const { setChildren } = __GLOBAL__.NativeModules.UIManager;
         const uiList = [];
 
-        param[1].forEach((uiItem) => {
+        nodes && nodes.forEach((uiItem) => {
           const nativeProps = Object.assign(uiItem.props, uiItem.props.style);
           delete nativeProps.style;
           const tagName = uiItem.tagName === undefined ? '' : uiItem.tagName;
-          const uiParam = [uiItem.id, getComponentName(uiItem.name), param[0], tagName, nativeProps];
+          const uiParam = [uiItem.id, getComponentName(uiItem.name), rootId, tagName, nativeProps];
+          // TODO: need using batched createView API in future
           callModuleMethod.apply(callModuleMethod, uiParam);
           uiList.push(uiItem);
         });
@@ -163,19 +169,17 @@ Hippy.bridge.callNative = (...callArguments) => {
               siblingList.push(uiItem);
               deleteIndexList.push(index);
             }
+            // generate dom trees based on different parent id in sequence
+            // when encountering bigger parent id, skip it and generate another tree next time
             return uiItem.pId <= siblingPid;
           });
 
           siblingList.sort((a, b) => a.index - b.index);
-          const insertChildIds = [];
-          siblingList.forEach((item) => {
-            insertChildIds.push(item.id);
-          });
+          const insertChildIds = siblingList.map(item => item.id);
 
           if (__GLOBAL__.IosNodeTree[siblingPid]
               && __GLOBAL__.IosNodeTree[siblingPid].length > 0) {
-            const addChildTags = [];
-            const addChildIndexs = [];
+            const addChildIndexes = [];
 
             let offsetIndex = 0;
             if (siblingList[0].index > __GLOBAL__.IosNodeTree[siblingPid].length) {
@@ -183,35 +187,26 @@ Hippy.bridge.callNative = (...callArguments) => {
             }
 
             siblingList.forEach((item) => {
-              addChildTags.push(item.id);
-              addChildIndexs.push((item.index - offsetIndex));
+              addChildIndexes.push((item.index - offsetIndex));
               __GLOBAL__.IosNodeTree[siblingPid].splice(item.index, 0, item.id);
             });
 
             __GLOBAL__.NativeModules.UIManager.manageChildren(
               siblingPid, undefined, undefined,
-              addChildTags, addChildIndexs, undefined,
+              insertChildIds, addChildIndexes, undefined,
             );
           } else {
+            const { setChildren } = __GLOBAL__.NativeModules.UIManager;
+            // TODO: need using batched setChildren API in future
             setChildren(siblingPid, insertChildIds);
-            let cacheIds;
-            try {
-              cacheIds = JSON.parse(JSON.stringify(insertChildIds));
-            } catch (e) {
-              cacheIds = [];
-              insertChildIds.forEach((id) => {
-                cacheIds.push(id);
-              });
-            }
+            const cacheIds = [...insertChildIds];
 
             if (__GLOBAL__.IosNodeTree[siblingPid]) {
-              __GLOBAL__.IosNodeTree[siblingPid] = __GLOBAL__.IosNodeTree[
-                siblingPid].concat(cacheIds);
+              __GLOBAL__.IosNodeTree[siblingPid] = __GLOBAL__.IosNodeTree[siblingPid].concat(cacheIds);
             } else {
               __GLOBAL__.IosNodeTree[siblingPid] = cacheIds;
             }
           }
-
           deleteIndexList.forEach((idx, index) => {
             const deleteIndex = idx - index;
             uiList.splice(deleteIndex, 1);
