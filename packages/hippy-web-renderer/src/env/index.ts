@@ -32,7 +32,6 @@ import { nativeBridge } from './native2js';
 import { device } from './device';
 import { getTurboModule, turboPromise } from './turbo';
 import { dynamicLoad } from './dynamic-load';
-import './global';
 
 const global = getGlobal();
 

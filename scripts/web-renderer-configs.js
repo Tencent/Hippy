@@ -23,6 +23,7 @@ const typescript = require('rollup-plugin-typescript2');
 const replace = require('@rollup/plugin-replace');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const commonjs = require('@rollup/plugin-commonjs');
+const { babel } = require('@rollup/plugin-babel');
 const hippyWebRendererPackage = require('../packages/hippy-web-renderer/package.json');
 function banner(name, version) {
   const startYear = 2017;
@@ -93,6 +94,27 @@ function genConfig(name) {
           },
           exclude: ['**/__tests__/*.test.*'],
         },
+      }),
+      babel({
+        presets: [
+          [
+            '@babel/env',
+            {
+              targets: {
+                chrome: '57',
+              },
+            },
+          ],
+        ],
+        plugins: [
+          [
+            '@babel/plugin-transform-runtime',
+            {
+              corejs: false,
+            },
+          ],
+        ],
+        babelHelpers: 'runtime',
       }),
     ].concat(opts.plugins || []),
     output: {
