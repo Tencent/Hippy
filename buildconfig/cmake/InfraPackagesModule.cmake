@@ -58,11 +58,7 @@ macro(InfraPackage_Add packageName)
     if (EXISTS "${ABSOLUTE_LOCAL_PATH}")
       # Pass variables back to the caller.
       set(${packageNameLower}_SOURCE_DIR ${ABSOLUTE_LOCAL_PATH})
-      if ("${ABSOLUTE_LOCAL_PATH}" MATCHES "^${CMAKE_SOURCE_DIR}")
-        set(${packageNameLower}_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/${ARG_LOCAL}")
-      else ()
-        set(${packageNameLower}_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/infa_packages/${packageNameLower}")
-      endif ()
+      set(${packageNameLower}_BINARY_DIR "${CMAKE_BINARY_DIR}/infa_packages/${packageNameLower}")
       set(${contentNameLower}_POPULATED True)
 
       if (EXISTS "${ABSOLUTE_LOCAL_PATH}/CMakeLists.txt")
