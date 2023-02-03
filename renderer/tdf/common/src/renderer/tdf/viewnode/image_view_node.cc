@@ -64,6 +64,7 @@ constexpr const char kError[] = "error";
 constexpr const char kLoad[] = "load";
 constexpr const char kLoadEnd[] = "loadEnd";
 constexpr const char kLoadStart[] = "loadStart";
+constexpr const char kProgress[] = "progress";
 }  // namespace image
 #pragma clang diagnostic pop
 
@@ -133,6 +134,47 @@ void ImageViewNode::LoadImage(std::string url) {
         return;
       }
     }
+
+    image_view->SetImageLoadStartCallback([WEAK_THIS]() {
+      DEFINE_AND_CHECK_SELF(ImageViewNode)
+      // send loadStart event
+      self->SendUIDomEvent(kLoadStart);
+    });
+
+    image_view->SetImageLoadFinishCallback([WEAK_THIS, image_view](tdfcore::ImageError error) {
+      DEFINE_AND_CHECK_SELF(ImageViewNode)
+      if (error == tdfcore::ImageError::kNone) {
+        // send load event
+        self->SendUIDomEvent(kLoad);
+
+        // send loadEnd event
+        auto frame = image_view->GetFrame();
+        DomValueObjectType size;
+        size["width"] = frame.Width();
+        size["height"] = frame.Height();
+        DomValueObjectType param;
+        param["success"] = 1;
+        param["image"] = size;
+        self->SendUIDomEvent(kLoadEnd, std::make_shared<footstone::HippyValue>(param));
+      } else {
+        // send error event
+        self->SendUIDomEvent(kError);
+
+        // send loadEnd event
+        DomValueObjectType param;
+        param["success"] = 0;
+        self->SendUIDomEvent(kLoadEnd, std::make_shared<footstone::HippyValue>(param));
+      }
+    });
+
+    image_view->SetImageLoadProgressCallback([WEAK_THIS](float progress) {
+      DEFINE_AND_CHECK_SELF(ImageViewNode)
+      // send progress event
+      DomValueObjectType param;
+      param["loaded"] = progress;
+      param["total"] = 1.f;
+      self->SendUIDomEvent(kProgress, std::make_shared<footstone::HippyValue>(param));
+    });
 
     image_view->SetImage(TDF_MAKE_SHARED(tdfcore::Image, url));
   }
