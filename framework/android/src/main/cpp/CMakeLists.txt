@@ -66,24 +66,6 @@ GlobalPackages_Add(jni)
 target_link_libraries(${PROJECT_NAME} PRIVATE jni)
 # endregion
 
-# region dom delegate
-add_subdirectory(${PROJECT_ROOT_DIR}/framework/android/connector/dom/src/main/cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/connector/dom/native)
-target_link_libraries(${PROJECT_NAME} PUBLIC dom_connector)
-# endregion
-
-# region js driver delegate
-add_subdirectory(${PROJECT_ROOT_DIR}/framework/android/connector/driver/js/src/main/cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/connector/driver/js)
-target_link_libraries(${PROJECT_NAME} PUBLIC js_driver_connector)
-# endregion
-
-# region native renderer delegate
-add_subdirectory(${PROJECT_ROOT_DIR}/framework/android/connector/renderer/native/src/main/cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/connector/renderer/native)
-target_link_libraries(${PROJECT_NAME} PUBLIC native_renderer_connector)
-# endregion
-
 # region source set
 set(SOURCE_SET
     src/entry.cc)
@@ -91,4 +73,21 @@ set(SOURCE_SET
 # This is a top-level shared library,
 # so the source code visibility is always PRIVATE
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
+# endregion
+
+# region export modules
+foreach (MODULE IN LISTS MODULES)
+  string(STRIP "${MODULE}" MODULE)
+  if (IS_ABSOLUTE "${MODULE}")
+    set(MODULE_PATH ${MODULE}/src/main/cpp)
+    get_filename_component(TARGET_NAME "${MODULE}" NAME)
+  else()
+    set(MODULE_PATH ${PROJECT_ROOT_DIR}/framework/android/connector/${MODULE}/src/main/cpp)
+    string(REPLACE "/" "_" TARGET_NAME "${MODULE}")
+  endif()
+  if (EXISTS "${MODULE_PATH}/CMakeLists.txt")
+    add_subdirectory(${MODULE_PATH} ${CMAKE_CURRENT_BINARY_DIR}/connector/${TARGET_NAME})
+    target_link_libraries(${PROJECT_NAME} PUBLIC connector_${TARGET_NAME})
+  endif()
+endforeach()
 # endregion
