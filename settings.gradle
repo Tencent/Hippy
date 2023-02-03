@@ -1,10 +1,26 @@
+/*
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 import java.nio.file.Paths
-
-include 'connector-support'
-project(':connector-support').projectDir = new File('framework/android/connector/support')
-
-include 'connector-dom'
-project(':connector-dom').projectDir = new File('framework/android/connector/dom')
 
 include 'hippy-support'
 project(':hippy-support').projectDir = new File('modules/android/hippy_support')
@@ -24,27 +40,28 @@ project(':devtools-integration').projectDir = new File('devtools/devtools-integr
 include 'example'
 project(':example').projectDir = new File('framework/examples/android-demo')
 
-def modules = MODULES.split(',')
-for (String module : modules) {
-    String path = module.trim()
-    def subSettingGradle
-    if (Paths.get(path).isAbsolute()) {
-        ArrayList<String> paths = module.split('/')
-        paths.remove(0)
-        def subProjectName = paths.join('-')
-        subSettingGradle = path + '/settings.gradle'
-        include "$subProjectName"
-        project(":$subProjectName").projectDir = new File(path)
+new LinkedHashSet(
+        "${REQUIRED_MODULES}, ${OPTIONAL_MODULES}"
+                .split("\\s*,\\s*").stream().filter({ !it.isEmpty() }).toList()
+).each {
+    def module = Paths.get(it.trim())
+    def name = ['connector']
+    def projectPath = module
+    if (module.isAbsolute()) {
+        name.push(module.getFileName())
     } else {
-        def subProjectName = 'connector-' + module.replace("/", "-")
-        def projectPath = 'framework/android/connector/' + path
-        subSettingGradle = projectPath + '/settings.gradle'
-        include "$subProjectName"
-        project(":$subProjectName").projectDir = new File(projectPath)
+        projectPath = Paths.get('framework', 'android', 'connector', module.toString())
+        for (def i = 0; i < module.getNameCount(); i++) {
+            name.push(module.getName(i));
+        }
     }
-    File target = file(subSettingGradle)
-    if (target.exists()) {
-        apply from: "./$subSettingGradle"
+
+    def projectName = name.reverse().join('-')
+    include projectName
+    project(":${projectName}").projectDir = new File(projectPath.toString())
+
+    def settingsGradle = Paths.get(projectPath.toString(), '/settings.gradle')
+    if (file(settingsGradle).exists()) {
+        apply from: settingsGradle.toString()
     }
 }
-

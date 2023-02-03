@@ -36,7 +36,9 @@ target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 
 # region vm
 if ("${JS_ENGINE}" STREQUAL "V8")
-    GlobalPackages_Add(v8)
+    if (NOT TARGET v8)
+        message(FATAL_ERROR "The V8 target not found, peer dependency not satisfied")
+    endif()
     target_link_libraries(${PROJECT_NAME} PRIVATE v8)
     target_compile_definitions(${PROJECT_NAME} PRIVATE "JS_V8")
     get_target_property(V8_WITHOUT_INSPECTOR v8 INTERFACE_V8_WITHOUT_INSPECTOR)

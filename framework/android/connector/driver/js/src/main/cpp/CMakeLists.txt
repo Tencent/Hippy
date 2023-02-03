@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-project("js_driver_connector")
+project("connector_driver_js")
 
 get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../../.." REALPATH)
 
@@ -55,7 +55,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE dom)
 # endregion
 
 # region js_driver
-add_subdirectory(${PROJECT_ROOT_DIR}/driver/js ${CMAKE_CURRENT_BINARY_DIR}/driver/js)
+add_subdirectory(${PROJECT_ROOT_DIR}/driver/js ${CMAKE_CURRENT_BINARY_DIR}/_deps/driver/js)
 target_link_libraries(${PROJECT_NAME} PUBLIC js_driver)
 # endregion
 

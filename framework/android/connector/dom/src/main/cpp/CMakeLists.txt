@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-project("dom_connector")
+project("connector_dom")
 
 get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../.." REALPATH)
 

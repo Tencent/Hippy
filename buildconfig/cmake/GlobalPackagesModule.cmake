@@ -24,37 +24,6 @@ get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}/../.." REALPA
 
 include("${CMAKE_CURRENT_LIST_DIR}/InfraPackagesModule.cmake")
 
-function(GlobalPackages_Add_v8)
-  if (NOT TARGET v8)
-    if (NOT V8_COMPONENT)
-      message(FATAL_ERROR "The V8_COMPONENT variable must be set")
-    endif ()
-    if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Android")
-      set(V8_REMOTE_FILENAME "android-${ANDROID_ARCH_NAME}.tgz")
-    elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
-      set(V8_REMOTE_FILENAME "windows-${ANDROID_ARCH_NAME}.zip")
-    elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-      set(V8_REMOTE_FILENAME "macos-${ANDROID_ARCH_NAME}.tgz")
-    else ()
-      message(FATAL_ERROR "Unsupported system ${CMAKE_SYSTEM_NAME}")
-    endif ()
-
-    InfraPackage_Add(V8
-        REMOTE "global_packages/v8/${V8_COMPONENT}/${V8_REMOTE_FILENAME}"
-        LOCAL "${V8_COMPONENT}")
-
-    get_target_property(V8_AUX_DEPS v8 INTERFACE_V8_AUX_DEPS)
-    if (V8_AUX_DEPS)
-      foreach (__item IN LISTS V8_AUX_DEPS)
-        add_custom_command(
-            TARGET ${PROJECT_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E
-            copy "${__item}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-      endforeach ()
-    endif ()
-  endif ()
-endfunction()
-
 function(GlobalPackages_Add_dom)
   if (NOT TARGET dom)
     InfraPackage_Add(DOM

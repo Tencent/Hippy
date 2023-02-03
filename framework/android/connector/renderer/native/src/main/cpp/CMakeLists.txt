@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-project("native_renderer_connector")
+project("connector_renderer_native")
 
 get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../../.." REALPATH)
 
@@ -52,7 +52,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE jni)
 
 # region native renderer
 add_subdirectory(${PROJECT_ROOT_DIR}/renderer/native/android/src/main/cpp
-        ${CMAKE_CURRENT_BINARY_DIR}/renderer/native)
+        ${CMAKE_CURRENT_BINARY_DIR}/_deps/renderer/native)
 target_link_libraries(${PROJECT_NAME} PUBLIC native_renderer)
 # endregion
 
