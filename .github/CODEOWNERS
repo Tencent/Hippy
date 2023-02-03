@@ -23,6 +23,7 @@ CMakeLists.txt @medns
 /core/ @churchill-zhang @ilikethese
 /core/js/ @zoomchan-cxj
 /packages/ @zoomchan-cxj
+/packages/hippy-web-renderer/ @pba-cra @zoomchan-cxj
 
 # framework: android
 /android/ @siguangli
