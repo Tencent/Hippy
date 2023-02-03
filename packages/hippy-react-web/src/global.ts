@@ -37,6 +37,7 @@ global.Hippy = {
     }
   },
 };
+// @ts-ignore
 global.getTurboModule = () => {
   warn('getTurboModule is unsupported');
   return {};

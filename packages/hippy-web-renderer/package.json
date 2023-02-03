@@ -1,0 +1,29 @@
+{
+  "name": "@hippy/web-renderer",
+  "version": "unspecified",
+  "description": "hippy web renderer",
+  "main": "./dist/index.js",
+  "homepage": "https://hippyjs.org",
+  "repository": "https://github.com/Tencent/Hippy",
+  "author": "OpenHippy Team",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/Tencent/Hippy/issues"
+  },
+  "keywords": [
+    "hippy",
+    "web"
+  ],
+  "files": [
+    "dist/index.js",
+    "dist/index.d.ts",
+    "README.md"
+  ],
+  "dependencies": {
+    "@types/hammerjs": "^2.0.41",
+    "hammerjs": "^2.0.8",
+    "morphdom": "^2.3.1",
+    "resize-observer-polyfill": "^1.5.1",
+    "whatwg-fetch": "^3.6.2"
+  }
+}
