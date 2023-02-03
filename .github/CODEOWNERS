@@ -20,13 +20,14 @@ CMakeLists.txt @medns
 /.eslintrc.js @zoomchan-cxj
 /.nycrc @zoomchan-cxj
 /ava.config.js @zoomchan-cxj
-/core/ @churchill-zhang
+/core/ @churchill-zhang @ilikethese
 /core/js/ @zoomchan-cxj
 /packages/ @zoomchan-cxj
+/packages/hippy-web-renderer/ @pba-cra @zoomchan-cxj
 
 # framework: android
 /android/ @siguangli
-/android/**/src/main/jni/ @churchill-zhang
+/android/**/src/main/jni/ @churchill-zhang @ilikethese
 
 # framework: ios
 /ios/ @ozonelmy
@@ -54,7 +55,7 @@ CMakeLists.txt @medns
 /gradle.properties @siguangli
 /gradlew @siguangli
 /gradlew.bat @siguangli
-/setting.gradle @siguangli
+/settings.gradle @siguangli
 /build.gradle @siguangli
 /gradle/ @siguangli
 
@@ -70,6 +71,3 @@ CMakeLists.txt @medns
 /tsconfig.json @zoomchan-cxj
 /lerna.json @zoomchan-cxj
 /scripts/ @zoomchan-cxj
-
-# build: docker
-/docker/ @medns

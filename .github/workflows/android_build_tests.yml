@@ -14,9 +14,14 @@ on:
       - 'settings.gradle'
       - 'gradlew'
       - 'gradlew.bat'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   android_build_tests:
-    runs-on: ${{ github.repository == 'Tencent/Hippy' && fromJson('[''self-hosted'', ''linux'']') || 'ubuntu-latest' }}
+    runs-on: ${{ github.repository == 'Tencent/Hippy' && fromJson('[''self-hosted'', ''linux'', ''shared'']') || 'ubuntu-latest' }}
     container:
       image: ghcr.io/tencent/android-release:latest # repository name must be lowercase(${{ github.repository_owner }})
     strategy:

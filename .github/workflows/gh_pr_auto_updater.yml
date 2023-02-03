@@ -1,0 +1,64 @@
+name: '[gh] pull request auto updater'
+
+on:
+  pull_request_target:
+    types:
+      - auto_merge_enabled
+  push:
+
+jobs:
+  up_to_date:
+    if: github.repository == 'Tencent/Hippy'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Updater
+      uses: actions/github-script@v6.3.3
+      with:
+        # Because the Github App Token, Github Token, and Fine-grained PAT
+        # cannot obtain the permission to update the workflow files in the head branch,
+        # so use classic PAT to avoid failures caused by modification of workflow files.
+        # TODO: use Github App Token or Github Token if permission is granted in the future.
+        github-token: ${{ secrets.BOT_PAT }}
+        script: |
+          const { pulls, repos } = github.rest;
+
+          let pull_requests;
+          switch (context.eventName) {
+            case 'push': {
+              pull_requests = (await github.paginate(pulls.list, {
+                per_page: 100,
+                state: 'open',
+                base: '${{ github.ref_name }}',
+                ...context.repo
+              })).filter(pull => pull.draft === false && pull.auto_merge);
+              break;
+            }
+            case 'pull_request_target': {
+              const { pull_request } = context.payload;
+              if (pull_request.draft === true) {
+                return;
+              }
+              pull_requests = [pull_request];
+              break;
+            }
+            default: {
+              throw new Error(`Unsupported event name: ${context.eventName}`);
+              break;
+            }
+          }
+
+          await Promise.all(
+            pull_requests.map(pull =>
+              repos.compareCommitsWithBasehead({
+                ...context.repo,
+                basehead: `${pull.base.label}...${pull.head.label}`,
+              }).then(({ data: comparison }) => {
+                if (comparison.behind_by > 0) {
+                  return pulls.updateBranch({
+                    ...context.repo,
+                    pull_number: pull.number
+                  }).catch(error => console.error(error));
+                }
+              })
+            )
+          );

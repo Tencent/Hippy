@@ -340,8 +340,12 @@ void V8TryCatch::SetVerbose(bool verbose) {
 
 std::shared_ptr<CtxValue> V8TryCatch::Exception() {
   if (try_catch_) {
-    v8::Local<v8::Value> exception = try_catch_->Exception();
-    std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx_);
+    TDF_BASE_CHECK(ctx_);
+    auto v8_ctx = std::static_pointer_cast<V8Ctx>(ctx_);
+    v8::HandleScope handle_scope(v8_ctx->isolate_);
+    auto context = v8_ctx->context_persistent_.Get(v8_ctx->isolate_);
+    v8::Context::Scope context_scope(context);
+    auto exception = try_catch_->Exception();
     return std::make_shared<V8CtxValue>(v8_ctx->isolate_, exception);
   }
   return nullptr;

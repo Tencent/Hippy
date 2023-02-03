@@ -29,7 +29,7 @@ env:
 jobs:
   triage:
     if: github.repository == 'Tencent/Hippy' && contains(github.event.issue.title, 'crash')
-    runs-on: [self-hosted, linux]
+    runs-on: [self-hosted, linux, shared]
     container:
       image: node:latest
     outputs:
@@ -134,7 +134,7 @@ jobs:
         || needs.triage.outputs.architecture == 'arm64'
         || needs.triage.outputs.architecture == 'x86'
         || needs.triage.outputs.architecture == 'x86_64')
-    runs-on: [self-hosted, linux]
+    runs-on: [self-hosted, linux, shared]
     container:
       image: ghcr.io/${{ needs.triage.outputs.repository_owner }}/android-release:latest
     steps:

@@ -29,9 +29,21 @@
 
 @protocol UIScrollViewDelegate;
 
+@interface HippyCustomScrollView : UIScrollView <UIGestureRecognizerDelegate>
+
+@property (nonatomic, assign) BOOL centerContent;
+
+@end
+
 @interface HippyScrollView : HippyView <UIScrollViewDelegate, HippyScrollableProtocol, HippyAutoInsetsProtocol, HippyInvalidating>
 
 - (instancetype)initWithEventDispatcher:(HippyEventDispatcher *)eventDispatcher NS_DESIGNATED_INITIALIZER;
+
+/**
+ * This is where subclasses should create their custom scroll view hierarchy if they dont want to use default scroll view.
+ * Should never be called directly.
+ */
+- (HippyCustomScrollView *)loadScrollView;
 
 /**
  * The `HippyScrollView` may have at most one single subview. This will ensure
@@ -49,7 +61,7 @@
 @property (nonatomic, assign) CGSize contentSize;
 
 /**
- * The underlying scrollView (TODO: can we remove this?)
+ * Get the underlying scrollview.
  */
 @property (nonatomic, readonly) UIScrollView *scrollView;
 
