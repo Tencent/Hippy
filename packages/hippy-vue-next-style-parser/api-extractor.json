@@ -29,6 +29,9 @@
     "extractorMessageReporting": {
       "ae-forgotten-export": {
         "logLevel": "none"
+      },
+      "ae-wrong-input-file-type": {
+        "logLevel": "none"
       }
     }
   }
