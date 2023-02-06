@@ -73,17 +73,17 @@ const measureInWindowByMethod = function measureInWindowByMethod(el, method) {
   const { nodeId } = el;
   trace('callUIFunction', { nodeId, funcName: method, params: [] });
   return new Promise(resolve => UIManagerModule.callUIFunction(nodeId, method, [], (pos) => {
-    // Android error handler.
-    if (!pos || pos === 'this view is null' || typeof nodeId === 'undefined') {
+    if (!pos || typeof pos !== 'object' || typeof nodeId === 'undefined') {
       return resolve(empty);
     }
+    const { x, y, height, width } = pos;
     return resolve({
-      top: pos.y,
-      left: pos.x,
-      bottom: pos.y + pos.height,
-      right: pos.x + pos.width,
-      width: pos.width,
-      height: pos.height,
+      top: y,
+      left: x,
+      width,
+      height,
+      bottom: y + height,
+      right: x + width,
     });
   }));
 };
@@ -353,6 +353,7 @@ const Native = {
 
   /**
    * Measure the component size and position.
+   * @deprecated
    */
   measureInWindow(el) {
     return measureInWindowByMethod(el, 'measureInWindow');
@@ -366,6 +367,41 @@ const Native = {
       return measureInWindowByMethod(el, 'measureInWindow');
     }
     return measureInWindowByMethod(el, 'measureInAppWindow');
+  },
+
+  getBoundingClientRect(el, options) {
+    const { nodeId } = el;
+    return new Promise((resolve, reject) => {
+      if (!el.isMounted || !nodeId) {
+        return reject(new Error(`getBoundingClientRect cannot get nodeId of ${el} or ${el} is not mounted`));
+      }
+      trace('UIManagerModule', { nodeId, funcName: 'getBoundingClientRect', params: options });
+      UIManagerModule.callUIFunction(nodeId, 'getBoundingClientRect', [options], (res) => {
+        // Android error handler.
+        if (!res || res.errMsg) {
+          return reject(new Error((res && res.errMsg) || 'getBoundingClientRect error with no response'));
+        }
+        const { x, y, width, height } = res;
+        let bottom = undefined;
+        let right = undefined;
+        if (typeof y === 'number' && typeof height === 'number') {
+          bottom = y + height;
+        }
+        if (typeof x === 'number' && typeof width === 'number') {
+          right = x + width;
+        }
+        return resolve({
+          x,
+          y,
+          width,
+          height,
+          bottom,
+          right,
+          left: x,
+          top: y,
+        });
+      });
+    });
   },
 
   /**
