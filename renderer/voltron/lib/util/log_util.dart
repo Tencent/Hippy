@@ -24,12 +24,12 @@ enum LogLevel { debug, verbose, info, profile, warn, error }
 
 class LogUtils {
   static const String kDefaultTag = "voltron";
-  static bool _kDebugEnable = false;
+  static bool _kDebugEnable = true;
   static bool _kProfileEnable = false;
   static LogListener? _kLogListener;
 
   static bool kDebugLogDomEnable = true;
-  static bool kDebugLogWidgetEnable = false;
+  static bool kDebugLogWidgetEnable = true;
   static bool kDebugLogOperateEnable = true;
   static bool kDebugLogRenderEnable = true;
   static bool kDebugLogRenderNodeEnable = true;

@@ -1,3 +1,11 @@
+## 0.0.13
+
+- fix cache engine mode ui size error
+
+## 0.0.12
+
+- fix voltron reload crash
+
 ## 0.0.11
 
 - update voltron_render to 0.0.5 to fix workerManager destroy crash

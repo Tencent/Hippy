@@ -18,6 +18,7 @@
 // limitations under the License.
 //
 
+import 'dart:async';
 import 'dart:ui' as ui show window;
 
 import 'package:flutter/material.dart';
@@ -33,12 +34,26 @@ class ScreenUtil {
   MediaQueryData? _mediaQueryData;
   Size? _physicalSize;
   Brightness _brightness = Brightness.light;
+  Completer ensureSizeCompleter = Completer<void>();
 
   static final ScreenUtil _singleton = ScreenUtil();
 
   static ScreenUtil getInstance() {
     _singleton._init();
     return _singleton;
+  }
+
+  Future<void> ensurePhysicalSizeReady () {
+    if (ui.window.physicalSize.width > 0 && ui.window.physicalSize.height > 0) {
+      return Future.value();
+    }
+    var ob = ScreenObserver(
+        onScreenReady: () {
+          ensureSizeCompleter.complete();
+        }
+    );
+    WidgetsBinding.instance.addObserver(ob);
+    return ensureSizeCompleter.future.then((value) => WidgetsBinding.instance.removeObserver(ob));
   }
 
   void _init() {
@@ -142,5 +157,19 @@ class ScreenUtil {
   static Orientation getOrientation(BuildContext context) {
     var mediaQuery = MediaQuery.of(context);
     return mediaQuery.orientation;
+  }
+}
+
+class ScreenObserver extends WidgetsBindingObserver {
+  bool isReady = false;
+  Function onScreenReady;
+
+  ScreenObserver({required this.onScreenReady});
+
+  void didChangeMetrics () {
+    if (ui.window.physicalSize.width > 0 && ui.window.physicalSize.height > 0 && !isReady) {
+      isReady = true;
+      onScreenReady();
+    }
   }
 }

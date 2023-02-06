@@ -147,9 +147,10 @@ class VoltronJSEngine
   }
 
   Future<dynamic> initEngine(EngineListener listener) async {
-    // 初始化平台相关信息， 必须放到第一位，否则可能run app之后平台信息还未初始化完成
     _startTimeMonitor.startEvent(EngineMonitorEventKey.engineLoadEventInitEngine);
     try {
+      // 初始化平台相关信息和UI宽高信息， 必须放到第一位，否则可能run app之后平台信息还未初始化完成，或者没有UI界面宽高信息
+      await ScreenUtil.getInstance().ensurePhysicalSizeReady();
       await PlatformManager.getInstance().initPlatform();
     } catch (e) {
       _currentState = EngineState.initError;
