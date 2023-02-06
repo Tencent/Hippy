@@ -985,7 +985,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LIBRARY_SEARCH_PATHS = (
 					"${SRCROOT}/../../devtools/devtools-integration/ios/DevtoolsBackend/devtools-integration/native/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}",
-					"${SRCROOT}/../../devtools/devtools-integration/ios/DevtoolsBackend/devtools-integration/native/infa_packages/devtools_backend/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}",
+					"${SRCROOT}/../../devtools/devtools-integration/ios/DevtoolsBackend/infa_packages/devtools_backend/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1019,7 +1019,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LIBRARY_SEARCH_PATHS = (
 					"${SRCROOT}/../../devtools/devtools-integration/ios/DevtoolsBackend/devtools-integration/native/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}",
-					"${SRCROOT}/../../devtools/devtools-integration/ios/DevtoolsBackend/devtools-integration/native/infa_packages/devtools_backend/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}",
+					"${SRCROOT}/../../devtools/devtools-integration/ios/DevtoolsBackend/infa_packages/devtools_backend/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
