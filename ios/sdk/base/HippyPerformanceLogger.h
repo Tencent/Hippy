@@ -22,6 +22,8 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 typedef NS_ENUM(NSUInteger, HippyPLTag) {
     // Native module related
     HippyPLNativeModuleInit = 0, // native module init
@@ -53,79 +55,98 @@ typedef NS_ENUM(NSUInteger, HippyPLTag) {
     HippyPLRunApplication, // JS入口函数执行到首帧耗时
     HippyPLTTI, // RootView创建到首帧耗时（FP）
     HippyPLFP = HippyPLTTI, // RootView创建到首帧耗时（FP）
-    HippyPLFCP, // 预留标签
     
     HippyPLSize
 };
 
 @interface HippyPerformanceLogger : NSObject
 
-/**
- * Starts measuring a metric with the given tag.
- * Overrides previous value if the measurement has been already started.
- * If HippyProfile is enabled it also begins appropriate async event.
- * All work is scheduled on the background queue so this doesn't block current thread.
- */
+/// Starts measuring a metric with the given tag.
+/// Overrides previous value if the measurement has been already started.
+/// If HippyProfile is enabled it also begins appropriate async event.
+/// All work is scheduled on the background queue so this doesn't block current thread.
 - (void)markStartForTag:(HippyPLTag)tag;
 
-/**
- * Stops measuring a metric with given tag.
- * Checks if HippyPerformanceLoggerStart() has been called before
- * and doesn't do anything and log a message if it hasn't.
- * If HippyProfile is enabled it also ends appropriate async event.
- * All work is scheduled on the background queue so this doesn't block current thread.
- */
+/// Stops measuring a metric with given tag.
+/// Checks if HippyPerformanceLoggerStart() has been called before
+/// and doesn't do anything and log a message if it hasn't.
+/// If HippyProfile is enabled it also ends appropriate async event.
+/// All work is scheduled on the background queue so this doesn't block current thread.
 - (void)markStopForTag:(HippyPLTag)tag;
 
-/**
- * Sets given value for a metric with given tag.
- * All work is scheduled on the background queue so this doesn't block current thread.
- */
+/// Sets given value for a metric with given tag.
+/// All work is scheduled on the background queue so this doesn't block current thread.
 - (void)setValue:(int64_t)value forTag:(HippyPLTag)tag;
 
-/**
- * Adds given value to the current value for a metric with given tag.
- * All work is scheduled on the background queue so this doesn't block current thread.
- */
+/// Adds given value to the current value for a metric with given tag.
+/// All work is scheduled on the background queue so this doesn't block current thread.
 - (void)addValue:(int64_t)value forTag:(HippyPLTag)tag;
 
-/**
- * Starts an additional measurement for a metric with given tag.
- * It doesn't override previous measurement, instead it'll append a new value
- * to the old one.
- * All work is scheduled on the background queue so this doesn't block current thread.
- */
+/// Starts an additional measurement for a metric with given tag.
+/// It doesn't override previous measurement, instead it'll append a new value
+/// to the old one.
+/// All work is scheduled on the background queue so this doesn't block current thread.
 - (void)appendStartForTag:(HippyPLTag)tag;
 
-/**
- * Stops measurement and appends the result to the metric with given tag.
- * Checks if HippyPerformanceLoggerAppendStart() has been called before
- * and doesn't do anything and log a message if it hasn't.
- * All work is scheduled on the background queue so this doesn't block current thread.
- */
+/// Stops measurement and appends the result to the metric with given tag.
+/// Checks if HippyPerformanceLoggerAppendStart() has been called before
+/// and doesn't do anything and log a message if it hasn't.
+/// All work is scheduled on the background queue so this doesn't block current thread.
+/// - Parameter tag: HippyPLTag
 - (void)appendStopForTag:(HippyPLTag)tag;
 
-/**
- * Returns an array with values for all tags.
- * Use HippyPLTag to go over the array, there's a pair of values
- * for each tag: start and stop (with indexes 2 * tag and 2 * tag + 1).
- */
+/// Returns an array with values for all tags.
+/// Use HippyPLTag to go over the array, there's a pair of values
+/// for each tag: start and stop (with indexes 2 * tag and 2 * tag + 1).
 - (NSArray<NSNumber *> *)valuesForTags;
 
-/**
- * Returns a duration in ms (stop_time - start_time) for given HippyPLTag.
- */
+/// Returns a duration in ms (stop_time - start_time) for given HippyPLTag.
+/// - Parameter tag: HippyPLTag
 - (int64_t)durationForTag:(HippyPLTag)tag;
 
-/**
- * Returns a value for given HippyPLTag.
- */
+/// Returns a value for given HippyPLTag.
+/// - Parameter tag: HippyPLTag
 - (int64_t)valueForTag:(HippyPLTag)tag;
 
-/**
- * Returns an array with values for all tags.
- * Use HippyPLTag to go over the array.
- */
-- (NSArray<NSString *> *)labelsForTags;
+/// Returns the label for given HippyPLTag.
+/// - Parameter tag: HippyPLTag
+- (nullable NSString *)labelForTag:(HippyPLTag)tag;
+
+#pragma mark - Custom Tags And Values
+
+/// Starts measuring a custom metric with the given tag name and start value.
+/// - Parameters:
+///   - customTag: any nonnull name
+///   - value: any int value
+- (void)markStartForCustomTag:(NSString *)customTag value:(int64_t)value;
+
+/// Stops measuring a custom metric with given tag name and start value.
+/// - Parameters:
+///   - customTag: any nonnull name
+///   - value: any int value
+- (void)markStopForCustomTag:(NSString *)customTag value:(int64_t)value;
+
+/// Set a custom metric with the given tag name and value.
+/// - Parameters:
+///   - value: any int value
+///   - customTag: nonnull name
+- (void)setValue:(int64_t)value forCustomTag:(NSString *)customTag;
+
+/// Get the value of custom metric with the given tag name.
+/// - Parameter customTag: nonnull name
+- (int64_t)valueForCustomTag:(NSString *)customTag;
+
+/// Returns a duration in ms (stop_time - start_time) for given custom tag name.
+/// - Parameter customTag: any nonnull name
+- (int64_t)durationForCustomTag:(NSString *)customTag;
+
+/// Returns start and stop value for the given tag name.
+- (NSArray<NSNumber *> *)valuesForCustomTag:(NSString *)customTag;
+
+/// Returns all names of custom tags.
+- (NSArray<NSString *> *)allCustomTags;
+
 
 @end
+
+NS_ASSUME_NONNULL_END
