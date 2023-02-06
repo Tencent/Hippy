@@ -35,5 +35,9 @@ echo -e "\033[33m devtools cmake build end\033[0m"
 #layout project - use taitank by deault
 cd ${root_dir}/dom
 rm -rf ./dom_project
-cmake ./CMakeLists.txt -B ./dom_project -G Xcode -DMODULE_TOOLS=YES -DCMAKE_TOOLCHAIN_FILE=${ios_tool_chain_path} -DPLATFORM=OS64COMBINED -DDEPLOYMENT_TARGET=11.0 -DLAYOUT_ENGINE=${1}
+layout_engine="Taitank"
+if [[ ${1} ]]; then
+	layout_engine=${1}
+fi
+cmake ./CMakeLists.txt -B ./dom_project -G Xcode -DMODULE_TOOLS=YES -DCMAKE_TOOLCHAIN_FILE=${ios_tool_chain_path} -DPLATFORM=OS64COMBINED -DDEPLOYMENT_TARGET=11.0 -DLAYOUT_ENGINE=${layout_engine}
 echo -e "\033[33m dom cmake build end\033[0m"
