@@ -19,6 +19,7 @@ import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewParent;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
@@ -69,7 +70,10 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
           }
         }, TAP_TIMEOUT);
 
-
+        ViewParent parent = view.getParent();
+        if (parent != null) {
+          parent.requestDisallowInterceptTouchEvent(true);
+        }
       }
       return true;
     }
