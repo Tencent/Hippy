@@ -16,30 +16,106 @@
 
 package com.openhippy.connector;
 
+import android.content.Context;
+import android.view.View;
+import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.renderer.FrameworkProxy;
 import com.tencent.renderer.RenderProxy;
+import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("JavaJniMissingFunction")
-public class TDFRenderer extends RenderConnector {
+public class TDFRenderer implements RenderConnector {
 
     private int mInstanceId;
+    @Nullable
+    private RenderProxy mRenderer;
 
-    @Override public RenderProxy initRenderProxy() {
+    public TDFRenderer() {
         mInstanceId = createTDFRenderManager(PixelUtil.getDensity());
-        return new com.tencent.renderer.TDFRenderer(mInstanceId);
+        mRenderer = new com.tencent.renderer.TDFRenderer(mInstanceId);
+    }
+
+    @Override public void destroyRoot(int rootId) {
+        if (mRenderer != null) {
+            mRenderer.destroyRoot(rootId);
+        }
+    }
+
+    @Override public void onRuntimeInitialized(int rootId) {
+        if (mRenderer != null) {
+            mRenderer.onRuntimeInitialized(rootId);
+        }
+    }
+
+    @Override public void recordSnapshot(int rootId, @NonNull Object callback) {
+        if (mRenderer != null) {
+            mRenderer.recordSnapshot(rootId, (Callback<byte[]>) callback);
+        }
+    }
+
+    @Override public View replaySnapshot(@NonNull Context context, @NonNull byte[] buffer) {
+        if (mRenderer != null) {
+            return mRenderer.replaySnapshot(context, buffer);
+        }
+        return null;
+    }
+
+    @Override public View replaySnapshot(@NonNull Context context,
+        @NonNull Map<String, Object> snapshotMap) {
+        if (mRenderer != null) {
+            return mRenderer.replaySnapshot(context, snapshotMap);
+        }
+        return null;
+    }
+
+    @Override public void setFrameworkProxy(@NonNull Object proxy) {
+        if (mRenderer != null) {
+            mRenderer.setFrameworkProxy((FrameworkProxy) proxy);
+        }
+    }
+
+    @Override public View createRootView(@NonNull Context context) {
+        View rootView = null;
+        if (mRenderer != null) {
+            rootView = mRenderer.createRootView(context);
+        }
+        return rootView;
+    }
+
+    @Override public void onResume() {
+        if (mRenderer != null) {
+            mRenderer.onResume();
+        }
+    }
+
+    @Override public void onPause() {
+        if (mRenderer != null) {
+            mRenderer.onPause();
+        }
+    }
+
+    @Override public void init(@Nullable List<Class<?>> controllers,
+        @Nullable ViewGroup rootView) {
+        if (mRenderer != null) {
+            mRenderer.init(controllers, rootView);
+        }
     }
 
     @Override public void attachToDom(@NonNull Connector domConnector) {
         attachToDom(mInstanceId, domConnector.getInstanceId());
     }
 
-    @Override public int getInstanceId() {
-        return mInstanceId;
-    }
-
     @Override public void destroy() {
         destroyTDFRenderManager(mInstanceId);
+    }
+
+    @Override public int getInstanceId() {
+        return mInstanceId;
     }
 
     /**
