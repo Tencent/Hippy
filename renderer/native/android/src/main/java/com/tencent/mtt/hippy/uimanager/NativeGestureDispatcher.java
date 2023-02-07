@@ -21,7 +21,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 
-import android.view.ViewParent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -79,10 +78,6 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
                     handleClickEvent(view, view.getId(), ON_LONG_CLICK);
                 }
             }, TAP_TIMEOUT);
-            ViewParent parent = view.getParent();
-            if (parent != null) {
-                parent.requestDisallowInterceptTouchEvent(true);
-            }
             return true;
         }
     };
