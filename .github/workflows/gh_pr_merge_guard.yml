@@ -9,19 +9,26 @@ on:
 
 jobs:
   merge_guard:
+    if: github.repository == 'Tencent/Hippy'
     runs-on: ubuntu-latest
     steps:
-    - name: Enabled
-      if: github.repository == 'Tencent/Hippy' && github.event.action == 'auto_merge_enabled'
+    - name: Goalkeeper
+      env:
+        AUTO_MERGE_ENABLED: ${{ !!github.event.pull_request.auto_merge }}
+        AUTO_MERGE_USER: ${{ github.event.pull_request.auto_merge.enabled_by.login }}
+        AUTO_MERGE_TYPE: ${{ github.event.pull_request.auto_merge.enabled_by.type }}
       run: |
-        echo "Auto-merge is enabled by a ${{ github.event.sender.login }}. ${{ github.event.sender.type == 'Bot' && 'Passing' || 'Blocking' }}."
-        exit ${{ github.event.sender.type == 'Bot' && '0' || '-1' }}
-    - name: Disabled
-      if: github.repository == 'Tencent/Hippy' && github.event.action == 'auto_merge_disabled'
-      run: |
-        exit -1
-    - name: Synchronize # Update Branch
-      if: github.event.action == 'synchronize' && github.event.pull_request.auto_merge
-      run: |
-        echo "Auto-merge is enabled by a ${{ github.event.pull_request.auto_merge.enabled_by.login }}. ${{ github.event.pull_request.auto_merge.enabled_by.type == 'Bot' && 'Passing' || 'Blocking' }}."
-        exit ${{ github.event.pull_request.auto_merge.enabled_by.type == 'Bot' && '0' || '-1' }}
+        if [[ "$AUTO_MERGE_ENABLED" == "false" ]]; then
+          echo "Auto-merge is disabled."
+          echo "> Blocking ..."
+          exit -1
+        fi
+
+        echo "Auto-merge is enabled by a $AUTO_MERGE_USER."
+        if [[ "$AUTO_MERGE_TYPE" == "Bot" ]]; then
+          echo "> Passing ..."
+          exit 0
+        else
+          echo "> Blocking ..."
+          exit -1
+        fi
