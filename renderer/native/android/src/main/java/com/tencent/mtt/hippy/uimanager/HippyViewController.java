@@ -38,6 +38,8 @@ import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.node.RenderNode;
 import com.tencent.renderer.node.VirtualNode;
+import com.tencent.renderer.utils.ArrayUtils;
+import com.tencent.renderer.utils.MapUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -465,9 +467,9 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
             @NonNull Promise promise) {
         boolean relToContainer = false;
         if (!params.isEmpty()) {
-            Object param = params.get(0);
-            if (param instanceof HashMap) {
-                relToContainer = ((HashMap<?, ?>) param).get(KEY_REL_TO_CONTAINER) == Boolean.TRUE;
+            Map<String, Object> param = ArrayUtils.getMapValue(params, 0);
+            if (param != null) {
+                relToContainer = MapUtils.getBooleanValue(param, KEY_REL_TO_CONTAINER, false);
             }
         }
         int x;
