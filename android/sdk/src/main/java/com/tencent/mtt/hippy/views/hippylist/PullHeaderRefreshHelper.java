@@ -94,26 +94,6 @@ public class PullHeaderRefreshHelper extends PullRefreshHelper {
         }
     }
 
-    @Override
-    public void onRefreshCompleted() {
-        if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_REFRESHING) {
-            // when only part of the header is visible, scroll it off the screen before hiding it
-            // to avoid inappropriate offsets of the list
-            if (HippyListUtils.isVerticalLayout(mRecyclerView)) {
-                int offsetY = mRecyclerView.getContentOffsetY();
-                if (offsetY < 0 && offsetY > -mRenderNode.getHeight()) {
-                    mRecyclerView.scrollBy(0, -offsetY);
-                }
-            } else {
-                int offsetX = mRecyclerView.getContentOffsetX();
-                if (offsetX < 0 && offsetX > -mRenderNode.getWidth()) {
-                    mRecyclerView.scrollBy(-offsetX, 0);
-                }
-            }
-        }
-        super.onRefreshCompleted();
-    }
-
     /**
      * scrollable distance from list start, value greater than or equal to 0
      */
