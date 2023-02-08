@@ -10,16 +10,16 @@ The loading and execution process of `Hippy` Native SDK is shown in the figure b
 
 Corresponding to the above stages, `Hippy` Native SDK provides the corresponding time-consuming and other performance indicators for developers to obtain, as shown in the following table:
 
-| Category | Description | Key for Android | Key for iOS |
-| :------- | :--------------- | :--------------------- | :---------------------------- |
-| JS engine | Initialize JS engine | InitJsFramework | -- |
-| Vendor bundle | Vendor bundle loading | CommonLoadSource | HippyPLCommonLoadSource |
-| Vendor bundle | Vendor bundle execution | CommonExecuteSource | HippyPLCommonExecuteSource |
-| Business bundle | Business bundle loading | SecondaryLoadSource | HippyPLSecondaryLoadSource |
-| Business bundle | Business bundle execution | SecondaryExecuteSource | HippyPLSecondaryExecuteSource |
-| Overall | Bridge startup | BridgeStartup | HippyPLBridgeStartup |
-| Overall | JS entry execution | RunApplication | HippyPLRunApplication |
-| Overall | First Paint | FP | HippyPLFP |
+| Category | Description | Key |
+| :------- | :--------------- | :--------------------- |
+| JS engine | Initialize JS engine (Android only) | hippyInitJsFramework |
+| Vendor bundle | Vendor bundle loading | hippyCommonLoadSource |
+| Vendor bundle | Vendor bundle execution | hippyCommonExecuteSource |
+| Business bundle | Business bundle loading | hippySecondaryLoadSource |
+| Business bundle | Business bundle execution | hippySecondaryExecuteSource |
+| Overall | Bridge startup | hippyBridgeStartup |
+| Overall | JS entry execution | hippyRunApplication |
+| Overall | First Paint | hippyFirstPaint |
 
 
 
@@ -66,6 +66,8 @@ if (monitor != null) {
 }
 ```
 
+The constants to each indicator are defined in the `HippyEngineMonitorEvent` class, and the naming rules are: `hippyXxx` corresponds to `SEPARATE_EVENT_XXX`.
+
 #### iOS API Guidelines
 
 It is recommended to obtain performance indicators after HippyRootView is loaded (that is, after receiving `HippyContentDidAppearNotification` notification).
@@ -83,33 +85,32 @@ int64_t duration = [bridge.performanceLogger durationForTag:HippyPLxxxTag];
 #### Get performance data
 
 ```js
-const instanceId = __GLOBAL__.appRegister[appName].id;
-const result = await Hippy.bridge.callNativeWithPromise('PerformanceLogger', 'getAll', instanceId);
+performance.getEntries();
 ```
 
-Result for execute successfully
+Returns
 
 ```json
-{ result: [{
-    eventName: string,
-    startTime: number,
-    endTime: number,
-}, ...] }
+// Multiple Hippy instances will return multiple array elements, distinguished by the name field
+[PerformanceNavigationTiming {
+  name: "Demo",
+  entryType: "navigation",
+  hippyCommonLoadSourceStart: 0,
+  hippyCommonLoadSourceEnd: 233,
+  ...
+}, ...]
 ```
 
-Result for execute failed
-
-```json
-{ errMsg: 'invalid instanceId' }
-```
+Each performance indicator corresponds to two fields `hippyXxxStart` and `hippyXxxEnd`, and the value is milliseconds relative to `performance.timeOrigin`.
 
 #### Add custom data
 
 ```js
-const instanceId = __GLOBAL__.appRegister[appName].id;
-Hippy.bridge.callNative('PerformanceLogger', 'markStart', instanceId, 'MyEvent', Date.now());
-Hippy.bridge.callNative('PerformanceLogger', 'markEnd', instanceId, 'MyEvent', Date.now());
+performance.markStart(appName, key); // e.g.: appName='Demo', key='showContent'
+performance.markEnd(appName, key);
 ```
+
+
 
 
 ---

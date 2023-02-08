@@ -109,7 +109,7 @@ public class HippyRootView extends FrameLayout {
       mLoadCompleted = true;
       if (mTimeMonitor != null) {
         mTimeMonitor.end();
-        mTimeMonitor.endSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_FP);
+        mTimeMonitor.endSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_FIRST_PAINT);
         if (mOnLoadCompleteListener != null) {
           mOnLoadCompleteListener
               .onLoadComplete(mTimeMonitor.getTotalTime(), mTimeMonitor.getEvents());

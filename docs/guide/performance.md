@@ -12,16 +12,16 @@
 
 对应上述各个阶段，`Hippy` Native SDK提供了对应的耗时等性能指标方便开发者获取，如下表所示：
 
-| 分类  | 指标  | Android对应Key  | iOS对应Key  |
-|:----------|:----------|:----------|:----------|
-| JS引擎 | 初始化JS引擎耗时 | InitJsFramework | -- |
-| vendor包    | vendor包加载耗时    | CommonLoadSource |  HippyPLCommonLoadSource   |
-| vendor包    | vendor包执行耗时    | CommonExecuteSource | HippyPLCommonExecuteSource   |
-| 业务包    | 业务包加载耗时    | SecondaryLoadSource | HippyPLSecondaryLoadSource    |
-| 业务包    | 业务包执行耗时    | SecondaryExecuteSource | HippyPLSecondaryExecuteSource    |
-| 整体    | Bridge启动耗时    | BridgeStartup | HippyPLBridgeStartup   |
-| 整体    | JS入口执行耗时    | RunApplication | HippyPLRunApplication    |
-| 整体    | 首帧耗时  | FP   | HippyPLFP    |
+| 分类  | 指标  | 对应Key  |
+|:----------|:----------|:----------|
+| JS引擎 | 初始化JS引擎耗时（仅Android） | hippyInitJsFramework |
+| vendor包    | vendor包加载耗时    | hippyCommonLoadSource |
+| vendor包    | vendor包执行耗时    | hippyCommonExecuteSource |
+| 业务包    | 业务包加载耗时    | hippySecondaryLoadSource |
+| 业务包    | 业务包执行耗时    | hippySecondaryExecuteSource |
+| 整体    | Bridge启动耗时    | hippyBridgeStartup |
+| 整体    | JS入口执行耗时    | hippyRunApplication |
+| 整体    | 首帧耗时  | hippyFirstPaint |
 
 
 
@@ -68,6 +68,8 @@ if (monitor != null) {
 }
 ```
 
+`HippyEngineMonitorEvent`类中定义了每个性能指标对应的常量，命名规则为：`hippyXxx`对应`SEPARATE_EVENT_XXX`。
+
 #### iOS API 指引
 
 推荐在HippyRootView加载完成（即收到`HippyContentDidAppearNotification` 通知后）进行性能指标的获取。
@@ -84,32 +86,29 @@ int64_t duration = [bridge.performanceLogger durationForTag:HippyPLxxxTag];
 #### 获取性能数据方法
 
 ```js
-const instanceId = __GLOBAL__.appRegister[appName].id;
-const result = await Hippy.bridge.callNativeWithPromise('PerformanceLogger', 'getAll', instanceId);
+performance.getEntries();
 ```
 
-执行成功返回
+执行返回
 
 ```json
-{ result: [{
-    eventName: string,
-    startTime: number,
-    endTime: number,
-}, ...] }
+// 如果引擎中有多个Hippy实例，则数组中返回多个元素，以name字段区分
+[PerformanceNavigationTiming {
+  name: "Demo",
+  entryType: "navigation",
+  hippyCommonLoadSourceStart: 0,
+  hippyCommonLoadSourceEnd: 233,
+  ...
+}, ...]
 ```
 
-执行失败返回
-
-```json
-{ errMsg: 'invalid instanceId' }
-```
+其中每个性能指标对应`hippyXxxStart`和`hippyXxxEnd`两个字段，取值为相对`performance.timeOrigin`的毫秒数。
 
 #### 添加自定义数据方法
 
 ```js
-const instanceId = __GLOBAL__.appRegister[appName].id;
-Hippy.bridge.callNative('PerformanceLogger', 'markStart', instanceId, 'MyEvent', Date.now());
-Hippy.bridge.callNative('PerformanceLogger', 'markEnd', instanceId, 'MyEvent', Date.now());
+performance.markStart(appName, key); // 例如：appName='Demo', key='showContent'
+performance.markEnd(appName, key);
 ```
 
 

@@ -21,21 +21,22 @@ import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorEvent;
 import com.tencent.mtt.hippy.annotation.HippyMethod;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
-import com.tencent.mtt.hippy.modules.Promise;
+import com.tencent.mtt.hippy.common.HippyArray;
+import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.runtime.builtins.JSObject;
 import com.tencent.mtt.hippy.runtime.builtins.array.JSDenseArray;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
+import java.util.Iterator;
 import java.util.List;
 
-@HippyNativeModule(name = "PerformanceLogger")
-public class TimeMonitorModule extends HippyNativeModuleBase {
+@HippyNativeModule(name = "PerformanceModule")
+public class PerformanceModule extends HippyNativeModuleBase {
 
     private static final String KEY_ERR_MSG = "errMsg";
     private static final String KEY_RESULT = "result";
 
-    public TimeMonitorModule(HippyEngineContext context) {
+    public PerformanceModule(HippyEngineContext context) {
         super(context);
     }
 
@@ -57,26 +58,26 @@ public class TimeMonitorModule extends HippyNativeModuleBase {
         }
     }
 
-    @HippyMethod(name = "getAll")
-    public void getAll(final int instanceId, final Promise promise) {
-        HippyRootView rootView = mContext.getInstance(instanceId);
-        TimeMonitor monitor = rootView == null ? null : rootView.getTimeMonitor();
-        JSObject result = new JSObject();
-        if (monitor == null) {
-            result.set(KEY_ERR_MSG, "invalid instanceId");
-        } else {
-            List<HippyEngineMonitorEvent> list = monitor.getAllSeparateEvents();
-            JSDenseArray jsList = new JSDenseArray(list.size());
-            for (HippyEngineMonitorEvent event : list) {
-                JSObject jsEvent = new JSObject();
-                jsEvent.set("eventName", event.eventName);
-                jsEvent.set("startTime", event.startTime);
-                jsEvent.set("endTime", event.endTime);
-                jsList.push(jsEvent);
+    @HippyMethod(isSync = true)
+    public HippyArray getEntries() {
+        HippyArray result = new HippyArray();
+        Iterator<HippyRootView> iterator = mContext.getInstanceIterator();
+        while (iterator.hasNext()) {
+            HippyRootView rootView = iterator.next();
+            TimeMonitor monitor = rootView.getTimeMonitor();
+            if (monitor == null) {
+                continue;
             }
-            result.set(KEY_RESULT, jsList);
-        }
-        promise.resolve(result);
+            HippyMap entry = new HippyMap();
+            entry.pushString("name", rootView.getName());
+            entry.pushString("entryType", "navigation");
+            List<HippyEngineMonitorEvent> list = monitor.getAllSeparateEvents();
+            for (HippyEngineMonitorEvent event : list) {
+                entry.pushLong(event.eventName + "Start", event.startTime);
+                entry.pushLong(event.eventName + "End", event.endTime);
+            }
+            result.pushMap(entry);
+        } return result;
     }
 
 }

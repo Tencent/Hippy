@@ -28,14 +28,14 @@ public class HippyEngineMonitorEvent {
   public static final String MODULE_LOAD_EVENT_RUN_BUNDLE = "runBundle";
   public static final String MODULE_LOAD_EVENT_CREATE_VIEW = "createView";
   public static final String MODULE_LOAD_EVENT_RESTORE_INSTANCE_STATE = "restoreInstanceState";
-  public static final String SEPARATE_EVENT_INIT_JS_FRAMEWORK = "InitJsFramework";
-  public static final String SEPARATE_EVENT_COMMON_LOAD_SOURCE = "CommonLoadSource";
-  public static final String SEPARATE_EVENT_COMMON_EXECUTE_SOURCE = "CommonExecuteSource";
-  public static final String SEPARATE_EVENT_SECONDARY_LOAD_SOURCE = "SecondaryLoadSource";
-  public static final String SEPARATE_EVENT_SECONDARY_EXECUTE_SOURCE = "SecondaryExecuteSource";
-  public static final String SEPARATE_EVENT_BRIDGE_STARTUP = "BridgeStartup";
-  public static final String SEPARATE_EVENT_RUN_APPLICATION = "RunApplication";
-  public static final String SEPARATE_EVENT_FP = "FP";
+  public static final String SEPARATE_EVENT_INIT_JS_FRAMEWORK = "hippyInitJsFramework";
+  public static final String SEPARATE_EVENT_COMMON_LOAD_SOURCE = "hippyCommonLoadSource";
+  public static final String SEPARATE_EVENT_COMMON_EXECUTE_SOURCE = "hippyCommonExecuteSource";
+  public static final String SEPARATE_EVENT_SECONDARY_LOAD_SOURCE = "hippySecondaryLoadSource";
+  public static final String SEPARATE_EVENT_SECONDARY_EXECUTE_SOURCE = "hippySecondaryExecuteSource";
+  public static final String SEPARATE_EVENT_BRIDGE_STARTUP = "hippyBridgeStartup";
+  public static final String SEPARATE_EVENT_RUN_APPLICATION = "hippyRunApplication";
+  public static final String SEPARATE_EVENT_FIRST_PAINT = "hippyFirstPaint";
 
   public String eventName;
   public long startTime;

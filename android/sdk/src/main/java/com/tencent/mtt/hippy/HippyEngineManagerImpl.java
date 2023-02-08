@@ -292,7 +292,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     timeMonitor.setParent(mStartTimeMonitor);
     timeMonitor.begine();
     timeMonitor.startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_WAIT_ENGINE);
-    timeMonitor.startSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_FP);
+    timeMonitor.startSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_FIRST_PAINT);
     view.setTimeMonitor(timeMonitor);
     view.setOnResumeAndPauseListener(this);
     view.setOnSizeChangedListener(this);
@@ -1040,6 +1040,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
       }
       return null;
+    }
+
+    @Override
+    public Iterator<HippyRootView> getInstanceIterator() {
+      return mInstances.iterator();
     }
 
     @Override

@@ -34,5 +34,29 @@ global.performance = global.performance || new class Performance {
   now() {
     return Date.now() - timeOrigin;
   }
+  getEntries() {
+    const raw = getTurboModule('PerformanceModule').getEntries();
+    return raw.map((entry) => {
+      const transformed = new class PerformanceNavigationTiming {};
+      entry.forEach((value, key) => {
+        transformed[key] = key === 'name' || key === 'entryType' ? value
+          : value === 0 ? undefined
+            : value - timeOrigin;
+      });
+      return transformed;
+    });
+  }
+  markStart(name, key) {
+    const app = __GLOBAL__.appRegister[name];
+    if (app) {
+      Hippy.bridge.callNative('PerformanceModule', 'markStart', app.id, key, Date.now());
+    }
+  }
+  markEnd(name, key) {
+    const app = __GLOBAL__.appRegister[name];
+    if (app) {
+      Hippy.bridge.callNative('PerformanceModule', 'markEnd', app.id, key, Date.now());
+    }
+  }
 };
 
