@@ -34,7 +34,7 @@ android {
     }
 
     buildFeatures {
-        buildConfig = falsez
+        buildConfig = false
     }
 }
 
