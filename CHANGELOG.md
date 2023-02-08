@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.10](https://github.com/Tencent/Hippy/compare/2.14.9...2.14.10) (2023-02-08)
+
+
+### Bug Fixes
+
+* **android:** nested scroll conflict ([739a966](https://github.com/Tencent/Hippy/commit/739a9664b1133fb7515ef20968540ee5a8e02584))
+* **ios:** avoid a thread race for animated image ([acfebf4](https://github.com/Tencent/Hippy/commit/acfebf43bfc0554c48b27d258842a1f40045416e))
+
+
+
+
+
 ## [2.14.9](https://github.com/Tencent/Hippy/compare/2.14.8...2.14.9) (2022-11-07)
 
 
