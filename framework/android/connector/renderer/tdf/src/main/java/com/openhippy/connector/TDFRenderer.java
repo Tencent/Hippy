@@ -1,5 +1,5 @@
 /* Tencent is pleased to support the open source community by making Hippy available.
- * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2023 THL A29 Limited, a Tencent company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,32 +40,37 @@ public class TDFRenderer implements RenderConnector {
         mRenderer = new com.tencent.renderer.TDFRenderer(mInstanceId);
     }
 
-    @Override public void destroyRoot(int rootId) {
+    @Override
+    public void destroyRoot(int rootId) {
         if (mRenderer != null) {
             mRenderer.destroyRoot(rootId);
         }
     }
 
-    @Override public void onRuntimeInitialized(int rootId) {
+    @Override
+    public void onRuntimeInitialized(int rootId) {
         if (mRenderer != null) {
             mRenderer.onRuntimeInitialized(rootId);
         }
     }
 
-    @Override public void recordSnapshot(int rootId, @NonNull Object callback) {
-        if (mRenderer != null) {
+    @Override
+    public void recordSnapshot(int rootId, @NonNull Object callback) {
+        if (mRenderer != null && callback instanceof Callback) {
             mRenderer.recordSnapshot(rootId, (Callback<byte[]>) callback);
         }
     }
 
-    @Override public View replaySnapshot(@NonNull Context context, @NonNull byte[] buffer) {
+    @Override
+    public View replaySnapshot(@NonNull Context context, @NonNull byte[] buffer) {
         if (mRenderer != null) {
             return mRenderer.replaySnapshot(context, buffer);
         }
         return null;
     }
 
-    @Override public View replaySnapshot(@NonNull Context context,
+    @Override
+    public View replaySnapshot(@NonNull Context context,
         @NonNull Map<String, Object> snapshotMap) {
         if (mRenderer != null) {
             return mRenderer.replaySnapshot(context, snapshotMap);
@@ -73,13 +78,15 @@ public class TDFRenderer implements RenderConnector {
         return null;
     }
 
-    @Override public void setFrameworkProxy(@NonNull Object proxy) {
-        if (mRenderer != null) {
+    @Override
+    public void setFrameworkProxy(@NonNull Object proxy) {
+        if (mRenderer != null && proxy instanceof FrameworkProxy) {
             mRenderer.setFrameworkProxy((FrameworkProxy) proxy);
         }
     }
 
-    @Override public View createRootView(@NonNull Context context) {
+    @Override
+    public View createRootView(@NonNull Context context) {
         View rootView = null;
         if (mRenderer != null) {
             rootView = mRenderer.createRootView(context);
@@ -87,34 +94,40 @@ public class TDFRenderer implements RenderConnector {
         return rootView;
     }
 
-    @Override public void onResume() {
+    @Override
+    public void onResume() {
         if (mRenderer != null) {
             mRenderer.onResume();
         }
     }
 
-    @Override public void onPause() {
+    @Override
+    public void onPause() {
         if (mRenderer != null) {
             mRenderer.onPause();
         }
     }
 
-    @Override public void init(@Nullable List<Class<?>> controllers,
+    @Override
+    public void init(@Nullable List<Class<?>> controllers,
         @Nullable ViewGroup rootView) {
         if (mRenderer != null) {
             mRenderer.init(controllers, rootView);
         }
     }
 
-    @Override public void attachToDom(@NonNull Connector domConnector) {
+    @Override
+    public void attachToDom(@NonNull Connector domConnector) {
         attachToDom(mInstanceId, domConnector.getInstanceId());
     }
 
-    @Override public void destroy() {
+    @Override
+    public void destroy() {
         destroyTDFRenderManager(mInstanceId);
     }
 
-    @Override public int getInstanceId() {
+    @Override
+    public int getInstanceId() {
         return mInstanceId;
     }
 
