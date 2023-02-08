@@ -146,15 +146,15 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     public void setListData() {
         LogUtils.d("HippyRecyclerView", "itemCount =" + listAdapter.getItemCount());
         listAdapter.notifyDataSetChanged();
-        //notifyDataSetChanged 本身是可以触发requestLayout的，但是Hippy框架下 HippyRootView 已经把
-        //onLayout方法重载写成空方法，requestLayout不会回调孩子节点的onLayout，这里需要自己发起dispatchLayout
-        renderNodeCount = getAdapter().getRenderNodeCount();
-        dispatchLayout();
+        renderNodeCount = listAdapter.getRenderNodeCount();
         if (renderNodeCount > 0) {
             if (mInitialContentOffset > 0 && getChildCount() > 0) {
                 scrollToInitContentOffset();
             }
         }
+        //notifyDataSetChanged 本身是可以触发requestLayout的，但是Hippy框架下 HippyRootView 已经把
+        //onLayout方法重载写成空方法，requestLayout不会回调孩子节点的onLayout，这里需要自己发起dispatchLayout
+        dispatchLayout();
     }
 
     /**
