@@ -359,7 +359,7 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b) {
                 self.needsDisplayWhenImageBecomesAvailable = NO;
             }
             if (@available(iOS 10, *)) {
-                self.accumulator += displayLink.targetTimestamp - CACurrentMediaTime();
+                self.accumulator += displayLink.targetTimestamp - displayLink.timestamp;
             } else {
                 self.accumulator += displayLink.duration * displayLink.frameInterval;
             }
