@@ -37,6 +37,6 @@ void RegisterTDFEngine(JNIEnv *j_env, jobject j_obj, jint j_render_id,
 
 void SetUriLoader(JNIEnv *j_env, jobject j_obj, jint j_render_id, jint j_vfs_id);
 
-}
-}
-}
+}  // namespace tdf
+}  // namespace render
+}  // namespace hippy

@@ -41,8 +41,8 @@ void DestroyTDFRenderManager(JNIEnv* j_env, jobject j_object, jint j_render_mana
 
 void SetDomManager(JNIEnv* j_env, jobject j_obj, jint j_render_id, jint j_dom_manager_id);
 
-}
-}
-}
-}
-} // namespace hippy
+}  // namespace tdf
+}  // namespace renderer
+}  // namespace connector
+}  // namespace framework
+}  // namespace hippy
