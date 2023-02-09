@@ -112,6 +112,6 @@ class TDFRenderManager
       persistent_map_;
 };
 
-}  // namespace hippy
-}  // namespace render
 }  // namespace tdf
+}  // namespace render
+}  // namespace hippy

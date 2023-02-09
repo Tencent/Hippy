@@ -84,8 +84,8 @@ void SetDomManager(JNIEnv* j_env, jobject j_obj, jint j_render_id, jint j_dom_ma
   render_manager_object->SetDomManager(dom_manager_object);
 }
 
-}
-}
-}
-}
-} // namespace hippy
+}  // namespace tdf
+}  // namespace renderer
+}  // namespace connector
+}  // namespace framework
+}  // namespace hippy

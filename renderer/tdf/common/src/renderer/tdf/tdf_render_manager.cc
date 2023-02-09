@@ -101,9 +101,13 @@ TDFRenderManager::TDFRenderManager() : RenderManager("TDFRenderManager") {
 }
 
 void TDFRenderManager::RegisterShell(uint32_t root_id, const std::shared_ptr<tdfcore::Shell>& shell) {
-  auto uri_data_getter =  [this](const string_view &uri, const RootViewNode::DataCb& callback) {
-    auto uri_loader = this->GetUriLoader();
-    FOOTSTONE_DCHECK(uri_loader);
+  auto uri_data_getter =  [WEAK_THIS](const string_view &uri, const RootViewNode::DataCb& callback) {
+    DEFINE_AND_CHECK_SELF(TDFRenderManager);
+    auto uri_loader = self->GetUriLoader();
+    if (!uri_loader) {
+      FOOTSTONE_DLOG(WARNING) << "TDFRenderManager uri_loader is null";
+      return;
+    }
     auto cb = [callback](
         UriLoader::RetCode ret_code, const std::unordered_map<std::string, std::string>&, UriLoader::bytes content) {
 

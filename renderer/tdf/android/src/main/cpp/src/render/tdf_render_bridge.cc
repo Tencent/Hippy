@@ -95,6 +95,6 @@ void SetUriLoader(JNIEnv *j_env, jobject j_obj,
   render_manager_object->SetUriLoader(loader);
 }
 
-}
-}
-}
+}  // namespace tdf
+}  // namespace render
+}  // namespace hippy
