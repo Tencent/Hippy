@@ -183,8 +183,8 @@ bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
                        const unicode_string_view& code_cache_dir,
                        const unicode_string_view& uri,
                        AAssetManager* asset_manager,
-                       long long &load_start_millis,
-                       long long &load_end_millis) {
+                       std::chrono::time_point<std::chrono::system_clock> &load_start,
+                       std::chrono::time_point<std::chrono::system_clock> &load_end) {
   TDF_BASE_LOG(INFO) << "RunScriptInternal begin, file_name = " << file_name
                      << ", is_use_code_cache = " << is_use_code_cache
                      << ", code_cache_dir = " << code_cache_dir
@@ -195,10 +195,7 @@ bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
   unicode_string_view code_cache_content;
   uint64_t modify_time = 0;
 
-  load_start_millis = std::chrono::time_point_cast<std::chrono::milliseconds>(
-      std::chrono::system_clock::now())
-      .time_since_epoch()
-      .count();
+  load_start = std::chrono::system_clock::now();
   std::shared_ptr<WorkerTaskRunner> task_runner;
   unicode_string_view code_cache_path;
   if (is_use_code_cache) {
@@ -246,10 +243,7 @@ bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
       script_content = unicode_string_view(std::move(content));
     }
   }
-  load_end_millis = std::chrono::time_point_cast<std::chrono::milliseconds>(
-      std::chrono::system_clock::now())
-      .time_since_epoch()
-      .count();
+  load_end = std::chrono::system_clock::now();
 
   TDF_BASE_DLOG(INFO) << "uri = " << uri
                       << "read_script_flag = " << read_script_flag
@@ -365,13 +359,19 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                     j_can_use_code_cache, code_cache_dir, uri, aasset_manager,
                     time_begin] {
     TDF_BASE_DLOG(INFO) << "runScriptFromUri enter";
-    long long load_start_millis;
-    long long load_end_millis;
+    std::chrono::time_point<std::chrono::system_clock> load_start;
+    std::chrono::time_point<std::chrono::system_clock> load_end;
     bool flag = RunScriptInternal(runtime, script_name, j_can_use_code_cache,
-                                  code_cache_dir, uri, aasset_manager, load_start_millis, load_end_millis);
+                                  code_cache_dir, uri, aasset_manager, load_start, load_end);
     {
       JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
       jstring j_uri = JniUtils::StrViewToJString(j_env, uri);
+      auto load_start_millis = std::chrono::time_point_cast<std::chrono::milliseconds>(load_start)
+          .time_since_epoch()
+          .count();
+      auto load_end_millis = std::chrono::time_point_cast<std::chrono::milliseconds>(load_end)
+          .time_since_epoch()
+          .count();
       hippy::bridge::CallJavaReportLoadedTime(save_object_->GetObj(), j_uri, load_start_millis, load_end_millis);
       j_env->DeleteLocalRef(j_uri);
     }

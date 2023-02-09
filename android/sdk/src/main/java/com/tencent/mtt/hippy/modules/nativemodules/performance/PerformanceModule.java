@@ -31,9 +31,6 @@ import java.util.List;
 @HippyNativeModule(name = "PerformanceModule")
 public class PerformanceModule extends HippyNativeModuleBase {
 
-    private static final String KEY_ERR_MSG = "errMsg";
-    private static final String KEY_RESULT = "result";
-
     public PerformanceModule(HippyEngineContext context) {
         super(context);
     }
