@@ -476,7 +476,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         int y;
         int width = view.getWidth();
         int height = view.getHeight();
-        int[] pair = new int[2];
+        int[] pair;
         if (relToContainer) {
             NativeRender renderer = NativeRendererManager.getNativeRenderer(view.getContext());
             View rootView = renderer == null ? null : renderer.getRootView(view);
@@ -487,6 +487,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
                 return;
             }
 
+            pair = new int[2];
             view.getLocationInWindow(pair);
             x = pair[0];
             y = pair[1];
@@ -494,6 +495,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
             x -= pair[0];
             y -= pair[1];
         } else {
+            pair = new int[2];
             view.getLocationOnScreen(pair);
             x = pair[0];
             y = pair[1];
