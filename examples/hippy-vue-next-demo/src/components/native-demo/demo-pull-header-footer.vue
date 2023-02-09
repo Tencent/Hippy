@@ -1,5 +1,8 @@
 <template>
-  <div id="demo-pull-header-footer" specital-attr="pull-header-footer">
+  <div
+    id="demo-pull-header-footer"
+    specital-attr="pull-header-footer"
+  >
     <div class="toolbar">
       <button
         class="toolbar-btn"
