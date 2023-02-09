@@ -32,6 +32,4 @@ public interface HippyBundleLoader {
   boolean canUseCodeCache();
 
   String getCodeCacheTag();
-
-  String getUri();
 }

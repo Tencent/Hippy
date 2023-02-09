@@ -102,13 +102,15 @@ performance.getEntries();
 }, ...]
 ```
 
-其中每个性能指标对应`hippyXxxStart`和`hippyXxxEnd`两个字段，取值为相对`performance.timeOrigin`的毫秒数。
+* name字段对应Hippy/Vue实例初始化时设置的`appName`参数，下同。
+* 每个性能指标对应`hippyXxxStart`和`hippyXxxEnd`两个字段，取值为相对`performance.timeOrigin`的毫秒数。
+* 由于初始化JS引擎要早于初始化Performance模块，因此`hippyInitJsFramework`的值会是负数。
 
 #### 添加自定义数据方法
 
 ```js
-performance.markStart(appName, key); // 例如：appName='Demo', key='showContent'
-performance.markEnd(appName, key);
+performance.markStart(name, key); // 例如：name='Demo', key='showContent'
+performance.markEnd(name, key);
 ```
 
 

@@ -125,46 +125,50 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         }
     }
 
-    private void handleCallFunction(Message msg) {
-        if (mCallFunctionCallback == null) {
-            mCallFunctionCallback = new NativeCallback(mHandler) {
-                @Override
-                public void Call(long result, Message message, String action, String reason) {
-                    if (result != 0) {
-                        String info = "CallFunction error: action=" + action
-                            + ", result=" + result + ", reason=" + reason;
-                        reportException(new Throwable(info));
+    private TimeMonitor getTimeMonitor(int instanceId) {
+        HippyRootView rootView = mContext.getInstance(instanceId);
+        if (rootView != null) {
+            return rootView.getTimeMonitor();
+        }
+        return null;
+    }
+
+    private NativeCallback generateCallback() {
+        return new NativeCallback(mHandler) {
+            @Override
+            public void onCall(long result, int instanceId, String action, String reason) {
+                if (action.equals("loadInstance")) {
+                    TimeMonitor monitor = getTimeMonitor(instanceId);
+                    if (monitor != null) {
+                        monitor.endSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_RUN_APPLICATION);
                     }
                 }
-            };
+                if (result != 0) {
+                    String info = "CallFunction error: action=" + action
+                        + ", result=" + result + ", reason=" + reason;
+                    reportException(new Throwable(info));
+                }
+            }
+        };
+    }
+
+    private void handleCallFunction(Message msg) {
+        if (mCallFunctionCallback == null) {
+            mCallFunctionCallback = generateCallback();
         }
-        NativeCallback callback = mCallFunctionCallback;
 
         String action = null;
         int instanceId = 0;
+        if (msg.obj instanceof HippyMap) {
+            instanceId = ((HippyMap) msg.obj).getInt("id");
+        }
         switch (msg.arg2) {
             case FUNCTION_ACTION_LOAD_INSTANCE: {
-                if (msg.obj instanceof HippyMap) {
-                    instanceId = ((HippyMap) msg.obj).getInt("id");
-                    HippyRootView rootView = mContext.getInstance(instanceId);
-                    if (rootView != null) {
-                        rootView.startMonitorEvent(
-                                HippyEngineMonitorEvent.MODULE_LOAD_EVENT_RUN_BUNDLE);
-                    }
+                TimeMonitor monitor = getTimeMonitor(instanceId);
+                if (monitor != null) {
+                    monitor.startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_RUN_BUNDLE);
                 }
                 action = "loadInstance";
-                int finalInstanceId = instanceId;
-                callback = new NativeCallback(mHandler) {
-                    @Override
-                    public void Call(long result, Message message, String action, String reason) {
-                        HippyRootView rootView = mContext.getInstance(finalInstanceId);
-                        TimeMonitor monitor = rootView == null ? null : rootView.getTimeMonitor();
-                        if (monitor != null) {
-                            monitor.endSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_RUN_APPLICATION);
-                        }
-                        mCallFunctionCallback.Call(result, message, action, reason);
-                    }
-                };
                 break;
             }
             case FUNCTION_ACTION_RESUME_INSTANCE: {
@@ -213,7 +217,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                 buffer.put(bytes);
             }
 
-            mHippyBridge.callFunction(action, callback, buffer);
+            mHippyBridge.callFunction(action, instanceId, mCallFunctionCallback, buffer);
         } else {
             if (enableV8Serialization) {
                 if (safeHeapWriter == null) {
@@ -228,12 +232,12 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                 ByteBuffer buffer = safeHeapWriter.chunked();
                 int offset = buffer.arrayOffset() + buffer.position();
                 int length = buffer.limit() - buffer.position();
-                mHippyBridge.callFunction(action, callback, buffer.array(), offset, length);
+                mHippyBridge.callFunction(action, instanceId, mCallFunctionCallback, buffer.array(), offset, length);
             } else {
                 mStringBuilder.setLength(0);
                 byte[] bytes = ArgumentUtils.objectToJsonOpt(msg.obj, mStringBuilder).getBytes(
                         StandardCharsets.UTF_16LE);
-                mHippyBridge.callFunction(action, callback, bytes);
+                mHippyBridge.callFunction(action, instanceId, mCallFunctionCallback, bytes);
             }
         }
     }
@@ -251,7 +255,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         @SuppressWarnings("unchecked") final com.tencent.mtt.hippy.common.Callback<Boolean> destroyCallback = (com.tencent.mtt.hippy.common.Callback<Boolean>) msg.obj;
         mHippyBridge.destroy(new NativeCallback(mHandler) {
             @Override
-            public void Call(long result, Message message, String action, String reason) {
+            public void onCall(long result, int instanceId, String action, String reason) {
                 boolean success = result == 0;
                 mHippyBridge.onDestroy(isReload);
                 if (destroyCallback != null) {
@@ -283,7 +287,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
                         mHippyBridge.initJSBridge(getGlobalConfigs(), new NativeCallback(mHandler) {
                             @Override
-                            public void Call(long result, Message message, String action,
+                            public void onCall(long result, int instanceId, String action,
                                     String reason) {
                                 if (result != 0) {
                                     String info =
@@ -306,33 +310,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                                 timeMonitor.endSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_INIT_JS_FRAMEWORK);
                                 timeMonitor.startEvent(HippyEngineMonitorEvent.ENGINE_LOAD_EVENT_LOAD_COMMONJS);
                                 mIsInit = true;
-                                if (mCoreBundleLoader != null) {
-                                    timeMonitor.startSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_COMMON_LOAD_SOURCE);
-                                    final String uri = mCoreBundleLoader.getUri();
-                                    mCoreBundleLoader
-                                            .load(mHippyBridge, new NativeCallback(mHandler) {
-                                                @Override
-                                                public void Call(long result, Message message,
-                                                        String action, String reason) {
-                                                    RuntimeException exception = null;
-                                                    boolean ret = (result == 0);
-                                                    if (!ret) {
-                                                        exception = new RuntimeException(
-                                                                "load coreJsBundle failed, check your core jsBundle:"
-                                                                        + reason);
-                                                    } else {
-                                                        Pair<Long, Long> time = mHippyBridge.getLoadUriTime(uri);
-                                                        if (time != null) {
-                                                            timeMonitor.endSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_COMMON_LOAD_SOURCE, time.second);
-                                                            timeMonitor.startSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_COMMON_EXECUTE_SOURCE, time.second);
-                                                        }
-                                                    }
-                                                    callback.callback(ret, exception);
-                                                }
-                                            });
-                                } else {
-                                    callback.callback(mIsInit, null);
-                                }
+                                loadCoreBundle(timeMonitor, callback);
                             }
                         }, mGroupId);
                     } catch (Throwable e) {
@@ -361,12 +339,12 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
                     if (!mIsInit) {
                         notifyModuleLoaded(ModuleLoadStatus.STATUS_ENGINE_UNINIT,
-                                "load module error. HippyBridge mIsInit:" + mIsInit, null, null);
+                                "load module error. HippyBridge mIsInit:" + mIsInit, null);
                         return true;
                     }
                     if (loader == null) {
                         notifyModuleLoaded(ModuleLoadStatus.STATUS_VARIABLE_NULL,
-                                "load module error. loader:" + null, null, null);
+                                "load module error. loader:" + null, null);
                         return true;
                     }
 
@@ -378,7 +356,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                             .contains(bundleUniKey)) {
                         notifyModuleLoaded(ModuleLoadStatus.STATUS_REPEAT_LOAD,
                                 "repeat load module. loader.getBundleUniKey=" + bundleUniKey,
-                                localRootView, null);
+                                localRootView);
                         return true;
                     }
 
@@ -388,24 +366,38 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                         }
                         mLoadedBundleInfo.add(bundleUniKey);
 
-                        final String uri = loader.getUri();
                         loader.load(mHippyBridge, new NativeCallback(mHandler) {
                             @Override
-                            public void Call(long result, Message message, String action,
+                            public void onReportLoadedTime(String uri, long startMillis,
+                                long endMillis) {
+                                TimeMonitor timeMonitor =
+                                    localRootView == null ? null : localRootView.getTimeMonitor();
+                                if (timeMonitor != null) {
+                                    timeMonitor.endSeparateEvent(
+                                        HippyEngineMonitorEvent.SEPARATE_EVENT_SECONDARY_LOAD_SOURCE,
+                                        endMillis);
+                                    timeMonitor.startSeparateEvent(
+                                        HippyEngineMonitorEvent.SEPARATE_EVENT_SECONDARY_EXECUTE_SOURCE,
+                                        endMillis);
+                                }
+                            }
+
+                            @Override
+                            public void onCall(long result, int instanceId, String action,
                                     String reason) {
                                 if (result == 0) {
                                     notifyModuleLoaded(ModuleLoadStatus.STATUS_OK, null,
-                                            localRootView, uri);
+                                            localRootView);
                                 } else {
                                     notifyModuleLoaded(ModuleLoadStatus.STATUS_ERR_RUN_BUNDLE,
                                             "load module error. loader.load failed. check the file!!",
-                                            null, null);
+                                            null);
                                 }
                             }
                         });
                     } else {
                         notifyModuleLoaded(ModuleLoadStatus.STATUS_VARIABLE_NULL,
-                                "can not load module. loader.getBundleUniKey=null", null, null);
+                                "can not load module. loader.getBundleUniKey=null", null);
                     }
 
                     return true;
@@ -427,6 +419,33 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         }
 
         return false;
+    }
+
+    private void loadCoreBundle(TimeMonitor timeMonitor, Callback<Boolean> callback) {
+        if (mCoreBundleLoader != null) {
+            timeMonitor.startSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_COMMON_LOAD_SOURCE);
+            mCoreBundleLoader.load(mHippyBridge, new NativeCallback(mHandler) {
+                @Override
+                public void onReportLoadedTime(String uri, long startMillis, long endMillis) {
+                    timeMonitor.endSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_COMMON_LOAD_SOURCE, endMillis);
+                    timeMonitor.startSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_COMMON_EXECUTE_SOURCE, endMillis);
+                }
+
+                @Override
+                public void onCall(long result, int instanceId, String action, String reason) {
+                    RuntimeException exception = null;
+                    boolean ret = (result == 0);
+                    if (!ret) {
+                        exception = new RuntimeException(
+                                "load coreJsBundle failed, check your core jsBundle:"
+                                        + reason);
+                    }
+                    callback.callback(ret, exception);
+                }
+            });
+        } else {
+            callback.callback(mIsInit, null);
+        }
     }
 
     @Override
@@ -455,7 +474,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         if (!mIsInit) {
             mLoadModuleListener = listener;
             notifyModuleLoaded(ModuleLoadStatus.STATUS_ENGINE_UNINIT,
-                    "load module error. HippyBridge not initialized", hippyRootView, null);
+                    "load module error. HippyBridge not initialized", hippyRootView);
             return;
         }
 
@@ -487,22 +506,13 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     }
 
     private void notifyModuleLoaded(final ModuleLoadStatus statusCode, final String msg,
-            final HippyRootView hippyRootView, final String uri) {
+            final HippyRootView hippyRootView) {
         Runnable action = new Runnable() {
             @Override
             public void run() {
                 TimeMonitor timeMonitor =
                     hippyRootView == null ? null : hippyRootView.getTimeMonitor();
-                if (timeMonitor != null && !TextUtils.isEmpty(uri)) {
-                    Pair<Long, Long> time = mHippyBridge.getLoadUriTime(uri);
-                    if (time != null) {
-                        timeMonitor.endSeparateEvent(
-                            HippyEngineMonitorEvent.SEPARATE_EVENT_SECONDARY_LOAD_SOURCE,
-                            time.second);
-                        timeMonitor.startSeparateEvent(
-                            HippyEngineMonitorEvent.SEPARATE_EVENT_SECONDARY_EXECUTE_SOURCE,
-                            time.second);
-                    }
+                if (timeMonitor != null) {
                     timeMonitor.endSeparateEvent(
                         HippyEngineMonitorEvent.SEPARATE_EVENT_SECONDARY_EXECUTE_SOURCE);
                 }

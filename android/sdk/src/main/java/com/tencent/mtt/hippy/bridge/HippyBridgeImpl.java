@@ -18,8 +18,8 @@ package com.tencent.mtt.hippy.bridge;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.os.Message;
 import android.text.TextUtils;
-import android.util.Pair;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.HippyEngine;
@@ -52,9 +52,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 @SuppressWarnings({"unused", "JavaJniMissingFunction"})
 public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnReceiveDataListener {
@@ -85,8 +82,6 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     private BinaryReader mSafeDirectReader;
     private final HippyEngine.V8InitParams v8InitParams;
     private Inspector mInspector;
-    private final Map<String, Pair<Long, Long>> mUriLoadedTimestamps = Collections.synchronizedMap(
-        new HashMap<>());
 
     public HippyBridgeImpl(HippyEngineContext engineContext, BridgeCallback callback,
             boolean singleThreadMode, boolean enableV8Serialization, boolean isDevModule,
@@ -210,7 +205,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     }
 
     @Override
-    public void callFunction(String action, NativeCallback callback, ByteBuffer buffer) {
+    public void callFunction(String action, int instanceId, NativeCallback callback, ByteBuffer buffer) {
         if (!mInit || TextUtils.isEmpty(action) || buffer == null || buffer.limit() == 0) {
             return;
         }
@@ -218,7 +213,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
         int offset = buffer.position();
         int length = buffer.limit() - buffer.position();
         if (buffer.isDirect()) {
-            callFunction(action, mV8RuntimeId, callback, buffer, offset, length);
+            callFunction(action, mV8RuntimeId, instanceId, callback, buffer, offset, length);
         } else {
             /*
              * In Android's DirectByteBuffer implementation.
@@ -235,24 +230,24 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
              * {@link ByteBuffer#arrayOffset} will be ignored, treated as 0.
              */
             offset += buffer.arrayOffset();
-            callFunction(action, mV8RuntimeId, callback, buffer.array(), offset, length);
+            callFunction(action, mV8RuntimeId, instanceId, callback, buffer.array(), offset, length);
         }
     }
 
     @Override
-    public void callFunction(String action, NativeCallback callback, byte[] buffer) {
-        callFunction(action, callback, buffer, 0, buffer.length);
+    public void callFunction(String action, int instanceId, NativeCallback callback, byte[] buffer) {
+        callFunction(action, instanceId, callback, buffer, 0, buffer.length);
     }
 
     @Override
-    public void callFunction(String action, NativeCallback callback, byte[] buffer, int offset,
+    public void callFunction(String action, int instanceId, NativeCallback callback, byte[] buffer, int offset,
             int length) {
         if (!mInit || TextUtils.isEmpty(action) || buffer == null || offset < 0 || length < 0
                 || offset + length > buffer.length) {
             return;
         }
 
-        callFunction(action, mV8RuntimeId, callback, buffer, offset, length);
+        callFunction(action, mV8RuntimeId, instanceId, callback, buffer, offset, length);
     }
 
     @Override
@@ -307,11 +302,11 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
     public native void destroy(long runtimeId, boolean useLowMemoryMode, boolean isReload, NativeCallback callback);
 
-    public native void callFunction(String action, long runtimeId, NativeCallback callback,
-            ByteBuffer buffer, int offset, int length);
+    public native void callFunction(String action, long runtimeId, int instanceId,
+            NativeCallback callback, ByteBuffer buffer, int offset, int length);
 
-    public native void callFunction(String action, long runtimeId, NativeCallback callback,
-            byte[] buffer, int offset, int length);
+    public native void callFunction(String action, long runtimeIdm, int instanceId,
+            NativeCallback callback, byte[] buffer, int offset, int length);
 
     public native void onResourceReady(ByteBuffer output, long runtimeId, long resId);
 
@@ -468,19 +463,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
             boolean isInspectMsg =
                     mInspector != null && mInspector.dispatchReqFromFrontend(mContext, msg);
             if (!isInspectMsg) {
-                callFunction("onWebsocketMsg", null, msg.getBytes(StandardCharsets.UTF_16LE));
+                callFunction("onWebsocketMsg", 0, null, msg.getBytes(StandardCharsets.UTF_16LE));
             }
         }
-    }
-
-    @SuppressWarnings("unused")
-    public void reportLoadUriTime(String uri, long startMillis, long endMillis) {
-        mUriLoadedTimestamps.put(uri, new Pair<>(startMillis, endMillis));
-    }
-
-    @Nullable
-    @Override
-    public Pair<Long, Long> getLoadUriTime(String uri) {
-        return mUriLoadedTimestamps.get(uri);
     }
 }

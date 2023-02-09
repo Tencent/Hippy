@@ -1,54 +1,27 @@
 package com.tencent.mtt.hippy.bridge;
 
 import android.os.Handler;
-import android.os.Message;
+import androidx.annotation.NonNull;
 
 @SuppressWarnings({"unused"})
 public abstract class NativeCallback {
 
-  public NativeCallback(Handler handler) {
-    mHandler = handler;
-  }
+    private final Handler mHandler;
 
-  public NativeCallback(Handler handler, Message msg, String action) {
-    mHandler = handler;
-    mMsg = msg;
-    mAction = action;
-  }
-
-  public void Callback(long result, String reason) {
-    if (mHandler != null) {
-      NativeRunnable runnable = new NativeRunnable(this, result, mMsg, mAction, reason);
-      mHandler.post(runnable);
-    }
-  }
-
-  public abstract void Call(long result, Message message, String action, String reason);
-
-  private final Handler mHandler;
-  private Message mMsg = null;
-  private String mAction = null;
-
-  public static class NativeRunnable implements Runnable {
-
-    private final long result;
-    private final NativeCallback callback;
-    private final Message message;
-    private final String action;
-    private final String reason;
-
-    public NativeRunnable(NativeCallback callback, long result, Message message,
-        String action, String reason) {
-      this.result = result;
-      this.callback = callback;
-      this.message = message;
-      this.action = action;
-      this.reason = reason;
+    public NativeCallback(@NonNull Handler handler) {
+        mHandler = handler;
     }
 
-    @Override
-    public void run() {
-      callback.Call(result, message, action, reason);
+    public final void nativeCallback(String action, int instanceId, long result, String reason) {
+        mHandler.post(() -> onCall(result, instanceId, action, reason));
     }
-  }
+
+    public final void nativeReportLoadedTime(String uri, long startMillis, long endMillis) {
+        mHandler.post(() -> onReportLoadedTime(uri, startMillis, endMillis));
+    }
+
+    public abstract void onCall(long result, int instanceId, String action, String reason);
+
+    public void onReportLoadedTime(String uri, long startMillis, long endMillis) {
+    }
 }

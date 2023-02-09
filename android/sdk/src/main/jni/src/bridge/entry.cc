@@ -182,7 +182,9 @@ bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
                        bool is_use_code_cache,
                        const unicode_string_view& code_cache_dir,
                        const unicode_string_view& uri,
-                       AAssetManager* asset_manager) {
+                       AAssetManager* asset_manager,
+                       long long &load_start_millis,
+                       long long &load_end_millis) {
   TDF_BASE_LOG(INFO) << "RunScriptInternal begin, file_name = " << file_name
                      << ", is_use_code_cache = " << is_use_code_cache
                      << ", code_cache_dir = " << code_cache_dir
@@ -193,6 +195,10 @@ bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
   unicode_string_view code_cache_content;
   uint64_t modify_time = 0;
 
+  load_start_millis = std::chrono::time_point_cast<std::chrono::milliseconds>(
+      std::chrono::system_clock::now())
+      .time_since_epoch()
+      .count();
   std::shared_ptr<WorkerTaskRunner> task_runner;
   unicode_string_view code_cache_path;
   if (is_use_code_cache) {
@@ -240,6 +246,10 @@ bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
       script_content = unicode_string_view(std::move(content));
     }
   }
+  load_end_millis = std::chrono::time_point_cast<std::chrono::milliseconds>(
+      std::chrono::system_clock::now())
+      .time_since_epoch()
+      .count();
 
   TDF_BASE_DLOG(INFO) << "uri = " << uri
                       << "read_script_flag = " << read_script_flag
@@ -355,8 +365,16 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                     j_can_use_code_cache, code_cache_dir, uri, aasset_manager,
                     time_begin] {
     TDF_BASE_DLOG(INFO) << "runScriptFromUri enter";
+    long long load_start_millis;
+    long long load_end_millis;
     bool flag = RunScriptInternal(runtime, script_name, j_can_use_code_cache,
-                                  code_cache_dir, uri, aasset_manager);
+                                  code_cache_dir, uri, aasset_manager, load_start_millis, load_end_millis);
+    {
+      JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+      jstring j_uri = JniUtils::StrViewToJString(j_env, uri);
+      hippy::bridge::CallJavaReportLoadedTime(save_object_->GetObj(), j_uri, load_start_millis, load_end_millis);
+      j_env->DeleteLocalRef(j_uri);
+    }
     auto time_end = std::chrono::time_point_cast<std::chrono::microseconds>(
                         std::chrono::system_clock::now())
                         .time_since_epoch()
@@ -366,13 +384,13 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                         << ", uri = " << uri;
 
     if (flag) {
-      hippy::bridge::CallJavaMethod(save_object_->GetObj(),
+      hippy::bridge::CallJavaCallback(save_object_->GetObj(), nullptr, 0,
                                     INIT_CB_STATE::SUCCESS);
     } else {
       JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
       jstring j_msg = JniUtils::StrViewToJString(j_env, u"run script error");
-      CallJavaMethod(save_object_->GetObj(), INIT_CB_STATE::RUN_SCRIPT_ERROR,
-                     j_msg);
+      hippy::bridge::CallJavaCallback(save_object_->GetObj(), nullptr, 0,
+                       INIT_CB_STATE::RUN_SCRIPT_ERROR,j_msg);
       j_env->DeleteLocalRef(j_msg);
     }
     return flag;
@@ -515,7 +533,7 @@ jlong InitInstance(JNIEnv* j_env,
 
   RegisterFunction scope_cb = [save_object_ = std::move(save_object)](void*) {
     TDF_BASE_LOG(INFO) << "run scope cb";
-    hippy::bridge::CallJavaMethod(save_object_->GetObj(),
+    hippy::bridge::CallJavaCallback(save_object_->GetObj(), nullptr, 0,
                                   INIT_CB_STATE::SUCCESS);
   };
 
@@ -641,7 +659,7 @@ void DestroyInstance(__unused JNIEnv* j_env,
     TDF_BASE_LOG(INFO) << "erase runtime";
     Runtime::Erase(runtime);
     TDF_BASE_LOG(INFO) << "js destroy end";
-    hippy::bridge::CallJavaMethod(cb->GetObj(), INIT_CB_STATE::SUCCESS);
+    hippy::bridge::CallJavaCallback(cb->GetObj(), nullptr, 0, INIT_CB_STATE::SUCCESS);
   };
   int64_t group = runtime->GetGroupId();
   if (group == kDebuggerEngineId) {

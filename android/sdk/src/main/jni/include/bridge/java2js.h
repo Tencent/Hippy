@@ -27,27 +27,36 @@
 namespace hippy {
 namespace bridge {
 
-void CallJavaMethod(jobject j_obj, jlong j_value, jstring j_msg = nullptr);
+void CallJavaCallback(jobject j_obj,
+                      jstring j_action,
+                      jint j_instance_id,
+                      jlong j_ret_code,
+                      jstring j_ret_content = nullptr);
 
-void CallFunctionByHeapBuffer(JNIEnv* j_env,
+void CallJavaReportLoadedTime(jobject j_obj,
+                              jstring j_uri,
+                              jlong j_start_millis,
+                              jlong j_end_millis);
+
+void CallFunctionByHeapBuffer(JNIEnv *j_env,
                               jobject j_obj,
                               jstring j_action,
                               jlong j_runtime_id,
+                              jint j_instance_id,
                               jobject j_callback,
                               jbyteArray j_byte_array,
                               jint j_offset,
                               jint j_length);
 
-void CallFunctionByDirectBuffer(JNIEnv* j_env,
+void CallFunctionByDirectBuffer(JNIEnv *j_env,
                                 jobject j_obj,
                                 jstring j_action,
                                 jlong j_runtime_id,
+                                jint j_instance_id,
                                 jobject j_callback,
                                 jobject j_buffer,
                                 jint j_offset,
                                 jint j_length);
-
-void ReportUriLoadTime(jobject j_obj, jstring j_uri, jlong j_start_millis, jlong j_end_millis);
 
 }  // namespace bridge
 }  // namespace hippy

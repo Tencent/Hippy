@@ -101,13 +101,15 @@ Returns
 }, ...]
 ```
 
-Each performance indicator corresponds to two fields `hippyXxxStart` and `hippyXxxEnd`, and the value is milliseconds relative to `performance.timeOrigin`.
+* The name field corresponds to the `appName` parameter set when the Hippy/Vue instance is initialized, the same below.
+* Each performance indicator corresponds to two fields `hippyXxxStart` and `hippyXxxEnd`, and the value is milliseconds relative to `performance.timeOrigin`.
+* Since the JS engine is initialized earlier than the Performance module, the value of `hippyInitJsFramework` will be negative.
 
 #### Add custom data
 
 ```js
-performance.markStart(appName, key); // e.g.: appName='Demo', key='showContent'
-performance.markEnd(appName, key);
+performance.markStart(name, key); // e.g.: name='Demo', key='showContent'
+performance.markEnd(name, key);
 ```
 
 

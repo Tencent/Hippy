@@ -18,10 +18,8 @@ package com.tencent.mtt.hippy.bridge;
 
 import android.content.res.AssetManager;
 
-import android.util.Pair;
 import androidx.annotation.NonNull;
 
-import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.common.Callback;
 
 import java.nio.ByteBuffer;
@@ -44,17 +42,14 @@ public interface HippyBridge {
 
     void destroy(NativeCallback callback, boolean isReload);
 
-    void callFunction(String action, NativeCallback callback, ByteBuffer buffer);
+    void callFunction(String action, int instanceId, NativeCallback callback, ByteBuffer buffer);
 
-    void callFunction(String action, NativeCallback callback, byte[] buffer);
+    void callFunction(String action, int instanceId, NativeCallback callback, byte[] buffer);
 
-    void callFunction(String action, NativeCallback callback, byte[] buffer, int offset,
-            int length);
+    void callFunction(String action, int instanceId, NativeCallback callback, byte[] buffer,
+            int offset, int length);
 
     long getV8RuntimeId();
-
-    @Nullable
-    Pair<Long, Long> getLoadUriTime(String uri);
 
     interface BridgeCallback {
 

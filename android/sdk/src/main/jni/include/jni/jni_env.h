@@ -35,7 +35,6 @@ class JNIEnvironment {
     jmethodID j_report_exception_method_id = nullptr;
     jmethodID j_inspector_channel_method_id = nullptr;
     jmethodID j_fetch_resource_method_id = nullptr;
-    jmethodID j_report_uri_load_time_id = nullptr;
   };
 
  public:

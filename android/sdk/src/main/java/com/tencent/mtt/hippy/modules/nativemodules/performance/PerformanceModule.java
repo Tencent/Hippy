@@ -24,8 +24,6 @@ import com.tencent.mtt.hippy.annotation.HippyNativeModule;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
-import com.tencent.mtt.hippy.runtime.builtins.JSObject;
-import com.tencent.mtt.hippy.runtime.builtins.array.JSDenseArray;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 import java.util.Iterator;
 import java.util.List;
@@ -77,7 +75,8 @@ public class PerformanceModule extends HippyNativeModuleBase {
                 entry.pushLong(event.eventName + "End", event.endTime);
             }
             result.pushMap(entry);
-        } return result;
+        }
+        return result;
     }
 
 }
