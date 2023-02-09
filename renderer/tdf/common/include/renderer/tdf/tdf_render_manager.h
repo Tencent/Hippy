@@ -26,6 +26,7 @@
 #include "dom/render_manager.h"
 #include "footstone/serializer.h"
 #include "vfs/uri_loader.h"
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-copy"
 #pragma clang diagnostic ignored "-Wextra-semi"

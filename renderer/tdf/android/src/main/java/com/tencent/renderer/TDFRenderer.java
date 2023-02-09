@@ -120,7 +120,8 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
         }
     }
 
-    @Override public void destroyRoot(int rootId) {
+    @Override
+    public void destroyRoot(int rootId) {
         // RootView must be removed otherwise TDFOutputView will intercepts touch event
         ViewParent viewParent = mRootView.getParent();
         if (viewParent instanceof ViewGroup) {
@@ -129,19 +130,23 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
         mRootView = null;
     }
 
-    @Override public void onRuntimeInitialized(int rootId) {
+    @Override
+    public void onRuntimeInitialized(int rootId) {
         LogUtils.d(TAG, "onRuntimeInitialized rootId: " + rootId);
     }
 
-    @Override public void recordSnapshot(int rootId, @NonNull Callback<byte[]> callback) {
+    @Override
+    public void recordSnapshot(int rootId, @NonNull Callback<byte[]> callback) {
 
     }
 
-    @Override public View replaySnapshot(@NonNull Context context, @NonNull byte[] buffer) {
+    @Override
+    public View replaySnapshot(@NonNull Context context, @NonNull byte[] buffer) {
         return null;
     }
 
-    @Override public View replaySnapshot(@NonNull Context context,
+    @Override
+    public View replaySnapshot(@NonNull Context context,
         @NonNull Map<String, Object> snapshotMap) {
         return null;
     }
