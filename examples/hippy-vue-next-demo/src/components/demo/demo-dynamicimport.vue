@@ -10,7 +10,7 @@
       v-if="loaded"
       class="async-com-wrapper"
     >
-      <AsyncComponentFromLocal class="async-component-outer-local"/>
+      <AsyncComponentFromLocal class="async-component-outer-local" />
       <AsyncComponentFromHttp />
     </div>
   </div>
