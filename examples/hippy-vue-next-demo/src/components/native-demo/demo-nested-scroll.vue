@@ -37,9 +37,9 @@
         <swiper-slide key="slide2">
           <ul nestedScrollTopPriority="self">
             <li
-                v-for="n in 30"
-                :key="('item' + n)"
-                :class="(n % 2) ? 'item-even' : 'item-odd'"
+              v-for="n in 30"
+              :key="('item' + n)"
+              :class="(n % 2) ? 'item-even' : 'item-odd'"
             >
               <p>Item {{ n }}</p>
             </li>

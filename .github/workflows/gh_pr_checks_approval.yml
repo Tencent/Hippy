@@ -79,20 +79,20 @@ jobs:
 
         </details>
       tips_message: |
-        :label: **New commits in this PR would not be tested automatically** until our collaborators do something verified for them. After that, collaborators would either approve this PR or apply the action(approve-checks) label to this PR.
-        :label: **No need to worry about the status of `[gh] pull request merge guard / merge_guard (pull_request_target)` check**, once this PR is merged via `action(rebase-merge)` or `action(squash-merge)`, it will be automatically converted to successful status.
-    steps:
+        :label: **New commits in this PR would not be tested automatically** until this pull request is reviewed by our collaborators.
+        :label: **No need to worry about the status of `merge_guard ` and `[gh] pull request merge guard / merge_guard (pull_request_target)` checks**, once this pull request is met merge requirements, it will be automatically converted to successful status.
+     steps:
     - name: Message
       id: generate_message
       run: |
-        message="${{ needs.call_approval_checks_run.outputs.included_risk_files == 'true' && env.risky_changes_message || env.safety_changes_message }}"
+        message="$${{ needs.call_approval_checks_run.outputs.included_risk_files == 'true' && 'risky_changes_message' || 'safety_changes_message' }}"
 
         echo "comment_message<<EOF" >> $GITHUB_OUTPUT
         echo "$message" >> $GITHUB_OUTPUT
         echo "$details_message" >> $GITHUB_OUTPUT
         if [[ "${{ github.event.action }}" == *"opened"* ]]; then
           echo >> $GITHUB_OUTPUT
-          echo "${{ env.tips_message }}" >> $GITHUB_OUTPUT
+          echo "$tips_message" >> $GITHUB_OUTPUT
         fi
         echo "EOF" >> $GITHUB_OUTPUT
 
