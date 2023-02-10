@@ -20,70 +20,81 @@
 
 #include "render/tdf_render_bridge.h"
 #include "core/platform/android/jni/jni_platform_android.h"
+#include "tdfcodec/platform/android/jni_helper.h"
 #include "jni/jni_register.h"
-#include "jni/jni_load.h"
+#include "jni/jni_invocation.h"
+#include "jni/data_holder.h"
 #include "renderer/tdf/tdf_render_manager.h"
 #include "vfs/uri_loader.h"
+#include "dom/root_node.h"
+
+namespace hippy {
+inline namespace render {
+inline namespace tdf {
+
+static jclass j_tdf_render_clazz;
 
 using string_view = footstone::stringview::string_view;
 using UriLoader = hippy::vfs::UriLoader;
 
-void Init(JavaVM* j_vm, void* reserved, JNIEnv* j_env) {
-  // Init TDF Core: TDF Core was a static library for Hippy, so we need to do
-  // initialization manually. Init Node Creator
-  hippy::dom::InitNodeCreator();
-  tdfcore::InitWithJavaVM(j_vm);
-}
-void Destroy(JavaVM* j_vm, void* reserved, JNIEnv* j_env) {}
-
-REGISTER_JNI_ONLOAD(Init)
-REGISTER_JNI_ONUNLOAD(Destroy)
-
-void TDFRenderBridge::RegisterScopeForUriLoader(
-    uint32_t render_id, const std::shared_ptr<hippy::driver::Scope> &scope) {
-    hippy::TDFRenderManager::SetUriDataGetter(
-        render_id, [scope](string_view uri, hippy::render::tdf::RootViewNode::DataCb cb) {
-          FOOTSTONE_DCHECK(scope->GetUriLoader().lock());
-          UriLoader::RetCode code;
-          std::unordered_map<std::string, std::string> meta;
-          UriLoader::bytes content;
-          scope->GetUriLoader().lock()->RequestUntrustedContent(uri, {}, code, meta, content);
-          string_view string_view{};
-          if (code == hippy::UriLoader::RetCode::Success) {
-            string_view = string_view::new_from_utf8(content.c_str(), content.length());
-          }
-          cb(string_view.utf8_value());
-        });
-}
-
-jint OnCreateTDFRender(JNIEnv *j_env, jobject j_obj, jfloat j_density) {
-  auto render = std::make_shared<hippy::TDFRenderManager>();
-  auto density = static_cast<float>(j_density);
-  render->SetDensity(density);
-  auto &map = hippy::TDFRenderManager::PersistentMap();
-  bool ret = map.Insert(static_cast<uint32_t>(render->GetId()), render);
-  if (!ret) {
-    FOOTSTONE_DLOG(WARNING)
-        << "OnCreateTDFRender insert render manager invalid";
-  }
-  return render->GetId();
-}
-
-void RegisterTDFEngine(JNIEnv *j_env, jobject j_obj, jint render_id,
-                       jlong engine_id, jint root_view_id) {
-  auto &map = hippy::TDFRenderManager::PersistentMap();
-  std::shared_ptr<hippy::TDFRenderManager> render_manager;
-  bool ret = map.Find(static_cast<uint32_t>(render_id), render_manager);
-  if (!ret) {
-    FOOTSTONE_DLOG(FATAL) << "BindTDFEngine engine_id invalid";
-    return;
-  }
-  auto engine = reinterpret_cast<tdfcore::TDFEngineAndroid *>(engine_id);
-  render_manager->RegisterShell(static_cast<uint32_t>(root_view_id),
-                                engine->GetShell());
-}
-
-REGISTER_JNI("com/tencent/renderer/TDFRenderer", "onCreateTDFRender", "(F)I",
-             OnCreateTDFRender)
-REGISTER_JNI("com/tencent/renderer/TDFRenderer", "registerTDFEngine", "(IJI)V",
+REGISTER_JNI("com/tencent/renderer/TDFRenderer",
+             "registerTDFEngine",
+             "(IJI)V",
              RegisterTDFEngine)
+
+REGISTER_JNI("com/tencent/renderer/TDFRenderer",
+             "registerUriLoader",
+             "(II)V",
+             SetUriLoader)
+
+static jint JNI_OnLoad(__unused JavaVM *j_vm, __unused void *reserved) {
+  auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+
+  j_tdf_render_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(
+      j_env->FindClass("com/tencent/renderer/TDFRenderer")));
+
+  InitNodeCreator();
+  tdfcore::InitWithJavaVM(j_vm);
+  tdfcore::InitJNIForCodec(j_env);
+  return JNI_VERSION_1_4;
+}
+
+static void JNI_OnUnload(__unused JavaVM *j_vm, __unused void *reserved) {
+  auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  j_env->DeleteGlobalRef(j_tdf_render_clazz);
+}
+
+REGISTER_JNI_ONLOAD(JNI_OnLoad)
+REGISTER_JNI_ONUNLOAD(JNI_OnUnload)
+
+void RegisterTDFEngine(JNIEnv *j_env, jobject j_obj, jint j_render_id,
+                       jlong j_engine_id, jint j_root_view_id) {
+  auto render_manager_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_render_id);
+  std::any render_manager;
+  auto flag = hippy::global_data_holder.Find(render_manager_id, render_manager);
+  FOOTSTONE_DCHECK(flag);
+  auto render_manager_object = std::static_pointer_cast<TDFRenderManager>(
+      std::any_cast<std::shared_ptr<RenderManager>>(render_manager));
+  auto engine = reinterpret_cast<tdfcore::TDFEngineAndroid *>(j_engine_id);
+  render_manager_object->RegisterShell(static_cast<uint32_t>(j_root_view_id), engine->GetShell());
+}
+
+void SetUriLoader(JNIEnv *j_env, jobject j_obj,
+                  jint j_render_id, jint j_vfs_id) {
+  std::any vfs_instance;
+  auto vfs_id = footstone::checked_numeric_cast<jint, uint32_t>(j_vfs_id);
+  auto flag = hippy::global_data_holder.Find(vfs_id, vfs_instance);
+  FOOTSTONE_CHECK(flag);
+  auto loader = std::any_cast<std::shared_ptr<UriLoader>>(vfs_instance);
+  auto render_manager_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_render_id);
+  std::any render_manager;
+  flag = hippy::global_data_holder.Find(render_manager_id, render_manager);
+  FOOTSTONE_DCHECK(flag);
+  auto render_manager_object = std::static_pointer_cast<TDFRenderManager>(
+      std::any_cast<std::shared_ptr<RenderManager>>(render_manager));
+  render_manager_object->SetUriLoader(loader);
+}
+
+}  // namespace tdf
+}  // namespace render
+}  // namespace hippy

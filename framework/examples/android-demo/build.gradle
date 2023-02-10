@@ -73,6 +73,11 @@ dependencies {
         compileOnly project(path: ':hippy-support')
         compileOnly project(path: ':renderer-native')
     }
+
+    // TODO(vimerzhao): needed by render-tdf.Due to `embed` don't support indirect dependency,I temporarily write here
+    // api "androidx.exifinterface:exifinterface:1.3.3"
+    // api "com.tencent.tdfcore:embedder:0.0.4"
+
     // noinspection GradleDependency
     api deps.annotation
     api 'androidx.legacy:legacy-support-v4:1.0.0'
