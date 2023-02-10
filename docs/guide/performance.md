@@ -80,17 +80,16 @@ if (monitor != null) {
 #### iOS API 指引
 
 推荐在HippyRootView加载完成（即收到`HippyContentDidAppearNotification` 通知后）进行性能指标的获取。
-使用方式为
+
+使用方法为
 
 ```objc
-int64_t duration = [bridge.performanceLogger durationForTag:HippyPLxxxTag];
+int64_t duration = [bridge.performanceLogger durationForTag:HippyPLxxx];
 ```
 
-
-
+`HippyPLxxx`在`HippyPerformanceLogger`类中定义，为`HippyPLTag`枚举类型。
 
 ---
-
 
 ## Memory
 

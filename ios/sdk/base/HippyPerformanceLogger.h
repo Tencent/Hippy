@@ -21,6 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "HippyDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -108,40 +109,28 @@ typedef NS_ENUM(NSUInteger, HippyPLTag) {
 /// - Parameter tag: HippyPLTag
 - (int64_t)valueForTag:(HippyPLTag)tag;
 
+/// Returns an array with the start and stop value for the given tag.
+/// - Parameter tag: HippyPLTag
+- (NSArray<NSNumber *> *)valuesForTag:(HippyPLTag)tag;
+
 /// Returns the label for given HippyPLTag.
 /// - Parameter tag: HippyPLTag
 - (nullable NSString *)labelForTag:(HippyPLTag)tag;
 
+
 #pragma mark - Custom Tags And Values
 
-/// Starts measuring a custom metric with the given tag name and start value.
-/// - Parameters:
-///   - customTag: any nonnull name
-///   - value: any int value
-- (void)markStartForCustomTag:(NSString *)customTag value:(int64_t)value;
-
-/// Stops measuring a custom metric with given tag name and start value.
-/// - Parameters:
-///   - customTag: any nonnull name
-///   - value: any int value
-- (void)markStopForCustomTag:(NSString *)customTag value:(int64_t)value;
+HIPPY_EXTERN NSString *const HippyPLCustomTagUpdateNotification;
 
 /// Set a custom metric with the given tag name and value.
 /// - Parameters:
-///   - value: any int value
+///   - value: any double value
 ///   - customTag: nonnull name
-- (void)setValue:(int64_t)value forCustomTag:(NSString *)customTag;
+- (void)setValue:(double)value forCustomTag:(NSString *)customTag;
 
 /// Get the value of custom metric with the given tag name.
 /// - Parameter customTag: nonnull name
-- (int64_t)valueForCustomTag:(NSString *)customTag;
-
-/// Returns a duration in ms (stop_time - start_time) for given custom tag name.
-/// - Parameter customTag: any nonnull name
-- (int64_t)durationForCustomTag:(NSString *)customTag;
-
-/// Returns start and stop value for the given tag name.
-- (NSArray<NSNumber *> *)valuesForCustomTag:(NSString *)customTag;
+- (double)valueForCustomTag:(NSString *)customTag;
 
 /// Returns all names of custom tags.
 - (NSArray<NSString *> *)allCustomTags;

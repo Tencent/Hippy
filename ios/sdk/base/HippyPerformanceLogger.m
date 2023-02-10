@@ -28,23 +28,30 @@
 
 @interface HippyPerformanceLogger () {
     int64_t _data[HippyPLSize][2];
+    int64_t _timeDiff; // the diff between CACurrentMediaTime and the timestamp
+    NSMutableDictionary<NSString *, NSNumber *> *_customData; // Custom Tags And Values
 }
-
-/// Custom Tags And Values
-@property (nonatomic, strong) NSMutableDictionary<NSString *, NSArray *> *customData;
 
 @end
 
 @implementation HippyPerformanceLogger
 
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _timeDiff = (NSDate.date.timeIntervalSince1970 - CACurrentMediaTime()) * 1000;
+    }
+    return self;
+}
+
 - (void)markStartForTag:(HippyPLTag)tag {
-    _data[tag][0] = CACurrentMediaTime() * 1000;
+    _data[tag][0] = CACurrentMediaTime() * 1000 + _timeDiff;
     _data[tag][1] = 0;
 }
 
 - (void)markStopForTag:(HippyPLTag)tag {
     if (_data[tag][0] != 0 && _data[tag][1] == 0) {
-        _data[tag][1] = CACurrentMediaTime() * 1000;
+        _data[tag][1] = CACurrentMediaTime() * 1000 + _timeDiff;
     } else {
         HippyLogInfo(@"[Hippy_OC_Log][Performance],Unbalanced calls start/end for tag %li", (unsigned long)tag);
     }
@@ -61,12 +68,12 @@
 }
 
 - (void)appendStartForTag:(HippyPLTag)tag {
-    _data[tag][0] = CACurrentMediaTime() * 1000;
+    _data[tag][0] = CACurrentMediaTime() * 1000 + _timeDiff;
 }
 
 - (void)appendStopForTag:(HippyPLTag)tag {
     if (_data[tag][0] != 0) {
-        _data[tag][1] += CACurrentMediaTime() * 1000 - _data[tag][0];
+        _data[tag][1] += CACurrentMediaTime() * 1000 + _timeDiff - _data[tag][0];
         _data[tag][0] = 0;
     } else {
         HippyLogInfo(@"[Hippy_OC_Log][Performance],Unbalanced calls start/end for tag %li", (unsigned long)tag);
@@ -90,48 +97,52 @@
     return _data[tag][1];
 }
 
+- (NSArray<NSNumber *> *)valuesForTag:(HippyPLTag)tag {
+    return @[@(_data[tag][0]), @(_data[tag][1])];
+}
+
 - (NSString *)labelForTag:(HippyPLTag)tag {
     switch (tag) {
         case HippyPLNativeModuleInit:
-            return @"NativeModuleInit";
+            return @"hippyNativeModuleInit";
         case HippyPLNativeModuleMainThread:
-            return @"NativeModuleMainThread";
+            return @"hippyNativeModuleMainThread";
         case HippyPLNativeModulePrepareConfig:
-            return @"NativeModulePrepareConfig";
+            return @"hippyNativeModulePrepareConfig";
         case HippyPLNativeModuleInjectConfig:
-            return @"NativeModuleInjectConfig";
+            return @"hippyNativeModuleInjectConfig";
         case HippyPLNativeModuleMainThreadUsesCount:
-            return @"NativeModuleMainThreadUsesCount";
+            return @"hippyNativeModuleMainThreadUsesCount";
         case HippyPLJSCExecutorSetup:
-            return @"JSCExecutorSetup";
+            return @"hippyJSCExecutorSetup";
         case HippyPLJSExecutorScopeInit:
-            return @"JSExecutorScopeInit";
+            return @"hippyJSExecutorScopeInit";
         case HippyPLCommonBundleSize:
-            return @"CommonBundleSize";
+            return @"hippyCommonBundleSize";
         case HippyPLCommonStartup:
-            return @"CommonStartup";
+            return @"hippyCommonStartup";
         case HippyPLCommonLoadSource:
-            return @"CommonLoadSource";
+            return @"hippyCommonLoadSource";
         case HippyPLCommonExecuteSource:
-            return @"CommonExecuteSource";
+            return @"hippyCommonExecuteSource";
         case HippyPLCommonScriptExecution:
-            return @"CommonScriptExecution";
+            return @"hippyCommonScriptExecution";
         case HippyPLSecondaryBundleSize:
-            return @"SecondaryBundleSize";
+            return @"hippySecondaryBundleSize";
         case HippyPLSecondaryStartup:
-            return @"SecondaryStartup";
+            return @"hippySecondaryStartup";
         case HippyPLSecondaryLoadSource:
-            return @"SecondaryLoadSource";
+            return @"hippySecondaryLoadSource";
         case HippyPLSecondaryExecuteSource:
-            return @"SecondaryExecuteSource";
+            return @"hippySecondaryExecuteSource";
         case HippyPLSecondaryScriptExecution:
-            return @"SecondaryScriptExecution";
+            return @"hippySecondaryScriptExecution";
         case HippyPLBridgeStartup:
-            return @"BridgeStartup";
+            return @"hippyBridgeStartup";
         case HippyPLRunApplication:
-            return @"RunApplication";
+            return @"hippyRunApplication";
         case HippyPLFP:
-            return @"FP";
+            return @"hippyFirstPaint";
         default:
             break;
     }
@@ -140,7 +151,9 @@
 
 #pragma mark - Custom Tags And Values
 
-- (NSMutableDictionary<NSString *,NSArray *> *)customData {
+NSString *const HippyPLCustomTagUpdateNotification = @"HippyPLCustomTagUpdateNotification";
+
+- (NSMutableDictionary<NSString *, NSNumber *> *)customData {
     if (!_customData) {
         @synchronized (self) {
             if (!_customData) {
@@ -151,42 +164,14 @@
     return _customData;
 }
 
-- (void)markStartForCustomTag:(NSString *)customTag value:(int64_t)value {
-    [self.customData setObject:@[@(value)] forKey:customTag];
+- (void)setValue:(double)value forCustomTag:(NSString *)customTag {
+    [self.customData setObject:@(value) forKey:customTag];
+    [NSNotificationCenter.defaultCenter postNotificationName:HippyPLCustomTagUpdateNotification object:customTag];
 }
 
-- (void)markStopForCustomTag:(NSString *)customTag value:(int64_t)value {
-    id values = self.customData[customTag];
-    if (![values isKindOfClass:NSArray.class]) {
-        HippyLogInfo(@"[Hippy_OC_Log][Performance], Unbalanced calls start/end for custom tag: %@", customTag);
-    } else {
-        [self.customData setObject:@[((NSArray *)values).firstObject, @(value)] forKey:customTag];
-    }
-}
-
-- (void)setValue:(int64_t)value forCustomTag:(NSString *)customTag {
-    [self.customData setObject:@[NSNull.null, @(value)] forKey:customTag];
-}
-
-- (int64_t)valueForCustomTag:(NSString *)customTag {
-    id value = [self.customData[customTag] lastObject];
+- (double)valueForCustomTag:(NSString *)customTag {
+    id value = self.customData[customTag];
     return [value isKindOfClass:NSNumber.class] ? [(NSNumber *)value doubleValue] : 0;
-}
-
-- (NSArray<NSNumber *> *)valuesForCustomTag:(NSString *)customTag {
-    return self.customData[customTag];
-}
-
-- (int64_t)durationForCustomTag:(NSString *)customTag {
-    id values = self.customData[customTag];
-    if ([values isKindOfClass:NSArray.class] && ((NSArray *)values).count == 2) {
-        double start = [(NSNumber *)(((NSArray *)values).lastObject) doubleValue];
-        double end = [(NSNumber *)(((NSArray *)values).firstObject) doubleValue];
-        return end - start;
-    } else {
-        HippyLogInfo(@"[Hippy_OC_Log][Performance], Null start or end for custom tag: %@", customTag);
-    }
-    return -1;
 }
 
 - (NSArray<NSString *> *)allCustomTags {

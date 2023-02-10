@@ -85,8 +85,7 @@ Use as
 int64_t duration = [bridge.performanceLogger durationForTag:HippyPLxxxTag];
 ```
 
-
-
+'HippyPLxxx' is defined in the 'HippyPerformanceLogger' class and is a 'HippyPLTag' enumeration type.
 
 ---
 

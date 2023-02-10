@@ -20,11 +20,11 @@
  * limitations under the License.
  */
 
-#import "HippyBridgeModule.h"
+#import "HippyOCTurboModule.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface HippyPerformanceLoggerModule : NSObject <HippyBridgeModule>
+@interface HippyPerformanceModule : HippyOCTurboModule
 
 @end
 

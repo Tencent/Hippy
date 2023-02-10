@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		710473AE296C1E4B00B00F53 /* HippyPerformanceLoggerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 710473AD296C1E4B00B00F53 /* HippyPerformanceLoggerModule.m */; };
+		71EC53D12995196300074CC0 /* HippyPerformanceModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 71EC53D02995196300074CC0 /* HippyPerformanceModule.m */; };
 		F4C92920291C9B3B0078351C /* logging.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4C928F3291C9B3A0078351C /* logging.cc */; };
 		F4C92921291C9B3B0078351C /* log_settings_state.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4C928F5291C9B3A0078351C /* log_settings_state.cc */; };
 		F4C92922291C9B3B0078351C /* log_settings.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4C928F7291C9B3A0078351C /* log_settings.cc */; };
@@ -205,8 +205,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		710473AC296C1E4B00B00F53 /* HippyPerformanceLoggerModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyPerformanceLoggerModule.h; sourceTree = "<group>"; };
-		710473AD296C1E4B00B00F53 /* HippyPerformanceLoggerModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyPerformanceLoggerModule.m; sourceTree = "<group>"; };
+		71EC53CF2995196300074CC0 /* HippyPerformanceModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyPerformanceModule.h; sourceTree = "<group>"; };
+		71EC53D02995196300074CC0 /* HippyPerformanceModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyPerformanceModule.m; sourceTree = "<group>"; };
 		F4C9286C291C96010078351C /* libhippy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libhippy.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4C928B0291C9B3A0078351C /* engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = engine.h; sourceTree = "<group>"; };
 		F4C928B1291C9B3A0078351C /* core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = core.h; sourceTree = "<group>"; };
@@ -630,13 +630,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		710473AB296C1D7500B00F53 /* performance logger */ = {
+		710473AB296C1D7500B00F53 /* performance */ = {
 			isa = PBXGroup;
 			children = (
-				710473AC296C1E4B00B00F53 /* HippyPerformanceLoggerModule.h */,
-				710473AD296C1E4B00B00F53 /* HippyPerformanceLoggerModule.m */,
+				71EC53CF2995196300074CC0 /* HippyPerformanceModule.h */,
+				71EC53D02995196300074CC0 /* HippyPerformanceModule.m */,
 			);
-			path = "performance logger";
+			path = performance;
 			sourceTree = "<group>";
 		};
 		F4C92863291C96010078351C = {
@@ -958,7 +958,7 @@
 				F4C9298C291C9B4E0078351C /* image loader */,
 				F4C92991291C9B4E0078351C /* uimanager */,
 				F4C92995291C9B4E0078351C /* clipboard */,
-				710473AB296C1D7500B00F53 /* performance logger */,
+				710473AB296C1D7500B00F53 /* performance */,
 			);
 			path = module;
 			sourceTree = "<group>";
@@ -966,13 +966,13 @@
 		F4C92955291C9B4E0078351C /* turbo */ = {
 			isa = PBXGroup;
 			children = (
-				F4C92956291C9B4E0078351C /* HippyOCTurboModule.h */,
 				F4C92957291C9B4E0078351C /* HippyTurboModule.h */,
-				F4C92958291C9B4E0078351C /* HippyTurboModuleManager.h */,
-				F4C92959291C9B4E0078351C /* NSObject+HippyTurbo.h */,
 				F4C9295A291C9B4E0078351C /* HippyOCTurboModule+Inner.h */,
+				F4C92956291C9B4E0078351C /* HippyOCTurboModule.h */,
 				F4C9295B291C9B4E0078351C /* HippyOCTurboModule.mm */,
+				F4C92958291C9B4E0078351C /* HippyTurboModuleManager.h */,
 				F4C9295C291C9B4E0078351C /* HippyTurboModuleManager.mm */,
+				F4C92959291C9B4E0078351C /* NSObject+HippyTurbo.h */,
 				F4C9295D291C9B4E0078351C /* NSObject+HippyTurbo.mm */,
 			);
 			path = turbo;
@@ -1648,6 +1648,7 @@
 				F4C92B23291C9B4E0078351C /* HippyModalCustomPresentationController.m in Sources */,
 				F4C92932291C9B3B0078351C /* thread_id.cc in Sources */,
 				F4C92923291C9B3B0078351C /* unicode_string_view.cc in Sources */,
+				71EC53D12995196300074CC0 /* HippyPerformanceModule.m in Sources */,
 				F4C92921291C9B3B0078351C /* log_settings_state.cc in Sources */,
 				F4C92B46291C9B4E0078351C /* HippyKeyCommands.m in Sources */,
 				F4C92B22291C9B4E0078351C /* HippyTextManager.mm in Sources */,
@@ -1713,7 +1714,6 @@
 				F4C92B01291C9B4E0078351C /* HippyImageProviderProtocol.m in Sources */,
 				F4C92AC9291C9B4E0078351C /* MTTNode.cpp in Sources */,
 				F4C92B45291C9B4E0078351C /* HippyJSCWrapper.mm in Sources */,
-				710473AE296C1E4B00B00F53 /* HippyPerformanceLoggerModule.m in Sources */,
 				F4C92AE0291C9B4E0078351C /* HippyExceptionModule.m in Sources */,
 				F4C92B10291C9B4E0078351C /* UIView+HippyAnimationProtocol.m in Sources */,
 				F4C92B38291C9B4E0078351C /* HippyVirtualList.m in Sources */,
