@@ -10,6 +10,12 @@ env:
  GREETINGS_MESSAGE: ':tada: It seems that this pull request has been approved by all required reviewers.'
  AUTO_MERGE_MESSAGE: As it only contains one normal commit, I will rebase and merge it automatically via add `action(rebase-merge)` label.
  MANUAL_MERGE_MESSAGE: But it has more than one normal commit, I will notify admin team member to merge it manually, please wait a moment.
+ MERGE_SHA_MESSAGE: |
+  <details>
+
+    * SHA: {0}
+
+  </details>
 
 jobs:
   call_get_workflow_output:
@@ -26,6 +32,7 @@ jobs:
       pull_request_number: ${{ steps.parse_workflow_output.outputs.pull_request_number }}
       pull_request_title: ${{ steps.parse_workflow_output.outputs.pull_request_title }}
       pull_request_url: ${{ steps.parse_workflow_output.outputs.pull_request_url }}
+      pull_request_sha: ${{ steps.parse_workflow_output.outputs.pull_request_sha }}
     steps:
     - name: Parse
       id: parse_workflow_output
@@ -43,6 +50,7 @@ jobs:
           file.write("pull_request_number=%s\n" % data["pull_request"]["number"])
           file.write("pull_request_title=%s\n" % data["pull_request"]["title"])
           file.write("pull_request_url=%s\n" % data["pull_request"]["html_url"])
+          file.write("pull_request_sha=%s\n" % data["pull_request"]["head"]["sha"])
     - name: Decision
       id: decision
       if: steps.parse_workflow_output.outputs.review_state == 'approved'
@@ -88,10 +96,21 @@ jobs:
         app-id: ${{ secrets.BOT_APP_ID }}
     - name: Auto
       uses: actions/github-script@v6
+      env:
+        COMMENT_MESSAGE: ${{ env.GREETINGS_MESSAGE }} ${{ env.AUTO_MERGE_MESSAGE }} ${{ format(env.MERGE_SHA_MESSAGE, needs.get_decision.outputs.pull_request_sha) }}
       with:
         github-token: ${{ steps.get-token.outputs.token }}
         script: |
           const { issues } = github.rest;
+
+          const comments = await github.paginate(issues.listComments, {
+            ...context.repo,
+            per_page: 100,
+            issue_number: ${{ needs.get_decision.outputs.pull_request_number }}
+          });
+          if (comments.some((comment) => comment.body.includes(process.env.COMMENT_MESSAGE))) {
+            return;
+          }
 
           const p = [];
 
@@ -104,7 +123,7 @@ jobs:
           p.push(issues.createComment({
             ...context.repo,
             issue_number: ${{ needs.get_decision.outputs.pull_request_number }},
-            body: process.env.GREETINGS_MESSAGE + " " + process.env.AUTO_MERGE_MESSAGE,
+            body: process.env.COMMENT_MESSAGE
           }));
 
           await Promise.all(p);
@@ -127,18 +146,28 @@ jobs:
           [#${{ needs.get_decision.outputs.pull_request_number }}](${{ needs.get_decision.outputs.pull_request_url }}) pull request is met merge requirements.
           > ${{ needs.get_decision.outputs.pull_request_title }}
           > <font color="warning">%s</font> normal commits ahead
+        COMMENT_MESSAGE: ${{ env.GREETINGS_MESSAGE }} ${{ env.MANUAL_MERGE_MESSAGE }} ${{ format(env.MERGE_SHA_MESSAGE, needs.get_decision.outputs.pull_request_sha) }}
       with:
         github-token: ${{ steps.get-token.outputs.token }}
         script: |
           const util = require('util');
           const { issues } = github.rest;
 
+          const comments = await github.paginate(issues.listComments, {
+            ...context.repo,
+            per_page: 100,
+            issue_number: ${{ needs.get_decision.outputs.pull_request_number }}
+          });
+          if (comments.some((comment) => comment.body.includes(process.env.COMMENT_MESSAGE))) {
+            return;
+          }
+
           const p = [];
 
           p.push(issues.createComment({
             ...context.repo,
             issue_number: ${{ needs.get_decision.outputs.pull_request_number }},
-            body: process.env.GREETINGS_MESSAGE + " " + process.env.MANUAL_MERGE_MESSAGE
+            body: process.env.COMMENT_MESSAGE
           }));
 
           p.push(github.request("POST ${{ secrets.WECHAT_WORK_BOT_WEBHOOK }}", {
