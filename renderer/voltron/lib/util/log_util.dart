@@ -30,7 +30,7 @@ class LogUtils {
 
   static bool kDebugLogDomEnable = true;
   static bool kDebugLogWidgetEnable = false;
-  static bool kDebugLogOperateEnable = true;
+  static bool kDebugLogOperateEnable = false;
   static bool kDebugLogRenderEnable = true;
   static bool kDebugLogRenderNodeEnable = true;
   static bool kDebugLogBridgeEnable = true;

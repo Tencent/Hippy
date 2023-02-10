@@ -55,12 +55,11 @@ DevtoolsDataSource::DevtoolsDataSource(const std::string& ws_url,
   }
   devtools_service_ = std::make_shared<hippy::devtools::DevtoolsBackendService>(devtools_config, worker_manager);
   devtools_service_->Create();
+  hippy_dom_ = std::make_shared<HippyDomData>();
 }
 
 void DevtoolsDataSource::Bind(const std::weak_ptr<DomManager>& dom_manager) {
-  hippy_dom_ = std::make_shared<HippyDomData>();
   hippy_dom_->dom_manager = dom_manager;
-
   auto data_provider = GetDataProvider();
   data_provider->dom_tree_adapter = std::make_shared<HippyDomTreeAdapter>(hippy_dom_);
   data_provider->screen_adapter = std::make_shared<HippyScreenAdapter>(hippy_dom_);

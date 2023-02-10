@@ -508,7 +508,13 @@ class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateM
   }
 
   void doFirstFrame(Duration timeStamp) {
-    _loadModule();
+    /// 防止从引擎缓存时启动，宽高都为0的情况
+    var rootSize = getSizeFromKey(viewModel.rootKey);
+    if (rootSize.width > 0 && rootSize.height > 0) {
+      _loadModule();
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback(doFirstFrame);
+    }
   }
 
   void doFrame() {

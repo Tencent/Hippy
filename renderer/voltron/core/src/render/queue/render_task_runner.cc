@@ -256,6 +256,7 @@ VoltronRenderTaskRunner::DecodeDomValueMap(const SpMap<HippyValue> &value_map) {
   auto encode_map = EncodableMap();
 
   for (const auto &entry: value_map) {
+    if (!entry.second) continue;
     auto encode_entry_value = DecodeDomValue(*entry.second);
     if (!encode_entry_value.IsNull()) {
       auto encode_entry_key = EncodableValue(entry.first);

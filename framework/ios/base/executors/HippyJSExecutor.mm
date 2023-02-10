@@ -170,7 +170,6 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                     NSDictionary *userInfo = @{
                         HPFatalModuleName: bridge.moduleName?:@"unknown",
                         NSLocalizedDescriptionKey:message?:@"unknown",
-                        NSLocalizedFailureErrorKey:message?:@"unknown",
                         HPJSStackTraceKey:stackFrames
                     };
                     NSError *error = [NSError errorWithDomain:HPErrorDomain code:2 userInfo:userInfo];
@@ -329,10 +328,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     if (!enginekey) {
         return;
     }
-    dispatch_async(dispatch_get_main_queue(), ^{
-        HPLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor remove engine %@", enginekey);
-        [[HippyJSEnginesMapper defaultInstance] removeEngineResourceForKey:enginekey];
-    });
+    [[HippyJSEnginesMapper defaultInstance] removeEngineResourceForKey:enginekey];
 }
 
 - (NSString *)enginekey {

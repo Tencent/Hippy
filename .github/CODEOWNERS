@@ -109,6 +109,3 @@ CMakeLists.txt @medns
 
 # build: config
 /buildconfig/ @medns
-
-# build: docker
-/docker/ @medns

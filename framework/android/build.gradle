@@ -1,5 +1,3 @@
-import java.nio.file.Paths
-
 /*
  *
  * Tencent is pleased to support the open source community by making
@@ -22,9 +20,38 @@ import java.nio.file.Paths
  *
  */
 
+import java.nio.file.Paths
+
 apply plugin: 'com.android.library'
 apply plugin: 'com.kezong.fat-aar'
 apply from: './publish.gradle'
+
+def mergeCppDefinitions() {
+    def cppProps = new Properties()
+    getAllModules().each {
+        def propsFile
+        if (Paths.get(it).isAbsolute()) {
+            propsFile = file(it)
+        } else {
+            propsFile = file(Paths.get("connector", it, "gradle.properties"))
+        }
+        if (propsFile.exists()) {
+            propsFile.withInputStream { cppProps.load(it) }
+        }
+    }
+    project.getProperties().forEach { key, value ->
+        if (key != null && value != null && value instanceof String) {
+            cppProps.setProperty(key, value)
+        }
+    }
+    def cppDefinitions = []
+    cppProps.forEach { key, value ->
+        if (key.startsWith("CPP_")) {
+            cppDefinitions.add("-D${key.replaceFirst('^CPP_', '')}=${value}")
+        }
+    }
+    return cppDefinitions
+}
 
 android {
     archivesBaseName = ARCHIVES_BASE_NAME
@@ -65,15 +92,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             externalNativeBuild {
                 cmake {
-                    arguments "-DJS_ENGINE=V8",
-                            "-DANDROID_CPP_FEATURES=no-rtti no-exceptions",
-                            "-DANDROID_PLATFORM=android-21",
-                            "-DANDROID_ARM_NEON=${INCLUDE_ABI_ARMEABI.toBoolean() ? 'FALSE' : 'TRUE'}",
+                    assert !(INCLUDE_ABI_ARMEABI.toBoolean() && ANDROID_ARM_NEON.toBoolean())
+                    arguments (
                             "-DCMAKE_BUILD_TYPE=Release",
-                            "-DANDROID_STL=$ANDROID_STL",
-                            "-DV8_COMPONENT=$V8_COMPONENT",
-                            "-DTDF_CORE_VERSION=$TDF_CORE_VERSION",
-                            "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
+                            "-DMODULES=${getAllModules().join(';')}",
+                            *mergeCppDefinitions()
+                    )
 
                     if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
                         abiFilters 'armeabi-v7a'
@@ -94,16 +118,12 @@ android {
             minifyEnabled false
             externalNativeBuild {
                 cmake {
-                    arguments "-DJS_ENGINE=V8",
-                            "-DANDROID_CPP_FEATURES=no-rtti no-exceptions",
-                            "-DANDROID_PLATFORM=android-21",
-                            "-DANDROID_ARM_NEON=${INCLUDE_ABI_ARMEABI.toBoolean() ? 'FALSE' : 'TRUE'}",
+                    assert !(INCLUDE_ABI_ARMEABI.toBoolean() && ANDROID_ARM_NEON.toBoolean())
+                    arguments (
                             "-DCMAKE_BUILD_TYPE=Debug",
-                            "-DENABLE_INSPECTOR=$ENABLE_INSPECTOR",
-                            "-DANDROID_STL=$ANDROID_STL",
-                            "-DV8_COMPONENT=$V8_COMPONENT",
-                            "-DTDF_CORE_VERSION=$TDF_CORE_VERSION",
-                            "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
+                            "-DMODULES=${getAllModules().join(';')}",
+                            *mergeCppDefinitions()
+                    )
 
                     if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
                         abiFilters 'armeabi-v7a'
@@ -142,20 +162,18 @@ dependencies {
     embed project(path: ':hippy-support', configuration: 'default')
     embed project(path: ':vfs', configuration: 'default')
     embed project(path: ':devtools-integration', configuration: 'default')
-    embed project(path: ':connector-support', configuration: 'default')
-    embed project(path: ':connector-dom', configuration: 'default')
-    def modules = MODULES.split(',')
-    for (String module : modules) {
-        String path = module.trim()
-        if (Paths.get(path).isAbsolute()) {
-            ArrayList<String> paths = path.split('/')
-            paths.remove(0)
-            def subProjectName = paths.join('-')
-            embed project(path: ":$subProjectName", configuration: 'default')
+    getAllModules().each {
+        def module = Paths.get(it)
+        def path = ['connector']
+        if (module.isAbsolute()) {
+            path.push(module.getFileName())
         } else {
-            def subProjectName = 'connector-' + path.replace("/", "-")
-            embed project(path: ":$subProjectName", configuration: 'default')
+            for (def i = 0; i < module.getNameCount(); i++) {
+                path.push(module.getName(i))
+            }
         }
+
+        embed project(path: ":${path.reverse().join('-')}", configuration: 'default')
     }
     compileOnly project(path: ':renderer-native')
     //noinspection GradleDependency

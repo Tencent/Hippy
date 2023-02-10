@@ -94,17 +94,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
   endif ()
   # endregion
 
-  # region v8
-  if ("${JS_ENGINE}" STREQUAL "V8")
-    GlobalPackages_Add(v8)
-    target_link_libraries(${PROJECT_NAME} PRIVATE v8)
-    get_target_property(V8_WITHOUT_INSPECTOR v8 INTERFACE_V8_WITHOUT_INSPECTOR)
-    if (V8_WITHOUT_INSPECTOR)
-      target_compile_definitions(${PROJECT_NAME} PRIVATE "V8_WITHOUT_INSPECTOR")
-    endif ()
-  endif ()
-  # endregion
-
   # region framework_core
   target_link_libraries(${PROJECT_NAME} PRIVATE ${FRAMEWORK_CORE_DEPS})
   # endregion

@@ -462,27 +462,28 @@ public class TextVirtualNode extends VirtualNode {
         final TextPaint textPaint = getTextPaint();
         Layout layout;
         BoringLayout.Metrics boring = BoringLayout.isBoring(mSpanned, textPaint);
-        float desiredWidth = Layout.getDesiredWidth(mSpanned, textPaint);
         boolean unconstrainedWidth = (widthMode == FlexMeasureMode.UNDEFINED) || width < 0;
         if (boring != null && (unconstrainedWidth || boring.width <= width)) {
             layout = BoringLayout
                     .make(mSpanned, textPaint, boring.width, mAlignment,
                             getLineSpacingMultiplier(), mLineSpacingExtra, boring, true);
         } else {
-            if (!unconstrainedWidth && desiredWidth > width) {
+            float desiredWidth = Layout.getDesiredWidth(mSpanned, textPaint);
+            if (!unconstrainedWidth && (widthMode == FlexMeasureMode.EXACTLY
+                || desiredWidth > width)) {
                 desiredWidth = width;
             }
             layout = buildStaticLayout(mSpanned, textPaint, (int) Math.ceil(desiredWidth));
-        }
-        if (mNumberOfLines > 0 && layout.getLineCount() > mNumberOfLines) {
-            int lastLineStart = layout.getLineStart(mNumberOfLines - 1);
-            int lastLineEnd = layout.getLineEnd(mNumberOfLines - 1);
-            if (lastLineStart < lastLineEnd) {
-                int measureWidth = (int) Math.ceil(unconstrainedWidth ? desiredWidth : width);
-                try {
-                    layout = truncateLayoutWithNumberOfLine(layout, measureWidth, mNumberOfLines);
-                } catch (Exception e) {
-                    e.printStackTrace();
+            if (mNumberOfLines > 0 && layout.getLineCount() > mNumberOfLines) {
+                int lastLineStart = layout.getLineStart(mNumberOfLines - 1);
+                int lastLineEnd = layout.getLineEnd(mNumberOfLines - 1);
+                if (lastLineStart < lastLineEnd) {
+                    int measureWidth = (int) Math.ceil(unconstrainedWidth ? desiredWidth : width);
+                    try {
+                        layout = truncateLayoutWithNumberOfLine(layout, measureWidth, mNumberOfLines);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }

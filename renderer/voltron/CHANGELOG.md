@@ -1,3 +1,7 @@
+## 0.0.6
+
+- fix cache engine mode ui size error
+
 ## 0.0.5
 
 - fix workerManager destroy crash
