@@ -45,6 +45,13 @@ public class MyEngineMonitorAdapter extends DefaultEngineMonitorAdapter {
         List<HippyEngineMonitorEvent> loadEvents) {
         // 业务JS加载完成，首帧回调
     }
+
+    @Override
+    public void reportCustomMonitorPoint(HippyRootView rootView, String eventName,
+        long timeMillis) {
+        // 自定义打点回调
+    }
+
 }
 ```
 
@@ -64,11 +71,11 @@ HippyEngine engine = HippyEngine.create(initParams);
 ```java
 TimeMonitor monitor = rootView == null ? null : rootView.getTimeMonitor();
 if (monitor != null) {
-    List<HippyEngineMonitorEvent> list = monitor.getAllSeparateEvents();
+    Map<String, Long> points = monitor.getAllPoints();
 }
 ```
 
-`HippyEngineMonitorEvent`类中定义了每个性能指标对应的常量，命名规则为：`hippyXxx`对应`SEPARATE_EVENT_XXX`。
+`HippyEngineMonitorPoint`类中定义了每个性能指标对应的常量，命名规则为：`hippyXxx`对应`XXX_START`和`XXX_END`。
 
 #### iOS API 指引
 
@@ -77,40 +84,6 @@ if (monitor != null) {
 
 ```objc
 int64_t duration = [bridge.performanceLogger durationForTag:HippyPLxxxTag];
-```
-
-
-
-### JS 获取性能数据
-
-#### 获取性能数据方法
-
-```js
-performance.getEntries();
-```
-
-执行返回
-
-```json
-// 如果引擎中有多个Hippy实例，则数组中返回多个元素，以name字段区分
-[PerformanceNavigationTiming {
-  name: "Demo",
-  entryType: "navigation",
-  hippyCommonLoadSourceStart: 0,
-  hippyCommonLoadSourceEnd: 233,
-  ...
-}, ...]
-```
-
-* name字段对应Hippy/Vue实例初始化时设置的`appName`参数，下同。
-* 每个性能指标对应`hippyXxxStart`和`hippyXxxEnd`两个字段，取值为相对`performance.timeOrigin`的毫秒数。
-* 由于初始化JS引擎要早于初始化Performance模块，因此`hippyInitJsFramework`的值会是负数。
-
-#### 添加自定义数据方法
-
-```js
-performance.markStart(name, key); // 例如：name='Demo', key='showContent'
-performance.markEnd(name, key);
 ```
 
 

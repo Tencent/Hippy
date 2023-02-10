@@ -43,6 +43,13 @@ public class MyEngineMonitorAdapter extends DefaultEngineMonitorAdapter {
         List<HippyEngineMonitorEvent> loadEvents) {
         // Business JS execute and first paint completed callback
     }
+
+    @Override
+    public void reportCustomMonitorPoint(HippyRootView rootView, String eventName,
+        long timeMillis) {
+        // Custom monitor point added callback
+    }
+
 }
 ```
 
@@ -62,11 +69,11 @@ Use as
 ```java
 TimeMonitor monitor = rootView == null ? null : rootView.getTimeMonitor();
 if (monitor != null) {
-    List<HippyEngineMonitorEvent> list = monitor.getAllSeparateEvents();
+    Map<String, Long> points = monitor.getAllPoints();
 }
 ```
 
-The constants to each indicator are defined in the `HippyEngineMonitorEvent` class, and the naming rules are: `hippyXxx` corresponds to `SEPARATE_EVENT_XXX`.
+The constants to each indicator are defined in the `HippyEngineMonitorPoint` class, and the naming rules are: `hippyXxx` corresponds to `XXX_START` and `XXX_END`.
 
 #### iOS API Guidelines
 
@@ -76,40 +83,6 @@ Use as
 
 ```objc
 int64_t duration = [bridge.performanceLogger durationForTag:HippyPLxxxTag];
-```
-
-
-
-### JS get performance data
-
-#### Get performance data
-
-```js
-performance.getEntries();
-```
-
-Returns
-
-```json
-// Multiple Hippy instances will return multiple array elements, distinguished by the name field
-[PerformanceNavigationTiming {
-  name: "Demo",
-  entryType: "navigation",
-  hippyCommonLoadSourceStart: 0,
-  hippyCommonLoadSourceEnd: 233,
-  ...
-}, ...]
-```
-
-* The name field corresponds to the `appName` parameter set when the Hippy/Vue instance is initialized, the same below.
-* Each performance indicator corresponds to two fields `hippyXxxStart` and `hippyXxxEnd`, and the value is milliseconds relative to `performance.timeOrigin`.
-* Since the JS engine is initialized earlier than the Performance module, the value of `hippyInitJsFramework` will be negative.
-
-#### Add custom data
-
-```js
-performance.markStart(name, key); // e.g.: name='Demo', key='showContent'
-performance.markEnd(name, key);
 ```
 
 

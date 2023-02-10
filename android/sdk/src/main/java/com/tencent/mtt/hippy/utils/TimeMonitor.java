@@ -19,19 +19,20 @@ package com.tencent.mtt.hippy.utils;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorEvent;
+import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorPoint;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TimeMonitor {
 
-    private static final long SYS_TIME_DIFF =
-        System.currentTimeMillis() - SystemClock.elapsedRealtime();
-    private static final Long NOT_SET = 0L;
+    private static final long SYS_TIME_DIFF = System.currentTimeMillis() - SystemClock.elapsedRealtime();
     private final boolean mEnable;
-    private final ConcurrentHashMap<String, HippyEngineMonitorEvent> mSeparateEvents =
-        new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<HippyEngineMonitorPoint, Long> mStandardPoints = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Long> mCustomPoints = new ConcurrentHashMap<>();
     private long mStartTime;
     private int mTotalTime;
     private HippyEngineMonitorEvent mCurrentEvent;
@@ -99,59 +100,42 @@ public class TimeMonitor {
         return mEvents;
     }
 
-    public void startSeparateEvent(String eventName) {
-        startSeparateEvent(eventName, currentTimeMillis());
+    public void addPoint(HippyEngineMonitorPoint eventName) {
+        addPoint(eventName, currentTimeMillis());
     }
 
-    public void startSeparateEvent(String eventName, long timeMillis) {
-        setSeparateEventValue(eventName, timeMillis, NOT_SET);
+    public void addPoint(HippyEngineMonitorPoint eventName, long timeMillis) {
+        mStandardPoints.put(eventName, timeMillis);
     }
 
-    public void endSeparateEvent(String eventName) {
-        endSeparateEvent(eventName, currentTimeMillis());
+    public void addCustomPoint(String eventName) {
+        addCustomPoint(eventName, currentTimeMillis());
     }
 
-    public void endSeparateEvent(String eventName, long timeMillis) {
-        setSeparateEventValue(eventName, NOT_SET, timeMillis);
+    public void addCustomPoint(String eventName, long timeMillis) {
+        mCustomPoints.put(eventName, timeMillis);
     }
 
-    public List<HippyEngineMonitorEvent> getAllSeparateEvents() {
-        List<HippyEngineMonitorEvent> result;
+    public Map<String, Long> getAllPoints() {
+        Map<String, Long> result;
         if (mParent != null) {
-            result = mParent.getAllSeparateEvents();
-            result.addAll(mSeparateEvents.values());
+            // collect parent
+            result = mParent.getAllPoints();
         } else {
-            result = new ArrayList<>(mSeparateEvents.values());
+            result = new HashMap<>(mStandardPoints.size() + mCustomPoints.size());
         }
+        // collect standard
+        for (Map.Entry<HippyEngineMonitorPoint, Long> entry : mStandardPoints.entrySet()) {
+            result.put(entry.getKey().value(), entry.getValue());
+        }
+        // collect custom
+        result.putAll(mCustomPoints);
         return result;
     }
 
-    public void clearSeparateEvents() {
-        mSeparateEvents.clear();
-    }
-
-    /* private */ void setSeparateEventValue(String eventName, long startMillis, long endMillis) {
-        HippyEngineMonitorEvent event = mSeparateEvents.get(eventName);
-        if (event == null) {
-            event = new HippyEngineMonitorEvent();
-            event.eventName = eventName;
-            event.startTime = NOT_SET;
-            event.endTime = NOT_SET;
-            setEventTime(event, startMillis, endMillis);
-            event = mSeparateEvents.putIfAbsent(eventName, event);
-        }
-        if (event != null) {
-            setEventTime(event, startMillis, endMillis);
-        }
-    }
-
-    /* private */ void setEventTime(HippyEngineMonitorEvent event, long start, long end) {
-        if (start != NOT_SET) {
-            event.startTime = start;
-        }
-        if (end != NOT_SET) {
-            event.endTime = end;
-        }
+    public void clearAllPoints() {
+        mStandardPoints.clear();
+        mCustomPoints.clear();
     }
 
     /* private */ long currentTimeMillis() {

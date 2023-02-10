@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorEvent;
+import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorPoint;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManager;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManagerImpl;
@@ -292,7 +293,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     timeMonitor.setParent(mStartTimeMonitor);
     timeMonitor.begine();
     timeMonitor.startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_WAIT_ENGINE);
-    timeMonitor.startSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_FIRST_PAINT);
+    timeMonitor.addPoint(HippyEngineMonitorPoint.FIRST_PAINT_START);
     view.setTimeMonitor(timeMonitor);
     view.setOnResumeAndPauseListener(this);
     view.setOnSizeChangedListener(this);
@@ -726,7 +727,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
       public void run() {
         if (mCurrentState != EngineState.DESTROYED) {
           mStartTimeMonitor.end();
-          mStartTimeMonitor.endSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_BRIDGE_STARTUP);
+          mStartTimeMonitor.addPoint(HippyEngineMonitorPoint.BRIDGE_STARTUP_END);
           reportEngineLoadResult(mCurrentState == EngineState.INITED
               ? HippyEngineMonitorAdapter.ENGINE_LOAD_RESULT_SUCCESS
               : HippyEngineMonitorAdapter.ENGINE_LOAD_RESULT_ERROR, e);
@@ -765,9 +766,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
     mStartTimeMonitor.begine();
     mStartTimeMonitor.startEvent(HippyEngineMonitorEvent.ENGINE_LOAD_EVENT_INIT_INSTANCE);
-    mStartTimeMonitor.clearSeparateEvents();
-    mStartTimeMonitor.startSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_BRIDGE_STARTUP);
-    mStartTimeMonitor.startSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_INIT_JS_FRAMEWORK);
+    mStartTimeMonitor.clearAllPoints();
+    mStartTimeMonitor.addPoint(HippyEngineMonitorPoint.BRIDGE_STARTUP_START);
+    mStartTimeMonitor.addPoint(HippyEngineMonitorPoint.INIT_JS_FRAMEWORK_START);
     if (mCurrentState != EngineState.INITING) {
       mCurrentState = EngineState.ONRESTART;
     }
@@ -777,7 +778,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     mEngineContext.getBridgeManager().initBridge(new Callback<Boolean>() {
       @Override
       public void callback(Boolean param, Throwable e) {
-        mStartTimeMonitor.endSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_COMMON_EXECUTE_SOURCE);
+        mStartTimeMonitor.addPoint(HippyEngineMonitorPoint.COMMON_EXECUTE_SOURCE_END);
         if (mCurrentState != EngineState.INITING && mCurrentState != EngineState.ONRESTART) {
           LogUtils.e(TAG, "initBridge callback error STATUS_WRONG_STATE, state=" + mCurrentState);
           notifyEngineInitialized(EngineInitStatus.STATUS_WRONG_STATE, e);

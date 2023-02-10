@@ -16,9 +16,11 @@
 
 package com.tencent.mtt.hippy.modules.nativemodules.performance;
 
+import android.os.Handler;
+import android.os.Looper;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyRootView;
-import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorEvent;
+import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
 import com.tencent.mtt.hippy.annotation.HippyMethod;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
 import com.tencent.mtt.hippy.common.HippyArray;
@@ -26,30 +28,31 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
 
 @HippyNativeModule(name = "PerformanceModule")
 public class PerformanceModule extends HippyNativeModuleBase {
 
+    private final Handler mHandler;
+
     public PerformanceModule(HippyEngineContext context) {
         super(context);
+        mHandler = new Handler(Looper.getMainLooper());
     }
 
-    @HippyMethod(name = "markStart")
-    public void markStart(final int instanceId, final String eventName, final long timeMillis) {
+    @HippyMethod(isSync = true)
+    public void mark(final int instanceId, final String eventName, final long timeMillis) {
         HippyRootView rootView = mContext.getInstance(instanceId);
-        TimeMonitor monitor = rootView == null ? null : rootView.getTimeMonitor();
-        if (monitor != null) {
-            monitor.startSeparateEvent(eventName, timeMillis);
+        if (rootView == null) {
+            return;
         }
-    }
-
-    @HippyMethod(name = "markEnd")
-    public void markEnd(final int instanceId, final String eventName, final long timeMillis) {
-        HippyRootView rootView = mContext.getInstance(instanceId);
-        TimeMonitor monitor = rootView == null ? null : rootView.getTimeMonitor();
+        TimeMonitor monitor = rootView.getTimeMonitor();
         if (monitor != null) {
-            monitor.endSeparateEvent(eventName, timeMillis);
+            monitor.addCustomPoint(eventName, timeMillis);
+        }
+        HippyEngineMonitorAdapter adapter = mContext.getGlobalConfigs().getEngineMonitorAdapter();
+        if (adapter != null) {
+            mHandler.post(() -> adapter.reportCustomMonitorPoint(rootView, eventName, timeMillis));
         }
     }
 
@@ -66,10 +69,9 @@ public class PerformanceModule extends HippyNativeModuleBase {
             HippyMap entry = new HippyMap();
             entry.pushString("name", rootView.getName());
             entry.pushString("entryType", "navigation");
-            List<HippyEngineMonitorEvent> list = monitor.getAllSeparateEvents();
-            for (HippyEngineMonitorEvent event : list) {
-                entry.pushLong(event.eventName + "Start", event.startTime);
-                entry.pushLong(event.eventName + "End", event.endTime);
+            Map<String, Long> points = monitor.getAllPoints();
+            for (Map.Entry<String, Long> point : points.entrySet()) {
+                entry.pushLong(point.getKey(), point.getValue());
             }
             result.pushMap(entry);
         }

@@ -23,7 +23,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
-import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.BuildConfig;
 import com.tencent.mtt.hippy.HippyEngine;
@@ -33,6 +32,7 @@ import com.tencent.mtt.hippy.HippyEngine.V8InitParams;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorEvent;
+import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorPoint;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.bridge.jsi.TurboModuleManager;
@@ -140,7 +140,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                 if (action.equals("loadInstance")) {
                     TimeMonitor monitor = getTimeMonitor(instanceId);
                     if (monitor != null) {
-                        monitor.endSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_RUN_APPLICATION);
+                        monitor.addPoint(HippyEngineMonitorPoint.RUN_APPLICATION_END);
                     }
                 }
                 if (result != 0) {
@@ -307,7 +307,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                                     mThirdPartyAdapter.onRuntimeInit(mHippyBridge.getV8RuntimeId());
                                 }
                                 TimeMonitor timeMonitor = mContext.getStartTimeMonitor();
-                                timeMonitor.endSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_INIT_JS_FRAMEWORK);
+                                timeMonitor.addPoint(HippyEngineMonitorPoint.INIT_JS_FRAMEWORK_END);
                                 timeMonitor.startEvent(HippyEngineMonitorEvent.ENGINE_LOAD_EVENT_LOAD_COMMONJS);
                                 mIsInit = true;
                                 loadCoreBundle(timeMonitor, callback);
@@ -373,11 +373,11 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                                 TimeMonitor timeMonitor =
                                     localRootView == null ? null : localRootView.getTimeMonitor();
                                 if (timeMonitor != null) {
-                                    timeMonitor.endSeparateEvent(
-                                        HippyEngineMonitorEvent.SEPARATE_EVENT_SECONDARY_LOAD_SOURCE,
+                                    timeMonitor.addPoint(
+                                        HippyEngineMonitorPoint.SECONDARY_LOAD_SOURCE_END,
                                         endMillis);
-                                    timeMonitor.startSeparateEvent(
-                                        HippyEngineMonitorEvent.SEPARATE_EVENT_SECONDARY_EXECUTE_SOURCE,
+                                    timeMonitor.addPoint(
+                                        HippyEngineMonitorPoint.SECONDARY_EXECUTE_SOURCE_START,
                                         endMillis);
                                 }
                             }
@@ -423,12 +423,12 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
     private void loadCoreBundle(TimeMonitor timeMonitor, Callback<Boolean> callback) {
         if (mCoreBundleLoader != null) {
-            timeMonitor.startSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_COMMON_LOAD_SOURCE);
+            timeMonitor.addPoint(HippyEngineMonitorPoint.COMMON_LOAD_SOURCE_START);
             mCoreBundleLoader.load(mHippyBridge, new NativeCallback(mHandler) {
                 @Override
                 public void onReportLoadedTime(String uri, long startMillis, long endMillis) {
-                    timeMonitor.endSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_COMMON_LOAD_SOURCE, endMillis);
-                    timeMonitor.startSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_COMMON_EXECUTE_SOURCE, endMillis);
+                    timeMonitor.addPoint(HippyEngineMonitorPoint.COMMON_LOAD_SOURCE_END, endMillis);
+                    timeMonitor.addPoint(HippyEngineMonitorPoint.COMMON_EXECUTE_SOURCE_START, endMillis);
                 }
 
                 @Override
@@ -480,7 +480,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
         TimeMonitor monitor = hippyRootView == null ? null : hippyRootView.getTimeMonitor();
         if (monitor != null) {
-            monitor.startSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_SECONDARY_LOAD_SOURCE);
+            monitor.addPoint(HippyEngineMonitorPoint.SECONDARY_LOAD_SOURCE_START);
         }
         mLoadModuleListener = listener;
         Message message = mHandler.obtainMessage(MSG_CODE_RUN_BUNDLE, 0, id, loader);
@@ -513,8 +513,8 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                 TimeMonitor timeMonitor =
                     hippyRootView == null ? null : hippyRootView.getTimeMonitor();
                 if (timeMonitor != null) {
-                    timeMonitor.endSeparateEvent(
-                        HippyEngineMonitorEvent.SEPARATE_EVENT_SECONDARY_EXECUTE_SOURCE);
+                    timeMonitor.addPoint(
+                        HippyEngineMonitorPoint.SECONDARY_EXECUTE_SOURCE_END);
                 }
                 if (mLoadModuleListener != null) {
                     mLoadModuleListener.onLoadCompleted(statusCode, msg, hippyRootView);
@@ -537,7 +537,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         HippyRootView rootView = mContext.getInstance(id);
         TimeMonitor monitor = rootView == null ? null : rootView.getTimeMonitor();
         if (monitor != null) {
-            monitor.startSeparateEvent(HippyEngineMonitorEvent.SEPARATE_EVENT_RUN_APPLICATION);
+            monitor.addPoint(HippyEngineMonitorPoint.RUN_APPLICATION_START);
         }
         HippyMap map = new HippyMap();
         map.pushString("name", name);
