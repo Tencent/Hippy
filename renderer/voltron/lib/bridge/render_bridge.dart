@@ -89,6 +89,7 @@ class VoltronRenderBridgeManager implements Destroyable {
     );
   }
 
+  /// 更新节点尺寸，注意，当不传入nodeId时等同于updateRootSize
   Future updateNodeSize(
     int rootId, {
     int nodeId = 0,

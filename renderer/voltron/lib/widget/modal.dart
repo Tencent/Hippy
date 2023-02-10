@@ -37,7 +37,16 @@ class ModalWidget extends FRStatefulWidget {
   }
 }
 
-class _ModalWidgetState extends FRState<ModalWidget> {
+// ignore: prefer_mixin
+class _ModalWidgetState extends FRState<ModalWidget> with WidgetsBindingObserver {
+  Size? oldSize;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
   @override
   Widget build(BuildContext context) {
     LogUtils.dWidget(
@@ -75,10 +84,33 @@ class _ModalWidgetState extends FRState<ModalWidget> {
     super.deactivate();
   }
 
+  void didChangeMetrics() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      var width = ScreenUtil.getInstance().screenWidth;
+      var height = ScreenUtil.getInstance().screenHeight;
+      var originOldSize = oldSize;
+      if (originOldSize == null ||
+          originOldSize.width != width ||
+          originOldSize.height != height) {
+        widget._viewModel.context.renderBridgeManager.updateNodeSize(
+          widget._viewModel.rootId,
+          nodeId: widget._viewModel.id,
+          width: width,
+          height: height,
+        );
+        oldSize = Size(
+          width,
+          height,
+        );
+      }
+    });
+  }
+
   @override
   void dispose() {
     LogUtils.dWidget("ID:${widget._viewModel.id}, dispose modal widget");
     dismissDialog();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 }
