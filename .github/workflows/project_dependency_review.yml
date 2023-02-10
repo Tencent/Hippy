@@ -1,0 +1,22 @@
+name: "[project] dependency review"
+
+on:
+  pull_request:
+    branches:
+      - v3.0-dev
+      - v3.0
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v3
+        with:
+          deny-licenses: |
+            GPL-1.0-only, GPL-1.0-or-later, GPL-2.0-only, GPL-2.0-or-later, GPL-3.0-only, GPL-3.0-or-later, AGPL-1.0, AGPL-3.0, AGPL-1.0-only, AGPL-1.0-or-later, AGPL-3.0-only, AGPL-3.0-or-later, MPL-1.0, MPL-1.1, MPL-2.0, MPL-2.0-no-copyleft-exception, LGPL-2.0, LGPL-2.0+, LGPL-2.1, LGPL-2.1+, LGPL-3.0, LGPL-3.0+, LGPL-2.0-only, LGPL-2.0-or-later, LGPL-2.1-only, LGPL-2.1-or-later, LGPL-3.0-only, LGPL-3.0-or-later
