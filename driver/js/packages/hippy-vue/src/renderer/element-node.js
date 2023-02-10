@@ -616,7 +616,7 @@ class ElementNode extends ViewNode {
 
   /**
    * getBoundingClientRect
-   *
+   * @deprecated
    * Get the position and size of element
    * Because it's a async function, need await prefix.
    *

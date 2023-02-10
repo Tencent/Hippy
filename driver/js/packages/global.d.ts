@@ -51,13 +51,26 @@ declare namespace HippyTypes {
   export interface LayoutEvent {
     // The event data of layout event
     // The position X of component
-    x: number;
+    x: number | undefined;
     // The position Y of component
-    y: number;
+    y: number | undefined;
     // The width of component
-    width: number;
+    width: number | undefined;
     // The height of component
-    height: number;
+    height: number | undefined;
+    // error message
+    errMsg?: string | undefined;
+  }
+
+  export interface DOMRect {
+    x: number | undefined;
+    y: number | undefined;
+    top: number | undefined;
+    left: number | undefined;
+    bottom: number | undefined;
+    right: number | undefined;
+    width: number | undefined;
+    height: number | undefined;
   }
 
   export interface Transform {
