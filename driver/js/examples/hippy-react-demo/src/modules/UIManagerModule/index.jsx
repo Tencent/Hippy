@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   button: {
-    height: 50,
+    height: 55,
     borderColor: '#4c9afa',
     borderWidth: 2,
     borderStyle: 'solid',
@@ -47,12 +47,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItem: 'center',
     flexShrink: 1,
-    paddingHorizontal: 2,
+    marginHorizontal: 4,
+    paddingHorizontal: 1,
   },
   buttonText: {
-    height: 50,
-    lineHeight: 50,
-    fontSize: 15,
+    fontSize: 14,
     color: '#4c9afa',
     textAlign: 'center',
     textAlignVertical: 'center',
@@ -125,21 +124,18 @@ const UIManagerModuleDemo = function UIManagerModuleDemo() {
   };
 
   /**
-   * Get the box position from UIManagerModule.measureInWindow()
+   * Get the box position from UIManagerModule.getBoundingClientRect()
    */
-  const getBoxPosition = async () => {
+  const getBoxPosition = async (isRelToContainer = false) => {
     try {
       /**
-       * Be careful: the promise returns support in the newer than 2.0.3 version
-       * use the callback method for forward compatibility for the previous version.
-       *
        * Demo:
-       * UIManagerModule.measureInWindow(box.current, (response) => setMeasuredPosition(response))
+       * UIManagerModule.getBoundingClientRect(box.current)
        */
-      const response = await UIManagerModule.measureInWindow(box.current);
+      const response = await UIManagerModule.getBoundingClientRect(box.current, { relToContainer: isRelToContainer });
       setMeasuredPosition(response);
     } catch (err) {
-      // pass
+      console.error('getBoxPosition error', err);
     }
   };
 
@@ -158,10 +154,13 @@ const UIManagerModuleDemo = function UIManagerModuleDemo() {
       </View>
       <View style={styles.buttonContainer}>
         <View onClick={setRandomPosition} style={styles.button}>
-          <Text style={styles.buttonText}>Move the random position</Text>
+          <Text style={styles.buttonText}>Move position</Text>
         </View>
-        <View onClick={getBoxPosition} style={styles.button}>
-          <Text style={styles.buttonText}>Measure box in window</Text>
+        <View onClick={() => getBoxPosition(false)} style={styles.button}>
+          <Text style={styles.buttonText}>Measure in App Window</Text>
+        </View>
+        <View onClick={() => getBoxPosition(true)} style={styles.button}>
+          <Text style={styles.buttonText}>Measure in Container(RootView)</Text>
         </View>
       </View>
       <View style={styles.row}>
@@ -173,7 +172,7 @@ const UIManagerModuleDemo = function UIManagerModuleDemo() {
           <Text style={styles.black}>{`Top: ${boxStyle.top}`}</Text>
         </View>
         <View>
-          <Text>measureInWindow output:</Text>
+          <Text>getBoundingClientRect output:</Text>
           <Text style={styles.black}>{`Width: ${measuredPosition.width}`}</Text>
           <Text style={styles.black}>{`Height: ${measuredPosition.height}`}</Text>
           <Text style={styles.black}>{`X: ${measuredPosition.x}`}</Text>
