@@ -215,6 +215,7 @@ EXTERN_C void UpdateNodeSize(uint32_t render_manager_id, uint32_t root_id,
       }
 
       node->SetLayoutSize((float) width, (float) height);
+      dom_manager->EndBatch(root_node);
     }
   }};
   dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));

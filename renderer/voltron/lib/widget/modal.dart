@@ -45,14 +45,11 @@ class _ModalWidgetState extends FRState<ModalWidget> {
     );
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       /// The first addPostFrameCallback mean to the next frame show dialog, without, an error will be reported
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        /// The second addPostFrameCallback mean to ensure modal size, dom manager would update layout twice before show, so we try to avoid wrong ui transition
-        if (widget._viewModel.canDialogShow) {
-          showDialog();
-        } else {
-          dismissDialog();
-        }
-      });
+      if (widget._viewModel.canDialogShow) {
+        showDialog();
+      } else {
+        dismissDialog();
+      }
     });
     return Container();
   }
@@ -111,17 +108,5 @@ class _ModalContainerWidgetState extends State<ModalContainerWidget> {
         },
       ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    widget._viewModel.registerFrameCallback();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    widget._viewModel.removeFrameCallback();
   }
 }
