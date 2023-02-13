@@ -27,15 +27,12 @@
 namespace hippy {
 namespace bridge {
 
-void CallJavaCallback(jobject j_obj,
-                      jstring j_action,
-                      jlong j_ret_code,
-                      jstring j_ret_content = nullptr);
-
-void CallJavaReportLoadedTime(jobject j_obj,
-                              jstring j_uri,
-                              jlong j_start_millis,
-                              jlong j_end_millis);
+void CallJavaMethod(jobject j_obj,
+                    jlong j_ret_code,
+                    jstring j_ret_content = nullptr,
+                    jstring j_payload = nullptr,
+                    jlong j_arg1 = 0,
+                    jlong j_arg2 = 0);
 
 void CallFunctionByHeapBuffer(JNIEnv *j_env,
                               jobject j_obj,

@@ -363,18 +363,6 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
     std::chrono::time_point<std::chrono::system_clock> load_end;
     bool flag = RunScriptInternal(runtime, script_name, j_can_use_code_cache,
                                   code_cache_dir, uri, aasset_manager, load_start, load_end);
-    {
-      JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-      jstring j_uri = JniUtils::StrViewToJString(j_env, uri);
-      auto load_start_millis = std::chrono::time_point_cast<std::chrono::milliseconds>(load_start)
-          .time_since_epoch()
-          .count();
-      auto load_end_millis = std::chrono::time_point_cast<std::chrono::milliseconds>(load_end)
-          .time_since_epoch()
-          .count();
-      hippy::bridge::CallJavaReportLoadedTime(save_object_->GetObj(), j_uri, load_start_millis, load_end_millis);
-      j_env->DeleteLocalRef(j_uri);
-    }
     auto time_end = std::chrono::time_point_cast<std::chrono::microseconds>(
                         std::chrono::system_clock::now())
                         .time_since_epoch()
@@ -383,16 +371,24 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
     TDF_BASE_DLOG(INFO) << "runScriptFromUri = " << (time_end - time_begin)
                         << ", uri = " << uri;
 
+    JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+    jstring j_uri = JniUtils::StrViewToJString(j_env, uri);
+    auto load_start_millis = std::chrono::time_point_cast<std::chrono::milliseconds>(load_start)
+        .time_since_epoch()
+        .count();
+    auto load_end_millis = std::chrono::time_point_cast<std::chrono::milliseconds>(load_end)
+        .time_since_epoch()
+        .count();
     if (flag) {
-      hippy::bridge::CallJavaCallback(save_object_->GetObj(), nullptr,
-                                    INIT_CB_STATE::SUCCESS);
+      hippy::bridge::CallJavaMethod(save_object_->GetObj(), INIT_CB_STATE::SUCCESS, nullptr,
+                                    j_uri, load_start_millis, load_end_millis);
     } else {
-      JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
       jstring j_msg = JniUtils::StrViewToJString(j_env, u"run script error");
-      hippy::bridge::CallJavaCallback(save_object_->GetObj(), nullptr,
-                       INIT_CB_STATE::RUN_SCRIPT_ERROR,j_msg);
+      hippy::bridge::CallJavaMethod(save_object_->GetObj(), INIT_CB_STATE::RUN_SCRIPT_ERROR, j_msg,
+                                    j_uri, load_start_millis, load_end_millis);
       j_env->DeleteLocalRef(j_msg);
     }
+    j_env->DeleteLocalRef(j_uri);
     return flag;
   };
 
@@ -533,8 +529,7 @@ jlong InitInstance(JNIEnv* j_env,
 
   RegisterFunction scope_cb = [save_object_ = std::move(save_object)](void*) {
     TDF_BASE_LOG(INFO) << "run scope cb";
-    hippy::bridge::CallJavaCallback(save_object_->GetObj(), nullptr,
-                                  INIT_CB_STATE::SUCCESS);
+    hippy::bridge::CallJavaMethod(save_object_->GetObj(), INIT_CB_STATE::SUCCESS);
   };
 
   scope_cb_map->insert(
@@ -659,7 +654,7 @@ void DestroyInstance(__unused JNIEnv* j_env,
     TDF_BASE_LOG(INFO) << "erase runtime";
     Runtime::Erase(runtime);
     TDF_BASE_LOG(INFO) << "js destroy end";
-    hippy::bridge::CallJavaCallback(cb->GetObj(), nullptr, INIT_CB_STATE::SUCCESS);
+    hippy::bridge::CallJavaMethod(cb->GetObj(), INIT_CB_STATE::SUCCESS);
   };
   int64_t group = runtime->GetGroupId();
   if (group == kDebuggerEngineId) {

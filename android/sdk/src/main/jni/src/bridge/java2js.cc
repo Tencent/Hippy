@@ -101,7 +101,7 @@ void CallFunction(JNIEnv* j_env,
       if (!is_fn) {
         jstring j_action = JniUtils::StrViewToJString(j_env, action_name);
         jstring j_msg = JniUtils::StrViewToJString(j_env, u"hippyBridge not find");
-        CallJavaCallback(cb_->GetObj(), j_action, CALLFUNCTION_CB_STATE::NO_METHOD_ERROR, j_msg);
+        CallJavaMethod(cb_->GetObj(), CALLFUNCTION_CB_STATE::NO_METHOD_ERROR, j_msg, j_action);
         j_env->DeleteLocalRef(j_action);
         j_env->DeleteLocalRef(j_msg);
         return;
@@ -122,7 +122,7 @@ void CallFunction(JNIEnv* j_env,
       }
 #endif
       jstring j_action = JniUtils::StrViewToJString(j_env, action_name);
-      CallJavaCallback(cb_->GetObj(), j_action, CALLFUNCTION_CB_STATE::SUCCESS);
+      CallJavaMethod(cb_->GetObj(), CALLFUNCTION_CB_STATE::SUCCESS, nullptr, j_action);
       j_env->DeleteLocalRef(j_action);
       return;
     }
@@ -155,9 +155,9 @@ void CallFunction(JNIEnv* j_env,
         } else {
           j_msg = JniUtils::StrViewToJString(j_env, u"deserializer error");
         }
-        CallJavaCallback(
-            cb_->GetObj(), j_action,
-            hippy::bridge::CALLFUNCTION_CB_STATE::DESERIALIZER_FAILED, j_msg);
+        CallJavaMethod(
+            cb_->GetObj(),
+            hippy::bridge::CALLFUNCTION_CB_STATE::DESERIALIZER_FAILED, j_msg, j_action);
         j_env->DeleteLocalRef(j_action);
         j_env->DeleteLocalRef(j_msg);
         return;
@@ -177,7 +177,7 @@ void CallFunction(JNIEnv* j_env,
     context->CallFunction(runtime->GetBridgeFunc(), 2, argv);
 
     jstring j_action = JniUtils::StrViewToJString(j_env, action_name);
-    CallJavaCallback(cb_->GetObj(), j_action, CALLFUNCTION_CB_STATE::SUCCESS);
+    CallJavaMethod(cb_->GetObj(), CALLFUNCTION_CB_STATE::SUCCESS, nullptr, j_action);
     j_env->DeleteLocalRef(j_action);
   };
 
@@ -214,7 +214,12 @@ void CallFunctionByDirectBuffer(JNIEnv* j_env,
                std::make_shared<JavaRef>(j_env, j_buffer));
 }
 
-void CallJavaMethod(jobject j_obj, const char* name, const char* sig, ...) {
+void CallJavaMethod(jobject j_obj,
+                    jlong j_ret_code,
+                    jstring j_ret_content,
+                    jstring j_payload,
+                    jlong j_arg1,
+                    jlong j_arg2) {
   if (!j_obj) {
     TDF_BASE_DLOG(INFO) << "CallJavaMethod j_obj is nullptr";
     return;
@@ -227,36 +232,15 @@ void CallJavaMethod(jobject j_obj, const char* name, const char* sig, ...) {
     return;
   }
 
-  jmethodID j_method_id = j_env->GetMethodID(j_class, name, sig);
+  jmethodID j_method_id = j_env->GetMethodID(j_class, "nativeCallback", "(JLjava/lang/String;Ljava/lang/String;JJ)V");
   if (!j_method_id) {
     TDF_BASE_LOG(ERROR) << "CallJavaMethod j_method_id error";
     return;
   }
 
-  va_list args;
-  va_start(args, sig);
-  j_env->CallVoidMethodV(j_obj, j_method_id, args);
-  va_end(args);
+  j_env->CallVoidMethod(j_obj, j_method_id, j_ret_code, j_ret_content, j_payload, j_arg1, j_arg2);
   JNIEnvironment::ClearJEnvException(j_env);
   j_env->DeleteLocalRef(j_class);
-}
-
-void CallJavaCallback(jobject j_obj,
-                      jstring j_action,
-                      jlong j_ret_code,
-                      jstring j_ret_content) {
-  CallJavaMethod(j_obj, "nativeCallback",
-                 "(Ljava/lang/String;JLjava/lang/String;)V",
-                 j_action, j_ret_code, j_ret_content);
-}
-
-void CallJavaReportLoadedTime(jobject j_obj,
-                              jstring j_uri,
-                              jlong j_start_millis,
-                              jlong j_end_millis) {
-  CallJavaMethod(j_obj, "nativeReportLoadedTime",
-                 "(Ljava/lang/String;JJ)V",
-                 j_uri, j_start_millis, j_end_millis);
 }
 
 }  // namespace bridge

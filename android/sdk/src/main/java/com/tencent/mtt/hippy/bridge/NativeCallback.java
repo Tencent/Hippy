@@ -27,16 +27,9 @@ public abstract class NativeCallback {
         mHandler = handler;
     }
 
-    public final void nativeCallback(String action, long result, String reason) {
-        mHandler.post(() -> onCall(result, action, reason));
+    public final void nativeCallback(long result, String reason, String payload, long arg1, long arg2) {
+        mHandler.post(() -> callback(result, reason, payload, arg1, arg2));
     }
 
-    public final void nativeReportLoadedTime(String uri, long startMillis, long endMillis) {
-        mHandler.post(() -> onReportLoadedTime(uri, startMillis, endMillis));
-    }
-
-    public abstract void onCall(long result, String action, String reason);
-
-    public void onReportLoadedTime(String uri, long startMillis, long endMillis) {
-    }
+    public abstract void callback(long result, String reason, String payload, long arg1, long arg2);
 }
