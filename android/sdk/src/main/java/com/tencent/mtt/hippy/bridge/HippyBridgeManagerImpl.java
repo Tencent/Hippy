@@ -125,20 +125,13 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         }
     }
 
-    private TimeMonitor getTimeMonitor(int instanceId) {
-        HippyRootView rootView = mContext.getInstance(instanceId);
-        if (rootView != null) {
-            return rootView.getTimeMonitor();
-        }
-        return null;
-    }
-
     private NativeCallback generateCallback() {
         return new NativeCallback(mHandler) {
             @Override
-            public void onCall(long result, int instanceId, String action, String reason) {
+            public void onCall(long result, String action, String reason) {
                 if (action.equals("loadInstance")) {
-                    TimeMonitor monitor = getTimeMonitor(instanceId);
+                    HippyRootView rootView = mContext.getInstance();
+                    TimeMonitor monitor = rootView == null ? null : rootView.getTimeMonitor();
                     if (monitor != null) {
                         monitor.addPoint(HippyEngineMonitorPoint.RUN_APPLICATION_END);
                     }
@@ -158,13 +151,10 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         }
 
         String action = null;
-        int instanceId = 0;
-        if (msg.obj instanceof HippyMap) {
-            instanceId = ((HippyMap) msg.obj).getInt("id");
-        }
         switch (msg.arg2) {
             case FUNCTION_ACTION_LOAD_INSTANCE: {
-                TimeMonitor monitor = getTimeMonitor(instanceId);
+                HippyRootView rootView = mContext.getInstance();
+                TimeMonitor monitor = rootView == null ? null : rootView.getTimeMonitor();
                 if (monitor != null) {
                     monitor.startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_RUN_BUNDLE);
                 }
@@ -217,7 +207,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                 buffer.put(bytes);
             }
 
-            mHippyBridge.callFunction(action, instanceId, mCallFunctionCallback, buffer);
+            mHippyBridge.callFunction(action, mCallFunctionCallback, buffer);
         } else {
             if (enableV8Serialization) {
                 if (safeHeapWriter == null) {
@@ -232,12 +222,12 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                 ByteBuffer buffer = safeHeapWriter.chunked();
                 int offset = buffer.arrayOffset() + buffer.position();
                 int length = buffer.limit() - buffer.position();
-                mHippyBridge.callFunction(action, instanceId, mCallFunctionCallback, buffer.array(), offset, length);
+                mHippyBridge.callFunction(action, mCallFunctionCallback, buffer.array(), offset, length);
             } else {
                 mStringBuilder.setLength(0);
                 byte[] bytes = ArgumentUtils.objectToJsonOpt(msg.obj, mStringBuilder).getBytes(
                         StandardCharsets.UTF_16LE);
-                mHippyBridge.callFunction(action, instanceId, mCallFunctionCallback, bytes);
+                mHippyBridge.callFunction(action, mCallFunctionCallback, bytes);
             }
         }
     }
@@ -255,7 +245,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         @SuppressWarnings("unchecked") final com.tencent.mtt.hippy.common.Callback<Boolean> destroyCallback = (com.tencent.mtt.hippy.common.Callback<Boolean>) msg.obj;
         mHippyBridge.destroy(new NativeCallback(mHandler) {
             @Override
-            public void onCall(long result, int instanceId, String action, String reason) {
+            public void onCall(long result, String action, String reason) {
                 boolean success = result == 0;
                 mHippyBridge.onDestroy(isReload);
                 if (destroyCallback != null) {
@@ -287,7 +277,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
                         mHippyBridge.initJSBridge(getGlobalConfigs(), new NativeCallback(mHandler) {
                             @Override
-                            public void onCall(long result, int instanceId, String action,
+                            public void onCall(long result, String action,
                                     String reason) {
                                 if (result != 0) {
                                     String info =
@@ -383,8 +373,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                             }
 
                             @Override
-                            public void onCall(long result, int instanceId, String action,
-                                    String reason) {
+                            public void onCall(long result, String action, String reason) {
                                 if (result == 0) {
                                     notifyModuleLoaded(ModuleLoadStatus.STATUS_OK, null,
                                             localRootView);
@@ -432,7 +421,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                 }
 
                 @Override
-                public void onCall(long result, int instanceId, String action, String reason) {
+                public void onCall(long result, String action, String reason) {
                     RuntimeException exception = null;
                     boolean ret = (result == 0);
                     if (!ret) {

@@ -384,12 +384,12 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                         << ", uri = " << uri;
 
     if (flag) {
-      hippy::bridge::CallJavaCallback(save_object_->GetObj(), nullptr, 0,
+      hippy::bridge::CallJavaCallback(save_object_->GetObj(), nullptr,
                                     INIT_CB_STATE::SUCCESS);
     } else {
       JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
       jstring j_msg = JniUtils::StrViewToJString(j_env, u"run script error");
-      hippy::bridge::CallJavaCallback(save_object_->GetObj(), nullptr, 0,
+      hippy::bridge::CallJavaCallback(save_object_->GetObj(), nullptr,
                        INIT_CB_STATE::RUN_SCRIPT_ERROR,j_msg);
       j_env->DeleteLocalRef(j_msg);
     }
@@ -533,7 +533,7 @@ jlong InitInstance(JNIEnv* j_env,
 
   RegisterFunction scope_cb = [save_object_ = std::move(save_object)](void*) {
     TDF_BASE_LOG(INFO) << "run scope cb";
-    hippy::bridge::CallJavaCallback(save_object_->GetObj(), nullptr, 0,
+    hippy::bridge::CallJavaCallback(save_object_->GetObj(), nullptr,
                                   INIT_CB_STATE::SUCCESS);
   };
 
@@ -659,7 +659,7 @@ void DestroyInstance(__unused JNIEnv* j_env,
     TDF_BASE_LOG(INFO) << "erase runtime";
     Runtime::Erase(runtime);
     TDF_BASE_LOG(INFO) << "js destroy end";
-    hippy::bridge::CallJavaCallback(cb->GetObj(), nullptr, 0, INIT_CB_STATE::SUCCESS);
+    hippy::bridge::CallJavaCallback(cb->GetObj(), nullptr, INIT_CB_STATE::SUCCESS);
   };
   int64_t group = runtime->GetGroupId();
   if (group == kDebuggerEngineId) {

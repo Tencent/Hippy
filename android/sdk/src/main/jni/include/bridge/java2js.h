@@ -29,7 +29,6 @@ namespace bridge {
 
 void CallJavaCallback(jobject j_obj,
                       jstring j_action,
-                      jint j_instance_id,
                       jlong j_ret_code,
                       jstring j_ret_content = nullptr);
 
@@ -42,7 +41,6 @@ void CallFunctionByHeapBuffer(JNIEnv *j_env,
                               jobject j_obj,
                               jstring j_action,
                               jlong j_runtime_id,
-                              jint j_instance_id,
                               jobject j_callback,
                               jbyteArray j_byte_array,
                               jint j_offset,
@@ -52,7 +50,6 @@ void CallFunctionByDirectBuffer(JNIEnv *j_env,
                                 jobject j_obj,
                                 jstring j_action,
                                 jlong j_runtime_id,
-                                jint j_instance_id,
                                 jobject j_callback,
                                 jobject j_buffer,
                                 jint j_offset,

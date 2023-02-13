@@ -40,14 +40,14 @@ enum CALLFUNCTION_CB_STATE {
 REGISTER_JNI( // NOLINT(cert-err58-cpp)
         "com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
         "callFunction",
-        "(Ljava/lang/String;JILcom/tencent/mtt/hippy/bridge/NativeCallback;"
+        "(Ljava/lang/String;JLcom/tencent/mtt/hippy/bridge/NativeCallback;"
         "[BII)V",
         CallFunctionByHeapBuffer)
 
 REGISTER_JNI( // NOLINT(cert-err58-cpp)
         "com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
         "callFunction",
-        "(Ljava/lang/String;JILcom/tencent/mtt/hippy/bridge/NativeCallback;"
+        "(Ljava/lang/String;JLcom/tencent/mtt/hippy/bridge/NativeCallback;"
         "Ljava/nio/ByteBuffer;II)V",
         CallFunctionByDirectBuffer)
 
@@ -64,7 +64,6 @@ void CallFunction(JNIEnv* j_env,
                   __unused jobject j_obj,
                   jstring j_action,
                   jlong j_runtime_id,
-                  jint j_instance_id,
                   jobject j_callback,
                   bytes buffer_data,
                   std::shared_ptr<JavaRef> buffer_owner) {
@@ -82,7 +81,7 @@ void CallFunction(JNIEnv* j_env,
   unicode_string_view action_name = JniUtils::ToStrView(j_env, j_action);
   std::shared_ptr<JavaRef> cb = std::make_shared<JavaRef>(j_env, j_callback);
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-  task->callback = [runtime, j_instance_id, cb_ = std::move(cb),
+  task->callback = [runtime, cb_ = std::move(cb),
                     action_name, buffer_data_ = std::move(buffer_data),
                     buffer_owner_ = std::move(buffer_owner)] {
     JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
@@ -102,7 +101,7 @@ void CallFunction(JNIEnv* j_env,
       if (!is_fn) {
         jstring j_action = JniUtils::StrViewToJString(j_env, action_name);
         jstring j_msg = JniUtils::StrViewToJString(j_env, u"hippyBridge not find");
-        CallJavaCallback(cb_->GetObj(), j_action, j_instance_id, CALLFUNCTION_CB_STATE::NO_METHOD_ERROR, j_msg);
+        CallJavaCallback(cb_->GetObj(), j_action, CALLFUNCTION_CB_STATE::NO_METHOD_ERROR, j_msg);
         j_env->DeleteLocalRef(j_action);
         j_env->DeleteLocalRef(j_msg);
         return;
@@ -123,7 +122,7 @@ void CallFunction(JNIEnv* j_env,
       }
 #endif
       jstring j_action = JniUtils::StrViewToJString(j_env, action_name);
-      CallJavaCallback(cb_->GetObj(), j_action, j_instance_id, CALLFUNCTION_CB_STATE::SUCCESS);
+      CallJavaCallback(cb_->GetObj(), j_action, CALLFUNCTION_CB_STATE::SUCCESS);
       j_env->DeleteLocalRef(j_action);
       return;
     }
@@ -157,7 +156,7 @@ void CallFunction(JNIEnv* j_env,
           j_msg = JniUtils::StrViewToJString(j_env, u"deserializer error");
         }
         CallJavaCallback(
-            cb_->GetObj(), j_action, j_instance_id,
+            cb_->GetObj(), j_action,
             hippy::bridge::CALLFUNCTION_CB_STATE::DESERIALIZER_FAILED, j_msg);
         j_env->DeleteLocalRef(j_action);
         j_env->DeleteLocalRef(j_msg);
@@ -178,7 +177,7 @@ void CallFunction(JNIEnv* j_env,
     context->CallFunction(runtime->GetBridgeFunc(), 2, argv);
 
     jstring j_action = JniUtils::StrViewToJString(j_env, action_name);
-    CallJavaCallback(cb_->GetObj(), j_action, j_instance_id, CALLFUNCTION_CB_STATE::SUCCESS);
+    CallJavaCallback(cb_->GetObj(), j_action, CALLFUNCTION_CB_STATE::SUCCESS);
     j_env->DeleteLocalRef(j_action);
   };
 
@@ -189,12 +188,11 @@ void CallFunctionByHeapBuffer(JNIEnv* j_env,
                               jobject j_obj,
                               jstring j_action,
                               jlong j_runtime_id,
-                              jint j_instance_id,
                               jobject j_callback,
                               jbyteArray j_byte_array,
                               jint j_offset,
                               jint j_length) {
-  CallFunction(j_env, j_obj, j_action, j_runtime_id, j_instance_id, j_callback,
+  CallFunction(j_env, j_obj, j_action, j_runtime_id, j_callback,
                JniUtils::AppendJavaByteArrayToBytes(j_env, j_byte_array,
                                                     j_offset, j_length),
                nullptr);
@@ -204,14 +202,13 @@ void CallFunctionByDirectBuffer(JNIEnv* j_env,
                                 jobject j_obj,
                                 jstring j_action,
                                 jlong j_runtime_id,
-                                jint j_instance_id,
                                 jobject j_callback,
                                 jobject j_buffer,
                                 jint j_offset,
                                 jint j_length) {
   char* buffer_address = static_cast<char*>(j_env->GetDirectBufferAddress(j_buffer));
   TDF_BASE_CHECK(buffer_address != nullptr);
-  CallFunction(j_env, j_obj, j_action, j_runtime_id, j_instance_id, j_callback,
+  CallFunction(j_env, j_obj, j_action, j_runtime_id, j_callback,
                bytes(buffer_address + j_offset,
                      hippy::base::checked_numeric_cast<jint, size_t>(j_length)),
                std::make_shared<JavaRef>(j_env, j_buffer));
@@ -246,12 +243,11 @@ void CallJavaMethod(jobject j_obj, const char* name, const char* sig, ...) {
 
 void CallJavaCallback(jobject j_obj,
                       jstring j_action,
-                      jint j_instance_id,
                       jlong j_ret_code,
                       jstring j_ret_content) {
   CallJavaMethod(j_obj, "nativeCallback",
-                 "(Ljava/lang/String;IJLjava/lang/String;)V",
-                 j_action, j_instance_id, j_ret_code, j_ret_content);
+                 "(Ljava/lang/String;JLjava/lang/String;)V",
+                 j_action, j_ret_code, j_ret_content);
 }
 
 void CallJavaReportLoadedTime(jobject j_obj,

@@ -41,11 +41,8 @@ public class PerformanceModule extends HippyNativeModuleBase {
     }
 
     @HippyMethod(isSync = true)
-    public void mark(final int instanceId, final String eventName, final long timeMillis) {
-        HippyRootView rootView = mContext.getInstance(instanceId);
-        if (rootView == null) {
-            return;
-        }
+    public void mark(final String eventName, final long timeMillis) {
+        HippyRootView rootView = mContext.getInstance();
         TimeMonitor monitor = rootView.getTimeMonitor();
         if (monitor != null) {
             monitor.addCustomPoint(eventName, timeMillis);
@@ -59,22 +56,19 @@ public class PerformanceModule extends HippyNativeModuleBase {
     @HippyMethod(isSync = true)
     public HippyArray getEntries() {
         HippyArray result = new HippyArray();
-        Iterator<HippyRootView> iterator = mContext.getInstanceIterator();
-        while (iterator.hasNext()) {
-            HippyRootView rootView = iterator.next();
-            TimeMonitor monitor = rootView.getTimeMonitor();
-            if (monitor == null) {
-                continue;
-            }
-            HippyMap entry = new HippyMap();
-            entry.pushString("name", rootView.getName());
-            entry.pushString("entryType", "navigation");
-            Map<String, Long> points = monitor.getAllPoints();
-            for (Map.Entry<String, Long> point : points.entrySet()) {
-                entry.pushLong(point.getKey(), point.getValue());
-            }
-            result.pushMap(entry);
+        HippyRootView rootView = mContext.getInstance();
+        TimeMonitor monitor = rootView.getTimeMonitor();
+        if (monitor == null) {
+            return result;
         }
+        HippyMap entry = new HippyMap();
+        entry.pushString("name", rootView.getName());
+        entry.pushString("entryType", "navigation");
+        Map<String, Long> points = monitor.getAllPoints();
+        for (Map.Entry<String, Long> point : points.entrySet()) {
+            entry.pushLong(point.getKey(), point.getValue());
+        }
+        result.pushMap(entry);
         return result;
     }
 

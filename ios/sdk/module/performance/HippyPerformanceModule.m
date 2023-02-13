@@ -54,11 +54,9 @@ HIPPY_EXPORT_TURBO_METHOD(getEntries) {
 }
 
 /// Marks the occurrence time of a custom event
-/// - Parameter appId: rootview instance id (not use)
 /// - Parameter eventName: event name
 /// - Parameter timestamp: Occurrence time, in milliseconds
-HIPPY_EXPORT_TURBO_METHOD(mark:(__unused NSNumber *)appId
-                          eventName:(NSString *)event
+HIPPY_EXPORT_TURBO_METHOD(mark:(NSString *)event
                           timestamp:(double)timestamp) {
     [self.bridge.performanceLogger setValue:timestamp forCustomTag:event];
     return @YES;

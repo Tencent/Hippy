@@ -52,9 +52,10 @@ public interface HippyEngineContext {
 
   RenderManager getRenderManager();
 
+  @Deprecated
   HippyRootView getInstance(int id);
 
-  Iterator<HippyRootView> getInstanceIterator();
+  HippyRootView getInstance();
 
   void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
 

@@ -1044,8 +1044,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
-    public Iterator<HippyRootView> getInstanceIterator() {
-      return mInstances.iterator();
+    public HippyRootView getInstance() {
+      for (HippyRootView rootView : mInstances) {
+        return rootView;
+      }
+      return null;
     }
 
     @Override
