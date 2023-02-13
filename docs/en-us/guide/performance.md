@@ -2,6 +2,8 @@
 
 ## SDK startup performance indicators
 
+> Minimum supported version `2.16.0`
+
 ### Introduce
 
 The loading and execution process of `Hippy` Native SDK is shown in the figure below:
