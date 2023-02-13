@@ -37,7 +37,16 @@ class ModalWidget extends FRStatefulWidget {
   }
 }
 
-class _ModalWidgetState extends FRState<ModalWidget> {
+// ignore: prefer_mixin
+class _ModalWidgetState extends FRState<ModalWidget> with WidgetsBindingObserver {
+  Size? oldSize;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
   @override
   Widget build(BuildContext context) {
     LogUtils.dWidget(
@@ -45,14 +54,11 @@ class _ModalWidgetState extends FRState<ModalWidget> {
     );
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       /// The first addPostFrameCallback mean to the next frame show dialog, without, an error will be reported
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        /// The second addPostFrameCallback mean to ensure modal size, dom manager would update layout twice before show, so we try to avoid wrong ui transition
-        if (widget._viewModel.canDialogShow) {
-          showDialog();
-        } else {
-          dismissDialog();
-        }
-      });
+      if (widget._viewModel.canDialogShow) {
+        showDialog();
+      } else {
+        dismissDialog();
+      }
     });
     return Container();
   }
@@ -78,10 +84,33 @@ class _ModalWidgetState extends FRState<ModalWidget> {
     super.deactivate();
   }
 
+  void didChangeMetrics() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      var width = ScreenUtil.getInstance().screenWidth;
+      var height = ScreenUtil.getInstance().screenHeight;
+      var originOldSize = oldSize;
+      if (originOldSize == null ||
+          originOldSize.width != width ||
+          originOldSize.height != height) {
+        widget._viewModel.context.renderBridgeManager.updateNodeSize(
+          widget._viewModel.rootId,
+          nodeId: widget._viewModel.id,
+          width: width,
+          height: height,
+        );
+        oldSize = Size(
+          width,
+          height,
+        );
+      }
+    });
+  }
+
   @override
   void dispose() {
     LogUtils.dWidget("ID:${widget._viewModel.id}, dispose modal widget");
     dismissDialog();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 }
@@ -111,17 +140,5 @@ class _ModalContainerWidgetState extends State<ModalContainerWidget> {
         },
       ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    widget._viewModel.registerFrameCallback();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    widget._viewModel.removeFrameCallback();
   }
 }

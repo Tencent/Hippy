@@ -179,10 +179,6 @@ class CoreApi implements APIProvider {
           UtilsModule.new,
         ),
         ModuleGenerator(
-          DialogModule.kDialogModuleName,
-          DialogModule.new,
-        ),
-        ModuleGenerator(
           WebsocketModule.kWebSocketModuleName,
           WebsocketModule.new,
         ),
