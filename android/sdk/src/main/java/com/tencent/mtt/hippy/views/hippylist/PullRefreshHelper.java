@@ -91,6 +91,10 @@ public abstract class PullRefreshHelper {
 
     protected abstract void sendPullingEvent(int offset);
 
+    protected void sendCompatScrollEvent() {
+        mRecyclerView.getRecyclerViewEventHelper().checkSendOnScrollEvent();
+    }
+
     public void onDestroy() {
         mItemView = null;
         mContainer.removeAllViews();
@@ -104,21 +108,7 @@ public abstract class PullRefreshHelper {
         }
     }
 
-    public void enableRefresh() {
-        switch (mRefreshStatus) {
-            case PULL_STATUS_FOLDED:
-                int nodeSize = isVertical() ? mRenderNode.getHeight() : mRenderNode.getWidth();
-                setVisibleSize(nodeSize);
-                mRefreshStatus = PullRefreshStatus.PULL_STATUS_REFRESHING;
-                break;
-            case PULL_STATUS_DRAGGING:
-                mRefreshStatus = PullRefreshStatus.PULL_STATUS_REFRESHING;
-                break;
-            case PULL_STATUS_REFRESHING:
-            default:
-                break;
-        }
-    }
+    public abstract void enableRefresh();
 
     public View getView() {
         return mContainer;
@@ -215,6 +205,7 @@ public abstract class PullRefreshHelper {
         }
         mContainer.setLayoutParams(layoutParams);
         mRecyclerView.dispatchLayout();
+        sendCompatScrollEvent();
     }
 
     protected void smoothResizeTo(int fromValue, int toValue, int duration) {
