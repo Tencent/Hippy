@@ -7,17 +7,9 @@
 #
 
 Pod::Spec.new do |s|
-  puts 'hippy.podspec read begins'
   s.name             = 'hippy'
   s.version          = '2.0.0'
   s.summary          = 'Hippy Cross Platform Framework'
-
-# This description is used to generate tags and improve search results.
-#   * Think: What does it do? Why did you write it? What is the focus?
-#   * Try to keep it short, snappy and to the point.
-#   * Write the description between the DESC delimiters below.
-#   * Finally, don't worry about the indent, CocoaPods strips it!
-
   s.description      = <<-DESC
                         Hippy is designed for developers to easily build cross-platform and high-performance awesome apps.
                        DESC
@@ -25,25 +17,55 @@ Pod::Spec.new do |s|
   s.license          = { :type => 'Apache2', :file => 'LICENSE' }
   s.author           = 'OpenHippy Team'
   s.source           = {:git => 'https://github.com/Tencent/Hippy.git', :tag => s.version}
+  s.platform = :ios
   s.ios.deployment_target = '9.0'
-  s.source_files = 'ios/sdk/**/*.{h,m,c,mm,s,cpp,cc}'
-  s.public_header_files = 'ios/sdk/**/*.h'
-  s.default_subspec = 'core'
-  s.framework = 'JavaScriptCore'
-  s.libraries = 'c++'
+  s.requires_arc = true
+  s.module_map = false
+  s.default_subspec = 'iOSSDK'
+  s.pod_target_xcconfig = {
+    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+    'DEFINES_MODULE' => 'NO'
+  }
 
-
-  s.subspec 'core' do |cores|
-    puts 'hippy subspec \'core\' read begins'
-    cores.source_files = 'core/**/*.{h,cc}'
-    cores.public_header_files = 'core/include/**/*.h'
-    cores.exclude_files = ['core/include/core/napi/v8','core/src/napi/v8','core/js','core/third_party/base/src/platform/adr', 'core/include/core/inspector', 'core/src/inspector']
-    #this setting causes 'There are header files outside of the header_mappings_dir'
-    # cores.header_mappings_dir = 'core/include/'
-    cores.xcconfig = {
-      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/core/third_party/base/include/ ${PODS_ROOT}/hippy/core/include/',
-      'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17'
+  s.subspec 'core' do |ss|
+    ss.libraries = 'c++'
+    ss.framework = 'JavaScriptCore'
+    ss.dependency 'hippy/coreThirdParty'
+    ss.source_files = ['core/include/**/*.{h,cc}', 
+                       'core/src/**/*.{h,cc}']
+    ss.public_header_files = 'core/include/**/*.h'
+    ss.project_header_files = 'core/include/**/*.h'
+    ss.exclude_files = ['core/include/core/napi/v8',
+                        'core/include/core/inspector',
+                        'core/src/napi/v8',
+                        'core/src/inspector',
+                        'core/third_party/base/src/platform/adr']
+    ss.pod_target_xcconfig = {
+      'HEADER_SEARCH_PATHS' => '$(PODS_TARGET_SRCROOT)/core/include/',
     }
-    puts 'hippy subspec \'core\' read end'
+    ss.header_mappings_dir = 'core/include/'
   end 
+
+  s.subspec 'coreThirdParty' do |ss|
+    ss.libraries = 'c++'
+    ss.framework = 'JavaScriptCore'
+    ss.public_header_files = 'core/third_party/**/*.h'
+    ss.project_header_files = 'core/third_party/**/*.h'
+    ss.source_files = 'core/third_party/**/*.{h,cc}'
+    ss.exclude_files = ['core/third_party/base/src/platform/adr']
+    ss.header_mappings_dir = 'core/third_party/base/include/'
+    ss.pod_target_xcconfig = {
+      'HEADER_SEARCH_PATHS' => '$(PODS_TARGET_SRCROOT)/core/third_party/base/include/',
+    }
+  end
+
+  s.subspec 'iOSSDK' do |ss|
+    ss.dependency 'hippy/core'
+    ss.dependency 'hippy/coreThirdParty'
+    ss.frameworks = 'UIKit', 'QuartzCore', 'CFNetwork', 'CoreGraphics', 'CoreTelephony', 
+    'ImageIO', 'WebKit', 'SystemConfiguration', 'Security', 'CoreServices', 'Accelerate'
+    ss.public_header_files = 'ios/sdk/**/*.h'
+    ss.source_files = 'ios/sdk/**/*.{h,m,c,mm,s,cpp,cc}'
+  end
+
 end
