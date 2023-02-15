@@ -21,7 +21,7 @@
  */
 
 #import "HippyShadowView.h"
-
+#import "HippyShadowView+MTTLayout.h"
 #import "HippyConvert.h"
 #import "HippyLog.h"
 #import "HippyUtils.h"
@@ -62,12 +62,7 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
 @synthesize rootTag = _rootTag;
 @synthesize parent = _parent;
 
-// not used function
-// static void HippyPrint(void *context)
-//{
-//  HippyShadowView *shadowView = (__bridge HippyShadowView *)context;
-//  printf("%s(%zd), ", shadowView.viewName.UTF8String, shadowView.hippyTag.integerValue);
-//}
+
 #define DEFINE_PROCESS_META_PROPS(type)                                                                \
     static void HippyProcessMetaProps##type(const float metaProps[META_PROP_COUNT], MTTNodeRef node) { \
         if (!isnan(metaProps[META_PROP_LEFT])) {                                                       \
@@ -324,12 +319,10 @@ DEFINE_PROCESS_META_PROPS(Border);
         MTTNodeStyleSetPosition(_nodeRef, CSSTop, frame.origin.y);
     }
 
-    //  CSSNodeCalculateLayout(_cssNode, frame.size.width, frame.size.height, CSSDirectionInherit);
     NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
     MTTDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
     nodeDirection = self.layoutDirection != DirectionInherit ? self.layoutDirection : nodeDirection;
     MTTNodeDoLayout(_nodeRef, frame.size.width, frame.size.height, nodeDirection);
-    //  [self applyLayoutNode:_cssNode viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
     [self applyLayoutNode:_nodeRef viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
 }
 

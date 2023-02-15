@@ -20,11 +20,9 @@ Pod::Spec.new do |s|
   s.platform = :ios
   s.ios.deployment_target = '9.0'
   s.requires_arc = true
-  s.module_map = false
   s.default_subspec = 'iOSSDK'
   s.pod_target_xcconfig = {
     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-    'DEFINES_MODULE' => 'NO'
   }
 
   s.subspec 'core' do |ss|
@@ -35,6 +33,7 @@ Pod::Spec.new do |s|
                        'core/src/**/*.{h,cc}']
     ss.public_header_files = 'core/include/**/*.h'
     ss.project_header_files = 'core/include/**/*.h'
+    # ss.header_mappings_dir = 'core/include/'
     ss.exclude_files = ['core/include/core/napi/v8',
                         'core/include/core/inspector',
                         'core/src/napi/v8',
@@ -43,7 +42,6 @@ Pod::Spec.new do |s|
     ss.pod_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '$(PODS_TARGET_SRCROOT)/core/include/',
     }
-    ss.header_mappings_dir = 'core/include/'
   end 
 
   s.subspec 'coreThirdParty' do |ss|
@@ -51,21 +49,31 @@ Pod::Spec.new do |s|
     ss.framework = 'JavaScriptCore'
     ss.public_header_files = 'core/third_party/**/*.h'
     ss.project_header_files = 'core/third_party/**/*.h'
+    # ss.header_mappings_dir = 'core/third_party/base/include/'
     ss.source_files = 'core/third_party/**/*.{h,cc}'
     ss.exclude_files = ['core/third_party/base/src/platform/adr']
-    ss.header_mappings_dir = 'core/third_party/base/include/'
     ss.pod_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '$(PODS_TARGET_SRCROOT)/core/third_party/base/include/',
     }
   end
 
+  s.subspec 'MTTLayout' do |ss|
+    ss.libraries = 'c++'
+    ss.frameworks = 'UIKit', 'Foundation'
+    ss.source_files = 'ios/sdk/layout/**/*.{h,m,c,mm,s,cpp,cc}'
+    ss.public_header_files = 'ios/sdk/layout/**/MTTFlex.h'
+  end
+
   s.subspec 'iOSSDK' do |ss|
     ss.dependency 'hippy/core'
     ss.dependency 'hippy/coreThirdParty'
-    ss.frameworks = 'UIKit', 'QuartzCore', 'CFNetwork', 'CoreGraphics', 'CoreTelephony', 
+    ss.dependency 'hippy/MTTLayout'
+    ss.frameworks = 'UIKit', 'Foundation', 'QuartzCore', 'CFNetwork', 'CoreGraphics', 'CoreTelephony', 
     'ImageIO', 'WebKit', 'SystemConfiguration', 'Security', 'CoreServices', 'Accelerate'
     ss.public_header_files = 'ios/sdk/**/*.h'
+    ss.project_header_files = ['ios/sdk/**/HippyJSEnginesMapper.h', ]
     ss.source_files = 'ios/sdk/**/*.{h,m,c,mm,s,cpp,cc}'
+    ss.exclude_files = 'ios/sdk/layout/**/*.{h,m,c,mm,s,cpp,cc}'
   end
 
 end
