@@ -1,3 +1,7 @@
+## 0.0.15
+
+- update voltron_render to 0.0.8 to remove fluttertoast plugin
+
 ## 0.0.14
 
 - update voltron_render to 0.0.7 to fix modal size error

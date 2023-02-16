@@ -1,3 +1,7 @@
+## 0.0.8
+
+- remove fluttertoast plugin
+
 ## 0.0.7
 
 - fix modal size error
