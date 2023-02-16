@@ -72,7 +72,6 @@ framework/voltron/**/doc/api/
 .pub/
 /captures
 .flutter-plugins-dependencies
-pubspec.lock
 generated_plugin_registrant.dart
 GeneratedPluginRegistrant.java
 framework/voltron/**/.generated/
