@@ -25,7 +25,6 @@ project("dom")
 get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/.." REALPATH)
 
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/InfraPackagesModule.cmake")
-include("${PROJECT_ROOT_DIR}/buildconfig/cmake/GlobalPackagesModule.cmake")
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
 
 set(CMAKE_CXX_STANDARD 17)
@@ -58,7 +57,6 @@ elseif ("${LAYOUT_ENGINE}" STREQUAL "Taitank")
       REMOTE "dom/third_party/taitank/1.0.2/git-repo.tgz"
       LOCAL "third_party/taitank"
       )
-  target_include_directories(${PROJECT_NAME} PUBLIC ${taitank_SOURCE_DIR}/src)
   target_link_libraries(${PROJECT_NAME} PRIVATE taitank)
 else ()
   message(FATAL_ERROR "Layout Engine ${LAYOUT_ENGINE} is not supported")
