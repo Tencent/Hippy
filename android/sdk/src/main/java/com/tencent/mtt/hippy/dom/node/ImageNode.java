@@ -27,7 +27,6 @@ public class ImageNode extends StyleNode {
 
   @Deprecated
   public static final String PROP_VERTICAL_ALIGNMENT = "verticalAlignment";
-  public static final String PROP_VERTICAL_ALIGN = "verticalAlign";
 
   private final boolean mIsVirtual;
   private HippyImageSpan mImageSpan = null;
@@ -62,7 +61,14 @@ public class ImageNode extends StyleNode {
   }
 
   public String getVerticalAlign() {
-      return mVerticalAlign;
+      if (mVerticalAlign != null) {
+          return mVerticalAlign;
+      }
+      DomNode parent = getParent();
+      if (parent instanceof TextNode) {
+          return ((TextNode) parent).getVerticalAlign();
+      }
+      return null;
   }
 
   public boolean isVirtual() {
@@ -162,17 +168,17 @@ public class ImageNode extends StyleNode {
     mVerticalAlignment = verticalAlignment;
   }
 
-  @HippyControllerProps(name = PROP_VERTICAL_ALIGN, defaultType = HippyControllerProps.STRING)
+  @HippyControllerProps(name = TextNode.PROP_VERTICAL_ALIGN, defaultType = HippyControllerProps.STRING)
   public void setVerticalAlign(String align) {
       switch (align) {
-          case HippyImageSpan.V_ALIGN_TOP:
-          case HippyImageSpan.V_ALIGN_MIDDLE:
-          case HippyImageSpan.V_ALIGN_BASELINE:
-          case HippyImageSpan.V_ALIGN_BOTTOM:
+          case TextNode.V_ALIGN_TOP:
+          case TextNode.V_ALIGN_MIDDLE:
+          case TextNode.V_ALIGN_BASELINE:
+          case TextNode.V_ALIGN_BOTTOM:
               mVerticalAlign = align;
               break;
           default:
-              mVerticalAlign = HippyImageSpan.V_ALIGN_BASELINE;
+              mVerticalAlign = TextNode.V_ALIGN_BASELINE;
               break;
       }
   }

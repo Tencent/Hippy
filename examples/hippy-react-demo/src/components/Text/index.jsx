@@ -310,31 +310,35 @@ export default class TextExpo extends React.Component {
         <View style={[styles.itemContent, { height: Platform.OS === 'android' ? 160 : 70 }]}>
           <Text style={[styles.normalText,
             { lineHeight: 50, backgroundColor: '#4c9afa', paddingHorizontal: 10, paddingVertical: 5 }]}>
-            <Text style={{ fontSize: 16 }}>png</Text>
             <Image style={{ width: 24, height: 24, verticalAlign: 'top' }} source={{ uri: imgURL2 }} />
             <Image style={{ width: 18, height: 12, verticalAlign: 'middle' }} source={{ uri: imgURL2 }} />
             <Image style={{ width: 24, height: 12, verticalAlign: 'baseline' }} source={{ uri: imgURL2 }} />
             <Image style={{ width: 36, height: 24, verticalAlign: 'bottom' }} source={{ uri: imgURL2 }} />
-            <Text style={{ fontSize: 30 }}>GIF</Text>
             <Image style={{ width: 24, height: 24, verticalAlign: 'top' }} source={{ uri: imgURL4 }} />
             <Image style={{ width: 18, height: 12, verticalAlign: 'middle' }} source={{ uri: imgURL4 }} />
             <Image style={{ width: 24, height: 12, verticalAlign: 'baseline' }} source={{ uri: imgURL4 }} />
             <Image style={{ width: 36, height: 24, verticalAlign: 'bottom' }} source={{ uri: imgURL4 }} />
+            <Text style={{ fontSize: 16, verticalAlign: 'top' }}>字</Text>
+            <Text style={{ fontSize: 16, verticalAlign: 'middle' }}>字</Text>
+            <Text style={{ fontSize: 16, verticalAlign: 'baseline' }}>字</Text>
+            <Text style={{ fontSize: 16, verticalAlign: 'bottom' }}>字</Text>
           </Text>
           {Platform.OS === 'android' && (<>
             <Text>legacy verticalAlignment</Text>
             <Text style={[styles.normalText,
               { lineHeight: 50, backgroundColor: '#4c9afa', marginBottom: 10, paddingHorizontal: 10, paddingVertical: 5 }]}>
-              <Text style={{ fontSize: 16 }}>png</Text>
               <Image style={{ width: 24, height: 24, verticalAlignment: 0 }} source={{ uri: imgURL2 }} />
               <Image style={{ width: 18, height: 12, verticalAlignment: 1 }} source={{ uri: imgURL2 }} />
               <Image style={{ width: 24, height: 12, verticalAlignment: 2 }} source={{ uri: imgURL2 }} />
               <Image style={{ width: 36, height: 24, verticalAlignment: 3 }} source={{ uri: imgURL2 }} />
-              <Text style={{ fontSize: 30 }}>GIF</Text>
               <Image style={{ width: 24, height: 24, top: -10 }} source={{ uri: imgURL4 }} />
               <Image style={{ width: 18, height: 12, top: -5 }} source={{ uri: imgURL4 }} />
               <Image style={{ width: 24, height: 12 }} source={{ uri: imgURL4 }} />
               <Image style={{ width: 36, height: 24, top: 3 }} source={{ uri: imgURL4 }} />
+              <Text style={{ fontSize: 16 }}>字</Text>
+              <Text style={{ fontSize: 16 }}>字</Text>
+              <Text style={{ fontSize: 16 }}>字</Text>
+              <Text style={{ fontSize: 16 }}>字</Text>
             </Text>
           </>)}
         </View>
@@ -346,13 +350,13 @@ export default class TextExpo extends React.Component {
             <Image style={{ width: 24, height: 24, tintColor: 'orange' }} source={{ uri: imgURL2 }} />
             <Image style={{ width: 24, height: 24, backgroundColor: '#ccc' }} source={{ uri: imgURL2 }} />
             <Image style={{ width: 24, height: 24, tintColor: 'orange', backgroundColor: '#ccc' }} source={{ uri: imgURL2 }} />
-            <Text style={{ backgroundColor: '#090' }}>new:</Text>
+            <Text style={{ verticalAlign: 'middle', backgroundColor: '#090' }}>new:</Text>
             <Image style={{ width: 24, height: 24, verticalAlign: 'middle', tintColor: 'orange' }} source={{ uri: imgURL2 }} />
             <Image style={{ width: 24, height: 24, verticalAlign: 'middle', backgroundColor: '#ccc' }} source={{ uri: imgURL2 }} />
             <Image style={{ width: 24, height: 24, verticalAlign: 'middle', tintColor: 'orange', backgroundColor: '#ccc' }} source={{ uri: imgURL2 }} />
           </Text>
         </View>
-        {renderTitle('margin & padding')}
+        {renderTitle('margin')}
         <View style={[styles.itemContent]}>
           <Text style={[styles.normalText,
             { lineHeight: 50, backgroundColor: '#4c9afa', marginBottom: 5 }]}>
@@ -361,21 +365,13 @@ export default class TextExpo extends React.Component {
             <Image style={{ width: 24, height: 24, padding: 5 }} source={{ uri: imgURL2 }} />
             <Image style={{ width: 24, height: 24, margin: 5, padding: 5 }} source={{ uri: imgURL2 }} />
           </Text>
-          <Text style={[styles.normalText,
+          <Text style={[
             { lineHeight: 50, backgroundColor: '#4c9afa', marginBottom: 5 }]}>
             <Text>margin:</Text>
             <Image style={{ width: 24, height: 24, verticalAlign: 'top', backgroundColor: '#ccc', margin: 5 }} source={{ uri: imgURL2 }} />
             <Image style={{ width: 24, height: 24, verticalAlign: 'middle', backgroundColor: '#ccc', margin: 5 }} source={{ uri: imgURL2 }} />
             <Image style={{ width: 24, height: 24, verticalAlign: 'baseline', backgroundColor: '#ccc', margin: 5 }} source={{ uri: imgURL2 }} />
             <Image style={{ width: 24, height: 24, verticalAlign: 'bottom', backgroundColor: '#ccc', margin: 5 }} source={{ uri: imgURL2 }} />
-          </Text>
-          <Text style={[styles.normalText,
-            { lineHeight: 50, backgroundColor: '#4c9afa' }]}>
-            <Text>padding:</Text>
-            <Image style={{ width: 24, height: 24, verticalAlign: 'top', backgroundColor: '#ccc', padding: 5 }} source={{ uri: imgURL2 }} />
-            <Image style={{ width: 24, height: 24, verticalAlign: 'middle', backgroundColor: '#ccc', padding: 5 }} source={{ uri: imgURL2 }} />
-            <Image style={{ width: 24, height: 24, verticalAlign: 'baseline', backgroundColor: '#ccc', padding: 5 }} source={{ uri: imgURL2 }} />
-            <Image style={{ width: 24, height: 24, verticalAlign: 'bottom', backgroundColor: '#ccc', padding: 5 }} source={{ uri: imgURL2 }} />
           </Text>
         </View>
       </ScrollView>

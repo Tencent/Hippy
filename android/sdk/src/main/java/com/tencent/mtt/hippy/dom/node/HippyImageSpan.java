@@ -56,11 +56,6 @@ public class HippyImageSpan extends ImageSpan {
   public final static int STATE_LOADING = 1;
   public final static int STATE_LOADED = 2;
 
-  /*package*/ final static String V_ALIGN_TOP = "top";
-  /*package*/ final static String V_ALIGN_MIDDLE = "middle";
-  /*package*/ final static String V_ALIGN_BASELINE = "baseline";
-  /*package*/ final static String V_ALIGN_BOTTOM = "bottom";
-
   private final boolean mUseLegacy;
   private final String mVerticalAlign;
   @Deprecated
@@ -87,10 +82,6 @@ public class HippyImageSpan extends ImageSpan {
   private int mMarginTop;
   private int mMarginRight;
   private int mMarginBottom;
-  private int mPaddingLeft;
-  private int mPaddingTop;
-  private int mPaddingRight;
-  private int mPaddingBottom;
 
   @Deprecated
   private LegacyIAlignConfig alignConfig;
@@ -113,7 +104,7 @@ public class HippyImageSpan extends ImageSpan {
             mBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             mBackgroundPaint.setColor(node.getBackgroundColor());
         }
-        initEdge(node);
+        initMargin(node);
     }
   }
 
@@ -266,11 +257,8 @@ public class HippyImageSpan extends ImageSpan {
           mMeasuredHeight = mHeight;
       }
       if (fm != null) {
-          fm.ascent = -(mMeasuredHeight + mMarginTop + mMarginBottom);
-          fm.descent = 0;
-
-          fm.top = fm.ascent;
-          fm.bottom = 0;
+          fm.top = fm.ascent = -(mMeasuredHeight + mMarginTop + mMarginBottom);
+          fm.leading = fm.bottom = fm.descent = 0;
       }
 
       return mMeasuredWidth + mMarginLeft + mMarginRight;
@@ -302,40 +290,37 @@ public class HippyImageSpan extends ImageSpan {
       canvas.save();
       int transY;
       switch (mVerticalAlign) {
-          case V_ALIGN_TOP:
+          case TextNode.V_ALIGN_TOP:
               transY = top + mMarginTop;
               break;
-          case V_ALIGN_MIDDLE:
+          case TextNode.V_ALIGN_MIDDLE:
               transY = top + (bottom - top) / 2 - mMeasuredHeight / 2;
               break;
-          case V_ALIGN_BOTTOM:
+          case TextNode.V_ALIGN_BOTTOM:
               transY = bottom - mMeasuredHeight - mMarginBottom;
               break;
-          case V_ALIGN_BASELINE:
+          case TextNode.V_ALIGN_BASELINE:
           default:
               transY = y - mMeasuredHeight;
               break;
       }
 
+      canvas.translate(x + mMarginLeft, transY);
       if (mBackgroundPaint != null) {
-          canvas.translate(x + mMarginLeft, transY);
           canvas.drawRect(0, 0, mMeasuredWidth, mMeasuredHeight, mBackgroundPaint);
-          canvas.translate(mPaddingLeft, mPaddingTop);
-      } else {
-          canvas.translate(x + mMarginLeft + mPaddingLeft, transY + mPaddingTop);
       }
       if (mGifMovie != null) {
           updateGifTime();
-          float scaleX = (mMeasuredWidth - mPaddingLeft - mPaddingRight) / (float) mGifMovie.width();
-          float scaleY = (mMeasuredHeight - mPaddingTop - mPaddingBottom) / (float) mGifMovie.height();
+          float scaleX = mMeasuredWidth / (float) mGifMovie.width();
+          float scaleY = mMeasuredHeight / (float) mGifMovie.height();
           canvas.scale(scaleX, scaleY, 0, 0);
           mGifMovie.draw(canvas, 0, 0, mGifPaint);
           postInvalidateDelayed(40);
       } else {
           Drawable drawable = mSrcDrawable == null ? super.getDrawable() : mSrcDrawable;
           Rect rect = drawable.getBounds();
-          float scaleX = (mMeasuredWidth - mPaddingLeft - mPaddingRight) / (float) rect.right;
-          float scaleY = (mMeasuredHeight - mPaddingTop - mPaddingBottom) / (float) rect.bottom;
+          float scaleX = mMeasuredWidth / (float) rect.right;
+          float scaleY = mMeasuredHeight / (float) rect.bottom;
           canvas.scale(scaleX, scaleY, 0, 0);
           drawable.draw(canvas);
       }
@@ -543,7 +528,7 @@ public class HippyImageSpan extends ImageSpan {
       }
   }
 
-  private void initEdge(ImageNode node) {
+  private void initMargin(ImageNode node) {
       int margin = Math.round(node.getMargin(Edge.EDGE_ALL.ordinal()));
       int marginHorizontal = getValue(Math.round(node.getMargin(Edge.EDGE_HORIZONTAL.ordinal())), margin);
       int marginVertical = getValue(Math.round(node.getMargin(Edge.EDGE_VERTICAL.ordinal())), margin);
@@ -551,14 +536,6 @@ public class HippyImageSpan extends ImageSpan {
       mMarginRight = getValue(Math.round(node.getMargin(Edge.EDGE_RIGHT.ordinal())), marginHorizontal);
       mMarginTop = getValue(Math.round(node.getMargin(Edge.EDGE_TOP.ordinal())), marginVertical);
       mMarginBottom = getValue(Math.round(node.getMargin(Edge.EDGE_BOTTOM.ordinal())), marginVertical);
-
-      int padding = Math.round(node.getPadding(Edge.EDGE_ALL.ordinal()));
-      int paddingHorizontal = getValue(Math.round(node.getPadding(Edge.EDGE_HORIZONTAL.ordinal())), padding);
-      int paddingVertical = getValue(Math.round(node.getPadding(Edge.EDGE_VERTICAL.ordinal())), padding);
-      mPaddingLeft = getValue(Math.round(node.getPadding(Edge.EDGE_LEFT.ordinal())), paddingHorizontal);
-      mPaddingRight = getValue(Math.round(node.getPadding(Edge.EDGE_RIGHT.ordinal())), paddingHorizontal);
-      mPaddingTop = getValue(Math.round(node.getPadding(Edge.EDGE_TOP.ordinal())), paddingVertical);
-      mPaddingBottom = getValue(Math.round(node.getPadding(Edge.EDGE_BOTTOM.ordinal())), paddingVertical);
   }
 
   private static int getValue(int primary, int secondary) {
