@@ -60,7 +60,7 @@ interface LegacyIAlignConfig {
         CharSequence text, int start, int end,
         float baseLineX, int lineTop, int baselineY, int lintBottom,
         @NonNull Paint paint,
-        Drawable drawable);
+        Drawable drawable, @Nullable Paint backgroundPaint);
 
     abstract class BaseAlignConfig implements LegacyIAlignConfig {
 
@@ -161,7 +161,7 @@ interface LegacyIAlignConfig {
             CharSequence text, int start, int end,
             float baseLineX, int lineTop, int baselineY, int lineBottom,
             @NonNull Paint paint,
-            Drawable drawable) {
+            Drawable drawable, @Nullable Paint backgroundPaint) {
             Rect drawableBounds = drawable.getBounds();
 
             int dWidth = size[0];
@@ -182,6 +182,9 @@ interface LegacyIAlignConfig {
             canvas.save();
             canvas.translate(baseLineX + marginLeft, transY);
             canvas.scale(scaleX, scaleY);
+            if (backgroundPaint != null) {
+                canvas.drawRect(0, 0, dWidth, dHeight, backgroundPaint);
+            }
             drawable.draw(canvas);
             canvas.restore();
         }

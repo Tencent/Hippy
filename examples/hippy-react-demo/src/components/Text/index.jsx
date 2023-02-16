@@ -324,7 +324,7 @@ export default class TextExpo extends React.Component {
             <Text style={{ fontSize: 16, verticalAlign: 'bottom' }}>字</Text>
           </Text>
           {Platform.OS === 'android' && (<>
-            <Text>legacy verticalAlignment</Text>
+            <Text>legacy mode:</Text>
             <Text style={[styles.normalText,
               { lineHeight: 50, backgroundColor: '#4c9afa', marginBottom: 10, paddingHorizontal: 10, paddingVertical: 5 }]}>
               <Image style={{ width: 24, height: 24, verticalAlignment: 0 }} source={{ uri: imgURL2 }} />
@@ -345,34 +345,41 @@ export default class TextExpo extends React.Component {
         {renderTitle('tintColor & backgroundColor')}
         <View style={[styles.itemContent]}>
           <Text style={[styles.normalText,
-            { lineHeight: 50, backgroundColor: '#4c9afa', paddingHorizontal: 10, paddingVertical: 5 }]}>
-            <Text style={{ color: '#900' }}>legacy:</Text>
-            <Image style={{ width: 24, height: 24, tintColor: 'orange' }} source={{ uri: imgURL2 }} />
-            <Image style={{ width: 24, height: 24, backgroundColor: '#ccc' }} source={{ uri: imgURL2 }} />
-            <Image style={{ width: 24, height: 24, tintColor: 'orange', backgroundColor: '#ccc' }} source={{ uri: imgURL2 }} />
-            <Text style={{ verticalAlign: 'middle', backgroundColor: '#090' }}>new:</Text>
+            { lineHeight: 30, backgroundColor: '#4c9afa', paddingHorizontal: 10, paddingVertical: 5 }]}>
             <Image style={{ width: 24, height: 24, verticalAlign: 'middle', tintColor: 'orange' }} source={{ uri: imgURL2 }} />
-            <Image style={{ width: 24, height: 24, verticalAlign: 'middle', backgroundColor: '#ccc' }} source={{ uri: imgURL2 }} />
             <Image style={{ width: 24, height: 24, verticalAlign: 'middle', tintColor: 'orange', backgroundColor: '#ccc' }} source={{ uri: imgURL2 }} />
+            <Image style={{ width: 24, height: 24, verticalAlign: 'middle', backgroundColor: '#ccc' }} source={{ uri: imgURL2 }} />
+            <Text style={{ verticalAlign: 'middle', backgroundColor: '#090' }}>text</Text>
           </Text>
+          {Platform.OS === 'android' && (<>
+            <Text>legacy mode:</Text>
+            <Text style={[styles.normalText,
+              { lineHeight: 30, backgroundColor: '#4c9afa', marginBottom: 10, paddingHorizontal: 10, paddingVertical: 5 }]}>
+              <Image style={{ width: 24, height: 24, tintColor: 'orange' }} source={{ uri: imgURL2 }} />
+              <Image style={{ width: 24, height: 24, tintColor: 'orange', backgroundColor: '#ccc' }} source={{ uri: imgURL2 }} />
+              <Image style={{ width: 24, height: 24, backgroundColor: '#ccc' }} source={{ uri: imgURL2 }} />
+            </Text>
+          </>)}
         </View>
         {renderTitle('margin')}
         <View style={[styles.itemContent]}>
-          <Text style={[styles.normalText,
-            { lineHeight: 50, backgroundColor: '#4c9afa', marginBottom: 5 }]}>
-            <Text>legacy:</Text>
-            <Image style={{ width: 24, height: 24, margin: 5 }} source={{ uri: imgURL2 }} />
-            <Image style={{ width: 24, height: 24, padding: 5 }} source={{ uri: imgURL2 }} />
-            <Image style={{ width: 24, height: 24, margin: 5, padding: 5 }} source={{ uri: imgURL2 }} />
-          </Text>
           <Text style={[
             { lineHeight: 50, backgroundColor: '#4c9afa', marginBottom: 5 }]}>
-            <Text>margin:</Text>
             <Image style={{ width: 24, height: 24, verticalAlign: 'top', backgroundColor: '#ccc', margin: 5 }} source={{ uri: imgURL2 }} />
             <Image style={{ width: 24, height: 24, verticalAlign: 'middle', backgroundColor: '#ccc', margin: 5 }} source={{ uri: imgURL2 }} />
             <Image style={{ width: 24, height: 24, verticalAlign: 'baseline', backgroundColor: '#ccc', margin: 5 }} source={{ uri: imgURL2 }} />
             <Image style={{ width: 24, height: 24, verticalAlign: 'bottom', backgroundColor: '#ccc', margin: 5 }} source={{ uri: imgURL2 }} />
           </Text>
+          {Platform.OS === 'android' && (<>
+            <Text>legacy mode:</Text>
+            <Text style={[styles.normalText,
+              { lineHeight: 50, backgroundColor: '#4c9afa', marginBottom: 10, paddingHorizontal: 10, paddingVertical: 5 }]}>
+              <Image style={{ width: 24, height: 24, verticalAlignment: 0, backgroundColor: '#ccc', margin: 5 }} source={{ uri: imgURL2 }} />
+              <Image style={{ width: 24, height: 24, verticalAlignment: 1, backgroundColor: '#ccc', margin: 5 }} source={{ uri: imgURL2 }} />
+              <Image style={{ width: 24, height: 24, verticalAlignment: 2, backgroundColor: '#ccc', margin: 5 }} source={{ uri: imgURL2 }} />
+              <Image style={{ width: 24, height: 24, verticalAlignment: 3, backgroundColor: '#ccc', margin: 5 }} source={{ uri: imgURL2 }} />
+            </Text>
+          </>)}
         </View>
       </ScrollView>
     );

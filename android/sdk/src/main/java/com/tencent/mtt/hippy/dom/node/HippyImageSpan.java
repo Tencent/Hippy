@@ -97,13 +97,13 @@ public class HippyImageSpan extends ImageSpan {
     mWidth = Math.round(node.getStyleWidth());
     mHeight = Math.round(node.getStyleHeight());
     setUrl(source);
+    if (node.hasBackgroundColor()) {
+      mBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+      mBackgroundPaint.setColor(node.getBackgroundColor());
+    }
     if (mUseLegacy) {
         alignConfig = LegacyIAlignConfig.fromVerticalAlignment(node.getVerticalAlignment());
     } else {
-        if (node.hasBackgroundColor()) {
-            mBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            mBackgroundPaint.setColor(node.getBackgroundColor());
-        }
         initMargin(node);
     }
   }
@@ -227,6 +227,9 @@ public class HippyImageSpan extends ImageSpan {
     }
     updateGifTime();
 
+    if (mBackgroundPaint != null) {
+      canvas.drawRect(left, top, left + width, top + height, mBackgroundPaint);
+    }
     float mGifScaleX = width / (float) mGifMovie.width();
     float mGifScaleY = height / (float) mGifMovie.height();
     float x = (mGifScaleX != 0) ? left / mGifScaleX : left;
@@ -344,7 +347,7 @@ public class HippyImageSpan extends ImageSpan {
         text, start, end,
         x, top, y, bottom,
         paint,
-        drawable);
+        drawable, mBackgroundPaint);
     }
   }
 
@@ -510,14 +513,13 @@ public class HippyImageSpan extends ImageSpan {
   }
 
   public void setBackgroundColor(int color) {
-      if (mUseLegacy) {
-          return;
-      }
       Runnable action = () -> {
           if (color == Color.TRANSPARENT) {
               mBackgroundPaint = null;
           } else {
-              mBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+              if (mBackgroundPaint == null) {
+                  mBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+              }
               mBackgroundPaint.setColor(color);
           }
       };

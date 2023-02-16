@@ -44,7 +44,6 @@ import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
 import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.dom.flex.FlexConstants;
 import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
 import com.tencent.mtt.hippy.dom.flex.FlexNodeAPI;
 import com.tencent.mtt.hippy.dom.flex.FlexOutput;
