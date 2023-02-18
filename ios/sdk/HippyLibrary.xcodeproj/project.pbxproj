@@ -204,6 +204,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		71BBA19C299D0D790021B160 /* HippyShadowView+MTTLayout.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "HippyShadowView+MTTLayout.h"; sourceTree = "<group>"; };
 		F4C9286C291C96010078351C /* libhippy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libhippy.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4C928B0291C9B3A0078351C /* engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = engine.h; sourceTree = "<group>"; };
 		F4C928B1291C9B3A0078351C /* core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = core.h; sourceTree = "<group>"; };
@@ -1283,6 +1284,7 @@
 				F4C929FE291C9B4E0078351C /* HippyBackgroundImageCacheManager.h */,
 				F4C929FF291C9B4E0078351C /* UIView+Hippy.mm */,
 				F4C92A00291C9B4E0078351C /* HippyShadowView.h */,
+				71BBA19C299D0D790021B160 /* HippyShadowView+MTTLayout.h */,
 				F4C92A01291C9B4E0078351C /* HippyPointerEvents.h */,
 				F4C92A02291C9B4E0078351C /* HippyViewManager.mm */,
 				F4C92A03291C9B4E0078351C /* HippyViewEventProtocol.h */,
