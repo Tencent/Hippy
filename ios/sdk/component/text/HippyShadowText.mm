@@ -32,6 +32,7 @@
 #import "HippyUtils.h"
 #import "HippyVirtualTextNode.h"
 #import "HippyI18nUtils.h"
+#import "HippyShadowView+MTTLayout.h"
 
 NSString *const HippyShadowViewAttributeName = @"HippyShadowViewAttributeName";
 NSString *const HippyIsHighlightedAttributeName = @"IsHighlightedAttributeName";

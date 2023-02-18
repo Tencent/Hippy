@@ -26,12 +26,14 @@
 
 #import "HippyBridgeModule.h"
 #import "HippyInvalidating.h"
+
+#ifdef __cplusplus
 #include <memory>
+class Scope;
+#endif
 
 typedef void (^HippyJavaScriptCompleteBlock)(NSError *error);
 typedef void (^HippyJavaScriptCallback)(id result, NSError *error);
-
-class Scope;
 
 /**
  * Abstracts away a JavaScript execution context - we may be running code in a
@@ -52,10 +54,14 @@ class Scope;
 @property (nonatomic, readonly, getter=isValid) BOOL valid;
 
 @property (nonatomic, copy) NSString *executorkey;
-/*
- *hippy-core js engine
- */
+
+#ifdef __cplusplus
 @property (atomic, assign) std::shared_ptr<Scope> pScope;
+#endif
+
+/**
+ * hippy-core js engine
+ */
 @property (readonly) JSGlobalContextRef JSGlobalContextRef;
 /**
  * Executes BatchedBridge.flushedQueue on JS thread and calls the given callback
