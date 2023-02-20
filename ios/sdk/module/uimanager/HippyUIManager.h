@@ -97,7 +97,7 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  * Update the frame of a view. This might be in response to a screen rotation
  * or some other layout event outside of the Hippy-managed view hierarchy.
  */
-- (void)setFrame:(CGRect)frame forView:(UIView *)view;
+- (void)setFrame:(CGRect)frame fromOriginFrame:(CGRect)originFrame forView:(UIView *)view;
 
 /**
  * Set the natural size of a view, which is used when no explicit size is set.

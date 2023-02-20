@@ -54,17 +54,20 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : coder)
         _isPresented = NO;
 
         __weak __typeof(self) weakSelf = self;
-        _modalViewController.boundsDidChangeBlock = ^(CGRect newBounds) {
-            [weakSelf notifyForBoundsChange:newBounds];
+        _modalViewController.boundsDidChangeBlock = ^(CGRect oldBounds, CGRect newBounds) {
+            HippyModalHostView *strongSelf = weakSelf;
+            if (strongSelf) {
+                [weakSelf notifyForBoundsChange:newBounds oldBounds:oldBounds];
+            }
         };
     }
 
     return self;
 }
 
-- (void)notifyForBoundsChange:(CGRect)newBounds {
+- (void)notifyForBoundsChange:(CGRect)newBounds oldBounds:(CGRect)oldBounds {
     if (_hippySubview && _isPresented) {
-        [_bridge.uiManager setFrame:newBounds forView:_hippySubview];
+        [_bridge.uiManager setFrame:newBounds fromOriginFrame:oldBounds forView:_hippySubview];
         [self notifyForOrientationChange];
     }
 }
