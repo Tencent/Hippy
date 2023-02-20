@@ -28,6 +28,7 @@ import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.renderer.tdf.embed.TDFEmbeddedViewFactoryImpl;
 import com.tencent.tdf.embed.EmbeddedViewFactory;
+import com.tencent.renderer.NativeRenderer;
 
 import com.tencent.vfs.VfsManager;
 import java.util.ArrayList;
@@ -59,6 +60,8 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
 
     private final List<Class<?>> mControllers = new ArrayList<>();
 
+    private NativeRenderer mNativeRenderer;
+
     public TDFRenderer(int instanceId) {
         mInstanceId = instanceId;
     }
@@ -85,7 +88,9 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
         if (!(context instanceof Activity)) {
             throw new RuntimeException("Unsupported Host");
         }
-        mRootView = new TDFHippyRootView(context);
+        // TODO(etkmao):
+        mNativeRenderer = new NativeRenderer();
+        mRootView = new TDFHippyRootView(context, mNativeRenderer.getInstanceId(), rootId);
         mRootView.setId(mRootViewId);
         TDFRenderEngine engine = mRootView.getTDFEngine();
         registerTDFEngine(mInstanceId, engine.getJNI().getnativeEngine(), mRootViewId);

@@ -37,8 +37,8 @@ public class TDFHippyRootView extends FrameLayout {
     private TDFRenderEngine mTDFEngine;
     private TDFOutputView mTDFView;
 
-    public TDFHippyRootView(Context context) {
-        super(context);
+    public TDFHippyRootView(Context context, int instanceId, int rootId) {
+        super(new NativeRenderContext(context, instanceId, rootId));
         mContext = context;
         mTDFEngine = setupTDFEngine();
         mTDFView = createTDFView(mTDFEngine);
