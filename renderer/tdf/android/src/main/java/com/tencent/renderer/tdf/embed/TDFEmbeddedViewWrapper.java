@@ -54,7 +54,7 @@ public class TDFEmbeddedViewWrapper implements EmbeddedView {
     @Override
     public void updateProps(Map<String, String> propsMap) {
         EmbeddedView.super.updateProps(propsMap);
-        mControllerManager.updateProps(mRenderNode, parsePropsStringToMap(propsMap), null, null, false);
+        mControllerManager.updateProps(mRenderNode, parsePropsStringToMap(propsMap), null, null, true);
     }
 
     private Map<String, Object> parsePropsStringToMap(Map<String, String> propsMap) {
