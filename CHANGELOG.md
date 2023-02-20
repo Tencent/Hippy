@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.15.6](https://github.com/Tencent/Hippy/compare/2.15.5...2.15.6) (2023-02-20)
+
+
+### Bug Fixes
+
+* **android:** pull header/footer collapse animation ([9608471](https://github.com/Tencent/Hippy/commit/96084712c6c84b5ffc2d55777689189dc757ffcc))
+* **android:** send scroll event when pulling header/footer ([573dcc0](https://github.com/Tencent/Hippy/commit/573dcc03107b84a71e3fd1fd2284c4cd9a796cfa))
+* **devtools:** callback fail when debug ws disconnect ([203d6f3](https://github.com/Tencent/Hippy/commit/203d6f36fad9c6b42149287f7a465cb45ab17737))
+* **devtools:** fix try catch exception when update context ([2808404](https://github.com/Tencent/Hippy/commit/28084041c0c1209926360bb1fd0e9c44e80ec046))
+* **devtools:** remove regular expression injection ([#2865](https://github.com/Tencent/Hippy/issues/2865)) ([78161d0](https://github.com/Tencent/Hippy/commit/78161d0b4dd1dd8b521f2f98fe4797bd67ded410))
+* **ios:** fix ConsoleModule.log not working ([#2812](https://github.com/Tencent/Hippy/issues/2812)) ([04c266e](https://github.com/Tencent/Hippy/commit/04c266e137e9b80a0fabcfd63d6b4aad51e9ed0c))
+* **iOS:** gif is play fast at high fresh rate device ([2ec1b35](https://github.com/Tencent/Hippy/commit/2ec1b35749b5d505cfaef4e8d6ab2cb5a44b908d))
+
+
+### Features
+
+* **core:** remove default HeapLimitSlowGrowthStrategy ([0a2ec24](https://github.com/Tencent/Hippy/commit/0a2ec2445bcc24eb7a49954c64fc629bfac0d182))
+
+
+
+
+
 ## [2.15.5](https://github.com/Tencent/Hippy/compare/2.15.4...2.15.5) (2022-12-07)
 
 
