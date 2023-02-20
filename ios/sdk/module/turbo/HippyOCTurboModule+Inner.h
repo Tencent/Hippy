@@ -22,6 +22,7 @@
 
 #ifndef HippyOCTurboModule_Inner_h
 #define HippyOCTurboModule_Inner_h
+#ifdef __cplusplus
 
 #import <core/napi/jsc/js_native_turbo_jsc.h>
 #import "HippyOCTurboModule.h"
@@ -34,4 +35,5 @@
 
 @end
 
+#endif /* __cplusplus */
 #endif /* HippyOCTurboModule_Inner_h */
