@@ -160,7 +160,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   using DomArgument = hippy::dom::DomArgument;
   using DomStyleMap = std::unordered_map<std::string, std::shared_ptr<footstone::HippyValue>>;
   using RenderInfo = hippy::dom::DomNode::RenderInfo;
-  using node_creator = std::function<std::shared_ptr<ViewNode>(RenderInfo)>;
+  using node_creator = std::function<std::shared_ptr<ViewNode>(RenderInfo, std::string)>;
   using Point = tdfcore::TPoint;
 
   ViewNode(const RenderInfo info, std::shared_ptr<tdfcore::View> view = nullptr);

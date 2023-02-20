@@ -19,6 +19,7 @@
  */
 
 #include "renderer/tdf/viewnode/embedded_view_node.h"
+#include <nlohmann/json.hpp>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wsign-conversion"
@@ -47,8 +48,47 @@ std::shared_ptr<tdfcore::View> EmbeddedViewNode::CreateView() {
 
 void EmbeddedViewNode::HandleStyleUpdate(const DomStyleMap &dom_style) {
   ViewNode::HandleStyleUpdate(dom_style);
-  property_ = {{kNodeInfoProps, ""}};
+  auto s = DomStyleMap2Json(dom_style);
+  property_ = {{kNodeInfoProps, s}};
   GetView<tdfcore::EmbeddedView>()->SetProperty(property_);
+}
+
+std::string EmbeddedViewNode::DomStyleMap2Json(const DomStyleMap &dom_style) {
+  nlohmann::json j;
+
+  for (auto& kv : dom_style) {
+    auto value = kv.second;
+    if (value->IsString()) {
+      j[kv.first] = value->ToStringChecked();
+    } else if (value->IsBoolean()) {
+      j[kv.first] = value->ToBooleanChecked();
+    } else if (value->IsInt32()) {
+      j[kv.first] = value->ToInt32Checked();
+    } else if (value->IsUInt32()) {
+      j[kv.first] = value->ToUint32Checked();
+    } else if (value->IsDouble()) {
+      j[kv.first] = value->ToDoubleChecked();
+    } else if (value->IsObject()) {
+      auto sub_obj = value->ToObjectChecked();
+      for (auto& sub_kv : sub_obj) {
+        auto sub_value = sub_kv.second;
+        if (sub_value.IsString()) {
+          j[kv.first][sub_kv.first] = sub_value.ToStringChecked();
+        } else if (sub_value.IsBoolean()) {
+          j[kv.first][sub_kv.first] = sub_value.ToBooleanChecked();
+        } else if (sub_value.IsInt32()) {
+          j[kv.first][sub_kv.first] = sub_value.ToInt32Checked();
+        } else if (sub_value.IsUInt32()) {
+          j[kv.first][sub_kv.first] = sub_value.ToUint32Checked();
+        } else if (sub_value.IsDouble()) {
+          j[kv.first][sub_kv.first] = sub_value.ToDoubleChecked();
+        }
+      }
+    }
+  }
+
+  std::string s = j.dump();
+  return s;
 }
 
 }  // namespace tdf

@@ -86,12 +86,12 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
             throw new RuntimeException("Unsupported Host");
         }
         mRootView = new TDFHippyRootView(context);
+        mRootView.setId(mRootViewId);
         TDFRenderEngine engine = mRootView.getTDFEngine();
         registerTDFEngine(mInstanceId, engine.getJNI().getnativeEngine(), mRootViewId);
         LogUtils.d(TAG, "onTDFEngineCreate: " + engine.getJNI().getnativeEngine());
         engine.registerLifecycleListener(TDFRenderer.this);
         registerControllers(mRootViewId, mControllers, mRootView, TDFRenderer.this, engine);
-        mRootView.setId(mRootViewId);
         return mRootView;
     }
 

@@ -46,7 +46,7 @@ public class TDFEmbeddedViewFactoryImpl extends EmbeddedViewFactory {
     @Override
     public EmbeddedView create(Context context, int viewId, Map<String, String> propsMap) {
         assert (!mViewType.isEmpty());
-        RenderNode node = new RenderNode(mRootId, viewId, mViewType, mControllerManager);
+        RenderNode node = new RenderNode(mRootId, viewId, parsePropsStringToMap(propsMap), mViewType, mControllerManager, false);
         View view = mControllerManager.createView(node, NativeRenderPool.PoolType.NONE);
         return new TDFEmbeddedViewWrapper(mRootId, mControllerManager, view, viewId, mViewType);
     }

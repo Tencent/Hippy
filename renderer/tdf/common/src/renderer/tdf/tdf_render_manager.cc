@@ -54,34 +54,61 @@ using string_view = footstone::stringview::string_view;
 
 void InitNodeCreator() {
   RegisterNodeCreator(hippy::render::tdf::kViewName,
-                      [](RenderInfo info) { return TDF_MAKE_SHARED(hippy::render::tdf::ViewNode, info); });
+                      [](RenderInfo info, std::string view_name) {
+    return TDF_MAKE_SHARED(hippy::render::tdf::ViewNode, info);
+  });
   RegisterNodeCreator(hippy::render::tdf::kTextViewName,
-                      [](RenderInfo info) { return TDF_MAKE_SHARED(hippy::render::tdf::TextViewNode, info); });
+                      [](RenderInfo info, std::string view_name) {
+    return TDF_MAKE_SHARED(hippy::render::tdf::TextViewNode, info);
+  });
   RegisterNodeCreator(hippy::render::tdf::kImageViewName,
-                      [](RenderInfo info) { return TDF_MAKE_SHARED(hippy::render::tdf::ImageViewNode, info); });
+                      [](RenderInfo info, std::string view_name) {
+    return TDF_MAKE_SHARED(hippy::render::tdf::ImageViewNode, info);
+  });
   RegisterNodeCreator(hippy::render::tdf::kListViewName,
-                      [](RenderInfo info) { return TDF_MAKE_SHARED(hippy::render::tdf::ListViewNode, info); });
+                      [](RenderInfo info, std::string view_name) {
+    return TDF_MAKE_SHARED(hippy::render::tdf::ListViewNode, info);
+  });
   RegisterNodeCreator(hippy::render::tdf::kTextInputViewName,
-                      [](RenderInfo info) { return TDF_MAKE_SHARED(hippy::render::tdf::TextInputNode, info); });
-  RegisterNodeCreator(hippy::render::tdf::kListViewItemName, [](RenderInfo info) {
+                      [](RenderInfo info, std::string view_name) {
+    return TDF_MAKE_SHARED(hippy::render::tdf::TextInputNode, info);
+  });
+  RegisterNodeCreator(hippy::render::tdf::kListViewItemName,
+                      [](RenderInfo info, std::string view_name) {
     return TDF_MAKE_SHARED(hippy::render::tdf::ListViewItemNode, info);
   });
   RegisterNodeCreator(hippy::render::tdf::kScrollViewName,
-                      [](RenderInfo info) { return std::make_shared<hippy::render::tdf::ScrollViewNode>(info); });
-  RegisterNodeCreator(hippy::render::tdf::kWebViewName, [](RenderInfo render_info) {
-    return std::make_shared<hippy::render::tdf::EmbeddedViewNode>(render_info,
-                                                                        hippy::render::tdf::kWebViewName);
+                      [](RenderInfo info, std::string view_name) {
+    return std::make_shared<hippy::render::tdf::ScrollViewNode>(info);
+  });
+  RegisterNodeCreator(hippy::render::tdf::kWebViewName,
+                      [](RenderInfo info, std::string view_name) {
+    return std::make_shared<hippy::render::tdf::EmbeddedViewNode>(info, hippy::render::tdf::kWebViewName);
   });
   RegisterNodeCreator(hippy::render::tdf::kModaViewName,
-                      [](RenderInfo info) { return TDF_MAKE_SHARED(hippy::render::tdf::ModalViewNode, info); });
+                      [](RenderInfo info, std::string view_name) {
+    return TDF_MAKE_SHARED(hippy::render::tdf::ModalViewNode, info);
+  });
   RegisterNodeCreator(hippy::render::tdf::kViewPagerName,
-                      [](RenderInfo info) { return TDF_MAKE_SHARED(hippy::render::tdf::ViewPagerNode, info); });
-  RegisterNodeCreator(hippy::render::tdf::kRefreshWrapperName, [](RenderInfo info) {
+                      [](RenderInfo info, std::string view_name) {
+    return TDF_MAKE_SHARED(hippy::render::tdf::ViewPagerNode, info);
+  });
+  RegisterNodeCreator(hippy::render::tdf::kViewPagerItemName,
+                      [](RenderInfo info, std::string view_name) {
+    return TDF_MAKE_SHARED(hippy::render::tdf::ViewNode, info);
+  });
+  RegisterNodeCreator(hippy::render::tdf::kRefreshWrapperName,
+                      [](RenderInfo info, std::string view_name) {
     return TDF_MAKE_SHARED(hippy::render::tdf::RefreshWrapperNode, info);
   });
-  RegisterNodeCreator(hippy::render::tdf::kRefreshWrapperItemViewName, [](RenderInfo info) {
+  RegisterNodeCreator(hippy::render::tdf::kRefreshWrapperItemViewName,
+                      [](RenderInfo info, std::string view_name) {
     return TDF_MAKE_SHARED(hippy::render::tdf::RefreshWrapperItemNode, info);
   });
+
+  embedded_node_creator_ = [](RenderInfo info, std::string view_name) -> std::shared_ptr<ViewNode> {
+    return std::make_shared<hippy::render::tdf::EmbeddedViewNode>(info, view_name);
+  };
 }
 
 void RegisterNodeCreator(const std::string& view_name, const node_creator& creator) {
@@ -93,7 +120,7 @@ node_creator GetNodeCreator(const std::string& view_name) {
   if (result != node_creator_tables_.end()) {
     return result->second;
   }
-  return node_creator_tables_.find(hippy::render::tdf::kViewName)->second;
+  return embedded_node_creator_;
 }
 
 TDFRenderManager::TDFRenderManager() : RenderManager("TDFRenderManager") {
@@ -155,7 +182,7 @@ void TDFRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
                                       std::vector<std::shared_ptr<hippy::dom::DomNode>>&& nodes) {
   CHECK_ROOT()
   FOR_EACH_TEXT_NODE(
-      auto view_node = GetNodeCreator(node->GetViewName())(node->GetRenderInfo());
+      auto view_node = GetNodeCreator(node->GetViewName())(node->GetRenderInfo(), node->GetViewName());
       auto text_view_node = std::static_pointer_cast<tdf::TextViewNode>(view_node);
       text_view_node->SyncTextAttributes(node);
       tdf::TextViewNode::RegisterMeasureFunction(node, text_view_node);
@@ -181,7 +208,7 @@ void TDFRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
       if (node->GetViewName() == tdf::kTextViewName) {
         view_node = tdf::TextViewNode::FindLayoutTextViewNode(node);
       } else {
-        view_node = GetNodeCreator(node->GetViewName())(node->GetRenderInfo());
+        view_node = GetNodeCreator(node->GetViewName())(node->GetRenderInfo(), node->GetViewName());
       }
       root_view_node->RegisterViewNode(node->GetId(), view_node);
       view_node->OnCreate();
