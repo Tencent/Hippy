@@ -32,11 +32,11 @@ typedef NS_ENUM(NSInteger, HippyTextDecorationLineType) {
 /// Vertical alignment enum for text attachment,
 /// similar to vertical-align in CSS (layout is different)
 ///
-/// Default is baseline
-typedef NS_ENUM(NSInteger, HippyTextAttachmentVerticalAlign) {
-    HippyTextAttachmentVerticalAlignBaseline = 0,
-    HippyTextAttachmentVerticalAlignBottom = 1,
-    HippyTextAttachmentVerticalAlignMiddle = 2,
-    HippyTextAttachmentVerticalAlignTop = 3,
-    
+/// Default（Undefined）is middle
+typedef NS_ENUM(NSInteger, HippyTextVerticalAlignType) {
+    HippyTextVerticalAlignUndefined = 0,
+    HippyTextVerticalAlignBaseline = 1,
+    HippyTextVerticalAlignBottom = 2,
+    HippyTextVerticalAlignMiddle = 3,
+    HippyTextVerticalAlignTop = 4,
 };

@@ -1334,15 +1334,15 @@
 		F4C92A21291C9B4E0078351C /* text */ = {
 			isa = PBXGroup;
 			children = (
-				F4C92A22291C9B4E0078351C /* HippyVirtualTextNode.h */,
-				F4C92A23291C9B4E0078351C /* HippyShadowText.mm */,
-				F4C92A24291C9B4E0078351C /* HippyShadowText.h */,
-				F4C92A25291C9B4E0078351C /* HippyText.mm */,
-				F4C92A26291C9B4E0078351C /* HippyVirtualTextNode.m */,
 				F4C92A27291C9B4E0078351C /* HippyText.h */,
+				F4C92A25291C9B4E0078351C /* HippyText.mm */,
+				F4C92A24291C9B4E0078351C /* HippyShadowText.h */,
+				F4C92A23291C9B4E0078351C /* HippyShadowText.mm */,
+				F4C92A22291C9B4E0078351C /* HippyVirtualTextNode.h */,
+				F4C92A26291C9B4E0078351C /* HippyVirtualTextNode.m */,
 				F4C92A28291C9B4E0078351C /* HippyTextEnumDefines.h */,
-				F4C92A29291C9B4E0078351C /* HippyTextManager.mm */,
 				F4C92A2A291C9B4E0078351C /* HippyTextManager.h */,
+				F4C92A29291C9B4E0078351C /* HippyTextManager.mm */,
 			);
 			path = text;
 			sourceTree = "<group>";

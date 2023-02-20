@@ -365,18 +365,18 @@ HIPPY_CUSTOM_SHADOW_PROPERTY(direction, MTTDirection, HippyShadowView) {
 HIPPY_CUSTOM_SHADOW_PROPERTY(verticalAlign, HippyTextAttachmentVerticalAlign, HippyShadowView) {
     if (json && [json isKindOfClass:NSString.class]) {
         if ([json isEqualToString:@"middle"]) {
-            view.verticalAlignType = HippyTextAttachmentVerticalAlignMiddle;
+            view.verticalAlignType = HippyTextVerticalAlignMiddle;
         } else if ([json isEqualToString:@"bottom"]) {
-            view.verticalAlignType = HippyTextAttachmentVerticalAlignBottom;
+            view.verticalAlignType = HippyTextVerticalAlignBottom;
         } else if ([json isEqualToString:@"top"]) {
-            view.verticalAlignType = HippyTextAttachmentVerticalAlignTop;
+            view.verticalAlignType = HippyTextVerticalAlignTop;
         } else if ([json isEqualToString:@"baseline"]) {
-            view.verticalAlignType = HippyTextAttachmentVerticalAlignBaseline;
+            view.verticalAlignType = HippyTextVerticalAlignBaseline;
         } else {
             HippyLogError(@"Unsupported value for verticalAlign of Text Attachment: %@, type: %@", json, [json classForCoder]);
         }
     } else if ([json isKindOfClass:NSNumber.class]) {
-        view.verticalAlignType = HippyTextAttachmentVerticalAlignMiddle;
+        view.verticalAlignType = HippyTextVerticalAlignMiddle;
         view.verticalAlignOffset = [HippyConvert CGFloat:json];
     } else {
         HippyLogError(@"Unsupported value for verticalAlign of Text Attachment: %@, type: %@", json, [json classForCoder]);

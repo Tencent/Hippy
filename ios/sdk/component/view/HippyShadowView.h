@@ -178,7 +178,8 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
 
 /// Vertical Alignment as Text Attachment,
 /// Note that this property only takes effect under this condition.
-@property (nonatomic, assign) HippyTextAttachmentVerticalAlign verticalAlignType;
+@property (nonatomic, assign) HippyTextVerticalAlignType verticalAlignType;
+
 /// Vertical Align Offset as Text Attachment,
 /// Note that this property only takes effect under this condition.
 @property (nonatomic, assign) CGFloat verticalAlignOffset;

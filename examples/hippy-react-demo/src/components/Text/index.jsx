@@ -205,7 +205,8 @@ export default class TextExpo extends React.Component {
             {'line 1\n\nline 3\n\nline 5'}
           </Text>
           <Text numberOfLines={numberOfLines} ellipsizeMode={ellipsizeMode} style={[styles.normalText,
-            { lineHeight: undefined, backgroundColor: '#4c9afa', marginBottom: 10,  paddingHorizontal: 10, paddingVertical: 5 }]}>
+            { lineHeight: undefined, backgroundColor: '#4c9afa', marginBottom: 10,
+              paddingHorizontal: 10, paddingVertical: 5, verticalAlign: 'middle' }]}>
             <Image style={{ width: 24, height: 24 }} source={{ uri: imgURL2 }} />
             <Image style={{ width: 24, height: 24 }} source={{ uri: imgURL3 }} />
             <Text>Text + Attachment</Text>
