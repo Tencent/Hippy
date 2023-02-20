@@ -134,29 +134,6 @@ class ModalRenderViewModel extends GroupViewModel implements InstanceLifecycleEv
     super.onViewModelDestroy();
   }
 
-  void registerFrameCallback() {
-    if (context.getInstance(rootId)?.viewExecutorList.contains(doFrame) == false) {
-      context.getInstance(rootId)?.viewExecutorList.add(doFrame);
-    }
-  }
-
-  void removeFrameCallback() {
-    context.getInstance(rootId)?.viewExecutorList.remove(doFrame);
-  }
-
-  void doFrame() {
-    var newWidth = modalKey.currentContext?.size?.width ?? 0.0;
-    var newHeight = modalKey.currentContext?.size?.height ?? 0.0;
-    if (oldWidth != newWidth || oldHeight != newHeight) {
-      if (children.isNotEmpty) {
-        oldWidth = newWidth;
-        oldHeight = newHeight;
-        // todo 更新root node size
-        // context.domManager.updateNodeSize(children[0].id, newWidth, newHeight);
-      }
-    }
-  }
-
   void showOrDismissDialog() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       LogUtils.dWidget("ID:$id, node:$idDesc, modal can show:$canDialogShow");
@@ -373,7 +350,6 @@ class ModalRenderViewModel extends GroupViewModel implements InstanceLifecycleEv
     var buildContext = context.getInstance(rootId)?.rootKey.currentContext;
     if (isShowDialog && buildContext != null) {
       isShowDialog = false;
-      removeFrameCallback();
       Navigator.of(buildContext).pop();
     }
   }

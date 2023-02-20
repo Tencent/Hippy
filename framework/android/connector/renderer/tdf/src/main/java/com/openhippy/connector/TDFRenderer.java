@@ -1,5 +1,5 @@
 /* Tencent is pleased to support the open source community by making Hippy available.
- * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2023 THL A29 Limited, a Tencent company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,25 +22,22 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.common.Callback;
+import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.FrameworkProxy;
-import com.tencent.renderer.NativeRenderProxy;
 import com.tencent.renderer.RenderProxy;
 import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("JavaJniMissingFunction")
-public class NativeRenderer implements RenderConnector {
+public class TDFRenderer implements RenderConnector {
 
     private int mInstanceId;
     @Nullable
     private RenderProxy mRenderer;
 
-    public NativeRenderer() {
-        mInstanceId = createNativeRenderManager();
-        Object obj = getNativeRendererInstance(mInstanceId);
-        if (obj instanceof NativeRenderProxy) {
-            mRenderer = (NativeRenderProxy) obj;
-        }
+    public TDFRenderer() {
+        mInstanceId = createTDFRenderManager(PixelUtil.getDensity());
+        mRenderer = new com.tencent.renderer.TDFRenderer(mInstanceId);
     }
 
     @Override
@@ -126,7 +123,7 @@ public class NativeRenderer implements RenderConnector {
 
     @Override
     public void destroy() {
-        destroyNativeRenderManager(mInstanceId);
+        destroyTDFRenderManager(mInstanceId);
     }
 
     @Override
@@ -139,19 +136,16 @@ public class NativeRenderer implements RenderConnector {
      *
      * @return the unique id of native (C++) render manager
      */
-    private native int createNativeRenderManager();
+    private native int createTDFRenderManager(float j_density);
 
     /**
      * Destroy native (C++) render manager instance.
      */
-    private native void destroyNativeRenderManager(int instanceId);
+    private native void destroyTDFRenderManager(int instanceId);
 
     /**
-     * Get renderer instance that create by native (C++) render manager.
-     *
-     * @return instance of {@link com.tencent.renderer.NativeRender}
+     * Attach DomManager to native (C++) render manager instance
      */
-    private native Object getNativeRendererInstance(int instanceId);
+    private native void attachToDom(int instanceId, int domId);
 
-    private native void attachToDom(int mInstanceId, int domId);
 }

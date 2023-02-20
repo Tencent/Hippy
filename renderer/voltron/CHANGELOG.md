@@ -1,3 +1,11 @@
+## 0.0.8
+
+- remove fluttertoast plugin
+
+## 0.0.7
+
+- fix modal size error
+
 ## 0.0.6
 
 - fix cache engine mode ui size error

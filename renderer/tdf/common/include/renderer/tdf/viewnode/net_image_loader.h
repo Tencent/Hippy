@@ -34,7 +34,7 @@ inline namespace tdf {
 
 using StringView = footstone::string_view;
 using DataCb = std::function<void(StringView::u8string)>;
-using UriDataGetter = std::function<bool(const StringView &uri, DataCb cb)>;
+using UriDataGetter = std::function<void(const StringView &uri, const DataCb cb)>;
 
 class NetImageLoader : public tdfcore::ImageLoader, public std::enable_shared_from_this<NetImageLoader> {
  public:

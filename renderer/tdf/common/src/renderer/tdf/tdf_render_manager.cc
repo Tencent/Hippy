@@ -28,6 +28,7 @@
 #include "core/engine/schedule/task_runner_checker.h"
 #include "dom/root_node.h"
 #include "footstone/logging.h"
+#include "renderer/tdf/viewnode/view_node.h"
 #include "renderer/tdf/viewnode/embedded_view_node.h"
 #include "renderer/tdf/viewnode/image_view_node.h"
 #include "renderer/tdf/viewnode/list_view_node.h"
@@ -41,14 +42,15 @@
 #include "renderer/tdf/viewnode/view_pager_node.h"
 
 namespace hippy {
-inline namespace dom {
+inline namespace render {
+inline namespace tdf {
 
-static std::atomic<int32_t> global_tdf_render_manager_key{1000};
+static std::atomic<uint32_t> global_tdf_render_manager_key{1000};
 constexpr const char kUpdateFrame[] = "frameupdate";
 
-using RenderInfo = hippy::render::tdf::ViewNode::RenderInfo;
-using node_creator = hippy::render::tdf::ViewNode::node_creator;
-using RootViewNode = hippy::render::tdf::RootViewNode;
+using RenderInfo = ViewNode::RenderInfo;
+using node_creator = ViewNode::node_creator;
+using string_view = footstone::stringview::string_view;
 
 void InitNodeCreator() {
   RegisterNodeCreator(hippy::render::tdf::kViewName,
@@ -99,8 +101,33 @@ TDFRenderManager::TDFRenderManager() : RenderManager("TDFRenderManager") {
 }
 
 void TDFRenderManager::RegisterShell(uint32_t root_id, const std::shared_ptr<tdfcore::Shell>& shell) {
-  auto root_node = TDF_MAKE_SHARED(RootViewNode, hippy::DomNode::RenderInfo{root_id, 0, 0}, shell, GetDomManager(),
-                                   GetUriDataGetter());
+  auto uri_data_getter =  [WEAK_THIS](const string_view &uri, const RootViewNode::DataCb& callback) {
+    DEFINE_AND_CHECK_SELF(TDFRenderManager);
+    auto uri_loader = self->GetUriLoader();
+    if (!uri_loader) {
+      FOOTSTONE_DLOG(WARNING) << "TDFRenderManager uri_loader is null";
+      return;
+    }
+    auto cb = [callback](
+        UriLoader::RetCode ret_code, const std::unordered_map<std::string, std::string>&, UriLoader::bytes content) {
+
+      auto code = static_cast<uint32_t>(ret_code);
+      FOOTSTONE_DLOG(INFO) << "TDFRenderManager UriLoader Result ret_code = " << code;
+
+      if (ret_code == UriLoader::RetCode::Success && !content.empty()) {
+        FOOTSTONE_DLOG(INFO) << "TDFRenderManager UriLoader Result Success!";
+        callback(string_view::new_from_utf8(content.c_str(), content.length()).utf8_value());
+      } else {
+        callback(string_view::new_from_utf8("", 0).utf8_value());
+      }
+    };
+    uri_loader->RequestUntrustedContent(uri, {}, cb);
+  };
+  auto root_node = TDF_MAKE_SHARED(RootViewNode,
+                                   RenderInfo{root_id, 0, 0},
+                                   shell,
+                                   GetDomManager(),
+                                   uri_data_getter);
   root_view_nodes_map_.Insert(root_id, root_node);
 }
 
@@ -124,8 +151,8 @@ void TDFRenderManager::RegisterShell(uint32_t root_id, const std::shared_ptr<tdf
     return;                     \
   }
 
-  void TDFRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
-                                        std::vector<std::shared_ptr<hippy::dom::DomNode>>&& nodes) {
+void TDFRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
+                                      std::vector<std::shared_ptr<hippy::dom::DomNode>>&& nodes) {
   CHECK_ROOT()
   FOR_EACH_TEXT_NODE(
       auto view_node = GetNodeCreator(node->GetViewName())(node->GetRenderInfo());
@@ -294,17 +321,8 @@ void TDFRenderManager::CallFunction(std::weak_ptr<RootNode> root_node, std::weak
   });
 }
 
-void TDFRenderManager::SetUriDataGetter(uint32_t render_id, RootViewNode::UriDataGetter uriDataGetter) {
-  uri_data_getter_map_[render_id] = std::move(uriDataGetter);
-}
-
-RootViewNode::UriDataGetter TDFRenderManager::GetUriDataGetter() {
-  auto getter = uri_data_getter_map_[static_cast<uint32_t>(GetId())];
-  FOOTSTONE_DCHECK(getter);
-  return getter;
-}
-
 #undef GET_SHELL
 #undef FOR_EACH_TEXT_NODE
-}  // namespace dom
+}  // namespace tdf
+}  // namespace render
 }  // namespace hippy

@@ -21,38 +21,44 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.tencent.link_supplier.proxy.framework.FrameworkProxy;
-import com.tencent.link_supplier.proxy.renderer.RenderProxy;
-import com.tencent.link_supplier.proxy.renderer.Renderer;
+import android.view.ViewParent;
 import com.tencent.mtt.hippy.annotation.HippyController;
+import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.tdf.embed.TDFEmbeddedViewFactoryImpl;
 import com.tencent.tdf.embed.EmbeddedViewFactory;
 
+import com.tencent.vfs.VfsManager;
 import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
-@SuppressWarnings("unused")
+@SuppressWarnings("JavaJniMissingFunction")
 public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngine.ILifecycleListener {
+
+    private static final String TAG = "TDFRenderer";
+
     private int mRootViewId;
     private final int mInstanceId;
     private final long mShellId = 0;
-    private static ControllerManager mControllerManager;
+    private static final int ROOT_VIEW_ID_INCREMENT = 10;
+    private static final AtomicInteger sRootIdCounter = new AtomicInteger(0);
+
+    private ControllerManager mControllerManager;
+    private TDFHippyRootView mRootView;
+    private FrameworkProxy mFrameworkProxy;
+    private VfsManager mVfsManager;
 
     private final List<Class<?>> mControllers = new ArrayList<>();
 
-
-    public static final String TAG = "TDFRenderer";
-
-    public TDFRenderer() {
-        // Create TDF Render in Native(C++) Side
-        mInstanceId = onCreateTDFRender(PixelUtil.getDensity());
+    public TDFRenderer(int instanceId) {
+        mInstanceId = instanceId;
     }
 
     @Override
@@ -61,21 +67,22 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
     }
 
     @Override
-    public void destroy() { }
+    public void destroy() {}
 
     @Override
     public void setFrameworkProxy(@NonNull FrameworkProxy proxy) {
-        // TDF Render will implement the log of FrameworkProxy in Native(C++) Size
+        mFrameworkProxy = proxy;
     }
 
-    @NonNull
-    @Override
-    public View createRootView(@NonNull Context context, int rootId) {
-        mRootViewId = rootId;
+    @NonNull @Override public View createRootView(@NonNull Context context) {
+        if (mVfsManager == null) {
+            mVfsManager = mFrameworkProxy.getVfsManager();
+            registerUriLoader(mInstanceId, mVfsManager.getId());
+        }
+        mRootViewId = sRootIdCounter.addAndGet(ROOT_VIEW_ID_INCREMENT);
         if (!(context instanceof Activity)) {
             throw new RuntimeException("Unsupported Host");
         }
-
         TDFHippyRootView tdfHippyRootView = new TDFHippyRootView((Activity) context);
         // When TDFHippyRootView's onAttachedToWindow is called, com.tencent.tdf.TDFEngine will be created.
         // So, set the creation callback here.
@@ -83,7 +90,6 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
             // Notify TDF Render in Native(C++) size to bind with TDF Shell, this is the key process for TDF Render.
             // At this time point, TDF Core's Shell is created but not started.
             registerTDFEngine(mInstanceId, engine.getJNI().getnativeEngine(), mRootViewId);
-            LogUtils.d(TAG, "onTDFEngineCreate: " + engine.getJNI().getnativeEngine());
             engine.registerLifecycleListener(TDFRenderer.this);
             registerControllers(mRootViewId, mControllers, tdfHippyRootView, TDFRenderer.this, engine);
         });
@@ -115,11 +121,42 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
     }
 
     @Override
+    public void destroyRoot(int rootId) {
+        // RootView must be removed otherwise TDFOutputView will intercepts touch event
+        ViewParent viewParent = mRootView.getParent();
+        if (viewParent instanceof ViewGroup) {
+            ((ViewGroup)viewParent).removeView(mRootView);
+        }
+        mRootView = null;
+    }
+
+    @Override
+    public void onRuntimeInitialized(int rootId) {
+        LogUtils.d(TAG, "onRuntimeInitialized rootId: " + rootId);
+    }
+
+    @Override
+    public void recordSnapshot(int rootId, @NonNull Callback<byte[]> callback) {
+
+    }
+
+    @Override
+    public View replaySnapshot(@NonNull Context context, @NonNull byte[] buffer) {
+        return null;
+    }
+
+    @Override
+    public View replaySnapshot(@NonNull Context context,
+        @NonNull Map<String, Object> snapshotMap) {
+        return null;
+    }
+
+    @Override
     public void handleRenderException(@NonNull Exception exception) {
         LogUtils.d(TAG, "handleRenderException: " + exception.getMessage());
     }
 
-    public static void registerControllers(int rootId, List<Class<?>> controllers, View rootView, Renderer renderer, TDFRenderEngine engine) {
+    public void registerControllers(int rootId, List<Class<?>> controllers, View rootView, Renderer renderer, TDFRenderEngine engine) {
         assert (mControllerManager == null);
         mControllerManager = new ControllerManager(renderer);
         mControllerManager.addRootView(rootView);
@@ -141,8 +178,15 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
         return null;
     }
 
-    private native int onCreateTDFRender(float j_density);
-
+    /**
+     * Register tdf engine to native (C++) render manager instance
+     */
     private native void registerTDFEngine(int renderId, long tdfEngineId, int rootViewId);
+
+    /**
+     * Register uri loader to native (C++) render manager instance
+     */
+    private native void registerUriLoader(int renderId, int vfsId);
+
 }
 

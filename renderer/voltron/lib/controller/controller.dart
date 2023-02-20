@@ -50,6 +50,8 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
   String get name;
 
   static const String kMeasureInWindow = "measureInWindow";
+  static const String kGETBoundingClientRect = "getBoundingClientRect";
+  static const String kKeyRelToContainer = "relToContainer";
 
   @override
   ControllerMethodPropProvider generateProvider() {
@@ -470,6 +472,9 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
       case kMeasureInWindow:
         measureInWindow(viewModel, array, promise);
         break;
+      case kGETBoundingClientRect:
+        getBoundingClientRect(viewModel, array, promise);
+        break;
       default:
         break;
     }
@@ -510,6 +515,59 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
       paramsMap.push("bottomBarHeight", bottomBarHeight);
       promise.resolve(paramsMap);
     }
+  }
+
+  void getBoundingClientRect(
+    RenderViewModel viewModel,
+    VoltronArray array,
+    Promise? promise,
+  ) {
+    var map = array.get<VoltronMap>(0);
+    bool relToContainer = map?.get(kKeyRelToContainer) ?? false;
+    if (promise == null) return;
+    var rootViewModel = viewModel.context.rootViewModelMap[viewModel.rootId];
+    var renderObject = viewModel.currentContext?.findRenderObject() as RenderBox?;
+    var rootRenderObject = rootViewModel?.currentContext?.findRenderObject() as RenderBox?;
+    var x = 0.0;
+    var y = 0.0;
+    var width = 0.0;
+    var height = 0.0;
+    if (relToContainer) {
+      if (renderObject == null || rootRenderObject == null) {
+        promise.reject("this view or root view is null");
+      } else {
+        var rootPosition = rootRenderObject.localToGlobal(Offset.zero);
+        var rootX = rootPosition.dx;
+        var rootY = rootPosition.dy;
+
+        var position = renderObject.localToGlobal(Offset.zero);
+        var size = renderObject.size;
+
+        x = position.dx - rootX;
+        y = position.dy - rootY;
+        width = size.width;
+        height = size.height;
+      }
+    } else {
+      if (renderObject == null) {
+        promise.reject("this view is null");
+      } else {
+        var position = renderObject.localToGlobal(Offset.zero);
+        var size = renderObject.size;
+
+        x = position.dx;
+        y = position.dy;
+        width = size.width;
+        height = size.height;
+      }
+    }
+    var paramsMap = VoltronMap();
+    paramsMap.push("x", x);
+    paramsMap.push("y", y);
+    paramsMap.push("width", width);
+    paramsMap.push("height", height);
+
+    promise.resolve(paramsMap);
   }
 
   void onBatchComplete(R node) {}

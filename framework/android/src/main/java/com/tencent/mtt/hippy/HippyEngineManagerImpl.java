@@ -27,7 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.openhippy.connector.DomManager;
 import com.openhippy.connector.JsDriver;
-import com.openhippy.connector.NativeRenderer;
+import com.openhippy.connector.RenderConnector;
 import com.openhippy.framework.BuildConfig;
 import com.tencent.devtools.DevtoolsManager;
 import com.tencent.mtt.hippy.adapter.device.HippyDeviceAdapter;
@@ -62,7 +62,6 @@ import com.tencent.renderer.FrameworkProxy;
 import com.tencent.renderer.component.image.ImageDecoderAdapter;
 import com.tencent.renderer.component.text.FontAdapter;
 import com.tencent.vfs.DefaultProcessor;
-import com.tencent.devtools.vfs.DevtoolsProcessor;
 import com.tencent.vfs.Processor;
 import com.tencent.vfs.VfsManager;
 import com.openhippy.connector.JsDriver.V8InitParams;
@@ -322,21 +321,21 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     public void recordSnapshot(@NonNull View rootView, @NonNull final Callback<byte[]> callback) {
-        if (mEngineContext != null && mEngineContext.getNativeRenderer() != null) {
-            mEngineContext.getNativeRenderer().recordSnapshot(rootView, callback);
+        if (mEngineContext != null) {
+            mEngineContext.getRenderer().recordSnapshot(rootView.getId(), callback);
         }
     }
 
     public View replaySnapshot(@NonNull Context context, @NonNull byte[] buffer) {
-        if (mEngineContext != null && mEngineContext.getNativeRenderer() != null) {
-            mEngineContext.getNativeRenderer().replaySnapshot(context, buffer);
+        if (mEngineContext != null) {
+            mEngineContext.getRenderer().replaySnapshot(context, buffer);
         }
         return null;
     }
 
     public View replaySnapshot(@NonNull Context context, @NonNull Map<String, Object> snapshotMap) {
-        if (mEngineContext != null && mEngineContext.getNativeRenderer() != null) {
-            mEngineContext.getNativeRenderer().replaySnapshot(context, snapshotMap);
+        if (mEngineContext != null && mEngineContext.getRenderer() != null) {
+            mEngineContext.getRenderer().replaySnapshot(context, snapshotMap);
         }
         return null;
     }
@@ -722,7 +721,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         @NonNull
         private final HippyBridgeManager mBridgeManager;
         @NonNull
-        private final NativeRenderer mNativeRenderer;
+        private final RenderConnector mRenderer;
         @NonNull
         private final DomManager mDomManager;
         @NonNull
@@ -754,10 +753,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                     getBridgeType(), enableV8Serialization, mDebugMode,
                     mServerHost, mGroupId, mThirdPartyAdapter, v8InitParams, mJsDriver);
             mDomManager = (domManager != null) ? domManager : new DomManager();
-            mNativeRenderer = new NativeRenderer();
-            mDomManager.attachToRenderer(mNativeRenderer);
-            mNativeRenderer.attachToDom(mDomManager);
-            mNativeRenderer.setFrameworkProxy(HippyEngineManagerImpl.this);
+            mRenderer = createRenderer(RenderConnector.NATIVE_RENDERER);
+            mDomManager.attachToRenderer(mRenderer);
+            mRenderer.attachToDom(mDomManager);
+            mRenderer.setFrameworkProxy(HippyEngineManagerImpl.this);
             List<Class<?>> controllers = null;
             if (mControllerProviders != null) {
                 for (ControllerProvider provider : mControllerProviders) {
@@ -768,7 +767,22 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                     }
                 }
             }
-            mNativeRenderer.init(controllers, mRootView);
+            mRenderer.init(controllers, mRootView);
+        }
+
+        private RenderConnector createRenderer(String rendererName) {
+            RenderConnector renderer = null;
+            try {
+                Class rendererClass = Class.forName("com.openhippy.connector." + rendererName);
+                renderer = (RenderConnector) (rendererClass.newInstance());
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+            if (renderer == null) {
+                throw new RuntimeException(
+                    "Serious error: Failed to create renderer instance!");
+            }
+            return renderer;
         }
 
         @Override
@@ -781,10 +795,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 if (mDevtoolsManager != null) {
                     mDevtoolsManager.attachToRoot(mRootView);
                 }
-                mNativeRenderer.onRuntimeInitialized(mRootView);
+                mRenderer.onRuntimeInitialized(mRootView.getId());
             }
             if (mDevtoolsManager != null) {
-                mDevtoolsManager.bind(mJsDriver, mDomManager, mNativeRenderer);
+                mDevtoolsManager.bind(mJsDriver, mDomManager, mRenderer);
             }
         }
 
@@ -794,8 +808,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
 
         @NonNull
-        NativeRenderer getNativeRenderer() {
-            return mNativeRenderer;
+        RenderConnector getRenderer() {
+            return mRenderer;
         }
 
         public void setComponentName(String componentName) {
@@ -875,7 +889,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
         @Override
         public void onInstanceResume() {
-            mNativeRenderer.onResume();
+            mRenderer.onResume();
             if (getBridgeManager() != null && mRootView != null) {
                 getBridgeManager().resumeInstance(mRootView.getId());
             }
@@ -883,7 +897,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
         @Override
         public void onInstancePause() {
-            mNativeRenderer.onPause();
+            mRenderer.onPause();
             if (getBridgeManager() != null && mRootView != null) {
                 getBridgeManager().pauseInstance(mRootView.getId());
             }
@@ -899,7 +913,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 mDestroyModuleListeners.remove(rootId);
             }
             mDomManager.destroyRoot(rootId);
-            mNativeRenderer.destroyRoot(rootId);
+            mRenderer.destroyRoot(rootId);
         }
 
         @Override
@@ -945,7 +959,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
         @Nullable
         public View createRootView(@NonNull Context context) {
-            View rootView = mNativeRenderer.createRootView(context);
+            View rootView = mRenderer.createRootView(context);
             if (rootView != null) {
                 mDomManager.createRoot(rootView);
                 mDomManager.attachToRoot(rootView);
@@ -979,7 +993,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             if (mDevtoolsManager != null) {
                 mDevtoolsManager.destroy(isReload);
             }
-            mNativeRenderer.destroy();
+            mRenderer.destroy();
             if (!isReload) {
                 mDomManager.destroy();
             }

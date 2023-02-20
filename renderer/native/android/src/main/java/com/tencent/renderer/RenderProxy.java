@@ -22,7 +22,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.tencent.mtt.hippy.common.Callback;
 import java.util.List;
+import java.util.Map;
 
 public interface RenderProxy {
 
@@ -73,4 +75,27 @@ public interface RenderProxy {
      * view will be reused.
      */
     void init(@Nullable List<Class<?>> controllers, @Nullable ViewGroup rootView);
+
+    /**
+     * Notify renderer the root view instance delete by framework.
+     */
+    void destroyRoot(int rootId);
+
+    /**
+     * Notify renderer the js bridger has been initialized.
+     */
+    void onRuntimeInitialized(int rootId);
+
+    /**
+     * Notify renderer to record node tree snapshot.
+     */
+    void recordSnapshot(int rootId, @NonNull final Callback<byte[]> callback);
+
+    /**
+     * Notify renderer to replay node tree snapshot.
+     */
+    View replaySnapshot(@NonNull Context context, @NonNull byte[] buffer);
+
+    View replaySnapshot(@NonNull Context context, @NonNull Map<String, Object> snapshotMap);
+
 }

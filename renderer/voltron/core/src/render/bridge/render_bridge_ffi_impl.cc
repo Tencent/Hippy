@@ -205,6 +205,8 @@ EXTERN_C void UpdateNodeSize(uint32_t render_manager_id, uint32_t root_id,
   std::vector<std::function<void()>> ops = {[dom_manager, width, height, node_id, root_node]() {
     if (node_id == 0) {
       dom_manager->SetRootSize(root_node, (float) width, (float) height);
+      dom_manager->DoLayout(root_node);
+      dom_manager->EndBatch(root_node);
     } else {
       auto node = dom_manager->GetNode(root_node,
                                        footstone::checked_numeric_cast<int32_t, uint32_t>(node_id));
@@ -215,6 +217,7 @@ EXTERN_C void UpdateNodeSize(uint32_t render_manager_id, uint32_t root_id,
       }
 
       node->SetLayoutSize((float) width, (float) height);
+      dom_manager->EndBatch(root_node);
     }
   }};
   dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));

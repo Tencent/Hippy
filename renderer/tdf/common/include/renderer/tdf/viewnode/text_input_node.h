@@ -198,8 +198,6 @@ class TextInputNode : public ViewNode {
 
   void SendKeyActionEvent(const std::shared_ptr<tdfcore::Event>& event);
 
-  void HandleEventInfoUpdate() override;
-
   std::weak_ptr<TextInputView> text_input_view_;
   std::shared_ptr<tdfcore::TextEditingController> edit_controller_;
   std::shared_ptr<tdfcore::TextSelectionControl> selection_control_;

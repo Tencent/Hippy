@@ -1,6 +1,14 @@
+## 0.0.15
+
+- update voltron_render to 0.0.8 to remove fluttertoast plugin
+
+## 0.0.14
+
+- update voltron_render to 0.0.7 to fix modal size error
+
 ## 0.0.13
 
-- fix cache engine mode ui size error
+- update voltron_render to 0.0.6 to fix cache engine mode ui size error
 
 ## 0.0.12
 
