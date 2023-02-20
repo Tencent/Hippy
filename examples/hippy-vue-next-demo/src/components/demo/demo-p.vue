@@ -196,82 +196,169 @@
       </div>
       <label>vertical-align</label>
       <div class="p-demo-content">
-        <p :style="{ lineHeight: 50, backgroundColor: '#40b883', paddingHorizontal: 10, paddingVertical: 5 }">
-          <span :style="{ fontSize: 16 }">png</span>
+        <p style="line-height: 50; background-color: #40b883; padding-horizontal: 10; padding-vertical: 5;">
           <img
-            :style="{ width: 24, height: 24, verticalAlign: 'top' }"
+            style="width: 24; height: 24; vertical-align: top;"
             :src="img2"
           >
           <img
-            :style="{ width: 18, height: 12, verticalAlign: 'middle' }"
+            style="width: 18; height: 12; vertical-align: middle;"
             :src="img2"
           >
           <img
-            :style="{ width: 24, height: 12, verticalAlign: 'baseline' }"
+            style="width: 24; height: 12; vertical-align: baseline;"
             :src="img2"
           >
           <img
-            :style="{ width: 36, height: 24, verticalAlign: 'bottom' }"
+            style="width: 36; height: 24; vertical-align: bottom;"
             :src="img2"
           >
-          <span :style="{ fontSize: 30 }">GIF</span>
           <img
-            :style="{ width: 24, height: 24, verticalAlign: 'top' }"
+            style="width: 24; height: 24; vertical-align: top;"
             :src="img3"
           >
           <img
-            :style="{ width: 18, height: 12, verticalAlign: 'middle' }"
+            style="width: 18; height: 12; vertical-align: middle;"
             :src="img3"
           >
           <img
-            :style="{ width: 24, height: 12, verticalAlign: 'baseline' }"
+            style="width: 24; height: 12; vertical-align: baseline;"
             :src="img3"
           >
           <img
-            :style="{ width: 36, height: 24, verticalAlign: 'bottom' }"
+            style="width: 36; height: 24; vertical-align: bottom;"
             :src="img3"
           >
+          <span style="font-size: 16; vertical-align: top;">字</span>
+          <span style="font-size: 16; vertical-align: middle;">字</span>
+          <span style="font-size: 16; vertical-align: baseline;">字</span>
+          <span style="font-size: 16; vertical-align: bottom;">字</span>
         </p>
         <p v-if="Platform === 'android'">
-          legacy verticalAlignment
+          legacy mode:
         </p>
         <p
           v-if="Platform === 'android'"
-          :style="{ lineHeight: 50, backgroundColor: '#40b883', paddingHorizontal: 10, paddingVertical: 5 }"
+          style="lineHeight: 50; background-color: #40b883; padding-horizontal: 10; padding-vertical: 5;"
         >
-          <span :style="{ fontSize: 16 }">png</span>
           <img
-            :style="{ width: 24, height: 24, verticalAlignment: 0 }"
+            style="width: 24; height: 24; vertical-alignment: 0;"
             :src="img2"
           >
           <img
-            :style="{ width: 18, height: 12, verticalAlignment: 1 }"
+            style="width: 18; height: 12; vertical-alignment: 1;"
             :src="img2"
           >
           <img
-            :style="{ width: 24, height: 12, verticalAlignment: 2 }"
+            style="width: 24; height: 12; vertical-alignment: 2;"
             :src="img2"
           >
           <img
-            :style="{ width: 36, height: 24, verticalAlignment: 3 }"
+            style="width: 36; height: 24; vertical-alignment: 3;"
             :src="img2"
           >
-          <span :style="{ fontSize: 30 }">GIF</span>
           <img
-            :style="{ width: 24, height: 24, top: -10 }"
+            style="width: 24; height: 24; top: -10;"
             :src="img3"
           >
           <img
-            :style="{ width: 18, height: 12, top: -5 }"
+            style="width: 18; height: 12; top: -5;"
             :src="img3"
           >
           <img
-            :style="{ width: 24, height: 12 }"
+            style="width: 24; height: 12;"
             :src="img3"
           >
           <img
-            :style="{ width: 36, height: 24, top: 5 }"
+            style="width: 36; height: 24; top: 5;"
             :src="img3"
+          >
+          <span style="font-size: 16;">字</span>
+          <span style="font-size: 16;">字</span>
+          <span style="font-size: 16;">字</span>
+          <span style="font-size: 16;">字</span>
+        </p>
+      </div>
+      <label>tint-color & background-color</label>
+      <div class="p-demo-content">
+        <p style="background-color: #40b883; padding-horizontal: 10; padding-vertical: 5;">
+          <img
+            style="width: 24; height: 24; vertical-align: middle; tint-color: orange;"
+            :src="img2"
+          >
+          <img
+            style="width: 24; height: 24; vertical-align: middle; tint-color: orange; background-color: #ccc;"
+            :src="img2"
+          >
+          <img
+            style="width: 24; height: 24; vertical-align: middle; background-color: #ccc;"
+            :src="img2"
+          >
+          <span style="vertical-align: middle; background-color: #99f;">text</span>
+        </p>
+        <p v-if="Platform === 'android'">
+          legacy mode:
+        </p>
+        <p
+          v-if="Platform === 'android'"
+          style="background-color: #40b883; padding-horizontal: 10; padding-vertical: 5;"
+        >
+          <img
+            style="width: 24; height: 24; tint-color: orange;"
+            :src="img2"
+          >
+          <img
+            style="width: 24; height: 24; tint-color: orange; background-color: #ccc;"
+            :src="img2"
+          >
+          <img
+            style="width: 24; height: 24; background-color: #ccc;"
+            :src="img2"
+          >
+        </p>
+      </div>
+      <label>margin</label>
+      <div class="p-demo-content">
+        <p style="line-height: 50; background-color: #40b883; padding-horizontal: 10; padding-vertical: 5;">
+          <img
+            style="width: 24; height: 24; vertical-align: top; background-color: #ccc; margin: 5;"
+            :src="img2"
+          >
+          <img
+            style="width: 24; height: 24; vertical-align: middle; background-color: #ccc; margin: 5;"
+            :src="img2"
+          >
+          <img
+            style="width: 24; height: 24; vertical-align: baseline; background-color: #ccc; margin: 5;"
+            :src="img2"
+          >
+          <img
+            style="width: 24; height: 24; vertical-align: bottom; background-color: #ccc; margin: 5;"
+            :src="img2"
+          >
+        </p>
+        <p v-if="Platform === 'android'">
+          legacy mode:
+        </p>
+        <p
+          v-if="Platform === 'android'"
+          style="line-height: 50; background-color: #40b883; padding-horizontal: 10; padding-vertical: 5;"
+        >
+          <img
+            style="width: 24; height: 24; vertical-alignment: 0; background-color: #ccc; margin: 5;"
+            :src="img2"
+          >
+          <img
+            style="width: 24; height: 24; vertical-alignment: 1; background-color: #ccc; margin: 5;"
+            :src="img2"
+          >
+          <img
+            style="width: 24; height: 24; vertical-alignment: 2; background-color: #ccc; margin: 5;"
+            :src="img2"
+          >
+          <img
+            style="width: 24; height: 24; vertical-alignment: 3; background-color: #ccc; margin: 5;"
+            :src="img2"
           >
         </p>
       </div>
@@ -442,7 +529,7 @@ export default defineComponent({
 .p-demo .button {
   width: 100px;
   margin: 2px;
-  backgroundColor: #eee;
+  background-color: #eee;
   border-style: solid;
   border-color: black;
   border-width: 1px;
