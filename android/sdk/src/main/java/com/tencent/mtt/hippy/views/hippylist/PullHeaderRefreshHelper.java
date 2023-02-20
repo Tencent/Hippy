@@ -88,9 +88,17 @@ public class PullHeaderRefreshHelper extends PullRefreshHelper {
 
     @Override
     public void enableRefresh() {
-        super.enableRefresh();
-        if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_REFRESHING) {
+        mRefreshStatus = PullRefreshStatus.PULL_STATUS_REFRESHING;
+        int nodeSize = isVertical() ? mRenderNode.getHeight() : mRenderNode.getWidth();
+        if (mRecyclerView.getFirstChildPosition() > 0) {
+            endAnimation();
+            setVisibleSize(nodeSize);
             mRecyclerView.smoothScrollToPosition(0);
+        } else {
+            int visibleSize = getVisibleSize();
+            if (visibleSize < nodeSize) {
+                smoothResizeTo(visibleSize, nodeSize, DURATION);
+            }
         }
     }
 
