@@ -130,19 +130,13 @@ Pod::Spec.new do |s|
   s.subspec 'Dom' do |dom|
     puts 'hippy subspec \'dom\' read begin'
     dom_source_files = Array['dom/include/**/*.h', 'dom/src/**/*.cc', 'modules/ios/domutils/*.{h,mm}']
-    dom_exclude_files = Array['dom/src/dom/*unittests.cc', 'dom/src/dom/tools']
+    dom_exclude_files = Array['dom/src/dom/*unittests.cc', 
+                              'dom/src/dom/tools', 
+                              'dom/include/dom/yoga_layout_node.h', 
+                              'dom/src/dom/yoga_layout_node.cc', 
+                              'dom/include/dom/taitank_layout_node.h', 
+                              'dom/src/dom/taitank_layout_node.cc']
     dom_pod_target_header_path = '${PODS_ROOT}/hippy/dom/include/'
-    if layout_engine == "Taitank"
-      dom_source_files.append('dom/dom_project/_deps/taitank-src/src/*.{h,cc}')
-      dom_exclude_files.append('dom/include/dom/yoga_layout_node.h')
-      dom_exclude_files.append('dom/src/dom/yoga_layout_node.cc')
-    elsif layout_engine == "Yoga"
-      dom_source_files.append('dom/dom_project/_deps/yoga-src/yoga/**/*.{c,h,cpp}')
-      dom_exclude_files.append('dom/include/dom/taitank_layout_node.h')
-      dom_exclude_files.append('dom/src/dom/taitank_layout_node.cc')
-      dom_pod_target_header_path += ' ${PODS_ROOT}/hippy/dom/dom_project/_deps/yoga-src'
-    end
-
     dom.libraries = 'c++'
     dom.source_files = dom_source_files 
     dom.public_header_files = ['dom/include/**/*.h', 'modules/ios/domutils/*.h']
@@ -158,6 +152,28 @@ Pod::Spec.new do |s|
     dom.preserve_path = 'dom'
     puts 'hippy subspec \'dom\' read end'
   end 
+
+  s.subspec 'Layout' do |layout|
+    puts 'hippy subspec \'layout\' read begin'
+    if layout_engine == "Taitank"
+      layout.source_files = ['dom/dom_project/_deps/taitank-src/src/*.{h,cc}', 'dom/include/dom/taitank_layout_node.h', 'dom/src/dom/taitank_layout_node.cc']
+      layout.private_header_files = 'dom/include/dom/taitank_layout_node.h'
+      layout.pod_target_xcconfig = {
+        'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+        'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/dom/dom_project/_deps/taitank-src/src'
+      }
+    elsif layout_engine == "Yoga"
+      layout.source_files = ['dom/dom_project/_deps/yoga-src/yoga/**/*.{c,h,cpp}', 'dom/include/dom/yoga_layout_node.h', 'dom/src/dom/yoga_layout_node.cc']
+      layout.private_header_files = 'dom/include/dom/yoga_layout_node.h'
+      layout.pod_target_xcconfig = {
+        'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+        'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/dom/dom_project/_deps/yoga-src'
+      }
+    end
+    layout.libraries = 'c++'
+    layout.preserve_path = 'dom/dom_project'
+    puts 'hippy subspec \'layout\' read end'
+  end
 
   #devtools subspec
   s.subspec 'DevTools' do |devtools|
