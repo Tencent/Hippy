@@ -304,7 +304,7 @@ public class HippyImageSpan extends ImageSpan {
               break;
           case TextNode.V_ALIGN_BASELINE:
           default:
-              transY = y - mMeasuredHeight;
+              transY = y - mMeasuredHeight - mMarginBottom;
               break;
       }
 
