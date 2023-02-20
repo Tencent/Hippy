@@ -147,15 +147,15 @@ Hippy.on('destroyInstance', () => {
 
 # Container Size Change Event
 
-`Only Android support`
+!> iOS Minimum supported version `2.16.0`
 
 This event is triggered when the container size changes, such as screen rotation, folding screen switching, etc.
 
 ```jsx
 import { HippyEventEmitter } from '@hippy/react';
 const hippyEventEmitter = new HippyEventEmitter();
-hippyEventEmitter.addListener('onSizeChanged', ({ oldWidth, oldHeight, width, height }) => {
-    // oldWidth: width before change;oldHeight: height before change;width: width after change; height: height after change
-    console.log('size', oldWidth, oldHeight, width, height);
+hippyEventEmitter.addListener('onSizeChanged', ({rootViewId, oldWidth, oldHeight, width, height }) => {
+    // rootViewId: id of the root view; oldWidth: width before change;oldHeight: height before change;width: width after change; height: height after change
+    console.log('size', rootViewId, oldWidth, oldHeight, width, height);
 });
 ```

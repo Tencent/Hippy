@@ -76,13 +76,13 @@ Hippy.on('destroyInstance', () => {
 
 # Container Size Change Event
 
-`Android only`
+!> iOS Minimum supported version `2.16.0`
 
 When the container size changes, such as screen rotation, folding screen switch, etc., this event will be called.
 
 ```jsx
-app.$on('onSizeChanged', ({ oldWidth, oldHeight, width, height }) => {
-    // oldWidth: old width；oldHeight: old height；width: new width; height: new height
-    console.log('size', oldWidth, oldHeight, width, height);
+app.$on('onSizeChanged', ({rootViewId, oldWidth, oldHeight, width, height }) => {
+    // rootViewId: id of the root view;oldWidth: old width；oldHeight: old height；width: new width; height: new height
+    console.log('size', rootViewId，oldWidth, oldHeight, width, height);
 });
 ```
