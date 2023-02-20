@@ -297,6 +297,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                         positionY = CGRectGetMaxY(lineRect) - roundedHeightWithMargin;
                         break;
                     }
+                    case HippyTextVerticalAlignUndefined:
                     case HippyTextVerticalAlignBaseline: {
                         // get baseline-bottom distance from HippyVerticalAlignBaselineOffsetAttributeName
                         NSNumber *baselineToBottom = [textStorage attribute:HippyVerticalAlignBaselineOffsetAttributeName
@@ -308,7 +309,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                         positionY = CGRectGetMinY(lineRect);
                         break;
                     }
-                    case HippyTextVerticalAlignUndefined:
                     case HippyTextVerticalAlignMiddle: {
                         positionY = CGRectGetMinY(lineRect) +
                         (CGRectGetHeight(lineRect) - roundedHeightWithMargin) / 2.0f - child.verticalAlignOffset;
@@ -907,7 +907,8 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
         [textStorage enumerateAttribute:HippyTextVerticalAlignAttributeName
                                 inRange:glyphRange options:0
                              usingBlock:^(NSNumber *type, NSRange range, BOOL * _Nonnull stop) {
-            if ((id)type != nil && HippyTextVerticalAlignBaseline == type.integerValue) {
+            if (HippyTextVerticalAlignBaseline == type.integerValue ||
+                HippyTextVerticalAlignUndefined == type.integerValue) {
                 hasBaselineAlign = YES;
                 *stop = YES;
             }
@@ -955,13 +956,13 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
                             offset = lineHeight - font.ascender - baselineToBottom;
                             break;
                         }
-                        case HippyTextVerticalAlignUndefined:
                         case HippyTextVerticalAlignMiddle: {
                             UIFont *font = attrs[NSFontAttributeName];
                             offset = (lineHeight - font.lineHeight) / 2.f - baselineToBottom
                             + abs(font.descender) + abs(font.leading) + self.verticalAlignOffset;
                             break;
                         }
+                        case HippyTextVerticalAlignUndefined:
                         case HippyTextVerticalAlignBaseline: {
                             offset = realBaselineOffset;
                             break;

@@ -171,12 +171,12 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
 
 #pragma mark - Text Attachment Properties
 
-/// Vertical Alignment as Text Attachment,
-/// Note that this property only takes effect under this condition.
+/// Vertical Alignment for Text / Text Attachment,
+/// Note that this property only takes effect for Nested Text.
 @property (nonatomic, assign) HippyTextVerticalAlignType verticalAlignType;
 
-/// Vertical Align Offset as Text Attachment,
-/// Note that this property only takes effect under this condition.
+/// Vertical Align Offset for Text / Text Attachment,
+/// Note that this property only takes effect for Nested Text.
 @property (nonatomic, assign) CGFloat verticalAlignOffset;
 
 
