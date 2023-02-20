@@ -146,6 +146,15 @@ static NSString *const engineKey = @"Demo";
     domManager->SetRenderManager(_nativeRenderManager);
     //bind rootview and root node
     _nativeRenderManager->RegisterRootView(rootView, rootNode);
+
+    __weak HippyBridge *weakBridge = bridge;
+    auto cb = [weakBridge](int32_t tag, NSDictionary *params){
+        HippyBridge *strongBridge = weakBridge;
+        if (strongBridge) {
+            [strongBridge rootViewSizeChangedEvent:@(tag) params:params];
+        }
+    };
+    _nativeRenderManager->SetRootViewSizeChangedEvent(cb);
     
     //setup necessary params for bridge
     [bridge setupDomManager:domManager rootNode:rootNode];

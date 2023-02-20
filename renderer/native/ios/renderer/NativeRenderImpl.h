@@ -209,6 +209,13 @@ class VFSUriLoader;
              onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
 
 /**
+ * Set root view size changed event callback
+ *
+ *@param cb callback
+ */
+- (void)setRootViewSizeChangedEvent:(std::function<void(int32_t rootTag, NSDictionary *)>)cb;
+
+/**
  * clear all resources
  */
 - (void)invalidate;

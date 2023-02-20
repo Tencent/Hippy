@@ -394,6 +394,13 @@ dispatch_queue_t HippyBridgeQueue() {
     self.javaScriptExecutor.pScope->LoadInstance(domValue);
 }
 
+- (void)rootViewSizeChangedEvent:(NSNumber *)tag params:(NSDictionary *)params {
+    NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithDictionary:params];
+    [dic setObject:tag forKey:@"rootViewId"];
+    NSDictionary *args = @{@"eventName": @"onSizeChanged", @"extra": dic};
+    [[self eventDispatcher] dispatchEvent:@"EventDispatcher" methodName:@"receiveNativeEvent" args:args];
+}
+
 - (void)setVFSUriLoader:(std::weak_ptr<VFSUriLoader>)uriLoader {
     auto loader = uriLoader.lock();
     if (_uriLoader != loader) {
