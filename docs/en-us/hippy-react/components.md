@@ -429,6 +429,7 @@ Text component.
 | onTouchEnd     | This callback function is called when the user lifts his finger on the control after the touch screen operation, and the touch screen point information is passed in as a parameter.. The parameters is: `nativeEvent: { name, page_x, page_y, id }`, `page_x` and `page_y` respectively represent the absolute position of the click on the screen. | `Function`                             | `Android、iOS、hippy-react-web、Web-Renderer`                              |
 | onTouchCancel  | This callback function is called when a system event interrupts the touch screen during the user's touch screen process, such as incoming phone calls, component changes (such as setting hidden), sliding gestures of other components, etc., and the touch point information is passed in as a parameter. The parameters is: `nativeEvent: { name, page_x, page_y, id }`, `page_x` and `page_y` respectively represent the absolute position of the click on the screen. | `Function`                             | `Android、iOS、hippy-react-web、Web-Renderer`                              |
 | breakStrategy* | Set text break strategy on Android API 23 and above. `default: simple` | `enum(simple, high_quality, balanced)` | `Android(minimum supported version 2.14.2)`                  |
+| verticalAlign* | Sets the alignment strategy when text components are nested within text components or image components are nested within text components. | `enum(top, middle, baseline, bottom)` | `Android, iOS (minimum supported version 2.15.6)` |
 
 * Attributes meaning of ellipsizeMode:
   * `clip` - Text that exceeds the specified number of lines will be directly truncated without displaying "...". (Android  2.14.1+, iOS full supported)
@@ -439,6 +440,11 @@ Text component.
   * `simple`(default value): strategy indicating simple line breaking, automatic hyphens are not added, and modifying text generally doesn't affect the layout before it (which yields a more consistent user experience when editing), but layout may not be the highest quality;
   * `high_quality`: strategy indicating high quality line breaking, including automatic hyphenation and doing whole-paragraph optimization of line breaks;
   * `balanced`: strategy indicating balanced line breaking, the breaks are chosen to make all lines as close to the same length as possible, including automatic hyphenation.
+* Parameter meaning of verticalAlign:
+  * `top`: line top alignment
+  * `middle`: center alignment
+  * `baseline`: baseline alignment
+  * `bottom`: line bottom alignment
 
 ---
 
