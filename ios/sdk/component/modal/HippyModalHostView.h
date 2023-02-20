@@ -53,6 +53,6 @@
 @property (nonatomic, readonly) HippyTouchHandler *touchHandler;
 
 - (instancetype)initWithBridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
-- (void)notifyForBoundsChange:(CGRect)newBounds;
+- (void)notifyForBoundsChange:(CGRect)newBounds oldBounds:(CGRect)oldBounds;
 
 @end

@@ -316,7 +316,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     return _nodeRegistry[hippyTag];
 }
 
-- (void)setFrame:(CGRect)frame forView:(UIView *)view
+- (void)setFrame:(CGRect)frame fromOriginFrame:(CGRect)originFrame forView:(UIView *)view
 {
     HippyAssertMainQueue();
 
@@ -328,6 +328,11 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         if (rootView != nil) {
             sizeFlexibility = rootView.sizeFlexibility;
             isRootView = YES;
+            NSDictionary *params = @{@"oldWidth": @(CGRectGetWidth(originFrame)), @"oldHeight": @(CGRectGetHeight(originFrame)),
+                                     @"width": @(CGRectGetWidth(frame)), @"height": @(CGRectGetHeight(frame))
+            };
+            NSDictionary *args = @{@"eventName": @"onSizeChanged", @"extra": params};
+            [[[self bridge] eventDispatcher] dispatchEvent:@"EventDispatcher" methodName:@"receiveNativeEvent" args:args];
         }
     }
 
