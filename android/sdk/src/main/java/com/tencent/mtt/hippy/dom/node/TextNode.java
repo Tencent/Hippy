@@ -802,8 +802,9 @@ public class TextNode extends StyleNode {
     }
 
     assert layout != null;
-    if (layout instanceof StaticLayout) {
-        Spanned spanned = (Spanned) layout.getText();
+    CharSequence layoutText = layout.getText();
+    if (layoutText instanceof Spanned) {
+        Spanned spanned = (Spanned) layoutText;
         HippyVerticalAlignSpan[] spans = spanned.getSpans(0, spanned.length(), HippyVerticalAlignSpan.class);
         for (HippyVerticalAlignSpan span : spans) {
             int offset = spanned.getSpanStart(span);
