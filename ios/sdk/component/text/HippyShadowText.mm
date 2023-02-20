@@ -34,8 +34,12 @@
 #import "HippyI18nUtils.h"
 #import "HippyShadowView+MTTLayout.h"
 
+
+// Text Attachment use this key to ref shadow view, HippyShadowView value
 NSAttributedStringKey const HippyShadowViewAttributeName = @"HippyShadowViewAttributeName";
+// Highlighted or not
 NSAttributedStringKey const HippyIsHighlightedAttributeName = @"IsHighlightedAttributeName";
+// Hippy Tag Key
 NSAttributedStringKey const HippyHippyTagAttributeName = @"HippyTagAttributeName";
 // VerticalAlign of Text or nested Text, NSNumber value
 NSAttributedStringKey const HippyTextVerticalAlignAttributeName = @"HippyTextVerticalAlignAttributeName";
@@ -46,8 +50,17 @@ NSAttributedStringKey const HippyVerticalAlignBaselineOffsetAttributeName = @"Hi
 CGFloat const HippyTextAutoSizeWidthErrorMargin = 0.05f;
 CGFloat const HippyTextAutoSizeHeightErrorMargin = 0.025f;
 CGFloat const HippyTextAutoSizeGranularity = 0.001f;
-
 static const CGFloat gDefaultFontSize = 14.f;
+
+
+#pragma mark - HippyAttributedStringStyleInfo
+
+@implementation HippyAttributedStringStyleInfo
+
+@end
+
+
+#pragma mark - HippyShadowText
 
 @interface HippyShadowText () <NSLayoutManagerDelegate>
 {
@@ -397,71 +410,72 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 #pragma mark - AttributeString
 
 - (NSAttributedString *)attributedString {
-    return [self _attributedStringWithFontFamily:nil fontSize:nil fontWeight:nil fontStyle:nil letterSpacing:nil useBackgroundColor:NO
-                                 foregroundColor:self.color ?: [UIColor blackColor]
-                                 backgroundColor:self.backgroundColor
-                                         opacity:self.opacity];
+    HippyAttributedStringStyleInfo *info = [HippyAttributedStringStyleInfo new];
+    info.foregroundColor = self.color ?: [UIColor blackColor];
+    info.backgroundColor = self.backgroundColor;
+    info.opacity = self.opacity;
+    info.isNestedText = self.hippySubviews.count > 0;
+    _isNestedText = info.isNestedText;
+    return [self _attributedStringWithStyleInfo:info];
 }
 
-- (NSAttributedString *)_attributedStringWithFontFamily:(NSString *)fontFamily
-                                               fontSize:(NSNumber *)fontSize
-                                             fontWeight:(NSString *)fontWeight
-                                              fontStyle:(NSString *)fontStyle
-                                          letterSpacing:(NSNumber *)letterSpacing
-                                     useBackgroundColor:(BOOL)useBackgroundColor
-                                        foregroundColor:(UIColor *)foregroundColor
-                                        backgroundColor:(UIColor *)backgroundColor
-                                                opacity:(CGFloat)opacity {
+- (NSAttributedString *)_attributedStringWithStyleInfo:(HippyAttributedStringStyleInfo *)styleInfo {
     if (![self isTextDirty] && _cachedAttributedString) {
         return _cachedAttributedString;
     }
 
     if (_fontSize && !isnan(_fontSize)) {
-        fontSize = @(_fontSize);
+        styleInfo.fontSize = @(_fontSize);
     }
-    else if (nil == (id)fontSize) {
+    else if (nil == (id)styleInfo.fontSize) {
         //default font size is 14
-        fontSize = @(gDefaultFontSize);
+        styleInfo.fontSize = @(gDefaultFontSize);
     }
     if (_fontWeight) {
-        fontWeight = _fontWeight;
+        styleInfo.fontWeight = _fontWeight;
     }
     if (_fontStyle) {
-        fontStyle = _fontStyle;
+        styleInfo.fontStyle = _fontStyle;
     }
     if (_fontFamily) {
-        fontFamily = _fontFamily;
+        styleInfo.fontFamily = _fontFamily;
     }
     if (!isnan(_letterSpacing)) {
-        letterSpacing = @(_letterSpacing);
+        styleInfo.letterSpacing = @(_letterSpacing);
     }
 
-    _effectiveLetterSpacing = letterSpacing.doubleValue;
+    _effectiveLetterSpacing = styleInfo.letterSpacing.doubleValue;
 
     UIFont *f = nil;
-    if (fontFamily) {
-        f = [UIFont fontWithName:fontFamily size:[fontSize floatValue]];
+    if (styleInfo.fontFamily) {
+        f = [UIFont fontWithName:styleInfo.fontFamily size:[styleInfo.fontSize floatValue]];
     }
 
-    UIFont *font = [HippyFont updateFont:f withFamily:fontFamily size:fontSize weight:fontWeight style:fontStyle variant:_fontVariant
+    UIFont *font = [HippyFont updateFont:f withFamily:styleInfo.fontFamily
+                                    size:styleInfo.fontSize
+                                  weight:styleInfo.fontWeight
+                                   style:styleInfo.fontStyle
+                                 variant:_fontVariant
                          scaleMultiplier:_allowFontScaling ? _fontSizeMultiplier : 1.0];
 
     CGFloat heightOfTallestSubview = 0.0;
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.text ?: @""];
     NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
-    _isNestedText = self.hippySubviews.count > 0;
     for (HippyShadowView *child in [self hippySubviews]) {
         if ([child isKindOfClass:[HippyShadowText class]]) {
             HippyShadowText *shadowText = (HippyShadowText *)child;
-            NSAttributedString *subStr = [shadowText _attributedStringWithFontFamily:fontFamily
-                                                                            fontSize:fontSize
-                                                                          fontWeight:fontWeight
-                                                                           fontStyle:fontStyle
-                                                                       letterSpacing:letterSpacing
-                                                                  useBackgroundColor:YES
-                                                                     foregroundColor:[shadowText color] ?: foregroundColor
-                                                                     backgroundColor:shadowText.backgroundColor ?: backgroundColor
-                                                                             opacity:opacity * shadowText.opacity];
+            HippyAttributedStringStyleInfo *childInfo = [HippyAttributedStringStyleInfo new];
+            childInfo.fontFamily = styleInfo.fontFamily;
+            childInfo.fontSize = styleInfo.fontSize;
+            childInfo.fontWeight = styleInfo.fontWeight;
+            childInfo.fontStyle = styleInfo.fontStyle;
+            childInfo.letterSpacing = styleInfo.letterSpacing;
+            childInfo.useBackgroundColor = YES;
+            childInfo.foregroundColor = [shadowText color] ?: styleInfo.foregroundColor;
+            childInfo.backgroundColor = shadowText.backgroundColor ?: styleInfo.backgroundColor;
+            childInfo.opacity = styleInfo.opacity * shadowText.opacity;
+            childInfo.isNestedText = styleInfo.isNestedText;
+            NSAttributedString *subStr = [shadowText _attributedStringWithStyleInfo:childInfo];
             [attributedString appendAttributedString:subStr];
             [child setTextComputed];
         } else {
@@ -512,27 +526,32 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     }
 
     [self _addAttribute:NSForegroundColorAttributeName
-              withValue:[foregroundColor colorWithAlphaComponent:CGColorGetAlpha(foregroundColor.CGColor) * opacity]
+              withValue:[styleInfo.foregroundColor
+                         colorWithAlphaComponent:CGColorGetAlpha(styleInfo.foregroundColor.CGColor) * styleInfo.opacity]
      toAttributedString:attributedString];
 
     if (_isHighlighted) {
         [self _addAttribute:HippyIsHighlightedAttributeName withValue:@YES toAttributedString:attributedString];
     }
-    if (useBackgroundColor && backgroundColor) {
+    if (styleInfo.useBackgroundColor && styleInfo.backgroundColor) {
         [self _addAttribute:NSBackgroundColorAttributeName
-                  withValue:[backgroundColor colorWithAlphaComponent:CGColorGetAlpha(backgroundColor.CGColor) * opacity]
+                  withValue:[styleInfo.backgroundColor
+                             colorWithAlphaComponent:CGColorGetAlpha(styleInfo.backgroundColor.CGColor) * styleInfo.opacity]
          toAttributedString:attributedString];
     }
 
     [self _addAttribute:NSFontAttributeName withValue:font toAttributedString:attributedString];
-    [self _addAttribute:NSKernAttributeName withValue:letterSpacing toAttributedString:attributedString];
+    [self _addAttribute:NSKernAttributeName withValue:styleInfo.letterSpacing toAttributedString:attributedString];
     [self _addAttribute:HippyHippyTagAttributeName withValue:self.hippyTag toAttributedString:attributedString];
     if (HippyTextVerticalAlignUndefined != self.verticalAlignType) {
         [self _addAttribute:HippyTextVerticalAlignAttributeName
                   withValue:@(self.verticalAlignType)
          toAttributedString:attributedString];
     }
-    [self _setParagraphStyleOnAttributedString:attributedString fontLineHeight:font.lineHeight heightOfTallestSubview:heightOfTallestSubview];
+    [self _setParagraphStyleOnAttributedString:attributedString
+                                fontLineHeight:font.lineHeight
+                        heightOfTallestSubview:heightOfTallestSubview
+                                  isNestedText:styleInfo.isNestedText];
     if (NSWritingDirectionRightToLeft == direction) {
         NSDictionary *dic = @{NSWritingDirectionAttributeName: @[@(NSWritingDirectionRightToLeft | NSWritingDirectionEmbedding)]};
         [attributedString addAttributes:dic range:NSMakeRange(0, [attributedString length])];
@@ -565,7 +584,8 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
  */
 - (void)_setParagraphStyleOnAttributedString:(NSMutableAttributedString *)attributedString
                               fontLineHeight:(CGFloat)fontLineHeight
-                      heightOfTallestSubview:(CGFloat)heightOfTallestSubview {
+                      heightOfTallestSubview:(CGFloat)heightOfTallestSubview
+                                isNestedText:(BOOL)isNestedText {
     if (fabs(_lineHeight - 0) < DBL_EPSILON) {
         _lineHeight = fontLineHeight;
     }
@@ -632,7 +652,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
          * Note: baseline offset adjustment of text with attachment or nested Text
          * is in NSLayoutManagerDelegate's imp
          */
-        if (!_isNestedText && (lineHeight > fontLineHeight)
+        if (!isNestedText && (lineHeight > fontLineHeight)
             && HippyTextVerticalAlignUndefined == self.verticalAlignType) {
             CGFloat baselineOffset = (newLineHeight - maximumFontLineHeight) / 2.0f;
             if (baselineOffset > .0f) {
@@ -967,11 +987,16 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
                             offset = realBaselineOffset;
                             break;
                         }
-                        case HippyTextVerticalAlignBottom:
+                        case HippyTextVerticalAlignBottom: {
+                            UIFont *font = attrs[NSFontAttributeName];
+                            offset = abs(font.descender) + abs(font.leading) - baselineToBottom;
+                            break;
+                        }
                         default:
                             break;
                     }
-                    if (offset > .0f) {
+                    if (abs(offset) > .0f && !attrs[HippyShadowViewAttributeName]) {
+                        // only set for Text
                         [textStorage addAttribute:NSBaselineOffsetAttributeName value:@(offset) range:range];
                         _needRelayoutText = YES;
                     }
