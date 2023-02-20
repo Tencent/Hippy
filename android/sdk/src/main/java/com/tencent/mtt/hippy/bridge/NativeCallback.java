@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.bridge;
 
 import android.os.Handler;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 @SuppressWarnings({"unused"})
 public abstract class NativeCallback {
@@ -27,9 +28,9 @@ public abstract class NativeCallback {
         mHandler = handler;
     }
 
-    public final void nativeCallback(long result, String reason, String payload, long arg1, long arg2) {
-        mHandler.post(() -> callback(result, reason, payload, arg1, arg2));
+    public final void nativeCallback(long result, String reason, @Nullable String payload) {
+        mHandler.post(() -> callback(result, reason, payload));
     }
 
-    public abstract void callback(long result, String reason, String payload, long arg1, long arg2);
+    public abstract void callback(long result, String reason, @Nullable String payload);
 }

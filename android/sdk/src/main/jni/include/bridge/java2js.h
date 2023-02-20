@@ -30,9 +30,7 @@ namespace bridge {
 void CallJavaMethod(jobject j_obj,
                     jlong j_ret_code,
                     jstring j_ret_content = nullptr,
-                    jstring j_payload = nullptr,
-                    jlong j_arg1 = 0,
-                    jlong j_arg2 = 0);
+                    jstring j_payload = nullptr);
 
 void CallFunctionByHeapBuffer(JNIEnv *j_env,
                               jobject j_obj,

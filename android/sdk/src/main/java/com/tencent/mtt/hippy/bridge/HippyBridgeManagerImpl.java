@@ -53,6 +53,7 @@ import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 @SuppressWarnings({"unused", "deprecation"})
@@ -128,8 +129,8 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     private NativeCallback generateCallback() {
         return new NativeCallback(mHandler) {
             @Override
-            public void callback(long result, String reason, String payload, long arg1, long arg2) {
-                if (payload.equals("loadInstance")) {
+            public void callback(long result, String reason, @Nullable String payload) {
+                if ("loadInstance".equals(payload)) {
                     HippyRootView rootView = mContext.getInstance();
                     TimeMonitor monitor = rootView == null ? null : rootView.getTimeMonitor();
                     if (monitor != null) {
@@ -245,7 +246,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         @SuppressWarnings("unchecked") final com.tencent.mtt.hippy.common.Callback<Boolean> destroyCallback = (com.tencent.mtt.hippy.common.Callback<Boolean>) msg.obj;
         mHippyBridge.destroy(new NativeCallback(mHandler) {
             @Override
-            public void callback(long result, String reason, String payload, long arg1, long arg2) {
+            public void callback(long result, String reason, @Nullable String payload) {
                 boolean success = result == 0;
                 mHippyBridge.onDestroy(isReload);
                 if (destroyCallback != null) {
@@ -277,8 +278,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
                         mHippyBridge.initJSBridge(getGlobalConfigs(), new NativeCallback(mHandler) {
                             @Override
-                            public void callback(long result, String reason, String payload,
-                                long arg1, long arg2) {
+                            public void callback(long result, String reason, @Nullable String payload) {
                                 if (result != 0) {
                                     String info =
                                             "initJSBridge error: result=" + result + ", reason="
@@ -358,16 +358,17 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
                         loader.load(mHippyBridge, new NativeCallback(mHandler) {
                             @Override
-                            public void callback(long result, String reason, String payload,
-                                long arg1, long arg2) {
+                            public void callback(long result, String reason, @Nullable String payload) {
                                 TimeMonitor timeMonitor =
                                     localRootView == null ? null : localRootView.getTimeMonitor();
-                                if (timeMonitor != null) {
-                                    timeMonitor.addPoint(
-                                        HippyEngineMonitorPoint.SECONDARY_LOAD_SOURCE_END, arg2);
-                                    timeMonitor.addPoint(
-                                        HippyEngineMonitorPoint.SECONDARY_EXECUTE_SOURCE_START,
-                                        arg2);
+                                if (timeMonitor != null && payload != null) {
+                                    try {
+                                        long ts = new JSONObject(payload).getLong("load_end_millis");
+                                        timeMonitor.addPoint(HippyEngineMonitorPoint.SECONDARY_LOAD_SOURCE_END, ts);
+                                        timeMonitor.addPoint(HippyEngineMonitorPoint.SECONDARY_EXECUTE_SOURCE_START, ts);
+                                    } catch (JSONException ignored) {
+                                        // do nothing
+                                    }
                                 }
                                 if (result == 0) {
                                     notifyModuleLoaded(ModuleLoadStatus.STATUS_OK, null,
@@ -410,10 +411,16 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
             timeMonitor.addPoint(HippyEngineMonitorPoint.COMMON_LOAD_SOURCE_START);
             mCoreBundleLoader.load(mHippyBridge, new NativeCallback(mHandler) {
                 @Override
-                public void callback(long result, String reason, String payload, long arg1,
-                    long arg2) {
-                    timeMonitor.addPoint(HippyEngineMonitorPoint.COMMON_LOAD_SOURCE_END, arg2);
-                    timeMonitor.addPoint(HippyEngineMonitorPoint.COMMON_EXECUTE_SOURCE_START, arg2);
+                public void callback(long result, String reason, @Nullable String payload) {
+                    if (payload != null) {
+                        try {
+                            long ts = new JSONObject(payload).getLong("load_end_millis");
+                            timeMonitor.addPoint(HippyEngineMonitorPoint.COMMON_LOAD_SOURCE_END, ts);
+                            timeMonitor.addPoint(HippyEngineMonitorPoint.COMMON_EXECUTE_SOURCE_START, ts);
+                        } catch (JSONException ignored) {
+                            // do nothing
+                        }
+                    }
                     RuntimeException exception = null;
                     boolean ret = (result == 0);
                     if (!ret) {

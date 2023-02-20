@@ -217,9 +217,7 @@ void CallFunctionByDirectBuffer(JNIEnv* j_env,
 void CallJavaMethod(jobject j_obj,
                     jlong j_ret_code,
                     jstring j_ret_content,
-                    jstring j_payload,
-                    jlong j_arg1,
-                    jlong j_arg2) {
+                    jstring j_payload) {
   if (!j_obj) {
     TDF_BASE_DLOG(INFO) << "CallJavaMethod j_obj is nullptr";
     return;
@@ -232,13 +230,13 @@ void CallJavaMethod(jobject j_obj,
     return;
   }
 
-  jmethodID j_method_id = j_env->GetMethodID(j_class, "nativeCallback", "(JLjava/lang/String;Ljava/lang/String;JJ)V");
+  jmethodID j_method_id = j_env->GetMethodID(j_class, "nativeCallback", "(JLjava/lang/String;Ljava/lang/String;)V");
   if (!j_method_id) {
     TDF_BASE_LOG(ERROR) << "CallJavaMethod j_method_id error";
     return;
   }
 
-  j_env->CallVoidMethod(j_obj, j_method_id, j_ret_code, j_ret_content, j_payload, j_arg1, j_arg2);
+  j_env->CallVoidMethod(j_obj, j_method_id, j_ret_code, j_ret_content, j_payload);
   JNIEnvironment::ClearJEnvException(j_env);
   j_env->DeleteLocalRef(j_class);
 }
