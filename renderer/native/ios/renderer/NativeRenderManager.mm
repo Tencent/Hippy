@@ -197,6 +197,10 @@ void NativeRenderManager::SetVFSUriLoader(std::shared_ptr<VFSUriLoader> loader) 
     renderImpl_.VFSUriLoader = loader;
 }
 
+void NativeRenderManager::SetRootViewSizeChangedEvent(std::function<void(int32_t rootTag, NSDictionary *)> cb) {
+    [renderImpl_ setRootViewSizeChangedEvent:cb];
+}
+
 NativeRenderManager::~NativeRenderManager() {
     [renderImpl_ invalidate];
     renderImpl_ = nil;
