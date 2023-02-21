@@ -21,18 +21,19 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class UIView;
-@class HippyVirtualNode;
+@interface HippyReusableViewPool : NSObject
 
-@interface HippyReusableNodeCache : NSObject
+- (void)addView:(__kindof UIView *)view forKey:(NSString *)key;
 
-- (void)enqueueItemNode:(HippyVirtualNode *)node forIdentifier:(NSString *)identifier;
-- (HippyVirtualNode *)dequeueItemNodeForIdentifier:(NSString *)identifier;
-- (BOOL)queueContainsNode:(HippyVirtualNode *)node forIdentifier:(NSString *)identifier;
-- (BOOL)removeNode:(HippyVirtualNode *)node forIdentifier:(NSString *)identifier;
+- (void)addHippyViewRecursively:(__kindof UIView *)view;
+
+- (__kindof UIView *)popViewForKey:(NSString *)key;
+
+- (void)clearCache;
 
 @end
 
