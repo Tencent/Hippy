@@ -89,7 +89,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     final int mBridgeType;
     final boolean enableV8Serialization;
     ArrayList<String> mLoadedBundleInfo = null;
-    private final boolean mIsDevModule;
+    private final HippyEngine.DebugMode mDebugMode;
     private final String mDebugServerHost;
     private final int mGroupId;
     private final HippyThirdPartyAdapter mThirdPartyAdapter;
@@ -105,18 +105,18 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     private NativeCallback mCallFunctionCallback;
 
     public HippyBridgeManagerImpl(HippyEngineContext context, HippyBundleLoader coreBundleLoader,
-            int bridgeType, boolean enableV8Serialization, boolean isDevModule,
+            int bridgeType, boolean enableV8Serialization, HippyEngine.DebugMode debugMode,
             String debugServerHost,
             int groupId, HippyThirdPartyAdapter thirdPartyAdapter, V8InitParams v8InitParams) {
         mContext = context;
         mCoreBundleLoader = coreBundleLoader;
         mBridgeType = bridgeType;
-        mIsDevModule = isDevModule;
         mDebugServerHost = debugServerHost;
         mGroupId = groupId;
         mThirdPartyAdapter = thirdPartyAdapter;
         this.enableV8Serialization = enableV8Serialization;
         this.v8InitParams = v8InitParams;
+        this.mDebugMode = debugMode;
 
         if (enableV8Serialization) {
             compatibleSerializer = new Serializer();
@@ -274,7 +274,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                     try {
                         mHippyBridge = new HippyBridgeImpl(mContext, HippyBridgeManagerImpl.this,
                                 mBridgeType == BRIDGE_TYPE_SINGLE_THREAD, enableV8Serialization,
-                                this.mIsDevModule, this.mDebugServerHost, v8InitParams);
+                                this.mDebugMode, this.mDebugServerHost, v8InitParams);
 
                         mHippyBridge.initJSBridge(getGlobalConfigs(), new NativeCallback(mHandler) {
                             @Override
@@ -404,6 +404,10 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         }
 
         return false;
+    }
+    @Override
+    public void connectDebugUrl(String wsDebugUrl) {
+        mHippyBridge.connectDebugUrl(wsDebugUrl);
     }
 
     private void loadCoreBundle(TimeMonitor timeMonitor, Callback<Boolean> callback) {

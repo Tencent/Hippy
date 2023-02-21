@@ -94,8 +94,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
   DevSupportManager mDevSupportManager;
   HippyEngineContextImpl mEngineContext;
   V8 mHippyV8;
-  // 从网络上加载jsbundle
-  final boolean mDebugMode;
   // Hippy Server的jsbundle名字，调试模式下有效
   final String mServerBundleName;
   // Hippy Server的host，调试模式下有效
@@ -147,8 +145,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     this.mPreloadBundleLoader = preloadBundleLoader;
     this.mAPIProviders = params.providers;
     this.mDebugMode = params.debugMode;
-    this.mServerBundleName = params.debugMode ? params.debugBundleName : "";
-    this.mStartTimeMonitor = new TimeMonitor(!params.debugMode);
+    this.mServerBundleName = isDevMode() ? params.debugBundleName : "";
+    this.mStartTimeMonitor = new TimeMonitor(!isDevMode());
     this.enableV8Serialization = params.enableV8Serialization;
     this.mServerHost = params.debugServerHost;
     this.mDebugComponentName = params.debugComponentName;
@@ -180,11 +178,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     mHandler.removeMessages(MSG_ENGINE_INIT_TIMEOUT);
 
     try {
-      mDevSupportManager = new DevSupportManager(mGlobalConfigs, mDebugMode, mServerHost,
+      mDevSupportManager = new DevSupportManager(mGlobalConfigs, isDebugMode(), mServerHost,
           mServerBundleName, mRemoteServerUrl);
       mDevSupportManager.setDevCallback(this);
 
-      if (mDebugMode) {
+      if (isDevMode()) {
         mDevSupportManager.setDebugComponentName(mDebugComponentName);
         String url = mDevSupportManager.createResourceUrl(mServerBundleName);
         mCoreBundleLoader = new HippyRemoteBundleLoader(url);
@@ -257,7 +255,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     if (loadParams.context == null) {
       throw new RuntimeException("Hippy: loadModule loadParams.context must no be null");
     }
-    if (!mDebugMode && TextUtils.isEmpty(loadParams.jsAssetsPath) && TextUtils
+    if (!isDevMode() && TextUtils.isEmpty(loadParams.jsAssetsPath) && TextUtils
         .isEmpty(loadParams.jsFilePath)) {
       throw new RuntimeException(
           "Hippy: loadModule debugMode=true, loadParams.jsAssetsPath and jsFilePath both null!");
@@ -289,7 +287,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     if (onLoadCompleteListener != null) {
       view.setOnLoadCompleteListener(onLoadCompleteListener);
     }
-    TimeMonitor timeMonitor = new TimeMonitor(!mDebugMode);
+    TimeMonitor timeMonitor = new TimeMonitor(!isDevMode());
     timeMonitor.setParent(mStartTimeMonitor);
     timeMonitor.begine();
     timeMonitor.startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_WAIT_ENGINE);
@@ -299,8 +297,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     view.setOnSizeChangedListener(this);
     view.attachEngineManager(this);
     mInstances.add(view);
-    mDevSupportManager.attachToHost(view);
-    if (!mDevManagerInited && mDebugMode) {
+    if (isDevMode()) {
+        mDevSupportManager.attachToHost(view);
+    }
+    if (!mDevManagerInited && isDevMode()) {
       mDevManagerInited = true;
     }
 
@@ -498,11 +498,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
       }
     };
     return onBackPressed(handler);
-  }
-
-  @Override
-  public boolean isDebugMode() {
-    return mDebugMode;
   }
 
   private void addNodeRecordOfChild(ArrayList<DomNodeRecord> recordList, DomNode parent, int index, int rootId) {
@@ -748,7 +743,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
   private void reportEngineLoadResult(int code, Throwable e) {
     mHandler.removeMessages(MSG_ENGINE_INIT_TIMEOUT);
-    if (!mDebugMode && !mHasReportEngineLoadResult) {
+    if (!isDevMode() && !mHasReportEngineLoadResult) {
       mHasReportEngineLoadResult = true;
       mGlobalConfigs.getEngineMonitorAdapter()
           .reportEngineLoadResult(code, mStartTimeMonitor.getTotalTime(),
@@ -827,7 +822,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     HippyMap launchParams = instance.getLaunchParams();
     HippyBundleLoader loader = ((HippyInstanceContext) instance.getContext()).getBundleLoader();
 
-    if (!mDebugMode) {
+    if (!isDevMode()) {
       if (loader != null) {
         if (instance.getTimeMonitor() != null) {
           instance.getTimeMonitor()
@@ -844,7 +839,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     LogUtils.d(TAG, "in internalLoadInstance before loadInstance");
     mEngineContext.getBridgeManager()
         .loadInstance(instance.getName(), instance.getId(), launchParams);
-    if (mDebugMode) {
+    if (isDevMode()) {
       notifyModuleLoaded(ModuleLoadStatus.STATUS_OK, null, instance);
     }
   }
@@ -928,7 +923,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
   @Override
   public void handleThreadUncaughtException(Thread t, Throwable e, Integer groupId) {
-    if (mDebugMode && mDevSupportManager != null) {
+    if (isDevMode() && mDevSupportManager != null) {
       mDevSupportManager.handleException(e);
     } else {
       mGlobalConfigs.getExceptionHandler().handleNativeException(new RuntimeException(e), false);
@@ -965,11 +960,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     private String mComponentName;
     private Map<String, Object> mNativeParams;
 
-    public HippyEngineContextImpl(boolean isDevModule, String debugServerHost) {
+    public HippyEngineContextImpl(DebugMode debugMode, String debugServerHost) {
       mModuleManager = new HippyModuleManagerImpl(this, mAPIProviders);
       mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader,
           HippyEngineManagerImpl.this.getBridgeType(), enableV8Serialization,
-          isDevModule, debugServerHost, mGroupId, mThirdPartyAdapter, v8InitParams);
+          debugMode, debugServerHost, mGroupId, mThirdPartyAdapter, v8InitParams);
       mRenderManager = new RenderManager(this, mAPIProviders);
       mDomManager = new DomManager(this);
     }
@@ -1091,7 +1086,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
     @Override
     public void handleException(Throwable throwable) {
-      if (mDebugMode && mDevSupportManager != null) {
+      if (isDevMode() && mDevSupportManager != null) {
         mDevSupportManager.handleException(throwable);
       } else {
         if (throwable instanceof HippyJsException) {
