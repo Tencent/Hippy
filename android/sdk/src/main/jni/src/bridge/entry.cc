@@ -522,7 +522,8 @@ jlong InitInstance(JNIEnv* j_env,
 
   RegisterFunction scope_cb = [save_object_ = std::move(save_object)](void*) {
     TDF_BASE_LOG(INFO) << "run scope cb";
-    hippy::bridge::CallJavaMethod(save_object_->GetObj(), INIT_CB_STATE::SUCCESS);
+    hippy::bridge::CallJavaMethod(save_object_->GetObj(),
+                                  INIT_CB_STATE::SUCCESS);
   };
 
   scope_cb_map->insert(

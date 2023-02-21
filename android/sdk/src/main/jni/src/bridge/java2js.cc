@@ -40,15 +40,14 @@ enum CALLFUNCTION_CB_STATE {
 REGISTER_JNI( // NOLINT(cert-err58-cpp)
         "com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
         "callFunction",
-        "(Ljava/lang/String;JLcom/tencent/mtt/hippy/bridge/NativeCallback;"
-        "[BII)V",
+        "(Ljava/lang/String;JLcom/tencent/mtt/hippy/bridge/NativeCallback;[BII)V",
         CallFunctionByHeapBuffer)
 
 REGISTER_JNI( // NOLINT(cert-err58-cpp)
         "com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
         "callFunction",
-        "(Ljava/lang/String;JLcom/tencent/mtt/hippy/bridge/NativeCallback;"
-        "Ljava/nio/ByteBuffer;II)V",
+        "(Ljava/lang/String;JLcom/tencent/mtt/hippy/bridge/"
+        "NativeCallback;Ljava/nio/ByteBuffer;II)V",
         CallFunctionByDirectBuffer)
 
 using unicode_string_view = tdf::base::unicode_string_view;
@@ -81,8 +80,8 @@ void CallFunction(JNIEnv* j_env,
   unicode_string_view action_name = JniUtils::ToStrView(j_env, j_action);
   std::shared_ptr<JavaRef> cb = std::make_shared<JavaRef>(j_env, j_callback);
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-  task->callback = [runtime, cb_ = std::move(cb),
-                    action_name, buffer_data_ = std::move(buffer_data),
+  task->callback = [runtime, cb_ = std::move(cb), action_name,
+                    buffer_data_ = std::move(buffer_data),
                     buffer_owner_ = std::move(buffer_owner)] {
     JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
     std::shared_ptr<Scope> scope = runtime->GetScope();
@@ -100,8 +99,10 @@ void CallFunction(JNIEnv* j_env,
 
       if (!is_fn) {
         jstring j_action = JniUtils::StrViewToJString(j_env, action_name);
-        jstring j_msg = JniUtils::StrViewToJString(j_env, u"hippyBridge not find");
-        CallJavaMethod(cb_->GetObj(), CALLFUNCTION_CB_STATE::NO_METHOD_ERROR, j_msg, j_action);
+        jstring j_msg =
+            JniUtils::StrViewToJString(j_env, u"hippyBridge not find");
+        CallJavaMethod(cb_->GetObj(), CALLFUNCTION_CB_STATE::NO_METHOD_ERROR,
+                       j_msg, j_action);
         j_env->DeleteLocalRef(j_action);
         j_env->DeleteLocalRef(j_msg);
         return;
@@ -230,13 +231,14 @@ void CallJavaMethod(jobject j_obj,
     return;
   }
 
-  jmethodID j_method_id = j_env->GetMethodID(j_class, "nativeCallback", "(JLjava/lang/String;Ljava/lang/String;)V");
-  if (!j_method_id) {
-    TDF_BASE_LOG(ERROR) << "CallJavaMethod j_method_id error";
+  jmethodID j_cb_id =
+      j_env->GetMethodID(j_class, "nativeCallback", "(JLjava/lang/String;Ljava/lang/String;)V");
+  if (!j_cb_id) {
+    TDF_BASE_LOG(ERROR) << "CallJavaMethod j_cb_id error";
     return;
   }
 
-  j_env->CallVoidMethod(j_obj, j_method_id, j_ret_code, j_ret_content, j_payload);
+  j_env->CallVoidMethod(j_obj, j_cb_id, j_ret_code, j_ret_content, j_payload);
   JNIEnvironment::ClearJEnvException(j_env);
   j_env->DeleteLocalRef(j_class);
 }
