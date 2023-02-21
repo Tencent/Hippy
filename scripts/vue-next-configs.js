@@ -127,6 +127,12 @@ function genConfig(name) {
             declarationMap: false,
           },
           exclude: ['**/__tests__/*.test.*'],
+          include: [
+            'packages/hippy-vue-*/src',
+            'packages/global.d.ts',
+            'node_modules/@types/web/index.d.ts',
+            'node_modules/@types/node/index.d.ts',
+          ],
         },
       }),
       apiExtractor({
