@@ -179,55 +179,61 @@ bool ADRLoader::LoadByJni(const unicode_string_view& uri,
 
 void OnResourceReady(JNIEnv* j_env,
                      __unused jobject j_object,
-                     jobject j_byte_buffer,
+                     jobject j_buffer,
                      jlong j_runtime_id,
                      jlong j_request_id) {
-  TDF_BASE_DLOG(INFO) << "HippyBridgeImpl onResourceReady j_runtime_id = "
-                      << j_runtime_id;
+  TDF_BASE_DLOG(INFO) << "HippyBridgeImpl onResourceReady j_runtime_id = " << j_runtime_id;
   auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
-    TDF_BASE_DLOG(WARNING)
-        << "HippyBridgeImpl onResourceReady, j_runtime_id invalid";
+    TDF_BASE_DLOG(WARNING) << "HippyBridgeImpl onResourceReady, j_runtime_id invalid";
     return;
   }
-  std::shared_ptr<Scope> scope = runtime->GetScope();
-  if (!scope) {
-    TDF_BASE_DLOG(WARNING) << "HippyBridgeImpl onResourceReady, scope invalid";
+  std::weak_ptr<Scope> weak_scope = runtime->GetScope();
+  auto runner = runtime->GetEngine()->GetJSRunner();
+  if (!runner) {
     return;
   }
-
-  std::shared_ptr<ADRLoader> loader =
-      std::static_pointer_cast<ADRLoader>(scope->GetUriLoader());
   int64_t request_id = j_request_id;
-  TDF_BASE_DLOG(INFO) << "request_id = " << request_id;
-  auto cb = loader->GetRequestCB(request_id);
-  if (!cb) {
-    TDF_BASE_DLOG(WARNING) << "cb not found" << request_id;
-    return;
-  }
-  if (!j_byte_buffer) {
-    TDF_BASE_DLOG(INFO) << "HippyBridgeImpl onResourceReady, buff null";
-    cb(u8string());
-    return;
-  }
-  auto len = (j_env)->GetDirectBufferCapacity(j_byte_buffer);
-  TDF_BASE_DLOG(INFO) << "len = " << len;
-  if (len == -1) {
-    TDF_BASE_DLOG(ERROR)
-        << "HippyBridgeImpl onResourceReady, BufferCapacity error";
-    cb(u8string());
-    return;
-  }
-  void* buff = (j_env)->GetDirectBufferAddress(j_byte_buffer);
-  if (!buff) {
-    TDF_BASE_DLOG(INFO) << "HippyBridgeImpl onResourceReady, buff null";
-    cb(u8string());
-    return;
-  }
+  auto buffer = std::make_shared<JavaRef>(j_env, j_buffer);
+  auto task = std::make_unique<CommonTask>();
+  task->func_ = [weak_scope, request_id, buffer_ = std::move(buffer)] {
+    auto scope = weak_scope.lock();
+    if (!scope) {
+      return;
+    }
+    auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+    std::shared_ptr<ADRLoader> loader = std::static_pointer_cast<ADRLoader>(scope->GetUriLoader());
+    TDF_BASE_DLOG(INFO) << "request_id = " << request_id;
+    auto cb = loader->GetRequestCB(request_id);
+    if (!cb) {
+      TDF_BASE_DLOG(WARNING) << "cb not found" << request_id;
+      return;
+    }
+    auto j_buffer = buffer_->GetObj();
+    if (!j_buffer) {
+      TDF_BASE_DLOG(INFO) << "HippyBridgeImpl onResourceReady, buff null";
+      cb(u8string());
+      return;
+    }
+    auto len = j_env->GetDirectBufferCapacity(j_buffer);
+    TDF_BASE_DLOG(INFO) << "len = " << len;
+    if (len == -1) {
+      TDF_BASE_DLOG(ERROR) << "HippyBridgeImpl onResourceReady, BufferCapacity error";
+      cb(u8string());
+      return;
+    }
+    void* buff = j_env->GetDirectBufferAddress(j_buffer);
+    if (!buff) {
+      TDF_BASE_DLOG(INFO) << "HippyBridgeImpl onResourceReady, buff null";
+      cb(u8string());
+      return;
+    }
 
-  u8string str(reinterpret_cast<const char8_t_ *>(buff),
-               hippy::base::checked_numeric_cast<jlong, size_t>(len));
-  cb(std::move(str));
+    u8string str(reinterpret_cast<const char8_t_ *>(buff),
+                 hippy::base::checked_numeric_cast<jlong, size_t>(len));
+    cb(std::move(str));
+  };
+  runner->PostTask(std::move(task));
 }
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
