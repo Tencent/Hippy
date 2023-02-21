@@ -460,7 +460,7 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 | opacity       | 配置 `View` 的透明度，同时会影响子节点的透明度。             | `number`                                  | `Android、iOS、Web-Renderer`    |
 | ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。`default: tail` | `enum(head, middle, tail, clip)` | `Android(版本2.14.1以上全支持，低版本仅支持tail)、iOS(全支持)` |
 | break-strategy* | 设置Android API 23及以上系统的文本换行策略。`default: simple` | `enum(simple, high_quality, balanced)` | `Android(版本 2.14.2以上)` |
-| verticalAlign* | 设置文本组件内嵌套文本组件或文本组件内嵌套图片组件时的对齐策略。`default: baseline` | `enum(top, middle, baseline, bottom)` | `Android、iOS(版本2.15.6以上)` |
+| verticalAlign* | 设置文本组件内嵌套文本组件或文本组件内嵌套图片组件时的对齐策略。`default: baseline` | `enum(top, middle, baseline, bottom)` | `Android、iOS(版本2.16.0以上)` |
 
 * ellipsizeMode 的参数含义：
   * `clip` - 超过指定行数的文字会被直接截断，不显示“...”；（Android 2.14.1以上、iOS全支持）

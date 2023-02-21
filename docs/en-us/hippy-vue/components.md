@@ -460,7 +460,7 @@ Display text, but because there is no `display: Inline` display mode, the defaul
 | opacity       | Configure the transparency of the `View`, at the same time will affect the transparency of the child nodes.             | `number`                                  | `Android、iOS、Web-Renderer`    |
 | ellipsizeMode* | When set the `numberOfLines` value, this parameter specifies how the string is truncated. So when using `ellipsizeMode`, `numberOfLines` value must be specified at the same time. `default: tail` | `enum(head, middle, tail, clip)` | `Android( minimum supported version 2.14.1, earlier version only supported tail)、iOS(full supported)、hippy-react-web(clip、ellipsis)` |
 | break-strategy* | Set text break strategy on Android API 23 and above. `default: simple` | `enum(simple, high_quality, balanced)` | `Android(minimum supported version 2.14.2)` |
-| verticalAlign* | Sets the alignment strategy when text components are nested within text components or image components are nested within text components. `default: baseline` | `enum(top, middle, baseline, bottom)` | `Android, iOS (minimum supported version 2.15.6)` |
+| verticalAlign* | Sets the alignment strategy when text components are nested within text components or image components are nested within text components. `default: baseline` | `enum(top, middle, baseline, bottom)` | `Android, iOS (minimum supported version 2.16.0)` |
 
 * The meaning of parameters of ellipsizeMode：
   * `clip` - Texts that exceed the specified number of lines will be truncated directly, "..." will not shows;(Android  2.14.1+, iOS full supported)
