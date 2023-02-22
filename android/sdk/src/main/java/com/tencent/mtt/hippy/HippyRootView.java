@@ -28,6 +28,7 @@ import android.widget.FrameLayout;
 
 import com.tencent.mtt.hippy.adapter.device.HippyDeviceAdapter;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorEvent;
+import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorPoint;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.common.HippyTag;
 import com.tencent.mtt.hippy.devsupport.DevFloatButton;
@@ -109,6 +110,7 @@ public class HippyRootView extends FrameLayout {
       mLoadCompleted = true;
       if (mTimeMonitor != null) {
         mTimeMonitor.end();
+        mTimeMonitor.addPoint(HippyEngineMonitorPoint.FIRST_PAINT_END);
         if (mOnLoadCompleteListener != null) {
           mOnLoadCompleteListener
               .onLoadComplete(mTimeMonitor.getTotalTime(), mTimeMonitor.getEvents());
@@ -248,12 +250,6 @@ public class HippyRootView extends FrameLayout {
       mGlobalLayoutListener = new GlobalLayoutListener();
     }
     return mGlobalLayoutListener;
-  }
-
-  public void startMonitorEvent(String eventName) {
-    if (mTimeMonitor != null) {
-      mTimeMonitor.startEvent(eventName);
-    }
   }
 
   public TimeMonitor getTimeMonitor() {

@@ -332,7 +332,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ setUp %p", NSStringFromClass([self class]), self);
     _performanceLogger = [HippyPerformanceLogger new];
     [_performanceLogger markStartForTag:HippyPLBridgeStartup];
-    //  [_performanceLogger markStartForTag:HippyPLTTI];
 
     // Only update bundleURL from delegate if delegate bundleURL has changed
     NSURL *previousDelegateURL = _delegateBundleURL;
