@@ -460,6 +460,7 @@ Display text, but because there is no `display: Inline` display mode, the defaul
 | opacity       | Configure the transparency of the `View`, at the same time will affect the transparency of the child nodes.             | `number`                                  | `Android、iOS、Web-Renderer`    |
 | ellipsizeMode* | When set the `numberOfLines` value, this parameter specifies how the string is truncated. So when using `ellipsizeMode`, `numberOfLines` value must be specified at the same time. `default: tail` | `enum(head, middle, tail, clip)` | `Android( minimum supported version 2.14.1, earlier version only supported tail)、iOS(full supported)、hippy-react-web(clip、ellipsis)` |
 | break-strategy* | Set text break strategy on Android API 23 and above. `default: simple` | `enum(simple, high_quality, balanced)` | `Android(minimum supported version 2.14.2)` |
+| verticalAlign* | Sets the alignment strategy when text components are nested within text components or image components are nested within text components. `default: baseline` | `enum(top, middle, baseline, bottom)` | `Android, iOS (minimum supported version 2.16.0)` |
 
 * The meaning of parameters of ellipsizeMode：
   * `clip` - Texts that exceed the specified number of lines will be truncated directly, "..." will not shows;(Android  2.14.1+, iOS full supported)
@@ -470,6 +471,11 @@ Display text, but because there is no `display: Inline` display mode, the defaul
   * `simple`(default value): strategy indicating simple line breaking, automatic hyphens are not added, and modifying text generally doesn't affect the layout before it (which yields a more consistent user experience when editing), but layout may not be the highest quality;
   * `high_quality`: strategy indicating high quality line breaking, including automatic hyphenation and doing whole-paragraph optimization of line breaks;
   * `balanced`: strategy indicating balanced line breaking, the breaks are chosen to make all lines as close to the same length as possible, including automatic hyphenation.
+* Parameter meaning of verticalAlign:
+  * `top`: line top alignment
+  * `middle`: center alignment
+  * `baseline`: baseline alignment
+  * `bottom`: line bottom alignment
 
 ## whitespace handler
 

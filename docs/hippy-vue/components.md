@@ -460,6 +460,7 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 | opacity       | 配置 `View` 的透明度，同时会影响子节点的透明度。             | `number`                                  | `Android、iOS、Web-Renderer`    |
 | ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。`default: tail` | `enum(head, middle, tail, clip)` | `Android(版本2.14.1以上全支持，低版本仅支持tail)、iOS(全支持)` |
 | break-strategy* | 设置Android API 23及以上系统的文本换行策略。`default: simple` | `enum(simple, high_quality, balanced)` | `Android(版本 2.14.2以上)` |
+| verticalAlign* | 设置文本组件内嵌套文本组件或文本组件内嵌套图片组件时的对齐策略。`default: baseline` | `enum(top, middle, baseline, bottom)` | `Android、iOS(版本2.16.0以上)` |
 
 * ellipsizeMode 的参数含义：
   * `clip` - 超过指定行数的文字会被直接截断，不显示“...”；（Android 2.14.1以上、iOS全支持）
@@ -470,6 +471,11 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
   * `simple`（默认值）：简单折行，每一行显示尽可能多的字符，直到这一行不能显示更多字符时才进行换行，这种策略下不会自动折断单词（当一行只有一个单词并且宽度显示不下的情况下才会折断）；
   * `high_quality`：高质量折行，针对整段文本的折行进行布局优化，必要时会自动折断单词，比其他两种策略略微影响性能，通常比较适合只读文本；
   * `balanced`：平衡折行，尽可能保证一个段落的每一行的宽度相同，必要时会折断单词。
+* verticalAlign 的参数含义：
+  * `top`: 行顶部对齐
+  * `middle`: 居中对齐
+  * `baseline`: 基线对齐
+  * `bottom`: 行底部对齐
 
 ## whitespace 处理
 
