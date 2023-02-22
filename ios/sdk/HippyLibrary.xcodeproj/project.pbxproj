@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		71EC53D12995196300074CC0 /* HippyPerformanceModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 71EC53D02995196300074CC0 /* HippyPerformanceModule.m */; };
 		F4C92920291C9B3B0078351C /* logging.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4C928F3291C9B3A0078351C /* logging.cc */; };
 		F4C92921291C9B3B0078351C /* log_settings_state.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4C928F5291C9B3A0078351C /* log_settings_state.cc */; };
 		F4C92922291C9B3B0078351C /* log_settings.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4C928F7291C9B3A0078351C /* log_settings.cc */; };
@@ -204,6 +205,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		71EC53CF2995196300074CC0 /* HippyPerformanceModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyPerformanceModule.h; sourceTree = "<group>"; };
+		71EC53D02995196300074CC0 /* HippyPerformanceModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyPerformanceModule.m; sourceTree = "<group>"; };
 		71BBA19C299D0D790021B160 /* HippyShadowView+MTTLayout.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "HippyShadowView+MTTLayout.h"; sourceTree = "<group>"; };
 		F4C9286C291C96010078351C /* libhippy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libhippy.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4C928B0291C9B3A0078351C /* engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = engine.h; sourceTree = "<group>"; };
@@ -628,6 +631,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		710473AB296C1D7500B00F53 /* performance */ = {
+			isa = PBXGroup;
+			children = (
+				71EC53CF2995196300074CC0 /* HippyPerformanceModule.h */,
+				71EC53D02995196300074CC0 /* HippyPerformanceModule.m */,
+			);
+			path = performance;
+			sourceTree = "<group>";
+		};
 		F4C92863291C96010078351C = {
 			isa = PBXGroup;
 			children = (
@@ -947,6 +959,7 @@
 				F4C9298C291C9B4E0078351C /* image loader */,
 				F4C92991291C9B4E0078351C /* uimanager */,
 				F4C92995291C9B4E0078351C /* clipboard */,
+				710473AB296C1D7500B00F53 /* performance */,
 			);
 			path = module;
 			sourceTree = "<group>";
@@ -954,13 +967,13 @@
 		F4C92955291C9B4E0078351C /* turbo */ = {
 			isa = PBXGroup;
 			children = (
-				F4C92956291C9B4E0078351C /* HippyOCTurboModule.h */,
 				F4C92957291C9B4E0078351C /* HippyTurboModule.h */,
-				F4C92958291C9B4E0078351C /* HippyTurboModuleManager.h */,
-				F4C92959291C9B4E0078351C /* NSObject+HippyTurbo.h */,
 				F4C9295A291C9B4E0078351C /* HippyOCTurboModule+Inner.h */,
+				F4C92956291C9B4E0078351C /* HippyOCTurboModule.h */,
 				F4C9295B291C9B4E0078351C /* HippyOCTurboModule.mm */,
+				F4C92958291C9B4E0078351C /* HippyTurboModuleManager.h */,
 				F4C9295C291C9B4E0078351C /* HippyTurboModuleManager.mm */,
+				F4C92959291C9B4E0078351C /* NSObject+HippyTurbo.h */,
 				F4C9295D291C9B4E0078351C /* NSObject+HippyTurbo.mm */,
 			);
 			path = turbo;
@@ -1409,63 +1422,63 @@
 		F4C92A59291C9B4E0078351C /* base */ = {
 			isa = PBXGroup;
 			children = (
-				F4C92A5A291C9B4E0078351C /* HippyJSEnginesMapper.h */,
-				F4C92A5B291C9B4E0078351C /* HippyPerformanceLogger.m */,
 				F4C92A5C291C9B4E0078351C /* virtualNode */,
-				F4C92A61291C9B4E0078351C /* HippyComponentData.mm */,
-				F4C92A62291C9B4E0078351C /* HippyTouchHandler.m */,
-				F4C92A63291C9B4E0078351C /* HippyComponent.h */,
-				F4C92A64291C9B4E0078351C /* HippyAutoInsetsProtocol.h */,
-				F4C92A65291C9B4E0078351C /* HippyAnimationType.h */,
-				F4C92A66291C9B4E0078351C /* HippyBridge.h */,
-				F4C92A67291C9B4E0078351C /* HippyJSStackFrame.m */,
-				F4C92A68291C9B4E0078351C /* HippyMethodInterceptorProtocol.h */,
-				F4C92A69291C9B4E0078351C /* HippyEventDispatcher.m */,
-				F4C92A6A291C9B4E0078351C /* HippyModuleMethod.mm */,
-				F4C92A6B291C9B4E0078351C /* HippyBridgeModule.h */,
-				F4C92A6C291C9B4E0078351C /* HippyBridge+Mtt.h */,
-				F4C92A6D291C9B4E0078351C /* HippyKeyCommands.h */,
-				F4C92A6E291C9B4E0078351C /* HippyRootView.mm */,
-				F4C92A6F291C9B4E0078351C /* HippyRootView.h */,
-				F4C92A70291C9B4E0078351C /* HippyBridge+Private.h */,
-				F4C92A71291C9B4E0078351C /* HippyFont.h */,
-				F4C92A72291C9B4E0078351C /* HippyModuleMethod.h */,
-				F4C92A73291C9B4E0078351C /* HippyModuleData.h */,
-				F4C92A74291C9B4E0078351C /* HippyBridge+LocalFileSource.h */,
-				F4C92A75291C9B4E0078351C /* HippyScrollProtocol.h */,
-				F4C92A76291C9B4E0078351C /* HippyDisplayLink.h */,
-				F4C92A77291C9B4E0078351C /* HippyFrameUpdate.h */,
-				F4C92A78291C9B4E0078351C /* HippyDeviceBaseInfo.h */,
-				F4C92A79291C9B4E0078351C /* HippyBundleURLProvider.m */,
-				F4C92A7A291C9B4E0078351C /* HippyTouchHandler.h */,
-				F4C92A7B291C9B4E0078351C /* HippyJSEnginesMapper.mm */,
-				F4C92A7C291C9B4E0078351C /* HippyRootShadowView.h */,
-				F4C92A7D291C9B4E0078351C /* HippyJavaScriptLoader.mm */,
-				F4C92A7E291C9B4E0078351C /* HippyPerformanceLogger.h */,
-				F4C92A7F291C9B4E0078351C /* HippyBatchedBridge.mm */,
-				F4C92A80291C9B4E0078351C /* HippyBridgeDelegate.h */,
-				F4C92A81291C9B4E0078351C /* HippyInvalidating.h */,
 				F4C92A82291C9B4E0078351C /* executors */,
-				F4C92A89291C9B4E0078351C /* HippyKeyCommands.m */,
-				F4C92A8A291C9B4E0078351C /* HippyFont.mm */,
-				F4C92A8B291C9B4E0078351C /* HippyEventDispatcher.h */,
-				F4C92A8C291C9B4E0078351C /* HippyBridgeMethod.h */,
-				F4C92A8D291C9B4E0078351C /* HippyJSStackFrame.h */,
-				F4C92A8E291C9B4E0078351C /* HippyBridge+LocalFileSource.m */,
-				F4C92A8F291C9B4E0078351C /* HippyJavaScriptExecutor.h */,
+				F4C92A65291C9B4E0078351C /* HippyAnimationType.h */,
+				F4C92A64291C9B4E0078351C /* HippyAutoInsetsProtocol.h */,
+				F4C92A66291C9B4E0078351C /* HippyBridge.h */,
 				F4C92A90291C9B4E0078351C /* HippyBridge.mm */,
-				F4C92A91291C9B4E0078351C /* HippyJavaScriptLoader.h */,
-				F4C92A92291C9B4E0078351C /* HippyMemoryOpt.h */,
-				F4C92A93291C9B4E0078351C /* HippyDeviceBaseInfo.m */,
-				F4C92A94291C9B4E0078351C /* HippyBundleURLProvider.h */,
-				F4C92A95291C9B4E0078351C /* HippyComponentData.h */,
-				F4C92A96291C9B4E0078351C /* HippyRootViewDelegate.h */,
-				F4C92A97291C9B4E0078351C /* HippyModuleData.mm */,
+				F4C92A6C291C9B4E0078351C /* HippyBridge+Mtt.h */,
 				F4C92A98291C9B4E0078351C /* HippyBridge+Mtt.mm */,
-				F4C92A99291C9B4E0078351C /* HippyFrameUpdate.m */,
+				F4C92A6B291C9B4E0078351C /* HippyBridgeModule.h */,
+				F4C92A74291C9B4E0078351C /* HippyBridge+LocalFileSource.h */,
+				F4C92A8E291C9B4E0078351C /* HippyBridge+LocalFileSource.m */,
+				F4C92A70291C9B4E0078351C /* HippyBridge+Private.h */,
+				F4C92A80291C9B4E0078351C /* HippyBridgeDelegate.h */,
+				F4C92A8C291C9B4E0078351C /* HippyBridgeMethod.h */,
+				F4C92A7F291C9B4E0078351C /* HippyBatchedBridge.mm */,
+				F4C92A94291C9B4E0078351C /* HippyBundleURLProvider.h */,
+				F4C92A79291C9B4E0078351C /* HippyBundleURLProvider.m */,
+				F4C92A63291C9B4E0078351C /* HippyComponent.h */,
+				F4C92A95291C9B4E0078351C /* HippyComponentData.h */,
+				F4C92A61291C9B4E0078351C /* HippyComponentData.mm */,
+				F4C92A78291C9B4E0078351C /* HippyDeviceBaseInfo.h */,
+				F4C92A93291C9B4E0078351C /* HippyDeviceBaseInfo.m */,
+				F4C92A76291C9B4E0078351C /* HippyDisplayLink.h */,
 				F4C92A9A291C9B4E0078351C /* HippyDisplayLink.m */,
+				F4C92A8B291C9B4E0078351C /* HippyEventDispatcher.h */,
+				F4C92A69291C9B4E0078351C /* HippyEventDispatcher.m */,
+				F4C92A71291C9B4E0078351C /* HippyFont.h */,
+				F4C92A8A291C9B4E0078351C /* HippyFont.mm */,
+				F4C92A77291C9B4E0078351C /* HippyFrameUpdate.h */,
+				F4C92A99291C9B4E0078351C /* HippyFrameUpdate.m */,
+				F4C92A81291C9B4E0078351C /* HippyInvalidating.h */,
+				F4C92A5A291C9B4E0078351C /* HippyJSEnginesMapper.h */,
+				F4C92A7B291C9B4E0078351C /* HippyJSEnginesMapper.mm */,
+				F4C92A8D291C9B4E0078351C /* HippyJSStackFrame.h */,
+				F4C92A67291C9B4E0078351C /* HippyJSStackFrame.m */,
+				F4C92A8F291C9B4E0078351C /* HippyJavaScriptExecutor.h */,
+				F4C92A91291C9B4E0078351C /* HippyJavaScriptLoader.h */,
+				F4C92A7D291C9B4E0078351C /* HippyJavaScriptLoader.mm */,
+				F4C92A6D291C9B4E0078351C /* HippyKeyCommands.h */,
+				F4C92A89291C9B4E0078351C /* HippyKeyCommands.m */,
+				F4C92A73291C9B4E0078351C /* HippyModuleData.h */,
+				F4C92A97291C9B4E0078351C /* HippyModuleData.mm */,
+				F4C92A72291C9B4E0078351C /* HippyModuleMethod.h */,
+				F4C92A6A291C9B4E0078351C /* HippyModuleMethod.mm */,
+				F4C92A68291C9B4E0078351C /* HippyMethodInterceptorProtocol.h */,
+				F4C92A92291C9B4E0078351C /* HippyMemoryOpt.h */,
+				F4C92A7E291C9B4E0078351C /* HippyPerformanceLogger.h */,
+				F4C92A5B291C9B4E0078351C /* HippyPerformanceLogger.m */,
+				F4C92A6F291C9B4E0078351C /* HippyRootView.h */,
+				F4C92A6E291C9B4E0078351C /* HippyRootView.mm */,
+				F4C92A96291C9B4E0078351C /* HippyRootViewDelegate.h */,
 				F4C92A9B291C9B4E0078351C /* HippyRootViewInternal.h */,
+				F4C92A7C291C9B4E0078351C /* HippyRootShadowView.h */,
 				F4C92A9C291C9B4E0078351C /* HippyRootShadowView.mm */,
+				F4C92A75291C9B4E0078351C /* HippyScrollProtocol.h */,
+				F4C92A7A291C9B4E0078351C /* HippyTouchHandler.h */,
+				F4C92A62291C9B4E0078351C /* HippyTouchHandler.m */,
 			);
 			path = base;
 			sourceTree = "<group>";
@@ -1637,6 +1650,7 @@
 				F4C92B23291C9B4E0078351C /* HippyModalCustomPresentationController.m in Sources */,
 				F4C92932291C9B3B0078351C /* thread_id.cc in Sources */,
 				F4C92923291C9B3B0078351C /* unicode_string_view.cc in Sources */,
+				71EC53D12995196300074CC0 /* HippyPerformanceModule.m in Sources */,
 				F4C92921291C9B3B0078351C /* log_settings_state.cc in Sources */,
 				F4C92B46291C9B4E0078351C /* HippyKeyCommands.m in Sources */,
 				F4C92B22291C9B4E0078351C /* HippyTextManager.mm in Sources */,
