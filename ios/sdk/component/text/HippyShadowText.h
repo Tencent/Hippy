@@ -21,7 +21,7 @@
  */
 
 #import "HippyShadowView.h"
-#import "HippyTextDecorationLineType.h"
+#import "HippyTextEnumDefines.h"
 
 typedef NS_ENUM(NSInteger, HippySizeComparison) {
     HippySizeTooLarge,
@@ -29,9 +29,9 @@ typedef NS_ENUM(NSInteger, HippySizeComparison) {
     HippySizeWithinRange,
 };
 
-extern NSString *const HippyIsHighlightedAttributeName;
-extern NSString *const HippyHippyTagAttributeName;
-extern NSString *const HippyShadowViewAttributeName;
+extern NSAttributedStringKey const HippyIsHighlightedAttributeName;
+extern NSAttributedStringKey const HippyHippyTagAttributeName;
+extern NSAttributedStringKey const HippyShadowViewAttributeName;
 
 @interface HippyShadowText : HippyShadowView {
 @protected
@@ -41,7 +41,6 @@ extern NSString *const HippyShadowViewAttributeName;
     NSAttributedString *_cachedAttributedString;
     CGFloat _effectiveLetterSpacing;
     BOOL _textAlignSet;
-    CGFloat _maximumFontLineHeight;
 }
 
 @property (nonatomic, strong) UIColor *color;
@@ -72,17 +71,22 @@ extern NSString *const HippyShadowViewAttributeName;
 @property (nonatomic, assign) BOOL autoLetterSpacing;
 
 - (void)recomputeText;
-- (NSAttributedString *)_attributedStringWithFontFamily:(NSString *)fontFamily
-                                               fontSize:(NSNumber *)fontSize
-                                             fontWeight:(NSString *)fontWeight
-                                              fontStyle:(NSString *)fontStyle
-                                          letterSpacing:(NSNumber *)letterSpacing
-                                     useBackgroundColor:(BOOL)useBackgroundColor
-                                        foregroundColor:(UIColor *)foregroundColor
-                                        backgroundColor:(UIColor *)backgroundColor
-                                                opacity:(CGFloat)opacity;
-- (void)_addAttribute:(NSString *)attribute withValue:(id)attributeValue toAttributedString:(NSMutableAttributedString *)attributedString;
-- (void)_setParagraphStyleOnAttributedString:(NSMutableAttributedString *)attributedString
-                              fontLineHeight:(CGFloat)fontLineHeight
-                      heightOfTallestSubview:(CGFloat)heightOfTallestSubview;
+
+@end
+
+
+/// Style information passed when generating attributedString
+@interface HippyAttributedStringStyleInfo : NSObject
+
+@property (nonatomic, strong) NSString *fontFamily;
+@property (nonatomic, strong) NSNumber *fontSize;
+@property (nonatomic, strong) NSString *fontWeight;
+@property (nonatomic, strong) NSString *fontStyle;
+@property (nonatomic, strong) NSNumber *letterSpacing;
+@property (nonatomic, assign) BOOL useBackgroundColor;
+@property (nonatomic, strong) UIColor *foregroundColor;
+@property (nonatomic, strong) UIColor *backgroundColor;
+@property (nonatomic, assign) CGFloat opacity;
+@property (nonatomic, assign) BOOL isNestedText;
+
 @end

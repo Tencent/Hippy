@@ -35,6 +35,7 @@
 #import "HippyVirtualNode.h"
 #import "HippyConvert+Transform.h"
 #import "HippyGradientObject.h"
+#import "HippyTextEnumDefines.h"
 
 @implementation HippyViewManager
 
@@ -358,6 +359,27 @@ HIPPY_CUSTOM_SHADOW_PROPERTY(direction, MTTDirection, HippyShadowView) {
     }
     else {
         view.layoutDirection = DirectionInherit;
+    }
+}
+
+HIPPY_CUSTOM_SHADOW_PROPERTY(verticalAlign, HippyTextAttachmentVerticalAlign, HippyShadowView) {
+    if (json && [json isKindOfClass:NSString.class]) {
+        if ([json isEqualToString:@"middle"]) {
+            view.verticalAlignType = HippyTextVerticalAlignMiddle;
+        } else if ([json isEqualToString:@"bottom"]) {
+            view.verticalAlignType = HippyTextVerticalAlignBottom;
+        } else if ([json isEqualToString:@"top"]) {
+            view.verticalAlignType = HippyTextVerticalAlignTop;
+        } else if ([json isEqualToString:@"baseline"]) {
+            view.verticalAlignType = HippyTextVerticalAlignBaseline;
+        } else {
+            HippyLogError(@"Unsupported value for verticalAlign of Text Attachment: %@, type: %@", json, [json classForCoder]);
+        }
+    } else if ([json isKindOfClass:NSNumber.class]) {
+        view.verticalAlignType = HippyTextVerticalAlignMiddle;
+        view.verticalAlignOffset = [HippyConvert CGFloat:json];
+    } else {
+        HippyLogError(@"Unsupported value for verticalAlign of Text Attachment: %@, type: %@", json, [json classForCoder]);
     }
 }
 

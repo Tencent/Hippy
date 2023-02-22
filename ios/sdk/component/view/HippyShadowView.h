@@ -168,6 +168,20 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
  */
 @property (nonatomic, assign) OverflowType overflow;
 
+
+#pragma mark - Text Attachment Properties
+
+/// Vertical Alignment for Text / Text Attachment,
+/// Note that this property only takes effect for Nested Text.
+@property (nonatomic, assign) HippyTextVerticalAlignType verticalAlignType;
+
+/// Vertical Align Offset for Text / Text Attachment,
+/// Note that this property only takes effect for Nested Text.
+@property (nonatomic, assign) CGFloat verticalAlignOffset;
+
+
+#pragma mark -
+
 /**
  * Calculate property changes that need to be propagated to the view.
  * The applierBlocks set contains HippyApplierBlock functions that must be applied
