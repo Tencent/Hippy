@@ -423,7 +423,7 @@ public class BackgroundDrawable extends BaseDrawable
 	{
 		// updateStyle border with radius path
 		updatePath();
-
+		assert mPathForBorderRadius != null;
 		// draw bg color
 		boolean useGradientPaint = initGradientPaint();
 		if (useGradientPaint) {
@@ -801,19 +801,15 @@ public class BackgroundDrawable extends BaseDrawable
 
 	private void updatePath()
 	{
-		if (!mNeedUpdateBorderPath)
-		{
-			return;
-		}
-		mNeedUpdateBorderPath = false;
-		if (mPathForBorderRadius == null)
-		{
+		if (mPathForBorderRadius == null) {
 			mPathForBorderRadius = new Path();
 			mTempRectForBorderRadius = new RectF();
 		}
-
+		if (!mNeedUpdateBorderPath) {
+			return;
+		}
+		mNeedUpdateBorderPath = false;
 		mPathForBorderRadius.reset();
-
 		mTempRectForBorderRadius.set(mRect);
 		float fullBorderWidth = mBorderWidthArray == null ? 0 : mBorderWidthArray[0];
 		if (fullBorderWidth > 1)
