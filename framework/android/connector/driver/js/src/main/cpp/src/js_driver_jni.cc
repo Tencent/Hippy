@@ -307,8 +307,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
         .time_since_epoch()
         .count();
 
-    FOOTSTONE_DLOG(INFO)
-    << "runScriptFromUri time = " << (time_end - time_begin) << ", uri = " << uri;
+    FOOTSTONE_DLOG(INFO) << "runScriptFromUri time = " << (time_end - time_begin) << ", uri = " << uri;
     if (flag) {
       hippy::bridge::CallJavaMethod(save_object_->GetObj(), INIT_CB_STATE::SUCCESS);
     } else {
