@@ -49,7 +49,6 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         implements IHeaderAttachListener, IHippyViewAboundListener, HippyNestedScrollTarget2 {
 
     private static int DEFAULT_ITEM_VIEW_CACHE_SIZE = 8;
-    private static ArrayList<View> sTempViews;
     protected HippyEngineContext hippyEngineContext;
     protected ADP listAdapter;
     protected boolean isEnableScroll = true;    //使能ListView的滚动功能
@@ -69,6 +68,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         Priority.NOT_SET, Priority.NOT_SET, Priority.NOT_SET};
     private int mNestedScrollAxesTouch;
     private int mNestedScrollAxesNonTouch;
+    private ArrayList<View> mFocusableViews;
 
     public HippyRecyclerView(Context context) {
         super(context);
@@ -574,13 +574,13 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         if (!(view instanceof ViewGroup)) {
             return false;
         }
-        if (sTempViews == null) {
-            sTempViews = new ArrayList<>();
+        if (mFocusableViews == null) {
+            mFocusableViews = new ArrayList<>();
         }
-        view.addFocusables(sTempViews, direction, inTouchMode ? FOCUSABLES_TOUCH_MODE : FOCUSABLES_ALL);
-        boolean result = !sTempViews.isEmpty();
-        // clear up the static temp array
-        sTempViews.clear();
+        view.addFocusables(mFocusableViews, direction, inTouchMode ? FOCUSABLES_TOUCH_MODE : FOCUSABLES_ALL);
+        boolean result = !mFocusableViews.isEmpty();
+        // clear up the temp array
+        mFocusableViews.clear();
         return result;
     }
 
