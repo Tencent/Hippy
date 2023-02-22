@@ -32,6 +32,7 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IHeaderAttachListener;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IHeaderHost;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.StickyHeaderHelper;
+import java.util.ArrayList;
 
 /**
  * Created  on 2020/12/22. Description
@@ -51,6 +52,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     private ViewStickEventHelper viewStickEventHelper;
     private boolean stickEventEnable;
     private int mInitialContentOffset;
+    private ArrayList<View> mFocusableViews;
 
     public HippyRecyclerView(Context context) {
         super(context);
@@ -447,6 +449,37 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
             stickyHeaderHelper.setStickViewListener(null);
         }
         viewStickEventHelper = null;
+    }
+
+    @Override
+    public View focusSearch(View focused, int direction) {
+        View result = super.focusSearch(focused, direction);
+        // {@link RecyclerView#focusSearch} may return not focusable view,
+        // cause IllegalStateException, so we verify again.
+        if (result == null || !verifyFocusable(result, direction)) {
+            return null;
+        }
+        return result;
+    }
+
+    private boolean verifyFocusable(@NonNull View view, int direction) {
+        boolean inTouchMode = isInTouchMode();
+        // first check whether self is able to take focus
+        if (inTouchMode ? view.isFocusableInTouchMode() : view.isFocusable()) {
+            return true;
+        }
+        // then check whether has focusable descendants
+        if (!(view instanceof ViewGroup)) {
+            return false;
+        }
+        if (mFocusableViews == null) {
+            mFocusableViews = new ArrayList<>();
+        }
+        view.addFocusables(mFocusableViews, direction, inTouchMode ? FOCUSABLES_TOUCH_MODE : FOCUSABLES_ALL);
+        boolean result = !mFocusableViews.isEmpty();
+        // clear up the temp array
+        mFocusableViews.clear();
+        return result;
     }
 
     @Override
