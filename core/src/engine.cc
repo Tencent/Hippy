@@ -37,8 +37,8 @@ Engine::~Engine() {
 
 void Engine::TerminateRunner() {
   TDF_BASE_DLOG(INFO) << "~TerminateRunner";
-  js_runner_->Terminate();
   worker_task_runner_->Terminate();
+  js_runner_->Terminate();
 }
 
 std::shared_ptr<Scope> Engine::CreateScope(const std::string& name,
