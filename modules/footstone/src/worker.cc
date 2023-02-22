@@ -157,6 +157,9 @@ void Worker::Notify() {
 
 void Worker::Terminate() {
   driver_->Terminate();
+  if (thread_.joinable()) {
+    thread_.join();
+  }
 }
 
 void Worker::BindGroup(uint32_t father_id, const std::shared_ptr<TaskRunner> &child) {
