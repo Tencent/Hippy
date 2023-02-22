@@ -1089,7 +1089,9 @@ std::shared_ptr<CtxValue> V8Ctx::CreateString(
   if (str_view.encoding() == string_view::Encoding::Unknown) {
     return nullptr;
   }
-  v8::HandleScope isolate_scope(isolate_);
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope contextScope(context);
 
   v8::Local<v8::String> v8_string = CreateV8String(str_view);
   return std::make_shared<V8CtxValue>(isolate_, v8_string);
