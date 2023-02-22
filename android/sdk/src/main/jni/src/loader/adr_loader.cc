@@ -188,11 +188,11 @@ void OnResourceReady(JNIEnv* j_env,
     TDF_BASE_DLOG(WARNING) << "HippyBridgeImpl onResourceReady, j_runtime_id invalid";
     return;
   }
-  std::weak_ptr<Scope> weak_scope = runtime->GetScope();
-  auto runner = runtime->GetEngine()->GetJSRunner();
+  auto runner = runtime->GetEngine()->GetWorkerTaskRunner();
   if (!runner) {
     return;
   }
+  std::weak_ptr<Scope> weak_scope = runtime->GetScope();
   int64_t request_id = j_request_id;
   auto buffer = std::make_shared<JavaRef>(j_env, j_buffer);
   auto task = std::make_unique<CommonTask>();
@@ -222,7 +222,7 @@ void OnResourceReady(JNIEnv* j_env,
       cb(u8string());
       return;
     }
-    void* buff = j_env->GetDirectBufferAddress(j_buffer);
+    auto buff = j_env->GetDirectBufferAddress(j_buffer);
     if (!buff) {
       TDF_BASE_DLOG(INFO) << "HippyBridgeImpl onResourceReady, buff null";
       cb(u8string());

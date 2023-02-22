@@ -123,9 +123,8 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
   std::weak_ptr<Scope> weak_scope = scope;
   std::weak_ptr<hippy::napi::CtxValue> weak_function = function;
 
-  std::function<void(u8string)> cb = [this, weak_scope, weak_function, encode,
-                                      uri](u8string code) {
-    std::shared_ptr<Scope> scope = weak_scope.lock();
+  std::function<void(u8string)> cb = [this, weak_scope, weak_function, encode, uri](u8string code) {
+    auto scope = weak_scope.lock();
     if (!scope) {
       return;
     }
@@ -149,12 +148,10 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
                           << ", encode = " << encode
                           << ", code = " << unicode_string_view(code);
     }
-    std::shared_ptr<JavaScriptTask> js_task =
-        std::make_shared<JavaScriptTask>();
+    auto js_task = std::make_shared<JavaScriptTask>();
     js_task->callback = [this, weak_scope, weak_function,
-                         move_code = std::move(code), cur_dir, file_name,
-                         uri]() {
-      std::shared_ptr<Scope> scope = weak_scope.lock();
+                         move_code = std::move(code), cur_dir, file_name, uri]() {
+      auto scope = weak_scope.lock();
       if (!scope) {
         return;
       }
