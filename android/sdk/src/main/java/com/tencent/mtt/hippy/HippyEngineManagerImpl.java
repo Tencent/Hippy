@@ -14,6 +14,7 @@
  */
 package com.tencent.mtt.hippy;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -1041,7 +1042,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     @Override
     public HippyRootView getInstance() {
       for (HippyRootView rootView : mInstances) {
-        return rootView;
+        //noinspection ResourceType
+        if (rootView.getId() >= 0) {
+          return rootView;
+        }
       }
       return null;
     }
