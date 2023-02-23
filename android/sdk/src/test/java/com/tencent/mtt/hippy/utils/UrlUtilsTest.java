@@ -20,8 +20,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
     "android.*",
 })
 public class UrlUtilsTest {
-  private final String URL_HTTPS = "https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png";
-  private final String URL_HTTP = "https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png";
+  private final String URL_HTTPS = "https://hippyjs.org/";
+  private final String URL_HTTP = "http://hippyjs.org/";
   private final String URL_FILE = "file://vendor.android.js";
 
   @Before
