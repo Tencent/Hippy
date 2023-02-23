@@ -415,7 +415,7 @@ void V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
   auto runner = runtime->GetEngine()->GetJsTaskRunner();
   runner->PostTask(std::move(cb));
   FOOTSTONE_DLOG(INFO) << "destroy, group = " << group;
-  if ((group == kDebuggerGroupId && !is_reload) || group != kDefaultGroupId) {
+  if ((group == kDebuggerGroupId && !is_reload) || (group != kDebuggerGroupId && group != kDefaultGroupId)) {
     std::lock_guard<std::mutex> lock(engine_mutex);
     auto it = reuse_engine_map.find(group);
     if (it != reuse_engine_map.end()) {
