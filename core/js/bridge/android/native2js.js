@@ -85,8 +85,8 @@ global.hippyBridge = (_action, _callObj) => {
         }
       } else if (__GLOBAL__.moduleCallList[callObj.callId]) {
         const callbackObj = __GLOBAL__.moduleCallList[callObj.callId];
-        if (callObj.result !== 0) {
-          typeof callbackObj.reject === 'function' && callbackObj.reject(callObj.params);
+        if (callObj.result !== 0 && typeof callbackObj.reject === 'function') {
+          callbackObj.reject(callObj.params);
         } else {
           typeof callbackObj.cb === 'function' && callbackObj.cb(callObj.params);
         }
