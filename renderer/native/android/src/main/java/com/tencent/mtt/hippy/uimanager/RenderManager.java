@@ -56,10 +56,7 @@ public class RenderManager {
         mControllerManager = new ControllerManager(renderer);
     }
 
-    public void init(@Nullable List<Class<?>> controllers) {
-        mControllerManager.init(controllers);
-    }
-
+    @NonNull
     public ControllerManager getControllerManager() {
         return mControllerManager;
     }

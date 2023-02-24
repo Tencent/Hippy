@@ -19,30 +19,49 @@ package com.tencent.renderer.component.image;
 import android.graphics.BitmapFactory;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import java.util.Map;
 
 public interface ImageDecoderAdapter {
 
+    /**
+     * Clear adapter if needed when the engine is destroyed.
+     */
     void destroyIfNeeded();
 
     /**
-     * Decode image data by host adapter.
+     * Pre decode image data by host adapter.
      *
      * </p> After the image data is obtained from vfs, it will be given priority to the adapter
      * provided by the host for processing. If the host does not process it, the SDK will decode the
      * image data internally.
      *
      * Before calling this method, the SDK has decoded the image data header and obtained relevant
-     * image information {@link BitmapFactory.Options}, such as image width and height and image type
-     * {@link BitmapFactory.Options#outMimeType}.
+     * image information {@link BitmapFactory.Options}, such as image width and height and image
+     * type {@link BitmapFactory.Options#outMimeType}.
      * </p>
      *
      * @param data the image date fetch from vfs
+     * @param initProps the initial attribute of image node
      * @param imageHolder {@link ImageDataHolder}
      * @param options {@link BitmapFactory.Options}
      * @return {@code true} the image data has been processed by the host adapter {@code false} host
-     *         adapter did not process this image data
+     * adapter did not process this image data
      */
-    boolean decodeImageData(@NonNull byte[] data, @NonNull ImageDataHolder imageHolder, @NonNull
-            BitmapFactory.Options options);
+    boolean preDecode(@NonNull byte[] data, @Nullable Map<String, Object> initProps,
+            @NonNull ImageDataHolder imageHolder, @NonNull BitmapFactory.Options options);
 
+    /**
+     * On decode image data Completed.
+     *
+     * </p>
+     * After decoding, the host can perform secondary processing on the generated bitmap in this interface.
+     * </p>
+     *
+     * @param initProps the initial attribute of image node
+     * @param imageHolder {@link ImageDataHolder}
+     * @param options {@link BitmapFactory.Options}
+     */
+    void afterDecode(@Nullable Map<String, Object> initProps, @NonNull ImageDataHolder imageHolder,
+            @NonNull BitmapFactory.Options options);
 }

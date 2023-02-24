@@ -19,7 +19,6 @@ package com.tencent.renderer.component.image;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.pool.ImageDataPool;
@@ -89,6 +88,7 @@ public class ImageLoader implements ImageLoaderAdapter {
     }
 
     private void handleResourceData(@NonNull String url, final int urlKey,
+            @Nullable Map<String, Object> initProps,
             @NonNull final ResourceDataHolder dataHolder, int width, int height) {
         ImageDataHolder imageHolder = null;
         String errorMessage = null;
@@ -97,7 +97,7 @@ public class ImageLoader implements ImageLoaderAdapter {
                 == ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE && bytes != null) {
             imageHolder = new ImageDataHolder(url, width, height);
             try {
-                imageHolder.decodeImageData(bytes, mImageDecoderAdapter);
+                imageHolder.decodeImageData(bytes, initProps, mImageDecoderAdapter);
                 // Should check the request data returned from the host, if the data is
                 // invalid, the request is considered to have failed
                 if (imageHolder.checkImageData()) {
@@ -149,29 +149,18 @@ public class ImageLoader implements ImageLoaderAdapter {
     }
 
     @NonNull
-    private HashMap<String, String> generateRequestParams(@Nullable Map<String, Object> initProps,
-            int width, int height) {
+    private HashMap<String, String> generateRequestParams(int width, int height) {
         HashMap<String, String> requestParams = new HashMap<>();
         requestParams.put("width", String.valueOf(width));
         requestParams.put("height", String.valueOf(height));
         requestParams.put(REQUEST_CONTENT_TYPE, REQUEST_CONTENT_TYPE_IMAGE);
-        try {
-            if (initProps != null) {
-                requestParams.put(NodeProps.CUSTOM_PROP_IMAGE_TYPE,
-                        String.valueOf(initProps.get(NodeProps.CUSTOM_PROP_IMAGE_TYPE)));
-                requestParams.put(NodeProps.REPEAT_COUNT,
-                        String.valueOf(initProps.get(NodeProps.REPEAT_COUNT)));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         return requestParams;
     }
 
     @Nullable
     public ImageDataSupplier fetchImageSync(@NonNull String url,
             @Nullable Map<String, Object> initProps, int width, int height) {
-        HashMap<String, String> requestParams = generateRequestParams(initProps, width, height);
+        HashMap<String, String> requestParams = generateRequestParams(width, height);
         ResourceDataHolder dataHolder = mVfsManager.fetchResourceSync(url, null, requestParams);
         byte[] bytes = dataHolder.getBytes();
         if (dataHolder.resultCode
@@ -180,7 +169,7 @@ public class ImageLoader implements ImageLoaderAdapter {
         }
         ImageDataHolder imageHolder = new ImageDataHolder(url, width, height);
         try {
-            imageHolder.decodeImageData(bytes, mImageDecoderAdapter);
+            imageHolder.decodeImageData(bytes, initProps, mImageDecoderAdapter);
             if (imageHolder.checkImageData()) {
                 saveImageToCache(imageHolder);
                 return imageHolder;
@@ -209,19 +198,19 @@ public class ImageLoader implements ImageLoaderAdapter {
     @Override
     public void fetchImageAsync(@NonNull final String url,
             @NonNull final ImageRequestListener listener,
-            @Nullable Map<String, Object> initProps, final int width, final int height) {
+            @Nullable final Map<String, Object> initProps, final int width, final int height) {
         final int urlKey = ImageDataHolder.generateSourceKey(url);
         // If the same image uri repeatedly requests, we need to filter these repeated requests
         // to avoid wasting system resources
         if (checkRepeatRequest(urlKey, listener)) {
             return;
         }
-        HashMap<String, String> requestParams = generateRequestParams(initProps, width, height);
+        HashMap<String, String> requestParams = generateRequestParams(width, height);
         mVfsManager.fetchResourceAsync(url, null, requestParams,
                 new FetchResourceCallback() {
                     @Override
                     public void onFetchCompleted(@NonNull final ResourceDataHolder dataHolder) {
-                        handleResourceData(url, urlKey, dataHolder, width, height);
+                        handleResourceData(url, urlKey, initProps, dataHolder, width, height);
                     }
 
                     @Override

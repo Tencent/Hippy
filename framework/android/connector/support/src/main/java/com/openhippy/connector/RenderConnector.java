@@ -49,6 +49,8 @@ public interface RenderConnector extends Connector {
 
     void init(@Nullable List<Class<?>> controllers, @Nullable ViewGroup rootView);
 
+    void addControllers(@NonNull List<Class<?>> controllers);
+
     void attachToDom(@NonNull Connector domConnector);
 
 }

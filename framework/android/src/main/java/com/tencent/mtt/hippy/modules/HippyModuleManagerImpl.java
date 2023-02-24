@@ -153,6 +153,40 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
         }
     }
 
+
+    /**
+     * Add native modules and java script modules defined in {@link HippyAPIProvider}.
+     *
+     * @param apiProviders API providers need to be added.
+     */
+    @Override
+    public synchronized void addModules(@NonNull List<HippyAPIProvider> apiProviders) {
+        for (HippyAPIProvider provider : apiProviders) {
+            Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>>
+                    nativeModules = provider.getNativeModules(mContext);
+            if (nativeModules != null && nativeModules.size() > 0) {
+                Set<Class<? extends HippyNativeModuleBase>> keys = nativeModules.keySet();
+                for (Class cls : keys) {
+                    addNativeModule(cls, nativeModules.get(cls));
+                }
+            }
+
+            List<Class<? extends HippyJavaScriptModule>> jsModules = provider
+                    .getJavaScriptModules();
+            if (jsModules != null && jsModules.size() > 0) {
+                for (Class cls : jsModules) {
+                    String name = getJavaScriptModuleName(cls);
+                    // noinspection SuspiciousMethodCalls
+                    if (mJsModules.containsKey(name)) {
+                        throw new RuntimeException(
+                                "There is already a javascript module named : " + name);
+                    }
+                    mJsModules.put(cls, null);
+                }
+            }
+        }
+    }
+
     private void onDestroy() {
         if (mCompatibleDeserializer != null) {
             mCompatibleDeserializer.getStringTable().release();

@@ -91,12 +91,6 @@ public class ControllerManager {
         mControllerUpdateManger = new ControllerUpdateManger(renderer);
     }
 
-    public void init(@Nullable List<Class<?>> controllers) {
-        processControllers(controllers);
-        mControllerUpdateManger.setCustomPropsController(mControllerRegistry.getViewController(
-                HippyCustomPropsController.CLASS_NAME));
-    }
-
     public RenderManager getRenderManager() {
         return ((NativeRender) mRenderer).getRenderManager();
     }
@@ -132,14 +126,7 @@ public class ControllerManager {
         sDefaultControllers.add(HippyWaterfallItemViewController.class);
     }
 
-    @SuppressWarnings("rawtypes")
-    private void processControllers(@Nullable List<Class<?>> controllers) {
-        checkDefaultControllers();
-        if (controllers != null) {
-            controllers.addAll(0, sDefaultControllers);
-        } else {
-            controllers = sDefaultControllers;
-        }
+    public synchronized void addControllers(@NonNull List<Class<?>> controllers) {
         for (Class cls : controllers) {
             if (!HippyViewController.class.isAssignableFrom(cls)) {
                 continue;
@@ -166,8 +153,21 @@ public class ControllerManager {
                 e.printStackTrace();
             }
         }
+    }
+
+    @SuppressWarnings("rawtypes")
+    public void initControllers(@Nullable List<Class<?>> controllers) {
+        checkDefaultControllers();
+        if (controllers != null) {
+            controllers.addAll(0, sDefaultControllers);
+        } else {
+            controllers = sDefaultControllers;
+        }
+        addControllers(controllers);
         mControllerRegistry.addControllerHolder(NodeProps.ROOT_NODE,
                 new ControllerHolder(new HippyViewGroupController(), false, false));
+        mControllerUpdateManger.setCustomPropsController(mControllerRegistry.getViewController(
+                HippyCustomPropsController.CLASS_NAME));
     }
 
     public void destroy() {

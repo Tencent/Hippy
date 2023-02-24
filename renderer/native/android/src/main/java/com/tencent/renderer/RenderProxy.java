@@ -68,13 +68,20 @@ public interface RenderProxy {
     void onPause();
 
     /**
-     * Initialize the native renderer after call {@link LinkHelper} createRenderer interface.
+     * Initialize the native renderer after call createRenderer interface.
      *
-     * @param controllers framework instance id
+     * @param controllers the list of controller extends from {@link com.tencent.mtt.hippy.uimanager.HippyViewController}
      * @param rootView the already exists root view, for example after reload in debug mode, root
      * view will be reused.
      */
     void init(@Nullable List<Class<?>> controllers, @Nullable ViewGroup rootView);
+
+    /**
+     * Add controllers after hippy engine initialization, use for engine preloading.
+     *
+     * @param controllers the list of controller extends from {@link com.tencent.mtt.hippy.uimanager.HippyViewController}
+     */
+    void addControllers(@NonNull List<Class<?>> controllers);
 
     /**
      * Notify renderer the root view instance delete by framework.
@@ -92,10 +99,13 @@ public interface RenderProxy {
     void recordSnapshot(int rootId, @NonNull final Callback<byte[]> callback);
 
     /**
-     * Notify renderer to replay node tree snapshot.
+     * Notify renderer to replay node tree snapshot with node buffer.
      */
     View replaySnapshot(@NonNull Context context, @NonNull byte[] buffer);
 
+    /**
+     * Notify renderer to replay node tree snapshot with node map.
+     */
     View replaySnapshot(@NonNull Context context, @NonNull Map<String, Object> snapshotMap);
 
 }

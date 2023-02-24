@@ -117,6 +117,11 @@ public class TDFRenderer implements RenderConnector {
     }
 
     @Override
+    public void addControllers(@NonNull List<Class<?>> controllers) {
+        // TODO: unsupport now
+    }
+
+    @Override
     public void attachToDom(@NonNull Connector domConnector) {
         attachToDom(mInstanceId, domConnector.getInstanceId());
     }
