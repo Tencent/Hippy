@@ -82,8 +82,7 @@ import com.tencent.renderer.utils.FlexUtils;
 import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class NativeRenderer extends Renderer implements NativeRender, NativeRenderProxy,
-        NativeRenderDelegate {
+public class NativeRenderer extends Renderer implements NativeRender, NativeRenderDelegate {
 
     /** This specific ID is used to identify the root view of snapshot restore */
     public static final int SCREEN_SNAPSHOT_ROOT_ID = 1000;
@@ -144,7 +143,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     @Override
     public void init(@Nullable List<Class<?>> controllers, @Nullable ViewGroup rootView) {
-        mRenderManager.init(controllers);
+        mRenderManager.getControllerManager().initControllers(controllers);
         if (rootView instanceof HippyRootView) {
             mRenderManager.createRootNode(rootView.getId(), getInstanceId());
             mRenderManager.addRootView(rootView);
@@ -155,6 +154,11 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 ((NativeRenderContext) context).setInstanceId(mRenderProvider.getInstanceId());
             }
         }
+    }
+
+    @Override
+    public void addControllers(@NonNull List<Class<?>> controllers) {
+        mRenderManager.getControllerManager().addControllers(controllers);
     }
 
     @Override

@@ -23,7 +23,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.renderer.FrameworkProxy;
-import com.tencent.renderer.NativeRenderProxy;
 import com.tencent.renderer.RenderProxy;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +37,8 @@ public class NativeRenderer implements RenderConnector {
     public NativeRenderer() {
         mInstanceId = createNativeRenderManager();
         Object obj = getNativeRendererInstance(mInstanceId);
-        if (obj instanceof NativeRenderProxy) {
-            mRenderer = (NativeRenderProxy) obj;
+        if (obj instanceof RenderProxy) {
+            mRenderer = (RenderProxy) obj;
         }
     }
 
@@ -112,10 +111,16 @@ public class NativeRenderer implements RenderConnector {
     }
 
     @Override
-    public void init(@Nullable List<Class<?>> controllers,
-        @Nullable ViewGroup rootView) {
+    public void init(@Nullable List<Class<?>> controllers, @Nullable ViewGroup rootView) {
         if (mRenderer != null) {
             mRenderer.init(controllers, rootView);
+        }
+    }
+
+    @Override
+    public void addControllers(@NonNull List<Class<?>> controllers) {
+        if (mRenderer != null) {
+            mRenderer.addControllers(controllers);
         }
     }
 

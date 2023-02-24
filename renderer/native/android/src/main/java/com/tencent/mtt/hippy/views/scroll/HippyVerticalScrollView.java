@@ -54,6 +54,9 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
     private int initialContentOffset = 0;
     private boolean hasCompleteFirstBatch = false;
 
+    private float mLastTouchDownX;
+    private float mLastTouchDownY;
+
     public HippyVerticalScrollView(Context context) {
         super(context);
         mHippyOnScrollHelper = new HippyOnScrollHelper();
@@ -110,8 +113,14 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
         int action = event.getAction() & MotionEvent.ACTION_MASK;
         if (action == MotionEvent.ACTION_DOWN && !mDragging) {
             mDragging = true;
+            mLastTouchDownX = event.getRawX();
+            mLastTouchDownY = event.getRawY();
             HippyScrollViewEventHelper.emitScrollEvent(this, EventUtils.EVENT_SCROLLER_BEGIN_DRAG);
             setParentScrollableIfNeed(false);
+        } else if (action == MotionEvent.ACTION_MOVE && mDragging) {
+            float distanceX = Math.abs(event.getRawX() - mLastTouchDownX);
+            float distanceY = Math.abs(event.getRawY() - mLastTouchDownY);
+            setParentScrollableIfNeed(distanceX > distanceY);
         } else if (action == MotionEvent.ACTION_UP && mDragging) {
             HippyScrollViewEventHelper.emitScrollEvent(this, EventUtils.EVENT_SCROLLER_END_DRAG);
             if (mPagingEnabled) {

@@ -326,18 +326,32 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
     }
 
+    @Nullable
     public View replaySnapshot(@NonNull Context context, @NonNull byte[] buffer) {
         if (mEngineContext != null) {
-            mEngineContext.getRenderer().replaySnapshot(context, buffer);
+            return mEngineContext.getRenderer().replaySnapshot(context, buffer);
         }
         return null;
     }
 
+    @Nullable
     public View replaySnapshot(@NonNull Context context, @NonNull Map<String, Object> snapshotMap) {
-        if (mEngineContext != null && mEngineContext.getRenderer() != null) {
-            mEngineContext.getRenderer().replaySnapshot(context, snapshotMap);
+        if (mEngineContext != null) {
+            return mEngineContext.getRenderer().replaySnapshot(context, snapshotMap);
         }
         return null;
+    }
+
+    public void addControllers(@NonNull List<Class<?>> controllers) {
+        if (mEngineContext != null) {
+            mEngineContext.getRenderer().addControllers(controllers);
+        }
+    }
+
+    public void addModules(@NonNull List<HippyAPIProvider> modules) {
+        if (mEngineContext != null) {
+            mEngineContext.getModuleManager().addModules(modules);
+        }
     }
 
     private void checkModuleLoadParams(ModuleLoadParams loadParams) {

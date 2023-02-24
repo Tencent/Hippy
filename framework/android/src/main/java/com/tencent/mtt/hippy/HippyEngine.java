@@ -195,6 +195,10 @@ public abstract class HippyEngine {
 
   public abstract HippyEngineContext getEngineContext();
 
+  public abstract void addControllers(@NonNull List<Class<?>> controllers);
+
+  public abstract void addModules(@NonNull List<HippyAPIProvider> modules);
+
   public abstract void recordSnapshot(@NonNull View rootView, @NonNull final Callback<byte[]> callback);
 
   public abstract View replaySnapshot(@NonNull Context context, byte[] buffer);
