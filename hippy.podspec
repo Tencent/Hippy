@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
     layout_engine = ENV["layout_engine"];
   end
   puts 'hippy.podspec read begins'
-  s.name             = 'Hippy'
+  s.name             = 'hippy'
   s.version          = '3.0.0'
   s.summary          = 'Hippy Cross Platform Framework'
 
@@ -152,11 +152,11 @@ Pod::Spec.new do |s|
     dom.user_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/dom/include/'
     }
-    dom.dependency 'Hippy/Footstone'
+    dom.dependency 'hippy/Footstone'
     if layout_engine == "Taitank"
-      dom.dependency 'Hippy/Taitank'
+      dom.dependency 'hippy/Taitank'
     elsif layout_engine == "Yoga"
-      dom.dependency 'Hippy/Yoga'
+      dom.dependency 'hippy/Yoga'
     end  
     dom.preserve_path = 'dom'
     puts 'hippy subspec \'dom\' read end'
@@ -252,9 +252,9 @@ Pod::Spec.new do |s|
                               ' ${PODS_ROOT}/hippy/devtools/devtools-integration/ios/DevtoolsBackend/_deps/json-src/include',
       'GCC_PREPROCESSOR_DEFINITIONS' => 'ENABLE_INSPECTOR=1'
     }
-    devtools.dependency 'Hippy/Footstone'
-    devtools.dependency 'Hippy/Dom'
-    devtools.dependency 'Hippy/VFS'
+    devtools.dependency 'hippy/Footstone'
+    devtools.dependency 'hippy/Dom'
+    devtools.dependency 'hippy/VFS'
     devtools.preserve_path = 'devtools'
     puts 'hippy subspec \'devtools\' read end'
   end
