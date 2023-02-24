@@ -41,6 +41,9 @@ inline namespace tdf {
 
 class NetImageLoader : public tdfcore::ImageLoader, public std::enable_shared_from_this<NetImageLoader> {
  public:
+  using StringView = footstone::stringview::string_view;
+  using UriDataGetter = RootViewNode::UriDataGetter;
+
   ~NetImageLoader() override = default;
   NetImageLoader(std::string_view scheme, UriDataGetter uri_data_getter);
 
