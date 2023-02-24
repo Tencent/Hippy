@@ -76,13 +76,13 @@ Hippy.on('destroyInstance', () => {
 
 # 容器大小改变事件
 
-`只有 Android 支持`
+!> iOS 最低支持版本 `2.16.0`
 
 当容器大小改变时，如屏幕旋转、折叠屏切换等，会触发该事件
 
 ```jsx
-app.$on('onSizeChanged', ({ oldWidth, oldHeight, width, height }) => {
-    // oldWidth: 旧的宽度；oldHeight: 旧的高度；width: 新的宽度; height: 新的高度
-    console.log('size', oldWidth, oldHeight, width, height);
+app.$on('onSizeChanged', ({rootViewId, oldWidth, oldHeight, width, height}) => {
+    // rootViewId: root view id; oldWidth: 旧的宽度；oldHeight: 旧的高度；width: 新的宽度; height: 新的高度;
+    console.log('size', rootViewId, oldWidth, oldHeight, width, height);
 });
 ```

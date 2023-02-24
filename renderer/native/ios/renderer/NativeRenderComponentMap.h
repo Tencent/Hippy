@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSMutableDictionary<NSNumber *, __kindof id<NativeRenderComponentProtocol>> *)componentsForRootTag:(NSNumber *)tag;
 
 - (__kindof id<NativeRenderComponentProtocol>)componentForTag:(NSNumber *)componentTag
-                                     onRootTag:(NSNumber *)tag;
+                                                    onRootTag:(NSNumber *)tag;
 
 @end
 

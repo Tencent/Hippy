@@ -159,6 +159,8 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 - (void)loadInstanceForRootView:(NSNumber *)rootTag withProperties:(NSDictionary *)props;
 
+- (void)rootViewSizeChangedEvent:(NSNumber *)tag params:(NSDictionary *)params;
+
 /**
  * Access the underlying JavaScript executor. You can use this in unit tests to detect
  * when the executor has been invalidated, or when you want to schedule calls on the

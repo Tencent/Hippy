@@ -32,6 +32,7 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IHeaderAttachListener;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IHeaderHost;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.StickyHeaderHelper;
+import java.util.ArrayList;
 
 /**
  * Created  on 2020/12/22. Description
@@ -51,6 +52,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     private ViewStickEventHelper viewStickEventHelper;
     private boolean stickEventEnable;
     private int mInitialContentOffset;
+    private ArrayList<View> mFocusableViews;
 
     public HippyRecyclerView(Context context) {
         super(context);
@@ -146,15 +148,15 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     public void setListData() {
         LogUtils.d("HippyRecyclerView", "itemCount =" + listAdapter.getItemCount());
         listAdapter.notifyDataSetChanged();
-        //notifyDataSetChanged 本身是可以触发requestLayout的，但是Hippy框架下 HippyRootView 已经把
-        //onLayout方法重载写成空方法，requestLayout不会回调孩子节点的onLayout，这里需要自己发起dispatchLayout
-        renderNodeCount = getAdapter().getRenderNodeCount();
-        dispatchLayout();
+        renderNodeCount = listAdapter.getRenderNodeCount();
         if (renderNodeCount > 0) {
             if (mInitialContentOffset > 0 && getChildCount() > 0) {
                 scrollToInitContentOffset();
             }
         }
+        //notifyDataSetChanged 本身是可以触发requestLayout的，但是Hippy框架下 HippyRootView 已经把
+        //onLayout方法重载写成空方法，requestLayout不会回调孩子节点的onLayout，这里需要自己发起dispatchLayout
+        dispatchLayout();
     }
 
     /**
@@ -447,6 +449,37 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
             stickyHeaderHelper.setStickViewListener(null);
         }
         viewStickEventHelper = null;
+    }
+
+    @Override
+    public View focusSearch(View focused, int direction) {
+        View result = super.focusSearch(focused, direction);
+        // {@link RecyclerView#focusSearch} may return not focusable view,
+        // cause IllegalStateException, so we verify again.
+        if (result == null || !verifyFocusable(result, direction)) {
+            return null;
+        }
+        return result;
+    }
+
+    private boolean verifyFocusable(@NonNull View view, int direction) {
+        boolean inTouchMode = isInTouchMode();
+        // first check whether self is able to take focus
+        if (inTouchMode ? view.isFocusableInTouchMode() : view.isFocusable()) {
+            return true;
+        }
+        // then check whether has focusable descendants
+        if (!(view instanceof ViewGroup)) {
+            return false;
+        }
+        if (mFocusableViews == null) {
+            mFocusableViews = new ArrayList<>();
+        }
+        view.addFocusables(mFocusableViews, direction, inTouchMode ? FOCUSABLES_TOUCH_MODE : FOCUSABLES_ALL);
+        boolean result = !mFocusableViews.isEmpty();
+        // clear up the temp array
+        mFocusableViews.clear();
+        return result;
     }
 
     @Override

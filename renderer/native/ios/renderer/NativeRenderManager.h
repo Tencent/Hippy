@@ -190,6 +190,13 @@ public:
      *@param loader vfs url loader instance
      */
     void SetVFSUriLoader(std::shared_ptr<VFSUriLoader> loader);
+        
+    /**
+     * Set root view size changed event callback
+     *
+     *@param cb callback
+     */
+    void SetRootViewSizeChangedEvent(std::function<void(int32_t rootTag, NSDictionary *)> cb);
     
 private:
     NativeRenderImpl *renderImpl_;
