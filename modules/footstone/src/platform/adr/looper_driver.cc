@@ -87,12 +87,12 @@ void LooperDriver::Start() {
                   this);
 
   while (true) {
-    if (IsExitImmediately()) {
-      return;
-    }
     int result = ::ALooper_pollOnce(-1, nullptr, nullptr, nullptr);
     if (result == ALOOPER_POLL_TIMEOUT || result == ALOOPER_POLL_ERROR) {
       is_terminated_ = true;
+    }
+    if (is_terminated_) {
+      return;
     }
   }
 }
