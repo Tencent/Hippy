@@ -56,8 +56,6 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
     private FrameworkProxy mFrameworkProxy;
     private VfsManager mVfsManager;
 
-    private TDFHippyRootView mRootView;
-
     private final List<Class<?>> mControllers = new ArrayList<>();
 
     private NativeRenderer mNativeRenderer;
@@ -90,7 +88,7 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
         }
         // TODO(etkmao):
         mNativeRenderer = new NativeRenderer();
-        mRootView = new TDFHippyRootView(context, mNativeRenderer.getInstanceId(), rootId);
+        mRootView = new TDFHippyRootView(context, mNativeRenderer.getInstanceId(), mRootViewId);
         mRootView.setId(mRootViewId);
         TDFRenderEngine engine = mRootView.getTDFEngine();
         registerTDFEngine(mInstanceId, engine.getJNI().getnativeEngine(), mRootViewId);
