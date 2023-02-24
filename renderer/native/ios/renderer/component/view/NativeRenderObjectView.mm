@@ -29,7 +29,6 @@
 
 #include "dom/layout_node.h"
 #include "dom/render_manager.h"
-#include "Flex.h"
 
 static NSString *const NativeRenderBackgroundColorProp = @"backgroundColor";
 
@@ -83,7 +82,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
         }];
     }
     if (_confirmedLayoutDirectionDidUpdated) {
-        HPDirection direction = [self confirmedLayoutDirection];
+        hippy::Direction direction = [self confirmedLayoutDirection];
         [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry) {
             UIView *view = viewRegistry[self->_componentTag];
             [view applyLayoutDirectionFromParent:direction];
@@ -133,8 +132,8 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
         _textLifecycle = NativeRenderUpdateLifecycleUninitialized;
         _hasNewLayout = YES;
         _objectSubviews = [NSMutableArray array];
-        _confirmedLayoutDirection = DirectionInherit;
-        _layoutDirection = DirectionInherit;
+        _confirmedLayoutDirection = hippy::Inherit;
+        _layoutDirection = hippy::Inherit;
     }
     return self;
 }
@@ -440,12 +439,12 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     _eventNames.clear();
 }
 
-- (void)setLayoutDirection:(HPDirection)direction {
+- (void)setLayoutDirection:(hippy::Direction)direction {
     _layoutDirection = direction;
     self.confirmedLayoutDirection = direction;
 }
 
-- (void)setConfirmedLayoutDirection:(HPDirection)confirmedLayoutDirection {
+- (void)setConfirmedLayoutDirection:(hippy::Direction)confirmedLayoutDirection {
     if (_confirmedLayoutDirection != confirmedLayoutDirection) {
         _confirmedLayoutDirection = confirmedLayoutDirection;
         _confirmedLayoutDirectionDidUpdated = YES;
@@ -453,7 +452,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     }
 }
 
-- (void)applyConfirmedLayoutDirectionToSubviews:(HPDirection)confirmedLayoutDirection {
+- (void)applyConfirmedLayoutDirectionToSubviews:(hippy::Direction)confirmedLayoutDirection {
     _confirmedLayoutDirection = confirmedLayoutDirection;
     for (NativeRenderObjectView *subviews in self.subcomponents) {
         [subviews applyConfirmedLayoutDirectionToSubviews:confirmedLayoutDirection];
@@ -461,19 +460,19 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 }
 
 - (BOOL)isLayoutSubviewsRTL {
-    BOOL layoutRTL = DirectionRTL == self.confirmedLayoutDirection;
+    BOOL layoutRTL = hippy::RTL == self.confirmedLayoutDirection;
     return layoutRTL;
 }
 
-- (void)checkLayoutDirection:(NSMutableSet<NativeRenderObjectView *> *)viewsSet direction:(HPDirection *)direction{
-    if (DirectionInherit == self.confirmedLayoutDirection) {
+- (void)checkLayoutDirection:(NSMutableSet<NativeRenderObjectView *> *)viewsSet direction:(hippy::Direction *)direction{
+    if (hippy::Inherit == self.confirmedLayoutDirection) {
         [viewsSet addObject:self];
         NativeRenderObjectView *shadowSuperview = [self parentComponent];
         if (!shadowSuperview) {
             if (direction) {
                 NSWritingDirection writingDirection =
                     [[HPI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
-                *direction = NSWritingDirectionRightToLeft == writingDirection ? DirectionRTL : DirectionLTR;
+                *direction = NSWritingDirectionRightToLeft == writingDirection ? hippy::RTL : hippy::LTR;
             }
         }
         else {
@@ -485,8 +484,8 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     }
 }
 
-- (void)superviewLayoutDirectionChangedTo:(HPDirection)direction {
-    if (DirectionInherit == self.layoutDirection) {
+- (void)superviewLayoutDirectionChangedTo:(hippy::Direction)direction {
+    if (hippy::Inherit == self.layoutDirection) {
         self.confirmedLayoutDirection = [self superview].confirmedLayoutDirection;
         for (NativeRenderObjectView *subview in self.subcomponents) {
             [subview superviewLayoutDirectionChangedTo:self.confirmedLayoutDirection];

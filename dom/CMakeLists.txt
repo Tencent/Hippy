@@ -25,6 +25,7 @@ project("dom")
 get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/.." REALPATH)
 
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/InfraPackagesModule.cmake")
+include("${PROJECT_ROOT_DIR}/buildconfig/cmake/GlobalPackagesModule.cmake")
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
 
 set(CMAKE_CXX_STANDARD 17)
@@ -53,8 +54,10 @@ if ("${LAYOUT_ENGINE}" STREQUAL "Yoga")
   target_compile_definitions(${PROJECT_NAME} PRIVATE "USE_YOGA")
   target_link_libraries(${PROJECT_NAME} PRIVATE yogacore)
 elseif ("${LAYOUT_ENGINE}" STREQUAL "Taitank")
-  target_compile_definitions(${PROJECT_NAME} PRIVATE "USE_TAITANK")
-  add_subdirectory(${PROJECT_ROOT_DIR}/layout ${CMAKE_CURRENT_BINARY_DIR}/taitank)
+  InfraPackage_Add(taitank
+      REMOTE "dom/third_party/taitank/1.0.2/git-repo.tgz"
+      LOCAL "third_party/taitank"
+      )
   target_link_libraries(${PROJECT_NAME} PRIVATE taitank)
 else ()
   message(FATAL_ERROR "Layout Engine ${LAYOUT_ENGINE} is not supported")

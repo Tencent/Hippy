@@ -21,18 +21,19 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "Flex.h"
+
+#include "dom/layout_node.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface UIView (DirectionalLayout)
 
-@property(nonatomic, assign) HPDirection layoutDirection;
-@property(nonatomic, assign) HPDirection confirmedLayoutDirection;
+@property(nonatomic, assign) hippy::Direction layoutDirection;
+@property(nonatomic, assign) hippy::Direction confirmedLayoutDirection;
 
 - (BOOL)isLayoutSubviewsRTL;
 
-- (void)applyLayoutDirectionFromParent:(HPDirection)direction;
+- (void)applyLayoutDirectionFromParent:(hippy::Direction)direction;
 
 @end
 

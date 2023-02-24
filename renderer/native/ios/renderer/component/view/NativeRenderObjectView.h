@@ -21,13 +21,15 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "TypeConverter.h"
+
 #import "NativeRenderComponentProtocol.h"
+#import "TypeConverter.h"
+
 #include "dom/dom_listener.h"
 #include "dom/dom_node.h"
 #include "dom/layout_node.h"
 #include "dom/root_node.h"
-#include "Flex.h"
+#include "dom/layout_node.h"
 
 typedef NS_ENUM(NSUInteger, NativeRenderUpdateLifecycle) {
     NativeRenderUpdateLifecycleUninitialized = 0,
@@ -128,7 +130,7 @@ extern NSString *const NativeRenderShadowViewDiffTag;
 /**
  * Clipping properties
  */
-@property (nonatomic, assign) OverflowType overflow;
+//@property (nonatomic, assign) NSString *overflow;
 
 /**
  * Indicate how we create coresponding UIView
@@ -216,9 +218,9 @@ extern NSString *const NativeRenderShadowViewDiffTag;
 
 @property(nonatomic, assign) hippy::LayoutResult nodeLayoutResult;
 
-@property(nonatomic, assign) HPDirection layoutDirection;
-@property(nonatomic, assign) HPDirection confirmedLayoutDirection;
-- (void)applyConfirmedLayoutDirectionToSubviews:(HPDirection)confirmedLayoutDirection;
+@property(nonatomic, assign) hippy::Direction layoutDirection;
+@property(nonatomic, assign) hippy::Direction confirmedLayoutDirection;
+- (void)applyConfirmedLayoutDirectionToSubviews:(hippy::Direction)confirmedLayoutDirection;
 - (BOOL)isLayoutSubviewsRTL;
 
 @end

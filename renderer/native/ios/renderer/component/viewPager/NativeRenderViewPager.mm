@@ -310,7 +310,7 @@
     }
 }
 
-- (void)setConfirmedLayoutDirection:(HPDirection)confirmedLayoutDirection {
+- (void)setConfirmedLayoutDirection:(hippy::Direction)confirmedLayoutDirection {
     [super setConfirmedLayoutDirection:confirmedLayoutDirection];
     [self applyLayoutDirectionIfNeeded];
 }

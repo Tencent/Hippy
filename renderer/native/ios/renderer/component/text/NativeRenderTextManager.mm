@@ -39,7 +39,7 @@ static void collectDirtyNonTextDescendants(NativeRenderObjectText *renderObject,
 
 @interface NativeRenderObjectText (Private)
 // hplayout
-- (NSTextStorage *)buildTextStorageForWidth:(CGFloat)width widthMode:(MeasureMode)widthMode;
+- (NSTextStorage *)buildTextStorageForWidth:(CGFloat)width widthMode:(hippy::LayoutMeasureMode)widthMode;
 @end
 
 @implementation NativeRenderTextManager
