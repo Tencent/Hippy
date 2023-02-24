@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy;
 
 import com.tencent.mtt.hippy.common.Provider;
@@ -25,8 +26,8 @@ import java.util.Map;
 @SuppressWarnings("rawtypes")
 public interface HippyAPIProvider {
 
-  Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> getNativeModules(
-      HippyEngineContext context);
+    Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> getNativeModules(
+            HippyEngineContext context);
 
-  List<Class<? extends HippyJavaScriptModule>> getJavaScriptModules();
+    List<Class<? extends HippyJavaScriptModule>> getJavaScriptModules();
 }

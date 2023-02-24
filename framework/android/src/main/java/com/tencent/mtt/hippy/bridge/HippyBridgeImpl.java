@@ -59,7 +59,6 @@ public class HippyBridgeImpl implements HippyBridge, JSBridgeProxy, DevRemoteDeb
     private final boolean mEnableV8Serialization;
     private DebugWebSocketClient mDebugWebSocketClient;
     private String mDebugGlobalConfig;
-    private NativeCallback mDebugInitJSFrameworkCallback;
     private HippyEngineContext mContext;
     private final V8InitParams mV8InitParams;
     @NonNull
@@ -91,11 +90,10 @@ public class HippyBridgeImpl implements HippyBridge, JSBridgeProxy, DevRemoteDeb
     @Override
     public void initJSBridge(String globalConfig, NativeCallback callback, final int groupId) {
         mDebugGlobalConfig = globalConfig;
-        mDebugInitJSFrameworkCallback = callback;
-        initJSEngine(groupId);
+        initJSEngine(groupId, callback);
     }
 
-    private void initJSEngine(int groupId) {
+    private void initJSEngine(int groupId, NativeCallback callback) {
         synchronized (HippyBridgeImpl.class) {
             try {
                 String localCachePath = mContext.getGlobalConfigs().getContext().getCacheDir()
@@ -106,7 +104,7 @@ public class HippyBridgeImpl implements HippyBridge, JSBridgeProxy, DevRemoteDeb
                         mSingleThreadMode,
                         mEnableV8Serialization,
                         mIsDevModule,
-                        mDebugInitJSFrameworkCallback,
+                        callback,
                         groupId,
                         mContext.getDomManagerId(),
                         mV8InitParams,

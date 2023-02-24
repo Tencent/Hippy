@@ -43,6 +43,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.nio.ByteBuffer;
+import java.util.Map;
 
 public class ImageDataHolder implements ImageDataSupplier {
 
@@ -230,12 +231,12 @@ public class ImageDataHolder implements ImageDataSupplier {
         mDrawable = drawable;
     }
 
-    public void decodeImageData(@NonNull byte[] data,
+    public void decodeImageData(@NonNull byte[] data, @Nullable Map<String, Object> initProps,
             @Nullable ImageDecoderAdapter imageDecoderAdapter) throws NativeRenderException {
         try {
             mOptions = ImageDataUtils.generateBitmapOptions(data);
             if (imageDecoderAdapter != null) {
-                if (imageDecoderAdapter.decodeImageData(data, this, mOptions)) {
+                if (imageDecoderAdapter.preDecode(data, initProps, this, mOptions)) {
                     return;
                 }
             }
@@ -254,6 +255,9 @@ public class ImageDataHolder implements ImageDataSupplier {
             } else {
                 throw new RuntimeException("Unsupported picture type!");
             }
+            if (imageDecoderAdapter != null) {
+                imageDecoderAdapter.afterDecode(initProps, this, mOptions);
+            }
         } catch (OutOfMemoryError | Exception e) {
             throw new NativeRenderException(IMAGE_DATA_DECODE_ERR, e.getMessage());
         }
@@ -263,9 +267,8 @@ public class ImageDataHolder implements ImageDataSupplier {
      * Set bitmap to image holder.
      *
      * @param bitmap {@link Bitmap}.
-     * @param isRecyclable should recycle by sdk {@code true} the bitmap lifecycle is managed by the SDK
-     * {@code false} the bitmap lifecycle is managed by the Provider
-     *
+     * @param isRecyclable should recycle by sdk {@code true} the bitmap lifecycle is managed by the
+     * SDK {@code false} the bitmap lifecycle is managed by the Provider
      */
     public void setBitmap(Bitmap bitmap, boolean isRecyclable) {
         mBitmap = bitmap;
