@@ -19,4 +19,7 @@
    <FileRef
       location = "group:devtools/devtools-integration/ios/DevtoolsBackend/DevtoolsIntegration.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:dom/dom_project/dom.xcodeproj">
+   </FileRef>
 </Workspace>
