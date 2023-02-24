@@ -46,6 +46,7 @@ void CVDriver::Start() {
 void CVDriver::Terminate() {
   std::unique_lock<std::mutex> lock(mutex_);
   is_terminated_ = true;
+  cv_.notify_one();
 }
 
 }
