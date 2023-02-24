@@ -35,9 +35,9 @@ std::shared_ptr<tdfcore::Task> NetImageLoader::Load(const std::string &url,
                                                     const FinishCallback &finish_callback) {
   return TDF_MAKE_SHARED(tdfcore::FutureTask<void>, [WEAK_THIS, url, progress_callback, finish_callback] {
     DEFINE_AND_CHECK_SELF(NetImageLoader)
-    string_view src_uri = footstone::string_view(url);
+    StringView src_uri = footstone::string_view(url);
     FOOTSTONE_LOG(INFO) << "---NetImageLoader::Load--- src = " << src_uri;
-    self->uri_data_getter_(src_uri, [self, progress_callback, finish_callback](string_view::u8string data) {
+    self->uri_data_getter_(src_uri, [self, progress_callback, finish_callback](StringView::u8string data) {
       if (!data.empty()) {
         auto bytes = data.data();
         auto buffer = tdfcore::TData::MakeWithCopy(bytes, data.length());
