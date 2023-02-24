@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.15.7](https://github.com/Tencent/Hippy/compare/2.15.6...2.15.7) (2023-02-24)
+
+
+### Bug Fixes
+
+* **core:** add handle_scope for v8 exception ([#2860](https://github.com/Tencent/Hippy/issues/2860)) ([48e38c8](https://github.com/Tencent/Hippy/commit/48e38c8d3b9ced3f3c593df69444afee5537a9f6))
+* **core:** compatile with single callback in native2js ([3e0e914](https://github.com/Tencent/Hippy/commit/3e0e914e66e37490230670b88a33449bfcc6b868))
+
+
+
+
+
 ## [2.15.6](https://github.com/Tencent/Hippy/compare/2.15.5...2.15.6) (2023-02-20)
 
 
