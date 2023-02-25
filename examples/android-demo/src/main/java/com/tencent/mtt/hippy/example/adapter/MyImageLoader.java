@@ -84,6 +84,7 @@ public class MyImageLoader extends HippyImageLoader
 						public void run() {
 							// 这里setData会解码，耗时，所以在子线程做
 							hippyTarget.setData(((GifDrawable) object).getData());
+                            hippyTarget.setImageType(HippyImageView.IMAGE_TYPE_GIF);
 							mHandler.post(new Runnable() {
 								@Override
 								public void run() {
