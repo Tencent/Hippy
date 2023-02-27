@@ -25,7 +25,13 @@
 
 #import "HippyOCTurboModule.h"
 
-#include "driver/napi/js_native_turbo.h"
+namespace hippy {
+inline namespace driver {
+inline namespace napi {
+class HippyTurboModule;
+}
+}
+}
 
 @interface HippyOCTurboModule (Inner)
 

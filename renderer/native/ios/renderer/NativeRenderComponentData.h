@@ -21,10 +21,11 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "NativeRenderComponentProtocol.h"
-#import "NativeRenderViewManager.h"
 
-@class NativeRenderObjectView;
+#import "NativeRenderComponentProtocol.h"
+#import "NativeRenderDefines.h"
+
+@class NativeRenderObjectView, NativeRenderViewManager;
 @class UIView;
 
 @interface NativeRenderComponentData : NSObject

@@ -26,7 +26,7 @@
 namespace hippy {
 inline namespace dom {
 
-enum Edge {
+enum class Edge {
   EdgeLeft,
   EdgeTop,
   EdgeRight,
@@ -35,13 +35,13 @@ enum Edge {
   EdgeEnd,
 };
 
-enum Direction {
+enum class Direction {
   Inherit,
   LTR,
   RTL,
 };
 
-enum LayoutMeasureMode {
+enum class LayoutMeasureMode {
   Undefined,
   Exactly,
   AtMost,
@@ -108,7 +108,7 @@ class LayoutNode {
    * @param direction 排版方向
    * @param layout_context layout context
    */
-  virtual void CalculateLayout(float parent_width, float parent_height, Direction direction = LTR,
+  virtual void CalculateLayout(float parent_width, float parent_height, Direction direction = Direction::LTR,
                                void* layout_context = nullptr) = 0;
 
   /**

@@ -20,12 +20,10 @@
  * limitations under the License.
  */
 
-#import "NativeRenderFont.h"
-#import "HPLog.h"
-
 #import <CoreText/CoreText.h>
 
-#import <mutex>
+#import "NativeRenderFont.h"
+#import "HPLog.h"
 
 #if !defined(__IPHONE_8_2) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_2
 
@@ -94,8 +92,6 @@ static BOOL isCondensedFont(UIFont *font) {
 }
 
 static UIFont *cachedSystemFont(CGFloat size, NativeRenderFontWeight weight) {
-    //  static std::mutex fontCacheMutex;
-
     NSString *cacheKey = [NSString stringWithFormat:@"%.1f/%.2f", size, weight];
     UIFont *font = [fontCache objectForKey:cacheKey];
 

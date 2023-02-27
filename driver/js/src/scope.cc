@@ -39,6 +39,10 @@
 #include "driver/napi/v8/js_native_api_v8.h"
 #endif
 
+#ifdef ENABLE_INSPECTOR
+#include "devtools/devtools_data_source.h"
+#endif
+
 using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 

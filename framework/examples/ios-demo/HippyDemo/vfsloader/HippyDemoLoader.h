@@ -25,8 +25,6 @@
 @class HippyBridge;
 class NativeRenderManager;
 
-HP_EXTERN void RegisterVFSLoaderForBridge(HippyBridge *bridge, std::shared_ptr<NativeRenderManager> manager);
-
 class HippyDemoLoader : public VFSUriLoader {
 };
 

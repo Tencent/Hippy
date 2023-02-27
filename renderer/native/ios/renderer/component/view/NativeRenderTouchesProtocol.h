@@ -58,14 +58,14 @@ typedef void(^OnTouchEventHandler)(CGPoint);
  * @param name event name in std::string type
  * @return YES if event can be prevented in capturing process
  */
-- (BOOL)canBePreventedByInCapturing:(const std::string &)name;
+- (BOOL)canBePreventedByInCapturing:(const char *)name;
 
 /**
  * Indicate event can be prevented in bubbling process
  * @param name event name in std::string type
  * @return YES if event can be prevented in bubbling process
  */
-- (BOOL)canBePreventInBubbling:(const std::string &)name;
+- (BOOL)canBePreventInBubbling:(const char *)name;
 
 @end
 

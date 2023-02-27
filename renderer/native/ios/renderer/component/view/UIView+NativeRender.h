@@ -24,8 +24,6 @@
 
 #import "NativeRenderComponentProtocol.h"
 
-#include "dom/dom_node.h"
-
 @class NativeRenderObjectView;
 
 @interface UIView (NativeRender) <NativeRenderComponentProtocol>

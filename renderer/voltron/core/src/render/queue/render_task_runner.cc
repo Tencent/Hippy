@@ -381,9 +381,9 @@ void VoltronRenderTaskRunner::SetNodeCustomMeasure(uint32_t root_id,
                     footstone::checked_numeric_cast<uint32_t, int32_t>(root_id),
                     footstone::checked_numeric_cast<uint32_t, int32_t>(node_id),
                     width,
-                    widthMeasureMode,
+                    static_cast<int32_t>(widthMeasureMode),
                     height,
-                    heightMeasureMode);
+                    static_cast<int32_t>(heightMeasureMode));
                 int32_t w_bits = footstone::checked_numeric_cast<long long, int32_t>(
                     0xFFFFFFFF & (measure_result >> 32));
                 int32_t h_bits = footstone::checked_numeric_cast<long long, int32_t>(

@@ -21,22 +21,20 @@
  */
 
 #import "HippyModuleData.h"
+#import "HippyBridge.h"
+#import "HippyModuleMethod.h"
+#import "HPAsserts.h"
+#import "HPLog.h"
+#import "HPToolUtils.h"
 
 #import <objc/runtime.h>
 
-#include <mutex>
-
-#import "HippyBridge.h"
-#import "HPAsserts.h"
-#import "HippyModuleMethod.h"
-#import "HPLog.h"
-#import "HPToolUtils.h"
 
 @implementation HippyModuleData {
     NSDictionary<NSString *, id> *_constantsToExport;
     NSString *_queueName;
     __weak HippyBridge *_bridge;
-    std::mutex _instanceLock;
+    dispatch_semaphore_t _instanceSem;
     BOOL _setupComplete;
 }
 
@@ -62,6 +60,8 @@
     // If a module overrides `constantsToExport` then we must assume that it
     // must be called on the main thread, because it may need to access UIKit.
     _hasConstantsToExport = HPClassOverridesInstanceMethod(_moduleClass, @selector(constantsToExport));
+    
+    _instanceSem = dispatch_semaphore_create(1);
 }
 
 - (instancetype)initWithModuleClass:(Class)moduleClass bridge:(HippyBridge *)bridge {
@@ -87,7 +87,7 @@
 
 - (void)setUpInstanceAndBridge {
     {
-        std::unique_lock<std::mutex> lock(_instanceLock);
+        dispatch_semaphore_wait(_instanceSem, DISPATCH_TIME_FOREVER);
         // hippy will send 'destroyInstance' event to JS.
         // JS may call actions after that.
         // so ModuleData needs to be valid
@@ -116,6 +116,7 @@
         }
 
         [self setUpMethodQueue];
+        dispatch_semaphore_signal(_instanceSem);
     }
     // This is called outside of the lock in order to prevent deadlock issues
     // because the logic in `finishSetupForInstance` can cause

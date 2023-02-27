@@ -20,9 +20,10 @@
  * limitations under the License.
  */
 
+#import <UIKit/NSIndexPath+UIKitAdditions.h>
+
 #import "NativeRenderWaterfallViewDataSource.h"
 #import "NativeRenderObjectView.h"
-#import <UIKit/NSIndexPath+UIKitAdditions.h>
 
 @interface NativeRenderWaterfallViewDataSource () {
     BOOL _containBannerView;

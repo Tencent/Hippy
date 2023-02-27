@@ -22,8 +22,10 @@
 
 #import "NSObject+CtxValue.h"
 #import "HPAsserts.h"
-#import "footstone/string_view.h"
-#import "footstone/string_view_utils.h"
+
+#include "driver/napi/js_native_api_types.h"
+#include "footstone/string_view.h"
+#include "footstone/string_view_utils.h"
 
 @implementation NSObject (CtxValue)
 

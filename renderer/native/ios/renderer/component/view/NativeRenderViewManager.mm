@@ -36,6 +36,7 @@
 #include <objc/runtime.h>
 
 #include "VFSUriLoader.h"
+#include "dom/layout_node.h"
 
 @interface NativeRenderViewManager () {
     NSUInteger _sequence;
@@ -215,7 +216,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, NativeRenderView) 
     }
     NSString *standardizeAssetUrlString = path;
     __weak NativeRenderView *weakView = view;
-    auto loader = [[self renderImpl] VFSUriLoader];
+    auto loader = [[self renderImpl] VFSUriLoader].lock();
     if (!loader) {
         return;
     }
@@ -473,23 +474,23 @@ NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(zIndex, NSInteger)
 
 static inline hippy::Direction ConvertDirection(id direction) {
     if (!direction) {
-        return hippy::Inherit;
+        return hippy::Direction::Inherit;
     }
     if ([direction isKindOfClass:[NSNumber class]]) {
         return (hippy::Direction)[direction intValue];
     }
     else if ([direction isKindOfClass:[NSString class]]) {
         if ([direction isEqualToString:@"rtl"]) {
-            return hippy::RTL;
+            return hippy::Direction::RTL;
         }
         else if ([direction isEqualToString:@"ltr"]) {
-            return hippy::LTR;
+            return hippy::Direction::LTR;
         }
         else {
-            return hippy::Inherit;
+            return hippy::Direction::Inherit;
         }
     }
-    return hippy::Inherit;
+    return hippy::Direction::Inherit;
 }
 
 NATIVE_RENDER_CUSTOM_RENDER_OBJECT_PROPERTY(direction, id, NativeRenderObjectView) {

@@ -23,7 +23,6 @@
 #import <UIKit/UIKit.h>
 
 #import "HippyBridge.h"
-#import "HippyBridgeModule.h"
 
 @class HippyDevMenuItem;
 

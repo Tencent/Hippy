@@ -21,10 +21,23 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "driver/engine.h"
-#import "dom/dom_manager.h"
-#import "footstone/worker.h"
-#import "footstone/task_runner.h"
+
+#include <string>
+
+namespace hippy {
+inline namespace driver {
+class Engine;
+}
+inline namespace dom {
+class DomManager;
+}
+}
+
+namespace footstone {
+inline namespace runner {
+class Worker;
+}
+}
 
 class EngineResource {
 public:

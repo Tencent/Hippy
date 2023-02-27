@@ -30,13 +30,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-namespace hippy {
-inline namespace vfs {
-class RequestJob;
-class JobResponse;
-};
-};
-
 hippy::vfs::UriHandler::RetCode RetCodeFromNSError(NSError *error);
 
 @interface NSURLSessionDataProgress : NSObject<NSURLSessionDataDelegate>

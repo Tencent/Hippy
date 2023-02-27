@@ -21,14 +21,17 @@
  */
 
 #import "UIView+DirectionalLayout.h"
-#import "objc/runtime.h"
-#import "HPI18nUtils.h"
 #import "UIView+NativeRender.h"
+#import "HPI18nUtils.h"
+
+#include <objc/runtime.h>
+
+#include "dom/layout_node.h"
 
 @implementation UIView (DirectionalLayout)
 
 - (void)setLayoutDirection:(hippy::Direction)direction {
-    objc_setAssociatedObject(self, @selector(layoutDirection), @(direction), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, @selector(layoutDirection), @((int)direction), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     self.confirmedLayoutDirection = direction;
 }
 
@@ -38,7 +41,7 @@
 }
 
 - (void)setConfirmedLayoutDirection:(hippy::Direction)confirmedDirection {
-    objc_setAssociatedObject(self, @selector(confirmedLayoutDirection), @(confirmedDirection), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, @selector(confirmedLayoutDirection), @((int)confirmedDirection), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (hippy::Direction)confirmedLayoutDirection {
@@ -47,12 +50,12 @@
 }
 
 - (BOOL)isLayoutSubviewsRTL {
-    BOOL layoutRTL = hippy::RTL == self.confirmedLayoutDirection;
+    BOOL layoutRTL = hippy::Direction::RTL == self.confirmedLayoutDirection;
     return layoutRTL;
 }
 
 - (void)checkLayoutDirection:(NSMutableSet<UIView *> *)viewsSet direction:(hippy::Direction *)direction{
-    if (hippy::Inherit == self.confirmedLayoutDirection) {
+    if (hippy::Direction::Inherit == self.confirmedLayoutDirection) {
         [viewsSet addObject:self];
         [(UIView *)[self parentComponent] checkLayoutDirection:viewsSet direction:direction];
     }
@@ -62,7 +65,7 @@
 }
 
 - (void)superviewLayoutDirectionChangedTo:(hippy::Direction)direction {
-    if (hippy::Inherit == self.layoutDirection) {
+    if (hippy::Direction::Inherit == self.layoutDirection) {
         self.confirmedLayoutDirection = [self superview].confirmedLayoutDirection;
         for (UIView *subview in self.subcomponents) {
             [subview superviewLayoutDirectionChangedTo:self.confirmedLayoutDirection];

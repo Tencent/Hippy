@@ -21,6 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
+
 #import "HippyBridgeModule.h"
 
 @interface HippyExceptionModule : NSObject <HippyBridgeModule>

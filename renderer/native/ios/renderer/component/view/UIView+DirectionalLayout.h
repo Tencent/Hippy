@@ -22,7 +22,11 @@
 
 #import <UIKit/UIKit.h>
 
-#include "dom/layout_node.h"
+namespace hippy {
+inline namespace dom {
+enum class Direction;
+}
+}
 
 NS_ASSUME_NONNULL_BEGIN
 
