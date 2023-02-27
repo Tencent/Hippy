@@ -981,7 +981,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateBoolean(bool b) {
 
 std::shared_ptr<CtxValue> V8Ctx::CreateString(
     const unicode_string_view& str_view) {
-  if (str_view.encoding() == unicode_string_view::Encoding::UnKnown) {
+  if (str_view.encoding() == unicode_string_view::Encoding::Unknown) {
     return nullptr;
   }
   v8::HandleScope isolate_scope(isolate_);
