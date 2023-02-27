@@ -54,19 +54,28 @@
 
 # 使用源码直接集成
 
-1. 从 GitHub 中将 Hippy iOS SDK 源码下载，将ios/sdk文件夹以及 core 文件夹拖入工程中
+1. 从 GitHub 中将 Hippy iOS SDK 源码下载，将ios/sdk文件夹以及 core 文件夹拖入工程中，并在xcode做如下设置:
+- 在 `xcode build settings` 中设置 *User Header Search Paths* 项为core文件夹所在路径
+    > 假设core文件夹路径为 `~/documents/project/hippy/demo/core`，那应当设置为 `~/documents/project/hippy/demo/` 而不是 `~/documents/project/hippy/demo/core`
 
-2. 删除对 `core/js` 文件夹的引用。
+- 在`Build Phases/Copy Bundle Resources`删除重复的`CMakeList.txt`和`.clang-format`,文件各保留一份即可
+- 删除`sdk/HippyLibrary.xcodeproj`文件
 
-   > core/js文件夹中包含的是不参与编译的 js 文件
+2. 删除对`v8`文件夹的引用
+- core/include/core/napi/v8
+- core/src/napi/v8
+    > core 文件夹代码涉及 iOS/Android 不同平台的 JS 引擎，iOS 使用的是 JSCore
 
-3. 删除对 `core/napi/v8` 文件夹的引用
+3. 删除对`安卓文件夹`的引用
+- core/js/bridge/android
+- core/js/global/android
+- core/js/entry/android
+- core/third_party/base/src/platform/adr
 
-   > core 文件夹代码涉及 iOS/Android 不同平台的 JS 引擎，iOS 使用的是 JSCore
-
-4. 在 `xcode build settings` 中设置 *User Header Search Paths* 项为core文件夹所在路径
-
- > 假设core文件夹路径为 `~/documents/project/hippy/demo/core`，那应当设置为 `~/documents/project/hippy/demo/` 而不是 `~/documents/project/hippy/demo/core`
+4. 删除对`v8 inspector`的引用
+- core/include/core/inspector
+- core/src/inspector
+    > inspector 有v8和jsc之分。iOS不需要v8 inspector
 
 # 编写代码开始调试或者加载业务代码
 
