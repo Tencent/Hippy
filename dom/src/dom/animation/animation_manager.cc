@@ -314,12 +314,16 @@ void AnimationManager::UpdateCubicBezierAnimation(double current,
     if (prop_it == props.end()) {
       continue;
     }
-    auto dom_node = update_node_map[dom_node_id];
-    if (!dom_node) {
+
+    std::shared_ptr<DomNode> dom_node;
+    auto it = update_node_map.find(dom_node_id);
+    if (it == update_node_map.end()) {
       dom_node = root_node->GetNode(dom_node_id);
-    }
-    if (!dom_node) {
-      continue;
+      if (!dom_node) {
+        continue;
+      }
+    } else {
+      dom_node = update_node_map[dom_node_id];
     }
     HippyValue prop_value(current);
     std::unordered_map<std::string, std::shared_ptr<HippyValue>> diff_value;
