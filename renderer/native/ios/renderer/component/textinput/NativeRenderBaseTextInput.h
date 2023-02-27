@@ -23,6 +23,7 @@
 #import "NativeRenderView.h"
 
 @interface NativeRenderBaseTextInput : NativeRenderView
+
 @property (nonatomic, strong) UIFont *font;
 @property (nonatomic, assign) UIEdgeInsets contentInset;
 @property (nonatomic, copy) NSString *value;

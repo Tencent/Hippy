@@ -30,7 +30,6 @@ extern NSString *const VFSParamsMethod;
 extern NSString *const VFSParamsHeaders;
 extern NSString *const VFSParamsBody;
 
-@class HPUriLoader;
 class VFSUriHandler;
 
 extern NSError *GetVFSError(hippy::vfs::UriHandler::RetCode retCode, NSString *urlString, NSURLResponse *response);

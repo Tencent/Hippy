@@ -21,11 +21,12 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "NativeRenderView.h"
-#import "NativeRenderScrollableProtocol.h"
-#import "NativeRenderTouchesView.h"
+
 #import "NativeRenderCollectionViewWaterfallLayout.h"
+#import "NativeRenderComponentProtocol.h"
+#import "NativeRenderScrollableProtocol.h"
 #import "NativeRenderScrollProtocol.h"
+#import "NativeRenderTouchesView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

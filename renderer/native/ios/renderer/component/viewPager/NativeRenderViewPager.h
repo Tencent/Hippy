@@ -21,7 +21,9 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "NativeRenderScrollView.h"
+#import <UIKit/UIKit.h>
+
+#import "NativeRenderComponentProtocol.h"
 
 /**
  * A Callback block to indicate view pager's item count changed

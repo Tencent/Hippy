@@ -21,7 +21,6 @@
  */
 
 #import "HippyBundleExecutionOperation.h"
-#include <mutex>
 
 @interface HippyBundleExecutionOperation () {
     dispatch_block_t _block;
@@ -31,29 +30,35 @@
     BOOL _asynchronous;
     BOOL _ready;
     NSMutableSet<NSOperation *> *_dependencies;
-    std::mutex _statusMutex;
-    std::mutex _dependencyMutex;
+    
+    dispatch_semaphore_t _statusSem;
+    dispatch_semaphore_t _dependencySem;
+    dispatch_queue_t _opQueue;
 }
 
 @end
 
 @implementation HippyBundleExecutionOperation
 
-- (instancetype)initWithBlock:(dispatch_block_t)block {
+- (instancetype)initWithBlock:(dispatch_block_t)block queue:(dispatch_queue_t)queue {
     self = [super init];
     if (self) {
         _block = [block copy];
         _dependencies = [NSMutableSet setWithCapacity:8];
+        _statusSem = dispatch_semaphore_create(1);
+        _dependencySem = dispatch_semaphore_create(1);
+        _opQueue = queue;
         self.ready = YES;
     }
     return self;
 }
 
 - (void)dealloc {
-    std::lock_guard<std::mutex> lock(_dependencyMutex);
+    dispatch_semaphore_wait(_dependencySem, DISPATCH_TIME_FOREVER);
     for (NSOperation *op in _dependencies) {
         [op removeObserver:self forKeyPath:@"finished" context:NULL];
     }
+    dispatch_semaphore_signal(_dependencySem);
 }
 
 - (void)start {
@@ -72,7 +77,12 @@
     self.finished = NO;
     self.executing = YES;
     if (_block) {
-        _block();
+        if (_opQueue) {
+            dispatch_sync(_opQueue, _block);
+        }
+        else {
+            _block();
+        }
     }
     self.finished = YES;
     self.executing = NO;
@@ -83,8 +93,9 @@
         return;
     }
     {
-        std::lock_guard<std::mutex> lock(_dependencyMutex);
+        dispatch_semaphore_wait(_dependencySem, DISPATCH_TIME_FOREVER);
         [_dependencies addObject:op];
+        dispatch_semaphore_signal(_dependencySem);
     }
     if (![op isFinished]) {
         self.ready = NO;
@@ -93,16 +104,19 @@
 }
 
 - (void)removeDependency:(NSOperation *)op {
-    std::lock_guard<std::mutex> lock(_dependencyMutex);
+    dispatch_semaphore_wait(_dependencySem, DISPATCH_TIME_FOREVER);
     if ([_dependencies containsObject:op]) {
         [_dependencies removeObject:op];
         [op removeObserver:self forKeyPath:@"finished" context:NULL];
     }
+    dispatch_semaphore_signal(_dependencySem);
 }
 
 - (NSArray<NSOperation *> *)dependencies {
-    std::lock_guard<std::mutex> lock(_dependencyMutex);
-    return [_dependencies allObjects];
+    dispatch_semaphore_wait(_dependencySem, DISPATCH_TIME_FOREVER);
+    NSArray<NSOperation *> *objects = [_dependencies allObjects];
+    dispatch_semaphore_signal(_dependencySem);
+    return objects;
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
@@ -112,7 +126,7 @@
 }
 
 - (void)checkForReadyStatus {
-    std::lock_guard<std::mutex> lock(_dependencyMutex);
+    dispatch_semaphore_wait(_dependencySem, DISPATCH_TIME_FOREVER);
     BOOL status = YES;
     for (NSOperation *op in _dependencies) {
         if (![op isFinished]) {
@@ -121,6 +135,7 @@
         }
     }
     self.ready = status;
+    dispatch_semaphore_signal(_dependencySem);
 }
 
 - (void)cancel {
@@ -133,15 +148,18 @@
     }
     [self willChangeValueForKey:@"cancelled"];
     {
-        std::lock_guard<std::mutex> lock(_statusMutex);
+        dispatch_semaphore_wait(_statusSem, DISPATCH_TIME_FOREVER);
         _cancelled = cancelled;
+        dispatch_semaphore_signal(_statusSem);
     }
     [self didChangeValueForKey:@"cancelled"];
 }
 
 - (BOOL)isCancelled {
-    std::lock_guard<std::mutex> lock(_statusMutex);
-    return _cancelled;
+    dispatch_semaphore_wait(_statusSem, DISPATCH_TIME_FOREVER);
+    BOOL cancel = _cancelled;
+    dispatch_semaphore_signal(_statusSem);
+    return cancel;
 }
 
 - (void)setExecuting:(BOOL)isExecuting {
@@ -150,15 +168,18 @@
     }
     [self willChangeValueForKey:@"executing"];
     {
-        std::lock_guard<std::mutex> lock(_statusMutex);
+        dispatch_semaphore_wait(_statusSem, DISPATCH_TIME_FOREVER);
         _executing = isExecuting;
+        dispatch_semaphore_signal(_statusSem);
     }
     [self didChangeValueForKey:@"executing"];
 }
 
 - (BOOL)isExecuting {
-    std::lock_guard<std::mutex> lock(_statusMutex);
-    return _executing;
+    dispatch_semaphore_wait(_statusSem, DISPATCH_TIME_FOREVER);
+    BOOL executing = _executing;
+    dispatch_semaphore_signal(_statusSem);
+    return executing;
 }
 
 - (void)setFinished:(BOOL)isFinished {
@@ -167,15 +188,18 @@
     }
     [self willChangeValueForKey:@"finished"];
     {
-        std::lock_guard<std::mutex> lock(_statusMutex);
+        dispatch_semaphore_wait(_statusSem, DISPATCH_TIME_FOREVER);
         _finished = isFinished;
+        dispatch_semaphore_signal(_statusSem);
     }
     [self didChangeValueForKey:@"finished"];
 }
 
 - (BOOL)isFinished {
-    std::lock_guard<std::mutex> lock(_statusMutex);
-    return _finished;
+    dispatch_semaphore_wait(_statusSem, DISPATCH_TIME_FOREVER);
+    BOOL finished = _finished;
+    dispatch_semaphore_signal(_statusSem);
+    return finished;
 }
 
 - (void)setConcurrent:(BOOL)isConcurrent {
@@ -184,15 +208,18 @@
     }
     [self willChangeValueForKey:@"concurrent"];
     {
-        std::lock_guard<std::mutex> lock(_statusMutex);
+        dispatch_semaphore_wait(_statusSem, DISPATCH_TIME_FOREVER);
         _asynchronous = isConcurrent;
+        dispatch_semaphore_signal(_statusSem);
     }
     [self didChangeValueForKey:@"concurrent"];
 }
 
 - (BOOL)isConcurrent {
-    std::lock_guard<std::mutex> lock(_statusMutex);
-    return _asynchronous;
+    dispatch_semaphore_wait(_statusSem, DISPATCH_TIME_FOREVER);
+    BOOL asynchronous = _asynchronous;
+    dispatch_semaphore_signal(_statusSem);
+    return asynchronous;
 }
 
 - (void)setAsynchronous:(BOOL)isAsynchronous {
@@ -201,15 +228,18 @@
     }
     [self willChangeValueForKey:@"asynchronous"];
     {
-        std::lock_guard<std::mutex> lock(_statusMutex);
+        dispatch_semaphore_wait(_statusSem, DISPATCH_TIME_FOREVER);
         _asynchronous = isAsynchronous;
+        dispatch_semaphore_signal(_statusSem);
     }
     [self didChangeValueForKey:@"asynchronous"];
 }
 
 - (BOOL)isAsynchronous {
-    std::lock_guard<std::mutex> lock(_statusMutex);
-    return _asynchronous;
+    dispatch_semaphore_wait(_statusSem, DISPATCH_TIME_FOREVER);
+    BOOL asynchronous = _asynchronous;
+    dispatch_semaphore_signal(_statusSem);
+    return asynchronous;
 }
 
 - (void)setReady:(BOOL)isReady {
@@ -218,15 +248,18 @@
     }
     [self willChangeValueForKey:@"ready"];
     {
-        std::lock_guard<std::mutex> lock(_statusMutex);
+        dispatch_semaphore_wait(_statusSem, DISPATCH_TIME_FOREVER);
         _ready = isReady;
+        dispatch_semaphore_signal(_statusSem);
     }
     [self didChangeValueForKey:@"ready"];
 }
 
 - (BOOL)isReady {
-    std::lock_guard<std::mutex> lock(_statusMutex);
-    return _ready;
+    dispatch_semaphore_wait(_statusSem, DISPATCH_TIME_FOREVER);
+    BOOL ready = _ready;
+    dispatch_semaphore_signal(_statusSem);
+    return ready;
 }
 
 @end

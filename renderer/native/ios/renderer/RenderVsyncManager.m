@@ -20,10 +20,9 @@
  * limitations under the License.
  */
 
+#import <QuartzCore/CADisplayLink.h>
 #import "RenderVsyncManager.h"
 #import "objc/runtime.h"
-#import <QuartzCore/CADisplayLink.h>
-#import <mutex>
 
 @interface CADisplayLink (Vsync)
 
@@ -63,7 +62,8 @@
 
 @interface RenderVsyncManager () {
     NSMutableDictionary<NSString *, CADisplayLink *> *_observers;
-    std::mutex _mutex;
+//    std::mutex _mutex;
+    dispatch_semaphore_t _semaphore;
 }
 
 @end
@@ -83,6 +83,7 @@
     self = [super init];
     if (self) {
         _observers = [NSMutableDictionary dictionaryWithCapacity:8];
+        _semaphore = dispatch_semaphore_create(1);
     }
     return self;
 }
@@ -100,8 +101,9 @@
         [vsync applyRefreshRate:rate];
         [vsync addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
         vsync.block = observer;
-        std::lock_guard<std::mutex> lock(_mutex);
+        dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
         [_observers setObject:vsync forKey:key];
+        dispatch_semaphore_signal(_semaphore);
     }
 }
 
@@ -110,8 +112,9 @@
         CADisplayLink *vsync = [_observers objectForKey:key];
         if (vsync) {
             {
-                std::lock_guard<std::mutex> lock(_mutex);
+                dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
                 [_observers removeObjectForKey:key];
+                dispatch_semaphore_signal(_semaphore);
             }
             [vsync invalidate];
         }

@@ -27,9 +27,14 @@
 #include <vector>
 
 #include "dom/render_manager.h"
-#include "dom/root_node.h"
 
 @class UIView, NativeRenderImpl;
+
+namespace hippy {
+inline namespace dom {
+class RootNode;
+}
+}
 
 @protocol HPImageProviderProtocol;
 

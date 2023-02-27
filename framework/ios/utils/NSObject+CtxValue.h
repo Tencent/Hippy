@@ -21,8 +21,18 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "driver/napi/js_native_api_types.h"
 #import "MacroDefines.h"
+
+#include <memory>
+
+namespace hippy {
+inline namespace driver {
+inline namespace napi {
+class CtxValue;
+class Ctx;
+}
+}
+}
 
 NS_ASSUME_NONNULL_BEGIN
 

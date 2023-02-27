@@ -29,6 +29,8 @@
 #import "NativeRenderTextView.h"
 #import "NativeRenderUtils.h"
 
+#include "dom/dom_manager.h"
+#include "dom/dom_node.h"
 #include "dom/layout_node.h"
 
 NSString *const NativeRenderRenderObjectAttributeName = @"NativeRenderRenderObjectAttributeName";
@@ -108,7 +110,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         _opacity = 1.0;
         _ellipsizeMode = NSLineBreakByTruncatingTail;
         _cachedTextStorageWidth = -1;
-        _cachedTextStorageWidthMode = -1;
+        _cachedTextStorageWidthMode = hippy::LayoutMeasureMode::Undefined;
         _fontSizeMultiplier = 1.0;
         _lineHeightMultiple = 1.0f;
         _textAlign = NSTextAlignmentLeft;
@@ -149,7 +151,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     NSNumber *parentTag = [[self parentComponent] componentTag];
     // MTTlayout
-    NSTextStorage *textStorage = [self buildTextStorageForWidth:width widthMode:hippy::Exactly];
+    NSTextStorage *textStorage = [self buildTextStorageForWidth:width widthMode:hippy::LayoutMeasureMode::Exactly];
     CGRect textFrame = [self calculateTextFrame:textStorage];
     UIColor *color = self.color ?: [UIColor blackColor];
     [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry) {
@@ -177,7 +179,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     @try {
         UIEdgeInsets padding = self.paddingAsInsets;
         CGFloat width = self.frame.size.width - (padding.left + padding.right);
-        NSTextStorage *textStorage = [self buildTextStorageForWidth:width widthMode:hippy::Exactly];
+        NSTextStorage *textStorage = [self buildTextStorageForWidth:width widthMode:hippy::LayoutMeasureMode::Exactly];
         CGRect textFrame = [self calculateTextFrame:textStorage];
         
         NSLayoutManager *layoutManager = textStorage.layoutManagers.firstObject;
@@ -252,7 +254,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     }
 
     textContainer.maximumNumberOfLines = _numberOfLines;
-    textContainer.size = (CGSize) { widthMode == hippy::Undefined ? CGFLOAT_MAX : width, CGFLOAT_MAX };
+    textContainer.size = (CGSize) { widthMode == hippy::LayoutMeasureMode::Undefined ? CGFLOAT_MAX : width, CGFLOAT_MAX };
 
     [layoutManager addTextContainer:textContainer];
     [layoutManager ensureLayoutForTextContainer:textContainer];

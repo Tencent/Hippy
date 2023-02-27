@@ -21,9 +21,9 @@
  */
 
 #import <UIKit/UIKit.h>
+
+#import "NativeRenderTouchesProtocol.h"
 #import "NativeRenderComponentProtocol.h"
-#import "NativeRenderTouchesView.h"
-#include <string>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -41,13 +41,13 @@ NS_ASSUME_NONNULL_BEGIN
  * @param name event name
  * @param callback event call back for event
  */
-- (void)addPropertyEvent:(const std::string &)name eventCallback:(NativeRenderDirectEventBlock)callback;
+- (void)addPropertyEvent:(const char *)name eventCallback:(NativeRenderDirectEventBlock)callback;
 
 /**
  * Remove status change event for view
  * @param name event name
  */
-- (void)removePropertyEvent:(const std::string &)name;
+- (void)removePropertyEvent:(const char *)name;
 
 /**
  * Notify view event has been added
@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @discussion The default implementation of this method is to trigger onDidMount event if it is onDidMount event
  */
-- (void)didAddPropertyEvent:(const std::string &)name eventCallback:(NativeRenderDirectEventBlock)callback;
+- (void)didAddPropertyEvent:(const char *)name eventCallback:(NativeRenderDirectEventBlock)callback;
 
 /**
  * Notify view event has been removed from view
@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @discussion The default implementation of this method is to trigger onDidUnmount event if it is onDidUnmount event
  */
-- (void)didRemovePropertyEvent:(const std::string &)name;
+- (void)didRemovePropertyEvent:(const char *)name;
 
 @end
 

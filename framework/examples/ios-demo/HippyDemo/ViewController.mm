@@ -36,6 +36,7 @@
 #import "UIView+NativeRender.h"
 #import "ViewController.h"
 #import "HPOCToHippyValue.h"
+#import "HippyFileHandler.h"
 
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
@@ -49,6 +50,9 @@ static NSString *const engineKey = @"Demo";
     std::shared_ptr<NativeRenderManager> _nativeRenderManager;
     std::shared_ptr<hippy::RootNode> _rootNode;
     HippyBridge *_bridge;
+    
+    std::shared_ptr<HippyDemoHandler> _demoHandler;
+    std::shared_ptr<HippyDemoLoader> _demoLoader;
 }
 
 @end
@@ -105,7 +109,8 @@ static NSString *const engineKey = @"Demo";
                                                  moduleProvider:nil
                                                   launchOptions:launchOptions
                                                     engineKey:engineKey];
-
+    _bridge = bridge;
+    
     [self setupBridge:bridge rootView:rootView bundleURLs:bundleURLs props:@{@"isSimulator": @(isSimulator)}];
     //set custom vfs loader
     bridge.sandboxDirectory = sandboxDirectory;
@@ -116,7 +121,6 @@ static NSString *const engineKey = @"Demo";
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self.view addSubview:rootView];
     
-    _bridge = bridge;
 }
 
 - (void)setupBridge:(HippyBridge *)bridge rootView:(UIView *)rootView bundleURLs:(NSArray<NSURL *> *)bundleURLs props:(NSDictionary *)props {
@@ -141,7 +145,7 @@ static NSString *const engineKey = @"Demo";
     //set image provider for native render manager
     _nativeRenderManager->AddImageProviderClass([HPDefaultImageProvider class]);
     //set vfs for bridge & native render manager
-    RegisterVFSLoaderForBridge(bridge, _nativeRenderManager);
+    [self registerVFSLoader];
     //set rendermanager for dommanager
     domManager->SetRenderManager(_nativeRenderManager);
     //bind rootview and root node
@@ -158,10 +162,26 @@ static NSString *const engineKey = @"Demo";
     
     //setup necessary params for bridge
     [bridge setupDomManager:domManager rootNode:rootNode];
-    [bridge loadBundleURLs:bundleURLs];
+    [bridge loadBundleURLs:bundleURLs completion:^(NSURL * _Nullable url, NSError * _Nullable error) {
+        NSLog(@"url %@ completion", url);
+    }];
     [bridge loadInstanceForRootView:rootTag withProperties:props];
     
     _rootNode = rootNode;
+}
+
+- (void)registerVFSLoader {
+    _demoHandler = std::make_shared<HippyDemoHandler>();
+    _demoLoader = std::make_shared<HippyDemoLoader>();
+    _demoLoader->PushDefaultHandler(_demoHandler);
+    _demoLoader->AddConvenientDefaultHandler(_demoHandler);
+    
+    auto fileHandler = std::make_shared<HippyFileHandler>(_bridge);
+    _demoLoader->RegisterConvenientUriHandler(@"hpfile", fileHandler);
+    
+    [_bridge setVFSUriLoader:_demoLoader];
+    
+    _nativeRenderManager->SetVFSUriLoader(_demoLoader);
 }
 
 /**
@@ -204,10 +224,7 @@ static NSString *const engineKey = @"Demo";
         if ([obj respondsToSelector:@selector(invalidate)]) {
             [obj performSelector:@selector(invalidate)];
         }
-        NSDictionary *param = @{@"id": [obj componentTag]};
-        footstone::value::HippyValue value = [param toHippyValue];
-        std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
-        bridge.javaScriptExecutor.pScope->UnloadInstance(domValue);
+        [bridge unloadInstanceForRootView:[obj componentTag]];
     }];
 }
 

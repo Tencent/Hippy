@@ -20,8 +20,6 @@
  * limitations under the License.
  */
 
-#import <CoreText/CoreText.h>
-
 #import "HPConvert.h"
 #import "HPParserUtils.h"
 #import "HPToolUtils.h"

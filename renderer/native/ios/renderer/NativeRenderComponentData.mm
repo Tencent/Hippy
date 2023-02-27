@@ -20,10 +20,11 @@
  * limitations under the License.
  */
 
-#import "NativeRenderComponentData.h"
 #import <objc/message.h>
-#import "HPConvert.h"
+#import "NativeRenderComponentData.h"
 #import "NativeRenderObjectView.h"
+#import "NativeRenderViewManager.h"
+#import "HPConvert.h"
 #import "HPToolUtils.h"
 #import "UIView+NativeRender.h"
 

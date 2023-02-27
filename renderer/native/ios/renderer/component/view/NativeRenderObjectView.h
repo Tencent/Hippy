@@ -23,13 +23,17 @@
 #import <UIKit/UIKit.h>
 
 #import "NativeRenderComponentProtocol.h"
-#import "TypeConverter.h"
 
-#include "dom/dom_listener.h"
-#include "dom/dom_node.h"
-#include "dom/layout_node.h"
-#include "dom/root_node.h"
-#include "dom/layout_node.h"
+#include <memory>
+
+namespace hippy {
+inline namespace dom {
+class DomManager;
+class RootNode;
+struct LayoutResult;
+enum class Direction;
+}
+}
 
 typedef NS_ENUM(NSUInteger, NativeRenderUpdateLifecycle) {
     NativeRenderUpdateLifecycleUninitialized = 0,

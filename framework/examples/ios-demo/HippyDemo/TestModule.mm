@@ -34,7 +34,7 @@
 #import "NativeRenderImpl.h"
 #import "HippyJSExecutor.h"
 #import "HPOCToHippyValue.h"
-
+#import "HippyFileHandler.h"
 #include "driver/scope.h"
 
 static NSString *const engineKey = @"Demo";
@@ -44,6 +44,8 @@ static NSString *const engineKey = @"Demo";
     std::shared_ptr<NativeRenderManager> _nativeRenderManager;
     std::shared_ptr<hippy::RootNode> _rootNode;
     __weak UIViewController *_weakVC;
+    std::shared_ptr<HippyDemoHandler> _demoHandler;
+    std::shared_ptr<HippyDemoLoader> _demoLoader;
 }
 
 @end
@@ -81,7 +83,6 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
                                                   launchOptions:launchOptions
                                                     engineKey:@"Demo"];
     [self setupBridge:bridge rootView:rootView bundleURLs:bundleURLs props:@{@"isSimulator": @(isSimulator)}];
-    RegisterVFSLoaderForBridge(bridge, _nativeRenderManager);
     bridge.sandboxDirectory = sandboxDirectory;
     bridge.contextName = @"Demo";
     bridge.moduleName = @"Demo";
@@ -92,6 +93,21 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     [rootViewController presentViewController:vc animated:YES completion:NULL];
     _weakVC = vc;
 }
+
+- (void)registerVFSLoader {
+    _demoHandler = std::make_shared<HippyDemoHandler>();
+    _demoLoader = std::make_shared<HippyDemoLoader>();
+    _demoLoader->PushDefaultHandler(_demoHandler);
+    _demoLoader->AddConvenientDefaultHandler(_demoHandler);
+    
+    auto fileHandler = std::make_shared<HippyFileHandler>(_bridge);
+    _demoLoader->RegisterConvenientUriHandler(@"hpfile", fileHandler);
+    
+    [_bridge setVFSUriLoader:_demoLoader];
+    
+    _nativeRenderManager->SetVFSUriLoader(_demoLoader);
+}
+
 
 - (void)setupBridge:(HippyBridge *)bridge rootView:(UIView *)rootView bundleURLs:(NSArray<NSURL *> *)bundleURLs props:(NSDictionary *)props {
     //Get DomManager from HippyJSEnginesMapper with Engine key
@@ -120,7 +136,9 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     
     //setup necessary params for bridge
     [bridge setupDomManager:domManager rootNode:rootNode];
-    [bridge loadBundleURLs:bundleURLs];
+    [bridge loadBundleURLs:bundleURLs completion:^(NSURL * _Nullable url, NSError * _Nullable error) {
+        NSLog(@"url %@ completion", url);
+    }];
     [bridge loadInstanceForRootView:rootTag withProperties:props];
     
     _rootNode = rootNode;

@@ -67,6 +67,7 @@
 
 #ifdef ENABLE_INSPECTOR
 #include "devtools/vfs/devtools_handler.h"
+#include "devtools/devtools_data_source.h"
 #endif
 
 NSString *const HippyReloadNotification = @"HippyReloadNotification";
@@ -98,8 +99,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     NSMutableArray<HippyInstanceLoadBlock *> *_instanceBlocks;
     NSMutableArray<dispatch_block_t> *_nativeSetupBlocks;
     NSURL *_sandboxDirectory;
-    std::shared_ptr<VFSUriLoader> _uriLoader;
-    HPUriLoader *_hpLoader;
+    std::weak_ptr<VFSUriLoader> _uriLoader;
     std::mutex _imageProviderMutex;
 }
 
@@ -279,13 +279,15 @@ dispatch_queue_t HippyBridgeQueue() {
     }
 }
 
-- (void)loadBundleURLs:(NSArray<NSURL *> *)bundleURLs {
+- (void)loadBundleURLs:(NSArray<NSURL *> *)bundleURLs
+            completion:(void (^_Nullable)(NSURL  * _Nullable, NSError * _Nullable))completion {
     if (!bundleURLs) {
+        completion(nil, nil);
         return;
     }
     [_bundleURLs addObjectsFromArray:bundleURLs];
     dispatch_async(HippyBridgeQueue(), ^{
-        [self beginLoadingBundles:bundleURLs];
+        [self beginLoadingBundles:bundleURLs completion:completion];
     });
 }
 
@@ -295,14 +297,17 @@ dispatch_queue_t HippyBridgeQueue() {
     [_moduleSetup setupModulesCompletion:completion];
 }
 
-- (void)beginLoadingBundles:(NSArray<NSURL *> *)bundleURLs {
+- (void)beginLoadingBundles:(NSArray<NSURL *> *)bundleURLs
+                 completion:(void (^)(NSURL  * _Nullable, NSError * _Nullable))completion {
     dispatch_group_t group = dispatch_group_create();
     self.loadingCount++;
     for (NSURL *bundleURL in bundleURLs) {
         __weak HippyBridge *weakSelf = self;
         __block NSString *script = nil;
         dispatch_group_enter(group);
-        HippyBundleLoadOperation *fetchOp = [[HippyBundleLoadOperation alloc] initWithBridge:self bundleURL:bundleURL];
+        HippyBundleLoadOperation *fetchOp = [[HippyBundleLoadOperation alloc] initWithBridge:self
+                                                                                   bundleURL:bundleURL
+                                                                                       queue:HippyBridgeQueue()];
         fetchOp.onLoad = ^(NSData *source, NSError *error) {
             if (error) {
                 HippyBridgeFatal(error, weakSelf);
@@ -321,6 +326,9 @@ dispatch_queue_t HippyBridgeQueue() {
                 return;
             }
             [strongSelf executeJSCode:script sourceURL:bundleURL onCompletion:^(id result, NSError *error) {
+                if (completion) {
+                    completion(bundleURL, error);
+                }
                 HippyBridge *strongSelf = weakSelf;
                 if (!strongSelf || !strongSelf.valid) {
                     dispatch_group_leave(group);
@@ -347,7 +355,7 @@ dispatch_queue_t HippyBridgeQueue() {
                 }
                 dispatch_group_leave(group);
             }];
-        }];
+        } queue:HippyBridgeQueue()];
         //set dependency
         [executeOp addDependency:fetchOp];
         if (_lastOperation) {
@@ -367,6 +375,15 @@ dispatch_queue_t HippyBridgeQueue() {
         }
     };
     dispatch_group_notify(group, HippyBridgeQueue(), completionBlock);
+}
+
+- (void)unloadInstanceForRootView:(NSNumber *)rootTag {
+    if (rootTag) {
+        NSDictionary *param = @{@"id": rootTag};
+        footstone::value::HippyValue value = [param toHippyValue];
+        std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
+        self.javaScriptExecutor.pScope->UnloadInstance(domValue);
+    }
 }
 
 - (void)loadInstanceForRootView:(NSNumber *)rootTag withProperties:(NSDictionary *)props {
@@ -402,30 +419,18 @@ dispatch_queue_t HippyBridgeQueue() {
 }
 
 - (void)setVFSUriLoader:(std::weak_ptr<VFSUriLoader>)uriLoader {
-    auto loader = uriLoader.lock();
-    if (_uriLoader != loader) {
-        _uriLoader = loader;
-        [_javaScriptExecutor setUriLoader:uriLoader];
-    }
+    _uriLoader = uriLoader;
+    [_javaScriptExecutor setUriLoader:uriLoader];
 #ifdef ENABLE_INSPECTOR
-  auto devtools_data_source = _javaScriptExecutor.pScope->GetDevtoolsDataSource();
-  if (devtools_data_source) {
-      auto notification = devtools_data_source->GetNotificationCenter()->network_notification;
-      auto devtools_handler = std::make_shared<hippy::devtools::DevtoolsHandler>();
-      devtools_handler->SetNetworkNotification(notification);
-      _uriLoader->RegisterUriInterceptor(devtools_handler);
-  }
-#endif
-}
-
-- (void)setHPUriLoader:(HPUriLoader *)hploader {
-    if (_hpLoader != hploader) {
-        _hpLoader = hploader;
+    auto devtools_data_source = _javaScriptExecutor.pScope->GetDevtoolsDataSource();
+    auto strongLoader = uriLoader.lock();
+    if (devtools_data_source && strongLoader) {
+        auto notification = devtools_data_source->GetNotificationCenter()->network_notification;
+        auto devtools_handler = std::make_shared<hippy::devtools::DevtoolsHandler>();
+        devtools_handler->SetNetworkNotification(notification);
+        strongLoader->RegisterUriInterceptor(devtools_handler);
     }
-}
-
-- (HPUriLoader *)HPUriLoader {
-    return _hpLoader;
+#endif
 }
 
 - (std::weak_ptr<VFSUriLoader>)VFSUriLoader {

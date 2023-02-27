@@ -27,6 +27,7 @@
 
 #ifdef ENABLE_INSPECTOR
 #include "devtools/vfs/devtools_handler.h"
+#include "devtools/devtools_data_source.h"
 #endif
 #include "footstone/task_runner.h"
 #include "string_convert.h"

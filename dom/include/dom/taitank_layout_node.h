@@ -44,7 +44,7 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @param direction 布局方向
    * @param layout_context context
    */
-  void CalculateLayout(float parent_width, float parent_height, Direction direction = LTR,
+  void CalculateLayout(float parent_width, float parent_height, Direction direction = Direction::LTR,
                        void* layout_context = nullptr) override;
 
   /**

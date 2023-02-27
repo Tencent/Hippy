@@ -21,41 +21,45 @@
  */
 
 #import "NativeRenderViewEventType.h"
+
 #include "dom/dom_listener.h"
 
-NativeRenderViewEventType viewEventTypeFromName(const std::string &name) {
+NativeRenderViewEventType viewEventTypeFromName(const char *name) {
+    if (!name) {
+        return NativeRenderViewEventTypeUnknown;
+    }
     NativeRenderViewEventType type = NativeRenderViewEventTypeUnknown;
-    if (hippy::kClickEvent == name) {
+    if (0 == strcmp(hippy::kClickEvent, name)) {
         type = NativeRenderViewEventTypeClick;
     }
-    else if (hippy::kLongClickEvent == name) {
+    else if (0 == strcmp(hippy::kLongClickEvent, name)) {
         type = NativeRenderViewEventTypeLongClick;
     }
-    else if (hippy::kTouchStartEvent == name) {
+    else if (0 == strcmp(hippy::kTouchStartEvent, name)) {
         type = NativeRenderViewEventTypeTouchStart;
     }
-    else if (hippy::kTouchMoveEvent == name) {
+    else if (0 == strcmp(hippy::kTouchMoveEvent, name)) {
         type = NativeRenderViewEventTypeTouchMove;
     }
-    else if (hippy::kTouchEndEvent == name) {
+    else if (0 == strcmp(hippy::kTouchEndEvent, name)) {
         type = NativeRenderViewEventTypeTouchEnd;
     }
-    else if (hippy::kTouchCancelEvent == name) {
+    else if (0 == strcmp(hippy::kTouchCancelEvent, name)) {
         type = NativeRenderViewEventTypeTouchCancel;
     }
-    else if (hippy::kPressIn == name) {
+    else if (0 == strcmp(hippy::kPressIn, name)) {
         type = NativeRenderViewEventTypePressIn;
     }
-    else if (hippy::kPressOut == name) {
+    else if (0 == strcmp(hippy::kPressOut, name)) {
         type = NativeRenderViewEventTypePressOut;
     }
-    else if (hippy::kLayoutEvent == name) {
+    else if (0 == strcmp(hippy::kLayoutEvent, name)) {
         type = NativeRenderViewEventLayout;
     }
-    else if (hippy::kShowEvent == name) {
+    else if (0 == strcmp(hippy::kShowEvent, name)) {
         type = NativeRenderViewEventTypeShow;
     }
-    else if (hippy::kDismissEvent == name) {
+    else if (0 == strcmp(hippy::kDismissEvent, name)) {
         type = NativeRenderViewEventTypeDismiss;
     }
     return type;

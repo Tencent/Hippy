@@ -21,8 +21,8 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "NativeRenderModalHostViewManager.h"
-#import "NativeRenderView.h"
+
+#import "NativeRenderComponentProtocol.h"
 
 @class NativeRenderModalHostViewController;
 

@@ -132,8 +132,8 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
         _textLifecycle = NativeRenderUpdateLifecycleUninitialized;
         _hasNewLayout = YES;
         _objectSubviews = [NSMutableArray array];
-        _confirmedLayoutDirection = hippy::Inherit;
-        _layoutDirection = hippy::Inherit;
+        _confirmedLayoutDirection = hippy::Direction::Inherit;
+        _layoutDirection = hippy::Direction::Inherit;
     }
     return self;
 }
@@ -460,19 +460,19 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 }
 
 - (BOOL)isLayoutSubviewsRTL {
-    BOOL layoutRTL = hippy::RTL == self.confirmedLayoutDirection;
+    BOOL layoutRTL = hippy::Direction::RTL == self.confirmedLayoutDirection;
     return layoutRTL;
 }
 
 - (void)checkLayoutDirection:(NSMutableSet<NativeRenderObjectView *> *)viewsSet direction:(hippy::Direction *)direction{
-    if (hippy::Inherit == self.confirmedLayoutDirection) {
+    if (hippy::Direction::Inherit == self.confirmedLayoutDirection) {
         [viewsSet addObject:self];
         NativeRenderObjectView *shadowSuperview = [self parentComponent];
         if (!shadowSuperview) {
             if (direction) {
                 NSWritingDirection writingDirection =
                     [[HPI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
-                *direction = NSWritingDirectionRightToLeft == writingDirection ? hippy::RTL : hippy::LTR;
+                *direction = NSWritingDirectionRightToLeft == writingDirection ? hippy::Direction::RTL : hippy::Direction::LTR;
             }
         }
         else {
@@ -485,7 +485,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 }
 
 - (void)superviewLayoutDirectionChangedTo:(hippy::Direction)direction {
-    if (hippy::Inherit == self.layoutDirection) {
+    if (hippy::Direction::Inherit == self.layoutDirection) {
         self.confirmedLayoutDirection = [self superview].confirmedLayoutDirection;
         for (NativeRenderObjectView *subview in self.subcomponents) {
             [subview superviewLayoutDirectionChangedTo:self.confirmedLayoutDirection];

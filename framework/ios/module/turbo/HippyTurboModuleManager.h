@@ -25,7 +25,13 @@
 #import "HippyBridge.h"
 #import "HippyOCTurboModule.h"
 
-#include "driver/napi/js_native_api.h"
+namespace hippy {
+inline namespace driver {
+inline namespace napi {
+class CtxValue;
+}
+};
+};
 
 /**
  * The HippyTurboModuleManager is the module responsible for manager the tuoboModules.

@@ -56,6 +56,11 @@
 #include "footstone/task.h"
 #include "vfs/handler/uri_handler.h"
 #include "driver/napi/jsc/js_native_api_jsc.h"
+#include "driver/napi/js_native_turbo.h"
+
+#ifdef ENABLE_INSPECTOR
+#include "devtools/devtools_data_source.h"
+#endif
 
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
 
