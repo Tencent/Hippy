@@ -45,6 +45,8 @@ class RootNode;
 };
 };
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  * Indicate hippy sdk version
  */
@@ -133,7 +135,8 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  *  @param bundleURLs Bundles urls
  *  @discussion HippyBridge makes sure bundles will be loaded in order.
  */
-- (void)loadBundleURLs:(NSArray<NSURL *> *)bundleURLs;
+- (void)loadBundleURLs:(NSArray<NSURL *> *)bundleURLs
+            completion:(void (^_Nullable)(NSURL * _Nullable, NSError * _Nullable))completion;
 
 @property(nonatomic, assign)std::weak_ptr<VFSUriLoader> VFSUriLoader;
 
@@ -158,6 +161,8 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  *  @param props Initial parameters for instance.
  */
 - (void)loadInstanceForRootView:(NSNumber *)rootTag withProperties:(NSDictionary *)props;
+
+- (void)unloadInstanceForRootView:(NSNumber *)rootTag;
 
 - (void)rootViewSizeChangedEvent:(NSNumber *)tag params:(NSDictionary *)params;
 
@@ -284,3 +289,5 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 HP_EXTERN void HippyBridgeFatal(NSError *, HippyBridge *);
 
 HP_EXTERN void HippyBridgeHandleException(NSException *exception, HippyBridge *bridge);
+
+NS_ASSUME_NONNULL_END

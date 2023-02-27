@@ -27,12 +27,9 @@
 
 #include <objc/runtime.h>
 
-#include "footstone/hippy_value.h"
-#include "TypeConverter.h"
-
 NSString *const NativeRenderContentDidAppearNotification = @"NativeRenderContentDidAppearNotification";
 
-NSNumber *AllocRootViewTag() {
+NSNumber *AllocRootViewTag(void) {
     static NSString * const token = @"allocateRootTag";
     @synchronized (token) {
         static NSUInteger rootTag = 0;

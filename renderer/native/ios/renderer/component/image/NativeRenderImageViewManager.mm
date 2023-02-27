@@ -67,7 +67,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
     }
     NSString *standardizeAssetUrlString = path;
     __weak NativeRenderImageView *weakView = view;
-    auto loader = [[self renderImpl] VFSUriLoader];
+    auto loader = [[self renderImpl] VFSUriLoader].lock();
     if (!loader) {
         return;
     }

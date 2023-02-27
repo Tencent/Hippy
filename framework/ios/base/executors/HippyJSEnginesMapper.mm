@@ -23,8 +23,12 @@
 #import "HippyJSEnginesMapper.h"
 #import "HPLog.h"
 
+#include "dom/dom_manager.h"
+#include "driver/engine.h"
+#include "footstone/worker.h"
 #include "footstone/worker_impl.h"
 #include "footstone/platform/ios/looper_driver.h"
+#include "footstone/task_runner.h"
 
 EngineResource::EngineResource() {
     Setup("Hippy Dom Thread");

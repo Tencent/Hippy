@@ -22,7 +22,7 @@
 
 #import <Foundation/Foundation.h>
 
-#include "MacroDefines.h"
+#import "MacroDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

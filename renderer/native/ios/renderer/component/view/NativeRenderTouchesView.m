@@ -135,11 +135,11 @@
     }
 }
 
-- (BOOL)canBePreventedByInCapturing:(const std::string &)name {
+- (BOOL)canBePreventedByInCapturing:(const char *)name {
     return NO;
 }
 
-- (BOOL)canBePreventInBubbling:(const std::string &)name {
+- (BOOL)canBePreventInBubbling:(const char *)name {
     return NO;
 }
 

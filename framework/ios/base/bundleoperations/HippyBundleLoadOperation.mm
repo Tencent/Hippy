@@ -36,6 +36,7 @@
     BOOL _asynchronous;
     BOOL _ready;
     std::mutex _statusMutex;
+    dispatch_queue_t _finishQueue;
 }
 
 @end
@@ -45,10 +46,11 @@
 @synthesize finished = _finished;
 @synthesize executing = _executing;
 
-- (instancetype)initWithBridge:(HippyBridge *)bridge bundleURL:(NSURL *)bundleURL {
+- (instancetype)initWithBridge:(HippyBridge *)bridge bundleURL:(NSURL *)bundleURL queue:(dispatch_queue_t)queue {
     if (self) {
         _bridge = bridge;
         _bundleURL = bundleURL;
+        _finishQueue = queue;
         self.ready = YES;
     }
     return self;
@@ -86,7 +88,14 @@
         [performanceLogger markStopForTag:HippyPLScriptDownload];
         [performanceLogger setValue:sourceLength forTag:HippyPLBundleSize];
         if (strongSelf.onLoad) {
-            strongSelf.onLoad(data, error);
+            if (strongSelf->_finishQueue) {
+                dispatch_sync(strongSelf->_finishQueue, ^{
+                    strongSelf.onLoad(data, error);
+                });
+            }
+            else {
+                strongSelf.onLoad(data, error);
+            }
         }
         strongSelf.finished = YES;
         strongSelf.executing = NO;

@@ -23,25 +23,33 @@
 #import "HPConvert+NativeRender.h"
 #import "NativeRenderObjectView.h"
 
-#include "dom/layout_node.h"
-
 typedef NS_ENUM(NSInteger, NativeRenderSizeComparison) {
     NativeRenderSizeTooLarge,
     NativeRenderSizeTooSmall,
     NativeRenderSizeWithinRange,
 };
 
+namespace hippy {
+inline namespace dom {
+enum class LayoutMeasureMode;
+struct LayoutSize;
+}
+}
+
 extern NSString *const NativeRenderIsHighlightedAttributeName;
 extern NSString *const NativeRenderComponentTagAttributeName;
 extern NSString *const NativeRenderRenderObjectAttributeName;
 
-HP_EXTERN hippy::LayoutSize textMeasureFunc(float width, hippy::LayoutMeasureMode widthMeasureMode, __unused float height, __unused hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext);
+hippy::LayoutSize textMeasureFunc(float width, hippy::LayoutMeasureMode widthMeasureMode,
+                                            __unused float height,
+                                            __unused hippy::LayoutMeasureMode heightMeasureMode,
+                                            void *layoutContext);
 
 @interface NativeRenderObjectText : NativeRenderObjectView {
 @protected
     NSTextStorage *_cachedTextStorage;
     CGFloat _cachedTextStorageWidth;
-    CGFloat _cachedTextStorageWidthMode;
+    hippy::LayoutMeasureMode _cachedTextStorageWidthMode;
     NSAttributedString *_cachedAttributedString;
     CGFloat _effectiveLetterSpacing;
     BOOL _textAlignSet;

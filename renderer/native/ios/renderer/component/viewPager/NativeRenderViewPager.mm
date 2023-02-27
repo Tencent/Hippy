@@ -21,12 +21,13 @@
  */
 
 #import "NativeRenderViewPager.h"
-#import "float.h"
 #import "NativeRenderViewPagerItem.h"
 #import "UIView+NativeRender.h"
 #import "UIView+DirectionalLayout.h"
 #import "UIView+MountEvent.h"
 #import "HPLog.h"
+
+#include "float.h"
 
 @interface NativeRenderViewPager ()
 @property (nonatomic, strong) NSMutableArray<UIView *> *viewPagerItems;

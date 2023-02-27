@@ -22,17 +22,32 @@
 
 #import "UIView+DomEvent.h"
 #import <objc/runtime.h>
-#import "dom/dom_listener.h"
 #import "UIView+MountEvent.h"
 #import "UIView+NativeRender.h"
 
 @implementation UIView(DomEvent)
 
-- (void)addPropertyEvent:(const std::string &)name eventCallback:(NativeRenderDirectEventBlock)callback {
+static SEL SelectorFromCName(const char *name) {
+    if (!name || strlen(name) < 1) {
+        return nil;
+    }
     //try to contrustor origin setter
-    char n = std::toupper(name.at(0));
-    NSString *setterName = [NSString stringWithFormat:@"set%c%s:", n, name.substr(1, name.length() - 1).c_str()];
+    size_t length = strlen(name);
+    char n = toupper(name[0]);
+    const char *subName = name + 1;
+    NSString *setterName = nil;
+    if (subName) {
+        setterName = [NSString stringWithFormat:@"set%c:", n];
+    }
+    else {
+        setterName = [NSString stringWithFormat:@"set%c%s:", n, subName];
+    }
     SEL selector = NSSelectorFromString(setterName);
+    return selector;
+}
+
+- (void)addPropertyEvent:(const char *)name eventCallback:(NativeRenderDirectEventBlock)callback {
+    SEL selector = SelectorFromCName(name);
     @try {
         if ([self respondsToSelector:selector]) {
             void *cb = (__bridge void *)callback;
@@ -49,20 +64,21 @@
     }
 }
 
-- (void)didAddPropertyEvent:(const std::string &)name eventCallback:(NativeRenderDirectEventBlock)callback {
-    if (name == "onDidMount" ) {
+- (void)didAddPropertyEvent:(const char *)name eventCallback:(NativeRenderDirectEventBlock)callback {
+    if (!name) {
+        return;
+    }
+    if (0 == strcmp(name, "onDidMount") ) {
         [self viewDidMountEvent];
     }
-    else if (name == "onAttachedToWindow") {
+    else if (0 == strcmp(name, "onAttachedToWindow")) {
         [self sendAttachedToWindowEvent];
     }
 }
 
-- (void)removePropertyEvent:(const std::string &)name {
+- (void)removePropertyEvent:(const char *)name {
     //try to contrustor origin setter
-    char n = std::toupper(name.at(0));
-    NSString *setterName = [NSString stringWithFormat:@"set%c%s:", n, name.substr(1, name.length() - 1).c_str()];
-    SEL selector = NSSelectorFromString(setterName);
+    SEL selector = SelectorFromCName(name);
     @try {
         if ([self respondsToSelector:selector]) {
             NativeRenderDirectEventBlock cb = NULL;
@@ -79,7 +95,7 @@
     }
 }
 
-- (void)didRemovePropertyEvent:(const std::string &)name {
+- (void)didRemovePropertyEvent:(const char *)name {
 }
 
 #pragma mark NativeRenderTouchesProtocol Methods
@@ -92,11 +108,11 @@
 - (void)removeViewEvent:(NativeRenderViewEventType)touchEvent {
 }
 
-- (BOOL)canBePreventedByInCapturing:(const std::string &)name {
+- (BOOL)canBePreventedByInCapturing:(const char *)name {
     return NO;
 }
 
-- (BOOL)canBePreventInBubbling:(const std::string &)name {
+- (BOOL)canBePreventInBubbling:(const char *)name {
     return NO;
 }
 

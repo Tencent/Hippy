@@ -27,8 +27,6 @@
 #import "HippyDeviceBaseInfo.h"
 #import "HippyEventDispatcher.h"
 
-#include <mutex>
-
 static BOOL isiPhoneX() {
     if (@available(iOS 11.0, *)) {
         CGFloat height = [[UIApplication sharedApplication] delegate].window.safeAreaInsets.bottom;
@@ -38,39 +36,40 @@ static BOOL isiPhoneX() {
     }
 }
 
-static std::mutex dimenMutex;
+static NSString *dimenLock = @"dimenLock";
 
 NSDictionary *HippyExportedDimensions() {
     static NSDictionary *dimensions = nil;
-    std::lock_guard<std::mutex> lock(dimenMutex);
-    if (!dimensions) {
-        __block CGSize screenSize = CGSizeZero;
-        __block CGSize windowSize = CGSizeZero;
-        __block CGFloat statusBarHeight = 0.f;
-        __block NSNumber *screenScale = nil;
-        
-        dispatch_block_t block = ^(void){
-            screenSize = [UIScreen mainScreen].bounds.size;
-            windowSize = HPKeyWindow() ? HPKeyWindow().bounds.size : screenSize;
-            statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
-            if (statusBarHeight == 0) {
-                statusBarHeight = isiPhoneX() ? 44 : 20;
-            }
-            screenScale = @([UIScreen mainScreen].scale);
-        };
-        HPExecuteOnMainThread(block, YES);
-        dimensions = @{
-            // 备注，window和screen的区别在于有没有底bar虚拟导航栏，而iOS没有这个东西，所以window和screen是一样的
-            @"window":
-                @ { @"width": @(windowSize.width), @"height": @(windowSize.height), @"scale": screenScale, @"statusBarHeight": @(statusBarHeight) },
-            @"screen": @ {
-                @"width": @(screenSize.width),
-                @"height": @(screenSize.height),
-                @"scale": screenScale,
-                @"fontScale": @(1),
-                @"statusBarHeight": @(statusBarHeight)
-            }
-        };
+    @synchronized (dimenLock) {
+        if (!dimensions) {
+            __block CGSize screenSize = CGSizeZero;
+            __block CGSize windowSize = CGSizeZero;
+            __block CGFloat statusBarHeight = 0.f;
+            __block NSNumber *screenScale = nil;
+            
+            dispatch_block_t block = ^(void){
+                screenSize = [UIScreen mainScreen].bounds.size;
+                windowSize = HPKeyWindow() ? HPKeyWindow().bounds.size : screenSize;
+                statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
+                if (statusBarHeight == 0) {
+                    statusBarHeight = isiPhoneX() ? 44 : 20;
+                }
+                screenScale = @([UIScreen mainScreen].scale);
+            };
+            HPExecuteOnMainThread(block, YES);
+            dimensions = @{
+                // 备注，window和screen的区别在于有没有底bar虚拟导航栏，而iOS没有这个东西，所以window和screen是一样的
+                @"window":
+                    @ { @"width": @(windowSize.width), @"height": @(windowSize.height), @"scale": screenScale, @"statusBarHeight": @(statusBarHeight) },
+                @"screen": @ {
+                    @"width": @(screenSize.width),
+                    @"height": @(screenSize.height),
+                    @"scale": screenScale,
+                    @"fontScale": @(1),
+                    @"statusBarHeight": @(statusBarHeight)
+                }
+            };
+        }
     }
     return dimensions;
 }

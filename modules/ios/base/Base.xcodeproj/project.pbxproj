@@ -14,12 +14,12 @@
 		F45D84E4298622D9003049C7 /* HPLogUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D84E3298622D9003049C7 /* HPLogUtils.mm */; };
 		F479147F2924C79000B2DBB6 /* HPToolUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F479145F2924C78F00B2DBB6 /* HPToolUtils.m */; };
 		F47914812924C79000B2DBB6 /* HPParserUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F47914642924C78F00B2DBB6 /* HPParserUtils.m */; };
-		F47914822924C79000B2DBB6 /* HPAsserts.mm in Sources */ = {isa = PBXBuildFile; fileRef = F47914672924C78F00B2DBB6 /* HPAsserts.mm */; };
+		F47914822924C79000B2DBB6 /* HPAsserts.m in Sources */ = {isa = PBXBuildFile; fileRef = F47914672924C78F00B2DBB6 /* HPAsserts.m */; };
 		F47914832924C79000B2DBB6 /* HPDriverStackFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = F47914692924C78F00B2DBB6 /* HPDriverStackFrame.m */; };
 		F47914842924C79000B2DBB6 /* HPLog.mm in Sources */ = {isa = PBXBuildFile; fileRef = F479146B2924C78F00B2DBB6 /* HPLog.mm */; };
 		F47914882924C79000B2DBB6 /* HPI18nUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F47914732924C79000B2DBB6 /* HPI18nUtils.m */; };
 		F47914892924C79000B2DBB6 /* TypeConverter.mm in Sources */ = {isa = PBXBuildFile; fileRef = F47914762924C79000B2DBB6 /* TypeConverter.mm */; };
-		F479148A2924C79000B2DBB6 /* HPConvert.mm in Sources */ = {isa = PBXBuildFile; fileRef = F47914782924C79000B2DBB6 /* HPConvert.mm */; };
+		F479148A2924C79000B2DBB6 /* HPConvert.m in Sources */ = {isa = PBXBuildFile; fileRef = F47914782924C79000B2DBB6 /* HPConvert.m */; };
 		F47914CB2924D10C00B2DBB6 /* log_settings_state.cc in Sources */ = {isa = PBXBuildFile; fileRef = F47914B12924D10C00B2DBB6 /* log_settings_state.cc */; };
 		F47914CC2924D10C00B2DBB6 /* log_settings.cc in Sources */ = {isa = PBXBuildFile; fileRef = F47914B22924D10C00B2DBB6 /* log_settings.cc */; };
 		F47914CD2924D10C00B2DBB6 /* one_shot_timer.cc in Sources */ = {isa = PBXBuildFile; fileRef = F47914B32924D10C00B2DBB6 /* one_shot_timer.cc */; };
@@ -71,7 +71,7 @@
 		F47914642924C78F00B2DBB6 /* HPParserUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPParserUtils.m; sourceTree = "<group>"; };
 		F47914652924C78F00B2DBB6 /* HPI18nUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPI18nUtils.h; sourceTree = "<group>"; };
 		F47914662924C78F00B2DBB6 /* HPDriverStackFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPDriverStackFrame.h; sourceTree = "<group>"; };
-		F47914672924C78F00B2DBB6 /* HPAsserts.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HPAsserts.mm; sourceTree = "<group>"; };
+		F47914672924C78F00B2DBB6 /* HPAsserts.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPAsserts.m; sourceTree = "<group>"; };
 		F47914682924C78F00B2DBB6 /* TypeConverter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TypeConverter.h; sourceTree = "<group>"; };
 		F47914692924C78F00B2DBB6 /* HPDriverStackFrame.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPDriverStackFrame.m; sourceTree = "<group>"; };
 		F479146B2924C78F00B2DBB6 /* HPLog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HPLog.mm; sourceTree = "<group>"; };
@@ -82,7 +82,7 @@
 		F47914742924C79000B2DBB6 /* MacroDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacroDefines.h; sourceTree = "<group>"; };
 		F47914752924C79000B2DBB6 /* HPAsserts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPAsserts.h; sourceTree = "<group>"; };
 		F47914762924C79000B2DBB6 /* TypeConverter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TypeConverter.mm; sourceTree = "<group>"; };
-		F47914782924C79000B2DBB6 /* HPConvert.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HPConvert.mm; sourceTree = "<group>"; };
+		F47914782924C79000B2DBB6 /* HPConvert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPConvert.m; sourceTree = "<group>"; };
 		F47914792924C79000B2DBB6 /* HPInvalidating.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPInvalidating.h; sourceTree = "<group>"; };
 		F479148F2924D10C00B2DBB6 /* task.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = task.h; sourceTree = "<group>"; };
 		F47914902924D10C00B2DBB6 /* idle_task.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = idle_task.h; sourceTree = "<group>"; };
@@ -189,9 +189,9 @@
 				F45D84CC2985FF0C003049C7 /* footstoneutils */,
 				F479148B2924D10C00B2DBB6 /* footstone */,
 				F47914752924C79000B2DBB6 /* HPAsserts.h */,
-				F47914672924C78F00B2DBB6 /* HPAsserts.mm */,
+				F47914672924C78F00B2DBB6 /* HPAsserts.m */,
 				F47914702924C79000B2DBB6 /* HPConvert.h */,
-				F47914782924C79000B2DBB6 /* HPConvert.mm */,
+				F47914782924C79000B2DBB6 /* HPConvert.m */,
 				F47914662924C78F00B2DBB6 /* HPDriverStackFrame.h */,
 				F47914692924C78F00B2DBB6 /* HPDriverStackFrame.m */,
 				F47914652924C78F00B2DBB6 /* HPI18nUtils.h */,
@@ -405,11 +405,11 @@
 				F47914D72924D10C00B2DBB6 /* base_timer.cc in Sources */,
 				F47914CC2924D10C00B2DBB6 /* log_settings.cc in Sources */,
 				F47914812924C79000B2DBB6 /* HPParserUtils.m in Sources */,
-				F47914822924C79000B2DBB6 /* HPAsserts.mm in Sources */,
+				F47914822924C79000B2DBB6 /* HPAsserts.m in Sources */,
 				F45D84D5298606EB003049C7 /* HPDomUtils.mm in Sources */,
 				F47914DA2924D10C00B2DBB6 /* idle_task.cc in Sources */,
 				F47914D62924D10C00B2DBB6 /* hippy_value.cc in Sources */,
-				F479148A2924C79000B2DBB6 /* HPConvert.mm in Sources */,
+				F479148A2924C79000B2DBB6 /* HPConvert.m in Sources */,
 				F47914842924C79000B2DBB6 /* HPLog.mm in Sources */,
 				F47914DE2924D10C00B2DBB6 /* task.cc in Sources */,
 				F47914D92924D10C00B2DBB6 /* serializer.cc in Sources */,

@@ -20,7 +20,6 @@
  * limitations under the License.
  */
 
-#include <string>
 #import "MacroDefines.h"
 
 typedef NS_ENUM(NSInteger, NativeRenderViewEventType) {
@@ -46,4 +45,4 @@ typedef NS_ENUM(NSInteger, NativeRenderViewEventType) {
     NativeRenderViewEventTypeUnknown = -1,
 };
 
-HP_EXTERN NativeRenderViewEventType viewEventTypeFromName(const std::string &name);
+HP_EXTERN NativeRenderViewEventType viewEventTypeFromName(const char *name);

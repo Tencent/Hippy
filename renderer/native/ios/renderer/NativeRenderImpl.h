@@ -24,20 +24,29 @@
 
 #import "HPInvalidating.h"
 #import "NativeRenderDefines.h"
-#import "NativeRenderViewManager.h"
-#import "TypeConverter.h"
 
 #include <memory>
 #include <unordered_map>
 
-#include "footstone/hippy_value.h"
-#include "dom/dom_listener.h"
-#include "dom/dom_manager.h"
-#include "dom/dom_node.h"
-
-@class NativeRenderAnimationViewParams, NativeRenderObjectView, NativeRenderImpl;
+@class NativeRenderAnimationViewParams, NativeRenderObjectView, NativeRenderImpl,NativeRenderViewManager;
 
 class VFSUriLoader;
+namespace hippy {
+inline namespace dom {
+class DomManager;
+class DomArgument;
+class RootNode;
+class DomNode;
+struct LayoutResult;
+using CallFunctionCallback = std::function<void(std::shared_ptr<DomArgument>)>;
+}
+}
+
+namespace footstone {
+inline namespace value {
+class HippyValue;
+}
+}
 
 @protocol HPImageProviderProtocol;
 
@@ -48,7 +57,7 @@ class VFSUriLoader;
 
 @property(nonatomic, assign) BOOL uiCreationLazilyEnabled;
 
-@property(nonatomic, assign) std::shared_ptr<VFSUriLoader> VFSUriLoader;
+@property(nonatomic, assign) std::weak_ptr<VFSUriLoader> VFSUriLoader;
 @property(nonatomic, readonly) std::weak_ptr<hippy::DomManager> domManager;
 @property(nonatomic, readonly) NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry;
 

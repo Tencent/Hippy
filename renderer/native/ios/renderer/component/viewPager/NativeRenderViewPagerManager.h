@@ -21,6 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
+
 #import "NativeRenderViewManager.h"
 
 @interface NativeRenderViewPagerManager : NativeRenderViewManager

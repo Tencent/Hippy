@@ -22,6 +22,8 @@
 
 #import "NativeRenderComponentMap.h"
 
+#include "dom/root_node.h"
+
 using RootNode = hippy::RootNode;
 
 @interface NativeRenderComponentMap () {

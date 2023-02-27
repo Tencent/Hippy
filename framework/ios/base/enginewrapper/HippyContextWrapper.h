@@ -21,9 +21,18 @@
  */
 
 #import <Foundation/Foundation.h>
-#include "driver/napi/js_native_api_types.h"
+#include <memory>
 
 NS_ASSUME_NONNULL_BEGIN
+
+namespace hippy {
+inline namespace driver {
+inline namespace napi {
+class Ctx;
+class CtxValue;
+}
+}
+}
 
 @class HPDriverStackFrame;
 

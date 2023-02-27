@@ -76,7 +76,6 @@
         if (modalHostView.primaryKey.length != 0) {
             userInfo = @{ @"primaryKey": modalHostView.primaryKey };
         }
-        [[NSNotificationCenter defaultCenter] postNotificationName:NativeRenderModalHostViewDismissNotification object:self userInfo:userInfo];
         if (modalHostView.onRequestClose) {
             modalHostView.onRequestClose(nil);
         }

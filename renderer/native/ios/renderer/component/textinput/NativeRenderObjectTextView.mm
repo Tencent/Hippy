@@ -20,9 +20,12 @@
  * limitations under the License.
  */
 
-#import "NativeRenderObjectTextView.h"
 #import "HPToolUtils.h"
-#import "dom/layout_node.h"
+#import "NativeRenderObjectTextView.h"
+
+#include "dom/dom_manager.h"
+#include "dom/dom_node.h"
+#include "dom/layout_node.h"
 
 @interface NativeRenderObjectTextView ()
 

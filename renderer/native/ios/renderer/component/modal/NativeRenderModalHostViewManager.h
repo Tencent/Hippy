@@ -23,8 +23,6 @@
 #import "NativeRenderViewManager.h"
 #import "NativeRenderModalHostView.h"
 
-#define NativeRenderModalHostViewDismissNotification @"NativeRenderModalHostViewDismissNotification"
-
 @protocol NativeRenderModalHostViewInteractor;
 
 typedef void (^NativeRenderModalViewInteractionBlock)(

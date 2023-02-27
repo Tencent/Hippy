@@ -42,11 +42,10 @@
 #include "footstone/string_view.h"
 #include "vfs/uri_loader.h"
 
-#ifdef ENABLE_INSPECTOR
-#include "devtools/devtools_data_source.h"
-#endif
-
 namespace hippy {
+namespace devtools {
+class DevtoolsDataSource;
+}
 inline namespace driver {
 
 inline namespace module {
