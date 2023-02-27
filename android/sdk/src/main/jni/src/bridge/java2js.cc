@@ -78,6 +78,7 @@ void CallFunction(JNIEnv* j_env,
     return;
   }
   unicode_string_view action_name = JniUtils::ToStrView(j_env, j_action);
+  TDF_BASE_DLOG(INFO) << "CallFunction action_name = " << action_name;
   std::shared_ptr<JavaRef> cb = std::make_shared<JavaRef>(j_env, j_callback);
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, cb_ = std::move(cb), action_name,
@@ -89,18 +90,16 @@ void CallFunction(JNIEnv* j_env,
       TDF_BASE_DLOG(WARNING) << "CallFunction scope invalid";
       return;
     }
-    std::shared_ptr<Ctx> context = scope->GetContext();
+    auto context = scope->GetContext();
     if (!runtime->GetBridgeFunc()) {
       TDF_BASE_DLOG(INFO) << "init bridge func";
       unicode_string_view name(kHippyBridgeName);
       std::shared_ptr<CtxValue> fn = context->GetJsFn(name);
       bool is_fn = context->IsFunction(fn);
       TDF_BASE_DLOG(INFO) << "is_fn = " << is_fn;
-
       if (!is_fn) {
-        jstring j_action = JniUtils::StrViewToJString(j_env, action_name);
-        jstring j_msg =
-            JniUtils::StrViewToJString(j_env, u"hippyBridge not find");
+        auto j_action = JniUtils::StrViewToJString(j_env, action_name);
+        auto j_msg = JniUtils::StrViewToJString(j_env, u"hippyBridge not find");
         CallJavaMethod(cb_->GetObj(), CALLFUNCTION_CB_STATE::NO_METHOD_ERROR,
                        j_msg, j_action);
         j_env->DeleteLocalRef(j_action);

@@ -23,6 +23,7 @@
 #include "v8/request_interrupt.h"
 
 #include "bridge/runtime.h"
+#include "jni/jni_env.h"
 #include "v8/v8.h"
 
 namespace hippy {
