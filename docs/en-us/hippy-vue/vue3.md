@@ -301,6 +301,10 @@ const router = createRouter({
     ]
   ```
 
+- dialog
+
+  The first child element of <dialog> cannot be set style { position: absolute }. If you want to cover full screen by the content of <dialog>, you can set { flex: 1 } or explicit with/height value for the first child element, which is consistent with Hippy3.0.
+
 # Examples
 
 For more details, please check [example project](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo) directly.
