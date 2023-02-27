@@ -48,7 +48,7 @@ class StringViewUtils {
   inline static bool IsEmpty(const unicode_string_view &str_view) {
     unicode_string_view::Encoding encoding = str_view.encoding();
     switch (encoding) {
-      case unicode_string_view::Encoding::UnKnown: {
+      case unicode_string_view::Encoding::Unknown: {
         return true;
       }
       case unicode_string_view::Encoding::Latin1: {
