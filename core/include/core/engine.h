@@ -50,8 +50,6 @@ class Engine: public std::enable_shared_from_this<Engine> {
 
   void AsyncInit(const std::shared_ptr<VMInitParam>& param = nullptr,
                  std::unique_ptr<RegisterMap> map = std::make_unique<RegisterMap>());
-  void Enter();
-  void Exit();
   std::shared_ptr<Scope> CreateScope(
       const std::string& name = "",
       std::unique_ptr<RegisterMap> map = std::unique_ptr<RegisterMap>());
@@ -84,8 +82,6 @@ class Engine: public std::enable_shared_from_this<Engine> {
   std::shared_ptr<WorkerTaskRunner> worker_task_runner_;
   std::shared_ptr<VM> vm_;
   std::unique_ptr<RegisterMap> map_;
-  std::mutex cnt_mutex_;
-  uint32_t scope_cnt_;
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   std::shared_ptr<hippy::inspector::V8InspectorClientImpl> inspector_client_;
 #endif

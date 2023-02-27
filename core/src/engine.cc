@@ -27,12 +27,10 @@
 
 constexpr uint32_t Engine::kDefaultWorkerPoolSize = 1;
 
-Engine::Engine() : vm_(nullptr), scope_cnt_(0) {}
+Engine::Engine() : vm_(nullptr) {}
 
 Engine::~Engine() {
   TDF_BASE_DLOG(INFO) << "~Engine";
-  std::lock_guard<std::mutex> lock(cnt_mutex_);
-  TDF_BASE_DCHECK(scope_cnt_ == 0) << "this engine is in use";
 }
 
 void Engine::TerminateRunner() {
@@ -98,16 +96,4 @@ void Engine::AsyncInit(const std::shared_ptr<VMInitParam>& param, std::unique_pt
     engine->CreateVM(param);
   };
   js_runner_->PostTask(task);
-}
-
-void Engine::Enter() {
-  TDF_BASE_DLOG(INFO) << "Engine Enter";
-  std::lock_guard<std::mutex> lock(cnt_mutex_);
-  ++scope_cnt_;
-}
-
-void Engine::Exit() {
-  TDF_BASE_DLOG(INFO) << "Engine Exit";
-  std::lock_guard<std::mutex> lock(cnt_mutex_);
-  --scope_cnt_;
 }
