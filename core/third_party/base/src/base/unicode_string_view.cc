@@ -63,7 +63,7 @@ inline void unicode_string_view::deallocate() {
     default:
       break;
   }
-  encoding_ = Encoding::Unkown;
+  encoding_ = Encoding::UnKnown;
 }
 
 unicode_string_view& unicode_string_view::operator=(const unicode_string_view& rhs) noexcept {

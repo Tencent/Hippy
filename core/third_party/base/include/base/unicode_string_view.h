@@ -16,7 +16,7 @@ namespace base {
 
 class unicode_string_view final {
  public:
-  enum class Encoding { Unkown, Latin1, Utf8, Utf16, Utf32 };
+  enum class Encoding { UnKnown, Latin1, Utf8, Utf16, Utf32 };
   using string = std::string;
 #ifdef __cpp_char8_t
   using u8string = std::u8string;
@@ -122,7 +122,7 @@ class unicode_string_view final {
   inline void deallocate();
 
  private:
-  Encoding encoding_ = Encoding::Unkown;
+  Encoding encoding_ = Encoding::UnKnown;
   union {
     string latin1_string_;
     u8string u8_string_;
