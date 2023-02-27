@@ -54,7 +54,6 @@ Scope::Scope(Engine* engine,
 
 Scope::~Scope() {
   TDF_BASE_DLOG(INFO) << "~Scope";
-  engine_->Exit();
 }
 
 void Scope::WillExit() {
@@ -91,7 +90,6 @@ void Scope::WillExit() {
 
 void Scope::Initialized() {
   TDF_BASE_DLOG(INFO) << "Scope Initialized";
-  engine_->Enter();
   context_ = engine_->GetVM()->CreateContext();
   if (context_ == nullptr) {
     TDF_BASE_DLOG(ERROR) << "CreateContext return nullptr";
