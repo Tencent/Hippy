@@ -499,7 +499,7 @@ JSStringRef JSCCtx::CreateJSCString(const unicode_string_view& str_view) {
   unicode_string_view::Encoding encoding = str_view.encoding();
   JSStringRef ret;
   switch (encoding) {
-    case unicode_string_view::Encoding::Unknown: {
+    case unicode_string_view::Encoding::UnKnown: {
       TDF_BASE_UNREACHABLE();
       break;
     }

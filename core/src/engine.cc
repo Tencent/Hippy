@@ -71,7 +71,7 @@ void Engine::CreateVM(const std::shared_ptr<VMInitParam>& param) {
   vm_ = hippy::napi::CreateVM(param);
   auto it = map_->find(hippy::base::kVMCreateCBKey);
   if (it != map_->end()) {
-    RegisterFunction f = it->second;
+    auto f = it->second;
     if (f) {
       TDF_BASE_DLOG(INFO) << "run VMCreatedCB begin";
       f(vm_.get());
