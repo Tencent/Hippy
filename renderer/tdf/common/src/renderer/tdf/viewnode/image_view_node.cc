@@ -87,7 +87,9 @@ void ImageViewNode::HandleStyleUpdate(const DomStyleMap &dom_style) {
     SetDefaultSrc(it->second->ToStringChecked());
   }
   if (auto it = dom_style.find(hippy::kImageSrc); it != dom_style.end()) {
-    SetSrc(it->second->ToStringChecked());
+    if (!it->second->IsUndefined()) {
+      SetSrc(it->second->ToStringChecked());
+    }
   }
 }
 
