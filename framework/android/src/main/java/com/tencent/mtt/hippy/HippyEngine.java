@@ -54,8 +54,6 @@ import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
-
-import com.tencent.renderer.ControllerProvider;
 import com.tencent.renderer.component.image.ImageDecoderAdapter;
 import com.tencent.vfs.Processor;
 import java.util.ArrayList;
@@ -195,9 +193,9 @@ public abstract class HippyEngine {
 
   public abstract HippyEngineContext getEngineContext();
 
-  public abstract void addControllers(@NonNull List<Class<?>> controllers);
+  public abstract void addControllers(@NonNull List<HippyAPIProvider> providers);
 
-  public abstract void addModules(@NonNull List<HippyAPIProvider> modules);
+  public abstract void addModules(@NonNull List<HippyAPIProvider> providers);
 
   public abstract void recordSnapshot(@NonNull View rootView, @NonNull final Callback<byte[]> callback);
 
@@ -242,8 +240,7 @@ public abstract class HippyEngine {
     // optional args, Hippy Server url using remote debug in no usb (if not empty will replace debugServerHost and debugBundleName). debugMode = true take effect
     public String remoteServerUrl = "";
     // 可选参数 自定义的，用来提供Native modules、JavaScript modules、View controllers的管理器。1个或多个
-    public List<HippyAPIProvider> moduleProviders;
-    public List<ControllerProvider> controllerProviders;
+    public List<HippyAPIProvider> providers;
     public List<Processor> processors;
     //Optional  is use V8 serialization or json
     public boolean enableV8Serialization = true;
@@ -318,10 +315,10 @@ public abstract class HippyEngine {
       if (logAdapter == null) {
         logAdapter = new DefaultLogAdapter();
       }
-      if (moduleProviders == null) {
-        moduleProviders = new ArrayList<>();
+      if (providers == null) {
+        providers = new ArrayList<>();
       }
-      moduleProviders.add(0, new HippyCoreAPI());
+      providers.add(0, new HippyCoreAPI());
       if (!debugMode) {
         if (TextUtils.isEmpty(coreJSAssetsPath) && TextUtils.isEmpty(coreJSFilePath)) {
           throw new RuntimeException(

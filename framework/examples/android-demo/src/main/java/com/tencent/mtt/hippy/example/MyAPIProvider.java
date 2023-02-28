@@ -22,9 +22,13 @@ import com.tencent.mtt.hippy.common.Provider;
 import com.tencent.mtt.hippy.example.module.MyModule;
 import com.tencent.mtt.hippy.example.module.TestModule;
 import com.tencent.mtt.hippy.example.module.turbo.DemoJavaTurboModule;
+import com.tencent.mtt.hippy.example.view.MyCustomViewController;
+import com.tencent.mtt.hippy.example.view.MyViewController;
 import com.tencent.mtt.hippy.modules.javascriptmodules.HippyJavaScriptModule;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 
+import com.tencent.mtt.hippy.uimanager.HippyViewController;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,4 +81,16 @@ public class MyAPIProvider implements HippyAPIProvider
 		return null;
 	}
 
+	/**
+	 * 接口：用来构造各种JavaScript需要的自定义的View组件
+	 */
+	@SuppressWarnings("rawtypes")
+	@Override
+	public List<Class<? extends HippyViewController>> getControllers()
+	{
+		List<Class<? extends HippyViewController>> components = new ArrayList<>();
+		components.add(MyViewController.class);
+		components.add(MyCustomViewController.class);
+		return components;
+	}
 }
