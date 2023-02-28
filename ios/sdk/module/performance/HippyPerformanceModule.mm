@@ -40,7 +40,7 @@ HIPPY_EXPORT_TURBO_METHOD(getEntries) {
     entries[@"entryType"] = @"navigation"; // js convention
 
     for (int i = HippyPLNativeModuleInit; i < HippyPLSize; i++) {
-        NSString *label = [self.bridge.performanceLogger labelForTag:i];
+        NSString *label = [self.bridge.performanceLogger labelForTag:static_cast<HippyPLTag>(i)];
         NSNumber *start = allValues[i * 2];
         NSNumber *end = allValues[i * 2 + 1];
         [entries setObject:(start ?: @0) forKey:[NSString stringWithFormat:@"%@Start", label ?: @"undefined"]];

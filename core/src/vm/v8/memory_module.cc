@@ -20,21 +20,20 @@
  *
  */
 
-#include "core/napi/v8/memory_module.h"
+#include "core/vm/v8/memory_module.h"
 
 #include <string>
 
 #include "base/logging.h"
-#include "core/modules/module_register.h"
-#include "core/napi/js_native_api.h"
-#include "core/napi/v8/js_native_api_v8.h"
+#include "core/napi/v8/v8_ctx.h"
 #include "core/scope.h"
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using Ctx = hippy::napi::Ctx;
+using V8Ctx = hippy::napi::V8Ctx;
 using CtxValue = hippy::napi::CtxValue;
 
-REGISTER_MODULE(MemoryModule, Get) // NOLINT(cert-err58-cpp)
+GEN_INVOKE_CB(MemoryModule, Get) // NOLINT(cert-err58-cpp)
 
 constexpr char kJsHeapSizeLimit[] = "jsHeapSizeLimit";
 constexpr char kTotalJSHeapSize[] = "totalJSHeapSize";
@@ -42,11 +41,11 @@ constexpr char kUsedJSHeapSize[] = "usedJSHeapSize";
 constexpr char kJsNumberOfNativeContexts[] = "jsNumberOfNativeContexts";
 constexpr char kJsNumberOfDetachedContexts[] = "jsNumberOfDetachedContexts";
 
-void MemoryModule::Get(const hippy::napi::CallbackInfo &info) {
-  std::shared_ptr<Scope> scope = info.GetScope();
-  std::shared_ptr<hippy::napi::V8Ctx>
-      ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(scope->GetContext());
-  TDF_BASE_CHECK(ctx);
+void MemoryModule::Get(const hippy::napi::CallbackInfo& info, void* data) {
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+  auto scope = scope_wrapper->scope.lock();
+  TDF_BASE_CHECK(scope);
+  auto ctx = std::static_pointer_cast<V8Ctx>(scope->GetContext());
   v8::Isolate *isolate = ctx->isolate_;
   v8::HandleScope handle_scope(isolate);
   auto heap_statistics = std::make_shared<v8::HeapStatistics>();
@@ -79,4 +78,18 @@ void MemoryModule::Get(const hippy::napi::CallbackInfo &info) {
       }
   );
   info.GetReturnValue()->Set(ctx->CreateObject(map));
+}
+
+std::shared_ptr<CtxValue> MemoryModule::BindFunction(std::shared_ptr<Scope> scope,
+                                                     std::shared_ptr<CtxValue>* rest_args) {
+  auto context = scope->GetContext();
+  auto object = context->CreateObject();
+
+  auto key = context->CreateString("Get");
+  auto wrapper = std::make_unique<hippy::napi::FuncWrapper>(InvokeMemoryModuleGet, nullptr);
+  auto value = context->CreateFunction(wrapper);
+  scope->SaveFuncWrapper(std::move(wrapper));
+  context->SetProperty(object, key, value);
+
+  return object;
 }

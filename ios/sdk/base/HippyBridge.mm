@@ -81,7 +81,7 @@ NSString *HippyBridgeModuleNameForClass(Class cls) {
     if ([cls conformsToProtocol:@protocol(HippyBridgeModule)]) {
         name = [cls moduleName];
     } else if ([cls conformsToProtocol:@protocol(HippyTurboModule)]) {
-        name = [cls turoboModuleName];
+        name = [cls turboModuleName];
     }
     if (name.length == 0) {
         name = NSStringFromClass(cls);

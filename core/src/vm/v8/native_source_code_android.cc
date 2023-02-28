@@ -20,7 +20,7 @@
 
 #include <unordered_map>
 
-#include "core/napi/native_source_code.h"
+#include "core/vm/native_source_code.h"
 #include "core/base/macros.h"
 
 // clang-format off

@@ -39,22 +39,32 @@ void Engine::TerminateRunner() {
   js_runner_->Terminate();
 }
 
-std::shared_ptr<Scope> Engine::CreateScope(const std::string& name,
-                                           std::unique_ptr<RegisterMap> map) {
-  TDF_BASE_DLOG(INFO) << "Engine CreateScope";
-  std::shared_ptr<Scope> scope =
-      std::make_shared<Scope>(this, name, std::move(map));
+std::shared_ptr<Scope> Engine::AsyncCreateScope(const std::string& name,
+                                                std::unordered_map<std::string, std::string> init_param,
+                                                std::unique_ptr<RegisterMap> map) {
+  TDF_BASE_DLOG(INFO) << "Engine AsyncCreateScope";
+  std::shared_ptr<Scope> scope = std::make_shared<Scope>(weak_from_this(), name, std::move(map));
   scope->wrapper_ = std::make_unique<ScopeWrapper>(scope);
+  auto task = std::make_shared<JavaScriptTask>();
+  task->callback = [scope] {
+    scope->Init();
+  };
+  js_runner_->PostTask(std::move(task));
 
-  JavaScriptTask::Function cb = [scope_ = scope] { scope_->Initialized(); };
-  if (js_runner_->IsJsThread()) {
-    cb();
-  } else {
-    std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-    task->callback = cb;
-    js_runner_->PostTask(std::move(task));
-  }
+  return scope;
+}
 
+std::shared_ptr<Scope> Engine::SyncCreateScope(std::unique_ptr<RegisterMap> map) {
+  return SyncCreateScope("", {}, std::move(map));
+}
+
+std::shared_ptr<Scope> Engine::SyncCreateScope(const std::string& name,
+                                           std::unordered_map<std::string, std::string> init_param,
+                                           std::unique_ptr<RegisterMap> map) {
+  TDF_BASE_DLOG(INFO) << "Engine SyncCreateScope";
+  auto scope = std::make_shared<Scope>(weak_from_this(), name, std::move(map));
+  scope->wrapper_ = std::make_unique<ScopeWrapper>(scope);
+  scope->Init();
   return scope;
 }
 
@@ -68,7 +78,7 @@ void Engine::SetupThreads() {
 
 void Engine::CreateVM(const std::shared_ptr<VMInitParam>& param) {
   TDF_BASE_DLOG(INFO) << "Engine CreateVM";
-  vm_ = hippy::napi::CreateVM(param);
+  vm_ = hippy::vm::CreateVM(param);
   auto it = map_->find(hippy::base::kVMCreateCBKey);
   if (it != map_->end()) {
     auto f = it->second;
@@ -96,4 +106,9 @@ void Engine::AsyncInit(const std::shared_ptr<VMInitParam>& param, std::unique_pt
     engine->CreateVM(param);
   };
   js_runner_->PostTask(task);
+}
+
+int32_t Engine::SyncInit(const std::shared_ptr<VM>& vm) {
+  vm_ = vm;
+  return 0;
 }
