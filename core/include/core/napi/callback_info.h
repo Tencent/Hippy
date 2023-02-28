@@ -22,16 +22,28 @@
 
 #pragma once
 
+#include <any>
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
 #include "base/unicode_string_view.h"
 #include "core/base/macros.h"
-#include "core/napi/js_native_api_types.h"
-#include "core/scope.h"
 
 namespace hippy {
 namespace napi {
+
+class CallbackInfo;
+class Ctx;
+class CtxValue;
+
+using JsCallback = void (*)(const CallbackInfo& info, void* data);
+
+// Map: FunctionName -> Callback (e.g. "Log" -> ConsoleModule::Log)
+using ModuleClass = std::unordered_map<tdf::base::unicode_string_view, hippy::napi::JsCallback>;
+
+// Map: ClassName -> ModuleClass (e.g. "ConsoleModule" -> [ModuleClass])
+using ModuleClassMap = std::unordered_map<tdf::base::unicode_string_view, ModuleClass>;
 
 class ReturnValue {
  public:
@@ -65,20 +77,24 @@ class ExceptionValue {
 
 class CallbackInfo {
  public:
-  explicit CallbackInfo(std::shared_ptr<Scope> scope);
+  CallbackInfo();
   CallbackInfo(const CallbackInfo &) = delete;
   CallbackInfo &operator=(const CallbackInfo &) = delete;
+
+  inline void SetReceiver(std::shared_ptr<CtxValue> receiver) { receiver_ = receiver; }
+  inline std::shared_ptr<CtxValue> GetReceiver() const { return receiver_; }
+  inline size_t Length() const { return values_.size(); }
+  inline std::any GetSlot() const { return slot_; }
+  inline void SetSlot(std::any slot) { slot_ = slot;}
+  inline ReturnValue* GetReturnValue() const { return ret_value_.get(); }
+  inline ExceptionValue* GetExceptionValue() const { return exception_value_.get(); }
 
   void AddValue(const std::shared_ptr<CtxValue>& value);
   std::shared_ptr<CtxValue> operator[](size_t index) const;
 
-  size_t Length() const { return values_.size(); }
-  std::shared_ptr<Scope> GetScope() const { return scope_; }
-  ReturnValue* GetReturnValue() const { return ret_value_.get(); }
-  ExceptionValue* GetExceptionValue() const { return exception_value_.get(); }
-
  private:
-  std::shared_ptr<Scope> scope_;
+  std::any slot_;
+  std::shared_ptr<CtxValue> receiver_;
   std::vector<std::shared_ptr<CtxValue>> values_;
   std::unique_ptr<ReturnValue> ret_value_;
   std::unique_ptr<ExceptionValue> exception_value_;

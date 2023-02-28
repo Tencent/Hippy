@@ -22,13 +22,33 @@
 
 #pragma once
 
-#include "core/modules/module_base.h"
-#include "core/napi/callback_info.h"
+#include "core/napi/js_try_catch.h"
 
-class Scope;
+#include "base/unicode_string_view.h"
 
-class MemoryModule : public ModuleBase {
- public:
-  MemoryModule() {}
-  void Get(const hippy::napi::CallbackInfo &info);
+#include "core/napi/jsc/jsc_ctx_value.h"
+
+namespace hippy {
+namespace napi {
+
+class JSCTryCatch : public TryCatch {
+public:
+  JSCTryCatch(bool enable, std::shared_ptr<Ctx> ctx);
+  virtual ~JSCTryCatch();
+  virtual void ReThrow();
+  virtual bool HasCaught();
+  virtual bool CanContinue();
+  virtual bool HasTerminated();
+  virtual bool IsVerbose();
+  virtual void SetVerbose(bool verbose);
+  virtual std::shared_ptr<CtxValue> Exception();
+  virtual tdf::base::unicode_string_view GetExceptionMsg();
+  
+private:
+  std::shared_ptr<JSCCtxValue> exception_;
+  bool is_verbose_;
+  bool is_rethrow_;
 };
+
+}
+}

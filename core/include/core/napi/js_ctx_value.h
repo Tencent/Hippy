@@ -3,7 +3,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,19 +20,19 @@
  *
  */
 
-#include "core/modules/module_register.h"
+#pragma once
 
-#include <mutex>  // NOLINT(build/c++11)
+namespace hippy {
+namespace napi {
 
-#include "core/engine.h"
+static const char kErrorHandlerJSName[] = "ExceptionHandle.js";
+static const char kHippyErrorHandlerName[] = "HippyExceptionHandler";
 
-namespace napi = ::hippy::napi;
+class CtxValue {
+ public:
+  CtxValue() {}
+  virtual ~CtxValue() {}
+};
 
-ModuleRegister* ModuleRegister::instance() {
-  static ModuleRegister* _in = nullptr;
-  static std::once_flag flag;
-
-  std::call_once(flag, [] { _in = new ModuleRegister(); });
-
-  return _in;
+}
 }

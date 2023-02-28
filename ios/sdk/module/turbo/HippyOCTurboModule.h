@@ -23,10 +23,32 @@
 #import <Foundation/Foundation.h>
 #import "HippyTurboModule.h"
 
+#include <memory>
+
+#include "core/napi/jsc/jsc_ctx.h"
+#include "core/napi/jsc/jsc_ctx_value.h"
+
+struct TurboWrapper;
+
 @interface HippyOCTurboModule : NSObject <HippyTurboModule, HippyTurboModuleImpProtocol>
 
 @property (nonatomic, weak, readonly) HippyBridge *bridge;
 
 - (instancetype)initWithName:(NSString *)name bridge:(HippyBridge *)bridge;
+- (void)saveTurboWrapper:(std::shared_ptr<hippy::napi::CtxValue>)name turbo:(std::unique_ptr<TurboWrapper>)wrapper;
+- (std::shared_ptr<hippy::napi::CtxValue>) invokeOCMethod:(const std::shared_ptr<hippy::napi::Ctx>&) ctx
+this_val:(const std::shared_ptr<hippy::napi::CtxValue>&) this_val
+                              args:(const std::shared_ptr<hippy::napi::CtxValue>*) args
+ count:(size_t) count;
 
 @end
+
+struct TurboWrapper {
+  HippyOCTurboModule* module;
+  std::shared_ptr<hippy::napi::CtxValue> name;
+
+  TurboWrapper(HippyOCTurboModule* module, const std::shared_ptr<hippy::napi::CtxValue>& name) {
+    this->module = module;
+    this->name = name;
+  }
+};

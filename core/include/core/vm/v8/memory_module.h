@@ -3,7 +3,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,24 +22,15 @@
 
 #pragma once
 
-#include "core/base/string_view_utils.h"
 #include "core/modules/module_base.h"
 #include "core/napi/callback_info.h"
-#include "core/napi/js_ctx_value.h"
 
 class Scope;
 
-class ContextifyModule : public ModuleBase {
+class MemoryModule : public ModuleBase {
  public:
-  using unicode_string_view = tdf::base::unicode_string_view;
-  using CtxValue = hippy::napi::CtxValue;
-
-  ContextifyModule() {}
-  void RunInThisContext(const hippy::napi::CallbackInfo& info, void* data);
-  void LoadUntrustedContent(const hippy::napi::CallbackInfo& info, void* data);
-  void RemoveCBFunc(const unicode_string_view& uri);
+  MemoryModule() {}
+  void Get(const hippy::napi::CallbackInfo& info, void* data);
 
   virtual std::shared_ptr<CtxValue> BindFunction(std::shared_ptr<Scope> scope, std::shared_ptr<CtxValue> rest_args[]) override;
- private:
-  std::unordered_map<unicode_string_view, std::shared_ptr<CtxValue>> cb_func_map_;
 };

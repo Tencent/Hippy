@@ -20,7 +20,7 @@
  *
  */
 
-#include "bridge/serializer.h"
+#include "core/vm/v8/serializer.h"
 
 const int kMaxReusedBuffersSize = 128 * 1024;  // 128k
 

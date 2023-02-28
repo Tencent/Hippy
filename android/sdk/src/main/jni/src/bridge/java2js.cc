@@ -24,9 +24,10 @@
 
 #include "bridge/js2java.h"
 #include "bridge/runtime.h"
-#include "core/core.h"
+#include "core/vm/v8/v8_vm.h"
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
+#include "jni/jni_env.h"
 
 namespace hippy {
 namespace bridge {
@@ -54,8 +55,11 @@ using unicode_string_view = tdf::base::unicode_string_view;
 using bytes = std::string;
 
 using Ctx = hippy::napi::Ctx;
+using V8Ctx = hippy::napi::V8Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using StringViewUtils = hippy::base::StringViewUtils;
+using VM = hippy::vm::VM;
+using V8VM = hippy::vm::V8VM;
 
 const char kHippyBridgeName[] = "hippyBridge";
 
@@ -93,8 +97,9 @@ void CallFunction(JNIEnv* j_env,
     auto context = scope->GetContext();
     if (!runtime->GetBridgeFunc()) {
       TDF_BASE_DLOG(INFO) << "init bridge func";
-      unicode_string_view name(kHippyBridgeName);
-      std::shared_ptr<CtxValue> fn = context->GetJsFn(name);
+      auto func_name = context->CreateString(kHippyBridgeName);
+      auto global_object = context->GetGlobalObject();
+      auto fn = context->GetProperty(global_object, func_name);
       bool is_fn = context->IsFunction(fn);
       TDF_BASE_DLOG(INFO) << "is_fn = " << is_fn;
       if (!is_fn) {
@@ -130,13 +135,9 @@ void CallFunction(JNIEnv* j_env,
     std::shared_ptr<CtxValue> action = context->CreateString(action_name);
     std::shared_ptr<CtxValue> params;
     if (runtime->IsEnableV8Serialization()) {
-      v8::Isolate* isolate = std::static_pointer_cast<hippy::napi::V8VM>(
-                                 runtime->GetEngine()->GetVM())
-                                 ->isolate_;
+      v8::Isolate* isolate = std::static_pointer_cast<V8VM>(runtime->GetEngine()->GetVM())->isolate_;
       v8::HandleScope handle_scope(isolate);
-      v8::Local<v8::Context> ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(
-                                       runtime->GetScope()->GetContext())
-                                       ->context_persistent_.Get(isolate);
+      v8::Local<v8::Context> ctx = std::static_pointer_cast<V8Ctx>(runtime->GetScope()->GetContext())->context_persistent_.Get(isolate);
       hippy::napi::V8TryCatch try_catch(true, context);
       v8::ValueDeserializer deserializer(
           isolate, reinterpret_cast<const uint8_t*>(buffer_data_.c_str()),
@@ -168,7 +169,7 @@ void CallFunction(JNIEnv* j_env,
       unicode_string_view buf_str(std::move(str));
       TDF_BASE_DLOG(INFO) << "action_name = " << action_name
                           << ", buf_str = " << buf_str;
-      params = context->ParseJson(buf_str);
+      params = VM::ParseJson(context, buf_str);
     }
     if (!params) {
       params = context->CreateNull();

@@ -3,7 +3,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2021 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,23 +20,30 @@
  *
  */
 
+#pragma once
 
-#include <core/napi/js_native_turbo.h>
-#include <core/napi/jsc/js_native_api_jsc.h>
+#include "core/napi/js_ctx_value.h"
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wconversion"
+#include "v8/v8.h"
+#pragma clang diagnostic pop
 
 namespace hippy {
 namespace napi {
 
-class ObjcTurboEnv : public TurboEnv {
- public:
-  ObjcTurboEnv(std::shared_ptr <Ctx> ctx);
-  ~ObjcTurboEnv();
+struct V8CtxValue : public CtxValue {
+  V8CtxValue(v8::Isolate* isolate, const v8::Local<v8::Value>& value)
+      : global_value_(isolate, value) {}
+  V8CtxValue(v8::Isolate* isolate, const v8::Persistent<v8::Value>& value)
+      : global_value_(isolate, value) {}
+  ~V8CtxValue() { global_value_.Reset(); }
+  V8CtxValue(const V8CtxValue &) = delete;
+  V8CtxValue &operator=(const V8CtxValue &) = delete;
 
-  std::shared_ptr <CtxValue> CreateObject(const std::shared_ptr <HostObject> &hostObject) override;
-  std::shared_ptr <CtxValue> CreateFunction(const std::shared_ptr <CtxValue> &name,
-                                            int paramCount,
-                                            HostFunctionType func) override;
+  v8::Global<v8::Value> global_value_;
+  v8::Isolate* isolate_;
 };
 
-}  // namespace napi
-}  // namespace hippy
+}
+}

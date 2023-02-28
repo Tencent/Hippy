@@ -3,7 +3,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,23 +22,11 @@
 
 #pragma once
 
-#include <stdint.h>
-
-#include <mutex>
-#include <string>
-#include <vector>
-
 #include "base/logging.h"
 #include "base/unicode_string_view.h"
-#include "core/base/common.h"
-#include "core/base/js_value_wrapper.h"
-#include "core/base/macros.h"
-#include "core/modules/module_base.h"
-#include "core/napi/callback_info.h"
-#include "core/napi/js_native_api.h"
-#include "core/napi/js_native_api_types.h"
-#include "core/napi/native_source_code.h"
-#include "core/scope.h"
+#include "core/napi/js_ctx.h"
+#include "core/napi/js_ctx_value.h"
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wconversion"
 #include "v8/v8.h"
@@ -47,95 +35,6 @@
 namespace hippy {
 namespace napi {
 
-void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info);
-void NativeCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info);
-void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info);
-
-struct V8VMInitParam: public VMInitParam {
-  size_t initial_heap_size_in_bytes;
-  size_t maximum_heap_size_in_bytes;
-  v8::NearHeapLimitCallback near_heap_limit_callback;
-  void* near_heap_limit_callback_data;
-
-  static size_t HeapLimitSlowGrowthStrategy(void* data, size_t current_heap_limit,
-                                            size_t initial_heap_limit) {
-    // The heap limit must be larger than the old generation capacity,
-    // but its size cannot be obtained directly, so use the old space size for simulation
-    constexpr char kOldSpace[] = "old_space";
-    constexpr char kCodeSpace[] = "code_space";
-    constexpr char kMapSpace[] = "map_space";
-    constexpr char kLOSpace[] = "large_object_space";
-    constexpr char kCodeLOSpace[] = "code_large_object_space";
-    auto isolate = v8::Isolate::GetCurrent();
-    size_t capacity = 0;
-    v8::HeapSpaceStatistics heap_space_statistics;
-    for (size_t i = 0; i < isolate->NumberOfHeapSpaces(); i++) {
-      isolate->GetHeapSpaceStatistics(&heap_space_statistics, i);
-      std::string space_name(heap_space_statistics.space_name());
-      if (space_name == kOldSpace || space_name == kCodeSpace || space_name == kMapSpace) {
-        capacity += heap_space_statistics.space_size();
-      } else if (space_name == kLOSpace || space_name == kCodeLOSpace) {
-        capacity += heap_space_statistics.space_used_size();
-      }
-    }
-    const size_t kHeapSizeFactor = 2;
-    return std::clamp(std::max(current_heap_limit * kHeapSizeFactor, capacity), std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max());
-  }
-};
-
-class V8VM : public VM {
- public:
-  V8VM(const std::shared_ptr<V8VMInitParam>& param);
-  ~V8VM();
-
-  virtual std::shared_ptr<Ctx> CreateContext();
-  static void PlatformDestroy();
-
-  v8::Isolate* isolate_;
-  v8::Isolate::CreateParams create_params_;
-
- public:
-  static std::unique_ptr<v8::Platform> platform_;
-  static std::mutex mutex_;
-};
-
-class V8TryCatch : public TryCatch {
- public:
-  using unicode_string_view = tdf::base::unicode_string_view;
-
-  explicit V8TryCatch(bool enable = false, const std::shared_ptr<Ctx>& ctx = nullptr);
-  virtual ~V8TryCatch();
-
-  virtual void ReThrow();
-  virtual bool HasCaught();
-  virtual bool CanContinue();
-  virtual bool HasTerminated();
-  virtual bool IsVerbose();
-  virtual void SetVerbose(bool verbose);
-  virtual std::shared_ptr<CtxValue> Exception();
-  virtual unicode_string_view GetExceptionMsg();
-
- private:
-  std::shared_ptr<v8::TryCatch> try_catch_;
-};
-
-class CBTuple {
- public:
-  CBTuple(hippy::base::RegisterFunction fn, void* data)
-      : fn_(fn), data_(data) {}
-  hippy::base::RegisterFunction fn_;
-  void* data_;
-};
-
-class CBDataTuple {
- public:
-  CBDataTuple(const CBTuple& cb_tuple,
-              const v8::FunctionCallbackInfo<v8::Value>& info)
-      : cb_tuple_(cb_tuple), info_(info) {}
-  const CBTuple& cb_tuple_;
-  const v8::FunctionCallbackInfo<v8::Value>& info_;
-};
-
 class V8Ctx : public Ctx {
  public:
   using unicode_string_view = tdf::base::unicode_string_view;
@@ -143,9 +42,9 @@ class V8Ctx : public Ctx {
 
   explicit V8Ctx(v8::Isolate* isolate) : isolate_(isolate) {
     v8::HandleScope handle_scope(isolate);
-
     v8::Local<v8::ObjectTemplate> global = v8::ObjectTemplate::New(isolate);
     v8::Local<v8::Context> context = v8::Context::New(isolate, nullptr, global);
+    v8::Context::Scope contextScope(context);
 
     global_persistent_.Reset(isolate, global);
     context_persistent_.Reset(isolate, context);
@@ -156,48 +55,64 @@ class V8Ctx : public Ctx {
     global_persistent_.Reset();
   }
 
-  virtual bool RegisterGlobalInJs() override;
-  virtual bool SetGlobalJsonVar(const unicode_string_view& name,
-                                const unicode_string_view& json) override;
-  virtual bool SetGlobalStrVar(const unicode_string_view& name,
-                               const unicode_string_view& str) override;
-  virtual bool SetGlobalObjVar(const unicode_string_view& name,
-                               const std::shared_ptr<CtxValue>& obj,
-                               const PropertyAttribute& attr) override;
-  virtual std::shared_ptr<CtxValue> GetGlobalStrVar(
-      const unicode_string_view& name) override;
-  virtual std::shared_ptr<CtxValue> GetGlobalObjVar(
-      const unicode_string_view& name) override;
+  inline void* GetFuncExternalData(void* key) {
+    return func_external_data_map_[key];
+  }
+
+  inline void SaveFuncExternalData(void* key, void* value) {
+    func_external_data_map_[key] = value;
+  }
+
+  inline bool HasFuncExternalData(void* key) {
+    return func_external_data_map_.find(key) != func_external_data_map_.end();
+  }
+
+  virtual std::shared_ptr<CtxValue> DefineProxy(const std::unique_ptr<FuncWrapper>& constructor_wrapper) override;
+
+  virtual std::shared_ptr<CtxValue> DefineClass(unicode_string_view name,
+                                                const std::unique_ptr<FuncWrapper>& constructor_wrapper,
+                                                size_t property_count,
+                                                std::shared_ptr<PropertyDescriptor> properties[]) override;
+  virtual std::shared_ptr<CtxValue> NewInstance(const std::shared_ptr<CtxValue>& cls,
+                                                int argc, std::shared_ptr<CtxValue> argv[],
+                                                void* external) override;
+  virtual void* GetExternal(const std::shared_ptr<CtxValue>& object);
+
+  virtual std::shared_ptr<CtxValue> GetGlobalObject() override;
+  // In general, SetProperty will be faster then SetProperty(attr) , however, does not allow for specifying attributes.
+  virtual bool SetProperty(std::shared_ptr<CtxValue> object,
+                           std::shared_ptr<CtxValue> key,
+                           std::shared_ptr<CtxValue> value) override;
+  // key must be string
+  virtual bool SetProperty(std::shared_ptr<CtxValue> object,
+                          std::shared_ptr<CtxValue> key,
+                          std::shared_ptr<CtxValue> value,
+                          const PropertyAttribute& attr) override;
   virtual std::shared_ptr<CtxValue> GetProperty(
       const std::shared_ptr<CtxValue>& object,
       const unicode_string_view& name) override;
-
-  virtual void RegisterGlobalModule(const std::shared_ptr<Scope>& scope,
-                                    const ModuleClassMap& modules) override;
-  virtual void RegisterNativeBinding(const unicode_string_view& name,
-                                     hippy::base::RegisterFunction fn,
-                                     void* data) override;
-
+  virtual std::shared_ptr<CtxValue> GetProperty(
+      const std::shared_ptr<CtxValue>& object,
+      std::shared_ptr<CtxValue> key) override;
+  virtual std::shared_ptr<CtxValue> CreateObject() override;
   virtual std::shared_ptr<CtxValue> CreateNumber(double number) override;
   virtual std::shared_ptr<CtxValue> CreateBoolean(bool b) override;
   virtual std::shared_ptr<CtxValue> CreateString(
       const unicode_string_view& string) override;
   virtual std::shared_ptr<CtxValue> CreateUndefined() override;
   virtual std::shared_ptr<CtxValue> CreateNull() override;
-  virtual std::shared_ptr<CtxValue> ParseJson(
-      const unicode_string_view& json) override;
   virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<
-      unicode_string_view,
-      std::shared_ptr<CtxValue>>& object) override;
+  unicode_string_view,
+  std::shared_ptr<CtxValue>>& object) override;
   virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<
-      std::shared_ptr<CtxValue>,
-      std::shared_ptr<CtxValue>>& object) override;
+  std::shared_ptr<CtxValue>,
+  std::shared_ptr<CtxValue>>& object) override;
   virtual std::shared_ptr<CtxValue> CreateArray(
       size_t count,
       std::shared_ptr<CtxValue> value[]) override;
   virtual std::shared_ptr<CtxValue> CreateMap(const std::map<
-      std::shared_ptr<CtxValue>,
-      std::shared_ptr<CtxValue>>& map) override;
+  std::shared_ptr<CtxValue>,
+  std::shared_ptr<CtxValue>>& map) override;
   virtual std::shared_ptr<CtxValue> CreateError(
       const unicode_string_view& msg) override;
 
@@ -240,7 +155,9 @@ class V8Ctx : public Ctx {
       const unicode_string_view& utf8name) override;
   // Function Helpers
 
+  virtual bool IsString(const std::shared_ptr<CtxValue>& value) override;
   virtual bool IsFunction(const std::shared_ptr<CtxValue>& value) override;
+  virtual bool IsObject(const std::shared_ptr<CtxValue>& value) override;
   virtual unicode_string_view CopyFunctionName(const std::shared_ptr<CtxValue>& value) override;
 
   virtual std::shared_ptr<CtxValue> RunScript(
@@ -253,7 +170,8 @@ class V8Ctx : public Ctx {
       unicode_string_view* cache,
       bool is_copy);
 
-  virtual std::shared_ptr<CtxValue> GetJsFn(const unicode_string_view& name) override;
+  virtual void SetDefaultContext(const std::shared_ptr<v8::SnapshotCreator>& creator);
+
   virtual void ThrowException(const std::shared_ptr<CtxValue>& exception) override;
   virtual void ThrowException(const unicode_string_view& exception) override;
   virtual void HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) override;
@@ -262,19 +180,25 @@ class V8Ctx : public Ctx {
       const std::shared_ptr<CtxValue>& value) override;
   virtual std::shared_ptr<CtxValue> CreateCtxValue(
       const std::shared_ptr<JSValueWrapper>& wrapper) override;
+  virtual std::shared_ptr<CtxValue> CreateFunction(std::unique_ptr<FuncWrapper>& wrapper) override;
 
+  void SetExternalData(void* data) override;
+
+  std::string GetSerializationBuffer(const std::shared_ptr<CtxValue>& value, std::string& reused_buffer);
   unicode_string_view ToStringView(v8::Local<v8::String> str) const;
   unicode_string_view GetMsgDesc(v8::Local<v8::Message> message);
   unicode_string_view GetStackInfo(v8::Local<v8::Message> message) const;
   unicode_string_view GetStackTrace(v8::Local<v8::StackTrace> trace) const;
   v8::Local<v8::String> CreateV8String(const unicode_string_view& string) const;
+  void SetAlignedPointerInEmbedderData(int index, intptr_t address);
 
   v8::Isolate* isolate_;
   v8::Persistent<v8::ObjectTemplate> global_persistent_;
   v8::Persistent<v8::Context> context_persistent_;
-  std::unique_ptr<CBTuple> data_tuple_;
+  std::unordered_map<void*, void*> func_external_data_map_;
 
  private:
+  v8::Local<v8::FunctionTemplate> CreateTemplate(const std::unique_ptr<FuncWrapper>& wrapper) const;
   std::shared_ptr<CtxValue> InternalRunScript(
       v8::Local<v8::Context> context,
       v8::Local<v8::String> source,
@@ -283,18 +207,5 @@ class V8Ctx : public Ctx {
       unicode_string_view* cache);
 };
 
-struct V8CtxValue : public CtxValue {
-  V8CtxValue(v8::Isolate* isolate, const v8::Local<v8::Value>& value)
-      : global_value_(isolate, value) {}
-  V8CtxValue(v8::Isolate* isolate, const v8::Persistent<v8::Value>& value)
-      : global_value_(isolate, value) {}
-  ~V8CtxValue() { global_value_.Reset(); }
-  V8CtxValue(const V8CtxValue &) = delete;
-  V8CtxValue &operator=(const V8CtxValue &) = delete;
-
-  v8::Global<v8::Value> global_value_;
-  v8::Isolate* isolate_;
-};
-
-}  // namespace napi
-}  // namespace hippy
+}
+}
