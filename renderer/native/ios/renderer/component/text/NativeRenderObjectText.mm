@@ -222,7 +222,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     }
 }
 
-- (void)applyConfirmedLayoutDirectionToSubviews:(HPDirection)confirmedLayoutDirection {
+- (void)applyConfirmedLayoutDirectionToSubviews:(hippy::Direction)confirmedLayoutDirection {
     [super applyConfirmedLayoutDirectionToSubviews:confirmedLayoutDirection];
     [self dirtyText];
 }

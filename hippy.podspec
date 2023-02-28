@@ -6,9 +6,13 @@
 # To learn more about a Podspec see https://guides.cocoapods.org/syntax/podspec.html
 #
 
+layout_engine = "Taitank"
 Pod::Spec.new do |s|
+  if ENV["layout_engine"]
+    layout_engine = ENV["layout_engine"];
+  end
   puts 'hippy.podspec read begins'
-  s.name             = 'Hippy'
+  s.name             = 'hippy'
   s.version          = '3.0.0'
   s.summary          = 'Hippy Cross Platform Framework'
 
@@ -30,7 +34,7 @@ Pod::Spec.new do |s|
 
   #prepare_command not working for subspecs,so we remove devtools script from devtools subspec to root
   s.prepare_command = <<-CMD
-      ./xcodeinitscript.sh
+      ./xcodeinitscript.sh "#{layout_engine}"
   CMD
 
   s.subspec 'Framework' do |framework|
@@ -43,18 +47,6 @@ Pod::Spec.new do |s|
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
     }
     puts 'hippy subspec \'framework\' read end'
-  end
-
-  s.subspec 'Layout' do |layout|
-    puts 'hippy subspec \'layout\' read begin'
-    layout.libraries = 'c++'
-    layout.source_files = ['layout/engine/*.{h,cpp}', 'modules/ios/layoututils/*.{h,m}']
-    layout.public_header_files = ['layout/engine/*.h', 'modules/ios/layoututils/*.h']
-    layout.pod_target_xcconfig = {
-      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/layout' + 
-                              ' ${PODS_ROOT}/hippy/layout/engine'
-    }
-    puts 'hippy subspec \'layout\' read end'
   end
 
   s.subspec 'Footstone' do |footstone|
@@ -71,6 +63,7 @@ Pod::Spec.new do |s|
     footstone.user_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/modules/footstone/include'
     }
+    footstone.preserve_path = 'modules/footstone'
     puts 'hippy subspec \'footstone\' read end'
   end
 
@@ -82,23 +75,6 @@ Pod::Spec.new do |s|
     image.source_files = 'modules/ios/image/*.{h,m,mm}'
     puts 'hippy subspec \'image\' read end'
   end
-
-  s.subspec 'Dom' do |dom|
-    puts 'hippy subspec \'dom\' read begin'
-    dom.libraries = 'c++'
-    dom.source_files = ['dom/include/**/*.h', 'dom/src/**/*.cc', 'modules/ios/domutils/*.{h,mm}']
-    dom.public_header_files = ['dom/include/**/*.h', 'modules/ios/domutils/*.h']
-    dom.exclude_files = ['dom/src/dom/*unittests.cc', 'dom/src/dom/tools', 'dom/src/dom/yoga_layout_node.cc']
-    dom.pod_target_xcconfig = {
-      'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/dom/include/'
-    }
-    dom.user_target_xcconfig = {
-      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/dom/include/'
-    }
-    dom.dependency 'Hippy/Footstone'
-    puts 'hippy subspec \'dom\' read end'
-  end 
 
   s.subspec 'Base' do |base|
     puts 'hippy subspec \'base\' read begin'
@@ -120,6 +96,7 @@ Pod::Spec.new do |s|
     vfs.user_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/modules/vfs/native/include'
     }
+    vfs.preserve_path = 'modules/vfs/native'
     puts 'hippy subspec \'vfs\' read end'
   end
 
@@ -137,6 +114,7 @@ Pod::Spec.new do |s|
       'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/driver/js/include/', 
       'GCC_PREPROCESSOR_DEFINITIONS' => 'JS_USE_JSC=1'
     }
+    driver.preserve_path = 'driver/js'
     puts 'hippy subspec \'driver\' read end'
   end 
 
@@ -147,6 +125,70 @@ Pod::Spec.new do |s|
     renderer.public_header_files = 'renderer/native/ios/**/*.h'
     puts 'hippy subspec \'nativerenderer\' read end'
   end 
+
+  s.subspec 'Dom' do |dom|
+    puts 'hippy subspec \'dom\' read begin'
+    dom_source_files = Array['dom/include/**/*.h', 'dom/src/**/*.cc', 'modules/ios/domutils/*.{h,mm}']
+    dom_exclude_files = Array['dom/src/dom/*unittests.cc', 
+                              'dom/src/dom/tools']
+    dom_pod_target_header_path = '${PODS_ROOT}/hippy/dom/include/'
+
+    if layout_engine == "Taitank"
+      dom_exclude_files.append('dom/include/dom/yoga_layout_node.h')
+      dom_exclude_files.append('dom/src/dom/yoga_layout_node.cc')
+    elsif layout_engine == "Yoga"
+      dom_exclude_files.append('dom/include/dom/taitank_layout_node.h')
+      dom_exclude_files.append('dom/src/dom/taitank_layout_node.cc')
+    end
+ 
+    dom.libraries = 'c++'
+    dom.source_files = dom_source_files 
+    dom.public_header_files = ['dom/include/**/*.h', 'modules/ios/domutils/*.h']
+    dom.exclude_files = dom_exclude_files
+    dom.pod_target_xcconfig = {
+      'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+      'HEADER_SEARCH_PATHS' => dom_pod_target_header_path
+    }
+    dom.user_target_xcconfig = {
+      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/dom/include/'
+    }
+    dom.dependency 'hippy/Footstone'
+    if layout_engine == "Taitank"
+      dom.dependency 'hippy/Taitank'
+    elsif layout_engine == "Yoga"
+      dom.dependency 'hippy/Yoga'
+    end  
+    dom.preserve_path = 'dom'
+    puts 'hippy subspec \'dom\' read end'
+  end 
+
+  if layout_engine == "Taitank"
+    s.subspec 'Taitank' do |taitank|
+      puts 'hippy subspec \'Taitank\' read begin'
+      taitank.source_files = ['dom/dom_project/_deps/taitank-src/src/*.{h,cc}']
+      taitank.private_header_files = 'dom/include/dom/taitank_layout_node.h'
+      taitank.pod_target_xcconfig = {
+        'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+        'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/dom/dom_project/_deps/taitank-src/src'
+      }
+      taitank.libraries = 'c++'
+      taitank.preserve_path = 'dom/dom_project'
+      puts 'hippy subspec \'Taitank\' read end'
+    end
+  elsif layout_engine == "Yoga"
+    s.subspec 'Yoga' do |yoga|
+      puts 'hippy subspec \'yoga\' read begin'
+      yoga.source_files = ['dom/dom_project/_deps/yoga-src/yoga/**/*.{c,h,cpp}']
+      yoga.private_header_files = 'dom/include/dom/yoga_layout_node.h'
+      yoga.pod_target_xcconfig = {
+        'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+        'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/dom/dom_project/_deps/yoga-src'
+      }
+      yoga.libraries = 'c++'
+      yoga.preserve_path = 'dom/dom_project'
+      puts 'hippy subspec \'yoga\' read end'
+    end
+  end
 
   #devtools subspec
   s.subspec 'DevTools' do |devtools|
@@ -159,6 +201,14 @@ Pod::Spec.new do |s|
       #test files
       'devtools/devtools-integration/ios/DevtoolsBackend/_deps/**/*test*/**/*',
       'devtools/devtools-integration/ios/DevtoolsBackend/_deps/**/*test*',
+      #benchmark files
+      'devtools/devtools-integration/ios/DevtoolsBackend/_deps/**/benchmark/**',
+      #js files
+      'devtools/devtools-integration/ios/DevtoolsBackend/_deps/**/javascript/**',
+      #Dom includes all taitank or yoga files, and Devtools dependends on Dom, so let Dom does the including work, otherwise, 'duplicated symbols' error occurs
+      #taitank or yoga files
+      #currently Devtools specify taitank layout 
+      'devtools/devtools-integration/ios/DevtoolsBackend/_deps/taitank-*/**/*',
       #other files
       'devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/lib/lib_openmp.c',
       'devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/lib/tables/table_generator.c',
@@ -202,8 +252,9 @@ Pod::Spec.new do |s|
                               ' ${PODS_ROOT}/hippy/devtools/devtools-integration/ios/DevtoolsBackend/_deps/json-src/include',
       'GCC_PREPROCESSOR_DEFINITIONS' => 'ENABLE_INSPECTOR=1'
     }
-    #base64 contains mutiple files named 'codec.c' in different paths, so we need to keep file structure to avoid files overridings.
-    # devtools.header_mappings_dir = 'devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src'
+    devtools.dependency 'hippy/Footstone'
+    devtools.dependency 'hippy/Dom'
+    devtools.dependency 'hippy/VFS'
     devtools.preserve_path = 'devtools'
     puts 'hippy subspec \'devtools\' read end'
   end

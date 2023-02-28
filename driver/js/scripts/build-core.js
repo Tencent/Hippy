@@ -275,5 +275,5 @@ function generateCpp(platform, buildDirPath) {
 
 // Start to work
 generateCpp('ios', getAbsolutePath('../../../framework/ios/base'));
-generateCpp('android', getAbsolutePath('../../../framework/android/src/main/cpp/src/bridge/'));
-generateCpp('flutter', getAbsolutePath('../flutter/core/src/bridge/'));
+generateCpp('android', getAbsolutePath('../../../framework/android/connector/driver/js/src/main/cpp/src/'));
+generateCpp('flutter', getAbsolutePath('../../../framework/voltron/core/src/bridge/'));

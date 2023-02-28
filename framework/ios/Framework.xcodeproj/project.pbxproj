@@ -102,6 +102,7 @@
 		F4827F832970209800085A05 /* libImage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4827F822970209800085A05 /* libImage.a */; };
 		F4827F872970209800085A05 /* libVFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4827F862970209800085A05 /* libVFS.a */; };
 		F4827F882970209B00085A05 /* libFramework.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F44E1AC129248B520091BCA4 /* libFramework.a */; };
+		F4FD1855298906040011CE45 /* libdom.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4FD1854298906040011CE45 /* libdom.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -244,6 +245,7 @@
 		F4827F822970209800085A05 /* libImage.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libImage.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4827F842970209800085A05 /* libNativeRender.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libNativeRender.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4827F862970209800085A05 /* libVFS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libVFS.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4FD1854298906040011CE45 /* libdom.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libdom.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -264,6 +266,7 @@
 				F4827F812970209800085A05 /* libBase.a in Frameworks */,
 				F4311E032988C00F00B4BB9F /* libdevtools_backend.a in Frameworks */,
 				F4311E052988C71300B4BB9F /* libdevtools_integration_native.a in Frameworks */,
+				F4FD1855298906040011CE45 /* libdom.a in Frameworks */,
 				F4827F832970209800085A05 /* libImage.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -590,6 +593,7 @@
 		F4827F3D29701F4900085A05 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F4FD1854298906040011CE45 /* libdom.a */,
 				F4311E042988C71300B4BB9F /* libdevtools_integration_native.a */,
 				F4311E022988C00F00B4BB9F /* libdevtools_backend.a */,
 				F4311E002988BB4F00B4BB9F /* libNativeRenderer.a */,
@@ -986,6 +990,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"${SRCROOT}/../../devtools/devtools-integration/ios/DevtoolsBackend/devtools-integration/native/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}",
 					"${SRCROOT}/../../devtools/devtools-integration/ios/DevtoolsBackend/infa_packages/devtools_backend/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}",
+					"${SRCROOT}/../../dom/dom_project/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1020,6 +1025,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"${SRCROOT}/../../devtools/devtools-integration/ios/DevtoolsBackend/devtools-integration/native/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}",
 					"${SRCROOT}/../../devtools/devtools-integration/ios/DevtoolsBackend/infa_packages/devtools_backend/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}",
+					"${SRCROOT}/../../dom/dom_project/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";

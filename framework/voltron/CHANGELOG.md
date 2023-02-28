@@ -1,3 +1,11 @@
+## 0.0.17
+
+- update voltron_render to 0.0.9 to fix `ScrollView` UI error with `TextInput` component
+
+## 0.0.16
+
+- fix terminate crash
+
 ## 0.0.15
 
 - update voltron_render to 0.0.8 to remove fluttertoast plugin

@@ -58,6 +58,7 @@ renderer/flutter/example/ios/.symlinks/*
 renderer/native/android/src/main/jni/lib/*
 
 dom/lib/*
+dom/dom_project/*
 
 devtools/devtools-backend/lib/*
 devtools/devtools-backend/test/build/*
@@ -72,6 +73,7 @@ framework/voltron/**/doc/api/
 .pub/
 /captures
 .flutter-plugins-dependencies
+pubspec.lock
 generated_plugin_registrant.dart
 GeneratedPluginRegistrant.java
 framework/voltron/**/.generated/

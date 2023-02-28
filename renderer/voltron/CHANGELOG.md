@@ -1,3 +1,7 @@
+## 0.0.9
+
+- fix scrollView UI error with TextInput component
+
 ## 0.0.8
 
 - remove fluttertoast plugin

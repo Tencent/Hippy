@@ -42,9 +42,6 @@ CMakeLists.txt @medns
 # framework: voltron
 /framework/voltron/ @lvfen @skindhu
 
-# dom: layout
-/layout/ @ilikethese
-
 # dom: others
 /dom/ @churchill-zhang @ilikethese
 

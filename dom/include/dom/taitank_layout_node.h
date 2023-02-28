@@ -22,16 +22,18 @@
 
 #include <cstdint>
 #include "dom/layout_node.h"
-#include "engine/HPNode.h"
+#include "taitank.h"
 
 namespace hippy {
 inline namespace dom {
+
+using namespace taitank;
 
 class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this<TaitankLayoutNode> {
  public:
   TaitankLayoutNode();
 
-  TaitankLayoutNode(HPNodeRef engine_node_);
+  TaitankLayoutNode(TaitankNodeRef engine_node_);
 
   virtual ~TaitankLayoutNode();
 
@@ -162,7 +164,7 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @brief 获取 taitank engine node pointer
    * @return HPNodeRef 属性
    */
-  HPNodeRef GetLayoutEngineNodeRef() { return engine_node_; }
+  TaitankNodeRef GetLayoutEngineNodeRef() { return engine_node_; }
 
   /**
    * @brief 插入子节点
@@ -222,7 +224,7 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @brief 设置方向
    * @param direction 方向(DirectionInherit|DirectionLTR|DirectionRTL)
    */
-  void SetDirection(HPDirection direction);
+  void SetDirection(TaitankDirection direction);
 
   /**
    * @brief 设置 max width 属性
@@ -381,7 +383,7 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
   std::weak_ptr<TaitankLayoutNode> parent_;
   std::vector<std::shared_ptr<TaitankLayoutNode>> children_;
 
-  HPNodeRef engine_node_;
+  TaitankNodeRef engine_node_;
   int64_t key_;
 };
 

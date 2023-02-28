@@ -32,7 +32,6 @@
 #import "NativeRenderView.h"
 #import "UIView+DirectionalLayout.h"
 #import "UIView+NativeRender.h"
-#import "HPConvert+HPLayout.h"
 
 #include <objc/runtime.h>
 
@@ -312,9 +311,9 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffset, NSDictionary, NativeRenderView)
     }
 }
 
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(overflow, OverflowType, NativeRenderView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(overflow, NSString, NativeRenderView) {
     if (json) {
-        view.clipsToBounds = [HPConvert OverflowType:json] != OverflowVisible;
+        view.clipsToBounds = ![json isEqualToString:@"visible"];
     } else {
         view.clipsToBounds = defaultView.clipsToBounds;
     }
@@ -461,16 +460,7 @@ NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(flexGrow, CGFloat)
 NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(flexShrink, CGFloat)
 NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(flexBasis, CGFloat)
 
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(flexDirection, FlexDirection)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(flexWrap, FlexWrapMode)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(justifyContent, FlexAlign)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(alignItems, FlexAlign)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(alignSelf, FlexAlign)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(position, PositionType)
-
-NATIVE_RENDER_REMAP_RENDER_OBJECT_PROPERTY(display, displayType, DisplayType)
-
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(overflow, OverflowType)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(overflow, NSString)
 
 NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(onLayout, NativeRenderDirectEventBlock)
 
@@ -481,25 +471,25 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onDetachedFromWindow, NativeRenderDirectEvent
 
 NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(zIndex, NSInteger)
 
-static inline HPDirection ConvertDirection(id direction) {
+static inline hippy::Direction ConvertDirection(id direction) {
     if (!direction) {
-        return DirectionInherit;
+        return hippy::Inherit;
     }
     if ([direction isKindOfClass:[NSNumber class]]) {
-        return (HPDirection)[direction intValue];
+        return (hippy::Direction)[direction intValue];
     }
     else if ([direction isKindOfClass:[NSString class]]) {
         if ([direction isEqualToString:@"rtl"]) {
-            return DirectionRTL;
+            return hippy::RTL;
         }
         else if ([direction isEqualToString:@"ltr"]) {
-            return DirectionLTR;
+            return hippy::LTR;
         }
         else {
-            return DirectionInherit;
+            return hippy::Inherit;
         }
     }
-    return DirectionInherit;
+    return hippy::Inherit;
 }
 
 NATIVE_RENDER_CUSTOM_RENDER_OBJECT_PROPERTY(direction, id, NativeRenderObjectView) {

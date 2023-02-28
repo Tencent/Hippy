@@ -86,7 +86,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     return layout;
 }
 
-- (void)applyLayoutDirectionFromParent:(HPDirection)direction {
+- (void)applyLayoutDirectionFromParent:(hippy::Direction)direction {
     [super applyLayoutDirectionFromParent:direction];
     [self.collectionView removeFromSuperview];
     [self initCollectionView];

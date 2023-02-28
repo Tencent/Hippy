@@ -62,9 +62,9 @@ For iOS, we recommend to use iOS simulator when first try. However, you can chan
 
 3. Choose a demo to build with `npm run buildexample [hippy-react-demo|hippy-vue-demo]`.
 
-4. Install Xcodegen with `brew install xcodegen`, install CocoaPods with `brew install cocoapods`, install cmake with `brew install cmake`, then execute `xcodgen` command at `framework/examples/ios-demo` directory, which will create `HippyDemo.xcodeproj` and `HippyDemo.xcworkspace` files and install Cocoapods dependencies.
+4. Install Xcodegen with `brew install xcodegen`, install CocoaPods with `brew install cocoapods`, install cmake with `brew install cmake`, then execute `xcodegen` command at `framework/examples/ios-demo` directory, which will create `HippyDemo.xcodeproj` and `HippyDemo.xcworkspace` files and install Cocoapods dependencies.
 
-5. Start the Xcode and build the iOS app with `open framework/examples/ios-demo/HippyDemo.xcworkspace`.
+5. Start the Xcode and build the iOS app with opening `framework/examples/ios-demo/HippyDemo.xcworkspace`.
 
 > If `Step 2` throw error, you can `cd` to `driver/js/examples` hippy-react-demo or hippy-vue-demo, and run `npm install` to install demo dependencies first.
 >

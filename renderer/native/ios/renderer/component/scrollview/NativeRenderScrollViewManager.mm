@@ -90,10 +90,10 @@ NATIVE_RENDER_REMAP_VIEW_PROPERTY(contentInset, _scrollView.contentInset, UIEdge
 // is set to from js we want to clip drawing or not. This piece of code ensures
 // that css-layout is always treating the contents of a scroll container as
 // overflow: 'scroll'.
-NATIVE_RENDER_CUSTOM_RENDER_OBJECT_PROPERTY(overflow, OverflowType, NativeRenderObjectView) {
-    (void)json;
-    view.overflow = OverflowScroll;
-}
+//NATIVE_RENDER_CUSTOM_RENDER_OBJECT_PROPERTY(overflow, OverflowType, NativeRenderObjectView) {
+//    (void)json;
+//    view.overflow = OverflowScroll;
+//}
 
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)componentTag

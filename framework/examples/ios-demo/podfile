@@ -1,3 +1,4 @@
+ENV["layout_engine"]="Taitank"
 install! 'cocoapods',
          :deterministic_uuids => false,
          :generate_multiple_pod_projects => true
@@ -5,7 +6,7 @@ install! 'cocoapods',
 workspace 'HippyDemo.xcworkspace'
 
 target "HippyDemo" do
-    pod 'Hippy', :path => '../../..'
+    pod 'hippy', :path => '../../..'
 end
 
 def rewriteConfigFile(path, originString, targetString)

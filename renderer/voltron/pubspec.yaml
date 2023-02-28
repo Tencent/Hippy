@@ -23,7 +23,7 @@
 
 name: voltron_renderer
 description: voltron renderer
-version: 0.0.8
+version: 0.0.9
 homepage: https://hippyjs.org
 repository: https://github.com/Tencent/Hippy
 
