@@ -34,7 +34,6 @@ import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
-import com.tencent.renderer.ControllerProvider;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,12 +91,9 @@ public class MyActivity extends Activity
 					LogUtils.e("hippy", details);
 				}
 			};
-			List<HippyAPIProvider> moduleProviders = new ArrayList<>();
-			moduleProviders.add(new MyAPIProvider());
-			initParams.moduleProviders = moduleProviders;
-			List<ControllerProvider> controllerProviders = new ArrayList<>();
-			controllerProviders.add(new MyControllerProvider());
-			initParams.controllerProviders = controllerProviders;
+			List<HippyAPIProvider> providers = new ArrayList<>();
+			providers.add(new MyAPIProvider());
+			initParams.providers = providers;
 
 			// 可选： 是否启用turbo能力
 			initParams.enableTurbo = true;

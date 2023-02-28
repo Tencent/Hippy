@@ -57,7 +57,6 @@ import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
-import com.tencent.renderer.ControllerProvider;
 import com.tencent.renderer.FrameworkProxy;
 import com.tencent.renderer.component.image.ImageDecoderAdapter;
 import com.tencent.renderer.component.text.FontAdapter;
@@ -65,6 +64,7 @@ import com.tencent.vfs.DefaultProcessor;
 import com.tencent.vfs.Processor;
 import com.tencent.vfs.VfsManager;
 import com.openhippy.connector.JsDriver.V8InitParams;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,8 +95,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     /**
      * providers
      */
-    final List<HippyAPIProvider> mModuleProviders;
-    final List<ControllerProvider> mControllerProviders;
+    final List<HippyAPIProvider> mProviders;
+
     List<Processor> mProcessors;
     /**
      * Dev support manager
@@ -151,8 +151,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         mGlobalConfigs = new HippyGlobalConfigs(params);
         mCoreBundleLoader = coreBundleLoader;
         mPreloadBundleLoader = preloadBundleLoader;
-        mModuleProviders = params.moduleProviders;
-        mControllerProviders = params.controllerProviders;
+        mProviders = params.providers;
         mProcessors = params.processors;
         mDebugMode = params.debugMode;
         mServerBundleName = params.debugMode ? params.debugBundleName : "";
@@ -221,11 +220,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mDestroyModuleListeners.clear();
             mDestroyModuleListeners = null;
         }
-        if (mModuleProviders != null) {
-            mModuleProviders.clear();
-        }
-        if (mControllerProviders != null) {
-            mControllerProviders.clear();
+        if (mProviders != null) {
+            mProviders.clear();
         }
         if (mProcessors != null) {
             mProcessors.clear();
@@ -342,15 +338,26 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         return null;
     }
 
-    public void addControllers(@NonNull List<Class<?>> controllers) {
+    public void addControllers(@NonNull List<HippyAPIProvider> providers) {
         if (mEngineContext != null) {
-            mEngineContext.getRenderer().addControllers(controllers);
+            List<Class<?>> controllers = null;
+            for (HippyAPIProvider provider : providers) {
+                if (provider != null && provider.getControllers() != null) {
+                    if (controllers == null) {
+                        controllers = new ArrayList<>();
+                    }
+                    controllers.addAll(provider.getControllers());
+                }
+            }
+            if (controllers != null) {
+                mEngineContext.getRenderer().addControllers(controllers);
+            }
         }
     }
 
-    public void addModules(@NonNull List<HippyAPIProvider> modules) {
+    public void addModules(@NonNull List<HippyAPIProvider> providers) {
         if (mEngineContext != null) {
-            mEngineContext.getModuleManager().addModules(modules);
+            mEngineContext.getModuleManager().addModules(providers);
         }
     }
 
@@ -760,7 +767,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                         getDevSupportManager().createDebugUrl(mServerHost));
                 //mVfsManager.addProcessorAtFirst(new DevtoolsProcessor(mDevtoolsManager.getId()));
             }
-            mModuleManager = new HippyModuleManagerImpl(this, mModuleProviders,
+            mModuleManager = new HippyModuleManagerImpl(this, mProviders,
                     enableV8Serialization);
             mJsDriver = new JsDriver();
             mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader,
@@ -772,13 +779,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mRenderer.attachToDom(mDomManager);
             mRenderer.setFrameworkProxy(HippyEngineManagerImpl.this);
             List<Class<?>> controllers = null;
-            if (mControllerProviders != null) {
-                for (ControllerProvider provider : mControllerProviders) {
+            for (HippyAPIProvider provider : mProviders) {
+                if (provider != null && provider.getControllers() != null) {
                     if (controllers == null) {
-                        controllers = provider.getControllers();
-                    } else {
-                        controllers.addAll(provider.getControllers());
+                        controllers = new ArrayList<>();
                     }
+                    controllers.addAll(provider.getControllers());
                 }
             }
             mRenderer.init(controllers, mRootView);
