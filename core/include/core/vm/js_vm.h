@@ -3,7 +3,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,22 +22,31 @@
 
 #pragma once
 
-#include <stdbool.h>
-#include <stddef.h>
+#include <memory>
 
-#include <string>
-
-#include "core/napi/js_native_api_types.h"
+#include "base/logging.h"
+#include "core/napi/js_ctx.h"
 
 namespace hippy {
-namespace napi {
+namespace vm {
 
-std::shared_ptr<CtxValue> GetInternalBindingFn(const std::shared_ptr<Scope>& scope);
+struct VMInitParam {};
+
+class VM {
+ public:
+  using unicode_string_view = tdf::base::unicode_string_view;
+  using Ctx = hippy::napi::Ctx;
+  using CtxValue = hippy::napi::CtxValue;
+
+  VM(std::shared_ptr<VMInitParam> param = nullptr) {}
+  virtual ~VM() { TDF_BASE_DLOG(INFO) << "~VM"; }
+
+  static std::shared_ptr<CtxValue> ParseJson(const std::shared_ptr<Ctx>& ctx, const unicode_string_view& json);
+
+  virtual std::shared_ptr<Ctx> CreateContext() = 0;
+};
 
 std::shared_ptr<VM> CreateVM(const std::shared_ptr<VMInitParam>& param);
 
-std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable,
-                                              std::shared_ptr<Ctx> ctx);
-
-}  // namespace napi
-}  // namespace hippy
+}
+}

@@ -3,7 +3,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2021 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,8 +20,33 @@
  *
  */
 
-#import "HippyOCTurboModule.h"
+#pragma once
 
-@interface TurboConfig : HippyOCTurboModule
+#include "core/vm/js_vm.h"
 
-@end
+#include <JavaScriptCore/JavaScriptCore.h>
+
+#include "base/unicode_string_view.h"
+#include "core/napi/js_ctx.h"
+
+namespace hippy {
+namespace vm {
+
+class JSCVM : public VM {
+public:
+  JSCVM(): VM(nullptr) { vm_ = JSContextGroupCreate(); }
+
+  ~JSCVM() {
+    JSContextGroupRelease(vm_);
+    vm_ = nullptr;
+  }
+  JSContextGroupRef vm_;
+
+  virtual void RegisterUncaughtExceptionCallback();
+  virtual std::shared_ptr<Ctx> CreateContext();
+  
+  static JSStringRef CreateJSCString(const tdf::base::unicode_string_view& str_view);
+};
+
+}
+}

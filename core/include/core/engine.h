@@ -28,9 +28,9 @@
 
 #include "base/logging.h"
 #include "core/base/common.h"
-#include "core/napi/js_native_api_types.h"
 #include "core/task/javascript_task_runner.h"
 #include "core/task/worker_task_runner.h"
+#include "core/vm/js_vm.h"
 
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
 #include "core/inspector/v8_inspector_client_impl.h"
@@ -41,8 +41,8 @@ class Scope;
 class Engine: public std::enable_shared_from_this<Engine> {
  public:
   using RegisterMap = hippy::base::RegisterMap;
-  using VM = hippy::napi::VM;
-  using VMInitParam = hippy::napi::VMInitParam;
+  using VM = hippy::vm::VM;
+  using VMInitParam = hippy::vm::VMInitParam;
   using RegisterFunction = hippy::base::RegisterFunction;
 
   Engine();
@@ -50,12 +50,22 @@ class Engine: public std::enable_shared_from_this<Engine> {
 
   void AsyncInit(const std::shared_ptr<VMInitParam>& param = nullptr,
                  std::unique_ptr<RegisterMap> map = std::make_unique<RegisterMap>());
-  std::shared_ptr<Scope> CreateScope(
-      const std::string& name = "",
-      std::unique_ptr<RegisterMap> map = std::unique_ptr<RegisterMap>());
-  inline std::shared_ptr<VM> GetVM() { return vm_; }
-
+  int32_t SyncInit(const std::shared_ptr<VM>& vm);
   void TerminateRunner();
+
+  std::shared_ptr<Scope> AsyncCreateScope(
+      const std::string& name = "",
+      std::unordered_map<std::string, std::string> init_param = {},
+      std::unique_ptr<RegisterMap> map = std::unique_ptr<RegisterMap>());
+
+  std::shared_ptr<Scope> SyncCreateScope(std::unique_ptr<RegisterMap> map);
+
+  std::shared_ptr<Scope> SyncCreateScope(
+      const std::string& name = "",
+      std::unordered_map<std::string, std::string> init_param = {},
+      std::unique_ptr<RegisterMap> map = std::unique_ptr<RegisterMap>());
+
+  inline std::shared_ptr<VM> GetVM() { return vm_; }
   inline std::shared_ptr<JavaScriptTaskRunner> GetJSRunner() {
     return js_runner_;
   }

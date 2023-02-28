@@ -29,13 +29,14 @@
 #include <memory>
 
 #include "core/core.h"
-#include "jni/turbo_module_runtime.h"
+#include "jni/java_turbo_module.h"
 #include "jni/scoped_java_ref.h"
 #include "v8/interrupt_queue.h"
 
 class Runtime {
  public:
   using Bridge = hippy::Bridge;
+  using CtxValue = hippy::napi::CtxValue;
 #ifndef V8_WITHOUT_INSPECTOR
   using V8InspectorContext = hippy::inspector::V8InspectorContext;
 #endif
@@ -65,12 +66,12 @@ class Runtime {
   }
   inline std::shared_ptr<V8InspectorContext> GetInspectorContext() { return inspector_context_; }
 #endif
-  inline std::shared_ptr<TurboModuleRuntime> GetTurboModuleRuntime() {
-    return turbo_module_runtime_;
+  inline std::shared_ptr<JavaRef> GetTurboManager() {
+    return turbo_manager_;
   }
-  inline void SetTurboModuleRuntime(
-      std::shared_ptr<TurboModuleRuntime> turbo_module_runtime) {
-    turbo_module_runtime_ = turbo_module_runtime;
+
+  inline void SetTurboModuleManager(std::shared_ptr<JavaRef> turbo_manager) {
+    turbo_manager_ = turbo_manager;
   }
 
   inline std::any GetData(uint8_t slot) {
@@ -111,11 +112,11 @@ class Runtime {
   std::shared_ptr<Scope> scope_;
   std::shared_ptr<hippy::napi::CtxValue> bridge_func_;
   int32_t id_;
-  std::shared_ptr<TurboModuleRuntime> turbo_module_runtime_;
   std::unordered_map<uint32_t, std::any> slot_;
   std::shared_ptr<hippy::InterruptQueue> interrupt_queue_;
   std::function<size_t(void*, size_t, size_t)> near_heap_limit_cb_;
 #ifndef V8_WITHOUT_INSPECTOR
   std::shared_ptr<V8InspectorContext> inspector_context_;
 #endif
+  std::shared_ptr<JavaRef> turbo_manager_;
 };

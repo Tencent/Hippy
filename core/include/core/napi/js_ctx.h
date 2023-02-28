@@ -3,7 +3,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,14 +31,11 @@
 #include "base/logging.h"
 #include "core/base/common.h"
 #include "core/base/js_value_wrapper.h"
-
-class Scope;
+#include "core/napi/callback_info.h"
+#include "core/napi/js_ctx_value.h"
 
 namespace hippy {
 namespace napi {
-
-static const char kErrorHandlerJSName[] = "ExceptionHandle.js";
-static const char kHippyErrorHandlerName[] = "HippyExceptionHandler";
 
 enum PropertyAttribute {
   /** None. **/
@@ -51,17 +48,6 @@ enum PropertyAttribute {
   DontDelete = 1 << 2
 };
 
-class CallbackInfo;
-using JsCallback = std::function<void(const CallbackInfo& info)>;
-
-// Map: FunctionName -> Callback (e.g. "Log" -> ConsoleModule::Log)
-using ModuleClass =
-    std::unordered_map<tdf::base::unicode_string_view, hippy::napi::JsCallback>;
-
-// Map: ClassName -> ModuleClass (e.g. "ConsoleModule" -> [ModuleClass])
-using ModuleClassMap =
-    std::unordered_map<tdf::base::unicode_string_view, ModuleClass>;
-
 enum Encoding {
   UNKNOWN_ENCODING,
   ONE_BYTE_ENCODING,
@@ -69,10 +55,63 @@ enum Encoding {
   UTF8_ENCODING
 };
 
-class CtxValue {
+class CBTuple {
  public:
-  CtxValue() {}
-  virtual ~CtxValue() {}
+  CBTuple(hippy::base::RegisterFunction fn, void* data): fn_(fn), data_(data) {}
+  hippy::base::RegisterFunction fn_;
+  void* data_;
+};
+
+class FuncWrapper {
+ public:
+  FuncWrapper(JsCallback cb, void* data): cb(cb), data(data) {}
+
+  JsCallback cb;
+  void* data;
+};
+
+struct PropertyDescriptor {
+  std::shared_ptr<CtxValue> name;
+  bool has_method;
+  std::unique_ptr<FuncWrapper> method;
+  bool has_getter;
+  std::unique_ptr<FuncWrapper> getter;
+  bool has_setter;
+  std::unique_ptr<FuncWrapper> setter;
+  std::shared_ptr<CtxValue> value;
+  PropertyAttribute attr;
+  void* data;
+
+  PropertyDescriptor(std::shared_ptr<CtxValue> name,
+                     std::unique_ptr<FuncWrapper> method,
+                     std::unique_ptr<FuncWrapper> getter,
+                     std::unique_ptr<FuncWrapper> setter,
+                     std::shared_ptr<CtxValue> value,
+                     PropertyAttribute attr,
+                     void* data) {
+    this->name = name;
+    this->method = std::move(method);
+    this->getter = std::move(getter);
+    this->setter = std::move(setter);
+    this->value = value;
+    this->attr = attr;
+    this->data = data;
+    if (this->method) {
+      has_method = true;
+    } else {
+      has_method = false;
+    }
+    if (this->getter) {
+      has_getter = true;
+    } else {
+      has_getter = false;
+    }
+    if (this->setter) {
+      has_setter = true;
+    } else {
+      has_setter = false;
+    }
+  }
 };
 
 class Ctx {
@@ -83,44 +122,46 @@ class Ctx {
   Ctx() {}
   virtual ~Ctx() { TDF_BASE_DLOG(INFO) << "~Ctx"; }
 
-  virtual bool RegisterGlobalInJs() = 0;
-  virtual bool SetGlobalJsonVar(const unicode_string_view& name,
-                                const unicode_string_view& json) = 0;
-  virtual bool SetGlobalStrVar(const unicode_string_view& name,
-                               const unicode_string_view& str) = 0;
-  virtual bool SetGlobalObjVar(const unicode_string_view& name,
-                               const std::shared_ptr<CtxValue>& obj,
-                               const PropertyAttribute& attr) = 0;
-  virtual std::shared_ptr<CtxValue> GetGlobalStrVar(
-      const unicode_string_view& name) = 0;
-  virtual std::shared_ptr<CtxValue> GetGlobalObjVar(
-      const unicode_string_view& name) = 0;
+  virtual std::shared_ptr<CtxValue> DefineProxy(const std::unique_ptr<FuncWrapper>& constructor_wrapper) = 0;
+
+  virtual std::shared_ptr<CtxValue> DefineClass(unicode_string_view name,
+                                                const std::unique_ptr<FuncWrapper>& constructor_wrapper,
+                                                size_t property_count,
+                                                std::shared_ptr<PropertyDescriptor> properties[]) = 0;
+  virtual std::shared_ptr<CtxValue> NewInstance(const std::shared_ptr<CtxValue>& cls,
+                                                int argc, std::shared_ptr<CtxValue> argv[],
+                                                void* external) = 0;
+  virtual std::shared_ptr<CtxValue> GetGlobalObject() = 0;
+  virtual bool SetProperty(std::shared_ptr<CtxValue> object,
+                           std::shared_ptr<CtxValue> key,
+                           std::shared_ptr<CtxValue> value) = 0;
+  virtual bool SetProperty(std::shared_ptr<CtxValue> object,
+                           std::shared_ptr<CtxValue> key,
+                           std::shared_ptr<CtxValue> value,
+                           const PropertyAttribute& attr) = 0;
+  virtual std::shared_ptr<CtxValue> GetProperty(
+      const std::shared_ptr<CtxValue>& object,
+      std::shared_ptr<CtxValue> key) = 0;
   virtual std::shared_ptr<CtxValue> GetProperty(
       const std::shared_ptr<CtxValue>& object,
       const unicode_string_view& name) = 0;
-
-  virtual void RegisterGlobalModule(const std::shared_ptr<Scope>& scope,
-                                    const ModuleClassMap& modules) = 0;
-  virtual void RegisterNativeBinding(const unicode_string_view& name,
-                                     hippy::base::RegisterFunction fn,
-                                     void* data) = 0;
-
+  virtual std::shared_ptr<CtxValue> CreateObject() = 0;
   virtual std::shared_ptr<CtxValue> CreateNumber(double number) = 0;
   virtual std::shared_ptr<CtxValue> CreateBoolean(bool b) = 0;
   virtual std::shared_ptr<CtxValue> CreateString(
       const unicode_string_view& string) = 0;
   virtual std::shared_ptr<CtxValue> CreateUndefined() = 0;
   virtual std::shared_ptr<CtxValue> CreateNull() = 0;
-  virtual std::shared_ptr<CtxValue> ParseJson(const unicode_string_view& json) = 0;
+  virtual std::shared_ptr<CtxValue> CreateFunction(std::unique_ptr<hippy::napi::FuncWrapper>& wrapper) = 0;
   virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<
-      unicode_string_view,
-      std::shared_ptr<CtxValue>>& object) = 0;
+  unicode_string_view,
+  std::shared_ptr<CtxValue>>& object) = 0;
   virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<
-      std::shared_ptr<CtxValue>,
-      std::shared_ptr<CtxValue>>& object) = 0;
+  std::shared_ptr<CtxValue>,
+  std::shared_ptr<CtxValue>>& object) = 0;
   virtual std::shared_ptr<CtxValue> CreateMap(const std::map<
-      std::shared_ptr<CtxValue>,
-      std::shared_ptr<CtxValue>>& map) = 0;
+  std::shared_ptr<CtxValue>,
+  std::shared_ptr<CtxValue>>& map) = 0;
   virtual std::shared_ptr<CtxValue> CreateArray(
       size_t count,
       std::shared_ptr<CtxValue> value[]) = 0;
@@ -162,17 +203,16 @@ class Ctx {
       const unicode_string_view& name) = 0;
   // Function Helpers
 
+  virtual bool IsString(const std::shared_ptr<CtxValue>& value) = 0;
   virtual bool IsFunction(const std::shared_ptr<CtxValue>& value) = 0;
-  virtual unicode_string_view CopyFunctionName(
-      const std::shared_ptr<CtxValue>& value) = 0;
+  virtual bool IsObject(const std::shared_ptr<CtxValue>& value) = 0;
+  virtual unicode_string_view CopyFunctionName(const std::shared_ptr<CtxValue>& value) = 0;
 
   virtual std::shared_ptr<CtxValue> RunScript(
       const unicode_string_view& data,
       const unicode_string_view& file_name) = 0;
-  virtual std::shared_ptr<CtxValue> GetJsFn(
-      const unicode_string_view& name) = 0;
 
-  virtual void ThrowException(const std::shared_ptr<CtxValue> &exception) = 0;
+  virtual void ThrowException(const std::shared_ptr<CtxValue>& exception) = 0;
   virtual void ThrowException(const unicode_string_view& exception) = 0;
   virtual void HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) = 0;
 
@@ -180,54 +220,9 @@ class Ctx {
       const std::shared_ptr<CtxValue>& value) = 0;
   virtual std::shared_ptr<CtxValue> CreateCtxValue(
       const std::shared_ptr<JSValueWrapper>& wrapper) = 0;
+
+  virtual void SetExternalData(void* data) = 0;
 };
 
-struct VMInitParam {};
-
-class VM {
- public:
-  VM(std::shared_ptr<VMInitParam> param = nullptr){}
-  virtual ~VM() { TDF_BASE_DLOG(INFO) << "~VM"; }
-
-  virtual std::shared_ptr<Ctx> CreateContext() = 0;
-};
-
-class TryCatch {
- public:
-  explicit TryCatch(bool enable = false, std::shared_ptr<Ctx> ctx = nullptr)
-      : enable_(enable), ctx_(ctx) {}
-  virtual ~TryCatch() {}
-  virtual void ReThrow() = 0;
-  virtual bool HasCaught() = 0;
-  virtual bool CanContinue() = 0;
-  virtual bool HasTerminated() = 0;
-  virtual bool IsVerbose() = 0;
-  virtual void SetVerbose(bool verbose) = 0;
-  virtual std::shared_ptr<CtxValue> Exception() = 0;
-  virtual tdf::base::unicode_string_view GetExceptionMsg() = 0;
-
- protected:
-  bool enable_;
-  std::shared_ptr<Ctx> ctx_;
-};
-
-class BindingData {
- public:
-  std::weak_ptr<Scope> scope_;
-  ModuleClassMap map_;
-
-  BindingData(std::weak_ptr<Scope> scope, ModuleClassMap map)
-      : scope_(scope), map_(map) {}
-};
-
-class FunctionData {
- public:
-  std::weak_ptr<Scope> scope_;
-  JsCallback callback_;
-
-  FunctionData(std::weak_ptr<Scope> scope, JsCallback callback)
-      : scope_(scope), callback_(callback) {}
-};
-
-}  // namespace napi
-}  // namespace hippy
+}
+}

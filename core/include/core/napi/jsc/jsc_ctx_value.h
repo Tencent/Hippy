@@ -3,7 +3,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,17 +22,26 @@
 
 #pragma once
 
+#include "core/napi/js_ctx_value.h"
+
 #include <JavaScriptCore/JavaScriptCore.h>
-
-#include <string>
-
-#include "core/napi/js_native_api_types.h"
-#include "core/napi/jsc/js_native_api_jsc.h"
 
 namespace hippy {
 namespace napi {
 
-std::string JsStrToUTF8(JSStringRef str);
+class JSCCtxValue : public CtxValue {
+public:
+  JSCCtxValue(JSGlobalContextRef context, JSValueRef value)
+  : context_(context), value_(value) {
+    JSValueProtect(context_, value_);
+  }
+  ~JSCCtxValue() { JSValueUnprotect(context_, value_); }
+  JSCCtxValue(const JSCCtxValue&) = delete;
+  JSCCtxValue &operator=(const JSCCtxValue&) = delete;
+  
+  JSGlobalContextRef context_;
+  JSValueRef value_;
+};
 
-}  // namespace napi
-}  // namespace hippy
+}
+}

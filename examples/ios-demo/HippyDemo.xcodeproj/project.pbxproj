@@ -9,7 +9,8 @@
 /* Begin PBXBuildFile section */
 		064C5AF023AB1A70001E80DD /* res in Resources */ = {isa = PBXBuildFile; fileRef = 064C5AEF23AB1A70001E80DD /* res */; };
 		AC63515623F92C99007FABA5 /* TTTGB-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */; };
-		F4861F8D2913984B00C4F6A0 /* TurboConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = B21E4B412708680900B6A3ED /* TurboConfig.m */; };
+		D82B61FD29A7046E006DAC69 /* libhippy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D82B61FC29A7046E006DAC69 /* libhippy.a */; };
+		F4861F8D2913984B00C4F6A0 /* TurboConfig.mm in Sources */ = {isa = PBXBuildFile; fileRef = B21E4B412708680900B6A3ED /* TurboConfig.mm */; };
 		F4861F8E2913984B00C4F6A0 /* TurboBaseModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = B21E4B432708680900B6A3ED /* TurboBaseModule.mm */; };
 		F4861F8F2913984B00C4F6A0 /* MyViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 067AB97123B5F309009D5EE2 /* MyViewManager.m */; };
 		F4861F902913984B00C4F6A0 /* MyView.m in Sources */ = {isa = PBXBuildFile; fileRef = 067AB97423B5F309009D5EE2 /* MyView.m */; };
@@ -17,7 +18,6 @@
 		F4861F922913984B00C4F6A0 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0612F02223A8BE320079E622 /* AppDelegate.m */; };
 		F4861F932913984B00C4F6A0 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0612F02823A8BE320079E622 /* ViewController.m */; };
 		F4861F942913984B00C4F6A0 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0612F03323A8BE330079E622 /* main.m */; };
-		F4AABA1D291CC43E00454C3B /* libhippy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4AABA1C291CC43E00454C3B /* libhippy.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,11 +37,11 @@
 		067AB97423B5F309009D5EE2 /* MyView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyView.m; sourceTree = "<group>"; };
 		AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "TTTGB-Medium.otf"; sourceTree = "<group>"; };
 		B21E4B3E2708680900B6A3ED /* TurboConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TurboConfig.h; sourceTree = "<group>"; };
-		B21E4B412708680900B6A3ED /* TurboConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TurboConfig.m; sourceTree = "<group>"; };
+		B21E4B412708680900B6A3ED /* TurboConfig.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TurboConfig.mm; sourceTree = "<group>"; };
 		B21E4B422708680900B6A3ED /* TurboBaseModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TurboBaseModule.h; sourceTree = "<group>"; };
 		B21E4B432708680900B6A3ED /* TurboBaseModule.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TurboBaseModule.mm; sourceTree = "<group>"; };
 		B2C1237A278C0C140081B8AF /* DemoConfigs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoConfigs.h; sourceTree = "<group>"; };
-		F4AABA1C291CC43E00454C3B /* libhippy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libhippy.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D82B61FC29A7046E006DAC69 /* libhippy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libhippy.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -49,7 +49,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F4AABA1D291CC43E00454C3B /* libhippy.a in Frameworks */,
+				D82B61FD29A7046E006DAC69 /* libhippy.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -63,7 +63,7 @@
 				064C5AEF23AB1A70001E80DD /* res */,
 				0612F02023A8BE320079E622 /* HippyDemo */,
 				0612F01F23A8BE320079E622 /* Products */,
-				F486204629139AC900C4F6A0 /* Frameworks */,
+				D838C0E129A326400069261D /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -116,17 +116,17 @@
 			isa = PBXGroup;
 			children = (
 				B21E4B3E2708680900B6A3ED /* TurboConfig.h */,
-				B21E4B412708680900B6A3ED /* TurboConfig.m */,
+				B21E4B412708680900B6A3ED /* TurboConfig.mm */,
 				B21E4B422708680900B6A3ED /* TurboBaseModule.h */,
 				B21E4B432708680900B6A3ED /* TurboBaseModule.mm */,
 			);
 			path = turbomodule;
 			sourceTree = "<group>";
 		};
-		F486204629139AC900C4F6A0 /* Frameworks */ = {
+		D838C0E129A326400069261D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				F4AABA1C291CC43E00454C3B /* libhippy.a */,
+				D82B61FC29A7046E006DAC69 /* libhippy.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -200,7 +200,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F4861F8D2913984B00C4F6A0 /* TurboConfig.m in Sources */,
+				F4861F8D2913984B00C4F6A0 /* TurboConfig.mm in Sources */,
 				F4861F8E2913984B00C4F6A0 /* TurboBaseModule.mm in Sources */,
 				F4861F8F2913984B00C4F6A0 /* MyViewManager.m in Sources */,
 				F4861F902913984B00C4F6A0 /* MyView.m in Sources */,
@@ -337,7 +337,8 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "DEBUG=1";
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../ios/sdk/**",
-					"$(SRCROOT)/../../core/include/core",
+					"$(SRCROOT)/../../core/include",
+					"$(SRCROOT)/../../core/third_party/base/include",
 				);
 				INFOPLIST_FILE = HippyDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
@@ -373,7 +374,8 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "NDEBUG=1";
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../ios/sdk/**",
-					"$(SRCROOT)/../../core/include/core",
+					"$(SRCROOT)/../../core/include",
+					"$(SRCROOT)/../../core/third_party/base/include",
 				);
 				INFOPLIST_FILE = HippyDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
