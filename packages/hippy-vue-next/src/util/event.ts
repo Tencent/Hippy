@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2023 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,23 +18,12 @@
  * limitations under the License.
  */
 
-import Native from '../runtime/native';
-import ElementNode from './element-node';
+// event method constant
+const eventMethod = {
+  ADD: 'addEventListener',
+  REMOVE: 'removeEventListener',
+};
 
-/**
- * ListItemNode element
- */
-class ListItemNode extends ElementNode {
-  /**
-   * Poly fill native event
-   */
-  polyfillNativeEvents(method, eventNames, callback, options) {
-    let name = eventNames;
-    if (eventNames === 'disappear' && Native.Platform === 'android') {
-      name = 'disAppear';
-    }
-    return { eventNames: name, callback, options };
-  }
-}
-
-export default ListItemNode;
+export {
+  eventMethod,
+};

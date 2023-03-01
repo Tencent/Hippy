@@ -75,7 +75,7 @@ describe('runtime/document/hippy-document.ts', () => {
 
   it('createElement function should return list item element when tag is list item', async () => {
     const listElement = HippyDocument.createElement('li');
-    expect(listElement.constructor.name).toEqual('HippyListItemElement');
+    expect(listElement.constructor.name).toEqual('HippyElement');
     expect(listElement.tagName).toEqual('li');
   });
 });
