@@ -33,7 +33,6 @@ import { patchProp } from '../../../src/patch-prop';
 import type { ElementComponent } from '../../../src/runtime/component/index';
 import { registerElement } from '../../../src/runtime/component/index';
 import { HippyElement } from '../../../src/runtime/element/hippy-element';
-import { HippyListItemElement } from '../../../src/runtime/element/hippy-list-item-element';
 import { EventBus } from '../../../src/runtime/event/event-bus';
 import {
   setHippyCachedInstanceParams,
@@ -41,6 +40,7 @@ import {
 } from '../../../src/util/instance';
 import { preCacheNode } from '../../../src/util/node-cache';
 import { EventsUnionType } from '../../../src/runtime/event/hippy-event';
+import BuiltInComponent from '../../../src/built-in-component';
 
 /**
  * @author birdguo
@@ -48,6 +48,23 @@ import { EventsUnionType } from '../../../src/runtime/event/hippy-event';
  * @casetype unit
  */
 describe('runtime/event/hippy-event-dispatcher.ts', () => {
+  beforeAll(() => {
+    BuiltInComponent.install();
+    const root = new HippyElement('div');
+    root.id = 'testRoot';
+    setHippyCachedInstance({
+      rootView: 'testRoot',
+      rootContainer: 'root',
+      rootViewId: 1,
+      ratioBaseWidth: 750,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      instance: {
+        $el: root,
+      },
+    });
+  });
+
   it('HippyEvent instance should have required function', async () => {
     const { EventDispatcher: eventDispatcher } = global.__GLOBAL__.jsModuleList;
     expect(eventDispatcher).toHaveProperty('receiveNativeEvent');
@@ -159,7 +176,7 @@ describe('runtime/event/hippy-event-dispatcher.ts', () => {
       },
     };
     registerElement('li', li);
-    const listItemElement = new HippyListItemElement('li');
+    const listItemElement = new HippyElement('li');
     // pre cache node
     preCacheNode(listItemElement, listItemElement.nodeId);
     // android will convert disappear to disAppear
@@ -170,7 +187,7 @@ describe('runtime/event/hippy-event-dispatcher.ts', () => {
     listItemElement.addEventListener('disappear', listCb);
     let disappearEvent = [
       listItemElement.nodeId,
-      'disAppear',
+      'onDisAppear',
     ];
     // dispatch disappear event
     eventDispatcher.receiveUIComponentEvent(disappearEvent);
@@ -181,14 +198,14 @@ describe('runtime/event/hippy-event-dispatcher.ts', () => {
     listItemElement.addEventListener('disappear', listCb);
     disappearEvent = [
       listItemElement.nodeId,
-      'disappear',
+      'onDisappear',
     ];
     // dispatch disappear event
     eventDispatcher.receiveUIComponentEvent(disappearEvent);
     expect(sign).toEqual(5);
 
     // nothing happen when there is no listener
-    const noListenerElement = new HippyListItemElement('li');
+    const noListenerElement = new HippyElement('li');
     // pre cache node
     preCacheNode(noListenerElement, noListenerElement.nodeId);
     const noListenerEvent = {

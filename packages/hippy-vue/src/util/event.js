@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2022 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2023 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,11 +18,12 @@
  * limitations under the License.
  */
 
-import { HippyListItemElement } from '../../../src/runtime/element/hippy-list-item-element';
+// event method constant
+const eventMethod = {
+  ADD: 'addEventListener',
+  REMOVE: 'removeEventListener',
+};
 
-describe('runtime/element/hippy-list-item-element', () => {
-  it('should set tag name using the constructor param.', () => {
-    const hippyListItemElement = new HippyListItemElement('li');
-    expect(hippyListItemElement.tagName).toBe('li');
-  });
-});
+export {
+  eventMethod,
+};
