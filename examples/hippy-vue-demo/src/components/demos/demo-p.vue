@@ -39,6 +39,12 @@
       <p class="p-demo-6 p-demo-content">
         腾讯字体 Hippy
       </p>
+      <p
+        class="p-demo-6 p-demo-content"
+        style="font-weight: bold"
+      >
+        设置了加粗，但找不到自定义字体的粗体版本，会以普通字体显示
+      </p>
       <label>文字阴影：</label>
       <p
         class="p-demo-7 p-demo-content"
