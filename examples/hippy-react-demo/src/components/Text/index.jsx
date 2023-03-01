@@ -265,6 +265,9 @@ export default class TextExpo extends React.Component {
         <View style={[styles.itemContent, { height: 100 }]}>
           <Text numberOfLines={1} style={styles.customFont}>Hippy 跨端框架</Text>
         </View>
+        <View style={[styles.itemContent, { height: 100 }]}>
+          <Text style={[styles.customFont, {fontWeight: 'bold', fontSize: 18}]}>设置了加粗，但找不到自定义字体的粗体版本，会以普通字体显示</Text>
+        </View>
         {renderTitle('Text Nested')}
         <View style={[styles.itemContent, { height: 150 }]}>
           <Text style={{ height: 100, lineHeight: 50 }}>
