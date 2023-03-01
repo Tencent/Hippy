@@ -23,6 +23,7 @@
 
 import { PROPERTIES_MAP } from '@css-loader/css-parser';
 import { getViewMeta, normalizeElementName } from '../elements';
+import { eventMethod } from '../util/event';
 import {
   unicodeToChar,
   capitalizeFirstLetter,
@@ -555,7 +556,12 @@ class ElementNode extends ViewNode {
       }
     }
     if (typeof this.polyfillNativeEvents === 'function') {
-      ({ eventNames, callback, options } = this.polyfillNativeEvents('addEventListener', eventNames, callback, options));
+      ({ eventNames, callback, options } = this.polyfillNativeEvents(
+          eventMethod.ADD,
+          eventNames,
+          callback,
+          options,
+      ));
     }
     this._emitter.addEventListener(eventNames, callback, options);
     transverseEventNames(eventNames, (eventName) => {
@@ -579,7 +585,12 @@ class ElementNode extends ViewNode {
       return null;
     }
     if (typeof this.polyfillNativeEvents === 'function') {
-      ({ eventNames, callback, options } = this.polyfillNativeEvents('removeEventListener', eventNames, callback, options));
+      ({ eventNames, callback, options } = this.polyfillNativeEvents(
+          eventMethod.REMOVE,
+          eventNames,
+          callback,
+          options,
+      ));
     }
     const observer = this._emitter.removeEventListener(eventNames, callback, options);
     transverseEventNames(eventNames, (eventName) => {
@@ -599,8 +610,8 @@ class ElementNode extends ViewNode {
     // Current Target always be the event listener.
     eventInstance.currentTarget = this;
     // But target be the first target.
-    // Be careful, here's different than Browser,
-    // because Hippy can't callback without element _emitter.
+    // Be careful, here's different from Browser,
+    // because Hippy can't call back without element _emitter.
     if (!eventInstance.target) {
       eventInstance.target = targetNode || this;
       // IMPORTANT: It's important for vnode diff and directive trigger.
