@@ -27,7 +27,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
@@ -56,7 +55,7 @@ public class ChoreographerUtilsTest {
         mMockObject = PowerMockito.mock(Choreographer.class);
         PowerMockito.doAnswer(new Answer<Choreographer>() {
             @Override
-            public Choreographer answer(InvocationOnMock invocation) throws Throwable {
+            public Choreographer answer(InvocationOnMock invocation) {
                 return mMockObject;
             }
         }).when(Choreographer.class, "getInstance");
@@ -65,17 +64,17 @@ public class ChoreographerUtilsTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         mRendererIds.clear();
         mRootIds.clear();
     }
 
     @Test
-    public void registerDoFrameListener() {
+    public void registerAndUnregisterDoFrameListener() {
         try {
             PowerMockito.doAnswer(new Answer<Void>() {
                 @Override
-                public Void answer(InvocationOnMock invocation) throws Throwable {
+                public Void answer(InvocationOnMock invocation) {
                     Object[] args = invocation.getArguments();
                     mRendererIds.add((Integer) args[0]);
                     mRootIds.add((Integer) args[1]);
@@ -85,36 +84,16 @@ public class ChoreographerUtilsTest {
             ChoreographerUtils.registerDoFrameListener(1, 10);
             ChoreographerUtils.registerDoFrameListener(2, 20);
             ChoreographerUtils.registerDoFrameListener(3, 30);
+            ChoreographerUtils.registerDoFrameListener(4, 40);
+            ChoreographerUtils.unregisterDoFrameListener(2, 20);
+            ChoreographerUtils.unregisterDoFrameListener(4, 40);
             Whitebox.invokeMethod(ChoreographerUtils.class, "handleDoFrameCallback");
-            assertEquals(mRendererIds.size(), 3);
-            assertEquals(mRootIds.size(), 3);
+            assertEquals(mRendererIds.size(), 2);
+            assertEquals(mRootIds.size(), 2);
             assertEquals((int) mRendererIds.get(0), 1);
-            assertEquals((int) mRendererIds.get(1), 2);
-            assertEquals((int) mRendererIds.get(2), 3);
+            assertEquals((int) mRendererIds.get(1), 3);
             assertEquals((int) mRootIds.get(0), 10);
-            assertEquals((int) mRootIds.get(1), 20);
-            assertEquals((int) mRootIds.get(2), 30);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test
-    public void unregisterDoFrameListener() {
-        ChoreographerUtils.registerDoFrameListener(1, 10);
-        ChoreographerUtils.registerDoFrameListener(2, 20);
-        ChoreographerUtils.unregisterDoFrameListener(1, 10);
-        try {
-            PowerMockito.doAnswer(new Answer<Void>() {
-                @Override
-                public Void answer(InvocationOnMock invocation) throws Throwable {
-                    Object[] args = invocation.getArguments();
-                    assertEquals(args[0], 2);
-                    assertEquals(args[1], 20);
-                    return null;
-                }
-            }).when(EventUtils.class, "sendRootEvent", anyInt(), anyInt(), anyString(), any());
-            Whitebox.invokeMethod(ChoreographerUtils.class, "handleDoFrameCallback");
+            assertEquals((int) mRootIds.get(1), 30);
         } catch (Exception e) {
             e.printStackTrace();
         }
