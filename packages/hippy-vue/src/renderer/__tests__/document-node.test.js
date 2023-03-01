@@ -42,7 +42,7 @@ test('Document.createElement test', (t) => {
   const testNode4 = DocumentNode.createElement('ul');
   t.is(testNode4.toString(), 'ListNode(ul)');
   const testNode5 = DocumentNode.createElement('li');
-  t.is(testNode5.toString(), 'ListItemNode(li)');
+  t.is(testNode5.toString(), 'ElementNode(li)');
 });
 
 test('Document.createTextNode test', (t) => {
