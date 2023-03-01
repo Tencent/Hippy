@@ -41,6 +41,8 @@ test('Document.createElement test', (t) => {
   t.is(testNode3.toString(), 'InputNode(textarea)');
   const testNode4 = DocumentNode.createElement('ul');
   t.is(testNode4.toString(), 'ListNode(ul)');
+  const testNode5 = DocumentNode.createElement('li');
+  t.is(testNode5.toString(), 'ElementNode(li)');
 });
 
 test('Document.createTextNode test', (t) => {
