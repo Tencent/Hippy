@@ -23,7 +23,6 @@
 
 import { PROPERTIES_MAP } from '@css-loader/css-parser';
 import { getViewMeta, normalizeElementName } from '../elements';
-import { eventMethod } from '../util/event';
 import {
   unicodeToChar,
   capitalizeFirstLetter,
@@ -36,8 +35,8 @@ import {
   isEmpty,
   whitespaceFilter,
 } from '../util';
+import { eventMethod, eventHandlerType } from '../util/event';
 import Native from '../runtime/native';
-import { eventHandlerType } from '../util/node';
 import { updateChild, updateWithChildren } from './native';
 import { Event, EventDispatcher, EventEmitter } from './native/event';
 import { Text } from './native/components';
@@ -557,10 +556,10 @@ class ElementNode extends ViewNode {
     }
     if (typeof this.polyfillNativeEvents === 'function') {
       ({ eventNames, callback, options } = this.polyfillNativeEvents(
-          eventMethod.ADD,
-          eventNames,
-          callback,
-          options,
+        eventMethod.ADD,
+        eventNames,
+        callback,
+        options,
       ));
     }
     this._emitter.addEventListener(eventNames, callback, options);
@@ -586,10 +585,10 @@ class ElementNode extends ViewNode {
     }
     if (typeof this.polyfillNativeEvents === 'function') {
       ({ eventNames, callback, options } = this.polyfillNativeEvents(
-          eventMethod.REMOVE,
-          eventNames,
-          callback,
-          options,
+        eventMethod.REMOVE,
+        eventNames,
+        callback,
+        options,
       ));
     }
     const observer = this._emitter.removeEventListener(eventNames, callback, options);

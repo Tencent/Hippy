@@ -46,10 +46,6 @@ class AnimationSet implements HippyTypes.AnimationSet {
   onAnimationEndCallback?: HippyTypes.AnimationCallback | undefined;
   onAnimationCancelCallback?: HippyTypes.AnimationCallback | undefined;
   onAnimationRepeatCallback?: HippyTypes.AnimationCallback | undefined;
-  animationStartListener?: Function | undefined;
-  animationEndListener?: Function | undefined;
-  animationCancelListener?: Function | undefined;
-  animationRepeatListener?: Function | undefined;
 
   public constructor(config: HippyTypes.AnimationSetOptions) {
     this.animationList = [] as HippyTypes.AnimationList ;
@@ -62,7 +58,7 @@ class AnimationSet implements HippyTypes.AnimationSet {
     this.animation = new global.Hippy.AnimationSet({
       repeatCount: repeatCountDict(config.repeatCount || 0),
       children: this.animationList,
-    });
+    }) as HippyTypes.AnimationSetInstance;
     this.animationId = this.animation.getId();
     // TODO: Deprecated compatible, will remove soon.
     this.onHippyAnimationStart = this.onAnimationStart.bind(this);
@@ -72,7 +68,7 @@ class AnimationSet implements HippyTypes.AnimationSet {
   }
 
   /**
-   * Remove all of animation event listener
+   * Remove all animation event listeners
    */
   public removeEventListener() {
     if (!this.animation) {
