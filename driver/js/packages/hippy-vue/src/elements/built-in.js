@@ -220,10 +220,10 @@ const li = {
     attributeMaps: {
       ...accessibilityAttrMaps,
     },
+    eventNamesMap: mapEvent([
+      ['disappear', 'onDisappear'],
+    ]),
   },
-  eventNamesMap: mapEvent([
-    ['disappear', 'onDisappear'],
-  ]),
 };
 
 // Text area
