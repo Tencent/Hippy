@@ -3,14 +3,26 @@
     <label>显示或者隐藏对话框:</label>
     <button
       class="dialog-demo-button-1"
-      @click="clickView"
+      @click="() => clickView('slide')"
     >
-      <span class="button-text">显示对话框</span>
+      <span class="button-text">显示对话框--slide</span>
+    </button>
+    <button
+      class="dialog-demo-button-1"
+      @click="() => clickView('fade')"
+    >
+      <span class="button-text">显示对话框--fade</span>
+    </button>
+    <button
+      class="dialog-demo-button-1"
+      @click="() => clickView('slide_fade')"
+    >
+      <span class="button-text">显示对话框--slide_fade</span>
     </button>
     <!-- dialog 无法支持 v-show，只能使用 v-if 进行显式切换 -->
     <dialog
       v-if="dialogIsVisible"
-      animationType="slide"
+      :animationType="dialogAnimationType"
       :transparent="true"
       :supportedOrientations="supportedOrientations"
       @show="onShow"
@@ -38,7 +50,7 @@
           </div>
           <dialog
             v-if="dialog2IsVisible"
-            animationType="slide"
+            :animationType="dialogAnimationType"
             :transparent="true"
             @requestClose="onClose"
           >
@@ -80,11 +92,15 @@ export default {
       ],
       dialogIsVisible: false,
       dialog2IsVisible: false,
+      dialogAnimationType: '',
     };
   },
   methods: {
-    clickView() {
+    clickView(type = '') {
       this.dialogIsVisible = !this.dialogIsVisible;
+      if (this.dialogIsVisible) {
+        this.dialogAnimationType = type;
+      }
     },
     clickOpenSecond(evt) {
       evt.stopPropagation(); // 二级弹窗关闭时会冒泡到这里，所以也要阻止一下冒泡防止一级 dialog 消失
