@@ -362,15 +362,7 @@ declare namespace HippyTypes {
     onAnimationEndCallback?: AnimationCallback;
     onAnimationCancelCallback?: AnimationCallback;
     onAnimationRepeatCallback?: AnimationCallback;
-    animationStartListener?: Function;
-    animationEndListener?: Function;
-    animationCancelListener?: Function;
-    animationRepeatListener?: Function;
     // Fallback event handlers
-    onRNfqbAnimationStart?: Function;
-    onRNfqbAnimationEnd?: Function;
-    onRNfqbAnimationCancel?: Function;
-    onRNfqbAnimationRepeat?: Function;
     onHippyAnimationStart?: Function;
     onHippyAnimationEnd?: Function;
     onHippyAnimationCancel?: Function;
@@ -390,10 +382,6 @@ declare namespace HippyTypes {
     animationId: number;
     animationList: AnimationList;
     // Fallback event handlers
-    onRNfqbAnimationStart?: Function;
-    onRNfqbAnimationEnd?: Function;
-    onRNfqbAnimationCancel?: Function;
-    onRNfqbAnimationRepeat?: Function;
     onHippyAnimationStart?: Function;
     onHippyAnimationEnd?: Function;
     onHippyAnimationCancel?: Function;

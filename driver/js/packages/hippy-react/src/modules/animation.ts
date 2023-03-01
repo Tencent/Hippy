@@ -63,10 +63,6 @@ class Animation implements HippyTypes.Animation {
   onAnimationEndCallback?: HippyTypes.AnimationCallback | undefined;
   onAnimationCancelCallback?: HippyTypes.AnimationCallback | undefined;
   onAnimationRepeatCallback?: HippyTypes.AnimationCallback | undefined;
-  animationStartListener?: Function | undefined;
-  animationEndListener?: Function | undefined;
-  animationCancelListener?: Function | undefined;
-  animationRepeatListener?: Function | undefined;
   onHippyAnimationStart?: Function | undefined;
   onHippyAnimationEnd?: Function | undefined;
   onHippyAnimationCancel?: Function | undefined;
@@ -103,7 +99,7 @@ class Animation implements HippyTypes.Animation {
       repeatCount: this.repeatCount,
       inputRange: this.inputRange,
       outputRange: this.outputRange,
-    },  (this.valueType ? { valueType: this.valueType } : {})));
+    },  (this.valueType ? { valueType: this.valueType } : {}))) as HippyTypes.AnimationInstance;
     this.animationId = this.animation.getId();
     this.destroy = this.destroy.bind(this);
 
@@ -114,7 +110,7 @@ class Animation implements HippyTypes.Animation {
   }
 
   /**
-   * Remove all of animation event listener
+   * Remove all animation event listeners
    */
   public removeEventListener() {
     if (!this.animation) {
