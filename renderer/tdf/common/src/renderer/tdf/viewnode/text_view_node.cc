@@ -30,7 +30,6 @@ inline namespace render {
 inline namespace tdf {
 
 using hippy::LayoutMeasureMode;
-using tdfcore::TextAttributes;
 
 static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<TextViewNode>> persistent_map_;
 
@@ -49,7 +48,7 @@ void TextViewNode::RegisterMeasureFunction(const std::shared_ptr<hippy::DomNode>
   dom_node->GetLayoutNode()->SetMeasureFunction([view_node](float width, LayoutMeasureMode width_measure_mode,
                                                             float height, LayoutMeasureMode height_measure_mode,
                                                             void* layoutContext) {
-    auto size = view_node->layout_view_->MeasureText(width);
+    auto size = view_node->layout_view_->MeasureText(static_cast<uint64_t>(width));
     hippy::LayoutSize layout_result{static_cast<float>(size.width), static_cast<float>(size.height)};
     return layout_result;
   });
@@ -114,7 +113,7 @@ void TextViewNode::HandleTextStyleUpdate(std::shared_ptr<tdfcore::TextView> text
   SetLineSpacingMultiplier(dom_style, text_style);
   SetLineSpacingExtra(dom_style, text_style);
   SetNumberOfLines(dom_style, text_view);
-  SetTextAlign(dom_style, text_view);
+  SetHorizontalAlign(dom_style, text_view);
   SetEnableScale(dom_style, text_view);
   text_view->SetTextStyle(text_style);
   if (dom_node) {
@@ -240,20 +239,20 @@ void TextViewNode::SetNumberOfLines(const DomStyleMap& dom_style, std::shared_pt
   }
 }
 
-void TextViewNode::SetTextAlign(const DomStyleMap& dom_style, std::shared_ptr<TextView>& text_view) {
+void TextViewNode::SetHorizontalAlign(const DomStyleMap& dom_style, std::shared_ptr<TextView>& text_view) {
   if (auto iter = dom_style.find(text::kTextAlign); iter != dom_style.end()) {
     auto text_align = iter->second->ToStringChecked();
-    TextAlign sk_text_align = tdfcore::TextAlign::kLeft;
+    HorizontalAlign hori_align = tdfcore::HorizontalAlign::kLeft;
     if (text_align == "auto" || text_align == "left") {
-      sk_text_align = TextAlign::kLeft;
+      hori_align = HorizontalAlign::kLeft;
     } else if (text_align == "right") {
-      sk_text_align = TextAlign::kRight;
+      hori_align = HorizontalAlign::kRight;
     } else if (text_align == "center") {
-      sk_text_align = TextAlign::kCenter;
+      hori_align = HorizontalAlign::kCenter;
     } else if (text_align == "justify") {
-      sk_text_align = TextAlign::kJustifyLastLineLeft;
+      hori_align = HorizontalAlign::kJustify;
     }
-    text_view->SetTextAlign(sk_text_align);
+    text_view->SetHorizontalAlign(hori_align);
   }
 }
 
@@ -261,7 +260,8 @@ void TextViewNode::SetEnableScale(const DomStyleMap& dom_style, std::shared_ptr<
   if (auto iter = dom_style.find(text::kEnableScale); iter != dom_style.end()) {
     auto enable_scale = iter->second->ToBooleanChecked();
     if (!enable_scale) {
-      text_view->SetTextScaleFactor(TextAttributes::kDefaultScaleFactor);
+      // TODO(etkmao):
+      // text_view->SetTextScaleFactor(TextAttributes::kDefaultScaleFactor);
     }
   }
 }
