@@ -265,6 +265,15 @@ export default class TextExpo extends React.Component {
         <View style={[styles.itemContent, { height: 100 }]}>
           <Text numberOfLines={1} style={styles.customFont}>Hippy 跨端框架</Text>
         </View>
+        <View style={[styles.itemContent, { height: 100 }]}>
+          <Text numberOfLines={1} style={[styles.customFont, { fontWeight: 'bold' }]}>Hippy 跨端框架 粗体</Text>
+        </View>
+        <View style={[styles.itemContent, { height: 100 }]}>
+          <Text numberOfLines={1} style={[styles.customFont, { fontStyle: 'italic' }]}>Hippy 跨端框架 斜体</Text>
+        </View>
+        <View style={[styles.itemContent, { height: 100 }]}>
+          <Text numberOfLines={1} style={[styles.customFont, { fontWeight: 'bold', fontStyle: 'italic' }]}>Hippy 跨端框架 粗斜体</Text>
+        </View>
         {renderTitle('Text Nested')}
         <View style={[styles.itemContent, { height: 150 }]}>
           <Text style={{ height: 100, lineHeight: 50 }}>

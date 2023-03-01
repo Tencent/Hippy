@@ -39,6 +39,24 @@
       <p class="p-demo-6 p-demo-content">
         腾讯字体 Hippy
       </p>
+      <p
+        class="p-demo-6 p-demo-content"
+        style="font-weight: bold"
+      >
+        腾讯字体 Hippy 粗体
+      </p>
+      <p
+        class="p-demo-6 p-demo-content"
+        style="font-style: italic"
+      >
+        腾讯字体 Hippy 斜体
+      </p>
+      <p
+        class="p-demo-6 p-demo-content"
+        style="font-weight: bold; font-style: italic"
+      >
+        腾讯字体 Hippy 粗斜体
+      </p>
       <label>文字阴影：</label>
       <p
         class="p-demo-7 p-demo-content"
