@@ -64,12 +64,10 @@ function getVueEventName(eventName: string, targetNode: HippyNode): string {
   if (eventNamesMap?.has(eventName)) {
     return eventNamesMap.get(eventName) as string;
   }
-
   // events that do not start with on maybe custom events, and return the event name directly
   if (eventName.indexOf('on') !== 0) {
     return eventName;
   }
-
   // remove the on in the event name and convert the first letter to lowercase, eg. onClick => click
   const str = eventName.slice(2, eventName.length);
   return `${str.charAt(0).toLowerCase()}${str.slice(1)}`;

@@ -299,6 +299,10 @@ const router: Router = createRouter({
     ]
   ```
 
+- dialog 差异
+
+  <dialog> 组件的第一个子元素不能设置  { position: absolute } 样式，如果想将 <dialog> 内容铺满全屏，可以给第一个子元素设置 { flex: 1 } 样式或者显式设置 width 和 height 数值。这与 Hippy3.0 的逻辑保持一致。
+
 # 示例
 
 更多使用请参考 [示例项目](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo).
