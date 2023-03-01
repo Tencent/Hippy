@@ -31,7 +31,7 @@
 #pragma clang diagnostic ignored "-Wfloat-conversion"
 #pragma clang diagnostic ignored "-Wshadow"
 #pragma clang diagnostic ignored "-Wdeprecated-copy"
-
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include "core/support/text/text_base.h"
 #include "tdfui/view/text/cupertino_text_selection_control.h"
 #include "tdfui/view/text/text_view.h"
@@ -67,7 +67,7 @@ constexpr const char kTextShadowRadius[] = "textShadowRadius";            // flo
 
 class TextViewNode : public ViewNode {
   using TextView = tdfcore::TextView;
-  using TextAlign = tdfcore::TextAlign;
+  using HorizontalAlign = tdfcore::HorizontalAlign;
   using TextDecoration = tdfcore::TextDecoration;
   using TextStyle = tdfcore::TextStyle;
 
@@ -116,7 +116,7 @@ class TextViewNode : public ViewNode {
   void SetLineSpacingMultiplier(const DomStyleMap& dom_style, TextStyle& text_style);
   void SetLineSpacingExtra(const DomStyleMap& dom_style, TextStyle& text_style);
   void SetNumberOfLines(const DomStyleMap& dom_style, std::shared_ptr<TextView>& text_view);
-  void SetTextAlign(const DomStyleMap& dom_style, std::shared_ptr<TextView>& text_view);
+  void SetHorizontalAlign(const DomStyleMap& dom_style, std::shared_ptr<TextView>& text_view);
   void SetEnableScale(const DomStyleMap& dom_style, std::shared_ptr<TextView>& text_view);
   void UpdateFontStyle(TextStyle& text_style);
 

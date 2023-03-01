@@ -36,6 +36,7 @@
 #pragma clang diagnostic ignored "-Wfloat-conversion"
 #pragma clang diagnostic ignored "-Wshadow"
 #pragma clang diagnostic ignored "-Wdeprecated-copy"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include "tdfui/view/text/text_view.h"
 #include "tdfui/view/text/text_input_view.h"
 #include "tdfui/view/image_view.h"

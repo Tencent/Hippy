@@ -20,7 +20,19 @@
 
 #include "render/tdf_render_bridge.h"
 #include "core/platform/android/jni/jni_platform_android.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wsign-compare"
+#pragma clang diagnostic ignored "-Wextra-semi"
+#pragma clang diagnostic ignored "-Wc++98-compat-extra-semi"
+#pragma clang diagnostic ignored "-Wignored-qualifiers"
+#pragma clang diagnostic ignored "-Wimplicit-float-conversion"
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wfloat-conversion"
+#pragma clang diagnostic ignored "-Wshadow"
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
 #include "tdfcodec/platform/android/jni_helper.h"
+#pragma clang diagnostic pop
 #include "jni/jni_register.h"
 #include "jni/jni_invocation.h"
 #include "jni/data_holder.h"

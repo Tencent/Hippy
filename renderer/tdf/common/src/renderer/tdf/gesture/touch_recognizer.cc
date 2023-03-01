@@ -26,65 +26,65 @@ inline namespace render {
 inline namespace tdf {
 inline namespace gesture {
 
-void TouchRecognizer::HandleEventDown(const std::shared_ptr<tdfcore::PointerData>& data) {
+void TouchRecognizer::HandlePointerDown(const tdfcore::PointerData &data) {
   FOOTSTONE_LOG(INFO) << "TDFRenderer touch HandleEventDown";
-  auto pointer = data->pointer;
+  auto pointer = data.pointer;
   StartTrackingPointer(pointer);
   if (is_down_) {
     return;
   }
   is_down_ = true;
   monitor_pointer_ = pointer;
-  initial_position_ = data->position;
+  initial_position_ = data.position;
   CheckStart(initial_position_);
 }
 
-void TouchRecognizer::HandleEventMove(const std::shared_ptr<tdfcore::PointerData>& data) {
+void TouchRecognizer::HandlePointerMove(const tdfcore::PointerData &data) {
   FOOTSTONE_LOG(INFO) << "TDFRenderer touch HandleEventMove";
-  auto pointer = data->pointer;
+  auto pointer = data.pointer;
   if (!IsLegalPointer(pointer)) {
     StopTrackingPointer(pointer);
     return;
   }
-  move_position_ = data->position;
+  move_position_ = data.position;
   CheckMove(move_position_);
 }
 
-void TouchRecognizer::HandleEventUp(const std::shared_ptr<tdfcore::PointerData>& data) {
+void TouchRecognizer::HandlePointerUp(const tdfcore::PointerData &data) {
   FOOTSTONE_LOG(INFO) << "TDFRenderer touch HandleEventUp";
-  auto pointer = data->pointer;
+  auto pointer = data.pointer;
   if (!IsLegalPointer(pointer)) {
     StopTrackingPointer(pointer);
     return;
   }
-  up_position_ = data->position;
+  up_position_ = data.position;
   // Touch not win other gestures, so do not use Accept() method
   AcceptGesture(pointer);
   StopTrackingPointer(pointer);
 }
 
-void TouchRecognizer::HandleEventCancel(const std::shared_ptr<tdfcore::PointerData>& data) {
+void TouchRecognizer::HandlePointerCancel(const tdfcore::PointerData &data) {
   FOOTSTONE_LOG(INFO) << "TDFRenderer touch HandleEventCancel";
-  auto pointer = data->pointer;
+  auto pointer = data.pointer;
   if (!IsLegalPointer(pointer)) {
     StopTrackingPointer(pointer);
     return;
   }
   Reject();
   if (sent_down_) {
-    CheckCancel(data->position);
+    CheckCancel(data.position);
   }
   StopTrackingPointer(pointer);
 }
 
-bool TouchRecognizer::CanAddPointer(const std::shared_ptr<tdfcore::PointerData> &data) const {
+bool TouchRecognizer::CanAddPointer(const tdfcore::PointerData &data) const {
   if (on_touch_start_ == nullptr &&
       on_touch_move_ == nullptr &&
       on_touch_end_ == nullptr &&
       on_touch_cancel_ == nullptr) {
     return false;
   }
-  if (data->button_type == tdfcore::PointerButtonType::kNone) {
+  if (data.button_type == tdfcore::PointerButtonType::kNone) {
     return false;
   }
   return OneSequenceGestureRecognizer::CanAddPointer(data);

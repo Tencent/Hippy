@@ -32,6 +32,7 @@
 #pragma clang diagnostic ignored "-Wshadow"
 #pragma clang diagnostic ignored "-Wdeprecated-copy-with-dtor"
 #pragma clang diagnostic ignored "-Wdeprecated-copy"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include "tdfui/view/text/text_input_view.h"
 #pragma clang diagnostic pop
 
@@ -129,6 +130,8 @@ constexpr const char kAlignLeft[] = "left";
 constexpr const char kAlignRight[] = "right";
 constexpr const char kAlignCenter[] = "center";
 constexpr const char kAlignJustify[] = "justify";
+constexpr const char kAlignTop[] = "top";
+constexpr const char kAlignBottom[] = "bottom";
 }  // namespace textinput
 
 constexpr const int64_t kViewportListenerInvalidID = 0;
@@ -184,11 +187,11 @@ class TextInputNode : public ViewNode {
   void SetPlaceHolder(const DomStyleMap& dom_style);
   void SetPlaceHolderTextColor(const DomStyleMap& dom_style);
   void SetKeyBoardAction(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view);
-  void SetTextAlign(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view);
+  void SetHorizontalAlign(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view);
+  void SetVerticalAlign(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view);
   void SetTextShadowOffset(const DomStyleMap& dom_style);
   void SetTextShadowColor(const DomStyleMap& dom_style);
   void SetTextShadowRadius(const DomStyleMap& dom_style);
-  void SetTextAlignVertical(const DomStyleMap& dom_style, TextStyle& text_style);
   void UpdateBlurAttr(const DomStyleMap& dom_style);
   void UpdateChangeTextAttr(const DomStyleMap& dom_style);
   void UpdateContentSizeChangeAttr(const DomStyleMap& dom_style);

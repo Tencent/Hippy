@@ -39,7 +39,8 @@ inline namespace render {
 inline namespace tdf {
 
 using tdfcore::CupertinoTextSelectionControl;
-using tdfcore::TextAlign;
+using tdfcore::HorizontalAlign;
+using tdfcore::VerticalAlign;
 using tdfcore::ViewContext;
 using tdfcore::ViewportEvent;
 using unicode_string_view = footstone::stringview::string_view;
@@ -62,7 +63,7 @@ void TextInputNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
     return;
   }
 
-  auto text_style = text_input_view->GetAttributes().text_style;
+  auto text_style = text_input_view->GetAttributes().paragraph_style.default_text_style;
   auto attributes = text_input_view->GetAttributes();
 
   SetValue(dom_style, text_style);
@@ -83,8 +84,8 @@ void TextInputNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   SetPlaceHolder(dom_style);
   SetPlaceHolderTextColor(dom_style);
   SetKeyBoardAction(dom_style, text_input_view);
-  SetTextAlign(dom_style, text_input_view);
-  SetTextAlignVertical(dom_style, text_style);
+  SetHorizontalAlign(dom_style, text_input_view);
+  SetVerticalAlign(dom_style, text_input_view);
   SetTextShadowColor(dom_style);
   SetTextShadowOffset(dom_style);
   SetTextShadowRadius(dom_style);
@@ -526,7 +527,7 @@ void TextInputNode::SetKeyBoardAction(const DomStyleMap& dom_style, std::shared_
   }
 }
 
-void TextInputNode::SetTextAlign(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
+void TextInputNode::SetHorizontalAlign(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
   if (auto iter = dom_style.find(textinput::kTextAlign); iter != dom_style.end()) {
     std::string text_align;
     auto result = iter->second->ToString(text_align);
@@ -535,13 +536,33 @@ void TextInputNode::SetTextAlign(const DomStyleMap& dom_style, std::shared_ptr<T
       return;
     }
     if (text_align == kAlignAuto || text_align == kAlignLeft) {
-      text_input_view->SetTextAlign(TextAlign::kLeft);
+      text_input_view->SetHorizontalAlign(HorizontalAlign::kLeft);
     } else if (text_align == kAlignRight) {
-      text_input_view->SetTextAlign(TextAlign::kRight);
+      text_input_view->SetHorizontalAlign(HorizontalAlign::kRight);
     } else if (text_align == kAlignCenter) {
-      text_input_view->SetTextAlign(TextAlign::kCenter);
+      text_input_view->SetHorizontalAlign(HorizontalAlign::kCenter);
     } else if (text_align == kAlignJustify) {
       FOOTSTONE_UNREACHABLE();
+    } else {
+      FOOTSTONE_UNREACHABLE();
+    }
+  }
+}
+
+void TextInputNode::SetVerticalAlign(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
+  if (auto iter = dom_style.find(textinput::kTextAlignVertical); iter != dom_style.end()) {
+    std::string text_align;
+    auto result = iter->second->ToString(text_align);
+    FOOTSTONE_CHECK(result);
+    if (!result) {
+      return;
+    }
+    if (text_align == kAlignAuto || text_align == kAlignCenter) {
+      text_input_view->SetVerticalAlign(VerticalAlign::kCenter);
+    } else if (text_align == kAlignTop) {
+      text_input_view->SetVerticalAlign(VerticalAlign::kTop);
+    } else if (text_align == kAlignBottom) {
+      text_input_view->SetVerticalAlign(VerticalAlign::kBottom);
     } else {
       FOOTSTONE_UNREACHABLE();
     }
@@ -565,10 +586,6 @@ void TextInputNode::SetTextShadowRadius(const DomStyleMap& dom_style) {
   if (auto iter = dom_style.find(text::kTextShadowRadius); iter != dom_style.end()) {
     has_shadow_ = true;
   }
-}
-
-void TextInputNode::SetTextAlignVertical(const DomStyleMap& dom_style, TextStyle& text_style) {
-  // todo(kloudwang) 看着像android特有属性
 }
 
 void TextInputNode::UpdateFontStyle(TextStyle& text_style) {
