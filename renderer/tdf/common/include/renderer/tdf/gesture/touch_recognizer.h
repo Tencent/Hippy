@@ -50,6 +50,7 @@ using tdfcore::OneSequenceGestureRecognizer;
 using TouchClosure = std::function<void(const TouchDetails &details)>;
 
 class TouchRecognizer : public OneSequenceGestureRecognizer {
+  TDF_REFF_CLASS_META(TouchRecognizer)
  public:
   void SetTouchStart(const TouchClosure &on_touch_start) { on_touch_start_ = on_touch_start; }
   void SetTouchMove(const TouchClosure &on_touch_move) { on_touch_move_ = on_touch_move; }
@@ -97,3 +98,5 @@ class TouchRecognizer : public OneSequenceGestureRecognizer {
 }  // namespace tdf
 }  // namespace render
 }  // namespace hippy
+TDF_REFL_DEFINE(hippy::render::tdf::gesture::TouchRecognizer, bases<tdfcore::OneSequenceGestureRecognizer>)
+TDF_REFL_END(hippy::render::tdf::gesture::TouchRecognizer)
