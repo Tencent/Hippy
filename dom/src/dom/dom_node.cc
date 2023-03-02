@@ -49,6 +49,8 @@ constexpr char kNodePropertyViewName[] = "name";
 constexpr char kNodePropertyStyle[] = "style";
 constexpr char kNodePropertyExt[] = "ext";
 
+constexpr char kNodeWillChangeKey[] = "willChange";
+
 
 const std::map<int32_t, std::string> kRelativeTypeMap = {
     {-1, "kFront"},
@@ -150,6 +152,13 @@ int32_t DomNode::GetChildIndex(uint32_t id) {
     }
   }
   return index;
+}
+
+void DomNode::MarkWillChange(bool flag) {
+  if (!dom_ext_map_) {
+    dom_ext_map_ = std::make_shared<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>();
+  }
+  (*dom_ext_map_)[kNodeWillChangeKey] = std::make_shared<hippy::HippyValue>(flag);
 }
 
 int32_t DomNode::GetSelfIndex() {

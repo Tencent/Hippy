@@ -249,14 +249,23 @@ void AnimationManager::AddActiveAnimation(const std::shared_ptr<Animation>& anim
 
 void AnimationManager::RemoveActiveAnimation(uint32_t id) {
   auto size = active_animations_.size();
+  auto root_node = root_node_.lock();
   for (auto it = active_animations_.begin(); it != active_animations_.end(); ++it) {
     if ((*it)->GetId() == id) {
+      auto node_it = animation_nodes_map_.find(id);
+      if (node_it != animation_nodes_map_.end()) {
+        for (auto node_id : node_it->second) {
+          auto node = root_node->GetNode(node_id);
+          if (node) {
+            node->MarkWillChange(false);
+          }
+        }
+      }
       active_animations_.erase(it);
       break;
     }
   }
   if (size == 1 && active_animations_.empty()) {
-    auto root_node = root_node_.lock();
     if (!root_node) {
       return;
     }

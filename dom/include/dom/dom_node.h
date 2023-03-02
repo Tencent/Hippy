@@ -127,6 +127,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
                                 const EventCallback& cb);
   virtual void RemoveEventListener(const std::string& name, uint64_t listener_id);
 
+  void MarkWillChange(bool flag);
   int32_t GetSelfIndex();
   int32_t GetChildIndex(uint32_t id);
 
