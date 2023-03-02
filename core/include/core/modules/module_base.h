@@ -25,6 +25,9 @@
 #include "base/unicode_string_view.h"
 #include "core/napi/callback_info.h"
 #include "core/scope.h"
+#ifdef JS_V8
+#include "core/vm/v8/snapshot_collector.h"
+#endif
 
 #define GEN_INVOKE_CB_INTERNAL(Module, Function, Name)                                          \
   static void Name(const hippy::napi::CallbackInfo& info, void* data) {                         \
@@ -35,8 +38,13 @@
     target->Function(info, data);                                                               \
   }
 
+#ifndef REGISTER_EXTERNAL_REFERENCES
+#define REGISTER_EXTERNAL_REFERENCES(FUNC_NAME)
+#endif
+
 #define GEN_INVOKE_CB(Module, Function) \
-  GEN_INVOKE_CB_INTERNAL(Module, Function, Invoke##Module##Function)
+  GEN_INVOKE_CB_INTERNAL(Module, Function, Invoke##Module##Function) \
+  REGISTER_EXTERNAL_REFERENCES(Invoke##Module##Function)
 
 class ModuleBase {
  public:

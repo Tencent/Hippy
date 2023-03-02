@@ -499,6 +499,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
     private void notifyModuleLoaded(final ModuleLoadStatus statusCode, final String msg,
             final HippyRootView hippyRootView) {
+        mLoadModuleListener.onLoadCompletedInCurrentThread(statusCode, msg, hippyRootView);
         Runnable action = new Runnable() {
             @Override
             public void run() {
