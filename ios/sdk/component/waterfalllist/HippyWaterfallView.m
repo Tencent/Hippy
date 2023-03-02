@@ -24,9 +24,10 @@
 #import "HippyCollectionViewWaterfallLayout.h"
 #import "HippyHeaderRefresh.h"
 #import "HippyFooterRefresh.h"
-#import "HippyReusableNodeCache.h"
 #import "HippyWaterfallItemView.h"
 #import "HippyVirtualList.h"
+#import "HippyReusableViewPool.h"
+#import "HippyWaterfallViewDatasource.h"
 
 #define CELL_TAG 10089
 
@@ -61,7 +62,6 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     BOOL _isInitialListReady;
     HippyHeaderRefresh *_headerRefreshView;
     HippyFooterRefresh *_footerRefreshView;
-    HippyReusableNodeCache *_reusableNodeCache;
 }
 
 @property (nonatomic, strong) HippyCollectionViewWaterfallLayout *layout;
@@ -83,6 +83,8 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     UIColor *_backgroundColor;
     BOOL _allowNextScrollNoMatterWhat;
     double _lastOnScrollEventTimeInterval;
+    HippyWaterfallViewDatasource *_datasource;
+    HippyWaterfallViewDatasource *_lastDatasource;
 }
 
 @synthesize node = _node;
@@ -96,7 +98,6 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
         _scrollEventThrottle = 100.f;
 
         [self initCollectionView];
-        _reusableNodeCache = [[HippyReusableNodeCache alloc] init];
         if (@available(iOS 11.0, *)) {
             self.collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         }
@@ -131,27 +132,6 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 - (void)hippySetFrame:(CGRect)frame {
     [super hippySetFrame:frame];
     _collectionView.frame = self.bounds;
-}
-
-- (NSArray<HippyVirtualNode *> *)nodesWithOnlyCell {
-    NSMutableArray<HippyVirtualNode *> *subNodes = self.node.subNodes;
-    NSUInteger location = 0;
-    NSUInteger length = [subNodes count];
-    if ([subNodes count] <= 0) {
-        return subNodes;
-    }
-    if (_containBannerView) {
-        location += 1;
-        length -= 1;
-    }
-    if (_containPullHeader) {
-        location += 1;
-        length -= 1;
-    }
-    if (_containPullFooter) {
-        length -= 1;
-    }
-    return [subNodes subarrayWithRange:NSMakeRange(location, length)];
 }
 
 - (__kindof HippyVirtualNode *)nodesWithBannerView {
@@ -218,7 +198,10 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 - (BOOL)flush {
-    [self.collectionView reloadData];
+    NSArray<HippyVirtualCell *> *cellNodes = [NSArray arrayWithArray:self.node.subNodes];
+    _datasource = [[HippyWaterfallViewDatasource alloc] initWithNodes:cellNodes containBannerView:_containBannerView];
+    [_datasource applyDiff:_lastDatasource forWaterfallView:self.collectionView];
+    _lastDatasource = _datasource;
     if (!_isInitialListReady) {
         _isInitialListReady = YES;
         if (self.onInitialListReady) {
@@ -251,54 +234,13 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     }
 }
 
-- (__kindof HippyVirtualNode *)nodeAtIndexPath:(NSIndexPath *)indexPath {
-    NSInteger section = [indexPath section];
-    NSInteger row = [indexPath item];
-    HippyVirtualNode *cellNode = nil;
-    if (_containBannerView) {
-        if (0 == section) {
-            cellNode = [self nodesWithBannerView];
-        } else {
-            NSArray<HippyVirtualNode *> *subNodes = [self nodesWithOnlyCell];
-            if ([subNodes count] > row) {
-                cellNode = subNodes[row];
-            }
-        }
-    } else {
-        NSArray<HippyVirtualNode *> *subNodes = [self nodesWithOnlyCell];
-        if ([subNodes count] > row) {
-            cellNode = subNodes[row];
-        }
-    }
-    return cellNode;
-}
-
-- (NSString *)reuseIdentifierForIndexPath:(NSIndexPath *)indexPath {
-    HippyVirtualNode *node = [self nodeAtIndexPath:indexPath];
-    if ([node isKindOfClass:[HippyVirtualCell class]]) {
-        return [(HippyVirtualCell *)node itemViewType];
-    }
-    else {
-        return kCellIdentifier;
-    }
-}
-
 #pragma mark - UICollectionViewDataSource
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
-    if (_containBannerView) {
-        return 2;
-    }
-    return 1;
+    return [_datasource numberOfSections];
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    if (_containBannerView) {
-        if (0 == section) {
-            return 1;
-        }
-    }
-    NSInteger count = [[self nodesWithOnlyCell] count];
-    return count;
+    return [_datasource numberOfItemInSection:section];
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -325,17 +267,16 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     if (0 == [indexPath section] && _containBannerView) {
         return;
     }
-    NSInteger count = [self nodesWithOnlyCell].count;
+    NSInteger count = [_datasource itemNodes].count;
     NSInteger leftCnt = count - indexPath.item - 1;
     if (leftCnt == _preloadItemNumber) {
         [self startLoadMoreData];
     }
 
     if (indexPath.item == count - 1) {
-        [self startLoadMoreData];
         if (self.onFooterAppeared) {
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                self.onFooterAppeared(@ {});
+                self.onFooterAppeared(@{});
             });
         }
     }
@@ -343,28 +284,13 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
     HippyCollectionViewCell *hpCell = (HippyCollectionViewCell *)cell;
-    [hpCell.cellView removeFromSuperview];
-    HippyVirtualNode *cellNode = hpCell.node;
-    NSString *reuseIdentifier = [self reuseIdentifierForIndexPath:indexPath];
-    if (cellNode && reuseIdentifier) {
-        [_reusableNodeCache enqueueItemNode:cellNode forIdentifier:reuseIdentifier];
-        hpCell.node = nil;
-    }
+    [[self.bridge.uiManager reusePool] addHippyViewRecursively:hpCell.cellView];
 }
 
 - (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
-    NSString *reuseIdentifier = [self reuseIdentifierForIndexPath:indexPath];
-    HippyVirtualNode *cellNode = [self nodeAtIndexPath:indexPath];
-    [_reusableNodeCache removeNode:cellNode forIdentifier:reuseIdentifier];
-    HippyVirtualNode *reusedNode = [_reusableNodeCache dequeueItemNodeForIdentifier:reuseIdentifier];
+    HippyVirtualCell *cellNode = [_datasource cellAtIndexPath:indexPath];
     HippyCollectionViewCell *hpCell = (HippyCollectionViewCell *)cell;
-    HippyWaterfallItemView *cellView = nil;
-    if (reusedNode) {
-        cellView = (HippyWaterfallItemView *)[self.bridge.uiManager updateNode:reusedNode withNode:cellNode];
-    }
-    if (!cellView) {
-        cellView = (HippyWaterfallItemView *)[self.bridge.uiManager createViewFromNode:cellNode];
-    }
+    HippyWaterfallItemView *cellView = (HippyWaterfallItemView *)[self.bridge.uiManager createViewFromNode:cellNode];
     hpCell.cellView = cellView;
     hpCell.node = cellNode;
 }
@@ -380,14 +306,14 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
             HippyVirtualNode *node = [self nodesWithBannerView];
             return node.frame.size;
         } else {
-            NSArray<HippyVirtualNode *> *subNodes = [self nodesWithOnlyCell];
+            NSArray<HippyVirtualNode *> *subNodes = [_datasource itemNodes];
             if ([subNodes count] > row) {
                 HippyVirtualNode *node = subNodes[row];
                 return node.frame.size;
             }
         }
     } else {
-        NSArray<HippyVirtualNode *> *subNodes = [self nodesWithOnlyCell];
+        NSArray<HippyVirtualNode *> *subNodes = [_datasource itemNodes];
         if ([subNodes count] > row) {
             HippyVirtualNode *node = subNodes[row];
             return node.frame.size;

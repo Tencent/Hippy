@@ -76,7 +76,7 @@ bool Uri::Destroy() {
 }
 
 Uri::Uri(const unicode_string_view& uri) {
-  TDF_BASE_DCHECK(uri.encoding() != unicode_string_view::Encoding::Unkown);
+  TDF_BASE_DCHECK(uri.encoding() != unicode_string_view::Encoding::Unknown);
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jstring j_str_uri = JniUtils::StrViewToJString(j_env, uri);
   j_obj_uri_ =
