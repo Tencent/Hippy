@@ -43,7 +43,10 @@ EmbeddedViewNode::EmbeddedViewNode(RenderInfo render_info, const std::string &na
     : ViewNode(render_info), native_view_type_(native_view_type) {}
 
 std::shared_ptr<tdfcore::View> EmbeddedViewNode::CreateView() {
-  return TDF_MAKE_SHARED(tdfcore::EmbeddedView, native_view_type_);
+  auto view = TDF_MAKE_SHARED(tdfcore::EmbeddedView, native_view_type_);
+  // 默认不要支持tdfcore手势，因为业务可以写一个全屏的自定义View在最上面但什么也不显示，从而把下面手势都竞技掉。
+  view->SetSupportedGestures({});
+  return view;
 }
 
 void EmbeddedViewNode::HandleStyleUpdate(const DomStyleMap &dom_style) {
