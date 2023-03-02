@@ -18,16 +18,15 @@
  * limitations under the License.
  */
 
-import { translateColor } from '@hippy-vue-next-style-parser/index';
+import { translateColor, getCssMap } from '@hippy-vue-next-style-parser/index';
 import { isFunction } from '@vue/shared';
 
 import type { NeedToTyped, CallbackType, NativeInterfaceMap } from '../../types';
 import { NATIVE_COMPONENT_MAP, HIPPY_VUE_VERSION } from '../../config';
-import { isStyleMatched, trace, warn } from '../../util';
+import { isStyleMatched, trace, warn, getBeforeLoadStyle } from '../../util';
 import { type HippyElement } from '../element/hippy-element';
 import { EventBus } from '../event/event-bus';
 import { type HippyNode } from '../node/hippy-node';
-import { getCssMap } from '../style/css-map';
 
 // Extend the global interface definition
 declare global {
@@ -807,7 +806,7 @@ export const Native: NativeApiType = {
    * @param color - color string
    * @param options - parse options
    */
-  parseColor(color: string | number, options = { platform: Native.Platform }): number {
+  parseColor(color: string | number, options = { platform: '' }): number {
     if (Number.isInteger(color)) {
       return color as number;
     }
@@ -822,7 +821,7 @@ export const Native: NativeApiType = {
   getElemCss(element: HippyElement) {
     const style = Object.create(null);
     try {
-      getCssMap()
+      getCssMap(null, getBeforeLoadStyle())
         .query(element)
         .selectors.forEach((matchedSelector) => {
           if (!isStyleMatched(matchedSelector, element)) {

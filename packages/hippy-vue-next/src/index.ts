@@ -23,16 +23,18 @@ import {
   type CssDeclarationType,
   parseCSS,
   translateColor,
+  getCssMap,
 } from '@hippy-vue-next-style-parser/index';
 import {
   type Component,
   type ComponentPublicInstance,
   type App,
   createRenderer,
+  createHydrationRenderer,
 } from '@vue/runtime-core';
 import { isFunction } from '@vue/shared';
 
-import type { NeedToTyped, CallbackType, CommonMapParams, NativeInterfaceMap } from './types';
+import type { NeedToTyped, CallbackType, CommonMapParams, NativeInterfaceMap, SsrNode, SsrNodeProps } from './types';
 import { BackAndroid } from './android-back';
 import BuiltInComponent from './built-in-component';
 import { drawIphoneStatusBar } from './iphone';
@@ -120,6 +122,8 @@ export interface HippyAppOptions {
   silent?: boolean;
   // set whether to trim text whitespace
   trimWhitespace?: boolean;
+  // ssr render node list
+  ssrNodeList?: SsrNode[];
 }
 
 // base screen width
@@ -155,7 +159,7 @@ function setIOSNativeBar(
 /**
  * create root node
  */
-function createRootNode(rootContainer: string): HippyNode {
+function createRootNode(rootContainer: string): HippyElement {
   // Create the root node as the root of the entire hippy tree
   const root: HippyElement = HippyDocument.createElement('div');
   // The id value of the root node is set to the incoming parameter rootContainer
@@ -167,24 +171,20 @@ function createRootNode(rootContainer: string): HippyNode {
 }
 
 /**
- * Create Hippy Vue instance
+ * Create Hippy Vue instance, support ssr
  *
- * @param vueRootComponent - instance of vue root component
+ * @param app - instance of vue app
  * @param options - initialization parameters
  *
  * @public
  */
-export const createApp = (
-  vueRootComponent: Component,
+const createHippyApp = (
+  app: App,
   options: HippyAppOptions,
 ): HippyApp => {
-  // Create a custom renderer and get the vue app instance
-  const app: App = createRenderer({
-    patchProp,
-    ...nodeOps,
-  }).createApp(vueRootComponent);
   // hippy app instance
   const hippyApp: HippyApp = app as HippyApp;
+  const isHydrate = Boolean(options?.ssrNodeList?.length);
 
   // register built-in label components, such as div, span, etc., to enable HippyNode to support built-in labels
   // these built-in tags will be converted to component types recognized by Native,
@@ -213,12 +213,16 @@ export const createApp = (
 
   // rewrite mount method of vue
   hippyApp.mount = (rootContainer) => {
-    // cache rootContainer, used to determine whether it is the root node
-    setHippyCachedInstanceParams('rootContainer', rootContainer);
     // create the root node
-    const root = createRootNode(rootContainer);
+    // return an empty node when the hydrate is false
+    // return a root node for a node tree, when the hydrate is true
+    const root = isHydrate
+      ? converToNodeTree(options.ssrNodeList)
+      : createRootNode(rootContainer);
+    // cache rootContainer, used to determine whether it is the root node
+    setHippyCachedInstanceParams('rootContainer', root.id);
     // mount and get the instance
-    const instance = mount(root, false, false);
+    const instance = mount(root, isHydrate, false);
     // cache Vue instance
     setHippyCachedInstanceParams('instance', instance);
     // set the status bar for iOS
@@ -272,6 +276,49 @@ export const createApp = (
   return hippyApp;
 };
 
+/**
+ * create client side render vue app instance
+ *
+ * @param vueRootComponent - vue root component
+ * @param options - hippy init options
+ *
+ * @public
+ */
+export const createApp = (
+  vueRootComponent: Component,
+  options: HippyAppOptions,
+): HippyApp => {
+  // 创建自定义渲染器，并得到vue app实例
+  const app: App = createRenderer({
+    patchProp,
+    ...nodeOps,
+  }).createApp(vueRootComponent);
+
+  // 创建 hippy app
+  return createHippyApp(app, options);
+};
+
+/**
+ * create server side render vue app instance
+ *
+ * @param vueRootComponent - vue root component
+ * @param options - hippy init options
+ *
+ * @public
+ */
+export const createSSRApp = (
+  vueRootComponent: Component,
+  options: HippyAppOptions,
+): HippyApp => {
+  // 创建自定义渲染器，并得到vue app实例
+  const app: App = createHydrationRenderer({
+    patchProp,
+    ...nodeOps,
+  } as NeedToTyped).createApp(vueRootComponent);
+
+  return createHippyApp(app, options);
+};
+
 /*
  * used to validate beforeRenderToNative hook
  * when ElementNode or ViewNode have breaking changes, add version number to disable
@@ -302,33 +349,12 @@ export type {
   CommonMapParams,
   NeedToTyped,
   NativeInterfaceMap,
+  SsrNode,
+  SsrNodeProps,
 };
 
-export {
-  HIPPY_DEBUG_ADDRESS,
-  HIPPY_STATIC_PROTOCOL,
-  NATIVE_COMPONENT_MAP,
-  IS_PROD,
-  HIPPY_GLOBAL_STYLE_NAME,
-  HIPPY_GLOBAL_DISPOSE_STYLE_NAME,
-  HIPPY_VUE_VERSION,
-} from './config';
-export {
-  HippyEvent,
-  HippyTouchEvent,
-  HippyKeyboardEvent,
-  HippyGlobalEventHandlersEventMap,
-  HippyLayoutEvent,
-  HippyLoadResourceEvent,
-  EventsUnionType,
-  ExposureEvent,
-  FocusEvent,
-  ContentSizeEvent,
-  ListViewEvent,
-  ViewPagerEvent,
-  eventIsKeyboardEvent,
-  MapToUnion,
-} from './runtime/event/hippy-event';
+export * from './config';
+export * from './runtime/event/hippy-event';
 
 export {
   EventBus,
@@ -336,6 +362,7 @@ export {
   BackAndroid,
   translateColor,
   parseCSS,
+  getCssMap,
   setScreenSize,
   getTagComponent,
   registerElement,

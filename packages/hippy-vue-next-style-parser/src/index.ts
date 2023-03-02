@@ -20,3 +20,4 @@
 
 export * from './style-parser/css-parser';
 export { translateColor } from './style-parser/color-parser';
+export * from './style-match';

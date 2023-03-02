@@ -17,9 +17,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { NeedToTyped } from '../../types';
-
-
 export interface SelectorType {
   type: string;
   identifier?: string;
@@ -184,7 +181,7 @@ function parseSimpleSelectorSequence(text, start) {
     return null;
   }
   let { end } = simpleSelector;
-  const value: NeedToTyped[] = [];
+  const value: any[] = [];
   while (simpleSelector) {
     value.push(simpleSelector.value);
     ({ end } = simpleSelector);

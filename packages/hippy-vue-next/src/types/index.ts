@@ -53,3 +53,35 @@ export {
   AnimationStyle,
   NativeInterfaceMap,
 } from './native-modules';
+
+/**
+ * SSR common type
+ *
+ * @public
+ */
+export interface SsrCommonParams {
+  // 这里使用any的原因是props可能有任意类型，包括string，number，boolean，object，function，array等
+  [key: string]: NeedToTyped;
+}
+
+/**
+ * SSR Node props type
+ *
+ * @public
+ */
+export type SsrNodeProps = SsrCommonParams;
+
+/**
+ * SSR Node type
+ *
+ * @public
+ */
+export interface SsrNode {
+  id: number;
+  pId?: number;
+  index: number;
+  name: string;
+  props: SsrNodeProps;
+  tagName?: string;
+  children?: SsrNode[];
+}

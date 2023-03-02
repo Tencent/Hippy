@@ -21,6 +21,7 @@
 import {
   parseBackgroundImage,
   PROPERTIES_MAP,
+  getCssMap,
   type PropertiesMapType,
 } from '@hippy-vue-next-style-parser/index';
 import { toRaw } from '@vue/runtime-core';
@@ -40,6 +41,7 @@ import {
   isStyleMatched,
   whitespaceFilter,
   getBeforeRenderToNative,
+  getBeforeLoadStyle,
 } from '../../util';
 import { isRTL } from '../../util/i18n';
 import { getHippyCachedInstance } from '../../util/instance';
@@ -49,7 +51,6 @@ import { eventIsKeyboardEvent, type HippyEvent } from '../event/hippy-event';
 import type { EventListenerOptions } from '../event/hippy-event-target';
 import { Native } from '../native';
 import { HippyNode, NodeType } from '../node/hippy-node';
-import { getCssMap } from '../style/css-map';
 import { HippyText } from '../text/hippy-text';
 
 interface OffsetMapType {
@@ -837,7 +838,7 @@ export class HippyElement extends HippyNode {
 
     // get the styles from the global CSS stylesheet
     // rem needs to be processed here
-    const matchedSelectors = getCssMap().query(this);
+    const matchedSelectors = getCssMap(null, getBeforeLoadStyle()).query(this);
     matchedSelectors.selectors.forEach((matchedSelector) => {
       // if current element do not match style rule, return
       if (!isStyleMatched(matchedSelector, this)) {
