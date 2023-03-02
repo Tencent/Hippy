@@ -25,6 +25,7 @@
 #include <cstdint>
 
 #include "bridge/runtime.h"
+#include "core/vm/v8/snapshot_collector.h"
 #include "jni/java_turbo_module.h"
 #include "jni/jni_env.h"
 #include "jni/jni_register.h"

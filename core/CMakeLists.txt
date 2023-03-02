@@ -84,7 +84,10 @@ if ("${JS_ENGINE}" STREQUAL "V8")
       src/vm/v8/js_vm.cc
       src/vm/v8/native_source_code_android.cc
       src/vm/v8/serializer.cc
-      src/vm/v8/v8_vm.cc)
+      src/vm/v8/v8_vm.cc
+      src/vm/v8/snapshot_data.cc
+      src/vm/v8/snapshot_deserializer.cc
+      src/vm/v8/snapshot_serializer.cc)
   if (NOT V8_WITHOUT_INSPECTOR)
     list(APPEND SOURCE_SET
             src/inspector/v8_channel_impl.cc
@@ -93,8 +96,10 @@ if ("${JS_ENGINE}" STREQUAL "V8")
 elseif ("${JS_ENGINE}" STREQUAL "JSC")
   list(APPEND SOURCE_SET
       src/napi/jsc/jsc_ctx.cc
+      src/napi/jsc/jsc_ctx_value.cc
       src/napi/jsc/jsc_try_catch.cc
       src/vm/jsc/native_source_code_ios.cc
+      src/vm/jsc/js_vm.cc
       src/vm/jsc/jsc_vm.cc)
 endif ()
 set(SOURCE_SET_STANDALONE

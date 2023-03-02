@@ -22,27 +22,24 @@
 
 #pragma once
 
-#include <JavaScriptCore/JavaScriptCore.h>
+#include <cstdint>
+#include <string>
+#include <vector>
 
-#include "base/unicode_string_view.h"
-#include "core/napi/js_ctx.h"
+class SnapshotDeserializer {
+ public:
+  SnapshotDeserializer(const std::vector<uint8_t>& buffer);
+  SnapshotDeserializer(const uint8_t* buffer, size_t length);
 
-namespace hippy {
-namespace napi {
+  inline size_t GetPosition() { return position_; }
 
-class JSCCtxValue : public CtxValue {
-public:
-  JSCCtxValue(JSGlobalContextRef context, JSValueRef value)
-  : context_(context), value_(value) {
-    JSValueProtect(context_, value_);
-  }
-  ~JSCCtxValue() { JSValueUnprotect(context_, value_); }
-  JSCCtxValue(const JSCCtxValue&) = delete;
-  JSCCtxValue &operator=(const JSCCtxValue&) = delete;
-  
-  JSGlobalContextRef context_;
-  JSValueRef value_;
+  bool ReadUInt32(uint32_t& value);
+  bool ReadString(std::string& value);
+  bool ReadBuffer(void* p, size_t length);
+
+ private:
+  const uint8_t* buffer_;
+  size_t length_;
+  size_t position_ = 0;
 };
 
-}
-}
