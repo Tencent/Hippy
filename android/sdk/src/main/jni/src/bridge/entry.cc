@@ -407,9 +407,11 @@ jint CreateSnapshot(JNIEnv* j_env,
   v8_ctx = nullptr;
   scope = nullptr;
   auto blob = creator->CreateBlob(v8::SnapshotCreator::FunctionCodeHandling::kKeep);
+#if (V8_MAJOR_VERSION >= 9)
   if (!blob.IsValid()) {
     return static_cast<jint>(CreateSnapshotResult::kSnapshotBlobInvalid);
   }
+#endif
   SnapshotData snapshot_data;
   snapshot_data.WriteMetaData(blob);
   auto time_end = std::chrono::time_point_cast<std::chrono::microseconds>(
@@ -607,7 +609,9 @@ jlong InitInstance(JNIEnv* j_env,
         if (!is_valid) {
           break;
         }
+#if (V8_MAJOR_VERSION >= 9)
         is_valid = param->snapshot_data.startup_data.IsValid();
+#endif
       } while (false);
       if (!is_valid) {
         TDF_BASE_LOG(ERROR) << "snapshot invalid";
