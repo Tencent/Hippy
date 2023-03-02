@@ -91,13 +91,14 @@ const EventDispatcher = {
     if (!nativeEvent) {
       return;
     }
-    const { id: targetNodeId, name: eventName } = nativeEvent;
+    const { id: targetNodeId, name: eventName, ...params } = nativeEvent;
     const targetNode = getNodeById(targetNodeId);
     if (!targetNode) {
       return;
     }
     const targetEventName = getVueEventName(eventName, targetNode);
     const targetEvent = new Event(targetEventName);
+    targetEvent.nativeParams = params;
     const { processEventData } = targetNode._meta.component;
     if (processEventData) {
       processEventData(targetEvent, eventName, nativeEvent);
@@ -126,6 +127,7 @@ const EventDispatcher = {
     }
     const targetEventName = getVueEventName(eventName, targetNode);
     const targetEvent = new Event(targetEventName);
+    targetEvent.nativeParams = params || {};
     // Post event parameters process.
     if (eventName === 'onLayout') {
       const { layout } = params;
