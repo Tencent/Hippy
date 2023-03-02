@@ -112,6 +112,7 @@ std::shared_ptr<View> TextInputNode::CreateView() {
   edit_controller_ = TDF_MAKE_SHARED(TextEditingController);
   selection_control_ = TDF_MAKE_SHARED(CupertinoTextSelectionControl);
   auto text_input_view = TDF_MAKE_SHARED(TextInputView, edit_controller_, selection_control_);
+  text_input_view->SetVerticalAlign(tdfcore::VerticalAlign::kCenter);
   edit_controller_->AddListener([&, text_input_view](const auto& v) { DidChangeTextEditingValue(text_input_view); });
   text_input_view_ = text_input_view;
   text_input_view->GetViewContext()->GetShell()->GetEventCenter()->AddListener(
