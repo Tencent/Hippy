@@ -42,7 +42,7 @@ ADRLoader::ADRLoader() : aasset_manager_(nullptr) {}
 
 bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
                                         std::function<void(u8string)> cb) {
-  std::shared_ptr<Uri> uri_obj = Uri::Create(uri);
+  auto uri_obj = Uri::Create(uri);
   if (!uri_obj) {
     TDF_BASE_DLOG(ERROR) << "uri error, uri = " << uri;
     cb(u8string());
