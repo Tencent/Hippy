@@ -20,29 +20,24 @@
  *
  */
 
-#pragma once
+#include "core/vm/v8/snapshot_serializer.h"
 
-#include <JavaScriptCore/JavaScriptCore.h>
+#include "core/base/common.h"
 
-#include "base/unicode_string_view.h"
-#include "core/napi/js_ctx.h"
-
-namespace hippy {
-namespace napi {
-
-class JSCCtxValue : public CtxValue {
-public:
-  JSCCtxValue(JSGlobalContextRef context, JSValueRef value)
-  : context_(context), value_(value) {
-    JSValueProtect(context_, value_);
-  }
-  ~JSCCtxValue() { JSValueUnprotect(context_, value_); }
-  JSCCtxValue(const JSCCtxValue&) = delete;
-  JSCCtxValue &operator=(const JSCCtxValue&) = delete;
-  
-  JSGlobalContextRef context_;
-  JSValueRef value_;
-};
-
+void SnapshotSerializer::WriteUInt32(uint32_t value) {
+  WriteBuffer(&value, sizeof(value));
 }
+
+void SnapshotSerializer::WriteString(const std::string& value) {
+  auto length = value.length();
+  WriteUInt32(hippy::base::checked_numeric_cast<size_t, uint32_t>(length));
+  WriteBuffer(value.c_str(), length);
+}
+
+void SnapshotSerializer::WriteBuffer(const void* p, size_t length) {
+  if (buffer_.capacity() <= buffer_.size() + length) {
+    buffer_.resize(buffer_.size() + length);
+  }
+  memcpy(&buffer_[0] + position_, p, length);
+  position_ += length;
 }

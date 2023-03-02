@@ -3,7 +3,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,30 +19,14 @@
  * limitations under the License.
  *
  */
-
 #pragma once
 
-#include <JavaScriptCore/JavaScriptCore.h>
+#include <vector>
 
-#include "base/unicode_string_view.h"
-#include "core/napi/js_ctx.h"
+extern std::vector<intptr_t> external_references;
 
-namespace hippy {
-namespace napi {
-
-class JSCCtxValue : public CtxValue {
-public:
-  JSCCtxValue(JSGlobalContextRef context, JSValueRef value)
-  : context_(context), value_(value) {
-    JSValueProtect(context_, value_);
-  }
-  ~JSCCtxValue() { JSValueUnprotect(context_, value_); }
-  JSCCtxValue(const JSCCtxValue&) = delete;
-  JSCCtxValue &operator=(const JSCCtxValue&) = delete;
-  
-  JSGlobalContextRef context_;
-  JSValueRef value_;
-};
-
-}
-}
+#define REGISTER_EXTERNAL_REFERENCES(FUNC_NAME)                           \
+static auto register_invoke_##FUNC_NAME = []() {                          \
+  external_references.push_back(reinterpret_cast<intptr_t>(FUNC_NAME));   \
+  return 0;                                                               \
+}();

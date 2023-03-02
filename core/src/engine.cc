@@ -26,6 +26,7 @@
 #include "core/task/javascript_task.h"
 
 constexpr uint32_t Engine::kDefaultWorkerPoolSize = 1;
+constexpr char kUseSnapshotStringValue[] = "1";
 
 Engine::Engine() : vm_(nullptr) {}
 
@@ -45,9 +46,14 @@ std::shared_ptr<Scope> Engine::AsyncCreateScope(const std::string& name,
   TDF_BASE_DLOG(INFO) << "Engine AsyncCreateScope";
   std::shared_ptr<Scope> scope = std::make_shared<Scope>(weak_from_this(), name, std::move(map));
   scope->wrapper_ = std::make_unique<ScopeWrapper>(scope);
+  bool use_snapshot = false;
+  if (init_param[hippy::base::kUseSnapshot] == kUseSnapshotStringValue) {
+    use_snapshot = true;
+  }
   auto task = std::make_shared<JavaScriptTask>();
-  task->callback = [scope] {
-    scope->Init();
+  task->callback = [scope, use_snapshot] {
+    TDF_BASE_DLOG(INFO) << "js CreateScope use_snapshot = " << use_snapshot;
+    scope->Init(use_snapshot);
   };
   js_runner_->PostTask(std::move(task));
 
@@ -64,7 +70,11 @@ std::shared_ptr<Scope> Engine::SyncCreateScope(const std::string& name,
   TDF_BASE_DLOG(INFO) << "Engine SyncCreateScope";
   auto scope = std::make_shared<Scope>(weak_from_this(), name, std::move(map));
   scope->wrapper_ = std::make_unique<ScopeWrapper>(scope);
-  scope->Init();
+  bool use_snapshot = false;
+  if (init_param[hippy::base::kUseSnapshot] == kUseSnapshotStringValue) {
+    use_snapshot = true;
+  }
+  scope->Init(use_snapshot);
   return scope;
 }
 

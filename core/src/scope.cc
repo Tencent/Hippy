@@ -38,6 +38,7 @@
 #ifdef JS_V8
 #include "core/napi/v8/v8_ctx.h"
 #include "core/vm/v8/memory_module.h"
+#include "core/vm/v8/snapshot_collector.h"
 #endif
 
 using unicode_string_view = tdf::base::unicode_string_view;
@@ -72,6 +73,8 @@ static void InternalBindingCallback(const hippy::napi::CallbackInfo& info, void*
   auto js_object = module_object->BindFunction(scope, rest_args);
   info.GetReturnValue()->Set(js_object);
 }
+
+REGISTER_EXTERNAL_REFERENCES(InternalBindingCallback)
 
 Scope::Scope(std::weak_ptr<Engine> engine,
              std::string name,
@@ -120,10 +123,12 @@ void Scope::WillExit() {
   TDF_BASE_DLOG(INFO) << "ExitCtx end";
 }
 
-void Scope::Init() {
+void Scope::Init(bool use_snapshot) {
   CreateContext();
   BindModule();
-  Bootstrap();
+  if (!use_snapshot) {
+    Bootstrap();
+  }
   InvokeCallback();
 }
 
