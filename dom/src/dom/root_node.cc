@@ -204,10 +204,11 @@ void RootNode::DeleteDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
 void RootNode::UpdateAnimation(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   std::vector<std::shared_ptr<DomNode>> nodes_to_update;
   for (const auto& it : nodes) {
-    std::shared_ptr<DomNode> node = GetNode(it->GetId());
-    if (node == nullptr) {
+    auto node = GetNode(it->GetId());
+    if (!node) {
       continue;
     }
+    node->MarkWillChange(true);
     nodes_to_update.push_back(node);
     node->ParseLayoutStyleInfo();
     auto event = std::make_shared<DomEvent>(kDomUpdated, node, nullptr);
