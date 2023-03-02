@@ -260,8 +260,7 @@ void TextViewNode::SetEnableScale(const DomStyleMap& dom_style, std::shared_ptr<
   if (auto iter = dom_style.find(text::kEnableScale); iter != dom_style.end()) {
     auto enable_scale = iter->second->ToBooleanChecked();
     if (!enable_scale) {
-      // TODO(etkmao):
-      // text_view->SetTextScaleFactor(TextAttributes::kDefaultScaleFactor);
+      // not support
     }
   }
 }
