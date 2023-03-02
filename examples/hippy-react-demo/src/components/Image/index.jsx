@@ -98,8 +98,11 @@ export default function ImageExpo() {
         resizeMode={Image.resizeMode.cover}
         defaultSource={defaultSource}
         source={{ uri: 'https://user-images.githubusercontent.com/12878546/148736255-7193f89e-9caf-49c0-86b0-548209506bd6.gif' }}
-        onLoadEnd={() => {
-          console.log('gif onLoadEnd');
+        onLoadEnd={(result) => {
+          console.log(`gif onLoadEnd success: ${result.success}`);
+          if (result.success === 1) {
+            console.log(`gif size: ${result.image.width} * ${result.image.height}`);
+          }
         }}
       />
     </ScrollView>
