@@ -95,7 +95,7 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   auto view = GetView();
   auto const map_end = dom_style.cend();
 
-  if (auto it = dom_style.find(view::kBackgroundColor); it != map_end) {
+  if (auto it = dom_style.find(view::kBackgroundColor); it != map_end && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     view->SetBackgroundColor(ViewNode::ParseToColor(it->second));
   } else {
