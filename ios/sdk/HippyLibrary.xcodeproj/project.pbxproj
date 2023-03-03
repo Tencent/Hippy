@@ -1189,14 +1189,14 @@
 		F4C9299F291C9B4E0078351C /* refreshview */ = {
 			isa = PBXGroup;
 			children = (
-				F4C929A0291C9B4E0078351C /* HippyRefreshWrapperItemViewManager.h */,
-				F4C929A1291C9B4E0078351C /* HippyRefreshWrapperItemView.m */,
-				F4C929A2291C9B4E0078351C /* HippyRefreshWrapperViewManager.m */,
-				F4C929A3291C9B4E0078351C /* HippyRefreshWrapper.m */,
-				F4C929A4291C9B4E0078351C /* HippyRefreshWrapperItemView.h */,
-				F4C929A5291C9B4E0078351C /* HippyRefreshWrapperItemViewManager.m */,
-				F4C929A6291C9B4E0078351C /* HippyRefreshWrapper.h */,
 				F4C929A7291C9B4E0078351C /* HippyRefreshWrapperViewManager.h */,
+				F4C929A2291C9B4E0078351C /* HippyRefreshWrapperViewManager.m */,
+				F4C929A6291C9B4E0078351C /* HippyRefreshWrapper.h */,
+				F4C929A3291C9B4E0078351C /* HippyRefreshWrapper.m */,
+				F4C929A0291C9B4E0078351C /* HippyRefreshWrapperItemViewManager.h */,
+				F4C929A5291C9B4E0078351C /* HippyRefreshWrapperItemViewManager.m */,
+				F4C929A4291C9B4E0078351C /* HippyRefreshWrapperItemView.h */,
+				F4C929A1291C9B4E0078351C /* HippyRefreshWrapperItemView.m */,
 			);
 			path = refreshview;
 			sourceTree = "<group>";
@@ -1213,14 +1213,14 @@
 		F4C929AB291C9B4E0078351C /* viewPager */ = {
 			isa = PBXGroup;
 			children = (
-				F4C929AC291C9B4E0078351C /* HippyViewPagerItemManager.h */,
+				F4C929B3291C9B4E0078351C /* HippyViewPagerManager.h */,
+				F4C929AF291C9B4E0078351C /* HippyViewPagerManager.m */,
+				F4C929B1291C9B4E0078351C /* HippyViewPager.h */,
 				F4C929AD291C9B4E0078351C /* HippyViewPager.m */,
 				F4C929AE291C9B4E0078351C /* HippyViewPagerItem.h */,
-				F4C929AF291C9B4E0078351C /* HippyViewPagerManager.m */,
 				F4C929B0291C9B4E0078351C /* HippyViewPagerItem.m */,
-				F4C929B1291C9B4E0078351C /* HippyViewPager.h */,
+				F4C929AC291C9B4E0078351C /* HippyViewPagerItemManager.h */,
 				F4C929B2291C9B4E0078351C /* HippyViewPagerItemManager.m */,
-				F4C929B3291C9B4E0078351C /* HippyViewPagerManager.h */,
 			);
 			path = viewPager;
 			sourceTree = "<group>";
