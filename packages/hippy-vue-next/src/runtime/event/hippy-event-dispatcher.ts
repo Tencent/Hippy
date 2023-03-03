@@ -64,12 +64,10 @@ function getVueEventName(eventName: string, targetNode: HippyNode): string {
   if (eventNamesMap?.has(eventName)) {
     return eventNamesMap.get(eventName) as string;
   }
-
   // events that do not start with on maybe custom events, and return the event name directly
   if (eventName.indexOf('on') !== 0) {
     return eventName;
   }
-
   // remove the on in the event name and convert the first letter to lowercase, eg. onClick => click
   const str = eventName.slice(2, eventName.length);
   return `${str.charAt(0).toLowerCase()}${str.slice(1)}`;
@@ -118,16 +116,14 @@ const HippyEventDispatcher = {
     if (!nativeEvent) {
       return;
     }
-
-    const { id: targetNodeId, name: eventName } = nativeEvent;
+    const { id: targetNodeId, name: eventName, ...params } = nativeEvent;
     const targetNode = getNodeById(targetNodeId);
-
     if (!targetNode) {
       return;
     }
-
     const targetEventName = getVueEventName(eventName, targetNode);
     const targetEvent = new HippyEvent(targetEventName);
+    targetEvent.nativeParams = params;
     const { processEventData } = targetNode.component;
     if (processEventData) {
       processEventData(
@@ -150,23 +146,20 @@ const HippyEventDispatcher = {
     if (isInvalidNativeEvent(nativeEvent)) {
       return;
     }
-
     const [targetNodeId, eventName, params] = nativeEvent;
     if (typeof targetNodeId !== 'number' || typeof eventName !== 'string') {
       return;
     }
-
     const targetNode = getNodeById(targetNodeId);
     if (!targetNode) {
       return;
     }
-
     const targetEventName = getVueEventName(eventName, targetNode);
-
     // process layout event
     if (eventName === 'onLayout') {
       const { layout } = params;
       const targetLayoutEvent = new HippyLayoutEvent(targetEventName);
+      targetLayoutEvent.nativeParams = params ?? {};
       targetLayoutEvent.top = layout.y;
       targetLayoutEvent.left = layout.x;
       targetLayoutEvent.bottom = layout.y + layout.height;
@@ -177,7 +170,7 @@ const HippyEventDispatcher = {
       targetNode.dispatchEvent(targetLayoutEvent);
     } else {
       const targetEvent = new HippyEvent(targetEventName);
-
+      targetEvent.nativeParams = params ?? {};
       // other event processing, if the node itself has additional event processing logic, it also needs to be processed
       const { processEventData } = targetNode.component;
 

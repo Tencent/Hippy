@@ -82,6 +82,20 @@ public class TypeFaceUtil {
     }
 
     if (typeface == null) {
+      for (String fileExtension : FONT_EXTENSIONS) {
+        String fileName = FONTS_PATH + fontFamilyName + fileExtension;
+        try {
+          typeface = Typeface.createFromAsset(ContextHolder.getAppContext().getAssets(), fileName);
+          if (typeface != null) {
+            typeface = Typeface.create(typeface, style);
+          }
+        } catch (Exception e) {
+          LogUtils.e("TypeFaceUtil", "createTypeface: " + e.getMessage());
+        }
+      }
+    }
+
+    if (typeface == null) {
       typeface = Typeface.create(fontFamilyName, style);
     }
 

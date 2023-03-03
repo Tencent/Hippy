@@ -71,7 +71,6 @@ set(SOURCE_SET
     src/bridge/java2js.cc
     src/bridge/js2java.cc
     src/bridge/runtime.cc
-    src/bridge/serializer.cc
     src/jni/convert_utils.cc
     src/jni/exception_handler.cc
     src/jni/java_turbo_module.cc

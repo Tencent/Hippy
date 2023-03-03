@@ -43,6 +43,9 @@ export class HippyEvent {
   // whether the event can bubble, the default is true
   public bubbles = true;
 
+  // native parameters
+  public nativeParams?: NeedToTyped;
+
   // whether the default behavior of the event can be canceled, the default is true
   protected cancelable = true;
 

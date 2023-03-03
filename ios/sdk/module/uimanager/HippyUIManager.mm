@@ -51,6 +51,7 @@
 #import "HippyMemoryOpt.h"
 #import "HippyDeviceBaseInfo.h"
 #import "HippyVirtualList.h"
+#import "HippyReusableViewPool.h"
 
 @protocol HippyBaseListViewProtocol;
 
@@ -92,12 +93,13 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     NSMutableArray<HippyViewUpdateCompletedBlock> *_completeBlocks;
 
     NSMutableSet<NSNumber *> *_listAnimatedViewTags;
+    HippyReusableViewPool *_reusePool;
 }
 
 @synthesize bridge = _bridge;
 
 HIPPY_EXPORT_MODULE()
-
+ 
 - (instancetype)init {
     self = [super init];
     if (self) {
@@ -303,6 +305,13 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
     [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerDidRegisterRootViewNotification object:self
                                                       userInfo:@{ HippyUIManagerRootViewKey: rootView }];
+}
+
+- (HippyReusableViewPool *)reusePool {
+    if (!_reusePool) {
+        _reusePool = [[HippyReusableViewPool alloc] init];
+    }
+    return _reusePool;
 }
 
 - (UIView *)viewForHippyTag:(NSNumber *)hippyTag {
@@ -958,26 +967,11 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
                              hippyTag:(NSNumber *)hippyTag
                            properties:(NSDictionary *)props
                              viewName:(NSString *)viewName {
-    UIView *view = [self viewForHippyTag:hippyTag];
-    
-    BOOL canBeRetrievedFromCache = YES;
-    if (view && [view respondsToSelector:@selector(canBeRetrievedFromViewCache)]) {
-        canBeRetrievedFromCache = [view canBeRetrievedFromViewCache];
-    }
-
-    /**
-     * subviews & hippySubviews should be removed from the view which we get from cache(_viewRegistry).
-     * otherwise hippySubviews will be inserted multiple times.
-     */
-    if (view && canBeRetrievedFromCache) {
-        [view resetHippySubviews];
-    }
-    else {
-        view = [componentData createViewWithTag:hippyTag initProps:props];
-    }
+    UIView *view = [componentData createViewWithTag:hippyTag initProps:props];
     if (view) {
         view.viewName = viewName;
         view.rootTag = node.rootTag;
+        view.hippyTag = hippyTag;
         [componentData setProps:props forView:view];  // Must be done before bgColor to prevent wrong default
 
         if ([view respondsToSelector:@selector(hippyBridgeDidFinishTransaction)]) {
@@ -1471,110 +1465,6 @@ static UIView *_jsResponder;
     return _jsResponder;
 }
 
-- (UIView *)updateNode:(HippyVirtualNode *)oldNode withNode:(HippyVirtualNode *)node {
-    UIView *result = nil;
-    @try {
-        UIView *cachedView = self->_viewRegistry[node.hippyTag];
-        if (cachedView) {
-            return cachedView;
-        }
-
-        if (oldNode == nil) {
-            return nil;
-        }
-        
-        if (![[oldNode viewName] isEqualToString:[node viewName]]) {
-            return nil;
-        }
-
-        NSDictionary *diff = [oldNode diff:node];
-
-        if (diff == nil) {
-            HippyAssert(diff != nil, @"updateView two view node data struct is different");
-        }
-
-        NSDictionary *update = diff[@"update"];
-        NSDictionary *insert = diff[@"insert"];
-        NSArray *remove = diff[@"remove"];
-        NSDictionary *tags = diff[@"tag"];
-
-        for (NSNumber *tag in remove) {
-            UIView *view = self->_viewRegistry[tag];
-            [view.superview clearSortedSubviews];
-            [view.superview removeHippySubview:view];
-            [self removeNativeNodeView:view];
-        }
-
-        result = [node createView:^UIView *(HippyVirtualNode *subNode) {
-            NSNumber *subTag = subNode.hippyTag;
-            UIView *subview = nil;
-
-            if (update[subTag]) {  // 更新props
-                HippyVirtualNode *oldSubNode = self->_nodeRegistry[update[subTag]];
-                subview = self->_viewRegistry[oldSubNode.hippyTag];
-                if (subview == nil) {
-                    NSString *viewName = subNode.viewName;
-                    NSNumber *tag = subNode.hippyTag;
-                    NSDictionary *props = subNode.props;
-                    HippyComponentData *componentData = self->_componentDataByName[viewName];
-                    subview = [self createViewByComponentData:componentData hippyVirtualNode:subNode hippyTag:tag properties:props viewName:viewName];
-                } else {
-                    HippyComponentData *componentData = self->_componentDataByName[oldSubNode.viewName];
-                    NSDictionary *oldProps = oldSubNode.props;
-                    NSDictionary *newProps = subNode.props;
-                    newProps = [self mergeProps:newProps oldProps:oldProps];
-                    [componentData setProps:newProps forView:subview];
-                    [subview.layer removeAllAnimations];
-                    [subview didUpdateWithNode:subNode];
-                }
-            } else if (insert[subTag]) {  // 插入
-                subview = self->_viewRegistry[subTag];
-                if (subview == nil) {
-                    subview = [self createViewFromNode:subNode];
-                }
-            }
-
-            if (tags[subTag]) {  // 更新tag
-                NSNumber *oldSubTag = tags[subTag];
-                subview = self->_viewRegistry[oldSubTag];
-                if (subview == nil) {
-                    NSString *viewName = subNode.viewName;
-                    NSNumber *tag = subNode.hippyTag;
-                    NSDictionary *props = subNode.props;
-                    HippyComponentData *componentData = self->_componentDataByName[viewName];
-                    subview = [self createViewByComponentData:componentData hippyVirtualNode:subNode hippyTag:tag properties:props viewName:viewName];
-                } else {
-                    [subview sendDetachedFromWindowEvent];
-                    [subview.layer removeAllAnimations];
-                    subview.hippyTag = subTag;
-                    [self->_viewRegistry removeObjectForKey:oldSubTag];
-                    self->_viewRegistry[subTag] = subview;
-                    [subview sendAttachedToWindowEvent];
-                }
-            }
-
-            if (!CGRectEqualToRect(subview.frame, subNode.frame)) {
-                [subview hippySetFrame:subNode.frame];
-            }
-
-            return subview;
-        } insertChildrens:^(UIView *container, NSArray<UIView *> *childrens) {
-            NSInteger index = 0;
-            for (UIView *subview in childrens) {
-                [container removeHippySubview:subview];
-                [container insertHippySubview:subview atIndex:index];
-                index++;
-            }
-            [container clearSortedSubviews];
-            [container didUpdateHippySubviews];
-        }];
-
-    } @catch (NSException *exception) {
-        MttHippyException(exception);
-    }
-    return result;
-}
-
 - (UIView *)createViewFromNode:(HippyVirtualNode *)node {
     UIView *result = nil;
     NSMutableArray *tranctions = [NSMutableArray new];
@@ -1584,13 +1474,37 @@ static UIView *_jsResponder;
             NSNumber *tag = subNode.hippyTag;
             NSDictionary *props = subNode.props;
             HippyComponentData *componentData = self->_componentDataByName[viewName];
-            UIView *view = [self createViewByComponentData:componentData hippyVirtualNode:subNode hippyTag:tag properties:props viewName:viewName];
+            UIView *view = [self->_reusePool popViewForKey:viewName];
+            if (!view) {
+                view = [self createViewByComponentData:componentData
+                                      hippyVirtualNode:subNode
+                                              hippyTag:tag
+                                            properties:props
+                                              viewName:viewName];
+            }
+            else {
+                NSNumber *oldHippyTag = [view hippyTag];
+                HippyVirtualNode *oldNode = [self->_nodeRegistry objectForKey:oldHippyTag];
+                if (oldNode) {
+                    NSDictionary *oldProps = [oldNode props];
+                    NSDictionary *mergedProps = [self mergeProps:props oldProps:oldProps];
+                    [componentData setProps:mergedProps forView:view];
+                    view.hippyTag = tag;
+                    self->_viewRegistry[tag] = view;
+                }
+                else {
+                    view = [self createViewByComponentData:componentData
+                                          hippyVirtualNode:subNode
+                                                  hippyTag:tag
+                                                properties:props
+                                                  viewName:viewName];
+                }
+            }
             CGRect frame = subNode.frame;
             [view hippySetFrame:frame];
             if ([view respondsToSelector:@selector(hippyBridgeDidFinishTransaction)]) {
                 [tranctions addObject:view];
             }
-            //            [self callCacheUIFunctionCallIfNeed: tag];
             if ([self->_listAnimatedViewTags containsObject:tag]) {
                 [self.bridge.animationModule connectAnimationToView:view];
             }

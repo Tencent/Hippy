@@ -227,6 +227,8 @@ const router = createRouter({
   In the sample code, our routing component is wrapped in the Keep-Alive component, but currently the routing component wrapped with Keep-Alive cannot achieve hot update during development, and the entire instance needs to be refreshed to complete the refresh.
   There is no such problem if it is not wrapped in Keep-Alive. At present, the [official problem](https://github.com/vuejs/core/pull/5165) has not been resolved. The problem can be solved by upgrading Vue after waiting for the official solution.
 
+  !> vue@3.2.45+ has fixed this [problem](https://github.com/vuejs/core/pull/7049). When developing with version 3.2.45 and above, the components in keep-alive can also be hot updated
+
 - Vue3.x Proxy Value
 
   Because the reactivity of Vue3.x is implemented by "Proxy", so the object we get is actually an instance of Proxy instead of the original object, so we need to pay attention when calling the native interface, the native does not Know the Proxy object,
@@ -300,6 +302,10 @@ const router = createRouter({
      },
     ]
   ```
+
+- dialog
+
+  The first child element of `<dialog>` cannot be set style `{ position: absolute }`. If you want to cover full screen by the content of `<dialog>`, you can set `{ flex: 1 }` or explicit with/height value for the first child element, which is consistent with Hippy3.0.
 
 # Examples
 
