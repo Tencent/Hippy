@@ -162,8 +162,59 @@ const form: ElementComponent = {
 const img: ElementComponent = {
   component: {
     name: NATIVE_COMPONENT_MAP.Image,
-    eventNamesMap: div.component.eventNamesMap,
-    processEventData: div.component.processEventData,
+    eventNamesMap: mapHippyEvent([
+      ['touchStart', 'onTouchDown'],
+      ['touchstart', 'onTouchDown'],
+      ['touchmove', 'onTouchMove'],
+      ['touchend', 'onTouchEnd'],
+      ['touchcancel', 'onTouchCancel'],
+      ['loadEnd', 'onLoadEnd'],
+    ]),
+    processEventData(evtData: EventsUnionType, nativeEventParams: NeedToTyped) {
+      const { handler: event, __evt: nativeEventName } = evtData;
+
+      switch (nativeEventName) {
+        case 'onScroll':
+        case 'onScrollBeginDrag':
+        case 'onScrollEndDrag':
+        case 'onMomentumScrollBegin':
+        case 'onMomentumScrollEnd':
+          event.offsetX = nativeEventParams.contentOffset?.x;
+          event.offsetY = nativeEventParams.contentOffset?.y;
+          /**
+           * If it is a scroll event and the size of the scroll content area is included in the event response,
+           * the actual size of the scroll content area will be assigned
+           */
+          if (nativeEventParams?.contentSize) {
+            event.scrollHeight = nativeEventParams.contentSize.height;
+            event.scrollWidth = nativeEventParams.contentSize.width;
+          }
+          break;
+        case 'onTouchDown':
+        case 'onTouchMove':
+        case 'onTouchEnd':
+        case 'onTouchCancel':
+          event.touches = {
+            0: {
+              clientX: nativeEventParams.page_x,
+              clientY: nativeEventParams.page_y,
+            },
+            length: 1,
+          };
+          break;
+        case 'onFocus':
+          event.isFocused = nativeEventParams.focus;
+          break;
+        case 'onLoadEnd':
+          event.success = nativeEventParams.success === 1;
+          if (event.success) {
+            event.size = { width: nativeEventParams.image.width, height: nativeEventParams.image.height };
+          }
+          break;
+        default:
+      }
+      return event;
+    },
     defaultNativeStyle: {
       backgroundColor: 0,
     },

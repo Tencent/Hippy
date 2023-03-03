@@ -147,6 +147,10 @@ export class HippyLoadResourceEvent extends HippyEvent {
   public url?: string;
   public success?: boolean;
   public error?: string;
+  public size?: {
+    width?: number;
+    height?: number;
+  };
 }
 
 export class HippyKeyboardEvent extends HippyEvent {
