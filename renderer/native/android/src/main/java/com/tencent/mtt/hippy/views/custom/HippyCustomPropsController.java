@@ -16,14 +16,15 @@
 
 package com.tencent.mtt.hippy.views.custom;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.annotation.HippyController;
+import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
-import com.tencent.renderer.node.RenderNode;
-import com.tencent.renderer.NativeRender;
-import com.tencent.renderer.NativeRendererManager;
 
 import android.content.Context;
 import android.view.View;
+import java.util.List;
 
 @SuppressWarnings("rawtypes")
 @HippyController(name = HippyCustomPropsController.CLASS_NAME)
@@ -36,4 +37,9 @@ public class HippyCustomPropsController extends HippyViewController {
         return null;
     }
 
+    @SuppressWarnings("unused")
+    public void handleCustomFunction(@NonNull View view, @NonNull String functionName,
+            @NonNull List params, @Nullable Promise promise) {
+        // Stub method.
+    }
 }

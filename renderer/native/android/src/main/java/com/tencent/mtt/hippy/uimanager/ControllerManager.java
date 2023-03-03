@@ -88,7 +88,7 @@ public class ControllerManager {
     public ControllerManager(@NonNull Renderer renderer) {
         mRenderer = renderer;
         mControllerRegistry = new ControllerRegistry(renderer);
-        mControllerUpdateManger = new ControllerUpdateManger(renderer);
+        mControllerUpdateManger = new ControllerUpdateManger<>(renderer);
     }
 
     public RenderManager getRenderManager() {
@@ -125,7 +125,7 @@ public class ControllerManager {
         sDefaultControllers.add(HippyWaterfallItemViewController.class);
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public synchronized void addControllers(@NonNull List<Class<?>> controllers) {
         for (Class cls : controllers) {
             try {
@@ -165,6 +165,15 @@ public class ControllerManager {
                 new ControllerHolder(new HippyViewGroupController(), false, false));
         mControllerUpdateManger.setCustomPropsController(mControllerRegistry.getViewController(
                 HippyCustomPropsController.CLASS_NAME));
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Nullable
+    public HippyCustomPropsController getCustomPropsController() {
+        HippyViewController controller = mControllerRegistry.getViewController(
+                HippyCustomPropsController.CLASS_NAME);
+        return (controller instanceof HippyCustomPropsController)
+                ? (HippyCustomPropsController) controller : null;
     }
 
     public void destroy() {
@@ -622,7 +631,8 @@ public class ControllerManager {
 
     private void reportAddViewException(int pid, View parent, int id, View child) {
         NativeRenderException exception = new NativeRenderException(ADD_CHILD_VIEW_FAILED_ERR,
-                getViewOperationExceptionMessage(pid, parent, id, child, "Add child to parent failed:"));
+                getViewOperationExceptionMessage(pid, parent, id, child,
+                        "Add child to parent failed:"));
         mRenderer.handleRenderException(exception);
     }
 }
