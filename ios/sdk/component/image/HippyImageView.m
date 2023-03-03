@@ -378,7 +378,7 @@ static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProv
         [imageView.animatedImageOpLock unlock];
     } else {
         __weak __typeof(imageView)weakSelf = imageView;
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [hippy_image_queue() addOperationWithBlock:^{
             __strong __typeof(weakSelf)strongSelf = weakSelf;
             if (!strongSelf) return;
             UIImage *image = [instance image];
@@ -392,7 +392,7 @@ static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProv
                 NSError *theError = imageErrorFromParams(ImageDataUnavailable, errorMessage);
                 [strongSelf loadImage:nil url:imageUrl error:theError needBlur:YES needCache:NO];
             }
-        });
+        }];
     }
 }
 
@@ -415,7 +415,7 @@ static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProv
             id<HippyImageProviderProtocol> instance = [ipClass imageProviderInstanceForData:data];
             if (instance) {
                 BOOL isAnimatedImage = [instance imageCount] > 1;
-                decodeAndLoadImageAsync(self, instance, uri, isAnimatedImage, nil);
+                decodeAndLoadImageAsync(self, instance, uri.copy, isAnimatedImage, nil);
                 return;
             }
         }
@@ -460,7 +460,7 @@ static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProv
                 Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(imageData, strongBridge);
                 id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:imageData];
                 BOOL isAnimatedImage = [ipClass isAnimatedImage:imageData];
-                decodeAndLoadImageAsync(strongSelf, instance, uri, isAnimatedImage, nil);
+                decodeAndLoadImageAsync(strongSelf, instance, uri.copy, isAnimatedImage, nil);
             }
         };
 
@@ -485,7 +485,7 @@ static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProv
                     Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(data, strongBridge);
                     id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:data];
                     BOOL isAnimatedImage = [ipClass isAnimatedImage:data];
-                    decodeAndLoadImageAsync(strongSelf, instance, uri, isAnimatedImage, nil);
+                    decodeAndLoadImageAsync(strongSelf, instance, uri.copy, isAnimatedImage, nil);
                 }];
         };
 
@@ -587,6 +587,7 @@ static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProv
                 Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(_data, self.bridge);
                 id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:_data];
                 BOOL isAnimatedImage = [ipClass isAnimatedImage:_data];
+                // no need to copy _data since we have make sure to run in same hippy_image_queue()
                 decodeAndLoadImageAsync(self, instance, urlString, isAnimatedImage, _data);
             } else {
                 NSURLResponse *response = [task response];

@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
   s.author           = 'OpenHippy Team'
   s.source           = {:git => 'https://github.com/Tencent/Hippy.git', :tag => s.version}
   s.platform = :ios
-  s.ios.deployment_target = '9.0'
+  s.ios.deployment_target = '11.0'
   s.requires_arc = true
   s.default_subspec = 'iOSSDK'
   s.pod_target_xcconfig = {
@@ -29,15 +29,17 @@ Pod::Spec.new do |s|
     ss.libraries = 'c++'
     ss.framework = 'JavaScriptCore'
     ss.dependency 'hippy/coreThirdParty'
-    ss.source_files = ['core/include/**/*.{h,cc}', 
+    ss.source_files = ['core/include/**/*.{h,cc}',
                        'core/src/**/*.{h,cc}']
     ss.public_header_files = 'core/include/**/*.h'
     ss.project_header_files = 'core/include/**/*.h'
     # ss.header_mappings_dir = 'core/include/'
     ss.exclude_files = ['core/include/core/napi/v8',
+                        'core/include/core/vm/v8',
                         'core/include/core/inspector',
                         'core/src/napi/v8',
                         'core/src/inspector',
+                        'core/src/vm/v8',
                         'core/third_party/base/src/platform/adr']
     ss.pod_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '$(PODS_TARGET_SRCROOT)/core/include/',

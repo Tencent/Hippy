@@ -40,9 +40,9 @@
 #import "HippyI18nUtils.h"
 #import "HippyDevManager.h"
 #import "HippyBundleURLProvider.h"
-#include "core/scope.h"
 #import "HippyTurboModuleManager.h"
-#import <core/napi/jsc/js_native_api_jsc.h>
+
+#include "core/scope.h"
 
 #define HippyAssertJSThread()
 //
