@@ -36,7 +36,7 @@ void SnapshotData::WriteMetaData(v8::StartupData data) {
   serializer.WriteBuffer(data.data, size);
 }
 
-bool SnapshotData::ReadMetaData() {
+bool SnapshotData::ReadMetadata() {
   SnapshotDeserializer deserializer(buffer_holder);
   auto flag = deserializer.ReadUInt32(magic_number);
   if (!flag) {

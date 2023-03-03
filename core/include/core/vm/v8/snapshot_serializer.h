@@ -35,6 +35,6 @@ class SnapshotSerializer {
 
  private:
   std::vector<uint8_t>& buffer_;
-  uint32_t position_ = 0;
+  size_t position_ = 0;
 };
 

@@ -38,7 +38,13 @@
 // blob raw data
 
 constexpr uint32_t kMagicNumber = 0x66886688;
-constexpr char kSdkVersion[] = "2.15.8";
+
+#define STR(x) #x
+#define HIPPY_SDK_VERSION_STR(x) STR(x)
+#define HIPPY_SDK_VERSION_STRING HIPPY_SDK_VERSION_STR(HIPPY_SDK_VERSION)
+constexpr char kSdkVersion[] = HIPPY_SDK_VERSION_STRING;
+#undef HIPPY_SDK_VERSION_STR
+#undef STR
 
 struct SnapshotData {
  public:
@@ -50,7 +56,7 @@ struct SnapshotData {
   std::any external_buffer_holder;    // hold DirectBuffer to avoid copying
 
   void WriteMetaData(v8::StartupData data);
-  bool ReadMetaData();                // use meta data in buffer_holder
+  bool ReadMetadata();                // use meta data in buffer_holder
   bool ReadMetaData(uint8_t* external_buffer_pointer, size_t length);
 };
 

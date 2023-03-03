@@ -37,6 +37,10 @@ target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 target_link_libraries(${PROJECT_NAME} PRIVATE android log)
 # endregion
 
+if (HIPPY_SDK_VERSION)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE HIPPY_SDK_VERSION=${HIPPY_SDK_VERSION})
+endif ()
+
 # region vm
 if ("${JS_ENGINE}" STREQUAL "V8")
   GlobalPackages_Add(v8)
