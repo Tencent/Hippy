@@ -86,10 +86,10 @@ Scope::~Scope() {
 void Scope::WillExit() {
   TDF_BASE_DLOG(INFO) << "WillExit begin";
   std::promise<std::shared_ptr<CtxValue>> promise;
-  std::future<std::shared_ptr<CtxValue>> future = promise.get_future();
+  auto future = promise.get_future();
   std::weak_ptr<Ctx> weak_context = context_;
-  JavaScriptTask::Function cb = hippy::base::MakeCopyable(
-      [weak_context, p = std::move(promise)]() mutable {
+  auto cb = hippy::base::MakeCopyable(
+      [weak_context, will_exit_cbs = will_exit_cbs_, p = std::move(promise)]() mutable {
         TDF_BASE_LOG(INFO) << "run js WillExit begin";
         std::shared_ptr<CtxValue> rst = nullptr;
         auto context = weak_context.lock();
@@ -101,6 +101,9 @@ void Scope::WillExit() {
           if (is_fn) {
             context->CallFunction(fn, 0, nullptr);
           }
+        }
+        for (const auto& will_exit_cb: will_exit_cbs) {
+          will_exit_cb();
         }
         p.set_value(rst);
       });
