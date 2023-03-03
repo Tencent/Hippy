@@ -44,6 +44,7 @@ import {
   getBeforeLoadStyle,
 } from '../../util';
 import { isRTL } from '../../util/i18n';
+import { eventMethod } from '../../util/event';
 import { getHippyCachedInstance } from '../../util/instance';
 import { parseRemStyle } from '../../util/rem';
 import { getTagComponent, type TagComponent } from '../component';
@@ -205,7 +206,16 @@ export class HippyElement extends HippyNode {
   public filterAttribute?: CallbackType;
 
   // polyFill of native event
-  protected polyFillNativeEvents?: (type: string) => string;
+  protected polyfillNativeEvents?: (
+    method: string,
+    eventNames: string,
+    callback: CallbackType,
+    options?: EventListenerOptions
+  ) => {
+    eventNames: string,
+    callback: CallbackType,
+    options?: EventListenerOptions
+  };
 
   // style scoped id for element
   private scopedIdList: NeedToTyped[] = [];
@@ -615,34 +625,32 @@ export class HippyElement extends HippyNode {
   /**
    * add element event listener
    *
-   * @param type - event type
-   * @param callback - callback
-   * @param options - options
+   * @param rawEventNames - event names
+   * @param rawCallback - callback
+   * @param rawOptions - options
    */
   public addEventListener(
-    type: string,
-    callback: CallbackType,
-    options?: EventListenerOptions,
+    rawEventNames: string,
+    rawCallback: CallbackType,
+    rawOptions?: EventListenerOptions,
   ): void {
-    let eventName = type;
+    let eventNames = rawEventNames;
+    let callback = rawCallback;
+    let options = rawOptions;
     // Added default scrollEventThrottle when scroll event is added.
-    if (
-      eventName === 'scroll'
-      && !(this.getAttribute('scrollEventThrottle') > 0)
-    ) {
+    if (eventNames === 'scroll' && !(this.getAttribute('scrollEventThrottle') > 0)) {
       this.attributes.scrollEventThrottle = 200;
     }
-
-    // If there is an event polyfill, bind the corresponding event callback to the event that needs polyfill
-    if (typeof this.polyFillNativeEvents === 'function') {
-      const polyfillEventName = this.polyFillNativeEvents(type);
-
-      if (polyfillEventName) {
-        eventName = polyfillEventName;
-      }
+    // If there is an event polyfill, override the event names, callback and options
+    if (typeof this.polyfillNativeEvents === 'function') {
+      ({ eventNames, callback, options } = this.polyfillNativeEvents(
+        eventMethod.ADD,
+        eventNames,
+        callback,
+        options,
+      ));
     }
-
-    super.addEventListener(eventName, callback, options);
+    super.addEventListener(eventNames, callback, options);
     // update native node
     this.updateNativeNode();
   }
@@ -650,27 +658,28 @@ export class HippyElement extends HippyNode {
   /**
    * remove event listener
    *
-   * @param type - event type
-   * @param callback - callback
-   * @param options - options
+   * @param rawEventNames - event type
+   * @param rawCallback - callback
+   * @param rawOptions - options
    */
   public removeEventListener(
-    type: string,
-    callback: CallbackType,
-    options?: EventListenerOptions,
+    rawEventNames: string,
+    rawCallback: CallbackType,
+    rawOptions?: EventListenerOptions,
   ): void {
-    let eventName = type;
-    // If there is an event polyfill, remove the corresponding event callback for events that require polyfill
-    if (typeof this.polyFillNativeEvents === 'function') {
-      const polyfillEventName = this.polyFillNativeEvents(type);
-
-      if (polyfillEventName) {
-        eventName = polyfillEventName;
-      }
+    let eventNames = rawEventNames;
+    let callback = rawCallback;
+    let options = rawOptions;
+    // If there is an event polyfill, override the event names, callback and options
+    if (typeof this.polyfillNativeEvents === 'function') {
+      ({ eventNames, callback, options } = this.polyfillNativeEvents(
+        eventMethod.REMOVE,
+        eventNames,
+        callback,
+        options,
+      ));
     }
-
-    super.removeEventListener(eventName, callback, options);
-
+    super.removeEventListener(eventNames, callback, options);
     // update native node
     this.updateNativeNode();
   }
