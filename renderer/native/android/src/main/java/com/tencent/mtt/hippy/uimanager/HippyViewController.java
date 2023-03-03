@@ -33,6 +33,8 @@ import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.ClipChildrenView;
+import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.Renderer;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRendererManager;
@@ -366,10 +368,33 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         // Stub method.
     }
 
+    @Nullable
+    protected HippyCustomPropsController getCustomPropsController(@NonNull View view) {
+        Context context = view.getContext();
+        if (context instanceof NativeRenderContext) {
+            int rendererId = ((NativeRenderContext) context).getInstanceId();
+            NativeRender renderer = NativeRendererManager.getNativeRenderer(rendererId);
+            if (renderer != null) {
+                return renderer.getRenderManager().getControllerManager()
+                        .getCustomPropsController();
+            }
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unused")
+    private void dispatchCustomFunction(@NonNull View view, @NonNull String functionName,
+            @NonNull List params, @Nullable Promise promise) {
+        HippyCustomPropsController controller = getCustomPropsController(view);
+        if (controller != null) {
+            controller.handleCustomFunction(view, functionName, params, promise);
+        }
+    }
+
     @SuppressWarnings("rawtypes")
     public void dispatchFunction(@NonNull T view, @NonNull String functionName,
             @NonNull List params) {
-        // Stub method.
+        dispatchCustomFunction(view, functionName, params, null);
     }
 
     @SuppressWarnings("rawtypes")
@@ -383,6 +408,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
                 getBoundingClientRect(view, params, promise);
                 break;
             default:
+                dispatchCustomFunction(view, functionName, params, promise);
                 break;
         }
         DevtoolsUtil.dispatchDevtoolsFunction(view, functionName, params, promise);
