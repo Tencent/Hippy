@@ -32,10 +32,12 @@ SnapshotDeserializer::SnapshotDeserializer(const uint8_t* buffer, size_t length)
 
 bool SnapshotDeserializer::ReadUInt32(uint32_t& value) {
   if (position_ + sizeof(value) > length_) {
+    error_message_ = GetErrorMessage("uint32", sizeof(value), length_ - position_);
     return false;
   }
   memcpy(&value, buffer_ + position_, sizeof(value));
   position_ += sizeof(value);
+  error_message_.clear();
   return true;
 }
 
@@ -50,14 +52,23 @@ bool SnapshotDeserializer::ReadString(std::string& value) {
   if (!flag) {
     return false;
   }
+  error_message_.clear();
   return true;
 }
 
 bool SnapshotDeserializer::ReadBuffer(void* p, size_t length) {
   if (position_ + length > length_) {
+    error_message_ = GetErrorMessage("buffer", length, length_ - position_);
     return false;
   }
   memcpy(p, buffer_ + position_, length);
   position_ += length;
+  error_message_.clear();
   return true;
+}
+
+std::string SnapshotDeserializer::GetErrorMessage(const std::string& type, size_t excepted, size_t received) {
+  std::ostringstream stream;
+  stream << "read " << type <<" failed, excepted " << sizeof(excepted) << " bytes, received" << received << " bytes";
+  return stream.str();
 }

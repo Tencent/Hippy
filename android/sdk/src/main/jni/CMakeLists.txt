@@ -51,6 +51,9 @@ target_link_options(${PROJECT_NAME} PRIVATE
 # endregion
 
 # region core
+if (HIPPY_SDK_VERSION)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE HIPPY_SDK_VERSION=${HIPPY_SDK_VERSION})
+endif ()
 add_subdirectory(${PROJECT_ROOT_DIR}/core ${CMAKE_CURRENT_BINARY_DIR}/core)
 target_link_libraries(${PROJECT_NAME} PRIVATE core)
 # endregion

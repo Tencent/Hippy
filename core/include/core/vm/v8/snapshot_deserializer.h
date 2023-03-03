@@ -32,14 +32,18 @@ class SnapshotDeserializer {
   SnapshotDeserializer(const uint8_t* buffer, size_t length);
 
   inline size_t GetPosition() { return position_; }
+  inline std::string GetLastErrorMessage() { return error_message_; }
 
   bool ReadUInt32(uint32_t& value);
   bool ReadString(std::string& value);
   bool ReadBuffer(void* p, size_t length);
 
  private:
+  static std::string GetErrorMessage(const std::string& type, size_t excepted, size_t received);
+
   const uint8_t* buffer_;
   size_t length_;
   size_t position_ = 0;
+  std::string error_message_;
 };
 

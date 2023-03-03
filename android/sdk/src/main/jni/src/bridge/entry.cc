@@ -111,8 +111,6 @@ void HandleUncaughtJsError(v8::Local<v8::Message> message,
   TDF_BASE_DLOG(INFO) << "HandleUncaughtJsError end";
 }
 
-// REGISTER_EXTERNAL_REFERENCES(HandleUncaughtJsError)
-
 namespace hippy {
 namespace bridge {
 
@@ -181,8 +179,6 @@ void NativeCallback(const hippy::napi::CallbackInfo& info, void* data) {
   auto runtime_id = static_cast<int32_t>(reinterpret_cast<size_t>(v8_ctx->GetFuncExternalData(data)));
   hippy::bridge::CallJava(info, runtime_id);
 }
-
-// REGISTER_EXTERNAL_REFERENCES(NativeCallback)
 
 void setNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger) {
   if (!j_logger) {
@@ -425,8 +421,6 @@ jint CreateSnapshot(JNIEnv* j_env,
   if (!save_file_ret) {
     return static_cast<jint>(CreateSnapshotResult::kSaveSnapshotFailed);
   }
-  vm = nullptr;
-  engine = nullptr;
   return static_cast<jint>(CreateSnapshotResult::kSuccess);
 }
 
@@ -588,7 +582,7 @@ jlong InitInstance(JNIEnv* j_env,
           if (!is_valid) {
             break;
           }
-          is_valid = param->snapshot_data.ReadMetaData();
+          is_valid = param->snapshot_data.ReadMetadata();
         } else {
           auto j_blob_field = j_env->GetFieldID(cls, "blob", "Ljava/nio/ByteBuffer;");
           auto j_buffer = j_env->GetObjectField(j_vm_init_param, j_blob_field);
