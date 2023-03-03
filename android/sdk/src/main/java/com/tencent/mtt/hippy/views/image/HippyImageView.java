@@ -351,7 +351,21 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
   protected void handleGetImageSuccess() {
     // send onLoad event
     if (mShouldSendImageEvent[ImageEvent.ONLOAD.ordinal()]) {
-      getOnLoadEvent().send(this, null);
+      HippyMap map = new HippyMap();
+      if (mSourceDrawable != null) {
+        Bitmap bitmap = mSourceDrawable.getBitmap();
+        if (bitmap != null) {
+          map.pushInt("width", bitmap.getWidth());
+          map.pushInt("height", bitmap.getHeight());
+          map.pushString("url", mUrl != null ? mUrl : "");
+        } else if (mSourceDrawable instanceof HippyDrawable) {
+          HippyDrawable hippyTarget = (HippyDrawable) mSourceDrawable;
+          map.pushInt("width", hippyTarget.getWidth());
+          map.pushInt("height", hippyTarget.getHeight());
+          map.pushString("url", mUrl != null ? mUrl : "");
+        }
+      }
+      getOnLoadEvent().send(this, map);
     }
     // send onLoadEnd event
     if (mShouldSendImageEvent[ImageEvent.ONLOAD_END.ordinal()]) {
@@ -363,12 +377,6 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
           HippyMap imageSize = new HippyMap();
           imageSize.pushInt("width", bitmap.getWidth());
           imageSize.pushInt("height", bitmap.getHeight());
-          map.pushMap("image", imageSize);
-        } else if (mSourceDrawable instanceof HippyDrawable) {
-          HippyDrawable hippyTarget = (HippyDrawable) mSourceDrawable;
-          HippyMap imageSize = new HippyMap();
-          imageSize.pushInt("width", hippyTarget.getWidth());
-          imageSize.pushInt("height", hippyTarget.getHeight());
           map.pushMap("image", imageSize);
         }
       }
