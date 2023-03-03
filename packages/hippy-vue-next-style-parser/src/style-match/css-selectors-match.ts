@@ -164,7 +164,7 @@ class SelectorsMap {
    * @param node - target node
    * @param ssrNodes - ssr node list
    */
-  public query(node: StyleNode, ssrNodes: StyleNode[]): SelectorsMatch {
+  public query(node: StyleNode, ssrNodes?: StyleNode[]): SelectorsMatch {
     const { tagName, id, classList, props } = node;
     let domId = id;
     let domClassList = classList;

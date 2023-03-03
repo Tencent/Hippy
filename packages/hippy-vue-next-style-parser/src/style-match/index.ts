@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 /**
- * 样式匹配节点接口
+ * style node type
  *
  * @public
  */

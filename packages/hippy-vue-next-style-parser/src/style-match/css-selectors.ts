@@ -312,6 +312,8 @@ class ClassSelector extends SimpleSelector {
     if (!node) {
       return false;
     }
+    // props and attributes exist means this node is generated from server side(except development).
+    // so we need to use these props when we are ssr
     const classList = node.classList
       ?? new Set((node.props?.attributes?.class || '')
         .split(' ')
@@ -422,6 +424,8 @@ class AttributeSelector extends SimpleSelector {
     }
 
     this.match = (node?: StyleNode) => {
+      // props and attributes exist means this node is generated from server side(except development).
+      // so we need to use these props when we are ssr
       if (!node || !node?.attributes || !node?.props[attribute]) {
         return false;
       }

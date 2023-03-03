@@ -187,20 +187,18 @@ export function getCssMap(
   styles?: any[],
   beforeLoadStyle?: Function,
 ): SelectorsMap {
-  // have styles mean used ssr
+  // have styles params means ssr, so we used styles as global css map
   if (styles) {
     if (globalCssMap) {
       return globalCssMap;
     }
-
     // get ssr ast nodes
     const cssRules = fromSsrAstNodes(styles, beforeLoadStyle);
     globalCssMap = new SelectorsMap(cssRules);
 
     return globalCssMap;
   }
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
+  // no styles params means csr, we used global css map as before
   const styleCssMap = global[HIPPY_GLOBAL_STYLE_NAME];
 
   /**
@@ -212,9 +210,9 @@ export function getCssMap(
   }
 
   /**
-     *  Here is a secret startup option: beforeStyleLoadHook.
-     *  Usage for process the styles while styles loading.
-     */
+   *  Here is a secret startup option: beforeStyleLoadHook.
+   *  Usage for process the styles while styles loading.
+   */
   const cssRules = fromAstNodes(styleCssMap);
   if (globalCssMap) {
     globalCssMap.append(cssRules);
@@ -223,8 +221,6 @@ export function getCssMap(
   }
 
   // after the global style processing is complete, remove the value of this object
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   global[HIPPY_GLOBAL_STYLE_NAME] = undefined;
 
   // if there are currently expired styles, hot update style processing

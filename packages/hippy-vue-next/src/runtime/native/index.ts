@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { translateColor, getCssMap } from '@hippy-vue-next-style-parser/index';
+import { translateColor, getCssMap, type StyleNode } from '@hippy-vue-next-style-parser/index';
 import { isFunction } from '@vue/shared';
 
 import type { NeedToTyped, CallbackType, NativeInterfaceMap } from '../../types';
@@ -314,6 +314,20 @@ interface CacheType {
 
 export const CACHE: CacheType = {};
 
+// faked hippy global object. avoid error in server side execute
+const ssrFakeHippy = {
+  device: {
+    platform: {
+      Localization: {},
+    },
+    window: {},
+    screen: {},
+  },
+  bridge: {},
+  register: {},
+  document: {},
+};
+
 // deconstruct the required properties and methods from the native injected global Hippy object
 export const {
   bridge: { callNative, callNativeWithPromise, callNativeWithCallbackId },
@@ -324,7 +338,7 @@ export const {
   device,
   document: hippyNativeDocument,
   register: hippyNativeRegister,
-} = global.Hippy;
+} = global.Hippy ?? ssrFakeHippy;
 
 /**
  * Call the Native interface to measure the location information of the node
@@ -400,8 +414,6 @@ export const Native: NativeApiType = {
 
   callNativeWithCallbackId,
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   AsyncStorage: global.Hippy.asyncStorage,
 
   callUIFunction(...args) {
@@ -821,8 +833,8 @@ export const Native: NativeApiType = {
   getElemCss(element: HippyElement) {
     const style = Object.create(null);
     try {
-      getCssMap(null, getBeforeLoadStyle())
-        .query(element)
+      getCssMap(undefined, getBeforeLoadStyle())
+        .query(element as unknown as StyleNode)
         .selectors.forEach((matchedSelector) => {
           if (!isStyleMatched(matchedSelector, element)) {
             return;

@@ -66,6 +66,7 @@ import {
   setHippyCachedInstanceParams,
 } from './util/instance';
 import { setScreenSize } from './util/screen';
+import { convertToHippyElementTree } from './hydration';
 
 /**
  * Hippy App type, override the mount method of Vue
@@ -214,10 +215,10 @@ const createHippyApp = (
   // rewrite mount method of vue
   hippyApp.mount = (rootContainer) => {
     // create the root node
-    // return an empty node when the hydrate is false
-    // return a root node for a node tree, when the hydrate is true
-    const root = isHydrate
-      ? converToNodeTree(options.ssrNodeList)
+    // 1. return an empty node when the hydrate is false
+    // 2. return a root node for a hippy element tree, when the hydrate is true
+    const root = options?.ssrNodeList?.length
+      ? convertToHippyElementTree(options.ssrNodeList)
       : createRootNode(rootContainer);
     // cache rootContainer, used to determine whether it is the root node
     setHippyCachedInstanceParams('rootContainer', root.id);
@@ -288,13 +289,13 @@ export const createApp = (
   vueRootComponent: Component,
   options: HippyAppOptions,
 ): HippyApp => {
-  // 创建自定义渲染器，并得到vue app实例
+  // create client side custom renderer for vue app
   const app: App = createRenderer({
     patchProp,
     ...nodeOps,
   }).createApp(vueRootComponent);
 
-  // 创建 hippy app
+  // create hippy app
   return createHippyApp(app, options);
 };
 
@@ -310,7 +311,7 @@ export const createSSRApp = (
   vueRootComponent: Component,
   options: HippyAppOptions,
 ): HippyApp => {
-  // 创建自定义渲染器，并得到vue app实例
+  // create hydrate custom renderer for vue app
   const app: App = createHydrationRenderer({
     patchProp,
     ...nodeOps,
