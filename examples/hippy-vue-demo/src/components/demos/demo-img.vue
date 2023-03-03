@@ -85,7 +85,7 @@ export default {
       this.gifLoadResult = {
         width: evt.nativeParams.width,
         height: evt.nativeParams.height,
-        url: evt.native.url,
+        url: evt.nativeParams.url,
       };
     },
   },
