@@ -44,7 +44,6 @@
         :placeholder="defaultImage"
         src="https://user-images.githubusercontent.com/12878546/148736255-7193f89e-9caf-49c0-86b0-548209506bd6.gif"
         class="image cover"
-        @loadEnd="onLoadEnd"
       >
     </div>
   </div>
@@ -77,12 +76,6 @@ export default {
       console.log('onTouchEnd', evt);
       evt.stopPropagation();
       console.log(evt);
-    },
-    onLoadEnd(evt) {
-      console.log(`onLoadEnd success: ${evt.success}`);
-      if (evt.success) {
-        console.log(`gif size: ${evt.size.width} * ${evt.size.height}`);
-      }
     },
   },
 };

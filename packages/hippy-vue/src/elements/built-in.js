@@ -152,15 +152,8 @@ const form = {
 const img = {
   symbol: components.Image,
   component: {
+    ...div.component,
     name: NATIVE_COMPONENT_NAME_MAP[components.Image],
-    eventNamesMap: mapEvent([
-      ['touchStart', 'onTouchDown'],
-      ['touchstart', 'onTouchDown'],
-      ['touchmove', 'onTouchMove'],
-      ['touchend', 'onTouchEnd'],
-      ['touchcancel', 'onTouchCancel'],
-      ['loadEnd', 'onLoadEnd'],
-    ]),
     defaultNativeStyle: {
       backgroundColor: 0,
     },
@@ -185,41 +178,6 @@ const img = {
         return convertImageLocalPath(value);
       },
       ...accessibilityAttrMaps,
-    },
-    processEventData(event, nativeEventName, nativeEventParams) {
-      switch (nativeEventName) {
-        case 'onScroll':
-        case 'onScrollBeginDrag':
-        case 'onScrollEndDrag':
-        case 'onMomentumScrollBegin':
-        case 'onMomentumScrollEnd':
-          event.offsetX = nativeEventParams.contentOffset && nativeEventParams.contentOffset.x;
-          event.offsetY = nativeEventParams.contentOffset && nativeEventParams.contentOffset.y;
-          break;
-        case 'onTouchDown':
-        case 'onTouchMove':
-        case 'onTouchEnd':
-        case 'onTouchCancel':
-          event.touches = {
-            0: {
-              clientX: nativeEventParams.page_x,
-              clientY: nativeEventParams.page_y,
-            },
-            length: 1,
-          };
-          break;
-        case 'onFocus':
-          event.isFocused = nativeEventName.focus;
-          break;
-        case 'onLoadEnd':
-          event.success = nativeEventParams.success === 1;
-          if (event.success) {
-            event.size = { width: nativeEventParams.image.width, height: nativeEventParams.image.height };
-          }
-          break;
-        default:
-      }
-      return event;
     },
   },
 };

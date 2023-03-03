@@ -48,7 +48,6 @@
         :placeholder="defaultImage"
         src="https://user-images.githubusercontent.com/12878546/148736255-7193f89e-9caf-49c0-86b0-548209506bd6.gif"
         class="image cover"
-        @loadEnd="onLoadEnd"
       >
     </div>
   </div>
@@ -78,9 +77,6 @@ export default defineComponent({
       evt.stopPropagation();
       console.log(evt);
     };
-    const onLoadEnd = (evt: Event) => {
-      console.log('onLoadEnd', evt);
-    };
 
     return {
       defaultImage,
@@ -88,7 +84,6 @@ export default defineComponent({
       onTouchEnd,
       onTouchMove,
       onTouchStart,
-      onLoadEnd,
     };
   },
 });
