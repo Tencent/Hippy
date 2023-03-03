@@ -44,7 +44,9 @@
         :placeholder="defaultImage"
         src="https://user-images.githubusercontent.com/12878546/148736255-7193f89e-9caf-49c0-86b0-548209506bd6.gif"
         class="image cover"
+        @load="onLoad"
       >
+      <p>{{ gifLoadResult }}</p>
     </div>
   </div>
 </template>
@@ -57,6 +59,7 @@ export default {
     return {
       defaultImage,
       hippyLogoImage,
+      gifLoadResult: {},
     };
   },
   methods: {
@@ -76,6 +79,14 @@ export default {
       console.log('onTouchEnd', evt);
       evt.stopPropagation();
       console.log(evt);
+    },
+    onLoad(evt) {
+      console.log('onLoad', evt);
+      this.gifLoadResult = {
+        width: evt.nativeParams.width,
+        height: evt.nativeParams.height,
+        url: evt.native.url,
+      };
     },
   },
 };
