@@ -181,5 +181,3 @@ int Install(JNIEnv* j_env, jobject j_obj, jlong j_runtime_id) {
   runner->PostTask(task);
   return 0;
 }
-
-// REGISTER_EXTERNAL_REFERENCES(GetTurboModule)
