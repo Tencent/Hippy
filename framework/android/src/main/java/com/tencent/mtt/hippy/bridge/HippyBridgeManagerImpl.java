@@ -548,14 +548,18 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         String packageName = "";
         String versionName = "";
         String pageUrl = "";
+        boolean nightMode = false;
 
         HippyMap extraDataMap = new HippyMap();
         if (mThirdPartyAdapter != null) {
             packageName = mThirdPartyAdapter.getPackageName();
             versionName = mThirdPartyAdapter.getAppVersion();
             pageUrl = mThirdPartyAdapter.getPageUrl();
+            nightMode = mThirdPartyAdapter.getNightMode();
             JSONObject jObject = mThirdPartyAdapter.getExtraData();
-            extraDataMap.pushJSONObject(jObject);
+            if (jObject != null) {
+                extraDataMap.pushJSONObject(jObject);
+            }
         }
 
         try {
@@ -595,12 +599,13 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
             globalParams.pushMap("Debug", debugParams);
         }
 
-        HippyMap tkd = new HippyMap();
-        tkd.pushString("url", (pageUrl == null) ? "" : pageUrl);
-        tkd.pushString("appName", (packageName == null) ? "" : packageName);
-        tkd.pushString("appVersion", (versionName == null) ? "" : versionName);
-        tkd.pushMap("extra", extraDataMap);
-        globalParams.pushMap("tkd", tkd);
+        HippyMap host = new HippyMap();
+        host.pushString("url", (pageUrl == null) ? "" : pageUrl);
+        host.pushString("appName", (packageName == null) ? "" : packageName);
+        host.pushString("appVersion", (versionName == null) ? "" : versionName);
+        host.pushBoolean("nightMode", nightMode);
+        host.pushMap("extra", extraDataMap);
+        globalParams.pushMap("HostConfig", host);
 
         return ArgumentUtils.objectToJson(globalParams);
     }

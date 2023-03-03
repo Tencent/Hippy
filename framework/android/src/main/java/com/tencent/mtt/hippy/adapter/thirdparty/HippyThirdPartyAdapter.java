@@ -16,24 +16,34 @@
 
 package com.tencent.mtt.hippy.adapter.thirdparty;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import org.json.JSONObject;
 
 @SuppressWarnings({"unused"})
 public abstract class HippyThirdPartyAdapter {
 
-  public abstract void onRuntimeInit(long runtimeId);
+    public void onRuntimeInit(long runtimeId) {}
 
-  public abstract void onRuntimeDestroy();
+    public void onRuntimeDestroy() {}
 
-  public abstract String getPackageName();
+    @Nullable
+    public JSONObject getExtraData() {
+        return null;
+    }
 
-  public abstract String getAppVersion();
+    @Nullable
+    public String getPageUrl() {
+        return null;
+    }
 
-  public abstract void setPageUrl(String url);
+    public boolean getNightMode() {
+        return false;
+    }
 
-  public abstract String getPageUrl();
+    @NonNull
+    public abstract String getPackageName();
 
-  public abstract void setExtraData(JSONObject extraData);
-
-  public abstract JSONObject getExtraData();
+    @NonNull
+    public abstract String getAppVersion();
 }
