@@ -21,6 +21,7 @@
  */
 
 #import "HippyOCTurboModule.h"
+#import "HippyOCTurboModule+Inner.h"
 #import <objc/message.h>
 #import "HippyBridgeMethod.h"
 #import "HippyAssert.h"
