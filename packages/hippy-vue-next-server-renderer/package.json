@@ -1,0 +1,28 @@
+{
+  "name": "@hippy/vue-next-server-renderer",
+  "version": "unspecified",
+  "description": "Vue-Next server renderer for Hippy native framework",
+  "author": "OpenHippy Team",
+  "homepage": "https://hippyjs.org",
+  "license": "Apache-2.0",
+  "entry": "./src/index.ts",
+  "repository": "https://github.com/Tencent/Hippy",
+  "bugs": {
+    "url": "https://github.com/Tencent/Hippy/issues"
+  },
+  "keywords": [
+    "hippy",
+    "hippy-vue-next",
+    "server-renderer"
+  ],
+
+  "main": "./dist/index.cjs.js",
+  "module": "./dist/index.esm.js",
+  "types": "index.d.ts",
+  "files": [
+    "dist/index.esm.js",
+    "dist/index.cjs.js",
+    "dist/index.d.ts",
+    "README.md"
+  ]
+}
