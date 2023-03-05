@@ -40,7 +40,8 @@
     "driver/js/examples/static/**",
     "driver/js/examples/hippy-**-demo/**",
     "framework/voltron/example/assets/**",
-    "framework/voltron/example/android/gradlew.bat",
+    "framework/voltron/script/android/gradlew.bat",
+    "framework/voltron/script/ios.toolchain.cmake",
     "modules/voltron/ffi/core/third_party/**"
   ]
 }
