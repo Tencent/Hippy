@@ -65,4 +65,13 @@ Android only needs to establish the `fonts` directory in the static resource `as
 
 It's important to note that the font file name needs to be the same as the FontFamily, because Android can also do font file name mapping, but the font and file name consistency is undoubtedly the easiest way.
 
+If `fontFamily` and attributes like `bold(fontWeight: 'bold')` or `italic(fontStyle: 'italic')` are used together，the Hippy SDK will give priority to finding font file in the `fonts` directory stored in the form of <strong>font name + suffix</strong>. For example:
+
+- style={ { fontFamily: 'TTTGB' } } -> TTTGB.ttf or TTTGB.otf
+- style={ { fontFamily: 'TTTGB', fontWeight: 'bold' } } -> TTTGB_bold.ttf or TTTGB_bold.otf
+- style={ { fontFamily: 'TTTGB', fontStyle: 'italic' } } -> TTTGB_italic.ttf or TTTGB_italic.otf
+- style={ { fontFamily: 'TTTGB', fontWeight: 'bold', fontStyle: 'italic' } } -> TTTGB_bold_italic.ttf or TTTGB_bold_italic.otf
+
+<strong>After version `2.16.0`，if font file with corresponding suffix is not found，the Hippy SDK will try finding font file without suffix and display in corresponding style using Android's [Typeface](https://developer.android.com/reference/android/graphics/Typeface).</strong>
+
 >The official demo font is placed in the [res/fonts](https://github.com/Tencent/Hippy/tree/master/examples/android-demo/res) directory because the compilation script [directly copies the files in the `res` directory to the `assets` directory](https://github.com/Tencent/Hippy/blob/master/examples/android-demo/build.gradle#L35), so`res/assets`  becomes the `assets/assets` directory. In order to correctly copy the font directory into the `assets` static resource directory, it can only be placed in`res` the directory.
