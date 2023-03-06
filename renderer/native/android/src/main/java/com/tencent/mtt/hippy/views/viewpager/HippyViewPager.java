@@ -66,7 +66,8 @@ public class HippyViewPager extends ViewPager implements HippyViewBase, ClipChil
         setAdapter(createAdapter(context));
         setLeftDragOutSizeEnabled(false);
         setRightDragOutSizeEnabled(false);
-        mPageListener = (listener != null) ? listener : new ViewPagerPageChangeListener(this);
+        mPageListener = (listener != null) ? listener : new ViewPagerPageChangeListener();
+        mPageListener.setHostPager(this);
         setOnPageChangeListener(mPageListener);
         if (I18nUtil.isRTL()) {
             setRotationY(180f);
