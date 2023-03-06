@@ -236,19 +236,19 @@ function renderElementVNode(
     (tag === 'span' || tag === 'p' || tag === 'label')
     && shapeFlag & ShapeFlags.ARRAY_CHILDREN
   ) {
-    const textChild = (children as VNodeArrayChildren)?.filter((item: NeedToTyped) => {
-      if (typeof item === 'object') {
-        if (item?.shapeFlag) {
-          return item.shapeFlag & ShapeFlags.TEXT_CHILDREN;
+    if (children?.length) {
+      const textChild = (children as VNodeArrayChildren).filter((item) => {
+        if (typeof item === 'object') {
+          // only VNode & VNode Children is Object， other is base type
+          const text = item as VNode;
+          return text?.shapeFlag & ShapeFlags.TEXT_CHILDREN;
         }
+        return false;
+      });
+      if (textChild.length) {
+        const child = textChild[0] as VNode;
+        props.text = escapeHtml(child?.children as string);
       }
-      return false;
-    });
-    if (textChild.length) {
-      const child = textChild[0];
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      props.text = escapeHtml(child?.children as string);
     }
   }
 
