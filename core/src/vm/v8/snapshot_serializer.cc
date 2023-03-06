@@ -22,6 +22,8 @@
 
 #include "core/vm/v8/snapshot_serializer.h"
 
+#include <algorithm>
+
 #include "core/base/common.h"
 
 void SnapshotSerializer::WriteUInt32(uint32_t value) {
@@ -38,6 +40,7 @@ void SnapshotSerializer::WriteBuffer(const void* p, size_t length) {
   if (buffer_.capacity() <= buffer_.size() + length) {
     buffer_.resize(buffer_.size() + length);
   }
-  memcpy(&buffer_[0] + position_, p, length);
+
+  std::copy_n(reinterpret_cast<const uint8_t*>(p), length, &buffer_[0] + position_);
   position_ += length;
 }
