@@ -40,10 +40,10 @@
 constexpr uint32_t kMagicNumber = 0x66886688;
 
 #define STR(x) #x
-#define HIPPY_SDK_VERSION_STR(x) STR(x)
-#define HIPPY_SDK_VERSION_STRING HIPPY_SDK_VERSION_STR(HIPPY_SDK_VERSION)
-constexpr char kSdkVersion[] = HIPPY_SDK_VERSION_STRING;
-#undef HIPPY_SDK_VERSION_STR
+#define VERSION_NAME_STR(x) STR(x)
+#define VERSION_NAME_STRING VERSION_NAME_STR(VERSION_NAME)
+constexpr char kSdkVersion[] = VERSION_NAME_STRING;
+#undef VERSION_NAME_STR
 #undef STR
 
 struct SnapshotData {
