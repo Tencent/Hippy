@@ -101,7 +101,7 @@ public class DevServerImpl implements DevServerInterface, View.OnClickListener,
 
     @Override
     public void attachToHost(Context context, int rootId) {
-        if (!BuildConfig.DEBUG) {
+        if (!mDebugMode) {
             return;
         }
         if (mDevButtonMaps == null) {
