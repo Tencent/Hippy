@@ -53,7 +53,7 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
 
     @Override
     protected View createViewImpl(Context context) {
-        return new HippyViewPager(context, false, null);
+        return new HippyViewPager(context, false);
     }
 
     @Override
@@ -66,7 +66,13 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
                 isVertical = true;
             }
         }
-        return new HippyViewPager(context, isVertical, null);
+        return buildViewPager(context, isVertical);
+    }
+
+    protected HippyViewPager buildViewPager(@NonNull Context context, boolean isVertical) {
+        HippyViewPager viewPager = new HippyViewPager(context, isVertical);
+        viewPager.setPageChangeListener(new ViewPagerPageChangeListener(viewPager));
+        return viewPager;
     }
 
     @Override

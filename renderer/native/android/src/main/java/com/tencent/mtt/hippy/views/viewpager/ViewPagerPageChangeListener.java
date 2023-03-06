@@ -33,15 +33,9 @@ public class ViewPagerPageChangeListener implements ViewPager.OnPageChangeListen
     private static final String PAGE_SCROLL_STATE = "pageScrollState";
     private int mLastPageIndex = 0;
     private int mCurrPageIndex = 0;
-    private HippyViewPager mPager;
-
-    public ViewPagerPageChangeListener() {}
+    private final HippyViewPager mPager;
 
     public ViewPagerPageChangeListener(@NonNull HippyViewPager pager) {
-        setHostPager(pager);
-    }
-
-    void setHostPager(@NonNull HippyViewPager pager) {
         mPager = pager;
     }
 

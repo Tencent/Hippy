@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.views.viewpager;
 
 import static com.tencent.renderer.NativeRenderer.SCREEN_SNAPSHOT_ROOT_ID;
 
+import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
@@ -60,15 +61,12 @@ public class HippyViewPager extends ViewPager implements HippyViewBase, ClipChil
     @Nullable
     private Promise mCallBackPromise;
 
-    private void init(Context context, @Nullable ViewPagerPageChangeListener listener) {
+    private void init(Context context) {
         setCallPageChangedOnFirstLayout(true);
         setEnableReLayoutOnAttachToWindow(false);
         setAdapter(createAdapter(context));
         setLeftDragOutSizeEnabled(false);
         setRightDragOutSizeEnabled(false);
-        mPageListener = (listener != null) ? listener : new ViewPagerPageChangeListener();
-        mPageListener.setHostPager(this);
-        setOnPageChangeListener(mPageListener);
         if (I18nUtil.isRTL()) {
             setRotationY(180f);
         }
@@ -80,6 +78,11 @@ public class HippyViewPager extends ViewPager implements HippyViewBase, ClipChil
         }
     }
 
+    public void setPageChangeListener(@NonNull ViewPagerPageChangeListener listener) {
+        mPageListener = listener;
+        setOnPageChangeListener(mPageListener);
+    }
+
     @Override
     public void onViewAdded(View child) {
         if (I18nUtil.isRTL()) {
@@ -88,10 +91,9 @@ public class HippyViewPager extends ViewPager implements HippyViewBase, ClipChil
         super.onViewAdded(child);
     }
 
-    public HippyViewPager(Context context, boolean isVertical,
-            @Nullable ViewPagerPageChangeListener listener) {
+    public HippyViewPager(Context context, boolean isVertical) {
         super(context, isVertical);
-        init(context, listener);
+        init(context);
     }
 
     public void setCallBackPromise(@Nullable Promise promise) {
