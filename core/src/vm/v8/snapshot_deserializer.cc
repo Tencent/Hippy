@@ -22,6 +22,8 @@
 
 #include "core/vm/v8/snapshot_deserializer.h"
 
+#include <algorithm>
+
 #include "core/base/common.h"
 
 SnapshotDeserializer::SnapshotDeserializer(const std::vector<uint8_t>& buffer)
@@ -35,7 +37,7 @@ bool SnapshotDeserializer::ReadUInt32(uint32_t& value) {
     error_message_ = GetErrorMessage("uint32", sizeof(value), length_ - position_);
     return false;
   }
-  memcpy(&value, buffer_ + position_, sizeof(value));
+  std::copy_n(buffer_ + position_, sizeof(value), reinterpret_cast<uint8_t*>(&value));
   position_ += sizeof(value);
   error_message_.clear();
   return true;
@@ -61,7 +63,7 @@ bool SnapshotDeserializer::ReadBuffer(void* p, size_t length) {
     error_message_ = GetErrorMessage("buffer", length, length_ - position_);
     return false;
   }
-  memcpy(p, buffer_ + position_, length);
+  std::copy_n(buffer_ + position_, length, reinterpret_cast<uint8_t*>(p));
   position_ += length;
   error_message_.clear();
   return true;
