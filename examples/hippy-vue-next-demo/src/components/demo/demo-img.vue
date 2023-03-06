@@ -82,9 +82,9 @@ export default defineComponent({
     const onLoad = (evt: Event) => {
       console.log('onLoad', evt);
       gifLoadResult.value = {
-        width: evt.nativeParams.width,
-        height: evt.nativeParams.height,
-        url: evt.nativeParams.url,
+        width: evt.width,
+        height: evt.height,
+        url: evt.url,
       };
     };
 

@@ -179,6 +179,40 @@ const img = {
       },
       ...accessibilityAttrMaps,
     },
+    processEventData(event, nativeEventName, nativeEventParams) {
+      switch (nativeEventName) {
+        case 'onScroll':
+        case 'onScrollBeginDrag':
+        case 'onScrollEndDrag':
+        case 'onMomentumScrollBegin':
+        case 'onMomentumScrollEnd':
+          event.offsetX = nativeEventParams.contentOffset && nativeEventParams.contentOffset.x;
+          event.offsetY = nativeEventParams.contentOffset && nativeEventParams.contentOffset.y;
+          break;
+        case 'onTouchDown':
+        case 'onTouchMove':
+        case 'onTouchEnd':
+        case 'onTouchCancel':
+          event.touches = {
+            0: {
+              clientX: nativeEventParams.page_x,
+              clientY: nativeEventParams.page_y,
+            },
+            length: 1,
+          };
+          break;
+        case 'onFocus':
+          event.isFocused = nativeEventName.focus;
+          break;
+        case 'onLoad':
+          event.width = nativeEventParams.width;
+          event.height = nativeEventParams.height;
+          event.url = nativeEventParams.url;
+          break;
+        default:
+      }
+      return event;
+    },
   },
 };
 

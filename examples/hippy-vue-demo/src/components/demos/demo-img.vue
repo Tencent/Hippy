@@ -83,9 +83,9 @@ export default {
     onLoad(evt) {
       console.log('onLoad', evt);
       this.gifLoadResult = {
-        width: evt.nativeParams.width,
-        height: evt.nativeParams.height,
-        url: evt.nativeParams.url,
+        width: evt.width,
+        height: evt.height,
+        url: evt.url,
       };
     },
   },
