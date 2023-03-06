@@ -57,18 +57,17 @@ public class HippyViewPager extends ViewPager implements HippyViewBase, ClipChil
     private final boolean mReNotifyOnAttach = false;
     private ViewPagerPageChangeListener mPageListener;
     private final Handler mHandler = new Handler(Looper.getMainLooper());
-    @Nullable private Promise mCallBackPromise;
+    @Nullable
+    private Promise mCallBackPromise;
 
-    private void init(Context context) {
+    private void init(Context context, @Nullable ViewPagerPageChangeListener listener) {
         setCallPageChangedOnFirstLayout(true);
         setEnableReLayoutOnAttachToWindow(false);
-
-        mPageListener = new ViewPagerPageChangeListener(this);
-        setOnPageChangeListener(mPageListener);
         setAdapter(createAdapter(context));
         setLeftDragOutSizeEnabled(false);
         setRightDragOutSizeEnabled(false);
-
+        mPageListener = (listener != null) ? listener : new ViewPagerPageChangeListener(this);
+        setOnPageChangeListener(mPageListener);
         if (I18nUtil.isRTL()) {
             setRotationY(180f);
         }
@@ -88,21 +87,18 @@ public class HippyViewPager extends ViewPager implements HippyViewBase, ClipChil
         super.onViewAdded(child);
     }
 
-    public HippyViewPager(Context context, boolean isVertical) {
+    public HippyViewPager(Context context, boolean isVertical,
+            @Nullable ViewPagerPageChangeListener listener) {
         super(context, isVertical);
-        init(context);
-    }
-
-    public HippyViewPager(Context context) {
-        super(context);
-        init(context);
+        init(context, listener);
     }
 
     public void setCallBackPromise(@Nullable Promise promise) {
         mCallBackPromise = promise;
     }
 
-    public @Nullable Promise getCallBackPromise() {
+    public @Nullable
+    Promise getCallBackPromise() {
         return mCallBackPromise;
     }
 
