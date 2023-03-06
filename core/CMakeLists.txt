@@ -35,11 +35,8 @@ add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 target_link_libraries(${PROJECT_NAME} PRIVATE android log)
+target_compile_definitions(${PROJECT_NAME} PRIVATE "HIPPY_SDK_VERSION=${HIPPY_SDK_VERSION}")
 # endregion
-
-if (HIPPY_SDK_VERSION)
-  target_compile_definitions(${PROJECT_NAME} PRIVATE HIPPY_SDK_VERSION=${HIPPY_SDK_VERSION})
-endif ()
 
 # region vm
 if ("${JS_ENGINE}" STREQUAL "V8")
@@ -75,6 +72,9 @@ set(SOURCE_SET
     src/modules/console_module.cc
     src/modules/contextify_module.cc
     src/modules/timer_module.cc
+    src/modules/console_module.cc
+    src/modules/contextify_module.cc
+    src/modules/timer_module.cc
     src/napi/callback_info.cc
     src/scope.cc
     src/task/common_task.cc
@@ -91,7 +91,8 @@ if ("${JS_ENGINE}" STREQUAL "V8")
       src/vm/v8/v8_vm.cc
       src/vm/v8/snapshot_data.cc
       src/vm/v8/snapshot_deserializer.cc
-      src/vm/v8/snapshot_serializer.cc)
+      src/vm/v8/snapshot_serializer.cc
+      src/vm/v8/memory_module.cc)
   if (NOT V8_WITHOUT_INSPECTOR)
     list(APPEND SOURCE_SET
             src/inspector/v8_channel_impl.cc
@@ -106,20 +107,5 @@ elseif ("${JS_ENGINE}" STREQUAL "JSC")
       src/vm/jsc/js_vm.cc
       src/vm/jsc/jsc_vm.cc)
 endif ()
-set(SOURCE_SET_STANDALONE
-    src/modules/console_module.cc
-    src/modules/contextify_module.cc
-    src/modules/timer_module.cc)
-if ("${JS_ENGINE}" STREQUAL "V8")
-  list(APPEND SOURCE_SET_STANDALONE
-       src/vm/v8/memory_module.cc)
-endif ()
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
-# The linker treats `.a` and `.o` files are different:
-#   * `.o` files from `.a` file only referenced `.o` object files are linked.
-#   * `.o` files in the linker always go inside, referenced or not.
-#
-# The `SOURCE_SET_STANDALONE` including static initializers,
-# so its visibility must be PUBLIC.
-target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET_STANDALONE})
 # endregion
