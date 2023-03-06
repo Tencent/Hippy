@@ -236,6 +236,13 @@ void TextViewNode::SetLineSpacingExtra(const DomStyleMap& dom_style, TextStyle& 
 
 void TextViewNode::SetNumberOfLines(const DomStyleMap& dom_style, std::shared_ptr<TextView>& text_view) {
   if (auto iter = dom_style.find(text::kNumberOfLines); iter != dom_style.end()) {
+    if (iter->second->IsString()) {
+      auto number_of_lines = atoi(iter->second->ToStringChecked().c_str());
+      text_view->SetMaxLines(number_of_lines == 0 ? 1 : static_cast<size_t>(number_of_lines));
+    } else if (iter->second->IsNumber()) {
+      auto number_of_lines = static_cast<int64_t>(iter->second->ToDoubleChecked());
+      text_view->SetMaxLines(number_of_lines == 0 ? 1 : static_cast<size_t>(number_of_lines));
+    }
   }
 }
 

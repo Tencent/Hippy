@@ -448,8 +448,13 @@ void TextInputNode::SetMultiline(const DomStyleMap& dom_style, TextInputView::At
 
 void TextInputNode::SetNumberOfLines(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
   if (auto iter = dom_style.find(textinput::kNumberOfLines); iter != dom_style.end()) {
-    auto number_of_lines = static_cast<int64_t>(iter->second->ToDoubleChecked());
-    text_input_view->SetMaxLines(number_of_lines == 0 ? 1 : static_cast<size_t>(number_of_lines));
+    if (iter->second->IsString()) {
+      auto number_of_lines = atoi(iter->second->ToStringChecked().c_str());
+      text_input_view->SetMaxLines(number_of_lines == 0 ? 1 : static_cast<size_t>(number_of_lines));
+    } else if (iter->second->IsNumber()) {
+      auto number_of_lines = static_cast<int64_t>(iter->second->ToDoubleChecked());
+      text_input_view->SetMaxLines(number_of_lines == 0 ? 1 : static_cast<size_t>(number_of_lines));
+    }
   }
 }
 
