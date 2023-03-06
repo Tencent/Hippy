@@ -24,5 +24,10 @@
     "dist/index.cjs.js",
     "dist/index.d.ts",
     "README.md"
-  ]
+  ],
+  "dependencies": {
+    "@vue/server-renderer": "^3.2.21",
+    "@vue/runtime-core": "^3.2.21",
+    "@vue/shared": "^3.2.21"
+  }
 }

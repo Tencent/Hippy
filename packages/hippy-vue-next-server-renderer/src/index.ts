@@ -1,6 +1,63 @@
 /**
- * hippy vue next 服务端渲染，导出 vue/server-renderer 的方法，并对部分 hippy 相关的接口进行改造
+ * hippy vue next server renderer type，export main method from vue/server-renderer, and modify some api with hippy
  */
+
+/**
+ * @public
+ */
+type NeedToTyped = any;
+
+/**
+ * @public
+ */
+type CallbackType = Function;
+
+/**
+ * @public
+ */
+interface CommonMapParams {
+  [key: string]: NeedToTyped;
+}
+
+// global type
+export {
+  NeedToTyped,
+  CallbackType,
+  CommonMapParams,
+};
+
+/**
+ * SSR common type
+ *
+ * @public
+ */
+export interface SsrCommonParams {
+  // props perhaps have any type, include string，number，boolean，object，function，array. etc
+  [key: string]: NeedToTyped;
+}
+
+/**
+ * SSR Node props type
+ *
+ * @public
+ */
+export type SsrNodeProps = SsrCommonParams;
+
+/**
+ * SSR Node type
+ *
+ * @public
+ */
+export interface SsrNode {
+  id: number;
+  pId?: number;
+  index: number;
+  name: string;
+  props: SsrNodeProps;
+  tagName?: string;
+  children?: SsrNode[];
+}
+
 export {
   ssrGetUniqueId,
   renderToHippyList,
@@ -19,7 +76,6 @@ export {
   pipeToWebWritable,
   renderToNodeStream,
   renderToSimpleStream,
-  renderToStream,
   renderToString,
   renderToWebStream,
   ssrGetDynamicModelProps,

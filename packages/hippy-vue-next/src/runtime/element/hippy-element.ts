@@ -301,7 +301,7 @@ export class HippyElement extends HippyNode {
    * append child node
    *
    * @param child - child node
-   * @param isHydrate
+   * @param isHydrate - is hydrate render or not
    */
   public appendChild(child: HippyNode, isHydrate = false): void {
     // If the node type is text node, call setText method to set the text property
@@ -1110,8 +1110,7 @@ export class HippyElement extends HippyNode {
   /**
    * parse vue event name to native event name and return
    *
-   * @param eventName
-   * @private
+   * @param eventName - vue event name
    */
   private getNativeEventName(eventName: string): string {
     let ssrEventName = '';

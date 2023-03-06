@@ -33,7 +33,11 @@ export interface StyleNode {
   attributes?: any;
 }
 
-// common map param type
+/**
+ * common map param type
+ *
+ * @public
+ */
 export interface CommonMapParams {
   [key: string]: any;
 }

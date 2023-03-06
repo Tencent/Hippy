@@ -3,7 +3,6 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable complexity */
-import type { NeedToTyped } from '@tencent/hippy-vue-next-shared';
 import {
   Comment,
   type Component,
@@ -36,6 +35,7 @@ import {
 
 import { getHippyTagName } from './native';
 import { ssrGetUniqueId } from './renderer';
+import type { NeedToTyped } from './index';
 
 const {
   createComponentInstance,
@@ -99,11 +99,7 @@ export function renderComponentVNode(
       : Promise.resolve();
     if (prefetches) {
       p = p
-        .then(async () =>
-          Promise.all(
-            prefetches.map((prefetch) => prefetch.call(instance.proxy)),
-          ),
-        )
+        .then(async () => Promise.all(prefetches.map(prefetch => prefetch.call(instance.proxy))))
         // Note: error display is already done by the wrapped lifecycle hook function.
         .catch(() => {});
     }
@@ -157,22 +153,16 @@ export function renderVNode(
   const { type, shapeFlag, children } = vnode;
   switch (type) {
     case Text:
-      push(
-        `{"id": -1,"name":"Text","props":{"text":"${escapeHtmlComment(
-          children as string,
-        )}"}},`,
-      );
+      // vue text means <div>content</div> content. hippy do not support it. should use
+      // <div><span>content</span></div>, all text content should wrap in span/p/label.
+      push(`{"id": -1,"name":"Text","props":{"text":"${escapeHtmlComment(children as string)}"}},`);
       break;
     case Static:
       break;
     case Comment:
-      push(
-        children
-          ? `{"id": -1,"name":"comment","props":{"text":"${escapeHtmlComment(
-              children as string,
-            )}"}},`
-          : '{"id": -1,"name":"comment","props":{"text":""}},',
-      );
+      push(children
+        ? `{"id": -1,"name":"comment","props":{"text":"${escapeHtmlComment(children as string)}"}},`
+        : '{"id": -1,"name":"comment","props":{"text":""}},');
       break;
     case Fragment:
       // if (vnode.slotScopeIds) {
@@ -196,6 +186,7 @@ export function renderVNode(
       } else if (shapeFlag & ShapeFlags.TELEPORT) {
         renderTeleportVNode(push, vnode, parentComponent, slotScopeId);
       } else if (shapeFlag & ShapeFlags.SUSPENSE) {
+        // do not support suspense now
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         // renderVNode(push, vnode.ssContent!, parentComponent, slotScopeId);
       } else {
@@ -234,30 +225,25 @@ function renderElementVNode(
 ) {
   const tag = vnode.type as string;
   const { children, shapeFlag, dirs } = vnode;
-  let openTag = `{"id":${ssrGetUniqueId()},"index":0,"name":"${getHippyTagName(
-    tag,
-  )}","tagName":"${tag}","props":`;
+  let openTag = `{"id":${ssrGetUniqueId()},"index":0,"name":"${getHippyTagName(tag)}","tagName":"${tag}","props":`;
 
   let props = vnode.props ?? {};
   if (dirs) {
     props = applySSRDirectives(vnode, props, dirs);
   }
-
-  // span/label/p,这三个在native都是text节点,有值直接设置成text属性
+  // span/label/p, these nodes are all text node in native. so we should set text prop
   if (
-    (tag === 'span' || tag === 'p' || tag === 'label') &&
-    shapeFlag & ShapeFlags.ARRAY_CHILDREN
+    (tag === 'span' || tag === 'p' || tag === 'label')
+    && shapeFlag & ShapeFlags.ARRAY_CHILDREN
   ) {
-    const textChild = (children as VNodeArrayChildren)?.filter(
-      (item) =>
-        typeof item === 'object' &&
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        item?.shapeFlag &&
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        item.shapeFlag & ShapeFlags.TEXT_CHILDREN,
-    );
+    const textChild = (children as VNodeArrayChildren)?.filter((item: NeedToTyped) => {
+      if (typeof item === 'object') {
+        if (item?.shapeFlag) {
+          return item.shapeFlag & ShapeFlags.TEXT_CHILDREN;
+        }
+      }
+      return false;
+    });
     if (textChild.length) {
       const child = textChild[0];
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -314,9 +300,7 @@ function renderTeleportVNode(
     }
   }
   if (!isString(target)) {
-    warn(
-      '[@vue/server-renderer] Teleport target must be a query selector string.',
-    );
+    warn('[@vue/server-renderer] Teleport target must be a query selector string.');
   }
   ssrRenderTeleport(
     push,
@@ -346,10 +330,8 @@ export function ssrRenderTeleport(
   const context = parentComponent.appContext.provides[
     ssrContextKey as NeedToTyped
   ] as SSRContext;
-  const teleportBuffers =
-    context.__teleportBuffers ?? (context.__teleportBuffers = {});
-  const targetBuffer =
-    teleportBuffers[target] || (teleportBuffers[target] = []);
+  const teleportBuffers =    context.__teleportBuffers ?? (context.__teleportBuffers = {});
+  const targetBuffer =    teleportBuffers[target] || (teleportBuffers[target] = []);
   // record current index of the target buffer to handle nested teleports
   // since the parent needs to be rendered before the child
   const bufferIndex = targetBuffer.length;
@@ -358,8 +340,7 @@ export function ssrRenderTeleport(
 
   if (disabled) {
     contentRenderFn(parentPush);
-    teleportContent =
-      '{"id": -1,"name":"comment","props":{"text":"teleport anchor"}},';
+    teleportContent =      '{"id": -1,"name":"comment","props":{"text":"teleport anchor"}},';
   } else {
     const { getBuffer, push } = createBuffer();
     contentRenderFn(push);

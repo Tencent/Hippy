@@ -60,7 +60,7 @@ export {
  * @public
  */
 export interface SsrCommonParams {
-  // 这里使用any的原因是props可能有任意类型，包括string，number，boolean，object，function，array等
+  // props perhaps have any type, include string，number，boolean，object，function，array. etc
   [key: string]: NeedToTyped;
 }
 

@@ -181,7 +181,8 @@ let globalCssMap: SelectorsMap;
  * get css map
  *
  * @param styles - style list
- * @param beforeLoadStyle before load style hook
+ * @param beforeLoadStyle - before load style hook
+ * @public
  */
 export function getCssMap(
   styles?: any[],

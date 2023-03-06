@@ -1,34 +1,9 @@
 /* eslint-disable complexity */
-import type {
-  SsrCommonParams,
-  SsrNodeProps,
-} from '@tencent/hippy-vue-next-shared';
 
 /**
- * 根据客户端请求参数返回服务端渲染所需的屏幕尺寸等数据
+ * get hippy native view's name, map with html tag
  *
- * @param hippyContext - 请求上下文数据
- */
-export function getSsrDimensions(hippyContext: SsrCommonParams): SsrNodeProps {
-  const { device } = hippyContext;
-  const { screen } = device;
-  let { statusBarHeight } = screen;
-  if (device.platform.OS === 'android') {
-    statusBarHeight /= screen.scale;
-  }
-  return {
-    window: device.window,
-    screen: {
-      ...screen,
-      statusBarHeight,
-    },
-  };
-}
-
-/**
- * 获取模版中的 tag 所对应的 hippy 在 native 中的 view 名称
- *
- * @param tag - html 标签或 Vue 组件名称
+ * @param tag - html tag or Vue component name
  */
 export function getHippyTagName(tag: string): string {
   // Hippy 官方内置支持的 View
@@ -41,7 +16,7 @@ export function getHippyTagName(tag: string): string {
     TextInput: 'TextInput',
     WebView: 'WebView',
     VideoPlayer: 'VideoPlayer',
-    // Native内置组件，与View组件属性方法基本一致，仅名称不同
+    // native inner view, just name different with View
     ScrollView: 'ScrollView',
     Swiper: 'ViewPager',
     SwiperSlide: 'ViewPagerItem',

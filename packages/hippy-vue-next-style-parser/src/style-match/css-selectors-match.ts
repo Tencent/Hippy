@@ -81,7 +81,12 @@ class SelectorsMatch {
   }
 }
 
-
+/**
+ * selectors map class
+ *
+ * @public
+ *
+ */
 class SelectorsMap {
   /**
    * Remove the specified style from the style rules map

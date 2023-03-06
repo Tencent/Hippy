@@ -1,6 +1,6 @@
-import type { NeedToTyped } from '@tencent/hippy-vue-next-shared';
 import { ssrRenderSlotInner } from '@vue/server-renderer';
 import { isString, normalizeStyle } from '@vue/shared';
+import type { NeedToTyped } from './index';
 
 export type SSRBuffer = SSRBufferItem[] & { hasAsync?: boolean };
 export type SSRBufferItem = string | SSRBuffer | Promise<SSRBuffer>;
@@ -14,6 +14,11 @@ export type SSRSlot = (
   scopeId: string | null,
 ) => void;
 
+/**
+ * get hippy ssr style object
+ *
+ * @param raw
+ */
 export function ssrRenderStyle(raw: unknown): string {
   if (!raw) {
     return '{}';
@@ -25,10 +30,27 @@ export function ssrRenderStyle(raw: unknown): string {
   return JSON.stringify(normalizeStyle(raw) ?? {});
 }
 
+/**
+ * get hippy ssr directive props
+ */
 export function ssrGetDirectiveProps(): unknown {
   return {};
 }
 
+/**
+ * render ssr slot.
+ * because template-compiled slots are always rendered as fragments, the vue/server-renderer wrap
+ * fragment content in html comment. like <!--[-->{content}<!--]-->. but hippy didn't recognize.
+ * so we use hippy comment node to replace it.
+ *
+ * @param slots
+ * @param slotName
+ * @param slotProps
+ * @param fallbackRenderFn
+ * @param push
+ * @param parentComponent
+ * @param slotScopeId
+ */
 export function ssrRenderSlot(
   slots: SSRSlots,
   slotName: string,
