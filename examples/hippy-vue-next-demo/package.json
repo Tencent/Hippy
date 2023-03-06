@@ -19,9 +19,14 @@
     "@hippy/vue-next": "latest",
     "@hippy/vue-router-next-history": "latest",
     "@hippy/web-renderer": "latest",
+    "@hippy/vue-next-server-renderer": "file:../../packages/hippy-vue-next-server-renderer",
     "@vue/runtime-core": "^3.2.21",
+    "@vue/shared": "^3.2.21",
     "vue": "^3.2.21",
-    "vue-router": "^4.0.12"
+    "vue-router": "^4.0.12",
+    "express": "^4.18.2",
+    "pinia": "^2.0.23"
+
   },
   "devDependencies": {
     "@babel/core": "^7.12.0",
@@ -40,6 +45,8 @@
     "@hippy/hippy-hmr-plugin": "^0.1.0",
     "@hippy/rejection-tracking-polyfill": "^1.0.0",
     "@hippy/vue-css-loader": "^2.0.1",
+    "@hippy/vue-next-compiler-ssr": "file:../../packages/hippy-vue-next-compiler-ssr",
+    "@tencent/vite-plugin-hippy-build-vuenext": "0.0.1-rc.16",
     "@vitejs/plugin-vue": "^1.9.4",
     "@vue/cli-service": "^4.5.19",
     "@vue/compiler-sfc": "^3.2.21",
