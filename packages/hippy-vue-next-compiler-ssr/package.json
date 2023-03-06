@@ -1,7 +1,7 @@
 {
-  "name": "@hippy/vue-next-server-renderer",
+  "name": "@hippy/vue-next-compiler-ssr",
   "version": "unspecified",
-  "description": "Vue-Next server renderer for Hippy native framework",
+  "description": "Vue-Next server render compiler for Hippy native framework",
   "author": "OpenHippy Team",
   "homepage": "https://hippyjs.org",
   "license": "Apache-2.0",
@@ -13,9 +13,9 @@
   "keywords": [
     "hippy",
     "hippy-vue-next",
-    "server-renderer"
+    "server-renderer",
+    "compiler"
   ],
-
   "main": "./dist/index.js",
   "types": "index.d.ts",
   "files": [
@@ -24,8 +24,8 @@
     "README.md"
   ],
   "dependencies": {
-    "@vue/server-renderer": "^3.2.21",
-    "@vue/runtime-core": "^3.2.21",
+    "@vue/compiler-core": "^3.2.21",
+    "@vue/compiler-dom": "^3.2.21",
     "@vue/shared": "^3.2.21"
   }
 }

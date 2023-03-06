@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
+  "mainEntryPointFilePath": "./dist/hippy-vue-next-compiler-ssr/src/index.d.ts",
+  "apiReport": {
+    "enabled": false
+  },
+  "docModel": {
+    "enabled": false
+  },
+  "dtsRollup": {
+    "enabled": true,
+    "untrimmedFilePath": "./dist/index.d.ts"
+  },
+  "tsdocMetadata": {
+    "enabled": false
+  },
+  "messages": {
+    "compilerMessageReporting": {
+      "TS2374": {
+        "logLevel": "none"
+      },
+      "TS6200": {
+        "logLevel": "none"
+      },
+      "TS2403": {
+        "logLevel": "none"
+      }
+    },
+    "extractorMessageReporting": {
+      "ae-forgotten-export": {
+        "logLevel": "none"
+      },
+      "ae-wrong-input-file-type": {
+        "logLevel": "none"
+      }
+    }
+  }
+}

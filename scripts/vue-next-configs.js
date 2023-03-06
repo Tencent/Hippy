@@ -29,6 +29,8 @@ const { apiExtractor } = require('rollup-plugin-api-extractor');
 const VueVersion = require('../packages/hippy-vue-next/node_modules/@vue/runtime-core/package.json').version;
 const hippyVueNextPackage = require('../packages/hippy-vue-next/package.json');
 const hippyStyleParserPackage = require('../packages/hippy-vue-next-style-parser/package.json');
+const hippyCompilerSsrPackage = require('../packages/hippy-vue-next-compiler-ssr/package.json');
+const hippyServerRendererPackage = require('../packages/hippy-vue-next-server-renderer/package.json');
 
 const andHippyVueNextString = ` and Hippy-Vue-Next v${hippyVueNextPackage.version}`;
 
@@ -77,16 +79,72 @@ const builds = {
     format: 'cjs',
     moduleName: 'hippy-vue-next-style-parser',
     banner: banner('@hippy/hippy-vue-next-style-parser', hippyStyleParserPackage.version),
+    external: ['@vue/shared'],
   },
   '@hippy/vue-next': {
     entry: resolvePackage('hippy-vue-next', 'src/index.ts'),
     dest: resolvePackage('hippy-vue-next', 'dist/index.js'),
     format: 'es',
-    banner: banner('@hippy/vue', hippyVueNextPackage.version),
+    banner: banner('@hippy/vue-next', hippyVueNextPackage.version),
     name: 'hippy-vue-next',
-    external: ['@vue/runtime-core'],
+    external: ['@vue/runtime-core', '@vue/shared'],
+  },
+  '@hippy/vue-next-compiler-ssr': {
+    entry: resolvePackage('hippy-vue-next-compiler-ssr', 'src/index.ts'),
+    dest: resolvePackage('hippy-vue-next-compiler-ssr', 'dist/index.js'),
+    format: 'cjs',
+    moduleName: 'hippy-vue-next-compiler-ssr',
+    banner: banner('@hippy/vue-next-compiler-ssr', hippyCompilerSsrPackage.version),
+    external: ['@vue/compiler-core', '@vue/compiler-dom', '@vue/shared'],
+  },
+  '@hippy/vue-next-server-renderer': {
+    entry: resolvePackage('hippy-vue-next-server-renderer', 'src/index.ts'),
+    dest: resolvePackage('hippy-vue-next-server-renderer', 'dist/index.js'),
+    format: 'cjs',
+    moduleName: 'hippy-vue-next-server-renderer',
+    banner: banner('@hippy/vue-next-server-renderer', hippyServerRendererPackage.version),
+    external: ['@vue/server-renderer', '@vue/runtime-core', '@vue/shared'],
   },
 };
+
+/**
+ * 获取 babel 配置
+ *
+ * @param opts - package 配置项
+ */
+function getBabelConfig(opts) {
+  if (opts.name === 'hippy-vue-next-style-parser') {
+    return [];
+  }
+
+  return opts.name === 'hippy-vue-next' ? [
+    babel({
+      presets: [
+        [
+          '@babel/env',
+          {
+            targets: {
+              chrome: '57',
+            },
+          },
+        ],
+      ],
+      plugins: [
+        [
+          '@babel/plugin-transform-runtime',
+          {
+            corejs: false,
+          },
+        ],
+      ],
+      babelHelpers: 'runtime',
+    }),
+  ] : [
+    babel({
+      babelHelpers: 'runtime',
+    }),
+  ];
+}
 
 function genConfig(name) {
   const opts = builds[name];
@@ -107,6 +165,8 @@ function genConfig(name) {
           'process.env.HIPPY_VUE_VERSION': `"${hippyVueNextPackage.version}"`,
           // enable vue-devtools if __VUE_DEVTOOLS_GLOBAL_HOOK__ exist
           'inBrowser && window.__VUE_DEVTOOLS_GLOBAL_HOOK__': 'global.__VUE_DEVTOOLS_GLOBAL_HOOK__',
+          // set __SSR__ to true when package is server-renderer
+          __SSR__: opts.name === 'hippy-vue-next-server-renderer',
         },
       }),
       typescript({
@@ -149,32 +209,8 @@ function genConfig(name) {
       nodeResolve({
         preferBuiltins: true,
       }),
-    ].concat(opts.name === 'hippy-vue-next' ? [
-      babel({
-        presets: [
-          [
-            '@babel/env',
-            {
-              targets: {
-                chrome: '57',
-              },
-            },
-          ],
-        ],
-        plugins: [
-          [
-            '@babel/plugin-transform-runtime',
-            {
-              corejs: false,
-            },
-          ],
-        ],
-        babelHelpers: 'runtime',
-      }),
-      cjs(),
-    ] : [
-      cjs(),
-    ]).concat(opts.plugins || []),
+    ].concat(getBabelConfig(opts)).concat([cjs()])
+      .concat(opts.plugins || []),
     output: {
       file: opts.dest,
       format: opts.format,

@@ -17,7 +17,9 @@ export type SSRSlot = (
 /**
  * get hippy ssr style object
  *
- * @param raw
+ * @param raw - raw style
+ *
+ * @public
  */
 export function ssrRenderStyle(raw: unknown): string {
   if (!raw) {
@@ -32,6 +34,8 @@ export function ssrRenderStyle(raw: unknown): string {
 
 /**
  * get hippy ssr directive props
+ *
+ * @public
  */
 export function ssrGetDirectiveProps(): unknown {
   return {};
@@ -40,16 +44,18 @@ export function ssrGetDirectiveProps(): unknown {
 /**
  * render ssr slot.
  * because template-compiled slots are always rendered as fragments, the vue/server-renderer wrap
- * fragment content in html comment. like <!--[-->{content}<!--]-->. but hippy didn't recognize.
+ * fragment content in html comment. like \<!--[--\>\{content\}\<!--]--\>. but hippy didn't recognize.
  * so we use hippy comment node to replace it.
  *
- * @param slots
- * @param slotName
- * @param slotProps
- * @param fallbackRenderFn
- * @param push
- * @param parentComponent
- * @param slotScopeId
+ * @param slots - slot list
+ * @param slotName - slot name
+ * @param slotProps - slot props
+ * @param fallbackRenderFn - fallback render function
+ * @param push - push function
+ * @param parentComponent - parent component
+ * @param slotScopeId - slot scope id
+ *
+ * @public
  */
 export function ssrRenderSlot(
   slots: SSRSlots,

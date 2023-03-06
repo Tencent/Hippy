@@ -29,7 +29,7 @@ export function unescapeHtml(string: string): string {
 /**
  * current platform is iOS or not
  *
- * @param hippyContext
+ * @param hippyContext - hippy ssr context
  */
 export function isIOS(hippyContext: SsrCommonParams): boolean {
   return hippyContext?.device?.platform?.OS === 'ios';
@@ -38,7 +38,7 @@ export function isIOS(hippyContext: SsrCommonParams): boolean {
 /**
  * current platform is android or not
  *
- * @param hippyContext
+ * @param hippyContext - hippy ssr context
  */
 export function isAndroid(hippyContext: SsrCommonParams): boolean {
   return hippyContext?.device?.platform?.OS === 'android';

@@ -144,6 +144,16 @@ function renderComponentSubTree(
   return getBuffer();
 }
 
+/**
+ * render vNode
+ *
+ * @param push - push function
+ * @param vnode - vnode
+ * @param parentComponent - parent component
+ * @param slotScopeId - slot scoped id
+ *
+ * @public
+ */
 export function renderVNode(
   push: PushFn,
   vnode: VNode,

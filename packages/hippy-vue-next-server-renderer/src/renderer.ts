@@ -222,6 +222,8 @@ function generateUniqueId(currentId?: number): number {
 
 /**
  * generate hippy unique id at ssr. this is ssr helper
+ *
+ * @public
  */
 export function ssrGetUniqueId(): number {
   const currentInstance = getCurrentInstance();
@@ -241,6 +243,8 @@ export function ssrGetUniqueId(): number {
  * get unique id at current vue app instance
  *
  * @param app - vue app instance
+ *
+ * @public
  */
 export function getCurrentUniqueId(app: App): number {
   return app._context.provides[SSR_UNIQUE_ID_KEY].ssrUniqueId;
@@ -251,6 +255,8 @@ export function getCurrentUniqueId(app: App): number {
  *
  * @param app - vue ssr app
  * @param options - ssr options
+ *
+ * @public
  */
 export async function renderToHippyList(
   app: App,
