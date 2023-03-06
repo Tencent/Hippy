@@ -28,6 +28,7 @@
 
 #include "base/unicode_string_view.h"
 #include "core/napi/js_ctx.h"
+#include "core/vm/v8/snapshot_data.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wconversion"
@@ -38,7 +39,7 @@ namespace hippy {
 namespace vm {
 
 struct V8VMInitParam : public VMInitParam {
-  enum class V8VMInitType {
+  enum class V8VMSnapshotType {
     kNoSnapshot, kCreateSnapshot, kUseSnapshot
   };
 
@@ -46,10 +47,8 @@ struct V8VMInitParam : public VMInitParam {
   size_t maximum_heap_size_in_bytes;
   v8::NearHeapLimitCallback near_heap_limit_callback;
   void* near_heap_limit_callback_data;
-  V8VMInitType type;
-  std::shared_ptr<v8::StartupData> snapshot_blob;
-  std::any holder;
-  std::basic_string<uint8_t> buffer;
+  V8VMSnapshotType type;
+  SnapshotData snapshot_data;
 
   static size_t HeapLimitSlowGrowthStrategy(void* data, size_t current_heap_limit,
                                             size_t initial_heap_limit) {
@@ -95,7 +94,19 @@ class V8VM : public VM {
 
   v8::Isolate* isolate_;
   v8::Isolate::CreateParams create_params_;
-  std::shared_ptr<v8::StartupData> snapshot_blob_;
+  SnapshotData snapshot_data_;
+};
+
+class V8SnapshotVM : public VM {
+ public:
+  V8SnapshotVM();
+  ~V8SnapshotVM();
+
+  virtual std::shared_ptr<Ctx> CreateContext() override;
+
+  v8::Isolate::CreateParams create_params_;
+  std::shared_ptr<v8::SnapshotCreator> snapshot_creator_;
+  v8::Isolate* isolate_;
 };
 
 }

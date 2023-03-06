@@ -47,9 +47,7 @@ Touch events are handled similarly to click events and can be used on any React 
 1. onTouchDown(event)： When the user starts to press the finger on the control, this function is called back and the touch screen point information is passed in as a parameter.
 2. onTouchMove(event)： When the user moves the finger in the control, this function is called continuously and the touch point information of the control is informed through the event parameter.
 3. onTouchEnd(event)： When the touch screen operation ends, this function is called back when the user lifts his finger on the control, and the event parameter will also notify the current touch screen point information.
-4. onTouchCancel(event)： This function will be called back when a system event interrupts the touch screen during the user's touch screen process, such as incoming phone calls, component changes (such as setting hidden), sliding gestures of other components, and will inform the front-end touch screen point information through event parameter.
-
-Note: If onTouchCancel is called, onTouchEnd will not be called.
+4. onTouchCancel(event)： This function will be called back when a system event interrupts the touch screen during the user's touch screen process, such as incoming phone calls, component changes (such as setting hidden), sliding gestures of other components, and will inform the front-end touch screen point information through event parameter. `Note: If onTouchCancel is called, onTouchEnd will not be called.`
 
 The above callback functions all take a parameter event, which contains the following structure:
 
@@ -58,7 +56,7 @@ The above callback functions all take a parameter event, which contains the foll
 - Page_x: the horizontal coordinate of the touch screen point relative to the root element.
 - Page_y: the vertical coordinate of the touch screen point relative to the root element.
 
-The x and y coordinates in the above structure have been converted to units independent of screen resolution. For example, the event parameter structure of the onTouchDonw callback is as follows:
+The x and y coordinates in the above structure have been converted to units independent of screen resolution. For example, the event parameter structure of the onTouchDown callback is as follows:
 
 ```json
 {

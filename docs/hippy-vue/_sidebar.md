@@ -6,6 +6,7 @@
 * [模块](hippy-vue/vue-native.md)
 * [样式](hippy-vue/style.md)
 * [事件](hippy-vue/native-event.md)
+* [手势系统](hippy-vue/gesture.md)
 * [自定义组件和模块](hippy-vue/customize.md)
 * [路由](hippy-vue/router.md)
 * [转 Web](hippy-vue/web.md)
