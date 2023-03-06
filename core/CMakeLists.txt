@@ -35,7 +35,7 @@ add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 target_link_libraries(${PROJECT_NAME} PRIVATE android log)
-target_compile_definitions(${PROJECT_NAME} PRIVATE "HIPPY_SDK_VERSION=${HIPPY_SDK_VERSION}")
+target_compile_definitions(${PROJECT_NAME} PRIVATE "VERSION_NAME=${VERSION_NAME}")
 # endregion
 
 # region vm
