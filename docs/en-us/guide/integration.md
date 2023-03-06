@@ -2,13 +2,97 @@
 
 Hippy uses `monorepo` for code management to unify the versions of multiple repository SDK. The front-end can directly introduce the corresponding NPM package, and the native can access it through publishing branch source code or through the corresponding package management repository.
 
-Hippy already provides a complete [front-end and native paradigm](//github.com/Tencent/Hippy/tree/master/examples) to start App development directly based on our existing paradigm. For a quick experience of Hippy, follow [the README steps](https://github.com/Tencent/Hippy/blob/master/README.zh_CN.md#-%E5%BC%80%E5%A7%8B) to run DEMO. If you want to integrate Hippy into an existing App, continue to read the following `Native access` chapter.
+Hippy already provides a complete [front-end and native paradigm](//github.com/Tencent/Hippy/tree/master/examples) to start App development directly based on our existing paradigm.
 
 ---
 
+# Quick Start
+
+## Preparing environment
+
+Make sure you have [git](https://git-scm.com/), [nodejs](https://nodejs.org/en/) and [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) installed locally.
+
+!> npm required minimum version v7, nodejs required minimum version v16
+
+Run `git clone https://github.com/Tencent/Hippy.git` and `npm install` at project root directory.
+
+!> The Hippy repository applies [git-lfs](https://git-lfs.github.com/) to manage so,gz,otf files, make sure you have installed [git-lfs](https://git-lfs.github.com/) first.
+
+For macOS developers:
+
+* [Xcode](https://developer.apple.com/xcode/) with iOS sdk: build the iOS app.
+* [Android Studio](https://developer.android.com/studio) with NDK: build the android app.
+
+For Windows developers:
+
+* [Android Studio](https://developer.android.com/studio) with NDK: build the android app.
+
+## Build the iOS App with js demo
+
+For iOS, we recommend to use iOS simulator when first try. However, you can change the Xcode configuration to install the app to iPhone if you are an iOS expert.
+
+1. Run `npm run init` at root directory.
+
+   > This command is combined with `npm install && npx lerna bootstrap && npm run build`.
+   >
+   > `npm install`: Install the project build scripts dependencies.
+   >
+   > `npx lerna bootstrap`: Install dependencies of each npm package.（Hippy uses [Lerna](https://lerna.js.org/) to manage multi js packages）
+   >
+   > `npm run build`: Build each front-end sdk package.
+
+2. Choose a demo to build with `npm run buildexample [hippy-react-demo|hippy-vue-demo|hippy-vue-next-demo]` at root directory.
+3. Start the Xcode and build the iOS app with open `Hippy.xcworkspace` at root directory.
+
+> If `Step 2` throw error, you can `cd` to `examples` different js demo directory, and run `npm install --legacy-peer-deps` to install demo dependencies first.
+>
+> More details for [iOS Integration](ios/integration).
+
+## Build the Android app with js demo
+
+1. Run `npm run init` at root directory.
+
+   > This command is combined with `npm install && npx lerna bootstrap && npm run build`.
+   >
+   > `npm install`: Install the project build scripts dependencies.
+   >
+   > `npx lerna bootstrap`: Install dependencies of each npm package.（Hippy uses [Lerna](https://lerna.js.org/) to manage multi js packages）
+   >
+   > `npm run build`: Build each front-end sdk package.
+
+2. Choose a demo to build with `npm run buildexample [hippy-react-demo|hippy-vue-demo|hippy-vue-next-demo]` at root directory.
+3. Open `Android Project` at root directory with Android Studio.
+4. Connect Android phone with USB cable and make sure USB debugging mode is enabled(Run `adb devices` on the computer terminal to check cellphone connection status).
+5. Open the project with Android Studio, run and install the apk.
+
+> If `Step 2` throw error, you can `cd` to `examples` different js demo directory, and run `npm install --legacy-peer-deps` to install demo dependencies first.
+>
+> More details for [Android Integration](android/integration).
+
+## Debug the js demo
+
+1. Follow `Build the iOS App with js demo` or `Build the Android app with js demo` first to build the App.
+2. Run `npm run init:example [hippy-react-demo|hippy-vue-demo|hippy-vue-next-demo]` at root directory.
+3. Run `npm run debugexample [hippy-react-demo|hippy-vue-demo|hippy-vue-next-demo] dev` at root directory.
+
+> Or you can `cd` to `examples` different js demo directory to run `npm run hippy:dev` instead.
+>
+> On example debug mode, npm packages such as @hippy/react, @hippy/vue, @hippy/vue-next are linked to `packages` > `[different package]` > `dist`(not node_modules), so if you have changed js package source code and want to make it take effect in target example, please call `npm run build` at root directory again.
+>
+> More details for debugging can be read in [Hippy Debug Document](guide/debug).
+
+## Build the js production demo
+
+1. Follow `Build the iOS App with js demo` or `Build the Android app with js demo` first to build the App.
+2. `cd` to examples `hippy-react-demo` or `hippy-vue-demo` or `hippy-vue-next-demo`.
+3. Run `npm install` to install demo js dependencies.
+4. Run `npm run hippy:vendor` and `npm run hippy:build` in sequence to build the production `vendor.[android|ios].js` and `index.[android|ios].js`.
+
+> Hippy demo uses Webpack DllPlugin to split the js common chunk and app chunk, which enables different business reuse common code.
+
 # Native Integration
 
-If you want to access Hippy to an existing native project, refer to the [Android integration](android/integration.md) and [iOS integration](ios/integration.md) tutorials.
+If you want to access Hippy to an existing native project, refer to the [Android Integration](android/integration.md) and [iOS Integration](ios/integration.md) tutorials.
 
 # Front-end Integration
 
