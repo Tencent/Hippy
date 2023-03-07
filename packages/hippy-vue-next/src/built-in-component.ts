@@ -167,22 +167,6 @@ const img: ElementComponent = {
       const { handler: event, __evt: nativeEventName } = evtData;
 
       switch (nativeEventName) {
-        case 'onScroll':
-        case 'onScrollBeginDrag':
-        case 'onScrollEndDrag':
-        case 'onMomentumScrollBegin':
-        case 'onMomentumScrollEnd':
-          event.offsetX = nativeEventParams.contentOffset?.x;
-          event.offsetY = nativeEventParams.contentOffset?.y;
-          /**
-           * If it is a scroll event and the size of the scroll content area is included in the event response,
-           * the actual size of the scroll content area will be assigned
-           */
-          if (nativeEventParams?.contentSize) {
-            event.scrollHeight = nativeEventParams.contentSize.height;
-            event.scrollWidth = nativeEventParams.contentSize.width;
-          }
-          break;
         case 'onTouchDown':
         case 'onTouchMove':
         case 'onTouchEnd':
