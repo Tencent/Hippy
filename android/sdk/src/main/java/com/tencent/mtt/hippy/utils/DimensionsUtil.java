@@ -124,15 +124,17 @@ public class DimensionsUtil {
   }
 
   public static int getStatusBarHeight() {
-    Context context = ContextHolder.getAppContext();
+      return getStatusBarHeight(ContextHolder.getAppContext());
+  }
+
+  public static int getStatusBarHeight(Context context) {
     assert context != null;
     if (STATUS_BAR_HEIGHT > 0) {
       return STATUS_BAR_HEIGHT;
     }
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-      WindowManager wm = (WindowManager) ContextHolder.getAppContext()
-              .getSystemService(Context.WINDOW_SERVICE);
+      WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
       WindowMetrics windowMetrics = wm.getCurrentWindowMetrics();
       WindowInsets windowInsets = windowMetrics.getWindowInsets();
       Insets insets = windowInsets
@@ -201,7 +203,7 @@ public class DimensionsUtil {
 
     // construct param
     HippyMap dimensionMap = new HippyMap();
-    getStatusBarHeight();
+    getStatusBarHeight(context);
     int navigationBarHeight = getNavigationBarHeight(context);
     HippyMap windowDisplayMetricsMap = new HippyMap();
 

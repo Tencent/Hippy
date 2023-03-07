@@ -56,6 +56,7 @@
   * [Modules](hippy-vue/vue-native.md)
   * [Styles](hippy-vue/style.md)
   * [Events](hippy-vue/native-event.md)
+  * [Gesture System](hippy-vue/gesture.md)
   * [Custom Components & Modules](hippy-vue/customize.md)
   * [Router](hippy-vue/router.md)
   * [Web Isomorphic](hippy-vue/web.md)
