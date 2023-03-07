@@ -196,11 +196,13 @@ const img = {
         case 'onFocus':
           event.isFocused = nativeEventName.focus;
           break;
-        case 'onLoad':
-          event.width = nativeEventParams.width;
-          event.height = nativeEventParams.height;
-          event.url = nativeEventParams.url;
+        case 'onLoad': {
+          const { width, height, url } = nativeEventParams;
+          event.width = width;
+          event.height = height;
+          event.url = url;
           break;
+        }
         default:
       }
       return event;
