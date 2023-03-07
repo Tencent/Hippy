@@ -82,11 +82,11 @@ export default {
     },
     onLoad(evt) {
       console.log('onLoad', evt);
-      const { width: w, height: h, url: u } = evt;
+      const { width, height, url } = evt;
       this.gifLoadResult = {
-        width: w,
-        height: h,
-        url: u,
+        width,
+        height,
+        url,
       };
     },
   },
