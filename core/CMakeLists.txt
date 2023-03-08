@@ -35,6 +35,7 @@ add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 target_link_libraries(${PROJECT_NAME} PRIVATE android log)
+target_compile_definitions(${PROJECT_NAME} PRIVATE "VERSION_NAME=${VERSION_NAME}")
 # endregion
 
 # region vm
@@ -70,10 +71,11 @@ set(SOURCE_SET
     src/engine.cc
     src/modules/console_module.cc
     src/modules/contextify_module.cc
-    src/modules/module_register.cc
+    src/modules/timer_module.cc
+    src/modules/console_module.cc
+    src/modules/contextify_module.cc
     src/modules/timer_module.cc
     src/napi/callback_info.cc
-    src/napi/js_native_turbo.cc
     src/scope.cc
     src/task/common_task.cc
     src/task/javascript_task.cc
@@ -81,9 +83,16 @@ set(SOURCE_SET
     src/task/worker_task_runner.cc)
 if ("${JS_ENGINE}" STREQUAL "V8")
   list(APPEND SOURCE_SET
-      src/napi/v8/js_native_api_v8.cc
-      src/napi/v8/js_native_turbo_v8.cc
-      src/napi/v8/native_source_code_android.cc)
+      src/napi/v8/v8_ctx.cc
+      src/napi/v8/v8_try_catch.cc
+      src/vm/v8/js_vm.cc
+      src/vm/v8/native_source_code_android.cc
+      src/vm/v8/serializer.cc
+      src/vm/v8/v8_vm.cc
+      src/vm/v8/snapshot_data.cc
+      src/vm/v8/snapshot_deserializer.cc
+      src/vm/v8/snapshot_serializer.cc
+      src/vm/v8/memory_module.cc)
   if (NOT V8_WITHOUT_INSPECTOR)
     list(APPEND SOURCE_SET
             src/inspector/v8_channel_impl.cc
@@ -91,26 +100,12 @@ if ("${JS_ENGINE}" STREQUAL "V8")
   endif ()
 elseif ("${JS_ENGINE}" STREQUAL "JSC")
   list(APPEND SOURCE_SET
-      src/napi/jsc/js_native_api_jsc.cc
-      src/napi/jsc/js_native_api_value_jsc.cc
-      src/napi/jsc/js_native_jsc_helper.cc
-      src/napi/jsc/js_native_turbo_jsc.cc
-      src/napi/jsc/native_source_code_ios.cc)
-endif ()
-set(SOURCE_SET_STANDALONE
-    src/modules/console_module.cc
-    src/modules/contextify_module.cc
-    src/modules/timer_module.cc)
-if ("${JS_ENGINE}" STREQUAL "V8")
-  list(APPEND SOURCE_SET_STANDALONE
-       src/napi/v8/memory_module.cc)
+      src/napi/jsc/jsc_ctx.cc
+      src/napi/jsc/jsc_ctx_value.cc
+      src/napi/jsc/jsc_try_catch.cc
+      src/vm/jsc/native_source_code_ios.cc
+      src/vm/jsc/js_vm.cc
+      src/vm/jsc/jsc_vm.cc)
 endif ()
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
-# The linker treats `.a` and `.o` files are different:
-#   * `.o` files from `.a` file only referenced `.o` object files are linked.
-#   * `.o` files in the linker always go inside, referenced or not.
-#
-# The `SOURCE_SET_STANDALONE` including static initializers,
-# so its visibility must be PUBLIC.
-target_sources(${PROJECT_NAME} PUBLIC ${SOURCE_SET_STANDALONE})
 # endregion

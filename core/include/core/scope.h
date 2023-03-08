@@ -22,16 +22,17 @@
 
 #pragma once
 
+#include <any>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "base/unicode_string_view.h"
 #include "core/base/common.h"
 #include "core/base/task.h"
 #include "core/base/uri_loader.h"
 #include "core/engine.h"
-#include "core/napi/js_native_api.h"
-#include "core/napi/js_native_api_types.h"
+#include "core/napi/js_ctx.h"
 #include "core/task/worker_task_runner.h"
 
 class JavaScriptTaskRunner;
@@ -40,10 +41,10 @@ class Scope;
 
 class ScopeWrapper {
  public:
-  explicit ScopeWrapper(std::shared_ptr<Scope> scope) : scope_(scope) {}
+  explicit ScopeWrapper(std::shared_ptr<Scope> scope) : scope(scope) {}
 
  public:
-  std::weak_ptr<Scope> scope_;
+  std::weak_ptr<Scope> scope;
 };
 
 class Scope {
@@ -53,12 +54,11 @@ class Scope {
   using CtxValue = hippy::napi::CtxValue;
   using Ctx = hippy::napi::Ctx;
   using UriLoader = hippy::base::UriLoader;
-  using FunctionData = hippy::napi::FunctionData;
-  using BindingData = hippy::napi::BindingData;
   using Encoding = hippy::napi::Encoding;
+  using FuncWrapper = hippy::napi::FuncWrapper;
 
-  Scope(Engine* engine,
-        std::string  name,
+  Scope(std::weak_ptr<Engine> engine,
+        std::string name,
         std::unique_ptr<RegisterMap> map);
   ~Scope();
 
@@ -66,23 +66,15 @@ class Scope {
   inline std::shared_ptr<Ctx> GetContext() { return context_; }
   inline std::unique_ptr<RegisterMap>& GetRegisterMap() { return map_; }
 
-  ModuleBase* GetModuleClass(const unicode_string_view& moduleName);
-  void AddModuleClass(const unicode_string_view& name,
-                      std::unique_ptr<ModuleBase> module);
-  std::shared_ptr<CtxValue> GetModuleValue(
-      const unicode_string_view& moduleName);
-  void AddModuleValue(const unicode_string_view& name,
-                      const std::shared_ptr<CtxValue>& value);
-
-  void SaveFunctionData(std::unique_ptr<FunctionData> data);
-
-  inline void SaveBindingData(std::unique_ptr<BindingData> data) {
-    binding_data_ = std::move(data);
+  inline void SaveFuncWrapper(std::unique_ptr<hippy::napi::FuncWrapper> wrapper) {
+    func_wrapper_holder_.push_back(std::move(wrapper));
   }
 
-  inline const std::unique_ptr<BindingData>& GetBindingData() {
-    return binding_data_;
+  inline std::shared_ptr<ModuleBase> GetModuleObject(const std::string& module_name) {
+    return  module_object_map_[module_name];
   }
+
+  void* GetScopeWrapperPointer();
 
   void RunJS(const unicode_string_view& js,
              const unicode_string_view& name,
@@ -93,18 +85,8 @@ class Scope {
                                       bool is_copy = true);
 
   inline std::shared_ptr<JavaScriptTaskRunner> GetTaskRunner() {
-    return engine_->GetJSRunner();
-  }
-
-  inline std::shared_ptr<WorkerTaskRunner> GetWorkerTaskRunner() {
-    return engine_->GetWorkerTaskRunner();
-  }
-
-  inline void AddTask(std::unique_ptr<hippy::base::Task> task) {
-    std::shared_ptr<JavaScriptTaskRunner> runner = engine_->GetJSRunner();
-    if (runner) {
-      runner->PostTask(std::move(task));
-    }
+    TDF_BASE_CHECK(engine_.lock());
+    return engine_.lock()->GetJSRunner();
   }
 
   inline void SetUriLoader(std::shared_ptr<UriLoader> loader) {
@@ -113,21 +95,54 @@ class Scope {
 
   inline std::shared_ptr<UriLoader> GetUriLoader() { return loader_; }
 
- private:
-  friend class Engine;
-  void Initialized();
+  inline auto& GetJsModuleArray() {
+    return js_module_array;
+  }
+
+  inline bool HasTurboInstance(const std::string& name) {
+    return turbo_instance_map_.find(name) != turbo_instance_map_.end();
+  }
+
+  inline std::shared_ptr<CtxValue> GetTurboInstance(const std::string& name) {
+    return turbo_instance_map_[name];
+  }
+
+  inline void SetTurboInstance(const std::string& name, const std::shared_ptr<CtxValue>& instance) {
+    turbo_instance_map_[name] = instance;
+  }
+
+  inline std::any GetTurboHostObject(const std::string& name) {
+    return turbo_host_object_map_[name];
+  }
+
+  inline void SetTurboHostObject(const std::string& name, const std::any& host_object) {
+    turbo_host_object_map_[name] = host_object;
+  }
+
+  inline void AddWillExitCallback(std::function<void()> cb) { // cb will run in the js thread
+    will_exit_cbs_.push_back(cb);
+  }
 
  private:
-  Engine* engine_;
+  friend class Engine;
+  void Init(bool use_snapshot);
+  void CreateContext();
+  void BindModule();
+  void Bootstrap();
+  void InvokeCallback();
+
+
+ private:
+  std::weak_ptr<Engine> engine_;
   std::shared_ptr<Ctx> context_;
   std::string name_;
   std::unique_ptr<RegisterMap> map_;
-  std::unordered_map<unicode_string_view, std::shared_ptr<CtxValue>>
-      module_value_map_;
-  std::unordered_map<unicode_string_view, std::unique_ptr<ModuleBase>>
-      module_class_map_;
-  std::vector<std::unique_ptr<FunctionData>> function_data_;
-  std::unique_ptr<BindingData> binding_data_;
-  std::unique_ptr<ScopeWrapper> wrapper_;
+  std::unordered_map<std::string, std::shared_ptr<ModuleBase>> module_object_map_;
+  std::vector<std::shared_ptr<CtxValue>> js_module_array;
   std::shared_ptr<UriLoader> loader_;
+  std::unique_ptr<ScopeWrapper> wrapper_;
+  std::vector<std::unique_ptr<hippy::napi::FuncWrapper>> func_wrapper_holder_;
+  std::unordered_map<std::string, std::shared_ptr<CtxValue>> turbo_instance_map_;
+  std::unordered_map<std::string, std::any> turbo_host_object_map_;
+  std::vector<std::function<void()>> will_exit_cbs_;
 };

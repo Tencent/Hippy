@@ -24,13 +24,14 @@
 
 #include "bridge/runtime.h"
 #include "jni/jni_utils.h"
+#include "jni/jni_env.h"
 #include "v8/v8.h"
 
 namespace hippy {
 inline namespace driver {
 inline namespace v8_engine {
 
-using V8VM = hippy::napi::V8VM;
+using V8VM = hippy::vm::V8VM;
 
 #if V8_MAJOR_VERSION < 9
 constexpr int kFrameLimit = 20;

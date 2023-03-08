@@ -29,7 +29,6 @@ import BuiltInComponent from '../src/built-in-component';
 import { getTagComponent, registerElement } from '../src/runtime/component';
 import { HippyElement } from '../src/runtime/element/hippy-element';
 import { HippyListElement } from '../src/runtime/element/hippy-list-element';
-import { HippyListItemElement } from '../src/runtime/element/hippy-list-item-element';
 import { HippyInputElement } from '../src/runtime/element/hippy-input-element';
 import { HippyText } from '../src/runtime/text/hippy-text';
 import { setHippyCachedInstance } from '../src/util/instance';
@@ -274,7 +273,7 @@ describe('built-in-component', () => {
 
     it('li tag test', () => {
       const listElement = new HippyListElement('ul');
-      const listItemElement = new HippyListItemElement('li');
+      const listItemElement = new HippyElement('li');
       expect(listItemElement.component.name).toEqual(NATIVE_COMPONENT_MAP.ListViewItem);
       listElement.appendChild(listItemElement);
       const textElement = new HippyText('hello');

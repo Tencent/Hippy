@@ -147,7 +147,7 @@ Hippy.on('destroyInstance', () => {
 
 # Container Size Change Event
 
-!> iOS Minimum supported version `2.16.0`
+`Android all versions supported, iOS minimum supported version 2.16.0`
 
 This event is triggered when the container size changes, such as screen rotation, folding screen switching, etc.
 

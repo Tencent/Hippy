@@ -23,6 +23,7 @@
 
 import { PROPERTIES_MAP } from '@css-loader/css-parser';
 import { getViewMeta, normalizeElementName } from '../elements';
+import { eventMethod } from '../util/event';
 import {
   unicodeToChar,
   tryConvertNumber,
@@ -500,7 +501,12 @@ class ElementNode extends ViewNode {
       }
     }
     if (typeof this.polyfillNativeEvents === 'function') {
-      ({ eventNames, callback, options } = this.polyfillNativeEvents('addEventListener', eventNames, callback, options));
+      ({ eventNames, callback, options } = this.polyfillNativeEvents(
+        eventMethod.ADD,
+        eventNames,
+        callback,
+        options,
+      ));
     }
     this._emitter.addEventListener(eventNames, callback, options);
     updateChild(this);
@@ -511,7 +517,12 @@ class ElementNode extends ViewNode {
       return null;
     }
     if (typeof this.polyfillNativeEvents === 'function') {
-      ({ eventNames, callback, options } = this.polyfillNativeEvents('removeEventListener', eventNames, callback, options));
+      ({ eventNames, callback, options } = this.polyfillNativeEvents(
+        eventMethod.REMOVE,
+        eventNames,
+        callback,
+        options,
+      ));
     }
     const observer = this._emitter.removeEventListener(eventNames, callback, options);
     updateChild(this);
