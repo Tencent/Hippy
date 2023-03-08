@@ -1474,7 +1474,7 @@ static UIView *_jsResponder;
             NSNumber *tag = subNode.hippyTag;
             NSDictionary *props = subNode.props;
             HippyComponentData *componentData = self->_componentDataByName[viewName];
-            UIView *view = [self->_reusePool popViewForKey:viewName];
+            UIView *view = [[self reusePool] popViewForKey:viewName];
             if (!view) {
                 view = [self createViewByComponentData:componentData
                                       hippyVirtualNode:subNode
