@@ -22,7 +22,6 @@
 
 #import "NativeRenderViewPagerItemManager.h"
 #import "NativeRenderViewPagerItem.h"
-#import "NativeRenderManager.h"
 
 @implementation NativeRenderViewPagerItemManager
 

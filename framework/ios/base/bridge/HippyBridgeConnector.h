@@ -43,6 +43,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setRootView:(UIView *)rootView;
 
+- (void)addExtraComponents:(NSArray<Class> *)components;
+
 - (void)loadInstanceForRootViewTag:(NSNumber *)tag props:(NSDictionary *)props;
 
 @end

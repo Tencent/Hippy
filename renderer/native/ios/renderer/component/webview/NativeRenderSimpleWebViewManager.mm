@@ -21,7 +21,6 @@
  */
 
 #import "NativeRenderSimpleWebViewManager.h"
-#import "NativeRenderManager.h"
 
 @implementation NativeRenderSimpleWebViewManager
 

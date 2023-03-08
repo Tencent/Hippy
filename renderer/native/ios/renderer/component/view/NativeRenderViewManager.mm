@@ -30,7 +30,6 @@
 #import "NativeRenderObjectView.h"
 #import "NativeRenderViewManager.h"
 #import "NativeRenderView.h"
-#import "NativeRenderManager.h"
 #import "UIView+DirectionalLayout.h"
 #import "UIView+NativeRender.h"
 

@@ -105,6 +105,10 @@
     [_bridge setupDomManager:domManager rootNode:_rootNode];
 }
 
+- (void)addExtraComponents:(NSArray<Class> *)components {
+    _nativeRenderManager->RegisterExtraComponent(components);
+}
+
 - (void)loadInstanceForRootViewTag:(NSNumber *)tag props:(NSDictionary *)props {
     [_bridge loadInstanceForRootView:tag withProperties:props];
 }

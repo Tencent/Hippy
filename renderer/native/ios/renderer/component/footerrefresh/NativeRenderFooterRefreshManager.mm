@@ -23,7 +23,6 @@
 #import "NativeRenderFooterRefreshManager.h"
 #import "NativeRenderFooterRefresh.h"
 #import "NativeRenderImpl.h"
-#import "NativeRenderManager.h"
 
 @implementation NativeRenderFooterRefreshManager
 

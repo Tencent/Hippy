@@ -23,7 +23,6 @@
 #import "NativeRenderWaterfallItemViewManager.h"
 #import "NativeRenderWaterfallItemView.h"
 #import "NativeRenderObjectWatefallItem.h"
-#import "NativeRenderManager.h"
 
 @implementation NativeRenderWaterfallItemViewManager
 

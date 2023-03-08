@@ -23,7 +23,6 @@
 #import "NativeRenderImpl.h"
 #import "NativeRenderSmartViewPagerViewManager.h"
 #import "NativeRenderSmartViewPagerView.h"
-#import "NativeRenderManager.h"
 
 @implementation NativeRenderSmartViewPagerViewManager
 

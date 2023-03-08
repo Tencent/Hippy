@@ -26,7 +26,6 @@
 #import "NativeRenderModalTransitioningDelegate.h"
 #import "NativeRenderObjectView.h"
 #import "NativeRenderUtils.h"
-#import "NativeRenderManager.h"
 
 @interface NativeRenderObjectModalHost : NativeRenderObjectView
 

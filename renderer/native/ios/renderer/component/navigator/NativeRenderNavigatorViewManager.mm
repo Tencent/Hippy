@@ -22,7 +22,6 @@
 
 #import "NativeRenderImpl.h"
 #import "NativeRenderNavigatorViewManager.h"
-#import "NativeRenderManager.h"
 
 @interface NativeRenderNavigatorViewManager ()
 

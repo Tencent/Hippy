@@ -22,7 +22,6 @@
 
 #import "NativeRenderRefreshWrapperItemViewManager.h"
 #import "NativeRenderRefreshWrapperItemView.h"
-#import "NativeRenderManager.h"
 
 @implementation NativeRenderRefreshWrapperItemViewManager
 

@@ -23,7 +23,6 @@
 #import "NativeRenderWaterfallViewManager.h"
 #import "NativeRenderWaterfallView.h"
 #import "NativeRenderImpl.h"
-#import "NativeRenderManager.h"
 
 @implementation NativeRenderWaterfallViewManager
 

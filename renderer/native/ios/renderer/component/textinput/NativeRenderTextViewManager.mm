@@ -28,7 +28,6 @@
 #import "NativeRenderTextField.h"
 #import "NativeRenderTextView.h"
 #import "NativeRenderTextViewManager.h"
-#import "NativeRenderManager.h"
 
 @implementation NativeRenderTextViewManager
 

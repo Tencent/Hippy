@@ -38,15 +38,6 @@ class RootNode;
 
 @protocol HPImageProviderProtocol;
 
-#define NATIVE_RENDER_EXPORT_VIEW(js_name)              \
-    HP_EXTERN void NativeRenderRegisterView(Class);     \
-    +(NSString *)viewName {                             \
-        return @ #js_name;                              \
-    }                                                   \
-    +(void)load {                                       \
-        NativeRenderRegisterView(self);                 \
-    }
-
 /**
  * NativeRenderManager is used to manager view creation, update and delete for Native UI
  */

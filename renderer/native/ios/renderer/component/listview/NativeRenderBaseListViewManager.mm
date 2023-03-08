@@ -23,7 +23,6 @@
 #import "NativeRenderBaseListViewManager.h"
 #import "NativeRenderBaseListView.h"
 #import "NativeRenderImpl.h"
-#import "NativeRenderManager.h"
 
 @implementation NativeRenderBaseListViewManager
 

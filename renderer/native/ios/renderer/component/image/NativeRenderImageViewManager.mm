@@ -25,7 +25,6 @@
 #import "NativeRenderImageViewManager.h"
 #import "NativeRenderImageView.h"
 #import "NativeRenderImpl.h"
-#import "NativeRenderManager.h"
 #import "TypeConverter.h"
 
 #include "VFSUriLoader.h"

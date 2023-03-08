@@ -24,7 +24,6 @@
 #import "NativeRenderObjectView.h"
 #import "NativeRenderScrollViewManager.h"
 #import "NativeRenderScrollView.h"
-#import "NativeRenderManager.h"
 
 @implementation HPConvert (UIScrollView)
 

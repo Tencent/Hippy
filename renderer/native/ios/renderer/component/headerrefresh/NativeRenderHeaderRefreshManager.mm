@@ -23,7 +23,6 @@
 #import "NativeRenderHeaderRefreshManager.h"
 #import "NativeRenderHeaderRefresh.h"
 #import "NativeRenderImpl.h"
-#import "NativeRenderManager.h"
 
 @implementation NativeRenderHeaderRefreshManager
 
