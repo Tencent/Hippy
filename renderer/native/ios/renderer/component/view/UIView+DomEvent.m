@@ -32,23 +32,22 @@ static SEL SelectorFromCName(const char *name) {
         return nil;
     }
     //try to contrustor origin setter
-    size_t length = strlen(name);
     char n = toupper(name[0]);
     const char *subName = name + 1;
     NSString *setterName = nil;
     if (subName) {
-        setterName = [NSString stringWithFormat:@"set%c:", n];
+        setterName = [NSString stringWithFormat:@"set%c%s:", n, subName];
     }
     else {
-        setterName = [NSString stringWithFormat:@"set%c%s:", n, subName];
+        setterName = [NSString stringWithFormat:@"set%c:", n];
     }
     SEL selector = NSSelectorFromString(setterName);
     return selector;
 }
 
 - (void)addPropertyEvent:(const char *)name eventCallback:(NativeRenderDirectEventBlock)callback {
-    SEL selector = SelectorFromCName(name);
     @try {
+        SEL selector = SelectorFromCName(name);
         if ([self respondsToSelector:selector]) {
             void *cb = (__bridge void *)callback;
             NSMethodSignature *methodSign = [self methodSignatureForSelector:selector];
