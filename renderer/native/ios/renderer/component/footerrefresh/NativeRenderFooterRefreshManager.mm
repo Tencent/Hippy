@@ -23,8 +23,11 @@
 #import "NativeRenderFooterRefreshManager.h"
 #import "NativeRenderFooterRefresh.h"
 #import "NativeRenderImpl.h"
+#import "NativeRenderManager.h"
 
 @implementation NativeRenderFooterRefreshManager
+
+NATIVE_RENDER_EXPORT_VIEW(PullFooterView);
 
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(refreshStick, BOOL)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onFooterReleased, NativeRenderDirectEventBlock)

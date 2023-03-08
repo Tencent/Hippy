@@ -23,8 +23,11 @@
 #import "NativeRenderBaseListItemViewManager.h"
 #import "NativeRenderBaseListItemView.h"
 #import "NativeRenderObjectBaseListItem.h"
+#import "NativeRenderManager.h"
 
 @implementation NativeRenderBaseListItemViewManager
+
+NATIVE_RENDER_EXPORT_VIEW(ListViewItem)
 
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(type, id)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(isSticky, BOOL)

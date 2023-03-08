@@ -26,6 +26,7 @@
 #import "NativeRenderText.h"
 #import "NativeRenderTextView.h"
 #import "UIView+NativeRender.h"
+#import "NativeRenderManager.h"
 
 static void collectDirtyNonTextDescendants(NativeRenderObjectText *renderObject, NSMutableArray *nonTextDescendants) {
     for (NativeRenderObjectView *child in renderObject.subcomponents) {
@@ -43,6 +44,8 @@ static void collectDirtyNonTextDescendants(NativeRenderObjectText *renderObject,
 @end
 
 @implementation NativeRenderTextManager
+
+NATIVE_RENDER_EXPORT_VIEW(Text)
 
 - (UIView *)view {
     return [NativeRenderText new];

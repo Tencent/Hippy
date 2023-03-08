@@ -23,8 +23,11 @@
 #import "NativeRenderHeaderRefreshManager.h"
 #import "NativeRenderHeaderRefresh.h"
 #import "NativeRenderImpl.h"
+#import "NativeRenderManager.h"
 
 @implementation NativeRenderHeaderRefreshManager
+
+NATIVE_RENDER_EXPORT_VIEW(PullHeaderView);
 
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onHeaderReleased, NativeRenderDirectEventBlock)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onHeaderPulling, NativeRenderDirectEventBlock)

@@ -22,8 +22,11 @@
 
 #import "NativeRenderViewPagerItemManager.h"
 #import "NativeRenderViewPagerItem.h"
+#import "NativeRenderManager.h"
 
 @implementation NativeRenderViewPagerItemManager
+
+NATIVE_RENDER_EXPORT_VIEW(ViewPagerItem)
 
 - (UIView *)view {
     return [NativeRenderViewPagerItem new];

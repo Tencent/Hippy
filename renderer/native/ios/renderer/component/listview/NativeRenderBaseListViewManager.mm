@@ -23,8 +23,11 @@
 #import "NativeRenderBaseListViewManager.h"
 #import "NativeRenderBaseListView.h"
 #import "NativeRenderImpl.h"
+#import "NativeRenderManager.h"
 
 @implementation NativeRenderBaseListViewManager
+
+NATIVE_RENDER_EXPORT_VIEW(ListView)
 
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(scrollEventThrottle, double)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(initialListReady, NativeRenderDirectEventBlock);

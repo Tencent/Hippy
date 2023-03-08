@@ -21,8 +21,11 @@
  */
 
 #import "NativeRenderSimpleWebViewManager.h"
+#import "NativeRenderManager.h"
 
 @implementation NativeRenderSimpleWebViewManager
+
+NATIVE_RENDER_EXPORT_VIEW(WebView)
 
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(source, NSDictionary)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoadStart, NativeRenderDirectEventBlock)

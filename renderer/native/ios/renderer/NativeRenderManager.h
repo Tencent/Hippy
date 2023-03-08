@@ -29,7 +29,7 @@
 #include "dom/render_manager.h"
 
 @class UIView, NativeRenderImpl;
-
+class VFSUriLoader;
 namespace hippy {
 inline namespace dom {
 class RootNode;
@@ -37,6 +37,15 @@ class RootNode;
 }
 
 @protocol HPImageProviderProtocol;
+
+#define NATIVE_RENDER_EXPORT_VIEW(js_name)              \
+    HP_EXTERN void NativeRenderRegisterView(Class);     \
+    +(NSString *)viewName {                             \
+        return @ #js_name;                              \
+    }                                                   \
+    +(void)load {                                       \
+        NativeRenderRegisterView(self);                 \
+    }
 
 /**
  * NativeRenderManager is used to manager view creation, update and delete for Native UI
@@ -142,7 +151,7 @@ public:
      *
      * @param extraComponent a map of custom ui components
      */
-    void RegisterExtraComponent(NSDictionary<NSString *, Class> *extraComponent);
+    void RegisterExtraComponent(NSArray<Class> *extraComponents);
         
     /**
      * Regitster a root view

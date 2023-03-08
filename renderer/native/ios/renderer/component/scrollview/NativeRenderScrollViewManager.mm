@@ -24,6 +24,7 @@
 #import "NativeRenderObjectView.h"
 #import "NativeRenderScrollViewManager.h"
 #import "NativeRenderScrollView.h"
+#import "NativeRenderManager.h"
 
 @implementation HPConvert (UIScrollView)
 
@@ -46,6 +47,8 @@ HP_ENUM_CONVERTER(UIScrollViewIndicatorStyle, (@{
 @end
 
 @implementation NativeRenderScrollViewManager
+
+NATIVE_RENDER_EXPORT_VIEW(ScrollView)
 
 - (UIView *)view {
     return [[NativeRenderScrollView alloc] init];

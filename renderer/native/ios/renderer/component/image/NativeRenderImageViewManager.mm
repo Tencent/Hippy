@@ -25,6 +25,7 @@
 #import "NativeRenderImageViewManager.h"
 #import "NativeRenderImageView.h"
 #import "NativeRenderImpl.h"
+#import "NativeRenderManager.h"
 #import "TypeConverter.h"
 
 #include "VFSUriLoader.h"
@@ -35,6 +36,8 @@
 @end
 
 @implementation NativeRenderImageViewManager
+
+NATIVE_RENDER_EXPORT_VIEW(Image);
 
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(blurRadius, CGFloat)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(capInsets, UIEdgeInsets)

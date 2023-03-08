@@ -26,12 +26,15 @@
 #import "NativeRenderModalTransitioningDelegate.h"
 #import "NativeRenderObjectView.h"
 #import "NativeRenderUtils.h"
+#import "NativeRenderManager.h"
 
 @interface NativeRenderObjectModalHost : NativeRenderObjectView
 
 @end
 
 @implementation NativeRenderObjectModalHost
+
+NATIVE_RENDER_EXPORT_VIEW(Modal)
 
 - (void)setDomManager:(std::weak_ptr<hippy::DomManager>)domManager {
     [super setDomManager:domManager];

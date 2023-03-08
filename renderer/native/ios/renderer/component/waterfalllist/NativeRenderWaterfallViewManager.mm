@@ -23,8 +23,11 @@
 #import "NativeRenderWaterfallViewManager.h"
 #import "NativeRenderWaterfallView.h"
 #import "NativeRenderImpl.h"
+#import "NativeRenderManager.h"
 
 @implementation NativeRenderWaterfallViewManager
+
+NATIVE_RENDER_EXPORT_VIEW(WaterfallView)
 
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(contentInset, UIEdgeInsets)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(numberOfColumns, NSInteger)

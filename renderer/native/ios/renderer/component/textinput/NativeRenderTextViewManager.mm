@@ -28,8 +28,11 @@
 #import "NativeRenderTextField.h"
 #import "NativeRenderTextView.h"
 #import "NativeRenderTextViewManager.h"
+#import "NativeRenderManager.h"
 
 @implementation NativeRenderTextViewManager
+
+NATIVE_RENDER_EXPORT_VIEW(TextView)
 
 - (UIView *)view {
     NSNumber *mutiline = self.props[@"multiline"];

@@ -22,12 +22,15 @@
 
 #import "NativeRenderImpl.h"
 #import "NativeRenderNavigatorViewManager.h"
+#import "NativeRenderManager.h"
 
 @interface NativeRenderNavigatorViewManager ()
 
 @end
 
 @implementation NativeRenderNavigatorViewManager
+
+NATIVE_RENDER_EXPORT_VIEW(Navigator)
 
 - (UIView *)view {
     NativeRenderNavigatorHostView *hostView = [[NativeRenderNavigatorHostView alloc] initWithProps:self.props];

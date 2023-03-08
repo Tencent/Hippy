@@ -22,8 +22,11 @@
 
 #import "NativeRenderRefreshWrapperItemViewManager.h"
 #import "NativeRenderRefreshWrapperItemView.h"
+#import "NativeRenderManager.h"
 
 @implementation NativeRenderRefreshWrapperItemViewManager
+
+NATIVE_RENDER_EXPORT_VIEW(RefreshWrapperItemView)
 
 - (UIView *)view {
     return [NativeRenderRefreshWrapperItemView new];
