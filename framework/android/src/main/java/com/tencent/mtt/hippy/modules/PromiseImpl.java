@@ -23,6 +23,7 @@ import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.runtime.builtins.JSObject;
 import com.tencent.mtt.hippy.runtime.builtins.JSValue;
+import java.lang.ref.WeakReference;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class PromiseImpl implements HippyModulePromise {
@@ -31,7 +32,7 @@ public class PromiseImpl implements HippyModulePromise {
     public static final int PROMISE_CODE_NORMAN_ERROR = 1;
     public static final int PROMISE_CODE_OTHER_ERROR = 2;
     private static final String CALL_ID_NO_CALLBACK = "-1";
-    private HippyEngineContext mContext;
+    private WeakReference<HippyEngineContext> mContextRef;
     private final String mModuleName;
     private final String mModuleFunc;
     private final String mCallId;
@@ -40,14 +41,14 @@ public class PromiseImpl implements HippyModulePromise {
 
     public PromiseImpl(HippyEngineContext context, String moduleName, String moduleFunc,
             String callId) {
-        this.mContext = context;
+        this.mContextRef = new WeakReference<>(context);
         this.mModuleName = moduleName;
         this.mModuleFunc = moduleFunc;
         this.mCallId = callId;
     }
 
     public void setContext(HippyEngineContext context) {
-        mContext = context;
+        mContextRef = new WeakReference<>(context);
     }
 
     public String getCallId() {
@@ -82,17 +83,22 @@ public class PromiseImpl implements HippyModulePromise {
     }
 
     private boolean onInterceptPromiseCallBack(Object resultObject) {
-        HippyEngineMonitorAdapter adapter = mContext.getGlobalConfigs().getEngineMonitorAdapter();
+        final HippyEngineContext context = mContextRef.get();
+        if (context == null) {
+            return false;
+        }
+        HippyEngineMonitorAdapter adapter = context.getGlobalConfigs().getEngineMonitorAdapter();
         if (adapter == null) {
             return false;
         }
         return adapter
-                .onInterceptPromiseCallback(mContext.getComponentName(), mModuleName, mModuleFunc,
+                .onInterceptPromiseCallback(context.getComponentName(), mModuleName, mModuleFunc,
                         mCallId, resultObject);
     }
 
     public void doCallback(int code, Object resultObject) {
-        if (onInterceptPromiseCallBack(resultObject) || TextUtils
+        final HippyEngineContext context = mContextRef.get();
+        if (context == null || onInterceptPromiseCallBack(resultObject) || TextUtils
                 .equals(CALL_ID_NO_CALLBACK, mCallId)) {
             return;
         }
@@ -103,7 +109,7 @@ public class PromiseImpl implements HippyModulePromise {
             jsObject.set("moduleFunc", mModuleFunc);
             jsObject.set("callId", mCallId);
             jsObject.set("params", resultObject);
-            mContext.getBridgeManager().execCallback(jsObject, transferType);
+            context.getBridgeManager().execCallback(jsObject, transferType);
         } else {
             HippyMap hippyMap = new HippyMap();
             hippyMap.pushInt("result", code);
@@ -111,7 +117,7 @@ public class PromiseImpl implements HippyModulePromise {
             hippyMap.pushString("moduleFunc", mModuleFunc);
             hippyMap.pushString("callId", mCallId);
             hippyMap.pushObject("params", resultObject);
-            mContext.getBridgeManager().execCallback(hippyMap, transferType);
+            context.getBridgeManager().execCallback(hippyMap, transferType);
         }
     }
 }
