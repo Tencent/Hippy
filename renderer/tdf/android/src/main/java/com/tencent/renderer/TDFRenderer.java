@@ -41,13 +41,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 @SuppressWarnings("JavaJniMissingFunction")
-public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngine.ILifecycleListener {
+public class TDFRenderer extends Renderer implements RenderProxy {
 
     private static final String TAG = "TDFRenderer";
 
     private int mRootViewId;
     private final int mInstanceId;
-    private final long mShellId = 0;
     private static final int ROOT_VIEW_ID_INCREMENT = 10;
     private static final AtomicInteger sRootIdCounter = new AtomicInteger(0);
 
@@ -93,20 +92,8 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
         TDFRenderEngine engine = mRootView.getTDFEngine();
         registerTDFEngine(mInstanceId, engine.getJNI().getnativeEngine(), mRootViewId);
         LogUtils.d(TAG, "onTDFEngineCreate: " + engine.getJNI().getnativeEngine());
-        engine.registerLifecycleListener(TDFRenderer.this);
         registerControllers(mRootViewId, mControllers, mRootView, TDFRenderer.this, engine);
         return mRootView;
-    }
-
-    @Override
-    public void onShellCreated(long shell) {
-        // When TDFView's Surface is created, TDF Shell will start running, this callback is actually onShellStart
-        LogUtils.d(TAG, "onShellCreated(Start): " + shell);
-    }
-
-    @Override
-    public void onWillShellDestroy() {
-        LogUtils.d(TAG, "onWillShellDestroy");
     }
 
     @Override
