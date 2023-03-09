@@ -400,9 +400,9 @@ dispatch_queue_t HippyBridgeQueue() {
 }
 
 - (void)innerLoadInstanceForRootView:(NSNumber *)rootTag withProperties:(NSDictionary *)props {
-    NSString *moduleName = _moduleName ?: @"";
+    HPAssert(_moduleName, @"module name must not be null");
     HPLogInfo(self, @"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", moduleName, props);
-    NSDictionary *param = @{@"name": moduleName,
+    NSDictionary *param = @{@"name": _moduleName,
                             @"id": rootTag,
                             @"params": props ?: @{},
                             @"version": HippySDKVersion};

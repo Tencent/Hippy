@@ -40,14 +40,18 @@
     std::shared_ptr<hippy::RootNode> _rootNode;
     std::shared_ptr<VFSUriLoader> _demoLoader;
     NSString *_engineKey;
+    NSArray<Class> *_extraComponents;
 }
 
 @end
 
 @implementation HippyBridgeConnector
 
+@synthesize bridge = _bridge;
+
 - (instancetype)initWithDelegate:(id<HippyBridgeDelegate> _Nullable)delegate
                   moduleProvider:(HippyBridgeModuleProviderBlock _Nullable)block
+                 extraComponents:(NSArray<Class> * _Nullable)extraComponents
                    launchOptions:(NSDictionary * _Nullable)launchOptions
                        engineKey:(NSString *)engineKey {
     self = [super init];
@@ -55,8 +59,33 @@
         _bridge = [[HippyBridge alloc] initWithDelegate:delegate moduleProvider:block
                                           launchOptions:launchOptions engineKey:engineKey];
         _engineKey = engineKey;
+        _extraComponents = extraComponents;
     }
     return self;
+}
+
+- (void)setModuleName:(NSString *)moduleName {
+    _bridge.moduleName = moduleName;
+}
+
+- (NSString *)moduleName {
+    return _bridge.moduleName;
+}
+
+- (void)setContextName:(NSString *)contextName {
+    _bridge.contextName = contextName;
+}
+
+- (NSString *)contextName {
+    return _bridge.contextName;
+}
+
+- (void)setSandboxDirectory:(NSURL *)sandboxDirectory {
+    _bridge.sandboxDirectory = sandboxDirectory;
+}
+
+- (NSURL *)sandboxDirectory {
+    return _bridge.sandboxDirectory;
 }
 
 - (void)loadBundleURLs:(NSArray<NSURL *> *)bundleURLs
@@ -100,7 +129,9 @@
         }
     };
     _nativeRenderManager->SetRootViewSizeChangedEvent(cb);
-    
+    if (_extraComponents) {
+        _nativeRenderManager->RegisterExtraComponent(_extraComponents);
+    }
     //setup necessary params for bridge
     [_bridge setupDomManager:domManager rootNode:_rootNode];
 }

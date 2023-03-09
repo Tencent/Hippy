@@ -27,14 +27,21 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol HippyBridgeDelegate;
+@class HippyBridge;
 
 /**
  * Convenient class for adative 2.0 interface
  */
 @interface HippyBridgeConnector : NSObject
 
+@property(nonatomic, readonly) HippyBridge *bridge;
+@property(nonatomic, copy) NSString *moduleName;
+@property(nonatomic, copy) NSString *contextName;
+@property(nonatomic, strong) NSURL *sandboxDirectory;
+
 - (instancetype)initWithDelegate:(id<HippyBridgeDelegate> _Nullable)delegate
                   moduleProvider:(HippyBridgeModuleProviderBlock _Nullable)block
+                 extraComponents:(NSArray<Class> * _Nullable)extraComponents
                    launchOptions:(NSDictionary * _Nullable)launchOptions
                        engineKey:(NSString *)engineKey;
 
