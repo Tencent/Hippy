@@ -61,7 +61,6 @@ Worker::Worker(std::string name, bool is_schedulable, std::unique_ptr<Driver> dr
 
 Worker::~Worker() {
   FOOTSTONE_CHECK(driver_->IsTerminated()) << "Terminate function must be called before destruction";
-  thread_.detach();
   Worker::WorkerDestroySpecifics();
 }
 
