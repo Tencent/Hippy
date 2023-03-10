@@ -171,6 +171,10 @@ public class ImageNode extends StyleNode {
   @HippyControllerProps(name = TextNode.PROP_VERTICAL_ALIGN, defaultType = HippyControllerProps.STRING)
   public void setVerticalAlign(String align) {
       switch (align) {
+          case HippyControllerProps.DEFAULT:
+              // reset to legacy mode
+              mVerticalAlign = null;
+              break;
           case TextNode.V_ALIGN_TOP:
           case TextNode.V_ALIGN_MIDDLE:
           case TextNode.V_ALIGN_BASELINE:

@@ -26,6 +26,7 @@ import static com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent.PRIO
 import static com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent.Priority;
 
 import android.view.View;
+import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent.HippyNestedScrollTarget;
 
 public class HippyNestedScrollHelper {
@@ -38,6 +39,8 @@ public class HippyNestedScrollHelper {
                 return Priority.PARENT;
             case PRIORITY_NONE:
                 return Priority.NONE;
+            case HippyControllerProps.DEFAULT:
+                return Priority.NOT_SET;
             default:
                 throw new RuntimeException("Invalid priority: " + name);
         }
