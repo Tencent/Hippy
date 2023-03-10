@@ -134,12 +134,7 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   view->SetTransform(GenerateAnimationTransform(dom_style, view).asM33());
 
   if (auto it = dom_style.find(hippy::dom::kZIndex); it != map_end) {
-    int32_t z_index;
-    if (it->second->ToInt32(z_index)) {
-      view->SetZIndex(z_index);
-    } else {
-      FOOTSTONE_LOG(ERROR) << "zIndex can't convert to 32";
-    }
+    view->SetZIndex(static_cast<int32_t>(it->second->ToDoubleChecked()));
   }
 
   // kIntercepttouchevent / kInterceptpullupevent
