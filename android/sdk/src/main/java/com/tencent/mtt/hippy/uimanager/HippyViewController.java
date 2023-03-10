@@ -378,7 +378,14 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
   @HippyControllerProps(name = NodeProps.LINEAR_GRADIENT, defaultType = HippyControllerProps.MAP)
   public void setLinearGradient(T view, HippyMap linearGradient) {
-    if (linearGradient != null && view instanceof IGradient) {
+    if (view instanceof IGradient) {
+      if (linearGradient == null) {
+        // reset linear gradient
+        ((IGradient)view).setGradientAngle(null);
+        ((IGradient)view).setGradientColors(null);
+        ((IGradient)view).setGradientPositions(null);
+        return;
+      }
       String angle = linearGradient.getString("angle");
       HippyArray colorStopList = linearGradient.getArray("colorStopList");
 
