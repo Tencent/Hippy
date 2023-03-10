@@ -70,8 +70,12 @@ V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param): VM(param) {
     create_params_.constraints.ConfigureDefaultsFromHeapSize(param->initial_heap_size_in_bytes,
                                                              param->maximum_heap_size_in_bytes);
   }
-  TDF_BASE_LOG(INFO) << "param->type = " << static_cast<int>(param->type);
-  switch (param->type) {
+  auto type = V8VMInitParam::V8VMSnapshotType::kNoSnapshot;
+  if (param) {
+    type = param->type;
+  }
+  TDF_BASE_LOG(INFO) << "param->type = " << static_cast<int>(type);
+  switch (type) {
     case V8VMInitParam::V8VMSnapshotType::kNoSnapshot: {
       isolate_ = v8::Isolate::New(create_params_);
       isolate_->Enter();
