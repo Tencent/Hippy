@@ -73,7 +73,7 @@ function resolvePackage(src, extra = 'src') {
 }
 
 const builds = {
-  '@hippy/hippy-vue-next-style-parser': {
+  '@hippy/hippy-vue-next-style-parser-cjs': {
     entry: resolvePackage('hippy-vue-next-style-parser', 'src/index.ts'),
     dest: resolvePackage('hippy-vue-next-style-parser', 'dist/index.js'),
     format: 'cjs',
@@ -81,9 +81,25 @@ const builds = {
     banner: banner('@hippy/hippy-vue-next-style-parser', hippyStyleParserPackage.version),
     external: ['@vue/shared'],
   },
-  '@hippy/vue-next': {
+  '@hippy/hippy-vue-next-style-parser-esm': {
+    entry: resolvePackage('hippy-vue-next-style-parser', 'src/index.ts'),
+    dest: resolvePackage('hippy-vue-next-style-parser', 'dist/index.esm.js'),
+    format: 'es',
+    moduleName: 'hippy-vue-next-style-parser',
+    banner: banner('@hippy/hippy-vue-next-style-parser', hippyStyleParserPackage.version),
+    external: ['@vue/shared'],
+  },
+  '@hippy/vue-next-cjs': {
     entry: resolvePackage('hippy-vue-next', 'src/index.ts'),
     dest: resolvePackage('hippy-vue-next', 'dist/index.js'),
+    format: 'cjs',
+    banner: banner('@hippy/vue-next', hippyVueNextPackage.version),
+    name: 'hippy-vue-next',
+    external: ['@vue/runtime-core', '@vue/shared'],
+  },
+  '@hippy/vue-next-esm': {
+    entry: resolvePackage('hippy-vue-next', 'src/index.ts'),
+    dest: resolvePackage('hippy-vue-next', 'dist/index.esm.js'),
     format: 'es',
     banner: banner('@hippy/vue-next', hippyVueNextPackage.version),
     name: 'hippy-vue-next',
@@ -97,10 +113,18 @@ const builds = {
     banner: banner('@hippy/vue-next-compiler-ssr', hippyCompilerSsrPackage.version),
     external: ['@vue/compiler-core', '@vue/compiler-dom', '@vue/shared'],
   },
-  '@hippy/vue-next-server-renderer': {
+  '@hippy/vue-next-server-renderer-cjs': {
     entry: resolvePackage('hippy-vue-next-server-renderer', 'src/index.ts'),
     dest: resolvePackage('hippy-vue-next-server-renderer', 'dist/index.js'),
     format: 'cjs',
+    moduleName: 'hippy-vue-next-server-renderer',
+    banner: banner('@hippy/vue-next-server-renderer', hippyServerRendererPackage.version),
+    external: ['@vue/server-renderer', '@vue/runtime-core', '@vue/shared'],
+  },
+  '@hippy/vue-next-server-renderer-esm': {
+    entry: resolvePackage('hippy-vue-next-server-renderer', 'src/index.ts'),
+    dest: resolvePackage('hippy-vue-next-server-renderer', 'dist/index.esm.js'),
+    format: 'es',
     moduleName: 'hippy-vue-next-server-renderer',
     banner: banner('@hippy/vue-next-server-renderer', hippyServerRendererPackage.version),
     external: ['@vue/server-renderer', '@vue/runtime-core', '@vue/shared'],

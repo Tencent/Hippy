@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable complexity */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable no-param-reassign */
@@ -64,6 +84,15 @@ const rawChildrenMap = new WeakMap<
 PlainElementNode,
 TemplateLiteral['elements'][0]
 >();
+
+/**
+ * return tag is text or not
+ *
+ * @param tag - tag name
+ */
+function isTextTag(tag: string): boolean {
+  return ['span', 'p', 'label', 'a'].includes(tag);
+}
 
 function getHippyTagName(tag: string): string {
   const NATIVE_COMPONENT_MAP = {
@@ -182,25 +211,22 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
     return;
   }
 
-  // eslint-disable-next-line
   return function ssrPostTransformElement() {
     const openTag: TemplateLiteral['elements'] = ['{"id":'];
-    // 生成hippyId的函数
+    // generate hippy uniqueId
     openTag.push(createCallExpression(context.helper(SSR_GET_UNIQUEID), []));
+    // push name and tagName attr
     openTag.push(`,"index":0,"name":"${getHippyTagName(node.tag)}","tagName":"${praseHippyNativeComponentTagName(node.tag)}","props":{`);
-
     // v-bind="obj", v-bind:[key] and custom directives can potentially
     // overwrite other static attrs and can affect final rendering result,
     // so when they are present we need to bail out to full `renderAttrs`
     const hasDynamicVBind = hasDynamicKeyVBind(node);
     const hasCustomDir = node.props.some(p => p.type === NodeTypes.DIRECTIVE && !isBuiltInDirective(p.name));
     const needMergeProps = hasDynamicVBind || hasCustomDir;
-
-    // hippy图片属性,安卓使用src=imgUrl,iOS使用source=[{"uri": imgUrl}]
-    // numberOfRows will makes Image flicker on Android, 只能在ios使用
-
-    // hippy所有属性(除id和class)都会存放在props中,另外方便调试,会存一份到attributes中
-    // 需要生成的hippy mergedProps对象, 运行时再合并到props对象中
+    // hippy images source, Android use src=imgUrl, iOS use source=[{"uri": imgUrl}]
+    // numberOfRows will makes Image flicker on Android, iOS only
+    // all props of hippy node(except id and class) will store in "props" and "attributes"(for debug)
+    // need merge props should merge in node props when at client runtime, not in ssr
     if (needMergeProps) {
       const { props, directives } = buildProps(
         node,
@@ -225,7 +251,6 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
     // but we need to make sure to merge them.
     let dynamicStyleBinding: CallExpression | undefined = undefined;
 
-    // eslint-disable-next-line @typescript-eslint/prefer-for-of
     for (let i = 0; i < node.props.length; i++) {
       const prop = node.props[i];
       // ignore true-value/false-value on input
@@ -263,7 +288,6 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
             if (ssrTagParts) {
               // openTag.push(...ssrTagParts);
             }
-            // eslint-disable-next-line @typescript-eslint/prefer-for-of
             for (let j = 0; j < props.length; j++) {
               const { key, value } = props[j];
               if (isStaticExp(key)) {
@@ -296,7 +320,7 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
                     );
                   }
                 } else {
-                  attrName =                    node.tag.indexOf('-') > 0
+                  attrName = node.tag.indexOf('-') > 0
                     ? attrName // preserve raw name on custom elements
                     : propsToAttrMap[attrName] ?? attrName.toLowerCase();
                   if (isBooleanAttr(attrName)) {
@@ -359,19 +383,17 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
 
     // handle co-existence of dynamic + static class bindings
     if (dynamicClassBinding && staticClassBinding) {
+      // convert hippy style, static class insert to style props. dynamic class generate getStyle function
       mergeCall(dynamicClassBinding, staticClassBinding);
       removeStaticBinding(openTag, 'class');
     }
-
-    // 转换hippy样式，静态class直接生成到style属性中，动态class生成getStyle函数
-    // span/label/p,这三个在native都是text节点,有值直接设置成text属性
-    if (node.tag === 'span' || node.tag === 'p' || node.tag === 'label') {
+    // span/label/p/a, these tags are text node in native, so the value store in text props
+    if (isTextTag(node.tag)) {
       const textChild = node.children.filter(item => item.type === NodeTypes.TEXT
         || item.type === NodeTypes.INTERPOLATION);
       if (textChild.length) {
-        // 2(NodeTypes.TEXT),5(NodeTypes.INTERPOLATION) 这两种节点为text，直接设置在当前dom中
+        // 2(NodeTypes.TEXT),5(NodeTypes.INTERPOLATION) 2 and 5 are text node, store value in text props
         openTag.push('"text":"');
-        // 2(NodeTypes.TEXT),5(NodeTypes.INTERPOLATION) 这两种节点为text，直接设置在当前dom中
         textChild.forEach((child) => {
           if (child.type === 2 /* NodeTypes.TEXT */) {
             openTag.push(escapeHtml(child.content));
@@ -384,6 +406,12 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
         });
         openTag.push('",');
       }
+    }
+
+    if (context.scopeId) {
+      // hippy scopeId just set props, like <div data-v-sdkfj12="true" />
+      openTag.push(`"${context.scopeId}":""`);
+      openTag.push(',');
     }
 
     openTag.push('},');
@@ -435,11 +463,9 @@ function isTextareaWithValue(
   node: PlainElementNode,
   prop: DirectiveNode,
 ): boolean {
-  return !!(
-    node.tag === 'textarea'
+  return Boolean(node.tag === 'textarea'
     && prop.name === 'bind'
-    && isStaticArgOf(prop.arg, 'value')
-  );
+    && isStaticArgOf(prop.arg, 'value'));
 }
 
 function mergeCall(call: CallExpression, arg: string | JSChildNode) {
@@ -474,18 +500,16 @@ export function ssrProcessElement(
   context: SSRTransformContext,
 ): void {
   const elementsToAdd = node.ssrCodegenNode!.elements;
-  // eslint-disable-next-line @typescript-eslint/prefer-for-of
   for (let j = 0; j < elementsToAdd.length; j++) {
     context.pushStringPart(elementsToAdd[j]);
   }
 
-  // hippy暂不支持slot
   // Handle slot scopeId
-  // if (context.withSlotScopeId) {
-  //   context.pushStringPart(createSimpleExpression(`_scopeId`, false));
-  // }
+  if (context.withSlotScopeId) {
+    context.pushStringPart(createSimpleExpression('_scopeId', false));
+  }
 
-  // hippy树形结构，生成子节点
+  // hippy children open tag
   context.pushStringPart('"children":[');
 
   const rawChildren = rawChildrenMap.get(node);

@@ -326,6 +326,7 @@ const ssrFakeHippy = {
   bridge: {},
   register: {},
   document: {},
+  asyncStorage: {},
 };
 
 // deconstruct the required properties and methods from the native injected global Hippy object
@@ -338,6 +339,7 @@ export const {
   device,
   document: hippyNativeDocument,
   register: hippyNativeRegister,
+  asyncStorage,
 } = global.Hippy ?? ssrFakeHippy;
 
 /**
@@ -414,7 +416,7 @@ export const Native: NativeApiType = {
 
   callNativeWithCallbackId,
 
-  AsyncStorage: global.Hippy.asyncStorage,
+  AsyncStorage: asyncStorage,
 
   callUIFunction(...args) {
     const [el, funcName, ...options] = args;

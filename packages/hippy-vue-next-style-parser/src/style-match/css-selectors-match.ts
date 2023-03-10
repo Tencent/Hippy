@@ -22,7 +22,7 @@
 /* eslint-disable no-param-reassign */
 
 // eslint-disable-next-line max-classes-per-file
-import type { StyleNode, CommonMapParams } from '../index';
+import type { StyleNode, CommonMapParams, StyleNodeList } from '../index';
 import type { RuleSet, SelectorCore } from './css-selectors';
 
 export type CssAttribute = CommonMapParams;
@@ -169,7 +169,7 @@ class SelectorsMap {
    * @param node - target node
    * @param ssrNodes - ssr node list
    */
-  public query(node: StyleNode, ssrNodes?: StyleNode[]): SelectorsMatch {
+  public query(node: StyleNode, ssrNodes?: StyleNodeList): SelectorsMatch {
     const { tagName, id, classList, props } = node;
     let domId = id;
     let domClassList = classList;
@@ -181,12 +181,12 @@ class SelectorsMap {
       domId = attributes.id;
     }
     const selectorClasses = [this.universal, this.id[domId], this.type[tagName]];
-    if (domClassList.size) {
+    if (domClassList?.size) {
       domClassList.forEach(c => selectorClasses.push(this.class[c]));
     }
     const selectors = selectorClasses
       .filter(arr => !!arr)
-      .reduce((cur, next) => cur.concat(next || []), []);
+      .reduce((cur, next) => cur.concat(next), []);
 
     const selectorsMatch = new SelectorsMatch();
 

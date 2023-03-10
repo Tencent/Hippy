@@ -38,7 +38,7 @@ import type { NeedToTyped, CallbackType, CommonMapParams, NativeInterfaceMap, Ss
 import { BackAndroid } from './android-back';
 import BuiltInComponent from './built-in-component';
 import { drawIphoneStatusBar } from './iphone';
-import HippyNativeComponents from './native-component';
+import HippyNativeComponents, { isNativeTag } from './native-component';
 import { nodeOps } from './node-ops';
 import { patchProp } from './patch-prop';
 import { getTagComponent, registerElement, type TagComponent, type ElementComponent } from './runtime/component';
@@ -367,4 +367,5 @@ export {
   setScreenSize,
   getTagComponent,
   registerElement,
+  isNativeTag,
 };

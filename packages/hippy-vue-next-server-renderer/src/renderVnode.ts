@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/prefer-for-of */
 /* eslint-disable no-bitwise */
@@ -39,6 +59,7 @@ import type { NeedToTyped } from './index';
 
 const {
   createComponentInstance,
+  setCurrentRenderingInstance,
   setupComponent,
   renderComponentRoot,
   normalizeVNode,
@@ -55,6 +76,17 @@ export type SSRContext = {
   teleports?: Record<string, string>;
   __teleportBuffers?: Record<string, SSRBuffer>;
 };
+
+const commentNodeStr = '{"id": -1,"name":"comment","props":{"text":""}},';
+
+/**
+ * return tag is text or not
+ *
+ * @param tag - tag name
+ */
+function isTextTag(tag: string): boolean {
+  return ['span', 'p', 'label', 'a'].includes(tag);
+}
 
 export function createBuffer(): {
   getBuffer: () => SSRBuffer;
@@ -109,37 +141,106 @@ export function renderComponentVNode(
 }
 
 function renderComponentSubTree(
-  instance: ComponentInternalInstance,
+  rawInstance: ComponentInternalInstance,
   slotScopeId?: string,
 ): SSRBuffer | Promise<SSRBuffer> {
-  const comp = instance.type as Component;
+  const comp = rawInstance.type as Component;
   const { getBuffer, push } = createBuffer();
   if (isFunction(comp)) {
-    const root = renderComponentRoot(instance);
+    // this is functional component
+    const root = renderComponentRoot(rawInstance);
     // #5817 scope ID attrs not falling through if functional component doesn't
     // have props
     if (!(comp as FunctionalComponent).props) {
       // eslint-disable-next-line no-restricted-syntax
-      for (const key in instance.attrs) {
+      for (const key in rawInstance.attrs) {
         if (key.startsWith('data-v-')) {
           (root.props || (root.props = {}))[key] = '';
         }
       }
     }
-    renderVNode(push, (instance.subTree = root), instance, slotScopeId);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-  } else if (instance.render && instance.render !== NOOP) {
-    renderVNode(
-      push,
-      (instance.subTree = renderComponentRoot(instance)),
-      instance,
-      slotScopeId,
-    );
+    renderVNode(push, (rawInstance.subTree = root), rawInstance, slotScopeId);
   } else {
-    const componentName = comp.name ?? comp.__file ?? '<Anonymous>';
-    warn(`Component ${componentName} is missing template or render function.`);
-    push('{"id": -1,"name":"comment","props":{"text":""}},');
+    // pay attention please, our app do not support runtime compile, so we doesn't need ssrCompile logic
+    // if (
+    //   (!instance.render || instance.render === NOOP)
+    //   && !instance.ssrRender
+    //   && !comp.ssrRender
+    //   && isString(comp.template)
+    // ) {
+    //   comp.ssrRender = ssrCompile(comp.template, instance);
+    // }
+
+    // because some props of ComponentInternalInstance, like ssrRender,scope,setupState, and so on. was set to
+    // internal type, so we used here as any to avoid ts type error
+    const instance: NeedToTyped = rawInstance as NeedToTyped;
+    // perf: enable caching of computed getters during render
+    // since there cannot be state mutations during render.
+    for (const e of instance.scope.effects) {
+      if (e.computed) e.computed._cacheable = true;
+    }
+
+    const ssrRender = instance.ssrRender || comp.ssrRender;
+    if (ssrRender) {
+      // optimized
+      // resolve fallthrough attrs
+      let attrs = instance.inheritAttrs !== false ? instance.attrs : undefined;
+      let hasCloned = false;
+
+      let cur = instance;
+      while (true) {
+        const { scopeId } = cur.vnode;
+        if (scopeId) {
+          if (!hasCloned) {
+            attrs = { ...attrs };
+            hasCloned = true;
+          }
+          attrs![scopeId] = '';
+        }
+        const { parent } = cur;
+        if (parent?.subTree === cur.vnode) {
+          // parent is a non-SSR compiled component and is rendering this
+          // component as root. inherit its scopeId if present.
+          cur = parent;
+        } else {
+          break;
+        }
+      }
+
+      if (slotScopeId) {
+        if (!hasCloned) attrs = { ...attrs };
+        attrs![slotScopeId.trim()] = '';
+      }
+
+      // set current rendering instance for asset resolution
+      const prev = setCurrentRenderingInstance(instance);
+      try {
+        ssrRender(
+          instance.proxy,
+          push,
+          instance,
+          attrs,
+          // compiler-optimized bindings
+          instance.props,
+          instance.setupState,
+          instance.data,
+          instance.ctx,
+        );
+      } finally {
+        setCurrentRenderingInstance(prev);
+      }
+    } else if (instance.render && instance.render !== NOOP) {
+      renderVNode(
+        push,
+        (instance.subTree = renderComponentRoot(instance)),
+        instance,
+        slotScopeId,
+      );
+    } else {
+      const componentName = comp.name || comp.__file || '<Anonymous>';
+      warn(`Component ${componentName} is missing template or render function.`);
+      push(commentNodeStr);
+    }
   }
   return getBuffer();
 }
@@ -156,7 +257,7 @@ function renderComponentSubTree(
  */
 export function renderVNode(
   push: PushFn,
-  vnode: VNode,
+  vnode: VNode & { slotScopeIds?: string[] },
   parentComponent: ComponentInternalInstance,
   slotScopeId?: string,
 ): void {
@@ -168,17 +269,17 @@ export function renderVNode(
       push(`{"id": -1,"name":"Text","props":{"text":"${escapeHtmlComment(children as string)}"}},`);
       break;
     case Static:
+      // hippy do not support static hoist
       break;
     case Comment:
       push(children
         ? `{"id": -1,"name":"comment","props":{"text":"${escapeHtmlComment(children as string)}"}},`
-        : '{"id": -1,"name":"comment","props":{"text":""}},');
+        : commentNodeStr);
       break;
     case Fragment:
-      // if (vnode.slotScopeIds) {
-      //   slotScopeId =
-      //     (slotScopeId ? slotScopeId + ' ' : '') + vnode.slotScopeIds.join(' ');
-      // }
+      if (vnode?.slotScopeIds) {
+        slotScopeId = (slotScopeId ? `${slotScopeId} ` : '') + vnode.slotScopeIds.join(' ');
+      }
       push('{"id": -1,"name":"comment","props":{"text":"["}},'); // open
       renderVNodeChildren(
         push,
@@ -241,10 +342,9 @@ function renderElementVNode(
   if (dirs) {
     props = applySSRDirectives(vnode, props, dirs);
   }
-  // span/label/p, these nodes are all text node in native. so we should set text prop
+  // span/label/p/a, these nodes are all text node in native. so we should set text prop
   if (
-    (tag === 'span' || tag === 'p' || tag === 'label')
-    && shapeFlag & ShapeFlags.ARRAY_CHILDREN
+    isTextTag(tag) && shapeFlag & ShapeFlags.ARRAY_CHILDREN
   ) {
     if (children?.length) {
       const textChild = (children as VNodeArrayChildren).filter((item) => {
@@ -258,6 +358,10 @@ function renderElementVNode(
       if (textChild.length) {
         const child = textChild[0] as VNode;
         props.text = escapeHtml(child?.children as string);
+        // if text child node has scopedId attr, need insert to props
+        if (child?.scopeId) {
+          props[child.scopeId] = '';
+        }
       }
     }
   }

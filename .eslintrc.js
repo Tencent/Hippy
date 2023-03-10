@@ -68,6 +68,7 @@ module.exports = {
         '@typescript-eslint/consistent-type-assertions': 'off',
         '@typescript-eslint/naming-convention': 'off',
         '@typescript-eslint/prefer-for-of': 'off',
+        '@typescript-eslint/no-require-imports': 'off',
       },
       parserOptions: {
         project: ['./**/tsconfig.json'],

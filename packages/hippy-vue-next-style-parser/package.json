@@ -6,6 +6,7 @@
   "homepage": "https://hippyjs.org",
   "license": "Apache-2.0",
   "main": "dist/index.js",
+  "module": "dist/index.esm.js",
   "keywords": [
     "hippy",
     "style",
@@ -13,6 +14,7 @@
   ],
   "files": [
     "dist/index.js",
+    "dist/index.esm.js",
     "dist/index.d.ts",
     "README.md"
   ],
@@ -21,7 +23,7 @@
     "url": "https://github.com/Tencent/Hippy/issues"
   },
   "dependencies": {
-    "@vue/shared": "^3.2.21"
+    "@vue/shared": "^3.2.46"
   },
   "entry": "./src/index.ts"
 }

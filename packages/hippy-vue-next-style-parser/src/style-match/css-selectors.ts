@@ -29,10 +29,9 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-param-reassign */
 // eslint-disable-next-line max-classes-per-file
-import type { CssDeclarationType } from '@hippy-vue-next-style-parser/index';
-
+import type { CssDeclarationType, StyleNode, StyleNodeList } from '../index';
 import type { SelectorsMap, SelectorsMatch } from './css-selectors-match';
-import type { StyleNode } from './index';
+import { getParentNode } from './index';
 
 
 /**
@@ -371,11 +370,11 @@ class PseudoClassSelector extends SimpleSelector {
  */
 const getNodeAttrVal = (node, attribute) => {
   // node.props is ssrNode's attributes list
-  const attr = node?.attributes[attribute] || node?.props[attribute];
+  const attr = node?.props?.[attribute] || node?.attributes?.[attribute];
   if (typeof attr !== 'undefined') {
     return attr;
   }
-  if (Array.isArray(node.styleScopeId) && node.styleScopeId.includes(attribute)) {
+  if (Array.isArray(node?.styleScopeId) && node?.styleScopeId?.includes(attribute)) {
     return attribute;
   }
 };
@@ -407,7 +406,8 @@ class AttributeSelector extends SimpleSelector {
     if (!test) {
       // HasAttribute
       this.match = (node: StyleNode) => {
-        if (!node || !node?.attributes || !node?.props?.[attribute]) {
+        console.log('match test', this, node);
+        if (!node || !node?.attributes || !node?.props) {
           // in client side render, node not exist or do not have attributes props means no attribute
           // in server side render, node do not have attribute in props means no attribute
           return false;
@@ -682,7 +682,7 @@ class Selector extends SelectorCore {
     return this.selectors.join('');
   }
 
-  match(node?: StyleNode, ssrNodes?: StyleNode[]): boolean {
+  match(node?: StyleNode, ssrNodes?: StyleNodeList): boolean {
     if (!node) {
       return false;
     }
@@ -691,25 +691,13 @@ class Selector extends SelectorCore {
         node = group.match(node);
         return !!node;
       }
-      if (ssrNodes) {
-        // in server side mode, find parent node with pId
-        let ancestor = node;
-        while (ancestor?.pId && ssrNodes[ancestor.pId]) {
-          ancestor = ssrNodes[ancestor.pId];
-          if ((node = group.match(ancestor))) {
-            return true;
-          }
+      let ancestor = getParentNode(node as StyleNode, ssrNodes);
+      while (ancestor) {
+        if ((node = group.match(ancestor))) {
+          return true;
         }
-      } else {
-        let ancestor: StyleNode | null = node!.parentNode;
-        while (ancestor) {
-          if ((node = group.match(ancestor))) {
-            return true;
-          }
-          ancestor = ancestor.parentNode;
-        }
+        ancestor = getParentNode(ancestor, ssrNodes);
       }
-
       return false;
     });
   }
@@ -722,7 +710,7 @@ class Selector extends SelectorCore {
     this.last.removeSort(sorter, this);
   }
 
-  accumulateChanges(node: StyleNode, map: SelectorsMap, ssrNodes?: StyleNode[]): boolean {
+  accumulateChanges(node: StyleNode, map: SelectorsMap, ssrNodes?: StyleNodeList): boolean {
     if (!this.dynamic) {
       return this.match(node, ssrNodes);
     }
@@ -738,14 +726,15 @@ class Selector extends SelectorCore {
         node = nextNode;
         return !!node;
       }
-      let ancestor = node;
-      while ((ancestor = ancestor.parentNode as StyleNode)) {
+      let ancestor = getParentNode(node, ssrNodes);
+      while (ancestor) {
         const nextNode = group.mayMatch(ancestor);
         if (nextNode) {
           bounds.push({ left: ancestor, right: null });
           node = nextNode;
           return true;
         }
+        ancestor = getParentNode(ancestor, ssrNodes);
       }
       return false;
     });

@@ -1,6 +1,26 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { getCurrentInstance, type App } from '@vue/runtime-core';
 import { renderToString } from '@vue/server-renderer';
-import { unescapeHtml, isIOS } from './util';
+import { unescapeHtml } from './util';
 import type {
   NeedToTyped,
   SsrNode,
@@ -13,7 +33,7 @@ import type {
  */
 export interface SsrContext {
   rootContainer: string;
-  hippyContext: SsrCommonParams;
+  isIOS?: boolean;
   ssrOptions?: SsrCommonParams;
 }
 
@@ -71,12 +91,12 @@ function mergeDefaultNativeProps(
  *
  * @param node - ssr node
  * @param nodeList - ssr node list
- * @param hippyContext - hippy context
+ * @param isIOS - client is iOS or not
  */
 function getNodeProps(
   node: SsrNode,
   nodeList: SsrNode[],
-  hippyContext: SsrCommonParams,
+  isIOS?: boolean,
 ): SsrNodeProps {
   let { props } = node;
   // merge all props
@@ -94,13 +114,12 @@ function getNodeProps(
   // delete unnecessary props
   delete props.id;
   delete props.class;
-  delete props.hippyPid;
   delete props.attributes.style;
   delete props.attributes.text;
 
   // compatible iOS image src
   if (
-    isIOS(hippyContext)
+    isIOS
     && node.name === 'Image'
     && props.src
   ) {
@@ -127,7 +146,7 @@ function convertToHippyNodeList(
 ): SsrNode[] {
   return nodeList.map((item) => {
     // add props for every node
-    const props = getNodeProps(item, nodeList, options.hippyContext);
+    const props = getNodeProps(item, nodeList, options.isIOS);
     return {
       ...item,
       props,
@@ -181,12 +200,11 @@ function treeToList(
  * create ssr root node
  *
  * @param rootContainer - id of root node
- * @param hippyContext - hippy ssr context
  */
-function createSSRRootNode(rootContainer: string, hippyContext): SsrNode {
+function createSSRRootNode(rootContainer: string): SsrNode {
   return {
     id: 1, // root node id hardcode to 1
-    pId: hippyContext.superProps.__instanceId__,
+    pId: 0, // root node's parent id set to 0, reset at client side
     index: 0,
     name: 'View',
     props: {
@@ -274,10 +292,10 @@ export async function renderToHippyList(
     .replaceAll(/,}/g, '}')
     .replace(/,]/g, ']')
     .replace(/,$/, '');
-  const { rootContainer, hippyContext } = options;
+  const { rootContainer } = options;
   // second, create root node with rootContainer.
   // In the non-hydration mode of the client, the rootContainer node is created by the client
-  const rootNode = createSSRRootNode(rootContainer, hippyContext);
+  const rootNode = createSSRRootNode(rootContainer);
   let ssrNodeTree: NeedToTyped;
   try {
     // parse json string to json object

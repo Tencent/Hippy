@@ -64,7 +64,7 @@ interface RouterList {
 }
 
 export default defineComponent({
-  name: 'App',
+  name: 'AppMenu',
   setup() {
     // list of currently supported feature routes
     const featureList = Object.keys(Demos).map(demoId => ({

@@ -23,7 +23,8 @@
     "src/**/*.ts",
     "src/**/*.vue",
     "test",
-    "app.d.ts"
+    "app.d.ts",
+    "server.ts"
   ],
   "exclude": [
     "node_modules",

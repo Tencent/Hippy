@@ -17,15 +17,17 @@
   ],
 
   "main": "./dist/index.js",
+  "module": "./dist/index.esm.js",
   "types": "index.d.ts",
   "files": [
     "dist/index.js",
+    "dist/index.esm.js",
     "dist/index.d.ts",
     "README.md"
   ],
   "dependencies": {
-    "@vue/server-renderer": "^3.2.21",
-    "@vue/runtime-core": "^3.2.21",
-    "@vue/shared": "^3.2.21"
+    "@vue/server-renderer": "^3.2.46",
+    "@vue/runtime-core": "^3.2.46",
+    "@vue/shared": "^3.2.46"
   }
 }

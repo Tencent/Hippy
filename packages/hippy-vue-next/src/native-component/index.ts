@@ -27,6 +27,12 @@ import { registerSwiper } from './swiper';
 import { registerUlRefresh } from './ul-refresh';
 import { registerWaterfall } from './waterfall';
 
+// native tag list
+const nativeTags = [
+  'animation', 'dialog', 'pull-header', 'pull-footer', 'swiper', 'swiper-slider',
+  'waterfall', 'ul-refresh-wrapper', 'ul-refresh',
+];
+
 /**
  * install native components uniformly
  */
@@ -41,3 +47,12 @@ export default {
     registerSwiper(vueApp);
   },
 };
+
+/**
+ * return tag is native tag or not
+ *
+ * @param tag - tag name
+ */
+export function isNativeTag(tag: string): boolean {
+  return nativeTags.includes(tag);
+}
