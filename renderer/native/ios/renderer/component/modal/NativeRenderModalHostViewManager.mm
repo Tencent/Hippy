@@ -33,8 +33,6 @@
 
 @implementation NativeRenderObjectModalHost
 
-NATIVE_RENDER_EXPORT_VIEW(Modal)
-
 - (void)setDomManager:(std::weak_ptr<hippy::DomManager>)domManager {
     [super setDomManager:domManager];
     CGRect frame = { .origin = CGPointZero, .size = NativeRenderScreenSize() };
@@ -44,6 +42,8 @@ NATIVE_RENDER_EXPORT_VIEW(Modal)
 @end
 
 @implementation NativeRenderModalHostViewManager
+
+NATIVE_RENDER_EXPORT_VIEW(Modal)
 
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(animationType, NSString)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(transparent, BOOL)

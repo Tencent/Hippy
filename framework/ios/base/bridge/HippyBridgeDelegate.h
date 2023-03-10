@@ -69,7 +69,7 @@
  * @param rootTag root tag for root node
  * @discussion RootNode instance held by caller, so when root view dealloc, we should tell caller to remove root node
  */
-- (void)removeRootNode:(NSNumber *)rootTag bridge:(HippyBridge *)bridge;
+- (void)removeRootView:(NSNumber *)rootTag bridge:(HippyBridge *)bridge;
 
 /**
  * Tell delegate to invalidate

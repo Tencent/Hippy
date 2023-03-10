@@ -31,7 +31,7 @@
 
 @implementation NativeRenderTextViewManager
 
-NATIVE_RENDER_EXPORT_VIEW(TextView)
+NATIVE_RENDER_EXPORT_VIEW(TextInput)
 
 - (UIView *)view {
     NSNumber *mutiline = self.props[@"multiline"];

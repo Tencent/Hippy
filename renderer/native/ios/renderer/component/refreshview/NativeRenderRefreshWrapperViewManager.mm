@@ -26,6 +26,8 @@
 
 @implementation NativeRenderRefreshWrapperViewManager
 
+NATIVE_RENDER_EXPORT_VIEW(RefreshWrapper)
+
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onRefresh, NativeRenderDirectEventBlock)
 
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(bounceTime, CGFloat)

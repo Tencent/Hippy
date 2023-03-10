@@ -26,8 +26,40 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol HippyBridgeDelegate;
-@class HippyBridge;
+typedef void(^_Nullable HippyBridgeBundleLoadCompletion)(NSURL *_Nullable, NSError *_Nullable);
+
+@interface HippyBridgeConnectorReloadData : NSObject
+
+@property(nonatomic, strong) UIView *rootView;
+@property(nonatomic, strong) NSDictionary *props;
+@property(nonatomic, strong) NSArray<NSURL *> *URLs;
+@property(nonatomic, strong, nullable) HippyBridgeBundleLoadCompletion completion;
+
+@end
+
+@protocol HippyBridgeDelegate, HPImageProviderProtocol, HippyMethodInterceptorProtocol;
+@class HippyBridge, HippyBridgeConnector;
+
+@protocol HippyBridgeConnectorDelegate <NSObject>
+
+@optional
+
+- (BOOL)shouldStartInspector:(HippyBridgeConnector *)connector;
+
+- (NSData *)cachedCodeForConnector:(HippyBridgeConnector *)connector
+                            script:(NSString *)script
+                         sourceURL:(NSURL *)sourceURL;
+
+- (void)cachedCodeCreated:(NSData *)cachedCode
+             ForConnector:(HippyBridgeConnector *)connector
+                   script:(NSString *)script
+                sourceURL:(NSURL *)sourceURL;
+
+- (void)removeRootView:(NSNumber *)rootTag connector:(HippyBridgeConnector *)connector;
+
+- (HippyBridgeConnectorReloadData *)reload:(HippyBridgeConnector *)connector;
+
+@end
 
 /**
  * Convenient class for adative 2.0 interface
@@ -35,24 +67,35 @@ NS_ASSUME_NONNULL_BEGIN
 @interface HippyBridgeConnector : NSObject
 
 @property(nonatomic, readonly) HippyBridge *bridge;
+//Properties that must be set
 @property(nonatomic, copy) NSString *moduleName;
 @property(nonatomic, copy) NSString *contextName;
 @property(nonatomic, strong) NSURL *sandboxDirectory;
 
-- (instancetype)initWithDelegate:(id<HippyBridgeDelegate> _Nullable)delegate
+//Optional properties
+@property(nonatomic, weak) id<HippyMethodInterceptorProtocol> methodInterceptor;
+@property(nonatomic, readonly, weak) id<HippyBridgeConnectorDelegate> delegate;
+
+//Methods that must be called
+- (instancetype)initWithDelegate:(id<HippyBridgeConnectorDelegate> _Nullable)delegate
                   moduleProvider:(HippyBridgeModuleProviderBlock _Nullable)block
                  extraComponents:(NSArray<Class> * _Nullable)extraComponents
                    launchOptions:(NSDictionary * _Nullable)launchOptions
                        engineKey:(NSString *)engineKey;
 
 - (void)loadBundleURLs:(NSArray<NSURL *> *)bundleURLs
-            completion:(void (^_Nullable)(NSURL  * _Nullable, NSError * _Nullable))completion;
+            completion:(HippyBridgeBundleLoadCompletion)completion;
 
 - (void)setRootView:(UIView *)rootView;
 
+- (void)loadInstanceForRootViewTag:(NSNumber *)tag props:(NSDictionary *)props;
+
+- (void)unloadRootViewByTag:(NSNumber *)tag;
+
 - (void)addExtraComponents:(NSArray<Class> *)components;
 
-- (void)loadInstanceForRootViewTag:(NSNumber *)tag props:(NSDictionary *)props;
+//Optianl properties set
+- (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls;
 
 @end
 
