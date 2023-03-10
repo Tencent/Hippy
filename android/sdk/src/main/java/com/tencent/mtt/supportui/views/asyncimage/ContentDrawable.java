@@ -197,9 +197,6 @@ public class ContentDrawable extends BaseDrawable
 			tempRectF.right += mImagePositionX;
 
 			float fullBorderWidth = mBorderWidthArray == null ? 0 : mBorderWidthArray[0];
-			if (fullBorderWidth != 0) {
-				tempRectF.inset(fullBorderWidth, fullBorderWidth);
-			}
 
       mBorderPath.addRect(tempRectF, Path.Direction.CW);
 
@@ -216,6 +213,11 @@ public class ContentDrawable extends BaseDrawable
         tempRectF.inset(fullBorderWidth, fullBorderWidth);
         tempPath.addRoundRect(tempRectF, new float[] { topLeftRadius, topLeftRadius, topRightRadius, topRightRadius,
             bottomRightRadius, bottomRightRadius, bottomLeftRadius, bottomLeftRadius }, Path.Direction.CW);
+        mBorderPath.op(tempPath, Path.Op.INTERSECT);
+      } else if (fullBorderWidth > 0) {
+        Path tempPath = new Path();
+        tempPath.addRect(fullBorderWidth, fullBorderWidth, boundWidth - fullBorderWidth,boundHeight - fullBorderWidth,
+            Path.Direction.CW);
         mBorderPath.op(tempPath, Path.Op.INTERSECT);
 			}
 		}
