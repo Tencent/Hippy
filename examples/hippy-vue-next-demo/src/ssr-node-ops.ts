@@ -27,6 +27,9 @@
 // key of ssr uniqueId
 export const SSR_UNIQUE_ID_KEY = 'hippyUniqueId';
 
+// current platform is iOS or not
+export const IS_IOS = global.Hippy?.device?.platform.OS === 'ios';
+
 /**
  * get uniqueId
  */
@@ -42,9 +45,6 @@ function getUniqueId(): number {
 
   return global[SSR_UNIQUE_ID_KEY];
 }
-
-// current platform is iOS or not
-const IS_IOS = global.Hippy?.device?.platform.OS === 'ios';
 
 /**
  * determine two object is equal

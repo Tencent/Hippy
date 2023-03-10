@@ -1,9 +1,22 @@
 import { insertStyleForSsrNodes } from '@hippy/vue-next-style-parser';
-import { insertNativeNodes } from './ssr-node-ops';
+import { insertNativeNodes, IS_IOS } from './ssr-node-ops';
 
 // hippy bundle name
 const bundleName = 'Demo';
 
+
+/**
+ * execute async js bundle
+ */
+function executionAsyncResource() {
+  const url = `http://127.0.0.1:38989/${IS_IOS ? 'ios' : 'android'}/index.js`;
+  console.log('load url: ', url);
+
+  // import async client js bundle
+  return import(url).catch((e) => {
+    console.log(`import async js error. url is: ${url}, reason is: ${e}.`);
+  });
+}
 
 /**
  * execute ssr init logic
@@ -71,7 +84,7 @@ function ssr(): void {
           console.log('response wrong:', rspJson);
         }
         // execute client bundle
-        // executionAsyncResource();
+        executionAsyncResource();
       })
       .catch((error) => {
         console.log('response error: ', error);

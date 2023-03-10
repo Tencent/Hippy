@@ -406,8 +406,7 @@ class AttributeSelector extends SimpleSelector {
     if (!test) {
       // HasAttribute
       this.match = (node: StyleNode) => {
-        console.log('match test', this, node);
-        if (!node || !node?.attributes || !node?.props) {
+        if (!node || (!node?.attributes && !node?.props)) {
           // in client side render, node not exist or do not have attributes props means no attribute
           // in server side render, node do not have attribute in props means no attribute
           return false;
@@ -426,7 +425,7 @@ class AttributeSelector extends SimpleSelector {
     this.match = (node?: StyleNode) => {
       // props and attributes exist means this node is generated from server side(except development).
       // so we need to use these props when we are ssr
-      if (!node || !node?.attributes || !node?.props[attribute]) {
+      if (!node || (!node?.attributes && !node?.props[attribute])) {
         return false;
       }
       const attr = `${getNodeAttrVal(node, attribute)}`;

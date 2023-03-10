@@ -18,7 +18,7 @@ if (fs.existsSync(hippyVueCssLoaderPath)) {
 
 module.exports = {
   mode: 'development',
-  devtool: 'eval-source-map',
+  devtool: 'source-map',
   watch: true,
   watchOptions: {
     aggregateTimeout: 1500,
