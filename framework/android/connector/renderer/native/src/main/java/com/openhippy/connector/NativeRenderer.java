@@ -65,19 +65,12 @@ public class NativeRenderer implements RenderConnector {
 
     @Override
     public View replaySnapshot(@NonNull Context context, @NonNull byte[] buffer) {
-        if (mRenderer != null) {
-            return mRenderer.replaySnapshot(context, buffer);
-        }
-        return null;
+        return (mRenderer != null) ? mRenderer.replaySnapshot(context, buffer) : null;
     }
 
     @Override
-    public View replaySnapshot(@NonNull Context context,
-        @NonNull Map<String, Object> snapshotMap) {
-        if (mRenderer != null) {
-            return mRenderer.replaySnapshot(context, snapshotMap);
-        }
-        return null;
+    public View replaySnapshot(@NonNull Context context, @NonNull Map<String, Object> snapshotMap) {
+        return (mRenderer != null) ? mRenderer.replaySnapshot(context, snapshotMap) : null;
     }
 
     @Override
@@ -89,11 +82,12 @@ public class NativeRenderer implements RenderConnector {
 
     @Override
     public View createRootView(@NonNull Context context) {
-        View rootView = null;
-        if (mRenderer != null) {
-            rootView = mRenderer.createRootView(context);
-        }
-        return rootView;
+        return (mRenderer != null) ? mRenderer.createRootView(context) : null;
+    }
+
+    @Nullable
+    public View getRootView(int rootId) {
+        return (mRenderer != null) ? mRenderer.getRootView(rootId) : null;
     }
 
     @Override

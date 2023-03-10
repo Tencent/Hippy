@@ -25,67 +25,46 @@ public class MapUtils {
 
     public static int getIntValue(@NonNull Map<String, Object> params, @NonNull String key) {
         Object element = params.get(key);
-        if (element instanceof Number) {
-            return ((Number) element).intValue();
-        }
-        return 0;
+        return (element instanceof Number) ? ((Number) element).intValue() : 0;
     }
 
     public static int getIntValue(@NonNull Map<String, Object> params, @NonNull String key,
             int defaultValue) {
         Object element = params.get(key);
-        if (element instanceof Number) {
-            return ((Number) element).intValue();
-        }
-        return defaultValue;
+        return (element instanceof Number) ? ((Number) element).intValue() : defaultValue;
     }
 
     @SuppressWarnings("unused")
     public static float getFloatValue(@NonNull Map<String, Object> params, @NonNull String key) {
         Object element = params.get(key);
-        if (element instanceof Number) {
-            return ((Number) element).floatValue();
-        }
-        return 0.0f;
+        return (element instanceof Number) ? ((Number) element).floatValue() : 0.0f;
     }
 
     @SuppressWarnings("unused")
     public static float getFloatValue(@NonNull Map<String, Object> params, @NonNull String key,
             float defaultValue) {
         Object element = params.get(key);
-        if (element instanceof Number) {
-            return ((Number) element).floatValue();
-        }
-        return defaultValue;
+        return (element instanceof Number) ? ((Number) element).floatValue() : defaultValue;
     }
 
     @SuppressWarnings("unused")
     public static double getDoubleValue(@NonNull Map<String, Object> params, @NonNull String key) {
         Object element = params.get(key);
-        if (element instanceof Number) {
-            return ((Number) element).doubleValue();
-        }
-        return 0;
+        return (element instanceof Number) ? ((Number) element).doubleValue() : 0;
     }
 
     @SuppressWarnings("unused")
     public static double getDoubleValue(@NonNull Map<String, Object> params, @NonNull String key,
             double defaultValue) {
         Object element = params.get(key);
-        if (element instanceof Number) {
-            return ((Number) element).doubleValue();
-        }
-        return defaultValue;
+        return (element instanceof Number) ? ((Number) element).doubleValue() : defaultValue;
     }
 
     @SuppressWarnings("unused")
     @Nullable
     public static String getStringValue(@NonNull Map<String, Object> params, @NonNull String key) {
         Object element = params.get(key);
-        if (element instanceof String) {
-            return ((String) element);
-        }
-        return null;
+        return (element instanceof String) ? ((String) element) : null;
     }
 
     @SuppressWarnings("unused")
@@ -93,27 +72,26 @@ public class MapUtils {
     public static String getStringValue(@NonNull Map<String, Object> params, @NonNull String key,
             @Nullable String defaultValue) {
         Object element = params.get(key);
-        if (element instanceof String) {
-            return ((String) element);
-        }
-        return defaultValue;
+        return (element instanceof String) ? ((String) element) : defaultValue;
     }
 
     public static boolean getBooleanValue(@NonNull Map<String, Object> params,
             @NonNull String key) {
         Object element = params.get(key);
-        if (element instanceof Boolean) {
-            return ((boolean) element);
-        }
-        return false;
+        return element instanceof Boolean && ((boolean) element);
     }
 
     public static boolean getBooleanValue(@NonNull Map<String, Object> params, @NonNull String key,
             boolean defaultValue) {
         Object element = params.get(key);
-        if (element instanceof Boolean) {
-            return ((boolean) element);
-        }
-        return defaultValue;
+        return (element instanceof Boolean) ? ((boolean) element) : defaultValue;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Nullable
+    public static Map<String, Object> getMapValue(@NonNull Map<String, Object> params,
+            @NonNull String key) {
+        Object element = params.get(key);
+        return (element instanceof Map) ? ((Map<String, Object>) element) : null;
     }
 }
