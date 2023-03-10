@@ -400,9 +400,9 @@ dispatch_queue_t HippyBridgeQueue() {
 }
 
 - (void)innerLoadInstanceForRootView:(NSNumber *)rootTag withProperties:(NSDictionary *)props {
-    NSString *moduleName = _moduleName ?: @"";
+    HPAssert(_moduleName, @"module name must not be null");
     HPLogInfo(self, @"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", moduleName, props);
-    NSDictionary *param = @{@"name": moduleName,
+    NSDictionary *param = @{@"name": _moduleName,
                             @"id": rootTag,
                             @"params": props ?: @{},
                             @"version": HippySDKVersion};
@@ -759,6 +759,7 @@ dispatch_queue_t HippyBridgeQueue() {
             return;
         }
         strongSelf->_javaScriptExecutor.pScope->SetDomManager(domManager);
+        strongSelf->_javaScriptExecutor.pScope->SetRootNode(rootNode);
       #ifdef ENABLE_INSPECTOR
         auto devtools_data_source = strongSelf->_javaScriptExecutor.pScope->GetDevtoolsDataSource();
         if (devtools_data_source) {
@@ -767,7 +768,6 @@ dispatch_queue_t HippyBridgeQueue() {
             devtools_data_source->SetRootNode(rootNode);
         }
       #endif
-        strongSelf->_javaScriptExecutor.pScope->SetRootNode(rootNode);
     };
     block();
     [_nativeSetupBlocks addObject:block];

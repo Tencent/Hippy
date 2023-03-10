@@ -26,6 +26,8 @@
 
 @implementation NativeRenderBaseListItemViewManager
 
+NATIVE_RENDER_EXPORT_VIEW(ListViewItem)
+
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(type, id)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(isSticky, BOOL)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onAppear, NativeRenderDirectEventBlock)

@@ -29,6 +29,8 @@
 
 @implementation NativeRenderNavigatorViewManager
 
+NATIVE_RENDER_EXPORT_VIEW(Navigator)
+
 - (UIView *)view {
     NativeRenderNavigatorHostView *hostView = [[NativeRenderNavigatorHostView alloc] initWithProps:self.props];
     hostView.delegate = self;

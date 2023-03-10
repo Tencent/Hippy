@@ -26,6 +26,15 @@
 
 @class NativeRenderImpl, UIView, NSDictionary;
 
+#define NATIVE_RENDER_EXPORT_VIEW(js_name)              \
+    HP_EXTERN void NativeRenderRegisterView(Class);     \
+    +(NSString *)viewName {                             \
+        return @ #js_name;                              \
+    }                                                   \
+    +(void)load {                                       \
+        NativeRenderRegisterView(self);                 \
+    }
+
 typedef void (^NativeRenderRenderUIBlock)(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry);
 /**
  * Posted whenever a new root view is registered with NativeRenderUIManager. The userInfo property

@@ -26,6 +26,8 @@
 
 @implementation NativeRenderWaterfallViewManager
 
+NATIVE_RENDER_EXPORT_VIEW(WaterfallView)
+
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(contentInset, UIEdgeInsets)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(numberOfColumns, NSInteger)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(preloadItemNumber, NSInteger)

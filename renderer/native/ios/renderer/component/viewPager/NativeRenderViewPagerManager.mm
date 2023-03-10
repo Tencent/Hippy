@@ -26,6 +26,8 @@
 
 @implementation NativeRenderViewPagerManager
 
+NATIVE_RENDER_EXPORT_VIEW(ViewPager)
+
 - (UIView *)view {
     return [NativeRenderViewPager new];
 }

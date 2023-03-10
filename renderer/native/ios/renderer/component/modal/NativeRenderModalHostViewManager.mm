@@ -43,6 +43,8 @@
 
 @implementation NativeRenderModalHostViewManager
 
+NATIVE_RENDER_EXPORT_VIEW(Modal)
+
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(animationType, NSString)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(transparent, BOOL)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(darkStatusBarText, BOOL)

@@ -44,6 +44,8 @@ static void collectDirtyNonTextDescendants(NativeRenderObjectText *renderObject,
 
 @implementation NativeRenderTextManager
 
+NATIVE_RENDER_EXPORT_VIEW(Text)
+
 - (UIView *)view {
     return [NativeRenderText new];
 }

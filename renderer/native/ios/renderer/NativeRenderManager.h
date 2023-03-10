@@ -29,7 +29,7 @@
 #include "dom/render_manager.h"
 
 @class UIView, NativeRenderImpl;
-
+class VFSUriLoader;
 namespace hippy {
 inline namespace dom {
 class RootNode;
@@ -142,7 +142,7 @@ public:
      *
      * @param extraComponent a map of custom ui components
      */
-    void RegisterExtraComponent(NSDictionary<NSString *, Class> *extraComponent);
+    void RegisterExtraComponent(NSArray<Class> *extraComponents);
         
     /**
      * Regitster a root view
