@@ -289,7 +289,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
     @Nullable
     public Executor getBackgroundExecutor() {
-        HippyExecutorSupplierAdapter adapter = mEngineContext.getGlobalConfigs().getExecutorSupplierAdapter();
+        HippyExecutorSupplierAdapter adapter = mEngineContext.getGlobalConfigs()
+                .getExecutorSupplierAdapter();
         return (adapter != null) ? adapter.getBackgroundTaskExecutor() : null;
     }
 
@@ -639,7 +640,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 mCurrentState = result ? EngineState.INITED : EngineState.INITERRORED;
                 if (state != EngineState.ONRESTART) {
                     notifyEngineInitialized(
-                            result ? EngineInitStatus.STATUS_OK : EngineInitStatus.STATUS_ERR_BRIDGE,
+                            result ? EngineInitStatus.STATUS_OK
+                                    : EngineInitStatus.STATUS_ERR_BRIDGE,
                             e);
                 } else {
                     LogUtils.e(TAG,
@@ -800,7 +802,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             }
             if (renderer == null) {
                 throw new RuntimeException(
-                    "Serious error: Failed to create renderer instance!");
+                        "Serious error: Failed to create renderer instance!");
             }
             return renderer;
         }
@@ -975,6 +977,13 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         @Override
         public ViewGroup getRootView() {
             return mRootView;
+        }
+
+        @Override
+        public View getRootView(int rootId) {
+            return (mRenderer instanceof com.openhippy.connector.NativeRenderer)
+                    ? ((com.openhippy.connector.NativeRenderer) mRenderer).getRootView(rootId)
+                    : null;
         }
 
         @Nullable

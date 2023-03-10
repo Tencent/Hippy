@@ -16,6 +16,7 @@
 
 package com.tencent.mtt.hippy;
 
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -27,7 +28,6 @@ import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.vfs.VfsManager;
 import java.util.HashMap;
-import java.util.Map;
 
 public interface HippyEngineContext {
 
@@ -52,6 +52,8 @@ public interface HippyEngineContext {
     ThreadExecutor getThreadExecutor();
 
     ViewGroup getRootView();
+
+    View getRootView(int rootId);
 
     void addEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
 

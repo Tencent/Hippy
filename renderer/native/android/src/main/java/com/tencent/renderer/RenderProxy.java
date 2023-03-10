@@ -56,6 +56,14 @@ public interface RenderProxy {
     @NonNull
     View createRootView(@NonNull Context context);
 
+    /**
+     * Get root view by root id
+     *
+     * @param rootId the id of root view
+     * @return the rootView {@link ViewGroup} has been registered
+     */
+    @Nullable
+    View getRootView(int rootId);
 
     /**
      * Notify renderer the host life cycle {@link android.app.Activity} onResume call back
