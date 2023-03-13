@@ -257,8 +257,7 @@ class VoltronWidget extends StatefulWidget {
 }
 
 // ignore: prefer_mixin
-class _VoltronWidgetState extends State<VoltronWidget>
-    with TickerProviderStateMixin, WidgetsBindingObserver {
+class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateMixin, WidgetsBindingObserver {
   Size? oldSize;
   late RootWidgetViewModel viewModel;
 
