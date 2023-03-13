@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.serialization.compatible;
 
 import androidx.annotation.NonNull;
 
+import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.common.ConstantValue;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -24,6 +25,8 @@ import com.tencent.mtt.hippy.serialization.JSSerializationTag;
 import com.tencent.mtt.hippy.serialization.PrimitiveValueSerializer;
 import com.tencent.mtt.hippy.serialization.nio.writer.BinaryWriter;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 
 /**
@@ -66,6 +69,12 @@ public class Serializer extends PrimitiveValueSerializer {
     } else if (object instanceof HippyMap) {
       assignId(object);
       writeJSObject((HippyMap) object);
+    } else if (object instanceof ArrayList) {
+      HippyArray hippyArray = new HippyArray((ArrayList) object);
+      writeJSArray(hippyArray);
+    } else if (object instanceof HashMap) {
+      HippyMap hippyMap = new HippyMap((HashMap) object);
+      writeJSObject(hippyMap);
     } else {
       return false;
     }
