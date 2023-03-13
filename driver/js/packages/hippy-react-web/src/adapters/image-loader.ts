@@ -34,6 +34,7 @@ const ImageLoader = {
     image.setAttribute('crossOrigin', 'Anonymous');
     image.src = url;
     image.onerror = (e) => {
+      // @ts-ignore
       onError(e);
     };
     image.onload = (e) => {
