@@ -188,11 +188,4 @@ export abstract class HippyEventTarget {
   public getEventListenerList(): EventListeners {
     return this.listeners;
   }
-
-  /**
-   * dispatch event
-   *
-   * @param event - event object
-   */
-  public abstract dispatchEvent(event: HippyEvent): void;
 }

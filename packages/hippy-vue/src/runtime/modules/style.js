@@ -22,6 +22,7 @@
 /* eslint-disable no-param-reassign */
 
 import { extend, cached, camelize } from 'shared/util';
+import { isNullOrUndefined } from '../../util';
 
 const normalize = cached(camelize);
 
@@ -35,14 +36,9 @@ function toObject(arr) {
   return res;
 }
 
-
-function updateStyle(oldVNode, vNode) {
-  if (!oldVNode.data.style && !vNode.data.style) {
-    return;
-  }
-  const { elm } = vNode;
-  const oldStyle = oldVNode.data.style || {};
-  let style = vNode.data.style || {};
+function patchStyle(vNode) {
+  if (!vNode.data.style) return;
+  let { style } = vNode.data;
   const needClone = style.__ob__;
   // handle array syntax
   if (Array.isArray(style)) {
@@ -56,27 +52,28 @@ function updateStyle(oldVNode, vNode) {
     vNode.data.style = style;
   }
   const batchedStyles = {};
-  // Remove the deleted styles at first
-  Object.keys(oldStyle).forEach((name) => {
-    const oldStyleValue = oldStyle[name];
-    const newStyleValue = style[name];
-    if (
-      (oldStyleValue !== undefined && oldStyleValue !== null)
-      && (newStyleValue === undefined || newStyleValue === null)) {
-      batchedStyles[normalize(name)] = undefined;
-    }
-  });
   // Then set the new styles.
   Object.keys(style).forEach((name) => {
-    const oldStyleValue = oldStyle[name];
-    const newStyleValue = style[name];
-    if (oldStyleValue !== newStyleValue) {
-      batchedStyles[normalize(name)] = newStyleValue;
+    const styleValue = style[name];
+    if (!isNullOrUndefined(styleValue)) {
+      batchedStyles[normalize(name)] = styleValue;
     }
   });
-  elm.setStyles(batchedStyles);
+  return batchedStyles;
 }
 
+function updateStyle(oldVNode, vNode) {
+  if (!oldVNode.data.style && !vNode.data.style) {
+    return;
+  }
+  const { elm } = vNode;
+  if (oldVNode.data.style && !vNode.data.style) {
+    return elm.removeStyle();
+  }
+  const styles = patchStyle(vNode);
+  elm.removeStyle(true);
+  elm.setStyles(styles);
+}
 
 function createStyle(oldVNode, vNode) {
   if (!vNode.data.staticStyle) {
@@ -87,12 +84,17 @@ function createStyle(oldVNode, vNode) {
   const { staticStyle } = vNode.data;
   const batchStyles = {};
   Object.keys(staticStyle).forEach((name) => {
-    if (staticStyle[name]) {
-      batchStyles[normalize(name)] = staticStyle[name];
+    const styleValue = staticStyle[name];
+    if (!isNullOrUndefined(styleValue)) {
+      batchStyles[normalize(name)] = styleValue;
     }
   });
+  const styles = patchStyle(vNode);
+  if (styles) {
+    Object.assign(batchStyles, styles);
+  }
+  elm.removeStyle(true);
   elm.setStyles(batchStyles);
-  updateStyle(oldVNode, vNode);
 }
 
 export function setStyle(vNode, customElem, options = {}) {

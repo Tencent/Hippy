@@ -31,6 +31,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#4c9afa',
   },
+  img_result: {
+    width: 300,
+    marginTop: -15,
+    marginLeft: 16,
+    fontSize: 16,
+    color: '#4c9afa',
+    borderColor: '#4c9afa',
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderRadius: 4,
+  },
 });
 
 export default class ImageExpo extends React.Component {
@@ -119,7 +130,7 @@ export default class ImageExpo extends React.Component {
             });
           }}
         />
-        <Text style={styles.info_style}>{ `gifLoadResult: { width: ${gifWidth}, height: ${gifHeight}, url: ${gifUrl} }` }</Text>
+        <Text style={styles.img_result}>{ `gifLoadResult: { width: ${gifWidth}, height: ${gifHeight}, url: ${gifUrl} }` }</Text>
       </ScrollView>
     );
   }

@@ -25,7 +25,7 @@ import type { NeedToTyped } from '../../types';
 import { trace } from '../../util';
 import { getNodeById } from '../../util/node-cache';
 import type { HippyNode } from '../node/hippy-node';
-
+import type { HippyElement } from '../element/hippy-element';
 import { EventBus } from './event-bus';
 import {
   type EventsUnionType,
@@ -94,13 +94,10 @@ const HippyEventDispatcher = {
    */
   receiveNativeEvent(nativeEvent: NativeEvent): void {
     trace(...componentName, 'receiverNativeEvent', nativeEvent);
-
     if (isInvalidNativeEvent(nativeEvent)) {
       return;
     }
-
     const [eventName, eventParams] = nativeEvent;
-
     // forward native events directly to the event bus for distribution by the bus
     EventBus.$emit(eventName, eventParams);
   },
@@ -117,7 +114,7 @@ const HippyEventDispatcher = {
       return;
     }
     const { id: targetNodeId, name: eventName, ...params } = nativeEvent;
-    const targetNode = getNodeById(targetNodeId);
+    const targetNode = getNodeById(targetNodeId) as HippyElement;
     if (!targetNode) {
       return;
     }
@@ -150,22 +147,22 @@ const HippyEventDispatcher = {
     if (typeof targetNodeId !== 'number' || typeof eventName !== 'string') {
       return;
     }
-    const targetNode = getNodeById(targetNodeId);
+    const targetNode = getNodeById(targetNodeId) as HippyElement;
     if (!targetNode) {
       return;
     }
     const targetEventName = getVueEventName(eventName, targetNode);
     // process layout event
     if (eventName === 'onLayout') {
-      const { layout } = params;
+      const { layout: { x, y, height, width } } = params;
       const targetLayoutEvent = new HippyLayoutEvent(targetEventName);
       targetLayoutEvent.nativeParams = params ?? {};
-      targetLayoutEvent.top = layout.y;
-      targetLayoutEvent.left = layout.x;
-      targetLayoutEvent.bottom = layout.y + layout.height;
-      targetLayoutEvent.right = layout.x + layout.width;
-      targetLayoutEvent.width = layout.width;
-      targetLayoutEvent.height = layout.height;
+      targetLayoutEvent.top = y;
+      targetLayoutEvent.left = x;
+      targetLayoutEvent.bottom = y + height;
+      targetLayoutEvent.right = x + width;
+      targetLayoutEvent.width = width;
+      targetLayoutEvent.height = height;
       // dispatch event
       targetNode.dispatchEvent(targetLayoutEvent);
     } else {
@@ -193,3 +190,7 @@ const HippyEventDispatcher = {
 if (global.__GLOBAL__) {
   global.__GLOBAL__.jsModuleList.EventDispatcher = HippyEventDispatcher;
 }
+
+export {
+  HippyEventDispatcher,
+};
