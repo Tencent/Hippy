@@ -21,7 +21,7 @@
 /* eslint-disable no-unneeded-ternary */
 
 import React, { useImperativeHandle, useEffect, useRef } from 'react';
-
+import { LayoutableProps, ClickableProps } from '../types';
 import { formatWebStyle } from '../adapters/transfer';
 import useElementLayout from '../modules/use-element-layout';
 import { isFunc } from '../utils';
@@ -32,7 +32,7 @@ import { isFunc } from '../utils';
  * placeholder text, and different keyboard types, such as a numeric keypad.
  * @noInheritDoc
  */
-export interface TextInputProps {
+export interface TextInputProps extends LayoutableProps, ClickableProps {
   style?: HippyTypes.Style;
   caretColor?: string;
   defaultValue?: string;
@@ -52,7 +52,6 @@ export interface TextInputProps {
   onChangeText?: any;
   onKeyboardWillShow?: any;
   onEndEditing?: any;
-  onLayout?: any;
   onSelectionChange?: any;
 };
 const TextInput: React.FC<TextInputProps> = React.forwardRef<any, TextInputProps>((props, ref) => {

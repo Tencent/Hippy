@@ -25,38 +25,7 @@ const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const commonjs = require('@rollup/plugin-commonjs');
 const { babel } = require('@rollup/plugin-babel');
 const hippyWebRendererPackage = require('../packages/hippy-web-renderer/package.json');
-function banner(name, version) {
-  const startYear = 2017;
-  const thisYear = new Date().getFullYear();
-  let copyRightYears = thisYear;
-  if (startYear !== thisYear) {
-    copyRightYears = `${startYear}-${thisYear}`;
-  }
-
-  return `/*!
- * ${name} v${version}
- * Build at: ${new Date()}
- *
- * Tencent is pleased to support the open source community by making
- * Hippy available.
- *
- * Copyright (C) ${copyRightYears} THL A29 Limited, a Tencent company.
- * All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-`;
-}
+const { banner } = require('./utils');
 
 const builds = {
   '@hippy/web-renderer': {

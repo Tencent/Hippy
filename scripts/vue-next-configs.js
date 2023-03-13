@@ -29,46 +29,8 @@ const { apiExtractor } = require('rollup-plugin-api-extractor');
 const VueVersion = require('../packages/hippy-vue-next/node_modules/@vue/runtime-core/package.json').version;
 const hippyVueNextPackage = require('../packages/hippy-vue-next/package.json');
 const hippyStyleParserPackage = require('../packages/hippy-vue-next-style-parser/package.json');
-
-const andHippyVueNextString = ` and Hippy-Vue-Next v${hippyVueNextPackage.version}`;
-
-function banner(name, version) {
-  const startYear = 2022;
-  const thisYear = new Date().getFullYear();
-  let copyRightYears = thisYear;
-  if (startYear !== thisYear) {
-    copyRightYears = `${startYear}-${thisYear}`;
-  }
-
-  return `/*!
- * ${name} v${version}
- * (Using Vue v${VueVersion}${name !== '@hippy/vue-next' ? andHippyVueNextString : ''})
- * Build at: ${new Date()}
- *
- * Tencent is pleased to support the open source community by making
- * Hippy available.
- *
- * Copyright (C) ${copyRightYears} THL A29 Limited, a Tencent company.
- * All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-`;
-}
-
-function resolvePackage(src, extra = 'src') {
-  return path.resolve(__dirname, '../packages/', src, extra);
-}
+const { banner, resolvePackage } = require('./utils');
+const bannerStrAndHippyVueString = `\n * (Using Vue v${VueVersion} and Hippy-Vue-Next v${hippyVueNextPackage.version})`;
 
 const builds = {
   '@hippy/hippy-vue-next-style-parser': {
@@ -76,13 +38,13 @@ const builds = {
     dest: resolvePackage('hippy-vue-next-style-parser', 'dist/index.js'),
     format: 'cjs',
     moduleName: 'hippy-vue-next-style-parser',
-    banner: banner('@hippy/hippy-vue-next-style-parser', hippyStyleParserPackage.version),
+    banner: banner('@hippy/hippy-vue-next-style-parser', hippyStyleParserPackage.version, bannerStrAndHippyVueString, 2022),
   },
   '@hippy/vue-next': {
     entry: resolvePackage('hippy-vue-next', 'src/index.ts'),
     dest: resolvePackage('hippy-vue-next', 'dist/index.js'),
     format: 'es',
-    banner: banner('@hippy/vue', hippyVueNextPackage.version),
+    banner: banner('@hippy/vue', hippyVueNextPackage.version, bannerStrAndHippyVueString, 2022),
     name: 'hippy-vue-next',
     external: ['@vue/runtime-core'],
   },

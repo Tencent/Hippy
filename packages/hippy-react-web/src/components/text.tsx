@@ -21,10 +21,9 @@
 // @ts-nocheck
 import React, { createContext, useRef } from 'react';
 import { formatWebStyle } from '../adapters/transfer';
-import { LayoutEvent } from '../types';
+import { LayoutableProps, TouchableProps, ClickableProps } from '../types';
 import useResponderEvents from '../modules/use-responder-events';
 import useElementLayout from '../modules/use-element-layout';
-import { TouchEvent } from '../modules/use-responder-events/types';
 import { DEFAULT_CONTAINER_STYLE } from '../constants';
 
 const baseTextStyle = {
@@ -71,16 +70,11 @@ const styles = {
 
 const TextAncestorContext = createContext(false);
 
-interface TextProps {
+interface TextProps extends LayoutableProps, TouchableProps, ClickableProps {
   style?: HippyTypes.Style | HippyTypes.Style[];
   numberOfLines?: number;
   opacity?: number;
   ellipsizeMode?: 'clip' | 'ellipsis';
-  onLayout: (e: LayoutEvent) => void;
-  onTouchDown?: (e: TouchEvent) => void;
-  onTouchMove?: (e: TouchEvent) => void;
-  onTouchEnd?: (e: TouchEvent) => void;
-  onTouchCancel?: (e: TouchEvent) => void;
 }
 
 /**
