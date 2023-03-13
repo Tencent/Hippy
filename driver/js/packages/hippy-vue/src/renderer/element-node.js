@@ -32,7 +32,6 @@ import {
   getBeforeLoadStyle,
   warn,
   isDev,
-  isEmpty,
   whitespaceFilter,
 } from '../util';
 import { eventMethod, eventHandlerType } from '../util/event';
@@ -375,8 +374,21 @@ class ElementNode extends ViewNode {
     delete this.attributes[key];
   }
 
+  /**
+   * remove style attr
+   */
+  removeStyle(notToNative = false) {
+    // remove all style
+    this.style = {};
+    if (!notToNative) {
+      updateChild(this);
+    }
+  }
+
   setStyles(batchStyles) {
-    if (isEmpty(batchStyles)) return;
+    if (!batchStyles || typeof batchStyles !== 'object') {
+      return;
+    }
     Object.keys(batchStyles).forEach((styleKey) => {
       const styleValue = batchStyles[styleKey];
       this.setStyle(styleKey, styleValue, true);
