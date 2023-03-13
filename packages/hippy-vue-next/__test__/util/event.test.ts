@@ -21,7 +21,7 @@
 /**
  * util/event test
  */
-import { eventMethod } from '../../src/util/event';
+import { EventMethod } from '../../src/util/event';
 
 /**
  * @priority P0
@@ -29,7 +29,7 @@ import { eventMethod } from '../../src/util/event';
  */
 describe('src/util/event', () => {
   it('event method names should be valid', () => {
-    expect(eventMethod.ADD).toEqual('addEventListener');
-    expect(eventMethod.REMOVE).toEqual('removeEventListener');
+    expect(EventMethod.ADD).toEqual('addEventListener');
+    expect(EventMethod.REMOVE).toEqual('removeEventListener');
   });
 });

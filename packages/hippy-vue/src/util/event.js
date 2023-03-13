@@ -19,11 +19,11 @@
  */
 
 // event method constant
-const eventMethod = {
+const EventMethod = {
   ADD: 'addEventListener',
   REMOVE: 'removeEventListener',
 };
 
 export {
-  eventMethod,
+  EventMethod,
 };

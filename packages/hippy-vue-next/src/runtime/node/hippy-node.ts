@@ -22,7 +22,6 @@ import { getUniqueId, DEFAULT_ROOT_ID } from '../../util';
 import { getHippyCachedInstance } from '../../util/instance';
 import { preCacheNode } from '../../util/node-cache';
 import type { TagComponent } from '../component';
-import type { HippyEvent } from '../event/hippy-event';
 import { HippyEventTarget } from '../event/hippy-event-target';
 import {
   renderInsertChildNativeNode,
@@ -89,11 +88,8 @@ export class HippyNode extends HippyEventTarget {
 
   constructor(nodeType: NodeType) {
     super();
-
     this.nodeId = HippyNode.getUniqueNodeId();
-
     this.nodeType = nodeType;
-
     this.isNeedInsertToNative = needInsertToNative(nodeType);
   }
 
@@ -140,48 +136,6 @@ export class HippyNode extends HippyEventTarget {
    */
   public isRootNode(): boolean {
     return this.nodeId === DEFAULT_ROOT_ID;
-  }
-
-  /**
-   * append child node
-   *
-   * @param rawChild - child node to be added
-   */
-  public appendChild(rawChild: HippyNode): void {
-    const child = rawChild;
-
-    if (!child) {
-      throw new Error('No child to append');
-    }
-
-    // if childNode is the same as the last child, skip appending
-    if (this.lastChild === child) return;
-    // If the node to be added has a parent node and
-    // the parent node is not the current node, remove it from the container first
-    // In the case of keep-alive, the node still exists and will be moved to the virtual container
-    if (child.parentNode && child.parentNode !== this) {
-      child.parentNode.removeChild(child);
-    }
-
-    // If the node is already mounted, remove it first
-    if (child.isMounted) {
-      this.removeChild(child);
-    }
-
-    // save the parent node of the node
-    child.parentNode = this;
-
-    // modify the pointer of the last child
-    if (this.lastChild) {
-      child.prevSibling = this.lastChild;
-      this.lastChild.nextSibling = child;
-    }
-
-    // add node
-    this.childNodes.push(child);
-
-    // call the native interface to insert a node
-    this.insertChildNativeNode(child);
   }
 
   /**
@@ -318,6 +272,48 @@ export class HippyNode extends HippyEventTarget {
   }
 
   /**
+   * append child node
+   *
+   * @param rawChild - child node to be added
+   */
+  public appendChild(rawChild: HippyNode): void {
+    const child = rawChild;
+
+    if (!child) {
+      throw new Error('No child to append');
+    }
+
+    // if childNode is the same as the last child, skip appending
+    if (this.lastChild === child) return;
+    // If the node to be added has a parent node and
+    // the parent node is not the current node, remove it from the container first
+    // In the case of keep-alive, the node still exists and will be moved to the virtual container
+    if (child.parentNode && child.parentNode !== this) {
+      child.parentNode.removeChild(child);
+    }
+
+    // If the node is already mounted, remove it first
+    if (child.isMounted) {
+      this.removeChild(child);
+    }
+
+    // save the parent node of the node
+    child.parentNode = this;
+
+    // modify the pointer of the last child
+    if (this.lastChild) {
+      child.prevSibling = this.lastChild;
+      this.lastChild.nextSibling = child;
+    }
+
+    // add node
+    this.childNodes.push(child);
+
+    // call the native interface to insert a node
+    this.insertChildNativeNode(child);
+  }
+
+  /**
    * remove child node
    *
    * @param rawChild - child node to be removed
@@ -415,42 +411,6 @@ export class HippyNode extends HippyEventTarget {
       this.childNodes.forEach((child) => {
         this.eachNode.call(child, callback);
       });
-    }
-  }
-
-  /**
-   * dispatch event
-   *
-   * @param rawEvent - event object
-   */
-  public dispatchEvent(rawEvent: HippyEvent): void {
-    const event = rawEvent;
-    const { type: eventName } = event;
-
-    // get the list of event callbacks registered by the current event
-    const listeners = this.listeners[eventName];
-
-    // return if without callback
-    if (!listeners) {
-      return;
-    }
-
-    event.currentTarget = this;
-
-    // from back to front, execute the event callback method
-    for (let i = listeners.length - 1; i >= 0; i -= 1) {
-      const listener = listeners[i];
-      // for the once method, remove it after executing it once
-      if (listener?.options?.once) {
-        listeners.splice(i, 1);
-      }
-
-      // If this context is specified in the callback, use apply to pass the context to execute the callback
-      if (listener?.options?.thisArg) {
-        listener.callback.apply(listener.options.thisArg, [event]);
-      } else {
-        listener.callback(event);
-      }
     }
   }
 
