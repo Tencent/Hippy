@@ -59,7 +59,7 @@ using voltron::StandardMessageCodec;
 using voltron::VoltronRenderManager;
 using footstone::WorkerManager;
 
-std::atomic<int> voltronEngineIndex = 0;
+std::atomic<int32_t> voltronEngineIndex = 0;
 
 EXTERN_C int32_t GetVoltronEngineIndexFFI() {
   return ++voltronEngineIndex;
