@@ -488,7 +488,7 @@ public class ControllerManager {
                 NativeRendererManager.removeSnapshotRootNode();
                 deleteRootView(SCREEN_SNAPSHOT_ROOT_ID);
             }
-        }, 50);
+        }, 100);
 
     }
 
