@@ -50,7 +50,9 @@
         class="image cover"
         @load="onLoad"
       >
-      <p>{{gifLoadResult}}</p>
+      <div class="img-result">
+        <p>Load Result: {{ gifLoadResult }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -119,6 +121,16 @@ export default defineComponent({
   width: 300px;
   height: 180px;
   margin: 30px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #40b883;
+}
+
+#demo-img .img-result {
+  width: 300px;
+  height: 150px;
+  margin-top: -30px;
+  margin-horizontal: 30px;
   border-width: 1px;
   border-style: solid;
   border-color: #40b883;
