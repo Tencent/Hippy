@@ -94,16 +94,20 @@ abstract class RenderContext<T extends LoadInstanceContext> with RenderContextPr
     if (!debugMode || initWorkerManagerId == -1) {
       _renderBridgeManager.initRenderApi();
       _workerManagerId = _renderBridgeManager.createWorkerManager();
+      LogUtils.dBridge('create worker manager id:$_workerManagerId');
     } else {
       _workerManagerId = initWorkerManagerId;
+      LogUtils.dBridge('reuse worker manager id:$_workerManagerId');
     }
 
     /// step 3, make sure dom holder is valid, use old value when reload
     if (debugMode && initDomHolder != null) {
       _domHolder = initDomHolder;
+      LogUtils.dBridge('reuse dom manager id:${_domHolder.id}');
     } else {
       var domInstanceId = _renderBridgeManager.createDomInstance(_workerManagerId);
       _domHolder = DomHolder(domInstanceId);
+      LogUtils.dBridge('create dom manager id:$domInstanceId');
     }
 
     /// don't forget to bind current renderContext

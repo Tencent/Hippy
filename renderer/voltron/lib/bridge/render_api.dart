@@ -34,6 +34,7 @@ import 'render_bridge_define.dart';
 class _RenderBridgeFFIManager {
   static final _RenderBridgeFFIManager _instance = _RenderBridgeFFIManager._internal();
   static const String _kRenderRegisterHeader = 'voltron_renderer_register';
+
   factory _RenderBridgeFFIManager() => _instance;
 
   static _RenderBridgeFFIManager get instance => _instance;
@@ -65,42 +66,53 @@ class _RenderBridgeFFIManager {
   late DestroyWorkerFfiDartType destroyWorker;
 
   _RenderBridgeFFIManager._internal() {
-    createNativeRender = _library.lookupFunction<CreateVoltronRenderNativeType,
-        CreateVoltronRenderDartType>('CreateVoltronRenderProvider');
+    createNativeRender =
+        _library.lookupFunction<CreateVoltronRenderNativeType, CreateVoltronRenderDartType>(
+      'CreateVoltronRenderProvider',
+    );
 
-    destroyNativeRender = _library.lookupFunction<
-        DestroyVoltronRenderNativeType,
-        DestroyVoltronRenderDartType>('DestroyVoltronRenderProvider');
+    destroyNativeRender =
+        _library.lookupFunction<DestroyVoltronRenderNativeType, DestroyVoltronRenderDartType>(
+      'DestroyVoltronRenderProvider',
+    );
 
-    createDom =
-        _library.lookupFunction<CreateDomFfiNativeType, CreateDomFfiDartType>(
-            'CreateDomInstance');
+    createDom = _library.lookupFunction<CreateDomFfiNativeType, CreateDomFfiDartType>(
+      'CreateDomInstance',
+    );
 
-    destroyDom =
-        _library.lookupFunction<DestroyDomFfiNativeType, DestroyDomFfiDartType>(
-            'DestroyDomInstance');
+    destroyDom = _library.lookupFunction<DestroyDomFfiNativeType, DestroyDomFfiDartType>(
+      'DestroyDomInstance',
+    );
 
-    createWorker = _library.lookupFunction<CreateWorkerFfiNativeType,
-        CreateWorkerFfiDartType>('CreateWorkerManager');
+    createWorker = _library.lookupFunction<CreateWorkerFfiNativeType, CreateWorkerFfiDartType>(
+      'CreateWorkerManager',
+    );
 
-    destroyWorker = _library.lookupFunction<DestroyWorkerFfiNativeType,
-        DestroyWorkerFfiDartType>('DestroyWorkerManager');
+    destroyWorker = _library.lookupFunction<DestroyWorkerFfiNativeType, DestroyWorkerFfiDartType>(
+      'DestroyWorkerManager',
+    );
 
-    addRoot = _library
-        .lookupFunction<AddRootFfiNativeType, AddRootFfiDartType>('AddRoot');
-    removeRoot =
-        _library.lookupFunction<RemoveRootFfiNativeType, RemoveRootFfiDartType>(
-            'RemoveRoot');
+    addRoot = _library.lookupFunction<AddRootFfiNativeType, AddRootFfiDartType>(
+      'AddRoot',
+    );
+    removeRoot = _library.lookupFunction<RemoveRootFfiNativeType, RemoveRootFfiDartType>(
+      'RemoveRoot',
+    );
 
-    callNativeFunction = _library.lookupFunction<
-        CallNativeFunctionFfiNativeType,
-        CallNativeFunctionFfiDartType>("CallNativeFunctionFFI");
+    callNativeFunction =
+        _library.lookupFunction<CallNativeFunctionFfiNativeType, CallNativeFunctionFfiDartType>(
+      "CallNativeFunctionFFI",
+    );
 
-    callNativeEvent = _library.lookupFunction<CallNativeEventFfiNativeType,
-        CallNativeEventFfiDartType>("CallNativeEventFFI");
+    callNativeEvent =
+        _library.lookupFunction<CallNativeEventFfiNativeType, CallNativeEventFfiDartType>(
+      "CallNativeEventFFI",
+    );
 
-    updateNodeSize = _library.lookupFunction<UpdateNodeSizeFfiNativeType,
-        UpdateNodeSizeFfiDartType>('UpdateNodeSize');
+    updateNodeSize =
+        _library.lookupFunction<UpdateNodeSizeFfiNativeType, UpdateNodeSizeFfiDartType>(
+      'UpdateNodeSize',
+    );
   }
 }
 
@@ -143,13 +155,16 @@ class VoltronRenderApi {
     _RenderBridgeFFIManager.instance.removeRoot(domInstanceId, rootId);
   }
 
-  static Future updateNodeSize(int renderManagerId, int rootId, int nodeId,
-      double width, double height) async {
+  static Future updateNodeSize(
+    int renderManagerId,
+    int rootId,
+    int nodeId,
+    double width,
+    double height,
+  ) async {
     var stopwatch = Stopwatch();
-
     stopwatch.start();
-    _RenderBridgeFFIManager.instance
-        .updateNodeSize(renderManagerId, rootId, nodeId, width, height);
+    _RenderBridgeFFIManager.instance.updateNodeSize(renderManagerId, rootId, nodeId, width, height);
     stopwatch.stop();
     LogUtils.profile("update node size cost", stopwatch.elapsedMilliseconds);
   }
@@ -170,8 +185,7 @@ class VoltronRenderApi {
     var stopwatch = Stopwatch();
     stopwatch.start();
     var callIdU16 = callId.toNativeUtf16();
-    var encodeParamsByteData =
-        const StandardMessageCodec().encodeMessage(params);
+    var encodeParamsByteData = const StandardMessageCodec().encodeMessage(params);
     if (encodeParamsByteData != null) {
       var length = encodeParamsByteData.lengthInBytes;
       final result = malloc<Uint8>(length);
@@ -215,8 +229,7 @@ class VoltronRenderApi {
     stopwatch.start();
     var eventU16 = eventName.toNativeUtf16();
     LogUtils.i('Voltron::Bridge', 'ID:$nodeId, call native event $eventName');
-    var encodeParamsByteData =
-        const StandardMessageCodec().encodeMessage(params);
+    var encodeParamsByteData = const StandardMessageCodec().encodeMessage(params);
     if (encodeParamsByteData != null) {
       var length = encodeParamsByteData.lengthInBytes;
       final result = malloc<Uint8>(length);
@@ -251,43 +264,50 @@ class VoltronRenderApi {
   // 初始化bridge层
   static void initBridge() async {
     // 添加自定义c++ call dart方法注册器
-    FfiManager().addFuncExRegister(_RenderBridgeFFIManager._kRenderRegisterHeader, 'RegisterRenderCallFunc');
+    FfiManager().addFuncExRegister(
+      _RenderBridgeFFIManager._kRenderRegisterHeader,
+      'RegisterRenderCallFunc',
+    );
 
     // 添加postRenderOp回调
     var postRenderRegisterFunc = FfiManager().library.lookupFunction<
-            AddCallFuncNativeType<PostRenderOpNativeType>,
-            AddCallFuncDartType<PostRenderOpNativeType>>(
-        FfiManager().registerFuncName);
-    var postRenderOpFunc =
-        Pointer.fromFunction<PostRenderOpNativeType>(postRenderOp);
+        AddCallFuncNativeType<PostRenderOpNativeType>,
+        AddCallFuncDartType<PostRenderOpNativeType>>(FfiManager().registerFuncName);
+
+    var postRenderOpFunc = Pointer.fromFunction<PostRenderOpNativeType>(postRenderOp);
     FfiManager().addRegisterFunc(
-        _RenderBridgeFFIManager._kRenderRegisterHeader,
-        RenderFuncType.postRenderOp.index,
-        postRenderOpFunc,
-        postRenderRegisterFunc);
+      _RenderBridgeFFIManager._kRenderRegisterHeader,
+      RenderFuncType.postRenderOp.index,
+      postRenderOpFunc,
+      postRenderRegisterFunc,
+    );
 
     // 添加layout回调
     var calculateNodeLayoutRegisterFunc = FfiManager().library.lookupFunction<
         AddCallFuncNativeType<CalculateNodeLayoutNativeType>,
-        AddCallFuncDartType<CalculateNodeLayoutNativeType>>(
-        FfiManager().registerFuncName);
+        AddCallFuncDartType<CalculateNodeLayoutNativeType>>(FfiManager().registerFuncName);
     var calculateNodeLayoutFunc =
-    Pointer.fromFunction<CalculateNodeLayoutNativeType>(calculateNodeLayout);
+        Pointer.fromFunction<CalculateNodeLayoutNativeType>(calculateNodeLayout);
     FfiManager().addRegisterFunc(
-        _RenderBridgeFFIManager._kRenderRegisterHeader,
-        RenderFuncType.calculateNodeLayout.index,
-        calculateNodeLayoutFunc,
-        calculateNodeLayoutRegisterFunc);
+      _RenderBridgeFFIManager._kRenderRegisterHeader,
+      RenderFuncType.calculateNodeLayout.index,
+      calculateNodeLayoutFunc,
+      calculateNodeLayoutRegisterFunc,
+    );
   }
 }
 
 // ------------------ native call dart方法 start ---------------------
 
-void postRenderOp(int engineId, int rootId, Pointer<Void> data, int len) {
+void postRenderOp(
+  int engineId,
+  int rootId,
+  Pointer<Void> data,
+  int len,
+) {
   var dataList = data.cast<Uint8>().asTypedList(len);
   if (dataList.isNotEmpty) {
-    var renderOpList = const StandardMessageCodec()
-        .decodeMessage(dataList.buffer.asByteData());
+    var renderOpList = const StandardMessageCodec().decodeMessage(dataList.buffer.asByteData());
     final bridge = VoltronRenderBridgeManager.bridgeMap[engineId];
     if (bridge != null) {
       bridge.postRenderOp(rootId, renderOpList);
