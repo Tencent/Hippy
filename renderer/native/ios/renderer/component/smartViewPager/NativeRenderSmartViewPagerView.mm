@@ -353,18 +353,6 @@ static NSString *const kListViewItem = @"ListViewItem";
     return renderObject.frame.size;
 }
 
-- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-    if ([cell isKindOfClass:[NativeRenderWaterfallViewCell class]]) {
-        NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
-        if (hpCell.cellView) {
-            NSInteger cellIndex = _itemIndexArray[indexPath.row].integerValue;
-            NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
-            [_cachedItems setObject:[hpCell.cellView componentTag] forKey:adjustIndexPath];
-            hpCell.cellView = nil;
-        }
-    }
-}
-
 - (void)collectionView:(UICollectionView *)collectionView
        willDisplayCell:(UICollectionViewCell *)cell
     forItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -373,15 +361,8 @@ static NSString *const kListViewItem = @"ListViewItem";
     NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
     NativeRenderObjectView *renderObject = [_dataSource cellForIndexPath:adjustIndexPath];
     [renderObject recusivelySetCreationTypeToInstant];
-    UIView *cellView = [self.renderImpl viewFromRenderViewTag:renderObject.componentTag onRootTag:renderObject.rootTag];
-    if (cellView) {
-        [_cachedItems removeObjectForKey:adjustIndexPath];
-    }
-    else {
-        cellView = [self.renderImpl createViewRecursivelyFromRenderObject:renderObject];
-    }
+    UIView *cellView = [self.renderImpl createViewRecursivelyFromRenderObject:renderObject];
     hpCell.cellView = cellView;
-    [_weakItemMap setObject:cellView forKey:[cellView componentTag]];
 }
 
 - (void)tableViewDidLayoutSubviews:(NativeRenderListTableView *)tableView {

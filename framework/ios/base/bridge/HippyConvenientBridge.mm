@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HippyBridgeConnector.h"
+#import "HippyConvenientBridge.h"
 
 #import "HippyBridge.h"
 #import "NativeRenderManager.h"
@@ -30,16 +30,13 @@
 #import "VFSUriLoader.h"
 #import "HippyFileHandler.h"
 #import "HippyMethodInterceptorProtocol.h"
+#import "HPLog.h"
 
 #include <memory>
 
 #include "dom/root_node.h"
 
-@implementation HippyBridgeConnectorReloadData
-
-@end
-
-@interface HippyBridgeConnector ()<HippyBridgeDelegate> {
+@interface HippyConvenientBridge ()<HippyBridgeDelegate> {
     HippyBridge *_bridge;
     std::shared_ptr<NativeRenderManager> _nativeRenderManager;
     std::shared_ptr<hippy::RootNode> _rootNode;
@@ -50,11 +47,11 @@
 
 @end
 
-@implementation HippyBridgeConnector
+@implementation HippyConvenientBridge
 
 @synthesize bridge = _bridge;
 
-- (instancetype)initWithDelegate:(id<HippyBridgeConnectorDelegate> _Nullable)delegate
+- (instancetype)initWithDelegate:(id<HippyConvenientBridgeDelegate> _Nullable)delegate
                   moduleProvider:(HippyBridgeModuleProviderBlock _Nullable)block
                  extraComponents:(NSArray<Class> * _Nullable)extraComponents
                    launchOptions:(NSDictionary * _Nullable)launchOptions
@@ -74,7 +71,7 @@
 }
 
 - (void)setUpNativeRenderManager {
-    auto engineResource = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:_engineKey];
+    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:_engineKey];
     auto domManager = engineResource->GetDomManager();
     //Create NativeRenderManager
     _nativeRenderManager = std::make_shared<NativeRenderManager>();
@@ -82,7 +79,7 @@
     _nativeRenderManager->SetDomManager(domManager);
     //set image provider for native render manager
     _nativeRenderManager->AddImageProviderClass([HPDefaultImageProvider class]);
-
+    _nativeRenderManager->RegisterExtraComponent(_extraComponents);
     _nativeRenderManager->SetVFSUriLoader([self URILoader]);
 }
 
@@ -130,13 +127,12 @@
     return _bridge.methodInterceptor;
 }
 
-- (void)loadBundleURLs:(NSArray<NSURL *> *)bundleURLs
-            completion:(HippyBridgeBundleLoadCompletion)completion {
-    [_bridge loadBundleURLs:bundleURLs completion:completion];
+- (void)loadBundleURL:(NSURL *)bundleURL completion:(HippyBridgeBundleLoadCompletion)completion {
+    [_bridge loadBundleURL:bundleURL completion:completion];
 }
 
 - (void)setRootView:(UIView *)rootView {
-    auto engineResource = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:_engineKey];
+    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:_engineKey];
     auto domManager = engineResource->GetDomManager();
     NSNumber *rootTag = [rootView componentTag];
     //Create a RootNode instance with a root tag
@@ -209,10 +205,7 @@
 
 - (void)reload:(HippyBridge *)bridge {
     if ([self.delegate respondsToSelector:@selector(reload:)]) {
-        HippyBridgeConnectorReloadData *data = [self.delegate reload:self];
-        [self loadBundleURLs:data.URLs completion:data.completion];
-        [self setRootView:data.rootView];
-        [self loadInstanceForRootViewTag:[data.rootView componentTag] props:data.props];
+        [self.delegate reload:self];
     }
 }
 

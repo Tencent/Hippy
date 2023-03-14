@@ -132,11 +132,11 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 /**
  *  Load js bundles from urls
  *
- *  @param bundleURLs Bundles urls
+ *  @param bundleURL bundles url
  *  @discussion HippyBridge makes sure bundles will be loaded in order.
  */
-- (void)loadBundleURLs:(NSArray<NSURL *> *)bundleURLs
-            completion:(void (^_Nullable)(NSURL * _Nullable, NSError * _Nullable))completion;
+- (void)loadBundleURL:(NSURL *)bundleURL
+           completion:(void (^_Nullable)(NSURL * _Nullable, NSError * _Nullable))completion;
 
 @property(nonatomic, assign)std::weak_ptr<VFSUriLoader> VFSUriLoader;
 

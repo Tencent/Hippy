@@ -219,6 +219,7 @@
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeTouchMove];
     if (listener) {
+        [self handlePressOutEvent];
         UITouch *touch = [touches anyObject];
         CGPoint point = [touch locationInView:[self NativeRenderRootView]];
         listener(point);
@@ -226,7 +227,6 @@
     else {
         [super touchesMoved:touches withEvent:event];
     }
-
 }
 
 - (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
@@ -234,6 +234,7 @@
         [_pressInTimer invalidate];
         _pressInTimer = nil;
     }
+    [self handlePressOutEvent];
     OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeTouchCancel];
     if (listener) {
         UITouch *touch = [touches anyObject];
@@ -276,6 +277,21 @@
     OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypePressOut];
     if (listener) {
         listener(CGPointZero);
+    }
+}
+
+- (void)resetAllEvents {
+    [_touchesEvents removeAllObjects];
+    if (_tapGestureRecognizer) {
+        [self removeGestureRecognizer:_tapGestureRecognizer];
+    }
+    if (_longGestureRecognizer) {
+        [self removeGestureRecognizer:_longGestureRecognizer];
+    }
+    if (_pressInEventEnabled || _pressInTimer) {
+        _pressInEventEnabled = NO;
+        [_pressInTimer invalidate];
+        _pressInTimer = nil;
     }
 }
 

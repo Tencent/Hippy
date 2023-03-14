@@ -21,15 +21,17 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class NativeRenderObjectView;
 
-@interface NativeRenderWaterfallViewDataSource : NSObject
+@interface NativeRenderWaterfallViewDataSource : NSObject<NSCopying>
 
 @property(nonatomic, readonly) BOOL containBannerView;
 @property(nonatomic, readonly) NativeRenderObjectView *bannerView;
+@property(nonatomic, readonly, copy) NSArray<NativeRenderObjectView *> *cellRenderObjectViews;
 @property(nonatomic, copy) NSString *itemViewName;
 
 - (void)setDataSource:(NSArray<NativeRenderObjectView *> *)dataSource containBannerView:(BOOL)containBannerView;
@@ -40,6 +42,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSIndexPath *)indexPathOfCell:(NativeRenderObjectView *)cell;
 - (NSIndexPath *)indexPathForFlatIndex:(NSInteger)index;
 - (NSInteger)flatIndexForIndexPath:(NSIndexPath *)indexPath;
+
+@end
+
+@interface NativeRenderWaterfallViewDataSource (ApplyDiff)
+
+- (void)applyDiff:(NativeRenderWaterfallViewDataSource *)another forWaterfallView:(UICollectionView *)view;
 
 @end
 

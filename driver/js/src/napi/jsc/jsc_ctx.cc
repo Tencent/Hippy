@@ -430,13 +430,6 @@ bool JSCCtx::GetValueString(const std::shared_ptr<CtxValue>& value,
     }
     *result = string_view(reinterpret_cast<const char16_t*>(JSStringGetCharactersPtr(str_ref)),
                           JSStringGetLength(str_ref));
-    FOOTSTONE_LOG(ERROR) << "string_view = " << *result << ", len = " << JSStringGetLength(str_ref);
-    
-    auto len = JSStringGetMaximumUTF8CStringSize(str_ref);
-    char buff[len];
-    JSStringGetUTF8CString(str_ref, buff, len);
-    std::string xxx(buff);
-    FOOTSTONE_LOG(ERROR) << "string_view111 = " << xxx << ", len = " << len;
     JSStringRelease(str_ref);
     return true;
   }
@@ -723,8 +716,11 @@ std::shared_ptr<CtxValue> JSCCtx::CreateObject(const std::unordered_map<std::sha
 std::shared_ptr<CtxValue> JSCCtx::CreateArray(
                                               size_t count,
                                               std::shared_ptr<CtxValue> array[]) {
-  if (count <= 0) {
+  if (count < 0) {
     return nullptr;
+  }
+  if (0 == count) {
+    return std::make_shared<JSCCtxValue>(context_, JSObjectMakeArray(context_, 0, nullptr, nullptr));
   }
   
   JSValueRef values[count];  // NOLINT(runtime/arrays)

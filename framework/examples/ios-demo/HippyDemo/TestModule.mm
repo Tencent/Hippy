@@ -27,7 +27,7 @@
 #import "HippyJSEnginesMapper.h"
 #import "NativeRenderRootView.h"
 #import "UIView+NativeRender.h"
-#import "HippyBridgeConnector.h"
+#import "HippyConvenientBridge.h"
 #import "HPLog.h"
 #import "HippyRedBox.h"
 #import "DemoConfigs.h"
@@ -36,8 +36,8 @@
 
 static NSString *const engineKey = @"Demo";
 
-@interface TestModule ()<HippyMethodInterceptorProtocol, HippyBridgeConnectorDelegate> {
-    HippyBridgeConnector *_connector;
+@interface TestModule ()<HippyMethodInterceptorProtocol, HippyConvenientBridgeDelegate> {
+    HippyConvenientBridge *_connector;
 }
 
 @end
@@ -85,78 +85,56 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     UIViewController *rootViewController = delegate.window.rootViewController;
     UIViewController *vc = [[UIViewController alloc] init];
     //JS Contexts holding the same engine key will share VM
-    NativeRenderRootView *rootView = [[NativeRenderRootView alloc] initWithFrame:rootViewController.view.bounds];
-    NSDictionary *launchOptions = nil;
-    NSArray<NSURL *> *bundleURLs = nil;
-    NSURL *sandboxDirectory = nil;
     NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
     NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
-    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": bundleUrl};
-    bundleURLs = @[bundleUrl];
-    sandboxDirectory = [bundleUrl URLByDeletingLastPathComponent];
-    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": bundleUrl};
-    _connector = [[HippyBridgeConnector alloc] initWithDelegate:self moduleProvider:nil extraComponents:nil launchOptions:launchOptions engineKey:engineKey];
+    NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": bundleUrl};
+    NSURL *sandboxDirectory = [bundleUrl URLByDeletingLastPathComponent];
+    _connector = [[HippyConvenientBridge alloc] initWithDelegate:self moduleProvider:nil extraComponents:nil launchOptions:launchOptions engineKey:engineKey];
     //set custom vfs loader
     _connector.sandboxDirectory = sandboxDirectory;
     _connector.contextName = @"Demo";
     _connector.moduleName = @"Demo";
     _connector.methodInterceptor = self;
-    rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    [_connector setRootView:rootView];
-    [_connector loadBundleURLs:bundleURLs completion:^(NSURL * _Nullable url, NSError * _Nullable error) {
-        NSLog(@"url %@ load finish", [url absoluteString]);
-    }];
-    [_connector loadInstanceForRootViewTag:[rootView componentTag] props:@{@"isSimulator": @(isSimulator)}];
-    rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    [vc.view addSubview:rootView];
     vc.modalPresentationStyle = UIModalPresentationFullScreen;
+    [self mountConnector:_connector onView:vc.view];
     [rootViewController presentViewController:vc animated:YES completion:NULL];
 }
 
-- (HippyBridgeConnectorReloadData *)reload:(HippyBridgeConnector *)connector {
+- (void)mountConnector:(HippyConvenientBridge *)connector onView:(UIView *)view {
+    BOOL isSimulator = NO;
+#if TARGET_IPHONE_SIMULATOR
+        isSimulator = YES;
+#endif
+
+    NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
+    NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
+
+    NativeRenderRootView *rootView = [[NativeRenderRootView alloc] initWithFrame:view.bounds];
+    rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    [_connector setRootView:rootView];
+    NSNumber *rootTag = [rootView componentTag];
+    [connector loadBundleURL:bundleUrl completion:^(NSURL * _Nullable, NSError * _Nullable) {
+        NSLog(@"url %@ load finish", bundleStr);
+        [connector loadInstanceForRootViewTag:rootTag props:@{@"isSimulator": @(isSimulator)}];
+    }];
+    [view addSubview:rootView];
+}
+
+- (void)reload:(HippyConvenientBridge *)connector {
     AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     UIViewController *rootViewController = delegate.window.rootViewController;
     UIViewController *vc = rootViewController.presentedViewController;
-    NativeRenderRootView *rootView = [[NativeRenderRootView alloc] initWithFrame:rootViewController.view.bounds];
-    NSDictionary *launchOptions = nil;
-    NSArray<NSURL *> *bundleURLs = nil;
-    NSURL *sandboxDirectory = nil;
-#ifdef HIPPYDEBUG
-    NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
-    NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
-    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": bundleUrl};
-    bundleURLs = @[bundleUrl];
-    sandboxDirectory = [bundleUrl URLByDeletingLastPathComponent];
-    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": bundleUrl};
-#else
-    NSString *commonBundlePath = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:@"res"];
-    NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res"];
-    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO)};
-    bundleURLs = @[[NSURL fileURLWithPath:commonBundlePath], [NSURL fileURLWithPath:businessBundlePath]];
-    sandboxDirectory = [[NSURL fileURLWithPath:businessBundlePath] URLByDeletingLastPathComponent];
-#endif
-    BOOL isSimulator = NO;
-    #if TARGET_IPHONE_SIMULATOR
-        isSimulator = YES;
-    #endif
-    NSDictionary *props = @{@"isSimulator": @(isSimulator)};
-    HippyBridgeConnectorReloadData *data = [[HippyBridgeConnectorReloadData alloc] init];
-    data.rootView = rootView;
-    data.props = props;
-    data.URLs = bundleURLs;
-    rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    [vc.view addSubview:rootView];
-    return data;
+    [self mountConnector:connector onView:vc.view];
 }
 
-- (void)removeRootView:(NSNumber *)rootTag connector:(HippyBridgeConnector *)connector {
+- (void)removeRootView:(NSNumber *)rootTag connector:(HippyConvenientBridge *)connector {
     AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     UIViewController *rootViewController = delegate.window.rootViewController;
     UIViewController *vc = rootViewController.presentedViewController;
     [[[vc.view subviews] firstObject] removeFromSuperview];
 }
 
-- (BOOL)shouldStartInspector:(HippyBridgeConnector *)connector {
+- (BOOL)shouldStartInspector:(HippyConvenientBridge *)connector {
     return connector.bridge.debugMode;
 }
 

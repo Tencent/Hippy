@@ -27,14 +27,14 @@
 #import "HPDefaultImageProvider.h"
 #import "HPLog.h"
 #import "ViewController.h"
-#import "HippyBridgeConnector.h"
+#import "HippyConvenientBridge.h"
 #import "NativeRenderRootView.h"
 #import "UIView+NativeRender.h"
 
 static NSString *const engineKey = @"Demo";
 
-@interface ViewController ()<HippyMethodInterceptorProtocol, HippyBridgeConnectorDelegate> {
-    HippyBridgeConnector *_connector;
+@interface ViewController ()<HippyMethodInterceptorProtocol, HippyConvenientBridgeDelegate> {
+    HippyConvenientBridge *_connector;
 }
 
 @end
@@ -64,81 +64,72 @@ static NSString *const engineKey = @"Demo";
 }
 
 - (void)runCommonDemo {
-    BOOL isSimulator = NO;
-    #if TARGET_IPHONE_SIMULATOR
-        isSimulator = YES;
-    #endif
     //JS Contexts holding the same engine key will share VM
-    NativeRenderRootView *rootView = [[NativeRenderRootView alloc] initWithFrame:self.view.bounds];
     NSDictionary *launchOptions = nil;
-    NSArray<NSURL *> *bundleURLs = nil;
     NSURL *sandboxDirectory = nil;
 #ifdef HIPPYDEBUG
     NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
     NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
-    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": bundleUrl};
-    bundleURLs = @[bundleUrl];
+    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES)};
     sandboxDirectory = [bundleUrl URLByDeletingLastPathComponent];
-    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": bundleUrl};
 #else
-    NSString *commonBundlePath = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:@"res"];
-    NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res"];
     launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO)};
-    bundleURLs = @[[NSURL fileURLWithPath:commonBundlePath], [NSURL fileURLWithPath:businessBundlePath]];
+    NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res"];
     sandboxDirectory = [[NSURL fileURLWithPath:businessBundlePath] URLByDeletingLastPathComponent];
 #endif
-    _connector = [[HippyBridgeConnector alloc] initWithDelegate:self moduleProvider:nil extraComponents:nil launchOptions:launchOptions engineKey:engineKey];
+    _connector = [[HippyConvenientBridge alloc] initWithDelegate:self moduleProvider:nil extraComponents:nil launchOptions:launchOptions engineKey:engineKey];
     //set custom vfs loader
     _connector.sandboxDirectory = sandboxDirectory;
-    _connector.contextName = @"Demo";
+    _connector.contextName = @"Hippy:Demo";
     _connector.moduleName = @"Demo";
     _connector.methodInterceptor = self;
-    rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    [_connector setRootView:rootView];
-    [_connector loadBundleURLs:bundleURLs completion:^(NSURL * _Nullable url, NSError * _Nullable error) {
-        NSLog(@"url %@ load finish", [url absoluteString]);
-    }];
-    [_connector loadInstanceForRootViewTag:[rootView componentTag] props:@{@"isSimulator": @(isSimulator)}];
-    [self.view addSubview:rootView];
+    [self mountConnector:_connector];
 }
 
-- (HippyBridgeConnectorReloadData *)reload:(HippyBridgeConnector *)connector {
-    NativeRenderRootView *rootView = [[NativeRenderRootView alloc] initWithFrame:self.view.bounds];
-    NSDictionary *launchOptions = nil;
-    NSArray<NSURL *> *bundleURLs = nil;
-    NSURL *sandboxDirectory = nil;
+- (void)mountConnector:(HippyConvenientBridge *)connector {
+    BOOL isSimulator = NO;
+#if TARGET_IPHONE_SIMULATOR
+        isSimulator = YES;
+#endif
+
 #ifdef HIPPYDEBUG
     NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
     NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
-    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": bundleUrl};
-    bundleURLs = @[bundleUrl];
-    sandboxDirectory = [bundleUrl URLByDeletingLastPathComponent];
-    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": bundleUrl};
 #else
     NSString *commonBundlePath = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:@"res"];
     NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res"];
-    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO)};
-    bundleURLs = @[[NSURL fileURLWithPath:commonBundlePath], [NSURL fileURLWithPath:businessBundlePath]];
-    sandboxDirectory = [[NSURL fileURLWithPath:businessBundlePath] URLByDeletingLastPathComponent];
 #endif
-    BOOL isSimulator = NO;
-    #if TARGET_IPHONE_SIMULATOR
-        isSimulator = YES;
-    #endif
-    NSDictionary *props = @{@"isSimulator": @(isSimulator)};
-    HippyBridgeConnectorReloadData *data = [[HippyBridgeConnectorReloadData alloc] init];
-    data.rootView = rootView;
-    data.props = props;
-    data.URLs = bundleURLs;
+
+    NativeRenderRootView *rootView = [[NativeRenderRootView alloc] initWithFrame:self.view.bounds];
+    rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    [_connector setRootView:rootView];
+    NSNumber *rootTag = [rootView componentTag];
+#ifdef HIPPYDEBUG
+    [connector loadBundleURL:bundleUrl completion:^(NSURL * _Nullable, NSError * _Nullable) {
+        NSLog(@"url %@ load finish", bundleStr);
+        [connector loadInstanceForRootViewTag:rootTag props:@{@"isSimulator": @(isSimulator)}];
+    }];
+#else
+    [connector loadBundleURL:[NSURL fileURLWithPath:commonBundlePath] completion:^(NSURL * _Nullable, NSError * _Nullable) {
+        NSLog(@"url %@ load finish", commonBundlePath);
+    }];
+    [connector loadBundleURL:[NSURL fileURLWithPath:businessBundlePath] completion:^(NSURL * _Nullable, NSError * _Nullable) {
+        NSLog(@"url %@ load finish", businessBundlePath);
+        [connector loadInstanceForRootViewTag:rootTag props:@{@"isSimulator": @(isSimulator)}];
+    }];
+#endif
     [self.view addSubview:rootView];
-    return data;
 }
 
-- (void)removeRootView:(NSNumber *)rootTag connector:(HippyBridgeConnector *)connector {
+- (void)reload:(HippyConvenientBridge *)connector {
+    [self mountConnector:connector];
+}
+
+- (void)removeRootView:(NSNumber *)rootTag connector:(HippyConvenientBridge *)connector {
     [[[self.view subviews] firstObject] removeFromSuperview];
 }
 
-- (BOOL)shouldStartInspector:(HippyBridgeConnector *)connector {
+- (BOOL)shouldStartInspector:(HippyConvenientBridge *)connector {
     return connector.bridge.debugMode;
 }
 

@@ -111,7 +111,6 @@ static NSString *StringFromJSStringRef(JSStringRef stringRef) {
         void *buffer = malloc(size);
         memset(buffer, 0, size);
         JSStringGetUTF8CString(stringRef, buffer, size);
-        JSStringRelease(stringRef);
         NSString *string = [NSString stringWithUTF8String:buffer];
         free(buffer);
         return string;
@@ -132,9 +131,11 @@ id ObjectFromJSValueRef(JSGlobalContextRef const context, JSValueRef const value
         else if (JSValueIsString(context, value)) {
             JSStringRef stringRef = JSValueToStringCopy(context, value, exception);
             if (*exception) {
+                JSStringRelease(stringRef);
                 return nil;
             }
             object = StringFromJSStringRef(stringRef);
+            JSStringRelease(stringRef);
         }
         else if (JSValueIsNumber(context, value)) {
             double number = JSValueToNumber(context, value, exception);

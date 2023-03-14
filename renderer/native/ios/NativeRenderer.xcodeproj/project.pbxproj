@@ -91,6 +91,7 @@
 		F44E1C9E2924902C0091BCA4 /* NativeRenderObjectRootView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1C472924902C0091BCA4 /* NativeRenderObjectRootView.mm */; };
 		F44E1C9F2924902C0091BCA4 /* NativeRenderGradientObject.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1C4A2924902C0091BCA4 /* NativeRenderGradientObject.m */; };
 		F44E1CA02924902C0091BCA4 /* HPConvert+NativeRender.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1C4B2924902C0091BCA4 /* HPConvert+NativeRender.m */; };
+		F46BC01A29C312B2000154E5 /* NativeRenderReusePool.m in Sources */ = {isa = PBXBuildFile; fileRef = F46BC01929C312B2000154E5 /* NativeRenderReusePool.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -280,6 +281,8 @@
 		F44E1C4B2924902C0091BCA4 /* HPConvert+NativeRender.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "HPConvert+NativeRender.m"; sourceTree = "<group>"; };
 		F44E1C4C2924902C0091BCA4 /* NativeRenderGradientObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderGradientObject.h; sourceTree = "<group>"; };
 		F44E1C4D2924902C0091BCA4 /* HPConvert+NativeRender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "HPConvert+NativeRender.h"; sourceTree = "<group>"; };
+		F46BC01829C312B2000154E5 /* NativeRenderReusePool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NativeRenderReusePool.h; path = renderer/NativeRenderReusePool.h; sourceTree = SOURCE_ROOT; };
+		F46BC01929C312B2000154E5 /* NativeRenderReusePool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NativeRenderReusePool.m; path = renderer/NativeRenderReusePool.m; sourceTree = SOURCE_ROOT; };
 		F4921416292DFC1700B0845C /* NativeRenderDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeRenderDefines.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -458,6 +461,8 @@
 		F44E1BCF2924902C0091BCA4 /* waterfalllist */ = {
 			isa = PBXGroup;
 			children = (
+				F46BC01829C312B2000154E5 /* NativeRenderReusePool.h */,
+				F46BC01929C312B2000154E5 /* NativeRenderReusePool.m */,
 				F44E1BD02924902C0091BCA4 /* NativeRenderWaterfallView.mm */,
 				F44E1BD12924902C0091BCA4 /* NativeRenderWaterfallViewCell.h */,
 				F44E1BD22924902C0091BCA4 /* NativeRenderWaterfallViewDataSource.h */,
@@ -737,6 +742,7 @@
 				F44E1C8B2924902C0091BCA4 /* NativeRenderNavigatorViewManager.mm in Sources */,
 				F44E1C632924902C0091BCA4 /* NativeRenderObjectTextView.mm in Sources */,
 				F44E1CA02924902C0091BCA4 /* HPConvert+NativeRender.m in Sources */,
+				F46BC01A29C312B2000154E5 /* NativeRenderReusePool.m in Sources */,
 				F44E1C902924902C0091BCA4 /* NativeRenderFooterRefreshManager.mm in Sources */,
 				F44E1C862924902C0091BCA4 /* NativeRenderViewEventType.mm in Sources */,
 				F44E1C672924902C0091BCA4 /* NativeRenderHeaderRefreshManager.mm in Sources */,

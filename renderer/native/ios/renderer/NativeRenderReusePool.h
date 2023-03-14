@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * Hippy available.
+ * NativeRender available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -21,16 +21,19 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface HippyInstanceLoadBlock : NSObject
+@interface NativeRenderReusePool : NSObject
 
-@property(nonatomic, copy)dispatch_block_t loadedBlock;
-@property(nonatomic, assign)NSUInteger index;
-@property(nonatomic, assign, getter=isLoaded)BOOL loaded;
+- (void)addView:(__kindof UIView *)view forKey:(NSString *)key;
 
-- (instancetype)initWithBlock:(dispatch_block_t)block index:(NSUInteger)index;
+- (void)dismemberNativeRenderViewTree:(__kindof UIView *)view;
+
+- (__kindof UIView *)popViewForKey:(NSString *)key;
+
+- (void)clearCache;
 
 @end
 

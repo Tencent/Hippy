@@ -69,6 +69,10 @@ using CtxPtr = std::shared_ptr<hippy::napi::Ctx>;
 
 @end
 
+@interface NSError (CtxValue)
+
+@end
+
 HP_EXTERN id ObjectFromCtxValue(CtxPtr context, CtxValuePtr value);
 
 NS_ASSUME_NONNULL_END
