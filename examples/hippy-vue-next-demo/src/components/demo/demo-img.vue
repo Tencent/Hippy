@@ -48,12 +48,16 @@
         :placeholder="defaultImage"
         src="https://user-images.githubusercontent.com/12878546/148736255-7193f89e-9caf-49c0-86b0-548209506bd6.gif"
         class="image cover"
+        @load="onLoad"
       >
+      <div class="img-result">
+        <p>Load Result: {{ gifLoadResult }}</p>
+      </div>
     </div>
   </div>
 </template>
 <script lang="ts">
-import { defineComponent } from '@vue/runtime-core';
+import { defineComponent, ref } from '@vue/runtime-core';
 
 import defaultImage from '../../assets/defaultSource.jpg';
 import hippyLogoImage from '../../assets/hippyLogoWhite.png';
@@ -77,13 +81,26 @@ export default defineComponent({
       evt.stopPropagation();
       console.log(evt);
     };
+    const onLoad = (evt: Event) => {
+      console.log('onLoad', evt);
+      const { width, height, url } = evt;
+      gifLoadResult.value = {
+        width,
+        height,
+        url,
+      };
+    };
+
+    const gifLoadResult = ref({});
 
     return {
       defaultImage,
       hippyLogoImage,
+      gifLoadResult,
       onTouchEnd,
       onTouchMove,
       onTouchStart,
+      onLoad,
     };
   },
 });
@@ -104,6 +121,16 @@ export default defineComponent({
   width: 300px;
   height: 180px;
   margin: 30px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #40b883;
+}
+
+#demo-img .img-result {
+  width: 300px;
+  height: 150px;
+  margin-top: -30px;
+  margin-horizontal: 30px;
   border-width: 1px;
   border-style: solid;
   border-color: #40b883;
