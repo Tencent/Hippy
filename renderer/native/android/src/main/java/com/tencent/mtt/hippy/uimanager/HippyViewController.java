@@ -426,6 +426,10 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         // Stub method.
     }
 
+    public boolean isRecyclable() {
+        return true;
+    }
+
     protected void deleteChild(ViewGroup parentView, View childView) {
         parentView.removeView(childView);
     }
