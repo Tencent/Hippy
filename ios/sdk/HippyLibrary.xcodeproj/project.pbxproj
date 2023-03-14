@@ -1229,17 +1229,17 @@
 			isa = PBXGroup;
 			children = (
 				F4C929B5291C9B4E0078351C /* HippyBaseTextInput.h */,
-				F4C929B6291C9B4E0078351C /* HippyTextView.mm */,
-				F4C929B7291C9B4E0078351C /* HippyTextViewManager.mm */,
-				F4C929B8291C9B4E0078351C /* HippyTextField.h */,
-				F4C929B9291C9B4E0078351C /* HippyShadowTextView.mm */,
-				F4C929BA291C9B4E0078351C /* HippyTextSelection.h */,
-				F4C929BB291C9B4E0078351C /* HippyTextViewManager.h */,
 				F4C929BC291C9B4E0078351C /* HippyBaseTextInput.m */,
-				F4C929BD291C9B4E0078351C /* HippyShadowTextView.h */,
+				F4C929BB291C9B4E0078351C /* HippyTextViewManager.h */,
+				F4C929B7291C9B4E0078351C /* HippyTextViewManager.mm */,
 				F4C929BE291C9B4E0078351C /* HippyTextView.h */,
-				F4C929BF291C9B4E0078351C /* HippyTextSelection.m */,
+				F4C929B6291C9B4E0078351C /* HippyTextView.mm */,
+				F4C929BD291C9B4E0078351C /* HippyShadowTextView.h */,
+				F4C929B9291C9B4E0078351C /* HippyShadowTextView.mm */,
+				F4C929B8291C9B4E0078351C /* HippyTextField.h */,
 				F4C929C0291C9B4E0078351C /* HippyTextField.m */,
+				F4C929BA291C9B4E0078351C /* HippyTextSelection.h */,
+				F4C929BF291C9B4E0078351C /* HippyTextSelection.m */,
 			);
 			path = textinput;
 			sourceTree = "<group>";

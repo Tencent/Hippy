@@ -289,7 +289,7 @@ Please refer to the Android development documentation for details.
 | focus | Called when the text box is focused. | `Function` | `Android、iOS` |
 | change          | Called when the contents of the text box change. The changed text is passed as a parameter. | `Function`                                                   | `Android、iOS、Web-Renderer`     |
 | keyboardWillShow    | Called when the input keyboard pops-up, the return value contains the keyboard height `keyboardHeight`, style such as `{keyboardHeight: 260 }`| `Function`                                                   | `Android、iOS`     |
-| keyboardWillHide     | Called when hiding input keyboard.| `Function`                                                   | `Android`     |
+| keyboardWillHide     | Called when hiding input keyboard. `Supported from version 2.16.0 on iOS`| `Function`                                                   | `Android、iOS`     |
 | endEditing          | Called when the text input is complete.    | `Function`                                                   | `Android、iOS、Web-Renderer`     |
 | layout              |  Called when an element is mounted or the layout changes. The argument is: `nativeEvent: { layout: { x, y, width, height } }`, where `x` and `y` are coordinates relative to the parent element | `Function`                                                   | `Android、iOS、Web-Renderer`     |
 | selectionChange     | Called when the range of the input box selection text is changed.The style of the return parameters such as `{nativeEvent: { selection: { start, end } } }` | `Function`                                                   | `Android、iOS、Web-Renderer`     |

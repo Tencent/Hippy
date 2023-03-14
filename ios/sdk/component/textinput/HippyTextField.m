@@ -125,6 +125,13 @@
     }
 }
 
+- (void)keyboardWillHide:(NSNotification *)aNotification {
+    [super keyboardWillHide:aNotification];
+    if (_onKeyboardWillHide) {
+        _onKeyboardWillHide(@{});
+    }
+}
+
 -(void)keyboardHeightChanged:(NSNotification *)aNotification {
     [super keyboardHeightChanged:aNotification];
     NSDictionary *userInfo = [aNotification userInfo];
