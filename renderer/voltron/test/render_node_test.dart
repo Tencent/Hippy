@@ -37,7 +37,7 @@ void main() {
     renderContext = getRenderContext();
     renderOpRunner = RenderOperatorRunner();
     renderOpRunner.bindRenderContext(renderContext);
-    rootWidgetViewModel = RootWidgetViewModel();
+    rootWidgetViewModel = RootWidgetViewModel(1);
     renderContext.rootViewModelMap[rootWidgetViewModel.id] = rootWidgetViewModel;
     renderOpUtil = RenderOpUtil(
       rootWidgetViewModel: rootWidgetViewModel,

@@ -21,6 +21,8 @@
 import '../widget.dart';
 
 mixin RendererLoader {
+  late int engineId;
+
   bool back(BackPressHandler handler);
 
   void load(RootWidgetViewModel viewModel);

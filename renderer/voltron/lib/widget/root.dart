@@ -37,7 +37,7 @@ class RootWidgetViewModel extends ChangeNotifier {
 
   OnSizeChangedListener? _sizeChangListener;
 
-  final int _instanceId = kRootViewTagIncrement + sIdCounter++;
+  int _instanceId = 0;
 
   OnResumeAndPauseListener? _onResumeAndPauseListener;
 
@@ -73,7 +73,8 @@ class RootWidgetViewModel extends ChangeNotifier {
 
   OnLoadCompleteListener? onLoadCompleteListener;
 
-  RootWidgetViewModel() {
+  RootWidgetViewModel(int engineId) {
+    _instanceId = engineId * 10000 + (++sIdCounter);
     viewExecutor = () {
       if (viewExecutorList.isNotEmpty) {
         for (var element in viewExecutorList) {
@@ -173,7 +174,8 @@ class RootWidgetViewModel extends ChangeNotifier {
   void updateRootSize() {
     var rootSize = Size.zero;
     rootSize = getSizeFromKey(rootKey);
-    _context?.renderBridgeManager.updateNodeSize(id, width: rootSize.width, height: rootSize.height);
+    _context?.renderBridgeManager
+        .updateNodeSize(id, width: rootSize.width, height: rootSize.height);
   }
 
   void onGlobalLayout() {
@@ -250,14 +252,14 @@ class VoltronWidget extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return _VoltronWidgetState();
+    return _VoltronWidgetState(loader.engineId);
   }
 }
 
 // ignore: prefer_mixin
 class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateMixin, WidgetsBindingObserver {
   Size? oldSize;
-  final RootWidgetViewModel viewModel = RootWidgetViewModel();
+  late RootWidgetViewModel viewModel;
 
   Orientation? _orientation;
   double? _curHeight;
@@ -265,7 +267,9 @@ class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateM
   bool hasDispose = false;
   Offset? debugButtonOffset;
 
-  _VoltronWidgetState();
+  _VoltronWidgetState(int engineId) {
+    viewModel = RootWidgetViewModel(engineId);
+  }
 
   @override
   void initState() {
