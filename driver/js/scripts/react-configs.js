@@ -141,6 +141,37 @@ const builds = {
       }
     },
   },
+  '@hippy/react-web-cjs': {
+    entry: resolvePackage('hippy-react-web', 'src/index.ts'),
+    format: 'es',
+    banner: banner('@hippy/react-web', hippyReactWebPackage.version),
+    plugins: [
+      babel({ babelHelpers: 'bundled' }),
+    ],
+    output: {
+      dir: './packages/hippy-react-web/dist/cjs',
+      filename: 'index.js',
+      format: 'cjs',
+      plugins: [
+        getBabelOutputPlugin({ presets: ['@babel/preset-env'] }),
+      ],
+    },
+    external(id) {
+      return !![
+        'react',
+        'react-dom',
+        'swiper',
+        '@hippy/rmc-list-view',
+        '@hippy/rmc-pull-to-refresh',
+      ].find(ext => id.startsWith(ext));
+    },
+    onwarn(warning) {
+      //  ignore warning from package 'rmc-pull-to-refresh'
+      if (warning.code === 'THIS_IS_UNDEFINED') {
+        return;
+      }
+    },
+  },
 };
 
 function genConfig(name) {
@@ -166,6 +197,12 @@ function genConfig(name) {
             declarationMap: false,
           },
           exclude: ['**/__tests__/*.test.*'],
+          include: [
+            'packages/hippy-react*/src',
+            'packages/global.d.ts',
+            'node_modules/@types/web/index.d.ts',
+            'node_modules/@types/node/index.d.ts',
+          ],
         },
       }),
     ].concat(opts.plugins || []),

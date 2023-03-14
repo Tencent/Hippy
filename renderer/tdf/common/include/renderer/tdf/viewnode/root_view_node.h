@@ -56,6 +56,9 @@ class RootViewNode : public ViewNode {
 
   std::shared_ptr<tdfcore::Shell> GetShell() { return shell_.lock(); }
 
+ protected:
+  bool isRoot() override { return true; }
+
  private:
   void AttachView(std::shared_ptr<tdfcore::View> view);
   void UpdateDomeRootNodeSize(tdfcore::ViewportMetrics viewport_metrics);

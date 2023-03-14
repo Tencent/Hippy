@@ -50,9 +50,8 @@ using tdfcore::OneSequenceGestureRecognizer;
 using TouchClosure = std::function<void(const TouchDetails &details)>;
 
 class TouchRecognizer : public OneSequenceGestureRecognizer {
+  TDF_REFF_CLASS_META(TouchRecognizer)
  public:
-  tdfcore::GestureType GetGestureType() const override { return tdfcore::kNone; }
-
   void SetTouchStart(const TouchClosure &on_touch_start) { on_touch_start_ = on_touch_start; }
   void SetTouchMove(const TouchClosure &on_touch_move) { on_touch_move_ = on_touch_move; }
   void SetTouchEnd(const TouchClosure &on_touch_end) { on_touch_end_ = on_touch_end; }
@@ -62,12 +61,12 @@ class TouchRecognizer : public OneSequenceGestureRecognizer {
       uint32_t id, const char *name, const TouchDetails &details);
 
  protected:
-  void HandleEventDown(const std::shared_ptr<tdfcore::PointerData>& data) override;
-  void HandleEventMove(const std::shared_ptr<tdfcore::PointerData>& data) override;
-  void HandleEventUp(const std::shared_ptr<tdfcore::PointerData>& data) override;
-  void HandleEventCancel(const std::shared_ptr<tdfcore::PointerData>& data) override;
+  void HandlePointerDown(const tdfcore::PointerData &data) override;
+  void HandlePointerMove(const tdfcore::PointerData &data) override;
+  void HandlePointerUp(const tdfcore::PointerData &data) override;
+  void HandlePointerCancel(const tdfcore::PointerData &data) override;
 
-  bool CanAddPointer(const std::shared_ptr<tdfcore::PointerData> &data) const override;
+  bool CanAddPointer(const tdfcore::PointerData &data) const override;
   void AcceptGesture(tdfcore::PointerID pointer) override;
   void RejectGesture(tdfcore::PointerID pointer) override;
 
@@ -99,3 +98,5 @@ class TouchRecognizer : public OneSequenceGestureRecognizer {
 }  // namespace tdf
 }  // namespace render
 }  // namespace hippy
+TDF_REFL_DEFINE(hippy::render::tdf::gesture::TouchRecognizer, bases<tdfcore::OneSequenceGestureRecognizer>)
+TDF_REFL_END(hippy::render::tdf::gesture::TouchRecognizer)

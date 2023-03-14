@@ -39,26 +39,31 @@ inline namespace render {
 inline namespace tdf {
 
 using tdfcore::CupertinoTextSelectionControl;
-using tdfcore::TextAlign;
+using tdfcore::HorizontalAlign;
+using tdfcore::VerticalAlign;
 using tdfcore::ViewContext;
 using tdfcore::ViewportEvent;
 using unicode_string_view = footstone::stringview::string_view;
 using footstone::stringview::StringViewUtils;
 
 TextInputNode::TextInputNode(const RenderInfo info) : ViewNode(info), text_selection_(-1, -1) {
-  InitCallBackMap();
-  InitCallback();
 }
 
 TextInputNode::~TextInputNode() { UnregisterViewportListener(); }
 
 void TextInputNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
+  if (!callback_inited_) {
+    callback_inited_ = true;
+    InitCallBackMap();
+    InitCallback();
+  }
+
   auto text_input_view = text_input_view_.lock();
   if (!text_input_view) {
     return;
   }
 
-  auto text_style = text_input_view->GetAttributes().text_style;
+  auto text_style = text_input_view->GetAttributes().paragraph_style.default_text_style;
   auto attributes = text_input_view->GetAttributes();
 
   SetValue(dom_style, text_style);
@@ -79,8 +84,8 @@ void TextInputNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   SetPlaceHolder(dom_style);
   SetPlaceHolderTextColor(dom_style);
   SetKeyBoardAction(dom_style, text_input_view);
-  SetTextAlign(dom_style, text_input_view);
-  SetTextAlignVertical(dom_style, text_style);
+  SetHorizontalAlign(dom_style, text_input_view);
+  SetVerticalAlign(dom_style, text_input_view);
   SetTextShadowColor(dom_style);
   SetTextShadowOffset(dom_style);
   SetTextShadowRadius(dom_style);
@@ -107,6 +112,7 @@ std::shared_ptr<View> TextInputNode::CreateView() {
   edit_controller_ = TDF_MAKE_SHARED(TextEditingController);
   selection_control_ = TDF_MAKE_SHARED(CupertinoTextSelectionControl);
   auto text_input_view = TDF_MAKE_SHARED(TextInputView, edit_controller_, selection_control_);
+  text_input_view->SetVerticalAlign(tdfcore::VerticalAlign::kCenter);
   edit_controller_->AddListener([&, text_input_view](const auto& v) { DidChangeTextEditingValue(text_input_view); });
   text_input_view_ = text_input_view;
   text_input_view->GetViewContext()->GetShell()->GetEventCenter()->AddListener(
@@ -124,8 +130,11 @@ std::shared_ptr<View> TextInputNode::CreateView() {
 void TextInputNode::SendKeyActionEvent(const std::shared_ptr<tdfcore::Event>& event) {
   auto keyboard_action_event = std::static_pointer_cast<tdfcore::KeyboardActionEvent>(event);
   auto key_action = keyboard_action_event->GetKeyboardAction();
+  if (key_action != KeyboardAction::kNewLine) {
+    return;
+  }
   std::string action_name;
-  switch (key_action) {
+  switch (keyboard_action_) {
     case KeyboardAction::kDone:
       action_name = kKeyboardAction_Done;
       break;
@@ -154,6 +163,12 @@ void TextInputNode::SendKeyActionEvent(const std::shared_ptr<tdfcore::Event>& ev
   DomValueObjectType param;
   param[kKeyActionName] = action_name;
   SendUIDomEvent(kOnEditorAction, std::make_shared<footstone::HippyValue>(param));
+
+  DomValueObjectType param2;
+  auto u16text = GetView<tdfcore::TextInputView>()->GetTextEditingValue().GetText();
+  auto u8text = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t >{}.to_bytes(u16text);
+  param2[kText] = u8text;
+  SendUIDomEvent(kOnEndEditing, std::make_shared<footstone::HippyValue>(param2));
 }
 
 void TextInputNode::DidChangeTextEditingValue(std::shared_ptr<TextInputView> text_input_view) {
@@ -433,8 +448,13 @@ void TextInputNode::SetMultiline(const DomStyleMap& dom_style, TextInputView::At
 
 void TextInputNode::SetNumberOfLines(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
   if (auto iter = dom_style.find(textinput::kNumberOfLines); iter != dom_style.end()) {
-    auto number_of_lines = static_cast<int64_t>(iter->second->ToDoubleChecked());
-    text_input_view->SetMaxLines(number_of_lines == 0 ? 1 : static_cast<size_t>(number_of_lines));
+    if (iter->second->IsString()) {
+      auto number_of_lines = atoi(iter->second->ToStringChecked().c_str());
+      text_input_view->SetMaxLines(number_of_lines == 0 ? 1 : static_cast<size_t>(number_of_lines));
+    } else if (iter->second->IsNumber()) {
+      auto number_of_lines = static_cast<int64_t>(iter->second->ToDoubleChecked());
+      text_input_view->SetMaxLines(number_of_lines == 0 ? 1 : static_cast<size_t>(number_of_lines));
+    }
   }
 }
 
@@ -494,26 +514,26 @@ void TextInputNode::SetKeyBoardAction(const DomStyleMap& dom_style, std::shared_
   if (auto iter = dom_style.find(textinput::kReturnKeyType); iter != dom_style.end()) {
     auto action_name = iter->second->ToStringChecked();
     if (action_name == kKeyboardAction_Done) {
-      text_input_view->SetKeyboardAction(KeyboardAction::kDone);
+      keyboard_action_ = KeyboardAction::kDone;
     } else if (action_name == kKeyboardAction_Go) {
-      text_input_view->SetKeyboardAction(KeyboardAction::kGo);
+      keyboard_action_ = KeyboardAction::kGo;
     } else if (action_name == kKeyboardAction_Next) {
-      text_input_view->SetKeyboardAction(KeyboardAction::kNext);
+      keyboard_action_ = KeyboardAction::kNext;
     } else if (action_name == kKeyboardAction_Search) {
-      text_input_view->SetKeyboardAction(KeyboardAction::kSearch);
+      keyboard_action_ = KeyboardAction::kSearch;
     } else if (action_name == kKeyboardAction_Send) {
-      text_input_view->SetKeyboardAction(KeyboardAction::kSend);
+      keyboard_action_ = KeyboardAction::kSend;
     } else if (action_name == kKeyboardAction_None) {
-      text_input_view->SetKeyboardAction(KeyboardAction::kNone);
+      keyboard_action_ = KeyboardAction::kNone;
     } else if (action_name == kKeyboardAction_Previous) {
-      text_input_view->SetKeyboardAction(KeyboardAction::kPrevious);
+      keyboard_action_ = KeyboardAction::kPrevious;
     } else {
       FOOTSTONE_LOG(INFO) << "TextInputNode::SetKeyBoardAction action_name = " << action_name;
     }
   }
 }
 
-void TextInputNode::SetTextAlign(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
+void TextInputNode::SetHorizontalAlign(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
   if (auto iter = dom_style.find(textinput::kTextAlign); iter != dom_style.end()) {
     std::string text_align;
     auto result = iter->second->ToString(text_align);
@@ -522,13 +542,33 @@ void TextInputNode::SetTextAlign(const DomStyleMap& dom_style, std::shared_ptr<T
       return;
     }
     if (text_align == kAlignAuto || text_align == kAlignLeft) {
-      text_input_view->SetTextAlign(TextAlign::kLeft);
+      text_input_view->SetHorizontalAlign(HorizontalAlign::kLeft);
     } else if (text_align == kAlignRight) {
-      text_input_view->SetTextAlign(TextAlign::kRight);
+      text_input_view->SetHorizontalAlign(HorizontalAlign::kRight);
     } else if (text_align == kAlignCenter) {
-      text_input_view->SetTextAlign(TextAlign::kCenter);
+      text_input_view->SetHorizontalAlign(HorizontalAlign::kCenter);
     } else if (text_align == kAlignJustify) {
       FOOTSTONE_UNREACHABLE();
+    } else {
+      FOOTSTONE_UNREACHABLE();
+    }
+  }
+}
+
+void TextInputNode::SetVerticalAlign(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
+  if (auto iter = dom_style.find(textinput::kTextAlignVertical); iter != dom_style.end()) {
+    std::string text_align;
+    auto result = iter->second->ToString(text_align);
+    FOOTSTONE_CHECK(result);
+    if (!result) {
+      return;
+    }
+    if (text_align == kAlignAuto || text_align == kAlignCenter) {
+      text_input_view->SetVerticalAlign(VerticalAlign::kCenter);
+    } else if (text_align == kAlignTop) {
+      text_input_view->SetVerticalAlign(VerticalAlign::kTop);
+    } else if (text_align == kAlignBottom) {
+      text_input_view->SetVerticalAlign(VerticalAlign::kBottom);
     } else {
       FOOTSTONE_UNREACHABLE();
     }
@@ -552,10 +592,6 @@ void TextInputNode::SetTextShadowRadius(const DomStyleMap& dom_style) {
   if (auto iter = dom_style.find(text::kTextShadowRadius); iter != dom_style.end()) {
     has_shadow_ = true;
   }
-}
-
-void TextInputNode::SetTextAlignVertical(const DomStyleMap& dom_style, TextStyle& text_style) {
-  // todo(kloudwang) 看着像android特有属性
 }
 
 void TextInputNode::UpdateFontStyle(TextStyle& text_style) {

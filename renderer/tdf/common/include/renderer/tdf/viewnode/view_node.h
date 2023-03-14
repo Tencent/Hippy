@@ -33,12 +33,15 @@
 #pragma clang diagnostic ignored "-Wdeprecated-copy-with-dtor"
 #pragma clang diagnostic ignored "-Wdeprecated-copy"
 #include "tdfui/view/view.h"
+#include "core/support/gesture/recognizer/tap_gesture_recognizer.h"
+#include "core/support/gesture/recognizer/long_press_gesture_recognizer.h"
 #pragma clang diagnostic pop
 #include "core/common/listener.h"
 #include "dom/dom_argument.h"
 #include "dom/dom_node.h"
 #include "footstone/hippy_value.h"
 #include "footstone/logging.h"
+#include "renderer/tdf/gesture/touch_recognizer.h"
 
 #define TDF_RENDER_CHECK_ATTACH \
   if (!IsAttached()) {          \
@@ -157,7 +160,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   using DomArgument = hippy::dom::DomArgument;
   using DomStyleMap = std::unordered_map<std::string, std::shared_ptr<footstone::HippyValue>>;
   using RenderInfo = hippy::dom::DomNode::RenderInfo;
-  using node_creator = std::function<std::shared_ptr<ViewNode>(RenderInfo)>;
+  using node_creator = std::function<std::shared_ptr<ViewNode>(RenderInfo, std::string)>;
   using Point = tdfcore::TPoint;
 
   ViewNode(const RenderInfo info, std::shared_ptr<tdfcore::View> view = nullptr);
@@ -191,7 +194,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   /**
    * @brief Be called when a related DomNode is Deleted.
    */
-  void OnDelete();
+  virtual void OnDelete();
 
   virtual void HandleLayoutUpdate(hippy::LayoutResult layout_result);
 
@@ -244,7 +247,11 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   bool GetInterceptTouchEventFlag() { return intercept_touch_event_flag_; }
   bool GetInterceptPullUpEventFlag() { return intercept_pullup_event_flag_; }
 
+  void SetUseViewLayoutOrigin(bool flag) { use_view_layout_origin_ = flag; }
+
  protected:
+  virtual bool isRoot() { return false; }
+
   /**
    * @brief notify after the attach action
    */
@@ -329,6 +336,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   float GetDensity();
 
  private:
+  bool IsAttachViewMatch(const std::shared_ptr<ViewNode>& node, const std::shared_ptr<tdfcore::View>& view);
   void RegisterClickEvent();
   void RegisterLongClickEvent();
   void RegisterTouchEvent();
@@ -353,8 +361,17 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   std::set<std::string> supported_events_;
   std::unordered_map<std::string, std::shared_ptr<tdfcore::GestureRecognizer>> gestures_map_;
 
+  std::shared_ptr<tdfcore::TapGestureRecognizer> tap_recognizer_;
+  std::shared_ptr<tdfcore::LongPressGestureRecognizer> long_press_recognizer_;
+  std::shared_ptr<TouchRecognizer> touch_recognizer_;
+  std::weak_ptr<tdfcore::View> tap_view_;
+  std::weak_ptr<tdfcore::View> long_press_view_;
+  std::weak_ptr<tdfcore::View> touch_view_;
+
   bool intercept_touch_event_flag_ = false;
   bool intercept_pullup_event_flag_ = false;
+
+  bool use_view_layout_origin_ = false;
 };
 
 }  // namespace tdf

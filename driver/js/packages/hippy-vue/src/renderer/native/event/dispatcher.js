@@ -21,7 +21,8 @@
 /* eslint-disable no-underscore-dangle */
 
 import { trace, getApp, warn } from '../../../util';
-import { getNodeById, DOMEventPhase } from '../../../util/node';
+import { getNodeById } from '../../../util/node';
+import { DOMEventPhase } from '../../../util/event';
 import { Event } from './event';
 
 const componentName = ['%c[event]%c', 'color: green', 'color: auto'];
@@ -47,6 +48,7 @@ function convertEvent(eventName, targetEvent, params) {
   }
   return targetEvent;
 }
+
 const EventDispatcher = {
   /**
    * Redirect native events to Vue directly.
@@ -82,15 +84,16 @@ const EventDispatcher = {
     try {
       if ([DOMEventPhase.AT_TARGET, DOMEventPhase.BUBBLING_PHASE].indexOf(eventPhase) > -1) {
         const targetEvent = new Event(originalName);
+        targetEvent.nativeParams = params || {};
         Object.assign(targetEvent, { eventPhase });
         if (nativeName === 'onLayout') {
-          const { layout } = params;
-          targetEvent.top = layout.y;
-          targetEvent.left = layout.x;
-          targetEvent.bottom = layout.y + layout.height;
-          targetEvent.right = layout.x + layout.width;
-          targetEvent.width = layout.width;
-          targetEvent.height = layout.height;
+          const { layout: { x, y, height, width } } = params;
+          targetEvent.top = y;
+          targetEvent.left = x;
+          targetEvent.bottom = y + height;
+          targetEvent.right = x + width;
+          targetEvent.width = width;
+          targetEvent.height = height;
         } else {
           const { processEventData } = currentTargetNode._meta.component;
           if (processEventData) {

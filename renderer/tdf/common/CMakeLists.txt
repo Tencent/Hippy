@@ -30,8 +30,6 @@ set(CMAKE_CXX_STANDARD 17)
 # region library
 add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_ROOT_DIR}/renderer/tdf/common/include)
-# remove dependency of scope.h After VFS finished
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_ROOT_DIR}/driver/js/include)
 target_compile_definitions(${PROJECT_NAME} INTERFACE "ENABLE_TDF_RENDER")
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 # endregion

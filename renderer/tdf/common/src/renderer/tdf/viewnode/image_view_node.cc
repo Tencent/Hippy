@@ -64,6 +64,7 @@ constexpr const char kError[] = "error";
 constexpr const char kLoad[] = "load";
 constexpr const char kLoadEnd[] = "loadEnd";
 constexpr const char kLoadStart[] = "loadStart";
+constexpr const char kProgress[] = "progress";
 }  // namespace image
 #pragma clang diagnostic pop
 
@@ -71,6 +72,7 @@ constexpr const char kAssetPrex[] = "hpfile://./";
 
 std::shared_ptr<tdfcore::View> ImageViewNode::CreateView() {
   auto image_view = TDF_MAKE_SHARED(tdfcore::ImageView);
+  image_view->SetClipToBounds(true);
   image_view->SetScaleType(tdfcore::ScaleType::kAspectFill);
   return image_view;
 }
@@ -85,7 +87,9 @@ void ImageViewNode::HandleStyleUpdate(const DomStyleMap &dom_style) {
     SetDefaultSrc(it->second->ToStringChecked());
   }
   if (auto it = dom_style.find(hippy::kImageSrc); it != dom_style.end()) {
-    SetSrc(it->second->ToStringChecked());
+    if (!it->second->IsUndefined()) {
+      SetSrc(it->second->ToStringChecked());
+    }
   }
 }
 
@@ -107,7 +111,6 @@ void ImageViewNode::SetDefaultSrc(const std::string &src) {
 }
 
 void ImageViewNode::SetSrc(const std::string &src) {
-  if (src == image_src_) return;
   image_src_ = src;
   LoadImage(image_src_);
 }
@@ -127,6 +130,54 @@ void ImageViewNode::LoadImage(std::string url) {
   }
 
   if (auto image_view = GetView<tdfcore::ImageView>()) {
+    if (auto current_image = image_view->GetImage()) {
+      auto current_url = current_image->GetUrl();
+      if (!current_url.empty() && current_url == url) {
+        return;
+      }
+    }
+
+    image_view->SetImageLoadStartCallback([WEAK_THIS]() {
+      DEFINE_AND_CHECK_SELF(ImageViewNode)
+      // send loadStart event
+      self->SendUIDomEvent(kLoadStart);
+    });
+
+    image_view->SetImageLoadFinishCallback([WEAK_THIS, image_view](tdfcore::ImageError error) {
+      DEFINE_AND_CHECK_SELF(ImageViewNode)
+      if (error == tdfcore::ImageError::kNone) {
+        // send load event
+        self->SendUIDomEvent(kLoad);
+
+        // send loadEnd event
+        auto frame = image_view->GetFrame();
+        DomValueObjectType size;
+        size["width"] = frame.Width();
+        size["height"] = frame.Height();
+        DomValueObjectType param;
+        param["success"] = 1;
+        param["image"] = size;
+        self->SendUIDomEvent(kLoadEnd, std::make_shared<footstone::HippyValue>(param));
+      } else {
+        // send error event
+        self->SendUIDomEvent(kError);
+
+        // send loadEnd event
+        DomValueObjectType param;
+        param["success"] = 0;
+        self->SendUIDomEvent(kLoadEnd, std::make_shared<footstone::HippyValue>(param));
+      }
+    });
+
+    image_view->SetImageLoadProgressCallback([WEAK_THIS](float progress) {
+      DEFINE_AND_CHECK_SELF(ImageViewNode)
+      // send progress event
+      DomValueObjectType param;
+      param["loaded"] = progress;
+      param["total"] = 1.f;
+      self->SendUIDomEvent(kProgress, std::make_shared<footstone::HippyValue>(param));
+    });
+
     image_view->SetImage(TDF_MAKE_SHARED(tdfcore::Image, url));
   }
 }

@@ -30,11 +30,11 @@ class Event {
     this.currentTarget = null;
     this.target = null;
     // Private properties
-    this._canceled = false;
+    this.isCanceled = false;
   }
 
   get canceled() {
-    return this._canceled;
+    return this.isCanceled;
   }
 
   stopPropagation() {
@@ -45,11 +45,11 @@ class Event {
     if (!this.cancelable) {
       return;
     }
-    this._canceled = true;
+    this.isCanceled = true;
   }
 
   /**
-   * Old fashioned compatible.
+   * Old compatible.
    */
   initEvent(eventName, bubbles = true, cancelable = true) {
     this.type = eventName;

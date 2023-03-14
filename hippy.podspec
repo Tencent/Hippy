@@ -160,10 +160,10 @@ Pod::Spec.new do |s|
     end
     driver.pod_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => header_search_paths, 
+      'GCC_PREPROCESSOR_DEFINITIONS' => 'JS_USE_JSC=1'
     }
     driver.user_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => header_search_paths, 
-      'GCC_PREPROCESSOR_DEFINITIONS' => 'JS_USE_JSC=1'
     }
     driver.preserve_path = 'driver/js'
     puts 'hippy subspec \'driver\' read end'

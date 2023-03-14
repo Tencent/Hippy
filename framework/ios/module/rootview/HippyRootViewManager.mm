@@ -33,10 +33,10 @@ NSString *const HippyRootViewTagKey = @"HippyRootViewTagKey";
 HIPPY_EXPORT_MODULE(RootViewManager)
 
 HIPPY_EXPORT_METHOD(removeRootView:(nonnull NSNumber *)rootTag) {
-    BOOL respondsToSelector = [self.bridge.delegate respondsToSelector:@selector(removeRootNode:bridge:)];
+    BOOL respondsToSelector = [self.bridge.delegate respondsToSelector:@selector(removeRootView:bridge:)];
     dispatch_async(dispatch_get_main_queue(), ^{
         if (respondsToSelector) {
-            [self.bridge.delegate removeRootNode:rootTag bridge:self.bridge];
+            [self.bridge.delegate removeRootView:rootTag bridge:self.bridge];
         }
         [[NSNotificationCenter defaultCenter] postNotificationName:HippyDidDidRemoveRootViewNotification
                                                             object:nil

@@ -30,7 +30,6 @@ inline namespace render {
 inline namespace tdf {
 
 using hippy::LayoutMeasureMode;
-using tdfcore::TextAttributes;
 
 static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<TextViewNode>> persistent_map_;
 
@@ -49,16 +48,26 @@ void TextViewNode::RegisterMeasureFunction(const std::shared_ptr<hippy::DomNode>
   dom_node->GetLayoutNode()->SetMeasureFunction([view_node](float width, LayoutMeasureMode width_measure_mode,
                                                             float height, LayoutMeasureMode height_measure_mode,
                                                             void* layoutContext) {
-    auto size = view_node->layout_view_->MeasureText(width);
+    auto size = view_node->layout_view_->MeasureText(static_cast<uint64_t>(width));
     hippy::LayoutSize layout_result{static_cast<float>(size.width), static_cast<float>(size.height)};
     return layout_result;
   });
+
+  // TODO(etkmao): for multithread reason
+  std::shared_ptr<TextViewNode> result;
+  auto find = persistent_map_.Find(dom_node->GetRenderInfo().id, result);
+  if (find) {
+    persistent_map_.Erase(dom_node->GetRenderInfo().id);
+  }
+
   persistent_map_.Insert(dom_node->GetRenderInfo().id, view_node);
 }
 
 void TextViewNode::UnregisterMeasureFunction(const std::shared_ptr<hippy::DomNode>& dom_node) {
   dom_node->GetLayoutNode()->SetMeasureFunction(nullptr);
-  persistent_map_.Erase(dom_node->GetRenderInfo().id);
+
+  // TODO(etkmao): for multithread reason
+  //persistent_map_.Erase(dom_node->GetRenderInfo().id);
 }
 
 std::shared_ptr<TextViewNode> TextViewNode::FindLayoutTextViewNode(const std::shared_ptr<hippy::DomNode> &dom_node) {
@@ -104,7 +113,7 @@ void TextViewNode::HandleTextStyleUpdate(std::shared_ptr<tdfcore::TextView> text
   SetLineSpacingMultiplier(dom_style, text_style);
   SetLineSpacingExtra(dom_style, text_style);
   SetNumberOfLines(dom_style, text_view);
-  SetTextAlign(dom_style, text_view);
+  SetHorizontalAlign(dom_style, text_view);
   SetEnableScale(dom_style, text_view);
   text_view->SetTextStyle(text_style);
   if (dom_node) {
@@ -227,23 +236,30 @@ void TextViewNode::SetLineSpacingExtra(const DomStyleMap& dom_style, TextStyle& 
 
 void TextViewNode::SetNumberOfLines(const DomStyleMap& dom_style, std::shared_ptr<TextView>& text_view) {
   if (auto iter = dom_style.find(text::kNumberOfLines); iter != dom_style.end()) {
+    if (iter->second->IsString()) {
+      auto number_of_lines = atoi(iter->second->ToStringChecked().c_str());
+      text_view->SetMaxLines(number_of_lines == 0 ? 1 : static_cast<size_t>(number_of_lines));
+    } else if (iter->second->IsNumber()) {
+      auto number_of_lines = static_cast<int64_t>(iter->second->ToDoubleChecked());
+      text_view->SetMaxLines(number_of_lines == 0 ? 1 : static_cast<size_t>(number_of_lines));
+    }
   }
 }
 
-void TextViewNode::SetTextAlign(const DomStyleMap& dom_style, std::shared_ptr<TextView>& text_view) {
+void TextViewNode::SetHorizontalAlign(const DomStyleMap& dom_style, std::shared_ptr<TextView>& text_view) {
   if (auto iter = dom_style.find(text::kTextAlign); iter != dom_style.end()) {
     auto text_align = iter->second->ToStringChecked();
-    TextAlign sk_text_align = tdfcore::TextAlign::kLeft;
+    HorizontalAlign hori_align = tdfcore::HorizontalAlign::kLeft;
     if (text_align == "auto" || text_align == "left") {
-      sk_text_align = TextAlign::kLeft;
+      hori_align = HorizontalAlign::kLeft;
     } else if (text_align == "right") {
-      sk_text_align = TextAlign::kRight;
+      hori_align = HorizontalAlign::kRight;
     } else if (text_align == "center") {
-      sk_text_align = TextAlign::kCenter;
+      hori_align = HorizontalAlign::kCenter;
     } else if (text_align == "justify") {
-      sk_text_align = TextAlign::kJustifyLastLineLeft;
+      hori_align = HorizontalAlign::kJustify;
     }
-    text_view->SetTextAlign(sk_text_align);
+    text_view->SetHorizontalAlign(hori_align);
   }
 }
 
@@ -251,7 +267,7 @@ void TextViewNode::SetEnableScale(const DomStyleMap& dom_style, std::shared_ptr<
   if (auto iter = dom_style.find(text::kEnableScale); iter != dom_style.end()) {
     auto enable_scale = iter->second->ToBooleanChecked();
     if (!enable_scale) {
-      text_view->SetTextScaleFactor(TextAttributes::kDefaultScaleFactor);
+      // not support
     }
   }
 }

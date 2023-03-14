@@ -25,6 +25,8 @@
 
 @implementation NativeRenderViewPagerItemManager
 
+NATIVE_RENDER_EXPORT_VIEW(ViewPagerItem)
+
 - (UIView *)view {
     return [NativeRenderViewPagerItem new];
 }

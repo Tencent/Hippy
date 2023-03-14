@@ -36,6 +36,8 @@
 
 @implementation NativeRenderImageViewManager
 
+NATIVE_RENDER_EXPORT_VIEW(Image);
+
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(blurRadius, CGFloat)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(capInsets, UIEdgeInsets)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(resizeMode, NativeRenderResizeMode)

@@ -28,6 +28,7 @@ import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.renderer.tdf.embed.TDFEmbeddedViewFactoryImpl;
 import com.tencent.tdf.embed.EmbeddedViewFactory;
+import com.tencent.renderer.NativeRenderer;
 
 import com.tencent.vfs.VfsManager;
 import java.util.ArrayList;
@@ -40,13 +41,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 @SuppressWarnings("JavaJniMissingFunction")
-public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngine.ILifecycleListener {
+public class TDFRenderer extends Renderer implements RenderProxy {
 
     private static final String TAG = "TDFRenderer";
 
     private int mRootViewId;
     private final int mInstanceId;
-    private final long mShellId = 0;
     private static final int ROOT_VIEW_ID_INCREMENT = 10;
     private static final AtomicInteger sRootIdCounter = new AtomicInteger(0);
 
@@ -56,6 +56,8 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
     private VfsManager mVfsManager;
 
     private final List<Class<?>> mControllers = new ArrayList<>();
+
+    private NativeRenderer mNativeRenderer;
 
     public TDFRenderer(int instanceId) {
         mInstanceId = instanceId;
@@ -83,28 +85,16 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
         if (!(context instanceof Activity)) {
             throw new RuntimeException("Unsupported Host");
         }
-        TDFHippyRootView tdfHippyRootView = new TDFHippyRootView((Activity) context);
-        // When TDFHippyRootView's onAttachedToWindow is called, com.tencent.tdf.TDFEngine will be created.
-        // So, set the creation callback here.
-        tdfHippyRootView.setEngineCallback(engine -> {
-            // Notify TDF Render in Native(C++) size to bind with TDF Shell, this is the key process for TDF Render.
-            // At this time point, TDF Core's Shell is created but not started.
-            registerTDFEngine(mInstanceId, engine.getJNI().getnativeEngine(), mRootViewId);
-            engine.registerLifecycleListener(TDFRenderer.this);
-            registerControllers(mRootViewId, mControllers, tdfHippyRootView, TDFRenderer.this, engine);
-        });
-        tdfHippyRootView.setId(mRootViewId);
-        return tdfHippyRootView;
+        // TODO(etkmao):
+        mNativeRenderer = new NativeRenderer();
+        mRootView = new TDFHippyRootView(context, mNativeRenderer.getInstanceId(), mRootViewId);
+        mRootView.setId(mRootViewId);
+        TDFRenderEngine engine = mRootView.getTDFEngine();
+        registerTDFEngine(mInstanceId, engine.getJNI().getnativeEngine(), mRootViewId);
+        LogUtils.d(TAG, "onTDFEngineCreate: " + engine.getJNI().getnativeEngine());
+        registerControllers(mRootViewId, mControllers, mRootView, TDFRenderer.this, engine);
+        return mRootView;
     }
-
-    @Override
-    public void onShellCreated(long shell) {
-        // When TDFView's Surface is created, TDF Shell will start running, this callback is actually onShellStart
-        LogUtils.d(TAG, "onShellCreated(Start): " + shell);
-    }
-
-    @Override
-    public void onWillShellDestroy() { }
 
     @Override
     public void onResume() { }

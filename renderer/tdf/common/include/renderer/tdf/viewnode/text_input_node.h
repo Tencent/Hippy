@@ -32,9 +32,11 @@
 #pragma clang diagnostic ignored "-Wshadow"
 #pragma clang diagnostic ignored "-Wdeprecated-copy-with-dtor"
 #pragma clang diagnostic ignored "-Wdeprecated-copy"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include "tdfui/view/text/text_input_view.h"
 #pragma clang diagnostic pop
 
+#include "renderer/tdf/viewnode/view_names.h"
 #include "renderer/tdf/viewnode/view_node.h"
 
 namespace hippy {
@@ -78,7 +80,7 @@ constexpr const char kNumberOfLines[] = "numberOfLines";                  // int
 constexpr const char kOnBlur[] = "onBlur";                                // boolean
 constexpr const char kOnChangeText[] = "changetext";                      // boolean
 constexpr const char kOnContentSizeChange[] = "onContentSizeChange";      // boolean
-constexpr const char kOnEndEditing[] = "onEndEditing";                    // boolean
+constexpr const char kOnEndEditing[] = "endediting";                      // boolean
 constexpr const char kOnFocus[] = "onFocus";                              // boolean
 constexpr const char kOnSelectionChange[] = "onSelectionChange";          // boolean
 constexpr const char kPlaceholder[] = "placeholder";                      // String
@@ -128,6 +130,8 @@ constexpr const char kAlignLeft[] = "left";
 constexpr const char kAlignRight[] = "right";
 constexpr const char kAlignCenter[] = "center";
 constexpr const char kAlignJustify[] = "justify";
+constexpr const char kAlignTop[] = "top";
+constexpr const char kAlignBottom[] = "bottom";
 }  // namespace textinput
 
 constexpr const int64_t kViewportListenerInvalidID = 0;
@@ -136,6 +140,8 @@ class TextInputNode : public ViewNode {
  public:
   explicit TextInputNode(const RenderInfo info);
   ~TextInputNode() override;
+
+  std::string GetViewName() const override { return kTextInputViewName; }
 
   void CallFunction(const std::string& function_name, const DomArgument& param, const uint32_t call_back_id) override;
 
@@ -181,11 +187,11 @@ class TextInputNode : public ViewNode {
   void SetPlaceHolder(const DomStyleMap& dom_style);
   void SetPlaceHolderTextColor(const DomStyleMap& dom_style);
   void SetKeyBoardAction(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view);
-  void SetTextAlign(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view);
+  void SetHorizontalAlign(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view);
+  void SetVerticalAlign(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view);
   void SetTextShadowOffset(const DomStyleMap& dom_style);
   void SetTextShadowColor(const DomStyleMap& dom_style);
   void SetTextShadowRadius(const DomStyleMap& dom_style);
-  void SetTextAlignVertical(const DomStyleMap& dom_style, TextStyle& text_style);
   void UpdateBlurAttr(const DomStyleMap& dom_style);
   void UpdateChangeTextAttr(const DomStyleMap& dom_style);
   void UpdateContentSizeChangeAttr(const DomStyleMap& dom_style);
@@ -210,10 +216,11 @@ class TextInputNode : public ViewNode {
   float line_height_ = kDefaultLineHeight;
   bool has_shadow_ = true;
   std::string place_holder_;
-  Color place_holder_color_ = kDefaultTextColor;
+  Color place_holder_color_ = tdfcore::Color::Gray();
   tdfcore::KeyboardAction keyboard_action_ = tdfcore::KeyboardAction::kDone;
   uint64_t viewport_listener_id_ = kViewportListenerInvalidID;
   EventCallback event_callback_;
+  bool callback_inited_ = false;
 };
 
 }  // namespace tdf

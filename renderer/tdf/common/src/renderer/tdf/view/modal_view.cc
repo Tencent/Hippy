@@ -27,7 +27,7 @@ inline namespace render {
 inline namespace tdf {
 inline namespace view {
 
-ModalView::~ModalView() noexcept {
+ModalView::~ModalView() {
   if (is_mounted_) {
     root_view_->RemoveView(modal_view_);
   }
@@ -79,8 +79,8 @@ void ModalView::InternalSetFrame(const TRect& frame) {
   }
 }
 
-void ModalView::InternalSetBackgroundColor(tdfcore::Color color) {
-  View::InternalSetBackgroundColor(color);
+void ModalView::InternalSetRenderBackgroundColor(tdfcore::Color color) {
+  View::InternalSetRenderBackgroundColor(color);
   modal_view_->SetBackgroundColor(color);
 }
 

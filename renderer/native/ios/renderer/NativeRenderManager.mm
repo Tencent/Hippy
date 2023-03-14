@@ -147,9 +147,9 @@ void NativeRenderManager::CallFunction(std::weak_ptr<hippy::RootNode> root_node,
     }
 }
 
-void NativeRenderManager::RegisterExtraComponent(NSDictionary<NSString *, Class> *extraComponent) {
+void NativeRenderManager::RegisterExtraComponent(NSArray<Class> *extraComponents) {
     @autoreleasepool {
-        [renderImpl_ registerExtraComponent:extraComponent];
+        [renderImpl_ registerExtraComponent:extraComponents];
     }
 }
 

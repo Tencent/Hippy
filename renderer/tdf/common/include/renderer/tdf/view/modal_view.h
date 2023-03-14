@@ -65,7 +65,7 @@ class ModalView : public View {
 
   void RemoveView(const std::shared_ptr<View> &child) override;
 
-  void InternalSetBackgroundColor(tdfcore::Color color) override;
+  void InternalSetRenderBackgroundColor(tdfcore::Color color) override;
 
   void InternalSetFrame(const TRect &frame) override;
 

@@ -68,7 +68,6 @@ class VoltronResourceLoader with ResourceLoader {
     return false;
   }
 
-
   Future _loadRemoteResourceSync(ResourceDataHolder holder) {
     var completer = Completer();
     _loadRemoteResource(holder, (_) {
@@ -77,8 +76,10 @@ class VoltronResourceLoader with ResourceLoader {
     return completer.future;
   }
 
-  void _loadRemoteResource(ResourceDataHolder holder,
-      FetchResourceCallback callback) {
+  void _loadRemoteResource(
+    ResourceDataHolder holder,
+    FetchResourceCallback callback,
+  ) {
     VoltronHttpRequest request = VoltronHttpRequest(url: holder.url);
     _httpAdapter.sendRequest(request).then((response) {
       if (response.statusCode == 200) {
@@ -92,6 +93,11 @@ class VoltronResourceLoader with ResourceLoader {
             "${"Could not connect to development server." + "URL: " + holder.url}  try to :adb reverse tcp:38989 tcp:38989 , code: ${response.statusCode}, message : ${response.statusMessage}";
         LogUtils.e(_kTag, holder.errorMsg);
       }
+      callback(holder);
+    }).catchError((err) {
+      holder.resultCode = FetchResultCode.remoteRequestFailedError;
+      holder.errorMsg = err.toString();
+      LogUtils.e(_kTag, holder.errorMsg);
       callback(holder);
     });
   }
@@ -108,7 +114,7 @@ class VoltronResourceLoader with ResourceLoader {
         holder.errorMsg = 'Load ${holder.url} failed! File not existed';
         LogUtils.e(_kTag, holder.errorMsg);
       }
-    } catch(e) {
+    } catch (e) {
       holder.resultCode = FetchResultCode.openLocalFileError;
       holder.errorMsg = 'Load ${holder.url} failed! ${e.toString()}';
       LogUtils.e(_kTag, holder.errorMsg);
@@ -118,8 +124,8 @@ class VoltronResourceLoader with ResourceLoader {
   Future _loadAssetsResource(ResourceDataHolder holder) async {
     String assetsName = splitAssetsName(holder.url);
     try {
-        holder.buffer = (await rootBundle.load(assetsName)).buffer.asUint8List();
-        holder.resultCode = FetchResultCode.ok;
+      holder.buffer = (await rootBundle.load(assetsName)).buffer.asUint8List();
+      holder.resultCode = FetchResultCode.ok;
     } catch (e) {
       holder.resultCode = FetchResultCode.openLocalFileError;
       holder.errorMsg = 'Load ${holder.url} failed! ${e.toString()}';
@@ -127,9 +133,8 @@ class VoltronResourceLoader with ResourceLoader {
     }
   }
 
-  void setResponseHeaderToHolder(final ResourceDataHolder holder,
-      VoltronHttpResponse response) {
-    var rspHeaders = holder.responseHeaders??<String, String>{};
+  void setResponseHeaderToHolder(final ResourceDataHolder holder, VoltronHttpResponse response) {
+    var rspHeaders = holder.responseHeaders ?? <String, String>{};
 
     rspHeaders["statusCode"] = response.statusCode.toString();
     Map<String, dynamic> headers = response.headerMap;

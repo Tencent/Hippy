@@ -195,6 +195,8 @@ class ViewPager : public ScrollView {
   int32_t current_page_ = 0;
   float page_margin_ = 0;
 
+  bool has_draged_ = false;
+
   ScrollOffsetListener offset_listener_;
   PageSelectedListener selected_listener_;
   ScrollStateChangedListener state_changed_listener_;

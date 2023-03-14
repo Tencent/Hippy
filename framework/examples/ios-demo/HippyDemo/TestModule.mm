@@ -21,31 +21,23 @@
 */
 
 #import "AppDelegate.h"
-#import "DemoConfigs.h"
 #import "TestModule.h"
-#import "HippyBridge.h"
-#import "HippyBridgeDelegate.h"
 #import "HippyBundleURLProvider.h"
 #import "HippyDemoLoader.h"
 #import "HippyJSEnginesMapper.h"
-#import "NativeRenderManager.h"
 #import "NativeRenderRootView.h"
 #import "UIView+NativeRender.h"
-#import "NativeRenderImpl.h"
-#import "HippyJSExecutor.h"
-#import "HPOCToHippyValue.h"
-#import "HippyFileHandler.h"
-#include "driver/scope.h"
+#import "HippyBridgeConnector.h"
+#import "HPLog.h"
+#import "HippyRedBox.h"
+#import "DemoConfigs.h"
+#import "HippyMethodInterceptorProtocol.h"
+#import "HPAsserts.h"
 
 static NSString *const engineKey = @"Demo";
 
-@interface TestModule ()<HippyBridgeDelegate> {
-    HippyBridge *_bridge;
-    std::shared_ptr<NativeRenderManager> _nativeRenderManager;
-    std::shared_ptr<hippy::RootNode> _rootNode;
-    __weak UIViewController *_weakVC;
-    std::shared_ptr<HippyDemoHandler> _demoHandler;
-    std::shared_ptr<HippyDemoLoader> _demoLoader;
+@interface TestModule ()<HippyMethodInterceptorProtocol, HippyBridgeConnectorDelegate> {
+    HippyBridgeConnector *_connector;
 }
 
 @end
@@ -53,6 +45,25 @@ static NSString *const engineKey = @"Demo";
 @implementation TestModule
 
 HIPPY_EXPORT_MODULE()
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        HPSetLogFunction(^(HPLogLevel level, NSString *fileName, NSNumber *lineNumber,
+                           NSString *message, NSArray<NSDictionary *> *stack, NSDictionary *userInfo) {
+            if (HPLogLevelError <= level && userInfo) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    HippyBridge *strongBridge = [userInfo objectForKey:@"bridge"];
+                    if (strongBridge) {
+                        [strongBridge.redBox showErrorMessage:message withStack:stack];
+                    }
+                });
+            }
+            NSLog(@"hippy says:%@ in file %@ at line %@", message, fileName, lineNumber);
+        });
+    }
+    return self;
+}
 
 - (dispatch_queue_t)methodQueue {
 	return dispatch_get_main_queue();
@@ -62,141 +73,102 @@ HIPPY_EXPORT_METHOD(debug:(nonnull NSNumber *)instanceId) {
 }
 
 HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnull NSString *)bundleUrl) {
+    [self runCommonDemo];
+}
+
+- (void)runCommonDemo {
+    BOOL isSimulator = NO;
+    #if TARGET_IPHONE_SIMULATOR
+        isSimulator = YES;
+    #endif
     AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     UIViewController *rootViewController = delegate.window.rootViewController;
     UIViewController *vc = [[UIViewController alloc] init];
-    BOOL isSimulator = NO;
-#if TARGET_IPHONE_SIMULATOR
-    isSimulator = YES;
-#endif
-    NSString *urlString = [[HippyBundleURLProvider sharedInstance] bundleURLString];
-    if (bundleUrl.length > 0) {
-        urlString = bundleUrl;
-    }
-    NSURL *url = [NSURL URLWithString:bundleUrl];
+    //JS Contexts holding the same engine key will share VM
     NativeRenderRootView *rootView = [[NativeRenderRootView alloc] initWithFrame:rootViewController.view.bounds];
-    NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": url};
-    NSArray<NSURL *> *bundleURLs = @[url];
-    NSURL *sandboxDirectory = [url URLByDeletingLastPathComponent];
-    HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self
-                                                 moduleProvider:nil
-                                                  launchOptions:launchOptions
-                                                    engineKey:@"Demo"];
-    [self setupBridge:bridge rootView:rootView bundleURLs:bundleURLs props:@{@"isSimulator": @(isSimulator)}];
-    bridge.sandboxDirectory = sandboxDirectory;
-    bridge.contextName = @"Demo";
-    bridge.moduleName = @"Demo";
-    _bridge = bridge;
+    NSDictionary *launchOptions = nil;
+    NSArray<NSURL *> *bundleURLs = nil;
+    NSURL *sandboxDirectory = nil;
+    NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
+    NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
+    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": bundleUrl};
+    bundleURLs = @[bundleUrl];
+    sandboxDirectory = [bundleUrl URLByDeletingLastPathComponent];
+    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": bundleUrl};
+    _connector = [[HippyBridgeConnector alloc] initWithDelegate:self moduleProvider:nil extraComponents:nil launchOptions:launchOptions engineKey:engineKey];
+    //set custom vfs loader
+    _connector.sandboxDirectory = sandboxDirectory;
+    _connector.contextName = @"Demo";
+    _connector.moduleName = @"Demo";
+    _connector.methodInterceptor = self;
+    rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    [_connector setRootView:rootView];
+    [_connector loadBundleURLs:bundleURLs completion:^(NSURL * _Nullable url, NSError * _Nullable error) {
+        NSLog(@"url %@ load finish", [url absoluteString]);
+    }];
+    [_connector loadInstanceForRootViewTag:[rootView componentTag] props:@{@"isSimulator": @(isSimulator)}];
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [vc.view addSubview:rootView];
     vc.modalPresentationStyle = UIModalPresentationFullScreen;
     [rootViewController presentViewController:vc animated:YES completion:NULL];
-    _weakVC = vc;
 }
 
-- (void)registerVFSLoader {
-    _demoHandler = std::make_shared<HippyDemoHandler>();
-    _demoLoader = std::make_shared<HippyDemoLoader>();
-    _demoLoader->PushDefaultHandler(_demoHandler);
-    _demoLoader->AddConvenientDefaultHandler(_demoHandler);
-    
-    auto fileHandler = std::make_shared<HippyFileHandler>(_bridge);
-    _demoLoader->RegisterConvenientUriHandler(@"hpfile", fileHandler);
-    
-    [_bridge setVFSUriLoader:_demoLoader];
-    
-    _nativeRenderManager->SetVFSUriLoader(_demoLoader);
-}
-
-
-- (void)setupBridge:(HippyBridge *)bridge rootView:(UIView *)rootView bundleURLs:(NSArray<NSURL *> *)bundleURLs props:(NSDictionary *)props {
-    //Get DomManager from HippyJSEnginesMapper with Engine key
-    auto engineResource = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:engineKey];
-    auto domManager = engineResource->GetDomManager();
-    NSNumber *rootTag = [rootView componentTag];
-    //Create a RootNode instance with a root tag
-    auto rootNode = std::make_shared<hippy::RootNode>([rootTag unsignedIntValue]);
-    //Set RootNode for AnimationManager in RootNode
-    rootNode->GetAnimationManager()->SetRootNode(rootNode);
-    //Set DomManager for RootNode
-    rootNode->SetDomManager(domManager);
-    //Set screen scale factor and size for Layout system in RooNode
-    rootNode->GetLayoutNode()->SetScaleFactor([UIScreen mainScreen].scale);
-    rootNode->SetRootSize(rootView.frame.size.width, rootView.frame.size.height);
-    
-    //Create NativeRenderManager
-    _nativeRenderManager = std::make_shared<NativeRenderManager>();
-    //set dom manager
-    _nativeRenderManager->SetDomManager(domManager);
-    
-    //set rendermanager for dommanager
-    domManager->SetRenderManager(_nativeRenderManager);
-    //bind rootview and root node
-    _nativeRenderManager->RegisterRootView(rootView, rootNode);
-    
-    //setup necessary params for bridge
-    [bridge setupDomManager:domManager rootNode:rootNode];
-    [bridge loadBundleURLs:bundleURLs completion:^(NSURL * _Nullable url, NSError * _Nullable error) {
-        NSLog(@"url %@ completion", url);
-    }];
-    [bridge loadInstanceForRootView:rootTag withProperties:props];
-    
-    _rootNode = rootNode;
-}
-
-- (void)removeRootView {
-    //1.remove root view from UI hierarchy
-    UIViewController *vc = _weakVC;
-    if (vc) {
-        [[[vc.view subviews] firstObject] removeFromSuperview];
-    }
-    //2.unregister root node from render context by id.
-    _nativeRenderManager->UnregisterRootView(_rootNode->GetId());
-    //3.set elements holding by user to nil
-    _rootNode = nil;
-}
-
-- (void)reload:(HippyBridge *)bridge {
-    [self removeRootView];
-    UIViewController *vc = _weakVC;
-    if (!vc) {
-        return;
-    }
+- (HippyBridgeConnectorReloadData *)reload:(HippyBridgeConnector *)connector {
     AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     UIViewController *rootViewController = delegate.window.rootViewController;
+    UIViewController *vc = rootViewController.presentedViewController;
     NativeRenderRootView *rootView = [[NativeRenderRootView alloc] initWithFrame:rootViewController.view.bounds];
+    NSDictionary *launchOptions = nil;
     NSArray<NSURL *> *bundleURLs = nil;
+    NSURL *sandboxDirectory = nil;
+#ifdef HIPPYDEBUG
     NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
     NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
+    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": bundleUrl};
     bundleURLs = @[bundleUrl];
-    BOOL isSimulator = NO;
-#if TARGET_IPHONE_SIMULATOR
-    isSimulator = YES;
+    sandboxDirectory = [bundleUrl URLByDeletingLastPathComponent];
+    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": bundleUrl};
+#else
+    NSString *commonBundlePath = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:@"res"];
+    NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res"];
+    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO)};
+    bundleURLs = @[[NSURL fileURLWithPath:commonBundlePath], [NSURL fileURLWithPath:businessBundlePath]];
+    sandboxDirectory = [[NSURL fileURLWithPath:businessBundlePath] URLByDeletingLastPathComponent];
 #endif
-
-    [self setupBridge:bridge rootView:rootView bundleURLs:bundleURLs props:@{@"isSimulator": @(isSimulator)}];
+    BOOL isSimulator = NO;
+    #if TARGET_IPHONE_SIMULATOR
+        isSimulator = YES;
+    #endif
+    NSDictionary *props = @{@"isSimulator": @(isSimulator)};
+    HippyBridgeConnectorReloadData *data = [[HippyBridgeConnectorReloadData alloc] init];
+    data.rootView = rootView;
+    data.props = props;
+    data.URLs = bundleURLs;
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [vc.view addSubview:rootView];
+    return data;
 }
 
-- (BOOL)shouldStartInspector:(HippyBridge *)bridge {
-    return bridge.debugMode;
+- (void)removeRootView:(NSNumber *)rootTag connector:(HippyBridgeConnector *)connector {
+    AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    UIViewController *rootViewController = delegate.window.rootViewController;
+    UIViewController *vc = rootViewController.presentedViewController;
+    [[[vc.view subviews] firstObject] removeFromSuperview];
 }
 
-- (void)invalidateForReason:(HPInvalidateReason)reason bridge:(HippyBridge *)bridge {
-    [_nativeRenderManager->rootViews() enumerateObjectsUsingBlock:^(UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        if ([obj respondsToSelector:@selector(invalidate)]) {
-            [obj performSelector:@selector(invalidate)];
-        }
-        NSDictionary *param = @{@"id": [obj componentTag]};
-        footstone::value::HippyValue value = [param toHippyValue];
-        std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
-        bridge.javaScriptExecutor.pScope->UnloadInstance(domValue);
-    }];
+- (BOOL)shouldStartInspector:(HippyBridgeConnector *)connector {
+    return connector.bridge.debugMode;
 }
 
-- (void)removeRootNode:(NSNumber *)rootTag bridge:(HippyBridge *)bridge{
-    _nativeRenderManager->UnregisterRootView([rootTag intValue]);
+- (BOOL)shouldInvokeWithModuleName:(NSString *)moduleName methodName:(NSString *)methodName arguments:(NSArray<id<HippyBridgeArgument>> *)arguments argumentsValues:(NSArray *)argumentsValue containCallback:(BOOL)containCallback {
+    HPAssert(moduleName, @"module name must not be null");
+    HPAssert(methodName, @"method name must not be null");
+    return YES;
 }
 
+- (BOOL)shouldCallbackBeInvokedWithModuleName:(NSString *)moduleName methodName:(NSString *)methodName callbackId:(NSNumber *)cbId arguments:(id)arguments {
+    HPAssert(moduleName, @"module name must not be null");
+    HPAssert(methodName, @"method name must not be null");
+    return YES;
+}
 @end

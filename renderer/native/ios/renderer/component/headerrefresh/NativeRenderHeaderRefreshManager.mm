@@ -26,6 +26,8 @@
 
 @implementation NativeRenderHeaderRefreshManager
 
+NATIVE_RENDER_EXPORT_VIEW(PullHeaderView);
+
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onHeaderReleased, NativeRenderDirectEventBlock)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onHeaderPulling, NativeRenderDirectEventBlock)
 

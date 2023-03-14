@@ -105,46 +105,6 @@ function cancelIdleCallback(id) {
   }
 }
 
-const eventHandlerType = {
-  ADD: 0,
-  REMOVE: 1,
-};
-
-const nativeEventMap = {
-  onClick: 'click',
-  onLongClick: 'longclick',
-  // onPressIn: 'touchstart', // normalization
-  // onPressOut: 'touchend', // normalization
-  onPressIn: 'pressin',
-  onPressOut: 'pressout',
-  onTouchDown: 'touchstart', // compatible with w3c standard name touchstart
-  onTouchStart: 'touchstart',
-  onTouchEnd: 'touchend',
-  onTouchMove: 'touchmove',
-  onTouchCancel: 'touchcancel',
-};
-
-const DOMEventPhase = {
-  NONE: 0,
-  CAPTURING_PHASE: 1,
-  AT_TARGET: 2,
-  BUBBLING_PHASE: 3,
-};
-
-
-function isNativeGesture(name) {
-  return !!nativeEventMap[name];
-}
-
-function translateToNativeEventName(name) {
-  return name.replace(/^(on)?/g, '').toLocaleLowerCase();
-}
-
-const relativeToRefType = {
-  BEFORE: -1,
-  AFTER: 1,
-};
-
 /**
  * isStyleMatched - judge whether selector matching
  * @param matchedSelector
@@ -156,13 +116,13 @@ function isStyleMatched(matchedSelector, targetNode) {
   return matchedSelector.match(targetNode);
 }
 
+const relativeToRefType = {
+  BEFORE: -1,
+  AFTER: 1,
+};
+
 export {
-  translateToNativeEventName,
-  isNativeGesture,
   relativeToRefType,
-  eventHandlerType,
-  nativeEventMap,
-  DOMEventPhase,
   recursivelyUnCacheNode,
   requestIdleCallback,
   cancelIdleCallback,

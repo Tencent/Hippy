@@ -39,6 +39,7 @@ inline namespace render {
 inline namespace tdf {
 
 static std::map<std::string, ViewNode::node_creator> node_creator_tables_;
+static ViewNode::node_creator embedded_node_creator_ = nullptr;
 
 void InitNodeCreator();
 void RegisterNodeCreator(const std::string &, const ViewNode::node_creator &);

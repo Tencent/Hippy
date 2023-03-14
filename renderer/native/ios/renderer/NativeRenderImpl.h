@@ -195,7 +195,7 @@ class HippyValue;
                 params:(const footstone::value::HippyValue &)params
               callback:(hippy::CallFunctionCallback)cb;
 
-- (void)registerExtraComponent:(NSDictionary<NSString *, Class> *)extraComponent;
+- (void)registerExtraComponent:(NSArray<Class> *)extraComponents;
 
 /**
  * register event for specific view

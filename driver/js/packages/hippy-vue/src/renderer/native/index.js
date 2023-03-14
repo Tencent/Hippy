@@ -25,7 +25,11 @@
  * Virtual DOM to Native DOM
  */
 
-import { GLOBAL_STYLE_NAME, GLOBAL_DISPOSE_STYLE_NAME, ROOT_VIEW_ID } from '../../runtime/constants';
+import {
+  GLOBAL_STYLE_NAME,
+  GLOBAL_DISPOSE_STYLE_NAME,
+  ROOT_VIEW_ID,
+} from '../../runtime/constants';
 import {
   getApp,
   trace,
@@ -37,9 +41,15 @@ import {
   isTraceEnabled,
 } from '../../util';
 import {
+  eventHandlerType,
+  nativeEventMap,
+  translateToNativeEventName,
+  isNativeGesture,
+} from '../../util/event';
+import {
   isRTL,
 } from '../../util/i18n';
-import { isStyleMatched, preCacheNode, eventHandlerType, nativeEventMap, translateToNativeEventName } from '../../util/node';
+import { isStyleMatched, preCacheNode } from '../../util/node';
 import { fromAstNodes, SelectorsMap } from './style';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
@@ -84,10 +94,6 @@ function chunkNodes(batchNodes) {
     }
   }
   return result;
-}
-
-function isNativeGesture(name) {
-  return !!nativeEventMap[name];
 }
 
 function handleEventListeners(eventNodes = [], sceneBuilder) {
