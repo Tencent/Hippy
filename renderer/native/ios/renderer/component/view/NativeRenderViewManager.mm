@@ -47,6 +47,8 @@
 
 @implementation NativeRenderViewManager
 
+NATIVE_RENDER_EXPORT_VIEW(View);
+
 - (UIView *)view {
     return [[NativeRenderView alloc] init];
 }

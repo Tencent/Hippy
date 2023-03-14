@@ -31,6 +31,8 @@
 
 @implementation NativeRenderTextViewManager
 
+NATIVE_RENDER_EXPORT_VIEW(TextInput)
+
 - (UIView *)view {
     NSNumber *mutiline = self.props[@"multiline"];
     NSString *keyboardType = self.props[@"keyboardType"];

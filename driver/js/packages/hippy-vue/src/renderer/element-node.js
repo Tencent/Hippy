@@ -23,7 +23,6 @@
 
 import { PROPERTIES_MAP } from '@css-loader/css-parser';
 import { getViewMeta, normalizeElementName } from '../elements';
-import { eventMethod } from '../util/event';
 import {
   unicodeToChar,
   capitalizeFirstLetter,
@@ -33,11 +32,10 @@ import {
   getBeforeLoadStyle,
   warn,
   isDev,
-  isEmpty,
   whitespaceFilter,
 } from '../util';
+import { eventMethod, eventHandlerType } from '../util/event';
 import Native from '../runtime/native';
-import { eventHandlerType } from '../util/node';
 import { updateChild, updateWithChildren } from './native';
 import { Event, EventDispatcher, EventEmitter } from './native/event';
 import { Text } from './native/components';
@@ -376,8 +374,21 @@ class ElementNode extends ViewNode {
     delete this.attributes[key];
   }
 
+  /**
+   * remove style attr
+   */
+  removeStyle(notToNative = false) {
+    // remove all style
+    this.style = {};
+    if (!notToNative) {
+      updateChild(this);
+    }
+  }
+
   setStyles(batchStyles) {
-    if (isEmpty(batchStyles)) return;
+    if (!batchStyles || typeof batchStyles !== 'object') {
+      return;
+    }
     Object.keys(batchStyles).forEach((styleKey) => {
       const styleValue = batchStyles[styleKey];
       this.setStyle(styleKey, styleValue, true);
@@ -557,10 +568,10 @@ class ElementNode extends ViewNode {
     }
     if (typeof this.polyfillNativeEvents === 'function') {
       ({ eventNames, callback, options } = this.polyfillNativeEvents(
-          eventMethod.ADD,
-          eventNames,
-          callback,
-          options,
+        eventMethod.ADD,
+        eventNames,
+        callback,
+        options,
       ));
     }
     this._emitter.addEventListener(eventNames, callback, options);
@@ -586,10 +597,10 @@ class ElementNode extends ViewNode {
     }
     if (typeof this.polyfillNativeEvents === 'function') {
       ({ eventNames, callback, options } = this.polyfillNativeEvents(
-          eventMethod.REMOVE,
-          eventNames,
-          callback,
-          options,
+        eventMethod.REMOVE,
+        eventNames,
+        callback,
+        options,
       ));
     }
     const observer = this._emitter.removeEventListener(eventNames, callback, options);

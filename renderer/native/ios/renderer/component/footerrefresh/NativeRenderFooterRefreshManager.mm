@@ -26,6 +26,8 @@
 
 @implementation NativeRenderFooterRefreshManager
 
+NATIVE_RENDER_EXPORT_VIEW(PullFooterView);
+
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(refreshStick, BOOL)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onFooterReleased, NativeRenderDirectEventBlock)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onFooterPulling, NativeRenderDirectEventBlock)

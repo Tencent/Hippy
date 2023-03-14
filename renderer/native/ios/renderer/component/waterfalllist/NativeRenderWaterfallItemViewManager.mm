@@ -26,6 +26,8 @@
 
 @implementation NativeRenderWaterfallItemViewManager
 
+NATIVE_RENDER_EXPORT_VIEW(WaterfallItem)
+
 - (UIView *)view {
     return [NativeRenderWaterfallItemView new];
 }

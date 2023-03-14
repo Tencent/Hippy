@@ -25,6 +25,8 @@
 
 @implementation NativeRenderRefreshWrapperItemViewManager
 
+NATIVE_RENDER_EXPORT_VIEW(RefreshWrapperItemView)
+
 - (UIView *)view {
     return [NativeRenderRefreshWrapperItemView new];
 }

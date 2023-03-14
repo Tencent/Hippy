@@ -42,18 +42,6 @@ extern NSString *const NativeRenderContentDidAppearNotification;
  */
 @property (nonatomic, weak) UIViewController *nativeRenderViewController;
 
-/**
- * The Hippy-managed contents view of the root view.
- */
-@property (nonatomic, strong, readonly) UIView *contentView;
-
-/**
- * A view to display while the JavaScript is loading, so users aren't presented
- * with a blank screen. By default this is nil, but you can override it with
- * (for example) a UIActivityIndicatorView or a placeholder image.
- */
-@property (nonatomic, strong) UIView *loadingView;
-
 - (void)contentDidAppear:(NSUInteger)cost;
 
 /**

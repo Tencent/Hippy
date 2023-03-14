@@ -106,6 +106,7 @@ class VoltronJSLoader with RendererLoader {
   final ModuleListener? _moduleListener;
   final OnLoadCompleteListener? _onLoadCompleteListener;
   final ModuleLoadParams _loadParams;
+  final int engineId;
   RootWidgetViewModel? _instance;
 
   VoltronJSLoader._internal(
@@ -113,7 +114,8 @@ class VoltronJSLoader with RendererLoader {
     this._loadParams, {
     ModuleListener? moduleListener,
     OnLoadCompleteListener? onLoadCompleteListener,
-  })  : _moduleListener = moduleListener,
+  })  : engineId = _jsLoaderManager.engineId,
+        _moduleListener = moduleListener,
         _onLoadCompleteListener = onLoadCompleteListener;
 
   @override
