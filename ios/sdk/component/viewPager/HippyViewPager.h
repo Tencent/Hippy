@@ -38,7 +38,6 @@ typedef void (^ViewPagerItemsCountChanged)(NSUInteger count);
 
 @property (nonatomic, assign) NSInteger initialPage;
 @property (nonatomic, assign) CGPoint targetOffset;
-@property (nonatomic, assign) BOOL loop;
 @property (nonatomic, assign, readonly) NSUInteger pageCount;
 @property (nonatomic, copy) ViewPagerItemsCountChanged itemsChangedBlock;
 

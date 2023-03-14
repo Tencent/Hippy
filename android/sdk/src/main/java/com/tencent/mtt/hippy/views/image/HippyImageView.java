@@ -351,7 +351,21 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
   protected void handleGetImageSuccess() {
     // send onLoad event
     if (mShouldSendImageEvent[ImageEvent.ONLOAD.ordinal()]) {
-      getOnLoadEvent().send(this, null);
+      HippyMap map = new HippyMap();
+      if (mSourceDrawable != null) {
+        if (mSourceDrawable instanceof HippyDrawable) {
+          HippyDrawable hippyTarget = (HippyDrawable) mSourceDrawable;
+          map.pushInt("width", hippyTarget.getWidth());
+          map.pushInt("height", hippyTarget.getHeight());
+          map.pushString("url", mUrl != null ? mUrl : "");
+        } else if (mSourceDrawable.getBitmap() != null) {
+          Bitmap bitmap = mSourceDrawable.getBitmap();
+          map.pushInt("width", bitmap.getWidth());
+          map.pushInt("height", bitmap.getHeight());
+          map.pushString("url", mUrl != null ? mUrl : "");
+        }
+      }
+      getOnLoadEvent().send(this, map);
     }
     // send onLoadEnd event
     if (mShouldSendImageEvent[ImageEvent.ONLOAD_END.ordinal()]) {

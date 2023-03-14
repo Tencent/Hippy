@@ -119,9 +119,13 @@ class Scope {
     turbo_host_object_map_[name] = host_object;
   }
 
+  inline void AddWillExitCallback(std::function<void()> cb) { // cb will run in the js thread
+    will_exit_cbs_.push_back(cb);
+  }
+
  private:
   friend class Engine;
-  void Init();
+  void Init(bool use_snapshot);
   void CreateContext();
   void BindModule();
   void Bootstrap();
@@ -140,4 +144,5 @@ class Scope {
   std::vector<std::unique_ptr<hippy::napi::FuncWrapper>> func_wrapper_holder_;
   std::unordered_map<std::string, std::shared_ptr<CtxValue>> turbo_instance_map_;
   std::unordered_map<std::string, std::any> turbo_host_object_map_;
+  std::vector<std::function<void()>> will_exit_cbs_;
 };

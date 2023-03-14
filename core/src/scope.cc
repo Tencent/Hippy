@@ -38,6 +38,7 @@
 #ifdef JS_V8
 #include "core/napi/v8/v8_ctx.h"
 #include "core/vm/v8/memory_module.h"
+#include "core/vm/v8/snapshot_collector.h"
 #endif
 
 using unicode_string_view = tdf::base::unicode_string_view;
@@ -73,6 +74,8 @@ static void InternalBindingCallback(const hippy::napi::CallbackInfo& info, void*
   info.GetReturnValue()->Set(js_object);
 }
 
+REGISTER_EXTERNAL_REFERENCES(InternalBindingCallback)
+
 Scope::Scope(std::weak_ptr<Engine> engine,
              std::string name,
              std::unique_ptr<RegisterMap> map)
@@ -86,10 +89,10 @@ Scope::~Scope() {
 void Scope::WillExit() {
   TDF_BASE_DLOG(INFO) << "WillExit begin";
   std::promise<std::shared_ptr<CtxValue>> promise;
-  std::future<std::shared_ptr<CtxValue>> future = promise.get_future();
+  auto future = promise.get_future();
   std::weak_ptr<Ctx> weak_context = context_;
-  JavaScriptTask::Function cb = hippy::base::MakeCopyable(
-      [weak_context, p = std::move(promise)]() mutable {
+  auto cb = hippy::base::MakeCopyable(
+      [weak_context, will_exit_cbs = will_exit_cbs_, p = std::move(promise)]() mutable {
         TDF_BASE_LOG(INFO) << "run js WillExit begin";
         std::shared_ptr<CtxValue> rst = nullptr;
         auto context = weak_context.lock();
@@ -101,6 +104,9 @@ void Scope::WillExit() {
           if (is_fn) {
             context->CallFunction(fn, 0, nullptr);
           }
+        }
+        for (const auto& will_exit_cb: will_exit_cbs) {
+          will_exit_cb();
         }
         p.set_value(rst);
       });
@@ -117,10 +123,12 @@ void Scope::WillExit() {
   TDF_BASE_DLOG(INFO) << "ExitCtx end";
 }
 
-void Scope::Init() {
+void Scope::Init(bool use_snapshot) {
   CreateContext();
   BindModule();
-  Bootstrap();
+  if (!use_snapshot) {
+    Bootstrap();
+  }
   InvokeCallback();
 }
 

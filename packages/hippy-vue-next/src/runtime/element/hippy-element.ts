@@ -35,14 +35,13 @@ import {
   tryConvertNumber,
   unicodeToChar,
   warn,
-  isEmpty,
   deepCopy,
   isStyleMatched,
   whitespaceFilter,
   getBeforeRenderToNative,
 } from '../../util';
 import { isRTL } from '../../util/i18n';
-import { eventMethod } from '../../util/event';
+import { EventMethod } from '../../util/event';
 import { getHippyCachedInstance } from '../../util/instance';
 import { parseRemStyle } from '../../util/rem';
 import { getTagComponent, type TagComponent } from '../component';
@@ -464,10 +463,12 @@ export class HippyElement extends HippyNode {
   /**
    * remove style attr
    */
-  public removeStyle(): void {
+  public removeStyle(notToNative = false): void {
     // remove all style
     this.style = {};
-    this.updateNativeNode();
+    if (!notToNative) {
+      this.updateNativeNode();
+    }
   }
 
   /**
@@ -476,7 +477,9 @@ export class HippyElement extends HippyNode {
    * @param batchStyles - batched style to set
    */
   public setStyles(batchStyles) {
-    if (isEmpty(batchStyles)) return;
+    if (!batchStyles || typeof batchStyles !== 'object') {
+      return;
+    }
     Object.keys(batchStyles).forEach((styleKey) => {
       const styleValue = batchStyles[styleKey];
       this.setStyle(styleKey, styleValue, true);
@@ -643,7 +646,7 @@ export class HippyElement extends HippyNode {
     // If there is an event polyfill, override the event names, callback and options
     if (typeof this.polyfillNativeEvents === 'function') {
       ({ eventNames, callback, options } = this.polyfillNativeEvents(
-        eventMethod.ADD,
+        EventMethod.ADD,
         eventNames,
         callback,
         options,
@@ -672,7 +675,7 @@ export class HippyElement extends HippyNode {
     // If there is an event polyfill, override the event names, callback and options
     if (typeof this.polyfillNativeEvents === 'function') {
       ({ eventNames, callback, options } = this.polyfillNativeEvents(
-        eventMethod.REMOVE,
+        EventMethod.REMOVE,
         eventNames,
         callback,
         options,
@@ -706,7 +709,7 @@ export class HippyElement extends HippyNode {
 
     // event bubbling
     if (this.parentNode && event.bubbles) {
-      this.parentNode.dispatchEvent.call(this.parentNode, event);
+      (this.parentNode as HippyElement).dispatchEvent.call(this.parentNode, event);
     }
   }
 

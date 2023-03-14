@@ -73,8 +73,13 @@ describe('patch-prop.ts', () => {
     patchProp(element, 'style', { width: 100 }, { height: 100, width: null }, false, undefined, null);
     expect(element.style).toEqual({
       height: 100,
-      width: '',
     });
+
+    patchProp(element, 'style', { width: 100 }, {}, false, undefined, null);
+    expect(element.style).toEqual({});
+
+    patchProp(element, 'style', { width: 100 }, null, false, undefined, null);
+    expect(element.style).toEqual({});
   });
 
   it('patch event prop', () => {
