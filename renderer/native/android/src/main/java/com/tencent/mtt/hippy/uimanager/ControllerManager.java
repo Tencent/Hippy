@@ -511,6 +511,13 @@ public class ControllerManager {
         }
     }
 
+    private boolean checkRecyclable(@Nullable HippyViewController controller, boolean recyclable) {
+        if (controller == null) {
+            return recyclable;
+        }
+        return controller.isRecyclable() && recyclable;
+    }
+
     @SuppressWarnings({"unchecked", "rawtypes"})
     public void deleteChildRecursive(int rootId, ViewGroup parent, View child, boolean recyclable) {
         if (parent == null || child == null) {
@@ -552,7 +559,7 @@ public class ControllerManager {
             parent.removeView(child);
         }
         mControllerRegistry.removeView(rootId, child.getId());
-        if (recyclable && childTag != null) {
+        if (checkRecyclable(childController, recyclable) && childTag != null) {
             Pool<String, View> pool = mRecycleViewPools.get(rootId);
             if (pool == null) {
                 pool = new RecycleViewPool();
