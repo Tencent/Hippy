@@ -25,7 +25,7 @@ import 'package:ffi/ffi.dart';
 enum LoaderFuncType {
   callNative,
   reportJsonException,
-  reportJsException
+  reportJsException,
 }
 
 typedef InitBridgeFfiNativeType = Void Function();
@@ -57,27 +57,30 @@ typedef InitJsFrameworkFfiDartType = int Function(
 );
 
 typedef RunScriptFromUriFfiNativeType = Int32 Function(
-    Int32 engineId,
-    Uint32 vfsId,
-    Pointer<Utf16> uri,
-    Pointer<Utf16> codeCacheDir,
-    Int32 canUseCodeCache,
-    Int32 isLocalFile,
-    Int32 callbackId);
+  Int32 engineId,
+  Uint32 vfsId,
+  Pointer<Utf16> uri,
+  Pointer<Utf16> codeCacheDir,
+  Int32 canUseCodeCache,
+  Int32 isLocalFile,
+  Int32 callbackId,
+);
 typedef RunScriptFromUriFfiDartType = int Function(
-    int engineId,
-    int vfsId,
-    Pointer<Utf16> uri,
-    Pointer<Utf16> codeCacheDir,
-    int canUseCodeCache,
-    int isLocalFile,
-    int callbackId);
+  int engineId,
+  int vfsId,
+  Pointer<Utf16> uri,
+  Pointer<Utf16> codeCacheDir,
+  int canUseCodeCache,
+  int isLocalFile,
+  int callbackId,
+);
 
 typedef LoadInstanceFfiNativeType = Int64 Function(
   Int32 engineId,
   Pointer<Uint8> params,
   Int32 paramsLength,
 );
+
 typedef LoadInstanceFfiDartType = int Function(
   int engineId,
   Pointer<Uint8> params,
@@ -161,15 +164,31 @@ typedef CallNativeEventFfiDartType = void Function(
   int paramsLen,
 );
 
-typedef OnNetworkRequestInvokeNativeType = Void Function(Int32 engineId,
-    Pointer<Utf16> requestId, Pointer<Uint8> reqMeta, Int32 length);
+typedef OnNetworkRequestInvokeNativeType = Void Function(
+  Int32 engineId,
+  Pointer<Utf16> requestId,
+  Pointer<Uint8> reqMeta,
+  Int32 length,
+);
 typedef OnNetworkRequestInvokeDartType = void Function(
-    int engineId, Pointer<Utf16> requestId, Pointer<Uint8> reqMeta, int length);
+  int engineId,
+  Pointer<Utf16> requestId,
+  Pointer<Uint8> reqMeta,
+  int length,
+);
 
-typedef OnNetworkResponseInvokeNativeType = Void Function(Int32 engineId,
-    Pointer<Utf16> requestId, Pointer<Uint8> reqMeta, Int32 length);
-typedef OnNetworkResponseInvokeDartType = void Function(int engineId,
-    Pointer<Utf16> requestId, Pointer<Uint8> rsqMeta, int length);
+typedef OnNetworkResponseInvokeNativeType = Void Function(
+  Int32 engineId,
+  Pointer<Utf16> requestId,
+  Pointer<Uint8> reqMeta,
+  Int32 length,
+);
+typedef OnNetworkResponseInvokeDartType = void Function(
+  int engineId,
+  Pointer<Utf16> requestId,
+  Pointer<Uint8> rsqMeta,
+  int length,
+);
 
 typedef GetCrashMessageFfiType = Pointer<Utf8> Function();
 
@@ -205,24 +224,30 @@ typedef DestroyFfiDartType = void Function(
 );
 
 typedef CallNativeFfi = Void Function(
-    Int32 engineId,
-    Pointer<Utf16> moduleName,
-    Pointer<Utf16> moduleFunc,
-    Pointer<Utf16> callId,
-    Pointer<Void> paramsData,
-    Uint32 paramsLen,
-    Int32 bridgeParamJson);
+  Int32 engineId,
+  Pointer<Utf16> moduleName,
+  Pointer<Utf16> moduleFunc,
+  Pointer<Utf16> callId,
+  Pointer<Void> paramsData,
+  Uint32 paramsLen,
+  Int32 bridgeParamJson,
+);
 
 typedef ReportJsonException = Void Function(
-    Int32 engineId, Pointer<Utf8> jsonValue);
+  Int32 engineId,
+  Pointer<Utf8> jsonValue,
+);
 
-typedef ReportJsException = Void Function(Int32 engineId,
-    Pointer<Utf16> descriptionStream, Pointer<Utf16> stackStream);
+typedef ReportJsException = Void Function(
+  Int32 engineId,
+  Pointer<Utf16> descriptionStream,
+  Pointer<Utf16> stackStream,
+);
 
 typedef CreateDevtoolsDartType = int Function(
-    int workerManagerId,
-    Pointer<Utf16> dataDir,
-    Pointer<Utf16> wsUrl
+  int workerManagerId,
+  Pointer<Utf16> dataDir,
+  Pointer<Utf16> wsUrl,
 );
 
 typedef CreateDevtoolsFfiNativeType = Uint32 Function(
@@ -232,11 +257,15 @@ typedef CreateDevtoolsFfiNativeType = Uint32 Function(
 );
 
 typedef DestroyDevtoolsDartType = void Function(
-    int devtoolsId,
-    int isReload
+  int devtoolsId,
+  int isReload,
 );
 
 typedef DestroyDevtoolsFfiNativeType = Void Function(
-    Uint32 devtoolsId,
-    Int32 isReload
+  Uint32 devtoolsId,
+  Int32 isReload,
 );
+
+typedef GetVoltronEngineIndexFfiNativeType = Uint32 Function();
+
+typedef GetVoltronEngineIndexFfiDartType = int Function();

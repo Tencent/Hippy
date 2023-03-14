@@ -59,6 +59,12 @@ using voltron::StandardMessageCodec;
 using voltron::VoltronRenderManager;
 using footstone::WorkerManager;
 
+std::atomic<int32_t> voltronEngineIndex = 0;
+
+EXTERN_C int32_t GetVoltronEngineIndexFFI() {
+  return ++voltronEngineIndex;
+}
+
 EXTERN_C void LoadInstanceFFI(int32_t engine_id, const char* params, int32_t params_length) {
   auto bridge_manager = BridgeManager::Find(engine_id);
   if (!bridge_manager) {

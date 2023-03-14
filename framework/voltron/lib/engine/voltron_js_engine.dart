@@ -33,10 +33,7 @@ class VoltronJSEngine
     implements OnSizeChangedListener, OnResumeAndPauseListener, DevServerCallback {
   static const String _kTag = "EngineManagerImpl";
 
-  // flutter的engine ID从100000开始
-  static int sIdCounter = 100000;
-
-  static bool _sHasInitBridge = false;
+  static bool _hasInit = false;
 
   final List<EngineListener> _eventListenerList = [];
 
@@ -46,7 +43,7 @@ class VoltronJSEngine
   EngineState _currentState = EngineState.unInit;
 
   // Engine的ID，唯一
-  final int _id = sIdCounter++;
+  late int _id;
 
   int get id => _id;
 
@@ -128,8 +125,22 @@ class VoltronJSEngine
       }
     }
 
-    CookieManager.getInstance()
-        .setCookieDelegate(params.cookieDelegateType, originDelegate: params.originDelegate);
+    try {
+      _initBridge();
+    } catch (e) {
+      _currentState = EngineState.initError;
+      if (e is Error) {
+        LogUtils.e(_kTag, "${e.stackTrace}");
+      }
+    }
+    LogUtils.d(_kTag, "initEngine initBridge done");
+
+    _id = VoltronApi.getVoltronEngineIndex();
+
+    CookieManager.getInstance().setCookieDelegate(
+      params.cookieDelegateType,
+      originDelegate: params.originDelegate,
+    );
 
     var configs = GlobalConfigs(params);
     _globalConfigs = configs;
@@ -159,15 +170,6 @@ class VoltronJSEngine
       }
     }
     LogUtils.d(_kTag, "initEngine getPlatform done");
-    try {
-      _initBridge();
-    } catch (e) {
-      _currentState = EngineState.initError;
-      if (e is Error) {
-        LogUtils.e(_kTag, "${e.stackTrace}");
-      }
-    }
-    LogUtils.d(_kTag, "initEngine initBridge done");
 
     if (_currentState != EngineState.unInit) {
       _listen(listener);
@@ -342,6 +344,9 @@ class VoltronJSEngine
     _engineContext?.renderContext.createRootView(
       loadContext,
       rootWidgetViewModel,
+    );
+    LogUtils.dBridge(
+      "loadJSInstance engineId: ${_engineContext?.engineId ?? 0}, rootWidgetViewModel.id: ${rootWidgetViewModel.id}",
     );
     _engineContext?.bridgeManager
         .connectRootViewAndRuntime(_engineContext?.engineId ?? 0, rootWidgetViewModel.id);
@@ -523,11 +528,11 @@ class VoltronJSEngine
     return false;
   }
 
-  static Future<dynamic> _initBridge() async {
-    if (!_sHasInitBridge) {
+  static void _initBridge() {
+    if (!_hasInit) {
       LogUtils.d(_kTag, "_initBridge");
-      await VoltronApi.initBridge();
-      _sHasInitBridge = true;
+      VoltronApi.initBridge();
+      _hasInit = true;
     }
   }
 

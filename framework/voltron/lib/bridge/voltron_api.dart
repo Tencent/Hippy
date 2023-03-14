@@ -82,6 +82,9 @@ class _BridgeFFIManager {
   // 执行回调任务
   late ExecuteCallbackDartType executeCallback;
 
+  // 获取引擎自增id
+  late GetVoltronEngineIndexFfiDartType getVoltronEngineIndex;
+
   static _BridgeFFIManager _getInstance() {
     // 只能有一个实例
     _instance ??= _BridgeFFIManager._internal();
@@ -92,9 +95,13 @@ class _BridgeFFIManager {
   _BridgeFFIManager._internal() {
     initJsFramework =
         _library.lookupFunction<InitJsFrameworkFfiNativeType, InitJsFrameworkFfiDartType>(
-            "InitJSFrameworkFFI");
-    runScriptFromUri = _library.lookupFunction<RunScriptFromUriFfiNativeType, RunScriptFromUriFfiDartType>(
-        "RunScriptFromUriFFI");
+      "InitJSFrameworkFFI",
+    );
+
+    runScriptFromUri =
+        _library.lookupFunction<RunScriptFromUriFfiNativeType, RunScriptFromUriFfiDartType>(
+      "RunScriptFromUriFFI",
+    );
 
     notifyNetworkEvent =
         _library.lookupFunction<NotifyNetworkEventFfiNativeType, NotifyNetworkEventFfiDartType>(
@@ -120,28 +127,38 @@ class _BridgeFFIManager {
       'UnloadInstanceFFI',
     );
 
-    callFunction = _library
-        .lookupFunction<CallFunctionFfiNativeType, CallFunctionFfiDartType>("CallFunctionFFI");
+    callFunction = _library.lookupFunction<CallFunctionFfiNativeType, CallFunctionFfiDartType>(
+      "CallFunctionFFI",
+    );
 
     getCrashMessage = _library.lookupFunction<GetCrashMessageFfiType, GetCrashMessageFfiType>(
       "GetCrashMessageFFI",
     );
 
-    destroy = _library
-        .lookupFunction<DestroyFfiNativeType, DestroyFfiDartType>("DestroyFFI");
+    destroy = _library.lookupFunction<DestroyFfiNativeType, DestroyFfiDartType>(
+      "DestroyFFI",
+    );
 
-    onNetworkRequestInvoke = _library.lookupFunction<
-        OnNetworkRequestInvokeNativeType,
-        OnNetworkRequestInvokeDartType>('OnNetworkRequestInvoke');
-    onNetworkResponseInvoke = _library.lookupFunction<
-        OnNetworkResponseInvokeNativeType,
-        OnNetworkResponseInvokeDartType>('OnNetworkResponseInvoke');
+    onNetworkRequestInvoke =
+        _library.lookupFunction<OnNetworkRequestInvokeNativeType, OnNetworkRequestInvokeDartType>(
+      'OnNetworkRequestInvoke',
+    );
+    onNetworkResponseInvoke =
+        _library.lookupFunction<OnNetworkResponseInvokeNativeType, OnNetworkResponseInvokeDartType>(
+      'OnNetworkResponseInvoke',
+    );
 
     createDevtools = _library.lookupFunction<CreateDevtoolsFfiNativeType, CreateDevtoolsDartType>(
       "CreateDevtoolsFFI",
     );
-    destroyDevtools = _library.lookupFunction<DestroyDevtoolsFfiNativeType, DestroyDevtoolsDartType>(
+    destroyDevtools =
+        _library.lookupFunction<DestroyDevtoolsFfiNativeType, DestroyDevtoolsDartType>(
       "DestroyDevtoolsFFI",
+    );
+
+    getVoltronEngineIndex = _library
+        .lookupFunction<GetVoltronEngineIndexFfiNativeType, GetVoltronEngineIndexFfiDartType>(
+      'GetVoltronEngineIndexFFI',
     );
   }
 }
@@ -151,30 +168,40 @@ class VoltronApi {
   // jsc暂时不支持通过bson通信
   static bool get enableVoltronBuffer => (Platform.isIOS || Platform.isMacOS) ? false : true;
 
+  static int getVoltronEngineIndex() {
+    return _BridgeFFIManager.instance.getVoltronEngineIndex();
+  }
+
   // ------------------ dart call native方法 start ---------------------
-  static Future<int> initJsFrameWork(
-      {String globalConfig = '',
-      bool singleThreadMode = false,
-      bool isDevModule = false,
-      required int groupId,
-      required int engineId,
-      required int workerManagerId,
-      required int domId,
-      required CommonCallback callback,
-      required int devtoolsId}) async {
+  static Future<int> initJsFrameWork({
+    String globalConfig = '',
+    bool singleThreadMode = false,
+    bool isDevModule = false,
+    required int groupId,
+    required int engineId,
+    required int workerManagerId,
+    required int domId,
+    required CommonCallback callback,
+    required int devtoolsId,
+  }) async {
     var globalConfigPtr = globalConfig.toNativeUtf16();
     globalConfig.toNativeUtf16();
     var result = _BridgeFFIManager.instance.initJsFramework(
-        globalConfigPtr,
-        singleThreadMode ? 1 : 0,
-        enableVoltronBuffer ? 0 : 1,
-        isDevModule ? 1 : 0,
-        groupId,
-        workerManagerId,
-        domId,
-        engineId, generateCallback((value) {
-      callback(value);
-    }), devtoolsId);
+      globalConfigPtr,
+      singleThreadMode ? 1 : 0,
+      enableVoltronBuffer ? 0 : 1,
+      isDevModule ? 1 : 0,
+      groupId,
+      workerManagerId,
+      domId,
+      engineId,
+      generateCallback(
+        (value) {
+          callback(value);
+        },
+      ),
+      devtoolsId,
+    );
     free(globalConfigPtr);
     return result;
   }
@@ -221,19 +248,30 @@ class VoltronApi {
     }
   }
 
-  static Future<bool> runScriptFromUri(int engineId, int vfsId, String uri,
-      String codeCacheDir, bool canUseCodeCache, bool isLocalFile, CommonCallback callback) async {
+  static Future<bool> runScriptFromUri(
+    int engineId,
+    int vfsId,
+    String uri,
+    String codeCacheDir,
+    bool canUseCodeCache,
+    bool isLocalFile,
+    CommonCallback callback,
+  ) async {
     var uriPtr = uri.toNativeUtf16();
     var codeCacheDirPtr = codeCacheDir.toNativeUtf16();
     var result = _BridgeFFIManager.instance.runScriptFromUri(
-        engineId,
-        vfsId,
-        uriPtr,
-        codeCacheDirPtr,
-        canUseCodeCache ? 1 : 0,
-        isLocalFile ? 1 : 0, generateCallback((value) {
-      callback(value);
-    }));
+      engineId,
+      vfsId,
+      uriPtr,
+      codeCacheDirPtr,
+      canUseCodeCache ? 1 : 0,
+      isLocalFile ? 1 : 0,
+      generateCallback(
+        (value) {
+          callback(value);
+        },
+      ),
+    );
     free(uriPtr);
     free(codeCacheDirPtr);
     return result == 1;
@@ -374,7 +412,11 @@ class VoltronApi {
     return crashMessage.toDartString();
   }
 
-  static Future<dynamic> destroy(int engineId, CommonCallback callback, bool isReload) async {
+  static Future<dynamic> destroy(
+    int engineId,
+    CommonCallback callback,
+    bool isReload,
+  ) async {
     _BridgeFFIManager.instance.destroy(
       engineId,
       generateCallback((value) {
@@ -384,10 +426,11 @@ class VoltronApi {
     );
   }
 
-  static Future<int> createDevtools(
-      {required int workerManagerId,
-      String dataDir = '',
-      String wsUrl = ''}) async {
+  static Future<int> createDevtools({
+    required int workerManagerId,
+    String dataDir = '',
+    String wsUrl = '',
+  }) async {
     return _BridgeFFIManager.instance.createDevtools(
       workerManagerId,
       dataDir.toNativeUtf16(),
@@ -395,7 +438,10 @@ class VoltronApi {
     );
   }
 
-  static Future<dynamic> destroyDevtools(int devtoolsId, bool isReload) async {
+  static Future<dynamic> destroyDevtools(
+    int devtoolsId,
+    bool isReload,
+  ) async {
     _BridgeFFIManager.instance.destroyDevtools(
       devtoolsId,
       isReload ? 1 : 0,
@@ -405,39 +451,52 @@ class VoltronApi {
 // ------------------ dart call native方法 end ---------------------
 
   // 初始化bridge层
-  static Future<dynamic> initBridge() async {
+  static void initBridge() {
     // 添加自定义c++ call dart方法注册器
-    FfiManager().addFuncExRegister(_BridgeFFIManager._kVoltronCoreRegisterHeader, 'RegisterVoltronCoreCallFuncEx');
+    FfiManager().addFuncExRegister(
+      _BridgeFFIManager._kVoltronCoreRegisterHeader,
+      'RegisterVoltronCoreCallFuncEx',
+    );
 
     // 注册callNative回调
-    var callNativeRegisterFunc = FfiManager().library.lookupFunction<
-        AddCallFuncNativeType<CallNativeFfi>,
-        AddCallFuncDartType<CallNativeFfi>>(
-        FfiManager().registerFuncName);
-    var callNativeFunc =
-        Pointer.fromFunction<CallNativeFfi>(callNative);
-    FfiManager().addRegisterFunc(_BridgeFFIManager._kVoltronCoreRegisterHeader,
-        LoaderFuncType.callNative.index, callNativeFunc, callNativeRegisterFunc);
+    var callNativeRegisterFunc = FfiManager()
+        .library
+        .lookupFunction<AddCallFuncNativeType<CallNativeFfi>, AddCallFuncDartType<CallNativeFfi>>(
+          FfiManager().registerFuncName,
+        );
+    var callNativeFunc = Pointer.fromFunction<CallNativeFfi>(callNative);
+    FfiManager().addRegisterFunc(
+      _BridgeFFIManager._kVoltronCoreRegisterHeader,
+      LoaderFuncType.callNative.index,
+      callNativeFunc,
+      callNativeRegisterFunc,
+    );
 
     // 注册reportJsonException回调
     var reportJsonExceptionRegisterFunc = FfiManager().library.lookupFunction<
-        AddCallFuncNativeType<ReportJsonException>,
-        AddCallFuncDartType<ReportJsonException>>(
-        FfiManager().registerFuncName);
-    var reportJsonExceptionFunc =
-        Pointer.fromFunction<ReportJsonException>(reportJsonException);
-    FfiManager().addRegisterFunc(_BridgeFFIManager._kVoltronCoreRegisterHeader,
-        LoaderFuncType.reportJsonException.index, reportJsonExceptionFunc, reportJsonExceptionRegisterFunc);
+            AddCallFuncNativeType<ReportJsonException>, AddCallFuncDartType<ReportJsonException>>(
+          FfiManager().registerFuncName,
+        );
+    var reportJsonExceptionFunc = Pointer.fromFunction<ReportJsonException>(reportJsonException);
+    FfiManager().addRegisterFunc(
+      _BridgeFFIManager._kVoltronCoreRegisterHeader,
+      LoaderFuncType.reportJsonException.index,
+      reportJsonExceptionFunc,
+      reportJsonExceptionRegisterFunc,
+    );
 
     // 注册reportJSException回调
     var reportJsExceptionRegisterFunc = FfiManager().library.lookupFunction<
-        AddCallFuncNativeType<ReportJsException>,
-        AddCallFuncDartType<ReportJsException>>(
-        FfiManager().registerFuncName);
-    var reportJSExceptionFunc =
-        Pointer.fromFunction<ReportJsException>(reportJSException);
-    FfiManager().addRegisterFunc(_BridgeFFIManager._kVoltronCoreRegisterHeader,
-        LoaderFuncType.reportJsException.index, reportJSExceptionFunc, reportJsExceptionRegisterFunc);
+            AddCallFuncNativeType<ReportJsException>, AddCallFuncDartType<ReportJsException>>(
+          FfiManager().registerFuncName,
+        );
+    var reportJSExceptionFunc = Pointer.fromFunction<ReportJsException>(reportJSException);
+    FfiManager().addRegisterFunc(
+      _BridgeFFIManager._kVoltronCoreRegisterHeader,
+      LoaderFuncType.reportJsException.index,
+      reportJSExceptionFunc,
+      reportJsExceptionRegisterFunc,
+    );
   }
 }
 
@@ -470,7 +529,10 @@ void callNative(
   }
 }
 
-void reportJsonException(int engineId, Pointer<Utf8> jsonValue) {
+void reportJsonException(
+  int engineId,
+  Pointer<Utf8> jsonValue,
+) {
   var exception = jsonValue.toDartString();
   LogUtils.e("Voltron_bridge", "reportJsonException\n !!!!!!!!!!!!!!!!!!! \n Error($exception)");
 
@@ -498,7 +560,9 @@ void reportJSException(
   }
 }
 
-VoltronBridgeManager? getCurrentBridge(int engineId) {
+VoltronBridgeManager? getCurrentBridge(
+  int engineId,
+) {
   var bridge = VoltronBridgeManager.bridgeMap[engineId];
   bridge ??= VoltronBridgeManager.bridgeMap[0];
   return bridge;

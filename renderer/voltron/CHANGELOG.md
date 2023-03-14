@@ -1,3 +1,7 @@
+## 0.0.10
+
+- support multiple flutter engines
+
 ## 0.0.9
 
 - fix scrollView UI error with TextInput component
