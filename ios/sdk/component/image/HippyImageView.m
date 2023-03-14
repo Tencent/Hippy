@@ -221,6 +221,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     __weak CALayer *_borderWidthLayer;
     BOOL _needsUpdateBorderRadiusManully;
     CGSize _size;
+    CGRect _imageRect;
 }
 
 /// Animated Image Operation (should avoid multi-thread manipulation)
@@ -321,11 +322,14 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
 }
 
 - (void)setFrame:(CGRect)frame {
+    BOOL result = CGRectEqualToRect(frame, _imageRect);
+    if (result) {
+        return;
+    }
     [super setFrame:frame];
     _size = frame.size;
-    if (nil == self.image) {
-        [self reloadImage];
-    }
+    _imageRect = frame;
+    [self reloadImage];
     [self updateCornerRadius];
 }
 
