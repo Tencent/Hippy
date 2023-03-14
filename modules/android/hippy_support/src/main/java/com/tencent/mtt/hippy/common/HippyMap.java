@@ -29,7 +29,7 @@ import java.util.Set;
 @Deprecated
 public class HippyMap {
 
-    private final HashMap<String, Object> mDatas;
+    private final Map<String, Object> mDatas;
 
     @Override
     public String toString() {
@@ -41,10 +41,10 @@ public class HippyMap {
     }
 
     public HippyMap(Map<String, Object> map) {
-        mDatas = (HashMap<String, Object>) map;
+        mDatas = map;
     }
 
-    public HashMap<String, Object> getInternalMap() {
+    public Map<String, Object> getInternalMap() {
         return mDatas;
     }
 
