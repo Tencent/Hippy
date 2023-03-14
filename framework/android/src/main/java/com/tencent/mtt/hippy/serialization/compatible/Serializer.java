@@ -27,6 +27,8 @@ import com.tencent.mtt.hippy.serialization.nio.writer.BinaryWriter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -69,11 +71,11 @@ public class Serializer extends PrimitiveValueSerializer {
     } else if (object instanceof HippyMap) {
       assignId(object);
       writeJSObject((HippyMap) object);
-    } else if (object instanceof ArrayList) {
-      HippyArray hippyArray = new HippyArray((ArrayList) object);
+    } else if (object instanceof List) {
+      HippyArray hippyArray = new HippyArray((List) object);
       writeJSArray(hippyArray);
-    } else if (object instanceof HashMap) {
-      HippyMap hippyMap = new HippyMap((HashMap) object);
+    } else if (object instanceof Map) {
+      HippyMap hippyMap = new HippyMap((Map) object);
       writeJSObject(hippyMap);
     } else {
       return false;

@@ -76,7 +76,7 @@ public class Serializer extends PrimitiveValueSerializer {
         }
         //Compatible HippyMap with old versions, will be removed in the future.
         if (object instanceof HippyMap) {
-            HashMap map = ((HippyMap) object).getInternalMap();
+            Map<String, Object> map = ((HippyMap) object).getInternalMap();
             writeValue(map);
             return true;
         }
