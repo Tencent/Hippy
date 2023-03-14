@@ -171,6 +171,7 @@ public class NodeProps {
   public static final String ATTRIBUTES	= "attributes";
   public static final String BACKGROUND_RIPPLE	= "nativeBackgroundAndroid";
   public static final String OVER_PULL	= "bounces";
+  public static final String HAS_STABLE_IDS = "hasStableIds";
 
   private static final HashSet<String> JUST_LAYOUT_PROPS = new HashSet<>(
       Arrays.asList(ALIGN_SELF, ALIGN_ITEMS, COLLAPSABLE, FLEX, FLEX_DIRECTION, FLEX_WRAP,

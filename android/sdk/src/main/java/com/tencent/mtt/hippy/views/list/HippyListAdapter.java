@@ -254,7 +254,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
     // Try first for an exact, non-invalid match from scrap.
     for (int i = 0; i < scrapCount; i++) {
       final RecyclerViewBase.ViewHolder holder = recycler.mAttachedScrap.get(i);
-      if (holder.getPosition() == position && !holder.isInvalid() && (!holder.isRemoved())) {
+      if (holder.getPosition() == position && (!holder.isInvalid() || hasStableIds()) && (!holder.isRemoved())) {
         if (holder.getItemViewType() == type && holder.mContentHolder instanceof NodeHolder) {
           RenderNode holderNode = ((NodeHolder) holder.mContentHolder).mBindNode;
           RenderNode toNode = mHippyContext.getRenderManager()
@@ -519,6 +519,28 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
       }
     }
     return super.getItemViewType(index);
+  }
+
+  private RenderNode getParentNode() {
+      int listId = mParentRecyclerView.getId();
+      return mHippyContext.getRenderManager().getRenderNode(listId);
+  }
+
+  private RenderNode getChildNode(int position) {
+      RenderNode listNode = getParentNode();
+      if (position >= 0 && position < listNode.getChildCount()) {
+          return listNode.getChildAt(position);
+      }
+      return null;
+  }
+
+  @Override
+  public long getItemId(int position) {
+      RenderNode itemNode = getChildNode(position);
+      if (itemNode != null) {
+          return itemNode.getId();
+      }
+      return RecyclerViewBase.NO_ID;
   }
 
   @Override

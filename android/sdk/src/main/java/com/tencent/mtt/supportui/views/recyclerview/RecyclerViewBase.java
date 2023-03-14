@@ -4083,7 +4083,7 @@ public abstract class RecyclerViewBase extends ViewGroup
 			for (int i = 0; i < scrapCount; i++)
 			{
 				final ViewHolder holder = mAttachedScrap.get(i);
-				if (holder.getPosition() == position && !holder.isInvalid() && (mInPreLayout || !holder.isRemoved()))
+				if (holder.getPosition() == position && (!holder.isInvalid() || mAdapter.hasStableIds()) && (mInPreLayout || !holder.isRemoved()))
 				{
 					if (type != INVALID_TYPE && holder.getItemViewType() != type)
 					{

@@ -26,6 +26,7 @@ import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.uimanager.DiffUtils;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
@@ -78,9 +79,12 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
   // for auto test <<<
 
   public HippyWaterfallView(Context context) {
-    super(context);
+      this(context, null);
+  }
+
+  public HippyWaterfallView(Context context, HippyMap initProps) {
+    super(context, initProps);
     mHippyContext = ((HippyInstanceContext) context).getEngineContext();
-    this.setLayoutManager(new HippyWaterfallLayoutManager(context));
     mAdapter = (HippyWaterfallAdapter) getAdapter();
     setRecycledViewPool(new RNWFRecyclerPool());
 
@@ -93,9 +97,20 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
   }
 
   @Override
+  protected LayoutManager createLayoutManager(Context context, HippyMap initProps) {
+      return new HippyWaterfallLayoutManager(context);
+  }
+
+  @Override
   protected HippyWaterfallAdapter createAdapter(RecyclerView hippyRecyclerView,
-    HippyEngineContext hippyEngineContext) {
-    return new HippyWaterfallAdapter(this);
+        HippyEngineContext hippyEngineContext, HippyMap initProps) {
+      boolean hasStableIds = true;
+      if (initProps != null) {
+          hasStableIds = !Boolean.FALSE.equals(initProps.get(NodeProps.HAS_STABLE_IDS));
+      }
+      HippyWaterfallAdapter adapter = new HippyWaterfallAdapter(this);
+      adapter.setHasStableIds(hasStableIds);
+      return adapter;
   }
 
   @Override
@@ -589,6 +604,15 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
       return 0;
     }
 
+    @Override
+    public long getItemId(int position) {
+        RenderNode item = getItemNode(position);
+        if (item != null) {
+            return item.getId();
+        }
+        return NO_ID;
+    }
+
     RenderNode getRenderNode() {
       return mHippyContext.getRenderManager().getRenderNode(getId());
     }
@@ -897,7 +921,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
       // Try first for an exact, non-invalid match from scrap.
       for (int i = 0; i < scrapCount; i++) {
         final ViewHolder holder = recycler.mAttachedScrap.get(i);
-        if (holder.getPosition() == position && !holder.isInvalid() && (!holder
+        if (holder.getPosition() == position && (!holder.isInvalid() || hasStableIds()) && (!holder
           .isRemoved())) {
           if (holder.getItemViewType() == type
             && holder.mContentHolder instanceof NodeHolder) {

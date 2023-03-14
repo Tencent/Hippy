@@ -83,20 +83,16 @@ public class HippyListViewController extends HippyViewController<HippyListView> 
 
   @Override
   protected View createViewImpl(Context context) {
-    return new HippyListView(context, BaseLayoutManager.VERTICAL);
+    return createViewImpl(context, null);
   }
 
   @Override
   protected View createViewImpl(Context context, HippyMap iniProps) {
     boolean enableScrollEvent = false;
-    int orientation = BaseLayoutManager.VERTICAL;
     if (iniProps != null) {
-      if (iniProps.getBoolean("horizontal")) {
-        orientation = BaseLayoutManager.HORIZONTAL;
-      }
       enableScrollEvent = iniProps.getBoolean("onScroll");
     }
-    HippyListView listView = new HippyListView(context, orientation);
+    HippyListView listView = new HippyListView(context, iniProps);
     listView.setOnScrollEventEnable(enableScrollEvent);
     return listView;
   }

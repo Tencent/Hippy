@@ -124,9 +124,11 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         this.hippyEngineContext = hippyEngineContext;
     }
 
-    public void initRecyclerView() {
+    public void initRecyclerView(boolean hasStableIds) {
         isTvPlatform = hippyEngineContext.isRunningOnTVPlatform();
-        setAdapter(new HippyRecyclerListAdapter<HippyRecyclerView>(this, this.hippyEngineContext));
+        Adapter adapter = new HippyRecyclerListAdapter<HippyRecyclerView>(this, this.hippyEngineContext);
+        adapter.setHasStableIds(hasStableIds);
+        setAdapter(adapter);
         intEventHelper();
         setItemViewCacheSize(DEFAULT_ITEM_VIEW_CACHE_SIZE);
         if (isTvPlatform) {

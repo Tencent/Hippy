@@ -112,15 +112,17 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
         LinearLayoutManager layoutManager = new HippyLinearLayoutManager(context);
         recyclerView.setItemAnimator(null);
         boolean enableScrollEvent = false;
+        boolean hasStableIds = true;
         if (iniProps != null) {
             if (iniProps.containsKey(HORIZONTAL)) {
                 layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
             }
             enableScrollEvent = iniProps.getBoolean("onScroll");
+            hasStableIds = !Boolean.FALSE.equals(iniProps.get(NodeProps.HAS_STABLE_IDS));
         }
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHippyEngineContext(((HippyInstanceContext) context).getEngineContext());
-        recyclerView.initRecyclerView();
+        recyclerView.initRecyclerView(hasStableIds);
         recyclerView.getRecyclerViewEventHelper().setOnScrollEventEnable(enableScrollEvent);
         return recyclerView;
     }

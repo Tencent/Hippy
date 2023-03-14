@@ -630,7 +630,7 @@ public abstract class BaseLayoutManager extends RecyclerViewBase.LayoutManager
         anchorItemPosition = validateAnchorPosition(mRenderState.mItemDirection, anchorItemPosition,
                 state.getItemCount());
 		detachAndScrapAttachedViews(recycler);
-		if (state.mDataChanged)
+		if (state.mDataChanged && !mRecyclerView.mAdapter.hasStableIds())
 		{
 			state.mDataChanged = false;
 			// set current suspension View recyclable here

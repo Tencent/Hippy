@@ -22,6 +22,7 @@ import android.view.ViewConfiguration;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
@@ -104,11 +105,11 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   private boolean isTvPlatform;
   private HippyListViewFocusHelper mFocusHelper = null;
 
-  private void init(Context context, int orientation) {
+  private void init(Context context, HippyMap initProps) {
     mHippyContext = ((HippyInstanceContext) context).getEngineContext();
-    this.setLayoutManager(new LinearLayoutManager(context, orientation, false));
+    this.setLayoutManager(createLayoutManager(context, initProps));
     setRepeatableSuspensionMode(false);
-    mListAdapter = createAdapter(this, mHippyContext);
+    mListAdapter = createAdapter(this, mHippyContext, initProps);
     setAdapter(mListAdapter);
     isTvPlatform = mHippyContext.isRunningOnTVPlatform();
     if (isTvPlatform) {
@@ -120,19 +121,34 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
     touchSlop = configuration.getScaledTouchSlop();
   }
 
-  public HippyListView(Context context, int orientation) {
+  public HippyListView(Context context, HippyMap initProps) {
     super(context);
-    init(context, orientation);
+    init(context, initProps);
   }
 
   public HippyListView(Context context) {
-    super(context);
-    init(context, BaseLayoutManager.VERTICAL);
+    this(context, null);
+  }
+
+  protected LayoutManager createLayoutManager(Context context, HippyMap initProps) {
+      int orientation = BaseLayoutManager.VERTICAL;
+      if (initProps != null) {
+          if (initProps.getBoolean("horizontal")) {
+              orientation = BaseLayoutManager.HORIZONTAL;
+          }
+      }
+      return new LinearLayoutManager(context, orientation, false);
   }
 
   protected RecyclerAdapter createAdapter(RecyclerView hippyRecyclerView,
-      HippyEngineContext hippyEngineContext) {
-    return new HippyListAdapter(hippyRecyclerView, hippyEngineContext);
+        HippyEngineContext hippyEngineContext, HippyMap initProps) {
+      boolean hasStableIds = true;
+      if (initProps != null) {
+          hasStableIds = !Boolean.FALSE.equals(initProps.get(NodeProps.HAS_STABLE_IDS));
+      }
+      RecyclerAdapter adapter = new HippyListAdapter(hippyRecyclerView, hippyEngineContext);
+      adapter.setHasStableIds(hasStableIds);
+      return adapter;
   }
 
   @Override
