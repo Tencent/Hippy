@@ -71,12 +71,8 @@
 @property (nonatomic, copy) HippyDirectEventBlock onBlur;
 @property (nonatomic, copy) HippyDirectEventBlock onFocus;
 @property (nonatomic, copy) HippyDirectEventBlock onKeyboardWillShow;
+@property (nonatomic, copy) HippyDirectEventBlock onKeyboardWillHide;
 @property (nonatomic, copy) HippyDirectEventBlock onKeyboardHeightChanged;
 
-- (void)focus;
-- (void)blur;
-- (void)keyboardWillShow:(NSNotification *)aNotification;
-- (void)keyboardHeightChanged:(NSNotification *)aNotification;
-- (void)clearText;
 - (void)updateFrames;
 @end

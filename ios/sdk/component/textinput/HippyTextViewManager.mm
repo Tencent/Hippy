@@ -36,37 +36,36 @@
 HIPPY_EXPORT_MODULE(TextInput)
 
 - (UIView *)view {
-    // todo: 最佳实践？
-    NSNumber *mutiline = self.props[@"multiline"];
+    // TODO: unify into one implementation
+    NSNumber *multiline = self.props[@"multiline"];
     NSString *keyboardType = self.props[@"keyboardType"];
     if ([keyboardType isKindOfClass:[NSString class]] && [keyboardType isEqual:@"password"]) {
-        mutiline = @(NO);
+        multiline = @(NO);
     }
     HippyBaseTextInput *theView;
-    if (mutiline != nil && !mutiline.boolValue) {
-        HippyTextField *textField = [[HippyTextField alloc] init];
-        if (self.props[@"onKeyboardWillShow"]) {
-            [[NSNotificationCenter defaultCenter] addObserver:textField selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification
-                                                       object:nil];
-        }
-        if (self.props[@"onKeyboardHeightChanged"]) {
-            [[NSNotificationCenter defaultCenter] addObserver:theView selector:@selector(keyboardHeightChanged:) name:UIKeyboardWillChangeFrameNotification
-                                                       object:nil];
-        }
-        theView = textField;
+    if (multiline != nil && !multiline.boolValue) {
+        theView = [[HippyTextField alloc] init];
     } else {
-        HippyTextView *textView = [[HippyTextView alloc] init];
-        if (self.props[@"onKeyboardWillShow"]) {
-            [[NSNotificationCenter defaultCenter] addObserver:textView selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification
-                                                       object:nil];
-        }
-        if (self.props[@"onKeyboardHeightChanged"]) {
-            [[NSNotificationCenter defaultCenter] addObserver:textView selector:@selector(keyboardHeightChanged:) name:UIKeyboardWillChangeFrameNotification
-                                                       object:nil];
-        }
-        theView = textView;
+        theView = [[HippyTextView alloc] init];
     }
-
+    if (self.props[@"onKeyboardWillShow"]) {
+        [[NSNotificationCenter defaultCenter] addObserver:theView
+                                                 selector:@selector(keyboardWillShow:)
+                                                     name:UIKeyboardWillShowNotification
+                                                   object:nil];
+    }
+    if (self.props[@"onKeyboardWillHide"]) {
+        [[NSNotificationCenter defaultCenter] addObserver:theView
+                                                 selector:@selector(keyboardWillHide:)
+                                                     name:UIKeyboardWillHideNotification
+                                                   object:nil];
+    }
+    if (self.props[@"onKeyboardHeightChanged"]) {
+        [[NSNotificationCenter defaultCenter] addObserver:theView
+                                                 selector:@selector(keyboardHeightChanged:)
+                                                     name:UIKeyboardWillChangeFrameNotification
+                                                   object:nil];
+    }
     return theView;
 }
 
@@ -80,6 +79,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(onKeyPress, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onBlur, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onFocus, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onKeyboardWillShow, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onKeyboardWillHide, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onKeyboardHeightChanged, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(defaultValue, NSString)
 HIPPY_EXPORT_VIEW_PROPERTY(isNightMode, BOOL)

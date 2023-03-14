@@ -103,7 +103,8 @@
     BOOL _viewDidCompleteInitialLayout;
 }
 
-//当键盘出现或改变时调用
+#pragma mark - Keyboard Events
+
 - (void)keyboardWillShow:(NSNotification *)aNotification {
     [super keyboardWillShow:aNotification];
     //获取键盘的高度
@@ -113,6 +114,13 @@
     CGFloat keyboardHeight = keyboardRect.size.height;
     if (self.isFirstResponder && _onKeyboardWillShow) {
         _onKeyboardWillShow(@{ @"keyboardHeight": @(keyboardHeight) });
+    }
+}
+
+- (void)keyboardWillHide:(NSNotification *)aNotification {
+    [super keyboardWillHide:aNotification];
+    if (_onKeyboardWillHide) {
+        _onKeyboardWillHide(@{});
     }
 }
 
@@ -129,7 +137,6 @@
 
 - (instancetype)init {
     if ((self = [super initWithFrame:CGRectZero])) {
-        //    _contentInset = UIEdgeInsetsZero;
         [self setContentInset:UIEdgeInsetsZero];
         _placeholderTextColor = [self defaultPlaceholderTextColor];
         _blurOnSubmit = NO;
@@ -146,9 +153,10 @@
         _scrollView.scrollsToTop = NO;
         [_scrollView addSubview:_textView];
 
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textFieldEditChanged:) name:UITextViewTextDidChangeNotification
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(textFieldEditChanged:)
+                                                     name:UITextViewTextDidChangeNotification
                                                    object:_textView];
-
         [self addSubview:_scrollView];
     }
     return self;

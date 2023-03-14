@@ -356,13 +356,13 @@ import icon from './qb_icon_new.png';
 | editable              | 如果为 false，文本框是不可编辑的。 `default: true`                          | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
 | keyboardType          | 决定弹出的何种软键盘的。 注意，`password`仅在属性 `multiline=false` 单行文本框时生效。 | `enum (default, numeric, password, email, phone-pad)` | `Android、iOS、hippy-react-web、Web-Renderer` |
 | maxLength             | 限制文本框中最多的字符数。使用这个属性而不用JS 逻辑去实现，可以避免闪烁的现象。 | `number`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
-| multiline             | 如果为 `true` ，文本框中可以输入多行文字。 由于终端特性。    | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
+| multiline             | 如果为 `true` ，文本框中可以输入多行文字。  | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
 | numberOfLines         | 设置 `TextInput` 最大显示行数，如果 `TextInput` 没有显式设置高度，会根据 `numberOfLines` 来计算高度撑开。在使用的时候必需同时设置 `multiline` 参数为 `true`。 | `number`                                                     | `Android、hippy-react-web、Web-Renderer` |
 | onBlur                | 当文本框失去焦点的时候调用此回调函数。                       | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
 | onFocus | 当文本框获得焦点的时候调用此回调函数。 | `Function` | `Android、iOS` |
 | onChangeText          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
 | onKeyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`。 | `Function`                                                   | `Android、iOS、hippy-react-web` |
-| onKeyboardWillHide    | 在隐藏输入法键盘时候会触发此回调函数 | `Function`                                                   | `Android`     |
+| onKeyboardWillHide    | 在隐藏输入法键盘时候会触发此回调函数 `iOS最低支持版本2.16.0`  | `Function`                                                   | `Android、iOS`     |
 | onKeyboardHeightChanged    | 在输入法键盘高度改变时触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`, `最低支持版本2.14.0`。 | `Function`                                                   | `iOS`     |
 | onEndEditing          | 当文本输入结束后调用此回调函数。                             | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
 | onLayout              | 当组件挂载或者布局变化的时候调用，参数为`nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
