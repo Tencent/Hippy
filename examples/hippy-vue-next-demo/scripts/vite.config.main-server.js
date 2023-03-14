@@ -22,8 +22,8 @@ export default defineConfig({
           isCustomElement: tag => isNativeTag(tag),
           // real used ssr runtime package
           ssrRuntimeModuleName: '@hippy/vue-next-server-renderer',
-          // do not generate comment node in production
-          comments: !isProd,
+          // do not generate html comment node
+          comments: false,
         },
         // custom compiler
         compiler: compilerSsr,
@@ -45,7 +45,7 @@ export default defineConfig({
     minify: isProd,
     // image size less than 1024KB will transform to base64, you can disable it or change to another
     // value
-    assetsInlineLimit: 1024,
+    assetsInlineLimit: isProd ? 1024 : 102400,
     outDir: 'dist',
     // do not clean dist directory
     emptyOutDir: false,

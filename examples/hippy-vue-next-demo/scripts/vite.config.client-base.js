@@ -17,6 +17,8 @@ export function getViteBaseConfig(options) {
           compilerOptions: {
             // hippy do not support innerHTML, so disable hoist optimize
             hoistStatic: false,
+            // do not generate html comment node
+            comments: false,
           },
         },
       }),
@@ -33,7 +35,7 @@ export function getViteBaseConfig(options) {
       sourcemap: options.isProd ? false : 'inline',
       manifest: options.manifest ?? false,
       minify: options.isProd,
-      assetsInlineLimit: 1024,
+      assetsInlineLimit: options.isProd ? 1024 : 102400,
       outDir: 'dist',
       emptyOutDir: false,
       rollupOptions: {

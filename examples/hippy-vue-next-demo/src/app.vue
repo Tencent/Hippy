@@ -1,5 +1,10 @@
 <template>
   <div id="root">
+    <!-- only for ssr, if you just use client side, remove it, use createApp options iPhone.statusBar instead -->
+    <div
+      id="ios-status-bar"
+      :style="iosStatusBarStyle"
+    />
     <div id="header">
       <div class="left-title">
         <img
@@ -48,6 +53,7 @@
 <script lang="ts">
 import { defineComponent, ref } from '@vue/runtime-core';
 import { useRoute, useRouter } from 'vue-router';
+import { getScreenSize } from './util';
 
 import backButtonImg from './back-icon.png';
 
@@ -99,6 +105,10 @@ export default defineComponent({
       currentRoute: route,
       subTitle,
       tabs,
+      iosStatusBarStyle: {
+        height: getScreenSize().statusBarHeight,
+        backgroundColor: 4283416717,
+      },
       goBack,
       navigateTo,
     };

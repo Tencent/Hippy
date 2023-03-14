@@ -66,24 +66,6 @@ export const HIPPY_GLOBAL_STYLE_NAME = '__HIPPY_VUE_STYLES__';
  */
 export const HIPPY_GLOBAL_DISPOSE_STYLE_NAME = '__HIPPY_VUE_DISPOSE_STYLES__';
 
-/**
- * get node's parent node, in client side, node has parentNode props. in server side, find parentNode
- * by pId
- *
- * @param node
- * @param ssrNodes
- */
-export function getParentNode(node: StyleNode, ssrNodes?: StyleNodeList): StyleNode | null {
-  if (ssrNodes) {
-    // in server side mode, find parent node with pId
-    if (node?.pId && ssrNodes[node.pId]) {
-      return ssrNodes[node.pId];
-    }
-    return null;
-  }
-  return node?.parentNode;
-}
-
 export { SelectorsMap } from './css-selectors-match';
 export { getCssMap } from './css-map';
 export { insertStyleForSsrNodes } from './css-append';

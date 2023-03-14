@@ -105,8 +105,16 @@ function getDefaultNativeStyle(node: StyleNode): CommonMapParams {
   }
 
   if (node.name === 'Text') {
-    // text node，for label,span,p,a. Black color(#000), necessary for Android
-    return { color: 4278190080 };
+    // text node, for label,span,p. Black color(#000), necessary for Android
+    // text node, for a, Blue color(rgb(0, 0, 238), necessary for Android
+    return { color: node.tagName === 'a' ? 4278190318 : 4278190080 };
+  }
+
+  if (node.name === 'TextInput') {
+    return {
+      padding: 0, // Remove the android underline
+      color: 4278190080, // Black color(#000), necessary for Android
+    };
   }
 
   if (node.name === 'ViewPagerItem') {
@@ -119,6 +127,14 @@ function getDefaultNativeStyle(node: StyleNode): CommonMapParams {
       left: 0,
     };
   }
+
+  if (node.name === 'Modal') {
+    // dialog
+    return {
+      position: 'absolute',
+    };
+  }
+
   // nothing for other
   return {};
 }
@@ -143,8 +159,9 @@ function polyfillSpecialNodeStyle(
       nativeNode.name = 'ScrollView';
     } else if (style.overflowX === 'scroll') {
       nativeNode.name = 'ScrollView';
-      // 水平滚动必须要设置该值
+      // should set horizontal for horizontal scroll
       nativeNode.props.horizontal = true;
+      // ssr default set to row, updated at client side
       style.flexDirection = 'row';
     }
   }

@@ -78,6 +78,10 @@ export interface SsrNode {
   children?: SsrNode[];
 }
 
+export type {
+  SsrRequestContext,
+} from './renderer';
+
 export {
   ssrGetUniqueId,
   renderToHippyList,

@@ -2,9 +2,8 @@ import {
   createSSRApp,
   type HippyApp,
   type HippyAppOptions,
-  type CommonMapParams,
 } from '@hippy/vue-next';
-import { type SsrNode, renderToHippyList, getCurrentUniqueId } from '@hippy/vue-next-server-renderer';
+import { type SsrNode, renderToHippyList, getCurrentUniqueId, type SsrRequestContext } from '@hippy/vue-next-server-renderer';
 import { type Pinia, createPinia } from 'pinia';
 import App from './app.vue';
 import { createRouter } from './routes';
@@ -16,7 +15,7 @@ import { createRouter } from './routes';
  * @param hippyOptions - hippy init options
  * @param context - request context
  */
-export async function render(url: string, hippyOptions: HippyAppOptions, context: CommonMapParams = {}): Promise<{
+export async function render(url: string, hippyOptions: HippyAppOptions, context: SsrRequestContext = {}): Promise<{
   list: SsrNode[] | null,
   modules: Set<string>,
   store: Pinia,
@@ -37,9 +36,10 @@ export async function render(url: string, hippyOptions: HippyAppOptions, context
   // ssr context, vue will append some extra data when render finished. ex. modules means this request
   // matched modules
   const ssrContext = {
-    rootContainer: 'root',
-    isIOS: context.isIOS,
+    rootContainer: '#root',
     modules: new Set(),
+    ssrOptions: hippyOptions,
+    context,
   };
   // get ssr render hippy node list
   const hippyNodeList = await renderToHippyList(app, ssrContext);

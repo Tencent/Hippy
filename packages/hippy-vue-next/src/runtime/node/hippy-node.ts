@@ -33,8 +33,8 @@ import {
 // NodeType, same with vue
 export enum NodeType {
   ElementNode = 1, // element node
-  TextNode = 2, // text node
-  CommentNode = 3, // comment node
+  TextNode = 3, // text node
+  CommentNode = 8, // comment node
   DocumentNode = 4, // document node
 }
 
@@ -145,6 +145,13 @@ export class HippyNode extends HippyEventTarget {
    */
   public isRootNode(): boolean {
     return this.nodeId === DEFAULT_ROOT_ID;
+  }
+
+  /**
+   * has child nodes or not, used for hydrate
+   */
+  public hasChildNodes(): boolean {
+    return !!this.childNodes.length;
   }
 
   /**

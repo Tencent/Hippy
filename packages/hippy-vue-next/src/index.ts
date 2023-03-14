@@ -214,20 +214,23 @@ const createHippyApp = (
 
   // rewrite mount method of vue
   hippyApp.mount = (rootContainer) => {
+    // cache rootContainer first, used to determine whether it is the root node
+    setHippyCachedInstanceParams('rootContainer', rootContainer);
     // create the root node
     // 1. return an empty node when the hydrate is false
     // 2. return a root node for a hippy element tree, when the hydrate is true
     const root = options?.ssrNodeList?.length
       ? convertToHippyElementTree(options.ssrNodeList)
       : createRootNode(rootContainer);
-    // cache rootContainer, used to determine whether it is the root node
-    setHippyCachedInstanceParams('rootContainer', root.id);
     // mount and get the instance
     const instance = mount(root, isHydrate, false);
     // cache Vue instance
     setHippyCachedInstanceParams('instance', instance);
     // set the status bar for iOS
-    setIOSNativeBar(options, instance);
+    if (!isHydrate) {
+      // in hydrate mode, insert status bar async, will cause hydration mismatch
+      setIOSNativeBar(options, instance);
+    }
 
     return instance;
   };

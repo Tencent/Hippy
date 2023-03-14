@@ -2,7 +2,7 @@
  * build script for ssr
  */
 const { arch } = require('os');
-const { exec } = require('shelljs');
+const { exec, rm } = require('shelljs');
 
 let envPrefixStr = 'cross-env-os os="Windows_NT,Linux,Darwin" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider HIPPY_SSR=true';
 const isArmCpu = arch()
@@ -30,7 +30,7 @@ function getScriptCommand(configFile) {
  * @param scriptStr - script content
  * @param options - shelljs options
  */
-function runScript(scriptStr, options = { silent: true }) {
+function runScript(scriptStr, options = { silent: false }) {
   const result = exec(scriptStr, options);
   if (result.code !== 0) {
     console.error(`❌ execute cmd - "${scriptStr}" error: ${result.stderr}`);
@@ -38,6 +38,9 @@ function runScript(scriptStr, options = { silent: true }) {
   }
 }
 
+// 0. remove dist directory
+console.log('remove dist directory:');
+rm('-rf', './dist');
 // 1. build server bundle
 console.log('building server bundle:');
 runScript(getScriptCommand('vite.config.main-server.js'));

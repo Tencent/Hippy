@@ -26,19 +26,12 @@ server.use(express.json());
 
 // listen request
 server.all('/getSsrFirstScreenData', (req, rsp) => {
+  console.log('req body', req.body);
   // get hippy ssr node list and other const
   const { render } = require('./main-server');
   render('/', {
     appName: 'Demo',
-    option: {
-      iPhone: {
-        statusBar: {
-          backgroundColor: 4283416717,
-        },
-      },
-    },
-    context: req.body,
-  }).then(({
+  }, req.body).then(({
     list, modules, store, uniqueId,
   }) => {
     console.log('matched modules: ', modules);

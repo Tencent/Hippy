@@ -266,7 +266,7 @@ export function renderVNode(
     case Text:
       // vue text means <div>content</div> content. hippy do not support it. should use
       // <div><span>content</span></div>, all text content should wrap in span/p/label.
-      push(`{"id": -1,"name":"Text","props":{"text":"${escapeHtmlComment(children as string)}"}},`);
+      push(`{"id": ${ssrGetUniqueId()},"name":"Text","props":{"text":"${escapeHtmlComment(children as string)}"}},`);
       break;
     case Static:
       // hippy do not support static hoist

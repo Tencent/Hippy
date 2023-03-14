@@ -170,6 +170,7 @@ module.exports = {
           ['sfc', resolveVue('sfc')],
           ['he', path.resolve(__dirname, './packages/hippy-vue/src/util/entity-decoder')],
           ['@hippy-vue-next-style-parser', resolvePackage('hippy-vue-next-style-parser')],
+          ['@hippy-vue-next', resolvePackage('hippy-vue-next')],
         ],
       },
     },

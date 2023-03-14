@@ -732,7 +732,7 @@ export class HippyElement extends HippyNode {
       ));
     }
     super.removeEventListener(eventNames, callback, options);
-    // get the native event name
+    // get the native event insert before
     const ssrEventName = this.getNativeEventName(eventNames);
     if (this.attributes[ssrEventName]) {
       // remove exist ssr native event attr

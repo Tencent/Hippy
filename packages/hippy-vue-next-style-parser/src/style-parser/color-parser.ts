@@ -386,7 +386,11 @@ function baseColor(color: string | number) {
 export function translateColor(
   color: string | number,
   options: { platform?: string } = {},
-): number {
+): number | string {
+  if (typeof color === 'string' && color.indexOf('var(') !== -1) {
+    return color;
+  }
+
   let int32Color = baseColor(color);
 
   if (int32Color === null) {

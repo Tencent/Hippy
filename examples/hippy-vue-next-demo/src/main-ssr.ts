@@ -19,6 +19,19 @@ function executionAsyncResource() {
 }
 
 /**
+ * generate ssr request params
+ */
+function getSsrRequestParams() {
+  const HippyDevice = global.Hippy.device;
+  return {
+    isIOS: HippyDevice?.platform?.OS === 'ios',
+    dimensions: {
+      screen: HippyDevice.screen,
+    },
+  };
+}
+
+/**
  * execute ssr init logic
  */
 function ssr(): void {
@@ -35,9 +48,7 @@ function ssr(): void {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        isIOS: false,
-      }),
+      body: JSON.stringify(getSsrRequestParams()),
     })
       .then((rspJson) => {
         console.log('response:', rspJson);
@@ -55,7 +66,6 @@ function ssr(): void {
             }
             // init uniqueId
             global.hippyUniqueId = rsp?.uniqueId ?? 0;
-
             // prepare to insert style
             const nodeList = rsp.data;
             // set parent id for root node
@@ -64,7 +74,8 @@ function ssr(): void {
             const commentList = nodeList.filter(v => v.name === 'comment');
             let nodes;
             try {
-              // insert hippy style
+              // insert hippy style for non comment nodes
+              // after insert style, concat comment nodes
               nodes = insertStyleForSsrNodes(
                 nodeList.filter(v => v.name !== 'comment'),
                 JSON.parse(rsp?.styleContent ?? ''),
@@ -75,6 +86,7 @@ function ssr(): void {
               // insert native nodes
               insertNativeNodes(rootViewId, nodes);
               // save ssr nodes to global.hippySSRNodes, hydration will use
+              console.log('createSSrNode', nodes);
               global.hippySSRNodes = nodes;
             }
           } else {

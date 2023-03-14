@@ -31,8 +31,6 @@
 // eslint-disable-next-line max-classes-per-file
 import type { CssDeclarationType, StyleNode, StyleNodeList } from '../index';
 import type { SelectorsMap, SelectorsMatch } from './css-selectors-match';
-import { getParentNode } from './index';
-
 
 /**
  * determine if the value is null or undefined
@@ -50,6 +48,26 @@ export function isNullOrUndefined(value: any): boolean {
  */
 function wrap(text: string | undefined): string {
   return text ? ` ${text}` : '';
+}
+
+/**
+ * get node's parent node, in client side, node has parentNode props. in server side, find parentNode
+ * by pId
+ *
+ * @param node - child node
+ * @param ssrNodes - ssr node list
+ *
+ * @internal
+ */
+function getParentNode(node: StyleNode, ssrNodes?: StyleNodeList): StyleNode | null {
+  if (ssrNodes) {
+    // in server side mode, find parent node with pId
+    if (node?.pId && ssrNodes[node.pId]) {
+      return ssrNodes[node.pId];
+    }
+    return null;
+  }
+  return node?.parentNode;
 }
 
 /**
