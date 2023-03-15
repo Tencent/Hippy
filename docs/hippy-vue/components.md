@@ -108,11 +108,11 @@
 
 > 仅在 overflow-y/x: scroll 时适用
 
-`(x: number, y: number, duration: boolean) => void` 滚动到指定的 X，Y 偏移值，第三个参数为是否启用平滑滚动动画。
+`(x: number, y: number, duration: number) => void` 滚动到指定的 X，Y 偏移值，第三个参数为滚动持续时间。
 
 > * x: number - X 偏移值
 > * y: number - Y 偏移值
-> * duration: number | boolean - 毫秒为单位的滚动时间, 默认 1000ms，false 等同 0ms
+> * duration: number - 毫秒为单位的滚动时间, 默认 1000ms
 
 
 ### setPressed
