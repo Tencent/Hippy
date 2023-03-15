@@ -22,6 +22,7 @@
 
 #import "HippyJSExecutor.h"
 #import "HippyOCTurboModule.h"
+#import "HippyOCTurboModule+Inner.h"
 #import "HippyTurboModuleManager.h"
 #import "HippyJSExecutor.h"
 #import "HPAsserts.h"
@@ -33,16 +34,19 @@
 #include <objc/message.h>
 
 #include "footstone/string_view_utils.h"
-#include "driver/napi/js_native_turbo.h"
+#include "driver/napi/jsc/jsc_ctx.h"
+#include "driver/napi/jsc/jsc_ctx_value.h"
 
-using string_view = footstone::stringview::string_view;
-using StringViewUtils = footstone::stringview::StringViewUtils;
-using HippyTurboModule = hippy::HippyTurboModule;
+using namespace hippy;
+using namespace napi;
+
+using string_view = footstone::string_view;
+using StringViewUtils = footstone::StringViewUtils;
 
 @interface HippyOCTurboModule () {
-    std::shared_ptr<HippyTurboModule> _turboModule;
-
+  std::unordered_map<std::shared_ptr<CtxValue>, std::unique_ptr<TurboWrapper>> turbo_wrapper_map;
 }
+
 @property(nonatomic, weak, readwrite) HippyBridge *bridge;
 @end
 
@@ -51,48 +55,45 @@ using HippyTurboModule = hippy::HippyTurboModule;
 HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
 
 - (void)dealloc {
-    _turboModule->callback_ = nullptr;
-    _turboModule = nullptr;
+
 }
 
 - (instancetype)initWithName:(NSString *)moduleName bridge:(HippyBridge *)bridge {
-    if (self = [self init]) {
-        _bridge = bridge;
-        _turboModule = std::make_shared<HippyTurboModule>(std::string([moduleName UTF8String]));
-
-        __weak HippyOCTurboModule *weakSelf = self;
-        _turboModule->callback_ = [weakSelf](const hippy::TurboEnv& env,
-                                             const std::shared_ptr<hippy::napi::CtxValue> &thisVal,
-                                             const std::shared_ptr<hippy::napi::CtxValue> *args,
-                                             size_t count) -> std::shared_ptr<hippy::napi::CtxValue> {
-            std::shared_ptr<hippy::napi::Ctx> context = env.context_;
-
-            // get method name
-            string_view name;
-            if (!context->GetValueString(thisVal, &name)) {
-                return context->CreateNull();
-            }
-            std::string methodName = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(name, string_view::Encoding::Utf8).utf8_value());
-            // get argument
-            NSInteger argumentCount = static_cast<long>(count);
-            NSMutableArray *argumentArray = @[].mutableCopy;
-            for (NSInteger i = 0; i < argumentCount; i++) {
-                std::shared_ptr<hippy::napi::CtxValue> ctxValue = *(args + i);
-                [argumentArray addObject:convertCtxValueToObjcObject(context, ctxValue, weakSelf)?: [NSNull null]];
-            }
-
-            id objcRes = [weakSelf invokeObjCMethodWithName:[NSString stringWithUTF8String:methodName.c_str()]
-                                              argumentCount:argumentCount
-                                              argumentArray:argumentArray];
-            std::shared_ptr<hippy::napi::CtxValue> result = convertObjcObjectToCtxValue(context, objcRes, weakSelf);
-            return result;
-        };
-    }
-    return self;
+  if (self = [self init]) {
+    _bridge = bridge;
+  }
+  return self;
 }
 
-- (std::shared_ptr<HippyTurboModule>)getTurboModule {
-    return _turboModule;
+- (void)saveTurboWrapper:(std::shared_ptr<CtxValue>)name turbo:(std::unique_ptr<TurboWrapper>)wrapper {
+  turbo_wrapper_map[name] = std::move(wrapper);
+}
+
+- (std::shared_ptr<CtxValue>) invokeOCMethod:(const std::shared_ptr<Ctx>&) ctx
+                              this_val:(const std::shared_ptr<CtxValue>&) this_val
+                              args:(const std::shared_ptr<CtxValue>*) args
+                              count:(size_t) count {
+  // get method name
+  string_view name;
+  if (!ctx->GetValueString(this_val, &name)) {
+      return ctx->CreateNull();
+  }
+  std::string methodName = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(name, string_view::Encoding::Utf8).utf8_value());
+  
+  __weak HippyOCTurboModule *weakSelf = self;
+
+  // get argument
+  NSMutableArray *argumentArray = @[].mutableCopy;
+  for (NSInteger i = 0; i < count; ++i) {
+      std::shared_ptr<napi::CtxValue> ctxValue = *(args + i);
+      [argumentArray addObject:convertCtxValueToObjcObject(ctx, ctxValue, weakSelf)?: [NSNull null]];
+  }
+
+  id objcRes = [weakSelf invokeObjCMethodWithName:[NSString stringWithUTF8String:methodName.c_str()]
+                                    argumentCount:count
+                                    argumentArray:argumentArray];
+  std::shared_ptr<napi::CtxValue> result = convertObjcObjectToCtxValue(ctx, objcRes, weakSelf);
+  return result;
 }
 
 - (id)invokeObjCMethodWithName:(NSString *)methodName
@@ -299,15 +300,20 @@ static NSDictionary *convertJSIObjectToNSDictionary(const std::shared_ptr<hippy:
     if (!context->IsObject(value)) {
         return nil;
     }
-    std::unordered_map<string_view, std::shared_ptr<hippy::CtxValue>> map;
-    if (!context->GetEntriesFromObject(value, map)) {
+    std::unordered_map<std::shared_ptr<hippy::CtxValue>, std::shared_ptr<hippy::CtxValue>> map;
+    if (!context->GetEntries(value, map)) {
         return nil;
     }
     NSMutableDictionary *result = [[NSMutableDictionary alloc] initWithCapacity:map.size()];
     for (const auto &entry : map) {
         const auto &key = entry.first;
         const auto &value = entry.second;
-        std::u16string u16Key = StringViewUtils::ConvertEncoding(key, string_view::Encoding::Utf16).utf16_value();
+        footstone::string_view string_view;
+        auto flag = context->GetValueString(key, &string_view);
+        if (!flag) {
+            continue;
+        }
+        std::u16string u16Key = StringViewUtils::ConvertEncoding(string_view, string_view::Encoding::Utf16).utf16_value();
         NSString *stringKey = [NSString stringWithCharacters:(const unichar*)u16Key.c_str() length:(u16Key.length())];
         id objValue = convertCtxValueToObjcObject(context, value, module);
         [result setObject:objValue forKey:stringKey];

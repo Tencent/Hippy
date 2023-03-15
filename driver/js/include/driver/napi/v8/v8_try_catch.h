@@ -3,7 +3,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2021 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,24 +20,39 @@
  *
  */
 
-#include "driver/napi/js_native_turbo.h"
-#include "driver/napi/jsc/js_native_api_jsc.h"
+#pragma once
+
+#include "driver/napi/js_try_catch.h"
+
+#include "footstone/string_view.h"
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wconversion"
+#include "v8/v8.h"
+#pragma clang diagnostic pop
 
 namespace hippy {
 inline namespace driver {
 inline namespace napi {
 
-class ObjcTurboEnv : public TurboEnv {
+class V8TryCatch : public TryCatch {
  public:
-  ObjcTurboEnv(std::shared_ptr <Ctx> ctx);
-  ~ObjcTurboEnv();
+  explicit V8TryCatch(bool enable = false, const std::shared_ptr<Ctx>& ctx = nullptr);
+  virtual ~V8TryCatch();
 
-  std::shared_ptr <CtxValue> CreateObject(const std::shared_ptr <HostObject> &hostObject) override;
-  std::shared_ptr <CtxValue> CreateFunction(const std::shared_ptr <CtxValue> &name,
-                                            int paramCount,
-                                            HostFunctionType func) override;
+  virtual void ReThrow();
+  virtual bool HasCaught();
+  virtual bool CanContinue();
+  virtual bool HasTerminated();
+  virtual bool IsVerbose();
+  virtual void SetVerbose(bool verbose);
+  virtual std::shared_ptr<CtxValue> Exception();
+  virtual footstone::string_view GetExceptionMsg();
+
+ private:
+  std::shared_ptr<v8::TryCatch> try_catch_;
 };
 
-} // namespace napi
-} // namespace driver
-} // namespace hippy
+}
+}
+}

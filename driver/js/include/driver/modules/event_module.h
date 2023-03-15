@@ -39,8 +39,7 @@ class DomEventWrapper {
   static std::shared_ptr<DomEvent> dom_event_;
 };
 
-std::shared_ptr<hippy::napi::InstanceDefine<DomEvent>> MakeEventInstanceDefine(
-    const std::weak_ptr<Scope>& weak_scope);
+std::shared_ptr<hippy::ClassTemplate<DomEvent>> MakeEventClassTemplate(const std::weak_ptr<Scope>& weak_scope);
 
 } // namespace module
 } // namespace driver

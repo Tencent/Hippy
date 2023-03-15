@@ -22,99 +22,34 @@
 
 #pragma once
 
-#include <stdio.h>
-
-#include <memory>
-#include <string>
-
-#include "driver/modules/module_base.h"
-#include "driver/napi/callback_info.h"
-#include "driver/napi/js_native_api_types.h"
-#include "driver/scope.h"
 #include "footstone/string_view.h"
+#include "driver/napi/callback_info.h"
+#include "driver/scope.h"
 
-namespace hippy {
-inline namespace driver {
-inline namespace module {
+#define GEN_INVOKE_CB_INTERNAL(Module, Function, Name)                                          \
+  static void Name(hippy::napi::CallbackInfo& info, void* data) {                               \
+    auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot())); \
+    auto scope = scope_wrapper->scope.lock();                                                   \
+    FOOTSTONE_CHECK(scope);                                                                     \
+    auto target = std::static_pointer_cast<Module>(scope->GetModuleObject(#Module));            \
+    target->Function(info, data);                                                               \
+  }
 
-#define REGISTER_MODULE(Module, Function)                                   \
-  auto __##Module##Function##__ = [] {                                      \
-    ModuleRegister::instance()->RegisterInternalModule(&Module::Function,   \
-                                                       #Module, #Function); \
-    return 0;                                                               \
-  }();
+#ifndef REGISTER_EXTERNAL_REFERENCES
+#define REGISTER_EXTERNAL_REFERENCES(FUNC_NAME)
+#endif
 
-#define REGISTER_GLOBAL_MODULE(Module, Function)                          \
-  auto __##Module##Function##__ = [] {                                    \
-    ModuleRegister::instance()->RegisterGlobalModule(&Module::Function,   \
-                                                     #Module, #Function); \
-    return 0;                                                             \
-  }();
+#define GEN_INVOKE_CB(Module, Function) \
+  GEN_INVOKE_CB_INTERNAL(Module, Function, Invoke##Module##Function)
 
-class ModuleRegister {
+class ModuleBase {
  public:
-  using string_view = footstone::stringview::string_view;
+  using string_view = footstone::string_view;
+  using Ctx = hippy::napi::Ctx;
+  using CtxValue = hippy::napi::CtxValue;
 
-  static ModuleRegister* instance();
+  ModuleBase() = default;
+  virtual ~ModuleBase() = default;
 
-  ModuleRegister(const ModuleRegister &) = delete;
-  ModuleRegister &operator=(const ModuleRegister &) = delete;
-
-  template <typename Module, typename Function>
-  void RegisterInternalModule(Function Module::*member_fn,
-                              const string_view& module_name,
-                              const string_view& function_name) {
-    internal_modules_[module_name][function_name] =
-        GenerateCallback(member_fn, module_name);
-  }
-
-  template <typename Module, typename Function>
-  void RegisterGlobalModule(Function Module::*member_fn,
-                            const string_view& module_name,
-                            const string_view& function_name) {
-    global_modules_[module_name][function_name] =
-        GenerateCallback(member_fn, module_name);
-  }
-
-  const hippy::napi::ModuleClassMap& GetInternalList() const {
-    return internal_modules_;
-  }
-  const hippy::napi::ModuleClassMap& GetGlobalList() const {
-    return global_modules_;
-  }
-
- private:
-  ModuleRegister() = default;
-
-  template <typename Module, typename Function>
-  hippy::napi::JsCallback GenerateCallback(Function Module::*member_fn,
-      const string_view& module_name) {
-    return [member_fn, module_name](const hippy::napi::CallbackInfo& info) {
-      std::shared_ptr<Scope> scope = info.GetScope();
-      if (!scope) {
-        return;
-      }
-
-      auto module_ptr = scope->GetModuleClass(module_name);
-      if (!module_ptr) {
-        auto module = std::make_unique<Module>();
-        module_ptr = module.get();
-        scope->AddModuleClass(module_name, std::move(module));
-      }
-
-      // Call module function.
-      auto target = static_cast<Module*>(module_ptr);
-      if (target) {
-        std::mem_fn(member_fn)(*target, info);
-      }
-    };
-  }
-
-  hippy::ModuleClassMap internal_modules_;
-  hippy::ModuleClassMap global_modules_;
+  virtual std::shared_ptr<CtxValue> BindFunction(std::shared_ptr<hippy::Scope> scope, std::shared_ptr<CtxValue> rest_args[]) = 0;
 };
-
-}
-}
-}
-

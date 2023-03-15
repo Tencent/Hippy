@@ -28,8 +28,8 @@
 
 #include "driver/modules/module_base.h"
 #include "driver/napi/callback_info.h"
-#include "driver/napi/js_native_api.h"
-#include "driver/napi/js_native_api_types.h"
+#include "driver/napi/js_ctx.h"
+#include "driver/napi/js_ctx_value.h"
 #include "footstone/task.h"
 #include "footstone/base_timer.h"
 
@@ -40,19 +40,21 @@ inline namespace module {
 class TimerModule : public ModuleBase {
  public:
   using BaseTimer = footstone::BaseTimer;
-  using CtxValue = hippy::napi::CtxValue;
-  using Ctx = hippy::napi::Ctx;
+  using CtxValue = hippy::CtxValue;
+  using Ctx = hippy::Ctx;
+  using CallbackInfo = hippy::CallbackInfo;
 
   TimerModule() = default;
 
-  void SetTimeout(const hippy::napi::CallbackInfo& info);
-  void ClearTimeout(const hippy::napi::CallbackInfo& info);
-  void SetInterval(const hippy::napi::CallbackInfo& info);
-  void ClearInterval(const hippy::napi::CallbackInfo& info);
+  void SetTimeout(CallbackInfo& info, void* data);
+  void ClearTimeout(CallbackInfo& info, void* data);
+  void SetInterval(CallbackInfo& info, void* data);
+  void ClearInterval(CallbackInfo& info, void* data);
+
+  virtual std::shared_ptr<CtxValue> BindFunction(std::shared_ptr<Scope> scope, std::shared_ptr<CtxValue> rest_args[]) override;
 
  private:
-  std::shared_ptr<CtxValue> Start(const hippy::napi::CallbackInfo& info,
-                                  bool repeat);
+  std::shared_ptr<CtxValue> Start(CallbackInfo& info, bool repeat);
   void Cancel(uint32_t task_id);
 
   struct TaskEntry {
@@ -67,7 +69,7 @@ class TimerModule : public ModuleBase {
     };
   };
 
-  std::shared_ptr<std::unordered_map<uint32_t , std::shared_ptr<footstone::BaseTimer>>> timer_map_ = std::make_shared<
+  static std::shared_ptr<std::unordered_map<uint32_t , std::shared_ptr<footstone::BaseTimer>>> timer_map_ = std::make_shared<
       std::unordered_map<uint32_t , std::shared_ptr<footstone::BaseTimer>>>();
   static const int kTimerInvalidId = 0;
 }

@@ -22,15 +22,15 @@
 
 #pragma once
 
+#include "driver/napi/js_ctx.h"
 #include "driver/scope.h"
-#include "driver/napi/js_native_api_types.h"
+#include "dom/scene_builder.h"
 
 namespace hippy {
 inline namespace driver {
 inline namespace module {
 
-std::shared_ptr<hippy::napi::InstanceDefine<SceneBuilder>>
-RegisterSceneBuilder(const std::weak_ptr<Scope>& weak_scope);
+std::shared_ptr<hippy::ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::weak_ptr<Scope>& weak_scope);
 
 }
 }

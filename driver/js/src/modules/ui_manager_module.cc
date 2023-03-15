@@ -26,6 +26,7 @@
 #include <tuple>
 
 #include "driver/modules/module_register.h"
+#include "driver/base/js_convert_utils.h"
 #include "dom/dom_argument.h"
 #include "dom/dom_event.h"
 #include "dom/dom_node.h"
@@ -45,27 +46,29 @@ namespace hippy {
 inline namespace driver {
 inline namespace module {
 
-REGISTER_MODULE(UIManagerModule, CallUIFunction)
+GEN_INVOKE_CB(UIManagerModule, CallUIFunction)
 
-void UIManagerModule::CallUIFunction(const CallbackInfo &info) {
-  std::shared_ptr<Scope> scope = info.GetScope();
-  std::shared_ptr<Ctx> context = scope->GetContext();
+void UIManagerModule::CallUIFunction(CallbackInfo& info, void* data) {
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+  auto scope = scope_wrapper->scope.lock();
+  FOOTSTONE_CHECK(scope);
+  auto context = scope->GetContext();
   FOOTSTONE_CHECK(context);
 
   int32_t id = 0;
-  auto id_value = context->ToDomValue(info[0]);
+  auto id_value = hippy::ToDomValue(context, info[0]);
   if (id_value->IsNumber()) {
     id = static_cast<int32_t>(id_value->ToDoubleChecked());
   }
 
   std::string name;
-  auto name_value = context->ToDomValue(info[1]);
+  auto name_value = hippy::ToDomValue(context, info[1]);
   if (name_value->IsString()) {
     name = name_value->ToStringChecked();
   }
 
   std::unordered_map<std::string, std::shared_ptr<HippyValue>> param;
-  DomArgument param_value = *(context->ToDomArgument(info[2]));
+  DomArgument param_value = *(hippy::ToDomArgument(context, info[2]));
   hippy::CallFunctionCallback cb = nullptr;
   bool flag = context->IsFunction(info[3]);
   if (flag) {
@@ -89,8 +92,8 @@ void UIManagerModule::CallUIFunction(const CallbackInfo &info) {
           HippyValue value;
           bool flag = argument->ToObject(value);
           if (flag) {
-            auto param = context->CreateCtxValue(
-                std::make_shared<HippyValue>(std::move(value)));
+            auto param = hippy::CreateCtxValue(
+                context, std::make_shared<HippyValue>(std::move(value)));
             if (param) {
               const std::shared_ptr<CtxValue> argus[] = {param};
               context->CallFunction(func, 1, argus);
@@ -111,6 +114,20 @@ void UIManagerModule::CallUIFunction(const CallbackInfo &info) {
   if (dom_manager) {
     dom_manager->CallFunction(scope->GetRootNode(), static_cast<uint32_t>(id), name, param_value, cb);
   }
+}
+
+std::shared_ptr<CtxValue> UIManagerModule::BindFunction(std::shared_ptr<Scope> scope,
+                                                         std::shared_ptr<CtxValue> rest_args[]) {
+  auto context = scope->GetContext();
+  auto object = context->CreateObject();
+
+  auto key = context->CreateString("CallUIFunction");
+  auto wrapper = std::make_unique<hippy::napi::FunctionWrapper>(InvokeUIManagerModuleCallUIFunction, nullptr);
+  auto value = context->CreateFunction(wrapper);
+  scope->SaveFunctionWrapper(std::move(wrapper));
+  context->SetProperty(object, key, value);
+
+  return object;
 }
 
 }

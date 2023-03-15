@@ -23,7 +23,8 @@
 #import "NSObject+CtxValue.h"
 #import "HPAsserts.h"
 
-#include "driver/napi/js_native_api_types.h"
+#include "driver/napi/js_ctx.h"
+#include "driver/napi/js_ctx_value.h"
 #include "footstone/string_view.h"
 #include "footstone/string_view_utils.h"
 
@@ -155,14 +156,17 @@ id ObjectFromCtxValue(CtxPtr context, CtxValuePtr value) {
             }
         }
         else if (context->IsObject(value)) {
-            std::unordered_map<footstone::string_view, CtxValuePtr> map;
-            if (context->GetEntriesFromObject(value, map)) {
+            std::unordered_map<CtxValuePtr, CtxValuePtr> map;
+            if (context->GetEntries(value, map)) {
                 NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:map.size()];
                 for (auto &it : map) {
-                    auto &string_view = it.first;
-                    const auto &u16String = string_view.utf16_value();
-                    NSString *string =
-                        [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
+                    footstone::string_view string_view;
+                    auto flag = context->GetValueString(it.first, &string_view);
+                    if (!flag) {
+                        continue;
+                    }
+                    const auto &u16String = footstone::StringViewUtils::CovertToUtf16(string_view, string_view.encoding()).utf16_value();
+                    NSString *string = [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
                     auto &value = it.second;
                     id obj = ObjectFromCtxValue(context, value);
                     [dictionary setObject:obj forKey:string];

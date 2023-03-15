@@ -35,6 +35,7 @@
 using string_view = footstone::stringview::string_view;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
+using CallbackInfo = hippy::CallbackInfo;
 using RegisterFunction = hippy::base::RegisterFunction;
 using RegisterMap = hippy::base::RegisterMap;
 using BaseTimer = footstone::BaseTimer;
@@ -48,26 +49,28 @@ namespace hippy {
 inline namespace driver {
 inline namespace module {
 
-REGISTER_MODULE(TimerModule, SetTimeout) // NOLINT(cert-err58-cpp)
-REGISTER_MODULE(TimerModule, ClearTimeout) // NOLINT(cert-err58-cpp)
-REGISTER_MODULE(TimerModule, SetInterval) // NOLINT(cert-err58-cpp)
-REGISTER_MODULE(TimerModule, ClearInterval) // NOLINT(cert-err58-cpp)
+GEN_INVOKE_CB(TimerModule, SetTimeout) // NOLINT(cert-err58-cpp)
+GEN_INVOKE_CB(TimerModule, ClearTimeout) // NOLINT(cert-err58-cpp)
+GEN_INVOKE_CB(TimerModule, SetInterval) // NOLINT(cert-err58-cpp)
+GEN_INVOKE_CB(TimerModule, ClearInterval) // NOLINT(cert-err58-cpp)
 
-void TimerModule::SetTimeout(const napi::CallbackInfo& info) {
+void TimerModule::SetTimeout(CallbackInfo& info, void* data) {
   info.GetReturnValue()->Set(Start(info, false));
 }
 
-void TimerModule::ClearTimeout(const napi::CallbackInfo& info) {
-  ClearInterval(info);
+void TimerModule::ClearTimeout(CallbackInfo& info, void* data) {
+  ClearInterval(info, data);
 }
 
-void TimerModule::SetInterval(const napi::CallbackInfo& info) {
+void TimerModule::SetInterval(CallbackInfo& info, void* data) {
   info.GetReturnValue()->Set(Start(info, true));
 }
 
-void TimerModule::ClearInterval(const napi::CallbackInfo& info) {
-  std::shared_ptr<Scope> scope = info.GetScope();
-  std::shared_ptr<Ctx> context = scope->GetContext();
+void TimerModule::ClearInterval(CallbackInfo& info, void* data) {
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+  auto scope = scope_wrapper->scope.lock();
+  FOOTSTONE_CHECK(scope);
+  auto context = scope->GetContext();
   FOOTSTONE_CHECK(context);
 
   int32_t argument = 0;
@@ -82,10 +85,12 @@ void TimerModule::ClearInterval(const napi::CallbackInfo& info) {
 }
 
 std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
-    const napi::CallbackInfo& info,
+    CallbackInfo& info,
     bool repeat) {
-  std::shared_ptr<Scope> scope = info.GetScope();
-  std::shared_ptr<Ctx> context = scope->GetContext();
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+  auto scope = scope_wrapper->scope.lock();
+  FOOTSTONE_CHECK(scope);
+  auto context = scope->GetContext();
   FOOTSTONE_CHECK(context);
 
   std::shared_ptr<CtxValue> function = info[0];
@@ -149,6 +154,38 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
 
 void TimerModule::Cancel(uint32_t task_id) {
   timer_map_->erase(task_id);
+}
+
+std::shared_ptr<CtxValue> TimerModule::BindFunction(std::shared_ptr<Scope> scope,
+                                                    std::shared_ptr<CtxValue>* rest_args) {
+  auto context = scope->GetContext();
+  auto object = context->CreateObject();
+
+  auto key = context->CreateString("SetTimeout");
+  auto wrapper = std::make_unique<hippy::napi::FunctionWrapper>(InvokeTimerModuleSetTimeout, nullptr);
+  auto value = context->CreateFunction(wrapper);
+  scope->SaveFunctionWrapper(std::move(wrapper));
+  context->SetProperty(object, key, value);
+
+  key = context->CreateString("ClearTimeout");
+  wrapper = std::make_unique<hippy::napi::FunctionWrapper>(InvokeTimerModuleClearTimeout, nullptr);
+  value = context->CreateFunction(wrapper);
+  scope->SaveFunctionWrapper(std::move(wrapper));
+  context->SetProperty(object, key, value);
+
+  key = context->CreateString("SetInterval");
+  wrapper = std::make_unique<hippy::napi::FunctionWrapper>(InvokeTimerModuleSetInterval, nullptr);
+  value = context->CreateFunction(wrapper);
+  scope->SaveFunctionWrapper(std::move(wrapper));
+  context->SetProperty(object, key, value);
+
+  key = context->CreateString("ClearInterval");
+  wrapper = std::make_unique<hippy::napi::FunctionWrapper>(InvokeTimerModuleClearInterval, nullptr);
+  value = context->CreateFunction(wrapper);
+  scope->SaveFunctionWrapper(std::move(wrapper));
+  context->SetProperty(object, key, value);
+
+  return object;
 }
 
 }

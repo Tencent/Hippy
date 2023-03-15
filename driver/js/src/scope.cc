@@ -28,15 +28,30 @@
 #include <vector>
 
 #include "dom/dom_node.h"
+#include "driver/base/js_convert_utils.h"
 #include "driver/modules/module_register.h"
-#include "driver/napi/native_source_code.h"
+#include "driver/modules/animation_module.h"
+#include "driver/modules/contextify_module.h"
+#include "driver/modules/console_module.h"
+#include "driver/modules/event_module.h"
+#include "driver/modules/scene_builder.h"
+#include "driver/modules/timer_module.h"
+#include "driver/modules/ui_manager_module.h"
+#include "driver/vm/native_source_code.h"
 #include "footstone/logging.h"
 #include "footstone/string_view_utils.h"
 #include "footstone/task.h"
 #include "footstone/task_runner.h"
 
+#include "driver/modules/event_module.h"
+#include "driver/modules/scene_builder.h"
+#include "driver/modules/animation_module.h"
+#include "dom/dom_event.h"
+
 #ifdef JS_V8
-#include "driver/napi/v8/js_native_api_v8.h"
+#include "driver/vm/v8/memory_module.h"
+#include "driver/napi/v8/v8_ctx.h"
+#include "driver/vm/v8/v8_vm.h"
 #endif
 
 #ifdef ENABLE_INSPECTOR
@@ -52,12 +67,14 @@ using ModuleClassMap = hippy::ModuleClassMap;
 using CtxValue = hippy::CtxValue;
 using DomEvent = hippy::DomEvent;
 using DomNode = hippy::DomNode;
+using FunctionWrapper = hippy::FunctionWrapper;
 
-
+constexpr char kBootstrapJSName[] = "bootstrap.js";
 constexpr char kDeallocFuncName[] = "HippyDealloc";
+constexpr char kEventName[] = "Event";
+constexpr char kHippyName[] = "Hippy";
 constexpr char kLoadInstanceFuncName[] = "__loadInstance__";
 constexpr char kUnloadInstanceFuncName[] = "__unloadInstance__";
-constexpr char kHippyBootstrapJSName[] = "bootstrap.js";
 #ifdef ENABLE_INSPECTOR
 constexpr char kHippyModuleName[] = "name";
 #endif
@@ -66,7 +83,39 @@ constexpr uint64_t kInvalidListenerId = hippy::dom::EventListenerInfo::kInvalidL
 namespace hippy {
 inline namespace driver {
 
-Scope::Scope(Engine* engine, std::string name, std::unique_ptr<RegisterMap> map)
+
+static void InternalBindingCallback(hippy::napi::CallbackInfo& info, void* data) {
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+  auto scope = scope_wrapper->scope.lock();
+  FOOTSTONE_CHECK(scope);
+  auto context = scope->GetContext();
+  string_view module_name;
+  auto flag = context->GetValueString(info[0], &module_name);
+  // FOOTSTONE_DCHECK(flag);
+  if (!flag) {
+    return;
+  }
+  auto u8_module_name = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+      module_name, string_view::Encoding::Utf8).utf8_value());
+  auto module_object = scope->GetModuleObject(u8_module_name);
+  if (!module_object) {
+    return;
+  }
+  auto len = info.Length();
+  auto argc = len > 1 ? (len - 1) : 0;
+  std::shared_ptr<CtxValue> rest_args[argc];
+  for (size_t i = 0; i < argc; ++i) {
+    rest_args[i] = info[i + 1];
+  }
+  auto js_object = module_object->BindFunction(scope, rest_args);
+  info.GetReturnValue()->Set(js_object);
+}
+
+// REGISTER_EXTERNAL_REFERENCES(InternalBindingCallback)
+
+Scope::Scope(std::weak_ptr<Engine> engine,
+             std::string name,
+             std::unique_ptr<RegisterMap> map)
     : engine_(engine),
       context_(nullptr),
       name_(std::move(name)),
@@ -74,7 +123,6 @@ Scope::Scope(Engine* engine, std::string name, std::unique_ptr<RegisterMap> map)
 
 Scope::~Scope() {
   FOOTSTONE_DLOG(INFO) << "~Scope";
-  engine_->Exit();
 }
 
 void Scope::WillExit() {
@@ -88,7 +136,9 @@ void Scope::WillExit() {
         std::shared_ptr<CtxValue> rst = nullptr;
         std::shared_ptr<Ctx> context = weak_context.lock();
         if (context) {
-          std::shared_ptr<CtxValue> fn = context->GetJsFn(kDeallocFuncName);
+          auto global_object = context->GetGlobalObject();
+          auto func_name = context->CreateString(kDeallocFuncName);
+          auto fn = context->GetProperty(global_object, func_name);
           bool is_fn = context->IsFunction(fn);
           if (is_fn) {
             context->CallFunction(fn, 0, nullptr);
@@ -96,7 +146,7 @@ void Scope::WillExit() {
         }
         p.set_value(rst);
       });
-  auto runner = engine_->GetJsTaskRunner();
+  auto runner =GetTaskRunner();
   if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
     cb();
   } else {
@@ -105,64 +155,6 @@ void Scope::WillExit() {
 
   future.get();
   FOOTSTONE_DLOG(INFO) << "ExitCtx end";
-}
-
-void Scope::Initialized() {
-  FOOTSTONE_DLOG(INFO) << "Scope Initialized";
-  engine_->Enter();
-  context_ = engine_->GetVM()->CreateContext();
-  if (context_ == nullptr) {
-    FOOTSTONE_DLOG(ERROR) << "CreateContext return nullptr";
-    return;
-  }
-  std::shared_ptr<Scope> self = wrapper_->scope_.lock();
-  if (!self) {
-    FOOTSTONE_DLOG(ERROR) << "Scope wrapper_ error_";
-    return;
-  }
-  RegisterMap::const_iterator it =
-      map_->find(hippy::base::kContextCreatedCBKey);
-  if (it != map_->end()) {
-    RegisterFunction f = it->second;
-    if (f) {
-      FOOTSTONE_DLOG(INFO) << "run ContextCreatedCB begin";
-      f(wrapper_.get());
-      FOOTSTONE_DLOG(INFO) << "run ContextCreatedCB end";
-      map_->erase(it);
-    }
-  }
-  FOOTSTONE_DLOG(INFO) << "Scope RegisterGlobalInJs";
-  context_->RegisterGlobalModule(self,
-                                 ModuleRegister::instance()->GetGlobalList());
-  ModuleClassMap map(ModuleRegister::instance()->GetInternalList());
-  binding_data_ = std::make_unique<BindingData>(self, map);
-
-  auto source_code = hippy::GetNativeSourceCode(kHippyBootstrapJSName);
-  FOOTSTONE_DCHECK(source_code.data_ && source_code.length_);
-  string_view str_view(reinterpret_cast<const string_view::char8_t_ *>(source_code.data_),
-                       source_code.length_);
-  std::shared_ptr<CtxValue> function =
-      context_->RunScript(str_view, kHippyBootstrapJSName);
-
-  bool is_func = context_->IsFunction(function);
-  FOOTSTONE_CHECK(is_func) << "bootstrap return not function, len = "
-                           << source_code.length_;
-
-  std::shared_ptr<CtxValue> internal_binding_fn =
-      hippy::napi::GetInternalBindingFn(self);
-  std::shared_ptr<CtxValue> argv[] = {internal_binding_fn};
-  context_->CallFunction(function, 1, argv);
-
-  it = map_->find(hippy::base::KScopeInitializedCBKey);
-  if (it != map_->end()) {
-    RegisterFunction f = it->second;
-    if (f) {
-      FOOTSTONE_DLOG(INFO) << "run SCOPE_INITIALIZED begin";
-      f(wrapper_.get());
-      FOOTSTONE_DLOG(INFO) << "run SCOPE_INITIALIZED end";
-      map_->erase(it);
-    }
-  }
 }
 
 ModuleBase* Scope::GetModuleClass(const string_view& moduleName) {
@@ -186,8 +178,106 @@ void Scope::AddModuleValue(const string_view& name,
   module_value_map_.insert({name, value});
 }
 
-void Scope::SaveFunctionData(std::unique_ptr<hippy::napi::FunctionData> data) {
-  function_data_.push_back(std::move(data));
+void Scope::Init() {
+  CreateContext();
+  BindModule();
+  Bootstrap();
+  InvokeCallback();
+}
+
+void Scope::CreateContext() {
+  auto engine = engine_.lock();
+  FOOTSTONE_CHECK(engine);
+  context_ = engine->GetVM()->CreateContext();
+  FOOTSTONE_CHECK(context_);
+  context_->SetExternalData(GetScopeWrapperPointer());
+  if (map_) {
+    auto it = map_->find(hippy::base::kContextCreatedCBKey);
+    if (it != map_->end()) {
+      auto f = it->second;
+      if (f) {
+        f(wrapper_.get());
+        map_->erase(it);
+      }
+    }
+  }
+}
+
+
+void Scope::BindModule() {
+  module_object_map_["ConsoleModule"] = std::make_shared<ConsoleModule>();
+  module_object_map_["TimerModule"] = std::make_shared<TimerModule>();
+  module_object_map_["ContextifyModule"] = std::make_shared<ContextifyModule>();
+  module_object_map_["UIManagerModule"] = std::make_shared<UIManagerModule>();
+#ifdef JS_V8
+  module_object_map_["MemoryModule"] = std::make_shared<MemoryModule>();
+#endif
+}
+
+void Scope::Bootstrap() {
+  FOOTSTONE_LOG(INFO) << "Bootstrap begin";
+  auto source_code = hippy::GetNativeSourceCode(kBootstrapJSName);
+  FOOTSTONE_DCHECK(source_code.data_ && source_code.length_);
+  string_view str_view(source_code.data_, source_code.length_);
+  auto function = context_->RunScript(str_view, kBootstrapJSName);
+  auto is_func = context_->IsFunction(function);
+  FOOTSTONE_CHECK(is_func) << "bootstrap return not function, len = " << source_code.length_;
+  auto function_wrapper = std::make_unique<FunctionWrapper>(InternalBindingCallback, nullptr);
+  std::shared_ptr<CtxValue> argv[] = { context_->CreateFunction(function_wrapper) };
+  SaveFunctionWrapper(std::move(function_wrapper));
+  context_->CallFunction(function, 1, argv);
+}
+
+void Scope::InvokeCallback() {
+  if (!map_) {
+    return;
+  }
+  auto it = map_->find(hippy::base::KScopeInitializedCBKey);
+  if (it != map_->end()) {
+    auto f = it->second;
+    if (f) {
+      f(wrapper_.get());
+      map_->erase(it);
+    }
+  }
+}
+
+void Scope::RegisterJsClasses() {
+  auto weak_scope = weak_from_this();
+  auto global_object = context_->GetGlobalObject();
+  auto scene_builder = hippy::RegisterSceneBuilder(weak_scope);
+  auto scene_builder_class = DefineClass(scene_builder);
+  SaveClassTemplate(scene_builder->name, scene_builder);
+  auto hippy_object = context_->GetProperty(global_object,
+                                            context_->CreateString(kHippyName));
+  context_->SetProperty(hippy_object,
+                        context_->CreateString(scene_builder->name),
+                        scene_builder_class,
+                        PropertyAttribute::ReadOnly);
+  auto animation = hippy::RegisterAnimation(weak_scope);
+  auto animation_class = DefineClass(animation);
+  SaveClassTemplate(animation->name, animation);
+  context_->SetProperty(hippy_object,
+                        context_->CreateString(animation->name),
+                        animation_class,
+                        PropertyAttribute::ReadOnly);
+  auto animation_set = hippy::RegisterAnimationSet(weak_scope);
+  auto animation_set_class = DefineClass(animation_set);
+  SaveClassTemplate(animation_set->name, animation_set);
+  context_->SetProperty(hippy_object,
+                        context_->CreateString(animation_set->name),
+                        animation_set_class,
+                        PropertyAttribute::ReadOnly);
+
+  auto event = hippy::MakeEventClassTemplate(weak_scope);
+  auto event_class = DefineClass(event);
+  SaveEventClass(event_class);
+  SaveClassTemplate(event->name, event);
+}
+
+void* Scope::GetScopeWrapperPointer() {
+  FOOTSTONE_CHECK(wrapper_);
+  return wrapper_.get();
 }
 
 hippy::dom::EventListenerInfo Scope::AddListener(const EventListenerInfo& event_listener_info) {
@@ -225,11 +315,24 @@ hippy::dom::EventListenerInfo Scope::AddListener(const EventListenerInfo& event_
     std::weak_ptr<Ctx> weak_context = scope->GetContext();
     auto context = weak_context.lock();
     if (context) {
-      std::shared_ptr<hippy::dom::DomEvent> copied_event = event;
       auto callback = event_listener_info.callback.lock();
       FOOTSTONE_DCHECK(callback != nullptr);
       if (callback == nullptr) return;
-      context->CallDomEvent(weak_scope, callback, copied_event);
+      FOOTSTONE_DCHECK(scope->HasClassTemplate(kEventName));
+      auto event_class = scope->GetEventClass();
+      hippy::DomEventWrapper::Set(event);
+      auto event_instance = context->NewInstance(event_class, 0, nullptr, nullptr);
+      FOOTSTONE_DCHECK(callback) << "callback is nullptr";
+      if (!callback) {
+        return;
+      }
+      auto flag = context->IsFunction(callback);
+      if (!flag) {
+        context->ThrowException(footstone::string_view("callback is not a function"));
+        return;
+      }
+      std::shared_ptr<CtxValue> argv[] = { event_instance };
+      context->CallFunction(callback, 1, argv);
     }
   }};
 }
@@ -319,8 +422,7 @@ void Scope::RunJS(const string_view& data,
   std::weak_ptr<Ctx> weak_context = context_;
   auto callback = [data, name, is_copy, weak_context] {
 #ifdef JS_V8
-    auto context =
-        std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
+    auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
     if (context) {
       context->RunScript(data, name, false, nullptr, is_copy);
     }
@@ -332,7 +434,7 @@ void Scope::RunJS(const string_view& data,
 #endif
   };
 
-  auto runner = engine_->GetJsTaskRunner();
+  auto runner = GetTaskRunner();
   if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
     callback();
   } else {
@@ -364,7 +466,8 @@ std::shared_ptr<CtxValue> Scope::RunJSSync(const string_view& data,
         p.set_value(rst);
       });
 
-  auto runner = engine_->GetJsTaskRunner();
+
+  auto runner = GetTaskRunner();
   if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
     cb();
   } else {
@@ -384,11 +487,13 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
 #endif
     std::shared_ptr<Ctx> context = weak_context.lock();
     if (context) {
-      std::shared_ptr<CtxValue> fn = context->GetJsFn(kLoadInstanceFuncName);
+      auto global_object = context->GetGlobalObject();
+      auto func_name = context->CreateString(kLoadInstanceFuncName);
+      auto fn = context->GetProperty(global_object, func_name);
       bool is_fn = context->IsFunction(fn);
       FOOTSTONE_DCHECK(is_fn);
       if (is_fn) {
-        auto param = context->CreateCtxValue(value);
+        auto param = hippy::CreateCtxValue(context, value);
 #ifdef ENABLE_INSPECTOR
         std::shared_ptr<CtxValue> module_name_value = context->GetProperty(param, kHippyModuleName);
         auto devtools_data_source = weak_data_source.lock();
@@ -411,7 +516,7 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
       }
     }
   };
-  auto runner = engine_->GetJsTaskRunner();
+  auto runner = GetTaskRunner();
   if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
     cb();
   } else {
@@ -428,42 +533,43 @@ void Scope::UnloadInstance(const std::shared_ptr<HippyValue>& value) {
 #else
         auto cb = [weak_context, value]() mutable {
 #endif
-        std::shared_ptr<Ctx> context = weak_context.lock();
+        auto context = weak_context.lock();
         if (context) {
-            std::shared_ptr<CtxValue> fn = context->GetJsFn(kUnloadInstanceFuncName);
-            bool is_fn = context->IsFunction(fn);
-            FOOTSTONE_DCHECK(is_fn);
-            if (is_fn) {
-                auto param = context->CreateCtxValue(value);
+          auto global_object = context->GetGlobalObject();
+          auto func_name = context->CreateString(kUnloadInstanceFuncName);
+          auto fn = context->GetProperty(global_object, func_name);
+          bool is_fn = context->IsFunction(fn);
+          FOOTSTONE_DCHECK(is_fn);
+          if (is_fn) {
+              auto param = hippy::CreateCtxValue(context, value);
 #ifdef ENABLE_INSPECTOR
-                std::shared_ptr<CtxValue> module_name_value = context->GetProperty(param, kHippyModuleName);
-                auto devtools_data_source = weak_data_source.lock();
-                if (module_name_value && devtools_data_source != nullptr) {
-                    string_view module_name;
-                    bool flag = context->GetValueString(module_name_value, &module_name);
-                    if (flag) {
-                        std::string u8_module_name = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-                            module_name, string_view::Encoding::Utf8).utf8_value());
-                        devtools_data_source->SetContextName(u8_module_name);
-                    } else {
-                        FOOTSTONE_DLOG(ERROR) << "module name get error. GetValueString return false";
-                    }
-                }
+              std::shared_ptr<CtxValue> module_name_value = context->GetProperty(param, kHippyModuleName);
+              auto devtools_data_source = weak_data_source.lock();
+              if (module_name_value && devtools_data_source != nullptr) {
+                  string_view module_name;
+                  bool flag = context->GetValueString(module_name_value, &module_name);
+                  if (flag) {
+                      std::string u8_module_name = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+                          module_name, string_view::Encoding::Utf8).utf8_value());
+                      devtools_data_source->SetContextName(u8_module_name);
+                  } else {
+                      FOOTSTONE_DLOG(ERROR) << "module name get error. GetValueString return false";
+                  }
+              }
 #endif
-                std::shared_ptr<CtxValue> argv[] = {param};
-                context->CallFunction(fn, 1, argv);
-            } else {
-                context->ThrowException("Application entry not found");
-            }
+              std::shared_ptr<CtxValue> argv[] = {param};
+              context->CallFunction(fn, 1, argv);
+          } else {
+              context->ThrowException("Application entry not found");
+          }
         }
     };
-    auto runner = engine_->GetJsTaskRunner();
+    auto runner = GetTaskRunner();
     if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
         cb();
     } else {
         runner->PostTask(std::move(cb));
     }
-
 }
 
 }

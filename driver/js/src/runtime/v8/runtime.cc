@@ -21,11 +21,13 @@
  */
 
 #include "driver/runtime/v8/runtime.h"
+#include "driver/napi/v8/v8_ctx.h"
+#include "driver/scope.h"
 
 #include <mutex>
 #include <unordered_map>
 
-using V8Ctx = hippy::napi::V8Ctx;
+using V8Ctx = hippy::V8Ctx;
 using WorkerManager = footstone::WorkerManager;
 
 namespace hippy {
@@ -34,7 +36,7 @@ inline namespace runtime {
 
 static std::unordered_map<int32_t, std::shared_ptr<Runtime>> runtime_map;
 static std::mutex mutex;
-static std::atomic<int32_t> global_runtime_key{0};
+static std::atomic<int32_t> global_runtime_key{1};
 
 Runtime::Runtime(bool enable_v8_serialization, bool is_dev)
     : enable_v8_serialization_(enable_v8_serialization), is_debug_(is_dev), group_id_(0) {

@@ -59,7 +59,7 @@ void InitBridge(JNIEnv* j_env) {
   }
 }
 
-void CallNative(hippy::napi::CBDataTuple* data) {
+void CallNative(CallbackInfo& info, int32_t runtime_id) {
   auto cb = [](const std::shared_ptr<Runtime>& runtime,
                const string_view& module,
                const string_view& func,
@@ -98,7 +98,7 @@ void CallNative(hippy::napi::CBDataTuple* data) {
     j_env->DeleteLocalRef(j_cb_id);
     j_env->DeleteLocalRef(j_buffer);
   };
-  V8BridgeUtils::CallNative(data, cb);
+  V8BridgeUtils::CallNative(info, runtime_id, cb);
 }
 
 } // namespace bridge

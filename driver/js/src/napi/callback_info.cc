@@ -22,15 +22,16 @@
 
 #include "driver/napi/callback_info.h"
 
-#include "driver/napi/js_native_api.h"
+#include "driver/scope.h"
 
 namespace hippy {
 inline namespace driver {
 inline namespace napi {
 
-CallbackInfo::CallbackInfo(std::shared_ptr<Scope> scope) : scope_(std::move(scope)) {
+CallbackInfo::CallbackInfo() {
   ret_value_ = std::make_unique<ReturnValue>();
   exception_value_ = std::make_unique<ExceptionValue>();
+  receiver_ = nullptr;
 }
 
 void CallbackInfo::AddValue(const std::shared_ptr<CtxValue>& value) {

@@ -22,6 +22,9 @@
 
 #pragma once
 
+#include "driver/scope.h"
+#include "driver/napi/js_ctx_value.h"
+
 namespace hippy {
 inline namespace driver {
 inline namespace module {
@@ -30,6 +33,8 @@ class ModuleBase {
  public:
   ModuleBase() = default;
   virtual ~ModuleBase() = default;
+
+  virtual std::shared_ptr<CtxValue> BindFunction(std::shared_ptr<Scope> scope, std::shared_ptr<CtxValue> rest_args[]) = 0;
 };
 
 }

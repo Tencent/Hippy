@@ -3,7 +3,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,19 +22,16 @@
 
 #pragma once
 
-#include <JavaScriptCore/JavaScriptCore.h>
-
-#include <string>
-
-#include "driver/napi/js_native_api_types.h"
-#include "driver/napi/jsc/js_native_api_jsc.h"
-
 namespace hippy {
 inline namespace driver {
 inline namespace napi {
 
-std::string JsStrToUTF8(JSStringRef str);
+class CtxValue {
+ public:
+  CtxValue() {}
+  virtual ~CtxValue() {}
+};
 
-} // namespace napi
-} // namespace driver
-} // namespace hippy
+}
+}
+}

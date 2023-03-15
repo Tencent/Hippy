@@ -24,20 +24,20 @@
 
 #include "dom/dom_event.h"
 #include "dom/dom_node.h"
+#include "driver/base/js_convert_utils.h"
 #include "driver/modules/ui_manager_module.h"
-#include "driver/napi/js_native_api_types.h"
 #include "driver/scope.h"
 #include "footstone/hippy_value.h"
 #include "footstone/string_view_utils.h"
 
 template <typename T>
-using InstanceDefine = hippy::napi::InstanceDefine<T>;
+using ClassTemplate = hippy::ClassTemplate<T>;
 
 template <typename T>
-using FunctionDefine = hippy::napi::FunctionDefine<T>;
+using FunctionDefine = hippy::FunctionDefine<T>;
 
 template <typename T>
-using PropertyDefine = hippy::napi::PropertyDefine<T>;
+using PropertyDefine = hippy::PropertyDefine<T>;
 
 using CtxValue = hippy::napi::CtxValue;
 
@@ -47,12 +47,12 @@ inline namespace module {
 
 std::shared_ptr<DomEvent> DomEventWrapper::dom_event_ = nullptr;
 
-std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
+std::shared_ptr<ClassTemplate<DomEvent>> MakeEventClassTemplate(
     const std::weak_ptr<Scope>& weak_scope) {
   using DomEvent = hippy::dom::DomEvent;
-  InstanceDefine<DomEvent> def;
-  def.name = "Event";
-  def.constructor = [](size_t argument_count, const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<DomEvent> {
+  ClassTemplate<DomEvent> class_template;
+  class_template.name = "Event";
+  class_template.constructor = [](size_t argument_count, const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<DomEvent> {
     auto event = DomEventWrapper::Get();
     DomEventWrapper::Release();
     return event;
@@ -69,7 +69,7 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
     FOOTSTONE_LOG(INFO) << "stop propagation" << std::endl;
     return nullptr;
   };
-  def.functions.emplace_back(std::move(stop_propagation));
+  class_template.functions.emplace_back(std::move(stop_propagation));
 
   // property type
   PropertyDefine<DomEvent> type;
@@ -89,7 +89,7 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
     return nullptr;
   };
   type.setter = [](DomEvent* event, const std::shared_ptr<CtxValue>& value) {};
-  def.properties.emplace_back(std::move(type));
+  class_template.properties.emplace_back(std::move(type));
 
   PropertyDefine<DomEvent> id;
   id.name = "id";
@@ -114,7 +114,7 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
     return ctx_value;
   };
   id.setter = [](DomEvent* event, const std::shared_ptr<CtxValue>& value) {};
-  def.properties.emplace_back(std::move(id));
+  class_template.properties.emplace_back(std::move(id));
 
   PropertyDefine<DomEvent> current_id;
   current_id.name = "currentId";
@@ -139,7 +139,7 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
     return ctx_value;
   };
   current_id.setter = [](DomEvent* event, const std::shared_ptr<CtxValue>& value) {};
-  def.properties.emplace_back(std::move(current_id));
+  class_template.properties.emplace_back(std::move(current_id));
 
   PropertyDefine<DomEvent> target;
   target.name = "target";
@@ -164,7 +164,7 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
     return ctx_value;
   };
   target.setter = [](DomEvent* event, const std::shared_ptr<CtxValue>& value) {};
-  def.properties.emplace_back(std::move(target));
+  class_template.properties.emplace_back(std::move(target));
 
   PropertyDefine<DomEvent> current_target;
   current_target.name = "currentTarget";
@@ -189,7 +189,7 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
     return ctx_value;
   };
   current_target.setter = [](DomEvent* event, const std::shared_ptr<CtxValue>& value) {};
-  def.properties.emplace_back(std::move(current_target));
+  class_template.properties.emplace_back(std::move(current_target));
 
   PropertyDefine<DomEvent> event_phase;
   event_phase.name = "eventPhase";
@@ -208,7 +208,7 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
     return ctx_value;
   };
   event_phase.setter = [](DomEvent* event, const std::shared_ptr<CtxValue>& value) {};
-  def.properties.emplace_back(std::move(event_phase));
+  class_template.properties.emplace_back(std::move(event_phase));
 
   PropertyDefine<DomEvent> params;
   params.name = "params";
@@ -224,19 +224,14 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
     std::shared_ptr<footstone::value::HippyValue> parameter = event->GetValue();
     std::shared_ptr<CtxValue> ctx_value = scope->GetContext()->CreateUndefined();
     if (parameter) {
-      ctx_value = scope->GetContext()->CreateCtxValue(parameter);
+      ctx_value = hippy::CreateCtxValue(scope->GetContext(), parameter);
     }
     return ctx_value;
   };
   params.setter = [](DomEvent* event, const std::shared_ptr<CtxValue>& value) {};
-  def.properties.emplace_back(std::move(params));
+  class_template.properties.emplace_back(std::move(params));
 
-  std::shared_ptr<InstanceDefine<DomEvent>> event = std::make_shared<InstanceDefine<DomEvent>>(def);
-  auto scope = weak_scope.lock();
-  if (scope) {
-    scope->SaveDomEventClassInstance(event);
-  }
-  return event;
+  return std::make_shared<ClassTemplate<DomEvent>>(std::move(class_template));
 }
 
 } // namespace module

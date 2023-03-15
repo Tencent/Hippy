@@ -28,17 +28,18 @@
 
 #include "dom/node_props.h"
 #include "driver/modules/ui_manager_module.h"
-#include "driver/napi/js_native_api_types.h"
+#include "driver/napi/js_ctx.h"
+#include "driver/napi/js_ctx_value.h"
 #include "driver/scope.h"
 #include "footstone/string_view.h"
 #include "footstone/string_view_utils.h"
 #include "footstone/task.h"
 
 template<typename T>
-using InstanceDefine = hippy::napi::InstanceDefine<T>;
+using ClassTemplate = hippy::ClassTemplate<T>;
 
 template<typename T>
-using FunctionDefine = hippy::napi::FunctionDefine<T>;
+using FunctionDefine = hippy::FunctionDefine<T>;
 
 using HippyValue = footstone::value::HippyValue;
 using DomArgument = hippy::dom::DomArgument;
@@ -285,12 +286,12 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
   return std::make_shared<ParseAnimationResult>(std::move(ret));
 }
 
-std::shared_ptr<InstanceDefine<CubicBezierAnimation>>
+std::shared_ptr<ClassTemplate<CubicBezierAnimation>>
 RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
-  InstanceDefine<CubicBezierAnimation> def;
-  def.name = "Animation";
-  def.constructor = [weak_scope](size_t argument_count,
-                                 const std::shared_ptr<CtxValue> arguments[])
+  ClassTemplate<CubicBezierAnimation> class_template;
+  class_template.name = "Animation";
+  class_template.constructor = [weak_scope](size_t argument_count,
+                                            const std::shared_ptr<CtxValue> arguments[])
       -> std::shared_ptr<CubicBezierAnimation> {
     auto scope = weak_scope.lock();
     if (!scope) {
@@ -336,7 +337,7 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
     auto id = animation->GetId();
     return scope->GetContext()->CreateNumber(static_cast<double>(id));
   };
-  def.functions.emplace_back(std::move(id_func_def));
+  class_template.functions.emplace_back(std::move(id_func_def));
 
   FunctionDefine<CubicBezierAnimation> start_func_def;
   start_func_def.name = "start";
@@ -364,7 +365,7 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
     animation->Start();
     return nullptr;
   };
-  def.functions.emplace_back(std::move(start_func_def));
+  class_template.functions.emplace_back(std::move(start_func_def));
 
   FunctionDefine<CubicBezierAnimation> destroy_func_def;
   destroy_func_def.name = "destroy";
@@ -392,7 +393,7 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
     animation->Destroy();
     return nullptr;
   };
-  def.functions.emplace_back(std::move(destroy_func_def));
+  class_template.functions.emplace_back(std::move(destroy_func_def));
 
   FunctionDefine<CubicBezierAnimation> pause_func_def;
   pause_func_def.name = "pause";
@@ -420,7 +421,7 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
     animation->Pause();
     return nullptr;
   };
-  def.functions.emplace_back(std::move(pause_func_def));
+  class_template.functions.emplace_back(std::move(pause_func_def));
 
   FunctionDefine<CubicBezierAnimation> resume_func_def;
   resume_func_def.name = "resume";
@@ -448,7 +449,7 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
     animation->Resume();
     return nullptr;
   };
-  def.functions.emplace_back(std::move(resume_func_def));
+  class_template.functions.emplace_back(std::move(resume_func_def));
 
   FunctionDefine<CubicBezierAnimation> update_func_def;
   update_func_def.name = "updateAnimation";
@@ -482,7 +483,7 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
     }
     return nullptr;
   };
-  def.functions.emplace_back(std::move(update_func_def));
+  class_template.functions.emplace_back(std::move(update_func_def));
 
   FunctionDefine<CubicBezierAnimation> add_event_listener_func_def;
   add_event_listener_func_def.name = "addEventListener";
@@ -535,7 +536,7 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
         event_name, string_view::Encoding::Utf8).utf8_value()), std::move(cb));
     return nullptr;
   };
-  def.functions.emplace_back(std::move(add_event_listener_func_def));
+  class_template.functions.emplace_back(std::move(add_event_listener_func_def));
 
   FunctionDefine<CubicBezierAnimation> remove_listener_func_def;
   remove_listener_func_def.name = "removeEventListener";
@@ -575,21 +576,15 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
         event_name, string_view::Encoding::Utf8).utf8_value()));
     return nullptr;
   };
-  def.functions.emplace_back(std::move(remove_listener_func_def));
+  class_template.functions.emplace_back(std::move(remove_listener_func_def));
 
-  std::shared_ptr<InstanceDefine<CubicBezierAnimation>>
-      instance_define = std::make_shared<InstanceDefine<CubicBezierAnimation>>(def);
-  auto scope = weak_scope.lock();
-  if (scope) {
-    scope->SaveHippyAnimationClassInstance(instance_define);
-  }
+  return std::make_shared<ClassTemplate<CubicBezierAnimation>>(std::move(class_template));
 
-  return instance_define;
 }
 
-std::shared_ptr<hippy::napi::InstanceDefine<AnimationSet>>
+std::shared_ptr<ClassTemplate<AnimationSet>>
 RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
-  InstanceDefine<AnimationSet> def;
+  ClassTemplate<AnimationSet> def;
   def.name = "AnimationSet";
   def.constructor = [weak_scope](size_t argument_count,
                                  const std::shared_ptr<CtxValue> arguments[])
@@ -846,14 +841,7 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
   };
   def.functions.emplace_back(std::move(remove_listener_func_def));
 
-  std::shared_ptr<InstanceDefine<AnimationSet>>
-      instance_define = std::make_shared<InstanceDefine<AnimationSet>>(def);
-  auto scope = weak_scope.lock();
-  if (scope) {
-    scope->SaveHippyAnimationSetClassInstance(instance_define);
-  }
-
-  return instance_define;
+  return std::make_shared<ClassTemplate<AnimationSet>>(std::move(def));
 }
 
 }

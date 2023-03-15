@@ -25,15 +25,23 @@
 #include <cstdint>
 
 #include "connector/java_turbo_module.h"
-#include "connector/turbo_module_runtime.h"
-#include "driver/runtime/v8/runtime.h"
-#include "driver/napi/v8/js_native_api_v8.h"
-#include "driver/napi/v8/js_native_turbo_v8.h"
-#include "footstone/string_view_utils.h"
 #include "jni/jni_env.h"
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
+#include "jni/scoped_java_ref.h"
+#include "footstone/logging.h"
+#include "footstone/string_view.h"
+#include "footstone/string_view_utils.h"
+#include "driver/runtime/v8/runtime.h"
+#include "driver/napi/v8/v8_ctx.h"
 
+using namespace hippy::napi;
+using string_view = footstone::string_view;
+using StringViewUtils = footstone::StringViewUtils;
+using V8Ctx = hippy::V8Ctx;
+
+constexpr char kTurboKey[] = "getTurboModule";
+constexpr uint8_t kTurboSlot = 2;
 
 namespace hippy {
 inline namespace framework {
@@ -44,129 +52,92 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager", // NOLINT(ce
              "(J)I",
              Install)
 
-using namespace hippy::napi;
-using string_view = footstone::stringview::string_view;
-using StringViewUtils = footstone::stringview::StringViewUtils;
-using Runtime = hippy::Runtime;
-
 jclass turbo_module_manager_clazz;
-jmethodID j_method_id;
+jmethodID get_method_id;
 
 /**
  * com.tencent.mtt.hippy.bridge.jsi.TurboModuleManager.get
  */
-std::shared_ptr<JavaRef> QueryTurboModuleImpl(std::shared_ptr<Runtime> &runtime,
-                                              const std::string &module_name) {
+std::shared_ptr<JavaRef> QueryTurboModuleImpl(std::shared_ptr<Runtime>& runtime,
+                                              const std::string& module_name) {
   FOOTSTONE_DLOG(INFO) << "enter QueryTurboModuleImpl " << module_name.c_str();
-  JNIEnv *j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-  jstring j_name = j_env->NewStringUTF(module_name.c_str());
-  FOOTSTONE_DCHECK(runtime->HasData(kTurboSlot));
-  auto turbo_runtime = std::any_cast<std::shared_ptr<TurboModuleRuntime>>(runtime->GetData(kTurboSlot));
-  jobject module_impl = j_env->CallObjectMethod(turbo_runtime->turbo_module_manager_obj_, j_method_id, j_name);
+  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  jstring name = j_env->NewStringUTF(module_name.c_str());
+  auto turbo_manager = std::any_cast<std::shared_ptr<JavaRef>>(runtime->GetData(kTurboSlot));
+  jobject module_impl = j_env->CallObjectMethod(turbo_manager->GetObj(), get_method_id, name);
   auto result = std::make_shared<JavaRef>(j_env, module_impl);
-  j_env->DeleteLocalRef(j_name);
+  j_env->DeleteLocalRef(name);
   j_env->DeleteLocalRef(module_impl);
   return result;
 }
 
-void GetTurboModule(const v8::FunctionCallbackInfo<v8::Value> &info) {
+void GetTurboModule(CallbackInfo& info, void* data) {
   FOOTSTONE_DLOG(INFO) << "[turbo-perf] enter getTurboModule";
-  auto data = info.Data().As<v8::External>();
-  int64_t runtime_key = (reinterpret_cast<int64_t>(data->Value()));
-
-  auto runtime = Runtime::Find(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_key));
-  std::shared_ptr<Ctx> ctx = std::static_pointer_cast<Ctx>(runtime->GetScope()->GetContext());
-  std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx);
-  auto isolate = v8_ctx->isolate_;
-  v8::HandleScope handle_scope(isolate);
-  v8::Local<v8::Context> context =
-      v8_ctx->context_persistent_.Get(isolate);
-  v8::Context::Scope context_scope(context);
-
-  if (info.Length() == 1 && !info[0].IsEmpty() && info[0]->IsString()) {
-    // 1. moduleName
-    v8::String::Utf8Value module_name(info.GetIsolate(), info[0]);
-    std::string name = module_name.operator*();
-
-    if (!runtime->HasData(kTurboSlot)) {
-      FOOTSTONE_LOG(ERROR) << "getTurboModule but turboModuleRuntime is null";
-      info.GetReturnValue().SetUndefined();
-      return;
-    }
-    auto slot = runtime->GetData(kTurboSlot);
-    auto turbo_module_runtime = std::any_cast<std::shared_ptr<TurboModuleRuntime>>(slot);
-    std::shared_ptr<CtxValue> result = turbo_module_runtime->module_cache_[name];
-    if (!result) {
-      // 2. if not cached, query from Java
-      std::shared_ptr<JavaRef> module_impl =
-          QueryTurboModuleImpl(runtime, name);
-      if (!module_impl->GetObj()) {
-        std::string exception_info = std::string("Cannot find TurboModule: ").append(name);
-        FOOTSTONE_LOG(ERROR) << "cannot find TurboModule = " << name.c_str();
-        v8_ctx->ThrowException(string_view(exception_info));
-        return info.GetReturnValue().SetUndefined();
-      }
-
-      // 3. constructor c++ JavaTurboModule
-      std::shared_ptr<JavaTurboModule> java_turbo_module =
-          std::make_shared<JavaTurboModule>(name, module_impl);
-
-      // 4. init v8TurboEnv
-      if (!turbo_module_runtime->turbo_env_) {
-        turbo_module_runtime->turbo_env_ = std::make_shared<V8TurboEnv>(ctx);
-      }
-
-      // 5. bind c++ JavaTurboModule to js
-      result = turbo_module_runtime->turbo_env_->CreateObject(java_turbo_module);
-
-      // 6. add To Cache
-      turbo_module_runtime->module_cache_[name] = result;
-      FOOTSTONE_DLOG(INFO) << "return module= " << name.c_str();
-    } else {
-      FOOTSTONE_DLOG(INFO) << "return cached module = " << name.c_str();
-    }
-
-    std::shared_ptr<V8CtxValue> v8_result =
-        std::static_pointer_cast<V8CtxValue>(result);
-    info.GetReturnValue().Set(v8_result->global_value_);
-  } else {
-    FOOTSTONE_LOG(ERROR) << "cannot find TurboModule as param is invalid";
-    info.GetReturnValue().SetUndefined();
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+  auto scope = scope_wrapper->scope.lock();
+  FOOTSTONE_CHECK(scope);
+  auto ctx = scope->GetContext();
+  auto runtime_id = static_cast<int32_t>(reinterpret_cast<size_t>(data));
+  auto runtime = Runtime::Find(runtime_id);
+  if (!runtime) {
+    return;
   }
+
+  if (!info[0] || !ctx->IsString(info[0])) {
+    FOOTSTONE_LOG(ERROR) << "cannot find TurboModule as param is invalid";
+    info.GetReturnValue()->SetUndefined();
+  }
+
+  string_view name;
+  ctx->GetValueString(info[0], &name);
+  auto turbo_manager = std::any_cast<std::shared_ptr<JavaRef>>(runtime->GetData(kTurboSlot));
+  if (!turbo_manager) {
+    FOOTSTONE_LOG(ERROR) << "turbo_manager error";
+    info.GetReturnValue()->SetUndefined();
+    return;
+  }
+  auto u8_name = StringViewUtils::ToStdString(
+      StringViewUtils::ConvertEncoding(name, string_view::Encoding::Utf8).utf8_value());
+  std::shared_ptr<CtxValue> result;
+  auto has_instance = scope->HasTurboInstance(u8_name);
+  if (!has_instance) {
+    // 2. if not cached, query from Java
+    auto module_impl = QueryTurboModuleImpl(runtime, u8_name);
+    if (!module_impl->GetObj()) {
+      FOOTSTONE_LOG(ERROR) << "cannot find TurboModule = " << name;
+      ctx->ThrowException("Cannot find TurboModule: " + name);
+      return info.GetReturnValue()->SetUndefined();
+    }
+
+    // 3. constructor c++ JavaTurboModule
+    auto java_turbo_module = std::make_shared<JavaTurboModule>(u8_name, module_impl, ctx);
+
+    // 4. bind c++ JavaTurboModule to js
+    result = ctx->NewInstance(java_turbo_module->constructor, 0, nullptr, java_turbo_module.get());
+
+    // 5. add To Cache
+    scope->SetTurboInstance(u8_name, result);
+    scope->SetTurboHostObject(u8_name, java_turbo_module);
+
+    FOOTSTONE_DLOG(INFO) << "return module = " << name;
+  } else {
+    result = scope->GetTurboInstance(u8_name);
+    FOOTSTONE_DLOG(INFO) << "return cached module = " << name;
+  }
+
+  info.GetReturnValue()->Set(result);
   FOOTSTONE_DLOG(INFO) << "[turbo-perf] exit getTurboModule";
 }
 
-void BindNativeFunction(const std::shared_ptr<Runtime>& runtime,
-                        const string_view &name,
-                        v8::FunctionCallback function_callback) {
-  FOOTSTONE_DLOG(INFO) << "enter bindNativeFunction name " << name;
-  std::shared_ptr<V8Ctx> v8_ctx =
-      std::static_pointer_cast<V8Ctx>(runtime->GetScope()->GetContext());
-  v8::HandleScope handle_scope(v8_ctx->isolate_);
-  v8::Local<v8::Context> context =
-      v8_ctx->context_persistent_.Get(v8_ctx->isolate_);
-  v8::Context::Scope context_scope(context);
-
-  v8::Local<v8::FunctionTemplate> function_template = v8::FunctionTemplate::New(
-      v8_ctx->isolate_, function_callback,
-      v8::External::New(v8_ctx->isolate_, reinterpret_cast<void *>(runtime->GetId())));
-  function_template->RemovePrototype();
-
-  v8::Local<v8::String> function_name = v8_ctx->CreateV8String(name);
-  v8::Local<v8::Function> function =
-      function_template->GetFunction(context).ToLocalChecked();
-  context->Global()->Set(context, function_name, function).ToChecked();
-  FOOTSTONE_DLOG(INFO) << "exit bindNativeFunction name " << name;
-}
-
 void TurboModuleManager::Init(JNIEnv* j_env) {
-  jclass j_class = j_env->FindClass("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager");
-  turbo_module_manager_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(j_class));
-  j_env->DeleteLocalRef(j_class);
+  jclass clazz =
+      j_env->FindClass("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager");
+  turbo_module_manager_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(clazz));
+  j_env->DeleteLocalRef(clazz);
 
-  j_method_id = j_env->GetMethodID(turbo_module_manager_clazz, "get",
-                                     "(Ljava/lang/String;)Lcom/tencent/mtt/hippy/modules/"
-                                     "nativemodules/HippyNativeModuleBase;");
+  get_method_id = j_env->GetMethodID(turbo_module_manager_clazz, "get",
+                       "(Ljava/lang/String;)Lcom/tencent/mtt/hippy/modules/"
+                       "nativemodules/HippyNativeModuleBase;");
 }
 
 void TurboModuleManager::Destroy(JNIEnv* j_env) {
@@ -174,18 +145,18 @@ void TurboModuleManager::Destroy(JNIEnv* j_env) {
     j_env->DeleteGlobalRef(turbo_module_manager_clazz);
   }
 
-  j_method_id = nullptr;
+  get_method_id = nullptr;
 }
 
-int Install(JNIEnv *, jobject j_obj, jlong j_runtime_id) {
+int Install(JNIEnv* j_env, jobject j_obj, jlong j_runtime_id) {
   FOOTSTONE_LOG(INFO) << "install TurboModuleManager";
-  auto runtime = Runtime::Find(footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
+  auto runtime = Runtime::Find(footstone::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
-    FOOTSTONE_LOG(ERROR) << "TurboModuleManager install, v8RuntimePtr invalid";
+    FOOTSTONE_LOG(ERROR) << "TurboModuleManager install, j_runtime_id invalid";
     return -1;
   }
 
-  runtime->SetData(kTurboSlot, std::make_shared<TurboModuleRuntime>(j_obj));
+  runtime->SetData(kTurboSlot, std::make_shared<JavaRef>(j_env, j_obj));
 
   // v8的操作放到js线程
   auto runner = runtime->GetEngine()->GetJsTaskRunner();
@@ -194,8 +165,21 @@ int Install(JNIEnv *, jobject j_obj, jlong j_runtime_id) {
     return -1;
   }
 
-  auto callback = [runtime] {
-    BindNativeFunction(runtime, "getTurboModule", GetTurboModule);
+  std::weak_ptr<Scope> weak_scope = runtime->GetScope();
+  auto runtime_id = runtime->GetId();
+  auto callback = [weak_scope, runtime_id] {
+    auto scope = weak_scope.lock();
+    if (!scope) {
+      return;
+    }
+    auto context = scope->GetContext();
+    auto wrapper =
+        std::make_unique<FunctionWrapper>(GetTurboModule, reinterpret_cast<void*>(runtime_id));
+    auto func = context->CreateFunction(wrapper);
+    scope->SaveFunctionWrapper(std::move(wrapper));
+    auto global_object = context->GetGlobalObject();
+    auto key = context->CreateString(kTurboKey);
+    context->SetProperty(global_object, key, func);
   };
   runner->PostTask(std::move(callback));
   return 0;

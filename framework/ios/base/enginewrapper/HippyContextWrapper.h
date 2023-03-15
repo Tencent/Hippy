@@ -21,7 +21,11 @@
  */
 
 #import <Foundation/Foundation.h>
+
 #include <memory>
+
+#include "driver/napi/js_ctx.h"
+#include "driver/napi/js_ctx_value.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

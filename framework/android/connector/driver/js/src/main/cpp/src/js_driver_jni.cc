@@ -154,9 +154,12 @@ jint CreateJsDriver(JNIEnv* j_env,
     FOOTSTONE_LOG(INFO) << "run scope cb";
     hippy::bridge::CallJavaMethod(save_object_->GetObj(), INIT_CB_STATE::SUCCESS);
   };
-  auto call_native_cb = [](void* p) {
-    auto* data = reinterpret_cast<hippy::napi::CBDataTuple*>(p);
-    hippy::bridge::CallNative(data);
+  auto call_native_cb = [](CallbackInfo& info, void* data) {
+    auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+    auto scope = scope_wrapper->scope.lock();
+    FOOTSTONE_CHECK(scope);
+    auto runtime_id = static_cast<int32_t>(reinterpret_cast<size_t>(data));
+    hippy::bridge::CallNative(info, runtime_id);
   };
   V8BridgeUtils::SetOnThrowExceptionToJS([](const std::shared_ptr<Runtime>& runtime,
                                             const string_view& desc,
@@ -266,9 +269,12 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                        << ", code_cache_dir = " << code_cache_dir;
 
   auto runner = runtime->GetEngine()->GetJsTaskRunner();
-  std::shared_ptr<Ctx> ctx = runtime->GetScope()->GetContext();
+  auto ctx = runtime->GetScope()->GetContext();
   runner->PostTask([ctx, base_path] {
-    ctx->SetGlobalStrVar(kHippyCurDirKey, base_path);
+    auto key = ctx->CreateString(kHippyCurDirKey);
+    auto value = ctx->CreateString(base_path);
+    auto global = ctx->GetGlobalObject();
+    ctx->SetProperty(global, key, value);
   });
 
   std::any vfs_instance;
@@ -368,7 +374,7 @@ static jint JNI_OnLoad(__unused JavaVM* j_vm, __unused void* reserved) {
 
 static void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
   auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-  hippy::napi::V8VM::PlatformDestroy();
+  hippy::V8VM::PlatformDestroy();
   hippy::TurboModuleManager::Destroy(j_env);
   hippy::JavaTurboModule::Destroy(j_env);
   hippy::ConvertUtils::Destroy(j_env);

@@ -29,8 +29,7 @@
 
 #include "driver/modules/module_base.h"
 #include "driver/napi/callback_info.h"
-#include "driver/napi/js_native_api.h"
-#include "driver/napi/js_native_api_types.h"
+#include "driver/napi/js_ctx.h"
 #include "footstone/task.h"
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
@@ -47,8 +46,9 @@ class UIManagerModule : public ModuleBase {
 
   UIManagerModule() = default;
 
-  void EndBatch(const CallbackInfo& info);
-  void CallUIFunction(const CallbackInfo& info);
+  void CallUIFunction(CallbackInfo& info, void* data);
+
+  virtual std::shared_ptr<CtxValue> BindFunction(std::shared_ptr<Scope> scope, std::shared_ptr<CtxValue> rest_args[]) override;
 };
 
 }

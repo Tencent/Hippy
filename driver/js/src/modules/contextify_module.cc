@@ -27,13 +27,17 @@
 #include <string>
 
 #include "driver/modules/module_register.h"
-#include "driver/napi/js_native_api.h"
-#include "driver/napi/native_source_code.h"
+#include "driver/napi/js_ctx.h"
+#include "driver/napi/js_ctx_value.h"
+#include "driver/napi/js_try_catch.h"
+#include "driver/vm/native_source_code.h"
 #include "footstone/logging.h"
 #include "footstone/task.h"
 
 #if JS_V8
-#include "driver/napi/v8/js_native_api_v8.h"
+#include "driver/napi/v8/v8_ctx.h"
+#include "driver/napi/v8/v8_ctx_value.h"
+#include "driver/napi/v8/v8_try_catch.h"
 #endif
 
 using string_view = footstone::stringview::string_view;
@@ -44,23 +48,25 @@ using CtxValue = hippy::napi::CtxValue;
 using CallbackInfo = hippy::napi::CallbackInfo;
 using TryCatch = hippy::napi::TryCatch;
 
-constexpr char kHippyCurDirKey[] = "__HIPPYCURDIR__";
+constexpr char kCurDir[] = "__HIPPYCURDIR__";
 
 
 namespace hippy {
 inline namespace driver {
 inline namespace module {
 
-REGISTER_MODULE(ContextifyModule, RunInThisContext) // NOLINT(cert-err58-cpp)
-REGISTER_MODULE(ContextifyModule, LoadUntrustedContent) // NOLINT(cert-err58-cpp)
+GEN_INVOKE_CB(ContextifyModule, RunInThisContext) // NOLINT(cert-err58-cpp)
+GEN_INVOKE_CB(ContextifyModule, LoadUntrustedContent) // NOLINT(cert-err58-cpp)
 
-void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo &info) { // NOLINT(readability-convert-member-functions-to-static)
+void ContextifyModule::RunInThisContext(hippy::napi::CallbackInfo &info, void* data) { // NOLINT(readability-convert-member-functions-to-static)
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+  auto scope = scope_wrapper->scope.lock();
+  FOOTSTONE_CHECK(scope);
 #ifdef JS_V8
-  auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(info.GetScope()->GetContext());
+  auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(scope->GetContext());
 #else
-  auto context = info.GetScope()->GetContext();
+  auto context = scope->GetContext();
 #endif
-  FOOTSTONE_CHECK(context);
 
   string_view key;
   if (!context->GetValueString(info[0], &key)) {
@@ -90,9 +96,11 @@ void ContextifyModule::RemoveCBFunc(const string_view& uri) {
   cb_func_map_.erase(uri);
 }
 
-void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
-  std::shared_ptr<Scope> scope = info.GetScope();
-  std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
+void ContextifyModule::LoadUntrustedContent(CallbackInfo& info, void* data) {
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+  auto scope = scope_wrapper->scope.lock();
+  FOOTSTONE_CHECK(scope);
+  auto context = scope->GetContext();
   FOOTSTONE_CHECK(context);
   string_view uri;
   if (!context->GetValueString(info[0], &uri)) {
@@ -158,16 +166,17 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
       std::shared_ptr<Ctx> ctx = scope->GetContext();
       std::shared_ptr<CtxValue> error = nullptr;
       if (!move_code.empty()) {
-        auto last_dir_str_obj = ctx->GetGlobalStrVar(kHippyCurDirKey);
-        FOOTSTONE_DLOG(INFO) << "cur_dir = " << cur_dir;
-        ctx->SetGlobalStrVar(kHippyCurDirKey, cur_dir);
-        std::shared_ptr<TryCatch> try_catch =
-            CreateTryCatchScope(true, scope->GetContext());
+        auto global_object = ctx->GetGlobalObject();
+        auto cur_dir_key = ctx->CreateString(kCurDir);
+        auto last_dir_str_obj = ctx->GetProperty(global_object, cur_dir_key);
+        FOOTSTONE_DLOG(INFO) << "__HIPPYCURDIR__ cur_dir = " << cur_dir;
+        auto cur_dir_value = ctx->CreateString(cur_dir);
+        ctx->SetProperty(global_object, cur_dir_key, cur_dir_value);
+        auto try_catch = CreateTryCatchScope(true, scope->GetContext());
         try_catch->SetVerbose(true);
         string_view view_code(reinterpret_cast<const string_view::char8_t_ *>(move_code.c_str()), move_code.length());
         scope->RunJS(view_code, file_name);
-        ctx->SetGlobalObjVar(kHippyCurDirKey, last_dir_str_obj,
-                             hippy::napi::PropertyAttribute::None);
+        ctx->SetProperty(global_object, cur_dir_key, last_dir_str_obj, hippy::napi::PropertyAttribute::ReadOnly);
         if (try_catch->HasCaught()) {
           error = try_catch->Exception();
           FOOTSTONE_DLOG(ERROR) << "RequestUntrustedContent error = " << try_catch->GetExceptionMsg();
@@ -199,6 +208,26 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
   loader->RequestUntrustedContent(uri, {}, cb);
 
   info.GetReturnValue()->SetUndefined();
+}
+
+std::shared_ptr<CtxValue> ContextifyModule::BindFunction(std::shared_ptr<Scope> scope,
+                                                         std::shared_ptr<CtxValue> rest_args[]) {
+  auto context = scope->GetContext();
+  auto object = context->CreateObject();
+
+  auto key = context->CreateString("RunInThisContext");
+  auto wrapper = std::make_unique<hippy::napi::FunctionWrapper>(InvokeContextifyModuleRunInThisContext, nullptr);
+  auto value = context->CreateFunction(wrapper);
+  scope->SaveFunctionWrapper(std::move(wrapper));
+  context->SetProperty(object, key, value);
+
+  key = context->CreateString("LoadUntrustedContent");
+  wrapper = std::make_unique<hippy::napi::FunctionWrapper>(InvokeContextifyModuleLoadUntrustedContent, nullptr);
+  value = context->CreateFunction(wrapper);
+  scope->SaveFunctionWrapper(std::move(wrapper));
+  context->SetProperty(object, key, value);
+
+  return object;
 }
 
 }

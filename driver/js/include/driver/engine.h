@@ -27,7 +27,7 @@
 #include <vector>
 
 #include "driver/base/common.h"
-#include "driver/napi/js_native_api_types.h"
+#include "driver/vm/js_vm.h"
 #include "footstone/logging.h"
 #include "footstone/task_runner.h"
 
@@ -44,8 +44,8 @@ class Scope;
 class Engine: public std::enable_shared_from_this<Engine> {
  public:
   using RegisterMap = hippy::base::RegisterMap;
-  using VM = hippy::napi::VM;
-  using VMInitParam = hippy::napi::VMInitParam;
+  using VM = hippy::VM;
+  using VMInitParam = hippy::VMInitParam;
   using RegisterFunction = hippy::base::RegisterFunction;
   using TaskRunner = footstone::TaskRunner;
 
@@ -60,7 +60,7 @@ class Engine: public std::enable_shared_from_this<Engine> {
 
   void Enter();
   void Exit();
-  std::shared_ptr<Scope> CreateScope(
+  std::shared_ptr<Scope> AsyncCreateScope(
       const std::string& name = "",
       std::unique_ptr<RegisterMap> map = std::unique_ptr<RegisterMap>());
   inline std::shared_ptr<VM> GetVM() { return vm_; }

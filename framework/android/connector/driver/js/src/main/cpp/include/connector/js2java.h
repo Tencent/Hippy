@@ -24,14 +24,14 @@
 
 #include <jni.h>
 
-#include "driver/napi/v8/js_native_api_v8.h"
+#include "driver/napi/callback_info.h"
 
 namespace hippy {
 inline namespace framework {
 inline namespace bridge {
 
 void InitBridge(JNIEnv* j_env);
-void CallNative(hippy::napi::CBDataTuple* data);
+void CallNative(CallbackInfo& info, int32_t runtime_id);
 
 } // namespace bridge
 } // namespace framework
