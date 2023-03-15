@@ -172,7 +172,7 @@ Font weight
 
 | Type               | Required| Supported Platforms
 | ------ | -------- | --- |
-| number \| string |No|  Android,iOS
+| string |No|  Android,iOS
 
 # letterSpacing
 
