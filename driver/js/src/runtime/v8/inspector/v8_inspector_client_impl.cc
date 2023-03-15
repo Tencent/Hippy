@@ -24,7 +24,9 @@
 
 #include <utility>
 
-#include "driver/napi/v8/js_native_api_v8.h"
+#include "driver/napi/v8/v8_ctx.h"
+#include "driver/napi/v8/v8_ctx_value.h"
+#include "driver/scope.h"
 
 namespace hippy {
 inline namespace driver {

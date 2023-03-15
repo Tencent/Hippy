@@ -28,7 +28,8 @@
 #import "HPDriverStackFrame.h"
 
 #include <memory.h>
-#include "driver/napi/jsc/js_native_api_jsc.h"
+#include "driver/napi/jsc/jsc_ctx.h"
+#include "driver/napi/jsc/jsc_ctx_value.h"
 
 static id StringJSONToObject(NSString *string) {
     @autoreleasepool {

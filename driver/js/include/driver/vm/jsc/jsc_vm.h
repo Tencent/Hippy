@@ -3,7 +3,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,26 +20,34 @@
  *
  */
 
-#include "driver/modules/module_register.h"
+#pragma once
 
-#include <mutex>  // NOLINT(build/c++11)
+#include "driver/vm/js_vm.h"
 
-#include "driver/engine.h"
+#include <JavaScriptCore/JavaScriptCore.h>
 
-namespace napi = ::hippy::napi;
+#include "footstone/string_view.h"
+#include "driver/napi/js_ctx.h"
 
 namespace hippy {
 inline namespace driver {
-inline namespace module {
+inline namespace vm {
 
-ModuleRegister *ModuleRegister::instance() {
-  static ModuleRegister *_in = nullptr;
-  static std::once_flag flag;
-
-  std::call_once(flag, [] { _in = new ModuleRegister(); });
-
-  return _in;
-}
+class JSCVM : public VM {
+public:
+  JSCVM(): VM(nullptr) { vm_ = JSContextGroupCreate(); }
+  
+  ~JSCVM() {
+    JSContextGroupRelease(vm_);
+    vm_ = nullptr;
+  }
+  JSContextGroupRef vm_;
+  
+  virtual std::shared_ptr<CtxValue> ParseJson(const std::shared_ptr<Ctx>& ctx, const string_view& json) override;
+  virtual std::shared_ptr<Ctx> CreateContext() override;
+  
+  static JSStringRef CreateJSCString(const footstone::string_view& str_view);
+};
 
 }
 }

@@ -63,7 +63,7 @@ void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
   }
 
   JsCallback callback = fn_data->callback_;
-  std::shared_ptr<Scope> scope = fn_data->scope_.lock();
+  std::shared_ptr<Scope> scope = fn_data->scope.lock();
   if (!scope) {
     FOOTSTONE_LOG(FATAL) << "JsCallbackFunc scope error";
     info.GetReturnValue().SetUndefined();
@@ -185,7 +185,7 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
     return;
   }
 
-  std::shared_ptr<Scope> scope = binding_data->scope_.lock();
+  std::shared_ptr<Scope> scope = binding_data->scope.lock();
   if (!scope) {
     FOOTSTONE_LOG(ERROR) << "GetInternalBinding scope error";
     info.GetReturnValue().SetUndefined();

@@ -25,19 +25,27 @@
 #include <memory>
 #include <tuple>
 
-#include "connector/java_turbo_module.h"
-#include "driver/napi/v8/js_native_api_v8.h"
-#include "footstone/check.h"
-#include "footstone/string_view_utils.h"
 #include "jni/jni_env.h"
 #include "jni/jni_utils.h"
+#include "driver/napi/js_ctx.h"
+#include "driver/napi/js_ctx_value.h"
+#include "footstone/check.h"
+#include "footstone/string_view.h"
+#include "footstone/string_view_utils.h"
+#include "connector/java_turbo_module.h"
+#include "jni/jni_env.h"
+#include "jni/jni_utils.h"
+
+using string_view = footstone::string_view;
+using StringViewUtils = footstone::StringViewUtils;
+using Ctx = hippy::Ctx;
+using CtxValue = hippy::CtxValue;
+using JniUtils = hippy::JniUtils;
+using Scope = hippy::Scope;
 
 namespace hippy {
 inline namespace framework {
 inline namespace turbo {
-
-using string_view = footstone::stringview::string_view;
-using StringViewUtils = footstone::stringview::StringViewUtils;
 
 bool IsBasicNumberType(const std::string& type) {
   return type == kInt || type == kDouble || type == kFloat || type == kLong;
@@ -65,27 +73,21 @@ bool IsNumberObject(const std::string& type) {
  */
 
 std::tuple<bool, std::string, std::shared_ptr<JNIArgs>> ConvertUtils::ConvertJSIArgsToJNIArgs(
-    TurboEnv& turbo_env,
+    const std::shared_ptr<Ctx>& ctx,
     const std::string& module_name,
     const std::string& method_name,
     const std::vector<std::string>& method_arg_types,
     const std::vector<std::shared_ptr<CtxValue>>& arg_values) {
-  std::shared_ptr<Ctx> ctx = turbo_env.context_;
-  std::shared_ptr<V8Ctx> context = std::static_pointer_cast<V8Ctx>(ctx);
-
   auto actual_arg_count = arg_values.size();
-  std::shared_ptr<JNIArgs> jni_args =
-      std::make_shared<JNIArgs>(actual_arg_count);
+  std::shared_ptr<JNIArgs> jni_args = std::make_shared<JNIArgs>(actual_arg_count);
   auto& global_refs = jni_args->global_refs_;
-
   for (size_t i = 0; i < actual_arg_count; i++) {
     std::string type = method_arg_types.at(i);
-
     jvalue* j_args = &jni_args->args_[i];
     std::shared_ptr<CtxValue> value = arg_values.at(i);
 
     // basic type
-    auto base_tuple = HandleBasicType(turbo_env, type, *j_args, value);
+    auto base_tuple = HandleBasicType(ctx, type, *j_args, value);
     if (!std::get<0>(base_tuple)) {
       return std::make_tuple(false, std::get<1>(base_tuple),
                              static_cast<std::shared_ptr<JNIArgs>>(nullptr));
@@ -101,13 +103,13 @@ std::tuple<bool, std::string, std::shared_ptr<JNIArgs>> ConvertUtils::ConvertJSI
     }
 
     // NullOrUndefined
-    if (context->IsNullOrUndefined(value)) {
+    if (ctx->IsNullOrUndefined(value)) {
       j_args->l = nullptr;
       continue;
     }
 
     // Object
-    auto obj_tuple = HandleObjectType(turbo_env, module_name, method_name, type, *j_args,
+    auto obj_tuple = HandleObjectType(ctx, module_name, method_name, type, *j_args,
                                       value, global_refs);
     if (!std::get<0>(obj_tuple)) {
       return std::make_tuple(false, std::get<1>(obj_tuple),
@@ -115,8 +117,8 @@ std::tuple<bool, std::string, std::shared_ptr<JNIArgs>> ConvertUtils::ConvertJSI
     }
   }
 
-  JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-  if (JNIEnvironment::ClearJEnvException(env)) {
+  JNIEnv* j_env = hippy::JNIEnvironment::GetInstance()->AttachCurrentThread();
+  if (hippy::JNIEnvironment::ClearJEnvException(j_env)) {
     return std::make_tuple(false, "JNI Exception occurred when convertJSIArgsToJNIArgs ",
                            static_cast<std::shared_ptr<JNIArgs>>(nullptr));
   }
@@ -124,33 +126,33 @@ std::tuple<bool, std::string, std::shared_ptr<JNIArgs>> ConvertUtils::ConvertJSI
   return std::make_tuple(true, "", jni_args);
 }
 
-std::tuple<bool, std::string, bool> ConvertUtils::HandleBasicType(TurboEnv& turbo_env,
+std::tuple<bool, std::string, bool> ConvertUtils::HandleBasicType(const std::shared_ptr<Ctx>& ctx,
                                                                   const std::string& type,
                                                                   jvalue& j_args,
                                                                   const std::shared_ptr<CtxValue>& value) {
-  std::shared_ptr<Ctx> ctx = turbo_env.context_;
-  std::shared_ptr<V8Ctx> context = std::static_pointer_cast<V8Ctx>(ctx);
-
   // number
   if (IsBasicNumberType(type)) {
     if (type == kInt) {
       int32_t num;
-      if (!context->GetValueNumber(value, &num)) {
+      if (!ctx->GetValueNumber(value, &num)) {
         return std::make_tuple(false, "value must be int", false);
       }
-      j_args.i = footstone::check::checked_numeric_cast<int32_t, jint>(num);
+
+      j_args.i = num;
     } else {
       double num;
-      if (!context->GetValueNumber(value, &num)) {
+      if (!ctx->GetValueNumber(value, &num)) {
         return std::make_tuple(false, "value must be long/float/double", false);
       }
 
       if (type == kDouble) {  // double
-        j_args.d = footstone::check::checked_numeric_cast<double, jdouble>(num);
+        j_args.d = num;
       } else if (type == kFloat) {  // float
-        j_args.f = footstone::check::checked_numeric_cast<double, jfloat>(num);
+        j_args.f = static_cast<jfloat>(num);
       } else if (type == kLong) {  // long
-        j_args.j = footstone::check::checked_numeric_cast<double, jlong>(num);
+        if (!footstone::numeric_cast<double, jlong>(num, j_args.j)) {
+          return std::make_tuple(false, "value out of jlong boundary", false);
+        }
       }
     }
 
@@ -160,7 +162,7 @@ std::tuple<bool, std::string, bool> ConvertUtils::HandleBasicType(TurboEnv& turb
   // boolean
   if (type == "Z") {
     bool b;
-    if (!context->GetValueBoolean(value, &b)) {
+    if (!ctx->GetValueBoolean(value, &b)) {
       return std::make_tuple(false, "value must be boolean", false);
     }
 
@@ -172,25 +174,22 @@ std::tuple<bool, std::string, bool> ConvertUtils::HandleBasicType(TurboEnv& turb
 }
 
 std::tuple<bool, std::string, bool>
-ConvertUtils::HandleObjectType(TurboEnv& turbo_env,
+ConvertUtils::HandleObjectType(const std::shared_ptr<Ctx>& ctx,
                                const std::string& module_name,
                                const std::string& method_name,
                                const std::string& type,
                                jvalue& j_args,
                                const std::shared_ptr<CtxValue>& value,
                                std::vector<std::shared_ptr<JavaRef>>& global_refs) {
-  std::shared_ptr<Ctx> ctx = turbo_env.context_;
-  std::shared_ptr<V8Ctx> context = std::static_pointer_cast<V8Ctx>(ctx);
-
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  JNIEnv* j_env = hippy::JNIEnvironment::GetInstance()->AttachCurrentThread();
 
   // Promise
   if (type == kPromise) {
     string_view str_view;
     std::string str;
-    if (turbo_env.context_->GetValueString(value, &str_view)) {
-      str = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-          str_view, string_view::Encoding::Utf8).utf8_value());
+    if (ctx->GetValueString(value, &str_view)) {
+      str = StringViewUtils::ToStdString(
+          StringViewUtils::ConvertEncoding(str_view, string_view::Encoding::Utf8).utf8_value());
     } else {
       return std::make_tuple(false, "value must be string", false);
     }
@@ -213,10 +212,10 @@ ConvertUtils::HandleObjectType(TurboEnv& turbo_env,
 
   // HippyArray
   if (type == kHippyArray) {
-    if (!context->IsArray(value)) {
+    if (!ctx->IsArray(value)) {
       return std::make_tuple(false, "value must be array", false);
     }
-    auto to_array_tuple = ToHippyArray(turbo_env, value);
+    auto to_array_tuple = ToHippyArray(ctx, value);
     if (!std::get<0>(to_array_tuple)) {
       return std::make_tuple(false, std::get<1>(to_array_tuple), false);
     }
@@ -228,10 +227,10 @@ ConvertUtils::HandleObjectType(TurboEnv& turbo_env,
 
   // HippyMap
   if (type == kHippyMap) {
-    if (!context->IsMap(value)) {
+    if (!ctx->IsMap(value)) {
       return std::make_tuple(false, "value must be map", false);
     }
-    auto to_map_tuple = ToHippyMap(turbo_env, value);
+    auto to_map_tuple = ToHippyMap(ctx, value);
     if (!std::get<0>(to_map_tuple)) {
       return std::make_tuple(false, std::get<1>(to_map_tuple), false);
     }
@@ -244,7 +243,7 @@ ConvertUtils::HandleObjectType(TurboEnv& turbo_env,
   // Boolean
   if (type == kBooleanObject) {
     bool b;
-    if (!context->GetValueBoolean(value, &b)) {
+    if (!ctx->GetValueBoolean(value, &b)) {
       return std::make_tuple(false, "value must be boolean", false);
     }
     auto ref = std::make_shared<JavaRef>(j_env,
@@ -258,9 +257,9 @@ ConvertUtils::HandleObjectType(TurboEnv& turbo_env,
   if (type == kString) {
     string_view str_view;
     std::string str;
-    if (turbo_env.context_->GetValueString(value, &str_view)) {
-      str = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-          str_view, string_view::Encoding::Utf8).utf8_value());
+    if (ctx->GetValueString(value, &str_view)) {
+      str = StringViewUtils::ToStdString(
+          StringViewUtils::ConvertEncoding(str_view, string_view::Encoding::Utf8).utf8_value());
     } else {
       return std::make_tuple(false, "value must be string", false);
     }
@@ -274,33 +273,33 @@ ConvertUtils::HandleObjectType(TurboEnv& turbo_env,
   // Number Object
   if (IsNumberObject(type)) {
     if (type == kIntegerObject) {
-      int32_t num_value;
-      if (!context->GetValueNumber(value, &num_value)) {
+      int32_t num;
+      if (!ctx->GetValueNumber(value, &num)) {
         return std::make_tuple(true, "value must be int", false);
       }
       auto ref = std::make_shared<JavaRef>(j_env, j_env->NewObject(
-          integer_clazz, integer_constructor, num_value));
+          integer_clazz, integer_constructor, num));
       global_refs.push_back(ref);
       j_args.l = ref->GetObj();
     } else {
-      double num_value;
-      if (!context->GetValueNumber(value, &num_value)) {
+      double num;
+      if (!ctx->GetValueNumber(value, &num)) {
         return std::make_tuple(true, "value must be long/float/double", false);
       }
 
       if (type == kDoubleObject) {
         auto ref = std::make_shared<JavaRef>(j_env, j_env->NewObject(
-            double_clazz, double_constructor, num_value));
+            double_clazz, double_constructor, num));
         global_refs.push_back(ref);
         j_args.l = ref->GetObj();
       } else if (type == kFloatObject) {
         auto ref = std::make_shared<JavaRef>(j_env, j_env->NewObject(
-            float_clazz, float_constructor, static_cast<float>(num_value)));
+            float_clazz, float_constructor, static_cast<float>(num)));
         global_refs.push_back(ref);
         j_args.l = ref->GetObj();
       } else if (type == kLongObject) {
         jlong jlong_value;
-        if (!footstone::check::numeric_cast<double, jlong>(num_value, jlong_value)) {
+        if (!footstone::numeric_cast<double, jlong>(num, jlong_value)) {
           return std::make_tuple(true, "value out of jlong boundary", false);
         }
         auto ref = std::make_shared<JavaRef>(j_env, j_env->NewObject(
@@ -314,34 +313,28 @@ ConvertUtils::HandleObjectType(TurboEnv& turbo_env,
     return std::make_tuple(true, "", true);
   }
 
-  std::shared_ptr<HostObject> host_object = turbo_env.GetHostObject(value);
+  auto host_object = reinterpret_cast<JavaTurboModule*>(ctx->GetObjectExternalData(value));
   if (host_object) {
-    std::shared_ptr<JavaTurboModule> j_turbo_module =
-        std::static_pointer_cast<JavaTurboModule>(host_object);
-    j_args.l = j_turbo_module->impl_->GetObj();
+    j_args.l = host_object->impl_->GetObj();
     return std::make_tuple(true, "", true);
   }
   return std::make_tuple(false, "", false);
 }
 
-std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyMap(TurboEnv& turbo_env,
+std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyMap(const std::shared_ptr<Ctx>& ctx,
                                                                 const std::shared_ptr<CtxValue>& value) {
-  std::shared_ptr<Ctx> ctx = turbo_env.context_;
-  std::shared_ptr<V8Ctx> context = std::static_pointer_cast<V8Ctx>(ctx);
-
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  JNIEnv* j_env = hippy::JNIEnvironment::GetInstance()->AttachCurrentThread();
   jobject obj = j_env->NewObject(hippy_map_clazz, hippy_map_constructor);
-  std::shared_ptr<CtxValue> array = context->ConvertMapToArray(value);
+  std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>> map;
+  auto flag = ctx->GetEntries(value, map);
+  FOOTSTONE_CHECK(flag);
 
-  auto array_len = context->GetArrayLength(array);
-  for (uint32_t i = 0; i < array_len; i = i + 2) {
-    // key
-    std::shared_ptr<CtxValue> key = context->CopyArrayElement(array, i);
+  for (const auto& [key, item] : map) {
     string_view str_view;
     std::string key_str;
-    if (turbo_env.context_->GetValueString(key, &str_view)) {
-      key_str = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-          str_view, string_view::Encoding::Utf8).utf8_value());
+    if (ctx->GetValueString(key, &str_view)) {
+      key_str = StringViewUtils::ToStdString(
+          StringViewUtils::ConvertEncoding(str_view, string_view::Encoding::Utf8).utf8_value());
     } else {
       return std::make_tuple(false, "key must be string in map", static_cast<jobject>(nullptr));
     }
@@ -349,75 +342,69 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyMap(TurboEnv& turbo_
     jobject key_j_obj = j_env->NewStringUTF(key_str.c_str());
     FOOTSTONE_DLOG(INFO) << "key " << key_str.c_str();
 
-    // value
-    std::shared_ptr<CtxValue> item = context->CopyArrayElement(array, i + 1);
-    auto to_jobject_tuple = ToJObject(turbo_env, item);
+    auto to_jobject_tuple = ToJObject(ctx, item);
     if (!std::get<0>(to_jobject_tuple)) {
       return std::make_tuple(false, std::get<1>(to_jobject_tuple), static_cast<jobject>(nullptr));
     }
     jobject value_j_obj = std::get<2>(to_jobject_tuple);
     j_env->CallVoidMethod(obj, hippy_map_push_object, key_j_obj, value_j_obj);
-    JNIEnvironment::ClearJEnvException(j_env);
+    hippy::JNIEnvironment::ClearJEnvException(j_env);
     j_env->DeleteLocalRef(key_j_obj);
     j_env->DeleteLocalRef(value_j_obj);
   }
   return std::make_tuple(true, "", obj);
 }
 
-std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyArray(TurboEnv& turbo_env,
+std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyArray(const std::shared_ptr<Ctx>& ctx,
                                                                   const std::shared_ptr<CtxValue>& value) {
-  std::shared_ptr<Ctx> ctx = turbo_env.context_;
-  std::shared_ptr<V8Ctx> context = std::static_pointer_cast<V8Ctx>(ctx);
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  JNIEnv* j_env = hippy::JNIEnvironment::GetInstance()->AttachCurrentThread();
   jobject obj = j_env->NewObject(hippy_array_clazz, hippy_array_constructor);
-  auto array_len = context->GetArrayLength(value);
+  auto array_len = ctx->GetArrayLength(value);
   for (uint32_t i = 0; i < array_len; i++) {
-    std::shared_ptr<CtxValue> item = context->CopyArrayElement(value, i);
-    auto to_jobject_tuple = ToJObject(turbo_env, item);
+    std::shared_ptr<CtxValue> item = ctx->CopyArrayElement(value, i);
+    auto to_jobject_tuple = ToJObject(ctx, item);
     if (!std::get<0>(to_jobject_tuple)) {
       return to_jobject_tuple;
     }
     jobject j_obj = std::get<2>(to_jobject_tuple);
     j_env->CallVoidMethod(obj, hippy_array_push_object, j_obj);
-    JNIEnvironment::ClearJEnvException(j_env);
+    hippy::JNIEnvironment::ClearJEnvException(j_env);
     j_env->DeleteLocalRef(j_obj);
   }
   return std::make_tuple(true, "", obj);
 }
 
-std::tuple<bool, std::string, jobject> ConvertUtils::ToJObject(TurboEnv& turbo_env,
+std::tuple<bool, std::string, jobject> ConvertUtils::ToJObject(const std::shared_ptr<Ctx>& ctx,
                                                                const std::shared_ptr<CtxValue>& value) {
   double num;
   bool b;
   std::string str;
   jobject result;
 
-  std::shared_ptr<Ctx> ctx = turbo_env.context_;
-  std::shared_ptr<V8Ctx> context = std::static_pointer_cast<V8Ctx>(ctx);
-  JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  JNIEnv* j_env = hippy::JNIEnvironment::GetInstance()->AttachCurrentThread();
   string_view str_view;
 
-  if (context->GetValueNumber(value, &num)) {
-    result = env->NewObject(double_clazz, double_constructor, num);
-  } else if (context->GetValueString(value, &str_view)) {
-    str = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-        str_view, string_view::Encoding::Utf8).utf8_value());
-    result = env->NewStringUTF(str.c_str());
-  } else if (context->GetValueBoolean(value, &b)) {
-    result = env->NewObject(boolean_clazz, boolean_constructor, b);
-  } else if (context->IsArray(value)) {
-    auto array_tuple = ToHippyArray(turbo_env, value);
+  if (ctx->GetValueNumber(value, &num)) {
+    result = j_env->NewObject(double_clazz, double_constructor, num);
+  } else if (ctx->GetValueString(value, &str_view)) {
+    str = StringViewUtils::ToStdString(
+        StringViewUtils::ConvertEncoding(str_view, string_view::Encoding::Utf8).utf8_value());
+    result = j_env->NewStringUTF(str.c_str());
+  } else if (ctx->GetValueBoolean(value, &b)) {
+    result = j_env->NewObject(boolean_clazz, boolean_constructor, b);
+  } else if (ctx->IsArray(value)) {
+    auto array_tuple = ToHippyArray(ctx, value);
     if (!std::get<0>(array_tuple)) {
       return array_tuple;
     }
     result = std::get<2>(array_tuple);
-  } else if (context->IsMap(value)) {
-    auto map_tuple = ToHippyMap(turbo_env, value);
+  } else if (ctx->IsMap(value)) {
+    auto map_tuple = ToHippyMap(ctx, value);
     if (!std::get<0>(map_tuple)) {
       return map_tuple;
     }
     result = std::get<2>(map_tuple);
-  } else if (context->IsNullOrUndefined(value)) {
+  } else if (ctx->IsNullOrUndefined(value)) {
     result = nullptr;
   } else {
     return std::make_tuple(false, "unsupported type in HippyArray or HippyMap",
@@ -514,45 +501,48 @@ std::vector<std::string> ConvertUtils::GetMethodArgTypesFromSignature(
   return method_args;
 }
 
-std::shared_ptr<CtxValue> ConvertUtils::ToHostObject(TurboEnv& turbo_env,
+std::shared_ptr<CtxValue> ConvertUtils::ToHostObject(const std::shared_ptr<Ctx>& ctx,
                                                      jobject& j_obj,
-                                                     std::string name) {
+                                                     std::string name,
+                                                     std::shared_ptr<Scope> scope) {
   if (!j_obj) {
-    return turbo_env.context_->CreateNull();
+    return ctx->CreateNull();
   }
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  JNIEnv* j_env = hippy::JNIEnvironment::GetInstance()->AttachCurrentThread();
   std::shared_ptr<JavaRef> ret = std::make_shared<JavaRef>(j_env, j_obj);
-  std::shared_ptr<JavaTurboModule> host_obj =
-      std::make_shared<JavaTurboModule>(name, ret);
-  return turbo_env.CreateObject(host_obj);
+  auto host_obj = std::make_shared<JavaTurboModule>(name, ret, ctx);
+  auto instance = ctx->NewInstance(host_obj->constructor, 0, nullptr, host_obj.get());
+  scope->SetTurboInstance(name, instance);
+  scope->SetTurboHostObject(name, host_obj);
+  return instance;
 }
 
 std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ConvertUtils::ConvertMethodResultToJSValue(
-    TurboEnv& turbo_env,
-    const jobject& obj,
+    const std::shared_ptr<Ctx>& ctx,
+    const std::shared_ptr<JavaRef>& obj,
     const MethodInfo& method_info,
-    const jvalue* args) {
-  std::shared_ptr<Ctx> ctx = turbo_env.context_;
-  std::shared_ptr<CtxValue> ret = ctx->CreateUndefined();
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+    const jvalue* args,
+    const std::shared_ptr<Scope>& scope) {
+  auto ret = ctx->CreateUndefined();
+  JNIEnv* j_env = hippy::JNIEnvironment::GetInstance()->AttachCurrentThread();
   std::string return_type = method_info.signature_.substr(
       method_info.signature_.find_last_of(')') + 1);
   if (kLong == return_type) {
-    auto result = j_env->CallLongMethodA(obj, method_info.method_id_, args);
-    ret = ctx->CreateNumber(footstone::check::checked_numeric_cast<jlong, double>(result));
+    auto result = j_env->CallLongMethodA(obj->GetObj(), method_info.method_id_, args);
+    ret = ctx->CreateNumber(footstone::checked_numeric_cast<jlong, double>(result));
   } else if (kInt == return_type) {
-    jint result = j_env->CallIntMethodA(obj, method_info.method_id_, args);
+    jint result = j_env->CallIntMethodA(obj->GetObj(), method_info.method_id_, args);
     ret = ctx->CreateNumber(result);
   } else if (kFloat == return_type) {
-    jfloat result = j_env->CallFloatMethodA(obj, method_info.method_id_, args);
+    jfloat result = j_env->CallFloatMethodA(obj->GetObj(), method_info.method_id_, args);
     ret = ctx->CreateNumber(result);
   } else if (kDouble == return_type) {
-    jdouble result = j_env->CallDoubleMethodA(obj, method_info.method_id_, args);
+    jdouble result = j_env->CallDoubleMethodA(obj->GetObj(), method_info.method_id_, args);
     ret = ctx->CreateNumber(result);
   } else if (kString == return_type) {
     auto result_str =
-        reinterpret_cast<jstring>(j_env->CallObjectMethodA(obj, method_info.method_id_, args));
-    JNIEnvironment::ClearJEnvException(j_env);
+        (jstring) j_env->CallObjectMethodA(obj->GetObj(), method_info.method_id_, args);
+    hippy::JNIEnvironment::ClearJEnvException(j_env);
     if (!result_str) {
       ret = ctx->CreateNull();
     } else {
@@ -562,34 +552,34 @@ std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ConvertUtils::ConvertMe
     }
   } else if (kBoolean == return_type) {
     auto result =
-        reinterpret_cast<jboolean>(j_env->CallBooleanMethodA(obj, method_info.method_id_, args));
-    JNIEnvironment::ClearJEnvException(j_env);
+        (jboolean) j_env->CallBooleanMethodA(obj->GetObj(), method_info.method_id_, args);
+    hippy::JNIEnvironment::ClearJEnvException(j_env);
     ret = ctx->CreateBoolean(result);
   } else if (kVoid == return_type) {
-    j_env->CallVoidMethodA(obj, method_info.method_id_, args);
-    JNIEnvironment::ClearJEnvException(j_env);
+    j_env->CallVoidMethodA(obj->GetObj(), method_info.method_id_, args);
+    hippy::JNIEnvironment::ClearJEnvException(j_env);
   } else if (kHippyArray == return_type) {
-    auto array = j_env->CallObjectMethodA(obj, method_info.method_id_, args);
-    JNIEnvironment::ClearJEnvException(j_env);
-    auto tuple = ToJsArray(turbo_env, array);
+    auto array = j_env->CallObjectMethodA(obj->GetObj(), method_info.method_id_, args);
+    hippy::JNIEnvironment::ClearJEnvException(j_env);
+    auto tuple = ToJsArray(ctx, array);
     if (!std::get<0>(tuple)) {
       return tuple;
     }
     ret = std::get<2>(tuple);
     j_env->DeleteLocalRef(array);
   } else if (kHippyMap == return_type) {
-    auto map = j_env->CallObjectMethodA(obj, method_info.method_id_, args);
-    JNIEnvironment::ClearJEnvException(j_env);
-    auto tuple = ToJsMap(turbo_env, map);
+    auto map = j_env->CallObjectMethodA(obj->GetObj(), method_info.method_id_, args);
+    hippy::JNIEnvironment::ClearJEnvException(j_env);
+    auto tuple = ToJsMap(ctx, map);
     if (!std::get<0>(tuple)) {
       return tuple;
     }
     ret = std::get<2>(tuple);
     j_env->DeleteLocalRef(map);
   } else {
-    auto ret_obj = j_env->CallObjectMethodA(obj, method_info.method_id_, args);
-    JNIEnvironment::ClearJEnvException(j_env);
-    ret = ToHostObject(turbo_env, ret_obj, method_info.signature_);
+    auto ret_obj = j_env->CallObjectMethodA(obj->GetObj(), method_info.method_id_, args);
+    hippy::JNIEnvironment::ClearJEnvException(j_env);
+    ret = ToHostObject(ctx, ret_obj, method_info.signature_, scope);
     j_env->DeleteLocalRef(ret_obj);
   }
   return std::make_tuple(true, "", ret);
@@ -597,20 +587,19 @@ std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ConvertUtils::ConvertMe
 
 std::tuple<bool,
            std::string,
-           std::shared_ptr<CtxValue>> ConvertUtils::ToJsValueInArray(TurboEnv& turbo_env,
+           std::shared_ptr<CtxValue>> ConvertUtils::ToJsValueInArray(const std::shared_ptr<Ctx>& ctx,
                                                                      jobject array,
                                                                      int index) {
-  std::shared_ptr<Ctx> ctx = turbo_env.context_;
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  JNIEnv* j_env = hippy::JNIEnvironment::GetInstance()->AttachCurrentThread();
   std::shared_ptr<CtxValue> result = ctx->CreateNull();
   auto sig = (jstring) j_env->CallObjectMethod(array, hippy_array_get_sig, index);
   if (!sig) {
     return std::make_tuple(true, "", result);
   }
 
-  string_view str_view = JniUtils::ToStrView(j_env, sig);
-  std::string signature = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-      str_view, string_view::Encoding::Utf8).utf8_value());
+  auto str_view = JniUtils::ToStrView(j_env, sig);
+  auto signature = StringViewUtils::ToStdString(
+      StringViewUtils::ConvertEncoding(str_view, string_view::Encoding::Utf8).utf8_value());
   j_env->DeleteLocalRef(sig);
   FOOTSTONE_DLOG(INFO) << "toJsValueInArray " << signature.c_str();
 
@@ -641,19 +630,19 @@ std::tuple<bool,
     jboolean b = j_env->CallBooleanMethod(reinterpret_cast<jclass>(obj), boolean_value);
     result = ctx->CreateBoolean(b);
   } else if (kHippyArray == signature) {
-    auto tuple = ToJsArray(turbo_env, obj);
+    auto tuple = ToJsArray(ctx, obj);
     if (!std::get<0>(tuple)) {
       return tuple;
     }
     result = std::get<2>(tuple);
   } else if (kHippyMap == signature) {
-    auto tuple = ToJsMap(turbo_env, obj);
+    auto tuple = ToJsMap(ctx, obj);
     if (!std::get<0>(tuple)) {
       return tuple;
     }
     result = std::get<2>(tuple);
   } else if (!obj) {
-    result = turbo_env.context_->CreateNull();
+    result = ctx->CreateNull();
   } else {
     return std::make_tuple(false, "UnSupported Type in HippyArray or HippyMap",
                            static_cast<std::shared_ptr<CtxValue>>(nullptr));
@@ -664,14 +653,12 @@ std::tuple<bool,
 }
 
 std::tuple<bool, std::string, std::shared_ptr<CtxValue>>
-ConvertUtils::ToJsArray(TurboEnv& turbo_env, jobject array) {
-  std::shared_ptr<Ctx> ctx = turbo_env.context_;
+ConvertUtils::ToJsArray(const std::shared_ptr<Ctx>& ctx, jobject array) {
   if (!array) {
     return std::make_tuple(true, "", ctx->CreateNull());
   }
-  std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx);
-  JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-  auto size = env->CallIntMethod(array, hippy_array_size);
+  JNIEnv* j_env = hippy::JNIEnvironment::GetInstance()->AttachCurrentThread();
+  auto size = j_env->CallIntMethod(array, hippy_array_size);
 
   if (size <= 0) {
     return std::make_tuple(true, "", ctx->CreateNull());
@@ -679,7 +666,7 @@ ConvertUtils::ToJsArray(TurboEnv& turbo_env, jobject array) {
 
   std::shared_ptr<CtxValue> value[size];
   for (int i = 0; i < size; i++) {
-    auto value_tuple = ToJsValueInArray(turbo_env, array, i);
+    auto value_tuple = ToJsValueInArray(ctx, array, i);
     if (!std::get<0>(value_tuple)) {
       return value_tuple;
     }
@@ -688,28 +675,28 @@ ConvertUtils::ToJsArray(TurboEnv& turbo_env, jobject array) {
   return std::make_tuple(true, "", ctx->CreateArray(static_cast<size_t>(size), value));
 }
 
-std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ConvertUtils::ToJsMap(TurboEnv& turbo_env,
-                                                                               jobject map) {
-  std::shared_ptr<Ctx> ctx = turbo_env.context_;
+std::tuple<bool,
+           std::string,
+           std::shared_ptr<CtxValue>> ConvertUtils::ToJsMap(const std::shared_ptr<Ctx>& ctx,
+                                                            jobject map) {
   if (!map) {
     return std::make_tuple(true, "", ctx->CreateNull());
   }
-  JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  JNIEnv* j_env = hippy::JNIEnvironment::GetInstance()->AttachCurrentThread();
 
-  jobject array = env->CallObjectMethod(map, to_hippy_array);
+  jobject array = j_env->CallObjectMethod(map, to_hippy_array);
   if (!array) {
     return std::make_tuple(true, "", ctx->CreateNull());
   }
 
-  auto size = env->CallIntMethod(array, hippy_array_size);
+  auto size = j_env->CallIntMethod(array, hippy_array_size);
   if (size <= 0) {
     return std::make_tuple(true, "", ctx->CreateNull());
   }
 
-  std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx);
   std::shared_ptr<CtxValue> value[size];
   for (auto i = 0; i < size; i++) {
-    auto value_tuple = ToJsValueInArray(turbo_env, array, i);
+    auto value_tuple = ToJsValueInArray(ctx, array, i);
     if (!std::get<0>(value_tuple)) {
       return value_tuple;
     }
@@ -719,16 +706,18 @@ std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ConvertUtils::ToJsMap(T
   for (auto i = 0; i < size; i += 2) {
     param[value[i]] = value[i + 1];
   }
-  env->DeleteLocalRef(array);
-  return std::make_tuple(true, "", v8_ctx->CreateMap(param));
+  j_env->DeleteLocalRef(array);
+  return std::make_tuple(true, "", ctx->CreateMap(param));
 }
 
 bool ConvertUtils::Init(JNIEnv* j_env) {
   FOOTSTONE_DLOG(INFO) << "enter init";
 
-  jclass hippy_array_clazz_local = j_env->FindClass("com/tencent/mtt/hippy/common/HippyArray");
-  hippy_array_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(hippy_array_clazz_local));
-  hippy_array_constructor = j_env->GetMethodID(hippy_array_clazz, "<init>", "()V");
+  jclass hippy_array_clazz_local =
+      j_env->FindClass("com/tencent/mtt/hippy/common/HippyArray");
+  hippy_array_clazz = (jclass) j_env->NewGlobalRef(hippy_array_clazz_local);
+  hippy_array_constructor =
+      j_env->GetMethodID(hippy_array_clazz, "<init>", "()V");
   hippy_array_push_object = j_env->GetMethodID(hippy_array_clazz, "pushObject",
                                                "(Ljava/lang/Object;)V");
   hippy_array_size = j_env->GetMethodID(hippy_array_clazz, "size", "()I");
@@ -738,51 +727,54 @@ bool ConvertUtils::Init(JNIEnv* j_env) {
                                            "(I)Ljava/lang/String;");
   j_env->DeleteLocalRef(hippy_array_clazz_local);
 
-  jclass hippy_map_clazz_local = j_env->FindClass("com/tencent/mtt/hippy/common/HippyMap");
-  hippy_map_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(hippy_map_clazz_local));
+  jclass hippy_map_clazz_local =
+      j_env->FindClass("com/tencent/mtt/hippy/common/HippyMap");
+  hippy_map_clazz = (jclass) j_env->NewGlobalRef(hippy_map_clazz_local);
   hippy_map_constructor = j_env->GetMethodID(hippy_map_clazz, "<init>", "()V");
-  hippy_map_push_object = j_env->GetMethodID(hippy_map_clazz,
-                                             "pushObject",
-                                             "(Ljava/lang/String;Ljava/lang/Object;)V");
-  to_hippy_array = j_env->GetMethodID(hippy_map_clazz, "toHippyArray",
-                                      "()Lcom/tencent/mtt/hippy/common/HippyArray;");
+  hippy_map_push_object = j_env->GetMethodID(
+      hippy_map_clazz, "pushObject", "(Ljava/lang/String;Ljava/lang/Object;)V");
+  to_hippy_array =
+      j_env->GetMethodID(hippy_map_clazz, "toHippyArray",
+                         "()Lcom/tencent/mtt/hippy/common/HippyArray;");
   j_env->DeleteLocalRef(hippy_map_clazz_local);
 
   jclass integer_clazz_local = j_env->FindClass("java/lang/Integer");
-  integer_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(integer_clazz_local));
+  integer_clazz = (jclass) j_env->NewGlobalRef(integer_clazz_local);
   integer_constructor = j_env->GetMethodID(integer_clazz, "<init>", "(I)V");
   int_value = j_env->GetMethodID(integer_clazz, "intValue", "()I");
   j_env->DeleteLocalRef(integer_clazz_local);
 
   jclass double_clazz_local = j_env->FindClass("java/lang/Double");
-  double_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(double_clazz_local));
+  double_clazz = (jclass) j_env->NewGlobalRef(double_clazz_local);
   double_constructor = j_env->GetMethodID(double_clazz, "<init>", "(D)V");
   double_value = j_env->GetMethodID(double_clazz, "doubleValue", "()D");
   j_env->DeleteLocalRef(double_clazz_local);
 
   jclass float_clazz_local = j_env->FindClass("java/lang/Float");
-  float_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(float_clazz_local));
+  float_clazz = (jclass) j_env->NewGlobalRef(float_clazz_local);
   float_constructor = j_env->GetMethodID(float_clazz, "<init>", "(F)V");
   float_value = j_env->GetMethodID(float_clazz, "floatValue", "()F");
   j_env->DeleteLocalRef(float_clazz_local);
 
   jclass long_clazz_local = j_env->FindClass("java/lang/Long");
-  long_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(long_clazz_local));
+  long_clazz = (jclass) j_env->NewGlobalRef(long_clazz_local);
   long_constructor = j_env->GetMethodID(long_clazz, "<init>", "(J)V");
   long_value = j_env->GetMethodID(long_clazz, "longValue", "()J");
   j_env->DeleteLocalRef(long_clazz_local);
 
   jclass boolean_clazz_local = j_env->FindClass("java/lang/Boolean");
-  boolean_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(boolean_clazz_local));
+  boolean_clazz = (jclass) (j_env->NewGlobalRef(boolean_clazz_local));
   boolean_constructor = j_env->GetMethodID(boolean_clazz, "<init>", "(Z)V");
   boolean_value = j_env->GetMethodID(boolean_clazz, "booleanValue", "()Z");
   j_env->DeleteLocalRef(boolean_clazz_local);
 
-  jclass promise_clazz_local = j_env->FindClass("com/tencent/mtt/hippy/modules/PromiseImpl");
-  promise_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(promise_clazz_local));
-  promise_constructor = j_env->GetMethodID(promise_clazz, "<init>",
-                                           "(Lcom/tencent/mtt/hippy/HippyEngineContext;Ljava/lang/"
-                                           "String;Ljava/lang/String;Ljava/lang/String;)V");
+  jclass promise_clazz_local =
+      j_env->FindClass("com/tencent/mtt/hippy/modules/PromiseImpl");
+  promise_clazz = (jclass) (j_env->NewGlobalRef(promise_clazz_local));
+  promise_constructor =
+      j_env->GetMethodID(promise_clazz, "<init>",
+                         "(Lcom/tencent/mtt/hippy/HippyEngineContext;Ljava/lang/"
+                         "String;Ljava/lang/String;Ljava/lang/String;)V");
   j_env->DeleteLocalRef(promise_clazz_local);
   return true;
 }

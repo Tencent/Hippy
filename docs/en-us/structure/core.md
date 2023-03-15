@@ -28,8 +28,8 @@ Create test-module.h under [core/modules/](//github.com/Tencent/Hippy/tree/maste
 class TestModule : public ModuleBase {
   public:
     explicit TestModule(hippy::napi::napi_context context){};
-    void RetStr(const hippy::napi::CallbackInfo& info);
-    void Print(const hippy::napi::CallbackInfo& info);
+    void RetStr(hippy::napi::CallbackInfo& info);
+    void Print(hippy::napi::CallbackInfo& info);
 };
 
 #endif // CORE_MODULES_TEST_MODULE_H_
@@ -45,7 +45,7 @@ Create test-module.cc under [core/modules/](//github.com/Tencent/Hippy/tree/mast
 REGISTER_MODULE(TestModule, RetStr)
 REGISTER_MODULE(TestModule, Print)
 
-void TestModule::RetStr(const hippy::napi::CallbackInfo& info) {
+void TestModule::RetStr(hippy::napi::CallbackInfo& info) {
   std::shared_ptr<Environment> env = info.GetEnv();
   hippy::napi::napi_context context = env->getContext();
   HIPPY_CHECK(context);
@@ -53,7 +53,7 @@ void TestModule::RetStr(const hippy::napi::CallbackInfo& info) {
   info.GetReturnValue()->Set(hippy::napi::napi_create_string(context, "hello world"));
 }
 
-void TestModule::Print(const hippy::napi::CallbackInfo& info) {
+void TestModule::Print(hippy::napi::CallbackInfo& info) {
   std::shared_ptr<Environment> env = info.GetEnv();
   hippy::napi::napi_context context = env->getContext();
   HIPPY_CHECK(context);

@@ -65,14 +65,13 @@ void Engine::AsyncInit(std::shared_ptr<TaskRunner> js,
   js_runner_->PostTask(std::move(cb));
 }
 
-std::shared_ptr<Scope> Engine::CreateScope(const std::string& name,
+std::shared_ptr<Scope> Engine::AsyncCreateScope(const std::string& name,
                                            std::unique_ptr<RegisterMap> map) {
   FOOTSTONE_DLOG(INFO) << "Engine CreateScope";
-  std::shared_ptr<Scope> scope =
-      std::make_shared<Scope>(this, name, std::move(map));
+  std::shared_ptr<Scope> scope = std::make_shared<Scope>(weak_from_this(), name, std::move(map));
   scope->wrapper_ = std::make_unique<ScopeWrapper>(scope);
 
-  auto cb = [scope_ = scope] { scope_->Initialized(); };
+  auto cb = [scope_ = scope] { scope_->Init(); };
   if (footstone::Worker::IsTaskRunning() && js_runner_ == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
     cb();
   } else {
@@ -83,7 +82,7 @@ std::shared_ptr<Scope> Engine::CreateScope(const std::string& name,
 
 void Engine::CreateVM(const std::shared_ptr<VMInitParam>& param) {
   FOOTSTONE_DLOG(INFO) << "Engine CreateVM";
-  vm_ = hippy::napi::CreateVM(param);
+  vm_ = hippy::CreateVM(param);
 
   auto it = map_->find(hippy::base::kVMCreateCBKey);
   if (it != map_->end()) {

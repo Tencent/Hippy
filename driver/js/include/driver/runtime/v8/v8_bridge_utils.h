@@ -26,6 +26,7 @@
 #include <memory>
 
 #include "driver/base/common.h"
+#include "driver/vm/v8/v8_vm.h"
 #include "footstone/string_view.h"
 #include "runtime.h"
 #include "v8/v8.h"
@@ -45,7 +46,7 @@ class V8BridgeUtils {
   using byte_string = std::string;
   using string_view = footstone::stringview::string_view;
   using u8string = string_view::u8string;
-  using V8VMInitParam = hippy::napi::V8VMInitParam;
+  using V8VMInitParam = hippy::V8VMInitParam;
   using RegisterFunction = hippy::base::RegisterFunction;
 
   using ReportJsException = std::function<void(const std::shared_ptr<Runtime>& runtime,
@@ -61,7 +62,7 @@ class V8BridgeUtils {
                               const std::shared_ptr<V8VMInitParam>& param,
                               const std::any& bridge,
                               const RegisterFunction& scope_cb,
-                              const RegisterFunction& call_native_cb,
+                              const JsCallback& call_native_cb,
                               uint32_t devtools_id);
   static void DestroyInstance(int64_t runtime_id,  const std::function<void(bool)>& callback, bool is_reload);
   static bool RunScript(const std::shared_ptr<Runtime>& runtime,
@@ -88,7 +89,7 @@ class V8BridgeUtils {
                      std::function<void(CALL_FUNCTION_CB_STATE, string_view)> cb,
                      byte_string buffer_data,
                      std::function<void()> on_js_runner);
-  static void CallNative(hippy::napi::CBDataTuple* data,
+  static void CallNative(hippy::napi::CallbackInfo& info, int32_t runtime_id,
                          const std::function<void(std::shared_ptr<Runtime>,
                                                   string_view,
                                                   string_view,

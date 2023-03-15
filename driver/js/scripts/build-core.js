@@ -78,7 +78,7 @@ const CodePieces = {
 
 #include <unordered_map>
 
-#include "driver/napi/native_source_code.h"
+#include "driver/vm/native_source_code.h"
 #include "footstone/macros.h"
 
 // clang-format off
@@ -274,6 +274,6 @@ function generateCpp(platform, buildDirPath) {
 }
 
 // Start to work
-generateCpp('ios', getAbsolutePath('../../../framework/ios/base'));
-generateCpp('android', getAbsolutePath('../../../framework/android/connector/driver/js/src/main/cpp/src/'));
+generateCpp('ios', getAbsolutePath('../../../driver/js/src/vm/jsc/'));
+generateCpp('android', getAbsolutePath('../../../driver/js/src/vm/v8/'));
 generateCpp('flutter', getAbsolutePath('../../../framework/voltron/core/src/bridge/'));

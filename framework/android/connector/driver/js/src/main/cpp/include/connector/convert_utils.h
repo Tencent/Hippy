@@ -24,12 +24,12 @@
 
 #include <jni.h>
 
-#include <sstream>
-#include <string>
 #include <vector>
+#include <sstream>
 
-#include "driver/napi/js_native_api.h"
-#include "driver/napi/js_native_turbo.h"
+#include "driver/napi/js_ctx.h"
+#include "driver/napi/js_ctx_value.h"
+#include "driver/scope.h"
 #include "jni/scoped_java_ref.h"
 
 namespace hippy {
@@ -40,7 +40,7 @@ struct JNIArgs {
   JNIArgs(size_t count) : args_(count) {}
 
   std::vector<jvalue> args_;
-  std::vector<std::shared_ptr<JavaRef>> global_refs_;
+  std::vector<std::shared_ptr<hippy::JavaRef>> global_refs_;
 };
 
 template<typename T>
@@ -57,76 +57,79 @@ struct MethodInfo {
 
 class ConvertUtils {
  public:
-  using Ctx = hippy::napi::Ctx;
-  using CtxValue = hippy::napi::CtxValue;
-  using TurboEnv = hippy::napi::TurboEnv;
+  using JavaRef = hippy::JavaRef;
+  using Ctx = hippy::Ctx;
+  using CtxValue = hippy::CtxValue;
+  using Scope = hippy::Scope;
 
   static bool Init(JNIEnv* j_env);
 
   static bool Destroy(JNIEnv* j_env);
 
   static std::vector<std::string> GetMethodArgTypesFromSignature(
-      const std::string &method_signature);
+      const std::string& method_signature);
 
   static std::tuple<bool, std::string, std::shared_ptr<JNIArgs>> ConvertJSIArgsToJNIArgs(
-      TurboEnv &turbo_env,
-      const std::string &module_name,
-      const std::string &method_name,
-      const std::vector<std::string> &method_arg_types,
-      const std::vector<std::shared_ptr<CtxValue>> &arg_values);
+      const std::shared_ptr<Ctx>& ctx,
+      const std::string& module_name,
+      const std::string& method_name,
+      const std::vector<std::string>& method_arg_types,
+      const std::vector<std::shared_ptr<CtxValue>>& arg_values);
 
   static std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ConvertMethodResultToJSValue(
-      TurboEnv &turbo_env,
-      const jobject &obj,
-      const MethodInfo &method_info,
-      const jvalue *args);
+      const std::shared_ptr<Ctx>& ctx,
+      const std::shared_ptr<JavaRef>& obj,
+      const MethodInfo& method_info,
+      const jvalue* args,
+      const std::shared_ptr<Scope>& scope);
 
-  static std::tuple<bool, std::string, jobject> ToJObject(TurboEnv &turbo_env,
-                                                          const std::shared_ptr<CtxValue> &value);
+  static std::tuple<bool, std::string, jobject> ToJObject(const std::shared_ptr<Ctx>& ctx,
+                                                          const std::shared_ptr<CtxValue>& value);
 
   static std::tuple<bool, std::string, jobject> ToHippyMap(
-      TurboEnv &turbo_env,
-      const std::shared_ptr<CtxValue> &value);
+      const std::shared_ptr<Ctx>& ctx,
+      const std::shared_ptr<CtxValue>& value);
 
   static std::tuple<bool, std::string, jobject> ToHippyArray(
-      TurboEnv &turbo_env,
-      const std::shared_ptr<CtxValue> &value);
+      const std::shared_ptr<Ctx>& ctx,
+      const std::shared_ptr<CtxValue>& value);
 
   static std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ToJsValueInArray(
-      TurboEnv &turbo_env,
+      const std::shared_ptr<Ctx>& ctx,
       jobject array,
       int index);
 
   static std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ToJsArray(
-      TurboEnv &turbo_env,
+      const std::shared_ptr<Ctx>& ctx,
       jobject array);
 
   static std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ToJsMap(
-      TurboEnv &turbo_env,
+      const std::shared_ptr<Ctx>& ctx,
       jobject map);
 
   static std::tuple<bool, std::string, bool> HandleBasicType(
-      TurboEnv &turbo_env,
-      const std::string &type,
-      jvalue &j_args,
-      const std::shared_ptr<CtxValue> &value);
+      const std::shared_ptr<Ctx>& ctx,
+      const std::string& type,
+      jvalue& j_args,
+      const std::shared_ptr<CtxValue>& value);
 
   static std::tuple<bool, std::string, bool> HandleObjectType(
-      TurboEnv &turbo_env,
-      const std::string &module_name,
-      const std::string &method_name,
-      const std::string &type,
-      jvalue &j_args,
-      const std::shared_ptr<CtxValue> &value,
-      std::vector<std::shared_ptr<JavaRef>> &global_refs);
+      const std::shared_ptr<Ctx>& ctx,
+      const std::string& module_name,
+      const std::string& method_name,
+      const std::string& type,
+      jvalue& j_args,
+      const std::shared_ptr<CtxValue>& value,
+      std::vector<std::shared_ptr<JavaRef>>& global_refs);
 
   static std::unordered_map<std::string, MethodInfo> GetMethodMap(
-      const std::string &method_map_str);
+      const std::string& method_map_str);
 
   static std::shared_ptr<CtxValue> ToHostObject(
-      TurboEnv &turbo_env,
-      jobject &j_obj,
-      std::string name);
+      const std::shared_ptr<Ctx>& ctx,
+      jobject& j_obj,
+      std::string name,
+      std::shared_ptr<Scope> scope);
 };
 
 static jclass hippy_array_clazz;

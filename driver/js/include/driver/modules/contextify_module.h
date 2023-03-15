@@ -24,7 +24,8 @@
 
 #include "driver/modules/module_base.h"
 #include "driver/napi/callback_info.h"
-#include "driver/napi/js_native_api_types.h"
+#include "driver/napi/js_ctx.h"
+#include "driver/napi/js_ctx_value.h"
 #include "footstone/string_view_utils.h"
 
 class Scope;
@@ -39,9 +40,11 @@ class ContextifyModule : public ModuleBase {
   using CtxValue = hippy::napi::CtxValue;
 
   ContextifyModule() {}
-  void RunInThisContext(const hippy::napi::CallbackInfo& info);
-  void LoadUntrustedContent(const hippy::napi::CallbackInfo& info);
+  void RunInThisContext(hippy::napi::CallbackInfo& info, void* data);
+  void LoadUntrustedContent(hippy::napi::CallbackInfo& info, void* data);
   void RemoveCBFunc(const string_view& uri);
+
+  virtual std::shared_ptr<CtxValue> BindFunction(std::shared_ptr<Scope> scope, std::shared_ptr<CtxValue> rest_args[]) override;
 
  private:
   std::unordered_map<string_view, std::shared_ptr<CtxValue>>

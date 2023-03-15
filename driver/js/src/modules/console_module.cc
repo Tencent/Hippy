@@ -25,14 +25,16 @@
 #include <string>
 
 #include "driver/modules/module_register.h"
-#include "driver/napi/js_native_api.h"
+#include "driver/napi/js_ctx.h"
+#include "driver/napi/js_ctx_value.h"
 #include "driver/scope.h"
 #include "footstone/logging.h"
 #include "footstone/string_view_utils.h"
 
-using string_view = footstone::stringview::string_view;
-using StringViewUtils = footstone::stringview::StringViewUtils;
-using Ctx = hippy::napi::Ctx;
+using string_view = footstone::string_view;
+using StringViewUtils = footstone::StringViewUtils;
+using Ctx = hippy::Ctx;
+using CallbackInfo = hippy::CallbackInfo;
 
 namespace {
 
@@ -58,11 +60,13 @@ namespace hippy {
 inline namespace driver {
 inline namespace module {
 
-REGISTER_MODULE(ConsoleModule, Log) // NOLINT(cert-err58-cpp)
+GEN_INVOKE_CB(ConsoleModule, Log) // NOLINT(cert-err58-cpp)
 
-void ConsoleModule::Log(const hippy::napi::CallbackInfo &info) { // NOLINT(readability-convert-member-functions-to-static)
-  std::shared_ptr<Scope> scope = info.GetScope();
-  std::shared_ptr<Ctx> context = scope->GetContext();
+void ConsoleModule::Log(hippy::napi::CallbackInfo &info, void* data) { // NOLINT(readability-convert-member-functions-to-static)
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+  auto scope = scope_wrapper->scope.lock();
+  FOOTSTONE_CHECK(scope);
+  auto context = scope->GetContext();
   FOOTSTONE_CHECK(context);
 
   string_view message;
@@ -100,6 +104,21 @@ void ConsoleModule::Log(const hippy::napi::CallbackInfo &info) { // NOLINT(reada
   }
 
   info.GetReturnValue()->SetUndefined();
+}
+
+std::shared_ptr<CtxValue> ConsoleModule::BindFunction(std::shared_ptr<Scope> scope,
+                                                      std::shared_ptr<CtxValue>* rest_args) {
+  auto context = scope->GetContext();
+  auto object = context->CreateObject();
+
+  auto key = context->CreateString("Log");
+  auto wrapper = std::make_unique<hippy::napi::FunctionWrapper>(
+      InvokeConsoleModuleLog, nullptr);
+  auto value = context->CreateFunction(wrapper);
+  scope->SaveFunctionWrapper(std::move(wrapper));
+  context->SetProperty(object, key, value);
+
+  return object;
 }
 
 }

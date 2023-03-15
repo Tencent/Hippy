@@ -48,21 +48,26 @@
 #include <unordered_map>
 
 #include "driver/engine.h"
-#include "driver/napi/js_native_api.h"
+#include "driver/napi/js_ctx.h"
+#include "driver/napi/js_ctx_value.h"
+#include "driver/napi/js_try_catch.h"
+#include "driver/napi/callback_info.h"
+#include "driver/vm/jsc/jsc_vm.h"
 #include "driver/scope.h"
 #include "footstone/string_view.h"
 #include "footstone/string_view_utils.h"
 #include "footstone/task_runner.h"
 #include "footstone/task.h"
 #include "vfs/handler/uri_handler.h"
-#include "driver/napi/jsc/js_native_api_jsc.h"
-#include "driver/napi/js_native_turbo.h"
 
 #ifdef ENABLE_INSPECTOR
 #include "devtools/devtools_data_source.h"
 #endif
 
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
+
+constexpr char kGlobalKey[] = "global";
+constexpr char kHippyKey[] = "Hippy";
 
 using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
@@ -74,7 +79,6 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 @interface HippyJSExecutor () {
     // Set at setUp time:
     HippyPerformanceLogger *_performanceLogger;
-    std::unique_ptr<hippy::napi::TurboEnv> _turboRuntime;
     id<HippyContextWrapper> _contextWrapper;
     NSMutableArray<dispatch_block_t> *_pendingCalls;
     __weak HippyBridge *_bridge;
@@ -99,7 +103,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     auto engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:self.enginekey];
     std::unique_ptr<hippy::Engine::RegisterMap> map = [self registerMap];
     const char *pName = [self.enginekey UTF8String] ?: "";
-    std::shared_ptr<hippy::Scope> scope = engine->GetEngine()->CreateScope(pName, std::move(map));
+    std::shared_ptr<hippy::Scope> scope = engine->GetEngine()->AsyncCreateScope(pName, std::move(map));
     self.pScope = scope;
 #ifdef ENABLE_INSPECTOR
     HippyBridge *bridge = self.bridge;
@@ -157,11 +161,15 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                 return;
             }
             hippy::ScopeWrapper *wrapper = reinterpret_cast<hippy::ScopeWrapper *>(p);
-            std::shared_ptr<hippy::Scope> scope = wrapper->scope_.lock();
+            std::shared_ptr<hippy::Scope> scope = wrapper->scope.lock();
             if (scope) {
                 auto context = scope->GetContext();
-                context->RegisterGlobalInJs();
-                context->RegisterClasses(scope);
+                auto global_object = context->GetGlobalObject();
+                auto user_global_object_key = context->CreateString(kGlobalKey);
+                context->SetProperty(global_object, user_global_object_key, global_object);
+                auto hippy_key = context->CreateString(kHippyKey);
+                context->SetProperty(global_object, hippy_key, global_object);
+                scope->RegisterJsClasses();
                 id<HippyContextWrapper> contextWrapper = CreateContextWrapper(context);
                 contextWrapper.excpetionHandler = ^(id<HippyContextWrapper>  _Nonnull wrapper, NSString * _Nonnull message, NSArray<HPDriverStackFrame *> * _Nonnull stackFrames) {
                     HippyJSExecutor *strongSelf = weakSelf;
@@ -226,27 +234,21 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                     [bridge handleBuffer:calls batchEnded:NO];
                     return nil;
                 }];
-
-                strongSelf->_turboRuntime = hippy::napi::GetTurboEnvInstance(scope->GetContext());
-                hippy::napi::Ctx::NativeFunction getTurboModuleFunc = [weakSelf](void *data) {
+                auto turbo_wrapper = std::make_unique<hippy::FunctionWrapper>([](hippy::CallbackInfo& info, void* data) {
                     @autoreleasepool {
-                        HippyJSExecutor *strongSelf = weakSelf;
-                        if (!strongSelf.valid || !data) {
-                            return strongSelf.pScope->GetContext()->CreateNull();
-                        }
-                        auto tuple_ptr = static_cast<hippy::napi::CBCtxValueTuple *>(data);
-                        NSCAssert(1 == tuple_ptr->count_, @"nativeRequireModuleConfig should only contain 1 element");
-                        auto nameValue = tuple_ptr->arguments_[0];
+                        //todo
+                        HippyJSExecutor *strongSelf = (__bridge HippyJSExecutor*)data;
                         const auto &context = strongSelf.pScope->GetContext();
-                        if (context->IsString(nameValue)) {
-                            NSString *name = ObjectFromCtxValue(context, nameValue);
+                        if (context->IsString(info[0])) {
+                            NSString *name = ObjectFromCtxValue(context, info[0]);
                             auto value = [strongSelf JSTurboObjectWithName:name];
-                            return value;
+                            info.GetReturnValue()->Set(value);
                         }
-                        return strongSelf.pScope->GetContext()->CreateNull();
                     }
-                };
-                context->RegisterNativeBinding("getTurboModule", getTurboModuleFunc, nullptr);
+                }, (__bridge void*)weakSelf);
+                auto turbo_function = context->CreateFunction(turbo_wrapper);
+                scope->SaveFunctionWrapper(std::move(turbo_wrapper));
+                context->SetProperty(global_object, context->CreateString("getTurboModule"), turbo_function);
             }
             if (strongSelf.contextCreatedBlock) {
                 strongSelf.contextCreatedBlock(strongSelf->_contextWrapper);
@@ -285,7 +287,11 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
             }
             HPAssert(strongSelf.pScope, @"scope must not be null");
             HPAssert(strongSelf.pScope->GetContext(), @"context must not be null");
-            strongSelf.pScope->GetContext()->SetGlobalStrVar("__HIPPYCURDIR__", NSStringToU8StringView(directory));
+            auto context = strongSelf.pScope->GetContext();
+            auto global_object = context->GetGlobalObject();
+            auto key = context->CreateString("__HIPPYCURDIR__");
+            auto value = context->CreateString(NSStringToU8StringView(directory));
+            context->SetProperty(global_object, key, value);
         }];
     }
 }    
@@ -293,14 +299,49 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 - (SharedCtxValuePtr)JSTurboObjectWithName:(NSString *)name {
     //create HostObject by name
     HippyOCTurboModule *turboModule = [self->_bridge turboModuleWithName:name];
+    auto scope = self->_pScope;
+    auto context = scope->GetContext();
     if (!turboModule) {
-        return self.pScope->GetContext()->CreateNull();
+        return context->CreateNull();
     }
 
     // create jsProxy
-    std::shared_ptr<hippy::napi::HippyTurboModule> ho = [turboModule getTurboModule];
-    //should be function!!!!!
-    SharedCtxValuePtr obj = self->_turboRuntime->CreateObject(ho);
+    std::string turbo_name([name UTF8String]);
+    if (scope->HasTurboInstance(turbo_name)) {
+      return scope->GetTurboInstance(turbo_name);
+    }
+    auto wrapper = std::make_unique<hippy::FunctionWrapper>([](hippy::CallbackInfo& info, void* data) {
+      auto name = info[0];
+      if (!name) {
+        return;
+      }
+      HippyOCTurboModule *turbo = (__bridge HippyOCTurboModule*) data;
+      auto turbo_wrapper = std::make_unique<TurboWrapper>(turbo, info[0]);
+      auto func_wrapper = std::make_unique<hippy::FunctionWrapper>([](hippy::CallbackInfo& info, void* data) {
+        std::vector<std::shared_ptr<hippy::CtxValue>> argv;
+        for (size_t i = 0; i < info.Length(); ++i) {
+          argv.push_back(info[i]);
+        }
+        auto scope_wrapper = reinterpret_cast<hippy::ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+        auto scope = scope_wrapper->scope.lock();
+        FOOTSTONE_CHECK(scope);
+        auto turbo_wrapper = reinterpret_cast<TurboWrapper*>(data);
+        HippyOCTurboModule *turbo = turbo_wrapper->module;
+        auto name = turbo_wrapper->name;
+        auto result = [turbo invokeOCMethod:scope->GetContext() this_val:name args:argv.data() count:argv.size()];
+        info.GetReturnValue()->Set(result);
+      }, turbo_wrapper.get());
+      [turbo saveTurboWrapper:name turbo:std::move(turbo_wrapper)];
+      auto scope_wrapper = reinterpret_cast<hippy::ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+      auto scope = scope_wrapper->scope.lock();
+      FOOTSTONE_CHECK(scope);
+      auto func = scope->GetContext()->CreateFunction(func_wrapper);
+      scope->SaveFunctionWrapper(std::move(func_wrapper));
+      info.GetReturnValue()->Set(func);
+    }, (__bridge void*)turboModule);
+    auto obj = scope->GetContext()->DefineProxy(wrapper);
+    scope->SaveFunctionWrapper(std::move(wrapper));
+    scope->SetTurboInstance(turbo_name, obj);
     return obj;
 }
 
@@ -328,7 +369,6 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     }
 #endif //JS_USE_JSC
     self.pScope->WillExit();
-    _turboRuntime = nullptr;
     NSString *enginekey = [self enginekey];
     if (!enginekey) {
         return;
@@ -367,15 +407,17 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 
 -(void)addInfoToGlobalObject:(NSDictionary*)addInfoDict{
     string_view str("__HIPPYNATIVEGLOBAL__");
-    const SharedCtxPtr &napi_context = self.pScope->GetContext();
-    SharedCtxValuePtr hippyNativeGlobalObj = napi_context->GetGlobalObjVar(str);
-    HPAssert(hippyNativeGlobalObj, @"__HIPPYNATIVEGLOBAL__ must not be null");
-    if (hippyNativeGlobalObj) {
+    auto context = self.pScope->GetContext();
+    auto global_object = context->GetGlobalObject();
+    auto hippy_native_object_key = context->CreateString(str);
+    auto hippy_native_object_value = context->GetProperty(global_object, hippy_native_object_key);
+    HPAssert(hippy_native_object_value, @"__HIPPYNATIVEGLOBAL__ must not be null");
+    if (!context->IsNullOrUndefined(hippy_native_object_value)) {
         for (NSString *key in addInfoDict) {
             id value = addInfoDict[key];
             string_view key_string = NSStringToU8StringView(key);
-            SharedCtxValuePtr ctx_value = [value convertToCtxValue:napi_context];
-            napi_context->SetProperty(hippyNativeGlobalObj, key_string, ctx_value, hippy::napi::PropertyAttribute::None);
+            auto ctx_value = [value convertToCtxValue:context];
+            context->SetProperty(hippy_native_object_value, context->CreateString(key_string), ctx_value, hippy::napi::PropertyAttribute::None);
         }
     }
 }
@@ -416,8 +458,10 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                 NSString *moduleName = [bridge moduleName];
                 NSError *executeError = nil;
                 id objcValue = nil;
-                SharedCtxPtr context = strongSelf.pScope->GetContext();
-                SharedCtxValuePtr batchedbridge_value = context->GetGlobalObjVar("__hpBatchedBridge");
+                auto context = strongSelf.pScope->GetContext();
+                auto global_object = context->GetGlobalObject();
+                auto bridge_key = context->CreateString("__hpBatchedBridge");
+                auto batchedbridge_value = context->GetProperty(global_object, bridge_key);
                 SharedCtxValuePtr resultValue = nullptr;
                 string_view exception;
                 if (batchedbridge_value) {
@@ -430,7 +474,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                                 id obj = arguments[i];
                                 function_params[i] = [obj convertToCtxValue:context];
                             }
-                            auto tryCatch = hippy::napi::CreateTryCatchScope(true, context);
+                            auto tryCatch = hippy::CreateTryCatchScope(true, context);
                             resultValue = context->CallFunction(method_value, arguments.count, function_params);
                             if (tryCatch->HasCaught()) {
                                 exception = tryCatch->GetExceptionMsg();
@@ -497,7 +541,7 @@ static NSLock *jslock() {
 static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, HippyPerformanceLogger *performanceLogger, SharedCtxPtr context, NSError **error) {
     @autoreleasepool {
         [performanceLogger markStartForTag:HippyPLScriptExecution];
-        string_view view([script UTF8String]);
+        string_view view = string_view::new_from_utf8([script UTF8String]);
         string_view fileName = NSStringToU8StringView([sourceURL absoluteString]);
         string_view errorMsg;
         NSLock *lock = jslock();
@@ -569,7 +613,11 @@ static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, Hip
         string_view name_view = NSStringToU8StringView(objectName);
         auto context = strongSelf.pScope->GetContext();
         auto tryCatch = hippy::napi::CreateTryCatchScope(true, context);
-        context->SetGlobalJsonVar(name_view, json_view);
+        auto global_object = context->GetGlobalObject();
+        auto name_key = context->CreateString(name_view);
+        auto engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:self.enginekey];
+        auto json_value = engine->GetEngine()->GetVM()->ParseJson(context, json_view);
+        context->SetProperty(global_object, name_key, json_value);
         if (tryCatch->HasCaught()) {
             string_view errorMsg = tryCatch->GetExceptionMsg();
             NSError *error = [NSError errorWithDomain:HPErrorDomain code:2 userInfo:@{

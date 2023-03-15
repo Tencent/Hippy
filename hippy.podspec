@@ -39,7 +39,7 @@ Pod::Spec.new do |s|
   s.author           = 'OpenHippy Team'
   s.source           = {:git => 'https://github.com/Tencent/Hippy.git', :tag => s.version}
   s.platform = :ios
-  s.ios.deployment_target = '10.0'
+  s.ios.deployment_target = '11.0'
 
   #prepare_command not working for subspecs,so we remove devtools script from devtools subspec to root
   s.prepare_command = <<-CMD
@@ -151,7 +151,7 @@ Pod::Spec.new do |s|
     driver.frameworks = 'JavaScriptCore'
     driver.source_files = ['driver/js/include/**/*.h', 'driver/js/src/**/*.cc']
     driver.public_header_files = 'driver/js/include/**/*.h'
-    driver.exclude_files = ['driver/js/include/driver/napi/v8','driver/js/src/napi/v8','driver/js/include/driver/runtime','driver/js/src/runtime']
+    driver.exclude_files = ['driver/js/include/driver/napi/v8','driver/js/src/napi/v8','driver/js/include/driver/runtime','driver/js/src/runtime', 'driver/js/include/vm/v8', 'driver/js/src/vm/v8']
     if use_frameworks
       header_search_paths = framework_header_path
       driver.header_mappings_dir = 'driver/js/include'

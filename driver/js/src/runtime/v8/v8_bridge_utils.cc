@@ -27,8 +27,13 @@
 #include <future>
 #include <utility>
 
-#include "driver/napi/v8/js_native_api_v8.h"
-#include "driver/napi/v8/serializer.h"
+#include "driver/napi/callback_info.h"
+#include "driver/napi/js_ctx.h"
+#include "driver/napi/js_ctx_value.h"
+#include "driver/napi/js_try_catch.h"
+#include "driver/napi/callback_info.h"
+#include "driver/scope.h"
+#include "footstone/check.h"
 #include "footstone/deserializer.h"
 #include "footstone/hippy_value.h"
 #include "footstone/logging.h"
@@ -37,6 +42,16 @@
 #include "footstone/task_runner.h"
 #include "footstone/worker_impl.h"
 #include "vfs/file.h"
+#include "jni/jni_env.h"
+#include "jni/jni_utils.h"
+
+#ifdef JS_V8
+#include "driver/napi/v8/v8_ctx.h"
+#include "driver/napi/v8/v8_ctx_value.h"
+#include "driver/napi/v8/v8_try_catch.h"
+#include "driver/vm/v8/v8_vm.h"
+#include "driver/napi/v8/serializer.h"
+#endif
 
 namespace hippy {
 inline namespace driver {
@@ -47,25 +62,33 @@ using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 using TaskRunner = footstone::runner::TaskRunner;
 using WorkerManager = footstone::runner::WorkerManager;
+using string_view = footstone::string_view;
 using u8string = string_view::u8string;
-using Ctx = hippy::napi::Ctx;
+using Ctx = hippy::Ctx;
+using V8Ctx = hippy::V8Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using Deserializer = footstone::value::Deserializer;
 using HippyValue = footstone::value::HippyValue;
 using HippyFile = hippy::vfs::HippyFile;
-using RegisterMap = hippy::base::RegisterMap;
-using RegisterFunction = hippy::base::RegisterFunction;
-using V8VM = hippy::napi::V8VM;
+using RegisterMap = hippy::RegisterMap;
+using RegisterFunction = hippy::RegisterFunction;
+using V8VM = hippy::V8VM;
+using ScopeWrapper = hippy::ScopeWrapper;
+using CallbackInfo = hippy::CallbackInfo;
+using JNIEnvironment = hippy::JNIEnvironment;
+using JniUtils = hippy::JniUtils;
 
 constexpr int64_t kDefaultGroupId = -1;
 constexpr int64_t kDebuggerGroupId = -9999;
 constexpr uint32_t kRuntimeSlotIndex = 0;
 constexpr uint8_t kBridgeSlot = 1;
 
-constexpr char kHippyBridgeName[] = "hippyBridge";
-constexpr char kHippyNativeGlobalKey[] = "__HIPPYNATIVEGLOBAL__";
-constexpr char kHippyCallNativeKey[] = "hippyCallNatives";
+constexpr char kBridgeName[] = "hippyBridge";
 constexpr char kWorkerRunnerName[] = "hippy_worker";
+constexpr char kGlobalKey[] = "global";
+constexpr char kHippyKey[] = "Hippy";
+constexpr char kNativeGlobalKey[] = "__HIPPYNATIVEGLOBAL__";
+constexpr char kCallNativesKey[] = "hippyCallNatives";
 
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
@@ -90,13 +113,13 @@ int32_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
                                     const std::shared_ptr<V8VMInitParam>& param,
                                     const std::any& bridge,
                                     const RegisterFunction& scope_cb,
-                                    const RegisterFunction& call_native_cb,
+                                    const JsCallback& call_native_cb,
                                     uint32_t devtools_id) {
   auto runtime = std::make_shared<Runtime>(enable_v8_serialization, is_dev_module);
   runtime->SetData(kBridgeSlot, std::move(bridge));
   int32_t runtime_id = runtime->GetId();
   Runtime::Insert(runtime);
-  RegisterFunction vm_cb = [runtime_id](void* vm) {
+  auto vm_cb = [runtime_id](void* vm) {
     V8VM* v8_vm = reinterpret_cast<V8VM*>(vm);
     v8::Isolate* isolate = v8_vm->isolate_;
     v8::HandleScope handle_scope(isolate);
@@ -112,7 +135,7 @@ int32_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
   };
 
   std::unique_ptr<RegisterMap> engine_cb_map = std::make_unique<RegisterMap>();
-  engine_cb_map->insert(std::make_pair(hippy::base::kVMCreateCBKey, vm_cb));
+  engine_cb_map->insert(std::make_pair(hippy::kVMCreateCBKey, vm_cb));
 
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
   if (is_dev_module) {
@@ -121,13 +144,12 @@ int32_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
   }
 #endif
   FOOTSTONE_LOG(INFO) << "global_config = " << global_config;
-  RegisterFunction context_cb = [runtime, global_config,
-      runtime_id, call_native_cb](void* scopeWrapper) {
+  auto context_cb = [runtime, global_config, runtime_id, call_native_cb](void* scopeWrapper) {
     FOOTSTONE_LOG(INFO) << "InitInstance register hippyCallNatives, runtime_id = " << runtime_id;
     FOOTSTONE_CHECK(scopeWrapper);
     auto* wrapper = reinterpret_cast<ScopeWrapper*>(scopeWrapper);
     FOOTSTONE_CHECK(wrapper);
-    std::shared_ptr<Scope> scope = wrapper->scope_.lock();
+    std::shared_ptr<Scope> scope = wrapper->scope.lock();
     if (!scope) {
       FOOTSTONE_DLOG(ERROR) << "register hippyCallNatives, scope error";
       return;
@@ -142,14 +164,23 @@ int32_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
       }
     }
 #endif
-    std::shared_ptr<Ctx> ctx = scope->GetContext();
-    ctx->RegisterGlobalInJs();
-    ctx->RegisterClasses(scope);
-    ctx->RegisterNativeBinding(kHippyCallNativeKey,
-                               call_native_cb,
-                               reinterpret_cast<void*>(runtime_id));
-    bool ret = ctx->SetGlobalJsonVar(kHippyNativeGlobalKey, global_config);
-    if (!ret) {
+    auto ctx = scope->GetContext();
+    auto global_object = ctx->GetGlobalObject();
+    auto user_global_object_key = ctx->CreateString(kGlobalKey);
+    ctx->SetProperty(global_object, user_global_object_key, global_object);
+    auto hippy_key = ctx->CreateString(kHippyKey);
+    ctx->SetProperty(global_object, hippy_key, global_object);
+    scope->RegisterJsClasses();
+    auto func_wrapper = std::make_unique<hippy::napi::FunctionWrapper>(call_native_cb,
+                                                                       reinterpret_cast<void*>(runtime_id));
+    auto native_func_cb = ctx->CreateFunction(func_wrapper);
+    scope->SaveFunctionWrapper(std::move(func_wrapper));
+    auto call_natives_key = ctx->CreateString(kCallNativesKey);
+    ctx->SetProperty(global_object, call_natives_key, native_func_cb, hippy::napi::PropertyAttribute::ReadOnly);
+    auto native_global_key = ctx->CreateString(kNativeGlobalKey);
+    auto global_config_object = runtime->GetEngine()->GetVM()->ParseJson(ctx, global_config);
+    auto flag = ctx->SetProperty(global_object, native_global_key, global_config_object);
+    if (!flag) {
       FOOTSTONE_DLOG(ERROR) << "register HippyNativeGlobal failed";
       V8BridgeUtils::on_throw_exception_to_js_(runtime,
                                                u"global_config parse error",
@@ -157,8 +188,8 @@ int32_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
     }
   };
   std::unique_ptr<RegisterMap> scope_cb_map = std::make_unique<RegisterMap>();
-  scope_cb_map->insert(std::make_pair(hippy::base::kContextCreatedCBKey, context_cb));
-  scope_cb_map->insert(std::make_pair(hippy::base::KScopeInitializedCBKey, scope_cb));
+  scope_cb_map->insert(std::make_pair(hippy::kContextCreatedCBKey, context_cb));
+  scope_cb_map->insert(std::make_pair(hippy::KScopeInitializedCBKey, scope_cb));
   std::unordered_map<int64_t, std::pair<std::shared_ptr<Engine>, uint32_t>>::iterator it;
   std::shared_ptr<Engine> engine = nullptr;
   if (is_dev_module) {
@@ -192,7 +223,7 @@ int32_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
   runtime->SetEngine(engine);
   auto worker_runner = worker_manager->CreateTaskRunner(kWorkerRunnerName);
   engine->AsyncInit(task_runner, worker_runner, std::move(engine_cb_map), param);
-  auto scope = engine->CreateScope("", std::move(scope_cb_map));
+  auto scope = engine->AsyncCreateScope("", std::move(scope_cb_map));
   runtime->SetScope(scope);
   FOOTSTONE_DLOG(INFO) << "group = " << group;
   runtime->SetGroupId(group);
@@ -272,8 +303,7 @@ bool V8BridgeUtils::RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runti
 
     std::promise<u8string> read_file_promise;
     std::future<u8string> read_file_future = read_file_promise.get_future();
-    auto func =
-        hippy::base::MakeCopyable([p = std::move(read_file_promise),
+    auto func = hippy::MakeCopyable([p = std::move(read_file_promise),
                                       code_cache_path, code_cache_dir]() mutable {
           u8string content;
           HippyFile::ReadFile(code_cache_path, content, true);
@@ -363,15 +393,10 @@ void V8BridgeUtils::HandleUncaughtJsError(v8::Local<v8::Message> message,
     return;
   }
 
-  std::shared_ptr<hippy::napi::V8Ctx> ctx =
-      std::static_pointer_cast<hippy::napi::V8Ctx>(
-          runtime->GetScope()->GetContext());
-  FOOTSTONE_LOG(ERROR) << "HandleUncaughtJsError error desc = "
-                      << ctx->GetMsgDesc(message)
-                      << ", stack = " << ctx->GetStackInfo(message);
-  V8BridgeUtils::on_throw_exception_to_js_(runtime, ctx->GetMsgDesc(message),
-                                           ctx->GetStackInfo(message));
-  ctx->HandleUncaughtException(std::make_shared<hippy::napi::V8CtxValue>(isolate, error));
+  auto context = runtime->GetScope()->GetContext();
+//  V8BridgeUtils::on_throw_exception_to_js_(runtime, ctx->GetMsgDesc(message),
+//                                           ctx->GetStackInfo(message));
+  VM::HandleUncaughtException(context, std::make_shared<hippy::napi::V8CtxValue>(isolate, error));
 
   FOOTSTONE_DLOG(INFO) << "HandleUncaughtJsError end";
 }
@@ -450,19 +475,19 @@ void V8BridgeUtils::CallJs(const string_view& action,
       buffer_data_ = std::move(buffer_data),
       on_js_runner = std::move(on_js_runner)] {
     on_js_runner();
-    std::shared_ptr<Scope> scope = runtime->GetScope();
+    auto scope = runtime->GetScope();
     if (!scope) {
       FOOTSTONE_DLOG(WARNING) << "CallJs scope invalid";
       return;
     }
-    std::shared_ptr<Ctx> context = scope->GetContext();
+    auto context = scope->GetContext();
     if (!runtime->GetBridgeFunc()) {
       FOOTSTONE_DLOG(INFO) << "init bridge func";
-      string_view name(kHippyBridgeName);
-      std::shared_ptr<CtxValue> fn = context->GetJsFn(name);
+      auto func_name = context->CreateString(kBridgeName);
+      auto global_object = context->GetGlobalObject();
+      auto fn = context->GetProperty(global_object, func_name);
       bool is_fn = context->IsFunction(fn);
       FOOTSTONE_DLOG(INFO) << "is_fn = " << is_fn;
-
       if (!is_fn) {
         cb(CALL_FUNCTION_CB_STATE::NO_METHOD_ERROR, u"hippyBridge not find");
         return;
@@ -474,20 +499,19 @@ void V8BridgeUtils::CallJs(const string_view& action,
     std::shared_ptr<CtxValue> action_value = context->CreateString(action);
     std::shared_ptr<CtxValue> params;
     if (runtime->IsEnableV8Serialization()) {
-      v8::Isolate* isolate = std::static_pointer_cast<hippy::napi::V8VM>(
-          runtime->GetEngine()->GetVM())->isolate_;
+#ifdef JS_V8
+      auto isolate = std::static_pointer_cast<V8VM>(runtime->GetEngine()->GetVM())->isolate_;
       v8::HandleScope handle_scope(isolate);
-      v8::Local<v8::Context> ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(
+      auto ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(
           runtime->GetScope()->GetContext())->context_persistent_.Get(isolate);
       hippy::napi::V8TryCatch try_catch(true, context);
       v8::ValueDeserializer deserializer(
           isolate, reinterpret_cast<const uint8_t*>(buffer_data_.c_str()),
           buffer_data_.length());
       FOOTSTONE_CHECK(deserializer.ReadHeader(ctx).FromMaybe(false));
-      v8::MaybeLocal<v8::Value> ret = deserializer.ReadValue(ctx);
+      auto ret = deserializer.ReadValue(ctx);
       if (!ret.IsEmpty()) {
-        params = std::make_shared<hippy::napi::V8CtxValue>(
-            isolate, ret.ToLocalChecked());
+        params = std::make_shared<hippy::napi::V8CtxValue>(isolate, ret.ToLocalChecked());
       } else {
         string_view msg;
         if (try_catch.HasCaught()) {
@@ -498,13 +522,16 @@ void V8BridgeUtils::CallJs(const string_view& action,
         cb(CALL_FUNCTION_CB_STATE::DESERIALIZER_FAILED, msg);
         return;
       }
+#elif
+#error runtime->IsEnableV8Serialization() must be false
+#endif
     } else {
       std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]),
                          buffer_data_.length() / sizeof(char16_t));
       string_view buf_str(std::move(str));
       FOOTSTONE_DLOG(INFO) << "action = " << action
                           << ", buf_str = " << buf_str;
-      params = context->ParseJson(buf_str);
+      params = runtime->GetEngine()->GetVM()->ParseJson(context, buf_str);
     }
     if (!params) {
       params = context->CreateNull();
@@ -517,7 +544,7 @@ void V8BridgeUtils::CallJs(const string_view& action,
   runner->PostTask(std::move(callback));
 }
 
-void V8BridgeUtils::CallNative(hippy::napi::CBDataTuple* data, const std::function<void(
+void V8BridgeUtils::CallNative(hippy::napi::CallbackInfo& info, int32_t runtime_id, const std::function<void(
     std::shared_ptr<Runtime>,
     string_view,
     string_view,
@@ -525,108 +552,75 @@ void V8BridgeUtils::CallNative(hippy::napi::CBDataTuple* data, const std::functi
     bool,
     byte_string)>& cb) {
   FOOTSTONE_DLOG(INFO) << "CallNative";
-  auto runtime_id = static_cast<int32_t>(reinterpret_cast<int64_t>(data->cb_tuple_.data_));
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
   if (!runtime) {
     return;
   }
 
-  const v8::FunctionCallbackInfo<v8::Value>& info = data->info_;
-  v8::Isolate* isolate = info.GetIsolate();
-  if (!isolate) {
-    FOOTSTONE_DLOG(ERROR) << "CallNative isolate error";
-    return;
-  }
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+  auto scope = scope_wrapper->scope.lock();
+  FOOTSTONE_CHECK(scope);
+  auto context = scope->GetContext();
 
-  v8::HandleScope handle_scope(isolate);
-  std::shared_ptr<hippy::napi::V8Ctx> v8_ctx =
-      std::static_pointer_cast<hippy::napi::V8Ctx>(runtime->GetScope()->GetContext());
-  v8::Local<v8::Context> context = v8_ctx->context_persistent_.Get(isolate);
-  v8::Context::Scope context_scope(context);
-  if (context.IsEmpty()) {
-    FOOTSTONE_DLOG(ERROR) << "CallNative context empty";
-    return;
-  }
-
-  string_view module;
-  if (info.Length() >= 1 && !info[0].IsEmpty()) {
-    v8::MaybeLocal<v8::String> module_maybe_str = info[0]->ToString(context);
-    if (module_maybe_str.IsEmpty()) {
-      isolate->ThrowException(
-          v8::Exception::TypeError(
-              v8::String::NewFromOneByte(isolate,
-                                         reinterpret_cast<const uint8_t*>("module error"))
-                  .ToLocalChecked()));
+  string_view module_name;
+  if (info[0]) {
+    if (!context->GetValueString(info[0], &module_name)) {
+      info.GetExceptionValue()->Set(context,"module name error");
       return;
     }
-    module = v8_ctx->ToStringView(module_maybe_str.ToLocalChecked());
-    FOOTSTONE_DLOG(INFO) << "CallNative module = " << module;
+    FOOTSTONE_DLOG(INFO) << "CallJava module_name = " << module_name;
   } else {
-    isolate->ThrowException(
-        v8::Exception::Error(
-            v8::String::NewFromOneByte(isolate,
-                                       reinterpret_cast<const uint8_t*>("info error"))
-                .ToLocalChecked()));
+    info.GetExceptionValue()->Set(context, "info error");
     return;
   }
 
-  string_view func;
-  if (info.Length() >= 2 && !info[1].IsEmpty()) {
-    v8::MaybeLocal<v8::String> func_maybe_str = info[1]->ToString(context);
-    if (func_maybe_str.IsEmpty()) {
-      isolate->ThrowException(
-          v8::Exception::TypeError(
-              v8::String::NewFromOneByte(isolate,
-                                         reinterpret_cast<const uint8_t*>("func error"))
-                  .ToLocalChecked()));
+  string_view fn_name;
+  if (info[1]) {
+    if (!context->GetValueString(info[1], &fn_name)) {
+      info.GetExceptionValue()->Set(context,"func name error");
       return;
     }
-    func = v8_ctx->ToStringView(func_maybe_str.ToLocalChecked());
-    FOOTSTONE_DLOG(INFO) << "CallNative func = " << func;
+    FOOTSTONE_DLOG(INFO) << "CallJava fn_name = " << fn_name;
   } else {
-    isolate->ThrowException(
-        v8::Exception::Error(
-            v8::String::NewFromOneByte(isolate,
-                                       reinterpret_cast<const uint8_t*>("info error"))
-                .ToLocalChecked()));
+    info.GetExceptionValue()->Set(context, "info error");
     return;
   }
 
-  string_view cb_id;
-  if (info.Length() >= 3 && !info[2].IsEmpty()) {
-    v8::MaybeLocal<v8::String> cb_id_maybe_str = info[2]->ToString(context);
-    if (!cb_id_maybe_str.IsEmpty()) {
-      cb_id = v8_ctx->ToStringView(cb_id_maybe_str.ToLocalChecked());
-      FOOTSTONE_DLOG(INFO) << "CallNative cb_id = " << cb_id;
+  string_view cb_id_str;
+  if (info[2]) {
+    double cb_id;
+    if (context->GetValueString(info[2], &cb_id_str)) {
+      FOOTSTONE_DLOG(INFO) << "CallJava cb_id = " << cb_id_str;
+    } else if (context->GetValueNumber(info[2], &cb_id)) {
+      cb_id_str = std::to_string(cb_id);
+      FOOTSTONE_DLOG(INFO) << "CallJava cb_id = " << cb_id_str;
     }
   }
 
-  byte_string buffer;
-  if (info.Length() >= 4 && !info[3].IsEmpty() && info[3]->IsObject()) {
+  std::string buffer_data;
+  if (info[3] && context->IsObject(info[3])) {
     if (runtime->IsEnableV8Serialization()) {
-      Serializer serializer(isolate, context, runtime->GetBuffer());
-      serializer.WriteHeader();
-      serializer.WriteValue(info[3]);
-      std::pair<uint8_t*, size_t> pair = serializer.Release();
-      buffer = byte_string(reinterpret_cast<const char*>(pair.first), pair.second);
+#ifdef JS_V8
+      auto v8_ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(context);
+      buffer_data = v8_ctx->GetSerializationBuffer(info[3], runtime->GetBuffer());
+#else
+    #error runtime->IsEnableV8Serialization() must be false
+#endif
     } else {
-      std::shared_ptr<hippy::napi::V8CtxValue> obj =
-          std::make_shared<hippy::napi::V8CtxValue>(isolate, info[3]);
       string_view json;
-      auto flag = v8_ctx->GetValueJson(obj, &json);
+      auto flag = context->GetValueJson(info[3], &json);
       FOOTSTONE_DCHECK(flag);
-      FOOTSTONE_DLOG(INFO) << "CallNative json = " << json;
-      buffer = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-          json, string_view::Encoding::Utf8).utf8_value());
+      FOOTSTONE_DLOG(INFO) << "CallJava json = " << json;
+      buffer_data = StringViewUtils::ToStdString(
+          StringViewUtils::ConvertEncoding(json, string_view::Encoding::Utf8).utf8_value());
     }
   }
 
-  bool is_heap_buffer = false;
-  if (info.Length() >= 5 && !info[4].IsEmpty() && info[4]->IsNumber()) {
-    is_heap_buffer = (info[4]->NumberValue(context).FromMaybe(0)) != 0;
+  int32_t transfer_type = 0;
+  if (info[4]) {
+    context->GetValueNumber(info[4], &transfer_type);
   }
-  FOOTSTONE_DLOG(INFO) << "CallNative is_heap_buffer = " << is_heap_buffer;
-  cb(runtime, module, func, cb_id, is_heap_buffer, buffer);
+  cb(runtime, module_name, fn_name, cb_id_str, transfer_type != 0,  buffer_data);
 }
 
 void V8BridgeUtils::LoadInstance(int32_t runtime_id, byte_string&& buffer_data) {

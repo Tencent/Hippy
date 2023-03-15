@@ -27,38 +27,63 @@
 #include <string>
 
 #include "connector/convert_utils.h"
-#include "driver/napi/js_native_turbo.h"
 #include "jni/scoped_java_ref.h"
 
 namespace hippy {
 inline namespace framework {
 inline namespace turbo {
 
-class JavaTurboModule : public hippy::napi::HippyTurboModule {
+class JavaTurboModule {
  public:
-  JavaTurboModule(const std::string &name, std::shared_ptr<JavaRef> &impl);
+  using Ctx = hippy::napi::Ctx;
+  using CtxValue = hippy::napi::CtxValue;
+  using FunctionWrapper = hippy::napi::FunctionWrapper;
+  using PropertyDescriptor = hippy::napi::PropertyDescriptor;
+  using JavaRef = hippy::JavaRef;
 
-  ~JavaTurboModule();
+  struct TurboWrapper {
+    JavaTurboModule* module;
+    std::shared_ptr<CtxValue> name;
+    std::unique_ptr<FunctionWrapper> func_wrapper;
+
+    TurboWrapper(JavaTurboModule* module, const std::shared_ptr<CtxValue>& name) {
+      this->module = module;
+      this->name = name;
+      this->func_wrapper = nullptr;
+    }
+
+    void SetFunctionWrapper(std::unique_ptr<FunctionWrapper> wrapper) {
+      func_wrapper = std::move(wrapper);
+    }
+  };
+
+  JavaTurboModule(const std::string& name,
+                  std::shared_ptr<JavaRef>& impl,
+                  const std::shared_ptr<Ctx>& ctx);
 
   std::shared_ptr<JavaRef> impl_;
 
   std::shared_ptr<JavaRef> impl_j_clazz_;
 
+  std::string name;
+
+  std::unique_ptr<hippy::napi::FunctionWrapper> wrapper_holder_;
+
   // methodName, signature
   std::unordered_map<std::string, MethodInfo> method_map_;
 
-  virtual std::shared_ptr<hippy::napi::CtxValue> InvokeJavaMethod(
-      hippy::napi::TurboEnv &turbo_env,
-      const std::shared_ptr<hippy::napi::CtxValue> &prop_name,
-      const std::shared_ptr<hippy::napi::CtxValue> &this_val,
-      const std::shared_ptr<hippy::napi::CtxValue> *args,
-      size_t count);
+  std::shared_ptr<CtxValue> constructor;
+  std::unique_ptr<FunctionWrapper> constructor_wrapper;
+  std::unordered_map<std::shared_ptr<CtxValue>, std::unique_ptr<TurboWrapper>> turbo_wrapper_map;
+  std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>> func_map;
+  std::shared_ptr<PropertyDescriptor> properties[1];
+
+  std::shared_ptr<CtxValue> InvokeJavaMethod(
+      const std::shared_ptr<CtxValue>& prop_name,
+      hippy::napi::CallbackInfo& info,
+      void* data);
 
   void InitPropertyMap();
-
-  virtual std::shared_ptr<hippy::napi::CtxValue> Get(
-      hippy::napi::TurboEnv &,
-      const std::shared_ptr<hippy::napi::CtxValue> &prop_name) override;
 
   static void Init(JNIEnv* j_env);
 

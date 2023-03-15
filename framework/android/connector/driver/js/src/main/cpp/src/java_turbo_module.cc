@@ -22,111 +22,111 @@
 
 #include "connector/java_turbo_module.h"
 
-#include "driver/napi/v8/js_native_api_v8.h"
+#include "driver/napi/js_ctx.h"
+#include "driver/napi/js_ctx_value.h"
+#include "driver/napi/callback_info.h"
+#include "footstone/logging.h"
+#include "footstone/string_view.h"
 #include "footstone/string_view_utils.h"
 #include "jni/jni_env.h"
 #include "jni/jni_utils.h"
+
+using string_view = footstone::string_view;
+using StringViewUtils = footstone::StringViewUtils;
+using Ctx = hippy::Ctx;
+using CtxValue = hippy::CtxValue;
+using CallbackInfo = hippy::CallbackInfo;
+using JNIEnvironment = hippy::JNIEnvironment;
+using ScopeWrapper = hippy::ScopeWrapper;
+using JavaRef = hippy::JavaRef;
+using JniUtils = hippy::JniUtils;
 
 namespace hippy {
 inline namespace framework {
 inline namespace turbo {
 
-using string_view = footstone::stringview::string_view;
-using StringViewUtils = footstone::stringview::StringViewUtils;
-
 static jclass argument_utils_clazz;
 static jmethodID get_methods_signature;
 
-std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
-    TurboEnv &turbo_env,
-    const std::shared_ptr<CtxValue> &prop_name,
-    const std::shared_ptr<CtxValue> &this_val,
-    const std::shared_ptr<CtxValue> *args,
-    size_t count) {
+std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(const std::shared_ptr<CtxValue>& prop_name,
+                                                            CallbackInfo& info,
+                                                            void* data) {
   FOOTSTONE_DLOG(INFO) << "[turbo-perf] enter invokeJavaMethod";
 
-  std::shared_ptr<Ctx> ctx = turbo_env.context_;
-  std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx);
-  auto isolate = v8_ctx->isolate_;
-  v8::HandleScope handle_scope(isolate);
-  v8::Local<v8::Context> context = v8_ctx->context_persistent_.Get(isolate);
-  v8::Context::Scope context_scope(context);
-
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+  auto scope = scope_wrapper->scope.lock();
+  FOOTSTONE_CHECK(scope);
+  auto context = scope->GetContext();
   // methodName & signature
   string_view str_view;
   std::string method;
-  if (v8_ctx->GetValueString(prop_name, &str_view)) {
-    method = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-        str_view, string_view::Encoding::Utf8).utf8_value());
+  if (context->GetValueString(prop_name, &str_view)) {
+    method = StringViewUtils::ToStdString(
+        StringViewUtils::ConvertEncoding(str_view, string_view::Encoding::Utf8).utf8_value());
   }
 
-  MethodInfo method_info = method_map_[method];
+  auto method_info = method_map_[method];
   if (method_info.signature_.empty()) {
-    std::string exception_info = "MethodUnsupportedException: " + name_ +  "." + method;
-    v8_ctx->ThrowException(string_view((std::move(exception_info))));
-    return v8_ctx->CreateUndefined();
+    std::string exception_info = "MethodUnsupportedException: " + name + "." + method;
+    context->ThrowException(string_view(exception_info));
+    return context->CreateUndefined();
   }
   FOOTSTONE_DLOG(INFO) << "invokeJavaMethod, method = " << method.c_str();
 
   // arguments count
-  std::vector<std::shared_ptr<CtxValue>> arg_values;
-  arg_values.reserve(count);
-  for (size_t i = 0; i < count; i++) {
-    arg_values.push_back(args[i]);
+  std::vector<std::shared_ptr<CtxValue>> argv;
+  for (size_t i = 0; i < info.Length(); ++i) {
+    argv.push_back(info[i]);
   }
-  std::string call_info = std::string(name_).append(".").append(method);
-  std::vector<std::string> method_arg_types =
-      ConvertUtils::GetMethodArgTypesFromSignature(method_info.signature_);
+  std::string call_info = name + "." + method;
+  std::vector<std::string>
+      method_arg_types = ConvertUtils::GetMethodArgTypesFromSignature(method_info.signature_);
   auto expected_count = method_arg_types.size();
-  auto actual_count = arg_values.size();
-  if (expected_count != actual_count) {
-    std::string exception_info = "ArgCountException: " +
-        call_info + ": ExpectedArgCount=" + std::to_string(expected_count) +
-        ", ActualArgCount = " + std::to_string(actual_count);
-    v8_ctx->ThrowException(string_view((std::move(exception_info))));
-    return v8_ctx->CreateUndefined();
+  if (expected_count != info.Length()) {
+    std::string exception =
+        "ArgCountException: " + call_info + ": ExpectedArgCount = " + std::to_string(expected_count)
+            + ", ActualArgCount = " + std::to_string(info.Length());
+    context->ThrowException(string_view(exception));
+    return context->CreateUndefined();
   }
 
   // methodId
-  JNIEnv *env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   if (!method_info.method_id_) {
-    method_info.method_id_ = env->GetMethodID((jclass)(impl_j_clazz_->GetObj()),
+    method_info.method_id_ = env->GetMethodID((jclass) (impl_j_clazz_->GetObj()),
                                               method.c_str(),
                                               method_info.signature_.c_str());
 
     if (!method_info.method_id_) {
       JNIEnvironment::ClearJEnvException(env);
-      std::string exception_info = "NullMethodIdException: " + call_info +
-          ": Signature=" + method_info.signature_;
-      v8_ctx->ThrowException(string_view((std::move(exception_info))));
-      return v8_ctx->CreateUndefined();
+      std::string exception = "NullMethodIdException: " + call_info + ": Signature = " + method_info.signature_;
+      context->ThrowException(string_view(exception));
+      return context->CreateUndefined();
     }
 
     method_map_[method] = method_info;
   }
 
   std::shared_ptr<JNIArgs> jni_args;
-  std::shared_ptr<CtxValue> ret = v8_ctx->CreateUndefined();
-
   // args convert
   FOOTSTONE_DLOG(INFO) << "[turbo-perf] enter convertJSIArgsToJNIArgs";
   auto jni_tuple = ConvertUtils::ConvertJSIArgsToJNIArgs(
-      turbo_env, name_, method, method_arg_types, arg_values);
+      context, name, method, method_arg_types, argv);
   FOOTSTONE_DLOG(INFO) << "[turbo-perf] exit convertJSIArgsToJNIArgs";
   if (!std::get<0>(jni_tuple)) {
-    v8_ctx->ThrowException(string_view(std::get<1>(jni_tuple)));
-    return v8_ctx->CreateUndefined();
+    context->ThrowException(string_view(std::get<1>(jni_tuple)));
+    return context->CreateUndefined();
   }
   jni_args = std::get<2>(jni_tuple);
   FOOTSTONE_DLOG(INFO) << "[turbo-perf] enter convertMethodResultToJSValue";
 
   // call method
   auto js_tuple = ConvertUtils::ConvertMethodResultToJSValue(
-      turbo_env, impl_->GetObj(), method_info, jni_args->args_.data());
+      context, impl_, method_info, jni_args->args_.data(), scope);
   FOOTSTONE_DLOG(INFO) << "[turbo-perf] exit convertMethodResultToJSValue";
   if (!std::get<0>(js_tuple)) {
-    v8_ctx->ThrowException(string_view(std::get<1>(js_tuple)));
-    return v8_ctx->CreateUndefined();
+    context->ThrowException(string_view(std::get<1>(js_tuple)));
+    return context->CreateUndefined();
   }
 
   FOOTSTONE_DLOG(INFO) << "[turbo-perf] exit invokeJavaMethod";
@@ -134,22 +134,22 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
   if (JNIEnvironment::ClearJEnvException(
       JNIEnvironment::GetInstance()->AttachCurrentThread())) {
     FOOTSTONE_LOG(ERROR) << "ClearJEnvException when %s", call_info.c_str();
-    return v8_ctx->CreateUndefined();
+    return context->CreateUndefined();
   }
 
   return std::get<2>(js_tuple);
 }
 
 void JavaTurboModule::InitPropertyMap() {
-  JNIEnv *j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jclass obj_clazz = j_env->GetObjectClass(impl_->GetObj());
   impl_j_clazz_ = std::make_shared<JavaRef>(j_env, j_env->NewGlobalRef(obj_clazz));
   auto methods_sig = (jstring) j_env->CallStaticObjectMethod(
       argument_utils_clazz, get_methods_signature, impl_->GetObj());
   if (methods_sig) {
     string_view str_view = JniUtils::ToStrView(j_env, methods_sig);
-    std::string method_map_str = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-        str_view, string_view::Encoding::Utf8).utf8_value());
+    auto method_map_str = StringViewUtils::ToStdString(
+        StringViewUtils::ConvertEncoding(str_view, string_view::Encoding::Utf8).utf8_value());
     method_map_ = ConvertUtils::GetMethodMap(method_map_str);
     j_env->DeleteLocalRef(methods_sig);
   }
@@ -157,34 +157,55 @@ void JavaTurboModule::InitPropertyMap() {
   j_env->DeleteLocalRef(obj_clazz);
 }
 
-JavaTurboModule::JavaTurboModule(const std::string &name,
-                                 std::shared_ptr<JavaRef> &impl)
-    : HippyTurboModule(name), impl_(impl), impl_j_clazz_(nullptr) {
+JavaTurboModule::JavaTurboModule(const std::string& name,
+                                 std::shared_ptr<JavaRef>& impl,
+                                 const std::shared_ptr<Ctx>& ctx)
+    : impl_(impl), impl_j_clazz_(nullptr), name(name) {
   InitPropertyMap();
-}
-
-JavaTurboModule::~JavaTurboModule() {
-  FOOTSTONE_DLOG(INFO) << "~JavaTurboModule " << name_.c_str();
-}
-
-std::shared_ptr<CtxValue> JavaTurboModule::Get(
-    TurboEnv &turbo_env,
-    const std::shared_ptr<CtxValue> &prop_name) {
-  return turbo_env.CreateFunction(
-      prop_name, 0,
-      [=](TurboEnv &env, const std::shared_ptr<CtxValue> &thisVal,
-          const std::shared_ptr<CtxValue> *args, size_t count) {
-        return InvokeJavaMethod(env, prop_name, thisVal, args, count);
-      });
+  auto getter = std::make_unique<FunctionWrapper>([](CallbackInfo& info, void* data) {
+    auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+    auto scope = scope_wrapper->scope.lock();
+    FOOTSTONE_CHECK(scope);
+    auto ctx = scope->GetContext();
+    auto module = reinterpret_cast<JavaTurboModule*>(data);
+    auto name = info[0];
+    if (!name) {
+      return;
+    }
+    auto func_object = module->func_map[name];
+    if (func_object) {
+      info.GetReturnValue()->Set(func_object);
+      return;
+    }
+    auto turbo_wrapper = std::make_unique<TurboWrapper>(module, name);
+    auto func_wrapper = std::make_unique<FunctionWrapper>([](CallbackInfo& info, void* data) {
+      auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+      auto scope = scope_wrapper->scope.lock();
+      FOOTSTONE_CHECK(scope);
+      auto ctx = scope->GetContext();
+      auto wrapper = reinterpret_cast<TurboWrapper*>(data);
+      FOOTSTONE_CHECK(wrapper && wrapper->module && wrapper->name);
+      auto result = wrapper->module->InvokeJavaMethod(wrapper->name, info, data);
+      info.GetReturnValue()->Set(result);
+    }, turbo_wrapper.get());
+    func_object = ctx->CreateFunction(func_wrapper);
+    turbo_wrapper->SetFunctionWrapper(std::move(func_wrapper));
+    module->turbo_wrapper_map[name] = std::move(turbo_wrapper);
+    module->func_map[name] = func_object;
+    info.GetReturnValue()->Set(func_object);
+  }, this);
+  constructor = ctx->DefineProxy(getter);
+  constructor_wrapper = std::move(getter);
 }
 
 void JavaTurboModule::Init(JNIEnv* j_env) {
-  jclass argument_utils_clazz_local = j_env->FindClass("com/tencent/mtt/hippy/utils/ArgumentUtils");
+  jclass argument_utils_clazz_local =
+      j_env->FindClass("com/tencent/mtt/hippy/utils/ArgumentUtils");
   argument_utils_clazz =
       (jclass) (j_env->NewGlobalRef(argument_utils_clazz_local));
   get_methods_signature =
       j_env->GetStaticMethodID(argument_utils_clazz, "getMethodsSignature",
-                               "(Ljava/lang/Object;)Ljava/lang/String;");
+                             "(Ljava/lang/Object;)Ljava/lang/String;");
   j_env->DeleteLocalRef(argument_utils_clazz_local);
 }
 

@@ -17,7 +17,6 @@
 		F44E1B5029248B7F0091BCA4 /* HippyJSExecutor.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1ADF29248B7F0091BCA4 /* HippyJSExecutor.mm */; };
 		F44E1B5129248B7F0091BCA4 /* HippyJSEnginesMapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AE029248B7F0091BCA4 /* HippyJSEnginesMapper.mm */; };
 		F44E1B5229248B7F0091BCA4 /* HippyKeyCommands.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AE129248B7F0091BCA4 /* HippyKeyCommands.m */; };
-		F44E1B5329248B7F0091BCA4 /* native_source_code_ios.cc in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AE229248B7F0091BCA4 /* native_source_code_ios.cc */; };
 		F44E1B5529248B7F0091BCA4 /* HippyJSCContextWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AE929248B7F0091BCA4 /* HippyJSCContextWrapper.mm */; };
 		F44E1B5629248B7F0091BCA4 /* HippyEventDispatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AEC29248B7F0091BCA4 /* HippyEventDispatcher.mm */; };
 		F44E1B5729248B7F0091BCA4 /* HippyModuleMethod.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AED29248B7F0091BCA4 /* HippyModuleMethod.mm */; };
@@ -64,7 +63,6 @@
 		F4827F532970206800085A05 /* HippyExceptionModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B3929248B7F0091BCA4 /* HippyExceptionModule.mm */; };
 		F4827F542970206800085A05 /* HippyModulesSetup.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AF029248B7F0091BCA4 /* HippyModulesSetup.mm */; };
 		F4827F552970206800085A05 /* HippyJSExecutor.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1ADF29248B7F0091BCA4 /* HippyJSExecutor.mm */; };
-		F4827F562970206800085A05 /* native_source_code_ios.cc in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AE229248B7F0091BCA4 /* native_source_code_ios.cc */; };
 		F4827F572970206800085A05 /* HippyInstanceLoadBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B0729248B7F0091BCA4 /* HippyInstanceLoadBlock.m */; };
 		F4827F582970206800085A05 /* HippyEventObserverModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B2E29248B7F0091BCA4 /* HippyEventObserverModule.mm */; };
 		F4827F592970206800085A05 /* HippyTiming.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B2529248B7F0091BCA4 /* HippyTiming.mm */; };
@@ -161,7 +159,6 @@
 		F44E1ADF29248B7F0091BCA4 /* HippyJSExecutor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyJSExecutor.mm; sourceTree = "<group>"; };
 		F44E1AE029248B7F0091BCA4 /* HippyJSEnginesMapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyJSEnginesMapper.mm; sourceTree = "<group>"; };
 		F44E1AE129248B7F0091BCA4 /* HippyKeyCommands.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyKeyCommands.m; sourceTree = "<group>"; };
-		F44E1AE229248B7F0091BCA4 /* native_source_code_ios.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = native_source_code_ios.cc; sourceTree = "<group>"; };
 		F44E1AE729248B7F0091BCA4 /* HippyContextWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyContextWrapper.h; sourceTree = "<group>"; };
 		F44E1AE929248B7F0091BCA4 /* HippyJSCContextWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyJSCContextWrapper.mm; sourceTree = "<group>"; };
 		F44E1AEA29248B7F0091BCA4 /* HippyJSCContextWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyJSCContextWrapper.h; sourceTree = "<group>"; };
@@ -309,7 +306,6 @@
 				F44E1ADB29248B7F0091BCA4 /* HippyPerformanceLogger.h */,
 				F44E1ADC29248B7F0091BCA4 /* executors */,
 				F44E1AE129248B7F0091BCA4 /* HippyKeyCommands.m */,
-				F44E1AE229248B7F0091BCA4 /* native_source_code_ios.cc */,
 				F44E1AE329248B7F0091BCA4 /* enginewrapper */,
 				F44E1AEB29248B7F0091BCA4 /* modules */,
 				F44E1AF429248B7F0091BCA4 /* HippyFrameUpdate.m */,
@@ -691,7 +687,6 @@
 				F44E1B7329248B7F0091BCA4 /* HippyExceptionModule.mm in Sources */,
 				F44E1B5829248B7F0091BCA4 /* HippyModulesSetup.mm in Sources */,
 				F44E1B5029248B7F0091BCA4 /* HippyJSExecutor.mm in Sources */,
-				F44E1B5329248B7F0091BCA4 /* native_source_code_ios.cc in Sources */,
 				F44E1B6229248B7F0091BCA4 /* HippyInstanceLoadBlock.m in Sources */,
 				F44E1B6F29248B7F0091BCA4 /* HippyEventObserverModule.mm in Sources */,
 				F44E1B6C29248B7F0091BCA4 /* HippyTiming.mm in Sources */,
@@ -742,7 +737,6 @@
 				F4827F532970206800085A05 /* HippyExceptionModule.mm in Sources */,
 				F4827F542970206800085A05 /* HippyModulesSetup.mm in Sources */,
 				F4827F552970206800085A05 /* HippyJSExecutor.mm in Sources */,
-				F4827F562970206800085A05 /* native_source_code_ios.cc in Sources */,
 				F4827F572970206800085A05 /* HippyInstanceLoadBlock.m in Sources */,
 				F4827F582970206800085A05 /* HippyEventObserverModule.mm in Sources */,
 				F4827F592970206800085A05 /* HippyTiming.mm in Sources */,

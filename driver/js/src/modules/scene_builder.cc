@@ -23,18 +23,18 @@
 #include "driver/modules/scene_builder.h"
 
 #include "dom/node_props.h"
+#include "driver/base/js_convert_utils.h"
 #include "driver/modules/scene_builder.h"
 #include "driver/modules/ui_manager_module.h"
-#include "driver/napi/js_native_api_types.h"
 #include "driver/scope.h"
 #include "footstone/string_view.h"
 #include "footstone/string_view_utils.h"
 
 template <typename T>
-using InstanceDefine = hippy::napi::InstanceDefine<T>;
+using ClassTemplate = hippy::ClassTemplate<T>;
 
 template <typename T>
-using FunctionDefine = hippy::napi::FunctionDefine<T>;
+using FunctionDefine = hippy::FunctionDefine<T>;
 
 using HippyValue = footstone::value::HippyValue;
 using DomArgument = hippy::dom::DomArgument;
@@ -189,7 +189,7 @@ GetNodeProps(const std::shared_ptr<Ctx> &context, const std::shared_ptr<CtxValue
                            std::move(style_map),
                            std::move(dom_ext_map));
   }
-  std::shared_ptr<HippyValue> props_obj = context->ToDomValue(props);
+  std::shared_ptr<HippyValue> props_obj = hippy::ToDomValue(context, props);
   if (!props_obj) {
     return std::make_tuple(false, "to dom value failed",
                            std::move(style_map),
@@ -399,12 +399,12 @@ void HandleEventListenerInfo(const std::shared_ptr<hippy::napi::Ctx> &context,
   listener_info.use_capture = use_capture;
 }
 
-std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::weak_ptr<Scope>& weak_scope) {
+std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::weak_ptr<Scope>& weak_scope) {
   using SceneBuilder = hippy::dom::SceneBuilder;
-  InstanceDefine<SceneBuilder> def;
-  def.name = "SceneBuilder";
-  def.constructor = [](size_t argument_count,
-                       const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<SceneBuilder> {
+  ClassTemplate<SceneBuilder> class_template;
+  class_template.name = "SceneBuilder";
+  class_template.constructor = [](size_t argument_count,
+                                  const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<SceneBuilder> {
     return std::make_shared<SceneBuilder>();
   };
 
@@ -421,7 +421,7 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
     }
     return nullptr;
   };
-  def.functions.emplace_back(std::move(create_func_def));
+  class_template.functions.emplace_back(std::move(create_func_def));
 
   FunctionDefine<SceneBuilder> update_func_def;
   update_func_def.name = "update";
@@ -436,7 +436,7 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
     }
     return nullptr;
   };
-  def.functions.emplace_back(std::move(update_func_def));
+  class_template.functions.emplace_back(std::move(update_func_def));
 
   FunctionDefine<SceneBuilder> move_func_def;
   move_func_def.name = "move";
@@ -481,7 +481,7 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
     }
     return nullptr;
   };
-  def.functions.emplace_back(std::move(move_func_def));
+  class_template.functions.emplace_back(std::move(move_func_def));
 
   FunctionDefine<SceneBuilder> delete_func_def;
   delete_func_def.name = "delete";
@@ -522,7 +522,7 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
     }
     return nullptr;
   };
-  def.functions.emplace_back(std::move(delete_func_def));
+  class_template.functions.emplace_back(std::move(delete_func_def));
 
   FunctionDefine<SceneBuilder> add_event_listener_def;
   add_event_listener_def.name = "addEventListener";
@@ -539,7 +539,7 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
     }
     return nullptr;
   };
-  def.functions.emplace_back(std::move(add_event_listener_def));
+  class_template.functions.emplace_back(std::move(add_event_listener_def));
 
   FunctionDefine<SceneBuilder> remove_event_listener_def;
   remove_event_listener_def.name = "removeEventListener";
@@ -556,7 +556,7 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
     }
     return nullptr;
   };
-  def.functions.emplace_back(std::move(remove_event_listener_def));
+  class_template.functions.emplace_back(std::move(remove_event_listener_def));
 
 
   FunctionDefine<SceneBuilder> build_func_def;
@@ -571,16 +571,9 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
     }
     return nullptr;
   };
-  def.functions.emplace_back(std::move(build_func_def));
+  class_template.functions.emplace_back(std::move(build_func_def));
 
-  std::shared_ptr<InstanceDefine<SceneBuilder>> instance_define = std::make_shared<
-      InstanceDefine<SceneBuilder>>(def);
-  auto scope = weak_scope.lock();
-  if (scope) {
-    scope->SaveSceneBuildClassInstance(instance_define);
-  }
-
-  return instance_define;
+  return std::make_shared<ClassTemplate<SceneBuilder>>(std::move(class_template));
 }
 
 }

@@ -34,7 +34,9 @@ inline namespace module {
 class ConsoleModule : public ModuleBase {
  public:
   ConsoleModule() {}
-  void Log(const hippy::napi::CallbackInfo& info);
+  void Log(hippy::napi::CallbackInfo& info, void* data);
+
+  virtual std::shared_ptr<CtxValue> BindFunction(std::shared_ptr<Scope> scope, std::shared_ptr<CtxValue> rest_args[]) override;
 };
 
 }

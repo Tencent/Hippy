@@ -145,23 +145,26 @@ endif ()
 
 # region source set
 set(SOURCE_SET
+    src/base/js_convert_utils.cc
     src/base/js_value_wrapper.cc
     src/engine.cc
     src/modules/animation_module.cc
     src/modules/event_module.cc
     src/modules/scene_builder.cc
-    src/modules/module_register.cc
     src/napi/callback_info.cc
-    src/napi/js_native_turbo.cc
-    src/scope.cc)
+    src/scope.cc
+    src/vm/js_vm.cc)
 if ("${JS_ENGINE}" STREQUAL "V8")
   list(APPEND SOURCE_SET
-          src/napi/v8/js_native_api_v8.cc
-          src/napi/v8/js_native_turbo_v8.cc
-          src/napi/v8/serializer.cc
+          src/napi/v8/v8_ctx.cc
+          src/napi/v8/v8_try_catch.cc
           src/runtime/v8/interrupt_queue.cc
           src/runtime/v8/runtime.cc
-          src/runtime/v8/v8_bridge_utils.cc)
+          src/runtime/v8/v8_bridge_utils.cc
+          src/vm/v8/memory_module.cc
+          src/vm/v8/native_source_code_android.cc
+          src/vm/v8/serializer.cc
+          src/vm/v8/v8_vm.cc)
   if (NOT V8_WITHOUT_INSPECTOR)
     list(APPEND SOURCE_SET
         src/runtime/v8/inspector/v8_channel_impl.cc
@@ -169,10 +172,10 @@ if ("${JS_ENGINE}" STREQUAL "V8")
   endif ()
 elseif ("${JS_ENGINE}" STREQUAL "JSC")
   list(APPEND SOURCE_SET
-          src/napi/jsc/js_native_api_jsc.cc
-          src/napi/jsc/js_native_api_value_jsc.cc
-          src/napi/jsc/js_native_jsc_helper.cc
-          src/napi/jsc/js_native_turbo_jsc.cc)
+          src/napi/jsc/jsc_ctx.cc
+          src/napi/jsc/jsc_try_catch.cc
+          src/vm/jsc/jsc_vm.cc
+          src/vm/jsc/native_source_code_ios.cc)
 endif ()
 set(SOURCE_SET_STANDALONE
         src/modules/console_module.cc

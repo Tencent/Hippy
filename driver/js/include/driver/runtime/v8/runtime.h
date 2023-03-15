@@ -28,9 +28,8 @@
 #include <memory>
 
 #include "driver/engine.h"
-#include "driver/napi/js_native_api.h"
-#include "driver/napi/v8/js_native_api_v8.h"
-#include "driver/napi/js_native_api_types.h"
+#include "driver/napi/js_ctx.h"
+#include "driver/napi/js_ctx_value.h"
 #include "v8/v8.h"
 
 namespace hippy {

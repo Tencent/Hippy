@@ -24,17 +24,16 @@
 
 #include "dom/animation/cubic_bezier_animation.h"
 #include "dom/animation/animation_set.h"
-#include "driver/napi/js_native_api_types.h"
+#include "driver/napi/js_ctx.h"
+#include "driver/scope.h"
 
 namespace hippy {
 inline namespace driver {
 inline namespace module {
 
-std::shared_ptr<hippy::napi::InstanceDefine<CubicBezierAnimation>>
-RegisterAnimation(const std::weak_ptr<Scope>& weak_scope);
+std::shared_ptr<hippy::ClassTemplate<CubicBezierAnimation>> RegisterAnimation(const std::weak_ptr<Scope>& weak_scope);
 
-std::shared_ptr<hippy::napi::InstanceDefine<AnimationSet>>
-RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope);
+std::shared_ptr<hippy::ClassTemplate<AnimationSet>>RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope);
 
 }
 }

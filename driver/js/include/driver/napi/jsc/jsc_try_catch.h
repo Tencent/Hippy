@@ -3,7 +3,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,24 +22,35 @@
 
 #pragma once
 
-#include <stdbool.h>
-#include <stddef.h>
+#include "driver/napi/js_try_catch.h"
 
-#include <string>
+#include "footstone/string_view.h"
 
-#include "driver/napi/js_native_api_types.h"
+#include "driver/napi/jsc/jsc_ctx_value.h"
 
 namespace hippy {
 inline namespace driver {
 inline namespace napi {
 
-std::shared_ptr<CtxValue> GetInternalBindingFn(const std::shared_ptr<Scope>& scope);
+class JSCTryCatch : public TryCatch {
+public:
+  JSCTryCatch(bool enable, std::shared_ptr<Ctx> ctx);
+  virtual ~JSCTryCatch();
+  virtual void ReThrow();
+  virtual bool HasCaught();
+  virtual bool CanContinue();
+  virtual bool HasTerminated();
+  virtual bool IsVerbose();
+  virtual void SetVerbose(bool verbose);
+  virtual std::shared_ptr<CtxValue> Exception();
+  virtual footstone::string_view GetExceptionMsg();
+  
+private:
+  std::shared_ptr<JSCCtxValue> exception_;
+  bool is_verbose_;
+  bool is_rethrow_;
+};
 
-std::shared_ptr<VM> CreateVM(const std::shared_ptr<VMInitParam>& param);
-
-std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable,
-                                              std::shared_ptr<Ctx> ctx);
-
-} // namespace napi
-} // namespace driver
-} // namespace hippy
+}
+}
+}
