@@ -50,6 +50,8 @@ class TimerModule : public ModuleBase {
   void ClearTimeout(CallbackInfo& info, void* data);
   void SetInterval(CallbackInfo& info, void* data);
   void ClearInterval(CallbackInfo& info, void* data);
+  void RequestIdleCallback(CallbackInfo&info ,void* data);
+  void CancelIdleCallback(CallbackInfo&info ,void* data);
 
   virtual std::shared_ptr<CtxValue> BindFunction(std::shared_ptr<Scope> scope, std::shared_ptr<CtxValue> rest_args[]) override;
 

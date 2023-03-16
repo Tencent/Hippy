@@ -46,3 +46,24 @@ global.clearInterval = (timerId) => {
     timer.ClearInterval(timerId);
   }
 };
+
+global.requestIdleCallback = (cb, opt) => {
+  return timer.RequestIdleCallback((param) => {
+    const now = Date.now();
+    const timeRemaining = param.timeRemaining;
+    cb({
+      didTimeout: param.didTimeout,
+      timeRemaining: () => {
+        let time = timeRemaining - (Date.now() - now);
+        time = time < 0 ? 0 : time;
+        return time;
+      }
+    });
+  }, opt);
+};
+
+global.cancelIdleCallback = (timerId) => {
+  if (Number.isInteger(timerId) && timerId > 0) {
+    timer.CancelIdleCallback(timerId);
+  }
+};

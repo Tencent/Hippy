@@ -363,6 +363,7 @@ std::unique_ptr<Task> Worker::GetNextTask() {
   }
 
   TimeDelta last_wait_time;
+  min_wait_time_ = TimeDelta::Max();
   TimePoint now = TimePoint::Now();
   std::unique_ptr<IdleTask> idle_task;
   for (auto &running_group : running_group_list_) {
@@ -385,10 +386,15 @@ std::unique_ptr<Task> Worker::GetNextTask() {
   }
   if (idle_task) {
     auto wrapper_idle_task = std::make_unique<Task>(
-        MakeCopyable([task = std::move(idle_task), time = min_wait_time_]() {
+        MakeCopyable([begin_time = idle_task->GetBeginTime(),
+                      timeout = idle_task->GetTimeout(),
+                      task = std::move(idle_task),
+                      time = min_wait_time_]() {
+          auto now = TimePoint::Now();
+          bool did_time_out = now - begin_time > timeout;
           IdleTask::IdleCbParam param = {
-              .did_time_out =  false,
-              .res_time =  time
+              .did_time_out = did_time_out,
+              .res_time = time
           };
           task->Run(param);
         }));

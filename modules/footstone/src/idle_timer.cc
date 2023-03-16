@@ -37,7 +37,7 @@ void IdleTimer::Start(std::unique_ptr<IdleTask> idle_task, TimeDelta timeout) {
   FOOTSTONE_DCHECK(timeout > TimeDelta::Zero());
   auto task_runner = task_runner_.lock();
   FOOTSTONE_DCHECK(task_runner);
-  idle_task_ = std::make_shared<IdleTask>(idle_task->GetUnit());
+  idle_task_ = std::make_shared<IdleTask>(idle_task->GetUnit(), TimeDelta::Max());
   std::weak_ptr<IdleTask> weak_task = idle_task_;
   task_runner->PostIdleTask(std::make_unique<IdleTask>([weak_task](const IdleCbParam& param) {
     auto shared_task = weak_task.lock();
@@ -46,14 +46,14 @@ void IdleTimer::Start(std::unique_ptr<IdleTask> idle_task, TimeDelta timeout) {
     }
     shared_task->Run(param);
     shared_task.reset();
-  }));
+  }, TimeDelta::Max()));
   StartInternal(timeout);
 }
 
 void IdleTimer::Start(std::unique_ptr<IdleTask> idle_task) {
   auto task_runner = task_runner_.lock();
   FOOTSTONE_DCHECK(task_runner);
-  idle_task_ = std::make_shared<IdleTask>(idle_task->GetUnit());
+  idle_task_ = std::make_shared<IdleTask>(idle_task->GetUnit(), TimeDelta::Max());
   std::weak_ptr<IdleTask> weak_task = idle_task_;
   task_runner->PostIdleTask(std::move(idle_task));
 }
