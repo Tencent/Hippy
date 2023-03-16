@@ -240,79 +240,139 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<f
     if (style_map.find(kFlex)->second == nullptr) {
       SetFlex(0);
     } else {
-      SetFlex(static_cast<float>(style_map.find(kFlex)->second->ToDoubleChecked()));
+      double value;
+      if (style_map.find(kFlex)->second->ToDouble(value)) {
+        SetFlex(static_cast<float>(value));
+      } else {
+        FOOTSTONE_LOG(WARNING) << "layout flex value is not correct";
+      }
     }
   }
   if (style_map.find(kFlexGrow) != style_map.end()) {
     if (style_map.find(kFlexGrow)->second == nullptr) {
       SetFlexGrow(0);
     } else {
-      SetFlexGrow(static_cast<float>(style_map.find(kFlexGrow)->second->ToDoubleChecked()));
+      double value;
+      if (style_map.find(kFlexGrow)->second->ToDouble(value)) {
+        SetFlexGrow(static_cast<float>(value));
+      } else {
+        FOOTSTONE_LOG(WARNING) << "layout flex grow value is not correct";
+      }
     }
   }
   if (style_map.find(kFlexShrink) != style_map.end()) {
     if (style_map.find(kFlexShrink)->second == nullptr) {
       SetFlexShrink(0);
     } else {
-      SetFlexShrink(static_cast<float>(style_map.find(kFlexShrink)->second->ToDoubleChecked()));
+      double value;
+      if (style_map.find(kFlexShrink)->second->ToDouble(value)) {
+        SetFlexShrink(static_cast<float>(value));
+      } else {
+        FOOTSTONE_LOG(WARNING) << "layout flex shrink value is not correct";
+      }
     }
   }
   if (style_map.find(kFlexBasis) != style_map.end()) {
     if (style_map.find(kFlexBasis)->second == nullptr) {
       SetFlexBasis(NAN);
     } else {
-      SetFlexBasis(static_cast<float>(style_map.find(kFlexBasis)->second->ToDoubleChecked()));
+      double value;
+      if (style_map.find(kFlexBasis)->second->ToDouble(value)) {
+        SetFlexBasis(static_cast<float>(value));
+      } else {
+        FOOTSTONE_LOG(WARNING) << "layout flex basis value is not correct";
+      }
     }
   }
   if (style_map.find(kDirection) != style_map.end()) {
     if (style_map.find(kDirection)->second != nullptr) {
-      SetDirection(GetStyleDirection(style_map.find(kDirection)->second->ToStringChecked()));
+      std::string value;
+      if (style_map.find(kDirection)->second->ToString(value)) {
+        SetDirection(GetStyleDirection(value));
+      } else {
+        FOOTSTONE_LOG(WARNING) << "layout direction value is not correct";
+      }
     }
   }
   if (style_map.find(kFlexDirection) != style_map.end()) {
     if (style_map.find(kFlexDirection)->second == nullptr) {
       SetFlexDirection(FlexDirection::FLEX_DIRECTION_COLUMN);
     } else {
-      SetFlexDirection(GetStyleFlexDirection(style_map.find(kFlexDirection)->second->ToStringChecked()));
+      std::string value;
+      if (style_map.find(kFlexDirection)->second->ToString(value)) {
+        SetFlexDirection(GetStyleFlexDirection(value));
+      } else {
+        FOOTSTONE_LOG(WARNING) << "layout style flex direction value is not correct";
+      }
     }
   }
   if (style_map.find(kFlexWrap) != style_map.end()) {
     if (style_map.find(kFlexWrap)->second == nullptr) {
       SetFlexWrap(FlexWrapMode::FLEX_NO_WRAP);
     } else {
-      SetFlexWrap(GetStyleWrapMode(style_map.find(kFlexWrap)->second->ToStringChecked()));
+      std::string value;
+      if (style_map.find(kFlexWrap)->second->ToString(value)) {
+        SetFlexWrap(GetStyleWrapMode(value));
+      } else {
+        FOOTSTONE_LOG(WARNING) << "layout style flex wrap value is not correct";
+      }
     }
   }
   if (style_map.find(kAilgnSelf) != style_map.end()) {
     if (style_map.find(kAilgnSelf)->second == nullptr) {
       SetAlignSelf(FlexAlign::FLEX_ALIGN_AUTO);
     } else {
-      SetAlignSelf(GetStyleAlign(style_map.find(kAilgnSelf)->second->ToStringChecked()));
+      std::string value;
+      if (style_map.find(kAilgnSelf)->second->ToString(value)) {
+        SetAlignSelf(GetStyleAlign(value));
+      } else {
+        FOOTSTONE_LOG(WARNING) << "layout style flex align self value is not correct";
+      }
     }
   }
   if (style_map.find(kAlignItems) != style_map.end()) {
     if (style_map.find(kAlignItems)->second == nullptr) {
       SetAlignItems(FlexAlign::FLEX_ALIGN_STRETCH);
     } else {
-      SetAlignItems(GetStyleAlign(style_map.find(kAlignItems)->second->ToStringChecked()));
+      std::string value;
+      if (style_map.find(kAlignItems)->second->ToString(value)) {
+        SetAlignItems(GetStyleAlign(value));
+      } else {
+        FOOTSTONE_LOG(WARNING) << "layout style flex align items value is not correct";
+      }
     }
   }
   if (style_map.find(kJustifyContent) != style_map.end()) {
     if (style_map.find(kJustifyContent)->second == nullptr) {
       SetJustifyContent(FlexAlign::FLEX_ALIGN_START);
     } else {
-      SetJustifyContent(GetStyleJustify(style_map.find(kJustifyContent)->second->ToStringChecked()));
+      std::string value;
+      if (style_map.find(kJustifyContent)->second->ToString(value)) {
+        SetJustifyContent(GetStyleJustify(value));
+      } else {
+        FOOTSTONE_LOG(WARNING) << "layout style flex justify content value is not correct";
+      }
     }
   }
   if (style_map.find(kOverflow) != style_map.end()) {
     if (style_map.find(kOverflow)->second == nullptr) {
       SetOverflow(OverflowType::OVERFLOW_VISIBLE);
     } else {
-      SetOverflow(GetStyleOverflow(style_map.find(kOverflow)->second->ToStringChecked()));
+      std::string value;
+      if (style_map.find(kOverflow)->second->ToString(value)) {
+        SetOverflow(GetStyleOverflow(value));
+      } else {
+        FOOTSTONE_LOG(WARNING) << "layout style over flow value is not correct";
+      }
     }
   }
   if (style_map.find(kDisplay) != style_map.end()) {
-    SetDisplay(GetStyleDisplayType(style_map.find(kDisplay)->second->ToStringChecked()));
+    std::string value;
+    if (style_map.find(kDisplay)->second != nullptr && style_map.find(kDisplay)->second->ToString(value)) {
+      SetDisplay(GetStyleDisplayType(value));
+    } else {
+      FOOTSTONE_LOG(WARNING) << "layout style display value is not correct";
+    }
   }
   if (style_map.find(kMargin) != style_map.end()) {
     SET_STYLE_VALUES(Margin, Margin, 0)
@@ -387,7 +447,12 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<f
     if (style_map.find(kPosition)->second == nullptr) {
       SetPositionType(PositionType::POSITION_TYPE_RELATIVE);
     } else {
-      SetPositionType(GetStylePositionType(style_map.find(kPosition)->second->ToStringChecked()));
+      std::string value;
+      if (style_map.find(kPosition)->second->ToString(value)) {
+        SetPositionType(GetStylePositionType(value));
+      } else {
+        FOOTSTONE_LOG(WARNING) << "layout style position type value is not correct";
+      }
     }
   }
 }
