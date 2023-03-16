@@ -168,7 +168,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                 auto user_global_object_key = context->CreateString(kGlobalKey);
                 context->SetProperty(global_object, user_global_object_key, global_object);
                 auto hippy_key = context->CreateString(kHippyKey);
-                context->SetProperty(global_object, hippy_key, global_object);
+                context->SetProperty(global_object, hippy_key, context->CreateObject());
                 scope->RegisterJsClasses();
                 id<HippyContextWrapper> contextWrapper = CreateContextWrapper(context);
                 contextWrapper.excpetionHandler = ^(id<HippyContextWrapper>  _Nonnull wrapper, NSString * _Nonnull message, NSArray<HPDriverStackFrame *> * _Nonnull stackFrames) {
