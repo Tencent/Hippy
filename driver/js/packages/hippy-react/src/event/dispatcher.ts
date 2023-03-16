@@ -100,7 +100,7 @@ function dispatchGestureEvent(
       }
     }
   } catch (err) {
-    (console as any).reportUncaughtException(err);
+    console.error(err);
   }
 }
 
@@ -143,7 +143,7 @@ function dispatchUIEvent(
       }
     }
   } catch (err) {
-    (console as any).reportUncaughtException(err);
+    console.error(err);
   }
 }
 
