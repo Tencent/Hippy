@@ -31,6 +31,7 @@
 #include "footstone/one_shot_timer.h"
 #include "footstone/repeating_timer.h"
 #include "footstone/string_view_utils.h"
+#include "footstone/idle_task.h"
 
 using string_view = footstone::stringview::string_view;
 using Ctx = hippy::napi::Ctx;
@@ -44,6 +45,12 @@ using TaskRunner = footstone::runner::TaskRunner;
 using RepeatingTimer = footstone::timer::RepeatingTimer;
 using OneShotTimer = footstone::timer::OneShotTimer;
 using TimeDelta = footstone::time::TimeDelta;
+using IdleTask = footstone::IdleTask;
+using IdleCbParam = footstone::IdleTask::IdleCbParam;
+
+constexpr char kTimeoutKey[] = "timeout";
+constexpr char kDidTimeoutKey[] = "didTimeout";
+constexpr char kTimeRemainingKey[] = "timeRemaining";
 
 namespace hippy {
 inline namespace driver {
@@ -53,6 +60,8 @@ GEN_INVOKE_CB(TimerModule, SetTimeout) // NOLINT(cert-err58-cpp)
 GEN_INVOKE_CB(TimerModule, ClearTimeout) // NOLINT(cert-err58-cpp)
 GEN_INVOKE_CB(TimerModule, SetInterval) // NOLINT(cert-err58-cpp)
 GEN_INVOKE_CB(TimerModule, ClearInterval) // NOLINT(cert-err58-cpp)
+GEN_INVOKE_CB(TimerModule, RequestIdleCallback) // NOLINT(cert-err58-cpp)
+GEN_INVOKE_CB(TimerModule, CancelIdleCallback) // NOLINT(cert-err58-cpp)
 
 void TimerModule::SetTimeout(CallbackInfo& info, void* data) {
   info.GetReturnValue()->Set(Start(info, false));
@@ -82,6 +91,77 @@ void TimerModule::ClearInterval(CallbackInfo& info, void* data) {
   uint32_t task_id = footstone::checked_numeric_cast<int32_t, uint32_t>(argument);
   Cancel(task_id);
   info.GetReturnValue()->Set(context->CreateNumber(task_id));
+}
+
+void TimerModule::RequestIdleCallback(CallbackInfo& info, void* data) {
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+  auto scope = scope_wrapper->scope.lock();
+  FOOTSTONE_CHECK(scope);
+  auto context = scope->GetContext();
+  FOOTSTONE_CHECK(context);
+
+  std::shared_ptr<CtxValue> function = info[0];
+  if (!context->IsFunction(function)) {
+    info.GetExceptionValue()->Set(context,"The first argument must be function.");
+    return;
+  }
+
+  auto runner = scope->GetTaskRunner();
+  FOOTSTONE_DCHECK(runner);
+
+  TimeDelta timeout = TimeDelta::Max();
+  if (info[1]) {
+    std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>> option;
+    auto timeout_key = context->CreateString(kTimeoutKey);
+    auto timeout_value = context->GetProperty(info[1], timeout_key);
+    double time;
+    auto flag = context->GetValueNumber(timeout_value, &time);
+    if (flag) {
+      timeout = TimeDelta::FromMilliseconds(static_cast<int64_t>(time));
+    }
+  }
+
+  std::weak_ptr<Scope> weak_scope = scope;
+  auto task = std::make_unique<IdleTask>();
+  task->SetTimeout(timeout);
+  auto task_id = task->GetId();
+  std::weak_ptr<std::unordered_map<uint32_t , std::shared_ptr<BaseTimer>>> weak_timer_map = timer_map_;
+  task->SetUnit([weak_scope, function, task_id](const IdleCbParam& idle_cb_param) {
+    auto scope = weak_scope.lock();
+    if (!scope) {
+      return;
+    }
+
+    if (function) {
+      std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
+      auto param = context->CreateObject();
+      auto did_timeout_key = context->CreateString(kDidTimeoutKey);
+      auto did_timeout_value = context->CreateBoolean(idle_cb_param.did_time_out);
+      context->SetProperty(param, did_timeout_key, did_timeout_value);
+      auto res_time = idle_cb_param.res_time.ToMillisecondsF();
+      auto time_remaining_key = context->CreateString(kTimeRemainingKey);
+      auto time_remaining_value = context->CreateNumber(res_time);
+      context->SetProperty(param, time_remaining_key, time_remaining_value);
+      std::shared_ptr<CtxValue> argv[] = { param };
+      context->CallFunction(function, 1, argv);
+    }
+    std::unique_ptr<RegisterMap>& map = scope->GetRegisterMap();
+    if (map) {
+      auto it = map->find(hippy::base::kAsyncTaskEndKey);
+      if (it != map->end()) {
+        auto f = it->second;
+        if (f) {
+          f(nullptr);
+        }
+      }
+    }
+    FOOTSTONE_USE(task_id);
+  });
+  runner->PostIdleTask(std::move(task));
+}
+
+void TimerModule::CancelIdleCallback(CallbackInfo& info, void* data) {
+
 }
 
 std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
@@ -181,6 +261,18 @@ std::shared_ptr<CtxValue> TimerModule::BindFunction(std::shared_ptr<Scope> scope
 
   key = context->CreateString("ClearInterval");
   wrapper = std::make_unique<hippy::napi::FunctionWrapper>(InvokeTimerModuleClearInterval, nullptr);
+  value = context->CreateFunction(wrapper);
+  scope->SaveFunctionWrapper(std::move(wrapper));
+  context->SetProperty(object, key, value);
+
+  key = context->CreateString("RequestIdleCallback");
+  wrapper = std::make_unique<hippy::napi::FunctionWrapper>(InvokeTimerModuleRequestIdleCallback, nullptr);
+  value = context->CreateFunction(wrapper);
+  scope->SaveFunctionWrapper(std::move(wrapper));
+  context->SetProperty(object, key, value);
+
+  key = context->CreateString("CancelIdleCallback");
+  wrapper = std::make_unique<hippy::napi::FunctionWrapper>(InvokeTimerModuleCancelIdleCallback, nullptr);
   value = context->CreateFunction(wrapper);
   scope->SaveFunctionWrapper(std::move(wrapper));
   context->SetProperty(object, key, value);

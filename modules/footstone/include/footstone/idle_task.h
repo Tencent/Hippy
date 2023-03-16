@@ -25,6 +25,7 @@
 #include <functional>
 
 #include "footstone/time_delta.h"
+#include "footstone/time_point.h"
 
 namespace footstone {
 inline namespace runner {
@@ -35,12 +36,22 @@ class IdleTask {
     bool did_time_out;
     TimeDelta res_time;
   };
+
+  IdleTask(std::function<void(const IdleCbParam &)> unit, TimeDelta timeout);
   IdleTask();
-  IdleTask(std::function<void(const IdleCbParam &)> unit);
   ~IdleTask() = default;
 
   inline uint32_t GetId() { return id_; }
   inline auto GetUnit() { return unit_; }
+  inline void SetTimeout(TimeDelta timeout) {
+    timeout_ = timeout;
+  }
+  inline TimeDelta GetTimeout() {
+    return timeout_;
+  }
+  inline TimePoint GetBeginTime() {
+    return begin_time_;
+  }
   inline void SetUnit(std::function<void(const IdleCbParam &)> unit) { unit_ = unit; }
   inline void Run(const IdleCbParam &param) {
     if (unit_) {
@@ -50,6 +61,8 @@ class IdleTask {
 
  private:
   uint32_t id_;
+  TimeDelta timeout_;
+  TimePoint begin_time_;
   std::function<void(const IdleCbParam &)> unit_;  // A unit of work to be processed
 };
 

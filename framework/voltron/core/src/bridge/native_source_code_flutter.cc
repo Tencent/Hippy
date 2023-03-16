@@ -20,7 +20,7 @@
 
 #include <unordered_map>
 
-#include "driver/napi/native_source_code.h"
+#include "driver/vm/native_source_code.h"
 #include "footstone/macros.h"
 
 // clang-format off

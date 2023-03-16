@@ -64,8 +64,7 @@ set(SOURCE_SET
         src/exception_handler.cc
         src/convert_utils.cc
         src/turbo_module_manager.cc
-        src/java_turbo_module.cc
-        src/native_source_code_android.cc)
+        src/java_turbo_module.cc)
 set(SOURCE_SET_STANDALONE
         src/java2js.cc
         src/js2java.cc

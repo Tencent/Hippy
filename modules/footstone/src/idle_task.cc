@@ -29,12 +29,11 @@ std::atomic<uint32_t> g_next_idle_task_id{0};
 namespace footstone {
 inline namespace runner {
 
-IdleTask::IdleTask() :
-    id_(g_next_idle_task_id.fetch_add(1)), unit_(nullptr) {}
-
-IdleTask::IdleTask(std::function<void(const IdleCbParam &)> unit) :
-    id_(g_next_idle_task_id.fetch_add(1)), unit_(std::move(unit)) {
+IdleTask::IdleTask(std::function<void(const IdleCbParam &)> unit, TimeDelta timeout) :
+    id_(g_next_idle_task_id.fetch_add(1)), timeout_(timeout), begin_time_(TimePoint::Now()), unit_(std::move(unit)) {
 }
+
+IdleTask::IdleTask() : IdleTask(nullptr, TimeDelta()) {}
 
 } // namespace runner
 } // namespace footstone
