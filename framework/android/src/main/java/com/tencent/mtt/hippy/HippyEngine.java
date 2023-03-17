@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import com.openhippy.connector.JsDriver.V8InitParams;
+import com.openhippy.framework.BuildConfig;
 import com.tencent.mtt.hippy.adapter.DefaultLogAdapter;
 import com.tencent.mtt.hippy.adapter.HippyLogAdapter;
 import com.tencent.mtt.hippy.adapter.device.DefaultDeviceAdapter;
@@ -86,13 +87,13 @@ public abstract class HippyEngine {
     if (params == null) {
       throw new RuntimeException("Hippy: initParams must no be null");
     }
+    LogUtils.enableDebugLog(BuildConfig.DEBUG);
     LibraryLoader.loadLibraryIfNeed(params.soLoader);
     if (sLogAdapter == null && params.logAdapter != null) {
       setNativeLogHandler(params.logAdapter);
     }
     ContextHolder.initAppContext(params.context);
     params.check();
-    LogUtils.enableDebugLog(params.enableLog);
     HippyEngine hippyEngine;
     if (params.groupId == -1) {
       hippyEngine = new HippyNormalEngineManager(params, null);

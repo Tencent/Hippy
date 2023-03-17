@@ -127,8 +127,6 @@ void NativeRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
         LayoutSize layout_result;
         layout_result.width = self->PxToDp(static_cast<float>((int32_t)(0xFFFFFFFF & (result >> 32))));
         layout_result.height = self->PxToDp(static_cast<float>((int32_t)(0xFFFFFFFF & result)));
-        FOOTSTONE_DLOG(INFO) << "measure width: " << (int32_t)(0xFFFFFFFF & (result >> 32))
-                             << ", height: " << (int32_t)(0xFFFFFFFF & result) << ", result: " << result;
         return layout_result;
       };
       nodes[i]->GetLayoutNode()->SetMeasureFunction(measure_function);
