@@ -108,11 +108,11 @@ This component is mapped to the View component, and the container can be used to
 
 > This parameter is applicable only to overflow-y/x: scroll
 
-`(x: number, y: number, duration: boolean) => void` Scroll to the specified X, Y offset, and the third parameter is whether to enable smooth scrolling animation.
+`(x: number, y: number, duration: number) => void` Scroll to the specified X, Y offset, and the third parameter is the duration of scrolling animation.
 
 > * x: number - X offset
 > * y: number - Y offset
-> * duration: number | boolean - The scroll time is in milliseconds. Default: 1000ms. False: 0ms
+> * duration: number - The scroll time is in milliseconds. Default: 1000ms.
 
 
 ### setPressed

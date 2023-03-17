@@ -82,10 +82,14 @@ const getHippyReactWebModules = () => {
 const hippyReactWebComponents = fs.readdirSync(hippyReactWebComponentsPath).map(filename => `${hippyReactWebComponentsPath}/${filename}`);
 const hippyReactWebModules = getHippyReactWebModules();
 
+function resolvePackage(src, extra = 'src') {
+  return path.resolve(__dirname, '../packages/', src, extra);
+}
+
 const builds = {
   '@hippy/react': {
-    entry: './packages/hippy-react/src/index.ts',
-    dest: './packages/hippy-react/dist/index.js',
+    entry: resolvePackage('hippy-react', 'src/index.ts'),
+    dest: resolvePackage('hippy-react', 'dist/index.js'),
     format: 'es',
     banner: banner('@hippy/react', hippyReactPackage.version),
     external(id) {
@@ -98,11 +102,11 @@ const builds = {
   },
   '@hippy/react-web': {
     entry: [
-      './packages/hippy-react-web/src/index.ts',
+      resolvePackage('hippy-react-web', 'src/index.ts'),
       ...hippyReactWebComponents,
       ...hippyReactWebModules,
     ],
-    dest: './packages/hippy-react-web/dist/index.js',
+    dest: resolvePackage('hippy-react-web', 'dist/index.js'),
     format: 'es',
     banner: banner('@hippy/react-web', hippyReactWebPackage.version),
     plugins: [
@@ -138,14 +142,14 @@ const builds = {
     },
   },
   '@hippy/react-web-cjs': {
-    entry: './packages/hippy-react-web/src/index.ts',
+    entry: resolvePackage('hippy-react-web', 'src/index.ts'),
     format: 'es',
     banner: banner('@hippy/react-web', hippyReactWebPackage.version),
     plugins: [
       babel({ babelHelpers: 'bundled' }),
     ],
     output: {
-      dir: './packages/hippy-react-web/dist/cjs',
+      dir: resolvePackage('hippy-react-web', 'dist/cjs'),
       filename: 'index.js',
       format: 'cjs',
       plugins: [
