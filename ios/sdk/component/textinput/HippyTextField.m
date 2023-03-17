@@ -99,11 +99,6 @@
     }
 }
 
-- (void)dealloc {
-    _responderDelegate = nil;
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
 @end
 
 @interface HippyTextField () <HippyUITextFieldResponseDelegate>
