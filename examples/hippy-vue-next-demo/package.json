@@ -17,8 +17,9 @@
     "hippy:build": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.ios.js --config ./scripts/hippy-webpack.android.js",
     "web:dev": "npm run hippy:dev & node ./scripts/env-polyfill.js webpack serve --config ./scripts/hippy-webpack.web-renderer.dev.js",
     "web:build": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.web-renderer.js",
-    "ssr:build": "node ./scripts/ssr.build.js --mode development",
-    "ssr:dev": "cross-env HIPPY_SSR=true node --inspect=0.0.0.0:8081 ./dist/server.js --mode development",
+    "webpack:ssr:build": "node ./scripts/webpack.ssr.build.js --mode development",
+    "ssr:build": "node ./scripts/vite.ssr.build.js --mode development",
+    "ssr:dev": "cross-env HIPPY_SSR=true node --inspect=0.0.0.0:8081 ./dist/server/index.js --mode development",
     "ssr:debug": "hippy-debug",
     "ssr:prod": "cross-env HIPPY_SSR=true node ./dist/server.js --mode production"
   },

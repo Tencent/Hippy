@@ -39,24 +39,24 @@ function runScript(scriptStr, options = { silent: false }) {
 }
 
 // 0. remove dist directory
-console.log('remove dist directory:');
-rm('-rf', './dist');
+// console.log('remove dist directory:');
+// rm('-rf', './dist');
 // 1. build server bundle
 console.log('building server bundle:');
 runScript(getScriptCommand('vite.config.main-server.js'));
 
 // 2. build async client bundle(include Android and iOS)
-console.log('\nbuilding Android client bundle:');
+// console.log('\nbuilding Android client bundle:');
 // build Android client bundle
-runScript(getScriptCommand('vite.config.android.js'));
-console.log('\nbuilding iOS client bundle:');
+// runScript(getScriptCommand('vite.config.android.js'));
+// console.log('\nbuilding iOS client bundle:');
 // build iOS client bundle
-runScript(getScriptCommand('vite.config.ios.js'));
+// runScript(getScriptCommand('vite.config.ios.js'));
 
 // 3. build server entry
-console.log('\nbuilding server entry:');
-runScript(getScriptCommand('vite.config.entry-server.js'));
+// console.log('\nbuilding server entry:');
+// runScript(getScriptCommand('vite.config.entry-server.js'));
 
 // 4. build ssr entry
-console.log('\nbuilding ssr entry:');
-runScript(getScriptCommand('vite.config.entry-ssr.js'));
+// console.log('\nbuilding ssr entry:');
+// runScript(getScriptCommand('vite.config.entry-ssr.js'));

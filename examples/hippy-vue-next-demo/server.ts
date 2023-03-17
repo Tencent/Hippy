@@ -1,6 +1,30 @@
 const express = require('express');
 const { HIPPY_GLOBAL_STYLE_NAME } = require('@hippy/vue-next');
 
+interface MinifiedStyleDeclaration {
+  [key: number]: number | string;
+}
+
+/**
+ * minify css content
+ */
+function minifyStyleContent(rawStyleContent): NeedToTyped[] | MinifiedStyleDeclaration[] {
+  if (rawStyleContent?.length && Array.isArray(rawStyleContent)) {
+    const minifiedStyle: MinifiedStyleDeclaration[] = [];
+    rawStyleContent.forEach((styleContent) => {
+      // minified style is array, 0 index is selectors, 1 index is declaration, no hash
+      minifiedStyle.push([
+        styleContent.selectors,
+        // minify declarations
+        styleContent.declarations.map(declaration => [declaration.property, declaration.value]),
+      ]);
+    });
+    return minifiedStyle;
+  }
+
+  return rawStyleContent;
+}
+
 /**
  * get ssr style content
  *
@@ -12,7 +36,7 @@ function getSsrStyleContent(globalStyleName): NeedToTyped[] {
   }
   // cache global style sheet, then non first request could return directly, unnecessary to
   // serialize again
-  global.ssrStyleContentList = JSON.stringify(global[globalStyleName]);
+  global.ssrStyleContentList = JSON.stringify(minifyStyleContent(global[globalStyleName]));
 
   return global.ssrStyleContentList;
 }
@@ -28,7 +52,7 @@ server.use(express.json());
 server.all('/getSsrFirstScreenData', (req, rsp) => {
   console.log('req body', req.body);
   // get hippy ssr node list and other const
-  const { render } = require('./main-server');
+  const { render } = require('./dist/main-server');
   render('/', {
     appName: 'Demo',
   }, req.body).then(({
