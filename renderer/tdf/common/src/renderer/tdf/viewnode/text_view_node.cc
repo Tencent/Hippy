@@ -86,6 +86,7 @@ std::shared_ptr<tdfcore::View> TextViewNode::CreateView() {
   auto text_style = text_view->GetTextStyle();
   text_style.color = kDefaultTextColor;
   text_view->SetTextStyle(text_style);
+  text_view->SetVerticalAlign(tdfcore::VerticalAlign::kCenter);
   return text_view;
 }
 
