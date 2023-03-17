@@ -26,7 +26,7 @@
 #import "HippyVirtualList.h"
 
 @interface HippyWaterfallViewDatasource () {
-    HippyVirtualCell *_bannerNode;
+    HippyVirtualNode *_bannerNode;
     
     //HippyVirtualCell class only
     NSArray<HippyVirtualCell *> *_cellNodes;
@@ -36,27 +36,16 @@
 
 @implementation HippyWaterfallViewDatasource
 
-- (instancetype)initWithNodes:(NSArray<HippyVirtualCell *> *)nodes containBannerView:(BOOL)contain {
+- (instancetype)initWithCellNodes:(NSArray<HippyVirtualCell *> *)cellNodes bannerNode:(HippyVirtualNode *)bannerNode {
     self = [super init];
     if (self) {
-        if (nodes) {
-            NSMutableArray<HippyVirtualCell *> *cells = [NSMutableArray arrayWithCapacity:[nodes count]];
-            for (HippyVirtualCell *node in nodes) {
-                if ([node isKindOfClass:[HippyVirtualCell class]]) {
-                    [cells addObject:(HippyVirtualCell *)node];
-                }
-            }
-            if (contain && [cells count] > 0) {
-                _bannerNode = [cells firstObject];
-                [cells removeObjectAtIndex:0];
-            }
-            _cellNodes = [cells copy];
-        }
+        _bannerNode = bannerNode;
+        _cellNodes = [cellNodes copy];
     }
     return self;
 }
 
-- (HippyVirtualCell *)bannerViewNode {
+- (HippyVirtualNode *)bannerViewNode {
     return _bannerNode;
 }
 
@@ -90,7 +79,7 @@
     }
 }
 
-- (HippyVirtualCell *)cellAtIndexPath:(NSIndexPath *)indexPath {
+- (__kindof HippyVirtualNode *)cellAtIndexPath:(NSIndexPath *)indexPath {
     NSInteger section = [indexPath section];
     NSInteger row = [indexPath row];
     if (_bannerNode) {
@@ -113,12 +102,13 @@
 @implementation HippyWaterfallViewDatasource (ApplyDiff)
 
 - (void)applyDiff:(HippyWaterfallViewDatasource *)another forWaterfallView:(UICollectionView *)view {
-    if (!another || !view) {
+    if (!another) {
+        [view reloadData];
         return;
     }
     @try {
-        HippyVirtualCell *selfBannerView = [self bannerViewNode];
-        HippyVirtualCell *oldBannerView = [another bannerViewNode];
+        HippyVirtualNode *selfBannerView = [self bannerViewNode];
+        HippyVirtualNode *oldBannerView = [another bannerViewNode];
         NSIndexSet *bannerViewIndex = [NSIndexSet indexSetWithIndex:0];
         //check bannerview section
         dispatch_block_t updateBannerAction = NULL;
