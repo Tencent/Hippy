@@ -42,7 +42,7 @@ function getSsrStyleContent(globalStyleName): NeedToTyped[] {
 }
 
 // server listen port
-const serverPort = 3000;
+const serverPort = 8080;
 // init http server
 const server = express();
 // use json middleware

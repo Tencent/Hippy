@@ -820,7 +820,7 @@ export const Native: NativeApiType = {
    * @param color - color string
    * @param options - parse options
    */
-  parseColor(color: string | number, options = { platform: '' }): number {
+  parseColor(color: string | number, options = { platform: Native.Platform }): number {
     if (Number.isInteger(color)) {
       return color as number;
     }

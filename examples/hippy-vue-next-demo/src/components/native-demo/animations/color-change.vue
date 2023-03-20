@@ -35,7 +35,7 @@ const backgroundColorAnimation = {
       delay: 0,
       mode: 'timing',
       timingFunction: 'linear',
-      repeatCount: -1,
+      repeatCount: -1, // 'loop' string supported above 2.12.2
     },
   ],
 };
@@ -56,7 +56,7 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style>
 .color-green {
   margin-top: 10px;
   justify-content: center;

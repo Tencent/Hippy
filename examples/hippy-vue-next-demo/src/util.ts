@@ -44,3 +44,17 @@ export function getScreenSize(): {
   }
   return Native.Dimensions.screen;
 }
+
+/**
+ * current platform is iOS or not
+ */
+export function isIOS(): boolean {
+  if (IS_SSR) {
+    const ssrContext = useSSRContext();
+    if (ssrContext?.context) {
+      return Boolean(ssrContext.context?.isIOS);
+    }
+    return false;
+  }
+  return Native.isIOS();
+}

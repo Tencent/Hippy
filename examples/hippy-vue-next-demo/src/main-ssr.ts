@@ -48,7 +48,7 @@ function ssr(): void {
     // save hippy native root node id
     const rootViewId = initParams.__instanceId__;
     // send ssr first screen request
-    fetch('http://127.0.0.1:3000/getSsrFirstScreenData', {
+    fetch('http://localhost:8080/getSsrFirstScreenData', {
       mode: 'no-cors', // 2.14.0 or above supports other options(not only method/headers/url/body),
       method: 'POST',
       headers: {
@@ -93,7 +93,7 @@ function ssr(): void {
               // insert native nodes
               insertNativeNodes(rootViewId, nodes);
               // save ssr nodes to global.hippySSRNodes, hydration will use
-              console.log('createSSrNode', nodes);
+              console.log('createSSrNodeList', JSON.parse(JSON.stringify(nodes)), JSON.parse(JSON.stringify(nodeList)));
               global.hippySSRNodes = nodes;
             }
           } else {

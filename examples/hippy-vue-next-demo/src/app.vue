@@ -2,6 +2,7 @@
   <div id="root">
     <!-- only for ssr, if you just use client side, remove it, use createApp options iPhone.statusBar instead -->
     <div
+      v-if="isIOS"
       id="ios-status-bar"
       :style="iosStatusBarStyle"
     />
@@ -53,7 +54,7 @@
 <script lang="ts">
 import { defineComponent, ref } from '@vue/runtime-core';
 import { useRoute, useRouter } from 'vue-router';
-import { getScreenSize } from './util';
+import { getScreenSize, isIOS } from './util';
 
 import backButtonImg from './back-icon.png';
 
@@ -111,6 +112,7 @@ export default defineComponent({
       },
       goBack,
       navigateTo,
+      isIOS: isIOS(),
     };
   },
   watch: {

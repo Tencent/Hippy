@@ -259,8 +259,9 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
       }
       // special cases with children override
       if (prop.type === NodeTypes.DIRECTIVE) {
-        // hippy事件处理逻辑: ssr场景 on指令会直接忽略, 所以hippy需要自己处理
         if (prop.name === 'on') {
+          // hippy event handle: at ssr for web, onXXX will ignore, so we need to add Event listener
+          // onXXX=true, so that hippy native should add event listener
           const { arg } = prop;
           if (arg?.type === NodeTypes.SIMPLE_EXPRESSION && arg.isStatic) {
             openTag.push(`"${getHippyEventKeyInSSR(arg.content, node.tag)}": true,`);
