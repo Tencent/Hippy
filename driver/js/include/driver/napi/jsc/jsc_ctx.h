@@ -32,6 +32,7 @@
 #include "footstone/string_view.h"
 #include "driver/base/common.h"
 #include "driver/napi/js_ctx.h"
+#include "driver/vm/js_vm.h"
 
 template <std::size_t N>
 constexpr JSStringRef CreateWithCharacters(const char16_t (&u16)[N]) noexcept {
@@ -60,8 +61,9 @@ class JSCCtx : public Ctx {
 public:
   using string_view = footstone::string_view;
   using JSValueWrapper = hippy::base::JSValueWrapper;
+  using vm = hippy::vm::VM;
   
-  explicit JSCCtx(JSContextGroupRef vm);
+  explicit JSCCtx(JSContextGroupRef vm, std::weak_ptr<VM> jsc_vm);
   
   ~JSCCtx();
   
@@ -202,6 +204,7 @@ public:
   std::shared_ptr<JSCCtxValue> exception_;
   bool is_exception_handled_;
   std::vector<std::unique_ptr<ConstructorData>> constructor_data_holder_;
+  std::weak_ptr<VM> vm_;
 };
 
 inline footstone::string_view ToStrView(JSStringRef str) {

@@ -124,6 +124,16 @@ Scope::Scope(std::weak_ptr<Engine> engine,
 
 Scope::~Scope() {
   FOOTSTONE_DLOG(INFO) << "~Scope";
+#ifdef JS_JSC
+  auto engine = engine_.lock();
+  FOOTSTONE_CHECK(engine);
+  for (auto&& item: func_wrapper_holder_) {
+    engine->MoveFunctionWrapperHolder(std::move(item));
+  }
+  for (auto&& item: weak_callback_holder_) {
+    engine->MoveWeakCallbackWrapper(std::move(item));
+  }
+#endif
 }
 
 void Scope::WillExit() {

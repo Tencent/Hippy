@@ -47,7 +47,7 @@ constexpr char16_t kSetStr[] = u"set";
 static std::once_flag global_class_flag;
 static JSClassRef global_class;
 
-JSCCtx::JSCCtx(JSContextGroupRef vm) {
+JSCCtx::JSCCtx(JSContextGroupRef vm, std::weak_ptr<VM> jsc_vm) {
   std::call_once(global_class_flag, []() {
     JSClassDefinition global = kJSClassDefinitionEmpty;
     global_class = JSClassCreate(&global);
@@ -57,14 +57,18 @@ JSCCtx::JSCCtx(JSContextGroupRef vm) {
   
   exception_ = nullptr;
   is_exception_handled_ = false;
-  
+  vm_ = jsc_vm;
 }
 
 JSCCtx::~JSCCtx() {
-  exception_ = nullptr;
-  
   JSGlobalContextRelease(context_);
-  context_ = nullptr;
+  auto vm = vm_.lock();
+  if (vm) {
+    auto jsc_vm = std::static_pointer_cast<JSCVM>(vm);
+    for (auto&& item: constructor_data_holder_) {
+      jsc_vm->constructor_data_holder_.push_back(std::move(item));
+    }
+  }
 }
 
 JSValueRef InvokeJsCallback(JSContextRef ctx,

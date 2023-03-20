@@ -35,7 +35,6 @@
 #include "driver/runtime/v8/inspector/v8_inspector_client_impl.h"
 #endif
 
-
 namespace hippy {
 inline namespace driver {
 
@@ -57,7 +56,7 @@ class Engine: public std::enable_shared_from_this<Engine> {
       std::shared_ptr<TaskRunner> worker,
       std::unique_ptr<RegisterMap> map = std::make_unique<RegisterMap>(),
       const std::shared_ptr<VMInitParam>& param = nullptr);
-  
+
   std::shared_ptr<Scope> AsyncCreateScope(
       const std::string& name = "",
       std::unique_ptr<RegisterMap> map = std::unique_ptr<RegisterMap>());
@@ -77,6 +76,14 @@ class Engine: public std::enable_shared_from_this<Engine> {
   }
 #endif
 
+#ifdef JS_JSC
+  inline void MoveFunctionWrapperHolder(std::unique_ptr<FunctionWrapper> holder) {
+    func_wrapper_holder_.push_back(std::move(holder));
+  }
+  inline void MoveWeakCallbackWrapper(std::unique_ptr<WeakCallbackWrapper> holder) {
+    weak_callback_holder_.push_back(std::move(holder));
+  }
+#endif
  private:
   void CreateVM(const std::shared_ptr<VMInitParam>& param);
 
@@ -87,6 +94,11 @@ class Engine: public std::enable_shared_from_this<Engine> {
   std::unique_ptr<RegisterMap> map_;
 #if defined(ENABLE_INSPECTOR) && defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   std::shared_ptr<hippy::inspector::V8InspectorClientImpl> inspector_client_;
+#endif
+
+#ifdef JS_JSC
+  std::vector<std::unique_ptr<FunctionWrapper>> func_wrapper_holder_;
+  std::vector<std::unique_ptr<WeakCallbackWrapper>> weak_callback_holder_;
 #endif
 };
 

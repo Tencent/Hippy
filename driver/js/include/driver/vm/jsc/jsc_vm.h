@@ -33,7 +33,7 @@ namespace hippy {
 inline namespace driver {
 inline namespace vm {
 
-class JSCVM : public VM {
+class JSCVM : public VM, public std::enable_shared_from_this<JSCVM> {
 public:
   JSCVM(): VM(nullptr) { vm_ = JSContextGroupCreate(); }
   
@@ -42,6 +42,7 @@ public:
     vm_ = nullptr;
   }
   JSContextGroupRef vm_;
+  std::vector<std::unique_ptr<ConstructorData>> constructor_data_holder_;
   
   virtual std::shared_ptr<CtxValue> ParseJson(const std::shared_ptr<Ctx>& ctx, const string_view& json) override;
   virtual std::shared_ptr<Ctx> CreateContext() override;
