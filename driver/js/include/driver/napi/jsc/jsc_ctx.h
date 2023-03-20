@@ -48,19 +48,12 @@ constexpr char16_t kStackStr[] = u"stack";
 
 class JSCCtxValue;
 
-struct FunctionData {
-  void* global_external_data;
-  void* function_wrapper;
-  FunctionData(void* global_data, void* func_wrapper): global_external_data(global_data), function_wrapper(func_wrapper) {}
-};
-
 struct ConstructorData {
-  void* global_external_data;
   void* function_wrapper;
   std::shared_ptr<JSCCtxValue> prototype;
   void* private_data;
   void* weak_callback_wrapper;
-  ConstructorData(void* global_data, void* func_wrapper, std::shared_ptr<JSCCtxValue>prototype): global_external_data(global_data), function_wrapper(func_wrapper), prototype(prototype), private_data(nullptr), weak_callback_wrapper(nullptr) {}
+  ConstructorData(void* func_wrapper, std::shared_ptr<JSCCtxValue>prototype): function_wrapper(func_wrapper), prototype(prototype), private_data(nullptr), weak_callback_wrapper(nullptr) {}
 };
 
 class JSCCtx : public Ctx {
@@ -68,20 +61,9 @@ public:
   using string_view = footstone::string_view;
   using JSValueWrapper = hippy::base::JSValueWrapper;
   
-  explicit JSCCtx(JSContextGroupRef vm) {
-    context_ = JSGlobalContextCreateInGroup(vm, nullptr);
-    
-    exception_ = nullptr;
-    is_exception_handled_ = false;
-    
-  }
+  explicit JSCCtx(JSContextGroupRef vm);
   
-  ~JSCCtx() {
-    exception_ = nullptr;
-    
-    JSGlobalContextRelease(context_);
-    context_ = nullptr;
-  }
+  ~JSCCtx();
   
   JSGlobalContextRef GetCtxRef() { return context_; }
   
@@ -99,10 +81,6 @@ public:
   inline bool IsExceptionHandled() { return is_exception_handled_; }
   inline void SetExceptionHandled(bool is_exception_handled) {
     is_exception_handled_ = is_exception_handled;
-  }
-  
-  inline void SaveFuncData(std::unique_ptr<FunctionData> function_data) {
-    function_data_holder_.push_back(std::move(function_data));
   }
   
   inline void SaveConstructorData(std::unique_ptr<ConstructorData> constructor_data) {
@@ -223,8 +201,6 @@ public:
   JSGlobalContextRef context_;
   std::shared_ptr<JSCCtxValue> exception_;
   bool is_exception_handled_;
-  void* external_data_;
-  std::vector<std::unique_ptr<FunctionData>> function_data_holder_;
   std::vector<std::unique_ptr<ConstructorData>> constructor_data_holder_;
 };
 
