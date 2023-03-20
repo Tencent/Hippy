@@ -43,9 +43,10 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
  */
 @interface NativeRenderWaterfallView : NativeRenderTouchesView <UICollectionViewDataSource, UICollectionViewDelegate,
                                         NativeRenderCollectionViewDelegateWaterfallLayout, NativeRenderScrollableProtocol, NativeRenderScrollProtocol> {
-@protected
     NativeRenderWaterfallViewDataSource *_dataSource;
-    NativeRenderWaterfallViewDataSource *_lastDataSource;
+@protected
+    NSMapTable<NSNumber *, UIView *> *_weakItemMap;
+    NSMutableDictionary<NSIndexPath *, NSNumber *> *_cachedItems;
     double _lastOnScrollEventTimeInterval;
     NativeRenderHeaderRefresh *_headerRefreshView;
     NativeRenderFooterRefresh *_footerRefreshView;
@@ -110,6 +111,10 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
 @property (nonatomic, copy) NativeRenderDirectEventBlock onFooterAppeared;
 @property (nonatomic, copy) NativeRenderDirectEventBlock onRefresh;
 @property (nonatomic, copy) NativeRenderDirectEventBlock onExposureReport;
+
+- (NSUInteger)maxCachedItemCount;
+
+- (NSArray<NSIndexPath *> *)findFurthestIndexPathsFromScreen;
 
 /**
  * Initial collection view
@@ -222,8 +227,6 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
  */
 - (UIEdgeInsets)collectionView:(UICollectionView *)collectionView
                         layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section;
-
-- (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath;
 
 @end
 

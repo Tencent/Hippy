@@ -24,20 +24,18 @@
 #import "NativeRenderHeaderRefresh.h"
 #import "NativeRenderFooterRefresh.h"
 #import "NativeRenderWaterfallItemView.h"
+#import "UIView+NativeRender.h"
 #import "NativeRenderRefresh.h"
-#import "NativeRenderReusePool.h"
 #import "NativeRenderWaterfallViewDataSource.h"
 #import "NativeRenderObjectView.h"
 #import "NativeRenderImpl.h"
+#import "UIView+Render.h"
 #import "NativeRenderListTableView.h"
 #import "NativeRenderWaterfallViewCell.h"
-#import "UIView+NativeRender.h"
-#import "UIView+Render.h"
-#import "HPAsserts.h"
 
 static NSString *kCellIdentifier = @"cellIdentifier";
-static NSString *const kSupplementaryIdentifier = @"SupplementaryIdentifier";
 static NSString *kWaterfallItemName = @"WaterfallItem";
+static const NSTimeInterval delayForPurgeView = 3.0f;
 
 @interface NativeRenderWaterfallView () <HPInvalidating, NativeRenderRefreshDelegate, NativeRenderListTableViewLayoutProtocol> {
     NSHashTable<id<UIScrollViewDelegate>> *_scrollListeners;
@@ -67,6 +65,8 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
         _scrollEventThrottle = 100.f;
         _dataSource = [[NativeRenderWaterfallViewDataSource alloc] init];
         self.dataSource.itemViewName = [self compoentItemName];
+        _weakItemMap = [NSMapTable strongToWeakObjectsMapTable];
+        _cachedItems = [NSMutableDictionary dictionaryWithCapacity:32];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
         [self initCollectionView];
         if (@available(iOS 11.0, *)) {
@@ -99,11 +99,8 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     Class cls = [self listItemClass];
     [_collectionView registerClass:cls forCellWithReuseIdentifier:kCellIdentifier];
 }
-
 - (void)registerSupplementaryViews {
-    [self.collectionView registerClass:[UICollectionReusableView class]
-            forSupplementaryViewOfKind:UICollectionElementKindSectionHeader
-                   withReuseIdentifier:kSupplementaryIdentifier];
+    
 }
 
 - (__kindof UICollectionViewLayout *)collectionViewLayout {
@@ -179,6 +176,65 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 
 #pragma mark Setter & Getter
 
+- (NSUInteger)maxCachedItemCount {
+    return NSUIntegerMax;
+}
+
+- (NSUInteger)differenceFromIndexPath:(NSIndexPath *)indexPath1 againstAnother:(NSIndexPath *)indexPath2 {
+    NSAssert([NSThread mainThread], @"must be in main thread");
+    long diffCount = 0;
+    for (NSUInteger index = MIN([indexPath1 section], [indexPath2 section]); index < MAX([indexPath1 section], [indexPath2 section]); index++) {
+        diffCount += [_collectionView numberOfItemsInSection:index];
+    }
+    diffCount = diffCount + [indexPath1 row] - [indexPath2 row];
+    return abs(diffCount);
+}
+
+- (NSInteger)differenceFromIndexPath:(NSIndexPath *)indexPath againstVisibleIndexPaths:(NSArray<NSIndexPath *> *)visibleIndexPaths {
+    NSIndexPath *firstIndexPath = [visibleIndexPaths firstObject];
+    NSIndexPath *lastIndexPath = [visibleIndexPaths lastObject];
+    NSUInteger diffFirst = [self differenceFromIndexPath:indexPath againstAnother:firstIndexPath];
+    NSUInteger diffLast = [self differenceFromIndexPath:indexPath againstAnother:lastIndexPath];
+    return MIN(diffFirst, diffLast);
+}
+
+- (NSArray<NSIndexPath *> *)findFurthestIndexPathsFromScreen {
+    NSUInteger visibleItemsCount = [[self.collectionView visibleCells] count];
+    NSUInteger maxCachedItemCount = [self maxCachedItemCount] == NSUIntegerMax ? visibleItemsCount * 3 : [self maxCachedItemCount];
+    NSUInteger cachedCount = [_cachedItems count];
+    NSInteger cachedCountToRemove = cachedCount > maxCachedItemCount ? cachedCount - maxCachedItemCount : 0;
+    if (0 != cachedCountToRemove) {
+        NSArray<NSIndexPath *> *visibleIndexPaths = [_collectionView indexPathsForVisibleItems];
+        NSArray<NSIndexPath *> *sortedCachedItemKey = [[_cachedItems allKeys] sortedArrayUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+            NSIndexPath *ip1 = obj1;
+            NSIndexPath *ip2 = obj2;
+            NSUInteger ip1Diff = [self differenceFromIndexPath:ip1 againstVisibleIndexPaths:visibleIndexPaths];
+            NSUInteger ip2Diff = [self differenceFromIndexPath:ip2 againstVisibleIndexPaths:visibleIndexPaths];
+            if (ip1Diff > ip2Diff) {
+                return NSOrderedAscending;
+            }
+            else if (ip1Diff < ip2Diff) {
+                return NSOrderedDescending;
+            }
+            else {
+                return NSOrderedSame;
+            }
+        }];
+        NSArray<NSIndexPath *> *result = [sortedCachedItemKey subarrayWithRange:NSMakeRange(0, cachedCountToRemove)];
+        return result;
+    }
+    return nil;
+}
+
+- (void)purgeFurthestIndexPathsFromScreen {
+    NSArray<NSIndexPath *> *furthestIndexPaths = [self findFurthestIndexPathsFromScreen];
+    //purge view
+    NSArray<NSNumber *> *objects = [_cachedItems objectsForKeys:furthestIndexPaths notFoundMarker:@(-1)];
+    [self.renderImpl purgeViewsFromComponentTags:objects onRootTag:self.rootTag];
+    //purge cache
+    [_cachedItems removeObjectsForKeys:furthestIndexPaths];
+}
+
 - (void)setContentInset:(UIEdgeInsets)contentInset {
     _contentInset = contentInset;
 
@@ -214,8 +270,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 }
 
 - (BOOL)flush {
-    [_dataSource applyDiff:_lastDataSource forWaterfallView:self.collectionView];
-    _lastDataSource = [_dataSource copy];
+    [self.collectionView reloadData];
     if (!_isInitialListReady) {
         _isInitialListReady = YES;
         if (self.onInitialListReady) {
@@ -234,6 +289,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
         [_headerRefreshView setScrollView:self.collectionView];
         _headerRefreshView.delegate = self;
         _headerRefreshView.frame = subview.nativeRenderObjectView.frame;
+        [_weakItemMap setObject:subview forKey:[subview componentTag]];
     } else if ([subview isKindOfClass:[NativeRenderFooterRefresh class]]) {
         if (_footerRefreshView) {
             [_footerRefreshView removeFromSuperview];
@@ -244,29 +300,32 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
         _footerRefreshView.frame = subview.nativeRenderObjectView.frame;
         UIEdgeInsets insets = self.collectionView.contentInset;
         self.collectionView.contentInset = UIEdgeInsetsMake(insets.top, insets.left, _footerRefreshView.frame.size.height, insets.right);
+        [_weakItemMap setObject:subview forKey:[subview componentTag]];
     }
 }
 
 - (NSArray<UIView *> *)subcomponents {
-    NSMutableArray *subcomponents = [NSMutableArray arrayWithCapacity:self.collectionView.visibleCells.count];
-    for (UICollectionViewCell *cell in self.collectionView.visibleCells) {
-        NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
-        HPAssert([hpCell isKindOfClass:[NativeRenderWaterfallViewCell class]],
-                 @"%@'s cell must kind of NativeRenderWaterfallViewCell class", NSStringFromClass([self class]));
-        [subcomponents addObject:hpCell.cellView];
+    return [[_weakItemMap dictionaryRepresentation] allValues];
+}
+
+- (void)removeFromNativeRenderSuperview {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
+    [self purgeFurthestIndexPathsFromScreen];
+}
+
+- (void)didMoveToWindow {
+    if (!self.window) {
+        [self removeFromNativeRenderSuperview];
     }
-    return [subcomponents copy];
 }
 
 #pragma mark - UICollectionViewDataSource
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
-    NSInteger number = [_dataSource numberOfSection];
-    return number;
+    return [_dataSource numberOfSection];
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    NSInteger number = [_dataSource numberOfCellForSection:section];
-    return number;
+    return [_dataSource numberOfCellForSection:section];
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -304,40 +363,10 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
     if ([cell isKindOfClass:[NativeRenderWaterfallViewCell class]]) {
         NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
-        UIView *cellView = hpCell.cellView;
         if (hpCell.cellView) {
-            [[self.renderImpl reusePool] dismemberNativeRenderViewTree:cellView];
-            cellView = nil;
+            [_cachedItems setObject:[hpCell.cellView componentTag] forKey:indexPath];
+            hpCell.cellView = nil;
         }
-    }
-}
-
-static NSInteger supplementaryElementViewTag = 911918;
-
-- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView
-           viewForSupplementaryElementOfKind:(NSString *)kind
-                                 atIndexPath:(NSIndexPath *)indexPath {
-    NSInteger section = [indexPath section];
-    UICollectionReusableView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind
-                                                                        withReuseIdentifier:kSupplementaryIdentifier
-                                                                               forIndexPath:indexPath];
-    NativeRenderObjectView *headerRenderObject = [self.dataSource headerForSection:section];
-    [headerRenderObject recusivelySetCreationTypeToInstant];
-    UIView *cellView = [self.renderImpl createViewRecursivelyFromRenderObject:headerRenderObject];
-    cellView.tag = supplementaryElementViewTag;
-    CGRect frame = cellView.frame;
-    frame.origin = CGPointZero;
-    [view addSubview:cellView];
-    return view;
-}
-
-- (void)collectionView:(UICollectionView *)collectionView
-didEndDisplayingSupplementaryView:(UICollectionReusableView *)view
-      forElementOfKind:(NSString *)elementKind
-           atIndexPath:(NSIndexPath *)indexPath {
-    UIView *cellView = [view viewWithTag:supplementaryElementViewTag];
-    if (cellView) {
-        [[self.renderImpl reusePool] dismemberNativeRenderViewTree:cellView];
     }
 }
 
@@ -345,8 +374,15 @@ didEndDisplayingSupplementaryView:(UICollectionReusableView *)view
     NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
     NativeRenderObjectView *renderObjectView = [_dataSource cellForIndexPath:indexPath];
     [renderObjectView recusivelySetCreationTypeToInstant];
-    UIView *cellView = [self.renderImpl createViewRecursivelyFromRenderObject:renderObjectView];
+    UIView *cellView = [self.renderImpl viewFromRenderViewTag:renderObjectView.componentTag onRootTag:renderObjectView.rootTag];
+    if (cellView) {
+        [_cachedItems removeObjectForKey:indexPath];
+    }
+    else {
+        cellView = [self.renderImpl createViewRecursivelyFromRenderObject:renderObjectView];
+    }
     hpCell.cellView = cellView;
+    [_weakItemMap setObject:cellView forKey:[cellView componentTag]];
 }
 
 #pragma mark - NativeRenderCollectionViewDelegateWaterfallLayout
@@ -411,9 +447,8 @@ didEndDisplayingSupplementaryView:(UICollectionReusableView *)view
         }
     }
     //TODO cancel timer when component is removed from hippy view
-//    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
-//    static const NSTimeInterval delayForPurgeView = 3.0f;
-//    [self performSelector:@selector(purgeFurthestIndexPathsFromScreen) withObject:nil afterDelay:delayForPurgeView];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
+    [self performSelector:@selector(purgeFurthestIndexPathsFromScreen) withObject:nil afterDelay:delayForPurgeView];
     [_headerRefreshView scrollViewDidScroll];
     [_footerRefreshView scrollViewDidScroll];
 }
@@ -604,6 +639,15 @@ didEndDisplayingSupplementaryView:(UICollectionReusableView *)view
 }
 
 - (void)didReceiveMemoryWarning {
+    [self cleanUpCachedItems];
+}
+
+- (void)cleanUpCachedItems {
+    //purge view
+    NSArray<NSNumber *> *objects = [_cachedItems allValues];
+    [self.renderImpl purgeViewsFromComponentTags:objects onRootTag:self.rootTag];
+    //purge cache
+    [_cachedItems removeAllObjects];
 }
 
 @end

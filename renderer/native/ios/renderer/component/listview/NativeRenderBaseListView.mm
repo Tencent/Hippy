@@ -34,6 +34,7 @@
 #import "UIView+Render.h"
 
 static NSString *const kCellIdentifier = @"cellIdentifier";
+static NSString *const kSupplementaryIdentifier = @"SupplementaryIdentifier";
 static NSString *const kListViewItem = @"ListViewItem";
 
 @interface NativeRenderBaseListView () <NativeRenderRefreshDelegate> {
@@ -97,6 +98,12 @@ static NSString *const kListViewItem = @"ListViewItem";
     [self.collectionView registerClass:cls forCellWithReuseIdentifier:kCellIdentifier];
 }
 
+- (void)registerSupplementaryViews {
+    [self.collectionView registerClass:[UICollectionReusableView class]
+            forSupplementaryViewOfKind:UICollectionElementKindSectionHeader
+                   withReuseIdentifier:kSupplementaryIdentifier];
+}
+
 - (void)setFrame:(CGRect)frame {
     [super setFrame:frame];
 }
@@ -119,8 +126,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)reloadData {
-    [_dataSource applyDiff:_lastDataSource forWaterfallView:self.collectionView];
-    _lastDataSource = [_dataSource copy];
+    [self.collectionView reloadData];
     if (self.initialContentOffset) {
         [self.collectionView setContentOffset:CGPointMake(0, self.initialContentOffset) animated:NO];
         self.initialContentOffset = 0;
@@ -141,6 +147,7 @@ static NSString *const kListViewItem = @"ListViewItem";
         _headerRefreshView = (NativeRenderHeaderRefresh *)subview;
         [_headerRefreshView setScrollView:self.collectionView];
         _headerRefreshView.delegate = self;
+        [_weakItemMap setObject:subview forKey:[subview componentTag]];
     } else if ([subview isKindOfClass:[NativeRenderFooterRefresh class]]) {
         if (_footerRefreshView) {
             [_footerRefreshView unsetFromScrollView];
@@ -148,6 +155,7 @@ static NSString *const kListViewItem = @"ListViewItem";
         _footerRefreshView = (NativeRenderFooterRefresh *)subview;
         [_footerRefreshView setScrollView:self.collectionView];
         _footerRefreshView.delegate = self;
+        [_weakItemMap setObject:subview forKey:[subview componentTag]];
     }
 }
 
@@ -201,8 +209,12 @@ static NSString *const kListViewItem = @"ListViewItem";
     return self.editable;
 }
 
-- (CGFloat)collectionView:(UICollectionView *)collectionView
-                   layout:(UICollectionViewLayout *)collectionViewLayout
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    NSInteger count = [self.dataSource numberOfSection];
+    return count;
+}
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout
  heightForHeaderInSection:(NSInteger)section {
     NativeRenderObjectView *header = [self.dataSource headerForSection:section];
     if (header) {
@@ -220,6 +232,32 @@ referenceSizeForHeaderInSection:(NSInteger)section {
         return headerObjectView.frame.size;
     }
     return CGSizeZero;
+}
+
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView
+           viewForSupplementaryElementOfKind:(NSString *)kind
+                                 atIndexPath:(NSIndexPath *)indexPath {
+    NSInteger section = [indexPath section];
+    UICollectionReusableView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind
+                                                                        withReuseIdentifier:kSupplementaryIdentifier
+                                                                               forIndexPath:indexPath];
+    NativeRenderObjectView *headerRenderObject = [self.dataSource headerForSection:section];
+    if (headerRenderObject && [headerRenderObject isKindOfClass:[NativeRenderObjectView class]]) {
+        UIView *headerView = [self.renderImpl viewFromRenderViewTag:headerRenderObject.componentTag onRootTag:headerRenderObject.rootTag];
+        if (!headerView) {
+            headerView = [self.renderImpl createViewRecursivelyFromRenderObject:headerRenderObject];
+        }
+        CGRect frame = headerView.frame;
+        frame.origin = CGPointZero;
+        headerView.frame = frame;
+        [view addSubview:headerView];
+    }
+    return view;
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    NSInteger numberOfItemsInSection = [self.dataSource numberOfCellForSection:section];
+    return numberOfItemsInSection;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView
@@ -252,8 +290,37 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     }
 }
 
+- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+    if ([cell isKindOfClass:[NativeRenderBaseListViewCell class]]) {
+        NativeRenderBaseListViewCell *hpCell = (NativeRenderBaseListViewCell *)cell;
+        [_cachedItems setObject:[hpCell.cellView componentTag] forKey:indexPath];
+        hpCell.cellView = nil;
+    }
+}
+
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     return [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
+}
+
+- (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
+    HPAssert(self.renderImpl, @"no rendercontext detected");
+    if (!self.renderImpl) {
+        return;
+    }
+    NativeRenderObjectView *cellRenderObject = [self.dataSource cellForIndexPath:indexPath];
+    NativeRenderBaseListViewCell *hpCell = (NativeRenderBaseListViewCell *)cell;
+    UIView *cellView = [self.renderImpl viewFromRenderViewTag:cellRenderObject.componentTag  onRootTag:cellRenderObject.rootTag];
+    if (cellView) {
+        [_cachedItems removeObjectForKey:indexPath];
+    }
+    else {
+        cellView = [self.renderImpl createViewRecursivelyFromRenderObject:cellRenderObject];
+    }
+    HPAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
+        @"subviews of NativeRenderBaseListViewCell must conform to protocol ViewAppearStateProtocol");
+    //TODO NativeRenderBaseListViewCell.shadow and NativeRenderShadowView.cell can remove
+    hpCell.cellView = cellView;
+    [_weakItemMap setObject:cellView forKey:[cellView componentTag]];
 }
 
 - (void)tableViewDidLayoutSubviews:(NativeRenderListTableView *)tableView {
