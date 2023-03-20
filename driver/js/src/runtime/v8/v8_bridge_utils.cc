@@ -165,7 +165,7 @@ int32_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
     auto user_global_object_key = ctx->CreateString(kGlobalKey);
     ctx->SetProperty(global_object, user_global_object_key, global_object);
     auto hippy_key = ctx->CreateString(kHippyKey);
-    ctx->SetProperty(global_object, hippy_key, global_object);
+    ctx->SetProperty(global_object, hippy_key, ctx->CreateObject());
     scope->RegisterJsClasses();
     auto func_wrapper = std::make_unique<hippy::napi::FunctionWrapper>(call_native_cb,
                                                                        reinterpret_cast<void*>(runtime_id));
