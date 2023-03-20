@@ -25,6 +25,7 @@
 #include <future>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "dom/dom_node.h"
@@ -116,7 +117,7 @@ static void InternalBindingCallback(hippy::napi::CallbackInfo& info, void* data)
 Scope::Scope(std::weak_ptr<Engine> engine,
              std::string name,
              std::unique_ptr<RegisterMap> map)
-    : engine_(engine),
+    : engine_(std::move(engine)),
       context_(nullptr),
       name_(std::move(name)),
       map_(std::move(map)) {}
@@ -155,27 +156,6 @@ void Scope::WillExit() {
 
   future.get();
   FOOTSTONE_DLOG(INFO) << "ExitCtx end";
-}
-
-ModuleBase* Scope::GetModuleClass(const string_view& moduleName) {
-  auto it = module_class_map_.find(moduleName);
-  return it != module_class_map_.end() ? it->second.get() : nullptr;
-}
-
-void Scope::AddModuleClass(const string_view& name,
-                           std::unique_ptr<ModuleBase> module) {
-  module_class_map_.insert({name, std::move(module)});
-}
-
-std::shared_ptr<hippy::napi::CtxValue> Scope::GetModuleValue(
-    const string_view& module_name) {
-  auto it = module_value_map_.find(module_name);
-  return it != module_value_map_.end() ? it->second : nullptr;
-}
-
-void Scope::AddModuleValue(const string_view& name,
-                           const std::shared_ptr<CtxValue>& value) {
-  module_value_map_.insert({name, value});
 }
 
 void Scope::Init() {
