@@ -374,12 +374,9 @@ static const NSTimeInterval delayForPurgeView = 3.0f;
     NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
     NativeRenderObjectView *renderObjectView = [_dataSource cellForIndexPath:indexPath];
     [renderObjectView recusivelySetCreationTypeToInstant];
-    UIView *cellView = [self.renderImpl viewFromRenderViewTag:renderObjectView.componentTag onRootTag:renderObjectView.rootTag];
+    UIView *cellView = [self.renderImpl createViewRecursivelyFromRenderObject:renderObjectView];
     if (cellView) {
         [_cachedItems removeObjectForKey:indexPath];
-    }
-    else {
-        cellView = [self.renderImpl createViewRecursivelyFromRenderObject:renderObjectView];
     }
     hpCell.cellView = cellView;
     [_weakItemMap setObject:cellView forKey:[cellView componentTag]];

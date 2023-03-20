@@ -33,7 +33,6 @@
 #import "NativeRenderImpl.h"
 #import "NativeRenderObjectRootView.h"
 #import "NativeRenderObjectView.h"
-#import "NativeRenderReusePool.h"
 #import "NativeRenderView.h"
 #import "NativeRenderViewManager.h"
 #import "RenderVsyncManager.h"
@@ -263,13 +262,6 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     return _viewRegistry;
  }
 
-- (NativeRenderReusePool *)reusePool {
-    if (!_reusePool) {
-        _reusePool = [[NativeRenderReusePool alloc] init];
-    }
-    return _reusePool;
-}
-
 - (__kindof UIView *)viewFromRenderViewTag:(NSNumber *)componentTag
                                  onRootTag:(NSNumber *)rootTag {
     return [self viewForComponentTag:componentTag onRootTag:rootTag];
@@ -481,31 +473,11 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     AssertMainQueue();
     HPAssert(renderObject.viewName, @"view name is needed for creating a view");
     NativeRenderComponentData *componentData = [self componentDataForViewName:renderObject.viewName];
-    UIView *view = [self.reusePool popViewForKey:renderObject.viewName];
-    if (view) {
-        //remove old properties and events,remove from old container
-        NSDictionary *oldProps = view.props;
-        NSNumber *oldComponentTag = view.componentTag;
-        NSNumber *oldRootTag = view.rootTag;
-        [[self viewRegistry] removeComponentByComponentTag:oldComponentTag onRootTag:oldRootTag];
-        [view removeAllPropertyEvents];
-        [view resetAllEvents];
-
-        //apply new properties and events, add into new container
-        NSDictionary *props = renderObject.props;
-        NSDictionary *mergedProps = [self mergeProps:props oldProps:oldProps];
-        [componentData setProps:mergedProps forView:view];
-        view.componentTag = renderObject.componentTag;
-        view.rootTag = renderObject.rootTag;
-        [[self viewRegistry] addComponent:view forRootTag:view.rootTag];
-    }
-    else {
-        view = [self createViewByComponentData:componentData
-                                  componentTag:renderObject.componentTag
-                                       rootTag:renderObject.rootTag
-                                    properties:renderObject.props
-                                      viewName:renderObject.viewName];
-    }
+    UIView *view = [self createViewByComponentData:componentData
+                                      componentTag:renderObject.componentTag
+                                           rootTag:renderObject.rootTag
+                                        properties:renderObject.props
+                                          viewName:renderObject.viewName];
     view.renderImpl = self;
     [view nativeRenderSetFrame:renderObject.frame];
     const std::vector<std::string> &eventNames = [renderObject allEventNames];

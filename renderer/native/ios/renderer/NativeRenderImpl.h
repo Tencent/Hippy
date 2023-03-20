@@ -61,7 +61,6 @@ class HippyValue;
 @property(nonatomic, assign) std::weak_ptr<VFSUriLoader> VFSUriLoader;
 @property(nonatomic, readonly) std::weak_ptr<hippy::DomManager> domManager;
 @property(nonatomic, readonly) NativeRenderComponentMap *viewRegistry;
-@property(nonatomic, strong) NativeRenderReusePool *reusePool;
 
 - (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls;
 - (NSArray<Class<HPImageProviderProtocol>> *)imageProviderClasses;

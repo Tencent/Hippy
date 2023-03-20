@@ -27,7 +27,6 @@
 #import "NativeRenderImageView.h"
 #import "NativeRenderAnimatedImage.h"
 #import "UIView+MountEvent.h"
-#import "UIView+NRReuse.h"
 
 NSString *const NativeRenderImageErrorDomain = @"NativeRenderImageErrorDomain";
 
@@ -402,11 +401,6 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     [self.layer removeAnimationForKey:@"contents"];
     self.image = nil;
     self.imageSourceUri = nil;
-}
-
-- (void)prepareForReuse {
-    [super prepareForReuse];
-    [self clearImage];
 }
 
 #pragma mark -

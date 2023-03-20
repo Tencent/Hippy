@@ -309,16 +309,12 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     }
     NativeRenderObjectView *cellRenderObject = [self.dataSource cellForIndexPath:indexPath];
     NativeRenderBaseListViewCell *hpCell = (NativeRenderBaseListViewCell *)cell;
-    UIView *cellView = [self.renderImpl viewFromRenderViewTag:cellRenderObject.componentTag  onRootTag:cellRenderObject.rootTag];
+    UIView *cellView = [self.renderImpl createViewRecursivelyFromRenderObject:cellRenderObject];
     if (cellView) {
         [_cachedItems removeObjectForKey:indexPath];
     }
-    else {
-        cellView = [self.renderImpl createViewRecursivelyFromRenderObject:cellRenderObject];
-    }
     HPAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of NativeRenderBaseListViewCell must conform to protocol ViewAppearStateProtocol");
-    //TODO NativeRenderBaseListViewCell.shadow and NativeRenderShadowView.cell can remove
     hpCell.cellView = cellView;
     [_weakItemMap setObject:cellView forKey:[cellView componentTag]];
 }
