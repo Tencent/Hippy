@@ -369,11 +369,14 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     }
 #endif //JS_USE_JSC
     self.pScope->WillExit();
+    self.pScope = nullptr;
     NSString *enginekey = [self enginekey];
     if (!enginekey) {
         return;
     }
-    [[HippyJSEnginesMapper defaultInstance] removeEngineResourceForKey:enginekey];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[HippyJSEnginesMapper defaultInstance] removeEngineResourceForKey:enginekey];
+    });
 }
 
 - (NSString *)enginekey {
@@ -615,7 +618,7 @@ static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, Hip
         auto tryCatch = hippy::napi::CreateTryCatchScope(true, context);
         auto global_object = context->GetGlobalObject();
         auto name_key = context->CreateString(name_view);
-        auto engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:self.enginekey];
+        auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:self.enginekey];
         auto json_value = engine->GetEngine()->GetVM()->ParseJson(context, json_view);
         context->SetProperty(global_object, name_key, json_value);
         if (tryCatch->HasCaught()) {
