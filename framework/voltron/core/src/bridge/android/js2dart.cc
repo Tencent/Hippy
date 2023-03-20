@@ -32,7 +32,7 @@ using bytes = std::string;
 using StringViewUtils = footstone::StringViewUtils;
 
 namespace voltron::bridge {
-void CallDart(hippy::napi::CBDataTuple *data) {
+void CallDart(hippy::CallbackInfo& info, int32_t runtime_id) {
   FOOTSTONE_DLOG(INFO) << "CallDartMethod";
   auto cb = [](const std::shared_ptr<hippy::Runtime> &runtime,
                const string_view &module,
@@ -55,7 +55,7 @@ void CallDart(hippy::napi::CBDataTuple *data) {
                                           !runtime->IsEnableV8Serialization(),
                                           nullptr);
   };
-  V8BridgeUtils::CallNative(data, cb);
+  V8BridgeUtils::CallNative(info, runtime_id, cb);
 
 }
 }

@@ -42,8 +42,6 @@
 #include "footstone/task_runner.h"
 #include "footstone/worker_impl.h"
 #include "vfs/file.h"
-#include "jni/jni_env.h"
-#include "jni/jni_utils.h"
 
 #ifdef JS_V8
 #include "driver/napi/v8/v8_ctx.h"
@@ -75,8 +73,6 @@ using RegisterFunction = hippy::RegisterFunction;
 using V8VM = hippy::V8VM;
 using ScopeWrapper = hippy::ScopeWrapper;
 using CallbackInfo = hippy::CallbackInfo;
-using JNIEnvironment = hippy::JNIEnvironment;
-using JniUtils = hippy::JniUtils;
 
 constexpr int64_t kDefaultGroupId = -1;
 constexpr int64_t kDebuggerGroupId = -9999;
@@ -169,7 +165,7 @@ int32_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
     auto user_global_object_key = ctx->CreateString(kGlobalKey);
     ctx->SetProperty(global_object, user_global_object_key, global_object);
     auto hippy_key = ctx->CreateString(kHippyKey);
-    ctx->SetProperty(global_object, hippy_key, global_object);
+    ctx->SetProperty(global_object, hippy_key, ctx->CreateObject());
     scope->RegisterJsClasses();
     auto func_wrapper = std::make_unique<hippy::napi::FunctionWrapper>(call_native_cb,
                                                                        reinterpret_cast<void*>(runtime_id));

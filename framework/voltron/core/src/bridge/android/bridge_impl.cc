@@ -43,7 +43,7 @@ using RegisterMap = hippy::base::RegisterMap;
 using RegisterFunction = hippy::base::RegisterFunction;
 using Ctx = hippy::napi::Ctx;
 using HippyFile = hippy::vfs::HippyFile;
-using V8VMInitParam = hippy::napi::V8VMInitParam;
+using V8VMInitParam = hippy::V8VMInitParam;
 using voltron::VoltronBridge;
 using V8BridgeUtils = hippy::runtime::V8BridgeUtils;
 using StringViewUtils = footstone::StringViewUtils;
@@ -81,9 +81,12 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platfor
     FOOTSTONE_LOG(INFO) << "run scope cb";
     outerCallback(runtime_id);
   };
-  auto call_native_cb = [](void *p) {
-    auto *data = reinterpret_cast<hippy::napi::CBDataTuple *>(p);
-    voltron::bridge::CallDart(data);
+  auto call_native_cb = [](hippy::CallbackInfo& info, void* data) {
+    auto scope_wrapper = reinterpret_cast<hippy::ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+    auto scope = scope_wrapper->scope.lock();
+    FOOTSTONE_CHECK(scope);
+    auto runtime_id = static_cast<int32_t>(reinterpret_cast<size_t>(data));
+    voltron::bridge::CallDart(info, runtime_id);
   };
   V8BridgeUtils::SetOnThrowExceptionToJS([](const std::shared_ptr<hippy::Runtime> &runtime,
                                             const string_view &desc,
@@ -142,11 +145,13 @@ bool BridgeImpl::RunScriptFromUri(int64_t runtime_id, uint32_t vfs_id, bool can_
                        << ", code_cache_dir = " << code_cache_dir;
 
   auto runner = runtime->GetEngine()->GetJsTaskRunner();
-  std::shared_ptr<Ctx> ctx = runtime->GetScope()->GetContext();
+  auto ctx = runtime->GetScope()->GetContext();
   runner->PostTask([ctx, base_path] {
-    ctx->SetGlobalStrVar(kHippyCurDirKey, base_path);
+    auto key = ctx->CreateString(kHippyCurDirKey);
+    auto value = ctx->CreateString(base_path);
+    auto global = ctx->GetGlobalObject();
+    ctx->SetProperty(global, key, value);
   });
-
   auto wrapper = voltron::VfsWrapper::GetWrapper(vfs_id);
   FOOTSTONE_CHECK(wrapper != nullptr);
   FOOTSTONE_CHECK(runtime->HasData(kBridgeSlot));
