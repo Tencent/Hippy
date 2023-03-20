@@ -38,5 +38,6 @@ android {
 }
 
 dependencies {
+    compileOnly project(path: ':pool')
     implementation deps.annotation
 }

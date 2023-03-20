@@ -25,6 +25,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.openhippy.pool.BasePool.PoolType;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
@@ -36,7 +37,6 @@ import com.tencent.renderer.component.Component;
 import com.tencent.renderer.component.ComponentController;
 import com.tencent.renderer.component.image.ImageComponent;
 import com.tencent.renderer.component.image.ImageComponentController;
-import com.tencent.renderer.pool.NativeRenderPool.PoolType;
 import com.tencent.renderer.utils.DiffUtils;
 
 import java.lang.ref.WeakReference;

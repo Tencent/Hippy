@@ -14,15 +14,24 @@
  * limitations under the License.
  */
 
-package com.tencent.renderer.pool;
+package com.openhippy.pool;
 
-public abstract class NativeRenderPool<K, V> implements Pool<K, V> {
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-    public enum PoolType {
-        RECYCLE_VIEW,
-        PRE_CREATE_VIEW,
-        IMAGE_DATA,
-        NONE
+public abstract class RecycleObject {
+
+    private static final RecycleObjectPool sRecycleObjectPool = new RecycleObjectPool();
+
+    public abstract void recycle();
+
+    protected static void recycle(@NonNull RecycleObject object) {
+        sRecycleObjectPool.release(object);
+    }
+
+    @Nullable
+    protected static RecycleObject obtain(@NonNull String objectType) {
+        return sRecycleObjectPool.acquire(objectType);
     }
 
 }

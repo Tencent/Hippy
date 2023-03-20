@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tencent.renderer.pool;
+package com.openhippy.pool;
 
 import android.view.View;
 import androidx.annotation.NonNull;
@@ -25,7 +25,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RecycleViewPool extends NativeRenderPool<String, View> {
+public class RecycleViewPool extends BasePool<String, View> {
 
     private static final String TAG = "RecycleViewPool";
     private final Map<String, SimplePool<View>> mPools = new HashMap<>();

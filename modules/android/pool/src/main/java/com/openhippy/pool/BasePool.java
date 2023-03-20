@@ -14,45 +14,14 @@
  * limitations under the License.
  */
 
-package com.tencent.renderer.component.image;
+package com.openhippy.pool;
 
-import android.graphics.Bitmap;
-import android.graphics.Movie;
-import android.graphics.drawable.Drawable;
+public abstract class BasePool<K, V> implements Pool<K, V> {
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.openhippy.pool.RecycleObject;
-
-public interface ImageDataSupplier {
-
-    @Nullable
-    Drawable getDrawable();
-
-    @Nullable
-    Bitmap getBitmap();
-
-    @Nullable
-    Movie getGifMovie();
-
-    boolean checkImageData();
-
-    boolean isRecyclable();
-
-    boolean isAnimated();
-
-    @NonNull
-    String getSource();
-
-    int getImageWidth();
-
-    int getImageHeight();
-
-    int getLayoutWidth();
-
-    int getLayoutHeight();
-
-    void attached();
-
-    void detached();
+    public enum PoolType {
+        RECYCLE_VIEW,
+        PRE_CREATE_VIEW,
+        IMAGE_DATA,
+        NONE
+    }
 }

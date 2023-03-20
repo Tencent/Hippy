@@ -19,10 +19,11 @@ package com.tencent.renderer.component.image;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.openhippy.pool.ImageDataPool;
+import com.openhippy.pool.ImageRecycleObject;
+import com.openhippy.pool.Pool;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.NativeRenderException;
-import com.tencent.renderer.pool.ImageDataPool;
-import com.tencent.renderer.pool.Pool;
 
 import com.tencent.vfs.ResourceDataHolder;
 import com.tencent.vfs.VfsManager;
@@ -43,7 +44,7 @@ public class ImageLoader implements ImageLoaderAdapter {
     @Nullable
     private HashMap<Integer, ArrayList<ImageRequestListener>> mListenersMap;
     @NonNull
-    private final Pool<Integer, ImageDataSupplier> mImagePool = new ImageDataPool();
+    private final Pool<Integer, ImageRecycleObject> mImagePool = new ImageDataPool();
 
     public ImageLoader(@NonNull VfsManager vfsManager,
             @Nullable ImageDecoderAdapter imageDecoderAdapter) {
@@ -53,7 +54,9 @@ public class ImageLoader implements ImageLoaderAdapter {
 
     @Nullable
     public ImageDataSupplier getImageFromCache(@NonNull String source) {
-        return mImagePool.acquire(ImageDataHolder.generateSourceKey(source));
+        ImageRecycleObject imageObject = mImagePool.acquire(ImageDataHolder.generateSourceKey(source));
+        return (imageObject instanceof ImageDataSupplier) ? ((ImageDataSupplier) imageObject)
+                : null;
     }
 
     private void doListenerCallback(@NonNull final ImageRequestListener listener,
@@ -95,7 +98,12 @@ public class ImageLoader implements ImageLoaderAdapter {
         byte[] bytes = dataHolder.getBytes();
         if (dataHolder.resultCode
                 == ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE && bytes != null) {
-            imageHolder = new ImageDataHolder(url, width, height);
+            imageHolder = ImageDataHolder.obtain();
+            if (imageHolder != null) {
+                imageHolder.init(url, width, height);
+            } else {
+                imageHolder = new ImageDataHolder(url, width, height);
+            }
             try {
                 imageHolder.decodeImageData(bytes, initProps, mImageDecoderAdapter);
                 // Should check the request data returned from the host, if the data is
@@ -120,6 +128,7 @@ public class ImageLoader implements ImageLoaderAdapter {
         } else {
             UIThreadUtils.runOnUiThread(callbackRunnable);
         }
+        dataHolder.recycle();
     }
 
     private void handleRequestProgress(final long total, final long loaded, final int urlKey) {
@@ -145,7 +154,7 @@ public class ImageLoader implements ImageLoaderAdapter {
     }
 
     private void saveImageToCache(@NonNull ImageDataSupplier data) {
-        mImagePool.release(data);
+        mImagePool.release((ImageRecycleObject) data);
     }
 
     @NonNull
@@ -167,7 +176,12 @@ public class ImageLoader implements ImageLoaderAdapter {
                 != ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE || bytes == null) {
             return null;
         }
-        ImageDataHolder imageHolder = new ImageDataHolder(url, width, height);
+        ImageDataHolder imageHolder = ImageDataHolder.obtain();
+        if (imageHolder != null) {
+            imageHolder.init(url, width, height);
+        } else {
+            imageHolder = new ImageDataHolder(url, width, height);
+        }
         try {
             imageHolder.decodeImageData(bytes, initProps, mImageDecoderAdapter);
             if (imageHolder.checkImageData()) {
@@ -177,6 +191,7 @@ public class ImageLoader implements ImageLoaderAdapter {
         } catch (NativeRenderException e) {
             e.printStackTrace();
         }
+        dataHolder.recycle();
         return null;
     }
 

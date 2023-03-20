@@ -175,6 +175,7 @@ public class NetworkModule extends HippyNativeModuleBase {
                             promise.resolve(
                                     "Load remote resource failed: " + dataHolder.errorMessage);
                         }
+                        dataHolder.recycle();
                     }
 
                     @Override

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tencent.renderer.pool;
+package com.openhippy.pool;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

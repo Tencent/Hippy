@@ -119,12 +119,10 @@ public class ImageComponent extends Component {
         super.clear();
         if (mImageHolder != null) {
             mImageHolder.detached();
-            mImageHolder.clear();
             mImageHolder = null;
         }
         if (mDefaultImageHolder != null) {
             mDefaultImageHolder.detached();
-            mDefaultImageHolder.clear();
             mDefaultImageHolder = null;
         }
     }

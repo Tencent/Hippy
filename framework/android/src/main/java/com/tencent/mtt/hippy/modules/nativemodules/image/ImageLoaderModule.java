@@ -81,6 +81,7 @@ public class ImageLoaderModule extends HippyNativeModuleBase {
                         } else {
                             decodeImageData(url, bytes, promise);
                         }
+                        dataHolder.recycle();
                     }
 
                     @Override
@@ -96,7 +97,7 @@ public class ImageLoaderModule extends HippyNativeModuleBase {
                 new FetchResourceCallback() {
                     @Override
                     public void onFetchCompleted(@NonNull final ResourceDataHolder dataHolder) {
-                        // Nothing need to do here.
+                        dataHolder.recycle();
                     }
 
                     @Override

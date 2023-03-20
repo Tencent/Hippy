@@ -14,45 +14,15 @@
  * limitations under the License.
  */
 
-package com.tencent.renderer.component.image;
+package com.openhippy.pool;
 
-import android.graphics.Bitmap;
-import android.graphics.Movie;
-import android.graphics.drawable.Drawable;
+public abstract class ImageRecycleObject extends RecycleObject {
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.openhippy.pool.RecycleObject;
+    public abstract void evicted();
 
-public interface ImageDataSupplier {
+    public abstract void cached();
 
-    @Nullable
-    Drawable getDrawable();
+    public abstract int getCacheKey();
 
-    @Nullable
-    Bitmap getBitmap();
-
-    @Nullable
-    Movie getGifMovie();
-
-    boolean checkImageData();
-
-    boolean isRecyclable();
-
-    boolean isAnimated();
-
-    @NonNull
-    String getSource();
-
-    int getImageWidth();
-
-    int getImageHeight();
-
-    int getLayoutWidth();
-
-    int getLayoutHeight();
-
-    void attached();
-
-    void detached();
+    public abstract boolean isScraped();
 }
