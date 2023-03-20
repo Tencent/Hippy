@@ -24,6 +24,6 @@
 
 namespace voltron::bridge {
 
-void CallDart(hippy::napi::CBDataTuple *data);
+void CallDart(hippy::CallbackInfo& info, int32_t runtime_id);
 
 }  // namespace voltron

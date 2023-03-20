@@ -42,8 +42,6 @@
 #include "footstone/task_runner.h"
 #include "footstone/worker_impl.h"
 #include "vfs/file.h"
-#include "jni/jni_env.h"
-#include "jni/jni_utils.h"
 
 #ifdef JS_V8
 #include "driver/napi/v8/v8_ctx.h"
@@ -75,8 +73,6 @@ using RegisterFunction = hippy::RegisterFunction;
 using V8VM = hippy::V8VM;
 using ScopeWrapper = hippy::ScopeWrapper;
 using CallbackInfo = hippy::CallbackInfo;
-using JNIEnvironment = hippy::JNIEnvironment;
-using JniUtils = hippy::JniUtils;
 
 constexpr int64_t kDefaultGroupId = -1;
 constexpr int64_t kDebuggerGroupId = -9999;

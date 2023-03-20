@@ -48,9 +48,13 @@
 #import "VoltronJSEnginesMapper.h"
 
 #include "footstone/string_view_utils.h"
-#include "driver/napi/jsc/js_native_api_jsc.h"
+#include "driver/napi/jsc/jsc_ctx.h"
+#include "driver/napi/js_ctx.h"
+#include "driver/napi/js_ctx_value.h"
+#include "driver/napi/js_try_catch.h"
+#include "driver/napi/callback_info.h"
+#include "driver/vm/jsc/jsc_vm.h"
 #include "footstone/task.h"
-#include "driver/napi/js_native_api.h"
 #include "driver/scope.h"
 #include "driver/engine.h"
 #ifdef ENABLE_INSPECTOR
@@ -60,6 +64,8 @@
 NSString *const HippyJSCThreadName = @"com.tencent.Voltron.JavaScript";
 NSString *const HippyJavaScriptContextCreatedNotification = @"VoltronJavaScriptContextCreatedNotification";
 NSString *const HippyJavaScriptContextCreatedNotificationBridgeKey = @"VoltronJavaScriptContextCreatedNotificationBridgeKey";
+constexpr char kGlobalKey[] = "global";
+constexpr char kHippyKey[] = "Hippy";
 
 struct __attribute__((packed)) ModuleData {
     uint32_t offset;
@@ -116,7 +122,7 @@ struct RandomAccessBundleData {
         self->_completion = completion;
         std::unique_ptr<hippy::Engine::RegisterMap> map = [self registerMap];
         const char *pName = [execurotkey UTF8String] ?: "";
-        std::shared_ptr<hippy::Scope> scope = engine->CreateScope(pName, std::move(map));
+        std::shared_ptr<hippy::Scope> scope = engine->AsyncCreateScope(pName, std::move(map));
         self.pScope = scope;
     #if ENABLE_INSPECTOR
         // create devtools
@@ -141,10 +147,6 @@ static string_view NSStringToU8(NSString* str) {
     __weak VoltronJSCExecutor *weakSelf = self;
     __weak NSString *weakGlobalConfig = self->_globalConfig;
     hippy::base::RegisterFunction taskEndCB = [weakSelf](void *) {
-        VoltronJSCExecutor *strongSelf = weakSelf;
-        if (strongSelf) {
-          handleJsExcepiton(strongSelf->_pScope);
-        }
     };
 
     hippy::base::RegisterFunction ctxCreateCB = [weakSelf, weakGlobalConfig](void *p) {
@@ -155,12 +157,16 @@ static string_view NSStringToU8(NSString* str) {
 
       NSString *strongGlobalConfig = weakGlobalConfig;
       hippy::ScopeWrapper *wrapper = reinterpret_cast<hippy::ScopeWrapper *>(p);
-      std::shared_ptr<hippy::Scope> scope = wrapper->scope_.lock();
+      std::shared_ptr<hippy::Scope> scope = wrapper->scope.lock();
       if (scope) {
-        std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
+        std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::driver::napi::JSCCtx>(scope->GetContext());
         JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context->GetCtxRef()];
-        context->RegisterGlobalInJs();
-        context->RegisterClasses(scope);
+        auto global_object = context->GetGlobalObject();
+        auto user_global_object_key = context->CreateString(kGlobalKey);
+        context->SetProperty(global_object, user_global_object_key, global_object);
+        auto hippy_key = context->CreateString(kHippyKey);
+        context->SetProperty(global_object, hippy_key, context->CreateObject());
+        scope->RegisterJsClasses();
 
         if (!strongSelf->_jscWrapper) {
           [strongSelf->_performanceLogger markStartForTag:VoltronPLJSCWrapperOpenLibrary];
@@ -169,8 +175,13 @@ static string_view NSStringToU8(NSString* str) {
           installBasicSynchronousHooksOnContext(jsContext);
         }
 
-        context->SetGlobalJsonVar("__HIPPYNATIVEGLOBAL__", NSStringToU8(strongGlobalConfig));
-        context->SetGlobalJsonVar("__fbBatchedBridgeConfig", NSStringToU8(@""));
+        auto global_config_key = context->CreateString("__HIPPYNATIVEGLOBAL__");
+        auto global_config_value= context->CreateString(NSStringToU8(strongGlobalConfig));
+        context->SetProperty(global_object, global_config_key, global_config_value);
+
+        auto bridge_config_key = context->CreateString("__fbBatchedBridgeConfig");
+        auto bridge_config_value = context->CreateString(NSStringToU8(@""));
+        context->SetProperty(global_object, bridge_config_key, bridge_config_value);
 
         jsContext[@"hippyCallNatives"] = ^(id module, id method, NSString *callbackId, NSArray *args) {
             VoltronJSCExecutor *strongSelf = weakSelf;
@@ -207,41 +218,14 @@ static string_view NSStringToU8(NSString* str) {
           return;
       }
       hippy::ScopeWrapper *wrapper = reinterpret_cast<hippy::ScopeWrapper *>(p);
-      std::shared_ptr<hippy::Scope> scope = wrapper->scope_.lock();
-      if(handleJsExcepiton(scope)) {
-        strongSelf->_completion(TRUE);
-      } else {
-        strongSelf->_completion(FALSE);
-      };
+      std::shared_ptr<hippy::Scope> scope = wrapper->scope.lock();
+      strongSelf->_completion(TRUE);
     };
     std::unique_ptr<hippy::Engine::RegisterMap> ptr = std::make_unique<hippy::Engine::RegisterMap>();
     ptr->insert(std::make_pair("ASYNC_TASK_END", taskEndCB));
     ptr->insert(std::make_pair(hippy::base::kContextCreatedCBKey, ctxCreateCB));
     ptr->insert(std::make_pair(hippy::base::KScopeInitializedCBKey, scopeInitializedCB));
     return ptr;
-}
-
-static BOOL handleJsExcepiton(std::shared_ptr<hippy::Scope> scope) {
-  if (!scope) {
-    return FALSE;
-  }
-  std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
-  std::shared_ptr<hippy::napi::JSCCtxValue> exception = std::static_pointer_cast<hippy::napi::JSCCtxValue>(context->GetException());
-  if (exception) {
-    if (!context->IsExceptionHandled()) {
-      context->ThrowException(exception);
-    }
-    std::u16string exceptionStr = StringViewUtils::CovertToUtf16(context->GetExceptionMsg(exception), string_view::Encoding::Utf16).utf16_value();
-    NSString *err = [NSString stringWithCharacters:(const unichar *)exceptionStr.c_str() length:(exceptionStr.length())];
-    NSError *error = VoltronErrorWithMessage(err);
-
-    // NSError *error = RCTErrorWithMessageAndModule(err, strongSelf.bridge.moduleName);
-    //VoltronFatal(error);
-    context->SetException(nullptr);
-    context->SetExceptionHandled(true);
-    return FALSE;
-  }
-  return TRUE;
 }
 
 - (JSContext *)JSContext {
@@ -497,7 +481,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
 }
 
 - (void)secondBundleLoadCompleted:(BOOL)success {
-//    std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::napi::JSCCtx>(self.pScope->GetContext());
+//    std::shared_ptr<hippy::driver::napi::JSCCtx> context = std::static_pointer_cast<hippy::driver::napi::JSCCtx>(self.pScope->GetContext());
 //    NSString *workFolder = [self.bridge workFolder2];
 //    HippyAssert(workFolder, @"work folder path should not be null");
 //    if (workFolder) {
