@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.tencent.renderer.pool;
+package com.openhippy.pool;
 
 import android.util.SparseArray;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class PreCreateViewPool extends NativeRenderPool<Integer, View> {
+public class PreCreateViewPool extends BasePool<Integer, View> {
 
-    private static final int DEFAULT_PRE_CREATE_POOL_SIZE = 16;
+    private static final int DEFAULT_PRE_CREATE_POOL_SIZE = 32;
     private final SparseArray<View> mPools;
 
     public PreCreateViewPool() {

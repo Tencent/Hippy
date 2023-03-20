@@ -26,6 +26,8 @@ import android.os.Build.VERSION_CODES;
 
 import androidx.annotation.RequiresApi;
 
+import com.openhippy.pool.ImageRecycleObject;
+import com.openhippy.pool.RecycleObject;
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.utils.ImageDataUtils;
 
@@ -45,7 +47,7 @@ import androidx.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
-public class ImageDataHolder implements ImageDataSupplier {
+public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupplier {
 
     private static final int MAX_SOURCE_KEY_LEN = 32;
     /**
@@ -63,8 +65,7 @@ public class ImageDataHolder implements ImageDataSupplier {
     private int mStateFlags = 0;
     private int mWidth;
     private int mHeight;
-    @NonNull
-    private final String mSource;
+    private String mSource;
     @Nullable
     private Drawable mDrawable;
     @Nullable
@@ -75,13 +76,24 @@ public class ImageDataHolder implements ImageDataSupplier {
     private BitmapFactory.Options mOptions;
 
     public ImageDataHolder(@NonNull String source) {
-        mSource = source;
+        init(source, 0, 0);
     }
 
     public ImageDataHolder(@NonNull String source, int width, int height) {
+        init(source, width, height);
+    }
+
+    public void init(@NonNull String source, int width, int height) {
         mSource = source;
         mWidth = width;
         mHeight = height;
+    }
+
+    @Nullable
+    public static ImageDataHolder obtain() {
+        RecycleObject recycleObject = RecycleObject.obtain(ImageDataHolder.class.getSimpleName());
+        return (recycleObject instanceof ImageDataHolder) ? ((ImageDataHolder) recycleObject)
+                : null;
     }
 
     /**
@@ -115,6 +127,16 @@ public class ImageDataHolder implements ImageDataSupplier {
     }
 
     @Override
+    public int getCacheKey() {
+        return generateSourceKey(mSource);
+    }
+
+    @Override
+    public void recycle() {
+        RecycleObject.recycle(this);
+    }
+
+    @Override
     public void attached() {
         setStateFlag(FLAG_ATTACHED);
     }
@@ -122,6 +144,7 @@ public class ImageDataHolder implements ImageDataSupplier {
     @Override
     public void detached() {
         resetStateFlag(FLAG_ATTACHED);
+        clear();
     }
 
     @Override
@@ -132,10 +155,10 @@ public class ImageDataHolder implements ImageDataSupplier {
     @Override
     public void evicted() {
         resetStateFlag(FLAG_CACHED);
+        clear();
     }
 
-    @Override
-    public void clear() {
+    private void clear() {
         if (checkStateFlag(FLAG_CACHED) || checkStateFlag(FLAG_ATTACHED)) {
             return;
         }
@@ -149,6 +172,8 @@ public class ImageDataHolder implements ImageDataSupplier {
         mGifMovie = null;
         mDrawable = null;
         mOptions = null;
+        mStateFlags = 0;
+        recycle();
     }
 
     @Override
@@ -176,20 +201,25 @@ public class ImageDataHolder implements ImageDataSupplier {
     }
 
     @Override
-    public boolean checkImageData() {
+    public boolean isScraped() {
         if (mOptions == null) {
-            return false;
-        }
-        if (mDrawable != null) {
             return true;
         }
+        if (mDrawable != null) {
+            return false;
+        }
         if (ImageDataUtils.isJpeg(mOptions) || ImageDataUtils.isPng(mOptions)) {
-            return mBitmap != null && !mBitmap.isRecycled();
+            return mBitmap == null || mBitmap.isRecycled();
         }
         if (ImageDataUtils.isGif(mOptions)) {
-            return mGifMovie != null;
+            return mGifMovie == null;
         }
-        return false;
+        return true;
+    }
+
+    @Override
+    public boolean checkImageData() {
+        return !isScraped();
     }
 
     @Override

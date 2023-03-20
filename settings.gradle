@@ -34,6 +34,9 @@ project(':serialization').projectDir = new File('modules/android/serialization')
 include 'vfs'
 project(':vfs').projectDir = new File('modules/vfs/android')
 
+include 'pool'
+project(':pool').projectDir = new File('modules/android/pool')
+
 include 'devtools-integration'
 project(':devtools-integration').projectDir = new File('devtools/devtools-integration/android')
 

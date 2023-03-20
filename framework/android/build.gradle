@@ -161,6 +161,7 @@ dependencies {
     embed project(path: ':serialization', configuration: 'default')
     embed project(path: ':hippy-support', configuration: 'default')
     embed project(path: ':vfs', configuration: 'default')
+    embed project(path: ':pool', configuration: 'default')
     embed project(path: ':devtools-integration', configuration: 'default')
     getAllModules().each {
         def module = Paths.get(it)
