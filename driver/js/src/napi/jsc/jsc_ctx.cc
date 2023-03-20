@@ -601,13 +601,11 @@ bool JSCCtx::GetEntries(const std::shared_ptr<CtxValue>& value,
     JSStringRef key = JSPropertyNameArrayGetNameAtIndex(name_arry, i);
     JSValueRef prop_value = JSObjectGetProperty(context_, obj_value, key, &exception);
     if (exception) {
-      JSStringRelease(key);
       SetException(std::make_shared<JSCCtxValue>(context_, exception));
       return false;
     }
     JSValueRef prop_key = JSValueMakeString(context_, key);
     map[std::make_shared<JSCCtxValue>(context_, prop_key)] = std::make_shared<JSCCtxValue>(context_, prop_value);
-    JSStringRelease(key);
   }
   JSPropertyNameArrayRelease(name_arry);
   

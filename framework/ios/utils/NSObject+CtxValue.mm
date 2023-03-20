@@ -121,7 +121,7 @@
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
     @autoreleasepool {
-        NSString *errorMessage = [self localizedFailureReason];
+        NSString *errorMessage = [self description];
         auto string_view = footstone::string_view::new_from_utf8([errorMessage UTF8String]);
         return context->CreateError(string_view);
     }
