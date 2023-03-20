@@ -115,7 +115,7 @@ footstone::value::HippyValue OCTypeToDomValue(id value) {
 }
 
 void BridgeImpl::LoadInstance(int64_t runtime_id, std::string&& params) {
-    
+
     NSString *paramsStr = [NSString stringWithCString:params.c_str()
                                              encoding:[NSString defaultCStringEncoding]];
     dispatch_async(HippyBridgeQueue(), ^{
@@ -136,7 +136,7 @@ void BridgeImpl::LoadInstance(int64_t runtime_id, std::string&& params) {
 void BridgeImpl::UnloadInstance(int64_t runtime_id, std::string&& params) {
     NSString *paramsStr = [NSString stringWithCString:params.c_str()
                                              encoding:[NSString defaultCStringEncoding]];
-    
+
     dispatch_async(HippyBridgeQueue(), ^{
         VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
         NSData *objectData = [paramsStr dataUsingEncoding:NSUTF8StringEncoding];
@@ -182,7 +182,7 @@ int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platf
         auto engine = std::make_shared<hippy::Engine>();
         engine->AsyncInit(dom_task_runner, nullptr);
         [[VoltronJSEnginesMapper defaultInstance] setEngine:engine forKey: executorKey];
-        
+
         [bridge initJSFramework:globalConfig execurotKey:executorKey workerManager:worker_sp devtoolsId:devtoolsId debugMode:debugMode completion:^(BOOL succ) {
             callback(succ ? 1 : 0);
         }];
@@ -217,7 +217,11 @@ bool BridgeImpl::RunScriptFromUri(int64_t runtime_id,
                              << ", script_name = " << [scriptName UTF8String]
                              << ", base_path = " << [basePath UTF8String]
                              << ", code_cache_dir = " << code_cache_dir;
-        scope->GetContext()->SetGlobalStrVar("__HIPPYCURDIR__", footstone::stringview::string_view::new_from_utf8([basePath UTF8String]));
+        auto ctx = scope->GetContext();
+        auto key = ctx->CreateString("__HIPPYCURDIR__");
+        auto value = ctx->CreateString(footstone::stringview::string_view::new_from_utf8([basePath UTF8String]));
+        auto global = ctx->GetGlobalObject();
+        ctx->SetProperty(global, key, value);
         scope->SetUriLoader(wrapper->GetLoader());
 
 #ifdef ENABLE_INSPECTOR
@@ -267,8 +271,8 @@ void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t* action, std::s
     if (action == nullptr) {
         return;
     }
-    
-    
+
+
     NSString *actionName = U16ToNSString(action);
     NSString *paramsStr = [NSString stringWithCString:params.c_str()
                                              encoding:[NSString defaultCStringEncoding]];
@@ -277,7 +281,7 @@ void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t* action, std::s
     NSDictionary *paramDict = [NSJSONSerialization JSONObjectWithData:objectData
                                                               options:NSJSONReadingMutableContainers
                                                                 error:&jsonError];
-    
+
     dispatch_async(HippyBridgeQueue(), ^{
         VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
         [bridge callFunctionOnAction:actionName arguments:paramDict callback:^(id result, NSError *error) {
