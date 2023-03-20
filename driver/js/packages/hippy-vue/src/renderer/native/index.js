@@ -336,8 +336,10 @@ function getTargetNodeAttributes(targetNode) {
   try {
     const targetNodeAttributes = deepCopy(targetNode.attributes);
     const classInfo = Array.from(targetNode.classList || []).join(' ');
+    const { id, nodeId } = targetNode;
     const attributes = {
-      id: targetNode.id,
+      id,
+      hippyNodeId: `${nodeId}`,
       class: classInfo,
       ...targetNodeAttributes,
     };
@@ -513,12 +515,9 @@ function isLayout(node, rootView) {
   return node.id === rootView.slice(1 - rootView.length);
 }
 
-function insertChild(parentNode, childNode, atIndex = -1, refInfo = {}) {
+function insertChild(parentNode, childNode, refInfo = {}) {
   if (!parentNode || !childNode) {
     return;
-  }
-  if (parentNode.meta && isFunction(parentNode.meta.insertChild)) {
-    parentNode.meta.insertChild(parentNode, childNode, atIndex);
   }
   if (childNode.meta.skipAddToDom) {
     return;
@@ -554,15 +553,11 @@ function insertChild(parentNode, childNode, atIndex = -1, refInfo = {}) {
   }
 }
 
-function removeChild(parentNode, childNode, index) {
-  if (parentNode && parentNode.meta && isFunction(parentNode.meta.removeChild)) {
-    parentNode.meta.removeChild(parentNode, childNode);
-  }
+function removeChild(parentNode, childNode) {
   if (!childNode || childNode.meta.skipAddToDom) {
     return;
   }
   childNode.isMounted = false;
-  childNode.index = index;
   const app = getApp();
   const { $options: { rootViewId } } = app;
   const nativeNode =    {
@@ -585,7 +580,7 @@ function removeChild(parentNode, childNode, index) {
   endBatch(app);
 }
 
-function moveChild(parentNode, childNode, index, refInfo = {}) {
+function moveChild(parentNode, childNode, refInfo = {}) {
   if (parentNode && parentNode.meta && isFunction(parentNode.meta.removeChild)) {
     parentNode.meta.removeChild(parentNode, childNode);
   }
@@ -593,7 +588,6 @@ function moveChild(parentNode, childNode, index, refInfo = {}) {
     return;
   }
   childNode.isMounted = false;
-  childNode.index = index;
   const app = getApp();
   const { $options: { rootViewId } } = app;
   const nativeNode =  {
@@ -606,7 +600,7 @@ function moveChild(parentNode, childNode, index, refInfo = {}) {
       refInfo,
     ],
   ];
-  const printedNodes = isDev() ? [nativeNode] : [];
+  const printedNodes = isDev() ? [{ ...nativeNode, ...refInfo }] : [];
   batchNodes.push({
     printedNodes,
     type: NODE_OPERATION_TYPES.moveNode,
