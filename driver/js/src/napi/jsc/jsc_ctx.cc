@@ -44,6 +44,29 @@ constexpr char16_t kObjectStr[] = u"Object";
 constexpr char16_t kGetStr[] = u"get";
 constexpr char16_t kSetStr[] = u"set";
 
+static std::once_flag global_class_flag;
+static JSClassRef global_class;
+
+JSCCtx::JSCCtx(JSContextGroupRef vm) {
+  std::call_once(global_class_flag, []() {
+    JSClassDefinition global = kJSClassDefinitionEmpty;
+    global_class = JSClassCreate(&global);
+  });
+  
+  context_ = JSGlobalContextCreateInGroup(vm, global_class);
+  
+  exception_ = nullptr;
+  is_exception_handled_ = false;
+  
+}
+
+JSCCtx::~JSCCtx() {
+  exception_ = nullptr;
+  
+  JSGlobalContextRelease(context_);
+  context_ = nullptr;
+}
+
 JSValueRef InvokeJsCallback(JSContextRef ctx,
                             JSObjectRef function,
                             JSObjectRef object,
@@ -54,12 +77,13 @@ JSValueRef InvokeJsCallback(JSContextRef ctx,
   if (!data) {
     return JSValueMakeUndefined(ctx);
   }
-  auto function_data = reinterpret_cast<FunctionData*>(data);
-  auto function_wrapper = reinterpret_cast<FunctionWrapper*>(function_data->function_wrapper);
+  auto function_wrapper = reinterpret_cast<FunctionWrapper*>(data);
   auto js_cb = function_wrapper->cb;
   void* external_data = function_wrapper->data;
   CallbackInfo cb_info;
-  cb_info.SetSlot(function_data->global_external_data);
+  JSObjectRef global_obj = JSContextGetGlobalObject(ctx);
+  auto global_external_data = JSObjectGetPrivate(global_obj);
+  cb_info.SetSlot(global_external_data);
   auto context = const_cast<JSGlobalContextRef>(ctx);
   cb_info.SetReceiver(std::make_shared<JSCCtxValue>(context, object));
   auto object_private_data = JSObjectGetPrivate(object);
@@ -99,7 +123,9 @@ JSObjectRef InvokeConstructorCallback(JSContextRef ctx,
   auto js_cb = function_wrapper->cb;
   void* external_data = function_wrapper->data;
   CallbackInfo cb_info;
-  cb_info.SetSlot(constructor_data->global_external_data);
+  JSObjectRef global_obj = JSContextGetGlobalObject(ctx);
+  auto global_external_data = JSObjectGetPrivate(global_obj);
+  cb_info.SetSlot(global_external_data);
   auto context = const_cast<JSGlobalContextRef>(ctx);
   auto proto = std::static_pointer_cast<JSCCtxValue>(constructor_data->prototype)->value_;
   JSObjectSetPrototype(ctx, constructor, proto);
@@ -128,7 +154,6 @@ JSObjectRef InvokeConstructorCallback(JSContextRef ctx,
 }
 
 std::shared_ptr<CtxValue> JSCCtx::CreateFunction(const std::unique_ptr<FunctionWrapper>& wrapper) {
-  auto func_data = std::make_unique<FunctionData>(external_data_, reinterpret_cast<void*>(wrapper.get()));
   JSClassDefinition fn_def = kJSClassDefinitionEmpty;
   fn_def.callAsFunction = InvokeJsCallback;
   fn_def.attributes = kJSClassAttributeNoAutomaticPrototype;
@@ -143,25 +168,25 @@ std::shared_ptr<CtxValue> JSCCtx::CreateFunction(const std::unique_ptr<FunctionW
     JSObjectSetPrototype(ctx, object, proto);
   };
   JSClassRef cls_ref = JSClassCreate(&fn_def);
-  JSObjectRef fn_obj = JSObjectMake(context_, cls_ref, func_data.get());
+  JSObjectRef fn_obj = JSObjectMake(context_, cls_ref, reinterpret_cast<void*>(wrapper.get()));
   JSClassRelease(cls_ref);
-  SaveFuncData(std::move(func_data));
   return std::make_shared<JSCCtxValue>(context_, fn_obj);
 }
 
-static JSValueRef JSObjectGetPropertyCallback(
-                                              JSContextRef ctx,
+static JSValueRef JSObjectGetPropertyCallback(JSContextRef ctx,
                                               JSObjectRef object,
                                               JSStringRef name,
                                               JSValueRef *exception_ref) {
   
-  FunctionData* func_data = reinterpret_cast<FunctionData*>(JSObjectGetPrivate(object));
+  auto function_wrapper = JSObjectGetPrivate(object);
   auto context = const_cast<JSGlobalContextRef>(ctx);
-  auto func_wrapper = reinterpret_cast<FunctionWrapper*>(func_data->function_wrapper);
+  auto func_wrapper = reinterpret_cast<FunctionWrapper*>(function_wrapper);
   auto js_cb = func_wrapper->cb;
   void* external_data = func_wrapper->data;
   CallbackInfo cb_info;
-  cb_info.SetSlot(func_data->global_external_data);
+  JSObjectRef global_obj = JSContextGetGlobalObject(ctx);
+  auto global_external_data = JSObjectGetPrivate(global_obj);
+  cb_info.SetSlot(global_external_data);
   cb_info.SetReceiver(std::make_shared<JSCCtxValue>(context, object));
   
   JSValueRef name_ref = JSValueMakeString(context, name);
@@ -186,10 +211,8 @@ std::shared_ptr<CtxValue>  JSCCtx::DefineProxy(const std::unique_ptr<FunctionWra
   JSClassDefinition cls_def = kJSClassDefinitionEmpty;
   cls_def.getProperty = JSObjectGetPropertyCallback;
   auto cls_ref = JSClassCreate(&cls_def);
-  auto func_data = std::make_unique<FunctionData>(external_data_, reinterpret_cast<void*>(wrapper.get()));
-  JSObjectRef fn_obj = JSObjectMake(context_, cls_ref, reinterpret_cast<void*>(func_data.get()));
+  JSObjectRef fn_obj = JSObjectMake(context_, cls_ref, reinterpret_cast<void*>(wrapper.get()));
   JSClassRelease(cls_ref);
-  SaveFuncData(std::move(func_data));
   return std::make_shared<JSCCtxValue>(context_, fn_obj);
 }
 
@@ -278,7 +301,7 @@ std::shared_ptr<CtxValue> JSCCtx::DefineClass(string_view name,
   JSStringRelease(define_property_name);
   JSStringRelease(object_name);
   
-  auto private_data = std::make_unique<ConstructorData>(external_data_, reinterpret_cast<void*>(constructor_wrapper.get()), std::make_shared<JSCCtxValue>(context_, prototype));
+  auto private_data = std::make_unique<ConstructorData>(reinterpret_cast<void*>(constructor_wrapper.get()), std::make_shared<JSCCtxValue>(context_, prototype));
   auto object = JSObjectMake(context_, cls_ref, private_data.get());
   SaveConstructorData(std::move(private_data));
   return std::make_shared<JSCCtxValue>(context_, object);
@@ -327,7 +350,9 @@ std::shared_ptr<CtxValue> JSCCtx::GetGlobalObject() {
 }
 
 void JSCCtx::SetExternalData(void* data) {
-  external_data_ = data;
+  JSObjectRef global_obj = JSContextGetGlobalObject(context_);
+  auto flag = JSObjectSetPrivate(global_obj, data);
+  FOOTSTONE_CHECK(flag);
 };
 
 bool JSCCtx::GetValueNumber(const std::shared_ptr<CtxValue>& value, double* result) {
