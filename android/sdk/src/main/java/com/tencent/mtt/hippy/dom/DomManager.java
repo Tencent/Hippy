@@ -319,9 +319,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
           .isControllerLazy(className));
       node.setProps(map);
 
-      if (mContext.getDevSupportManager().isSupportDev()) {
-        node.setDomNodeRecord(new DomDomainData(rootId, id, pid, index, className, tagName, map));
-      }
+      node.setDomNodeRecord(new DomDomainData(rootId, id, pid, index, className, tagName, map));
 
       //		boolean isLayoutOnly=false;
       boolean isLayoutOnly =
