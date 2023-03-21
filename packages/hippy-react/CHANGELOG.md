@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.16.0](https://github.com/Tencent/Hippy/compare/2.15.5...2.16.0) (2023-03-21)
+
+
+### Features
+
+* **andr:** add prod remotedebug, local bundle instead of remote server([#2849](https://github.com/Tencent/Hippy/issues/2849)) ([70fbde4](https://github.com/Tencent/Hippy/commit/70fbde4d5a249f5bda872b6bd69ff4e6a2ad5a1b))
+* **react:** support fontWeight in number ([aaa5d4c](https://github.com/Tencent/Hippy/commit/aaa5d4c62efc2f1817b302914b41516513850050))
+
+
+
+
+
 ## [2.15.5](https://github.com/Tencent/Hippy/compare/2.15.4...2.15.5) (2022-12-07)
 
 **Note:** Version bump only for package @hippy/react

@@ -3,6 +3,133 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.16.0](https://github.com/Tencent/Hippy/compare/2.15.5...2.16.0) (2023-03-21)
+
+
+### Bug Fixes
+
+* **android:** `initialContentOffset` takes effect too late ([ca7f7e8](https://github.com/Tencent/Hippy/commit/ca7f7e8693a9cb7ba0eb93a286148feed890b6c9))
+* **android:** custom font style support ([b42f999](https://github.com/Tencent/Hippy/commit/b42f999f09470033f990e7f85ce79b41a59152c9))
+* **android:** drawPath CRASH_java.lang.NullPointerException ([76210a4](https://github.com/Tencent/Hippy/commit/76210a49a2efdb9a39c83fcbfe4e0edac954fd7a))
+* **android:** fix default value for several properties ([66e3fa4](https://github.com/Tencent/Hippy/commit/66e3fa4dc01d5ef334d59752bdc7b4cab07fe4b0))
+* **android:** fix unit test case ([#2968](https://github.com/Tencent/Hippy/issues/2968)) ([56d1c34](https://github.com/Tencent/Hippy/commit/56d1c34b6d67b23003fb77399c881386ea134473))
+* **android:** modal may not be fullscreen ([6358a5e](https://github.com/Tencent/Hippy/commit/6358a5ea58e3201e423e6a1ed26ee52a911a3bdd))
+* **android:** promise leak after engine destroy ([7eca478](https://github.com/Tencent/Hippy/commit/7eca478b86fd6e589273a2acdf95331e7cd7117f))
+* **android:** pull header/footer collapse animation ([888c99a](https://github.com/Tencent/Hippy/commit/888c99a76bc2ab62ab6deb62ce573ec3fade4721))
+* **android:** remove use of mDebugInitJSFrameworkCallback ([d420485](https://github.com/Tencent/Hippy/commit/d42048559e29498274e290791b431ca15e79317e))
+* **android:** remove web url judge in fetchResourceWithUri ([#2840](https://github.com/Tencent/Hippy/issues/2840)) ([6988e1a](https://github.com/Tencent/Hippy/commit/6988e1ab7f2b7a6e585d47fbb5c6a52929d11208))
+* **android:** return size after loading gif ([#3001](https://github.com/Tencent/Hippy/issues/3001)) ([28fdfa9](https://github.com/Tencent/Hippy/commit/28fdfa925fa0170d822416f2ac6f2e53ea4eb4d8))
+* **android:** send scroll event when pulling header/footer ([1c0d713](https://github.com/Tencent/Hippy/commit/1c0d713d4f54eacd1e39e261c8649be77b447c56))
+* **android:** text with negative letterSpacing wraps at wrong position ([#2843](https://github.com/Tencent/Hippy/issues/2843)) ([70884a2](https://github.com/Tencent/Hippy/commit/70884a29c759742c7153398564f4a60689f15e11))
+* **android:** textInput may throw IllegalStateException ([#2957](https://github.com/Tencent/Hippy/issues/2957)) ([ded1a57](https://github.com/Tencent/Hippy/commit/ded1a57f0c89c43fcda31c0804f7ac47851ed6c4))
+* **android:** update scrollview consumed value ([d48e061](https://github.com/Tencent/Hippy/commit/d48e061d6fae09aea36e5f8791853edc42d2f309))
+* **base:** add Apache License ([321bcf8](https://github.com/Tencent/Hippy/commit/321bcf8db6ff1db0d1e6df0c5232f97ac115bfef))
+* **base:** fix capitalization error ([8ce3f00](https://github.com/Tencent/Hippy/commit/8ce3f00a0d1871ee91c99c60d9ad310688d3c886))
+* **base:** fix unknown word misspelling ([3f9b533](https://github.com/Tencent/Hippy/commit/3f9b5330e7ceb19ad4a5a4cc8ef888da26871a3e))
+* **core:** add handle_scope for v8 exception ([#2860](https://github.com/Tencent/Hippy/issues/2860)) ([8fcef90](https://github.com/Tencent/Hippy/commit/8fcef908b96f2df3f3e518dc2622ea703fd1d8a7))
+* **core:** avoid crash caused by lock in the destructor ([87f8cd2](https://github.com/Tencent/Hippy/commit/87f8cd20816b35f6908283f79caa9c7b14af9486))
+* **core:** compatible with v8 low version ([dd06697](https://github.com/Tencent/Hippy/commit/dd066976e1022e237f499c43fbb6192320590092))
+* **core:** compatile with single callback in native2js ([939b97d](https://github.com/Tencent/Hippy/commit/939b97d9eea684a27e3eef943c9506d72d5b34da))
+* **core:** fix crash when running callback in system thread ([1cad68b](https://github.com/Tencent/Hippy/commit/1cad68bb779b02b6b663ec29331db5d1f142b7d6))
+* **core:** fix deadlock in debug mode ([4c772fe](https://github.com/Tencent/Hippy/commit/4c772fe5bd626d91806344b03a68a4497b2b3369))
+* **core:** fix debugmode crash ([c003e67](https://github.com/Tencent/Hippy/commit/c003e6741c349518ba5ed8fe4fa8fea185724fa2))
+* **demo:** fix cross-env script error ([cf739c0](https://github.com/Tencent/Hippy/commit/cf739c0b46e300423578bd197cbefc13a1708590))
+* **devtools:** callback fail when debug ws disconnect ([56d71bc](https://github.com/Tencent/Hippy/commit/56d71bcf401f6dcde38f5c06fe603940ecf1698d))
+* **devtools:** fix try catch exception when update context ([336eb3f](https://github.com/Tencent/Hippy/commit/336eb3f1ff9764a4c578ed815205482fa123d013))
+* **devtools:** remove regular expression injection ([#2865](https://github.com/Tencent/Hippy/issues/2865)) ([4d3b183](https://github.com/Tencent/Hippy/commit/4d3b18397c2cc683325686b17f5b27a5b9b54c6a))
+* **examples:** compatible with legacy openssl when running webpack ([46dff5f](https://github.com/Tencent/Hippy/commit/46dff5f1ca7d2efa8f7a1b79f3d7a283c124baa9))
+* **ios:** animated image is not released when the view is removed ([1d5799b](https://github.com/Tencent/Hippy/commit/1d5799bb8c591ea0028f15d4ecd4b5fc596c5111))
+* **ios:** avoid animated image multi thread operation crash ([33218ee](https://github.com/Tencent/Hippy/commit/33218ee931e061a987c40352badbf4833829d579))
+* **ios:** avoid multi-threading problem of imageview ([20deb4c](https://github.com/Tencent/Hippy/commit/20deb4c03dad9d064621241034f6b239709ab60f))
+* **ios:** dynamic loading must be run on js thread ([949f8a8](https://github.com/Tencent/Hippy/commit/949f8a8958a1ac8cbfa474053708883f048b1d9d))
+* **ios:** fix banner view bug in watefall view ([b5e44db](https://github.com/Tencent/Hippy/commit/b5e44db6babe2cc7c35564bac9617a4a68f579e4))
+* **ios:** fix ConsoleModule.log not working ([#2812](https://github.com/Tencent/Hippy/issues/2812)) ([7153bab](https://github.com/Tencent/Hippy/commit/7153babcb309d303960faa5cb32a6e4557d9c34b))
+* **ios:** Fixed the issue that pictures would not be displayed ([6163c76](https://github.com/Tencent/Hippy/commit/6163c76876fe849827eebd20a82147b26195dd30))
+* **iOS:** gif is play fast at high fresh rate device ([156855b](https://github.com/Tencent/Hippy/commit/156855bc43bd5ede59b8fcc73d27163b699fe27a))
+* **ios:** maxlength property not working in hippy-vue ([2690adc](https://github.com/Tencent/Hippy/commit/2690adc5225b55528f7dd8eb95134f1c00a0732a))
+* **ios:** podspec lint error & enable Module import ([#2935](https://github.com/Tencent/Hippy/issues/2935)) ([f830e6b](https://github.com/Tencent/Hippy/commit/f830e6ba1ff07da59d09a39acfbc1ebfb322188e))
+* **vue3:** fix listViewItem disappear event not triggered ([c11ca94](https://github.com/Tencent/Hippy/commit/c11ca942b2938cacc859813ced244c2641450d80))
+* **vue:** perf style diff ([9d3611b](https://github.com/Tencent/Hippy/commit/9d3611bfe166502aaa6d8562cf8901834ac2c615))
+* **workflows:** change `pull_request_help_needed` label name ([5677697](https://github.com/Tencent/Hippy/commit/5677697f9bf500344e27269b7bee4d1d3c2b9afd))
+* **workflows:** change auto_merger comment message ([c5c5b64](https://github.com/Tencent/Hippy/commit/c5c5b64d0f5aadf30665d5aa43b7f59b4a6a42f2))
+* **workflows:** change mentioned user in the PR review notification ([#2801](https://github.com/Tencent/Hippy/issues/2801)) ([63af240](https://github.com/Tencent/Hippy/commit/63af2401f061b1d6943b55544619975267f080bb))
+* **workflows:** change workflows bot app key and id ([#2768](https://github.com/Tencent/Hippy/issues/2768)) ([4c6fd7f](https://github.com/Tencent/Hippy/commit/4c6fd7f2ed93bc11937aeec82d69815876c8070f))
+* **workflows:** each head SHA will only trigger one merge action ([469c654](https://github.com/Tencent/Hippy/commit/469c65466d7ffd31ef810cd9053ad6272051accb))
+* **workflows:** fix merge guard not running after updating branch ([b744613](https://github.com/Tencent/Hippy/commit/b744613261cb8e9f8ff9830b6a4231b6822bec52))
+* **workflows:** fix rebase-merge label name ([838be18](https://github.com/Tencent/Hippy/commit/838be18a3b07521932f8a6e911d016589334fd73))
+* **workflows:** fix the tips content incompletely generated problem ([37a1b64](https://github.com/Tencent/Hippy/commit/37a1b649ed2f252e2c422d4dc6c5bc905bc913b2))
+* **workflows:** fix the workflow exception caused by cancel status ([b45f736](https://github.com/Tencent/Hippy/commit/b45f7365ffcb7732a8b61c4ebaf91f897e4619c1))
+* **workflows:** fix triage outputs incorrect problem in crash report ([#2767](https://github.com/Tencent/Hippy/issues/2767)) ([d600ff4](https://github.com/Tencent/Hippy/commit/d600ff4b7db6f2e90bc7551eae08ef8d0acc1536))
+* **workflows:** fix unexpected passing when synchronize action occurs ([65a93c0](https://github.com/Tencent/Hippy/commit/65a93c06b0402bfbed0685db3792f31307d32dd6))
+* **workflows:** update Github bot app key and id configuration ([#2810](https://github.com/Tencent/Hippy/issues/2810)) ([e398dc4](https://github.com/Tencent/Hippy/commit/e398dc4ca325c1c529048ccf0f77d7da21b44add))
+
+
+### Features
+
+* **andr:** add prod remotedebug, local bundle instead of remote server([#2849](https://github.com/Tencent/Hippy/issues/2849)) ([70fbde4](https://github.com/Tencent/Hippy/commit/70fbde4d5a249f5bda872b6bd69ff4e6a2ad5a1b))
+* **android, ios:** nested rich text support vertical alignment setting ([#2521](https://github.com/Tencent/Hippy/issues/2521)) ([df4d7ea](https://github.com/Tencent/Hippy/commit/df4d7ea648fe666c49d68511abda0e86983a0446))
+* **android,ios:** add & perf performance timing ability ([#2804](https://github.com/Tencent/Hippy/issues/2804)) ([dcd479f](https://github.com/Tencent/Hippy/commit/dcd479fa09e30ff380f406f66e344bc10ba85482))
+* **android:** add `nestedScrollPriority` for ListView and ScrollView ([4e34fc1](https://github.com/Tencent/Hippy/commit/4e34fc1471577bf3fdd91185ea5983b35981bf53)), closes [#6](https://github.com/Tencent/Hippy/issues/6) [#3](https://github.com/Tencent/Hippy/issues/3)
+* **android:** enable Safe ICF to optimize binary size ([#2857](https://github.com/Tencent/Hippy/issues/2857)) ([5f9e8cc](https://github.com/Tencent/Hippy/commit/5f9e8ccfd11b1293bf5a326aa1b89700a0397bae))
+* **android:** make animator work on both enter and exit ([#2987](https://github.com/Tencent/Hippy/issues/2987)) ([4f51f78](https://github.com/Tencent/Hippy/commit/4f51f7856ae091098936bf681fcc59353069a9b5))
+* **android:** support touch input from devtool ([974c4c4](https://github.com/Tencent/Hippy/commit/974c4c4bf18e146e105234c87be4df34fbadc5fb))
+* **core:** add snapshot for hippy ([9292a73](https://github.com/Tencent/Hippy/commit/9292a73fa69d320d95229b3932c685f61ee8892a))
+* **core:** add willexit callback ([bd64345](https://github.com/Tencent/Hippy/commit/bd643452a1013cf4618ff18e01bbe8b047742f37))
+* **core:** allow all schemas to dynamic load ([#2829](https://github.com/Tencent/Hippy/issues/2829)) ([5cd00b0](https://github.com/Tencent/Hippy/commit/5cd00b068a2484151bdf54c267711b8880e05383))
+* **core:** change HIPPY_SDK_VERSION to VERSION_NAME ([6250ecf](https://github.com/Tencent/Hippy/commit/6250ecf1ed608472106d13228d779e117fe3a952))
+* **core:** change memcpy to std::copy_n ([e4174dd](https://github.com/Tencent/Hippy/commit/e4174ddaf8c2464e352975b05195b50392317f3d))
+* **core:** dynamic loading support custom protocols ([#2827](https://github.com/Tencent/Hippy/issues/2827)) ([d238aad](https://github.com/Tencent/Hippy/commit/d238aad2b8cda84aef0fd8a8cea10b7b540ab4ef))
+* **core:** formatting and replacing concrete types with auto ([8a3857b](https://github.com/Tencent/Hippy/commit/8a3857b71dd9a74fbe8846377392e3f883592e21))
+* **core:** refactor napi and jsi ([8d7d6b8](https://github.com/Tencent/Hippy/commit/8d7d6b8f441377b92409c6d7fe4f5cce3e269c2c))
+* **core:** remove default HeapLimitSlowGrowthStrategy ([628367e](https://github.com/Tencent/Hippy/commit/628367e63cdfb4d0bfd045da7225388b247bed78))
+* **core:** remove redundant code ([9acbf5c](https://github.com/Tencent/Hippy/commit/9acbf5cf562e557689496ce5b5ff48716aaff8f0))
+* **core:** sdkversion is specified by gradle and remove redundant code ([9e739e7](https://github.com/Tencent/Hippy/commit/9e739e7225cc4f855fef0b11260a95a7ec621348))
+* **core:** support android dimensions to extend customized parameters ([375b3af](https://github.com/Tencent/Hippy/commit/375b3af8864799078e2072838e2725a17164e33d))
+* **docs:** add docs for UserLocal debug mode; ([216a311](https://github.com/Tencent/Hippy/commit/216a3118bca65fa5a6c306b89003b7ca94e2e3c4))
+* **hippy-react-web:** add cjs formatted output ([f32fbb0](https://github.com/Tencent/Hippy/commit/f32fbb075785d7ce9e2ab0c6bc7f3e02c8d9e6ee))
+* **ios:** add method to create custom scrollview ([#2839](https://github.com/Tencent/Hippy/issues/2839)) ([e9fcbc4](https://github.com/Tencent/Hippy/commit/e9fcbc43cdecb1fd16c43d89b96f50155796aedf))
+* **ios:** add onKeyboardWillHide callback for iOS ([c363ab6](https://github.com/Tencent/Hippy/commit/c363ab6ac9cf1947e840dcd3a554735f938c204c))
+* **ios:** add onsizechanged event ([1b84c10](https://github.com/Tencent/Hippy/commit/1b84c103d576123f83193d3f756d4069867e49b5))
+* **ios:** bump minimum deployment target to iOS11 ([2ea7581](https://github.com/Tencent/Hippy/commit/2ea75818f115a000592696e49c3d441f5988ac76))
+* **react:** support fontWeight in number ([aaa5d4c](https://github.com/Tencent/Hippy/commit/aaa5d4c62efc2f1817b302914b41516513850050))
+* **vue-next:** add beforeRenderToNative hook ([#2775](https://github.com/Tencent/Hippy/issues/2775)) ([3839135](https://github.com/Tencent/Hippy/commit/383913585da4e718cf1bbe341529076a4358fc0c))
+* **vue:** add native event parameters ([d08affb](https://github.com/Tencent/Hippy/commit/d08affb8c3add1db81da3719a6859fbd604ae09b))
+* **webrenderer:** merge webrenderer repo to hippy repo ([#2609](https://github.com/Tencent/Hippy/issues/2609)) ([c1e30f3](https://github.com/Tencent/Hippy/commit/c1e30f3f75b123b64022f1e4364e45fed56d5d18)), closes [#2651](https://github.com/Tencent/Hippy/issues/2651) [#4](https://github.com/Tencent/Hippy/issues/4)
+* **workflows:** add pull request merge guard and update it's action ([3ae6a91](https://github.com/Tencent/Hippy/commit/3ae6a91e7a91e219f512892c4158f976cc75ee50))
+* **workflows:** add pull requests auto merger ([97bc0d8](https://github.com/Tencent/Hippy/commit/97bc0d8d43440e4ed0a76a6df4f9f684ce7fb75c))
+* **workflows:** add pull requests auto updater ([#2855](https://github.com/Tencent/Hippy/issues/2855)) ([0bf016a](https://github.com/Tencent/Hippy/commit/0bf016a92ed49d0e8a0ca5b8f7ed43afeb7ae815))
+* **workflows:** add regular requested reviewers notification ([732744c](https://github.com/Tencent/Hippy/commit/732744cb53ae6eccbd2045bc71d0b96914c6331b))
+* **workflows:** add self-hosted runners monitor ([17e1b4b](https://github.com/Tencent/Hippy/commit/17e1b4b0d2694074a178cd52080c62047ea81dde))
+* **workflows:** add webhook retrier ([de2c068](https://github.com/Tencent/Hippy/commit/de2c0682e0e047108a787ce56869e0cf3160fcaf))
+* **workflows:** change review notification schedule ([d87bf1f](https://github.com/Tencent/Hippy/commit/d87bf1f80f1236d1b223e8678de0da87f6e9fd26))
+* **workflows:** integrate `squash-merge` and `rebase-merge` action ([#2772](https://github.com/Tencent/Hippy/issues/2772)) ([d7558f0](https://github.com/Tencent/Hippy/commit/d7558f055047868b1942c1510c02b4995a1fb11d))
+* **workflows:** limit workflow concurrency to save resources ([433b1e8](https://github.com/Tencent/Hippy/commit/433b1e82ab469ad0d8b9d0f5c90ce294a23fdb4a))
+* **workflows:** only uses non-merge commits as valid commits ([#2862](https://github.com/Tencent/Hippy/issues/2862)) ([e18fa12](https://github.com/Tencent/Hippy/commit/e18fa1260bbd2bcba3d05b69d02d4020198b096e))
+* **workflows:** optimize self-hosted runner alarm strategy ([ecbf7ba](https://github.com/Tencent/Hippy/commit/ecbf7bac493a884273e09a0cff3492906bcb569f))
+* **workflows:** optimizing pull request greeting message ([#2765](https://github.com/Tencent/Hippy/issues/2765)) ([0abfcc0](https://github.com/Tencent/Hippy/commit/0abfcc08588cd7cf35df91c27c937c270aaa60cd))
+* **workflows:** PR review notification add mention user ([#2834](https://github.com/Tencent/Hippy/issues/2834)) ([1914b61](https://github.com/Tencent/Hippy/commit/1914b61fd0e34ec54aee8d3bc4436e8e2135eb9e))
+* **workflows:** PR review notification filter draft PR ([#2854](https://github.com/Tencent/Hippy/issues/2854)) ([9c373ce](https://github.com/Tencent/Hippy/commit/9c373ce28054e19a53cfa941381639138dfff010))
+* **workflows:** skip privilege escalation when conditions are met ([b53710c](https://github.com/Tencent/Hippy/commit/b53710cfb618fed25cb07f75d546f03218942742))
+* **workflows:** use `Hippy Action Bot` as action executor ([51a64a9](https://github.com/Tencent/Hippy/commit/51a64a978d171031366bda6de0265986f62a6071))
+* **workflows:** use classic PAT instead of Github App Token ([095c3c5](https://github.com/Tencent/Hippy/commit/095c3c523429cdf48502be1d4be3e27e7cc226ae))
+* **workflows:** use variables that only exist in pull requests event ([6ae9c7c](https://github.com/Tencent/Hippy/commit/6ae9c7c2e4050f9574b131fad760bd1b81aa0460))
+* **workflows:** users cannot perform merge action on their own PRs ([#2809](https://github.com/Tencent/Hippy/issues/2809)) ([0f323e3](https://github.com/Tencent/Hippy/commit/0f323e3265e1499e6cde90d360a83a335e126892))
+* **workflows:** workflow add `squash-merge` action ([3506ece](https://github.com/Tencent/Hippy/commit/3506eceb6d67177be00ad5215bfeae064e9b0ac8))
+
+
+### Performance Improvements
+
+* **workflows:** use ubuntu replace macos in order to improve efficiency ([ed9a094](https://github.com/Tencent/Hippy/commit/ed9a094f3332782dc854b3a8ef515d98cbb83436))
+
+
+### Reverts
+
+* Revert "fix(ios): animated image is not released when the view is removed" ([5b09816](https://github.com/Tencent/Hippy/commit/5b098162726dfd602216522de3952534eaa88776))
+
+
+
+
+
 ## [2.15.5](https://github.com/Tencent/Hippy/compare/2.15.4...2.15.5) (2022-12-07)
 
 

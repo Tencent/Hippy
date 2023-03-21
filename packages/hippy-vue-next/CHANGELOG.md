@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.16.0](https://github.com/Tencent/Hippy/compare/2.15.5...2.16.0) (2023-03-21)
+
+
+### Bug Fixes
+
+* **android:** return size after loading gif ([#3001](https://github.com/Tencent/Hippy/issues/3001)) ([28fdfa9](https://github.com/Tencent/Hippy/commit/28fdfa925fa0170d822416f2ac6f2e53ea4eb4d8))
+* **vue3:** fix listViewItem disappear event not triggered ([c11ca94](https://github.com/Tencent/Hippy/commit/c11ca942b2938cacc859813ced244c2641450d80))
+* **vue:** perf style diff ([9d3611b](https://github.com/Tencent/Hippy/commit/9d3611bfe166502aaa6d8562cf8901834ac2c615))
+
+
+### Features
+
+* **andr:** add prod remotedebug, local bundle instead of remote server([#2849](https://github.com/Tencent/Hippy/issues/2849)) ([70fbde4](https://github.com/Tencent/Hippy/commit/70fbde4d5a249f5bda872b6bd69ff4e6a2ad5a1b))
+* **vue-next:** add beforeRenderToNative hook ([#2775](https://github.com/Tencent/Hippy/issues/2775)) ([3839135](https://github.com/Tencent/Hippy/commit/383913585da4e718cf1bbe341529076a4358fc0c))
+* **vue:** add native event parameters ([d08affb](https://github.com/Tencent/Hippy/commit/d08affb8c3add1db81da3719a6859fbd604ae09b))
+* **webrenderer:** merge webrenderer repo to hippy repo ([#2609](https://github.com/Tencent/Hippy/issues/2609)) ([c1e30f3](https://github.com/Tencent/Hippy/commit/c1e30f3f75b123b64022f1e4364e45fed56d5d18)), closes [#2651](https://github.com/Tencent/Hippy/issues/2651) [#4](https://github.com/Tencent/Hippy/issues/4)
+
+
+
+
+
 ## [2.15.5](https://github.com/Tencent/Hippy/compare/2.15.4...2.15.5) (2022-12-07)
 
 **Note:** Version bump only for package @hippy/vue-next

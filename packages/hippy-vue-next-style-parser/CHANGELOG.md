@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.16.0](https://github.com/Tencent/Hippy/compare/2.15.5...2.16.0) (2023-03-21)
+
+
+### Features
+
+* **webrenderer:** merge webrenderer repo to hippy repo ([#2609](https://github.com/Tencent/Hippy/issues/2609)) ([c1e30f3](https://github.com/Tencent/Hippy/commit/c1e30f3f75b123b64022f1e4364e45fed56d5d18)), closes [#2651](https://github.com/Tencent/Hippy/issues/2651) [#4](https://github.com/Tencent/Hippy/issues/4)
+
+
+
+
+
 ## [2.15.5](https://github.com/Tencent/Hippy/compare/2.15.4...2.15.5) (2022-12-07)
 
 **Note:** Version bump only for package @hippy/hippy-vue-next-style-parser
