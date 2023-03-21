@@ -55,7 +55,7 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
 
     protected void execute(Runnable runnable) {
         if (mExecutorService == null) {
-            mExecutorService = Executors.newFixedThreadPool(3);
+            mExecutorService = Executors.newFixedThreadPool(4);
         }
         mExecutorService.execute(runnable);
     }

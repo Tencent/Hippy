@@ -191,8 +191,10 @@ function getNativeProps(node: Element) {
 function getTargetNodeAttributes(targetNode: Element) {
   try {
     const targetNodeAttributes = deepCopy(targetNode.attributes);
+    const { id, nodeId } = targetNode;
     const attributes = {
-      id: targetNode.id,
+      id,
+      hippyNodeId: `${nodeId}`,
       ...targetNodeAttributes,
     };
     delete attributes.text;
@@ -300,7 +302,6 @@ type renderToNativeWithChildrenReturnedVal = [
  * Render Element with children to native
  * @param {number} rootViewId - rootView id
  * @param {ViewNode} node - current node
- * @param {number} [atIndex] - current node index
  * @param {Function} [callback] - function called on each traversing process
  * @param {HippyTypes.ReferenceInfo} [refInfo] - reference information
  * @returns [nativeLanguages: HippyTypes.NativeNode[], eventLanguages: HippyTypes.EventNode[]]
@@ -308,17 +309,12 @@ type renderToNativeWithChildrenReturnedVal = [
 function renderToNativeWithChildren(
   rootViewId: number,
   node: ViewNode,
-  atIndex?: number,
   callback?: Function,
   refInfo: HippyTypes.ReferenceInfo = {},
 ): renderToNativeWithChildrenReturnedVal {
   const nativeLanguages: HippyTypes.TranslatedNodes[] = [];
   const eventLanguages: HippyTypes.EventNode[] = [];
   const printedLanguages: HippyTypes.PrintedNode[] = [];
-  let index = atIndex;
-  if (typeof index === 'undefined' && node && node.parentNode) {
-    index = node.parentNode.childNodes.indexOf(node);
-  }
   node.traverseChildren((targetNode: Element, refInfo: HippyTypes.ReferenceInfo) => {
     const [nativeNode, eventNode, printedNode] = renderToNative(rootViewId, targetNode, refInfo);
     if (nativeNode) {
@@ -333,7 +329,7 @@ function renderToNativeWithChildren(
     if (typeof callback === 'function') {
       callback(targetNode);
     }
-  }, index, refInfo);
+  }, refInfo);
   return [nativeLanguages, eventLanguages, printedLanguages];
 }
 
@@ -346,7 +342,7 @@ function isLayout(node: ViewNode) {
   return node instanceof container.containerInfo.constructor;
 }
 
-function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1, refInfo: HippyTypes.ReferenceInfo = {}) {
+function insertChild(parentNode: ViewNode, childNode: ViewNode, refInfo: HippyTypes.ReferenceInfo = {}) {
   if (!parentNode || !childNode) {
     return;
   }
@@ -361,7 +357,6 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1, re
     const [nativeLanguages, eventLanguages, printedLanguages] = renderToNativeWithChildren(
       rootViewId,
       childNode,
-      atIndex,
       (node: ViewNode) => {
         if (!node.isMounted) {
           node.isMounted = true;
@@ -378,12 +373,11 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1, re
   }
 }
 
-function removeChild(parentNode: ViewNode, childNode: ViewNode | null, index: number) {
+function removeChild(parentNode: ViewNode, childNode: ViewNode | null) {
   if (!childNode || childNode.meta.skipAddToDom) {
     return;
   }
   childNode.isMounted = false;
-  childNode.index = index;
   const rootViewId = getRootViewId();
   const nativeNode =  {
     id: childNode.nodeId,
@@ -404,14 +398,13 @@ function removeChild(parentNode: ViewNode, childNode: ViewNode | null, index: nu
   });
 }
 
-function moveChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1, refInfo: HippyTypes.ReferenceInfo = {}) {
+function moveChild(parentNode: ViewNode, childNode: ViewNode, refInfo: HippyTypes.ReferenceInfo = {}) {
   if (!parentNode || !childNode) {
     return;
   }
   if (childNode.meta.skipAddToDom) {
     return;
   }
-  childNode.index = atIndex;
   const rootViewId = getRootViewId();
   const nativeNode =  {
     id: childNode.nodeId,
@@ -423,7 +416,7 @@ function moveChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1, refI
       refInfo,
     ],
   ];
-  const printedNodes = isDev() ? [nativeNode] : [];
+  const printedNodes = isDev() ? [{ ...nativeNode, ...refInfo }] : [];
   batchNodes.push({
     printedNodes,
     type: NODE_OPERATION_TYPES.moveNode,

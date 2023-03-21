@@ -14,33 +14,32 @@
  * limitations under the License.
  */
 
-package com.tencent.renderer.pool;
+package com.openhippy.pool;
 
 import android.util.LruCache;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.tencent.renderer.component.image.ImageDataHolder;
-import com.tencent.renderer.component.image.ImageDataSupplier;
 
-public class ImageDataPool extends NativeRenderPool<Integer, ImageDataSupplier> {
+public class ImageDataPool extends BasePool<Integer, ImageRecycleObject> {
 
     private static final int DEFAULT_IMAGE_POOL_SIZE = 6;
-    private LruCache<Integer, ImageDataSupplier> mPools;
+    private LruCache<Integer, ImageRecycleObject> mPools;
 
     public ImageDataPool() {
         init(DEFAULT_IMAGE_POOL_SIZE);
     }
 
+    @SuppressWarnings("unused")
     public ImageDataPool(int size) {
         init(Math.max(DEFAULT_IMAGE_POOL_SIZE, size));
     }
 
     private void init(int size) {
-        mPools = new LruCache<Integer, ImageDataSupplier>(
+        mPools = new LruCache<Integer, ImageRecycleObject>(
                 size) {
             @Override
             protected void entryRemoved(boolean evicted, @NonNull Integer key,
-                    @NonNull ImageDataSupplier oldValue, @Nullable ImageDataSupplier newValue) {
+                    @NonNull ImageRecycleObject oldValue, @Nullable ImageRecycleObject newValue) {
                 if (evicted) {
                     onEntryEvicted(oldValue);
                 }
@@ -50,9 +49,9 @@ public class ImageDataPool extends NativeRenderPool<Integer, ImageDataSupplier> 
 
     @Override
     @Nullable
-    public ImageDataSupplier acquire(@NonNull Integer key) {
-        ImageDataSupplier data = mPools.get(key);
-        if (data != null && !data.checkImageData()) {
+    public ImageRecycleObject acquire(@NonNull Integer key) {
+        ImageRecycleObject data = mPools.get(key);
+        if (data != null && data.isScraped()) {
             // Bitmap may have been recycled, must be removed from the cache and not
             // returned to the component.
             mPools.remove(key);
@@ -63,16 +62,14 @@ public class ImageDataPool extends NativeRenderPool<Integer, ImageDataSupplier> 
     }
 
     @Override
-    public void release(@NonNull ImageDataSupplier data) {
-        if (!data.checkImageData()) {
-            return;
+    public void release(@NonNull ImageRecycleObject data) {
+        if (!data.isScraped()) {
+            release(data.getCacheKey(), data);
         }
-        Integer key = ImageDataHolder.generateSourceKey(data.getSource());
-        release(key, data);
     }
 
     @Override
-    public void release(@NonNull Integer key, @NonNull ImageDataSupplier data) {
+    public void release(@NonNull Integer key, @NonNull ImageRecycleObject data) {
         mPools.put(key, data);
         data.cached();
     }
@@ -87,8 +84,7 @@ public class ImageDataPool extends NativeRenderPool<Integer, ImageDataSupplier> 
         mPools.remove(key);
     }
 
-    private void onEntryEvicted(@NonNull ImageDataSupplier data) {
+    private void onEntryEvicted(@NonNull ImageRecycleObject data) {
         data.evicted();
-        data.clear();
     }
 }

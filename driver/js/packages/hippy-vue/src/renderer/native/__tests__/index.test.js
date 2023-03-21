@@ -71,6 +71,7 @@ test('renderToNative simple test --debug mode', (t) => {
       attributes: {
         class: '',
         id: '',
+        hippyNodeId: '1',
       },
       style: {},
     },
@@ -139,6 +140,7 @@ test('renderToNative test with children --debug mode', (t) => {
         attributes: {
           class: '',
           id: '',
+          hippyNodeId: '3',
         },
         style: {},
       },
@@ -152,6 +154,7 @@ test('renderToNative test with children --debug mode', (t) => {
         attributes: {
           class: '',
           id: '',
+          hippyNodeId: '4',
         },
         style: {},
       },
@@ -165,6 +168,7 @@ test('renderToNative test with children --debug mode', (t) => {
         attributes: {
           class: '',
           id: '',
+          hippyNodeId: '5',
         },
         text: '',
         style: {
@@ -181,6 +185,7 @@ test('renderToNative test with children --debug mode', (t) => {
         attributes: {
           class: '',
           id: '',
+          hippyNodeId: '6',
         },
         text: 'Hello',
         style: {
@@ -198,6 +203,7 @@ test('renderToNative test with children --debug mode', (t) => {
           class: '',
           id: '',
           src: 'https://hippyjs.org',
+          hippyNodeId: '8',
         },
         src: 'https://hippyjs.org',
         style: {
@@ -215,6 +221,7 @@ test('renderToNative test with children --debug mode', (t) => {
           class: '',
           id: '',
           type: 'number',
+          hippyNodeId: '9',
         },
         keyboardType: 'numeric',
         multiline: false,
@@ -235,6 +242,7 @@ test('renderToNative test with children --debug mode', (t) => {
         attributes: {
           class: '',
           id: '',
+          hippyNodeId: '11',
           rows: 10,
           type: 'url',
           'aria-busy': true,
@@ -400,6 +408,7 @@ test('img attributeMaps test --debug mode', (t) => {
         alt: 'Test',
         class: '',
         id: '',
+        hippyNodeId: '21',
         src: 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png',
       },
       alt: 'Test',
@@ -445,6 +454,7 @@ test('span attributeMaps test --debug mode', (t) => {
       attributes: {
         class: '',
         id: '',
+        hippyNodeId: '23',
       },
       text: 'Test',
       style: {
@@ -488,6 +498,7 @@ test('a href attribute test --debug mode', (t) => {
         class: '',
         href: '/test',
         id: '',
+        hippyNodeId: '25',
       },
       text: 'Test',
       href: '/test',
@@ -534,6 +545,7 @@ test('a href attribute with http prefix test --debug mode', (t) => {
         class: '',
         href: 'https://hippyjs.org',
         id: '',
+        hippyNodeId: '27',
       },
       text: 'Test',
       href: '',
@@ -579,6 +591,7 @@ test('div with overflow-X scroll test --debug mode', (t) => {
       attributes: {
         class: '',
         id: '',
+        hippyNodeId: '29',
       },
       horizontal: true,
       style: {
@@ -598,6 +611,7 @@ test('div with overflow-X scroll test --debug mode', (t) => {
       attributes: {
         class: '',
         id: '',
+        hippyNodeId: '29',
       },
       horizontal: true,
       style: {
@@ -656,6 +670,7 @@ test('div with overflowY scroll test --debug mode', (t) => {
       attributes: {
         class: '',
         id: '',
+        hippyNodeId: '32',
       },
       style: {
         overflowY: 'scroll',
@@ -696,6 +711,7 @@ test('div with overflowX and overflowY scroll test --debug mode', (t) => {
       attributes: {
         class: '',
         id: '',
+        hippyNodeId: '34',
       },
       style: {
         overflowX: 'scroll',
@@ -741,6 +757,7 @@ test('div with child node and overflowX scroll test --debug mode', (t) => {
         attributes: {
           class: '',
           id: '',
+          hippyNodeId: '36',
         },
         style: {
           overflowY: 'scroll',
@@ -756,6 +773,7 @@ test('div with child node and overflowX scroll test --debug mode', (t) => {
         attributes: {
           class: '',
           id: '',
+          hippyNodeId: '37',
         },
         style: {
           collapsable: false,
@@ -847,6 +865,7 @@ test('Image.setStyle(background-color) test --debug mode', (t) => {
       attributes: {
         class: '',
         id: '',
+        hippyNodeId: '48',
       },
       style: {
         backgroundColor: 0,
@@ -865,6 +884,7 @@ test('Image.setStyle(background-color) test --debug mode', (t) => {
       attributes: {
         class: '',
         id: '',
+        hippyNodeId: '49',
       },
       style: {
         backgroundColor: 4289449455,
@@ -926,6 +946,7 @@ test('img with accessibility test --debug mode', (t) => {
       attributes: {
         class: '',
         id: '',
+        hippyNodeId: '53',
         'aria-busy': true,
         'aria-checked': false,
         'aria-disabled': false,
@@ -1017,6 +1038,7 @@ test('div with backgroundImage local path test --debug mode', (t) => {
       attributes: {
         class: '',
         id: '',
+        hippyNodeId: '55',
       },
       style: {
         backgroundImage: `${HIPPY_DEBUG_ADDRESS}${originalPath}`,
@@ -1067,6 +1089,7 @@ test('div with accessibility test --debug mode', (t) => {
       attributes: {
         class: '',
         id: '',
+        hippyNodeId: '57',
         'aria-busy': true,
         'aria-checked': false,
         'aria-disabled': false,

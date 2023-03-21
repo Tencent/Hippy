@@ -142,14 +142,6 @@ class Scope : public std::enable_shared_from_this<Scope> {
   inline std::shared_ptr<Ctx> GetContext() { return context_; }
   inline std::unique_ptr<RegisterMap>& GetRegisterMap() { return map_; }
 
-  ModuleBase* GetModuleClass(const string_view& moduleName);
-  void AddModuleClass(const string_view& name,
-                      std::unique_ptr<ModuleBase> module);
-  std::shared_ptr<CtxValue> GetModuleValue(
-      const string_view& module_name);
-  void AddModuleValue(const string_view& name,
-                      const std::shared_ptr<CtxValue>& value);
-
   inline void SaveFunctionWrapper(std::unique_ptr<FunctionWrapper> wrapper) {
     func_wrapper_holder_.push_back(std::move(wrapper));
   }
@@ -257,6 +249,10 @@ class Scope : public std::enable_shared_from_this<Scope> {
 
   inline void SaveClassTemplate(const string_view& name, std::any class_template) {
     class_template_holder_[name] = class_template;
+  }
+
+  inline void AddWillExitCallback(std::function<void()> cb) { // cb will run in the js thread
+    will_exit_cbs_.push_back(cb);
   }
 
 #ifdef ENABLE_INSPECTOR
@@ -368,10 +364,6 @@ class Scope : public std::enable_shared_from_this<Scope> {
   std::shared_ptr<Ctx> context_;
   std::string name_;
   std::unique_ptr<RegisterMap> map_;
-  std::unordered_map<string_view, std::shared_ptr<CtxValue>>
-      module_value_map_;
-  std::unordered_map<string_view, std::unique_ptr<ModuleBase>>
-      module_class_map_;
   std::unordered_map<uint32_t, std::unordered_map<std::string, std::unordered_map<uint64_t, std::shared_ptr<CtxValue>>>>
       bind_listener_map_; // bind js function and dom event listener id
   std::unordered_map<string_view, std::any> class_template_holder_;
@@ -381,7 +373,6 @@ class Scope : public std::enable_shared_from_this<Scope> {
   std::weak_ptr<RenderManager> render_manager_;
   std::weak_ptr<RootNode> root_node_;
   std::unordered_map<std::string, std::shared_ptr<ModuleBase>> module_object_map_;
-  std::vector<std::shared_ptr<CtxValue>> js_module_array;
   std::shared_ptr<CtxValue> event_class_;
   std::vector<std::unique_ptr<FunctionWrapper>> func_wrapper_holder_;
   std::vector<std::unique_ptr<WeakCallbackWrapper>> weak_callback_holder_;

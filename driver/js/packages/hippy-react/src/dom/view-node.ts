@@ -103,7 +103,6 @@ class ViewNode {
     return insertChild(
       this,
       childNode,
-      index,
       { refId: referenceNode.nodeId, relativeToRef: relativeToRefType.BEFORE },
     );
   }
@@ -130,19 +129,12 @@ class ViewNode {
     if (referenceIndex === oldIndex) {
       return childNode;
     }
-    // // remove old child and insert new child, which is like moving child
-    // this.childNodes.splice(oldIndex, 1);
-    // removeChild(this, childNode, oldIndex);
-    // const newIndex = this.childNodes.indexOf(referenceNode);
-    // this.childNodes.splice(newIndex, 0, childNode);
-    // return insertChild(this, childNode, newIndex);
     this.childNodes.splice(oldIndex, 1);
     const newIndex = this.childNodes.indexOf(referenceNode);
     this.childNodes.splice(newIndex, 0, childNode);
     return moveChild(
       this,
       childNode,
-      referenceIndex,
       { refId: referenceNode.nodeId, relativeToRef: relativeToRefType.BEFORE },
     );
   }
@@ -161,11 +153,9 @@ class ViewNode {
     const referenceIndex = this.childNodes.length - 1;
     const referenceNode = this.childNodes[referenceIndex];
     this.childNodes.push(childNode);
-    const index = referenceIndex + 1;
     insertChild(
       this,
       childNode,
-      index,
       referenceNode && { refId: referenceNode.nodeId, relativeToRef: relativeToRefType.AFTER },
     );
   }
@@ -185,7 +175,7 @@ class ViewNode {
     }
     const index = this.childNodes.indexOf(childNode);
     this.childNodes.splice(index, 1);
-    removeChild(this, childNode, index);
+    removeChild(this, childNode);
   }
 
   /**
@@ -211,16 +201,14 @@ class ViewNode {
   /**
    * Traverse the children and execute callback
    * @param callback - callback function
-   * @param newIndex - index to be updated
    * @param refInfo - reference node info
    */
-  public traverseChildren(callback: Function, newIndex: number | undefined = 0, refInfo) {
-    this.index = !this.parentNode ? 0 : newIndex;
+  public traverseChildren(callback: Function, refInfo) {
     callback(this, refInfo);
     // Find the children
     if (this.childNodes.length) {
-      this.childNodes.forEach((childNode, index) => {
-        this.traverseChildren.call(childNode, callback, index, {});
+      this.childNodes.forEach((childNode) => {
+        this.traverseChildren.call(childNode, callback, {});
       });
     }
   }

@@ -73,11 +73,15 @@ void LooperDriver::Start() {
     if (result == kCFRunLoopRunStopped || result == kCFRunLoopRunFinished) {
       is_terminated_ = true;
     }
+    if (is_terminated_) {
+      return;
+    }
   }
 }
 
 void LooperDriver::Terminate() {
   is_terminated_ = true;
+  CFRunLoopStop(loop_);
 }
 
 void LooperDriver::OnTimerFire(CFRunLoopTimerRef timer) {

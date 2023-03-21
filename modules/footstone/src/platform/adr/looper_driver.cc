@@ -99,6 +99,7 @@ void LooperDriver::Start() {
 
 void LooperDriver::Terminate() {
   is_terminated_ = true;
+  Notify();
 }
 
 void LooperDriver::OnEventFired() {

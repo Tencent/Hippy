@@ -131,15 +131,13 @@ class ViewNode {
       throw new Error('Can\'t insert child, because it already has a different parent.');
     }
     const index = this.childNodes.indexOf(referenceNode);
+
     let notToSkipRefNode = referenceNode;
+    // if it is text/comment(skipAddToDom) node, it cannot be the reference node
     if (referenceNode.meta.skipAddToDom) {
       notToSkipRefNode = findNotToSkipNode(this.childNodes, index);
-      // if childNodes cannot find non-skipAddToDom node as referenceNode,
-      // use parentNode append it to the end.
-      if (notToSkipRefNode.meta.skipAddToDom) {
-        return this.appendChild(childNode);
-      }
     }
+
     childNode.parentNode = this;
     childNode.nextSibling = referenceNode;
     childNode.prevSibling = this.childNodes[index - 1];
@@ -149,10 +147,18 @@ class ViewNode {
     }
     referenceNode.prevSibling = childNode;
     this.childNodes.splice(index, 0, childNode);
+
+    if (notToSkipRefNode.meta.skipAddToDom) {
+      // if childNodes cannot find non-skipAddToDom node as referenceNode,
+      // use parentNode append it to the end.
+      return insertChild(
+        this,
+        childNode,
+      );
+    }
     return insertChild(
       this,
       childNode,
-      index,
       { refId: notToSkipRefNode.nodeId, relativeToRef: relativeToRefType.BEFORE },
     );
   }
@@ -173,13 +179,9 @@ class ViewNode {
     const oldIndex = this.childNodes.indexOf(childNode);
     const referenceIndex = this.childNodes.indexOf(referenceNode);
     let notToSkipRefNode = referenceNode;
+    // if it is text/comment(skipAddToDom) node, it cannot be the reference node
     if (referenceNode.meta.skipAddToDom) {
       notToSkipRefNode = findNotToSkipNode(this.childNodes, referenceIndex);
-      // if childNodes cannot find non-skipAddToDom node as referenceNode,
-      // use parentNode append it to the end.
-      if (notToSkipRefNode.meta.skipAddToDom) {
-        return this.appendChild(childNode);
-      }
     }
     // return if the moved index is the same as the previous one
     if (referenceIndex === oldIndex) {
@@ -204,10 +206,15 @@ class ViewNode {
     this.childNodes.splice(oldIndex, 1);
     const newIndex = this.childNodes.indexOf(referenceNode);
     this.childNodes.splice(newIndex, 0, childNode);
+    if (notToSkipRefNode.meta.skipAddToDom) {
+      return insertChild(
+        this,
+        childNode,
+      );
+    }
     return moveChild(
       this,
       childNode,
-      newIndex,
       { refId: notToSkipRefNode.nodeId, relativeToRef: relativeToRefType.BEFORE },
     );
   }
@@ -230,13 +237,10 @@ class ViewNode {
       childNode.prevSibling = this.lastChild;
       this.lastChild.nextSibling = childNode;
     }
-    const referenceIndex = this.childNodes.length - 1;
     this.childNodes.push(childNode);
-    const index = referenceIndex + 1;
     insertChild(
       this,
       childNode,
-      index,
     );
   }
 
@@ -253,9 +257,6 @@ class ViewNode {
     if (childNode.meta.skipAddToDom) {
       return;
     }
-    // FIXME: parentNode should be null when removeChild, But it breaks add the node again.
-    //        Issue position: https://github.com/vuejs/vue/tree/master/src/core/vdom/patch.js#L250
-    // childNode.parentNode = null;
     if (childNode.prevSibling) {
       childNode.prevSibling.nextSibling = childNode.nextSibling;
     }
@@ -266,7 +267,7 @@ class ViewNode {
     childNode.nextSibling = null;
     const index = this.childNodes.indexOf(childNode);
     this.childNodes.splice(index, 1);
-    removeChild(this, childNode, index);
+    removeChild(this, childNode);
   }
 
   /**
@@ -293,14 +294,6 @@ class ViewNode {
    * Traverse the children and execute callback
    */
   traverseChildren(callback, refInfo) {
-    // Find the index and apply callback
-    let index;
-    if (this.parentNode) {
-      index = this.parentNode.childNodes.filter(node => !node.meta.skipAddToDom).indexOf(this);
-    } else {
-      index = 0;
-    }
-    this.index = index;
     callback(this, refInfo);
     // Find the children
     if (this.childNodes.length) {

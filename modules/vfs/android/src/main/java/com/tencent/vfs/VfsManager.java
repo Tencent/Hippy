@@ -91,7 +91,12 @@ public class VfsManager {
             @Nullable HashMap<String, String> requestHeaders,
             @Nullable HashMap<String, String> requestParams,
             RequestFrom from) {
-        ResourceDataHolder holder = new ResourceDataHolder(uri, requestHeaders, requestParams, from);
+        ResourceDataHolder holder = ResourceDataHolder.obtain();
+        if (holder == null) {
+            holder = new ResourceDataHolder(uri, requestHeaders, requestParams, from);
+        } else {
+            holder.init(uri, requestHeaders, requestParams, null, from, -1);
+        }
         traverseForward(holder, true);
         return holder;
     }
@@ -100,8 +105,12 @@ public class VfsManager {
             @Nullable HashMap<String, String> requestHeaders,
             @Nullable HashMap<String, String> requestParams,
             @Nullable FetchResourceCallback callback, RequestFrom from, int nativeRequestId) {
-        ResourceDataHolder holder = new ResourceDataHolder(uri, requestHeaders, requestParams,
-                callback, from, nativeRequestId);
+        ResourceDataHolder holder = ResourceDataHolder.obtain();
+        if (holder == null) {
+            holder = new ResourceDataHolder(uri, requestHeaders, requestParams, callback, from, nativeRequestId);
+        } else {
+            holder.init(uri, requestHeaders, requestParams, callback, from, nativeRequestId);
+        }
         traverseForward(holder, false);
     }
 

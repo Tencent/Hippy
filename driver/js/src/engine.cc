@@ -38,12 +38,10 @@ Engine::Engine()
     : js_runner_(nullptr),
       worker_task_runner_(nullptr),
       vm_(nullptr),
-      map_(),
-      scope_cnt_(0) {}
+      map_() {}
 
 Engine::~Engine() {
   FOOTSTONE_DLOG(INFO) << "~Engine";
-  FOOTSTONE_DCHECK(scope_cnt_ == 0) << "this engine is in use";
 }
 
 void Engine::AsyncInit(std::shared_ptr<TaskRunner> js,
@@ -94,16 +92,6 @@ void Engine::CreateVM(const std::shared_ptr<VMInitParam>& param) {
       map_->erase(it);
     }
   }
-}
-
-void Engine::Enter() {
-  FOOTSTONE_DLOG(INFO) << "Engine Enter, scope_cnt_ = " << scope_cnt_;
-  ++scope_cnt_;
-}
-
-void Engine::Exit() {
-  FOOTSTONE_DLOG(INFO) << "Engine Exit, scope_cnt_ = " << scope_cnt_;
-  --scope_cnt_;
 }
 
 }

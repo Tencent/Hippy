@@ -42,6 +42,7 @@ let _Vue;
  * @returns {Object} decl - Processed declaration, original declaration by default.
  */
 let _beforeLoadStyle = decl => decl;
+let _beforeRenderToNative = () => {};
 
 function setVue(Vue) {
   _Vue = Vue;
@@ -65,6 +66,14 @@ function setBeforeLoadStyle(beforeLoadStyle) {
 
 function getBeforeLoadStyle() {
   return _beforeLoadStyle;
+}
+
+function setBeforeRenderToNative(beforeRenderToNative) {
+  _beforeRenderToNative = beforeRenderToNative;
+}
+
+function getBeforeRenderToNative() {
+  return _beforeRenderToNative;
 }
 
 const infoTrace = once(() => {
@@ -246,6 +255,8 @@ export {
   getApp,
   setBeforeLoadStyle,
   getBeforeLoadStyle,
+  setBeforeRenderToNative,
+  getBeforeRenderToNative,
   trace,
   warn,
   isTraceEnabled,

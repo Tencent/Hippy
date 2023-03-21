@@ -16,11 +16,10 @@
 
 package com.tencent.vfs;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.openhippy.pool.RecycleObject;
 import com.tencent.vfs.VfsManager.FetchResourceCallback;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,7 +27,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 
-public class ResourceDataHolder {
+public class ResourceDataHolder extends RecycleObject {
 
     public enum RequestFrom {
         NATIVE,
@@ -71,7 +70,7 @@ public class ResourceDataHolder {
 
     public ResourceDataHolder(@NonNull String uri, @Nullable HashMap<String, String> requestHeaders,
             @Nullable HashMap<String, String> requestParams, RequestFrom from) {
-        init(uri, requestHeaders, requestParams, from, -1);
+        init(uri, requestHeaders, requestParams, null, from, -1);
     }
 
     public ResourceDataHolder(@NonNull String uri,
@@ -79,17 +78,38 @@ public class ResourceDataHolder {
             @Nullable HashMap<String, String> requestParams,
             @Nullable FetchResourceCallback callback,
             RequestFrom from, int nativeRequestId) {
-        this.callback = callback;
-        init(uri, requestHeaders, requestParams, from, nativeRequestId);
+        init(uri, requestHeaders, requestParams, callback, from, nativeRequestId);
     }
 
-    private void init(@NonNull String uri, @Nullable HashMap<String, String> requestHeaders,
-            @Nullable HashMap<String, String> requestParams, RequestFrom from, int nativeRequestId) {
+    public void init(@NonNull String uri, @Nullable HashMap<String, String> requestHeaders,
+            @Nullable HashMap<String, String> requestParams, @Nullable FetchResourceCallback callback,
+            RequestFrom from, int nativeRequestId) {
         this.uri = uri;
         this.requestHeaders = requestHeaders;
         this.requestParams = requestParams;
+        this.callback = callback;
         this.requestFrom = from;
         this.nativeRequestId = nativeRequestId;
+    }
+
+    @Nullable
+    public static ResourceDataHolder obtain() {
+        RecycleObject recycleObject = RecycleObject.obtain(ResourceDataHolder.class.getSimpleName());
+        return (recycleObject instanceof ResourceDataHolder) ? ((ResourceDataHolder) recycleObject)
+                : null;
+    }
+
+    @Override
+    public void recycle() {
+        buffer = null;
+        bytes = null;
+        callback = null;
+        errorMessage = null;
+        processorTag = null;
+        index = -1;
+        resultCode = -1;
+        transferType = TransferType.NORMAL;
+        RecycleObject.recycle(this);
     }
 
     public void addResponseHeaderProperty(@NonNull String key, @NonNull String Property) {
