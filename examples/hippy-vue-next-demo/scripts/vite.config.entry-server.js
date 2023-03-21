@@ -9,13 +9,13 @@ export default defineConfig({
   build: {
     sourcemap: isProd ? false : 'inline',
     minify: !!isProd,
-    outDir: 'dist',
+    outDir: 'dist/server',
     assetsDir: '',
     emptyOutDir: false,
     rollupOptions: {
       input: pkg.serverEntry,
       output: {
-        entryFileNames: '[name].js',
+        entryFileNames: 'index.js',
       },
     },
   },

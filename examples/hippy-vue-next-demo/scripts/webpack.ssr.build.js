@@ -51,7 +51,7 @@ console.log('\nbuilding Android client bundle:');
 runScript(getScriptCommand('webpack.ssr.config.android.js'));
 console.log('\nbuilding iOS client bundle:');
 // build iOS client bundle
-runScript(getScriptCommand('webpack.ssr.config.ios.js'));
+// runScript(getScriptCommand('webpack.ssr.config.ios.js'));
 
 // 3. build server entry
 console.log('\nbuilding server entry:');

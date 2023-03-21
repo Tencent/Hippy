@@ -2,11 +2,14 @@ import {
   createSSRApp,
   type HippyApp,
   type HippyAppOptions,
+  HIPPY_GLOBAL_STYLE_NAME,
 } from '@hippy/vue-next';
 import { type SsrNode, renderToHippyList, getCurrentUniqueId, type SsrRequestContext } from '@hippy/vue-next-server-renderer';
 import { type Pinia, createPinia } from 'pinia';
 import App from './app.vue';
 import { createRouter } from './routes';
+
+export { HIPPY_GLOBAL_STYLE_NAME };
 
 /**
  * render hippy ssr node list
@@ -42,8 +45,9 @@ export async function render(url: string, hippyOptions: HippyAppOptions, context
     context,
   };
   // get ssr render hippy node list
+  debugger;
   const hippyNodeList = await renderToHippyList(app, ssrContext);
-
+  console.log('ssrcontext contest', ssrContext);
   return {
     list: hippyNodeList,
     // modules

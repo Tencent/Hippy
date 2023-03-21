@@ -1,5 +1,7 @@
 const express = require('express');
-const { HIPPY_GLOBAL_STYLE_NAME } = require('@hippy/vue-next');
+const { render, HIPPY_GLOBAL_STYLE_NAME } = require('./dist/main-server');
+
+// const HIPPY_GLOBAL_STYLE_NAME = '__HIPPY_VUE_STYLES__';
 
 interface MinifiedStyleDeclaration {
   [key: number]: number | string;
@@ -52,7 +54,6 @@ server.use(express.json());
 server.all('/getSsrFirstScreenData', (req, rsp) => {
   console.log('req body', req.body);
   // get hippy ssr node list and other const
-  const { render } = require('./dist/main-server');
   render('/', {
     appName: 'Demo',
   }, req.body).then(({

@@ -29,8 +29,9 @@ if (fs.existsSync(hippyVueCssLoaderPath)) {
 module.exports = {
   mode: isProd ? 'production' : 'development',
   bail: true,
+  // devtool: 'eval-source-map',
+  devtool: 'cheap-module-source-map',
   target: 'node',
-  devtool: 'source-map',
   entry: {
     index: [path.resolve(pkg.serverMain)],
   },
@@ -39,7 +40,6 @@ module.exports = {
     path: path.resolve('dist'),
     // CDN path can be configured to load children bundles from remote server
     // publicPath: 'https://xxx/hippy/hippyVueNextDemo/',
-    libraryTarget: 'commonjs',
   },
   plugins: [
     // only generate one chunk at server side
@@ -76,6 +76,7 @@ module.exports = {
           {
             loader: 'vue-loader',
             options: {
+              isServerBuild: true,
               compilerOptions: {
                 // because hippy do not support innerHTML, so we should close this feature
                 hoistStatic: false,
@@ -107,6 +108,25 @@ module.exports = {
               target: 'es2015',
             },
           },
+          // {
+          //   loader: 'babel-loader',
+          //   options: {
+          //     sourceType: 'unambiguous',
+          //     presets: [
+          //       [
+          //         '@babel/preset-env',
+          //         {
+          //           targets: {
+          //             node: '16.0',
+          //           },
+          //         },
+          //       ],
+          //     ],
+          //     plugins: [
+          //       ['@babel/plugin-proposal-nullish-coalescing-operator'],
+          //     ],
+          //   },
+          // },
         ],
       },
       {
@@ -172,5 +192,6 @@ module.exports = {
 
       return aliases;
     })(),
+    mainFields: ['main', 'module'],
   },
 };

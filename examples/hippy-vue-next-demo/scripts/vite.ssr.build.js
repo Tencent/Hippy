@@ -54,9 +54,9 @@ runScript(getScriptCommand('vite.config.main-server.js'));
 // runScript(getScriptCommand('vite.config.ios.js'));
 
 // 3. build server entry
-// console.log('\nbuilding server entry:');
-// runScript(getScriptCommand('vite.config.entry-server.js'));
+console.log('\nbuilding server entry:');
+runScript(getScriptCommand('vite.config.entry-server.js'));
 
 // 4. build ssr entry
-// console.log('\nbuilding ssr entry:');
-// runScript(getScriptCommand('vite.config.entry-ssr.js'));
+console.log('\nbuilding ssr entry:');
+runScript(getScriptCommand('vite.config.entry-ssr.js'));

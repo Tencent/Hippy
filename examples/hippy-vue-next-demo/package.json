@@ -63,6 +63,7 @@
     "babel-loader": "^8.1.0",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "clean-webpack-plugin": "^4.0.0",
+    "webpack-manifest-plugin": "^4.1.1",
     "cross-env": "^7.0.3",
     "cross-env-os": "^7.1.1",
     "esbuild": "^0.13.14",

@@ -3,6 +3,7 @@ const fs = require('fs');
 const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const { VueLoaderPlugin } = require('vue-loader');
+const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 const webpack = require('webpack');
 
 const pkg = require('../package.json');
@@ -65,6 +66,9 @@ exports.getWebpackSsrBaseConfig = function (platform, env) {
       //   test: /\.(js|jsbundle|css|bundle)($|\?)/i,
       //   filename: '[file].map',
       // }),
+      new WebpackManifestPlugin({
+        fileName: `manifest.${platform}.json`,
+      }),
     ],
     module: {
       rules: [

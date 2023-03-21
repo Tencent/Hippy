@@ -6,7 +6,7 @@ const isProd = process.argv[process.argv.length - 1] !== 'development';
 
 module.exports = {
   mode: isProd ? 'production' : 'development',
-  devtool: 'source-map',
+  // devtool: 'eval-source-map',
   target: 'node',
   // watch: !isProd,
   watchOptions: {
@@ -40,6 +40,25 @@ module.exports = {
               target: 'es2015',
             },
           },
+          // {
+          //   loader: 'babel-loader',
+          //   options: {
+          //     sourceType: 'unambiguous',
+          //     presets: [
+          //       [
+          //         '@babel/preset-env',
+          //         {
+          //           targets: {
+          //             node: '16.0',
+          //           },
+          //         },
+          //       ],
+          //     ],
+          //     plugins: [
+          //       ['@babel/plugin-proposal-nullish-coalescing-operator'],
+          //     ],
+          //   },
+          // },
         ],
       },
       {
@@ -67,5 +86,6 @@ module.exports = {
     alias: (() => ({
       src: path.resolve('./src'),
     }))(),
+    mainFields: ['main', 'module'],
   },
 };
