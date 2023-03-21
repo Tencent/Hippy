@@ -107,7 +107,7 @@ struct ClassTemplate {
   std::unique_ptr<FunctionWrapper> constructor_wrapper = nullptr;
   string_view name;
   size_t size = SIZE_OF<T>;
-  std::unordered_map<void*, std::pair<std::shared_ptr<T>, std::shared_ptr<CtxValue>>> holder_map;
+  std::unordered_map<void*, std::shared_ptr<T>> holder_map;
 };
 
 class Scope : public std::enable_shared_from_this<Scope> {
@@ -141,13 +141,36 @@ class Scope : public std::enable_shared_from_this<Scope> {
   void WillExit();
   inline std::shared_ptr<Ctx> GetContext() { return context_; }
   inline std::unique_ptr<RegisterMap>& GetRegisterMap() { return map_; }
+  inline std::weak_ptr<Engine> GetEngine() { return engine_; }
+
+  inline std::any GetClassTemplate(const string_view& name) {
+    auto engine = engine_.lock();
+    FOOTSTONE_CHECK(engine);
+    return engine->GetClassTemplate(wrapper_.get(), name);
+  }
+
+  inline bool HasClassTemplate(const string_view& name) {
+    auto engine = engine_.lock();
+    FOOTSTONE_CHECK(engine);
+    return engine->HasClassTemplate(wrapper_.get(), name);
+  }
+
+  inline void SaveClassTemplate(const string_view& name, std::any&& class_template) {
+    auto engine = engine_.lock();
+    FOOTSTONE_CHECK(engine);
+    engine->SaveClassTemplate(wrapper_.get(), name, std::move(class_template));
+  }
 
   inline void SaveFunctionWrapper(std::unique_ptr<FunctionWrapper> wrapper) {
-    func_wrapper_holder_.push_back(std::move(wrapper));
+    auto engine = engine_.lock();
+    FOOTSTONE_CHECK(engine);
+    engine->SaveFunctionWrapper(wrapper_.get(), std::move(wrapper));
   }
 
   inline void SaveWeakCallbackWrapper(std::unique_ptr<WeakCallbackWrapper> wrapper) {
-    weak_callback_holder_.push_back(std::move(wrapper));
+    auto engine = engine_.lock();
+    FOOTSTONE_CHECK(engine);
+    engine->SaveWeakCallbackWrapper(wrapper_.get(), std::move(wrapper));
   }
 
   inline std::shared_ptr<ModuleBase> GetModuleObject(const std::string& module_name) {
@@ -239,18 +262,6 @@ class Scope : public std::enable_shared_from_this<Scope> {
     root_node_ = root_node;
   }
 
-  inline std::any GetClassTemplate(const string_view& name) {
-    return class_template_holder_[name];
-  }
-
-  inline bool HasClassTemplate(const string_view& name) {
-    return class_template_holder_.find(name) != class_template_holder_.end();
-  }
-
-  inline void SaveClassTemplate(const string_view& name, std::any class_template) {
-    class_template_holder_[name] = class_template;
-  }
-
   inline void AddWillExitCallback(std::function<void()> cb) { // cb will run in the js thread
     will_exit_cbs_.push_back(cb);
   }
@@ -278,7 +289,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
       auto receiver = info.GetReceiver();
       std::shared_ptr<T> ret = class_template->constructor(static_cast<size_t>(len), argv);
       info.SetData(ret.get());
-      class_template->holder_map.insert({ret.get(), {ret, receiver}});
+      class_template->holder_map.insert({ret.get(), ret});
 
       auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
       auto scope = scope_wrapper->scope.lock();
@@ -366,7 +377,6 @@ class Scope : public std::enable_shared_from_this<Scope> {
   std::unique_ptr<RegisterMap> map_;
   std::unordered_map<uint32_t, std::unordered_map<std::string, std::unordered_map<uint64_t, std::shared_ptr<CtxValue>>>>
       bind_listener_map_; // bind js function and dom event listener id
-  std::unordered_map<string_view, std::any> class_template_holder_;
   std::unique_ptr<ScopeWrapper> wrapper_;
   std::weak_ptr<UriLoader> loader_;
   std::weak_ptr<DomManager> dom_manager_;
@@ -374,8 +384,6 @@ class Scope : public std::enable_shared_from_this<Scope> {
   std::weak_ptr<RootNode> root_node_;
   std::unordered_map<std::string, std::shared_ptr<ModuleBase>> module_object_map_;
   std::shared_ptr<CtxValue> event_class_;
-  std::vector<std::unique_ptr<FunctionWrapper>> func_wrapper_holder_;
-  std::vector<std::unique_ptr<WeakCallbackWrapper>> weak_callback_holder_;
   std::unordered_map<std::string, std::shared_ptr<CtxValue>> turbo_instance_map_;
   std::unordered_map<std::string, std::any> turbo_host_object_map_;
   std::vector<std::function<void()>> will_exit_cbs_;

@@ -47,13 +47,13 @@ constexpr char16_t kSetStr[] = u"set";
 static std::once_flag global_class_flag;
 static JSClassRef global_class;
 
-JSCCtx::JSCCtx(JSContextGroupRef vm) {
+JSCCtx::JSCCtx(JSContextGroupRef group, std::weak_ptr<VM> vm): vm_(vm) {
   std::call_once(global_class_flag, []() {
     JSClassDefinition global = kJSClassDefinitionEmpty;
     global_class = JSClassCreate(&global);
   });
   
-  context_ = JSGlobalContextCreateInGroup(vm, global_class);
+  context_ = JSGlobalContextCreateInGroup(group, global_class);
   
   exception_ = nullptr;
   is_exception_handled_ = false;
@@ -61,10 +61,14 @@ JSCCtx::JSCCtx(JSContextGroupRef vm) {
 }
 
 JSCCtx::~JSCCtx() {
-  exception_ = nullptr;
-  
   JSGlobalContextRelease(context_);
-  context_ = nullptr;
+  auto vm = vm_.lock();
+  FOOTSTONE_CHECK(vm);
+  auto jsc_vm = std::static_pointer_cast<JSCVM>(vm);
+  auto& holder = jsc_vm->constructor_data_holder_;
+  for (auto& item : holder) {
+    item->prototype = nullptr;
+  }
 }
 
 JSValueRef InvokeJsCallback(JSContextRef ctx,
@@ -878,6 +882,13 @@ void* JSCCtx::GetPrivateData(const std::shared_ptr<CtxValue>& object) {
     return nullptr;
   }
   return JSObjectGetPrivate(object_ref);
+}
+
+void JSCCtx::SaveConstructorData(std::unique_ptr<ConstructorData> constructor_data) {
+  auto vm = vm_.lock();
+  FOOTSTONE_CHECK(vm);
+  auto jsc_vm = std::static_pointer_cast<JSCVM>(vm);
+  jsc_vm->constructor_data_holder_.push_back(std::move(constructor_data));
 }
 
 void JSCCtx::ThrowException(const std::shared_ptr<CtxValue> &exception) {

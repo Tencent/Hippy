@@ -32,6 +32,7 @@
 #include "footstone/string_view.h"
 #include "driver/base/common.h"
 #include "driver/napi/js_ctx.h"
+#include "driver/vm/js_vm.h"
 
 template <std::size_t N>
 constexpr JSStringRef CreateWithCharacters(const char16_t (&u16)[N]) noexcept {
@@ -60,8 +61,9 @@ class JSCCtx : public Ctx {
 public:
   using string_view = footstone::string_view;
   using JSValueWrapper = hippy::base::JSValueWrapper;
+  using VM = hippy::vm::VM;
   
-  explicit JSCCtx(JSContextGroupRef vm);
+  explicit JSCCtx(JSContextGroupRef group, std::weak_ptr<VM> vm);
   
   ~JSCCtx();
   
@@ -81,10 +83,6 @@ public:
   inline bool IsExceptionHandled() { return is_exception_handled_; }
   inline void SetExceptionHandled(bool is_exception_handled) {
     is_exception_handled_ = is_exception_handled;
-  }
-  
-  inline void SaveConstructorData(std::unique_ptr<ConstructorData> constructor_data) {
-    constructor_data_holder_.push_back(std::move(constructor_data));
   }
   
   inline void SetName(const char *name) {
@@ -197,11 +195,12 @@ public:
   
   string_view GetExceptionMsg(const std::shared_ptr<CtxValue>& exception);
   void* GetPrivateData(const std::shared_ptr<CtxValue>& value);
+  void SaveConstructorData(std::unique_ptr<ConstructorData> constructor_data);
   
   JSGlobalContextRef context_;
   std::shared_ptr<JSCCtxValue> exception_;
   bool is_exception_handled_;
-  std::vector<std::unique_ptr<ConstructorData>> constructor_data_holder_;
+  std::weak_ptr<VM> vm_;
 };
 
 inline footstone::string_view ToStrView(JSStringRef str) {

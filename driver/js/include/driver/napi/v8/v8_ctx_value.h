@@ -43,7 +43,6 @@ struct V8CtxValue : public CtxValue {
   V8CtxValue& operator=(const V8CtxValue&) = delete;
 
   v8::Global<v8::Value> global_value_;
-  v8::Isolate* isolate_;
 };
 
 }

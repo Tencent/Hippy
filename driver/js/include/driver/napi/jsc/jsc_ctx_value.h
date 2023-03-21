@@ -34,7 +34,7 @@ class JSCCtxValue : public CtxValue {
 public:
   JSCCtxValue(JSGlobalContextRef context, JSValueRef value)
   : context_(context), value_(value) {
-    JSValueProtect(context_, value_);
+    JSValueProtect(context, value_);
   }
   ~JSCCtxValue() { JSValueUnprotect(context_, value_); }
   JSCCtxValue(const JSCCtxValue&) = delete;
