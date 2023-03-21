@@ -72,7 +72,6 @@ using FunctionWrapper = hippy::FunctionWrapper;
 
 constexpr char kBootstrapJSName[] = "bootstrap.js";
 constexpr char kDeallocFuncName[] = "HippyDealloc";
-constexpr char kEventName[] = "Event";
 constexpr char kHippyName[] = "Hippy";
 constexpr char kLoadInstanceFuncName[] = "__loadInstance__";
 constexpr char kUnloadInstanceFuncName[] = "__unloadInstance__";
@@ -124,6 +123,18 @@ Scope::Scope(std::weak_ptr<Engine> engine,
 
 Scope::~Scope() {
   FOOTSTONE_DLOG(INFO) << "~Scope";
+#ifdef JS_JSC
+/*
+ * JSObjectFinalizeCallback will be called when you call JSContextGroupRelease, so it is necessary to hold the wrapper when ctx is destroyed.
+ */
+#else
+  auto engine = engine_.lock();
+  FOOTSTONE_CHECK(engine);
+  auto key = wrapper_.get();
+  engine->ClearWeakCallbackWrapper(key);
+  engine->ClearFunctionWrapper(key);
+  engine->ClearClassTemplate(key);
+#endif
 }
 
 void Scope::WillExit() {
@@ -227,32 +238,36 @@ void Scope::RegisterJsClasses() {
   auto global_object = context_->GetGlobalObject();
   auto scene_builder = hippy::RegisterSceneBuilder(weak_scope);
   auto scene_builder_class = DefineClass(scene_builder);
-  SaveClassTemplate(scene_builder->name, scene_builder);
+  auto key = scene_builder->name;
+  SaveClassTemplate(key, std::move(scene_builder));
   auto hippy_object = context_->GetProperty(global_object,
                                             context_->CreateString(kHippyName));
   context_->SetProperty(hippy_object,
-                        context_->CreateString(scene_builder->name),
+                        context_->CreateString(key),
                         scene_builder_class,
                         PropertyAttribute::ReadOnly);
   auto animation = hippy::RegisterAnimation(weak_scope);
   auto animation_class = DefineClass(animation);
-  SaveClassTemplate(animation->name, animation);
+  key = animation->name;
+  SaveClassTemplate(key, std::move(animation));
   context_->SetProperty(hippy_object,
-                        context_->CreateString(animation->name),
+                        context_->CreateString(key),
                         animation_class,
                         PropertyAttribute::ReadOnly);
   auto animation_set = hippy::RegisterAnimationSet(weak_scope);
   auto animation_set_class = DefineClass(animation_set);
-  SaveClassTemplate(animation_set->name, animation_set);
+  key = animation_set->name;
+  SaveClassTemplate(key, std::move(animation_set));
   context_->SetProperty(hippy_object,
-                        context_->CreateString(animation_set->name),
+                        context_->CreateString(key),
                         animation_set_class,
                         PropertyAttribute::ReadOnly);
 
   auto event = hippy::MakeEventClassTemplate(weak_scope);
   auto event_class = DefineClass(event);
+  key = event->name;
+  SaveClassTemplate(key, std::move(event));
   SaveEventClass(event_class);
-  SaveClassTemplate(event->name, event);
 }
 
 void* Scope::GetScopeWrapperPointer() {
@@ -298,9 +313,8 @@ hippy::dom::EventListenerInfo Scope::AddListener(const EventListenerInfo& event_
       auto callback = event_listener_info.callback.lock();
       FOOTSTONE_DCHECK(callback != nullptr);
       if (callback == nullptr) return;
-      FOOTSTONE_DCHECK(scope->HasClassTemplate(kEventName));
-      auto event_class = scope->GetEventClass();
       hippy::DomEventWrapper::Set(event);
+      auto event_class = scope->GetEventClass();
       auto event_instance = context->NewInstance(event_class, 0, nullptr, nullptr);
       FOOTSTONE_DCHECK(callback) << "callback is nullptr";
       if (!callback) {

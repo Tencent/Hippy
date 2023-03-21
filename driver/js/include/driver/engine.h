@@ -35,7 +35,6 @@
 #include "driver/runtime/v8/inspector/v8_inspector_client_impl.h"
 #endif
 
-
 namespace hippy {
 inline namespace driver {
 
@@ -48,6 +47,7 @@ class Engine: public std::enable_shared_from_this<Engine> {
   using VMInitParam = hippy::VMInitParam;
   using RegisterFunction = hippy::base::RegisterFunction;
   using TaskRunner = footstone::TaskRunner;
+  using string_view = footstone::string_view;
 
   Engine();
   virtual ~Engine();
@@ -57,17 +57,23 @@ class Engine: public std::enable_shared_from_this<Engine> {
       std::shared_ptr<TaskRunner> worker,
       std::unique_ptr<RegisterMap> map = std::make_unique<RegisterMap>(),
       const std::shared_ptr<VMInitParam>& param = nullptr);
-  
+
   std::shared_ptr<Scope> AsyncCreateScope(
       const std::string& name = "",
       std::unique_ptr<RegisterMap> map = std::unique_ptr<RegisterMap>());
+  std::any GetClassTemplate(void* key, const string_view& name);
+  bool HasClassTemplate(void* key, const string_view& name);
+  void SaveClassTemplate(void* key, const string_view& name, std::any&& class_template);
+  void ClearClassTemplate(void* key);
+  void SaveFunctionWrapper(void* key, std::unique_ptr<FunctionWrapper> wrapper);
+  void ClearFunctionWrapper(void* key);
+  void SaveWeakCallbackWrapper(void* key, std::unique_ptr<WeakCallbackWrapper> wrapper);
+  void ClearWeakCallbackWrapper(void* key);
+
   inline std::shared_ptr<VM> GetVM() { return vm_; }
-  inline std::shared_ptr<TaskRunner> GetJsTaskRunner() {
-    return js_runner_;
-  }
-  inline std::shared_ptr<TaskRunner> GetWorkerTaskRunner() {
-    return worker_task_runner_;
-  }
+  inline std::shared_ptr<TaskRunner> GetJsTaskRunner() { return js_runner_; }
+  inline std::shared_ptr<TaskRunner> GetWorkerTaskRunner() { return worker_task_runner_; }
+
 #if defined(ENABLE_INSPECTOR) && defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   inline void SetInspectorClient(std::shared_ptr<hippy::inspector::V8InspectorClientImpl> inspector_client) {
     inspector_client_ = inspector_client;
@@ -76,13 +82,15 @@ class Engine: public std::enable_shared_from_this<Engine> {
     return inspector_client_;
   }
 #endif
-
  private:
   void CreateVM(const std::shared_ptr<VMInitParam>& param);
 
  private:
   std::shared_ptr<TaskRunner> js_runner_;
   std::shared_ptr<TaskRunner> worker_task_runner_;
+  std::unordered_map<void*, std::unordered_map<string_view, std::any>> class_template_holder_map_;
+  std::unordered_map<void*, std::vector<std::unique_ptr<FunctionWrapper>>> function_wrapper_holder_map_;
+  std::unordered_map<void*, std::vector<std::unique_ptr<WeakCallbackWrapper>>> weak_callback_holder_map_;
   std::shared_ptr<VM> vm_;
   std::unique_ptr<RegisterMap> map_;
 #if defined(ENABLE_INSPECTOR) && defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)

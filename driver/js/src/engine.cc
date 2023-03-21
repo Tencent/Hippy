@@ -78,6 +78,65 @@ std::shared_ptr<Scope> Engine::AsyncCreateScope(const std::string& name,
   return scope;
 }
 
+std::any Engine::GetClassTemplate(void* key, const string_view& name) {
+  FOOTSTONE_DCHECK(HasClassTemplate(key, name));
+  return class_template_holder_map_[key][name];
+}
+
+bool Engine::HasClassTemplate(void* key, const string_view& name) {
+  auto it = class_template_holder_map_.find(key);
+  if (it == class_template_holder_map_.end()) {
+    return false;
+  }
+  return it->second.find(name) != it->second.end();
+}
+
+void Engine::SaveClassTemplate(void* key, const string_view& name, std::any&& class_template) {
+  auto it = class_template_holder_map_.find(key);
+  if (it == class_template_holder_map_.end()) {
+    class_template_holder_map_[key] = {{name, std::move(class_template)}};
+  } else {
+    it->second[name] = class_template;
+  }
+}
+
+void Engine::ClearClassTemplate(void* key) {
+  auto it = class_template_holder_map_.find(key);
+  if (it != class_template_holder_map_.end()) {
+    class_template_holder_map_.erase(it);
+  }
+}
+
+void Engine::SaveFunctionWrapper(void* key, std::unique_ptr<FunctionWrapper> wrapper) {
+  auto it = function_wrapper_holder_map_.find(key);
+  if (it == function_wrapper_holder_map_.end()) {
+    function_wrapper_holder_map_[key] = std::vector<std::unique_ptr<FunctionWrapper>>{};
+  }
+  function_wrapper_holder_map_[key].push_back(std::move(wrapper));
+}
+
+void Engine::ClearFunctionWrapper(void* key) {
+  auto it = function_wrapper_holder_map_.find(key);
+  if (it == function_wrapper_holder_map_.end()) {
+    function_wrapper_holder_map_.erase(it);
+  }
+}
+
+void Engine::SaveWeakCallbackWrapper(void* key, std::unique_ptr<WeakCallbackWrapper> wrapper) {
+  auto it = weak_callback_holder_map_.find(key);
+  if (it == weak_callback_holder_map_.end()) {
+    weak_callback_holder_map_[key] = std::vector<std::unique_ptr<WeakCallbackWrapper>>{};
+  }
+  weak_callback_holder_map_[key].push_back(std::move(wrapper));
+}
+
+void Engine::ClearWeakCallbackWrapper(void* key) {
+  auto it = weak_callback_holder_map_.find(key);
+  if (it == weak_callback_holder_map_.end()) {
+    weak_callback_holder_map_.erase(it);
+  }
+}
+
 void Engine::CreateVM(const std::shared_ptr<VMInitParam>& param) {
   FOOTSTONE_DLOG(INFO) << "Engine CreateVM";
   vm_ = hippy::CreateVM(param);

@@ -25,6 +25,7 @@
 #include "footstone/string_view_utils.h"
 #include "driver/napi/jsc/jsc_ctx.h"
 #include "driver/napi/jsc/jsc_ctx_value.h"
+#include "driver/vm/jsc/jsc_vm.h"
 
 using string_view = footstone::string_view;
 using StringViewUtils = footstone::StringViewUtils;
@@ -50,7 +51,7 @@ std::shared_ptr<CtxValue> JSCVM::ParseJson(const std::shared_ptr<Ctx>& ctx, cons
 }
 
 std::shared_ptr<Ctx> JSCVM::CreateContext() {
-  return std::make_shared<JSCCtx>(vm_);
+  return std::make_shared<JSCCtx>(vm_, weak_from_this());
 }
 
 std::shared_ptr<VM> CreateVM(const std::shared_ptr<VMInitParam>& param) {
