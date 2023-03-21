@@ -919,9 +919,7 @@ dispatch_queue_t HippyBridgeQueue() {
             relativeString = [string stringByReplacingOccurrencesOfString:filePrefix withString:@"" options:0 range:range];
         }
         NSURL *localFileURL = [NSURL URLWithString:relativeString relativeToURL:self.bundleURL];
-        if ([localFileURL isFileURL]) {
-            return [localFileURL path];
-        }
+        return [localFileURL path];
     }
     return nil;
 }
