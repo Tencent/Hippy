@@ -54,7 +54,7 @@ if (result && result[1]) {
   const currentVersion = result[1];
   const compareResult = versionCompare(LEGACY_OPENSSL_VERSION, currentVersion);
   if (compareResult >= 0) {
-    envPrefixStr += 'NODE_OPTIONS=--openssl-legacy-provider';
+    envPrefixStr += 'cross-env-os NODE_OPTIONS=--openssl-legacy-provider';
   }
 }
 
