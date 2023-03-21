@@ -361,13 +361,13 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 #endif
     HPLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor invalide %p", self);
     _valid = NO;
-#ifdef JS_USE_JSC
+#ifdef JS_JSC
     auto scope = self.pScope;
     if (scope) {
         auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
         jsc_context->SetName("HippyJSContext(delete)");
     }
-#endif //JS_USE_JSC
+#endif //JS_JSC
     self.pScope->WillExit();
     self.pScope = nullptr;
     NSString *enginekey = [self enginekey];
@@ -385,7 +385,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 
 // clang-format off
 - (void)setContextName:(NSString *)contextName {
-#ifdef JS_USE_JSC
+#ifdef JS_JSC
     WeakCtxPtr weak_ctx = self.pScope->GetContext();
     [self executeBlockOnJavaScriptQueue:^{
         SharedCtxPtr context = weak_ctx.lock();
@@ -399,7 +399,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
             HPLogWarn(@"set context throw exception");
         }
     }];
-#endif //JS_USE_JSC
+#endif //JS_JSC
 }
 // clang-format on
 
