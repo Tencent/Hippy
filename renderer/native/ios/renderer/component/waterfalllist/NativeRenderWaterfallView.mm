@@ -309,13 +309,15 @@ static const NSTimeInterval delayForPurgeView = 3.0f;
 }
 
 - (void)removeFromNativeRenderSuperview {
+    [super removeFromNativeRenderSuperview];
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
     [self purgeFurthestIndexPathsFromScreen];
 }
 
 - (void)didMoveToWindow {
     if (!self.window) {
-        [self removeFromNativeRenderSuperview];
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
+        [self purgeFurthestIndexPathsFromScreen];
     }
 }
 
@@ -443,7 +445,6 @@ static const NSTimeInterval delayForPurgeView = 3.0f;
             [scrollViewListener scrollViewDidScroll:scrollView];
         }
     }
-    //TODO cancel timer when component is removed from hippy view
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
     [self performSelector:@selector(purgeFurthestIndexPathsFromScreen) withObject:nil afterDelay:delayForPurgeView];
     [_headerRefreshView scrollViewDidScroll];
