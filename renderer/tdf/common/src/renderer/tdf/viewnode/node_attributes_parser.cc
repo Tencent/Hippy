@@ -117,17 +117,17 @@ void ParseLinearGradientInfo(tdfcore::View& view, const footstone::HippyValue::H
 void ParseShadowInfo(tdfcore::View& view, const DomStyleMap& style_map) {
   auto shadow = view.GetShadow();
   auto color = shadow.GetColor();
-  if (auto it = style_map.find(view::kShadowColor); it != style_map.cend()) {
+  if (auto it = style_map.find(view::kShadowColor); it != style_map.cend() && it->second != nullptr) {
     color = ConversionIntToColor(static_cast<uint32_t>(it->second->ToDoubleChecked()));
   }
-  if (auto it = style_map.find(view::kShadowOpacity); it != style_map.cend()) {
+  if (auto it = style_map.find(view::kShadowOpacity); it != style_map.cend() && it->second != nullptr) {
     auto opacity = std::round(std::clamp(static_cast<float>(it->second->ToDoubleChecked()), 0.0f, 1.0f));
     color = color.SetA(static_cast<uint8_t>(opacity * 255));
   }
 
   auto offset_x = shadow.Offset().x;
   auto offset_y = shadow.Offset().y;
-  if (auto it = style_map.find(view::kShadowOffset); it != style_map.cend()) {
+  if (auto it = style_map.find(view::kShadowOffset); it != style_map.cend() && it->second != nullptr) {
     auto offset_props = it->second->ToObjectChecked();
     if (auto x = offset_props.find("x"); x != offset_props.end()) {
       offset_x = static_cast<tdfcore::TScalar>(x->second.ToDoubleChecked());
@@ -137,21 +137,21 @@ void ParseShadowInfo(tdfcore::View& view, const DomStyleMap& style_map) {
       offset_y = static_cast<tdfcore::TScalar>(y->second.ToDoubleChecked());
     }
   }
-  if (auto it = style_map.find(view::kShadowOffsetX); it != style_map.cend()) {
+  if (auto it = style_map.find(view::kShadowOffsetX); it != style_map.cend() && it->second != nullptr) {
     offset_x = static_cast<tdfcore::TScalar>(it->second->ToDoubleChecked());
   }
 
-  if (auto it = style_map.find(view::kShadowOffsetY); it != style_map.cend()) {
+  if (auto it = style_map.find(view::kShadowOffsetY); it != style_map.cend() && it->second != nullptr) {
     offset_y = static_cast<tdfcore::TScalar>(it->second->ToDoubleChecked());
   }
   auto offset = tdfcore::TPoint::Make(offset_x, offset_y);
 
   auto radius = shadow.BlurRadius();
-  if (auto it = style_map.find(view::kShadowRadius); it != style_map.cend()) {
+  if (auto it = style_map.find(view::kShadowRadius); it != style_map.cend() && it->second != nullptr) {
     radius = static_cast<tdfcore::TScalar>(it->second->ToDoubleChecked());
   }
   auto spread = shadow.SpreadRadius();
-  if (auto it = style_map.find(view::kShadowSpread); it != style_map.cend()) {
+  if (auto it = style_map.find(view::kShadowSpread); it != style_map.cend() && it->second != nullptr) {
     spread = static_cast<tdfcore::TScalar>(it->second->ToDoubleChecked());
   }
 
@@ -174,28 +174,28 @@ void ParseBorderInfo(tdfcore::View& view, const DomStyleMap& style_map) {
 
   float radius = 0, radius_tl = 0, radius_tr = 0, radius_bl = 0, radius_br = 0;
   bool has_radius = false;
-  if (auto it = style_map.find(view::kBorderRadius); it != style_map.end()) {
+  if (auto it = style_map.find(view::kBorderRadius); it != style_map.end() && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     radius = static_cast<float>(it->second->ToDoubleChecked());
     has_radius = true;
     radius_tl = radius_tr = radius_bl = radius_br = radius;
   }
-  if (auto it = style_map.find(view::kBorderTopLeftRadius); it != style_map.end()) {
+  if (auto it = style_map.find(view::kBorderTopLeftRadius); it != style_map.end() && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     radius_tl = static_cast<float>(it->second->ToDoubleChecked());
     has_radius = true;
   }
-  if (auto it = style_map.find(view::kBorderTopRightRadius); it != style_map.end()) {
+  if (auto it = style_map.find(view::kBorderTopRightRadius); it != style_map.end() && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     radius_tr = static_cast<float>(it->second->ToDoubleChecked());
     has_radius = true;
   }
-  if (auto it = style_map.find(view::kBorderBottomLeftRadius); it != style_map.end()) {
+  if (auto it = style_map.find(view::kBorderBottomLeftRadius); it != style_map.end() && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     radius_bl = static_cast<float>(it->second->ToDoubleChecked());
     has_radius = true;
   }
-  if (auto it = style_map.find(view::kBorderBottomRightRadius); it != style_map.end()) {
+  if (auto it = style_map.find(view::kBorderBottomRightRadius); it != style_map.end() && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     radius_br = static_cast<float>(it->second->ToDoubleChecked());
     has_radius = true;
@@ -208,7 +208,7 @@ void ParseBorderInfo(tdfcore::View& view, const DomStyleMap& style_map) {
 
 tdfcore::BorderStyle ParseBorderStyle(const DomStyleMap& style_map, const char* width_name, const char* color_name,
                                       std::pair<float, tdfcore::Color> default_style) {
-  if (auto it = style_map.find(width_name); it != style_map.cend()) {
+  if (auto it = style_map.find(width_name); it != style_map.cend() && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     default_style.first = static_cast<float>(it->second->ToDoubleChecked());
     if (auto it2 = style_map.find(color_name); it2 != style_map.end() && default_style.first > 0) {

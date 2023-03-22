@@ -31,12 +31,12 @@ using tdfcore::ViewContext;
 void ModalViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   ViewNode::HandleStyleUpdate(dom_style);
 
-  if (auto iterator = dom_style.find(kImmersionStatusBar); iterator != dom_style.end()) {
-    SetImmersionStatusBar(iterator->second->ToBooleanChecked());
+  if (auto it = dom_style.find(kImmersionStatusBar); it != dom_style.end() && it->second != nullptr) {
+    SetImmersionStatusBar(it->second->ToBooleanChecked());
   }
 
-  if (auto iterator = dom_style.find(kTransparent); iterator != dom_style.end()) {
-    if (iterator->second->ToBooleanChecked()) {
+  if (auto it = dom_style.find(kTransparent); it != dom_style.end() && it->second != nullptr) {
+    if (it->second->ToBooleanChecked()) {
       GetView()->SetBackgroundColor(tdfcore::Color::Transparent());
     } else {
       GetView()->SetBackgroundColor(tdfcore::Color::ARGB(100, 99, 99, 99));

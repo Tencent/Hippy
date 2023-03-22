@@ -38,32 +38,32 @@ void ScrollViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   auto map_end = dom_style.cend();
   auto scroll_view = GetView<tdfcore::ScrollView>();
 
-  if (auto it = dom_style.find(scrollview::kPagingEnabled); it != map_end) {
+  if (auto it = dom_style.find(scrollview::kPagingEnabled); it != map_end && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsBoolean());
     auto physics = std::static_pointer_cast<tdfcore::DefaultScrollPhysics>(scroll_view->GetScrollPhysics());
     physics->SetPagingEnabled(it->second->ToBooleanChecked());
   }
 
-  if (auto it = dom_style.find(scrollview::kScrollEnabled); it != map_end) {
+  if (auto it = dom_style.find(scrollview::kScrollEnabled); it != map_end && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsBoolean());
     scroll_view->SetScrollEnabled(it->second->ToBooleanChecked());
   }
 
-  if (auto it = dom_style.find(scrollview::kScrollEventThrottle); it != map_end) {
+  if (auto it = dom_style.find(scrollview::kScrollEventThrottle); it != map_end && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     scroll_event_throttle_ = static_cast<int32_t>(it->second->ToDoubleChecked());
   }
 
-  if (auto it = dom_style.find(scrollview::kScrollMinOffset); it != map_end) {
+  if (auto it = dom_style.find(scrollview::kScrollMinOffset); it != map_end && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsInt32());
     min_scroll_offset_ = it->second->ToInt32Checked();
   }
 
-  if (auto it = dom_style.find(scrollview::kShowScrollIndicator); it != map_end) {
+  if (auto it = dom_style.find(scrollview::kShowScrollIndicator); it != map_end && it->second != nullptr) {
     // Skip
   }
 
-  if (auto it = dom_style.find(kHorizontal); it != map_end) {
+  if (auto it = dom_style.find(kHorizontal); it != map_end && it->second != nullptr) {
     // May be undefined
     if (!it->second->IsUndefined() && it->second->ToBooleanChecked()) {
       scroll_view->SetHorizontalOverscrollEnabled(true);
@@ -105,31 +105,31 @@ void ScrollViewNode::HandleEventInfoUpdate() {
   }
   auto supported_events = GetSupportedEvents();
 
-  if (auto iterator = supported_events.find(kEventTypeScroll); iterator != supported_events.end()) {
+  if (auto it = supported_events.find(kEventTypeScroll); it != supported_events.end()) {
     RegisterScrollUpdateListener(scroll_view);
   } else {
     RemoveScrollUpdateListener(scroll_view);
   }
 
-  if (auto iterator = supported_events.find(kEventTypeMomentumBegin); iterator != supported_events.end()) {
+  if (auto it = supported_events.find(kEventTypeMomentumBegin); it != supported_events.end()) {
     RegisterScrollStartListener(scroll_view);
   } else {
     RemoveScrollStartListener(scroll_view);
   }
 
-  if (auto iterator = supported_events.find(kEventTypeMomentumEnd); iterator != supported_events.end()) {
+  if (auto it = supported_events.find(kEventTypeMomentumEnd); it != supported_events.end()) {
     RegisterScrollEndListener(scroll_view);
   } else {
     RemoveScrollEndListener(scroll_view);
   }
 
-  if (auto iterator = supported_events.find(kEventTypeBeginDrag); iterator != supported_events.end()) {
+  if (auto it = supported_events.find(kEventTypeBeginDrag); it != supported_events.end()) {
     RegisterDragStartListener(scroll_view);
   } else {
     RemoveDragStartListener(scroll_view);
   }
 
-  if (auto iterator = supported_events.find(kEventTypeEndDrag); iterator != supported_events.end()) {
+  if (auto it = supported_events.find(kEventTypeEndDrag); it != supported_events.end()) {
     RegisterDragEndListener(scroll_view);
   } else {
     RemoveDragEndListener(scroll_view);
