@@ -88,7 +88,8 @@ public:
     void MoveRenderNode(std::weak_ptr<hippy::RootNode> root_node,
                         std::vector<int32_t>&& moved_ids,
                         int32_t from_pid,
-                        int32_t to_pid) override;
+                        int32_t to_pid,
+                        int32_t index) override;
 
     void MoveRenderNode(std::weak_ptr<hippy::RootNode> root_node, std::vector<std::shared_ptr<hippy::DomNode>>&& nodes) override;
     

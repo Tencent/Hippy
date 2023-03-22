@@ -878,7 +878,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         if (!parentObjectView) {
             parentObjectView = [objectView parentComponent];
         }
-        [parentObjectView insertNativeRenderSubview:objectView atIndex:index];
+        [parentObjectView moveNativeRenderSubview:objectView toIndex:index];
     }
     [parentObjectView didUpdateNativeRenderSubviews];
     [self addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
@@ -893,7 +893,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
             if (!superView) {
                 superView = [view parentComponent];
             }
-            [superView insertNativeRenderSubview:view atIndex:index];
+            [superView moveNativeRenderSubview:view toIndex:index];
         }
         [superView didUpdateNativeRenderSubviews];
     }];

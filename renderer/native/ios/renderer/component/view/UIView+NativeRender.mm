@@ -133,6 +133,20 @@
     subview.parentComponent = self;
 }
 
+- (void)moveNativeRenderSubview:(id<NativeRenderComponentProtocol>)subview toIndex:(NSInteger)atIndex {
+    if (nil == subview) {
+        return;
+    }
+    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(subcomponents));
+    if (!subviews) {
+        return;
+    }
+    if ([subviews containsObject:subview]) {
+        [subviews removeObject:subview];
+    }
+    [self insertNativeRenderSubview:subview atIndex:atIndex];
+}
+
 - (void)removeNativeRenderSubview:(UIView *)subview {
     // We access the associated object directly here in case someone overrides
     // the `subcomponents` getter method and returns an immutable array.

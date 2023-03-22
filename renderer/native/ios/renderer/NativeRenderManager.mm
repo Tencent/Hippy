@@ -81,7 +81,8 @@ void NativeRenderManager::UpdateLayout(std::weak_ptr<hippy::RootNode> root_node,
 void NativeRenderManager::MoveRenderNode(std::weak_ptr<hippy::RootNode> root_node,
                                          std::vector<int32_t>&& moved_ids,
                                          int32_t from_pid,
-                                         int32_t to_pid) {
+                                         int32_t to_pid,
+                                         int32_t index) {
     @autoreleasepool {
         [renderImpl_ renderMoveViews:std::move(moved_ids) fromContainer:from_pid toContainer:to_pid onRootNode:root_node];
     }
