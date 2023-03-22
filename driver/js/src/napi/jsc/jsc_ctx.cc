@@ -299,6 +299,7 @@ std::shared_ptr<CtxValue> JSCCtx::DefineClass(string_view name,
       }
       JSObjectSetProperty(context_, prototype, function_name_ref, function_value, kJSPropertyAttributeNone, &exception);
     }
+    property_descriptor->name = nullptr;
   }
   JSStringRelease(get_key_name);
   JSStringRelease(set_key_name);
