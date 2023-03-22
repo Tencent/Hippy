@@ -137,8 +137,8 @@ void TextViewNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t in
 void TextViewNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) { ViewNode::OnChildRemove(child); }
 
 void TextViewNode::SetText(const DomStyleMap& dom_style, std::shared_ptr<TextView>& text_view) {
-  if (auto iter = dom_style.find(text::kText); iter != dom_style.end()) {
-    auto unicode_str = footstone::string_view::new_from_utf8(iter->second->ToStringChecked().c_str());
+  if (auto it = dom_style.find(text::kText); it != dom_style.end() && it->second != nullptr) {
+    auto unicode_str = footstone::string_view::new_from_utf8(it->second->ToStringChecked().c_str());
     auto utf16_string =
         footstone::stringview::StringViewUtils::ConvertEncoding(unicode_str, footstone::string_view::Encoding::Utf16);
     text_view->SetText(utf16_string.utf16_value());
@@ -146,21 +146,21 @@ void TextViewNode::SetText(const DomStyleMap& dom_style, std::shared_ptr<TextVie
 }
 
 void TextViewNode::SetTextColor(const DomStyleMap& dom_style, TextStyle& text_style) {
-  if (auto iter = dom_style.find(text::kColor); iter != dom_style.end()) {
-    text_style.color = util::ConversionIntToColor(static_cast<uint32_t>(iter->second->ToDoubleChecked()));
+  if (auto it = dom_style.find(text::kColor); it != dom_style.end() && it->second != nullptr) {
+    text_style.color = util::ConversionIntToColor(static_cast<uint32_t>(it->second->ToDoubleChecked()));
   }
 }
 
 void TextViewNode::SetFontSize(const DomStyleMap& dom_style, TextStyle& text_style) {
-  if (auto iter = dom_style.find(text::kFontSize); iter != dom_style.end()) {
-    font_size_ = static_cast<tdfcore::TScalar>(iter->second->ToDoubleChecked());
+  if (auto it = dom_style.find(text::kFontSize); it != dom_style.end() && it->second != nullptr) {
+    font_size_ = static_cast<tdfcore::TScalar>(it->second->ToDoubleChecked());
     text_style.font_size = font_size_;
   }
 }
 
 void TextViewNode::SetFontWeight(const DomStyleMap& dom_style, TextStyle& text_style) {
-  if (auto iter = dom_style.find(text::kFontWeight); iter != dom_style.end()) {
-    auto dom_value = iter->second;
+  if (auto it = dom_style.find(text::kFontWeight); it != dom_style.end() && it->second != nullptr) {
+    auto dom_value = it->second;
     if (dom_value->IsString()) {
       font_weight_ = dom_value->ToStringChecked();
     } else {
@@ -174,8 +174,8 @@ void TextViewNode::SetFontWeight(const DomStyleMap& dom_style, TextStyle& text_s
 }
 
 void TextViewNode::SetFontStyle(const DomStyleMap& dom_style, TextStyle& text_style) {
-  if (auto iter = dom_style.find(text::kFontStyle); iter != dom_style.end()) {
-    font_style_ = iter->second->ToStringChecked();
+  if (auto it = dom_style.find(text::kFontStyle); it != dom_style.end() && it->second != nullptr) {
+    font_style_ = it->second->ToStringChecked();
     UpdateFontStyle(text_style);
   }
 }
@@ -188,46 +188,46 @@ void TextViewNode::UpdateFontStyle(TextStyle& text_style) {
 void TextViewNode::SetLineHeight(const DomStyleMap& dom_style, TextStyle& text_style) {}
 
 void TextViewNode::SetLetterSpacing(const DomStyleMap& dom_style, TextStyle& text_style) {
-  if (auto iter = dom_style.find(text::kLetterSpacing); iter != dom_style.end()) {
-    auto letter_spacing = static_cast<tdfcore::TScalar>(iter->second->ToDoubleChecked());
+  if (auto it = dom_style.find(text::kLetterSpacing); it != dom_style.end() && it->second != nullptr) {
+    auto letter_spacing = static_cast<tdfcore::TScalar>(it->second->ToDoubleChecked());
     text_style.letter_spacing = letter_spacing;
   }
 }
 
 void TextViewNode::SetFontFamily(const DomStyleMap& dom_style, TextStyle& text_style) {
-  if (auto iter = dom_style.find(text::kFontFamily); iter != dom_style.end()) {
-    text_style.font_family = iter->second->ToStringChecked();
+  if (auto it = dom_style.find(text::kFontFamily); it != dom_style.end() && it->second != nullptr) {
+    text_style.font_family = it->second->ToStringChecked();
   }
 }
 
 void TextViewNode::SetDecorationLine(const DomStyleMap& dom_style, TextStyle& text_style) {
-  if (auto iter = dom_style.find(text::kTextDecorationLine); iter != dom_style.end()) {
+  if (auto it = dom_style.find(text::kTextDecorationLine); it != dom_style.end() && it->second != nullptr) {
   }
 }
 
 void TextViewNode::SetTextShadowOffset(const DomStyleMap& dom_style) {
-  if (auto iter = dom_style.find(text::kTextShadowOffset); iter != dom_style.end()) {
-    auto value_object = iter->second->ToObjectChecked();
+  if (auto it = dom_style.find(text::kTextShadowOffset); it != dom_style.end() && it->second != nullptr) {
+    auto value_object = it->second->ToObjectChecked();
     has_shadow_ = true;
   }
 }
 
 void TextViewNode::SetTextShadowColor(const DomStyleMap& dom_style) {
-  if (auto iter = dom_style.find(text::kTextShadowColor); iter != dom_style.end()) {
+  if (auto it = dom_style.find(text::kTextShadowColor); it != dom_style.end() && it->second != nullptr) {
     has_shadow_ = true;
   }
 }
 
 void TextViewNode::SetTextShadowRadius(const DomStyleMap& dom_style) {
-  if (auto iter = dom_style.find(text::kTextShadowRadius); iter != dom_style.end()) {
+  if (auto it = dom_style.find(text::kTextShadowRadius); it != dom_style.end() && it->second != nullptr) {
     has_shadow_ = true;
   }
 }
 
 void TextViewNode::SetLineSpacingMultiplier(const DomStyleMap& dom_style, TextStyle& text_style) {
-  if (auto iter = dom_style.find(text::kLineSpacingMultiplier); iter != dom_style.end()) {
+  if (auto it = dom_style.find(text::kLineSpacingMultiplier); it != dom_style.end() && it->second != nullptr) {
     // todo(kloudwang) 设置行间距
-    // auto line_spacing_multiplier = iter->second->ToDoubleChecked();
+    // auto line_spacing_multiplier = it->second->ToDoubleChecked();
   }
 }
 
@@ -236,20 +236,20 @@ void TextViewNode::SetLineSpacingExtra(const DomStyleMap& dom_style, TextStyle& 
 }
 
 void TextViewNode::SetNumberOfLines(const DomStyleMap& dom_style, std::shared_ptr<TextView>& text_view) {
-  if (auto iter = dom_style.find(text::kNumberOfLines); iter != dom_style.end()) {
-    if (iter->second->IsString()) {
-      auto number_of_lines = atoi(iter->second->ToStringChecked().c_str());
+  if (auto it = dom_style.find(text::kNumberOfLines); it != dom_style.end() && it->second != nullptr) {
+    if (it->second->IsString()) {
+      auto number_of_lines = atoi(it->second->ToStringChecked().c_str());
       text_view->SetMaxLines(number_of_lines == 0 ? 1 : static_cast<size_t>(number_of_lines));
-    } else if (iter->second->IsNumber()) {
-      auto number_of_lines = static_cast<int64_t>(iter->second->ToDoubleChecked());
+    } else if (it->second->IsNumber()) {
+      auto number_of_lines = static_cast<int64_t>(it->second->ToDoubleChecked());
       text_view->SetMaxLines(number_of_lines == 0 ? 1 : static_cast<size_t>(number_of_lines));
     }
   }
 }
 
 void TextViewNode::SetHorizontalAlign(const DomStyleMap& dom_style, std::shared_ptr<TextView>& text_view) {
-  if (auto iter = dom_style.find(text::kTextAlign); iter != dom_style.end()) {
-    auto text_align = iter->second->ToStringChecked();
+  if (auto it = dom_style.find(text::kTextAlign); it != dom_style.end() && it->second != nullptr) {
+    auto text_align = it->second->ToStringChecked();
     HorizontalAlign hori_align = tdfcore::HorizontalAlign::kLeft;
     if (text_align == "auto" || text_align == "left") {
       hori_align = HorizontalAlign::kLeft;
@@ -265,8 +265,8 @@ void TextViewNode::SetHorizontalAlign(const DomStyleMap& dom_style, std::shared_
 }
 
 void TextViewNode::SetEnableScale(const DomStyleMap& dom_style, std::shared_ptr<TextView>& text_view) {
-  if (auto iter = dom_style.find(text::kEnableScale); iter != dom_style.end()) {
-    auto enable_scale = iter->second->ToBooleanChecked();
+  if (auto it = dom_style.find(text::kEnableScale); it != dom_style.end() && it->second != nullptr) {
+    auto enable_scale = it->second->ToBooleanChecked();
     if (!enable_scale) {
       // not support
     }

@@ -182,7 +182,7 @@ std::shared_ptr<tdfcore::View> ListViewItemNode::CreateView() {
 
 void ListViewItemNode::UpdateViewType(const DomStyleMap& dom_style) {
   bool found = false;
-  if (auto it = dom_style.find(listviewitem::kViewType); it != dom_style.cend()) {
+  if (auto it = dom_style.find(listviewitem::kViewType); it != dom_style.cend() && it->second != nullptr) {
     if (it->second->IsString()) {
       view_type_ = static_cast<int64_t>(std::hash<std::string>{}(it->second->ToStringChecked()));
       found = true;
@@ -191,7 +191,7 @@ void ListViewItemNode::UpdateViewType(const DomStyleMap& dom_style) {
       found = true;
     }
   }
-  if (auto it = dom_style.find(listviewitem::kViewTypeNew); it != dom_style.cend()) {
+  if (auto it = dom_style.find(listviewitem::kViewTypeNew); it != dom_style.cend() && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsInt32());
     view_type_ = it->second->ToInt32Checked();
     found = true;
@@ -205,7 +205,7 @@ void ListViewItemNode::UpdateViewType(const DomStyleMap& dom_style) {
 
 void ListViewItemNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   ViewNode::HandleStyleUpdate(dom_style);
-  if (auto it = dom_style.find(listviewitem::kSticky); it != dom_style.cend()) {
+  if (auto it = dom_style.find(listviewitem::kSticky); it != dom_style.cend() && it->second != nullptr) {
     is_sticky_ = it->second->ToBooleanChecked();
   }
   UpdateViewType(dom_style);
