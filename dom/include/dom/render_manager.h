@@ -53,7 +53,8 @@ class RenderManager {
   virtual void MoveRenderNode(std::weak_ptr<RootNode> root_node,
                               std::vector<int32_t>&& moved_ids,
                               int32_t from_pid,
-                              int32_t to_pid) = 0;
+                              int32_t to_pid,
+                              int32_t index) = 0;
   virtual void EndBatch(std::weak_ptr<RootNode> root_node) = 0;
 
   virtual void BeforeLayout(std::weak_ptr<RootNode> root_node) = 0;

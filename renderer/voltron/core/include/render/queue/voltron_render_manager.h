@@ -53,7 +53,8 @@ class VoltronRenderManager : public hippy::RenderManager,
   void MoveRenderNode(std::weak_ptr<RootNode> root_node,
                       std::vector<int32_t> &&ids,
                       int32_t pid,
-                      int32_t id) override;
+                      int32_t id,
+                      int32_t index) override;
   void MoveRenderNode(std::weak_ptr<RootNode> root_node,
                       std::vector<std::shared_ptr<DomNode>> &&nodes) override;
 

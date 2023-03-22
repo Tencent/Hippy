@@ -313,7 +313,10 @@ void NativeRenderManager::UpdateLayout(std::weak_ptr<RootNode> root_node,
 }
 
 void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
-                                         std::vector<int32_t>&& moved_ids, int32_t from_pid, int32_t to_pid) {
+                                         std::vector<int32_t>&& moved_ids,
+                                         int32_t from_pid,
+                                         int32_t to_pid,
+                                         int32_t index) {
   auto root = root_node.lock();
   if (!root) {
     return;
@@ -334,13 +337,13 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
     return;
   }
 
-  jmethodID j_method_id = j_env->GetMethodID(j_class, "moveNode", "(I[III)V");
+  jmethodID j_method_id = j_env->GetMethodID(j_class, "moveNode", "(I[IIII)V");
   if (!j_method_id) {
     FOOTSTONE_LOG(ERROR) << "moveNode j_cb_id error";
     return;
   }
 
-  j_env->CallVoidMethod(j_object, j_method_id, root->GetId(), j_int_array, to_pid, from_pid);
+  j_env->CallVoidMethod(j_object, j_method_id, root->GetId(), j_int_array, to_pid, from_pid, index);
   JNIEnvironment::ClearJEnvException(j_env);
   j_env->DeleteLocalRef(j_int_array);
   j_env->DeleteLocalRef(j_class);

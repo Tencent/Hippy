@@ -79,8 +79,9 @@ void LayerOptimizedRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_
           moved_ids.push_back(footstone::check::checked_numeric_cast<uint32_t, int32_t>(moved_node->GetId()));
         }
         MoveRenderNode(root_node, std::move(moved_ids),
-                       footstone::check::checked_numeric_cast<uint32_t, int32_t>(node->GetRenderInfo().pid),
-                       footstone::check::checked_numeric_cast<uint32_t, int32_t>(node->GetRenderInfo().id));
+                       footstone::checked_numeric_cast<uint32_t, int32_t>(node->GetRenderInfo().pid),
+                       footstone::checked_numeric_cast<uint32_t, int32_t>(node->GetRenderInfo().id),
+                           node->GetRenderInfo().index);
       }
     }
   }
@@ -92,6 +93,33 @@ void LayerOptimizedRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_
 
 void LayerOptimizedRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
                                                  std::vector<std::shared_ptr<DomNode>> &&nodes) {
+  std::vector<std::shared_ptr<DomNode>> nodes_to_move;
+  int32_t index_change = 0;
+  for (const auto& node : nodes) {
+    node->SetLayoutOnly(ComputeLayoutOnly(node));
+    if (!CanBeEliminated(node)) {
+      if (index_change > 0) {
+        auto render_info = node->GetRenderInfo();
+        render_info.index += index_change;
+        node->SetRenderInfo(render_info);
+      }
+      nodes_to_move.push_back(node);
+    } else {
+      std::vector<std::shared_ptr<DomNode>> moved_children;
+      FindValidChildren(node, moved_children);
+      if (!moved_children.empty()) {
+        auto size = moved_children.size();
+        for (uint32_t i = 0; i < size; ++i) {
+          auto child = moved_children[i];
+          auto render_info = child->GetRenderInfo();
+          render_info.index += footstone::checked_numeric_cast<uint32_t, int32_t>(i);
+          child->SetRenderInfo(render_info);
+          nodes_to_move.push_back(child);
+        }
+        index_change += footstone::checked_numeric_cast<size_t, int32_t>(size);
+      }
+    }
+  }
   render_manager_->MoveRenderNode(root_node, std::move(nodes));
 }
 
@@ -124,8 +152,9 @@ void LayerOptimizedRenderManager::UpdateLayout(std::weak_ptr<RootNode> root_node
 void LayerOptimizedRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
                                                  std::vector<int32_t>&& moved_ids,
                                                  int32_t from_pid,
-                                                 int32_t to_pid) {
-  render_manager_->MoveRenderNode(root_node, std::move(moved_ids), from_pid, to_pid);
+                                                 int32_t to_pid,
+                                                 int32_t index) {
+  render_manager_->MoveRenderNode(root_node, std::move(moved_ids), from_pid, to_pid, index);
 }
 
 void LayerOptimizedRenderManager::EndBatch(std::weak_ptr<RootNode> root_node) {

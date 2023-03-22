@@ -120,7 +120,8 @@ void VoltronRenderManager::DeleteRenderNode(
 void VoltronRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
                                           std::vector<int32_t> &&ids,
                                           int32_t pid,
-                                          int32_t id) {
+                                          int32_t id,
+                                          int32_t index) {
   auto root_node_ptr = root_node.lock();
   if (!root_node_ptr) {
     return;
