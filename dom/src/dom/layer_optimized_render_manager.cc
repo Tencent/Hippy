@@ -91,7 +91,9 @@ void LayerOptimizedRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_
 }
 
 void LayerOptimizedRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
-                                                 std::vector<std::shared_ptr<DomNode>> &&nodes) {}
+                                                 std::vector<std::shared_ptr<DomNode>> &&nodes) {
+  render_manager_->MoveRenderNode(root_node, std::move(nodes));
+}
 
 void LayerOptimizedRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
                                                    std::vector<std::shared_ptr<DomNode>>&& nodes) {

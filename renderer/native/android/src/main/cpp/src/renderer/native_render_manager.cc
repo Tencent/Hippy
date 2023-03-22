@@ -212,7 +212,31 @@ void NativeRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_node,
 }
 
 void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
-                                         std::vector<std::shared_ptr<DomNode>> &&nodes) {}
+                                         std::vector<std::shared_ptr<DomNode>> &&nodes) {
+  auto root = root_node.lock();
+  if (!root) {
+    return;
+  }
+
+  serializer_->Release();
+  serializer_->WriteHeader();
+
+  auto len = nodes.size();
+  footstone::value::HippyValue::DomValueArrayType dom_node_array;
+  dom_node_array.resize(len);
+  for (uint32_t i = 0; i < len; i++) {
+    const auto& render_info = nodes[i]->GetRenderInfo();
+    footstone::value::HippyValue::HippyValueObjectType dom_node;
+    dom_node[kId] = footstone::value::HippyValue(render_info.id);
+    dom_node[kPid] = footstone::value::HippyValue(render_info.pid);
+    dom_node[kIndex] = footstone::value::HippyValue(render_info.index);
+    dom_node_array[i] = dom_node;
+  }
+  serializer_->WriteValue(HippyValue(dom_node_array));
+  std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
+
+  CallNativeMethod("moveNode", root->GetId(), buffer_pair);
+}
 
 void NativeRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
                                            std::vector<std::shared_ptr<DomNode>>&& nodes) {
