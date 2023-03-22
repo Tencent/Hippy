@@ -76,8 +76,6 @@ NSDictionary *HippyExportedDimensions() {
 
 @interface HippyDeviceBaseInfo () {
     id<NSObject> _statusBarOrientationNotificationObserver;
-    id<NSObject> _applicationDidBecomeActiveNotificationObserver;
-
     UIInterfaceOrientation _currentInterfaceOrientation;
 }
 
@@ -98,8 +96,8 @@ HIPPY_EXPORT_MODULE(DeviceBaseInfo)
                         object:nil
                          queue:[NSOperationQueue mainQueue]
                     usingBlock:^(NSNotification *_Nonnull note) {
-                        if (devInfo) {
-                            HippyDeviceBaseInfo *strongSelf = devInfo;
+                        HippyDeviceBaseInfo *strongSelf = devInfo;
+                        if (strongSelf) {
                             UIInterfaceOrientation previousInterfaceOrientation
                                 = (UIInterfaceOrientation)[note.userInfo[UIApplicationStatusBarOrientationUserInfoKey] integerValue];
                             UIInterfaceOrientation currentInterfaceOrientation = [[UIApplication sharedApplication] statusBarOrientation];
@@ -110,30 +108,12 @@ HIPPY_EXPORT_MODULE(DeviceBaseInfo)
                             strongSelf->_currentInterfaceOrientation = currentInterfaceOrientation;
                         }
                     }];
-
-        _applicationDidBecomeActiveNotificationObserver = [[NSNotificationCenter defaultCenter]
-            addObserverForName:UIApplicationDidBecomeActiveNotification
-                        object:nil
-                         queue:[NSOperationQueue mainQueue]
-                    usingBlock:^(NSNotification *_Nonnull note) {
-                        if (devInfo) {
-                            HippyDeviceBaseInfo *strongSelf = devInfo;
-                            UIInterfaceOrientation currentInterfaceOrientation = strongSelf->_currentInterfaceOrientation;
-                            UIInterfaceOrientation activeStatusBarOrientation = [[UIApplication sharedApplication] statusBarOrientation];
-                            if (currentInterfaceOrientation != activeStatusBarOrientation) {
-                                NSDictionary *dim = HippyExportedDimensions();
-                                [[strongSelf bridge].eventDispatcher dispatchEvent:@"Dimensions" methodName:@"set" args:dim];
-                            }
-                            strongSelf->_currentInterfaceOrientation = activeStatusBarOrientation;
-                        }
-                    }];
     }
     return self;
 }
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:_statusBarOrientationNotificationObserver];
-    [[NSNotificationCenter defaultCenter] removeObserver:_applicationDidBecomeActiveNotificationObserver];
 }
 
 @end

@@ -29,7 +29,6 @@
 #import "HippyDisplayLink.h"
 #import "HippyEventDispatcher.h"
 #import "HippyFileHandler.h"
-#import "HippyInstanceLoadBlock.h"
 #import "HippyJSEnginesMapper.h"
 #import "HippyJSExecutor.h"
 #import "HippyKeyCommands.h"
@@ -96,16 +95,12 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     HippyBundleOperationQueue *_bundlesQueue;
     NSMutableArray<NSURL *> *_bundleURLs;
     NSURL *_debugURL;
-    NSMutableArray<HippyInstanceLoadBlock *> *_instanceBlocks;
-    NSMutableArray<dispatch_block_t> *_nativeSetupBlocks;
     NSURL *_sandboxDirectory;
     std::weak_ptr<VFSUriLoader> _uriLoader;
-    std::mutex _imageProviderMutex;
 }
 
-@property(readwrite, assign) NSUInteger currentIndexOfBundleExecuted;
-@property(readwrite, assign) NSUInteger loadingCount;
 @property(readwrite, strong) dispatch_semaphore_t moduleSemaphore;
+@property(readwrite, assign) NSInteger loadingCount;
 
 @end
 
@@ -148,8 +143,6 @@ dispatch_queue_t HippyBridgeQueue() {
         _invalidateReason = HPInvalidateReasonDealloc;
         _valid = YES;
         _bundlesQueue = [[HippyBundleOperationQueue alloc] init];
-        _nativeSetupBlocks = [NSMutableArray arrayWithCapacity:8];
-        _instanceBlocks = [NSMutableArray arrayWithCapacity:4];
         [self setUp];
         HPExecuteOnMainThread(^{
             [self bindKeys];
@@ -197,18 +190,20 @@ dispatch_queue_t HippyBridgeQueue() {
 
 - (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls {
     HPAssertParam(cls);
-    std::lock_guard<std::mutex> lock(_imageProviderMutex);
-    if (!_imageProviders) {
-        _imageProviders = [NSMutableArray arrayWithCapacity:8];
+    @synchronized (self) {
+        if (!_imageProviders) {
+            _imageProviders = [NSMutableArray arrayWithCapacity:8];
+        }
+        [_imageProviders addObject:cls];
     }
-    [_imageProviders addObject:cls];
 }
 - (NSArray<Class<HPImageProviderProtocol>> *)imageProviderClasses {
-    std::lock_guard<std::mutex> lock(_imageProviderMutex);
-    if (!_imageProviders) {
-        _imageProviders = [NSMutableArray arrayWithCapacity:8];
+    @synchronized (self) {
+        if (!_imageProviders) {
+            _imageProviders = [NSMutableArray arrayWithCapacity:8];
+        }
+        return [_imageProviders copy];
     }
-    return [_imageProviders copy];
 }
 
 - (NSArray *)modulesConformingToProtocol:(Protocol *)protocol {
@@ -249,8 +244,6 @@ dispatch_queue_t HippyBridgeQueue() {
     _performanceLogger = [HippyPerformanceLogger new];
     [_performanceLogger markStartForTag:HippyPLBridgeStartup];
     _valid = YES;
-    self.loadingCount = 0;
-    self.currentIndexOfBundleExecuted = NSNotFound;
     self.moduleSemaphore = dispatch_semaphore_create(0);
     @try {
         __weak HippyBridge *weakSelf = self;
@@ -279,15 +272,15 @@ dispatch_queue_t HippyBridgeQueue() {
     }
 }
 
-- (void)loadBundleURLs:(NSArray<NSURL *> *)bundleURLs
-            completion:(void (^_Nullable)(NSURL  * _Nullable, NSError * _Nullable))completion {
-    if (!bundleURLs) {
+- (void)loadBundleURL:(NSURL *)bundleURL
+           completion:(void (^_Nullable)(NSURL  * _Nullable, NSError * _Nullable))completion {
+    if (!bundleURL) {
         completion(nil, nil);
         return;
     }
-    [_bundleURLs addObjectsFromArray:bundleURLs];
+    [_bundleURLs addObject:bundleURL];
     dispatch_async(HippyBridgeQueue(), ^{
-        [self beginLoadingBundles:bundleURLs completion:completion];
+        [self beginLoadingBundle:bundleURL completion:completion];
     });
 }
 
@@ -297,80 +290,61 @@ dispatch_queue_t HippyBridgeQueue() {
     [_moduleSetup setupModulesCompletion:completion];
 }
 
-- (void)beginLoadingBundles:(NSArray<NSURL *> *)bundleURLs
-                 completion:(void (^)(NSURL  * _Nullable, NSError * _Nullable))completion {
+- (void)beginLoadingBundle:(NSURL *)bundleURL
+                completion:(void (^)(NSURL  * _Nullable, NSError * _Nullable))completion {
     dispatch_group_t group = dispatch_group_create();
+    __weak HippyBridge *weakSelf = self;
+    __block NSString *script = nil;
     self.loadingCount++;
-    for (NSURL *bundleURL in bundleURLs) {
-        __weak HippyBridge *weakSelf = self;
-        __block NSString *script = nil;
-        dispatch_group_enter(group);
-        HippyBundleLoadOperation *fetchOp = [[HippyBundleLoadOperation alloc] initWithBridge:self
-                                                                                   bundleURL:bundleURL
-                                                                                       queue:HippyBridgeQueue()];
-        fetchOp.onLoad = ^(NSData *source, NSError *error) {
-            if (error) {
-                HippyBridgeFatal(error, weakSelf);
-            }
-            else {
-                script = [[NSString alloc] initWithData:source encoding:NSUTF8StringEncoding];
-            }
+    dispatch_group_enter(group);
+    HippyBundleLoadOperation *fetchOp = [[HippyBundleLoadOperation alloc] initWithBridge:self
+                                                                               bundleURL:bundleURL
+                                                                                   queue:HippyBridgeQueue()];
+    fetchOp.onLoad = ^(NSData *source, NSError *error) {
+        if (error) {
+            HippyBridgeFatal(error, weakSelf);
+        }
+        else {
+            script = [[NSString alloc] initWithData:source encoding:NSUTF8StringEncoding];
+        }
+        dispatch_group_leave(group);
+    };
+    
+    dispatch_group_enter(group);
+    HippyBundleExecutionOperation *executeOp = [[HippyBundleExecutionOperation alloc] initWithBlock:^{
+        HippyBridge *strongSelf = weakSelf;
+        if (!strongSelf || !strongSelf.valid) {
             dispatch_group_leave(group);
-        };
-        
-        dispatch_group_enter(group);
-        HippyBundleExecutionOperation *executeOp = [[HippyBundleExecutionOperation alloc] initWithBlock:^{
+            return;
+        }
+        [strongSelf executeJSCode:script sourceURL:bundleURL onCompletion:^(id result, NSError *error) {
+            if (completion) {
+                completion(bundleURL, error);
+            }
             HippyBridge *strongSelf = weakSelf;
             if (!strongSelf || !strongSelf.valid) {
                 dispatch_group_leave(group);
                 return;
             }
-            [strongSelf executeJSCode:script sourceURL:bundleURL onCompletion:^(id result, NSError *error) {
-                if (completion) {
-                    completion(bundleURL, error);
-                }
-                HippyBridge *strongSelf = weakSelf;
-                if (!strongSelf || !strongSelf.valid) {
-                    dispatch_group_leave(group);
-                    return;
-                }
-                if (error) {
-                    HippyBridgeFatal(error, weakSelf);
-                }
-                if (NSNotFound == strongSelf.currentIndexOfBundleExecuted) {
-                    strongSelf.currentIndexOfBundleExecuted = 0;
-                }
-                else {
-                    strongSelf.currentIndexOfBundleExecuted++;
-                }
-                NSArray<HippyInstanceLoadBlock *> *blocks = [strongSelf->_instanceBlocks copy];
-                for (NSUInteger i = 0; i < [blocks count]; i++) {
-                    HippyInstanceLoadBlock *blockInstance = blocks[i];
-                    if (![blockInstance isLoaded] &&
-                        strongSelf.currentIndexOfBundleExecuted <= blockInstance.index &&
-                        blockInstance.loadedBlock) {
-                        dispatch_async(dispatch_get_main_queue(), blockInstance.loadedBlock);
-                        blockInstance.loaded = YES;
-                    }
-                }
-                dispatch_group_leave(group);
-            }];
-        } queue:HippyBridgeQueue()];
-        //set dependency
-        [executeOp addDependency:fetchOp];
-        if (_lastOperation) {
-            [executeOp addDependency:_lastOperation];
-            _lastOperation = executeOp;
-        }
-        else {
-            _lastOperation = executeOp;
-        }
-        [_bundlesQueue addOperations:@[fetchOp, executeOp]];
+            if (error) {
+                HippyBridgeFatal(error, weakSelf);
+            }
+            dispatch_group_leave(group);
+        }];
+    } queue:HippyBridgeQueue()];
+    //set dependency
+    [executeOp addDependency:fetchOp];
+    if (_lastOperation) {
+        [executeOp addDependency:_lastOperation];
+        _lastOperation = executeOp;
     }
-    __weak HippyBridge *weakSelf = self;
+    else {
+        _lastOperation = executeOp;
+    }
+    [_bundlesQueue addOperations:@[fetchOp, executeOp]];
     dispatch_block_t completionBlock = ^(void){
         HippyBridge *strongSelf = weakSelf;
-        if (strongSelf) {
+        if (strongSelf && strongSelf.isValid) {
             strongSelf.loadingCount--;
         }
     };
@@ -387,16 +361,7 @@ dispatch_queue_t HippyBridgeQueue() {
 }
 
 - (void)loadInstanceForRootView:(NSNumber *)rootTag withProperties:(NSDictionary *)props {
-    HPAssert([_bundleURLs count], @"At least one bundle should be settled before load instance");
-    NSUInteger index = [_bundleURLs count] - 1;
-    __weak HippyBridge *weakBridge = self;
-    dispatch_block_t loadInstanceBlock = ^(void){
-        HippyBridge *strongSelf = weakBridge;
-        if (strongSelf) {
-            [strongSelf innerLoadInstanceForRootView:rootTag withProperties:props];
-        }
-    };
-    [_instanceBlocks addObject:[[HippyInstanceLoadBlock alloc] initWithBlock:loadInstanceBlock index:index]];
+    [self innerLoadInstanceForRootView:rootTag withProperties:props];
 }
 
 - (void)innerLoadInstanceForRootView:(NSNumber *)rootTag withProperties:(NSDictionary *)props {
@@ -770,7 +735,6 @@ dispatch_queue_t HippyBridgeQueue() {
       #endif
     };
     block();
-    [_nativeSetupBlocks addObject:block];
 }
 
 - (BOOL)isValid {
@@ -796,15 +760,7 @@ dispatch_queue_t HippyBridgeQueue() {
         return;
     }
     _valid = NO;
-    self.loadingCount = 0;
-    NSArray<HippyInstanceLoadBlock *> *blocks = [_instanceBlocks copy];
-    for (NSUInteger i = 0; i < [blocks count]; i++) {
-        HippyInstanceLoadBlock *blockInstance = blocks[i];
-        blockInstance.loaded = NO;
-    }
     [_bundleURLs removeAllObjects];
-    [_nativeSetupBlocks removeAllObjects];
-    [_instanceBlocks removeAllObjects];
     if ([self.delegate respondsToSelector:@selector(invalidateForReason:bridge:)]) {
         [self.delegate invalidateForReason:self.invalidateReason bridge:self];
     }
@@ -963,9 +919,7 @@ dispatch_queue_t HippyBridgeQueue() {
             relativeString = [string stringByReplacingOccurrencesOfString:filePrefix withString:@"" options:0 range:range];
         }
         NSURL *localFileURL = [NSURL URLWithString:relativeString relativeToURL:self.bundleURL];
-        if ([localFileURL isFileURL]) {
-            return [localFileURL path];
-        }
+        return [localFileURL path];
     }
     return nil;
 }

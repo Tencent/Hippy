@@ -112,6 +112,16 @@ using RootNode = hippy::RootNode;
     }
 }
 
+- (void)removeComponentByComponentTag:(NSNumber *)componentTag onRootTag:(NSNumber *)rootTag {
+    NSAssert(componentTag, @"component and tag must not be null in method %@", NSStringFromSelector(_cmd));
+    NSAssert(rootTag, @"component's tag must not be null in %@", NSStringFromSelector(_cmd));
+    NSAssert([self threadCheck], @"%@ method needs run in main thread", NSStringFromSelector(_cmd));
+    if (componentTag && rootTag) {
+        id map = [_componentsMap objectForKey:rootTag];
+        [map removeObjectForKey:componentTag];
+    }
+}
+
 - (NSMutableDictionary<NSNumber * ,__kindof id<NativeRenderComponentProtocol>> *)componentsForRootTag:(NSNumber *)tag {
     NSAssert(tag, @"tag must not be null in method %@", NSStringFromSelector(_cmd));
     NSAssert([self threadCheck], @"%@ method needs run in main thread", NSStringFromSelector(_cmd));

@@ -58,6 +58,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeComponent:(__kindof id<NativeRenderComponentProtocol>)component
              forRootTag:(NSNumber *)tag;
 
+- (void)removeComponentByComponentTag:(NSNumber *)componentTag onRootTag:(NSNumber *)rootTag;
+
 - (NSMutableDictionary<NSNumber *, __kindof id<NativeRenderComponentProtocol>> *)componentsForRootTag:(NSNumber *)tag;
 
 - (__kindof id<NativeRenderComponentProtocol>)componentForTag:(NSNumber *)componentTag

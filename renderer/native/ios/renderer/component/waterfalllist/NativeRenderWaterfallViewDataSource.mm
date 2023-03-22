@@ -42,6 +42,15 @@
     return self;
 }
 
+- (id)copyWithZone:(nullable NSZone *)zone {
+    NativeRenderWaterfallViewDataSource *dataSource = [[[self class] allocWithZone:zone] init];
+    dataSource->_containBannerView = self.containBannerView;
+    dataSource->_bannerView = _bannerView;
+    dataSource->_cellRenderObjectViews = [_cellRenderObjectViews copy];
+    dataSource.itemViewName = self.itemViewName;
+    return dataSource;
+}
+
 - (void)setDataSource:(NSArray<NativeRenderObjectView *> *)dataSource {
     [self setDataSource:dataSource containBannerView:NO];
 }
@@ -71,6 +80,10 @@
 
 -(NativeRenderObjectView *)bannerView {
     return _bannerView;
+}
+
+- (NSArray<NativeRenderObjectView *> *)cellRenderObjectViews {
+    return [_cellRenderObjectViews copy];
 }
 
 - (NativeRenderObjectView *)cellForIndexPath:(NSIndexPath *)indexPath {
@@ -143,5 +156,76 @@
     }
     return index;
 }
+
+@end
+
+@implementation NativeRenderWaterfallViewDataSource (ApplyDiff)
+
+- (void)applyDiff:(NativeRenderWaterfallViewDataSource *)another forWaterfallView:(UICollectionView *)view {
+    if (!another) {
+        [view reloadData];
+        return;
+    }
+    @try {
+        NativeRenderObjectView *selfBannerView = [self bannerView];
+        NativeRenderObjectView *oldBannerView = [another bannerView];
+        //check bannerview section
+        BOOL updateBannerAction = NO;
+        if (selfBannerView != oldBannerView) {
+            updateBannerAction = YES;
+        }
+        NSArray<NativeRenderObjectView *> *selfNodes = [self cellRenderObjectViews];
+        NSArray<NativeRenderObjectView *> *oldNodes = [another cellRenderObjectViews];
+        if (selfNodes && oldNodes && [selfNodes isEqualToArray:oldNodes] && updateBannerAction) {
+            [view reloadData];
+            return;
+        }
+        //check cell section
+        NSUInteger selfNodesCount = [selfNodes count];
+        NSUInteger oldNodesCount = [oldNodes count];
+        if (0 == selfNodesCount || 0 == oldNodesCount) {
+            [view reloadData];
+            return;
+        }
+        //incremental
+        if (selfNodesCount > oldNodesCount) {
+            NSArray<NativeRenderObjectView *> *intersection = [selfNodes subarrayWithRange:NSMakeRange(0, [oldNodes count])];
+            //no change, just incremental
+            if ([intersection isEqualToArray:oldNodes]) {
+                NSUInteger incrementalNumber = selfNodesCount - oldNodesCount;
+                NSMutableArray<NSIndexPath *> *incrementalIndexPathes = [NSMutableArray arrayWithCapacity:incrementalNumber];
+                for (NSUInteger i = 0; i < incrementalNumber; i++) {
+                    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:oldNodesCount + i inSection:selfBannerView?1:0];
+                    [incrementalIndexPathes addObject:indexPath];
+                }
+                [view insertItemsAtIndexPaths:incrementalIndexPathes];
+            }
+            else {
+                [view reloadData];
+            }
+        }
+        else if (selfNodesCount < oldNodesCount) {
+            //reduction
+            NSArray<NativeRenderObjectView *> *reduction = [oldNodes subarrayWithRange:NSMakeRange(0, [selfNodes count])];
+            //no change, just reduction
+            if ([reduction isEqualToArray:selfNodes]) {
+                NSUInteger reductionNumber = oldNodesCount - selfNodesCount;
+                NSMutableArray<NSIndexPath *> *reductionIndexPathes = [NSMutableArray arrayWithCapacity:reductionNumber];
+                for (NSUInteger i = 0; i < reductionNumber; i++) {
+                    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:selfNodesCount + i inSection:selfBannerView?1:0];
+                    [reductionIndexPathes addObject:indexPath];
+                }
+                [view deleteItemsAtIndexPaths:reductionIndexPathes];
+            }
+            else {
+                [view reloadData];
+            }
+        }
+    } @catch (NSException *exception) {
+        [view reloadData];
+    }
+}
+
+//- ()
 
 @end

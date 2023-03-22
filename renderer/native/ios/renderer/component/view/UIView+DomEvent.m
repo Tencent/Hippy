@@ -27,6 +27,19 @@
 
 @implementation UIView(DomEvent)
 
+- (NSMutableSet<NSString *> *)_propertyEventsName {
+    NSMutableSet<NSString *> *names = objc_getAssociatedObject(self, @selector(_propertyEventsName));
+    if (!names) {
+        names = [NSMutableSet setWithCapacity:8];
+        objc_setAssociatedObject(self, @selector(_propertyEventsName), names, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return names;
+}
+
+- (NSSet<NSString *> *)propertyEventsName {
+    return [[self _propertyEventsName] copy];
+}
+
 static SEL SelectorFromCName(const char *name) {
     if (!name || strlen(name) < 1) {
         return nil;
@@ -67,6 +80,7 @@ static SEL SelectorFromCName(const char *name) {
     if (!name) {
         return;
     }
+    [[self _propertyEventsName] addObject:@(name)];
     if (0 == strcmp(name, "onDidMount") ) {
         [self viewDidMountEvent];
     }
@@ -95,6 +109,14 @@ static SEL SelectorFromCName(const char *name) {
 }
 
 - (void)didRemovePropertyEvent:(const char *)name {
+    [[self _propertyEventsName] removeObject:@(name)];
+}
+
+- (void)removeAllPropertyEvents {
+    NSSet<NSString *> *set = [self propertyEventsName];
+    for (NSString *name in set) {
+        [self removePropertyEvent:[name UTF8String]];
+    }
 }
 
 #pragma mark NativeRenderTouchesProtocol Methods
@@ -114,5 +136,7 @@ static SEL SelectorFromCName(const char *name) {
 - (BOOL)canBePreventInBubbling:(const char *)name {
     return NO;
 }
+
+- (void)resetAllEvents {}
 
 @end

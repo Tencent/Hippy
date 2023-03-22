@@ -361,19 +361,22 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 #endif
     HPLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor invalide %p", self);
     _valid = NO;
-#ifdef JS_USE_JSC
+#ifdef JS_JSC
     auto scope = self.pScope;
     if (scope) {
         auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
         jsc_context->SetName("HippyJSContext(delete)");
     }
-#endif //JS_USE_JSC
+#endif //JS_JSC
     self.pScope->WillExit();
+    self.pScope = nullptr;
     NSString *enginekey = [self enginekey];
     if (!enginekey) {
         return;
     }
-    [[HippyJSEnginesMapper defaultInstance] removeEngineResourceForKey:enginekey];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[HippyJSEnginesMapper defaultInstance] removeEngineResourceForKey:enginekey];
+    });
 }
 
 - (NSString *)enginekey {
@@ -382,7 +385,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 
 // clang-format off
 - (void)setContextName:(NSString *)contextName {
-#ifdef JS_USE_JSC
+#ifdef JS_JSC
     WeakCtxPtr weak_ctx = self.pScope->GetContext();
     [self executeBlockOnJavaScriptQueue:^{
         SharedCtxPtr context = weak_ctx.lock();
@@ -396,7 +399,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
             HPLogWarn(@"set context throw exception");
         }
     }];
-#endif //JS_USE_JSC
+#endif //JS_JSC
 }
 // clang-format on
 
@@ -615,7 +618,7 @@ static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, Hip
         auto tryCatch = hippy::napi::CreateTryCatchScope(true, context);
         auto global_object = context->GetGlobalObject();
         auto name_key = context->CreateString(name_view);
-        auto engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:self.enginekey];
+        auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:self.enginekey];
         auto json_value = engine->GetEngine()->GetVM()->ParseJson(context, json_view);
         context->SetProperty(global_object, name_key, json_value);
         if (tryCatch->HasCaught()) {

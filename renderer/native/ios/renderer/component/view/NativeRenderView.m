@@ -70,7 +70,7 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
     UIColor *_backgroundColor;
 }
 
-@synthesize hippyZIndex = _hippyZIndex;
+@synthesize nativeRenderZIndex = _nativeRenderZIndex;
 
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];

@@ -36,6 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UIView(DomEvent)<NativeRenderTouchesProtocol>
 
+@property(nonatomic, readonly, copy)NSSet<NSString *> *propertyEventsName;
+
 /**
  * Add custom property event for view
  * @param name event name
@@ -65,6 +67,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @discussion The default implementation of this method is to trigger onDidUnmount event if it is onDidUnmount event
  */
 - (void)didRemovePropertyEvent:(const char *)name;
+
+- (void)removeAllPropertyEvents;
 
 @end
 

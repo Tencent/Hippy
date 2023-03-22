@@ -34,8 +34,8 @@
 #import "NativeRenderWaterfallViewCell.h"
 
 static NSString *kCellIdentifier = @"cellIdentifier";
-
 static NSString *kWaterfallItemName = @"WaterfallItem";
+static const NSTimeInterval delayForPurgeView = 3.0f;
 
 @interface NativeRenderWaterfallView () <HPInvalidating, NativeRenderRefreshDelegate, NativeRenderListTableViewLayoutProtocol> {
     NSHashTable<id<UIScrollViewDelegate>> *_scrollListeners;
@@ -66,7 +66,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
         _dataSource = [[NativeRenderWaterfallViewDataSource alloc] init];
         self.dataSource.itemViewName = [self compoentItemName];
         _weakItemMap = [NSMapTable strongToWeakObjectsMapTable];
-        _cachedItems = [NSMutableDictionary dictionaryWithCapacity:[self maxCachedItemCount]];
+        _cachedItems = [NSMutableDictionary dictionaryWithCapacity:32];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
         [self initCollectionView];
         if (@available(iOS 11.0, *)) {
@@ -177,7 +177,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 #pragma mark Setter & Getter
 
 - (NSUInteger)maxCachedItemCount {
-    return 20;
+    return NSUIntegerMax;
 }
 
 - (NSUInteger)differenceFromIndexPath:(NSIndexPath *)indexPath1 againstAnother:(NSIndexPath *)indexPath2 {
@@ -199,8 +199,10 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 }
 
 - (NSArray<NSIndexPath *> *)findFurthestIndexPathsFromScreen {
+    NSUInteger visibleItemsCount = [[self.collectionView visibleCells] count];
+    NSUInteger maxCachedItemCount = [self maxCachedItemCount] == NSUIntegerMax ? visibleItemsCount * 3 : [self maxCachedItemCount];
     NSUInteger cachedCount = [_cachedItems count];
-    NSInteger cachedCountToRemove = cachedCount > [self maxCachedItemCount] ? cachedCount - [self maxCachedItemCount] : 0;
+    NSInteger cachedCountToRemove = cachedCount > maxCachedItemCount ? cachedCount - maxCachedItemCount : 0;
     if (0 != cachedCountToRemove) {
         NSArray<NSIndexPath *> *visibleIndexPaths = [_collectionView indexPathsForVisibleItems];
         NSArray<NSIndexPath *> *sortedCachedItemKey = [[_cachedItems allKeys] sortedArrayUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
@@ -306,6 +308,17 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     return [[_weakItemMap dictionaryRepresentation] allValues];
 }
 
+- (void)removeFromNativeRenderSuperview {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
+    [self purgeFurthestIndexPathsFromScreen];
+}
+
+- (void)didMoveToWindow {
+    if (!self.window) {
+        [self removeFromNativeRenderSuperview];
+    }
+}
+
 #pragma mark - UICollectionViewDataSource
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
     return [_dataSource numberOfSection];
@@ -361,12 +374,9 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
     NativeRenderObjectView *renderObjectView = [_dataSource cellForIndexPath:indexPath];
     [renderObjectView recusivelySetCreationTypeToInstant];
-    UIView *cellView = [self.renderImpl viewFromRenderViewTag:renderObjectView.componentTag onRootTag:renderObjectView.rootTag];
+    UIView *cellView = [self.renderImpl createViewRecursivelyFromRenderObject:renderObjectView];
     if (cellView) {
         [_cachedItems removeObjectForKey:indexPath];
-    }
-    else {
-        cellView = [self.renderImpl createViewRecursivelyFromRenderObject:renderObjectView];
     }
     hpCell.cellView = cellView;
     [_weakItemMap setObject:cellView forKey:[cellView componentTag]];
@@ -435,7 +445,6 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     }
     //TODO cancel timer when component is removed from hippy view
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
-    static const NSTimeInterval delayForPurgeView = 3.0f;
     [self performSelector:@selector(purgeFurthestIndexPathsFromScreen) withObject:nil afterDelay:delayForPurgeView];
     [_headerRefreshView scrollViewDidScroll];
     [_footerRefreshView scrollViewDidScroll];

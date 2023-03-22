@@ -204,7 +204,6 @@ void DomNode::DoLayout(std::vector<std::shared_ptr<DomNode>>& changed_nodes) {
 
 void DomNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
   auto root_node = root_node_.lock();
-  FOOTSTONE_DCHECK(root_node);
   if (root_node) {
     root_node->HandleEvent(std::move(event));
   }

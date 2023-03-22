@@ -80,7 +80,7 @@ void HPFatal(NSError *error, NSDictionary *__nullable userInfo) {
     if (fatalHandler) {
         fatalHandler(error, userInfo);
     } else {
-#ifdef HP_DEBUG
+#if HP_DEBUG
         @try {
             NSString *name = [NSString stringWithFormat:@"%@: %@", HPFatalExceptionName, error.localizedDescription];
             NSString *message = HPFormatError(error.localizedDescription, error.userInfo[HPJSStackTraceKey], 75);

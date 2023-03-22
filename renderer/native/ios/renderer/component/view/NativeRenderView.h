@@ -40,7 +40,7 @@
  * inherited from UIView+NativeRender, but we override it here to reduce the boxing
  * and associated object overheads.
  */
-@property (nonatomic, assign) NSInteger hippyZIndex;
+@property (nonatomic, assign) NSInteger nativeRenderZIndex;
 
 @property (nonatomic, assign) CGFloat shadowSpread;
 

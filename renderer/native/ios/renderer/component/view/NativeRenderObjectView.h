@@ -29,6 +29,7 @@
 namespace hippy {
 inline namespace dom {
 class DomManager;
+class DomNode;
 class RootNode;
 struct LayoutResult;
 enum class Direction;
@@ -143,9 +144,11 @@ extern NSString *const NativeRenderShadowViewDiffTag;
  */
 @property (nonatomic, assign) NativeRenderCreationType creationType;
 
-@property (nonatomic, assign) std::weak_ptr<hippy::DomManager>domManager;
+@property (nonatomic, assign) std::weak_ptr<hippy::DomManager> domManager;
 
-@property (nonatomic, assign) std::weak_ptr<hippy::RootNode>rootNode;
+@property (nonatomic, assign) std::weak_ptr<hippy::DomNode> domNode;
+
+@property (nonatomic, assign) std::weak_ptr<hippy::RootNode> rootNode;
 
 /**
  * set create type of itself and its all descendants to NativeRenderCreationTypeInstantly

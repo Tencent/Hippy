@@ -44,7 +44,7 @@
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
     @autoreleasepool {
-        footstone::string_view string_view([self UTF8String]);
+        auto string_view = footstone::string_view::new_from_utf8([self UTF8String]);
         return context->CreateString(string_view);
     }
 }
@@ -81,14 +81,16 @@
 @implementation NSDictionary (CtxValue)
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
-    std::unordered_map<CtxValuePtr, CtxValuePtr> valueMap;
-    for (id key in self) {
-        id value = [self objectForKey:key];
-        auto keyPtr = [key convertToCtxValue:context];
-        auto valuePtr = [value convertToCtxValue:context];
-        valueMap[keyPtr] = valuePtr;
+    @autoreleasepool {
+        std::unordered_map<CtxValuePtr, CtxValuePtr> valueMap;
+        for (id key in self) {
+            id value = [self objectForKey:key];
+            auto keyPtr = [key convertToCtxValue:context];
+            auto valuePtr = [value convertToCtxValue:context];
+            valueMap[keyPtr] = valuePtr;
+        }
+        return context->CreateObject(valueMap);
     }
-    return context->CreateObject(valueMap);
 }
 
 @end
@@ -111,6 +113,18 @@
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
     return context->CreateNull();
+}
+
+@end
+
+@implementation NSError (CtxValue)
+
+- (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
+    @autoreleasepool {
+        NSString *errorMessage = [self description];
+        auto string_view = footstone::string_view::new_from_utf8([errorMessage UTF8String]);
+        return context->CreateError(string_view);
+    }
 }
 
 @end

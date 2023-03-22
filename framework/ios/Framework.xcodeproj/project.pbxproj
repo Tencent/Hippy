@@ -29,7 +29,6 @@
 		F44E1B5E29248B7F0091BCA4 /* HippyBundleExecutionOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AFB29248B7F0091BCA4 /* HippyBundleExecutionOperation.m */; };
 		F44E1B5F29248B7F0091BCA4 /* HippyBundleLoadOperation.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AFE29248B7F0091BCA4 /* HippyBundleLoadOperation.mm */; };
 		F44E1B6129248B7F0091BCA4 /* NSObject+CtxValue.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B0429248B7F0091BCA4 /* NSObject+CtxValue.mm */; };
-		F44E1B6229248B7F0091BCA4 /* HippyInstanceLoadBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B0729248B7F0091BCA4 /* HippyInstanceLoadBlock.m */; };
 		F44E1B6329248B7F0091BCA4 /* HippyErrorInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B0B29248B7F0091BCA4 /* HippyErrorInfo.m */; };
 		F44E1B6429248B7F0091BCA4 /* NSObject+JSValue.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B0D29248B7F0091BCA4 /* NSObject+JSValue.m */; };
 		F44E1B6529248B7F0091BCA4 /* HippyOCTurboModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B1629248B7F0091BCA4 /* HippyOCTurboModule.mm */; };
@@ -63,7 +62,6 @@
 		F4827F532970206800085A05 /* HippyExceptionModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B3929248B7F0091BCA4 /* HippyExceptionModule.mm */; };
 		F4827F542970206800085A05 /* HippyModulesSetup.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1AF029248B7F0091BCA4 /* HippyModulesSetup.mm */; };
 		F4827F552970206800085A05 /* HippyJSExecutor.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1ADF29248B7F0091BCA4 /* HippyJSExecutor.mm */; };
-		F4827F572970206800085A05 /* HippyInstanceLoadBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B0729248B7F0091BCA4 /* HippyInstanceLoadBlock.m */; };
 		F4827F582970206800085A05 /* HippyEventObserverModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B2E29248B7F0091BCA4 /* HippyEventObserverModule.mm */; };
 		F4827F592970206800085A05 /* HippyTiming.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B2529248B7F0091BCA4 /* HippyTiming.mm */; };
 		F4827F5A2970206800085A05 /* HippyNetWork.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1B1A29248B7F0091BCA4 /* HippyNetWork.mm */; };
@@ -184,10 +182,8 @@
 		F44E1B0429248B7F0091BCA4 /* NSObject+CtxValue.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSObject+CtxValue.mm"; sourceTree = "<group>"; };
 		F44E1B0529248B7F0091BCA4 /* HippyErrorCustomizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyErrorCustomizer.h; sourceTree = "<group>"; };
 		F44E1B0629248B7F0091BCA4 /* HippyErrorInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyErrorInfo.h; sourceTree = "<group>"; };
-		F44E1B0729248B7F0091BCA4 /* HippyInstanceLoadBlock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyInstanceLoadBlock.m; sourceTree = "<group>"; };
 		F44E1B0829248B7F0091BCA4 /* HippyDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyDefines.h; sourceTree = "<group>"; };
 		F44E1B0929248B7F0091BCA4 /* HippyNullability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyNullability.h; sourceTree = "<group>"; };
-		F44E1B0A29248B7F0091BCA4 /* HippyInstanceLoadBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyInstanceLoadBlock.h; sourceTree = "<group>"; };
 		F44E1B0B29248B7F0091BCA4 /* HippyErrorInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyErrorInfo.m; sourceTree = "<group>"; };
 		F44E1B0D29248B7F0091BCA4 /* NSObject+JSValue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+JSValue.m"; sourceTree = "<group>"; };
 		F44E1B0E29248B7F0091BCA4 /* NSObject+JSValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+JSValue.h"; sourceTree = "<group>"; };
@@ -393,10 +389,8 @@
 				F44E1B0429248B7F0091BCA4 /* NSObject+CtxValue.mm */,
 				F44E1B0529248B7F0091BCA4 /* HippyErrorCustomizer.h */,
 				F44E1B0629248B7F0091BCA4 /* HippyErrorInfo.h */,
-				F44E1B0729248B7F0091BCA4 /* HippyInstanceLoadBlock.m */,
 				F44E1B0829248B7F0091BCA4 /* HippyDefines.h */,
 				F44E1B0929248B7F0091BCA4 /* HippyNullability.h */,
-				F44E1B0A29248B7F0091BCA4 /* HippyInstanceLoadBlock.h */,
 				F44E1B0B29248B7F0091BCA4 /* HippyErrorInfo.m */,
 				F44E1B0C29248B7F0091BCA4 /* jsc */,
 				F42AF65429260E3400CD0CF6 /* HippyUtils.h */,
@@ -687,7 +681,6 @@
 				F44E1B7329248B7F0091BCA4 /* HippyExceptionModule.mm in Sources */,
 				F44E1B5829248B7F0091BCA4 /* HippyModulesSetup.mm in Sources */,
 				F44E1B5029248B7F0091BCA4 /* HippyJSExecutor.mm in Sources */,
-				F44E1B6229248B7F0091BCA4 /* HippyInstanceLoadBlock.m in Sources */,
 				F44E1B6F29248B7F0091BCA4 /* HippyEventObserverModule.mm in Sources */,
 				F44E1B6C29248B7F0091BCA4 /* HippyTiming.mm in Sources */,
 				F44E1B6829248B7F0091BCA4 /* HippyNetWork.mm in Sources */,
@@ -737,7 +730,6 @@
 				F4827F532970206800085A05 /* HippyExceptionModule.mm in Sources */,
 				F4827F542970206800085A05 /* HippyModulesSetup.mm in Sources */,
 				F4827F552970206800085A05 /* HippyJSExecutor.mm in Sources */,
-				F4827F572970206800085A05 /* HippyInstanceLoadBlock.m in Sources */,
 				F4827F582970206800085A05 /* HippyEventObserverModule.mm in Sources */,
 				F4827F592970206800085A05 /* HippyTiming.mm in Sources */,
 				F4827F5A2970206800085A05 /* HippyNetWork.mm in Sources */,

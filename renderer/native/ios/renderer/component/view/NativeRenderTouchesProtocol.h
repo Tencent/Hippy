@@ -67,6 +67,8 @@ typedef void(^OnTouchEventHandler)(CGPoint);
  */
 - (BOOL)canBePreventInBubbling:(const char *)name;
 
+- (void)resetAllEvents;
+
 @end
 
 NS_ASSUME_NONNULL_END

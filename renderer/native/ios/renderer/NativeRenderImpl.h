@@ -29,6 +29,7 @@
 #include <unordered_map>
 
 @class NativeRenderAnimationViewParams, NativeRenderObjectView, NativeRenderImpl,NativeRenderViewManager;
+@class NativeRenderReusePool, NativeRenderComponentMap;
 
 class VFSUriLoader;
 namespace hippy {
@@ -59,7 +60,7 @@ class HippyValue;
 
 @property(nonatomic, assign) std::weak_ptr<VFSUriLoader> VFSUriLoader;
 @property(nonatomic, readonly) std::weak_ptr<hippy::DomManager> domManager;
-@property(nonatomic, readonly) NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry;
+@property(nonatomic, readonly) NativeRenderComponentMap *viewRegistry;
 
 - (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls;
 - (NSArray<Class<HPImageProviderProtocol>> *)imageProviderClasses;
@@ -116,7 +117,7 @@ class HippyValue;
  * @return view created by hippy tag
  */
 - (UIView *)createViewRecursivelyFromcomponentTag:(NSNumber *)componentTag
-                                    onRootTag:(NSNumber *)rootTag;
+                                        onRootTag:(NSNumber *)rootTag;
 
 /**
  * Manully create views recursively from renderObject
@@ -228,5 +229,11 @@ class HippyValue;
  * clear all resources
  */
 - (void)invalidate;
+
+#if HP_DEBUG
+@property(nonatomic, assign) std::unordered_map<int32_t, std::unordered_map<int32_t, std::shared_ptr<hippy::DomNode>>> domNodesMap;
+- (std::shared_ptr<hippy::DomNode>)domNodeForTag:(int32_t)dom_tag onRootNode:(int32_t)root_tag;
+- (std::vector<std::shared_ptr<hippy::DomNode>>)childrenForNodeTag:(int32_t)tag onRootNode:(int32_t)root_tag;
+#endif
 
 @end
