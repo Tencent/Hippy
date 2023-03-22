@@ -84,7 +84,11 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<hippy::RootNode> root_nod
                                          int32_t to_pid,
                                          int32_t index) {
     @autoreleasepool {
-        [renderImpl_ renderMoveViews:std::move(moved_ids) fromContainer:from_pid toContainer:to_pid onRootNode:root_node];
+        [renderImpl_ renderMoveViews:std::move(moved_ids)
+                       fromContainer:from_pid
+                         toContainer:to_pid
+                               index:index
+                          onRootNode:root_node];
     }
 }
 

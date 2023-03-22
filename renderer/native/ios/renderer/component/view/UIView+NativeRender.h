@@ -32,6 +32,7 @@
  * NativeRenderComponent interface.
  */
 - (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex;
+- (void)moveNativeRenderSubview:(UIView *)subview toIndex:(NSInteger)atIndex;
 - (void)removeNativeRenderSubview:(UIView *)subview;
 - (void)resetNativeRenderSubviews;
 - (void)clearSortedSubviews;

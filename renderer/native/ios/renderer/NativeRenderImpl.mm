@@ -852,8 +852,39 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 - (void)renderMoveViews:(const std::vector<int32_t> &&)ids
           fromContainer:(int32_t)fromContainer
             toContainer:(int32_t)toContainer
+                  index:(int32_t)index
              onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode {
-    NSAssert(NO, @"no implementation for this method %s", __FUNCTION__);
+    auto strongRootNode = rootNode.lock();
+    if (!strongRootNode) {
+        return;
+    }
+    int32_t rootTag = strongRootNode->GetId();
+    
+    NativeRenderObjectView *fromObjectView = [_renderObjectRegistry componentForTag:@(fromContainer)
+                                                                          onRootTag:@(rootTag)];
+    NativeRenderObjectView *toObjectView = [_renderObjectRegistry componentForTag:@(toContainer)
+                                                                        onRootTag:@(rootTag)];
+    for (int32_t componentTag : ids) {
+        NativeRenderObjectView *view = [_renderObjectRegistry componentForTag:@(componentTag) onRootTag:@(rootTag)];
+        HPAssert(fromObjectView == [view parentComponent], @"parent of object view with tag %d is not object view with tag %d", componentTag, fromContainer);
+        [view removeFromNativeRenderSuperview];
+        [toObjectView insertNativeRenderSubview:view atIndex:index];
+    }
+    [fromObjectView didUpdateNativeRenderSubviews];
+    [toObjectView didUpdateNativeRenderSubviews];
+    auto strongTags = std::move(ids);
+    [self addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+        UIView *fromView = [viewRegistry objectForKey:@(fromContainer)];
+        UIView *toView = [viewRegistry objectForKey:@(toContainer)];
+        for (int32_t tag : strongTags) {
+            UIView *view = [viewRegistry objectForKey:@(tag)];
+            HPAssert(fromView == [view parentComponent], @"parent of object view with tag %d is not object view with tag %d", tag, fromContainer);
+            [view removeFromNativeRenderSuperview];
+            [toView insertNativeRenderSubview:view atIndex:index];
+        }
+        [fromView didUpdateNativeRenderSubviews];
+        [toView didUpdateNativeRenderSubviews];
+    }];
 }
 
 - (void)renderMoveNodes:(std::vector<std::shared_ptr<hippy::DomNode>> &&)nodes
@@ -864,15 +895,10 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     }
     int32_t rootTag = strongRootNode->GetId();
     std::lock_guard<std::mutex> lock([self renderQueueLock]);
-    using MoveNodesInfoVector = std::vector<std::tuple<int32_t, int32_t>>;
-    MoveNodesInfoVector vector;
-    vector.reserve(nodes.size());
-    std::shared_ptr<MoveNodesInfoVector> v = std::make_shared<MoveNodesInfoVector>(std::move(vector));
     NativeRenderObjectView *parentObjectView = nil;
     for (auto &node : nodes) {
         int32_t index = node->GetRenderInfo().index;
         int32_t componentTag = node->GetId();
-        v->emplace_back(std::make_tuple(index, componentTag));
         NativeRenderObjectView *objectView = [_renderObjectRegistry componentForTag:@(componentTag) onRootTag:@(rootTag)];
         HPAssert(!parentObjectView || parentObjectView == [objectView parentComponent], @"try to move object view on different parent object view");
         if (!parentObjectView) {
@@ -881,13 +907,12 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         [parentObjectView moveNativeRenderSubview:objectView toIndex:index];
     }
     [parentObjectView didUpdateNativeRenderSubviews];
+    auto strongNodes = std::move(nodes);
     [self addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-        MoveNodesInfoVector &UITuples = *(v.get());
         UIView *superView = nil;
-        for (std::tuple<int32_t, int32_t> tuple : UITuples) {
-            int32_t index = std::get<0>(tuple);
-            int32_t componentTag = std::get<1>(tuple);
-            
+        for (auto node : strongNodes) {
+            int32_t index = node->GetIndex();
+            int32_t componentTag = node->GetId();
             UIView *view = [viewRegistry objectForKey:@(componentTag)];
             HPAssert(!superView || superView == [view parentComponent], @"try to move views on different parent views");
             if (!superView) {

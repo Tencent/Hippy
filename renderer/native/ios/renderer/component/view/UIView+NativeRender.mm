@@ -133,7 +133,7 @@
     subview.parentComponent = self;
 }
 
-- (void)moveNativeRenderSubview:(id<NativeRenderComponentProtocol>)subview toIndex:(NSInteger)atIndex {
+- (void)moveNativeRenderSubview:(UIView *)subview toIndex:(NSInteger)atIndex {
     if (nil == subview) {
         return;
     }
