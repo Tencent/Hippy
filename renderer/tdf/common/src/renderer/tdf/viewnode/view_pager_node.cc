@@ -96,43 +96,43 @@ void ViewPagerNode::CallFunction(const std::string& function_name, const DomArgu
 }
 
 void ViewPagerNode::InitialPage(const DomStyleMap& dom_style, std::shared_ptr<ViewPager> view_pager) {
-  if (auto iterator = dom_style.find(viewpager::kInitialPage); iterator != dom_style.end()) {
-    auto init_page = static_cast<int32_t>(iterator->second->ToDoubleChecked());
+  if (auto it = dom_style.find(viewpager::kInitialPage); it != dom_style.end() && it->second != nullptr) {
+    auto init_page = static_cast<int32_t>(it->second->ToDoubleChecked());
     view_pager->SetInitialPage(init_page);
   }
 }
 
 void ViewPagerNode::HandleEventInfoUpdate() {
   auto supported_events = GetSupportedEvents();
-  if (auto iterator = supported_events.find(kOnPageSelected); iterator != supported_events.end()) {
+  if (auto it = supported_events.find(kOnPageSelected); it != supported_events.end()) {
     has_on_page_selected_event_ = true;
   }
-  if (auto iterator = supported_events.find(kOnPageScroll); iterator != supported_events.end()) {
+  if (auto it = supported_events.find(kOnPageScroll); it != supported_events.end()) {
     has_on_page_scroll_event_ = true;
   }
-  if (auto iterator = supported_events.find(kOnPageScrollStateChanged); iterator != supported_events.end()) {
+  if (auto it = supported_events.find(kOnPageScrollStateChanged); it != supported_events.end()) {
     has_on_page_scroll_state_changed_event_ = true;
   }
   UpdatePagerCallBack(GetView<ViewPager>());
 }
 
 void ViewPagerNode::SetScrollEnable(const DomStyleMap& dom_style, std::shared_ptr<ViewPager> view_pager) {
-  if (auto iterator = dom_style.find(viewpager::kScrollEnabled); iterator != dom_style.end()) {
-    view_pager->SetScrollEnabled(iterator->second->ToBooleanChecked());
+  if (auto it = dom_style.find(viewpager::kScrollEnabled); it != dom_style.end() && it->second != nullptr) {
+    view_pager->SetScrollEnabled(it->second->ToBooleanChecked());
   }
 }
 
 void ViewPagerNode::SetPageMargin(const DomStyleMap& dom_style, std::shared_ptr<ViewPager> view_pager) {
-  if (auto iterator = dom_style.find(viewpager::kPageMargin); iterator != dom_style.end()) {
-    view_pager->SetPageMargin(static_cast<float>(iterator->second->ToDoubleChecked()));
+  if (auto it = dom_style.find(viewpager::kPageMargin); it != dom_style.end() && it->second != nullptr) {
+    view_pager->SetPageMargin(static_cast<float>(it->second->ToDoubleChecked()));
   }
 }
 
 void ViewPagerNode::SetDirection(const DomStyleMap& dom_style, std::shared_ptr<ViewPager> view_pager) {
   //默认横向滑动
   view_pager->SetAxis(ScrollAxis::kHorizontal);
-  if (auto iterator = dom_style.find(kDirection); iterator != dom_style.end()) {
-    if (iterator->second->ToStringChecked() == kVertical) {
+  if (auto it = dom_style.find(kDirection); it != dom_style.end() && it->second != nullptr) {
+    if (it->second->ToStringChecked() == kVertical) {
       view_pager->SetAxis(ScrollAxis::kVertical);
     }
   }

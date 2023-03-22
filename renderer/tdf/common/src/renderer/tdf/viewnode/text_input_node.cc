@@ -335,9 +335,9 @@ void TextInputNode::UnregisterViewportListener() {
 }
 
 void TextInputNode::SetValue(const DomStyleMap& dom_style, TextStyle& text_style) {
-  if (auto iter = dom_style.find(kValue); iter != dom_style.end()) {
+  if (auto it = dom_style.find(kValue); it != dom_style.end() && it->second != nullptr) {
     if (auto text_input_view = text_input_view_.lock()) {
-      auto unicode_str = footstone::string_view::new_from_utf8(iter->second->ToStringChecked().c_str());
+      auto unicode_str = footstone::string_view::new_from_utf8(it->second->ToStringChecked().c_str());
       auto text_u16 = StringViewUtils::ConvertEncoding(unicode_str, unicode_string_view::Encoding::Utf16).utf16_value();
       text_input_view->SetText(text_u16);
     }
@@ -345,66 +345,66 @@ void TextInputNode::SetValue(const DomStyleMap& dom_style, TextStyle& text_style
 }
 
 void TextInputNode::SetCaretColor(const DomStyleMap& dom_style, TextStyle& text_style) {
-  if (auto iter = dom_style.find(kCaretColor); iter != dom_style.end()) {
+  if (auto it = dom_style.find(kCaretColor); it != dom_style.end() && it->second != nullptr) {
     if (auto text_input_view = text_input_view_.lock()) {
-      text_input_view->SetCursorColor(ViewNode::ParseToColor(iter->second));
+      text_input_view->SetCursorColor(ViewNode::ParseToColor(it->second));
     }
   }
 }
 
 void TextInputNode::SetColor(const DomStyleMap& dom_style, TextStyle& text_style) {
-  if (auto iter = dom_style.find(textinput::kColor); iter != dom_style.end()) {
-    text_style.color = util::ConversionIntToColor(static_cast<uint32_t>(iter->second->ToDoubleChecked()));
+  if (auto it = dom_style.find(textinput::kColor); it != dom_style.end() && it->second != nullptr) {
+    text_style.color = util::ConversionIntToColor(static_cast<uint32_t>(it->second->ToDoubleChecked()));
   }
 }
 
 void TextInputNode::SetDefaultValue(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
-  if (auto iter = dom_style.find(textinput::kDefaultValue); iter != dom_style.end()) {
-    FOOTSTONE_LOG(INFO) << "TextInputNode::SetDefaultValue value = " << iter->second->ToStringChecked();
-    auto unicode_str = footstone::string_view::new_from_utf8(iter->second->ToStringChecked().c_str());
+  if (auto it = dom_style.find(textinput::kDefaultValue); it != dom_style.end() && it->second != nullptr) {
+    FOOTSTONE_LOG(INFO) << "TextInputNode::SetDefaultValue value = " << it->second->ToStringChecked();
+    auto unicode_str = footstone::string_view::new_from_utf8(it->second->ToStringChecked().c_str());
     auto text_u16 = StringViewUtils::ConvertEncoding(unicode_str, unicode_string_view::Encoding::Utf16).utf16_value();
     text_input_view->SetText(text_u16);
   }
 }
 
 void TextInputNode::SetEditable(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
-  if (auto iter = dom_style.find(textinput::kEditable); iter != dom_style.end()) {
-    auto editable = iter->second->ToBooleanChecked();
+  if (auto it = dom_style.find(textinput::kEditable); it != dom_style.end() && it->second != nullptr) {
+    auto editable = it->second->ToBooleanChecked();
     text_input_view->SetEditable(editable);
   }
 }
 
 void TextInputNode::SetFontFamily(const DomStyleMap& dom_style, TextStyle& text_style) {
-  if (auto iter = dom_style.find(textinput::kFontFamily); iter != dom_style.end()) {
-    text_style.font_family = iter->second->ToStringChecked().c_str();
+  if (auto it = dom_style.find(textinput::kFontFamily); it != dom_style.end() && it->second != nullptr) {
+    text_style.font_family = it->second->ToStringChecked().c_str();
   }
 }
 
 void TextInputNode::SetFontSize(const DomStyleMap& dom_style, TextStyle& text_style) {
-  if (auto iter = dom_style.find(textinput::kFontSize); iter != dom_style.end()) {
-    font_size_ = static_cast<float>(iter->second->ToDoubleChecked());
+  if (auto it = dom_style.find(textinput::kFontSize); it != dom_style.end() && it->second != nullptr) {
+    font_size_ = static_cast<float>(it->second->ToDoubleChecked());
     FOOTSTONE_DCHECK(font_size_ != 0);
     text_style.font_size = font_size_;
   }
 }
 
 void TextInputNode::SetLineHeight(const DomStyleMap& dom_style, TextStyle& text_style) {
-  if (auto iter = dom_style.find(text::kLineHeight); iter != dom_style.end()) {
-    line_height_ = static_cast<float>(iter->second->ToDoubleChecked());
+  if (auto it = dom_style.find(text::kLineHeight); it != dom_style.end() && it->second != nullptr) {
+    line_height_ = static_cast<float>(it->second->ToDoubleChecked());
   }
 }
 
 void TextInputNode::SetFontStyle(const DomStyleMap& dom_style, TextStyle& text_style) {
-  if (auto iter = dom_style.find(textinput::kFontStyle); iter != dom_style.end()) {
-    auto font_style = iter->second->ToStringChecked();
+  if (auto it = dom_style.find(textinput::kFontStyle); it != dom_style.end() && it->second != nullptr) {
+    auto font_style = it->second->ToStringChecked();
     font_style_ = font_style;
     UpdateFontStyle(text_style);
   }
 }
 
 void TextInputNode::SetFontWeight(const DomStyleMap& dom_style, TextStyle& text_style) {
-  if (auto iter = dom_style.find(textinput::kFontWeight); iter != dom_style.end()) {
-    auto weight = iter->second->ToStringChecked();
+  if (auto it = dom_style.find(textinput::kFontWeight); it != dom_style.end() && it->second != nullptr) {
+    auto weight = it->second->ToStringChecked();
     if (font_weight_ == weight) {
       return;
     }
@@ -420,8 +420,8 @@ void TextInputNode::SetKeyBoardType(const DomStyleMap& dom_style, std::shared_pt
                                                               {kKeyboardType_Email, KeyboardInputType::EmailAddress()},
                                                               {kKeyboardType_PhonePad, KeyboardInputType::Phone()}};
 
-  if (auto iter = dom_style.find(textinput::kKeyboardType); iter != dom_style.end()) {
-    auto key_board_type = iter->second->ToStringChecked();
+  if (auto it = dom_style.find(textinput::kKeyboardType); it != dom_style.end() && it->second != nullptr) {
+    auto key_board_type = it->second->ToStringChecked();
     if (type_map.find(key_board_type) != type_map.end()) {
       text_input_view->SetInputType(type_map.at(key_board_type));
     }
@@ -429,46 +429,46 @@ void TextInputNode::SetKeyBoardType(const DomStyleMap& dom_style, std::shared_pt
 }
 
 void TextInputNode::SetLetterSpacing(const DomStyleMap& dom_style, TextStyle& text_style) {
-  if (auto iter = dom_style.find(textinput::kLetterSpacing); iter != dom_style.end()) {
-    text_style.letter_spacing = static_cast<tdfcore::TScalar>(iter->second->ToDoubleChecked());
+  if (auto it = dom_style.find(textinput::kLetterSpacing); it != dom_style.end() && it->second != nullptr) {
+    text_style.letter_spacing = static_cast<tdfcore::TScalar>(it->second->ToDoubleChecked());
   }
 }
 
 void TextInputNode::SetMaxLength(const DomStyleMap& dom_style, TextInputView::Attributes& attributes) {
-  if (auto iter = dom_style.find(textinput::kMaxLength); iter != dom_style.end()) {
-    attributes.max_length = static_cast<size_t>(iter->second->ToDoubleChecked());
+  if (auto it = dom_style.find(textinput::kMaxLength); it != dom_style.end() && it->second != nullptr) {
+    attributes.max_length = static_cast<size_t>(it->second->ToDoubleChecked());
   }
 }
 
 void TextInputNode::SetMultiline(const DomStyleMap& dom_style, TextInputView::Attributes& attributes) {
-  if (auto iter = dom_style.find(textinput::kMultiline); iter != dom_style.end()) {
+  if (auto it = dom_style.find(textinput::kMultiline); it != dom_style.end() && it->second != nullptr) {
     // todo(kloudwang)
   }
 }
 
 void TextInputNode::SetNumberOfLines(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
-  if (auto iter = dom_style.find(textinput::kNumberOfLines); iter != dom_style.end()) {
-    if (iter->second->IsString()) {
-      auto number_of_lines = atoi(iter->second->ToStringChecked().c_str());
+  if (auto it = dom_style.find(textinput::kNumberOfLines); it != dom_style.end() && it->second != nullptr) {
+    if (it->second->IsString()) {
+      auto number_of_lines = atoi(it->second->ToStringChecked().c_str());
       text_input_view->SetMaxLines(number_of_lines == 0 ? 1 : static_cast<size_t>(number_of_lines));
-    } else if (iter->second->IsNumber()) {
-      auto number_of_lines = static_cast<int64_t>(iter->second->ToDoubleChecked());
+    } else if (it->second->IsNumber()) {
+      auto number_of_lines = static_cast<int64_t>(it->second->ToDoubleChecked());
       text_input_view->SetMaxLines(number_of_lines == 0 ? 1 : static_cast<size_t>(number_of_lines));
     }
   }
 }
 
 void TextInputNode::UpdateBlurAttr(const DomStyleMap& dom_style) {
-  if (auto iter = dom_style.find(textinput::kOnBlur); iter != dom_style.end()) { }
+  if (auto it = dom_style.find(textinput::kOnBlur); it != dom_style.end() && it->second != nullptr) { }
 }
 
 void TextInputNode::UpdateChangeTextAttr(const DomStyleMap& dom_style) {
-  if (auto iter = dom_style.find(textinput::kOnChangeText); iter != dom_style.end()) { }
+  if (auto it = dom_style.find(textinput::kOnChangeText); it != dom_style.end() && it->second != nullptr) { }
 }
 
 void TextInputNode::UpdateEndEditingAttr(const DomStyleMap& dom_style) {
-  if (auto iter = dom_style.find(textinput::kOnEndEditing); iter != dom_style.end()) {
-    auto has_change = iter->second->ToBooleanChecked();
+  if (auto it = dom_style.find(textinput::kOnEndEditing); it != dom_style.end() && it->second != nullptr) {
+    auto has_change = it->second->ToBooleanChecked();
     auto text_input_view = text_input_view_.lock();
     if (has_change && text_input_view) {
       text_input_view->SetEndEditingCallback(has_change ? event_callback_.on_end_editing : nullptr);
@@ -477,42 +477,42 @@ void TextInputNode::UpdateEndEditingAttr(const DomStyleMap& dom_style) {
 }
 
 void TextInputNode::UpdateContentSizeChangeAttr(const DomStyleMap& dom_style) {
-  if (auto iter = dom_style.find(textinput::kOnContentSizeChange); iter != dom_style.end()) {
+  if (auto it = dom_style.find(textinput::kOnContentSizeChange); it != dom_style.end() && it->second != nullptr) {
     // todo(kloudwang)
   }
 }
 
 void TextInputNode::UpdateFocusAttr(const DomStyleMap& dom_style) {
-  if (auto iter = dom_style.find(textinput::kOnFocus); iter != dom_style.end()) {
+  if (auto it = dom_style.find(textinput::kOnFocus); it != dom_style.end() && it->second != nullptr) {
     // todo(kloudwang)
   }
 }
 
 void TextInputNode::UpdateKeyBoardWillShowAttr(const DomStyleMap& dom_style) {
-  if (auto iter = dom_style.find(kOnKeyBoardWillShow); iter != dom_style.end()) { }
+  if (auto it = dom_style.find(kOnKeyBoardWillShow); it != dom_style.end() && it->second != nullptr) { }
 }
 
 void TextInputNode::UpdateSelectionChangeAttr(const DomStyleMap& dom_style) {
-  if (auto iter = dom_style.find(textinput::kOnSelectionChange); iter != dom_style.end()) {
-    event_callback_.on_selection_change_flag = iter->second->ToBooleanChecked();
+  if (auto it = dom_style.find(textinput::kOnSelectionChange); it != dom_style.end() && it->second != nullptr) {
+    event_callback_.on_selection_change_flag = it->second->ToBooleanChecked();
   }
 }
 
 void TextInputNode::SetPlaceHolder(const DomStyleMap& dom_style) {
-  if (auto iter = dom_style.find(textinput::kPlaceholder); iter != dom_style.end()) {
-    place_holder_ = iter->second->ToStringChecked();
+  if (auto it = dom_style.find(textinput::kPlaceholder); it != dom_style.end() && it->second != nullptr) {
+    place_holder_ = it->second->ToStringChecked();
   }
 }
 
 void TextInputNode::SetPlaceHolderTextColor(const DomStyleMap& dom_style) {
-  if (auto iter = dom_style.find(textinput::kPlaceholderTextColor); iter != dom_style.end()) {
-    place_holder_color_ = ViewNode::ParseToColor(iter->second);
+  if (auto it = dom_style.find(textinput::kPlaceholderTextColor); it != dom_style.end() && it->second != nullptr) {
+    place_holder_color_ = ViewNode::ParseToColor(it->second);
   }
 }
 
 void TextInputNode::SetKeyBoardAction(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
-  if (auto iter = dom_style.find(textinput::kReturnKeyType); iter != dom_style.end()) {
-    auto action_name = iter->second->ToStringChecked();
+  if (auto it = dom_style.find(textinput::kReturnKeyType); it != dom_style.end() && it->second != nullptr) {
+    auto action_name = it->second->ToStringChecked();
     if (action_name == kKeyboardAction_Done) {
       keyboard_action_ = KeyboardAction::kDone;
     } else if (action_name == kKeyboardAction_Go) {
@@ -534,9 +534,9 @@ void TextInputNode::SetKeyBoardAction(const DomStyleMap& dom_style, std::shared_
 }
 
 void TextInputNode::SetHorizontalAlign(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
-  if (auto iter = dom_style.find(textinput::kTextAlign); iter != dom_style.end()) {
+  if (auto it = dom_style.find(textinput::kTextAlign); it != dom_style.end() && it->second != nullptr) {
     std::string text_align;
-    auto result = iter->second->ToString(text_align);
+    auto result = it->second->ToString(text_align);
     FOOTSTONE_CHECK(result);
     if (!result) {
       return;
@@ -556,9 +556,9 @@ void TextInputNode::SetHorizontalAlign(const DomStyleMap& dom_style, std::shared
 }
 
 void TextInputNode::SetVerticalAlign(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
-  if (auto iter = dom_style.find(textinput::kTextAlignVertical); iter != dom_style.end()) {
+  if (auto it = dom_style.find(textinput::kTextAlignVertical); it != dom_style.end() && it->second != nullptr) {
     std::string text_align;
-    auto result = iter->second->ToString(text_align);
+    auto result = it->second->ToString(text_align);
     FOOTSTONE_CHECK(result);
     if (!result) {
       return;
@@ -576,20 +576,20 @@ void TextInputNode::SetVerticalAlign(const DomStyleMap& dom_style, std::shared_p
 }
 
 void TextInputNode::SetTextShadowColor(const DomStyleMap& dom_style) {
-  if (auto iter = dom_style.find(text::kTextShadowColor); iter != dom_style.end()) {
+  if (auto it = dom_style.find(text::kTextShadowColor); it != dom_style.end() && it->second != nullptr) {
     has_shadow_ = true;
   }
 }
 
 void TextInputNode::SetTextShadowOffset(const DomStyleMap& dom_style) {
-  if (auto iter = dom_style.find(text::kTextShadowOffset); iter != dom_style.end()) {
-    auto value_object = iter->second->ToObjectChecked();
+  if (auto it = dom_style.find(text::kTextShadowOffset); it != dom_style.end() && it->second != nullptr) {
+    auto value_object = it->second->ToObjectChecked();
     has_shadow_ = true;
   }
 }
 
 void TextInputNode::SetTextShadowRadius(const DomStyleMap& dom_style) {
-  if (auto iter = dom_style.find(text::kTextShadowRadius); iter != dom_style.end()) {
+  if (auto it = dom_style.find(text::kTextShadowRadius); it != dom_style.end() && it->second != nullptr) {
     has_shadow_ = true;
   }
 }
