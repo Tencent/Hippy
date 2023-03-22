@@ -150,6 +150,10 @@ void ListViewNode::CallFunction(const std::string &function_name,
 
 void ListViewItemNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
   TDF_RENDER_CHECK_ATTACH
+  if (layout_result.height != GetView()->GetFrame().Height()) {
+    auto list_view_node = std::static_pointer_cast<ListViewNode>(GetParent());
+    list_view_node->SetShouldReload();
+  }
   auto origin_left = GetView()->GetFrame().left;
   auto origin_top = GetView()->GetFrame().top;
   layout_result.left = origin_left;

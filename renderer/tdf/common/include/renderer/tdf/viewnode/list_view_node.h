@@ -133,6 +133,8 @@ class ListViewNode : public ScrollViewNode {
 
   std::shared_ptr<tdfcore::View> CreateView() override;
 
+  void SetShouldReload() { should_reload_ = true; }
+
  private:
   void HandleEndReachedEvent();
   int64_t NextUniqueItemViewType() { return --unique_item_type_; }
