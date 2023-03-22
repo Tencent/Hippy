@@ -755,7 +755,6 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         NSNumber *componentTag = @(node->GetId());
         NativeRenderObjectView *renderObject = [_renderObjectRegistry componentForTag:componentTag onRootTag:rootNodeTag];
         if (NativeRenderCreationTypeInstantly == [renderObject creationType] && !_uiCreationLazilyEnabled) {
-            NSString *viewName = [NSString stringWithUTF8String:node->GetViewName().c_str()];
             [self addUIBlock:^(NativeRenderImpl *renderContext, __unused NSDictionary<NSNumber *,UIView *> *viewRegistry) {
                 UIView *view = [renderContext createViewFromRenderObject:renderObject];
                 view.nativeRenderObjectView = renderObject;
@@ -818,6 +817,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 #endif
     std::lock_guard<std::mutex> lock([self renderQueueLock]);
     NSNumber *rootTag = @(strongRootNode->GetId());
+    
     for (auto dom_node : nodes) {
         int32_t tag = dom_node->GetRenderInfo().id;
         NativeRenderObjectView *renderObject = [_renderObjectRegistry componentForTag:@(tag) onRootTag:rootTag];
@@ -825,25 +825,78 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
             [renderObject removeFromNativeRenderSuperview];
             [self purgeChildren:@[renderObject] onRootTag:rootTag fromRegistry:_renderObjectRegistry];
         }
-        __weak auto weakSelf = self;
-        [self addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-            UIView *view = viewRegistry[@(tag)];
-            if (view) {
-                [view removeFromNativeRenderSuperview];
-                if (weakSelf) {
-                    auto strongSelf = weakSelf;
-                    [strongSelf purgeChildren:@[view] onRootTag:rootTag fromRegistry:strongSelf->_viewRegistry];
-                }
-            }
-        }];
     }
+    __weak NativeRenderImpl *weakSelf = self;
+    auto strongNodes = std::move(nodes);
+    [self addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+        NativeRenderImpl *strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        NSMutableArray<UIView *> *parentViews = [NSMutableArray arrayWithCapacity:8];
+        NSMutableArray<UIView *> *views = [NSMutableArray arrayWithCapacity:8];
+        for (auto domNode : strongNodes) {
+            UIView *view = [viewRegistry objectForKey:@(domNode->GetId())];
+            UIView *parentView = [view parentComponent];
+            [parentViews addObject:parentView];
+            [view removeFromNativeRenderSuperview];
+            [views addObject:view];
+        }
+        [strongSelf purgeChildren:views onRootTag:rootTag fromRegistry:strongSelf->_viewRegistry];
+        for (UIView *view in parentViews) {
+            [view didUpdateNativeRenderSubviews];
+        }
+    }];
 }
 
 - (void)renderMoveViews:(const std::vector<int32_t> &&)ids
           fromContainer:(int32_t)fromContainer
             toContainer:(int32_t)toContainer
              onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode {
-    NSAssert(NO, @"no implementation for this method");
+    NSAssert(NO, @"no implementation for this method %s", __FUNCTION__);
+}
+
+- (void)renderMoveNodes:(std::vector<std::shared_ptr<hippy::DomNode>> &&)nodes
+             onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode {
+    auto strongRootNode = rootNode.lock();
+    if (!strongRootNode) {
+        return;
+    }
+    int32_t rootTag = strongRootNode->GetId();
+    std::lock_guard<std::mutex> lock([self renderQueueLock]);
+    using MoveNodesInfoVector = std::vector<std::tuple<int32_t, int32_t>>;
+    MoveNodesInfoVector vector;
+    vector.reserve(nodes.size());
+    std::shared_ptr<MoveNodesInfoVector> v = std::make_shared<MoveNodesInfoVector>(std::move(vector));
+    NativeRenderObjectView *parentObjectView = nil;
+    for (auto &node : nodes) {
+        int32_t index = node->GetRenderInfo().index;
+        int32_t componentTag = node->GetId();
+        v->emplace_back(std::make_tuple(index, componentTag));
+        NativeRenderObjectView *objectView = [_renderObjectRegistry componentForTag:@(componentTag) onRootTag:@(rootTag)];
+        HPAssert(!parentObjectView || parentObjectView == [objectView parentComponent], @"try to move object view on different parent object view");
+        if (!parentObjectView) {
+            parentObjectView = [objectView parentComponent];
+        }
+        [parentObjectView insertNativeRenderSubview:objectView atIndex:index];
+    }
+    [parentObjectView didUpdateNativeRenderSubviews];
+    [self addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+        MoveNodesInfoVector &UITuples = *(v.get());
+        UIView *superView = nil;
+        for (std::tuple<int32_t, int32_t> tuple : UITuples) {
+            int32_t index = std::get<0>(tuple);
+            int32_t componentTag = std::get<1>(tuple);
+            
+            UIView *view = [viewRegistry objectForKey:@(componentTag)];
+            HPAssert(!superView || superView == [view parentComponent], @"try to move views on different parent views");
+            if (!superView) {
+                superView = [view parentComponent];
+            }
+            [superView insertNativeRenderSubview:view atIndex:index];
+        }
+        [superView didUpdateNativeRenderSubviews];
+    }];
 }
 
 - (void)updateNodesLayout:(const std::vector<std::tuple<int32_t, hippy::LayoutResult>> &)layoutInfos

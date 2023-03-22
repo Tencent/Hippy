@@ -74,13 +74,13 @@
 }
 
 - (void)insertNativeRenderSubview:(UIView *)view atIndex:(NSInteger)index {
+    [super insertNativeRenderSubview:view atIndex:index];
     if ([view isKindOfClass:[NativeRenderRefreshWrapperItemView class]]) {
         _wrapperItemView = (NativeRenderRefreshWrapperItemView *)view;
     } else if ([view conformsToProtocol:@protocol(NativeRenderScrollableProtocol)]) {
         _scrollableView = (id<NativeRenderScrollableProtocol>)view;
         [_scrollableView addScrollListener:self];
     }
-    [super insertNativeRenderSubview:view atIndex:index];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {

@@ -165,6 +165,8 @@ class HippyValue;
             toContainer:(int32_t)toContainer
              onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
 
+- (void)renderMoveNodes:(std::vector<std::shared_ptr<hippy::DomNode>> &&)nodes
+             onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
 /**
  * update layout for view
  *

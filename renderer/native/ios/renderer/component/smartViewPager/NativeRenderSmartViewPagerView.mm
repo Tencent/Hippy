@@ -287,10 +287,6 @@ static NSString *const kListViewItem = @"ListViewItem";
     [self.collectionView reloadData];
 }
 
-- (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex {
-
-}
-
 - (void)didUpdateNativeRenderSubviews {
     [self refreshItemNodes];
     [self reloadData];
@@ -363,6 +359,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     [renderObject recusivelySetCreationTypeToInstant];
     UIView *cellView = [self.renderImpl createViewRecursivelyFromRenderObject:renderObject];
     hpCell.cellView = cellView;
+    cellView.parentComponent = self;
 }
 
 - (void)tableViewDidLayoutSubviews:(NativeRenderListTableView *)tableView {

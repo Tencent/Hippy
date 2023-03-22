@@ -279,6 +279,10 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     return _superview;
 }
 
+- (void)setParentComponent:(__kindof id<NativeRenderComponentProtocol>)parentComponent {
+    _superview = parentComponent;
+}
+
 - (NSNumber *)componentTagAtPoint:(CGPoint)point {
     for (NativeRenderObjectView *renderObject in _objectSubviews) {
         if (CGRectContainsPoint(renderObject.frame, point)) {

@@ -89,9 +89,8 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<hippy::RootNode> root_nod
 
 void NativeRenderManager::MoveRenderNode(std::weak_ptr<hippy::RootNode> root_node,
                                          std::vector<std::shared_ptr<DomNode>>&& nodes) {
-    //TODO implement it
     @autoreleasepool {
-        NSCAssert(NO, @"implement it, how to move nodes");
+        [renderImpl_ renderMoveNodes:std::move(nodes) onRootNode:root_node];
     }
 }
 

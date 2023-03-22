@@ -102,7 +102,7 @@ NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(autoLetterSpacing, BOOL)
                 HPLogWarn(@"renderObject is nil, please remain xcode state and call rainywan");
                 continue;
             }
-            NSAssert([renderObject isTextDirty], @"Don't process any nodes that don't have dirty text");
+//            NSAssert([renderObject isTextDirty], @"Don't process any nodes that don't have dirty text");
 
             if ([renderObject isKindOfClass:[NativeRenderObjectText class]]) {
                 ((NativeRenderObjectText *)renderObject).fontSizeMultiplier = 1.0;

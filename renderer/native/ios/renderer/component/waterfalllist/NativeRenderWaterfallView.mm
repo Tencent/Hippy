@@ -309,13 +309,15 @@ static const NSTimeInterval delayForPurgeView = 3.0f;
 }
 
 - (void)removeFromNativeRenderSuperview {
+    [super removeFromNativeRenderSuperview];
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
     [self purgeFurthestIndexPathsFromScreen];
 }
 
 - (void)didMoveToWindow {
     if (!self.window) {
-        [self removeFromNativeRenderSuperview];
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
+        [self purgeFurthestIndexPathsFromScreen];
     }
 }
 
@@ -379,6 +381,7 @@ static const NSTimeInterval delayForPurgeView = 3.0f;
         [_cachedItems removeObjectForKey:indexPath];
     }
     hpCell.cellView = cellView;
+    cellView.parentComponent = self;
     [_weakItemMap setObject:cellView forKey:[cellView componentTag]];
 }
 
