@@ -28,8 +28,8 @@ inline namespace tdf {
 using tdfcore::View;
 using tdfcore::ViewContext;
 
-void ModalViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
-  ViewNode::HandleStyleUpdate(dom_style);
+void ModalViewNode::HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeleteProps& dom_delete_props) {
+  ViewNode::HandleStyleUpdate(dom_style, dom_delete_props);
 
   if (auto it = dom_style.find(kImmersionStatusBar); it != dom_style.end() && it->second != nullptr) {
     SetImmersionStatusBar(it->second->ToBooleanChecked());

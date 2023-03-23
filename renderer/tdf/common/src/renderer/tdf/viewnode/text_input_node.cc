@@ -51,7 +51,7 @@ TextInputNode::TextInputNode(const RenderInfo info) : ViewNode(info), text_selec
 
 TextInputNode::~TextInputNode() { UnregisterViewportListener(); }
 
-void TextInputNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
+void TextInputNode::HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeleteProps& dom_delete_props) {
   if (!callback_inited_) {
     callback_inited_ = true;
     InitCallBackMap();

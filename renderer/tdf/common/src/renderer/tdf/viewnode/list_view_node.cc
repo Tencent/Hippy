@@ -110,7 +110,9 @@ void ListViewNode::OnDetach() {
   list_view->RemoveScrollUpdateListener(on_reach_end_listener_id_);
 }
 
-void ListViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) { ScrollViewNode::HandleStyleUpdate(dom_style); }
+void ListViewNode::HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeleteProps& dom_delete_props) {
+  ScrollViewNode::HandleStyleUpdate(dom_style, dom_delete_props);
+}
 
 void ListViewNode::HandleEndReachedEvent() {
   ViewNode::SendUIDomEvent(kEndreached);
@@ -203,8 +205,8 @@ void ListViewItemNode::UpdateViewType(const DomStyleMap& dom_style) {
   }
 }
 
-void ListViewItemNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
-  ViewNode::HandleStyleUpdate(dom_style);
+void ListViewItemNode::HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeleteProps& dom_delete_props) {
+  ViewNode::HandleStyleUpdate(dom_style, dom_delete_props);
   if (auto it = dom_style.find(listviewitem::kSticky); it != dom_style.cend() && it->second != nullptr) {
     is_sticky_ = it->second->ToBooleanChecked();
   }

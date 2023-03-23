@@ -84,7 +84,7 @@ class TextViewNode : public ViewNode {
   void SyncTextAttributes(const std::shared_ptr<hippy::DomNode>& dom_node);
 
  protected:
-  void HandleStyleUpdate(const DomStyleMap& dom_style) override;
+  void HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeleteProps& dom_delete_props) override;
 
   /**
    * @brief Update Text's specific attributes, make sure this function can run on any thread.

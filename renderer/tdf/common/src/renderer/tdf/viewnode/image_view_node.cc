@@ -77,8 +77,8 @@ std::shared_ptr<tdfcore::View> ImageViewNode::CreateView() {
   return image_view;
 }
 
-void ImageViewNode::HandleStyleUpdate(const DomStyleMap &dom_style) {
-  ViewNode::HandleStyleUpdate(dom_style);
+void ImageViewNode::HandleStyleUpdate(const DomStyleMap &dom_style, const DomDeleteProps& dom_delete_props) {
+  ViewNode::HandleStyleUpdate(dom_style, dom_delete_props);
 
   if (auto it = dom_style.find(hippy::kImageResizeMode); it != dom_style.end() && it->second != nullptr) {
     SetScaleType(it->second->ToStringChecked());
