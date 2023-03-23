@@ -45,9 +45,7 @@ export async function render(url: string, hippyOptions: HippyAppOptions, context
     context,
   };
   // get ssr render hippy node list
-  debugger;
   const hippyNodeList = await renderToHippyList(app, ssrContext);
-  console.log('ssrcontext contest', ssrContext);
   return {
     list: hippyNodeList,
     // modules

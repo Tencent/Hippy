@@ -7,7 +7,7 @@
   "nativeMain": "./src/main-native.ts",
   "serverMain": "./src/main-server.ts",
   "serverEntry": "./server.ts",
-  "ssrEntry": "./src/main-ssr.ts",
+  "ssrMain": "./src/main-client.ts",
   "repository": "https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo",
   "license": "Apache-2.0",
   "author": "OpenHippy Team",
@@ -16,17 +16,16 @@
     "hippy:vendor": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.ios-vendor.js --config ./scripts/hippy-webpack.android-vendor.js",
     "hippy:build": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.ios.js --config ./scripts/hippy-webpack.android.js",
     "web:dev": "npm run hippy:dev & node ./scripts/env-polyfill.js webpack serve --config ./scripts/hippy-webpack.web-renderer.dev.js",
-    "web:build": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.web-renderer.js",
-    "webpack:ssr:build": "node ./scripts/webpack.ssr.build.js --mode development",
-    "ssr:build": "node ./scripts/vite.ssr.build.js --mode development",
-    "ssr:dev": "cross-env HIPPY_SSR=true node --inspect=0.0.0.0:8081 ./dist/server/index.js --mode development",
-    "ssr:debug": "hippy-debug",
-    "ssr:prod": "cross-env HIPPY_SSR=true node ./dist/server.js --mode production"
+    "ssr:dev-build": "node ./scripts/webpack.ssr.build.js --mode development",
+    "ssr:dev-server": "cross-env HIPPY_SSR=true node --inspect=0.0.0.0:8081 ./dist/server/index.js --mode development",
+    "hippy:debug": "hippy-debug",
+    "ssr:prod-build": "node ./scripts/webpack.ssr.build.js --mode production",
+    "ssr:prod-server": "cross-env HIPPY_SSR=true node ./dist/server/index.js --mode production"
   },
   "dependencies": {
-    "@hippy/vue-next": "latest",
     "@hippy/vue-router-next-history": "latest",
     "@hippy/web-renderer": "latest",
+    "@hippy/vue-next": "file:../../packages/hippy-vue-next",
     "@hippy/vue-next-server-renderer": "file:../../packages/hippy-vue-next-server-renderer",
     "@hippy/vue-next-style-parser": "file:../../packages/hippy-vue-next-style-parser",
     "@vue/runtime-core": "^3.2.46",
@@ -35,7 +34,6 @@
     "vue-router": "^4.0.12",
     "express": "^4.18.2",
     "pinia": "^2.0.23"
-
   },
   "devDependencies": {
     "@babel/core": "^7.12.0",
@@ -55,13 +53,12 @@
     "@hippy/rejection-tracking-polyfill": "^1.0.0",
     "@hippy/vue-css-loader": "^2.0.1",
     "@hippy/vue-next-compiler-ssr": "file:../../packages/hippy-vue-next-compiler-ssr",
-    "@tencent/vite-plugin-hippy-build-vuenext": "0.0.1-rc.16",
     "@types/shelljs": "^0.8.5",
-    "@vitejs/plugin-vue": "^1.9.4",
     "@vue/cli-service": "^4.5.19",
     "@vue/compiler-sfc": "^3.2.46",
     "babel-loader": "^8.1.0",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
+    "chokidar": "^3.5.3",
     "clean-webpack-plugin": "^4.0.0",
     "webpack-manifest-plugin": "^4.1.1",
     "cross-env": "^7.0.3",
@@ -76,7 +73,6 @@
     "ts-loader": "^8.4.0",
     "@types/express": "^4.17.17",
     "url-loader": "^4.0.0",
-    "vite": "^2.8.6",
     "vue-loader": "^17.0.0",
     "webpack": "^4.46.0",
     "webpack-cli": "^4.7.2"

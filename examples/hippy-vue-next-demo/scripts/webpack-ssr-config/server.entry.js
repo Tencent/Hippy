@@ -1,17 +1,13 @@
 const path = require('path');
 const webpack = require('webpack');
 
-const pkg = require('../package.json');
+const pkg = require('../../package.json');
 const isProd = process.argv[process.argv.length - 1] !== 'development';
 
 module.exports = {
   mode: isProd ? 'production' : 'development',
-  // devtool: 'eval-source-map',
+  devtool: isProd ? false : 'eval-source-map',
   target: 'node',
-  // watch: !isProd,
-  watchOptions: {
-    aggregateTimeout: 1500,
-  },
   entry: {
     index: path.resolve(pkg.serverEntry),
   },
@@ -40,25 +36,6 @@ module.exports = {
               target: 'es2015',
             },
           },
-          // {
-          //   loader: 'babel-loader',
-          //   options: {
-          //     sourceType: 'unambiguous',
-          //     presets: [
-          //       [
-          //         '@babel/preset-env',
-          //         {
-          //           targets: {
-          //             node: '16.0',
-          //           },
-          //         },
-          //       ],
-          //     ],
-          //     plugins: [
-          //       ['@babel/plugin-proposal-nullish-coalescing-operator'],
-          //     ],
-          //   },
-          // },
         ],
       },
       {

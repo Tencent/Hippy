@@ -2,44 +2,17 @@ const path = require('path');
 const webpack = require('webpack');
 // const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
-const pkg = require('../package.json');
+const pkg = require('../../package.json');
 const isProd = process.argv[process.argv.length - 1] !== 'development';
 
 module.exports = {
   mode: isProd ? 'production' : 'development',
-  devtool: 'source-map',
-  watch: !isProd,
-  watchOptions: {
-    aggregateTimeout: 1500,
-  },
-  devServer: {
-    // remote debug server address
-    remote: {
-      protocol: 'http',
-      host: '127.0.0.1',
-      port: 38989,
-    },
-    // support inspect vue components, store and router, by default is disabled
-    vueDevtools: false,
-    // support debug multiple project with only one debug server, by default is set false.
-    multiple: false,
-    // by default hot and liveReload option are true, you could set only liveReload to true
-    // to use live reload
-    hot: true,
-    liveReload: true,
-    client: {
-      overlay: false,
-    },
-    devMiddleware: {
-      writeToDisk: true,
-    },
-  },
+  devtool: isProd ? false : 'eval-source-map',
   entry: {
-    index: path.resolve(pkg.ssrEntry),
+    index: path.resolve(pkg.ssrMain),
   },
   output: {
     filename: 'index.bundle',
-    // chunkFilename: '[name].[chunkhash].js',
     strictModuleExceptionHandling: true,
     path: path.resolve(`./dist${isProd ? '' : '/dev/'}`),
     globalObject: '(0, eval)("this")',
@@ -57,17 +30,6 @@ module.exports = {
       __VUE_PROD_DEVTOOLS__: false,
       __PLATFORM__: null,
     }),
-    // LimitChunkCountPlugin can control dynamic import ability
-    // Using 1 will prevent any additional chunks from being added
-    // new webpack.optimize.LimitChunkCountPlugin({
-    //   maxChunks: 1,
-    // }),
-    // use SourceMapDevToolPlugin can generate sourcemap file while setting devtool to false
-    // new webpack.SourceMapDevToolPlugin({
-    //   test: /\.(js|jsbundle|css|bundle)($|\?)/i,
-    //   filename: '[file].map',
-    // }),
-    // new CleanWebpackPlugin(),
   ],
   module: {
     rules: [
@@ -85,7 +47,7 @@ module.exports = {
                     {
                       targets: {
                         chrome: 57,
-                        iOS: 9,
+                        ios: 9,
                       },
                     },
                   ],

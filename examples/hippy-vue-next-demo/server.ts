@@ -1,8 +1,6 @@
 const express = require('express');
 const { render, HIPPY_GLOBAL_STYLE_NAME } = require('./dist/main-server');
 
-// const HIPPY_GLOBAL_STYLE_NAME = '__HIPPY_VUE_STYLES__';
-
 interface MinifiedStyleDeclaration {
   [key: number]: number | string;
 }

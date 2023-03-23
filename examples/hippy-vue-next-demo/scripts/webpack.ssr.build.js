@@ -3,6 +3,7 @@
  */
 const { arch } = require('os');
 const { exec, rm } = require('shelljs');
+const { watch } = require('chokidar');
 
 let envPrefixStr = 'cross-env-os os="Windows_NT,Linux,Darwin" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider HIPPY_SSR=true';
 const isArmCpu = arch()
@@ -16,12 +17,13 @@ const isProd = process.argv[process.argv.length - 1] !== 'development';
 const mode = isProd ? '--mode production' : '--mode development';
 
 /**
- * 获取待执行的脚本文件
+ * get executed script
  *
  * @param configFile - config file name
+ * @param env - environment
  */
-function getScriptCommand(configFile) {
-  return `${envPrefixStr} webpack --config scripts/${configFile} ${mode}`;
+function getScriptCommand(configFile, env = '--mode development') {
+  return `${envPrefixStr} webpack --config scripts/webpack-ssr-config/${configFile} ${env}`;
 }
 
 /**
@@ -38,25 +40,77 @@ function runScript(scriptStr, options = { silent: false }) {
   }
 }
 
-// 0. remove dist directory
-console.log('remove dist directory:');
-rm('-rf', './dist');
-// 1. build server bundle
-console.log('building server bundle:');
-runScript(getScriptCommand('webpack.ssr.config.main-server.js'));
+/**
+ * build ssr client entry bundle
+ *
+ * @param env - environment
+ */
+function buildServerEntry(env = '') {
+  // build server entry
+  runScript(getScriptCommand('server.entry.js', env));
+}
 
-// 2. build async client bundle(include Android and iOS)
-console.log('\nbuilding Android client bundle:');
-// build Android client bundle
-runScript(getScriptCommand('webpack.ssr.config.android.js'));
-console.log('\nbuilding iOS client bundle:');
-// build iOS client bundle
-// runScript(getScriptCommand('webpack.ssr.config.ios.js'));
+/**
+ * build ssr sever and client bundle
+ *
+ * @param env - environment
+ */
+function buildJsBundle(env = '') {
+  // 1. build server bundle
+  runScript(getScriptCommand('server.bundle.js', env));
+  // 2. build async client bundle(include Android and iOS)
+  // build Android client bundle
+  runScript(getScriptCommand('client.android.js', env));
+  // build iOS client bundle
+  runScript(getScriptCommand('client.ios.js', env));
+  // 3. build client entry
+  runScript(getScriptCommand('client.entry.js', env));
+}
 
-// 3. build server entry
-console.log('\nbuilding server entry:');
-runScript(getScriptCommand('webpack.ssr.config.entry-server.js'));
+/**
+ * build production bundle
+ */
+function buildProduction() {
+  // production, build all entry bundle, ssr server should execute by user
+  // first, remove dist directory
+  rm('-rf', './dist');
+  // second, build all js bundle
+  buildJsBundle(mode);
+  // third, build client entry
+  buildServerEntry(mode);
+}
 
-// 4. build ssr entry
-console.log('\nbuilding ssr entry:');
-runScript(getScriptCommand('webpack.ssr.config.entry-ssr.js'));
+/**
+ * build development bundle
+ */
+function buildDevelopment() {
+  // development, build all entry bundle and execute all server, watching
+  // first, remove dist directory
+  rm('-rf', './dist');
+  // second, build all js bundle
+  buildJsBundle();
+  // third, build server entry
+  buildServerEntry();
+}
+
+// build bundle
+isProd ? buildProduction() : buildDevelopment();
+
+// development watch and rebuild
+if (!isProd) {
+  // watch all js
+  watch('./src').on('change', (eventName, path, stats) => {
+    console.log(`file changed: ${eventName}, path: ${path}, status: ${stats}. rebuild all js bundle.`);
+    buildJsBundle();
+    buildServerEntry();
+  });
+
+
+  // watch server entry
+  watch('./server.ts').on('change', (eventName, path, stats) => {
+    console.log(`file changed: ${eventName}, path: ${path}, status: ${stats}. rebuild server entry.`);
+    buildServerEntry();
+  });
+}
+
+

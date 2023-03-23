@@ -6,7 +6,7 @@ const { VueLoaderPlugin } = require('vue-loader');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 const webpack = require('webpack');
 
-const pkg = require('../package.json');
+const pkg = require('../../package.json');
 
 let cssLoader = '@hippy/vue-css-loader';
 const hippyVueCssLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-css-loader/dist/css-loader.js');
@@ -56,16 +56,6 @@ exports.getWebpackSsrBaseConfig = function (platform, env) {
       new CaseSensitivePathsPlugin(),
       new VueLoaderPlugin(),
       new HippyDynamicImportPlugin(),
-      // LimitChunkCountPlugin can control dynamic import ability
-      // Using 1 will prevent any additional chunks from being added
-      // new webpack.optimize.LimitChunkCountPlugin({
-      //   maxChunks: 1,
-      // }),
-      // use SourceMapDevToolPlugin can generate sourcemap file
-      // new webpack.SourceMapDevToolPlugin({
-      //   test: /\.(js|jsbundle|css|bundle)($|\?)/i,
-      //   filename: '[file].map',
-      // }),
       new WebpackManifestPlugin({
         fileName: `manifest.${platform}.json`,
       }),

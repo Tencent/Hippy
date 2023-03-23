@@ -6,7 +6,7 @@ const { isNativeTag } = require('@hippy/vue-next');
 const { VueLoaderPlugin } = require('vue-loader');
 const webpack = require('webpack');
 
-const pkg = require('../package.json');
+const pkg = require('../../package.json');
 
 const isProd = process.argv[process.argv.length - 1] !== 'development';
 const env = isProd ? 'production' : 'development';
@@ -29,8 +29,7 @@ if (fs.existsSync(hippyVueCssLoaderPath)) {
 module.exports = {
   mode: isProd ? 'production' : 'development',
   bail: true,
-  // devtool: 'eval-source-map',
-  devtool: 'cheap-module-source-map',
+  devtool: isProd ? false : 'eval-source-map',
   target: 'node',
   entry: {
     index: [path.resolve(pkg.serverMain)],
@@ -46,7 +45,6 @@ module.exports = {
     new webpack.optimize.LimitChunkCountPlugin({
       maxChunks: 1,
     }),
-    new webpack.NamedModulesPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify(env),
@@ -56,17 +54,6 @@ module.exports = {
     }),
     new CaseSensitivePathsPlugin(),
     new VueLoaderPlugin(),
-    // new HippyDynamicImportPlugin(),
-    // LimitChunkCountPlugin can control dynamic import ability
-    // Using 1 will prevent any additional chunks from being added
-    // new webpack.optimize.LimitChunkCountPlugin({
-    //   maxChunks: 1,
-    // }),
-    // use SourceMapDevToolPlugin can generate sourcemap file
-    // new webpack.SourceMapDevToolPlugin({
-    //   test: /\.(js|jsbundle|css|bundle)($|\?)/i,
-    //   filename: '[file].map',
-    // }),
   ],
   module: {
     rules: [

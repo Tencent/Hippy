@@ -1,4 +1,4 @@
-const { getWebpackSsrBaseConfig } = require('./webpack.ssr.config.base');
+const { getWebpackSsrBaseConfig } = require('./client.base');
 
 const isProd = process.argv[process.argv.length - 1] !== 'development';
 
