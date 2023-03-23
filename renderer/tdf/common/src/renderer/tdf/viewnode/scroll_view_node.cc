@@ -33,8 +33,8 @@ std::shared_ptr<tdfcore::View> ScrollViewNode::CreateView() {
   return scroll_view;
 }
 
-void ScrollViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
-  ViewNode::HandleStyleUpdate(dom_style);
+void ScrollViewNode::HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeleteProps& dom_delete_props) {
+  ViewNode::HandleStyleUpdate(dom_style, dom_delete_props);
   auto map_end = dom_style.cend();
   auto scroll_view = GetView<tdfcore::ScrollView>();
 

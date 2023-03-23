@@ -90,9 +90,9 @@ std::shared_ptr<tdfcore::View> TextViewNode::CreateView() {
   return text_view;
 }
 
-void TextViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
+void TextViewNode::HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeleteProps& dom_delete_props) {
   if (IsAttached()) {
-    ViewNode::HandleStyleUpdate(dom_style);
+    ViewNode::HandleStyleUpdate(dom_style, dom_delete_props);
   }
   HandleTextStyleUpdate(GetTextView(), GetDomNode(), dom_style);
 }

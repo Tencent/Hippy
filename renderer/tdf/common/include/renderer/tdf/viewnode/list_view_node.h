@@ -83,7 +83,7 @@ class ListViewItemNode : public ViewNode {
 
   void OnDelete() override;
  protected:
-  void HandleStyleUpdate(const DomStyleMap& dom_style) override;
+  void HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeleteProps& dom_delete_props) override;
 
   void HandleLayoutUpdate(hippy::LayoutResult layout_result) override;
 
@@ -129,7 +129,7 @@ class ListViewNode : public ScrollViewNode {
   void OnAttach() override;
   void OnDetach() override;
 
-  void HandleStyleUpdate(const DomStyleMap& dom_style) override;
+  void HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeleteProps& dom_delete_props) override;
 
   std::shared_ptr<tdfcore::View> CreateView() override;
 
