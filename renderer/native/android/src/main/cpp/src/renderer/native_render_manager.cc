@@ -224,6 +224,7 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
   auto len = nodes.size();
   footstone::value::HippyValue::DomValueArrayType dom_node_array;
   dom_node_array.resize(len);
+  uint32_t pid;
   for (uint32_t i = 0; i < len; i++) {
     const auto& render_info = nodes[i]->GetRenderInfo();
     footstone::value::HippyValue::HippyValueObjectType dom_node;
@@ -231,11 +232,34 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
     dom_node[kPid] = footstone::value::HippyValue(render_info.pid);
     dom_node[kIndex] = footstone::value::HippyValue(render_info.index);
     dom_node_array[i] = dom_node;
+    pid = render_info.pid;
   }
   serializer_->WriteValue(HippyValue(dom_node_array));
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
 
-  CallNativeMethod("moveNode", root->GetId(), buffer_pair);
+  std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
+  JNIEnv* j_env = instance->AttachCurrentThread();
+
+  jobject j_buffer;
+  auto j_size = footstone::check::checked_numeric_cast<size_t, jint>(buffer_pair.second);
+  j_buffer = j_env->NewByteArray(j_size);
+  j_env->SetByteArrayRegion(reinterpret_cast<jbyteArray>(j_buffer), 0, j_size,
+                            reinterpret_cast<const jbyte*>(buffer_pair.first));
+  jobject j_object = j_render_delegate_->GetObj();
+  jclass j_class = j_env->GetObjectClass(j_object);
+  if (!j_class) {
+    FOOTSTONE_LOG(ERROR) << "CallNativeMethod j_class error";
+    return;
+  }
+  jmethodID j_method_id = j_env->GetMethodID(j_class, "moveNode", "(II[B)V");
+  if (!j_method_id) {
+    FOOTSTONE_LOG(ERROR) << "moveNode" << " j_method_id error";
+    return;
+  }
+  j_env->CallVoidMethod(j_object, j_method_id, root->GetId(), pid, j_buffer);
+  JNIEnvironment::ClearJEnvException(j_env);
+  j_env->DeleteLocalRef(j_buffer);
+  j_env->DeleteLocalRef(j_class);
 }
 
 void NativeRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,

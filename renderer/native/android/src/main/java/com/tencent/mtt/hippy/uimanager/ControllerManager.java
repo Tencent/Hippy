@@ -198,6 +198,12 @@ public class ControllerManager {
         return mControllerRegistry.getView(rootId, id);
     }
 
+    public void addView(int rootId, @NonNull View view) {
+        if (findView(rootId, view.getId()) == null) {
+            mControllerRegistry.addView(view, rootId, view.getId());
+        }
+    }
+
     public boolean hasView(int rootId, int id) {
         return findView(rootId, id) != null;
     }

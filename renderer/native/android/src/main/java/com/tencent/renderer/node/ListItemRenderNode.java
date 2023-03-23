@@ -95,6 +95,14 @@ public class ListItemRenderNode extends RenderNode {
         removeView();
     }
 
+    public void onBindViewHolder(@NonNull View itemView) {
+        mControllerManager.addView(mRootId, itemView);
+        setLazy(false);
+        prepareHostViewRecursive();
+        setHostView(itemView);
+        mountHostViewRecursive();
+    }
+
     public void onBindViewHolder(@NonNull RenderNode fromNode, @NonNull View itemView) {
         if (!TextUtils.equals(fromNode.getClassName(), mClassName)
                 || fromNode.getId() != itemView.getId()) {

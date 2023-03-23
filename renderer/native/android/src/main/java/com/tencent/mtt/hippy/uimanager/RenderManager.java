@@ -30,6 +30,8 @@ import com.openhippy.pool.BasePool.PoolType;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.Renderer;
+import com.tencent.renderer.node.ListItemRenderNode;
+import com.tencent.renderer.node.ListViewRenderNode;
 import com.tencent.renderer.node.RootRenderNode;
 import com.tencent.renderer.node.VirtualNode;
 import com.tencent.renderer.node.TextRenderNode;
@@ -202,22 +204,35 @@ public class RenderManager {
             LogUtils.w(TAG, "moveNode: get parent failed!");
             return;
         }
-        List<RenderNode> moveNodes = new ArrayList<>(list.size());
+        List<RenderNode> moveNodes = null;
         for (int i = 0; i < list.size(); i++) {
             try {
                 final Map node = (Map) list.get(i);
                 int nodeId = ((Number) Objects.requireNonNull(node.get(NODE_ID))).intValue();
                 int index = ((Number) Objects.requireNonNull(node.get(NODE_INDEX))).intValue();
                 RenderNode child = getRenderNode(rootId, nodeId);
-                if (child != null) {
-                    parent.resetChildIndex(child, index);
+                if (child == null) {
+                    continue;
+                }
+                if (child instanceof ListItemRenderNode) {
+                    parent.addDeleteChild(child);
+                    parent.deleteSubviewIfNeeded();
+                    child.setLazy(true);
+                    child.setHostView(null);
+                } else {
+                    if (moveNodes == null) {
+                        moveNodes = new ArrayList<>();
+                    }
                     moveNodes.add(child);
                 }
-            } catch (NullPointerException e) {
+                parent.resetChildIndex(child, index);
+            } catch (Exception e) {
                 LogUtils.w(TAG, "moveNode: " + e.getMessage());
             }
         }
-        parent.addMoveNodes(moveNodes);
+        if (moveNodes != null) {
+            parent.addMoveNodes(moveNodes);
+        }
         addUpdateNodeIfNeeded(rootId, parent);
     }
 
@@ -286,6 +301,9 @@ public class RenderManager {
         // Should do update after all views created
         for (RenderNode node : updateNodes) {
             node.mountHostView();
+        }
+        // Should do batch complete at end
+        for (RenderNode node : updateNodes) {
             node.batchComplete();
         }
         mControllerManager.onBatchEnd(rootId);
