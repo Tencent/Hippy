@@ -173,16 +173,43 @@ public class NativeRenderProvider {
     /**
      * Call from native (C++) render manager to move render node
      *
+     * <p>
+     * Move the child node to the new parent node
+     * </>
+     *
      * @param rootId the root node id
      * @param ids the node id array list
      * @param newPid the new parent node id
      * @param oldPid the old parent node id
+     * @param insertIndex the index of child node insert to new parent
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    public void moveNode(int rootId, int[] ids, int newPid, int oldPid) {
+    public void moveNode(int rootId, int[] ids, int newPid, int oldPid, int insertIndex) {
         try {
-            mRenderDelegate.moveNode(rootId, ids, newPid, oldPid);
+            mRenderDelegate.moveNode(rootId, ids, newPid, oldPid, insertIndex);
+        } catch (NativeRenderException e) {
+            mRenderDelegate.handleRenderException(e);
+        }
+    }
+
+    /**
+     * Call from native (C++) render manager to move render node
+     *
+     * <p>
+     * Adjust the order of child nodes under the same parent node
+     * </>
+     *
+     * @param rootId the root node id
+     * @param pid the parent node id
+     * @param buffer the byte array serialize by native (C++)
+     */
+    @CalledByNative
+    @SuppressWarnings("unused")
+    public void moveNode(int rootId, int pid, byte[] buffer) {
+        try {
+            final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
+            mRenderDelegate.moveNode(rootId, pid, list);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
         }

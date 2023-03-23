@@ -179,11 +179,6 @@ public class ListItemRenderNode extends RenderNode {
         return Math.max(viewType, 0);
     }
 
-    @Override
-    public int indexFromParent() {
-        return super.indexFromParent();
-    }
-
     public void setRecycleItemTypeChangeListener(
             IRecycleItemTypeChange recycleItemTypeChangeListener) {
         mRecycleItemTypeChangeListener = recycleItemTypeChangeListener;

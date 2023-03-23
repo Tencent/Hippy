@@ -23,6 +23,8 @@ import static com.tencent.mtt.hippy.dom.node.NodeProps.PADDING_RIGHT;
 import static com.tencent.mtt.hippy.dom.node.NodeProps.PADDING_TOP;
 import static com.tencent.mtt.hippy.dom.node.NodeProps.TEXT_CLASS_NAME;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.INVALID_MEASURE_STATE_ERR;
+import static com.tencent.renderer.NativeRenderer.NODE_ID;
+import static com.tencent.renderer.NativeRenderer.NODE_INDEX;
 
 import android.text.Layout;
 
@@ -180,8 +182,7 @@ public class VirtualNodeManager {
         return FlexUtils.makeSizeToLong(layout.getWidth(), layout.getHeight());
     }
 
-
-    private VirtualNode getVirtualNode(int rootId, int nodeId) {
+    public VirtualNode getVirtualNode(int rootId, int nodeId) {
         RootRenderNode rootNode = NativeRendererManager.getRootNode(rootId);
         if (rootNode != null) {
             return rootNode.getVirtualNode(nodeId);
@@ -351,6 +352,22 @@ public class VirtualNodeManager {
         RootRenderNode rootNode = NativeRendererManager.getRootNode(rootId);
         if (rootNode != null) {
             deleteNode(rootNode, nodeId);
+        }
+    }
+
+    public void moveNode(int rootId, @NonNull VirtualNode parent, @NonNull List<Object> list) {
+        for (int i = 0; i < list.size(); i++) {
+            try {
+                final Map node = (Map) list.get(i);
+                Integer nodeId = ((Number) Objects.requireNonNull(node.get(NODE_ID))).intValue();
+                int index = ((Number) Objects.requireNonNull(node.get(NODE_INDEX))).intValue();
+                VirtualNode child = getVirtualNode(rootId, nodeId);
+                if (child != null) {
+                    parent.resetChildIndex(child, index);
+                }
+            } catch (NullPointerException e) {
+                LogUtils.w(TAG, "moveNode: " + e.getMessage());
+            }
         }
     }
 
