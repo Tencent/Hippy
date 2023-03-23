@@ -25,27 +25,11 @@
 typedef NS_ENUM(NSUInteger, HippyPLTag) {
     HippyPLScriptDownload = 0,
     HippyPLScriptExecution,
-    HippyPLRAMBundleLoad,
-    HippyPLRAMStartupCodeSize,
-    HippyPLRAMStartupNativeRequires,
-    HippyPLRAMStartupNativeRequiresCount,
-    HippyPLRAMNativeRequires,
-    HippyPLRAMNativeRequiresCount,
     HippyPLNativeModuleInit,
-    HippyPLNativeModuleMainThread,
-    HippyPLNativeModulePrepareConfig,
-    HippyPLNativeModuleInjectConfig,
-    HippyPLNativeModuleMainThreadUsesCount,
-    HippyPLJSCExecutorSetup,
+    HippyPLJSExecutorSetup,
     HippyPLBridgeStartup,
-    HippyPLTTI,
     HippyPLBundleSize,
-    HippySecondaryStartup,
-    HippySecondaryLoadSource,
-    HippySecondaryExecuteSource,
-    HippyCommonLoadSource,
     HippyExecuteSource,
-    HippyFeedsTimeCost,
     HippyPLSize
 };
 

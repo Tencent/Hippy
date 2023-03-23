@@ -801,22 +801,13 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     [self dirtyText];
 }
 
-- (void)insertNativeRenderSubview:(NativeRenderObjectView *)subview atIndex:(NSInteger)atIndex {
-    [super insertNativeRenderSubview:subview atIndex:atIndex];
+- (void)didUpdateNativeRenderSubviews {
+    [super didUpdateNativeRenderSubviews];
     auto domManager = [self domManager].lock();
     if (domManager) {
         int32_t componentTag = [self.componentTag intValue];
         auto node = domManager->GetNode(self.rootNode, componentTag);
-        __weak NativeRenderObjectText *weakSelf = self;
-        hippy::MeasureFunction measureFunc =
-            [weakSelf](float width, hippy::LayoutMeasureMode widthMeasureMode,
-                                 float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext){
-                @autoreleasepool {
-                    return textMeasureFunc(weakSelf, width, widthMeasureMode,
-                                           height, heightMeasureMode, layoutContext);
-                }
-        };
-        node->GetLayoutNode()->SetMeasureFunction(measureFunc);
+        node->GetLayoutNode()->MarkDirty();
     }
 }
 

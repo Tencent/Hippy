@@ -40,22 +40,11 @@
         _labelsForTags = @[
             @"ScriptDownload",
             @"ScriptExecution",
-            @"RAMBundleLoad",
-            @"RAMStartupCodeSize",
-            @"RAMStartupNativeRequires",
-            @"RAMStartupNativeRequiresCount",
-            @"RAMNativeRequires",
-            @"RAMNativeRequiresCount",
             @"NativeModuleInit",
-            @"NativeModuleMainThread",
-            @"NativeModulePrepareConfig",
-            @"NativeModuleInjectConfig",
-            @"NativeModuleMainThreadUsesCount",
-            @"JSCExecutorSetup",
+            @"JSExecutorSetup",
             @"BridgeStartup",
-            @"RootViewTTI",
             @"BundleSize",
-            @"SecondaryStartup",
+            @"ExecuteSource",
         ];
     }
     return self;
