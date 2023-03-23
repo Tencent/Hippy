@@ -38,7 +38,7 @@ static NSString *generateRandomUUID() {
     return [NSString stringWithCString:buffer encoding:NSUTF8StringEncoding];
 }
 
-static NSString *UUIDForContextName(NSString *contextName) {
+static __unused NSString *UUIDForContextName(NSString *contextName) {
     static dispatch_once_t onceToken;
     static NSMutableDictionary *UUIDPairs = nil;
     dispatch_once(&onceToken, ^{
@@ -51,8 +51,7 @@ static NSString *UUIDForContextName(NSString *contextName) {
             [UUIDPairs setObject:UUIDString forKey:contextName];
         }
         return UUIDString;
-    }
-    else {
+    } else {
         return generateRandomUUID();
     }
 }

@@ -330,7 +330,6 @@ static NSUInteger headerTag = 1023;
         hippyCell.node.cell = nil;
         [[_bridge.uiManager reusePool] addHippyViewRecursively:hippyCell.cellView];
     }
-    HippyVirtualCell *indexNode = [_dataSource cellForIndexPath:indexPath];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {

@@ -21,9 +21,6 @@
  */
 
 #import "HippyLog.h"
-
-#include <asl.h>
-
 #import "HippyAssert.h"
 #import "HippyBridge.h"
 #import "HippyBridge+Private.h"
@@ -78,32 +75,13 @@ void HippySetLogThreshold(HippyLogLevel threshold) {
     HippyCurrentLogThreshold = threshold;
 }
 
-HippyLogFunction HippyDefaultLogFunction
-    = ^(HippyLogLevel level, __unused HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message) {
-          NSString *log = HippyFormatLog([NSDate date], level, fileName, lineNumber, message);
-          fprintf(stderr, "%s\n", log.UTF8String);
-          fflush(stderr);
-
-          int aslLevel;
-          switch (level) {
-              case HippyLogLevelTrace:
-                  aslLevel = ASL_LEVEL_DEBUG;
-                  break;
-              case HippyLogLevelInfo:
-                  aslLevel = ASL_LEVEL_NOTICE;
-                  break;
-              case HippyLogLevelWarning:
-                  aslLevel = ASL_LEVEL_WARNING;
-                  break;
-              case HippyLogLevelError:
-                  aslLevel = ASL_LEVEL_ERR;
-                  break;
-              case HippyLogLevelFatal:
-                  aslLevel = ASL_LEVEL_CRIT;
-                  break;
-          }
-          asl_log(NULL, NULL, aslLevel, "%s", message.UTF8String);
-      };
+HippyLogFunction HippyDefaultLogFunction =
+    ^(HippyLogLevel level, __unused HippyLogSource source,
+      NSString *fileName, NSNumber *lineNumber, NSString *message) {
+        NSString *log = HippyFormatLog([NSDate date], level, fileName, lineNumber, message);
+        fprintf(stderr, "%s\n", log.UTF8String);
+        fflush(stderr);
+    };
 
 void HippySetLogFunction(HippyLogFunction logFunction) {
     HippyCurrentLogFunction = logFunction;
