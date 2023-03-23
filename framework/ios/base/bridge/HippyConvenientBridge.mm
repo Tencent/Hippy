@@ -57,7 +57,7 @@
                   moduleProvider:(HippyBridgeModuleProviderBlock _Nullable)block
                  extraComponents:(NSArray<Class> * _Nullable)extraComponents
                    launchOptions:(NSDictionary * _Nullable)launchOptions
-                       engineKey:(NSString *)engineKey {
+                       engineKey:(NSString *_Nullable)engineKey {
     self = [super init];
     if (self) {
         _delegate = delegate;
@@ -182,7 +182,10 @@
 - (void)unloadRootViewByTag:(NSNumber *)tag {
     [_bridge unloadInstanceForRootView:tag];
     _nativeRenderManager->UnregisterRootView([tag intValue]);
-    _rootNode = nullptr;
+    if (_rootNode) {
+        _rootNode->ReleaseResources();
+        _rootNode = nullptr;
+    }
 }
 
 - (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls {
@@ -226,8 +229,14 @@ static BOOL SelectorBelongsToProtocol(SEL selector, Protocol *protocol) {
     }
 }
 
+- (void)sendEvent:(NSString *)eventName params:(NSDictionary *_Nullable)params {
+    [self.bridge sendEvent:eventName params:params];
+}
+
 - (void)dealloc {
-    _rootNode->ReleaseResources();
+    if (_rootNode) {
+        _rootNode->ReleaseResources();
+    }
 }
 
 @end

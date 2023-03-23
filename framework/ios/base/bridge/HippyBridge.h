@@ -284,6 +284,9 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 + (BOOL)isHippyLocalFileURLString:(NSString *)string;
 
+#pragma mark event dispatcher
+- (void)sendEvent:(NSString *)eventName params:(NSDictionary *_Nullable)params;
+
 @end
 
 HP_EXTERN void HippyBridgeFatal(NSError *, HippyBridge *);

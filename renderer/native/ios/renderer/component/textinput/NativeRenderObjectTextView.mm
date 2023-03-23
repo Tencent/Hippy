@@ -97,4 +97,14 @@ static hippy::LayoutSize x5MeasureFunc(
     return newProps;
 }
 
+- (void)didUpdateNativeRenderSubviews {
+    [super didUpdateNativeRenderSubviews];
+    auto domManager = [self domManager].lock();
+    if (domManager) {
+        int32_t componentTag = [self.componentTag intValue];
+        auto node = domManager->GetNode(self.rootNode, componentTag);
+        node->GetLayoutNode()->MarkDirty();
+    }
+}
+
 @end

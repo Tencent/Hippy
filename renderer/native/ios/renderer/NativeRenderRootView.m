@@ -66,7 +66,7 @@ NSNumber *AllocRootViewTag(void) {
     CFTimeInterval diff = cost - _cost;
     if (!_contentHasAppeared) {
         _contentHasAppeared = YES;
-        [[NSNotificationCenter defaultCenter] postNotificationName:NativeRenderContentDidAppearNotification object:nil userInfo:@{
+        [[NSNotificationCenter defaultCenter] postNotificationName:NativeRenderContentDidAppearNotification object:self userInfo:@{
             @"cost": @(diff)
         }];
     }
