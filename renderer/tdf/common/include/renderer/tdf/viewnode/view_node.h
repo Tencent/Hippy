@@ -159,6 +159,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   using DomValueObjectType = footstone::HippyValue::HippyValueObjectType;
   using DomArgument = hippy::dom::DomArgument;
   using DomStyleMap = std::unordered_map<std::string, std::shared_ptr<footstone::HippyValue>>;
+  using DomDeleteProps = std::vector<std::string>;
   using RenderInfo = hippy::dom::DomNode::RenderInfo;
   using node_creator = std::function<std::shared_ptr<ViewNode>(RenderInfo, std::string)>;
   using Point = tdfcore::TPoint;
@@ -266,7 +267,8 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   std::shared_ptr<RootViewNode> GetRootNode() const;
 
-  virtual void HandleStyleUpdate(const DomStyleMap &dom_style);
+  virtual void HandleStyleUpdate(const DomStyleMap &dom_style,
+                                 const DomDeleteProps& dom_delete_props = DomDeleteProps());
 
   /**
    * @brief create the related tdfcore::View when attach if needed.

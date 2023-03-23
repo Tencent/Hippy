@@ -49,8 +49,8 @@ std::shared_ptr<tdfcore::View> EmbeddedViewNode::CreateView() {
   return view;
 }
 
-void EmbeddedViewNode::HandleStyleUpdate(const DomStyleMap &dom_style) {
-  ViewNode::HandleStyleUpdate(dom_style);
+void EmbeddedViewNode::HandleStyleUpdate(const DomStyleMap &dom_style, const DomDeleteProps& dom_delete_props) {
+  ViewNode::HandleStyleUpdate(dom_style, dom_delete_props);
   auto s = DomStyleMap2Json(dom_style);
   property_ = {{kNodeInfoProps, s}};
   GetView<tdfcore::EmbeddedView>()->SetProperty(property_);

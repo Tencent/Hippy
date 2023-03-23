@@ -86,11 +86,11 @@ void ViewNode::OnUpdate(hippy::DomNode& dom_node) {
   }
   // only update the different part
   if (dom_node.GetDiffStyle() != nullptr) {
-    HandleStyleUpdate(*(dom_node.GetDiffStyle()));
+    HandleStyleUpdate(*(dom_node.GetDiffStyle()), *(dom_node.GetDeleteProps()));
   }
 }
 
-void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
+void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeleteProps& dom_delete_props) {
   FOOTSTONE_DCHECK(IsAttached());
   auto view = GetView();
   auto const map_end = dom_style.cend();
@@ -98,8 +98,6 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   if (auto it = dom_style.find(view::kBackgroundColor); it != map_end && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     view->SetBackgroundColor(ViewNode::ParseToColor(it->second));
-  } else {
-    view->SetBackgroundColor(tdfcore::Color::Transparent());
   }
 
   // Border Width / Border Color / Border Radius ,All in On Method
@@ -139,6 +137,17 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
 
   // kIntercepttouchevent / kInterceptpullupevent
   HandleInterceptEvent(dom_style);
+
+  // handle props deleted
+  for (auto it = dom_delete_props.begin(); it != dom_delete_props.end(); it++) {
+    if (*it == view::kBackgroundColor) {
+      view->SetBackgroundColor(tdfcore::Color::Transparent());
+    } else if (*it == hippy::dom::kOpacity) {
+      view->SetOpacity(1.f);
+    } else if (*it == hippy::dom::kOverflow) {
+      view->SetClipToBounds(true);
+    }
+  }
 }
 
 tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style, std::shared_ptr<tdfcore::View> view) {

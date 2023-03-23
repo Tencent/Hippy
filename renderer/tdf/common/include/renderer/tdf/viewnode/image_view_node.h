@@ -39,7 +39,7 @@ class ImageViewNode : public ViewNode {
   std::string GetViewName() const override { return kImageViewName; }
 
  protected:
-  void HandleStyleUpdate(const DomStyleMap &dom_style) override;
+  void HandleStyleUpdate(const DomStyleMap &dom_style, const DomDeleteProps& dom_delete_props) override;
 
  private:
   std::string default_src_;

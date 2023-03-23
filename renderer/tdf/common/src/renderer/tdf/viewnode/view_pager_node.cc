@@ -45,8 +45,8 @@ void ViewPagerNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t i
   child->SetUseViewLayoutOrigin(true);
 }
 
-void ViewPagerNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
-  ViewNode::HandleStyleUpdate(dom_style);
+void ViewPagerNode::HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeleteProps& dom_delete_props) {
+  ViewNode::HandleStyleUpdate(dom_style, dom_delete_props);
   auto view_pager = GetView<ViewPager>();
 
   InitialPage(dom_style, view_pager);
