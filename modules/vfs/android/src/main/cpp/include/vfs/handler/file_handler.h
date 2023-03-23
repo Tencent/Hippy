@@ -49,7 +49,8 @@ class FileHandler : public UriHandler {
                   std::function<void(std::shared_ptr<JobResponse>)> cb,
                   std::function<std::shared_ptr<UriHandler>()> next);
 
-  std::weak_ptr<TaskRunner> runner_;
+  std::mutex mutex_;
+  std::shared_ptr<TaskRunner> runner_;
 };
 
 }

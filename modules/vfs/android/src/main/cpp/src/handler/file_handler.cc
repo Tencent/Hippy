@@ -24,6 +24,7 @@
 #include "vfs/file.h"
 #include "vfs/uri.h"
 
+constexpr char kRunnerName[] = "file_handler_runner";
 
 using Uri = hippy::Uri;
 
@@ -73,12 +74,13 @@ void FileHandler::LoadByFile(
     std::shared_ptr<RequestJob> request,
     std::function<void(std::shared_ptr<JobResponse>)> cb,
     std::function<std::shared_ptr<UriHandler>()> next) {
-  auto runner = runner_.lock();
-  if (!runner) {
-    cb(std::make_shared<JobResponse>(UriHandler::RetCode::DelegateError));
-    return;
+  {
+    std::lock_guard<std::mutex> lock_guard(mutex_);
+    if (!runner_) {
+      runner_ = request->GetWorkerManager()->CreateTaskRunner(kRunnerName);
+    }
   }
-  runner->PostTask([path, cb] {
+  runner_->PostTask([path, cb] {
     UriHandler::bytes content;
     bool ret = HippyFile::ReadFile(path, content, false);
     if (ret) {

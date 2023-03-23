@@ -23,6 +23,7 @@
 #include "render/bridge/render_bridge_ffi_impl.h"
 
 #include "dom/dom_manager.h"
+#include "footstone/worker_manager.h"
 #include "encodable_value.h"
 #include "standard_message_codec.h"
 

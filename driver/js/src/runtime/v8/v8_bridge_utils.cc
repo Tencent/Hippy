@@ -104,7 +104,7 @@ int32_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
                                     bool is_dev_module,
                                     const string_view& global_config,
                                     int64_t group,
-                                    const std::shared_ptr<WorkerManager>& worker_manager,
+                                    const std::unique_ptr<WorkerManager>& worker_manager,
                                     const std::shared_ptr<TaskRunner>& task_runner,
                                     const std::shared_ptr<V8VMInitParam>& param,
                                     const std::any& bridge,
@@ -112,7 +112,7 @@ int32_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
                                     const JsCallback& call_native_cb,
                                     uint32_t devtools_id) {
   auto runtime = std::make_shared<Runtime>(enable_v8_serialization, is_dev_module);
-  runtime->SetData(kBridgeSlot, std::move(bridge));
+  runtime->SetData(kBridgeSlot, bridge);
   int32_t runtime_id = runtime->GetId();
   Runtime::Insert(runtime);
   auto vm_cb = [runtime_id](void* vm) {

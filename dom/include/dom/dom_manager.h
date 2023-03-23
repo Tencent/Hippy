@@ -38,7 +38,7 @@
 #include "footstone/macros.h"
 #include "footstone/task_runner.h"
 #include "footstone/base_timer.h"
-#include "footstone/worker_manager.h"
+#include "footstone/worker.h"
 
 namespace hippy {
 inline namespace dom {
@@ -70,7 +70,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   using TaskRunner = footstone::runner::TaskRunner;
   using Task = footstone::Task;
   using BaseTimer = footstone::timer::BaseTimer;
-  using WorkerManager = footstone::WorkerManager;
+  using Worker = footstone::Worker;
 
   DomManager();
   ~DomManager() = default;
@@ -80,15 +80,15 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
 
   inline uint32_t GetId() { return id_; }
   inline std::weak_ptr<RenderManager> GetRenderManager() { return render_manager_; }
-  inline std::shared_ptr<TaskRunner> GetTaskRunner() { return dom_task_runner_; }
+  inline std::shared_ptr<TaskRunner> GetTaskRunner() { return task_runner_; }
   inline void SetTaskRunner(std::shared_ptr<TaskRunner> runner) {
-    dom_task_runner_ =  runner;
+    task_runner_ =  runner;
   }
-  inline void SetWorkerManager(std::shared_ptr<WorkerManager> worker_manager) {
-    worker_manager_ = worker_manager;
+  inline void SetWorker(std::shared_ptr<Worker> worker) {
+    worker_ = worker;
   }
-  inline std::shared_ptr<WorkerManager> GetWorkerManager() {
-    return worker_manager_;
+  inline std::shared_ptr<Worker> GetWorker() {
+    return worker_;
   }
 
   void SetRenderManager(const std::weak_ptr<RenderManager>& render_manager);
@@ -143,8 +143,8 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   std::shared_ptr<LayerOptimizedRenderManager> optimized_render_manager_;
   std::weak_ptr<RenderManager> render_manager_;
   std::unordered_map<uint32_t, std::shared_ptr<BaseTimer>> timer_map_;
-  std::shared_ptr<TaskRunner> dom_task_runner_;
-  std::shared_ptr<WorkerManager> worker_manager_;
+  std::shared_ptr<TaskRunner> task_runner_;
+  std::shared_ptr<Worker> worker_;
 };
 
 }  // namespace dom

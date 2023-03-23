@@ -220,14 +220,14 @@ void DomManager::DoLayout(const std::weak_ptr<RootNode>& weak_root_node) {
 
 void DomManager::PostTask(const Scene&& scene) {
   auto func = [scene = scene] { scene.Build(); };
-  dom_task_runner_->PostTask(std::move(func));
+  task_runner_->PostTask(std::move(func));
 }
 
 uint32_t DomManager::PostDelayedTask(const Scene&& scene, uint64_t delay) {
   auto func = [scene] { scene.Build(); };
   auto task = std::make_unique<Task>(std::move(func));
   auto id = task->GetId();
-  std::shared_ptr<OneShotTimer> timer = std::make_unique<OneShotTimer>(dom_task_runner_);
+  std::shared_ptr<OneShotTimer> timer = std::make_unique<OneShotTimer>(task_runner_);
   timer->Start(std::move(task), footstone::TimeDelta::FromNanoseconds(static_cast<int64_t>(delay)));
   timer_map_.insert({id, timer});
   return id;

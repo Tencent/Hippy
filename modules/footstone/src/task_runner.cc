@@ -44,6 +44,9 @@ TaskRunner::TaskRunner(uint32_t group_id, uint32_t priority, bool is_schedulable
   id_ = global_task_runner_id.fetch_add(1);
 }
 
+TaskRunner::TaskRunner(std::string name): TaskRunner(
+    kDefaultGroupId, kDefaultPriority, true, std::move(name)) {}
+
 TaskRunner::~TaskRunner() {
   std::shared_ptr<Worker> worker = worker_.lock();
   if (worker) {

@@ -31,8 +31,6 @@
 namespace footstone {
 inline namespace runner {
 
-constexpr uint32_t kDefaultPriority = 10;
-
 WorkerManager::WorkerManager(uint32_t size) : index_(0), size_(size) { CreateWorkers(size); }
 
 WorkerManager::~WorkerManager() = default;

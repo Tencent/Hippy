@@ -20,12 +20,24 @@
 
 #include "vfs/uri_loader.h"
 
+#include <utility>
+
 #include "footstone/string_view_utils.h"
 
 using StringViewUtils = footstone::StringViewUtils;
 
+constexpr uint32_t kPoolSize = 1;
+
 namespace hippy {
 inline namespace vfs {
+
+UriLoader::UriLoader() {
+  worker_manager_ = std::make_unique<WorkerManager>(kPoolSize);
+}
+
+UriLoader::~UriLoader() {
+  worker_manager_->Terminate();
+}
 
 void UriLoader::RegisterUriHandler(const std::string& scheme,
                                    const std::shared_ptr<UriHandler>& handler) {
@@ -50,7 +62,7 @@ void UriLoader::RegisterUriInterceptor(const std::shared_ptr<UriHandler>& handle
 void UriLoader::RequestUntrustedContent(const string_view& uri,
                                         const std::unordered_map<std::string, std::string>& meta,
                                         std::function<void(RetCode, std::unordered_map<std::string, std::string>, bytes)> cb) {
-  auto request = std::make_shared<RequestJob>(uri, meta);
+  auto request = std::make_shared<RequestJob>(uri, meta, worker_manager_);
   std::function<void(std::shared_ptr<JobResponse>)> response_cb = [cb](const std::shared_ptr<JobResponse>& rsp) {
     cb(rsp->GetRetCode(), rsp->GetMeta(), rsp->ReleaseContent());
   };
@@ -62,7 +74,7 @@ void UriLoader::RequestUntrustedContent(const string_view& uri,
                                         RetCode& code,
                                         std::unordered_map<std::string, std::string>& rsp_meta,
                                         bytes& content) {
-  auto request = std::make_shared<RequestJob>(uri, req_meta);
+  auto request = std::make_shared<RequestJob>(uri, req_meta, worker_manager_);
   auto response = std::make_shared<JobResponse>();
   RequestUntrustedContent(request, response);
   code = response->GetRetCode();
@@ -92,7 +104,7 @@ void UriLoader::RequestUntrustedContent(const std::shared_ptr<RequestJob>& reque
   std::function<std::shared_ptr<UriHandler>()> next = [this, &cur_it, end_it]() -> std::shared_ptr<UriHandler> {
     return this->GetNextHandler(cur_it, end_it);
   };
-  (*cur_it)->RequestUntrustedContent(request, response, next);
+  (*cur_it)->RequestUntrustedContent(request, std::move(response), next);
 }
 
 void UriLoader::RequestUntrustedContent(const std::shared_ptr<RequestJob>& request,

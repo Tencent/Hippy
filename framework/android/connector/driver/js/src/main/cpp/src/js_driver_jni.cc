@@ -64,7 +64,7 @@ inline namespace driver {
 REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
              "onCreate",
              "([BZZZLcom/openhippy/connector/NativeCallback;"
-             "JILcom/openhippy/connector/JsDriver$V8InitParams;I)I",
+             "JILcom/openhippy/connector/JsDriver$V8InitParams;II)I",
              CreateJsDriver)
 
 REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
@@ -126,6 +126,7 @@ jint CreateJsDriver(JNIEnv* j_env,
                     jlong j_group_id,
                     jint j_dom_manager_id,
                     jobject j_vm_init_param,
+                    jint j_vfs_id,
                     jint j_devtools_id) {
   FOOTSTONE_LOG(INFO) << "InitInstance begin, j_single_thread_mode = "
                       << static_cast<uint32_t>(j_single_thread_mode)
@@ -172,12 +173,20 @@ jint CreateJsDriver(JNIEnv* j_env,
   FOOTSTONE_CHECK(flag);
   auto dom_manager_object = std::any_cast<std::shared_ptr<DomManager>>(dom_manager);
   auto dom_task_runner = dom_manager_object->GetTaskRunner();
+
+  std::any vfs_instance;
+  auto vfs_id = footstone::checked_numeric_cast<jint, uint32_t>(j_vfs_id);
+  flag = hippy::global_data_holder.Find(vfs_id, vfs_instance);
+  FOOTSTONE_CHECK(flag);
+  auto loader = std::any_cast<std::shared_ptr<UriLoader>>(vfs_instance);
+  auto& worker_manager = loader->GetWorkerManager();
+
   auto runtime_id = V8BridgeUtils::InitInstance(
       static_cast<bool>(j_enable_v8_serialization),
       static_cast<bool>(j_is_dev_module),
       global_config,
       static_cast<int64_t>(j_group_id),
-      dom_manager_object->GetWorkerManager(),
+      worker_manager,
       dom_task_runner,
       param,
       std::make_shared<Bridge>(j_env, j_object),
@@ -288,7 +297,6 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   runtime->GetScope()->SetUriLoader(loader);
   if (j_aasset_manager) {
     auto asset_handler = std::make_shared<hippy::AssetHandler>();
-    asset_handler->SetWorkerTaskRunner(runtime->GetEngine()->GetWorkerTaskRunner());
     loader->RegisterUriHandler(kAssetSchema, asset_handler);
   }
 #ifdef ENABLE_INSPECTOR
