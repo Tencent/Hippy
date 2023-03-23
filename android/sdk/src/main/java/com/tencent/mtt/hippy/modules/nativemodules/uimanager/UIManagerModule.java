@@ -21,7 +21,12 @@ import com.tencent.mtt.hippy.annotation.HippyMethod;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.devsupport.inspector.model.DomModel;
+import com.tencent.mtt.hippy.devsupport.inspector.model.DomModel.NodeType;
 import com.tencent.mtt.hippy.dom.DomManager;
+import com.tencent.mtt.hippy.dom.node.DomDomainData;
+import com.tencent.mtt.hippy.dom.node.DomNode;
+import com.tencent.mtt.hippy.dom.node.DomNodeRecord;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.runtime.builtins.JSObject;
@@ -185,4 +190,22 @@ public class UIManagerModule extends HippyNativeModuleBase {
     }
   }
 
+  @HippyMethod(name = "getNodeForLocation")
+  public void getNodeForLocation(HippyMap hippyMap, final Promise promise) {
+    int x = ((Number)hippyMap.get(DomModel.NODE_LOCATION_X)).intValue();
+    int y = ((Number)hippyMap.get(DomModel.NODE_LOCATION_Y)).intValue();
+    RenderNode node = DomModel.getHitNodeForLocation(mContext, x, y);
+    DomManager domManager = mContext.getDomManager();
+    if (domManager == null || node == null) {
+      promise.resolve(null);
+      return;
+    }
+    DomNode domNode = domManager.getNode(node.getId());
+    if (domNode == null) {
+      promise.resolve(null);
+      return;
+    }
+    DomNodeRecord domainData = domNode.getDomNodeRecord();
+    promise.resolve(DomModel.getNodeJson((DomDomainData) domainData, NodeType.ELEMENT_NODE).toString());
+  }
 }
