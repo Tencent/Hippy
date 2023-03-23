@@ -37,7 +37,7 @@ class EmbeddedViewNode : public ViewNode {
  protected:
   void HandleStyleUpdate(const DomStyleMap &dom_style, const DomDeleteProps& dom_delete_props) override;
 
-  std::string DomStyleMap2Json(const DomStyleMap &dom_style);
+  std::string DomStyleMap2String(const DomStyleMap &dom_style);
 
  private:
   std::shared_ptr<tdfcore::View> CreateView() override;
