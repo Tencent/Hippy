@@ -23,6 +23,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:voltron_renderer/render.dart';
 import 'package:voltron_renderer/widget.dart';
+
 import './util/render_context.dart';
 import 'util/render_op_util.dart';
 
@@ -228,7 +229,7 @@ void main() {
       });
     });
 
-    test('moveNode operator', () {
+    test('recombineNode operator', () {
       var opsForbuildRenderTree = [
         RenderOp(type: RenderOpType.addNode, nodeId: 1, props: {
           "index": 0,
@@ -281,14 +282,13 @@ void main() {
       var node5 = rootWidgetViewModel.renderTree.getRenderNode(5);
 
       expect(node5.parent.id, 3, reason: 'parent of node5 is node3 before move');
-
       renderOpUtil.runRenderOp([
-        RenderOp(type: RenderOpType.moveNode, nodeId: 2, props: {
+        RenderOp(type: RenderOpType.recombineNode, nodeId: 2, props: {
           "move_id": [4, 5],
-          "move_pid": 3
+          "move_pid": 3,
+          "move_index": 0,
         }),
       ]);
-
       expect(node5.parent.id, 2, reason: 'parent of node5 is node2 after move');
       expect(node2.childCount, 2, reason: 'node2 should have 2 children');
       expect(node3.childCount, isZero, reason: 'node3 should has no child now');
