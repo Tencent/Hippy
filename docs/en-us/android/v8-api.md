@@ -183,8 +183,8 @@ Request V8 to interrupt long running JavaScript code and invoke the given callba
 ``` java
 V8 v8 = mHippyEngine.getV8();
 if (v8 != null) {
-  mHippyEngine.getEngineContext().getBridgeManager().runInJsThread((param, e) -> {
-    v8.addNearHeapLimitCallback((currentHeapLimit, initialHeapLimit) -> currentHeapLimit * 2);
+  v8.requestInterrupt((param, e) -> {
+      v8.printCurrentStackTrace((str, e1) -> LogUtils.e("hippy", "trace = " + str));
   });
 }
 ```
