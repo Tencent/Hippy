@@ -154,6 +154,39 @@ const router: Router = createRouter({
 });
 ```
 
+## 服务端渲染
+
+@hippy/vue-next 现已支持服务端渲染，具体代码可以查看[示例项目](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo)中的 SSR
+部分，这里对服务端渲染与客户端渲染的代码实现差异部分进行说明
+
+### 初始化部分
+
+- src/main-native.ts 变更
+
+1. 使用 createSSRApp 替换之前的 createApp，createApp 仅支持 CSR 渲染，而 createSSRApp 同时支持 CSR 和 SSR
+2. 在初始化时候新增了 ssrNodeList 参数，作为 Hydrate 的初始化节点列表。这里我们服务端返回的初始化节点列表保存在了 global.hippySSRNodes 中。如果需要修改这个变量名，可以在 src/main-client.ts 中进行更改
+3. 将 app.mount 放到 router.isReady 完成后调用，因为如果不等待路由完成，会与服务端渲染的节点有所不同，导致 Hydrate 时报错
+
+```javascript
+- import { createApp } from '@hippy/vue-next';
++ import { createSSRApp } from '@hippy/vue-next';
+- const app: HippyApp = createApp(App, {
++ const app: HippyApp = createSSRApp(App, {
+    // ssr rendered node list, use for hydration
++   ssrNodeList: global.hippySSRNodes,
+});
++ router.isReady().then(() => {
++   // mount app
++   app.mount('#root');
++ });
+```
+
+- src/main-server.ts 新增
+- src/main-client.ts 新增
+- src/ssr-node-ops.ts 新增
+- src/webpack-plugin.ts 新增
+
+
 # 其他差异说明
 
 目前 `@hippy/vue-next` 与 `@hippy/vue` 功能上基本对齐，不过在 API 方面与 @hippy/vue 有一些区别，以及还有一些问题还没有解决，这里做些说明：
