@@ -46,6 +46,13 @@ abstract class VirtualNode with StyleMethodPropConsumer {
         NativeGestureDispatcher(rootId: rootId, id: id, context: _renderContext);
   }
 
+  void resetChildIndex(VirtualNode child, int index) {
+    if (mChildren.contains(child)) {
+      removeChild(child);
+      addChildAt(child, index);
+    }
+  }
+
   void removeChild(VirtualNode child) {
     mChildren.remove(child);
   }
@@ -115,7 +122,7 @@ class VirtualNodeManager {
 
   Map<int, VirtualNode> mVirtualNodes = {};
 
-  List<int> mUpdateNodes = [];
+  List<int> mUpdateNodeIdList = [];
 
   RenderContext context;
 
@@ -196,8 +203,8 @@ class VirtualNodeManager {
     if (node != null) {
       updateProps(node, props, true);
       if (node.mParent == null) {
-        if (!mUpdateNodes.contains(id)) {
-          mUpdateNodes.add(id);
+        if (!mUpdateNodeIdList.contains(id)) {
+          mUpdateNodeIdList.add(id);
         }
       }
     }
@@ -218,12 +225,20 @@ class VirtualNodeManager {
     mVirtualNodes.remove(id);
   }
 
+  void moveNode(int nodeId, VirtualNode parentNode, int index) {
+    VirtualNode? child = mVirtualNodes[nodeId];
+    if (child != null) {
+      parentNode.resetChildIndex(child, index);
+      mUpdateNodeIdList.add(parentNode.id);
+    }
+  }
+
   Map<int, TextData>? endBatch() {
     Map<int, TextData> textDataMap = {};
-    if (mUpdateNodes.isEmpty) {
+    if (mUpdateNodeIdList.isEmpty) {
       return null;
     }
-    for (var id in mUpdateNodes) {
+    for (var id in mUpdateNodeIdList) {
       VirtualNode? node = mVirtualNodes[id];
       if (node is TextVirtualNode) {
         // If the node has been updated, but there is no updateLayout call from native(C++)
