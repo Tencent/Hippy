@@ -234,6 +234,7 @@ EXTERN_C void DestroyWorkerManager(uint32_t worker_manager_id) {
 
 EXTERN_C uint32_t CreateDomInstance(uint32_t worker_manager_id) {
   auto dom_manager = std::make_shared<hippy::DomManager>();
+
   hippy::DomManager::Insert(dom_manager);
   std::shared_ptr<footstone::WorkerManager>
       worker_manager = voltron::BridgeManager::FindWorkerManager(worker_manager_id);

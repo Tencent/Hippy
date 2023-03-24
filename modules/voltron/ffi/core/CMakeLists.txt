@@ -57,6 +57,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC codec)
 set(FFI_SOURCE_SET
         src/ffi_define.cc
         src/callback_manager.cc
+        src/data_holder.cc
         src/string_convert.cc)
 
 target_sources(${PROJECT_NAME} PRIVATE ${FFI_SOURCE_SET})
