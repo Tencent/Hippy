@@ -85,6 +85,7 @@ class VfsWrapper {
       EncodableMap *rsp_map);
 
   uint32_t GetId() const;
+  void SetId(uint32_t id);
   std::shared_ptr<hippy::UriLoader> GetLoader();
  private:
   std::shared_ptr<hippy::UriLoader> loader_;
