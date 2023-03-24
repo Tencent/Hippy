@@ -110,7 +110,9 @@ void ListViewNode::OnDetach() {
   list_view->RemoveScrollUpdateListener(on_reach_end_listener_id_);
 }
 
-void ListViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) { ScrollViewNode::HandleStyleUpdate(dom_style); }
+void ListViewNode::HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeleteProps& dom_delete_props) {
+  ScrollViewNode::HandleStyleUpdate(dom_style, dom_delete_props);
+}
 
 void ListViewNode::HandleEndReachedEvent() {
   ViewNode::SendUIDomEvent(kEndreached);
@@ -150,6 +152,10 @@ void ListViewNode::CallFunction(const std::string &function_name,
 
 void ListViewItemNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
   TDF_RENDER_CHECK_ATTACH
+  if (layout_result.height != GetView()->GetFrame().Height()) {
+    auto list_view_node = std::static_pointer_cast<ListViewNode>(GetParent());
+    list_view_node->SetShouldReload();
+  }
   auto origin_left = GetView()->GetFrame().left;
   auto origin_top = GetView()->GetFrame().top;
   layout_result.left = origin_left;
@@ -178,7 +184,7 @@ std::shared_ptr<tdfcore::View> ListViewItemNode::CreateView() {
 
 void ListViewItemNode::UpdateViewType(const DomStyleMap& dom_style) {
   bool found = false;
-  if (auto it = dom_style.find(listviewitem::kViewType); it != dom_style.cend()) {
+  if (auto it = dom_style.find(listviewitem::kViewType); it != dom_style.cend() && it->second != nullptr) {
     if (it->second->IsString()) {
       view_type_ = static_cast<int64_t>(std::hash<std::string>{}(it->second->ToStringChecked()));
       found = true;
@@ -187,7 +193,7 @@ void ListViewItemNode::UpdateViewType(const DomStyleMap& dom_style) {
       found = true;
     }
   }
-  if (auto it = dom_style.find(listviewitem::kViewTypeNew); it != dom_style.cend()) {
+  if (auto it = dom_style.find(listviewitem::kViewTypeNew); it != dom_style.cend() && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsInt32());
     view_type_ = it->second->ToInt32Checked();
     found = true;
@@ -199,9 +205,9 @@ void ListViewItemNode::UpdateViewType(const DomStyleMap& dom_style) {
   }
 }
 
-void ListViewItemNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
-  ViewNode::HandleStyleUpdate(dom_style);
-  if (auto it = dom_style.find(listviewitem::kSticky); it != dom_style.cend()) {
+void ListViewItemNode::HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeleteProps& dom_delete_props) {
+  ViewNode::HandleStyleUpdate(dom_style, dom_delete_props);
+  if (auto it = dom_style.find(listviewitem::kSticky); it != dom_style.cend() && it->second != nullptr) {
     is_sticky_ = it->second->ToBooleanChecked();
   }
   UpdateViewType(dom_style);

@@ -71,7 +71,7 @@ class ScrollViewNode : public ViewNode {
  protected:
   std::shared_ptr<tdfcore::View> CreateView() override;
 
-  void HandleStyleUpdate(const DomStyleMap& dom_style) override;
+  void HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeleteProps& dom_delete_props) override;
 
   void OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) override;
 

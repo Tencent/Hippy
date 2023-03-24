@@ -86,11 +86,11 @@ void ViewNode::OnUpdate(hippy::DomNode& dom_node) {
   }
   // only update the different part
   if (dom_node.GetDiffStyle() != nullptr) {
-    HandleStyleUpdate(*(dom_node.GetDiffStyle()));
+    HandleStyleUpdate(*(dom_node.GetDiffStyle()), *(dom_node.GetDeleteProps()));
   }
 }
 
-void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
+void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeleteProps& dom_delete_props) {
   FOOTSTONE_DCHECK(IsAttached());
   auto view = GetView();
   auto const map_end = dom_style.cend();
@@ -98,14 +98,12 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   if (auto it = dom_style.find(view::kBackgroundColor); it != map_end && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     view->SetBackgroundColor(ViewNode::ParseToColor(it->second));
-  } else {
-    view->SetBackgroundColor(tdfcore::Color::Transparent());
   }
 
   // Border Width / Border Color / Border Radius ,All in On Method
   util::ParseBorderInfo(*view, dom_style);
 
-  if (auto it = dom_style.find(view::kLinearGradient); it != map_end) {
+  if (auto it = dom_style.find(view::kLinearGradient); it != map_end && it->second != nullptr) {
     util::ParseLinearGradientInfo(*view, it->second->ToObjectChecked());
   }
 
@@ -113,12 +111,12 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
 
   // kNextFocusDownId  / kNextFocusLeftId  / kNextFocusRightId / kNextFocusUpId
 
-  if (auto it = dom_style.find(hippy::dom::kOpacity); it != map_end) {
+  if (auto it = dom_style.find(hippy::dom::kOpacity); it != map_end && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     view->SetOpacity(static_cast<float>(it->second->ToDoubleChecked()));
   }
 
-  if (auto it = dom_style.find(hippy::dom::kOverflow); it != map_end) {
+  if (auto it = dom_style.find(hippy::dom::kOverflow); it != map_end && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsString());
     auto overflow_value = it->second->ToStringChecked();
     if (overflow_value == "visible") {
@@ -133,17 +131,28 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   // animation
   view->SetTransform(GenerateAnimationTransform(dom_style, view).asM33());
 
-  if (auto it = dom_style.find(hippy::dom::kZIndex); it != map_end) {
+  if (auto it = dom_style.find(hippy::dom::kZIndex); it != map_end && it->second != nullptr) {
     view->SetZIndex(static_cast<int32_t>(it->second->ToDoubleChecked()));
   }
 
   // kIntercepttouchevent / kInterceptpullupevent
   HandleInterceptEvent(dom_style);
+
+  // handle props deleted
+  for (auto it = dom_delete_props.begin(); it != dom_delete_props.end(); it++) {
+    if (*it == view::kBackgroundColor) {
+      view->SetBackgroundColor(tdfcore::Color::Transparent());
+    } else if (*it == hippy::dom::kOpacity) {
+      view->SetOpacity(1.f);
+    } else if (*it == hippy::dom::kOverflow) {
+      view->SetClipToBounds(true);
+    }
+  }
 }
 
 tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style, std::shared_ptr<tdfcore::View> view) {
   auto transform = tdfcore::TM44();
-  if (auto it = dom_style.find(kMatrix); it != dom_style.end()) {
+  if (auto it = dom_style.find(kMatrix); it != dom_style.end() && it->second != nullptr) {
     FOOTSTONE_CHECK(it->second->IsArray());
     DomValueArrayType matrix_array;
     auto result = it->second->ToArray(matrix_array);
@@ -161,58 +170,58 @@ tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style,
     }
   }
 
-  if (auto it = dom_style.find(kPerspective); it != dom_style.end()) {
+  if (auto it = dom_style.find(kPerspective); it != dom_style.end() && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     // M44中 2x3对应的位置就是perspective属性
     transform.setRC(2, 3, static_cast<float>(it->second->ToDoubleChecked()));
   }
 
   auto tv3 = tdfcore::TV3();
-  if (auto it = dom_style.find(kRotateX); it != dom_style.end()) {
+  if (auto it = dom_style.find(kRotateX); it != dom_style.end() && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     auto radians = static_cast<float>(it->second->ToDoubleChecked());
     tv3.x = 1;
     transform.setRotateUnit(tv3, radians);
   }
 
-  if (auto it = dom_style.find(kRotateY); it != dom_style.end()) {
+  if (auto it = dom_style.find(kRotateY); it != dom_style.end() && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     auto radians = static_cast<float>(it->second->ToDoubleChecked());
     tv3.y = 1;
     transform.setRotateUnit(tv3, radians);
   }
 
-  if (auto it = dom_style.find(kRotate); it != dom_style.end()) {
+  if (auto it = dom_style.find(kRotate); it != dom_style.end() && it->second != nullptr) {
     auto radians = static_cast<float>(it->second->ToDoubleChecked());
     tv3.z = 1;
     transform.setRotateUnit(tv3, radians);
   }
 
-  if (auto it = dom_style.find(kRotateZ); it != dom_style.end()) {
+  if (auto it = dom_style.find(kRotateZ); it != dom_style.end() && it->second != nullptr) {
     auto radians = static_cast<float>(it->second->ToDoubleChecked());
     tv3.z = 1;
     transform.setRotateUnit(tv3, radians);
   }
 
-  if (auto it = dom_style.find(kScale); it != dom_style.end()) {
+  if (auto it = dom_style.find(kScale); it != dom_style.end() && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     auto scale = static_cast<float>(it->second->ToDoubleChecked());
     transform.setScale(scale, scale);
   }
 
-  if (auto it = dom_style.find(kScaleX); it != dom_style.end()) {
+  if (auto it = dom_style.find(kScaleX); it != dom_style.end() && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     auto scale = static_cast<float>(it->second->ToDoubleChecked());
     transform.setScale(scale, 0);
   }
 
-  if (auto it = dom_style.find(kScaleY); it != dom_style.end()) {
+  if (auto it = dom_style.find(kScaleY); it != dom_style.end() && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     auto scale = static_cast<float>(it->second->ToDoubleChecked());
     transform.setScale(0, scale);
   }
 
-  if (auto it = dom_style.find(kTranslate); it != dom_style.end()) {
+  if (auto it = dom_style.find(kTranslate); it != dom_style.end() && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     DomValueArrayType translation_array;
     auto result = it->second->ToArray(translation_array);
@@ -226,24 +235,24 @@ tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style,
     transform.setTranslate(translate_x, translate_y, translate_z);
   }
 
-  if (auto it = dom_style.find(kTranslateX); it != dom_style.end()) {
+  if (auto it = dom_style.find(kTranslateX); it != dom_style.end() && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     auto translate_x = static_cast<float>(it->second->ToDoubleChecked());
     transform.setTranslate(translate_x, 0);
   }
 
-  if (auto it = dom_style.find(kTranslateY); it != dom_style.end()) {
+  if (auto it = dom_style.find(kTranslateY); it != dom_style.end() && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     auto translate_y = static_cast<float>(it->second->ToDoubleChecked());
     transform.setTranslate(0, translate_y);
   }
 
-  if (auto it = dom_style.find(kSkewX); it != dom_style.end()) {
+  if (auto it = dom_style.find(kSkewX); it != dom_style.end() && it->second != nullptr) {
     auto skew_x = static_cast<float>(it->second->ToDoubleChecked());
     transform.setRC(0, 1, skew_x);
   }
 
-  if (auto it = dom_style.find(kSkewY); it != dom_style.end()) {
+  if (auto it = dom_style.find(kSkewY); it != dom_style.end() && it->second != nullptr) {
     auto skew_y = static_cast<float>(it->second->ToDoubleChecked());
     transform.setRC(1, 0, skew_y);
   }
@@ -458,7 +467,7 @@ void ViewNode::RemoveAllEventInfo() {
 }
 
 void ViewNode::HandleInterceptEvent(const DomStyleMap& dom_style) {
-  if (auto it = dom_style.find("onInterceptTouchEvent"); it != dom_style.cend()) {
+  if (auto it = dom_style.find("onInterceptTouchEvent"); it != dom_style.cend() && it->second != nullptr) {
     intercept_touch_event_flag_ = it->second->ToBooleanChecked();
     if (intercept_touch_event_flag_) {
       auto children_views = GetView()->GetChildren();
@@ -467,7 +476,7 @@ void ViewNode::HandleInterceptEvent(const DomStyleMap& dom_style) {
       }
     }
   }
-  if (auto it = dom_style.find("onInterceptPullUpEvent"); it != dom_style.cend()) {
+  if (auto it = dom_style.find("onInterceptPullUpEvent"); it != dom_style.cend() && it->second != nullptr) {
     intercept_pullup_event_flag_ = it->second->ToBooleanChecked();
     // TDF not support
   }

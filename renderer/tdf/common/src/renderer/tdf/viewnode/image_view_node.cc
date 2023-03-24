@@ -77,16 +77,16 @@ std::shared_ptr<tdfcore::View> ImageViewNode::CreateView() {
   return image_view;
 }
 
-void ImageViewNode::HandleStyleUpdate(const DomStyleMap &dom_style) {
-  ViewNode::HandleStyleUpdate(dom_style);
+void ImageViewNode::HandleStyleUpdate(const DomStyleMap &dom_style, const DomDeleteProps& dom_delete_props) {
+  ViewNode::HandleStyleUpdate(dom_style, dom_delete_props);
 
-  if (auto it = dom_style.find(hippy::kImageResizeMode); it != dom_style.end()) {
+  if (auto it = dom_style.find(hippy::kImageResizeMode); it != dom_style.end() && it->second != nullptr) {
     SetScaleType(it->second->ToStringChecked());
   }
-  if (auto it = dom_style.find(hippy::kIMAGEDefaultSource); it != dom_style.end()) {
+  if (auto it = dom_style.find(hippy::kIMAGEDefaultSource); it != dom_style.end() && it->second != nullptr) {
     SetDefaultSrc(it->second->ToStringChecked());
   }
-  if (auto it = dom_style.find(hippy::kImageSrc); it != dom_style.end()) {
+  if (auto it = dom_style.find(hippy::kImageSrc); it != dom_style.end() && it->second != nullptr) {
     if (!it->second->IsUndefined()) {
       SetSrc(it->second->ToStringChecked());
     }
