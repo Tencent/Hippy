@@ -405,7 +405,7 @@ class RenderNode extends StyleNode {
           }
         }
         _moveHolders.clear();
-        List<int> idIndexList = this.children.map((e) => e.id).toList();
+        final idIndexList = this.children.map((e) => e.id).toList();
         /// 元素排序
         _viewModel?.sortChildrenIndex(idIndexList);
       }

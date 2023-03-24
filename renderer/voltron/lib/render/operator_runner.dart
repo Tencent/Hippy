@@ -257,7 +257,7 @@ class _MoveNodeOpTask extends _NodeOpTask {
     LogUtils.dOperate(
       'moveNode ID:$_nodeId, movePid:$movePid, moveIndex:$moveIndex',
     );
-    var virtualParent = virtualNodeManager.mVirtualNodes[movePid];
+    var virtualParent = virtualNodeManager.virtualNodes[movePid];
     if (virtualParent == null) {
       renderManager.addUITask(() {
         renderManager.moveNode(_instanceId, moveId, movePid, moveIndex);
