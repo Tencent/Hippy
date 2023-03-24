@@ -368,22 +368,25 @@ function hackWebStyle(webStyle_: any) {
   handleLinearBackground(webStyle);
 }
 
-function formatWebStyle(style: any) {
+function normalizeStyle(style: any) {
   const webStyle: Record<string, any> = {};
 
   if (Array.isArray(style)) {
     style.forEach((itemStyle) => {
       Object.assign(webStyle, itemStyle);
     });
-    hackWebStyle(webStyle);
   } else {
     Object.assign(webStyle, style);
-
-    hackWebStyle(webStyle);
   }
 
   return webStyle;
 }
 
+function formatWebStyle(style: any) {
+  const webStyle = normalizeStyle(style);
+  hackWebStyle(webStyle);
+  return webStyle;
+}
+
 export default formatWebStyle;
-export { formatWebStyle };
+export { normalizeStyle, formatWebStyle };
