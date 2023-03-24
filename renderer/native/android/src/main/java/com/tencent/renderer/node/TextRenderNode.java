@@ -103,7 +103,7 @@ public class TextRenderNode extends RenderNode {
                 Integer id = ((Number) Objects.requireNonNull(node.get(NODE_ID))).intValue();
                 int index = ((Number) Objects.requireNonNull(node.get(NODE_INDEX))).intValue();
                 mChildrenOrder.remove(id);
-                mChildrenOrder.add(id, index);
+                mChildrenOrder.add(index, id);
             } catch (NullPointerException e) {
                 LogUtils.w(TAG, "onVirtualChildMove: " + e.getMessage());
             }

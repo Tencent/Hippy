@@ -370,6 +370,14 @@ public class VirtualNodeManager {
                 LogUtils.w(TAG, "moveNode: " + e.getMessage());
             }
         }
+        List<VirtualNode> updateNodes = mUpdateNodes.get(rootId);
+        if (updateNodes == null) {
+            updateNodes = new ArrayList<>();
+            updateNodes.add(parent);
+            mUpdateNodes.put(rootId, updateNodes);
+        } else if (!updateNodes.contains(parent)) {
+            updateNodes.add(parent);
+        }
     }
 
     /**
