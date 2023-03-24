@@ -72,13 +72,12 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   using BaseTimer = footstone::timer::BaseTimer;
   using Worker = footstone::Worker;
 
-  DomManager();
+  DomManager() = default;
   ~DomManager() = default;
 
   DomManager(DomManager&) = delete;
   DomManager& operator=(DomManager&) = delete;
 
-  inline uint32_t GetId() { return id_; }
   inline std::weak_ptr<RenderManager> GetRenderManager() { return render_manager_; }
   inline std::shared_ptr<TaskRunner> GetTaskRunner() { return task_runner_; }
   inline void SetTaskRunner(std::shared_ptr<TaskRunner> runner) {

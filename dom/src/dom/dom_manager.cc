@@ -49,41 +49,7 @@ using OneShotTimer = footstone::timer::OneShotTimer;
 using Serializer = footstone::value::Serializer;
 using Deserializer = footstone::value::Deserializer;
 
-static std::unordered_map<uint32_t, std::shared_ptr<DomManager>> dom_manager_map;
-static std::mutex mutex;
-static std::atomic<uint32_t> global_dom_manager_key{1};
-
 using DomValueArrayType = footstone::value::HippyValue::DomValueArrayType;
-
-DomManager::DomManager() {
-  id_ = global_dom_manager_key.fetch_add(1);
-}
-
-void DomManager::Insert(const std::shared_ptr<DomManager>& dom_manager) {
-  std::lock_guard<std::mutex> lock(mutex);
-  dom_manager_map[dom_manager->id_] = dom_manager;
-}
-
-std::shared_ptr<DomManager> DomManager::Find(uint32_t id) {
-  std::lock_guard<std::mutex> lock(mutex);
-  const auto it = dom_manager_map.find(id);
-  if (it == dom_manager_map.end()) {
-    return nullptr;
-  }
-  return it->second;
-}
-
-bool DomManager::Erase(uint32_t id) {
-  std::lock_guard<std::mutex> lock(mutex);
-  const auto it = dom_manager_map.find(id);
-  if (it == dom_manager_map.end()) {
-    return false;
-  }
-  dom_manager_map.erase(it);
-  return true;
-}
-
-bool DomManager::Erase(const std::shared_ptr<DomManager>& dom_manager) { return DomManager::Erase(dom_manager->id_); }
 
 void DomManager::SetRenderManager(const std::weak_ptr<RenderManager>& render_manager) {
 #ifdef EXPERIMENT_LAYER_OPTIMIZATION
