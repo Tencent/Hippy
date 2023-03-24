@@ -2,7 +2,6 @@ const path = require('path');
 const fs = require('fs');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const compilerSSR = require('@hippy/vue-next-compiler-ssr');
-const { isNativeTag } = require('@hippy/vue-next');
 const { VueLoaderPlugin } = require('vue-loader');
 const webpack = require('webpack');
 
@@ -12,13 +11,23 @@ const isProd = process.argv[process.argv.length - 1] !== 'development';
 const env = isProd ? 'production' : 'development';
 
 let cssLoader = '@hippy/vue-css-loader';
-const hippyVueCssLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-css-loader/dist/css-loader.js');
+const hippyVueCssLoaderPath = path.resolve(__dirname, '../../../../packages/hippy-vue-css-loader/dist/css-loader.js');
 if (fs.existsSync(hippyVueCssLoaderPath)) {
   console.warn(`* Using the @hippy/vue-css-loader in ${hippyVueCssLoaderPath}`);
   cssLoader = hippyVueCssLoaderPath;
 } else {
   console.warn('* Using the @hippy/vue-css-loader defined in package.json');
 }
+
+let vueNext = '@hippy/vue-next';
+const hippyVueNextPath = path.resolve(__dirname, '../../../../packages/hippy-vue-next/dist/index.js');
+if (fs.existsSync(hippyVueNextPath)) {
+  console.warn(`* Using the @hippy/vue-next in ${hippyVueNextPath}`);
+  vueNext = hippyVueNextPath;
+} else {
+  console.warn('* Using the @hippy/vue-next defined in package.json');
+}
+const { isNativeTag } = require(vueNext);
 
 /**
  * get webpack ssr base config
@@ -39,6 +48,8 @@ module.exports = {
     path: path.resolve('dist'),
     // CDN path can be configured to load children bundles from remote server
     // publicPath: 'https://xxx/hippy/hippyVueNextDemo/',
+    // server bundle should build as commonjs library
+    libraryTarget: 'commonjs',
   },
   plugins: [
     // only generate one chunk at server side
@@ -63,7 +74,6 @@ module.exports = {
           {
             loader: 'vue-loader',
             options: {
-              isServerBuild: true,
               compilerOptions: {
                 // because hippy do not support innerHTML, so we should close this feature
                 hoistStatic: false,
@@ -89,31 +99,31 @@ module.exports = {
       {
         test: /\.t|js$/,
         use: [
-          {
-            loader: 'esbuild-loader',
-            options: {
-              target: 'es2015',
-            },
-          },
           // {
-          //   loader: 'babel-loader',
+          //   loader: 'esbuild-loader',
           //   options: {
-          //     sourceType: 'unambiguous',
-          //     presets: [
-          //       [
-          //         '@babel/preset-env',
-          //         {
-          //           targets: {
-          //             node: '16.0',
-          //           },
-          //         },
-          //       ],
-          //     ],
-          //     plugins: [
-          //       ['@babel/plugin-proposal-nullish-coalescing-operator'],
-          //     ],
+          //     target: 'es2015',
           //   },
           // },
+          {
+            loader: 'babel-loader',
+            options: {
+              sourceType: 'unambiguous',
+              presets: [
+                [
+                  '@babel/preset-env',
+                  {
+                    targets: {
+                      node: '16.0',
+                    },
+                  },
+                ],
+              ],
+              plugins: [
+                ['@babel/plugin-proposal-nullish-coalescing-operator'],
+              ],
+            },
+          },
         ],
       },
       {
@@ -159,7 +169,7 @@ module.exports = {
 
       // If @vue/runtime-core was built exist in packages directory then make an alias
       // Remove the section if you don't use it
-      const hippyVueRuntimeCorePath = path.resolve(__dirname, '../../../packages/hippy-vue-next/node_modules/@vue/runtime-core');
+      const hippyVueRuntimeCorePath = path.resolve(__dirname, '../../../../packages/hippy-vue-next/node_modules/@vue/runtime-core');
       if (fs.existsSync(path.resolve(hippyVueRuntimeCorePath, 'index.js'))) {
         console.warn(`* Using the @vue/runtime-core in ${hippyVueRuntimeCorePath} as vue alias`);
         aliases['@vue/runtime-core'] = hippyVueRuntimeCorePath;
@@ -169,7 +179,7 @@ module.exports = {
 
       // If @hippy/vue-next was built exist in packages directory then make an alias
       // Remove the section if you don't use it
-      const hippyVueNextPath = path.resolve(__dirname, '../../../packages/hippy-vue-next/dist');
+      const hippyVueNextPath = path.resolve(__dirname, '../../../../packages/hippy-vue-next/dist');
       if (fs.existsSync(path.resolve(hippyVueNextPath, 'index.js'))) {
         console.warn(`* Using the @hippy/vue-next in ${hippyVueNextPath} as @hippy/vue-next alias`);
         aliases['@hippy/vue-next'] = hippyVueNextPath;
@@ -179,6 +189,6 @@ module.exports = {
 
       return aliases;
     })(),
-    mainFields: ['main', 'module'],
+    // mainFields: ['main', 'module'],
   },
 };

@@ -1,6 +1,5 @@
 const path = require('path');
 const webpack = require('webpack');
-// const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const pkg = require('../../package.json');
 const isProd = process.argv[process.argv.length - 1] !== 'development';
@@ -12,7 +11,7 @@ module.exports = {
     index: path.resolve(pkg.ssrMain),
   },
   output: {
-    filename: 'index.bundle',
+    filename: `index.${isProd ? 'js' : 'bundle'}`,
     strictModuleExceptionHandling: true,
     path: path.resolve(`./dist${isProd ? '' : '/dev/'}`),
     globalObject: '(0, eval)("this")',
@@ -72,6 +71,7 @@ module.exports = {
         use: [{
           loader: 'url-loader',
           options: {
+            // comment line when production environment
             limit: true,
             // limit: 8192,
             // fallback: 'file-loader',

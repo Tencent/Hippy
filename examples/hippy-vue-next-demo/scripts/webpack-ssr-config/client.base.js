@@ -9,7 +9,7 @@ const webpack = require('webpack');
 const pkg = require('../../package.json');
 
 let cssLoader = '@hippy/vue-css-loader';
-const hippyVueCssLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-css-loader/dist/css-loader.js');
+const hippyVueCssLoaderPath = path.resolve(__dirname, '../../../../packages/hippy-vue-css-loader/dist/css-loader.js');
 if (fs.existsSync(hippyVueCssLoaderPath)) {
   console.warn(`* Using the @hippy/vue-css-loader in ${hippyVueCssLoaderPath}`);
   cssLoader = hippyVueCssLoaderPath;
@@ -25,12 +25,14 @@ if (fs.existsSync(hippyVueCssLoaderPath)) {
  */
 exports.getWebpackSsrBaseConfig = function (platform, env) {
   const isDev = env === 'development';
+  // do not generate vendor at development
+  const manifest = isDev ? '' : require(`../../dist/${platform}/vendor-manifest.json`);
   return {
     mode: env,
     bail: true,
-    devtool: env === 'production' ? false : 'source-map',
+    devtool: env === 'production' ? false : 'eval-source-map',
     entry: {
-      index: [path.resolve(pkg.nativeMain)],
+      home: [path.resolve(pkg.nativeMain)],
     },
     output: {
       filename: `[name].${platform}.js`,
@@ -58,6 +60,10 @@ exports.getWebpackSsrBaseConfig = function (platform, env) {
       new HippyDynamicImportPlugin(),
       new WebpackManifestPlugin({
         fileName: `manifest.${platform}.json`,
+      }),
+      isDev ? () => {} : new webpack.DllReferencePlugin({
+        context: path.resolve(__dirname, '../..'),
+        manifest,
       }),
     ],
     module: {
@@ -155,7 +161,7 @@ exports.getWebpackSsrBaseConfig = function (platform, env) {
 
         // If @vue/runtime-core was built exist in packages directory then make an alias
         // Remove the section if you don't use it
-        const hippyVueRuntimeCorePath = path.resolve(__dirname, '../../../packages/hippy-vue-next/node_modules/@vue/runtime-core');
+        const hippyVueRuntimeCorePath = path.resolve(__dirname, '../../../../packages/hippy-vue-next/node_modules/@vue/runtime-core');
         if (fs.existsSync(path.resolve(hippyVueRuntimeCorePath, 'index.js'))) {
           console.warn(`* Using the @vue/runtime-core in ${hippyVueRuntimeCorePath} as vue alias`);
           aliases['@vue/runtime-core'] = hippyVueRuntimeCorePath;
@@ -165,7 +171,7 @@ exports.getWebpackSsrBaseConfig = function (platform, env) {
 
         // If @hippy/vue-next was built exist in packages directory then make an alias
         // Remove the section if you don't use it
-        const hippyVueNextPath = path.resolve(__dirname, '../../../packages/hippy-vue-next/dist');
+        const hippyVueNextPath = path.resolve(__dirname, '../../../../packages/hippy-vue-next/dist');
         if (fs.existsSync(path.resolve(hippyVueNextPath, 'index.js'))) {
           console.warn(`* Using the @hippy/vue-next in ${hippyVueNextPath} as @hippy/vue-next alias`);
           aliases['@hippy/vue-next'] = hippyVueNextPath;

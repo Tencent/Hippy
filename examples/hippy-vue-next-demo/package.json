@@ -25,7 +25,7 @@
   "dependencies": {
     "@hippy/vue-router-next-history": "latest",
     "@hippy/web-renderer": "latest",
-    "@hippy/vue-next": "file:../../packages/hippy-vue-next",
+    "@hippy/vue-next": "latest",
     "@hippy/vue-next-server-renderer": "file:../../packages/hippy-vue-next-server-renderer",
     "@hippy/vue-next-style-parser": "file:../../packages/hippy-vue-next-style-parser",
     "@vue/runtime-core": "^3.2.46",

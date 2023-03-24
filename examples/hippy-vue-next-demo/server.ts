@@ -50,7 +50,7 @@ server.use(express.json());
 
 // listen request
 server.all('/getSsrFirstScreenData', (req, rsp) => {
-  console.log('req body', req.body);
+  console.log('ssr request body', req.body);
   // get hippy ssr node list and other const
   render('/', {
     appName: 'Demo',

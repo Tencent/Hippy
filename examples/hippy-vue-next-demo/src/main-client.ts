@@ -11,14 +11,10 @@ const bundleName = 'Demo';
  */
 async function executionAsyncResource() {
   const platform = IS_IOS ? 'ios' : 'android';
-  const url = `http://127.0.0.1:38989/index.${platform}.js`;
-  console.log('load url: ', url);
-
-  // import async client js bundle
-  // const ret = await import('http://localhost:38989/android/index.js');
-  //   .catch((e) => {
-  //   console.log(`import async js error. url is: ${url}, reason is: ${e}.`);
-  // });
+  const isDev = process.env.NODE_ENV === 'development';
+  // this is async js name, write in client.base.js config file
+  const fileName = `home.${platform}.js`;
+  const url = `${isDev ? `http://${process.env.HOST}:${process.env.PORT}/` : ''}${fileName}`;
   // @ts-ignore
   global.dynamicLoad(url, (ret) => {
     console.log('dynamic load', ret);
@@ -58,14 +54,11 @@ function ssr(): void {
       body: JSON.stringify(getSsrRequestParams()),
     })
       .then((rspJson) => {
-        console.log('response:', rspJson);
         if (rspJson.ok && rspJson.status === 200 && rspJson.body) {
           let rsp: {[key: string]: NeedToTyped} = {};
           try {
             rsp = JSON.parse(rspJson.body as unknown as string);
           } catch (e) {}
-
-          console.log('response success: ', JSON.parse(JSON.stringify(rsp)));
           if (rsp?.code === 0 && rsp?.data) {
             // init store
             if (rsp?.store) {
@@ -93,7 +86,6 @@ function ssr(): void {
               // insert native nodes
               insertNativeNodes(rootViewId, nodes);
               // save ssr nodes to global.hippySSRNodes, hydration will use
-              console.log('createSSrNodeList', JSON.parse(JSON.stringify(nodes)), JSON.parse(JSON.stringify(nodeList)));
               global.hippySSRNodes = nodes;
             }
           } else {
@@ -103,15 +95,13 @@ function ssr(): void {
           console.log('response wrong:', rspJson);
         }
         // execute client bundle
-        setTimeout(() => {
-          executionAsyncResource();
-        }, 5000);
+        executionAsyncResource();
       })
       .catch((error) => {
         console.log('response error: ', error);
       });
   });
 }
-console.log('execute main entry');
+
 // execute ssr logic
 ssrEntry('Demo', ssr);
