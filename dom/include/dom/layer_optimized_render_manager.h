@@ -34,7 +34,8 @@ class LayerOptimizedRenderManager : public RenderManager {
   void MoveRenderNode(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>>&& nodes) override;
   void DeleteRenderNode(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>>&& nodes) override;
   void UpdateLayout(std::weak_ptr<RootNode> root_node, const std::vector<std::shared_ptr<DomNode>>& nodes) override;
-  void MoveRenderNode(std::weak_ptr<RootNode> root_node, std::vector<int32_t>&& moved_ids, int32_t from_pid, int32_t to_pid) override;
+  void MoveRenderNode(std::weak_ptr<RootNode> root_node, std::vector<int32_t>&& moved_ids,
+                      int32_t from_pid, int32_t to_pid, int32_t index) override;
   void EndBatch(std::weak_ptr<RootNode> root_node) override;
 
   void BeforeLayout(std::weak_ptr<RootNode> root_node) override;

@@ -29,6 +29,8 @@ namespace voltron {
 enum VoltronRenderOpType {
   ADD_NODE,
   DELETE_NODE,
+  // update node中内部的衍生操作
+  RECOMBINE_NODE,
   MOVE_NODE,
   UPDATE_NODE,
   UPDATE_LAYOUT,

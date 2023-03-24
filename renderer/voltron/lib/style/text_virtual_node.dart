@@ -39,7 +39,7 @@ class TextVirtualNode extends VirtualNode {
 
   TextVirtualNode(rootId, id, pid, index, renderContext)
       : super(rootId, id, pid, index, renderContext) {
-    if (mParent != null) {
+    if (parent != null) {
       _tapGestureRecognizer = TapGestureRecognizer();
       _tapGestureRecognizer?.onTapDown = (detail) {
         _longClickTimer = Timer(const Duration(milliseconds: 500), () {

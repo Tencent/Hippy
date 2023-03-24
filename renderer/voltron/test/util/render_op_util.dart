@@ -23,11 +23,13 @@
 import 'package:voltron_renderer/render.dart';
 import 'package:voltron_renderer/viewmodel/view_model.dart';
 import 'package:voltron_renderer/widget.dart';
+
 import './render_context.dart';
 
 enum RenderOpType {
   addNode,
   deleteNode,
+  recombineNode,
   moveNode,
   updateNode,
   updateLayout,

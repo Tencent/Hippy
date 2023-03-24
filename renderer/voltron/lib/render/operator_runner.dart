@@ -40,6 +40,7 @@ class RenderOperatorRunner implements Destroyable {
     _RenderOpType.addNode.index: _AddNodeOpTask.new,
     _RenderOpType.deleteNode.index: (instanceId, nodeId, params) =>
         _DeleteNodeOpTask(instanceId, nodeId),
+    _RenderOpType.recombineNode.index: _RecombineNodeOpTask.new,
     _RenderOpType.moveNode.index: _MoveNodeOpTask.new,
     _RenderOpType.updateNode.index: _UpdateNodeOpTask.new,
     _RenderOpType.updateLayout.index: _UpdateLayoutOpTask.new,
@@ -228,18 +229,42 @@ class _UpdateLayoutOpTask extends _NodeOpTask {
   }
 }
 
-class _MoveNodeOpTask extends _NodeOpTask {
-  _MoveNodeOpTask(int instanceId, int nodeId, Map params) : super(instanceId, nodeId, params);
+class _RecombineNodeOpTask extends _NodeOpTask {
+  _RecombineNodeOpTask(int instanceId, int nodeId, Map params) : super(instanceId, nodeId, params);
 
   @override
   void _run() {
     var moveIdList = _params[_RenderOpParamsKey.kMoveIdListKey] ?? [];
     var movePid = _params[_RenderOpParamsKey.kMovePidKey];
+    var moveIndex = _params[_RenderOpParamsKey.kMoveIndexKey];
     LogUtils.dOperate(
-        'moveNode ID:$_nodeId, movePid: $movePid, moveIdList:${moveIdList.toString()}');
+      'recombineNode ID:$_nodeId, movePid:$movePid, moveIdList:${moveIdList.toString()}, moveIndex:$moveIndex',
+    );
     renderManager.addUITask(() {
-      renderManager.moveNode(_instanceId, moveIdList, movePid, _nodeId);
+      renderManager.recombineNode(_instanceId, moveIdList, movePid, moveIndex, _nodeId);
     });
+  }
+}
+
+class _MoveNodeOpTask extends _NodeOpTask {
+  _MoveNodeOpTask(int instanceId, int nodeId, Map params) : super(instanceId, nodeId, params);
+
+  @override
+  void _run() {
+    var moveId = _params[_RenderOpParamsKey.kNodeIdKey] ?? [];
+    var movePid = _params[_RenderOpParamsKey.kParentNodeIdKey];
+    var moveIndex = _params[_RenderOpParamsKey.kChildIndexKey];
+    LogUtils.dOperate(
+      'moveNode ID:$_nodeId, movePid:$movePid, moveIndex:$moveIndex',
+    );
+    var virtualParent = virtualNodeManager.virtualNodes[movePid];
+    if (virtualParent == null) {
+      renderManager.addUITask(() {
+        renderManager.moveNode(_instanceId, moveId, movePid, moveIndex);
+      });
+    } else {
+      virtualNodeManager.moveNode(moveId, virtualParent, moveIndex);
+    }
   }
 }
 
@@ -323,6 +348,8 @@ enum EventType { click, longClick, touchStart, touchMove, touchEnd, touchCancel,
 enum _RenderOpType {
   addNode,
   deleteNode,
+  // 旧版本的moveNode，其实是updateNode内部的衍生操作
+  recombineNode,
   moveNode,
   updateNode,
   updateLayout,
@@ -333,6 +360,7 @@ enum _RenderOpType {
 }
 
 class _RenderOpParamsKey {
+  static const String kNodeIdKey = "id";
   static const String kParentNodeIdKey = "pid";
   static const String kChildIndexKey = "index";
   static const String kClassNameKey = "name";
@@ -343,5 +371,6 @@ class _RenderOpParamsKey {
   static const String kStylesKey = "styles";
   static const String kMoveIdListKey = "move_id";
   static const String kMovePidKey = "move_pid";
+  static const String kMoveIndexKey = "move_index";
   static const String kLayoutNodesKey = "layout_nodes";
 }

@@ -336,7 +336,14 @@ class RenderManager
     }
   }
 
-  void moveNode(int instanceId, List<int> moveIds, int oldPId, int newPId) {
+  /// 用于跨父节点移动子节点
+  void recombineNode(
+    int instanceId,
+    List<int> moveIds,
+    int oldPId,
+    int moveIndex,
+    int newPId,
+  ) {
     var parentNode = controllerManager.findNode(instanceId, oldPId);
     var newParent = controllerManager.findNode(instanceId, newPId);
     if (parentNode != null && newParent != null) {
@@ -351,13 +358,28 @@ class RenderManager
           );
           arrayList.add(renderNode);
           parentNode.removeChild(renderNode, needRemoveChild: false);
-          newParent.addChild(renderNode, i);
+          newParent.addChild(renderNode, i + moveIndex);
           i++;
         }
       }
-
       parentNode.move(arrayList, newParent);
       addUpdateNodeIfNeeded(newParent);
+    }
+  }
+
+  /// 用于同父节点下移动子节点
+  void moveNode(
+    int instanceId,
+    int nodeId,
+    int pId,
+    int index,
+  ) {
+    var parentNode = controllerManager.findNode(instanceId, pId);
+    var renderNode = controllerManager.findNode(instanceId, nodeId);
+    if (parentNode != null && renderNode != null) {
+      parentNode.moveChild(renderNode, index);
+      parentNode.move([renderNode], parentNode);
+      addUpdateNodeIfNeeded(parentNode);
     }
   }
 

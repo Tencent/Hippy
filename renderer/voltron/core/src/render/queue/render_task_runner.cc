@@ -127,19 +127,33 @@ void VoltronRenderTaskRunner::RunUpdateLayout(uint32_t root_id, const SpList<Dom
   }
 }
 
-void VoltronRenderTaskRunner::RunMoveDomNode(uint32_t root_id, std::vector<int32_t> &&ids,
-                                             int32_t pid, int32_t id) {
+void VoltronRenderTaskRunner::RunRecombineDomNode(uint32_t root_id, std::vector<int32_t> &&move_ids,
+                                                  int32_t from_pid, int32_t to_pid, int32_t index) {
+  FOOTSTONE_DLOG(INFO) << "RunRecombineDomNode id";
   auto args_map = EncodableMap();
-  if (!ids.empty()) {
+  if (!move_ids.empty()) {
     auto id_list = EncodableList();
-    for (const auto &item_id: ids) {
+    for (const auto &item_id: move_ids) {
       id_list.emplace_back(item_id);
     }
     args_map[EncodableValue(kMoveIdListKey)] = id_list;
   }
-  args_map[EncodableValue(kMovePidKey)] = EncodableValue(pid);
+  args_map[EncodableValue(kMovePidKey)] = EncodableValue(from_pid);
+  args_map[EncodableValue(kMoveIndexKey)] = EncodableValue(index);
   auto update_task = std::make_shared<RenderTask>(
-      VoltronRenderOpType::MOVE_NODE, id, args_map);
+    VoltronRenderOpType::RECOMBINE_NODE, to_pid, args_map);
+  queue(root_id)->ProduceRenderOp(update_task);
+}
+
+void VoltronRenderTaskRunner::RunMoveDomNode(uint32_t root_id, const Sp<DomNode> &node) {
+  FOOTSTONE_DLOG(INFO) << "RunMoveDomNode id" << node->GetId();
+  auto args_map = EncodableMap();
+  auto render_info = node->GetRenderInfo();
+  args_map[EncodableValue(kNodeIdKey)] = EncodableValue(render_info.id);
+  args_map[EncodableValue(kParentNodeIdKey)] = EncodableValue(render_info.pid);
+  args_map[EncodableValue(kChildIndexKey)] = EncodableValue(render_info.index);
+  auto update_task = std::make_shared<RenderTask>(
+    VoltronRenderOpType::MOVE_NODE, node->GetId(), args_map);
   queue(root_id)->ProduceRenderOp(update_task);
 }
 

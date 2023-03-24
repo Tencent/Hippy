@@ -75,13 +75,12 @@ public class ArrayUtils {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
     @Nullable
-    public static Map<String, Object> getMapValue(@NonNull List<?> params, int index) {
+    public static Map getMapValue(@NonNull List<?> params, int index) {
         if (index < params.size()) {
             Object element = params.get(index);
             if (element instanceof Map) {
-                return ((Map<String, Object>) element);
+                return ((Map) element);
             }
         }
         return null;

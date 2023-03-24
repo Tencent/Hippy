@@ -165,7 +165,8 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)refreshItemNodes {
-    [self.dataSource setDataSource:self.nativeRenderObjectView.subcomponents containBannerView:NO];
+    NSArray<NativeRenderObjectView *> *datasource = self.nativeRenderObjectView.subcomponents;
+    [self.dataSource setDataSource:datasource containBannerView:NO];
 }
 
 #pragma mark -Scrollable
@@ -316,6 +317,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     HPAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of NativeRenderBaseListViewCell must conform to protocol ViewAppearStateProtocol");
     hpCell.cellView = cellView;
+    cellView.parentComponent = self;
     [_weakItemMap setObject:cellView forKey:[cellView componentTag]];
 }
 

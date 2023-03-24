@@ -37,8 +37,11 @@ abstract class VirtualNode with StyleMethodPropConsumer {
   // 手势事件相关
   late NativeGestureDispatcher nativeGestureDispatcher;
 
-  List<VirtualNode> mChildren = [];
-  VirtualNode? mParent;
+  List<VirtualNode> _children = [];
+  VirtualNode? _parent;
+
+  VirtualNode? get parent => _parent;
+
   bool dirty = false;
 
   VirtualNode(this.rootId, this.id, this.pid, this.index, this._renderContext) {
@@ -46,23 +49,30 @@ abstract class VirtualNode with StyleMethodPropConsumer {
         NativeGestureDispatcher(rootId: rootId, id: id, context: _renderContext);
   }
 
+  void resetChildIndex(VirtualNode child, int index) {
+    if (_children.contains(child)) {
+      removeChild(child);
+      addChildAt(child, index);
+    }
+  }
+
   void removeChild(VirtualNode child) {
-    mChildren.remove(child);
+    _children.remove(child);
   }
 
   void addChildAt(VirtualNode child, int index) {
-    if (child.mParent != null) {
+    if (child._parent != null) {
       return;
     }
-    mChildren.insert(index, child);
-    child.mParent = this;
+    _children.insert(index, child);
+    child._parent = this;
   }
 
   VirtualNode? getChildAt(int index) {
-    return mChildren[index];
+    return _children[index];
   }
 
-  int get childCount => mChildren.length;
+  int get childCount => _children.length;
 
   void setGestureType(GestureType type, bool flag) {
     if (flag) {
@@ -73,7 +83,7 @@ abstract class VirtualNode with StyleMethodPropConsumer {
   }
 
   void markDirty() {
-    mParent?.markDirty();
+    _parent?.markDirty();
     dirty = true;
   }
 
@@ -113,22 +123,24 @@ abstract class VirtualNode with StyleMethodPropConsumer {
 class VirtualNodeManager {
   final String tag = 'VirtualNodeManager';
 
-  Map<int, VirtualNode> mVirtualNodes = {};
+  Map<int, VirtualNode> _virtualNodes = {};
 
-  List<int> mUpdateNodes = [];
+  Map<int, VirtualNode> get virtualNodes => _virtualNodes;
+
+  List<int> _updateNodeIdList = [];
 
   RenderContext context;
 
   VirtualNodeManager(this.context);
 
   bool hasVirtualParent(int id) {
-    VirtualNode? node = mVirtualNodes[id];
-    return node != null && node.mParent != null;
+    VirtualNode? node = _virtualNodes[id];
+    return node != null && node._parent != null;
   }
 
   TextExtra? updateLayout(int id, double width, List<dynamic> layoutNode) {
-    VirtualNode? node = mVirtualNodes[id];
-    if (node is! TextVirtualNode || node.mParent != null) {
+    VirtualNode? node = _virtualNodes[id];
+    if (node is! TextVirtualNode || node._parent != null) {
       return null;
     }
     double leftPadding = 0.0;
@@ -168,7 +180,7 @@ class VirtualNodeManager {
       className,
       props,
     );
-    VirtualNode? parent = mVirtualNodes[pid];
+    VirtualNode? parent = _virtualNodes[pid];
     // // Only text or text child need to create virtual node.
     if (className == NodeProps.kTextClassName) {
       node = TextVirtualNode(rootId, id, pid, index, context);
@@ -183,8 +195,8 @@ class VirtualNodeManager {
     if (node == null) {
       return;
     }
-    mVirtualNodes[id] = node;
-    VirtualNode? parent = mVirtualNodes[pid];
+    _virtualNodes[id] = node;
+    VirtualNode? parent = _virtualNodes[pid];
     if (parent != null) {
       parent.addChildAt(node, index);
     }
@@ -192,39 +204,47 @@ class VirtualNodeManager {
   }
 
   void updateNode(int id, VoltronMap props) {
-    VirtualNode? node = mVirtualNodes[id];
+    VirtualNode? node = _virtualNodes[id];
     if (node != null) {
       updateProps(node, props, true);
-      if (node.mParent == null) {
-        if (!mUpdateNodes.contains(id)) {
-          mUpdateNodes.add(id);
+      if (node._parent == null) {
+        if (!_updateNodeIdList.contains(id)) {
+          _updateNodeIdList.add(id);
         }
       }
     }
   }
 
   void deleteNode(int id) {
-    VirtualNode? node = mVirtualNodes[id];
+    VirtualNode? node = _virtualNodes[id];
     if (node == null) {
       return;
     }
     node.onDelete();
-    node.mParent?.removeChild(node);
-    node.mParent = null;
-    for (var child in node.mChildren) {
+    node._parent?.removeChild(node);
+    node._parent = null;
+    for (var child in node._children) {
       deleteNode(child.id);
     }
-    node.mChildren.clear();
-    mVirtualNodes.remove(id);
+    node._children.clear();
+    _virtualNodes.remove(id);
+  }
+
+  void moveNode(int nodeId, VirtualNode parentNode, int index) {
+    VirtualNode? child = _virtualNodes[nodeId];
+    if (child != null) {
+      parentNode.resetChildIndex(child, index);
+      _updateNodeIdList.add(parentNode.id);
+    }
   }
 
   Map<int, TextData>? endBatch() {
     Map<int, TextData> textDataMap = {};
-    if (mUpdateNodes.isEmpty) {
+    if (_updateNodeIdList.isEmpty) {
       return null;
     }
-    for (var id in mUpdateNodes) {
-      VirtualNode? node = mVirtualNodes[id];
+    for (var id in _updateNodeIdList) {
+      VirtualNode? node = _virtualNodes[id];
       if (node is TextVirtualNode) {
         // If the node has been updated, but there is no updateLayout call from native(C++)
         // render manager, we should renew the layout on end batch and update to render node.
@@ -262,7 +282,7 @@ class VirtualNodeManager {
   }
 
   void addEvent(int rootId, int id, String eventName) {
-    VirtualNode? node = mVirtualNodes[id];
+    VirtualNode? node = _virtualNodes[id];
     if (node == null) {
       return;
     }
@@ -270,7 +290,7 @@ class VirtualNodeManager {
   }
 
   void removeEvent(int rootId, int id, String eventName) {
-    VirtualNode? node = mVirtualNodes[id];
+    VirtualNode? node = _virtualNodes[id];
     if (node == null) {
       return;
     }
@@ -281,7 +301,7 @@ class VirtualNodeManager {
     TextPainter? painter;
     var exception = false;
 
-    var virtualNode = mVirtualNodes[nodeId];
+    var virtualNode = _virtualNodes[nodeId];
     if (virtualNode is TextVirtualNode) {
       try {
         painter = virtualNode.createPainter(

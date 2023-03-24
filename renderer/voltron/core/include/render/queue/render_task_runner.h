@@ -44,7 +44,8 @@ public:
   void RunDeleteDomNode(uint32_t root_id, const Sp<DomNode> &node);
   void RunUpdateDomNode(uint32_t root_id, const Sp<DomNode> &node);
   void RunUpdateLayout(uint32_t root_id, const SpList<DomNode> &nodes);
-  void RunMoveDomNode(uint32_t root_id, std::vector<int32_t> &&ids, int32_t pid, int32_t id);
+  void RunRecombineDomNode(uint32_t root_id, std::vector<int32_t> &&move_ids, int32_t from_pid, int32_t to_pid, int32_t index);
+  void RunMoveDomNode(uint32_t root_id, const Sp<DomNode> &node);
   void RunBatch(uint32_t root_id);
   void RunLayoutBefore(uint32_t root_id);
   void RunLayoutFinish(uint32_t root_id);
