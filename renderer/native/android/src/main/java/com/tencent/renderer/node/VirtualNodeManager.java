@@ -364,6 +364,7 @@ public class VirtualNodeManager {
                 VirtualNode child = getVirtualNode(rootId, nodeId);
                 if (child != null) {
                     parent.resetChildIndex(child, index);
+                    child.markDirty();
                 }
             } catch (NullPointerException e) {
                 LogUtils.w(TAG, "moveNode: " + e.getMessage());
