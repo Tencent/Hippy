@@ -261,6 +261,7 @@ jobs:
         Invoke-WebRequest -OutFile depot_tools.zip https://storage.googleapis.com/chrome-infra/depot_tools.zip
         Expand-Archive depot_tools.zip -DestinationPath C:\depot_tools
         rm depot_tools.zip
+        choco install ninja
     - name: Checkout v8
       run: |
         $env:DEPOT_TOOLS_WIN_TOOLCHAIN = 0
