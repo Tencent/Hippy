@@ -74,6 +74,8 @@ class RootNode : public DomNode {
   }
 
  private:
+  static void MarkLayoutNodeDirty(const std::vector<std::shared_ptr<DomNode>>& nodes);
+
   struct DomOperation {
     enum class Op {
       kOpCreate, kOpUpdate, kOpDelete, kOpMove
