@@ -446,7 +446,6 @@ static const NSTimeInterval delayForPurgeView = 3.0f;
             [scrollViewListener scrollViewDidScroll:scrollView];
         }
     }
-    //TODO cancel timer when component is removed from hippy view
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
     [self performSelector:@selector(purgeFurthestIndexPathsFromScreen) withObject:nil afterDelay:delayForPurgeView];
     [_headerRefreshView scrollViewDidScroll];
