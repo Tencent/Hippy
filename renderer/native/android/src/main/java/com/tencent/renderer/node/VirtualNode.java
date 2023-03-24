@@ -92,11 +92,18 @@ public abstract class VirtualNode {
         mDirty = true;
     }
 
-    public void removeChild(@NonNull VirtualNode child) {
-        if (mChildren == null) {
-            return;
+    public void resetChildIndex(@NonNull VirtualNode child, int index) {
+        if (mChildren.contains(child)) {
+            removeChild(child);
+            addChildAt(child, index);
         }
-        mChildren.remove(child);
+    }
+
+    public void removeChild(@NonNull VirtualNode child) {
+        if (mChildren != null) {
+            mChildren.remove(child);
+            child.mParent = null;
+        }
     }
 
     public void addChildAt(@NonNull VirtualNode child, int index) {

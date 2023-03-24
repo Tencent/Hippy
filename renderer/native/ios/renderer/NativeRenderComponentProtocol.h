@@ -43,12 +43,13 @@ typedef void (^NativeRenderDirectEventBlock)(NSDictionary *body);
 @property(nonatomic, strong) NSNumber *componentTag;
 @property (nonatomic, strong) NSNumber *rootTag;
 @property (nonatomic, copy) NSString *tagName;
+@property(nonatomic, readwrite)__kindof id<NativeRenderComponentProtocol> parentComponent;
 
 - (NSArray<__kindof id<NativeRenderComponentProtocol>> *)subcomponents;
-- (__kindof id<NativeRenderComponentProtocol>)parentComponent;
 
 - (void)insertNativeRenderSubview:(id<NativeRenderComponentProtocol>)subview atIndex:(NSInteger)atIndex;
 - (void)removeNativeRenderSubview:(id<NativeRenderComponentProtocol>)subview;
+- (void)moveNativeRenderSubview:(id<NativeRenderComponentProtocol>)subview toIndex:(NSInteger)atIndex;
 - (void)removeFromNativeRenderSuperview;
 - (void)nativeRenderSetFrame:(CGRect)frame;
 - (NSNumber *)componentTagAtPoint:(CGPoint)point;

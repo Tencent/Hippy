@@ -88,10 +88,10 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
      * This specific ID is used to identify the root view of snapshot restore
      */
     public static final int SCREEN_SNAPSHOT_ROOT_ID = 1000;
+    public static final String NODE_ID = "id";
+    public static final String NODE_INDEX = "index";
     private static final String TAG = "NativeRenderer";
-    private static final String NODE_ID = "id";
     private static final String NODE_PID = "pId";
-    private static final String NODE_INDEX = "index";
     private static final String NODE_PROPS = "props";
     private static final String CLASS_NAME = "name";
     private static final String LAYOUT_LEFT = "left";
@@ -460,11 +460,13 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                                 + nodeIndex);
             }
             final int id = nodeId;
+            final int index = nodeIndex;
             element = node.get(NODE_PROPS);
             final Map<String, Object> props =
                     (element instanceof HashMap) ? (Map) element : new HashMap<String, Object>();
-            LogUtils.i(TAG, "createNode rootId " + rootId + ", nodeId " + nodeId + ", nodePid " + nodePid
-                            + ", nodeIndex " + nodeIndex + ", className " + className + ", props " + props);
+            LogUtils.i(TAG, "createNode nodeId " + nodeId + ", nodePid " + nodePid + ", nodeIndex "
+                    + nodeIndex + ", className " + className);
+            LogUtils.i(TAG, "props " + props);
             mVirtualNodeManager.createNode(rootId, nodeId, nodePid, nodeIndex, className, props);
             // If multiple level are nested, the parent is outermost text node.
             VirtualNode parent = mVirtualNodeManager.checkVirtualParent(rootId, nodeId);
@@ -483,12 +485,11 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 createNodeTaskList.add(new UITaskExecutor() {
                     @Override
                     public void exec() {
-                        mRenderManager.onVirtualNodeUpdated(rootId, id, pid, node);
+                        mRenderManager.onCreateVirtualNode(rootId, id, pid, index, node);
                     }
                 });
             } else {
                 final int pid = nodePid;
-                final int index = nodeIndex;
                 final String name = className;
                 createNodeTaskList.add(new UITaskExecutor() {
                     @Override
@@ -551,7 +552,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             element = node.get(NODE_PROPS);
             final Map<String, Object> props =
                     (element instanceof HashMap) ? (Map) element : new HashMap<String, Object>();
-            LogUtils.i(TAG, "updateNode rootId " + rootId + ", nodeId " + nodeId + ", props " + props);
+            LogUtils.i(TAG,
+                    "updateNode nodeId " + nodeId + ", props " + props);
             mVirtualNodeManager.updateNode(rootId, nodeId, props);
             // If multiple level are nested, the parent is outermost text node.
             VirtualNode parent = mVirtualNodeManager.checkVirtualParent(rootId, nodeId);
@@ -560,7 +562,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 taskList.add(new UITaskExecutor() {
                     @Override
                     public void exec() {
-                        mRenderManager.onVirtualNodeUpdated(rootId, id, pid, node);
+                        mRenderManager.onUpdateVirtualNode(rootId, id, pid, node);
                     }
                 });
             } else {
@@ -595,7 +597,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 taskList.add(new UITaskExecutor() {
                     @Override
                     public void exec() {
-                        mRenderManager.onVirtualNodeDeleted(rootId, nodeId, pid);
+                        mRenderManager.onDeleteVirtualNode(rootId, nodeId, pid);
                     }
                 });
             } else {
@@ -613,14 +615,36 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
-    public void moveNode(final int rootId, final int[] ids, final int newPid, final int oldPid)
-            throws NativeRenderException {
+    public void moveNode(final int rootId, final int[] ids, final int newPid, final int oldPid,
+            final int insertIndex) throws NativeRenderException {
         addUITask(new UITaskExecutor() {
             @Override
             public void exec() {
-                mRenderManager.moveNode(rootId, ids, newPid, oldPid);
+                mRenderManager.moveNode(rootId, ids, newPid, oldPid, insertIndex);
             }
         });
+    }
+
+    @Override
+    public void moveNode(final int rootId, final int pid, @NonNull final List<Object> list) {
+        LogUtils.i(TAG, "moveNode pid " + pid + ", node list " + list);
+        VirtualNode parent = mVirtualNodeManager.getVirtualNode(rootId, pid);
+        if (parent == null) {
+            addUITask(new UITaskExecutor() {
+                @Override
+                public void exec() {
+                    mRenderManager.moveNode(rootId, pid, list);
+                }
+            });
+        } else {
+            mVirtualNodeManager.moveNode(rootId, parent, list);
+            addUITask(new UITaskExecutor() {
+                @Override
+                public void exec() {
+                    mRenderManager.onMoveVirtualNode(rootId, pid, list);
+                }
+            });
+        }
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -1045,7 +1069,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         Map<String, Object> nodeInfo = new HashMap<>();
         nodeInfo.put(NODE_ID, child.getId());
         nodeInfo.put(NODE_PID, pid);
-        nodeInfo.put(NODE_INDEX, child.getIndex());
+        nodeInfo.put(NODE_INDEX, child.indexFromParent());
         nodeInfo.put(CLASS_NAME, child.getClassName());
         nodeInfo.put(NODE_PROPS, child.getProps());
         nodeInfoList.add(nodeInfo);

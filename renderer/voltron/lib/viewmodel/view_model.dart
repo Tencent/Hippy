@@ -418,7 +418,9 @@ class RenderViewModel extends ChangeNotifier {
 
   void requestFocus(bool focusable) {}
 
-  void sortChildren() {}
+  void sortChildrenZIndex() {}
+
+  void sortChildrenIndex(List<int> idIndexList) {}
 
   void setClickable(bool flag) {
     if (!handleGestureBySelf()) {

@@ -81,17 +81,21 @@ void NativeRenderManager::UpdateLayout(std::weak_ptr<hippy::RootNode> root_node,
 void NativeRenderManager::MoveRenderNode(std::weak_ptr<hippy::RootNode> root_node,
                                          std::vector<int32_t>&& moved_ids,
                                          int32_t from_pid,
-                                         int32_t to_pid) {
+                                         int32_t to_pid,
+                                         int32_t index) {
     @autoreleasepool {
-        [renderImpl_ renderMoveViews:std::move(moved_ids) fromContainer:from_pid toContainer:to_pid onRootNode:root_node];
+        [renderImpl_ renderMoveViews:std::move(moved_ids)
+                       fromContainer:from_pid
+                         toContainer:to_pid
+                               index:index
+                          onRootNode:root_node];
     }
 }
 
 void NativeRenderManager::MoveRenderNode(std::weak_ptr<hippy::RootNode> root_node,
                                          std::vector<std::shared_ptr<DomNode>>&& nodes) {
-    //TODO implement it
     @autoreleasepool {
-        NSCAssert(NO, @"implement it, how to move nodes");
+        [renderImpl_ renderMoveNodes:std::move(nodes) onRootNode:root_node];
     }
 }
 

@@ -258,6 +258,13 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     [self dirtyPropagation];
 }
 
+- (void)moveNativeRenderSubview:(id<NativeRenderComponentProtocol>)subview toIndex:(NSInteger)atIndex {
+    if ([_objectSubviews containsObject:subview]) {
+        [_objectSubviews removeObject:subview];
+    }
+    [self insertNativeRenderSubview:subview atIndex:atIndex];
+}
+
 - (void)removeNativeRenderSubview:(NativeRenderObjectView *)subview {
     [subview dirtyText];
     [subview dirtyPropagation];
@@ -277,6 +284,10 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 
 - (NativeRenderObjectView *)parentComponent {
     return _superview;
+}
+
+- (void)setParentComponent:(__kindof id<NativeRenderComponentProtocol>)parentComponent {
+    _superview = parentComponent;
 }
 
 - (NSNumber *)componentTagAtPoint:(CGPoint)point {

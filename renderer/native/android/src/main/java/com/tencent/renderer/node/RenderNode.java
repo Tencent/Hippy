@@ -72,7 +72,6 @@ public class RenderNode {
     protected int mY;
     protected int mWidth;
     protected int mHeight;
-    protected int mIndex;
     protected final int mId;
     protected final int mRootId;
     protected final String mClassName;
@@ -202,19 +201,8 @@ public class RenderNode {
         return mHeight;
     }
 
-    public int getIndex() {
-        return mIndex;
-    }
-
-    public void setIndex(int index) {
-        mIndex = index;
-    }
-
-    protected int indexFromParent() {
-        if (mParent != null) {
-            return mParent.mChildren.indexOf(this);
-        }
-        return 0;
+    public int indexFromParent() {
+        return (mParent != null) ? mParent.mChildren.indexOf(this) : 0;
     }
 
     protected boolean isRoot() {
@@ -229,12 +217,23 @@ public class RenderNode {
         }
     }
 
+    public void resetChildIndex(RenderNode child, int index) {
+        if (mChildren.contains(child)) {
+            removeChild(child);
+            addChild(child, index);
+        }
+    }
+
     public boolean removeChild(@Nullable RenderNode node) {
         if (node != null) {
             node.mParent = null;
             return mChildren.remove(node);
         }
         return false;
+    }
+
+    public void addChild(@NonNull RenderNode node) {
+        addChild(node, mChildren.size());
     }
 
     public void addChild(@NonNull RenderNode node, int index) {
