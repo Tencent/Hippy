@@ -198,6 +198,12 @@ public class ControllerManager {
         return mControllerRegistry.getView(rootId, id);
     }
 
+    public void addView(int rootId, @NonNull View view) {
+        if (findView(rootId, view.getId()) == null) {
+            mControllerRegistry.addView(view, rootId, view.getId());
+        }
+    }
+
     public boolean hasView(int rootId, int id) {
         return findView(rootId, id) != null;
     }
@@ -362,19 +368,19 @@ public class ControllerManager {
         if (view == null) {
             return;
         }
-        if (view.getParent() != null) {
-            ViewGroup oldParent = (ViewGroup) view.getParent();
-            oldParent.removeView(view);
+        ViewParent oldParent = view.getParent();
+        if (oldParent instanceof ViewGroup) {
+            ((ViewGroup) oldParent).removeView(view);
         }
-        ViewGroup newParent = (ViewGroup) mControllerRegistry.getView(rootId, newPid);
-        if (newParent != null) {
+        View newParent = mControllerRegistry.getView(rootId, newPid);
+        if (newParent instanceof ViewGroup) {
             String className = NativeViewTag.getClassName(newParent);
             HippyViewController<?> controller = null;
             if (className != null) {
                 controller = mControllerRegistry.getViewController(className);
             }
             if (controller != null) {
-                controller.addView(newParent, view, index);
+                controller.addView((ViewGroup) newParent, view, index);
             }
         }
     }

@@ -381,6 +381,7 @@ static const NSTimeInterval delayForPurgeView = 3.0f;
         [_cachedItems removeObjectForKey:indexPath];
     }
     hpCell.cellView = cellView;
+    cellView.parentComponent = self;
     [_weakItemMap setObject:cellView forKey:[cellView componentTag]];
 }
 

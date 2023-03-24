@@ -102,7 +102,12 @@ class GroupViewModel extends RenderViewModel {
   }
 
   @override
-  void sortChildren() {
+  void sortChildrenIndex (List<int> idIndexList) {
+    children.sort((a, b) => idIndexList.indexOf(a.id).compareTo(idIndexList.indexOf(b.id)));
+  }
+
+  @override
+  void sortChildrenZIndex() {
     // 根据zIndex排序
     _sortedIdList = [];
     if (_children.length > 1) {

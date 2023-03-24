@@ -16,6 +16,8 @@
 
 package com.tencent.mtt.hippy.uimanager;
 
+import static com.tencent.renderer.NativeRenderer.NODE_ID;
+import static com.tencent.renderer.NativeRenderer.NODE_INDEX;
 import static com.tencent.renderer.node.RenderNode.FLAG_ALREADY_DELETED;
 import static com.tencent.renderer.node.RenderNode.FLAG_LAZY_LOAD;
 import static com.tencent.renderer.node.RenderNode.FLAG_UPDATE_TOTAL_PROPS;
@@ -28,6 +30,8 @@ import com.openhippy.pool.BasePool.PoolType;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.Renderer;
+import com.tencent.renderer.node.ListItemRenderNode;
+import com.tencent.renderer.node.ListViewRenderNode;
 import com.tencent.renderer.node.RootRenderNode;
 import com.tencent.renderer.node.VirtualNode;
 import com.tencent.renderer.node.TextRenderNode;
@@ -43,6 +47,7 @@ import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.Map;
+import java.util.Objects;
 
 public class RenderManager {
 
@@ -103,18 +108,33 @@ public class RenderManager {
         }
     }
 
-    public void onVirtualNodeUpdated(int rootId, int id, int pid,
+    public void onCreateVirtualNode(int rootId, int id, int pid, int index,
             @NonNull Map<String, Object> childInfo) {
         RenderNode parentNode = getRenderNode(rootId, pid);
         if (parentNode instanceof TextRenderNode) {
-            ((TextRenderNode) parentNode).onVirtualChildUpdated(id, childInfo);
+            ((TextRenderNode) parentNode).onCreateVirtualChild(id, index, childInfo);
         }
     }
 
-    public void onVirtualNodeDeleted(int rootId, int id, int pid) {
+    public void onUpdateVirtualNode(int rootId, int id, int pid,
+            @NonNull Map<String, Object> childInfo) {
         RenderNode parentNode = getRenderNode(rootId, pid);
         if (parentNode instanceof TextRenderNode) {
-            ((TextRenderNode) parentNode).onVirtualChildDeleted(id);
+            ((TextRenderNode) parentNode).onUpdateVirtualChild(id, childInfo);
+        }
+    }
+
+    public void onDeleteVirtualNode(int rootId, int id, int pid) {
+        RenderNode parentNode = getRenderNode(rootId, pid);
+        if (parentNode instanceof TextRenderNode) {
+            ((TextRenderNode) parentNode).onDeleteVirtualChild(id);
+        }
+    }
+
+    public void onMoveVirtualNode(int rootId, int pid, @NonNull List<Object> list) {
+        RenderNode parentNode = getRenderNode(rootId, pid);
+        if (parentNode instanceof TextRenderNode) {
+            ((TextRenderNode) parentNode).onMoveVirtualChild(list);
         }
     }
 
@@ -137,7 +157,6 @@ public class RenderManager {
         // New created node should use total props, therefore set this flag for
         // update node not need to diff props in this batch cycle.
         node.setNodeFlag(FLAG_UPDATE_TOTAL_PROPS);
-        node.setIndex(index);
         rootNode.addRenderNode(node);
         parentNode.addChild(node, index);
         addUpdateNodeIfNeeded(rootId, parentNode);
@@ -179,20 +198,58 @@ public class RenderManager {
         }
     }
 
-    public void moveNode(int rootId, int[] ids, int newPid, int oldPid) {
+    public void moveNode(int rootId, int pid, @NonNull List<Object> list) {
+        RenderNode parent = getRenderNode(rootId, pid);
+        if (parent == null) {
+            LogUtils.w(TAG, "moveNode: get parent failed!");
+            return;
+        }
+        List<RenderNode> moveNodes = null;
+        for (int i = 0; i < list.size(); i++) {
+            try {
+                final Map node = (Map) list.get(i);
+                int nodeId = ((Number) Objects.requireNonNull(node.get(NODE_ID))).intValue();
+                int index = ((Number) Objects.requireNonNull(node.get(NODE_INDEX))).intValue();
+                RenderNode child = getRenderNode(rootId, nodeId);
+                if (child == null) {
+                    continue;
+                }
+                if (child instanceof ListItemRenderNode) {
+                    parent.addDeleteChild(child);
+                    parent.deleteSubviewIfNeeded();
+                    child.setLazy(true);
+                    child.setHostView(null);
+                } else {
+                    if (moveNodes == null) {
+                        moveNodes = new ArrayList<>();
+                    }
+                    moveNodes.add(child);
+                }
+                parent.resetChildIndex(child, index);
+            } catch (Exception e) {
+                LogUtils.w(TAG, "moveNode: " + e.getMessage());
+            }
+        }
+        if (moveNodes != null) {
+            parent.addMoveNodes(moveNodes);
+        }
+        addUpdateNodeIfNeeded(rootId, parent);
+    }
+
+    public void moveNode(int rootId, int[] ids, int newPid, int oldPid, int insertIndex) {
         RenderNode oldParent = getRenderNode(rootId, oldPid);
         RenderNode newParent = getRenderNode(rootId, newPid);
         if (oldParent == null || newParent == null) {
             LogUtils.w(TAG, "moveNode: oldParent=" + oldParent + ", newParent=" + newParent);
             return;
         }
-        List<RenderNode> moveNodes = new ArrayList<>();
+        List<RenderNode> moveNodes = new ArrayList<>(ids.length);
         for (int i = 0; i < ids.length; i++) {
             RenderNode node = getRenderNode(rootId, ids[i]);
             if (node != null) {
                 moveNodes.add(node);
                 oldParent.removeChild(node);
-                newParent.addChild(node, i);
+                newParent.addChild(node, (i + insertIndex));
             }
         }
         newParent.addMoveNodes(moveNodes);
@@ -244,6 +301,9 @@ public class RenderManager {
         // Should do update after all views created
         for (RenderNode node : updateNodes) {
             node.mountHostView();
+        }
+        // Should do batch complete at end
+        for (RenderNode node : updateNodes) {
             node.batchComplete();
         }
         mControllerManager.onBatchEnd(rootId);

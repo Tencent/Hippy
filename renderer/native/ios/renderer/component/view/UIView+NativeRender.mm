@@ -98,7 +98,18 @@
 }
 
 - (UIView *)parentComponent {
-    return self.superview;
+    return [objc_getAssociatedObject(self, _cmd) anyObject];
+}
+
+- (void)setParentComponent:(__kindof id<NativeRenderComponentProtocol>)parentComponent {
+    if (parentComponent) {
+        NSHashTable *hashTable = [NSHashTable weakObjectsHashTable];
+        [hashTable addObject:parentComponent];
+        objc_setAssociatedObject(self, @selector(parentComponent), hashTable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    else {
+        objc_setAssociatedObject(self, @selector(parentComponent), nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
 }
 
 - (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex {
@@ -119,6 +130,21 @@
     else {
         [subviews addObject:subview];
     }
+    subview.parentComponent = self;
+}
+
+- (void)moveNativeRenderSubview:(UIView *)subview toIndex:(NSInteger)atIndex {
+    if (nil == subview) {
+        return;
+    }
+    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(subcomponents));
+    if (!subviews) {
+        return;
+    }
+    if ([subviews containsObject:subview]) {
+        [subviews removeObject:subview];
+    }
+    [self insertNativeRenderSubview:subview atIndex:atIndex];
 }
 
 - (void)removeNativeRenderSubview:(UIView *)subview {
@@ -128,6 +154,7 @@
     [subviews removeObject:subview];
     [subview sendDetachedFromWindowEvent];
     [subview removeFromSuperview];
+    subview.parentComponent = nil;
 }
 
 - (void)removeFromNativeRenderSuperview {

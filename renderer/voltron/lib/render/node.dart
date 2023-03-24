@@ -330,6 +330,16 @@ class RenderNode extends StyleNode {
     _childrenPendingList.add(renderNode);
   }
 
+  void moveChild(RenderNode? node, int index) {
+    if (node != null) {
+      _notifyManageChildren = true;
+      if (_children.contains(node)) {
+        _children.remove(node);
+        _children.insert(index, node);
+      }
+    }
+  }
+
   void removeChild(RenderNode? node, {bool needRemoveChild = true}) {
     if (node != null) {
       _notifyManageChildren = true;
@@ -395,9 +405,13 @@ class RenderNode extends StyleNode {
           }
         }
         _moveHolders.clear();
+        final idIndexList = this.children.map((e) => e.id).toList();
+        /// 元素排序
+        _viewModel?.sortChildrenIndex(idIndexList);
       }
+      /// 元素ZIndex排序
+      _viewModel?.sortChildrenZIndex();
 
-      _viewModel?.sortChildren();
 
       LogUtils.dRenderNode(
         "ID:$id, update style, update layout start, hasUpdateLayout:$_hasUpdateLayout",

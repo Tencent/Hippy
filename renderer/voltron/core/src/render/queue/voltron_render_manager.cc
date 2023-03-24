@@ -118,15 +118,16 @@ void VoltronRenderManager::DeleteRenderNode(
 }
 
 void VoltronRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
-                                          std::vector<int32_t> &&ids,
-                                          int32_t pid,
-                                          int32_t id) {
+                                          std::vector<int32_t> &&move_ids,
+                                          int32_t from_pid,
+                                          int32_t to_pid,
+                                          int32_t index) {
   auto root_node_ptr = root_node.lock();
   if (!root_node_ptr) {
     return;
   }
   auto root_id = root_node_ptr->GetId();
-  RunMoveDomNode(root_id, std::move(ids), pid, id);
+  RunRecombineDomNode(root_id, std::move(move_ids), from_pid, to_pid, index);
 }
 
 void VoltronRenderManager::UpdateLayout(
@@ -211,8 +212,14 @@ void VoltronRenderManager::RemoveEventListener(std::weak_ptr<RootNode> root_node
 
 void VoltronRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
                                           std::vector<std::shared_ptr<DomNode>> &&nodes) {
-  // todo 待实现move node
-  FOOTSTONE_UNREACHABLE();
+  auto root_node_ptr = root_node.lock();
+  if (!root_node_ptr) {
+    return;
+  }
+  auto root_id = root_node_ptr->GetId();
+  for (const auto &node: nodes) {
+    RunMoveDomNode(root_id, node);
+  }
 }
 
 } // namespace voltron
