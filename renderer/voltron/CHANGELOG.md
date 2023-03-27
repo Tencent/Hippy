@@ -1,3 +1,7 @@
+## 0.0.11
+
+- support moving nodes for voltron
+
 ## 0.0.10
 
 - support multiple flutter engines
