@@ -30,6 +30,7 @@
 #include "dom/dom_event.h"
 #include "driver/napi/v8/v8_ctx.h"
 #include "driver/napi/v8/v8_ctx_value.h"
+#include "driver/napi/v8/v8_try_catch.h"
 
 using string_view = footstone::string_view;
 using Ctx = hippy::napi::Ctx;
@@ -106,6 +107,32 @@ V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param) : VM(param) {
   FOOTSTONE_DLOG(INFO) << "V8VM end";
 }
 
+constexpr static int kScopeWrapperIndex = 5;
+
+
+static void UncaughtExceptionMessageCallback(v8::Local<v8::Message> message, v8::Local<v8::Value> data) {
+  auto isolate = message->GetIsolate();
+  v8::HandleScope handle_scope(isolate);
+  auto context = isolate->GetCurrentContext();
+  v8::Context::Scope context_scope(context);
+  CallbackInfo cb_info;
+  cb_info.SetSlot(context->GetAlignedPointerFromEmbedderData(kScopeWrapperIndex));
+  auto error = v8::Exception::Error(message->Get());
+  cb_info.AddValue(std::make_shared<V8CtxValue>(isolate, error));
+  auto external = data.As<v8::External>();
+  FOOTSTONE_CHECK(!external.IsEmpty());
+  auto* func_wrapper = reinterpret_cast<FunctionWrapper*>(external->Value());
+  FOOTSTONE_CHECK(func_wrapper && func_wrapper->cb);
+  (func_wrapper->cb)(cb_info, func_wrapper->data);
+}
+
+void V8VM::AddUncaughtExceptionMessageListener(const std::unique_ptr<FunctionWrapper>& wrapper) const {
+  FOOTSTONE_CHECK(!wrapper->data) << "Snapshot requires the parameter data to be nullptr or the address can be determined during compilation";
+  v8::HandleScope handle_scope(isolate_);
+  isolate_->AddMessageListener(UncaughtExceptionMessageCallback,
+                               v8::External::New(isolate_, wrapper.get()));
+}
+
 V8VM::~V8VM() {
   FOOTSTONE_LOG(INFO) << "~V8VM";
   isolate_->Exit();
@@ -132,9 +159,14 @@ std::shared_ptr<Ctx> V8VM::CreateContext() {
   return std::make_shared<V8Ctx>(isolate_);
 }
 
-string_view V8VM::ToStringView(v8::Isolate* isolate, v8::Local<v8::String> str) {
+string_view V8VM::ToStringView(v8::Isolate* isolate,
+                               v8::Local<v8::Context> context,
+                               v8::Local<v8::String> str) {
   FOOTSTONE_DCHECK(!str.IsEmpty());
-  v8::String* v8_string = v8::String::Cast(*str);
+  v8::HandleScope handle_scope(isolate);
+  v8::Context::Scope context_scope(context);
+
+  auto v8_string = v8::String::Cast(*str);
   auto len = footstone::checked_numeric_cast<int, size_t>(v8_string->Length());
   if (v8_string->IsOneByte()) {
     std::string one_byte_string;
@@ -149,36 +181,105 @@ string_view V8VM::ToStringView(v8::Isolate* isolate, v8::Local<v8::String> str) 
   return string_view(two_byte_string);
 }
 
-v8::Local<v8::String> V8VM::CreateV8String(v8::Isolate* isolate, const string_view& str_view) {
+v8::Local<v8::String> V8VM::CreateV8String(v8::Isolate* isolate,
+                                           v8::Local<v8::Context> context,
+                                           const string_view& str_view) {
+  v8::EscapableHandleScope handle_scope(isolate);
+  v8::Context::Scope context_scope(context);
+
   string_view::Encoding encoding = str_view.encoding();
   switch (encoding) {
     case string_view::Encoding::Latin1: {
       const std::string& one_byte_str = str_view.latin1_value();
-      return v8::String::NewFromOneByte(
+      return handle_scope.Escape(v8::String::NewFromOneByte(
           isolate,
           reinterpret_cast<const uint8_t*>(one_byte_str.c_str()),
           v8::NewStringType::kNormal)
-          .ToLocalChecked();
+          .ToLocalChecked());
     }
     case string_view::Encoding::Utf8: {
       const string_view::u8string& utf8_str = str_view.utf8_value();
-      return v8::String::NewFromUtf8(
+      return handle_scope.Escape(v8::String::NewFromUtf8(
           isolate, reinterpret_cast<const char*>(utf8_str.c_str()),
           v8::NewStringType::kNormal)
-          .ToLocalChecked();
+          .ToLocalChecked());
     }
     case string_view::Encoding::Utf16: {
       const std::u16string& two_byte_str = str_view.utf16_value();
-      return v8::String::NewFromTwoByte(
+      return handle_scope.Escape(v8::String::NewFromTwoByte(
           isolate,
           reinterpret_cast<const uint16_t*>(two_byte_str.c_str()),
           v8::NewStringType::kNormal)
-          .ToLocalChecked();
+          .ToLocalChecked());
     }
     default:break;
   }
   FOOTSTONE_UNREACHABLE();
 }
+
+string_view V8VM::GetMessageDescription(v8::Isolate* isolate,
+                                        v8::Local<v8::Context> context,
+                                        v8::Local<v8::Message> message) {
+  v8::HandleScope handle_scope(isolate);
+  v8::Context::Scope context_scope(context);
+
+  auto msg = ToStringView(isolate, context, message->Get());
+  auto maybe_file_name = message->GetScriptOrigin().ResourceName()->ToString(context);
+  string_view file_name;
+  if (!maybe_file_name.IsEmpty()) {
+    file_name = ToStringView(isolate, context, maybe_file_name.ToLocalChecked());
+  } else {
+    file_name = string_view("");
+  }
+  int line = message->GetLineNumber(context).FromMaybe(-1);
+  int start = message->GetStartColumn(context).FromMaybe(-1);
+  int end = message->GetEndColumn(context).FromMaybe(-1);
+
+  std::basic_stringstream<char> description;
+  description << file_name << ": " << line << ": " << start << "-" << end
+              << ": " << msg;
+  std::string u8_str = description.str();
+  return string_view::new_from_utf8(u8_str.c_str(), u8_str.length());
+}
+
+string_view V8VM::GetStackTrace(v8::Isolate* isolate,
+                                v8::Local<v8::Context> context,
+                                v8::Local<v8::StackTrace> trace) {
+  if (trace.IsEmpty()) {
+    return "";
+  }
+
+  v8::HandleScope handle_scope(isolate);
+  v8::Context::Scope context_scope(context);
+
+  std::basic_stringstream<char> stack_stream;
+  auto len = trace->GetFrameCount();
+  for (auto i = 0; i < len; ++i) {
+    auto frame = trace->GetFrame(isolate, static_cast<uint32_t>(i));
+    if (frame.IsEmpty()) {
+      continue;
+    }
+
+    auto v8_script_name = frame->GetScriptName();
+    string_view script_name("");
+    if (!v8_script_name.IsEmpty()) {
+      script_name = ToStringView(isolate, context, v8_script_name);
+    }
+
+    string_view function_name("");
+    auto v8_function_name = frame->GetFunctionName();
+    if (!v8_function_name.IsEmpty()) {
+      function_name = ToStringView(isolate, context, v8_function_name);
+    }
+
+    stack_stream << std::endl
+                 << script_name << ":" << frame->GetLineNumber() << ":"
+                 << frame->GetColumn() << ":" << function_name;
+  }
+  auto u8_str = stack_stream.str();
+  return string_view::new_from_utf8(u8_str.c_str(), u8_str.length());
+}
+
 
 std::shared_ptr<VM> CreateVM(const std::shared_ptr<VMInitParam>& param) {
   return std::make_shared<V8VM>(std::static_pointer_cast<V8VMInitParam>(param));
@@ -195,12 +296,40 @@ std::shared_ptr<CtxValue> V8VM::ParseJson(const std::shared_ptr<Ctx>& ctx, const
   v8::Local<v8::Context> context = v8_ctx->context_persistent_.Get(isolate);
   v8::Context::Scope context_scope(context);
 
-  auto v8_string = V8VM::CreateV8String(isolate, json);
+  auto v8_string = V8VM::CreateV8String(isolate, context, json);
   v8::MaybeLocal<v8::Value> maybe_obj = v8::JSON::Parse(context, v8_string);
   if (maybe_obj.IsEmpty()) {
     return nullptr;
   }
   return std::make_shared<V8CtxValue>(isolate, maybe_obj.ToLocalChecked());
+}
+
+V8VM::DeserializerResult V8VM::Deserializer(const std::shared_ptr<Ctx>& ctx, const std::string& buffer) {
+  v8::HandleScope handle_scope(isolate_);
+  auto v8_ctx = std::static_pointer_cast<V8Ctx>(ctx);
+  auto context = v8_ctx->context_persistent_.Get(isolate_);
+
+  V8TryCatch try_catch(true, v8_ctx);
+  v8::ValueDeserializer deserializer(
+      isolate_,
+      reinterpret_cast<const uint8_t*>(buffer.c_str()),
+      buffer.length());
+  FOOTSTONE_CHECK(deserializer.ReadHeader(context).FromMaybe(false));
+  auto ret = deserializer.ReadValue(context);
+  if (!ret.IsEmpty()) {
+    return {
+      true,
+      std::make_shared<V8CtxValue>(isolate_, ret.ToLocalChecked()),
+      ""
+    };
+  } else if (try_catch.HasCaught()) {
+    return {
+      false,
+      nullptr,
+      try_catch.GetExceptionMessage()
+    };
+  }
+  return {false, nullptr, ""};
 }
 
 }

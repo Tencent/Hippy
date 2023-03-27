@@ -42,7 +42,6 @@ inline namespace napi {
 class V8Ctx : public Ctx {
  public:
   using unicode_string_view = footstone::string_view;
-  using JSValueWrapper = hippy::JSValueWrapper;
 
   explicit V8Ctx(v8::Isolate* isolate);
 
@@ -138,8 +137,7 @@ class V8Ctx : public Ctx {
 
   // Map Helpers
   virtual size_t GetMapLength(std::shared_ptr<CtxValue>& value);
-  virtual std::shared_ptr<CtxValue> ConvertMapToArray(
-      const std::shared_ptr<CtxValue>& value);
+  virtual std::shared_ptr<CtxValue> ConvertMapToArray(const std::shared_ptr<CtxValue>& value);
 
   // Object Helpers
 
@@ -151,7 +149,7 @@ class V8Ctx : public Ctx {
   // Function Helpers
   virtual unicode_string_view CopyFunctionName(const std::shared_ptr<CtxValue>& value) override;
 
-  bool Equals(const std::shared_ptr<CtxValue>& lhs, const std::shared_ptr<CtxValue>& rhs) override;
+  virtual bool Equals(const std::shared_ptr<CtxValue>& lhs, const std::shared_ptr<CtxValue>& rhs) override;
 
   virtual std::shared_ptr<CtxValue> RunScript(
       const unicode_string_view& data,
@@ -179,11 +177,6 @@ class V8Ctx : public Ctx {
 
   std::string GetSerializationBuffer(const std::shared_ptr<CtxValue>& value,
                                      std::string& reused_buffer);
-  unicode_string_view ToStringView(v8::Local<v8::String> str) const;
-  unicode_string_view GetMsgDesc(v8::Local<v8::Message> message);
-  unicode_string_view GetStackInfo(v8::Local<v8::Message> message) const;
-  unicode_string_view GetStackTrace(v8::Local<v8::StackTrace> trace) const;
-  v8::Local<v8::String> CreateV8String(const unicode_string_view& string) const;
   void SetAlignedPointerInEmbedderData(int index, intptr_t address);
 
   v8::Isolate* isolate_;

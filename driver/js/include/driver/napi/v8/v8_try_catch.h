@@ -47,7 +47,7 @@ class V8TryCatch : public TryCatch {
   virtual bool IsVerbose();
   virtual void SetVerbose(bool verbose);
   virtual std::shared_ptr<CtxValue> Exception();
-  virtual footstone::string_view GetExceptionMsg();
+  virtual footstone::string_view GetExceptionMessage();
 
  private:
   std::shared_ptr<v8::TryCatch> try_catch_;

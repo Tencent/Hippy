@@ -117,7 +117,7 @@ void Engine::SaveFunctionWrapper(void* key, std::unique_ptr<FunctionWrapper> wra
 
 void Engine::ClearFunctionWrapper(void* key) {
   auto it = function_wrapper_holder_map_.find(key);
-  if (it == function_wrapper_holder_map_.end()) {
+  if (it != function_wrapper_holder_map_.end()) {
     function_wrapper_holder_map_.erase(it);
   }
 }
@@ -132,7 +132,7 @@ void Engine::SaveWeakCallbackWrapper(void* key, std::unique_ptr<WeakCallbackWrap
 
 void Engine::ClearWeakCallbackWrapper(void* key) {
   auto it = weak_callback_holder_map_.find(key);
-  if (it == weak_callback_holder_map_.end()) {
+  if (it != weak_callback_holder_map_.end()) {
     weak_callback_holder_map_.erase(it);
   }
 }
