@@ -189,7 +189,7 @@ class ExternalStringResourceImpl : public v8::String::ExternalStringResource {
   size_t length_;
 };
 
-unicode_string_view V8Ctx::GetMsgDesc(v8::Local<v8::Message> message) {
+unicode_string_view V8Ctx::GetMsgDesc(v8::Local<v8::Message> message) const {
   if (message.IsEmpty()) {
     return "";
   }
@@ -260,6 +260,11 @@ unicode_string_view V8Ctx::GetStackInfo(v8::Local<v8::Message> message) const {
 
   auto trace = message->GetStackTrace();
   return GetStackTrace(trace);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CreateError(v8::Local<v8::Message> message) const {
+  auto string = message->Get();
+  return std::make_shared<V8CtxValue>(isolate_, string);
 }
 
 void V8Ctx::SetExternalData(void* address) {

@@ -186,9 +186,10 @@ class V8Ctx : public Ctx {
 
   std::string GetSerializationBuffer(const std::shared_ptr<CtxValue>& value, std::string& reused_buffer);
   unicode_string_view ToStringView(v8::Local<v8::String> str) const;
-  unicode_string_view GetMsgDesc(v8::Local<v8::Message> message);
+  unicode_string_view GetMsgDesc(v8::Local<v8::Message> message) const;
   unicode_string_view GetStackInfo(v8::Local<v8::Message> message) const;
   unicode_string_view GetStackTrace(v8::Local<v8::StackTrace> trace) const;
+  std::shared_ptr<CtxValue> CreateError(v8::Local<v8::Message> message) const;
   v8::Local<v8::String> CreateV8String(const unicode_string_view& string) const;
   void SetAlignedPointerInEmbedderData(int index, intptr_t address);
 
