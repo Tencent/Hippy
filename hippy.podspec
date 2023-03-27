@@ -54,6 +54,8 @@ Pod::Spec.new do |s|
     framework.libraries = 'c++'
     framework.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+      'GCC_ENABLE_CPP_EXCEPTIONS' => false,
+      'GCC_ENABLE_CPP_RTTI' => false,
     }
     puts 'hippy subspec \'framework\' read end'
   end
@@ -73,6 +75,8 @@ Pod::Spec.new do |s|
     end
     footstone.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+      'GCC_ENABLE_CPP_EXCEPTIONS' => false,
+      'GCC_ENABLE_CPP_RTTI' => false,
       'HEADER_SEARCH_PATHS' => header_search_paths
     }
     footstone.user_target_xcconfig = {
@@ -89,6 +93,8 @@ Pod::Spec.new do |s|
     footstoneutils.public_header_files = ['modules/ios/footstoneutils/*.h']
     footstoneutils.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+      'GCC_ENABLE_CPP_EXCEPTIONS' => false,
+      'GCC_ENABLE_CPP_RTTI' => false,
     }
     footstoneutils.dependency 'hippy/Footstone'
     puts 'hippy subspec \'footstoneutils\' read end'
@@ -124,7 +130,9 @@ Pod::Spec.new do |s|
     end
     vfs.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-      'HEADER_SEARCH_PATHS' => header_search_paths
+      'HEADER_SEARCH_PATHS' => header_search_paths,
+      'GCC_ENABLE_CPP_EXCEPTIONS' => false,
+      'GCC_ENABLE_CPP_RTTI' => false,
     }
     vfs.user_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => header_search_paths
@@ -140,6 +148,8 @@ Pod::Spec.new do |s|
     iosvfs.public_header_files = ['modules/vfs/ios/*.h']
     iosvfs.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+      'GCC_ENABLE_CPP_EXCEPTIONS' => false,
+      'GCC_ENABLE_CPP_RTTI' => false,
     }
     iosvfs.dependency 'hippy/VFS'
     puts 'hippy subspec \'iosvfs\' read end'
@@ -160,7 +170,10 @@ Pod::Spec.new do |s|
     end
     driver.pod_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => header_search_paths, 
-      'GCC_PREPROCESSOR_DEFINITIONS' => 'JS_JSC=1'
+      'GCC_PREPROCESSOR_DEFINITIONS' => 'JS_JSC=1',
+      'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+      'GCC_ENABLE_CPP_EXCEPTIONS' => false,
+      'GCC_ENABLE_CPP_RTTI' => false,
     }
     driver.user_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => header_search_paths, 
@@ -202,7 +215,9 @@ Pod::Spec.new do |s|
     dom.exclude_files = dom_exclude_files
     dom.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-      'HEADER_SEARCH_PATHS' => dom_pod_target_header_path
+      'HEADER_SEARCH_PATHS' => dom_pod_target_header_path,
+      'GCC_ENABLE_CPP_EXCEPTIONS' => false,
+      'GCC_ENABLE_CPP_RTTI' => false,
     }
     dom.user_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => dom_pod_target_header_path
@@ -225,6 +240,8 @@ Pod::Spec.new do |s|
     domutils.public_header_files = ['modules/ios/domutils/*.h']
     domutils.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+      'GCC_ENABLE_CPP_EXCEPTIONS' => false,
+      'GCC_ENABLE_CPP_RTTI' => false,
     }
     domutils.dependency 'hippy/Dom'
     puts 'hippy subspec \'domutils\' read end'
@@ -242,7 +259,9 @@ Pod::Spec.new do |s|
       end
       taitank.pod_target_xcconfig = {
         'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-        'HEADER_SEARCH_PATHS' => header_search_paths
+        'HEADER_SEARCH_PATHS' => header_search_paths,
+        'GCC_ENABLE_CPP_EXCEPTIONS' => false,
+        'GCC_ENABLE_CPP_RTTI' => false,
       }
       taitank.libraries = 'c++'
       taitank.preserve_path = 'dom/dom_project'
@@ -260,7 +279,9 @@ Pod::Spec.new do |s|
       end
       yoga.pod_target_xcconfig = {
         'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-        'HEADER_SEARCH_PATHS' => header_search_paths
+        'HEADER_SEARCH_PATHS' => header_search_paths,
+        'GCC_ENABLE_CPP_EXCEPTIONS' => false,
+        'GCC_ENABLE_CPP_RTTI' => false,
       }
       yoga.libraries = 'c++'
       yoga.preserve_path = 'dom/dom_project'
@@ -334,7 +355,9 @@ Pod::Spec.new do |s|
     devtools.pod_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => pod_search_path,
       'GCC_PREPROCESSOR_DEFINITIONS' => 'ENABLE_INSPECTOR=1 ASIO_NO_TYPEID ASIO_NO_EXCEPTIONS ASIO_DISABLE_ALIGNOF _WEBSOCKETPP_NO_EXCEPTIONS_ JSON_NOEXCEPTION BASE64_STATIC_DEFINE',
-      'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17'
+      'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+      'GCC_ENABLE_CPP_EXCEPTIONS' => false,
+      'GCC_ENABLE_CPP_RTTI' => false,
     }
     devtools.user_target_xcconfig = {
       'GCC_PREPROCESSOR_DEFINITIONS' => 'ENABLE_INSPECTOR=1'

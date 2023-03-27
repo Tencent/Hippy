@@ -891,12 +891,14 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"ENABLE_INSPECTOR=1",
 					"JS_USE_JSC=1",
 					"V8_WITHOUT_INSPECTOR=1",
+					JSON_NOEXCEPTION,
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../modules/ios/**",
@@ -923,10 +925,12 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"JS_USE_JSC=1",
 					"NDEBUG=1",
+					JSON_NOEXCEPTION,
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../modules/ios/**",
@@ -953,12 +957,14 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"ENABLE_INSPECTOR=1",
 					"JS_USE_JSC=1",
 					"V8_WITHOUT_INSPECTOR=1",
+					JSON_NOEXCEPTION,
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../modules/ios/**",
@@ -990,10 +996,12 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"JS_USE_JSC=1",
 					"NDEBUG=1",
+					JSON_NOEXCEPTION,
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../modules/ios/**",
