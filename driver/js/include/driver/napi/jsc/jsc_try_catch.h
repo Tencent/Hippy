@@ -43,7 +43,7 @@ public:
   virtual bool IsVerbose();
   virtual void SetVerbose(bool verbose);
   virtual std::shared_ptr<CtxValue> Exception();
-  virtual footstone::string_view GetExceptionMsg();
+  virtual footstone::string_view GetExceptionMessage();
   
 private:
   std::shared_ptr<JSCCtxValue> exception_;

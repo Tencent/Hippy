@@ -39,7 +39,6 @@ inline namespace napi {
 
 using string_view = footstone::string_view;
 using StringViewUtils = footstone::StringViewUtils;
-using JSValueWrapper = hippy::JSValueWrapper;
 using V8VM = hippy::vm::V8VM;
 using CallbackInfo = hippy::CallbackInfo;
 
@@ -148,7 +147,7 @@ V8Ctx::V8Ctx(v8::Isolate* isolate) : isolate_(isolate) {
 }
 
 v8::Local<v8::FunctionTemplate> V8Ctx::CreateTemplate(const std::unique_ptr<FunctionWrapper>& wrapper) {
-//  func_external_data_map_[reinterpret_cast<void*>(wrapper->cb)] = wrapper->data;
+  // func_external_data_map_[reinterpret_cast<void*>(wrapper->cb)] = wrapper->data;
   // wrapper->cb is a function pointer which can be obtained at compile time
   return v8::FunctionTemplate::New(isolate_, InvokeJsCallback,
                                    v8::External::New(isolate_,
@@ -227,86 +226,13 @@ class ExternalStringResourceImpl : public v8::String::ExternalStringResource {
   size_t length_;
 };
 
-string_view V8Ctx::GetMsgDesc(v8::Local<v8::Message> message) {
-  if (message.IsEmpty()) {
-    return "";
-  }
-
-  v8::HandleScope handle_scope(isolate_);
-  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
-  v8::Context::Scope context_scope(context);
-
-  string_view msg = ToStringView(message->Get());
-  v8::MaybeLocal<v8::String> maybe_file_name =
-      message->GetScriptOrigin().ResourceName()->ToString(context);
-  string_view file_name;
-  if (!maybe_file_name.IsEmpty()) {
-    file_name = ToStringView(maybe_file_name.ToLocalChecked());
-  } else {
-    file_name = string_view("");
-  }
-  int line = message->GetLineNumber(context).FromMaybe(-1);
-  int start = message->GetStartColumn(context).FromMaybe(-1);
-  int end = message->GetEndColumn(context).FromMaybe(-1);
-
-  std::basic_stringstream<char> description;
-  description << file_name << ": " << line << ": " << start << "-" << end
-              << ": " << msg;
-  std::string u8_str = description.str();
-  string_view desc(reinterpret_cast<const uint8_t*>(u8_str.c_str()));
-  FOOTSTONE_DLOG(INFO) << "description = " << desc;
-  return desc;
-}
-
-string_view V8Ctx::GetStackTrace(v8::Local<v8::StackTrace> trace) const {
-  if (trace.IsEmpty()) {
-    return "";
-  }
-
-  std::basic_stringstream<char> stack_stream;
-  auto len = trace->GetFrameCount();
-  for (auto i = 0; i < len; ++i) {
-    v8::Local<v8::StackFrame> frame = trace->GetFrame(isolate_, static_cast<uint32_t>(i));
-    if (frame.IsEmpty()) {
-      continue;
-    }
-
-    v8::Local<v8::String> v8_script_name = frame->GetScriptName();
-    string_view script_name("");
-    if (!v8_script_name.IsEmpty()) {
-      script_name = ToStringView(v8_script_name);
-    }
-
-    string_view function_name("");
-    v8::Local<v8::String> v8_function_name = frame->GetFunctionName();
-    if (!v8_function_name.IsEmpty()) {
-      function_name = ToStringView(v8_function_name);
-    }
-
-    stack_stream << std::endl
-                 << script_name << ":" << frame->GetLineNumber() << ":"
-                 << frame->GetColumn() << ":" << function_name;
-  }
-  std::string u8_str = stack_stream.str();
-  return string_view::new_from_utf8(u8_str.c_str(), u8_str.length());
-}
-
-string_view V8Ctx::GetStackInfo(v8::Local<v8::Message> message) const {
-  if (message.IsEmpty()) {
-    return "";
-  }
-
-  auto trace = message->GetStackTrace();
-  return GetStackTrace(trace);
-}
-
 void V8Ctx::SetExternalData(void* address) {
   SetAlignedPointerInEmbedderData(kScopeWrapperIndex, reinterpret_cast<intptr_t>(address));
 }
 
 void V8Ctx::SetAlignedPointerInEmbedderData(int index, intptr_t address) {
   v8::HandleScope handle_scope(isolate_);
-  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  auto context = context_persistent_.Get(isolate_);
   context->SetAlignedPointerInEmbedderData(index,
                                            reinterpret_cast<void*>(address));
 }
@@ -342,7 +268,7 @@ std::shared_ptr<CtxValue> V8Ctx::GetProperty(
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
 
-  auto key = CreateV8String(name);
+  auto key = V8VM::CreateV8String(isolate_, context, name);
   return GetProperty(object, std::make_shared<V8CtxValue>(isolate_, key));
 }
 
@@ -459,7 +385,7 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
     const string_view& file_name,
     bool is_use_code_cache,
     string_view* cache) {
-  v8::Local<v8::String> v8_file_name = CreateV8String(file_name);
+  v8::Local<v8::String> v8_file_name = V8VM::CreateV8String(isolate_, context, file_name);
 #if (V8_MAJOR_VERSION == 8 && V8_MINOR_VERSION == 9 && \
      V8_BUILD_NUMBER >= 45) || \
     (V8_MAJOR_VERSION == 8 && V8_MINOR_VERSION > 9) || (V8_MAJOR_VERSION > 8)
@@ -589,7 +515,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateNumber(double number) {
 std::shared_ptr<CtxValue> V8Ctx::CreateBoolean(bool b) {
   v8::HandleScope isolate_scope(isolate_);
 
-  v8::Local<v8::Boolean> v8_boolean = v8::Boolean::New(isolate_, b);
+  auto v8_boolean = v8::Boolean::New(isolate_, b);
   if (v8_boolean.IsEmpty()) {
     return nullptr;
   }
@@ -602,15 +528,17 @@ std::shared_ptr<CtxValue> V8Ctx::CreateString(
     return nullptr;
   }
   v8::HandleScope isolate_scope(isolate_);
+  auto context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
 
-  v8::Local<v8::String> v8_string = CreateV8String(str_view);
+  auto v8_string = V8VM::CreateV8String(isolate_, context, str_view);
   return std::make_shared<V8CtxValue>(isolate_, v8_string);
 }
 
 std::shared_ptr<CtxValue> V8Ctx::CreateUndefined() {
   v8::HandleScope isolate_scope(isolate_);
 
-  v8::Local<v8::Value> undefined = v8::Undefined(isolate_);
+  auto undefined = v8::Undefined(isolate_);
   if (undefined.IsEmpty()) {
     return nullptr;
   }
@@ -620,20 +548,11 @@ std::shared_ptr<CtxValue> V8Ctx::CreateUndefined() {
 std::shared_ptr<CtxValue> V8Ctx::CreateNull() {
   v8::HandleScope isolate_scope(isolate_);
 
-  v8::Local<v8::Value> v8_null = v8::Null(isolate_);
+  auto v8_null = v8::Null(isolate_);
   if (v8_null.IsEmpty()) {
     return nullptr;
   }
   return std::make_shared<V8CtxValue>(isolate_, v8_null);
-}
-
-v8::Local<v8::String> V8Ctx::CreateV8String(
-    const string_view& str_view) const {
-  return V8VM::CreateV8String(isolate_, str_view);
-}
-
-string_view V8Ctx::ToStringView(v8::Local<v8::String> str) const {
-  return V8VM::ToStringView(isolate_, str);
 }
 
 std::shared_ptr<CtxValue> V8Ctx::CreateObject(const std::unordered_map<
@@ -651,7 +570,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateObject(const std::unordered_map<
     std::shared_ptr<CtxValue>,
     std::shared_ptr<CtxValue>>& object) {
   v8::HandleScope handle_scope(isolate_);
-  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  auto context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
 
   v8::Local<v8::Object> obj = v8::Object::New(isolate_);
@@ -717,10 +636,10 @@ std::shared_ptr<CtxValue> V8Ctx::CreateMap(const std::map<
 std::shared_ptr<CtxValue> V8Ctx::CreateError(const string_view& msg) {
   FOOTSTONE_DLOG(INFO) << "V8Ctx::CreateError msg = " << msg;
   v8::HandleScope handle_scope(isolate_);
-  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  auto context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
 
-  v8::Local<v8::Value> error = v8::Exception::Error(CreateV8String(msg));
+  v8::Local<v8::Value> error = v8::Exception::Error(V8VM::CreateV8String(isolate_, context, msg));
   if (error.IsEmpty()) {
     FOOTSTONE_LOG(INFO) << "error is empty";
     return nullptr;
@@ -829,18 +748,18 @@ bool V8Ctx::GetValueString(const std::shared_ptr<CtxValue>& value,
   if (!value || !result) {
     return false;
   }
-  std::shared_ptr<V8CtxValue> ctx_value = std::static_pointer_cast<V8CtxValue>(value);
+  auto ctx_value = std::static_pointer_cast<V8CtxValue>(value);
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
-  v8::Local<v8::Value> handle_value = v8::Local<v8::Value>::New(isolate_, global_value);
+  auto handle_value = v8::Local<v8::Value>::New(isolate_, global_value);
   if (handle_value.IsEmpty()) {
     return false;
   }
 
   if (handle_value->IsString() || handle_value->IsStringObject()) {
-    *result = ToStringView(handle_value->ToString(context).ToLocalChecked());
+    *result = V8VM::ToStringView(isolate_, context, handle_value->ToString(context).ToLocalChecked());
     return true;
   }
   return false;
@@ -869,8 +788,8 @@ bool V8Ctx::GetValueJson(const std::shared_ptr<CtxValue>& value,
     return false;
   }
 
-  v8::Local<v8::String> v8_string = v8_maybe_string.ToLocalChecked();
-  *result = ToStringView(v8_string);
+  auto v8_string = v8_maybe_string.ToLocalChecked();
+  *result = V8VM::ToStringView(isolate_, context, v8_string);
   return true;
 }
 
@@ -1114,13 +1033,11 @@ bool V8Ctx::HasNamedProperty(const std::shared_ptr<CtxValue>& value,
     return false;
   }
   v8::HandleScope handle_scope(isolate_);
-  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  auto context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
-  std::shared_ptr<V8CtxValue> ctx_value =
-      std::static_pointer_cast<V8CtxValue>(value);
+  auto ctx_value = std::static_pointer_cast<V8CtxValue>(value);
   const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
-  v8::Local<v8::Value> handle_value =
-      v8::Local<v8::Value>::New(isolate_, global_value);
+  auto handle_value = v8::Local<v8::Value>::New(isolate_, global_value);
 
   if (handle_value.IsEmpty()) {
     return false;
@@ -1128,7 +1045,7 @@ bool V8Ctx::HasNamedProperty(const std::shared_ptr<CtxValue>& value,
 
   if (handle_value->IsMap()) {
     v8::Map* map = v8::Map::Cast(*handle_value);
-    v8::Local<v8::String> key = CreateV8String(name);
+    auto key = V8VM::CreateV8String(isolate_, context, name);
     if (key.IsEmpty()) {
       return false;
     }
@@ -1146,13 +1063,11 @@ std::shared_ptr<CtxValue> V8Ctx::CopyNamedProperty(
     return nullptr;
   }
   v8::HandleScope handle_scope(isolate_);
-  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  auto context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
-  std::shared_ptr<V8CtxValue> ctx_value =
-      std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
-  v8::Local<v8::Value> handle_value =
-      v8::Local<v8::Value>::New(isolate_, global_value);
+  auto ctx_value = std::static_pointer_cast<V8CtxValue>(value);
+  const auto& global_value = ctx_value->global_value_;
+  auto handle_value = v8::Local<v8::Value>::New(isolate_, global_value);
 
   if (handle_value.IsEmpty()) {
     return nullptr;
@@ -1164,7 +1079,7 @@ std::shared_ptr<CtxValue> V8Ctx::CopyNamedProperty(
       return nullptr;
     }
 
-    v8::Local<v8::String> key = CreateV8String(name);
+    auto key = V8VM::CreateV8String(isolate_, context, name);
     if (key.IsEmpty()) {
       return nullptr;
     }
@@ -1283,7 +1198,7 @@ bool V8Ctx::IsObject(const std::shared_ptr<CtxValue>& value) {
     return false;
   }
   v8::HandleScope handle_scope(isolate_);
-  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  auto context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value = std::static_pointer_cast<V8CtxValue>(value);
   const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
@@ -1296,25 +1211,21 @@ bool V8Ctx::IsObject(const std::shared_ptr<CtxValue>& value) {
   return handle_value->IsObject();
 }
 
-string_view V8Ctx::CopyFunctionName(
-    const std::shared_ptr<CtxValue>& function) {
+string_view V8Ctx::CopyFunctionName(const std::shared_ptr<CtxValue>& function) {
   if (!function) {
     return {};
   }
   v8::HandleScope handle_scope(isolate_);
-  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  auto context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
-  std::shared_ptr<V8CtxValue> ctx_value =
-      std::static_pointer_cast<V8CtxValue>(function);
+  auto ctx_value = std::static_pointer_cast<V8CtxValue>(function);
   const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
-  v8::Local<v8::Value> handle_value =
-      v8::Local<v8::Value>::New(isolate_, global_value);
+  auto handle_value = v8::Local<v8::Value>::New(isolate_, global_value);
 
   string_view result;
   if (handle_value->IsFunction()) {
-    v8::Local<v8::String> v8_str =
-        handle_value->ToString(context).ToLocalChecked();
-    result = ToStringView(v8_str);
+    auto v8_str = handle_value->ToString(context).ToLocalChecked();
+    result = V8VM::ToStringView(isolate_, context, v8_str);
   }
 
   return result;
@@ -1437,7 +1348,7 @@ std::shared_ptr<CtxValue> V8Ctx::DefineClass(string_view name,
   v8::Local<v8::FunctionTemplate> tpl = CreateTemplate(constructor_wrapper);
   auto prototype_template = tpl->PrototypeTemplate();
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
-  tpl->SetClassName(CreateV8String(name));
+  tpl->SetClassName(V8VM::CreateV8String(isolate_, context, name));
   for (size_t i = 0; i < property_count; i++) {
     const auto& prop_desc = properties[i];
     auto v8_attr = v8::PropertyAttribute(prop_desc->attr);
