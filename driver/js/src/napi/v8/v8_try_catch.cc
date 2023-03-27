@@ -26,6 +26,7 @@
 #include "footstone/string_view_utils.h"
 #include "driver/napi/v8/v8_ctx.h"
 #include "driver/napi/v8/v8_ctx_value.h"
+#include "driver/vm/v8/v8_vm.h"
 
 namespace hippy {
 inline namespace driver {
@@ -103,20 +104,20 @@ std::shared_ptr<CtxValue> V8TryCatch::Exception() {
   return nullptr;
 }
 
-string_view V8TryCatch::GetExceptionMsg() {
+string_view V8TryCatch::GetExceptionMessage() {
   if (!try_catch_) {
     return {};
   }
 
-  std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx_);
-  v8::HandleScope handle_scope(v8_ctx->isolate_);
-  v8::Local<v8::Context> context =
-      v8_ctx->context_persistent_.Get(v8_ctx->isolate_);
+  auto v8_ctx = std::static_pointer_cast<V8Ctx>(ctx_);
+  auto isolate = v8_ctx->isolate_;
+  v8::HandleScope handle_scope(isolate);
+  auto context = v8_ctx->context_persistent_.Get(isolate);
   v8::Context::Scope context_scope(context);
 
-  v8::Local<v8::Message> message = try_catch_->Message();
-  auto desc = v8_ctx->GetMsgDesc(message);
-  auto stack = v8_ctx->GetStackInfo(message);
+  auto message = try_catch_->Message();
+  auto desc = V8VM::GetMessageDescription(isolate, context, message);
+  auto stack= V8VM::GetStackTrace(isolate, context, message->GetStackTrace());
   return string_view("message: ") + desc + string_view(", stack: ") + stack;
 }
 

@@ -76,7 +76,6 @@ using CallbackInfo = hippy::CallbackInfo;
 
 constexpr int64_t kDefaultGroupId = -1;
 constexpr int64_t kDebuggerGroupId = -9999;
-constexpr uint32_t kRuntimeSlotIndex = 0;
 constexpr uint8_t kBridgeSlot = 1;
 
 constexpr char kBridgeName[] = "hippyBridge";
@@ -116,11 +115,16 @@ int32_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
   int32_t runtime_id = runtime->GetId();
   Runtime::Insert(runtime);
   auto vm_cb = [runtime_id](void* vm) {
+#ifdef JS_V8
     V8VM* v8_vm = reinterpret_cast<V8VM*>(vm);
-    v8::Isolate* isolate = v8_vm->isolate_;
-    v8::HandleScope handle_scope(isolate);
-    isolate->AddMessageListener(V8BridgeUtils::HandleUncaughtJsError);
-    isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(runtime_id));
+    auto wrapper = std::make_unique<FunctionWrapper>([](CallbackInfo& info, void* data) {
+      auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+      auto scope = scope_wrapper->scope.lock();
+      FOOTSTONE_CHECK(scope);
+      V8VM::HandleUncaughtException(scope->GetContext(), info[0]);
+    }, nullptr);
+    v8_vm->AddUncaughtExceptionMessageListener(wrapper);
+    v8_vm->SaveUncaughtExceptionCallback(std::move(wrapper));
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
     std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
     if (runtime->IsDebug() && !runtime->GetEngine()->GetInspectorClient()) {
@@ -128,9 +132,10 @@ int32_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
       runtime->GetEngine()->SetInspectorClient(inspector);
     }
 #endif
+#endif
   };
 
-  std::unique_ptr<RegisterMap> engine_cb_map = std::make_unique<RegisterMap>();
+  auto engine_cb_map = std::make_unique<RegisterMap>();
   engine_cb_map->insert(std::make_pair(hippy::kVMCreateCBKey, vm_cb));
 
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
@@ -183,7 +188,7 @@ int32_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
                                                global_config);
     }
   };
-  std::unique_ptr<RegisterMap> scope_cb_map = std::make_unique<RegisterMap>();
+  auto scope_cb_map = std::make_unique<RegisterMap>();
   scope_cb_map->insert(std::make_pair(hippy::kContextCreatedCBKey, context_cb));
   scope_cb_map->insert(std::make_pair(hippy::KScopeInitializedCBKey, scope_cb));
   std::unordered_map<int64_t, std::pair<std::shared_ptr<Engine>, uint32_t>>::iterator it;
@@ -197,14 +202,6 @@ int32_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
     if (it != reuse_engine_map.end()) {
       engine = std::get<std::shared_ptr<Engine>>(it->second);
       std::get<uint32_t>(it->second) += 1;
-      std::shared_ptr<V8VM> v8_vm = std::static_pointer_cast<V8VM>(engine->GetVM());
-      v8::Isolate* isolate = v8_vm->isolate_;
-      if (is_dev_module) {
-        isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(runtime_id));
-      } else {
-        isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(-1));
-      }
-      // -1 means single isolate multi-context mode
       FOOTSTONE_DLOG(INFO) << "engine cnt = " << std::get<uint32_t>(it->second)
                            << ", use_count = " << engine.use_count();
     }
@@ -300,19 +297,19 @@ bool V8BridgeUtils::RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runti
     std::promise<u8string> read_file_promise;
     std::future<u8string> read_file_future = read_file_promise.get_future();
     auto func = hippy::MakeCopyable([p = std::move(read_file_promise),
-                                      code_cache_path, code_cache_dir]() mutable {
-          u8string content;
-          HippyFile::ReadFile(code_cache_path, content, true);
-          if (content.empty()) {
-            FOOTSTONE_DLOG(INFO) << "Read code cache failed";
-            int ret = HippyFile::RmFullPath(code_cache_dir);
-            FOOTSTONE_DLOG(INFO) << "RmFullPath ret = " << ret;
-            FOOTSTONE_USE(ret);
-          } else {
-            FOOTSTONE_DLOG(INFO) << "Read code cache succ";
-          }
-          p.set_value(std::move(content));
-        });
+                                        code_cache_path, code_cache_dir]() mutable {
+      u8string content;
+      HippyFile::ReadFile(code_cache_path, content, true);
+      if (content.empty()) {
+        FOOTSTONE_DLOG(INFO) << "Read code cache failed";
+        int ret = HippyFile::RmFullPath(code_cache_dir);
+        FOOTSTONE_DLOG(INFO) << "RmFullPath ret = " << ret;
+        FOOTSTONE_USE(ret);
+      } else {
+        FOOTSTONE_DLOG(INFO) << "Read code cache succ";
+      }
+      p.set_value(std::move(content));
+    });
 
     auto engine = runtime->GetEngine();
     worker_runner = engine->GetWorkerTaskRunner();
@@ -359,7 +356,7 @@ bool V8BridgeUtils::RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runti
           HippyFile::CreateDir(code_cache_parent_dir, S_IRWXU);
         }
 
-        std::string u8_code_cache_content = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+        auto u8_code_cache_content = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
             code_cache_content, string_view::Encoding::Utf8).utf8_value());
         bool save_file_ret = HippyFile::SaveFile(code_cache_path, u8_code_cache_content);
         FOOTSTONE_LOG(INFO) << "code cache save_file_ret = " << save_file_ret;
@@ -372,29 +369,6 @@ bool V8BridgeUtils::RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runti
   bool flag = (ret != nullptr);
   FOOTSTONE_LOG(INFO) << "runScript end, flag = " << flag;
   return flag;
-}
-
-void V8BridgeUtils::HandleUncaughtJsError(v8::Local<v8::Message> message,
-                                          v8::Local<v8::Value> error) {
-  FOOTSTONE_DLOG(INFO) << "HandleUncaughtJsError begin";
-
-  if (error.IsEmpty()) {
-    FOOTSTONE_DLOG(ERROR) << "HandleUncaughtJsError error is empty";
-    return;
-  }
-
-  v8::Isolate* isolate = message->GetIsolate();
-  std::shared_ptr<Runtime> runtime = Runtime::Find(isolate);
-  if (!runtime) {
-    return;
-  }
-
-  auto context = runtime->GetScope()->GetContext();
-//  V8BridgeUtils::on_throw_exception_to_js_(runtime, ctx->GetMsgDesc(message),
-//                                           ctx->GetStackInfo(message));
-  VM::HandleUncaughtException(context, std::make_shared<hippy::napi::V8CtxValue>(isolate, error));
-
-  FOOTSTONE_DLOG(INFO) << "HandleUncaughtJsError end";
 }
 
 void V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void(bool)>& callback, bool is_reload) {
@@ -496,24 +470,15 @@ void V8BridgeUtils::CallJs(const string_view& action,
     std::shared_ptr<CtxValue> params;
     if (runtime->IsEnableV8Serialization()) {
 #ifdef JS_V8
-      auto isolate = std::static_pointer_cast<V8VM>(runtime->GetEngine()->GetVM())->isolate_;
-      v8::HandleScope handle_scope(isolate);
-      auto ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(
-          runtime->GetScope()->GetContext())->context_persistent_.Get(isolate);
-      hippy::napi::V8TryCatch try_catch(true, context);
-      v8::ValueDeserializer deserializer(
-          isolate, reinterpret_cast<const uint8_t*>(buffer_data_.c_str()),
-          buffer_data_.length());
-      FOOTSTONE_CHECK(deserializer.ReadHeader(ctx).FromMaybe(false));
-      auto ret = deserializer.ReadValue(ctx);
-      if (!ret.IsEmpty()) {
-        params = std::make_shared<hippy::napi::V8CtxValue>(isolate, ret.ToLocalChecked());
+      auto v8_vm = std::static_pointer_cast<V8VM>(runtime->GetEngine()->GetVM());
+      auto result = v8_vm->Deserializer(runtime->GetScope()->GetContext(), buffer_data_);
+      if (result.flag) {
+        params = result.result;
       } else {
-        string_view msg;
-        if (try_catch.HasCaught()) {
-          msg = try_catch.GetExceptionMsg();
-        } else {
-          msg = u"deserializer error";
+        auto msg = u"deserializer error";
+        if (!StringViewUtils::IsEmpty(result.message)) {
+          msg = StringViewUtils::ConvertEncoding(result.message,
+                                                 string_view::Encoding::Utf16).utf16_value().c_str();
         }
         cb(CALL_FUNCTION_CB_STATE::DESERIALIZER_FAILED, msg);
         return;
