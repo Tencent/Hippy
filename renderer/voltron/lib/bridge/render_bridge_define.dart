@@ -47,8 +47,8 @@ typedef CallNativeFunctionFfiDartType = void Function(
     int paramsLen,
     int keep);
 
-typedef CreateWorkerFfiNativeType = Uint32 Function();
-typedef CreateWorkerFfiDartType = int Function();
+typedef CreateWorkerFfiNativeType = Uint32 Function(Uint32 engineId);
+typedef CreateWorkerFfiDartType = int Function(int engineId);
 
 typedef DestroyWorkerFfiNativeType = Void Function(
   Uint32 workerId,

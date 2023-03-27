@@ -33,6 +33,7 @@
 #include "render/queue/voltron_render_manager.h"
 #include "standard_message_codec.h"
 #include "wrapper.h"
+#include "data_holder.h"
 
 #if defined(__ANDROID__) || defined(_WIN32)
 #  include "bridge_impl.h"
@@ -111,10 +112,10 @@ EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t singl
                                     uint32_t work_manager_id, uint32_t dom_manager_id,
                                     int32_t engine_id, int32_t callback_id, uint32_t devtools_id) {
   auto ffi_runtime = std::make_shared<FFIJSBridgeRuntime>(engine_id);
-  BridgeManager::Create(engine_id, ffi_runtime);
+  auto bridge_manager = BridgeManager::Create(engine_id, ffi_runtime);
 
-  std::shared_ptr<WorkerManager>
-      worker_manager = voltron::BridgeManager::FindWorkerManager(work_manager_id);
+  const std::unique_ptr<WorkerManager>&
+      worker_manager = bridge_manager->GetWorkerManager();
   FOOTSTONE_DCHECK(worker_manager != nullptr);
 
   auto result = BridgeImpl::InitJsEngine(ffi_runtime, single_thread_mode, bridge_param_json, is_dev_module, group_id,
@@ -262,7 +263,7 @@ EXTERN_C void DoBindDomAndRender(uint32_t dom_manager_id, int32_t engine_id, uin
     return;
   }
 
-  std::shared_ptr<DomManager> dom_manager = DomManager::Find(dom_manager_id);
+  auto dom_manager = voltron::FindObject<std::shared_ptr<DomManager>>(dom_manager_id);
   if (!dom_manager) {
     FOOTSTONE_DLOG(WARNING) << "DoBindDomAndRender dom_id invalid";
     return;
@@ -479,9 +480,14 @@ EXTERN_C uint32_t CreateDevtoolsFFI(uint32_t work_manager_id,
                                     const char16_t* char_ws_url) {
   uint32_t id = 0;
 #ifdef ENABLE_INSPECTOR
+  auto bridge_manager = BridgeManager::Find(static_cast<int32_t>(work_manager_id));
+  if (!bridge_manager) {
+    FOOTSTONE_DLOG(WARNING) << "OnNetworkRequestInvoke: engine_id invalid";
+    return 0;
+  }
   auto data_dir = voltron::C16CharToString(char_data_dir);
   auto ws_url = voltron::C16CharToString(char_ws_url);
-  std::shared_ptr<WorkerManager> worker_manager = voltron::BridgeManager::FindWorkerManager(work_manager_id);
+  const std::unique_ptr<WorkerManager>& worker_manager = bridge_manager->GetWorkerManager();
   FOOTSTONE_DCHECK(worker_manager != nullptr);
   hippy::devtools::DevtoolsDataSource::SetFileCacheDir(data_dir);
   auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(ws_url, worker_manager);

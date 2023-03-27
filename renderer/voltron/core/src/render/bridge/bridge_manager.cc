@@ -25,6 +25,7 @@
 #include <iterator>
 
 #include "dom/dom_manager.h"
+#include "footstone/worker_manager.h"
 #include "ffi_define.h"
 
 namespace voltron {
@@ -35,6 +36,8 @@ static BridgeManagerMap bridge_map_;
 using RenderManagerMap = footstone::utils::PersistentObjectMap<uint32_t , std::shared_ptr<VoltronRenderManager>>;
 static std::atomic<uint32_t> global_render_manager_key_{1};
 static RenderManagerMap render_manager_map_;
+
+constexpr uint32_t kDefaultNumberOfThreads = 2;
 
 int64_t BridgeRuntime::CalculateNodeLayout(int32_t instance_id, int32_t node_id, double width, int32_t width_mode, double height, int32_t height_mode) {
     std::condition_variable cv;
@@ -67,14 +70,14 @@ BridgeRuntime::BridgeRuntime(int32_t engine_id) : engine_id_(engine_id) {
 
 }
 
-std::shared_ptr<BridgeManager> BridgeManager::Create(int32_t engine_id, const Sp<BridgeRuntime> runtime) {
+std::shared_ptr<BridgeManager> BridgeManager::Create(int32_t engine_id, const Sp<BridgeRuntime>& runtime) {
   Sp<BridgeManager> bridge_manager;
   auto flag = bridge_map_.Find(engine_id, bridge_manager);
   if (flag) {
     bridge_manager->BindRuntime(runtime);
     return bridge_manager;
   } else {
-    auto new_bridge_manager = std::make_shared<BridgeManager>();
+    auto new_bridge_manager = std::make_shared<BridgeManager>(engine_id);
     bridge_map_.Insert(engine_id, new_bridge_manager);
     new_bridge_manager->BindRuntime(runtime);
     return new_bridge_manager;
@@ -96,15 +99,22 @@ void BridgeManager::Destroy(int32_t engine_id) {
 }
 
 uint32_t BridgeManager::CreateWorkerManager() {
-  return FfiCreateWorkerManager();
+  if (!worker_manager_) {
+    worker_manager_ = std::make_unique<footstone::WorkerManager>(kDefaultNumberOfThreads);
+  }
+
+  return engine_id_;
 }
 
-void BridgeManager::DestroyWorkerManager(uint32_t worker_manager_id) {
-  FfiDestroyWorkerManager(worker_manager_id);
+void BridgeManager::DestroyWorkerManager() {
+  if (worker_manager_) {
+    worker_manager_->Terminate();
+    worker_manager_ = nullptr;
+  }
 }
 
-Sp<footstone::WorkerManager> BridgeManager::FindWorkerManager(uint32_t worker_manager_id) {
-  return FfiFindWorkerManager(worker_manager_id);
+const std::unique_ptr<footstone::WorkerManager>& BridgeManager::GetWorkerManager() {
+  return worker_manager_;
 }
 
 Sp<VoltronRenderManager> BridgeManager::CreateRenderManager() {
@@ -134,9 +144,13 @@ Sp<VoltronRenderManager> BridgeManager::FindRenderManager(uint32_t render_manage
 
 BridgeManager::~BridgeManager() {
   native_callback_map_.Clear();
+  if (worker_manager_) {
+    worker_manager_->Terminate();
+    worker_manager_ = nullptr;
+  }
 }
 
-BridgeManager::BridgeManager(){}
+BridgeManager::BridgeManager(uint32_t engine_id): engine_id_(engine_id) {}
 
 std::shared_ptr<BridgeRuntime> BridgeManager::GetRuntime() { return runtime_.lock(); }
 
