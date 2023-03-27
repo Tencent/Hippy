@@ -1,3 +1,7 @@
+## 0.0.19
+
+- update voltron_render to 0.0.11 to support moving nodes for voltron
+
 ## 0.0.18
 
 - update voltron_render to 0.0.10 to support multiple flutter engines
