@@ -17,7 +17,7 @@
         <label
           v-if="['/', '/debug', '/remote-debug'].includes(currentRoute.path)"
           class="title"
-        >Hippy Vue Next</label>
+        >Hippy Vue Next {{ ssrMsg }}</label>
       </div>
       <label
         class="title"
@@ -52,9 +52,12 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, ref } from '@vue/runtime-core';
+import { defineComponent, ref, onServerPrefetch } from '@vue/runtime-core';
 import { useRoute, useRouter } from 'vue-router';
+import { storeToRefs } from 'pinia';
 import { getScreenSize, isIOS } from './util';
+import { IS_SSR, IS_SSR_MODE } from './env';
+import { useAppStore } from './store';
 
 import backButtonImg from './back-icon.png';
 
@@ -75,6 +78,9 @@ export default defineComponent({
         path: '/remote-debug',
       },
     ]);
+    const appStore = useAppStore();
+    const { ssrMsg } = storeToRefs(appStore);
+    const { getSsrMsg } = appStore;
 
     /**
        * go back
@@ -100,6 +106,14 @@ export default defineComponent({
       });
     };
 
+    // get ssr msg in ssr and non ssr client
+    if (IS_SSR || !IS_SSR_MODE) {
+      // onServerPrefetch: https://cn.vuejs.org/api/composition-api-lifecycle.html#onserverprefetch
+      onServerPrefetch(async () => {
+        await getSsrMsg();
+      });
+    }
+
     return {
       activatedTab,
       backButtonImg,
@@ -110,6 +124,7 @@ export default defineComponent({
         height: getScreenSize().statusBarHeight,
         backgroundColor: 4283416717,
       },
+      ssrMsg,
       goBack,
       navigateTo,
       isIOS: isIOS(),

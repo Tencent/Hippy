@@ -235,7 +235,8 @@ main-server.ts 是在服务端运行的业务 jsBundle，因此不需要做代�
 以及返回当前已生成节点的最大 uniqueId 供客户端后续使用。
 
 >注意，服务端代码是同步执行的，如果有数据请求走了异步方式，可能会出现还没有拿到数据，请求就已经返回了的情况。对于这个问题，Vue SSR 提供了专用 API 来处理这个问题:
->[onServerPrefetch](https://cn.vuejs.org/api/composition-api-lifecycle.html#onserverprefetch)
+>[onServerPrefetch](https://cn.vuejs.org/api/composition-api-lifecycle.html#onserverprefetch)。
+>在 [Demo](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/app.vue) 的 app.vue 中也有 onServerPrefetch 的使用示例
 
 - server.ts 新增
 

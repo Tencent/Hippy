@@ -235,7 +235,8 @@ main-server.ts is the business jsBundle running on the server side, so no code s
 And return the maximum uniqueId of the currently generated node for subsequent use by the client.
 
 >Note that the server-side code is executed synchronously. If a data request is made asynchronously, the request may have been returned before the data is obtained. For this problem, Vue SSR provides a dedicated API to handle this problem:
->[onServerPrefetch](https://cn.vuejs.org/api/composition-api-lifecycle.html#onserverprefetch)
+>[onServerPrefetch](https://cn.vuejs.org/api/composition-api-lifecycle.html#onserverprefetch).
+>There is also an example of using onServerPrefetch in app.vue of [Demo](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/app.vue)
 
 - server.ts Add
 

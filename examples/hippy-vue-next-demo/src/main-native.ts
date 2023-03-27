@@ -10,6 +10,7 @@ import {
   // EventsUnionType,
 } from '@hippy/vue-next';
 
+import { createPinia } from 'pinia';
 import App from './app.vue';
 import { createRouter } from './routes';
 import { setGlobalInitProps } from './util';
@@ -56,6 +57,15 @@ const app: HippyApp = createSSRApp(App, {
 // create router
 const router = createRouter();
 app.use(router);
+
+// create store
+const store = createPinia();
+app.use(store);
+// if server side return store，then use server store replace
+if (global.__INITIAL_STATE__) {
+  store.state.value = global.__INITIAL_STATE__;
+}
+
 
 // Monitor screen size and update size data
 EventBus.$on('onSizeChanged', (newScreenSize) => {
