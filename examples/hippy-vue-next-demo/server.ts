@@ -50,14 +50,12 @@ server.use(express.json());
 
 // listen request
 server.all('/getSsrFirstScreenData', (req, rsp) => {
-  console.log('ssr request body', req.body);
   // get hippy ssr node list and other const
   render('/', {
     appName: 'Demo',
   }, req.body).then(({
-    list, modules, store, uniqueId,
+    list, store, uniqueId,
   }) => {
-    console.log('matched modules: ', modules);
     // send response
     rsp.json({
       code: 0,

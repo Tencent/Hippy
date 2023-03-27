@@ -157,9 +157,17 @@ const router: Router = createRouter({
 ## 服务端渲染
 
 @hippy/vue-next 现已支持服务端渲染，具体代码可以查看[示例项目](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo)中的 SSR
-部分，这里对服务端渲染与客户端渲染的代码实现差异部分进行说明
+部分，关于 Vue SSR 的实现及原理，可以参考[官方文档](https://cn.vuejs.org/guide/scaling-up/ssr.html)。
 
-### 初始化部分
+### 如何使用SSR
+
+请参考[示例项目](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo)说明文档中的 How To Use SSR
+
+### 实现原理
+
+
+
+### 初始化差异
 
 - src/main-native.ts 变更
 
@@ -182,9 +190,28 @@ const router: Router = createRouter({
 ```
 
 - src/main-server.ts 新增
+
+main-server.ts 是在服务端运行的业务 jsBundle，因此不需要做代码分割。整体构建为一个 bundle 即可。其核心功能就是在服务端完成首屏渲染逻辑，并将得到的首屏 Hippy 节点进行处理，插入节点属性和 store（如果存在）后返回，
+以及返回当前已生成节点的最大 uniqueId 供客户端后续使用。
+
+>注意，服务端代码是同步执行的，如果有数据请求走了异步方式，可能会出现还没有拿到数据，请求就已经返回了的情况。对于这个问题，Vue SSR 提供了专用 API 来处理这个问题:
+>[onServerPrefetch](https://cn.vuejs.org/api/composition-api-lifecycle.html#onserverprefetch)
+
+- server.ts 新增
+
+server.ts 是服务端执行的入口文件，其作用是提供 Web Server，接收客户端的 SSR CGI 请求，并将结果作为响应数据返回给客户端，包括了渲染节点列表，store，以及全局的样式列表。
+
 - src/main-client.ts 新增
+
+main-client.ts 是客户端执行的入口文件，与之前纯客户端渲染不同，SSR的客户端入口文件仅包含了获取首屏节点请求、插入首屏节点样式、以及将节点插入终端完成渲染的相关逻辑。
+
 - src/ssr-node-ops.ts 新增
+
+ssr-node-ops.ts 封装了 SSR 节点的插入，更新，删除等操作逻辑
+
 - src/webpack-plugin.ts 新增
+
+webpack-plugin.ts 封装了 SSR 渲染所需 Hippy App 的初始化逻辑
 
 
 # 其他差异说明

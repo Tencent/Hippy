@@ -1,4 +1,5 @@
 import {
+  // createApp,
   createSSRApp,
   type HippyApp,
   EventBus,
@@ -24,7 +25,7 @@ global.Hippy.on('unhandledRejection', (reason) => {
 
 // create hippy app instance
 // pay attention: createSSRApp can both used for client side render & server side render, createApp
-// only support client side render
+// only support client side render, but if you only used in CSR, just use createApp.
 const app: HippyApp = createSSRApp(App, {
   // hippy native module name
   appName: 'Demo',
