@@ -11,7 +11,7 @@
 
 # Architecture
 
-<img src="en-us/assets/img/hippy-vue-next-arch-en.png" alt="hippy-vue-next structure" width="80%"/>
+<img src="assets/img/hippy-vue-next-arch-en.png" alt="hippy-vue-next structure" width="80%"/>
 <br />
 <br />
 
@@ -154,6 +154,105 @@ const router = createRouter({
   routes,
 });
 ```
+
+# Server Side Render
+
+@hippy/vue-next is now supported SSR, the specific code can be viewed in [Demo](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo)'s SSR Part
+, For the implementation and principle of Vue SSR, you can refer to the [official document](https://cn.vuejs.org/guide/scaling-up/ssr.html)。
+
+## How To Use SSR
+
+Read `How To Use SSR` in [Demo](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo)
+
+## Principle
+
+### SSR Architecture
+
+<img src="assets/img/hippy-vue-next-ssr-arch-en.png" alt="hippy-vue-next SSR Architecture" width="80%"/>
+
+### Description
+
+The implementation of @hippy/vue-next SSR involves three operating environments: compile time, client runtime, and server runtime. On the basis of vue-next ssr, we developed @hippy/vue-next-server-renderer
+Used for server-side runtime node rendering, developed @hippy/vue-next-compiler-ssr for compiling vue template files at compile time. And @hippy/vue-next-style-parser for server-side rendering
+Style insertion for Native Node List. Let's illustrate what @hippy/vue-next SSR does through the compilation and runtime process of a template
+
+We have a template like `<div id="test" class="test-class"></div>`
+
+- Compiler
+
+  Through @hippy/vue-next-compiler-ssr, our template transform to render funtions like
+
+  ```javascript
+  _push(`{"id":${ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"class":"test-class","id": "test",},"children":[]},`)
+  ```
+
+- Server Side Runtime
+
+  Through @hippy/vue-next-server-renderer, render function obtained during compilation is executed to obtain the json object of the corresponding node.
+  Note that the ssrGetUniqueId method in the render function is provided in @hippy/vue-next-server-renderer, where the server-renderer will also process
+  the attribute values of the nodes, and finally get the json object of the Native Node
+
+   ```javascript
+   { "id":1,"index":0,"name":"View","tagName":"div","props":{"class":"test-class","id": "test",},"children":[] }
+   ```
+
+  > For the handwritten non-sfc template rendering function, it cannot be processed in the compiler, and it is also executed in the server-renderer
+
+- Client Side Runtime
+
+  Through @hippy/vue-next-style-parser, nodes returned by server are insert styles, and insert node props by @hippy/vue-next. Then insert native nodes to
+  native to complete rendering node on screen.
+  After the node is inserted to the screen, the asynchronous jsBundle on the client side is loaded asynchronously through the global.dynamicLoad provided
+  by the system to complete the Hydrate on the client side and execute the follow-up process.
+
+## Different
+
+There are some differences between the Demo initialization of the SSR version and the initialization of the asynchronous version. Here is a detailed description of the differences
+
+- src/main-native.ts Change
+
+1. Use createSSRApp to replace the previous createApp, createApp only supports CSR rendering, while createSSRApp supports both CSR and SSR
+2. The ssrNodeList parameter is added during initialization as the Hydrate initialization node list. Here the initialized node list returned by our server is stored in global.hippySSRNodes . If you need to modify this variable name, you can change it in src/main-client.ts
+3. Call app.mount after router.isReady is completed, because if you don’t wait for the routing to complete, it will be different from the node rendered by the server, causing Hydrate to report an error
+
+```javascript
+- import { createApp } from '@hippy/vue-next';
++ import { createSSRApp } from '@hippy/vue-next';
+- const app: HippyApp = createApp(App, {
++ const app: HippyApp = createSSRApp(App, {
+    // ssr rendered node list, use for hydration
++   ssrNodeList: global.hippySSRNodes,
+});
++ router.isReady().then(() => {
++   // mount app
++   app.mount('#root');
++ });
+```
+
+- src/main-server.ts Add
+
+main-server.ts is the business jsBundle running on the server side, so no code splitting is required. The whole can be built as a bundle. Its core function is to complete the first-screen rendering logic on the server side, process the obtained first-screen Hippy node, insert node attributes and store (if it exists), and return.
+And return the maximum uniqueId of the currently generated node for subsequent use by the client.
+
+>Note that the server-side code is executed synchronously. If a data request is made asynchronously, the request may have been returned before the data is obtained. For this problem, Vue SSR provides a dedicated API to handle this problem:
+>[onServerPrefetch](https://cn.vuejs.org/api/composition-api-lifecycle.html#onserverprefetch)
+
+- server.ts Add
+
+server.ts is the entry file executed by the server. Its role is to provide a Web Server, receive the SSR CGI request from the client, and return the result to the client as response data, including the rendering node list, store, and global style list.
+
+- src/main-client.ts Add
+
+main-client.ts is the entry file executed by the client. Unlike the previous pure client rendering, the client entry file of SSR only includes the request to obtain the first screen node, insert the first screen node style, and insert the node into the terminal to complete the rendering. related logic.
+
+- src/ssr-node-ops.ts Add
+
+ssr-node-ops.ts encapsulates the operation logic of inserting, updating, and deleting SSR nodes that do not depend on @hippy/vue-next runtime.
+
+- src/webpack-plugin.ts Add
+
+webpack-plugin.ts encapsulates the initialization logic of Hippy App required for SSR rendering.
+
 
 # Additional Differences
 

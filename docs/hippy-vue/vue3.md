@@ -154,20 +154,60 @@ const router: Router = createRouter({
 });
 ```
 
-## 服务端渲染
+# 服务端渲染
 
 @hippy/vue-next 现已支持服务端渲染，具体代码可以查看[示例项目](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo)中的 SSR
 部分，关于 Vue SSR 的实现及原理，可以参考[官方文档](https://cn.vuejs.org/guide/scaling-up/ssr.html)。
 
-### 如何使用SSR
+## 如何使用SSR
 
 请参考[示例项目](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo)说明文档中的 How To Use SSR
 
-### 实现原理
+## 实现原理
 
+### SSR 架构图
 
+<img src="assets/img/hippy-vue-next-ssr-arch-cn.png" alt="hippy-vue-next SSR 架构图" width="80%"/>
 
-### 初始化差异
+### 详细说明
+
+@hippy/vue-next SSR 的实现涉及到了编译时，客户端运行时，以及服务端运行时三个运行环境。在 vue-next ssr的基础上，我们开发了 @hippy/vue-next-server-renderer
+用于服务端运行时节点的渲染，开发了 @hippy/vue-next-compiler-ssr 用于编译时 vue 模版文件的编译。以及 @hippy/vue-next-style-parser 用于服务端渲染得到的
+Native Node List 的样式插入。下面我们通过一个模版的编译和运行时过程来说明 @hippy/vue-next SSR 做了哪些事情
+
+我们有形如`<div id="test" class="test-class"></div>`的一段模版
+
+- 编译时
+
+  模版经过 @hippy/vue-next-compiler-ssr 的处理，得到了形如
+ 
+  ```javascript
+  _push(`{"id":${ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"class":"test-class","id": "test",},"children":[]},`)
+  ```
+
+  的 render function
+
+- 服务端运行时
+
+  在服务端运行时，编译时得到的 render function 执行后得到了对应节点的 json object。注意 render function 中的
+  ssrGetUniqueId 方法，是在 @hippy/vue-next-server-renderer 中提供的，在这里 server-renderer 还会对
+  节点的属性值等进行处理，最后得到 Native Node 的 json object
+ 
+  ```javascript
+  { "id":1,"index":0,"name":"View","tagName":"div","props":{"class":"test-class","id": "test",},"children":[] }
+  ```
+
+  > 对于手写的非 sfc 模版的渲染函数，在 compiler 中无法处理，也是在 server-renderer 中执行的
+
+- 客户端运行时
+
+  在客户端运行时，通过 @hippy/vue-next-style-parser，给服务端返回的节点插入样式，并直接调用 hippy native 提供的
+  native API，将返回的 Native Node 对象作为参数传入，并完成节点的渲染上屏。 完成节点上屏之后，再通过系统提供的
+  global.dynamicLoad 异步加载客户端异步版 jsBundle，完成客户端 Hydrate 并执行后续流程。
+
+## 初始化差异
+
+SSR 版本的 Demo 初始化与异步版的初始化有一些差异部分，这里对其中的差异部分做一个详细的说明
 
 - src/main-native.ts 变更
 
@@ -207,7 +247,7 @@ main-client.ts 是客户端执行的入口文件，与之前纯客户端渲染�
 
 - src/ssr-node-ops.ts 新增
 
-ssr-node-ops.ts 封装了 SSR 节点的插入，更新，删除等操作逻辑
+ssr-node-ops.ts 封装了不依赖 @hippy/vue-next 运行时的 SSR 节点的插入，更新，删除等操作逻辑
 
 - src/webpack-plugin.ts 新增
 
