@@ -30,36 +30,6 @@ global_callback global_callback_func = nullptr;
 namespace voltron{
 using RegisterCallFuncExMap = footstone::utils::PersistentObjectMap<std::string , register_call_func_ex>;
 static RegisterCallFuncExMap register_call_func_ex_map_;
-
-using WorkManagerMap = footstone::utils::PersistentObjectMap<uint32_t , std::shared_ptr<footstone::WorkerManager>>;
-constexpr uint32_t kDefaultNumberOfThreads = 2;
-static WorkManagerMap worker_manager_map_;
-static std::atomic<uint32_t> global_worker_manager_key_{1};
-
-uint32_t FfiCreateWorkerManager() {
-  auto worker_manager = std::make_shared<footstone::WorkerManager>(kDefaultNumberOfThreads);
-  auto id = global_worker_manager_key_.fetch_add(1);
-  worker_manager_map_.Insert(id, worker_manager);
-  return id;
-}
-
-void FfiDestroyWorkerManager(uint32_t worker_manager_id) {
-  std::shared_ptr<footstone::WorkerManager> worker_manager;
-  auto flag = worker_manager_map_.Find(worker_manager_id, worker_manager);
-  if (flag && worker_manager) {
-    worker_manager->Terminate();
-    worker_manager_map_.Erase(worker_manager_id);
-  }
-}
-
-Sp<footstone::WorkerManager> FfiFindWorkerManager(uint32_t worker_manager_id) {
-  std::shared_ptr<footstone::WorkerManager> worker_manager;
-  auto flag = worker_manager_map_.Find(worker_manager_id, worker_manager);
-  if (flag && worker_manager) {
-    return worker_manager;
-  }
-  return nullptr;
-}
 }
 
 

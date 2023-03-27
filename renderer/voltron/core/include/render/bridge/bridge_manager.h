@@ -30,6 +30,7 @@
 #include "footstone/persistent_object_map.h"
 #include "render/bridge/bridge_define.h"
 #include "render/queue/voltron_render_manager.h"
+#include "footstone/worker_manager.h"
 
 namespace voltron {
 using hippy::DomManager;
@@ -52,13 +53,13 @@ protected:
 
 class BridgeManager {
 public:
-  static Sp<BridgeManager> Create(int32_t engine_id, const Sp<BridgeRuntime> runtime);
+  static Sp<BridgeManager> Create(int32_t engine_id, const Sp<BridgeRuntime>& runtime);
   static Sp<BridgeManager> Find(int32_t engine_id);
   static void Destroy(int32_t engine_id);
 
-  static uint32_t CreateWorkerManager();
-  static void DestroyWorkerManager(uint32_t worker_manager_id);
-  static Sp<footstone::WorkerManager> FindWorkerManager(uint32_t worker_manager_id);
+  uint32_t CreateWorkerManager();
+  void DestroyWorkerManager();
+  const std::unique_ptr<footstone::WorkerManager>& GetWorkerManager();
 
   static Sp<VoltronRenderManager> CreateRenderManager();
   static void DestroyRenderManager(uint32_t render_manager_id);
@@ -73,12 +74,14 @@ public:
                           std::unique_ptr<EncodableValue> params, bool keep);
 
   ~BridgeManager();
-  explicit BridgeManager();
+  explicit BridgeManager(uint32_t engine_id);
 
 private:
   std::weak_ptr<BridgeRuntime> runtime_;
   footstone::PersistentObjectMap<String, NativeCallback> native_callback_map_;
+  std::unique_ptr<footstone::WorkerManager> worker_manager_;
 
   int callback_id_increment_ = 0;
+  uint32_t  engine_id_ = 0;
 };
 } // namespace voltron

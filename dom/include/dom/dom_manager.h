@@ -130,11 +130,6 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   static byte_string GetSnapShot(const std::shared_ptr<RootNode>& root_node);
   bool SetSnapShot(const std::shared_ptr<RootNode>& root_node, const byte_string& buffer);
 
-  static void Insert(const std::shared_ptr<DomManager>& dom_manager);
-  static std::shared_ptr<DomManager> Find(uint32_t id);
-  static bool Erase(uint32_t id);
-  static bool Erase(const std::shared_ptr<DomManager>& dom_manager);
-
  private:
   friend class DomNode;
 

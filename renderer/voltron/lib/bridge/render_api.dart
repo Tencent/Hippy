@@ -139,8 +139,8 @@ class VoltronRenderApi {
     _RenderBridgeFFIManager.instance.destroyDom(domInstanceId);
   }
 
-  static int createWorkerManager() {
-    return _RenderBridgeFFIManager.instance.createWorker();
+  static int createWorkerManager(int engineId) {
+    return _RenderBridgeFFIManager.instance.createWorker(engineId);
   }
 
   static void destroyWorkerManager(int workerManagerId) {

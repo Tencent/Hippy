@@ -36,6 +36,7 @@
 #include "devtools/vfs/devtools_handler.h"
 #include "footstone/worker_manager.h"
 #include "wrapper.h"
+#include "data_holder.h"
 
 using string_view = footstone::stringview::string_view;
 using u8string = string_view::u8string;
@@ -95,7 +96,7 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platfor
   });
   std::shared_ptr<VoltronBridge> bridge = std::make_shared<VoltronBridge>(platform_runtime);
   string_view global_config = string_view(char_globalConfig);
-  auto dom_manager = DomManager::Find(dom_manager_id);
+  auto dom_manager = voltron::FindObject<std::shared_ptr<hippy::DomManager>>(dom_manager_id);
   FOOTSTONE_DCHECK(dom_manager);
   auto dom_task_runner = dom_manager->GetTaskRunner();
   runtime_id = V8BridgeUtils::InitInstance(
