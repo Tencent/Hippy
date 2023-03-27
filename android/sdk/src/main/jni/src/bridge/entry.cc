@@ -75,11 +75,11 @@ constexpr char kCurDir[] = "__HIPPYCURDIR__";
 std::vector<intptr_t> external_references{};
 
 void HandleUncaughtJsError(v8::Local<v8::Message> message,
-                           v8::Local<v8::Value> error) {
+                           v8::Local<v8::Value> data) {
   TDF_BASE_DLOG(INFO) << "HandleUncaughtJsError begin";
 
-  if (error.IsEmpty()) {
-    TDF_BASE_DLOG(ERROR) << "HandleUncaughtJsError error is empty";
+  if (message.IsEmpty()) {
+    TDF_BASE_DLOG(ERROR) << "HandleUncaughtJsError message is empty";
     return;
   }
 
@@ -97,17 +97,19 @@ void HandleUncaughtJsError(v8::Local<v8::Message> message,
   if (!context) {
     return;
   }
-  std::shared_ptr<hippy::napi::V8Ctx> ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(context);
+  auto ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(context);
+  auto description = ctx->GetMsgDesc(message);
+  auto stack = ctx->GetStackInfo(message);
+
   TDF_BASE_LOG(ERROR) << "HandleUncaughtJsError, runtime_id = "
                       << runtime->GetId()
                       << ", desc = "
-                      << ctx->GetMsgDesc(message)
-                      << ", stack = " << ctx->GetStackInfo(message);
-  ExceptionHandler::ReportJsException(runtime, ctx->GetMsgDesc(message),
-                                      ctx->GetStackInfo(message));
-  ctx->HandleUncaughtException(
-      std::make_shared<hippy::napi::V8CtxValue>(isolate, error));
-
+                      << description
+                      << ", stack = "
+                      << stack;
+  ExceptionHandler::ReportJsException(runtime, description, stack);
+  auto error = ctx->CreateError(message);
+  ctx->HandleUncaughtException(error);
   TDF_BASE_DLOG(INFO) << "HandleUncaughtJsError end";
 }
 
