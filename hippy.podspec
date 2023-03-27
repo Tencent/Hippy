@@ -23,6 +23,8 @@ Pod::Spec.new do |s|
   s.default_subspec = 'iOSSDK'
   s.pod_target_xcconfig = {
     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+    'GCC_ENABLE_CPP_EXCEPTIONS' => false,
+    'GCC_ENABLE_CPP_RTTI' => false,
   }
 
   s.subspec 'core' do |ss|
