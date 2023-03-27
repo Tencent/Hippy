@@ -380,9 +380,7 @@ public class TextVirtualNode extends VirtualNode {
         for (int i = 0; i < getChildCount(); i++) {
             VirtualNode child = getChildAt(i);
             if (child != null) {
-                // Only support nest one level, do not recurse check grandson node
-                // so we should set useChild to false here
-                child.createSpanOperation(ops, builder, false);
+                child.createSpanOperation(ops, builder, true);
             }
         }
     }
