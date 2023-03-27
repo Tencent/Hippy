@@ -129,6 +129,8 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         ListItemRenderNode toNode = getChildNodeByAdapterPosition(position);
         if (fromNode.getId() != toNode.getId()) {
             toNode.onBindViewHolder(fromNode, hippyRecyclerViewHolder.itemView);
+        } else if (toNode.getHostView() == null) {
+            toNode.onBindViewHolder(hippyRecyclerViewHolder.itemView);
         }
         toNode.setRecycleItemTypeChangeListener(this);
         hippyRecyclerViewHolder.bindNode = toNode;
