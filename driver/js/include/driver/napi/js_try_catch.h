@@ -45,7 +45,7 @@ class TryCatch {
   virtual bool IsVerbose() = 0;
   virtual void SetVerbose(bool verbose) = 0;
   virtual std::shared_ptr<CtxValue> Exception() = 0;
-  virtual footstone::string_view GetExceptionMsg() = 0;
+  virtual footstone::string_view GetExceptionMessage() = 0;
 
  protected:
   bool enable_;

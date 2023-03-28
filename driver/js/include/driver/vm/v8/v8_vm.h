@@ -83,22 +83,40 @@ struct V8VMInitParam : public VMInitParam {
 class V8VM : public VM {
  public:
   using string_view = footstone::string_view;
+  struct DeserializerResult {
+    bool flag;
+    std::shared_ptr<CtxValue> result;
+    string_view message;
+  };
 
   V8VM(const std::shared_ptr<V8VMInitParam>& param);
   ~V8VM();
 
   virtual std::shared_ptr<Ctx> CreateContext() override;
   std::shared_ptr<CtxValue> ParseJson(const std::shared_ptr<Ctx>& ctx, const string_view& json) override;
+  void AddUncaughtExceptionMessageListener(const std::unique_ptr<FunctionWrapper>& wrapper) const;
+  inline void SaveUncaughtExceptionCallback(std::unique_ptr<FunctionWrapper>&& wrapper) {
+    uncaught_exception_ = std::move(wrapper);
+  }
+  DeserializerResult Deserializer(const std::shared_ptr<Ctx>& ctx, const std::string& buffer);
 
   static v8::Local<v8::String> CreateV8String(v8::Isolate* isolate,
+                                              v8::Local<v8::Context> context,
                                               const string_view& str_view);
-  static string_view ToStringView(v8::Isolate* isolate, v8::Local<v8::String> str);
-
+  static string_view ToStringView(v8::Isolate* isolate,
+                                  v8::Local<v8::Context> context,
+                                  v8::Local<v8::String> str);
+  static string_view GetMessageDescription(v8::Isolate* isolate,
+                                           v8::Local<v8::Context> context,
+                                           v8::Local<v8::Message> message);
+  static string_view GetStackTrace(v8::Isolate* isolate,
+                                   v8::Local<v8::Context> context,
+                                   v8::Local<v8::StackTrace> trace);
   static void PlatformDestroy();
 
   v8::Isolate* isolate_;
   v8::Isolate::CreateParams create_params_;
-  std::shared_ptr<v8::StartupData> snapshot_blob_;
+  std::unique_ptr<FunctionWrapper> uncaught_exception_;
 };
 
 }

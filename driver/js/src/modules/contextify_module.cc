@@ -85,7 +85,7 @@ void ContextifyModule::RunInThisContext(hippy::napi::CallbackInfo &info, void* d
   auto ret = context->RunScript(str_view, key);
 #endif
   if (try_catch->HasCaught()) {
-    FOOTSTONE_DLOG(ERROR) << "GetNativeSourceCode error = " << try_catch->GetExceptionMsg();
+    FOOTSTONE_DLOG(ERROR) << "GetNativeSourceCode error = " << try_catch->GetExceptionMessage();
     info.GetExceptionValue()->Set(try_catch->Exception());
   } else {
     info.GetReturnValue()->Set(ret);
@@ -179,7 +179,7 @@ void ContextifyModule::LoadUntrustedContent(CallbackInfo& info, void* data) {
         ctx->SetProperty(global_object, cur_dir_key, last_dir_str_obj, hippy::napi::PropertyAttribute::ReadOnly);
         if (try_catch->HasCaught()) {
           error = try_catch->Exception();
-          FOOTSTONE_DLOG(ERROR) << "RequestUntrustedContent error = " << try_catch->GetExceptionMsg();
+          FOOTSTONE_DLOG(ERROR) << "RequestUntrustedContent error = " << try_catch->GetExceptionMessage();
         }
       } else {
         string_view err_msg = uri + " not found";
