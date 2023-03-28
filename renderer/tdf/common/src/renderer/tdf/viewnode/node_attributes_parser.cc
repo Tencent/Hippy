@@ -28,6 +28,15 @@ inline namespace render {
 inline namespace tdf {
 namespace util {
 
+double HippyValueToDouble(const footstone::HippyValue &value) {
+  if (value.IsNumber()) {
+    return value.ToDoubleChecked();
+  } else if (value.IsString()) {
+    return atof(value.ToStringChecked().c_str());
+  }
+  return 0.f;
+}
+
 Color ConversionIntToColor(uint32_t value) {
   uint8_t alpha = (0xFF & (value >> 24));
   uint8_t red = (0xFF & (value >> 16));
@@ -130,11 +139,10 @@ void ParseShadowInfo(tdfcore::View& view, const DomStyleMap& style_map) {
   if (auto it = style_map.find(view::kShadowOffset); it != style_map.cend() && it->second != nullptr) {
     auto offset_props = it->second->ToObjectChecked();
     if (auto x = offset_props.find("x"); x != offset_props.end()) {
-      offset_x = static_cast<tdfcore::TScalar>(x->second.ToDoubleChecked());
+      offset_x = static_cast<tdfcore::TScalar>(HippyValueToDouble(x->second));
     }
-    auto y = offset_props.find("y");
-    if (y != offset_props.end()) {
-      offset_y = static_cast<tdfcore::TScalar>(y->second.ToDoubleChecked());
+    if (auto y = offset_props.find("y"); y != offset_props.end()) {
+      offset_y = static_cast<tdfcore::TScalar>(HippyValueToDouble(y->second));
     }
   }
   if (auto it = style_map.find(view::kShadowOffsetX); it != style_map.cend() && it->second != nullptr) {
