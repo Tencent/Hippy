@@ -246,7 +246,9 @@ export function registerAnimation(vueApp: App): void {
     mounted() {
       const { playing } = this.$props;
       if (playing) {
-        this.start();
+        setTimeout(() => {
+          this.start();
+        }, 0);
       }
     },
     beforeDestroy() {
