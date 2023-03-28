@@ -135,7 +135,7 @@ const LINEAR_GRADIENT_DIRECTION_MAP = {
 };
 
 // degree unit
-const DEGREE_UNIT = {
+export const DEGREE_UNIT = {
   TURN: 'turn',
   RAD: 'rad',
   DEG: 'deg',

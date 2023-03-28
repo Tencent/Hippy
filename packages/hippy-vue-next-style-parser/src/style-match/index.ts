@@ -25,12 +25,12 @@
 export interface StyleNode {
   id: string;
   pId?: number;
-  name: string;
+  name?: string;
   tagName: string;
   classList: Set<string>;
   parentNode: StyleNode;
   nextSibling: StyleNode;
-  props: any;
+  props?: any;
   attributes?: any;
 }
 

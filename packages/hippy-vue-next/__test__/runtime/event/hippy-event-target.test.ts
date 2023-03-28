@@ -22,6 +22,7 @@
  * runtime/event/hippy-event-target unit test
  * hippy-event-target is abstract class，which needs instantiation in unit test
  */
+import { registerElement } from '../../../src/runtime/component';
 import type { NeedToTyped } from '../../../src/types';
 import { HippyElement } from '../../../src/runtime/element/hippy-element';
 import { HippyEvent } from '../../../src/runtime/event/hippy-event';
@@ -32,6 +33,10 @@ import { HippyEvent } from '../../../src/runtime/event/hippy-event';
  * @casetype unit
  */
 describe('runtime/event/hippy-event-target.ts', () => {
+  beforeAll(() => {
+    registerElement('div', { component: { name: 'View' } });
+  });
+
   it('hippy-event-target child should contain special function', async () => {
     const divElement = new HippyElement('div');
     expect(divElement).toHaveProperty('addEventListener');

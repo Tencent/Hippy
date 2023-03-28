@@ -25,5 +25,23 @@
   "dependencies": {
     "@vue/shared": "^3.2.46"
   },
-  "entry": "./src/index.ts"
+  "entry": "./src/index.ts",
+  "jest": {
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/src/$1",
+      "@hippy-vue-next-style-parser/(.*)$": "<rootDir>/src/$1"
+    },
+    "modulePaths": [
+      "<rootDir>"
+    ],
+    "preset": "ts-jest",
+    "setupFiles": [
+      "<rootDir>/__test__/setup.ts"
+    ],
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/*.test.ts"
+    ],
+    "verbose": true
+  }
 }

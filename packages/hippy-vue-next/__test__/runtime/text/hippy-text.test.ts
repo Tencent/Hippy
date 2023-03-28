@@ -25,6 +25,7 @@ describe('runtime/text/hippy-text.ts', () => {
   it('hippy text node should set correct attribute', () => {
     const textNode = new HippyText('hello');
     expect(textNode.text).toEqual('hello');
+    expect(textNode.data).toEqual('hello');
     textNode.setText('world');
     expect(textNode.text).toEqual('world');
   });

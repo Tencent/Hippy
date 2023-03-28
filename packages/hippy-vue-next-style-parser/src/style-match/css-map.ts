@@ -178,6 +178,15 @@ export function fromSsrAstNodes(
 let globalCssMap: SelectorsMap;
 
 /**
+ * judge css map is empty, undefined or no ruleset is empty
+ *
+ * @param cssMap
+ */
+function isEmptyCssMap(cssMap?: SelectorsMap): boolean {
+  return !cssMap || !cssMap?.ruleSets?.length;
+}
+
+/**
  * get css map
  *
  * @param styles - style list
@@ -190,7 +199,7 @@ export function getCssMap(
 ): SelectorsMap {
   // have styles params means ssr, so we used styles as global css map
   if (styles) {
-    if (globalCssMap) {
+    if (!isEmptyCssMap(globalCssMap)) {
       return globalCssMap;
     }
     // get ssr ast nodes
@@ -206,23 +215,21 @@ export function getCssMap(
    * To support dynamic import, globalCssMap can be loaded from different js file.
    * globalCssMap should be created/appended if global[GLOBAL_STYLE_NAME] exists;
    */
-  if (globalCssMap && !styleCssMap) {
-    return globalCssMap;
-  }
+  if (isEmptyCssMap(globalCssMap) || styleCssMap) {
+    /**
+     *  Here is a secret startup option: beforeStyleLoadHook.
+     *  Usage for process the styles while styles loading.
+     */
+    const cssRules = fromAstNodes(styleCssMap);
+    if (globalCssMap) {
+      globalCssMap.append(cssRules);
+    } else {
+      globalCssMap = new SelectorsMap(cssRules);
+    }
 
-  /**
-   *  Here is a secret startup option: beforeStyleLoadHook.
-   *  Usage for process the styles while styles loading.
-   */
-  const cssRules = fromAstNodes(styleCssMap);
-  if (globalCssMap) {
-    globalCssMap.append(cssRules);
-  } else {
-    globalCssMap = new SelectorsMap(cssRules);
+    // after the global style processing is complete, remove the value of this object
+    global[HIPPY_GLOBAL_STYLE_NAME] = undefined;
   }
-
-  // after the global style processing is complete, remove the value of this object
-  global[HIPPY_GLOBAL_STYLE_NAME] = undefined;
 
   // if there are currently expired styles, hot update style processing
   if (global[HIPPY_GLOBAL_DISPOSE_STYLE_NAME]) {
