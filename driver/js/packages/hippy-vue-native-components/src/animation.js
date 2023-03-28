@@ -219,7 +219,10 @@ function registerAnimation(Vue) {
     mounted() {
       const { playing } = this.$props;
       if (playing) {
-        this.start();
+        // make sure that start animation after node created
+        setTimeout(() => {
+          this.start();
+        }, 0);
       }
     },
     beforeDestroy() {
