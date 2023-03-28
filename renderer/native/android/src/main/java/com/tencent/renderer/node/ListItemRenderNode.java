@@ -21,6 +21,7 @@ import static com.tencent.renderer.NativeRenderException.ExceptionCode.ON_CREATE
 
 import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -96,11 +97,17 @@ public class ListItemRenderNode extends RenderNode {
     }
 
     public void onBindViewHolder(@NonNull View itemView) {
-        mControllerManager.addView(mRootId, itemView);
-        setLazy(false);
-        prepareHostViewRecursive();
-        setHostView(itemView);
-        mountHostViewRecursive();
+        if (itemView.getId() != mId) {
+            return;
+        }
+        View hostView = getHostView();
+        if (hostView == null) {
+            mControllerManager.addView(mRootId, itemView);
+            setHostView(itemView);
+            setLazy(false);
+            prepareHostViewRecursive();
+            mountHostViewRecursive();
+        }
     }
 
     public void onBindViewHolder(@NonNull RenderNode fromNode, @NonNull View itemView) {
