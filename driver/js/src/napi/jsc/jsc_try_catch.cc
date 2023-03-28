@@ -92,10 +92,10 @@ std::shared_ptr<CtxValue> JSCTryCatch::Exception() {
   return exception_;
 }
 
-string_view JSCTryCatch::GetExceptionMsg() {
+string_view JSCTryCatch::GetExceptionMessage() {
   if (enable_) {
     std::shared_ptr<JSCCtx> ctx = std::static_pointer_cast<JSCCtx>(ctx_);
-    return ctx->GetExceptionMsg(exception_);
+    return ctx->GetExceptionMessage(exception_);
   }
   return "";
 }

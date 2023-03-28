@@ -480,7 +480,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                             auto tryCatch = hippy::CreateTryCatchScope(true, context);
                             resultValue = context->CallFunction(method_value, arguments.count, function_params);
                             if (tryCatch->HasCaught()) {
-                                exception = tryCatch->GetExceptionMsg();
+                                exception = tryCatch->GetExceptionMessage();
                             }
                         } else {
                             executeError
@@ -552,7 +552,7 @@ static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, Hip
         auto tryCatch = hippy::napi::CreateTryCatchScope(true, context);
         SharedCtxValuePtr result = context->RunScript(view, fileName);
         if (tryCatch->HasCaught()) {
-            errorMsg = std::move(tryCatch->GetExceptionMsg());
+            errorMsg = std::move(tryCatch->GetExceptionMessage());
         }
         if (lockSuccess) {
             [lock unlock];
@@ -622,7 +622,7 @@ static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, Hip
         auto json_value = engine->GetEngine()->GetVM()->ParseJson(context, json_view);
         context->SetProperty(global_object, name_key, json_value);
         if (tryCatch->HasCaught()) {
-            string_view errorMsg = tryCatch->GetExceptionMsg();
+            string_view errorMsg = tryCatch->GetExceptionMessage();
             NSError *error = [NSError errorWithDomain:HPErrorDomain code:2 userInfo:@{
                 NSLocalizedDescriptionKey: StringViewToNSString(errorMsg)}];
             onComplete(@(NO), error);

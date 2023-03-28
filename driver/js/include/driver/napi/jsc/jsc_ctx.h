@@ -193,7 +193,7 @@ public:
   virtual void SetExternalData(void* data) override;
   virtual void SetWeak(std::shared_ptr<CtxValue> value, const std::unique_ptr<WeakCallbackWrapper>& wrapper) override;
   
-  string_view GetExceptionMsg(const std::shared_ptr<CtxValue>& exception);
+  string_view GetExceptionMessage(const std::shared_ptr<CtxValue>& exception);
   void* GetPrivateData(const std::shared_ptr<CtxValue>& value);
   void SaveConstructorData(std::unique_ptr<ConstructorData> constructor_data);
   
