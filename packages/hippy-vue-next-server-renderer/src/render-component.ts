@@ -19,8 +19,8 @@
  */
 
 import { type Component, type ComponentInternalInstance, createVNode, type Slots } from '@vue/runtime-core';
-import { type SSRSlots } from './renderAttrs';
-import { type Props, renderComponentVNode, type SSRBuffer } from './renderVnode';
+import { type SSRSlots } from './render-attrs';
+import { type Props, renderComponentVNode, type SSRBuffer } from './render-vnode';
 
 /**
  * render component for server side

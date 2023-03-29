@@ -463,7 +463,7 @@ export function ssrRenderTeleport(
 
   if (disabled) {
     contentRenderFn(parentPush);
-    teleportContent =      '{"id": -1,"name":"comment","props":{"text":"teleport anchor"}},';
+    teleportContent = '{"id": -1,"name":"comment","props":{"text":"teleport anchor"}},';
   } else {
     const { getBuffer, push } = createBuffer();
     contentRenderFn(push);

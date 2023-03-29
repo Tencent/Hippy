@@ -17,33 +17,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { unescapeHtml } from '../src/util';
 
-/**
- * native-component/index unit test
- */
-import * as NativeComponent from '../../src/native-component/index';
 
 /**
  * @author birdguo
  * @priority P0
  * @casetype unit
  */
-describe('native-component/index.ts', () => {
-  it('native component work correctly', () => {
-
-  });
-
-  it('isNativeTag should work correctly', () => {
-    const nativeTags = [
-      'animation', 'dialog', 'pull-header', 'pull-footer', 'swiper', 'swiper-slider',
-      'waterfall', 'ul-refresh-wrapper', 'ul-refresh',
-    ];
-    const nonNativeTags = ['div'];
-    for (const tag of nativeTags) {
-      expect(NativeComponent.isNativeTag(tag)).toBeTruthy();
-    }
-    for (const tag of nonNativeTags) {
-      expect(NativeComponent.isNativeTag(tag)).toBeFalsy();
-    }
+describe('util.ts', () => {
+  it('unescapeHtml should work correctly', () => {
+    const rawString = '&quot;1&amp;2&#39;3&lt;4&gt;5&quot;6&amp;7&#39;8&lt;9&gt;10';
+    const destString = '"1&2\'3<4>5"6&7\'8<9>10';
+    const regularString = 'fdsl1234ljkljf#%$$#$#$';
+    expect(unescapeHtml(rawString)).toEqual(destString);
+    expect(unescapeHtml(regularString)).toEqual(regularString);
   });
 });

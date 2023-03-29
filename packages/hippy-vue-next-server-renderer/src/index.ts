@@ -91,7 +91,7 @@ export {
   ssrRenderStyle,
   ssrGetDirectiveProps,
   ssrRenderSlot,
-} from './renderAttrs';
+} from './render-attrs';
 
 export {
   ssrRenderTeleport,
@@ -113,5 +113,5 @@ export {
   ssrRenderDynamicModel,
 } from '@vue/server-renderer';
 export { includeBooleanAttr as ssrIncludeBooleanAttr } from '@vue/shared';
-export { renderVNode as ssrRenderVNode } from './renderVnode';
-export { ssrRenderComponent } from './renderComponent';
+export { renderVNode as ssrRenderVNode } from './render-vnode';
+export { ssrRenderComponent } from './render-component';

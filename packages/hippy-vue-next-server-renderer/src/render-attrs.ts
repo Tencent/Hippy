@@ -46,6 +46,7 @@ export function ssrRenderStyle(raw: unknown): string {
     return '{}';
   }
   if (isString(raw)) {
+    // hippy doesn't support string style
     return '{}';
   }
 

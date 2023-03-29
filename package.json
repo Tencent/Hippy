@@ -111,7 +111,8 @@
   "jest": {
     "projects": [
       "<rootDir>/packages/hippy-vue-next",
-      "<rootDir>/packages/hippy-vue-next-style-parser"
+      "<rootDir>/packages/hippy-vue-next-style-parser",
+      "<rootDir>/packages/hippy-vue-next-server-renderer"
     ]
   }
 }
