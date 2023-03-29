@@ -23,14 +23,15 @@
 #import "HippyConvenientBridge.h"
 
 #import "HippyBridge.h"
-#import "NativeRenderManager.h"
+#import "HippyBundleURLProvider.h"
 #import "HippyJSEnginesMapper.h"
-#import "UIView+NativeRender.h"
-#import "HPDefaultImageProvider.h"
-#import "VFSUriLoader.h"
 #import "HippyFileHandler.h"
 #import "HippyMethodInterceptorProtocol.h"
+#import "NativeRenderManager.h"
+#import "HPDefaultImageProvider.h"
 #import "HPLog.h"
+#import "UIView+NativeRender.h"
+#import "VFSUriLoader.h"
 
 #include <memory>
 
@@ -129,6 +130,13 @@
 
 - (void)loadBundleURL:(NSURL *)bundleURL completion:(HippyBridgeBundleLoadCompletion)completion {
     [_bridge loadBundleURL:bundleURL completion:completion];
+}
+
+- (void)loadDebugBundleCompletion:(HippyBridgeBundleLoadCompletion)completion {
+    _bridge.debugMode = YES;
+    NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
+    NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
+    [_bridge loadBundleURL:bundleUrl completion:completion];
 }
 
 - (void)setRootView:(UIView *)rootView {
