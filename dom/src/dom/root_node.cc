@@ -391,11 +391,11 @@ void RootNode::FlushDomOperations(const std::shared_ptr<RenderManager>& render_m
 
 void RootNode::MarkLayoutNodeDirty(const std::vector<std::shared_ptr<DomNode>>& nodes) {
   for (const auto& node: nodes) {
-    if (node && !node->GetLayoutNode()) {
+    if (node && node->GetLayoutNode() && !node->GetLayoutNode()->HasParentEngineNode()) {
       auto parent = node->GetParent();
       while (parent) {
         auto layout_node = parent->GetLayoutNode();
-        if (layout_node && parent->GetViewName() == "Text") { // TODO(charlee): change Text to HasMeasureFunction
+        if (layout_node->HasParentEngineNode() && layout_node->HasMeasureFunction()) {
           layout_node->MarkDirty();
           break;
         }
