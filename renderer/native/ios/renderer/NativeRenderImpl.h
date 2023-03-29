@@ -27,6 +27,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <functional>
 
 @class NativeRenderAnimationViewParams, NativeRenderObjectView, NativeRenderImpl,NativeRenderViewManager;
 @class NativeRenderReusePool, NativeRenderComponentMap;
