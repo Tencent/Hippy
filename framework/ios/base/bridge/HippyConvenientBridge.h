@@ -76,6 +76,10 @@ typedef void(^_Nullable HippyBridgeBundleLoadCompletion)(NSURL *_Nullable, NSErr
 
 - (void)loadBundleURL:(NSURL *)bundleURL completion:(HippyBridgeBundleLoadCompletion)completion;
 
+//Load debug url specified by [HippyBundleURLProvider sharedInstance]
+//and `_debugMode` variable in HippyBridge will be set to YES
+- (void)loadDebugBundleCompletion:(HippyBridgeBundleLoadCompletion)completion;
+
 - (void)setRootView:(UIView *)rootView;
 
 - (void)loadInstanceForRootViewTag:(NSNumber *)tag props:(NSDictionary *)props;
