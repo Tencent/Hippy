@@ -52,9 +52,13 @@ class JSCCtxValue;
 struct ConstructorData {
   void* function_wrapper;
   std::shared_ptr<JSCCtxValue> prototype;
-  void* private_data;
   void* weak_callback_wrapper;
-  ConstructorData(void* func_wrapper, std::shared_ptr<JSCCtxValue>prototype): function_wrapper(func_wrapper), prototype(prototype), private_data(nullptr), weak_callback_wrapper(nullptr) {}
+  JSClassRef class_ref;
+  std::unordered_map<JSObjectRef, void*> object_data_map;
+  ConstructorData(void* func_wrapper, std::shared_ptr<JSCCtxValue>prototype, JSClassRef ref): function_wrapper(func_wrapper), prototype(prototype), weak_callback_wrapper(nullptr), class_ref(ref), object_data_map({}) {}
+  ~ConstructorData() {
+    JSClassRelease(class_ref);
+  }
 };
 
 class JSCCtx : public Ctx {

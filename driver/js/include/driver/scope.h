@@ -287,7 +287,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
         argv[i] = info[i];
       }
       auto receiver = info.GetReceiver();
-      std::shared_ptr<T> ret = class_template->constructor(static_cast<size_t>(len), argv);
+      auto ret = class_template->constructor(static_cast<size_t>(len), argv);
       info.SetData(ret.get());
       class_template->holder_map.insert({ret.get(), ret});
 
