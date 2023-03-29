@@ -204,6 +204,7 @@ int32_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
       std::get<uint32_t>(it->second) += 1;
       FOOTSTONE_DLOG(INFO) << "engine cnt = " << std::get<uint32_t>(it->second)
                            << ", use_count = " << engine.use_count();
+      runtime->SetEngine(engine);
     }
   }
   if (!engine) {
@@ -212,10 +213,10 @@ int32_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
       std::lock_guard<std::mutex> lock(engine_mutex);
       reuse_engine_map[group] = std::make_pair(engine, 1);
     }
+    runtime->SetEngine(engine);
+    auto worker_runner = worker_manager->CreateTaskRunner(kWorkerRunnerName);
+    engine->AsyncInit(task_runner, worker_runner, std::move(engine_cb_map), param);
   }
-  runtime->SetEngine(engine);
-  auto worker_runner = worker_manager->CreateTaskRunner(kWorkerRunnerName);
-  engine->AsyncInit(task_runner, worker_runner, std::move(engine_cb_map), param);
   auto scope = engine->AsyncCreateScope("", std::move(scope_cb_map));
   runtime->SetScope(scope);
   FOOTSTONE_DLOG(INFO) << "group = " << group;
