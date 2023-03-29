@@ -32,6 +32,8 @@ jobs:
           lfs: true
       - name: Build
         run: |
+          pushd examples/ios-demo
+          pod install
           xcodebuild -workspace 'Hippy.xcworkspace' -list | \
           sed -n '/Schemes/,/^$/p' | \
           grep -v "Schemes:" | \
@@ -48,3 +50,4 @@ jobs:
               CODE_SIGNING_REQUIRED=NO \
               CODE_SIGNING_ALLOWED=NO
           done
+          popd

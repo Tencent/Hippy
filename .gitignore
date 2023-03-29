@@ -35,6 +35,8 @@ examples/android-demo/libs/*
 examples/android-demo/src/main/assets/*
 examples/ios-demo/HippyDemo.xcodeproj/xcuserdata/*
 examples/ios-demo/HippyDemo.xcodeproj/project.xcworkspace/xcuserdata/*
+examples/ios-demo/Pods
+examples/ios-demo/HippyDemo.xcworkspace/xcuserdata
 ios/sdk/HippyLibrary.xcodeproj/project.xcworkspace/xcuserdata/*
 ios/sdk/HippyLibrary.xcodeproj/xcuserdata/*
 

@@ -1,0 +1,25 @@
+PODS:
+  - hippy (2.0.0):
+    - hippy/iOSSDK (= 2.0.0)
+  - hippy/core (2.0.0):
+    - hippy/coreThirdParty
+  - hippy/coreThirdParty (2.0.0)
+  - hippy/iOSSDK (2.0.0):
+    - hippy/core
+    - hippy/coreThirdParty
+    - hippy/MTTLayout
+  - hippy/MTTLayout (2.0.0)
+
+DEPENDENCIES:
+  - hippy (from `../../`)
+
+EXTERNAL SOURCES:
+  hippy:
+    :path: "../../"
+
+SPEC CHECKSUMS:
+  hippy: 33b0a05af75b64b42f22757662533c19dfe7ae67
+
+PODFILE CHECKSUM: 3967e14f6fee40ab05776cbc952b7599e6d05df1
+
+COCOAPODS: 1.11.3
