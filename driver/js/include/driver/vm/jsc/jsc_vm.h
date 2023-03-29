@@ -46,7 +46,7 @@ public:
     JSContextGroupRelease(vm_);
   }
   
-  std::vector<std::unique_ptr<ConstructorData>> constructor_data_holder_;
+  std::unordered_map<void*, std::vector<std::unique_ptr<ConstructorData>>> constructor_data_holder_;
   JSContextGroupRef vm_;
   
   virtual std::shared_ptr<CtxValue> ParseJson(const std::shared_ptr<Ctx>& ctx, const string_view& json) override;
