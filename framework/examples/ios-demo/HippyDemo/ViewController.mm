@@ -93,8 +93,8 @@ static NSString *const engineKey = @"Demo";
 #endif
 
 #ifdef HIPPYDEBUG
-    NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
-    NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
+//    NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
+//    NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
 #else
     NSString *commonBundlePath = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:@"res"];
     NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res"];
@@ -105,8 +105,8 @@ static NSString *const engineKey = @"Demo";
     [_connector setRootView:rootView];
     NSNumber *rootTag = [rootView componentTag];
 #ifdef HIPPYDEBUG
-    [connector loadBundleURL:bundleUrl completion:^(NSURL * _Nullable, NSError * _Nullable) {
-        NSLog(@"url %@ load finish", bundleStr);
+    [connector loadDebugBundleCompletion:^(NSURL * _Nullable url, NSError * _Nullable error) {
+        NSLog(@"url %@ load finish", url);
         [connector loadInstanceForRootViewTag:rootTag props:@{@"isSimulator": @(isSimulator)}];
     }];
 #else
