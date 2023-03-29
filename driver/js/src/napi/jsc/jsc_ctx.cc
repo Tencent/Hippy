@@ -65,7 +65,7 @@ JSCCtx::~JSCCtx() {
   auto vm = vm_.lock();
   FOOTSTONE_CHECK(vm);
   auto jsc_vm = std::static_pointer_cast<JSCVM>(vm);
-  auto& holder = jsc_vm->constructor_data_holder_;
+  auto& holder = jsc_vm->constructor_data_holder_[this];
   for (auto& item : holder) {
     item->prototype = nullptr;
   }
@@ -883,7 +883,12 @@ void JSCCtx::SaveConstructorData(std::unique_ptr<ConstructorData> constructor_da
   auto vm = vm_.lock();
   FOOTSTONE_CHECK(vm);
   auto jsc_vm = std::static_pointer_cast<JSCVM>(vm);
-  jsc_vm->constructor_data_holder_.push_back(std::move(constructor_data));
+  auto& holder = jsc_vm->constructor_data_holder_;
+  auto it = holder.find(this);
+  if (it == holder.end()) {
+    holder[this] = std::vector<std::unique_ptr<ConstructorData>>{};
+  }
+  holder[this].push_back(std::move(constructor_data));
 }
 
 void JSCCtx::ThrowException(const std::shared_ptr<CtxValue> &exception) {
