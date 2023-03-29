@@ -18,6 +18,8 @@
  * limitations under the License.
  */
 
+import { NeedToTyped } from './index';
+
 const unescapeRE = /&quot;|&amp;|&#39;|&lt;|&gt;/;
 
 /**
@@ -42,4 +44,23 @@ export function unescapeHtml(string: string): string {
   str = str.replace(/&gt;/g, '>');
 
   return str;
+}
+
+/**
+ * remove unnecessary punctuation in node string, and parse node string to object
+ */
+export function getObjectNodeList(nodeString: string): NeedToTyped {
+  // remove unnecessary punctuation
+  const parseStr = nodeString
+    .replaceAll(/,}/g, '}')
+    .replace(/,]/g, ']')
+    .replace(/,$/, '');
+  let ssrNodeTree: NeedToTyped;
+  try {
+    // parse json string to json object
+    ssrNodeTree = JSON.parse(parseStr.replace(/\n/g, '\\n').replace(/\r/g, '\\r'));
+    return ssrNodeTree;
+  } catch (e) {
+    return null;
+  }
 }

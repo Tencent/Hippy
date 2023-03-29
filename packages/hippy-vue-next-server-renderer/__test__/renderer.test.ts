@@ -106,7 +106,6 @@ describe('renderer.ts', () => {
         listNode,
         commentNode,
       ] = result!;
-      console.log(JSON.stringify(result));
       expect(rootNode.id).toEqual(1);
       expect(rootNode.pId).toEqual(0);
       expect(rootNode.props).toEqual({ style: { flex: 1 }, attributes: { id: 'root', class: '' } });
