@@ -40,7 +40,7 @@ public class RecycleObjectPool extends BasePool<String, RecycleObject> {
 
     @Override
     @Nullable
-    public synchronized RecycleObject acquire(@NonNull String key) {
+    public RecycleObject acquire(@NonNull String key) {
         SimplePool<RecycleObject> pool = mPools.get(key);
         return (pool == null) ? null : pool.acquire();
     }
@@ -52,7 +52,7 @@ public class RecycleObjectPool extends BasePool<String, RecycleObject> {
     }
 
     @Override
-    public synchronized void release(@NonNull String key, @NonNull RecycleObject instance) {
+    public void release(@NonNull String key, @NonNull RecycleObject instance) {
         SimplePool<RecycleObject> pool;
         pool = mPools.get(key);
         if (pool == null) {

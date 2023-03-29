@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.list.IRecycleItemTypeChange;
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.utils.MapUtils;
@@ -34,6 +35,7 @@ import java.util.Map;
 
 public class ListItemRenderNode extends RenderNode {
 
+    private static final String TAG = "ListItemRenderNode";
     public static final String ITEM_VIEW_TYPE = "type";
     public static final String ITEM_STICKY = "sticky";
     public static final String ITEM_VIEW_TYPE_NEW = "itemViewType";
