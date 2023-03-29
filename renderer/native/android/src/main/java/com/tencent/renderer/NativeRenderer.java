@@ -464,9 +464,9 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             element = node.get(NODE_PROPS);
             final Map<String, Object> props =
                     (element instanceof HashMap) ? (Map) element : new HashMap<String, Object>();
-            LogUtils.i(TAG, "createNode nodeId " + nodeId + ", nodePid " + nodePid + ", nodeIndex "
+            LogUtils.d(TAG, "createNode nodeId " + nodeId + ", nodePid " + nodePid + ", nodeIndex "
                     + nodeIndex + ", className " + className);
-            LogUtils.i(TAG, "props " + props);
+            LogUtils.d(TAG, "props " + props);
             mVirtualNodeManager.createNode(rootId, nodeId, nodePid, nodeIndex, className, props);
             // If multiple level are nested, the parent is outermost text node.
             VirtualNode parent = mVirtualNodeManager.checkVirtualParent(rootId, nodeId);
@@ -552,7 +552,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             element = node.get(NODE_PROPS);
             final Map<String, Object> props =
                     (element instanceof HashMap) ? (Map) element : new HashMap<String, Object>();
-            LogUtils.i(TAG,
+            LogUtils.d(TAG,
                     "updateNode nodeId " + nodeId + ", props " + props);
             mVirtualNodeManager.updateNode(rootId, nodeId, props);
             // If multiple level are nested, the parent is outermost text node.
@@ -590,7 +590,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             }
             // If multiple level are nested, the parent is outermost text node.
             VirtualNode parent = mVirtualNodeManager.checkVirtualParent(rootId, nodeId);
-            LogUtils.i(TAG, "deleteNode rootId " + rootId + ", nodeId " + nodeId);
+            LogUtils.d(TAG, "deleteNode rootId " + rootId + ", nodeId " + nodeId);
             mVirtualNodeManager.deleteNode(rootId, nodeId);
             if (parent != null) {
                 final int pid = parent.getId();
@@ -627,7 +627,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     @Override
     public void moveNode(final int rootId, final int pid, @NonNull final List<Object> list) {
-        LogUtils.i(TAG, "moveNode pid " + pid + ", node list " + list);
+        LogUtils.d(TAG, "moveNode pid " + pid + ", node list " + list);
         VirtualNode parent = mVirtualNodeManager.getVirtualNode(rootId, pid);
         if (parent == null) {
             addUITask(new UITaskExecutor() {

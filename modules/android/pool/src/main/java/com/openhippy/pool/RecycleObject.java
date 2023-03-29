@@ -25,12 +25,12 @@ public abstract class RecycleObject {
 
     public abstract void recycle();
 
-    protected static void recycle(@NonNull RecycleObject object) {
+    protected synchronized static void recycle(@NonNull RecycleObject object) {
         sRecycleObjectPool.release(object);
     }
 
     @Nullable
-    protected static RecycleObject obtain(@NonNull String objectType) {
+    protected synchronized static RecycleObject obtain(@NonNull String objectType) {
         return sRecycleObjectPool.acquire(objectType);
     }
 

@@ -21,6 +21,7 @@ import android.graphics.Canvas;
 import android.view.ViewGroup;
 
 import com.tencent.mtt.hippy.uimanager.RenderManager;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.renderer.node.RenderNode;
 
 /**
@@ -29,6 +30,7 @@ import com.tencent.renderer.node.RenderNode;
  */
 public class FlatViewGroup extends ViewGroup {
 
+    private static final String TAG = "FlatViewGroup";
     private final DispatchDrawHelper mDispatchDrawHelper = new DispatchDrawHelper();
 
     public FlatViewGroup(Context context) {
@@ -65,6 +67,7 @@ public class FlatViewGroup extends ViewGroup {
         super.onAttachedToWindow();
         RenderNode node = RenderManager.getRenderNode(this);
         if (node != null) {
+            LogUtils.d(TAG, "onAttachedToWindow node id " + node.getId() + ", view id " + getId());
             node.onHostViewAttachedToWindow();
         }
     }

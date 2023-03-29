@@ -77,6 +77,10 @@ public class Component implements Drawable.Callback {
         mHostRef = new WeakReference<>(node);
     }
 
+    public int getHostId() {
+        return (mHostRef.get() != null) ? mHostRef.get().getId() : -1;
+    }
+
     protected boolean checkComponentFlag(int flag) {
         return (mComponentFlags & flag) == flag;
     }

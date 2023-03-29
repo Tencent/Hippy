@@ -20,6 +20,8 @@ import androidx.annotation.Nullable;
 
 public class UrlUtils {
 
+    public static final String PREFIX_HTTP = "http://";
+    public static final String PREFIX_HTTPS = "https://";
     public static final String PREFIX_FILE = "file://";
     public static final String PREFIX_ASSETS = "assets://";
     public static final String PREFIX_BASE64_DATA = "data:";
@@ -30,7 +32,7 @@ public class UrlUtils {
      */
     public static boolean isHttpUrl(@Nullable String url) {
         return (null != url) && (url.length() > 6) && url.substring(0, 7)
-                .equalsIgnoreCase("http://");
+                .equalsIgnoreCase(PREFIX_HTTP);
     }
 
     /**
@@ -38,7 +40,7 @@ public class UrlUtils {
      */
     public static boolean isHttpsUrl(@Nullable String url) {
         return (null != url) && (url.length() > 7) && url.substring(0, 8)
-                .equalsIgnoreCase("https://");
+                .equalsIgnoreCase(PREFIX_HTTPS);
     }
 
     /**

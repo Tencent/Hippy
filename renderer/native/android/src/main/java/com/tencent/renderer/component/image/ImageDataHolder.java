@@ -28,6 +28,7 @@ import androidx.annotation.RequiresApi;
 
 import com.openhippy.pool.ImageRecycleObject;
 import com.openhippy.pool.RecycleObject;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.utils.ImageDataUtils;
 
@@ -49,7 +50,8 @@ import java.util.Map;
 
 public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupplier {
 
-    private static final int MAX_SOURCE_KEY_LEN = 32;
+    private static final String TAG = "ImageDataHolder";
+    private static final int MAX_SOURCE_KEY_LEN = 128;
     /**
      * Mark that the image data has been cached.
      */
@@ -172,6 +174,7 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
         mGifMovie = null;
         mDrawable = null;
         mOptions = null;
+        mSource = null;
         mStateFlags = 0;
         recycle();
     }

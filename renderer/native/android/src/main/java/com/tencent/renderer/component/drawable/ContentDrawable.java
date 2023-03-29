@@ -128,6 +128,7 @@ public class ContentDrawable extends Drawable {
 
     public void clear() {
         mGifMovieState = null;
+        mImageHolder = null;
     }
 
     public void setImageData(@NonNull ImageDataSupplier imageHolder) {

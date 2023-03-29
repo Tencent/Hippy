@@ -22,7 +22,7 @@ import androidx.annotation.Nullable;
 
 public class ImageDataPool extends BasePool<Integer, ImageRecycleObject> {
 
-    private static final int DEFAULT_IMAGE_POOL_SIZE = 6;
+    private static final int DEFAULT_IMAGE_POOL_SIZE = 12;
     private LruCache<Integer, ImageRecycleObject> mPools;
 
     public ImageDataPool() {
@@ -63,9 +63,7 @@ public class ImageDataPool extends BasePool<Integer, ImageRecycleObject> {
 
     @Override
     public void release(@NonNull ImageRecycleObject data) {
-        if (!data.isScraped()) {
-            release(data.getCacheKey(), data);
-        }
+        release(data.getCacheKey(), data);
     }
 
     @Override
