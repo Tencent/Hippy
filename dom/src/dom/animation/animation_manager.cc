@@ -38,10 +38,6 @@ using Scene = hippy::dom::Scene;
 
 AnimationManager::AnimationManager() : listener_id_(0) {}
 
-AnimationManager::~AnimationManager() {
-  RemoveEventListener();
-}
-
 void AnimationManager::OnDomNodeCreate(const std::vector<std::shared_ptr<DomInfo>>& nodes) {
   for (const std::shared_ptr<DomInfo>& node: nodes) {
     ParseAnimation(node->dom_node);
@@ -270,7 +266,7 @@ void AnimationManager::RemoveActiveAnimation(uint32_t id) {
     }
   }
   if (size == 1 && active_animations_.empty()) {
-    RemoveEventListener();
+    RemoveVSyncEventListener();
   }
 }
 
@@ -352,7 +348,7 @@ std::shared_ptr<RenderManager> AnimationManager::GetRenderManager() {
   return dom_manager->GetRenderManager().lock();
 }
 
-void AnimationManager::RemoveEventListener() {
+void AnimationManager::RemoveVSyncEventListener() {
   auto root_node = root_node_.lock();
   if (!root_node) {
     return;

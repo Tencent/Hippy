@@ -64,6 +64,10 @@ void RootNode::RemoveEventListener(const std::string& name, uint64_t listener_id
   RemoveEvent(GetId(), name);
 }
 
+void RootNode::ReleaseResources() {
+  animation_manager_->RemoveVSyncEventListener();
+}
+
 void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   for (const auto& interceptor : interceptors_) {
     interceptor->OnDomNodeCreate(nodes);
