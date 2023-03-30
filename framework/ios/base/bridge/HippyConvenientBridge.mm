@@ -59,11 +59,11 @@
                        engineKey:(NSString *)engineKey {
     self = [super init];
     if (self) {
-        _bridge = [[HippyBridge alloc] initWithDelegate:self moduleProvider:block
-                                          launchOptions:launchOptions engineKey:engineKey];
+        _delegate = delegate;
         _engineKey = engineKey;
         _extraComponents = extraComponents;
-        _delegate = delegate;
+        _bridge = [[HippyBridge alloc] initWithDelegate:self moduleProvider:block
+                                          launchOptions:launchOptions engineKey:engineKey];
         [_bridge addImageProviderClass:[HPDefaultImageProvider class]];
         [_bridge setVFSUriLoader:[self URILoader]];
         [self setUpNativeRenderManager];

@@ -360,6 +360,7 @@ void AnimationManager::RemoveVSyncEventListener() {
   }
   if (dom_manager) {
     dom_manager->RemoveEventListener(root_node, root_node->GetId(), kVSyncKey, listener_id_);
+    dom_manager->EndBatch(root_node_);
   }
 }
 

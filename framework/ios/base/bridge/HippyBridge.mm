@@ -258,6 +258,9 @@ dispatch_queue_t HippyBridgeQueue() {
             }
         };
         [_javaScriptExecutor setup];
+        if (_contextName) {
+            _javaScriptExecutor.contextName = _contextName;
+        }
         _displayLink = [[HippyDisplayLink alloc] init];
         dispatch_async(HippyBridgeQueue(), ^{
             [self initWithModulesCompletion:^{
@@ -728,7 +731,6 @@ dispatch_queue_t HippyBridgeQueue() {
       #ifdef ENABLE_INSPECTOR
         auto devtools_data_source = strongSelf->_javaScriptExecutor.pScope->GetDevtoolsDataSource();
         if (devtools_data_source) {
-            hippy::DomManager::Insert(domManager);
             strongSelf->_javaScriptExecutor.pScope->GetDevtoolsDataSource()->Bind(domManager);
             devtools_data_source->SetRootNode(rootNode);
         }
