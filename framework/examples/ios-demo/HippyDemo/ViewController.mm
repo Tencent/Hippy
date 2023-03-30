@@ -60,18 +60,7 @@ static NSString *const engineKey = @"Demo";
         NSLog(@"hippy says:%@ in file %@ at line %@", message, fileName, lineNumber);
     });
     [self runCommonDemo];
-    // [self runDemoWithoutRuntime];
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(remove)];
-    tap.numberOfTapsRequired = 2;
-    [self.view addGestureRecognizer:tap];
-
 }
-
-- (void)remove {
-    _connector = nil;
-    [[[self.view subviews] firstObject] removeFromSuperview];
-}
-
 
 - (void)runCommonDemo {
     //JS Contexts holding the same engine key will share VM
