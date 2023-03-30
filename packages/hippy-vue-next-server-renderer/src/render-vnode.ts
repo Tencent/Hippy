@@ -280,6 +280,7 @@ export function renderVNode(
       if (vnode?.slotScopeIds) {
         slotScopeId = (slotScopeId ? `${slotScopeId} ` : '') + vnode.slotScopeIds.join(' ');
       }
+      // fixme: fragment do not totally test, should fixme later
       push('{"id": -1,"name":"comment","props":{"text":"["}},'); // open
       renderVNodeChildren(
         push,

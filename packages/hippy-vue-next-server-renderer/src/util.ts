@@ -49,16 +49,26 @@ export function unescapeHtml(string: string): string {
 /**
  * remove unnecessary punctuation in node string, and parse node string to object
  */
-export function getObjectNodeList(nodeString: string): NeedToTyped {
+export function getObjectNodeList(nodeString: (string | string[])[]): NeedToTyped {
+  // flat nested array and connect
+  // for example [
+  //       '{"id":22,"index":0,"name":"View","tagName":"div","props":{},"children":[',
+  //       [ '{"id":23,"index":0,"name":"View","tagName":"div","props":{},},' ],
+  //       '],},'
+  //     ]
+  // transform to
+  // ['{"id":22,"index":0,"name":"View","tagName":"div","props":{},"children":
+  // [','{"id":23,"index":0,"name":"View","tagName":"div","props":{},},', '],},']
+  const rawString = nodeString.flat(Infinity).join('');
   // remove unnecessary punctuation
-  const parseStr = nodeString
+  const parsedStr = rawString
     .replaceAll(/,}/g, '}')
     .replace(/,]/g, ']')
     .replace(/,$/, '');
   let ssrNodeTree: NeedToTyped;
   try {
     // parse json string to json object
-    ssrNodeTree = JSON.parse(parseStr.replace(/\n/g, '\\n').replace(/\r/g, '\\r'));
+    ssrNodeTree = JSON.parse(parsedStr.replace(/\n/g, '\\n').replace(/\r/g, '\\r'));
     return ssrNodeTree;
   } catch (e) {
     return null;
