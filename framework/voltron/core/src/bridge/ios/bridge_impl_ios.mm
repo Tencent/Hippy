@@ -32,6 +32,7 @@
 #include "footstone/task_runner.h"
 #include "string_convert.h"
 #include "wrapper.h"
+#include "data_holder.h"
 
 #define Addr2Str(addr) (addr?[NSString stringWithFormat:@"%ld", (long)addr]:@"0")
 
@@ -157,7 +158,7 @@ int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platf
                                     bool bridge_param_json,
                                     bool is_dev_module,
                                     int64_t group_id,
-                                    const std::shared_ptr<WorkerManager> &worker_manager,
+                                    const std::unique_ptr<WorkerManager> &worker_manager,
                                     uint32_t dom_manager_id,
                                     const char16_t *char_globalConfig,
                                     size_t initial_heap_size,
@@ -170,12 +171,11 @@ int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platf
     NSString *globalConfig = U16ToNSString(char_globalConfig);
     BOOL debugMode = is_dev_module ? YES : NO;
     int64_t bridge_id = (int64_t)bridge;
-    auto worker_sp = worker_manager;
     NSNumber *devtoolsId = [NSNumber numberWithInt:devtools_id];
 
     dispatch_async(HippyBridgeQueue(), ^{
         NSString *executorKey = [[NSString alloc] initWithFormat:@"VoltronExecutor_%lld", bridge_id];
-        std::shared_ptr<DomManager> dom_manager = DomManager::Find(dom_manager_id);
+        auto dom_manager = voltron::FindObject<std::shared_ptr<hippy::DomManager>>(dom_manager_id);
         FOOTSTONE_DCHECK(dom_manager);
         std::shared_ptr<footstone::TaskRunner> dom_task_runner = dom_manager->GetTaskRunner();
         FOOTSTONE_DCHECK(dom_task_runner);
@@ -183,7 +183,7 @@ int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platf
         engine->AsyncInit(dom_task_runner, nullptr);
         [[VoltronJSEnginesMapper defaultInstance] setEngine:engine forKey: executorKey];
 
-        [bridge initJSFramework:globalConfig execurotKey:executorKey workerManager:worker_sp devtoolsId:devtoolsId debugMode:debugMode completion:^(BOOL succ) {
+        [bridge initJSFramework:globalConfig execurotKey:executorKey devtoolsId:devtoolsId debugMode:debugMode completion:^(BOOL succ) {
             callback(succ ? 1 : 0);
         }];
     });

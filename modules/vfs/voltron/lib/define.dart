@@ -22,8 +22,8 @@ import 'dart:ffi';
 
 import 'package:ffi/ffi.dart';
 
-typedef CreateVfsWrapperNativeType = Uint32 Function(Uint32 workerManagerId);
-typedef CreateVfsWrapperDartType = int Function(int workManagerId);
+typedef CreateVfsWrapperNativeType = Uint32 Function();
+typedef CreateVfsWrapperDartType = int Function();
 
 typedef DestroyVfsWrapperNativeType = Void Function(Uint32 id);
 typedef DestroyVfsWrapperDartType = void Function(int id);

@@ -47,7 +47,7 @@ static NSString *const _VoltronSDKVersion = @"1.0.0";
     [self initCommonVars];
 }
 
-- (void)initJSFramework:(NSString *)globalConfig execurotKey:(NSString *)execurotKey workerManager:(const std::shared_ptr<footstone::WorkerManager>&)workerManager devtoolsId: (NSNumber *)devtoolsId debugMode:(BOOL)debugMode completion:(void (^)(BOOL))completion {
+- (void)initJSFramework:(NSString *)globalConfig execurotKey:(NSString *)execurotKey devtoolsId: (NSNumber *)devtoolsId debugMode:(BOOL)debugMode completion:(void (^)(BOOL))completion {
     if (self.jscExecutor) {
         NSAssert(0, @"initJSFramework has called");
         return;
@@ -75,7 +75,6 @@ static NSString *const _VoltronSDKVersion = @"1.0.0";
 
     self.jscExecutor = [[VoltronJSCExecutor alloc] initWithExecurotKey:execurotKey
                                                           globalConfig:globalConfig
-                                                            workerManager:workerManager
                                                             devtoolsId:devtoolsId
                                                              debugMode:debugMode
                                                             completion:callback];

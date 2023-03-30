@@ -37,8 +37,6 @@ using RenderManagerMap = footstone::utils::PersistentObjectMap<uint32_t , std::s
 static std::atomic<uint32_t> global_render_manager_key_{1};
 static RenderManagerMap render_manager_map_;
 
-constexpr uint32_t kDefaultNumberOfThreads = 2;
-
 int64_t BridgeRuntime::CalculateNodeLayout(int32_t instance_id, int32_t node_id, double width, int32_t width_mode, double height, int32_t height_mode) {
     std::condition_variable cv;
     bool notified = false;
@@ -67,7 +65,6 @@ int64_t BridgeRuntime::CalculateNodeLayout(int32_t instance_id, int32_t node_id,
 }
 
 BridgeRuntime::BridgeRuntime(int32_t engine_id) : engine_id_(engine_id) {
-
 }
 
 std::shared_ptr<BridgeManager> BridgeManager::Create(int32_t engine_id, const Sp<BridgeRuntime>& runtime) {
@@ -77,7 +74,7 @@ std::shared_ptr<BridgeManager> BridgeManager::Create(int32_t engine_id, const Sp
     bridge_manager->BindRuntime(runtime);
     return bridge_manager;
   } else {
-    auto new_bridge_manager = std::make_shared<BridgeManager>(engine_id);
+    auto new_bridge_manager = std::make_shared<BridgeManager>();
     bridge_map_.Insert(engine_id, new_bridge_manager);
     new_bridge_manager->BindRuntime(runtime);
     return new_bridge_manager;
@@ -96,25 +93,6 @@ Sp<BridgeManager> BridgeManager::Find(int32_t engine_id) {
 
 void BridgeManager::Destroy(int32_t engine_id) {
   bridge_map_.Erase(engine_id);
-}
-
-uint32_t BridgeManager::CreateWorkerManager() {
-  if (!worker_manager_) {
-    worker_manager_ = std::make_unique<footstone::WorkerManager>(kDefaultNumberOfThreads);
-  }
-
-  return engine_id_;
-}
-
-void BridgeManager::DestroyWorkerManager() {
-  if (worker_manager_) {
-    worker_manager_->Terminate();
-    worker_manager_ = nullptr;
-  }
-}
-
-const std::unique_ptr<footstone::WorkerManager>& BridgeManager::GetWorkerManager() {
-  return worker_manager_;
 }
 
 Sp<VoltronRenderManager> BridgeManager::CreateRenderManager() {
@@ -144,13 +122,9 @@ Sp<VoltronRenderManager> BridgeManager::FindRenderManager(uint32_t render_manage
 
 BridgeManager::~BridgeManager() {
   native_callback_map_.Clear();
-  if (worker_manager_) {
-    worker_manager_->Terminate();
-    worker_manager_ = nullptr;
-  }
 }
 
-BridgeManager::BridgeManager(uint32_t engine_id): engine_id_(engine_id) {}
+BridgeManager::BridgeManager() {}
 
 std::shared_ptr<BridgeRuntime> BridgeManager::GetRuntime() { return runtime_.lock(); }
 

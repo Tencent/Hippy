@@ -95,7 +95,8 @@ hippy::UriLoader::RetCode VfsWrapper::ParseResultCode(int32_t code) {
   }
 }
 
-VfsWrapper::VfsWrapper(uint32_t worker_manager_id) {
+VfsWrapper::VfsWrapper() {
+  id_ = voltron::GenId();
   auto delegate = std::make_shared<voltron::FfiDelegateHandler>(id_);
   loader_ = std::make_shared<hippy::UriLoader>();
   auto file_delegate = std::make_shared<voltron::FileHandler>();
@@ -110,10 +111,6 @@ VfsWrapper::~VfsWrapper() {
 
 uint32_t VfsWrapper::GetId() const {
   return id_;
-}
-
-void VfsWrapper::SetId(uint32_t id) {
-  id_ = id;
 }
 
 std::shared_ptr<hippy::UriLoader> VfsWrapper::GetLoader() {
@@ -220,11 +217,10 @@ EXTERN_C int32_t RegisterVoltronVfsCallFunc(int32_t type, void *func) {
   return false;
 }
 
-EXTERN_C int32_t CreateVfsWrapper(uint32_t worker_manager_id) {
-  auto wrapper = std::make_shared<voltron::VfsWrapper>(worker_manager_id);
-  auto id = voltron::InsertObject(wrapper);
-  wrapper->SetId(id);
-  return footstone::checked_numeric_cast<uint32_t, int32_t>(id);
+EXTERN_C int32_t CreateVfsWrapper() {
+  auto wrapper = std::make_shared<voltron::VfsWrapper>();
+  voltron::InsertObject(wrapper->GetId(), wrapper);
+  return footstone::checked_numeric_cast<uint32_t, int32_t>(wrapper->GetId());
 }
 
 EXTERN_C void DestroyVfsWrapper(uint32_t id) {

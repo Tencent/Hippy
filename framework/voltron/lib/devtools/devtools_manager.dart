@@ -27,13 +27,11 @@ class DevtoolsManager {
   DevtoolsManager(this._devMode);
 
   Future<int> create({
-    required int workerManagerId,
     String dataDir = '',
     String wsUrl = '',
   }) async {
     if (!_devMode) return 0;
     _id = await VoltronApi.createDevtools(
-      workerManagerId: workerManagerId,
       dataDir: dataDir,
       wsUrl: wsUrl,
     );
