@@ -36,7 +36,7 @@
 
 static NSString *const engineKey = @"Demo";
 
-@interface TestModule ()<HippyMethodInterceptorProtocol, HippyConvenientBridgeDelegate> {
+@interface TestModule ()<HippyMethodInterceptorProtocol, HippyBridgeDelegate> {
     HippyConvenientBridge *_connector;
 }
 
@@ -119,22 +119,22 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     [view addSubview:rootView];
 }
 
-- (void)reload:(HippyConvenientBridge *)connector {
+- (void)reload:(HippyBridge *)bridge {
     AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     UIViewController *rootViewController = delegate.window.rootViewController;
     UIViewController *vc = rootViewController.presentedViewController;
-    [self mountConnector:connector onView:vc.view];
+    [self mountConnector:_connector onView:vc.view];
 }
 
-- (void)removeRootView:(NSNumber *)rootTag connector:(HippyConvenientBridge *)connector {
+- (void)removeRootView:(NSNumber *)rootTag bridge:(HippyBridge *)bridge {
     AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     UIViewController *rootViewController = delegate.window.rootViewController;
     UIViewController *vc = rootViewController.presentedViewController;
     [[[vc.view subviews] firstObject] removeFromSuperview];
 }
 
-- (BOOL)shouldStartInspector:(HippyConvenientBridge *)connector {
-    return connector.bridge.debugMode;
+- (BOOL)shouldStartInspector:(HippyBridge *)bridge {
+    return bridge.debugMode;
 }
 
 - (BOOL)shouldInvokeWithModuleName:(NSString *)moduleName methodName:(NSString *)methodName arguments:(NSArray<id<HippyBridgeArgument>> *)arguments argumentsValues:(NSArray *)argumentsValue containCallback:(BOOL)containCallback {
