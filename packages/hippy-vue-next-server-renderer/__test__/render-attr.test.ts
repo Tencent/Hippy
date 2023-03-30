@@ -40,11 +40,6 @@ describe('render-attr.ts', () => {
       expect(ssrRenderStyle(12345)).toEqual('{}');
     });
   });
-  // describe('ssrRenderSlot should work correctly', () => {
-  //   it('render div tag', () => {
-  //
-  //   });
-  // });
   describe('ssrGetDirectiveProps should work correctly', () => {
     it('no props rendered in ssr', () => {
       expect(ssrGetDirectiveProps()).toEqual({});

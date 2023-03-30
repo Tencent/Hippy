@@ -17,3 +17,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/**
+ * parse and return render function body in compiled ast
+ *
+ * @param code
+ */
+export function getSsrRenderFunctionBody(code: string): string {
+  const start = code.indexOf('function ssrRender');
+  let str = code.substring(start);
+  str = str.substring(str.indexOf('{') + 1);
+  return str.replace(/\n/g, '')
+    .replace(/\r/g, '')
+    .replace(/\{\s+/g, '{')
+    .replace(/\s+}/g, '}')
+    .replace(/:\s+/g, ':')
+    .replace(/,\s+/g, ',')
+    .replace(/}$/, '')
+    .trim();
+}

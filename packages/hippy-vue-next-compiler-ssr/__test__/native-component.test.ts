@@ -17,3 +17,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/**
+ * @author birdguo
+ * @priority P0
+ * @casetype unit
+ */
+describe('native-component.test.ts', () => {
+  it('native-component test', () => {});
+});
