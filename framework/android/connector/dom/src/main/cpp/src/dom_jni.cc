@@ -62,6 +62,11 @@ REGISTER_JNI("com/openhippy/connector/DomManager", // NOLINT(cert-err58-cpp)
              DestroyRoot)
 
 REGISTER_JNI("com/openhippy/connector/DomManager", // NOLINT(cert-err58-cpp)
+             "releaseRootResources",
+             "(I)V",
+             ReleaseRootResources)
+
+REGISTER_JNI("com/openhippy/connector/DomManager", // NOLINT(cert-err58-cpp)
              "setDomManager",
              "(II)V",
              SetDomManager)
@@ -88,6 +93,17 @@ void DestroyRoot(JNIEnv* j_env,
   auto& persistent_map = RootNode::PersistentMap();
   auto flag = persistent_map.Erase(root_id);
   FOOTSTONE_DCHECK(flag);
+}
+
+void ReleaseRootResources(JNIEnv* j_env,
+                          __unused jobject j_obj,
+                          jint j_root_id) {
+  auto root_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_root_id);
+  auto& persistent_map = RootNode::PersistentMap();
+  std::shared_ptr<RootNode> root_node;
+  auto flag = persistent_map.Find(root_id, root_node);
+  FOOTSTONE_CHECK(flag);
+  root_node->ReleaseResources();
 }
 
 void SetDomManager(JNIEnv* j_env,

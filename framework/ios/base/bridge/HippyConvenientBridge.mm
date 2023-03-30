@@ -232,4 +232,8 @@
     }];
 }
 
+- (void)dealloc {
+    _rootNode->ReleaseResources();
+}
+
 @end

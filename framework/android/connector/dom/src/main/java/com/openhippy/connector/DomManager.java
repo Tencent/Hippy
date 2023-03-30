@@ -50,6 +50,8 @@ public class DomManager implements Connector {
         destroyRootNode(rootId);
     }
 
+    public void releaseRoot(int rootId) { releaseRootResources(rootId); }
+
     public void attachToRoot(View root) {
         setDomManager(root.getId(), mInstanceId);
     }
@@ -78,6 +80,8 @@ public class DomManager implements Connector {
     private native void createRootNode(int rootId);
 
     private native void destroyRootNode(int rootId);
+
+    private native void releaseRootResources(int rootId);
 
     private native void setDomManager(int rootId, int domManagerId);
 

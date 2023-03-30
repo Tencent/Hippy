@@ -49,6 +49,7 @@ class RootNode : public DomNode {
                                 const EventCallback& cb) override;
   virtual void RemoveEventListener(const std::string& name, uint64_t listener_id) override;
 
+  void ReleaseResources();
   void CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
   void UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
   void MoveDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);

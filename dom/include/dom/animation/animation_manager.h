@@ -47,7 +47,7 @@ class AnimationManager
 
  public:
   AnimationManager();
-  ~AnimationManager();
+  ~AnimationManager() = default;
 
   AnimationManager(AnimationManager&) = delete;
   AnimationManager& operator=(AnimationManager&) = delete;
@@ -60,6 +60,7 @@ class AnimationManager
     root_node_ = root_node;
   }
 
+  void RemoveVSyncEventListener();
   void OnDomNodeCreate(const std::vector<std::shared_ptr<DomInfo>>& nodes) override;
   void OnDomNodeUpdate(const std::vector<std::shared_ptr<DomInfo>>& nodes) override;
   void OnDomNodeMove(const std::vector<std::shared_ptr<DomInfo>>& nodes) override;
@@ -119,7 +120,6 @@ class AnimationManager
                                   uint32_t related_animation_id,
                                   std::unordered_map<uint32_t, std::shared_ptr<DomNode>>& update_node_map);
   std::shared_ptr<RenderManager> GetRenderManager();
-  void RemoveEventListener();
 
   std::weak_ptr<RootNode> root_node_;
   std::unordered_map<uint32_t, std::shared_ptr<Animation>> animation_map_;
