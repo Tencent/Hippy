@@ -29,28 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 typedef void(^_Nullable HippyBridgeBundleLoadCompletion)(NSURL *_Nullable, NSError *_Nullable);
 
 @protocol HippyBridgeDelegate, HPImageProviderProtocol, HippyMethodInterceptorProtocol;
-@class HippyBridge, HippyConvenientBridge;
-
-@protocol HippyConvenientBridgeDelegate <NSObject>
-
-@optional
-
-- (BOOL)shouldStartInspector:(HippyConvenientBridge *)connector;
-
-- (NSData *)cachedCodeForConnector:(HippyConvenientBridge *)connector
-                            script:(NSString *)script
-                         sourceURL:(NSURL *)sourceURL;
-
-- (void)cachedCodeCreated:(NSData *)cachedCode
-             ForConnector:(HippyConvenientBridge *)connector
-                   script:(NSString *)script
-                sourceURL:(NSURL *)sourceURL;
-
-- (void)removeRootView:(NSNumber *)rootTag connector:(HippyConvenientBridge *)connector;
-
-- (void)reload:(HippyConvenientBridge *)connector;
-
-@end
 
 /**
  * Convenient class for adative 2.0 interface
@@ -65,10 +43,10 @@ typedef void(^_Nullable HippyBridgeBundleLoadCompletion)(NSURL *_Nullable, NSErr
 
 //Optional properties
 @property(nonatomic, weak) id<HippyMethodInterceptorProtocol> methodInterceptor;
-@property(nonatomic, readonly, weak) id<HippyConvenientBridgeDelegate> delegate;
+@property(nonatomic, readonly, weak) id<HippyBridgeDelegate> delegate;
 
 //Methods that must be called
-- (instancetype)initWithDelegate:(id<HippyConvenientBridgeDelegate> _Nullable)delegate
+- (instancetype)initWithDelegate:(id<HippyBridgeDelegate> _Nullable)delegate
                   moduleProvider:(HippyBridgeModuleProviderBlock _Nullable)block
                  extraComponents:(NSArray<Class> * _Nullable)extraComponents
                    launchOptions:(NSDictionary * _Nullable)launchOptions

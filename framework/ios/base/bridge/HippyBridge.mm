@@ -752,10 +752,6 @@ dispatch_queue_t HippyBridgeQueue() {
     return _moduleSetup.moduleSetupComplete;
 }
 
-- (NSURL *)bundleURL {
-    return [_bundleURLs firstObject];
-}
-
 - (void)invalidate {
     HPLogInfo(self, @"[Hippy_OC_Log][Life_Circle],%@ invalide %p", NSStringFromClass([self class]), self);
     if (![self isValid]) {
@@ -903,6 +899,10 @@ dispatch_queue_t HippyBridgeQueue() {
     }
 }
 
+- (NSArray<NSURL *> *)bundleURLs {
+    return [_bundleURLs copy];
+}
+
 + (NSString *)defaultHippyLocalFileScheme {
     // hpfile://
     return @"hpfile://";
@@ -920,7 +920,7 @@ dispatch_queue_t HippyBridgeQueue() {
             NSRange range = NSMakeRange(0, [filePrefix length]);
             relativeString = [string stringByReplacingOccurrencesOfString:filePrefix withString:@"" options:0 range:range];
         }
-        NSURL *localFileURL = [NSURL URLWithString:relativeString relativeToURL:self.bundleURL];
+        NSURL *localFileURL = [NSURL URLWithString:relativeString relativeToURL:self.sandboxDirectory];
         return [localFileURL path];
     }
     return nil;

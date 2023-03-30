@@ -120,9 +120,9 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 @property (nonatomic, strong) NSString *moduleName;
 
 /**
- * URL of the script that was first loaded into the bridge.
+ * URLs of the script that was loaded into the bridge.
  */
-@property (nonatomic, strong, readonly) NSURL *bundleURL;
+@property (nonatomic, copy, readonly) NSArray<NSURL *> *bundleURLs;
 
 /**
  * Set debug url for devtools
