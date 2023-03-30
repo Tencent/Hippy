@@ -117,14 +117,14 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
         recyclerView.setItemAnimator(null);
         boolean enableScrollEvent = false;
         boolean enableOverPull = true;
-        boolean hasStableIds = false;
+        boolean hasStableIds = true;
         if (props != null) {
             if (MapUtils.getBooleanValue(props, HORIZONTAL)) {
                 layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
             }
             enableScrollEvent = MapUtils.getBooleanValue(props, "onScroll");
             enableOverPull = MapUtils.getBooleanValue(props, NodeProps.OVER_PULL, true);
-            hasStableIds = MapUtils.getBooleanValue(props, NodeProps.HAS_STABLE_IDS, false);
+            hasStableIds = MapUtils.getBooleanValue(props, NodeProps.HAS_STABLE_IDS, true);
         }
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.initRecyclerView(hasStableIds);
