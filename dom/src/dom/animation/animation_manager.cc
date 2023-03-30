@@ -38,6 +38,10 @@ using Scene = hippy::dom::Scene;
 
 AnimationManager::AnimationManager() : listener_id_(0) {}
 
+AnimationManager::~AnimationManager() {
+  RemoveEventListener();
+}
+
 void AnimationManager::OnDomNodeCreate(const std::vector<std::shared_ptr<DomInfo>>& nodes) {
   for (const std::shared_ptr<DomInfo>& node: nodes) {
     ParseAnimation(node->dom_node);
@@ -266,17 +270,7 @@ void AnimationManager::RemoveActiveAnimation(uint32_t id) {
     }
   }
   if (size == 1 && active_animations_.empty()) {
-    if (!root_node) {
-      return;
-    }
-    auto weak_dom_manager = root_node->GetDomManager();
-    auto dom_manager = weak_dom_manager.lock();
-    if (!dom_manager) {
-      return;
-    }
-    if (dom_manager) {
-      dom_manager->RemoveEventListener(root_node, root_node->GetId(), kVSyncKey, listener_id_);
-    }
+    RemoveEventListener();
   }
 }
 
@@ -356,6 +350,21 @@ std::shared_ptr<RenderManager> AnimationManager::GetRenderManager() {
     return nullptr;
   }
   return dom_manager->GetRenderManager().lock();
+}
+
+void AnimationManager::RemoveEventListener() {
+  auto root_node = root_node_.lock();
+  if (!root_node) {
+    return;
+  }
+  auto weak_dom_manager = root_node->GetDomManager();
+  auto dom_manager = weak_dom_manager.lock();
+  if (!dom_manager) {
+    return;
+  }
+  if (dom_manager) {
+    dom_manager->RemoveEventListener(root_node, root_node->GetId(), kVSyncKey, listener_id_);
+  }
 }
 
 void AnimationManager::UpdateAnimation(const std::shared_ptr<Animation>& animation, uint64_t now,
