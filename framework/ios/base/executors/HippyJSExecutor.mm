@@ -394,7 +394,8 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
         }
         auto tryCatch = hippy::napi::CreateTryCatchScope(true, context);
         auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(self.pScope->GetContext());
-        jsc_context->SetName([contextName UTF8String]);
+        NSString *finalName = [NSString stringWithFormat:@"HippyContext:%@", contextName];
+        jsc_context->SetName([finalName UTF8String]);
         if (tryCatch->HasCaught()) {
             HPLogWarn(@"set context throw exception");
         }

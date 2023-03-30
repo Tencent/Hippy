@@ -61,7 +61,17 @@ static NSString *const engineKey = @"Demo";
     });
     [self runCommonDemo];
     // [self runDemoWithoutRuntime];
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(remove)];
+    tap.numberOfTapsRequired = 2;
+    [self.view addGestureRecognizer:tap];
+
 }
+
+- (void)remove {
+    _connector = nil;
+    [[[self.view subviews] firstObject] removeFromSuperview];
+}
+
 
 - (void)runCommonDemo {
     //JS Contexts holding the same engine key will share VM
@@ -80,7 +90,7 @@ static NSString *const engineKey = @"Demo";
     _connector = [[HippyConvenientBridge alloc] initWithDelegate:self moduleProvider:nil extraComponents:nil launchOptions:launchOptions engineKey:engineKey];
     //set custom vfs loader
     _connector.sandboxDirectory = sandboxDirectory;
-    _connector.contextName = @"Hippy:Demo";
+    _connector.contextName = @"Demo";
     _connector.moduleName = @"Demo";
     _connector.methodInterceptor = self;
     [self mountConnector:_connector];
