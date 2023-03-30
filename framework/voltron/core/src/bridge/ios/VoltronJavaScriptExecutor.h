@@ -36,7 +36,6 @@ class Scope;
 
 - (instancetype)initWithExecurotKey:(NSString *)execurotkey
                        globalConfig:(NSString *)globalConfig
-                      workerManager:(const std::shared_ptr<footstone::WorkerManager>&)workerManager
                               devtoolsId:(NSNumber *)devtoolsId
                           debugMode:(BOOL)debugMode
                          completion:(VoltronFrameworkInitCallback)completion;

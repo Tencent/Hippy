@@ -101,7 +101,6 @@ class EngineContext with RenderContextProxy {
     TimeMonitor monitor,
     EngineMonitor engineMonitor,
     DevSupportManager devSupportManager,
-    int workerManagerId,
     VoltronRenderBridgeManager? voltronRenderBridgeManager,
     DomHolder? domHolder,
     HashMap<int, RootWidgetViewModel>? rootViewModelMap,
@@ -116,7 +115,6 @@ class EngineContext with RenderContextProxy {
       processControllers(apiProviders),
       engineMonitor,
       isDevModule,
-      workerManagerId,
       voltronRenderBridgeManager,
       domHolder,
       rootViewModelMap,
@@ -156,7 +154,7 @@ class EngineContext with RenderContextProxy {
   }
 
   void _initVfsManager() {
-    _vfsManager = VfsManager(_renderContext.workerManagerId);
+    _vfsManager = VfsManager();
     DefaultProcessor processor = DefaultProcessor(VoltronResourceLoader(_globalConfigs.httpAdapter));
     _vfsManager.addProcessor(processor);
   }

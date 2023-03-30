@@ -24,6 +24,7 @@
 
 #include "dom/dom_manager.h"
 #include "footstone/worker_manager.h"
+#include "footstone/worker_impl.h"
 #include "encodable_value.h"
 #include "standard_message_codec.h"
 #include "data_holder.h"
@@ -39,7 +40,8 @@ using voltron::VoltronRenderManager;
 extern "C" {
 #endif
 
-constexpr char kDomRunnerName[] = "hippy_dom";
+constexpr char kDomWorkerName[] = "dom_worker";
+constexpr char kDomRunnerName[] = "dom_task_runner";
 
 EXTERN_C const char *KeepLibStr() {
   return "keep_render_lib";
@@ -225,38 +227,16 @@ EXTERN_C void UpdateNodeSize(uint32_t render_manager_id, uint32_t root_id,
   dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));
 }
 
-EXTERN_C uint32_t CreateWorkerManager(uint32_t engine_id) {
-  auto bridge_manager = BridgeManager::Find(static_cast<int32_t>(engine_id));
-  if (!bridge_manager) {
-    FOOTSTONE_DLOG(WARNING) << "CreateWorkerManager engine_id invalid";
-    return 0;
-  }
-  return bridge_manager->CreateWorkerManager();
-}
-
-EXTERN_C void DestroyWorkerManager(uint32_t worker_manager_id) {
-  auto bridge_manager = BridgeManager::Find(static_cast<int32_t>(worker_manager_id));
-  if (!bridge_manager) {
-    FOOTSTONE_DLOG(WARNING) << "DestroyWorkerManager worker_manager_id invalid";
-  } else {
-    bridge_manager->DestroyWorkerManager();
-  }
-}
-
-EXTERN_C uint32_t CreateDomInstance(uint32_t worker_manager_id) {
+EXTERN_C uint32_t CreateDomInstance() {
   auto dom_manager = std::make_shared<hippy::DomManager>();
-
   auto id = voltron::InsertObject(dom_manager);
-  auto bridge_manager = BridgeManager::Find(static_cast<int32_t>(worker_manager_id));
-  if (!bridge_manager) {
-    FOOTSTONE_DLOG(WARNING) << "DestroyWorkerManager worker_manager_id invalid";
-    return 0;
-  }
-  const std::unique_ptr<footstone::WorkerManager>&
-      worker_manager = bridge_manager->GetWorkerManager();
-  FOOTSTONE_DCHECK(worker_manager != nullptr);
-  auto runner = worker_manager->CreateTaskRunner(kDomRunnerName);
+  auto worker = std::make_shared<footstone::WorkerImpl>(kDomWorkerName, false);
+  worker->Start();
+  auto runner = std::make_shared<footstone::TaskRunner>(kDomRunnerName);
+  runner->SetWorker(worker);
+  worker->Bind({runner});
   dom_manager->SetTaskRunner(runner);
+  dom_manager->SetWorker(worker);
   return id;
 }
 

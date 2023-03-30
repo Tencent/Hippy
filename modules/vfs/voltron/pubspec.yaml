@@ -34,7 +34,8 @@ dependencies:
   flutter:
     sdk: flutter
   ffi: ^1.0.0
-  voltron_ffi: 0.0.1
+  voltron_ffi:
+    path: ../../voltron/ffi
 
 dev_dependencies:
-  flutter_lints: ^2.0.0
+  ffi: ^1.0.0

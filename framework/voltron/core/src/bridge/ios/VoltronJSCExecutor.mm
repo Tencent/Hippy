@@ -76,6 +76,10 @@ using file_ptr = std::unique_ptr<FILE, decltype(&fclose)>;
 using memory_ptr = std::unique_ptr<void, decltype(&free)>;
 using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::StringViewUtils;
+using SharedCtxPtr = std::shared_ptr<hippy::napi::Ctx>;
+using WeakCtxPtr = std::weak_ptr<hippy::napi::Ctx>;
+using SharedCtxValuePtr = std::shared_ptr<hippy::napi::CtxValue>;
+using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 
 
 struct RandomAccessBundleData {
@@ -94,7 +98,6 @@ struct RandomAccessBundleData {
   JSContext *_JSContext;
   // Set as needed:
   RandomAccessBundleData _randomAccessBundle;
-  JSValueRef _batchedBridgeRef;
   VoltronJSCWrapper *_jscWrapper;
   NSString *_globalConfig;
   VoltronFrameworkInitCallback _completion;
@@ -107,7 +110,6 @@ struct RandomAccessBundleData {
 
 - (instancetype)initWithExecurotKey:(NSString *)execurotkey
                        globalConfig:(NSString *)globalConfig
-                      workerManager:(const std::shared_ptr<footstone::WorkerManager>&)workerManager
                          devtoolsId:(NSNumber *)devtoolsId
                           debugMode:(BOOL)debugMode
                          completion:(VoltronFrameworkInitCallback)completion{
@@ -142,6 +144,107 @@ static string_view NSStringToU8(NSString* str) {
   std::string u8 = [str UTF8String];
   return string_view(reinterpret_cast<const string_view::char8_t_*>(u8.c_str()), u8.length());
 }
+
+NSString *StringViewToNSString(const string_view &view) {
+    string_view::Encoding encode = view.encoding();
+    NSString *result = nil;
+    switch (encode) {
+        case string_view::Encoding::Latin1:
+            result = [NSString stringWithUTF8String:view.latin1_value().c_str()];
+            break;
+        case string_view::Encoding::Utf8:
+        {
+            result = [[NSString alloc] initWithBytes:view.utf8_value().c_str()
+                                              length:view.utf8_value().length()
+                                            encoding:NSUTF8StringEncoding];
+            break;
+        }
+        case string_view::Encoding::Utf16:
+        {
+            const string_view::u16string &u16String = view.utf16_value();
+            result = [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
+        }
+            break;
+        case string_view::Encoding::Utf32:
+        {
+            string_view convertedString = footstone::stringview::StringViewUtils::ConvertEncoding(view, string_view::Encoding::Utf16);
+            const string_view::u16string &u16String = convertedString.utf16_value();
+            result = [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
+        }
+            break;
+        default:
+            FOOTSTONE_UNREACHABLE();
+            break;
+    }
+    return result;
+}
+
+id ObjectFromCtxValue(SharedCtxPtr context, SharedCtxValuePtr value) {
+    @autoreleasepool {
+        if (!context || !value) {
+            return [NSNull null];
+        }
+        if (context->IsString(value)) {
+            footstone::string_view view;
+            if (context->GetValueString(value, &view)) {
+                view = footstone::StringViewUtils::ConvertEncoding(view, footstone::string_view::Encoding::Utf16);
+                footstone::string_view::u16string &u16String = view.utf16_value();
+                NSString *string =
+                    [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
+                return string;
+            }
+        }
+        else if (context->IsNumber(value)) {
+            double number = 0;
+            if (context->GetValueNumber(value, &number)) {
+                return @(number);
+            }
+        }
+        else if (context->IsArray(value)) {
+            uint32_t length = context->GetArrayLength(value);
+            NSMutableArray *array = [NSMutableArray arrayWithCapacity:length];
+            for (uint32_t index = 0; index < length; index++) {
+                auto element = context->CopyArrayElement(value, index);
+                id obj = ObjectFromCtxValue(context, element);
+                [array addObject:obj];
+            }
+            return [array copy];
+        }
+        //ArrayBuffer is kindof Object, so we must check if it is byte buffer first
+        else if(context->IsByteBuffer(value)) {
+            size_t length = 0;
+            uint32_t type;
+            void *bytes = NULL;
+            if (context->GetByteBuffer(value, &bytes, length, type)) {
+                return [NSData dataWithBytes:bytes length:length];
+            }
+        }
+        else if (context->IsObject(value)) {
+            std::unordered_map<SharedCtxValuePtr, SharedCtxValuePtr> map;
+            if (context->GetEntries(value, map)) {
+                NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:map.size()];
+                for (auto &it : map) {
+                    footstone::string_view string_view;
+                    auto flag = context->GetValueString(it.first, &string_view);
+                    if (!flag) {
+                        continue;
+                    }
+                    const auto &u16String = footstone::StringViewUtils::CovertToUtf16(string_view, string_view.encoding()).utf16_value();
+                    NSString *string = [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
+                    auto &value = it.second;
+                    id obj = ObjectFromCtxValue(context, value);
+                    [dictionary setObject:obj forKey:string];
+                }
+                return [dictionary copy];
+            }
+        }
+        else {
+
+        }
+        return [NSNull null];
+    }
+}
+
 
 - (std::unique_ptr<hippy::Engine::RegisterMap>)registerMap {
     __weak VoltronJSCExecutor *weakSelf = self;
@@ -559,6 +662,14 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
     [self _executeJSCall:@"invokeCallbackAndReturnFlushedQueue" arguments:@[cbID, args] unwrapResult:YES callback:onComplete];
 }
 
+- (SharedCtxValuePtr)convertToCtxValue:(const SharedCtxPtr &)context; {
+    @autoreleasepool {
+        NSAssert(NO, @"%@ must implemente convertToCtxValue method", NSStringFromClass([self class]));
+        std::unordered_map<SharedCtxValuePtr, SharedCtxValuePtr> valueMap;
+        return context->CreateObject(valueMap);
+    }
+}
+
 - (void)_executeJSCall:(NSString *)method
              arguments:(NSArray *)arguments
           unwrapResult:(BOOL)unwrapResult
@@ -572,73 +683,56 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
               return;
           }
 
-          //Voltron_PROFILE_BEGIN_EVENT(0, @"executeJSCall", (@{@"method": method, @"args": arguments}));
-
 #ifndef VOLTRON_DEBUG
           @try {
 #endif
               VoltronJSCWrapper *jscWrapper = strongSelf->_jscWrapper;
-              JSContext *context = [self JSContext];
-              JSGlobalContextRef contextJSRef = context.JSGlobalContextRef;
-
-              // get the BatchedBridge object
-              JSValueRef errorJSRef = NULL;
-              JSValueRef batchedBridgeRef = strongSelf->_batchedBridgeRef;
-              if (!batchedBridgeRef) {
-                  JSStringRef moduleNameJSStringRef = jscWrapper->JSStringCreateWithUTF8CString("__fbBatchedBridge");
-                  JSObjectRef globalObjectJSRef = jscWrapper->JSContextGetGlobalObject(contextJSRef);
-                  batchedBridgeRef = jscWrapper->JSObjectGetProperty(contextJSRef, globalObjectJSRef, moduleNameJSStringRef, &errorJSRef);
-                  jscWrapper->JSStringRelease(moduleNameJSStringRef);
-                  strongSelf->_batchedBridgeRef = batchedBridgeRef;
-              }
-
-              NSError *error;
-              JSValueRef resultJSRef = NULL;
-              if (batchedBridgeRef != NULL && errorJSRef == NULL && !jscWrapper->JSValueIsUndefined(contextJSRef, batchedBridgeRef)) {
-                  // get method
-                  JSStringRef methodNameJSStringRef = jscWrapper->JSStringCreateWithCFString((__bridge CFStringRef)method);
-                  JSValueRef methodJSRef = jscWrapper->JSObjectGetProperty(contextJSRef, (JSObjectRef)batchedBridgeRef, methodNameJSStringRef, &errorJSRef);
-                  jscWrapper->JSStringRelease(methodNameJSStringRef);
-
-                  if (methodJSRef != NULL && errorJSRef == NULL && !jscWrapper->JSValueIsUndefined(contextJSRef, methodJSRef)) {
-                      JSValueRef jsArgs[arguments.count];
-                      for (NSUInteger i = 0; i < arguments.count; i++) {
-                          jsArgs[i] = [jscWrapper->JSValue valueWithObject:arguments[i] inContext:context].JSValueRef;
+              NSError *executeError = nil;
+              id objcValue = nil;
+              auto context = strongSelf.pScope->GetContext();
+              auto global_object = context->GetGlobalObject();
+              auto bridge_key = context->CreateString("__fbBatchedBridge");
+              auto batchedbridge_value = context->GetProperty(global_object, bridge_key);
+              SharedCtxValuePtr resultValue = nullptr;
+              string_view exception;
+              if (batchedbridge_value) {
+                  string_view methodName = NSStringToU8(method);
+                  SharedCtxValuePtr method_value = context->GetProperty(batchedbridge_value, methodName);
+                  if (method_value) {
+                      if (context->IsFunction(method_value)) {
+                          SharedCtxValuePtr function_params[arguments.count];
+                          for (NSUInteger i = 0; i < arguments.count; i++) {
+                              id obj = arguments[i];
+                              function_params[i] = [obj convertToCtxValue:context];
+                          }
+                          auto tryCatch = hippy::CreateTryCatchScope(true, context);
+                          resultValue = context->CallFunction(method_value, arguments.count, function_params);
+                          if (tryCatch->HasCaught()) {
+                              exception = tryCatch->GetExceptionMessage();
+                          }
+                      } else {
+                          executeError = VoltronErrorWithMessage([NSString stringWithFormat:@"%@ is not a function", method]);
                       }
-                      resultJSRef = jscWrapper->JSObjectCallAsFunction(contextJSRef, (JSObjectRef)methodJSRef, (JSObjectRef)batchedBridgeRef, arguments.count, jsArgs, &errorJSRef);
                   } else {
-                      if (!errorJSRef && jscWrapper->JSValueIsUndefined(contextJSRef, methodJSRef)) {
-                          error = VoltronErrorWithMessage([NSString stringWithFormat:@"Unable to execute JS call: method %@ is undefined", method]);
-                      }
+                      executeError = VoltronErrorWithMessage([NSString stringWithFormat:@"property/function %@ not found in __hpBatchedBridge", method]);
                   }
               } else {
-                  if (!errorJSRef && jscWrapper->JSValueIsUndefined(contextJSRef, batchedBridgeRef)) {
-                      error = VoltronErrorWithMessage(@"Unable to execute JS call: __fbBatchedBridge is undefined");
-                  }
+                  executeError = VoltronErrorWithMessage(@"__hpBatchedBridge not found");
               }
-
-              id objcValue;
-              if (errorJSRef || error) {
-                  if (!error) {
-                      error = VoltronNSErrorFromJSError([jscWrapper->JSValue valueWithJSValueRef:errorJSRef inContext:context]);
+              if (!StringViewUtils::IsEmpty(exception) || executeError) {
+                  if (!StringViewUtils::IsEmpty(exception)) {
+                      NSString *string = StringViewToNSString(exception);
+                      executeError = VoltronErrorWithMessage(string);
                   }
-              } else {
-                  // We often return `null` from JS when there is nothing for native side. [JSValue toValue]
-                  // returns [NSNull null] in this case, which we don't want.
-                  if (!jscWrapper->JSValueIsNull(contextJSRef, resultJSRef)) {
-                      JSValue *result = [jscWrapper->JSValue valueWithJSValueRef:resultJSRef inContext:context];
-                      objcValue = unwrapResult ? [result toObject] : result;
-                  }
+              } else if (resultValue) {
+                  objcValue = ObjectFromCtxValue(context, resultValue);
               }
+              onComplete(objcValue, executeError);
 #ifndef VOLTRON_DEBUG
           } @catch (NSException *exception) {
               MttVoltronException(exception);
           }
 #endif
-
-          //Voltron_PROFILE_END_EVENT(0, @"js_call");
-
-          onComplete(objcValue, error);
       }
   }];
 }
@@ -663,56 +757,47 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
             @try {
 #endif
                 VoltronJSCWrapper *jscWrapper = strongSelf->_jscWrapper;
-                JSContext *context = [self JSContext];
-                JSGlobalContextRef contextJSRef = context.JSGlobalContextRef;
+                auto context = strongSelf.pScope->GetContext();
+                auto global_object = context->GetGlobalObject();
 
-                // get the BatchedBridge object
-                JSValueRef errorJSRef = NULL;
-                JSValueRef batchedBridgeRef = strongSelf->_batchedBridgeRef;
-                if (!batchedBridgeRef) {
-                    JSStringRef moduleNameJSStringRef = jscWrapper->JSStringCreateWithUTF8CString("hippyBridge");
-                    JSObjectRef globalObjectJSRef = jscWrapper->JSContextGetGlobalObject(contextJSRef);
-                    batchedBridgeRef = jscWrapper->JSObjectGetProperty(contextJSRef, globalObjectJSRef, moduleNameJSStringRef, &errorJSRef);
-                    jscWrapper->JSStringRelease(moduleNameJSStringRef);
-                    strongSelf->_batchedBridgeRef = batchedBridgeRef;
-                }
+                NSError *executeError = nil;
+                id objcValue = nil;
 
-                NSError *error;
-                JSValueRef resultJSRef = NULL;
-                if (batchedBridgeRef != NULL && errorJSRef == NULL && !jscWrapper->JSValueIsUndefined(contextJSRef, batchedBridgeRef)) {
-                    JSValueRef jsArgs[arguments.count];
+                auto bridge_key = context->CreateString("hippyBridge");
+                auto batchedbridge_value = context->GetProperty(global_object, bridge_key);
+                
+                SharedCtxValuePtr resultValue = nullptr;
+                string_view exception;
+                bool globalUndefined = context->IsUndefined(global_object);
+                bool isFn = context->IsFunction(batchedbridge_value);
+                if (batchedbridge_value && isFn) {
+                    SharedCtxValuePtr function_params[arguments.count];
                     for (NSUInteger i = 0; i < arguments.count; i++) {
-                        jsArgs[i] = [jscWrapper->JSValue valueWithObject:arguments[i] inContext:context].JSValueRef;
+                        id obj = arguments[i];
+                        function_params[i] = [obj convertToCtxValue:context];
                     }
-                    resultJSRef = jscWrapper->JSObjectCallAsFunction(contextJSRef, (JSObjectRef)batchedBridgeRef, NULL, arguments.count, jsArgs, &errorJSRef);
-                } else {
-                    if (!errorJSRef && jscWrapper->JSValueIsUndefined(contextJSRef, batchedBridgeRef)) {
-                        error = VoltronErrorWithMessage(@"Unable to execute JS call: hippyBridge is undefined");
-                    }
-                }
-
-                id objcValue;
-                if (errorJSRef || error) {
-                    if (!error) {
-                        error = VoltronNSErrorFromJSError([jscWrapper->JSValue valueWithJSValueRef:errorJSRef inContext:context]);
+                    auto tryCatch = hippy::CreateTryCatchScope(true, context);
+                    resultValue = context->CallFunction(batchedbridge_value, arguments.count, function_params);
+                    if (tryCatch->HasCaught()) {
+                        exception = tryCatch->GetExceptionMessage();
                     }
                 } else {
-                    // We often return `null` from JS when there is nothing for native side. [JSValue toValue]
-                    // returns [NSNull null] in this case, which we don't want.
-                    if (!jscWrapper->JSValueIsNull(contextJSRef, resultJSRef)) {
-                        JSValue *result = [jscWrapper->JSValue valueWithJSValueRef:resultJSRef inContext:context];
-                        objcValue = unwrapResult ? [result toObject] : result;
-                    }
+                    executeError = VoltronErrorWithMessage(@"Unable to execute JS call: hippyBridge is undefined");
                 }
+                if (!StringViewUtils::IsEmpty(exception) || executeError) {
+                    if (!StringViewUtils::IsEmpty(exception)) {
+                        NSString *string = StringViewToNSString(exception);
+                        executeError = VoltronErrorWithMessage(string);
+                    }
+                } else if (resultValue) {
+                    objcValue = ObjectFromCtxValue(context, resultValue);
+                }
+                onComplete(objcValue, executeError);
 #ifndef VOLTRON_DEBUG
             } @catch (NSException *exception) {
                 MttVoltronException(exception);
             }
 #endif
-
-            //Voltron_PROFILE_END_EVENT(0, @"js_call");
-
-            onComplete(objcValue, error);
         }
     }];
 }

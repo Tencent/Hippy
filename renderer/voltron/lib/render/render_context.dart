@@ -25,11 +25,6 @@ import '../voltron_renderer.dart';
 abstract class RenderContext<T extends LoadInstanceContext> with RenderContextProxy {
   final RenderContextProxy _proxy;
 
-  // the unique id of native (C++) worker manager
-  late int _workerManagerId;
-
-  int get workerManagerId => _workerManagerId;
-
   // VoltronRenderBridgeManager 主要负责 renderer 侧 c++ 方法处理，注意区分于 framework 中的 VoltronBridgeManager
   late VoltronRenderBridgeManager _renderBridgeManager;
 
@@ -77,7 +72,6 @@ abstract class RenderContext<T extends LoadInstanceContext> with RenderContextPr
     List<ViewControllerGenerator>? generators,
     EngineMonitor engineMonitor,
     bool debugMode,
-    int initWorkerManagerId,
     VoltronRenderBridgeManager? initRenderBridgeManager,
     DomHolder? initDomHolder,
     HashMap<int, RootWidgetViewModel>? initRootViewModelMap,
@@ -91,13 +85,8 @@ abstract class RenderContext<T extends LoadInstanceContext> with RenderContextPr
     _renderBridgeManager.bindRenderContext(this);
 
     /// step 2, make sure workerManagerId is valid, use old value when reload
-    if (!debugMode || initWorkerManagerId == -1) {
+    if (!debugMode) {
       _renderBridgeManager.initRenderApi();
-      _workerManagerId = _renderBridgeManager.createWorkerManager();
-      LogUtils.dBridge('create worker manager id:$_workerManagerId');
-    } else {
-      _workerManagerId = initWorkerManagerId;
-      LogUtils.dBridge('reuse worker manager id:$_workerManagerId');
     }
 
     /// step 3, make sure dom holder is valid, use old value when reload
@@ -105,7 +94,7 @@ abstract class RenderContext<T extends LoadInstanceContext> with RenderContextPr
       _domHolder = initDomHolder;
       LogUtils.dBridge('reuse dom manager id:${_domHolder.id}');
     } else {
-      var domInstanceId = _renderBridgeManager.createDomInstance(_workerManagerId);
+      var domInstanceId = _renderBridgeManager.createDomInstance();
       _domHolder = DomHolder(domInstanceId);
       LogUtils.dBridge('create dom manager id:$domInstanceId');
     }
@@ -183,7 +172,6 @@ abstract class RenderContext<T extends LoadInstanceContext> with RenderContextPr
     _virtualNodeManager.destroy();
     if (!isReload) {
       _domHolder.destroy();
-      _renderBridgeManager.destroyWorkerManager(workerManagerId);
       _renderBridgeManager.destroy();
     }
   }
