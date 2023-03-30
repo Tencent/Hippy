@@ -657,7 +657,8 @@ static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, Hip
     }
     NSString *deviceName = [[UIDevice currentDevice] name];
     NSString *clientId = HPMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, bridge]);
-    return [devInfo assembleFullWSURLWithClientId:clientId];
+    
+    return [devInfo assembleFullWSURLWithClientId:clientId contextName:bridge.contextName];
 }
 
 @end

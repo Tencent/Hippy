@@ -73,10 +73,10 @@ HIPPY_EXPORT_METHOD(debug:(nonnull NSNumber *)instanceId) {
 }
 
 HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnull NSString *)bundleUrl) {
-    [self runCommonDemo];
+    [self runCommonDemo:bundleUrl];
 }
 
-- (void)runCommonDemo {
+- (void)runCommonDemo:(nonnull NSString *)bundleUrl {
     BOOL isSimulator = NO;
     #if TARGET_IPHONE_SIMULATOR
         isSimulator = YES;
@@ -85,10 +85,9 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     UIViewController *rootViewController = delegate.window.rootViewController;
     UIViewController *vc = [[UIViewController alloc] init];
     //JS Contexts holding the same engine key will share VM
-    NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
-    NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
-    NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": bundleUrl};
-    NSURL *sandboxDirectory = [bundleUrl URLByDeletingLastPathComponent];
+    NSURL *url = [NSURL URLWithString:bundleUrl];
+    NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": url};
+    NSURL *sandboxDirectory = [url URLByDeletingLastPathComponent];
     _connector = [[HippyConvenientBridge alloc] initWithDelegate:self moduleProvider:nil extraComponents:nil launchOptions:launchOptions engineKey:engineKey];
     //set custom vfs loader
     _connector.sandboxDirectory = sandboxDirectory;
