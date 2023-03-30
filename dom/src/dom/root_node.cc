@@ -403,7 +403,7 @@ void RootNode::MarkLayoutNodeDirty(const std::vector<std::shared_ptr<DomNode>>& 
           layout_node->MarkDirty();
           break;
         }
-        parent = node->GetParent();
+        parent = parent->GetParent();
       }
     }
   }
