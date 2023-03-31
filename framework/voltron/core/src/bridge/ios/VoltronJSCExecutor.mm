@@ -145,6 +145,14 @@ static string_view NSStringToU8(NSString* str) {
   return string_view(reinterpret_cast<const string_view::char8_t_*>(u8.c_str()), u8.length());
 }
 
+static id StringJSONToObject(NSString *string) {
+    @autoreleasepool {
+        NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
+        id obj = [NSJSONSerialization JSONObjectWithData:data options:(0) error:nil];
+        return obj;
+    }
+}
+
 NSString *StringViewToNSString(const string_view &view) {
     string_view::Encoding encode = view.encoding();
     NSString *result = nil;
@@ -278,12 +286,13 @@ id ObjectFromCtxValue(SharedCtxPtr context, SharedCtxValuePtr value) {
           installBasicSynchronousHooksOnContext(jsContext);
         }
 
-        auto global_config_key = context->CreateString("__HIPPYNATIVEGLOBAL__");
-        auto global_config_value= context->CreateString(NSStringToU8(strongGlobalConfig));
-        context->SetProperty(global_object, global_config_key, global_config_value);
+        auto engine = scope->GetEngine().lock();
+        auto native_global_key = context->CreateString("__HIPPYNATIVEGLOBAL__");
+        auto global_config_object = engine->GetVM()->ParseJson(context, NSStringToU8(strongGlobalConfig));
+        auto flag = context->SetProperty(global_object, native_global_key, global_config_object);
 
         auto bridge_config_key = context->CreateString("__fbBatchedBridgeConfig");
-        auto bridge_config_value = context->CreateString(NSStringToU8(@""));
+        auto bridge_config_value = context->CreateObject();
         context->SetProperty(global_object, bridge_config_key, bridge_config_value);
 
         jsContext[@"hippyCallNatives"] = ^(id module, id method, NSString *callbackId, NSArray *args) {
@@ -768,7 +777,6 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
                 
                 SharedCtxValuePtr resultValue = nullptr;
                 string_view exception;
-                bool globalUndefined = context->IsUndefined(global_object);
                 bool isFn = context->IsFunction(batchedbridge_value);
                 if (batchedbridge_value && isFn) {
                     SharedCtxValuePtr function_params[arguments.count];
