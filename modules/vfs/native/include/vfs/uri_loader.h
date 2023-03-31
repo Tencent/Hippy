@@ -22,6 +22,7 @@
 
 #include "vfs/handler/uri_handler.h"
 
+#include "footstone/worker_manager.h"
 #include "vfs/request_job.h"
 #include "vfs/job_response.h"
 
@@ -37,11 +38,12 @@ inline namespace vfs {
 class UriLoader: public std::enable_shared_from_this<UriLoader> {
  public:
   using string_view = footstone::string_view;
+  using WorkerManager = footstone::WorkerManager;
   using bytes = vfs::UriHandler::bytes;
   using RetCode = vfs::JobResponse::RetCode;
 
-  UriLoader() = default;
-  virtual ~UriLoader() = default;
+  UriLoader();
+  virtual ~UriLoader();
 
   virtual void RegisterUriHandler(const std::string& scheme,
                                   const std::shared_ptr<UriHandler>& handler);
@@ -67,6 +69,8 @@ class UriLoader: public std::enable_shared_from_this<UriLoader> {
     default_handler_list_.push_back(handler);
   }
 
+  inline std::unique_ptr<WorkerManager>& GetWorkerManager() { return worker_manager_; }
+
  private:
   std::shared_ptr<UriHandler> GetNextHandler(std::list<std::shared_ptr<UriHandler>>::iterator& cur,
                                              const std::list<std::shared_ptr<UriHandler>>::iterator& end);
@@ -74,6 +78,7 @@ class UriLoader: public std::enable_shared_from_this<UriLoader> {
   // the return value is encoded in utf8
   static std::string GetScheme(const string_view& uri);
 
+  std::unique_ptr<WorkerManager> worker_manager_;
   // key is encoded in utf8
   std::unordered_map<std::string, std::list<std::shared_ptr<UriHandler>>> router_;
   std::list<std::shared_ptr<UriHandler>> default_handler_list_;
