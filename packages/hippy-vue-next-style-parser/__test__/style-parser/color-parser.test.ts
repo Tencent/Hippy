@@ -21,9 +21,7 @@
 import { translateColor } from '../../src/style-parser/color-parser';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * style-parser/color-parser.ts unit test case
  */
 describe('style-parser/color-parser.ts', () => {
   it('color translation', () => {

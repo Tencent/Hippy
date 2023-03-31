@@ -22,9 +22,7 @@ import { compile } from '../src';
 import { getSsrRenderFunctionBody } from './utils';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * component unit test case
  */
 describe('component.test.ts', () => {
   describe('component should compile correct', () => {
@@ -52,6 +50,18 @@ describe('component.test.ts', () => {
       code = compile('<component :is="foo" :prop="b" />').code;
       expect(getSsrRenderFunctionBody(code)).toEqual('_ssrRenderVNode(_push,_createVNode(_resolveDynamicComponent(_ctx.foo),_mergeProps({prop:_ctx.b},_attrs),null),_parent)');
     });
+    it('v-if component compile', () => {
+      const { code } = compile('<foo v-if="ok" />');
+      expect(getSsrRenderFunctionBody(code)).toEqual('const _component_foo = _resolveComponent("foo")  if (_ctx.ok) {_push(_ssrRenderComponent(_component_foo,_attrs,null,_parent))} else {_push(`{"id":-1,"name":"comment","props":{"text":""}},`)}');
+    });
+    it('v-for component compile', () => {
+      const { code } = compile('<foo v-for="key in names" :key="key"></foo>');
+      expect(getSsrRenderFunctionBody(code)).toEqual('const _component_foo = _resolveComponent("foo")  _push(`{"id":-1,"name":"comment","props":{"text":"["}},`)  _ssrRenderList(_ctx.names,(key) => {_push(_ssrRenderComponent(_component_foo,{key:key},null,_parent))})  _push(`{"id":-1,"name":"comment","props":{"text":"]"}},`)');
+    });
+    it('nested component compile', () => {
+      const { code } = compile('<foo><bar /></foo>');
+      expect(getSsrRenderFunctionBody(code)).toEqual('const _component_foo = _resolveComponent("foo")  const _component_bar = _resolveComponent("bar")  _push(_ssrRenderComponent(_component_foo,_attrs,{default:_withCtx((_,_push,_parent,_scopeId) => {if (_push) {_push(_ssrRenderComponent(_component_bar,null,null,_parent,_scopeId))} else {return [          _createVNode(_component_bar)        ]}}),_:1 /* STABLE */},_parent))');
+    });
   });
   describe('component compile with slot', () => {
     it('default slot', () => {
@@ -60,7 +70,29 @@ describe('component.test.ts', () => {
     });
     it('named slot', () => {
       const { code } = compile('<foo><template v-slot:named><div /></template></foo>');
-      expect(getSsrRenderFunctionBody(code)).toEqual('');
+      expect(getSsrRenderFunctionBody(code)).toEqual('const _component_foo = _resolveComponent("foo")  _push(_ssrRenderComponent(_component_foo,_attrs,{named:_withCtx((_,_push,_parent,_scopeId) => {if (_push) {_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{},${_scopeId}"children":[]},`)} else {return [          _createVNode("div")        ]}}),_:1 /* STABLE */},_parent))');
+    });
+  });
+  describe('supported vue built-in component compile', () => {
+    it('keep-alive compile', () => {
+      const { code } = compile('<keep-alive><foo /></keep-alive>');
+      expect(getSsrRenderFunctionBody(code)).toEqual('const _component_foo = _resolveComponent("foo")  _push(_ssrRenderComponent(_component_foo,_attrs,null,_parent))');
+    });
+    it('transition compile', () => {
+      const { code } = compile('<transition><div /></transition>');
+      expect(getSsrRenderFunctionBody(code)).toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"mergedProps":${JSON.stringify(_attrs)},},"children":[]},`)');
+    });
+  });
+  describe('inject css vars compile', () => {
+    it('base inject compile', () => {
+      const { code } = compile('<foo />', { ssrCssVars: '{ color }' });
+      expect(getSsrRenderFunctionBody(code)).toEqual('const _component_foo = _resolveComponent("foo")  const _cssVars = {style:{color:_ctx.color}}  _push(_ssrRenderComponent(_component_foo,_mergeProps(_attrs,_cssVars),null,_parent))');
+    });
+  });
+  describe('scopedId compile', () => {
+    it('single component compile', () => {
+      const { code } = compile('<foo><div /></foo>', { scopeId: 'data-v-12345' });
+      expect(getSsrRenderFunctionBody(code)).toEqual('const _component_foo = _resolveComponent("foo")  _push(_ssrRenderComponent(_component_foo,_attrs,{default:_withCtx((_,_push,_parent,_scopeId) => {if (_push) {_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"data-v-12345":"",},${_scopeId}"children":[]},`)} else {return [          _createVNode("div")        ]}}),_:1 /* STABLE */},_parent))');
     });
   });
 });

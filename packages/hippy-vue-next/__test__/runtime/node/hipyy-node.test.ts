@@ -24,6 +24,9 @@ import { HippyElement } from '../../../src/runtime/element/hippy-element';
 import { HippyNode, NodeType } from '../../../src/runtime/node/hippy-node';
 import { setHippyCachedInstance } from '../../../src/util/instance';
 
+/**
+ * hippy-node.ts unit test case
+ */
 describe('runtime/node/hippy-node', () => {
   describe('test the default value of class members.', () => {
     it('should be 1.', () => {

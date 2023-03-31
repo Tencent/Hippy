@@ -18,16 +18,11 @@
  * limitations under the License.
  */
 
-/**
- * style-match/css-append.ts
- */
 import { insertStyleForSsrNodes } from '../../src/style-match/css-append';
 import type { StyleNode } from '../../src';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * style-match/append.ts unit test case
  */
 describe('style-match/index.ts', () => {
   it('insertStyleForSsrNodes should work correctly', () => {

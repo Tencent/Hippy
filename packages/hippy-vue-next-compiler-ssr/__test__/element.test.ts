@@ -22,9 +22,7 @@ import { compile } from '../src';
 import { getSsrRenderFunctionBody } from './utils';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * element unit test case
  */
 describe('element.test.ts', () => {
   describe('tag should compile correct', () => {
@@ -93,6 +91,26 @@ describe('element.test.ts', () => {
       expect(getSsrRenderFunctionBody(code))
         .toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"WebView","tagName":"iframe","props":{"mergedProps":${JSON.stringify(_attrs)},},"children":[]},`)');
     });
+    it('swiper should compile correct', () => {
+      const { code } = compile('<swiper></swiper>', { isCustomElement: () => true });
+      expect(getSsrRenderFunctionBody(code))
+        .toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"ViewPager","tagName":"hi-swiper","props":{"mergedProps":${JSON.stringify(_attrs)},},"children":[]},`)');
+    });
+    it('swiper-slide should compile correct', () => {
+      const { code } = compile('<swiper-slide></swiper-slide>', { isCustomElement: () => true });
+      expect(getSsrRenderFunctionBody(code))
+        .toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"ViewPagerItem","tagName":"swiper-slide","props":{"mergedProps":${JSON.stringify(_attrs)},},"children":[]},`)');
+    });
+    it('pull-header should compile correct', () => {
+      const { code } = compile('<pull-header></pull-header>', { isCustomElement: () => true });
+      expect(getSsrRenderFunctionBody(code))
+        .toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"PullHeaderView","tagName":"hi-pull-header","props":{"mergedProps":${JSON.stringify(_attrs)},},"children":[]},`)');
+    });
+    it('pull-footer should compile correct', () => {
+      const { code } = compile('<pull-footer></pull-footer>', { isCustomElement: () => true });
+      expect(getSsrRenderFunctionBody(code))
+        .toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"PullFooterView","tagName":"hi-pull-footer","props":{"mergedProps":${JSON.stringify(_attrs)},},"children":[]},`)');
+    });
   });
   describe('nested tag should compile correct', () => {
     it('div with child should compile correct', () => {
@@ -121,6 +139,76 @@ describe('element.test.ts', () => {
     it('custom directive should compile correct', () => {
       const { code } = compile('<div v-report="data" />');
       expect(getSsrRenderFunctionBody(code)).toEqual('const _directive_report = _resolveDirective("report")  _push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"mergedProps":${JSON.stringify(_mergeProps(_attrs,_ssrGetDirectiveProps(_ctx,_directive_report,_ctx.data)))},},"children":[]},`)');
+    });
+    it('static key/ref should compile correct', () => {
+      const { code } = compile('<div key="key" ref="ref" />');
+      expect(getSsrRenderFunctionBody(code)).toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"mergedProps":${JSON.stringify(_mergeProps({key:"key",ref:"ref"},_attrs))},},"children":[]},`)');
+    });
+    it('dynamic key/ref should compile correct', () => {
+      const { code } = compile('<div :key="key" :ref="ref" />');
+      expect(getSsrRenderFunctionBody(code)).toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"mergedProps":${JSON.stringify(_mergeProps({key:_ctx.key,ref:_ctx.ref},_attrs))},},"children":[]},`)');
+    });
+  });
+  describe('control flow compile', () => {
+    it('v-if should compile correct', () => {
+      const { code } = compile('<div v-if="ok" />');
+      expect(getSsrRenderFunctionBody(code)).toEqual('if (_ctx.ok) {_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"mergedProps":${JSON.stringify(_attrs)},},"children":[]},`)} else {_push(`{"id":-1,"name":"comment","props":{"text":""}},`)}');
+    });
+    it('v-else should compile correct', () => {
+      const { code } = compile('<div v-if="ok" /><div v-else />');
+      expect(getSsrRenderFunctionBody(code)).toEqual('if (_ctx.ok) {_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"mergedProps":${JSON.stringify(_attrs)},},"children":[]},`)} else {_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"mergedProps":${JSON.stringify(_attrs)},},"children":[]},`)}');
+    });
+    it('v-else-if should compile correct', () => {
+      const { code } = compile('<div v-if="ok" /><div v-else-if="not" />');
+      expect(getSsrRenderFunctionBody(code)).toEqual('if (_ctx.ok) {_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"mergedProps":${JSON.stringify(_attrs)},},"children":[]},`)} else if (_ctx.not) {_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"mergedProps":${JSON.stringify(_attrs)},},"children":[]},`)} else {_push(`{"id":-1,"name":"comment","props":{"text":""}},`)}');
+    });
+    it('v-for should compile correct', () => {
+      const { code } = compile('<div v-for="key in names" :key="key"><span>{{ key }}</span></div>');
+      expect(getSsrRenderFunctionBody(code)).toEqual('_push(`{"id":-1,"name":"comment","props":{"text":"["}},`)  _ssrRenderList(_ctx.names,(key) => {_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{},"children":[{"id":${_ssrGetUniqueId()},"index":0,"name":"Text","tagName":"span","props":{"text":"${_ssrInterpolate(key)}",},"children":[]},]},`)})  _push(`{"id":-1,"name":"comment","props":{"text":"]"}},`)');
+    });
+    it('v-on should compile correct', () => {
+      const { code } = compile('<div v-on="foo" />');
+      expect(getSsrRenderFunctionBody(code)).toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"mergedProps":${JSON.stringify(_attrs)},},"children":[]},`)');
+    });
+    it('.stop should compile correct', () => {
+      const { code } = compile('<div @click.stop="foo" />');
+      expect(getSsrRenderFunctionBody(code)).toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"mergedProps":${JSON.stringify(_attrs)},"onClick":true,},"children":[]},`)');
+    });
+    it('v-show should compile correct', () => {
+      const { code } = compile('<div v-show="ok" />');
+      expect(getSsrRenderFunctionBody(code)).toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"mergedProps":${JSON.stringify(_mergeProps({style:(_ctx.ok) ? null :{display:"none"}},_attrs))},},"children":[]},`)');
+    });
+    it('input v-model should compile correct', () => {
+      const { code } = compile('<input v-model="bar" />');
+      expect(getSsrRenderFunctionBody(code)).toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"TextInput","tagName":"input","props":{"mergedProps":${JSON.stringify(_attrs)},},"children":[]},`)');
+    });
+    it('input v-model number should compile correct', () => {
+      const { code } = compile('<input type="number" v-model="bar" />');
+      expect(getSsrRenderFunctionBody(code)).toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"TextInput","tagName":"input","props":{"mergedProps":${JSON.stringify(_mergeProps({type:"number",value:_ctx.bar},_attrs))},},"children":[]},`)');
+    });
+    it('input v-model password should compile correct', () => {
+      const { code } = compile('<input type="password" v-model="bar" />');
+      expect(getSsrRenderFunctionBody(code)).toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"TextInput","tagName":"input","props":{"mergedProps":${JSON.stringify(_mergeProps({type:"password",value:_ctx.bar},_attrs))},},"children":[]},`)');
+    });
+    it('textarea v-model should compile correct', () => {
+      const { code } = compile('<textarea v-model="bar"></textarea>');
+      expect(getSsrRenderFunctionBody(code)).toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"TextInput","tagName":"textarea","props":{"mergedProps":${JSON.stringify(_attrs)},},"children":[]},`)');
+    });
+  });
+  describe('inject css vars compile', () => {
+    it('base inject compile', () => {
+      const { code } = compile('<div />', { ssrCssVars: '{ color }' });
+      expect(getSsrRenderFunctionBody(code)).toEqual('const _cssVars = {style:{color:_ctx.color}}  _push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"mergedProps":${JSON.stringify(_mergeProps(_attrs,_cssVars))},},"children":[]},`)');
+    });
+  });
+  describe('scopedId compile', () => {
+    it('single tag scopedId compile', () => {
+      const { code } = compile('<div />', { scopeId: 'data-v-12345' });
+      expect(getSsrRenderFunctionBody(code)).toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"mergedProps":${JSON.stringify(_attrs)},"data-v-12345":"",},"children":[]},`)');
+    });
+    it('nested tag scopedId compile', () => {
+      const { code } = compile('<div><div /></div>', { scopeId: 'data-v-12345' });
+      expect(getSsrRenderFunctionBody(code)).toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"mergedProps":${JSON.stringify(_attrs)},"data-v-12345":"",},"children":[{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"data-v-12345":"",},"children":[]},]},`)');
     });
   });
 });

@@ -18,18 +18,13 @@
  * limitations under the License.
  */
 
-/**
- * runtime/native unit test
- */
 import type { NeedToTyped } from '../../../src/types';
 import { HippyListElement } from '../../../src/runtime/element/hippy-list-element';
 import { Native, CACHE } from '../../../src/runtime/native/index';
 import { EventBus } from '../../../src/runtime/event/event-bus';
 
 /**
- * @author mitnickliu
- * @priority P0
- * @casetype unit
+ * native/index.ts unit test case
  */
 describe('runtime/native.ts', () => {
   const nativePlatformOrigin = Object.getOwnPropertyDescriptor(

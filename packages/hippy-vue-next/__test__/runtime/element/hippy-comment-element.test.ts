@@ -20,6 +20,9 @@
 
 import { HippyCommentElement } from '../../../src/runtime/element/hippy-comment-element';
 
+/**
+ * hippy-comment-element.ts unit test case
+ */
 describe('runtime/element/hippy-comment-element', () => {
   it('should set text using the constructor param.', () => {
     const hippyCommentElement = new HippyCommentElement('this is comment');

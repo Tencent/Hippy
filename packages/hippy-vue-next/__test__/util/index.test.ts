@@ -18,18 +18,13 @@
  * limitations under the License.
  */
 
-/**
- * util/index unit test
- */
 import type { ComponentPublicInstance } from '@vue/runtime-core';
 import * as index from '../../src/util/index';
 import {  HIPPY_DEBUG_ADDRESS, HIPPY_UNIQUE_ID_KEY } from '../../src/config';
 import { getEventRedirects } from '../../src/util/index';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * index.ts unit test case
  */
 describe('util/index.ts', () => {
   it('tryConvertNumber should return right value when params give', async () => {

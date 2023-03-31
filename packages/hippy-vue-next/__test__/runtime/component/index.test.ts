@@ -18,16 +18,11 @@
  * limitations under the License.
  */
 
-/**
- * runtime/component/index.ts hippyNative unit test
- */
 import type { ElementComponent } from '../../../src/runtime/component';
 import * as index from '../../../src/runtime/component';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * component/index.ts unit test case
  */
 describe('runtime/component/index.ts', () => {
   it('getTagComponent should return undefined when no register', async () => {

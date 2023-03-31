@@ -18,15 +18,10 @@
  * limitations under the License.
  */
 
-/**
- * style-parser/css-parser.ts
- */
 import { convertToDegree, DEGREE_UNIT, parseBackgroundImage, parseCSS } from '../../src/style-parser/css-parser';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * style-parser/css-parser.ts unit test case
  */
 describe('style-parser/css-parser.ts', () => {
   it('convertToDegree should work correctly', () => {

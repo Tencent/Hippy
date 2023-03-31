@@ -18,15 +18,10 @@
  * limitations under the License.
  */
 
-/**
- * runtime/event/hippy-event unit test
- */
 import { HippyEvent } from '../../../src/runtime/event/hippy-event';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * hippy-event.ts unit test case
  */
 describe('runtime/event/hippy-event.ts', () => {
   it('HippyEvent instance should have required function', async () => {

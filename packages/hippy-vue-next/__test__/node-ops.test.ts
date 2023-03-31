@@ -18,17 +18,12 @@
  * limitations under the License.
  */
 
-/**
- * node-ops  Vue custom renderer node operations unit test
- */
 import { nodeOps } from '../src/node-ops';
 import { registerElement } from '../src/runtime/component';
 import { setHippyCachedInstance } from '../src/util/instance';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * node-ops.ts unit test case
  */
 describe('node-ops.ts', () => {
   beforeAll(() => {

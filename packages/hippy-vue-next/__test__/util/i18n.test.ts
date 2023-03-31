@@ -18,16 +18,11 @@
  * limitations under the License.
  */
 
-/**
- * util/index unit test
- */
 import * as i18n from '../../src/util/i18n';
 import { Native } from '../../src/runtime/native';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * i18n.ts unit test case
  */
 describe('src/util/i18n', () => {
   it('isRTL should return right value', () => {

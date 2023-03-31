@@ -18,16 +18,11 @@
  * limitations under the License.
  */
 
-/**
- * runtime/event/event-bus unit test
- */
 import type { NeedToTyped } from '../../../src/types';
 import { EventBus } from '../../../src/runtime/event/event-bus';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * event-bus.ts unit test case
  */
 describe('runtime/event/event-bus.ts', () => {
   it('event bus on & off function should work correctly', () => {

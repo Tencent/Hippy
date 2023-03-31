@@ -19,11 +19,8 @@
  */
 import { unescapeHtml } from '../src/util';
 
-
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * util.ts unit test case
  */
 describe('util.ts', () => {
   it('unescapeHtml should work correctly', () => {

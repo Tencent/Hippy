@@ -21,6 +21,9 @@
 import { HippyListElement } from '../../../src/runtime/element/hippy-list-element';
 import { Native } from '../../../src/runtime/native/index';
 
+/**
+ * hippy-list-element.ts unit test case
+ */
 describe('runtime/element/hippy-list-element', () => {
   it('should invoke callUIFunction when call scrollToIndex method.', () => {
     const callUIFunctionSpy = jest.spyOn(Native, 'callUIFunction');

@@ -18,16 +18,10 @@
  * limitations under the License.
  */
 
-/**
- * style-match/parser unit test
- *
- */
 import { parseSelector } from '../../src/style-match/parser';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * style-match/parser.ts unit test case
  */
 describe('style-match/parser.ts', () => {
   // id selector parser

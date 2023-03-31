@@ -21,6 +21,9 @@
 import { HippyText } from '../../../src/runtime/text/hippy-text';
 import { HippyElement } from '../../../src/runtime/element/hippy-element';
 
+/**
+ * hippy-text.ts unit test case
+ */
 describe('runtime/text/hippy-text.ts', () => {
   it('hippy text node should set correct attribute', () => {
     const textNode = new HippyText('hello');

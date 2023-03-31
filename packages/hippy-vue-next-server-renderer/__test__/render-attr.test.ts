@@ -19,6 +19,9 @@
  */
 import { ssrRenderStyle, ssrGetDirectiveProps } from '../src';
 
+/**
+ * render-attr.ts unit test case
+ */
 describe('render-attr.ts', () => {
   describe('ssrRenderStyle should work correctly', () => {
     it('render empty style', () => {

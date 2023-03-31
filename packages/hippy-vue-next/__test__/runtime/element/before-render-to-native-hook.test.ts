@@ -22,6 +22,9 @@ import { isFunction } from '@vue/shared';
 import { HippyNode, NodeType } from '../../../src/runtime/node/hippy-node';
 import { HippyElement } from '../../../src/runtime/element/hippy-element';
 
+/**
+ * before-render-to-native-hook.ts unit test case
+ */
 describe('beforeRenderToNative hook', () => {
   beforeAll(() => {
     global.__GLOBAL__ = {

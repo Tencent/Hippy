@@ -60,9 +60,7 @@ async function getRenderedVNode(rootComp) {
 }
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * render-vnode.ts unit test case
  */
 describe('render-vnode.ts', () => {
   beforeAll(() => {

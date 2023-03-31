@@ -19,9 +19,7 @@
  */
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * native-component unit test case todo
  */
 describe('native-component.test.ts', () => {
   it('native-component test', () => {});

@@ -244,7 +244,7 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
       }
     }
 
-    // book keeping static/dynamic class merging.
+    // bookkeeping static/dynamic class merging.
     let dynamicClassBinding: CallExpression | undefined = undefined;
     let staticClassBinding: string | undefined = undefined;
     // all style bindings are converted to dynamic by transformStyle.
@@ -267,7 +267,7 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
             openTag.push(`"${getHippyEventKeyInSSR(arg.content, node.tag)}": true,`);
           }
         } else if (prop.name === 'html' && prop.exp) {
-          // v-html/v-text/v-textarea/ hippy不支持,不处理
+          // v-html/v-text/v-textarea/ hippy do not support
           // rawChildrenMap.set(node, prop.exp);
         } else if (prop.name === 'text' && prop.exp) {
           // node.children = [createInterpolation(prop.exp, prop.loc)];

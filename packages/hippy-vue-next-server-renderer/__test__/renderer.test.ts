@@ -45,6 +45,9 @@ jest.spyOn(vueRuntimeCore, 'getCurrentInstance').mockImplementation(() => ({
   appContext: globalApp._context,
 }));
 
+/**
+ * renderer.ts unit test case
+ */
 describe('renderer.ts', () => {
   describe('uniqueId logic test', () => {
     beforeAll(() => {

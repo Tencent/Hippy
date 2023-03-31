@@ -21,9 +21,7 @@
 import { getHippyTagName } from '../src/native';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * native.ts unit test case
  */
 describe('native.ts', () => {
   it('should return "View" for "div", "button", and "form"', () => {

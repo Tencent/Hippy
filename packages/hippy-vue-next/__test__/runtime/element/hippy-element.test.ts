@@ -26,6 +26,9 @@ import * as Render from '../../../src/runtime/render';
 import { setHippyCachedInstance } from '../../../src/util/instance';
 import { setTrimWhitespace } from '../../../src/util';
 
+/**
+ * hippy-element.ts unit test case
+ */
 describe('runtime/element/hippy-element', () => {
   beforeAll(() => {
     registerElement('div', { component: { name: 'View' } });

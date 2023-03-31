@@ -18,9 +18,6 @@
  * limitations under the License.
  */
 
-/**
- * patch-prop  Vue custom renderer patch prop unit case
- */
 import { patchProp } from '../src/patch-prop';
 import { nodeOps } from '../src/node-ops';
 import '../src/runtime/event/hippy-event-dispatcher';
@@ -28,9 +25,7 @@ import { preCacheNode } from '../src/util/node-cache';
 import { registerElement, type ElementComponent } from '../src/runtime/component';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * patch-prop.ts unit test case
  */
 describe('patch-prop.ts', () => {
   it('patch class prop', () => {

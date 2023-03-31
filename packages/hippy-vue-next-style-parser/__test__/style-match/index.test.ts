@@ -18,10 +18,6 @@
  * limitations under the License.
  */
 
-/**
- * runtime/style/index unit test
- *
- */
 import { HIPPY_GLOBAL_DISPOSE_STYLE_NAME, HIPPY_GLOBAL_STYLE_NAME } from '../../../hippy-vue-next/src/config';
 import { HippyElement } from '../../../hippy-vue-next/src/runtime/element/hippy-element';
 import { SelectorsMap, type StyleNode } from '../../src/style-match';
@@ -244,9 +240,7 @@ const testAst = [
 ];
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * style-match/index.ts unit test case
  */
 describe('style-match/index.ts', () => {
   let cssMap;
