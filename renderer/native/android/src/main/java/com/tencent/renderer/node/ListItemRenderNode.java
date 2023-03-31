@@ -123,6 +123,17 @@ public class ListItemRenderNode extends RenderNode {
             mControllerManager.getNativeRender().handleRenderException(exception);
             return;
         }
+        if (getHostView() instanceof ViewGroup) {
+            // Due to the hippy recycler view default use stable ID, toNode do not have a host view
+            // under normal scrolling conditions. However, if there are list switching and move node
+            // scenarios, toNode may has a host view and the subview is not empty, so the subview
+            // must be cleared and recreated, otherwise it cannot be mounted to the new itemView,
+            // causing the item view to display blank.
+            int count = ((ViewGroup) getHostView()).getChildCount();
+            if (count > 0) {
+                removeChildrenView(this);
+            }
+        }
         removeChildrenView(fromNode);
         fromNode.setLazy(true);
         setLazy(false);

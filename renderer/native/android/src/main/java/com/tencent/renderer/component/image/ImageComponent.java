@@ -94,17 +94,18 @@ public class ImageComponent extends Component {
 
     private void fetchImageIfNeeded() {
         if ((mDefaultImageHolder == null || !mDefaultImageHolder.checkImageData())
-                && mDefaultImageFetchState == ImageFetchState.UNLOAD) {
+                && mDefaultImageFetchState != ImageFetchState.LOADING) {
             fetchImageWithUrl(mDefaultUri, ImageSourceType.DEFAULT);
         }
         if ((mImageHolder == null || !mImageHolder.checkImageData())
-                && mImageFetchState == ImageFetchState.UNLOAD) {
+                && mImageFetchState != ImageFetchState.LOADING) {
             fetchImageWithUrl(mUri, ImageSourceType.SRC);
         }
     }
 
     @Override
     public void onHostViewAttachedToWindow() {
+        super.onHostViewAttachedToWindow();
         fetchImageIfNeeded();
     }
 
