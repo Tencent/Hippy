@@ -266,17 +266,7 @@ void AnimationManager::RemoveActiveAnimation(uint32_t id) {
     }
   }
   if (size == 1 && active_animations_.empty()) {
-    if (!root_node) {
-      return;
-    }
-    auto weak_dom_manager = root_node->GetDomManager();
-    auto dom_manager = weak_dom_manager.lock();
-    if (!dom_manager) {
-      return;
-    }
-    if (dom_manager) {
-      dom_manager->RemoveEventListener(root_node, root_node->GetId(), kVSyncKey, listener_id_);
-    }
+    RemoveVSyncEventListener();
   }
 }
 
@@ -356,6 +346,22 @@ std::shared_ptr<RenderManager> AnimationManager::GetRenderManager() {
     return nullptr;
   }
   return dom_manager->GetRenderManager().lock();
+}
+
+void AnimationManager::RemoveVSyncEventListener() {
+  auto root_node = root_node_.lock();
+  if (!root_node) {
+    return;
+  }
+  auto weak_dom_manager = root_node->GetDomManager();
+  auto dom_manager = weak_dom_manager.lock();
+  if (!dom_manager) {
+    return;
+  }
+  if (dom_manager) {
+    dom_manager->RemoveEventListener(root_node, root_node->GetId(), kVSyncKey, listener_id_);
+    dom_manager->EndBatch(root_node_);
+  }
 }
 
 void AnimationManager::UpdateAnimation(const std::shared_ptr<Animation>& animation, uint64_t now,

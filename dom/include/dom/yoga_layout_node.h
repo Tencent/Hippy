@@ -46,6 +46,8 @@ class YogaLayoutNode : public LayoutNode, public std::enable_shared_from_this<Yo
 
   void SetMeasureFunction(MeasureFunction measure_function) override;
 
+  bool HasMeasureFunction() override;
+
   float GetLeft() override;
 
   float GetTop() override;
@@ -83,6 +85,8 @@ class YogaLayoutNode : public LayoutNode, public std::enable_shared_from_this<Yo
   void SetHasNewLayout(bool has_new_layout) override;
 
   void MarkDirty() override;
+
+  bool HasParentEngineNode() override;
 
   void Print() override;
 

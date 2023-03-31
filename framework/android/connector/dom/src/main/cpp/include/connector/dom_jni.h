@@ -43,6 +43,10 @@ void DestroyRoot(JNIEnv* j_env,
                  __unused jobject j_obj,
                  jint j_root_id);
 
+void ReleaseRootResources(JNIEnv* j_env,
+                          __unused jobject j_obj,
+                          jint j_root_id);
+
 void SetDomManager(JNIEnv* j_env,
                   __unused jobject j_obj,
                   jint j_root_id,

@@ -88,7 +88,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${websocketpp_SOURCE_DIR})
 if (IOS)
   # nlohmann_json 3.10.0 or later failed to compile on iOS
   InfraPackage_Add(json
-          REMOTE "devtools/backend/third_party/json/3.9.1/json.zip"
+          REMOTE "devtools/backend/third_party/json/3.10.5/json.tar.xz"
           LOCAL "third_party/json")
   target_include_directories(${PROJECT_NAME} PUBLIC ${json_SOURCE_DIR}/single_include)
 else()

@@ -84,6 +84,8 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    */
   void SetMeasureFunction(MeasureFunction measure_function) override;
 
+  bool HasMeasureFunction() override;
+
   /**
    * @brief 获取 left 属性
    * @return left 属性
@@ -195,6 +197,8 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @brief 节点标脏
    */
   void MarkDirty() override;
+
+  bool HasParentEngineNode() override;
 
   /**
    * @brief 打印节点树信息

@@ -60,7 +60,6 @@ static NSString *const engineKey = @"Demo";
         NSLog(@"hippy says:%@ in file %@ at line %@", message, fileName, lineNumber);
     });
     [self runCommonDemo];
-    // [self runDemoWithoutRuntime];
 }
 
 - (void)runCommonDemo {
@@ -80,7 +79,7 @@ static NSString *const engineKey = @"Demo";
     _connector = [[HippyConvenientBridge alloc] initWithDelegate:self moduleProvider:nil extraComponents:nil launchOptions:launchOptions engineKey:engineKey];
     //set custom vfs loader
     _connector.sandboxDirectory = sandboxDirectory;
-    _connector.contextName = @"Hippy:Demo";
+    _connector.contextName = @"Demo";
     _connector.moduleName = @"Demo";
     _connector.methodInterceptor = self;
     [self mountConnector:_connector];
@@ -93,8 +92,8 @@ static NSString *const engineKey = @"Demo";
 #endif
 
 #ifdef HIPPYDEBUG
-    NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
-    NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
+//    NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
+//    NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
 #else
     NSString *commonBundlePath = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:@"res"];
     NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res"];
@@ -105,8 +104,8 @@ static NSString *const engineKey = @"Demo";
     [_connector setRootView:rootView];
     NSNumber *rootTag = [rootView componentTag];
 #ifdef HIPPYDEBUG
-    [connector loadBundleURL:bundleUrl completion:^(NSURL * _Nullable, NSError * _Nullable) {
-        NSLog(@"url %@ load finish", bundleStr);
+    [connector loadDebugBundleCompletion:^(NSURL * _Nullable url, NSError * _Nullable error) {
+        NSLog(@"url %@ load finish", url);
         [connector loadInstanceForRootViewTag:rootTag props:@{@"isSimulator": @(isSimulator)}];
     }];
 #else

@@ -480,6 +480,11 @@ void TaitankLayoutNode::SetMeasureFunction(MeasureFunction measure_function) {
   engine_node_->SetMeasureFunction(TaitankMeasureFunction);
 }
 
+bool TaitankLayoutNode::HasMeasureFunction() {
+  assert(engine_node_ != nullptr);
+  return measure_function_map.find(key_) != measure_function_map.end();
+}
+
 float TaitankLayoutNode::GetLeft() {
   assert(engine_node_ != nullptr);
   return engine_node_->layout_result_.position[CSS_LEFT];
@@ -575,6 +580,14 @@ void TaitankLayoutNode::SetHasNewLayout(bool has_new_layout) {
 void TaitankLayoutNode::MarkDirty() {
   assert(engine_node_ != nullptr);
   engine_node_->MarkAsDirty();
+}
+
+bool TaitankLayoutNode::HasParentEngineNode() {
+  assert(engine_node_ != nullptr);
+  if (engine_node_->GetParent() == nullptr) {
+    return false;
+  }
+  return true;
 }
 
 bool TaitankLayoutNode::IsDirty() {

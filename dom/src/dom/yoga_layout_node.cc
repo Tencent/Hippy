@@ -318,6 +318,9 @@ void YogaLayoutNode::SetMeasureFunction(MeasureFunction measure_function) {
   return YGNodeSetMeasureFunc(yoga_node_, YGMeasureFunction);
 }
 
+bool YogaLayoutNode::HasMeasureFunction() {
+  return measure_function_map.find(key_) != measure_function_map.end();
+}
 float YogaLayoutNode::GetLeft() { return YGNodeLayoutGetLeft(yoga_node_); }
 
 float YogaLayoutNode::GetTop() { return YGNodeLayoutGetTop(yoga_node_); }
@@ -382,6 +385,13 @@ bool YogaLayoutNode::HasNewLayout() { return YGNodeGetHasNewLayout(yoga_node_); 
 void YogaLayoutNode::SetHasNewLayout(bool has_new_layout) { YGNodeSetHasNewLayout(yoga_node_, has_new_layout); }
 
 void YogaLayoutNode::MarkDirty() { YGNodeMarkDirty(yoga_node_); }
+
+bool YogaLayoutNode::HasParentEngineNode() {
+  if (parent_.lock() != nullptr && parent_.lock()->yoga_node_ != nullptr) {
+    return true;
+  }
+  return false;
+}
 
 void YogaLayoutNode::Print() {
 #ifdef DEBUG

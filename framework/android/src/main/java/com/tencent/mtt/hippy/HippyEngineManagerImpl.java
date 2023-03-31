@@ -934,6 +934,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 }
                 mDestroyModuleListeners.remove(rootId);
             }
+            mDomManager.releaseRoot(rootId);
             mDomManager.destroyRoot(rootId);
             mRenderer.destroyRoot(rootId);
         }

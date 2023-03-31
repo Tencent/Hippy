@@ -1082,13 +1082,18 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         auto weakDomManager = self.domManager;
         [self domNodeForComponentTag:node_id onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> node) {
             if (node) {
-                NSString *vsyncKey = [NSString stringWithFormat:@"%p%d", self, node_id];
+                //for kVSyncKey event, node is rootnode
+                NSString *vsyncKey = [NSString stringWithFormat:@"%p-%d", self, node_id];
                 auto event = std::make_shared<hippy::DomEvent>(name_, node);
+                std::weak_ptr<DomNode> weakNode = node;
                 [[RenderVsyncManager sharedInstance] registerVsyncObserver:^{
                     auto domManager = weakDomManager.lock();
                     if (domManager) {
-                        std::function<void()> func = [node, event](){
-                            node->HandleEvent(event);
+                        std::function<void()> func = [weakNode, event](){
+                            auto strongNode = weakNode.lock();
+                            if (strongNode) {
+                                strongNode->HandleEvent(event);
+                            }
                         };
                         domManager->PostTask(hippy::Scene({func}));
                     }
@@ -1326,7 +1331,8 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
        std::string name_ = eventName;
        [self domNodeForComponentTag:node_id onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> node) {
            if (node) {
-               NSString *vsyncKey = [NSString stringWithFormat:@"%p%d", self, node_id];
+               //for kVSyncKey event, node is rootnode
+               NSString *vsyncKey = [NSString stringWithFormat:@"%p-%d", self, node_id];
                [[RenderVsyncManager sharedInstance] unregisterVsyncObserverForKey:vsyncKey];
            }
        }];
