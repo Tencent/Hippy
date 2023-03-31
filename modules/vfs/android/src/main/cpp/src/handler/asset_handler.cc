@@ -26,6 +26,9 @@
 #include "vfs/uri.h"
 #include "jni/jni_env.h"
 
+
+constexpr char kRunnerName[] = "asset_handler_runner";
+
 using string_view = footstone::string_view;
 using StringViewUtils = footstone::StringViewUtils;
 
@@ -139,18 +142,19 @@ void AssetHandler::LoadByAsset(const string_view& path,
                                std::function<std::shared_ptr<UriHandler>()> next,
                                bool is_auto_fill) {
   FOOTSTONE_DLOG(INFO) << "ReadAssetFile file_path = " << path;
-  auto runner = runner_.lock();
-  if (!runner) {
-    cb(std::make_shared<JobResponse>(UriHandler::RetCode::DelegateError));
-    return;
-  }
   auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   auto j_context = j_env->CallStaticObjectMethod(j_context_holder_class, j_get_app_context_mothod_id);
   auto j_context_class = j_env->GetObjectClass(j_context);
   auto j_get_assets_method_id = j_env->GetMethodID(j_context_class, "getAssets", "()Landroid/content/res/AssetManager;");
   auto j_asset_manager = j_env->CallObjectMethod(j_context, j_get_assets_method_id);
   auto manager = std::make_shared<JavaRef>(j_env, j_asset_manager);
-  runner->PostTask([path, manager, cb, is_auto_fill] {
+  {
+    std::lock_guard<std::mutex> lock_guard(mutex_);
+    if (!runner_) {
+      runner_ = request->GetWorkerManager()->CreateTaskRunner(kRunnerName);
+    }
+  }
+  runner_->PostTask([path, manager, cb, is_auto_fill] {
     UriHandler::bytes content;
     auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
     bool ret = ReadAsset(path,

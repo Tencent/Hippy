@@ -102,12 +102,6 @@ VfsWrapper::VfsWrapper(uint32_t worker_manager_id) {
   auto delegate = std::make_shared<voltron::FfiDelegateHandler>(id_);
   loader_ = std::make_shared<hippy::UriLoader>();
   auto file_delegate = std::make_shared<voltron::FileHandler>();
-  std::shared_ptr<footstone::WorkerManager>
-      worker_manager = FfiFindWorkerManager(worker_manager_id);
-  if (worker_manager) {
-    auto runner = worker_manager->CreateTaskRunner(kVfsFileRunnerName);
-    file_delegate->SetWorkerTaskRunner(runner);
-  }
   loader_->RegisterUriHandler(voltron::kFileSchema, file_delegate);
   loader_->PushDefaultHandler(delegate);
 }

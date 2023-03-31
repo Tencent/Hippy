@@ -44,10 +44,6 @@ class AssetHandler : public UriHandler {
   static void Init(JNIEnv* j_env);
   static void Destroy(JNIEnv* j_env);
 
-  inline void SetWorkerTaskRunner(std::weak_ptr<TaskRunner> runner) {
-    runner_ = runner;
-  }
-
   virtual void RequestUntrustedContent(
       std::shared_ptr<RequestJob> request,
       std::shared_ptr<JobResponse> response,
@@ -63,7 +59,8 @@ class AssetHandler : public UriHandler {
                    std::function<std::shared_ptr<UriHandler>()> next,
                    bool is_auto_fill = false);
 
-  std::weak_ptr<TaskRunner> runner_;
+  std::shared_ptr<TaskRunner> runner_;
+  std::mutex mutex_;
 };
 
 }

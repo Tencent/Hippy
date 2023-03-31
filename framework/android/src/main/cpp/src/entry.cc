@@ -124,7 +124,7 @@ jint OnCreateVfs(JNIEnv* j_env, __unused jobject j_object, jobject j_vfs_manager
 
 void OnDestroyVfs(__unused JNIEnv* j_env, __unused jobject j_object, jint j_id) {
   auto id = footstone::checked_numeric_cast<jint, uint32_t>(j_id);
-  bool flag = hippy::global_data_holder.Erase(id);
+  auto flag = hippy::global_data_holder.Erase(id);
   FOOTSTONE_DCHECK(flag);
 }
 
