@@ -28,7 +28,6 @@ import androidx.annotation.RequiresApi;
 
 import com.openhippy.pool.ImageRecycleObject;
 import com.openhippy.pool.RecycleObject;
-import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.utils.ImageDataUtils;
 
@@ -151,7 +150,7 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
 
     @Override
     public void cached() {
-        setStateFlag(FLAG_CACHED);
+        setStateFlag(FLAG_CACHED | FLAG_RECYCLABLE);
     }
 
     @Override
@@ -300,16 +299,9 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
      * Set bitmap to image holder.
      *
      * @param bitmap {@link Bitmap}.
-     * @param isRecyclable should recycle by sdk {@code true} the bitmap lifecycle is managed by the
-     * SDK {@code false} the bitmap lifecycle is managed by the Provider
      */
-    public void setBitmap(Bitmap bitmap, boolean isRecyclable) {
+    public void setBitmap(Bitmap bitmap) {
         mBitmap = bitmap;
-        if (isRecyclable) {
-            setStateFlag(FLAG_RECYCLABLE);
-        } else {
-            resetStateFlag(FLAG_RECYCLABLE);
-        }
     }
 
     /**
@@ -345,7 +337,6 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
         if (source != null) {
             mBitmap = ImageDecoder.decodeBitmap(source);
             mGifMovie = null;
-            setStateFlag(FLAG_RECYCLABLE);
         }
     }
 
@@ -397,6 +388,5 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
         mOptions.inJustDecodeBounds = false;
         mBitmap = BitmapFactory.decodeByteArray(data, 0, data.length, mOptions);
         mGifMovie = null;
-        setStateFlag(FLAG_RECYCLABLE);
     }
 }
