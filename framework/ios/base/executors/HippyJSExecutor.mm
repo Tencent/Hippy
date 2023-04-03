@@ -544,7 +544,6 @@ static NSLock *jslock() {
 
 static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, HippyPerformanceLogger *performanceLogger, SharedCtxPtr context, NSError **error) {
     @autoreleasepool {
-        [performanceLogger markStartForTag:HippyPLScriptExecution];
         string_view view = string_view::new_from_utf8([script UTF8String]);
         string_view fileName = NSStringToU8StringView([sourceURL absoluteString]);
         string_view errorMsg;
@@ -558,7 +557,6 @@ static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, Hip
         if (lockSuccess) {
             [lock unlock];
         }
-        [performanceLogger markStopForTag:HippyPLScriptExecution];
         *error = !StringViewUtils::IsEmpty(errorMsg) ? [NSError errorWithDomain:HPErrorDomain code:2 userInfo:@{
             NSLocalizedDescriptionKey: StringViewToNSString(errorMsg)}] : nil;
         id objcResult = ObjectFromCtxValue(context, result);
