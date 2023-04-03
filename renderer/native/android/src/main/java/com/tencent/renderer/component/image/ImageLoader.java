@@ -26,6 +26,7 @@ import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.NativeRenderException;
 
 import com.tencent.vfs.ResourceDataHolder;
+import com.tencent.vfs.UrlUtils;
 import com.tencent.vfs.VfsManager;
 import com.tencent.vfs.VfsManager.FetchResourceCallback;
 
@@ -53,8 +54,11 @@ public class ImageLoader implements ImageLoaderAdapter {
     }
 
     @Nullable
-    public ImageDataSupplier getImageFromCache(@NonNull String source) {
-        ImageRecycleObject imageObject = mImagePool.acquire(ImageDataHolder.generateSourceKey(source));
+    public ImageDataSupplier getImageFromCache(@NonNull String url) {
+        if (UrlUtils.isWebUrl(url)) {
+            return null;
+        }
+        ImageRecycleObject imageObject = mImagePool.acquire(ImageDataHolder.generateSourceKey(url));
         return (imageObject instanceof ImageDataSupplier) ? ((ImageDataSupplier) imageObject)
                 : null;
     }
@@ -109,7 +113,7 @@ public class ImageLoader implements ImageLoaderAdapter {
                 // Should check the request data returned from the host, if the data is
                 // invalid, the request is considered to have failed
                 if (imageHolder.checkImageData()) {
-                    saveImageToCache(imageHolder);
+                    saveImageToCache(url, imageHolder);
                 } else {
                     imageHolder = null;
                     errorMessage = "Image data decoding failed!";
@@ -153,8 +157,10 @@ public class ImageLoader implements ImageLoaderAdapter {
         }
     }
 
-    private void saveImageToCache(@NonNull ImageDataSupplier data) {
-        mImagePool.release((ImageRecycleObject) data);
+    private void saveImageToCache(@NonNull String url, @NonNull ImageDataHolder data) {
+        if (!UrlUtils.isWebUrl(url)) {
+            mImagePool.release((ImageRecycleObject) data);
+        }
     }
 
     @NonNull
@@ -185,7 +191,7 @@ public class ImageLoader implements ImageLoaderAdapter {
         try {
             imageHolder.decodeImageData(bytes, initProps, mImageDecoderAdapter);
             if (imageHolder.checkImageData()) {
-                saveImageToCache(imageHolder);
+                saveImageToCache(url, imageHolder);
                 return imageHolder;
             }
         } catch (NativeRenderException e) {

@@ -248,6 +248,7 @@ dispatch_queue_t HippyBridgeQueue() {
     @try {
         __weak HippyBridge *weakSelf = self;
         _moduleSetup = [[HippyModulesSetup alloc] initWithBridge:self extraProviderModulesBlock:_moduleProvider];
+        [_performanceLogger markStartForTag:HippyPLJSExecutorSetup];
         _javaScriptExecutor = [[HippyJSExecutor alloc] initWithEngineKey:_engineKey bridge:self];
         _javaScriptExecutor.contextCreatedBlock = ^(id<HippyContextWrapper> ctxWrapper){
             HippyBridge *strongSelf = weakSelf;
@@ -255,6 +256,7 @@ dispatch_queue_t HippyBridgeQueue() {
                 dispatch_semaphore_wait(strongSelf.moduleSemaphore, DISPATCH_TIME_FOREVER);
                 NSString *moduleConfig = [strongSelf moduleConfig];
                 [ctxWrapper createGlobalObject:@"__hpBatchedBridgeConfig" withJsonValue:moduleConfig];
+                [strongSelf->_performanceLogger markStopForTag:HippyPLJSExecutorSetup];
             }
         };
         [_javaScriptExecutor setup];
@@ -273,12 +275,17 @@ dispatch_queue_t HippyBridgeQueue() {
     } @catch (NSException *exception) {
         HippyBridgeHandleException(exception, self);
     }
+    [_performanceLogger markStopForTag:HippyPLBridgeStartup];
 }
 
 - (void)loadBundleURL:(NSURL *)bundleURL
            completion:(void (^_Nullable)(NSURL  * _Nullable, NSError * _Nullable))completion {
     if (!bundleURL) {
-        completion(nil, nil);
+        if (completion) {
+            static NSString *bundleError = @"bundle url is nil";
+            NSError *error = [NSError errorWithDomain:@"Bridge Bundle Loading Domain" code:1 userInfo:@{NSLocalizedFailureReasonErrorKey: bundleError}];
+            completion(nil, error);
+        }
         return;
     }
     [_bundleURLs addObject:bundleURL];
@@ -290,7 +297,9 @@ dispatch_queue_t HippyBridgeQueue() {
 
 
 - (void)initWithModulesCompletion:(dispatch_block_t)completion {
+    [_performanceLogger markStartForTag:HippyPLNativeModuleInit];
     [_moduleSetup setupModulesCompletion:completion];
+    [_performanceLogger markStopForTag:HippyPLNativeModuleInit];
 }
 
 - (void)beginLoadingBundle:(NSURL *)bundleURL
@@ -382,8 +391,7 @@ dispatch_queue_t HippyBridgeQueue() {
 - (void)rootViewSizeChangedEvent:(NSNumber *)tag params:(NSDictionary *)params {
     NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithDictionary:params];
     [dic setObject:tag forKey:@"rootViewId"];
-    NSDictionary *args = @{@"eventName": @"onSizeChanged", @"extra": dic};
-    [[self eventDispatcher] dispatchEvent:@"EventDispatcher" methodName:@"receiveNativeEvent" args:args];
+    [self sendEvent:@"onSizeChanged" params:dic];
 }
 
 - (void)setVFSUriLoader:(std::weak_ptr<VFSUriLoader>)uriLoader {
@@ -419,6 +427,7 @@ dispatch_queue_t HippyBridgeQueue() {
         HippyBridge *strongSelf = weakSelf;
         if (!strongSelf || ![strongSelf isValid]) {
             completion(result, error);
+            [strongSelf->_performanceLogger markStopForTag:HippyExecuteSource];
             return;
         }
         if (error) {
@@ -432,6 +441,7 @@ dispatch_queue_t HippyBridgeQueue() {
                                                                   userInfo:userInfo];
             });
         }
+        [strongSelf->_performanceLogger markStopForTag:HippyExecuteSource];
         completion(result, error);
     }];
 }
@@ -752,10 +762,6 @@ dispatch_queue_t HippyBridgeQueue() {
     return _moduleSetup.moduleSetupComplete;
 }
 
-- (NSURL *)bundleURL {
-    return [_bundleURLs firstObject];
-}
-
 - (void)invalidate {
     HPLogInfo(self, @"[Hippy_OC_Log][Life_Circle],%@ invalide %p", NSStringFromClass([self class]), self);
     if (![self isValid]) {
@@ -903,6 +909,10 @@ dispatch_queue_t HippyBridgeQueue() {
     }
 }
 
+- (NSArray<NSURL *> *)bundleURLs {
+    return [_bundleURLs copy];
+}
+
 + (NSString *)defaultHippyLocalFileScheme {
     // hpfile://
     return @"hpfile://";
@@ -920,7 +930,7 @@ dispatch_queue_t HippyBridgeQueue() {
             NSRange range = NSMakeRange(0, [filePrefix length]);
             relativeString = [string stringByReplacingOccurrencesOfString:filePrefix withString:@"" options:0 range:range];
         }
-        NSURL *localFileURL = [NSURL URLWithString:relativeString relativeToURL:self.bundleURL];
+        NSURL *localFileURL = [NSURL URLWithString:relativeString relativeToURL:self.sandboxDirectory];
         return [localFileURL path];
     }
     return nil;
@@ -931,6 +941,12 @@ dispatch_queue_t HippyBridgeQueue() {
         _contextName = [contextName copy];
         [self.javaScriptExecutor setContextName:contextName];
     }
+}
+
+- (void)sendEvent:(NSString *)eventName params:(NSDictionary *_Nullable)params {
+    [self.eventDispatcher dispatchEvent:@"EventDispatcher"
+                             methodName:@"receiveNativeEvent"
+                                   args:@{@"eventName": eventName, @"extra": params ? : @{}}];
 }
 
 @end

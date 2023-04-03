@@ -34,6 +34,7 @@
 #import "VFSUriLoader.h"
 
 #include <memory>
+#include <objc/runtime.h>
 
 #include "dom/root_node.h"
 
@@ -52,18 +53,18 @@
 
 @synthesize bridge = _bridge;
 
-- (instancetype)initWithDelegate:(id<HippyConvenientBridgeDelegate> _Nullable)delegate
+- (instancetype)initWithDelegate:(id<HippyBridgeDelegate> _Nullable)delegate
                   moduleProvider:(HippyBridgeModuleProviderBlock _Nullable)block
                  extraComponents:(NSArray<Class> * _Nullable)extraComponents
                    launchOptions:(NSDictionary * _Nullable)launchOptions
-                       engineKey:(NSString *)engineKey {
+                       engineKey:(NSString *_Nullable)engineKey {
     self = [super init];
     if (self) {
         _delegate = delegate;
-        _engineKey = engineKey;
-        _extraComponents = extraComponents;
         _bridge = [[HippyBridge alloc] initWithDelegate:self moduleProvider:block
                                           launchOptions:launchOptions engineKey:engineKey];
+        _engineKey = engineKey;
+        _extraComponents = extraComponents;
         [_bridge addImageProviderClass:[HPDefaultImageProvider class]];
         [_bridge setVFSUriLoader:[self URILoader]];
         [self setUpNativeRenderManager];
@@ -181,7 +182,10 @@
 - (void)unloadRootViewByTag:(NSNumber *)tag {
     [_bridge unloadInstanceForRootView:tag];
     _nativeRenderManager->UnregisterRootView([tag intValue]);
-    _rootNode = nullptr;
+    if (_rootNode) {
+        _rootNode->ReleaseResources();
+        _rootNode = nullptr;
+    }
 }
 
 - (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls {
@@ -191,36 +195,26 @@
 
 #pragma mark HippyBridge Delegate
 
-- (BOOL)shouldStartInspector:(HippyBridge *)bridge {
-    return [self.delegate respondsToSelector:@selector(shouldStartInspector:)] ?
-    [self.delegate shouldStartInspector:self] :
-    NO;
-}
-
-- (NSData *)cachedCodeForConnector:(HippyBridge *)bridge
-                            script:(NSString *)script
-                         sourceURL:(NSURL *)sourceURL {
-    return [self.delegate respondsToSelector:@selector(cachedCodeForConnector:script:sourceURL:)] ?
-    [self.delegate cachedCodeForConnector:self script:script sourceURL:sourceURL] :
-    nil;
-}
-
-- (void)cachedCodeCreated:(NSData *)cachedCode ForBridge:(HippyBridge *)bridge script:(NSString *)script sourceURL:(NSURL *)sourceURL {
-    if ([self.delegate respondsToSelector:@selector(cachedCodeCreated:ForConnector:script:sourceURL:)]) {
-        [self.delegate cachedCodeCreated:cachedCode ForConnector:self script:script sourceURL:sourceURL];
+static BOOL SelectorBelongsToProtocol(SEL selector, Protocol *protocol) {
+    if (!selector || !protocol) {
+        return NO;
     }
+    struct objc_method_description methodDesc = protocol_getMethodDescription(protocol, selector, NO, YES);
+    return selector == methodDesc.name;
 }
 
-- (void)reload:(HippyBridge *)bridge {
-    if ([self.delegate respondsToSelector:@selector(reload:)]) {
-        [self.delegate reload:self];
+- (BOOL)respondsToSelector:(SEL)aSelector {
+    if (aSelector == @selector(invalidateForReason:bridge:)) {
+        return YES;
     }
+    return [_delegate respondsToSelector:aSelector];
 }
 
-- (void)removeRootView:(NSNumber *)rootTag bridge:(HippyBridge *)bridge {
-    if ([self.delegate respondsToSelector:@selector(removeRootView:connector:)]) {
-        [self.delegate removeRootView:rootTag connector:self];
+- (id)forwardingTargetForSelector:(SEL)aSelector {
+    if (SelectorBelongsToProtocol(aSelector, @protocol(HippyBridgeDelegate))) {
+        return _delegate;
     }
+    return [super forwardingTargetForSelector:aSelector];
 }
 
 - (void)invalidateForReason:(HPInvalidateReason)reason bridge:(HippyBridge *)bridge {
@@ -230,10 +224,19 @@
         }
         [self unloadRootViewByTag:[obj componentTag]];
     }];
+    if ([_delegate respondsToSelector:@selector(invalidateForReason:bridge:)]) {
+        [_delegate invalidateForReason:reason bridge:bridge];
+    }
+}
+
+- (void)sendEvent:(NSString *)eventName params:(NSDictionary *_Nullable)params {
+    [self.bridge sendEvent:eventName params:params];
 }
 
 - (void)dealloc {
-    _rootNode->ReleaseResources();
+    if (_rootNode) {
+        _rootNode->ReleaseResources();
+    }
 }
 
 @end

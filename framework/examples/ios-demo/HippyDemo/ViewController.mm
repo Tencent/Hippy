@@ -33,7 +33,7 @@
 
 static NSString *const engineKey = @"Demo";
 
-@interface ViewController ()<HippyMethodInterceptorProtocol, HippyConvenientBridgeDelegate> {
+@interface ViewController ()<HippyMethodInterceptorProtocol, HippyBridgeDelegate> {
     HippyConvenientBridge *_connector;
 }
 
@@ -69,7 +69,7 @@ static NSString *const engineKey = @"Demo";
 #ifdef HIPPYDEBUG
     NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
     NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
-    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES)};
+    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": bundleUrl};
     sandboxDirectory = [bundleUrl URLByDeletingLastPathComponent];
 #else
     launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO)};
@@ -120,16 +120,16 @@ static NSString *const engineKey = @"Demo";
     [self.view addSubview:rootView];
 }
 
-- (void)reload:(HippyConvenientBridge *)connector {
-    [self mountConnector:connector];
+- (void)reload:(HippyBridge *)bridge {
+    [self mountConnector:_connector];
 }
 
-- (void)removeRootView:(NSNumber *)rootTag connector:(HippyConvenientBridge *)connector {
+- (void)removeRootView:(NSNumber *)rootTag bridge:(HippyBridge *)bridge {
     [[[self.view subviews] firstObject] removeFromSuperview];
 }
 
-- (BOOL)shouldStartInspector:(HippyConvenientBridge *)connector {
-    return connector.bridge.debugMode;
+- (BOOL)shouldStartInspector:(HippyBridge *)bridge {
+    return bridge.debugMode;
 }
 
 - (BOOL)shouldInvokeWithModuleName:(NSString *)moduleName methodName:(NSString *)methodName arguments:(NSArray<id<HippyBridgeArgument>> *)arguments argumentsValues:(NSArray *)argumentsValue containCallback:(BOOL)containCallback {

@@ -27,6 +27,7 @@ import java.util.Map;
 public class RecycleObjectPool extends BasePool<String, RecycleObject> {
 
     private static final String TAG = "RecycleObjectPool";
+    private final Object mLock = new Object();
     private final Map<String, SimplePool<RecycleObject>> mPools = new HashMap<>();
     private int mPoolSize = 12;
 
@@ -40,9 +41,11 @@ public class RecycleObjectPool extends BasePool<String, RecycleObject> {
 
     @Override
     @Nullable
-    public synchronized RecycleObject acquire(@NonNull String key) {
-        SimplePool<RecycleObject> pool = mPools.get(key);
-        return (pool == null) ? null : pool.acquire();
+    public RecycleObject acquire(@NonNull String key) {
+        synchronized (mLock) {
+            SimplePool<RecycleObject> pool = mPools.get(key);
+            return (pool == null) ? null : pool.acquire();
+        }
     }
 
     @Override
@@ -52,24 +55,28 @@ public class RecycleObjectPool extends BasePool<String, RecycleObject> {
     }
 
     @Override
-    public synchronized void release(@NonNull String key, @NonNull RecycleObject instance) {
-        SimplePool<RecycleObject> pool;
-        pool = mPools.get(key);
-        if (pool == null) {
-            pool = new Pools.SimplePool<>(mPoolSize);
-            mPools.put(key, pool);
-        }
-        try {
-            pool.release(instance);
-        } catch (IllegalStateException e) {
-            LogUtils.w(TAG,
-                    "Put recycle item to pool failed: key=" + key + ", msg=" + e.getMessage());
+    public void release(@NonNull String key, @NonNull RecycleObject instance) {
+        synchronized (mLock) {
+            SimplePool<RecycleObject> pool;
+            pool = mPools.get(key);
+            if (pool == null) {
+                pool = new Pools.SimplePool<>(mPoolSize);
+                mPools.put(key, pool);
+            }
+            try {
+                pool.release(instance);
+            } catch (IllegalStateException e) {
+                LogUtils.w(TAG,
+                        "Put recycle item to pool failed: key=" + key + ", msg=" + e.getMessage());
+            }
         }
     }
 
     @Override
-    public synchronized void clear() {
-        mPools.clear();
+    public void clear() {
+        synchronized (mLock) {
+            mPools.clear();
+        }
     }
 
     @Override

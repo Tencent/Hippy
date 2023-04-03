@@ -21,6 +21,7 @@ import static com.tencent.renderer.node.RenderNode.FLAG_LAZY_LOAD;
 
 import android.view.MotionEvent;
 import android.view.View.OnTouchListener;
+import android.view.ViewParent;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.HippyItemTypeHelper;
 import androidx.recyclerview.widget.ItemLayoutParams;
@@ -51,6 +52,7 @@ import com.tencent.renderer.NativeRendererManager;
 public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Adapter<HippyRecyclerViewHolder>
         implements IRecycleItemTypeChange, IStickyItemsProvider, ItemLayoutParams, OnTouchListener {
 
+    private static final String TAG = "HippyRecyclerListAdapter";
     private static final int STICK_ITEM_VIEW_TYPE_BASE = -100000;
     protected final HRCV hippyRecyclerView;
     protected final HippyItemTypeHelper hippyItemTypeHelper;
@@ -127,13 +129,21 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         setLayoutParams(hippyRecyclerViewHolder.itemView, position);
         RenderNode fromNode = hippyRecyclerViewHolder.bindNode;
         ListItemRenderNode toNode = getChildNodeByAdapterPosition(position);
+        LogUtils.d(TAG, "onBindViewHolder from node id " + fromNode.getId() + ", to node id " + toNode.getId());
         if (fromNode.getId() != toNode.getId()) {
             toNode.onBindViewHolder(fromNode, hippyRecyclerViewHolder.itemView);
-        } else if (toNode.getHostView() == null) {
+        } else {
             toNode.onBindViewHolder(hippyRecyclerViewHolder.itemView);
         }
         toNode.setRecycleItemTypeChangeListener(this);
         hippyRecyclerViewHolder.bindNode = toNode;
+    }
+
+    @Override
+    public void onViewAttachedToWindow(@NonNull HippyRecyclerViewHolder holder) {
+        if (holder.itemView != null) {
+            LogUtils.d(TAG, "onViewAttachedToWindow itemView id " + holder.itemView.getId());
+        }
     }
 
     public void onFooterRefreshCompleted() {

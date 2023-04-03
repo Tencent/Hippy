@@ -49,7 +49,8 @@ import java.util.Map;
 
 public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupplier {
 
-    private static final int MAX_SOURCE_KEY_LEN = 32;
+    private static final String TAG = "ImageDataHolder";
+    private static final int MAX_SOURCE_KEY_LEN = 128;
     /**
      * Mark that the image data has been cached.
      */
@@ -149,7 +150,7 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
 
     @Override
     public void cached() {
-        setStateFlag(FLAG_CACHED);
+        setStateFlag(FLAG_CACHED | FLAG_RECYCLABLE);
     }
 
     @Override
@@ -172,8 +173,9 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
         mGifMovie = null;
         mDrawable = null;
         mOptions = null;
+        mSource = null;
         mStateFlags = 0;
-        recycle();
+        //recycle();
     }
 
     @Override
@@ -297,16 +299,9 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
      * Set bitmap to image holder.
      *
      * @param bitmap {@link Bitmap}.
-     * @param isRecyclable should recycle by sdk {@code true} the bitmap lifecycle is managed by the
-     * SDK {@code false} the bitmap lifecycle is managed by the Provider
      */
-    public void setBitmap(Bitmap bitmap, boolean isRecyclable) {
+    public void setBitmap(Bitmap bitmap) {
         mBitmap = bitmap;
-        if (isRecyclable) {
-            setStateFlag(FLAG_RECYCLABLE);
-        } else {
-            resetStateFlag(FLAG_RECYCLABLE);
-        }
     }
 
     /**
@@ -342,7 +337,6 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
         if (source != null) {
             mBitmap = ImageDecoder.decodeBitmap(source);
             mGifMovie = null;
-            setStateFlag(FLAG_RECYCLABLE);
         }
     }
 
@@ -394,6 +388,5 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
         mOptions.inJustDecodeBounds = false;
         mBitmap = BitmapFactory.decodeByteArray(data, 0, data.length, mOptions);
         mGifMovie = null;
-        setStateFlag(FLAG_RECYCLABLE);
     }
 }

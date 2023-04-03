@@ -418,22 +418,10 @@ HIPPY_EXPORT_METHOD(dismiss) {
     [self dismiss];
 }
 
-- (void)redBoxWindow:(__unused HippyRedBoxWindow *)redBoxWindow openStackFrameInEditor:(HPDriverStackFrame *)stackFrame {
-    if (![_bridge.bundleURL.scheme hasPrefix:@"http"]) {
-        HPLogWarn(self.bridge, @"Cannot open stack frame in editor because you're not connected to the packager.");
-        return;
-    }
-
-    NSData *stackFrameJSON = [HippyJSONStringify([stackFrame toDictionary], NULL) dataUsingEncoding:NSUTF8StringEncoding];
-    NSString *postLength = [NSString stringWithFormat:@"%tu", stackFrameJSON.length];
-    NSMutableURLRequest *request = [NSMutableURLRequest new];
-    request.URL = [NSURL URLWithString:@"/open-stack-frame" relativeToURL:_bridge.bundleURL];
-    request.HTTPMethod = @"POST";
-    request.HTTPBody = stackFrameJSON;
-    [request setValue:postLength forHTTPHeaderField:@"Content-Length"];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-
-    [[[NSURLSession sharedSession] dataTaskWithRequest:request] resume];
+- (void)redBoxWindow:(__unused HippyRedBoxWindow *)redBoxWindow
+openStackFrameInEditor:(HPDriverStackFrame *)stackFrame {
+    //todo 
+    HPLog(@"red box cannot open stack frame");
 }
 
 - (void)reloadFromRedBoxWindow:(__unused HippyRedBoxWindow *)redBoxWindow {

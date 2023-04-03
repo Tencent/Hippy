@@ -30,6 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.renderer.node.RenderNode;
 import com.tencent.renderer.component.Component;
 import com.tencent.renderer.component.drawable.ContentDrawable.ScaleType;
@@ -43,6 +44,7 @@ import java.util.Map;
 
 public class ImageComponent extends Component {
 
+    private static final String TAG = "ImageComponent";
     @Nullable
     private String mUri;
     @Nullable
@@ -92,22 +94,24 @@ public class ImageComponent extends Component {
 
     private void fetchImageIfNeeded() {
         if ((mDefaultImageHolder == null || !mDefaultImageHolder.checkImageData())
-                && mDefaultImageFetchState == ImageFetchState.UNLOAD) {
+                && mDefaultImageFetchState != ImageFetchState.LOADING) {
             fetchImageWithUrl(mDefaultUri, ImageSourceType.DEFAULT);
         }
         if ((mImageHolder == null || !mImageHolder.checkImageData())
-                && mImageFetchState == ImageFetchState.UNLOAD) {
+                && mImageFetchState != ImageFetchState.LOADING) {
             fetchImageWithUrl(mUri, ImageSourceType.SRC);
         }
     }
 
     @Override
     public void onHostViewAttachedToWindow() {
+        super.onHostViewAttachedToWindow();
         fetchImageIfNeeded();
     }
 
     @Override
     public void onHostViewRemoved() {
+        LogUtils.d(TAG, "onHostViewRemoved host id " + getHostId());
         super.onHostViewRemoved();
         clear();
         mImageFetchState = ImageFetchState.UNLOAD;
@@ -132,7 +136,7 @@ public class ImageComponent extends Component {
         if (!TextUtils.equals(mUri, uri)) {
             mUri = uri;
             mImageFetchState = ImageFetchState.UNLOAD;
-            fetchImageWithUrl(uri, ImageSourceType.SRC);
+            fetchImageWithUrl(mUri, ImageSourceType.SRC);
         }
     }
 
@@ -183,7 +187,9 @@ public class ImageComponent extends Component {
     private void onFetchImageSuccess(@NonNull String uri, ImageSourceType sourceType,
             @NonNull ImageDataSupplier imageHolder, boolean loadFromCache) {
         if (sourceType == ImageSourceType.SRC) {
+            LogUtils.d(TAG, "onFetchImageSuccess: host id " + getHostId() + ", uri " + uri);
             if (!uri.equals(mUri)) {
+                imageHolder.detached();
                 return;
             }
             mImageHolder = imageHolder;
@@ -203,6 +209,7 @@ public class ImageComponent extends Component {
             }
         } else if (sourceType == ImageSourceType.DEFAULT) {
             if (!uri.equals(mDefaultUri)) {
+                imageHolder.detached();
                 return;
             }
             mDefaultImageHolder = imageHolder;
@@ -278,6 +285,7 @@ public class ImageComponent extends Component {
         if (TextUtils.isEmpty(uri) || mImageLoader == null) {
             return;
         }
+        LogUtils.d(TAG, "fetchImageWithUrl: host id " + getHostId() + ", uri " + uri);
         ImageDataSupplier imageData = mImageLoader.getImageFromCache(uri);
         if (imageData != null && imageData.checkImageData()) {
             onFetchImageSuccess(uri, sourceType, imageData, true);

@@ -314,10 +314,14 @@ public class RenderNode {
     }
 
     public void onHostViewAttachedToWindow() {
+        LogUtils.d(TAG, "onHostViewAttachedToWindow: id " + mId + ", class name " + mClassName);
         for (int i = 0; i < getChildCount(); i++) {
             RenderNode child = getChildAt(i);
             if (child != null && child.getHostView() == null) {
-                child.onHostViewAttachedToWindow();
+                Component component = child.getComponent();
+                if (component != null) {
+                    component.onHostViewAttachedToWindow();
+                }
             }
         }
         if (mComponent != null) {

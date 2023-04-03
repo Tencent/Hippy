@@ -21,11 +21,13 @@ import static com.tencent.renderer.NativeRenderException.ExceptionCode.ON_CREATE
 
 import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.list.IRecycleItemTypeChange;
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.utils.MapUtils;
@@ -33,6 +35,7 @@ import java.util.Map;
 
 public class ListItemRenderNode extends RenderNode {
 
+    private static final String TAG = "ListItemRenderNode";
     public static final String ITEM_VIEW_TYPE = "type";
     public static final String ITEM_STICKY = "sticky";
     public static final String ITEM_VIEW_TYPE_NEW = "itemViewType";
@@ -96,11 +99,17 @@ public class ListItemRenderNode extends RenderNode {
     }
 
     public void onBindViewHolder(@NonNull View itemView) {
-        mControllerManager.addView(mRootId, itemView);
-        setLazy(false);
-        prepareHostViewRecursive();
-        setHostView(itemView);
-        mountHostViewRecursive();
+        if (itemView.getId() != mId) {
+            return;
+        }
+        View hostView = getHostView();
+        if (hostView == null) {
+            mControllerManager.addView(mRootId, itemView);
+            setHostView(itemView);
+            setLazy(false);
+            prepareHostViewRecursive();
+            mountHostViewRecursive();
+        }
     }
 
     public void onBindViewHolder(@NonNull RenderNode fromNode, @NonNull View itemView) {
@@ -113,6 +122,17 @@ public class ListItemRenderNode extends RenderNode {
                             + ", item view id " + itemView.getId());
             mControllerManager.getNativeRender().handleRenderException(exception);
             return;
+        }
+        if (getHostView() instanceof ViewGroup) {
+            // Due to the hippy recycler view default use stable ID, toNode do not have a host view
+            // under normal scrolling conditions. However, if there are list switching and move node
+            // scenarios, toNode may has a host view and the subview is not empty, so the subview
+            // must be cleared and recreated, otherwise it cannot be mounted to the new itemView,
+            // causing the item view to display blank.
+            int count = ((ViewGroup) getHostView()).getChildCount();
+            if (count > 0) {
+                removeChildrenView(this);
+            }
         }
         removeChildrenView(fromNode);
         fromNode.setLazy(true);
