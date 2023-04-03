@@ -9,6 +9,7 @@ on:
       - 'ios/**'
       - 'core/**'
       - 'hippy.podspec'
+      - 'examples/ios-demo/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -34,7 +35,7 @@ jobs:
         run: |
           pushd examples/ios-demo
           pod install
-          xcodebuild -workspace 'Hippy.xcworkspace' -list | \
+          xcodebuild -workspace 'HippyDemo.xcworkspace' -list | \
           sed -n '/Schemes/,/^$/p' | \
           grep -v "Schemes:" | \
           grep -v '^\s*$' | \
@@ -43,7 +44,7 @@ jobs:
 
             xcodebuild build \
               -destination "generic/platform=iOS" \
-              -workspace "Hippy.xcworkspace" \
+              -workspace "HippyDemo.xcworkspace" \
               -scheme "${scheme}" \
               -configuration "${{ matrix.configuration }}" \
               CODE_SIGN_IDENTITY="" \
