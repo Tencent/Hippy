@@ -142,7 +142,6 @@ class MockRenderContext extends RenderContext {
           controllerGeneratorList,
           EngineMonitor(),
           false,
-          1,
           initRenderBridgeManager,
           initDomHolder,
           initRootViewModelMap,
@@ -157,7 +156,7 @@ class MockRenderContext extends RenderContext {
 
 RenderContext getRenderContext() {
   var renderBridgeManager = MockVoltronRenderBridgeManager();
-  when(renderBridgeManager.createDomInstance(any)).thenReturn(mockInstanceId);
+  when(renderBridgeManager.createDomInstance()).thenReturn(mockInstanceId);
   when(renderBridgeManager.createNativeRenderManager()).thenReturn(mockInstanceId);
   when(renderBridgeManager.notifyRender(any)).thenAnswer((_) => Future.value(1));
   var renderContext = MockRenderContext(renderBridgeManager, null, HashMap());

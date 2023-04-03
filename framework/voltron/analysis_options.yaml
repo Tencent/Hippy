@@ -32,6 +32,7 @@ analyzer:
     constant_identifier_names: warning
     library_names: warning
     file_names: warning
+    invalid_dependency: ignore
     avoid_setters_without_getters: warning
     avoid_return_types_on_setters: warning
     avoid_returning_null: warning

@@ -90,8 +90,8 @@ class MockVoltronRenderBridgeManager extends _i1.Mock implements _i2.VoltronRend
       );
 
   @override
-  int createDomInstance(int? workerManagerId) => (super.noSuchMethod(
-        Invocation.method(#createDomInstance, [workerManagerId]),
+  int createDomInstance() => (super.noSuchMethod(
+        Invocation.method(#createDomInstance, []),
         returnValue: 0,
       ) as int);
 
