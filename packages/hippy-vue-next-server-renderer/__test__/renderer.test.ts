@@ -82,7 +82,7 @@ describe('renderer.ts', () => {
         rootContainer: 'root',
       };
     });
-    it('render error', async () => {
+    it('render root node', async () => {
       const app = createSSRApp({
         template: '',
       });
@@ -90,7 +90,7 @@ describe('renderer.ts', () => {
         ...ssrContext,
         isError: true,
       });
-      expect(result).toBeNull();
+      expect(result).toEqual([{ id: 1, index: 0, name: 'View', pId: 0, props: { attributes: { class: '', id: 'root' }, style: { flex: 1 } }, tagName: 'div' }]);
     });
     it('render node list', async () => {
       const app = createSSRApp({

@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { NeedToTyped } from './index';
+import type { NeedToTyped, SsrNode } from './index';
 
 const unescapeRE = /&quot;|&amp;|&#39;|&lt;|&gt;/;
 
@@ -49,7 +49,7 @@ export function unescapeHtml(string: string): string {
 /**
  * remove unnecessary punctuation in node string, and parse node string to object
  */
-export function getObjectNodeList(nodeString: (string | string[])[]): NeedToTyped {
+export function getObjectNodeList(nodeString: (string | string[])[], rootNode?: SsrNode): NeedToTyped {
   // flat nested array and connect
   // for example [
   //       '{"id":22,"index":0,"name":"View","tagName":"div","props":{},"children":[',
@@ -61,14 +61,20 @@ export function getObjectNodeList(nodeString: (string | string[])[]): NeedToType
   // [','{"id":23,"index":0,"name":"View","tagName":"div","props":{},},', '],},']
   const rawString = nodeString.flat(Infinity).join('');
   // remove unnecessary punctuation
-  const parsedStr = rawString
+  let parsedStr = rawString
     .replaceAll(/,}/g, '}')
     .replace(/,]/g, ']')
-    .replace(/,$/, '');
+    .replace(/,$/, '')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r');
   let ssrNodeTree: NeedToTyped;
   try {
+    if (rootNode) {
+      const rootNodeStr = JSON.stringify(rootNode);
+      parsedStr = rootNodeStr.replace('"children":[]', `"children":[${parsedStr}]`);
+    }
     // parse json string to json object
-    ssrNodeTree = JSON.parse(parsedStr.replace(/\n/g, '\\n').replace(/\r/g, '\\r'));
+    ssrNodeTree = JSON.parse(parsedStr);
     return ssrNodeTree;
   } catch (e) {
     return null;

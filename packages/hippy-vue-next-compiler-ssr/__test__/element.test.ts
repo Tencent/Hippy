@@ -236,4 +236,10 @@ describe('element.test.ts', () => {
       expect(getSsrRenderFunctionBody(code)).toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"mergedProps":${JSON.stringify(_attrs)},"data-v-12345":"",},"children":[{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"data-v-12345":"",},"children":[]},]},`)');
     });
   });
+  describe('fragment compile', () => {
+    it('fragment tag compile', () => {
+      const { code } = compile('<div /><div />');
+      expect(getSsrRenderFunctionBody(code)).toEqual('_push(`{"id":-1,"name":"comment","props":{"text":"["}},{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{},"children":[]},{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{},"children":[]},{"id":-1,"name":"comment","props":{"text":"]"}},`)');
+    });
+  });
 });

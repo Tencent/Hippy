@@ -285,6 +285,7 @@ export function renderVNode(
         children as VNodeArrayChildren,
         parentComponent,
         slotScopeId,
+        true,
       );
       push('{"id": -1,"name":"comment","props":{"text":"]"}},'); // close
       break;
@@ -315,8 +316,12 @@ function renderVNodeChildren(
   children: VNodeArrayChildren,
   parentComponent: ComponentInternalInstance,
   slotScopeId: string | undefined,
+  asFragment = false,
 ) {
-  push('"children":[');
+  if (!asFragment) {
+    // hippy fragment no need to insert children part
+    push('"children":[');
+  }
   for (let i = 0; i < children.length; i++) {
     renderVNode(
       push,
@@ -325,7 +330,10 @@ function renderVNodeChildren(
       slotScopeId,
     );
   }
-  push('],');
+  if (!asFragment) {
+    // hippy fragment no need to insert children part
+    push('],');
+  }
 }
 
 function renderElementVNode(
