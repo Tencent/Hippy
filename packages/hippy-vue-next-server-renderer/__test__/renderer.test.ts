@@ -27,15 +27,15 @@ jest.spyOn(vueServerRender, 'renderToString').mockImplementation((app, options) 
   if (options?.isError) {
     return Promise.resolve('');
   }
-  const nodeString = '{"id":2,"name":"View","props":{},"children":['
+  const nodeString = '{"id":2,"name":"View","props":{"onTouchStart":true,"onTouchstart":true,"onTouchMove":true,"onTouchend":true,"onTouchcancel":true},"children":['
     + '{"id":3,"name":"Text","props":{"text":"hello"},},'
-    + '{"id":4,"name":"ViewPager","props":{"attributes":{"class":"wrapper"}},"children":['
+    + '{"id":4,"name":"ViewPager","props":{"attributes":{"class":"wrapper"},"onDropped":true,"onDragging":true,"onStateChanged":true},"children":['
     + '{"id":5,"name":"ViewPagerItem","props":{"attributes":{"id":"root-item"}}},],},'
     + '{"id":-1,"name":"comment","props":{},},'
     + '{"id":6,"name":"WebView","props":{}},'
     + '{"id":7,"name":"Modal","props":{}},'
-    + '{"id":8,"name":"TextInput","props":{}},'
-    + '{"id":9,"name":"ListView","props":{}},'
+    + '{"id":8,"name":"TextInput","props":{"onChange":true,"onSelect":true}},'
+    + '{"id":9,"name":"ListView","props":{"onListReady":true,"onEndReached":true}},'
     + '],}';
   return Promise.resolve(nodeString);
 });
@@ -101,36 +101,36 @@ describe('renderer.ts', () => {
         rootNode,
         divNode,
         textNode,
-        ulNode,
-        liNode,
+        swiperNode,
+        swiperItemNode,
         webviewNode,
         modalNode,
         inputNode,
-        listNode,
+        ulNode,
         commentNode,
       ] = result!;
       expect(rootNode.id).toEqual(1);
       expect(rootNode.pId).toEqual(0);
       expect(rootNode.props).toEqual({ style: { flex: 1 }, attributes: { id: 'root', class: '' } });
       expect(divNode.pId).toEqual(1);
-      expect(divNode.props).toEqual({ attributes: { id: '', class: '' } });
+      expect(divNode.props).toEqual({ attributes: { id: '', class: '' }, onTouchCancel: true, onTouchDown: true, onTouchEnd: true, onTouchMove: true });
       expect(textNode.pId).toEqual(2);
       expect(textNode.props).toEqual({ attributes: { id: '', class: '' }, text: 'hello' });
-      expect(ulNode.pId).toEqual(2);
-      expect(ulNode.index).toEqual(1);
-      expect(ulNode.props).toEqual({ attributes: { id: '', class: 'wrapper' }, initialPage: undefined });
-      expect(liNode.pId).toEqual(4);
-      expect(liNode.props).toEqual({ attributes: { id: 'root-item', class: '' } });
+      expect(swiperNode.pId).toEqual(2);
+      expect(swiperNode.index).toEqual(1);
+      expect(swiperNode.props).toEqual({ attributes: { id: '', class: 'wrapper' }, initialPage: undefined, pageSelected: true, pageScroll: true, pageScrollStateChanged: true });
+      expect(swiperItemNode.pId).toEqual(4);
+      expect(swiperItemNode.props).toEqual({ attributes: { id: 'root-item', class: '' } });
       expect(commentNode.pId).toEqual(2);
       expect((commentNode.index)).toEqual(2);
       expect(webviewNode.pId).toEqual(2);
       expect(webviewNode.props).toEqual({ method: 'get', userAgent: '', attributes: { id: '', class: '' } });
       expect(inputNode.pId).toEqual(2);
-      expect(inputNode.props.underlineColorAndroid).toEqual(0);
+      expect(inputNode.props).toEqual({ attributes: { id: '', class: '' }, underlineColorAndroid: 0, changeText: true, selectionChange: true });
       expect(modalNode.pId).toEqual(2);
       expect(modalNode.props).toEqual({ collapsable: false, immersionStatusBar: true, transparent: true, attributes: { id: '', class: '' } });
-      expect(listNode.pId).toEqual(2);
-      expect(listNode.props.numberOfRows).toEqual(0);
+      expect(ulNode.pId).toEqual(2);
+      expect(ulNode.props).toEqual({ attributes: { id: '', class: '' }, numberOfRows: 0, initialListReady: true, onEndReached: true, onLoadMore: true });
     });
   });
 });

@@ -452,5 +452,25 @@ describe('render-vnode.ts', () => {
         props: {},
       });
     });
+    it('event map work correct for View', async () => {
+      // root component
+      const rootComp = defineComponent({
+        render: () => h('swiper', {
+          class: 'swiper',
+          onDropped: () => {},
+        }),
+      });
+      const ssrNodeTree = await getRenderedVNode(rootComp);
+      expect(ssrNodeTree).toEqual({
+        id: 38,
+        index: 0,
+        name: 'ViewPager',
+        props: {
+          class: 'swiper',
+          onDropped: true,
+        },
+        tagName: 'hi-swiper',
+      });
+    });
   });
 });

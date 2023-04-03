@@ -18,6 +18,8 @@
  * limitations under the License.
  */
 
+/* eslint-disable no-param-reassign */
+
 import { getCurrentInstance, type App } from '@vue/runtime-core';
 import { renderToString } from '@vue/server-renderer';
 import type { HippyAppOptions } from '@hippy-vue-next/index';
@@ -81,6 +83,8 @@ function mergeDefaultNativeProps(
         if (Object.prototype.hasOwnProperty.call(node.props, v)) {
           // set hippy real native event name
           defaultNativeProps[eventMap[v]] = true;
+          // remove vue old event listener
+          delete node.props[v];
         }
       });
       break;
@@ -101,6 +105,8 @@ function mergeDefaultNativeProps(
         if (Object.prototype.hasOwnProperty.call(node.props, v)) {
           // set hippy real native event name
           defaultNativeProps[eventMap[v]] = true;
+          // remove vue old event listener
+          delete node.props[v];
         }
       });
       break;
@@ -120,6 +126,8 @@ function mergeDefaultNativeProps(
         if (Object.prototype.hasOwnProperty.call(node.props, v)) {
           // set hippy real native event name
           defaultNativeProps[eventMap[v]] = true;
+          // remove vue old event listener
+          delete node.props[v];
         }
       });
       break;
@@ -134,6 +142,8 @@ function mergeDefaultNativeProps(
         if (Object.prototype.hasOwnProperty.call(node.props, v)) {
           // set hippy real native event name
           defaultNativeProps[eventMap[v]] = true;
+          // remove vue old event listener
+          delete node.props[v];
         }
       });
       break;
