@@ -5,6 +5,7 @@
       :playing="playing"
       :actions="loopActions"
       class="loop-green"
+      :style="{backgroundColor: 'grey'}"
       @actionsDidUpdate="$emit('actionsDidUpdate')"
     >
       <div class="loop-white">
