@@ -105,14 +105,6 @@ const builds = {
     name: 'hippy-vue-next',
     external: ['@vue/runtime-core', '@vue/shared'],
   },
-  '@hippy/vue-next-compiler-ssr': {
-    entry: resolvePackage('hippy-vue-next-compiler-ssr', 'src/index.ts'),
-    dest: resolvePackage('hippy-vue-next-compiler-ssr', 'dist/index.js'),
-    format: 'cjs',
-    moduleName: 'hippy-vue-next-compiler-ssr',
-    banner: banner('@hippy/vue-next-compiler-ssr', hippyCompilerSsrPackage.version),
-    external: ['@vue/compiler-core', '@vue/compiler-dom', '@vue/shared'],
-  },
   '@hippy/vue-next-server-renderer-cjs': {
     entry: resolvePackage('hippy-vue-next-server-renderer', 'src/index.ts'),
     dest: resolvePackage('hippy-vue-next-server-renderer', 'dist/index.js'),
@@ -128,6 +120,14 @@ const builds = {
     moduleName: 'hippy-vue-next-server-renderer',
     banner: banner('@hippy/vue-next-server-renderer', hippyServerRendererPackage.version),
     external: ['@vue/server-renderer', '@vue/runtime-core', '@vue/shared'],
+  },
+  '@hippy/vue-next-compiler-ssr': {
+    entry: resolvePackage('hippy-vue-next-compiler-ssr', 'src/index.ts'),
+    dest: resolvePackage('hippy-vue-next-compiler-ssr', 'dist/index.js'),
+    format: 'cjs',
+    moduleName: 'hippy-vue-next-compiler-ssr',
+    banner: banner('@hippy/vue-next-compiler-ssr', hippyCompilerSsrPackage.version),
+    external: ['@vue/compiler-core', '@vue/compiler-dom', '@vue/shared'],
   },
 };
 

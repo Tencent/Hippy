@@ -43,8 +43,6 @@ import {
   ssrUtils,
 } from '@vue/runtime-core';
 import {
-  escapeHtml,
-  escapeHtmlComment,
   isFunction,
   isPromise,
   isString,
@@ -53,7 +51,7 @@ import {
   NOOP,
 } from '@vue/shared';
 
-import { getHippyTagName } from './native';
+import { getHippyTagName, getHippyNativeViewName } from './native';
 import { ssrGetUniqueId } from './renderer';
 import type { NeedToTyped } from './index';
 
@@ -266,14 +264,14 @@ export function renderVNode(
     case Text:
       // vue text means <div>content</div> content. hippy do not support it. should use
       // <div><span>content</span></div>, all text content should wrap in span/p/label.
-      push(`{"id": ${ssrGetUniqueId()},"name":"Text","props":{"text":"${escapeHtmlComment(children as string)}"}},`);
+      push(`{"id": ${ssrGetUniqueId()},"name":"Text","props":{"text":"${children as string}"}},`);
       break;
     case Static:
       // hippy do not support static hoist
       break;
     case Comment:
       push(children
-        ? `{"id": -1,"name":"comment","props":{"text":"${escapeHtmlComment(children as string)}"}},`
+        ? `{"id": -1,"name":"comment","props":{"text":"${children as string}"}},`
         : commentNodeStr);
       break;
     case Fragment:
@@ -296,6 +294,7 @@ export function renderVNode(
       } else if (shapeFlag & ShapeFlags.COMPONENT) {
         push(renderComponentVNode(vnode, parentComponent, slotScopeId));
       } else if (shapeFlag & ShapeFlags.TELEPORT) {
+        // hippy do not support teleport
         renderTeleportVNode(push, vnode, parentComponent, slotScopeId);
       } else if (shapeFlag & ShapeFlags.SUSPENSE) {
         // do not support suspense now
@@ -337,7 +336,7 @@ function renderElementVNode(
 ) {
   const tag = vnode.type as string;
   const { children, shapeFlag, dirs } = vnode;
-  let openTag = `{"id":${ssrGetUniqueId()},"index":0,"name":"${getHippyTagName(tag)}","tagName":"${tag}","props":`;
+  let openTag = `{"id":${ssrGetUniqueId()},"index":0,"name":"${getHippyNativeViewName(tag)}","tagName":"${getHippyTagName(tag)}","props":`;
 
   let props = vnode.props ?? {};
   if (dirs) {
@@ -358,7 +357,7 @@ function renderElementVNode(
       });
       if (textChild.length) {
         const child = textChild[0] as VNode;
-        props.text = escapeHtml(child?.children as string);
+        props.text = child?.children as string;
         // if text child node has scopedId attr, need insert to props
         if (child?.scopeId) {
           props[child.scopeId] = '';

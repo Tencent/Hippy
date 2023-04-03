@@ -18,63 +18,98 @@
  * limitations under the License.
  */
 
-import { getHippyTagName } from '../src/native';
+import { getHippyNativeViewName, getHippyTagName } from '../src/native';
 
 /**
  * native.ts unit test case
  */
 describe('native.ts', () => {
-  it('should return "View" for "div", "button", and "form"', () => {
-    expect(getHippyTagName('div')).toBe('View');
-    expect(getHippyTagName('button')).toBe('View');
-    expect(getHippyTagName('form')).toBe('View');
-  });
+  describe('getHippyNativeViewName should work correct', () => {
+    it('should return "View" for "div", "button", and "form"', () => {
+      expect(getHippyNativeViewName('div')).toBe('View');
+      expect(getHippyNativeViewName('button')).toBe('View');
+      expect(getHippyNativeViewName('form')).toBe('View');
+    });
 
-  it('should return "Image" for "img"', () => {
-    expect(getHippyTagName('img')).toBe('Image');
-  });
+    it('should return "Image" for "img"', () => {
+      expect(getHippyNativeViewName('img')).toBe('Image');
+    });
 
-  it('should return "ListView" for "ul"', () => {
-    expect(getHippyTagName('ul')).toBe('ListView');
-  });
+    it('should return "ListView" for "ul"', () => {
+      expect(getHippyNativeViewName('ul')).toBe('ListView');
+    });
 
-  it('should return "ListViewItem" for "li"', () => {
-    expect(getHippyTagName('li')).toBe('ListViewItem');
-  });
+    it('should return "ListViewItem" for "li"', () => {
+      expect(getHippyNativeViewName('li')).toBe('ListViewItem');
+    });
 
-  it('should return "Text" for "span", "label", "p", and "a"', () => {
-    expect(getHippyTagName('span')).toBe('Text');
-    expect(getHippyTagName('label')).toBe('Text');
-    expect(getHippyTagName('p')).toBe('Text');
-    expect(getHippyTagName('a')).toBe('Text');
-  });
+    it('should return "Text" for "span", "label", "p", and "a"', () => {
+      expect(getHippyNativeViewName('span')).toBe('Text');
+      expect(getHippyNativeViewName('label')).toBe('Text');
+      expect(getHippyNativeViewName('p')).toBe('Text');
+      expect(getHippyNativeViewName('a')).toBe('Text');
+    });
 
-  it('should return "TextInput" for "input" and "textarea"', () => {
-    expect(getHippyTagName('input')).toBe('TextInput');
-    expect(getHippyTagName('textarea')).toBe('TextInput');
-  });
+    it('should return "TextInput" for "input" and "textarea"', () => {
+      expect(getHippyNativeViewName('input')).toBe('TextInput');
+      expect(getHippyNativeViewName('textarea')).toBe('TextInput');
+    });
 
-  it('should return "WebView" for "iframe"', () => {
-    expect(getHippyTagName('iframe')).toBe('WebView');
-  });
+    it('should return "WebView" for "iframe"', () => {
+      expect(getHippyNativeViewName('iframe')).toBe('WebView');
+    });
 
-  it('should return "Swiper" for "swiper"', () => {
-    expect(getHippyTagName('swiper')).toBe('ViewPager');
-  });
+    it('should return "Swiper" for "swiper"', () => {
+      expect(getHippyNativeViewName('swiper')).toBe('ViewPager');
+    });
 
-  it('should return "SwiperSlide" for "swiper-slide"', () => {
-    expect(getHippyTagName('swiper-slide')).toBe('ViewPagerItem');
-  });
+    it('should return "SwiperSlide" for "swiper-slide"', () => {
+      expect(getHippyNativeViewName('swiper-slide')).toBe('ViewPagerItem');
+    });
 
-  it('should return "PullHeaderView" for "pull-header"', () => {
-    expect(getHippyTagName('pull-header')).toBe('PullHeaderView');
-  });
+    it('should return "PullHeaderView" for "pull-header"', () => {
+      expect(getHippyNativeViewName('pull-header')).toBe('PullHeaderView');
+    });
 
-  it('should return "PullFooterView" for "pull-footer"', () => {
-    expect(getHippyTagName('pull-footer')).toBe('PullFooterView');
-  });
+    it('should return "PullFooterView" for "pull-footer"', () => {
+      expect(getHippyNativeViewName('pull-footer')).toBe('PullFooterView');
+    });
 
-  it('should return the input tag for unknown tags', () => {
-    expect(getHippyTagName('foo')).toBe('foo');
+    it('should return the input tag for unknown tags', () => {
+      expect(getHippyNativeViewName('foo')).toBe('foo');
+    });
+  });
+  describe('getHippyTagName should work correct', () => {
+    it('should return "hi-pull-header" for "pull-header"', () => {
+      expect(getHippyTagName('pull-header')).toBe('hi-pull-header');
+    });
+
+    it('should return "hi-pull-footer" for "pull-footer"', () => {
+      expect(getHippyTagName('pull-footer')).toBe('hi-pull-footer');
+    });
+
+    it('should return "hi-swiper" for "swiper"', () => {
+      expect(getHippyTagName('swiper')).toBe('hi-swiper');
+    });
+
+    it('should return "hi-ul-refresh-wrapper" for "ul-refresh-wrapper"', () => {
+      expect(getHippyTagName('ul-refresh-wrapper')).toBe('hi-ul-refresh-wrapper');
+    });
+
+    it('should return "hi-refresh-wrapper-item" for "ul-refresh"', () => {
+      expect(getHippyTagName('ul-refresh')).toBe('hi-refresh-wrapper-item');
+    });
+
+    it('should return "hi-waterfall" for "waterfall"', () => {
+      expect(getHippyTagName('waterfall')).toBe('hi-waterfall');
+    });
+
+    it('should return "hi-waterfall-item" for "waterfall-item"', () => {
+      expect(getHippyTagName('waterfall-item')).toBe('hi-waterfall-item');
+    });
+
+    it('should return the input tag for unknown tags', () => {
+      expect(getHippyTagName('foo')).toBe('foo');
+    });
   });
 });

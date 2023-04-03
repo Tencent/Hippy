@@ -21,7 +21,7 @@
 import { getCurrentInstance, type App } from '@vue/runtime-core';
 import { renderToString } from '@vue/server-renderer';
 import type { HippyAppOptions } from '@hippy-vue-next/index';
-import { unescapeHtml, getObjectNodeList } from './util';
+import { getObjectNodeList } from './util';
 import type {
   SsrNode,
   SsrNodeProps,
@@ -65,61 +65,62 @@ function mergeDefaultNativeProps(
 ): SsrNodeProps {
   const commonProps = { id: '', class: '' };
   let defaultNativeProps: SsrNodeProps = {};
-  // add default props for ul
-  if (node.name === 'ListView') {
-    defaultNativeProps = {
-      // calculate child nums
-      numberOfRows: nodeList.filter(v => v.pId === node.id).length,
-    };
-    // polyFillNativeEvents
-    if (node.props.onEndReached || node.props.onLoadMore) {
-      defaultNativeProps.onEndReached = true;
-      defaultNativeProps.onLoadMore = true;
-    }
-  }
-
-  // add default props for text node
-  if (node.name === 'Text') {
-    defaultNativeProps = { text: '' };
-  }
-
-  if (node.name === 'TextInput') {
-    defaultNativeProps = { underlineColorAndroid: 0 };
-    if (node.tagName === 'textarea') {
-      defaultNativeProps.numberOfLines = 5;
-    }
-  }
-
-  // add default props for swiper
-  if (node.name === 'ViewPager') {
-    defaultNativeProps = { initialPage: node.props.current };
-    const eventMap = {
-      onDropped: 'onPageSelected',
-      onDragging: 'onPageScroll',
-      onStateChanged: 'onPageScrollStateChanged',
-    };
-    Object.keys(eventMap).forEach((v) => {
-      if (Object.prototype.hasOwnProperty.call(node.props, v)) {
-        defaultNativeProps[eventMap[v]] = node.props[v];
+  let eventMap;
+  switch (node.name) {
+    case 'ListView':
+      defaultNativeProps = {
+        // calculate child nums
+        numberOfRows: nodeList.filter(v => v.pId === node.id).length,
+      };
+      // polyFillNativeEvents
+      if (node.props.onEndReached || node.props.onLoadMore) {
+        defaultNativeProps.onEndReached = true;
+        defaultNativeProps.onLoadMore = true;
       }
-    });
+      break;
+    case 'Text':
+      defaultNativeProps = { text: '' };
+      break;
+    case 'TextInput':
+      defaultNativeProps = { underlineColorAndroid: 0 };
+      if (node.tagName === 'textarea') {
+        defaultNativeProps.numberOfLines = 5;
+      }
+      break;
+    case 'ViewPager':
+      defaultNativeProps = { initialPage: node.props.current };
+      eventMap = {
+        onDropped: 'onPageSelected',
+        onDragging: 'onPageScroll',
+        onStateChanged: 'onPageScrollStateChanged',
+      };
+      Object.keys(eventMap).forEach((v) => {
+        if (Object.prototype.hasOwnProperty.call(node.props, v)) {
+          defaultNativeProps[eventMap[v]] = node.props[v];
+        }
+      });
+      break;
+    case 'WebView':
+      defaultNativeProps = {
+        method: 'get',
+        userAgent: '',
+      };
+      break;
+    case 'Modal':
+      defaultNativeProps = {
+        transparent: true,
+        immersionStatusBar: true,
+        collapsable: false,
+      };
+      break;
+    case 'Image':
+      defaultNativeProps = {
+        backgroundColor: 0,
+      };
+      break;
+    default:
+      break;
   }
-
-  if (node.name === 'WebView') {
-    defaultNativeProps = {
-      method: 'get',
-      userAgent: '',
-    };
-  }
-
-  if (node.name === 'Modal') {
-    defaultNativeProps = {
-      transparent: true,
-      immersionStatusBar: true,
-      collapsable: false,
-    };
-  }
-
   return Object.assign(commonProps, defaultNativeProps);
 }
 
@@ -163,10 +164,6 @@ function getNodeProps(
   ) {
     props.source = [{ uri: props.src }];
     delete props.src;
-  }
-  // decode html entity. hippy does not recognize html entity.
-  if (props.text) {
-    props.text = unescapeHtml(props.text);
   }
 
   return props;

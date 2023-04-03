@@ -30,7 +30,8 @@
   },
   "jest": {
     "moduleNameMapper": {
-      "^src/(.*)$": "<rootDir>/src/$1"
+      "^src/(.*)$": "<rootDir>/src/$1",
+      "@hippy-vue-next-server-renderer/(.*)$": "<rootDir>/../hippy-vue-next-server-renderer/src/$1"
     },
     "modulePaths": [
       "<rootDir>"

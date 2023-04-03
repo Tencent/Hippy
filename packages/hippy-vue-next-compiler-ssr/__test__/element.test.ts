@@ -111,6 +111,31 @@ describe('element.test.ts', () => {
       expect(getSsrRenderFunctionBody(code))
         .toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"PullFooterView","tagName":"hi-pull-footer","props":{"mergedProps":${JSON.stringify(_attrs)},},"children":[]},`)');
     });
+    it('dialog should compile correct', () => {
+      const { code } = compile('<dialog></dialog>', { isCustomElement: () => true });
+      expect(getSsrRenderFunctionBody(code))
+        .toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"Modal","tagName":"dialog","props":{"mergedProps":${JSON.stringify(_attrs)},},"children":[]},`)');
+    });
+    it('ul-refresh-wrapper should compile correct', () => {
+      const { code } = compile('<ul-refresh-wrapper></ul-refresh-wrapper>', { isCustomElement: () => true });
+      expect(getSsrRenderFunctionBody(code))
+        .toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"RefreshWrapper","tagName":"hi-ul-refresh-wrapper","props":{"mergedProps":${JSON.stringify(_attrs)},},"children":[]},`)');
+    });
+    it('ul-refresh should compile correct', () => {
+      const { code } = compile('<ul-refresh></ul-refresh>', { isCustomElement: () => true });
+      expect(getSsrRenderFunctionBody(code))
+        .toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"RefreshWrapperItemView","tagName":"hi-refresh-wrapper-item","props":{"mergedProps":${JSON.stringify(_attrs)},},"children":[]},`)');
+    });
+    it('waterfall should compile correct', () => {
+      const { code } = compile('<waterfall></waterfall>', { isCustomElement: () => true });
+      expect(getSsrRenderFunctionBody(code))
+        .toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"WaterfallView","tagName":"hi-waterfall","props":{"mergedProps":${JSON.stringify(_attrs)},},"children":[]},`)');
+    });
+    it('waterfall-item should compile correct', () => {
+      const { code } = compile('<waterfall-item></waterfall-item>', { isCustomElement: () => true });
+      expect(getSsrRenderFunctionBody(code))
+        .toEqual('_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"WaterfallItem","tagName":"hi-waterfall-item","props":{"mergedProps":${JSON.stringify(_attrs)},},"children":[]},`)');
+    });
   });
   describe('nested tag should compile correct', () => {
     it('div with child should compile correct', () => {

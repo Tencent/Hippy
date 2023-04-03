@@ -197,9 +197,9 @@ export function processChildren(
         break;
       case NodeTypes.TEXT:
         // NodeTypes.TEXT like <div>content</div>. hippy do not support. just comment it,
-        // we should used like <div><span>content</span></div>. span,p,label can used to wrap
+        // we should used like <div><span>content</span></div>. span,p,label can use to wrap
         // text content
-        // context.pushStringPart(`"${escapeHtml(child.content)}"`);
+        // context.pushStringPart(`"${child.content}"`);
         break;
       case NodeTypes.COMMENT:
         // no need to escape comment here because the AST can only

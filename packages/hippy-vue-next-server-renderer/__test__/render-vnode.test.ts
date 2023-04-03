@@ -228,6 +228,56 @@ describe('render-vnode.ts', () => {
       const ssrNodeTree = await getRenderedVNode(rootComp);
       expect(ssrNodeTree).toEqual({ id: 16, index: 0, name: 'WebView', tagName: 'iframe', props: { class: 'iframe', onKeyup: true } });
     });
+    it('render dialog tag work correct', async () => {
+      // root component
+      const rootComp = defineComponent({
+        render: () => h('dialog', {
+          class: 'dialog',
+        }),
+      });
+      const ssrNodeTree = await getRenderedVNode(rootComp);
+      expect(ssrNodeTree).toEqual({ id: 17, index: 0, name: 'Modal', tagName: 'dialog', props: { class: 'dialog' } });
+    });
+    it('render RefreshWrapper tag work correct', async () => {
+      // root component
+      const rootComp = defineComponent({
+        render: () => h('ul-refresh-wrapper', {
+          class: 'refresh',
+        }),
+      });
+      const ssrNodeTree = await getRenderedVNode(rootComp);
+      expect(ssrNodeTree).toEqual({ id: 18, index: 0, name: 'RefreshWrapper', tagName: 'hi-ul-refresh-wrapper', props: { class: 'refresh' } });
+    });
+    it('render RefreshWrapperItemView tag work correct', async () => {
+      // root component
+      const rootComp = defineComponent({
+        render: () => h('ul-refresh', {
+          class: 'refresh-item',
+        }),
+      });
+      const ssrNodeTree = await getRenderedVNode(rootComp);
+      expect(ssrNodeTree).toEqual({ id: 19, index: 0, name: 'RefreshWrapperItemView', tagName: 'hi-refresh-wrapper-item', props: { class: 'refresh-item' } });
+    });
+    it('render Waterfall tag work correct', async () => {
+      // root component
+      const rootComp = defineComponent({
+        render: () => h('waterfall', {
+          class: 'waterfall',
+        }),
+      });
+      const ssrNodeTree = await getRenderedVNode(rootComp);
+      expect(ssrNodeTree).toEqual({ id: 21, index: 0, name: 'WaterfallView', tagName: 'hi-waterfall', props: { class: 'waterfall' } });
+    });
+    it('render WaterfallItem tag work correct', async () => {
+      // root component
+      const rootComp = defineComponent({
+        render: () => h('waterfall-item', {
+          class: 'waterfall-item',
+        }),
+      });
+      const ssrNodeTree = await getRenderedVNode(rootComp);
+      expect(ssrNodeTree).toEqual({ id: 22, index: 0, name: 'WaterfallItem', tagName: 'hi-waterfall-item', props: { class: 'waterfall-item' } });
+    });
     it('render children tag work correct', async () => {
       // root component
       const rootComp = defineComponent({
@@ -238,16 +288,16 @@ describe('render-vnode.ts', () => {
       });
       const ssrNodeTree = await getRenderedVNode(rootComp);
       expect(ssrNodeTree).toEqual({
-        id: 17,
+        id: 23,
         index: 0,
         name: 'View',
         tagName: 'div',
         props: {},
         children: [
-          { id: 18, index: 0, name: 'View', tagName: 'div', props: {}, children: [
-            { id: 19, index: 0, name: 'View', tagName: 'div', props: {} },
+          { id: 24, index: 0, name: 'View', tagName: 'div', props: {}, children: [
+            { id: 25, index: 0, name: 'View', tagName: 'div', props: {} },
           ] },
-          { id: 21, index: 0, name: 'View', tagName: 'div', props: {} },
+          { id: 26, index: 0, name: 'View', tagName: 'div', props: {} },
         ],
       });
     });
@@ -260,7 +310,7 @@ describe('render-vnode.ts', () => {
       });
       const ssrNodeTree = await getRenderedVNode(rootComp);
       expect(ssrNodeTree).toEqual({
-        id: 22,
+        id: 27,
         index: 0,
         name: 'View',
         tagName: 'div',
@@ -281,14 +331,14 @@ describe('render-vnode.ts', () => {
       });
       const ssrNodeTree = await getRenderedVNode(rootComp);
       expect(ssrNodeTree).toEqual({
-        id: 23,
+        id: 28,
         index: 0,
         name: 'View',
         tagName: 'div',
         props: {},
         children: [
           {
-            id: 24,
+            id: 29,
             index: 0,
             name: 'View',
             tagName: 'div',
@@ -308,13 +358,13 @@ describe('render-vnode.ts', () => {
       });
       const ssrNodeTree = await getRenderedVNode(rootComp);
       expect(ssrNodeTree).toEqual({
-        id: 25,
+        id: 31,
         index: 0,
         name: 'View',
         tagName: 'div',
         props: {},
         children: [
-          { id: 26, index: 0, name: 'View', tagName: 'div', props: {} },
+          { id: 32, index: 0, name: 'View', tagName: 'div', props: {} },
         ],
       });
     });
@@ -332,13 +382,13 @@ describe('render-vnode.ts', () => {
       });
       const ssrNodeTree = await getRenderedVNode(rootComp);
       expect(ssrNodeTree).toEqual({
-        id: 27,
+        id: 33,
         index: 0,
         name: 'View',
         tagName: 'div',
         props: {},
         children: [
-          { id: 28, index: 0, name: 'View', tagName: 'div', props: { class: 'slot-class' } },
+          { id: 34, index: 0, name: 'View', tagName: 'div', props: { class: 'slot-class' } },
         ],
       });
     });
@@ -395,7 +445,7 @@ describe('render-vnode.ts', () => {
       });
       const ssrNodeTree = await getRenderedVNode(rootComp);
       expect(ssrNodeTree).toEqual({
-        id: 32,
+        id: 37,
         index: 0,
         name: 'View',
         tagName: 'div',

@@ -56,12 +56,12 @@ import {
 } from '@vue/compiler-dom';
 import {
   capitalize,
-  escapeHtml,
   isBooleanAttr,
   isBuiltInDirective,
   isSSRSafeAttrName,
   propsToAttrMap,
 } from '@vue/shared';
+import { getHippyNativeViewName, getHippyTagName } from '@hippy-vue-next-server-renderer/native';
 
 import { createSSRCompilerError, SSRErrorCodes } from '../errors';
 import {
@@ -94,70 +94,13 @@ function isTextTag(tag: string): boolean {
   return ['span', 'p', 'label', 'a'].includes(tag);
 }
 
-function getHippyTagName(tag: string): string {
-  const NATIVE_COMPONENT_MAP = {
-    View: 'View',
-    Image: 'Image',
-    ListView: 'ListView',
-    ListViewItem: 'ListViewItem',
-    Text: 'Text',
-    TextInput: 'TextInput',
-    WebView: 'WebView',
-    VideoPlayer: 'VideoPlayer',
-    // Native内置组件，与View组件属性方法基本一致，仅名称不同
-    ScrollView: 'ScrollView',
-    Swiper: 'ViewPager',
-    SwiperSlide: 'ViewPagerItem',
-    PullHeaderView: 'PullHeaderView',
-    PullFooterView: 'PullFooterView',
-  };
-  switch (tag) {
-    case 'div':
-    case 'button':
-    case 'form':
-      return NATIVE_COMPONENT_MAP.View;
-    case 'img':
-      return NATIVE_COMPONENT_MAP.Image;
-    case 'ul':
-      return NATIVE_COMPONENT_MAP.ListView;
-    case 'li':
-      return NATIVE_COMPONENT_MAP.ListViewItem;
-    case 'span':
-    case 'label':
-    case 'p':
-    case 'a':
-      return NATIVE_COMPONENT_MAP.Text;
-    case 'textarea':
-    case 'input':
-      return NATIVE_COMPONENT_MAP.TextInput;
-    case 'iframe':
-      return NATIVE_COMPONENT_MAP.WebView;
-    case 'swiper':
-      return NATIVE_COMPONENT_MAP.Swiper;
-    case 'swiper-slide':
-      return NATIVE_COMPONENT_MAP.SwiperSlide;
-    case 'pull-header':
-      return NATIVE_COMPONENT_MAP.PullHeaderView;
-    case 'pull-footer':
-      return NATIVE_COMPONENT_MAP.PullFooterView;
-    default:
-      return tag;
-  }
-}
-function praseHippyNativeComponentTagName(tagName: string): string {
-  switch (tagName) {
-    case 'pull-header':
-      return 'hi-pull-header';
-    case 'pull-footer':
-      return 'hi-pull-footer';
-    case 'swiper':
-      return 'hi-swiper';
-    default:
-      return tagName;
-  }
-}
-
-function getHippyEventKeyInSSR(event: string, tagName: string) {
+/**
+ * get native real event listener name for binding event name
+ *
+ * @param event - event name
+ * @param tagName - event target tag name
+ */
+function getHippyEventKeyInSSR(event: string, tagName: string): string {
   const eventMap = {
     div: {
       touchStart: 'onTouchDown',
@@ -171,6 +114,11 @@ function getHippyEventKeyInSSR(event: string, tagName: string) {
     input: {
       change: 'onChangeText',
       select: 'onSelectionChange',
+    },
+    swiper: {
+      dropped: 'pageSelected',
+      dragging: 'pageScroll',
+      stateChanged: 'pageScrollStateChanged',
     },
   };
   let curEventMap = {};
@@ -194,6 +142,9 @@ function getHippyEventKeyInSSR(event: string, tagName: string) {
     case 'input':
       curEventMap = eventMap.input;
       break;
+    case 'swiper':
+      curEventMap = eventMap.swiper;
+      break;
     default:
       break;
   }
@@ -216,7 +167,7 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
     // generate hippy uniqueId
     openTag.push(createCallExpression(context.helper(SSR_GET_UNIQUEID), []));
     // push name and tagName attr
-    openTag.push(`,"index":0,"name":"${getHippyTagName(node.tag)}","tagName":"${praseHippyNativeComponentTagName(node.tag)}","props":{`);
+    openTag.push(`,"index":0,"name":"${getHippyNativeViewName(node.tag)}","tagName":"${getHippyTagName(node.tag)}","props":{`);
     // v-bind="obj", v-bind:[key] and custom directives can potentially
     // overwrite other static attrs and can affect final rendering result,
     // so when they are present we need to bail out to full `renderAttrs`
@@ -260,6 +211,7 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
       // special cases with children override
       if (prop.type === NodeTypes.DIRECTIVE) {
         if (prop.name === 'on') {
+          // directive event handled for hippy.
           // hippy event handle: at ssr for web, onXXX will ignore, so we need to add Event listener
           // onXXX=true, so that hippy native should add event listener
           const { arg } = prop;
@@ -365,7 +317,7 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
         // special case: value on <textarea>
         // eslint-disable-next-line no-lonely-if
         if (node.tag === 'textarea' && prop.name === 'value' && prop.value) {
-          rawChildrenMap.set(node, escapeHtml(prop.value.content));
+          rawChildrenMap.set(node, prop.value.content);
         } else if (!needMergeProps) {
           if (prop.name === 'key' || prop.name === 'ref') {
             continue;
@@ -376,7 +328,7 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
           }
 
           openTag.push(`"${prop.name}":${
-            prop.value ? `"${escapeHtml(prop.value.content)}",` : '"",'
+            prop.value ? `"${prop.value.content}",` : '"",'
           }`);
         }
       }
@@ -397,7 +349,7 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
         openTag.push('"text":"');
         textChild.forEach((child) => {
           if (child.type === 2 /* NodeTypes.TEXT */) {
-            openTag.push(escapeHtml(child.content));
+            openTag.push(child.content);
           }
           if (child.type === 5 /* NodeTypes.INTERPOLATION */) {
             openTag.push(createCallExpression(context.helper(SSR_INTERPOLATE), [

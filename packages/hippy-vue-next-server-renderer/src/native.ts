@@ -25,8 +25,8 @@
  *
  * @param tag - html tag or Vue component name
  */
-export function getHippyTagName(tag: string): string {
-  // Hippy 官方内置支持的 View
+export function getHippyNativeViewName(tag: string): string {
+  // Hippy built-in native view
   const NATIVE_COMPONENT_MAP = {
     View: 'View',
     Image: 'Image',
@@ -42,6 +42,11 @@ export function getHippyTagName(tag: string): string {
     SwiperSlide: 'ViewPagerItem',
     PullHeaderView: 'PullHeaderView',
     PullFooterView: 'PullFooterView',
+    Dialog: 'Modal',
+    UlRefreshWrapper: 'RefreshWrapper',
+    UlRefresh: 'RefreshWrapperItemView',
+    Waterfall: 'WaterfallView',
+    WaterfallItem: 'WaterfallItem',
   };
   switch (tag) {
     case 'div':
@@ -72,7 +77,44 @@ export function getHippyTagName(tag: string): string {
       return NATIVE_COMPONENT_MAP.PullHeaderView;
     case 'pull-footer':
       return NATIVE_COMPONENT_MAP.PullFooterView;
+    case 'dialog':
+      return NATIVE_COMPONENT_MAP.Dialog;
+    case 'ul-refresh-wrapper':
+      return NATIVE_COMPONENT_MAP.UlRefreshWrapper;
+    case 'ul-refresh':
+      return NATIVE_COMPONENT_MAP.UlRefresh;
+    case 'waterfall':
+      return NATIVE_COMPONENT_MAP.Waterfall;
+    case 'waterfall-item':
+      return NATIVE_COMPONENT_MAP.WaterfallItem;
     default:
       return tag;
+  }
+}
+
+/**
+ * parse vue tag/component name to real tag name
+ *
+ * @param compName
+ */
+export function getHippyTagName(compName: string): string {
+  switch (compName) {
+    case 'pull-header':
+      return 'hi-pull-header';
+    case 'pull-footer':
+      return 'hi-pull-footer';
+    case 'swiper':
+      return 'hi-swiper';
+    case 'ul-refresh-wrapper':
+      return 'hi-ul-refresh-wrapper';
+    case 'ul-refresh':
+      return 'hi-refresh-wrapper-item';
+    case 'waterfall':
+      return 'hi-waterfall';
+    case 'waterfall-item':
+      return 'hi-waterfall-item';
+    default:
+      // do not match, return default name
+      return compName;
   }
 }
