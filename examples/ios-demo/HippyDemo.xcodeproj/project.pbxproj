@@ -3,13 +3,13 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		064C5AF023AB1A70001E80DD /* res in Resources */ = {isa = PBXBuildFile; fileRef = 064C5AEF23AB1A70001E80DD /* res */; };
+		A695E0648A9742E4F1992685 /* libPods-HippyDemo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 54161237B0795CFE3C0568F1 /* libPods-HippyDemo.a */; };
 		AC63515623F92C99007FABA5 /* TTTGB-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */; };
-		D82B61FD29A7046E006DAC69 /* libhippy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D82B61FC29A7046E006DAC69 /* libhippy.a */; };
 		F4861F8D2913984B00C4F6A0 /* TurboConfig.mm in Sources */ = {isa = PBXBuildFile; fileRef = B21E4B412708680900B6A3ED /* TurboConfig.mm */; };
 		F4861F8E2913984B00C4F6A0 /* TurboBaseModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = B21E4B432708680900B6A3ED /* TurboBaseModule.mm */; };
 		F4861F8F2913984B00C4F6A0 /* MyViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 067AB97123B5F309009D5EE2 /* MyViewManager.m */; };
@@ -35,13 +35,15 @@
 		067AB97223B5F309009D5EE2 /* MyView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyView.h; sourceTree = "<group>"; };
 		067AB97323B5F309009D5EE2 /* MyViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyViewManager.h; sourceTree = "<group>"; };
 		067AB97423B5F309009D5EE2 /* MyView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyView.m; sourceTree = "<group>"; };
+		54161237B0795CFE3C0568F1 /* libPods-HippyDemo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-HippyDemo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9215196B418ADB5AF2317FFD /* Pods-HippyDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HippyDemo.release.xcconfig"; path = "Target Support Files/Pods-HippyDemo/Pods-HippyDemo.release.xcconfig"; sourceTree = "<group>"; };
 		AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "TTTGB-Medium.otf"; sourceTree = "<group>"; };
 		B21E4B3E2708680900B6A3ED /* TurboConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TurboConfig.h; sourceTree = "<group>"; };
 		B21E4B412708680900B6A3ED /* TurboConfig.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TurboConfig.mm; sourceTree = "<group>"; };
 		B21E4B422708680900B6A3ED /* TurboBaseModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TurboBaseModule.h; sourceTree = "<group>"; };
 		B21E4B432708680900B6A3ED /* TurboBaseModule.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TurboBaseModule.mm; sourceTree = "<group>"; };
 		B2C1237A278C0C140081B8AF /* DemoConfigs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoConfigs.h; sourceTree = "<group>"; };
-		D82B61FC29A7046E006DAC69 /* libhippy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libhippy.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		C3BA67BF513E6B4FDF799C5F /* Pods-HippyDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HippyDemo.debug.xcconfig"; path = "Target Support Files/Pods-HippyDemo/Pods-HippyDemo.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -49,7 +51,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D82B61FD29A7046E006DAC69 /* libhippy.a in Frameworks */,
+				A695E0648A9742E4F1992685 /* libPods-HippyDemo.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -64,6 +66,7 @@
 				0612F02023A8BE320079E622 /* HippyDemo */,
 				0612F01F23A8BE320079E622 /* Products */,
 				D838C0E129A326400069261D /* Frameworks */,
+				A805796219C0A9A9494F473A /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -104,6 +107,15 @@
 			path = myview;
 			sourceTree = "<group>";
 		};
+		A805796219C0A9A9494F473A /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				C3BA67BF513E6B4FDF799C5F /* Pods-HippyDemo.debug.xcconfig */,
+				9215196B418ADB5AF2317FFD /* Pods-HippyDemo.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		AC63515223F922E5007FABA5 /* fonts */ = {
 			isa = PBXGroup;
 			children = (
@@ -126,7 +138,7 @@
 		D838C0E129A326400069261D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				D82B61FC29A7046E006DAC69 /* libhippy.a */,
+				54161237B0795CFE3C0568F1 /* libPods-HippyDemo.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -138,6 +150,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0612F03723A8BE330079E622 /* Build configuration list for PBXNativeTarget "HippyDemo" */;
 			buildPhases = (
+				B8023E1A646C71D0ADB8A747 /* [CP] Check Pods Manifest.lock */,
 				0612F01A23A8BE320079E622 /* Sources */,
 				0612F01B23A8BE320079E622 /* Frameworks */,
 				0612F01C23A8BE320079E622 /* Resources */,
@@ -194,6 +207,31 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		B8023E1A646C71D0ADB8A747 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-HippyDemo-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		0612F01A23A8BE320079E622 /* Sources */ = {
@@ -326,6 +364,7 @@
 		};
 		0612F03823A8BE330079E622 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C3BA67BF513E6B4FDF799C5F /* Pods-HippyDemo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
@@ -346,15 +385,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-force_load",
-					"${BUILT_PRODUCTS_DIR}/libhippy.a",
-				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.tencent.HippyDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -363,6 +396,7 @@
 		};
 		0612F03923A8BE330079E622 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9215196B418ADB5AF2317FFD /* Pods-HippyDemo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
@@ -383,15 +417,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-force_load",
-					"${BUILT_PRODUCTS_DIR}/libhippy.a",
-				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.tencent.HippyDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
