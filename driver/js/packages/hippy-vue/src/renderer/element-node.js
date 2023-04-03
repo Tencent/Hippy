@@ -174,6 +174,22 @@ function parseBackgroundImage(property, value) {
 }
 
 /**
+ * remove linear gradient
+ * @param property
+ * @param value
+ * @param style
+ */
+function removeBackgroundImage(property, value, style) {
+  if (property === 'backgroundImage' && style.linearGradient) {
+    delete style.linearGradient;
+  }
+}
+
+const offsetMap = {
+  textShadowOffsetX: 'width',
+  textShadowOffsetY: 'height',
+};
+/**
  * parse text shadow offset
  * @param property
  * @param value
@@ -181,15 +197,40 @@ function parseBackgroundImage(property, value) {
  * @returns {(*|number)[]}
  */
 function parseTextShadowOffset(property, value = 0, style) {
-  const offsetMap = {
-    textShadowOffsetX: 'width',
-    textShadowOffsetY: 'height',
-  };
   style.textShadowOffset = style.textShadowOffset || {};
   Object.assign(style.textShadowOffset, {
     [offsetMap[property]]: value,
   });
   return ['textShadowOffset', style.textShadowOffset];
+}
+
+/**
+ * remove text shadow offset
+ * @param property
+ * @param value
+ * @param style
+ */
+function removeTextShadowOffset(property, value, style) {
+  if ((property === 'textShadowOffsetX' || property === 'textShadowOffsetY') && style.textShadowOffset) {
+    delete style.textShadowOffset[offsetMap[property]];
+    if (Object.keys(style.textShadowOffset).length === 0) {
+      delete style.textShadowOffset;
+    }
+  }
+}
+
+/**
+ * remove empty style
+ * @param property
+ * @param value
+ * @param style
+ */
+function removeStyle(property, value, style) {
+  if (value === undefined) {
+    delete style[property];
+    removeBackgroundImage(property, value, style);
+    removeTextShadowOffset(property, value, style);
+  }
 }
 
 function transverseEventNames(eventNames, callback) {
@@ -374,17 +415,6 @@ class ElementNode extends ViewNode {
     delete this.attributes[key];
   }
 
-  /**
-   * remove style attr
-   */
-  removeStyle(notToNative = false) {
-    // remove all style
-    this.style = {};
-    if (!notToNative) {
-      updateChild(this);
-    }
-  }
-
   setStyles(batchStyles) {
     if (!batchStyles || typeof batchStyles !== 'object') {
       return;
@@ -397,13 +427,6 @@ class ElementNode extends ViewNode {
   }
 
   setStyle(rawKey, rawValue, notToNative = false) {
-    if (rawValue === undefined) {
-      delete this.style[rawKey];
-      if (!notToNative) {
-        updateChild(this);
-      }
-      return;
-    }
     // Preprocess the style
     let {
       value,
@@ -412,6 +435,13 @@ class ElementNode extends ViewNode {
       property: rawKey,
       value: rawValue,
     });
+    if (rawValue === undefined) {
+      removeStyle(key, value, this.style);
+      if (!notToNative) {
+        updateChild(this);
+      }
+      return;
+    }
     // Process the specific style value
     switch (key) {
       case 'fontWeight':
