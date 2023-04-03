@@ -36,9 +36,12 @@ function toObject(arr) {
   return res;
 }
 
-function patchStyle(vNode) {
-  if (!vNode.data.style) return;
-  let { style } = vNode.data;
+function patchStyle(oldVNode, vNode) {
+  if (!oldVNode.data.style && !vNode.data.style) {
+    return;
+  }
+  const oldStyle = oldVNode.data.style || {};
+  let style = vNode.data.style || {};
   const needClone = style.__ob__;
   // handle array syntax
   if (Array.isArray(style)) {
@@ -52,6 +55,14 @@ function patchStyle(vNode) {
     vNode.data.style = style;
   }
   const batchedStyles = {};
+  // Remove the deleted styles at first
+  Object.keys(oldStyle).forEach((name) => {
+    const oldStyleValue = oldStyle[name];
+    const newStyleValue = style[name];
+    if (!isNullOrUndefined(oldStyleValue) && isNullOrUndefined(newStyleValue)) {
+      batchedStyles[normalize(name)] = undefined;
+    }
+  });
   // Then set the new styles.
   Object.keys(style).forEach((name) => {
     const styleValue = style[name];
@@ -63,15 +74,8 @@ function patchStyle(vNode) {
 }
 
 function updateStyle(oldVNode, vNode) {
-  if (!oldVNode.data.style && !vNode.data.style) {
-    return;
-  }
+  const styles = patchStyle(oldVNode, vNode);
   const { elm } = vNode;
-  if (oldVNode.data.style && !vNode.data.style) {
-    return elm.removeStyle();
-  }
-  const styles = patchStyle(vNode);
-  elm.removeStyle(true);
   elm.setStyles(styles);
 }
 
@@ -80,20 +84,19 @@ function createStyle(oldVNode, vNode) {
     updateStyle(oldVNode, vNode);
     return;
   }
-  const { elm } = vNode;
-  const { staticStyle } = vNode.data;
   const batchStyles = {};
+  const { staticStyle } = vNode.data;
   Object.keys(staticStyle).forEach((name) => {
     const styleValue = staticStyle[name];
     if (!isNullOrUndefined(styleValue)) {
       batchStyles[normalize(name)] = styleValue;
     }
   });
-  const styles = patchStyle(vNode);
+  const styles = patchStyle(oldVNode, vNode);
   if (styles) {
     Object.assign(batchStyles, styles);
   }
-  elm.removeStyle(true);
+  const { elm } = vNode;
   elm.setStyles(batchStyles);
 }
 
