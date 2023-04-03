@@ -242,13 +242,13 @@ dispatch_queue_t HippyBridgeQueue() {
 
 - (void)setUp {
     _performanceLogger = [HippyPerformanceLogger new];
-    [_performanceLogger markStartForTag:HippyPLBridgeStartup];
+    [_performanceLogger markStartForTag:HippyPLBridgeStartup forKey:nil];
     _valid = YES;
     self.moduleSemaphore = dispatch_semaphore_create(0);
     @try {
         __weak HippyBridge *weakSelf = self;
         _moduleSetup = [[HippyModulesSetup alloc] initWithBridge:self extraProviderModulesBlock:_moduleProvider];
-        [_performanceLogger markStartForTag:HippyPLJSExecutorSetup];
+        [_performanceLogger markStartForTag:HippyPLJSExecutorSetup forKey:nil];
         _javaScriptExecutor = [[HippyJSExecutor alloc] initWithEngineKey:_engineKey bridge:self];
         _javaScriptExecutor.contextCreatedBlock = ^(id<HippyContextWrapper> ctxWrapper){
             HippyBridge *strongSelf = weakSelf;
@@ -256,7 +256,7 @@ dispatch_queue_t HippyBridgeQueue() {
                 dispatch_semaphore_wait(strongSelf.moduleSemaphore, DISPATCH_TIME_FOREVER);
                 NSString *moduleConfig = [strongSelf moduleConfig];
                 [ctxWrapper createGlobalObject:@"__hpBatchedBridgeConfig" withJsonValue:moduleConfig];
-                [strongSelf->_performanceLogger markStopForTag:HippyPLJSExecutorSetup];
+                [strongSelf->_performanceLogger markStopForTag:HippyPLJSExecutorSetup forKey:nil];
             }
         };
         [_javaScriptExecutor setup];
@@ -275,7 +275,7 @@ dispatch_queue_t HippyBridgeQueue() {
     } @catch (NSException *exception) {
         HippyBridgeHandleException(exception, self);
     }
-    [_performanceLogger markStopForTag:HippyPLBridgeStartup];
+    [_performanceLogger markStopForTag:HippyPLBridgeStartup forKey:nil];
 }
 
 - (void)loadBundleURL:(NSURL *)bundleURL
@@ -297,9 +297,9 @@ dispatch_queue_t HippyBridgeQueue() {
 
 
 - (void)initWithModulesCompletion:(dispatch_block_t)completion {
-    [_performanceLogger markStartForTag:HippyPLNativeModuleInit];
+    [_performanceLogger markStartForTag:HippyPLNativeModuleInit forKey:nil];
     [_moduleSetup setupModulesCompletion:completion];
-    [_performanceLogger markStopForTag:HippyPLNativeModuleInit];
+    [_performanceLogger markStopForTag:HippyPLNativeModuleInit forKey:nil];
 }
 
 - (void)beginLoadingBundle:(NSURL *)bundleURL
@@ -421,13 +421,13 @@ dispatch_queue_t HippyBridgeQueue() {
         return;
     }
     HPAssert(self.javaScriptExecutor, @"js executor must not be null");
-    [_performanceLogger markStartForTag:HippyExecuteSource];
+    [_performanceLogger markStartForTag:HippyExecuteSource forKey:[sourceURL absoluteString]];
     __weak HippyBridge *weakSelf = self;
     [self.javaScriptExecutor executeApplicationScript:script sourceURL:sourceURL onComplete:^(id result ,NSError *error) {
         HippyBridge *strongSelf = weakSelf;
         if (!strongSelf || ![strongSelf isValid]) {
             completion(result, error);
-            [strongSelf->_performanceLogger markStopForTag:HippyExecuteSource];
+            [strongSelf->_performanceLogger markStopForTag:HippyExecuteSource forKey:[sourceURL absoluteString]];
             return;
         }
         if (error) {
@@ -441,7 +441,7 @@ dispatch_queue_t HippyBridgeQueue() {
                                                                   userInfo:userInfo];
             });
         }
-        [strongSelf->_performanceLogger markStopForTag:HippyExecuteSource];
+        [strongSelf->_performanceLogger markStopForTag:HippyExecuteSource forKey:[sourceURL absoluteString]];
         completion(result, error);
     }];
 }
