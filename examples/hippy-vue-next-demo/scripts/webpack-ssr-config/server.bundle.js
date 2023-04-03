@@ -79,7 +79,8 @@ module.exports = {
                 hoistStatic: false,
                 // whitespace handler, default is 'condense', it can be set 'preserve'
                 whitespace: 'condense',
-                // some native tag do not support in ssr, we must add to config explicit
+                // Vue will recognize non-HTML tags as components, so for Hippy native tags,
+                // Vue needs to be informed to render them as custom elements
                 isCustomElement: tag => isNativeTag(tag),
                 // real used ssr runtime package, render vue node at server side
                 ssrRuntimeModuleName: '@hippy/vue-next-server-renderer',

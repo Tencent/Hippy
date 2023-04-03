@@ -134,7 +134,11 @@ const LINEAR_GRADIENT_DIRECTION_MAP = {
   totopleft: 'totopleft',
 };
 
-// degree unit
+/**
+ * degree unit
+ *
+ * @public
+ */
 export const DEGREE_UNIT = {
   TURN: 'turn',
   RAD: 'rad',

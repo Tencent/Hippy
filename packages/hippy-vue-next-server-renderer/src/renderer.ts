@@ -66,7 +66,24 @@ function mergeDefaultNativeProps(
   const commonProps = { id: '', class: '' };
   let defaultNativeProps: SsrNodeProps = {};
   let eventMap;
+
   switch (node.name) {
+    case 'View':
+    case 'ScrollView':
+      eventMap = {
+        onTouchStart: 'onTouchDown',
+        onTouchstart: 'onTouchDown',
+        onTouchMove: 'onTouchMove',
+        onTouchend: 'onTouchEnd',
+        onTouchcancel: 'onTouchCancel',
+      };
+      Object.keys(eventMap).forEach((v) => {
+        if (Object.prototype.hasOwnProperty.call(node.props, v)) {
+          // set hippy real native event name
+          defaultNativeProps[eventMap[v]] = true;
+        }
+      });
+      break;
     case 'ListView':
       defaultNativeProps = {
         // calculate child nums
@@ -77,6 +94,15 @@ function mergeDefaultNativeProps(
         defaultNativeProps.onEndReached = true;
         defaultNativeProps.onLoadMore = true;
       }
+      eventMap = {
+        onListReady: 'initialListReady',
+      };
+      Object.keys(eventMap).forEach((v) => {
+        if (Object.prototype.hasOwnProperty.call(node.props, v)) {
+          // set hippy real native event name
+          defaultNativeProps[eventMap[v]] = true;
+        }
+      });
       break;
     case 'Text':
       defaultNativeProps = { text: '' };
@@ -86,17 +112,28 @@ function mergeDefaultNativeProps(
       if (node.tagName === 'textarea') {
         defaultNativeProps.numberOfLines = 5;
       }
+      eventMap = {
+        onChange: 'changeText',
+        onSelect: 'selectionChange',
+      };
+      Object.keys(eventMap).forEach((v) => {
+        if (Object.prototype.hasOwnProperty.call(node.props, v)) {
+          // set hippy real native event name
+          defaultNativeProps[eventMap[v]] = true;
+        }
+      });
       break;
     case 'ViewPager':
       defaultNativeProps = { initialPage: node.props.current };
       eventMap = {
-        onDropped: 'onPageSelected',
-        onDragging: 'onPageScroll',
-        onStateChanged: 'onPageScrollStateChanged',
+        onDropped: 'pageSelected',
+        onDragging: 'pageScroll',
+        onStateChanged: 'pageScrollStateChanged',
       };
       Object.keys(eventMap).forEach((v) => {
         if (Object.prototype.hasOwnProperty.call(node.props, v)) {
-          defaultNativeProps[eventMap[v]] = node.props[v];
+          // set hippy real native event name
+          defaultNativeProps[eventMap[v]] = true;
         }
       });
       break;
