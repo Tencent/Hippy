@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.16.1](https://github.com/Tencent/Hippy/compare/2.16.0...2.16.1) (2023-04-03)
+
+
+### Bug Fixes
+
+* **react:** listview initialListSize default value set to 15 ([064e636](https://github.com/Tencent/Hippy/commit/064e63639f1a9ea59fcc4389ef3e9bfed0648e51))
+
+
+
+
+
 # [2.16.0](https://github.com/Tencent/Hippy/compare/2.15.5...2.16.0) (2023-03-21)
 
 

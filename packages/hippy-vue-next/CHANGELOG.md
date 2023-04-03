@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.16.1](https://github.com/Tencent/Hippy/compare/2.16.0...2.16.1) (2023-04-03)
+
+
+### Bug Fixes
+
+* **vue:** make sure start animation after node created ([9517d1b](https://github.com/Tencent/Hippy/commit/9517d1b5cb80be397cb6aa8fed73bbea175a38b9))
+
+
+
+
+
 # [2.16.0](https://github.com/Tencent/Hippy/compare/2.15.5...2.16.0) (2023-03-21)
 
 

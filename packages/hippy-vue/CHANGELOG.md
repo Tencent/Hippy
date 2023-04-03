@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.16.1](https://github.com/Tencent/Hippy/compare/2.16.0...2.16.1) (2023-04-03)
+
+
+### Bug Fixes
+
+* **vue:** fix vue style diff error ([c9add39](https://github.com/Tencent/Hippy/commit/c9add39ea697d44e5b984ef2010130aa655e0e36))
+
+
+
+
+
 # [2.16.0](https://github.com/Tencent/Hippy/compare/2.15.5...2.16.0) (2023-03-21)
 
 

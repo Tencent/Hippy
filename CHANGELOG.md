@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.16.1](https://github.com/Tencent/Hippy/compare/2.16.0...2.16.1) (2023-04-03)
+
+
+### Bug Fixes
+
+* **@hippy/react-web:** fix text default value and ellipsis not work ([51bb33a](https://github.com/Tencent/Hippy/commit/51bb33a485b2d2173902ff93d4269534329cd996))
+* **core:** fix uncaughtException bug ([00a7338](https://github.com/Tencent/Hippy/commit/00a73380a60af9c61637ca87878b7ef7a8cb01f0))
+* **react:** listview initialListSize default value set to 15 ([064e636](https://github.com/Tencent/Hippy/commit/064e63639f1a9ea59fcc4389ef3e9bfed0648e51))
+* **readme:** fix English README of requestInterrupt method ([0888c7d](https://github.com/Tencent/Hippy/commit/0888c7dc32b5af1f8b7c026b58a1f040fce4be5f))
+* **readme:** fix readme of requestInterrupt method ([0e75c12](https://github.com/Tencent/Hippy/commit/0e75c125c191741aa5bfe80946cb07f1ae5900c5))
+* **vue:** fix vue style diff error ([c9add39](https://github.com/Tencent/Hippy/commit/c9add39ea697d44e5b984ef2010130aa655e0e36))
+* **vue:** make sure start animation after node created ([9517d1b](https://github.com/Tencent/Hippy/commit/9517d1b5cb80be397cb6aa8fed73bbea175a38b9))
+* **workflow:** fix workflow yml file syntax error ([fe07ce3](https://github.com/Tencent/Hippy/commit/fe07ce3bc5b8970e11173517d43bf65a7f95d60a))
+
+
+### Features
+
+* **@hippy/react-web:** add build config for the declaration ([a826351](https://github.com/Tencent/Hippy/commit/a8263515906d950a3a936ec127f9396ab8af6b05))
+* **android:** add getNodeForLocation for utils mode ([2ddbb3a](https://github.com/Tencent/Hippy/commit/2ddbb3a12b327d0434cdb69761114cb7f747490d))
+* **ios:** change cpp excetion enable to false ([2274aeb](https://github.com/Tencent/Hippy/commit/2274aeb17c5a9c9b668100cb734fb7f6b9ff9c03))
+
+
+
+
+
 # [2.16.0](https://github.com/Tencent/Hippy/compare/2.15.5...2.16.0) (2023-03-21)
 
 

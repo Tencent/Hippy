@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.16.1](https://github.com/Tencent/Hippy/compare/2.16.0...2.16.1) (2023-04-03)
+
+
+### Bug Fixes
+
+* **@hippy/react-web:** fix text default value and ellipsis not work ([51bb33a](https://github.com/Tencent/Hippy/commit/51bb33a485b2d2173902ff93d4269534329cd996))
+
+
+### Features
+
+* **@hippy/react-web:** add build config for the declaration ([a826351](https://github.com/Tencent/Hippy/commit/a8263515906d950a3a936ec127f9396ab8af6b05))
+
+
+
+
+
 # [2.16.0](https://github.com/Tencent/Hippy/compare/2.15.5...2.16.0) (2023-03-21)
 
 
