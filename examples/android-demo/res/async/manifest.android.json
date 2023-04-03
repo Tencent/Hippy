@@ -1,7 +1,0 @@
-{
-  "asyncComponentFromHttp.js": "asyncComponentFromHttp.android.js",
-  "asyncComponentFromLocal.js": "asyncComponentFromLocal.android.js",
-  "index.js": "index.android.js",
-  "assets/defaultSource.jpg": "assets/defaultSource.jpg",
-  "assets/hippyLogoWhite.png": "assets/hippyLogoWhite.png"
-}
