@@ -1,0 +1,7 @@
+{
+  "asyncComponentFromHttp.js": "asyncComponentFromHttp.ios.js",
+  "asyncComponentFromLocal.js": "asyncComponentFromLocal.ios.js",
+  "home.js": "home.ios.js",
+  "assets/defaultSource.jpg": "assets/defaultSource.jpg",
+  "assets/hippyLogoWhite.png": "assets/hippyLogoWhite.png"
+}
