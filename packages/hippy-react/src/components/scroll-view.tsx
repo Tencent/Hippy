@@ -189,7 +189,7 @@ class ScrollView extends React.Component<ScrollViewProps, {}> {
    * @param {number} x - Scroll to horizon position X.
    * @param {number} y - Scroll To vertical position Y.
    * @param {number} duration - Duration of animation execution time, with ms unit.
-   *                            By default is 1000ms.
+   *                            Default is 1000ms.
    */
   public scrollToWithDuration(x = 0, y = 0, duration = 1000) {
     callUIFunction(this.instance as Element, 'scrollToWithOptions', [{ x, y, duration }]);

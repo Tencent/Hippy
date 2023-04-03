@@ -14,6 +14,7 @@
  */
 package com.tencent.mtt.hippy;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -247,6 +248,83 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
   }
 
   @Override
+  public HippyRootView loadInstance(ModuleLoadParams loadParams, ModuleListener listener,
+                                  HippyRootView.OnLoadCompleteListener onLoadCompleteListener) {
+    if (loadParams == null) {
+      throw new RuntimeException("Hippy: loadModule loadParams must no be null");
+    }
+    if (loadParams.context == null) {
+      throw new RuntimeException("Hippy: loadModule loadParams.context must no be null");
+    }
+    if (!isDebugMode() && TextUtils.isEmpty(loadParams.jsAssetsPath) && TextUtils
+      .isEmpty(loadParams.jsFilePath) && v8InitParams.type == V8SnapshotType.NoSnapshot.ordinal()) {
+        throw new RuntimeException(
+            "Hippy: loadModule debugMode=true, loadParams.jsAssetsPath and jsFilePath both null!");
+    }
+    if (mEngineContext != null) {
+      mEngineContext.setComponentName(loadParams.componentName);
+      mEngineContext.setNativeParams(loadParams.nativeParams);
+    }
+    if (loadParams.jsParams == null) {
+      loadParams.jsParams = new HippyMap();
+    }
+    if (loadParams.hippyContext != null) {
+      loadParams.hippyContext.setModuleParams(loadParams);
+    }
+    if (!TextUtils.isEmpty(loadParams.jsAssetsPath)) {
+      loadParams.jsParams.pushString("sourcePath", loadParams.jsAssetsPath);
+    } else {
+      loadParams.jsParams.pushString("sourcePath", loadParams.jsFilePath);
+    }
+    mModuleListener = listener;
+
+    HippyRootView view = new HippyRootView(loadParams);
+
+    if (mCurrentState == EngineState.DESTROYED) {
+      notifyModuleLoaded(ModuleLoadStatus.STATUS_ENGINE_UNINIT,
+        "load module error wrong state, Engine destroyed", view);
+      return view;
+    }
+    if (onLoadCompleteListener != null) {
+      view.setOnLoadCompleteListener(onLoadCompleteListener);
+    }
+    view.setTimeMonitor(new TimeMonitor(!isDebugMode()));
+    view.getTimeMonitor().begine();
+    view.getTimeMonitor().startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_WAIT_ENGINE);
+    view.setOnResumeAndPauseListener(this);
+    view.setOnSizeChangedListener(this);
+    view.attachEngineManager(this);
+    mInstances.add(view);
+    mDevSupportManager.attachToHost(view);
+    if (!mDevManagerInited && isDebugMode()) {
+      mDevManagerInited = true;
+    }
+
+    LogUtils.d(TAG, "internalLoadInstance start...");
+    if (mCurrentState == EngineState.INITED) {
+      LogUtils.d(TAG, "in internalLoadInstance");
+      if (mEngineContext.mInstanceLifecycleEventListeners != null) {
+        for (HippyInstanceLifecycleEventListener lifecycleEventListener : mEngineContext.mInstanceLifecycleEventListeners) {
+          lifecycleEventListener.onInstanceLoad(view.getId());
+        }
+      }
+      view.attachToEngine(mEngineContext);
+      HippyMap launchParams = view.getLaunchParams();
+      HippyBundleLoader loader = ((HippyInstanceContext) view.getContext()).getBundleLoader();
+      LogUtils.d(TAG, "in internalLoadInstance before loadInstance");
+      mEngineContext.getBridgeManager().loadInstance(view.getName(), view.getId(), launchParams);
+      if (isDebugMode()) {
+        notifyModuleLoaded(ModuleLoadStatus.STATUS_OK, null, view);
+      }
+    } else {
+      notifyModuleLoaded(ModuleLoadStatus.STATUS_ENGINE_UNINIT,
+        "error wrong state, Engine state not INITED, state:" + mCurrentState, view);
+    }
+
+    return view;
+  }
+
+  @Override
   public HippyRootView loadModule(ModuleLoadParams loadParams, ModuleListener listener,
       HippyRootView.OnLoadCompleteListener onLoadCompleteListener) {
     if (loadParams == null) {
@@ -257,8 +335,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
     if (!isDevMode() && TextUtils.isEmpty(loadParams.jsAssetsPath) && TextUtils
         .isEmpty(loadParams.jsFilePath)) {
-      throw new RuntimeException(
-          "Hippy: loadModule debugMode=true, loadParams.jsAssetsPath and jsFilePath both null!");
     }
     if (mEngineContext != null) {
       mEngineContext.setComponentName(loadParams.componentName);
@@ -1041,7 +1117,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     @Override
     public HippyRootView getInstance() {
       for (HippyRootView rootView : mInstances) {
-        return rootView;
+        //noinspection ResourceType
+        if (rootView.getId() >= 0) {
+          return rootView;
+        }
       }
       return null;
     }

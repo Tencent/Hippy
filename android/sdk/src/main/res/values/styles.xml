@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <style name="modal_style_theme_animated_fade" parent="android:Animation">
+    <item name="android:windowEnterAnimation">@anim/modal_animated_fade_in</item>
+    <item name="android:windowExitAnimation">@anim/modal_animated_fade_out</item>
+  </style>
+
+  <style name="modal_style_theme_animated_slide" parent="android:Animation">
+    <item name="android:windowEnterAnimation">@anim/modal_animated_slide_in</item>
+    <item name="android:windowExitAnimation">@anim/modal_animated_slide_out</item>
+  </style>
+
+  <style name="modal_style_theme_animated_slide_fade" parent="android:Animation">
+    <item name="android:windowEnterAnimation">@anim/modal_animated_slide_fade_in</item>
+    <item name="android:windowExitAnimation">@anim/modal_animated_slide_fade_out</item>
+  </style>
+
+</resources>

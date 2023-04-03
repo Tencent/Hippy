@@ -397,7 +397,7 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
         numberOfRows = dataSource.length;
       }
       if (!initialListReady) {
-        numberOfRows = Math.min(numberOfRows, (initialListSize || 10));
+        numberOfRows = Math.min(numberOfRows, (initialListSize || 15));
       }
       for (let index = 0; index < numberOfRows; index += 1) {
         const itemProps: ListViewItemProps = {};

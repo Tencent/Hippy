@@ -22,9 +22,10 @@
 
 #pragma once
 
-#include "core/napi/js_ctx_value.h"
-
 #include <JavaScriptCore/JavaScriptCore.h>
+
+#include "base/unicode_string_view.h"
+#include "core/napi/js_ctx.h"
 
 namespace hippy {
 namespace napi {

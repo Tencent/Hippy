@@ -16,8 +16,9 @@ const SKIN_COLOR = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
   },
   buttonView: {
     borderColor: SKIN_COLOR.mainLight,
@@ -36,6 +37,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     textAlignVertical: 'center',
   },
+  selectionText: {
+    fontSize: 20,
+    color: SKIN_COLOR.mainLight,
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    marginLeft: 10,
+    marginRight: 10,
+  },
 });
 
 
@@ -45,6 +54,7 @@ export default class ModalExpo extends React.Component {
     this.state = {
       visible: false,
       press: false,
+      animationType: 'fade',
     };
     this.show = this.show.bind(this);
     this.hide = this.hide.bind(this);
@@ -85,9 +95,29 @@ export default class ModalExpo extends React.Component {
             <Text style={[styles.buttonText, { color: SKIN_COLOR.mainLight }]}>点击弹出浮层</Text>
           </View>
         </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 20 }}>
+          <Text
+            onClick={() => {
+              this.setState({ animationType: 'fade' });
+            }}
+            style={[styles.selectionText, { backgroundColor: this.state.animationType === 'fade' ? 'rgba(255, 0, 0, 0.5)' : '#FFFFFF' }]}
+          >fade</Text>
+          <Text
+            onClick={() => {
+              this.setState({ animationType: 'slide' });
+            }}
+            style={[styles.selectionText, { backgroundColor: this.state.animationType === 'slide' ? 'rgba(255, 0, 0, 0.5)' : '#FFFFFF' }]}
+          >slide</Text>
+          <Text
+            onClick={() => {
+              this.setState({ animationType: 'slide_fade' });
+            }}
+            style={[styles.selectionText, { backgroundColor: this.state.animationType === 'slide_fade' ? 'rgba(255, 0, 0, 0.5)' : '#FFFFFF' }]}
+          >slide_fade</Text>
+        </View>
         <Modal
           transparent={true}
-          animationType="slide_fade"
+          animationType={this.state.animationType}
           visible={visible}
           onRequestClose={() => { /* Trigger when hardware back pressed */ }}
           supportedOrientations={['portrait']}

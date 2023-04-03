@@ -108,11 +108,11 @@
 
 > 仅在 overflow-y/x: scroll 时适用
 
-`(x: number, y: number, duration: boolean) => void` 滚动到指定的 X，Y 偏移值，第三个参数为是否启用平滑滚动动画。
+`(x: number, y: number, duration: number) => void` 滚动到指定的 X，Y 偏移值，第三个参数为滚动持续时间。
 
 > * x: number - X 偏移值
 > * y: number - Y 偏移值
-> * duration: number | boolean - 毫秒为单位的滚动时间, 默认 1000ms，false 等同 0ms
+> * duration: number - 毫秒为单位的滚动时间, 默认 1000ms
 
 
 ### setPressed
@@ -194,17 +194,17 @@
 
 ## 事件
 
-| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
-| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| layout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置 | `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| load        | 加载成功完成时调用此回调函数。                               | `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| loadStart   | 加载开始时调用。 | `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| loadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。               | `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| error       | 当加载错误的时候调用此回调函数。| `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| progress    | 在加载过程中不断调用，参数为 `nativeEvent: { loaded: number, total: number }`, `loaded` 表示加载中的图片大小， `total` 表示图片总大小 | `Function`                                                   | `iOS`    |
-| touchstart  | 触屏开始事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、Web-Renderer`    |
-| touchmove   | 触屏移动事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、Web-Renderer`    |
-| touchend    | 触屏结束事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、Web-Renderer`    |
+| 事件名称          | 描述                                                                                                                                                                                     | 类型                                      | 支持平台 |
+| ------------- |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ----------------------------------------- | -------- |
+| layout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置                                                                                      | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| load        | 加载成功完成时调用此回调函数，`2.16.0`后支持参数返回，参数为：`evt: { width: number, height: number, url: string }`                                                                               | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| loadStart   | 加载开始时调用。                                                                                                                                                                               | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| loadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。                                                                                                                                                                | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| error       | 当加载错误的时候调用此回调函数。                                                                                                                                                                       | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| progress    | 在加载过程中不断调用，参数为 `nativeEvent: { loaded: number, total: number }`, `loaded` 表示加载中的图片大小， `total` 表示图片总大小                                                                                  | `Function`                                                   | `iOS`    |
+| touchstart  | 触屏开始事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置                                                               | `Function`                                | `Android、iOS、Web-Renderer`    |
+| touchmove   | 触屏移动事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置                                                               | `Function`                                | `Android、iOS、Web-Renderer`    |
+| touchend    | 触屏结束事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置                                                               | `Function`                                | `Android、iOS、Web-Renderer`    |
 | touchcancel | 触屏取消事件，当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、Web-Renderer`    |
 
 ---
@@ -288,8 +288,8 @@
 | focus | 当文本框获得焦点的时候调用此回调函数。 | `Function` | `Android、iOS` |
 | change          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `Android、iOS`     |
 | keyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`。                                     | `Function`                                                   | `Android、iOS`     |
-| keyboardWillHide     | 在隐藏输入法键盘时候会触发此回调函数 | `Function`                                                   | `Android`     |
-| keyboardHeightChanged | 在输入法键盘高度改变时触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`, `最低支持版本2.14.0`。 | `Function` | `iOS` |                                 
+| keyboardWillHide     | 在隐藏输入法键盘时候会触发此回调函数 `iOS最低支持版本2.16.0` | `Function`                                                   | `Android、iOS`     |
+| keyboardHeightChanged | 在输入法键盘高度改变时触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`, `最低支持版本2.14.0`。 | `Function` | `iOS` |
 | endEditing          | 当文本输入结束后调用此回调函数。                             | `Function`                                                   | `Android、iOS、Web-Renderer`     |
 | layout              | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                                   | `Android、iOS、Web-Renderer`     |
 | selectionChange     | 当输入框选择文字的范围被改变时调用。返回参数的样式如 `{ nativeEvent: { selection: { start, end } } }`。 | `Function`                                                   | `Android、iOS、Web-Renderer`     |

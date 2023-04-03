@@ -198,8 +198,16 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 - (BOOL)flush {
-    NSArray<HippyVirtualCell *> *cellNodes = [NSArray arrayWithArray:self.node.subNodes];
-    _datasource = [[HippyWaterfallViewDatasource alloc] initWithNodes:cellNodes containBannerView:_containBannerView];
+    HippyVirtualNode *bannerNode = _containBannerView ? [self.node.subNodes firstObject] : nil;
+    NSPredicate *cellNodesPredicate = [NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+        HippyVirtualCell *cellNode = (HippyVirtualCell *)evaluatedObject;
+        if (![cellNode isKindOfClass:[HippyVirtualCell class]]) {
+            return NO;
+        }
+        return YES;
+    }];
+    NSArray<HippyVirtualCell *> *cellNodes = (NSArray<HippyVirtualCell *> *)[self.node.subNodes filteredArrayUsingPredicate:cellNodesPredicate];
+    _datasource = [[HippyWaterfallViewDatasource alloc] initWithCellNodes:cellNodes bannerNode:bannerNode];
     [_datasource applyDiff:_lastDatasource forWaterfallView:self.collectionView];
     _lastDatasource = _datasource;
     if (!_isInitialListReady) {

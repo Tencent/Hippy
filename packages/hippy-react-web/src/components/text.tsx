@@ -20,11 +20,10 @@
 
 // @ts-nocheck
 import React, { createContext, useRef } from 'react';
-import { formatWebStyle } from '../adapters/transfer';
-import { LayoutEvent } from '../types';
+import { normalizeStyle, formatWebStyle } from '../adapters/transfer';
+import { LayoutableProps, TouchableProps, ClickableProps } from '../types';
 import useResponderEvents from '../modules/use-responder-events';
 import useElementLayout from '../modules/use-element-layout';
-import { TouchEvent } from '../modules/use-responder-events/types';
 import { DEFAULT_CONTAINER_STYLE } from '../constants';
 
 const baseTextStyle = {
@@ -32,7 +31,6 @@ const baseTextStyle = {
   backgroundColor: 'transparent',
   border: '0 solid black',
   boxSizing: 'border-box',
-  color: 'black',
   font: '14px System',
   listStyle: 'none',
   margin: 0,
@@ -71,16 +69,11 @@ const styles = {
 
 const TextAncestorContext = createContext(false);
 
-interface TextProps {
+interface TextProps extends LayoutableProps, TouchableProps, ClickableProps {
   style?: HippyTypes.Style | HippyTypes.Style[];
   numberOfLines?: number;
   opacity?: number;
   ellipsizeMode?: 'clip' | 'ellipsis';
-  onLayout: (e: LayoutEvent) => void;
-  onTouchDown?: (e: TouchEvent) => void;
-  onTouchMove?: (e: TouchEvent) => void;
-  onTouchEnd?: (e: TouchEvent) => void;
-  onTouchCancel?: (e: TouchEvent) => void;
 }
 
 /**
@@ -91,16 +84,33 @@ interface TextProps {
  */
 const Text: React.FC<TextProps> = React.forwardRef((props: TextProps, ref) => {
   const hasTextAncestor = React.useContext(TextAncestorContext);
-  const { style = {}, numberOfLines = 1, ellipsizeMode = 'ellipsis'  } = props;
+  const {
+    style = {},
+    ellipsizeMode = 'ellipsis',
+    onTouchDown,
+    onTouchEnd,
+    onTouchCancel,
+    onTouchMove,
+    onLayout,
+    numberOfLines,
+    enableScale,
+    opacity,
+    ...restProps
+  } = props;
 
   const hostRef: any = useRef(null);
   React.useImperativeHandle(ref, () => hostRef.current, [hostRef.current]);
 
-  const { onTouchDown, onTouchEnd, onTouchCancel, onTouchMove } = props;
   useResponderEvents(hostRef, { onTouchDown, onTouchEnd, onTouchCancel, onTouchMove });
-  useElementLayout(hostRef, props.onLayout);
+  useElementLayout(hostRef, onLayout);
 
-  const newProps = { ...props };
+  const newProps = { ...restProps };
+  const nStyle = normalizeStyle(style);
+
+  // Align with the implementation of hippy
+  if (typeof nStyle.color === 'undefined' && !nStyle.colors?.length) {
+    baseTextStyle.color = 'black';
+  }
   let newStyle: HippyTypes.Style = {};
   if (hasTextAncestor) {
     newStyle = { ...newStyle, ...styles.textHasParent };
@@ -116,23 +126,15 @@ const Text: React.FC<TextProps> = React.forwardRef((props: TextProps, ref) => {
       WebkitLineClamp: numberOfLines > 1 ? numberOfLines : 1,
     };
   }
-
-  if (props.opacity) {
-    newStyle.opacity = props.opacity;
+  // Ellipsis should be set to 'display' not equal to 'flex'
+  if (typeof nStyle.display === 'undefined' && numberOfLines > 0) {
+    newStyle.display = 'inline-block';
   }
-  const composedStyle = Array.isArray(style) ? [newStyle, ...style] : { ...newStyle, ...style };
-  const formatedStyle = formatWebStyle(composedStyle);
-  newProps.style = formatWebStyle({ ...formatedStyle, textOverflow: ellipsizeMode });
 
-  // delete span unsupported props
-  delete newProps.ellipsizeMode;
-  delete newProps.numberOfLines;
-  delete newProps.onLayout;
-  delete newProps.onTouchDown;
-  delete newProps.onTouchMove;
-  delete newProps.onTouchEnd;
-  delete newProps.onTouchCancel;
-  delete newProps.enableScale;
+  if (opacity) {
+    newStyle.opacity = opacity;
+  }
+  newProps.style = formatWebStyle({ ...newStyle, ...nStyle, textOverflow: ellipsizeMode });
 
   return hasTextAncestor ? (
     <span data-1={String(hasTextAncestor)} ref={hostRef} {...newProps} />

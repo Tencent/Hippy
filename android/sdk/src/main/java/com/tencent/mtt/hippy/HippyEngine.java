@@ -52,6 +52,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -177,6 +178,9 @@ public abstract class HippyEngine {
 
   public abstract HippyRootView loadModule(ModuleLoadParams loadParams, ModuleListener listener);
 
+  public abstract HippyRootView loadInstance(ModuleLoadParams loadParams, ModuleListener listener,
+                                    HippyRootView.OnLoadCompleteListener onLoadCompleteListener);
+
   @SuppressWarnings("unused")
   public abstract HippyRootView loadModule(ModuleLoadParams loadParams, ModuleListener listener,
       HippyRootView.OnLoadCompleteListener onLoadCompleteListener);
@@ -238,9 +242,16 @@ public abstract class HippyEngine {
     UserLocal, // open Hippy remote debug in production. just like debugMode=None but use local bundle, not from remote server
   }
 
+  public enum V8SnapshotType {
+    NoSnapshot, CreateSnapshot, UseSnapshot
+  }
+
   public static class V8InitParams {
     public long initialHeapSize;
     public long maximumHeapSize;
+    public int type;
+    public String uri; // blob_uri, Currently only supports the file protocol
+    public ByteBuffer blob;
   }
 
   // Hippy 引擎初始化时的参数设置
@@ -353,7 +364,7 @@ public abstract class HippyEngine {
         providers = new ArrayList<>();
       }
       providers.add(0, new HippyCoreAPI());
-      if (debugMode != DebugMode.Dev) {
+      if (debugMode != DebugMode.Dev && v8InitParams.type == V8SnapshotType.NoSnapshot.ordinal()) {
         if (TextUtils.isEmpty(coreJSAssetsPath) && TextUtils.isEmpty(coreJSFilePath)) {
           throw new RuntimeException(
               "Hippy: debugMode=true, initParams.coreJSAssetsPath and coreJSFilePath both null!");
@@ -480,6 +491,8 @@ public abstract class HippyEngine {
 
   @SuppressWarnings("unused")
   public interface ModuleListener {
+
+    void onLoadCompletedInCurrentThread(ModuleLoadStatus statusCode, String msg, HippyRootView hippyRootView);
 
     void onLoadCompleted(ModuleLoadStatus statusCode, String msg, HippyRootView hippyRootView);
 

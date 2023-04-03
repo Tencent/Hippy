@@ -852,7 +852,7 @@ static void executeRandomAccessModule(HippyJSCExecutor *executor, uint32_t modul
     }
 
     char url[14];  // 10 = maximum decimal digits in a 32bit unsigned int + ".js" + null byte
-    sprintf(url, "%" PRIu32 ".js", moduleID);
+    snprintf(url, sizeof(url), "%" PRIu32 ".js", moduleID);
 
     JSStringRef code = JSStringCreateWithUTF8CString(data.get());
     JSValueRef jsError = NULL;

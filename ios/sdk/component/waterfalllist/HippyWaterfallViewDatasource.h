@@ -24,13 +24,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class HippyVirtualCell, UICollectionView;
+@class HippyVirtualCell, HippyVirtualNode, UICollectionView;
 
 @interface HippyWaterfallViewDatasource : NSObject
 
-- (instancetype)initWithNodes:(NSArray<HippyVirtualCell *> *)nodes containBannerView:(BOOL)contain;
+- (instancetype)initWithCellNodes:(NSArray<HippyVirtualCell *> *)cellNodes bannerNode:(HippyVirtualNode *)bannerNode;
 
-- (HippyVirtualCell *)bannerViewNode;
+- (HippyVirtualNode *)bannerViewNode;
 
 - (NSArray<HippyVirtualCell *> *)itemNodes;
 
@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSUInteger)numberOfItemInSection:(NSUInteger)section;
 
-- (HippyVirtualCell *)cellAtIndexPath:(NSIndexPath *)indexPath;
+- (__kindof HippyVirtualNode *)cellAtIndexPath:(NSIndexPath *)indexPath;
 
 @end
 

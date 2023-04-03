@@ -125,7 +125,7 @@ class Scope {
 
  private:
   friend class Engine;
-  void Init();
+  void Init(bool use_snapshot);
   void CreateContext();
   void BindModule();
   void Bootstrap();

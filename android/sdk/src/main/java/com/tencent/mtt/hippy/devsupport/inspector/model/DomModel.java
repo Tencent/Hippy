@@ -1,3 +1,18 @@
+/* Tencent is pleased to support the open source community by making Hippy available.
+ * Copyright (C) 2023 THL A29 Limited, a Tencent company. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.tencent.mtt.hippy.devsupport.inspector.model;
 
 import android.app.Activity;
@@ -27,6 +42,8 @@ public class DomModel {
   private static final String TAG = "DomModel";
 
   private static final String DEFAULT_FRAME_ID = "main_frame";
+  public static final String NODE_LOCATION_X = "x";
+  public static final String NODE_LOCATION_Y = "y";
   private DomNode mInspectNode;
 
   private JSONObject getNode(HippyEngineContext context, int nodeId) {
@@ -76,9 +93,9 @@ public class DomModel {
     return result;
   }
 
-  private JSONObject getNodeJson(DomDomainData domainData, int nodeType) {
+  public static JSONObject getNodeJson(DomDomainData domainData, int nodeType) {
     if (domainData == null) {
-      return null;
+      return new JSONObject();
     }
     JSONObject result = new JSONObject();
     try {
@@ -89,7 +106,7 @@ public class DomModel {
       result.put("nodeId", nodeId);
       result.put("backendNodeId", domainData.id);
       result.put("nodeType", nodeType);
-      result.put("localName", domainData.tagName);
+      result.put("localName", domainData.className);
       result.put("nodeName", domainData.tagName);
       result.put("nodeValue", domainData.text);
       result.put("parentId", domainData.pid);
@@ -100,7 +117,7 @@ public class DomModel {
     return result;
   }
 
-  private JSONArray getAttributeList(HippyMap attributes) {
+  private static JSONArray getAttributeList(HippyMap attributes) {
     JSONArray attributeList = new JSONArray();
     try {
       for (Map.Entry<String, Object> entry : attributes.entrySet()) {
@@ -121,7 +138,7 @@ public class DomModel {
     return attributeList;
   }
 
-  private String getInlineStyle(HippyMap data) {
+  private static String getInlineStyle(HippyMap data) {
     StringBuilder resultBuilder = new StringBuilder();
     for (Map.Entry<String, Object> entry : data.entrySet()) {
       String key = entry.getKey();
@@ -337,7 +354,7 @@ public class DomModel {
     return new JSONObject();
   }
 
-  private int[] getRenderViewLocation(HippyEngineContext context, RenderNode renderNode) {
+  private static int[] getRenderViewLocation(HippyEngineContext context, RenderNode renderNode) {
     int[] viewLocation = new int[2];
     viewLocation[0] = renderNode.getX();
     viewLocation[1] = renderNode.getY();
@@ -360,7 +377,7 @@ public class DomModel {
     return viewLocation;
   }
 
-  private boolean isLocationHitRenderNode(HippyEngineContext context, int x, int y,
+  private static boolean isLocationHitRenderNode(HippyEngineContext context, int x, int y,
     RenderNode renderNode) {
     if (renderNode == null) {
       return false;
@@ -413,7 +430,7 @@ public class DomModel {
    * @param newNode
    * @return
    */
-  private RenderNode getSmallerAreaRenderNode(RenderNode oldNode, RenderNode newNode) {
+  private static RenderNode getSmallerAreaRenderNode(RenderNode oldNode, RenderNode newNode) {
     if (oldNode == null) {
       return newNode;
     }
@@ -434,7 +451,7 @@ public class DomModel {
    * @param rootNode
    * @return
    */
-  private RenderNode getMaxDepthAndMinAreaHitRenderNode(HippyEngineContext context, int x, int y,
+  private static RenderNode getMaxDepthAndMinAreaHitRenderNode(HippyEngineContext context, int x, int y,
     RenderNode rootNode) {
     if (rootNode == null || !isLocationHitRenderNode(context, x, y, rootNode)) {
       return null;
@@ -451,40 +468,45 @@ public class DomModel {
 
     return hitNode != null ? hitNode : rootNode;
   }
-
   public JSONObject getNodeForLocation(HippyEngineContext context, JSONObject paramsObj) {
     if (context == null || paramsObj == null) {
       return new JSONObject();
     }
-    try {
-      int x = paramsObj.optInt("x", 0);
-      int y = paramsObj.optInt("y", 0);
-      DomManager domManager = context.getDomManager();
-      RenderManager renderManager = context.getRenderManager();
-      if (domManager != null && renderManager != null) {
-        int rootId = domManager.getRootNodeId();
-        RenderNode renderNode = renderManager.getRenderNode(rootId);
-        if (renderNode.getChildCount() > 0) {
-          RenderNode rootNode = getRootRenderNode(renderNode, x, y);
-          if (rootNode != null) {
-            RenderNode hitRenderNode = getMaxDepthAndMinAreaHitRenderNode(context, x, y, rootNode);
-            JSONObject result = new JSONObject();
-            if (hitRenderNode != null) {
-              result.put("backendId", hitRenderNode.getId());
-              result.put("frameId", DEFAULT_FRAME_ID);
-              result.put("nodeId", hitRenderNode.getId());
-            }
-            return result;
-          }
-        }
+    int x = paramsObj.optInt(NODE_LOCATION_X, 0);
+    int y = paramsObj.optInt(NODE_LOCATION_Y, 0);
+    RenderNode hitRenderNode = getHitNodeForLocation(context, x, y);
+    JSONObject result = new JSONObject();
+    if (hitRenderNode != null) {
+      try {
+        result.put("backendId", hitRenderNode.getId());
+        result.put("frameId", DEFAULT_FRAME_ID);
+        result.put("nodeId", hitRenderNode.getId());
+      } catch (Exception e) {
+        LogUtils.e(TAG, "getNodeForLocation, exception:", e);
       }
-    } catch (Exception e) {
-      LogUtils.e(TAG, "getDocument, exception:", e);
     }
-    return new JSONObject();
+    return result;
   }
 
-  private RenderNode getRootRenderNode(RenderNode rootNode, int x, int y) {
+  public static RenderNode getHitNodeForLocation(HippyEngineContext context, int x, int y) {
+    if (context == null) {
+      return null;
+    }
+    DomManager domManager = context.getDomManager();
+    RenderManager renderManager = context.getRenderManager();
+    if (domManager != null && renderManager != null) {
+      int rootId = domManager.getRootNodeId();
+      RenderNode renderNode = renderManager.getRenderNode(rootId);
+      if (renderNode.getChildCount() > 0) {
+        RenderNode rootNode = getRootRenderNode(renderNode, x, y);
+        if (rootNode != null) {
+          return getMaxDepthAndMinAreaHitRenderNode(context, x, y, rootNode);
+        }
+      }
+    }
+    return null;
+  }
+  private static RenderNode getRootRenderNode(RenderNode rootNode, int x, int y) {
     if (rootNode.getWidth() > 0 && rootNode.getHeight() > 0) {
       return rootNode;
     }

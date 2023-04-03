@@ -73,11 +73,6 @@
     }
 }
 
-- (void)dealloc {
-    _responderDelegate = nil;
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
 @end
 
 @interface HippyTextView () <HippyUITextViewResponseDelegate>
@@ -103,7 +98,8 @@
     BOOL _viewDidCompleteInitialLayout;
 }
 
-//当键盘出现或改变时调用
+#pragma mark - Keyboard Events
+
 - (void)keyboardWillShow:(NSNotification *)aNotification {
     [super keyboardWillShow:aNotification];
     //获取键盘的高度
@@ -113,6 +109,13 @@
     CGFloat keyboardHeight = keyboardRect.size.height;
     if (self.isFirstResponder && _onKeyboardWillShow) {
         _onKeyboardWillShow(@{ @"keyboardHeight": @(keyboardHeight) });
+    }
+}
+
+- (void)keyboardWillHide:(NSNotification *)aNotification {
+    [super keyboardWillHide:aNotification];
+    if (_onKeyboardWillHide) {
+        _onKeyboardWillHide(@{});
     }
 }
 
@@ -129,7 +132,6 @@
 
 - (instancetype)init {
     if ((self = [super initWithFrame:CGRectZero])) {
-        //    _contentInset = UIEdgeInsetsZero;
         [self setContentInset:UIEdgeInsetsZero];
         _placeholderTextColor = [self defaultPlaceholderTextColor];
         _blurOnSubmit = NO;
@@ -146,9 +148,10 @@
         _scrollView.scrollsToTop = NO;
         [_scrollView addSubview:_textView];
 
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textFieldEditChanged:) name:UITextViewTextDidChangeNotification
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(textFieldEditChanged:)
+                                                     name:UITextViewTextDidChangeNotification
                                                    object:_textView];
-
         [self addSubview:_scrollView];
     }
     return self;
@@ -353,23 +356,20 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string) 
 
 - (void)setContentInset:(UIEdgeInsets)contentInset {
     [super setContentInset:contentInset];
-    //  _contentInset = contentInset;
     [self updateFrames];
 }
 
-- (void)textFieldEditChanged:(NSNotification *)obj {
-    if (self.isFirstResponder && _maxLength) {
-        UITextView *textField = (UITextView *)obj.object;
+- (void)checkMaxLengthAndAlterTextView:(UITextView *)textField {
+    //TODO: This old special logic needs to be optimized.
+    if (self.isFirstResponder && self.maxLength) {
         NSInteger theMaxLength = self.maxLength.integerValue;
         NSString *toBeString = textField.text;
         NSString *lang = [textField.textInputMode primaryLanguage];
         if ([lang isEqualToString:@"zh-Hans"])  // 简体中文输入
         {
-            NSString *toBeString = textField.text;
-
             UITextRange *selectedRange = [textField markedTextRange];
             UITextPosition *position = [textField positionFromPosition:selectedRange.start offset:0];
-
+            
             if (!position) {
                 if (toBeString.length > theMaxLength) {
                     NSRange rangeIndex = [toBeString rangeOfComposedCharacterSequenceAtIndex:theMaxLength];
@@ -396,97 +396,8 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string) 
     }
 }
 
-- (BOOL)textView:(HippyUITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
-    if (_onKeyPress) {
-        NSString *resultKey = text;
-        if ([text isEqualToString:@" "]) {
-            resultKey = @"space";
-        } else if ([text isEqualToString:@""]) {
-            resultKey = @"backspace";
-        } else if ([text isEqualToString:@"\n"]) {
-            resultKey = @"enter";
-        }
-        _onKeyPress(@{ @"key": resultKey });
-    }
-
-    if (textView.textWasPasted) {
-        textView.textWasPasted = NO;
-    } else {
-        if (_blurOnSubmit && [text isEqualToString:@"\n"]) {
-            // TODO: the purpose of blurOnSubmit on HippyextField is to decide if the
-            // field should lose focus when return is pressed or not. We're cheating a
-            // bit here by using it on HippyextView to decide if return character should
-            // submit the form, or be entered into the field.
-            //
-            // The reason this is cheating is because there's no way to specify that
-            // you want the return key to be swallowed *and* have the field retain
-            // focus (which was what blurOnSubmit was originally for). For the case
-            // where _blurOnSubmit = YES, this is still the correct and expected
-            // behavior though, so we'll leave the don't-blur-or-add-newline problem
-            // to be solved another day.
-            [self resignFirstResponder];
-            if (_onBlur) {
-                _onBlur(@{});
-            }
-            return NO;
-        }
-    }
-
-    // So we need to track that there is a native update in flight just in case JS manages to come back around and update
-    // things /before/ UITextView can update itself asynchronously.  If there is a native update in flight, we defer the
-    // JS update when it comes in and apply the deferred update once textViewDidChange fires with the native update applied.
-    if (_blockTextShouldChange) {
-        return NO;
-    }
-
-    _nativeUpdatesInFlight = YES;
-
-    if (range.location + range.length > _predictedText.length) {
-        // _predictedText got out of sync in a bad way, so let's just force sync it.  Haven't been able to repro this, but
-        // it's causing a real crash here: #6523822
-        _predictedText = textView.text;
-    }
-
-    NSString *previousText = [_predictedText substringWithRange:range];
-    if (_predictedText) {
-        _predictedText = [_predictedText stringByReplacingCharactersInRange:range withString:text];
-    } else {
-        _predictedText = text;
-    }
-
-    if (_onTextInput) {
-        _onTextInput(@{
-            @"text": text,
-            @"previousText": previousText ?: @"",
-            @"range": @ { @"start": @(range.location), @"end": @(range.location + range.length) },
-            @"eventCount": @(_nativeEventCount),
-        });
-    }
-
-    return YES;
-}
-
-- (void)textViewDidChangeSelection:(HippyUITextView *)textView {
-    if (_onSelectionChange && textView.selectedTextRange != _previousSelectionRange
-        && ![textView.selectedTextRange isEqual:_previousSelectionRange]) {
-        _previousSelectionRange = textView.selectedTextRange;
-
-        UITextRange *selection = textView.selectedTextRange;
-        NSInteger start = [textView offsetFromPosition:textView.beginningOfDocument toPosition:selection.start];
-        NSInteger end = [textView offsetFromPosition:textView.beginningOfDocument toPosition:selection.end];
-        _onSelectionChange(@{
-            @"selection": @ {
-                @"start": @(start),
-                @"end": @(end),
-            },
-        });
-
-        if (_onChangeText) {
-            _onChangeText(@{
-                @"text": self.text,
-            });
-        }
-    }
+- (void)textFieldEditChanged:(NSNotification *)obj {
+    [self checkMaxLengthAndAlterTextView:(UITextView *)obj.object];
 }
 
 - (NSString *)text {
@@ -567,6 +478,9 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string) 
     return _textView.autocorrectionType == UITextAutocorrectionTypeYes;
 }
 
+
+#pragma mark - UITextViewDelegate
+
 - (BOOL)textViewShouldBeginEditing:(UITextView *)textView {
     if (_selectTextOnFocus) {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -611,6 +525,84 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
     return YES;
 }
 
+- (BOOL)textView:(HippyUITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+    if (_onKeyPress) {
+        NSString *resultKey = text;
+        if ([text isEqualToString:@" "]) {
+            resultKey = @"space";
+        } else if ([text isEqualToString:@""]) {
+            resultKey = @"backspace";
+        } else if ([text isEqualToString:@"\n"]) {
+            resultKey = @"enter";
+        }
+        _onKeyPress(@{ @"key": resultKey });
+    }
+
+    if (textView.textWasPasted) {
+        textView.textWasPasted = NO;
+    } else {
+        if (_blurOnSubmit && [text isEqualToString:@"\n"]) {
+            // TODO: the purpose of blurOnSubmit on HippyextField is to decide if the
+            // field should lose focus when return is pressed or not. We're cheating a
+            // bit here by using it on HippyextView to decide if return character should
+            // submit the form, or be entered into the field.
+            //
+            // The reason this is cheating is because there's no way to specify that
+            // you want the return key to be swallowed *and* have the field retain
+            // focus (which was what blurOnSubmit was originally for). For the case
+            // where _blurOnSubmit = YES, this is still the correct and expected
+            // behavior though, so we'll leave the don't-blur-or-add-newline problem
+            // to be solved another day.
+            [self resignFirstResponder];
+            if (_onBlur) {
+                _onBlur(@{});
+            }
+            return NO;
+        }
+    }
+
+    // So we need to track that there is a native update in flight just in case JS manages to come back around and update
+    // things /before/ UITextView can update itself asynchronously.  If there is a native update in flight, we defer the
+    // JS update when it comes in and apply the deferred update once textViewDidChange fires with the native update applied.
+    if (_blockTextShouldChange) {
+        return NO;
+    }
+    
+    // maxlength related
+    if (self.maxLength != nil) {
+        if (textView.text.length > self.maxLength.integerValue &&
+            text.length > range.length) {
+            return NO;
+        }
+    }
+
+    _nativeUpdatesInFlight = YES;
+
+    if (range.location + range.length > _predictedText.length) {
+        // _predictedText got out of sync in a bad way, so let's just force sync it.  Haven't been able to repro this, but
+        // it's causing a real crash here: #6523822
+        _predictedText = textView.text;
+    }
+
+    NSString *previousText = [_predictedText substringWithRange:range];
+    if (_predictedText) {
+        _predictedText = [_predictedText stringByReplacingCharactersInRange:range withString:text];
+    } else {
+        _predictedText = text;
+    }
+
+    if (_onTextInput) {
+        _onTextInput(@{
+            @"text": text,
+            @"previousText": previousText ?: @"",
+            @"range": @ { @"start": @(range.location), @"end": @(range.location + range.length) },
+            @"eventCount": @(_nativeEventCount),
+        });
+    }
+    
+    return YES;
+}
+
 - (void)textViewDidChange:(UITextView *)textView {
     [self updatePlaceholderVisibility];
     [self updateContentSize];
@@ -635,6 +627,9 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
     if (!self.hippyTag || !_onChangeText) {
         return;
     }
+    
+    // check maxLength before send event to js
+    [self checkMaxLengthAndAlterTextView:textView];
 
     // When the context size increases, iOS updates the contentSize twice; once
     // with a lower height, then again with the correct height. To prevent a
@@ -658,13 +653,31 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
     });
 }
 
-- (void)textViewDidEndEditing:(__unused UITextView *)textView {
-    if (_onEndEditing) {
-        _onEndEditing(@{
-            @"text": textView.text,
+- (void)textViewDidChangeSelection:(HippyUITextView *)textView {
+    if (_onSelectionChange && textView.selectedTextRange != _previousSelectionRange
+        && ![textView.selectedTextRange isEqual:_previousSelectionRange]) {
+        _previousSelectionRange = textView.selectedTextRange;
+
+        UITextRange *selection = textView.selectedTextRange;
+        NSInteger start = [textView offsetFromPosition:textView.beginningOfDocument toPosition:selection.start];
+        NSInteger end = [textView offsetFromPosition:textView.beginningOfDocument toPosition:selection.end];
+        _onSelectionChange(@{
+            @"selection": @ {
+                @"start": @(start),
+                @"end": @(end),
+            },
         });
+
+        if (_onChangeText) {
+            _onChangeText(@{
+                @"text": self.text,
+            });
+        }
     }
 }
+
+
+#pragma mark - Responder Chain
 
 - (BOOL)isFirstResponder {
     return [_textView isFirstResponder];
@@ -719,7 +732,6 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
 - (void)setDefaultValue:(NSString *)defaultValue {
     if (defaultValue) {
         [self setText:defaultValue];
-
         _defaultValue = defaultValue;
     }
 }

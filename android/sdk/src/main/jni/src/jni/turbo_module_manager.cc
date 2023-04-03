@@ -25,6 +25,7 @@
 #include <cstdint>
 
 #include "bridge/runtime.h"
+#include "core/vm/v8/snapshot_collector.h"
 #include "jni/java_turbo_module.h"
 #include "jni/jni_env.h"
 #include "jni/jni_register.h"
@@ -180,5 +181,3 @@ int Install(JNIEnv* j_env, jobject j_obj, jlong j_runtime_id) {
   runner->PostTask(task);
   return 0;
 }
-
-// REGISTER_EXTERNAL_REFERENCES(GetTurboModule)

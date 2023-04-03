@@ -81,6 +81,7 @@
     "rimraf": "^2.6.3",
     "rollup": "^2.79.1",
     "rollup-plugin-api-extractor": "^0.2.5",
+    "rollup-plugin-dts": "^4.2.3",
     "rollup-plugin-flow-no-whitespace": "^1.0.0",
     "rollup-plugin-typescript2": "^0.34.0",
     "shelljs": "^0.8.5",

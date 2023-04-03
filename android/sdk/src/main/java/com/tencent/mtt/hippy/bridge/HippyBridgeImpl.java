@@ -25,6 +25,7 @@ import com.tencent.mtt.hippy.HippyEngine.V8InitParams;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.HippyArray;
+import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.devsupport.DebugWebSocketClient;
 import com.tencent.mtt.hippy.devsupport.DevRemoteDebugProxy;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
@@ -41,6 +42,7 @@ import com.tencent.mtt.hippy.serialization.string.InternalizedStringTable;
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.mtt.hippy.utils.FileUtils;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -112,6 +114,17 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
                     null, new InternalizedStringTable());
         }
     }
+
+    public static int createSnapshotFromScript(String[] script, String uri, Context context) {
+        HippyMap globalParams = new HippyMap();
+        assert (context != null);
+        HippyMap dimensionMap = DimensionsUtil.getDimensions(-1, -1, context, false);
+        globalParams.pushMap("Dimensions", dimensionMap);
+        HippyMap platformParams = new HippyMap();
+        platformParams.pushString("OS", "android");
+        globalParams.pushMap("Platform", platformParams);
+        return createSnapshot(script, uri, ArgumentUtils.objectToJson(globalParams));
+    };
 
     @Override
     public void initJSBridge(String globalConfig, final NativeCallback callback, final int groupId) {
@@ -313,6 +326,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     public void runInJsThread(Callback<Void> callback) {
       runInJsThread(mV8RuntimeId, callback);
     }
+
+    public static native int createSnapshot(String[] script, String uri, String config);
 
     public native long initJSFramework(byte[] gobalConfig, boolean useLowMemoryMode,
             boolean enableV8Serialization, boolean isDevModule, NativeCallback callback,

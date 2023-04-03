@@ -29,6 +29,7 @@
 #include "core/scope.h"
 #include "core/vm/v8/v8_vm.h"
 #include "core/vm/v8/serializer.h"
+#include "core/vm/v8/snapshot_collector.h"
 #include "core/vm/native_source_code.h"
 
 namespace hippy {
@@ -48,10 +49,6 @@ void InvokePropertyCallback(v8::Local<v8::Name> property, const v8::PropertyCall
   auto context = isolate->GetCurrentContext();
   v8::Context::Scope context_scope(context);
 
-//  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(context->GetAlignedPointerFromEmbedderData(kScopeWrapperIndex));
-//  TDF_BASE_CHECK(scope_wrapper);
-//  auto scope = scope_wrapper->scope.lock();
-//  TDF_BASE_CHECK(scope);
   CallbackInfo cb_info;
   cb_info.SetSlot(context->GetAlignedPointerFromEmbedderData(kScopeWrapperIndex));
   cb_info.SetReceiver(std::make_shared<V8CtxValue>(isolate, info.This()));
@@ -192,7 +189,7 @@ class ExternalStringResourceImpl : public v8::String::ExternalStringResource {
   size_t length_;
 };
 
-unicode_string_view V8Ctx::GetMsgDesc(v8::Local<v8::Message> message) {
+unicode_string_view V8Ctx::GetMsgDesc(v8::Local<v8::Message> message) const {
   if (message.IsEmpty()) {
     return "";
   }
@@ -263,6 +260,11 @@ unicode_string_view V8Ctx::GetStackInfo(v8::Local<v8::Message> message) const {
 
   auto trace = message->GetStackTrace();
   return GetStackTrace(trace);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CreateError(v8::Local<v8::Message> message) const {
+  auto string = message->Get();
+  return std::make_shared<V8CtxValue>(isolate_, string);
 }
 
 void V8Ctx::SetExternalData(void* address) {
@@ -1432,6 +1434,8 @@ std::shared_ptr<CtxValue> V8Ctx::DefineClass(unicode_string_view name,
   // todo(polly) static_property
   return std::make_shared<V8CtxValue>(isolate_, tpl->GetFunction(context).ToLocalChecked());
 }
+
+REGISTER_EXTERNAL_REFERENCES(InvokeJsCallback)
 
 }  // namespace napi
 }  // namespace hippy

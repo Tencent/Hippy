@@ -1189,14 +1189,14 @@
 		F4C9299F291C9B4E0078351C /* refreshview */ = {
 			isa = PBXGroup;
 			children = (
-				F4C929A0291C9B4E0078351C /* HippyRefreshWrapperItemViewManager.h */,
-				F4C929A1291C9B4E0078351C /* HippyRefreshWrapperItemView.m */,
-				F4C929A2291C9B4E0078351C /* HippyRefreshWrapperViewManager.m */,
-				F4C929A3291C9B4E0078351C /* HippyRefreshWrapper.m */,
-				F4C929A4291C9B4E0078351C /* HippyRefreshWrapperItemView.h */,
-				F4C929A5291C9B4E0078351C /* HippyRefreshWrapperItemViewManager.m */,
-				F4C929A6291C9B4E0078351C /* HippyRefreshWrapper.h */,
 				F4C929A7291C9B4E0078351C /* HippyRefreshWrapperViewManager.h */,
+				F4C929A2291C9B4E0078351C /* HippyRefreshWrapperViewManager.m */,
+				F4C929A6291C9B4E0078351C /* HippyRefreshWrapper.h */,
+				F4C929A3291C9B4E0078351C /* HippyRefreshWrapper.m */,
+				F4C929A0291C9B4E0078351C /* HippyRefreshWrapperItemViewManager.h */,
+				F4C929A5291C9B4E0078351C /* HippyRefreshWrapperItemViewManager.m */,
+				F4C929A4291C9B4E0078351C /* HippyRefreshWrapperItemView.h */,
+				F4C929A1291C9B4E0078351C /* HippyRefreshWrapperItemView.m */,
 			);
 			path = refreshview;
 			sourceTree = "<group>";
@@ -1213,14 +1213,14 @@
 		F4C929AB291C9B4E0078351C /* viewPager */ = {
 			isa = PBXGroup;
 			children = (
-				F4C929AC291C9B4E0078351C /* HippyViewPagerItemManager.h */,
+				F4C929B3291C9B4E0078351C /* HippyViewPagerManager.h */,
+				F4C929AF291C9B4E0078351C /* HippyViewPagerManager.m */,
+				F4C929B1291C9B4E0078351C /* HippyViewPager.h */,
 				F4C929AD291C9B4E0078351C /* HippyViewPager.m */,
 				F4C929AE291C9B4E0078351C /* HippyViewPagerItem.h */,
-				F4C929AF291C9B4E0078351C /* HippyViewPagerManager.m */,
 				F4C929B0291C9B4E0078351C /* HippyViewPagerItem.m */,
-				F4C929B1291C9B4E0078351C /* HippyViewPager.h */,
+				F4C929AC291C9B4E0078351C /* HippyViewPagerItemManager.h */,
 				F4C929B2291C9B4E0078351C /* HippyViewPagerItemManager.m */,
-				F4C929B3291C9B4E0078351C /* HippyViewPagerManager.h */,
 			);
 			path = viewPager;
 			sourceTree = "<group>";
@@ -1229,17 +1229,17 @@
 			isa = PBXGroup;
 			children = (
 				F4C929B5291C9B4E0078351C /* HippyBaseTextInput.h */,
-				F4C929B6291C9B4E0078351C /* HippyTextView.mm */,
-				F4C929B7291C9B4E0078351C /* HippyTextViewManager.mm */,
-				F4C929B8291C9B4E0078351C /* HippyTextField.h */,
-				F4C929B9291C9B4E0078351C /* HippyShadowTextView.mm */,
-				F4C929BA291C9B4E0078351C /* HippyTextSelection.h */,
-				F4C929BB291C9B4E0078351C /* HippyTextViewManager.h */,
 				F4C929BC291C9B4E0078351C /* HippyBaseTextInput.m */,
-				F4C929BD291C9B4E0078351C /* HippyShadowTextView.h */,
+				F4C929BB291C9B4E0078351C /* HippyTextViewManager.h */,
+				F4C929B7291C9B4E0078351C /* HippyTextViewManager.mm */,
 				F4C929BE291C9B4E0078351C /* HippyTextView.h */,
-				F4C929BF291C9B4E0078351C /* HippyTextSelection.m */,
+				F4C929B6291C9B4E0078351C /* HippyTextView.mm */,
+				F4C929BD291C9B4E0078351C /* HippyShadowTextView.h */,
+				F4C929B9291C9B4E0078351C /* HippyShadowTextView.mm */,
+				F4C929B8291C9B4E0078351C /* HippyTextField.h */,
 				F4C929C0291C9B4E0078351C /* HippyTextField.m */,
+				F4C929BA291C9B4E0078351C /* HippyTextSelection.h */,
+				F4C929BF291C9B4E0078351C /* HippyTextSelection.m */,
 			);
 			path = textinput;
 			sourceTree = "<group>";
@@ -1993,6 +1993,8 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../core/include",
 					"$(SRCROOT)/../../core/third_party/base/include",
@@ -2009,6 +2011,8 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = "NDEBUG=1";
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../core/include",

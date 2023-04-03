@@ -241,7 +241,7 @@ bool MTTNode::removeChild(uint32_t index) {
 }
 
 uint32_t MTTNode::childCount() {
-  return children.size();
+  return (uint32_t)children.size();
 }
 
 void MTTNode::setDisplayType(DisplayType displayType) {
@@ -682,7 +682,7 @@ bool MTTNode::collectFlexLines(std::vector<FlexLine*>& flexLines, MTTSize availa
   }
 
   FlexLine* line = nullptr;
-  int itemsSize = items.size();
+  unsigned long itemsSize = items.size();
   int i = 0;
   while (i < itemsSize) {
     MTTNodeRef item = items[i];
@@ -1291,7 +1291,7 @@ void MTTNode::mainAxisAlignment(std::vector<FlexLine*>& flexLines) {
 void MTTNode::crossAxisAlignment(std::vector<FlexLine*>& flexLines) {
   FlexDirection crossAxis = resolveCrossAxis();
   float sumLinesCrossSize = 0;
-  int linesCount = flexLines.size();
+  unsigned long linesCount = flexLines.size();
   for (int i = 0; i < linesCount; i++) {
     FlexLine* line = flexLines[i];
     sumLinesCrossSize += line->lineCrossSize;

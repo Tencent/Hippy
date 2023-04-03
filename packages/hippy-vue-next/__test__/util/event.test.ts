@@ -18,14 +18,17 @@
  * limitations under the License.
  */
 
-import { eventMethod } from '../../src/util/event';
+/**
+ * util/event test
+ */
+import { EventMethod } from '../../src/util/event';
 
 /**
  * event.ts unit test case
  */
 describe('src/util/event', () => {
   it('event method names should be valid', () => {
-    expect(eventMethod.ADD).toEqual('addEventListener');
-    expect(eventMethod.REMOVE).toEqual('removeEventListener');
+    expect(EventMethod.ADD).toEqual('addEventListener');
+    expect(EventMethod.REMOVE).toEqual('removeEventListener');
   });
 });

@@ -99,11 +99,6 @@
     }
 }
 
-- (void)dealloc {
-    _responderDelegate = nil;
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
 @end
 
 @interface HippyTextField () <HippyUITextFieldResponseDelegate>
@@ -122,6 +117,13 @@
     CGFloat keyboardHeight = keyboardRect.size.height;
     if (_textView.isFirstResponder && _onKeyboardWillShow) {
         _onKeyboardWillShow(@{ @"keyboardHeight": @(keyboardHeight) });
+    }
+}
+
+- (void)keyboardWillHide:(NSNotification *)aNotification {
+    [super keyboardWillHide:aNotification];
+    if (_onKeyboardWillHide) {
+        _onKeyboardWillHide(@{});
     }
 }
 
