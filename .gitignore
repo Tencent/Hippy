@@ -12,6 +12,7 @@ coverage
 dist
 node_modules
 xcuserdata
+v8forios
 
 *.log
 *.iml

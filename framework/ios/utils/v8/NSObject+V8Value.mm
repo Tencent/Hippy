@@ -21,19 +21,19 @@
  */
 
 #import "NSObject+V8Value.h"
-#import "HippyAssert.h"
+#import "HPAsserts.h"
 
 @implementation NSObject (V8Value)
 
 - (v8::Local<v8::Value>)toV8ValueInIsolate:(v8::Isolate *)isolate context:(v8::Local<v8::Context>)context {
-    HippyAssert(isolate, @"ios must not be null for object convert");
+    HPAssert(isolate, @"ios must not be null for object convert");
 #ifdef DEBUG
     BOOL isRightType = [self isKindOfClass:[NSArray class]] ||
                         [self isKindOfClass:[NSDictionary class]] ||
                         [self isKindOfClass:[NSData class]] ||
                         [self isKindOfClass:[NSString class]] ||
                         [self isKindOfClass:[NSNumber class]];
-    HippyAssert(isRightType, @"toV8ValueInIsolate is not supported by %@ class", NSStringFromClass([self class]));
+    HPAssert(isRightType, @"toV8ValueInIsolate is not supported by %@ class", NSStringFromClass([self class]));
 #endif
     v8::Local<v8::Object> object = v8::Object::New(isolate);
     return object;
@@ -44,7 +44,7 @@
 @implementation NSArray (V8Value)
 
 - (v8::Local<v8::Value>)toV8ValueInIsolate:(v8::Isolate *)isolate context:(v8::Local<v8::Context>)context {
-    HippyAssert(isolate, @"ios must not be null for array convert");
+    HPAssert(isolate, @"ios must not be null for array convert");
     size_t count = [self count];
     v8::Local<v8::Value> elements[count];
     for (size_t i = 0; i < count; i++) {
@@ -59,7 +59,7 @@
 @implementation NSDictionary (V8Value)
 
 - (v8::Local<v8::Value>)toV8ValueInIsolate:(v8::Isolate *)isolate context:(v8::Local<v8::Context>)context {
-    HippyAssert(isolate, @"ios must not be null for dictionary convert");
+    HPAssert(isolate, @"ios must not be null for dictionary convert");
     v8::Local<v8::Object> object = v8::Object::New(isolate);
     for (id key in self) {
         id value = [self objectForKey:key];
@@ -81,7 +81,7 @@ static void ArrayBufferDataDeleter(void* data, size_t length, void* deleter_data
 #endif //V8_MAJOR_VERSION >= 9
 
 - (v8::Local<v8::Value>)toV8ValueInIsolate:(v8::Isolate *)isolate context:(v8::Local<v8::Context>)context {
-    HippyAssert(isolate, @"ios must not be null for data convert");
+    HPAssert(isolate, @"ios must not be null for data convert");
     size_t length = [self length];
     void *buffer = malloc(length);
     if (!buffer) {
@@ -106,7 +106,7 @@ static void ArrayBufferDataDeleter(void* data, size_t length, void* deleter_data
 }
 
 - (v8::Local<v8::String>)toV8StringInIsolate:(v8::Isolate *)isolate {
-    HippyAssert(isolate, @"ios must not be null for string convert");
+    HPAssert(isolate, @"ios must not be null for string convert");
     const char *p = [self UTF8String]?:"";
     v8::MaybeLocal<v8::String> string = v8::String::NewFromUtf8(isolate, p);
     return string.ToLocalChecked();
@@ -117,7 +117,7 @@ static void ArrayBufferDataDeleter(void* data, size_t length, void* deleter_data
 @implementation NSNumber (V8Value)
 
 - (v8::Local<v8::Value>)toV8ValueInIsolate:(v8::Isolate *)isolate context:(v8::Local<v8::Context>)context {
-    HippyAssert(isolate, @"ios must not be null for number convert");
+    HPAssert(isolate, @"ios must not be null for number convert");
     v8::Local<v8::Value> number = v8::Number::New(isolate, [self doubleValue]);
     return number;
 }
@@ -132,6 +132,7 @@ static void ArrayBufferDataDeleter(void* data, size_t length, void* deleter_data
 
 @end
 
+id ObjectFromV8Value(v8::Local<v8::Value> value, v8::Isolate *isolate, v8::Local<v8::Context> context);
 static id ObjectFromV8MaybeValue(v8::MaybeLocal<v8::Value> maybeValue, v8::Isolate *isolate, v8::Local<v8::Context> context) {
     if (maybeValue.IsEmpty()) {
         return nil;
@@ -147,7 +148,7 @@ id ObjectFromV8Value(v8::Local<v8::Value> value, v8::Isolate *isolate, v8::Local
         return nil;
     }
     else if (value->IsString()) {
-        HippyAssert(isolate, @"isolate must not be null for string value");
+        HPAssert(isolate, @"isolate must not be null for string value");
         v8::Local<v8::String> string = value.As<v8::String>();
         int len = string->Length();
         if (string->IsOneByte()) {
@@ -164,7 +165,7 @@ id ObjectFromV8Value(v8::Local<v8::Value> value, v8::Isolate *isolate, v8::Local
         }
     }
     else if (value->IsStringObject()) {
-        HippyAssert(isolate, @"isolate must not be null for string value");
+        HPAssert(isolate, @"isolate must not be null for string value");
         v8::Local<v8::StringObject> stringObj = value.As<v8::StringObject>();
         return ObjectFromV8Value(stringObj->ValueOf(), isolate, context);
     }
@@ -237,7 +238,7 @@ id ObjectFromV8Value(v8::Local<v8::Value> value, v8::Isolate *isolate, v8::Local
         NSMutableDictionary *keysValues = [NSMutableDictionary dictionaryWithCapacity:length];
         for (uint32_t i = 0; i < length; i++) {
             v8::Local<v8::Value> key = props->Get(context, i).ToLocalChecked();
-            HippyAssert(key->IsString(), @"ObjectFromV8Value only supports keys as string");
+            HPAssert(key->IsString(), @"ObjectFromV8Value only supports keys as string");
             if (!key->IsString()) {
                 continue;
             }
@@ -252,7 +253,7 @@ id ObjectFromV8Value(v8::Local<v8::Value> value, v8::Isolate *isolate, v8::Local
 
     else {
 #ifdef DEBUG
-        HippyAssert(NO, @"no implementation ObjectFromV8Value for type %@", ObjectFromV8Value(value->TypeOf(isolate), isolate, context));
+        HPAssert(NO, @"no implementation ObjectFromV8Value for type %@", ObjectFromV8Value(value->TypeOf(isolate), isolate, context));
 #endif
         return nil;
     }

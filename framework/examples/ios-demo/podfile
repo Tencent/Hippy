@@ -1,4 +1,5 @@
 ENV["layout_engine"]="Taitank"
+# ENV["js_engine"] = "v8"
 install! 'cocoapods',
          :deterministic_uuids => false,
          :generate_multiple_pod_projects => true
