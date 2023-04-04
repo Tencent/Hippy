@@ -218,14 +218,18 @@ HIPPY_EXPORT_METHOD(resumeAnimation:(NSNumber *__nonnull)animationId) {
 
     __weak HippyExtAnimationModule *weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
+        HippyExtAnimationModule *strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
         [hippyTags enumerateObjectsUsingBlock:^(NSNumber *_Nonnull tag, __unused NSUInteger idx, __unused BOOL *stop) {
-            UIView *view = [weakSelf.bridge.uiManager viewForHippyTag:tag];
+            UIView *view = [strongSelf.bridge.uiManager viewForHippyTag:tag];
             if (!view) {
                 return;
             }
             if (view.window) {
                 [view.layer resumeLayerAnimation];
-                [weakSelf connectAnimationToView:view];
+                [strongSelf connectAnimationToView:view];
                 return;
             }
             
