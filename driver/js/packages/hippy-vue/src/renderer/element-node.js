@@ -34,7 +34,7 @@ import {
   isDev,
   whitespaceFilter,
 } from '../util';
-import { eventMethod, eventHandlerType } from '../util/event';
+import { EventMethod, EventHandlerType } from '../util/event';
 import Native from '../runtime/native';
 import { updateChild, updateWithChildren } from './native';
 import { Event, EventDispatcher, EventEmitter } from './native/event';
@@ -598,7 +598,7 @@ class ElementNode extends ViewNode {
     }
     if (typeof this.polyfillNativeEvents === 'function') {
       ({ eventNames, callback, options } = this.polyfillNativeEvents(
-        eventMethod.ADD,
+        EventMethod.ADD,
         eventNames,
         callback,
         options,
@@ -610,12 +610,12 @@ class ElementNode extends ViewNode {
       if (!this.events[nativeEventName]) {
         this.events[nativeEventName] = {
           name: nativeEventName,
-          type: eventHandlerType.ADD,
+          type: EventHandlerType.ADD,
           listener: createEventListener(nativeEventName, eventName),
           isCapture: false,
         };
-      } else if (this.events[nativeEventName] && this.events[nativeEventName].type !== eventHandlerType.ADD) {
-        this.events[nativeEventName].type = eventHandlerType.ADD;
+      } else if (this.events[nativeEventName] && this.events[nativeEventName].type !== EventHandlerType.ADD) {
+        this.events[nativeEventName].type = EventHandlerType.ADD;
       }
     });
     updateChild(this);
@@ -627,7 +627,7 @@ class ElementNode extends ViewNode {
     }
     if (typeof this.polyfillNativeEvents === 'function') {
       ({ eventNames, callback, options } = this.polyfillNativeEvents(
-        eventMethod.REMOVE,
+        EventMethod.REMOVE,
         eventNames,
         callback,
         options,
@@ -637,7 +637,7 @@ class ElementNode extends ViewNode {
     transverseEventNames(eventNames, (eventName) => {
       const nativeEventName = this.getNativeEventName(eventName);
       if (this.events[nativeEventName]) {
-        this.events[nativeEventName].type = eventHandlerType.REMOVE;
+        this.events[nativeEventName].type = EventHandlerType.REMOVE;
       }
     });
     updateChild(this);
@@ -672,7 +672,7 @@ class ElementNode extends ViewNode {
    * getBoundingClientRect
    * @deprecated
    * Get the position and size of element
-   * Because it's a async function, need await prefix.
+   * Because it's an async function, need await prefix.
    *
    * And if the element is out of visible area, result will be none.
    */
