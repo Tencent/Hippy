@@ -95,4 +95,38 @@ describe('component.test.ts', () => {
       expect(getSsrRenderFunctionBody(code)).toEqual('const _component_foo = _resolveComponent("foo")  _push(_ssrRenderComponent(_component_foo,_attrs,{default:_withCtx((_,_push,_parent,_scopeId) => {if (_push) {_push(`{"id":${_ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"data-v-12345":"",},${_scopeId}"children":[]},`)} else {return [          _createVNode("div")        ]}}),_:1 /* STABLE */},_parent))');
     });
   });
+  describe('native component compile', () => {
+    it('swiper compile', () => {
+      const { code } = compile('<swiper></swiper>');
+      expect((getSsrRenderFunctionBody(code))).toEqual('const _component_swiper = _resolveComponent("swiper")  _push(_ssrRenderComponent(_component_swiper,_attrs,null,_parent))');
+    });
+    it('swiper-slide compile', () => {
+      const { code } = compile('<swiper-slide></swiper-slide>');
+      expect((getSsrRenderFunctionBody(code))).toEqual('const _component_swiper_slide = _resolveComponent("swiper-slide")  _push(_ssrRenderComponent(_component_swiper_slide,_attrs,null,_parent))');
+    });
+    it('pull-header compile', () => {
+      const { code } = compile('<pull-header></pull-header>');
+      expect((getSsrRenderFunctionBody(code))).toEqual('const _component_pull_header = _resolveComponent("pull-header")  _push(_ssrRenderComponent(_component_pull_header,_attrs,null,_parent))');
+    });
+    it('pull-footer compile', () => {
+      const { code } = compile('<pull-footer></pull-footer>');
+      expect((getSsrRenderFunctionBody(code))).toEqual('const _component_pull_footer = _resolveComponent("pull-footer")  _push(_ssrRenderComponent(_component_pull_footer,_attrs,null,_parent))');
+    });
+    it('waterfall compile', () => {
+      const { code } = compile('<waterfall></waterfall>');
+      expect((getSsrRenderFunctionBody(code))).toEqual('const _component_waterfall = _resolveComponent("waterfall")  _push(_ssrRenderComponent(_component_waterfall,_attrs,null,_parent))');
+    });
+    it('waterfall-item compile', () => {
+      const { code } = compile('<waterfall-item></waterfall-item>');
+      expect((getSsrRenderFunctionBody(code))).toEqual('const _component_waterfall_item = _resolveComponent("waterfall-item")  _push(_ssrRenderComponent(_component_waterfall_item,_attrs,null,_parent))');
+    });
+    it('ul-refresh-wrapper compile', () => {
+      const { code } = compile('<ul-refresh-wrapper></ul-refresh-wrapper>');
+      expect((getSsrRenderFunctionBody(code))).toEqual('const _component_ul_refresh_wrapper = _resolveComponent("ul-refresh-wrapper")  _push(_ssrRenderComponent(_component_ul_refresh_wrapper,_attrs,null,_parent))');
+    });
+    it('ul-refresh compile', () => {
+      const { code } = compile('<ul-refresh></ul-refresh>');
+      expect((getSsrRenderFunctionBody(code))).toEqual('const _component_ul_refresh = _resolveComponent("ul-refresh")  _push(_ssrRenderComponent(_component_ul_refresh,_attrs,null,_parent))');
+    });
+  });
 });

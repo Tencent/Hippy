@@ -241,7 +241,7 @@ describe('render-vnode.ts', () => {
     it('render RefreshWrapper tag work correct', async () => {
       // root component
       const rootComp = defineComponent({
-        render: () => h('ul-refresh-wrapper', {
+        render: () => h('hi-ul-refresh-wrapper', {
           class: 'refresh',
         }),
       });
@@ -251,7 +251,7 @@ describe('render-vnode.ts', () => {
     it('render RefreshWrapperItemView tag work correct', async () => {
       // root component
       const rootComp = defineComponent({
-        render: () => h('ul-refresh', {
+        render: () => h('hi-refresh-wrapper-item', {
           class: 'refresh-item',
         }),
       });
@@ -261,7 +261,7 @@ describe('render-vnode.ts', () => {
     it('render Waterfall tag work correct', async () => {
       // root component
       const rootComp = defineComponent({
-        render: () => h('waterfall', {
+        render: () => h('hi-waterfall', {
           class: 'waterfall',
         }),
       });
@@ -271,7 +271,7 @@ describe('render-vnode.ts', () => {
     it('render WaterfallItem tag work correct', async () => {
       // root component
       const rootComp = defineComponent({
-        render: () => h('waterfall-item', {
+        render: () => h('hi-waterfall-item', {
           class: 'waterfall-item',
         }),
       });
@@ -455,7 +455,7 @@ describe('render-vnode.ts', () => {
     it('event map work correct for View', async () => {
       // root component
       const rootComp = defineComponent({
-        render: () => h('swiper', {
+        render: () => h('hi-swiper', {
           class: 'swiper',
           onDropped: () => {},
         }),

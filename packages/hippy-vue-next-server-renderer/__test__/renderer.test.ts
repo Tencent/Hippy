@@ -118,7 +118,7 @@ describe('renderer.ts', () => {
       expect(textNode.props).toEqual({ attributes: { id: '', class: '' }, text: 'hello' });
       expect(swiperNode.pId).toEqual(2);
       expect(swiperNode.index).toEqual(1);
-      expect(swiperNode.props).toEqual({ attributes: { id: '', class: 'wrapper' }, initialPage: undefined, pageSelected: true, pageScroll: true, pageScrollStateChanged: true });
+      expect(swiperNode.props).toEqual({ attributes: { id: '', class: 'wrapper' }, initialPage: undefined, onPageSelected: true, onPageScroll: true, onPageScrollStateChanged: true });
       expect(swiperItemNode.pId).toEqual(4);
       expect(swiperItemNode.props).toEqual({ attributes: { id: 'root-item', class: '' } });
       expect(commentNode.pId).toEqual(2);

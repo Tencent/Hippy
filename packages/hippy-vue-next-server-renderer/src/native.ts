@@ -98,24 +98,6 @@ export function getHippyNativeViewName(tag: string): string {
  * @param compName
  */
 export function getHippyTagName(compName: string): string {
+  // do not have need parse tag name now
   return compName;
-  switch (compName) {
-    case 'pull-header':
-      return 'hi-pull-header';
-    case 'pull-footer':
-      return 'hi-pull-footer';
-    case 'swiper':
-      return 'hi-swiper';
-    case 'ul-refresh-wrapper':
-      return 'hi-ul-refresh-wrapper';
-    case 'ul-refresh':
-      return 'hi-refresh-wrapper-item';
-    case 'waterfall':
-      return 'hi-waterfall';
-    case 'waterfall-item':
-      return 'hi-waterfall-item';
-    default:
-      // do not match, return default name
-      return compName;
-  }
 }
