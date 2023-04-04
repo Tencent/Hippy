@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.16.2](https://github.com/Tencent/Hippy/compare/2.16.1...2.16.2) (2023-04-04)
+
+
+### Bug Fixes
+
+* **@hippy/react-web:** fixed style when numberofLines > 1 ([bd613c4](https://github.com/Tencent/Hippy/commit/bd613c4af6723d47a0f68d09081d5d13606acece))
+
+
+
+
+
 ## [2.16.1](https://github.com/Tencent/Hippy/compare/2.16.0...2.16.1) (2023-04-03)
 
 

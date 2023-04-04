@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.16.2](https://github.com/Tencent/Hippy/compare/2.16.1...2.16.2) (2023-04-04)
+
+
+### Bug Fixes
+
+* **@hippy/react-web:** fixed style when numberofLines > 1 ([bd613c4](https://github.com/Tencent/Hippy/commit/bd613c4af6723d47a0f68d09081d5d13606acece))
+* **@hippy/react-web:** remove unused val ([a4cbb38](https://github.com/Tencent/Hippy/commit/a4cbb388c4645d610a1e6e6152439332633b6e91))
+* **ios:** fix lock when lock dealloced ([8ea3bee](https://github.com/Tencent/Hippy/commit/8ea3bee4be0beb21b79148e143e753968c5ada46))
+* **vue:** fix vNode element empty error ([189910d](https://github.com/Tencent/Hippy/commit/189910d0d7e22e9513979e8dbffdb547fd9aa1d3))
+
+
+### Features
+
+* **ios:** add log when load bundles ([110880a](https://github.com/Tencent/Hippy/commit/110880ad0d9988bfc3a675c59396ee0812ee19a0))
+
+
+
+
+
 ## [2.16.1](https://github.com/Tencent/Hippy/compare/2.16.0...2.16.1) (2023-04-03)
 
 
