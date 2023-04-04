@@ -734,6 +734,7 @@ static NSError *executeApplicationScript(NSData *script,
                                          HippyPerformanceLogger *performanceLogger,
                                          JSGlobalContextRef ctx) {
     @autoreleasepool {
+        HippyLogInfo(@"load script begin, length %zd for url %@", [script length], [sourceURL absoluteString]);
         if (isCommonBundle) {
             [performanceLogger markStartForTag:HippyPLCommonScriptExecution];
         } else {
@@ -760,6 +761,8 @@ static NSError *executeApplicationScript(NSData *script,
 
         NSError *error = jsError ? HippyNSErrorFromJSErrorRef(jsError, ctx) : nil;
         // HIPPY_PROFILE_END_EVENT(0, @"js_call");
+        HippyLogInfo(@"load script end,length %zd for url %@, error %@", [script length], [sourceURL absoluteString], [error description]);
+
         return error;
     }
 }
