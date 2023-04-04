@@ -21,8 +21,9 @@
  */
 
 #import <Foundation/Foundation.h>
-#include "driver/napi/v8/js_native_api_v8.h"
-#import "HippyDefines.h"
+#import "MacroDefines.h"
+
+#include "v8/v8.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -69,8 +70,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-HIPPY_EXTERN id ObjectFromV8Value(v8::Local<v8::Value> value, v8::Isolate *isolate, v8::Local<v8::Context> context);
+HP_EXTERN id ObjectFromV8Value(v8::Local<v8::Value> value, v8::Isolate *isolate, v8::Local<v8::Context> context);
 
-HIPPY_EXTERN NSString *TryToFetchStringFromV8Value(v8::Local<v8::Value> value, v8::Isolate *isolate);
+HP_EXTERN NSString *TryToFetchStringFromV8Value(v8::Local<v8::Value> value, v8::Isolate *isolate);
 
 NS_ASSUME_NONNULL_END

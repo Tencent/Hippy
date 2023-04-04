@@ -41,3 +41,34 @@ if [[ ${1} ]]; then
 fi
 cmake ./CMakeLists.txt -B ./dom_project -G Xcode -DMODULE_TOOLS=YES -DCMAKE_TOOLCHAIN_FILE=${ios_tool_chain_path} -DPLATFORM=OS64COMBINED -DDEPLOYMENT_TARGET=11.0 -DLAYOUT_ENGINE=${layout_engine}
 echo -e "\033[33m dom cmake build end\033[0m"
+
+if [[ "v8" == ${2} ]]; then
+	echo "use v8 js engine"
+	cd ${root_dir}
+	rm -rf v8forios
+	mkdir v8forios
+	mkdir v8forios/arm64
+	mkdir v8forios/x64
+
+	#download and unzip arm64 bundle
+	curl https://infra-packages.openhippy.com/hippy/global_packages/v8/9.8-lkgr/ios-arm64.tgz --output v8forios/arm64/arm64.tgz
+	tar zxvf v8forios/arm64/arm64.tgz -C ./v8forios/arm64
+	rm -f v8forios/arm64/arm64.tgz
+
+	#download and unzip x64 bundle
+	curl https://infra-packages.openhippy.com/hippy/global_packages/v8/9.8-lkgr/ios-x64.tgz --output v8forios/x64/x64.tgz
+	tar zxvf v8forios/x64/x64.tgz -C ./v8forios/x64
+	rm -f v8forios/x64/x64.tgz
+
+	#move header to v8forios folder
+	mkdir v8forios/v8
+	mv v8forios/arm64/include v8forios/v8/include
+
+	#merge libraries
+	lipo -create v8forios/arm64/lib/libv8_monolith.a v8forios/x64/lib/libv8_monolith.a -output v8forios/v8/libv8.a
+
+elif [[ "custom" == ${2} ]]; then
+	echo "use custom js engine"
+else
+	echo "use default jsc js engine"
+fi
