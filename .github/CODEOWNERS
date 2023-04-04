@@ -9,11 +9,11 @@
 #
 
 # universal files
-* @zoomchan-cxj
+* @churchill-zhang
 
 # cmake related
-*.cmake @medns
-CMakeLists.txt @medns
+*.cmake @churchill-zhang
+CMakeLists.txt @churchill-zhang
 
 # driver: js
 /driver/js/ @churchill-zhang @ilikethese
@@ -22,6 +22,7 @@ CMakeLists.txt @medns
 /driver/js/.eslintrc.js @zoomchan-cxj
 /driver/js/.nycrc @zoomchan-cxj
 /driver/js/tsconfig.json @zoomchan-cxj
+/driver/js/tsdoc.json @zoomchan-cxj
 /driver/js/lerna.json @zoomchan-cxj
 /driver/js/package.json @zoomchan-cxj
 /driver/js/package-lock.json @zoomchan-cxj
@@ -30,7 +31,7 @@ CMakeLists.txt @medns
 /driver/js/packages/ @zoomchan-cxj
 
 # driver: vl:
-/driver/vl/ @medns
+/driver/vl/ @churchill-zhang
 
 # framework: android
 /framework/android/ @siguangli
@@ -108,4 +109,4 @@ CMakeLists.txt @medns
 /xcodeinitscript.sh @ozonelmy
 
 # build: config
-/buildconfig/ @medns
+/buildconfig/ @churchill-zhang
