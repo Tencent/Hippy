@@ -9,11 +9,11 @@
 #
 
 # universal files
-* @zoomchan-cxj
+* @churchill-zhang
 
 # cmake related
-*.cmake @medns
-CMakeLists.txt @medns
+*.cmake @churchill-zhang
+CMakeLists.txt @churchill-zhang
 
 # driver: js
 /.eslintignore @zoomchan-cxj
@@ -64,7 +64,7 @@ CMakeLists.txt @medns
 /Hippy.xcworkspace/ @ozonelmy
 
 # build: config
-/buildconfig/ @medns
+/buildconfig/ @churchill-zhang
 
 # build: js
 /tsdoc.json @zoomchan-cxj
