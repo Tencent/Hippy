@@ -63,7 +63,7 @@ export function registerSwiper(vueApp: App): void {
   });
 
   // register swiper item tag
-  registerElement('swiper-slide', {
+  registerElement('hi-swiper-slide', {
     component: {
       name: 'ViewPagerItem',
       defaultNativeStyle: {
@@ -135,7 +135,7 @@ export function registerSwiper(vueApp: App): void {
   vueApp.component('SwiperSlide', {
     render() {
       return h(
-        'swiper-slide',
+        'hi-swiper-slide',
         {},
         this.$slots.default ? this.$slots.default() : null,
       );

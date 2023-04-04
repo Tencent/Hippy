@@ -69,23 +69,23 @@ export function getHippyNativeViewName(tag: string): string {
       return NATIVE_COMPONENT_MAP.TextInput;
     case 'iframe':
       return NATIVE_COMPONENT_MAP.WebView;
-    case 'swiper':
+    case 'hi-swiper':
       return NATIVE_COMPONENT_MAP.Swiper;
-    case 'swiper-slide':
+    case 'hi-swiper-slide':
       return NATIVE_COMPONENT_MAP.SwiperSlide;
-    case 'pull-header':
+    case 'hi-pull-header':
       return NATIVE_COMPONENT_MAP.PullHeaderView;
-    case 'pull-footer':
+    case 'hi-pull-footer':
       return NATIVE_COMPONENT_MAP.PullFooterView;
     case 'dialog':
       return NATIVE_COMPONENT_MAP.Dialog;
-    case 'ul-refresh-wrapper':
+    case 'hi-ul-refresh-wrapper':
       return NATIVE_COMPONENT_MAP.UlRefreshWrapper;
-    case 'ul-refresh':
+    case 'hi-refresh-wrapper-item':
       return NATIVE_COMPONENT_MAP.UlRefresh;
-    case 'waterfall':
+    case 'hi-waterfall':
       return NATIVE_COMPONENT_MAP.Waterfall;
-    case 'waterfall-item':
+    case 'hi-waterfall-item':
       return NATIVE_COMPONENT_MAP.WaterfallItem;
     default:
       return tag;
@@ -98,6 +98,7 @@ export function getHippyNativeViewName(tag: string): string {
  * @param compName
  */
 export function getHippyTagName(compName: string): string {
+  return compName;
   switch (compName) {
     case 'pull-header':
       return 'hi-pull-header';

@@ -116,9 +116,9 @@ function getHippyEventKeyInSSR(event: string, tagName: string): string {
       select: 'onSelectionChange',
     },
     swiper: {
-      dropped: 'pageSelected',
-      dragging: 'pageScroll',
-      stateChanged: 'pageScrollStateChanged',
+      dropped: 'onPageSelected',
+      dragging: 'onPageScroll',
+      stateChanged: 'onPageScrollStateChanged',
     },
   };
   let curEventMap = {};

@@ -134,9 +134,9 @@ function mergeDefaultNativeProps(
     case 'ViewPager':
       defaultNativeProps = { initialPage: node.props.current };
       eventMap = {
-        onDropped: 'pageSelected',
-        onDragging: 'pageScroll',
-        onStateChanged: 'pageScrollStateChanged',
+        onDropped: 'onPageSelected',
+        onDragging: 'onPageScroll',
+        onStateChanged: 'onPageScrollStateChanged',
       };
       Object.keys(eventMap).forEach((v) => {
         if (Object.prototype.hasOwnProperty.call(node.props, v)) {

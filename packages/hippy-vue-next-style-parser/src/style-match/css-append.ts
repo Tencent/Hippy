@@ -23,13 +23,50 @@
 /**
  * insert hippy style for ssr nodes
  */
-import { translateColor, type NeedToTyped } from '../index';
+import {
+  translateColor,
+  type NeedToTyped,
+  parseBackgroundImage,
+  PROPERTIES_MAP,
+  PropertiesMapType,
+} from '../index';
 import {
   getCssMap,
   type StyleNode,
   type CommonMapParams,
   type StyleNodeList,
 } from './index';
+
+interface OffsetMapType {
+  textShadowOffsetX: string;
+  textShadowOffsetY: string;
+}
+
+// regular expression of number format
+const numberRegEx = new RegExp('^(?=.+)[+-]?\\d{0,17}\\.?\\d{0,5}([Ee][+-]?\\d{1,5})?$');
+
+function tryConvertNumber<T extends string | number>(
+  str: T,
+): T extends number ? number : string | number;
+
+/**
+ * Convert strings to number as much as possible
+ */
+function tryConvertNumber(str: string | number): string | number {
+  if (typeof str === 'number') {
+    return str;
+  }
+
+  if (numberRegEx.test(str)) {
+    try {
+      return parseFloat(str);
+    } catch (err) {
+      // pass
+    }
+  }
+
+  return str;
+}
 
 /**
  * covert rem style to native pt, support custom base width
@@ -62,31 +99,6 @@ function convertRemValue(
   }
   // direct return when do not have screen size
   return value;
-}
-
-/**
- * parse rem value of style object
- *
- * @param styleObject - style object
- * @param ratioBaseWidth - base width of design draft
- */
-function parseRemStyle(
-  styleObject: CommonMapParams,
-  ratioBaseWidth?: number,
-): CommonMapParams {
-  let style: CommonMapParams = {};
-  const keys = Object.keys(styleObject);
-
-  if (keys.length) {
-    // covert every single style
-    keys.forEach((key) => {
-      style[key] = convertRemValue(styleObject[key], ratioBaseWidth);
-    });
-  } else {
-    style = styleObject;
-  }
-
-  return style;
 }
 
 /**
@@ -242,6 +254,96 @@ function parseStyleColor<T>(style): T {
 }
 
 /**
+ * parse text shadow offset
+ *
+ * @param property - property name
+ * @param value - property value
+ * @param rawStyle - original style
+ *
+ */
+function parseTextShadowOffset(
+  property: keyof OffsetMapType,
+  value = 0,
+  rawStyle: CommonMapParams,
+): [string, { [key: string]: number }] {
+  const style = rawStyle;
+  const offsetMap: OffsetMapType = {
+    textShadowOffsetX: 'width',
+    textShadowOffsetY: 'height',
+  };
+
+  style.textShadowOffset = style.textShadowOffset ?? {};
+
+  Object.assign(style.textShadowOffset, {
+    [offsetMap[property]]: value,
+  });
+
+  return ['textShadowOffset', style.textShadowOffset];
+}
+
+function parseItemStyle(styleObject) {
+  const itemStyle = {};
+  for (let [styleProperty, styleValue] of Object.entries(styleObject)) {
+    // Process the specific style value
+    switch (styleProperty) {
+      case 'fontWeight':
+        if (typeof styleValue !== 'string') {
+          styleValue = (styleValue as Object).toString();
+        }
+        break;
+      case 'backgroundImage': {
+        [styleProperty, styleValue] = parseBackgroundImage(
+          styleProperty,
+          styleValue,
+        );
+        break;
+      }
+      case 'textShadowOffsetX':
+      case 'textShadowOffsetY': {
+        [styleProperty, styleValue] = parseTextShadowOffset(
+          styleProperty,
+          styleValue as number,
+          styleObject,
+        );
+        break;
+      }
+      case 'textShadowOffset': {
+        const { x = 0, width = 0, y = 0, height = 0 } = (styleValue as any) ?? {};
+        styleValue = { width: x || width, height: y || height };
+        break;
+      }
+      default: {
+        // Convert the property to W3C standard.
+        if (
+          Object.prototype.hasOwnProperty.call(PROPERTIES_MAP, styleProperty)
+        ) {
+          styleProperty = PROPERTIES_MAP[styleProperty as keyof PropertiesMapType];
+        }
+        // Convert the value
+        if (typeof styleValue === 'string') {
+          let value: string | number = styleValue.trim();
+          // Convert inline color style to int
+          if (styleProperty.toLowerCase().indexOf('color') >= 0) {
+            value = translateColor(styleValue);
+            // Convert inline length style, drop the px unit
+          } else if (styleValue.endsWith('px')) {
+            value = parseFloat(styleValue.slice(0, styleValue.length - 2));
+          } else if (styleValue.endsWith('rem')) {
+            value = convertRemValue(styleValue);
+          } else {
+            value = tryConvertNumber(styleValue);
+          }
+          styleValue = value;
+        }
+      }
+    }
+    // assign parsed style value
+    itemStyle[styleProperty] = styleValue;
+  }
+  return itemStyle;
+}
+
+/**
  * insert style for ssr nodes
  *
  * @param nodeList - ssr node list
@@ -278,7 +380,6 @@ export function insertStyleForSsrNodes(
       // parse inner style when exist
       if (keys.length) {
         hasInnerStyle = true;
-        item.props.style = parseStyleColor(item.props.style);
         keys.forEach((key) => {
           // save original inner style
           originalInnerStyle[key] = item.props.style[key];
@@ -287,10 +388,10 @@ export function insertStyleForSsrNodes(
     }
     // inner style is the top priority, save to use later
     item.props.inlineStyle = hasInnerStyle
-      ? parseRemStyle(originalInnerStyle)
+      ? originalInnerStyle
       : {};
     // current used style, include dynamic class's style value
-    item.props.style = parseRemStyle(Object.assign(defaultNativeStyle, style, originalInnerStyle));
+    item.props.style = parseItemStyle(Object.assign(defaultNativeStyle, style, originalInnerStyle));
     // polyfill special node
     return polyfillSpecialNodeStyle(item, scrollViewContainerIdList);
   });

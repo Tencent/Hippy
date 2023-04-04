@@ -29,8 +29,8 @@ import { registerWaterfall } from './waterfall';
 
 // native tag list
 const nativeTags = [
-  'dialog', 'pull-header', 'pull-footer', 'swiper', 'swiper-slider',
-  'waterfall', 'waterfall-item', 'ul-refresh-wrapper', 'ul-refresh',
+  'dialog', 'hi-pull-header', 'hi-pull-footer', 'hi-swiper', 'hi-swiper-slider',
+  'hi-waterfall', 'hi-waterfall-item', 'hi-ul-refresh-wrapper', 'hi-refresh-wrapper-item',
 ];
 
 /**
