@@ -18,12 +18,12 @@
  * limitations under the License.
  */
 
-const eventHandlerType = {
+const EventHandlerType = {
   ADD: 0,
   REMOVE: 1,
 };
 
-const nativeEventMap = {
+const NativeEventMap = {
   onClick: 'click',
   onLongClick: 'longclick',
   // onPressIn: 'touchstart', // normalization
@@ -44,9 +44,8 @@ const DOMEventPhase = {
   BUBBLING_PHASE: 3,
 };
 
-
 function isNativeGesture(name) {
-  return !!nativeEventMap[name];
+  return !!NativeEventMap[name];
 }
 
 function translateToNativeEventName(name) {
@@ -54,15 +53,15 @@ function translateToNativeEventName(name) {
 }
 
 // event method constant
-const eventMethod = {
+const EventMethod = {
   ADD: 'addEventListener',
   REMOVE: 'removeEventListener',
 };
 
 export {
-  eventMethod,
-  eventHandlerType,
-  nativeEventMap,
+  EventMethod,
+  EventHandlerType,
+  NativeEventMap,
   DOMEventPhase,
   isNativeGesture,
   translateToNativeEventName,

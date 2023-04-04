@@ -84,8 +84,7 @@ const EventDispatcher = {
     try {
       if ([DOMEventPhase.AT_TARGET, DOMEventPhase.BUBBLING_PHASE].indexOf(eventPhase) > -1) {
         const targetEvent = new Event(originalName);
-        targetEvent.nativeParams = params || {};
-        Object.assign(targetEvent, { eventPhase });
+        Object.assign(targetEvent, { eventPhase, nativeParams: params || {} });
         if (nativeName === 'onLayout') {
           const { layout: { x, y, height, width } } = params;
           targetEvent.top = y;

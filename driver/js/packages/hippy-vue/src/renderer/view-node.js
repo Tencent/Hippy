@@ -21,7 +21,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-import { relativeToRefType } from '../util/node';
+import { RelativeToRefType, findNotToSkipNode } from '../util/node';
 import { insertChild, removeChild, moveChild } from './native';
 
 const ROOT_VIEW_ID = 0;
@@ -38,18 +38,6 @@ function getNodeId() {
     currentNodeId += 1;
   }
   return currentNodeId;
-}
-
-function findNotToSkipNode(nodes = [], startIndex = 0) {
-  let targetNode = nodes[startIndex];
-  for (let i = startIndex; i < nodes.length; i++) {
-    const node = nodes[i];
-    if (node && node.meta && !node.meta.skipAddToDom) {
-      targetNode = node;
-      break;
-    }
-  }
-  return targetNode;
 }
 
 class ViewNode {
@@ -159,7 +147,7 @@ class ViewNode {
     return insertChild(
       this,
       childNode,
-      { refId: notToSkipRefNode.nodeId, relativeToRef: relativeToRefType.BEFORE },
+      { refId: notToSkipRefNode.nodeId, relativeToRef: RelativeToRefType.BEFORE },
     );
   }
 
@@ -215,7 +203,7 @@ class ViewNode {
     return moveChild(
       this,
       childNode,
-      { refId: notToSkipRefNode.nodeId, relativeToRef: relativeToRefType.BEFORE },
+      { refId: notToSkipRefNode.nodeId, relativeToRef: RelativeToRefType.BEFORE },
     );
   }
 

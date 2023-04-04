@@ -21,7 +21,7 @@
     "importHelpers": true,                    /* Import emit helpers from 'tslib'. */
     // "downlevelIteration": true,            /* Provide full support for iterables in 'for-of', spread, and destructuring when targeting 'ES5' or 'ES3'. */
     // "isolatedModules": true,               /* Transpile each file as a separate module (similar to 'ts.transpileModule'). */
-
+    "skipLibCheck": true,
     /* Strict Type-Checking Options */
     "strict": true,                           /* Enable all strict type-checking options. */
     "noImplicitAny": false,                 /* Raise error on expressions and declarations with an implied 'any' type. */
@@ -53,10 +53,11 @@
       "shared/*": ["node_modules/vue/src/shared/*"],
       "sfc/*": ["node_modules/vue/src/sfc/*"],
       "he": ["packages/hippy-vue/src/util/entity-decoder"],
+      "@hippy-vue-next-style-parser/*": ["packages/hippy-vue-next-style-parser/src/*"],
     },
     // "rootDirs": [],                        /* List of root folders whose combined content represents the structure of the project at runtime. */
     // "typeRoots": [],                       /* List of folders to include type definitions from. */
-    "types": ["node"],                        /* Type declaration files to be included in compilation. */
+    "types": ["node", "jest"],                /* Type declaration files to be included in compilation. */
     // "allowSyntheticDefaultImports": true,  /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */
     "esModuleInterop": true,                  /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
     // "preserveSymlinks": true,              /* Do not resolve the real path of symlinks. */
@@ -74,6 +75,7 @@
   },
   "include": [
     "packages/*/src",
+    "packages/*/__test__",
     "packages/global.d.ts",
     "node_modules/@types/web/index.d.ts",
     "node_modules/@types/node/index.d.ts",
