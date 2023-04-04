@@ -74,12 +74,13 @@ function patchStyle(oldVNode, vNode) {
 }
 
 function updateStyle(oldVNode, vNode) {
+  if (!vNode.elm) return;
   const styles = patchStyle(oldVNode, vNode);
-  const { elm } = vNode;
-  elm.setStyles(styles);
+  vNode.elm.setStyles(styles);
 }
 
 function createStyle(oldVNode, vNode) {
+  if (!vNode.elm) return;
   if (!vNode.data.staticStyle) {
     updateStyle(oldVNode, vNode);
     return;
@@ -96,8 +97,7 @@ function createStyle(oldVNode, vNode) {
   if (styles) {
     Object.assign(batchStyles, styles);
   }
-  const { elm } = vNode;
-  elm.setStyles(batchStyles);
+  vNode.elm.setStyles(batchStyles);
 }
 
 export function setStyle(vNode, customElem, options = {}) {
