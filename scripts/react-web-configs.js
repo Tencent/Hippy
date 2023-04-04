@@ -22,7 +22,6 @@ const path = require('path');
 const fs = require('fs');
 const typescript = require('rollup-plugin-typescript2');
 const replace = require('@rollup/plugin-replace');
-const dts = require('rollup-plugin-dts').default;
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const { babel, getBabelOutputPlugin } = require('@rollup/plugin-babel');
 const commonjs = require('@rollup/plugin-commonjs');
