@@ -37,7 +37,7 @@ using string_view = footstone::string_view;
 using StringViewUtils = footstone::StringViewUtils;
 using JSCVM = hippy::vm::JSCVM;
 
-const char kFunctionName[] = "Function";
+constexpr char16_t kFunctionName[] = u"Function";
 constexpr char16_t kDefinePropertyStr[] = u"defineProperty";
 constexpr char16_t kPrototypeStr[] = u"prototype";
 constexpr char16_t kObjectStr[] = u"Object";
@@ -178,7 +178,13 @@ std::shared_ptr<CtxValue> JSCCtx::CreateFunction(const std::unique_ptr<FunctionW
   fn_def.attributes = kJSClassAttributeNoAutomaticPrototype;
   fn_def.initialize = [](JSContextRef ctx, JSObjectRef object) {
     JSObjectRef global = JSContextGetGlobalObject(ctx);
-    JSValueRef value = JSObjectGetProperty(ctx, global, JSStringCreateWithUTF8CString(kFunctionName), nullptr);
+    size_t length = std::char_traits<char16_t>::length(kFunctionName);
+    JSStringRef func_name = JSStringCreateWithCharacters(reinterpret_cast<const JSChar *>(kFunctionName), length);
+    if (!func_name) {
+      return;
+    }
+    JSValueRef value = JSObjectGetProperty(ctx, global, func_name, nullptr);
+    JSStringRelease(func_name);
     JSObjectRef base_func = JSValueToObject(ctx, value, nullptr);
     if (!base_func) {
       return;
