@@ -29,6 +29,7 @@
 #import <unordered_map>
 
 #import <UIKit/UIDevice.h>
+#import <CoreFoundation/CoreFoundation.h>
 
 #import "HippyAssert.h"
 #import "HippyBridge+Private.h"
@@ -288,9 +289,8 @@ static unicode_string_view NSStringToU8(NSString* str) {
                     if (!strongSelf.valid) {
                         return;
                     }
-
-                    JSStringRef execJSString = JSStringCreateWithUTF8CString(sourceCode.UTF8String);
-                    JSStringRef jsURL = JSStringCreateWithUTF8CString(sourceCodeURL.UTF8String);
+                    JSStringRef execJSString = JSStringCreateWithCFString((__bridge CFStringRef)sourceCode);
+                    JSStringRef jsURL = JSStringCreateWithCFString((__bridge CFStringRef)sourceCodeURL);
                     JSEvaluateScript([strongSelf JSGlobalContextRef], execJSString, NULL, jsURL, 0, NULL);
                     JSStringRelease(jsURL);
                     JSStringRelease(execJSString);
@@ -743,7 +743,7 @@ static NSError *executeApplicationScript(NSData *script,
         
         JSValueRef jsError = NULL;
         JSStringRef execJSString = JSStringCreateWithUTF8CString((const char *)script.bytes);
-        JSStringRef bundleURL = JSStringCreateWithUTF8CString(sourceURL.absoluteString.UTF8String);
+        JSStringRef bundleURL = JSStringCreateWithCFString((__bridge CFStringRef)sourceURL.absoluteString);
 
         NSLock *lock = jslock();
         BOOL lockSuccess = [lock lockBeforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
