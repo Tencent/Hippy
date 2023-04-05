@@ -37,7 +37,7 @@ using StringViewUtils = hippy::base::StringViewUtils;
 using JSValueWrapper = hippy::base::JSValueWrapper;
 using JSCVM = hippy::vm::JSCVM;
 
-const char kFunctionName[] = "Function";
+constexpr char16_t kFunctionName[] = u"Function";
 
 JSValueRef InvokeJsCallback(JSContextRef ctx,
                             JSObjectRef function,
@@ -83,7 +83,12 @@ std::shared_ptr<CtxValue> JSCCtx::CreateFunction(std::unique_ptr<FuncWrapper>& w
   fn_def.attributes = kJSClassAttributeNoAutomaticPrototype;
   fn_def.initialize = [](JSContextRef ctx, JSObjectRef object) {
     JSObjectRef global = JSContextGetGlobalObject(ctx);
-    JSValueRef value = JSObjectGetProperty(ctx, global, JSStringCreateWithUTF8CString(kFunctionName), nullptr);
+    JSStringRef func_name = JSStringCreateWithCharacters(reinterpret_cast<const JSChar *>(kFunctionName), arraysize(kFunctionName) - 1);
+    if (!func_name) {
+      return;
+    }
+    JSValueRef value = JSObjectGetProperty(ctx, global, func_name, nullptr);
+    JSStringRelease(func_name);
     JSObjectRef base_func = JSValueToObject(ctx, value, nullptr);
     if (!base_func) {
       return;
