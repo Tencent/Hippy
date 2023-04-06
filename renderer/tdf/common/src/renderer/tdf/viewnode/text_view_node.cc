@@ -33,7 +33,8 @@ using hippy::LayoutMeasureMode;
 
 static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<TextViewNode>> persistent_map_;
 
-TextViewNode::TextViewNode(RenderInfo info) : ViewNode(info) {}
+TextViewNode::TextViewNode(const std::shared_ptr<hippy::dom::DomNode> &dom_node, RenderInfo info)
+    : ViewNode(dom_node, info) {}
 
 void TextViewNode::SyncTextAttributes(const std::shared_ptr<hippy::DomNode>& dom_node) {
   if (!layout_view_) {

@@ -72,7 +72,7 @@ class TextViewNode : public ViewNode {
   using TextStyle = tdfcore::TextStyle;
 
  public:
-  explicit TextViewNode(const RenderInfo info);
+  explicit TextViewNode(const std::shared_ptr<hippy::dom::DomNode> &dom_node, const RenderInfo info);
 
   static void RegisterMeasureFunction(const std::shared_ptr<hippy::DomNode>& dom_node,
                                       const std::shared_ptr<TextViewNode>& view_node);

@@ -46,7 +46,8 @@ using tdfcore::ViewportEvent;
 using unicode_string_view = footstone::stringview::string_view;
 using footstone::stringview::StringViewUtils;
 
-TextInputNode::TextInputNode(const RenderInfo info) : ViewNode(info), text_selection_(-1, -1) {
+TextInputNode::TextInputNode(const std::shared_ptr<hippy::dom::DomNode> &dom_node, const RenderInfo info)
+    : ViewNode(dom_node, info), text_selection_(-1, -1) {
 }
 
 TextInputNode::~TextInputNode() { UnregisterViewportListener(); }

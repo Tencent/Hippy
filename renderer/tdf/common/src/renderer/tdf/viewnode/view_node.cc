@@ -56,8 +56,10 @@ inline namespace tdf {
 using footstone::check::checked_numeric_cast;
 using DomValueArrayType = footstone::value::HippyValue::DomValueArrayType;
 
-ViewNode::ViewNode(const RenderInfo info, std::shared_ptr<tdfcore::View> view)
-    : render_info_(info), attached_view_(std::move(view)), corrected_index_(info.index) {
+ViewNode::ViewNode(const std::shared_ptr<hippy::dom::DomNode> &dom_node, const RenderInfo info,
+                   std::shared_ptr<tdfcore::View> view)
+    : dom_node_(dom_node), render_info_(info), attached_view_(std::move(view)),
+    corrected_index_(info.index) {
   SetId(info.id);
 }
 
@@ -79,14 +81,14 @@ void ViewNode::OnCreate() {
   parent->AddChildAt(shared_from_this(), render_info_.index);
 }
 
-void ViewNode::OnUpdate(hippy::DomNode& dom_node) {
-  FOOTSTONE_DCHECK(render_info_.id == dom_node.GetRenderInfo().id);
+void ViewNode::OnUpdate(const std::shared_ptr<hippy::dom::DomNode> &dom_node) {
+  FOOTSTONE_DCHECK(render_info_.id == dom_node->GetRenderInfo().id);
   if (!IsAttached()) {
     return;
   }
   // only update the different part
-  if (dom_node.GetDiffStyle() != nullptr) {
-    HandleStyleUpdate(*(dom_node.GetDiffStyle()), *(dom_node.GetDeleteProps()));
+  if (dom_node->GetDiffStyle() != nullptr) {
+    HandleStyleUpdate(*(dom_node->GetDiffStyle()), *(dom_node->GetDeleteProps()));
   }
 }
 
@@ -260,7 +262,6 @@ tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style,
 }
 
 void ViewNode::OnDelete() {
-  // Do Not Call GetDomNode() here
   // recursively delete children at first(unmount the sub tree)
   for (auto it = children_.rbegin(); it != children_.rend(); it++) {
     (*it)->OnDelete();
@@ -482,8 +483,6 @@ void ViewNode::HandleInterceptEvent(const DomStyleMap& dom_style) {
   }
 }
 
-std::shared_ptr<hippy::DomNode> ViewNode::GetDomNode() const { return GetRootNode()->FindDomNode(render_info_.id); }
-
 void ViewNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) {
   // inherited from parent
   if (!IsAttached()) {
@@ -496,10 +495,7 @@ void ViewNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) { child->De
 
 void ViewNode::SendUIDomEvent(std::string type, const std::shared_ptr<footstone::HippyValue>& value, bool can_capture,
                               bool can_bubble) {
-  auto dom_node = GetRootNode()->FindDomNode(GetRenderInfo().id);
-  if (!dom_node) {
-    return;
-  }
+  auto dom_node = dom_node_;
   std::transform(type.begin(), type.end(), type.begin(), ::tolower);
   auto event = std::make_shared<hippy::DomEvent>(type, dom_node, can_capture, can_bubble, value);
   std::vector<std::function<void()>> ops = {[dom_node, event] { dom_node->HandleEvent(event); }};
@@ -509,11 +505,7 @@ void ViewNode::SendUIDomEvent(std::string type, const std::shared_ptr<footstone:
 void ViewNode::DoCallback(const std::string &function_name,
                           const uint32_t callback_id,
                           const std::shared_ptr<footstone::HippyValue> &value) {
-  auto dom_node = GetDomNode();
-  if (!dom_node) {
-    return;
-  }
-  auto callback = GetDomNode()->GetCallback(function_name, callback_id);
+  auto callback = dom_node_->GetCallback(function_name, callback_id);
   if (callback) {
     if(value) {
       callback(std::make_shared<DomArgument>(*value));
@@ -579,10 +571,6 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
   FOOTSTONE_DCHECK(!is_attached_);
   FOOTSTONE_DCHECK(!parent_.expired());
   FOOTSTONE_DCHECK(parent_.lock()->IsAttached());
-  auto dom_node = GetDomNode();
-  if (!dom_node) {
-    return;
-  }
 
   is_attached_ = true;
   if (view) {
@@ -605,8 +593,8 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
   }
 
   // Sync style/listener/etc
-  HandleStyleUpdate(GenerateStyleInfo(dom_node));
-  HandleLayoutUpdate(dom_node->GetRenderLayoutResult());
+  HandleStyleUpdate(GenerateStyleInfo(dom_node_));
+  HandleLayoutUpdate(dom_node_->GetRenderLayoutResult());
   HandleEventInfoUpdate();
   // recursively attach the sub ViewNode tree(sycn the tdfcore::View Tree)
   for (const auto& child : children_) {
