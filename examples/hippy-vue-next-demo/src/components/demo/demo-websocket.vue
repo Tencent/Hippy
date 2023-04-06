@@ -96,8 +96,8 @@ const wsConnect = (url: string) => {
   wsInstance.onopen = () => appendOutput(`[Opened] ${wsInstance?.url}`);
   wsInstance.onclose = () => appendOutput(`[Closed] ${wsInstance?.url}`);
   wsInstance.onerror = (error) => {
-    const newError: Event & { reason?: string } = error;
-    appendOutput(`[Error] ${newError.reason}`);
+    const newError: Event & { error?: string } = error;
+    appendOutput(`[Error] ${newError.error}`);
   };
   wsInstance.onmessage = message => appendOutput(`[Received] ${message.data}`);
 };
