@@ -21,6 +21,7 @@ Hippy 仓库根目录运行 `git clone https://github.com/Tencent/Hippy.git` 和
 对于 macOS 开发者：
 
 * [Xcode](https://developer.apple.com/xcode/) 和 iOS SDK： 用于构建 iOS App。
+* [Cocoapods](https://cocoapods.org/): 用于管理iOS工程文件。
 * [Android Studio](https://developer.android.com/studio) 和 NDK: 用于构建 Android App。
 
 对 Windows 开发者：
@@ -31,21 +32,39 @@ Hippy 仓库根目录运行 `git clone https://github.com/Tencent/Hippy.git` 和
 
 对于首次进行 iOS 开发，我们推荐优先采用 iOS 模拟器。然而你也可以修改 Xcode 配置将 app 安装到 iPhone 上。
 
-1. Hippy 根目录执行 `npm run init`。
+1. 在Hippy根目录执行命令
 
-   > 该命令由 `npm install && npx lerna bootstrap && npm run build` 组成，你也可以分别执行这几个命令。
-   >
-   > `npm install`: 安装项目所需的脚本依赖。
-   >
-   > `npx lerna bootstrap`: 安装每一个 JS 包的依赖。（Hippy 使用 [Lerna](https://lerna.js.org/) 管理多个 js 包）
-   >
-   > `npm run build`: 构建每一个 JS SDK 包。
+    ```bash
+    npm run init
+    
+    # 该命令由 `npm install && npx lerna bootstrap && npm run build` 组成，你也可以分别执行这几个命令。
+    #
+    # npm install: 安装项目所需的脚本依赖。
+    #
+    # `npx lerna bootstrap`: 安装每一个 JS 包的依赖。（Hippy 使用 [Lerna](https://lerna.js.org/) 管理多个 js 包）
+    #
+    # `npm run build`: 构建每一个 JS SDK 包。
+    ```
 
-2. 选择一个你想体验的 JS Demo，在 Hippy 项目根目录执行 `npm run buildexample [hippy-react-demo|hippy-vue-demo|hippy-vue-next-demo]`（方括号内选择你想构建的 JS Demo），执行后会将对应的 JS 相关资源文件生成到终端 Demo 目录下。
-3. 用 Xcode 打开根目录下的 `Hippy.xcworkspace`，然后进行 iOS App 构建。
+2. 选择一个你想体验的 JS Demo，在 Hippy 项目根目录执行
 
-> 如果 `步骤二` 出现异常，你也可以 `cd` 到 `examples` 下的任意一个 JS Demo 目录，执行 `npm install --legacy-peer-deps` 去安装 Demo 的依赖。
->
+    ```bash
+    npm run buildexample [hippy-react-demo|hippy-vue-demo|hippy-vue-next-demo]
+    
+    # 方括号内选择你想构建的 JS Demo，执行后会将对应的 JS 相关资源文件生成到终端 Demo 目录下。
+
+    # 如果该步骤出现异常，你也可以 `cd` 到 `examples` 下的任意一个 JS Demo 目录，执行 `npm install --legacy-peer-deps` 去安装 Demo 的依赖。
+    ```
+
+3. 打开`examples/ios-demo`目录, 使用`Cocoapods`生成工程项目文件
+
+    ```bash
+    cd examples/ios-demo
+    pod install
+    ```
+
+4. 用`Xcode`打开上一步Cocoapods生成的 `HippyDemo.xcworkspace`工程文件，进行 iOS App 构建。
+
 > 更多细节请参考 [iOS 集成章节](ios/integration).
 
 ## 使用 js demo 构建 Android App
