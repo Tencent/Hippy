@@ -22,7 +22,7 @@ on:
       - 'renderer/native/ios/**'
       - 'devtools/devtools-backend/**'
       - 'HippySDK.xcworkspace/**'
-      - 'Hippy.podspec'
+      - 'hippy.podspec'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
