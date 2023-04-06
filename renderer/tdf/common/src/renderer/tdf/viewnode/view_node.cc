@@ -524,12 +524,20 @@ std::shared_ptr<RootViewNode> ViewNode::GetRootNode() const {
 
 void ViewNode::AddChildAt(const std::shared_ptr<ViewNode>& child, int32_t index) {
   FOOTSTONE_DCHECK(!child->GetParent());
-  FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) <= children_.size());
+
+  // check index
+  auto checked_index = index;
+  if(static_cast<uint32_t>(checked_index) > children_.size()) {
+    FOOTSTONE_LOG(INFO) << "ViewNode::AddChildAt, index > children.size, index:"
+                        << checked_index << ", size:" << children_.size();
+    checked_index = static_cast<int32_t>(children_.size());
+  }
+
   // update related filed
-  children_.insert(children_.begin() + index, child);
+  children_.insert(children_.begin() + checked_index, child);
   child->SetParent(shared_from_this());
   // notify the ViewNode
-  OnChildAdd(child, index);
+  OnChildAdd(child, checked_index);
 }
 
 void ViewNode::RemoveChild(const std::shared_ptr<ViewNode>& child) {
