@@ -105,7 +105,7 @@ CMakeLists.txt @churchill-zhang
 
 # build: xcode
 /HippySDK.xcworkspace/ @ozonelmy
-/Hippy.podspec @ozonelmy
+/hippy.podspec @ozonelmy
 /xcodeinitscript.sh @ozonelmy
 
 # build: config

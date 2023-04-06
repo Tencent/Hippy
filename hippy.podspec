@@ -75,6 +75,7 @@ Pod::Spec.new do |s|
     end
     footstone.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+      'GCC_PREPROCESSOR_DEFINITIONS[config=Release]' => '${inherited} NDEBUG=1',
       'GCC_ENABLE_CPP_EXCEPTIONS' => false,
       'GCC_ENABLE_CPP_RTTI' => false,
       'HEADER_SEARCH_PATHS' => header_search_paths

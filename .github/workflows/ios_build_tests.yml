@@ -22,7 +22,7 @@ on:
       - 'renderer/native/ios/**'
       - 'devtools/devtools-backend/**'
       - 'HippySDK.xcworkspace/**'
-      - 'Hippy.podspec'
+      - 'hippy.podspec'
 
 env:
   BUILD_FUNCTION: |
