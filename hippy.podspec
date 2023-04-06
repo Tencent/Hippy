@@ -25,6 +25,7 @@ Pod::Spec.new do |s|
     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
     'GCC_ENABLE_CPP_EXCEPTIONS' => false,
     'GCC_ENABLE_CPP_RTTI' => false,
+    'GCC_PREPROCESSOR_DEFINITIONS[config=Release]' => '${inherited} NDEBUG=1',
   }
 
   s.subspec 'core' do |ss|
