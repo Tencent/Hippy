@@ -31,7 +31,8 @@ inline namespace tdf {
 
 using hippy::LayoutMeasureMode;
 
-static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<TextViewNode>> persistent_map_;
+typedef std::unordered_map<uint32_t, std::shared_ptr<TextViewNode>> TextViewNodeMap;
+static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<TextViewNodeMap>> persistent_map_;
 
 TextViewNode::TextViewNode(const std::shared_ptr<hippy::dom::DomNode> &dom_node, RenderInfo info)
     : ViewNode(dom_node, info) {}
@@ -44,7 +45,7 @@ void TextViewNode::SyncTextAttributes(const std::shared_ptr<hippy::DomNode>& dom
   HandleTextStyleUpdate(layout_view_, dom_node, GenerateStyleInfo(dom_node));
 }
 
-void TextViewNode::RegisterMeasureFunction(const std::shared_ptr<hippy::DomNode>& dom_node,
+void TextViewNode::RegisterMeasureFunction(uint32_t root_id, const std::shared_ptr<hippy::DomNode>& dom_node,
                                            const std::shared_ptr<TextViewNode>& view_node) {
   dom_node->GetLayoutNode()->SetMeasureFunction([view_node](float width, LayoutMeasureMode width_measure_mode,
                                                             float height, LayoutMeasureMode height_measure_mode,
@@ -54,28 +55,32 @@ void TextViewNode::RegisterMeasureFunction(const std::shared_ptr<hippy::DomNode>
     return layout_result;
   });
 
-  // TODO(etkmao): for multithread reason
-  std::shared_ptr<TextViewNode> result;
-  auto find = persistent_map_.Find(dom_node->GetRenderInfo().id, result);
-  if (find) {
-    persistent_map_.Erase(dom_node->GetRenderInfo().id);
+  std::shared_ptr<TextViewNodeMap> text_node_map;
+  auto find = persistent_map_.Find(root_id, text_node_map);
+  if (!find) {
+    text_node_map = std::make_shared<TextViewNodeMap>();
+    persistent_map_.Insert(root_id, text_node_map);
   }
-
-  persistent_map_.Insert(dom_node->GetRenderInfo().id, view_node);
+  text_node_map->emplace(dom_node->GetRenderInfo().id, view_node);
 }
 
-void TextViewNode::UnregisterMeasureFunction(const std::shared_ptr<hippy::DomNode>& dom_node) {
+void TextViewNode::UnregisterMeasureFunction(uint32_t root_id, const std::shared_ptr<hippy::DomNode>& dom_node) {
   dom_node->GetLayoutNode()->SetMeasureFunction(nullptr);
 
-  // TODO(etkmao): for multithread reason
-  //persistent_map_.Erase(dom_node->GetRenderInfo().id);
+  std::shared_ptr<TextViewNodeMap> text_node_map;
+  auto find = persistent_map_.Find(root_id, text_node_map);
+  if (find) {
+    text_node_map->erase(dom_node->GetRenderInfo().id);
+  }
 }
 
-std::shared_ptr<TextViewNode> TextViewNode::FindLayoutTextViewNode(const std::shared_ptr<hippy::DomNode> &dom_node) {
-  std::shared_ptr<TextViewNode> result;
-  auto find = persistent_map_.Find(dom_node->GetRenderInfo().id, result);
+std::shared_ptr<TextViewNode> TextViewNode::FindLayoutTextViewNode(uint32_t root_id, const std::shared_ptr<hippy::DomNode> &dom_node) {
+  std::shared_ptr<TextViewNodeMap> text_node_map;
+  auto find = persistent_map_.Find(root_id, text_node_map);
   FOOTSTONE_CHECK(find);
-  return result;
+  auto it = text_node_map->find(dom_node->GetRenderInfo().id);
+  FOOTSTONE_CHECK(it != text_node_map->end());
+  return it->second;
 }
 
 std::shared_ptr<tdfcore::TextView> TextViewNode::GetTextView() {

@@ -187,7 +187,7 @@ void TDFRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
       auto view_node = GetNodeCreator(node->GetViewName())(node);
       auto text_view_node = std::static_pointer_cast<tdf::TextViewNode>(view_node);
       text_view_node->SyncTextAttributes(node);
-      tdf::TextViewNode::RegisterMeasureFunction(node, text_view_node);
+      tdf::TextViewNode::RegisterMeasureFunction(root_node.lock()->GetId(), node, text_view_node);
   )
 
   FOOTSTONE_LOG(INFO) << "ModelView: Set LayoutSize";
@@ -201,14 +201,15 @@ void TDFRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
   }
 
   GET_SHELL();
-  shell->GetUITaskRunner()->PostTask([nodes, shell, root_view_node] {
+  auto root_id = root_node.lock()->GetId();
+  shell->GetUITaskRunner()->PostTask([root_id, nodes, shell, root_view_node] {
     FOOTSTONE_LOG(INFO) << "CreateNode: BEGIN";
     for (auto const& node : nodes) {
       FOOTSTONE_LOG(INFO) << "CreateNode: id:" << node->GetRenderInfo().id << " |pid:" << node->GetRenderInfo().pid;
       FOOTSTONE_DCHECK(node->GetId() == node->GetRenderInfo().id);
       std::shared_ptr<tdf::ViewNode> view_node;
       if (node->GetViewName() == tdf::kTextViewName) {
-        view_node = tdf::TextViewNode::FindLayoutTextViewNode(node);
+        view_node = tdf::TextViewNode::FindLayoutTextViewNode(root_id, node);
       } else {
         view_node = GetNodeCreator(node->GetViewName())(node);
       }
@@ -223,7 +224,7 @@ void TDFRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_node,
                                         std::vector<std::shared_ptr<DomNode>>&& nodes) {
   CHECK_ROOT()
   FOR_EACH_TEXT_NODE(
-      tdf::TextViewNode::FindLayoutTextViewNode(node)->SyncTextAttributes(node);
+      tdf::TextViewNode::FindLayoutTextViewNode(root_node.lock()->GetId(), node)->SyncTextAttributes(node);
   )
   GET_SHELL();
   shell->GetUITaskRunner()->PostTask([nodes, root_view_node] {
@@ -243,7 +244,7 @@ void TDFRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
 void TDFRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
                                         std::vector<std::shared_ptr<DomNode>>&& nodes) {
   CHECK_ROOT()
-  FOR_EACH_TEXT_NODE(tdf::TextViewNode::UnregisterMeasureFunction(node);)
+  FOR_EACH_TEXT_NODE(tdf::TextViewNode::UnregisterMeasureFunction(root_node.lock()->GetId(), node);)
   GET_SHELL();
   shell->GetUITaskRunner()->PostTask([nodes, root_view_node] {
     FOOTSTONE_LOG(INFO) << "DeleteRenderNode: BEGIN";

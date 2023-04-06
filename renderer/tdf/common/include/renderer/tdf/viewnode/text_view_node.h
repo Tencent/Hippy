@@ -74,12 +74,12 @@ class TextViewNode : public ViewNode {
  public:
   explicit TextViewNode(const std::shared_ptr<hippy::dom::DomNode> &dom_node, const RenderInfo info);
 
-  static void RegisterMeasureFunction(const std::shared_ptr<hippy::DomNode>& dom_node,
+  static void RegisterMeasureFunction(uint32_t root_id, const std::shared_ptr<hippy::DomNode>& dom_node,
                                       const std::shared_ptr<TextViewNode>& view_node);
 
-  static void UnregisterMeasureFunction(const std::shared_ptr<hippy::DomNode>& dom_node);
+  static void UnregisterMeasureFunction(uint32_t root_id, const std::shared_ptr<hippy::DomNode>& dom_node);
 
-  static std::shared_ptr<TextViewNode> FindLayoutTextViewNode(const std::shared_ptr<hippy::DomNode>& dom_node);
+  static std::shared_ptr<TextViewNode> FindLayoutTextViewNode(uint32_t root_id, const std::shared_ptr<hippy::DomNode>& dom_node);
 
   void SyncTextAttributes(const std::shared_ptr<hippy::DomNode>& dom_node);
 
