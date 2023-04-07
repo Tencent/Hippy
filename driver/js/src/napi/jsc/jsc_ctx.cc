@@ -178,8 +178,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateFunction(const std::unique_ptr<FunctionW
   fn_def.attributes = kJSClassAttributeNoAutomaticPrototype;
   fn_def.initialize = [](JSContextRef ctx, JSObjectRef object) {
     JSObjectRef global = JSContextGetGlobalObject(ctx);
-    size_t length = std::char_traits<char16_t>::length(kFunctionName);
-    JSStringRef func_name = JSStringCreateWithCharacters(reinterpret_cast<const JSChar *>(kFunctionName), length);
+    JSStringRef func_name = JSStringCreateWithCharacters(reinterpret_cast<const JSChar *>(kFunctionName), ARRAY_SIZE(kFunctionName) - 1);
     if (!func_name) {
       return;
     }
