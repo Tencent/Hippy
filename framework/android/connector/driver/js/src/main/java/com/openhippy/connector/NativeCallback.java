@@ -38,6 +38,10 @@ public abstract class NativeCallback {
         }
     }
 
+    public Handler getHandler() {
+        return mHandler;
+    }
+
     public abstract void Call(long result, Message message, String action, String reason);
 
     private final Handler mHandler;

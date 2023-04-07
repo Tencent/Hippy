@@ -74,7 +74,7 @@ REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
 
 REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
              "loadInstance",
-             "(I[BII)V",
+             "(I[BIILcom/openhippy/connector/NativeCallback;)V",
              LoadInstance)
 
 REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
@@ -211,7 +211,8 @@ void LoadInstance(JNIEnv* j_env,
                   jint j_runtime_id,
                   jbyteArray j_byte_array,
                   jint j_offset,
-                  jint j_length) {
+                  jint j_length,
+                  jobject j_callback) {
   auto buffer_data = JniUtils::AppendJavaByteArrayToBytes(j_env, j_byte_array, j_offset, j_length);
   V8BridgeUtils::LoadInstance(footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id),
                               std::move(buffer_data));

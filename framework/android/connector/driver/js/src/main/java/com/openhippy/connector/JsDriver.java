@@ -101,8 +101,8 @@ public class JsDriver implements Connector {
                 callback);
     }
 
-    public void loadInstance(byte[] buffer, int offset, int length) {
-        loadInstance(mInstanceId, buffer, offset, length);
+    public void loadInstance(byte[] buffer, int offset, int length, NativeCallback callback) {
+        loadInstance(mInstanceId, buffer, offset, length, callback);
     }
 
     public void unloadInstance(byte[] buffer, int offset, int length) {
@@ -134,7 +134,7 @@ public class JsDriver implements Connector {
     private native void onDestroy(int instanceId, boolean useLowMemoryMode, boolean isReload,
             NativeCallback callback);
 
-    private native void loadInstance(int instanceId, byte[] buffer, int offset, int length);
+    private native void loadInstance(int instanceId, byte[] buffer, int offset, int length, NativeCallback callback);
 
     private native void unloadInstance(int instanceId, byte[] buffer, int offset, int length);
 

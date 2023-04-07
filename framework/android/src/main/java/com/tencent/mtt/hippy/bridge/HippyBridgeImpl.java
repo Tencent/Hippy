@@ -16,6 +16,8 @@
 
 package com.tencent.mtt.hippy.bridge;
 
+import android.os.Handler;
+import android.os.Message;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.openhippy.connector.JSBridgeProxy;
@@ -24,11 +26,14 @@ import com.openhippy.connector.NativeCallback;
 import com.openhippy.connector.JsDriver.V8InitParams;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
+import com.tencent.mtt.hippy.utils.TimeMonitor;
+import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorGroupType;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
 import com.tencent.vfs.ResourceDataHolder;
 import com.tencent.vfs.VfsManager.FetchResourceCallback;
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -94,6 +99,7 @@ public class HippyBridgeImpl implements HippyBridge, JSBridgeProxy, DevRemoteDeb
     }
 
     private void initJSEngine(int groupId, NativeCallback callback) {
+        mContext.getMonitor().startPoint(MonitorGroupType.ENGINE_INITIALIZE, TimeMonitor.MONITOR_POINT_INIT_JS_ENGINE);
         synchronized (HippyBridgeImpl.class) {
             try {
                 String localCachePath = mContext.getGlobalConfigs().getContext().getCacheDir()
@@ -231,7 +237,16 @@ public class HippyBridgeImpl implements HippyBridge, JSBridgeProxy, DevRemoteDeb
             return;
         }
         if (functionId == HippyBridgeManagerImpl.FUNCTION_ACTION_LOAD_INSTANCE) {
-            mJsDriver.loadInstance(buffer, offset, length);
+            final WeakReference<HippyEngineContext> contextWeakRef = new WeakReference<>(mContext);
+            callback = new NativeCallback(callback.getHandler()) {
+                @Override
+                public void Call(long result, Message message, String action, String reason) {
+                    if (contextWeakRef.get() != null) {
+                        contextWeakRef.get().onLoadInstanceCompleted(result, reason);
+                    }
+                }
+            };
+            mJsDriver.loadInstance(buffer, offset, length, callback);
         } else if (functionId == HippyBridgeManagerImpl.FUNCTION_ACTION_DESTROY_INSTANCE) {
             mJsDriver.unloadInstance(buffer, offset, length);
         } else {

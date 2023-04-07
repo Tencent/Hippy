@@ -13,40 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.monitor;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.tencent.mtt.hippy.HippyRootView;
 
+import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
+import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.bridge.HippyCallNativeParams;
-import java.util.List;
+import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorGroup;
 
-@SuppressWarnings({"EmptyMethod", "unused"})
 public interface HippyEngineMonitorAdapter {
 
-    int ENGINE_LOAD_RESULT_SUCCESS = 0;
-    int ENGINE_LOAD_RESULT_ERROR = 1;
-    int ENGINE_LOAD_RESULE_TIMEOUT = 2;
+    void onEngineInitialized(EngineInitStatus statusCode, @NonNull String componentName,
+            @NonNull MonitorGroup monitorGroup);
 
-    void reportEngineLoadStart();
+    void onLoadModuleCompleted(ModuleLoadStatus statusCode, @NonNull String componentName,
+            @NonNull MonitorGroup monitorGroup);
 
-    void reportEngineLoadResult(int code, int loadTime, List<HippyEngineMonitorEvent> loadEvents,
-            Throwable e);
-
-    void reportModuleLoadComplete(HippyRootView rootView, int loadTime,
-            List<HippyEngineMonitorEvent> loadEvents);
-
-    @SuppressWarnings("SameReturnValue")
-    boolean needReportBridgeANR();
-
-    void reportBridgeANR(String message);
-
-    void reportDoCallNatives(String moduleName, String moduleFunc);
-
-    void reportGestureEventCallStack(String funcName, String msg);
-
-    void reportClickEvent(Object object, boolean isCustomEvent);
+    void onLoadInstanceCompleted(@NonNull String componentName, @NonNull MonitorGroup monitorGroup);
 
     boolean onInterceptCallNative(@NonNull String componentName,
             @NonNull HippyCallNativeParams params);
