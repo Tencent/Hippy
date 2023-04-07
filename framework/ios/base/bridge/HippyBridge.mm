@@ -54,6 +54,7 @@
 
 #include <objc/runtime.h>
 #include <sys/utsname.h>
+#include <string>
 
 #include "dom/animation/animation_manager.h"
 #include "dom/dom_manager.h"
@@ -947,6 +948,28 @@ dispatch_queue_t HippyBridgeQueue() {
     [self.eventDispatcher dispatchEvent:@"EventDispatcher"
                              methodName:@"receiveNativeEvent"
                                    args:@{@"eventName": eventName, @"extra": params ? : @{}}];
+}
+
+- (NSData *)snapShotData {
+    auto rootNode = _javaScriptExecutor.pScope->GetRootNode().lock();
+    if (!rootNode) {
+        return nil;
+    }
+    std::string data = hippy::DomManager::GetSnapShot(rootNode);
+    return [NSData dataWithBytes:reinterpret_cast<const void *>(data.c_str()) length:data.length()];
+}
+
+- (void)setSnapShotData:(NSData *)data {
+    auto domManager = _javaScriptExecutor.pScope->GetDomManager().lock();
+    if (!domManager) {
+        return;
+    }
+    auto rootNode = _javaScriptExecutor.pScope->GetRootNode().lock();
+    if (!rootNode) {
+        return;
+    }
+    std::string string(reinterpret_cast<const char *>([data bytes]), [data length]);
+    domManager->SetSnapShot(rootNode, string);
 }
 
 @end
