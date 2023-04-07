@@ -241,6 +241,11 @@ EXTERN_C uint32_t CreateDomInstance() {
 }
 
 EXTERN_C void DestroyDomInstance(uint32_t dom_manager_id) {
+  auto dom_manager = voltron::FindObject<std::shared_ptr<hippy::DomManager>>(dom_manager_id);
+  if (!dom_manager) {
+    return;
+  }
+  dom_manager->GetWorker()->Terminate();
   voltron::EraseObject(dom_manager_id);
 }
 

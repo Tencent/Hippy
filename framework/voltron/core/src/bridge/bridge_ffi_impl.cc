@@ -429,7 +429,6 @@ EXTERN_C void OnNetworkResponseInvoke(int32_t engine_id,
     FOOTSTONE_DLOG(WARNING) << "OnNetworkRequestInvoke: uri value invalid";
     return;
   }
-  auto uri = std::get<std::string>(d_uri_iter->second);
   auto req_meta = voltron::VfsWrapper::ParseHeaders(rsp_map, voltron::kReqHeadersKey);
   auto result_code = hippy::UriLoader::RetCode::Failed;
   auto result_code_iter = rsp_map->find(EncodableValue(voltron::kResultCodeKey));
@@ -470,15 +469,21 @@ EXTERN_C void OnNetworkResponseInvoke(int32_t engine_id,
 #endif
 }
 
+#ifdef ENABLE_INSPECTOR
+std::shared_ptr<footstone::WorkerManager> worker_manager;
+#endif
+
 EXTERN_C uint32_t CreateDevtoolsFFI(const char16_t* char_data_dir,
                                     const char16_t* char_ws_url) {
-  uint32_t id = 0;
+  uint32_t id;
 #ifdef ENABLE_INSPECTOR
   auto data_dir = voltron::C16CharToString(char_data_dir);
   auto ws_url = voltron::C16CharToString(char_ws_url);
   hippy::devtools::DevtoolsDataSource::SetFileCacheDir(data_dir);
-//  auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(ws_url, worker_manager);
-//  id = hippy::devtools::DevtoolsDataSource::Insert(devtools_data_source);
+  worker_manager = std::make_shared<footstone::WorkerManager>(1);
+
+  auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(ws_url, worker_manager);
+  id = hippy::devtools::DevtoolsDataSource::Insert(devtools_data_source);
   FOOTSTONE_DLOG(INFO) << "OnCreateDevtools id=" << id;
 #endif
   return id;
@@ -491,6 +496,7 @@ EXTERN_C void DestroyDevtoolsFFI(uint32_t devtools_id, int32_t is_reload) {
   bool flag = hippy::devtools::DevtoolsDataSource::Erase(devtools_id);
   FOOTSTONE_DLOG(INFO)<< "OnDestroyDevtools devtools_id=" << devtools_id << ",flag=" << flag;
   FOOTSTONE_DCHECK(flag);
+  worker_manager->Terminate();
 #endif
 }
 

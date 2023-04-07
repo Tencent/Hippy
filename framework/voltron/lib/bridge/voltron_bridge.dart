@@ -314,7 +314,7 @@ class VoltronBridgeManager implements Destroyable {
         onDestroy();
         callback(value == 0);
       },
-      true,
+      isReload,
     );
   }
 
