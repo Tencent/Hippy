@@ -32,7 +32,7 @@ import View from './view';
 
 interface ListViewItemProps {
   style?: any;
-  height: any;
+  height?: any;
   children?: any;
   type?: any;
   observer?: IntersectionObserver | null;
@@ -142,6 +142,7 @@ function ListViewItem(props: ListViewItemProps) {
   delete liElementProps.rowShouldSticky;
 
   return (
+    // @ts-ignore
     <li {...liElementProps} ref={listItemRef} rowid={getRowKey()} />
   );
 }
