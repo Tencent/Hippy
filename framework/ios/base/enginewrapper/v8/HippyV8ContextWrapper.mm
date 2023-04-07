@@ -20,15 +20,17 @@
  * limitations under the License.
  */
 
-#import "HippyAssert.h"
+#import "HPAsserts.h"
+#import "HPLog.h"
+#import "HPDriverStackFrame.h"
 #import "HippyV8ContextWrapper.h"
-#import "HippyJSStackFrame.h"
-#import "NativeRenderLog.h"
 #import "NSObject+CtxValue.h"
 #import "NSObject+V8Value.h"
 
 #include <memory.h>
-#include "driver/napi/v8/js_native_api_v8.h"
+
+#include "driver/napi/v8/v8_ctx_value.h"
+#include "driver/napi/v8/v8_ctx.h"
 
 static id StringJSONToObject(NSString *string) {
     @autoreleasepool {
@@ -38,19 +40,19 @@ static id StringJSONToObject(NSString *string) {
     }
 }
 
-static v8::Local<v8::Value> V8ValueFromCtxValue(const std::shared_ptr<hippy::napi::CtxValue> &value) {
+static v8::Local<v8::Value> V8ValueFromCtxValue(const std::shared_ptr<hippy::napi::CtxValue> &value, v8::Local<v8::Context> context) {
     auto ctxValue = std::static_pointer_cast<hippy::napi::V8CtxValue>(value);
-    v8::Local<v8::Value> v8Value = ctxValue->global_value_.Get(ctxValue->isolate_);
+    v8::Local<v8::Value> v8Value = ctxValue->global_value_.Get(context->GetIsolate());
     return v8Value;
 }
 
 static v8::Local<v8::Object> V8ObjectFromCtxValue(const std::shared_ptr<hippy::napi::CtxValue> &value,
                                                        v8::Local<v8::Context> context) {
     auto ctxValue = std::static_pointer_cast<hippy::napi::V8CtxValue>(value);
-    v8::Local<v8::Value> v8Value = ctxValue->global_value_.Get(ctxValue->isolate_);
-    HippyAssert(v8Value->IsObject(), @"value is not a object");
+    v8::Local<v8::Value> v8Value = ctxValue->global_value_.Get(context->GetIsolate());
+    HPAssert(v8Value->IsObject(), @"value is not a object");
     v8::MaybeLocal<v8::Object> maybeObject = v8Value->ToObject(context);
-    HippyAssert(!maybeObject.IsEmpty(), @"maybe object is not a object");
+    HPAssert(!maybeObject.IsEmpty(), @"maybe object is not a object");
     return maybeObject.ToLocalChecked();
 }
 
@@ -104,7 +106,7 @@ static void HandleUncaughtJsError(v8::Local<v8::Message> message, v8::Local<v8::
         v8::Isolate *isolate = message->GetIsolate();
         NSString *errorMessage = v8StringToNSString(isolate, message->Get());
         int frameCount = stack->GetFrameCount();
-        NSMutableArray<HippyJSStackFrame *> *stacks = [NSMutableArray arrayWithCapacity:frameCount];
+        NSMutableArray<HPDriverStackFrame *> *stacks = [NSMutableArray arrayWithCapacity:frameCount];
         for (int i = 0; i < frameCount; i++) {
             v8::Local<v8::StackFrame> frame = stack->GetFrame(isolate, i);
             v8::Local<v8::String> functionName = frame->GetFunctionName();
@@ -114,7 +116,10 @@ static void HandleUncaughtJsError(v8::Local<v8::Message> message, v8::Local<v8::
             }
             v8::Local<v8::String> scrName = frame->GetScriptNameOrSourceURL();
             NSString *scriptName = v8StringToNSString(isolate, scrName);
-            HippyJSStackFrame *stackFrame = [[HippyJSStackFrame alloc] initWithMethodName:funcName file:scriptName lineNumber:frame->GetLineNumber() column:frame->GetColumn()];
+            HPDriverStackFrame *stackFrame = [[HPDriverStackFrame alloc] initWithMethodName:funcName
+                                                                                       file:scriptName
+                                                                                 lineNumber:frame->GetLineNumber()
+                                                                                     column:frame->GetColumn()];
             [stacks addObject:stackFrame];
         }
         excpetionHandler(wrapper, errorMessage, [stacks copy]);
@@ -325,7 +330,8 @@ static void HandleUncaughtJsError(v8::Local<v8::Message> message, v8::Local<v8::
         v8::Local<v8::String> keyString = [key toV8StringInIsolate:isolate];
         v8::Local<v8::Value> localValue = [object toV8ValueInIsolate:isolate context:localContext];
         if (!targetObject->Set(localContext, keyString, localValue).FromMaybe(false)) {
-            NativeRenderLogWarn(@"createGlobalObject withDictionary failed, key:%@, value:%@", key, object);
+//            NativeRenderLogWarn(@"createGlobalObject withDictionary failed, key:%@, value:%@", key, object);
+            
         }
         if (tryCache.HasCaught()) {
             _exception = TryToFetchStringFromV8Value(tryCache.Exception(), isolate);
@@ -352,7 +358,7 @@ static void HandleUncaughtJsError(v8::Local<v8::Message> message, v8::Local<v8::
     v8::Context::Scope contextScope(localContext);
     v8::Local<v8::String> v8Name = [propertyName toV8StringInIsolate:isolate];
     v8::Local<v8::Object> targetObject = V8ObjectFromCtxValue(object, localContext);
-    v8::Local<v8::Value> targetValue = V8ValueFromCtxValue(value);
+    v8::Local<v8::Value> targetValue = V8ValueFromCtxValue(value, localContext);
     v8::TryCatch tryCache(isolate);
     BOOL ret = targetObject->Set(localContext, v8Name, targetValue).FromMaybe(false);
     if (tryCache.HasCaught()) {
@@ -379,7 +385,7 @@ static void HandleUncaughtJsError(v8::Local<v8::Message> message, v8::Local<v8::
     v8::Local<v8::String> v8Name = [propertyName toV8StringInIsolate:isolate];
     v8::MaybeLocal<v8::Value> maybeValue = targetObject->Get(localContext, v8Name);
     if (maybeValue.IsEmpty()) {
-        NativeRenderLogWarn(@"get property %@ for object failed", propertyName);
+        HPLog(@"get property %@ for object failed", propertyName);
         return nullptr;
     }
     v8::Local<v8::Value> value = maybeValue.ToLocalChecked();
