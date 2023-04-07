@@ -28,9 +28,7 @@ public interface HippyBridgeManager {
 
   void initBridge(Callback<Boolean> callback);
 
-  void runBundle(int id, HippyBundleLoader loader, HippyEngine.ModuleListener listener);
-
-  void notifyModuleJsException(final HippyJsException exception);
+  void runBundle(int id, HippyBundleLoader loader);
 
   void loadInstance(String name, int id, HippyMap params);
 

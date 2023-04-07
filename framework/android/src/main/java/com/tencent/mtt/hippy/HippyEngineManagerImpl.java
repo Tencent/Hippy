@@ -16,9 +16,6 @@
 package com.tencent.mtt.hippy;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +29,6 @@ import com.openhippy.framework.BuildConfig;
 import com.tencent.devtools.DevtoolsManager;
 import com.tencent.mtt.hippy.adapter.device.HippyDeviceAdapter;
 import com.tencent.mtt.hippy.adapter.executor.HippyExecutorSupplierAdapter;
-import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManager;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManagerImpl;
@@ -56,6 +52,8 @@ import com.tencent.mtt.hippy.uimanager.HippyCustomViewCreator;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
+import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorGroup;
+import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorGroupType;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.FrameworkProxy;
 import com.tencent.renderer.component.image.ImageDecoderAdapter;
@@ -76,9 +74,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         DevServerCallBack, FrameworkProxy, ThreadExecutor.UncaughtExceptionHandler {
 
     static final String TAG = "HippyEngineManagerImpl";
-
-    static final int MSG_ENGINE_INIT_TIMEOUT = 100;
-
     /**
      * global configuration
      */
@@ -115,30 +110,14 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     private final String mRemoteServerUrl;
     private ViewGroup mRootView;
     final boolean enableV8Serialization;
-
-    final TimeMonitor mStartTimeMonitor;
-    boolean mHasReportEngineLoadResult = false;
+    private final TimeMonitor mMonitor;
     private final HippyThirdPartyAdapter mThirdPartyAdapter;
     private final V8InitParams v8InitParams;
     private HashMap<String, Object> mNativeParams;
     @Nullable
     private HashMap<Integer, Callback<Boolean>> mDestroyModuleListeners;
 
-    final Handler mHandler = new Handler(Looper.getMainLooper()) {
-        @Override
-        public void handleMessage(Message msg) {
-            if (msg.what
-                    == MSG_ENGINE_INIT_TIMEOUT) {
-                reportEngineLoadResult(
-                        HippyEngineMonitorAdapter.ENGINE_LOAD_RESULE_TIMEOUT,
-                        null);
-            }
-            super.handleMessage(msg);
-        }
-    };
-
     HippyEngineManagerImpl(EngineInitParams params, HippyBundleLoader preloadBundleLoader) {
-        super();
         // create core bundle loader
         HippyBundleLoader coreBundleLoader = null;
         if (!TextUtils.isEmpty(params.coreJSAssetsPath)) {
@@ -155,44 +134,34 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         mProcessors = params.processors;
         mDebugMode = params.debugMode;
         mServerBundleName = params.debugMode ? params.debugBundleName : "";
-        mStartTimeMonitor = new TimeMonitor(!params.debugMode);
         enableV8Serialization = params.enableV8Serialization;
         mServerHost = params.debugServerHost;
         mRemoteServerUrl = params.remoteServerUrl;
         mGroupId = params.groupId;
         mThirdPartyAdapter = params.thirdPartyAdapter;
         v8InitParams = params.v8InitParams;
+        mMonitor = new TimeMonitor();
     }
 
     @Override
-    public void initEngine(EngineListener listener) {
+    public void initEngine(EngineListener listener) throws IllegalStateException {
         if (mCurrentState != EngineState.UNINIT) {
-            if (listener != null) {
-                listen(listener);
-            }
-            return;
+            throw new IllegalStateException(
+                    "Cannot repeatedly call engine initialization, current state=" + mCurrentState);
         }
-
         mCurrentState = EngineState.INITING;
         if (listener != null) {
             mEventListeners.add(listener);
         }
-
-        mGlobalConfigs.getEngineMonitorAdapter().reportEngineLoadStart();
-        mHandler.removeMessages(MSG_ENGINE_INIT_TIMEOUT);
-
         try {
             mDevSupportManager = new DevSupportManager(mGlobalConfigs, mDebugMode, mServerHost,
                     mServerBundleName, mRemoteServerUrl);
             mDevSupportManager.setDevCallback(this);
-
             if (mDebugMode) {
                 String url = mDevSupportManager.createResourceUrl(mServerBundleName);
                 mCoreBundleLoader = new HippyRemoteBundleLoader(url);
                 ((HippyRemoteBundleLoader) mCoreBundleLoader).setIsDebugMode(true);
             }
-
-            LogUtils.d(TAG, "start restartEngineInBackground...");
             restartEngineInBackground(false);
         } catch (Throwable e) {
             mCurrentState = EngineState.INITERRORED;
@@ -230,7 +199,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mNativeParams.clear();
         }
         mGlobalConfigs.destroyIfNeed();
-        moduleListener = null;
+        mModuleListener = null;
         mRootView = null;
         mExtendDatas.clear();
         mEventListeners.clear();
@@ -238,8 +207,14 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
     @Override
     public void onFirstViewAdded() {
-        if (moduleListener != null) {
-            moduleListener.onFirstViewAdded();
+        MonitorGroup monitorGroup = mEngineContext.getMonitor()
+                .endGroup(MonitorGroupType.LOAD_INSTANCE);
+        if (monitorGroup != null) {
+            mGlobalConfigs.getEngineMonitorAdapter()
+                    .onLoadInstanceCompleted(mEngineContext.getComponentName(), monitorGroup);
+        }
+        if (mModuleListener != null) {
+            mModuleListener.onFirstViewAdded();
         }
     }
 
@@ -395,7 +370,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
     @Override
     public ViewGroup loadModule(ModuleLoadParams loadParams, ModuleListener listener) {
-        moduleListener = listener;
+        mModuleListener = listener;
         moduleLoadParams = loadParams;
         checkModuleLoadParams(loadParams);
         if (loadParams.bundleLoader != null) {
@@ -493,7 +468,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     @Override
     public void preloadModule(HippyBundleLoader loader) {
         if (mEngineContext != null && mEngineContext.getBridgeManager() != null) {
-            mEngineContext.getBridgeManager().runBundle(-1, loader, null);
+            mEngineContext.getBridgeManager().runBundle(-1, loader);
         }
     }
 
@@ -528,17 +503,17 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     private void notifyModuleLoaded(final ModuleLoadStatus statusCode, final String msg) {
-        if (moduleListener != null) {
+        if (mModuleListener != null) {
             if (UIThreadUtils.isOnUiThread()) {
-                if (moduleListener != null) {
-                    moduleListener.onLoadCompleted(statusCode, msg);
+                if (mModuleListener != null) {
+                    mModuleListener.onLoadCompleted(statusCode, msg);
                 }
             } else {
                 UIThreadUtils.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (moduleListener != null) {
-                            moduleListener.onLoadCompleted(statusCode, msg);
+                        if (mModuleListener != null) {
+                            mModuleListener.onLoadCompleted(statusCode, msg);
                         }
                     }
                 });
@@ -546,56 +521,40 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
     }
 
-    void notifyEngineInitialized(EngineInitStatus statusCode, Throwable e) {
-        mHandler.removeMessages(MSG_ENGINE_INIT_TIMEOUT);
+    void notifyEngineInitialized(final EngineInitStatus statusCode, final Throwable error) {
         if (mPreloadBundleLoader != null) {
             LogUtils.d(TAG, "preload bundle loader");
             preloadModule(mPreloadBundleLoader);
         }
-
         if (UIThreadUtils.isOnUiThread()) {
-            mStartTimeMonitor.end();
-            reportEngineLoadResult(
-                    mCurrentState == EngineState.INITED
-                            ? HippyEngineMonitorAdapter.ENGINE_LOAD_RESULT_SUCCESS
-                            : HippyEngineMonitorAdapter.ENGINE_LOAD_RESULT_ERROR, e);
-            for (EngineListener listener : mEventListeners) {
-                listener.onInitialized(statusCode, e == null ? null : e.toString());
-            }
-            mEventListeners.clear();
+            onEngineInitialized(statusCode, error);
         } else {
-            final EngineInitStatus code = statusCode;
-            final Throwable error = e;
             UIThreadUtils.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (mCurrentState != EngineState.DESTROYED) {
-                        mStartTimeMonitor.end();
-                        reportEngineLoadResult(mCurrentState == EngineState.INITED
-                                ? HippyEngineMonitorAdapter.ENGINE_LOAD_RESULT_SUCCESS
-                                : HippyEngineMonitorAdapter.ENGINE_LOAD_RESULT_ERROR, error);
-                    }
-
-                    for (EngineListener listener : mEventListeners) {
-                        listener.onInitialized(code, error == null ? null : error.toString());
-                    }
-                    mEventListeners.clear();
+                    onEngineInitialized(statusCode, error);
                 }
             });
         }
     }
 
-    private void reportEngineLoadResult(int code, Throwable e) {
-        mHandler.removeMessages(MSG_ENGINE_INIT_TIMEOUT);
-        if (!mDebugMode && !mHasReportEngineLoadResult) {
-            mHasReportEngineLoadResult = true;
+    private void onEngineInitialized(EngineInitStatus statusCode, Throwable error) {
+        MonitorGroup monitorGroup = mEngineContext.getMonitor()
+                .endGroup(MonitorGroupType.ENGINE_INITIALIZE);
+        if (monitorGroup != null) {
             mGlobalConfigs.getEngineMonitorAdapter()
-                    .reportEngineLoadResult(code, mStartTimeMonitor.getTotalTime(),
-                            mStartTimeMonitor.getEvents(), e);
+                    .onEngineInitialized(statusCode, mEngineContext.getComponentName(),
+                            monitorGroup);
         }
+        for (EngineListener listener : mEventListeners) {
+            listener.onInitialized(statusCode, error == null ? null : error.toString());
+        }
+        mEventListeners.clear();
     }
 
     private synchronized void restartEngineInBackground(boolean onReLoad) {
+        mMonitor.startPoint(MonitorGroupType.ENGINE_INITIALIZE,
+                TimeMonitor.MONITOR_POINT_INIT_NATIVE_ENGINE);
         if (mCurrentState == EngineState.DESTROYED) {
             String errorMsg =
                     "restartEngineInBackground... error STATUS_WRONG_STATE, state=" + mCurrentState;
@@ -667,7 +626,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         if (!mDebugMode) {
             if (jsBundleLoader != null) {
                 mEngineContext.getBridgeManager()
-                        .runBundle(mRootView.getId(), jsBundleLoader, moduleListener);
+                        .runBundle(mRootView.getId(), jsBundleLoader);
             } else {
                 notifyModuleLoaded(ModuleLoadStatus.STATUS_VARIABLE_NULL,
                         "load module error. jsBundleLoader==null");
@@ -738,7 +697,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     public class HippyEngineContextImpl implements HippyEngineContext,
             HippyInstanceLifecycleEventListener {
 
-        private String componentName;
+        private String mComponentName;
         @NonNull
         private final HippyModuleManager mModuleManager;
         @NonNull
@@ -835,12 +794,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
 
         public void setComponentName(String componentName) {
-            this.componentName = componentName;
+            mComponentName = componentName;
         }
 
         @Override
         public String getComponentName() {
-            return componentName;
+            return mComponentName;
         }
 
         @Override
@@ -852,6 +811,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         @Override
         public HippyGlobalConfigs getGlobalConfigs() {
             return mGlobalConfigs;
+        }
+
+        @Override
+        @NonNull
+        public TimeMonitor getMonitor() {
+            return mMonitor;
         }
 
         @Override
@@ -947,8 +912,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 if (throwable instanceof HippyJsException) {
                     mGlobalConfigs.getExceptionHandler()
                             .handleJsException((HippyJsException) throwable);
-                    mEngineContext.getBridgeManager()
-                            .notifyModuleJsException((HippyJsException) throwable);
+                    if (mModuleListener != null) {
+                        mModuleListener.onJsException((HippyJsException) throwable);
+                    }
                 } else {
                     mGlobalConfigs.getExceptionHandler()
                             .handleNativeException(new RuntimeException(throwable), true);
@@ -1013,6 +979,24 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                     }
                 }
             });
+        }
+
+        @Override
+        public void onLoadModuleCompleted(ModuleLoadStatus statusCode, @Nullable String msg) {
+            notifyModuleLoaded(statusCode, msg);
+            MonitorGroup monitorGroup = mEngineContext.getMonitor()
+                    .endGroup(MonitorGroupType.RUN_JS_BUNDLE);
+            if (monitorGroup != null) {
+                mGlobalConfigs.getEngineMonitorAdapter()
+                        .onLoadModuleCompleted(statusCode, mEngineContext.getComponentName(),
+                                monitorGroup);
+            }
+        }
+
+        @Override
+        public void onLoadInstanceCompleted(long result, String reason) {
+            mEngineContext.getMonitor().startPoint(MonitorGroupType.LOAD_INSTANCE,
+                    TimeMonitor.MONITOR_POINT_FIRST_FRAME);
         }
 
         public void destroyBridge(boolean isReload) {
