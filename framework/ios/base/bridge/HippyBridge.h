@@ -287,6 +287,11 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 #pragma mark event dispatcher
 - (void)sendEvent:(NSString *)eventName params:(NSDictionary *_Nullable)params;
 
+#pragma mark snapshot
+- (NSData *)snapShotData;
+
+- (void)setSnapShotData:(NSData *)data;
+
 @end
 
 HP_EXTERN void HippyBridgeFatal(NSError *, HippyBridge *);

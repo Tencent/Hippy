@@ -72,6 +72,11 @@ typedef void(^_Nullable HippyBridgeBundleLoadCompletion)(NSURL *_Nullable, NSErr
 #pragma mark event
 - (void)sendEvent:(NSString *)eventName params:(NSDictionary *_Nullable)params;
 
+#pragma mark snap shot
+- (NSData *)snapShotData;
+
+- (void)setSnapShotData:(NSData *)data;
+
 @end
 
 NS_ASSUME_NONNULL_END
