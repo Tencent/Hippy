@@ -914,29 +914,6 @@ dispatch_queue_t HippyBridgeQueue() {
     return [_bundleURLs copy];
 }
 
-+ (NSString *)defaultHippyLocalFileScheme {
-    // hpfile://
-    return @"hpfile://";
-}
-
-+ (BOOL)isHippyLocalFileURLString:(NSString *)string {
-    return [string hasPrefix:[HippyBridge defaultHippyLocalFileScheme]];
-}
-
-- (NSString *)absoluteStringFromHippyLocalFileURLString:(NSString *)string {
-    if ([HippyBridge isHippyLocalFileURLString:string]) {
-        NSString *filePrefix = [HippyBridge defaultHippyLocalFileScheme];
-        NSString *relativeString = string;
-        if ([string hasPrefix:filePrefix]) {
-            NSRange range = NSMakeRange(0, [filePrefix length]);
-            relativeString = [string stringByReplacingOccurrencesOfString:filePrefix withString:@"" options:0 range:range];
-        }
-        NSURL *localFileURL = [NSURL URLWithString:relativeString relativeToURL:self.sandboxDirectory];
-        return [localFileURL path];
-    }
-    return nil;
-}
-
 - (void)setContextName:(NSString *)contextName {
     if (![_contextName isEqualToString:contextName]) {
         _contextName = [contextName copy];
