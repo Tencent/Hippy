@@ -127,7 +127,7 @@ const Text: React.FC<TextProps> = React.forwardRef((props: TextProps, ref) => {
     };
   }
   // Ellipsis should be set to 'display' not equal to 'flex'
-  if (typeof nStyle.display === 'undefined' && numberOfLines > 0) {
+  if (typeof newStyle.display === 'undefined' && typeof nStyle.display === 'undefined' && numberOfLines > 0) {
     newStyle.display = 'inline-block';
   }
 
