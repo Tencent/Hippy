@@ -276,14 +276,6 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 @property (nonatomic, strong) NSURL *sandboxDirectory;
 
-/**
- * get absolute url string relative to param 'string'
- * @param string a relative url path to secondary bundle path
- */
-- (NSString *)absoluteStringFromHippyLocalFileURLString:(NSString *)string;
-
-+ (BOOL)isHippyLocalFileURLString:(NSString *)string;
-
 #pragma mark event dispatcher
 - (void)sendEvent:(NSString *)eventName params:(NSDictionary *_Nullable)params;
 

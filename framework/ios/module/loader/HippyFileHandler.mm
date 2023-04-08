@@ -44,23 +44,32 @@ void HippyFileHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob
 
 void HippyFileHandler::RequestUntrustedContent(NSURLRequest *request, VFSHandlerProgressBlock progress,
                                                VFSHandlerCompletionBlock completion, VFSGetNextHandlerBlock next) {
-    HippyBridge *bridge = bridge_;
     if (!completion) {
         return;
     }
+    HippyBridge *bridge = bridge_;
     if (!bridge || !request) {
         completion(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
         return;
     }
-    NSString *urlString = [[request URL] absoluteString];
-    if (!urlString) {
+    NSURL *url = [request URL];
+    if (!url) {
         completion(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
         return;
     }
-    if ([HippyBridge isHippyLocalFileURLString:urlString]) {
-        urlString = [bridge absoluteStringFromHippyLocalFileURLString:urlString];
+    static NSString *defaultHippyLocalFileURLPrefixString = @"hpfile://.";
+    NSURL *absoluteURL = nil;
+    if ([[url absoluteString] hasPrefix:defaultHippyLocalFileURLPrefixString]) {
+        NSString *path = [[url absoluteString] substringFromIndex:[defaultHippyLocalFileURLPrefixString length] - 1];
+        absoluteURL = [NSURL fileURLWithPath:path
+                               relativeToURL:bridge.sandboxDirectory];
+    }
+    else {
+        FOOTSTONE_DLOG(ERROR) << "HippyFileHandler cannot load url " << [[url absoluteString] UTF8String];
+        completion(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
+        return;
     }
     NSMutableURLRequest *req = [request mutableCopy];
-    [req setURL:HPURLWithString(urlString, nil)];
+    [req setURL:absoluteURL];
     VFSUriHandler::RequestUntrustedContent(req, progress, completion, next);
 }
