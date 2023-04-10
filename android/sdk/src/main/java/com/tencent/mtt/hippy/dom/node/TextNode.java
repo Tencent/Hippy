@@ -181,7 +181,7 @@ public class TextNode extends StyleNode {
   }
 
   @SuppressWarnings("unused")
-  @HippyControllerProps(name = NodeProps.COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+  @HippyControllerProps(name = NodeProps.COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.BLACK)
   public void color(Integer color) {
     mColor = color;
     markUpdated();
@@ -209,15 +209,6 @@ public class TextNode extends StyleNode {
   public void fontFamily(String fontFamily) {
     mFontFamily = fontFamily;
     markUpdated();
-  }
-
-  @Override
-  public void updateProps(HippyMap props) {
-    super.updateProps(props);
-    HippyMap styleMap = (HippyMap) props.get(NodeProps.STYLE);
-    if (styleMap != null && styleMap.get(NodeProps.COLOR) == null) {
-      styleMap.pushInt(NodeProps.COLOR, Color.BLACK);
-    }
   }
 
   private static int parseArgument(String wight) {
