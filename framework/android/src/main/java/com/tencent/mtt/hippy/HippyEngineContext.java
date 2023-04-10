@@ -22,10 +22,12 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.devtools.DevtoolsManager;
+import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManager;
 import com.tencent.mtt.hippy.common.ThreadExecutor;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
+import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.vfs.VfsManager;
 import java.util.HashMap;
 
@@ -38,6 +40,9 @@ public interface HippyEngineContext {
 
     @NonNull
     VfsManager getVfsManager();
+
+    @NonNull
+    TimeMonitor getMonitor();
 
     HippyGlobalConfigs getGlobalConfigs();
 
@@ -72,4 +77,8 @@ public interface HippyEngineContext {
     void onRuntimeInitialized();
 
     void onBridgeDestroyed(boolean isReload, Throwable e);
+
+    void onLoadModuleCompleted(ModuleLoadStatus statusCode, @Nullable String msg);
+
+    void onLoadInstanceCompleted(long result, String reason);
 }

@@ -74,7 +74,7 @@ public abstract class HippyEngine {
   volatile EngineState mCurrentState = EngineState.UNINIT;
   // Engine所属的分组ID，同一个组共享线程和isolate，不同context
   protected int mGroupId;
-  ModuleListener moduleListener;
+  ModuleListener mModuleListener;
 
   private static HippyLogAdapter sLogAdapter = null;
   @SuppressWarnings("JavaJniMissingFunction")

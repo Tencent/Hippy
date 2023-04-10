@@ -233,6 +233,14 @@ static BOOL SelectorBelongsToProtocol(SEL selector, Protocol *protocol) {
     [self.bridge sendEvent:eventName params:params];
 }
 
+- (NSData *)snapShotData {
+    return [_bridge snapShotData];
+}
+
+- (void)setSnapShotData:(NSData *)data {
+    [_bridge setSnapShotData:data];
+}
+
 - (void)dealloc {
     if (_rootNode) {
         _rootNode->ReleaseResources();

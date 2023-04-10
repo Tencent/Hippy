@@ -13,58 +13,58 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.monitor;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.tencent.mtt.hippy.HippyRootView;
 
+import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
+import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.bridge.HippyCallNativeParams;
-import java.util.List;
+import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorGroup;
+import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorPoint;
+import java.util.ArrayList;
 
-@SuppressWarnings({"unused"})
 public class DefaultEngineMonitorAdapter implements HippyEngineMonitorAdapter {
 
-    @Override
-    public void reportEngineLoadStart() {
+    private static final String TAG = "DefaultEngineMonitorAdapter";
 
+    protected void printGroupTime(@NonNull MonitorGroup monitorGroup) {
+        ArrayList<MonitorPoint> monitorPoints = monitorGroup.getMonitorPoints();
+        if (monitorPoints != null) {
+            for (MonitorPoint monitorPoint : monitorPoints) {
+                LogUtils.i(TAG,
+                        monitorPoint.key + ": " + (monitorPoint.endTime - monitorPoint.startTime)
+                                + "ms");
+            }
+        }
+        LogUtils.i(TAG, "total time: " + monitorGroup.totalTime);
     }
 
     @Override
-    public void reportEngineLoadResult(int code, int loadTime,
-            List<HippyEngineMonitorEvent> loadEvents, Throwable e) {
-
+    public void onEngineInitialized(EngineInitStatus statusCode, @NonNull String componentName,
+            @NonNull MonitorGroup monitorGroup) {
+        LogUtils.i(TAG,
+                componentName + " engine initialization completed with result: " + statusCode);
+        printGroupTime(monitorGroup);
     }
 
     @Override
-    public void reportModuleLoadComplete(HippyRootView rootView, int loadTime,
-            List<HippyEngineMonitorEvent> loadEvents) {
-
+    public void onLoadModuleCompleted(ModuleLoadStatus statusCode, @NonNull String componentName,
+            @NonNull MonitorGroup monitorGroup) {
+        LogUtils.i(TAG,
+                componentName + " load module completed with result: " + statusCode);
+        printGroupTime(monitorGroup);
     }
 
     @Override
-    public boolean needReportBridgeANR() {
-        return false;
-    }
-
-    @Override
-    public void reportBridgeANR(String message) {
-
-    }
-
-    @Override
-    public void reportDoCallNatives(String moduleName, String moduleFunc) {
-
-    }
-
-    @Override
-    public void reportGestureEventCallStack(String funcName, String msg) {
-
-    }
-
-    @Override
-    public void reportClickEvent(Object object, boolean isCustomEvent) {
-
+    public void onLoadInstanceCompleted(@NonNull String componentName,
+            @NonNull MonitorGroup monitorGroup) {
+        LogUtils.i(TAG,
+                componentName + " load instance completed with first view added");
+        printGroupTime(monitorGroup);
     }
 
     @Override
@@ -80,8 +80,8 @@ public class DefaultEngineMonitorAdapter implements HippyEngineMonitorAdapter {
 
     @Override
     public boolean onInterceptPromiseCallback(@NonNull String componentName,
-            @NonNull String moduleName,
-            @NonNull String funcName, @NonNull String callBackId, @Nullable Object callbackResult) {
+            @NonNull String moduleName, @NonNull String funcName, @NonNull String callBackId,
+            @Nullable Object callbackResult) {
         return false;
     }
 }
