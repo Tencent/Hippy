@@ -23,6 +23,7 @@
 #pragma once
 
 #include <JavaScriptCore/JavaScriptCore.h>
+#include <CoreFoundation/CoreFoundation.h>
 #include <stdio.h>
 
 #include <mutex>
@@ -89,15 +90,15 @@ public:
     is_exception_handled_ = is_exception_handled;
   }
   
-  inline void SetName(const char *name) {
+  inline void SetName(const CFStringRef name) {
     if (!name) {
       return;
     }
-    JSStringRef js_name = JSStringCreateWithUTF8CString(name);
+    JSStringRef js_name = JSStringCreateWithCFString(name);
     JSGlobalContextSetName(context_, js_name);
     JSStringRelease(js_name);
   }
-  
+    
   virtual std::shared_ptr<CtxValue> DefineProxy(const std::unique_ptr<FunctionWrapper>& wrapper) override;
   
   virtual std::shared_ptr<CtxValue> DefineClass(string_view name,

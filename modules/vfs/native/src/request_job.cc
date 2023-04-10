@@ -25,20 +25,23 @@
 namespace hippy {
 inline namespace vfs {
 
-RequestJob::RequestJob(const string_view& uri,
-                       std::unordered_map<std::string, std::string> meta):
-                       RequestJob(uri, std::move(meta), nullptr) {}
+RequestJob::RequestJob(const RequestJob::string_view& uri,
+                       std::unordered_map<std::string, std::string> meta,
+                       std::unique_ptr<WorkerManager>& worker_manager):
+                       RequestJob(uri, std::move(meta), worker_manager, nullptr) {}
 
 RequestJob::RequestJob(const RequestJob::string_view& uri,
                        std::unordered_map<std::string, std::string> meta,
+                       std::unique_ptr<WorkerManager>& worker_manager,
                        std::function<void(int64_t current, int64_t total)> progress_cb):
-                       RequestJob(uri, std::move(meta), std::move(progress_cb), "") {}
+                       RequestJob(uri, std::move(meta), worker_manager,
+                                                   std::move(progress_cb), "") {}
 
-RequestJob::RequestJob(const RequestJob::string_view& uri,
-                       std::unordered_map<std::string, std::string> meta,
-                       std::function<void(int64_t current, int64_t total)> progress_cb,
-                       bytes&& buffer): uri_(uri), meta_(std::move(meta)),
-                       progress_cb_(std::move(progress_cb)), buffer_(std::move(buffer)) {}
+RequestJob::RequestJob(const string_view& uri, std::unordered_map<std::string, std::string> meta,
+                       std::unique_ptr<WorkerManager>& worker_manager,
+                       std::function<void(int64_t current, int64_t total)> progress_cb, bytes&& buffer):
+           uri_(uri), meta_(std::move(meta)), worker_manager_(worker_manager),
+           progress_cb_(std::move(progress_cb)), buffer_(std::move(buffer)) {}
 
 }
 }

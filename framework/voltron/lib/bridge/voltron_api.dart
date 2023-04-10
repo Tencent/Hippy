@@ -179,7 +179,7 @@ class VoltronApi {
     bool isDevModule = false,
     required int groupId,
     required int engineId,
-    required int workerManagerId,
+    required int vfsId,
     required int domId,
     required CommonCallback callback,
     required int devtoolsId,
@@ -192,7 +192,7 @@ class VoltronApi {
       enableVoltronBuffer ? 0 : 1,
       isDevModule ? 1 : 0,
       groupId,
-      workerManagerId,
+      vfsId,
       domId,
       engineId,
       generateCallback(
@@ -427,12 +427,10 @@ class VoltronApi {
   }
 
   static Future<int> createDevtools({
-    required int workerManagerId,
     String dataDir = '',
     String wsUrl = '',
   }) async {
     return _BridgeFFIManager.instance.createDevtools(
-      workerManagerId,
       dataDir.toNativeUtf16(),
       wsUrl.toNativeUtf16(),
     );

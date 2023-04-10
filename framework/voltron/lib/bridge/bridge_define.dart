@@ -245,13 +245,11 @@ typedef ReportJsException = Void Function(
 );
 
 typedef CreateDevtoolsDartType = int Function(
-  int workerManagerId,
   Pointer<Utf16> dataDir,
   Pointer<Utf16> wsUrl,
 );
 
 typedef CreateDevtoolsFfiNativeType = Uint32 Function(
-  Uint32 workManagerId,
   Pointer<Utf16> dataDir,
   Pointer<Utf16> wsUrl,
 );

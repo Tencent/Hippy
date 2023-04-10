@@ -39,15 +39,18 @@
 namespace footstone {
 inline namespace runner {
 
-constexpr uint32_t kDefaultGroupId = 0;
+constexpr uint32_t kDefaultGroupId = 0; // 0 means no grouping
+// The priority multiplied by the runtime determines the running priority of the task runner.
+constexpr uint32_t kDefaultPriority = 10;
+
 
 class TaskRunner {
  public:
   using TimePoint = time::TimePoint;
   using TimeDelta = time::TimeDelta;
   // group_id 0 代表不分组，业务可以通过指定group_id（非0）强制不同TaskRunner在同一个Worker中运行
-  TaskRunner(uint32_t group_id = kDefaultGroupId, uint32_t priority = 1,
-             bool is_schedulable = true, std::string name = "");
+  TaskRunner(uint32_t group_id, uint32_t priority, bool is_schedulable, std::string name);
+  TaskRunner(std::string name = "");
   ~TaskRunner();
 
   TaskRunner(TaskRunner&) = delete;

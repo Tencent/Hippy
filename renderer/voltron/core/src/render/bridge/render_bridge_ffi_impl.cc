@@ -23,8 +23,11 @@
 #include "render/bridge/render_bridge_ffi_impl.h"
 
 #include "dom/dom_manager.h"
+#include "footstone/worker_manager.h"
+#include "footstone/worker_impl.h"
 #include "encodable_value.h"
 #include "standard_message_codec.h"
+#include "data_holder.h"
 
 using voltron::StandardMessageCodec;
 using voltron::EncodableValue;
@@ -37,7 +40,8 @@ using voltron::VoltronRenderManager;
 extern "C" {
 #endif
 
-constexpr char kDomRunnerName[] = "hippy_dom";
+constexpr char kDomWorkerName[] = "dom_worker";
+constexpr char kDomRunnerName[] = "dom_task_runner";
 
 EXTERN_C const char *KeepLibStr() {
   return "keep_render_lib";
@@ -223,36 +227,32 @@ EXTERN_C void UpdateNodeSize(uint32_t render_manager_id, uint32_t root_id,
   dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));
 }
 
-EXTERN_C uint32_t CreateWorkerManager() {
-  return voltron::BridgeManager::CreateWorkerManager();
-}
-
-EXTERN_C void DestroyWorkerManager(uint32_t worker_manager_id) {
-  voltron::BridgeManager::DestroyWorkerManager(worker_manager_id);
-}
-
-EXTERN_C uint32_t CreateDomInstance(uint32_t worker_manager_id) {
+EXTERN_C uint32_t CreateDomInstance() {
   auto dom_manager = std::make_shared<hippy::DomManager>();
-  hippy::DomManager::Insert(dom_manager);
-  std::shared_ptr<footstone::WorkerManager>
-      worker_manager = voltron::BridgeManager::FindWorkerManager(worker_manager_id);
-  FOOTSTONE_DCHECK(worker_manager != nullptr);
-  auto runner = worker_manager->CreateTaskRunner(kDomRunnerName);
+  auto id = voltron::InsertObject(dom_manager);
+  auto worker = std::make_shared<footstone::WorkerImpl>(kDomWorkerName, false);
+  worker->Start();
+  auto runner = std::make_shared<footstone::TaskRunner>(kDomRunnerName);
+  runner->SetWorker(worker);
+  worker->Bind({runner});
   dom_manager->SetTaskRunner(runner);
-  return dom_manager->GetId();
+  dom_manager->SetWorker(worker);
+  return id;
 }
 
 EXTERN_C void DestroyDomInstance(uint32_t dom_manager_id) {
-  auto dom_manager = hippy::DomManager::Find(dom_manager_id);
-  if (dom_manager) {
-    hippy::DomManager::Erase(dom_manager_id);
+  auto dom_manager = voltron::FindObject<std::shared_ptr<hippy::DomManager>>(dom_manager_id);
+  if (!dom_manager) {
+    return;
   }
+  dom_manager->GetWorker()->Terminate();
+  voltron::EraseObject(dom_manager_id);
 }
 
 EXTERN_C void AddRoot(
     uint32_t dom_manager_id,
     uint32_t root_id) {
-  std::shared_ptr<hippy::DomManager> dom_manager = hippy::DomManager::Find(dom_manager_id);
+  auto dom_manager = voltron::FindObject<std::shared_ptr<hippy::DomManager>>(dom_manager_id);
   auto root_node = std::make_shared<hippy::RootNode>(root_id);
   root_node->SetDomManager(dom_manager);
   auto &persistent_map = hippy::RootNode::PersistentMap();

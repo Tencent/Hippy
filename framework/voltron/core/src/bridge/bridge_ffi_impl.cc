@@ -33,6 +33,7 @@
 #include "render/queue/voltron_render_manager.h"
 #include "standard_message_codec.h"
 #include "wrapper.h"
+#include "data_holder.h"
 
 #if defined(__ANDROID__) || defined(_WIN32)
 #  include "bridge_impl.h"
@@ -108,17 +109,17 @@ EXTERN_C void UnloadInstanceFFI(int32_t engine_id, const char* params, int32_t p
 
 EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t single_thread_mode,
                                     int32_t bridge_param_json, int32_t is_dev_module, int64_t group_id,
-                                    uint32_t work_manager_id, uint32_t dom_manager_id,
+                                    uint32_t vfs_id, uint32_t dom_manager_id,
                                     int32_t engine_id, int32_t callback_id, uint32_t devtools_id) {
   auto ffi_runtime = std::make_shared<FFIJSBridgeRuntime>(engine_id);
-  BridgeManager::Create(engine_id, ffi_runtime);
+  auto bridge_manager = BridgeManager::Create(engine_id, ffi_runtime);
 
-  std::shared_ptr<WorkerManager>
-      worker_manager = voltron::BridgeManager::FindWorkerManager(work_manager_id);
-  FOOTSTONE_DCHECK(worker_manager != nullptr);
+  auto vfs_wrapper = voltron::FindObject<std::shared_ptr<voltron::VfsWrapper>>(vfs_id);
+  FOOTSTONE_DCHECK(vfs_wrapper != nullptr);
+  FOOTSTONE_DCHECK(vfs_wrapper->GetLoader()->GetWorkerManager() != nullptr);
 
   auto result = BridgeImpl::InitJsEngine(ffi_runtime, single_thread_mode, bridge_param_json, is_dev_module, group_id,
-                                         worker_manager, dom_manager_id, global_config, 0, 0,
+                                         vfs_wrapper->GetLoader()->GetWorkerManager(), dom_manager_id, global_config, 0, 0,
                                          [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); }, devtools_id);
   ffi_runtime->SetRuntimeId(result);
 
@@ -261,12 +262,7 @@ EXTERN_C void DoBindDomAndRender(uint32_t dom_manager_id, int32_t engine_id, uin
     FOOTSTONE_DLOG(WARNING) << "DoBindDomAndRender engine runtime unbind";
     return;
   }
-
-  std::shared_ptr<DomManager> dom_manager = DomManager::Find(dom_manager_id);
-  if (!dom_manager) {
-    FOOTSTONE_DLOG(WARNING) << "DoBindDomAndRender dom_id invalid";
-    return;
-  }
+  auto dom_manager = voltron::FindObject<std::shared_ptr<DomManager>>(dom_manager_id);
 
   auto runtime_id = runtime->GetRuntimeId();
   auto scope = BridgeImpl::GetScope(runtime_id);
@@ -433,7 +429,6 @@ EXTERN_C void OnNetworkResponseInvoke(int32_t engine_id,
     FOOTSTONE_DLOG(WARNING) << "OnNetworkRequestInvoke: uri value invalid";
     return;
   }
-  auto uri = std::get<std::string>(d_uri_iter->second);
   auto req_meta = voltron::VfsWrapper::ParseHeaders(rsp_map, voltron::kReqHeadersKey);
   auto result_code = hippy::UriLoader::RetCode::Failed;
   auto result_code_iter = rsp_map->find(EncodableValue(voltron::kResultCodeKey));
@@ -474,16 +469,19 @@ EXTERN_C void OnNetworkResponseInvoke(int32_t engine_id,
 #endif
 }
 
-EXTERN_C uint32_t CreateDevtoolsFFI(uint32_t work_manager_id,
-                                    const char16_t* char_data_dir,
+#ifdef ENABLE_INSPECTOR
+std::shared_ptr<footstone::WorkerManager> worker_manager;
+#endif
+
+EXTERN_C uint32_t CreateDevtoolsFFI(const char16_t* char_data_dir,
                                     const char16_t* char_ws_url) {
-  uint32_t id = 0;
+  uint32_t id;
 #ifdef ENABLE_INSPECTOR
   auto data_dir = voltron::C16CharToString(char_data_dir);
   auto ws_url = voltron::C16CharToString(char_ws_url);
-  std::shared_ptr<WorkerManager> worker_manager = voltron::BridgeManager::FindWorkerManager(work_manager_id);
-  FOOTSTONE_DCHECK(worker_manager != nullptr);
   hippy::devtools::DevtoolsDataSource::SetFileCacheDir(data_dir);
+  worker_manager = std::make_shared<footstone::WorkerManager>(1);
+
   auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(ws_url, worker_manager);
   id = hippy::devtools::DevtoolsDataSource::Insert(devtools_data_source);
   FOOTSTONE_DLOG(INFO) << "OnCreateDevtools id=" << id;
@@ -498,6 +496,7 @@ EXTERN_C void DestroyDevtoolsFFI(uint32_t devtools_id, int32_t is_reload) {
   bool flag = hippy::devtools::DevtoolsDataSource::Erase(devtools_id);
   FOOTSTONE_DLOG(INFO)<< "OnDestroyDevtools devtools_id=" << devtools_id << ",flag=" << flag;
   FOOTSTONE_DCHECK(flag);
+  worker_manager->Terminate();
 #endif
 }
 

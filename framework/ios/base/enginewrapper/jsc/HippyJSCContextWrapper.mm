@@ -273,7 +273,10 @@ static BOOL IsJSValueFunction(JSValue *value) {
         JSClassRef cls_ref = JSClassCreate(&cls_def);
         JSObjectRef func_object = JSObjectMake(contextRef, cls_ref, (__bridge void *)callback);
         JSClassRelease(cls_ref);
-        JSStringRef JSFunctionName = JSStringCreateWithUTF8CString([funcName UTF8String]);
+        JSStringRef JSFunctionName = JSStringCreateWithCFString((__bridge CFStringRef)funcName);
+        if (!JSFunctionName) {
+            return;
+        }
         JSValueRef exception = NULL;
         JSObjectSetProperty(contextRef, JSContextGetGlobalObject(contextRef), JSFunctionName, func_object, kJSPropertyAttributeNone, &exception);
         if (exception) {

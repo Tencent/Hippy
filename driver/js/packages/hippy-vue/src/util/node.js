@@ -116,13 +116,32 @@ function isStyleMatched(matchedSelector, targetNode) {
   return matchedSelector.match(targetNode);
 }
 
-const relativeToRefType = {
+/**
+ * findNotToSkipNode - find out a node that need sent to native
+ * @param nodes
+ * @param startIndex
+ * @returns {*}
+ */
+function findNotToSkipNode(nodes = [], startIndex = 0) {
+  let targetNode = nodes[startIndex];
+  for (let i = startIndex; i < nodes.length; i++) {
+    const node = nodes[i];
+    if (node && node.meta && !node.meta.skipAddToDom) {
+      targetNode = node;
+      break;
+    }
+  }
+  return targetNode;
+}
+
+const RelativeToRefType = {
   BEFORE: -1,
   AFTER: 1,
 };
 
 export {
-  relativeToRefType,
+  RelativeToRefType,
+  findNotToSkipNode,
   recursivelyUnCacheNode,
   requestIdleCallback,
   cancelIdleCallback,

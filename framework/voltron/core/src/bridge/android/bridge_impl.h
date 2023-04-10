@@ -46,7 +46,7 @@ class BridgeImpl {
                               bool bridge_param_json,
                               bool is_dev_module,
                               int64_t group_id,
-                              const std::shared_ptr<WorkerManager> &worker_manager,
+                              const std::unique_ptr<WorkerManager> &worker_manager,
                               uint32_t dom_manager_id,
                               const char16_t *char_globalConfig,
                               size_t initial_heap_size,

@@ -54,6 +54,7 @@
 
 #include <objc/runtime.h>
 #include <sys/utsname.h>
+#include <string>
 
 #include "dom/animation/animation_manager.h"
 #include "dom/dom_manager.h"
@@ -242,12 +243,13 @@ dispatch_queue_t HippyBridgeQueue() {
 
 - (void)setUp {
     _performanceLogger = [HippyPerformanceLogger new];
-    [_performanceLogger markStartForTag:HippyPLBridgeStartup];
+    [_performanceLogger markStartForTag:HippyPLBridgeStartup forKey:nil];
     _valid = YES;
     self.moduleSemaphore = dispatch_semaphore_create(0);
     @try {
         __weak HippyBridge *weakSelf = self;
         _moduleSetup = [[HippyModulesSetup alloc] initWithBridge:self extraProviderModulesBlock:_moduleProvider];
+        [_performanceLogger markStartForTag:HippyPLJSExecutorSetup forKey:nil];
         _javaScriptExecutor = [[HippyJSExecutor alloc] initWithEngineKey:_engineKey bridge:self];
         _javaScriptExecutor.contextCreatedBlock = ^(id<HippyContextWrapper> ctxWrapper){
             HippyBridge *strongSelf = weakSelf;
@@ -255,6 +257,7 @@ dispatch_queue_t HippyBridgeQueue() {
                 dispatch_semaphore_wait(strongSelf.moduleSemaphore, DISPATCH_TIME_FOREVER);
                 NSString *moduleConfig = [strongSelf moduleConfig];
                 [ctxWrapper createGlobalObject:@"__hpBatchedBridgeConfig" withJsonValue:moduleConfig];
+                [strongSelf->_performanceLogger markStopForTag:HippyPLJSExecutorSetup forKey:nil];
             }
         };
         [_javaScriptExecutor setup];
@@ -273,12 +276,17 @@ dispatch_queue_t HippyBridgeQueue() {
     } @catch (NSException *exception) {
         HippyBridgeHandleException(exception, self);
     }
+    [_performanceLogger markStopForTag:HippyPLBridgeStartup forKey:nil];
 }
 
 - (void)loadBundleURL:(NSURL *)bundleURL
            completion:(void (^_Nullable)(NSURL  * _Nullable, NSError * _Nullable))completion {
     if (!bundleURL) {
-        completion(nil, nil);
+        if (completion) {
+            static NSString *bundleError = @"bundle url is nil";
+            NSError *error = [NSError errorWithDomain:@"Bridge Bundle Loading Domain" code:1 userInfo:@{NSLocalizedFailureReasonErrorKey: bundleError}];
+            completion(nil, error);
+        }
         return;
     }
     [_bundleURLs addObject:bundleURL];
@@ -290,7 +298,9 @@ dispatch_queue_t HippyBridgeQueue() {
 
 
 - (void)initWithModulesCompletion:(dispatch_block_t)completion {
+    [_performanceLogger markStartForTag:HippyPLNativeModuleInit forKey:nil];
     [_moduleSetup setupModulesCompletion:completion];
+    [_performanceLogger markStopForTag:HippyPLNativeModuleInit forKey:nil];
 }
 
 - (void)beginLoadingBundle:(NSURL *)bundleURL
@@ -382,8 +392,7 @@ dispatch_queue_t HippyBridgeQueue() {
 - (void)rootViewSizeChangedEvent:(NSNumber *)tag params:(NSDictionary *)params {
     NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithDictionary:params];
     [dic setObject:tag forKey:@"rootViewId"];
-    NSDictionary *args = @{@"eventName": @"onSizeChanged", @"extra": dic};
-    [[self eventDispatcher] dispatchEvent:@"EventDispatcher" methodName:@"receiveNativeEvent" args:args];
+    [self sendEvent:@"onSizeChanged" params:dic];
 }
 
 - (void)setVFSUriLoader:(std::weak_ptr<VFSUriLoader>)uriLoader {
@@ -413,12 +422,13 @@ dispatch_queue_t HippyBridgeQueue() {
         return;
     }
     HPAssert(self.javaScriptExecutor, @"js executor must not be null");
-    [_performanceLogger markStartForTag:HippyExecuteSource];
+    [_performanceLogger markStartForTag:HippyExecuteSource forKey:[sourceURL absoluteString]];
     __weak HippyBridge *weakSelf = self;
     [self.javaScriptExecutor executeApplicationScript:script sourceURL:sourceURL onComplete:^(id result ,NSError *error) {
         HippyBridge *strongSelf = weakSelf;
         if (!strongSelf || ![strongSelf isValid]) {
             completion(result, error);
+            [strongSelf->_performanceLogger markStopForTag:HippyExecuteSource forKey:[sourceURL absoluteString]];
             return;
         }
         if (error) {
@@ -432,6 +442,7 @@ dispatch_queue_t HippyBridgeQueue() {
                                                                   userInfo:userInfo];
             });
         }
+        [strongSelf->_performanceLogger markStopForTag:HippyExecuteSource forKey:[sourceURL absoluteString]];
         completion(result, error);
     }];
 }
@@ -903,34 +914,39 @@ dispatch_queue_t HippyBridgeQueue() {
     return [_bundleURLs copy];
 }
 
-+ (NSString *)defaultHippyLocalFileScheme {
-    // hpfile://
-    return @"hpfile://";
-}
-
-+ (BOOL)isHippyLocalFileURLString:(NSString *)string {
-    return [string hasPrefix:[HippyBridge defaultHippyLocalFileScheme]];
-}
-
-- (NSString *)absoluteStringFromHippyLocalFileURLString:(NSString *)string {
-    if ([HippyBridge isHippyLocalFileURLString:string]) {
-        NSString *filePrefix = [HippyBridge defaultHippyLocalFileScheme];
-        NSString *relativeString = string;
-        if ([string hasPrefix:filePrefix]) {
-            NSRange range = NSMakeRange(0, [filePrefix length]);
-            relativeString = [string stringByReplacingOccurrencesOfString:filePrefix withString:@"" options:0 range:range];
-        }
-        NSURL *localFileURL = [NSURL URLWithString:relativeString relativeToURL:self.sandboxDirectory];
-        return [localFileURL path];
-    }
-    return nil;
-}
-
 - (void)setContextName:(NSString *)contextName {
     if (![_contextName isEqualToString:contextName]) {
         _contextName = [contextName copy];
         [self.javaScriptExecutor setContextName:contextName];
     }
+}
+
+- (void)sendEvent:(NSString *)eventName params:(NSDictionary *_Nullable)params {
+    [self.eventDispatcher dispatchEvent:@"EventDispatcher"
+                             methodName:@"receiveNativeEvent"
+                                   args:@{@"eventName": eventName, @"extra": params ? : @{}}];
+}
+
+- (NSData *)snapShotData {
+    auto rootNode = _javaScriptExecutor.pScope->GetRootNode().lock();
+    if (!rootNode) {
+        return nil;
+    }
+    std::string data = hippy::DomManager::GetSnapShot(rootNode);
+    return [NSData dataWithBytes:reinterpret_cast<const void *>(data.c_str()) length:data.length()];
+}
+
+- (void)setSnapShotData:(NSData *)data {
+    auto domManager = _javaScriptExecutor.pScope->GetDomManager().lock();
+    if (!domManager) {
+        return;
+    }
+    auto rootNode = _javaScriptExecutor.pScope->GetRootNode().lock();
+    if (!rootNode) {
+        return;
+    }
+    std::string string(reinterpret_cast<const char *>([data bytes]), [data length]);
+    domManager->SetSnapShot(rootNode, string);
 }
 
 @end

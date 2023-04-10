@@ -152,7 +152,8 @@ id ObjectFromJSValueRef(JSGlobalContextRef const context, JSValueRef const value
             if (!arrayRef) {
                 return nil;
             }
-            JSStringRef propName = JSStringCreateWithUTF8CString("length");
+            static CFStringRef len_string = CFSTR("length");
+            JSStringRef propName = JSStringCreateWithCFString(len_string);
             JSValueRef val = JSObjectGetProperty(context, arrayRef, propName, exception);
             if (*exception) {
                 JSStringRelease(propName);

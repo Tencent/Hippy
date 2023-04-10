@@ -149,7 +149,7 @@ void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request, VFSHandlerProg
         if (body) {
             contents = std::string(reinterpret_cast<const char *>([[request HTTPBody] bytes]) , [[request HTTPBody] length]);
         }
-        auto requestJob = std::make_shared<hippy::RequestJob>(uri, meta, progressCallback, std::move(contents));
+        auto requestJob = std::make_shared<hippy::RequestJob>(uri, meta, GetWorkerManager(), progressCallback, std::move(contents));
         auto responseCallback = [completion, requestURL](std::shared_ptr<hippy::JobResponse> cb){
             if (completion) {
                 NSData *data = [NSData dataWithBytes:cb->GetContent().data() length:cb->GetContent().length()];

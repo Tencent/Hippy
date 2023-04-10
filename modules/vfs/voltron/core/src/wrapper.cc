@@ -30,11 +30,9 @@
 #include "handler/ffi_delegate_handler.h"
 #include "standard_message_codec.h"
 #include "callback_manager.h"
+#include "data_holder.h"
 
 namespace voltron {
-
-std::atomic<uint32_t> global_data_holder_key{1};
-footstone::utils::PersistentObjectMap<uint32_t, std::any> global_data_holder;
 
 std::unique_ptr<EncodableValue> VfsWrapper::DecodeBytes(const uint8_t *source_bytes, size_t length) {
   return StandardMessageCodec::GetInstance().DecodeMessage(source_bytes, length);
@@ -97,17 +95,11 @@ hippy::UriLoader::RetCode VfsWrapper::ParseResultCode(int32_t code) {
   }
 }
 
-VfsWrapper::VfsWrapper(uint32_t worker_manager_id) {
-  id_ = voltron::global_data_holder_key.fetch_add(1);
+VfsWrapper::VfsWrapper() {
+  id_ = voltron::GenId();
   auto delegate = std::make_shared<voltron::FfiDelegateHandler>(id_);
   loader_ = std::make_shared<hippy::UriLoader>();
   auto file_delegate = std::make_shared<voltron::FileHandler>();
-  std::shared_ptr<footstone::WorkerManager>
-      worker_manager = FfiFindWorkerManager(worker_manager_id);
-  if (worker_manager) {
-    auto runner = worker_manager->CreateTaskRunner(kVfsFileRunnerName);
-    file_delegate->SetWorkerTaskRunner(runner);
-  }
   loader_->RegisterUriHandler(voltron::kFileSchema, file_delegate);
   loader_->PushDefaultHandler(delegate);
 }
@@ -126,12 +118,7 @@ std::shared_ptr<hippy::UriLoader> VfsWrapper::GetLoader() {
 }
 
 std::shared_ptr<VfsWrapper> VfsWrapper::GetWrapper(uint32_t id) {
-  std::any wrapper_object;
-  bool flag = global_data_holder.Find(
-      id,
-      wrapper_object);
-  FOOTSTONE_CHECK(flag);
-  return std::any_cast<std::shared_ptr<VfsWrapper>>(wrapper_object);
+  return voltron::FindObject<std::shared_ptr<VfsWrapper>>(id);
 }
 
 void VfsWrapper::InvokeNative(EncodableMap *req_map,
@@ -230,15 +217,14 @@ EXTERN_C int32_t RegisterVoltronVfsCallFunc(int32_t type, void *func) {
   return false;
 }
 
-EXTERN_C int32_t CreateVfsWrapper(uint32_t worker_manager_id) {
-  auto wrapper = std::make_shared<voltron::VfsWrapper>(worker_manager_id);
-  auto id = wrapper->GetId();
-  voltron::global_data_holder.Insert(id, wrapper);
-  return footstone::checked_numeric_cast<uint32_t, int32_t>(id);
+EXTERN_C int32_t CreateVfsWrapper() {
+  auto wrapper = std::make_shared<voltron::VfsWrapper>();
+  voltron::InsertObject(wrapper->GetId(), wrapper);
+  return footstone::checked_numeric_cast<uint32_t, int32_t>(wrapper->GetId());
 }
 
 EXTERN_C void DestroyVfsWrapper(uint32_t id) {
-  bool flag = voltron::global_data_holder.Erase(id);
+  bool flag = voltron::EraseObject(id);
   FOOTSTONE_DCHECK(flag);
 }
 

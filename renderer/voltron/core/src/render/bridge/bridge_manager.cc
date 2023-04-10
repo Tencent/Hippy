@@ -25,6 +25,7 @@
 #include <iterator>
 
 #include "dom/dom_manager.h"
+#include "footstone/worker_manager.h"
 #include "ffi_define.h"
 
 namespace voltron {
@@ -64,10 +65,9 @@ int64_t BridgeRuntime::CalculateNodeLayout(int32_t instance_id, int32_t node_id,
 }
 
 BridgeRuntime::BridgeRuntime(int32_t engine_id) : engine_id_(engine_id) {
-
 }
 
-std::shared_ptr<BridgeManager> BridgeManager::Create(int32_t engine_id, const Sp<BridgeRuntime> runtime) {
+std::shared_ptr<BridgeManager> BridgeManager::Create(int32_t engine_id, const Sp<BridgeRuntime>& runtime) {
   Sp<BridgeManager> bridge_manager;
   auto flag = bridge_map_.Find(engine_id, bridge_manager);
   if (flag) {
@@ -93,18 +93,6 @@ Sp<BridgeManager> BridgeManager::Find(int32_t engine_id) {
 
 void BridgeManager::Destroy(int32_t engine_id) {
   bridge_map_.Erase(engine_id);
-}
-
-uint32_t BridgeManager::CreateWorkerManager() {
-  return FfiCreateWorkerManager();
-}
-
-void BridgeManager::DestroyWorkerManager(uint32_t worker_manager_id) {
-  FfiDestroyWorkerManager(worker_manager_id);
-}
-
-Sp<footstone::WorkerManager> BridgeManager::FindWorkerManager(uint32_t worker_manager_id) {
-  return FfiFindWorkerManager(worker_manager_id);
 }
 
 Sp<VoltronRenderManager> BridgeManager::CreateRenderManager() {
@@ -136,7 +124,7 @@ BridgeManager::~BridgeManager() {
   native_callback_map_.Clear();
 }
 
-BridgeManager::BridgeManager(){}
+BridgeManager::BridgeManager() {}
 
 std::shared_ptr<BridgeRuntime> BridgeManager::GetRuntime() { return runtime_.lock(); }
 

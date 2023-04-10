@@ -50,7 +50,7 @@ typedef void(^_Nullable HippyBridgeBundleLoadCompletion)(NSURL *_Nullable, NSErr
                   moduleProvider:(HippyBridgeModuleProviderBlock _Nullable)block
                  extraComponents:(NSArray<Class> * _Nullable)extraComponents
                    launchOptions:(NSDictionary * _Nullable)launchOptions
-                       engineKey:(NSString *)engineKey;
+                       engineKey:(NSString *_Nullable)engineKey;
 
 - (void)loadBundleURL:(NSURL *)bundleURL completion:(HippyBridgeBundleLoadCompletion)completion;
 
@@ -68,6 +68,14 @@ typedef void(^_Nullable HippyBridgeBundleLoadCompletion)(NSURL *_Nullable, NSErr
 
 //Optianl properties set
 - (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls;
+
+#pragma mark event
+- (void)sendEvent:(NSString *)eventName params:(NSDictionary *_Nullable)params;
+
+#pragma mark snap shot
+- (NSData *)snapShotData;
+
+- (void)setSnapShotData:(NSData *)data;
 
 @end
 

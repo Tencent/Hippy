@@ -54,6 +54,10 @@ module.exports = {
   ],
   overrides: [
     {
+      files: ['*.test.ts'],
+      extends: ['plugin:jest/recommended'],
+    },
+    {
       files: ['**/*.ts', '**/*.tsx'],
       extends: ['eslint-config-tencent/ts'],
       rules: {
@@ -64,6 +68,9 @@ module.exports = {
         '@typescript-eslint/consistent-type-assertions': 'off',
         '@typescript-eslint/naming-convention': 'off',
         '@typescript-eslint/prefer-for-of': 'off',
+      },
+      parserOptions: {
+        project: ['./**/tsconfig.json'],
       },
     },
   ],
@@ -95,6 +102,11 @@ module.exports = {
     // Allow event name not kebab-case
     'vue/custom-event-name-casing': 'off',
 
+    // Allow component names not be multi-word
+    'vue/multi-word-component-names': 'off',
+
+    'vue/no-reserved-component-names': 'off',
+
     'import/no-unresolved': 'off',
 
     // Disable prop-types
@@ -102,6 +114,8 @@ module.exports = {
 
     // Disable deprecated
     'react/no-deprecated': 'off',
+
+    'react/no-unknown-property': 'off',
 
     'import/namespace': [
       'error',

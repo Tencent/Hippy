@@ -114,6 +114,7 @@ public class HippyBridgeImpl implements HippyBridge, JSBridgeProxy, DevRemoteDeb
                         groupId,
                         mContext.getDomManagerId(),
                         mV8InitParams,
+                        mContext.getVfsId(),
                         mContext.getDevtoolsId()
                 );
                 mInit = true;

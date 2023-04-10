@@ -27,7 +27,8 @@
 #include "footstone/check.h"
 #include "footstone/logging.h"
 #include "footstone/persistent_object_map.h"
-#include "footstone/worker_manager.h"
+#include "footstone/task_runner.h"
+#include "footstone/worker_impl.h"
 #include "jni/jni_register.h"
 #include "jni/data_holder.h"
 
@@ -71,10 +72,11 @@ REGISTER_JNI("com/openhippy/connector/DomManager", // NOLINT(cert-err58-cpp)
              "(II)V",
              SetDomManager)
 
-using WorkerManager = footstone::WorkerManager;
+using WorkerImpl = footstone::WorkerImpl;
+using TaskRunner = footstone::TaskRunner;
 
-constexpr uint32_t kPoolSize = 2;
-constexpr char kDomRunnerName[] = "hippy_dom";
+constexpr char kDomWorkerName[] = "dom_worker";
+constexpr char kDomRunnerName[] = "dom_task_runner";
 
 void CreateRoot(JNIEnv* j_env,
                 __unused jobject j_obj,
@@ -126,25 +128,22 @@ void SetDomManager(JNIEnv* j_env,
 }
 
 jint CreateDomManager(__unused JNIEnv* j_env, __unused jobject j_obj) {
-  auto worker_manager = std::make_shared<WorkerManager>(kPoolSize);
   auto dom_manager = std::make_shared<DomManager>();
   auto dom_id = hippy::global_data_holder_key.fetch_add(1);
   hippy::global_data_holder.Insert(dom_id, dom_manager);
-  auto runner = worker_manager->CreateTaskRunner(kDomRunnerName);
+  auto worker = std::make_shared<WorkerImpl>(kDomWorkerName, false);
+  worker->Start();
+  auto runner = std::make_shared<TaskRunner>(kDomRunnerName);
+  runner->SetWorker(worker);
+  worker->Bind({runner});
   dom_manager->SetTaskRunner(runner);
-  dom_manager->SetWorkerManager(worker_manager);
+  dom_manager->SetWorker(worker);
   return footstone::checked_numeric_cast<uint32_t, jint>(dom_id);
 }
 
 void DestroyDomManager(__unused JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id) {
   auto dom_manager_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_dom_id);
-  std::any dom_manager;
-  auto flag = hippy::global_data_holder.Find(dom_manager_id, dom_manager);
-  FOOTSTONE_CHECK(flag);
-  auto dom_manager_object = std::any_cast<std::shared_ptr<DomManager>>(dom_manager);
-  auto worker_manager = dom_manager_object->GetWorkerManager();
-  worker_manager->Terminate();
-  flag = hippy::global_data_holder.Erase(dom_manager_id);
+  auto flag = hippy::global_data_holder.Erase(dom_manager_id);
   FOOTSTONE_DCHECK(flag);
 }
 

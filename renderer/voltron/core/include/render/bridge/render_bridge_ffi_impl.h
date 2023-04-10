@@ -55,11 +55,7 @@ EXTERN_C void UpdateNodeSize(uint32_t render_manager_id, uint32_t root_id,
 
 EXTERN_C void Notify(int32_t engine_id, uint32_t render_manager_id);
 
-EXTERN_C uint32_t CreateWorkerManager();
-
-EXTERN_C void DestroyWorkerManager(uint32_t worker_manager_id);
-
-EXTERN_C uint32_t CreateDomInstance(uint32_t worker_manager_id);
+EXTERN_C uint32_t CreateDomInstance();
 
 EXTERN_C void DestroyDomInstance(uint32_t dom_manager_id);
 

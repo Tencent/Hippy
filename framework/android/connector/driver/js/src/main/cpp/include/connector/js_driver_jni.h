@@ -39,6 +39,7 @@ jint CreateJsDriver(JNIEnv* j_env,
                     jlong j_group_id,
                     jint j_dom_manager_id,
                     jobject j_vm_init_param,
+                    jint j_vfs_id,
                     jint j_devtools_id);
 
 void DestroyJsDriver(JNIEnv* j_env,

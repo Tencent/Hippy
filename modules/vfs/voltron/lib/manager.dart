@@ -33,8 +33,8 @@ class VfsManager {
     return _vfsMap[id];
   }
 
-  VfsManager(int workerManagerId, {NativeTraversalsWrapper? customWrapper})
-      : _wrapper = customWrapper??DefaultVfsWrapper(workerManagerId) {
+  VfsManager({NativeTraversalsWrapper? customWrapper})
+      : _wrapper = customWrapper??DefaultVfsWrapper() {
     _wrapper.initWrapper();
     _vfsMap[_wrapper.id] = this;
   }

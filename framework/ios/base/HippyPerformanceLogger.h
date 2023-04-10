@@ -23,29 +23,13 @@
 #import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSUInteger, HippyPLTag) {
-    HippyPLScriptDownload = 0,
-    HippyPLScriptExecution,
-    HippyPLRAMBundleLoad,
-    HippyPLRAMStartupCodeSize,
-    HippyPLRAMStartupNativeRequires,
-    HippyPLRAMStartupNativeRequiresCount,
-    HippyPLRAMNativeRequires,
-    HippyPLRAMNativeRequiresCount,
-    HippyPLNativeModuleInit,
-    HippyPLNativeModuleMainThread,
-    HippyPLNativeModulePrepareConfig,
-    HippyPLNativeModuleInjectConfig,
-    HippyPLNativeModuleMainThreadUsesCount,
-    HippyPLJSCExecutorSetup,
-    HippyPLBridgeStartup,
-    HippyPLTTI,
-    HippyPLBundleSize,
-    HippySecondaryStartup,
-    HippySecondaryLoadSource,
-    HippySecondaryExecuteSource,
-    HippyCommonLoadSource,
-    HippyExecuteSource,
-    HippyFeedsTimeCost,
+    HippyPLScriptDownload = 0,  //bundle download tag
+    HippyExecuteSource,         //bundle execution tag
+    HippyPLBundleSize,          //bundle size tag
+    
+    HippyPLNativeModuleInit,    //native module initialization tag
+    HippyPLJSExecutorSetup,     //js executor setup tag
+    HippyPLBridgeStartup,       //bridge set up tag
     HippyPLSize
 };
 
@@ -57,7 +41,7 @@ typedef NS_ENUM(NSUInteger, HippyPLTag) {
  * If HippyProfile is enabled it also begins appropriate async event.
  * All work is scheduled on the background queue so this doesn't block current thread.
  */
-- (void)markStartForTag:(HippyPLTag)tag;
+- (void)markStartForTag:(HippyPLTag)tag forKey:(NSString *)key;
 
 /**
  * Stops measuring a metric with given tag.
@@ -66,52 +50,29 @@ typedef NS_ENUM(NSUInteger, HippyPLTag) {
  * If HippyProfile is enabled it also ends appropriate async event.
  * All work is scheduled on the background queue so this doesn't block current thread.
  */
-- (void)markStopForTag:(HippyPLTag)tag;
+- (void)markStopForTag:(HippyPLTag)tag forKey:(NSString *)key;
 
 /**
  * Sets given value for a metric with given tag.
  * All work is scheduled on the background queue so this doesn't block current thread.
  */
-- (void)setValue:(int64_t)value forTag:(HippyPLTag)tag;
+- (void)setValue:(int64_t)value forTag:(HippyPLTag)tag forKey:(NSString *)key;
 
 /**
  * Adds given value to the current value for a metric with given tag.
  * All work is scheduled on the background queue so this doesn't block current thread.
  */
-- (void)addValue:(int64_t)value forTag:(HippyPLTag)tag;
-
-/**
- * Starts an additional measurement for a metric with given tag.
- * It doesn't override previous measurement, instead it'll append a new value
- * to the old one.
- * All work is scheduled on the background queue so this doesn't block current thread.
- */
-- (void)appendStartForTag:(HippyPLTag)tag;
-
-/**
- * Stops measurement and appends the result to the metric with given tag.
- * Checks if HippyPerformanceLoggerAppendStart() has been called before
- * and doesn't do anything and log a message if it hasn't.
- * All work is scheduled on the background queue so this doesn't block current thread.
- */
-- (void)appendStopForTag:(HippyPLTag)tag;
-
-/**
- * Returns an array with values for all tags.
- * Use HippyPLTag to go over the array, there's a pair of values
- * for each tag: start and stop (with indexes 2 * tag and 2 * tag + 1).
- */
-- (NSArray<NSNumber *> *)valuesForTags;
+- (void)addValue:(int64_t)value forTag:(HippyPLTag)tag forKey:(NSString *)key;
 
 /**
  * Returns a duration in ms (stop_time - start_time) for given HippyPLTag.
  */
-- (int64_t)durationForTag:(HippyPLTag)tag;
+- (int64_t)durationForTag:(HippyPLTag)tag forKey:(NSString *)key;
 
 /**
  * Returns a value for given HippyPLTag.
  */
-- (int64_t)valueForTag:(HippyPLTag)tag;
+- (int64_t)valueForTag:(HippyPLTag)tag forKey:(NSString *)key;
 
 /**
  * Returns an array with values for all tags.

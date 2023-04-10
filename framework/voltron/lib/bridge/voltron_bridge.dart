@@ -99,7 +99,6 @@ class VoltronBridgeManager implements Destroyable {
       assert(_context.devtoolsManager != null);
       var tracingDataDir = await _context.devSupportManager.getTracingDataDir();
       devtoolsId = await _context.devtoolsManager!.create(
-        workerManagerId: _context.renderContext.workerManagerId,
         dataDir: tracingDataDir,
         wsUrl: _context.devSupportManager.createDebugUrl(_debugServerHost),
       );
@@ -144,7 +143,7 @@ class VoltronBridgeManager implements Destroyable {
         isDevModule: _isDevModule,
         groupId: _groupId,
         engineId: _engineId,
-        workerManagerId: _context.renderContext.workerManagerId,
+        vfsId: _context.vfsManager.id,
         domId: _context.renderContext.domHolder.id,
         callback: (value) async {
           _isFrameWorkInit = true;
@@ -315,7 +314,7 @@ class VoltronBridgeManager implements Destroyable {
         onDestroy();
         callback(value == 0);
       },
-      true,
+      isReload,
     );
   }
 

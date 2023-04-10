@@ -7,7 +7,9 @@
 #
 
 layout_engine = "Taitank"
+js_engine = "jsc"
 use_frameworks = false;
+
 Pod::Spec.new do |s|
   if ENV["layout_engine"]
     layout_engine = ENV["layout_engine"]
@@ -15,6 +17,10 @@ Pod::Spec.new do |s|
   if ENV["use_frameworks"]
     use_frameworks = true
   end
+  if ENV["js_engine"]
+    js_engine = ENV["js_engine"]
+  end
+  puts "layout engine is #{layout_engine}, js engine is #{js_engine}"
   puts "use_frameworks trigger is #{use_frameworks}"
   if use_frameworks
     framework_header_path = '${PODS_CONFIGURATION_BUILD_DIR}/hippy/hippy.framework/Headers'
@@ -43,14 +49,20 @@ Pod::Spec.new do |s|
 
   #prepare_command not working for subspecs,so we remove devtools script from devtools subspec to root
   s.prepare_command = <<-CMD
-      ./xcodeinitscript.sh "#{layout_engine}"
+      ./xcodeinitscript.sh "#{layout_engine}" "#{js_engine}"
   CMD
 
   s.subspec 'Framework' do |framework|
     puts 'hippy subspec \'framework\' read begin'
     framework.source_files = 'framework/ios/**/*.{h,m,c,mm,s,cpp,cc}'
     framework.public_header_files = 'framework/ios/**/*.h'
-    framework.exclude_files = ['framework/ios/base/enginewrapper/v8', 'framework/ios/utils/v8']
+    if js_engine == "jsc"
+      framework.exclude_files = ['framework/ios/base/enginewrapper/v8', 'framework/ios/utils/v8']
+    elsif js_engine == "v8" 
+      framework.exclude_files = ['framework/ios/base/enginewrapper/jsc', 'framework/ios/utils/jsc']
+    else
+      framework.exclude_files = ['framework/ios/base/enginewrapper/jsc', 'framework/ios/utils/jsc', 'framework/ios/base/enginewrapper/v8', 'framework/ios/utils/v8']      
+    end
     framework.libraries = 'c++'
     framework.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
@@ -75,6 +87,7 @@ Pod::Spec.new do |s|
     end
     footstone.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+      'GCC_PREPROCESSOR_DEFINITIONS[config=Release]' => '${inherited} NDEBUG=1',
       'GCC_ENABLE_CPP_EXCEPTIONS' => false,
       'GCC_ENABLE_CPP_RTTI' => false,
       'HEADER_SEARCH_PATHS' => header_search_paths
@@ -161,16 +174,50 @@ Pod::Spec.new do |s|
     driver.frameworks = 'JavaScriptCore'
     driver.source_files = ['driver/js/include/**/*.h', 'driver/js/src/**/*.cc']
     driver.public_header_files = 'driver/js/include/**/*.h'
-    driver.exclude_files = ['driver/js/include/driver/napi/v8','driver/js/src/napi/v8','driver/js/include/driver/runtime','driver/js/src/runtime', 'driver/js/include/vm/v8', 'driver/js/src/vm/v8']
+    if js_engine == "jsc"
+      driver.exclude_files = [
+        'driver/js/include/driver/napi/v8',
+        'driver/js/src/napi/v8',
+        'driver/js/include/driver/runtime',
+        'driver/js/src/runtime', 
+        'driver/js/include/driver/vm/v8', 
+        'driver/js/src/vm/v8']
+    elsif js_engine == "v8"
+      driver.exclude_files = [
+        'driver/js/include/driver/napi/jsc',
+        'driver/js/src/napi/jsc', 
+        'driver/js/include/driver/vm/jsc', 
+        'driver/js/src/vm/jsc']
+    else
+      driver.exclude_files = [
+        'driver/js/include/driver/napi/v8',
+        'driver/js/src/napi/v8',
+        'driver/js/include/driver/runtime',
+        'driver/js/src/runtime', 
+        'driver/js/include/vm/v8', 
+        'driver/js/src/vm/v8', 
+        'driver/js/include/driver/napi/jsc',
+        'driver/js/src/napi/jsc', 
+        'driver/js/include/vm/jsc', 
+        'driver/js/src/vm/jsc']
+    end
+
     if use_frameworks
       header_search_paths = framework_header_path
       driver.header_mappings_dir = 'driver/js/include'
     else
       header_search_paths = '${PODS_ROOT}/hippy/driver/js/include/'
     end
+    definition_engine = ''
+    if js_engine == "jsc"
+      definition_engine = 'JS_JSC=1'
+    elsif js_engine == "v8" 
+      definition_engine = 'JS_V8=1'
+    else
+    end
     driver.pod_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => header_search_paths, 
-      'GCC_PREPROCESSOR_DEFINITIONS' => 'JS_JSC=1',
+      'GCC_PREPROCESSOR_DEFINITIONS' => definition_engine,
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
       'GCC_ENABLE_CPP_EXCEPTIONS' => false,
       'GCC_ENABLE_CPP_RTTI' => false,
@@ -293,10 +340,14 @@ Pod::Spec.new do |s|
   s.subspec 'DevTools' do |devtools|
     puts 'hippy subspec \'devtools\' read begin'
     devtools.libraries = 'c++'
+    devtools_exclude_files = Array.new;
+    if js_engine == "jsc"
+      devtools_exclude_files += ['devtools/devtools-integration/native/include/devtools/v8', 'devtools/devtools-integration/native/src/v8']
+    elsif js_engine == "v8"
+    else
+      devtools_exclude_files += ['devtools/devtools-integration/native/include/devtools/v8', 'devtools/devtools-integration/native/src/v8']
+    end
     devtools.exclude_files = [
-      #v8 files
-      'devtools/devtools-integration/native/include/devtools/v8', 
-      'devtools/devtools-integration/native/src/v8',
       #test files
       'devtools/devtools-integration/ios/DevtoolsBackend/_deps/**/*test*/**/*',
       'devtools/devtools-integration/ios/DevtoolsBackend/_deps/**/*test*',
@@ -313,7 +364,7 @@ Pod::Spec.new do |s|
       'devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/lib/tables/table_generator.c',
       'devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/lib/arch/**/{dec,enc}_*.c',
       'devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/bin/base64.c',
-    ]
+    ] + devtools_exclude_files
     devtools.public_header_files = [
       'devtools/devtools-integration/native/include/devtools/devtools_data_source.h',
       #devtools_integration/native
@@ -367,6 +418,24 @@ Pod::Spec.new do |s|
     devtools.dependency 'hippy/VFS'
     devtools.preserve_path = 'devtools'
     puts 'hippy subspec \'devtools\' read end'
+  end
+
+  if js_engine == "v8"
+    s.subspec 'v8' do |v8|
+      puts 'hippy subspec \'v8\' read begin'
+      v8.source_files = ['v8forios/v8/include']
+      v8.public_header_files = ['v8forios/v8/include']
+      v8.pod_target_xcconfig = {
+        'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+        'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/v8forios/v8/include ${PODS_ROOT}/hippy/v8forios/v8/include/v8',
+        'GCC_ENABLE_CPP_EXCEPTIONS' => false,
+        'GCC_ENABLE_CPP_RTTI' => false,
+      }
+      v8.libraries = 'c++'
+      v8.vendored_library = 'v8forios/v8/libv8.a'
+      v8.preserve_path = 'v8forios/v8'
+      puts 'hippy subspec \'v8\' read end'
+    end
   end
 
   puts 'hippy.podspec read ends'

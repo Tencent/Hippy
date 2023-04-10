@@ -303,7 +303,6 @@ class VoltronJSEngine
       _startTimeMonitor,
       _engineMonitor,
       _devSupportManager,
-      _engineContext?.renderContext.workerManagerId ?? -1,
       _engineContext?.renderContext.renderBridgeManager,
       _engineContext?.renderContext.domHolder,
       _engineContext?.renderContext.rootViewModelMap,

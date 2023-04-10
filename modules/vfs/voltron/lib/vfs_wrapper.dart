@@ -94,17 +94,16 @@ class DefaultVfsWrapper with NativeTraversalsWrapper {
   static const String _kResultCodeKey = "result_code";
   final _VfsApi _api = _VfsApi._internal();
   int _id = 0;
-  final int workerManagerId;
 
   @override
   int get id => _id;
   bool get isInit => id >= 0;
 
-  DefaultVfsWrapper(this.workerManagerId);
+  DefaultVfsWrapper();
 
   @override
   int initWrapper() {
-    _id = _api._createVfsWrapper(workerManagerId);
+    _id = _api._createVfsWrapper();
     return _id;
   }
 

@@ -365,7 +365,8 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     auto scope = self.pScope;
     if (scope) {
         auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
-        jsc_context->SetName("HippyJSContext(delete)");
+        static CFStringRef delName = CFSTR("HippyJSContext(delete)");
+        jsc_context->SetName(delName);
     }
 #endif //JS_JSC
     self.pScope->WillExit();
@@ -386,6 +387,9 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 // clang-format off
 - (void)setContextName:(NSString *)contextName {
 #ifdef JS_JSC
+    if (!contextName) {
+        return;
+    }
     WeakCtxPtr weak_ctx = self.pScope->GetContext();
     [self executeBlockOnJavaScriptQueue:^{
         SharedCtxPtr context = weak_ctx.lock();
@@ -395,7 +399,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
         auto tryCatch = hippy::napi::CreateTryCatchScope(true, context);
         auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(self.pScope->GetContext());
         NSString *finalName = [NSString stringWithFormat:@"HippyContext: %@", contextName];
-        jsc_context->SetName([finalName UTF8String]);
+        jsc_context->SetName((__bridge CFStringRef)finalName);
         if (tryCatch->HasCaught()) {
             HPLogWarn(@"set context throw exception");
         }
@@ -544,7 +548,6 @@ static NSLock *jslock() {
 
 static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, HippyPerformanceLogger *performanceLogger, SharedCtxPtr context, NSError **error) {
     @autoreleasepool {
-        [performanceLogger markStartForTag:HippyPLScriptExecution];
         string_view view = string_view::new_from_utf8([script UTF8String]);
         string_view fileName = NSStringToU8StringView([sourceURL absoluteString]);
         string_view errorMsg;
@@ -558,7 +561,6 @@ static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, Hip
         if (lockSuccess) {
             [lock unlock];
         }
-        [performanceLogger markStopForTag:HippyPLScriptExecution];
         *error = !StringViewUtils::IsEmpty(errorMsg) ? [NSError errorWithDomain:HPErrorDomain code:2 userInfo:@{
             NSLocalizedDescriptionKey: StringViewToNSString(errorMsg)}] : nil;
         id objcResult = ObjectFromCtxValue(context, result);

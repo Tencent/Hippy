@@ -47,22 +47,8 @@ typedef CallNativeFunctionFfiDartType = void Function(
     int paramsLen,
     int keep);
 
-typedef CreateWorkerFfiNativeType = Uint32 Function();
-typedef CreateWorkerFfiDartType = int Function();
-
-typedef DestroyWorkerFfiNativeType = Void Function(
-  Uint32 workerId,
-);
-typedef DestroyWorkerFfiDartType = void Function(
-  int workerId,
-);
-
-typedef CreateDomFfiNativeType = Uint32 Function(
-  Uint32 workerId,
-);
-typedef CreateDomFfiDartType = int Function(
-  int workerId,
-);
+typedef CreateDomFfiNativeType = Uint32 Function();
+typedef CreateDomFfiDartType = int Function();
 
 typedef DestroyDomFfiNativeType = Void Function(
   Uint32 domId,

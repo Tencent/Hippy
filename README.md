@@ -60,7 +60,7 @@ For iOS, we recommend to use iOS simulator when first try. However, you can chan
    >
    > `npm run build`: Build each front-end sdk package.  
 
-3. Choose a demo to build with `npm run buildexample [hippy-react-demo|hippy-vue-demo]`.
+3. Choose a demo to build with `npm run buildexample [hippy-react-demo|hippy-vue-demo|hippy-vue-next-demo]`.
 
 4. Install Xcodegen with `brew install xcodegen`, install CocoaPods with `brew install cocoapods`, install cmake with `brew install cmake`, then execute `xcodegen` command at `framework/examples/ios-demo` directory, which will create `HippyDemo.xcodeproj` and `HippyDemo.xcworkspace` files and install Cocoapods dependencies.
 
@@ -88,12 +88,12 @@ Before build the android app, please make sure the SDK and NDK is installed, And
    >
    > `npm run build`: Build each front-end sdk package.  
 
-3. Choose a demo to build with `npm run buildexample [hippy-react-demo|hippy-vue-demo]`.
+3. Choose a demo to build with `npm run buildexample [hippy-react-demo|hippy-vue-demo|hippy-vue-next-demo]`.
 4. Open the `Hippy Project` at root directory with Android Studio.
 5. Connect Android phone with USB cable and make sure USB debugging mode is enabled(Run `adb devices` on the computer terminal to check cellphone connection status).
 6. Open the project with Android Studio, run and install the apk.
 
-> If `Step 2` throw error, you can `cd` to `driver/js/examples` hippy-react-demo or hippy-vue-demo, and run `npm install` to install demo dependencies first.
+> If `Step 2` throw error, you can `cd` to `driver/js/examples` hippy-react-demo, hippy-vue-demo or hippy-vue-next-demo, and run `npm install` to install demo dependencies first.
 >
 > If you encounter the issue of `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`, here is the [solution](https://github.com/google/filament/issues/15#issuecomment-415423557).
 >
@@ -103,19 +103,19 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 
 1. Follow [Build the iOS simulator with js demo](https://github.com/Tencent/Hippy#build-the-ios-simulator-with-js-demo) or [Build the Android app with js demo](https://github.com/Tencent/Hippy#build-the-android-app-with-js-demo) first to build the App.
 2. `cd` to `driver/js/`.   
-3. Run `npm run init:example [hippy-react-demo|hippy-vue-demo]`.
-4. Run `npm run debugexample [hippy-react-demo|hippy-vue-demo] dev`.
+3. Run `npm run init:example [hippy-react-demo|hippy-vue-demo|hippy-vue-next-demo]`.
+4. Run `npm run debugexample [hippy-react-demo|hippy-vue-demo|hippy-vue-next-demo] dev`.
 
-> Or you can `cd` to `driver/js/examples/hippy-react-demo` or `driver/js/examples/hippy-vue-demo` directory to run `npm run hippy:debug` and `npm run hippy:dev` instead.
+> Or you can `cd` to `driver/js/examples/hippy-react-demo`, `driver/js/examples/hippy-vue-demo` or `driver/js/examples/hippy-vue-next-demo` directory to run `npm run hippy:debug` and `npm run hippy:dev` instead.
 >
-> On example debug mode, npm packages such as @hippy/react, @hippy/vue are linked to `driver/js/packages` > `[different package]` > `dist`(not node_modules), so if you have changed js package source code and want to make it take effect in target example, please call `npm run build` again.
+> On example debug mode, npm packages such as @hippy/react, @hippy/vue, @hippy/vue-next are linked to `driver/js/packages` > `[different package]` > `dist`(not node_modules), so if you have changed js package source code and want to make it take effect in target example, please call `npm run build` again.
 >
 > More details for debugging can be read in [Hippy Debug Document](https://hippyjs.org/#/guide/debug).
 
 ### Build the js production demo
 
 1. Follow [Build the iOS simulator with js demo](https://github.com/Tencent/Hippy#build-the-ios-simulator-with-js-demo) or [Build the Android app with js demo](https://github.com/Tencent/Hippy#build-the-android-app-with-js-demo) first to build the App.
-2. `cd` to `driver/js/examples/hippy-react-demo` or `driver/js/examples/hippy-vue-demo`.
+2. `cd` to `driver/js/examples/hippy-react-demo`, `driver/js/examples/hippy-vue-demo` or `driver/js/examples/hippy-vue-next-demo`.
 3. Run `npm install` to install demo js dependencies.
 4. Run `npm run hippy:vendor` and `npm run hippy:build` in sequence to build the production `vendor.[android|ios].js` and `index.[android|ios].js`.
 

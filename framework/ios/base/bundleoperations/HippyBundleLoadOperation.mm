@@ -69,10 +69,11 @@
     self.finished = NO;
     self.executing = YES;
     HippyBridge *bridge = _bridge;
+    NSString *bundleURL = [_bundleURL absoluteString];
     HippyPerformanceLogger *performanceLogger = bridge?bridge.performanceLogger:nil;
-    [performanceLogger markStartForTag:HippyPLScriptDownload];
+    [performanceLogger markStartForTag:HippyPLScriptDownload forKey:bundleURL];
     __weak HippyBundleLoadOperation *weakSelf = self;
-    [bridge loadContentsAsynchronouslyFromUrl:[_bundleURL absoluteString]
+    [bridge loadContentsAsynchronouslyFromUrl:bundleURL
                                        method:@"get"
                                        params:nil
                                          body:nil
@@ -85,8 +86,8 @@
             return;
         }
         int64_t sourceLength = [data length];
-        [performanceLogger markStopForTag:HippyPLScriptDownload];
-        [performanceLogger setValue:sourceLength forTag:HippyPLBundleSize];
+        [performanceLogger markStopForTag:HippyPLScriptDownload forKey:bundleURL];
+        [performanceLogger setValue:sourceLength forTag:HippyPLBundleSize forKey:bundleURL];
         if (strongSelf.onLoad) {
             if (strongSelf->_finishQueue) {
                 dispatch_sync(strongSelf->_finishQueue, ^{

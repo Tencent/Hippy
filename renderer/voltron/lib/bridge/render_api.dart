@@ -62,8 +62,6 @@ class _RenderBridgeFFIManager {
 
   late CreateDomFfiDartType createDom;
   late DestroyDomFfiDartType destroyDom;
-  late CreateWorkerFfiDartType createWorker;
-  late DestroyWorkerFfiDartType destroyWorker;
 
   _RenderBridgeFFIManager._internal() {
     createNativeRender =
@@ -82,14 +80,6 @@ class _RenderBridgeFFIManager {
 
     destroyDom = _library.lookupFunction<DestroyDomFfiNativeType, DestroyDomFfiDartType>(
       'DestroyDomInstance',
-    );
-
-    createWorker = _library.lookupFunction<CreateWorkerFfiNativeType, CreateWorkerFfiDartType>(
-      'CreateWorkerManager',
-    );
-
-    destroyWorker = _library.lookupFunction<DestroyWorkerFfiNativeType, DestroyWorkerFfiDartType>(
-      'DestroyWorkerManager',
     );
 
     addRoot = _library.lookupFunction<AddRootFfiNativeType, AddRootFfiDartType>(
@@ -131,20 +121,12 @@ class VoltronRenderApi {
     _RenderBridgeFFIManager.instance.destroyNativeRender(nativeRenderId);
   }
 
-  static int createDomInstance(int workManagerId) {
-    return _RenderBridgeFFIManager.instance.createDom(workManagerId);
+  static int createDomInstance() {
+    return _RenderBridgeFFIManager.instance.createDom();
   }
 
   static void destroyDomInstance(int domInstanceId) {
     _RenderBridgeFFIManager.instance.destroyDom(domInstanceId);
-  }
-
-  static int createWorkerManager() {
-    return _RenderBridgeFFIManager.instance.createWorker();
-  }
-
-  static void destroyWorkerManager(int workerManagerId) {
-    _RenderBridgeFFIManager.instance.destroyWorker(workerManagerId);
   }
 
   static void addRoot(int domInstanceId, int rootId) {

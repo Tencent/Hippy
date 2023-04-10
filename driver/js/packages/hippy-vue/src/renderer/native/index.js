@@ -42,8 +42,8 @@ import {
   getBeforeRenderToNative,
 } from '../../util';
 import {
-  eventHandlerType,
-  nativeEventMap,
+  EventHandlerType,
+  NativeEventMap,
   translateToNativeEventName,
   isNativeGesture,
 } from '../../util/event';
@@ -105,14 +105,14 @@ function handleEventListeners(eventNodes = [], sceneBuilder) {
         const { name, type, listener } = eventAttribute;
         let nativeEventName;
         if (isNativeGesture(name)) {
-          nativeEventName = nativeEventMap[name];
+          nativeEventName = NativeEventMap[name];
         } else {
           nativeEventName = translateToNativeEventName(name);
         }
-        if (type === eventHandlerType.REMOVE) {
+        if (type === EventHandlerType.REMOVE) {
           sceneBuilder.removeEventListener(id, nativeEventName, listener);
         }
-        if (type === eventHandlerType.ADD) {
+        if (type === EventHandlerType.ADD) {
           sceneBuilder.removeEventListener(id, nativeEventName, listener);
           sceneBuilder.addEventListener(id, nativeEventName, listener);
         }
@@ -467,7 +467,7 @@ function renderToNative(rootViewId, targetNode, refInfo = {}) {
     if (eventNode && Array.isArray(eventNode.eventList)) {
       eventNode.eventList.forEach((eventListItem) => {
         const { name, listener, type } = eventListItem;
-        type === eventHandlerType.ADD && Object.assign(listenerProp, { [name]: listener });
+        type === EventHandlerType.ADD && Object.assign(listenerProp, { [name]: listener });
       });
     }
     Object.assign(printedNode = {}, nativeNode, refInfo);

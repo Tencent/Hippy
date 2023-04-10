@@ -32,6 +32,7 @@ analyzer:
     todo: ignore
     non_constant_identifier_names: warning
     constant_identifier_names: warning
+    invalid_dependency: ignore
     library_names: warning
     file_names: warning
     avoid_setters_without_getters: warning

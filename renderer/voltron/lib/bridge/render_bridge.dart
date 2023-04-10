@@ -55,16 +55,8 @@ class VoltronRenderBridgeManager implements Destroyable {
     VoltronRenderApi.init();
   }
 
-  int createWorkerManager() {
-    return VoltronRenderApi.createWorkerManager();
-  }
-
-  void destroyWorkerManager (int workerManagerId) {
-    return VoltronRenderApi.destroyWorkerManager(workerManagerId);
-  }
-
-  int createDomInstance(int workerManagerId) {
-    return VoltronRenderApi.createDomInstance(workerManagerId);
+  int createDomInstance() {
+    return VoltronRenderApi.createDomInstance();
   }
 
   void destroyDomInstance(int domInstanceId) {

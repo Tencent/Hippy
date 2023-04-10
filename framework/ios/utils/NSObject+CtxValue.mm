@@ -122,8 +122,18 @@
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
     @autoreleasepool {
         NSString *errorMessage = [self description];
-        auto string_view = footstone::string_view::new_from_utf8([errorMessage UTF8String]);
-        return context->CreateError(string_view);
+        return [errorMessage convertToCtxValue:context];
+    }
+}
+
+@end
+
+@implementation NSURL (CtxValue)
+
+- (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
+    @autoreleasepool {
+        NSString *errorMessage = [self absoluteString];
+        return [errorMessage convertToCtxValue:context];
     }
 }
 
