@@ -42,6 +42,7 @@
 #import "utils/VoltronLog.h"
 #import "utils/VoltronPerformanceLogger.h"
 #import "utils/VoltronUtils.h"
+#import "utils/NSObject+CtxValue.h"
 
 #import "VoltronJSCWrapper.h"
 
@@ -185,72 +186,6 @@ NSString *StringViewToNSString(const string_view &view) {
             break;
     }
     return result;
-}
-
-id ObjectFromCtxValue(SharedCtxPtr context, SharedCtxValuePtr value) {
-    @autoreleasepool {
-        if (!context || !value) {
-            return [NSNull null];
-        }
-        if (context->IsString(value)) {
-            footstone::string_view view;
-            if (context->GetValueString(value, &view)) {
-                view = footstone::StringViewUtils::ConvertEncoding(view, footstone::string_view::Encoding::Utf16);
-                footstone::string_view::u16string &u16String = view.utf16_value();
-                NSString *string =
-                    [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
-                return string;
-            }
-        }
-        else if (context->IsNumber(value)) {
-            double number = 0;
-            if (context->GetValueNumber(value, &number)) {
-                return @(number);
-            }
-        }
-        else if (context->IsArray(value)) {
-            uint32_t length = context->GetArrayLength(value);
-            NSMutableArray *array = [NSMutableArray arrayWithCapacity:length];
-            for (uint32_t index = 0; index < length; index++) {
-                auto element = context->CopyArrayElement(value, index);
-                id obj = ObjectFromCtxValue(context, element);
-                [array addObject:obj];
-            }
-            return [array copy];
-        }
-        //ArrayBuffer is kindof Object, so we must check if it is byte buffer first
-        else if(context->IsByteBuffer(value)) {
-            size_t length = 0;
-            uint32_t type;
-            void *bytes = NULL;
-            if (context->GetByteBuffer(value, &bytes, length, type)) {
-                return [NSData dataWithBytes:bytes length:length];
-            }
-        }
-        else if (context->IsObject(value)) {
-            std::unordered_map<SharedCtxValuePtr, SharedCtxValuePtr> map;
-            if (context->GetEntries(value, map)) {
-                NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:map.size()];
-                for (auto &it : map) {
-                    footstone::string_view string_view;
-                    auto flag = context->GetValueString(it.first, &string_view);
-                    if (!flag) {
-                        continue;
-                    }
-                    const auto &u16String = footstone::StringViewUtils::CovertToUtf16(string_view, string_view.encoding()).utf16_value();
-                    NSString *string = [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
-                    auto &value = it.second;
-                    id obj = ObjectFromCtxValue(context, value);
-                    [dictionary setObject:obj forKey:string];
-                }
-                return [dictionary copy];
-            }
-        }
-        else {
-
-        }
-        return [NSNull null];
-    }
 }
 
 
@@ -774,7 +709,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
 
                 auto bridge_key = context->CreateString("hippyBridge");
                 auto batchedbridge_value = context->GetProperty(global_object, bridge_key);
-                
+
                 SharedCtxValuePtr resultValue = nullptr;
                 string_view exception;
                 bool isFn = context->IsFunction(batchedbridge_value);
