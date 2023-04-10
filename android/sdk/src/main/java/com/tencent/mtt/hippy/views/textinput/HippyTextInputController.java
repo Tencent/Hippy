@@ -406,7 +406,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     hippyTextInput.setOnContentSizeChange(contentSizeChange);
   }
 
-  @HippyControllerProps(name = NodeProps.COLOR, defaultType = HippyControllerProps.NUMBER)
+  @HippyControllerProps(name = NodeProps.COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.BLACK)
   public void setColor(HippyTextInput hippyTextInput, int change) {
     hippyTextInput.setTextColor(change);
   }
