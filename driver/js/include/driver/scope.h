@@ -230,11 +230,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
   void RunJS(const string_view& js,
              const string_view& name,
              bool is_copy = true);
-
-  std::shared_ptr<CtxValue> RunJSSync(const string_view& data,
-                                      const string_view& name,
-                                      bool is_copy = true);
-
+  
   void LoadInstance(const std::shared_ptr<HippyValue>& value);
   void UnloadInstance(const std::shared_ptr<HippyValue>& value);
 
@@ -409,7 +405,6 @@ class Scope : public std::enable_shared_from_this<Scope> {
   std::any bridge_;
   std::any turbo_;
   std::string name_;
-  std::unique_ptr<RegisterMap> map_;
   uint32_t call_ui_function_callback_id_;
   std::unordered_map<uint32_t, std::shared_ptr<CtxValue>> call_ui_function_callback_holder_;
   std::unordered_map<uint32_t, std::unordered_map<std::string, std::unordered_map<uint64_t, std::shared_ptr<CtxValue>>>>

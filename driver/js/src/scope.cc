@@ -406,41 +406,6 @@ void Scope::RunJS(const string_view& data,
   }
 }
 
-std::shared_ptr<CtxValue> Scope::RunJSSync(const string_view& data,
-                                           const string_view& name,
-                                           bool is_copy) {
-  std::promise<std::shared_ptr<CtxValue>> promise;
-  std::future<std::shared_ptr<CtxValue>> future = promise.get_future();
-  std::weak_ptr<Ctx> weak_context = context_;
-  auto cb = hippy::base::MakeCopyable(
-      [data, name, is_copy, weak_context, p = std::move(promise)]() mutable {
-        std::shared_ptr<CtxValue> rst = nullptr;
-#ifdef JS_V8
-        auto context =
-            std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
-        if (context) {
-          rst = context->RunScript(data, name, false, nullptr, is_copy);
-        }
-#else
-        auto context = weak_context.lock();
-        if (context) {
-          rst = context->RunScript(data, name);
-        }
-#endif
-        p.set_value(rst);
-      });
-
-
-  auto runner = GetTaskRunner();
-  if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
-    cb();
-  } else {
-    runner->PostTask(std::move(cb));
-  }
-  std::shared_ptr<CtxValue> ret = future.get();
-  return ret;
-}
-
 void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
   std::weak_ptr<Ctx> weak_context = context_;
 #ifdef ENABLE_INSPECTOR
