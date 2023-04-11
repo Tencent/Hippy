@@ -38,6 +38,7 @@
 #include "footstone/serializer.h"
 #include "footstone/deserializer.h"
 #include "footstone/one_shot_timer.h"
+#include "footstone/time_delta.h"
 
 namespace hippy {
 inline namespace dom {
@@ -45,6 +46,7 @@ inline namespace dom {
 using DomNode = hippy::DomNode;
 using Task = footstone::Task;
 using TaskRunner = footstone::TaskRunner;
+using TimeDelta = footstone::TimeDelta;
 using OneShotTimer = footstone::timer::OneShotTimer;
 using Serializer = footstone::value::Serializer;
 using Deserializer = footstone::value::Deserializer;
@@ -189,12 +191,12 @@ void DomManager::PostTask(const Scene&& scene) {
   task_runner_->PostTask(std::move(func));
 }
 
-uint32_t DomManager::PostDelayedTask(const Scene&& scene, uint64_t delay) {
+uint32_t DomManager::PostDelayedTask(const Scene&& scene, TimeDelta delay) {
   auto func = [scene] { scene.Build(); };
   auto task = std::make_unique<Task>(std::move(func));
   auto id = task->GetId();
   std::shared_ptr<OneShotTimer> timer = std::make_unique<OneShotTimer>(task_runner_);
-  timer->Start(std::move(task), footstone::TimeDelta::FromNanoseconds(static_cast<int64_t>(delay)));
+  timer->Start(std::move(task), delay);
   timer_map_.insert({id, timer});
   return id;
 }
