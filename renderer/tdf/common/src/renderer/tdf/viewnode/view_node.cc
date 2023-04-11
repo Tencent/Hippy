@@ -77,7 +77,12 @@ ViewNode::DomStyleMap ViewNode::GenerateStyleInfo(const std::shared_ptr<hippy::D
 }
 
 void ViewNode::OnCreate() {
+  // parent可能为空的情况说明：
+  // OptimizedRenderManager处理先create又delete的结点时，因为dom树上的删除，同时老pid的结点被优化掉，会传递1个没有父节点的悬空结点下来，从而找不到parent。
   auto parent = GetRootNode()->FindViewNode(GetRenderInfo().pid);
+  if(!parent) {
+    return;
+  }
   parent->AddChildAt(shared_from_this(), render_info_.index);
 }
 
@@ -267,8 +272,9 @@ void ViewNode::OnDelete() {
     (*it)->OnDelete();
   }
   if (!isRoot()) {
-    FOOTSTONE_DCHECK(!parent_.expired());
-    parent_.lock()->RemoveChild(shared_from_this());
+    if (!parent_.expired()) {
+      parent_.lock()->RemoveChild(shared_from_this());
+    }
     GetRootNode()->UnregisterViewNode(render_info_.id);
   }
 }
@@ -525,6 +531,11 @@ std::shared_ptr<RootViewNode> ViewNode::GetRootNode() const {
 void ViewNode::AddChildAt(const std::shared_ptr<ViewNode>& child, int32_t index) {
   FOOTSTONE_DCHECK(!child->GetParent());
 
+  // index可能跳跃变大的情况说明：
+  // Dom层批量create结点后，OptimizedRenderManager会依次处理结点，并展开一些子节点到同一层。
+  // 如果在endBatch前有2个create，第1个展开结点，第2个插入结点，在处理展开结点的子结点时，会产生跳跃index，因为展开处理是依赖Dom树的。
+  // Dom树是即时更新的，结点顺序是先前记录的。
+
   // check index
   auto checked_index = index;
   if(static_cast<uint32_t>(checked_index) > children_.size()) {
@@ -595,8 +606,16 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
     if (parent_.lock()->GetInterceptTouchEventFlag()) {
       v->SetHitTestBehavior(tdfcore::HitTestBehavior::kIgnore);
     }
+    // check index
+    auto checked_index = GetCorrectedIndex();
+    auto view_count = parent_.lock()->GetView()->GetChildren().size();
+    if(static_cast<uint32_t>(checked_index) > view_count) {
+      FOOTSTONE_LOG(INFO) << "ViewNode::Attach, index > view_count, index:"
+                          << checked_index << ", size:" << view_count;
+      checked_index = static_cast<int32_t>(view_count);
+    }
     // must add to parent_, otherwise the view will be freed immediately.
-    parent_.lock()->GetView()->AddView(v, GetCorrectedIndex());
+    parent_.lock()->GetView()->AddView(v, checked_index);
     attached_view_ = v;
   }
 
