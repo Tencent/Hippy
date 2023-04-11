@@ -258,7 +258,11 @@ bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
   uint64_t modify_time = 0;
 
   load_start = std::chrono::system_clock::now();
-  std::shared_ptr<WorkerTaskRunner> task_runner;
+  auto engine = runtime->GetEngine();
+  auto task_runner = engine->GetWorkerTaskRunner();
+  if (task_runner->IsTerminated()) {
+    return false;
+  }
   unicode_string_view code_cache_path;
   if (is_use_code_cache) {
     if (!asset_manager) {
@@ -269,8 +273,8 @@ bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
                       unicode_string_view(std::to_string(modify_time));
 
     std::promise<u8string> read_file_promise;
-    std::future<u8string> read_file_future = read_file_promise.get_future();
-    std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
+    auto read_file_future = read_file_promise.get_future();
+    auto task = std::make_unique<CommonTask>();
     task->func_ = hippy::base::MakeCopyable([p = std::move(read_file_promise),
                                              code_cache_path, code_cache_dir]() mutable {
       u8string content;
@@ -285,9 +289,6 @@ bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
       }
       p.set_value(std::move(content));
     });
-
-    std::shared_ptr<Engine> engine = runtime->GetEngine();
-    task_runner = engine->GetWorkerTaskRunner();
     task_runner->PostTask(std::move(task));
     u8string content;
     read_script_flag = runtime->GetScope()->GetUriLoader()->RequestUntrustedContent(uri, content);
