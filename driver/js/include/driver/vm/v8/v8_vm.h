@@ -34,11 +34,15 @@
 #include "v8/v8.h"
 #pragma clang diagnostic pop
 
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+#include "driver/vm/v8/inspector/v8_inspector_client_impl.h"
+#endif
+
 namespace hippy {
 inline namespace driver {
 inline namespace vm {
 
-struct V8VMInitParam : public VMInitParam {
+struct V8VMInitParam : public VM::VMInitParam {
   enum class V8VMInitType {
     kNoSnapshot, kCreateSnapshot, kUseSnapshot
   };
@@ -51,6 +55,7 @@ struct V8VMInitParam : public VMInitParam {
   std::shared_ptr<v8::StartupData> snapshot_blob;
   std::any holder;
   std::basic_string<uint8_t> buffer;
+  bool enable_v8_serialization;
 
   static size_t HeapLimitSlowGrowthStrategy(void* data, size_t current_heap_limit,
                                             size_t initial_heap_limit) {
@@ -83,6 +88,9 @@ struct V8VMInitParam : public VMInitParam {
 class V8VM : public VM {
  public:
   using string_view = footstone::string_view;
+#if defined(ENABLE_INSPECTOR) && defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
+  using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
+#endif
   struct DeserializerResult {
     bool flag;
     std::shared_ptr<CtxValue> result;
@@ -92,12 +100,23 @@ class V8VM : public VM {
   V8VM(const std::shared_ptr<V8VMInitParam>& param);
   ~V8VM();
 
-  virtual std::shared_ptr<Ctx> CreateContext() override;
-  std::shared_ptr<CtxValue> ParseJson(const std::shared_ptr<Ctx>& ctx, const string_view& json) override;
-  void AddUncaughtExceptionMessageListener(const std::unique_ptr<FunctionWrapper>& wrapper) const;
   inline void SaveUncaughtExceptionCallback(std::unique_ptr<FunctionWrapper>&& wrapper) {
     uncaught_exception_ = std::move(wrapper);
   }
+  inline bool IsEnableV8Serialization() { return enable_v8_serialization_; }
+  inline std::string& GetBuffer() { return serializer_reused_buffer_; }
+
+#if defined(ENABLE_INSPECTOR) && defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
+  inline void SetInspectorClient(std::shared_ptr<V8InspectorClientImpl> inspector_client) {
+    inspector_client_ = inspector_client;
+  }
+  inline std::shared_ptr<V8InspectorClientImpl> GetInspectorClient() {
+    return inspector_client_;
+  }
+#endif
+  virtual std::shared_ptr<Ctx> CreateContext() override;
+  virtual std::shared_ptr<CtxValue> ParseJson(const std::shared_ptr<Ctx>& ctx, const string_view& json) override;
+  void AddUncaughtExceptionMessageListener(const std::unique_ptr<FunctionWrapper>& wrapper) const;
   DeserializerResult Deserializer(const std::shared_ptr<Ctx>& ctx, const std::string& buffer);
 
   static v8::Local<v8::String> CreateV8String(v8::Isolate* isolate,
@@ -117,6 +136,12 @@ class V8VM : public VM {
   v8::Isolate* isolate_;
   v8::Isolate::CreateParams create_params_;
   std::unique_ptr<FunctionWrapper> uncaught_exception_;
+  std::string serializer_reused_buffer_;
+  bool enable_v8_serialization_;
+
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+  std::shared_ptr<V8InspectorClientImpl> inspector_client_;
+#endif
 };
 
 }

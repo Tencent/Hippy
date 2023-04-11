@@ -56,10 +56,10 @@ void VM::HandleUncaughtException(const std::shared_ptr<Ctx>& ctx,
   argv[1] = exception;
 
   auto try_catch = CreateTryCatchScope(true, ctx);
-  std::shared_ptr<CtxValue> ret_value = ctx->CallFunction(exception_handler, 2, argv);
+  ctx->CallFunction(exception_handler, 2, argv);
   if (try_catch->HasCaught()) {
     auto message = try_catch->GetExceptionMessage();
-    FOOTSTONE_LOG(WARNING) << "HippyExceptionHandler error, desc = " << message;
+    FOOTSTONE_LOG(WARNING) << "hippy exceptionHandler error, description = " << message;
   }
 }
 

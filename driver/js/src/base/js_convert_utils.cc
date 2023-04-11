@@ -75,7 +75,7 @@ std::shared_ptr<HippyValue> ToDomValue(const std::shared_ptr<Ctx>& ctx, const st
   } else if (ctx->IsObject(value)) {
     HippyValue::HippyValueObjectType ret;
     std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>> map;
-    auto flag = ctx->GetEntries(value, map);
+    auto flag = ctx->GetEntriesFromObject(value, map);
     FOOTSTONE_CHECK(flag);
     for (const auto& [key_object, value_object]: map) {
       string_view key_string_view;

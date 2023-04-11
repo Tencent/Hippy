@@ -43,9 +43,11 @@
 #include "vfs/uri_loader.h"
 
 namespace hippy {
+
 namespace devtools {
 class DevtoolsDataSource;
 }
+
 inline namespace driver {
 
 inline namespace module {
@@ -56,7 +58,7 @@ class Scope;
 
 class ScopeWrapper {
  public:
-  explicit ScopeWrapper(std::shared_ptr<Scope> scope) : scope(scope) {}
+  explicit ScopeWrapper(std::weak_ptr<Scope> scope) : scope(scope) {}
 
  public:
   std::weak_ptr<Scope> scope;
@@ -126,6 +128,14 @@ class Scope : public std::enable_shared_from_this<Scope> {
   using TaskRunner = footstone::runner::TaskRunner;
   using Task = footstone::Task;
 
+#ifdef ENABLE_INSPECTOR
+  using DevtoolsDataSource = hippy::devtools::DevtoolsDataSource;
+#endif
+
+#if defined(ENABLE_INSPECTOR) && defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
+  using V8InspectorContext = hippy::inspector::V8InspectorContext;
+#endif
+
   struct EventListenerInfo {
     uint32_t dom_id;
     std::string event_name;
@@ -134,13 +144,16 @@ class Scope : public std::enable_shared_from_this<Scope> {
   };
 
   Scope(std::weak_ptr<Engine> engine,
-        std::string name,
-        std::unique_ptr<RegisterMap> map);
+        std::string name);
   ~Scope();
 
-  void WillExit();
   inline std::shared_ptr<Ctx> GetContext() { return context_; }
-  inline std::unique_ptr<RegisterMap>& GetRegisterMap() { return map_; }
+  inline std::shared_ptr<CtxValue> GetBridgeObject() { return bridge_object_; }
+  inline void SetBridgeObject(std::shared_ptr<CtxValue> bridge_object) { bridge_object_ = bridge_object; }
+  inline std::any GetBridge() { return bridge_; }
+  inline void SetBridge(std::any bridge) { bridge_ = bridge; }
+  inline std::any GetTurbo() { return turbo_; }
+  inline void SetTurbo(std::any turbo) { turbo_ = turbo; }
   inline std::weak_ptr<Engine> GetEngine() { return engine_; }
 
   inline std::any GetClassTemplate(const string_view& name) {
@@ -208,8 +221,6 @@ class Scope : public std::enable_shared_from_this<Scope> {
   inline void SaveEventClass(std::shared_ptr<CtxValue> event_class) {
     event_class_ = event_class;
   }
-
-  void* GetScopeWrapperPointer();
 
   hippy::dom::EventListenerInfo AddListener(const EventListenerInfo& event_listener_info);
   hippy::dom::EventListenerInfo RemoveListener(const EventListenerInfo& event_listener_info);
@@ -289,7 +300,16 @@ class Scope : public std::enable_shared_from_this<Scope> {
   }
 #endif
 
-  void RegisterJsClasses();
+#if defined(ENABLE_INSPECTOR) && defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
+  inline void SetInspectorContext(std::shared_ptr<V8InspectorContext> inspector_context) {
+    inspector_context_ = inspector_context;
+  }
+  inline std::shared_ptr<V8InspectorContext> GetInspectorContext() { return inspector_context_; }
+#endif
+
+  void WillExit();
+  void SyncInitialize();
+  void CreateContext();
 
   template<typename T>
   std::shared_ptr<CtxValue> DefineClass(const std::shared_ptr<ClassTemplate<T>>& class_template) {
@@ -378,15 +398,16 @@ class Scope : public std::enable_shared_from_this<Scope> {
 
  private:
   friend class Engine;
-  void Init();
-  void CreateContext();
   void BindModule();
   void Bootstrap();
-  void InvokeCallback();
+  void RegisterJsClasses();
 
  private:
   std::weak_ptr<Engine> engine_;
   std::shared_ptr<Ctx> context_;
+  std::shared_ptr<CtxValue> bridge_object_;
+  std::any bridge_;
+  std::any turbo_;
   std::string name_;
   std::unique_ptr<RegisterMap> map_;
   uint32_t call_ui_function_callback_id_;
@@ -404,7 +425,10 @@ class Scope : public std::enable_shared_from_this<Scope> {
   std::unordered_map<std::string, std::any> turbo_host_object_map_;
   std::vector<std::function<void()>> will_exit_cbs_;
 #ifdef ENABLE_INSPECTOR
-  std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source_;
+  std::shared_ptr<DevtoolsDataSource> devtools_data_source_;
+#endif
+#if defined(ENABLE_INSPECTOR) && defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
+  std::shared_ptr<V8InspectorContext> inspector_context_;
 #endif
 };
 

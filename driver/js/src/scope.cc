@@ -114,12 +114,10 @@ static void InternalBindingCallback(hippy::napi::CallbackInfo& info, void* data)
 // REGISTER_EXTERNAL_REFERENCES(InternalBindingCallback)
 
 Scope::Scope(std::weak_ptr<Engine> engine,
-             std::string name,
-             std::unique_ptr<RegisterMap> map)
+             std::string name)
     : engine_(std::move(engine)),
       context_(nullptr),
       name_(std::move(name)),
-      map_(std::move(map)),
       call_ui_function_callback_id_(0) {}
 
 Scope::~Scope() {
@@ -170,11 +168,10 @@ void Scope::WillExit() {
   FOOTSTONE_DLOG(INFO) << "ExitCtx end";
 }
 
-void Scope::Init() {
-  CreateContext();
+void Scope::SyncInitialize() {
+  RegisterJsClasses();
   BindModule();
   Bootstrap();
-  InvokeCallback();
 }
 
 void Scope::CreateContext() {
@@ -182,17 +179,8 @@ void Scope::CreateContext() {
   FOOTSTONE_CHECK(engine);
   context_ = engine->GetVM()->CreateContext();
   FOOTSTONE_CHECK(context_);
-  context_->SetExternalData(GetScopeWrapperPointer());
-  if (map_) {
-    auto it = map_->find(hippy::base::kContextCreatedCBKey);
-    if (it != map_->end()) {
-      auto f = it->second;
-      if (f) {
-        f(wrapper_.get());
-        map_->erase(it);
-      }
-    }
-  }
+  wrapper_ = std::make_unique<ScopeWrapper>(weak_from_this());
+  context_->SetExternalData(wrapper_.get());
 }
 
 
@@ -218,20 +206,6 @@ void Scope::Bootstrap() {
   std::shared_ptr<CtxValue> argv[] = { context_->CreateFunction(function_wrapper) };
   SaveFunctionWrapper(std::move(function_wrapper));
   context_->CallFunction(function, 1, argv);
-}
-
-void Scope::InvokeCallback() {
-  if (!map_) {
-    return;
-  }
-  auto it = map_->find(hippy::base::KScopeInitializedCBKey);
-  if (it != map_->end()) {
-    auto f = it->second;
-    if (f) {
-      f(wrapper_.get());
-      map_->erase(it);
-    }
-  }
 }
 
 void Scope::RegisterJsClasses() {
@@ -269,11 +243,6 @@ void Scope::RegisterJsClasses() {
   key = event->name;
   SaveClassTemplate(key, std::move(event));
   SaveEventClass(event_class);
-}
-
-void* Scope::GetScopeWrapperPointer() {
-  FOOTSTONE_CHECK(wrapper_);
-  return wrapper_.get();
 }
 
 hippy::dom::EventListenerInfo Scope::AddListener(const EventListenerInfo& event_listener_info) {

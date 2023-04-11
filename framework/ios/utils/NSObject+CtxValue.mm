@@ -181,7 +181,7 @@ id ObjectFromCtxValue(CtxPtr context, CtxValuePtr value) {
         }
         else if (context->IsObject(value)) {
             std::unordered_map<CtxValuePtr, CtxValuePtr> map;
-            if (context->GetEntries(value, map)) {
+            if (context->GetEntriesFromObject(value, map)) {
                 NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:map.size()];
                 for (auto &it : map) {
                     footstone::string_view string_view;

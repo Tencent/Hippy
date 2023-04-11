@@ -25,8 +25,9 @@
 #include <memory>
 
 #include "connector/bridge.h"
-#include "driver/runtime/v8/v8_bridge_utils.h"
+#include "driver/js_driver_utils.h"
 #include "driver/napi/v8/serializer.h"
+#include "driver/scope.h"
 #include "footstone/logging.h"
 #include "footstone/string_view_utils.h"
 #include "footstone/string_view.h"
@@ -39,7 +40,7 @@ inline namespace bridge {
 
 using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
-using V8BridgeUtils = hippy::runtime::V8BridgeUtils;
+using JsDriverUtils = hippy::JsDriverUtils;
 using byte_string = std::string;
 
 jmethodID j_call_natives_direct_method_id;
@@ -59,20 +60,21 @@ void InitBridge(JNIEnv* j_env) {
   }
 }
 
-void CallNative(CallbackInfo& info, int32_t runtime_id) {
-  auto cb = [](const std::shared_ptr<Runtime>& runtime,
-               const string_view& module,
-               const string_view& func,
-               const string_view& cb_id,
-               bool is_heap_buffer,
-               const byte_string& buffer) {
-    std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
-    JNIEnv* j_env = instance->AttachCurrentThread();
+void CallHost(CallbackInfo& info) {
+  auto cb = [](
+      const std::shared_ptr<Scope>& scope,
+      const string_view& module,
+      const string_view& func,
+      const string_view& cb_id,
+      bool is_heap_buffer,
+      const byte_string& buffer) {
+    auto instance = JNIEnvironment::GetInstance();
+    auto j_env = instance->AttachCurrentThread();
     jobject j_buffer;
     jmethodID j_method;
-    jstring j_module = JniUtils::StrViewToJString(j_env, module);
-    jstring j_func = JniUtils::StrViewToJString(j_env, func);
-    jstring j_cb_id = JniUtils::StrViewToJString(j_env, cb_id);
+    auto j_module = JniUtils::StrViewToJString(j_env, module);
+    auto j_func = JniUtils::StrViewToJString(j_env, func);
+    auto j_cb_id = JniUtils::StrViewToJString(j_env, cb_id);
     auto len = footstone::check::checked_numeric_cast<size_t, jsize>(buffer.length());
     if (is_heap_buffer == 1) {  // Direct
       j_buffer = j_env->NewDirectByteBuffer(
@@ -86,9 +88,7 @@ void CallNative(CallbackInfo& info, int32_t runtime_id) {
           reinterpret_cast<const jbyte*>(buffer.c_str()));
       j_method = j_call_natives_method_id;
     }
-
-    FOOTSTONE_DCHECK(runtime->HasData(kBridgeSlot));
-    auto bridge = std::any_cast<std::shared_ptr<Bridge>>(runtime->GetData(kBridgeSlot));
+    auto bridge = std::any_cast<std::shared_ptr<Bridge>>(scope->GetBridge());
     j_env->CallVoidMethod(bridge->GetObj(), j_method, j_module, j_func, j_cb_id, j_buffer);
     JNIEnvironment::ClearJEnvException(j_env);
 
@@ -98,7 +98,7 @@ void CallNative(CallbackInfo& info, int32_t runtime_id) {
     j_env->DeleteLocalRef(j_cb_id);
     j_env->DeleteLocalRef(j_buffer);
   };
-  V8BridgeUtils::CallNative(info, runtime_id, cb);
+  JsDriverUtils::CallNative(info, cb);
 }
 
 } // namespace bridge

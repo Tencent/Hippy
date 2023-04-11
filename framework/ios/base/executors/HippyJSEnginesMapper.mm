@@ -25,6 +25,7 @@
 
 #include "dom/dom_manager.h"
 #include "driver/engine.h"
+#include "driver/vm/js_vm.h"
 #include "footstone/worker.h"
 #include "footstone/worker_impl.h"
 #include "footstone/platform/ios/looper_driver.h"
@@ -44,7 +45,7 @@ void EngineResource::Setup(const std::string name) {
     dom_manager_ = std::make_shared<hippy::DomManager>();
     dom_manager_->SetTaskRunner(task_runner);
     engine_ = std::make_shared<hippy::Engine>();
-    engine_->AsyncInit(task_runner, nullptr);
+    engine_->AsyncInitialize(task_runner, std::make_shared<hippy::VM::VMInitParam>(), nullptr);
 }
 
 EngineResource::EngineResource(const std::string name) {
