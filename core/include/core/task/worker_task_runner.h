@@ -40,6 +40,11 @@ class WorkerTaskRunner {
   explicit WorkerTaskRunner(uint32_t pool_size);
   ~WorkerTaskRunner() = default;
 
+  inline bool IsTerminated() {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return terminated_;
+  }
+
   void PostTask(std::unique_ptr<CommonTask> task,
                 uint32_t priority = WorkerTaskRunner::kDefaultTaskPriority);
   std::unique_ptr<CommonTask> GetNext();
