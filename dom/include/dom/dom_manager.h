@@ -37,6 +37,7 @@
 #include "footstone/logging.h"
 #include "footstone/macros.h"
 #include "footstone/task_runner.h"
+#include "footstone/time_delta.h"
 #include "footstone/base_timer.h"
 #include "footstone/worker.h"
 
@@ -124,7 +125,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   static void SetRootSize(const std::weak_ptr<RootNode>& weak_root_node, float width, float height);
   void DoLayout(const std::weak_ptr<RootNode>& weak_root_node);
   void PostTask(const Scene&& scene);
-  uint32_t PostDelayedTask(const Scene&& scene, uint64_t delay);
+  uint32_t PostDelayedTask(const Scene&& scene, footstone::TimeDelta delay);
   void CancelTask(uint32_t id);
 
   static byte_string GetSnapShot(const std::shared_ptr<RootNode>& root_node);

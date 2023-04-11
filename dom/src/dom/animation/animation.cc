@@ -23,13 +23,17 @@
 #include <utility>
 
 #include "footstone/base_time.h"
+#include "footstone/check.h"
 #include "footstone/logging.h"
+#include "footstone/time_delta.h"
 #include "dom/animation/animation_manager.h"
 #include "dom/dom_manager.h"
 #include "dom/root_node.h"
 
 namespace hippy {
 inline namespace animation {
+
+using TimeDelta = footstone::TimeDelta;
 
 constexpr int32_t kLoopCnt = -1;
 
@@ -216,7 +220,14 @@ void Animation::Start() {
         on_start();
       }
     }};
-    auto task_id = dom_manager->PostDelayedTask(Scene(std::move(ops)), delay_);
+    int64_t delay;
+    auto flag = footstone::numeric_cast(delay_, delay);
+    FOOTSTONE_DCHECK(flag);
+    if (!flag) {
+      return;
+    }
+    auto task_id = dom_manager->PostDelayedTask(Scene(std::move(ops)),
+                                                TimeDelta::FromMilliseconds(delay));
     animation_manager->AddDelayedAnimationRecord(id_, task_id);
   }
 }
@@ -417,7 +428,14 @@ void Animation::Resume() {
       animation->SetLastBeginTime(now);
       animation_manager->AddActiveAnimation(animation);
     }};
-    auto task_id = dom_manager->PostDelayedTask(Scene(std::move(ops)), interval);
+    int64_t ms_delay;
+    auto flag = footstone::numeric_cast(interval, ms_delay);
+    FOOTSTONE_DCHECK(flag);
+    if (!flag) {
+      return;
+    }
+    auto task_id = dom_manager->PostDelayedTask(Scene(std::move(ops)),
+                                                TimeDelta::FromMilliseconds(ms_delay));
     animation_manager->AddDelayedAnimationRecord(id_, task_id);
   } else if (exec_time >= delay && exec_time < delay + duration) {
     auto now = footstone::time::MonotonicallyIncreasingTime();
@@ -501,7 +519,14 @@ void Animation::Repeat(uint64_t now) {
       }
       animation_manager->AddActiveAnimation(animation);
     }};
-    auto task_id = dom_manager->PostDelayedTask(Scene(std::move(ops)), delay_);
+    int64_t delay;
+    auto flag = footstone::numeric_cast(delay_, delay);
+    FOOTSTONE_DCHECK(flag);
+    if (!flag) {
+      return;
+    }
+    auto task_id = dom_manager->PostDelayedTask(Scene(std::move(ops)),
+                                                TimeDelta::FromMilliseconds(delay));
     animation_manager->AddDelayedAnimationRecord(id_, task_id);
     status_ = Animation::Status::kStart;
   }
