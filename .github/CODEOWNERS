@@ -9,29 +9,29 @@
 #
 
 # universal files
-* @churchill-zhang
+* @ilikethese @churchill-zhang
 
 # cmake related
-*.cmake @churchill-zhang
-CMakeLists.txt @churchill-zhang
+*.cmake @ilikethese @churchill-zhang
+CMakeLists.txt @ilikethese @churchill-zhang
 
 # driver: js
 /driver/js/ @churchill-zhang @ilikethese
-/driver/js/*.js @zoomchan-cxj
-/driver/js/.eslintignore @zoomchan-cxj
-/driver/js/.eslintrc.js @zoomchan-cxj
-/driver/js/.nycrc @zoomchan-cxj
-/driver/js/tsconfig.json @zoomchan-cxj
-/driver/js/tsdoc.json @zoomchan-cxj
-/driver/js/lerna.json @zoomchan-cxj
-/driver/js/package.json @zoomchan-cxj
-/driver/js/package-lock.json @zoomchan-cxj
-/driver/js/examples/ @zoomchan-cxj
-/driver/js/scripts/ @zoomchan-cxj
-/driver/js/packages/ @zoomchan-cxj
+/driver/js/*.js @zealotchen0 @zoomchan-cxj
+/driver/js/.eslintignore @zealotchen0 @zoomchan-cxj
+/driver/js/.eslintrc.js @zealotchen0 @zoomchan-cxj
+/driver/js/.nycrc @zealotchen0 @zoomchan-cxj
+/driver/js/tsconfig.json @zealotchen0 @zoomchan-cxj
+/driver/js/tsdoc.json @zealotchen0 @zoomchan-cxj
+/driver/js/lerna.json @zealotchen0 @zoomchan-cxj
+/driver/js/package.json @zealotchen0 @zoomchan-cxj
+/driver/js/package-lock.json @zealotchen0 @zoomchan-cxj
+/driver/js/examples/ @zealotchen0 @zoomchan-cxj
+/driver/js/scripts/ @zealotchen0 @zoomchan-cxj
+/driver/js/packages/ @zealotchen0 @zoomchan-cxj
 
 # driver: vl:
-/driver/vl/ @churchill-zhang
+/driver/vl/ @ilikethese @churchill-zhang
 
 # framework: android
 /framework/android/ @siguangli
@@ -53,7 +53,7 @@ CMakeLists.txt @churchill-zhang
 # renderer: tdf
 /renderer/tdf/ @vimerzhao
 /renderer/tdf/android/ @siguangli
-/renderer/tdf/android/**/src/main/cpp/ @churchill-zhang
+/renderer/tdf/android/**/src/main/cpp/ @ilikethese @churchill-zhang
 /renderer/tdf/ios/ @ozonelmy
 
 # renderer: voltron
@@ -83,17 +83,17 @@ CMakeLists.txt @churchill-zhang
 /devtools/ @lavnFan
 
 # gh: config
-/.github/ @zoomchan-cxj
+/.github/ @zealotchen0 @zoomchan-cxj
 
 # doc: example
 /framework/examples/android-demo/ @siguangli
-/framework/examples/android-demo/res/ @zoomchan-cxj
+/framework/examples/android-demo/res/ @zealotchen0 @zoomchan-cxj
 /framework/examples/ios-demo/ @ozonelmy
-/framework/examples/ios-demo/res/ @zoomchan-cxj
+/framework/examples/ios-demo/res/ @zealotchen0 @zoomchan-cxj
 
 # doc: pages
-/*.md @zoomchan-cxj
-/docs/ @zoomchan-cxj
+/*.md @zealotchen0 @zoomchan-cxj
+/docs/ @zealotchen0 @zoomchan-cxj
 
 # build: gradle
 /gradle.properties @siguangli
@@ -109,4 +109,4 @@ CMakeLists.txt @churchill-zhang
 /xcodeinitscript.sh @ozonelmy
 
 # build: config
-/buildconfig/ @churchill-zhang
+/buildconfig/ @ilikethese @churchill-zhang
