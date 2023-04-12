@@ -9,21 +9,21 @@
 #
 
 # universal files
-* @churchill-zhang
+* @churchill-zhang @ilikethese
 
 # cmake related
-*.cmake @churchill-zhang
-CMakeLists.txt @churchill-zhang
+*.cmake @churchill-zhang @ilikethese
+CMakeLists.txt @churchill-zhang @ilikethese
 
 # driver: js
-/.eslintignore @zoomchan-cxj
-/.eslintrc.js @zoomchan-cxj
-/.nycrc @zoomchan-cxj
-/ava.config.js @zoomchan-cxj
+/.eslintignore @zealotchen0 @zoomchan-cxj
+/.eslintrc.js @zealotchen0 @zoomchan-cxj
+/.nycrc @zealotchen0 @zoomchan-cxj
+/ava.config.js @zealotchen0 @zoomchan-cxj
 /core/ @churchill-zhang @ilikethese
-/core/js/ @zoomchan-cxj
-/packages/ @zoomchan-cxj
-/packages/hippy-web-renderer/ @pba-cra @zoomchan-cxj
+/core/js/ @zealotchen0 @zoomchan-cxj
+/packages/ @zealotchen0 @zoomchan-cxj
+/packages/hippy-web-renderer/ @pba-cra @zealotchen0 @zoomchan-cxj
 
 # framework: android
 /android/ @siguangli
@@ -36,20 +36,20 @@ CMakeLists.txt @churchill-zhang
 /layout/ @ilikethese
 
 # gh: config
-/.github/ @zoomchan-cxj
+/.github/ @zealotchen0 @zoomchan-cxj
 
 # doc: example
-/examples/ @zoomchan-cxj
-/examples/hippy-*-demo/ @zoomchan-cxj
+/examples/ @zealotchen0 @zoomchan-cxj
+/examples/hippy-*-demo/ @zealotchen0 @zoomchan-cxj
 /examples/android-demo/ @siguangli
-/examples/android-demo/res/ @zoomchan-cxj
+/examples/android-demo/res/ @zealotchen0 @zoomchan-cxj
 /examples/ios-demo/ @ozonelmy
-/examples/ios-demo/res/ @zoomchan-cxj
-/static/ @zoomchan-cxj
+/examples/ios-demo/res/ @zealotchen0 @zoomchan-cxj
+/static/ @zealotchen0 @zoomchan-cxj
 
 # doc: pages
-/*.md @zoomchan-cxj
-/docs/ @zoomchan-cxj
+/*.md @zealotchen0 @zoomchan-cxj
+/docs/ @zealotchen0 @zoomchan-cxj
 
 # build: gradle
 /gradle.properties @siguangli
@@ -60,14 +60,14 @@ CMakeLists.txt @churchill-zhang
 /gradle/ @siguangli
 
 # build: xcode
-/hippy.podspec
+/hippy.podspec @ozonelmy
 /Hippy.xcworkspace/ @ozonelmy
 
 # build: config
-/buildconfig/ @churchill-zhang
+/buildconfig/ @churchill-zhang @ilikethese
 
 # build: js
-/tsdoc.json @zoomchan-cxj
-/tsconfig.json @zoomchan-cxj
-/lerna.json @zoomchan-cxj
-/scripts/ @zoomchan-cxj
+/tsdoc.json @zealotchen0 @zoomchan-cxj
+/tsconfig.json @zealotchen0 @zoomchan-cxj
+/lerna.json @zealotchen0 @zoomchan-cxj
+/scripts/ @zealotchen0 @zoomchan-cxj
