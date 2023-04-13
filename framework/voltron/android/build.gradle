@@ -10,7 +10,7 @@ buildscript {
 
     // 默认不编译C++代码，可以加快编译速度和调试速度(默认关闭LLVM调试器)
     // 如果需要本地调试/修改C++代码，打开这个即可
-    enableLocalCmake = true
+    enableLocalCmake = false
 
     if (!enableLocalCmake) {
       def enable = System.getenv("ENABLE_LOCAL_CMAKE")
@@ -66,6 +66,7 @@ android {
 
   defaultConfig {
     minSdkVersion 21
+    consumerProguardFiles "proguard-rules.pro"
 
     if (enableLocalCmake) {
       externalNativeBuild {
@@ -91,6 +92,7 @@ android {
     }
     release {
       minifyEnabled true
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
     }
     debug {
       minifyEnabled false
