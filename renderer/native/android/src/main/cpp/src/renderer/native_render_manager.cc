@@ -137,7 +137,6 @@ void NativeRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
     auto style = nodes[i]->GetStyleMap();
     auto iter = style->begin();
     while (iter != style->end()) {
-
       props[iter->first] = *(iter->second);
       iter++;
     }
@@ -186,13 +185,13 @@ void NativeRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_node,
     dom_node[kIndex] = footstone::value::HippyValue(render_info.index);
     dom_node[kName] = footstone::value::HippyValue(nodes[i]->GetViewName());
 
-    footstone::value::HippyValue::HippyValueObjectType diffProps;
-    footstone::value::HippyValue::DomValueArrayType deleteProps;
+    footstone::value::HippyValue::HippyValueObjectType diff_props;
+    footstone::value::HippyValue::DomValueArrayType del_props;
     auto diff = nodes[i]->GetDiffStyle();
     if (diff) {
       auto iter = diff->begin();
       while (iter != diff->end()) {
-        diffProps[iter->first] = *(iter->second);
+        diff_props[iter->first] = *(iter->second);
         iter++;
       }
     }
@@ -200,12 +199,12 @@ void NativeRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_node,
     if (del) {
       auto iter = del->begin();
       while (iter != del->end()) {
-        deleteProps.push_back(footstone::value::HippyValue(*iter));
+        del_props.emplace_back(footstone::value::HippyValue(*iter));
         iter++;
       }
     }
-    dom_node[kProps] = diffProps;
-    dom_node[kDeleteProps] = deleteProps;
+    dom_node[kProps] = diff_props;
+    dom_node[kDeleteProps] = del_props;
     dom_node_array[i] = dom_node;
   }
   serializer_->WriteValue(HippyValue(dom_node_array));
