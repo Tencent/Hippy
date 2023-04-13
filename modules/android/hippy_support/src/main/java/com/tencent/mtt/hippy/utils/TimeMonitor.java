@@ -100,7 +100,7 @@ public class TimeMonitor {
             return null;
         }
 
-        public void startPoint(@NonNull String pointKey) {
+        void startPoint(@NonNull String pointKey) {
             if (!isActive) {
                 return;
             }
@@ -123,7 +123,7 @@ public class TimeMonitor {
             }
         }
 
-        public void end() {
+        void end() {
             if (isActive) {
                 isActive = false;
                 if (mLastPoint != null) {

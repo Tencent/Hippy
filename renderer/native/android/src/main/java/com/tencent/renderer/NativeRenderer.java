@@ -57,9 +57,11 @@ import com.tencent.renderer.node.VirtualNodeManager;
 
 import com.tencent.renderer.serialization.Deserializer;
 import com.tencent.renderer.serialization.Serializer;
+import com.tencent.renderer.utils.ArrayUtils;
 import com.tencent.renderer.utils.DisplayUtils;
 import com.tencent.renderer.utils.EventUtils.EventType;
 
+import com.tencent.renderer.utils.MapUtils;
 import com.tencent.vfs.VfsManager;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -90,9 +92,10 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     public static final int SCREEN_SNAPSHOT_ROOT_ID = 1000;
     public static final String NODE_ID = "id";
     public static final String NODE_INDEX = "index";
+    public static final String NODE_PROPS = "props";
     private static final String TAG = "NativeRenderer";
     private static final String NODE_PID = "pId";
-    private static final String NODE_PROPS = "props";
+    private static final String NODE_DELETE_PROPS = "deleteProps";
     private static final String CLASS_NAME = "name";
     private static final String LAYOUT_LEFT = "left";
     private static final String LAYOUT_TOP = "top";
@@ -106,6 +109,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
      */
     private static final int MAX_UI_TASK_QUEUE_CAPACITY = 1000;
     private static final int ROOT_VIEW_ID_INCREMENT = 10;
+    private static final int INVALID_NODE_ID = -1;
     private static final AtomicInteger sRootIdCounter = new AtomicInteger(0);
     @Nullable
     private FrameworkProxy mFrameworkProxy;
@@ -216,7 +220,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             return mFrameworkProxy.getBackgroundExecutor();
         }
         if (mBackgroundExecutor == null) {
-            mBackgroundExecutor = Executors.newSingleThreadExecutor();
+            mBackgroundExecutor = Executors.newFixedThreadPool(4);
         }
         return mBackgroundExecutor;
     }
@@ -428,44 +432,31 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         };
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({"unchecked"})
     @Override
     public void createNode(final int rootId, @NonNull List<Object> nodeList)
             throws NativeRenderException {
         final List<UITaskExecutor> createNodeTaskList = new ArrayList<>(nodeList.size());
         final List<UITaskExecutor> createViewTaskList = new ArrayList<>(nodeList.size());
         for (int i = 0; i < nodeList.size(); i++) {
-            Object element = nodeList.get(i);
-            if (!(element instanceof Map)) {
+            final Map<String, Object> node = ArrayUtils.getMapValue(nodeList, i);
+            if (node == null) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
-                        TAG + ": createNode: invalid node object");
+                        TAG + ": updateNode: invalid node object");
             }
-            final Map node = (Map) element;
-            int nodeId;
-            int nodePid;
-            int nodeIndex;
-            String className;
-            try {
-                nodeId = ((Number) Objects.requireNonNull(node.get(NODE_ID))).intValue();
-                nodePid = ((Number) Objects.requireNonNull(node.get(NODE_PID))).intValue();
-                nodeIndex = ((Number) Objects.requireNonNull(node.get(NODE_INDEX))).intValue();
-                className = (String) Objects.requireNonNull(node.get(CLASS_NAME));
-            } catch (NullPointerException e) {
-                throw new NativeRenderException(INVALID_NODE_DATA_ERR, e);
-            }
+            final int nodeId = MapUtils.getIntValue(node, NODE_ID, INVALID_NODE_ID);
+            final int nodePid = MapUtils.getIntValue(node, NODE_PID, INVALID_NODE_ID);
+            final int nodeIndex = MapUtils.getIntValue(node, NODE_INDEX, INVALID_NODE_ID);
+            final String className = MapUtils.getStringValue(node, CLASS_NAME);
             // The node id, pid and index should not be negative number.
-            if (nodeId < 0 || nodePid < 0 || nodeIndex < 0) {
+            if (nodeId < 0 || nodePid < 0 || nodeIndex < 0 || className == null) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
-                        TAG + ": createNode: id=" + nodeId + ", pId=" + nodePid + ", index="
-                                + nodeIndex);
+                        TAG + ": createNode: id " + nodeId + ", pId " + nodePid + ", index "
+                                + nodeIndex + ", className " + className);
             }
-            final int id = nodeId;
-            final int index = nodeIndex;
-            element = node.get(NODE_PROPS);
-            final Map<String, Object> props =
-                    (element instanceof HashMap) ? (Map) element : new HashMap<String, Object>();
-            LogUtils.d(TAG, "createNode nodeId " + nodeId + ", nodePid " + nodePid + ", nodeIndex "
-                    + nodeIndex + ", className " + className);
+            final Map<String, Object> props = MapUtils.getMapValue(node, NODE_PROPS);
+            LogUtils.d(TAG, "=============================createNode " + nodeId);
+            LogUtils.d(TAG, "pid " + nodePid + ", index " + nodeIndex + ", name " + className);
             LogUtils.d(TAG, "props " + props);
             mVirtualNodeManager.createNode(rootId, nodeId, nodePid, nodeIndex, className, props);
             // If multiple level are nested, the parent is outermost text node.
@@ -485,16 +476,15 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 createNodeTaskList.add(new UITaskExecutor() {
                     @Override
                     public void exec() {
-                        mRenderManager.onCreateVirtualNode(rootId, id, pid, index, node);
+                        mRenderManager.onCreateVirtualNode(rootId, nodeId, pid, nodeIndex, node);
                     }
                 });
             } else {
-                final int pid = nodePid;
-                final String name = className;
                 createNodeTaskList.add(new UITaskExecutor() {
                     @Override
                     public void exec() {
-                        mRenderManager.createNode(rootId, id, pid, index, name, props);
+                        mRenderManager.createNode(rootId, nodeId, nodePid, nodeIndex, className,
+                                props);
                     }
                 });
                 // Because image and text may be rendered flat, it is not necessary to pre create a view.
@@ -503,7 +493,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                     createViewTaskList.add(new UITaskExecutor() {
                         @Override
                         public void exec() {
-                            mRenderManager.preCreateView(rootId, id, pid, name, props);
+                            mRenderManager.preCreateView(rootId, nodeId, nodePid, className, props);
                         }
                     });
                 }
@@ -525,36 +515,29 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         }
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({"unchecked"})
     @Override
     public void updateNode(final int rootId, @NonNull List<Object> nodeList)
             throws NativeRenderException {
         final List<UITaskExecutor> taskList = new ArrayList<>(nodeList.size());
         for (int i = 0; i < nodeList.size(); i++) {
-            Object element = nodeList.get(i);
-            if (!(element instanceof Map)) {
+            final Map<String, Object> node = ArrayUtils.getMapValue(nodeList, i);
+            if (node == null) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                         TAG + ": updateNode: invalid node object");
             }
-            final Map<String, Object> node = (Map) element;
-            int nodeId;
-            try {
-                nodeId = ((Number) Objects.requireNonNull(node.get(NODE_ID))).intValue();
-            } catch (NullPointerException e) {
-                throw new NativeRenderException(INVALID_NODE_DATA_ERR, e);
-            }
+            final int nodeId = MapUtils.getIntValue(node, NODE_ID, INVALID_NODE_ID);
             // The node id should not be negative number.
             if (nodeId < 0) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                         TAG + ": updateNode: invalid negative id=" + nodeId);
             }
-            final int id = nodeId;
-            element = node.get(NODE_PROPS);
-            final Map<String, Object> props =
-                    (element instanceof HashMap) ? (Map) element : new HashMap<String, Object>();
-            LogUtils.d(TAG,
-                    "updateNode nodeId " + nodeId + ", props " + props);
-            mVirtualNodeManager.updateNode(rootId, nodeId, props);
+            final Map<String, Object> diffProps = MapUtils.getMapValue(node, NODE_PROPS);
+            final List<Object> delProps = MapUtils.getListValue(node, NODE_DELETE_PROPS);
+            LogUtils.d(TAG, "=============================updateNode " + nodeId);
+            LogUtils.d(TAG, "diff " + diffProps);
+            LogUtils.d(TAG, "delete " + delProps);
+            mVirtualNodeManager.updateNode(rootId, nodeId, diffProps, delProps);
             // If multiple level are nested, the parent is outermost text node.
             VirtualNode parent = mVirtualNodeManager.checkVirtualParent(rootId, nodeId);
             if (parent != null) {
@@ -562,14 +545,14 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 taskList.add(new UITaskExecutor() {
                     @Override
                     public void exec() {
-                        mRenderManager.onUpdateVirtualNode(rootId, id, pid, node);
+                        mRenderManager.onUpdateVirtualNode(rootId, nodeId, pid, diffProps, delProps);
                     }
                 });
             } else {
                 taskList.add(new UITaskExecutor() {
                     @Override
                     public void exec() {
-                        mRenderManager.updateNode(rootId, id, props);
+                        mRenderManager.updateNode(rootId, nodeId, diffProps, delProps);
                     }
                 });
             }
@@ -582,6 +565,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     @Override
     public void deleteNode(final int rootId, @NonNull int[] ids) throws NativeRenderException {
         final List<UITaskExecutor> taskList = new ArrayList<>(ids.length);
+        LogUtils.d(TAG, "=============================deleteNode");
+        LogUtils.d(TAG, "ids " + ids);
         for (final int nodeId : ids) {
             // The node id should not be negative number.
             if (nodeId < 0) {
@@ -590,7 +575,6 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             }
             // If multiple level are nested, the parent is outermost text node.
             VirtualNode parent = mVirtualNodeManager.checkVirtualParent(rootId, nodeId);
-            LogUtils.d(TAG, "deleteNode rootId " + rootId + ", nodeId " + nodeId);
             mVirtualNodeManager.deleteNode(rootId, nodeId);
             if (parent != null) {
                 final int pid = parent.getId();
@@ -627,7 +611,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     @Override
     public void moveNode(final int rootId, final int pid, @NonNull final List<Object> list) {
-        LogUtils.d(TAG, "moveNode pid " + pid + ", node list " + list);
+        LogUtils.d(TAG, "=============================moveNode");
+        LogUtils.d(TAG, "pid " + pid + ", node list " + list);
         VirtualNode parent = mVirtualNodeManager.getVirtualNode(rootId, pid);
         if (parent == null) {
             addUITask(new UITaskExecutor() {
@@ -653,30 +638,12 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             throws NativeRenderException {
         final List<UITaskExecutor> taskList = new ArrayList<>(nodeList.size());
         for (int i = 0; i < nodeList.size(); i++) {
-            Object element = nodeList.get(i);
-            if (!(element instanceof Map)) {
+            final Map<String, Object> layoutInfo = ArrayUtils.getMapValue(nodeList, i);
+            if (layoutInfo == null) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
-                        TAG + ": updateLayout: invalid node object");
+                        TAG + ": updateNode: invalid node object");
             }
-            Map<String, Object> layoutInfo = (Map) element;
-            int nodeId;
-            float layoutLeft;
-            float layoutTop;
-            float layoutWidth;
-            float layoutHeight;
-            try {
-                nodeId = ((Number) Objects.requireNonNull(layoutInfo.get(NODE_ID))).intValue();
-                layoutLeft = ((Number) Objects.requireNonNull(layoutInfo.get(LAYOUT_LEFT)))
-                        .floatValue();
-                layoutTop = ((Number) Objects.requireNonNull(layoutInfo.get(LAYOUT_TOP)))
-                        .floatValue();
-                layoutWidth = ((Number) Objects.requireNonNull(layoutInfo.get(LAYOUT_WIDTH)))
-                        .floatValue();
-                layoutHeight = ((Number) Objects.requireNonNull(layoutInfo.get(LAYOUT_HEIGHT)))
-                        .floatValue();
-            } catch (NullPointerException e) {
-                throw new NativeRenderException(INVALID_NODE_DATA_ERR, e);
-            }
+            final int nodeId = MapUtils.getIntValue(layoutInfo, NODE_ID, INVALID_NODE_ID);
             // The node id should not be negative number.
             if (nodeId < 0) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
@@ -687,29 +654,28 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 // so don't add update task to the ui task queue.
                 continue;
             }
-            final int id = nodeId;
-            final int left = Math.round(layoutLeft);
-            final int top = Math.round(layoutTop);
-            final int width = Math.round(layoutWidth);
-            final int height = Math.round(layoutHeight);
+            final int left = Math.round(MapUtils.getFloatValue(layoutInfo, LAYOUT_LEFT));
+            final int top = Math.round(MapUtils.getFloatValue(layoutInfo, LAYOUT_TOP));
+            final int width = Math.round(MapUtils.getFloatValue(layoutInfo, LAYOUT_WIDTH));
+            final int height = Math.round(MapUtils.getFloatValue(layoutInfo, LAYOUT_HEIGHT));
             final TextRenderSupplier supplier = mVirtualNodeManager
-                    .updateLayout(rootId, nodeId, layoutWidth, layoutInfo);
+                    .updateLayout(rootId, nodeId, width, layoutInfo);
             // If restoring snapshots, update layout is called directly on the UI thread,
             // and do not need to use the UI task
             if (rootId == SCREEN_SNAPSHOT_ROOT_ID) {
                 if (supplier != null) {
-                    mRenderManager.updateExtra(rootId, id, supplier);
+                    mRenderManager.updateExtra(rootId, nodeId, supplier);
                 }
-                mRenderManager.updateLayout(rootId, id, left, top, width, height);
+                mRenderManager.updateLayout(rootId, nodeId, left, top, width, height);
                 continue;
             }
             UITaskExecutor task = new UITaskExecutor() {
                 @Override
                 public void exec() {
                     if (supplier != null) {
-                        mRenderManager.updateExtra(rootId, id, supplier);
+                        mRenderManager.updateExtra(rootId, nodeId, supplier);
                     }
-                    mRenderManager.updateLayout(rootId, id, left, top, width, height);
+                    mRenderManager.updateLayout(rootId, nodeId, left, top, width, height);
                 }
             };
             taskList.add(task);
@@ -725,32 +691,23 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             throws NativeRenderException {
         final List<UITaskExecutor> taskList = new ArrayList<>(eventList.size());
         for (int i = 0; i < eventList.size(); i++) {
-            Object element = eventList.get(i);
-            if (!(element instanceof Map)) {
+            final Map<String, Object> events = ArrayUtils.getMapValue(eventList, i);
+            if (events == null) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
-                        TAG + ": updateEventListener: invalid event object");
+                        TAG + ": updateNode: invalid node object");
             }
-            Map<String, Object> events = (Map) element;
-            Map<String, Object> eventProps;
-            int nodeId;
-            try {
-                nodeId = ((Number) Objects.requireNonNull(events.get(NODE_ID))).intValue();
-                eventProps = (Map) Objects.requireNonNull(events.get(NODE_PROPS));
-            } catch (NullPointerException e) {
-                throw new NativeRenderException(INVALID_NODE_DATA_ERR, e);
-            }
+            final int nodeId = MapUtils.getIntValue(events, NODE_ID, INVALID_NODE_ID);
+            final Map<String, Object> eventProps = MapUtils.getMapValue(events, NODE_PROPS);
             // The node id should not be negative number.
-            if (nodeId < 0) {
+            if (nodeId < 0 || eventProps == null) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                         TAG + ": updateEventListener: invalid negative id=" + nodeId);
             }
             mVirtualNodeManager.updateEventListener(rootId, nodeId, eventProps);
-            final int id = nodeId;
-            final Map<String, Object> props = eventProps;
             taskList.add(new UITaskExecutor() {
                 @Override
                 public void exec() {
-                    mRenderManager.updateEventListener(rootId, id, props);
+                    mRenderManager.updateEventListener(rootId, nodeId, eventProps);
                 }
             });
         }
@@ -802,7 +759,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     @Override
     public void endBatch(final int rootId) throws NativeRenderException {
-        LogUtils.i(TAG, "endBatch rootId " + rootId);
+        LogUtils.d(TAG, "=============================endBatch " + rootId);
         Map<Integer, Layout> layoutToUpdate = mVirtualNodeManager.endBatch(rootId);
         if (layoutToUpdate != null) {
             for (Entry<Integer, Layout> entry : layoutToUpdate.entrySet()) {

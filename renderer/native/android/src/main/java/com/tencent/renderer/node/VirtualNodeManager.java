@@ -312,12 +312,25 @@ public class VirtualNodeManager {
         updateProps(node, props);
     }
 
-    public void updateNode(int rootId, int id, @Nullable Map<String, Object> props) {
+    public void updateNode(int rootId, int id, @Nullable Map<String, Object> diffProps,
+            @Nullable List<Object> delProps) {
         VirtualNode node = getVirtualNode(rootId, id);
         if (node == null) {
             return;
         }
-        updateProps(node, props);
+        Map<String, Object> propsToUpdate = null;
+        if (diffProps != null) {
+            propsToUpdate = diffProps;
+        }
+        if (delProps != null) {
+            if (propsToUpdate == null) {
+                propsToUpdate = new HashMap<>();
+            }
+            for (Object key : delProps) {
+                propsToUpdate.put(key.toString(), null);
+            }
+        }
+        updateProps(node, propsToUpdate);
         if (node.mParent == null) {
             List<VirtualNode> updateNodes = mUpdateNodes.get(rootId);
             if (updateNodes == null) {

@@ -117,10 +117,10 @@ public class RenderManager {
     }
 
     public void onUpdateVirtualNode(int rootId, int id, int pid,
-            @NonNull Map<String, Object> childInfo) {
+            @Nullable Map<String, Object> diffProps, @Nullable List<Object> delProps) {
         RenderNode parentNode = getRenderNode(rootId, pid);
         if (parentNode instanceof TextRenderNode) {
-            ((TextRenderNode) parentNode).onUpdateVirtualChild(id, childInfo);
+            ((TextRenderNode) parentNode).onUpdateVirtualChild(id, diffProps, delProps);
         }
     }
 
@@ -139,7 +139,7 @@ public class RenderManager {
     }
 
     public void createNode(int rootId, int id, int pid, int index,
-            @NonNull String className, @NonNull Map<String, Object> props) {
+            @NonNull String className, @Nullable Map<String, Object> props) {
         boolean isLazy = mControllerManager.checkLazy(className);
         RootRenderNode rootNode = NativeRendererManager.getRootNode(rootId);
         RenderNode parentNode = getRenderNode(rootId, pid);
@@ -190,10 +190,11 @@ public class RenderManager {
         }
     }
 
-    public void updateNode(int rootId, int nodeId, Map<String, Object> props) {
+    public void updateNode(int rootId, int nodeId, @Nullable Map<String, Object> diffProps,
+            @Nullable List<Object> delProps) {
         RenderNode node = getRenderNode(rootId, nodeId);
         if (node != null) {
-            node.checkPropsDifference(props);
+            node.checkPropsToUpdate(diffProps, delProps);
             addUpdateNodeIfNeeded(rootId, node);
         }
     }
