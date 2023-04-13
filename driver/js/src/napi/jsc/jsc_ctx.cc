@@ -727,12 +727,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateObject(const std::unordered_map<std::sha
     }
     auto object_key = JSCVM::CreateJSCString(key);
     auto ctx_value = std::static_pointer_cast<JSCCtxValue>(it.second);
-    auto object_value = JSValueToObject(context_, ctx_value->value_, &exception);
-    if (exception) {
-      SetException(std::make_shared<JSCCtxValue>(context_, exception));
-      return nullptr;
-    }
-    JSObjectSetProperty(context_, obj, object_key, object_value, kJSPropertyAttributeNone, &exception);
+    JSObjectSetProperty(context_, obj, object_key, ctx_value->value_, kJSPropertyAttributeNone, &exception);
     if (exception) {
       SetException(std::make_shared<JSCCtxValue>(context_, exception));
       return nullptr;
@@ -741,8 +736,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateObject(const std::unordered_map<std::sha
   return std::make_shared<JSCCtxValue>(context_, obj);
 }
 
-std::shared_ptr<CtxValue> JSCCtx::CreateArray(
-                                              size_t count,
+std::shared_ptr<CtxValue> JSCCtx::CreateArray(size_t count,
                                               std::shared_ptr<CtxValue> array[]) {
   if (count < 0) {
     return nullptr;
