@@ -375,7 +375,8 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     [layoutManager addTextContainer:textContainer];
     [layoutManager ensureLayoutForTextContainer:textContainer];
 
-    if (_needRelayoutText) {
+    // for better perf, only do relayout when MeasureMode is MeasureModeExactly
+    if (_needRelayoutText && MeasureModeExactly == widthMode) {
         // relayout text
         [layoutManager invalidateLayoutForCharacterRange:NSMakeRange(0, textStorage.length) actualCharacterRange:nil];
         [layoutManager removeTextContainerAtIndex:0];
@@ -911,8 +912,9 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     if (_isNestedText || HippyTextVerticalAlignUndefined != self.verticalAlignType) {
         __block CGFloat maxAttachmentHeight = .0f;
         __block BOOL hasAttachment = NO;
+        NSRange storageRange = NSIntersectionRange(glyphRange, NSMakeRange(0, textStorage.length));
         [textStorage enumerateAttribute:NSAttachmentAttributeName
-                                inRange:glyphRange options:0
+                                inRange:storageRange options:0
                              usingBlock:^(NSTextAttachment *attachment, NSRange range, __unused BOOL *_) {
             if (attachment) {
                 float height = CGRectGetHeight(attachment.bounds);
@@ -925,7 +927,7 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
         
         __block BOOL hasBaselineAlign = NO;
         [textStorage enumerateAttribute:HippyTextVerticalAlignAttributeName
-                                inRange:glyphRange options:0
+                                inRange:storageRange options:0
                              usingBlock:^(NSNumber *type, NSRange range, BOOL * _Nonnull stop) {
             if (HippyTextVerticalAlignBaseline == type.integerValue ||
                 HippyTextVerticalAlignUndefined == type.integerValue) {
@@ -939,7 +941,7 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
         if (hasBaselineAlign) {
             __block UIFont *maxFont = nil;
             [textStorage enumerateAttribute:NSFontAttributeName
-                                    inRange:glyphRange options:0
+                                    inRange:storageRange options:0
                                  usingBlock:^(id  _Nullable value, NSRange range, BOOL * _Nonnull stop) {
                 UIFont *currentFont = (UIFont *)value;
                 if (currentFont) {
@@ -954,53 +956,54 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
             realBaselineOffset = (CGRectGetHeight(*lineFragmentUsedRect) - maxTotalHeight) / 2.f;
             if (hasAttachment) {
                 [textStorage addAttribute:HippyVerticalAlignBaselineOffsetAttributeName
-                                    value:@(realBaselineOffset + textBaselineToBottom) range:glyphRange];
+                                    value:@(realBaselineOffset + textBaselineToBottom)
+                                    range:storageRange];
             }
         }
         
-        [textStorage enumerateAttributesInRange:glyphRange
+        [textStorage enumerateAttributesInRange:storageRange
                                         options:kNilOptions
                                      usingBlock:^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs,
                                                   NSRange range, BOOL * _Nonnull stop) {
             NSNumber *verticalAlignValue = attrs[HippyTextVerticalAlignAttributeName];
-                // Calculate position of text
-                id offsetValue = [textStorage attribute:NSBaselineOffsetAttributeName
-                                                atIndex:range.location effectiveRange:nil];
-                if (!offsetValue) {
-                    CGFloat offset = .0f;
-                    CGFloat lineHeight = CGRectGetHeight(*lineFragmentUsedRect);
-                    CGFloat baselineToBottom = lineHeight - *baselineOffset;
-                    switch (verticalAlignValue.integerValue) {
-                        case HippyTextVerticalAlignTop: {
-                            UIFont *font = attrs[NSFontAttributeName];
-                            offset = lineHeight - font.ascender - baselineToBottom;
-                            break;
-                        }
-                        case HippyTextVerticalAlignMiddle: {
-                            UIFont *font = attrs[NSFontAttributeName];
-                            offset = (lineHeight - font.lineHeight) / 2.f - baselineToBottom
-                            + abs(font.descender) + abs(font.leading) + self.verticalAlignOffset;
-                            break;
-                        }
-                        case HippyTextVerticalAlignUndefined:
-                        case HippyTextVerticalAlignBaseline: {
-                            offset = realBaselineOffset;
-                            break;
-                        }
-                        case HippyTextVerticalAlignBottom: {
-                            UIFont *font = attrs[NSFontAttributeName];
-                            offset = abs(font.descender) + abs(font.leading) - baselineToBottom;
-                            break;
-                        }
-                        default:
-                            break;
+            // Calculate position of text
+            id offsetValue = [textStorage attribute:NSBaselineOffsetAttributeName
+                                            atIndex:range.location effectiveRange:nil];
+            if (!offsetValue) {
+                CGFloat offset = .0f;
+                CGFloat lineHeight = CGRectGetHeight(*lineFragmentUsedRect);
+                CGFloat baselineToBottom = lineHeight - *baselineOffset;
+                switch (verticalAlignValue.integerValue) {
+                    case HippyTextVerticalAlignTop: {
+                        UIFont *font = attrs[NSFontAttributeName];
+                        offset = lineHeight - font.ascender - baselineToBottom;
+                        break;
                     }
-                    if (abs(offset) > .0f && !attrs[HippyShadowViewAttributeName]) {
-                        // only set for Text
-                        [textStorage addAttribute:NSBaselineOffsetAttributeName value:@(offset) range:range];
-                        _needRelayoutText = YES;
+                    case HippyTextVerticalAlignMiddle: {
+                        UIFont *font = attrs[NSFontAttributeName];
+                        offset = (lineHeight - font.lineHeight) / 2.f - baselineToBottom
+                        + abs(font.descender) + abs(font.leading) + self.verticalAlignOffset;
+                        break;
                     }
+                    case HippyTextVerticalAlignUndefined:
+                    case HippyTextVerticalAlignBaseline: {
+                        offset = realBaselineOffset;
+                        break;
+                    }
+                    case HippyTextVerticalAlignBottom: {
+                        UIFont *font = attrs[NSFontAttributeName];
+                        offset = abs(font.descender) + abs(font.leading) - baselineToBottom;
+                        break;
+                    }
+                    default:
+                        break;
                 }
+                if (abs(offset) > .0f && !attrs[HippyShadowViewAttributeName]) {
+                    // only set for Text
+                    [textStorage addAttribute:NSBaselineOffsetAttributeName value:@(offset) range:range];
+                    _needRelayoutText = YES;
+                }
+            }
         }];
     }
     return NO;
