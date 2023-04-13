@@ -1,3 +1,7 @@
+## 0.0.20
+
+- update voltron_render to 0.0.11 to fix event bubble error and fix Dimension error
+
 ## 0.0.19
 
 - update voltron_render to 0.0.11 to support moving nodes for voltron

@@ -207,6 +207,9 @@ NSString *StringViewToNSString(const string_view &view) {
       if (scope) {
         std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::driver::napi::JSCCtx>(scope->GetContext());
         JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context->GetCtxRef()];
+        if (@available(iOS 16.4, *)) {
+          jsContext.inspectable = true;
+        }
         auto global_object = context->GetGlobalObject();
         auto user_global_object_key = context->CreateString(kGlobalKey);
         context->SetProperty(global_object, user_global_object_key, global_object);

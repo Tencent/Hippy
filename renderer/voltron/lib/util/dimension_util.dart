@@ -24,14 +24,17 @@ import '../common.dart';
 import 'screen_util.dart';
 
 VoltronMap getDimensions(
-    int windowWidth, int windowHeight, bool shouldUseScreenDisplay, BuildContext? context) {
+  int windowWidth,
+  int windowHeight,
+  bool shouldUseScreenDisplay,
+  BuildContext? context,
+) {
   var dimensionMap = VoltronMap();
   var windowDisplayMetricsMap = VoltronMap();
 
   final screenDensity = ScreenUtil.getInstance().screenDensity;
-  final screenWidthPixels = (ScreenUtil.getInstance().screenWidth * screenDensity).floor();
-  final screenHeightPixels =
-      (ScreenUtil.getInstance().screenHeight * ScreenUtil.getInstance().screenDensity).floor();
+  final screenWidthPixels = (ScreenUtil.getInstance().screenWidth).floor();
+  final screenHeightPixels = (ScreenUtil.getInstance().screenHeight).floor();
   // 状态栏高度这里需要传入像素值
   var statusBarHeight = ScreenUtil.getInstance().statusBarHeight;
   var bottomBarHeight = ScreenUtil.getInstance().bottomBarHeight;
@@ -42,31 +45,28 @@ VoltronMap getDimensions(
   screenDisplayMetricsMap.push("scale", screenDensity);
   screenDisplayMetricsMap.push("fontScale", screenDensity);
   screenDisplayMetricsMap.push("statusBarHeight", statusBarHeight);
-  screenDisplayMetricsMap.push("bottomBarHeight", bottomBarHeight);
-  screenDisplayMetricsMap.push("navigationBarHeight", bottomBarHeight * screenDensity);
+  screenDisplayMetricsMap.push("navigatorBarHeight", bottomBarHeight);
 
   dimensionMap.push("screenPhysicalPixels", screenDisplayMetricsMap);
 
   if (!shouldUseScreenDisplay && context != null) {
     final density = ScreenUtil.getScreenDensity(context);
-    final widthPixels = ScreenUtil.getScreenW(context) * density;
-    final heightPixels = ScreenUtil.getScreenH(context) * density;
+    final widthPixels = ScreenUtil.getScreenW(context);
+    final heightPixels = ScreenUtil.getScreenH(context);
 
     windowDisplayMetricsMap.push("width", windowWidth >= 0 ? windowWidth : widthPixels);
     windowDisplayMetricsMap.push("height", windowHeight >= 0 ? windowHeight : heightPixels);
     windowDisplayMetricsMap.push("scale", density);
     windowDisplayMetricsMap.push("fontScale", screenDensity);
-    windowDisplayMetricsMap.push("statusBarHeight", statusBarHeight * screenDensity);
-    windowDisplayMetricsMap.push("bottomBarHeight", bottomBarHeight);
-    windowDisplayMetricsMap.push("navigationBarHeight", bottomBarHeight * screenDensity);
+    windowDisplayMetricsMap.push("statusBarHeight", statusBarHeight);
+    windowDisplayMetricsMap.push("navigatorBarHeight", bottomBarHeight);
   } else {
     windowDisplayMetricsMap.push("width", windowWidth >= 0 ? windowWidth : screenWidthPixels);
     windowDisplayMetricsMap.push("height", windowHeight >= 0 ? windowHeight : screenHeightPixels);
     windowDisplayMetricsMap.push("scale", screenDensity);
     windowDisplayMetricsMap.push("fontScale", screenDensity);
-    windowDisplayMetricsMap.push("statusBarHeight", statusBarHeight * screenDensity);
-    windowDisplayMetricsMap.push("bottomBarHeight", bottomBarHeight);
-    windowDisplayMetricsMap.push("navigationBarHeight", bottomBarHeight * screenDensity);
+    windowDisplayMetricsMap.push("statusBarHeight", statusBarHeight);
+    windowDisplayMetricsMap.push("navigatorBarHeight", bottomBarHeight);
   }
 
   dimensionMap.push("windowPhysicalPixels", windowDisplayMetricsMap);
