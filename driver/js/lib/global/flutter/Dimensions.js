@@ -33,23 +33,23 @@ const Dimensions = {
     const { windowPhysicalPixels = null, screenPhysicalPixels = null } = nativeDimensions;
     if (windowPhysicalPixels) {
       Hippy.device.window = {
-        width: windowPhysicalPixels.width / windowPhysicalPixels.scale,
-        height: windowPhysicalPixels.height / windowPhysicalPixels.scale,
+        width: windowPhysicalPixels.width,
+        height: windowPhysicalPixels.height,
         scale: windowPhysicalPixels.scale,
         fontScale: windowPhysicalPixels.fontScale,
-        statusBarHeight: windowPhysicalPixels.statusBarHeight / windowPhysicalPixels.scale,
-        bottomBarHeight: (windowPhysicalPixels.bottomBarHeight || 0) / windowPhysicalPixels.scale,
+        statusBarHeight: windowPhysicalPixels.statusBarHeight,
+        navigatorBarHeight: windowPhysicalPixels.navigatorBarHeight,
       };
     }
 
     if (screenPhysicalPixels) {
       Hippy.device.screen = {
-        width: screenPhysicalPixels.width / screenPhysicalPixels.scale,
-        height: screenPhysicalPixels.height / screenPhysicalPixels.scale,
+        width: screenPhysicalPixels.width,
+        height: screenPhysicalPixels.height,
         scale: screenPhysicalPixels.scale,
         fontScale: screenPhysicalPixels.fontScale,
-        statusBarHeight: screenPhysicalPixels.statusBarHeight, // px unit
-        bottomBarHeight: screenPhysicalPixels.bottomBarHeight || 0,
+        statusBarHeight: screenPhysicalPixels.statusBarHeight,
+        navigatorBarHeight: screenPhysicalPixels.navigatorBarHeight,
       };
     }
 

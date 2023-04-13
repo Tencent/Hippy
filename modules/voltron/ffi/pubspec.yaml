@@ -22,7 +22,7 @@
 
 name: voltron_ffi
 description: voltron ffi module
-version: 0.0.1
+version: 0.0.2
 homepage: https://hippyjs.org
 repository: https://github.com/Tencent/Hippy
 
