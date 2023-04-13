@@ -543,8 +543,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 .endGroup(MonitorGroupType.ENGINE_INITIALIZE);
         if (monitorGroup != null) {
             mGlobalConfigs.getEngineMonitorAdapter()
-                    .onEngineInitialized(statusCode, mEngineContext.getComponentName(),
-                            monitorGroup);
+                    .onEngineInitialized(statusCode, monitorGroup);
         }
         for (EngineListener listener : mEventListeners) {
             listener.onInitialized(statusCode, error == null ? null : error.toString());

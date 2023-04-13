@@ -44,10 +44,8 @@ public class DefaultEngineMonitorAdapter implements HippyEngineMonitorAdapter {
     }
 
     @Override
-    public void onEngineInitialized(EngineInitStatus statusCode, @NonNull String componentName,
-            @NonNull MonitorGroup monitorGroup) {
-        LogUtils.i(TAG,
-                componentName + " engine initialization completed with result: " + statusCode);
+    public void onEngineInitialized(EngineInitStatus statusCode, @NonNull MonitorGroup monitorGroup) {
+        LogUtils.i(TAG, "engine initialization completed with result: " + statusCode);
         printGroupTime(monitorGroup);
     }
 

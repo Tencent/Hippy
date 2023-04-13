@@ -19,6 +19,7 @@ package com.tencent.renderer.utils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.List;
 import java.util.Map;
 
 public class MapUtils {
@@ -93,5 +94,12 @@ public class MapUtils {
             @NonNull String key) {
         Object element = params.get(key);
         return (element instanceof Map) ? ((Map<String, Object>) element) : null;
+    }
+
+    @Nullable
+    public static List<Object> getListValue(@NonNull Map<String, Object> params,
+            @NonNull String key) {
+        Object element = params.get(key);
+        return (element instanceof List) ? ((List<Object>) element) : null;
     }
 }

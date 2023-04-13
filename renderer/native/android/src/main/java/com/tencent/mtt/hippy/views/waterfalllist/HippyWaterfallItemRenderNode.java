@@ -16,6 +16,8 @@
 
 package com.tencent.mtt.hippy.views.waterfalllist;
 
+import static com.tencent.renderer.node.ListItemRenderNode.ITEM_VIEW_TYPE;
+
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -24,8 +26,10 @@ import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
+import com.tencent.renderer.node.ListItemRenderNode;
 import com.tencent.renderer.node.RenderNode;
 
+import java.util.List;
 import java.util.Map;
 
 public class HippyWaterfallItemRenderNode extends RenderNode {
@@ -55,27 +59,37 @@ public class HippyWaterfallItemRenderNode extends RenderNode {
         return type;
     }
 
+
+    private int getItemViewType(@NonNull Map<String, Object> props) {
+        int viewType = 0;
+        Object viewTypeObj = props.get(ITEM_VIEW_TYPE);
+        if (viewTypeObj instanceof Number) {
+            viewType = ((Number) viewTypeObj).intValue();
+        } else if (viewTypeObj instanceof String) {
+            try {
+                viewType = Integer.parseInt((String) viewTypeObj);
+            } catch (NumberFormatException ignored) {
+                //Incorrect number string, not need to handle this exception.
+            }
+        }
+        if (viewType <= 0) {
+            viewTypeObj = props.get(ListItemRenderNode.ITEM_VIEW_TYPE_NEW);
+            if (viewTypeObj instanceof Number) {
+                viewType = ((Number) viewTypeObj).intValue();
+            }
+        }
+        return Math.max(viewType, 0);
+    }
+
     @Override
-    public void checkPropsDifference(@NonNull Map<String, Object> props) {
-        int oldType = 0;
-        int newType = 0;
-        Object valueObj = null;
-        if (props != null) {
-            valueObj = props.get("type");
-            if (valueObj instanceof Number) {
-                newType = ((Number) valueObj).intValue();
-            }
-        }
-        if (getProps() != null) {
-            valueObj = getProps().get("type");
-            if (valueObj instanceof Number) {
-                oldType = ((Number) valueObj).intValue();
-            }
-        }
+    public void checkPropsToUpdate(@Nullable Map<String, Object> diffProps,
+            @Nullable List<Object> delProps) {
+        int oldType = mProps != null ? getItemViewType(mProps) : 0;
+        super.checkPropsToUpdate(diffProps, delProps);
+        int newType = mProps != null ? getItemViewType(mProps) : 0;
         if (mRecycleItemTypeChangeListener != null && oldType != newType) {
             mRecycleItemTypeChangeListener.onRecycleItemTypeChanged(oldType, newType, this);
         }
-        super.checkPropsDifference(props);
     }
 
     public void setRecycleItemTypeChangeListener(

@@ -522,13 +522,51 @@ public class RenderNode {
         }
     }
 
-    public void checkPropsDifference(@NonNull Map<String, Object> newProps) {
-        if (mProps != null && !checkNodeFlag(FLAG_UPDATE_TOTAL_PROPS)) {
-            mPropsToUpdate = DiffUtils.diffMap(mProps, newProps);
-        } else {
-            mPropsToUpdate = newProps;
+    public static void resetProps(@NonNull Map<String, Object> props, @Nullable Map<String, Object> diffProps,
+            @Nullable List<Object> delProps) {
+        try {
+            if (diffProps != null) {
+                for (Map.Entry<String, Object> entry : diffProps.entrySet()) {
+                    props.put(entry.getKey(), entry.getValue());
+                }
+            }
+            if (delProps != null) {
+                for (Object key : delProps) {
+                    props.remove(key.toString());
+                }
+            }
+        } catch (Exception e) {
+            LogUtils.e(TAG, "updateProps error：" + e.getMessage());
         }
-        mProps = newProps;
+    }
+
+    public void checkPropsToUpdate(@Nullable Map<String, Object> diffProps,
+            @Nullable List<Object> delProps) {
+        if (mProps == null) {
+            mProps = new HashMap<>();
+        }
+        resetProps(mProps, diffProps, delProps);
+        if (!checkNodeFlag(FLAG_UPDATE_TOTAL_PROPS)) {
+            if (mPropsToUpdate == null) {
+                mPropsToUpdate = diffProps;
+            } else {
+                if (diffProps != null) {
+                    for (Map.Entry<String, Object> entry : diffProps.entrySet()) {
+                        mPropsToUpdate.put(entry.getKey(), entry.getValue());
+                    }
+                }
+            }
+            if (delProps != null) {
+                if (mPropsToUpdate == null) {
+                    mPropsToUpdate = new HashMap<>();
+                }
+                for (Object key : delProps) {
+                    mPropsToUpdate.put(key.toString(), null);
+                }
+            }
+        } else {
+            mPropsToUpdate = mProps;
+        }
     }
 
     public void updateEventListener(@NonNull Map<String, Object> newEvents) {

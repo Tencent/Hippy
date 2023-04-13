@@ -45,7 +45,7 @@ public class DefaultExecutorSupplierAdapter implements HippyExecutorSupplierAdap
     if (mBackgroundTaskExecutor == null) {
       synchronized (DefaultExecutorSupplierAdapter.class) {
         if (mBackgroundTaskExecutor == null) {
-          mBackgroundTaskExecutor = Executors.newFixedThreadPool(4);
+          mBackgroundTaskExecutor = Executors.newFixedThreadPool(8);
         }
       }
     }

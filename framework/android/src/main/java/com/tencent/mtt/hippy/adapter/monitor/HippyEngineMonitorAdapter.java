@@ -26,8 +26,7 @@ import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorGroup;
 
 public interface HippyEngineMonitorAdapter {
 
-    void onEngineInitialized(EngineInitStatus statusCode, @NonNull String componentName,
-            @NonNull MonitorGroup monitorGroup);
+    void onEngineInitialized(EngineInitStatus statusCode, @NonNull MonitorGroup monitorGroup);
 
     void onLoadModuleCompleted(ModuleLoadStatus statusCode, @NonNull String componentName,
             @NonNull MonitorGroup monitorGroup);

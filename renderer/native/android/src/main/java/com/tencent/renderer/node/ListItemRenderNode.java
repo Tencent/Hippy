@@ -31,6 +31,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.list.IRecycleItemTypeChange;
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.utils.MapUtils;
+import java.util.List;
 import java.util.Map;
 
 public class ListItemRenderNode extends RenderNode {
@@ -169,17 +170,18 @@ public class ListItemRenderNode extends RenderNode {
     }
 
     @Override
-    public void checkPropsDifference(@NonNull Map<String, Object> newProps) {
+    public void checkPropsToUpdate(@Nullable Map<String, Object> diffProps,
+            @Nullable List<Object> delProps) {
         int oldType = mProps != null ? getItemViewType(mProps) : 0;
-        int newType = getItemViewType(newProps);
+        super.checkPropsToUpdate(diffProps, delProps);
+        int newType = mProps != null ? getItemViewType(mProps) : 0;
         if (mRecycleItemTypeChangeListener != null && oldType != newType) {
             mRecycleItemTypeChangeListener.onRecycleItemTypeChanged(oldType, newType, this);
         }
-        Object stickyObj = newProps.get(ITEM_STICKY);
+        Object stickyObj = mProps.get(ITEM_STICKY);
         if (stickyObj instanceof Boolean) {
             mShouldSticky = (Boolean) stickyObj;
         }
-        super.checkPropsDifference(newProps);
     }
 
     public int getItemViewType() {
