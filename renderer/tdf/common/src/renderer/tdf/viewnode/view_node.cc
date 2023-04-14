@@ -537,11 +537,11 @@ void ViewNode::AddChildAt(const std::shared_ptr<ViewNode>& child, int32_t index)
   // Dom树是即时更新的，结点顺序是先前记录的。
 
   // check index
-  auto checked_index = index;
-  if(static_cast<uint32_t>(checked_index) > children_.size()) {
+  auto checked_index = static_cast<uint32_t >(index);
+  if(checked_index > children_.size()) {
     FOOTSTONE_LOG(INFO) << "ViewNode::AddChildAt, index > children.size, index:"
                         << checked_index << ", size:" << children_.size();
-    checked_index = static_cast<int32_t>(children_.size());
+    checked_index = static_cast<uint32_t>(children_.size());
   }
 
   // update related filed
@@ -607,12 +607,12 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
       v->SetHitTestBehavior(tdfcore::HitTestBehavior::kIgnore);
     }
     // check index
-    auto checked_index = GetCorrectedIndex();
+    auto checked_index = static_cast<uint32_t >(GetCorrectedIndex());
     auto view_count = parent_.lock()->GetView()->GetChildren().size();
-    if(static_cast<uint32_t>(checked_index) > view_count) {
+    if(checked_index > view_count) {
       FOOTSTONE_LOG(INFO) << "ViewNode::Attach, index > view_count, index:"
                           << checked_index << ", size:" << view_count;
-      checked_index = static_cast<int32_t>(view_count);
+      checked_index = static_cast<uint32_t>(view_count);
     }
     // must add to parent_, otherwise the view will be freed immediately.
     parent_.lock()->GetView()->AddView(v, checked_index);
@@ -624,9 +624,9 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
   HandleLayoutUpdate(dom_node_->GetRenderLayoutResult());
   HandleEventInfoUpdate();
   // recursively attach the sub ViewNode tree(sycn the tdfcore::View Tree)
+  uint32_t child_index = 0;
   for (const auto& child : children_) {
     std::shared_ptr<tdfcore::View> child_view = nullptr;
-    auto child_index = static_cast<uint32_t >(child->GetRenderInfo().index);
     if (child_index < GetView()->GetChildren().size()) {
       child_view = GetView()->GetChildren()[child_index];
       // must check match
@@ -636,6 +636,7 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
       }
     }
     child->Attach(child_view);
+    ++child_index;
   }
   // must delete not matched subviews
   while (GetView()->GetChildren().size() > children_.size()) {
