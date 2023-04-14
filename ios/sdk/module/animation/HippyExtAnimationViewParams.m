@@ -28,9 +28,7 @@
 
 @implementation HippyExtAnimationViewParams {
     NSMutableDictionary *_styles;
-    NSMutableDictionary *_animationIdWithPropDictionary;
     NSMutableDictionary<NSString *, NSMutableDictionary *> *_valuesByKey;
-    NSNumber *_hippyTag;
     __weak HippyBridge *_bridge;
 }
 
@@ -108,14 +106,6 @@
     } else {
         return;
     }
-}
-
-- (NSDictionary *)animationIdWithPropDictionary {
-    return _animationIdWithPropDictionary;
-}
-
-- (NSNumber *)hippyTag {
-    return _hippyTag;
 }
 
 - (NSDictionary *)updateParams {
