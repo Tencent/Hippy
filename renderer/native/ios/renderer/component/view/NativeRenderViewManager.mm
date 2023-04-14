@@ -184,9 +184,6 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)componen
     }];
 }
 
-#pragma mark - RenderObject properties
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(visibility, NSString)
-
 #pragma mark - View properties
 
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(accessibilityLabel, NSString)
@@ -201,6 +198,16 @@ NATIVE_RENDER_REMAP_VIEW_PROPERTY(shadowRadius, layer.shadowRadius, CGFloat)
 
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(backgroundPositionX, CGFloat)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(backgroundPositionY, CGFloat)
+
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(visibility, NSString, NativeRenderView) {
+    if (json) {
+        NSString *status = [HPConvert NSString:json];
+        view.hidden = [status isEqualToString:@"hidden"];
+    }
+    else {
+        view.hidden = NO;
+    }
+}
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, NativeRenderView) {
     if (json) {

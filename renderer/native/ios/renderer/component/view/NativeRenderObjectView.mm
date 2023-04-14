@@ -40,8 +40,6 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 
 @interface NativeRenderObjectView () {
     NativeRenderUpdateLifecycle _propagationLifecycle;
-    NativeRenderUpdateLifecycle _textLifecycle;
-    NSDictionary *_lastParentProperties;
     NSMutableArray<NativeRenderObjectView *> *_objectSubviews;
     BOOL _recomputePadding;
     BOOL _recomputeMargin;
@@ -61,12 +59,13 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 @synthesize rootTag = _rootTag;
 @synthesize tagName =_tagName;
 
-- (void)amendLayoutBeforeMount {
-    if (NativeRenderUpdateLifecycleDirtied == _propagationLifecycle || _visibilityChanged) {
-        _visibilityChanged = NO;
-        for (NativeRenderObjectView *renderObjectView in self.subcomponents) {
-            [renderObjectView amendLayoutBeforeMount];
-        }
+- (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
+    if (NativeRenderUpdateLifecycleComputed == _propagationLifecycle) {
+        return;
+    }
+    _propagationLifecycle = NativeRenderUpdateLifecycleComputed;
+    for (NativeRenderObjectView *renderObjectView in self.subcomponents) {
+        [renderObjectView amendLayoutBeforeMount:blocks];
     }
 }
 
@@ -113,25 +112,14 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 }
 
 - (void)collectUpdatedProperties:(NSMutableSet<NativeRenderApplierBlock> *)applierBlocks parentProperties:(NSDictionary<NSString *, id> *)parentProperties {
-    if (_propagationLifecycle == NativeRenderUpdateLifecycleComputed && [parentProperties isEqualToDictionary:_lastParentProperties]) {
-        return;
-    }
-    _propagationLifecycle = NativeRenderUpdateLifecycleComputed;
-    _lastParentProperties = parentProperties;
-    NSDictionary<NSString *, id> *nextProps = [self processUpdatedProperties:applierBlocks parentProperties:parentProperties];
-    for (NativeRenderObjectView *child in _objectSubviews) {
-        [child collectUpdatedProperties:applierBlocks parentProperties:nextProps];
-    }
 }
 
 - (instancetype)init {
     if ((self = [super init])) {
+        _propagationLifecycle = NativeRenderUpdateLifecycleUninitialized;
         _frame = CGRectMake(0, 0, NAN, NAN);
         _isDecendantOfLazilyRenderObject = -1;
-        _propagationLifecycle = NativeRenderUpdateLifecycleUninitialized;
-        _textLifecycle = NativeRenderUpdateLifecycleUninitialized;
-        _hasNewLayout = YES;
-        _objectSubviews = [NSMutableArray array];
+        _objectSubviews = [NSMutableArray arrayWithCapacity:8];
         _confirmedLayoutDirection = hippy::Direction::Inherit;
         _layoutDirection = hippy::Direction::Inherit;
     }
@@ -147,10 +135,11 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 }
 
 - (void)dirtyPropagation {
-    if (_propagationLifecycle != NativeRenderUpdateLifecycleDirtied) {
-        _propagationLifecycle = NativeRenderUpdateLifecycleDirtied;
-        [_superview dirtyPropagation];
+    if (NativeRenderUpdateLifecycleDirtied == _propagationLifecycle) {
+        return;
     }
+    _propagationLifecycle = NativeRenderUpdateLifecycleDirtied;
+    [_superview dirtyPropagation];
 }
 
 - (void)dirtySelfPropagation {
@@ -158,10 +147,6 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 }
 
 - (void)dirtyDescendantPropagation {
-    [self dirtySelfPropagation];
-    for (NativeRenderObjectView *renderObjectView in self.subcomponents) {
-        [renderObjectView dirtyDescendantPropagation];
-    }
 }
 
 - (BOOL)isPropagationDirty {
@@ -169,14 +154,10 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 }
 
 - (void)dirtyText {
-    if (_textLifecycle != NativeRenderUpdateLifecycleDirtied) {
-        _textLifecycle = NativeRenderUpdateLifecycleDirtied;
-        [_superview dirtyText];
-    }
 }
 
 - (BOOL)isTextDirty {
-    return _textLifecycle != NativeRenderUpdateLifecycleComputed;
+    return NO;
 }
 
 - (NativeRenderCreationType)creationType {
@@ -193,7 +174,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 }
 
 - (void)setTextComputed {
-    _textLifecycle = NativeRenderUpdateLifecycleComputed;
+//    _textLifecycle = NativeRenderUpdateLifecycleComputed;
 }
 
 - (void)recusivelySetCreationTypeToInstant {
@@ -232,17 +213,6 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     }
     insertionBlock(container, children);
     return container;
-}
-
-- (BOOL)isHidden {
-    return _hidden || [_visibility isEqualToString:@"hidden"];
-}
-
-- (void)setVisibility:(NSString *)visibility {
-    if (![_visibility isEqualToString:visibility]) {
-        _visibility = visibility;
-        _visibilityChanged = YES;
-    }
 }
 
 - (void)insertNativeRenderSubview:(NativeRenderObjectView *)subview atIndex:(NSInteger)atIndex {
@@ -338,7 +308,6 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 - (void)setFrame:(CGRect)frame {
     if (!CGRectEqualToRect(frame, _frame)) {
         _frame = frame;
-        self.hasNewLayout = YES;
     }
 }
 
@@ -364,7 +333,6 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
                 node->DoLayout(changed_nodes);
                 renderManager->UpdateLayout(strongSelf.rootNode, std::move(changed_nodes));
                 [strongSelf dirtyPropagation];
-                strongSelf.hasNewLayout = YES;
                 domManager->EndBatch(strongSelf.rootNode);
             }
         }};
