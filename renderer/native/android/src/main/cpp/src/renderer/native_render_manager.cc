@@ -191,7 +191,10 @@ void NativeRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_node,
     if (diff) {
       auto iter = diff->begin();
       while (iter != diff->end()) {
-        diff_props[iter->first] = *(iter->second);
+        FOOTSTONE_DCHECK(iter->second != nullptr);
+        if (iter->second) {
+          diff_props[iter->first] = *(iter->second);
+        }
         iter++;
       }
     }
