@@ -116,8 +116,8 @@ HP_EXTERN void HPPerformBlockWithLogPrefix(void (^block)(void), NSString *prefix
 /**
  * Private logging function - ignore this.
  */
-#if NATIVE_RENDER_LOG_ENABLED
-#define _HPLog(lvl, ...) HPLogNativeInternal(lvl, __FILE__, __LINE__, __VA_ARGS__);
+#if HP_LOG_ENABLED
+#define _HPLog(lvl, ...) HPLogNativeInternal(lvl, __FILE__, __LINE__, nil, __VA_ARGS__);
 #else
 #define _HPLog(lvl, ...) \
     do {                    \

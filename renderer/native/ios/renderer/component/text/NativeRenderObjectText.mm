@@ -144,7 +144,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         return parentProperties;
     }
 
-    parentProperties = [super processUpdatedProperties:applierBlocks parentProperties:parentProperties];
+//    parentProperties = [super processUpdatedProperties:applierBlocks parentProperties:parentProperties];
 
     UIEdgeInsets padding = self.paddingAsInsets;
     CGFloat width = self.frame.size.width - (padding.left + padding.right);
@@ -175,7 +175,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     return parentProperties;
 }
 
-- (void)amendLayoutBeforeMount {
+- (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
     @try {
         UIEdgeInsets padding = self.paddingAsInsets;
         CGFloat width = self.frame.size.width - (padding.left + padding.right);
@@ -217,11 +217,12 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 }
             }
         }];
-        [super amendLayoutBeforeMount];
+        [super amendLayoutBeforeMount:blocks];
     }
     @catch (NSException *exception) {
-        [super amendLayoutBeforeMount];
+        [super amendLayoutBeforeMount:blocks];
     }
+    [self processUpdatedProperties:blocks parentProperties:nil];
 }
 
 - (void)applyConfirmedLayoutDirectionToSubviews:(hippy::Direction)confirmedLayoutDirection {
@@ -273,27 +274,31 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
 - (void)dirtyText {
     [super dirtyText];
+    _isTextDirty = YES;
     _cachedTextStorage = nil;
     auto domManager = self.domManager.lock();
     if (domManager) {
         __weak NativeRenderObjectView *weakSelf = self;
         std::vector<std::function<void()>> ops_ = {[weakSelf, domManager](){
             @autoreleasepool {
-                if (weakSelf) {
-                    NativeRenderObjectView *strongSelf = weakSelf;
+                NativeRenderObjectView *strongSelf = weakSelf;
+                if (strongSelf) {
                     int32_t componentTag = [[strongSelf componentTag] intValue];
                     auto domNode = domManager->GetNode(strongSelf.rootNode, componentTag);
                     if (domNode) {
                         auto layoutNode = domNode->GetLayoutNode();
                         layoutNode->MarkDirty();
                         [strongSelf dirtyPropagation];
-                        strongSelf.hasNewLayout = YES;
                     }
                 }
             }
         }};
         domManager->PostTask(hippy::dom::Scene(std::move(ops_)));
     }
+}
+
+- (BOOL)isTextDirty {
+    return _isTextDirty;
 }
 
 - (void)recomputeText {
@@ -440,6 +445,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     // create a non-mutable attributedString for use by the Text system which avoids copies down the line
     _cachedAttributedString = [[NSAttributedString alloc] initWithAttributedString:attributedString];
+    _isTextDirty = NO;
     return _cachedAttributedString;
 }
 
@@ -561,6 +567,9 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 #pragma mark Autosizing
 
 - (CGRect)calculateTextFrame:(NSTextStorage *)textStorage {
+    if ([[textStorage string] containsString:@"name=hippy;network=mobile"]) {
+        NSLog(@"22");
+    }
     CGRect textFrame = UIEdgeInsetsInsetRect((CGRect) { CGPointZero, self.frame.size }, self.paddingAsInsets);
 
     if (_adjustsFontSizeToFit) {

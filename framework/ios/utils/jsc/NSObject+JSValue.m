@@ -93,7 +93,6 @@ static void JSCCtx_dataBufferFree(void* bytes, void* deallocatorContext) {
         JSValueRef exception = NULL;
         JSValueRef value_ref = JSObjectMakeArrayBufferWithBytesNoCopy(context.JSGlobalContextRef, data, length, JSCCtx_dataBufferFree, NULL, &exception);
         if (exception) {
-            HPLogError(@"create array buffer failed, reason:%@", error);
             return [JSValue valueWithUndefinedInContext:context];
         }
         return [JSValue valueWithJSValueRef:value_ref inContext:context];
