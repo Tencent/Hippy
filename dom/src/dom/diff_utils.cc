@@ -35,7 +35,6 @@ DiffValue DiffUtils::DiffProps(const DomValueMap& old_props_map, const DomValueM
     auto iter = new_props_map.find(kv.first);
     if (iter == new_props_map.end()) {
       delete_props->push_back(kv.first);
-      update_props->insert(std::make_pair(kv.first, nullptr));
     }
   }
 
