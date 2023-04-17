@@ -620,18 +620,21 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     }
 
     __block CGFloat maximumFontLineHeight = 0;
-    [attributedString enumerateAttribute:NSFontAttributeName
-                                 inRange:NSMakeRange(0, attributedString.length)
-                                 options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired
-                              usingBlock:^(UIFont *font, NSRange range, __unused BOOL *stop) {
-                                  if (!font) {
-                                      return;
-                                  }
-                                  if (maximumFontLineHeight <= font.lineHeight) {
-                                      maximumFontLineHeight = font.lineHeight;
-                                  }
-                              }];
-
+    // Note that the font automatically adjusted by text storage needs to be used here,
+    // because the lineHeight of some special characters will be higher than normal
+    NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:attributedString];
+    [textStorage enumerateAttribute:NSFontAttributeName
+                            inRange:NSMakeRange(0, attributedString.length)
+                            options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired
+                         usingBlock:^(UIFont *font, NSRange range, __unused BOOL *stop) {
+        if (!font) {
+            return;
+        }
+        if (maximumFontLineHeight <= font.lineHeight) {
+            maximumFontLineHeight = font.lineHeight;
+        }
+    }];
+    
     // if we found anything, set it :D
     if (hasParagraphStyle) {
         NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
@@ -912,7 +915,7 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     if (_isNestedText || HippyTextVerticalAlignUndefined != self.verticalAlignType) {
         __block CGFloat maxAttachmentHeight = .0f;
         __block BOOL hasAttachment = NO;
-        NSRange storageRange = NSIntersectionRange(glyphRange, NSMakeRange(0, textStorage.length));
+        NSRange storageRange = [layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:nil];
         [textStorage enumerateAttribute:NSAttachmentAttributeName
                                 inRange:storageRange options:0
                              usingBlock:^(NSTextAttachment *attachment, NSRange range, __unused BOOL *_) {
