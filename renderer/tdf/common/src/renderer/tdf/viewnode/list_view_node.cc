@@ -79,6 +79,9 @@ void ListViewNode::OnAttach() {
   batch_end_listener_id_ = GetRootNode()->AddEndBatchListener([WEAK_THIS]() {
     DEFINE_AND_CHECK_SELF(ListViewNode)
     if (self->should_reload_) {
+      auto view = self->GetView<tdfcore::CustomLayoutView>();
+      auto data_source = std::static_pointer_cast<ListViewDataSource>(view->GetDataSource());
+      data_source->SetItemNodes(self->GetChildren());
       self->GetView<tdfcore::CustomLayoutView>()->Reload();
       self->should_reload_ = false;
     }
@@ -221,23 +224,23 @@ void ListViewItemNode::OnDelete() {
 std::shared_ptr<tdfcore::View> ListViewDataSource::GetItem(
     int64_t index, const std::shared_ptr<tdfcore::CustomLayoutView>& custom_layout_view) {
   FOOTSTONE_DCHECK(!list_view_node_.expired());
-  FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < list_view_node_.lock()->GetChildren().size());
+  FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < item_nodes_.size());
   auto node =
-      std::static_pointer_cast<ListViewItemNode>(list_view_node_.lock()->GetChildren()[static_cast<uint32_t>(index)]);
+      std::static_pointer_cast<ListViewItemNode>(item_nodes_[static_cast<uint32_t>(index)]);
   return node->CreateView();
 }
 
 int64_t ListViewDataSource::GetItemCount() {
-  return static_cast<int64_t>(list_view_node_.lock()->GetChildren().size());
+  return static_cast<int64_t>(item_nodes_.size());
 }
 
 void ListViewDataSource::UpdateItem(int64_t index, const std::shared_ptr<tdfcore::View>& item,
                                     const std::shared_ptr<tdfcore::CustomLayoutView>& custom_layout_view) {
   FOOTSTONE_DCHECK(!list_view_node_.expired());
-  FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < list_view_node_.lock()->GetChildren().size());
+  FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < item_nodes_.size());
 
   auto new_index = static_cast<uint64_t>(index);
-  auto node = list_view_node_.lock()->GetChildren()[new_index];
+  auto node = item_nodes_[new_index];
   auto dom_node = node->GetDomNode();
   if (!dom_node) {
     return;
@@ -252,15 +255,19 @@ void ListViewDataSource::UpdateItem(int64_t index, const std::shared_ptr<tdfcore
 
 int64_t ListViewDataSource::GetItemType(int64_t index) {
   FOOTSTONE_DCHECK(!list_view_node_.expired());
-  FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < list_view_node_.lock()->GetChildCount());
+  FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < item_nodes_.size());
   auto node =
-      std::static_pointer_cast<ListViewItemNode>(list_view_node_.lock()->GetChildren()[static_cast<uint32_t>(index)]);
+      std::static_pointer_cast<ListViewItemNode>(item_nodes_[static_cast<uint32_t>(index)]);
   return node->GetViewType();
 }
 
 bool ListViewDataSource::IsItemSticky(int64_t index) {
   FOOTSTONE_DCHECK(!list_view_node_.expired());
   return false;
+}
+
+void ListViewDataSource::SetItemNodes(std::vector<std::shared_ptr<ViewNode>> item_nodes) {
+  item_nodes_ = item_nodes;
 }
 
 }  // namespace tdf
