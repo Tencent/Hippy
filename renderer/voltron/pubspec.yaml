@@ -23,7 +23,7 @@
 
 name: voltron_renderer
 description: voltron renderer
-version: 0.0.13
+version: 0.0.14
 homepage: https://hippyjs.org
 repository: https://github.com/Tencent/Hippy
 
@@ -47,7 +47,7 @@ dependencies:
   waterfall_flow: ^3.0.2
   charset: ^1.1.0
   ffi: ^1.0.0
-  voltron_ffi: 0.0.2
+  voltron_ffi: 0.0.3
 
 dev_dependencies:
   flutter_test:

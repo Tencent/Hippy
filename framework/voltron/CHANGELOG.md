@@ -1,3 +1,7 @@
+## 0.0.22
+
+- Support multi flutter engine
+
 ## 0.0.21
 
 - fix voltron android class miss
