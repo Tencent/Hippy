@@ -22,10 +22,10 @@
 
 #include "wrapper.h"
 
+#include "port_holder.h"
 #include "vfs/uri_loader.h"
 #include "footstone/check.h"
 #include "footstone/string_view_utils.h"
-#include "ffi_define.h"
 #include "handler/file_handler.h"
 #include "handler/ffi_delegate_handler.h"
 #include "standard_message_codec.h"
@@ -95,7 +95,7 @@ hippy::UriLoader::RetCode VfsWrapper::ParseResultCode(int32_t code) {
   }
 }
 
-VfsWrapper::VfsWrapper() {
+VfsWrapper::VfsWrapper(uint32_t ffi_id): ffi_id_(ffi_id) {
   id_ = voltron::GenId();
   auto delegate = std::make_shared<voltron::FfiDelegateHandler>(id_);
   loader_ = std::make_shared<hippy::UriLoader>();
@@ -128,8 +128,8 @@ void VfsWrapper::InvokeNative(EncodableMap *req_map,
     auto d_uri = std::get<std::string>(d_uri_iter->second);
     auto req_meta = ParseHeaders(req_map, kReqHeadersKey);
     req_meta[voltron::kCallFromKey] = voltron::kCallFromDart;
-
-    auto cb = [callback_id](
+    auto ffi_id = ffi_id_;
+    auto cb = [ffi_id, callback_id](
         hippy::UriLoader::RetCode ret_code,
         const std::unordered_map<std::string, std::string> &rsp_meta,
         const hippy::UriLoader::bytes &content) {
@@ -140,7 +140,7 @@ void VfsWrapper::InvokeNative(EncodableMap *req_map,
       result_map[voltron::EncodableValue(voltron::kBufferKey)] = voltron::EncodableValue(buffer);
       result_map[voltron::EncodableValue(voltron::kResultCodeKey)] =
           voltron::EncodableValue(static_cast<int32_t>(ret_code));
-      CallGlobalCallbackWithValue(callback_id, voltron::EncodableValue(result_map));
+      CallGlobalCallbackWithValue(ffi_id, callback_id, voltron::EncodableValue(result_map));
     };
     loader_->RequestUntrustedContent(footstone::string_view::new_from_utf8(d_uri.c_str()),
                                      req_meta,
@@ -182,21 +182,24 @@ void VfsWrapper::InvokeDart(const footstone::string_view& uri,
                             const InvokeDartCallback& cb) {
   auto request_id = request_id_.fetch_add(1);
   auto vfs_id = id_;
+  auto ffi_id = ffi_id_;
   callback_map_.Insert(request_id, cb);
-  FOOTSTONE_DLOG(INFO) << "start invoke dart";
-  auto work = [vfs_id, uri, req_meta, request_id]() {
-    FOOTSTONE_DLOG(INFO) << "invoke dart inner";
+  auto work = [ffi_id, vfs_id, uri, req_meta, request_id]() {
     auto uri_16 = footstone::StringViewUtils::CovertToUtf16(uri, uri.encoding()).utf16_value();
     auto req_meta_data = EncodeValue(EncodableValue(UnorderedMapToEncodableMap(req_meta)));
+    auto invoke_dart_func = GetInvokeDartFunc(ffi_id);
+    if (!invoke_dart_func) {
+      FOOTSTONE_LOG(WARNING) << "invoke dart failed, dart func not register";
+      return;
+    }
     invoke_dart_func(vfs_id,
                      request_id,
                      uri_16.c_str(),
                      req_meta_data->data(),
                      footstone::checked_numeric_cast<size_t, int32_t>(req_meta_data->size()));
-    FOOTSTONE_DLOG(INFO) << "invoke dart end";
   };
   const Work *work_ptr = new Work(work);
-  PostWorkToDart(work_ptr);
+  PostWorkToDart(ffi_id_, work_ptr);
 }
 
 }
@@ -204,21 +207,25 @@ void VfsWrapper::InvokeDart(const footstone::string_view& uri,
 #ifdef __cplusplus
 extern "C" {
 #endif
+constexpr char kVfsRegisterHeader[] = "vfs_register";
 
-extern invoke_dart invoke_dart_func = nullptr;
-
-EXTERN_C int32_t RegisterVoltronVfsCallFunc(int32_t type, void *func) {
-  FOOTSTONE_DLOG(INFO) << "start register vfs func, type " << type;
-  if (type == VfsFFIRegisterFuncType::kInvokeDart) {
-    invoke_dart_func = reinterpret_cast<invoke_dart>(func);
-    return true;
+extern invoke_dart GetInvokeDartFunc(uint32_t ffi_id) {
+  auto port_holder = voltron::DartPortHolder::FindPortHolder(ffi_id);
+  if (!port_holder) {
+    FOOTSTONE_DLOG(ERROR) << "get invoke dart func error, ffi port holder not found, ensure ffi module init";
+    return nullptr;
   }
-  FOOTSTONE_DLOG(ERROR) << "register func error, unknown type " << type;
-  return false;
+
+  auto func = port_holder->FindCallFunc(kVfsRegisterHeader, VfsFFIRegisterFuncType::kInvokeDart);
+  if (!func) {
+    FOOTSTONE_DLOG(ERROR) << "get invoke dart func error, func not found, ensure func has register";
+    return nullptr;
+  }
+  return reinterpret_cast<invoke_dart>(func);
 }
 
-EXTERN_C int32_t CreateVfsWrapper() {
-  auto wrapper = std::make_shared<voltron::VfsWrapper>();
+EXTERN_C int32_t CreateVfsWrapper(uint32_t ffi_id) {
+  auto wrapper = std::make_shared<voltron::VfsWrapper>(ffi_id);
   voltron::InsertObject(wrapper->GetId(), wrapper);
   return footstone::checked_numeric_cast<uint32_t, int32_t>(wrapper->GetId());
 }

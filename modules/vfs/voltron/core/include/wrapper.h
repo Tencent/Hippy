@@ -70,7 +70,7 @@ class VfsWrapper {
   static std::unique_ptr<EncodableValue> DecodeBytes(const uint8_t *source_bytes, size_t length);
   static std::unique_ptr<std::vector<uint8_t>> EncodeValue(const EncodableValue &value);
 
-  VfsWrapper();
+  VfsWrapper(uint32_t ffi_id);
   virtual ~VfsWrapper();
 
   void InvokeNative(EncodableMap *req_map,
@@ -88,6 +88,7 @@ class VfsWrapper {
   std::shared_ptr<hippy::UriLoader> GetLoader();
  private:
   std::shared_ptr<hippy::UriLoader> loader_;
+  uint32_t ffi_id_;
   uint32_t id_{};
   footstone::PersistentObjectMap<uint32_t, InvokeDartCallback> callback_map_;
   std::atomic<uint32_t> request_id_ = 1;
@@ -109,11 +110,9 @@ typedef void(*invoke_dart)(uint32_t wrapper_id,
                            const void *rsp_meta,
                            int32_t len);
 
-extern invoke_dart invoke_dart_func;
+extern invoke_dart GetInvokeDartFunc(uint32_t ffi_id);
 
-EXTERN_C int32_t RegisterVoltronVfsCallFunc(int32_t type, void *func);
-
-EXTERN_C int32_t CreateVfsWrapper();
+EXTERN_C int32_t CreateVfsWrapper(uint32_t ffi_id);
 
 EXTERN_C void DestroyVfsWrapper(uint32_t id);
 

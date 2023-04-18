@@ -40,8 +40,10 @@ class FfiManager {
   static FfiManager get instance => _instance;
 
   late InitFfiDartType _initFfi;
-  late AddCallFuncRegisterDartType _addRegisterCallFuncEx;
   late ExecuteCallbackDartType _executeCallback;
+  late int _id;
+
+  int get id => _id;
 
   DynamicLibrary get library => _library;
 
@@ -52,15 +54,12 @@ class FfiManager {
   FfiManager._internal() {
     _initFfi = _library.lookupFunction<
         InitFfiNativeType, InitFfiDartType>('InitFfi');
-    _addRegisterCallFuncEx = _library.lookupFunction<
-        AddCallFuncRegisterNativeType,
-        AddCallFuncRegisterDartType>('AddCallFuncRegister');
     _executeCallback = _library.lookupFunction<ExecuteCallbackNativeType,
         ExecuteCallbackDartType>('VoltronExecuteCallback');
 
     // 先注册回调的post指针和port端口号
     final nativePort = _interactiveCppRequests.sendPort.nativePort;
-    _initFfi(NativeApi.postCObject, nativePort);
+    _id = _initFfi(NativeApi.postCObject, nativePort);
 
     _registerCallbackFunc();
   }
@@ -81,15 +80,7 @@ class FfiManager {
   void addRegisterFunc<T extends Function>(String registerHeader, int type,
       Pointer<NativeFunction<T>> func, AddCallFuncDartType<T> registerFunc) {
     var registerHeaderPointer = registerHeader.toNativeUtf16();
-    registerFunc(registerHeaderPointer, type, func);
-    free(registerHeaderPointer);
-  }
-
-  void addFuncExRegister(String registerHeader, String funcName) {
-    var registerFunc = FfiManager().library.lookup<NativeFunction<CallFuncRegister>>(funcName);
-    var registerHeaderPointer = registerHeader.toNativeUtf16();
-    _addRegisterCallFuncEx(
-        registerHeaderPointer, registerFunc);
+    registerFunc(_id, registerHeaderPointer, type, func);
     free(registerHeaderPointer);
   }
 }

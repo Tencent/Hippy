@@ -245,12 +245,6 @@ class VoltronRenderApi {
 
   // 初始化bridge层
   static void initBridge() async {
-    // 添加自定义c++ call dart方法注册器
-    FfiManager().addFuncExRegister(
-      _RenderBridgeFFIManager._kRenderRegisterHeader,
-      'RegisterRenderCallFunc',
-    );
-
     // 添加postRenderOp回调
     var postRenderRegisterFunc = FfiManager().library.lookupFunction<
         AddCallFuncNativeType<PostRenderOpNativeType>,

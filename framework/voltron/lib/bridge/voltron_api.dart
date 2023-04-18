@@ -193,6 +193,7 @@ class VoltronApi {
       isDevModule ? 1 : 0,
       groupId,
       vfsId,
+      FfiManager().id,
       domId,
       engineId,
       generateCallback(
@@ -450,12 +451,6 @@ class VoltronApi {
 
   // 初始化bridge层
   static void initBridge() {
-    // 添加自定义c++ call dart方法注册器
-    FfiManager().addFuncExRegister(
-      _BridgeFFIManager._kVoltronCoreRegisterHeader,
-      'RegisterVoltronCoreCallFuncEx',
-    );
-
     // 注册callNative回调
     var callNativeRegisterFunc = FfiManager()
         .library

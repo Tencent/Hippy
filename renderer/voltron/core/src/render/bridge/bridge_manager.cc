@@ -26,7 +26,7 @@
 
 #include "dom/dom_manager.h"
 #include "footstone/worker_manager.h"
-#include "ffi_define.h"
+#include "footstone/check.h"
 
 namespace voltron {
 
@@ -37,34 +37,51 @@ using RenderManagerMap = footstone::utils::PersistentObjectMap<uint32_t , std::s
 static std::atomic<uint32_t> global_render_manager_key_{1};
 static RenderManagerMap render_manager_map_;
 
-int64_t BridgeRuntime::CalculateNodeLayout(int32_t instance_id, int32_t node_id, double width, int32_t width_mode, double height, int32_t height_mode) {
-    std::condition_variable cv;
-    bool notified = false;
+int64_t BridgeRuntime::CalculateNodeLayout(int32_t instance_id,
+                                           int32_t node_id,
+                                           double width,
+                                           int32_t width_mode,
+                                           double height,
+                                           int32_t height_mode) {
+  std::condition_variable cv;
+  bool notified = false;
 
-    int64_t result;
-    assert(calculate_node_layout_func != nullptr);
-    const Work work = [this, &result, &cv, &notified, engine_id = engine_id_, instance_id, node_id, width, width_mode, height, height_mode]() {
-      auto result_ptr = calculate_node_layout_func(engine_id, instance_id, node_id, width, width_mode, height, height_mode);
-      if (result_ptr) {
-        result = *result_ptr;
-      } else {
-        result = 0;
-      }
-      delete result_ptr;
-      std::unique_lock<std::mutex> lock(mutex_);
-      notified = true;
-      cv.notify_all();
-    };
-    const Work* work_ptr = new Work(work);
-    PostWorkToDart(work_ptr);
-    std::unique_lock<std::mutex> lock(mutex_);
-    if (!notified) {
-      cv.wait(lock);
+  int64_t result;
+  auto calculate_node_layout_func = GetCalculateNodeLayoutFunc(ffi_id_);
+  FOOTSTONE_CHECK(calculate_node_layout_func != nullptr);
+  const Work work = [this, calculate_node_layout_func, &result, &cv, &notified,
+      engine_id = engine_id_, instance_id, node_id, width, width_mode, height, height_mode]() {
+    auto result_ptr = calculate_node_layout_func(engine_id,
+                                                 instance_id,
+                                                 node_id,
+                                                 width,
+                                                 width_mode,
+                                                 height,
+                                                 height_mode);
+    if (result_ptr) {
+      result = *result_ptr;
+    } else {
+      result = 0;
     }
-    return result;
+    delete result_ptr;
+    std::unique_lock<std::mutex> lock(mutex_);
+    notified = true;
+    cv.notify_all();
+  };
+  const Work *work_ptr = new Work(work);
+  PostWork(work_ptr);
+  std::unique_lock<std::mutex> lock(mutex_);
+  if (!notified) {
+    cv.wait(lock);
+  }
+  return result;
 }
 
-BridgeRuntime::BridgeRuntime(int32_t engine_id) : engine_id_(engine_id) {
+BridgeRuntime::BridgeRuntime(int32_t engine_id, uint32_t ffi_id) : ffi_id_(ffi_id), engine_id_(engine_id) {
+}
+
+uint32_t BridgeRuntime::GetFfiId() const {
+  return ffi_id_;
 }
 
 std::shared_ptr<BridgeManager> BridgeManager::Create(int32_t engine_id, const Sp<BridgeRuntime>& runtime) {

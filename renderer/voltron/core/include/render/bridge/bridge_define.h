@@ -24,7 +24,7 @@
 
 #include <cstdint>
 
-enum class RenderFFIRegisterFuncType {
+enum RenderFFIRegisterFuncType {
   kPostRenderOp,
   kCalculateNodeLayout
 };
@@ -33,7 +33,7 @@ typedef void (*post_render_op)(int32_t engine_id, uint32_t root_id, const void* 
 typedef int64_t* (*calculate_node_layout)(int32_t engine_id, int32_t root_id, int32_t node_id, double width,
                                           int32_t width_mode, double height, int32_t height_mode);
 
-extern post_render_op post_render_op_func;
-extern calculate_node_layout calculate_node_layout_func;
+extern post_render_op GetPostRenderOpFunc(uint32_t ffi_id);
+extern calculate_node_layout GetCalculateNodeLayoutFunc(uint32_t ffi_id);
 
 

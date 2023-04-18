@@ -32,9 +32,7 @@
 extern "C" {
 #endif
 // 由于头文件没有其他模块引用，会导致在so中符号表隐藏，这里加个常量引用，避免库优化
-EXTERN_C const char* KeepLibStr();
-
-EXTERN_C int32_t RegisterRenderCallFunc(int32_t type, void *func);
+EXTERN_C const char* KeepRenderLibStr();
 
 EXTERN_C uint32_t CreateVoltronRenderProvider();
 

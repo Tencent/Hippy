@@ -26,13 +26,14 @@
 #include "bridge/ffi_bridge_runtime.h"
 
 namespace voltron {
-JSBridgeRuntime::JSBridgeRuntime(int32_t engine_id): BridgeRuntime(engine_id) {}
+JSBridgeRuntime::JSBridgeRuntime(int32_t engine_id, uint32_t ffi_id): BridgeRuntime(engine_id, ffi_id) {}
 
 void FFIJSBridgeRuntime::CallDart(std::u16string &moduleName, std::u16string &moduleFunc, std::u16string &callId,
                                   std::string params, bool bridgeParamJson,
                                   std::function<void()> callback) {
+  auto call_native_func = GetCallNativeFunc(ffi_id_);
   assert(call_native_func != nullptr);
-  const Work work = [engine_id = engine_id_, moduleName_ = std::move(moduleName),
+  const Work work = [call_native_func, engine_id = engine_id_, moduleName_ = std::move(moduleName),
                      moduleFunc_ = std::move(moduleFunc), callId_ = std::move(callId),
                      params = std::move(params), bridgeParamJson,
       callback_ = std::move(callback)]() {
@@ -43,29 +44,39 @@ void FFIJSBridgeRuntime::CallDart(std::u16string &moduleName, std::u16string &mo
     }
   };
   const Work* work_ptr = new Work(work);
-  PostWorkToDart(work_ptr);
+  PostWork(work_ptr);
 }
 
 void FFIJSBridgeRuntime::ReportJSONException(const char* jsonValue) {
+  auto report_json_exception_func = GetReportJsonExceptionFunc(ffi_id_);
   assert(report_json_exception_func != nullptr);
-  const Work work = [engine_id = engine_id_, jsonValue]() { report_json_exception_func(engine_id, jsonValue); };
-  const Work* work_ptr = new Work(work);
-  PostWorkToDart(work_ptr);
+  const Work work = [report_json_exception_func,
+      engine_id = engine_id_, jsonValue]() { report_json_exception_func(engine_id, jsonValue); };
+  const Work *work_ptr = new Work(work);
+  PostWork(work_ptr);
 }
 
 void FFIJSBridgeRuntime::ReportJSException(std::u16string &description_stream, std::u16string &stack_stream) {
+  auto report_js_exception_func = GetReportJsExceptionFunc(ffi_id_);
   assert(report_js_exception_func != nullptr);
-  const Work work = [engine_id = engine_id_, description_stream_ = std::move(description_stream), stack_stream_ = std::move(stack_stream)]() {
+  const Work work = [report_js_exception_func, engine_id = engine_id_,
+      description_stream_ = std::move(description_stream),
+      stack_stream_ = std::move(stack_stream)]() {
     report_js_exception_func(engine_id, description_stream_.c_str(), stack_stream_.c_str());
   };
-  const Work* work_ptr = new Work(work);
-  PostWorkToDart(work_ptr);
+  const Work *work_ptr = new Work(work);
+  PostWork(work_ptr);
 }
 
-FFIJSBridgeRuntime::FFIJSBridgeRuntime(int32_t engine_id) : JSBridgeRuntime(engine_id), engine_id_(engine_id) {}
+FFIJSBridgeRuntime::FFIJSBridgeRuntime(int32_t engine_id, uint32_t ffi_id) : JSBridgeRuntime(engine_id, ffi_id), engine_id_(engine_id), ffi_id_(ffi_id) {}
 
 void FFIJSBridgeRuntime::SetRuntimeId(int64_t runtime_id) { runtime_id_ = runtime_id; }
 
 int64_t FFIJSBridgeRuntime::GetRuntimeId() { return runtime_id_; }
 
+uint32_t FFIJSBridgeRuntime::GetFfiId() { return ffi_id_; }
+
+void FFIJSBridgeRuntime::PostWork(const Work* work) {
+  PostWorkToDart(ffi_id_, work);
+}
 }  // namespace voltron

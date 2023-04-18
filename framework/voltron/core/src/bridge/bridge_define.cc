@@ -22,27 +22,66 @@
 
 #include "bridge/bridge_define.h"
 #include "footstone/logging.h"
+#include "port_holder.h"
 
-call_native call_native_func = nullptr;
-report_json_exception report_json_exception_func = nullptr;
-report_js_exception report_js_exception_func = nullptr;
-destroy_function destroy_func = nullptr;
+constexpr char kVoltronCoreRegisterHeader[] = "voltron_core";
 
-EXTERN_C int32_t RegisterVoltronCoreCallFuncEx(int32_t type, void *func) {
-  FOOTSTONE_DLOG(INFO) << "start register func, type " << type;
-  if (type == FFIRegisterFuncType::kCallNative) {
-    call_native_func = reinterpret_cast<call_native>(func);
-    return true;
-  } else if (type == FFIRegisterFuncType::kReportJsonException) {
-    report_json_exception_func = reinterpret_cast<report_json_exception>(func);
-    return true;
-  } else if (type == FFIRegisterFuncType::kReportJsException) {
-    report_js_exception_func = reinterpret_cast<report_js_exception>(func);
-    return true;
-  } else if (type == FFIRegisterFuncType::kDestroy) {
-    destroy_func = reinterpret_cast<destroy_function>(func);
-    return true;
+call_native GetCallNativeFunc(uint32_t ffi_id) {
+  auto port_holder = voltron::DartPortHolder::FindPortHolder(ffi_id);
+  if (!port_holder) {
+    FOOTSTONE_DLOG(ERROR) << "get call native func error, ffi port holder not found, ensure ffi module init";
+    return nullptr;
   }
-  FOOTSTONE_DLOG(ERROR) << "register func error, unknown type " << type;
-  return false;
+
+  auto func = port_holder->FindCallFunc(kVoltronCoreRegisterHeader, FFIRegisterFuncType::kCallNative);
+  if (!func) {
+    FOOTSTONE_DLOG(ERROR) << "get call native func error, func not found, ensure func has register";
+    return nullptr;
+  }
+  return reinterpret_cast<call_native>(func);
+}
+
+report_json_exception GetReportJsonExceptionFunc(uint32_t ffi_id) {
+  auto port_holder = voltron::DartPortHolder::FindPortHolder(ffi_id);
+  if (!port_holder) {
+    FOOTSTONE_DLOG(ERROR) << "get report json func error, ffi port holder not found, ensure ffi module init";
+    return nullptr;
+  }
+
+  auto func = port_holder->FindCallFunc(kVoltronCoreRegisterHeader, FFIRegisterFuncType::kReportJsonException);
+  if (!func) {
+    FOOTSTONE_DLOG(ERROR) << "get report json func error, func not found, ensure func has register";
+    return nullptr;
+  }
+  return reinterpret_cast<report_json_exception>(func);
+}
+
+report_js_exception GetReportJsExceptionFunc(uint32_t ffi_id) {
+  auto port_holder = voltron::DartPortHolder::FindPortHolder(ffi_id);
+  if (!port_holder) {
+    FOOTSTONE_DLOG(ERROR) << "get report js func error, ffi port holder not found, ensure ffi module init";
+    return nullptr;
+  }
+
+  auto func = port_holder->FindCallFunc(kVoltronCoreRegisterHeader, FFIRegisterFuncType::kReportJsException);
+  if (!func) {
+    FOOTSTONE_DLOG(ERROR) << "get report js func error, func not found, ensure func has register";
+    return nullptr;
+  }
+  return reinterpret_cast<report_js_exception>(func);
+}
+
+destroy_function GetDestroyFunc(uint32_t ffi_id) {
+  auto port_holder = voltron::DartPortHolder::FindPortHolder(ffi_id);
+  if (!port_holder) {
+    FOOTSTONE_DLOG(ERROR) << "get destroy func error, ffi port holder not found, ensure ffi module init";
+    return nullptr;
+  }
+
+  auto func = port_holder->FindCallFunc(kVoltronCoreRegisterHeader, FFIRegisterFuncType::kDestroy);
+  if (!func) {
+    FOOTSTONE_DLOG(ERROR) << "get destroy func error, func not found, ensure func has register";
+    return nullptr;
+  }
+  return reinterpret_cast<destroy_function>(func);
 }

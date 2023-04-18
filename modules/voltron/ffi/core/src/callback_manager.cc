@@ -20,18 +20,16 @@
  *
  */
 
+
 #include "callback_manager.h"
 
-#include "ffi_define.h"
 #include "footstone/logging.h"
 #include "footstone/check.h"
+#include "data_holder.h"
+#include "port_holder.h"
 
-dart_post_c_object_type dart_post_c_object_ = NULL;
-Dart_Port callback_port = 0;
-
-void VoltronRegisterDartPostCObject(dart_post_c_object_type dart_post_c_object, int64_t port) {
-  dart_post_c_object_ = dart_post_c_object;
-  callback_port = port;
+uint32_t VoltronRegisterDartPostCObject(dart_post_c_object_type dart_post_c_object, int64_t port) {
+  return voltron::DartPortHolder::CreateDartPortHolder(dart_post_c_object, port);
 }
 
 EXTERN_C void VoltronExecuteCallback(Work *work_ptr) {
@@ -40,51 +38,77 @@ EXTERN_C void VoltronExecuteCallback(Work *work_ptr) {
   delete work_ptr;
 }
 
-bool PostWorkToDart(const Work *work) {
-  if (callback_port != 0) {
-    const auto workAddress = reinterpret_cast<intptr_t>(work);
-    Dart_CObject dart_object;
-    dart_object.type = Dart_CObject_kInt64;
-    dart_object.value.as_int64 = workAddress;
-
-    const bool result = dart_post_c_object_(callback_port, &dart_object);
-    return result;
-  }
-  return false;
+EXTERN_C uint32_t InitFfi(dart_post_c_object_type dart_post_c_object, int64_t port) {
+  return VoltronRegisterDartPostCObject(dart_post_c_object, port);
 }
 
-bool CallGlobalCallback(int32_t callback_id, int64_t value) {
-  if (global_callback_func) {
-    const Work work = [value, callback_id]() {
-      auto encode_params =
-          voltron::StandardMessageCodec::GetInstance().EncodeMessage(voltron::EncodableValue(value));
-      global_callback_func(callback_id,
-                           encode_params->data(),
-                           footstone::checked_numeric_cast<size_t, int32_t>(encode_params->size()));
-    };
-    const Work *work_ptr = new Work(work);
-    PostWorkToDart(work_ptr);
-    return true;
-  } else {
-    FOOTSTONE_DLOG(ERROR) << "call callback error, func not found";
+EXTERN_C int32_t AddCallFunc(uint32_t ffi_id, const char16_t *register_header, int32_t type, void *func) {
+  auto port_holder = voltron::FindObject<std::shared_ptr<voltron::DartPortHolder>>(ffi_id);
+  if (!port_holder) {
+    FOOTSTONE_DLOG(ERROR) << "call callback error, port holder not found, ensure ffi module init";
+    return false;
   }
-  return false;
+
+  return port_holder->AddCallFunc(register_header, type, func);
 }
 
-bool CallGlobalCallbackWithValue(int32_t callback_id, const voltron::EncodableValue& value) {
-  if (global_callback_func) {
-    const Work work = [value, callback_id]() {
-      auto encode_params =
-          voltron::StandardMessageCodec::GetInstance().EncodeMessage(value);
-      global_callback_func(callback_id,
-                           encode_params->data(),
-                           footstone::checked_numeric_cast<size_t, int32_t>(encode_params->size()));
-    };
-    const Work *work_ptr = new Work(work);
-    PostWorkToDart(work_ptr);
-    return true;
-  } else {
-    FOOTSTONE_DLOG(ERROR) << "call callback error, func not found";
+bool PostWorkToDart(uint32_t ffi_id, const Work *work) {
+  auto port_holder = voltron::DartPortHolder::FindPortHolder(ffi_id);
+  if (!port_holder) {
+    FOOTSTONE_DLOG(ERROR) << "post work error, port holder not found, ensure ffi module init";
+    return false;
   }
-  return false;
+
+  return port_holder->PostWorkToDart(work);
+}
+
+bool CallGlobalCallback(uint32_t ffi_id, int32_t callback_id, int64_t value) {
+  auto port_holder = voltron::DartPortHolder::FindPortHolder(ffi_id);
+  if (!port_holder) {
+    FOOTSTONE_DLOG(ERROR) << "call callback error, port holder not found, ensure ffi module init";
+    return false;
+  }
+
+  auto global_callback_func = port_holder->GetGlobalCallbackFunc();
+  if (!global_callback_func) {
+    FOOTSTONE_DLOG(ERROR) << "call callback error, func not found";
+    return false;
+  }
+
+  const Work work = [value, callback_id, global_callback_func]() {
+    auto encode_params =
+        voltron::StandardMessageCodec::GetInstance().EncodeMessage(voltron::EncodableValue(value));
+    global_callback_func(callback_id,
+                         encode_params->data(),
+                         footstone::checked_numeric_cast<size_t, int32_t>(encode_params->size()));
+  };
+  const Work *work_ptr = new Work(work);
+  return port_holder->PostWorkToDart(work_ptr);
+}
+
+bool CallGlobalCallbackWithValue(uint32_t ffi_id,
+                                 int32_t callback_id,
+                                 const voltron::EncodableValue &value) {
+  auto port_holder = voltron::DartPortHolder::FindPortHolder(ffi_id);
+  if (!port_holder) {
+    FOOTSTONE_DLOG(ERROR)
+    << "call callback with value  error, port holder not found, ensure ffi module init";
+    return false;
+  }
+
+  auto global_callback_func = port_holder->GetGlobalCallbackFunc();
+  if (!global_callback_func) {
+    FOOTSTONE_DLOG(ERROR) << "call callback error, func not found";
+    return false;
+  }
+
+  const Work work = [value, callback_id, global_callback_func]() {
+    auto encode_params =
+        voltron::StandardMessageCodec::GetInstance().EncodeMessage(value);
+    global_callback_func(callback_id,
+                         encode_params->data(),
+                         footstone::checked_numeric_cast<size_t, int32_t>(encode_params->size()));
+  };
+  const Work *work_ptr = new Work(work);
+  return port_holder->PostWorkToDart(work_ptr);
 }
