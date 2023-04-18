@@ -29,15 +29,15 @@
 namespace voltron {
 class EXPORT JSBridgeRuntime : public BridgeRuntime {
  public:
-  EXPORT JSBridgeRuntime(int32_t engine_id);
-  EXPORT virtual ~JSBridgeRuntime() = default;
+  JSBridgeRuntime(int32_t engine_id, uint32_t ffi_id);
+  virtual ~JSBridgeRuntime() = default;
 
  public:
-  EXPORT virtual void CallDart(std::u16string &moduleName, std::u16string &moduleFunc, std::u16string &callId,
+  virtual void CallDart(std::u16string &moduleName, std::u16string &moduleFunc, std::u16string &callId,
                                 std::string params, bool bridgeParamJson,
                                 std::function<void()> callback) = 0;
-  EXPORT virtual void ReportJSONException(const char* jsonValue) = 0;
-  EXPORT virtual void ReportJSException(std::u16string &description_stream, std::u16string &stack_stream) = 0;
+  virtual void ReportJSONException(const char* jsonValue) = 0;
+  virtual void ReportJSException(std::u16string &description_stream, std::u16string &stack_stream) = 0;
   virtual void SetRuntimeId(int64_t runtime_id) = 0;
   virtual int64_t GetRuntimeId() = 0;
 };

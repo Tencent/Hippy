@@ -109,9 +109,9 @@ EXTERN_C void UnloadInstanceFFI(int32_t engine_id, const char* params, int32_t p
 
 EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t single_thread_mode,
                                     int32_t bridge_param_json, int32_t is_dev_module, int64_t group_id,
-                                    uint32_t vfs_id, uint32_t dom_manager_id,
+                                    uint32_t vfs_id, uint32_t ffi_id, uint32_t dom_manager_id,
                                     int32_t engine_id, int32_t callback_id, uint32_t devtools_id) {
-  auto ffi_runtime = std::make_shared<FFIJSBridgeRuntime>(engine_id);
+  auto ffi_runtime = std::make_shared<FFIJSBridgeRuntime>(engine_id, ffi_id);
   auto bridge_manager = BridgeManager::Create(engine_id, ffi_runtime);
 
   auto vfs_wrapper = voltron::FindObject<std::shared_ptr<voltron::VfsWrapper>>(vfs_id);
@@ -120,7 +120,7 @@ EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t singl
 
   auto result = BridgeImpl::InitJsEngine(ffi_runtime, single_thread_mode, bridge_param_json, is_dev_module, group_id,
                                          vfs_wrapper->GetLoader()->GetWorkerManager(), dom_manager_id, global_config, 0, 0,
-                                         [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); }, devtools_id);
+                                         [callback_id, ffi_id](int64_t value) { CallGlobalCallback(ffi_id, callback_id, value); }, devtools_id);
   ffi_runtime->SetRuntimeId(result);
 
   return result;
@@ -146,9 +146,10 @@ EXTERN_C int32_t RunScriptFromUriFFI(int32_t engine_id,
   }
 
   auto runtime_id = runtime->GetRuntimeId();
+  auto ffi_id = runtime->GetFfiId();
   bool result = BridgeImpl::RunScriptFromUri(
       runtime_id, vfs_id, can_use_code_cache, is_local_file, uri, code_cache_dir,
-      [callback_id](int value) { CallGlobalCallback(callback_id, value); });
+      [callback_id, ffi_id](int value) { CallGlobalCallback(ffi_id, callback_id, value); });
   return result;
 }
 
@@ -167,10 +168,11 @@ EXTERN_C void CallFunctionFFI(int32_t engine_id, const char16_t* action, const c
   }
 
   auto runtime_id = runtime->GetRuntimeId();
+  auto ffi_id = runtime->GetFfiId();
   if (params == nullptr && params_length <= 0) {
     BridgeImpl::CallFunction(runtime_id, action, std::string{},
-                             [callback_id](int64_t value) {
-                               CallGlobalCallback(callback_id,
+                             [callback_id, ffi_id](int64_t value) {
+                               CallGlobalCallback(ffi_id, callback_id,
                                                   value);
                              });
   } else {
@@ -178,8 +180,8 @@ EXTERN_C void CallFunctionFFI(int32_t engine_id, const char16_t* action, const c
     BridgeImpl::CallFunction(runtime_id,
                              action,
                              std::move(params_str),
-                             [callback_id](int64_t value) {
-                               CallGlobalCallback(callback_id, value);
+                             [callback_id, ffi_id](int64_t value) {
+                               CallGlobalCallback(ffi_id, callback_id, value);
                              });
 
   }
@@ -203,8 +205,9 @@ EXTERN_C void DestroyFFI(int32_t engine_id, int32_t callback_id, int32_t is_relo
   }
 
   auto runtime_id = runtime->GetRuntimeId();
+  auto ffi_id = runtime->GetFfiId();
   BridgeImpl::Destroy(runtime_id,
-                      [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); },
+                      [callback_id, ffi_id](int64_t value) { CallGlobalCallback(ffi_id, callback_id, value); },
                       is_reload);
 }
 

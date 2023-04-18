@@ -43,9 +43,7 @@ typedef void (*report_js_exception)(int32_t engine_id, const char16_t* descripti
 // 销毁
 typedef void (*destroy_function)(int32_t engine_id);
 
-extern call_native call_native_func;
-extern report_json_exception report_json_exception_func;
-extern report_js_exception report_js_exception_func;
-extern destroy_function destroy_func;
-
-EXTERN_C int32_t RegisterVoltronCoreCallFuncEx(int32_t type, void *func);
+extern call_native GetCallNativeFunc(uint32_t ffi_id);
+extern report_json_exception GetReportJsonExceptionFunc(uint32_t ffi_id);
+extern report_js_exception GetReportJsExceptionFunc(uint32_t ffi_id);
+extern destroy_function GetDestroyFunc(uint32_t ffi_id);

@@ -282,11 +282,25 @@ VoltronRenderTaskRunner::DecodeDomValueMap(const SpMap<HippyValue> &value_map) {
 }
 
 void VoltronRenderTaskRunner::ConsumeQueue(uint32_t root_id) {
+  auto bridge_manager = BridgeManager::Find(engine_id_);
+  if (!bridge_manager) {
+    FOOTSTONE_LOG(WARNING) << "ConsumeQueue id:" << root_id << " failed , engine is destroy";
+    return;
+  }
+
+  auto bridge_runtime = bridge_manager->GetRuntime();
+  if (!bridge_runtime) {
+    FOOTSTONE_LOG(WARNING) << "ConsumeQueue id:" << root_id << " failed , runtime not bind";
+    return;
+  }
+
+  auto ffi_id = bridge_runtime->GetFfiId();
+  auto post_render_op_func = GetPostRenderOpFunc(ffi_id);
   if (post_render_op_func) {
     auto render_op_buffer = queue(root_id)->ConsumeRenderOp().release();
     if (render_op_buffer) {
       auto engine_id = engine_id_;
-      const Work work = [engine_id, root_id, render_op_buffer]() {
+      const Work work = [post_render_op_func, engine_id, root_id, render_op_buffer]() {
         auto op_buffer =
             std::unique_ptr<std::vector<uint8_t>>(render_op_buffer);
         auto buffer_length = static_cast<int64_t>(op_buffer->size());
@@ -296,7 +310,7 @@ void VoltronRenderTaskRunner::ConsumeQueue(uint32_t root_id) {
         }
       };
       const Work *work_ptr = new Work(work);
-      PostWorkToDart(work_ptr);
+      bridge_runtime->PostWork(work_ptr);
     }
   }
 }

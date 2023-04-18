@@ -19,7 +19,41 @@
  * limitations under the License.
  *
  */
+#include "port_holder.h"
 #include "render/bridge/bridge_define.h"
 
-post_render_op post_render_op_func = nullptr;
-calculate_node_layout calculate_node_layout_func = nullptr;
+constexpr char kRenderRegisterHeader[] = "voltron_renderer_register";
+
+extern post_render_op GetPostRenderOpFunc(uint32_t ffi_id) {
+  auto port_holder = voltron::DartPortHolder::FindPortHolder(ffi_id);
+  if (!port_holder) {
+    FOOTSTONE_DLOG(ERROR)
+        << "get post render op func error, ffi port holder not found, ensure ffi module init";
+    return nullptr;
+  }
+
+  auto func = port_holder->FindCallFunc(kRenderRegisterHeader,
+                                        RenderFFIRegisterFuncType::kPostRenderOp);
+  if (!func) {
+    FOOTSTONE_DLOG(ERROR) << "get post render op func error, func not found, ensure func has register";
+    return nullptr;
+  }
+  return reinterpret_cast<post_render_op>(func);
+}
+
+extern calculate_node_layout GetCalculateNodeLayoutFunc(uint32_t ffi_id) {
+  auto port_holder = voltron::DartPortHolder::FindPortHolder(ffi_id);
+  if (!port_holder) {
+    FOOTSTONE_DLOG(ERROR)
+        << "get calculate node layout func error, ffi port holder not found, ensure ffi module init";
+    return nullptr;
+  }
+
+  auto func = port_holder->FindCallFunc(kRenderRegisterHeader,
+                                        RenderFFIRegisterFuncType::kCalculateNodeLayout);
+  if (!func) {
+    FOOTSTONE_DLOG(ERROR) << "get calculate node layout  func error, func not found, ensure func has register";
+    return nullptr;
+  }
+  return reinterpret_cast<calculate_node_layout>(func);
+}

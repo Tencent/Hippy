@@ -43,21 +43,8 @@ extern "C" {
 constexpr char kDomWorkerName[] = "dom_worker";
 constexpr char kDomRunnerName[] = "dom_task_runner";
 
-EXTERN_C const char *KeepLibStr() {
+EXTERN_C const char *KeepRenderLibStr() {
   return "keep_render_lib";
-}
-
-EXTERN_C int32_t RegisterRenderCallFunc(int32_t type, void *func) {
-  FOOTSTONE_DLOG(INFO) << "start register render func, type " << type;
-  if (type == static_cast<int>(RenderFFIRegisterFuncType::kPostRenderOp)) {
-    post_render_op_func = reinterpret_cast<post_render_op>(func);
-    return true;
-  } else if (type == static_cast<int>(RenderFFIRegisterFuncType::kCalculateNodeLayout)) {
-    calculate_node_layout_func = reinterpret_cast<calculate_node_layout>(func);
-    return true;
-  }
-  FOOTSTONE_DLOG(ERROR) << "register render func error, unknown type " << type;
-  return false;
 }
 
 EXTERN_C uint32_t CreateVoltronRenderProvider() {

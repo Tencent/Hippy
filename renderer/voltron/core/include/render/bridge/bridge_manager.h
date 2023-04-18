@@ -40,13 +40,17 @@ class BridgeRuntime {
 public:
 
   virtual ~BridgeRuntime() = default;
-  explicit BridgeRuntime(int32_t engine_id);
+  explicit BridgeRuntime(int32_t engine_id, uint32_t ffi_id);
 
-  EXPORT int64_t CalculateNodeLayout(int32_t instance_id, int32_t node_id,
+  int64_t CalculateNodeLayout(int32_t instance_id, int32_t node_id,
                                      double width, int32_t width_mode,
                                      double height, int32_t height_mode);
 
+  virtual void PostWork(const Work* work_ptr) = 0;
+
+  uint32_t GetFfiId() const;
 protected:
+  uint32_t ffi_id_ = 0;
   int32_t engine_id_ = 0;
   std::mutex mutex_;
 };
