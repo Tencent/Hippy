@@ -36,10 +36,47 @@ function toObject(arr) {
   return res;
 }
 
-function patchStyle(oldVNode, vNode) {
-  if (!oldVNode.data.style && !vNode.data.style) {
-    return;
+function isStyleExisted(oldVNode, vNode) {
+  if (!oldVNode.data && !vNode.data) {
+    return false;
   }
+  if (!oldVNode.data.style
+    && !vNode.data.style
+    && !oldVNode.data.staticStyle
+    && !vNode.data.staticStyle) {
+    return false;
+  };
+  return true;
+}
+
+function mergeStyle(oldStyle, newStyle) {
+  const mergedStyle = {};
+  Object.keys(oldStyle).forEach((name) => {
+    const oldStyleValue = oldStyle[name];
+    const newStyleValue = newStyle[name];
+    if (!isNullOrUndefined(oldStyleValue) && isNullOrUndefined(newStyleValue)) {
+      mergedStyle[normalize(name)] = undefined;
+    }
+  });
+  Object.keys(newStyle).forEach((name) => {
+    const oldStyleValue = oldStyle[name];
+    const newStyleValue = newStyle[name];
+    if (!isNullOrUndefined(newStyleValue) && newStyleValue !== oldStyleValue) {
+      mergedStyle[normalize(name)] = newStyleValue;
+    }
+  });
+  return mergedStyle;
+}
+
+function patchStyle(oldVNode, vNode) {
+  if (!vNode.elm || !isStyleExisted(oldVNode, vNode)) return;
+
+  // get static style, i.e. style defined in the component, style="background-color: red"
+  const oldStaticStyle = oldVNode.data.staticStyle || {};
+  const newStaticStyle = vNode.data.staticStyle || {};
+  const batchedStaticStyle = mergeStyle(oldStaticStyle, newStaticStyle);
+
+  // get dynamic style
   const oldStyle = oldVNode.data.style || {};
   let style = vNode.data.style || {};
   const needClone = style.__ob__;
@@ -54,50 +91,10 @@ function patchStyle(oldVNode, vNode) {
     style = extend({}, style);
     vNode.data.style = style;
   }
-  const batchedStyles = {};
-  // Remove the deleted styles at first
-  Object.keys(oldStyle).forEach((name) => {
-    const oldStyleValue = oldStyle[name];
-    const newStyleValue = style[name];
-    if (!isNullOrUndefined(oldStyleValue) && isNullOrUndefined(newStyleValue)) {
-      batchedStyles[normalize(name)] = undefined;
-    }
-  });
-  // Then set the new styles.
-  Object.keys(style).forEach((name) => {
-    const styleValue = style[name];
-    if (!isNullOrUndefined(styleValue)) {
-      batchedStyles[normalize(name)] = styleValue;
-    }
-  });
-  return batchedStyles;
-}
+  const batchedStyle = mergeStyle(oldStyle, style);
 
-function updateStyle(oldVNode, vNode) {
-  if (!vNode.elm) return;
-  const styles = patchStyle(oldVNode, vNode);
-  vNode.elm.setStyles(styles);
-}
-
-function createStyle(oldVNode, vNode) {
-  if (!vNode.elm) return;
-  if (!vNode.data.staticStyle) {
-    updateStyle(oldVNode, vNode);
-    return;
-  }
-  const batchStyles = {};
-  const { staticStyle } = vNode.data;
-  Object.keys(staticStyle).forEach((name) => {
-    const styleValue = staticStyle[name];
-    if (!isNullOrUndefined(styleValue)) {
-      batchStyles[normalize(name)] = styleValue;
-    }
-  });
-  const styles = patchStyle(oldVNode, vNode);
-  if (styles) {
-    Object.assign(batchStyles, styles);
-  }
-  vNode.elm.setStyles(batchStyles);
+  // set merged styles
+  vNode.elm.setStyles({ ...batchedStaticStyle, ...batchedStyle });;
 }
 
 export function setStyle(vNode, customElem, options = {}) {
@@ -140,6 +137,6 @@ export function setStyle(vNode, customElem, options = {}) {
 }
 
 export default {
-  create: createStyle,
-  update: updateStyle,
+  create: patchStyle,
+  update: patchStyle,
 };
