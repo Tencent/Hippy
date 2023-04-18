@@ -135,7 +135,10 @@ function getLinearGradientColorStop(value) {
  * @param {string|Object|number|boolean} value
  * @returns {(string|{})[]}
  */
-function parseBackgroundImage(property, value) {
+function parseBackgroundImage(property, value, style) {
+  // reset the backgroundImage and linear gradient property
+  delete style[property];
+  removeLinearGradient(property, value, style);
   let processedValue = value;
   let processedProperty = property;
   if (value.indexOf('linear-gradient') === 0) {
@@ -178,7 +181,7 @@ function parseBackgroundImage(property, value) {
  * @param value
  * @param style
  */
-function removeBackgroundImage(property, value, style) {
+function removeLinearGradient(property, value, style) {
   if (property === 'backgroundImage' && style.linearGradient) {
     delete style.linearGradient;
   }
@@ -227,7 +230,7 @@ function removeTextShadowOffset(property, value, style) {
 function removeStyle(property, value, style) {
   if (value === undefined) {
     delete style[property];
-    removeBackgroundImage(property, value, style);
+    removeLinearGradient(property, value, style);
     removeTextShadowOffset(property, value, style);
   }
 }
@@ -389,7 +392,7 @@ class ElementNode extends ViewNode {
   }
 
   setStyles(batchStyles) {
-    if (!batchStyles || typeof batchStyles !== 'object') {
+    if (!batchStyles || typeof batchStyles !== 'object' || Object.keys(batchStyles).length === 0) {
       return;
     }
     Object.keys(batchStyles).forEach((styleKey) => {
@@ -423,7 +426,7 @@ class ElementNode extends ViewNode {
         }
         break;
       case 'backgroundImage': {
-        [key, value] = parseBackgroundImage(key, value);
+        [key, value] = parseBackgroundImage(key, value, this.style);
         break;
       }
       case 'textShadowOffsetX':
