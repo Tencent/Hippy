@@ -37,6 +37,25 @@ double HippyValueToDouble(const footstone::HippyValue &value) {
   return 0.f;
 }
 
+double HippyValueToRadians(const footstone::HippyValue &value) {
+  if (value.IsString()) {
+    auto str = value.ToStringChecked();
+    auto pos = str.find("deg");
+    if (pos != std::string::npos) {
+      auto substr = str.substr(0, pos);
+      return atof(substr.c_str()) * M_PI / 180;
+    }
+    pos = str.find("rad");
+    if (pos != std::string::npos) {
+      auto substr = str.substr(0, pos);
+      return atof(substr.c_str());
+    }
+  } else if (value.IsDouble()) {
+    return value.ToDoubleChecked();
+  }
+  return 0.f;
+}
+
 Color ConversionIntToColor(uint32_t value) {
   uint8_t alpha = (0xFF & (value >> 24));
   uint8_t red = (0xFF & (value >> 16));

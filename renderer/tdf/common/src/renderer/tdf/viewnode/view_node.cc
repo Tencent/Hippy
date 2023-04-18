@@ -55,6 +55,7 @@ inline namespace tdf {
 
 using footstone::check::checked_numeric_cast;
 using DomValueArrayType = footstone::value::HippyValue::DomValueArrayType;
+using HippyValueObjectType = footstone::value::HippyValue::HippyValueObjectType;
 
 ViewNode::ViewNode(const std::shared_ptr<hippy::dom::DomNode> &dom_node, const RenderInfo info,
                    std::shared_ptr<tdfcore::View> view)
@@ -159,10 +160,24 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeletePr
 
 tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style, std::shared_ptr<tdfcore::View> view) {
   auto transform = tdfcore::TM44();
-  if (auto it = dom_style.find(kMatrix); it != dom_style.end() && it->second != nullptr) {
-    FOOTSTONE_CHECK(it->second->IsArray());
+  auto transform_it = dom_style.find(kTransform);
+  if (transform_it == dom_style.end()) {
+    return transform;
+  }
+
+  HippyValueObjectType transform_style;
+  DomValueArrayType parsed_array;
+  if (!transform_it->second->ToArray(parsed_array)) {
+    return transform;
+  }
+  if (!parsed_array[0].ToObject(transform_style)) {
+    return transform;
+  }
+
+  if (auto it = transform_style.find(kMatrix); it != transform_style.end()) {
+    FOOTSTONE_CHECK(it->second.IsArray());
     DomValueArrayType matrix_array;
-    auto result = it->second->ToArray(matrix_array);
+    auto result = it->second.ToArray(matrix_array);
     if (!result) {
       return transform;
     }
@@ -177,61 +192,61 @@ tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style,
     }
   }
 
-  if (auto it = dom_style.find(kPerspective); it != dom_style.end() && it->second != nullptr) {
-    FOOTSTONE_DCHECK(it->second->IsDouble());
+  if (auto it = transform_style.find(kPerspective); it != transform_style.end()) {
+    FOOTSTONE_DCHECK(it->second.IsDouble());
     // M44中 2x3对应的位置就是perspective属性
-    transform.setRC(2, 3, static_cast<float>(it->second->ToDoubleChecked()));
+    transform.setRC(2, 3, static_cast<float>(it->second.ToDoubleChecked()));
   }
 
   auto tv3 = tdfcore::TV3();
-  if (auto it = dom_style.find(kRotateX); it != dom_style.end() && it->second != nullptr) {
-    FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto radians = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kRotateX); it != transform_style.end()) {
+    FOOTSTONE_DCHECK(it->second.IsDouble());
+    auto radians = static_cast<float>(util::HippyValueToRadians(it->second));
     tv3.x = 1;
     transform.setRotateUnit(tv3, radians);
   }
 
-  if (auto it = dom_style.find(kRotateY); it != dom_style.end() && it->second != nullptr) {
-    FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto radians = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kRotateY); it != transform_style.end()) {
+    FOOTSTONE_DCHECK(it->second.IsDouble());
+    auto radians = static_cast<float>(util::HippyValueToRadians(it->second));
     tv3.y = 1;
     transform.setRotateUnit(tv3, radians);
   }
 
-  if (auto it = dom_style.find(kRotate); it != dom_style.end() && it->second != nullptr) {
-    auto radians = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kRotate); it != transform_style.end()) {
+    auto radians = static_cast<float>(util::HippyValueToRadians(it->second));
     tv3.z = 1;
     transform.setRotateUnit(tv3, radians);
   }
 
-  if (auto it = dom_style.find(kRotateZ); it != dom_style.end() && it->second != nullptr) {
-    auto radians = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kRotateZ); it != transform_style.end()) {
+    auto radians = static_cast<float>(util::HippyValueToRadians(it->second));
     tv3.z = 1;
     transform.setRotateUnit(tv3, radians);
   }
 
-  if (auto it = dom_style.find(kScale); it != dom_style.end() && it->second != nullptr) {
-    FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto scale = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kScale); it != transform_style.end()) {
+    FOOTSTONE_DCHECK(it->second.IsDouble());
+    auto scale = static_cast<float>(it->second.ToDoubleChecked());
     transform.setScale(scale, scale);
   }
 
-  if (auto it = dom_style.find(kScaleX); it != dom_style.end() && it->second != nullptr) {
-    FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto scale = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kScaleX); it != transform_style.end()) {
+    FOOTSTONE_DCHECK(it->second.IsDouble());
+    auto scale = static_cast<float>(it->second.ToDoubleChecked());
     transform.setScale(scale, 0);
   }
 
-  if (auto it = dom_style.find(kScaleY); it != dom_style.end() && it->second != nullptr) {
-    FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto scale = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kScaleY); it != transform_style.end()) {
+    FOOTSTONE_DCHECK(it->second.IsDouble());
+    auto scale = static_cast<float>(it->second.ToDoubleChecked());
     transform.setScale(0, scale);
   }
 
-  if (auto it = dom_style.find(kTranslate); it != dom_style.end() && it->second != nullptr) {
-    FOOTSTONE_DCHECK(it->second->IsDouble());
+  if (auto it = transform_style.find(kTranslate); it != transform_style.end()) {
+    FOOTSTONE_DCHECK(it->second.IsDouble());
     DomValueArrayType translation_array;
-    auto result = it->second->ToArray(translation_array);
+    auto result = it->second.ToArray(translation_array);
     if (!result) {
       return transform;
     }
@@ -242,25 +257,25 @@ tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style,
     transform.setTranslate(translate_x, translate_y, translate_z);
   }
 
-  if (auto it = dom_style.find(kTranslateX); it != dom_style.end() && it->second != nullptr) {
-    FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto translate_x = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kTranslateX); it != transform_style.end()) {
+    FOOTSTONE_DCHECK(it->second.IsDouble());
+    auto translate_x = static_cast<float>(it->second.ToDoubleChecked());
     transform.setTranslate(translate_x, 0);
   }
 
-  if (auto it = dom_style.find(kTranslateY); it != dom_style.end() && it->second != nullptr) {
-    FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto translate_y = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kTranslateY); it != transform_style.end()) {
+    FOOTSTONE_DCHECK(it->second.IsDouble());
+    auto translate_y = static_cast<float>(it->second.ToDoubleChecked());
     transform.setTranslate(0, translate_y);
   }
 
-  if (auto it = dom_style.find(kSkewX); it != dom_style.end() && it->second != nullptr) {
-    auto skew_x = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kSkewX); it != transform_style.end()) {
+    auto skew_x = static_cast<float>(util::HippyValueToRadians(it->second));
     transform.setRC(0, 1, skew_x);
   }
 
-  if (auto it = dom_style.find(kSkewY); it != dom_style.end() && it->second != nullptr) {
-    auto skew_y = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kSkewY); it != transform_style.end()) {
+    auto skew_y = static_cast<float>(util::HippyValueToRadians(it->second));
     transform.setRC(1, 0, skew_y);
   }
   return transform;
