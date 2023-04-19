@@ -195,7 +195,7 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
         this.renderImgDom!.src = this.src;
       }
     }
-    this.onLoadEnd(null);
+    this.onLoadEnd({ image: { width: this.renderImgDom?.width, height: this.renderImgDom?.height } });
   }
 
   private buildTintDomContainer() {
