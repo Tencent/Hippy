@@ -212,13 +212,13 @@ constexpr char kVfsRegisterHeader[] = "vfs_register";
 extern invoke_dart GetInvokeDartFunc(uint32_t ffi_id) {
   auto port_holder = voltron::DartPortHolder::FindPortHolder(ffi_id);
   if (!port_holder) {
-    FOOTSTONE_DLOG(ERROR) << "get invoke dart func error, ffi port holder not found, ensure ffi module init";
+    FOOTSTONE_LOG(ERROR) << "get invoke dart func error, ffi port holder not found, ensure ffi module init";
     return nullptr;
   }
 
   auto func = port_holder->FindCallFunc(kVfsRegisterHeader, VfsFFIRegisterFuncType::kInvokeDart);
   if (!func) {
-    FOOTSTONE_DLOG(ERROR) << "get invoke dart func error, func not found, ensure func has register";
+    FOOTSTONE_LOG(ERROR) << "get invoke dart func error, func not found, ensure func has register";
     return nullptr;
   }
   return reinterpret_cast<invoke_dart>(func);
