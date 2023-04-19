@@ -37,9 +37,12 @@ class DartFuncRegister {
  public:
   bool AddCallFunc(int32_t type, void *func);
   void* FindCallFunc(int32_t type);
+  DartFuncRegister(std::string  register_header);
+  ~DartFuncRegister() = default;
 
  private:
   RegisterFuncMap register_func_map_;
+  std::string register_header_;
 };
 
 using RegisterMap = footstone::utils::PersistentObjectMap<std::string,

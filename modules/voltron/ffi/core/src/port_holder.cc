@@ -23,6 +23,8 @@
 
 #include "port_holder.h"
 
+#include <utility>
+
 #include "footstone/logging.h"
 #include "callback_manager.h"
 #include "data_holder.h"
@@ -68,14 +70,14 @@ std::shared_ptr<DartPortHolder> DartPortHolder::FindPortHolder(uint32_t ffi_id) 
 }
 
 int32_t DartPortHolder::AddCallFunc(const char16_t *register_header, int32_t type, void *func) {
-  FOOTSTONE_DLOG(INFO) << "start register func header: " << register_header << ", type: " << type << ", func:" << func;
+  FOOTSTONE_LOG(INFO) << "start register func header: " << register_header << ", type: " << type << ", func:" << func;
   auto header_str = voltron::C16CharToString(register_header);
   if (header_str == kDefaultRegisterHeader) {
     if (type == static_cast<int>(DefaultRegisterFuncType::kGlobalCallback)) {
       global_callback_func_ = reinterpret_cast<global_callback>(func);
       return true;
     }
-    FOOTSTONE_DLOG(ERROR) << "register func error header: " << register_header << ", unknown type: " << type;
+    FOOTSTONE_LOG(ERROR) << "register func error header: " << register_header << ", unknown type: " << type;
     return false;
   } else {
     std::shared_ptr<DartFuncRegister> func_register;
@@ -88,8 +90,8 @@ int32_t DartPortHolder::AddCallFunc(const char16_t *register_header, int32_t typ
 }
 
 std::shared_ptr<DartFuncRegister> DartPortHolder::CreateCallFuncRegister(const std::string &register_header) {
-  FOOTSTONE_DLOG(INFO) << "start func register extension  header: " << register_header;
-  auto dart_func_register = std::make_shared<DartFuncRegister>();
+  FOOTSTONE_LOG(INFO) << "start func register extension  header: " << register_header;
+  auto dart_func_register = std::make_shared<DartFuncRegister>(register_header);
   register_map_.Insert(register_header, dart_func_register);
   return dart_func_register;
 }
@@ -100,8 +102,11 @@ global_callback DartPortHolder::GetGlobalCallbackFunc() {
 
 void* DartPortHolder::FindCallFunc(const char* register_header, int32_t type) {
   std::shared_ptr<DartFuncRegister> func_register;
-  register_map_.Find(register_header, func_register);
-  FOOTSTONE_CHECK(func_register);
+  auto flag = register_map_.Find(register_header, func_register);
+  if (!flag) {
+    FOOTSTONE_LOG(ERROR) << "find call func register map error,  header: " << register_header;
+    return nullptr;
+  }
 
   auto func = func_register->FindCallFunc(type);
   return func;
@@ -117,8 +122,15 @@ void* DartFuncRegister::FindCallFunc(int32_t type) {
   bool flag = register_func_map_.Find(
       type,
       func);
-  FOOTSTONE_CHECK(flag);
+  if (!flag) {
+    FOOTSTONE_LOG(ERROR) << "find call func error,  header:" << register_header_ <<", type: " << type;
+    return nullptr;
+  }
   return func;
+}
+
+DartFuncRegister::DartFuncRegister(std::string register_header): register_header_(std::move(register_header)) {
+
 }
 
 }
