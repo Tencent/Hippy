@@ -85,9 +85,7 @@ abstract class RenderContext<T extends LoadInstanceContext> with RenderContextPr
     _renderBridgeManager.bindRenderContext(this);
 
     /// step 2, make sure workerManagerId is valid, use old value when reload
-    if (!debugMode) {
-      _renderBridgeManager.initRenderApi();
-    }
+    _renderBridgeManager.initRenderApi();
 
     /// step 3, make sure dom holder is valid, use old value when reload
     if (debugMode && initDomHolder != null) {
