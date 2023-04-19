@@ -108,9 +108,14 @@ class _RenderBridgeFFIManager {
 
 /// 封装dart to c++的api调用，处理各种中间数据
 class VoltronRenderApi {
-  static Future init() async {
-    _RenderBridgeFFIManager();
-    initBridge();
+  static bool _isInit = false;
+
+  static void init() {
+    if (!_isInit) {
+      _RenderBridgeFFIManager();
+      initBridge();
+      _isInit = true;
+    }
   }
 
   static int createNativeRender() {

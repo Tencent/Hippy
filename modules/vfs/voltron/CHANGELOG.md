@@ -1,3 +1,7 @@
+## 0.0.4
+
+- fix first reload error
+
 ## 0.0.3
 
 - Support multi flutter engine

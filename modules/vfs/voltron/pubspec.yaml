@@ -22,7 +22,7 @@
 
 name: voltron_vfs
 description: voltron vfs module
-version: 0.0.3
+version: 0.0.4
 homepage: https://hippyjs.org
 repository: https://github.com/Tencent/Hippy
 
@@ -34,7 +34,7 @@ dependencies:
   flutter:
     sdk: flutter
   ffi: ^1.0.0
-  voltron_ffi: 0.0.3
+  voltron_ffi: 0.0.4
 
 dev_dependencies:
   ffi: ^1.0.0
