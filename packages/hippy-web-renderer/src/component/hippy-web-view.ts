@@ -199,8 +199,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public updateChildzIndex() {
     this.dom?.childNodes.forEach((item) => {
       const childDom = this.context.getModuleByName('UIManagerModule').findViewById((item as HTMLElement).id);
-      if (this.exitChildrenStackContext
-        && !childDom.props.style.zIndex !== undefined) {
+      if (this.exitChildrenStackContext && !childDom.props.style.zIndex !== undefined) {
         childDom.updateSelfStackContext();
       }
       if (!this.exitChildrenStackContext && childDom.updatedZIndex) {
@@ -210,15 +209,18 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   }
 
   public updateSelfStackContext(value = true) {
-    if (value) {
+    if (value && (this.props.style.zIndex === null || this.props.style.zIndex === undefined)) {
       this.props.style.zIndex = 0;
       setElementStyle(this.dom as HTMLElement, { zIndex: 0 });
       this.updatedZIndex = true;
       return;
     }
-    delete this.props.style.zIndex;
-    setElementStyle(this.dom as HTMLElement, { zIndex: 'auto' });
-    this.updatedZIndex = false;
+
+    if (!value) {
+      delete this.props.style.zIndex;
+      setElementStyle(this.dom as HTMLElement, { zIndex: 'auto' });
+      this.updatedZIndex = false;
+    }
   }
 
   public updateProps(data: UIProps, defaultProcess: DefaultPropsProcess) {
