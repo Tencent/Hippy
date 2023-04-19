@@ -1,3 +1,7 @@
+## 0.0.24
+
+- disable local cmake 
+
 ## 0.0.23
 
 - fix first reload error
