@@ -23,8 +23,6 @@
 
 #include "port_holder.h"
 
-#include <utility>
-
 #include "footstone/logging.h"
 #include "callback_manager.h"
 #include "data_holder.h"
