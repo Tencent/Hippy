@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.openhippy.connector.DomManager;
 import com.openhippy.connector.JsDriver;
+import com.openhippy.connector.NativeRenderConnector;
 import com.openhippy.connector.RenderConnector;
 import com.openhippy.framework.BuildConfig;
 import com.tencent.devtools.DevtoolsManager;
@@ -947,8 +948,14 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
         @Override
         public View getRootView(int rootId) {
-            return (mRenderer instanceof com.openhippy.connector.NativeRenderer)
-                    ? ((com.openhippy.connector.NativeRenderer) mRenderer).getRootView(rootId)
+            return (mRenderer instanceof NativeRenderConnector)
+                    ? ((NativeRenderConnector) mRenderer).getRootView(rootId) : null;
+        }
+
+        @Nullable
+        public View findViewById(int nodeId) {
+            return (mRenderer instanceof NativeRenderConnector && mRootView != null)
+                    ? ((NativeRenderConnector) mRenderer).findViewById(mRootView.getId(), nodeId)
                     : null;
         }
 

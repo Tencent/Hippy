@@ -60,6 +60,9 @@ public interface HippyEngineContext {
 
     View getRootView(int rootId);
 
+    @Nullable
+    View findViewById(int nodeId);
+
     void addEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
 
     void removeEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
