@@ -70,11 +70,6 @@ public class RenderManager {
         mControllerManager.addRootView(rootView);
     }
 
-    @Nullable
-    public View getRootView(int rootId) {
-        return mControllerManager.getRootView(rootId);
-    }
-
     public void createRootNode(int id, int rendererId) {
         RootRenderNode node = new RootRenderNode(id, id, rendererId, NodeProps.ROOT_NODE,
                 mControllerManager);
