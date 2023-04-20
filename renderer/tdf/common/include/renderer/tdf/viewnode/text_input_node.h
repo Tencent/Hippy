@@ -138,7 +138,7 @@ constexpr const int64_t kViewportListenerInvalidID = 0;
 
 class TextInputNode : public ViewNode {
  public:
-  explicit TextInputNode(const RenderInfo info);
+  explicit TextInputNode(const std::shared_ptr<hippy::dom::DomNode> &dom_node, const RenderInfo info);
   ~TextInputNode() override;
 
   std::string GetViewName() const override { return kTextInputViewName; }

@@ -40,8 +40,9 @@ inline namespace tdf {
 
 static constexpr const char kNodeInfoProps[] = "props";
 
-EmbeddedViewNode::EmbeddedViewNode(RenderInfo render_info, const std::string &native_view_type)
-    : ViewNode(render_info), native_view_type_(native_view_type) {}
+EmbeddedViewNode::EmbeddedViewNode(const std::shared_ptr<hippy::dom::DomNode> &dom_node, RenderInfo render_info,
+                                   const std::string &native_view_type)
+    : ViewNode(dom_node, render_info), native_view_type_(native_view_type) {}
 
 std::shared_ptr<tdfcore::View> EmbeddedViewNode::CreateView() {
   auto view = TDF_MAKE_SHARED(tdfcore::EmbeddedView, native_view_type_);

@@ -161,10 +161,11 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   using DomStyleMap = std::unordered_map<std::string, std::shared_ptr<footstone::HippyValue>>;
   using DomDeleteProps = std::vector<std::string>;
   using RenderInfo = hippy::dom::DomNode::RenderInfo;
-  using node_creator = std::function<std::shared_ptr<ViewNode>(RenderInfo, std::string)>;
+  using node_creator = std::function<std::shared_ptr<ViewNode>(const std::shared_ptr<hippy::dom::DomNode>&)>;
   using Point = tdfcore::TPoint;
 
-  ViewNode(const RenderInfo info, std::shared_ptr<tdfcore::View> view = nullptr);
+  ViewNode(const std::shared_ptr<hippy::dom::DomNode> &dom_node, const RenderInfo info,
+           std::shared_ptr<tdfcore::View> view = nullptr);
 
   virtual ~ViewNode() = default;
 
@@ -190,7 +191,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   /**
    * @brief Be called when a related DomNode is Updated.
    */
-  void OnUpdate(hippy::DomNode &dom_node);
+  void OnUpdate(const std::shared_ptr<hippy::dom::DomNode> &dom_node);
 
   /**
    * @brief Be called when a related DomNode is Deleted.
@@ -221,7 +222,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   const RenderInfo &GetRenderInfo() const { return render_info_; }
 
-  std::shared_ptr<hippy::DomNode> GetDomNode() const;
+  const std::shared_ptr<hippy::DomNode> GetDomNode() const { return dom_node_; }
 
   std::vector<std::shared_ptr<ViewNode>> GetChildren() const { return children_; }
 
@@ -323,19 +324,24 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
    */
   static DomStyleMap GenerateStyleInfo(const std::shared_ptr<hippy::DomNode>& dom_node);
 
-  const RenderInfo render_info_;
-
   std::set<std::string> GetSupportedEvents() { return supported_events_; }
-
-  // set as protected for root node
-  bool is_attached_ = false;
-  std::weak_ptr<tdfcore::View> attached_view_;
 
   virtual void HandleEventInfoUpdate();
 
   tdfcore::TM44 GenerateAnimationTransform(const DomStyleMap &dom_style, std::shared_ptr<tdfcore::View> view);
 
   float GetDensity();
+
+  /**
+   * @brief Save DomNode of this ViewNode, can not find DomNode in dom module in reverse.
+   */
+  const std::shared_ptr<hippy::dom::DomNode> dom_node_;
+
+  const RenderInfo render_info_;
+
+  // set as protected for root node
+  bool is_attached_ = false;
+  std::weak_ptr<tdfcore::View> attached_view_;
 
  private:
   bool IsAttachViewMatch(const std::shared_ptr<ViewNode>& node, const std::shared_ptr<tdfcore::View>& view);

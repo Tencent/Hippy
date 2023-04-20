@@ -45,6 +45,10 @@ using Point = tdfcore::TPoint;
 using Color = tdfcore::Color;
 using DomStyleMap = std::unordered_map<std::string, std::shared_ptr<footstone::HippyValue>>;
 
+double HippyValueToDouble(const footstone::HippyValue &value);
+
+double HippyValueToRadians(const footstone::HippyValue &value);
+
 Color ConversionIntToColor(uint32_t value);
 
 #pragma clang diagnostic push
