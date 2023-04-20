@@ -46,25 +46,6 @@ static NSString *const engineKey = @"Demo";
 
 HIPPY_EXPORT_MODULE()
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        HPSetLogFunction(^(HPLogLevel level, NSString *fileName, NSNumber *lineNumber,
-                           NSString *message, NSArray<NSDictionary *> *stack, NSDictionary *userInfo) {
-            if (HPLogLevelError <= level && userInfo) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    HippyBridge *strongBridge = [userInfo objectForKey:@"bridge"];
-                    if (strongBridge) {
-                        [strongBridge.redBox showErrorMessage:message withStack:stack];
-                    }
-                });
-            }
-            NSLog(@"hippy says:%@ in file %@ at line %@", message, fileName, lineNumber);
-        });
-    }
-    return self;
-}
-
 - (dispatch_queue_t)methodQueue {
 	return dispatch_get_main_queue();
 }

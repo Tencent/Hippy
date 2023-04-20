@@ -492,7 +492,6 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
     if (_argumentBlocks == nil) {
         [self processMethodSignature];
     }
-
     if (HP_DEBUG) {
         // Sanity check
         HPAssert([module class] == _moduleClass, @"Attempted to invoke method \
@@ -509,7 +508,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
                 expectedCount -= 2;
             }
 
-            HPLogError(bridge, @"%@.%@ was called with %ld arguments, but expects %ld. \
+            HPLogError(@"%@.%@ was called with %ld arguments, but expects %ld. \
                         If you haven\'t changed this method "
                           @"yourself, this usually means that \
                         your versions of the native code and JavaScript code are out "

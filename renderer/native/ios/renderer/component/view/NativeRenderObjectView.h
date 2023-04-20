@@ -105,10 +105,6 @@ extern NSString *const NativeRenderShadowViewDiffTag;
 @property(nonatomic, copy) NSString *viewName;
 @property(nonatomic, strong) UIColor *backgroundColor;  // Used to propagate to children
 @property(nonatomic, copy) NativeRenderDirectEventBlock onLayout;
-@property(nonatomic, assign) BOOL isList;
-@property(nonatomic, copy) NSString *visibility;
-@property(nonatomic, assign) BOOL visibilityChanged;
-@property(nonatomic, assign) BOOL hasNewLayout;
 @property(nonatomic, readonly) BOOL confirmedLayoutDirectionDidUpdated;
 
 /**
@@ -175,9 +171,9 @@ extern NSString *const NativeRenderShadowViewDiffTag;
  * that add additional propagating properties should override this method.
  */
 - (NSDictionary<NSString *, id> *)processUpdatedProperties:(NSMutableSet<NativeRenderApplierBlock> *)applierBlocks
-                                          parentProperties:(NSDictionary<NSString *, id> *)parentProperties NS_REQUIRES_SUPER;
+                                          parentProperties:(NSDictionary<NSString *, id> *)parentProperties;
 
-- (void)amendLayoutBeforeMount;
+- (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks;
 
 /**
  * Return whether or not this node acts as a leaf node in the eyes of CSSLayout. For example
