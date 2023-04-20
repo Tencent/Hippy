@@ -76,7 +76,8 @@ public class TDFRenderer extends Renderer implements RenderProxy {
         mFrameworkProxy = proxy;
     }
 
-    @NonNull @Override public View createRootView(@NonNull Context context) {
+    @NonNull @Override
+    public View createRootView(@NonNull Context context) {
         if (mVfsManager == null) {
             mVfsManager = mFrameworkProxy.getVfsManager();
             registerUriLoader(mInstanceId, mVfsManager.getId());
@@ -93,6 +94,11 @@ public class TDFRenderer extends Renderer implements RenderProxy {
         registerTDFEngine(mInstanceId, engine.getJNI().getnativeEngine(), mRootViewId);
         LogUtils.d(TAG, "onTDFEngineCreate: " + engine.getJNI().getnativeEngine());
         registerControllers(mRootViewId, mControllers, mRootView, TDFRenderer.this, engine);
+        return mRootView;
+    }
+
+    @Nullable @Override
+    public View getRootView(int rootId) {
         return mRootView;
     }
 

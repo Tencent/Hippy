@@ -30,7 +30,7 @@ constexpr const char kUpdateFrame[] = "frameupdate";
 
 RootViewNode::RootViewNode(const RenderInfo info, const std::shared_ptr<tdfcore::Shell>& shell,
                            const std::shared_ptr<hippy::DomManager>& manager, UriDataGetter getter)
-    : ViewNode(info), shell_(shell), dom_manager_(manager), getter_(getter) {}
+    : ViewNode(nullptr, info), shell_(shell), dom_manager_(manager), getter_(getter) {}
 
 void RootViewNode::Init() {
   RegisterViewNode(render_info_.id, shared_from_this());
@@ -106,17 +106,6 @@ void RootViewNode::UnregisterViewNode(uint32_t id) {
 std::shared_ptr<ViewNode> RootViewNode::FindViewNode(uint32_t id) const {
   FOOTSTONE_DCHECK(nodes_query_table_.find(id) != nodes_query_table_.end());
   return nodes_query_table_.find(id)->second;
-}
-
-std::shared_ptr<hippy::DomNode> RootViewNode::FindDomNode(uint32_t id) {
-  auto& root_map = hippy::dom::RootNode::PersistentMap();
-  std::shared_ptr<hippy::RootNode> root_node;
-  root_map.Find(render_info_.id, root_node);
-  if (auto manager = dom_manager_.lock(); manager != nullptr) {
-    auto dom_node = manager->GetNode(root_node, id);
-    return dom_node;
-  }
-  FOOTSTONE_UNREACHABLE();
 }
 
 std::shared_ptr<hippy::DomManager> RootViewNode::GetDomManager() {

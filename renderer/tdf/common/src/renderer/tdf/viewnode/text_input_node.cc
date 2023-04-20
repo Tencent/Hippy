@@ -46,7 +46,8 @@ using tdfcore::ViewportEvent;
 using unicode_string_view = footstone::stringview::string_view;
 using footstone::stringview::StringViewUtils;
 
-TextInputNode::TextInputNode(const RenderInfo info) : ViewNode(info), text_selection_(-1, -1) {
+TextInputNode::TextInputNode(const std::shared_ptr<hippy::dom::DomNode> &dom_node, const RenderInfo info)
+    : ViewNode(dom_node, info), text_selection_(-1, -1) {
 }
 
 TextInputNode::~TextInputNode() { UnregisterViewportListener(); }
@@ -359,7 +360,8 @@ void TextInputNode::SetColor(const DomStyleMap& dom_style, TextStyle& text_style
 }
 
 void TextInputNode::SetDefaultValue(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
-  if (auto it = dom_style.find(textinput::kDefaultValue); it != dom_style.end() && it->second != nullptr) {
+  if (auto it = dom_style.find(textinput::kDefaultValue);
+      it != dom_style.end() && it->second != nullptr && it->second->IsString()) {
     FOOTSTONE_LOG(INFO) << "TextInputNode::SetDefaultValue value = " << it->second->ToStringChecked();
     auto unicode_str = footstone::string_view::new_from_utf8(it->second->ToStringChecked().c_str());
     auto text_u16 = StringViewUtils::ConvertEncoding(unicode_str, unicode_string_view::Encoding::Utf16).utf16_value();

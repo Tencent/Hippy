@@ -110,8 +110,13 @@ class ListViewDataSource : public tdfcore::CustomLayoutViewDataSource, public td
 
   int64_t GetItemCount() override;
 
+  void SetItemNodes(std::vector<std::shared_ptr<ViewNode>> item_nodes);
+
  private:
   std::weak_ptr<ListViewNode> list_view_node_;
+
+  // 数据源需要稳定保存一份，防止列表滑动中途数据源被add/delete列表项改变
+  std::vector<std::shared_ptr<ViewNode>> item_nodes_;
 };
 
 class ListViewNode : public ScrollViewNode {

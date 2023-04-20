@@ -137,7 +137,6 @@ void ScrollViewNode::HandleEventInfoUpdate() {
 }
 
 void ScrollViewNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) {
-  FOOTSTONE_DCHECK(GetView()->GetChildren().size() == 0);
   ViewNode::OnChildAdd(child, index);
   child_layout_listener_id_ = child->AddLayoutUpdateListener([WEAK_THIS](tdfcore::TRect rect) {
     DEFINE_AND_CHECK_SELF(ScrollViewNode)

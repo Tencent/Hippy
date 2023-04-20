@@ -55,9 +55,12 @@ inline namespace tdf {
 
 using footstone::check::checked_numeric_cast;
 using DomValueArrayType = footstone::value::HippyValue::DomValueArrayType;
+using HippyValueObjectType = footstone::value::HippyValue::HippyValueObjectType;
 
-ViewNode::ViewNode(const RenderInfo info, std::shared_ptr<tdfcore::View> view)
-    : render_info_(info), attached_view_(std::move(view)), corrected_index_(info.index) {
+ViewNode::ViewNode(const std::shared_ptr<hippy::dom::DomNode> &dom_node, const RenderInfo info,
+                   std::shared_ptr<tdfcore::View> view)
+    : dom_node_(dom_node), render_info_(info), attached_view_(std::move(view)),
+    corrected_index_(info.index) {
   SetId(info.id);
 }
 
@@ -75,18 +78,23 @@ ViewNode::DomStyleMap ViewNode::GenerateStyleInfo(const std::shared_ptr<hippy::D
 }
 
 void ViewNode::OnCreate() {
+  // parent可能为空的情况说明：
+  // OptimizedRenderManager处理先create又delete的结点时，因为dom树上的删除，同时老pid的结点被优化掉，会传递1个没有父节点的悬空结点下来，从而找不到parent。
   auto parent = GetRootNode()->FindViewNode(GetRenderInfo().pid);
+  if(!parent) {
+    return;
+  }
   parent->AddChildAt(shared_from_this(), render_info_.index);
 }
 
-void ViewNode::OnUpdate(hippy::DomNode& dom_node) {
-  FOOTSTONE_DCHECK(render_info_.id == dom_node.GetRenderInfo().id);
+void ViewNode::OnUpdate(const std::shared_ptr<hippy::dom::DomNode> &dom_node) {
+  FOOTSTONE_DCHECK(render_info_.id == dom_node->GetRenderInfo().id);
   if (!IsAttached()) {
     return;
   }
   // only update the different part
-  if (dom_node.GetDiffStyle() != nullptr) {
-    HandleStyleUpdate(*(dom_node.GetDiffStyle()), *(dom_node.GetDeleteProps()));
+  if (dom_node->GetDiffStyle() != nullptr) {
+    HandleStyleUpdate(*(dom_node->GetDiffStyle()), *(dom_node->GetDeleteProps()));
   }
 }
 
@@ -152,10 +160,24 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeletePr
 
 tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style, std::shared_ptr<tdfcore::View> view) {
   auto transform = tdfcore::TM44();
-  if (auto it = dom_style.find(kMatrix); it != dom_style.end() && it->second != nullptr) {
-    FOOTSTONE_CHECK(it->second->IsArray());
+  auto transform_it = dom_style.find(kTransform);
+  if (transform_it == dom_style.end()) {
+    return transform;
+  }
+
+  HippyValueObjectType transform_style;
+  DomValueArrayType parsed_array;
+  if (!transform_it->second->ToArray(parsed_array)) {
+    return transform;
+  }
+  if (!parsed_array[0].ToObject(transform_style)) {
+    return transform;
+  }
+
+  if (auto it = transform_style.find(kMatrix); it != transform_style.end()) {
+    FOOTSTONE_CHECK(it->second.IsArray());
     DomValueArrayType matrix_array;
-    auto result = it->second->ToArray(matrix_array);
+    auto result = it->second.ToArray(matrix_array);
     if (!result) {
       return transform;
     }
@@ -170,61 +192,61 @@ tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style,
     }
   }
 
-  if (auto it = dom_style.find(kPerspective); it != dom_style.end() && it->second != nullptr) {
-    FOOTSTONE_DCHECK(it->second->IsDouble());
+  if (auto it = transform_style.find(kPerspective); it != transform_style.end()) {
+    FOOTSTONE_DCHECK(it->second.IsDouble());
     // M44中 2x3对应的位置就是perspective属性
-    transform.setRC(2, 3, static_cast<float>(it->second->ToDoubleChecked()));
+    transform.setRC(2, 3, static_cast<float>(it->second.ToDoubleChecked()));
   }
 
   auto tv3 = tdfcore::TV3();
-  if (auto it = dom_style.find(kRotateX); it != dom_style.end() && it->second != nullptr) {
-    FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto radians = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kRotateX); it != transform_style.end()) {
+    FOOTSTONE_DCHECK(it->second.IsDouble());
+    auto radians = static_cast<float>(util::HippyValueToRadians(it->second));
     tv3.x = 1;
     transform.setRotateUnit(tv3, radians);
   }
 
-  if (auto it = dom_style.find(kRotateY); it != dom_style.end() && it->second != nullptr) {
-    FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto radians = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kRotateY); it != transform_style.end()) {
+    FOOTSTONE_DCHECK(it->second.IsDouble());
+    auto radians = static_cast<float>(util::HippyValueToRadians(it->second));
     tv3.y = 1;
     transform.setRotateUnit(tv3, radians);
   }
 
-  if (auto it = dom_style.find(kRotate); it != dom_style.end() && it->second != nullptr) {
-    auto radians = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kRotate); it != transform_style.end()) {
+    auto radians = static_cast<float>(util::HippyValueToRadians(it->second));
     tv3.z = 1;
     transform.setRotateUnit(tv3, radians);
   }
 
-  if (auto it = dom_style.find(kRotateZ); it != dom_style.end() && it->second != nullptr) {
-    auto radians = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kRotateZ); it != transform_style.end()) {
+    auto radians = static_cast<float>(util::HippyValueToRadians(it->second));
     tv3.z = 1;
     transform.setRotateUnit(tv3, radians);
   }
 
-  if (auto it = dom_style.find(kScale); it != dom_style.end() && it->second != nullptr) {
-    FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto scale = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kScale); it != transform_style.end()) {
+    FOOTSTONE_DCHECK(it->second.IsDouble());
+    auto scale = static_cast<float>(it->second.ToDoubleChecked());
     transform.setScale(scale, scale);
   }
 
-  if (auto it = dom_style.find(kScaleX); it != dom_style.end() && it->second != nullptr) {
-    FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto scale = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kScaleX); it != transform_style.end()) {
+    FOOTSTONE_DCHECK(it->second.IsDouble());
+    auto scale = static_cast<float>(it->second.ToDoubleChecked());
     transform.setScale(scale, 0);
   }
 
-  if (auto it = dom_style.find(kScaleY); it != dom_style.end() && it->second != nullptr) {
-    FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto scale = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kScaleY); it != transform_style.end()) {
+    FOOTSTONE_DCHECK(it->second.IsDouble());
+    auto scale = static_cast<float>(it->second.ToDoubleChecked());
     transform.setScale(0, scale);
   }
 
-  if (auto it = dom_style.find(kTranslate); it != dom_style.end() && it->second != nullptr) {
-    FOOTSTONE_DCHECK(it->second->IsDouble());
+  if (auto it = transform_style.find(kTranslate); it != transform_style.end()) {
+    FOOTSTONE_DCHECK(it->second.IsDouble());
     DomValueArrayType translation_array;
-    auto result = it->second->ToArray(translation_array);
+    auto result = it->second.ToArray(translation_array);
     if (!result) {
       return transform;
     }
@@ -235,39 +257,39 @@ tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style,
     transform.setTranslate(translate_x, translate_y, translate_z);
   }
 
-  if (auto it = dom_style.find(kTranslateX); it != dom_style.end() && it->second != nullptr) {
-    FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto translate_x = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kTranslateX); it != transform_style.end()) {
+    FOOTSTONE_DCHECK(it->second.IsDouble());
+    auto translate_x = static_cast<float>(it->second.ToDoubleChecked());
     transform.setTranslate(translate_x, 0);
   }
 
-  if (auto it = dom_style.find(kTranslateY); it != dom_style.end() && it->second != nullptr) {
-    FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto translate_y = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kTranslateY); it != transform_style.end()) {
+    FOOTSTONE_DCHECK(it->second.IsDouble());
+    auto translate_y = static_cast<float>(it->second.ToDoubleChecked());
     transform.setTranslate(0, translate_y);
   }
 
-  if (auto it = dom_style.find(kSkewX); it != dom_style.end() && it->second != nullptr) {
-    auto skew_x = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kSkewX); it != transform_style.end()) {
+    auto skew_x = static_cast<float>(util::HippyValueToRadians(it->second));
     transform.setRC(0, 1, skew_x);
   }
 
-  if (auto it = dom_style.find(kSkewY); it != dom_style.end() && it->second != nullptr) {
-    auto skew_y = static_cast<float>(it->second->ToDoubleChecked());
+  if (auto it = transform_style.find(kSkewY); it != transform_style.end()) {
+    auto skew_y = static_cast<float>(util::HippyValueToRadians(it->second));
     transform.setRC(1, 0, skew_y);
   }
   return transform;
 }
 
 void ViewNode::OnDelete() {
-  // Do Not Call GetDomNode() here
   // recursively delete children at first(unmount the sub tree)
   for (auto it = children_.rbegin(); it != children_.rend(); it++) {
     (*it)->OnDelete();
   }
   if (!isRoot()) {
-    FOOTSTONE_DCHECK(!parent_.expired());
-    parent_.lock()->RemoveChild(shared_from_this());
+    if (!parent_.expired()) {
+      parent_.lock()->RemoveChild(shared_from_this());
+    }
     GetRootNode()->UnregisterViewNode(render_info_.id);
   }
 }
@@ -482,8 +504,6 @@ void ViewNode::HandleInterceptEvent(const DomStyleMap& dom_style) {
   }
 }
 
-std::shared_ptr<hippy::DomNode> ViewNode::GetDomNode() const { return GetRootNode()->FindDomNode(render_info_.id); }
-
 void ViewNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) {
   // inherited from parent
   if (!IsAttached()) {
@@ -496,10 +516,7 @@ void ViewNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) { child->De
 
 void ViewNode::SendUIDomEvent(std::string type, const std::shared_ptr<footstone::HippyValue>& value, bool can_capture,
                               bool can_bubble) {
-  auto dom_node = GetRootNode()->FindDomNode(GetRenderInfo().id);
-  if (!dom_node) {
-    return;
-  }
+  auto dom_node = dom_node_;
   std::transform(type.begin(), type.end(), type.begin(), ::tolower);
   auto event = std::make_shared<hippy::DomEvent>(type, dom_node, can_capture, can_bubble, value);
   std::vector<std::function<void()>> ops = {[dom_node, event] { dom_node->HandleEvent(event); }};
@@ -509,11 +526,7 @@ void ViewNode::SendUIDomEvent(std::string type, const std::shared_ptr<footstone:
 void ViewNode::DoCallback(const std::string &function_name,
                           const uint32_t callback_id,
                           const std::shared_ptr<footstone::HippyValue> &value) {
-  auto dom_node = GetDomNode();
-  if (!dom_node) {
-    return;
-  }
-  auto callback = GetDomNode()->GetCallback(function_name, callback_id);
+  auto callback = dom_node_->GetCallback(function_name, callback_id);
   if (callback) {
     if(value) {
       callback(std::make_shared<DomArgument>(*value));
@@ -532,12 +545,25 @@ std::shared_ptr<RootViewNode> ViewNode::GetRootNode() const {
 
 void ViewNode::AddChildAt(const std::shared_ptr<ViewNode>& child, int32_t index) {
   FOOTSTONE_DCHECK(!child->GetParent());
-  FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) <= children_.size());
+
+  // index可能跳跃变大的情况说明：
+  // Dom层批量create结点后，OptimizedRenderManager会依次处理结点，并展开一些子节点到同一层。
+  // 如果在endBatch前有2个create，第1个展开结点，第2个插入结点，在处理展开结点的子结点时，会产生跳跃index，因为展开处理是依赖Dom树的。
+  // Dom树是即时更新的，结点顺序是先前记录的。
+
+  // check index
+  auto checked_index = static_cast<uint32_t >(index);
+  if(checked_index > children_.size()) {
+    FOOTSTONE_LOG(INFO) << "ViewNode::AddChildAt, index > children.size, index:"
+                        << checked_index << ", size:" << children_.size();
+    checked_index = static_cast<uint32_t>(children_.size());
+  }
+
   // update related filed
-  children_.insert(children_.begin() + index, child);
+  children_.insert(children_.begin() + checked_index, child);
   child->SetParent(shared_from_this());
   // notify the ViewNode
-  OnChildAdd(child, index);
+  OnChildAdd(child, checked_index);
 }
 
 void ViewNode::RemoveChild(const std::shared_ptr<ViewNode>& child) {
@@ -579,10 +605,6 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
   FOOTSTONE_DCHECK(!is_attached_);
   FOOTSTONE_DCHECK(!parent_.expired());
   FOOTSTONE_DCHECK(parent_.lock()->IsAttached());
-  auto dom_node = GetDomNode();
-  if (!dom_node) {
-    return;
-  }
 
   is_attached_ = true;
   if (view) {
@@ -599,19 +621,27 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
     if (parent_.lock()->GetInterceptTouchEventFlag()) {
       v->SetHitTestBehavior(tdfcore::HitTestBehavior::kIgnore);
     }
+    // check index
+    auto checked_index = static_cast<uint32_t >(GetCorrectedIndex());
+    auto view_count = parent_.lock()->GetView()->GetChildren().size();
+    if(checked_index > view_count) {
+      FOOTSTONE_LOG(INFO) << "ViewNode::Attach, index > view_count, index:"
+                          << checked_index << ", size:" << view_count;
+      checked_index = static_cast<uint32_t>(view_count);
+    }
     // must add to parent_, otherwise the view will be freed immediately.
-    parent_.lock()->GetView()->AddView(v, GetCorrectedIndex());
+    parent_.lock()->GetView()->AddView(v, checked_index);
     attached_view_ = v;
   }
 
   // Sync style/listener/etc
-  HandleStyleUpdate(GenerateStyleInfo(dom_node));
-  HandleLayoutUpdate(dom_node->GetRenderLayoutResult());
+  HandleStyleUpdate(GenerateStyleInfo(dom_node_));
+  HandleLayoutUpdate(dom_node_->GetRenderLayoutResult());
   HandleEventInfoUpdate();
   // recursively attach the sub ViewNode tree(sycn the tdfcore::View Tree)
+  uint32_t child_index = 0;
   for (const auto& child : children_) {
     std::shared_ptr<tdfcore::View> child_view = nullptr;
-    auto child_index = static_cast<uint32_t >(child->GetRenderInfo().index);
     if (child_index < GetView()->GetChildren().size()) {
       child_view = GetView()->GetChildren()[child_index];
       // must check match
@@ -621,6 +651,7 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
       }
     }
     child->Attach(child_view);
+    ++child_index;
   }
   // must delete not matched subviews
   while (GetView()->GetChildren().size() > children_.size()) {
