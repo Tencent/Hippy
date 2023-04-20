@@ -515,7 +515,6 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
                           @"of sync. \
                         Updating both should make this error go away.",
                 HippyBridgeModuleNameForClass(_moduleClass), self.JSMethodName, (long)actualCount, (long)expectedCount);
-            return nil;
         }
     }
 
