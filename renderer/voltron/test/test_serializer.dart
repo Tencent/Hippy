@@ -120,4 +120,8 @@ void main() {
     map.push("params", 'http://localhost:38989/index.bundle');
     testVoltronMap(map);
   });
+
+  test('test two byte string', () {
+    testString("哈哈哈哈哈哈哈哈");
+  });
 }

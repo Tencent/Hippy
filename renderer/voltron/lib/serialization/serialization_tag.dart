@@ -26,6 +26,11 @@ extension CharConvertion on String {
   }
 }
 
+///
+/// ISO-8859-1(Latin1) max char
+///
+const int kIso88591MaxChar = 0xff;
+
 class SerializationTag {
   static const int kUnknownTag = -1;
 

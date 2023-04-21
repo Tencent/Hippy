@@ -6,6 +6,8 @@ import 'package:voltron_renderer/serialization/writer/binary_writer.dart';
 
 import 'serialization_tag.dart';
 
+
+
 abstract class PrimitiveValueSerializer extends SharedSerialization {
   @protected
   final BinaryWriter writer = BinaryWriter();
@@ -29,6 +31,8 @@ abstract class PrimitiveValueSerializer extends SharedSerialization {
   /// Small string max length, used for SSO(Short / Small String Optimization).
   ///
   static const int _kSSOSmallStringMaxLength = 32;
+
+
 
   Uint8List get chunk => writer.chunk;
 
@@ -214,7 +218,7 @@ abstract class PrimitiveValueSerializer extends SharedSerialization {
 
     for (int idx = 0; idx < length; idx++) {
       var charUnit = curStringWriteBuffer[idx];
-      if (charUnit >= 0x80) {
+      if (charUnit >= kIso88591MaxChar) {
         isOneByteString = false;
         break;
       }
@@ -242,7 +246,7 @@ abstract class PrimitiveValueSerializer extends SharedSerialization {
     bool isOneByteString = true;
     var codeUnits = value.codeUnits;
     for (var element in codeUnits) {
-      if (element >= 0x80) {
+      if (element >= kIso88591MaxChar) {
         isOneByteString = false;
         break;
       }
