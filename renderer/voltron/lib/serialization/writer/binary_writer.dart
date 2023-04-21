@@ -21,6 +21,8 @@
 import 'dart:math';
 import 'dart:typed_data';
 
+import '../serialization_tag.dart';
+
 class BinaryWriter {
   final List<int> _bytes = [];
 
@@ -163,7 +165,7 @@ class BinaryWriter {
   }
 
   int _parseByte(int num) {
-    return num & 0x7f;
+    return num & kIso88591MaxChar;
   }
 
   ///
