@@ -37,7 +37,8 @@ void DestroyDomManager(JNIEnv* j_env,
 
 void CreateRoot(JNIEnv* j_env,
                 __unused jobject j_obj,
-                jint j_root_id);
+                jint j_root_id,
+                jfloat j_density);
 
 void DestroyRoot(JNIEnv* j_env,
                  __unused jobject j_obj,
