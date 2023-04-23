@@ -1,3 +1,7 @@
+## 0.0.25
+
+- fix Chinese encoding error
+
 ## 0.0.24
 
 - disable local cmake 
