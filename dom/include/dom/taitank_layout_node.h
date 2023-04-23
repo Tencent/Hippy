@@ -51,7 +51,9 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @brief 设置 Taitank Layout 的属性
    * @param style_map 属性的map
    */
-  void SetLayoutStyles(std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_map) override;
+  void SetLayoutStyles(
+      const std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_update,
+      const std::vector<std::string>& style_delete) override;
 
   /**
    * @brief 设置宽度
@@ -222,7 +224,8 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
   /**
    * @brief 解析属性
    */
-  void Parser(std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_map);
+  void Parser(const std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_update,
+              const std::vector<std::string>& style_delete);
 
   /**
    * @brief 设置方向

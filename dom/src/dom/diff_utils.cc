@@ -79,12 +79,6 @@ DiffValue DiffUtils::DiffProps(const DomValueMap& old_props_map, const DomValueM
     (*update_props)[key] = new_prop.second;
   }
 
-  if (delete_props->empty()) {
-    delete_props = nullptr;
-  }
-  if (update_props->empty()) {
-    update_props = nullptr;
-  }
   DiffValue diff_props = std::make_tuple(update_props, delete_props);
   return diff_props;
 }
