@@ -22,6 +22,7 @@
 
 #import "NativeRenderWaterfallViewManager.h"
 #import "NativeRenderWaterfallView.h"
+#import "NativeRenderObjectWaterfall.h"
 #import "NativeRenderImpl.h"
 
 @implementation NativeRenderWaterfallViewManager
@@ -46,6 +47,10 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onScroll, NativeRenderDirectEventBlock)
 
 - (UIView *)view {
     return [[NativeRenderWaterfallView alloc] init];
+}
+
+- (NativeRenderObjectView *)nativeRenderObjectView {
+    return [[NativeRenderObjectWaterfall alloc] init];
 }
 
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(refreshCompleted:(nonnull NSNumber *)reactTag
