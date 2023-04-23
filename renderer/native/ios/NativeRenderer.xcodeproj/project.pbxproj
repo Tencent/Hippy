@@ -91,6 +91,7 @@
 		F44E1C9E2924902C0091BCA4 /* NativeRenderObjectRootView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44E1C472924902C0091BCA4 /* NativeRenderObjectRootView.mm */; };
 		F44E1C9F2924902C0091BCA4 /* NativeRenderGradientObject.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1C4A2924902C0091BCA4 /* NativeRenderGradientObject.m */; };
 		F44E1CA02924902C0091BCA4 /* HPConvert+NativeRender.m in Sources */ = {isa = PBXBuildFile; fileRef = F44E1C4B2924902C0091BCA4 /* HPConvert+NativeRender.m */; };
+		F47655DF29F6325700929A65 /* NativeRenderObjectWaterfall.mm in Sources */ = {isa = PBXBuildFile; fileRef = F47655DD29F6325700929A65 /* NativeRenderObjectWaterfall.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -280,6 +281,8 @@
 		F44E1C4B2924902C0091BCA4 /* HPConvert+NativeRender.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "HPConvert+NativeRender.m"; sourceTree = "<group>"; };
 		F44E1C4C2924902C0091BCA4 /* NativeRenderGradientObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderGradientObject.h; sourceTree = "<group>"; };
 		F44E1C4D2924902C0091BCA4 /* HPConvert+NativeRender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "HPConvert+NativeRender.h"; sourceTree = "<group>"; };
+		F47655DD29F6325700929A65 /* NativeRenderObjectWaterfall.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NativeRenderObjectWaterfall.mm; sourceTree = "<group>"; };
+		F47655DE29F6325700929A65 /* NativeRenderObjectWaterfall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderObjectWaterfall.h; sourceTree = "<group>"; };
 		F4921416292DFC1700B0845C /* NativeRenderDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeRenderDefines.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -458,6 +461,8 @@
 		F44E1BCF2924902C0091BCA4 /* waterfalllist */ = {
 			isa = PBXGroup;
 			children = (
+				F47655DE29F6325700929A65 /* NativeRenderObjectWaterfall.h */,
+				F47655DD29F6325700929A65 /* NativeRenderObjectWaterfall.mm */,
 				F44E1BD02924902C0091BCA4 /* NativeRenderWaterfallView.mm */,
 				F44E1BD12924902C0091BCA4 /* NativeRenderWaterfallViewCell.h */,
 				F44E1BD22924902C0091BCA4 /* NativeRenderWaterfallViewDataSource.h */,
@@ -740,6 +745,7 @@
 				F44E1C902924902C0091BCA4 /* NativeRenderFooterRefreshManager.mm in Sources */,
 				F44E1C862924902C0091BCA4 /* NativeRenderViewEventType.mm in Sources */,
 				F44E1C672924902C0091BCA4 /* NativeRenderHeaderRefreshManager.mm in Sources */,
+				F47655DF29F6325700929A65 /* NativeRenderObjectWaterfall.mm in Sources */,
 				F44E1C8E2924902C0091BCA4 /* NativeRenderNavigatorRootViewController.m in Sources */,
 				F44E1C6F2924902C0091BCA4 /* NativeRenderCollectionViewWaterfallLayout.m in Sources */,
 				F44E1C982924902C0091BCA4 /* NativeRenderModalCustomPresentationController.m in Sources */,

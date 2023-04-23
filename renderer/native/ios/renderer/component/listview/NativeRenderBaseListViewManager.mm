@@ -22,6 +22,7 @@
 
 #import "NativeRenderBaseListViewManager.h"
 #import "NativeRenderBaseListView.h"
+#import "NativeRenderObjectWaterfall.h"
 #import "NativeRenderImpl.h"
 
 @implementation NativeRenderBaseListViewManager
@@ -48,6 +49,10 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
 
 - (UIView *)view {
     return [[NativeRenderBaseListView alloc] init];
+}
+
+- (NativeRenderObjectView *)nativeRenderObjectView {
+    return [[NativeRenderObjectWaterfall alloc] init];
 }
 
 // clang-format off
