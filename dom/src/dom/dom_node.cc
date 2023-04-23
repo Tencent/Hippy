@@ -22,12 +22,12 @@
 
 #include <algorithm>
 #include <utility>
-#include "footstone/logging.h"
 #include "dom/diff_utils.h"
 #include "dom/node_props.h"
 #include "dom/render_manager.h"
 #include "dom/root_node.h"
 #include "dom/scene.h"
+#include "footstone/logging.h"
 #include "footstone/serializer.h"
 
 namespace hippy {
@@ -301,11 +301,12 @@ std::vector<std::shared_ptr<DomEventListenerInfo>> DomNode::GetEventListener(con
   return it->second[kBubble];
 }
 
-void DomNode::ParseLayoutStyleInfo() { layout_node_->SetLayoutStyles(*style_map_); }
+void DomNode::ParseLayoutStyleInfo() { layout_node_->SetLayoutStyles(*style_map_, std::vector<std::string>{}); }
 
 void DomNode::UpdateLayoutStyleInfo(
-  std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>> &style_map) {
-  layout_node_->SetLayoutStyles(style_map);
+    const std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_update,
+    const std::vector<std::string>& style_delete) {
+  layout_node_->SetLayoutStyles(style_update, style_delete);
 }
 LayoutResult DomNode::GetLayoutInfoFromRoot() {
   LayoutResult result = layout_;
