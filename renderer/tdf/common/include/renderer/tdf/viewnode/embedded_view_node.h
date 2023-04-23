@@ -32,7 +32,8 @@ class EmbeddedViewNode : public ViewNode {
 
   using ViewNode::ViewNode;
 
-  EmbeddedViewNode(RenderInfo render_info, const std::string &view_type);
+  EmbeddedViewNode(const std::shared_ptr<hippy::dom::DomNode> &dom_node, RenderInfo render_info,
+                   const std::string &view_type);
 
  protected:
   void HandleStyleUpdate(const DomStyleMap &dom_style, const DomDeleteProps& dom_delete_props) override;

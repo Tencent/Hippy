@@ -40,6 +40,7 @@ dependencies {
   compileOnly project(path: ':vfs')
   compileOnly project(path: ':hippy-support')
   compileOnly project(path: ':serialization')
+  compileOnly project(path: ':pool')
   // tdf render need ControllerManager from native manager
   compileOnly project(path: ':renderer-native')
   compileOnly "com.tencent.tdfcore:embedder:0.0.4"

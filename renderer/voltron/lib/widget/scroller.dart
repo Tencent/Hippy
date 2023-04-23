@@ -158,94 +158,95 @@ class _ScrollNotificationListenerState extends State<ScrollNotificationListener>
   Widget build(BuildContext context) {
     if (widget.scrollGestureDispatcher.needListenScroll) {
       return NotificationListener<ScrollNotification>(
-          child: widget.child,
-          onNotification: (scrollNotification) {
-            if (scrollNotification is ScrollStartNotification) {
-              if (scrollNotification.dragDetails != null) {
-                // dragDetails 非空表示手指开始拖动
-                _scrollFlingStartHandle = false;
-                var scrollSize = _scrollSize(scrollNotification);
-                widget.scrollGestureDispatcher.handleScrollBegin(
+        child: widget.child,
+        onNotification: (scrollNotification) {
+          if (scrollNotification is ScrollStartNotification) {
+            if (scrollNotification.dragDetails != null) {
+              // dragDetails 非空表示手指开始拖动
+              _scrollFlingStartHandle = false;
+              var scrollSize = _scrollSize(scrollNotification);
+              widget.scrollGestureDispatcher.handleScrollBegin(
+                widget.viewModel,
+                scrollSize.width,
+                scrollSize.height,
+              );
+            } else {
+              // dragDetails 表示fling手势开始
+              _scrollFlingStartHandle = true;
+              var scrollSize = _scrollSize(scrollNotification);
+              widget.scrollGestureDispatcher.handleScrollMomentumBegin(
+                widget.viewModel,
+                scrollSize.width,
+                scrollSize.height,
+              );
+            }
+          } else if (scrollNotification is ScrollUpdateNotification) {
+            var scrollSize = _scrollSize(scrollNotification);
+            if (scrollNotification.dragDetails == null) {
+              // dragDetails 表示fling中
+              if (!_scrollFlingStartHandle) {
+                _scrollFlingStartHandle = true;
+                widget.scrollGestureDispatcher.handleScrollEnd(
                   widget.viewModel,
                   scrollSize.width,
                   scrollSize.height,
                 );
-              } else {
-                // dragDetails 表示fling手势开始
-                _scrollFlingStartHandle = true;
-                var scrollSize = _scrollSize(scrollNotification);
                 widget.scrollGestureDispatcher.handleScrollMomentumBegin(
                   widget.viewModel,
                   scrollSize.width,
                   scrollSize.height,
                 );
               }
-            } else if (scrollNotification is ScrollUpdateNotification) {
-              var scrollSize = _scrollSize(scrollNotification);
-              if (scrollNotification.dragDetails == null) {
-                // dragDetails 表示fling中
-                if (!_scrollFlingStartHandle) {
-                  _scrollFlingStartHandle = true;
-                  widget.scrollGestureDispatcher.handleScrollEnd(
-                    widget.viewModel,
-                    scrollSize.width,
-                    scrollSize.height,
-                  );
-                  widget.scrollGestureDispatcher.handleScrollMomentumBegin(
-                    widget.viewModel,
-                    scrollSize.width,
-                    scrollSize.height,
-                  );
-                }
-              }
-              widget.scrollGestureDispatcher.handleScroll(
-                widget.viewModel,
-                scrollSize.width,
-                scrollSize.height,
-              );
-            } else if (scrollNotification is ScrollEndNotification) {
-              var scrollSize = _scrollSize(scrollNotification);
-              if (scrollNotification.dragDetails == null) {
-                // dragDetails 表示fling中
-                if (_scrollFlingStartHandle) {
-                  _scrollFlingStartHandle = false;
-                  widget.scrollGestureDispatcher.handleScrollMomentumEnd(
-                    widget.viewModel,
-                    scrollSize.width,
-                    scrollSize.height,
-                  );
-                  return false;
-                }
-              } else {
-                widget.scrollGestureDispatcher.handleScrollEnd(
+            }
+            widget.scrollGestureDispatcher.handleScroll(
+              widget.viewModel,
+              scrollSize.width,
+              scrollSize.height,
+            );
+          } else if (scrollNotification is ScrollEndNotification) {
+            var scrollSize = _scrollSize(scrollNotification);
+            if (scrollNotification.dragDetails == null) {
+              // dragDetails 表示fling中
+              if (_scrollFlingStartHandle) {
+                _scrollFlingStartHandle = false;
+                widget.scrollGestureDispatcher.handleScrollMomentumEnd(
                   widget.viewModel,
                   scrollSize.width,
                   scrollSize.height,
                 );
-              }
-            }
-
-            /// check children expose if need
-            if (widget.scrollGestureDispatcher.exposureEventEnabled) {
-              checkExpose(scrollNotification.metrics.pixels);
-            }
-
-            if (judgeReachEnd(
-              scrollNotification.metrics.pixels,
-              scrollNotification.metrics.maxScrollExtent,
-            )) {
-              if (!_hasReachEnd) {
-                _hasReachEnd = true;
-                widget.scrollGestureDispatcher.handleScrollReachedEnd(
-                  widget.viewModel,
-                );
+                return false;
               }
             } else {
-              _hasReachEnd = false;
+              widget.scrollGestureDispatcher.handleScrollEnd(
+                widget.viewModel,
+                scrollSize.width,
+                scrollSize.height,
+              );
             }
+          }
 
-            return false;
-          });
+          /// check children expose if need
+          if (widget.scrollGestureDispatcher.exposureEventEnabled) {
+            checkExpose(scrollNotification.metrics.pixels);
+          }
+
+          if (judgeReachEnd(
+            scrollNotification.metrics.pixels,
+            scrollNotification.metrics.maxScrollExtent,
+          )) {
+            if (!_hasReachEnd) {
+              _hasReachEnd = true;
+              widget.scrollGestureDispatcher.handleScrollReachedEnd(
+                widget.viewModel,
+              );
+            }
+          } else {
+            _hasReachEnd = false;
+          }
+
+          return true;
+        },
+      );
     }
     return widget.child;
   }

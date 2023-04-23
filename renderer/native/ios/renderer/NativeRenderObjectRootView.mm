@@ -29,15 +29,14 @@
 - (void)applySizeConstraints {
 }
 
-- (void)amendLayoutBeforeMount {
+- (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
     for (NativeRenderObjectView *renderObject in self.subcomponents) {
-        [renderObject amendLayoutBeforeMount];
+        [renderObject amendLayoutBeforeMount:blocks];
     }
 }
 
 - (void)recursivelyAmendSubviewsLayout {
     [self applySizeConstraints];
-    [self amendLayoutBeforeMount];
 }
 
 @end

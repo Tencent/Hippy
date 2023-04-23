@@ -228,7 +228,7 @@ HIPPY_EXPORT_MODULE(StorageModule)
             NSString *serialized = [self _readFileFromPath:[self HippyGetManifestFilePath] key:nil error:&errorOut];
             NSMutableDictionary *tmpDic = serialized ? HippyJSONParseMutable(serialized, &error) : [NSMutableDictionary new];
             if (error) {
-                HPLogWarn(self.bridge, @"Failed to parse manifest - creating new one.\n\n%@", error);
+                HPLogWarn(@"Failed to parse manifest - creating new one.\n\n%@", error);
                 tmpDic = [NSMutableDictionary new];
             }
             [_manifest addEntriesFromDictionary:tmpDic];

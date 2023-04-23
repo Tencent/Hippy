@@ -45,7 +45,6 @@ class RootViewNode : public ViewNode {
   void UnregisterViewNode(uint32_t id);
   std::shared_ptr<ViewNode> FindViewNode(uint32_t id) const;
 
-  std::shared_ptr<hippy::DomNode> FindDomNode(uint32_t id);
   std::shared_ptr<hippy::DomManager> GetDomManager();
 
   uint64_t AddEndBatchListener(const std::function<void()>& listener);

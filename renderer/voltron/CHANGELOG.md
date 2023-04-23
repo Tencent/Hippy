@@ -1,3 +1,11 @@
+## 0.0.13
+
+- fix Dimension error
+
+## 0.0.12
+
+- fix event bubble error
+
 ## 0.0.11
 
 - support moving nodes for voltron

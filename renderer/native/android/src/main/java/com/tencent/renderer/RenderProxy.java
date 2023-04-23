@@ -66,6 +66,16 @@ public interface RenderProxy {
     View getRootView(int rootId);
 
     /**
+     * Find view by node id
+     *
+     * @param rootId the id of root view
+     * @param nodeId the id of view
+     * @return the view has been registered
+     */
+    @Nullable
+    View findViewById(int rootId, int nodeId);
+
+    /**
      * Notify renderer the host life cycle {@link android.app.Activity} onResume call back
      */
     void onResume();
