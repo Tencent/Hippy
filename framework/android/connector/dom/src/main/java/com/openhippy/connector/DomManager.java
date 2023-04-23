@@ -42,8 +42,8 @@ public class DomManager implements Connector {
         onAttachToRenderer(mInstanceId, rendererConnector.getInstanceId());
     }
 
-    public void createRoot(@NonNull View root) {
-        createRootNode(root.getId());
+    public void createRoot(@NonNull View root, float density) {
+        createRootNode(root.getId(), density);
     }
 
     public void destroyRoot(int rootId) {
@@ -77,7 +77,7 @@ public class DomManager implements Connector {
      */
     private native void destroyDomManager(int domManagerId);
 
-    private native void createRootNode(int rootId);
+    private native void createRootNode(int rootId, float density);
 
     private native void destroyRootNode(int rootId);
 

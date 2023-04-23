@@ -52,6 +52,7 @@ import com.tencent.mtt.hippy.modules.nativemodules.deviceevent.DeviceEventModule
 import com.tencent.mtt.hippy.uimanager.HippyCustomViewCreator;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorGroup;
 import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorGroupType;
@@ -770,7 +771,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         public void onRuntimeInitialized() {
             mJsDriver.attachToDom(mDomManager);
             if (mRootView != null && (mDebugMode || BuildConfig.DEBUG)) {
-                mDomManager.createRoot(mRootView);
+                mDomManager.createRoot(mRootView, PixelUtil.getDensity());
                 mDomManager.attachToRoot(mRootView);
                 mJsDriver.attachToRoot(mRootView);
                 if (mDevtoolsManager != null) {
@@ -963,7 +964,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         public View createRootView(@NonNull Context context) {
             View rootView = mRenderer.createRootView(context);
             if (rootView != null) {
-                mDomManager.createRoot(rootView);
+                mDomManager.createRoot(rootView, PixelUtil.getDensity());
                 mDomManager.attachToRoot(rootView);
                 mJsDriver.attachToRoot(rootView);
                 if (mDevtoolsManager != null) {
