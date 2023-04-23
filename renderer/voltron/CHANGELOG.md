@@ -1,3 +1,7 @@
+## 0.0.16
+
+- fix Chinese encoding error
+
 ## 0.0.15
 
 - fix first reload error
