@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("JavaJniMissingFunction")
-public class NativeRenderer implements RenderConnector {
+public class NativeRenderer implements NativeRenderConnector {
 
     private int mInstanceId;
     @Nullable
@@ -85,9 +85,16 @@ public class NativeRenderer implements RenderConnector {
         return (mRenderer != null) ? mRenderer.createRootView(context) : null;
     }
 
+    @Override
     @Nullable
     public View getRootView(int rootId) {
         return (mRenderer != null) ? mRenderer.getRootView(rootId) : null;
+    }
+
+    @Override
+    @Nullable
+    public View findViewById(int rootId, int nodeId) {
+        return (mRenderer != null) ? mRenderer.findViewById(rootId, nodeId) : null;
     }
 
     @Override

@@ -117,7 +117,9 @@ class LayoutNode {
    * @brief 设置属性
    * @param style_map 属性的map
    */
-  virtual void SetLayoutStyles(std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_map) = 0;
+  virtual void SetLayoutStyles(
+      const std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_update,
+      const std::vector<std::string>& style_delete) = 0;
 };
 
 std::shared_ptr<LayoutNode> CreateLayoutNode();

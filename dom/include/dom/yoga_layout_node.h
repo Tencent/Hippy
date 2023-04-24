@@ -20,7 +20,10 @@
 
 #pragma once
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wc++98-compat-extra-semi"
 #include "yoga/Yoga.h"
+#pragma clang diagnostic pop
 
 #include "dom/layout_node.h"
 
@@ -36,7 +39,9 @@ class YogaLayoutNode : public LayoutNode, public std::enable_shared_from_this<Yo
   void CalculateLayout(float parent_width, float parent_height, Direction direction = Direction::RTL,
                        void* layout_context = nullptr) override;
 
-  void SetLayoutStyles(std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_map) override;
+  void SetLayoutStyles(
+      const std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_update,
+      const std::vector<std::string>& style_delete) override;
 
   void SetWidth(float width) override;
 
@@ -97,7 +102,8 @@ class YogaLayoutNode : public LayoutNode, public std::enable_shared_from_this<Yo
   int64_t GetKey() { return key_; }
 
  private:
-  void Parser(std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_map);
+  void Parser(const std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_update,
+              const std::vector<std::string>& style_delete);
 
   void SetYGWidth(std::shared_ptr<footstone::value::HippyValue> dom_value);
 
