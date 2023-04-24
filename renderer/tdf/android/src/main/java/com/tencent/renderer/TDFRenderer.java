@@ -102,6 +102,9 @@ public class TDFRenderer extends Renderer implements RenderProxy {
         return mRootView;
     }
 
+    @Nullable @Override
+    public View findViewById(int rootId, int nodeId) { return null; }
+
     @Override
     public void onResume() { }
 
