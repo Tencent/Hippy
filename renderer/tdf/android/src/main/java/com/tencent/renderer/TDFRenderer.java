@@ -117,6 +117,9 @@ public class TDFRenderer extends Renderer implements RenderProxy {
     }
 
     @Override
+    public void addControllers(@NonNull List<Class<?>> controllers) { }
+
+    @Override
     public void destroyRoot(int rootId) {
         // RootView must be removed otherwise TDFOutputView will intercepts touch event
         ViewParent viewParent = mRootView.getParent();
@@ -156,7 +159,7 @@ public class TDFRenderer extends Renderer implements RenderProxy {
         assert (mControllerManager == null);
         mControllerManager = new ControllerManager(renderer);
         mControllerManager.addRootView(rootView);
-        mControllerManager.init(controllers);
+        mControllerManager.initControllers(controllers);
 
         for (Class cls : controllers) {
             HippyController hippyNativeModule = (HippyController) cls
