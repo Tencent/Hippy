@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.16.3](https://github.com/Tencent/Hippy/compare/2.16.2...2.16.3) (2023-04-24)
+
+
+### Bug Fixes
+
+* **android:** color value in animation lose precision ([afff2a3](https://github.com/Tencent/Hippy/commit/afff2a339fda73f0dee60839215ff73aaccb35c0))
+* **android:** memory leak of `RecyclerViewEventHelper` ([144524f](https://github.com/Tencent/Hippy/commit/144524f103ae4d8f1225924875395d55fa1db8a6))
+* **android:** reset backgroundImage doesn't work ([71b3569](https://github.com/Tencent/Hippy/commit/71b35693fb724009849914db4856622a659b82a0))
+* **android:** text default color ([40f3ff4](https://github.com/Tencent/Hippy/commit/40f3ff4d560a2eafe6f46b62c509bb6c2b88c48a))
+* **core:** fix promise crash ([a4a000f](https://github.com/Tencent/Hippy/commit/a4a000f7294a3ecaa9e67d4cf42f8e0e29229441))
+* **ios:** animation module multi-thread crash ([cb50109](https://github.com/Tencent/Hippy/commit/cb501097731d32caee47882a0511a3b5b9c26ffe))
+* **ios:** strange shaped character rendering bug ([cc966f7](https://github.com/Tencent/Hippy/commit/cc966f781d11800eabbf2c5ec6deb0690704db26))
+* **vue:** support static style diff in updateNode ([1f4abfd](https://github.com/Tencent/Hippy/commit/1f4abfd6ad2f6c71e16bc2a8237c10b0a85f0ab2))
+
+
+
+
+
 ## [2.16.2](https://github.com/Tencent/Hippy/compare/2.16.1...2.16.2) (2023-04-04)
 
 
