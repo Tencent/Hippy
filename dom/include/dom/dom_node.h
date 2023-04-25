@@ -122,6 +122,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   inline void SetIndex(int32_t index) { index_ = index; }
   inline int32_t GetIndex() const { return index_; }
   inline void SetRootNode(std::weak_ptr<RootNode> root_node) { root_node_ = root_node; }
+  inline std::weak_ptr<RootNode> GetRootNode() { return root_node_; }
 
   virtual void AddEventListener(const std::string& name, uint64_t listener_id, bool use_capture,
                                 const EventCallback& cb);
