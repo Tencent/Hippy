@@ -88,6 +88,9 @@ jobs:
     - name: Build
       if: ${{ matrix.ref }}
       run: |
+        pushd examples/ios-demo
+        pod install
+        popd
         xcodebuild build \
           -destination 'generic/platform=iOS' \
           -project '_Pods.xcodeproj' \
