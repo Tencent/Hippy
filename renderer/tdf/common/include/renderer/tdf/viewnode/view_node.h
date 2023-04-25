@@ -292,6 +292,8 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
    */
   void AddChildAt(const std::shared_ptr<ViewNode> &dom_node, int32_t index);
 
+  void AddChildAtImpl(const std::shared_ptr<ViewNode>& child, int32_t index);
+
   /**
    * @brief Be called in ViewNode::OnDelete(unmount in the ViewNode Tree immediately after create)
    */
@@ -328,6 +330,8 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   virtual void HandleEventInfoUpdate();
 
+  void SetBackgroundImage(const std::string &img_url);
+
   tdfcore::TM44 GenerateAnimationTransform(const DomStyleMap &dom_style, std::shared_ptr<tdfcore::View> view);
 
   float GetDensity();
@@ -342,6 +346,28 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   // set as protected for root node
   bool is_attached_ = false;
   std::weak_ptr<tdfcore::View> attached_view_;
+
+  /**
+   * @brief Support backgroundImage for every ViewNode. Has or not for current node.
+   */
+  bool has_background_image_ = false;
+
+  /**
+   * @brief Support backgroundImage for every ViewNode. If node has backgroundImage,
+   *        insert a image node between current node and its children nodes.
+   *
+   *           ViewNode
+   *               |
+   *        ImageViewNode (For this ViewNode, is_background_image_node_ == true)
+   *            /        \
+   *       ChildNode1  ChildNode2
+   */
+  bool is_background_image_node_ = false;
+
+  /**
+   * @brief Support backgroundImage for every ViewNode. Record layout result when node is background image node.
+   */
+  hippy::LayoutResult background_image_layout_result_;
 
  private:
   bool IsAttachViewMatch(const std::shared_ptr<ViewNode>& node, const std::shared_ptr<tdfcore::View>& view);
