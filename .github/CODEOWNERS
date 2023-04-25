@@ -60,8 +60,8 @@ CMakeLists.txt @churchill-zhang @ilikethese
 /gradle/ @siguangli
 
 # build: xcode
-/hippy.podspec @ozonelmy
-/Hippy.xcworkspace/ @ozonelmy
+/hippy.podspec @ozonelmy @wwwcg
+/_Pods.xcodeproj/ @wwwcg @ozonelmy
 
 # build: config
 /buildconfig/ @churchill-zhang @ilikethese
