@@ -53,7 +53,7 @@ import {
 import { isStyleMatched, preCacheNode } from '../../util/node';
 import { fromAstNodes, SelectorsMap } from './style';
 
-const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
+const LOG_TYPE = ['%c[native]%c', 'color: red', 'color: auto'];
 
 if (typeof global.Symbol !== 'function') {
   global.Symbol = str => str;
@@ -133,7 +133,7 @@ let cssMap;
  */
 function printNodeOperation(printedNodes, nodeType) {
   if (isTraceEnabled()) {
-    trace(...componentName, nodeType, printedNodes);
+    trace(...LOG_TYPE, nodeType, printedNodes);
   }
 }
 
@@ -446,8 +446,6 @@ function renderToNative(rootViewId, targetNode, refInfo = {}) {
   if (targetNode.meta.component.defaultNativeStyle) {
     style = { ...targetNode.meta.component.defaultNativeStyle, ...style };
   }
-  // Convert to real native event
-  const eventNode = getEventNode(targetNode);
   // Translate to native node
   const nativeNode = {
     id: targetNode.nodeId,
@@ -459,6 +457,11 @@ function renderToNative(rootViewId, targetNode, refInfo = {}) {
     },
   };
 
+  processModalView(nativeNode);
+  parseViewComponent(targetNode, nativeNode, style);
+  parseTextInputComponent(targetNode, style);
+  // Convert to real native event
+  const eventNode = getEventNode(targetNode);
   let printedNode = undefined;
   // Add nativeNode attributes info for Element debugging
   if (isDev()) {
@@ -476,9 +479,6 @@ function renderToNative(rootViewId, targetNode, refInfo = {}) {
     nativeNode.tagName = targetNode.tagName;
     nativeNode.props.attributes = getTargetNodeAttributes(targetNode);
   }
-  processModalView(nativeNode);
-  parseViewComponent(targetNode, nativeNode, style);
-  parseTextInputComponent(targetNode, style);
   // convert to translatedNode
   const translatedNode = [nativeNode, refInfo];
   return [translatedNode, eventNode, printedNode];
