@@ -54,6 +54,8 @@ const {
 
 const CACHE = {};
 
+const LOG_TYPE = ['%c[native]%c', 'color: red', 'color: auto'];
+
 const measureInWindowByMethod = function measureInWindowByMethod(el, method) {
   const empty = {
     top: -1,
@@ -67,7 +69,7 @@ const measureInWindowByMethod = function measureInWindowByMethod(el, method) {
     return Promise.resolve(empty);
   }
   const { nodeId } = el;
-  trace('callUIFunction', { nodeId, funcName: method, params: [] });
+  trace(...LOG_TYPE, 'callUIFunction', { nodeId, funcName: method, params: [] });
   return new Promise(resolve => UIManagerModule.callUIFunction(nodeId, method, [], (pos) => {
     if (!pos || typeof pos !== 'object' || typeof nodeId === 'undefined') {
       return resolve(empty);
@@ -323,7 +325,7 @@ const Native = {
       callback = params;
       params = [];
     }
-    trace('callUIFunction', { nodeId, funcName, params });
+    trace(...LOG_TYPE, 'callUIFunction', { nodeId, funcName, params });
     UIManagerModule.callUIFunction(nodeId, funcName, params, callback);
   },
 
@@ -351,7 +353,7 @@ const Native = {
       if (!el.isMounted || !nodeId) {
         return reject(new Error(`getBoundingClientRect cannot get nodeId of ${el} or ${el} is not mounted`));
       }
-      trace('UIManagerModule', { nodeId, funcName: 'getBoundingClientRect', params: options });
+      trace(...LOG_TYPE, 'UIManagerModule', { nodeId, funcName: 'getBoundingClientRect', params: options });
       UIManagerModule.callUIFunction(nodeId, 'getBoundingClientRect', [options], (res) => {
         // Android error handler.
         if (!res || res.errMsg) {
