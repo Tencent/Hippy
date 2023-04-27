@@ -455,6 +455,7 @@ function renderToNative(rootViewId, targetNode, refInfo = {}) {
       ...getNativeProps(targetNode),
       style,
     },
+    tagName: targetNode.tagName,
   };
 
   processModalView(nativeNode);
@@ -473,11 +474,10 @@ function renderToNative(rootViewId, targetNode, refInfo = {}) {
         type === EventHandlerType.ADD && Object.assign(listenerProp, { [name]: listener });
       });
     }
+    // Add nativeNode attributes info for debugging
+    nativeNode.props.attributes = getTargetNodeAttributes(targetNode);
     Object.assign(printedNode = {}, nativeNode, refInfo);
     printedNode.listeners = listenerProp;
-    // Add nativeNode attributes info for debugging
-    nativeNode.tagName = targetNode.tagName;
-    nativeNode.props.attributes = getTargetNodeAttributes(targetNode);
   }
   // convert to translatedNode
   const translatedNode = [nativeNode, refInfo];

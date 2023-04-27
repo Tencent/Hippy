@@ -269,6 +269,7 @@ function renderToNative(
       ...getNativeProps(targetNode),
       style: targetNode.style,
     },
+    tagName: targetNode.tagName,
   };
   const eventNode = getEventNode(targetNode);
 
@@ -282,11 +283,10 @@ function renderToNative(
         type === eventHandlerType.ADD && Object.assign(listenerProp, { [name]: listener });
       });
     }
+    // Add nativeNode attributes info for debugging
+    nativeNode.props!.attributes = getTargetNodeAttributes(targetNode);
     Object.assign(printedNode = {}, nativeNode, refInfo);
     printedNode.listeners = listenerProp;
-    // Add nativeNode attributes info for debugging
-    nativeNode.tagName = targetNode.nativeName;
-    nativeNode.props!.attributes = getTargetNodeAttributes(targetNode);
   }
   // convert to translatedNode
   const translatedNode: HippyTypes.TranslatedNodes = [nativeNode, refInfo];
