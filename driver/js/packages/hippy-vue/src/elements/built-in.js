@@ -178,6 +178,34 @@ const img = {
       },
       ...accessibilityAttrMaps,
     },
+    processEventData(event, nativeEventName, nativeEventParams) {
+      switch (nativeEventName) {
+        case 'onTouchDown':
+        case 'onTouchMove':
+        case 'onTouchEnd':
+        case 'onTouchCancel':
+          event.touches = {
+            0: {
+              clientX: nativeEventParams.page_x,
+              clientY: nativeEventParams.page_y,
+            },
+            length: 1,
+          };
+          break;
+        case 'onFocus':
+          event.isFocused = nativeEventName.focus;
+          break;
+        case 'onLoad': {
+          const { width, height, url } = nativeEventParams;
+          event.width = width;
+          event.height = height;
+          event.url = url;
+          break;
+        }
+        default:
+      }
+      return event;
+    },
   },
 };
 
