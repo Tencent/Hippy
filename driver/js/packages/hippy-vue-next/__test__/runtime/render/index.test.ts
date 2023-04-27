@@ -79,7 +79,7 @@ describe('runtime/render.ts', () => {
           tagName: 'div',
         },
       ];
-      renderInsertChildNativeNode(nativeNodes);
+      renderInsertChildNativeNode([[nativeNodes], [], []]);
       await nextTick();
 
       expect(createNodeSpy).toHaveBeenCalled();
@@ -107,7 +107,7 @@ describe('runtime/render.ts', () => {
           tagName: 'div',
         },
       ];
-      renderUpdateChildNativeNode(nativeNodes);
+      renderUpdateChildNativeNode([[nativeNodes], [], []]);
       await nextTick();
 
       expect(updateNodeSpy).toHaveBeenCalled();
@@ -132,7 +132,7 @@ describe('runtime/render.ts', () => {
           tagName: 'div',
         },
       ];
-      renderUpdateChildNativeNode(nativeNodes);
+      renderUpdateChildNativeNode([[nativeNodes], [], []]);
       await nextTick();
 
       expect(updateNodeSpy).toHaveBeenCalled();
@@ -160,7 +160,7 @@ describe('runtime/render.ts', () => {
           tagName: 'div',
         },
       ];
-      renderRemoveChildNativeNode(nativeNodes);
+      renderRemoveChildNativeNode([[nativeNodes], [], []]);
       await nextTick();
 
       expect(deleteNodeSpy).toHaveBeenCalled();
@@ -185,7 +185,7 @@ describe('runtime/render.ts', () => {
           tagName: 'div',
         },
       ];
-      renderRemoveChildNativeNode(nativeNodes);
+      renderRemoveChildNativeNode([[nativeNodes], [], []]);
       await nextTick();
 
       expect(deleteNodeSpy).toHaveBeenCalled();

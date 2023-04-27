@@ -205,13 +205,14 @@ describe('runtime/native.ts', () => {
   it('test native bridge calls: measureInAppWindow', async () => {
     // this view is null
     const el = new HippyListElement('ul');
-    Object.defineProperty(Native, 'callNative', {
+    Object.defineProperty(Native.hippyNativeDocument, 'callUIFunction', {
       value: (
-        moduleName: string,
+        nodeId: number,
         methodName: string,
+        options: NeedToTyped[],
         ...args: NeedToTyped[]
       ) => {
-        const [, callback] = args;
+        const [callback] = args;
         callback('this view is null');
       },
     });
@@ -227,13 +228,14 @@ describe('runtime/native.ts', () => {
   });
   it('test native bridge calls: measureInAppWindow regular res', async () => {
     const el = new HippyListElement('ul');
-    Object.defineProperty(Native, 'callNative', {
+    Object.defineProperty(Native.hippyNativeDocument, 'callUIFunction', {
       value: (
-        moduleName: string,
+        nodeId: number,
         methodName: string,
+        options: NeedToTyped[],
         ...args: NeedToTyped[]
       ) => {
-        const [, callback] = args;
+        const [callback] = args;
         callback({
           x: 0,
           y: 0,
@@ -254,13 +256,14 @@ describe('runtime/native.ts', () => {
   });
   it('test native bridge calls: getBoundingClientRect with successful response', async () => {
     const el = new HippyListElement('ul');
-    Object.defineProperty(Native, 'callNative', {
+    Object.defineProperty(Native.hippyNativeDocument, 'callUIFunction', {
       value: (
-        moduleName: string,
+        nodeId: number,
         methodName: string,
+        options,
         ...args: NeedToTyped[]
       ) => {
-        const [,, callback] = args;
+        const [callback] = args;
         callback({
           x: 0,
           y: 0,
@@ -283,13 +286,14 @@ describe('runtime/native.ts', () => {
   });
   it('test native bridge calls: getBoundingClientRect error', async () => {
     const el = new HippyListElement('ul');
-    Object.defineProperty(Native, 'callNative', {
+    Object.defineProperty(Native.hippyNativeDocument, 'callUIFunction', {
       value: (
-        moduleName: string,
+        nodeId: number,
         methodName: string,
+        options: NeedToTyped[],
         ...args: NeedToTyped[]
       ) => {
-        const [, , callback] = args;
+        const [callback] = args;
         callback({
           errMsg: 'this view is null',
         });
@@ -300,9 +304,9 @@ describe('runtime/native.ts', () => {
   });
   it('test native bridge calls: getBoundingClientRect with no response', async () => {
     const el = new HippyListElement('ul');
-    Object.defineProperty(Native, 'callNative', {
+    Object.defineProperty(Native.hippyNativeDocument, 'callUIFunction', {
       value: (
-        moduleName: string,
+        nodeId: number,
         methodName: string,
         ...args: NeedToTyped[]
       ) => {
@@ -315,13 +319,14 @@ describe('runtime/native.ts', () => {
   });
   it('test native bridge calls: getBoundingClientRect node not mounted', async () => {
     const el = new HippyListElement('ul');
-    Object.defineProperty(Native, 'callNative', {
+    Object.defineProperty(Native.hippyNativeDocument, 'callUIFunction', {
       value: (
-        moduleName: string,
+        nodeId: number,
         methodName: string,
+        options: NeedToTyped[],
         ...args: NeedToTyped[]
       ) => {
-        const [, , callback] = args;
+        const [callback] = args;
         callback({});
       },
     });

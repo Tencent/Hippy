@@ -20,6 +20,15 @@
 
 // mock global Hippy
 global.Hippy = {
+  SceneBuilder: function SceneBuilder() {
+    this.create = () => {};
+    this.update = () => {};
+    this.delete = () => {};
+    this.move = () => {};
+    this.build = () => {};
+    this.addEventListener = () => {};
+    this.removeEventListener = () => {};
+  },
   bridge: {
     callNative: () => {},
     callNativeWithPromise: () => {},

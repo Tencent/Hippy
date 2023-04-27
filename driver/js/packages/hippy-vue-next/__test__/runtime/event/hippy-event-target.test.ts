@@ -83,21 +83,4 @@ describe('runtime/event/hippy-event-target.ts', () => {
 
     expect(sign).toEqual(1);
   });
-
-  it('hippy-event-target should dispatch event correct', async () => {
-    const divElement = new HippyElement('div');
-    let sign = 0;
-
-    const callback = () => {
-      sign = 1;
-    };
-
-    divElement.addEventListener('click', callback);
-
-    // dispatch event
-    const event = new HippyEvent('click');
-    divElement.dispatchEvent(event);
-
-    expect(sign).toEqual(1);
-  });
 });

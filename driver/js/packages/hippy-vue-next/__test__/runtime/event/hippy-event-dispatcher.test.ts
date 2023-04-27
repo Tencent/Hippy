@@ -67,8 +67,7 @@ describe('runtime/event/hippy-event-dispatcher.ts', () => {
   it('HippyEvent instance should have required function', async () => {
     const { EventDispatcher: eventDispatcher } = global.__GLOBAL__.jsModuleList;
     expect(eventDispatcher).toHaveProperty('receiveNativeEvent');
-    expect(eventDispatcher).toHaveProperty('receiveNativeGesture');
-    expect(eventDispatcher).toHaveProperty('receiveUIComponentEvent');
+    expect(eventDispatcher).toHaveProperty('receiveComponentEvent');
   });
 
   it('hippy-event-dispatcher should dispatch native gesture event and ui event correctly', async () => {
@@ -117,19 +116,36 @@ describe('runtime/event/hippy-event-dispatcher.ts', () => {
     };
     // click event
     divElement.addEventListener('click', clickCb);
-    const nativeEvent = {
+    const nativeEvent: NeedToTyped = {
       id: divElement.nodeId,
-      name: 'onClick',
+      currentId: divElement.nodeId,
+      nativeName: 'onClick',
+      originalName: 'click',
+      params: {
+        keyboardHeight: 100,
+      },
     };
-    eventDispatcher.receiveNativeGesture(nativeEvent);
+    eventDispatcher.receiveComponentEvent(nativeEvent, {
+      eventPhase: 2,
+    });
     expect(sign).toEqual(1);
 
     // endReached event
     divElement.addEventListener('endReached', () => {
       sign = 3;
     });
-    let nativeUIEvent: NeedToTyped = [divElement.nodeId, 'endReached'];
-    eventDispatcher.receiveUIComponentEvent(nativeUIEvent);
+    let nativeUIEvent: NeedToTyped = {
+      id: divElement.nodeId,
+      currentId: divElement.nodeId,
+      nativeName: 'onEndReached',
+      originalName: 'endReached',
+      params: {
+        keyboardHeight: 100,
+      },
+    };
+    eventDispatcher.receiveComponentEvent(nativeUIEvent, {
+      eventPhase: 2,
+    });
     expect(sign).toEqual(3);
 
     // scroll event
@@ -137,35 +153,55 @@ describe('runtime/event/hippy-event-dispatcher.ts', () => {
       sign = 4;
     });
 
-    const scrollEvent: NeedToTyped = [divElement.nodeId, 'scroll'];
-    eventDispatcher.receiveUIComponentEvent(scrollEvent);
+    const scrollEvent: NeedToTyped = {
+      id: divElement.nodeId,
+      currentId: divElement.nodeId,
+      nativeName: 'onScroll',
+      originalName: 'scroll',
+      params: {
+        keyboardHeight: 100,
+      },
+    };
+    eventDispatcher.receiveComponentEvent(scrollEvent, {
+      eventPhase: 2,
+    });
     expect(sign).toEqual(4);
 
     // layout event
     divElement.addEventListener('layout', (result) => {
       sign = result.top;
     });
-    nativeUIEvent = [
-      divElement.nodeId,
-      'onLayout',
-      {
+    nativeUIEvent = {
+      id: divElement.nodeId,
+      currentId: divElement.nodeId,
+      nativeName: 'onLayout',
+      originalName: 'layout',
+      params: {
         layout: {
           y: 10,
         },
       },
-    ];
-    eventDispatcher.receiveUIComponentEvent(nativeUIEvent);
+    };
+    eventDispatcher.receiveComponentEvent(nativeUIEvent, {
+      eventPhase: 2,
+    });
     expect(sign).toEqual(10);
     // dispatch click event again
-    eventDispatcher.receiveNativeGesture(nativeEvent);
+    eventDispatcher.receiveComponentEvent(nativeEvent, {
+      eventPhase: 2,
+    });
     expect(sign).toEqual(1);
     // remove click event
     divElement.removeEventListener('click', clickCb);
     // dispatch ui event
-    eventDispatcher.receiveUIComponentEvent(nativeUIEvent);
+    eventDispatcher.receiveComponentEvent(nativeUIEvent, {
+      eventPhase: 2,
+    });
     expect(sign).toEqual(10);
     // dispatch click when click event removed
-    eventDispatcher.receiveNativeGesture(nativeEvent);
+    eventDispatcher.receiveComponentEvent(nativeEvent, {
+      eventPhase: 2,
+    });
     expect(sign).toEqual(10);
 
     // span component
@@ -183,24 +219,36 @@ describe('runtime/event/hippy-event-dispatcher.ts', () => {
     };
     // ios still use disappear
     listItemElement.addEventListener('disappear', listCb);
-    const disappearEvent = [
-      listItemElement.nodeId,
-      'onDisappear',
-    ];
+    const disappearEvent: NeedToTyped = {
+      id: listItemElement.nodeId,
+      currentId: listItemElement.nodeId,
+      nativeName: 'onDisappear',
+      originalName: 'disappear',
+      params: {
+        keyboardHeight: 100,
+      },
+    };
     // dispatch disappear event
-    eventDispatcher.receiveUIComponentEvent(disappearEvent);
+    eventDispatcher.receiveComponentEvent(disappearEvent, {
+      eventPhase: 2,
+    });
     expect(sign).toEqual(5);
 
     // nothing happen when there is no listener
     const noListenerElement = new HippyElement('li');
     // pre cache node
     preCacheNode(noListenerElement, noListenerElement.nodeId);
-    const noListenerEvent = {
+    const noListenerEvent: NeedToTyped = {
       id: noListenerElement.nodeId,
-      name: 'onClick',
+      currentId: noListenerElement.nodeId,
+      nativeName: 'onClick',
+      originalName: 'click',
+      params: {},
     };
     // dispatch click event
-    eventDispatcher.receiveNativeGesture(noListenerEvent);
+    eventDispatcher.receiveComponentEvent(noListenerEvent, {
+      eventPhase: 2,
+    });
   });
 
   it('hippy-event-dispatcher should dispatch native event correctly', async () => {
@@ -224,16 +272,21 @@ describe('runtime/event/hippy-event-dispatcher.ts', () => {
   it('can not find node should not trigger anything', () => {
     const { EventDispatcher: eventDispatcher } = global.__GLOBAL__.jsModuleList;
     const divElement = new HippyElement('div');
-    const clickEvent = {
+    const clickEvent: NeedToTyped = {
       id: divElement.nodeId,
-      name: 'onClick',
+      currentId: divElement.nodeId,
+      nativeName: 'onClick',
+      originalName: 'click',
+      params: {},
     };
     let sign = 1;
     divElement.addEventListener('click', () => {
       sign += 1;
     });
     // dispatch click event, but can not find node, should not trigger anything
-    eventDispatcher.receiveNativeGesture(clickEvent);
+    eventDispatcher.receiveComponentEvent(clickEvent, {
+      eventPhase: 2,
+    });
     expect(sign).toEqual(1);
   });
 
@@ -245,7 +298,7 @@ describe('runtime/event/hippy-event-dispatcher.ts', () => {
       sign += 1;
     });
     // dispatch click event, but no event object, should not trigger anything
-    eventDispatcher.receiveNativeGesture();
+    eventDispatcher.receiveComponentEvent();
     expect(sign).toEqual(1);
   });
 
@@ -278,13 +331,21 @@ describe('runtime/event/hippy-event-dispatcher.ts', () => {
     divElement.addEventListener('scroll', (event) => {
       sign = event.offsetY;
     });
-    const scrollEvent: NeedToTyped = [divElement.nodeId, 'onScroll', {
-      contentOffset: {
-        x: 1,
-        y: 2,
+    const scrollEvent: NeedToTyped = {
+      id: divElement.nodeId,
+      currentId: divElement.nodeId,
+      nativeName: 'onScroll',
+      originalName: 'scroll',
+      params: {
+        contentOffset: {
+          x: 1,
+          y: 2,
+        },
       },
-    }];
-    eventDispatcher.receiveUIComponentEvent(scrollEvent);
+    };
+    eventDispatcher.receiveComponentEvent(scrollEvent, {
+      eventPhase: 2,
+    });
     expect(sign).toEqual(2);
   });
 });

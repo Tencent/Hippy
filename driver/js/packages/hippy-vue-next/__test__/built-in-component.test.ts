@@ -89,28 +89,12 @@ describe('built-in-component', () => {
       expect(divElement.component.name).toEqual(NATIVE_COMPONENT_MAP.View);
       preCacheNode(divElement, divElement.nodeId);
 
-      const noop = () => {};
-      divElement.addEventListener('touchstart', noop);
-      let [nativeNode] = divElement.convertToNativeNodes(false);
-      expect(nativeNode?.props?.onTouchDown).toBeTruthy();
-      divElement.removeEventListener('touchstart', noop);
-      divElement.addEventListener('touchStart', noop);
-      [nativeNode] = divElement.convertToNativeNodes(false);
-      expect(nativeNode?.props?.onTouchDown).toBeTruthy();
-      divElement.addEventListener('touchmove', noop);
-      [nativeNode] = divElement.convertToNativeNodes(false);
-      expect(nativeNode?.props?.onTouchMove).toBeTruthy();
-      divElement.addEventListener('touchend', noop);
-      [nativeNode] = divElement.convertToNativeNodes(false);
-      expect(nativeNode?.props?.onTouchEnd).toBeTruthy();
-      divElement.addEventListener('touchcancel', noop);
-      [nativeNode] = divElement.convertToNativeNodes(false);
-      expect(nativeNode?.props?.onTouchCancel).toBeTruthy();
+      let [[[nativeNode]]] = divElement.convertToNativeNodes(false);
       divElement.setStyle('overflowX', 'scroll');
       divElement.setStyle('backgroundImage', 'assets/index.png');
       const divChildElement = new HippyElement('div');
       divElement.appendChild(divChildElement);
-      [nativeNode] = divElement.convertToNativeNodes(false);
+      [[[nativeNode]]] = divElement.convertToNativeNodes(false);
       expect(nativeNode?.name).toEqual('ScrollView');
       expect(nativeNode?.props?.horizontal).toBeTruthy();
       expect(nativeNode?.props?.style?.flexDirection).toEqual('row');
@@ -125,13 +109,19 @@ describe('built-in-component', () => {
         offset.x = event.offsetX;
         offset.y = event.offsetY;
       });
-      const scrollEvent: NeedToTyped = [divElement.nodeId, 'onScroll', {
-        contentOffset: {
+      const scrollEvent = {
+        id: divChildElement.nodeId,
+        currentId: divChildElement.nodeId,
+        nativeName: 'onScroll',
+        originalName: 'scroll',
+        params: { contentOffset: {
           x: 1,
           y: 2,
-        },
-      }];
-      eventDispatcher.receiveUIComponentEvent(scrollEvent);
+        } },
+      };
+      eventDispatcher.receiveComponentEvent(scrollEvent, {
+        eventPhase: 2,
+      });
       expect(offset).toEqual({
         x: 1,
         y: 2,
@@ -150,17 +140,23 @@ describe('built-in-component', () => {
         dragOffset.scrollWidth = event.scrollWidth;
         dragOffset.scrollHeight = event.scrollHeight;
       });
-      const scrollBeginEvent: NeedToTyped = [divElement.nodeId, 'onScrollBeginDrag', {
-        contentOffset: {
+      const scrollBeginEvent = {
+        id: divChildElement.nodeId,
+        currentId: divChildElement.nodeId,
+        nativeName: 'onScrollBeginDrag',
+        originalName: 'scrollBeginDrag',
+        params: {  contentOffset: {
           x: 3,
           y: 4,
         },
         contentSize: {
           width: 1,
           height: 2,
-        },
-      }];
-      eventDispatcher.receiveUIComponentEvent(scrollBeginEvent);
+        } },
+      };
+      eventDispatcher.receiveComponentEvent(scrollBeginEvent, {
+        eventPhase: 2,
+      });
       expect(dragOffset).toEqual({
         x: 3,
         y: 4,
@@ -176,11 +172,19 @@ describe('built-in-component', () => {
         touches.clientX = event.touches[0].clientX;
         touches.clientY = event.touches[0].clientY;
       });
-      const touchEvent: NeedToTyped = [divElement.nodeId, 'onTouchDown', {
-        page_x: 1,
-        page_y: 2,
-      }];
-      eventDispatcher.receiveUIComponentEvent(touchEvent);
+      const touchEvent = {
+        id: divChildElement.nodeId,
+        currentId: divChildElement.nodeId,
+        nativeName: 'onTouchDown',
+        originalName: 'touchStart',
+        params: {
+          page_x: 1,
+          page_y: 2,
+        },
+      };
+      eventDispatcher.receiveComponentEvent(touchEvent, {
+        eventPhase: 2,
+      });
       expect(touches).toEqual({
         clientX: 1,
         clientY: 2,
@@ -190,10 +194,18 @@ describe('built-in-component', () => {
       divElement.addEventListener('focus', (event) => {
         isFocus = event.isFocused;
       });
-      const focusEvent: NeedToTyped = [divElement.nodeId, 'onFocus', {
-        focus: true,
-      }];
-      eventDispatcher.receiveUIComponentEvent(focusEvent);
+      const focusEvent: NeedToTyped = {
+        id: divChildElement.nodeId,
+        currentId: divChildElement.nodeId,
+        nativeName: 'onFocus',
+        originalName: 'focus',
+        params: {
+          focus: true,
+        },
+      };
+      eventDispatcher.receiveComponentEvent(focusEvent, {
+        eventPhase: 2,
+      });
       expect(isFocus).toEqual(true);
     });
 
@@ -212,20 +224,20 @@ describe('built-in-component', () => {
       expect(imgElement.component.name).toEqual(NATIVE_COMPONENT_MAP.Image);
 
       imgElement.setAttribute('placeholder', 'https://hippyjs.org/index.png');
-      let [nativeNode] = imgElement.convertToNativeNodes(false);
+      let [[[nativeNode]]] = imgElement.convertToNativeNodes(false);
       expect(nativeNode?.props?.defaultSource).toEqual('https://hippyjs.org/index.png');
       imgElement.setAttribute('placeholder', 'assets/index.png');
-      [nativeNode] = imgElement.convertToNativeNodes(false);
+      [[[nativeNode]]] = imgElement.convertToNativeNodes(false);
       expect(nativeNode?.props?.defaultSource).toEqual(`${HIPPY_DEBUG_ADDRESS}assets/index.png`);
       imgElement.setAttribute('src', 'https://hippyjs.org/index.png');
-      [nativeNode] = imgElement.convertToNativeNodes(false);
+      [[[nativeNode]]] = imgElement.convertToNativeNodes(false);
       expect(nativeNode?.props?.src).toEqual('https://hippyjs.org/index.png');
       imgElement.setAttribute('src', 'assets/index.png');
-      [nativeNode] = imgElement.convertToNativeNodes(false);
+      [[[nativeNode]]] = imgElement.convertToNativeNodes(false);
       expect(nativeNode?.props?.defaultSource).toEqual(`${HIPPY_DEBUG_ADDRESS}assets/index.png`);
       Native.Platform = 'ios';
       imgElement.setAttribute('src', 'https://hippyjs.org/index.png');
-      [nativeNode] = imgElement.convertToNativeNodes(false);
+      [[[nativeNode]]] = imgElement.convertToNativeNodes(false);
       expect(nativeNode?.props?.source).toEqual([
         {
           uri: 'https://hippyjs.org/index.png',
@@ -247,13 +259,21 @@ describe('built-in-component', () => {
         sign.x = event.offsetX;
         sign.y = event.offsetY;
       });
-      const scrollEvent: NeedToTyped = [listElement.nodeId, 'onScroll', {
-        contentOffset: {
-          x: 1,
-          y: 2,
+      const scrollEvent: NeedToTyped = {
+        id: listElement.nodeId,
+        currentId: listElement.nodeId,
+        nativeName: 'onScroll',
+        originalName: 'scroll',
+        params: {
+          contentOffset: {
+            x: 1,
+            y: 2,
+          },
         },
-      }];
-      eventDispatcher.receiveUIComponentEvent(scrollEvent);
+      };
+      eventDispatcher.receiveComponentEvent(scrollEvent, {
+        eventPhase: 2,
+      });
       expect(sign).toEqual({
         x: 1,
         y: 2,
@@ -264,10 +284,18 @@ describe('built-in-component', () => {
       listElement.addEventListener('delete', (event) => {
         index = event.index;
       });
-      const deleteEvent: NeedToTyped = [listElement.nodeId, 'onDelete', {
-        index: 1,
-      }];
-      eventDispatcher.receiveUIComponentEvent(deleteEvent);
+      const deleteEvent: NeedToTyped = {
+        id: listElement.nodeId,
+        currentId: listElement.nodeId,
+        nativeName: 'onDelete',
+        originalName: 'delete',
+        params: {
+          index: 1,
+        },
+      };
+      eventDispatcher.receiveComponentEvent(deleteEvent, {
+        eventPhase: 2,
+      });
       expect(index).toEqual(1);
     });
 
@@ -278,15 +306,15 @@ describe('built-in-component', () => {
       listElement.appendChild(listItemElement);
       const textElement = new HippyText('hello');
       listElement.appendChild(textElement);
-      let [nativeNode] = listElement.convertToNativeNodes(true);
+      let [[[nativeNode]]] = listElement.convertToNativeNodes(true);
       expect(nativeNode?.props?.numberOfRows).toEqual(1);
       const divElement = new HippyElement('div');
       listElement.appendChild(divElement);
-      [nativeNode] = listElement.convertToNativeNodes(true);
+      [[[nativeNode]]] = listElement.convertToNativeNodes(true);
       expect(nativeNode?.props?.numberOfRows).toEqual(2);
       const textElementTwo = new HippyText('world');
       listElement.appendChild(textElementTwo);
-      [nativeNode] = listElement.convertToNativeNodes(true);
+      [[[nativeNode]]] = listElement.convertToNativeNodes(true);
       expect(nativeNode?.props?.numberOfRows).toEqual(2);
     });
 
@@ -310,10 +338,10 @@ describe('built-in-component', () => {
       expect(aElement.component.name).toEqual(NATIVE_COMPONENT_MAP.Text);
       // href link should not contain protocol
       aElement.setAttribute('href', 'hippyjs.org/index.html');
-      let [nativeNode] = aElement.convertToNativeNodes(false);
+      let [[[nativeNode]]] = aElement.convertToNativeNodes(false);
       expect(nativeNode?.props?.href).toEqual('hippyjs.org/index.html');
       aElement.setAttribute('href', 'https://hippyjs.org/index.html');
-      [nativeNode] = aElement.convertToNativeNodes(false);
+      [[[nativeNode]]] = aElement.convertToNativeNodes(false);
       expect(nativeNode?.props?.href).toEqual('');
     });
 
@@ -324,36 +352,36 @@ describe('built-in-component', () => {
 
       // input type should return special native type
       inputElement.setAttribute('type', 'text');
-      let [nativeNode] = inputElement.convertToNativeNodes(false);
+      let [[[nativeNode]]] = inputElement.convertToNativeNodes(false);
       expect(nativeNode?.props?.keyboardType).toEqual('default');
       // input type should return special native type
       inputElement.setAttribute('type', 'number');
-      [nativeNode] = inputElement.convertToNativeNodes(false);
+      [[[nativeNode]]] = inputElement.convertToNativeNodes(false);
       expect(nativeNode?.props?.keyboardType).toEqual('numeric');
       // input type should return special native type
       inputElement.setAttribute('type', 'search');
-      [nativeNode] = inputElement.convertToNativeNodes(false);
+      [[[nativeNode]]] = inputElement.convertToNativeNodes(false);
       expect(nativeNode?.props?.keyboardType).toEqual('web-search');
       // input type should return special native type
       inputElement.setAttribute('type', 'password');
-      [nativeNode] = inputElement.convertToNativeNodes(false);
+      [[[nativeNode]]] = inputElement.convertToNativeNodes(false);
       expect(nativeNode?.props?.keyboardType).toEqual('password');
 
       // test editable props
       inputElement.setAttribute('disabled', true);
-      [nativeNode] = inputElement.convertToNativeNodes(false);
+      [[[nativeNode]]] = inputElement.convertToNativeNodes(false);
       expect(nativeNode?.props?.editable).toBeFalsy();
       inputElement.setAttribute('disabled', false);
-      [nativeNode] = inputElement.convertToNativeNodes(false);
+      [[[nativeNode]]] = inputElement.convertToNativeNodes(false);
       expect(nativeNode?.props?.editable).toBeTruthy();
       inputElement.setAttribute('value', 'hello');
-      [nativeNode] = inputElement.convertToNativeNodes(false);
+      [[[nativeNode]]] = inputElement.convertToNativeNodes(false);
       expect(nativeNode?.props?.defaultValue).toEqual('hello');
       inputElement.setAttribute('maxlength', 10);
-      [nativeNode] = inputElement.convertToNativeNodes(false);
+      [[[nativeNode]]] = inputElement.convertToNativeNodes(false);
       expect(nativeNode?.props?.maxLength).toEqual(10);
       Native.Localization.direction = 1;
-      [nativeNode] = inputElement.convertToNativeNodes(false);
+      [[[nativeNode]]] = inputElement.convertToNativeNodes(false);
       expect(nativeNode?.props?.style?.textAlign).toEqual('right');
 
       // test event handle
@@ -362,19 +390,36 @@ describe('built-in-component', () => {
       inputElement.addEventListener('change', (event) => {
         text = event.value;
       });
-      const changeEvent: NeedToTyped = [inputElement.nodeId, 'onChangeText', {
-        text: 'world',
-      }];
-      eventDispatcher.receiveUIComponentEvent(changeEvent);
+      const changeEvent: NeedToTyped = {
+        id: inputElement.nodeId,
+        currentId: inputElement.nodeId,
+        nativeName: 'onChangeText',
+        originalName: 'changeText',
+        params: {
+          text: 'world',
+        },
+      };
+      eventDispatcher.receiveComponentEvent(changeEvent, {
+        eventPhase: 2,
+      });
       expect(text).toEqual('world');
 
       inputElement.addEventListener('endEditing', (event) => {
         text = event.value;
       });
-      const editEvent: NeedToTyped = [inputElement.nodeId, 'onEndEditing', {
-        text: 'edit',
-      }];
-      eventDispatcher.receiveUIComponentEvent(editEvent);
+
+      const editEvent: NeedToTyped = {
+        id: inputElement.nodeId,
+        currentId: inputElement.nodeId,
+        nativeName: 'onEndEditing',
+        originalName: 'endEditing',
+        params: {
+          text: 'edit',
+        },
+      };
+      eventDispatcher.receiveComponentEvent(editEvent, {
+        eventPhase: 2,
+      });
       expect(text).toEqual('edit');
 
       const selection = {
@@ -385,13 +430,21 @@ describe('built-in-component', () => {
         selection.start = event.start;
         selection.end = event.end;
       });
-      const selectionEvent: NeedToTyped = [inputElement.nodeId, 'onSelectionChange', {
-        selection: {
-          start: 1,
-          end: 2,
+      const selectionEvent: NeedToTyped = {
+        id: inputElement.nodeId,
+        currentId: inputElement.nodeId,
+        nativeName: 'onSelectionChange',
+        originalName: 'selectionChange',
+        params: {
+          selection: {
+            start: 1,
+            end: 2,
+          },
         },
-      }];
-      eventDispatcher.receiveUIComponentEvent(selectionEvent);
+      };
+      eventDispatcher.receiveComponentEvent(selectionEvent, {
+        eventPhase: 2,
+      });
       expect(selection).toEqual({
         start: 1,
         end: 2,
@@ -405,13 +458,21 @@ describe('built-in-component', () => {
         contentSize.width = event.width;
         contentSize.height = event.height;
       });
-      const contentSizeEvent: NeedToTyped = [inputElement.nodeId, 'onContentSizeChange', {
-        contentSize: {
-          width: 1,
-          height: 2,
+      const contentSizeEvent: NeedToTyped = {
+        id: inputElement.nodeId,
+        currentId: inputElement.nodeId,
+        nativeName: 'onContentSizeChange',
+        originalName: 'contentSizeChange',
+        params: {
+          contentSize: {
+            width: 1,
+            height: 2,
+          },
         },
-      }];
-      eventDispatcher.receiveUIComponentEvent(contentSizeEvent);
+      };
+      eventDispatcher.receiveComponentEvent(contentSizeEvent, {
+        eventPhase: 2,
+      });
       expect(contentSize).toEqual({
         width: 1,
         height: 2,
@@ -422,10 +483,18 @@ describe('built-in-component', () => {
       inputElement.addEventListener('keyboardWillShow', (event) => {
         keyboardHeight = event.keyboardHeight;
       });
-      const keyboardHeightEvent: NeedToTyped = [inputElement.nodeId, 'onKeyboardWillShow', {
-        keyboardHeight: 100,
-      }];
-      eventDispatcher.receiveUIComponentEvent(keyboardHeightEvent);
+      const keyboardHeightEvent: NeedToTyped = {
+        id: inputElement.nodeId,
+        currentId: inputElement.nodeId,
+        nativeName: 'onKeyboardWillShow',
+        originalName: 'keyboardWillShow',
+        params: {
+          keyboardHeight: 100,
+        },
+      };
+      eventDispatcher.receiveComponentEvent(keyboardHeightEvent, {
+        eventPhase: 2,
+      });
       expect(keyboardHeight).toEqual(100);
     });
 
@@ -441,35 +510,59 @@ describe('built-in-component', () => {
 
 
       iframeElement.setAttribute('src', 'https://hippyjs.org/');
-      const [nativeNode] = iframeElement.convertToNativeNodes(false);
+      const [[[nativeNode]]] = iframeElement.convertToNativeNodes(false);
       expect(nativeNode?.props?.source?.uri).toEqual('https://hippyjs.org/');
 
       let url = '';
       iframeElement.addEventListener('load', (event) => {
         url = event.url;
       });
-      const onLoadEvent: NeedToTyped = [iframeElement.nodeId, 'onLoad', {
-        url: 'https://hippyjs.org/',
-      }];
-      eventDispatcher.receiveUIComponentEvent(onLoadEvent);
+      const onLoadEvent: NeedToTyped = {
+        id: iframeElement.nodeId,
+        currentId: iframeElement.nodeId,
+        nativeName: 'onLoad',
+        originalName: 'load',
+        params: {
+          url: 'https://hippyjs.org/',
+        },
+      };
+      eventDispatcher.receiveComponentEvent(onLoadEvent, {
+        eventPhase: 2,
+      });
       expect(url).toEqual('https://hippyjs.org/');
 
       iframeElement.addEventListener('loadStart', (event) => {
         url = event.url;
       });
-      const onLoadStartEvent: NeedToTyped = [iframeElement.nodeId, 'onLoadStart', {
-        url: 'https://hippyjs.org/start',
-      }];
-      eventDispatcher.receiveUIComponentEvent(onLoadStartEvent);
+      const onLoadStartEvent: NeedToTyped = {
+        id: iframeElement.nodeId,
+        currentId: iframeElement.nodeId,
+        nativeName: 'onLoadStart',
+        originalName: 'loadStart',
+        params: {
+          url: 'https://hippyjs.org/start',
+        },
+      };
+      eventDispatcher.receiveComponentEvent(onLoadStartEvent, {
+        eventPhase: 2,
+      });
       expect(url).toEqual('https://hippyjs.org/start');
 
       iframeElement.addEventListener('loadEnd', (event) => {
         url = event.url;
       });
-      const onLoadEndEvent: NeedToTyped = [iframeElement.nodeId, 'onLoadEnd', {
-        url: 'https://hippyjs.org/end',
-      }];
-      eventDispatcher.receiveUIComponentEvent(onLoadEndEvent);
+      const onLoadEndEvent: NeedToTyped = {
+        id: iframeElement.nodeId,
+        currentId: iframeElement.nodeId,
+        nativeName: 'onLoadEnd',
+        originalName: 'loadEnd',
+        params: {
+          url: 'https://hippyjs.org/end',
+        },
+      };
+      eventDispatcher.receiveComponentEvent(onLoadEndEvent, {
+        eventPhase: 2,
+      });
       expect(url).toEqual('https://hippyjs.org/end');
     });
   });
