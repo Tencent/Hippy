@@ -594,9 +594,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 #pragma mark Autosizing
 
 - (CGRect)calculateTextFrame:(NSTextStorage *)textStorage {
-    if ([[textStorage string] containsString:@"name=hippy;network=mobile"]) {
-        NSLog(@"22");
-    }
     CGRect textFrame = UIEdgeInsetsInsetRect((CGRect) { CGPointZero, self.frame.size }, self.paddingAsInsets);
 
     if (_adjustsFontSizeToFit) {
