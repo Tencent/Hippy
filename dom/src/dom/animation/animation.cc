@@ -271,6 +271,8 @@ void Animation::Run(uint64_t now, const AnimationOnRun& on_run) {
             current_value_ = child->Calculate(now);
             on_run(current_value_);
           }
+        } else {
+          child->Run(now, on_run);
         }
       } else if (exec_time < delay) {
         child->SetExecTime(exec_time_);

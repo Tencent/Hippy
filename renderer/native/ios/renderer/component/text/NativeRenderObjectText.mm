@@ -43,6 +43,30 @@ CGFloat const NativeRenderTextAutoSizeGranularity = 0.001f;
 
 static const CGFloat gDefaultFontSize = 14.f;
 
+static BOOL DirtyTextEqual(BOOL v1, BOOL v2) {
+    return v1 == v2;
+}
+
+static BOOL DirtyTextEqual(NSInteger v1, NSInteger v2) {
+    return v1 == v2;
+}
+
+static BOOL DirtyTextEqual(NSUInteger v1, NSUInteger v2) {
+    return v1 == v2;
+}
+
+static BOOL DirtyTextEqual(CGFloat v1, CGFloat v2) {
+    return fabs(v1 - v2) < CGFLOAT_EPSILON;
+}
+
+static BOOL DirtyTextEqual(CGSize v1, CGSize v2) {
+    return CGSizeEqualToSize(v1, v2);
+}
+
+static BOOL DirtyTextEqual(NSObject *v1, NSObject *v2) {
+    return [v1 isEqual:v2];
+}
+
 @implementation NativeRenderObjectText
 
 hippy::LayoutSize textMeasureFunc(
@@ -226,6 +250,9 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 }
 
 - (void)applyConfirmedLayoutDirectionToSubviews:(hippy::Direction)confirmedLayoutDirection {
+    if (DirtyTextEqual((NSInteger)self.confirmedLayoutDirection, (NSInteger)confirmedLayoutDirection)) {
+        return;
+    }
     [super applyConfirmedLayoutDirectionToSubviews:confirmedLayoutDirection];
     [self dirtyText];
 }
@@ -682,13 +709,17 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 }
 
 - (void)setBackgroundColor:(UIColor *)backgroundColor {
+    if (DirtyTextEqual(self.backgroundColor, backgroundColor)) {
+        return;
+    }
     super.backgroundColor = backgroundColor;
     [self dirtyText];
 }
 
 #define NATIVE_RENDER_TEXT_PROPERTY(setProp, ivar, type)    \
-    -(void)set##setProp : (type)value;                      \
+    -(void)set##setProp : (type)value                       \
     {                                                       \
+        if (DirtyTextEqual(ivar, value)) return;            \
         ivar = value;                                       \
         [self dirtyText];                                   \
     }
@@ -715,6 +746,9 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowRadius, _textShadowRadius, CGFloat);
 NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
 
 - (void)setLineSpacingMultiplier:(CGFloat)lineSpacingMultiplier {
+    if (DirtyTextEqual(_lineHeightMultiple, lineSpacingMultiplier)) {
+        return;
+    }
     _lineHeightMultiple = lineSpacingMultiplier;
     [self dirtyText];
 }
@@ -724,6 +758,9 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
 }
 
 - (void)setTextAlign:(NSTextAlignment)textAlign {
+    if (DirtyTextEqual(_textAlign, textAlign)) {
+        return;
+    }
     _textAlign = textAlign;
     [self dirtyText];
 }
@@ -780,6 +817,9 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
 }
 
 - (void)setAllowFontScaling:(BOOL)allowFontScaling {
+    if (DirtyTextEqual(_allowFontScaling, allowFontScaling)) {
+        return;
+    }
     _allowFontScaling = allowFontScaling;
     for (NativeRenderObjectView *child in [self subcomponents]) {
         if ([child isKindOfClass:[NativeRenderObjectText class]]) {
@@ -790,6 +830,9 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
 }
 
 - (void)setFontSizeMultiplier:(CGFloat)fontSizeMultiplier {
+    if (DirtyTextEqual(_fontSizeMultiplier, fontSizeMultiplier)) {
+        return;
+    }
     _fontSizeMultiplier = fontSizeMultiplier;
     if (_fontSizeMultiplier == 0) {
         HPLogError(@"fontSizeMultiplier value must be > zero.");
@@ -804,6 +847,9 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
 }
 
 - (void)setMinimumFontScale:(CGFloat)minimumFontScale {
+    if (DirtyTextEqual(_minimumFontScale, minimumFontScale)) {
+        return;
+    }
     if (minimumFontScale >= 0.01) {
         _minimumFontScale = minimumFontScale;
     }

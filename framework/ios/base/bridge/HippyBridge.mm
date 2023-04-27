@@ -417,6 +417,10 @@ dispatch_queue_t HippyBridgeQueue() {
 - (void)executeJSCode:(NSString *)script
             sourceURL:(NSURL *)sourceURL
          onCompletion:(HippyJavaScriptCallback)completion {
+    if (!script) {
+        completion(nil, HPErrorWithMessageAndModuleName(@"no valid data", _moduleName));
+        return;
+    }
     if (![self isValid] || !script || !sourceURL) {
         completion(nil, HPErrorWithMessageAndModuleName(@"bridge is not valid", _moduleName));
         return;
