@@ -312,6 +312,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 }
 
 - (void)setLayoutFrame:(CGRect)frame {
+    [self setFrame:frame];
     auto domManager = self.domManager.lock();
     if (domManager) {
         __weak NativeRenderObjectView *weakSelf = self;
