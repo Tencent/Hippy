@@ -94,6 +94,7 @@ test('renderToNative simple test --production mode', (t) => {
     props: {
       style: {},
     },
+    tagName: 'div',
   }, {}]);
 });
 
@@ -317,6 +318,7 @@ test('renderToNative test with children --production mode', (t) => {
       props: {
         style: {},
       },
+      tagName: 'div',
     }, {}],
     [{
       id: 13,
@@ -325,6 +327,7 @@ test('renderToNative test with children --production mode', (t) => {
       props: {
         style: {},
       },
+      tagName: 'div',
     }, {}],
     [{
       id: 14,
@@ -336,6 +339,7 @@ test('renderToNative test with children --production mode', (t) => {
           color: 4278190080,
         },
       },
+      tagName: 'p',
     }, {}],
     [{
       id: 15,
@@ -347,6 +351,7 @@ test('renderToNative test with children --production mode', (t) => {
           color: 4278190080,
         },
       },
+      tagName: 'span',
     }, {}],
     [{
       id: 17,
@@ -358,6 +363,7 @@ test('renderToNative test with children --production mode', (t) => {
           backgroundColor: 0,
         },
       },
+      tagName: 'img',
     }, {}],
     [{
       id: 18,
@@ -373,6 +379,7 @@ test('renderToNative test with children --production mode', (t) => {
           padding: 0,
         },
       },
+      tagName: 'input',
     }, {}],
     [{
       id: 19,
@@ -388,6 +395,7 @@ test('renderToNative test with children --production mode', (t) => {
           padding: 0,
         },
       },
+      tagName: 'textarea',
     }, {}],
   ]);
 });
@@ -438,6 +446,7 @@ test('img attributeMaps test --production mode', (t) => {
         backgroundColor: 0,
       },
     },
+    tagName: 'img',
   }, {}]);
 });
 
@@ -480,6 +489,7 @@ test('span attributeMaps test --production mode', (t) => {
         color: 4278190080,
       },
     },
+    tagName: 'span',
   }, {}]);
 });
 
@@ -527,6 +537,7 @@ test('a href attribute test --production mode', (t) => {
         color: 4278190318,
       },
     },
+    tagName: 'a',
   }, {}]);
 });
 
@@ -574,6 +585,7 @@ test('a href attribute with http prefix test --production mode', (t) => {
         color: 4278190318,
       },
     },
+    tagName: 'a',
   }, {}]);
 });
 
@@ -640,6 +652,7 @@ test('div with overflow-X scroll test --production mode', (t) => {
         overflowX: 'scroll',
       },
     },
+    tagName: 'div',
   }, {}]);
   Native.Localization = { direction: 1 };
   const [nativeNode2] = renderToNative(ROOT_VIEW_ID, node);
@@ -654,6 +667,7 @@ test('div with overflow-X scroll test --production mode', (t) => {
         overflowX: 'scroll',
       },
     },
+    tagName: 'div',
   }, {}]);
 });
 
@@ -694,6 +708,7 @@ test('div with overflowY scroll test --production mode', (t) => {
         overflowY: 'scroll',
       },
     },
+    tagName: 'div',
   }, {}]);
 });
 
@@ -738,6 +753,7 @@ test('div with overflowX and overflowY scroll test --production mode', (t) => {
         overflowY: 'scroll',
       },
     },
+    tagName: 'div',
   }, {}]);
 });
 
@@ -801,6 +817,7 @@ test('div with child node and overflowX scroll test --production mode', (t) => {
           overflowY: 'scroll',
         },
       },
+      tagName: 'div',
     }, {}],
     [{
       id: 39,
@@ -811,6 +828,7 @@ test('div with child node and overflowX scroll test --production mode', (t) => {
           collapsable: false,
         },
       },
+      tagName: 'div',
     }, {}],
   ]);
 });
@@ -907,6 +925,7 @@ test('Image.setStyle(background-color) test --production mode', (t) => {
         backgroundColor: 0,
       },
     },
+    tagName: 'img',
   }, {}]);
   const imgWithBg = DocumentNode.createElement('img');
   imgWithBg.setStyle('backgroundColor', '#abcdef');
@@ -920,6 +939,7 @@ test('Image.setStyle(background-color) test --production mode', (t) => {
         backgroundColor: 4289449455,
       },
     },
+    tagName: 'img',
   }, {}]);
 });
 
@@ -1021,6 +1041,7 @@ test('img with accessibility test --production mode', (t) => {
         backgroundColor: 0,
       },
     },
+    tagName: 'img',
   }, {}]);
 });
 
@@ -1063,6 +1084,7 @@ test('div with backgroundImage local path test --production mode', (t) => {
         backgroundImage: `hpfile://./${originalPath}`,
       },
     },
+    tagName: 'div',
   }, {}]);
 });
 
@@ -1160,5 +1182,6 @@ test('div with accessibility test --production mode', (t) => {
       },
       style: {},
     },
+    tagName: 'div',
   }, {}]);
 });
