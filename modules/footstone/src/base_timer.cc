@@ -83,7 +83,11 @@ void BaseTimer::StartInternal(TimeDelta delay) {
 }
 
 void BaseTimer::Reset() {
-  if (scheduled_run_time_ < TimePoint::Now()) {
+  //这句话原来的写法是 scheduled_run_time_ < TimePoint::Now()，
+  //但是在真机iphone12 pro max ,ios 16.2设备下，短时间间隔调用TimePoint::Now()返回的纳秒精度数值一样，下面的逻辑无法触发，导致动画行为失效
+  //为此，特意将<改为 <=规避此bug
+  //不确定其他设备是否存在bug
+  if (scheduled_run_time_ <= TimePoint::Now()) {
     ScheduleNewTask(delay_);
     return;
   }
