@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.openhippy.connector.JsDriver.V8InitParams;
 import com.openhippy.framework.BuildConfig;
 import com.tencent.mtt.hippy.adapter.DefaultLogAdapter;
@@ -178,7 +179,7 @@ public abstract class HippyEngine {
 
   public abstract ViewGroup loadModule(ModuleLoadParams loadParams, ModuleListener listener);
 
-  public abstract void destroyModule(@NonNull ViewGroup rootView, @NonNull Callback<Boolean> callback);
+  public abstract void destroyModule(@Nullable ViewGroup rootView, @NonNull Callback<Boolean> callback);
 
   public abstract void onEngineResume();
 
