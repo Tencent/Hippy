@@ -406,7 +406,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
     @MainThread
     @Override
-    public void destroyModule(@NonNull ViewGroup rootView, @NonNull Callback<Boolean> callback) {
+    public void destroyModule(@Nullable ViewGroup rootView, @NonNull Callback<Boolean> callback) {
+        if (rootView == null) {
+            callback.callback(true, null);
+            return;
+        }
         int rootId = rootView.getId();
         if (mDestroyModuleListeners == null) {
             mDestroyModuleListeners = new HashMap<>();
@@ -528,16 +532,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             LogUtils.d(TAG, "preload bundle loader");
             preloadModule(mPreloadBundleLoader);
         }
-        if (UIThreadUtils.isOnUiThread()) {
-            onEngineInitialized(statusCode, error);
-        } else {
-            UIThreadUtils.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    onEngineInitialized(statusCode, error);
-                }
-            });
-        }
+        onEngineInitialized(statusCode, error);
     }
 
     private void onEngineInitialized(EngineInitStatus statusCode, Throwable error) {
