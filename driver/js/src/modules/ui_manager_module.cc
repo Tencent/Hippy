@@ -76,15 +76,16 @@ void UIManagerModule::CallUIFunction(CallbackInfo& info, void* data) {
     std::weak_ptr<Ctx> weak_context = context;
     std::weak_ptr<CtxValue> weak_func = func;
     std::weak_ptr<TaskRunner> weak_runner = scope->GetTaskRunner();
-    cb = [weak_context, func, weak_runner](const std::shared_ptr<DomArgument> &argument) -> void {
+    cb = [weak_context, weak_func, weak_runner](const std::shared_ptr<DomArgument> &argument) -> void {
       auto runner = weak_runner.lock();
       if (runner) {
-        auto cb = [weak_context, func, argument]() {
+        auto cb = [weak_context, weak_func, argument]() {
           auto context = weak_context.lock();
           if (!context) {
             return;
           }
 
+          auto func = weak_func.lock();
           if (!func) {
             return;
           }
