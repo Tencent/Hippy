@@ -492,7 +492,7 @@ public abstract class HippyEngine {
   @SuppressWarnings("unused")
   public interface ModuleListener {
 
-    void onLoadCompletedInCurrentThread(ModuleLoadStatus statusCode, String msg, HippyRootView hippyRootView);
+    default void onLoadCompletedInCurrentThread(ModuleLoadStatus statusCode, String msg, HippyRootView hippyRootView) {}
 
     void onLoadCompleted(ModuleLoadStatus statusCode, String msg, HippyRootView hippyRootView);
 
