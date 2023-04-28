@@ -193,6 +193,10 @@
     _nativeRenderManager->AddImageProviderClass([HPDefaultImageProvider class]);
 }
 
+- (void)setInspectable:(BOOL)inspectable {
+    [_bridge setInspectable:inspectable];
+}
+
 #pragma mark HippyBridge Delegate
 
 static BOOL SelectorBelongsToProtocol(SEL selector, Protocol *protocol) {

@@ -258,6 +258,10 @@ dispatch_queue_t HippyBridgeQueue() {
                 NSString *moduleConfig = [strongSelf moduleConfig];
                 [ctxWrapper createGlobalObject:@"__hpBatchedBridgeConfig" withJsonValue:moduleConfig];
                 [strongSelf->_performanceLogger markStopForTag:HippyPLJSExecutorSetup forKey:nil];
+#if HP_DEV
+                //default is yes when debug mode
+                [strongSelf setInspectable:YES];
+#endif //HIPPY_DEV
             }
         };
         [_javaScriptExecutor setup];
@@ -412,6 +416,10 @@ dispatch_queue_t HippyBridgeQueue() {
 
 - (std::weak_ptr<VFSUriLoader>)VFSUriLoader {
     return _uriLoader;
+}
+
+- (void)setInspectable:(BOOL)isInspectable {
+    [self.javaScriptExecutor setInspecable:isInspectable];
 }
 
 - (void)executeJSCode:(NSString *)script

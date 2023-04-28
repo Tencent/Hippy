@@ -82,6 +82,9 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     id<HippyContextWrapper> _contextWrapper;
     NSMutableArray<dispatch_block_t> *_pendingCalls;
     __weak HippyBridge *_bridge;
+#ifdef JS_JSC
+    BOOL _isInspectable;
+#endif //JS_JSC
 }
 
 @property(readwrite, assign) BOOL ready;
@@ -404,6 +407,26 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
             HPLogWarn(@"set context throw exception");
         }
     }];
+#endif //JS_JSC
+}
+
+- (void)setInspecable:(BOOL)inspectable {
+#ifdef JS_JSC
+    _isInspectable = inspectable;
+#if defined(__IPHONE_16_4) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_16_4
+    if (@available(iOS 16.4, *)) {
+        WeakCtxPtr weak_ctx = self.pScope->GetContext();
+        [self executeBlockOnJavaScriptQueue:^{
+            SharedCtxPtr context = weak_ctx.lock();
+            if (!context) {
+                return;
+            }
+            auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(self.pScope->GetContext());
+            JSGlobalContextRef contextRef = jsc_context->context_;
+            JSGlobalContextSetInspectable(contextRef, inspectable);
+        }];
+    }
+#endif //defined(__IPHONE_16_4) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_16_4
 #endif //JS_JSC
 }
 // clang-format on

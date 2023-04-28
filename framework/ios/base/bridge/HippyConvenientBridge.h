@@ -66,6 +66,8 @@ typedef void(^_Nullable HippyBridgeBundleLoadCompletion)(NSURL *_Nullable, NSErr
 
 - (void)addExtraComponents:(NSArray<Class> *)components;
 
+- (void)setInspectable:(BOOL)inspectable;
+
 //Optianl properties set
 - (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls;
 
