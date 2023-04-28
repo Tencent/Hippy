@@ -893,6 +893,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
         @Override
         public void onInstanceDestroy(int rootId) {
+            mDomManager.releaseRoot(rootId);
+            mDomManager.destroyRoot(rootId);
+            mRenderer.destroyRoot(rootId);
             if (mDestroyModuleListeners != null) {
                 Callback<Boolean> callback = mDestroyModuleListeners.get(rootId);
                 if (callback != null) {
@@ -900,9 +903,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 }
                 mDestroyModuleListeners.remove(rootId);
             }
-            mDomManager.releaseRoot(rootId);
-            mDomManager.destroyRoot(rootId);
-            mRenderer.destroyRoot(rootId);
         }
 
         @Override
