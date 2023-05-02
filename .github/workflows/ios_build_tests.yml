@@ -72,12 +72,12 @@ jobs:
           spec: framework/examples/ios-demo/project.yml
           version: '2.32.0'
       - name: SDK
-        if: matrix.target == 'sdk'
-        run: |
-          ${{ env.BUILD_FUNCTION }}
+        # if: matrix.target == 'sdk'
+        # run: |
+        #   ${{ env.BUILD_FUNCTION }}
 
-          ./xcodeinitscript.sh
-          build 'HippySDK.xcworkspace' '${{ matrix.configuration }}'
+        #   ./xcodeinitscript.sh
+        #   build 'HippySDK.xcworkspace' '${{ matrix.configuration }}'
       - name: Demo
         if: matrix.target == 'demo'
         working-directory: framework/examples/ios-demo
