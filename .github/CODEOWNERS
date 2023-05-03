@@ -17,18 +17,18 @@ CMakeLists.txt @ilikethese @churchill-zhang
 
 # driver: js
 /driver/js/ @churchill-zhang @ilikethese
-/driver/js/*.js @zealotchen0 @zoomchan-cxj
-/driver/js/.eslintignore @zealotchen0 @zoomchan-cxj
-/driver/js/.eslintrc.js @zealotchen0 @zoomchan-cxj
-/driver/js/.nycrc @zealotchen0 @zoomchan-cxj
-/driver/js/tsconfig.json @zealotchen0 @zoomchan-cxj
-/driver/js/tsdoc.json @zealotchen0 @zoomchan-cxj
-/driver/js/lerna.json @zealotchen0 @zoomchan-cxj
-/driver/js/package.json @zealotchen0 @zoomchan-cxj
-/driver/js/package-lock.json @zealotchen0 @zoomchan-cxj
-/driver/js/examples/ @zealotchen0 @zoomchan-cxj
-/driver/js/scripts/ @zealotchen0 @zoomchan-cxj
-/driver/js/packages/ @zealotchen0 @zoomchan-cxj
+/driver/js/*.js @zealotchen0
+/driver/js/.eslintignore @zealotchen0
+/driver/js/.eslintrc.js @zealotchen0
+/driver/js/.nycrc @zealotchen0
+/driver/js/tsconfig.json @zealotchen0
+/driver/js/tsdoc.json @zealotchen0
+/driver/js/lerna.json @zealotchen0
+/driver/js/package.json @zealotchen0
+/driver/js/package-lock.json @zealotchen0
+/driver/js/examples/ @zealotchen0
+/driver/js/scripts/ @zealotchen0
+/driver/js/packages/ @zealotchen0
 
 # driver: vl:
 /driver/vl/ @ilikethese @churchill-zhang
@@ -83,17 +83,17 @@ CMakeLists.txt @ilikethese @churchill-zhang
 /devtools/ @lavnFan
 
 # gh: config
-/.github/ @zealotchen0 @zoomchan-cxj
+/.github/ @zealotchen0
 
 # doc: example
 /framework/examples/android-demo/ @siguangli
-/framework/examples/android-demo/res/ @zealotchen0 @zoomchan-cxj
+/framework/examples/android-demo/res/ @zealotchen0
 /framework/examples/ios-demo/ @ozonelmy
-/framework/examples/ios-demo/res/ @zealotchen0 @zoomchan-cxj
+/framework/examples/ios-demo/res/ @zealotchen0
 
 # doc: pages
-/*.md @zealotchen0 @zoomchan-cxj
-/docs/ @zealotchen0 @zoomchan-cxj
+/*.md @zealotchen0
+/docs/ @zealotchen0
 
 # build: gradle
 /gradle.properties @siguangli
@@ -110,3 +110,14 @@ CMakeLists.txt @ilikethese @churchill-zhang
 
 # build: config
 /buildconfig/ @ilikethese @churchill-zhang
+
+# build: ci
+/package.json @zealotchen0
+/package-lock.json @zealotchen0
+/commitlint.config.js @zealotchen0
+/.editorconfig @zealotchen0
+/.gitattributes @zealotchen0
+/.gitignore @zealotchen0
+/.markdownlintrc.json @zealotchen0
+/PUBLISH.md @zealotchen0
+/README.md @zealotchen0
