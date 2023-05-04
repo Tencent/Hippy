@@ -88,6 +88,8 @@ HP_EXTERN NSString *const HippyJSCThreadName;
 
 - (void)setContextName:(NSString *)contextName;
 
+- (void)setInspecable:(BOOL)inspectable;
+
 - (void)setUriLoader:(std::weak_ptr<hippy::vfs::UriLoader>)uriLoader;
 
 - (std::shared_ptr<hippy::napi::CtxValue>)JSTurboObjectWithName:(NSString *)name;

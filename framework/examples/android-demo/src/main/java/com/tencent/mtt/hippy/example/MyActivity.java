@@ -34,6 +34,7 @@ import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -149,6 +150,8 @@ public class MyActivity extends Activity
 							public void onLoadCompleted(ModuleLoadStatus statusCode, String msg) {
 								if (statusCode != ModuleLoadStatus.STATUS_OK) {
 									LogUtils.e("MyActivity", "loadModule failed code:" + statusCode + ", msg=" + msg);
+								} else {
+									setContentView(mHippyView);
 								}
 							}
 
@@ -162,8 +165,6 @@ public class MyActivity extends Activity
 								LogUtils.e("MyActivity", "onFirstViewAdded");
 							}
 						});
-
-						setContentView(mHippyView);
 					}
 				}
 			});

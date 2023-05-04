@@ -189,6 +189,8 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 - (void)handleBuffer:(id _Nullable)buffer batchEnded:(BOOL)batchEnded;
 
+- (void)setInspectable:(BOOL)isInspectable;
+
 /**
  * All registered bridge module classes.
  */

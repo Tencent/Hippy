@@ -589,6 +589,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     if ([changedProps containsObject:@"textAlign"]) {
         _textAlignSet = YES;
     }
+    if (_needDirtyText) {
+        [self dirtyText];
+        _needDirtyText =NO;
+    }
 }
 
 #pragma mark Autosizing
@@ -710,7 +714,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         return;
     }
     super.backgroundColor = backgroundColor;
-    [self dirtyText];
 }
 
 #define NATIVE_RENDER_TEXT_PROPERTY(setProp, ivar, type)    \
@@ -718,7 +721,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     {                                                       \
         if (DirtyTextEqual(ivar, value)) return;            \
         ivar = value;                                       \
-        [self dirtyText];                                   \
+        _needDirtyText = YES;                               \
     }
 
 NATIVE_RENDER_TEXT_PROPERTY(AdjustsFontSizeToFit, _adjustsFontSizeToFit, BOOL)
@@ -747,19 +750,11 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
         return;
     }
     _lineHeightMultiple = lineSpacingMultiplier;
-    [self dirtyText];
+    _needDirtyText = YES;
 }
 
 - (CGFloat)lineSpacingMultiplier {
     return _lineHeightMultiple;
-}
-
-- (void)setTextAlign:(NSTextAlignment)textAlign {
-    if (DirtyTextEqual(_textAlign, textAlign)) {
-        return;
-    }
-    _textAlign = textAlign;
-    [self dirtyText];
 }
 
 - (void)setDomManager:(std::weak_ptr<hippy::DomManager>)domManager {
@@ -809,7 +804,7 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     }
     if (_text != text && ![_text isEqualToString:text]) {
         _text = [text copy];
-        [self dirtyText];
+        _needDirtyText = YES;
     }
 }
 
@@ -823,7 +818,7 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
             ((NativeRenderObjectText *)child).allowFontScaling = allowFontScaling;
         }
     }
-    [self dirtyText];
+    _needDirtyText = YES;
 }
 
 - (void)setFontSizeMultiplier:(CGFloat)fontSizeMultiplier {
@@ -850,7 +845,7 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     if (minimumFontScale >= 0.01) {
         _minimumFontScale = minimumFontScale;
     }
-    [self dirtyText];
+    _needDirtyText = YES;
 }
 
 - (void)didUpdateNativeRenderSubviews {

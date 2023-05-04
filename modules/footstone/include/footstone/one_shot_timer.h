@@ -46,8 +46,6 @@ inline namespace timer {
  private:
   void OnStop() final;
   void RunUserTask() final;
-
-  std::unique_ptr<Task> user_task_;
 };
 
 }  // namespace base

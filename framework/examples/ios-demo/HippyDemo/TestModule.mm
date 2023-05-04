@@ -70,6 +70,7 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": url};
     NSURL *sandboxDirectory = [url URLByDeletingLastPathComponent];
     _connector = [[HippyConvenientBridge alloc] initWithDelegate:self moduleProvider:nil extraComponents:nil launchOptions:launchOptions engineKey:engineKey];
+    [_connector setInspectable:YES];
     //set custom vfs loader
     _connector.sandboxDirectory = sandboxDirectory;
     _connector.contextName = @"Demo";
