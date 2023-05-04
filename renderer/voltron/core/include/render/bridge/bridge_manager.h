@@ -40,18 +40,30 @@ class BridgeRuntime {
 public:
 
   virtual ~BridgeRuntime() = default;
+<<<<<<< HEAD
   explicit BridgeRuntime(int32_t engine_id, uint32_t ffi_id);
+=======
+  explicit BridgeRuntime(int32_t engine_id, bool bridge_parse_json);
+>>>>>>> 08a95f601 (feat(voltron): compat vm opt for voltron android)
 
   int64_t CalculateNodeLayout(int32_t instance_id, int32_t node_id,
                                      double width, int32_t width_mode,
                                      double height, int32_t height_mode);
 
+<<<<<<< HEAD
   virtual void PostWork(const Work* work_ptr) = 0;
 
   uint32_t GetFfiId() const;
+=======
+  bool IsBridgeParseJson() {
+    return bridge_parse_json_;
+  }
+
+>>>>>>> 08a95f601 (feat(voltron): compat vm opt for voltron android)
 protected:
   uint32_t ffi_id_ = 0;
   int32_t engine_id_ = 0;
+  bool bridge_parse_json_ = false;
   std::mutex mutex_;
 };
 

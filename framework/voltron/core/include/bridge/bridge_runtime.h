@@ -29,8 +29,13 @@
 namespace voltron {
 class EXPORT JSBridgeRuntime : public BridgeRuntime {
  public:
+<<<<<<< HEAD
   JSBridgeRuntime(int32_t engine_id, uint32_t ffi_id);
   virtual ~JSBridgeRuntime() = default;
+=======
+  EXPORT JSBridgeRuntime(int32_t engine_id, bool bridge_parse_json);
+  EXPORT virtual ~JSBridgeRuntime() = default;
+>>>>>>> 08a95f601 (feat(voltron): compat vm opt for voltron android)
 
  public:
   virtual void CallDart(std::u16string &moduleName, std::u16string &moduleFunc, std::u16string &callId,

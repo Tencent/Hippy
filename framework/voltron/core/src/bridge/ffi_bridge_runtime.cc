@@ -26,7 +26,11 @@
 #include "bridge/ffi_bridge_runtime.h"
 
 namespace voltron {
+<<<<<<< HEAD
 JSBridgeRuntime::JSBridgeRuntime(int32_t engine_id, uint32_t ffi_id): BridgeRuntime(engine_id, ffi_id) {}
+=======
+JSBridgeRuntime::JSBridgeRuntime(int32_t engine_id, bool bridge_parse_json): BridgeRuntime(engine_id, bridge_parse_json) {}
+>>>>>>> 08a95f601 (feat(voltron): compat vm opt for voltron android)
 
 void FFIJSBridgeRuntime::CallDart(std::u16string &moduleName, std::u16string &moduleFunc, std::u16string &callId,
                                   std::string params, bool bridgeParamJson,
@@ -68,7 +72,11 @@ void FFIJSBridgeRuntime::ReportJSException(std::u16string &description_stream, s
   PostWork(work_ptr);
 }
 
+<<<<<<< HEAD
 FFIJSBridgeRuntime::FFIJSBridgeRuntime(int32_t engine_id, uint32_t ffi_id) : JSBridgeRuntime(engine_id, ffi_id), engine_id_(engine_id), ffi_id_(ffi_id) {}
+=======
+FFIJSBridgeRuntime::FFIJSBridgeRuntime(int32_t engine_id, bool bridge_parse_json) : JSBridgeRuntime(engine_id, bridge_parse_json), engine_id_(engine_id) {}
+>>>>>>> 08a95f601 (feat(voltron): compat vm opt for voltron android)
 
 void FFIJSBridgeRuntime::SetRuntimeId(int64_t runtime_id) { runtime_id_ = runtime_id; }
 

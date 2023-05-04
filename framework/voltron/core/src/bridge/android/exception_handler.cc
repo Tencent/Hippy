@@ -25,20 +25,18 @@
 
 namespace voltron {
 
-void ExceptionHandler::ReportJsException(const std::shared_ptr<hippy::Runtime>& runtime, const string_view& desc,
+void ExceptionHandler::ReportJsException(const std::any& bridge, const string_view& desc,
                                          const string_view& stack) {
   FOOTSTONE_DLOG(INFO) << "ReportJsException begin";
-  if (runtime->HasData(kBridgeSlot)) {
-    auto slot = runtime->GetData(kBridgeSlot);
-    auto bridge = std::any_cast<std::shared_ptr<VoltronBridge>>(slot);
-    if (bridge) {
-      auto platform_runtime = bridge->GetPlatformRuntime();
-      if (platform_runtime) {
-        std::u16string exception = StringViewUtils::CovertToUtf16(desc, desc.encoding()).utf16_value();
-        std::u16string stack_trace = StringViewUtils::CovertToUtf16(stack, stack.encoding()).utf16_value();
+  auto bridge_object = std::any_cast<std::shared_ptr<VoltronBridge>>(bridge);
 
-        platform_runtime->ReportJSException(exception, stack_trace);
-      }
+  if (bridge_object) {
+    auto platform_runtime = bridge_object->GetPlatformRuntime();
+    if (platform_runtime) {
+      std::u16string exception = StringViewUtils::CovertToUtf16(desc, desc.encoding()).utf16_value();
+      std::u16string stack_trace = StringViewUtils::CovertToUtf16(stack, stack.encoding()).utf16_value();
+
+      platform_runtime->ReportJSException(exception, stack_trace);
     }
   }
   FOOTSTONE_DLOG(INFO) << "ReportJsException end";
