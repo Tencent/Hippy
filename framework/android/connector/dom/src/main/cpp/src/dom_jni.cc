@@ -54,7 +54,7 @@ REGISTER_JNI("com/openhippy/connector/DomManager", // NOLINT(cert-err58-cpp)
 
 REGISTER_JNI("com/openhippy/connector/DomManager", // NOLINT(cert-err58-cpp)
              "createRootNode",
-             "(I)V",
+             "(IF)V",
              CreateRoot)
 
 REGISTER_JNI("com/openhippy/connector/DomManager", // NOLINT(cert-err58-cpp)
@@ -80,9 +80,12 @@ constexpr char kDomRunnerName[] = "dom_task_runner";
 
 void CreateRoot(JNIEnv* j_env,
                 __unused jobject j_obj,
-                jint j_root_id) {
+                jint j_root_id,
+                jfloat j_density) {
   auto root_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_root_id);
   auto root_node = std::make_shared<hippy::RootNode>(root_id);
+  auto layout = root_node->GetLayoutNode();
+  layout->SetScaleFactor(static_cast<float>(j_density));
   auto& persistent_map = RootNode::PersistentMap();
   auto flag = persistent_map.Insert(root_id, root_node);
   FOOTSTONE_DCHECK(flag);
@@ -143,7 +146,12 @@ jint CreateDomManager(__unused JNIEnv* j_env, __unused jobject j_obj) {
 
 void DestroyDomManager(__unused JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id) {
   auto dom_manager_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_dom_id);
-  auto flag = hippy::global_data_holder.Erase(dom_manager_id);
+  std::any dom_manager;
+  auto flag = hippy::global_data_holder.Find(dom_manager_id, dom_manager);
+  FOOTSTONE_CHECK(flag);
+  auto dom_manager_object = std::any_cast<std::shared_ptr<DomManager>>(dom_manager);
+  dom_manager_object->GetWorker()->Terminate();
+  flag = hippy::global_data_holder.Erase(dom_manager_id);
   FOOTSTONE_DCHECK(flag);
 }
 

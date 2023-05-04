@@ -270,7 +270,7 @@ declare namespace HippyTypes {
     style?: NativeStyle;
     tagName?: string;
     props?: {
-      [key: string]: string | number | undefined | Attributes | Style;
+      [key: string]: NeedToTyped;
       attributes?: Attributes;
     }
   }

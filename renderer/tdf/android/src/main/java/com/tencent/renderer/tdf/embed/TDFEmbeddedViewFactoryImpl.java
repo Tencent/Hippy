@@ -19,9 +19,9 @@ package com.tencent.renderer.tdf.embed;
 import android.content.Context;
 import android.view.View;
 
+import com.openhippy.pool.BasePool.PoolType;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.renderer.node.RenderNode;
-import com.tencent.renderer.pool.NativeRenderPool;
 import com.tencent.tdf.embed.EmbeddedView;
 import com.tencent.tdf.embed.EmbeddedViewFactory;
 
@@ -44,7 +44,7 @@ public class TDFEmbeddedViewFactoryImpl extends EmbeddedViewFactory {
         assert (!mViewType.isEmpty());
         RenderNode node = new RenderNode(mRootId, viewId,  TDFEmbeddedViewUtil.parsePropsStringToMap(propsMap),
             mViewType, mControllerManager, false);
-        View view = mControllerManager.createView(node, NativeRenderPool.PoolType.NONE);
+        View view = mControllerManager.createView(node, PoolType.NONE);
         return new TDFEmbeddedViewWrapper(mRootId, mControllerManager, view, viewId, mViewType);
     }
 }

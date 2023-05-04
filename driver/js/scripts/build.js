@@ -24,8 +24,9 @@ const { rollup } = require('rollup');
 const reactBuilds = require('./react-configs').getAllBuilds();
 const reactWebBuilds = require('./react-web-configs').getAllBuilds();
 const vueBuilds = require('./vue-configs').getAllBuilds();
+const vueNextBuilds = require('./vue-next-configs').getAllBuilds();
 
-let builds = [...reactBuilds, ...reactWebBuilds, ...vueBuilds];
+let builds = [...reactBuilds, ...reactWebBuilds, ...vueBuilds, ...vueNextBuilds];
 
 // filter builds via command line arg
 if (process.argv[2]) {

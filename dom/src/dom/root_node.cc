@@ -115,10 +115,10 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
     auto style_update = std::get<0>(style_diff_value);
     auto ext_update = std::get<0>(ext_diff_value);
     std::shared_ptr<DomValueMap> diff_value = std::make_shared<DomValueMap>();
-    if (style_update) {
+    if (!style_update->empty()) {
       diff_value->insert(style_update->begin(), style_update->end());
     }
-    if (ext_update) {
+    if (!ext_update->empty()) {
       diff_value->insert(ext_update->begin(), ext_update->end());
     }
     dom_node->SetStyleMap(node_info->dom_node->GetStyleMap());
@@ -127,18 +127,18 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
     auto style_delete = std::get<1>(style_diff_value);
     auto ext_delete = std::get<1>(ext_diff_value);
     std::shared_ptr<std::vector<std::string>> delete_value = std::make_shared<std::vector<std::string>>();
-    if (style_delete) {
+    if (!style_delete->empty()) {
       delete_value->insert(delete_value->end(), style_delete->begin(), style_delete->end());
       FOOTSTONE_DLOG(INFO) << "UpdateDomNodes : id: " << dom_node->GetId() << ", delete size:" << style_delete->size();
     }
-    if (ext_delete) {
+    if (!ext_delete->empty()) {
       delete_value->insert(delete_value->end(), ext_delete->begin(), ext_delete->end());
     }
     dom_node->SetDeleteProps(delete_value);
     node_info->dom_node->SetDiffStyle(diff_value);
     node_info->dom_node->SetDeleteProps(delete_value);
-    if (style_update != nullptr) {
-      dom_node->UpdateLayoutStyleInfo(*style_update);
+    if (!style_update->empty() || !style_delete->empty()) {
+      dom_node->UpdateLayoutStyleInfo(*style_update, *style_delete);
     }
     auto event = std::make_shared<DomEvent>(kDomUpdated, dom_node, nullptr);
     dom_node->HandleEvent(event);

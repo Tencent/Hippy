@@ -99,8 +99,7 @@ public class DevServerImpl implements DevServerInterface, View.OnClickListener,
         }
     }
 
-    @Override
-    public void attachToHost(Context context, int rootId) {
+    private void attachToHostImpl(Context context, int rootId) {
         if (!mDebugMode) {
             return;
         }
@@ -118,6 +117,20 @@ public class DevServerImpl implements DevServerInterface, View.OnClickListener,
         }
         mDevButtonMaps.put(rootId, devButton);
         mDevButtonStack.add(devButton);
+    }
+
+    @Override
+    public void attachToHost(final Context context, final int rootId) {
+        if (UIThreadUtils.isOnUiThread()) {
+            attachToHostImpl(context, rootId);
+        } else {
+            UIThreadUtils.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    attachToHostImpl(context, rootId);
+                }
+            });
+        }
     }
 
     @Override

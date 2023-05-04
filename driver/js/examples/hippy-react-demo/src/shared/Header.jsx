@@ -2,7 +2,6 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import HippyReact, {
   Image,
-  Platform,
   StyleSheet,
   Text,
   View,
@@ -11,33 +10,34 @@ import HippyReact, {
 import BACK_ICON from './back-icon.png';
 
 const SKIN_COLOR = {
-  mainLight: '#4c9afa',
+  mainLight: '#81D7F7',
   otherLight: '#f44837',
-  textWhite: '#fff',
+  textWhite: '#1E304A',
 };
 
 const styles = StyleSheet.create({
   container: {
-    height: 56,
-    backgroundColor: SKIN_COLOR.mainLight,
+    marginTop: 20,
+    marginBottom: 12,
+    height: 24,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   backIcon: {
-    width: 24,
-    height: 24,
+    tintColor: SKIN_COLOR.textWhite,
+    width: 15,
+    height: 15,
   },
   headerButton: {
-    height: 64,
-    paddingHorizontal: 24,
+    height: 24,
     alignItems: 'center',
     justifyContent: 'center',
   },
   title: {
-    fontSize: 20,
+    fontSize: 16,
     color: SKIN_COLOR.textWhite,
-    lineHeight: 24,
+    lineHeight: 16,
   },
 });
 
@@ -46,14 +46,14 @@ const Header = ({ history, route }) => {
   if (history.index === 0) {
     return (
       <View style={[styles.container]}>
-        <View style={{ backgroundColor: styles.title.backgroundColor, marginLeft: 12 }}>
-          <Text numberOfLines={1} style={[styles.title, { fontWeight: 'bold' }]}>
+        <View>
+          <Text numberOfLines={1} style={[styles.title]}>
             {route.name}
           </Text>
         </View>
         <View style={styles.headerButton}>
           <Text numberOfLines={1} style={styles.title}>
-            ver: {HippyReact.version !== 'unspecified' ? `${HippyReact.version}` : 'master'}
+            {HippyReact.version !== 'unspecified' ? `${HippyReact.version}` : 'master'}
           </Text>
         </View>
       </View>
@@ -63,7 +63,7 @@ const Header = ({ history, route }) => {
     <View style={[styles.container]}>
       <View
         onClick={() => history.goBack()}
-        style={[styles.headerButton, Platform.OS === 'ios' ? null : { marginLeft: 20 }]}
+        style={[styles.headerButton]}
       >
         <Image
           style={styles.backIcon}

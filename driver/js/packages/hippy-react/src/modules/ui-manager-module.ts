@@ -33,6 +33,8 @@ const {
   sendRenderError,
 } = UIManager;
 
+const LOG_TYPE = ['%c[native]%c', 'color: red', 'color: auto'];
+
 const getNodeById = findNodeById;
 
 /**
@@ -132,7 +134,7 @@ function callUIFunction(ref: Element | Fiber, funcName: string, ...options: any[
   if (rootViewId === null) {
     return;
   }
-  trace('callUIFunction', { nodeId, funcName, paramList });
+  trace(...LOG_TYPE, 'callUIFunction', { nodeId, funcName, paramList });
   UIManager.callUIFunction(nodeId, funcName, paramList, callback);
 }
 
@@ -158,7 +160,7 @@ function measureInWindowByMethod(
       }
       return reject(new Error(`${method} cannot get nodeId`));
     }
-    trace('callUIFunction', { nodeId, funcName: method, paramList: [] });
+    trace(...LOG_TYPE, 'callUIFunction', { nodeId, funcName: method, paramList: [] });
     return UIManager.callUIFunction(nodeId, method, [], (layout: HippyTypes.LayoutEvent | string) => {
       if (callback && isFunction(callback)) {
         callback(layout);
@@ -211,7 +213,7 @@ function getBoundingClientRect(ref: Fiber, options: { relToContainer?: boolean }
     if (!nodeId) {
       return reject(new Error(`getBoundingClientRect cannot get nodeId of ${ref}`));
     }
-    trace('callUIFunction', { nodeId, funcName: 'getBoundingClientRect', params: options });
+    trace(...LOG_TYPE, 'callUIFunction', { nodeId, funcName: 'getBoundingClientRect', params: options });
     return UIManager.callUIFunction(nodeId, 'getBoundingClientRect', [options], (res: HippyTypes.LayoutEvent) => {
       if (!res || res.errMsg) {
         return reject(new Error((res?.errMsg) || 'getBoundingClientRect error with no response'));

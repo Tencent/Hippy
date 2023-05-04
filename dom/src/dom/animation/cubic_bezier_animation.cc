@@ -136,15 +136,25 @@ void CubicBezierAnimation::Init() {
 
 double CubicBezierAnimation::Calculate(uint64_t now) {
   exec_time_ += (now - last_begin_time_);
-  auto epsilon = cubic_bezier_.SolveEpsilon(duration_);
-  auto x = cubic_bezier_.SolveCurveX(
-      static_cast<double>(exec_time_ - delay_) / static_cast<double>(duration_), epsilon);
-  auto y = cubic_bezier_.SampleCurveY(x);
-  if (type_ == ValueType::kColor) {
-    current_value_ = CalculateColor(start_value_, to_value_, y);
-  } else {
-    current_value_ = start_value_ + y * (to_value_ - start_value_);
+  if (!duration_) {
+    return to_value_;
   }
+  auto epsilon = cubic_bezier_.SolveEpsilon(duration_);
+  auto p = static_cast<double>(exec_time_ - delay_) / static_cast<double>(duration_);
+  if (p <= 0) {
+    current_value_ = start_value_;
+  } else if (p >= 1) {
+    current_value_ = to_value_;
+  } else {
+    auto x = cubic_bezier_.SolveCurveX(p, epsilon);
+    auto y = cubic_bezier_.SampleCurveY(x);
+    if (type_ == ValueType::kColor) {
+      current_value_ = CalculateColor(start_value_, to_value_, y);
+    } else {
+      current_value_ = start_value_ + y * (to_value_ - start_value_);
+    }
+  }
+  
   last_begin_time_ = now;
   return current_value_;
 }

@@ -46,25 +46,6 @@ static NSString *const engineKey = @"Demo";
 
 HIPPY_EXPORT_MODULE()
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        HPSetLogFunction(^(HPLogLevel level, NSString *fileName, NSNumber *lineNumber,
-                           NSString *message, NSArray<NSDictionary *> *stack, NSDictionary *userInfo) {
-            if (HPLogLevelError <= level && userInfo) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    HippyBridge *strongBridge = [userInfo objectForKey:@"bridge"];
-                    if (strongBridge) {
-                        [strongBridge.redBox showErrorMessage:message withStack:stack];
-                    }
-                });
-            }
-            NSLog(@"hippy says:%@ in file %@ at line %@", message, fileName, lineNumber);
-        });
-    }
-    return self;
-}
-
 - (dispatch_queue_t)methodQueue {
 	return dispatch_get_main_queue();
 }
@@ -89,6 +70,7 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": url};
     NSURL *sandboxDirectory = [url URLByDeletingLastPathComponent];
     _connector = [[HippyConvenientBridge alloc] initWithDelegate:self moduleProvider:nil extraComponents:nil launchOptions:launchOptions engineKey:engineKey];
+    [_connector setInspectable:YES];
     //set custom vfs loader
     _connector.sandboxDirectory = sandboxDirectory;
     _connector.contextName = @"Demo";

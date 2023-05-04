@@ -94,7 +94,6 @@ static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *no
     // Do nothing, as subviews are managed by `setTextStorage:` method
 }
 
-// mttrn:
 - (void)setTextStorage:(NSTextStorage *)textStorage {
     if (_textStorage != textStorage) {
         _textStorage = textStorage;

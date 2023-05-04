@@ -25,7 +25,7 @@ import { getNodeById } from '../../../util/node';
 import { DOMEventPhase } from '../../../util/event';
 import { Event } from './event';
 
-const componentName = ['%c[event]%c', 'color: green', 'color: auto'];
+const LOG_TYPE = ['%c[event]%c', 'color: green', 'color: auto'];
 
 function isTouchEvent(eventName) {
   return ['onTouchDown', 'onTouchMove', 'onTouchEnd', 'onTouchCancel'].indexOf(eventName) >= 0;
@@ -54,7 +54,7 @@ const EventDispatcher = {
    * Redirect native events to Vue directly.
    */
   receiveNativeEvent(nativeEvent) {
-    trace(...componentName, 'receiveNativeEvent', nativeEvent);
+    trace(...LOG_TYPE, 'receiveNativeEvent', nativeEvent);
     if (!nativeEvent || !Array.isArray(nativeEvent) || nativeEvent.length < 2) {
       return;
     }
@@ -69,16 +69,16 @@ const EventDispatcher = {
    * Receive native interactive events.
    */
   receiveComponentEvent(nativeEvent, domEvent) {
-    trace(...componentName, 'receiveComponentEvent', nativeEvent);
+    trace(...LOG_TYPE, 'receiveComponentEvent', nativeEvent);
     if (!nativeEvent || !domEvent) {
-      warn(...componentName, 'receiveComponentEvent', 'nativeEvent or domEvent not exist');
+      warn(...LOG_TYPE, 'receiveComponentEvent', 'nativeEvent or domEvent not exist');
       return;
     }
-    const { id, currentId, nativeName, originalName, params, eventPhase } = nativeEvent;
+    const { id, currentId, nativeName, originalName, params = {}, eventPhase } = nativeEvent;
     const currentTargetNode = getNodeById(currentId);
     const targetNode = getNodeById(id);
     if (!currentTargetNode || !targetNode) {
-      warn(...componentName, 'receiveComponentEvent', 'currentTargetNode or targetNode not exist');
+      warn(...LOG_TYPE, 'receiveComponentEvent', 'currentTargetNode or targetNode not exist');
       return;
     }
     try {

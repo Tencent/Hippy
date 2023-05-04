@@ -43,6 +43,30 @@ CGFloat const NativeRenderTextAutoSizeGranularity = 0.001f;
 
 static const CGFloat gDefaultFontSize = 14.f;
 
+static BOOL DirtyTextEqual(BOOL v1, BOOL v2) {
+    return v1 == v2;
+}
+
+static BOOL DirtyTextEqual(NSInteger v1, NSInteger v2) {
+    return v1 == v2;
+}
+
+static BOOL DirtyTextEqual(NSUInteger v1, NSUInteger v2) {
+    return v1 == v2;
+}
+
+static BOOL DirtyTextEqual(CGFloat v1, CGFloat v2) {
+    return fabs(v1 - v2) < CGFLOAT_EPSILON;
+}
+
+static BOOL DirtyTextEqual(CGSize v1, CGSize v2) {
+    return CGSizeEqualToSize(v1, v2);
+}
+
+static BOOL DirtyTextEqual(NSObject *v1, NSObject *v2) {
+    return [v1 isEqual:v2];
+}
+
 @implementation NativeRenderObjectText
 
 hippy::LayoutSize textMeasureFunc(
@@ -144,7 +168,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         return parentProperties;
     }
 
-    parentProperties = [super processUpdatedProperties:applierBlocks parentProperties:parentProperties];
+//    parentProperties = [super processUpdatedProperties:applierBlocks parentProperties:parentProperties];
 
     UIEdgeInsets padding = self.paddingAsInsets;
     CGFloat width = self.frame.size.width - (padding.left + padding.right);
@@ -175,7 +199,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     return parentProperties;
 }
 
-- (void)amendLayoutBeforeMount {
+- (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
     @try {
         UIEdgeInsets padding = self.paddingAsInsets;
         CGFloat width = self.frame.size.width - (padding.left + padding.right);
@@ -217,14 +241,18 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 }
             }
         }];
-        [super amendLayoutBeforeMount];
+        [super amendLayoutBeforeMount:blocks];
     }
     @catch (NSException *exception) {
-        [super amendLayoutBeforeMount];
+        [super amendLayoutBeforeMount:blocks];
     }
+    [self processUpdatedProperties:blocks parentProperties:nil];
 }
 
 - (void)applyConfirmedLayoutDirectionToSubviews:(hippy::Direction)confirmedLayoutDirection {
+    if (DirtyTextEqual((NSInteger)self.confirmedLayoutDirection, (NSInteger)confirmedLayoutDirection)) {
+        return;
+    }
     [super applyConfirmedLayoutDirectionToSubviews:confirmedLayoutDirection];
     [self dirtyText];
 }
@@ -273,27 +301,31 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
 - (void)dirtyText {
     [super dirtyText];
+    _isTextDirty = YES;
     _cachedTextStorage = nil;
     auto domManager = self.domManager.lock();
     if (domManager) {
         __weak NativeRenderObjectView *weakSelf = self;
         std::vector<std::function<void()>> ops_ = {[weakSelf, domManager](){
             @autoreleasepool {
-                if (weakSelf) {
-                    NativeRenderObjectView *strongSelf = weakSelf;
+                NativeRenderObjectView *strongSelf = weakSelf;
+                if (strongSelf) {
                     int32_t componentTag = [[strongSelf componentTag] intValue];
                     auto domNode = domManager->GetNode(strongSelf.rootNode, componentTag);
                     if (domNode) {
                         auto layoutNode = domNode->GetLayoutNode();
                         layoutNode->MarkDirty();
                         [strongSelf dirtyPropagation];
-                        strongSelf.hasNewLayout = YES;
                     }
                 }
             }
         }};
         domManager->PostTask(hippy::dom::Scene(std::move(ops_)));
     }
+}
+
+- (BOOL)isTextDirty {
+    return _isTextDirty;
 }
 
 - (void)recomputeText {
@@ -440,6 +472,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     // create a non-mutable attributedString for use by the Text system which avoids copies down the line
     _cachedAttributedString = [[NSAttributedString alloc] initWithAttributedString:attributedString];
+    _isTextDirty = NO;
     return _cachedAttributedString;
 }
 
@@ -555,6 +588,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     [super didSetProps:changedProps];
     if ([changedProps containsObject:@"textAlign"]) {
         _textAlignSet = YES;
+    }
+    if (_needDirtyText) {
+        [self dirtyText];
+        _needDirtyText =NO;
     }
 }
 
@@ -673,15 +710,18 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 }
 
 - (void)setBackgroundColor:(UIColor *)backgroundColor {
+    if (DirtyTextEqual(self.backgroundColor, backgroundColor)) {
+        return;
+    }
     super.backgroundColor = backgroundColor;
-    [self dirtyText];
 }
 
 #define NATIVE_RENDER_TEXT_PROPERTY(setProp, ivar, type)    \
-    -(void)set##setProp : (type)value;                      \
+    -(void)set##setProp : (type)value                       \
     {                                                       \
+        if (DirtyTextEqual(ivar, value)) return;            \
         ivar = value;                                       \
-        [self dirtyText];                                   \
+        _needDirtyText = YES;                               \
     }
 
 NATIVE_RENDER_TEXT_PROPERTY(AdjustsFontSizeToFit, _adjustsFontSizeToFit, BOOL)
@@ -706,17 +746,15 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowRadius, _textShadowRadius, CGFloat);
 NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
 
 - (void)setLineSpacingMultiplier:(CGFloat)lineSpacingMultiplier {
+    if (DirtyTextEqual(_lineHeightMultiple, lineSpacingMultiplier)) {
+        return;
+    }
     _lineHeightMultiple = lineSpacingMultiplier;
-    [self dirtyText];
+    _needDirtyText = YES;
 }
 
 - (CGFloat)lineSpacingMultiplier {
     return _lineHeightMultiple;
-}
-
-- (void)setTextAlign:(NSTextAlignment)textAlign {
-    _textAlign = textAlign;
-    [self dirtyText];
 }
 
 - (void)setDomManager:(std::weak_ptr<hippy::DomManager>)domManager {
@@ -766,21 +804,27 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     }
     if (_text != text && ![_text isEqualToString:text]) {
         _text = [text copy];
-        [self dirtyText];
+        _needDirtyText = YES;
     }
 }
 
 - (void)setAllowFontScaling:(BOOL)allowFontScaling {
+    if (DirtyTextEqual(_allowFontScaling, allowFontScaling)) {
+        return;
+    }
     _allowFontScaling = allowFontScaling;
     for (NativeRenderObjectView *child in [self subcomponents]) {
         if ([child isKindOfClass:[NativeRenderObjectText class]]) {
             ((NativeRenderObjectText *)child).allowFontScaling = allowFontScaling;
         }
     }
-    [self dirtyText];
+    _needDirtyText = YES;
 }
 
 - (void)setFontSizeMultiplier:(CGFloat)fontSizeMultiplier {
+    if (DirtyTextEqual(_fontSizeMultiplier, fontSizeMultiplier)) {
+        return;
+    }
     _fontSizeMultiplier = fontSizeMultiplier;
     if (_fontSizeMultiplier == 0) {
         HPLogError(@"fontSizeMultiplier value must be > zero.");
@@ -795,10 +839,13 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
 }
 
 - (void)setMinimumFontScale:(CGFloat)minimumFontScale {
+    if (DirtyTextEqual(_minimumFontScale, minimumFontScale)) {
+        return;
+    }
     if (minimumFontScale >= 0.01) {
         _minimumFontScale = minimumFontScale;
     }
-    [self dirtyText];
+    _needDirtyText = YES;
 }
 
 - (void)didUpdateNativeRenderSubviews {

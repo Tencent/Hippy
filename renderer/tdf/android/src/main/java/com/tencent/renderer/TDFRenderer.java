@@ -76,7 +76,8 @@ public class TDFRenderer extends Renderer implements RenderProxy {
         mFrameworkProxy = proxy;
     }
 
-    @NonNull @Override public View createRootView(@NonNull Context context) {
+    @NonNull @Override
+    public View createRootView(@NonNull Context context) {
         if (mVfsManager == null) {
             mVfsManager = mFrameworkProxy.getVfsManager();
             registerUriLoader(mInstanceId, mVfsManager.getId());
@@ -96,6 +97,14 @@ public class TDFRenderer extends Renderer implements RenderProxy {
         return mRootView;
     }
 
+    @Nullable @Override
+    public View getRootView(int rootId) {
+        return mRootView;
+    }
+
+    @Nullable @Override
+    public View findViewById(int rootId, int nodeId) { return null; }
+
     @Override
     public void onResume() { }
 
@@ -109,6 +118,9 @@ public class TDFRenderer extends Renderer implements RenderProxy {
             mControllers.addAll(controllers);
         }
     }
+
+    @Override
+    public void addControllers(@NonNull List<Class<?>> controllers) { }
 
     @Override
     public void destroyRoot(int rootId) {
@@ -150,7 +162,7 @@ public class TDFRenderer extends Renderer implements RenderProxy {
         assert (mControllerManager == null);
         mControllerManager = new ControllerManager(renderer);
         mControllerManager.addRootView(rootView);
-        mControllerManager.init(controllers);
+        mControllerManager.initControllers(controllers);
 
         for (Class cls : controllers) {
             HippyController hippyNativeModule = (HippyController) cls

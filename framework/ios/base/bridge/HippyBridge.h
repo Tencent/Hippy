@@ -179,7 +179,7 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)enqueueJSCall:(NSString *)moduleDotMethod args:(NSArray *)args;
 - (void)enqueueJSCall:(NSString *)module method:(NSString *)method
                  args:(NSArray *)args
-           completion:(dispatch_block_t)completion;
+           completion:(dispatch_block_t _Nullable)completion;
 
 - (void)immediatelyCallTimer:(NSNumber *)timer;
 
@@ -187,7 +187,9 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 - (void)registerModuleForFrameUpdates:(id<HippyBridgeModule>)module withModuleData:(HippyModuleData *)moduleData;
 
-- (void)handleBuffer:(id)buffer batchEnded:(BOOL)batchEnded;
+- (void)handleBuffer:(id _Nullable)buffer batchEnded:(BOOL)batchEnded;
+
+- (void)setInspectable:(BOOL)isInspectable;
 
 /**
  * All registered bridge module classes.

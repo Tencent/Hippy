@@ -54,6 +54,8 @@ hippy::LayoutSize textMeasureFunc(float width, hippy::LayoutMeasureMode widthMea
     CGFloat _effectiveLetterSpacing;
     BOOL _textAlignSet;
     CGFloat _maximumFontLineHeight;
+    BOOL _isTextDirty;
+    BOOL _needDirtyText;
 }
 
 @property (nonatomic, strong) UIColor *color;

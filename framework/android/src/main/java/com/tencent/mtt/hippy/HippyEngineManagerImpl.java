@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.openhippy.connector.DomManager;
 import com.openhippy.connector.JsDriver;
+import com.openhippy.connector.NativeRenderConnector;
 import com.openhippy.connector.RenderConnector;
 import com.openhippy.framework.BuildConfig;
 import com.tencent.devtools.DevtoolsManager;
@@ -51,6 +52,7 @@ import com.tencent.mtt.hippy.modules.nativemodules.deviceevent.DeviceEventModule
 import com.tencent.mtt.hippy.uimanager.HippyCustomViewCreator;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorGroup;
 import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorGroupType;
@@ -404,7 +406,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
     @MainThread
     @Override
-    public void destroyModule(@NonNull ViewGroup rootView, @NonNull Callback<Boolean> callback) {
+    public void destroyModule(@Nullable ViewGroup rootView, @NonNull Callback<Boolean> callback) {
+        if (rootView == null) {
+            callback.callback(true, null);
+            return;
+        }
         int rootId = rootView.getId();
         if (mDestroyModuleListeners == null) {
             mDestroyModuleListeners = new HashMap<>();
@@ -526,16 +532,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             LogUtils.d(TAG, "preload bundle loader");
             preloadModule(mPreloadBundleLoader);
         }
-        if (UIThreadUtils.isOnUiThread()) {
-            onEngineInitialized(statusCode, error);
-        } else {
-            UIThreadUtils.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    onEngineInitialized(statusCode, error);
-                }
-            });
-        }
+        onEngineInitialized(statusCode, error);
     }
 
     private void onEngineInitialized(EngineInitStatus statusCode, Throwable error) {
@@ -769,7 +766,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         public void onRuntimeInitialized() {
             mJsDriver.attachToDom(mDomManager);
             if (mRootView != null && (mDebugMode || BuildConfig.DEBUG)) {
-                mDomManager.createRoot(mRootView);
+                mDomManager.createRoot(mRootView, PixelUtil.getDensity());
                 mDomManager.attachToRoot(mRootView);
                 mJsDriver.attachToRoot(mRootView);
                 if (mDevtoolsManager != null) {
@@ -891,6 +888,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
         @Override
         public void onInstanceDestroy(int rootId) {
+            mDomManager.releaseRoot(rootId);
+            mDomManager.destroyRoot(rootId);
+            mRenderer.destroyRoot(rootId);
             if (mDestroyModuleListeners != null) {
                 Callback<Boolean> callback = mDestroyModuleListeners.get(rootId);
                 if (callback != null) {
@@ -898,9 +898,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 }
                 mDestroyModuleListeners.remove(rootId);
             }
-            mDomManager.releaseRoot(rootId);
-            mDomManager.destroyRoot(rootId);
-            mRenderer.destroyRoot(rootId);
         }
 
         @Override
@@ -947,8 +944,14 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
         @Override
         public View getRootView(int rootId) {
-            return (mRenderer instanceof com.openhippy.connector.NativeRenderer)
-                    ? ((com.openhippy.connector.NativeRenderer) mRenderer).getRootView(rootId)
+            return (mRenderer instanceof NativeRenderConnector)
+                    ? ((NativeRenderConnector) mRenderer).getRootView(rootId) : null;
+        }
+
+        @Nullable
+        public View findViewById(int nodeId) {
+            return (mRenderer instanceof NativeRenderConnector && mRootView != null)
+                    ? ((NativeRenderConnector) mRenderer).findViewById(mRootView.getId(), nodeId)
                     : null;
         }
 
@@ -956,7 +959,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         public View createRootView(@NonNull Context context) {
             View rootView = mRenderer.createRootView(context);
             if (rootView != null) {
-                mDomManager.createRoot(rootView);
+                mDomManager.createRoot(rootView, PixelUtil.getDensity());
                 mDomManager.attachToRoot(rootView);
                 mJsDriver.attachToRoot(rootView);
                 if (mDevtoolsManager != null) {

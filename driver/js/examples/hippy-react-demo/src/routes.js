@@ -8,141 +8,164 @@ const PAGE_LIST = {
   ...externals,
 };
 
+export const Type = {
+  TITLE: 0,
+  COMPONENT: 1,
+  MODULE: 2,
+  OTHER: 3,
+};
+
 export default [
   {
-    path: '/View',
-    name: 'View 组件',
-    component: PAGE_LIST.View,
+    path: '/Components',
+    name: 'Componemts',
     meta: {
-      style: 1,
+      type: Type.TITLE,
+      mapType: Type.COMPONENT,
     },
   },
   {
-    path: '/BoxShadow',
-    name: 'BoxShadow 范例',
-    component: PAGE_LIST.BoxShadow,
+    path: '/View',
+    name: '<View> 组件',
+    component: PAGE_LIST.View,
     meta: {
-      style: 1,
+      type: Type.COMPONENT,
     },
   },
   {
     path: '/Clipboard',
-    name: 'Clipboard 组件',
+    name: '<Clipboard> 组件',
     component: PAGE_LIST.Clipboard,
     meta: {
-      style: 1,
+      type: Type.COMPONENT,
     },
   },
   {
     path: '/Text',
-    name: 'Text 组件',
+    name: '<Text> 组件',
     component: PAGE_LIST.Text,
     meta: {
-      style: 1,
+      type: Type.COMPONENT,
     },
   },
   {
     path: '/Image',
-    name: 'Image 组件',
+    name: '<Image> 组件',
     component: PAGE_LIST.Image,
     meta: {
-      style: 1,
+      type: Type.COMPONENT,
     },
   },
   {
     path: '/ListView',
-    name: 'ListView 组件',
+    name: '<ListView> 组件',
     component: PAGE_LIST.ListView,
     meta: {
-      style: 1,
+      type: Type.COMPONENT,
     },
   },
   {
     path: '/WaterfallView',
-    name: 'WaterfallView 组件',
+    name: '<WaterfallView> 组件',
     component: PAGE_LIST.WaterfallView,
     meta: {
-      style: 1,
+      type: Type.COMPONENT,
     },
   },
   {
     path: '/PullHeader',
-    name: 'PullHeader/Footer组件',
+    name: '<PullHeader/Footer> 组件',
     component: PAGE_LIST.PullHeaderFooter,
     meta: {
-      style: 1,
+      type: Type.COMPONENT,
     },
   },
   {
     path: '/RefreshWrapper',
-    name: 'RefreshWrapper 组件',
+    name: '<RefreshWrapper> 组件',
     component: PAGE_LIST.RefreshWrapper,
     meta: {
-      style: 1,
+      type: Type.COMPONENT,
     },
   },
   {
     path: '/ScrollView',
-    name: 'ScrollView 组件',
+    name: '<ScrollView> 组件',
     component: PAGE_LIST.ScrollView,
     meta: {
-      style: 1,
+      type: Type.COMPONENT,
     },
   },
   {
     path: '/ViewPager',
-    name: 'ViewPager 组件',
+    name: '<ViewPager> 组件',
     component: PAGE_LIST.ViewPager,
     meta: {
-      style: 1,
+      type: Type.COMPONENT,
     },
   },
   {
     path: '/TextInput',
-    name: 'TextInput 组件',
+    name: '<TextInput> 组件',
     component: PAGE_LIST.TextInput,
     meta: {
-      style: 1,
+      type: Type.COMPONENT,
     },
   },
   {
     path: '/Modal',
-    name: 'Modal 组件',
+    name: '<Modal> 组件',
     component: PAGE_LIST.Modal,
     meta: {
-      style: 1,
+      type: Type.COMPONENT,
     },
   },
   {
     path: '/Slider',
-    name: 'Slider 组件',
+    name: '<Slider> 组件',
     component: PAGE_LIST.Slider,
     meta: {
-      style: 1,
+      type: Type.COMPONENT,
     },
   },
   {
     path: '/TabHost',
-    name: 'TabHost 组件',
+    name: '<TabHost> 组件',
     component: PAGE_LIST.TabHost,
     meta: {
-      style: 1,
+      type: Type.COMPONENT,
     },
   },
   {
     path: '/WebView',
-    name: 'WebView 组件',
+    name: '<WebView> 组件',
     component: PAGE_LIST.WebView,
     meta: {
-      style: 1,
+      type: Type.COMPONENT,
     },
   },
   {
     path: '/RippleViewAndroid',
-    name: 'RippleViewAndroid 组件',
+    name: '<RippleViewAndroid> 组件',
     component: PAGE_LIST.RippleViewAndroid,
     meta: {
-      style: 1,
+      type: Type.COMPONENT,
+    },
+  },
+  {
+    path: '/Moduels',
+    name: 'Modules',
+    meta: {
+      type: Type.TITLE,
+      mapType: Type.MODULE,
+    },
+  },
+  {
+    path: '/Animation',
+    name: 'Animation 模块',
+    component: PAGE_LIST.Animation,
+    meta: {
+      type: Type.MODULE,
     },
   },
   {
@@ -150,23 +173,15 @@ export default [
     name: 'WebSocket 模块',
     component: PAGE_LIST.WebSocket,
     meta: {
-      style: 2,
-    },
-  },
-  {
-    path: '/Animation',
-    name: 'Animation 组件',
-    component: PAGE_LIST.Animation,
-    meta: {
-      style: 2,
+      type: Type.MODULE,
     },
   },
   {
     path: '/NetInfo',
-    name: 'Network 能力',
+    name: 'Network 模块',
     component: PAGE_LIST.NetInfo,
     meta: {
-      style: 2,
+      type: Type.MODULE,
     },
   },
   {
@@ -174,39 +189,63 @@ export default [
     name: 'UIManagerModule 模块',
     component: PAGE_LIST.UIManagerModule,
     meta: {
-      style: 2,
+      type: Type.MODULE,
+    },
+  },
+  {
+    path: '/Others',
+    name: 'Others',
+    meta: {
+      type: Type.TITLE,
+      mapType: Type.OTHER,
+    },
+  },
+  {
+    path: '/NestedScroll',
+    name: 'NestedScroll 范例',
+    component: PAGE_LIST.NestedScroll,
+    meta: {
+      type: Type.OTHER,
+    },
+  },
+  {
+    path: '/BoxShadow',
+    name: 'BoxShadow 范例',
+    component: PAGE_LIST.BoxShadow,
+    meta: {
+      type: Type.OTHER,
     },
   },
   {
     path: '/SetNativeProps',
-    name: 'setNativeProps能力',
+    name: 'setNativeProps 范例',
     component: PAGE_LIST.SetNativeProps,
     meta: {
-      style: 2,
+      type: Type.OTHER,
     },
   },
   {
     path: '/DynamicImport',
-    name: 'DynamicImport 能力',
+    name: 'DynamicImport 范例',
     component: PAGE_LIST.DynamicImport,
     meta: {
-      style: 2,
+      type: Type.OTHER,
     },
   },
   {
     path: '/Localization',
-    name: 'Localization 信息',
+    name: 'Localization 范例',
     component: PAGE_LIST.Localization,
     meta: {
-      style: 2,
+      type: Type.OTHER,
     },
   },
   {
     path: '/Turbo',
-    name: 'Turbo',
+    name: 'Turbo 范例',
     component: PAGE_LIST.Turbo,
     meta: {
-      style: 2,
+      type: Type.OTHER,
     },
   },
 ];

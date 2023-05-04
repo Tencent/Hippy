@@ -58,7 +58,7 @@ import Native, { HippyRegister } from './native';
 import * as iPhone from './iphone';
 import * as platformDirectives from './directives';
 
-const componentName = ['%c[Hippy-Vue process.env.HIPPY_VUE_VERSION]%c', 'color: #4fc08d; font-weight: bold', 'color: auto; font-weight: auto'];
+const LOG_TYPE = ['%c[Hippy-Vue process.env.HIPPY_VUE_VERSION]%c', 'color: #4fc08d; font-weight: bold', 'color: auto; font-weight: auto'];
 
 // Install document
 const documentNode = new DocumentNode();
@@ -137,7 +137,7 @@ Vue.prototype.$start = function $start(afterCallback, beforeCallback) {
     const { __instanceId__: rootViewId } = superProps;
     this.$options.$superProps = superProps;
     this.$options.rootViewId = rootViewId;
-    trace(...componentName, 'Start', this.$options.appName, 'with rootViewId', rootViewId, superProps);
+    trace(...LOG_TYPE, 'Start', this.$options.appName, 'with rootViewId', rootViewId, superProps);
     // Destroy the old instance and set the new one when restart the app
     if (this.$el) {
       this.$destroy();

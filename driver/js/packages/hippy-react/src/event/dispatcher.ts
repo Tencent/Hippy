@@ -153,7 +153,7 @@ function receiveComponentEvent(nativeEvent: NativeEvent, domEvent: HippyTypes.DO
     warn(...componentName, 'receiveComponentEvent', 'nativeEvent or domEvent not exist');
     return;
   }
-  const { id, currentId, nativeName, originalName, params } = nativeEvent;
+  const { id, currentId, nativeName, originalName, params = {} } = nativeEvent;
   const currentTargetNode = getFiberNodeFromId(currentId);
   const targetNode = getFiberNodeFromId(id);
   if (!currentTargetNode || !targetNode) {

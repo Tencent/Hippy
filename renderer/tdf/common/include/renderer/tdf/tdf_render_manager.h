@@ -71,7 +71,8 @@ class TDFRenderManager
   void MoveRenderNode(std::weak_ptr<RootNode> root_node,
                       std::vector<int32_t> &&moved_ids,
                       int32_t from_pid,
-                      int32_t to_pid) override;
+                      int32_t to_pid,
+                      int32_t index) override;
   void EndBatch(std::weak_ptr<RootNode> root_node) override;
   void BeforeLayout(std::weak_ptr<RootNode> root_node) override;
   void AfterLayout(std::weak_ptr<RootNode> root_node) override;
