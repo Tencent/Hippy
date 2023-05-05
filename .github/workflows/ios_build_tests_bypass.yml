@@ -21,7 +21,6 @@ on:
       - 'modules/vfs/native/**'
       - 'renderer/native/ios/**'
       - 'devtools/devtools-backend/**'
-      - 'HippySDK.xcworkspace/**'
       - 'hippy.podspec'
 
 concurrency:
@@ -33,8 +32,7 @@ jobs:
     runs-on: ubuntu-latest # use ubuntu to replace macos in order to save macos resources and improve efficiency
     strategy:
       matrix:
-        type: [debug, release]
-        target: [sdk, demo]
+        type: [Debug, Release]
     steps:
     - name: Build Test Bypass
       run: |
