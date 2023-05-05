@@ -196,26 +196,6 @@ Vue.Native.AsyncStorage.getItem('itemKey');
 
 ---
 
-# Clipboard
-
-剪贴板读写模块，但是目前只支持纯文本。
-
-## 方法
-
-### getString()
-
-返回值：
-
-* string
-
-### setString(content)
-
-| 参数 | 类型     | 必需 | 参数意义 |
-| --------  | -------- | -------- |  -------- |
-| content | string | 是       | 保存进入剪贴板的内容 |
-
----
-
 # ConsoleModule
 
 > 最低支持版本 2.10.0

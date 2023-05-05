@@ -26,14 +26,6 @@ export default [
     },
   },
   {
-    path: '/Clipboard',
-    name: 'Clipboard 组件',
-    component: PAGE_LIST.Clipboard,
-    meta: {
-      style: 1,
-    },
-  },
-  {
     path: '/Text',
     name: 'Text 组件',
     component: PAGE_LIST.Text,

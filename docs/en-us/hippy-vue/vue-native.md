@@ -196,26 +196,6 @@ Invoke a native method defined by a component
 
 ---
 
-# Clipboard
-
-Clipboard read-write module, but currently only supports plain text.
-
-## Methods
-
-### getString()
-
-return value:
-
-* string
-
-### setString(content)
-
-| Props | Type     | Require | Description |
-| --------  | -------- | -------- |  -------- |
-| content | string | yes       | Saved contents of the clipboard |
-
----
-
 # ConsoleModule
 
 > Minimum Supported Version 2.10.0
