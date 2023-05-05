@@ -72,49 +72,54 @@ void UIManagerModule::CallUIFunction(CallbackInfo& info, void* data) {
   hippy::CallFunctionCallback cb = nullptr;
   bool flag = context->IsFunction(info[3]);
   if (flag) {
-    auto func = info[3];
-    std::weak_ptr<Ctx> weak_context = context;
-    std::weak_ptr<CtxValue> weak_func = func;
-    std::weak_ptr<TaskRunner> weak_runner = scope->GetTaskRunner();
-    cb = [weak_context, weak_func, weak_runner](const std::shared_ptr<DomArgument> &argument) -> void {
-      auto runner = weak_runner.lock();
-      if (runner) {
-        auto cb = [weak_context, weak_func, argument]() {
-          auto context = weak_context.lock();
-          if (!context) {
-            return;
-          }
-
-          auto func = weak_func.lock();
-          if (!func) {
-            return;
-          }
-
-          HippyValue value;
-          bool flag = argument->ToObject(value);
-          if (flag) {
-            auto param = hippy::CreateCtxValue(
-                context, std::make_shared<HippyValue>(std::move(value)));
-            if (param) {
-              const std::shared_ptr<CtxValue> argus[] = {param};
-              context->CallFunction(func, 1, argus);
-            } else {
-              const std::shared_ptr<CtxValue> argus[] = {};
-              context->CallFunction(func, 0, argus);
-            }
-            return;
-          } else {
-            context->ThrowException(string_view("param ToObject failed"));
-          }
-        };
-        runner->PostTask(std::move(cb));
+    auto function = info[3];
+    std::weak_ptr<Scope> weak_scope = scope;
+    std::weak_ptr<CtxValue> weak_function = function;
+    auto callback_id = scope->AddCallUIFunctionCallback(function);
+    cb = [weak_scope, weak_function, callback_id](const std::shared_ptr<DomArgument> &argument) -> void {
+      auto scope = weak_scope.lock();
+      if (!scope) {
+        return;
       }
+      auto cb = [weak_scope, weak_function, argument, callback_id]() {
+        auto scope  = weak_scope.lock();
+        if (!scope) {
+          return;
+        }
+
+        auto function = weak_function.lock();
+        if (!function) {
+          return;
+        }
+
+        auto context = scope->GetContext();
+        HippyValue value;
+        bool flag = argument->ToObject(value);
+        if (flag) {
+          auto param = hippy::CreateCtxValue(
+              context, std::make_shared<HippyValue>(std::move(value)));
+          if (param) {
+            const std::shared_ptr<CtxValue> argus[] = {param};
+            context->CallFunction(function, 1, argus);
+          } else {
+            const std::shared_ptr<CtxValue> argus[] = {};
+            context->CallFunction(function, 0, argus);
+          }
+        } else {
+          context->ThrowException(string_view("param ToObject failed"));
+        }
+        scope->removeCallUIFunctionCallback(callback_id);
+      };
+      auto runner = scope->GetTaskRunner();
+      FOOTSTONE_CHECK(runner);
+      runner->PostTask(std::move(cb));
     };
   }
   auto dom_manager = scope->GetDomManager().lock();
-  if (dom_manager) {
-    dom_manager->CallFunction(scope->GetRootNode(), static_cast<uint32_t>(id), name, param_value, cb);
+  if (!dom_manager) {
+    return;
   }
+  dom_manager->CallFunction(scope->GetRootNode(), static_cast<uint32_t>(id), name, param_value, cb);
 }
 
 std::shared_ptr<CtxValue> UIManagerModule::BindFunction(std::shared_ptr<Scope> scope,

@@ -227,6 +227,20 @@ class Scope : public std::enable_shared_from_this<Scope> {
   void LoadInstance(const std::shared_ptr<HippyValue>& value);
   void UnloadInstance(const std::shared_ptr<HippyValue>& value);
 
+  inline uint32_t AddCallUIFunctionCallback(const std::shared_ptr<CtxValue>& callback) {
+    call_ui_function_callback_id_ += 1;
+    call_ui_function_callback_holder_[call_ui_function_callback_id_] = callback;
+    return call_ui_function_callback_id_;
+  }
+
+  inline void removeCallUIFunctionCallback(uint32_t id) {
+    auto it = call_ui_function_callback_holder_.find(id);
+    FOOTSTONE_DCHECK(it != call_ui_function_callback_holder_.end());
+    if (it != call_ui_function_callback_holder_.end()) {
+      call_ui_function_callback_holder_.erase(it);
+    }
+  }
+
   inline void AddTask(std::unique_ptr<Task> task) {
     auto runner = GetTaskRunner();
     if (runner) {
@@ -375,6 +389,8 @@ class Scope : public std::enable_shared_from_this<Scope> {
   std::shared_ptr<Ctx> context_;
   std::string name_;
   std::unique_ptr<RegisterMap> map_;
+  uint32_t call_ui_function_callback_id_;
+  std::unordered_map<uint32_t, std::shared_ptr<CtxValue>> call_ui_function_callback_holder_;
   std::unordered_map<uint32_t, std::unordered_map<std::string, std::unordered_map<uint64_t, std::shared_ptr<CtxValue>>>>
       bind_listener_map_; // bind js function and dom event listener id
   std::unique_ptr<ScopeWrapper> wrapper_;
