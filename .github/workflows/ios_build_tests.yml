@@ -21,7 +21,6 @@ on:
       - 'modules/vfs/native/**'
       - 'renderer/native/ios/**'
       - 'devtools/devtools-backend/**'
-      - 'HippySDK.xcworkspace/**'
       - 'hippy.podspec'
 
 env:
@@ -54,7 +53,7 @@ jobs:
     strategy:
       matrix:
         type: [debug, release]
-        target: [sdk, demo]
+        target: [demo]
         include:
           - type: debug
             configuration: Debug
@@ -71,13 +70,6 @@ jobs:
         with:
           spec: framework/examples/ios-demo/project.yml
           version: '2.32.0'
-      - name: SDK
-        # if: matrix.target == 'sdk'
-        # run: |
-        #   ${{ env.BUILD_FUNCTION }}
-
-        #   ./xcodeinitscript.sh
-        #   build 'HippySDK.xcworkspace' '${{ matrix.configuration }}'
       - name: Demo
         if: matrix.target == 'demo'
         working-directory: framework/examples/ios-demo

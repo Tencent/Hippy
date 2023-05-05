@@ -21,7 +21,6 @@ on:
       - 'modules/vfs/native/**'
       - 'renderer/native/ios/**'
       - 'devtools/devtools-backend/**'
-      - 'HippySDK.xcworkspace/**'
       - 'hippy.podspec'
 
 concurrency:
@@ -34,7 +33,7 @@ jobs:
     strategy:
       matrix:
         type: [debug, release]
-        target: [sdk, demo]
+        target: [demo]
     steps:
     - name: Build Test Bypass
       run: |
