@@ -73,7 +73,8 @@
 }
 
 - (void)setUpNativeRenderManager {
-    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:_engineKey];
+    NSString *engineKey = _engineKey?:[NSString stringWithFormat:@"%p", self];
+    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:engineKey];
     auto domManager = engineResource->GetDomManager();
     //Create NativeRenderManager
     _nativeRenderManager = std::make_shared<NativeRenderManager>();

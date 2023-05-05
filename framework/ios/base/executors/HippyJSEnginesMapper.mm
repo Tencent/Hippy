@@ -22,6 +22,7 @@
 
 #import "HippyJSEnginesMapper.h"
 #import "HPLog.h"
+#import "HPAsserts.h"
 
 #include "dom/dom_manager.h"
 #include "driver/engine.h"
@@ -100,6 +101,7 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
 
 - (std::shared_ptr<EngineResource>)JSEngineResourceForKey:(NSString *)key {
     std::lock_guard<std::mutex> lock(_mutex);
+    HPAssertParam(key);
     const auto it = _engineMapper.find([key UTF8String]);
     bool findIT = (_engineMapper.end() != it);
     if (findIT) {
