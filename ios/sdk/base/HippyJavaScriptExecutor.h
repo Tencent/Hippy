@@ -69,6 +69,8 @@ typedef void (^HippyJavaScriptCallback)(id result, NSError *error);
  */
 - (void)flushedQueue:(HippyJavaScriptCallback)onComplete;
 
+- (void)setInspectable:(BOOL)inspectable;
+
 /**
  * called when second bundle load
  */
