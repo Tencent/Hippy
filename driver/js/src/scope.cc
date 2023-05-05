@@ -119,7 +119,8 @@ Scope::Scope(std::weak_ptr<Engine> engine,
     : engine_(std::move(engine)),
       context_(nullptr),
       name_(std::move(name)),
-      map_(std::move(map)) {}
+      map_(std::move(map)),
+      call_ui_function_callback_id_(0) {}
 
 Scope::~Scope() {
   FOOTSTONE_DLOG(INFO) << "~Scope";
