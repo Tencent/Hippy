@@ -187,8 +187,8 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
   TimeDelta delay = TimeDelta::FromMilliseconds(static_cast<int64_t>(std::max(.0, number)));
 
   std::weak_ptr<Scope> weak_scope = scope;
-  std::unique_ptr<Task> task = std::make_unique<Task>();
-  uint32_t task_id = task->GetId();
+  auto task = std::make_unique<Task>();
+  auto task_id = task->GetId();
   std::weak_ptr<std::unordered_map<uint32_t , std::shared_ptr<BaseTimer>>> weak_timer_map = timer_map_;
   task->SetExecUnit([weak_scope, function, task_id, repeat, weak_timer_map] {
     auto scope = weak_scope.lock();
