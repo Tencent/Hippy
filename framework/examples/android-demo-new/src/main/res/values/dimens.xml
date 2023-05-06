@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="page_index_item_margin">16dp</dimen>
+    <dimen name="page_item_add_image_width">38dp</dimen>
+    <dimen name="page_item_add_image_height">38dp</dimen>
+
+</resources>
