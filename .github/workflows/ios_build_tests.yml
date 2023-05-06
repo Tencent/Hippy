@@ -22,27 +22,7 @@ on:
       - 'renderer/native/ios/**'
       - 'devtools/devtools-backend/**'
       - 'hippy.podspec'
-
-env:
-  BUILD_FUNCTION: |
-    function build {
-      xcodebuild -workspace "$1" -list | \
-      sed -n '/Schemes/,/^$/p' | \
-      grep -v "Schemes:" | \
-      grep -v '^\s*$' | \
-      while read scheme; do
-        echo "Building $scheme ..."
-        xcodebuild build \
-          -destination "generic/platform=iOS" \
-          -workspace "$1" \
-          -scheme "$scheme" \
-          -configuration "$2" \
-          CODE_SIGN_IDENTITY="" \
-          CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO
-      done
-    }
-
+      
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
@@ -52,28 +32,18 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        type: [debug, release]
-        target: [demo]
-        include:
-          - type: debug
-            configuration: Debug
-          - type: release
-            configuration: Release
+        type: [Debug, Release]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           lfs: true
       - name: Xcodegen
-        if: matrix.target == 'demo'
         uses: xavierLowmiller/xcodegen-action@1.1.2
         with:
           spec: framework/examples/ios-demo/project.yml
           version: '2.32.0'
       - name: Demo
-        if: matrix.target == 'demo'
         working-directory: framework/examples/ios-demo
         run: |
-          ${{ env.BUILD_FUNCTION }}
-
-          build 'HippyDemo.xcworkspace' '${{ matrix.configuration }}'
+          xcodebuild build -destination "generic/platform=iOS" -workspace "HippyDemo.xcworkspace" -scheme "HippyDemo" -configuration ${{matrix.type}} CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO 

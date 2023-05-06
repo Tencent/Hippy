@@ -32,8 +32,7 @@ jobs:
     runs-on: ubuntu-latest # use ubuntu to replace macos in order to save macos resources and improve efficiency
     strategy:
       matrix:
-        type: [debug, release]
-        target: [demo]
+        type: [Debug, Release]
     steps:
     - name: Build Test Bypass
       run: |
