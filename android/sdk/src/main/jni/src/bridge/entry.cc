@@ -260,9 +260,6 @@ bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
   load_start = std::chrono::system_clock::now();
   auto engine = runtime->GetEngine();
   auto task_runner = engine->GetWorkerTaskRunner();
-  if (task_runner->IsTerminated()) {
-    return false;
-  }
   unicode_string_view code_cache_path;
   if (is_use_code_cache) {
     if (!asset_manager) {
@@ -289,7 +286,7 @@ bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
       }
       p.set_value(std::move(content));
     });
-    task_runner->PostTask(std::move(task));
+    task_runner->PostPromiseTask(std::move(task));
     u8string content;
     read_script_flag = runtime->GetScope()->GetUriLoader()->RequestUntrustedContent(uri, content);
     if (read_script_flag) {
