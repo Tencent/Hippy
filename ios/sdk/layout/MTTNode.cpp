@@ -1522,14 +1522,14 @@ void MTTNode::calculateFixedItemPosition(MTTNodeRef item, FlexDirection axis) {
 // offset for example: if parent's Fraction offset is 0.3 and current child
 // offset is 0.4 then the child's absolute offset  is 0.7. if use roundf ,
 // roundf(0.7) == 1 so we need absLeft, absTop  parameter
-void MTTNode::convertLayoutResult(float absLeft, float absTop, float scaleFactor) {
+void MTTNode::convertLayoutResult(double absLeft, double absTop, double scaleFactor) {
   if (!hasNewLayout()) {
     return;
   }
-  const float left = result.position[CSSLeft];
-  const float top = result.position[CSSTop];
-  const float width = result.dim[DimWidth];
-  const float height = result.dim[DimHeight];
+  const double left = result.position[CSSLeft];
+  const double top = result.position[CSSTop];
+  const double width = result.dim[DimWidth];
+  const double height = result.dim[DimHeight];
 
   absLeft += left;
   absTop += top;
@@ -1538,12 +1538,12 @@ void MTTNode::convertLayoutResult(float absLeft, float absTop, float scaleFactor
   result.position[CSSTop] = MTTRoundValueToPixelGrid(top, scaleFactor, false, isTextNode);
 
   const bool hasFractionalWidth =
-      !FloatIsEqual(fmodf(width, 1.0), 0) && !FloatIsEqual(fmodf(width, 1.0), 1.0);
+      !DoubleIsEqual(fmodf(width, 1.0), 0) && !DoubleIsEqual(fmodf(width, 1.0), 1.0);
   const bool hasFractionalHeight =
-      !FloatIsEqual(fmodf(height, 1.0), 0) && !FloatIsEqual(fmodf(height, 1.0), 1.0);
+      !DoubleIsEqual(fmodf(height, 1.0), 0) && !DoubleIsEqual(fmodf(height, 1.0), 1.0);
 
-  const float absRight = absLeft + width;
-  const float absBottom = absTop + height;
+  const double absRight = absLeft + width;
+  const double absBottom = absTop + height;
   result.dim[DimWidth] = MTTRoundValueToPixelGrid(absRight, scaleFactor, (isTextNode && hasFractionalWidth),
                                                  (isTextNode && !hasFractionalWidth)) -
                          MTTRoundValueToPixelGrid(absLeft, scaleFactor, false, isTextNode);
