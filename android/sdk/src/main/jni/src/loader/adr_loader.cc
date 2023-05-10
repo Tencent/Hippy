@@ -22,6 +22,7 @@
 
 #include "loader/adr_loader.h"
 
+#include <android/asset_manager_jni.h>
 #include <future>
 
 #include "bridge/runtime.h"
@@ -37,8 +38,8 @@ using u8string = unicode_string_view::u8string;
 using char8_t_ = unicode_string_view::char8_t_;
 
 static std::atomic<int64_t> global_request_id{0};
-
-ADRLoader::ADRLoader() : aasset_manager_(nullptr) {}
+static jclass j_context_holder_class;
+static jmethodID j_get_app_context_method_id;
 
 bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
                                         std::function<void(u8string)> cb) {
@@ -65,7 +66,8 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
   if (schema_str == u"file") {
     return LoadByFile(path, cb);
   } else if (schema_str == u"asset") {
-    if (aasset_manager_) {
+    auto aasset_manager = GetAAssetManager();
+    if (aasset_manager) {
       return LoadByAsset(path, cb, false);
     }
     TDF_BASE_DLOG(ERROR) << "aasset_manager error, uri = " << uri;
@@ -109,8 +111,9 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
     content = read_file_future.get();
     return ret;
   } else if (schema_str == u"asset") {
-    if (aasset_manager_) {
-      return ReadAsset(path, aasset_manager_, content, false);
+    auto aasset_manager = ADRLoader::GetAAssetManager();
+    if (aasset_manager) {
+      return ReadAsset(path, aasset_manager, content, false);
     }
 
     TDF_BASE_DLOG(ERROR) << "aasset_manager error, uri = " << uri;
@@ -119,6 +122,15 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
     TDF_BASE_DLOG(ERROR) << "schema error, schema = " << schema;
     return false;
   }
+}
+
+AAssetManager* ADRLoader::GetAAssetManager() {
+  auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  auto j_context = j_env->CallStaticObjectMethod(j_context_holder_class, j_get_app_context_method_id);
+  auto j_context_class = j_env->GetObjectClass(j_context);
+  auto j_get_assets_method_id = j_env->GetMethodID(j_context_class, "getAssets", "()Landroid/content/res/AssetManager;");
+  auto j_asset_manager = j_env->CallObjectMethod(j_context, j_get_assets_method_id);
+  return AAssetManager_fromJava(j_env, j_asset_manager);
 }
 
 bool ADRLoader::LoadByFile(const unicode_string_view& path,
@@ -147,8 +159,9 @@ bool ADRLoader::LoadByAsset(const unicode_string_view& path,
     return false;
   }
   std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
-  task->func_ = [path, aasset_manager = aasset_manager_, is_auto_fill, cb] {
+  task->func_ = [path, is_auto_fill, cb] {
     u8string ret;
+    auto aasset_manager = GetAAssetManager();
     ReadAsset(path, aasset_manager, ret, is_auto_fill);
     cb(std::move(ret));
   };
@@ -250,4 +263,17 @@ int64_t ADRLoader::SetRequestCB(const std::function<void(u8string)>& cb) {
   int64_t id = global_request_id.fetch_add(1);
   request_map_.insert({id, cb});
   return id;
+}
+
+void ADRLoader::Init() {
+  auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  j_context_holder_class = reinterpret_cast<jclass>(j_env->NewGlobalRef(
+      j_env->FindClass("com/tencent/mtt/hippy/utils/ContextHolder")));
+  j_get_app_context_method_id = j_env->GetStaticMethodID(
+      j_context_holder_class, "getAppContext","()Landroid/content/Context;");
+}
+
+void ADRLoader::Destroy() {
+  auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  j_env->DeleteGlobalRef(j_context_holder_class);
 }
