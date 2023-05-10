@@ -475,22 +475,34 @@ static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProv
             if (!strongSelf) {
                 return;
             }
-            [strongBridge.imageLoader imageView:strongSelf loadAtUrl:source_url placeholderImage:strongSelf.defaultImage context:NULL
-                progress:^(long long currentLength, long long totalLength) {
-                    if (onProgress) {
-                        onProgress(@{@"loaded": @((double)currentLength), @"total": @((double)totalLength)});
-                    }
+            [strongBridge.imageLoader imageView:strongSelf
+                                      loadAtUrl:source_url
+                               placeholderImage:strongSelf.defaultImage
+                                       progress:^(long long currentLength,
+                                                  long long totalLength) {
+                if (onProgress) {
+                    onProgress(@{@"loaded": @((double)currentLength), @"total": @((double)totalLength)});
                 }
-                completed:^(NSData *data, NSURL *url, NSError *error) {
-                    HippyImageView *strongSelf = weakSelf;
-                    if (!strongSelf) {
-                        return;
-                    }
-                    Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(data, strongBridge);
-                    id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:data];
-                    BOOL isAnimatedImage = [ipClass isAnimatedImage:data];
+            }
+                                      completed:^(NSData * _Nullable data,
+                                                  NSURL * _Nonnull url,
+                                                  NSError * _Nullable error,
+                                                  UIImage * _Nullable image,
+                                                  HippyImageCustomLoaderControlOptions options) {
+                HippyImageView *strongSelf = weakSelf;
+                if (!strongSelf) {
+                    return;
+                }
+                
+                Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(data, strongBridge);
+                id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:data];
+                BOOL isAnimatedImage = [ipClass isAnimatedImage:data];
+                if (image && (options & HippyImageCustomLoaderControl_SkipDecodeOrDownsample)) {
+                    [strongSelf loadImage:image url:uri.copy error:nil needBlur:YES needCache:YES];
+                } else {
                     decodeAndLoadImageAsync(strongSelf, instance, uri.copy, isAnimatedImage, nil);
-                }];
+                }
+            }];
         };
 
         if (strongBridge.imageLoader && source_url) {
