@@ -269,14 +269,16 @@ dispatch_queue_t HippyBridgeQueue() {
             _javaScriptExecutor.contextName = _contextName;
         }
         _displayLink = [[HippyDisplayLink alloc] init];
-        dispatch_async(HippyBridgeQueue(), ^{
+        //The caller may attempt to look up a module immediately after creating the HippyBridge,
+        //therefore the initialization of all modules cannot be placed in a sub-thread
+//        dispatch_async(HippyBridgeQueue(), ^{
             [self initWithModulesCompletion:^{
                 HippyBridge *strongSelf = weakSelf;
                 if (strongSelf) {
                     dispatch_semaphore_signal(strongSelf.moduleSemaphore);
                 }
             }];
-        });
+//        });
     } @catch (NSException *exception) {
         HippyBridgeHandleException(exception, self);
     }
