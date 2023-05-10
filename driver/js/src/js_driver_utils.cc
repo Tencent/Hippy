@@ -61,15 +61,18 @@ using WorkerManager = footstone::runner::WorkerManager;
 using string_view = footstone::string_view;
 using u8string = string_view::u8string;
 using Ctx = hippy::Ctx;
-using V8Ctx = hippy::V8Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using Deserializer = footstone::value::Deserializer;
 using HippyValue = footstone::value::HippyValue;
 using HippyFile = hippy::vfs::HippyFile;
-using V8VM = hippy::V8VM;
 using VMInitParam = hippy::VM::VMInitParam;
 using ScopeWrapper = hippy::ScopeWrapper;
 using CallbackInfo = hippy::CallbackInfo;
+
+#ifdef JS_V8
+using V8VM = hippy::V8VM;
+using V8Ctx = hippy::V8Ctx;
+#endif
 
 constexpr char kBridgeName[] = "hippyBridge";
 constexpr char kWorkerRunnerName[] = "hippy_worker";
@@ -78,7 +81,7 @@ constexpr char kHippyKey[] = "Hippy";
 constexpr char kNativeGlobalKey[] = "__HIPPYNATIVEGLOBAL__";
 constexpr char kCallHostKey[] = "hippyCallNatives";
 
-#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+#if defined(JS_V8) && defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
 #endif
 
@@ -185,7 +188,7 @@ void CreateScopeAndAsyncInitialize(const std::shared_ptr<Engine>& engine,
     RegisterGlobalObjectAndGlobalConfig(scope, global_config);
     scope->SyncInitialize();
     RegisterCallHostObject(scope, call_host_callback);
-#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+#if defined(JS_V8) && defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
     auto engine = scope->GetEngine().lock();
     FOOTSTONE_CHECK(engine);
     auto vm = std::static_pointer_cast<V8VM>(engine->GetVM());
@@ -204,7 +207,7 @@ void CreateScopeAndAsyncInitialize(const std::shared_ptr<Engine>& engine,
 }
 
 void InitDevTools(const std::shared_ptr<Scope>& scope, const std::shared_ptr<VM>& vm) {
-#ifdef ENABLE_INSPECTOR
+#if defined(JS_V8) && defined(ENABLE_INSPECTOR)
   if (vm->IsDebug()) {
     auto v8_vm = std::static_pointer_cast<V8VM>(vm);
     scope->SetDevtoolsDataSource(v8_vm->GetDevtoolsDataSource());
@@ -354,7 +357,7 @@ void JsDriverUtils::DestroyInstance(const std::shared_ptr<Engine>& engine,
                                     const std::function<void(bool)>& callback,
                                     bool is_reload) {
   auto scope_destroy_callback = [engine, scope, is_reload, callback] {
-#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+#if defined(JS_V8) && defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
     auto v8_vm = std::static_pointer_cast<V8VM>(engine->GetVM());
     if (v8_vm->IsDebug()) {
       auto inspector_client = v8_vm->GetInspectorClient();
@@ -448,16 +451,16 @@ void JsDriverUtils::CallJs(const string_view& action,
         cb(CALL_FUNCTION_CB_STATE::DESERIALIZER_FAILED, msg);
         return;
       }
-#elif
-#error unimplemented
-#endif
     } else {
+#endif
       std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]),
                          buffer_data_.length() / sizeof(char16_t));
       string_view buf_str(std::move(str));
       FOOTSTONE_DLOG(INFO) << "action = " << action << ", buf_str = " << buf_str;
       params = vm->ParseJson(context, buf_str);
+#ifdef JS_V8
     }
+#endif
     if (!params) {
       params = context->CreateNull();
     }
@@ -530,8 +533,6 @@ void JsDriverUtils::CallNative(hippy::napi::CallbackInfo& info, const std::funct
     if (v8_vm->IsEnableV8Serialization()) {
       auto v8_ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(context);
       buffer_data = v8_ctx->GetSerializationBuffer(info[3], v8_vm->GetBuffer());
-#else
-    #error unimplemented
 #endif
     } else {
       string_view json;
@@ -540,7 +541,9 @@ void JsDriverUtils::CallNative(hippy::napi::CallbackInfo& info, const std::funct
       FOOTSTONE_DLOG(INFO) << "CallJava json = " << json;
       buffer_data = StringViewUtils::ToStdString(
           StringViewUtils::ConvertEncoding(json, string_view::Encoding::Utf8).utf8_value());
+#ifdef JS_V8
     }
+#endif
   }
 
   int32_t transfer_type = 0;
