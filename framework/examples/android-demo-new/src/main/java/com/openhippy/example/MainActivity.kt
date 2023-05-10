@@ -15,14 +15,21 @@
 
 package com.openhippy.example
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.WindowInsetsControllerCompat
+
+lateinit var mainActivityContext: Context
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,11 +37,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        appContext = applicationContext
+        mainActivityContext = this
         WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
         activityMainRoot = layoutInflater.inflate(R.layout.activity_main, null)
-        intPageMain()
         intPageIndexScrollerView()
+        intPageMain()
         setContentView(activityMainRoot)
     }
 
@@ -79,7 +86,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun intPageIndexScrollerView() {
         scrollerView = ScrollView(this)
-        scrollerView?.setBackgroundColor(resources.getColor(R.color.home_background))
+        scrollerView.setBackgroundColor(resources.getColor(R.color.home_background))
+        val constraintLayout = ConstraintLayout(this)
+        constraintLayout.id = pageItemIdCounter.getAndIncrement()
+        val layoutParams = ConstraintLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+        constraintLayout.setPadding(
+            0,
+            0,
+            0,
+            resources.getDimension(R.dimen.page_index_item_margin).toInt()
+        )
+        scrollerView.addView(constraintLayout, layoutParams)
     }
 
 }

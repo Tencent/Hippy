@@ -16,15 +16,20 @@
 package com.openhippy.example
 
 import android.app.Dialog
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowInsetsControllerCompat
+import com.tencent.mtt.hippy.HippyEngine
+import com.tencent.mtt.hippy.utils.LogUtils
 
 
 class PageConfiguration : AppCompatActivity(), View.OnClickListener {
@@ -38,9 +43,13 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
     }
 
     private lateinit var pageConfigurationRoot: View
+    private lateinit var pageConfigurationContainer: View
+    private lateinit var pageConfigurationTitle: View
     private lateinit var driverSettingText: View
     private lateinit var rendererSettingText: View
+    private var hippyEngineWrapper: HippyEngineWrapper? = null
     private var debugMode: Boolean = false
+    private var debugServerHost: String = "localhost:38989"
     private var dialog: Dialog? = null
     private var driverType: DriverType = DriverType.JS_REACT
     private var rendererType: RendererType = RendererType.NATIVE
@@ -50,10 +59,20 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
         WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
         window.statusBarColor = Color.WHITE
         pageConfigurationRoot = layoutInflater.inflate(R.layout.activity_page_configuration, null)
+        pageConfigurationContainer =
+            pageConfigurationRoot.findViewById(R.id.page_configuration_container)
+        pageConfigurationTitle =
+            pageConfigurationRoot.findViewById(R.id.page_configuration_navigation_title)
 
         val backButton =
             pageConfigurationRoot.findViewById<View>(R.id.page_configuration_navigation_back)
         backButton.setOnClickListener { v ->
+            val rootView = hippyEngineWrapper?.hippyRootView
+            rootView?.let {
+                val bitmap = getBitmapFromView(rootView)
+                hippyEngineWrapper?.snapshot = bitmap
+
+            }
             onBackPressedDispatcher.onBackPressed()
         }
 
@@ -72,6 +91,7 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
         rendererSettingButton.setOnClickListener { v ->
             onRendererSettingClick()
         }
+
         val debugButton =
             pageConfigurationRoot.findViewById<View>(R.id.page_configuration_debug_setting_image)
         val debugServerHost =
@@ -88,7 +108,56 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
             }
         }
 
+        val createButton =
+            pageConfigurationRoot.findViewById<View>(R.id.page_configuration_create_image)
+        createButton.setOnClickListener { v ->
+            onCreateClick()
+        }
+
         setContentView(pageConfigurationRoot)
+    }
+
+    private fun getBitmapFromView(view: View): Bitmap {
+        val bitmap = Bitmap.createBitmap(
+            view.width, view.height, Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(bitmap)
+        view.draw(canvas)
+        return bitmap
+    }
+
+    private fun onCreateClick() {
+        (pageConfigurationTitle as TextView).text =
+            resources.getText(R.string.page_configuration_navigation_title_demo)
+        (pageConfigurationContainer as ViewGroup).removeAllViews()
+        hippyEngineWrapper = HippyEngineHelper.createHippyEngine(
+            driverType,
+            rendererType,
+            debugMode,
+            debugServerHost
+        )
+        hippyEngineWrapper?.load(object : HippyEngineWrapper.HippyEngineLoadCallback {
+            override fun onInitEngineCompleted(
+                statusCode: HippyEngine.EngineInitStatus,
+                msg: String?
+            ) {
+                LogUtils.e("hippy", "onInitEngineCompleted: statusCode $statusCode, msg $msg")
+            }
+
+            override fun onCreateRootView(hippyRootView: ViewGroup?) {
+                hippyRootView?.let {
+                    (pageConfigurationContainer as ViewGroup).addView(hippyRootView)
+                    hippyEngineWrapper?.hippyRootView = hippyRootView
+                }
+            }
+
+            override fun onLoadModuleCompleted(
+                statusCode: HippyEngine.ModuleLoadStatus,
+                msg: String?
+            ) {
+                LogUtils.e("hippy", "onLoadModuleCompleted: statusCode $statusCode, msg $msg")
+            }
+        })
     }
 
     private fun onRendererSettingClick() {

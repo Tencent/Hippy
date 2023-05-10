@@ -6,4 +6,5 @@
   <string name="renderer_tdf_core">TDF Core</string>
   <string name="renderer_flutter">Flutter</string>
   <string name="setting_not_available">Coming soon</string>
+  <string name="page_configuration_navigation_title_demo">Demo</string>
 </resources>
