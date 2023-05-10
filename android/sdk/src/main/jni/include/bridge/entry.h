@@ -32,6 +32,7 @@ void setNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_log
 jint CreateSnapshot(JNIEnv* j_env,
                     __unused jobject j_obj,
                     jobjectArray j_script_array,
+                    jstring j_base_uri,
                     jstring j_snapshot_uri,
                     jstring j_config);
 

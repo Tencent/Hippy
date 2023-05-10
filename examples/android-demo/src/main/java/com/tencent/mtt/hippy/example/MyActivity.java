@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.example;
 
+import static com.tencent.mtt.hippy.bridge.HippyBridge.URI_SCHEME_ASSETS;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Window;
@@ -58,7 +60,7 @@ public class MyActivity extends Activity
 		super.onCreate(savedInstanceState);
 		getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
-        HippyEngine.V8SnapshotType initType = HippyEngine.V8SnapshotType.NoSnapshot;
+        HippyEngine.V8SnapshotType initType = HippyEngine.V8SnapshotType.UseSnapshot;
 
 		// 1/3. 初始化hippy引擎
 		{
@@ -140,6 +142,7 @@ public class MyActivity extends Activity
                     initParams.v8InitParams.blob = null;
                     File snapshotFile = FileUtils.getHippyFile(this);
                     assert snapshotFile != null;
+                    String basePath = URI_SCHEME_ASSETS + "/"; // 如果需要使用动态加载，需要告知创建Snapshot的主bundle目录路径，作为动态加载的基础路径
                     String snapshotPath = snapshotFile.getAbsolutePath() + "/demo.snapshot";
 
                     String[] list = new String[2];
@@ -170,6 +173,7 @@ public class MyActivity extends Activity
                     list[1] = sb.toString();
                     LibraryLoader.loadLibraryIfNeed(initParams.soLoader);
                     HippyBridgeImpl.createSnapshotFromScript(list,
+                        basePath,
                         snapshotPath,
                         getApplicationContext());
                     if (initParams.v8InitParams.type == HippyEngine.V8SnapshotType.CreateSnapshot.ordinal()) {
