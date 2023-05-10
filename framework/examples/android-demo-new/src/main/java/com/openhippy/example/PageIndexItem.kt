@@ -21,8 +21,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 
 class PageIndexItem : ConstraintLayout {
 
-    private var index: Int = -1
-
     constructor (context: Context) : super(context)
 
     constructor (context: Context, attrs: AttributeSet) : super(context, attrs)

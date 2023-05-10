@@ -15,17 +15,20 @@
 
 package com.openhippy.example
 
-import android.content.Context
+import android.content.res.Configuration
 import android.util.DisplayMetrics
 import android.view.View
 import android.widget.ScrollView
+import java.util.concurrent.atomic.AtomicInteger
 
-var appContext: Context? = null
-var scrollerView: ScrollView? = null
+lateinit var scrollerView: ScrollView
+var pageItemIdCounter = AtomicInteger(10000)
 var pageAddItem: View? = null
+var pageItemWidth = 0
+var pageItemHeight = 0
 
 fun getScreenWidth() : Int {
-    val displayMetrics: DisplayMetrics? = appContext?.resources?.displayMetrics
+    val displayMetrics: DisplayMetrics? = mainActivityContext.resources?.displayMetrics
     displayMetrics?.let {
         return it.widthPixels
     }
@@ -33,15 +36,23 @@ fun getScreenWidth() : Int {
 }
 
 fun getScreenHeight() : Int {
-    val displayMetrics: DisplayMetrics? = appContext?.resources?.displayMetrics
+    val displayMetrics: DisplayMetrics? = mainActivityContext.resources?.displayMetrics
     displayMetrics?.let {
         return it.heightPixels
     }
     return 0
 }
 
+fun isPortrait() : Boolean {
+    return getScreenOrientation() == Configuration.ORIENTATION_PORTRAIT
+}
+
+fun getScreenOrientation() : Int {
+    return mainActivityContext.resources.configuration.orientation
+}
+
 fun getPageIndexItemWidth() : Int {
-    var margin = appContext?.resources?.getDimension(R.dimen.page_index_item_margin)
+    var margin = mainActivityContext.resources?.getDimension(R.dimen.page_index_item_margin)
     margin?.let {
         var width = (getScreenWidth() - margin*3)/2
         return width.toInt()
