@@ -63,6 +63,12 @@ GEN_INVOKE_CB(TimerModule, ClearInterval) // NOLINT(cert-err58-cpp)
 GEN_INVOKE_CB(TimerModule, RequestIdleCallback) // NOLINT(cert-err58-cpp)
 GEN_INVOKE_CB(TimerModule, CancelIdleCallback) // NOLINT(cert-err58-cpp)
 
+TimerModule::TimerModule() :
+    timer_map_(std::make_shared<std::unordered_map<uint32_t,
+                                                   std::shared_ptr<footstone::BaseTimer>>>()),
+    idle_function_holder_map_(std::make_shared<std::unordered_map<uint32_t,
+                                                                  std::shared_ptr<CtxValue>>>()) {}
+
 void TimerModule::SetTimeout(CallbackInfo& info, void* data) {
   info.GetReturnValue()->Set(Start(info, false));
 }
@@ -100,7 +106,7 @@ void TimerModule::RequestIdleCallback(CallbackInfo& info, void* data) {
   auto context = scope->GetContext();
   FOOTSTONE_CHECK(context);
 
-  std::shared_ptr<CtxValue> function = info[0];
+  auto function = info[0];
   if (!context->IsFunction(function)) {
     info.GetExceptionValue()->Set(context,"The first argument must be function.");
     return;
@@ -109,7 +115,7 @@ void TimerModule::RequestIdleCallback(CallbackInfo& info, void* data) {
   auto runner = scope->GetTaskRunner();
   FOOTSTONE_DCHECK(runner);
 
-  TimeDelta timeout = TimeDelta::Max();
+  auto timeout = TimeDelta::Max();
   if (info[1]) {
     std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>> option;
     auto timeout_key = context->CreateString(kTimeoutKey);
@@ -125,26 +131,31 @@ void TimerModule::RequestIdleCallback(CallbackInfo& info, void* data) {
   auto task = std::make_unique<IdleTask>();
   task->SetTimeout(timeout);
   auto task_id = task->GetId();
-  std::weak_ptr<std::unordered_map<uint32_t , std::shared_ptr<BaseTimer>>> weak_timer_map = timer_map_;
-  task->SetUnit([weak_scope, function, task_id](const IdleCbParam& idle_cb_param) {
+  (*idle_function_holder_map_)[task_id] = function;
+  std::weak_ptr<CtxValue> weak_function = function;
+  std::weak_ptr<std::unordered_map<uint32_t, std::shared_ptr<CtxValue>>> weak_map = idle_function_holder_map_;
+  task->SetUnit([weak_scope, weak_function, weak_map, task_id](const IdleCbParam& idle_cb_param) {
     auto scope = weak_scope.lock();
     if (!scope) {
       return;
     }
 
-    if (function) {
-      std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
-      auto param = context->CreateObject();
-      auto did_timeout_key = context->CreateString(kDidTimeoutKey);
-      auto did_timeout_value = context->CreateBoolean(idle_cb_param.did_time_out);
-      context->SetProperty(param, did_timeout_key, did_timeout_value);
-      auto res_time = idle_cb_param.res_time.ToMillisecondsF();
-      auto time_remaining_key = context->CreateString(kTimeRemainingKey);
-      auto time_remaining_value = context->CreateNumber(res_time);
-      context->SetProperty(param, time_remaining_key, time_remaining_value);
-      std::shared_ptr<CtxValue> argv[] = { param };
-      context->CallFunction(function, 1, argv);
+    auto function = weak_function.lock();
+    FOOTSTONE_DCHECK(function);
+    if (!function) {
+      return;
     }
+    std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
+    auto param = context->CreateObject();
+    auto did_timeout_key = context->CreateString(kDidTimeoutKey);
+    auto did_timeout_value = context->CreateBoolean(idle_cb_param.did_time_out);
+    context->SetProperty(param, did_timeout_key, did_timeout_value);
+    auto res_time = idle_cb_param.res_time.ToMillisecondsF();
+    auto time_remaining_key = context->CreateString(kTimeRemainingKey);
+    auto time_remaining_value = context->CreateNumber(res_time);
+    context->SetProperty(param, time_remaining_key, time_remaining_value);
+    std::shared_ptr<CtxValue> argv[] = { param };
+    context->CallFunction(function, 1, argv);
     std::unique_ptr<RegisterMap>& map = scope->GetRegisterMap();
     if (map) {
       auto it = map->find(hippy::base::kAsyncTaskEndKey);
@@ -155,7 +166,15 @@ void TimerModule::RequestIdleCallback(CallbackInfo& info, void* data) {
         }
       }
     }
-    FOOTSTONE_USE(task_id);
+    auto idle_function_holder_map = weak_map.lock();
+    if (!idle_function_holder_map) {
+      return;
+    }
+    auto it = idle_function_holder_map->find(task_id);
+    FOOTSTONE_DCHECK(it != idle_function_holder_map->end());
+    if (it != idle_function_holder_map->end()) {
+      idle_function_holder_map->erase(it);
+    }
   });
   runner->PostIdleTask(std::move(task));
 }
@@ -173,7 +192,7 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
   auto context = scope->GetContext();
   FOOTSTONE_CHECK(context);
 
-  std::shared_ptr<CtxValue> function = info[0];
+  auto function = info[0];
   if (!context->IsFunction(function)) {
     info.GetExceptionValue()->Set(context,"The first argument must be function.");
     return nullptr;
@@ -190,6 +209,7 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
   auto task = std::make_unique<Task>();
   auto task_id = task->GetId();
   std::weak_ptr<std::unordered_map<uint32_t , std::shared_ptr<BaseTimer>>> weak_timer_map = timer_map_;
+  // holding chain: scope -> timer_module -> timer_map -> BaseTimer -> task -> CtxValue(function)
   task->SetExecUnit([weak_scope, function, task_id, repeat, weak_timer_map] {
     auto scope = weak_scope.lock();
     if (!scope) {
@@ -200,10 +220,12 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
       return;
     }
 
-    if (function) {
-      std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
-      context->CallFunction(function, 0, nullptr);
+    FOOTSTONE_DCHECK(function);
+    if (!function) {
+      return;
     }
+    std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
+    context->CallFunction(function, 0, nullptr);
     std::unique_ptr<RegisterMap>& map = scope->GetRegisterMap();
     if (map) {
       auto it = map->find(hippy::base::kAsyncTaskEndKey);
@@ -220,13 +242,13 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
   });
 
   if (repeat) {
-    std::shared_ptr<RepeatingTimer> timer = std::make_unique<RepeatingTimer>(runner);
+    auto timer = std::make_shared<RepeatingTimer>(runner);
     timer->Start(std::move(task), delay);
-    timer_map_->insert({task_id, timer});
+    timer_map_->insert({task_id, std::move(timer)});
   } else {
-    std::shared_ptr<OneShotTimer> timer = std::make_unique<OneShotTimer>(runner);
+    auto timer = std::make_shared<OneShotTimer>(runner);
     timer->Start(std::move(task), delay);
-    timer_map_->insert({task_id, timer});
+    timer_map_->insert({task_id, std::move(timer)});
   }
 
   return context->CreateNumber(task_id);
