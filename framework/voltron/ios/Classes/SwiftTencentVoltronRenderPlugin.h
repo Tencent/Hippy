@@ -20,17 +20,7 @@
  *
  */
 
-import Flutter
-import UIKit
+#import <Flutter/Flutter.h>
 
-public class SwiftTencentVoltronRenderPlugin: NSObject, FlutterPlugin {
-  public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "voltron_render", binaryMessenger: registrar.messenger())
-    let instance = SwiftTencentVoltronRenderPlugin()
-    registrar.addMethodCallDelegate(instance, channel: channel)
-  }
-
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    result("iOS " + UIDevice.current.systemVersion)
-  }
-}
+@interface SwiftTencentVoltronRenderPlugin : NSObject<FlutterPlugin>
+@end
