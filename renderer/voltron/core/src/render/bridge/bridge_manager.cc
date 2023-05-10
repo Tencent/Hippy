@@ -77,16 +77,16 @@ int64_t BridgeRuntime::CalculateNodeLayout(int32_t instance_id,
   return result;
 }
 
-BridgeRuntime::BridgeRuntime(int32_t engine_id, uint32_t ffi_id) : ffi_id_(ffi_id), engine_id_(engine_id) {
-}
+BridgeRuntime::BridgeRuntime(int32_t engine_id,
+                             uint32_t ffi_id,
+                             bool bridge_parse_json) :
+                             ffi_id_(ffi_id),
+                             engine_id_(engine_id),
+                             bridge_parse_json_(bridge_parse_json) {}
 
-<<<<<<< HEAD
+
 uint32_t BridgeRuntime::GetFfiId() const {
   return ffi_id_;
-=======
-BridgeRuntime::BridgeRuntime(int32_t engine_id, bool bridge_parse_json)
-    : engine_id_(engine_id), bridge_parse_json_(bridge_parse_json) {
->>>>>>> 08a95f601 (feat(voltron): compat vm opt for voltron android)
 }
 
 std::shared_ptr<BridgeManager> BridgeManager::Create(int32_t engine_id, const Sp<BridgeRuntime>& runtime) {
@@ -146,7 +146,7 @@ BridgeManager::~BridgeManager() {
   native_callback_map_.Clear();
 }
 
-BridgeManager::BridgeManager() {}
+BridgeManager::BridgeManager() = default;
 
 std::shared_ptr<BridgeRuntime> BridgeManager::GetRuntime() { return runtime_.lock(); }
 

@@ -111,11 +111,7 @@ EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t singl
                                     int32_t bridge_param_json, int32_t is_dev_module, int64_t group_id,
                                     uint32_t vfs_id, uint32_t ffi_id, uint32_t dom_manager_id,
                                     int32_t engine_id, int32_t callback_id, uint32_t devtools_id) {
-<<<<<<< HEAD
-  auto ffi_runtime = std::make_shared<FFIJSBridgeRuntime>(engine_id, ffi_id);
-=======
-  auto ffi_runtime = std::make_shared<FFIJSBridgeRuntime>(engine_id, bridge_param_json);
->>>>>>> 08a95f601 (feat(voltron): compat vm opt for voltron android)
+  auto ffi_runtime = std::make_shared<FFIJSBridgeRuntime>(engine_id, ffi_id, bridge_param_json);
   auto bridge_manager = BridgeManager::Create(engine_id, ffi_runtime);
 
   auto vfs_wrapper = voltron::FindObject<std::shared_ptr<voltron::VfsWrapper>>(vfs_id);

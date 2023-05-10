@@ -38,11 +38,7 @@ class FFIJSBridgeRuntime : public JSBridgeRuntime {
   uint32_t ffi_id_ = 0;
 
  public:
-<<<<<<< HEAD
-  explicit FFIJSBridgeRuntime(int32_t engine_id, uint32_t ffi_id);
-=======
-  explicit FFIJSBridgeRuntime(int32_t engine_id, bool bridge_parse_json);
->>>>>>> 08a95f601 (feat(voltron): compat vm opt for voltron android)
+  explicit FFIJSBridgeRuntime(int32_t engine_id, uint32_t ffi_id, bool bridge_parse_json);
   ~FFIJSBridgeRuntime() override = default;
   void CallDart(std::u16string &moduleName, std::u16string &moduleFunc, std::u16string &callId,
                 std::string params, bool bridgeParamJson, std::function<void()> callback) override;
