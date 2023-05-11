@@ -40,7 +40,7 @@ class HippyEngineWrapper {
                 isDebugMode: Boolean,
                 debugServerHost: String) {
         val initParams = EngineInitParams()
-        initParams.context = mainActivityContext.applicationContext
+        initParams.context = applicationContext
         initParams.debugServerHost = debugServerHost
         initParams.debugMode = isDebugMode
         initParams.enableLog = true
