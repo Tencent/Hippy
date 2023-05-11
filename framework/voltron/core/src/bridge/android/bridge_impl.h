@@ -54,19 +54,19 @@ class BridgeImpl {
                               const std::function<void(int64_t)> &callback,
                               uint32_t devtools_id);
 
-  static bool RunScriptFromUri(int64_t runtime_id, uint32_t vfs_id, bool can_use_code_cache, bool is_local_file, const char16_t* uri,
+  static bool RunScriptFromUri(int64_t scope_id, uint32_t vfs_id, bool can_use_code_cache, bool is_local_file, const char16_t* uri,
                                   const char16_t* code_cache_dir_str, std::function<void(int64_t)> callback);
 
-  static void Destroy(int64_t runtime_id, const std::function<void(int64_t)>& callback, bool is_reload);
+  static void Destroy(int64_t scope_id, const std::function<void(int64_t)>& callback, bool is_reload);
 
-  static void CallFunction(int64_t runtime_id, const char16_t* action, std::string params,
+  static void CallFunction(int64_t scope_id, const char16_t* action, std::string params,
                            std::function<void(int64_t)> callback);
 
-  static void LoadInstance(int64_t runtime_id, byte_string&& buffer_data);
+  static void LoadInstance(int64_t scope_id, byte_string&& buffer_data);
 
-  static void UnloadInstance(int64_t runtime_id, byte_string&& buffer_data);
+  static void UnloadInstance(int64_t scope_id, byte_string&& buffer_data);
 
-  static std::shared_ptr<hippy::Scope> GetScope(int64_t runtime_id);
+  static std::shared_ptr<hippy::Scope> GetScope(int64_t scope_id);
 };
 
 #ifdef __cplusplus

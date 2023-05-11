@@ -102,6 +102,8 @@ struct RandomAccessBundleData {
   VoltronJSCWrapper *_jscWrapper;
   NSString *_globalConfig;
   VoltronFrameworkInitCallback _completion;
+  BOOL debugMode;
+  NSNumber* devtoolsId;
 }
 
 @synthesize valid = _valid;
@@ -116,25 +118,13 @@ struct RandomAccessBundleData {
                          completion:(VoltronFrameworkInitCallback)completion{
     if (self = [super init]) {
         _valid = YES;
-        // maybe bug in JavaScriptCore：
-        // JSContextRef held by JSContextGroupRef cannot be deallocated,
-        // unless JSContextGroupRef is deallocated
-        self.executorkey = execurotkey;
-        std::shared_ptr<hippy::Engine> engine = [[VoltronJSEnginesMapper defaultInstance] createJSEngineForKey:self.executorkey];
         self->_globalConfig = globalConfig;
         self->_completion = completion;
-        std::unique_ptr<hippy::Engine::RegisterMap> map = [self registerMap];
-        const char *pName = [execurotkey UTF8String] ?: "";
-        std::shared_ptr<hippy::Scope> scope = engine->AsyncCreateScope(pName, std::move(map));
-        self.pScope = scope;
-    #if ENABLE_INSPECTOR
-        // create devtools
-        if (debugMode) {
-            auto devtools_id = [devtoolsId intValue];
-            auto devtools_data_source = hippy::devtools::DevtoolsDataSource::Find(devtools_id);
-            self.pScope->SetDevtoolsDataSource(devtools_data_source);
-        }
-    #endif
+        self.executorkey = execurotkey;
+        self->debugMode = debugMode;
+        self->devtoolsId = devtoolsId;
+        [self setup];
+       
         VoltronLogInfo(@"[Hippy_OC_Log][Life_Circle],VoltronJSCExecutor Init %p, execurotkey:%@", self, execurotkey);
     }
 
@@ -189,95 +179,88 @@ NSString *StringViewToNSString(const string_view &view) {
 }
 
 
-- (std::unique_ptr<hippy::Engine::RegisterMap>)registerMap {
+- (void)setup {
+    std::shared_ptr<hippy::Engine> engine = [[VoltronJSEnginesMapper defaultInstance] createJSEngineForKey:self.executorkey];
+
+    const char *pName = [_executorkey UTF8String] ?: "";
+    std::shared_ptr<hippy::Scope> scope = engine->CreateScope(pName);
     __weak VoltronJSCExecutor *weakSelf = self;
     __weak NSString *weakGlobalConfig = self->_globalConfig;
-    hippy::base::RegisterFunction taskEndCB = [weakSelf](void *) {
-    };
-
-    hippy::base::RegisterFunction ctxCreateCB = [weakSelf, weakGlobalConfig](void *p) {
-      VoltronJSCExecutor *strongSelf = weakSelf;
-      if (!strongSelf) {
-          return;
-      }
-
-      NSString *strongGlobalConfig = weakGlobalConfig;
-      hippy::ScopeWrapper *wrapper = reinterpret_cast<hippy::ScopeWrapper *>(p);
-      std::shared_ptr<hippy::Scope> scope = wrapper->scope.lock();
-      if (scope) {
-        std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::driver::napi::JSCCtx>(scope->GetContext());
-        JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context->GetCtxRef()];
-        #if __IPHONE_OS_VERSION_MAX_ALLOWED > __IPHONE_16_2
-        if (@available(iOS 16.4, *)) {
-          jsContext.inspectable = true;
-        }
-        #endif
-        auto global_object = context->GetGlobalObject();
-        auto user_global_object_key = context->CreateString(kGlobalKey);
-        context->SetProperty(global_object, user_global_object_key, global_object);
-        auto hippy_key = context->CreateString(kHippyKey);
-        context->SetProperty(global_object, hippy_key, context->CreateObject());
-        scope->RegisterJsClasses();
-
-        if (!strongSelf->_jscWrapper) {
-          [strongSelf->_performanceLogger markStartForTag:VoltronPLJSCWrapperOpenLibrary];
-          strongSelf->_jscWrapper = VoltronJSCWrapperCreate(strongSelf->_useCustomJSCLibrary);
-          [strongSelf->_performanceLogger markStopForTag:VoltronPLJSCWrapperOpenLibrary];
-          installBasicSynchronousHooksOnContext(jsContext);
-        }
-
-        auto engine = scope->GetEngine().lock();
-        auto native_global_key = context->CreateString("__HIPPYNATIVEGLOBAL__");
-        auto global_config_object = engine->GetVM()->ParseJson(context, NSStringToU8(strongGlobalConfig));
-        auto flag = context->SetProperty(global_object, native_global_key, global_config_object);
-
-        auto bridge_config_key = context->CreateString("__fbBatchedBridgeConfig");
-        auto bridge_config_value = context->CreateObject();
-        context->SetProperty(global_object, bridge_config_key, bridge_config_value);
-
-        jsContext[@"hippyCallNatives"] = ^(id module, id method, NSString *callbackId, NSArray *args) {
+    engine->GetJsTaskRunner()->PostTask([weakSelf, weakGlobalConfig](){
+        @autoreleasepool {
             VoltronJSCExecutor *strongSelf = weakSelf;
-            if (!strongSelf.valid) {
-                return ;
+            if (!strongSelf) {
+                return;
             }
 
-            [strongSelf.provider callNativeModule:module method:method params:args callId:callbackId];
-            return ;
-        };
+            NSString *strongGlobalConfig = weakGlobalConfig;
+            std::shared_ptr<hippy::Scope> scope = strongSelf->_pScope;
+            scope->CreateContext();
+            
+            std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::driver::napi::JSCCtx>(scope->GetContext());
+            JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context->GetCtxRef()];
+//            #if __IPHONE_OS_VERSION_MAX_ALLOWED > __IPHONE_16_2
+//                if (@available(iOS 16.4, *)) {
+//                    jsContext->inspectable = true;
+//                }
+//            #endif
+            auto global_object = context->GetGlobalObject();
+            auto user_global_object_key = context->CreateString(kGlobalKey);
+            context->SetProperty(global_object, user_global_object_key, global_object);
+            auto hippy_key = context->CreateString(kHippyKey);
+            context->SetProperty(global_object, hippy_key, context->CreateObject());
+            
+            if (!strongSelf->_jscWrapper) {
+                [strongSelf->_performanceLogger markStartForTag:VoltronPLJSCWrapperOpenLibrary];
+                strongSelf->_jscWrapper = VoltronJSCWrapperCreate(strongSelf->_useCustomJSCLibrary);
+                [strongSelf->_performanceLogger markStopForTag:VoltronPLJSCWrapperOpenLibrary];
+                installBasicSynchronousHooksOnContext(jsContext);
+            }
+            
+            auto engine = scope->GetEngine().lock();
+            auto native_global_key = context->CreateString("__HIPPYNATIVEGLOBAL__");
+            auto global_config_object = engine->GetVM()->ParseJson(context, NSStringToU8(strongGlobalConfig));
+            auto flag = context->SetProperty(global_object, native_global_key, global_config_object);
+            auto bridge_config_key = context->CreateString("__fbBatchedBridgeConfig");
+            auto bridge_config_value = context->CreateObject();
+            context->SetProperty(global_object, bridge_config_key, bridge_config_value);
+            jsContext[@"hippyCallNatives"] = ^(id module, id method, NSString *callbackId, NSArray *args) {
+                VoltronJSCExecutor *strongSelf = weakSelf;
+                if (!strongSelf.valid) {
+                    return ;
+                }
+                [strongSelf.provider callNativeModule:module method:method params:args callId:callbackId];
+                return ;
+            };
 
 
-#if HIPPY_DEV
+      #if HIPPY_DEV
             // Inject handler used by HMR
             jsContext[@"nativeInjectHMRUpdate"] = ^(NSString *sourceCode, NSString *sourceCodeURL) {
-              VoltronJSCExecutor *strongSelf = weakSelf;
+            VoltronJSCExecutor *strongSelf = weakSelf;
                 if (!strongSelf.valid) {
                     return;
                 }
-
                 JSStringRef execJSString = JSStringCreateWithUTF8CString(sourceCode.UTF8String);
                 JSStringRef jsURL = JSStringCreateWithUTF8CString(sourceCodeURL.UTF8String);
                 JSEvaluateScript([strongSelf JSGlobalContextRef], execJSString, NULL, jsURL, 0, NULL);
                 JSStringRelease(jsURL);
                 JSStringRelease(execJSString);
             };
+      #endif
+            scope->SyncInitialize();
+            strongSelf->_completion(TRUE);
+        }
+    });
+    self.pScope = scope;
+#if ENABLE_INSPECTOR
+    // create devtools
+    if (self->debugMode) {
+        auto devtools_id = [self->devtoolsId intValue];
+        auto devtools_data_source = hippy::devtools::DevtoolsDataSource::Find(devtools_id);
+        self.pScope->SetDevtoolsDataSource(devtools_data_source);
+    }
 #endif
-      }
-    };
-
-    hippy::base::RegisterFunction scopeInitializedCB = [weakSelf](void *p) {
-      VoltronJSCExecutor *strongSelf = weakSelf;
-      if (!strongSelf) {
-          return;
-      }
-      hippy::ScopeWrapper *wrapper = reinterpret_cast<hippy::ScopeWrapper *>(p);
-      std::shared_ptr<hippy::Scope> scope = wrapper->scope.lock();
-      strongSelf->_completion(TRUE);
-    };
-    std::unique_ptr<hippy::Engine::RegisterMap> ptr = std::make_unique<hippy::Engine::RegisterMap>();
-    ptr->insert(std::make_pair("ASYNC_TASK_END", taskEndCB));
-    ptr->insert(std::make_pair(hippy::base::kContextCreatedCBKey, ctxCreateCB));
-    ptr->insert(std::make_pair(hippy::base::KScopeInitializedCBKey, scopeInitializedCB));
-    return ptr;
 }
 
 - (JSContext *)JSContext {

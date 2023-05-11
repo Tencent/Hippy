@@ -20,21 +20,21 @@
  *
  */
 
-#include "driver/runtime/v8/runtime.h"
-#include "driver/runtime/v8/v8_bridge_utils.h"
+#include "driver/js_driver_utils.h"
+#include "driver/scope.h"
 #include "footstone/string_view_utils.h"
 #include "js2dart.h"
 #include "voltron_bridge.h"
 
 using string_view = footstone::stringview::string_view;
-using V8BridgeUtils = hippy::runtime::V8BridgeUtils;
+using JsDriverUtils = hippy::JsDriverUtils;
 using bytes = std::string;
 using StringViewUtils = footstone::StringViewUtils;
 
 namespace voltron::bridge {
-void CallDart(hippy::CallbackInfo& info, int32_t runtime_id) {
+void CallDart(hippy::CallbackInfo& info) {
   FOOTSTONE_DLOG(INFO) << "CallDartMethod";
-  auto cb = [](const std::shared_ptr<hippy::Runtime> &runtime,
+  auto cb = [](const std::shared_ptr<hippy::Scope>& scope,
                const string_view &module,
                const string_view &func,
                const string_view &cb_id,
@@ -45,17 +45,17 @@ void CallDart(hippy::CallbackInfo& info, int32_t runtime_id) {
     std::u16string
         module_func = StringViewUtils::CovertToUtf16(func, func.encoding()).utf16_value();
     std::u16string call_id = StringViewUtils::CovertToUtf16(cb_id, cb_id.encoding()).utf16_value();
-    FOOTSTONE_DCHECK(runtime->HasData(kBridgeSlot));
-    auto bridge = std::any_cast<std::shared_ptr<VoltronBridge>>(runtime->GetData(kBridgeSlot));
-    FOOTSTONE_DCHECK(bridge != nullptr);
+    auto bridge = std::any_cast<std::shared_ptr<VoltronBridge>>(scope->GetBridge());
+    FOOTSTONE_DCHECK(bridge != nullptr && bridge->GetPlatformRuntime() != nullptr);
+    auto is_bridge_parse_json = bridge->GetPlatformRuntime()->IsBridgeParseJson();
     bridge->GetPlatformRuntime()->CallDart(module_name,
                                           module_func,
                                           call_id,
                                           std::move(buffer),
-                                          !runtime->IsEnableV8Serialization(),
+                                          is_bridge_parse_json,
                                           nullptr);
   };
-  V8BridgeUtils::CallNative(info, runtime_id, cb);
+  JsDriverUtils::CallNative(info, cb);
 
 }
 }

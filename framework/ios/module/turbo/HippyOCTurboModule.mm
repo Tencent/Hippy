@@ -301,7 +301,7 @@ static NSDictionary *convertJSIObjectToNSDictionary(const std::shared_ptr<hippy:
         return nil;
     }
     std::unordered_map<std::shared_ptr<hippy::CtxValue>, std::shared_ptr<hippy::CtxValue>> map;
-    if (!context->GetEntries(value, map)) {
+    if (!context->GetEntriesFromObject(value, map)) {
         return nil;
     }
     NSMutableDictionary *result = [[NSMutableDictionary alloc] initWithCapacity:map.size()];

@@ -156,9 +156,10 @@ public:
                               string_view* result) override;
   virtual bool GetValueJson(const std::shared_ptr<CtxValue>& value,
                             string_view* result) override;
-  virtual bool GetEntries(const std::shared_ptr<CtxValue>& value,
-                          std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) override;
-  
+  virtual bool GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
+                                    std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) override;
+  virtual bool GetEntriesFromMap(const std::shared_ptr<CtxValue>& value,
+                                 std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) override;
   virtual bool IsNull(const std::shared_ptr<CtxValue>& value) override;
   virtual bool IsUndefined(const std::shared_ptr<CtxValue>& value) override;
   virtual bool IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) override;

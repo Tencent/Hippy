@@ -156,16 +156,6 @@ void TimerModule::RequestIdleCallback(CallbackInfo& info, void* data) {
     context->SetProperty(param, time_remaining_key, time_remaining_value);
     std::shared_ptr<CtxValue> argv[] = { param };
     context->CallFunction(function, 1, argv);
-    std::unique_ptr<RegisterMap>& map = scope->GetRegisterMap();
-    if (map) {
-      auto it = map->find(hippy::base::kAsyncTaskEndKey);
-      if (it != map->end()) {
-        auto f = it->second;
-        if (f) {
-          f(nullptr);
-        }
-      }
-    }
     auto idle_function_holder_map = weak_map.lock();
     if (!idle_function_holder_map) {
       return;
@@ -226,16 +216,6 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
     }
     std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
     context->CallFunction(function, 0, nullptr);
-    std::unique_ptr<RegisterMap>& map = scope->GetRegisterMap();
-    if (map) {
-      auto it = map->find(hippy::base::kAsyncTaskEndKey);
-      if (it != map->end()) {
-        RegisterFunction f = it->second;
-        if (f) {
-          f(nullptr);
-        }
-      }
-    }
     if (!repeat) {
       timer_map->erase(task_id);
     }

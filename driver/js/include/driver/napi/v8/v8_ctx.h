@@ -112,9 +112,10 @@ class V8Ctx : public Ctx {
                               unicode_string_view* result) override;
   virtual bool GetValueJson(const std::shared_ptr<CtxValue>& value,
                             unicode_string_view* result) override;
-  virtual bool GetEntries(const std::shared_ptr<CtxValue>& value,
-                          std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) override;
-
+  virtual bool GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
+                                    std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) override;
+  virtual bool GetEntriesFromMap(const std::shared_ptr<CtxValue>& value,
+                                 std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) override;
   virtual bool IsNull(const std::shared_ptr<CtxValue>& value) override;
   virtual bool IsUndefined(const std::shared_ptr<CtxValue>& value) override;
   virtual bool IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) override;
@@ -165,7 +166,6 @@ class V8Ctx : public Ctx {
 
   virtual void ThrowException(const std::shared_ptr<CtxValue>& exception) override;
   virtual void ThrowException(const unicode_string_view& exception) override;
-//  virtual void HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) override;
   virtual std::shared_ptr<CtxValue> CreateFunction(const std::unique_ptr<FunctionWrapper>& wrapper) override;
   virtual void SetWeak(std::shared_ptr<CtxValue> value,
                        const std::unique_ptr<WeakCallbackWrapper>& wrapper) override;

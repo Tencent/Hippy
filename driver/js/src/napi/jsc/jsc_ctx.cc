@@ -610,8 +610,8 @@ string_view JSCCtx::CopyFunctionName(const std::shared_ptr<CtxValue>& function) 
   return "";
 }
 
-bool JSCCtx::GetEntries(const std::shared_ptr<CtxValue>& value,
-                        std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) {
+bool JSCCtx::GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
+                                  std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) {
   if (!value) {
     return false;
   }
@@ -643,6 +643,11 @@ bool JSCCtx::GetEntries(const std::shared_ptr<CtxValue>& value,
   return true;
 }
 
+bool JSCCtx::GetEntriesFromMap(const std::shared_ptr<CtxValue>& value,
+                               std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) {
+  FOOTSTONE_UNIMPLEMENTED();
+}
+
 bool JSCCtx::Equals(const std::shared_ptr<CtxValue>& lhs, const std::shared_ptr<CtxValue>& rhs) {
   if (!lhs || !rhs) {
     return false;
@@ -667,7 +672,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateObject() {
   return std::make_shared<JSCCtxValue>(context_, fn_obj);
 }
 
-std::shared_ptr<CtxValue> JSCCtx::CreateMap(const std::map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>> &map) {
+std::shared_ptr<CtxValue> JSCCtx::CreateMap(const std::map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) {
   FOOTSTONE_UNIMPLEMENTED();
 }
 

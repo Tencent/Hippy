@@ -639,7 +639,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateError(const string_view& msg) {
   auto context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
 
-  v8::Local<v8::Value> error = v8::Exception::Error(V8VM::CreateV8String(isolate_, context, msg));
+  auto error = v8::Exception::Error(V8VM::CreateV8String(isolate_, context, msg));
   if (error.IsEmpty()) {
     FOOTSTONE_LOG(INFO) << "error is empty";
     return nullptr;
@@ -680,10 +680,10 @@ bool V8Ctx::GetValueNumber(const std::shared_ptr<CtxValue>& value, double* resul
     return false;
   }
   v8::HandleScope handle_scope(isolate_);
-  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  auto context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
-  std::shared_ptr<V8CtxValue> ctx_value = std::static_pointer_cast<V8CtxValue>(value);
-  v8::Local<v8::Value> handle_value = v8::Local<v8::Value>::New(isolate_, ctx_value->global_value_);
+  auto ctx_value = std::static_pointer_cast<V8CtxValue>(value);
+  auto handle_value = v8::Local<v8::Value>::New(isolate_, ctx_value->global_value_);
 
   if (handle_value.IsEmpty() || !handle_value->IsNumber()) {
     return false;
@@ -793,10 +793,10 @@ bool V8Ctx::GetValueJson(const std::shared_ptr<CtxValue>& value,
   return true;
 }
 
-bool V8Ctx::GetEntries(const std::shared_ptr<CtxValue>& value,
-                       std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) {
+bool V8Ctx::GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
+                                 std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) {
   v8::HandleScope handle_scope(isolate_);
-  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  auto context = context_persistent_.Get(isolate_);
 
   auto ctx_value = std::static_pointer_cast<V8CtxValue>(value);
   auto handle_value = v8::Local<v8::Value>::New(isolate_, ctx_value->global_value_);
@@ -825,19 +825,39 @@ bool V8Ctx::GetEntries(const std::shared_ptr<CtxValue>& value,
   return true;
 }
 
+bool V8Ctx::GetEntriesFromMap(const std::shared_ptr<CtxValue>& value,
+                              std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) {
+  v8::HandleScope handle_scope(isolate_);
+  auto context = context_persistent_.Get(isolate_);
+
+  auto ctx_value = std::static_pointer_cast<V8CtxValue>(value);
+  auto handle_value = v8::Local<v8::Value>::New(isolate_, ctx_value->global_value_);
+  auto handle_object = v8::Local<v8::Map>::Cast(handle_value);
+
+  auto handle_array = handle_object->AsArray();
+  std::shared_ptr<CtxValue> map_key;
+  std::shared_ptr<CtxValue> map_value;
+  for (uint32_t i = 0; i < handle_array->Length(); ++i) {
+    if (i % 2 == 0) {
+      map_key = std::make_shared<V8CtxValue>(isolate_, handle_array->Get(context, i).ToLocalChecked());
+    } else {
+      map[map_key] = std::make_shared<V8CtxValue>(isolate_, handle_array->Get(context, i).ToLocalChecked());
+    }
+  }
+  return true;
+}
+
 bool V8Ctx::IsMap(const std::shared_ptr<CtxValue>& value) {
   if (!value) {
     return false;
   }
 
   v8::HandleScope handle_scope(isolate_);
-  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  auto context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
-  std::shared_ptr<V8CtxValue> ctx_value =
-      std::static_pointer_cast<V8CtxValue>(value);
+  auto ctx_value = std::static_pointer_cast<V8CtxValue>(value);
   const v8::Global<v8::Value>& persistent_value = ctx_value->global_value_;
-  v8::Local<v8::Value> handle_value =
-      v8::Local<v8::Value>::New(isolate_, persistent_value);
+  auto handle_value = v8::Local<v8::Value>::New(isolate_, persistent_value);
 
   if (handle_value.IsEmpty()) {
     return false;
@@ -1074,11 +1094,10 @@ std::shared_ptr<CtxValue> V8Ctx::CopyNamedProperty(
   }
 
   if (handle_value->IsMap()) {
-    v8::Map* map = v8::Map::Cast(*handle_value);
-    if (map == nullptr) {
+    auto map = v8::Map::Cast(*handle_value);
+    if (!map) {
       return nullptr;
     }
-
     auto key = V8VM::CreateV8String(isolate_, context, name);
     if (key.IsEmpty()) {
       return nullptr;

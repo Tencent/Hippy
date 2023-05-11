@@ -24,11 +24,11 @@
 #include <memory>
 #include <string>
 
+#include "driver/vm/v8/interrupt_queue.h"
 #include "footstone/string_view.h"
 #include "footstone/task_runner.h"
-#include "driver/runtime/v8/inspector/v8_channel_impl.h"
-#include "driver/runtime/v8/inspector/v8_inspector_context.h"
-#include "driver/runtime/v8/interrupt_queue.h"
+#include "v8_channel_impl.h"
+#include "v8_inspector_context.h"
 
 namespace hippy {
 inline namespace driver {
@@ -41,8 +41,16 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient,
   using string_view = footstone::stringview::string_view;
   using TaskRunner = footstone::TaskRunner;
 
-  explicit V8InspectorClientImpl(std::weak_ptr<TaskRunner> runner): js_runner_(std::move(runner)) {}
+  explicit V8InspectorClientImpl(): js_runner_({}) {}
   ~V8InspectorClientImpl();
+
+  inline void SetJsRunner(std::weak_ptr<TaskRunner> runner) {
+    js_runner_ = std::move(runner);
+  }
+
+  inline std::unique_ptr<v8_inspector::V8Inspector>& GetInspector() {
+    return inspector_;
+  }
 
   void CreateInspector(const std::shared_ptr<Scope>& scope);
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
@@ -54,10 +62,6 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient,
       const std::shared_ptr<V8InspectorContext>& inspector_context);
 #endif
   void SendMessageToV8(const std::shared_ptr<V8InspectorContext>& inspector_context, string_view&& params);
-
-  inline std::unique_ptr<v8_inspector::V8Inspector>& GetInspector() {
-    return inspector_;
-  }
 
   v8::Local<v8::Context> ensureDefaultContextInGroup(int contextGroupId) override;
   void runMessageLoopOnPause(int contextGroupId) override;

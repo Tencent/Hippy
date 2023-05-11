@@ -326,7 +326,7 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyMap(const std::share
   JNIEnv* j_env = hippy::JNIEnvironment::GetInstance()->AttachCurrentThread();
   jobject obj = j_env->NewObject(hippy_map_clazz, hippy_map_constructor);
   std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>> map;
-  auto flag = ctx->GetEntries(value, map);
+  auto flag = ctx->GetEntriesFromMap(value, map);
   FOOTSTONE_CHECK(flag);
 
   for (const auto& [key, item] : map) {

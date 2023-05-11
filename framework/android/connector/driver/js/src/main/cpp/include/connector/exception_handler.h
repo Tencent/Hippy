@@ -24,10 +24,10 @@
 
 #include <jni.h>
 
+#include <any>
 #include <iostream>
 #include <sstream>
 
-#include "driver/runtime/v8/runtime.h"
 #include "footstone/string_view.h"
 
 namespace hippy {
@@ -41,7 +41,7 @@ class ExceptionHandler {
   ~ExceptionHandler() = default;
 
   static void Init(JNIEnv* j_env);
-  static void ReportJsException(const std::shared_ptr<hippy::Runtime>& runtime,
+  static void ReportJsException(const std::any& bridge,
                                 const string_view& desc,
                                 const string_view& stack);
 };

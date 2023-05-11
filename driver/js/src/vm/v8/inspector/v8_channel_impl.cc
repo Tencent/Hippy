@@ -20,7 +20,7 @@
  *
  */
 
-#include "driver/runtime/v8/inspector/v8_channel_impl.h"
+#include "driver/vm/v8/inspector/v8_channel_impl.h"
 
 #include <string>
 

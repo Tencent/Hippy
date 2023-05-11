@@ -22,8 +22,10 @@
 
 #pragma once
 
+#include "driver/napi/callback_info.h"
+
 namespace voltron::bridge {
 
-void CallDart(hippy::CallbackInfo& info, int32_t runtime_id);
+void CallDart(hippy::CallbackInfo& info);
 
 }  // namespace voltron

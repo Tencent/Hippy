@@ -114,12 +114,10 @@ static void InternalBindingCallback(hippy::napi::CallbackInfo& info, void* data)
 // REGISTER_EXTERNAL_REFERENCES(InternalBindingCallback)
 
 Scope::Scope(std::weak_ptr<Engine> engine,
-             std::string name,
-             std::unique_ptr<RegisterMap> map)
+             std::string name)
     : engine_(std::move(engine)),
       context_(nullptr),
       name_(std::move(name)),
-      map_(std::move(map)),
       call_ui_function_callback_id_(0) {}
 
 Scope::~Scope() {
@@ -170,11 +168,10 @@ void Scope::WillExit() {
   FOOTSTONE_DLOG(INFO) << "ExitCtx end";
 }
 
-void Scope::Init() {
-  CreateContext();
+void Scope::SyncInitialize() {
+  RegisterJsClasses();
   BindModule();
   Bootstrap();
-  InvokeCallback();
 }
 
 void Scope::CreateContext() {
@@ -182,17 +179,8 @@ void Scope::CreateContext() {
   FOOTSTONE_CHECK(engine);
   context_ = engine->GetVM()->CreateContext();
   FOOTSTONE_CHECK(context_);
-  context_->SetExternalData(GetScopeWrapperPointer());
-  if (map_) {
-    auto it = map_->find(hippy::base::kContextCreatedCBKey);
-    if (it != map_->end()) {
-      auto f = it->second;
-      if (f) {
-        f(wrapper_.get());
-        map_->erase(it);
-      }
-    }
-  }
+  wrapper_ = std::make_unique<ScopeWrapper>(weak_from_this());
+  context_->SetExternalData(wrapper_.get());
 }
 
 
@@ -218,20 +206,6 @@ void Scope::Bootstrap() {
   std::shared_ptr<CtxValue> argv[] = { context_->CreateFunction(function_wrapper) };
   SaveFunctionWrapper(std::move(function_wrapper));
   context_->CallFunction(function, 1, argv);
-}
-
-void Scope::InvokeCallback() {
-  if (!map_) {
-    return;
-  }
-  auto it = map_->find(hippy::base::KScopeInitializedCBKey);
-  if (it != map_->end()) {
-    auto f = it->second;
-    if (f) {
-      f(wrapper_.get());
-      map_->erase(it);
-    }
-  }
 }
 
 void Scope::RegisterJsClasses() {
@@ -269,11 +243,6 @@ void Scope::RegisterJsClasses() {
   key = event->name;
   SaveClassTemplate(key, std::move(event));
   SaveEventClass(event_class);
-}
-
-void* Scope::GetScopeWrapperPointer() {
-  FOOTSTONE_CHECK(wrapper_);
-  return wrapper_.get();
 }
 
 hippy::dom::EventListenerInfo Scope::AddListener(const EventListenerInfo& event_listener_info) {
@@ -435,41 +404,6 @@ void Scope::RunJS(const string_view& data,
   } else {
     runner->PostTask(std::move(callback));
   }
-}
-
-std::shared_ptr<CtxValue> Scope::RunJSSync(const string_view& data,
-                                           const string_view& name,
-                                           bool is_copy) {
-  std::promise<std::shared_ptr<CtxValue>> promise;
-  std::future<std::shared_ptr<CtxValue>> future = promise.get_future();
-  std::weak_ptr<Ctx> weak_context = context_;
-  auto cb = hippy::base::MakeCopyable(
-      [data, name, is_copy, weak_context, p = std::move(promise)]() mutable {
-        std::shared_ptr<CtxValue> rst = nullptr;
-#ifdef JS_V8
-        auto context =
-            std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
-        if (context) {
-          rst = context->RunScript(data, name, false, nullptr, is_copy);
-        }
-#else
-        auto context = weak_context.lock();
-        if (context) {
-          rst = context->RunScript(data, name);
-        }
-#endif
-        p.set_value(rst);
-      });
-
-
-  auto runner = GetTaskRunner();
-  if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
-    cb();
-  } else {
-    runner->PostTask(std::move(cb));
-  }
-  std::shared_ptr<CtxValue> ret = future.get();
-  return ret;
 }
 
 void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {

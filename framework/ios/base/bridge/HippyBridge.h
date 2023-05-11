@@ -191,6 +191,8 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 - (void)setInspectable:(BOOL)isInspectable;
 
+- (void)setInspectable:(BOOL)isInspectable;
+
 /**
  * All registered bridge module classes.
  */

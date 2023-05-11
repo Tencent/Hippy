@@ -20,7 +20,7 @@
  *
  */
 
-#include "driver/runtime/v8/inspector/v8_inspector_client_impl.h"
+#include "driver/vm/v8/inspector/v8_inspector_client_impl.h"
 
 #include <utility>
 
@@ -39,9 +39,8 @@ void V8InspectorClientImpl::CreateInspector(const std::shared_ptr<Scope>& scope)
   if (inspector_) {
     return;
   }
-  std::shared_ptr<hippy::napi::V8Ctx> ctx =
-      std::static_pointer_cast<hippy::napi::V8Ctx>(scope->GetContext());
-  v8::Isolate* isolate = ctx->isolate_;
+  auto ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(scope->GetContext());
+  auto isolate = ctx->isolate_;
   v8::HandleScope handle_scope(isolate);
   inspector_ = v8_inspector::V8Inspector::create(isolate, this);
   interrupt_queue_ = std::make_shared<InterruptQueue>(isolate);
