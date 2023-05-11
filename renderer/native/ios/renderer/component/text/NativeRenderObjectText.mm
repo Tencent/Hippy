@@ -313,9 +313,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                     int32_t componentTag = [[strongSelf componentTag] intValue];
                     auto domNode = domManager->GetNode(strongSelf.rootNode, componentTag);
                     if (domNode) {
-                        auto layoutNode = domNode->GetLayoutNode();
-                        layoutNode->MarkDirty();
+                        domNode->GetLayoutNode()->MarkDirty();
                         [strongSelf dirtyPropagation];
+                        domManager->DoLayout(strongSelf.rootNode);
+                        domManager->EndBatch(strongSelf.rootNode);
                     }
                 }
             }
