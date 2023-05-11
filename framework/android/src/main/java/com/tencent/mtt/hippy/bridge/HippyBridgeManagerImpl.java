@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import com.openhippy.connector.JsDriver;
 import com.openhippy.connector.JsDriver.V8InitParams;
 import com.openhippy.connector.NativeCallback;
+import com.openhippy.framework.BuildConfig;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.HippyEngineContext;
@@ -550,6 +551,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         platformParams.pushString("VersionName", (versionName == null) ? "" : versionName);
         platformParams.pushInt("APILevel", Build.VERSION.SDK_INT);
         platformParams.pushBoolean("NightMode", getNightMode());
+        platformParams.pushString("SDKVersion", BuildConfig.LIBRARY_VERSION);
 
         HippyMap Localization = new HippyMap();
         Localization.pushString("language", I18nUtil.getLanguage());
