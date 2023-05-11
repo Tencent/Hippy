@@ -44,17 +44,19 @@ void BaseTimer::ScheduleNewTask(TimeDelta delay) {
   if (delay > TimeDelta::Zero()) {
     task_runner->PostDelayedTask(std::make_unique<Task>([weak_self]{
       auto self = weak_self.lock();
-      if (self) {
-        self->OnScheduledTaskInvoked();
+      if (!self) {
+        return;
       }
+      self->OnScheduledTaskInvoked();
     }), delay);
     scheduled_run_time_ = desired_run_time_ = TimePoint::Now() + delay;
   } else {
     task_runner->PostTask(std::make_unique<Task>([weak_self]{
       auto self = weak_self.lock();
-      if (self) {
-        self->OnScheduledTaskInvoked();
+      if (!self) {
+        return;
       }
+      self->OnScheduledTaskInvoked();
     }));
     scheduled_run_time_ = desired_run_time_ = TimePoint::Now();
   }

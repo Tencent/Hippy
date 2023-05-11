@@ -17,6 +17,7 @@
 package com.tencent.mtt.hippy.views.webview;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -26,8 +27,8 @@ import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
-import com.tencent.mtt.hippy.views.hippypager.HippyPager;
 import com.tencent.renderer.utils.ArrayUtils;
 
 import java.util.List;
@@ -97,6 +98,12 @@ public class HippyWebViewController extends HippyViewController<HippyWebView> {
                 }
             }
         }
+    }
+
+    @HippyControllerProps(name = NodeProps.BACKGROUND_COLOR, defaultType = HippyControllerProps.NUMBER,
+            defaultNumber = Color.WHITE)
+    public void setBackgroundColor(HippyWebView webView, int color) {
+        webView.mWebView.setBackgroundColor(color);
     }
 
     public void onViewDestroy(HippyWebView webView) {

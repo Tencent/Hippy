@@ -44,7 +44,7 @@ class TimerModule : public ModuleBase {
   using Ctx = hippy::Ctx;
   using CallbackInfo = hippy::CallbackInfo;
 
-  TimerModule() = default;
+  TimerModule();
 
   void SetTimeout(CallbackInfo& info, void* data);
   void ClearTimeout(CallbackInfo& info, void* data);
@@ -60,22 +60,19 @@ class TimerModule : public ModuleBase {
   void Cancel(uint32_t task_id);
 
   struct TaskEntry {
-    TaskEntry(
-        std::shared_ptr<Ctx> ctx,
-        std::shared_ptr<CtxValue> func,
-        std::shared_ptr<BaseTimer> timer): ctx(ctx), func(func), timer(timer) {}
-
-      std::shared_ptr<Ctx> ctx;
-      std::shared_ptr<CtxValue> func;
-      std::shared_ptr<BaseTimer> timer;
-    };
+    TaskEntry(std::shared_ptr<Ctx> ctx,
+              std::shared_ptr<CtxValue> func,
+              std::shared_ptr<BaseTimer> timer)
+        : ctx(ctx), func(func), timer(timer) {}
+    std::shared_ptr<Ctx> ctx;
+    std::shared_ptr<CtxValue> func;
+    std::shared_ptr<BaseTimer> timer;
   };
+  std::shared_ptr<std::unordered_map<uint32_t, std::shared_ptr<footstone::BaseTimer>>> timer_map_;
+  std::shared_ptr<std::unordered_map<uint32_t, std::shared_ptr<CtxValue>>> idle_function_holder_map_;
+};
 
-  static std::shared_ptr<std::unordered_map<uint32_t , std::shared_ptr<footstone::BaseTimer>>> timer_map_ = std::make_shared<
-      std::unordered_map<uint32_t , std::shared_ptr<footstone::BaseTimer>>>();
-  static const int kTimerInvalidId = 0;
 }
-
 }
 }
 
