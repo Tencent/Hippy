@@ -23,6 +23,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.ImageView
+import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.WindowInsetsControllerCompat
@@ -32,6 +33,8 @@ class PageManagement : AppCompatActivity() {
 
     private lateinit var pageManagementRoot: View
     private lateinit var pageManagementContainer: View
+    private lateinit var scrollerView: ScrollView
+    private var pageAddItem: View? = null
     private var pageCount: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,6 +50,18 @@ class PageManagement : AppCompatActivity() {
         pageManagementBackButton.setOnClickListener { v ->
             onBackPressedDispatcher.onBackPressed()
         }
+        scrollerView = ScrollView(this)
+        scrollerView.setBackgroundColor(resources.getColor(R.color.home_background))
+        val constraintLayout = ConstraintLayout(this)
+        constraintLayout.id = pageItemIdCounter.getAndIncrement()
+        val constraintLayoutParams = ConstraintLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+        constraintLayout.setPadding(
+            0,
+            0,
+            0,
+            resources.getDimension(R.dimen.page_index_item_margin).toInt()
+        )
+        scrollerView.addView(constraintLayout, constraintLayoutParams)
         val layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
         (pageManagementContainer as? ViewGroup)?.addView(scrollerView, layoutParams)
     }
@@ -61,6 +76,20 @@ class PageManagement : AppCompatActivity() {
         if (pageCount != HippyEngineHelper.getHippyEngineList().size) {
             relayoutPageItem()
             pageCount = HippyEngineHelper.getHippyEngineList().size
+        } else {
+            resetPageItemImage()
+        }
+    }
+
+    private fun resetPageItemImage() {
+        val hippyEngineList = HippyEngineHelper.getHippyEngineList()
+        for (hippyEngineWrapper in hippyEngineList) {
+            hippyEngineWrapper.pageItem?.let {
+                val pageItemImage = it.findViewById<ImageView>(R.id.page_item_image)
+                hippyEngineWrapper.snapshot?.let {
+                    pageItemImage.setImageBitmap(hippyEngineWrapper.snapshot)
+                }
+            }
         }
     }
 
@@ -154,6 +183,7 @@ class PageManagement : AppCompatActivity() {
         }
         pageItemImage.setOnClickListener { v ->
             val intent = Intent(this, PageConfiguration::class.java)
+            intent.putExtra("PAGE_ITEM_ID", pageItem.id)
             startActivity(intent)
         }
         hippyEngineWrapper?.pageItem = pageItem
