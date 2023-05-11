@@ -8,3 +8,4 @@
 * [节点缓存](android/dom-cache.md)
 * [ECMAScript 与 Java 类型映射](android/type-mapping.md)
 * [V8 API](android/v8-api.md)
+* [Snapshot](android/snapshot.md)
