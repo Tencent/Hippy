@@ -60,7 +60,7 @@ public class MyActivity extends Activity
 		super.onCreate(savedInstanceState);
 		getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
-        HippyEngine.V8SnapshotType initType = HippyEngine.V8SnapshotType.UseSnapshot;
+        HippyEngine.V8SnapshotType initType = HippyEngine.V8SnapshotType.NoSnapshot;
 
 		// 1/3. 初始化hippy引擎
 		{
