@@ -219,16 +219,15 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
 
     protected void handleRequestCookie(HippyHttpRequest httpRequest) {
         String url = httpRequest.getUrl();
-        String cookies = httpRequest.getRequestCookies();
-        if (url == null || cookies == null) {
-            return;
-        }
-        saveCookie2Manager(url, cookies, null);
-        CookieManager cookieManager = getCookieManager();
-        if (cookieManager != null) {
-            String cookie = cookieManager.getCookie(url);
-            if (!TextUtils.isEmpty(cookie)) {
-                httpRequest.addHeader(HttpHeader.REQ.COOKIE, cookie);
+        if (url != null) {
+            String cookies = httpRequest.getRequestCookies();
+            saveCookie2Manager(url, cookies, null);
+            CookieManager cookieManager = getCookieManager();
+            if (cookieManager != null) {
+                String cookie = cookieManager.getCookie(url);
+                if (!TextUtils.isEmpty(cookie)) {
+                    httpRequest.addHeader(HttpHeader.REQ.COOKIE, cookie);
+                }
             }
         }
     }
