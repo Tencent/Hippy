@@ -32,44 +32,35 @@ NATIVE_RENDER_EXPORT_VIEW(ViewPager)
     return [NativeRenderViewPager new];
 }
 
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(bounces, BOOL)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(initialPage, NSInteger)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(loop, BOOL)
 
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageSelected, NativeRenderDirectEventBlock)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageScroll, NativeRenderDirectEventBlock)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(bounces, BOOL)
 
-// clang-format off
+
+- (void)setPage:(NSNumber *)pageNumber withTag:(NSNumber * _Nonnull)componentTag animated:(BOOL)animated {
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext,
+                                  NSDictionary<NSNumber *, UIView *> *viewRegistry){
+        UIView *view = viewRegistry[componentTag];
+        if (![view isKindOfClass:[NativeRenderViewPager class]]) {
+            HPLogError(@"tried to setPage: on an error viewPager %@ with tag #%@", view, componentTag);
+        }
+        NSInteger pageNumberInteger = pageNumber.integerValue;
+        [(NativeRenderViewPager *)view setPage:pageNumberInteger animated:animated];
+    }];
+}
+
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)componentTag
-        pageNumber:(__unused NSNumber *)pageNumber) {
-    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
-        UIView *view = viewRegistry[componentTag];
-
-        if (view == nil || ![view isKindOfClass:[NativeRenderViewPager class]]) {
-            HPLogError(@"tried to setPage: on an error viewPager %@ "
-                        "with tag #%@", view, componentTag);
-        }
-        NSInteger pageNumberInteger = pageNumber.integerValue;
-        [(NativeRenderViewPager *)view setPage:pageNumberInteger animated:YES];
-    }];
+                                      pageNumber:(__unused NSNumber *)pageNumber) {
+    [self setPage:pageNumber withTag:componentTag animated:YES];
 }
-// clang-format on
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)componentTag
-        pageNumber:(__unused NSNumber *)pageNumber) {
-    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
-        UIView *view = viewRegistry[componentTag];
-        if (view == nil || ![view isKindOfClass:[NativeRenderViewPager class]]) {
-            HPLogError(@"tried to setPage: on an error viewPager %@ "
-                        "with tag #%@", view, componentTag);
-        }
-        NSInteger pageNumberInteger = pageNumber.integerValue;
-        [(NativeRenderViewPager *)view setPage:pageNumberInteger animated:NO];
-    }];
+                                      pageNumber:(__unused NSNumber *)pageNumber) {
+    [self setPage:pageNumber withTag:componentTag animated:NO];
 }
-// clang-format on
 
 @end
