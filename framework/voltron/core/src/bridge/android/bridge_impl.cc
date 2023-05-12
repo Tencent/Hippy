@@ -139,6 +139,7 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platfor
 
   JsDriverUtils::InitInstance(
       engine,
+      param,
       global_config,
       scope_initialized_callback,
       call_native_cb);

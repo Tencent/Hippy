@@ -211,6 +211,7 @@ jint CreateJsDriver(JNIEnv* j_env,
   }
   JsDriverUtils::InitInstance(
       engine,
+      param,
       global_config,
       scope_initialized_callback,
       call_host_callback);
