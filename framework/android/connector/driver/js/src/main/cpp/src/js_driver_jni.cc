@@ -146,7 +146,7 @@ jint CreateJsDriver(JNIEnv* j_env,
                     jobject j_vm_init_param,
                     jint j_vfs_id,
                     jint j_devtools_id) {
-  FOOTSTONE_LOG(INFO) << "InitInstance begin, j_single_thread_mode = "
+  FOOTSTONE_LOG(INFO) << "CreateJsDriver begin, j_single_thread_mode = "
                       << static_cast<uint32_t>(j_single_thread_mode)
                       << ", j_bridge_param_json = "
                       << static_cast<uint32_t>(j_enable_v8_serialization)
@@ -203,14 +203,14 @@ jint CreateJsDriver(JNIEnv* j_env,
     FOOTSTONE_LOG(INFO) << "run scope cb";
     hippy::bridge::CallJavaMethod(java_callback->GetObj(), INIT_CB_STATE::SUCCESS);
   };
-  auto engine = JsDriverUtils::CreateEngine(param->is_debug, static_cast<int64_t>(j_group_id));
+  auto engine = JsDriverUtils::CreateEngineAndAsyncInitialize(
+      dom_task_runner, param, static_cast<int64_t>(j_group_id));
   {
     std::lock_guard<std::mutex> lock(holder_mutex);
     engine_holder[engine.get()] = engine;
   }
   JsDriverUtils::InitInstance(
       engine,
-      dom_task_runner,
       param,
       global_config,
       scope_initialized_callback,

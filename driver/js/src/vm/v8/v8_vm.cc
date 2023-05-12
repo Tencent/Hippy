@@ -52,7 +52,7 @@ void InitializePlatform() {
   if (platform != nullptr) {
 #if defined(V8_X5_LITE) && defined(THREAD_LOCAL_PLATFORM)
     FOOTSTONE_DLOG(INFO) << "InitializePlatform";
-      v8::V8::InitializePlatform(platform.get());
+    v8::V8::InitializePlatform(platform.get());
 #endif
   } else {
     FOOTSTONE_LOG(INFO) << "NewDefaultPlatform";
@@ -104,9 +104,6 @@ V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param) : VM(param) {
   }
 
   enable_v8_serialization_ = param->enable_v8_serialization;
-#ifdef ENABLE_INSPECTOR
-  SetDevtoolsDataSource(param->devtools_data_source);
-#endif
   FOOTSTONE_DLOG(INFO) << "V8VM end";
 }
 

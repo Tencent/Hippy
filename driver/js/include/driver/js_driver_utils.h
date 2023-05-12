@@ -44,10 +44,11 @@ class JsDriverUtils {
   using TaskRunner = footstone::TaskRunner;
   using VMInitParam = hippy::VM::VMInitParam;
 
-  static std::shared_ptr<Engine> CreateEngine(bool is_debug, int64_t group_id);
+  static std::shared_ptr<Engine> CreateEngineAndAsyncInitialize(const std::shared_ptr<TaskRunner>& task_runner,
+                                                                const std::shared_ptr<VMInitParam>& param,
+                                                                int64_t group_id);
 
   static void InitInstance(const std::shared_ptr<Engine>& engine,
-                           const std::shared_ptr<TaskRunner>& task_runner,
                            const std::shared_ptr<VMInitParam>& param,
                            const string_view& global_config,
                            std::function<void(std::shared_ptr<Scope>)>&& scope_initialized_callback,

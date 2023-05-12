@@ -85,63 +85,16 @@ constexpr char kCallHostKey[] = "hippyCallNatives";
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
 #endif
 
+#ifdef ENABLE_INSPECTOR
+using DevtoolsDataSource = hippy::devtools::DevtoolsDataSource;
+#endif
+
 static std::unordered_map<int64_t, std::pair<std::shared_ptr<Engine>, uint32_t>> reuse_engine_map;
 static std::mutex engine_mutex;
 
-std::shared_ptr<Engine> JsDriverUtils::CreateEngine(bool is_debug, int64_t group_id) {
-  std::shared_ptr<Engine> engine = nullptr;
-  auto group = group_id;
-  if (is_debug) {
-    group = VM::kDebuggerGroupId;
-  }
-  {
-    std::lock_guard<std::mutex> lock(engine_mutex);
-    auto it = reuse_engine_map.find(group);
-    if (it != reuse_engine_map.end()) {
-      engine = std::get<std::shared_ptr<Engine>>(it->second);
-      std::get<uint32_t>(it->second) += 1;
-      FOOTSTONE_DLOG(INFO) << "engine cnt = " << std::get<uint32_t>(it->second)
-                           << ", use_count = " << engine.use_count();
-    }
-  }
-  if (!engine) {
-    engine = std::make_shared<Engine>();
-    if (group != VM::kDefaultGroupId) {
-      std::lock_guard<std::mutex> lock(engine_mutex);
-      reuse_engine_map[group] = std::make_pair(engine, 1);
-    }
-  }
-  return engine;
-}
-
-void RegisterGlobalObjectAndGlobalConfig(const std::shared_ptr<Scope>& scope, const string_view& global_config) {
-  auto ctx = scope->GetContext();
-  auto global_object = ctx->GetGlobalObject();
-  auto user_global_object_key = ctx->CreateString(kGlobalKey);
-  ctx->SetProperty(global_object, user_global_object_key, global_object);
-  auto hippy_key = ctx->CreateString(kHippyKey);
-  ctx->SetProperty(global_object, hippy_key, ctx->CreateObject());
-  auto native_global_key = ctx->CreateString(kNativeGlobalKey);
-  auto engine = scope->GetEngine().lock();
-  FOOTSTONE_CHECK(engine);
-  auto global_config_object = engine->GetVM()->ParseJson(ctx, global_config);
-  auto flag = ctx->SetProperty(global_object, native_global_key, global_config_object);
-  FOOTSTONE_CHECK(flag) << "set " << kNativeGlobalKey << " failed";
-}
-
-void RegisterCallHostObject(const std::shared_ptr<Scope>& scope, const JsCallback& call_host_callback) {
-  auto func_wrapper = std::make_unique<hippy::napi::FunctionWrapper>(call_host_callback, nullptr);
-  auto ctx = scope->GetContext();
-  auto native_func_cb = ctx->CreateFunction(func_wrapper);
-  scope->SaveFunctionWrapper(std::move(func_wrapper));
-  auto global_object = ctx->GetGlobalObject();
-  auto call_host_key = ctx->CreateString(kCallHostKey);
-  ctx->SetProperty(global_object, call_host_key, native_func_cb, hippy::napi::PropertyAttribute::ReadOnly);
-}
-
-void AsyncInitEngine(const std::shared_ptr<Engine>& engine,
-                     const std::shared_ptr<TaskRunner>& task_runner,
-                     const std::shared_ptr<VMInitParam>& param) {
+void AsyncInitializeEngine(const std::shared_ptr<Engine>& engine,
+                           const std::shared_ptr<TaskRunner>& task_runner,
+                           const std::shared_ptr<VMInitParam>& param) {
   auto engine_initialized_callback = [](const std::shared_ptr<Engine>& engine) {
 #ifdef JS_V8
     auto v8_vm = std::static_pointer_cast<V8VM>(engine->GetVM());
@@ -178,40 +131,71 @@ void AsyncInitEngine(const std::shared_ptr<Engine>& engine,
   engine->AsyncInitialize(task_runner, param, engine_initialized_callback);
 }
 
-void CreateScopeAndAsyncInitialize(const std::shared_ptr<Engine>& engine,
-                                   const string_view& global_config,
-                                   const JsCallback& call_host_callback,
-                                   const std::function<void(std::shared_ptr<Scope>)>& scope_initialized_callback) {
-  auto scope = engine->CreateScope("");
-  engine->GetJsTaskRunner()->PostTask([global_config, scope, call_host_callback, scope_initialized_callback]() {
-    scope->CreateContext();
-    RegisterGlobalObjectAndGlobalConfig(scope, global_config);
-    scope->SyncInitialize();
-    RegisterCallHostObject(scope, call_host_callback);
-#if defined(JS_V8) && defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
-    auto engine = scope->GetEngine().lock();
-    FOOTSTONE_CHECK(engine);
-    auto vm = std::static_pointer_cast<V8VM>(engine->GetVM());
-    if (vm->IsDebug()) {
-      auto inspector_client = vm->GetInspectorClient();
-      if (inspector_client) {
-        inspector_client->CreateInspector(scope);
-        auto inspector_context = inspector_client->CreateInspectorContext(
-            scope, vm->GetDevtoolsDataSource());
-        scope->SetInspectorContext(inspector_context);
+std::shared_ptr<Engine> JsDriverUtils::CreateEngineAndAsyncInitialize(const std::shared_ptr<TaskRunner>& task_runner,
+                                                                      const std::shared_ptr<VMInitParam>& param,
+                                                                      int64_t group_id) {
+  FOOTSTONE_DCHECK(group_id >= -1) << "group_id must be greater than or equal to -1";
+  std::shared_ptr<Engine> engine = nullptr;
+  auto group = group_id;
+  if (param->is_debug) {
+    group = VM::kDebuggerGroupId;
+  }
+  {
+    std::lock_guard<std::mutex> lock(engine_mutex);
+    auto it = reuse_engine_map.find(group);
+    if (it != reuse_engine_map.end()) {
+      engine = std::get<std::shared_ptr<Engine>>(it->second);
+      if (group != VM::kDebuggerGroupId) {
+        std::get<uint32_t>(it->second) += 1;
       }
+      FOOTSTONE_DLOG(INFO) << "engine cnt = " << std::get<uint32_t>(it->second)
+                           << ", use_count = " << engine.use_count();
     }
-#endif
-    scope_initialized_callback(scope);
-  });
+  }
+  if (!engine) {
+    engine = std::make_shared<Engine>();
+    if (group != VM::kDefaultGroupId) {
+      std::lock_guard<std::mutex> lock(engine_mutex);
+      reuse_engine_map[group] = std::make_pair(engine, 1);
+    }
+    AsyncInitializeEngine(engine, task_runner, param);
+  }
+  return engine;
 }
 
-void InitDevTools(const std::shared_ptr<Scope>& scope, const std::shared_ptr<VM>& vm) {
-#if defined(JS_V8) && defined(ENABLE_INSPECTOR)
+void RegisterGlobalObjectAndGlobalConfig(const std::shared_ptr<Scope>& scope, const string_view& global_config) {
+  auto ctx = scope->GetContext();
+  auto global_object = ctx->GetGlobalObject();
+  auto user_global_object_key = ctx->CreateString(kGlobalKey);
+  ctx->SetProperty(global_object, user_global_object_key, global_object);
+  auto hippy_key = ctx->CreateString(kHippyKey);
+  ctx->SetProperty(global_object, hippy_key, ctx->CreateObject());
+  auto native_global_key = ctx->CreateString(kNativeGlobalKey);
+  auto engine = scope->GetEngine().lock();
+  FOOTSTONE_CHECK(engine);
+  auto global_config_object = engine->GetVM()->ParseJson(ctx, global_config);
+  auto flag = ctx->SetProperty(global_object, native_global_key, global_config_object);
+  FOOTSTONE_CHECK(flag) << "set " << kNativeGlobalKey << " failed";
+}
+
+void RegisterCallHostObject(const std::shared_ptr<Scope>& scope, const JsCallback& call_host_callback) {
+  auto func_wrapper = std::make_unique<hippy::napi::FunctionWrapper>(call_host_callback, nullptr);
+  auto ctx = scope->GetContext();
+  auto native_func_cb = ctx->CreateFunction(func_wrapper);
+  scope->SaveFunctionWrapper(std::move(func_wrapper));
+  auto global_object = ctx->GetGlobalObject();
+  auto call_host_key = ctx->CreateString(kCallHostKey);
+  ctx->SetProperty(global_object, call_host_key, native_func_cb, hippy::napi::PropertyAttribute::ReadOnly);
+}
+
+#ifdef ENABLE_INSPECTOR
+void InitDevTools(const std::shared_ptr<Scope>& scope,
+                  const std::shared_ptr<VM>& vm,
+                  const std::shared_ptr<DevtoolsDataSource>& source) {
   if (vm->IsDebug()) {
+    scope->SetDevtoolsDataSource(source);
+#if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
     auto v8_vm = std::static_pointer_cast<V8VM>(vm);
-    scope->SetDevtoolsDataSource(v8_vm->GetDevtoolsDataSource());
-#ifndef V8_WITHOUT_INSPECTOR
     std::weak_ptr<V8VM> weak_v8_vm = v8_vm;
     std::weak_ptr<Scope> weak_scope = scope;
     scope->GetDevtoolsDataSource()->SetVmRequestHandler([weak_v8_vm, weak_scope](const std::string& data) {
@@ -231,26 +215,52 @@ void InitDevTools(const std::shared_ptr<Scope>& scope, const std::shared_ptr<VM>
         inspector_client->SendMessageToV8(scope->GetInspectorContext(), std::move(u16str));
       }
     });
+#endif
   }
+}
 #endif
+
+void CreateScopeAndAsyncInitialize(const std::shared_ptr<Engine>& engine,
+                                   const std::shared_ptr<VMInitParam>& param,
+                                   const string_view& global_config,
+                                   const JsCallback& call_host_callback,
+                                   const std::function<void(std::shared_ptr<Scope>)>& scope_initialized_callback) {
+  auto scope = engine->CreateScope("");
+  engine->GetJsTaskRunner()->PostTask([global_config, param, scope, call_host_callback, scope_initialized_callback]() {
+    auto engine = scope->GetEngine().lock();
+    FOOTSTONE_CHECK(engine);
+#ifdef ENABLE_INSPECTOR
+    InitDevTools(scope, engine->GetVM(), param->devtools_data_source);
 #endif
+    scope->CreateContext();
+    RegisterGlobalObjectAndGlobalConfig(scope, global_config);
+    scope->SyncInitialize();
+    RegisterCallHostObject(scope, call_host_callback);
+#if defined(JS_V8) && defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+    auto vm = std::static_pointer_cast<V8VM>(engine->GetVM());
+    if (vm->IsDebug()) {
+      auto inspector_client = vm->GetInspectorClient();
+      if (inspector_client) {
+        inspector_client->CreateInspector(scope);
+        auto inspector_context = inspector_client->CreateInspectorContext(
+            scope, param->devtools_data_source);
+        scope->SetInspectorContext(inspector_context);
+      }
+    }
+#endif
+    scope_initialized_callback(scope);
+  });
 }
 
 void JsDriverUtils::InitInstance(
     const std::shared_ptr<Engine>& engine,
-    const std::shared_ptr<TaskRunner>& task_runner,
     const std::shared_ptr<VMInitParam>& param,
     const string_view& global_config,
     std::function<void(std::shared_ptr<Scope>)>&& scope_initialized_callback,
     const JsCallback& call_host_callback) {
-  AsyncInitEngine(engine, task_runner, param);
-  CreateScopeAndAsyncInitialize(engine, global_config, call_host_callback,
-                                [callback = std::move(scope_initialized_callback)](const std::shared_ptr<Scope>& scope) {
-    auto engine = scope->GetEngine().lock();
-    if (!engine) {
-      return;
-    }
-    InitDevTools(scope, engine->GetVM());
+  CreateScopeAndAsyncInitialize(engine, param, global_config, call_host_callback,
+                                [callback = std::move(scope_initialized_callback)](
+                                    const std::shared_ptr<Scope>& scope) {
     callback(scope);
   });
 }
