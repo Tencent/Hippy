@@ -54,7 +54,7 @@ std::shared_ptr<Ctx> JSCVM::CreateContext() {
   return std::make_shared<JSCCtx>(vm_, weak_from_this());
 }
 
-std::shared_ptr<VM> CreateVM(const std::shared_ptr<VMInitParam>& param) {
+std::shared_ptr<VM> CreateVM(const std::shared_ptr<VM::VMInitParam>& param) {
   return std::make_shared<JSCVM>();
 }
 

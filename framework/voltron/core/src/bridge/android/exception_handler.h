@@ -22,10 +22,10 @@
 
 #pragma once
 
+#include <any>
 #include <iostream>
 #include <sstream>
 
-#include "driver/runtime/v8/runtime.h"
 #include "footstone/string_view_utils.h"
 #include "voltron_bridge.h"
 
@@ -38,7 +38,7 @@ class ExceptionHandler {
 
   ExceptionHandler() = default;
   ~ExceptionHandler() = default;
-  static void ReportJsException(const std::shared_ptr<hippy::Runtime> &runtime,
+  static void ReportJsException(const std::any& bridge,
                                 const string_view &desc,
                                 const string_view &stack);
 

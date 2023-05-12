@@ -109,7 +109,6 @@ struct PropertyDescriptor {
 
 class Ctx {
  public:
-  using JSValueWrapper = hippy::base::JSValueWrapper;
   using string_view = footstone::string_view;
 
   Ctx() {}
@@ -179,8 +178,10 @@ class Ctx {
                               string_view* result) = 0;
   virtual bool GetValueJson(const std::shared_ptr<CtxValue>& value,
                             string_view* result) = 0;
-  virtual bool GetEntries(const std::shared_ptr<CtxValue>& value,
-                          std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) = 0;
+  virtual bool GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
+                                    std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) = 0;
+  virtual bool GetEntriesFromMap(const std::shared_ptr<CtxValue>& value,
+                                 std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) = 0;
   virtual bool IsNull(const std::shared_ptr<CtxValue>& value) = 0;
   virtual bool IsUndefined(const std::shared_ptr<CtxValue>& value) = 0;
   virtual bool IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) = 0;

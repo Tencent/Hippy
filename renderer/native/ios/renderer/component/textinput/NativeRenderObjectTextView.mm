@@ -102,8 +102,21 @@ static hippy::LayoutSize x5MeasureFunc(
     auto domManager = [self domManager].lock();
     if (domManager) {
         int32_t componentTag = [self.componentTag intValue];
-        auto node = domManager->GetNode(self.rootNode, componentTag);
-        node->GetLayoutNode()->MarkDirty();
+        __weak NativeRenderObjectView *weakSelf = self;
+        std::vector<std::function<void()>> ops_ = {[componentTag, weakSelf, domManager](){
+            @autoreleasepool {
+                NativeRenderObjectView *strongSelf = weakSelf;
+                if (strongSelf) {
+                    auto domNode = domManager->GetNode(strongSelf.rootNode, componentTag);
+                    if (domNode) {
+                        domNode->GetLayoutNode()->MarkDirty();
+                        [strongSelf dirtyPropagation];
+                        domManager->DoLayout(strongSelf.rootNode);
+                        domManager->EndBatch(strongSelf.rootNode);
+                    }
+                }
+            }
+        }};
     }
 }
 

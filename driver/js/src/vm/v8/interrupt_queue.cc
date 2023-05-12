@@ -20,7 +20,7 @@
  *
  */
 
-#include "driver/runtime/v8/interrupt_queue.h"
+#include "driver/vm/v8/interrupt_queue.h"
 
 namespace hippy {
 inline namespace driver {

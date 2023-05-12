@@ -3,7 +3,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2023 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,17 +21,24 @@
  */
 
 #import "VoltronPlugin.h"
-#if __has_include(<voltron/voltron-Swift.h>)
-#import <voltron/voltron-Swift.h>
-#else
-// Support project import fallback if the generated compatibility header
-// is not copied when this plugin is created as a library.
-// https://forums.swift.org/t/swift-static-libraries-dont-copy-generated-objective-c-header/19816
-#import "voltron-Swift.h"
-#endif
 
 @implementation VoltronPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
-  [SwiftVoltronPlugin registerWithRegistrar:registrar];
+  FlutterMethodChannel* channel = [FlutterMethodChannel
+      methodChannelWithName:@"voltron"
+            binaryMessenger:[registrar messenger]];
+  VoltronPlugin* instance = [[VoltronPlugin alloc] init];
+  [registrar addMethodCallDelegate:instance channel:channel];
 }
+
+- (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
+  if ([@"getPlatformVersion" isEqualToString:call.method]) {
+    result([@"iOS " stringByAppendingString:[[UIDevice currentDevice] systemVersion]]);
+  } else {
+    result(FlutterMethodNotImplemented);
+  }
+}
+
+
 @end
+

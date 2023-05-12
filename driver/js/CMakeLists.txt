@@ -148,6 +148,7 @@ set(SOURCE_SET
     src/base/js_convert_utils.cc
     src/base/js_value_wrapper.cc
     src/engine.cc
+    src/js_driver_utils.cc
     src/modules/animation_module.cc
     src/modules/event_module.cc
     src/modules/scene_builder.cc
@@ -158,17 +159,15 @@ if ("${JS_ENGINE}" STREQUAL "V8")
   list(APPEND SOURCE_SET
           src/napi/v8/v8_ctx.cc
           src/napi/v8/v8_try_catch.cc
-          src/runtime/v8/interrupt_queue.cc
-          src/runtime/v8/runtime.cc
-          src/runtime/v8/v8_bridge_utils.cc
+          src/vm/v8/interrupt_queue.cc
           src/vm/v8/memory_module.cc
           src/vm/v8/native_source_code_android.cc
           src/vm/v8/serializer.cc
           src/vm/v8/v8_vm.cc)
   if (NOT V8_WITHOUT_INSPECTOR)
     list(APPEND SOURCE_SET
-        src/runtime/v8/inspector/v8_channel_impl.cc
-        src/runtime/v8/inspector/v8_inspector_client_impl.cc)
+            src/vm/v8/inspector/v8_channel_impl.cc
+            src/vm/v8/inspector/v8_inspector_client_impl.cc)
   endif ()
 elseif ("${JS_ENGINE}" STREQUAL "JSC")
   list(APPEND SOURCE_SET

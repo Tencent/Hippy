@@ -26,17 +26,25 @@
 #include <utility>
 
 #include "vfs/file.h"
-#include "driver/runtime/v8/runtime.h"
-#include "driver/runtime/v8/v8_bridge_utils.h"
 #include "bridge_impl.h"
 #include "dart2js.h"
 #include "voltron_bridge.h"
 #include "exception_handler.h"
 #include "js2dart.h"
 #include "devtools/vfs/devtools_handler.h"
+#include "driver/js_driver_utils.h"
 #include "footstone/worker_manager.h"
 #include "wrapper.h"
 #include "data_holder.h"
+
+#ifdef JS_V8
+#include "driver/vm/v8/v8_vm.h"
+#endif
+
+#ifdef ENABLE_INSPECTOR
+#include "devtools/devtools_data_source.h"
+#include "devtools/vfs/devtools_handler.h"
+#endif
 
 using string_view = footstone::stringview::string_view;
 using u8string = string_view::u8string;
@@ -46,11 +54,23 @@ using Ctx = hippy::napi::Ctx;
 using HippyFile = hippy::vfs::HippyFile;
 using V8VMInitParam = hippy::V8VMInitParam;
 using voltron::VoltronBridge;
-using V8BridgeUtils = hippy::runtime::V8BridgeUtils;
+using JsDriverUtils = hippy::driver::JsDriverUtils;
 using StringViewUtils = footstone::StringViewUtils;
 
 constexpr char kHippyCurDirKey[] = "__HIPPYCURDIR__";
 
+#ifdef JS_V8
+using V8VMInitParam = hippy::V8VMInitParam;
+#endif
+
+enum INIT_CB_STATE {
+  DESTROY_ERROR = -2,
+  RUN_SCRIPT_ERROR = -1,
+  SUCCESS = 0,
+};
+
+static std::mutex holder_mutex;
+static std::unordered_map<void*, std::shared_ptr<hippy::Engine>> engine_holder;
 
 int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platform_runtime,
                                  bool single_thread_mode,
@@ -71,67 +91,70 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platfor
                       << ", is_dev_module = "
                       << is_dev_module
                       << ", group_id = " << group_id;
-
-  std::shared_ptr<V8VMInitParam> param = std::make_shared<V8VMInitParam>();
+#ifdef JS_V8
+  auto param = std::make_shared<V8VMInitParam>();
   if (initial_heap_size > 0 && maximum_heap_size > 0 && initial_heap_size >= maximum_heap_size) {
     param->initial_heap_size_in_bytes = static_cast<size_t>(initial_heap_size);
     param->maximum_heap_size_in_bytes = static_cast<size_t>(maximum_heap_size);
   }
-  int64_t runtime_id = 0;
-  RegisterFunction scope_cb = [runtime_id, outerCallback = callback](void *) {
-    FOOTSTONE_LOG(INFO) << "run scope cb";
-    outerCallback(runtime_id);
-  };
+  param->enable_v8_serialization =  static_cast<bool>(!bridge_param_json);
+  param->is_debug = static_cast<bool>(is_dev_module);
+#else
+  auto param = std::make_shared<VMInitParam>();
+#endif
+
+#ifdef ENABLE_INSPECTOR
+  if (param->is_debug) {
+    auto devtools_data_source = hippy::devtools::DevtoolsDataSource::Find(devtools_id);
+    param->devtools_data_source = devtools_data_source;
+  }
+#endif
+
   auto call_native_cb = [](hippy::CallbackInfo& info, void* data) {
-    auto scope_wrapper = reinterpret_cast<hippy::ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
-    auto scope = scope_wrapper->scope.lock();
-    FOOTSTONE_CHECK(scope);
-    auto runtime_id = static_cast<int32_t>(reinterpret_cast<size_t>(data));
-    voltron::bridge::CallDart(info, runtime_id);
+    voltron::bridge::CallDart(info);
   };
-  V8BridgeUtils::SetOnThrowExceptionToJS([](const std::shared_ptr<hippy::Runtime> &runtime,
-                                            const string_view &desc,
-                                            const string_view &stack) {
-    voltron::ExceptionHandler::ReportJsException(runtime, desc, stack);
+  param->uncaught_exception_callback = ([](const std::any& bridge, const string_view& description, const string_view& stack) {
+    voltron::ExceptionHandler::ReportJsException(bridge, description, stack);
   });
-  std::shared_ptr<VoltronBridge> bridge = std::make_shared<VoltronBridge>(platform_runtime);
+
   string_view global_config = string_view(char_globalConfig);
   auto dom_manager = voltron::FindObject<std::shared_ptr<hippy::DomManager>>(dom_manager_id);
   FOOTSTONE_DCHECK(dom_manager);
   auto dom_task_runner = dom_manager->GetTaskRunner();
-  runtime_id = V8BridgeUtils::InitInstance(
-      true,
-      static_cast<bool>(is_dev_module),
-      global_config,
-      static_cast<int32_t>(group_id),
-      worker_manager,
-      dom_task_runner,
-      param,
-      bridge,
-      scope_cb,
-      call_native_cb,
-      devtools_id);
-  return static_cast<int64_t>(runtime_id);
-}
+  auto scope_id = voltron::GenId();
 
-bool BridgeImpl::RunScriptFromUri(int64_t runtime_id, uint32_t vfs_id, bool can_use_code_cache, bool is_local_file, const char16_t* uri,
-                                  const char16_t* code_cache_dir_str, std::function<void(int64_t)> callback) {
-  FOOTSTONE_DLOG(INFO) << "runScriptFromUri begin, j_runtime_id = "
-                       << runtime_id;
-  std::shared_ptr<hippy::Runtime>
-      runtime = hippy::Runtime::Find(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id));
-  if (!runtime) {
-    FOOTSTONE_DLOG(WARNING)
-    << "BridgeImpl RunScriptFromFile, runtime_id invalid";
-    return false;
+  std::shared_ptr<VoltronBridge> bridge = std::make_shared<VoltronBridge>(platform_runtime);
+  auto scope_initialized_callback = [scope_id, bridge, dart_callback = callback](const std::shared_ptr<hippy::Scope>& scope) {
+    scope->SetBridge(bridge);
+    voltron::InsertObject(scope_id, scope);
+    FOOTSTONE_LOG(INFO) << "run scope cb";
+    dart_callback(scope_id);
+  };
+
+  auto engine = JsDriverUtils::CreateEngine(param->is_debug, group_id);
+  {
+    std::lock_guard<std::mutex> lock(holder_mutex);
+    engine_holder[engine.get()] = engine;
   }
 
+  JsDriverUtils::InitInstance(
+      engine,
+      dom_task_runner,
+      param,
+      global_config,
+      scope_initialized_callback,
+      call_native_cb);
+  return static_cast<int64_t>(scope_id);
+}
+
+bool BridgeImpl::RunScriptFromUri(int64_t scope_id, uint32_t vfs_id, bool can_use_code_cache, bool is_local_file, const char16_t* uri,
+                                  const char16_t* code_cache_dir_str, std::function<void(int64_t)> callback) {
   auto time_begin = std::chrono::time_point_cast<std::chrono::microseconds>(
       std::chrono::system_clock::now())
       .time_since_epoch()
       .count();
   if (!uri) {
-    FOOTSTONE_DLOG(WARNING) << "BridgeImpl runScriptFromUri, j_uri invalid";
+    FOOTSTONE_DLOG(WARNING) << "BridgeImpl runScriptFromUri, uri invalid";
     return false;
   }
   const string_view uri_view = string_view(uri);
@@ -145,21 +168,29 @@ bool BridgeImpl::RunScriptFromUri(int64_t runtime_id, uint32_t vfs_id, bool can_
                        << ", base_path = " << base_path
                        << ", code_cache_dir = " << code_cache_dir;
 
-  auto runner = runtime->GetEngine()->GetJsTaskRunner();
-  auto ctx = runtime->GetScope()->GetContext();
+  auto scope = GetScope(scope_id);
+  if (!scope) {
+    FOOTSTONE_DLOG(WARNING) << "BridgeImpl runScriptFromUri, scope id invalid";
+    return false;
+  }
+
+  auto runner = scope->GetTaskRunner();
+  auto ctx = scope->GetContext();
   runner->PostTask([ctx, base_path] {
     auto key = ctx->CreateString(kHippyCurDirKey);
     auto value = ctx->CreateString(base_path);
     auto global = ctx->GetGlobalObject();
     ctx->SetProperty(global, key, value);
   });
+
   auto wrapper = voltron::VfsWrapper::GetWrapper(vfs_id);
   FOOTSTONE_CHECK(wrapper != nullptr);
-  FOOTSTONE_CHECK(runtime->HasData(kBridgeSlot));
-  runtime->GetScope()->SetUriLoader(wrapper->GetLoader());
+  scope->SetUriLoader(wrapper->GetLoader());
 
+  auto engine = scope->GetEngine().lock();
+  FOOTSTONE_CHECK(engine);
 #ifdef ENABLE_INSPECTOR
-  auto devtools_data_source = runtime->GetDevtoolsDataSource();
+  auto devtools_data_source = scope->GetDevtoolsDataSource();
   if (devtools_data_source) {
     auto network_notification = devtools_data_source->GetNotificationCenter()->network_notification;
     auto devtools_handler = std::make_shared<hippy::devtools::DevtoolsHandler>();
@@ -167,11 +198,11 @@ bool BridgeImpl::RunScriptFromUri(int64_t runtime_id, uint32_t vfs_id, bool can_
     wrapper->GetLoader()->RegisterUriInterceptor(devtools_handler);
   }
 #endif
-  auto func = [runtime, callback_ = std::move(callback), script_name,
+  auto func = [scope, callback_ = std::move(callback), script_name,
       can_use_code_cache, is_local_file, code_cache_dir, uri_view,
       time_begin] {
     FOOTSTONE_DLOG(INFO) << "runScriptFromUri enter";
-    bool flag = V8BridgeUtils::RunScript(runtime, script_name, can_use_code_cache,
+    bool flag = JsDriverUtils::RunScript(scope, script_name, can_use_code_cache,
                                          code_cache_dir, uri_view, is_local_file);
     auto time_end = std::chrono::time_point_cast<std::chrono::microseconds>(
         std::chrono::system_clock::now())
@@ -189,43 +220,50 @@ bool BridgeImpl::RunScriptFromUri(int64_t runtime_id, uint32_t vfs_id, bool can_
   return true;
 }
 
-void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t *action, std::string params,
+void BridgeImpl::CallFunction(int64_t scope_id, const char16_t *action, std::string params,
                               std::function<void(int64_t)> callback) {
-  voltron::bridge::CallJSFunction(runtime_id,
+  voltron::bridge::CallJSFunction(scope_id,
                                   string_view(action),
                                   std::move(params),
                                   std::move(callback));
 }
 
-void BridgeImpl::Destroy(int64_t runtimeId,
+void BridgeImpl::Destroy(int64_t scope_id,
                          const std::function<void(int64_t)> &callback, bool is_reload) {
-  V8BridgeUtils::DestroyInstance(runtimeId, [callback](bool ret) {
+  auto scope = GetScope(scope_id);
+  auto engine = scope->GetEngine().lock();
+  FOOTSTONE_CHECK(engine);
+  {
+    std::lock_guard<std::mutex> lock(holder_mutex);
+    auto it = engine_holder.find(engine.get());
+    if (it != engine_holder.end()) {
+      engine_holder.erase(it);
+    }
+  }
+  JsDriverUtils::DestroyInstance(engine, scope, [callback](bool ret) {
     if (ret) {
-      callback(0);
+      callback(INIT_CB_STATE::SUCCESS);
     } else {
-      callback(-2);
+      callback(INIT_CB_STATE::DESTROY_ERROR);
     }
   }, is_reload);
 }
 
-void BridgeImpl::LoadInstance(int64_t runtime_id,
+void BridgeImpl::LoadInstance(int64_t scope_id,
                               std::string &&buffer_data) {
-  V8BridgeUtils::LoadInstance(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id),
-                              std::move(buffer_data));
+  auto scope = GetScope(scope_id);
+  JsDriverUtils::LoadInstance(scope, std::move(buffer_data));
 }
 
-void BridgeImpl::UnloadInstance(int64_t runtime_id, byte_string &&buffer_data) {
-  V8BridgeUtils::UnloadInstance(footstone::check::checked_numeric_cast<int64_t,
-                                                                       int32_t>(runtime_id),
-                                std::move(buffer_data));
+void BridgeImpl::UnloadInstance(int64_t scope_id, byte_string &&buffer_data) {
+  auto scope = GetScope(scope_id);
+  JsDriverUtils::UnloadInstance(scope, std::move(buffer_data));
 }
 
-std::shared_ptr<hippy::Scope> BridgeImpl::GetScope(int64_t runtime_id) {
-  std::shared_ptr<hippy::Runtime>
-      runtime = hippy::Runtime::Find(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id));
-  if (!runtime) {
-    FOOTSTONE_DLOG(WARNING) << "GetScope failed, runtime_id invalid";
-    return nullptr;
-  }
-  return runtime->GetScope();
+std::shared_ptr<hippy::Scope> BridgeImpl::GetScope(int64_t scope_id) {
+  auto scope = voltron::FindObject<std::shared_ptr<hippy::Scope>>(footstone::checked_numeric_cast<
+      int64_t,
+      uint32_t>(scope_id));
+  FOOTSTONE_CHECK(scope);
+  return scope;
 }

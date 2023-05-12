@@ -22,18 +22,16 @@
 
 #pragma once
 
-#include "driver/runtime/v8/v8_bridge_utils.h"
+#include "driver/js_driver_utils.h"
 
 namespace voltron {
 namespace bridge {
 
 using bytes = std::string;
 using string_view = footstone::stringview::string_view;
-using CALLFUNCTION_CB_STATE = hippy::runtime::CALL_FUNCTION_CB_STATE;
-using V8BridgeUtils = hippy::runtime::V8BridgeUtils;
 
-void CallJSFunction(int64_t runtime_id, const string_view& action_name, bytes params_data,
-                    std::function<void(int64_t)> callback);
+void CallJSFunction(int64_t scope_id, const string_view& action_name, bytes params_data,
+                    const std::function<void(int64_t)>& callback);
 
 }  // namespace bridge
 }  // namespace voltron

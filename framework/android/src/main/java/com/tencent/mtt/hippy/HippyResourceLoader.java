@@ -30,6 +30,8 @@ import com.tencent.vfs.ResourceDataHolder;
 import com.tencent.vfs.ResourceLoader;
 import com.tencent.vfs.UrlUtils;
 import com.tencent.vfs.VfsManager.ProcessorCallback;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -103,10 +105,12 @@ public class HippyResourceLoader implements ResourceLoader {
             loadBase64Resource(holder);
             return;
         }
+        boolean isAssetsFile = false;
         String fileName;
         if (UrlUtils.isFileUrl(holder.uri)) {
             fileName = holder.uri.substring(PREFIX_FILE.length());
         } else if (UrlUtils.isAssetsUrl(holder.uri)) {
+            isAssetsFile = true;
             fileName = holder.uri.substring(PREFIX_ASSETS.length());
         } else {
             holder.resultCode = FetchResultCode.ERR_UNKNOWN_SCHEME.ordinal();
@@ -114,7 +118,11 @@ public class HippyResourceLoader implements ResourceLoader {
         }
         InputStream inputStream = null;
         try {
-            inputStream = ContextHolder.getAppContext().getAssets().open(fileName);
+            if (isAssetsFile) {
+                inputStream = ContextHolder.getAppContext().getAssets().open(fileName);
+            } else {
+                inputStream = new FileInputStream(fileName);
+            }
             holder.readResourceDataFromStream(inputStream);
             holder.resultCode = FetchResultCode.OK.ordinal();
         } catch (IOException | NullPointerException e) {

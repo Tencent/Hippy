@@ -31,26 +31,22 @@ namespace hippy {
 inline namespace framework {
 
 using StringViewUtils = footstone::stringview::StringViewUtils;
-using Runtime = hippy::Runtime;
 
 jmethodID j_report_exception_method_id;
 
-void ExceptionHandler::ReportJsException(const std::shared_ptr<Runtime>& runtime,
-                                         const string_view& desc,
+void ExceptionHandler::ReportJsException(const std::any& bridge,
+                                         const string_view& description,
                                          const string_view& stack) {
   FOOTSTONE_DLOG(INFO) << "ReportJsException begin";
 
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-  jstring j_exception = JniUtils::StrViewToJString(j_env, desc);
-  jstring j_stack_trace = JniUtils::StrViewToJString(j_env, stack);
+  auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  auto j_exception = JniUtils::StrViewToJString(j_env, description);
+  auto j_stack_trace = JniUtils::StrViewToJString(j_env, stack);
 
-  if (runtime->HasData(kBridgeSlot)) {
-    auto slot = runtime->GetData(kBridgeSlot);
-    auto bridge = std::any_cast<std::shared_ptr<hippy::Bridge>>(slot);
-    j_env->CallVoidMethod(bridge->GetObj(),j_report_exception_method_id,
-                          j_exception, j_stack_trace);
-    JNIEnvironment::ClearJEnvException(j_env);
-  }
+  auto bridge_object = std::any_cast<std::shared_ptr<hippy::Bridge>>(bridge);
+  j_env->CallVoidMethod(bridge_object->GetObj(),j_report_exception_method_id,
+                        j_exception, j_stack_trace);
+  JNIEnvironment::ClearJEnvException(j_env);
 
   j_env->DeleteLocalRef(j_exception);
   j_env->DeleteLocalRef(j_stack_trace);

@@ -28,6 +28,10 @@
 #include "footstone/task.h"
 #include "footstone/worker.h"
 
+#ifdef JS_V8
+#include "driver/vm/v8/v8_vm.h"
+#endif
+
 using TaskRunner = footstone::TaskRunner;
 using Task = footstone::Task;
 
@@ -36,46 +40,34 @@ inline namespace driver {
 
 Engine::Engine()
     : js_runner_(nullptr),
-      worker_task_runner_(nullptr),
-      vm_(nullptr),
-      map_() {}
+      vm_(nullptr) {}
 
 Engine::~Engine() {
   FOOTSTONE_DLOG(INFO) << "~Engine";
 }
 
-void Engine::AsyncInit(std::shared_ptr<TaskRunner> js,
-                       std::shared_ptr<TaskRunner> worker,
-                       std::unique_ptr<RegisterMap> map,
-                       const std::shared_ptr<VMInitParam>& param) {
+void Engine::AsyncInitialize(std::shared_ptr<TaskRunner> js,
+                             const std::shared_ptr<VMInitParam>& param,
+                             std::function<void(std::shared_ptr<Engine>)> engine_initialized_callback) {
   js_runner_ = std::move(js);
-  worker_task_runner_ = std::move(worker);
-  map_ = std::move(map);
   auto weak_engine = weak_from_this();
-  auto cb = [weak_engine, param] {
+  auto cb = [weak_engine, param, callback = std::move(engine_initialized_callback)] {
     auto engine = weak_engine.lock();
     FOOTSTONE_DCHECK(engine);
     if (!engine) {
       return;
     }
     engine->CreateVM(param);
+    if (callback) {
+      callback(engine);
+    }
   };
   js_runner_->PostTask(std::move(cb));
 }
 
-std::shared_ptr<Scope> Engine::AsyncCreateScope(const std::string& name,
-                                           std::unique_ptr<RegisterMap> map) {
+std::shared_ptr<Scope> Engine::CreateScope(const std::string& name) {
   FOOTSTONE_DLOG(INFO) << "Engine CreateScope";
-  std::shared_ptr<Scope> scope = std::make_shared<Scope>(weak_from_this(), name, std::move(map));
-  scope->wrapper_ = std::make_unique<ScopeWrapper>(scope);
-
-  auto cb = [scope_ = scope] { scope_->Init(); };
-  if (footstone::Worker::IsTaskRunning() && js_runner_ == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
-    cb();
-  } else {
-    js_runner_->PostTask(std::move(cb));
-  }
-  return scope;
+  return std::make_shared<Scope>(weak_from_this(), name);
 }
 
 std::any Engine::GetClassTemplate(void* key, const string_view& name) {
@@ -140,17 +132,6 @@ void Engine::ClearWeakCallbackWrapper(void* key) {
 void Engine::CreateVM(const std::shared_ptr<VMInitParam>& param) {
   FOOTSTONE_DLOG(INFO) << "Engine CreateVM";
   vm_ = hippy::CreateVM(param);
-
-  auto it = map_->find(hippy::base::kVMCreateCBKey);
-  if (it != map_->end()) {
-    RegisterFunction f = it->second;
-    if (f) {
-      FOOTSTONE_DLOG(INFO) << "run VMCreatedCB begin";
-      f(vm_.get());
-      FOOTSTONE_DLOG(INFO) << "run VMCreatedCB end";
-      map_->erase(it);
-    }
-  }
 }
 
 }

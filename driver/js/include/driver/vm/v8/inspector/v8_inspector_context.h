@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "driver/runtime/v8/inspector/v8_channel_impl.h"
+#include "v8_channel_impl.h"
 
 namespace hippy {
 inline namespace driver {

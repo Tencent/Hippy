@@ -31,7 +31,7 @@ inline namespace framework {
 inline namespace bridge {
 
 void InitBridge(JNIEnv* j_env);
-void CallNative(CallbackInfo& info, int32_t runtime_id);
+void CallHost(CallbackInfo& info);
 
 } // namespace bridge
 } // namespace framework

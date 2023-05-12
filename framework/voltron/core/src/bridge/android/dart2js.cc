@@ -21,15 +21,21 @@
  */
 
 #include "dart2js.h"
+#include "data_holder.h"
 
 namespace voltron {
 namespace bridge {
 
-void CallJSFunction(int64_t runtime_id, const string_view& action_name, bytes params_data,
-                    std::function<void(int64_t)> callback) {
-  FOOTSTONE_DCHECK(runtime_id <= std::numeric_limits<std::int32_t>::max()
-                      && runtime_id >= std::numeric_limits<std::int32_t>::min());
-  V8BridgeUtils::CallJs(action_name, static_cast<int32_t>(runtime_id),
+using CALLFUNCTION_CB_STATE = hippy::driver::CALL_FUNCTION_CB_STATE;
+using JsDriverUtils = hippy::driver::JsDriverUtils;
+
+void CallJSFunction(int64_t scope_id, const string_view& action_name, bytes params_data,
+                    const std::function<void(int64_t)>& callback) {
+  auto scope = voltron::FindObject<std::shared_ptr<hippy::Scope>>(footstone::checked_numeric_cast<
+      int64_t,
+      uint32_t>(scope_id));
+  FOOTSTONE_CHECK(scope);
+  JsDriverUtils::CallJs(action_name, scope,
                         [callback](CALLFUNCTION_CB_STATE state, const string_view& msg) {
                           callback(static_cast<int64_t>(state));
                         }, std::move(params_data),

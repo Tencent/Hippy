@@ -34,6 +34,7 @@ if (typeof __HIPPYNATIVEGLOBAL__ !== 'undefined') {
   } else {
     Hippy.device.platform.OS = __HIPPYNATIVEGLOBAL__.Platform.OS;
     Hippy.device.platform.APILevel = __HIPPYNATIVEGLOBAL__.Platform.APILevel;
+    Hippy.device.platform.SDKVersion = __HIPPYNATIVEGLOBAL__.Platform.SDKVersion;
     Hippy.device.platform.Localization = __HIPPYNATIVEGLOBAL__.Platform.Localization || Localization;
   }
 }

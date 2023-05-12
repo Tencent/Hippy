@@ -90,9 +90,7 @@ V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param) : VM(param) {
       v8::V8::Initialize();
     }
   }
-
-  create_params_.array_buffer_allocator =
-      v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+  create_params_.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
   if (param) {
     create_params_.constraints.ConfigureDefaultsFromHeapSize(param->initial_heap_size_in_bytes,
                                                              param->maximum_heap_size_in_bytes);
@@ -104,6 +102,11 @@ V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param) : VM(param) {
     isolate_->AddNearHeapLimitCallback(param->near_heap_limit_callback,
                                        param->near_heap_limit_callback_data);
   }
+
+  enable_v8_serialization_ = param->enable_v8_serialization;
+#ifdef ENABLE_INSPECTOR
+  SetDevtoolsDataSource(param->devtools_data_source);
+#endif
   FOOTSTONE_DLOG(INFO) << "V8VM end";
 }
 
@@ -115,15 +118,19 @@ static void UncaughtExceptionMessageCallback(v8::Local<v8::Message> message, v8:
   v8::HandleScope handle_scope(isolate);
   auto context = isolate->GetCurrentContext();
   v8::Context::Scope context_scope(context);
-  CallbackInfo cb_info;
-  cb_info.SetSlot(context->GetAlignedPointerFromEmbedderData(kScopeWrapperIndex));
+  CallbackInfo callback_info;
+  callback_info.SetSlot(context->GetAlignedPointerFromEmbedderData(kScopeWrapperIndex));
   auto error = v8::Exception::Error(message->Get());
-  cb_info.AddValue(std::make_shared<V8CtxValue>(isolate, error));
+  callback_info.AddValue(std::make_shared<V8CtxValue>(isolate, error));
+  auto description = V8VM::GetMessageDescription(isolate, context, message);
+  callback_info.AddValue(std::make_shared<V8CtxValue>(isolate, V8VM::CreateV8String(isolate, context, description)));
+  auto stack = V8VM::GetStackTrace(isolate, context, message->GetStackTrace());
+  callback_info.AddValue(std::make_shared<V8CtxValue>(isolate, V8VM::CreateV8String(isolate, context, stack)));
   auto external = data.As<v8::External>();
   FOOTSTONE_CHECK(!external.IsEmpty());
   auto* func_wrapper = reinterpret_cast<FunctionWrapper*>(external->Value());
   FOOTSTONE_CHECK(func_wrapper && func_wrapper->cb);
-  (func_wrapper->cb)(cb_info, func_wrapper->data);
+  (func_wrapper->cb)(callback_info, func_wrapper->data);
 }
 
 void V8VM::AddUncaughtExceptionMessageListener(const std::unique_ptr<FunctionWrapper>& wrapper) const {
@@ -161,12 +168,12 @@ std::shared_ptr<Ctx> V8VM::CreateContext() {
 
 string_view V8VM::ToStringView(v8::Isolate* isolate,
                                v8::Local<v8::Context> context,
-                               v8::Local<v8::String> str) {
-  FOOTSTONE_DCHECK(!str.IsEmpty());
+                               v8::Local<v8::String> string) {
+  FOOTSTONE_DCHECK(!string.IsEmpty());
   v8::HandleScope handle_scope(isolate);
   v8::Context::Scope context_scope(context);
 
-  auto v8_string = v8::String::Cast(*str);
+  auto v8_string = v8::String::Cast(*string);
   auto len = footstone::checked_numeric_cast<int, size_t>(v8_string->Length());
   if (v8_string->IsOneByte()) {
     std::string one_byte_string;
@@ -281,7 +288,7 @@ string_view V8VM::GetStackTrace(v8::Isolate* isolate,
 }
 
 
-std::shared_ptr<VM> CreateVM(const std::shared_ptr<VMInitParam>& param) {
+std::shared_ptr<VM> CreateVM(const std::shared_ptr<VM::VMInitParam>& param) {
   return std::make_shared<V8VM>(std::static_pointer_cast<V8VMInitParam>(param));
 }
 
@@ -293,7 +300,7 @@ std::shared_ptr<CtxValue> V8VM::ParseJson(const std::shared_ptr<Ctx>& ctx, const
   auto v8_ctx = std::static_pointer_cast<V8Ctx>(ctx);
   auto isolate = v8_ctx->isolate_;
   v8::HandleScope handle_scope(isolate);
-  v8::Local<v8::Context> context = v8_ctx->context_persistent_.Get(isolate);
+  auto context = v8_ctx->context_persistent_.Get(isolate);
   v8::Context::Scope context_scope(context);
 
   auto v8_string = V8VM::CreateV8String(isolate, context, json);
