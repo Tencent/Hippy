@@ -9,26 +9,45 @@
     >
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/page_item_container"
-        android:layout_width="@dimen/page_item_default_width"
-        android:layout_height="@dimen/page_item_default_height"
-        android:background="@color/white"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        >
+      android:id="@+id/page_item_container"
+      android:layout_width="@dimen/page_item_default_width"
+      android:layout_height="@dimen/page_item_default_height"
+      android:background="@color/white"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintRight_toRightOf="parent"
+      >
 
         <ImageView
-            android:id="@+id/page_item_image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
+          android:id="@+id/page_item_image"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:clickable="true"
+          android:focusable="true"
+          app:layout_constraintLeft_toLeftOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintRight_toRightOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+          android:id="@+id/page_item_delete"
+          android:layout_width="37dp"
+          android:layout_height="36dp"
+          android:clickable="true"
+          android:focusable="true"
+          app:layout_constraintTop_toTopOf="parent"
+          app:layout_constraintRight_toRightOf="parent">
+            <ImageView
+              android:id="@+id/page_item_delete_image"
+              android:layout_width="21dp"
+              android:layout_height="21dp"
+              android:src="@drawable/delete_page_2x"
+              app:layout_constraintLeft_toLeftOf="parent"
+              app:layout_constraintTop_toTopOf="parent"
+              app:layout_constraintBottom_toBottomOf="parent"
+              app:layout_constraintRight_toRightOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
