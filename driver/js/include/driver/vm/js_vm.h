@@ -83,15 +83,6 @@ class VM {
     return uncaught_exception_callback_;
   }
 
-#ifdef ENABLE_INSPECTOR
-  inline void SetDevtoolsDataSource(std::shared_ptr<DevtoolsDataSource> devtools_data_source) {
-    devtools_data_source_ = devtools_data_source;
-  }
-  inline std::shared_ptr<DevtoolsDataSource> GetDevtoolsDataSource() {
-    return devtools_data_source_;
-  }
-#endif
-
   static void HandleUncaughtException(const std::shared_ptr<Ctx>& ctx, const std::shared_ptr<CtxValue>& exception);
   virtual std::shared_ptr<CtxValue> ParseJson(const std::shared_ptr<Ctx>& ctx, const string_view& json) = 0;
   virtual std::shared_ptr<Ctx> CreateContext() = 0;
@@ -101,9 +92,6 @@ class VM {
   std::function<void(const std::any& bridge,
                      const string_view& description,
                      const string_view& stack)> uncaught_exception_callback_;
-#ifdef ENABLE_INSPECTOR
-  std::shared_ptr<DevtoolsDataSource> devtools_data_source_;
-#endif
 };
 
 std::shared_ptr<VM> CreateVM(const std::shared_ptr<VM::VMInitParam>& param);

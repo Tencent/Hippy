@@ -49,6 +49,7 @@ class JsDriverUtils {
                                                                 int64_t group_id);
 
   static void InitInstance(const std::shared_ptr<Engine>& engine,
+                           const std::shared_ptr<VMInitParam>& param,
                            const string_view& global_config,
                            std::function<void(std::shared_ptr<Scope>)>&& scope_initialized_callback,
                            const JsCallback& call_host_callback);
