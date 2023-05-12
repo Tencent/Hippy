@@ -130,6 +130,7 @@ void AsyncInitializeEngine(const std::shared_ptr<Engine>& engine,
 std::shared_ptr<Engine> JsDriverUtils::CreateEngineAndAsyncInitialize(const std::shared_ptr<TaskRunner>& task_runner,
                                                                       const std::shared_ptr<VMInitParam>& param,
                                                                       int64_t group_id) {
+  FOOTSTONE_DCHECK(group_id >= -1) << "group_id must be greater than or equal to -1";
   std::shared_ptr<Engine> engine = nullptr;
   auto group = group_id;
   if (param->is_debug) {
@@ -140,7 +141,9 @@ std::shared_ptr<Engine> JsDriverUtils::CreateEngineAndAsyncInitialize(const std:
     auto it = reuse_engine_map.find(group);
     if (it != reuse_engine_map.end()) {
       engine = std::get<std::shared_ptr<Engine>>(it->second);
-      std::get<uint32_t>(it->second) += 1;
+      if (group != VM::kDebuggerGroupId) {
+        std::get<uint32_t>(it->second) += 1;
+      }
       FOOTSTONE_DLOG(INFO) << "engine cnt = " << std::get<uint32_t>(it->second)
                            << ", use_count = " << engine.use_count();
     }
