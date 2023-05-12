@@ -34,28 +34,29 @@
 NATIVE_RENDER_EXPORT_VIEW(TextInput)
 
 - (UIView *)view {
-    NSNumber *mutiline = self.props[@"multiline"];
+    NSNumber *multiline = self.props[@"multiline"];
     NSString *keyboardType = self.props[@"keyboardType"];
     if ([keyboardType isKindOfClass:[NSString class]] && [keyboardType isEqual:@"password"]) {
-        mutiline = @(NO);
+        multiline = @(NO);
     }
     NativeRenderBaseTextInput *theView;
-    if (mutiline != nil && !mutiline.boolValue) {
-        NativeRenderTextField *textField = [[NativeRenderTextField alloc] init];
-        if (self.props[@"onKeyboardWillShow"]) {
-            [[NSNotificationCenter defaultCenter] addObserver:textField selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification
-                                                       object:nil];
-        }
-        theView = textField;
+    if (multiline != nil && !multiline.boolValue) {
+        theView = [[NativeRenderTextField alloc] init];
     } else {
-        NativeRenderTextView *textView = [[NativeRenderTextView alloc] init];
-        if (self.props[@"onKeyboardWillShow"]) {
-            [[NSNotificationCenter defaultCenter] addObserver:textView selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification
-                                                       object:nil];
-        }
-        theView = textView;
+        theView = [[NativeRenderTextView alloc] init];
     }
-
+    if (self.props[@"onKeyboardWillShow"]) {
+        [[NSNotificationCenter defaultCenter] addObserver:theView
+                                                 selector:@selector(keyboardWillShow:)
+                                                     name:UIKeyboardWillShowNotification
+                                                   object:nil];
+    }
+    if (self.props[@"onKeyboardWillHide"]) {
+        [[NSNotificationCenter defaultCenter] addObserver:theView
+                                                 selector:@selector(keyboardWillHide:)
+                                                     name:UIKeyboardWillHideNotification
+                                                   object:nil];
+    }
     return theView;
 }
 
