@@ -108,6 +108,13 @@
     }
 }
 
+- (void)keyboardWillHide:(NSNotification *)aNotification {
+    [super keyboardWillHide:aNotification];
+    if (_onKeyboardWillHide) {
+        _onKeyboardWillHide(@{});
+    }
+}
+
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
         [self setContentInset:UIEdgeInsetsZero];

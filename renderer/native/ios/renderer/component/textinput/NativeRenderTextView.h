@@ -67,10 +67,7 @@
 @property (nonatomic, copy) NativeRenderDirectEventBlock onBlur;
 @property (nonatomic, copy) NativeRenderDirectEventBlock onFocus;
 @property (nonatomic, copy) NativeRenderDirectEventBlock onKeyboardWillShow;
+@property (nonatomic, copy) NativeRenderDirectEventBlock onKeyboardWillHide;
 
-- (void)focus;
-- (void)blur;
-- (void)keyboardWillShow:(NSNotification *)aNotification;
-- (void)clearText;
 - (void)updateFrames;
 @end
