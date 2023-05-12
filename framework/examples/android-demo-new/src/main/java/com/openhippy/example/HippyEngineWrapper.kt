@@ -64,6 +64,12 @@ class HippyEngineWrapper {
         hippyEngine = create(initParams)
     }
 
+    fun destroy() {
+        hippyEngine.destroyModule(hippyRootView) { result, e ->
+            hippyEngine.destroyEngine()
+        }
+    }
+
     fun load(callback: HippyEngineLoadCallback) {
         hippyEngine.initEngine(object: EngineListener {
             override fun onInitialized(statusCode: EngineInitStatus, msg: String?) {
@@ -109,6 +115,10 @@ class HippyEngineWrapper {
         fun onInitEngineCompleted(statusCode: EngineInitStatus, msg: String?)
         fun onCreateRootView(hippyRootView: ViewGroup?)
         fun onLoadModuleCompleted(statusCode: ModuleLoadStatus, msg: String?)
+    }
+
+    interface HippyEngineDestroyCallback {
+        fun onDestroyCompleted()
     }
 
 }

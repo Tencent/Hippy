@@ -20,6 +20,7 @@ class HippyEngineHelper {
     companion object {
 
         private val hippyEngineList: MutableList<HippyEngineWrapper> = mutableListOf()
+        private val abandonHippyEngineList: MutableList<HippyEngineWrapper> = mutableListOf()
 
         fun createHippyEngine(
             driverType: PageConfiguration.DriverType,
@@ -34,6 +35,11 @@ class HippyEngineHelper {
 
         fun getHippyEngineList() : MutableList<HippyEngineWrapper> {
             return hippyEngineList
+        }
+
+        fun onHippyEngineDestroy(hippyEngineWrapper: HippyEngineWrapper) {
+            hippyEngineList.remove(hippyEngineWrapper)
+            abandonHippyEngineList.add(hippyEngineWrapper)
         }
     }
 

@@ -166,7 +166,9 @@ class PageManagement : AppCompatActivity() {
         pageItem.id = pageItemIdCounter.getAndIncrement()
         val pageItemContainer = pageItem.findViewById<View>(R.id.page_item_container)
         val pageItemImage = pageItem.findViewById<ImageView>(R.id.page_item_image)
+        val deletePageButton = pageItem.findViewById<View>(R.id.page_item_delete)
         if (hippyEngineWrapper == null) {
+            deletePageButton.visibility = View.GONE
             pageItemImage.setImageResource(R.drawable.add_page_2x)
             pageItemImage.layoutParams?.let {
                 it.width = resources.getDimension(R.dimen.page_item_add_image_width).toInt()
@@ -175,6 +177,12 @@ class PageManagement : AppCompatActivity() {
         } else {
             hippyEngineWrapper.snapshot?.let {
                 pageItemImage.setImageBitmap(it)
+            }
+            deletePageButton.setOnClickListener { v ->
+                HippyEngineHelper.onHippyEngineDestroy(hippyEngineWrapper)
+                relayoutPageItem()
+                pageCount = HippyEngineHelper.getHippyEngineList().size
+                hippyEngineWrapper.destroy()
             }
         }
         pageItemContainer.layoutParams?.let {
