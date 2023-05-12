@@ -11,6 +11,7 @@ import com.tencent.mtt.hippy.annotation.HippyMethod;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.example.BaseActivity;
+import com.tencent.mtt.hippy.example.MyActivity;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 
@@ -36,7 +37,7 @@ public class TestModule extends HippyNativeModuleBase {
         ViewGroup hippyRootView = mContext.getRootView();
         Intent intent = new Intent();
         intent.putExtra("remoteServerUrl", remoteServerUrl);
-        intent.setClass(hippyRootView.getContext(), BaseActivity.class);
+        intent.setClass(hippyRootView.getContext(), MyActivity.class);
         hippyRootView.getContext().startActivity(intent);
     }
 

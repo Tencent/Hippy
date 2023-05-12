@@ -26,13 +26,7 @@
 
       <activity
         android:name="com.tencent.mtt.hippy.example.BaseActivity"
-        android:configChanges="orientation|screenSize"
-        android:exported="true">
-        <intent-filter>
-          <action android:name="android.intent.action.MAIN" />
-          <category android:name="android.intent.category.LAUNCHER" />
-          <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
-        </intent-filter>
+        android:configChanges="orientation|screenSize">
       </activity>
 
     </application>
