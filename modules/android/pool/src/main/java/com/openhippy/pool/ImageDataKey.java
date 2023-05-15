@@ -16,13 +16,32 @@
 
 package com.openhippy.pool;
 
-public abstract class ImageRecycleObject extends RecycleObject {
+import androidx.annotation.NonNull;
 
-    public abstract void evicted();
+public class ImageDataKey {
 
-    public abstract void cached();
+    private static final int MAX_SOURCE_KEY_LEN = 128;
+    @NonNull
+    private final String mUri;
 
-    public abstract ImageDataKey getCacheKey();
+    public ImageDataKey(@NonNull String url) {
+        mUri = url;
+    }
 
-    public abstract boolean isScraped();
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof String) {
+            return mUri.equals(obj);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        String keyUrl = mUri;
+        if (mUri.length() > MAX_SOURCE_KEY_LEN) {
+            keyUrl = mUri.substring(mUri.length() - MAX_SOURCE_KEY_LEN);
+        }
+        return keyUrl.hashCode();
+    }
 }

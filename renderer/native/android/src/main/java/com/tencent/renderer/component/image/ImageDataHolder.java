@@ -26,6 +26,7 @@ import android.os.Build.VERSION_CODES;
 
 import androidx.annotation.RequiresApi;
 
+import com.openhippy.pool.ImageDataKey;
 import com.openhippy.pool.ImageRecycleObject;
 import com.openhippy.pool.RecycleObject;
 import com.tencent.renderer.NativeRenderException;
@@ -50,7 +51,6 @@ import java.util.Map;
 public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupplier {
 
     private static final String TAG = "ImageDataHolder";
-    private static final int MAX_SOURCE_KEY_LEN = 128;
     /**
      * Mark that the image data has been cached.
      */
@@ -67,6 +67,8 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
     private int mWidth;
     private int mHeight;
     private String mSource;
+    @NonNull
+    private ImageDataKey mKey;
     @Nullable
     private Drawable mDrawable;
     @Nullable
@@ -88,6 +90,7 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
         mSource = source;
         mWidth = width;
         mHeight = height;
+        mKey = new ImageDataKey(source);
     }
 
     @Nullable
@@ -95,24 +98,6 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
         RecycleObject recycleObject = RecycleObject.obtain(ImageDataHolder.class.getSimpleName());
         return (recycleObject instanceof ImageDataHolder) ? ((ImageDataHolder) recycleObject)
                 : null;
-    }
-
-    /**
-     * Generate image source entry key for cache image data.
-     *
-     * <p>
-     * To prevent the time consuming of hash code for long base64 data, if the source length is
-     * greater than 32, the last 32 characters are truncated to calculate the hash code,
-     * <p/>
-     *
-     * @param source image uri
-     * @return source hash code
-     */
-    public static int generateSourceKey(@NonNull String source) {
-        if (source.length() > MAX_SOURCE_KEY_LEN) {
-            source = source.substring(source.length() - MAX_SOURCE_KEY_LEN);
-        }
-        return source.hashCode();
     }
 
     private boolean checkStateFlag(int flag) {
@@ -128,8 +113,8 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
     }
 
     @Override
-    public int getCacheKey() {
-        return generateSourceKey(mSource);
+    public ImageDataKey getCacheKey() {
+        return mKey;
     }
 
     @Override
