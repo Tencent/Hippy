@@ -76,6 +76,7 @@ static BOOL IsJSValueFunction(JSValue *value) {
             auto jscontext = std::static_pointer_cast<hippy::napi::JSCCtx>(strongContext);
             _napiContext = jscontext;
             _context = [JSContext contextWithJSGlobalContextRef:jscontext->GetCtxRef()];
+          _context.inspectable = true;
             __weak HippyJSCContextWrapper *weakSelf = self;
             _context.exceptionHandler = ^(JSContext *context, JSValue *exception) {
                 @autoreleasepool {
@@ -417,7 +418,7 @@ static BOOL IsJSValueFunction(JSValue *value) {
     }
 }
 
-- (std::shared_ptr<hippy::napi::CtxValue>)createError:(NSString *)description {
+- (std::shared_ptr<hippy::napi::CtxValue>)createException:(NSString *)description {
     @autoreleasepool {
         HPAssert(description, @"description must not be null");
         description = description?:@"";
