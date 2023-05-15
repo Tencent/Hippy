@@ -115,7 +115,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
         }
     }
 
-    public static int createSnapshotFromScript(String[] script, String uri, Context context) {
+    public static int createSnapshotFromScript(String[] script, String basePath, String uri, Context context) {
         HippyMap globalParams = new HippyMap();
         assert (context != null);
         HippyMap dimensionMap = DimensionsUtil.getDimensions(-1, -1, context, false);
@@ -123,7 +123,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
         HippyMap platformParams = new HippyMap();
         platformParams.pushString("OS", "android");
         globalParams.pushMap("Platform", platformParams);
-        return createSnapshot(script, uri, ArgumentUtils.objectToJson(globalParams));
+        return createSnapshot(script, basePath, uri, ArgumentUtils.objectToJson(globalParams));
     };
 
     @Override
@@ -327,9 +327,9 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
       runInJsThread(mV8RuntimeId, callback);
     }
 
-    public static native int createSnapshot(String[] script, String uri, String config);
+    public static native int createSnapshot(String[] script, String path, String uri, String config);
 
-    public native long initJSFramework(byte[] gobalConfig, boolean useLowMemoryMode,
+    public native long initJSFramework(byte[] globalConfig, boolean useLowMemoryMode,
             boolean enableV8Serialization, boolean isDevModule, NativeCallback callback,
             long groupId, V8InitParams v8InitParams);
 
