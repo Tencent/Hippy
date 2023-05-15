@@ -384,8 +384,10 @@ void JsDriverUtils::DestroyInstance(const std::shared_ptr<Engine>& engine,
     FOOTSTONE_LOG(INFO) << "js destroy end";
     callback(true);
   };
-  int64_t group = engine->GetVM()->GetGroupId();
-  if (group == VM::kDebuggerGroupId) {
+  auto vm = engine->GetVM();
+  auto group = vm->GetGroupId();
+  if (vm->IsDebug()) {
+    group = VM::kDebuggerGroupId;
     scope->WillExit();
   }
   if ((group == VM::kDebuggerGroupId && !is_reload) || (group != VM::kDebuggerGroupId && group != VM::kDefaultGroupId)) {
