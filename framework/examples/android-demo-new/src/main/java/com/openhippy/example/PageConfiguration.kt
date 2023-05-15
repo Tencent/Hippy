@@ -35,11 +35,11 @@ import com.tencent.mtt.hippy.utils.LogUtils
 
 class PageConfiguration : AppCompatActivity(), View.OnClickListener {
 
-    enum class DriverType {
-        JS_REACT, JS_VUE
+    enum class DriverMode {
+        JS_REACT, JS_VUE_2, JS_VUE_3, VL
     }
 
-    enum class RendererType {
+    enum class RenderMode {
         NATIVE, TDF_CORE, FLUTTER
     }
 
@@ -52,8 +52,8 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
     private var debugMode: Boolean = false
     private var debugServerHost: String = "localhost:38989"
     private var dialog: Dialog? = null
-    private var driverType: DriverType = DriverType.JS_REACT
-    private var rendererType: RendererType = RendererType.NATIVE
+    private var driverMode: DriverMode = DriverMode.JS_REACT
+    private var renderMode: RenderMode = RenderMode.NATIVE
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,12 +70,13 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
         backButton.setOnClickListener { v ->
             buildSnapshot { onBackPressedDispatcher.onBackPressed() }
         }
-
-        val pageId = intent.extras?.getInt("PAGE_ITEM_ID")
-        val hippyEngineList = HippyEngineHelper.getHippyEngineList()
-        for (engine in hippyEngineList) {
-            if (engine.pageItem?.id == pageId) {
-                hippyEngineWrapper = engine
+        if (hippyEngineWrapper == null) {
+            val pageId = intent.extras?.getInt("PAGE_ITEM_ID")
+            val hippyEngineList = HippyEngineHelper.getHippyEngineList()
+            for (engine in hippyEngineList) {
+                if (engine.pageItem?.id == pageId) {
+                    hippyEngineWrapper = engine
+                }
             }
         }
         if (hippyEngineWrapper?.hippyRootView != null) {
@@ -95,7 +96,10 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
 
     private fun buildSnapshot(runnable: Runnable) {
         val rootView = hippyEngineWrapper?.hippyRootView
-        rootView?.let {
+        if (rootView == null) {
+            (pageConfigurationContainer as ViewGroup).removeAllViews()
+            runnable.run()
+        } else {
             generateBitmapFromView(rootView, object : SnapshotBuildCallback {
                 override fun onSnapshotReady(bitmap: Bitmap?) {
                     hippyEngineWrapper?.snapshot = bitmap
@@ -195,8 +199,8 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
         (pageConfigurationContainer as ViewGroup).removeAllViews()
         pageConfigurationContainer.post {
             hippyEngineWrapper = HippyEngineHelper.createHippyEngine(
-                driverType,
-                rendererType,
+                driverMode,
+                renderMode,
                 debugMode,
                 debugServerHost
             )
@@ -250,9 +254,13 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
         dialog = Dialog(this, R.style.PageConfigurationDialogStyle)
         val driverSetting = layoutInflater.inflate(R.layout.driver_setting, null)
         val driverJSReact = driverSetting.findViewById<View>(R.id.page_configuration_driver_react)
-        val driverJSVue = driverSetting.findViewById<View>(R.id.page_configuration_driver_vue)
+        val driverJSVue2 = driverSetting.findViewById<View>(R.id.page_configuration_driver_vue2)
+        val driverJSVue3 = driverSetting.findViewById<View>(R.id.page_configuration_driver_vue3)
+        val driverVL = driverSetting.findViewById<View>(R.id.page_configuration_driver_vl)
         driverJSReact.setOnClickListener(this)
-        driverJSVue.setOnClickListener(this)
+        driverJSVue2.setOnClickListener(this)
+        driverJSVue3.setOnClickListener(this)
+        driverVL.setOnClickListener(this)
         dialog?.setContentView(driverSetting)
         val dialogWindow = dialog?.window
         dialogWindow?.setGravity(Gravity.BOTTOM)
@@ -265,21 +273,28 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
     override fun onClick(p0: View?) {
         when (p0?.id) {
             R.id.page_configuration_driver_react -> {
-                driverType = DriverType.JS_REACT
+                driverMode = DriverMode.JS_REACT
                 (driverSettingText as TextView).text = resources.getText(R.string.driver_js_react)
                 dialog?.dismiss()
             }
-            R.id.page_configuration_driver_vue -> {
-                driverType = DriverType.JS_VUE
-                (driverSettingText as TextView).text = resources.getText(R.string.driver_js_vue)
+            R.id.page_configuration_driver_vue2 -> {
+                driverMode = DriverMode.JS_VUE_2
+                (driverSettingText as TextView).text = resources.getText(R.string.driver_js_vue2)
+                dialog?.dismiss()
+            }
+            R.id.page_configuration_driver_vue3 -> {
+                driverMode = DriverMode.JS_VUE_3
+                (driverSettingText as TextView).text = resources.getText(R.string.driver_js_vue3)
                 dialog?.dismiss()
             }
             R.id.page_configuration_renderer_native -> {
-                rendererType = RendererType.NATIVE
+                renderMode = RenderMode.NATIVE
                 (rendererSettingText as TextView).text = resources.getText(R.string.renderer_native)
                 dialog?.dismiss()
             }
-            R.id.page_configuration_renderer_tdf_core, R.id.page_configuration_renderer_flutter -> {
+            R.id.page_configuration_renderer_tdf_core,
+            R.id.page_configuration_renderer_flutter,
+            R.id.page_configuration_driver_vl -> {
                 val toast: Toast =
                     Toast.makeText(
                         this,

@@ -32,16 +32,16 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
           android:id="@+id/page_item_delete"
-          android:layout_width="37dp"
-          android:layout_height="36dp"
+          android:layout_width="30dp"
+          android:layout_height="28dp"
           android:clickable="true"
           android:focusable="true"
           app:layout_constraintTop_toTopOf="parent"
           app:layout_constraintRight_toRightOf="parent">
             <ImageView
               android:id="@+id/page_item_delete_image"
-              android:layout_width="21dp"
-              android:layout_height="21dp"
+              android:layout_width="24dp"
+              android:layout_height="24dp"
               android:src="@drawable/delete_page_2x"
               app:layout_constraintLeft_toLeftOf="parent"
               app:layout_constraintTop_toTopOf="parent"

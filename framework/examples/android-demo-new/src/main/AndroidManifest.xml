@@ -14,21 +14,26 @@
         tools:targetApi="31">
         <activity
             android:exported="false"
-            android:name=".PageConfiguration">
+            android:name=".PageConfiguration"
+            android:configChanges="orientation|screenSize|keyboardHidden">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
             android:exported="false"
-            android:name=".PageManagement">
+            android:name=".PageManagement"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|keyboardHidden">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
             android:exported="true"
-            android:name=".MainActivity">
+            android:name=".MainActivity"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|keyboardHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

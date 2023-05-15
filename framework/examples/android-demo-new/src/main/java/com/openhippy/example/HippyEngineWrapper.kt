@@ -34,18 +34,32 @@ class HippyEngineWrapper {
     var hippyRootView: ViewGroup? = null
     var snapshot: Bitmap? = null
     var pageItem: View? = null
+    val driverMode: PageConfiguration.DriverMode
+    val renderMode: PageConfiguration.RenderMode
 
-    constructor(driverType: PageConfiguration.DriverType,
-                rendererType: PageConfiguration.RendererType,
+    constructor(dm: PageConfiguration.DriverMode,
+                rm: PageConfiguration.RenderMode,
                 isDebugMode: Boolean,
                 debugServerHost: String) {
+        driverMode = dm
+        renderMode = rm
         val initParams = EngineInitParams()
         initParams.context = applicationContext
         initParams.debugServerHost = debugServerHost
         initParams.debugMode = isDebugMode
         initParams.enableLog = true
         initParams.logAdapter = DefaultLogAdapter()
-        initParams.coreJSAssetsPath = "vendor.android.js"
+        when(driverMode) {
+            PageConfiguration.DriverMode.JS_REACT -> {
+                initParams.coreJSAssetsPath = "vendor.android.js"
+            }
+            PageConfiguration.DriverMode.JS_VUE_2 -> {
+                initParams.coreJSAssetsPath = "vendor.android.js"
+            }
+            PageConfiguration.DriverMode.JS_VUE_3 -> {
+                initParams.coreJSAssetsPath = "vendor.android.js"
+            }
+        }
         initParams.codeCacheTag = "common"
         initParams.exceptionHandler = object : HippyExceptionHandlerAdapter {
             override fun handleJsException(e: HippyJsException) {
@@ -79,7 +93,17 @@ class HippyEngineWrapper {
                     loadParams.context = mainActivityContext
                     loadParams.componentName = "Demo"
                     loadParams.codeCacheTag = "Demo"
-                    loadParams.jsAssetsPath = "index.android.js"
+                    when(driverMode) {
+                        PageConfiguration.DriverMode.JS_REACT -> {
+                            loadParams.jsAssetsPath = "index.android.js"
+                        }
+                        PageConfiguration.DriverMode.JS_VUE_2 -> {
+                            loadParams.jsAssetsPath = "index.android.js"
+                        }
+                        PageConfiguration.DriverMode.JS_VUE_3 -> {
+                            loadParams.jsAssetsPath = "index.android.js"
+                        }
+                    }
                     loadParams.jsFilePath = null
                     loadParams.jsParams = HippyMap()
                     loadParams.jsParams.pushString(
