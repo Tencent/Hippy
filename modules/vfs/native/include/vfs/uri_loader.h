@@ -43,7 +43,7 @@ class UriLoader: public std::enable_shared_from_this<UriLoader> {
   using RetCode = vfs::JobResponse::RetCode;
 
   UriLoader();
-  virtual ~UriLoader();
+  virtual ~UriLoader() = default;
 
   virtual void RegisterUriHandler(const std::string& scheme,
                                   const std::shared_ptr<UriHandler>& handler);
@@ -70,6 +70,8 @@ class UriLoader: public std::enable_shared_from_this<UriLoader> {
   }
 
   inline std::unique_ptr<WorkerManager>& GetWorkerManager() { return worker_manager_; }
+
+  void Terminate();
 
  private:
   std::shared_ptr<UriHandler> GetNextHandler(std::list<std::shared_ptr<UriHandler>>::iterator& cur,
