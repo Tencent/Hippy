@@ -93,12 +93,10 @@ V8InspectorClientImpl::~V8InspectorClientImpl() {
 }
 
 void V8InspectorClientImpl::CreateContext(const std::shared_ptr<V8InspectorContext>& inspector_context) {
-  std::shared_ptr<hippy::napi::V8Ctx> ctx =
-      std::static_pointer_cast<hippy::napi::V8Ctx>(inspector_context->GetScope()->GetContext());
+  auto ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(inspector_context->GetScope()->GetContext());
   v8::Isolate* isolate = ctx->isolate_;
   v8::HandleScope handle_scope(isolate);
-  v8::Local<v8::Context> context =
-      v8::Local<v8::Context>::New(isolate, ctx->context_persistent_);
+  auto context = v8::Local<v8::Context>::New(isolate, ctx->context_persistent_);
   v8::Context::Scope context_scope(context);
   inspector_->contextCreated(v8_inspector::V8ContextInfo(
       context, inspector_context->GetContextGroupId(), v8_inspector::StringView(kProjectName, ARRAY_SIZE(kProjectName))));
