@@ -80,9 +80,23 @@ typedef NS_ENUM(NSInteger, NativeRenderTextDecorationLineType) {
     NativeRenderTextDecorationLineTypeUnderlineStrikethrough,
 };
 
-@interface HPConvert (NativeRenderTextDecorationLineType)
+/// Vertical alignment enum for text attachment,
+/// similar to vertical-align in CSS (layout is different)
+///
+/// Default（Undefined）is baseline
+typedef NS_ENUM(NSInteger, NativeRenderTextVerticalAlignType) {
+    NativeRenderTextVerticalAlignUndefined = 0,
+    NativeRenderTextVerticalAlignBaseline = 1,
+    NativeRenderTextVerticalAlignBottom = 2,
+    NativeRenderTextVerticalAlignMiddle = 3,
+    NativeRenderTextVerticalAlignTop = 4,
+};
+
+@interface HPConvert (NativeRenderTextEnumDefines)
 
 + (NativeRenderTextDecorationLineType)NativeRenderTextDecorationLineType:(id)json;
+
++ (NativeRenderTextVerticalAlignType)NativeRenderTextVerticalAlignType:(id)json;
 
 @end
 

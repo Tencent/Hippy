@@ -506,6 +506,18 @@ NATIVE_RENDER_CUSTOM_RENDER_OBJECT_PROPERTY(direction, id, NativeRenderObjectVie
     view.layoutDirection = ConvertDirection(json);
 }
 
+NATIVE_RENDER_CUSTOM_RENDER_OBJECT_PROPERTY(verticalAlign, HippyTextAttachmentVerticalAlign, NativeRenderObjectView) {
+    if (json && [json isKindOfClass:NSString.class]) {
+        view.verticalAlignType = [HPConvert NativeRenderTextVerticalAlignType:json];
+    } else if ([json isKindOfClass:NSNumber.class]) {
+        view.verticalAlignType = NativeRenderTextVerticalAlignMiddle;
+        view.verticalAlignOffset = [HPConvert CGFloat:json];
+    } else {
+        HPLogError(@"Unsupported value for verticalAlign of Text: %@, type: %@", json, [json classForCoder]);
+    }
+}
+
+
 @end
 
 #import <objc/runtime.h>
