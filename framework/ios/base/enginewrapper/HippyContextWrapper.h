@@ -81,7 +81,7 @@ typedef void (^ExceptionHandler)(id<HippyContextWrapper>wrapper, NSString *messa
 - (std::shared_ptr<hippy::napi::CtxValue>)createObject:(NSDictionary *)dictionary;
 - (std::shared_ptr<hippy::napi::CtxValue>)createObjectFromJsonString:(NSString *)JsonString;
 - (std::shared_ptr<hippy::napi::CtxValue>)createArray:(NSArray *)array;
-- (std::shared_ptr<hippy::napi::CtxValue>)createError:(NSString *)description;
+- (std::shared_ptr<hippy::napi::CtxValue>)createException:(NSString *)description;
 
 - (void)setContextName:(NSString *)name;
 

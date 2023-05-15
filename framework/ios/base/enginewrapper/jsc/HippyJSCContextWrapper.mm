@@ -417,7 +417,7 @@ static BOOL IsJSValueFunction(JSValue *value) {
     }
 }
 
-- (std::shared_ptr<hippy::napi::CtxValue>)createError:(NSString *)description {
+- (std::shared_ptr<hippy::napi::CtxValue>)createException:(NSString *)description {
     @autoreleasepool {
         HPAssert(description, @"description must not be null");
         description = description?:@"";
