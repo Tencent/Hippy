@@ -31,9 +31,9 @@ using JsDriverUtils = hippy::driver::JsDriverUtils;
 
 void CallJSFunction(int64_t scope_id, const string_view& action_name, bytes params_data,
                     const std::function<void(int64_t)>& callback) {
-  auto scope = voltron::FindObject<std::shared_ptr<hippy::Scope>>(footstone::checked_numeric_cast<
+  auto scope = std::any_cast<std::shared_ptr<hippy::Scope>>(voltron::FindObject(footstone::checked_numeric_cast<
       int64_t,
-      uint32_t>(scope_id));
+      uint32_t>(scope_id)));
   FOOTSTONE_CHECK(scope);
   JsDriverUtils::CallJs(action_name, scope,
                         [callback](CALLFUNCTION_CB_STATE state, const string_view& msg) {
