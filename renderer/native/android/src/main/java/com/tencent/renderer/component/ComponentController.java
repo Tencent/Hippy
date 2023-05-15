@@ -34,6 +34,7 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.component.drawable.BackgroundDrawable.BorderStyle;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 
 public class ComponentController {
@@ -145,7 +146,12 @@ public class ComponentController {
     @SuppressWarnings({"unused", "deprecation"})
     @HippyControllerProps(name = NodeProps.LINEAR_GRADIENT, defaultType = HippyControllerProps.MAP)
     public void setLinearGradient(@NonNull Component component, @Nullable HippyMap linearGradient) {
-        if (linearGradient != null) {
+        if (linearGradient == null) {
+            // reset linear gradient
+            component.setGradientAngleDesc("");
+            component.setGradientColors(Collections.<Integer>emptyList());
+            component.setGradientPositions(Collections.<Float>emptyList());
+        } else {
             String angle = linearGradient.getString("angle");
             HippyArray colorStopList = linearGradient.getArray("colorStopList");
             if (TextUtils.isEmpty(angle) || colorStopList == null || colorStopList.size() == 0) {
