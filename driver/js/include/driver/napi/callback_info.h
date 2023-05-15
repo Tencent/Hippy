@@ -95,9 +95,9 @@ class CallbackInfo {
   std::shared_ptr<CtxValue> operator[](size_t index) const;
 
  private:
-  std::any slot_;
-  void* data_;
-  std::shared_ptr<CtxValue> receiver_;
+  std::any slot_; // save "Scope" object
+  void* data_; // c++ "this"
+  std::shared_ptr<CtxValue> receiver_; // This corresponds to the javascript "this" value
   std::vector<std::shared_ptr<CtxValue>> values_;
   std::unique_ptr<ReturnValue> ret_value_;
   std::unique_ptr<ExceptionValue> exception_value_;

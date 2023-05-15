@@ -477,7 +477,7 @@ void JsDriverUtils::CallJs(const string_view& action,
       params = context->CreateNull();
     }
     std::shared_ptr<CtxValue> argv[] = {action_value, params};
-    context->CallFunction(scope->GetBridgeObject(), 2, argv);
+    context->CallFunction(scope->GetBridgeObject(), context->GetGlobalObject(), 2, argv);
     cb(CALL_FUNCTION_CB_STATE::SUCCESS, "");
   };
 

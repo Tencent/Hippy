@@ -155,7 +155,7 @@ void TimerModule::RequestIdleCallback(CallbackInfo& info, void* data) {
     auto time_remaining_value = context->CreateNumber(res_time);
     context->SetProperty(param, time_remaining_key, time_remaining_value);
     std::shared_ptr<CtxValue> argv[] = { param };
-    context->CallFunction(function, 1, argv);
+    context->CallFunction(function, context->GetGlobalObject(), 1, argv);
     auto idle_function_holder_map = weak_map.lock();
     if (!idle_function_holder_map) {
       return;
@@ -215,7 +215,7 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
       return;
     }
     std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
-    context->CallFunction(function, 0, nullptr);
+    context->CallFunction(function, context->GetGlobalObject(), 0, nullptr);
     if (!repeat) {
       timer_map->erase(task_id);
     }

@@ -183,7 +183,7 @@ void ContextifyModule::LoadUntrustedContent(CallbackInfo& info, void* data) {
         }
       } else {
         string_view err_msg = uri + " not found";
-        error = ctx->CreateError(string_view(err_msg));
+        error = ctx->CreateException(string_view(err_msg));
       }
 
       std::shared_ptr<CtxValue> function = weak_function.lock();
@@ -193,7 +193,7 @@ void ContextifyModule::LoadUntrustedContent(CallbackInfo& info, void* data) {
           error = ctx->CreateNull();
         }
         std::shared_ptr<CtxValue> argv[] = {error};
-        ctx->CallFunction(function, 1, argv);
+        ctx->CallFunction(function, ctx->GetGlobalObject(), 1, argv);
         RemoveCBFunc(uri);
       }
     };

@@ -100,10 +100,10 @@ void UIManagerModule::CallUIFunction(CallbackInfo& info, void* data) {
               context, std::make_shared<HippyValue>(std::move(value)));
           if (param) {
             const std::shared_ptr<CtxValue> argus[] = {param};
-            context->CallFunction(function, 1, argus);
+            context->CallFunction(function, context->GetGlobalObject(), 1, argus);
           } else {
             const std::shared_ptr<CtxValue> argus[] = {};
-            context->CallFunction(function, 0, argus);
+            context->CallFunction(function, context->GetGlobalObject(), 0, argus);
           }
         } else {
           context->ThrowException(string_view("param ToObject failed"));

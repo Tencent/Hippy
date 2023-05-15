@@ -149,7 +149,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
             NSString *clientId = HPMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, strongSelf]);
             NSDictionary *debugInfo = @{@"Debug" : @{@"debugClientId" : clientId}};
             [deviceInfo addEntriesFromDictionary:debugInfo];
-            
+
             NSError *JSONSerializationError = nil;
             NSData *data = [NSJSONSerialization dataWithJSONObject:deviceInfo options:0 error:&JSONSerializationError];
             if (JSONSerializationError) {
@@ -268,7 +268,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
             context->SetProperty(global_object, key, value);
         }];
     }
-}    
+}
 
 - (SharedCtxValuePtr)JSTurboObjectWithName:(NSString *)name {
     //create HostObject by name
@@ -477,7 +477,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                                 function_params[i] = [obj convertToCtxValue:context];
                             }
                             auto tryCatch = hippy::CreateTryCatchScope(true, context);
-                            resultValue = context->CallFunction(method_value, arguments.count, function_params);
+                            resultValue = context->CallFunction(method_value, context->GetGlobalObject(), arguments.count, function_params);
                             if (tryCatch->HasCaught()) {
                                 exception = tryCatch->GetExceptionMessage();
                             }
@@ -653,7 +653,7 @@ static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, Hip
     }
     NSString *deviceName = [[UIDevice currentDevice] name];
     NSString *clientId = HPMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, bridge]);
-    
+
     return [devInfo assembleFullWSURLWithClientId:clientId contextName:bridge.contextName];
 }
 
