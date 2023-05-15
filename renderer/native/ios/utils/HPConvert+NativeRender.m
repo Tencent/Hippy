@@ -199,7 +199,7 @@ NativeRenderBorderStyleSolid, integerValue)
 
 @end
 
-@implementation HPConvert (NativeRenderTextDecorationLineType)
+@implementation HPConvert (NativeRenderTextEnumDefines)
 
 HP_ENUM_CONVERTER(NativeRenderTextDecorationLineType, (@{
     @"none": @(NativeRenderTextDecorationLineTypeNone),
@@ -208,5 +208,12 @@ HP_ENUM_CONVERTER(NativeRenderTextDecorationLineType, (@{
     @"underline line-through": @(NativeRenderTextDecorationLineTypeUnderlineStrikethrough),
 }),
 NativeRenderTextDecorationLineTypeNone, integerValue)
+
+HP_ENUM_CONVERTER(NativeRenderTextVerticalAlignType, (@{
+    @"middle": @(NativeRenderTextVerticalAlignMiddle),
+    @"top": @(NativeRenderTextVerticalAlignTop),
+    @"bottom": @(NativeRenderTextVerticalAlignBottom),
+    @"baseline": @(NativeRenderTextVerticalAlignBaseline),
+}), NativeRenderTextVerticalAlignUndefined, integerValue)
 
 @end

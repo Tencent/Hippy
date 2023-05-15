@@ -23,6 +23,7 @@
 #import <UIKit/UIKit.h>
 
 #import "NativeRenderComponentProtocol.h"
+#import "HPConvert+NativeRender.h"
 
 #include <memory>
 
@@ -132,6 +133,20 @@ extern NSString *const NativeRenderShadowViewDiffTag;
  * Clipping properties
  */
 //@property (nonatomic, assign) NSString *overflow;
+
+
+#pragma mark - Text Attachment Properties
+
+/// Vertical Alignment for Text / Text Attachment,
+/// Note that this property only takes effect for Text Element.
+@property (nonatomic, assign) NativeRenderTextVerticalAlignType verticalAlignType;
+
+/// Vertical Align Offset for Text / Text Attachment,
+/// Note that this property only takes effect for Text Element.
+@property (nonatomic, assign) CGFloat verticalAlignOffset;
+
+
+#pragma mark -
 
 /**
  * Indicate how we create coresponding UIView
