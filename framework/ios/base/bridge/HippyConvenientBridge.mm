@@ -246,6 +246,9 @@ static BOOL SelectorBelongsToProtocol(SEL selector, Protocol *protocol) {
 }
 
 - (void)dealloc {
+    if (_demoLoader) {
+        _demoLoader->Terminate();
+    }
     if (_rootNode) {
         _rootNode->ReleaseResources();
     }

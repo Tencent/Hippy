@@ -35,7 +35,7 @@ UriLoader::UriLoader() {
   worker_manager_ = std::make_unique<WorkerManager>(kPoolSize);
 }
 
-UriLoader::~UriLoader() {
+void UriLoader::Terminate() {
   worker_manager_->Terminate();
 }
 
