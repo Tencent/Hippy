@@ -56,8 +56,8 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: BaseVoltronPage(
         isHome: true,
-        coreBundle: "assets/jsbundle/vendor.android.js",
-        indexBundle: "assets/jsbundle/index.android.js",
+        coreBundle: "assets/jsbundle/react/vendor.android.js",
+        indexBundle: "assets/jsbundle/react/index.android.js",
       ),
     );
   }
