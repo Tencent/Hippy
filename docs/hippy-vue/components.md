@@ -275,7 +275,7 @@
 | focus | 当文本框获得焦点的时候调用此回调函数。 | `Function` | `Android、iOS、Voltron` |
 | change          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `Android、iOS、Voltron`     |
 | keyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`。                                     | `Function`                                                   | `Android、iOS、Voltron`     |
-| keyboardWillHide     | 在隐藏输入法键盘时候会触发此回调函数 | `Function`                                                   | `Android、Voltron`     |
+| keyboardWillHide     | 在隐藏输入法键盘时候会触发此回调函数 | `Function`                                                   | `Android、iOS、Voltron`     |
 | keyboardHeightChanged | 在输入法键盘高度改变时触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`, `最低支持版本2.14.0`。 | `Function` | `iOS、Voltron` |                                 
 | endEditing          | 当文本输入结束后调用此回调函数。                             | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`     |
 | layout              | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`     |
