@@ -139,9 +139,12 @@ void V8VM::AddUncaughtExceptionMessageListener(const std::unique_ptr<FunctionWra
 
 V8VM::~V8VM() {
   FOOTSTONE_LOG(INFO) << "~V8VM";
+
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+  inspector_client_ = nullptr;
+#endif
   isolate_->Exit();
   isolate_->Dispose();
-
   delete create_params_.array_buffer_allocator;
 }
 
