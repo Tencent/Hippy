@@ -329,7 +329,7 @@ void AnimationManager::UpdateCubicBezierAnimation(double current,
     HippyValue prop_value(current);
     dom_node->EmplaceStyleMapAndGetDiff(prop_it->second, prop_value, diff_value);
     FOOTSTONE_DLOG(INFO) << "animation related_animation_id = " << related_animation_id
-                        << ", key = " << prop_it->second << ", value = " << prop_value;
+      << "node id = " << dom_node->GetId() << ", key = " << prop_it->second << ", value = " << prop_value;
 
     dom_node->SetDiffStyle(std::make_shared<
         std::unordered_map<std::string, std::shared_ptr<HippyValue>>>(std::move(diff_value)));

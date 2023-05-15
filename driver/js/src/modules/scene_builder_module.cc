@@ -20,11 +20,11 @@
  *
  */
 
-#include "driver/modules/scene_builder.h"
+#include "driver/modules/scene_builder_module.h"
 
 #include "dom/node_props.h"
 #include "driver/base/js_convert_utils.h"
-#include "driver/modules/scene_builder.h"
+#include "driver/modules/scene_builder_module.h"
 #include "driver/modules/ui_manager_module.h"
 #include "driver/scope.h"
 #include "footstone/string_view.h"
@@ -172,7 +172,7 @@ GetNodeExtValue(const std::shared_ptr<Ctx> &context,
   std::unordered_map<std::string, std::shared_ptr<HippyValue>> dom_ext_map;
   // parse ext value
   for (const auto &p : props) {
-    dom_ext_map[p.first] = std::make_shared<HippyValue>(std::move(p.second));
+    dom_ext_map[p.first] = std::make_shared<HippyValue>(p.second);
   }
   return std::make_tuple(true, "", std::move(dom_ext_map));
 }
@@ -403,157 +403,173 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
   using SceneBuilder = hippy::dom::SceneBuilder;
   ClassTemplate<SceneBuilder> class_template;
   class_template.name = "SceneBuilder";
-  class_template.constructor = [](size_t argument_count,
-                                  const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<SceneBuilder> {
+  class_template.constructor = [](
+      const std::shared_ptr<CtxValue>& receiver,
+      size_t argument_count,
+      const std::shared_ptr<CtxValue> arguments[],
+      void* external,
+      std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<SceneBuilder> {
     return std::make_shared<SceneBuilder>();
   };
 
   FunctionDefine<SceneBuilder> create_func_def;
   create_func_def.name = "create";
-  create_func_def.cb = [weak_scope](
+  create_func_def.callback = [weak_scope](
       SceneBuilder* builder,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+      const std::shared_ptr<CtxValue> arguments[],
+      std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
-    if (scope) {
-      auto ret = HandleJsValue(scope->GetContext(), arguments[0], scope);
-      builder->Create(scope->GetDomManager(), scope->GetRootNode(), std::move(std::get<2>(ret)));
+    if (!scope) {
+      return nullptr;
     }
+    auto ret = HandleJsValue(scope->GetContext(), arguments[0], scope);
+    SceneBuilder::Create(scope->GetDomManager(), scope->GetRootNode(), std::move(std::get<2>(ret)));
     return nullptr;
   };
   class_template.functions.emplace_back(std::move(create_func_def));
 
   FunctionDefine<SceneBuilder> update_func_def;
   update_func_def.name = "update";
-  update_func_def.cb = [weak_scope](
+  update_func_def.callback = [weak_scope](
       SceneBuilder* builder,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+      const std::shared_ptr<CtxValue> arguments[],
+      std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
-    if (scope) {
-      auto ret = HandleJsValue(scope->GetContext(), arguments[0], scope);
-      builder->Update(scope->GetDomManager(), scope->GetRootNode(), std::move(std::get<2>(ret)));
+    if (!scope) {
+      return nullptr;
     }
+    auto ret = HandleJsValue(scope->GetContext(), arguments[0], scope);
+    SceneBuilder::Update(scope->GetDomManager(), scope->GetRootNode(), std::move(std::get<2>(ret)));
     return nullptr;
   };
   class_template.functions.emplace_back(std::move(update_func_def));
 
   FunctionDefine<SceneBuilder> move_func_def;
   move_func_def.name = "move";
-  move_func_def.cb = [weak_scope](SceneBuilder *builder, size_t argument_count,
-                                  const std::shared_ptr<CtxValue> arguments[])
+  move_func_def.callback = [weak_scope](SceneBuilder *builder, size_t argument_count,
+                                        const std::shared_ptr<CtxValue> arguments[],
+                                        std::shared_ptr<CtxValue>&)
       -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
-    if (scope) {
-      auto weak_dom_manager = scope->GetDomManager();
-      std::shared_ptr<CtxValue> nodes = arguments[0];
-      std::shared_ptr<Ctx> context = scope->GetContext();
-      FOOTSTONE_CHECK(context);
-      auto len = context->GetArrayLength(nodes);
-      std::vector<std::shared_ptr<DomInfo>> dom_infos;
-      for (uint32_t i = 0; i < len; ++i) {
-        std::shared_ptr<CtxValue> info = context->CopyArrayElement(nodes, i);
-        auto length = context->GetArrayLength(info);
-        if (length > 0) {
-          auto node = context->CopyArrayElement(info, 0);
-          auto id_tuple = GetNodeId(context, node);
-          if (!std::get<0>(id_tuple)) {
-            return nullptr;
-          }
+    if (!scope) {
+      return nullptr;
+    }
+    auto weak_dom_manager = scope->GetDomManager();
+    std::shared_ptr<CtxValue> nodes = arguments[0];
+    std::shared_ptr<Ctx> context = scope->GetContext();
+    FOOTSTONE_CHECK(context);
+    auto len = context->GetArrayLength(nodes);
+    std::vector<std::shared_ptr<DomInfo>> dom_infos;
+    for (uint32_t i = 0; i < len; ++i) {
+      std::shared_ptr<CtxValue> info = context->CopyArrayElement(nodes, i);
+      auto length = context->GetArrayLength(info);
+      if (length > 0) {
+        auto node = context->CopyArrayElement(info, 0);
+        auto id_tuple = GetNodeId(context, node);
+        if (!std::get<0>(id_tuple)) {
+          return nullptr;
+        }
 
-          auto pid_tuple = GetNodePid(context, node);
-          if (!std::get<0>(pid_tuple)) {
-            return nullptr;
-          }
-          if (length >= 2) {
-            auto ref_info_tuple = CreateRefInfo(
-                context, context->CopyArrayElement(info, 1), scope);
-            dom_infos.push_back(std::make_shared<DomInfo>(
-                std::make_shared<DomNode>(
-                    std::get<2>(id_tuple),
-                    std::get<2>(pid_tuple),
-                    scope->GetRootNode()),
-                std::get<2>(ref_info_tuple)));
-          }
+        auto pid_tuple = GetNodePid(context, node);
+        if (!std::get<0>(pid_tuple)) {
+          return nullptr;
+        }
+        if (length >= 2) {
+          auto ref_info_tuple = CreateRefInfo(
+              context, context->CopyArrayElement(info, 1), scope);
+          dom_infos.push_back(std::make_shared<DomInfo>(
+              std::make_shared<DomNode>(
+                  std::get<2>(id_tuple),
+                  std::get<2>(pid_tuple),
+                  scope->GetRootNode()),
+              std::get<2>(ref_info_tuple)));
         }
       }
-      builder->Move(weak_dom_manager, scope->GetRootNode(), std::move(dom_infos));
     }
+    SceneBuilder::Move(weak_dom_manager, scope->GetRootNode(), std::move(dom_infos));
     return nullptr;
   };
   class_template.functions.emplace_back(std::move(move_func_def));
 
   FunctionDefine<SceneBuilder> delete_func_def;
   delete_func_def.name = "delete";
-  delete_func_def.cb = [weak_scope](
+  delete_func_def.callback = [weak_scope](
       SceneBuilder* builder,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+      const std::shared_ptr<CtxValue> arguments[],
+      std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
-    if (scope) {
-      std::shared_ptr<CtxValue> nodes = arguments[0];
-      std::shared_ptr<Ctx> context = scope->GetContext();
-      FOOTSTONE_CHECK(context);
-      auto len = context->GetArrayLength(nodes);
-      std::vector<std::shared_ptr<DomInfo>> dom_infos;
-      for (uint32_t i = 0; i < len; ++i) {
-        std::shared_ptr<CtxValue> info = context->CopyArrayElement(nodes, i);
-        auto length = context->GetArrayLength(info);
-        if (length > 0) {
-          auto node = context->CopyArrayElement(info, 0);
-          auto id_tuple = GetNodeId(context, node);
-          if (!std::get<0>(id_tuple)) {
-            return nullptr;
-          }
-
-          auto pid_tuple = GetNodePid(context, node);
-          if (!std::get<0>(pid_tuple)) {
-            return nullptr;
-          }
-          dom_infos.push_back(std::make_shared<DomInfo>(
-              std::make_shared<DomNode>(
-                  std::get<2>(id_tuple),
-                  std::get<2>(pid_tuple),
-                  scope->GetRootNode()),
-              nullptr));
-        }
-      }
-      builder->Delete(scope->GetDomManager(), scope->GetRootNode(), std::move(dom_infos));
+    if (!scope) {
+      return nullptr;
     }
+    auto nodes = arguments[0];
+    auto context = scope->GetContext();
+    FOOTSTONE_CHECK(context);
+    auto len = context->GetArrayLength(nodes);
+    std::vector<std::shared_ptr<DomInfo>> dom_infos;
+    for (uint32_t i = 0; i < len; ++i) {
+      std::shared_ptr<CtxValue> info = context->CopyArrayElement(nodes, i);
+      auto length = context->GetArrayLength(info);
+      if (length > 0) {
+        auto node = context->CopyArrayElement(info, 0);
+        auto id_tuple = GetNodeId(context, node);
+        if (!std::get<0>(id_tuple)) {
+          return nullptr;
+        }
+
+        auto pid_tuple = GetNodePid(context, node);
+        if (!std::get<0>(pid_tuple)) {
+          return nullptr;
+        }
+        dom_infos.push_back(std::make_shared<DomInfo>(
+            std::make_shared<DomNode>(
+                std::get<2>(id_tuple),
+                std::get<2>(pid_tuple),
+                scope->GetRootNode()),
+            nullptr));
+      }
+    }
+    SceneBuilder::Delete(scope->GetDomManager(), scope->GetRootNode(), std::move(dom_infos));
     return nullptr;
   };
   class_template.functions.emplace_back(std::move(delete_func_def));
 
   FunctionDefine<SceneBuilder> add_event_listener_def;
   add_event_listener_def.name = "addEventListener";
-  add_event_listener_def.cb = [weak_scope](
+  add_event_listener_def.callback = [weak_scope](
       SceneBuilder* builder,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+      const std::shared_ptr<CtxValue> arguments[],
+      std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
-    if (scope) {
-      Scope::EventListenerInfo listener_info;
-      HandleEventListenerInfo(scope->GetContext(), argument_count, arguments, listener_info);
-      auto dom_listener_info = scope->AddListener(listener_info);
-      builder->AddEventListener(scope->GetDomManager(), scope->GetRootNode(), dom_listener_info);
+    if (!scope) {
+      return nullptr;
     }
+    Scope::EventListenerInfo listener_info;
+    HandleEventListenerInfo(scope->GetContext(), argument_count, arguments, listener_info);
+    auto dom_listener_info = scope->AddListener(listener_info);
+    SceneBuilder::AddEventListener(scope->GetDomManager(), scope->GetRootNode(), dom_listener_info);
     return nullptr;
   };
   class_template.functions.emplace_back(std::move(add_event_listener_def));
 
   FunctionDefine<SceneBuilder> remove_event_listener_def;
   remove_event_listener_def.name = "removeEventListener";
-  remove_event_listener_def.cb = [weak_scope](
+  remove_event_listener_def.callback = [weak_scope](
       SceneBuilder* builder,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+      const std::shared_ptr<CtxValue> arguments[],
+      std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
-    if (scope) {
-      Scope::EventListenerInfo listener_info;
-      HandleEventListenerInfo(scope->GetContext(), argument_count, arguments, listener_info);
-      auto dom_listener_info = scope->RemoveListener(listener_info);
-      builder->RemoveEventListener(scope->GetDomManager(), scope->GetRootNode(), dom_listener_info);
+    if (!scope) {
+      return nullptr;
     }
+    Scope::EventListenerInfo listener_info;
+    HandleEventListenerInfo(scope->GetContext(), argument_count, arguments, listener_info);
+    auto dom_listener_info = scope->RemoveListener(listener_info);
+    SceneBuilder::RemoveEventListener(scope->GetDomManager(), scope->GetRootNode(), dom_listener_info);
     return nullptr;
   };
   class_template.functions.emplace_back(std::move(remove_event_listener_def));
@@ -561,14 +577,16 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
 
   FunctionDefine<SceneBuilder> build_func_def;
   build_func_def.name = "build";
-  build_func_def.cb = [weak_scope](
+  build_func_def.callback = [weak_scope](
       SceneBuilder* builder,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+      const std::shared_ptr<CtxValue> arguments[],
+      std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
-    if (scope) {
-      builder->Build(scope->GetDomManager(), scope->GetRootNode());
+    if (!scope) {
+      return nullptr;
     }
+    SceneBuilder::Build(scope->GetDomManager(), scope->GetRootNode());
     return nullptr;
   };
   class_template.functions.emplace_back(std::move(build_func_def));

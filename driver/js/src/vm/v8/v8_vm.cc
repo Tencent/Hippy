@@ -126,8 +126,8 @@ static void UncaughtExceptionMessageCallback(v8::Local<v8::Message> message, v8:
   auto external = data.As<v8::External>();
   FOOTSTONE_CHECK(!external.IsEmpty());
   auto* func_wrapper = reinterpret_cast<FunctionWrapper*>(external->Value());
-  FOOTSTONE_CHECK(func_wrapper && func_wrapper->cb);
-  (func_wrapper->cb)(callback_info, func_wrapper->data);
+  FOOTSTONE_CHECK(func_wrapper && func_wrapper->callback);
+  (func_wrapper->callback)(callback_info, func_wrapper->data);
 }
 
 void V8VM::AddUncaughtExceptionMessageListener(const std::unique_ptr<FunctionWrapper>& wrapper) const {

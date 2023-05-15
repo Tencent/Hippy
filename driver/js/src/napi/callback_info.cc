@@ -28,11 +28,13 @@ namespace hippy {
 inline namespace driver {
 inline namespace napi {
 
-CallbackInfo::CallbackInfo() {
-  ret_value_ = std::make_unique<ReturnValue>();
-  exception_value_ = std::make_unique<ExceptionValue>();
-  receiver_ = nullptr;
-}
+CallbackInfo::CallbackInfo():
+  slot_(),
+  data_(nullptr),
+  receiver_(nullptr),
+  values_(),
+  ret_value_(std::make_unique<ReturnValue>()),
+  exception_value_(std::make_unique<ExceptionValue>()) {}
 
 void CallbackInfo::AddValue(const std::shared_ptr<CtxValue>& value) {
   if (!value) {

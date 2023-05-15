@@ -151,13 +151,22 @@ set(SOURCE_SET
     src/js_driver_utils.cc
     src/modules/animation_module.cc
     src/modules/event_module.cc
-    src/modules/scene_builder.cc
+    src/modules/scene_builder_module.cc
     src/napi/callback_info.cc
+    src/performance/performance.cc
+    src/performance/performance_entry.cc
+    src/performance/performance_frame_timing.cc
+    src/performance/performance_mark.cc
+    src/performance/performance_measure.cc
+    src/performance/performance_navigation_timing.cc
+    src/performance/performance_paint_timing.cc
+    src/performance/performance_resource_timing.cc
     src/scope.cc
     src/vm/js_vm.cc)
 if ("${JS_ENGINE}" STREQUAL "V8")
   list(APPEND SOURCE_SET
           src/napi/v8/v8_ctx.cc
+          src/napi/v8/v8_class_definition.cc
           src/napi/v8/v8_try_catch.cc
           src/vm/v8/interrupt_queue.cc
           src/vm/v8/memory_module.cc
@@ -171,6 +180,7 @@ if ("${JS_ENGINE}" STREQUAL "V8")
   endif ()
 elseif ("${JS_ENGINE}" STREQUAL "JSC")
   list(APPEND SOURCE_SET
+          src/napi/jsc/jsc_class_definition.cc
           src/napi/jsc/jsc_ctx.cc
           src/napi/jsc/jsc_try_catch.cc
           src/vm/jsc/jsc_vm.cc
@@ -179,6 +189,14 @@ endif ()
 set(SOURCE_SET_STANDALONE
         src/modules/console_module.cc
         src/modules/contextify_module.cc
+        src/modules/performance/performance_entry_module.cc
+        src/modules/performance/performance_frame_timing_module.cc
+        src/modules/performance/performance_mark_module.cc
+        src/modules/performance/performance_measure_module.cc
+        src/modules/performance/performance_module.cc
+        src/modules/performance/performance_navigation_timing_module.cc
+        src/modules/performance/performance_paint_timing_module.cc
+        src/modules/performance/performance_resource_timing_module.cc
         src/modules/timer_module.cc
         src/modules/ui_manager_module.cc)
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
