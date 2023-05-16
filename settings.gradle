@@ -43,6 +43,9 @@ project(':devtools-integration').projectDir = new File('devtools/devtools-integr
 include 'example'
 project(':example').projectDir = new File('framework/examples/android-demo')
 
+include 'example-new'
+project(':example-new').projectDir = new File('framework/examples/android-demo-new')
+
 new LinkedHashSet(
         "${REQUIRED_MODULES}, ${OPTIONAL_MODULES}"
                 .split("\\s*,\\s*").stream().filter({ !it.isEmpty() }).toList()
