@@ -63,6 +63,8 @@ public interface NativeRender extends RenderExceptionHandler {
     @Nullable
     Executor getBackgroundExecutor();
 
+    int getEngineId();
+
     /**
      * Post invalidate to target view delayed by milliseconds, this method should only be called on
      * the main thread.

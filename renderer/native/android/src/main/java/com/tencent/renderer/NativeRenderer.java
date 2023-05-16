@@ -250,6 +250,14 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
+    public int getEngineId() {
+        if (mFrameworkProxy != null) {
+            return mFrameworkProxy.getEngineId();
+        }
+        return -1;
+    }
+
+    @Override
     public void setFrameworkProxy(@NonNull FrameworkProxy proxy) {
         mFrameworkProxy = proxy;
     }
