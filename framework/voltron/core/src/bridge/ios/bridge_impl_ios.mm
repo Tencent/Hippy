@@ -252,19 +252,21 @@ bool BridgeImpl::RunScriptFromUri(int64_t runtime_id,
 }
 
 void BridgeImpl::Destroy(int64_t runtime_id, std::function<void(int64_t)> callback, bool is_reload) {
-    VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
-    [getKeepContainer() removeObjectForKey:[NSString stringWithFormat:@"%lld", runtime_id]];
+    dispatch_async(HippyBridgeQueue(), ^{
+        VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
+        [getKeepContainer() removeObjectForKey:[NSString stringWithFormat:@"%lld", runtime_id]];
 #if ENABLE_INSPECTOR
-    // destory devtools
-    auto scope = bridge.jscExecutor.pScope;
-    if (scope) {
-        auto devtools_data_source = scope->GetDevtoolsDataSource();
-        if (devtools_data_source) {
-          devtools_data_source->Destroy(is_reload);
+        // destory devtools
+        auto scope = bridge.jscExecutor.pScope;
+        if (scope) {
+            auto devtools_data_source = scope->GetDevtoolsDataSource();
+            if (devtools_data_source) {
+                devtools_data_source->Destroy(is_reload);
+            }
         }
-    }
 #endif
-    callback(1);
+        callback(1);
+    });
 }
 
 void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t* action, std::string params,
