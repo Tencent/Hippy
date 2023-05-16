@@ -1,0 +1,30 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!-- Base application theme. -->
+  <style name="Theme.Hippy" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <!-- Primary brand color. -->
+    <item name="colorPrimary">@color/home_background</item>
+    <item name="colorPrimaryVariant">@color/home_background</item>
+    <item name="colorOnPrimary">@color/white</item>
+    <!-- Secondary brand color. -->
+    <item name="colorSecondary">@color/home_background</item>
+    <item name="colorSecondaryVariant">@color/home_background</item>
+    <item name="colorOnSecondary">@color/black</item>
+    <!-- Status bar color. -->
+    <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+    <!-- Customize your theme here. -->
+    <item name="windowNoTitle">true</item>
+  </style>
+  <style name="PageConfigurationDialogStyle" parent="@android:style/Theme.Dialog">
+    <item name="android:windowBackground">@android:color/transparent</item>
+    <item name="android:windowContentOverlay">@null</item>
+    <item name="android:windowIsFloating">true</item>
+    <item name="android:windowFrame">@null</item>
+    <item name="android:backgroundDimEnabled">true</item>
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowIsTranslucent">true</item>
+  </style>
+  <style name="PageConfigurationDialogAnimationStyle" parent="@android:style/Animation.Dialog">
+    <item name="android:windowEnterAnimation">@anim/page_configuration_dialog_in</item>
+    <item name="android:windowExitAnimation">@anim/page_configuration_dialog_out</item>
+  </style>
+</resources>
