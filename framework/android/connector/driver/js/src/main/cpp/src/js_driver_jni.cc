@@ -235,6 +235,9 @@ void DestroyJsDriver(__unused JNIEnv* j_env,
       engine_holder.erase(it);
     }
   }
+  auto scope_id = footstone::checked_numeric_cast<jint, uint32_t>(j_scope_id);
+  auto flag = hippy::global_data_holder.Erase(scope_id);
+  FOOTSTONE_CHECK(flag);
   JsDriverUtils::DestroyInstance(engine, scope, [bridge_callback_object](bool ret) {
       if (ret) {
         hippy::bridge::CallJavaMethod(bridge_callback_object->GetObj(),INIT_CB_STATE::SUCCESS);
