@@ -47,10 +47,10 @@ import androidx.annotation.Nullable;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupplier {
 
-    private static final String TAG = "ImageDataHolder";
     /**
      * Mark that the image data has been cached.
      */
@@ -77,20 +77,26 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
     private Bitmap mBitmap;
     @Nullable
     private BitmapFactory.Options mOptions;
+    private final AtomicInteger mRefCount = new AtomicInteger(0);
 
     public ImageDataHolder(@NonNull String source) {
-        init(source, 0, 0);
+        init(source, null, 0, 0);
     }
 
     public ImageDataHolder(@NonNull String source, int width, int height) {
-        init(source, width, height);
+        init(source, null, width, height);
     }
 
-    public void init(@NonNull String source, int width, int height) {
+    public ImageDataHolder(@NonNull String source, @NonNull ImageDataKey key, int width,
+            int height) {
+        init(source, key, width, height);
+    }
+
+    public void init(@NonNull String source, @Nullable ImageDataKey key, int width, int height) {
         mSource = source;
         mWidth = width;
         mHeight = height;
-        mKey = new ImageDataKey(source);
+        mKey = (key == null) ? new ImageDataKey(source) : key;
     }
 
     @Nullable
@@ -124,18 +130,18 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
 
     @Override
     public void attached() {
-        setStateFlag(FLAG_ATTACHED);
+        mRefCount.incrementAndGet();
     }
 
     @Override
     public void detached() {
-        resetStateFlag(FLAG_ATTACHED);
+        mRefCount.decrementAndGet();
         clear();
     }
 
     @Override
     public void cached() {
-        setStateFlag(FLAG_CACHED | FLAG_RECYCLABLE);
+        setStateFlag(FLAG_CACHED);
     }
 
     @Override
@@ -145,7 +151,7 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
     }
 
     private void clear() {
-        if (checkStateFlag(FLAG_CACHED) || checkStateFlag(FLAG_ATTACHED)) {
+        if (checkStateFlag(FLAG_CACHED) || mRefCount.get() > 0) {
             return;
         }
         if (mBitmap != null) {
@@ -166,7 +172,7 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
     @Override
     @Nullable
     public Bitmap getBitmap() {
-        return mBitmap != null && !mBitmap.isRecycled() ? mBitmap : null;
+        return (mBitmap != null && !mBitmap.isRecycled()) ? mBitmap : null;
     }
 
     @Override
@@ -287,6 +293,7 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
      */
     public void setBitmap(Bitmap bitmap) {
         mBitmap = bitmap;
+        resetStateFlag(FLAG_RECYCLABLE);
     }
 
     /**
@@ -322,6 +329,7 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
         if (source != null) {
             mBitmap = ImageDecoder.decodeBitmap(source);
             mGifMovie = null;
+            setStateFlag(FLAG_RECYCLABLE);
         }
     }
 
@@ -373,5 +381,6 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
         mOptions.inJustDecodeBounds = false;
         mBitmap = BitmapFactory.decodeByteArray(data, 0, data.length, mOptions);
         mGifMovie = null;
+        setStateFlag(FLAG_RECYCLABLE);
     }
 }
