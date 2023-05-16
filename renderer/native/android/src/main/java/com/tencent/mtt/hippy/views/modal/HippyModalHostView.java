@@ -23,7 +23,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Build;
@@ -365,20 +364,8 @@ public class HippyModalHostView extends HippyViewGroup implements
 
     @NonNull
     protected Dialog createDialog(@NonNull Context context) {
-        Resources res = context.getResources();
-        int themeResId = res
-                .getIdentifier("HippyFullScreenDialog", "style", context.getPackageName());
-        Dialog dialog = new Dialog(context, themeResId);
-        if (themeResId == 0) {
-            Window window = dialog.getWindow();
-            if (window != null) {
-                window.requestFeature(Window.FEATURE_NO_TITLE);
-                window.setBackgroundDrawableResource(android.R.color.transparent);
-                window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams
-                        .MATCH_PARENT);
-            }
-        }
-        return dialog;
+        int themeResId = android.R.style.Theme_Translucent_NoTitleBar;
+        return new Dialog(context, themeResId);
     }
 
     @NonNull
