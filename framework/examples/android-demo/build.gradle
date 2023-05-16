@@ -1,4 +1,7 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
 
 Properties gradleProperties = new Properties()
 def propFileDir = "$projectDir.absolutePath/../../android/gradle.properties"
@@ -16,10 +19,12 @@ if (propFile.exists()) {
     include_abi_x86_64 = gradleProperties.getProperty('INCLUDE_ABI_X86_64')
 }
 
+
 android {
+    namespace 'com.openhippy.example'
     compileSdkVersion COMPILE_VERSION as int
     defaultConfig {
-        applicationId "com.tencent.mtt.hippy.example"
+        applicationId "com.openhippy.example"
         minSdkVersion MIN_VERSION as int
         // noinspection ExpiredTargetSdkVersion
         //noinspection OldTargetApi
@@ -40,7 +45,6 @@ android {
 
         }
     }
-
     signingConfigs {
         release {
             keyAlias 'key0'
@@ -49,7 +53,6 @@ android {
             storePassword 'hippydemostorepass!'
         }
     }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -59,6 +62,13 @@ android {
         debug {
             minifyEnabled false
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
     }
 }
 
@@ -73,17 +83,17 @@ dependencies {
         compileOnly project(path: ':hippy-support')
         compileOnly project(path: ':renderer-native')
     }
-
-    // TODO(vimerzhao): needed by render-tdf.Due to `embed` don't support indirect dependency,I temporarily write here
-    // api "androidx.exifinterface:exifinterface:1.3.3"
-    // api "com.tencent.tdfcore:embedder:0.0.8"
-
-    // noinspection GradleDependency
-    api deps.annotation
-    api 'androidx.legacy:legacy-support-v4:1.0.0'
-    api 'androidx.appcompat:appcompat:1.3.1'
-    api 'androidx.recyclerview:recyclerview:1.1.0'
-    api 'androidx.viewpager:viewpager:1.0.0'
+    implementation deps.annotation
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'androidx.viewpager:viewpager:1.0.0'
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }
 
 project.afterEvaluate {

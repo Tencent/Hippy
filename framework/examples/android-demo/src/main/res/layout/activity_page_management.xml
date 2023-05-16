@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:background="@color/home_background"
+  tools:context=".PageManagement">
+
+  <androidx.constraintlayout.widget.ConstraintLayout
+      android:id="@+id/page_management_navigation_bar"
+      android:layout_width="match_parent"
+      android:layout_height="54dp"
+      android:background="@color/white"
+      android:clickable="true"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintRight_toRightOf="parent">
+    <TextView
+        android:id="@+id/page_management_navigation_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Page Management"
+        android:textColor="@color/black"
+        android:textFontWeight="500"
+        android:textSize="17sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/page_management_navigation_back"
+        android:layout_width="55dp"
+        android:layout_height="54dp"
+        android:background="@color/white"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" >
+
+      <ImageView
+          android:id="@+id/page_management_back"
+          android:layout_width="9dp"
+          android:layout_height="17dp"
+          android:layout_marginLeft="10dp"
+          android:src="@drawable/back_2x"
+          android:clickable="false"
+          app:layout_constraintRight_toRightOf="parent"
+          app:layout_constraintLeft_toLeftOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+
+  <androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/page_management_container"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:clickable="false"
+    app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/page_management_navigation_bar"
+    app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
