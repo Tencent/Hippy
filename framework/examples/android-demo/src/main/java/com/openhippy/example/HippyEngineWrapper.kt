@@ -51,13 +51,13 @@ class HippyEngineWrapper {
         initParams.logAdapter = DefaultLogAdapter()
         when(driverMode) {
             PageConfiguration.DriverMode.JS_REACT -> {
-                initParams.coreJSAssetsPath = "vendor.android.js"
+                initParams.coreJSAssetsPath = "react/vendor.android.js"
             }
             PageConfiguration.DriverMode.JS_VUE_2 -> {
-                initParams.coreJSAssetsPath = "vendor.android.js"
+                initParams.coreJSAssetsPath = "vue2/vendor.android.js"
             }
             PageConfiguration.DriverMode.JS_VUE_3 -> {
-                initParams.coreJSAssetsPath = "vendor.android.js"
+                initParams.coreJSAssetsPath = "vue3/vendor.android.js"
             }
         }
         initParams.codeCacheTag = "common"
@@ -95,13 +95,13 @@ class HippyEngineWrapper {
                     loadParams.codeCacheTag = "Demo"
                     when(driverMode) {
                         PageConfiguration.DriverMode.JS_REACT -> {
-                            loadParams.jsAssetsPath = "index.android.js"
+                            loadParams.jsAssetsPath = "react/index.android.js"
                         }
                         PageConfiguration.DriverMode.JS_VUE_2 -> {
-                            loadParams.jsAssetsPath = "index.android.js"
+                            loadParams.jsAssetsPath = "vue2/index.android.js"
                         }
                         PageConfiguration.DriverMode.JS_VUE_3 -> {
-                            loadParams.jsAssetsPath = "index.android.js"
+                            loadParams.jsAssetsPath = "vue3/index.android.js"
                         }
                     }
                     loadParams.jsFilePath = null
