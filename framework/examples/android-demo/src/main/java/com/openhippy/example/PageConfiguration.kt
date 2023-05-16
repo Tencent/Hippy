@@ -24,6 +24,9 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
@@ -204,7 +207,7 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
                 debugMode,
                 debugServerHost
             )
-            hippyEngineWrapper?.load(object : HippyEngineWrapper.HippyEngineLoadCallback {
+            hippyEngineWrapper?.load(this, object : HippyEngineWrapper.HippyEngineLoadCallback {
                 override fun onInitEngineCompleted(
                     statusCode: HippyEngine.EngineInitStatus,
                     msg: String?
@@ -295,15 +298,16 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
             R.id.page_configuration_renderer_tdf_core,
             R.id.page_configuration_renderer_flutter,
             R.id.page_configuration_driver_vl -> {
+                val text = resources.getText(R.string.setting_not_available)
+                val span = SpannableString(text)
+                span.setSpan(ForegroundColorSpan(Color.BLACK), 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 val toast: Toast =
                     Toast.makeText(
                         this,
-                        resources.getText(R.string.setting_not_available),
+                        span,
                         Toast.LENGTH_SHORT
                     )
-                toast.setGravity(Gravity.CENTER_VERTICAL or Gravity.CENTER_HORIZONTAL, 0, 0)
-                val v = toast.view!!.findViewById(android.R.id.message) as TextView
-                v.setTextColor(Color.WHITE)
+                toast.setGravity(Gravity.CENTER, 0, 0)
                 toast.show()
             }
         }

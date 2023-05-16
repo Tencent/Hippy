@@ -64,6 +64,10 @@ class PageManagement : AppCompatActivity() {
         scrollerView.addView(constraintLayout, constraintLayoutParams)
         val layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
         (pageManagementContainer as? ViewGroup)?.addView(scrollerView, layoutParams)
+        val hippyEngineList = HippyEngineHelper.getHippyEngineList()
+        for (hippyEngineWrapper in hippyEngineList) {
+            hippyEngineWrapper.pageItem = null
+        }
     }
 
     override fun onDestroy() {

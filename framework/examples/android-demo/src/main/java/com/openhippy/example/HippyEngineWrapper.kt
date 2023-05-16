@@ -15,6 +15,7 @@
 
 package com.openhippy.example
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.view.View
 import android.view.ViewGroup
@@ -84,13 +85,13 @@ class HippyEngineWrapper {
         }
     }
 
-    fun load(callback: HippyEngineLoadCallback) {
+    fun load(context: Context, callback: HippyEngineLoadCallback) {
         hippyEngine.initEngine(object: EngineListener {
             override fun onInitialized(statusCode: EngineInitStatus, msg: String?) {
                 callback.onInitEngineCompleted(statusCode, msg)
                 if (statusCode == EngineInitStatus.STATUS_OK) {
                     val loadParams = ModuleLoadParams()
-                    loadParams.context = mainActivityContext
+                    loadParams.context = context
                     loadParams.componentName = "Demo"
                     loadParams.codeCacheTag = "Demo"
                     when(driverMode) {
