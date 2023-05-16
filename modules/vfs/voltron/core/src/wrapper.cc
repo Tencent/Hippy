@@ -118,7 +118,7 @@ std::shared_ptr<hippy::UriLoader> VfsWrapper::GetLoader() {
 }
 
 std::shared_ptr<VfsWrapper> VfsWrapper::GetWrapper(uint32_t id) {
-  return voltron::FindObject<std::shared_ptr<VfsWrapper>>(id);
+  return std::any_cast<std::shared_ptr<VfsWrapper>>(voltron::FindObject(id));
 }
 
 void VfsWrapper::InvokeNative(EncodableMap *req_map,

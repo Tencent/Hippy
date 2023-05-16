@@ -29,8 +29,6 @@
 namespace voltron {
 inline namespace ffi {
 
-extern std::atomic<uint32_t> global_data_holder_key;
-extern footstone::utils::PersistentObjectMap<uint32_t, std::any> global_data_holder;
 
 extern uint32_t InsertObject(const std::any& obj);
 
@@ -40,15 +38,7 @@ extern uint32_t GenId();
 
 extern bool EraseObject(uint32_t id);
 
-template <typename T>
-T FindObject(uint32_t id) {
-  std::any wrapper_object;
-  bool flag = global_data_holder.Find(
-      id,
-      wrapper_object);
-  FOOTSTONE_CHECK(flag);
-  return std::any_cast<T>(wrapper_object);
-}
+extern std::any FindObject(uint32_t id);
 
 }
 }

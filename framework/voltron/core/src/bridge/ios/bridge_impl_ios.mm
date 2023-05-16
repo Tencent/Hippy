@@ -175,7 +175,7 @@ int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platf
 
     dispatch_async(HippyBridgeQueue(), ^{
         NSString *executorKey = [[NSString alloc] initWithFormat:@"VoltronExecutor_%lld", bridge_id];
-        auto dom_manager = voltron::FindObject<std::shared_ptr<hippy::DomManager>>(dom_manager_id);
+        auto dom_manager = std::any_cast<std::shared_ptr<hippy::DomManager>>(voltron::FindObject(dom_manager_id));
         FOOTSTONE_DCHECK(dom_manager);
         std::shared_ptr<footstone::TaskRunner> dom_task_runner = dom_manager->GetTaskRunner();
         FOOTSTONE_DCHECK(dom_task_runner);
@@ -252,19 +252,21 @@ bool BridgeImpl::RunScriptFromUri(int64_t runtime_id,
 }
 
 void BridgeImpl::Destroy(int64_t runtime_id, std::function<void(int64_t)> callback, bool is_reload) {
-    VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
-    [getKeepContainer() removeObjectForKey:[NSString stringWithFormat:@"%lld", runtime_id]];
+    dispatch_async(HippyBridgeQueue(), ^{
+        VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
+        [getKeepContainer() removeObjectForKey:[NSString stringWithFormat:@"%lld", runtime_id]];
 #if ENABLE_INSPECTOR
-    // destory devtools
-    auto scope = bridge.jscExecutor.pScope;
-    if (scope) {
-        auto devtools_data_source = scope->GetDevtoolsDataSource();
-        if (devtools_data_source) {
-          devtools_data_source->Destroy(is_reload);
+        // destory devtools
+        auto scope = bridge.jscExecutor.pScope;
+        if (scope) {
+            auto devtools_data_source = scope->GetDevtoolsDataSource();
+            if (devtools_data_source) {
+                devtools_data_source->Destroy(is_reload);
+            }
         }
-    }
 #endif
-    callback(1);
+        callback(1);
+    });
 }
 
 void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t* action, std::string params,
@@ -276,7 +278,7 @@ void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t* action, std::s
 
     NSString *actionName = U16ToNSString(action);
     NSString *paramsStr = [NSString stringWithCString:params.c_str()
-                                             encoding:[NSString defaultCStringEncoding]];
+                                             encoding:NSUTF8StringEncoding];
     NSData *objectData = [paramsStr dataUsingEncoding:NSUTF8StringEncoding];
     NSError *jsonError;
     NSDictionary *paramDict = [NSJSONSerialization JSONObjectWithData:objectData

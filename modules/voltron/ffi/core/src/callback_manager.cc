@@ -43,7 +43,7 @@ EXTERN_C uint32_t InitFfi(dart_post_c_object_type dart_post_c_object, int64_t po
 }
 
 EXTERN_C int32_t AddCallFunc(uint32_t ffi_id, const char16_t *register_header, int32_t type, void *func) {
-  auto port_holder = voltron::FindObject<std::shared_ptr<voltron::DartPortHolder>>(ffi_id);
+  auto port_holder = std::any_cast<std::shared_ptr<voltron::DartPortHolder>>(voltron::FindObject(ffi_id));
   if (!port_holder) {
     FOOTSTONE_DLOG(ERROR) << "call callback error, port holder not found, ensure ffi module init";
     return false;
