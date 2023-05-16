@@ -64,7 +64,7 @@ public class MyActivity extends Activity
 			initParams.enableLog = true;
 			initParams.logAdapter = new DefaultLogAdapter();
 			// 可选：debugMode = false 时必须设置coreJSAssetsPath或coreJSFilePath（debugMode = true时，所有jsbundle都是从debug server上下载）
-			initParams.coreJSAssetsPath = "vendor.android.js";
+			initParams.coreJSAssetsPath = "react/vendor.android.js";
 
 			initParams.codeCacheTag = "common";
 
@@ -135,7 +135,7 @@ public class MyActivity extends Activity
 						  可选：二选一设置。自己开发的业务模块的jsbundle的assets路径（assets路径和文件路径二选一，优先使用assets路径）
 						  debugMode = false 时必须设置jsAssetsPath或jsFilePath（debugMode = true时，所有jsbundle都是从debug server上下载）
 						 */
-						loadParams.jsAssetsPath = "index.android.js";
+						loadParams.jsAssetsPath = "react/index.android.js";
 						/*
 						  可选：二选一设置。自己开发的业务模块的jsbundle的文件路径（assets路径和文件路径二选一，优先使用assets路径）
 						  debugMode = false 时必须设置jsAssetsPath或jsFilePath（debugMode = true时，所有jsbundle都是从debug server上下载）

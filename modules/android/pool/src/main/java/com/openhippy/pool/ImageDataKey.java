@@ -28,10 +28,14 @@ public class ImageDataKey {
         mUri = url;
     }
 
+    public String getUri() {
+        return mUri;
+    }
+
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof String) {
-            return mUri.equals(obj);
+        if (obj instanceof ImageDataKey) {
+            return mUri.equals(((ImageDataKey) obj).getUri());
         }
         return false;
     }

@@ -23,6 +23,7 @@ import com.openhippy.pool.ImageDataKey;
 import com.openhippy.pool.ImageDataPool;
 import com.openhippy.pool.ImageRecycleObject;
 import com.openhippy.pool.Pool;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.NativeRenderException;
 
@@ -37,6 +38,7 @@ import java.util.Map;
 
 public class ImageLoader implements ImageLoaderAdapter {
 
+    private static final String TAG = "ImageLoader";
     public static final String REQUEST_CONTENT_TYPE = "Content-Type";
     public static final String REQUEST_CONTENT_TYPE_IMAGE = "image";
     @NonNull
@@ -56,9 +58,6 @@ public class ImageLoader implements ImageLoaderAdapter {
 
     @Nullable
     public ImageDataSupplier getImageFromCache(@NonNull String url) {
-        if (UrlUtils.isWebUrl(url)) {
-            return null;
-        }
         ImageRecycleObject imageObject = mImagePool.acquire(new ImageDataKey(url));
         return (imageObject instanceof ImageDataSupplier) ? ((ImageDataSupplier) imageObject)
                 : null;
@@ -95,7 +94,7 @@ public class ImageLoader implements ImageLoaderAdapter {
         };
     }
 
-    private void handleResourceData(@NonNull String url, final ImageDataKey urlKey,
+    private void handleResourceData(@NonNull String url, @NonNull final ImageDataKey urlKey,
             @Nullable Map<String, Object> initProps,
             @NonNull final ResourceDataHolder dataHolder, int width, int height) {
         ImageDataHolder imageHolder = null;
@@ -105,16 +104,16 @@ public class ImageLoader implements ImageLoaderAdapter {
                 == ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE && bytes != null) {
             imageHolder = ImageDataHolder.obtain();
             if (imageHolder != null) {
-                imageHolder.init(url, width, height);
+                imageHolder.init(url, urlKey, width, height);
             } else {
-                imageHolder = new ImageDataHolder(url, width, height);
+                imageHolder = new ImageDataHolder(url, urlKey, width, height);
             }
             try {
                 imageHolder.decodeImageData(bytes, initProps, mImageDecoderAdapter);
                 // Should check the request data returned from the host, if the data is
                 // invalid, the request is considered to have failed
                 if (imageHolder.checkImageData()) {
-                    saveImageToCache(url, imageHolder);
+                    saveImageToCache(imageHolder);
                 } else {
                     imageHolder = null;
                     errorMessage = "Image data decoding failed!";
@@ -136,7 +135,8 @@ public class ImageLoader implements ImageLoaderAdapter {
         dataHolder.recycle();
     }
 
-    private void handleRequestProgress(final long total, final long loaded, final ImageDataKey urlKey) {
+    private void handleRequestProgress(final long total, final long loaded,
+            @NonNull final ImageDataKey urlKey) {
         Runnable progressRunnable = new Runnable() {
             @Override
             public void run() {
@@ -158,10 +158,8 @@ public class ImageLoader implements ImageLoaderAdapter {
         }
     }
 
-    private void saveImageToCache(@NonNull String url, @NonNull ImageDataHolder data) {
-        if (!UrlUtils.isWebUrl(url)) {
-            mImagePool.release(data);
-        }
+    private void saveImageToCache(@NonNull ImageDataHolder data) {
+        mImagePool.release(data);
     }
 
     @NonNull
@@ -185,24 +183,26 @@ public class ImageLoader implements ImageLoaderAdapter {
         }
         ImageDataHolder imageHolder = ImageDataHolder.obtain();
         if (imageHolder != null) {
-            imageHolder.init(url, width, height);
+            imageHolder.init(url, null, width, height);
         } else {
             imageHolder = new ImageDataHolder(url, width, height);
         }
         try {
             imageHolder.decodeImageData(bytes, initProps, mImageDecoderAdapter);
             if (imageHolder.checkImageData()) {
-                saveImageToCache(url, imageHolder);
+                saveImageToCache(imageHolder);
                 return imageHolder;
             }
         } catch (NativeRenderException e) {
             e.printStackTrace();
+        } finally {
+            dataHolder.recycle();
         }
-        dataHolder.recycle();
         return null;
     }
 
-    private boolean checkRepeatRequest(@NonNull ImageDataKey urlKey, @NonNull final ImageRequestListener listener) {
+    private boolean checkRepeatRequest(@NonNull ImageDataKey urlKey,
+            @NonNull final ImageRequestListener listener) {
         if (mListenersMap == null) {
             mListenersMap = new HashMap<>();
         }
