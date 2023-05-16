@@ -332,7 +332,7 @@ import icon from './qb_icon_new.png';
 | onFocus | 当文本框获得焦点的时候调用此回调函数。 | `Function` | `Android、iOS、Voltron` |
 | onChangeText          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | onKeyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`。 | `Function`                                                   | `Android、iOS、hippy-react-web、Voltron` |
-| onKeyboardWillHide    | 在隐藏输入法键盘时候会触发此回调函数 | `Function`                                                   | `Android、Voltron`     |
+| onKeyboardWillHide    | 在隐藏输入法键盘时候会触发此回调函数 | `Function`                                                   | `Android、iOS、Voltron`     |
 | onKeyboardHeightChanged    | 在输入法键盘高度改变时触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`, `最低支持版本2.14.0`。 | `Function`                                                   | `iOS、Voltron`     |
 | onEndEditing          | 当文本输入结束后调用此回调函数。                             | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | onLayout              | 当组件挂载或者布局变化的时候调用，参数为`nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |

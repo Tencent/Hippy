@@ -80,7 +80,8 @@
     BOOL _viewDidCompleteInitialLayout;
 }
 
-//当键盘出现或改变时调用
+#pragma mark - Keyboard Events
+
 - (void)keyboardWillShow:(NSNotification *)aNotification {
     [super keyboardWillShow:aNotification];
     //获取键盘的高度
@@ -90,6 +91,13 @@
     CGFloat keyboardHeight = keyboardRect.size.height;
     if (self.isFirstResponder && _onKeyboardWillShow) {
         _onKeyboardWillShow(@{ @"keyboardHeight": @(keyboardHeight) });
+    }
+}
+
+- (void)keyboardWillHide:(NSNotification *)aNotification {
+    [super keyboardWillHide:aNotification];
+    if (_onKeyboardWillHide) {
+        _onKeyboardWillHide(@{});
     }
 }
 

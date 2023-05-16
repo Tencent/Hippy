@@ -107,29 +107,30 @@ double DegreesToRadians(double degrees) {
 std::shared_ptr<AnimationSet> ParseAnimationSet(
     const std::shared_ptr<Ctx>& context,
     size_t argument_count,
-    const std::shared_ptr<CtxValue> arguments[]) {
+    const std::shared_ptr<CtxValue> arguments[],
+    std::shared_ptr<CtxValue>& exception) {
   auto set_obj = arguments[0];
   if (context->IsNullOrUndefined(set_obj)) {
-    context->ThrowException("AnimationSet argv error");
+    exception = context->CreateException("AnimationSet argv error");
     return nullptr;
   }
 
   auto repeat_obj = context->GetProperty(set_obj, kAnimationRepeatCountKey);
   if (context->IsNullOrUndefined(repeat_obj)) {
-    context->ThrowException("AnimationSet argv error");
+    exception = context->CreateException("AnimationSet argv error");
     return nullptr;
   }
 
   int32_t repeat_cnt;
   auto flag = context->GetValueNumber(repeat_obj, &repeat_cnt);
   if (!flag) {
-    context->ThrowException("AnimationSet repeat error");
+    exception = context->CreateException("AnimationSet repeat error");
     return nullptr;
   }
 
   auto children = context->GetProperty(set_obj, kAnimationChildrenKey);
   if (!context->IsArray(children)) {
-    context->ThrowException("AnimationSet children error");
+    exception = context->CreateException("AnimationSet children error");
     return nullptr;
   }
 
@@ -141,14 +142,14 @@ std::shared_ptr<AnimationSet> ParseAnimationSet(
     int32_t id;
     flag = context->GetValueNumber(prop_id, &id);
     if (!flag) {
-      context->ThrowException("AnimationSet animationId error");
+      exception = context->CreateException("AnimationSet animationId error");
       return nullptr;
     }
     auto prop_follow = context->GetProperty(child, kAnimationFollowKey);
     bool follow;
     flag = context->GetValueBoolean(prop_follow, &follow);
     if (!flag) {
-      context->ThrowException("AnimationSet follow error");
+      exception = context->CreateException("AnimationSet follow error");
       return nullptr;
     }
     set_children.emplace_back(AnimationSetChild{static_cast<uint32_t>(id), follow});
@@ -162,7 +163,8 @@ std::shared_ptr<AnimationSet> ParseAnimationSet(
 
 std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>& context,
                                                      size_t argument_count,
-                                                     const std::shared_ptr<CtxValue> arguments[]) {
+                                                     const std::shared_ptr<CtxValue> arguments[],
+                                                     std::shared_ptr<CtxValue>& exception) {
   if (argument_count != kAnimationUpdateArgc) {
     return nullptr;
   }
@@ -172,14 +174,14 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
   auto mode_obj = context->GetProperty(animation_obj, kAnimationModeKey);
   auto flag = context->GetValueString(mode_obj, &mode);
   if (!flag) {
-    context->ThrowException("animation mode error");
+    exception = context->CreateException("animation mode error");
     return nullptr;
   }
 
   auto u8_mode = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
       mode, string_view::Encoding::Utf8).utf8_value());
   if (u8_mode != kAnimationMode) {
-    context->ThrowException("animation mode value error");
+    exception = context->CreateException("animation mode value error");
     return nullptr;
   }
 
@@ -187,7 +189,7 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
   auto delay_obj = context->GetProperty(animation_obj, kAnimationDelayKey);
   flag = context->GetValueNumber(delay_obj, &delay);
   if (!flag) {
-    context->ThrowException("animation delay error");
+    exception = context->CreateException("animation delay error");
     return nullptr;
   }
 
@@ -198,18 +200,18 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
   if (!flag) {
     auto animation_id_obj = context->GetProperty(start_value_obj, kAnimationIdKey);
     if (context->IsNullOrUndefined(animation_id_obj)) {
-      context->ThrowException("animation start_value error");
+      exception = context->CreateException("animation start_value error");
       return nullptr;
     }
     int32_t id;
     flag = context->GetValueNumber(animation_id_obj, &id);
     if (!flag) {
-      context->ThrowException("animation start_value error");
+      exception = context->CreateException("animation start_value error");
       return nullptr;
     }
     flag = footstone::check::numeric_cast(id, animation_id);
     if (!flag) {
-      context->ThrowException("animation id error");
+      exception = context->CreateException("animation id error");
       return nullptr;
     }
   }
@@ -218,7 +220,7 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
   auto to_value_obj = context->GetProperty(animation_obj, kAnimationToValueKey);
   flag = context->GetValueNumber(to_value_obj, &to_value);
   if (!flag) {
-    context->ThrowException("animation to_value error");
+    exception = context->CreateException("animation to_value error");
     return nullptr;
   }
 
@@ -228,7 +230,7 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
   if (!context->IsNullOrUndefined(value_type_obj)) {
     flag = context->GetValueString(value_type_obj, &value_type);
     if (!flag) {
-      context->ThrowException("animation value_type error");
+      exception = context->CreateException("animation value_type error");
       return nullptr;
     }
     auto u8_value_type = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
@@ -250,7 +252,7 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
   auto duration_obj = context->GetProperty(animation_obj, kAnimationDurationKey);
   flag = context->GetValueNumber(duration_obj, &duration);
   if (!flag) {
-    context->ThrowException("animation duration error");
+    exception = context->CreateException("animation duration error");
     return nullptr;
   }
 
@@ -258,7 +260,7 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
   auto timing_func_obj = context->GetProperty(animation_obj, kAnimationTimingFunctionKey);
   flag = context->GetValueString(timing_func_obj, &timing_func);
   if (!flag) {
-    context->ThrowException("animation timing_func error");
+    exception = context->CreateException("animation timing_func error");
     return nullptr;
   }
 
@@ -268,7 +270,7 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
   auto cnt_obj = context->GetProperty(animation_obj, kAnimationRepeatCountKey);
   flag = context->GetValueNumber(cnt_obj, &cnt);
   if (!flag) {
-    context->ThrowException("animation timing_func error");
+    exception = context->CreateException("animation timing_func error");
     return nullptr;
   }
 
@@ -290,8 +292,12 @@ std::shared_ptr<ClassTemplate<CubicBezierAnimation>>
 RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
   ClassTemplate<CubicBezierAnimation> class_template;
   class_template.name = "Animation";
-  class_template.constructor = [weak_scope](size_t argument_count,
-                                            const std::shared_ptr<CtxValue> arguments[])
+  class_template.constructor = [weak_scope](
+      const std::shared_ptr<CtxValue>& receiver,
+      size_t argument_count,
+      const std::shared_ptr<CtxValue> arguments[],
+      void* external,
+      std::shared_ptr<CtxValue>& exception)
       -> std::shared_ptr<CubicBezierAnimation> {
     auto scope = weak_scope.lock();
     if (!scope) {
@@ -307,8 +313,8 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
     if (!root_node) {
       return nullptr;
     }
-    auto result = ParseAnimation(scope->GetContext(), argument_count, arguments);
-    if (!result) {
+    auto result = ParseAnimation(scope->GetContext(), argument_count, arguments, exception);
+    if (exception) {
       return nullptr;
     }
     auto animation =
@@ -323,10 +329,11 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
 
   FunctionDefine<CubicBezierAnimation> id_func_def;
   id_func_def.name = "getId";
-  id_func_def.cb = [weak_scope](
+  id_func_def.callback = [weak_scope](
       CubicBezierAnimation* animation,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+      const std::shared_ptr<CtxValue> arguments[],
+      std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
     if (!animation) {
       return nullptr;
     }
@@ -341,10 +348,11 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
 
   FunctionDefine<CubicBezierAnimation> start_func_def;
   start_func_def.name = "start";
-  start_func_def.cb = [weak_scope](
+  start_func_def.callback = [weak_scope](
       CubicBezierAnimation* animation,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+      const std::shared_ptr<CtxValue> arguments[],
+      std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
     if (!animation) {
       return nullptr;
     }
@@ -369,10 +377,11 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
 
   FunctionDefine<CubicBezierAnimation> destroy_func_def;
   destroy_func_def.name = "destroy";
-  destroy_func_def.cb = [weak_scope](
+  destroy_func_def.callback = [weak_scope](
       CubicBezierAnimation* animation,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+      const std::shared_ptr<CtxValue> arguments[],
+      std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
     if (!animation) {
       return nullptr;
     }
@@ -397,10 +406,11 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
 
   FunctionDefine<CubicBezierAnimation> pause_func_def;
   pause_func_def.name = "pause";
-  pause_func_def.cb = [weak_scope](
+  pause_func_def.callback = [weak_scope](
       CubicBezierAnimation* animation,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+      const std::shared_ptr<CtxValue> arguments[],
+      std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
     if (!animation) {
       return nullptr;
     }
@@ -425,10 +435,11 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
 
   FunctionDefine<CubicBezierAnimation> resume_func_def;
   resume_func_def.name = "resume";
-  resume_func_def.cb = [weak_scope](
+  resume_func_def.callback = [weak_scope](
       CubicBezierAnimation* animation,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+      const std::shared_ptr<CtxValue> arguments[],
+      std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
     if (!animation) {
       return nullptr;
     }
@@ -453,10 +464,11 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
 
   FunctionDefine<CubicBezierAnimation> update_func_def;
   update_func_def.name = "updateAnimation";
-  update_func_def.cb = [weak_scope](
+  update_func_def.callback = [weak_scope](
       CubicBezierAnimation* animation,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+      const std::shared_ptr<CtxValue> arguments[],
+      std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<CtxValue> {
     if (!animation) {
       return nullptr;
     }
@@ -465,7 +477,7 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
       return nullptr;
     }
     std::shared_ptr<Ctx> context = scope->GetContext();
-    auto result = ParseAnimation(context, argument_count, arguments);
+    auto result = ParseAnimation(context, argument_count, arguments, exception);
     if (!result) {
       return nullptr;
     }
@@ -487,10 +499,11 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
 
   FunctionDefine<CubicBezierAnimation> add_event_listener_func_def;
   add_event_listener_func_def.name = "addEventListener";
-  add_event_listener_func_def.cb = [weak_scope](
+  add_event_listener_func_def.callback = [weak_scope](
       CubicBezierAnimation* animation,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+      const std::shared_ptr<CtxValue> arguments[],
+      std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<CtxValue> {
     if (!animation) {
       return nullptr;
     }
@@ -510,18 +523,18 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
     }
     auto context = scope->GetContext();
     if (argument_count != kAddEventListenerArgc) {
-      context->ThrowException("argc error");
+      exception = context->CreateException("argc error");
       return nullptr;
     }
     string_view event_name;
     auto flag = context->GetValueString(arguments[kAddEventListenerEventNameIndex], &event_name);
     if (!flag) {
-      context->ThrowException("event_name error");
+      exception = context->CreateException("event_name error");
       return nullptr;
     }
     auto func = arguments[kAddEventListenerCbIndex];
     if (!context->IsFunction(func)) {
-      context->ThrowException("cb is not a function");
+      exception = context->CreateException("cb is not a function");
       return nullptr;
     }
     auto cb = [weak_scope, func] { // run in js thread
@@ -530,7 +543,7 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
         return;
       }
       auto context = scope->GetContext();
-      context->CallFunction(func, 0, nullptr);
+      context->CallFunction(func, context->GetGlobalObject(), 0, nullptr);
     };
     animation->AddEventListener(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
         event_name, string_view::Encoding::Utf8).utf8_value()), std::move(cb));
@@ -540,10 +553,11 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
 
   FunctionDefine<CubicBezierAnimation> remove_listener_func_def;
   remove_listener_func_def.name = "removeEventListener";
-  remove_listener_func_def.cb = [weak_scope](
+  remove_listener_func_def.callback = [weak_scope](
       CubicBezierAnimation* animation,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+      const std::shared_ptr<CtxValue> arguments[],
+      std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<CtxValue> {
     if (!animation) {
       return nullptr;
     }
@@ -563,13 +577,13 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
     }
     auto context = scope->GetContext();
     if (argument_count != kRemoveEventListenerArgc) {
-      context->ThrowException("argc error");
+      exception = context->CreateException("argc error");
       return nullptr;
     }
     string_view event_name;
     auto flag = context->GetValueString(arguments[kRemoveEventListenerEventNameIndex], &event_name);
     if (!flag) {
-      context->ThrowException("event_name error");
+      exception = context->CreateException("event_name error");
       return nullptr;
     }
     animation->RemoveEventListener(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
@@ -586,9 +600,12 @@ std::shared_ptr<ClassTemplate<AnimationSet>>
 RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
   ClassTemplate<AnimationSet> def;
   def.name = "AnimationSet";
-  def.constructor = [weak_scope](size_t argument_count,
-                                 const std::shared_ptr<CtxValue> arguments[])
-      -> std::shared_ptr<AnimationSet> {
+  def.constructor = [weak_scope](
+      const std::shared_ptr<CtxValue>& receiver,
+      size_t argument_count,
+      const std::shared_ptr<CtxValue> arguments[],
+      void* external,
+      std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<AnimationSet> {
     auto scope = weak_scope.lock();
     if (!scope) {
       return nullptr;
@@ -607,8 +624,8 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
     if (!animation_manager) {
       return nullptr;
     }
-    auto set = ParseAnimationSet(scope->GetContext(), argument_count, arguments);
-    if (!set) {
+    auto set = ParseAnimationSet(scope->GetContext(), argument_count, arguments, exception);
+    if (exception) {
       return nullptr;
     }
     set->SetAnimationManager(root_node->GetAnimationManager());
@@ -619,10 +636,11 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
 
   FunctionDefine<AnimationSet> id_func_def;
   id_func_def.name = "getId";
-  id_func_def.cb = [weak_scope](
+  id_func_def.callback = [weak_scope](
       AnimationSet* animation_set,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+      const std::shared_ptr<CtxValue> arguments[],
+      std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
     if (!animation_set) {
       return nullptr;
     }
@@ -637,10 +655,11 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
 
   FunctionDefine<AnimationSet> start_func_def;
   start_func_def.name = "start";
-  start_func_def.cb = [weak_scope](
+  start_func_def.callback = [weak_scope](
       AnimationSet* animation_set,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+      const std::shared_ptr<CtxValue> arguments[],
+      std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
     if (!animation_set) {
       return nullptr;
     }
@@ -665,10 +684,11 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
 
   FunctionDefine<AnimationSet> destroy_func_def;
   destroy_func_def.name = "destroy";
-  destroy_func_def.cb = [weak_scope](
+  destroy_func_def.callback = [weak_scope](
       AnimationSet* animation_set,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+      const std::shared_ptr<CtxValue> arguments[],
+      std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
     if (!animation_set) {
       return nullptr;
     }
@@ -693,10 +713,11 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
 
   FunctionDefine<AnimationSet> pause_func_def;
   pause_func_def.name = "pause";
-  pause_func_def.cb = [weak_scope](
+  pause_func_def.callback = [weak_scope](
       AnimationSet* animation_set,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+      const std::shared_ptr<CtxValue> arguments[],
+      std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
     if (!animation_set) {
       return nullptr;
     }
@@ -721,10 +742,11 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
 
   FunctionDefine<AnimationSet> resume_func_def;
   resume_func_def.name = "resume";
-  resume_func_def.cb = [weak_scope](
+  resume_func_def.callback = [weak_scope](
       AnimationSet* animation_set,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+      const std::shared_ptr<CtxValue> arguments[],
+      std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
     if (!animation_set) {
       return nullptr;
     }
@@ -749,10 +771,11 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
 
   FunctionDefine<AnimationSet> add_event_listener_func_def;
   add_event_listener_func_def.name = "addEventListener";
-  add_event_listener_func_def.cb = [weak_scope](
+  add_event_listener_func_def.callback = [weak_scope](
       AnimationSet* animation_set,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+      const std::shared_ptr<CtxValue> arguments[],
+      std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<CtxValue> {
     if (!animation_set) {
       return nullptr;
     }
@@ -772,18 +795,18 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
     }
     auto context = scope->GetContext();
     if (argument_count != kAddEventListenerArgc) {
-      context->ThrowException("argc error");
+      exception = context->CreateException("argc error");
       return nullptr;
     }
     string_view event_name;
     auto flag = context->GetValueString(arguments[kAddEventListenerEventNameIndex], &event_name);
     if (!flag) {
-      context->ThrowException("event_name error");
+      exception = context->CreateException("event_name error");
       return nullptr;
     }
     auto func = arguments[kAddEventListenerCbIndex];
     if (!context->IsFunction(func)) {
-      context->ThrowException("cb is not a function");
+      exception = context->CreateException("cb is not a function");
       return nullptr;
     }
     auto cb = [weak_scope, func] {
@@ -792,7 +815,7 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
         return;
       }
       auto context = scope->GetContext();
-      context->CallFunction(func, 0, nullptr);
+      context->CallFunction(func, context->GetGlobalObject(), 0, nullptr);
     };
     animation_set->AddEventListener(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
         event_name, string_view::Encoding::Utf8).utf8_value()), std::move(cb));
@@ -802,10 +825,11 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
 
   FunctionDefine<AnimationSet> remove_listener_func_def;
   remove_listener_func_def.name = "removeEventListener";
-  remove_listener_func_def.cb = [weak_scope](
+  remove_listener_func_def.callback = [weak_scope](
       AnimationSet* animation_set,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+      const std::shared_ptr<CtxValue> arguments[],
+      std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<CtxValue> {
     if (!animation_set) {
       return nullptr;
     }
@@ -825,14 +849,14 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
     }
     auto context = scope->GetContext();
     if (argument_count != kRemoveEventListenerArgc) {
-      context->ThrowException("argc error");
+      exception = context->CreateException("argc error");
       return nullptr;
     }
     string_view event_name;
     auto flag = context->GetValueString(arguments[kRemoveEventListenerEventNameIndex],
                                         &event_name);
     if (!flag) {
-      context->ThrowException("event_name error");
+      exception = context->CreateException("event_name error");
       return nullptr;
     }
     animation_set->RemoveEventListener(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(

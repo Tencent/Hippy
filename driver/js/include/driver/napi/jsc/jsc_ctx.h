@@ -33,6 +33,7 @@
 #include "footstone/string_view.h"
 #include "driver/base/common.h"
 #include "driver/napi/js_ctx.h"
+#include "driver/napi/js_class_definition.h"
 #include "driver/vm/js_vm.h"
 
 template <std::size_t N>
@@ -101,7 +102,8 @@ public:
     
   virtual std::shared_ptr<CtxValue> DefineProxy(const std::unique_ptr<FunctionWrapper>& wrapper) override;
   
-  virtual std::shared_ptr<CtxValue> DefineClass(string_view name,
+  virtual std::shared_ptr<CtxValue> DefineClass(const string_view& name,
+                                                const std::shared_ptr<ClassDefinition>& parent,
                                                 const std::unique_ptr<FunctionWrapper>& constructor_wrapper,
                                                 size_t property_count,
                                                 std::shared_ptr<PropertyDescriptor> properties[]) override;
@@ -138,12 +140,13 @@ public:
   virtual std::shared_ptr<CtxValue> CreateArray(size_t count,
                                                 std::shared_ptr<CtxValue> value[]) override;
   virtual std::shared_ptr<CtxValue> CreateMap(const std::map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) override;
-  virtual std::shared_ptr<CtxValue> CreateError(const string_view& msg) override;
+  virtual std::shared_ptr<CtxValue> CreateException(const string_view& msg) override;
   
   virtual std::shared_ptr<CtxValue> CreateByteBuffer(void* buffer, size_t length) override;
   
   // Get From Value
   virtual std::shared_ptr<CtxValue> CallFunction(const std::shared_ptr<CtxValue>& function,
+                                                 const std::shared_ptr<CtxValue>& receiver,
                                                  size_t argument_count = 0,
                                                  const std::shared_ptr<CtxValue> argumets[] = nullptr) override;
   
@@ -197,15 +200,18 @@ public:
   virtual void ThrowException(const string_view& exception) override;
   
   virtual void SetExternalData(void* data) override;
+  virtual std::shared_ptr<ClassDefinition> GetClassDefinition(const string_view& name) override;
   virtual void SetWeak(std::shared_ptr<CtxValue> value, const std::unique_ptr<WeakCallbackWrapper>& wrapper) override;
   
   string_view GetExceptionMessage(const std::shared_ptr<CtxValue>& exception);
   void* GetPrivateData(const std::shared_ptr<CtxValue>& value);
   void SaveConstructorData(std::unique_ptr<ConstructorData> constructor_data);
+  std::shared_ptr<JSCCtxValue> GetClassPrototype(JSClassRef ref);
   
   JSGlobalContextRef context_;
   std::shared_ptr<JSCCtxValue> exception_;
   bool is_exception_handled_;
+  std::unordered_map<string_view, std::shared_ptr<ClassDefinition>> class_definition_map_;
   std::weak_ptr<VM> vm_;
 };
 

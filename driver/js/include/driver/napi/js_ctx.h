@@ -3,7 +3,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2023 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,15 +32,13 @@
 #include "driver/base/common.h"
 #include "driver/base/js_value_wrapper.h"
 #include "driver/napi/callback_info.h"
+#include "driver/napi/js_class_definition.h"
 #include "driver/napi/js_ctx_value.h"
 
 #include "dom/dom_event.h"
 
 namespace hippy {
 inline namespace driver {
-
-class Scope;
-
 inline namespace napi {
 
 enum PropertyAttribute {
@@ -63,9 +61,9 @@ enum Encoding {
 
 class FunctionWrapper {
  public:
-  FunctionWrapper(JsCallback cb, void* data) : cb(cb), data(data) {}
+  FunctionWrapper(JsCallback callback, void* data) : callback(callback), data(data) {}
 
-  JsCallback cb;
+  JsCallback callback;
   void* data;
 };
 
@@ -73,9 +71,9 @@ class FunctionWrapper {
 using WeakCallback = std::function<void(void* callback_data, void* internal_data)>;
 class WeakCallbackWrapper {
  public:
-  WeakCallbackWrapper(WeakCallback cb, void* data) : cb(cb), data(data) {}
+  WeakCallbackWrapper(WeakCallback callback, void* data) : callback(callback), data(data) {}
 
-  WeakCallback cb;
+  WeakCallback callback;
   void* data;
 };
 
@@ -116,7 +114,8 @@ class Ctx {
 
   virtual std::shared_ptr<CtxValue> DefineProxy(const std::unique_ptr<FunctionWrapper>& constructor_wrapper) = 0;
 
-  virtual std::shared_ptr<CtxValue> DefineClass(string_view name,
+  virtual std::shared_ptr<CtxValue> DefineClass(const string_view& name,
+                                                const std::shared_ptr<ClassDefinition>& parent,
                                                 const std::unique_ptr<FunctionWrapper>& constructor_wrapper,
                                                 size_t property_count,
                                                 std::shared_ptr<PropertyDescriptor> properties[]) = 0;
@@ -159,12 +158,13 @@ class Ctx {
   virtual std::shared_ptr<CtxValue> CreateArray(
       size_t count,
       std::shared_ptr<CtxValue> value[]) = 0;
-  virtual std::shared_ptr<CtxValue> CreateError(const string_view& msg) = 0;
+  virtual std::shared_ptr<CtxValue> CreateException(const string_view& msg) = 0;
   virtual std::shared_ptr<CtxValue> CreateByteBuffer(void* buffer, size_t length) = 0;
 
   // Get From Value
   virtual std::shared_ptr<CtxValue> CallFunction(
       const std::shared_ptr<CtxValue>& function,
+      const std::shared_ptr<CtxValue>& receiver,
       size_t argument_count,
       const std::shared_ptr<CtxValue> arguments[]) = 0;
 
@@ -216,9 +216,9 @@ class Ctx {
 
   virtual void ThrowException(const std::shared_ptr<CtxValue>& exception) = 0;
   virtual void ThrowException(const string_view& exception) = 0;
-//  virtual void HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) = 0;
 
   virtual void SetExternalData(void* data) = 0;
+  virtual std::shared_ptr<ClassDefinition> GetClassDefinition(const string_view& name) = 0;
   virtual void SetWeak(std::shared_ptr<CtxValue> value,
                        const std::unique_ptr<WeakCallbackWrapper>& wrapper) = 0;
 };
