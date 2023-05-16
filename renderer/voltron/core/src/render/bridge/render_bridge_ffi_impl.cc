@@ -228,7 +228,7 @@ EXTERN_C uint32_t CreateDomInstance() {
 }
 
 EXTERN_C void DestroyDomInstance(uint32_t dom_manager_id) {
-  auto dom_manager = voltron::FindObject<std::shared_ptr<hippy::DomManager>>(dom_manager_id);
+  auto dom_manager = std::any_cast<std::shared_ptr<hippy::DomManager>>(voltron::FindObject(dom_manager_id));
   if (!dom_manager) {
     return;
   }
@@ -239,7 +239,7 @@ EXTERN_C void DestroyDomInstance(uint32_t dom_manager_id) {
 EXTERN_C void AddRoot(
     uint32_t dom_manager_id,
     uint32_t root_id) {
-  auto dom_manager = voltron::FindObject<std::shared_ptr<hippy::DomManager>>(dom_manager_id);
+  auto dom_manager = std::any_cast<std::shared_ptr<hippy::DomManager>>(voltron::FindObject(dom_manager_id));
   auto root_node = std::make_shared<hippy::RootNode>(root_id);
   root_node->SetDomManager(dom_manager);
   auto &persistent_map = hippy::RootNode::PersistentMap();

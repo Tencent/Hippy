@@ -64,7 +64,7 @@ void DartPortHolder::DestroyDartPortHolder(uint32_t ffi_id) {
 }
 
 std::shared_ptr<DartPortHolder> DartPortHolder::FindPortHolder(uint32_t ffi_id) {
-  return FindObject<std::shared_ptr<DartPortHolder>>(ffi_id);
+  return std::any_cast<std::shared_ptr<DartPortHolder>>(FindObject(ffi_id));
 }
 
 int32_t DartPortHolder::AddCallFunc(const char16_t *register_header, int32_t type, void *func) {

@@ -201,7 +201,7 @@ NSString *StringViewToNSString(const string_view &view) {
             JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context->GetCtxRef()];
 //            #if __IPHONE_OS_VERSION_MAX_ALLOWED > __IPHONE_16_2
 //                if (@available(iOS 16.4, *)) {
-//                    jsContext->inspectable = true;
+//                    jsContext.inspectable = true;
 //                }
 //            #endif
             auto global_object = context->GetGlobalObject();

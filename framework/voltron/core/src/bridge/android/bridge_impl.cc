@@ -118,7 +118,7 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platfor
   });
 
   string_view global_config = string_view(char_globalConfig);
-  auto dom_manager = voltron::FindObject<std::shared_ptr<hippy::DomManager>>(dom_manager_id);
+  auto dom_manager = std::any_cast<std::shared_ptr<hippy::DomManager>>(voltron::FindObject(dom_manager_id));
   FOOTSTONE_DCHECK(dom_manager);
   auto dom_task_runner = dom_manager->GetTaskRunner();
   auto scope_id = voltron::GenId();
@@ -260,9 +260,10 @@ void BridgeImpl::UnloadInstance(int64_t scope_id, byte_string &&buffer_data) {
 }
 
 std::shared_ptr<hippy::Scope> BridgeImpl::GetScope(int64_t scope_id) {
-  auto scope = voltron::FindObject<std::shared_ptr<hippy::Scope>>(footstone::checked_numeric_cast<
-      int64_t,
-      uint32_t>(scope_id));
+  auto scope =
+      std::any_cast<std::shared_ptr<hippy::Scope>>(voltron::FindObject(footstone::checked_numeric_cast<
+          int64_t,
+          uint32_t>(scope_id)));
   FOOTSTONE_CHECK(scope);
   return scope;
 }
