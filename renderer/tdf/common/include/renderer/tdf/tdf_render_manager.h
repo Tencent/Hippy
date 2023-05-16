@@ -105,6 +105,8 @@ class TDFRenderManager
   }
 
  private:
+  void UnregisterAllMeasureFunctions(uint32_t root_id, const std::shared_ptr<hippy::DomNode>& node);
+
   footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<RootViewNode>>
       root_view_nodes_map_;
   uint32_t id_;
