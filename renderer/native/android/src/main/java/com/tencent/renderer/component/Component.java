@@ -45,6 +45,7 @@ import com.tencent.renderer.component.text.TextGestureSpan;
 
 import com.tencent.renderer.node.RenderNode;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -195,9 +196,23 @@ public class Component implements Drawable.Callback {
             return null;
         }
         if (mLayerDrawable == null || checkComponentFlag(FLAG_UPDATE_LAYER)) {
-            Drawable[] drawables = new Drawable[]{mBackgroundDrawable, mContentDrawable,
-                    mRippleDrawable};
-            mLayerDrawable = new LayerDrawable(drawables);
+            ArrayList<Drawable> drawableList = new ArrayList<>();
+            if (mBackgroundDrawable != null) {
+                drawableList.add(mBackgroundDrawable);
+            }
+            if (mContentDrawable != null) {
+                drawableList.add(mContentDrawable);
+            }
+            if (mRippleDrawable != null) {
+                drawableList.add(mRippleDrawable);
+            }
+            if (drawableList.size() > 0) {
+                Drawable[] drawables = new Drawable[drawableList.size()];
+                for (int i = 0; i < drawableList.size(); i++) {
+                    drawables[i] = drawableList.get(i);
+                }
+                mLayerDrawable = new LayerDrawable(drawables);
+            }
             resetComponentFlag(FLAG_UPDATE_LAYER);
         }
         return mLayerDrawable;

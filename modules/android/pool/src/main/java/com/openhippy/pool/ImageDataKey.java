@@ -18,14 +18,34 @@ package com.openhippy.pool;
 
 import androidx.annotation.NonNull;
 
-public abstract class ImageRecycleObject extends RecycleObject {
+public class ImageDataKey {
 
-    public abstract void evicted();
-
-    public abstract void cached();
-
+    private static final int MAX_SOURCE_KEY_LEN = 128;
     @NonNull
-    public abstract ImageDataKey getCacheKey();
+    private final String mUri;
 
-    public abstract boolean isScraped();
+    public ImageDataKey(@NonNull String url) {
+        mUri = url;
+    }
+
+    public String getUri() {
+        return mUri;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ImageDataKey) {
+            return mUri.equals(((ImageDataKey) obj).getUri());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        String keyUrl = mUri;
+        if (mUri.length() > MAX_SOURCE_KEY_LEN) {
+            keyUrl = mUri.substring(mUri.length() - MAX_SOURCE_KEY_LEN);
+        }
+        return keyUrl.hashCode();
+    }
 }

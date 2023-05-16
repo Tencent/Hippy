@@ -19,9 +19,11 @@ package com.tencent.renderer.component.image;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.openhippy.pool.ImageDataKey;
 import com.openhippy.pool.ImageDataPool;
 import com.openhippy.pool.ImageRecycleObject;
 import com.openhippy.pool.Pool;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.NativeRenderException;
 
@@ -36,6 +38,7 @@ import java.util.Map;
 
 public class ImageLoader implements ImageLoaderAdapter {
 
+    private static final String TAG = "ImageLoader";
     public static final String REQUEST_CONTENT_TYPE = "Content-Type";
     public static final String REQUEST_CONTENT_TYPE_IMAGE = "image";
     @NonNull
@@ -43,9 +46,9 @@ public class ImageLoader implements ImageLoaderAdapter {
     @Nullable
     private final ImageDecoderAdapter mImageDecoderAdapter;
     @Nullable
-    private HashMap<Integer, ArrayList<ImageRequestListener>> mListenersMap;
+    private HashMap<ImageDataKey, ArrayList<ImageRequestListener>> mListenersMap;
     @NonNull
-    private final Pool<Integer, ImageRecycleObject> mImagePool = new ImageDataPool();
+    private final Pool<ImageDataKey, ImageRecycleObject> mImagePool = new ImageDataPool();
 
     public ImageLoader(@NonNull VfsManager vfsManager,
             @Nullable ImageDecoderAdapter imageDecoderAdapter) {
@@ -55,10 +58,7 @@ public class ImageLoader implements ImageLoaderAdapter {
 
     @Nullable
     public ImageDataSupplier getImageFromCache(@NonNull String url) {
-        if (UrlUtils.isWebUrl(url)) {
-            return null;
-        }
-        ImageRecycleObject imageObject = mImagePool.acquire(ImageDataHolder.generateSourceKey(url));
+        ImageRecycleObject imageObject = mImagePool.acquire(new ImageDataKey(url));
         return (imageObject instanceof ImageDataSupplier) ? ((ImageDataSupplier) imageObject)
                 : null;
     }
@@ -73,7 +73,7 @@ public class ImageLoader implements ImageLoaderAdapter {
         }
     }
 
-    private Runnable generateCallbackRunnable(final int urlKey,
+    private Runnable generateCallbackRunnable(final ImageDataKey urlKey,
             @Nullable final ImageDataHolder imageHolder,
             @Nullable String errorMessage) {
         final String error = (errorMessage != null) ? errorMessage : "";
@@ -94,7 +94,7 @@ public class ImageLoader implements ImageLoaderAdapter {
         };
     }
 
-    private void handleResourceData(@NonNull String url, final int urlKey,
+    private void handleResourceData(@NonNull String url, @NonNull final ImageDataKey urlKey,
             @Nullable Map<String, Object> initProps,
             @NonNull final ResourceDataHolder dataHolder, int width, int height) {
         ImageDataHolder imageHolder = null;
@@ -104,16 +104,16 @@ public class ImageLoader implements ImageLoaderAdapter {
                 == ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE && bytes != null) {
             imageHolder = ImageDataHolder.obtain();
             if (imageHolder != null) {
-                imageHolder.init(url, width, height);
+                imageHolder.init(url, urlKey, width, height);
             } else {
-                imageHolder = new ImageDataHolder(url, width, height);
+                imageHolder = new ImageDataHolder(url, urlKey, width, height);
             }
             try {
                 imageHolder.decodeImageData(bytes, initProps, mImageDecoderAdapter);
                 // Should check the request data returned from the host, if the data is
                 // invalid, the request is considered to have failed
                 if (imageHolder.checkImageData()) {
-                    saveImageToCache(url, imageHolder);
+                    saveImageToCache(imageHolder);
                 } else {
                     imageHolder = null;
                     errorMessage = "Image data decoding failed!";
@@ -135,7 +135,8 @@ public class ImageLoader implements ImageLoaderAdapter {
         dataHolder.recycle();
     }
 
-    private void handleRequestProgress(final long total, final long loaded, final int urlKey) {
+    private void handleRequestProgress(final long total, final long loaded,
+            @NonNull final ImageDataKey urlKey) {
         Runnable progressRunnable = new Runnable() {
             @Override
             public void run() {
@@ -157,10 +158,8 @@ public class ImageLoader implements ImageLoaderAdapter {
         }
     }
 
-    private void saveImageToCache(@NonNull String url, @NonNull ImageDataHolder data) {
-        if (!UrlUtils.isWebUrl(url)) {
-            mImagePool.release((ImageRecycleObject) data);
-        }
+    private void saveImageToCache(@NonNull ImageDataHolder data) {
+        mImagePool.release(data);
     }
 
     @NonNull
@@ -184,24 +183,26 @@ public class ImageLoader implements ImageLoaderAdapter {
         }
         ImageDataHolder imageHolder = ImageDataHolder.obtain();
         if (imageHolder != null) {
-            imageHolder.init(url, width, height);
+            imageHolder.init(url, null, width, height);
         } else {
             imageHolder = new ImageDataHolder(url, width, height);
         }
         try {
             imageHolder.decodeImageData(bytes, initProps, mImageDecoderAdapter);
             if (imageHolder.checkImageData()) {
-                saveImageToCache(url, imageHolder);
+                saveImageToCache(imageHolder);
                 return imageHolder;
             }
         } catch (NativeRenderException e) {
             e.printStackTrace();
+        } finally {
+            dataHolder.recycle();
         }
-        dataHolder.recycle();
         return null;
     }
 
-    private boolean checkRepeatRequest(int urlKey, @NonNull final ImageRequestListener listener) {
+    private boolean checkRepeatRequest(@NonNull ImageDataKey urlKey,
+            @NonNull final ImageRequestListener listener) {
         if (mListenersMap == null) {
             mListenersMap = new HashMap<>();
         }
@@ -220,7 +221,7 @@ public class ImageLoader implements ImageLoaderAdapter {
     public void fetchImageAsync(@NonNull final String url,
             @NonNull final ImageRequestListener listener,
             @Nullable final Map<String, Object> initProps, final int width, final int height) {
-        final int urlKey = ImageDataHolder.generateSourceKey(url);
+        final ImageDataKey urlKey = new ImageDataKey(url);
         // If the same image uri repeatedly requests, we need to filter these repeated requests
         // to avoid wasting system resources
         if (checkRepeatRequest(urlKey, listener)) {
