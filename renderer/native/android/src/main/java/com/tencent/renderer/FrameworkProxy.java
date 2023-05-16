@@ -43,6 +43,8 @@ public interface FrameworkProxy {
     @Nullable
     String getBundlePath();
 
+    int getEngineId();
+
     void onFirstViewAdded();
 
     void handleNativeException(Exception exception);

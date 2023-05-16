@@ -290,6 +290,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
+    public int getEngineId() {
+        return super.getEngineId();
+    }
+
+    @Override
     public void handleNativeException(Exception exception) {
         mGlobalConfigs.getExceptionHandler().handleNativeException(exception, true);
     }
