@@ -16,6 +16,7 @@
 package com.tencent.mtt.hippy.devsupport;
 
 import android.content.Context;
+import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -37,4 +38,7 @@ public interface DevServerInterface {
     void detachFromHost(Context context, int rootId);
 
     void handleException(Throwable throwable);
+
+    @Nullable
+    View getDevButton(int rootId);
 }
