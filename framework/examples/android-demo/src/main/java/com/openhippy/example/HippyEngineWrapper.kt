@@ -15,13 +15,16 @@
 
 package com.openhippy.example
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewParent
 import com.tencent.mtt.hippy.HippyAPIProvider
 import com.tencent.mtt.hippy.HippyEngine
 import com.tencent.mtt.hippy.HippyEngine.*
+import com.tencent.mtt.hippy.HippyEngineManagerImpl
 import com.tencent.mtt.hippy.adapter.DefaultLogAdapter
 import com.tencent.mtt.hippy.adapter.exception.HippyExceptionHandlerAdapter
 import com.tencent.mtt.hippy.common.HippyJsException
@@ -33,10 +36,12 @@ class HippyEngineWrapper {
 
     var hippyEngine: HippyEngine
     var hippyRootView: ViewGroup? = null
+    var devButton: View? = null
     var snapshot: Bitmap? = null
     var pageItem: View? = null
     val driverMode: PageConfiguration.DriverMode
     val renderMode: PageConfiguration.RenderMode
+    val engineId: Int
 
     constructor(dm: PageConfiguration.DriverMode,
                 rm: PageConfiguration.RenderMode,
@@ -60,6 +65,9 @@ class HippyEngineWrapper {
             PageConfiguration.DriverMode.JS_VUE_3 -> {
                 initParams.coreJSAssetsPath = "vue3/vendor.android.js"
             }
+            PageConfiguration.DriverMode.VL -> {
+                //TODO: Coming soon
+            }
         }
         initParams.codeCacheTag = "common"
         initParams.exceptionHandler = object : HippyExceptionHandlerAdapter {
@@ -77,6 +85,34 @@ class HippyEngineWrapper {
         initParams.providers = providers
         initParams.enableTurbo = true
         hippyEngine = create(initParams)
+        engineId = hippyEngine.engineId
+    }
+
+    fun onStop() {
+        if (devButton == null) {
+            hippyRootView?.let {
+                devButton = (hippyEngine as HippyEngineManagerImpl).getDevButton(it.id)
+            }
+        }
+        devButton?.let {
+            val parent: ViewParent = it.parent
+            parent?.let {
+                (parent as ViewGroup).removeView(devButton)
+            }
+        }
+    }
+
+    fun onResume(context: Context) {
+        hippyRootView?.let {
+            devButton = (hippyEngine as HippyEngineManagerImpl).getDevButton(it.id)
+            if (devButton != null) {
+                val parent: ViewParent? = devButton?.parent
+                if (parent == null) {
+                    val decorView = (context as Activity).window.decorView as ViewGroup
+                    decorView.addView(devButton)
+                }
+            }
+        }
     }
 
     fun destroy() {
@@ -103,6 +139,9 @@ class HippyEngineWrapper {
                         }
                         PageConfiguration.DriverMode.JS_VUE_3 -> {
                             loadParams.jsAssetsPath = "vue3/index.android.js"
+                        }
+                        PageConfiguration.DriverMode.VL -> {
+                            //TODO: Coming soon
                         }
                     }
                     loadParams.jsFilePath = null
@@ -141,9 +180,4 @@ class HippyEngineWrapper {
         fun onCreateRootView(hippyRootView: ViewGroup?)
         fun onLoadModuleCompleted(statusCode: ModuleLoadStatus, msg: String?)
     }
-
-    interface HippyEngineDestroyCallback {
-        fun onDestroyCompleted()
-    }
-
 }

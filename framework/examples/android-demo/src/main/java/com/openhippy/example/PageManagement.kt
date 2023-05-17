@@ -194,8 +194,8 @@ class PageManagement : AppCompatActivity() {
             it.height = pageItemHeight
         }
         pageItemImage.setOnClickListener { v ->
+            PageConfiguration.currentEngineId = hippyEngineWrapper?.engineId?: -1
             val intent = Intent(this, PageConfiguration::class.java)
-            intent.putExtra("PAGE_ITEM_ID", pageItem.id)
             startActivity(intent)
         }
         hippyEngineWrapper?.pageItem = pageItem
