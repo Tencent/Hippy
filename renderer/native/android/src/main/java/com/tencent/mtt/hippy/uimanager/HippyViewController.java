@@ -135,6 +135,16 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         view.setContentDescription(accessibilityLabel);
     }
 
+    @HippyControllerProps(name = NodeProps.VISIBILITY, defaultType = HippyControllerProps.STRING, defaultString =
+            NodeProps.VISIBLE)
+    public void setVisibility(T view, String value) {
+        if (NodeProps.VISIBLE.equals(value)) {
+            view.setVisibility(View.VISIBLE);
+        } else if (NodeProps.HIDDEN.equals(value)) {
+            view.setVisibility(View.INVISIBLE);
+        }
+    }
+
     @HippyControllerProps(name = NodeProps.OPACITY, defaultType = HippyControllerProps.NUMBER, defaultNumber = 1.f)
     public void setOpacity(T view, float opacity) {
         view.setAlpha(opacity);
