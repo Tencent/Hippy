@@ -46,11 +46,17 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
         NATIVE, TDF_CORE, FLUTTER
     }
 
+    companion object {
+        var currentEngineId: Int = -1
+    }
+
     private lateinit var pageConfigurationRoot: View
     private lateinit var pageConfigurationContainer: View
+    private lateinit var pageConfigurationSetting: View
     private lateinit var pageConfigurationTitle: View
     private lateinit var driverSettingText: View
     private lateinit var rendererSettingText: View
+    private var hasRunOnCreate = false
     private var hippyEngineWrapper: HippyEngineWrapper? = null
     private var debugMode: Boolean = false
     private var debugServerHost: String = "localhost:38989"
@@ -65,42 +71,62 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
         pageConfigurationRoot = layoutInflater.inflate(R.layout.activity_page_configuration, null)
         pageConfigurationContainer =
             pageConfigurationRoot.findViewById(R.id.page_configuration_container)
+        pageConfigurationSetting = pageConfigurationRoot.findViewById(R.id.page_configuration_setting)
         pageConfigurationTitle =
             pageConfigurationRoot.findViewById(R.id.page_configuration_navigation_title)
 
         val backButton =
             pageConfigurationRoot.findViewById<View>(R.id.page_configuration_navigation_back)
         backButton.setOnClickListener { v ->
-            buildSnapshot { onBackPressedDispatcher.onBackPressed() }
-        }
-        if (hippyEngineWrapper == null) {
-            val pageId = intent.extras?.getInt("PAGE_ITEM_ID")
-            val hippyEngineList = HippyEngineHelper.getHippyEngineList()
-            for (engine in hippyEngineList) {
-                if (engine.pageItem?.id == pageId) {
-                    hippyEngineWrapper = engine
-                }
+            buildSnapshot {
+                moveTaskToBack(true)
             }
         }
-        if (hippyEngineWrapper?.hippyRootView != null) {
-            (pageConfigurationTitle as TextView).text =
-                resources.getText(R.string.page_configuration_navigation_title_demo)
-            (pageConfigurationContainer as ViewGroup).removeAllViews()
-            (pageConfigurationContainer as ViewGroup).addView(hippyEngineWrapper?.hippyRootView)
-        } else {
-            initSettingView()
-        }
+        initSettingView()
+        hasRunOnCreate = true
         setContentView(pageConfigurationRoot)
     }
 
+    override fun onStop() {
+        hippyEngineWrapper?.let {
+            it.onStop()
+        }
+        super.onStop()
+    }
+
+    override fun onResume() {
+        if (!hasRunOnCreate) {
+            (pageConfigurationContainer as ViewGroup).removeAllViews()
+            if (currentEngineId == -1) {
+                (pageConfigurationTitle as TextView).text =
+                    resources.getText(R.string.page_configuration_navigation_title)
+                (pageConfigurationContainer as ViewGroup).addView(pageConfigurationSetting)
+            } else {
+                val hippyEngineList = HippyEngineHelper.getHippyEngineList()
+                for (engine in hippyEngineList) {
+                    if (engine.engineId == currentEngineId) {
+                        hippyEngineWrapper = engine
+                    }
+                }
+                (pageConfigurationTitle as TextView).text =
+                    resources.getText(R.string.page_configuration_navigation_title_demo)
+                hippyEngineWrapper?.let {
+                    (pageConfigurationContainer as ViewGroup).addView(it.hippyRootView)
+                    it.onResume(this)
+                }
+            }
+        }
+        hasRunOnCreate = false
+        super.onResume()
+    }
+
     override fun onBackPressed() {
-        buildSnapshot { onBackPressedDispatcher.onBackPressed() }
+        buildSnapshot { moveTaskToBack(true) }
     }
 
     private fun buildSnapshot(runnable: Runnable) {
         val rootView = hippyEngineWrapper?.hippyRootView
         if (rootView == null) {
-            (pageConfigurationContainer as ViewGroup).removeAllViews()
             runnable.run()
         } else {
             generateBitmapFromView(rootView, object : SnapshotBuildCallback {
