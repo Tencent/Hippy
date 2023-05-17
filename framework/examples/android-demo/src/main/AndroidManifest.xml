@@ -14,11 +14,13 @@
         android:roundIcon="@drawable/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Hippy"
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
             android:exported="false"
             android:name=".PageConfiguration"
-            android:configChanges="orientation|screenSize|keyboardHidden">
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:launchMode="singleInstance">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
