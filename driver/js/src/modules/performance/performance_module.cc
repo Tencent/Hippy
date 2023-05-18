@@ -68,7 +68,7 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
       exception = context->CreateException("legal constructor");
       return nullptr;
     }
-    return std::shared_ptr<Performance>(reinterpret_cast<Performance*>(external));
+    return scope->GetPerformance();
   };
 
   FunctionDefine<Performance> now_function_define;
@@ -106,7 +106,6 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
     }
     string_view name;
     auto flag = context->GetValueString(arguments[0], &name);
-    FOOTSTONE_DCHECK(flag);
     if (!flag) {
       exception = context->CreateException("mark parameter error");
       return nullptr;
@@ -165,7 +164,6 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
     }
     string_view name;
     auto flag = context->GetValueString(arguments[0], &name);
-    FOOTSTONE_DCHECK(flag);
     if (!flag) {
       exception = context->CreateException("measure name error");
       return nullptr;
@@ -189,7 +187,6 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
     }
     string_view end_mark;
     flag = context->GetValueString(arguments[2], &end_mark);
-    FOOTSTONE_DCHECK(flag);
     if (!flag) {
       exception = context->CreateException("measure endMark error");
       return nullptr;
@@ -221,7 +218,6 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
     }
     string_view name;
     auto flag = context->GetValueString(arguments[0], &name);
-    FOOTSTONE_DCHECK(flag);
     if (!flag) {
       exception = context->CreateException("clearMeasures name error");
       return nullptr;
@@ -249,7 +245,6 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
     }
     string_view name;
     auto flag = context->GetValueString(arguments[0], &name);
-    FOOTSTONE_DCHECK(flag);
     if (!flag) {
       exception = context->CreateException("getEntriesByName name error");
       return nullptr;
@@ -257,11 +252,12 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
     if (argument_count == 1) {
       auto entry = performance->GetEntriesByName(name);
       auto javascript_class = scope->GetJavascriptClass(PerformanceEntry::GetSubTypeString(entry->GetSubType()));
-      return context->NewInstance(javascript_class, 0, nullptr, entry.get());
+      std::shared_ptr<CtxValue> argv[] = { context->CreateString(entry->GetName()),
+                                           context->CreateNumber(static_cast<uint32_t>(entry->GetSubType())) };
+      return context->NewInstance(javascript_class, 2, argv, entry.get());
     }
     string_view type;
     flag = context->GetValueString(arguments[1], &type);
-    FOOTSTONE_DCHECK(flag);
     if (!flag) {
       exception = context->CreateException("getEntriesByName type error");
       return nullptr;
@@ -276,7 +272,9 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
       return nullptr;
     }
     auto javascript_class = scope->GetJavascriptClass(PerformanceEntry::GetSubTypeString(entry->GetSubType()));
-    return context->NewInstance(javascript_class, 0, nullptr, entry.get());
+    std::shared_ptr<CtxValue> argv[] = { context->CreateString(entry->GetName()),
+                                         context->CreateNumber(static_cast<uint32_t>(entry->GetSubType())) };
+    return context->NewInstance(javascript_class, 2, argv, entry.get());
   };
   class_template.functions.emplace_back(std::move(get_entries_by_name_function_define));
 
@@ -298,7 +296,6 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
     }
     string_view type;
     auto flag = context->GetValueString(arguments[0], &type);
-    FOOTSTONE_DCHECK(flag);
     if (!flag) {
       exception = context->CreateException("getEntriesByType type error");
       return nullptr;
@@ -313,7 +310,9 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
     for (size_t i = 0; i < entries.size(); ++i) {
       auto entry = entries[i];
       auto javascript_class = scope->GetJavascriptClass(PerformanceEntry::GetSubTypeString(entry->GetSubType()));
-      instances[i] = context->NewInstance(javascript_class, 0, nullptr, entry.get());
+      std::shared_ptr<CtxValue> argv[] = { context->CreateString(entry->GetName()),
+                                           context->CreateNumber(static_cast<uint32_t>(entry->GetSubType())) };
+      instances[i] = context->NewInstance(javascript_class, 2, argv, entry.get());
     }
     return context->CreateArray(entries.size(), instances);
   };
@@ -384,7 +383,9 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
     for (size_t i = 0; i < entries.size(); ++i) {
       auto entry = entries[i];
       auto javascript_class = scope->GetJavascriptClass(PerformanceEntry::GetSubTypeString(entry->GetSubType()));
-      instances[i] = context->NewInstance(javascript_class, 0, nullptr, entry.get());
+      std::shared_ptr<CtxValue> argv[] = { context->CreateString(entry->GetName()),
+                                           context->CreateNumber(static_cast<uint32_t>(entry->GetSubType())) };
+      instances[i] = context->NewInstance(javascript_class, 2, argv, entry.get());
     }
     return context->CreateArray(entries.size(), instances);
   };
