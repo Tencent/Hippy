@@ -99,7 +99,7 @@ bool Performance::InsertEntry(const std::shared_ptr<PerformanceEntry>& entry) {
   }
   auto type = entry->GetType();
   auto type_iterator = type_map_.find(type);
-  if (type_iterator != type_map_.end()) {
+  if (type_iterator == type_map_.end()) {
     type_map_[type] = { entry };
   } else {
     type_map_[type].push_back(entry);

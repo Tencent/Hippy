@@ -68,8 +68,6 @@ std::shared_ptr<ClassTemplate<PerformanceMark>> RegisterPerformanceMark(const st
       return nullptr;
     }
     if (argument_count == 1) {
-      auto call = context->GetProperty(performance_entry_class, context->CreateString("call"));
-      context->CallFunction(call, receiver, argument_count, arguments);
       return std::make_shared<PerformanceMark>(name, nullptr);
     } else if (argument_count == 2) {
       auto performance_mark_options = arguments[1];
