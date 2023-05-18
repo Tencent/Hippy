@@ -21,7 +21,6 @@
  */
 
 #include "driver/performance/performance_mark.h"
-#include "../../include/driver/performance/performance_mark.h"
 
 namespace hippy {
 inline namespace driver {

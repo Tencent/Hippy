@@ -44,7 +44,7 @@
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
     @autoreleasepool {
-        auto string_view = footstone::string_view::new_from_utf8([self UTF8String], [self length]);
+        auto string_view = footstone::string_view::new_from_utf8([self UTF8String]);
         return context->CreateString(string_view);
     }
 }
