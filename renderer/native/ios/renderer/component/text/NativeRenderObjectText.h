@@ -36,9 +36,9 @@ struct LayoutSize;
 }
 }
 
-extern NSString *const NativeRenderIsHighlightedAttributeName;
-extern NSString *const NativeRenderComponentTagAttributeName;
-extern NSString *const NativeRenderRenderObjectAttributeName;
+extern NSAttributedStringKey const NativeRenderIsHighlightedAttributeName;
+extern NSAttributedStringKey const NativeRenderComponentTagAttributeName;
+extern NSAttributedStringKey const NativeRenderRenderObjectAttributeName;
 
 hippy::LayoutSize textMeasureFunc(float width, hippy::LayoutMeasureMode widthMeasureMode,
                                             __unused float height,
@@ -53,7 +53,6 @@ hippy::LayoutSize textMeasureFunc(float width, hippy::LayoutMeasureMode widthMea
     NSAttributedString *_cachedAttributedString;
     CGFloat _effectiveLetterSpacing;
     BOOL _textAlignSet;
-    CGFloat _maximumFontLineHeight;
     BOOL _isTextDirty;
     BOOL _needDirtyText;
 }
@@ -87,17 +86,21 @@ hippy::LayoutSize textMeasureFunc(float width, hippy::LayoutMeasureMode widthMea
 @property (nonatomic, assign) BOOL autoLetterSpacing;
 
 - (void)recomputeText;
-- (NSAttributedString *)_attributedStringWithFontFamily:(NSString *)fontFamily
-                                               fontSize:(NSNumber *)fontSize
-                                             fontWeight:(NSString *)fontWeight
-                                              fontStyle:(NSString *)fontStyle
-                                          letterSpacing:(NSNumber *)letterSpacing
-                                     useBackgroundColor:(BOOL)useBackgroundColor
-                                        foregroundColor:(UIColor *)foregroundColor
-                                        backgroundColor:(UIColor *)backgroundColor
-                                                opacity:(CGFloat)opacity;
-- (void)_addAttribute:(NSString *)attribute withValue:(id)attributeValue toAttributedString:(NSMutableAttributedString *)attributedString;
-- (void)_setParagraphStyleOnAttributedString:(NSMutableAttributedString *)attributedString
-                              fontLineHeight:(CGFloat)fontLineHeight
-                      heightOfTallestSubview:(CGFloat)heightOfTallestSubview;
+
+@end
+
+/// Style information passed when generating attributedString
+@interface NativeRenderAttributedStringStyleInfo : NSObject
+
+@property (nonatomic, strong) NSString *fontFamily;
+@property (nonatomic, strong) NSNumber *fontSize;
+@property (nonatomic, strong) NSString *fontWeight;
+@property (nonatomic, strong) NSString *fontStyle;
+@property (nonatomic, strong) NSNumber *letterSpacing;
+@property (nonatomic, assign) BOOL useBackgroundColor;
+@property (nonatomic, strong) UIColor *foregroundColor;
+@property (nonatomic, strong) UIColor *backgroundColor;
+@property (nonatomic, assign) CGFloat opacity;
+@property (nonatomic, assign) BOOL isNestedText;
+
 @end

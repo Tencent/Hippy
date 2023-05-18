@@ -33,14 +33,21 @@
 #include "dom/dom_node.h"
 #include "dom/layout_node.h"
 
-NSString *const NativeRenderRenderObjectAttributeName = @"NativeRenderRenderObjectAttributeName";
-NSString *const NativeRenderIsHighlightedAttributeName = @"IsHighlightedAttributeName";
-NSString *const NativeRenderComponentTagAttributeName = @"NativeRenderTagAttributeName";
+// Text Attachment use this key to ref shadow view, HippyShadowView value
+NSAttributedStringKey const NativeRenderRenderObjectAttributeName = @"NativeRenderRenderObjectAttributeName";
+// Highlighted or not
+NSAttributedStringKey const NativeRenderIsHighlightedAttributeName = @"IsHighlightedAttributeName";
+// Hippy Tag Key
+NSAttributedStringKey const NativeRenderComponentTagAttributeName = @"NativeRenderTagAttributeName";
+// VerticalAlign of Text or nested Text, NSNumber value
+NSAttributedStringKey const NativeRenderTextVerticalAlignAttributeName = @"NativeRenderTextVerticalAlignAttributeName";
+// Distance to the bottom of the baseline, for text attachment baseline layout, NSNumber value
+NSAttributedStringKey const NativeRenderVerticalAlignBaselineOffsetAttributeName = @"NativeRenderVerticalAlignBaselineOffsetAttributeName";
+
 
 CGFloat const NativeRenderTextAutoSizeWidthErrorMargin = 0.05f;
 CGFloat const NativeRenderTextAutoSizeHeightErrorMargin = 0.025f;
 CGFloat const NativeRenderTextAutoSizeGranularity = 0.001f;
-
 static const CGFloat gDefaultFontSize = 14.f;
 
 static BOOL DirtyTextEqual(BOOL v1, BOOL v2) {
@@ -66,6 +73,24 @@ static BOOL DirtyTextEqual(CGSize v1, CGSize v2) {
 static BOOL DirtyTextEqual(NSObject *v1, NSObject *v2) {
     return [v1 isEqual:v2];
 }
+
+#pragma mark - NativeRenderAttributedStringStyleInfo
+
+@implementation NativeRenderAttributedStringStyleInfo
+
+@end
+
+
+#pragma mark - HippyShadowText
+
+@interface NativeRenderObjectText () <NSLayoutManagerDelegate>
+{
+    BOOL _isNestedText; // Indicates whether Text is nested, for speeding up typesetting calculations
+    BOOL _needRelayoutText; // special styles require two layouts, eg. verticalAlign etc
+}
+
+@end
+
 
 @implementation NativeRenderObjectText
 
@@ -99,7 +124,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             BOOL didShrinkKernSpacing = NO;
             do {
                 NSNumber *kernValue = [textStorage attribute:NSKernAttributeName atIndex:attributeIndex effectiveRange:&shrinkEffectiveRange];
-                if (nil != kernValue) {
+                if (nil != (id)kernValue) {
                     NSNumber *previousKernValue = @([kernValue integerValue] - 1);
                     [textStorage addAttribute:NSKernAttributeName value:previousKernValue range:shrinkEffectiveRange];
                     didShrinkKernSpacing = YES;
@@ -210,26 +235,61 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         NSTextContainer *textContainer = layoutManager.textContainers.firstObject;
         NSRange glyphRange = [layoutManager glyphRangeForTextContainer:textContainer];
         NSRange characterRange = [layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
-        [layoutManager.textStorage enumerateAttribute:NativeRenderRenderObjectAttributeName inRange:characterRange options:0 usingBlock:^(
+        [textStorage enumerateAttribute:NativeRenderRenderObjectAttributeName inRange:characterRange options:0 usingBlock:^(
             NativeRenderObjectView *child, NSRange range, __unused BOOL *_) {
             if (child) {
                 float width = child.frame.size.width, height = child.frame.size.height;
                 if (isnan(width) || isnan(height)) {
                     HPLogError(@"Views nested within a <Text> must have a width and height");
                 }
-
-                /**
-                 * For RichText, a view, which is top aligment by default, should be center alignment to text,
-                 */
                 
-                //rect for attachment at its line fragment
-                CGRect glyphRect = [layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
+                // Use line fragment's rect instead of glyph rect for calculation,
+                // since we have changed the baselineOffset.
+                CGRect lineRect = [layoutManager lineFragmentRectForGlyphAtIndex:range.location
+                                                                  effectiveRange:nil
+                                                         withoutAdditionalLayout:YES];
                 CGPoint location = [layoutManager locationForGlyphAtIndex:range.location];
                 CGFloat roundedHeight = NativeRenderRoundPixelValue(height);
                 CGFloat roundedWidth = NativeRenderRoundPixelValue(width);
-                CGFloat positionY = glyphRect.origin.y + glyphRect.size.height - roundedHeight;
-                CGRect childFrameToSet = CGRectMake(NativeRenderRoundPixelValue(textFrame.origin.x + location.x),
-                                                    NativeRenderRoundPixelValue(textFrame.origin.y + positionY),
+                
+                // take margin into account
+                // FIXME: margin currently not working, may have some bug in layout process
+                float left = child.nodeLayoutResult.left;
+                float top = child.nodeLayoutResult.top;
+                float marginV = child.nodeLayoutResult.marginTop + child.nodeLayoutResult.marginBottom;
+                CGFloat roundedHeightWithMargin = NativeRenderRoundPixelValue(height + marginV);
+                
+                CGFloat positionY = .0f;
+                NSNumber *verticalAlignType = [textStorage attribute:NativeRenderTextVerticalAlignAttributeName
+                                                             atIndex:range.location effectiveRange:nil];
+                switch (verticalAlignType.integerValue) {
+                    case NativeRenderTextVerticalAlignBottom: {
+                        positionY = CGRectGetMaxY(lineRect) - roundedHeightWithMargin;
+                        break;
+                    }
+                    case NativeRenderTextVerticalAlignUndefined:
+                    case NativeRenderTextVerticalAlignBaseline: {
+                        // get baseline-bottom distance from NativeRenderVerticalAlignBaselineOffsetAttributeName
+                        NSNumber *baselineToBottom = [textStorage attribute:NativeRenderVerticalAlignBaselineOffsetAttributeName
+                                                                    atIndex:range.location effectiveRange:nullptr];
+                        positionY = CGRectGetMaxY(lineRect) - roundedHeightWithMargin - baselineToBottom.doubleValue;
+                        break;
+                    }
+                    case NativeRenderTextVerticalAlignTop: {
+                        positionY = CGRectGetMinY(lineRect);
+                        break;
+                    }
+                    case NativeRenderTextVerticalAlignMiddle: {
+                        positionY = CGRectGetMinY(lineRect) +
+                        (CGRectGetHeight(lineRect) - roundedHeightWithMargin) / 2.0f - child.verticalAlignOffset;
+                        break;
+                    }
+                    default:
+                        break;
+                }
+                
+                CGRect childFrameToSet = CGRectMake(textFrame.origin.x + location.x + left,
+                                                    textFrame.origin.y + positionY + top,
                                                     roundedWidth, roundedHeight);
                 CGRect childFrame = child.frame;
 #define ChildFrameParamNearlyEqual(x, y) (fabs((x) - (y)) < 0.00001f)
@@ -258,7 +318,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 }
 
 - (NSTextStorage *)buildTextStorageForWidth:(CGFloat)width widthMode:(hippy::LayoutMeasureMode)widthMode {
-    // MttRN: https://github.com/Tencent/hippy-native/issues/11412
     if (isnan(width)) {
         width = 0;
     }
@@ -267,11 +326,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         return _cachedTextStorage;
     }
 
-    NSLayoutManager *layoutManager = [NSLayoutManager new];
-
-    NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:self.attributedString];
-    [textStorage addLayoutManager:layoutManager];
-
+    // textContainer
     NSTextContainer *textContainer = [NSTextContainer new];
     textContainer.lineFragmentPadding = 0.0;
 
@@ -283,9 +338,25 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     textContainer.maximumNumberOfLines = _numberOfLines;
     textContainer.size = (CGSize) { widthMode == hippy::LayoutMeasureMode::Undefined ? CGFLOAT_MAX : width, CGFLOAT_MAX };
-
+    
+    // layoutManager && textStorage
+    NSLayoutManager *layoutManager = [NSLayoutManager new];
+    NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:self.attributedString];
+    [textStorage addLayoutManager:layoutManager];
+    
+    layoutManager.delegate = self;
     [layoutManager addTextContainer:textContainer];
     [layoutManager ensureLayoutForTextContainer:textContainer];
+    
+    // for better perf, only do relayout when MeasureMode is MeasureModeExactly
+    if (_needRelayoutText && hippy::LayoutMeasureMode::Exactly == widthMode) {
+        // relayout text
+        [layoutManager invalidateLayoutForCharacterRange:NSMakeRange(0, textStorage.length) actualCharacterRange:nil];
+        [layoutManager removeTextContainerAtIndex:0];
+        [layoutManager addTextContainer:textContainer];
+        [layoutManager ensureLayoutForTextContainer:textContainer];
+        _needRelayoutText = NO;
+    }
 
     if (_autoLetterSpacing) {
         resetFontAttribute(textStorage);
@@ -335,22 +406,19 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     [self dirtyPropagation];
 }
 
+#pragma mark - AttributeString
+
 - (NSAttributedString *)attributedString {
-    return [self _attributedStringWithFontFamily:nil fontSize:nil fontWeight:nil fontStyle:nil letterSpacing:nil useBackgroundColor:NO
-                                 foregroundColor:self.color ?: [UIColor blackColor]
-                                 backgroundColor:self.backgroundColor
-                                         opacity:self.opacity];
+    NativeRenderAttributedStringStyleInfo *info = [NativeRenderAttributedStringStyleInfo new];
+    info.foregroundColor = self.color ?: [UIColor blackColor];
+    info.backgroundColor = self.backgroundColor;
+    info.opacity = self.opacity;
+    info.isNestedText = self.subcomponents.count > 0;
+    _isNestedText = info.isNestedText;
+    return [self _attributedStringWithStyleInfo:info];
 }
 
-- (NSAttributedString *)_attributedStringWithFontFamily:(NSString *)fontFamily
-                                               fontSize:(NSNumber *)fontSize
-                                             fontWeight:(NSString *)fontWeight
-                                              fontStyle:(NSString *)fontStyle
-                                          letterSpacing:(NSNumber *)letterSpacing
-                                     useBackgroundColor:(BOOL)useBackgroundColor
-                                        foregroundColor:(UIColor *)foregroundColor
-                                        backgroundColor:(UIColor *)backgroundColor
-                                                opacity:(CGFloat)opacity {
+- (NSAttributedString *)_attributedStringWithStyleInfo:(NativeRenderAttributedStringStyleInfo *)styleInfo {
     if (!_textAlignSet) {
         if ([self isLayoutSubviewsRTL]) {
             self.textAlign = NSTextAlignmentRight;
@@ -365,47 +433,58 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     }
 
     if (_fontSize && !isnan(_fontSize)) {
-        fontSize = @(_fontSize);
+        styleInfo.fontSize = @(_fontSize);
     }
-    else if (nil == fontSize) {
+    else if (nil == (id)styleInfo.fontSize) {
         //default font size is 14
-        fontSize = @(gDefaultFontSize);
+        styleInfo.fontSize = @(gDefaultFontSize);
     }
     if (_fontWeight) {
-        fontWeight = _fontWeight;
+        styleInfo.fontWeight = _fontWeight;
     }
     if (_fontStyle) {
-        fontStyle = _fontStyle;
+        styleInfo.fontStyle = _fontStyle;
     }
     if (_fontFamily) {
-        fontFamily = _fontFamily;
+        styleInfo.fontFamily = _fontFamily;
     }
     if (!isnan(_letterSpacing)) {
-        letterSpacing = @(_letterSpacing);
+        styleInfo.letterSpacing = @(_letterSpacing);
     }
 
-    _effectiveLetterSpacing = letterSpacing.doubleValue;
+    _effectiveLetterSpacing = styleInfo.letterSpacing.doubleValue;
 
     UIFont *f = nil;
-    if (fontFamily) {
-        f = [UIFont fontWithName:fontFamily size:[fontSize floatValue]];
+    if (styleInfo.fontFamily) {
+        f = [UIFont fontWithName:styleInfo.fontFamily size:[styleInfo.fontSize floatValue]];
     }
 
-    UIFont *font = [NativeRenderFont updateFont:f withFamily:fontFamily size:fontSize weight:fontWeight style:fontStyle variant:_fontVariant
-                         scaleMultiplier:_allowFontScaling ? _fontSizeMultiplier : 1.0];
+    UIFont *font = [NativeRenderFont updateFont:f
+                                     withFamily:styleInfo.fontFamily
+                                           size:styleInfo.fontSize
+                                         weight:styleInfo.fontWeight
+                                          style:styleInfo.fontStyle
+                                        variant:_fontVariant
+                                scaleMultiplier:_allowFontScaling ? _fontSizeMultiplier : 1.0];
 
     CGFloat heightOfTallestSubview = 0.0;
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.text ?: @""];
     for (NativeRenderObjectView *child in [self subcomponents]) {
         if ([child isKindOfClass:[NativeRenderObjectText class]]) {
             NativeRenderObjectText *shadowText = (NativeRenderObjectText *)child;
-            [attributedString appendAttributedString:[shadowText _attributedStringWithFontFamily:fontFamily fontSize:fontSize fontWeight:fontWeight
-                                                                                       fontStyle:fontStyle
-                                                                                   letterSpacing:letterSpacing
-                                                                              useBackgroundColor:YES
-                                                                                 foregroundColor:[shadowText color] ?: foregroundColor
-                                                                                 backgroundColor:shadowText.backgroundColor ?: backgroundColor
-                                                                                         opacity:opacity * shadowText.opacity]];
+            NativeRenderAttributedStringStyleInfo *childInfo = [NativeRenderAttributedStringStyleInfo new];
+            childInfo.fontFamily = styleInfo.fontFamily;
+            childInfo.fontSize = styleInfo.fontSize;
+            childInfo.fontWeight = styleInfo.fontWeight;
+            childInfo.fontStyle = styleInfo.fontStyle;
+            childInfo.letterSpacing = styleInfo.letterSpacing;
+            childInfo.useBackgroundColor = YES;
+            childInfo.foregroundColor = [shadowText color] ?: styleInfo.foregroundColor;
+            childInfo.backgroundColor = shadowText.backgroundColor ?: styleInfo.backgroundColor;
+            childInfo.opacity = styleInfo.opacity * shadowText.opacity;
+            childInfo.isNestedText = styleInfo.isNestedText;
+            NSAttributedString *subStr = [shadowText _attributedStringWithStyleInfo:childInfo];
+            [attributedString appendAttributedString:subStr];
             [child setTextComputed];
         } else {
             float width = 0, height = 0;
@@ -425,6 +504,14 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             if (isnan(width) || isnan(height)) {
                 HPLogError(@"Views nested within a <Text> must have a width and height");
             }
+            // take margin into account
+            // FIXME: margin not working, may have bug in layout process
+            float marginH = child.nodeLayoutResult.marginLeft + child.nodeLayoutResult.marginRight;
+            float marginV = child.nodeLayoutResult.marginTop + child.nodeLayoutResult.marginBottom;
+            width += marginH;
+            height += marginV;
+            
+            // create text attachment and append to attachmentString
             static UIImage *placehoderImage = nil;
             static dispatch_once_t onceToken;
             dispatch_once(&onceToken, ^{
@@ -435,7 +522,17 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             attachment.image = placehoderImage;
             NSMutableAttributedString *attachmentString = [NSMutableAttributedString new];
             [attachmentString appendAttributedString:[NSAttributedString attributedStringWithAttachment:attachment]];
-            [attachmentString addAttribute:NativeRenderRenderObjectAttributeName value:child range:(NSRange) { 0, attachmentString.length }];
+            [attachmentString addAttribute:NSFontAttributeName
+                                     value:[UIFont systemFontOfSize:0]
+                                     range:(NSRange) { 0, attachmentString.length }];
+            [attachmentString addAttribute:NativeRenderRenderObjectAttributeName
+                                     value:child
+                                     range:(NSRange) { 0, attachmentString.length }];
+            if (NativeRenderTextVerticalAlignUndefined != child.verticalAlignType) {
+                [attachmentString addAttribute:NativeRenderTextVerticalAlignAttributeName
+                                         value:@(child.verticalAlignType)
+                                         range:(NSRange) { 0, attachmentString.length }];
+            }
             [attributedString appendAttributedString:attachmentString];
             if (height > heightOfTallestSubview) {
                 heightOfTallestSubview = height;
@@ -446,22 +543,32 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     }
 
     [self _addAttribute:NSForegroundColorAttributeName
-                 withValue:[foregroundColor colorWithAlphaComponent:CGColorGetAlpha(foregroundColor.CGColor) * opacity]
-        toAttributedString:attributedString];
+              withValue:[styleInfo.foregroundColor
+                         colorWithAlphaComponent:CGColorGetAlpha(styleInfo.foregroundColor.CGColor) * styleInfo.opacity]
+     toAttributedString:attributedString];
 
     if (_isHighlighted) {
         [self _addAttribute:NativeRenderIsHighlightedAttributeName withValue:@YES toAttributedString:attributedString];
     }
-    if (useBackgroundColor && backgroundColor) {
+    if (styleInfo.useBackgroundColor && styleInfo.backgroundColor) {
         [self _addAttribute:NSBackgroundColorAttributeName
-                     withValue:[backgroundColor colorWithAlphaComponent:CGColorGetAlpha(backgroundColor.CGColor) * opacity]
-            toAttributedString:attributedString];
+                  withValue:[styleInfo.backgroundColor
+                             colorWithAlphaComponent:CGColorGetAlpha(styleInfo.backgroundColor.CGColor) * styleInfo.opacity]
+         toAttributedString:attributedString];
     }
 
     [self _addAttribute:NSFontAttributeName withValue:font toAttributedString:attributedString];
-    [self _addAttribute:NSKernAttributeName withValue:letterSpacing toAttributedString:attributedString];
+    [self _addAttribute:NSKernAttributeName withValue:styleInfo.letterSpacing toAttributedString:attributedString];
     [self _addAttribute:NativeRenderComponentTagAttributeName withValue:self.componentTag toAttributedString:attributedString];
-    [self _setParagraphStyleOnAttributedString:attributedString fontLineHeight:font.lineHeight heightOfTallestSubview:heightOfTallestSubview];
+    if (NativeRenderTextVerticalAlignUndefined != self.verticalAlignType) {
+        [self _addAttribute:NativeRenderTextVerticalAlignAttributeName
+                  withValue:@(self.verticalAlignType)
+         toAttributedString:attributedString];
+    }
+    [self _setParagraphStyleOnAttributedString:attributedString
+                                fontLineHeight:font.lineHeight
+                        heightOfTallestSubview:heightOfTallestSubview
+                                  isNestedText:styleInfo.isNestedText];
     if ([self isLayoutSubviewsRTL]) {
         NSDictionary *dic = @{NSWritingDirectionAttributeName: @[@(NSWritingDirectionRightToLeft | NSWritingDirectionEmbedding)]};
         [attributedString addAttributes:dic range:NSMakeRange(0, [attributedString length])];
@@ -492,11 +599,13 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
  */
 - (void)_setParagraphStyleOnAttributedString:(NSMutableAttributedString *)attributedString
                               fontLineHeight:(CGFloat)fontLineHeight
-                      heightOfTallestSubview:(CGFloat)heightOfTallestSubview {
+                      heightOfTallestSubview:(CGFloat)heightOfTallestSubview
+                                isNestedText:(BOOL)isNestedText {
     NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:attributedString];
     if (fabs(_lineHeight - 0) < DBL_EPSILON) {
         _lineHeight = fontLineHeight;
     }
+    
     // check if we have lineHeight set on self
     __block BOOL hasParagraphStyle = NO;
     if (_lineHeight || _textAlignSet || 1.f != _lineHeightMultiple) {
@@ -504,11 +613,12 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     }
 
     __block float newLineHeight = _lineHeight ?: 0.0;
-
     CGFloat fontSizeMultiplier = _allowFontScaling ? _fontSizeMultiplier : 1.0;
 
     // check for lineHeight on each of our children, update the max as we go (in self.lineHeight)
-    [attributedString enumerateAttribute:NSParagraphStyleAttributeName inRange:(NSRange) { 0, attributedString.length } options:0
+    [attributedString enumerateAttribute:NSParagraphStyleAttributeName
+                                 inRange:NSMakeRange(0, attributedString.length)
+                                 options:kNilOptions
                               usingBlock:^(id value, __unused NSRange range, __unused BOOL *stop) {
                                   if (value) {
                                       NSParagraphStyle *paragraphStyle = (NSParagraphStyle *)value;
@@ -526,7 +636,8 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     __block CGFloat maximumFontLineHeight = 0;
 
-    [textStorage enumerateAttribute:NSFontAttributeName inRange:NSMakeRange(0, attributedString.length)
+    [textStorage enumerateAttribute:NSFontAttributeName
+                            inRange:NSMakeRange(0, attributedString.length)
                             options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired
                          usingBlock:^(UIFont *font, NSRange range, __unused BOOL *stop) {
                              if (!font) {
@@ -551,23 +662,33 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         maxHeight = MAX(maxHeight, maximumFontLineHeight);
         paragraphStyle.minimumLineHeight = lineHeight;
         paragraphStyle.maximumLineHeight = maxHeight;
-        [attributedString addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:(NSRange) { 0, attributedString.length }];
+        [attributedString addAttribute:NSParagraphStyleAttributeName
+                                 value:paragraphStyle
+                                 range:(NSRange) { 0, attributedString.length }];
 
         /**
-         * for keeping text ertical center, we need to set baseline offset
+         * for keeping text vertical center, we need to set baseline offset
+         * Note: baseline offset adjustment of text with attachment or nested Text
+         * is in NSLayoutManagerDelegate's imp
          */
-        if (lineHeight > fontLineHeight) {
-            CGFloat baselineOffset = newLineHeight / 2 - maximumFontLineHeight / 2;
-            [attributedString addAttribute:NSBaselineOffsetAttributeName value:@(baselineOffset)
-                                     range:(NSRange) { 0, attributedString.length }];
+        if (!isNestedText && (lineHeight > fontLineHeight)
+            && NativeRenderTextVerticalAlignUndefined == self.verticalAlignType) {
+            CGFloat baselineOffset = (newLineHeight - maximumFontLineHeight) / 2.0f;
+            if (baselineOffset > .0f) {
+                [attributedString addAttribute:NSBaselineOffsetAttributeName
+                                         value:@(baselineOffset)
+                                         range:NSMakeRange(0, attributedString.length)];
+            }
         }
     }
-    _maximumFontLineHeight = maximumFontLineHeight;
+    
     // Text decoration
-    if (_textDecorationLine == NativeRenderTextDecorationLineTypeUnderline || _textDecorationLine == NativeRenderTextDecorationLineTypeUnderlineStrikethrough) {
+    if (_textDecorationLine == NativeRenderTextDecorationLineTypeUnderline ||
+        _textDecorationLine == NativeRenderTextDecorationLineTypeUnderlineStrikethrough) {
         [self _addAttribute:NSUnderlineStyleAttributeName withValue:@(_textDecorationStyle) toAttributedString:attributedString];
     }
-    if (_textDecorationLine == NativeRenderTextDecorationLineTypeStrikethrough || _textDecorationLine == NativeRenderTextDecorationLineTypeUnderlineStrikethrough) {
+    if (_textDecorationLine == NativeRenderTextDecorationLineTypeStrikethrough ||
+        _textDecorationLine == NativeRenderTextDecorationLineTypeUnderlineStrikethrough) {
         [self _addAttribute:NSStrikethroughStyleAttributeName withValue:@(_textDecorationStyle) toAttributedString:attributedString];
     }
     if (_textDecorationColor) {
@@ -596,7 +717,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     }
 }
 
-#pragma mark Autosizing
+#pragma mark - Autosizing
 
 - (CGRect)calculateTextFrame:(NSTextStorage *)textStorage {
     CGRect textFrame = UIEdgeInsetsInsetRect((CGRect) { CGPointZero, self.frame.size }, self.paddingAsInsets);
@@ -858,5 +979,113 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
         node->GetLayoutNode()->MarkDirty();
     }
 }
+
+
+#pragma mark - NSLayoutManagerDelegate
+
+- (BOOL)layoutManager:(NSLayoutManager *)layoutManager shouldSetLineFragmentRect:(inout CGRect *)lineFragmentRect
+ lineFragmentUsedRect:(inout CGRect *)lineFragmentUsedRect baselineOffset:(inout CGFloat *)baselineOffset
+      inTextContainer:(NSTextContainer *)textContainer forGlyphRange:(NSRange)glyphRange {
+    NSTextStorage *textStorage = layoutManager.textStorage;
+    if (_isNestedText || NativeRenderTextVerticalAlignUndefined != self.verticalAlignType) {
+        __block CGFloat maxAttachmentHeight = .0f;
+        __block BOOL hasAttachment = NO;
+        NSRange storageRange = [layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:nil];
+        [textStorage enumerateAttribute:NSAttachmentAttributeName
+                                inRange:storageRange options:0
+                             usingBlock:^(NSTextAttachment *attachment, NSRange range, __unused BOOL *_) {
+            if (attachment) {
+                float height = CGRectGetHeight(attachment.bounds);
+                if (height > maxAttachmentHeight) {
+                    maxAttachmentHeight = height;
+                }
+                hasAttachment = YES;
+            }
+        }];
+        
+        __block BOOL hasBaselineAlign = NO;
+        [textStorage enumerateAttribute:NativeRenderTextVerticalAlignAttributeName
+                                inRange:storageRange options:0
+                             usingBlock:^(NSNumber *type, NSRange range, BOOL * _Nonnull stop) {
+            if (NativeRenderTextVerticalAlignBaseline == type.integerValue ||
+                NativeRenderTextVerticalAlignUndefined == type.integerValue) {
+                hasBaselineAlign = YES;
+                *stop = YES;
+            }
+        }];
+        
+        // find the max font
+        CGFloat realBaselineOffset = .0f;
+        if (hasBaselineAlign) {
+            __block UIFont *maxFont = nil;
+            [textStorage enumerateAttribute:NSFontAttributeName
+                                    inRange:storageRange options:0
+                                 usingBlock:^(id  _Nullable value, NSRange range, BOOL * _Nonnull stop) {
+                UIFont *currentFont = (UIFont *)value;
+                if (currentFont) {
+                    if (!maxFont || currentFont.pointSize > maxFont.pointSize) {
+                        maxFont = currentFont;
+                    }
+                }
+            }];
+            // calculate the position of 'baseline' for later layout
+            CGFloat textBaselineToBottom = abs(maxFont.descender) + abs(maxFont.leading);
+            CGFloat maxTotalHeight = MAX((maxAttachmentHeight + textBaselineToBottom), maxFont.lineHeight);
+            realBaselineOffset = (CGRectGetHeight(*lineFragmentUsedRect) - maxTotalHeight) / 2.f;
+            if (hasAttachment) {
+                [textStorage addAttribute:NativeRenderVerticalAlignBaselineOffsetAttributeName
+                                    value:@(realBaselineOffset + textBaselineToBottom)
+                                    range:storageRange];
+            }
+        }
+        
+        [textStorage enumerateAttributesInRange:storageRange
+                                        options:kNilOptions
+                                     usingBlock:^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs,
+                                                  NSRange range, BOOL * _Nonnull stop) {
+            NSNumber *verticalAlignValue = attrs[NativeRenderTextVerticalAlignAttributeName];
+            // Calculate position of text
+            id offsetValue = [textStorage attribute:NSBaselineOffsetAttributeName
+                                            atIndex:range.location effectiveRange:nil];
+            if (!offsetValue) {
+                CGFloat offset = .0f;
+                CGFloat lineHeight = CGRectGetHeight(*lineFragmentUsedRect);
+                CGFloat baselineToBottom = lineHeight - *baselineOffset;
+                switch (verticalAlignValue.integerValue) {
+                    case NativeRenderTextVerticalAlignTop: {
+                        UIFont *font = attrs[NSFontAttributeName];
+                        offset = lineHeight - font.ascender - baselineToBottom;
+                        break;
+                    }
+                    case NativeRenderTextVerticalAlignMiddle: {
+                        UIFont *font = attrs[NSFontAttributeName];
+                        offset = (lineHeight - font.lineHeight) / 2.f - baselineToBottom
+                        + abs(font.descender) + abs(font.leading) + self.verticalAlignOffset;
+                        break;
+                    }
+                    case NativeRenderTextVerticalAlignUndefined:
+                    case NativeRenderTextVerticalAlignBaseline: {
+                        offset = realBaselineOffset;
+                        break;
+                    }
+                    case NativeRenderTextVerticalAlignBottom: {
+                        UIFont *font = attrs[NSFontAttributeName];
+                        offset = abs(font.descender) + abs(font.leading) - baselineToBottom;
+                        break;
+                    }
+                    default:
+                        break;
+                }
+                if (abs(offset) > .0f && !attrs[NativeRenderRenderObjectAttributeName]) {
+                    // only set for Text
+                    [textStorage addAttribute:NSBaselineOffsetAttributeName value:@(offset) range:range];
+                    _needRelayoutText = YES;
+                }
+            }
+        }];
+    }
+    return NO;
+}
+
 
 @end
