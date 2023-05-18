@@ -128,17 +128,21 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
       return nullptr;
     }
     auto context = scope->GetContext();
-    if (argument_count <= 0 || argument_count > 1) {
+    if (!argument_count) {
+      performance->ClearMarks();
+      return nullptr;
+    }
+    if (argument_count > 1) {
       exception = context->CreateException("clearMarks parameter error");
       return nullptr;
     }
     string_view name;
     auto flag = context->GetValueString(arguments[0], &name);
-    FOOTSTONE_DCHECK(flag);
     if (!flag) {
       exception = context->CreateException("clearMarks parameter error");
       return nullptr;
     }
+    performance->ClearMarks(name);
     return nullptr;
   };
   class_template.functions.emplace_back(std::move(clear_mark_function_define));
@@ -172,7 +176,6 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
     }
     string_view start_mark;
     flag = context->GetValueString(arguments[1], &start_mark);
-    FOOTSTONE_DCHECK(flag);
     if (!flag) {
       exception = context->CreateException("measure startMark error");
       return nullptr;
