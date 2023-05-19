@@ -469,6 +469,9 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
       case DevtoolsUtil.kRemoveFrameCallback:
         DevtoolsUtil.removeFrameCallback(viewModel, array, promise);
         break;
+      case DevtoolsUtil.kGetLocationOnScreen:
+        DevtoolsUtil.getLocationOnScreen(viewModel, array, promise);
+        break;
       case kMeasureInWindow:
         measureInWindow(viewModel, array, promise);
         break;

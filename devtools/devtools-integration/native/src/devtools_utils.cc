@@ -25,8 +25,13 @@ namespace hippy::devtools {
 constexpr char kDefaultNodeName[] = "DefaultNode";
 constexpr char kAttributes[] = "attributes";
 constexpr char kText[] = "text";
+constexpr char kGetLocationOnScreen[] = "getLocationOnScreen";
+constexpr char kXOnScreen[] = "xOnScreen";
+constexpr char kYOnScreen[] = "yOnScreen";
+constexpr char kViewWidth[] = "viewWidth";
+constexpr char kViewHeight[] = "viewHeight";
 
-DomNodeMetas DevToolsUtil::ToDomNodeMetas(const std::shared_ptr<DomNode>& dom_node) {
+DomNodeMetas DevToolsUtil::ToDomNodeMetas(const std::shared_ptr<DomNode>& root_node, const std::shared_ptr<DomNode>& dom_node) {
   DomNodeMetas metas(dom_node->GetId());
   if (!dom_node->GetTagName().empty()) {
     metas.SetNodeType(dom_node->GetTagName());
@@ -35,7 +40,7 @@ DomNodeMetas DevToolsUtil::ToDomNodeMetas(const std::shared_ptr<DomNode>& dom_no
   } else {
     metas.SetNodeType(kDefaultNodeName);
   }
-  auto layout_result = dom_node->GetLayoutInfoFromRoot();
+  auto layout_result = GetLayoutOnScreen(root_node, dom_node);
   metas.SetWidth(static_cast<uint32_t>(layout_result.width));
   metas.SetHeight(static_cast<uint32_t>(layout_result.height));
   metas.SetBounds(hippy::devtools::BoundRect{layout_result.left, layout_result.top,
@@ -44,7 +49,7 @@ DomNodeMetas DevToolsUtil::ToDomNodeMetas(const std::shared_ptr<DomNode>& dom_no
   metas.SetStyleProps(ParseNodeProps(dom_node->GetStyleMap()));
   metas.SetTotalProps(ParseNodeProps(dom_node->GetExtStyle()));
   for (const auto& node : dom_node->GetChildren()) {
-    metas.AddChild(ToDomNodeMetas(node));
+    metas.AddChild(ToDomNodeMetas(root_node, node));
   }
   return metas;
 }
@@ -78,7 +83,7 @@ DomainMetas DevToolsUtil::GetDomDomainData(const std::shared_ptr<DomNode>& root_
   for (auto& child : children) {
     metas.AddChild(GetDomDomainData(root_node, child, depth, dom_manager));
   }
-  auto layout_result = dom_node->GetLayoutInfoFromRoot();
+  auto layout_result = GetLayoutOnScreen(root_node, dom_node);
   metas.SetLayoutX(layout_result.left);
   metas.SetLayoutY(layout_result.top);
   metas.SetWidth(layout_result.width);
@@ -86,16 +91,17 @@ DomainMetas DevToolsUtil::GetDomDomainData(const std::shared_ptr<DomNode>& root_
   return metas;
 }
 
-DomNodeLocation DevToolsUtil::GetNodeIdByDomLocation(const std::shared_ptr<DomNode>& dom_node, double x, double y) {
-  auto hit_node = GetHitNode(dom_node, x, y);
+DomNodeLocation DevToolsUtil::GetNodeIdByDomLocation(const std::shared_ptr<DomNode>& root_node, double x, double y) {
+  auto hit_node = GetHitNode(root_node, root_node, x, y);
+  FOOTSTONE_LOG(INFO) << "GetNodeIdByDomLocation hit_node:" << hit_node << ", " << x << ",y:" << y;
   if (hit_node == nullptr) {
-    hit_node = dom_node;
+    hit_node = root_node;
   }
   uint32_t node_id = hit_node->GetId();
   DomNodeLocation node_location(node_id);
   node_location.AddRelationId(node_id);
   auto temp_hit_node = hit_node->GetParent();
-  while (temp_hit_node != nullptr && temp_hit_node != dom_node) {
+  while (temp_hit_node != nullptr && temp_hit_node != root_node) {
     node_location.AddRelationId(temp_hit_node->GetId());
     temp_hit_node = temp_hit_node->GetParent();
   }
@@ -121,16 +127,16 @@ DomPushNodePathMetas DevToolsUtil::GetPushNodeByPath(const std::shared_ptr<DomNo
   return metas;
 }
 
-std::shared_ptr<DomNode> DevToolsUtil::GetHitNode(const std::shared_ptr<DomNode>& node, double x, double y) {
-  if (node == nullptr || !IsLocationHitNode(node, x, y)) {
+std::shared_ptr<DomNode> DevToolsUtil::GetHitNode(const std::shared_ptr<DomNode>& root_node, const std::shared_ptr<DomNode>& node, double x, double y) {
+  if (node == nullptr || !IsLocationHitNode(root_node, node, x, y)) {
     return nullptr;
   }
   std::shared_ptr<DomNode> hit_node = node;
   for (auto& child : node->GetChildren()) {
-    if (!IsLocationHitNode(child, x, y)) {
+    if (!IsLocationHitNode(root_node, child, x, y)) {
       continue;
     }
-    auto new_node = GetHitNode(child, x, y);
+    auto new_node = GetHitNode(root_node, child, x, y);
     if (hit_node == nullptr) {
       hit_node = new_node;
     } else if (new_node != nullptr) {
@@ -142,13 +148,78 @@ std::shared_ptr<DomNode> DevToolsUtil::GetHitNode(const std::shared_ptr<DomNode>
   return hit_node;
 }
 
-bool DevToolsUtil::IsLocationHitNode(const std::shared_ptr<DomNode>& dom_node, double x, double y) {
-  LayoutResult layout_result = dom_node->GetLayoutInfoFromRoot();
+bool DevToolsUtil::IsLocationHitNode(const std::shared_ptr<DomNode>& root_node, const std::shared_ptr<DomNode>& dom_node, double x, double y) {
+  LayoutResult layout_result = GetLayoutOnScreen(root_node, dom_node);
   double self_x = static_cast<uint32_t>(layout_result.left);
   double self_y = static_cast<uint32_t>(layout_result.top);
   bool in_top_offset = (x >= self_x) && (y >= self_y);
   bool in_bottom_offset = (x <= self_x + layout_result.width) && (y <= self_y + layout_result.height);
   return in_top_offset && in_bottom_offset;
+}
+
+template <class F>
+auto MakeCopyable(F&& f) {
+  auto s = std::make_shared<std::decay_t<F>>(std::forward<F>(f));
+  return [s](auto&&... args) -> decltype(auto) {
+    return (*s)(decltype(args)(args)...);
+  };
+}
+
+LayoutResult DevToolsUtil::GetLayoutOnScreen(const std::shared_ptr<DomNode>& root_node, const std::shared_ptr<DomNode>& dom_node) {
+  std::shared_ptr<DomNode> find_node = nullptr;
+  if (dom_node == root_node) {
+    auto children = root_node->GetChildren();
+    if (!children.empty()) {
+      find_node = children[0];
+    }
+  } else {
+    find_node = dom_node;
+  }
+  LayoutResult layout_result;
+  std::promise<LayoutResult> layout_promise;
+  std::future<LayoutResult> read_file_future = layout_promise.get_future();
+  if (!find_node) {
+    return layout_result;
+  }
+  footstone::value::HippyValue::HippyValueObjectType dom_value_object;
+  dom_value_object["id"] = footstone::value::HippyValue(1);
+  footstone::value::HippyValue::DomValueArrayType dom_value_array;
+  dom_value_array.push_back(footstone::value::HippyValue(dom_value_object));
+  footstone::value::HippyValue argument_dom_value(dom_value_array);
+  hippy::dom::DomArgument argument(argument_dom_value);
+  auto screen_shot_callback =
+      MakeCopyable([promise = std::move(layout_promise)](std::shared_ptr<hippy::dom::DomArgument> arg) mutable {
+        footstone::value::HippyValue result_dom_value;
+        arg->ToObject(result_dom_value);
+        footstone::value::HippyValue::HippyValueObjectType result_dom_object;
+        LayoutResult result;
+        if (result_dom_value.IsArray() && !result_dom_value.ToArrayChecked().empty()) {
+          result_dom_object = result_dom_value.ToArrayChecked()[0].ToObjectChecked();
+        } else if (result_dom_value.IsObject()) {
+          result_dom_object = result_dom_value.ToObjectChecked();
+        } else {
+          // maybe flat ui optimization and remove it
+          promise.set_value(result);
+          return;
+        }
+        auto xOnScreen = result_dom_object.find(kXOnScreen)->second.ToInt32Checked();
+        auto yOnScreen = result_dom_object.find(kYOnScreen)->second.ToInt32Checked();
+        auto width = result_dom_object.find(kViewWidth)->second.ToInt32Checked();
+        auto height = result_dom_object.find(kViewHeight)->second.ToInt32Checked();
+        result.left = static_cast<float>(xOnScreen);
+        result.top = static_cast<float>(yOnScreen);
+        result.width = static_cast<float>(width);
+        result.height = static_cast<float>(height);
+        promise.set_value(result);
+      });
+  find_node->CallFunction(kGetLocationOnScreen, argument, screen_shot_callback);
+  std::chrono::milliseconds span(10);
+  if (read_file_future.wait_for(span) == std::future_status::timeout) {
+    FOOTSTONE_DLOG(WARNING) << kDevToolsTag << "GetLayoutOnScreen wait_for timeout, node:" << find_node->GetViewName() << ",id:" << find_node->GetId();
+    return layout_result;
+  }
+  layout_result = read_file_future.get();
+  return layout_result;
 }
 
 std::string DevToolsUtil::ParseDomValue(const HippyValue& dom_value) {
