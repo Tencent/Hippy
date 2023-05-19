@@ -38,14 +38,14 @@ class DevToolsUtil {
   using DomNodeLocation = hippy::devtools::DomNodeLocation;
   using NodePropsUnorderedMap = std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>;
 
-  static DomNodeMetas ToDomNodeMetas(const std::shared_ptr<DomNode>& dom_node);
+  static DomNodeMetas ToDomNodeMetas(const std::shared_ptr<DomNode>& root_node, const std::shared_ptr<DomNode>& dom_node);
 
   static DomainMetas GetDomDomainData(const std::shared_ptr<DomNode>& root_node,
                                       const std::shared_ptr<DomNode>& dom_node,
                                       uint32_t depth,
                                       const std::shared_ptr<DomManager>& dom_manager);
 
-  static DomNodeLocation GetNodeIdByDomLocation(const std::shared_ptr<DomNode>& dom_node, double x, double y);
+  static DomNodeLocation GetNodeIdByDomLocation(const std::shared_ptr<DomNode>& root_node, double x, double y);
 
   static DomPushNodePathMetas GetPushNodeByPath(const std::shared_ptr<DomNode>& dom_node,
                                                 std::vector<std::map<std::string, int32_t>> path);
@@ -53,8 +53,8 @@ class DevToolsUtil {
   static void PostDomTask(const std::weak_ptr<DomManager>& weak_dom_manager, std::function<void()> func);
 
  private:
-  static std::shared_ptr<DomNode> GetHitNode(const std::shared_ptr<DomNode>& node, double x, double y);
-  static bool IsLocationHitNode(const std::shared_ptr<DomNode>& dom_node, double x, double y);
+  static std::shared_ptr<DomNode> GetHitNode(const std::shared_ptr<DomNode>& root_node, const std::shared_ptr<DomNode>& node, double x, double y);
+  static bool IsLocationHitNode(const std::shared_ptr<DomNode>& root_node, const std::shared_ptr<DomNode>& dom_node, double x, double y);
   static std::string ParseNodeKeyProps(const std::string& node_key, const NodePropsUnorderedMap& node_props);
   static std::string ParseNodeProps(const NodePropsUnorderedMap& node_props);
   static std::string ParseNodeProps(const std::unordered_map<std::string, HippyValue>& node_props);
@@ -63,5 +63,6 @@ class DevToolsUtil {
                                 bool& first_object,
                                 const std::string& node_key,
                                 const HippyValue& dom_value);
+  static LayoutResult GetLayoutOnScreen(const std::shared_ptr<DomNode>& root_node, const std::shared_ptr<DomNode>& dom_node);
 };
 }  // namespace hippy::devtools

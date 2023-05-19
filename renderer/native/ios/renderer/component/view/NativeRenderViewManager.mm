@@ -172,15 +172,35 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)componen
             NSData *imageData = UIImageJPEGRepresentation(resultImage, (quality > 0 ? quality : 80) / 100.f);
             NSString *base64String = [imageData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
             NSDictionary *srceenShotDict = @{
-                @"width": @(int(resultImage.size.width * resultImage.scale)),
-                @"height": @(int(resultImage.size.height * resultImage.scale)),
+                @"width": @(int(viewWidth)),
+                @"height": @(int(viewHeight)),
                 @"screenShot": base64String.length ? base64String : @"",
-                @"screenScale": @(resultImage.scale)
+                @"screenScale": @(1.0f)
             };
             callback(@[srceenShotDict]);
         } else {
             callback(@[]);
         }
+    }];
+}
+
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getLocationOnScreen:(nonnull NSNumber *)componentTag
+                                      params:(NSDictionary *__nonnull)params
+                                    callback:(RenderUIResponseSenderBlock)callback) {
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+        UIView *view = viewRegistry[componentTag];
+        if (view == nil) {
+            callback(@[]);
+            return;
+        }
+        CGRect windowFrame = [view.window convertRect:view.frame fromView:view.superview];
+        NSDictionary *locationDict = @{
+            @"xOnScreen": @(windowFrame.origin.x),
+            @"yOnScreen": @(windowFrame.origin.y),
+            @"viewWidth": @(CGRectGetHeight(windowFrame)),
+            @"viewHeight": @(CGRectGetWidth(windowFrame))
+        };
+        callback(@[locationDict]);
     }];
 }
 

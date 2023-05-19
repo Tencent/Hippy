@@ -556,12 +556,7 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
 
 void Scope::UnloadInstance(const std::shared_ptr<HippyValue>& value) {
     std::weak_ptr<Ctx> weak_context = context_;
-#ifdef ENABLE_INSPECTOR
-    std::weak_ptr<hippy::devtools::DevtoolsDataSource> weak_data_source = devtools_data_source_;
-    auto cb = [weak_context, value, weak_data_source]() mutable {
-#else
         auto cb = [weak_context, value]() mutable {
-#endif
         auto context = weak_context.lock();
         if (context) {
           auto global_object = context->GetGlobalObject();
@@ -571,21 +566,6 @@ void Scope::UnloadInstance(const std::shared_ptr<HippyValue>& value) {
           FOOTSTONE_DCHECK(is_fn);
           if (is_fn) {
               auto param = hippy::CreateCtxValue(context, value);
-#ifdef ENABLE_INSPECTOR
-              std::shared_ptr<CtxValue> module_name_value = context->GetProperty(param, kHippyModuleName);
-              auto devtools_data_source = weak_data_source.lock();
-              if (module_name_value && devtools_data_source != nullptr) {
-                  string_view module_name;
-                  bool flag = context->GetValueString(module_name_value, &module_name);
-                  if (flag) {
-                      std::string u8_module_name = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-                          module_name, string_view::Encoding::Utf8).utf8_value());
-                      devtools_data_source->SetContextName(u8_module_name);
-                  } else {
-                      FOOTSTONE_DLOG(ERROR) << "module name get error. GetValueString return false";
-                  }
-              }
-#endif
               std::shared_ptr<CtxValue> argv[] = {param};
               context->CallFunction(fn, context->GetGlobalObject(), 1, argv);
           } else {
