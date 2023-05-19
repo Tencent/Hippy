@@ -96,9 +96,8 @@ public class ControllerUpdateManger<T, G> {
         collectMethodHolder(ImageComponentController.class, sComponentPropsMethodMap);
         Method[] methods = TextVirtualNode.class.getMethods();
         for (Method method : methods) {
-            HippyControllerProps controllerProps = method
-                    .getAnnotation(HippyControllerProps.class);
-            if (controllerProps != null) {
+            HippyControllerProps controllerProps = method.getAnnotation(HippyControllerProps.class);
+            if (controllerProps != null && !sComponentPropsMethodMap.containsKey(controllerProps.name())) {
                 sTextPropsMap.add(controllerProps.name());
             }
         }

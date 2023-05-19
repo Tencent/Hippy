@@ -56,13 +56,11 @@ public abstract class VirtualNode {
     }
 
     public int getAncestorId() {
-        VirtualNode parent = mParent;
-        int id = mId;
-        while (parent != null) {
-            id = parent.getId();
-            parent = parent.mParent;
+        VirtualNode node = this;
+        while (node.mParent != null) {
+            node = node.mParent;
         }
-        return id;
+        return node.mPid;
     }
 
     protected abstract void createSpanOperation(List<SpanOperation> ops,
@@ -135,15 +133,23 @@ public abstract class VirtualNode {
 
     protected static class SpanOperation {
 
+        public static final int PRIORITY_DEFAULT = 1;
+        public static final int PRIORITY_LOWEST = 0;
         private final int mStart;
         private final int mEnd;
         private final Object mWhat;
+        private final int mPriority;
 
         @SuppressWarnings("unused")
         SpanOperation(int start, int end, Object what) {
+            this(start, end, what, PRIORITY_DEFAULT);
+        }
+
+        SpanOperation(int start, int end, Object what, int priority) {
             mStart = start;
             mEnd = end;
             mWhat = what;
+            mPriority = priority;
         }
 
         public void execute(SpannableStringBuilder builder) {
@@ -155,6 +161,7 @@ public abstract class VirtualNode {
             } else {
                 spanFlags = Spannable.SPAN_EXCLUSIVE_INCLUSIVE;
             }
+            spanFlags |= (mPriority << Spannable.SPAN_PRIORITY_SHIFT) & Spannable.SPAN_PRIORITY;
             builder.setSpan(mWhat, mStart, mEnd, spanFlags);
         }
     }
