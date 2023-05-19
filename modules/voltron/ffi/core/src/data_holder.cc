@@ -35,7 +35,7 @@ uint32_t InsertObject(const std::any& obj) {
   return id;
 }
 
-extern uint32_t GenId() {
+uint32_t GenId() {
   auto id = voltron::global_data_holder_key.fetch_add(1);
   return id;
 }
@@ -48,7 +48,14 @@ bool EraseObject(uint32_t id) {
   return global_data_holder.Erase(id);
 }
 
-
+std::any FindObject(uint32_t id) {
+  std::any wrapper_object;
+  bool flag = global_data_holder.Find(
+      id,
+      wrapper_object);
+  FOOTSTONE_CHECK(flag);
+  return wrapper_object;
+}
 
 }
 }

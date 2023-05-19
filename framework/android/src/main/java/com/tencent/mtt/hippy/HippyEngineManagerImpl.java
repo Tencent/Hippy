@@ -171,6 +171,14 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
     }
 
+    @Nullable
+    public View getDevButton(int rootId) {
+        if (mDevSupportManager != null) {
+            return mDevSupportManager.getDevImp().getDevButton(rootId);
+        }
+        return null;
+    }
+
     @Override
     public void destroyEngine() {
         if (mEngineContext != null) {
@@ -287,6 +295,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             return jsBundleLoader.getPath();
         }
         return null;
+    }
+
+    @Override
+    public int getEngineId() {
+        return super.getEngineId();
     }
 
     @Override

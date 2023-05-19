@@ -73,7 +73,7 @@ static NSString *const engineKey = @"Demo";
     sandboxDirectory = [bundleUrl URLByDeletingLastPathComponent];
 #else
     launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO)};
-    NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res"];
+    NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res/vue2"];
     sandboxDirectory = [[NSURL fileURLWithPath:businessBundlePath] URLByDeletingLastPathComponent];
 #endif
     _connector = [[HippyConvenientBridge alloc] initWithDelegate:self moduleProvider:nil extraComponents:nil launchOptions:launchOptions engineKey:engineKey];
@@ -96,8 +96,8 @@ static NSString *const engineKey = @"Demo";
 //    NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
 //    NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
 #else
-    NSString *commonBundlePath = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:@"res"];
-    NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res"];
+    NSString *commonBundlePath = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:@"res/vue2"];
+    NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res/vue2"];
 #endif
 
     NativeRenderRootView *rootView = [[NativeRenderRootView alloc] initWithFrame:self.view.bounds];

@@ -29,6 +29,7 @@
 #include "driver/napi/js_ctx_value.h"
 
 #include "driver/napi/v8/v8_ctx_value.h"
+#include "driver/napi/v8/v8_class_definition.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wconversion"
@@ -52,7 +53,8 @@ class V8Ctx : public Ctx {
 
   virtual std::shared_ptr<CtxValue> DefineProxy(const std::unique_ptr<FunctionWrapper>& constructor_wrapper) override;
 
-  virtual std::shared_ptr<CtxValue> DefineClass(unicode_string_view name,
+  virtual std::shared_ptr<CtxValue> DefineClass(const unicode_string_view& name,
+                                                const std::shared_ptr<ClassDefinition>& parent,
                                                 const std::unique_ptr<FunctionWrapper>& constructor_wrapper,
                                                 size_t property_count,
                                                 std::shared_ptr<PropertyDescriptor> properties[]) override;
@@ -96,12 +98,13 @@ class V8Ctx : public Ctx {
   virtual std::shared_ptr<CtxValue> CreateMap(const std::map<
       std::shared_ptr<CtxValue>,
       std::shared_ptr<CtxValue>>& map) override;
-  virtual std::shared_ptr<CtxValue> CreateError(const unicode_string_view& msg) override;
+  virtual std::shared_ptr<CtxValue> CreateException(const unicode_string_view& msg) override;
   virtual std::shared_ptr<CtxValue> CreateByteBuffer(void* buffer, size_t length) override;
 
   // Get From Value
   virtual std::shared_ptr<CtxValue> CallFunction(
       const std::shared_ptr<CtxValue>& function,
+      const std::shared_ptr<CtxValue>& receiver,
       size_t argument_count,
       const std::shared_ptr<CtxValue> arguments[]) override;
 
@@ -174,6 +177,7 @@ class V8Ctx : public Ctx {
   virtual std::shared_ptr<CtxValue> GetOwnPropertyNames(const std::shared_ptr<CtxValue>& value);
 
   void SetExternalData(void* data) override;
+  virtual std::shared_ptr<ClassDefinition> GetClassDefinition(const string_view& name) override;
 
   std::string GetSerializationBuffer(const std::shared_ptr<CtxValue>& value,
                                      std::string& reused_buffer);
@@ -183,6 +187,7 @@ class V8Ctx : public Ctx {
   v8::Persistent<v8::ObjectTemplate> global_persistent_;
   v8::Persistent<v8::Context> context_persistent_;
   std::unordered_map<void*, void*> func_external_data_map_;
+  std::unordered_map<string_view, std::shared_ptr<V8ClassDefinition>> template_map_;
 
  private:
   v8::Local<v8::FunctionTemplate> CreateTemplate(const std::unique_ptr<FunctionWrapper>& wrapper);

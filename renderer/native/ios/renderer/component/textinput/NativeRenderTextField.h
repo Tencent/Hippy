@@ -55,20 +55,16 @@
 
 @property (nonatomic, copy) NativeRenderDirectEventBlock onChangeText;
 
-// focus/blur
-- (void)focus;
-- (void)blur;
-- (void)keyboardWillShow:(NSNotification *)aNotification;
-
 @property (nonatomic, copy) NativeRenderDirectEventBlock onBlur;
 @property (nonatomic, copy) NativeRenderDirectEventBlock onFocus;
 @property (nonatomic, copy) NativeRenderDirectEventBlock onEndEditing;
 @property (nonatomic, copy) NativeRenderDirectEventBlock onKeyboardWillShow;
+@property (nonatomic, copy) NativeRenderDirectEventBlock onKeyboardWillHide;
 
 @property (nonatomic, copy) NSString *value;
 @property (nonatomic, strong) NSNumber *fontSize;
 @property (nonatomic, strong) NSString *defaultValue;
 @property (nonatomic, copy) NSString *text;
 @property (nonatomic, strong) UIColor *textColor;
-- (void)clearText;
+
 @end

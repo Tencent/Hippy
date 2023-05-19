@@ -35,7 +35,15 @@
 #include "driver/modules/contextify_module.h"
 #include "driver/modules/console_module.h"
 #include "driver/modules/event_module.h"
-#include "driver/modules/scene_builder.h"
+#include "driver/modules/performance/performance_entry_module.h"
+#include "driver/modules/performance/performance_frame_timing_module.h"
+#include "driver/modules/performance/performance_mark_module.h"
+#include "driver/modules/performance/performance_measure_module.h"
+#include "driver/modules/performance/performance_module.h"
+#include "driver/modules/performance/performance_navigation_timing_module.h"
+#include "driver/modules/performance/performance_paint_timing_module.h"
+#include "driver/modules/performance/performance_resource_timing_module.h"
+#include "driver/modules/scene_builder_module.h"
 #include "driver/modules/timer_module.h"
 #include "driver/modules/ui_manager_module.h"
 #include "driver/vm/native_source_code.h"
@@ -43,11 +51,6 @@
 #include "footstone/string_view_utils.h"
 #include "footstone/task.h"
 #include "footstone/task_runner.h"
-
-#include "driver/modules/event_module.h"
-#include "driver/modules/scene_builder.h"
-#include "driver/modules/animation_module.h"
-#include "dom/dom_event.h"
 
 #ifdef JS_V8
 #include "driver/vm/v8/memory_module.h"
@@ -73,8 +76,11 @@ using FunctionWrapper = hippy::FunctionWrapper;
 constexpr char kBootstrapJSName[] = "bootstrap.js";
 constexpr char kDeallocFuncName[] = "HippyDealloc";
 constexpr char kHippyName[] = "Hippy";
+constexpr char kEventName[] = "Event";
 constexpr char kLoadInstanceFuncName[] = "__loadInstance__";
 constexpr char kUnloadInstanceFuncName[] = "__unloadInstance__";
+constexpr char kPerformanceName[] = "performance";
+
 #ifdef ENABLE_INSPECTOR
 constexpr char kHippyModuleName[] = "name";
 #endif
@@ -118,7 +124,8 @@ Scope::Scope(std::weak_ptr<Engine> engine,
     : engine_(std::move(engine)),
       context_(nullptr),
       name_(std::move(name)),
-      call_ui_function_callback_id_(0) {}
+      call_ui_function_callback_id_(0),
+      performance_(std::make_shared<Performance>()) {}
 
 Scope::~Scope() {
   FOOTSTONE_DLOG(INFO) << "~Scope";
@@ -152,7 +159,7 @@ void Scope::WillExit() {
           auto fn = context->GetProperty(global_object, func_name);
           bool is_fn = context->IsFunction(fn);
           if (is_fn) {
-            context->CallFunction(fn, 0, nullptr);
+            context->CallFunction(fn, context->GetGlobalObject(), 0, nullptr);
           }
         }
         p.set_value(rst);
@@ -169,7 +176,7 @@ void Scope::WillExit() {
 }
 
 void Scope::SyncInitialize() {
-  RegisterJsClasses();
+  RegisterJavascriptClasses();
   BindModule();
   Bootstrap();
 }
@@ -205,10 +212,10 @@ void Scope::Bootstrap() {
   auto function_wrapper = std::make_unique<FunctionWrapper>(InternalBindingCallback, nullptr);
   std::shared_ptr<CtxValue> argv[] = { context_->CreateFunction(function_wrapper) };
   SaveFunctionWrapper(std::move(function_wrapper));
-  context_->CallFunction(function, 1, argv);
+  context_->CallFunction(function, context_->GetGlobalObject(), 1, argv);
 }
 
-void Scope::RegisterJsClasses() {
+void Scope::RegisterJavascriptClasses() {
   auto weak_scope = weak_from_this();
   auto global_object = context_->GetGlobalObject();
   auto scene_builder = hippy::RegisterSceneBuilder(weak_scope);
@@ -242,7 +249,100 @@ void Scope::RegisterJsClasses() {
   auto event_class = DefineClass(event);
   key = event->name;
   SaveClassTemplate(key, std::move(event));
-  SaveEventClass(event_class);
+  SetJavascriptClass(key, event_class);
+
+  auto performance = hippy::RegisterPerformance(weak_scope);
+  auto performance_class = DefineClass(performance);
+  key = performance->name;
+  SaveClassTemplate(key, std::move(performance));
+  SetJavascriptClass(key, performance_class);
+  context_->SetProperty(global_object,
+                        context_->CreateString(key),
+                        performance_class,
+                        PropertyAttribute::ReadOnly);
+  auto performance_object = context_->NewInstance(performance_class, 0, nullptr, performance_.get());
+  context_->SetProperty(global_object, context_->CreateString(kPerformanceName), performance_object);
+
+  auto performance_entry = hippy::RegisterPerformanceEntry(weak_scope);
+  auto performance_entry_properties = hippy::RegisterPerformanceEntryPropertyDefine<PerformanceEntry>(weak_scope);
+  performance_entry->properties.insert(performance_entry->properties.end(),
+                                       performance_entry_properties.begin(),
+                                       performance_entry_properties.end());
+  auto performance_entry_class = DefineClass(performance_entry);
+  key = performance_entry->name;
+  auto performance_entry_name = key;
+  SaveClassTemplate(key, std::move(performance_entry));
+  SetJavascriptClass(key, performance_entry_class);
+  context_->SetProperty(global_object,
+                        context_->CreateString(key),
+                        performance_entry_class,
+                        PropertyAttribute::ReadOnly);
+
+  auto performance_mark = hippy::RegisterPerformanceMark(weak_scope);
+  performance_mark->parent = context_->GetClassDefinition(performance_entry_name);
+  auto performance_mark_class = DefineClass(performance_mark);
+  key = performance_mark->name;
+  SaveClassTemplate(key, std::move(performance_mark));
+  SetJavascriptClass(key, performance_mark_class);
+  context_->SetProperty(global_object,
+                        context_->CreateString(key),
+                        performance_mark_class,
+                        PropertyAttribute::ReadOnly);
+
+  auto performance_measure = hippy::RegisterPerformanceMeasure(weak_scope);
+  performance_measure->parent = context_->GetClassDefinition(performance_entry_name);
+  auto performance_measure_class = DefineClass(performance_measure);
+  key = performance_measure->name;
+  SaveClassTemplate(key, std::move(performance_measure));
+  SetJavascriptClass(key, performance_measure_class);
+  context_->SetProperty(global_object,
+                        context_->CreateString(key),
+                        performance_measure_class,
+                        PropertyAttribute::ReadOnly);
+
+  auto performance_resource_timing = hippy::RegisterPerformanceResourceTiming(weak_scope);
+  performance_resource_timing->parent = context_->GetClassDefinition(performance_entry_name);
+  auto performance_resource_timing_class = DefineClass(performance_resource_timing);
+  key = performance_resource_timing->name;
+  SaveClassTemplate(key, std::move(performance_resource_timing));
+  SetJavascriptClass(key, performance_resource_timing_class);
+  context_->SetProperty(global_object,
+                        context_->CreateString(key),
+                        performance_resource_timing_class,
+                        PropertyAttribute::ReadOnly);
+
+  auto performance_navigation_timing = hippy::RegisterPerformanceNavigationTiming(weak_scope);
+  performance_navigation_timing->parent = context_->GetClassDefinition(performance_entry_name);
+  auto performance_navigation_timing_class = DefineClass(performance_navigation_timing);
+  key = performance_navigation_timing->name;
+  SaveClassTemplate(key, std::move(performance_navigation_timing));
+  SetJavascriptClass(key, performance_navigation_timing_class);
+  context_->SetProperty(global_object,
+                        context_->CreateString(key),
+                        performance_navigation_timing_class,
+                        PropertyAttribute::ReadOnly);
+
+  auto performance_frame_timing = hippy::RegisterPerformanceFrameTiming(weak_scope);
+  performance_frame_timing->parent = context_->GetClassDefinition(performance_entry_name);
+  auto performance_frame_timing_class = DefineClass(performance_frame_timing);
+  key = performance_frame_timing->name;
+  SaveClassTemplate(key, std::move(performance_frame_timing));
+  SetJavascriptClass(key, performance_frame_timing_class);
+  context_->SetProperty(global_object,
+                        context_->CreateString(key),
+                        performance_frame_timing_class,
+                        PropertyAttribute::ReadOnly);
+
+  auto performance_paint_timing = hippy::RegisterPerformancePaintTiming(weak_scope);
+  performance_paint_timing->parent = context_->GetClassDefinition(performance_entry_name);
+  auto performance_paint_timing_class = DefineClass(performance_paint_timing);
+  key = performance_paint_timing->name;
+  SaveClassTemplate(key, std::move(performance_paint_timing));
+  SetJavascriptClass(key, performance_paint_timing_class);
+  context_->SetProperty(global_object,
+                        context_->CreateString(key),
+                        performance_paint_timing_class,
+                        PropertyAttribute::ReadOnly);
 }
 
 hippy::dom::EventListenerInfo Scope::AddListener(const EventListenerInfo& event_listener_info) {
@@ -284,7 +384,7 @@ hippy::dom::EventListenerInfo Scope::AddListener(const EventListenerInfo& event_
       FOOTSTONE_DCHECK(callback != nullptr);
       if (callback == nullptr) return;
       hippy::DomEventWrapper::Set(event);
-      auto event_class = scope->GetEventClass();
+      auto event_class = scope->GetJavascriptClass(kEventName);
       auto event_instance = context->NewInstance(event_class, 0, nullptr, nullptr);
       FOOTSTONE_DCHECK(callback) << "callback is nullptr";
       if (!callback) {
@@ -296,7 +396,7 @@ hippy::dom::EventListenerInfo Scope::AddListener(const EventListenerInfo& event_
         return;
       }
       std::shared_ptr<CtxValue> argv[] = { event_instance };
-      context->CallFunction(callback, 1, argv);
+      context->CallFunction(callback, context->GetGlobalObject(), 1, argv);
     }
   }};
 }
@@ -439,7 +539,7 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
         }
 #endif
         std::shared_ptr<CtxValue> argv[] = {param};
-        context->CallFunction(fn, 1, argv);
+        context->CallFunction(fn, context->GetGlobalObject(), 1, argv);
       } else {
         context->ThrowException("Application entry not found");
       }
@@ -487,7 +587,7 @@ void Scope::UnloadInstance(const std::shared_ptr<HippyValue>& value) {
               }
 #endif
               std::shared_ptr<CtxValue> argv[] = {param};
-              context->CallFunction(fn, 1, argv);
+              context->CallFunction(fn, context->GetGlobalObject(), 1, argv);
           } else {
               context->ThrowException("Application entry not found");
           }

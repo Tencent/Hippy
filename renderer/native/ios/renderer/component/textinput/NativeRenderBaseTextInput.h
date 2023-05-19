@@ -32,5 +32,6 @@
 - (void)blur;
 - (void)clearText;
 - (void)keyboardWillShow:(NSNotification *)aNotification;
+- (void)keyboardWillHide:(NSNotification *)aNotification;
 
 @end

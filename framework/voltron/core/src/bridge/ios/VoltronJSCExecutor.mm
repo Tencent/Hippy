@@ -124,7 +124,7 @@ struct RandomAccessBundleData {
         self->debugMode = debugMode;
         self->devtoolsId = devtoolsId;
         [self setup];
-       
+
         VoltronLogInfo(@"[Hippy_OC_Log][Life_Circle],VoltronJSCExecutor Init %p, execurotkey:%@", self, execurotkey);
     }
 
@@ -196,12 +196,12 @@ NSString *StringViewToNSString(const string_view &view) {
             NSString *strongGlobalConfig = weakGlobalConfig;
             std::shared_ptr<hippy::Scope> scope = strongSelf->_pScope;
             scope->CreateContext();
-            
+
             std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::driver::napi::JSCCtx>(scope->GetContext());
             JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context->GetCtxRef()];
 //            #if __IPHONE_OS_VERSION_MAX_ALLOWED > __IPHONE_16_2
 //                if (@available(iOS 16.4, *)) {
-//                    jsContext->inspectable = true;
+//                    jsContext.inspectable = true;
 //                }
 //            #endif
             auto global_object = context->GetGlobalObject();
@@ -209,14 +209,14 @@ NSString *StringViewToNSString(const string_view &view) {
             context->SetProperty(global_object, user_global_object_key, global_object);
             auto hippy_key = context->CreateString(kHippyKey);
             context->SetProperty(global_object, hippy_key, context->CreateObject());
-            
+
             if (!strongSelf->_jscWrapper) {
                 [strongSelf->_performanceLogger markStartForTag:VoltronPLJSCWrapperOpenLibrary];
                 strongSelf->_jscWrapper = VoltronJSCWrapperCreate(strongSelf->_useCustomJSCLibrary);
                 [strongSelf->_performanceLogger markStopForTag:VoltronPLJSCWrapperOpenLibrary];
                 installBasicSynchronousHooksOnContext(jsContext);
             }
-            
+
             auto engine = scope->GetEngine().lock();
             auto native_global_key = context->CreateString("__HIPPYNATIVEGLOBAL__");
             auto global_config_object = engine->GetVM()->ParseJson(context, NSStringToU8(strongGlobalConfig));
@@ -638,7 +638,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
                               function_params[i] = [obj convertToCtxValue:context];
                           }
                           auto tryCatch = hippy::CreateTryCatchScope(true, context);
-                          resultValue = context->CallFunction(method_value, arguments.count, function_params);
+                          resultValue = context->CallFunction(method_value, global_object, arguments.count, function_params);
                           if (tryCatch->HasCaught()) {
                               exception = tryCatch->GetExceptionMessage();
                           }
@@ -708,7 +708,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
                         function_params[i] = [obj convertToCtxValue:context];
                     }
                     auto tryCatch = hippy::CreateTryCatchScope(true, context);
-                    resultValue = context->CallFunction(batchedbridge_value, arguments.count, function_params);
+                    resultValue = context->CallFunction(batchedbridge_value, global_object, arguments.count, function_params);
                     if (tryCatch->HasCaught()) {
                         exception = tryCatch->GetExceptionMessage();
                     }

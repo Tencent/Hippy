@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/home_background"
+    tools:context=".MainActivity">
+
+  <TextView
+      android:id="@+id/demo"
+      android:layout_width="wrap_content"
+      android:layout_height="54dp"
+      android:layout_gravity="center"
+      android:layout_marginTop="20dp"
+      android:text="DEMO"
+      android:textColor="@color/black"
+      android:textAlignment="center"
+      android:textFontWeight="500"
+      android:textSize="17sp"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintRight_toRightOf="parent" />
+
+  <androidx.constraintlayout.widget.ConstraintLayout
+      android:id="@+id/logo_container"
+      android:layout_width="wrap_content"
+      android:layout_height="50dp"
+      android:layout_marginTop="164dp"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintRight_toRightOf="parent"
+      app:layout_constraintTop_toTopOf="@id/demo" >
+
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="50dp"
+        android:layout_height="match_parent"
+        android:src="@drawable/logo_1x"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/hippy_title"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/hippy_title"
+        android:layout_width="135dp"
+        android:layout_height="29dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="93dp"
+        android:src="@drawable/hippy_2x"
+        app:layout_constraintBottom_toBottomOf="@id/logo"
+        app:layout_constraintLeft_toRightOf="@id/logo"
+        app:layout_constraintTop_toTopOf="@id/logo" />
+  </androidx.constraintlayout.widget.ConstraintLayout>
+
+  <TextView
+      android:id="@+id/demo_desc"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:layout_marginTop="10dp"
+      android:text="This is Hippy DEMO"
+      android:textAlignment="center"
+      android:textColor="#1E304A"
+      android:textFontWeight="500"
+      android:textSize="17sp"
+      app:layout_constraintTop_toBottomOf="@id/logo_container"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintRight_toRightOf="parent"
+      tools:layout_editor_absoluteX="0dp" />
+
+  <TextView
+      android:id="@+id/version"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:layout_marginTop="10dp"
+      android:text="Ver：3.0.0"
+      android:textAlignment="center"
+      android:textColor="#A1ACBD"
+      android:textFontWeight="400"
+      android:textSize="14sp"
+      app:layout_constraintTop_toBottomOf="@+id/demo_desc"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintRight_toRightOf="parent"
+      tools:layout_editor_absoluteX="0dp" />
+
+  <TextView
+      android:id="@+id/hippy_desc"
+      android:layout_width="262dp"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:layout_marginLeft="72dp"
+      android:layout_marginTop="74dp"
+      android:layout_marginEnd="72dp"
+      android:text="提供极致流畅体验的可复用列表，通过binding模式实现高效的前端-终端通讯"
+      android:textAlignment="center"
+      android:textColor="#A1ACBD"
+      android:textFontWeight="400"
+      android:textSize="14sp"
+      android:lineSpacingMultiplier="1.5"
+      app:layout_constraintRight_toRightOf="parent"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/version" />
+
+  <androidx.constraintlayout.widget.ConstraintLayout
+      android:id="@+id/page_management_button"
+      android:layout_width="0dp"
+      android:layout_height="52dp"
+      android:background="@color/white"
+      android:clickable="true"
+      android:focusable="true"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintRight_toLeftOf="@id/setting_button"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintHorizontal_weight="0.5" >
+
+    <ImageView
+        android:id="@+id/page_management_image"
+        android:layout_width="19dp"
+        android:layout_height="21dp"
+        android:layout_marginTop="8dp"
+        android:layout_gravity="center"
+        android:src="@drawable/page_management_2x"
+        android:clickable="false"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/page_management_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="2dp"
+        android:text="Page Manage"
+        android:textAlignment="center"
+        android:textColor="#4A5970"
+        android:textFontWeight="400"
+        android:textSize="11sp"
+        android:clickable="false"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/page_management_image"
+        app:layout_constraintVertical_bias="0.656" />
+
+  </androidx.constraintlayout.widget.ConstraintLayout>
+
+  <androidx.constraintlayout.widget.ConstraintLayout
+      android:id="@+id/setting_button"
+      android:layout_width="0dp"
+      android:layout_height="52dp"
+      android:background="@color/white"
+      android:clickable="true"
+      android:focusable="true"
+      app:layout_constraintLeft_toRightOf="@id/page_management_button"
+      app:layout_constraintRight_toRightOf="parent"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintHorizontal_weight="0.5">
+
+    <ImageView
+        android:id="@+id/setting_image"
+        android:layout_width="19dp"
+        android:layout_height="21dp"
+        android:layout_marginTop="8dp"
+        android:layout_gravity="center"
+        android:src="@drawable/setting_2x"
+        android:clickable="false"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/setting_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="2dp"
+        android:text="Setting"
+        android:textAlignment="center"
+        android:textColor="#4A5970"
+        android:textFontWeight="400"
+        android:textSize="11sp"
+        android:clickable="false"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/setting_image"
+        app:layout_constraintVertical_bias="0.656" />
+
+  </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

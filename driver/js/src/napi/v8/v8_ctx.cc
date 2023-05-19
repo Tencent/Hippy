@@ -24,6 +24,7 @@
 
 #include "driver/base/js_value_wrapper.h"
 #include "driver/napi/v8/v8_ctx_value.h"
+#include "driver/napi/v8/v8_class_definition.h"
 #include "driver/napi/v8/v8_try_catch.h"
 #include "driver/napi/callback_info.h"
 #include "driver/vm/v8/v8_vm.h"
@@ -43,8 +44,10 @@ using V8VM = hippy::vm::V8VM;
 using CallbackInfo = hippy::CallbackInfo;
 
 constexpr static int kExternalIndex = 0;
+constexpr static int kNewInstanceExternalIndex = 1;
 constexpr static int kScopeWrapperIndex = 5;
 constexpr static int kExternalDataMapIndex = 6;
+//constexpr char kProtoKey[] = "__proto__";
 
 void InvokePropertyCallback(v8::Local<v8::Name> property,
                             const v8::PropertyCallbackInfo<v8::Value>& info) {
@@ -61,8 +64,8 @@ void InvokePropertyCallback(v8::Local<v8::Name> property,
   auto data = info.Data().As<v8::External>();
   FOOTSTONE_CHECK(!data.IsEmpty());
   auto* func_wrapper = reinterpret_cast<FunctionWrapper*>(data->Value());
-  FOOTSTONE_CHECK(func_wrapper && func_wrapper->cb);
-  (func_wrapper->cb)(cb_info, func_wrapper->data);
+  FOOTSTONE_CHECK(func_wrapper && func_wrapper->callback);
+  (func_wrapper->callback)(cb_info, func_wrapper->data);
   auto exception = std::static_pointer_cast<V8CtxValue>(cb_info.GetExceptionValue()->Get());
   if (exception) {
     const auto& global_value = exception->global_value_;
@@ -90,10 +93,17 @@ static void InvokeJsCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
   CallbackInfo cb_info;
   cb_info.SetSlot(context->GetAlignedPointerFromEmbedderData(kScopeWrapperIndex));
   auto thiz = info.This();
-  auto count = thiz->InternalFieldCount();
+  auto holder = info.Holder();
+  auto count = holder->InternalFieldCount();
   if (count > 0) {
-    auto internal_data = thiz->GetInternalField(kExternalIndex).As<v8::External>();
+    auto internal_data = holder->GetInternalField(kExternalIndex).As<v8::External>();
     cb_info.SetData(internal_data->Value());
+  }
+  if (info.IsConstructCall()) {
+    auto new_instance_external = context->GetAlignedPointerFromEmbedderData(kNewInstanceExternalIndex);
+    if (new_instance_external) {
+      cb_info.SetData(new_instance_external);
+    }
   }
   cb_info.SetReceiver(std::make_shared<V8CtxValue>(isolate, thiz));
   for (int i = 0; i < info.Length(); i++) {
@@ -102,7 +112,7 @@ static void InvokeJsCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
   auto data = info.Data().As<v8::External>();
   FOOTSTONE_CHECK(!data.IsEmpty());
   auto function_wrapper = reinterpret_cast<FunctionWrapper*>(data->Value());
-  auto js_cb = function_wrapper->cb;
+  auto js_cb = function_wrapper->callback;
   auto external_data = function_wrapper->data;
 //  auto external_data_map = reinterpret_cast<std::unordered_map<void*, void*>*>(context->GetAlignedPointerFromEmbedderData(kExternalDataMapIndex));
 //  void* external_data = nullptr;
@@ -128,7 +138,14 @@ static void InvokeJsCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
   if (info.IsConstructCall()) {
     auto internal_data = cb_info.GetData();
     if (internal_data) {
-      thiz->SetInternalField(kExternalIndex, v8::External::New(isolate, internal_data));
+      holder->SetInternalField(kExternalIndex, v8::External::New(isolate, internal_data));
+      auto prototype = thiz->GetPrototype();
+      if (!prototype.IsEmpty()) {
+        auto prototype_object = v8::Local<v8::Object>::Cast(prototype);
+        if (prototype_object->InternalFieldCount() > 0) {
+          prototype_object->SetInternalField(kExternalIndex, v8::External::New(isolate, internal_data));
+        }
+      }
     }
   }
   info.GetReturnValue().Set(ret_value->global_value_);
@@ -228,6 +245,11 @@ class ExternalStringResourceImpl : public v8::String::ExternalStringResource {
 
 void V8Ctx::SetExternalData(void* address) {
   SetAlignedPointerInEmbedderData(kScopeWrapperIndex, reinterpret_cast<intptr_t>(address));
+}
+
+std::shared_ptr<ClassDefinition> V8Ctx::GetClassDefinition(const string_view& name) {
+  FOOTSTONE_DCHECK(template_map_.find(name) != template_map_.end());
+  return template_map_[name];
 }
 
 void V8Ctx::SetAlignedPointerInEmbedderData(int index, intptr_t address) {
@@ -439,22 +461,22 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
 }
 
 void V8Ctx::ThrowException(const std::shared_ptr<CtxValue>& exception) {
-  std::shared_ptr<V8CtxValue> ctx_value = std::static_pointer_cast<V8CtxValue>(exception);
   v8::HandleScope handle_scope(isolate_);
-  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  auto context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
 
-  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
-  v8::Local<v8::Value> handle_value = v8::Local<v8::Value>::New(isolate_, global_value);
+  auto ctx_value = std::static_pointer_cast<V8CtxValue>(exception);
+  auto handle_value = v8::Local<v8::Value>::New(isolate_, ctx_value->global_value_);
   isolate_->ThrowException(handle_value);
 }
 
 void V8Ctx::ThrowException(const string_view& exception) {
-  ThrowException(CreateError(exception));
+  ThrowException(CreateException(exception));
 }
 
 std::shared_ptr<CtxValue> V8Ctx::CallFunction(
     const std::shared_ptr<CtxValue>& function,
+    const std::shared_ptr<CtxValue>& receiver,
     size_t argument_count,
     const std::shared_ptr<CtxValue> arguments[]) {
   if (!function) {
@@ -463,27 +485,24 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
   }
 
   v8::HandleScope handle_scope(isolate_);
-  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  auto context = context_persistent_.Get(isolate_);
   v8::Context::Scope contextScope(context);
   if (context.IsEmpty() || context->Global().IsEmpty()) {
     FOOTSTONE_LOG(ERROR) << "CallFunction context error";
     return nullptr;
   }
 
-  std::shared_ptr<V8CtxValue> ctx_value =
-      std::static_pointer_cast<V8CtxValue>(function);
-  v8::Local<v8::Value> handle_value =
-      v8::Local<v8::Value>::New(isolate_, ctx_value->global_value_);
+  auto ctx_value = std::static_pointer_cast<V8CtxValue>(function);
+  auto handle_value = v8::Local<v8::Value>::New(isolate_, ctx_value->global_value_);
   if (!handle_value->IsFunction()) {
     FOOTSTONE_LOG(WARNING) << "CallFunction handle_value is not a function";
     return nullptr;
   }
 
-  v8::Function* v8_fn = v8::Function::Cast(*handle_value);
+  auto v8_fn = v8::Function::Cast(*handle_value);
   v8::Local<v8::Value> args[argument_count];
   for (size_t i = 0; i < argument_count; i++) {
-    std::shared_ptr<V8CtxValue> argument =
-        std::static_pointer_cast<V8CtxValue>(arguments[i]);
+    auto argument = std::static_pointer_cast<V8CtxValue>(arguments[i]);
     if (argument) {
       args[i] = v8::Local<v8::Value>::New(isolate_, argument->global_value_);
     } else {
@@ -492,8 +511,10 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
     }
   }
 
+  auto receiver_object = std::static_pointer_cast<V8CtxValue>(receiver);
+  auto handle_object = v8::Local<v8::Value>::New(isolate_, receiver_object->global_value_);
   v8::MaybeLocal<v8::Value> maybe_result = v8_fn->Call(
-      context, context->Global(), static_cast<int>(argument_count), args);
+      context, handle_object, static_cast<int>(argument_count), args);
 
   if (maybe_result.IsEmpty()) {
     FOOTSTONE_DLOG(INFO) << "maybe_result is empty";
@@ -505,7 +526,7 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
 std::shared_ptr<CtxValue> V8Ctx::CreateNumber(double number) {
   v8::HandleScope isolate_scope(isolate_);
 
-  v8::Local<v8::Value> v8_number = v8::Number::New(isolate_, number);
+  auto v8_number = v8::Number::New(isolate_, number);
   if (v8_number.IsEmpty()) {
     return nullptr;
   }
@@ -633,8 +654,8 @@ std::shared_ptr<CtxValue> V8Ctx::CreateMap(const std::map<
   return std::make_shared<V8CtxValue>(isolate_, js_map);
 }
 
-std::shared_ptr<CtxValue> V8Ctx::CreateError(const string_view& msg) {
-  FOOTSTONE_DLOG(INFO) << "V8Ctx::CreateError msg = " << msg;
+std::shared_ptr<CtxValue> V8Ctx::CreateException(const string_view& msg) {
+  FOOTSTONE_DLOG(INFO) << "V8Ctx::CreateException msg = " << msg;
   v8::HandleScope handle_scope(isolate_);
   auto context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
@@ -1309,20 +1330,23 @@ std::shared_ptr<CtxValue> V8Ctx::NewInstance(const std::shared_ptr<CtxValue>& cl
 
   auto v8_cls = std::static_pointer_cast<V8CtxValue>(cls);
   auto cls_handle_value = v8::Local<v8::Value>::New(isolate_, v8_cls->global_value_);
-  auto func = v8::Local<v8::Function>::Cast(cls_handle_value);
+  auto function = v8::Local<v8::Function>::Cast(cls_handle_value);
   v8::Local<v8::Object> instance;
+  if (external) {
+    context->SetAlignedPointerInEmbedderData(kNewInstanceExternalIndex, external);
+  }
   if (argc > 0 && argv) {
     v8::Local<v8::Value> v8_argv[argc];
     for (auto i = 0; i < argc; ++i) {
       auto v8_value = std::static_pointer_cast<V8CtxValue>(argv[i]);
       v8_argv[i] = v8::Local<v8::Value>::New(isolate_, v8_value->global_value_);
     }
-    instance = func->NewInstance(context, argc, v8_argv).ToLocalChecked();
+    instance = function->NewInstance(context, argc, v8_argv).ToLocalChecked();
   } else {
-    instance = func->NewInstance(context).ToLocalChecked();
+    instance = function->NewInstance(context).ToLocalChecked();
   }
   if (external) {
-    instance->SetInternalField(kExternalIndex, v8::External::New(isolate_, external));
+    context->SetAlignedPointerInEmbedderData(kNewInstanceExternalIndex, nullptr);
   }
   return std::make_shared<V8CtxValue>(isolate_, instance);
 }
@@ -1356,7 +1380,8 @@ std::shared_ptr<CtxValue> V8Ctx::DefineProxy(const std::unique_ptr<FunctionWrapp
   return std::make_shared<V8CtxValue>(isolate_, func_tpl->GetFunction(context).ToLocalChecked());
 }
 
-std::shared_ptr<CtxValue> V8Ctx::DefineClass(string_view name,
+std::shared_ptr<CtxValue> V8Ctx::DefineClass(const string_view& name,
+                                             const std::shared_ptr<ClassDefinition>& parent,
                                              const std::unique_ptr<FunctionWrapper>& constructor_wrapper,
                                              size_t property_count,
                                              std::shared_ptr<PropertyDescriptor> properties[]) {
@@ -1364,7 +1389,13 @@ std::shared_ptr<CtxValue> V8Ctx::DefineClass(string_view name,
   auto context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
 
-  v8::Local<v8::FunctionTemplate> tpl = CreateTemplate(constructor_wrapper);
+  auto tpl = CreateTemplate(constructor_wrapper);
+  if (parent) {
+    auto parent_template = std::static_pointer_cast<V8ClassDefinition>(parent);
+    auto parent_template_handle = v8::Local<v8::FunctionTemplate>::New(
+        isolate_,parent_template->GetTemplate());
+    tpl->Inherit(parent_template_handle);
+  }
   auto prototype_template = tpl->PrototypeTemplate();
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(V8VM::CreateV8String(isolate_, context, name));
@@ -1399,6 +1430,9 @@ std::shared_ptr<CtxValue> V8Ctx::DefineClass(string_view name,
     }
   }
   // todo(polly) static_property
+
+  template_map_[name] = std::make_shared<V8ClassDefinition>(isolate_, tpl);
+
   return std::make_shared<V8CtxValue>(isolate_, tpl->GetFunction(context).ToLocalChecked());
 }
 
@@ -1482,7 +1516,7 @@ void  V8Ctx::SetWeak(std::shared_ptr<CtxValue> value,
     info.SetSecondPassCallback([](const v8::WeakCallbackInfo<void>& info) {
       auto wrapper = reinterpret_cast<WeakCallbackWrapper*>(info.GetParameter());
       auto internal = info.GetInternalField(kExternalIndex);
-      wrapper->cb(wrapper->data, internal);
+      wrapper->callback(wrapper->data, internal);
     });
   }, v8::WeakCallbackType::kParameter);
 }

@@ -384,8 +384,10 @@ void JsDriverUtils::DestroyInstance(const std::shared_ptr<Engine>& engine,
     FOOTSTONE_LOG(INFO) << "js destroy end";
     callback(true);
   };
-  int64_t group = engine->GetVM()->GetGroupId();
-  if (group == VM::kDebuggerGroupId) {
+  auto vm = engine->GetVM();
+  auto group = vm->GetGroupId();
+  if (vm->IsDebug()) {
+    group = VM::kDebuggerGroupId;
     scope->WillExit();
   }
   if ((group == VM::kDebuggerGroupId && !is_reload) || (group != VM::kDebuggerGroupId && group != VM::kDefaultGroupId)) {
@@ -475,7 +477,7 @@ void JsDriverUtils::CallJs(const string_view& action,
       params = context->CreateNull();
     }
     std::shared_ptr<CtxValue> argv[] = {action_value, params};
-    context->CallFunction(scope->GetBridgeObject(), 2, argv);
+    context->CallFunction(scope->GetBridgeObject(), context->GetGlobalObject(), 2, argv);
     cb(CALL_FUNCTION_CB_STATE::SUCCESS, "");
   };
 

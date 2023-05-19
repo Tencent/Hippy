@@ -151,6 +151,14 @@ public class DevServerImpl implements DevServerInterface, View.OnClickListener,
     }
 
     @Override
+    public View getDevButton(int rootId) {
+        if (mDevButtonMaps != null) {
+            return mDevButtonMaps.get(rootId);
+        }
+        return null;
+    }
+
+    @Override
     @Nullable
     public String createResourceUrl(String resName) {
         if (mDebugMode) {

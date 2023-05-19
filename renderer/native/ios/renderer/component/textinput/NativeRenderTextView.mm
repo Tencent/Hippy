@@ -55,11 +55,6 @@
     return [super resignFirstResponder];
 }
 
-- (void)dealloc {
-    _responderDelegate = nil;
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
 @end
 
 @interface NativeRenderTextView () <NativeRenderUITextViewResponseDelegate>
@@ -85,7 +80,8 @@
     BOOL _viewDidCompleteInitialLayout;
 }
 
-//当键盘出现或改变时调用
+#pragma mark - Keyboard Events
+
 - (void)keyboardWillShow:(NSNotification *)aNotification {
     [super keyboardWillShow:aNotification];
     //获取键盘的高度
@@ -95,6 +91,13 @@
     CGFloat keyboardHeight = keyboardRect.size.height;
     if (self.isFirstResponder && _onKeyboardWillShow) {
         _onKeyboardWillShow(@{ @"keyboardHeight": @(keyboardHeight) });
+    }
+}
+
+- (void)keyboardWillHide:(NSNotification *)aNotification {
+    [super keyboardWillHide:aNotification];
+    if (_onKeyboardWillHide) {
+        _onKeyboardWillHide(@{});
     }
 }
 
@@ -319,20 +322,17 @@ static NSAttributedString *removeComponentTagFromString(NSAttributedString *stri
 
 - (void)setContentInset:(UIEdgeInsets)contentInset {
     [super setContentInset:contentInset];
-    //  _contentInset = contentInset;
     [self updateFrames];
 }
 
-- (void)textFieldEditChanged:(NSNotification *)obj {
-    if (self.isFirstResponder && _maxLength) {
-        UITextView *textField = (UITextView *)obj.object;
+- (void)checkMaxLengthAndAlterTextView:(UITextView *)textField {
+    //TODO: This old special logic needs to be optimized.
+    if (self.isFirstResponder && self.maxLength) {
         NSInteger theMaxLength = self.maxLength.integerValue;
         NSString *toBeString = textField.text;
         NSString *lang = [textField.textInputMode primaryLanguage];
         if ([lang isEqualToString:@"zh-Hans"])  // 简体中文输入
         {
-            NSString *toBeString = textField.text;
-
             UITextRange *selectedRange = [textField markedTextRange];
             UITextPosition *position = [textField positionFromPosition:selectedRange.start offset:0];
 
@@ -360,6 +360,130 @@ static NSAttributedString *removeComponentTagFromString(NSAttributedString *stri
             }
         }
     }
+}
+
+- (void)textFieldEditChanged:(NSNotification *)obj {
+    [self checkMaxLengthAndAlterTextView:(UITextView *)obj.object];
+}
+
+- (NSString *)text {
+    return _textView.text;
+}
+
+- (void)setSelection:(NativeRenderTextSelection *)selection {
+    if (!selection) {
+        return;
+    }
+
+    UITextRange *currentSelection = _textView.selectedTextRange;
+    UITextPosition *start = [_textView positionFromPosition:_textView.beginningOfDocument offset:selection.start];
+    UITextPosition *end = [_textView positionFromPosition:_textView.beginningOfDocument offset:selection.end];
+    UITextRange *selectedTextRange = [_textView textRangeFromPosition:start toPosition:end];
+
+    NSInteger eventLag = _nativeEventCount - _mostRecentEventCount;
+    if (eventLag == 0 && ![currentSelection isEqual:selectedTextRange]) {
+        _previousSelectionRange = selectedTextRange;
+        _textView.selectedTextRange = selectedTextRange;
+    }
+}
+
+- (void)setText:(NSString *)text {
+    double version = UIDevice.currentDevice.systemVersion.doubleValue;
+    if (version >= 10.0 && version < 12.0) {
+        text = [text stringByReplacingOccurrencesOfString:@"జ్ఞ‌ా" withString:@" "];
+    }
+
+    NSInteger eventLag = _nativeEventCount - _mostRecentEventCount;
+    if (eventLag == 0 && ![text isEqualToString:_textView.text]) {
+        UITextRange *selection = _textView.selectedTextRange;
+        NSInteger oldTextLength = _textView.text.length;
+
+        _predictedText = text;
+        _textView.text = text;
+        [self textViewDidChange:_textView];
+        if (selection.empty) {
+            // maintain cursor position relative to the end of the old text
+            NSInteger start = [_textView offsetFromPosition:_textView.beginningOfDocument toPosition:selection.start];
+            NSInteger offsetFromEnd = oldTextLength - start;
+            NSInteger newOffset = text.length - offsetFromEnd;
+            UITextPosition *position = [_textView positionFromPosition:_textView.beginningOfDocument offset:newOffset];
+            _textView.selectedTextRange = [_textView textRangeFromPosition:position toPosition:position];
+        }
+
+        [self updatePlaceholderVisibility];
+        [self updateContentSize];  // keep the text wrapping when the length of
+        // the textline has been extended longer than the length of textinputView
+    }
+}
+
+- (void)setTextColor:(UIColor *)textColor {
+    _textView.textColor = textColor;
+}
+
+- (UIColor *)textColor {
+    return _textView.textColor;
+}
+
+- (void)updatePlaceholderVisibility {
+    if (_textView.text.length > 0) {
+        [_placeholderView setHidden:YES];
+    } else {
+        [_placeholderView setHidden:NO];
+    }
+}
+
+- (void)setAutoCorrect:(BOOL)autoCorrect {
+    _textView.autocorrectionType = (autoCorrect ? UITextAutocorrectionTypeYes : UITextAutocorrectionTypeNo);
+}
+
+- (BOOL)autoCorrect {
+    return _textView.autocorrectionType == UITextAutocorrectionTypeYes;
+}
+
+#pragma mark - UITextViewDelegate
+
+- (BOOL)textViewShouldBeginEditing:(UITextView *)textView {
+    if (_selectTextOnFocus) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [textView selectAll:nil];
+        });
+    }
+    return YES;
+}
+
+- (void)textViewDidBeginEditing:(__unused UITextView *)textView {
+    if (_clearTextOnFocus) {
+        _textView.text = @"";
+        [self updatePlaceholderVisibility];
+    }
+}
+
+static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange, NSRange *secondRange) {
+    NSInteger firstMismatch = -1;
+    for (NSUInteger ii = 0; ii < MAX(first.length, second.length); ii++) {
+        if (ii >= first.length || ii >= second.length || [first characterAtIndex:ii] != [second characterAtIndex:ii]) {
+            firstMismatch = ii;
+            break;
+        }
+    }
+
+    if (firstMismatch == -1) {
+        return NO;
+    }
+
+    NSUInteger ii = second.length;
+    NSUInteger lastMismatch = first.length;
+    while (ii > firstMismatch && lastMismatch > firstMismatch) {
+        if ([first characterAtIndex:(lastMismatch - 1)] != [second characterAtIndex:(ii - 1)]) {
+            break;
+        }
+        ii--;
+        lastMismatch--;
+    }
+
+    *firstRange = NSMakeRange(firstMismatch, lastMismatch - firstMismatch);
+    *secondRange = NSMakeRange(firstMismatch, ii - firstMismatch);
+    return YES;
 }
 
 - (BOOL)textView:(NativeRenderUITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
@@ -455,124 +579,6 @@ static NSAttributedString *removeComponentTagFromString(NSAttributedString *stri
     }
 }
 
-- (NSString *)text {
-    return _textView.text;
-}
-
-- (void)setSelection:(NativeRenderTextSelection *)selection {
-    if (!selection) {
-        return;
-    }
-
-    UITextRange *currentSelection = _textView.selectedTextRange;
-    UITextPosition *start = [_textView positionFromPosition:_textView.beginningOfDocument offset:selection.start];
-    UITextPosition *end = [_textView positionFromPosition:_textView.beginningOfDocument offset:selection.end];
-    UITextRange *selectedTextRange = [_textView textRangeFromPosition:start toPosition:end];
-
-    NSInteger eventLag = _nativeEventCount - _mostRecentEventCount;
-    if (eventLag == 0 && ![currentSelection isEqual:selectedTextRange]) {
-        _previousSelectionRange = selectedTextRange;
-        _textView.selectedTextRange = selectedTextRange;
-    }
-}
-
-- (void)setText:(NSString *)text {
-    double version = UIDevice.currentDevice.systemVersion.doubleValue;
-    if (version >= 10.0 && version < 12.0) {
-        text = [text stringByReplacingOccurrencesOfString:@"జ్ఞ‌ా" withString:@" "];
-    }
-
-    NSInteger eventLag = _nativeEventCount - _mostRecentEventCount;
-    if (eventLag == 0 && ![text isEqualToString:_textView.text]) {
-        UITextRange *selection = _textView.selectedTextRange;
-        NSInteger oldTextLength = _textView.text.length;
-
-        _predictedText = text;
-        _textView.text = text;
-        [self textViewDidChange:_textView];
-        if (selection.empty) {
-            // maintain cursor position relative to the end of the old text
-            NSInteger start = [_textView offsetFromPosition:_textView.beginningOfDocument toPosition:selection.start];
-            NSInteger offsetFromEnd = oldTextLength - start;
-            NSInteger newOffset = text.length - offsetFromEnd;
-            UITextPosition *position = [_textView positionFromPosition:_textView.beginningOfDocument offset:newOffset];
-            _textView.selectedTextRange = [_textView textRangeFromPosition:position toPosition:position];
-        }
-
-        [self updatePlaceholderVisibility];
-        [self updateContentSize];  // keep the text wrapping when the length of
-        // the textline has been extended longer than the length of textinputView
-    }
-}
-
-- (void)setTextColor:(UIColor *)textColor {
-    _textView.textColor = textColor;
-}
-
-- (UIColor *)textColor {
-    return _textView.textColor;
-}
-
-- (void)updatePlaceholderVisibility {
-    if (_textView.text.length > 0) {
-        [_placeholderView setHidden:YES];
-    } else {
-        [_placeholderView setHidden:NO];
-    }
-}
-
-- (void)setAutoCorrect:(BOOL)autoCorrect {
-    _textView.autocorrectionType = (autoCorrect ? UITextAutocorrectionTypeYes : UITextAutocorrectionTypeNo);
-}
-
-- (BOOL)autoCorrect {
-    return _textView.autocorrectionType == UITextAutocorrectionTypeYes;
-}
-
-- (BOOL)textViewShouldBeginEditing:(UITextView *)textView {
-    if (_selectTextOnFocus) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [textView selectAll:nil];
-        });
-    }
-    return YES;
-}
-
-- (void)textViewDidBeginEditing:(__unused UITextView *)textView {
-    if (_clearTextOnFocus) {
-        _textView.text = @"";
-        [self updatePlaceholderVisibility];
-    }
-}
-
-static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange, NSRange *secondRange) {
-    NSInteger firstMismatch = -1;
-    for (NSUInteger ii = 0; ii < MAX(first.length, second.length); ii++) {
-        if (ii >= first.length || ii >= second.length || [first characterAtIndex:ii] != [second characterAtIndex:ii]) {
-            firstMismatch = ii;
-            break;
-        }
-    }
-
-    if (firstMismatch == -1) {
-        return NO;
-    }
-
-    NSUInteger ii = second.length;
-    NSUInteger lastMismatch = first.length;
-    while (ii > firstMismatch && lastMismatch > firstMismatch) {
-        if ([first characterAtIndex:(lastMismatch - 1)] != [second characterAtIndex:(ii - 1)]) {
-            break;
-        }
-        ii--;
-        lastMismatch--;
-    }
-
-    *firstRange = NSMakeRange(firstMismatch, lastMismatch - firstMismatch);
-    *secondRange = NSMakeRange(firstMismatch, ii - firstMismatch);
-    return YES;
-}
-
 - (void)textViewDidChange:(UITextView *)textView {
     [self updatePlaceholderVisibility];
     [self updateContentSize];
@@ -597,6 +603,9 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
     if (!self.componentTag || !_onChangeText) {
         return;
     }
+    
+    // check maxLength before send event to js
+    [self checkMaxLengthAndAlterTextView:textView];
 
     // When the context size increases, iOS updates the contentSize twice; once
     // with a lower height, then again with the correct height. To prevent a
@@ -627,6 +636,9 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
         });
     }
 }
+
+
+#pragma mark - Responder Chain
 
 - (BOOL)isFirstResponder {
     return [_textView isFirstResponder];

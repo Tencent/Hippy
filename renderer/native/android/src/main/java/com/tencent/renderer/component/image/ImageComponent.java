@@ -136,6 +136,15 @@ public class ImageComponent extends Component {
         if (!TextUtils.equals(mUri, uri)) {
             mUri = uri;
             mImageFetchState = ImageFetchState.UNLOAD;
+            if (mImageHolder != null) {
+                mImageHolder.detached();
+                mImageHolder = null;
+                if (mDefaultImageHolder != null && mDefaultImageHolder.checkImageData()) {
+                    setImageData(mDefaultImageHolder);
+                } else {
+                    clearImageData();
+                }
+            }
             fetchImageWithUrl(mUri, ImageSourceType.SRC);
         }
     }
@@ -145,6 +154,13 @@ public class ImageComponent extends Component {
         if (!TextUtils.equals(mDefaultUri, uri)) {
             mDefaultUri = uri;
             mDefaultImageFetchState = ImageFetchState.UNLOAD;
+            if (mDefaultImageHolder != null) {
+                mDefaultImageHolder.detached();
+                mDefaultImageHolder = null;
+                if (mImageHolder == null || !mImageHolder.checkImageData()) {
+                    clearImageData();
+                }
+            }
             fetchImageWithUrl(uri, ImageSourceType.DEFAULT);
         }
     }
@@ -182,6 +198,12 @@ public class ImageComponent extends Component {
             drawable.setCallback(this);
         }
         ensureContentDrawable().setImageData(imageHolder);
+    }
+
+    private void clearImageData() {
+        if (mContentDrawable != null) {
+            mContentDrawable.clear();
+        }
     }
 
     private void onFetchImageSuccess(@NonNull String uri, ImageSourceType sourceType,

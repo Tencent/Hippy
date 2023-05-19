@@ -63,9 +63,18 @@ runScript('npm run hippy:vendor'); // Build vendor js
 runScript('npm run hippy:build'); // Build index js
 
 console.log('3/3 Copy the built files to native.');
-cp('-Rf', './dist/ios/*', '../../../../framework/examples/ios-demo/res/'); // Update the ios demo project
-cp('-Rf', './dist/android/*', '../../../../framework/examples/android-demo/res/'); // # Update the android project
-cp('-Rf', './dist/android/*', '../../../../framework/voltron/example/assets/jsbundle/'); // # Update the flutter project, ios and android use same bundle
+let jsPath = '';
+if (example === 'hippy-react-demo') {
+  jsPath = 'react/';
+} else if (example === 'hippy-vue-demo') {
+  jsPath = 'vue2/';
+} else if (example === 'hippy-vue-next-demo') {
+  jsPath = 'vue3/';
+}
+
+cp('-Rf', './dist/ios/*', `../../../../framework/examples/ios-demo/res/${jsPath}`); // Update the ios demo project
+cp('-Rf', './dist/android/*', `../../../../framework/examples/android-demo/res/${jsPath}`); // # Update the android project
+cp('-Rf', './dist/android/*', `../../../../framework/voltron/example/assets/jsbundle/${jsPath}`); // # Update the flutter project, ios and android use same bundle
 
 console.log('👌 All done, you can open your native app now, enjoy.');
 popd();

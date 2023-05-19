@@ -20,10 +20,10 @@ import android.util.LruCache;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class ImageDataPool extends BasePool<Integer, ImageRecycleObject> {
+public class ImageDataPool extends BasePool<ImageDataKey, ImageRecycleObject> {
 
-    private static final int DEFAULT_IMAGE_POOL_SIZE = 12;
-    private LruCache<Integer, ImageRecycleObject> mPools;
+    private static final int DEFAULT_IMAGE_POOL_SIZE = 24;
+    private LruCache<ImageDataKey, ImageRecycleObject> mPools;
 
     public ImageDataPool() {
         init(DEFAULT_IMAGE_POOL_SIZE);
@@ -35,10 +35,10 @@ public class ImageDataPool extends BasePool<Integer, ImageRecycleObject> {
     }
 
     private void init(int size) {
-        mPools = new LruCache<Integer, ImageRecycleObject>(
+        mPools = new LruCache<ImageDataKey, ImageRecycleObject>(
                 size) {
             @Override
-            protected void entryRemoved(boolean evicted, @NonNull Integer key,
+            protected void entryRemoved(boolean evicted, @NonNull ImageDataKey key,
                     @NonNull ImageRecycleObject oldValue, @Nullable ImageRecycleObject newValue) {
                 if (evicted) {
                     onEntryEvicted(oldValue);
@@ -49,7 +49,7 @@ public class ImageDataPool extends BasePool<Integer, ImageRecycleObject> {
 
     @Override
     @Nullable
-    public ImageRecycleObject acquire(@NonNull Integer key) {
+    public ImageRecycleObject acquire(@NonNull ImageDataKey key) {
         ImageRecycleObject data = mPools.get(key);
         if (data != null && data.isScraped()) {
             // Bitmap may have been recycled, must be removed from the cache and not
@@ -67,7 +67,7 @@ public class ImageDataPool extends BasePool<Integer, ImageRecycleObject> {
     }
 
     @Override
-    public void release(@NonNull Integer key, @NonNull ImageRecycleObject data) {
+    public void release(@NonNull ImageDataKey key, @NonNull ImageRecycleObject data) {
         mPools.put(key, data);
         data.cached();
     }
@@ -78,7 +78,7 @@ public class ImageDataPool extends BasePool<Integer, ImageRecycleObject> {
     }
 
     @Override
-    public void remove(@NonNull Integer key) {
+    public void remove(@NonNull ImageDataKey key) {
         mPools.remove(key);
     }
 

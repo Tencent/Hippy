@@ -200,7 +200,7 @@ TimeDelta TaskRunner::GetNextTimeDelta(TimePoint now) {
 }
 
 void TaskRunner::NotifyWorker() {
-  std::shared_ptr<Worker> worker = worker_.lock();
+  auto worker = worker_.lock();
   FOOTSTONE_CHECK(worker);
   worker->Notify();
 }

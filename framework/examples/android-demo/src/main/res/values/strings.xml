@@ -1,4 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Hippy Demo</string>
+  <string name="app_name">Hippy</string>
+  <string name="driver_js_react">Js React</string>
+  <string name="driver_js_vue2">Js Vue2.0</string>
+  <string name="driver_js_vue3">Js Vue3.0</string>
+  <string name="driver_js_vl">VL</string>
+  <string name="renderer_native">Native</string>
+  <string name="renderer_tdf_core">TDF Core</string>
+  <string name="renderer_flutter">Flutter</string>
+  <string name="setting_not_available">Coming soon</string>
+  <string name="page_configuration_navigation_title">Page setting</string>
+  <string name="page_configuration_navigation_title_demo">Demo</string>
 </resources>

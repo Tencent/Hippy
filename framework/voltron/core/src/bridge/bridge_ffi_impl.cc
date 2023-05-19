@@ -114,7 +114,7 @@ EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t singl
   auto ffi_runtime = std::make_shared<FFIJSBridgeRuntime>(engine_id, ffi_id, bridge_param_json);
   auto bridge_manager = BridgeManager::Create(engine_id, ffi_runtime);
 
-  auto vfs_wrapper = voltron::FindObject<std::shared_ptr<voltron::VfsWrapper>>(vfs_id);
+  auto vfs_wrapper = std::any_cast<std::shared_ptr<voltron::VfsWrapper>>(voltron::FindObject(vfs_id));
   FOOTSTONE_DCHECK(vfs_wrapper != nullptr);
   FOOTSTONE_DCHECK(vfs_wrapper->GetLoader()->GetWorkerManager() != nullptr);
 
@@ -265,7 +265,7 @@ EXTERN_C void DoBindDomAndRender(uint32_t dom_manager_id, int32_t engine_id, uin
     FOOTSTONE_DLOG(WARNING) << "DoBindDomAndRender engine runtime unbind";
     return;
   }
-  auto dom_manager = voltron::FindObject<std::shared_ptr<DomManager>>(dom_manager_id);
+  auto dom_manager = std::any_cast<std::shared_ptr<DomManager>>(voltron::FindObject(dom_manager_id));
 
   auto runtime_id = runtime->GetRuntimeId();
   auto scope = BridgeImpl::GetScope(runtime_id);
