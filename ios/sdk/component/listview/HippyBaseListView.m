@@ -30,7 +30,6 @@
 #import "UIView+AppearEvent.h"
 #import "HippyBaseListViewCell.h"
 #import "HippyVirtualList.h"
-#import "HippyReusableViewPool.h"
 
 @interface HippyBaseListView () <HippyScrollProtocol, HippyRefreshDelegate>
 
@@ -252,28 +251,16 @@
         return 0.00001;
 }
 
-static NSUInteger headerTag = 1023;
-
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
     HippyVirtualCell *header = [_dataSource headerForSection:section];
     if (header) {
-        static NSString *type = @"header";
+        NSString *type = header.itemViewType;
         UIView *headerView = [tableView dequeueReusableHeaderFooterViewWithIdentifier:type];
-        if (!headerView) {
-            headerView = [[UITableViewHeaderFooterView alloc] initWithReuseIdentifier:type];
-        }
-        UIView *headSub = [_bridge.uiManager createViewFromNode:header];
-        headSub.tag = headerTag;
-        [headerView addSubview:headSub];
+        headerView = [_bridge.uiManager createViewFromNode:header];
         return headerView;
     } else {
         return nil;
     }
-}
-
-- (void)tableView:(UITableView *)tableView didEndDisplayingHeaderView:(UIView *)view forSection:(NSInteger)section {
-    UIView *headerSub = [view viewWithTag:headerTag];
-    [[_bridge.uiManager reusePool] addHippyViewRecursively:headerSub];
 }
 
 - (CGFloat)tableView:(__unused UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
@@ -288,13 +275,6 @@ static NSUInteger headerTag = 1023;
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
     HippyVirtualCell *node = [_dataSource cellForIndexPath:indexPath];
-    UIView *cellView = [_bridge.uiManager createViewFromNode:node];
-    HippyAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
-        @"subviews of HippyBaseListViewCell must conform to protocol ViewAppearStateProtocol");
-    HippyBaseListViewCell *hpCell = (HippyBaseListViewCell *)cell;
-
-    hpCell.cellView = (UIView<ViewAppearStateProtocol> *)cellView;
-
     NSInteger index = [_subNodes indexOfObject:node];
     if (self.onRowWillDisplay) {
         self.onRowWillDisplay(@{
@@ -328,7 +308,6 @@ static NSUInteger headerTag = 1023;
     if ([cell isKindOfClass:[HippyBaseListViewCell class]]) {
         HippyBaseListViewCell *hippyCell = (HippyBaseListViewCell *)cell;
         hippyCell.node.cell = nil;
-        [[_bridge.uiManager reusePool] addHippyViewRecursively:hippyCell.cellView];
     }
 }
 
@@ -342,6 +321,18 @@ static NSUInteger headerTag = 1023;
         cell = [[cls alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
         cell.tableView = tableView;
     }
+    UIView *cellView = nil;
+    if (cell.node.cell) {
+        cellView = [_bridge.uiManager createViewFromNode:indexNode];
+    } else {
+        cellView = [_bridge.uiManager updateNode:cell.node withNode:indexNode];
+        if (nil == cellView) {
+            cellView = [_bridge.uiManager createViewFromNode:indexNode];
+        }
+    }
+    HippyAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
+        @"subviews of HippyBaseListViewCell must conform to protocol ViewAppearStateProtocol");
+    cell.cellView = (UIView<ViewAppearStateProtocol> *)cellView;
     cell.node = indexNode;
     cell.node.cell = cell;
     return cell;
