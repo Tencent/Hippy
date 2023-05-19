@@ -964,6 +964,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         if (renderObject) {
             [renderObject dirtyPropagation];
             renderObject.frame = frame;
+            renderObject.nodeLayoutResult = layoutResult;
             [self addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
                 UIView *view = viewRegistry[componentTag];
                 /* do not use frame directly, because shadow view's frame possibly changed manually in
