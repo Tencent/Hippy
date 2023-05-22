@@ -462,7 +462,7 @@ static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProv
                 base64Data = [base64Data substringFromIndex:range.location + range.length];
                 NSData *imageData = [[NSData alloc] initWithBase64EncodedString:base64Data options:NSDataBase64DecodingIgnoreUnknownCharacters];
                 Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(imageData, strongBridge);
-                id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:imageData];
+                id<HippyImageProviderProtocol> instance = [strongSelf instanceImageProviderFromClass:ipClass imageData:imageData];
                 BOOL isAnimatedImage = [ipClass isAnimatedImage:imageData];
                 decodeAndLoadImageAsync(strongSelf, instance, uri.copy, isAnimatedImage, nil);
             }
@@ -490,17 +490,26 @@ static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProv
                                                   UIImage * _Nullable image,
                                                   HippyImageCustomLoaderControlOptions options) {
                 HippyImageView *strongSelf = weakSelf;
-                if (!strongSelf) {
-                    return;
-                }
+                if (!strongSelf) return;
+                NSString *imageUrl = url.absoluteString;
                 
+                /* When using custom decoder, user may need to skip sdk's internal decoding process,
+                 * (only for non-GIF images), so hippy provided a control parameter `options`.
+                 * Note that skiping internal decoding also skips the internal `downsample optimization`.
+                 */
                 Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(data, strongBridge);
-                id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:data];
+                id<HippyImageProviderProtocol> instance = [strongSelf instanceImageProviderFromClass:ipClass imageData:data];
                 BOOL isAnimatedImage = [ipClass isAnimatedImage:data];
-                if (image && (options & HippyImageCustomLoaderControl_SkipDecodeOrDownsample)) {
-                    [strongSelf loadImage:image url:uri.copy error:nil needBlur:YES needCache:YES];
+                if (!isAnimatedImage && (options & HippyImageCustomLoaderControl_SkipDecodeOrDownsample)) {
+                    if (image) {
+                        [strongSelf loadImage:image url:imageUrl error:nil needBlur:YES needCache:YES];
+                    } else {
+                        NSString *errorMsg = [NSString stringWithFormat:@"image data unavailable for uri %@", imageUrl];
+                        NSError *theError = imageErrorFromParams(ImageDataUnavailable, errorMsg);
+                        [strongSelf loadImage:nil url:imageUrl error:theError needBlur:NO needCache:NO];
+                    }
                 } else {
-                    decodeAndLoadImageAsync(strongSelf, instance, uri.copy, isAnimatedImage, nil);
+                    decodeAndLoadImageAsync(strongSelf, instance, imageUrl, isAnimatedImage, nil);
                 }
             }];
         };
