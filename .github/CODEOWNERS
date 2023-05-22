@@ -9,14 +9,14 @@
 #
 
 # universal files
-* @ilikethese @churchill-zhang
+* @ilikethese @etkmao
 
 # cmake related
-*.cmake @ilikethese @churchill-zhang
-CMakeLists.txt @ilikethese @churchill-zhang
+*.cmake @ilikethese @etkmao
+CMakeLists.txt @ilikethese @etkmao
 
 # driver: js
-/driver/js/ @churchill-zhang @ilikethese
+/driver/js/ @etkmao @ilikethese
 /driver/js/*.js @zealotchen0
 /driver/js/.eslintignore @zealotchen0
 /driver/js/.eslintrc.js @zealotchen0
@@ -31,11 +31,11 @@ CMakeLists.txt @ilikethese @churchill-zhang
 /driver/js/packages/ @zealotchen0
 
 # driver: vl:
-/driver/vl/ @ilikethese @churchill-zhang
+/driver/vl/ @ilikethese @etkmao
 
 # framework: android
 /framework/android/ @siguangli
-/framework/android/**/src/main/cpp/ @churchill-zhang @ilikethese
+/framework/android/**/src/main/cpp/ @etkmao @ilikethese
 
 # framework: ios
 /framework/ios/ @ozonelmy
@@ -44,7 +44,7 @@ CMakeLists.txt @ilikethese @churchill-zhang
 /framework/voltron/ @lvfen @skindhu
 
 # dom: others
-/dom/ @churchill-zhang @ilikethese
+/dom/ @etkmao @ilikethese
 
 # renderer: native
 /renderer/native/android/ @siguangli
@@ -53,16 +53,16 @@ CMakeLists.txt @ilikethese @churchill-zhang
 # renderer: tdf
 /renderer/tdf/ @vimerzhao
 /renderer/tdf/android/ @siguangli
-/renderer/tdf/android/**/src/main/cpp/ @ilikethese @churchill-zhang
+/renderer/tdf/android/**/src/main/cpp/ @ilikethese @etkmao
 /renderer/tdf/ios/ @ozonelmy
 
 # renderer: voltron
 /renderer/voltron/ @lvfen @skindhu
 
 # module: vfs
-/modules/vfs/ @churchill-zhang @ilikethese
+/modules/vfs/ @etkmao @ilikethese
 /modules/vfs/android/ @siguangli
-/modules/vfs/android/**/src/main/cpp/ @churchill-zhang @ilikethese
+/modules/vfs/android/**/src/main/cpp/ @etkmao @ilikethese
 /modules/vfs/ios/ @ozonelmy
 /modules/vfs/voltron/ @lvfen @skindhu
 
@@ -71,13 +71,13 @@ CMakeLists.txt @ilikethese @churchill-zhang
 
 # module: android
 /modules/android/ @siguangli
-/modules/android/jni/ @churchill-zhang @ilikethese
+/modules/android/jni/ @etkmao @ilikethese
 
 # module: ios
 /modules/ios/ @ozonelmy
 
 # module: footstone
-/modules/footstone/ @churchill-zhang @ilikethese
+/modules/footstone/ @etkmao @ilikethese
 
 # devtools: backend
 /devtools/ @lavnFan
@@ -109,7 +109,7 @@ CMakeLists.txt @ilikethese @churchill-zhang
 /xcodeinitscript.sh @ozonelmy
 
 # build: config
-/buildconfig/ @ilikethese @churchill-zhang
+/buildconfig/ @ilikethese @etkmao
 
 # build: ci
 /package.json @zealotchen0
