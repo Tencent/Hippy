@@ -16,58 +16,20 @@
   * [技术支持](guide/support.md)
   * [隐私政策](guide/privacy.md)
 
-* Android
-  * [Android 集成](android/integration.md)
-  * [终端事件](android/event.md)
-  * [定制适配器](android/custom-adapter.md)
-  * [定制界面组件](android/custom-component.md)
-  * [定制模块](android/custom-module.md)
-  * [节点缓存](android/dom-cache.md)
-  * [ECMAScript 与 Java 类型映射](android/type-mapping.md)
-  * [V8 API](android/v8-api.md)
-
-* iOS
-  * [iOS 集成](ios/integration.md)
-  * [终端事件](ios/event.md)
-  * [定制适配器](ios/custom-adapter.md)
-  * [定制界面组件](ios/custom-component.md)
-  * [定制模块](ios/custom-module.md)
-
-* Voltron
-  * [Voltron 集成](voltron/integration.md)
-  * [终端事件](voltron/event.md)
-  * [定制适配器](voltron/custom-adapter.md)
-  * [定制界面组件](voltron/custom-component.md)
-  * [定制模块](voltron/custom-module.md)
-  * [ECMAScript 与 Dart 类型映射](voltron/type-mapping.md)
-  
-* Web
+* 平台
+  * [Android](android/integration.md)
+  * [iOS](ios/integration.md)
   * [Web 集成](web/integration.md)
-  * [Web 事件](web/event.md)
-  * [定制界面组件](web/custom-component.md)
-  * [定制模块](web/custom-module.md)
 
-* Hippy-React
-  * [介绍](hippy-react/introduction.md)
-  * [组件](hippy-react/components.md)
-  * [模块](hippy-react/modules.md)
-  * [样式](hippy-react/style.md)
-  * [事件](hippy-react/native-event.md)
-  * [手势系统](hippy-react/gesture.md)
-  * [自定义组件和模块](hippy-react/customize.md)
-  * [转 Web](hippy-react/web.md)
+* 渲染
+  * [Android](android/integration.md)
+  * [iOS](ios/integration.md)
+  * [Voltron](voltron/integration.md)
+  * [Web 集成](web/integration.md)
 
-* Hippy-Vue
-  * [介绍](hippy-vue/introduction.md)
-  * [核心组件](hippy-vue/components.md)
-  * [扩展组件](hippy-vue/external-components.md)
-  * [模块](hippy-vue/vue-native.md)
-  * [样式](hippy-vue/style.md)
-  * [事件](hippy-vue/native-event.md)
-  * [自定义组件和模块](hippy-vue/customize.md)
-  * [路由](hippy-vue/router.md)
-  * [转 Web](hippy-vue/web.md)
-  * [Vue 3.x](hippy-vue/vue3.md)
+* 驱动层
+  * [Hippy-React](hippy-react/introduction.md)
+  * [Hippy-Vue](hippy-vue/introduction.md)
 
 * 样式
   * [布局](style/layout.md)
@@ -78,8 +40,3 @@
   
 * 日志
   * [版本发布](https://github.com/Tencent/Hippy/releases)
-
-* 语言
-  * [中文](/)
-  * [英文](https://hippyjs.org/en-us/)
-
