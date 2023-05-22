@@ -160,8 +160,11 @@ function createRootNode(rootContainer: string): HippyNode {
   const root: HippyElement = HippyDocument.createElement('div');
   // The id value of the root node is set to the incoming parameter rootContainer
   root.id = rootContainer;
-  // The root node flex is set to 1 by default
-  root.style.flex = 1;
+  // Set default style for root node
+  root.style = {
+    display: 'flex',
+    flex: 1,
+  };
 
   return root;
 }
