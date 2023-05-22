@@ -32,6 +32,11 @@
 #include "driver/vm/v8/serializer.h"
 #endif
 
+#ifdef JS_JSC
+#include "driver/napi/jsc/jsc_ctx.h"
+#include "driver/napi/jsc/jsc_ctx_value.h"
+#endif
+
 namespace hippy {
 inline namespace driver {
 inline namespace base {
@@ -44,7 +49,51 @@ using Ctx = hippy::Ctx;
 using CtxValue = hippy::CtxValue;
 using DomArgument = hippy::DomArgument;
 
-std::shared_ptr<HippyValue> ToDomValue(const std::shared_ptr<Ctx>& ctx, const std::shared_ptr<CtxValue>& value) {
+static std::string IntToString(int v) {
+  const int buf_len = 16;
+  char buf[buf_len] = {0};
+  snprintf(buf, buf_len, "%d", v);
+  return buf;
+}
+
+bool IsEqualCtxValue(const std::shared_ptr<CtxValue>& value1, const std::shared_ptr<CtxValue>& value2) {
+#ifdef JS_V8
+  auto v1 = std::static_pointer_cast<V8CtxValue>(value1);
+  auto v2 = std::static_pointer_cast<V8CtxValue>(value2);
+  return v1->global_value_ == v2->global_value_;
+#elif JS_JSC
+  auto v1 = std::static_pointer_cast<JSCCtxValue>(value1);
+  auto v2 = std::static_pointer_cast<JSCCtxValue>(value2);
+  return v1->value_ == v2->value_;
+#else
+  FOOTSTONE_UNREACHABLE();
+#endif
+}
+
+std::shared_ptr<HippyValue> ToDomValueWithCycleCheck(const std::shared_ptr<Ctx>& ctx,
+                                                     const std::shared_ptr<CtxValue>& value,
+                                                     std::vector<std::string>& key_stack,
+                                                     std::vector<std::shared_ptr<CtxValue>>& value_stack) {
+  int stack_len = static_cast<int>(value_stack.size());
+  for (int i = 0; i < stack_len - 1; i++) {
+    if(IsEqualCtxValue(value, value_stack[static_cast<uint32_t>(i)])) {
+      std::string str = "value stack: ";
+      for (int t = 0; t < stack_len; t++) {
+        str.append(IntToString(t));
+        str.append(":");
+        str.append(key_stack[static_cast<uint32_t>(t)]);
+        if (t < stack_len - 1) {
+          str.append(" - ");
+        }
+      }
+      str.append(", cycle with position: ");
+      str.append(IntToString(i));
+      FOOTSTONE_LOG(ERROR) << "Js value setting error, cycle is found, " << str;
+      FOOTSTONE_DCHECK(false);
+      return nullptr;
+    }
+  }
+
   if (ctx->IsUndefined(value)) {
     return std::make_shared<HippyValue>(HippyValue::Undefined());
   } else if (ctx->IsNull(value)) {
@@ -66,7 +115,14 @@ std::shared_ptr<HippyValue> ToDomValue(const std::shared_ptr<Ctx>& ctx, const st
     auto len = ctx->GetArrayLength(value);
     HippyValue::DomValueArrayType ret;
     for (uint32_t i = 0; i < len; ++i) {
-      auto value_obj = ToDomValue(ctx, ctx->CopyArrayElement(value, i));
+      std::string value_key = "array";
+      value_key.append(IntToString(static_cast<int>(i)));
+      auto value_object = ctx->CopyArrayElement(value, i);
+      key_stack.push_back(value_key);
+      value_stack.push_back(value_object);
+      auto value_obj = ToDomValueWithCycleCheck(ctx, value_object, key_stack, value_stack);
+      key_stack.pop_back();
+      value_stack.pop_back();
       if (value_obj) {
         ret.push_back(*value_obj);
       }
@@ -85,12 +141,27 @@ std::shared_ptr<HippyValue> ToDomValue(const std::shared_ptr<Ctx>& ctx, const st
       }
       std::string key_string = StringViewUtils::ToStdString(
           StringViewUtils::ConvertEncoding(key_string_view, string_view::Encoding::Utf8).utf8_value());
-      ret[key_string] = *(ToDomValue(ctx, value_object));
+      key_stack.push_back(key_string);
+      value_stack.push_back(value_object);
+      auto value_obj = ToDomValueWithCycleCheck(ctx, value_object, key_stack, value_stack);
+      key_stack.pop_back();
+      value_stack.pop_back();
+      if (value_obj) {
+        ret[key_string] = *value_obj;
+      }
     }
     return std::make_shared<HippyValue>(std::move(ret));
   } else {
     FOOTSTONE_UNREACHABLE();
   }
+}
+
+std::shared_ptr<HippyValue> ToDomValue(const std::shared_ptr<Ctx>& ctx, const std::shared_ptr<CtxValue>& value) {
+  std::vector<std::string> key_stack;
+  std::vector<std::shared_ptr<CtxValue>> value_stack;
+  key_stack.push_back("root");
+  value_stack.push_back(value);
+  return ToDomValueWithCycleCheck(ctx, value, key_stack, value_stack);
 }
 
 std::shared_ptr<DomArgument> ToDomArgument(
