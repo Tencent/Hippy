@@ -31,6 +31,7 @@ import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.component.Component;
@@ -390,7 +391,12 @@ public class RenderNode {
             }
             // Do not need to create a view if both self and parent node support flattening
             // and no child nodes.
-            if (createNow || !mControllerManager.checkFlatten(mClassName)
+            // TODO: Resolve the issue of flattened view node add child
+            // Add child nodes to flattened view nodes, in some scenes may have issues with the
+            // page not being able to refresh. Therefore, temporarily turn off flattening the
+            // regular view node.
+            if (createNow || mClassName.equals(HippyViewGroupController.CLASS_NAME)
+                    || !mControllerManager.checkFlatten(mClassName)
                     || !mControllerManager.checkFlatten(mParent.getClassName())
                     || getChildCount() > 0) {
                 mParent.addChildToPendingList(this);
