@@ -506,7 +506,7 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 
             if (touchInterceptEvent)
                 break;
-            view = [view nextResponseViewAtPoint:point];
+            view = view.superview;
             index++;
         }
     }
