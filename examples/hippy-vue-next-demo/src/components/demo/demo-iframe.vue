@@ -39,11 +39,11 @@ export default defineComponent({
     /**
        * 跳转到指定链接
        *
-       * @param url
+       * @param evt
        */
-    const goToUrl = (url: string) => {
-      if (url) {
-        targetUrl.value = url;
+    const goToUrl = (evt) => {
+      if (evt.value) {
+        targetUrl.value = evt.value;
       }
     };
 

@@ -4,7 +4,7 @@
     @scroll="onOuterScroll"
   >
     <div>
-      <div v-if="Native.Platform !== 'ios'">
+      <div v-if="!isIOS">
         <label>水波纹效果: </label>
         <div :style="{ ...imgRectangle, ...imgRectangleExtra }">
           <demo-ripple-div
@@ -129,7 +129,7 @@
 </template>
 
 <script lang="ts">
-import { type HippyElement, Native } from '@hippy/vue-next';
+import { type HippyElement } from '@hippy/vue-next';
 import {
   defineComponent,
   onActivated,
@@ -137,6 +137,7 @@ import {
   onMounted,
   ref,
 } from '@vue/runtime-core';
+import { isIOS } from '../../util';
 
 import defaultImage from '../../assets/defaultSource.jpg';
 
@@ -242,7 +243,6 @@ export default defineComponent({
         borderRadius: '12px',
         overflow: 'hidden',
       },
-      Native,
       offsetY,
       onScroll,
       onMomentumScrollBegin,
@@ -250,6 +250,7 @@ export default defineComponent({
       onScrollBeginDrag,
       onScrollEndDrag,
       onOuterScroll,
+      isIOS: isIOS(),
     };
   },
 });
