@@ -245,6 +245,7 @@ void DestroyJsDriver(__unused JNIEnv* j_env,
         hippy::bridge::CallJavaMethod(bridge_callback_object->GetObj(),INIT_CB_STATE::DESTROY_ERROR);
       }
     }, static_cast<bool>(j_is_reload));
+  scope = nullptr;
 }
 
 void LoadInstance(JNIEnv* j_env,
