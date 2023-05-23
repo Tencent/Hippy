@@ -729,8 +729,8 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 		if (mRippleDrawable != null) {
 			drawableList.add(mRippleDrawable);
 		}
+        super.setBackground(null);
 		if (drawableList.size() > 0) {
-			super.setBackground(null);
 			Drawable[] drawables = new Drawable[drawableList.size()];
 			for (int i = 0; i < drawableList.size(); i++) {
 				drawables[i] = drawableList.get(i);

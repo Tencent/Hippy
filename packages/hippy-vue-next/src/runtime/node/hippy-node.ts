@@ -454,7 +454,7 @@ export class HippyNode extends HippyEventTarget {
 
       // if the root node is not rendered on the screen, start rendering from the root node first
       // render the child node if the child node is not rendered
-      renderInsertChildNativeNode(parentNode.convertToNativeNodes(true));
+      const nodeList = parentNode.convertToNativeNodes(true);
       // update the isMounted flag
       parentNode.eachNode((rawNode: HippyNode) => {
         const node = rawNode;
@@ -464,6 +464,7 @@ export class HippyNode extends HippyEventTarget {
         // cache the nodes inserted into the native to improve the search speed
         preCacheNode(node, node.nodeId);
       });
+      renderInsertChildNativeNode(nodeList);
     }
   }
 

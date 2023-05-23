@@ -552,12 +552,14 @@ describe('runtime/element/hippy-element', () => {
         pId: 1,
         index: 0,
         name: 'Text',
+        id: 62,
         props: {
           text: '',
           style: {},
           attributes: {
             id: '',
             class: '',
+            hippyNodeId: '62',
           },
         },
         tagName: 'span',

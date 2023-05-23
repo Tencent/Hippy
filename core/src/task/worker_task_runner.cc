@@ -34,6 +34,16 @@ WorkerTaskRunner::WorkerTaskRunner(uint32_t pool_size) : pool_size_(pool_size) {
   }
 }
 
+void WorkerTaskRunner::PostPromiseTask(std::unique_ptr<CommonTask> task, uint32_t priority) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  if (terminated_) {
+    task->Run(); // Run the task immediately
+    return;
+  }
+  task_queue_.push(std::make_pair(priority, std::move(task)));
+  cv_.notify_one();
+}
+
 void WorkerTaskRunner::PostTask(std::unique_ptr<CommonTask> task,
                                 uint32_t priority) {
   std::lock_guard<std::mutex> lock(mutex_);

@@ -350,7 +350,6 @@ export function registerAnimation(vueApp: App): void {
           useAnimation: true,
           style: this.style,
           tag: this.$props.tag,
-          playing: this.$props.playing,
           ...this.$props.props,
         },
         this.$slots.default ? this.$slots.default() : null,

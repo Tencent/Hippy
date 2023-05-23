@@ -432,6 +432,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 #endif  // HIPPY_DEBUG
 }
 
+- (void)setInspectable:(BOOL)isInspectable {
+    [self.batchedBridge.javaScriptExecutor setInspectable:isInspectable];
+}
+
 - (HippyOCTurboModule *)turboModuleWithName:(NSString *)name {
     return [self.batchedBridge turboModuleWithName:name];
 }

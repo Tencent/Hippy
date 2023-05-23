@@ -123,7 +123,7 @@ REGISTER_STATIC_JNI("com/tencent/mtt/hippy/HippyEngine", // NOLINT(cert-err58-cp
 
 REGISTER_STATIC_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
                     "createSnapshot",
-                    "([Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I",
+                    "([Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I",
                     CreateSnapshot)
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
@@ -258,7 +258,8 @@ bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
   uint64_t modify_time = 0;
 
   load_start = std::chrono::system_clock::now();
-  std::shared_ptr<WorkerTaskRunner> task_runner;
+  auto engine = runtime->GetEngine();
+  auto task_runner = engine->GetWorkerTaskRunner();
   unicode_string_view code_cache_path;
   if (is_use_code_cache) {
     if (!asset_manager) {
@@ -269,8 +270,8 @@ bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
                       unicode_string_view(std::to_string(modify_time));
 
     std::promise<u8string> read_file_promise;
-    std::future<u8string> read_file_future = read_file_promise.get_future();
-    std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
+    auto read_file_future = read_file_promise.get_future();
+    auto task = std::make_unique<CommonTask>();
     task->func_ = hippy::base::MakeCopyable([p = std::move(read_file_promise),
                                              code_cache_path, code_cache_dir]() mutable {
       u8string content;
@@ -285,10 +286,7 @@ bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
       }
       p.set_value(std::move(content));
     });
-
-    std::shared_ptr<Engine> engine = runtime->GetEngine();
-    task_runner = engine->GetWorkerTaskRunner();
-    task_runner->PostTask(std::move(task));
+    task_runner->PostPromiseTask(std::move(task));
     u8string content;
     read_script_flag = runtime->GetScope()->GetUriLoader()->RequestUntrustedContent(uri, content);
     if (read_script_flag) {
@@ -359,6 +357,7 @@ enum class CreateSnapshotResult {
 jint CreateSnapshot(JNIEnv* j_env,
                     __unused jobject j_obj,
                     jobjectArray j_script_array,
+                    jstring j_base_path,
                     jstring j_snapshot_uri,
                     jstring j_config) {
   auto time_begin = std::chrono::time_point_cast<std::chrono::microseconds>(
@@ -368,9 +367,11 @@ jint CreateSnapshot(JNIEnv* j_env,
   auto vm = std::make_shared<V8SnapshotVM>();
   auto engine = std::make_shared<Engine>();
   engine->SyncInit(vm);
+
+  auto base_path = JniUtils::ToStrView(j_env, j_base_path);
   auto global_config = JniUtils::ToStrView(j_env, j_config);
   TDF_BASE_LOG(INFO) << "CreateSnapshot global_config = " << global_config;
-  auto context_cb = [global_config](void* wrapper) {
+  auto context_cb = [global_config, base_path](void* wrapper) {
     TDF_BASE_CHECK(wrapper);
     auto* scope_wrapper = reinterpret_cast<ScopeWrapper*>(wrapper);
     TDF_BASE_CHECK(scope_wrapper);
@@ -383,6 +384,9 @@ jint CreateSnapshot(JNIEnv* j_env,
     auto native_global_key = ctx->CreateString(kNativeGlobalKey);
     auto global_config_object = V8VM::ParseJson(ctx, global_config);
     ctx->SetProperty(global_object, native_global_key, global_config_object);
+    auto key = ctx->CreateString(kCurDir);
+    auto value = ctx->CreateString(base_path);
+    ctx->SetProperty(global_object, key, value);
   };
   std::unique_ptr<RegisterMap> scope_cb_map = std::make_unique<RegisterMap>();
   scope_cb_map->insert({hippy::base::kContextCreatedCBKey, context_cb});
@@ -473,15 +477,9 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   };
   runner->PostTask(task);
 
-  auto loader = std::make_shared<ADRLoader>();
-  auto bridge = std::static_pointer_cast<ADRBridge>(runtime->GetBridge());
-  loader->SetBridge(bridge->GetRef());
-  loader->SetWorkerTaskRunner(runtime->GetEngine()->GetWorkerTaskRunner());
-  runtime->GetScope()->SetUriLoader(loader);
   AAssetManager* aasset_manager = nullptr;
   if (j_aasset_manager) {
     aasset_manager = AAssetManager_fromJava(j_env, j_aasset_manager);
-    loader->SetAAssetManager(aasset_manager);
   }
 
   std::shared_ptr<JavaRef> save_object = std::make_shared<JavaRef>(j_env, j_cb);
@@ -543,7 +541,7 @@ jlong InitInstance(JNIEnv* j_env,
                      << ", j_is_dev_module = "
                      << static_cast<uint32_t>(j_is_dev_module)
                      << ", j_group_id = " << j_group_id;
-  std::shared_ptr<ADRBridge> bridge = std::make_shared<ADRBridge>(j_env, j_object);
+  auto bridge = std::make_shared<ADRBridge>(j_env, j_object);
   auto runtime = std::make_shared<Runtime>(std::move(bridge), j_enable_v8_serialization, j_is_dev_module);
   int32_t runtime_id = runtime->GetId();
   Runtime::Insert(runtime);
@@ -644,13 +642,13 @@ jlong InitInstance(JNIEnv* j_env,
 #endif
   };
 
-  std::unique_ptr<RegisterMap> engine_cb_map = std::make_unique<RegisterMap>();
+  auto engine_cb_map = std::make_unique<RegisterMap>();
   engine_cb_map->insert(std::make_pair(hippy::base::kVMCreateCBKey, vm_cb));
 
-  unicode_string_view global_config = JniUtils::JByteArrayToStrView(j_env, j_global_config);
+  auto global_config = JniUtils::JByteArrayToStrView(j_env, j_global_config);
   TDF_BASE_DLOG(INFO) << "global_config = " << global_config;
-  std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-  std::shared_ptr<JavaRef> save_object = std::make_shared<JavaRef>(j_env, j_callback);
+  auto task = std::make_shared<JavaScriptTask>();
+  auto save_object = std::make_shared<JavaRef>(j_env, j_callback);
 
   auto context_cb = [runtime, global_config, runtime_id](void* wrapper) {
     TDF_BASE_CHECK(wrapper);
@@ -682,6 +680,12 @@ jlong InitInstance(JNIEnv* j_env,
     auto native_global_key = ctx->CreateString(kNativeGlobalKey);
     auto global_config_object = VM::ParseJson(ctx, global_config);
     ctx->SetProperty(global_object, native_global_key, global_config_object);
+
+    auto loader = std::make_shared<ADRLoader>();
+    auto bridge = std::static_pointer_cast<ADRBridge>(runtime->GetBridge());
+    loader->SetBridge(bridge->GetRef());
+    loader->SetWorkerTaskRunner(runtime->GetEngine()->GetWorkerTaskRunner());
+    scope->SetUriLoader(loader);
   };
 
   RegisterFunction scope_cb = [save_object_ = std::move(save_object)](void*) {
@@ -859,6 +863,7 @@ jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
 
   JNIEnvironment::GetInstance()->init(j_vm, j_env);
 
+  ADRLoader::Init();
   Uri::Init();
   JavaTurboModule::Init();
   ConvertUtils::Init();
@@ -874,6 +879,6 @@ void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
   JavaTurboModule::Destroy();
   ConvertUtils::Destroy();
   TurboModuleManager::Destroy();
-
+  ADRLoader::Destroy();
   JNIEnvironment::DestroyInstance();
 }

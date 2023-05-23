@@ -70,6 +70,16 @@ bool FloatIsEqual(const float a, const float b) {
   return fabs(a - b) < 0.0001f;
 }
 
+bool DoubleIsEqual(const double a, const double b) {
+  if (isUndefined(a)) {
+    return isUndefined(b);
+  }
+  if (isUndefined(b)) {
+    return isUndefined(a);
+  }
+  return fabs(a - b) < 0.0001;
+}
+
 bool FloatIsEqualInScale(float a, float b, float scale) {
   if (isUndefined(a)) {
     return isUndefined(b);
@@ -91,27 +101,27 @@ bool MTTSizeIsEqualInScale(MTTSize a, MTTSize b, float scale) {
          FloatIsEqualInScale(a.height, b.height, scale);
 }
 
-float MTTRoundValueToPixelGrid(float value, float scaleFactor, bool forceCeil, bool forceFloor) {
-  float scaleValue = value * scaleFactor;
-  float fractial = fmodf(scaleValue, 1.0);
+float MTTRoundValueToPixelGrid(double value, double scaleFactor, bool forceCeil, bool forceFloor) {
+  double scaleValue = value * scaleFactor;
+  double fractial = fmod(scaleValue, 1.0);
   if (fractial < 0) {
     ++fractial;
   }
 
-  if (FloatIsEqual(fractial, 0)) {
+  if (DoubleIsEqual(fractial, 0)) {
     // First we check if the value is already rounded
     scaleValue = scaleValue - fractial;
-  } else if (FloatIsEqual(fractial, 1.0)) {
+  } else if (DoubleIsEqual(fractial, 1.0)) {
     scaleValue = scaleValue - fractial + 1.0;
   } else if (forceCeil) {
     // Next we check if we need to use forced rounding
-    scaleValue = scaleValue - fractial + 1.0f;
+    scaleValue = scaleValue - fractial + 1.0;
   } else if (forceFloor) {
     scaleValue = scaleValue - fractial;
   } else {
     // Finally we just round the value
     scaleValue = scaleValue - fractial +
-      (fractial > 0.5f || FloatIsEqual(fractial, 0.5f) ? 1.0f : 0.0f);
+      (fractial > 0.5 || DoubleIsEqual(fractial, 0.5) ? 1.0 : 0.0);
   }
-  return scaleValue / scaleFactor;
+  return (float)(scaleValue / scaleFactor);
 }

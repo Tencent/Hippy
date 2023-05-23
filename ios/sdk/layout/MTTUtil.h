@@ -55,7 +55,8 @@ typedef enum {
 void MTTLog(LogLevel level, const char *format, ...);
 
 bool FloatIsEqual(const float a, const float b);
+bool DoubleIsEqual(const double a, const double b);
 bool FloatIsEqualInScale(float a, float b, float scale);
 bool MTTSizeIsEqual(MTTSize a, MTTSize b);
 bool MTTSizeIsEqualInScale(MTTSize a, MTTSize b, float scale);
-float MTTRoundValueToPixelGrid(float value, float scaleValue, bool forceCeil, bool forceFloor);
+float MTTRoundValueToPixelGrid(double value, double scaleValue, bool forceCeil, bool forceFloor);

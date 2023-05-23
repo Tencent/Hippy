@@ -149,8 +149,10 @@ function getNativeProps(node: Element) {
 function getTargetNodeAttributes(targetNode: Element) {
   try {
     const targetNodeAttributes = deepCopy(targetNode.attributes);
+    const { id, nodeId } = targetNode;
     const attributes = {
-      id: targetNode.id,
+      id,
+      hippyNodeId: `${nodeId}`,
       ...targetNodeAttributes,
     };
     delete attributes.text;

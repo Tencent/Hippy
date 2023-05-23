@@ -124,7 +124,6 @@ export function registerSwiper(vueApp: App): void {
           ...on,
           ref: 'swiper',
           initialPage: this.$initialSlide,
-          ...this.$props,
         },
         this.$slots.default ? this.$slots.default() : null,
       );

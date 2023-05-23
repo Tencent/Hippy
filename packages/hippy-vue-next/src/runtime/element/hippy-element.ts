@@ -1033,6 +1033,7 @@ export class HippyElement extends HippyNode {
       const classInfo = Array.from(this.classList ?? []).join(' ');
       const attributes = {
         id: this.id,
+        hippyNodeId: `${this.nodeId}`,
         class: classInfo,
         ...nodeAttributes,
       };

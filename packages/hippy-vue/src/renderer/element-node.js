@@ -135,7 +135,10 @@ function getLinearGradientColorStop(value) {
  * @param {string|Object|number|boolean} value
  * @returns {(string|{})[]}
  */
-function parseBackgroundImage(property, value) {
+function parseBackgroundImage(property, value, style) {
+  // reset the backgroundImage and linear gradient property
+  delete style[property];
+  removeLinearGradient(property, value, style);
   let processedValue = value;
   let processedProperty = property;
   if (value.indexOf('linear-gradient') === 0) {
@@ -173,6 +176,22 @@ function parseBackgroundImage(property, value) {
 }
 
 /**
+ * remove linear gradient
+ * @param property
+ * @param value
+ * @param style
+ */
+function removeLinearGradient(property, value, style) {
+  if (property === 'backgroundImage' && style.linearGradient) {
+    delete style.linearGradient;
+  }
+}
+
+const offsetMap = {
+  textShadowOffsetX: 'width',
+  textShadowOffsetY: 'height',
+};
+/**
  * parse text shadow offset
  * @param property
  * @param value
@@ -180,15 +199,40 @@ function parseBackgroundImage(property, value) {
  * @returns {(*|number)[]}
  */
 function parseTextShadowOffset(property, value = 0, style) {
-  const offsetMap = {
-    textShadowOffsetX: 'width',
-    textShadowOffsetY: 'height',
-  };
   style.textShadowOffset = style.textShadowOffset || {};
   Object.assign(style.textShadowOffset, {
     [offsetMap[property]]: value,
   });
   return ['textShadowOffset', style.textShadowOffset];
+}
+
+/**
+ * remove text shadow offset
+ * @param property
+ * @param value
+ * @param style
+ */
+function removeTextShadowOffset(property, value, style) {
+  if ((property === 'textShadowOffsetX' || property === 'textShadowOffsetY') && style.textShadowOffset) {
+    delete style.textShadowOffset[offsetMap[property]];
+    if (Object.keys(style.textShadowOffset).length === 0) {
+      delete style.textShadowOffset;
+    }
+  }
+}
+
+/**
+ * remove empty style
+ * @param property
+ * @param value
+ * @param style
+ */
+function removeStyle(property, value, style) {
+  if (value === undefined) {
+    delete style[property];
+    removeLinearGradient(property, value, style);
+    removeTextShadowOffset(property, value, style);
+  }
 }
 
 class ElementNode extends ViewNode {
@@ -347,19 +391,8 @@ class ElementNode extends ViewNode {
     delete this.attributes[key];
   }
 
-  /**
-   * remove style attr
-   */
-  removeStyle(notToNative = false) {
-    // remove all style
-    this.style = {};
-    if (!notToNative) {
-      updateChild(this);
-    }
-  }
-
   setStyles(batchStyles) {
-    if (!batchStyles || typeof batchStyles !== 'object') {
+    if (!batchStyles || typeof batchStyles !== 'object' || Object.keys(batchStyles).length === 0) {
       return;
     }
     Object.keys(batchStyles).forEach((styleKey) => {
@@ -370,13 +403,6 @@ class ElementNode extends ViewNode {
   }
 
   setStyle(rawKey, rawValue, notToNative = false) {
-    if (rawValue === undefined) {
-      delete this.style[rawKey];
-      if (!notToNative) {
-        updateChild(this);
-      }
-      return;
-    }
     // Preprocess the style
     let {
       value,
@@ -385,6 +411,13 @@ class ElementNode extends ViewNode {
       property: rawKey,
       value: rawValue,
     });
+    if (rawValue === undefined) {
+      removeStyle(key, value, this.style);
+      if (!notToNative) {
+        updateChild(this);
+      }
+      return;
+    }
     // Process the specific style value
     switch (key) {
       case 'fontWeight':
@@ -393,7 +426,7 @@ class ElementNode extends ViewNode {
         }
         break;
       case 'backgroundImage': {
-        [key, value] = parseBackgroundImage(key, value);
+        [key, value] = parseBackgroundImage(key, value, this.style);
         break;
       }
       case 'textShadowOffsetX':

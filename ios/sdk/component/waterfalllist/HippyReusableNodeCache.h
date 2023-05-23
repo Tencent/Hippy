@@ -20,12 +20,19 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
-#import "HippyBridgeModule.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface HippyClipboardModule : NSObject <HippyBridgeModule>
+@class UIView;
+@class HippyVirtualNode;
+
+@interface HippyReusableNodeCache : NSObject
+
+- (void)enqueueItemNode:(HippyVirtualNode *)node forIdentifier:(NSString *)identifier;
+- (HippyVirtualNode *)dequeueItemNodeForIdentifier:(NSString *)identifier;
+- (BOOL)queueContainsNode:(HippyVirtualNode *)node forIdentifier:(NSString *)identifier;
+- (BOOL)removeNode:(HippyVirtualNode *)node forIdentifier:(NSString *)identifier;
 
 @end
 

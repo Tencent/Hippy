@@ -29,6 +29,7 @@
 #import <unordered_map>
 
 #import <UIKit/UIDevice.h>
+#import <CoreFoundation/CoreFoundation.h>
 
 #import "HippyAssert.h"
 #import "HippyBridge+Private.h"
@@ -288,9 +289,8 @@ static unicode_string_view NSStringToU8(NSString* str) {
                     if (!strongSelf.valid) {
                         return;
                     }
-
-                    JSStringRef execJSString = JSStringCreateWithUTF8CString(sourceCode.UTF8String);
-                    JSStringRef jsURL = JSStringCreateWithUTF8CString(sourceCodeURL.UTF8String);
+                    JSStringRef execJSString = JSStringCreateWithCFString((__bridge CFStringRef)sourceCode);
+                    JSStringRef jsURL = JSStringCreateWithCFString((__bridge CFStringRef)sourceCodeURL);
                     JSEvaluateScript([strongSelf JSGlobalContextRef], execJSString, NULL, jsURL, 0, NULL);
                     JSStringRelease(jsURL);
                     JSStringRelease(execJSString);
@@ -390,6 +390,14 @@ static unicode_string_view NSStringToU8(NSString* str) {
         JSGlobalContextRef contextRef = [self JSGlobalContextRef];
         if (contextRef) {
             _JSContext = [JSContext contextWithJSGlobalContextRef:contextRef];
+#if HIPPY_DEBUG
+#if defined(__IPHONE_16_4) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_16_4
+            if (@available(iOS 16.4, *)) {
+                [_JSContext setInspectable:YES];
+            }
+#endif //defined(__IPHONE_16_4) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_16_4
+#endif //HIPPY_DEBUG
+
             HippyBridge *bridge = self.bridge;
             if ([bridge isKindOfClass:[HippyBatchedBridge class]]) {
                 bridge = [(HippyBatchedBridge *)bridge parentBridge];
@@ -501,6 +509,20 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
         context->SetProperty(global_object, context->CreateString("__HIPPYCURDIR__"), context->CreateString(NSStringToU8(@"")));
     }
 
+}
+
+- (void)setInspectable:(BOOL)inspectable {
+#if defined(__IPHONE_16_4) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_16_4
+    if (@available(iOS 16.4, *)) {
+        __weak HippyJSCExecutor *weakSelf = self;
+        [self executeBlockOnJavaScriptQueue:^{
+            HippyJSCExecutor *strongSelf = weakSelf;
+            if (strongSelf) {
+                [[strongSelf JSContext] setInspectable:inspectable];
+            }
+        }];
+    }
+#endif //defined(__IPHONE_16_4) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_16_4
 }
 
 - (void)updateGlobalObjectBeforeExcuteSecondary{
@@ -734,6 +756,7 @@ static NSError *executeApplicationScript(NSData *script,
                                          HippyPerformanceLogger *performanceLogger,
                                          JSGlobalContextRef ctx) {
     @autoreleasepool {
+        HippyLogInfo(@"load script begin, length %zd for url %@", [script length], [sourceURL absoluteString]);
         if (isCommonBundle) {
             [performanceLogger markStartForTag:HippyPLCommonScriptExecution];
         } else {
@@ -742,7 +765,7 @@ static NSError *executeApplicationScript(NSData *script,
         
         JSValueRef jsError = NULL;
         JSStringRef execJSString = JSStringCreateWithUTF8CString((const char *)script.bytes);
-        JSStringRef bundleURL = JSStringCreateWithUTF8CString(sourceURL.absoluteString.UTF8String);
+        JSStringRef bundleURL = JSStringCreateWithCFString((__bridge CFStringRef)sourceURL.absoluteString);
 
         NSLock *lock = jslock();
         BOOL lockSuccess = [lock lockBeforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
@@ -760,6 +783,8 @@ static NSError *executeApplicationScript(NSData *script,
 
         NSError *error = jsError ? HippyNSErrorFromJSErrorRef(jsError, ctx) : nil;
         // HIPPY_PROFILE_END_EVENT(0, @"js_call");
+        HippyLogInfo(@"load script end,length %zd for url %@, error %@", [script length], [sourceURL absoluteString], [error description]);
+
         return error;
     }
 }
