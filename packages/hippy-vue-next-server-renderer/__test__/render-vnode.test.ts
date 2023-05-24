@@ -472,5 +472,57 @@ describe('render-vnode.ts', () => {
         tagName: 'hi-swiper',
       });
     });
+    it('render text node string children work correct', async () => {
+      // root component
+      let rootComp = defineComponent({
+        render: () => h('a', {
+          class: 'link',
+          href: 'https://hippyjs.org',
+        }, ' this is a'),
+      });
+      let ssrNodeTree = await getRenderedVNode(rootComp);
+      expect(ssrNodeTree).toEqual({
+        id: 39,
+        index: 0,
+        name: 'Text',
+        tagName: 'a',
+        props: { class: 'link', href: 'https://hippyjs.org', text: ' this is a' },
+      });
+
+      // root component
+      rootComp = defineComponent({
+        render: () => h('span', {
+          class: 'text',
+        }, ' this is span'),
+      });
+      ssrNodeTree = await getRenderedVNode(rootComp);
+      expect(ssrNodeTree).toEqual({
+        id: 41,
+        index: 0,
+        name: 'Text',
+        tagName: 'span',
+        props: { class: 'text', text: ' this is span' },
+      });
+      // 如果节点中包含的文本还夹杂有表达式等，就会被渲染为 children array text node，如
+      // <span>123{{text}}456</span>，就会成为 ['123', text , '456']
+      rootComp = defineComponent({
+        render: () => h('span', {
+          class: 'text',
+        }, [' this is span']),
+      });
+      ssrNodeTree = await getRenderedVNode(rootComp);
+      expect(ssrNodeTree).toEqual({
+        id: 42,
+        index: 0,
+        name: 'Text',
+        tagName: 'span',
+        props: { class: 'text' },
+        children: [{
+          id: 43,
+          name: 'Text',
+          props: { text: ' this is span' },
+        }],
+      });
+    });
   });
 });
