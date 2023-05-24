@@ -32,7 +32,7 @@ CMakeLists.txt @churchill-zhang @ilikethese
 /android/**/src/main/jni/ @churchill-zhang @ilikethese
 
 # framework: ios
-/ios/ @ozonelmy
+/ios/ @ozonelmy @wwwcg
 
 # dom: layout
 /layout/ @ilikethese
@@ -45,7 +45,7 @@ CMakeLists.txt @churchill-zhang @ilikethese
 /examples/hippy-*-demo/ @zealotchen0
 /examples/android-demo/ @siguangli
 /examples/android-demo/res/ @zealotchen0
-/examples/ios-demo/ @ozonelmy
+/examples/ios-demo/ @ozonelmy @wwwcg
 /examples/ios-demo/res/ @zealotchen0
 /static/ @zealotchen0
 
