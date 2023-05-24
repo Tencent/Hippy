@@ -311,7 +311,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
     while (view) {
         UIViewController *controller = view.hippyViewController;
         if (controller) {
-            return (UIEdgeInsets) { controller.topLayoutGuide.length, 0, controller.bottomLayoutGuide.length, 0 };
+            return controller.view.safeAreaInsets;
         }
         view = view.superview;
     }
