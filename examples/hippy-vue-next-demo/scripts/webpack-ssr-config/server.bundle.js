@@ -38,7 +38,7 @@ const { isNativeTag } = require(vueNext);
 module.exports = {
   mode: isProd ? 'production' : 'development',
   bail: true,
-  devtool: isProd ? false : 'eval-source-map',
+  devtool: isProd ? false : 'source-map',
   target: 'node',
   entry: {
     index: [path.resolve(pkg.serverMain)],

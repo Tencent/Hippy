@@ -6,7 +6,7 @@ const isProd = process.argv[process.argv.length - 1] !== 'development';
 
 module.exports = {
   mode: isProd ? 'production' : 'development',
-  devtool: isProd ? false : 'eval-source-map',
+  devtool: isProd ? false : 'source-map',
   target: 'node',
   entry: {
     index: path.resolve(pkg.serverEntry),

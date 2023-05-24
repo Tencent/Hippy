@@ -17,7 +17,9 @@ async function executionAsyncResource() {
   const url = `${isDev ? `http://${process.env.HOST}:${process.env.PORT}/` : ''}${fileName}`;
   // @ts-ignore
   global.dynamicLoad(url, (ret) => {
-    console.log('dynamic load', ret);
+    if (ret) {
+      console.log('dynamic load error:', ret);
+    }
   });
 }
 
@@ -85,6 +87,7 @@ function ssr(): void {
             if (nodes) {
               // insert native nodes
               insertNativeNodes(rootViewId, nodes);
+              console.log('insert nodes', JSON.parse(JSON.stringify(nodes)));
               // save ssr nodes to global.hippySSRNodes, hydration will use
               global.hippySSRNodes = nodes;
             }

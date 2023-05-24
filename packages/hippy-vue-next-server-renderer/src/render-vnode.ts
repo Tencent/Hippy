@@ -352,25 +352,32 @@ function renderElementVNode(
   }
   // span/label/p/a, these nodes are all text node in native. so we should set text prop
   if (
-    isTextTag(tag) && shapeFlag & ShapeFlags.ARRAY_CHILDREN
+    isTextTag(tag)
   ) {
-    if (children?.length) {
-      const textChild = (children as VNodeArrayChildren).filter((item) => {
-        if (typeof item === 'object') {
-          // only VNode & VNode Children is Object， other is base type
-          const text = item as VNode;
-          return text?.shapeFlag & ShapeFlags.TEXT_CHILDREN;
-        }
-        return false;
-      });
-      if (textChild.length) {
-        const child = textChild[0] as VNode;
-        props.text = child?.children as string;
-        // if text child node has scopedId attr, need insert to props
-        if (child?.scopeId) {
-          props[child.scopeId] = '';
+    if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+      // text node children is array
+      if (children?.length) {
+        const textChild = (children as VNodeArrayChildren).filter((item) => {
+          if (typeof item === 'object') {
+            // only VNode & VNode Children is Object， other is base type
+            const text = item as VNode;
+            return text?.shapeFlag & ShapeFlags.TEXT_CHILDREN;
+          }
+          return false;
+        });
+        if (textChild.length) {
+          const child = textChild[0] as VNode;
+          props.text = child?.children as string;
+          // if text child node has scopedId attr, need insert to props
+          if (child?.scopeId) {
+            props[child.scopeId] = '';
+          }
         }
       }
+    }
+    if (shapeFlag & ShapeFlags.TEXT_CHILDREN && children) {
+      // text node children is string
+      props.text = children;
     }
   }
   // transform event listener
