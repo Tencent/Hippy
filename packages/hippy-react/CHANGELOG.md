@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.16.4](https://github.com/Tencent/Hippy/compare/2.16.2...2.16.4) (2023-05-25)
+
+
+### Features
+
+* **react,vue:** show nodeId in debug mode ([68f9c02](https://github.com/Tencent/Hippy/commit/68f9c02829b26df7fbef545bfe2a3dad3a817e3b))
+
+
+
+
+
 ## [2.16.3](https://github.com/Tencent/Hippy/compare/2.16.2...2.16.3) (2023-04-24)
 
 **Note:** Version bump only for package @hippy/react

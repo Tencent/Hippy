@@ -1,6 +1,6 @@
 {
   "name": "@hippy/web-renderer",
-  "version": "2.16.3",
+  "version": "2.16.4",
   "description": "hippy web renderer",
   "main": "./dist/index.js",
   "homepage": "https://hippyjs.org",

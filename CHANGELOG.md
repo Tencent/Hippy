@@ -3,6 +3,46 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.16.4](https://github.com/Tencent/Hippy/compare/2.16.2...2.16.4) (2023-05-25)
+
+
+### Bug Fixes
+
+* **android:** color value in animation lose precision ([afff2a3](https://github.com/Tencent/Hippy/commit/afff2a339fda73f0dee60839215ff73aaccb35c0))
+* **Android:** Demo uses NoSnapshot by default ([1afa9d0](https://github.com/Tencent/Hippy/commit/1afa9d0fe608a2958800ac4f966067b551afe820))
+* **android:** memory leak of `RecyclerViewEventHelper` ([144524f](https://github.com/Tencent/Hippy/commit/144524f103ae4d8f1225924875395d55fa1db8a6))
+* **android:** reset backgroundImage doesn't work ([71b3569](https://github.com/Tencent/Hippy/commit/71b35693fb724009849914db4856622a659b82a0))
+* **android:** text default color ([40f3ff4](https://github.com/Tencent/Hippy/commit/40f3ff4d560a2eafe6f46b62c509bb6c2b88c48a))
+* **android:** waterfall scrolling error with small content height ([36ea10d](https://github.com/Tencent/Hippy/commit/36ea10d89c1a5a4ddbb81161e109d9c872959546))
+* **core:** fix multithreading bug ([be8b6f9](https://github.com/Tencent/Hippy/commit/be8b6f92b5838e00d0b332d92f2341e65a465beb))
+* **core:** fix promise crash ([a4a000f](https://github.com/Tencent/Hippy/commit/a4a000f7294a3ecaa9e67d4cf42f8e0e29229441))
+* **core:** fix snapshot bug when using dynamicLoad ([7e907cd](https://github.com/Tencent/Hippy/commit/7e907cd9c081d566de5795ce9c4c5c52c04aaecb))
+* **ios:** animation module multi-thread crash ([cb50109](https://github.com/Tencent/Hippy/commit/cb501097731d32caee47882a0511a3b5b9c26ffe))
+* **ios:** fix rounding error using double instead of float ([20ee3b8](https://github.com/Tencent/Hippy/commit/20ee3b847590a8e7a848e3ae3ca142718d1d7bec))
+* **ios:** strange shaped character rendering bug ([cc966f7](https://github.com/Tencent/Hippy/commit/cc966f781d11800eabbf2c5ec6deb0690704db26))
+* **vue:** remove redundant props & perf cache logic ([d635977](https://github.com/Tencent/Hippy/commit/d635977224f9e4e0f68f07fc2b70a0f429dfe660))
+* **vue:** support static style diff in updateNode ([1f4abfd](https://github.com/Tencent/Hippy/commit/1f4abfd6ad2f6c71e16bc2a8237c10b0a85f0ab2))
+
+
+### Features
+
+* **core:** add readme for snapshot ([f8910b3](https://github.com/Tencent/Hippy/commit/f8910b3cb2685b65e59508de0bde20cda13e1af5))
+* **ios, js:** remove clipboard module ([fb29d4b](https://github.com/Tencent/Hippy/commit/fb29d4b2709aa32175454d7b5e3d54cead733605))
+* **ios:** add inspectable for jscontext ([e651e1b](https://github.com/Tencent/Hippy/commit/e651e1b3e08414e84b1cf8d71888c98c21bdbd26))
+* **ios:** support skipping inner decoding when use custom image loader ([7770385](https://github.com/Tencent/Hippy/commit/77703858fad7e9d74bde6b44dd8011e812f0ab9a))
+* **ios:** support skipping inner decoding when use custom image loader ([1ca0777](https://github.com/Tencent/Hippy/commit/1ca0777bd7b6d345c4ff791b4b9a3bb9b6ce67e7))
+* **java:** add default method for moduleListener interface ([37ea414](https://github.com/Tencent/Hippy/commit/37ea414aa70a78d8ee24d60ca1f4977b3319f23c))
+* **react,vue:** show nodeId in debug mode ([68f9c02](https://github.com/Tencent/Hippy/commit/68f9c02829b26df7fbef545bfe2a3dad3a817e3b))
+
+
+### Reverts
+
+* Revert "refactor(ios): refactor reusable mechanism for list and waterfall" ([af6938b](https://github.com/Tencent/Hippy/commit/af6938b37d822d3b93555655d2d36a605bb6c0ec))
+
+
+
+
+
 ## [2.16.3](https://github.com/Tencent/Hippy/compare/2.16.2...2.16.3) (2023-04-24)
 
 
