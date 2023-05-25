@@ -519,7 +519,13 @@ export class HippyNode extends HippyEventTarget {
    */
   // eslint-disable-next-line class-methods-use-this
   public moveChildNativeNode(child: HippyNode, refInfo: HippyTypes.ReferenceInfo = {}): void {
-    if (!child || !child.isNeedInsertToNative) return;
+    if (!child || !child.isNeedInsertToNative) {
+      return;
+    }
+    if (refInfo && refInfo.refId === child.nodeId) {
+      // ref节点与childNode节点相同, 属于无效操作, 这里先过滤
+      return;
+    }
     const toMoveNode = child;
     renderMoveChildNativeNode(toMoveNode.convertToNativeNodes(false, refInfo));
   }

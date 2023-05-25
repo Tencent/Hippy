@@ -376,6 +376,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     public void dispatchFunction(@NonNull T view, @NonNull String functionName,
             @NonNull HippyArray params, @NonNull Promise promise) {
         // Stub method.
+        DevtoolsUtil.dispatchDevtoolsFunction(view, functionName, params, promise);
     }
 
     @Nullable

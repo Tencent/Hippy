@@ -19,10 +19,56 @@
  */
 
 #include "dom/diff_utils.h"
-#include "footstone/logging.h"
+
 #include "dom/node_props.h"
+#include "footstone/logging.h"
 namespace hippy {
 inline namespace dom {
+
+static bool ShouldUpdateProperty(const std::string& key, const DomValueMap& old_props_map,
+                                 const DomValueMap& new_props_map) {
+  if (key == kMargin) {
+    if ((new_props_map.find(kMarginLeft) == new_props_map.end() &&
+         old_props_map.find(kMarginLeft) != old_props_map.end()) ||
+        (new_props_map.find(kMarginRight) == new_props_map.end() &&
+         old_props_map.find(kMarginRight) != old_props_map.end()) ||
+        (new_props_map.find(kMarginTop) == new_props_map.end() &&
+         old_props_map.find(kMarginTop) != old_props_map.end()) ||
+        (new_props_map.find(kMarginBottom) == new_props_map.end() &&
+         old_props_map.find(kMarginBottom) != old_props_map.end())) {
+      return true;
+    }
+  }
+
+  if (key == kPadding) {
+    if ((new_props_map.find(kPaddingLeft) == new_props_map.end() &&
+         old_props_map.find(kPaddingLeft) != old_props_map.end()) ||
+        (new_props_map.find(kPaddingRight) == new_props_map.end() &&
+         old_props_map.find(kPaddingRight) != old_props_map.end()) ||
+        (new_props_map.find(kPaddingTop) == new_props_map.end() &&
+         old_props_map.find(kPaddingTop) != old_props_map.end()) ||
+        (new_props_map.find(kPaddingBottom) == new_props_map.end() &&
+         old_props_map.find(kPaddingBottom) != old_props_map.end())) {
+      return true;
+    }
+  }
+
+  if (key == kBorderWidth) {
+    if ((new_props_map.find(kBorderLeftWidth) == new_props_map.end() &&
+         old_props_map.find(kBorderLeftWidth) != old_props_map.end()) ||
+        (new_props_map.find(kBorderRightWidth) == new_props_map.end() &&
+         old_props_map.find(kBorderRightWidth) != old_props_map.end()) ||
+        (new_props_map.find(kBorderTopWidth) == new_props_map.end() &&
+         old_props_map.find(kBorderTopWidth) != old_props_map.end()) ||
+        (new_props_map.find(kBorderBottomWidth) == new_props_map.end() &&
+         old_props_map.find(kBorderBottomWidth) != old_props_map.end())) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 DiffValue DiffUtils::DiffProps(const DomValueMap& old_props_map, const DomValueMap& new_props_map) {
   std::shared_ptr<DomValueMap> update_props = std::make_shared<DomValueMap>();
   std::shared_ptr<std::vector<std::string>> delete_props = std::make_shared<std::vector<std::string>>();
@@ -58,8 +104,19 @@ DiffValue DiffUtils::DiffProps(const DomValueMap& old_props_map, const DomValueM
     FOOTSTONE_DCHECK(new_prop_iter->second != nullptr);
 
     // update props
-    if (old_prop.second == nullptr || old_prop.second.get() != new_prop_iter->second.get()) {
+    if (old_prop.second == nullptr || *old_prop.second != *new_prop_iter->second) {
       (*update_props)[key] = new_prop_iter->second;
+    }
+
+    // Some special layout properties should update even if the property has not changed
+    // Example:
+    // old_props_map: { margin: 10, marginBottom: 5 }
+    // new_props_map: { margin: 10 }
+    // margin should update, otherwise the layout engine will use last margin bottom value
+    if (old_prop.second != nullptr && *old_prop.second == *new_prop_iter->second) {
+      if (ShouldUpdateProperty(key, old_props_map, new_props_map)) {
+        (*update_props)[key] = new_prop_iter->second;
+      }
     }
   }
 

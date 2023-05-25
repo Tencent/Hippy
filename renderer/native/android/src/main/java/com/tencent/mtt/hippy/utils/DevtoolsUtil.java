@@ -22,11 +22,13 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.view.PixelCopy;
 import android.view.PixelCopy.OnPixelCopyFinishedListener;
 import android.view.View;
@@ -34,15 +36,19 @@ import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnDrawListener;
 import android.view.Window;
 import androidx.annotation.NonNull;
+import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRendererManager;
+import com.tencent.renderer.utils.ArrayUtils;
+import com.tencent.renderer.utils.MapUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * devtools utils for screen shot
@@ -57,20 +63,29 @@ public class DevtoolsUtil {
     private static final String SCREEN_SHOT = "screenShot";
     private static final String SCREEN_WIDTH = "width";
     private static final String SCREEN_HEIGHT = "height";
+    private static final String VIEW_WIDTH = "viewWidth";
+    private static final String VIEW_HEIGHT = "viewHeight";
     private static final String SCREEN_SCALE = "screenScale";
     private static final String FRAME_CALLBACK_ID = "frameCallbackId";
     private static final String X_ON_SCREEN = "xOnScreen";
     private static final String Y_ON_SCREEN = "yOnScreen";
-    private static final float DEFAULT_SCALE = 0.5f;
+    private static final String MAX_WIDTH = "maxWidth";
+    private static final String MAX_HEIGHT = "maxHeight";
+    private static final float DEFAULT_SCALE = 0.4f;
     private static final int DEFAULT_QUALITY = 80;
     private final static HashMap<Integer, ViewTreeObserver.OnDrawListener> sDrawListeners = new HashMap<>();
     private static WeakReference<Bitmap> sCacheBitmapRef;
 
+    public static void dispatchDevtoolsFunction(@NonNull View view, @NonNull String functionName, @NonNull HippyArray paramsMap,
+            @NonNull Promise promise) {
+        List params = paramsMap.getInternalArray();
+        dispatchDevtoolsFunction(view, functionName, params, promise);
+    }
     public static void dispatchDevtoolsFunction(@NonNull View view, @NonNull String functionName, @NonNull List params,
             @NonNull Promise promise) {
         switch (functionName) {
             case DevtoolsUtil.GET_SCREEN_SHOT:
-                DevtoolsUtil.getScreenShot(view, promise);
+                DevtoolsUtil.getScreenShot(params, view, promise);
                 break;
             case DevtoolsUtil.ADD_FRAME_CALLBACK:
                 DevtoolsUtil.addFrameCallback(params, view, promise);
@@ -89,9 +104,19 @@ public class DevtoolsUtil {
     private static void getLocationOnScreen(@NonNull View view, @NonNull Promise promise) {
         int[] viewLocation = new int[2];
         view.getLocationOnScreen(viewLocation);
+        NativeRender renderer = NativeRendererManager.getNativeRenderer(view.getContext());
+        View rootView = renderer == null ? null : renderer.getRootView(view);
+        if (rootView != null) {
+            int[] rootLocation = new int[2];
+            rootView.getLocationOnScreen(rootLocation);
+            viewLocation[0] -= rootLocation[0];
+            viewLocation[1] -= rootLocation[1];
+        }
         HippyMap resultMap = new HippyMap();
         resultMap.pushInt(X_ON_SCREEN, viewLocation[0]);
         resultMap.pushInt(Y_ON_SCREEN, viewLocation[1]);
+        resultMap.pushInt(VIEW_WIDTH, view.getWidth());
+        resultMap.pushInt(VIEW_HEIGHT, view.getHeight());
         promise.resolve(resultMap);
     }
 
@@ -154,7 +179,26 @@ public class DevtoolsUtil {
         promise.resolve(new HippyMap());
     }
 
-    public static void getScreenShot(@NonNull final View view, @NonNull final Promise promise) {
+    public static void getScreenShot(@NonNull List params, @NonNull final View view, @NonNull final Promise promise) {
+        if (params.isEmpty()) {
+            return;
+        }
+        NativeRender renderer = NativeRendererManager.getNativeRenderer(view.getContext());
+        View rootView = renderer == null ? null : renderer.getRootView(view);
+        if (rootView == null) {
+            return;
+        }
+        final int viewWidth = rootView.getWidth();
+        final int viewHeight = rootView.getHeight();
+        Map<String, Object> param = ArrayUtils.getMapValue(params, 0);
+        float scale = 1.0f;
+        if (param != null) {
+            int maxWidth = MapUtils.getIntValue(param, MAX_WIDTH, 0);
+            int maxHeight = MapUtils.getIntValue(param, MAX_HEIGHT, 0);
+            float scaleX = (float) maxWidth / (float) viewWidth;
+            float scaleY = (float) maxHeight / (float) viewHeight;
+            scale = Math.max(Math.min(scaleX, scaleY), DEFAULT_SCALE); // select the proper scale which not less than MINI_SCALE
+        }
         Bitmap bitmap = sCacheBitmapRef != null ? sCacheBitmapRef.get() : null;
         if (bitmap == null) {
             bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
@@ -168,6 +212,7 @@ public class DevtoolsUtil {
             if (context instanceof ContextWrapper && ((ContextWrapper) context).getBaseContext() instanceof Activity) {
                 Window window = ((Activity) ((ContextWrapper) context).getBaseContext()).getWindow();
                 final Bitmap finalBitmap = bitmap;
+                final float finalScale = scale;
                 PixelCopy.request(window,
                         new Rect(location[0], location[1], location[0] + view.getWidth(),
                                 location[1] + view.getHeight()),
@@ -176,7 +221,7 @@ public class DevtoolsUtil {
                             @Override
                             public void onPixelCopyFinished(int copyResult) {
                                 if (copyResult == PixelCopy.SUCCESS) {
-                                    callbackScreenShot(view, finalBitmap, promise);
+                                    callbackScreenShot(view, finalBitmap, finalScale, viewWidth, viewHeight, promise);
                                 } else {
                                     LogUtils.e(TAG, "getScreenShot copyResult:" + copyResult);
                                 }
@@ -189,28 +234,34 @@ public class DevtoolsUtil {
             Canvas canvas = new Canvas(bitmap);
             canvas.drawColor(Color.WHITE);
             view.draw(canvas);
-            callbackScreenShot(view, bitmap, promise);
+            callbackScreenShot(view, bitmap, scale, viewWidth, viewHeight, promise);
         }
     }
 
-    private static void callbackScreenShot(View view, Bitmap bitmap, Promise promise) {
-        String base64 = bitmapToBase64Str(bitmap);
+    private static void callbackScreenShot(View view, Bitmap bitmap, float scale, int viewWidth, int viewHeight, Promise promise) {
+        DisplayMetrics windowDisplayMetrics = view.getContext().getResources()
+                .getDisplayMetrics();
+        String base64 = bitmapToBase64Str(bitmap, scale, viewWidth, viewHeight);
         HippyMap resultMap = new HippyMap();
         resultMap.pushString(SCREEN_SHOT, base64);
-        resultMap.pushInt(SCREEN_WIDTH, (int) (view.getWidth() * DEFAULT_SCALE));
-        resultMap.pushInt(SCREEN_HEIGHT, (int) (view.getHeight() * DEFAULT_SCALE));
-        resultMap.pushDouble(SCREEN_SCALE, view.getResources().getDisplayMetrics().density * DEFAULT_SCALE);
+        resultMap.pushInt(SCREEN_WIDTH, windowDisplayMetrics.widthPixels);
+        resultMap.pushInt(SCREEN_HEIGHT, windowDisplayMetrics.heightPixels);
+        resultMap.pushDouble(SCREEN_SCALE, 1f);
         promise.resolve(resultMap);
     }
 
-    private static String bitmapToBase64Str(Bitmap bitmap) {
+    private static String bitmapToBase64Str(Bitmap bitmap, float scale, int viewWidth, int viewHeight) {
         String result = null;
         ByteArrayOutputStream outputStream = null;
         try {
             if (bitmap != null) {
-                Bitmap scaleBitmap = Bitmap
-                        .createScaledBitmap(bitmap, (int) (bitmap.getWidth() * DEFAULT_SCALE),
-                                (int) (bitmap.getHeight() * DEFAULT_SCALE), false);
+                Bitmap scaleBitmap = bitmap;
+                if (scale != 1.0f) {
+                    Matrix matrix = new Matrix();
+                    matrix.postScale(scale, scale);
+                    scaleBitmap = Bitmap
+                            .createBitmap(bitmap, 0, 0, viewWidth, viewHeight, matrix, true);
+                }
                 outputStream = new ByteArrayOutputStream();
                 scaleBitmap.compress(CompressFormat.JPEG, DEFAULT_QUALITY, outputStream);
                 outputStream.flush();
