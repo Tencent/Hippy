@@ -77,7 +77,7 @@ void HippyDomTreeAdapter::GetDomTree(DumpDomTreeCallback callback) {
     if (dom_manager) {
       auto root_node = hippy_dom->root_node.lock();
       if (root_node) {
-        hippy::devtools::DomNodeMetas metas = DevToolsUtil::ToDomNodeMetas(root_node);
+        hippy::devtools::DomNodeMetas metas = DevToolsUtil::ToDomNodeMetas(root_node, root_node);
         callback(true, metas);
       }
     }

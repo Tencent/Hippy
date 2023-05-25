@@ -449,6 +449,9 @@ public class ControllerManager {
         HippyViewController controller = mControllerRegistry.getViewController(className);
         View view = mControllerRegistry.getView(rootId, id);
         if (view == null || controller == null) {
+            if (promise != null) {
+                promise.resolve("view or controller is null");
+            }
             return;
         }
         HippyController controllerAnnotation = controller.getClass()

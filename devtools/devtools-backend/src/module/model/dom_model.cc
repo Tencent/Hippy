@@ -57,8 +57,11 @@ constexpr char kDocumentName[] = "#document";
 constexpr int32_t kDocumentNodeId = -3;
 
 DomModel DomModel::CreateModel(const nlohmann::json& json) {
-  assert(json.is_object());
   DomModel model;
+  if (!json.is_object()) {
+    FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "CreateModel json failed";
+    return model;
+  }
   model.SetNodeId(TdfParseJsonUtil::GetJsonValue(json, kNodeId, 0));
   model.SetBackendNodeId(model.GetNodeId());
   model.SetParentId(TdfParseJsonUtil::GetJsonValue(json, kParentId, 0));
@@ -431,9 +434,6 @@ std::vector<int32_t> DomModel::GetLeftTopRightBottomValueFromStyle(std::vector<s
 }
 
 double DomModel::AddScreenScaleFactor(const std::shared_ptr<ScreenAdapter>& screen_adapter, double origin_value) {
-  if (!screen_adapter) {
-    return 1.f;
-  }
-  return origin_value * screen_adapter->GetScreenScale();
+  return origin_value;
 }
 }  // namespace hippy::devtools
