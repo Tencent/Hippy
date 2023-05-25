@@ -200,10 +200,6 @@ static HippyBridge *HippyCurrentBridgeInstance = nil;
         _executorKey = executorKey;
         _invalidateReason = HippyInvalidateReasonDealloc;
         [self setUp];
-
-        HippyExecuteOnMainQueue(^{
-            [self bindKeys];
-        });
         HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ Init %p", NSStringFromClass([self class]), self);
     }
     return self;
@@ -221,21 +217,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     self.invalidateReason = HippyInvalidateReasonDealloc;
     self.batchedBridge.invalidateReason = HippyInvalidateReasonDealloc;
     [self invalidate];
-}
-
-- (void)bindKeys {
-    HippyAssertMainQueue();
-
-#if TARGET_IPHONE_SIMULATOR
-    HippyKeyCommands *commands = [HippyKeyCommands sharedInstance];
-
-    // reload in current mode
-    __weak __typeof(self) weakSelf = self;
-    [commands registerKeyCommandWithInput:@"r" modifierFlags:UIKeyModifierCommand action:^(__unused UIKeyCommand *command) {
-        // 暂时屏蔽掉RN的调试
-        [weakSelf requestReload];
-    }];
-#endif
 }
 
 - (NSArray<Class> *)moduleClasses {
