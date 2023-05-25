@@ -16,16 +16,24 @@
   * [技术支持](guide/support.md)
   * [隐私政策](guide/privacy.md)
 
+* 新特性
+  * [VFS](feature3.0/vfs.md)
+  * [JS 引擎切换](feature3.0/js-engine.md)
+  * [Layout 引擎切换](feature3.0/layout.md)
+  * [Performance API](feature3.0/performance.md)
+  * [SVG组件](feature3.0/svg.md)
+  * [Snapshot](feature3.0/snapshot.md)
+
 * 平台
   * [Android](android/integration.md)
   * [iOS](ios/integration.md)
-  * [Web 集成](web/integration.md)
+  * [Web](web/integration.md)
 
 * 渲染
   * [Android](android/integration.md)
   * [iOS](ios/integration.md)
   * [Voltron](voltron/integration.md)
-  * [Web 集成](web/integration.md)
+  * [Web](web/integration.md)
 
 * 驱动层
   * [Hippy-React](hippy-react/introduction.md)
