@@ -28,10 +28,10 @@ import '../util.dart';
 import '../viewmodel.dart';
 import '../widget.dart';
 
-class WebViewWidget extends FRStatefulWidget {
-  final WebViewModel _viewModel;
+class WebViewViewWidget extends FRStatefulWidget {
+  final WebViewViewModel _viewModel;
 
-  WebViewWidget(this._viewModel) : super(_viewModel);
+  WebViewViewWidget(this._viewModel) : super(_viewModel);
 
   @override
   State<StatefulWidget> createState() {
@@ -39,23 +39,22 @@ class WebViewWidget extends FRStatefulWidget {
   }
 }
 
-class WebViewWidgetState extends FRState<WebViewWidget> {
+class WebViewWidgetState extends FRState<WebViewViewWidget> {
   @override
   void initState() {
     super.initState();
-    // Enable virtual display.
-    if (Platform.isAndroid) WebView.platform = AndroidWebView();
   }
 
   @override
   Widget build(BuildContext context) {
     LogUtils.dWidget(
-        "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build web view widget");
+      "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build web view widget",
+    );
     return ChangeNotifierProvider.value(
       value: widget._viewModel,
-      child: Selector<WebViewModel, WebViewModel>(
+      child: Selector<WebViewViewModel, WebViewViewModel>(
         selector: (context, viewModel) {
-          return WebViewModel.copy(
+          return WebViewViewModel.copy(
             viewModel.id,
             viewModel.rootId,
             viewModel.name,
@@ -73,20 +72,12 @@ class WebViewWidgetState extends FRState<WebViewWidget> {
     );
   }
 
-  Widget _webWidget(WebViewModel viewModel) {
+  Widget _webWidget(WebViewViewModel viewModel) {
     LogUtils.dWidget(
-        "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build web view inner widget");
-    return WebView(
-      initialUrl: viewModel.src,
-      userAgent: viewModel.userAgent,
-      javascriptMode: JavascriptMode.unrestricted,
-      onPageStarted: viewModel.onLoadStart,
-      onProgress: (progress) {},
-      onPageFinished: (url) {
-        viewModel.onLoad(url);
-        viewModel.onLoadEnd(url, true, "");
-      },
-      onWebResourceError: viewModel.onLoadError,
+      "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build web view inner widget",
+    );
+    return WebViewWidget(
+      controller: widget._viewModel.controller,
     );
   }
 }

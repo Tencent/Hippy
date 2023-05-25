@@ -1,3 +1,15 @@
+## 0.0.27
+
+- fix font weight parse function
+
+## 0.0.26
+
+- update flutter version to 3.3.8
+- update ffi to version 2.0.0
+- update device_info_plus version to 9.0.0
+- update package_info_plus version to 4.0.0
+- update connectivity_plus version to 3.0.6
+
 ## 0.0.25
 
 - fix Chinese encoding error
