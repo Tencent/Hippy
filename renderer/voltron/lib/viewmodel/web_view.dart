@@ -19,6 +19,7 @@
 //
 
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -27,30 +28,59 @@ import '../controller.dart';
 import '../render.dart';
 import 'group.dart';
 
-class WebViewModel extends GroupViewModel {
-  String src = '';
-  String? userAgent;
+class WebViewViewModel extends GroupViewModel {
+  String tempUrl = '';
+  String? tempUserAgent;
   String method = 'get';
   bool onLoadStartEventEnable = false;
   bool onErrorEventEnable = false;
   bool onLoadEndEventEnable = false;
   bool onLoadEventEnable = false;
+  bool isNotifyLoad = false;
 
-  WebViewModel(
+  set src(String url) {
+    if (tempUrl != url) {
+      controller.loadRequest(Uri.parse(url));
+      tempUrl = url;
+    }
+  }
+
+  String get src {
+    return tempUrl;
+  }
+
+  set userAgent(String? userAgent) {
+    if (tempUserAgent != userAgent) {
+      controller.setUserAgent(userAgent);
+      tempUserAgent = userAgent;
+    }
+  }
+
+  String? get userAgent {
+    return tempUserAgent;
+  }
+
+  late WebViewController controller;
+
+  WebViewViewModel(
     int id,
     int instanceId,
     String className,
     RenderContext context,
-  ) : super(id, instanceId, className, context);
+  ) : super(id, instanceId, className, context) {
+    controller = createWebViewController();
+  }
 
-  WebViewModel.copy(
+  WebViewViewModel.copy(
     int id,
     int instanceId,
     String className,
     RenderContext context,
-    WebViewModel viewModel,
+    WebViewViewModel viewModel,
   ) : super.copy(id, instanceId, className, context, viewModel) {
-    src = viewModel.src;
+    tempUrl = viewModel.tempUrl;
+    tempUserAgent = viewModel.tempUserAgent;
+    controller = viewModel.controller;
     onLoadStartEventEnable = viewModel.onLoadStartEventEnable;
     onLoadEndEventEnable = viewModel.onLoadEndEventEnable;
     onErrorEventEnable = viewModel.onErrorEventEnable;
@@ -59,8 +89,10 @@ class WebViewModel extends GroupViewModel {
 
   @override
   bool operator ==(Object other) {
-    return other is WebViewModel &&
-        src == other.src &&
+    return other is WebViewViewModel &&
+        tempUrl == other.tempUrl &&
+        tempUserAgent == other.tempUserAgent &&
+        controller == other.controller &&
         onLoadStartEventEnable == other.onLoadStartEventEnable &&
         onLoadEndEventEnable == other.onLoadEndEventEnable &&
         onErrorEventEnable == other.onErrorEventEnable &&
@@ -71,17 +103,48 @@ class WebViewModel extends GroupViewModel {
   @override
   int get hashCode =>
       super.hashCode |
-      src.hashCode |
+      tempUrl.hashCode |
+      tempUserAgent.hashCode |
+      controller.hashCode |
       onLoadStartEventEnable.hashCode |
       onLoadEndEventEnable.hashCode |
       onErrorEventEnable.hashCode |
       onLoadEventEnable.hashCode;
+
+  WebViewController createWebViewController() {
+    return WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(const Color(0x00000000))
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onProgress: (int progress) {
+            if (!isNotifyLoad) {
+              isNotifyLoad = true;
+              onLoad(src);
+            }
+            // Update loading bar.
+          },
+          onPageStarted: onLoadStart,
+          onPageFinished: (String url) {
+            onLoadEnd(url, true, '');
+          },
+          onWebResourceError: (WebResourceError error) {
+            var isForMainFrame = error.isForMainFrame ?? false;
+            if (isForMainFrame) {
+              onLoadEnd(src, true, '');
+              onLoadError(error);
+            }
+          },
+        ),
+      );
+  }
 
   void sendEvent(String eventName, VoltronMap params) {
     context.renderBridgeManager.sendComponentEvent(rootId, id, eventName, params);
   }
 
   void onLoadStart(String url) {
+    isNotifyLoad = false;
     var params = VoltronMap();
     params.push('url', url);
     sendEvent(WebViewViewController.kEventOnLoadStart, VoltronMap());
@@ -102,13 +165,6 @@ class WebViewModel extends GroupViewModel {
   }
 
   void onLoadError(WebResourceError error) {
-    if (Platform.isIOS) {
-      var params = VoltronMap();
-      params.push('url', error.failingUrl);
-      params.push('success', false);
-      params.push('error', error.toString());
-      sendEvent(WebViewViewController.kEventOnLoadEnd, params);
-    }
     var params = VoltronMap();
     params.push('errorCode', error.errorCode);
     params.push('error', error.description);

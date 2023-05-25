@@ -28,7 +28,7 @@ import '../style.dart';
 import '../viewmodel.dart';
 import '../widget.dart';
 
-class WebViewViewController extends BaseViewController<WebViewModel> {
+class WebViewViewController extends BaseViewController<WebViewViewModel> {
   static const String kClassName = "WebView";
 
   // 兼容3.0新事件绑定方式
@@ -38,13 +38,13 @@ class WebViewViewController extends BaseViewController<WebViewModel> {
   static const String kEventOnError = "error";
 
   @override
-  WebViewModel createRenderViewModel(RenderNode node, RenderContext context) {
-    return WebViewModel(node.id, node.rootId, node.name, context);
+  WebViewViewModel createRenderViewModel(RenderNode node, RenderContext context) {
+    return WebViewViewModel(node.id, node.rootId, node.name, context);
   }
 
   @override
-  Widget createWidget(BuildContext context, WebViewModel viewModel) {
-    return WebViewWidget(viewModel);
+  Widget createWidget(BuildContext context, WebViewViewModel viewModel) {
+    return WebViewViewWidget(viewModel);
   }
 
   @override
@@ -62,7 +62,7 @@ class WebViewViewController extends BaseViewController<WebViewModel> {
   }
 
   @ControllerProps(NodeProps.kSource)
-  void setSource(WebViewModel renderViewModel, VoltronMap? source) {
+  void setSource(WebViewViewModel renderViewModel, VoltronMap? source) {
     String? src = source?.get<String>('uri');
     if (src != null && src != renderViewModel.src) {
       renderViewModel.src = src;
@@ -70,40 +70,40 @@ class WebViewViewController extends BaseViewController<WebViewModel> {
   }
 
   @ControllerProps(NodeProps.kUserAgent)
-  void setUserAgent(WebViewModel renderViewModel, String ua) {
+  void setUserAgent(WebViewViewModel renderViewModel, String ua) {
     if (ua != renderViewModel.userAgent) {
       renderViewModel.userAgent = ua;
     }
   }
 
   @ControllerProps(NodeProps.kMethod)
-  void setMethod(WebViewModel renderViewModel, String method) {
+  void setMethod(WebViewViewModel renderViewModel, String method) {
     renderViewModel.method = method;
   }
 
   @ControllerProps(NodeProps.kOnLoadStart)
-  void setOnLoadStart(WebViewModel renderViewModel, bool flag) {
+  void setOnLoadStart(WebViewViewModel renderViewModel, bool flag) {
     renderViewModel.onLoadStartEventEnable = flag;
   }
 
   @ControllerProps(NodeProps.kOnError)
-  void setOnError(WebViewModel renderViewModel, bool flag) {
+  void setOnError(WebViewViewModel renderViewModel, bool flag) {
     renderViewModel.onErrorEventEnable = flag;
   }
 
   @ControllerProps(NodeProps.kOnLoadEnd)
-  void setOnLoadEnd(WebViewModel renderViewModel, bool flag) {
+  void setOnLoadEnd(WebViewViewModel renderViewModel, bool flag) {
     renderViewModel.onLoadEndEventEnable = flag;
   }
 
   @ControllerProps(NodeProps.kOnLoad)
-  void setOnLoad(WebViewModel renderViewModel, bool flag) {
+  void setOnLoad(WebViewViewModel renderViewModel, bool flag) {
     renderViewModel.onLoadEventEnable = flag;
   }
 
   @override
   void updateEvents(
-    WebViewModel renderViewModel,
+    WebViewViewModel renderViewModel,
     Set<EventHolder> holders,
   ) {
     super.updateEvents(renderViewModel, holders);

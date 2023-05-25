@@ -153,7 +153,7 @@ class DefaultVfsWrapper with NativeTraversalsWrapper {
   }
 
   @override
-  Future doNativeTraversalsSync(ResourceDataHolder holder) {
+  Future<void> doNativeTraversalsSync(ResourceDataHolder holder) {
     var completer = Completer();
     if (!isInit) {
       holder.resultCode = FetchResultCode.ffiError;
