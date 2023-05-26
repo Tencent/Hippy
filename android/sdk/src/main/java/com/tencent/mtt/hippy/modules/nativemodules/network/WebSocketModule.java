@@ -28,6 +28,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.websocket.Header;
 import com.tencent.mtt.hippy.websocket.WebSocketClient;
 
+import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -215,20 +216,21 @@ public class WebSocketModule extends HippyNativeModuleBase {
 
 
     private final int mWebSocketId;
-    private final HippyEngineContext mContext;
+    private final WeakReference<HippyEngineContext> mContextRef;
     private final WebSocketModule mWebSocketModule;
     private boolean mDisconnected;
 
     public HippyWebSocketListener(int websocketID, HippyEngineContext context,
         WebSocketModule socketModule) {
       mWebSocketId = websocketID;
-      mContext = context;
+      mContextRef = new WeakReference<>(context);
       mWebSocketModule = socketModule;
       mDisconnected = false;
     }
 
     private void sendWebSocketEvent(String eventType, HippyMap data) {
-      if (mDisconnected) {
+      final HippyEngineContext context;
+      if (mDisconnected || (context = mContextRef.get()) == null) {
         return;
       }
 
@@ -236,7 +238,7 @@ public class WebSocketModule extends HippyNativeModuleBase {
       eventParams.pushInt(PARAM_KEY_SOCKET_ID, mWebSocketId);
       eventParams.pushString(PARAM_KEY_TYPE, eventType);
       eventParams.pushObject(PARAM_KEY_DATA, data);
-      mContext.getModuleManager().getJavaScriptModule(EventDispatcher.class)
+      context.getModuleManager().getJavaScriptModule(EventDispatcher.class)
           .receiveNativeEvent(WEB_SOCKET_EVENT_NAME, eventParams);
     }
 
