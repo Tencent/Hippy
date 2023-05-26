@@ -26,6 +26,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.SpannableStringBuilder;
 
+import android.text.style.ImageSpan;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -40,11 +41,20 @@ import com.tencent.renderer.component.image.ImageLoaderAdapter;
 import com.tencent.renderer.component.text.TextGestureSpan;
 import com.tencent.renderer.component.text.TextImageSpan;
 import java.util.List;
+import java.util.Objects;
 
 public class ImageVirtualNode extends VirtualNode {
 
+    @Deprecated
+    public static final String PROP_VERTICAL_ALIGNMENT = "verticalAlignment";
     protected int mWidth;
     protected int mHeight;
+    @Deprecated
+    protected int mLeft;
+    @Deprecated
+    protected int mTop;
+    @Deprecated
+    protected int mVerticalAlignment = ImageSpan.ALIGN_BASELINE;
     protected float mMargin = Float.NaN;
     protected float mMarginVertical = Float.NaN;
     protected float mMarginHorizontal = Float.NaN;
@@ -79,6 +89,24 @@ public class ImageVirtualNode extends VirtualNode {
         return mHeight;
     }
 
+    @Deprecated
+    public int getLeft() {
+        return mLeft;
+    }
+
+    @Deprecated
+    public int getTop() {
+        return mTop;
+    }
+
+    /**
+     * @deprecated use {@link #getVerticalAlign} instead
+     */
+    @Deprecated
+    public int getVerticalAlignment() {
+        return mVerticalAlignment;
+    }
+
     public int getMarginLeft() {
         return getValue(mMarginLeft, mMarginHorizontal, mMargin);
     }
@@ -108,7 +136,7 @@ public class ImageVirtualNode extends VirtualNode {
         return 0;
     }
 
-    @NonNull
+    @Nullable
     public String getVerticalAlign() {
         if (mVerticalAlign != null) {
             return mVerticalAlign;
@@ -116,7 +144,7 @@ public class ImageVirtualNode extends VirtualNode {
         if (mParent instanceof TextVirtualNode) {
             return ((TextVirtualNode) mParent).getVerticalAlign();
         }
-        return TextVirtualNode.V_ALIGN_BASELINE;
+        return null;
     }
 
     @NonNull
@@ -167,6 +195,24 @@ public class ImageVirtualNode extends VirtualNode {
     @HippyControllerProps(name = NodeProps.HEIGHT, defaultType = HippyControllerProps.NUMBER)
     public void setHeight(float height) {
         mHeight = Math.round(PixelUtil.dp2px(height));
+        markDirty();
+    }
+
+    @Deprecated
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.LEFT, defaultType = HippyControllerProps.NUMBER)
+    public void setLeft(float left) {
+        float lpx = PixelUtil.dp2px(left);
+        mLeft = (Float.isNaN(lpx)) ? 0 : Math.round(lpx);
+        markDirty();
+    }
+
+    @Deprecated
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.TOP, defaultType = HippyControllerProps.NUMBER)
+    public void setTop(float top) {
+        float tpx = PixelUtil.dp2px(top);
+        mTop = (Float.isNaN(tpx)) ? 0 : Math.round(tpx);
         markDirty();
     }
 
@@ -225,9 +271,26 @@ public class ImageVirtualNode extends VirtualNode {
         markDirty();
     }
 
+    /**
+     * @deprecated use {@link #setVerticalAlign} instead
+     */
+    @Deprecated
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = PROP_VERTICAL_ALIGNMENT, defaultType = HippyControllerProps.NUMBER,
+            defaultNumber = ImageSpan.ALIGN_BASELINE)
+    public void setVerticalAlignment(int alignment) {
+        if (alignment != mVerticalAlignment) {
+            mVerticalAlignment = alignment;
+            markDirty();
+        }
+    }
+
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.VERTICAL_ALIGN, defaultType = HippyControllerProps.STRING)
     public void setVerticalAlign(String align) {
+        if (Objects.equals(mVerticalAlign, align)) {
+            return;
+        }
         switch (align) {
             case HippyControllerProps.DEFAULT:
                 // reset to default
@@ -243,6 +306,7 @@ public class ImageVirtualNode extends VirtualNode {
                 mVerticalAlign = TextVirtualNode.V_ALIGN_BASELINE;
                 break;
         }
+        markDirty();
     }
 
     @SuppressWarnings("unused")

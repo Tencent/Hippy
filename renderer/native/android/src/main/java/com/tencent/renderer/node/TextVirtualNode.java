@@ -408,7 +408,7 @@ public class TextVirtualNode extends VirtualNode {
             return;
         }
         String verticalAlign = getVerticalAlign();
-        if (!V_ALIGN_BASELINE.equals(verticalAlign)) {
+        if (verticalAlign != null && !V_ALIGN_BASELINE.equals(verticalAlign)) {
             TextVerticalAlignSpan span = new TextVerticalAlignSpan(verticalAlign);
             ops.add(new SpanOperation(start, end, span, SpanOperation.PRIORITY_LOWEST));
         }
@@ -745,6 +745,7 @@ public class TextVirtualNode extends VirtualNode {
     @HippyControllerProps(name = NodeProps.BACKGROUND_COLOR, defaultType = HippyControllerProps.NUMBER)
     public void setBackgroundColor(int backgroundColor) {
         mBackgroundColor = backgroundColor;
+        markDirty();
     }
 
     @HippyControllerProps(name = NodeProps.VERTICAL_ALIGN, defaultType = HippyControllerProps.STRING)
@@ -764,9 +765,10 @@ public class TextVirtualNode extends VirtualNode {
                 mVerticalAlign = V_ALIGN_BASELINE;
                 break;
         }
+        markDirty();
     }
 
-    @NonNull
+    @Nullable
     public String getVerticalAlign() {
         if (mVerticalAlign != null) {
             return mVerticalAlign;
@@ -774,6 +776,6 @@ public class TextVirtualNode extends VirtualNode {
         if (mParent instanceof TextVirtualNode) {
             return ((TextVirtualNode) mParent).getVerticalAlign();
         }
-        return V_ALIGN_BASELINE;
+        return null;
     }
 }
