@@ -112,12 +112,11 @@ class TextVirtualNode extends VirtualNode {
   Timer? _longClickTimer;
 
   static int _parseArgument(String weight) {
-    return weight.length == 3 &&
-            weight.endsWith("00") &&
-            weight.codeUnitAt(0) <= '9'.codeUnitAt(0) &&
-            weight.codeUnitAt(0) >= '1'.codeUnitAt(0)
-        ? 100 * (weight.codeUnitAt(0) - '0'.codeUnitAt(0))
-        : -1;
+    var doubleWeight = double.tryParse(weight);
+    if (doubleWeight != null) {
+      return doubleWeight.toInt();
+    }
+    return -1;
   }
 
   @ControllerProps(NodeProps.kFontStyle)

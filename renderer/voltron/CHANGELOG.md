@@ -1,3 +1,11 @@
+## 0.0.18
+
+- fix font weight parse function
+
+## 0.0.17
+
+- update ffi to 2.0.0
+
 ## 0.0.16
 
 - fix Chinese encoding error

@@ -86,6 +86,10 @@ Object? checkValueType(Object? value, Object? defaultValue) {
     }
   }
 
+  if (defaultValue is String) {
+    return value.toString();
+  }
+
   if (defaultValue == null) {
     return value;
   }

@@ -1,3 +1,7 @@
+## 0.0.5
+
+- update ffi to 2.0.0
+
 ## 0.0.4
 
 - fix first reload error 

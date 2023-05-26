@@ -24,6 +24,7 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:voltron/voltron.dart';
 
+/// 注意，这里是以qr_flutter 4.0.0版本为例，后续版本api可能会有变动，这里知晓扩展插件的原理即可
 class QrController extends BaseViewController<QrRenderViewModel> {
   static const String kClassName = "QrView";
 

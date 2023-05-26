@@ -62,7 +62,7 @@ NSString* U16ToNSString(const char16_t *source) {
 }
 
 NSString* CStringToNSString(const std::string& source) {
-    return [NSString stringWithCString:source.c_str() encoding:[NSString defaultCStringEncoding]];
+    return [NSString stringWithCString:source.c_str() encoding:NSUTF8StringEncoding];
 }
 
 footstone::value::HippyValue OCTypeToDomValue(id value) {
@@ -118,7 +118,7 @@ footstone::value::HippyValue OCTypeToDomValue(id value) {
 void BridgeImpl::LoadInstance(int64_t runtime_id, std::string&& params) {
 
     NSString *paramsStr = [NSString stringWithCString:params.c_str()
-                                             encoding:[NSString defaultCStringEncoding]];
+                                             encoding:NSUTF8StringEncoding];
     dispatch_async(HippyBridgeQueue(), ^{
         VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
         NSData *objectData = [paramsStr dataUsingEncoding:NSUTF8StringEncoding];
@@ -136,7 +136,7 @@ void BridgeImpl::LoadInstance(int64_t runtime_id, std::string&& params) {
 
 void BridgeImpl::UnloadInstance(int64_t runtime_id, std::string&& params) {
     NSString *paramsStr = [NSString stringWithCString:params.c_str()
-                                             encoding:[NSString defaultCStringEncoding]];
+                                             encoding:NSUTF8StringEncoding];
 
     dispatch_async(HippyBridgeQueue(), ^{
         VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
