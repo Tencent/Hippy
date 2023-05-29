@@ -49,7 +49,8 @@
 }
 
 - (void)setLocationValue:(NSNumber *)value atLocation:(NSUInteger)location {
-    HippyAssert(location < _locationsCount, @"HippyGradientLocationParser location out of range,try to insert value at %lu, but count is %lu", location, _locationsCount);
+    HippyAssert(location < _locationsCount, @"HippyGradientLocationParser location out of range, \
+try to insert value at %lu, but count is %lu", location, _locationsCount);
     [_locations replacePointerAtIndex:location withPointer:(__bridge void *)value];
 }
 
@@ -69,8 +70,8 @@
     }
 }
 
-- (NSArray<NSNumber *> *) computeLocations {
-    if (_locations > 0) {
+- (NSArray<NSNumber *> *)computeLocations {
+    if (_locations.count > 0) {
         void *first = [_locations pointerAtIndex:0];
         if (!first) {
             NSNumber *num = @(0);
@@ -92,7 +93,7 @@
         }
         return [_locations allObjects];
     }
-    return nil;
+    return NSArray.array;
 }
 
 @end
@@ -275,7 +276,7 @@ static LinearGradientPoints pointsFromDirection(HippyGradientObject *object, CGS
                 UIColor *color = HippyConvertNumberToColor([colorNumber integerValue]);
                 [colors addObject:color];
                 NSNumber *stop = [colorStop objectForKey:@"ratio"];
-                if (stop) {
+                if (stop != nil) {
                     [locationParser setLocationValue:stop atLocation:i];
                 }
             }
@@ -292,7 +293,7 @@ static LinearGradientPoints pointsFromDirection(HippyGradientObject *object, CGS
 }
 
 - (LinearGradientPoints)linearGradientPointsFromSize:(CGSize)size {
-    LinearGradientPoints points = {CGPointZero, CGPointZero};
+    LinearGradientPoints points;
     if (self.drawnByDegree) {
         self.degree %= 360;
         if (self.degree < 0) {
