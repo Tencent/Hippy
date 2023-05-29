@@ -365,7 +365,6 @@ HIPPY_EXPORT_MODULE(AsyncStorage)
 
 #pragma mark - Exported JS Functions
 
-// clang-format off
 HIPPY_EXPORT_METHOD(multiGet:(NSArray<NSString *> *)keys
                   callback:(HippyResponseSenderBlock)callback) {
     NSDictionary *errorOut = [self _ensureSetup];
@@ -383,9 +382,7 @@ HIPPY_EXPORT_METHOD(multiGet:(NSArray<NSString *> *)keys
     }
     callback(@[HippyNullIfNil(errors), result]);
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(multiSet:(NSArray<NSArray<NSString *> *> *)kvPairs
                   callback:(HippyResponseSenderBlock)callback) {
     NSDictionary *errorOut = [self _ensureSetup];
@@ -404,9 +401,7 @@ HIPPY_EXPORT_METHOD(multiSet:(NSArray<NSArray<NSString *> *> *)kvPairs
     }
     callback(@[HippyNullIfNil(errors)]);
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(multiMerge:(NSArray<NSArray<NSString *> *> *)kvPairs
                   callback:(HippyResponseSenderBlock)callback) {
     NSDictionary *errorOut = [self _ensureSetup];
@@ -441,9 +436,7 @@ HIPPY_EXPORT_METHOD(multiMerge:(NSArray<NSArray<NSString *> *> *)kvPairs
     }
     callback(@[HippyNullIfNil(errors)]);
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(multiRemove:(NSArray<NSString *> *)keys
                   callback:(HippyResponseSenderBlock)callback) {
     NSDictionary *errorOut = [self _ensureSetup];
@@ -475,18 +468,14 @@ HIPPY_EXPORT_METHOD(multiRemove:(NSArray<NSString *> *)keys
     }
     callback(@[HippyNullIfNil(errors)]);
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(clear:(HippyResponseSenderBlock)callback) {
     [_manifest removeAllObjects];
     [HippyGetCache() removeAllObjects];
     NSDictionary *error = [self HippyDeleteStorageDirectory];
     callback(@[HippyNullIfNil(error)]);
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(getAllKeys:(HippyResponseSenderBlock)callback) {
     NSDictionary *errorOut = [self _ensureSetup];
     if (errorOut) {
@@ -495,6 +484,5 @@ HIPPY_EXPORT_METHOD(getAllKeys:(HippyResponseSenderBlock)callback) {
         callback(@[(id)kCFNull, _manifest.allKeys]);
     }
 }
-// clang-format on
 
 @end
