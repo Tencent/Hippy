@@ -434,7 +434,8 @@ public class RenderNode {
             // regular view node.
             if (createNow || !mControllerManager.checkFlatten(mClassName)
                     || !mParent.getClassName().equals(HippyViewGroupController.CLASS_NAME)
-                    || getChildCount() > 0) {
+                    || getChildCount() > 0
+                    || getGestureEnable()) {
                 mParent.addChildToPendingList(this);
                 View view = mControllerManager.createView(this, mPoolInUse);
                 setHostView(view);
@@ -732,5 +733,9 @@ public class RenderNode {
         if (view != null) {
             view.invalidate();
         }
+    }
+
+    public boolean getGestureEnable() {
+        return mComponent != null && mComponent.getGestureEnable();
     }
 }

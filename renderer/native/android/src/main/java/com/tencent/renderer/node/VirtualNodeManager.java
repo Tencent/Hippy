@@ -331,15 +331,17 @@ public class VirtualNodeManager {
             }
         }
         updateProps(node, propsToUpdate);
-        if (node.mParent == null) {
-            List<VirtualNode> updateNodes = mUpdateNodes.get(rootId);
-            if (updateNodes == null) {
-                updateNodes = new ArrayList<>();
-                updateNodes.add(node);
-                mUpdateNodes.put(rootId, updateNodes);
-            } else if (!updateNodes.contains(node)) {
-                updateNodes.add(node);
-            }
+        // add the top VirtualNode to mUpdateNodes
+        while (node.mParent != null) {
+            node = node.mParent;
+        }
+        List<VirtualNode> updateNodes = mUpdateNodes.get(rootId);
+        if (updateNodes == null) {
+            updateNodes = new ArrayList<>();
+            updateNodes.add(node);
+            mUpdateNodes.put(rootId, updateNodes);
+        } else if (!updateNodes.contains(node)) {
+            updateNodes.add(node);
         }
     }
 

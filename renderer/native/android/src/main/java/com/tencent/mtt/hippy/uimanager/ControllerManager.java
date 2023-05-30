@@ -16,18 +16,17 @@
 
 package com.tencent.mtt.hippy.uimanager;
 
-import static com.tencent.renderer.NativeRenderer.SCREEN_SNAPSHOT_ROOT_ID;
-import static com.tencent.renderer.node.RenderNode.FLAG_ALREADY_UPDATED;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.ADD_CHILD_VIEW_FAILED_ERR;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.REMOVE_CHILD_VIEW_FAILED_ERR;
+import static com.tencent.renderer.NativeRenderer.SCREEN_SNAPSHOT_ROOT_ID;
+import static com.tencent.renderer.node.RenderNode.FLAG_ALREADY_UPDATED;
+import static com.tencent.renderer.node.RenderNode.FLAG_UPDATE_LAYOUT;
 
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.view.ViewParent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.openhippy.pool.BasePool.PoolType;
 import com.openhippy.pool.Pool;
 import com.openhippy.pool.PreCreateViewPool;
@@ -51,20 +50,17 @@ import com.tencent.mtt.hippy.views.scroll.HippyScrollViewController;
 import com.tencent.mtt.hippy.views.text.HippyTextViewController;
 import com.tencent.mtt.hippy.views.textinput.HippyTextInputController;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
-
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerController;
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerItemController;
 import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallItemViewController;
 import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallViewController;
 import com.tencent.mtt.hippy.views.webview.HippyWebViewController;
 import com.tencent.renderer.NativeRender;
-
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.Renderer;
-import com.tencent.renderer.node.VirtualNode;
 import com.tencent.renderer.node.RenderNode;
-
+import com.tencent.renderer.node.VirtualNode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -287,11 +283,12 @@ public class ControllerManager {
                 if (rootView == null) {
                     return null;
                 }
-                HippyViewController controller = mControllerRegistry.getViewController(className);
+                HippyViewController<?> controller = mControllerRegistry.getViewController(className);
                 if (controller == null) {
                     return null;
                 }
                 view = controller.createView(rootView, id, mRenderer, className, node.getProps());
+                node.setNodeFlag(FLAG_UPDATE_LAYOUT);
             }
             if (view != null) {
                 mControllerRegistry.addView(view, rootId, id);
