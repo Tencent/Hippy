@@ -48,6 +48,7 @@
 #include "renderer/tdf/viewnode/node_attributes_parser.h"
 #include "renderer/tdf/viewnode/root_view_node.h"
 #include "renderer/tdf/viewnode/view_names.h"
+#include "renderer/tdf/devtools/devtools_util.h"
 
 namespace hippy {
 inline namespace render {
@@ -693,6 +694,7 @@ void ViewNode::CallFunction(const std::string &name, const DomArgument &param, c
     obj["height"] = frame.Height();
     DoCallback(name, call_back_id, std::make_shared<footstone::HippyValue>(obj));
   }
+  DevtoolsUtil::CallDevtoolsFunction(root_node_, shared_from_this(), name, param, call_back_id);
 }
 
 }  // namespace tdf
