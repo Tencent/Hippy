@@ -143,7 +143,7 @@ public class TextDrawable extends Drawable {
             return 0;
         }
         final int width = getBounds().width();
-        float borderWidth = (mBackgroundHolder != null) ? mBackgroundHolder.getBorderWidth() : 0.0f;
+        final float borderWidth = (mBackgroundHolder != null) ? mBackgroundHolder.getBorderWidth() : 0.0f;
         switch (mLayout.getAlignment()) {
             case ALIGN_CENTER:
                 return (width - mLayout.getWidth()) / 2.0f;
@@ -158,7 +158,7 @@ public class TextDrawable extends Drawable {
         if (mLayout == null) {
             return 0;
         }
-        float borderWidth = (mBackgroundHolder != null) ? mBackgroundHolder.getBorderWidth() : 0.0f;
+        final float borderWidth = (mBackgroundHolder != null) ? mBackgroundHolder.getBorderWidth() : 0.0f;
         return mTopPadding + borderWidth;
     }
 }
