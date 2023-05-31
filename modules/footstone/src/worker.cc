@@ -492,8 +492,9 @@ void Worker::WorkerDestroySpecificNoLock(uint32_t task_runner_id) {
 
 void Worker::WorkerDestroySpecifics() {
   for (auto map_it = specific_map_.begin(); map_it != specific_map_.end();) {
-    auto next = ++map_it;
-    Worker::WorkerDestroySpecificNoLock(map_it->first);
+    auto key = map_it->first;
+    auto next = std::next(map_it);
+    Worker::WorkerDestroySpecificNoLock(key);
     map_it = next;
   }
 }
