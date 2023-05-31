@@ -83,6 +83,7 @@ set(SRC_SET
         src/renderer/tdf/view/modal_view.cc
         src/renderer/tdf/view/view_pager.cc
         src/renderer/tdf/gesture/touch_recognizer.cc
+        src/renderer/tdf/devtools/devtools_util.cc
         )
 target_sources(${PROJECT_NAME} PRIVATE ${SRC_SET})
 # endregion

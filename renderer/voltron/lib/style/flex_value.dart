@@ -42,10 +42,10 @@ FlexUnit flexUnitFromInt(int value) {
 
 class FlexValueNative extends Struct {
   @Float()
-  external double? value;
+  external double value;
 
   @Int32()
-  external int? unit;
+  external int unit;
 
   factory FlexValueNative.allocate(double initValue, int initUnit) =>
       allocate<FlexValueNative>(1 * sizeOf<FlexValueNative>()).ref

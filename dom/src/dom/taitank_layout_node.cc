@@ -165,6 +165,21 @@ static void CheckValueType(footstone::value::HippyValue::Type type) {
   FOOTSTONE_DCHECK(type == footstone::value::HippyValue::Type::kNumber || type == footstone::value::HippyValue::Type::kObject);
 }
 
+static float GetDefaultValue(
+    const std::string& key, const std::string& relation_key,
+    const std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_update,
+    const std::vector<std::string>& style_delete) {
+  auto it = std::find(style_delete.begin(), style_delete.end(), key);
+  if (it == style_delete.end()) return 0;
+
+  float default_value = 0;
+  if (style_update.find(relation_key) != style_update.end()) {
+    auto dom_value = style_update.find(relation_key)->second;
+    if (dom_value->IsNumber()) default_value = static_cast<float>(dom_value->ToDoubleChecked());
+  }
+  return default_value;
+}
+
 static LayoutMeasureMode ToLayoutMeasureMode(MeasureMode measure_mode) {
   if (measure_mode == MeasureMode::MEASURE_MODE_UNDEFINED) {
     return LayoutMeasureMode::Undefined;
@@ -415,22 +430,22 @@ void TaitankLayoutNode::Parser(
   SET_STYLE_VALUES(Margin, Margin, 0)
   SET_STYLE_VALUES(Margin, MarginVertical, 0)
   SET_STYLE_VALUES(Margin, MarginHorizontal, 0)
-  SET_STYLE_VALUES(Margin, MarginLeft, 0)
-  SET_STYLE_VALUES(Margin, MarginRight, 0)
-  SET_STYLE_VALUES(Margin, MarginTop, 0)
-  SET_STYLE_VALUES(Margin, MarginBottom, 0)
+  SET_STYLE_VALUES(Margin, MarginLeft, GetDefaultValue(kMarginLeft, kMargin, style_update, style_delete))
+  SET_STYLE_VALUES(Margin, MarginRight, GetDefaultValue(kMarginRight, kMargin, style_update, style_delete))
+  SET_STYLE_VALUES(Margin, MarginTop, GetDefaultValue(kMarginTop, kMargin, style_update, style_delete))
+  SET_STYLE_VALUES(Margin, MarginBottom, GetDefaultValue(kMarginBottom, kMargin, style_update, style_delete))
   SET_STYLE_VALUES(Padding, Padding, 0)
   SET_STYLE_VALUES(Padding, PaddingVertical, 0)
   SET_STYLE_VALUES(Padding, PaddingHorizontal, 0)
-  SET_STYLE_VALUES(Padding, PaddingLeft, 0)
-  SET_STYLE_VALUES(Padding, PaddingRight, 0)
-  SET_STYLE_VALUES(Padding, PaddingTop, 0)
-  SET_STYLE_VALUES(Padding, PaddingBottom, 0)
+  SET_STYLE_VALUES(Padding, PaddingLeft, GetDefaultValue(kPaddingLeft, kPadding, style_update, style_delete))
+  SET_STYLE_VALUES(Padding, PaddingRight, GetDefaultValue(kPaddingRight, kPadding, style_update, style_delete))
+  SET_STYLE_VALUES(Padding, PaddingTop, GetDefaultValue(kPaddingTop, kPadding, style_update, style_delete))
+  SET_STYLE_VALUES(Padding, PaddingBottom, GetDefaultValue(kPaddingBottom, kPadding, style_update, style_delete))
   SET_STYLE_VALUES(Border, BorderWidth, 0)
-  SET_STYLE_VALUES(Border, BorderLeftWidth, 0)
-  SET_STYLE_VALUES(Border, BorderTopWidth, 0)
-  SET_STYLE_VALUES(Border, BorderRightWidth, 0)
-  SET_STYLE_VALUES(Border, BorderBottomWidth, 0)
+  SET_STYLE_VALUES(Border, BorderLeftWidth, GetDefaultValue(kBorderLeftWidth, kBorderWidth, style_update, style_delete))
+  SET_STYLE_VALUES(Border, BorderTopWidth, GetDefaultValue(kBorderTopWidth, kBorderWidth, style_update, style_delete))
+  SET_STYLE_VALUES(Border, BorderRightWidth, GetDefaultValue(kBorderRightWidth, kBorderWidth, style_update, style_delete))
+  SET_STYLE_VALUES(Border, BorderBottomWidth, GetDefaultValue(kBorderBottomWidth, kBorderWidth, style_update, style_delete))
   SET_STYLE_VALUES(Position, Left, NAN)
   SET_STYLE_VALUES(Position, Right, NAN)
   SET_STYLE_VALUES(Position, Top, NAN)

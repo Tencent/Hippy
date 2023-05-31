@@ -51,7 +51,25 @@ std::shared_ptr<ClassTemplate<PerformanceResourceTiming>> RegisterPerformanceRes
       exception = context->CreateException("legal constructor");
       return nullptr;
     }
-    return std::shared_ptr<PerformanceResourceTiming>(reinterpret_cast<PerformanceResourceTiming*>(external));
+    string_view name;
+    auto flag = context->GetValueString(arguments[0], &name);
+    if (!flag) {
+      exception = context->CreateException("name error");
+      return nullptr;
+    }
+    int32_t type;
+    flag = context->GetValueNumber(arguments[1], &type);
+    if (!flag || type < 0) {
+      exception = context->CreateException("type error");
+      return nullptr;
+    }
+
+    auto entry = scope->GetPerformance()->GetEntriesByName(name, static_cast<PerformanceEntry::Type>(type));
+    if (!entry) {
+      exception = context->CreateException("entry not found");
+      return nullptr;
+    }
+    return std::static_pointer_cast<PerformanceResourceTiming>(entry);
   };
 
   PropertyDefine<PerformanceResourceTiming> initiator_type;

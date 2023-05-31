@@ -39,11 +39,16 @@ class DevtoolsUtil {
   static const String kGetScreenShot = "getScreenShot";
   static const String kAddFrameCallback = "addFrameCallback";
   static const String kRemoveFrameCallback = "removeFrameCallback";
+  static const String kGetLocationOnScreen = "getLocationOnScreen";
   static const String kScreenShot = "screenShot";
   static const String kScreenWidth = "width";
   static const String kScreenHeight = "height";
   static const String kScreenScale = "screenScale";
   static const String kFrameCallbackId = "frameCallbackId";
+  static const String kXOnScreen = "xOnScreen";
+  static const String kYOnScreen = "yOnScreen";
+  static const String kViewWidth = "viewWidth";
+  static const String kViewHeight = "viewHeight";
   static final Map _callbacks = <int, Promise>{};
 
   static void onPostFrame(Duration timeStamp) {
@@ -102,6 +107,44 @@ class DevtoolsUtil {
     resultMap.push(kScreenWidth, deviceWidth);
     resultMap.push(kScreenHeight, deviceHeight);
     resultMap.push(kScreenScale, 1.0);
+    promise.resolve(resultMap);
+  }
+
+  static Future<void> getLocationOnScreen(
+      RenderViewModel viewModel, VoltronArray array, Promise? promise) async {
+    if (promise == null) {
+      return;
+    }
+    var rootViewModel = viewModel.context.rootViewModelMap[viewModel.rootId];
+    var renderObject =
+        viewModel.currentContext?.findRenderObject() as RenderBox?;
+    var rootRenderObject =
+        rootViewModel?.currentContext?.findRenderObject() as RenderBox?;
+    var x = 0.0;
+    var y = 0.0;
+    var width = 0.0;
+    var height = 0.0;
+    if (renderObject == null || rootRenderObject == null) {
+      promise.reject("this view or root view is null");
+    } else {
+      var rootPosition = rootRenderObject.localToGlobal(Offset.zero);
+      var rootX = rootPosition.dx;
+      var rootY = rootPosition.dy;
+
+      var position = renderObject.localToGlobal(Offset.zero);
+      var size = renderObject.size;
+
+      x = position.dx - rootX;
+      y = position.dy - rootY;
+      width = size.width;
+      height = size.height;
+    }
+
+    final resultMap = VoltronMap();
+    resultMap.push(kXOnScreen, x);
+    resultMap.push(kYOnScreen, y);
+    resultMap.push(kViewWidth, width);
+    resultMap.push(kViewHeight, height);
     promise.resolve(resultMap);
   }
 }

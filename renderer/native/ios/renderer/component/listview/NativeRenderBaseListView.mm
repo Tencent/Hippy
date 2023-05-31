@@ -128,7 +128,10 @@ static NSString *const kListViewItem = @"ListViewItem";
 - (void)reloadData {
     [self.collectionView reloadData];
     if (self.initialContentOffset) {
-        [self.collectionView setContentOffset:CGPointMake(0, self.initialContentOffset) animated:NO];
+        CGFloat initialContentOffset = self.initialContentOffset;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.collectionView setContentOffset:CGPointMake(0, initialContentOffset) animated:NO];
+        });
         self.initialContentOffset = 0;
     }
     if (!_isInitialListReady) {
