@@ -31,7 +31,7 @@ inline namespace tdf {
 
 using hippy::LayoutMeasureMode;
 
-typedef std::unordered_map<uint32_t, std::shared_ptr<TextViewNode>> TextViewNodeMap;
+typedef footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<TextViewNode>> TextViewNodeMap;
 static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<TextViewNodeMap>> persistent_map_;
 
 TextViewNode::TextViewNode(const std::shared_ptr<hippy::dom::DomNode> &dom_node, RenderInfo info)
@@ -61,7 +61,7 @@ void TextViewNode::RegisterMeasureFunction(uint32_t root_id, const std::shared_p
     text_node_map = std::make_shared<TextViewNodeMap>();
     persistent_map_.Insert(root_id, text_node_map);
   }
-  text_node_map->emplace(dom_node->GetRenderInfo().id, view_node);
+  text_node_map->Insert(dom_node->GetRenderInfo().id, view_node);
 }
 
 void TextViewNode::UnregisterMeasureFunction(uint32_t root_id, const std::shared_ptr<hippy::DomNode>& dom_node) {
@@ -70,7 +70,7 @@ void TextViewNode::UnregisterMeasureFunction(uint32_t root_id, const std::shared
   std::shared_ptr<TextViewNodeMap> text_node_map;
   auto find = persistent_map_.Find(root_id, text_node_map);
   if (find) {
-    text_node_map->erase(dom_node->GetRenderInfo().id);
+    text_node_map->Erase(dom_node->GetRenderInfo().id);
   }
 }
 
@@ -78,9 +78,11 @@ std::shared_ptr<TextViewNode> TextViewNode::FindLayoutTextViewNode(uint32_t root
   std::shared_ptr<TextViewNodeMap> text_node_map;
   auto find = persistent_map_.Find(root_id, text_node_map);
   FOOTSTONE_CHECK(find);
-  auto it = text_node_map->find(dom_node->GetRenderInfo().id);
-  FOOTSTONE_CHECK(it != text_node_map->end());
-  return it->second;
+  std::shared_ptr<TextViewNode> textViewNode;
+  if(text_node_map->Find(dom_node->GetRenderInfo().id, textViewNode)) {
+    return textViewNode;
+  }
+  return nullptr;
 }
 
 std::shared_ptr<tdfcore::TextView> TextViewNode::GetTextView() {
