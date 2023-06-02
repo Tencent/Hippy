@@ -27,6 +27,8 @@
 
 @implementation MyViewManager
 
+NATIVE_RENDER_EXPORT_VIEW(MyView)
+
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(text, NSString)
 
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(changeColor:(nonnull NSNumber *)reactTag
