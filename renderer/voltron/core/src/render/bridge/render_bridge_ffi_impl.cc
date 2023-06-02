@@ -47,8 +47,9 @@ EXTERN_C const char *KeepRenderLibStr() {
   return "keep_render_lib";
 }
 
-EXTERN_C uint32_t CreateVoltronRenderProvider() {
+EXTERN_C uint32_t CreateVoltronRenderProvider(double density) {
   auto render_manager = voltron::BridgeManager::CreateRenderManager();
+  render_manager->SetDensity((float)density);
   if (render_manager) {
     return render_manager->GetId();
   }

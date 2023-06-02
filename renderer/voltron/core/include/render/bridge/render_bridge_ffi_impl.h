@@ -34,7 +34,7 @@ extern "C" {
 // 由于头文件没有其他模块引用，会导致在so中符号表隐藏，这里加个常量引用，避免库优化
 EXTERN_C const char* KeepRenderLibStr();
 
-EXTERN_C uint32_t CreateVoltronRenderProvider();
+EXTERN_C uint32_t CreateVoltronRenderProvider(double density);
 
 EXTERN_C void DestroyVoltronRenderProvider(uint32_t render_manager_id);
 
