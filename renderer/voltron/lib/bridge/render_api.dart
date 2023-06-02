@@ -118,8 +118,8 @@ class VoltronRenderApi {
     }
   }
 
-  static int createNativeRender() {
-    return _RenderBridgeFFIManager.instance.createNativeRender();
+  static int createNativeRender(double density) {
+    return _RenderBridgeFFIManager.instance.createNativeRender(density);
   }
 
   static Future destroyNativeRender(int nativeRenderId) async {

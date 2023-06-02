@@ -22,8 +22,12 @@ import 'dart:ffi';
 
 import 'package:ffi/ffi.dart';
 
-typedef CreateVoltronRenderNativeType = Uint32 Function();
-typedef CreateVoltronRenderDartType = int Function();
+typedef CreateVoltronRenderNativeType = Uint32 Function(
+  Double density,
+);
+typedef CreateVoltronRenderDartType = int Function(
+  double density,
+);
 
 typedef DestroyVoltronRenderNativeType = Void Function(
   Uint32 renderManagerId,
@@ -33,19 +37,21 @@ typedef DestroyVoltronRenderDartType = void Function(
 );
 
 typedef CallNativeFunctionFfiNativeType = Void Function(
-    Int32 engineId,
-    Uint32 renderManagerId,
-    Pointer<Utf16> callId,
-    Pointer<Uint8> params,
-    Int32 paramsLen,
-    Int32 keep);
+  Int32 engineId,
+  Uint32 renderManagerId,
+  Pointer<Utf16> callId,
+  Pointer<Uint8> params,
+  Int32 paramsLen,
+  Int32 keep,
+);
 typedef CallNativeFunctionFfiDartType = void Function(
-    int engineId,
-    int renderManagerId,
-    Pointer<Utf16> callId,
-    Pointer<Uint8> params,
-    int paramsLen,
-    int keep);
+  int engineId,
+  int renderManagerId,
+  Pointer<Utf16> callId,
+  Pointer<Uint8> params,
+  int paramsLen,
+  int keep,
+);
 
 typedef CreateDomFfiNativeType = Uint32 Function();
 typedef CreateDomFfiDartType = int Function();
