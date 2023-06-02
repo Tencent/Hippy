@@ -90,7 +90,7 @@ constexpr char kDismissEvent[] = "dismiss";
 
 3.将事件发送给driver层
 
-```objective-c
+```cpp
 auto event = std::make_shared<DomEvent>("click", node, false, false, hippyValue);
 node->HandleEvent(event);
 ```
