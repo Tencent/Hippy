@@ -17,29 +17,29 @@ The method of integrating Hippy:
 
 ## Android Demo Experience
 
-1. Introducing the TDFRender module
+### 1.Introducing the TDFRender module
 
 gradle.properties file modification：
 ![tdf1](../../assets/img/tdf_demo1.png)
 
-2. Introducing temporary Maven source
+### 2.Introducing temporary Maven source
 
 ```text
 maven { url "https://mirrors.tencent.com/repository/maven/tdfcore" }
 ```
 
 build.gradle file modification：
-![tdf1](../../assets/img/tdf_demo2.png)
+![tdf2](../../assets/img/tdf_demo2.png)
 
-3. Open TDFRender
+### 3.Open TDFRender
 
 framework/android/src/main/java/com/tencent/mtt/hippy/HippyEngineManagerImpl.java file modification：
-![tdf1](../../assets/img/tdf_demo3.png)
+![tdf3](../../assets/img/tdf_demo3.png)
 
-4. Demo add dependency
+### 4.Demo add dependency
 
 framework/examples/android-demo/build.gradle file modification：
-![tdf1](../../assets/img/tdf_demo4.png)
+![tdf4](../../assets/img/tdf_demo4.png)
 
 ## iOS Demo Experience
 

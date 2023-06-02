@@ -17,29 +17,29 @@ TDFRender 是 c++ 实现的跨平台渲染器，统一了 Android / iOS 平台�
 
 ## Android Demo 体验
 
-1. 引入 TDFRender 模块
+### 1.引入 TDFRender 模块
 
 gradle.properties 文件修改：
 ![tdf1](../assets/img/tdf_demo1.png)
 
-2. 引入暂用 maven 源
+### 2.引入暂用 maven 源
 
 ```text
 maven { url "https://mirrors.tencent.com/repository/maven/tdfcore" }
 ```
 
 build.gradle 文件修改：
-![tdf1](../assets/img/tdf_demo2.png)
+![tdf2](../assets/img/tdf_demo2.png)
 
-3. 打开 TDFRender
+### 3.打开 TDFRender
 
 framework/android/src/main/java/com/tencent/mtt/hippy/HippyEngineManagerImpl.java 文件修改：
-![tdf1](../assets/img/tdf_demo3.png)
+![tdf3](../assets/img/tdf_demo3.png)
 
-4. Demo 添加依赖
+### 4.Demo 添加依赖
 
 framework/examples/android-demo/build.gradle 文件修改：
-![tdf1](../assets/img/tdf_demo4.png)
+![tdf4](../assets/img/tdf_demo4.png)
 
 ## iOS Demo 体验
 
