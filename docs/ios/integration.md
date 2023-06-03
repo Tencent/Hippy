@@ -102,7 +102,7 @@ Hippy3.0默认提供了JS Driver驱动层以及Native Render渲染层。目前�
 
 我们根据HippyBridge的构造方法，创建一个HippyBridge实例
 
-```objective-c
+```objectivec
 
 //HippyBridge.h
 /**
@@ -137,7 +137,7 @@ HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self
 
 HippyBridge中有些必须属性，需要调用方设置。如果不设置，将会导致功能不完善。
 
-```objective-c
+```objectivec
 
 //HippyBridge.h
 
@@ -174,7 +174,7 @@ _bridge.VFSUriLoader = demoLoader; //使用Hippy默认的vfs
 
 #### 3.创建DomManager
 
-```objective-c
+```objectivec
 
 //可以使用下面的方法，根据engineKey获取对应的DomManager.EngineKey相同的实例获取同一个DomManager
 auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:_engineKey];
@@ -184,7 +184,7 @@ auto domManager = engineResource->GetDomManager();
 
 #### 4.创建NativeRender模块及其属性并设置给HippyBridge实例
 
-```objective-c
+```objectivec
 
 //先获取第三步创建的DomManager
 auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:_engineKey];
@@ -207,7 +207,7 @@ domManager->SetRenderManager(nativeRenderManager);
 
 RootView可以是任意UIView实例
 
-```objective-c
+```objectivec
 
 //创建RootView，RootView可以是任意view实例
 UIView *rootView = [[UIView alloc] initWithFrame:frame];
@@ -240,7 +240,7 @@ _nativeRenderManager->SetRootViewSizeChangedEvent(cb);
 
 当DomManager和RootNode实例都创建完毕，并且所有属性都设置之后，直接调用下列方法即可绑定HippyBridge,DomManager,RootNode三者
 
-```objective-c
+```objectivec
 
 [_bridge setupDomManager:domManager rootNode:_rootNode];
 
@@ -250,7 +250,7 @@ _nativeRenderManager->SetRootViewSizeChangedEvent(cb);
 
 当设置完HippyBridge所有配置项之后，就可以加载JS Bundle包了
 
-```objective-c
+```objectivec
 
 NSURL *bundleURL = yourBundlePathURL;
 //此方法可多次调用，加载不同的bundle包。且保证bundle包的加载顺序。
@@ -262,7 +262,7 @@ NSURL *bundleURL = yourBundlePathURL;
 
 之后，使用下列方法即可加载Hippy实例
 
-```objective-c
+```objectivec
 
 NSNumber *rootViewTag = xxx;
 NSDictionary *props = xxx;//初始化配置属性
@@ -281,7 +281,7 @@ HippyBridge提供了丰富的接口方便接入方使用各种自定义模块进
 
 HippyConvenientBridge封装了HippyBridge，NativeRenderManager,DomManager,RootNode之间的关系。
 
-```objective-c
+```objectivec
 
 //HippyConvenient.h
 /**
@@ -316,7 +316,7 @@ connector.moduleName = @"Demo";
 
 #### 2.构建RootView并赋值给HippyConvenientBridge
 
-````objective-c
+````objectivec
 
 //创建UIView实例作为RootView
 //RootView实例必须实现componentTag方法
@@ -331,7 +331,7 @@ UIView *rootView = [[UIView alloc] initWithFrame:frame];
 
 >HippyConvenientBridge确保bundle加载顺序
 
-```objective-c
+```objectivec
 
 [convenientBridge loadBundleURL:bundleURL1 completion:^(NSURL * _Nullable, NSError * _Nullable) {
     NSLog(@"url %@ load finish", commonBundlePath);
@@ -344,7 +344,7 @@ UIView *rootView = [[UIView alloc] initWithFrame:frame];
 
 #### 4.HippyConvenientBridge实例加载Hippy业务实例
 
-```objective-c
+```objectivec
 
 [convenientBridge loadInstanceForRootViewTag:rootTag props:@{@"isSimulator": @(isSimulator)}];
 
