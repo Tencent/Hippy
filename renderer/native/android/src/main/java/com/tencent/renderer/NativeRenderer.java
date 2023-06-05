@@ -962,22 +962,11 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         final Map<String, Object> snapshot = new HashMap<>();
         snapshot.put(SNAPSHOT_CREATE_NODE, nodeInfoList);
         snapshot.put(SNAPSHOT_UPDATE_LAYOUT, layoutInfoList);
-        Runnable task = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    ByteBuffer buffer = encodeSnapshot(snapshot);
-                    callback.callback(buffer.array(), null);
-                } catch (Exception e) {
-                    callback.callback(null, e);
-                }
-            }
-        };
-        Executor executor = getBackgroundExecutor();
-        if (executor == null) {
-            task.run();
-        } else {
-            executor.execute(task);
+        try {
+            ByteBuffer buffer = encodeSnapshot(snapshot);
+            callback.callback(buffer.array(), null);
+        } catch (Exception e) {
+            callback.callback(null, e);
         }
     }
 

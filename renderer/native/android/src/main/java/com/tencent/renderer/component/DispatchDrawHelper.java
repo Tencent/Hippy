@@ -33,28 +33,19 @@ public class DispatchDrawHelper {
     @Nullable
     private RenderNode mNode;
     /** Render order of nodes from new order according to zIndex attribute. */
-    private final ArrayList<RenderNode> mDrawingOrder = new ArrayList<>();
+    @NonNull
+    private ArrayList<RenderNode> mDrawingOrder;
 
     public void onDispatchDrawStart(Canvas canvas, @NonNull RenderNode node) {
         mCanvas = canvas;
         mNode = node;
         mDrawIndex = 0;
-        for (int i = 0; i < node.getChildCount(); i++) {
-            mDrawingOrder.add(node.getChildAt(i));
-        }
-        // Re sort the rendering order of children before each drawing.
-        Collections.sort(mDrawingOrder, new Comparator<RenderNode>() {
-            @Override
-            public int compare(RenderNode n1, RenderNode n2) {
-                return n1.getZIndex() - n2.getZIndex();
-            }
-        });
+        mDrawingOrder = node.getDrawingOrder();
     }
 
     public void onDispatchDrawEnd() {
         mCanvas = null;
         mNode = null;
-        mDrawingOrder.clear();
     }
 
     public boolean isActive() {

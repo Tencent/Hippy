@@ -34,7 +34,7 @@ import com.tencent.renderer.utils.ArrayUtils;
 
 import java.util.List;
 
-@HippyController(name = HippyViewGroupController.CLASS_NAME, dispatchWithStandardType = true, supportFlatten = true)
+@HippyController(name = HippyViewGroupController.CLASS_NAME, dispatchWithStandardType = true)
 public class HippyViewGroupController extends HippyGroupController<HippyViewGroup> {
 
     private static final String TAG = "HippyViewGroupController";

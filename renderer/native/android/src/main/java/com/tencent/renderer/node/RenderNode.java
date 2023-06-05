@@ -22,6 +22,8 @@ import android.text.TextUtils;
 import android.util.SparseIntArray;
 import android.view.View;
 
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -51,22 +53,42 @@ import java.util.Map;
 public class RenderNode {
 
     private static final String TAG = "RenderNode";
-    /** Mark the layout information of the node to be updated. */
+    /**
+     * Mark the layout information of the node to be updated.
+     */
     public static final int FLAG_UPDATE_LAYOUT = 0x00000001;
-    /** Mark has new extra props of the text node, such as {@link android.text.Layout} */
+    /**
+     * Mark has new extra props of the text node, such as {@link android.text.Layout}
+     */
     public static final int FLAG_UPDATE_EXTRA = 0x00000002;
-    /** Mark there are new events registered of the node. */
+    /**
+     * Mark there are new events registered of the node.
+     */
     public static final int FLAG_UPDATE_EVENT = 0x00000004;
-    /** Mark node need to update node attributes. */
+    /**
+     * Mark node need to update node attributes.
+     */
     public static final int FLAG_UPDATE_TOTAL_PROPS = 0x00000008;
-    /** Mark node has been deleted. */
+    /**
+     * Mark node has been deleted.
+     */
     public static final int FLAG_ALREADY_DELETED = 0x00000010;
-    /** Mark node attributes has been updated. */
+    /**
+     * Mark node attributes has been updated.
+     */
     public static final int FLAG_ALREADY_UPDATED = 0x00000020;
-    /** Mark node lazy create host view, such as recycle view item sub views. */
+    /**
+     * Mark node lazy create host view, such as recycle view item sub views.
+     */
     public static final int FLAG_LAZY_LOAD = 0x00000040;
-    /** Mark node has attach to host view. */
+    /**
+     * Mark node has attach to host view.
+     */
     public static final int FLAG_HAS_ATTACHED = 0x00000080;
+    /**
+     * Mark should update children drawing order.
+     */
+    public static final int FLAG_UPDATE_DRAWING_ORDER = 0x00000100;
     private int mNodeFlags = 0;
     private PoolType mPoolInUse = PoolType.NONE;
     protected int mX;
@@ -76,9 +98,11 @@ public class RenderNode {
     protected final int mId;
     protected final int mRootId;
     protected final String mClassName;
-    protected final List<RenderNode> mChildren = new ArrayList<>();
-    protected final List<RenderNode> mChildrenUnattached = new ArrayList<>();
+    protected final ArrayList<RenderNode> mChildren = new ArrayList<>();
+    protected final ArrayList<RenderNode> mChildrenUnattached = new ArrayList<>();
     protected final ControllerManager mControllerManager;
+    @Nullable
+    protected ArrayList<RenderNode> mDrawingOrder;
     @Nullable
     protected Map<String, Object> mProps;
     @Nullable
@@ -128,6 +152,15 @@ public class RenderNode {
         return mId;
     }
 
+    public int getZIndex() {
+        return mComponent != null ? mComponent.getZIndex() : 0;
+    }
+
+    @NonNull
+    public ArrayList<RenderNode> getDrawingOrder() {
+        return mDrawingOrder == null ? mChildren : mDrawingOrder;
+    }
+
     @Nullable
     public Component getComponent() {
         return mComponent;
@@ -152,13 +185,6 @@ public class RenderNode {
             }
         }
         return mComponent;
-    }
-
-    public int getZIndex() {
-        if (mComponent != null) {
-            return mComponent.getZIndex();
-        }
-        return 0;
     }
 
     @Nullable
@@ -202,8 +228,16 @@ public class RenderNode {
         return mHeight;
     }
 
+    public int getChildDrawingOrder(@NonNull RenderNode child) {
+        return (mDrawingOrder != null) ? mDrawingOrder.indexOf(child) : mChildren.indexOf(child);
+    }
+
     public int indexFromParent() {
         return (mParent != null) ? mParent.mChildren.indexOf(this) : 0;
+    }
+
+    public int indexOfDrawingOrder() {
+        return (mParent != null) ? mParent.getChildDrawingOrder(this) : 0;
     }
 
     protected boolean isRoot() {
@@ -228,6 +262,9 @@ public class RenderNode {
     public boolean removeChild(@Nullable RenderNode node) {
         if (node != null) {
             node.mParent = null;
+            if (mDrawingOrder != null) {
+                mDrawingOrder.remove(node);
+            }
             return mChildren.remove(node);
         }
         return false;
@@ -395,9 +432,8 @@ public class RenderNode {
             // Add child nodes to flattened view nodes, in some scenes may have issues with the
             // page not being able to refresh. Therefore, temporarily turn off flattening the
             // regular view node.
-            if (createNow || mClassName.equals(HippyViewGroupController.CLASS_NAME)
-                    || !mControllerManager.checkFlatten(mClassName)
-                    || !mControllerManager.checkFlatten(mParent.getClassName())
+            if (createNow || !mControllerManager.checkFlatten(mClassName)
+                    || !mParent.getClassName().equals(HippyViewGroupController.CLASS_NAME)
                     || getChildCount() > 0) {
                 mParent.addChildToPendingList(this);
                 View view = mControllerManager.createView(this, mPoolInUse);
@@ -472,8 +508,10 @@ public class RenderNode {
         return mControllerManager.hasView(mRootId, mId);
     }
 
-    protected void addChildToPendingList(RenderNode renderNode) {
-        mChildrenUnattached.add(renderNode);
+    protected void addChildToPendingList(RenderNode child) {
+        if (!mChildrenUnattached.contains(child)) {
+            mChildrenUnattached.add(child);
+        }
     }
 
     public boolean checkNodeFlag(int flag) {
@@ -489,18 +527,20 @@ public class RenderNode {
     }
 
     public void mountHostView() {
+        // Before mounting child views, if there is a change in the Z index of the child nodes,
+        // it is necessary to reorder the child nodes to ensure the correct mounting order.
+        updateDrawingOrderIfNeeded();
         if (!mChildrenUnattached.isEmpty()) {
             Collections.sort(mChildrenUnattached, new Comparator<RenderNode>() {
                 @Override
-                public int compare(RenderNode o1, RenderNode o2) {
-                    return o1.indexFromParent() < o2.indexFromParent() ? -1 : 0;
+                public int compare(RenderNode n1, RenderNode n2) {
+                    return n1.getZIndex() - n2.getZIndex();
                 }
             });
             for (int i = 0; i < mChildrenUnattached.size(); i++) {
-                RenderNode renderNode = mChildrenUnattached.get(i);
-                mControllerManager
-                        .addChild(mRootId, mId, renderNode.getId(), renderNode.indexFromParent());
-                renderNode.setNodeFlag(FLAG_HAS_ATTACHED);
+                RenderNode node = mChildrenUnattached.get(i);
+                mControllerManager.addChild(mRootId, mId, node);
+                node.setNodeFlag(FLAG_HAS_ATTACHED);
             }
             mChildrenUnattached.clear();
         }
@@ -513,7 +553,7 @@ public class RenderNode {
             });
             for (RenderNode moveNode : mMoveNodes) {
                 mControllerManager.moveView(mRootId, moveNode.getId(), mId,
-                        moveNode.indexFromParent());
+                        getChildDrawingOrder(moveNode));
             }
             mMoveNodes.clear();
         }
@@ -528,13 +568,12 @@ public class RenderNode {
         }
     }
 
-    public static void resetProps(@NonNull Map<String, Object> props, @Nullable Map<String, Object> diffProps,
+    public static void resetProps(@NonNull Map<String, Object> props,
+            @Nullable Map<String, Object> diffProps,
             @Nullable List<Object> delProps) {
         try {
             if (diffProps != null) {
-                for (Map.Entry<String, Object> entry : diffProps.entrySet()) {
-                    props.put(entry.getKey(), entry.getValue());
-                }
+                props.putAll(diffProps);
             }
             if (delProps != null) {
                 for (Object key : delProps) {
@@ -557,9 +596,7 @@ public class RenderNode {
                 mPropsToUpdate = diffProps;
             } else {
                 if (diffProps != null) {
-                    for (Map.Entry<String, Object> entry : diffProps.entrySet()) {
-                        mPropsToUpdate.put(entry.getKey(), entry.getValue());
-                    }
+                    mPropsToUpdate.putAll(diffProps);
                 }
             }
             if (delProps != null) {
@@ -593,6 +630,7 @@ public class RenderNode {
             mMoveNodes = new ArrayList<>();
         }
         mMoveNodes.addAll(moveNodes);
+        setNodeFlag(FLAG_UPDATE_DRAWING_ORDER);
     }
 
     public void updateExtra(@Nullable Object object) {
@@ -624,6 +662,37 @@ public class RenderNode {
     public void onDeleted() {
         if (mComponent != null) {
             mComponent.clear();
+        }
+    }
+
+    public void requireUpdateDrawingOrder(@NonNull RenderNode child) {
+        setNodeFlag(FLAG_UPDATE_DRAWING_ORDER);
+        addChildToPendingList(child);
+    }
+
+    public void onZIndexChanged() {
+        if (mParent != null) {
+            View hostView = getHostView();
+            if (hostView != null) {
+                ViewParent parent = hostView.getParent();
+                if (parent != null) {
+                    ((ViewGroup) parent).removeView(hostView);
+                }
+            }
+            mParent.requireUpdateDrawingOrder(this);
+        }
+    }
+
+    public void updateDrawingOrderIfNeeded() {
+        if (checkNodeFlag(FLAG_UPDATE_DRAWING_ORDER)) {
+            mDrawingOrder = (ArrayList<RenderNode>) mChildren.clone();
+            Collections.sort(mDrawingOrder, new Comparator<RenderNode>() {
+                @Override
+                public int compare(RenderNode n1, RenderNode n2) {
+                    return n1.getZIndex() - n2.getZIndex();
+                }
+            });
+            resetNodeFlag(FLAG_UPDATE_DRAWING_ORDER);
         }
     }
 

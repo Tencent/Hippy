@@ -328,8 +328,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     }
 
     protected RenderNode createRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
-            @NonNull String className, @NonNull ControllerManager controllerManager,
-            boolean isLazy) {
+            @NonNull String className, @NonNull ControllerManager controllerManager, boolean isLazy) {
         return new RenderNode(rootId, id, props, className, controllerManager, isLazy);
     }
 

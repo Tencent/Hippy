@@ -343,6 +343,9 @@ public class Component implements Drawable.Callback {
 
     public void setZIndex(int zIndex) {
         mZIndex = zIndex;
+        if (mHostRef.get() != null) {
+            mHostRef.get().onZIndexChanged();
+        }
     }
 
     public void setBackgroundColor(@ColorInt int color) {
