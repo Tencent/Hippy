@@ -185,12 +185,10 @@ class _BaseVoltronPageState extends State<BaseVoltronPage> {
     } else {
       child = Container();
     }
-    if (Platform.isAndroid) {
-      child = SafeArea(
-        bottom: false,
-        child: child,
-      );
-    }
+    child = SafeArea(
+      bottom: false,
+      child: child,
+    );
     return WillPopScope(
       onWillPop: () async {
         return !(_jsLoader.back(() {

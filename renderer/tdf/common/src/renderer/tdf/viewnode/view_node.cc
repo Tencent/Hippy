@@ -48,6 +48,9 @@
 #include "renderer/tdf/viewnode/node_attributes_parser.h"
 #include "renderer/tdf/viewnode/root_view_node.h"
 #include "renderer/tdf/viewnode/view_names.h"
+#include "renderer/tdf/devtools/devtools_util.h"
+#include "renderer/tdf/viewnode/image_view_node.h"
+#include "renderer/tdf/tdf_render_manager.h"
 
 namespace hippy {
 inline namespace render {
@@ -93,8 +96,12 @@ void ViewNode::OnUpdate(const std::shared_ptr<hippy::dom::DomNode> &dom_node) {
     return;
   }
   // only update the different part
-  if (dom_node->GetDiffStyle() != nullptr) {
-    HandleStyleUpdate(*(dom_node->GetDiffStyle()), *(dom_node->GetDeleteProps()));
+  auto diff_style = dom_node->GetDiffStyle();
+  auto delete_props = dom_node->GetDeleteProps();
+  if (diff_style != nullptr || delete_props != nullptr) {
+    HandleStyleUpdate(
+        diff_style ? *(diff_style) : DomStyleMap(),
+        delete_props ? *(delete_props) : DomDeleteProps());
   }
 }
 
@@ -106,6 +113,13 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeletePr
   if (auto it = dom_style.find(view::kBackgroundColor); it != map_end && it->second != nullptr) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     view->SetBackgroundColor(ViewNode::ParseToColor(it->second));
+  }
+
+  if (auto it = dom_style.find(view::kBackgroundImage);
+      it != map_end && it->second != nullptr && !it->second->IsUndefined()) {
+    FOOTSTONE_DCHECK(it->second->IsString());
+    auto url = it->second->ToStringChecked();
+    SetBackgroundImage(url);
   }
 
   // Border Width / Border Color / Border Radius ,All in On Method
@@ -155,6 +169,45 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeletePr
     } else if (*it == hippy::dom::kOverflow) {
       view->SetClipToBounds(true);
     }
+  }
+}
+
+void ViewNode::SetBackgroundImage(const std::string &img_url) {
+  FOOTSTONE_LOG(INFO) << "---ViewNode::SetBackgroundImage--- src = " << img_url;
+
+  if (!has_background_image_) {
+    // create dom node
+    auto style = std::make_shared<DomStyleMap>();
+    style->emplace(std::string(hippy::kImageSrc), std::make_shared<footstone::HippyValue>(img_url));
+    auto ext = std::make_shared<DomStyleMap>();
+    auto dom_node = std::make_shared<hippy::dom::DomNode>(0,
+                                                          id_,
+                                                          0,
+                                                          "BackgroundImage",
+                                                          tdf::kImageViewName,
+                                                          style,
+                                                          ext,
+                                                          dom_node_->GetRootNode());
+    dom_node->SetRenderInfo(RenderInfo{0, render_info_.id, 0});
+
+    auto layout_result = dom_node_->GetRenderLayoutResult();
+    hippy::LayoutResult image_result = {0};
+    image_result.width = layout_result.width;
+    image_result.height = layout_result.height;
+
+    auto view_node = GetNodeCreator(tdf::kImageViewName)(dom_node);
+    view_node->is_background_image_node_ = true;
+    view_node->background_image_layout_result_ = image_result;
+    view_node->SetRootNode(root_node_);
+    view_node->OnCreate();
+    has_background_image_ = true;
+  } else {
+    FOOTSTONE_DCHECK(children_.size() == 1);
+    auto view_node = std::static_pointer_cast<ImageViewNode>(children_[0]);
+    auto diff_style = std::make_shared<DomStyleMap>();
+    diff_style->emplace(std::string(hippy::kImageSrc), std::make_shared<footstone::HippyValue>(img_url));
+    view_node->GetDomNode()->SetDiffStyle(diff_style);
+    view_node->OnUpdate(view_node->GetDomNode());
   }
 }
 
@@ -318,6 +371,17 @@ void ViewNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
                       << new_frame.Y() << " | " << new_frame.Width() << " | " << new_frame.Height() << " |  "
                       << render_info_.pid << " | " << GetViewName();
   layout_listener_.Notify(new_frame);
+
+  // 背景图View也要同步更新尺寸
+  if (has_background_image_) {
+    FOOTSTONE_DCHECK(children_.size() == 1);
+    hippy::LayoutResult image_result = {0};
+    image_result.width = layout_result.width;
+    image_result.height = layout_result.height;
+    auto view_node = std::static_pointer_cast<ImageViewNode>(children_[0]);
+    view_node->background_image_layout_result_ = image_result;
+    view_node->HandleLayoutUpdate(image_result);
+  }
 }
 
 std::shared_ptr<tdfcore::View> ViewNode::CreateView() {
@@ -544,6 +608,26 @@ std::shared_ptr<RootViewNode> ViewNode::GetRootNode() const {
 }
 
 void ViewNode::AddChildAt(const std::shared_ptr<ViewNode>& child, int32_t index) {
+  if (child->is_background_image_node_) {
+    if (children_.size() > 0) {
+      for (const auto& the_child : children_) {
+        the_child->SetParent(child);
+      }
+      child->children_ = children_;
+      children_.clear();
+    }
+    AddChildAtImpl(child, index);
+  } else {
+    if (has_background_image_) {
+      FOOTSTONE_DCHECK(children_.size() == 1);
+      children_[0]->AddChildAtImpl(child, index);
+    } else {
+      AddChildAtImpl(child, index);
+    }
+  }
+}
+
+void ViewNode::AddChildAtImpl(const std::shared_ptr<ViewNode>& child, int32_t index) {
   FOOTSTONE_DCHECK(!child->GetParent());
 
   // index可能跳跃变大的情况说明：
@@ -621,6 +705,17 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
     if (parent_.lock()->GetInterceptTouchEventFlag()) {
       v->SetHitTestBehavior(tdfcore::HitTestBehavior::kIgnore);
     }
+
+    if (is_background_image_node_) {
+      auto views = parent_.lock()->GetView()->GetChildren();
+      for (auto &the_view : views) {
+        parent_.lock()->GetView()->RemoveView(the_view);
+      }
+      for (auto &the_view : views) {
+        v->AddView(the_view);
+      }
+    }
+
     // check index
     auto checked_index = static_cast<uint32_t >(GetCorrectedIndex());
     auto view_count = parent_.lock()->GetView()->GetChildren().size();
@@ -636,9 +731,10 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
 
   // Sync style/listener/etc
   HandleStyleUpdate(GenerateStyleInfo(dom_node_));
-  HandleLayoutUpdate(dom_node_->GetRenderLayoutResult());
+  HandleLayoutUpdate(is_background_image_node_ ? background_image_layout_result_ : dom_node_->GetRenderLayoutResult());
   HandleEventInfoUpdate();
-  // recursively attach the sub ViewNode tree(sycn the tdfcore::View Tree)
+
+  // recursively attach the sub ViewNode tree(sync the tdfcore::View Tree)
   uint32_t child_index = 0;
   for (const auto& child : children_) {
     std::shared_ptr<tdfcore::View> child_view = nullptr;
@@ -650,7 +746,9 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
         child_view = nullptr;
       }
     }
-    child->Attach(child_view);
+    if (!child->IsAttached()) {
+      child->Attach(child_view);
+    }
     ++child_index;
   }
   // must delete not matched subviews
@@ -693,6 +791,7 @@ void ViewNode::CallFunction(const std::string &name, const DomArgument &param, c
     obj["height"] = frame.Height();
     DoCallback(name, call_back_id, std::make_shared<footstone::HippyValue>(obj));
   }
+  DevtoolsUtil::CallDevtoolsFunction(root_node_, shared_from_this(), name, param, call_back_id);
 }
 
 }  // namespace tdf

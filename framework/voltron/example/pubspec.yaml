@@ -31,7 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  voltron: ^0.0.27
+  voltron: ^0.0.28
 
   qr_flutter: 4.0.0
 

@@ -213,8 +213,10 @@ void TDFRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
       } else {
         view_node = GetNodeCreator(node->GetViewName())(node);
       }
-      root_view_node->RegisterViewNode(node->GetId(), view_node);
-      view_node->OnCreate();
+      if (view_node) {
+        root_view_node->RegisterViewNode(node->GetId(), view_node);
+        view_node->OnCreate();
+      }
     }
     FOOTSTONE_LOG(INFO) << "CreateNode: END";
   });
@@ -224,7 +226,10 @@ void TDFRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_node,
                                         std::vector<std::shared_ptr<DomNode>>&& nodes) {
   CHECK_ROOT()
   FOR_EACH_TEXT_NODE(
-      tdf::TextViewNode::FindLayoutTextViewNode(root_node.lock()->GetId(), node)->SyncTextAttributes(node);
+      auto view_node = tdf::TextViewNode::FindLayoutTextViewNode(root_node.lock()->GetId(), node);
+      if (view_node) {
+        view_node->SyncTextAttributes(node);
+      }
   )
   GET_SHELL();
   shell->GetUITaskRunner()->PostTask([nodes, root_view_node] {
@@ -244,7 +249,10 @@ void TDFRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
 void TDFRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
                                         std::vector<std::shared_ptr<DomNode>>&& nodes) {
   CHECK_ROOT()
-  FOR_EACH_TEXT_NODE(tdf::TextViewNode::UnregisterMeasureFunction(root_node.lock()->GetId(), node);)
+  for (auto const& node : nodes) {
+    UnregisterAllMeasureFunctions(root_node.lock()->GetId(), node);
+  }
+
   GET_SHELL();
   shell->GetUITaskRunner()->PostTask([nodes, root_view_node] {
     FOOTSTONE_LOG(INFO) << "DeleteRenderNode: BEGIN";
@@ -255,6 +263,17 @@ void TDFRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
     }
     FOOTSTONE_LOG(INFO) << "DeleteRenderNode: END";
   });
+}
+
+void TDFRenderManager::UnregisterAllMeasureFunctions(uint32_t root_id, const std::shared_ptr<hippy::DomNode>& node) {
+  for (const auto& child : node->GetChildren()) {
+    if (child) {
+      UnregisterAllMeasureFunctions(root_id, child);
+    }
+  }
+  if (node->GetViewName() == tdf::kTextViewName) {
+    tdf::TextViewNode::UnregisterMeasureFunction(root_id, node);
+  }
 }
 
 void TDFRenderManager::UpdateLayout(std::weak_ptr<RootNode> root_node,

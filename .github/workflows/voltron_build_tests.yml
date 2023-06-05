@@ -30,8 +30,10 @@ jobs:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.0.5'
+          flutter-version: '3.3.8'
           channel: 'stable'
+      - name: framework flutter pub get
+        run: flutter pub get
       - name: framework flutter analyze
         run: flutter analyze
         working-directory: framework/voltron
@@ -42,8 +44,10 @@ jobs:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.0.5'
+          flutter-version: '3.3.8'
           channel: 'stable'
+      - name: renderer flutter pub get
+        run: flutter pub get
       - name: renderer flutter analyze
         run: flutter analyze
         working-directory: renderer/voltron
@@ -54,8 +58,10 @@ jobs:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.0.5'
+          flutter-version: '3.3.8'
           channel: 'stable'
+      - name: renderer flutter pub get
+        run: flutter pub get
       - name: renderer flutter test
         run: flutter test
         working-directory: renderer/voltron
@@ -66,8 +72,10 @@ jobs:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.0.5'
+          flutter-version: '3.3.8'
           channel: 'stable'
+      - name: flutter pub get
+        run: flutter pub get
       - name: Build for Android
         run: flutter build apk
 
@@ -88,8 +96,10 @@ jobs:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.0.5'
+          flutter-version: '3.3.8'
           channel: 'stable'
           architecture: x64
+      - name: flutter pub get
+        run: flutter pub get
       - name: Build for iOS
         run: flutter build ios --release --no-codesign
