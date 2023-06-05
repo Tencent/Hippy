@@ -91,6 +91,7 @@ public class ControllerManager {
         mControllerUpdateManger = new ControllerUpdateManger<>(renderer);
     }
 
+    @NonNull
     public RenderManager getRenderManager() {
         return ((NativeRender) mRenderer).getRenderManager();
     }
@@ -270,7 +271,7 @@ public class ControllerManager {
         }
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Nullable
     public View createView(@NonNull RenderNode node, PoolType cachePoolType) {
         final int rootId = node.getRootId();
@@ -299,7 +300,7 @@ public class ControllerManager {
         return view;
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public void updateProps(@NonNull RenderNode node, @Nullable Map<String, Object> newProps,
             @Nullable Map<String, Object> events, @Nullable Map<String, Object> diffProps,
             boolean skipComponentProps) {
@@ -473,7 +474,7 @@ public class ControllerManager {
         }
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public void onBatchStart(int rootId, int id, String className) {
         HippyViewController controller = mControllerRegistry.getViewController(className);
         View view = mControllerRegistry.getView(rootId, id);
@@ -588,8 +589,8 @@ public class ControllerManager {
         }
     }
 
-    public void addChild(int rootId, int pid, int id, int index) {
-        View child = mControllerRegistry.getView(rootId, id);
+    public void addChild(int rootId, int pid, @NonNull RenderNode node) {
+        View child = mControllerRegistry.getView(rootId, node.getId());
         View parent = mControllerRegistry.getView(rootId, pid);
         if (child != null && parent instanceof ViewGroup && child.getParent() == null) {
             String parentClassName = NativeViewTag.getClassName(parent);
@@ -598,10 +599,10 @@ public class ControllerManager {
                 controller = mControllerRegistry.getViewController(parentClassName);
             }
             if (controller != null) {
-                controller.addView((ViewGroup) parent, child, index);
+                controller.addView((ViewGroup) parent, child, node.indexOfDrawingOrder());
             }
         } else {
-            reportAddViewException(pid, parent, id, child);
+            reportAddViewException(pid, parent, node.getId(), child);
         }
     }
 

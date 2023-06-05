@@ -126,7 +126,7 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
 
     private fun buildSnapshot(runnable: Runnable) {
         val rootView = hippyEngineWrapper?.hippyRootView
-        if (rootView == null) {
+        if (rootView == null || currentEngineId == -1) {
             runnable.run()
         } else {
             generateBitmapFromView(rootView, object : SnapshotBuildCallback {
@@ -233,6 +233,9 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
                 debugMode,
                 debugServerHost
             )
+            hippyEngineWrapper?.let {
+                currentEngineId = it.engineId
+            }
             hippyEngineWrapper?.load(this, object : HippyEngineWrapper.HippyEngineLoadCallback {
                 override fun onInitEngineCompleted(
                     statusCode: HippyEngine.EngineInitStatus,
