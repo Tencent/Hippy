@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.views.scroll;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.HorizontalScrollView;
@@ -50,6 +51,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 
     protected int mScrollEventThrottle = 10;
     private long mLastScrollEventTimeStamp = -1;
+  private boolean mHasUnsentScrollEvent;
 
     protected int mScrollMinOffset = 0;
     private int startScrollX = 0;
@@ -129,6 +131,9 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
             mDragging = true;
             HippyScrollViewEventHelper.emitScrollEvent(this, EventUtils.EVENT_SCROLLER_BEGIN_DRAG);
         } else if (action == MotionEvent.ACTION_UP && mDragging) {
+            if (mHasUnsentScrollEvent) {
+                sendOnScrollEvent();
+            }
             HippyScrollViewEventHelper.emitScrollEvent(this, EventUtils.EVENT_SCROLLER_END_DRAG);
             if (mPagingEnabled) {
                 post(new Runnable() {
@@ -182,30 +187,36 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
         Integer scrollX = getScrollX();
         scrollOffsetForReuse.put(id, scrollX);
         if (mHippyOnScrollHelper.onScrollChanged(x, y)) {
-            long currTime = System.currentTimeMillis();
+            long currTime;
             int offsetX = Math.abs(x - mLastX);
             if (mScrollMinOffset > 0 && offsetX >= mScrollMinOffset) {
                 mLastX = x;
-                HippyScrollViewEventHelper
-                        .emitScrollEvent(this, EventUtils.EVENT_SCROLLER_ON_SCROLL);
-            } else if ((mScrollMinOffset == 0) && (currTime - mLastScrollEventTimeStamp
+                sendOnScrollEvent();
+            } else if ((mScrollMinOffset == 0) && ((currTime = SystemClock.elapsedRealtime()) - mLastScrollEventTimeStamp
                     >= mScrollEventThrottle)) {
                 mLastScrollEventTimeStamp = currTime;
-                HippyScrollViewEventHelper
-                        .emitScrollEvent(this, EventUtils.EVENT_SCROLLER_ON_SCROLL);
+                sendOnScrollEvent();
+            } else {
+                mHasUnsentScrollEvent = true;
             }
             mDoneFlinging = false;
         }
     }
 
-    protected void doPageScroll() {
+    private void sendOnScrollEvent() {
+        mHasUnsentScrollEvent = false;
         HippyScrollViewEventHelper
-                .emitScrollEvent(this, EventUtils.EVENT_SCROLLER_MOMENTUM_BEGIN);
-        smoothScrollToPage();
+                .emitScrollEvent(this, EventUtils.EVENT_SCROLLER_ON_SCROLL);
+    }
+
+    private void scheduleScrollEnd() {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 if (mDoneFlinging) {
+                    if (mHasUnsentScrollEvent) {
+                        sendOnScrollEvent();
+                    }
                     HippyScrollViewEventHelper.emitScrollEvent(HippyHorizontalScrollView.this,
                             EventUtils.EVENT_SCROLLER_MOMENTUM_END);
                 } else {
@@ -215,6 +226,13 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
             }
         };
         postOnAnimationDelayed(runnable, HippyScrollViewEventHelper.MOMENTUM_DELAY);
+    }
+
+    protected void doPageScroll() {
+        HippyScrollViewEventHelper
+                .emitScrollEvent(this, EventUtils.EVENT_SCROLLER_MOMENTUM_BEGIN);
+        smoothScrollToPage();
+        scheduleScrollEnd();
     }
 
     @Override
@@ -225,19 +243,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
         super.fling(velocityX);
         HippyScrollViewEventHelper
                 .emitScrollEvent(this, EventUtils.EVENT_SCROLLER_MOMENTUM_BEGIN);
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                if (mDoneFlinging) {
-                    HippyScrollViewEventHelper.emitScrollEvent(HippyHorizontalScrollView.this,
-                            EventUtils.EVENT_SCROLLER_MOMENTUM_END);
-                } else {
-                    mDoneFlinging = true;
-                    postOnAnimationDelayed(this, HippyScrollViewEventHelper.MOMENTUM_DELAY);
-                }
-            }
-        };
-        postOnAnimationDelayed(runnable, HippyScrollViewEventHelper.MOMENTUM_DELAY);
+        scheduleScrollEnd();
     }
 
     private void smoothScrollToPage() {
