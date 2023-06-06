@@ -86,7 +86,8 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
             initFooterRefreshHelper(renderView, renderNode);
             return new HippyRecyclerViewHolder(footerRefreshHelper.getView(), renderNode);
         } else if (isStickyPosition(positionToCreateHolder)) {
-            return new HippyRecyclerViewHolder(getStickyContainer(parent, renderView), renderNode);
+            View stickyView = hippyRecyclerView.getStickyContainer(parent.getContext(), renderView);
+            return new HippyRecyclerViewHolder(stickyView, renderNode);
         }
         return new HippyRecyclerViewHolder(renderView, renderNode);
     }
@@ -100,14 +101,6 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
             attachedIds.append("_i_" + attachedView.getId());
         }
         return attachedIds.toString();
-    }
-
-    private FrameLayout getStickyContainer(ViewGroup parent, View renderView) {
-        FrameLayout container = new FrameLayout(parent.getContext());
-        if (renderView != null) {
-            container.addView(renderView, new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT));
-        }
-        return container;
     }
 
     @Override
