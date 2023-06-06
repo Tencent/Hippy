@@ -216,7 +216,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
 
     @HippyControllerProps(name = "preloadItemNumber")
     public void setPreloadItemNumber(HRW view, int preloadItemNumber) {
-        getAdapter(view).setPreloadItemNumber(preloadItemNumber);
+        view.getRecyclerViewEventHelper().setPreloadItemNumber(preloadItemNumber);
     }
 
     @HippyControllerProps(name = "suspendViewListener", defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
@@ -288,9 +288,5 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
                 LogUtils.w(TAG, "Unknown function name: " + functionName);
             }
         }
-    }
-
-    private HippyRecyclerListAdapter getAdapter(HRW view) {
-        return view.getRecyclerView().getAdapter();
     }
 }

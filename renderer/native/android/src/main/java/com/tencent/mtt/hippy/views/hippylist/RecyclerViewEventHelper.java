@@ -24,6 +24,7 @@ import android.graphics.Rect;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.HippyOverPullHelper;
 import androidx.recyclerview.widget.HippyOverPullListener;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 
@@ -70,7 +71,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     private ViewTreeObserver viewTreeObserver;
     private OnPreDrawListener preDrawListener;
     private boolean isLastTimeReachEnd;
-
+    private int preloadItemNumber;
 
     public RecyclerViewEventHelper(HippyRecyclerView recyclerView) {
         this.hippyRecyclerView = recyclerView;
@@ -219,6 +220,11 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
      * 竖向滑动，内容已经到达最下边
      */
     private boolean isVerticalReachEnd() {
+        RecyclerView.LayoutManager manager;
+        if (preloadItemNumber > 0 && (manager = hippyRecyclerView.getLayoutManager()) instanceof LinearLayoutManager) {
+            return ((LinearLayoutManager) manager).findLastVisibleItemPosition()
+                    >= manager.getItemCount() - preloadItemNumber;
+        }
         return !hippyRecyclerView.canScrollVertically(1);
     }
 
@@ -226,6 +232,11 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
      * 水平滑动，内容已经到达最右边
      */
     private boolean isHorizontalReachEnd() {
+        RecyclerView.LayoutManager manager;
+        if (preloadItemNumber > 0 && (manager = hippyRecyclerView.getLayoutManager()) instanceof LinearLayoutManager) {
+            return ((LinearLayoutManager) manager).findLastVisibleItemPosition()
+                    >= manager.getItemCount() - preloadItemNumber;
+        }
         return !hippyRecyclerView.canScrollHorizontally(1);
     }
 
@@ -412,5 +423,13 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
 
     private boolean isOverPulling(int newState) {
         return newState == HippyOverPullHelper.OVER_PULL_DOWN_ING || newState == HippyOverPullHelper.OVER_PULL_UP_ING;
+    }
+
+    /**
+     * @param preloadItemNumber 提前多少条Item，通知前端加载下一页数据
+     */
+    public void setPreloadItemNumber(int preloadItemNumber) {
+        this.preloadItemNumber = preloadItemNumber;
+        checkSendReachEndEvent();
     }
 }
