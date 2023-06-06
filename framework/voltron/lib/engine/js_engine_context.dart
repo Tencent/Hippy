@@ -187,12 +187,7 @@ class EngineContext with RenderContextProxy {
   }
 
   void handleException(JsError error) {
-    var devSupportManager = _devSupportManager;
-    if (_isDevMode) {
-      devSupportManager.handleException(error);
-    } else {
-      globalConfigs.exceptionHandlerAdapter?.handleJsException(error);
-    }
+    globalConfigs.exceptionHandlerAdapter?.handleJsException(error);
   }
 
   void onRuntimeInitialized(int runtimeId) {

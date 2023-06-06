@@ -24,7 +24,7 @@ class JsError extends Error {
 
   String get msg => _message?.toString() ?? '';
 
-  JsError([this._message, this._stack]);
+  JsError(this._message, this._stack);
 
   @override
   String toString() {

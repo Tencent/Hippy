@@ -80,7 +80,7 @@ class EngineInitParams {
   VoltronThirdPartyAdapter? thirdPartyAdapter;
 
   // 可选参数 接收异常
-  DefaultExceptionHandlerAdapter? exceptionHandler;
+  VoltronExceptionHandlerAdapter? exceptionHandler;
 
   // 可选参数 设置相关
   ShredPreferenceAdapter? sharedPreferencesAdapter;

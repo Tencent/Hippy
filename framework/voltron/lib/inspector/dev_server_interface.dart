@@ -34,6 +34,4 @@ abstract class DevServerInterface {
   void attachToHost(RootWidgetViewModel viewModel);
 
   void detachFromHost(RootWidgetViewModel viewModel);
-
-  void handleException(JsError error);
 }

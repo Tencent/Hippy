@@ -51,9 +51,6 @@ class DevServerImpl implements DevServerInterface {
   }
 
   @override
-  void handleException(JsError error) {}
-
-  @override
   void attachToHost(RootWidgetViewModel viewModel) {
     viewModel.isDebugMode = true;
     viewModel.reload = reload;
