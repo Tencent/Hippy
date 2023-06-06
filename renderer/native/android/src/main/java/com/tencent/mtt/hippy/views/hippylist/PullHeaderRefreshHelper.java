@@ -84,8 +84,8 @@ public class PullHeaderRefreshHelper extends PullRefreshHelper {
     @Override
     public void enableRefresh() {
         super.enableRefresh();
-        if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_FOLDED) {
-            mRecyclerView.scrollToTop();
+        if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_REFRESHING) {
+            mRecyclerView.smoothScrollToPosition(0);
         }
     }
 }
