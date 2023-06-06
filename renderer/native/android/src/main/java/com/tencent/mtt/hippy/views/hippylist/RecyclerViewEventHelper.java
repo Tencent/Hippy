@@ -26,6 +26,8 @@ import androidx.recyclerview.widget.HippyOverPullHelper;
 import androidx.recyclerview.widget.HippyOverPullListener;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
+
+import android.os.SystemClock;
 import android.view.View;
 import android.view.View.OnAttachStateChangeListener;
 import android.view.View.OnLayoutChangeListener;
@@ -59,6 +61,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     private HippyViewEvent onScrollEvent;
     private long lastScrollEventTimeStamp;
     private int scrollEventThrottle;
+    private boolean mHasUnsentScrollEvent;
     private boolean exposureEventEnable;
     private HippyViewEvent onScrollDragStartedEvent;
 
@@ -171,6 +174,9 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
         int oldState = currentState;
         currentState = newState;
+        if (mHasUnsentScrollEvent) {
+            sendOnScrollEvent();
+        }
         sendDragEvent(newState);
         sendDragEndEvent(oldState, currentState);
         sendFlingEvent(newState);
@@ -230,15 +236,18 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
 
     protected void checkSendOnScrollEvent() {
         if (onScrollEventEnable) {
-            long currTime = System.currentTimeMillis();
+            long currTime = SystemClock.elapsedRealtime();
             if (currTime - lastScrollEventTimeStamp >= scrollEventThrottle) {
                 lastScrollEventTimeStamp = currTime;
                 sendOnScrollEvent();
+            } else {
+                mHasUnsentScrollEvent = true;
             }
         }
     }
 
     public void sendOnScrollEvent() {
+        mHasUnsentScrollEvent = false;
         getOnScrollEvent().send(getParentView(), generateScrollEvent());
     }
 
