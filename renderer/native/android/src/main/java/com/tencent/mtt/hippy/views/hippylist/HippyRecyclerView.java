@@ -16,8 +16,11 @@
 
 package com.tencent.mtt.hippy.views.hippylist;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+
 import android.content.Context;
 import android.graphics.Rect;
+import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.HippyRecyclerViewBase;
@@ -406,7 +409,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         if (viewHolder != null && viewHolder.itemView instanceof ViewGroup) {
             ViewGroup itemView = (ViewGroup) viewHolder.itemView;
             if (itemView.getChildCount() <= 0) {
-                itemView.addView(currentHeaderView);
+                itemView.addView(currentHeaderView, generateStickyLayoutParams());
             }
         }
         return false;
@@ -486,5 +489,17 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     public String toString() {
         return this.getClass().getSimpleName() + "{renderNodeCount:" + renderNodeCount + ",state:" + getStateInfo()
                 + "}";
+    }
+
+    /*package*/ ViewGroup getStickyContainer(Context context, View renderView) {
+        FrameLayout container = new FrameLayout(context);
+        if (renderView != null) {
+            container.addView(renderView, generateStickyLayoutParams());
+        }
+        return container;
+    }
+
+    /*package*/ ViewGroup.LayoutParams generateStickyLayoutParams() {
+        return new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT);
     }
 }
