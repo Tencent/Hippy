@@ -150,6 +150,10 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     public void setListData() {
         LogUtils.d("HippyRecyclerView", "itemCount =" + listAdapter.getItemCount());
         listAdapter.notifyDataSetChanged();
+        if (overPullHelper != null) {
+            overPullHelper.enableOverPullUp(!listAdapter.hasHeader());
+            overPullHelper.enableOverPullDown(!listAdapter.hasFooter());
+        }
         renderNodeCount = listAdapter.getRenderNodeCount();
         if (renderNodeCount > 0 && mInitialContentOffset > 0) {
             scrollToInitContentOffset();
