@@ -141,7 +141,7 @@ public:
     /**
      * Register custom ui component
      *
-     * @param extraComponent a map of custom ui components
+     * @param extraComponents a map of custom ui components
      */
     void RegisterExtraComponent(NSArray<Class> *extraComponents);
         
