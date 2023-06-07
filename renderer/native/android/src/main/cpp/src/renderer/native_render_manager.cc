@@ -165,7 +165,9 @@ void NativeRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_node,
     return;
   }
 
-  for (const auto& n : nodes) {
+  for (const auto &n : nodes) {
+    auto node = root->GetNode(n->GetId());
+    if (node == nullptr) continue;
     if (n->GetViewName() == "Text") {
       MarkTextDirty(root_node, n->GetId());
     }
