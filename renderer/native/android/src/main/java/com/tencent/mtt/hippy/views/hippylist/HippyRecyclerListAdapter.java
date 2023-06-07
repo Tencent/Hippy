@@ -406,4 +406,14 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         }
         lp.height = getItemHeight(position);
     }
+
+    /*package*/ boolean hasHeader() {
+        return getRenderNodeCount() > 0 && getChildNode(0).isPullHeader();
+    }
+
+    /*package*/ boolean hasFooter() {
+        int count = getRenderNodeCount();
+        return count > 0 && getChildNode(count - 1).isPullFooter();
+    }
+
 }
