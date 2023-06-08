@@ -28,16 +28,6 @@ namespace hippy {
 inline namespace driver {
 inline namespace performance {
 
-PerformanceNavigationTiming::PerformanceNavigationTiming(
-    const string_view& name, const TimePoint& start,
-    const TimePoint& engine_initialization_start, const TimePoint& engine_initialization_end,
-    std::vector<BundleInfo> bundle_info,
-    const TimePoint& load_instance_start, const TimePoint& load_instance_end,
-    const TimePoint& first_frame): PerformanceEntry(
-        name, SubType::kPerformanceNavigationTiming, Type::kNavigation, start, TimePoint::Now() - start),
-        engine_initialization_start_(engine_initialization_start), engine_initialization_end_(engine_initialization_end),
-        bundle_info_(std::move(bundle_info)), load_instance_start_(load_instance_start), load_instance_end_(load_instance_end) {}
-
 PerformanceNavigationTiming::PerformanceNavigationTiming(const string_view& name)
 : PerformanceEntry(name, SubType::kPerformanceNavigationTiming, Type::kNavigation) {}
 

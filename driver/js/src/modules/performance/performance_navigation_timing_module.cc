@@ -32,10 +32,6 @@ namespace hippy {
 inline namespace driver {
 inline namespace module {
 
-constexpr char kBundleInfoUrlKey[] = "url";
-constexpr char kBundleInfoStartKey[] = "start";
-constexpr char kBundleInfoEndKey[] = "end";
-
 std::shared_ptr<ClassTemplate<PerformanceNavigationTiming>> RegisterPerformanceNavigationTiming(const std::weak_ptr<Scope>& weak_scope) {
   ClassTemplate<PerformanceNavigationTiming> class_template;
   class_template.name = "PerformanceNavigationTiming";
@@ -75,93 +71,31 @@ std::shared_ptr<ClassTemplate<PerformanceNavigationTiming>> RegisterPerformanceN
     return std::static_pointer_cast<PerformanceNavigationTiming>(entry);
   };
 
-  PropertyDefine<PerformanceNavigationTiming> engine_initialization_start;
-  engine_initialization_start.name = "engineInitializationStart";
-  engine_initialization_start.getter = [weak_scope](PerformanceNavigationTiming* thiz,
-      std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<CtxValue> {
-    auto scope = weak_scope.lock();
-    if (scope) {
-      return nullptr;
-    }
-    auto context = scope->GetContext();
-    return context->CreateNumber(thiz->GetEngineInitializationStart().ToEpochDelta().ToMillisecondsF());
-  };
-  class_template.properties.push_back(std::move(engine_initialization_start));
+#define ADD_PROPERTY(prop_var, prop_name, get_prop_method) \
+  PropertyDefine<PerformanceNavigationTiming> prop_var; \
+  prop_var.name = prop_name; \
+  prop_var.getter = [weak_scope](PerformanceNavigationTiming* thiz, \
+      std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<CtxValue> { \
+    auto scope = weak_scope.lock(); \
+    if (scope) { \
+      return nullptr; \
+    } \
+    auto context = scope->GetContext(); \
+    return context->CreateNumber(thiz->get_prop_method().ToEpochDelta().ToMillisecondsF()); \
+  }; \
+  class_template.properties.push_back(std::move(prop_var));
 
-  PropertyDefine<PerformanceNavigationTiming> engine_initialization_end;
-  engine_initialization_end.name = "engineInitializationEnd";
-  engine_initialization_end.getter = [weak_scope](PerformanceNavigationTiming* thiz,
-      std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<CtxValue> {
-    auto scope = weak_scope.lock();
-    if (scope) {
-      return nullptr;
-    }
-    auto context = scope->GetContext();
-    return context->CreateNumber(thiz->GetEngineInitializationEnd().ToEpochDelta().ToMillisecondsF());
-  };
-  class_template.properties.push_back(std::move(engine_initialization_end));
-
-  PropertyDefine<PerformanceNavigationTiming> bundle_info;
-  bundle_info.name = "bundleInfo";
-  bundle_info.getter = [weak_scope](PerformanceNavigationTiming* thiz,
-      std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<CtxValue> {
-    auto scope = weak_scope.lock();
-    if (scope) {
-      return nullptr;
-    }
-    auto context = scope->GetContext();
-    auto bundle_info = thiz->GetBundleInfo();
-    std::shared_ptr<CtxValue> array[bundle_info.size()];
-    for (const auto& info: bundle_info) {
-      auto object = context->CreateObject();
-      context->SetProperty(object, context->CreateString(kBundleInfoUrlKey), context->CreateString(info.bundle_url));
-      context->SetProperty(object, context->CreateString(kBundleInfoStartKey),
-                           context->CreateNumber(info.start.ToEpochDelta().ToMillisecondsF()));
-      context->SetProperty(object, context->CreateString(kBundleInfoEndKey),
-                           context->CreateNumber(info.end.ToEpochDelta().ToMillisecondsF()));
-    }
-    return context->CreateArray(bundle_info.size(), array);
-  };
-  class_template.properties.push_back(std::move(bundle_info));
-
-  PropertyDefine<PerformanceNavigationTiming> load_instance_start;
-  load_instance_start.name = "loadInstanceStart";
-  load_instance_start.getter = [weak_scope](PerformanceNavigationTiming* thiz,
-      std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<CtxValue> {
-    auto scope = weak_scope.lock();
-    if (scope) {
-      return nullptr;
-    }
-    auto context = scope->GetContext();
-    return context->CreateNumber(thiz->GetLoadInstanceStart().ToEpochDelta().ToMillisecondsF());
-  };
-  class_template.properties.push_back(std::move(load_instance_start));
-
-  PropertyDefine<PerformanceNavigationTiming> load_instance_end;
-  load_instance_end.name = "loadInstanceEnd";
-  load_instance_end.getter = [weak_scope](PerformanceNavigationTiming* thiz,
-      std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<CtxValue> {
-    auto scope = weak_scope.lock();
-    if (scope) {
-      return nullptr;
-    }
-    auto context = scope->GetContext();
-    return context->CreateNumber(thiz->GetLoadInstanceEnd().ToEpochDelta().ToMillisecondsF());
-  };
-  class_template.properties.push_back(std::move(load_instance_end));
-
-  PropertyDefine<PerformanceNavigationTiming> first_frame;
-  first_frame.name = "firstFrame";
-  first_frame.getter = [weak_scope](PerformanceNavigationTiming* thiz,
-      std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<CtxValue> {
-    auto scope = weak_scope.lock();
-    if (scope) {
-      return nullptr;
-    }
-    auto context = scope->GetContext();
-    return context->CreateNumber(thiz->GetFirstFrame().ToEpochDelta().ToMillisecondsF());
-  };
-  class_template.properties.push_back(std::move(first_frame));
+  ADD_PROPERTY(hippy_init_engine_start, "hippyInitEngineStart", GetHippyInitEngineStart)
+  ADD_PROPERTY(hippy_init_engine_end, "hippyInitEngineEnd", GetHippyInitEngineEnd)
+  ADD_PROPERTY(hippy_init_js_framework_start, "hippyJsFrameworkStart", GetHippyJsFrameworkStart)
+  ADD_PROPERTY(hippy_init_js_framework_end, "hippyJsFrameworkEnd", GetHippyJsFrameworkEnd)
+  ADD_PROPERTY(hippy_bridge_startup_start, "hippyBridgeStartupStart", GetHippyBridgeStartupStart)
+  ADD_PROPERTY(hippy_bridge_startup_end, "hippyBridgeStartupEnd", GetHippyBridgeStartupEnd)
+  ADD_PROPERTY(hippy_run_application_start, "hippyRunApplicationStart", GetHippyRunApplicationStart)
+  ADD_PROPERTY(hippy_run_application_end, "hippyRunApplicationEnd", GetHippyRunApplicationEnd)
+  ADD_PROPERTY(hippy_first_frame_start, "hippyFirstFrameStart", GetHippyFirstFrameStart)
+  ADD_PROPERTY(hippy_first_frame_end, "hippyFirstFrameEnd", GetHippyFirstFrameEnd)
+#undef ADD_PROPERTY
 
   return std::make_shared<ClassTemplate<PerformanceNavigationTiming>>(std::move(class_template));
 }

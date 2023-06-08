@@ -32,43 +32,7 @@ inline namespace performance {
 
 class PerformanceNavigationTiming : public PerformanceEntry {
  public:
-  struct BundleInfo {
-    string_view bundle_url;
-    TimePoint start;
-    TimePoint end;
-  };
-
-  PerformanceNavigationTiming(const string_view& name, const TimePoint& start,
-                              const TimePoint& engine_initialization_start, const TimePoint& engine_initialization_end,
-                              std::vector<BundleInfo> bundle_info,
-                              const TimePoint& load_instance_start, const TimePoint& load_instance_end,
-                              const TimePoint& first_frame);
-
   PerformanceNavigationTiming(const string_view& name);
-
-  inline auto GetEngineInitializationStart() const {
-    return engine_initialization_start_;
-  }
-
-  inline auto GetEngineInitializationEnd() const {
-    return engine_initialization_end_;
-  }
-
-  inline auto GetBundleInfo() const {
-    return bundle_info_;
-  }
-
-  inline auto GetLoadInstanceStart() const {
-    return load_instance_start_;
-  }
-
-  inline auto GetLoadInstanceEnd() const {
-    return load_instance_end_;
-  }
-
-  inline auto GetFirstFrame() const {
-    return first_frame_;
-  }
 
 #define DEFINE_SET_AND_GET_METHOD(method_name, member_type, member) \
   void Set##method_name(member_type t) { \
@@ -92,26 +56,6 @@ class PerformanceNavigationTiming : public PerformanceEntry {
   virtual string_view ToJSON() override;
 
  private:
-//  TimePoint dom_complete_;
-//  TimePoint dom_content_loaded_event_end_;
-//  TimePoint dom_content_loaded_event_start_;
-//  TimePoint dom_interactive_;
-//  TimePoint load_event_end_;
-//  TimePoint load_event_start_;
-//  uint32_t redirect_count_;
-//  TimePoint request_start_;
-//  TimePoint response_start_;
-//  string_view type_; // navigate, reload, back_forward or prerender
-//  TimePoint unload_event_end_;
-//  TimePoint unload_event_start_;
-
-    TimePoint engine_initialization_start_;
-    TimePoint engine_initialization_end_;
-    std::vector<BundleInfo> bundle_info_;
-    TimePoint load_instance_start_;
-    TimePoint load_instance_end_;
-    TimePoint first_frame_;
-
   TimePoint hippy_init_engine_start_;
   TimePoint hippy_init_engine_end_;
   TimePoint hippy_init_js_framework_start_; // supported by Android only
