@@ -23,8 +23,6 @@ import android.graphics.Rect;
 import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.NestedScrollingChild2;
-import androidx.core.view.NestedScrollingParent2;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.HippyRecyclerViewBase;
 import androidx.recyclerview.widget.HippyViewHolderAbandonListener;
@@ -35,6 +33,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent.HippyNestedScrollTarget2;
+import com.tencent.mtt.hippy.views.common.HippyNestedScrollHelper;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IHeaderAttachListener;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IHeaderHost;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.StickyHeaderHelper;
@@ -44,8 +44,7 @@ import java.util.ArrayList;
  * Created  on 2020/12/22. Description
  */
 public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends HippyRecyclerViewBase
-        implements IHeaderAttachListener, HippyViewHolderAbandonListener,
-        NestedScrollingChild2, NestedScrollingParent2 {
+        implements IHeaderAttachListener, HippyViewHolderAbandonListener, HippyNestedScrollTarget2 {
 
     private static int DEFAULT_ITEM_VIEW_CACHE_SIZE = 4;
     protected ADP listAdapter;
@@ -61,6 +60,8 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     private int mInitialContentOffset;
     private ArrayList<View> mFocusableViews;
     private final int[] mScrollConsumedPair = new int[2];
+    private final Priority[] mNestedScrollPriority = {Priority.SELF, Priority.NOT_SET,
+            Priority.NOT_SET, Priority.NOT_SET, Priority.NOT_SET};
     private int mNestedScrollAxesTouch;
     private int mNestedScrollAxesNonTouch;
 
@@ -659,6 +660,20 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
             && listAdapter.footerRefreshHelper.getVisibleSize() > 0;
     }
 
+    @Override
+    public void setNestedScrollPriority(int direction, Priority priority) {
+        mNestedScrollPriority[direction] = priority;
+    }
+
+    @Override
+    public Priority getNestedScrollPriority(int direction) {
+        Priority result = mNestedScrollPriority[direction];
+        if (result == Priority.NOT_SET) {
+            result = mNestedScrollPriority[DIRECTION_ALL];
+        }
+        return result;
+    }
+
     private int computeHorizontallyScrollDistance(int dx) {
         if (dx < 0) {
             return Math.max(dx, -computeHorizontalScrollOffset());
@@ -747,33 +762,36 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
 
     @Override
     public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed,
-        int dxUnconsumed,
-        int dyUnconsumed) {
+            int dxUnconsumed, int dyUnconsumed) {
         onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
-            ViewCompat.TYPE_TOUCH);
+                ViewCompat.TYPE_TOUCH);
     }
 
     @Override
     public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed,
-        int dxUnconsumed,
-        int dyUnconsumed, int type) {
+            int dxUnconsumed, int dyUnconsumed, int type) {
         // Step 1: process pull refresh
         if (type == ViewCompat.TYPE_TOUCH) {
-            mScrollConsumedPair[0] = 0;
-            mScrollConsumedPair[1] = 0;
-            if (handlePullRefresh(dxUnconsumed, dyUnconsumed, mScrollConsumedPair)) {
-                dxConsumed += mScrollConsumedPair[0];
-                dyConsumed += mScrollConsumedPair[1];
-                dxUnconsumed -= mScrollConsumedPair[0];
-                dyUnconsumed -= mScrollConsumedPair[1];
+            if (HippyNestedScrollHelper.priorityOfX(target, dxUnconsumed) == Priority.SELF
+                    || HippyNestedScrollHelper.priorityOfY(target, dyUnconsumed) == Priority.SELF) {
+                mScrollConsumedPair[0] = 0;
+                mScrollConsumedPair[1] = 0;
+                if (handlePullRefresh(dxUnconsumed, dyUnconsumed, mScrollConsumedPair)) {
+                    dxConsumed += mScrollConsumedPair[0];
+                    dyConsumed += mScrollConsumedPair[1];
+                    dxUnconsumed -= mScrollConsumedPair[0];
+                    dyUnconsumed -= mScrollConsumedPair[1];
+                }
             }
         } else if (isPullRefreshShowing()) {
             // don't respond non-touch scroll, prevent header/footer scroll to wrong position
             return;
         }
         // Step 2: process the current View
-        int myDx = dxUnconsumed != 0 ? computeHorizontallyScrollDistance(dxUnconsumed) : 0;
-        int myDy = dyUnconsumed != 0 ? computeVerticallyScrollDistance(dyUnconsumed) : 0;
+        int myDx = HippyNestedScrollHelper.priorityOfX(target, dxUnconsumed) == Priority.SELF
+                ? computeHorizontallyScrollDistance(dxUnconsumed) : 0;
+        int myDy = HippyNestedScrollHelper.priorityOfY(target, dyUnconsumed) == Priority.SELF
+                ? computeVerticallyScrollDistance(dyUnconsumed) : 0;
         if (myDx != 0 || myDy != 0) {
             scrollBy(myDx, myDy);
             dxConsumed += myDx;
@@ -782,8 +800,10 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
             dyUnconsumed -= myDy;
         }
         // Step 3: dispatch to the parent for processing
-        int parentDx = dxUnconsumed;
-        int parentDy = dyUnconsumed;
+        int parentDx = HippyNestedScrollHelper.priorityOfX(this, dxUnconsumed) == Priority.NONE ? 0
+                : dxUnconsumed;
+        int parentDy = HippyNestedScrollHelper.priorityOfY(this, dyUnconsumed) == Priority.NONE ? 0
+                : dyUnconsumed;
         if (parentDx != 0 || parentDy != 0) {
             dispatchNestedScroll(dxConsumed, dyConsumed, parentDx, parentDy, null, type);
         }
@@ -796,20 +816,48 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
 
     @Override
     public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed,
-        int type) {
-        // Dispatch to the parent for processing first
-        int parentDx = dx;
-        int parentDy = dy;
+            int type) {
+        // Step 1: Dispatch to the parent for processing
+        int parentDx = HippyNestedScrollHelper.priorityOfX(this, dx) == Priority.NONE ? 0 : dx;
+        int parentDy = HippyNestedScrollHelper.priorityOfY(this, dy) == Priority.NONE ? 0 : dy;
         if (parentDx != 0 || parentDy != 0) {
-            // Temporarily store `consumed` to reuse the Array
-            int consumedX = consumed[0];
-            int consumedY = consumed[1];
-            consumed[0] = 0;
-            consumed[1] = 0;
+            mScrollConsumedPair[0] = 0;
+            mScrollConsumedPair[1] = 0;
             // must use super to prevent duplicate handlePullRefresh
-            super.dispatchNestedPreScroll(parentDx, parentDy, consumed, null, type);
-            consumed[0] += consumedX;
-            consumed[1] += consumedY;
+            super.dispatchNestedPreScroll(parentDx, parentDy, mScrollConsumedPair, null, type);
+            consumed[0] += mScrollConsumedPair[0];
+            consumed[1] += mScrollConsumedPair[1];
+            dx -= mScrollConsumedPair[0];
+            dy -= mScrollConsumedPair[1];
+        }
+        // Step 2: process pull refresh
+        if (HippyNestedScrollHelper.priorityOfX(target, dx) == Priority.PARENT
+                || HippyNestedScrollHelper.priorityOfY(target, dy) == Priority.PARENT) {
+            if (type == ViewCompat.TYPE_TOUCH) {
+                mScrollConsumedPair[0] = 0;
+                mScrollConsumedPair[1] = 0;
+                if (handlePullRefresh(dx, dy, mScrollConsumedPair)) {
+                    consumed[0] += mScrollConsumedPair[0];
+                    consumed[1] += mScrollConsumedPair[1];
+                    dx -= mScrollConsumedPair[0];
+                    dy -= mScrollConsumedPair[1];
+                }
+            } else if (isPullRefreshShowing()) {
+                // don't respond non-touch scroll, prevent header/footer scroll to wrong position
+                consumed[0] += dx;
+                consumed[1] += dy;
+                return;
+            }
+        }
+        // Step 3: process the current View
+        int myDx = HippyNestedScrollHelper.priorityOfX(target, dx) == Priority.PARENT
+                ? computeHorizontallyScrollDistance(dx) : 0;
+        int myDy = HippyNestedScrollHelper.priorityOfY(target, dy) == Priority.PARENT
+                ? computeVerticallyScrollDistance(dy) : 0;
+        if (myDx != 0 || myDy != 0) {
+            consumed[0] += myDx;
+            consumed[1] += myDy;
+            scrollBy(myDx, myDy);
         }
     }
 
