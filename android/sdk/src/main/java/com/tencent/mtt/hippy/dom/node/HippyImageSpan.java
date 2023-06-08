@@ -69,8 +69,8 @@ public class HippyImageSpan extends ImageSpan {
   private String mUrl;
   private final WeakReference<ImageNode> mImageNodeWeakRefrence;
   private int mImageLoadState = STATE_UNLOAD;
-  private final HippyImageLoader mImageAdapter;
-  private final HippyEngineContext engineContext;
+  private final WeakReference<HippyImageLoader> mImageAdapterRef;
+  private final WeakReference<HippyEngineContext> engineContextRef;
   private Drawable mSrcDrawable = null;
   private Movie mGifMovie = null;
   private Paint mGifPaint = null;
@@ -89,9 +89,9 @@ public class HippyImageSpan extends ImageSpan {
   public HippyImageSpan(Drawable d, String source, ImageNode node,
       HippyImageLoader imageAdapter, HippyEngineContext context) {
     super(d, source, node.getVerticalAlignment());
-    engineContext = context;
+    engineContextRef = new WeakReference<>(context);
     mImageNodeWeakRefrence = new WeakReference<>(node);
-    mImageAdapter = imageAdapter;
+    mImageAdapterRef = new WeakReference<>(imageAdapter);
     mVerticalAlign = node.getVerticalAlign();
     mUseLegacy = TextUtils.isEmpty(mVerticalAlign);
     mWidth = Math.round(node.getStyleWidth());
@@ -164,16 +164,17 @@ public class HippyImageSpan extends ImageSpan {
         updateBoundsAttribute();
     }
 
-    if (mImageAdapter != null) {
+    HippyImageLoader imageAdapter = mImageAdapterRef.get();
+    if (imageAdapter != null) {
       if (shouldUseFetchImageMode(mUrl)) {
         final HippyMap props = new HippyMap();
         props.pushBoolean(NodeProps.CUSTOM_PROP_ISGIF, false);
         props.pushInt(NodeProps.WIDTH, mWidth);
         props.pushInt(NodeProps.HEIGHT, mHeight);
 
-        doFetchImage(mUrl, props, mImageAdapter);
+        doFetchImage(mUrl, props, imageAdapter);
       } else {
-        HippyDrawable hippyDrawable = mImageAdapter.getImage(mUrl, null);
+        HippyDrawable hippyDrawable = imageAdapter.getImage(mUrl, null);
         shouldReplaceDrawable(hippyDrawable);
       }
     }
@@ -465,7 +466,7 @@ public class HippyImageSpan extends ImageSpan {
 
     if (!TextUtils.isEmpty(eventName) && node.isEnableImageEvent(eventType)) {
       HippyViewEvent event = new HippyViewEvent(eventName);
-      event.send(node.getId(), engineContext, null);
+      event.send(node.getId(), engineContextRef.get(), null);
     }
   }
 
