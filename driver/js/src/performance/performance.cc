@@ -117,9 +117,9 @@ bool Performance::Measure(const Performance::string_view &name,
   if (!start_mark_entry) {
     return false;
   }
-  auto entry = std::make_shared<PerformanceEntry>(
-      name, PerformanceEntry::SubType::kPerformanceMeasure, PerformanceEntry::Type::kMeasure, start_mark_entry->GetStartTime(),
-      Now() - start_mark_entry->GetStartTime());
+  auto entry = std::make_shared<PerformanceMeasure>(
+      name, start_mark_entry->GetStartTime(),
+      Now() - start_mark_entry->GetStartTime(), nullptr);
   return InsertEntry(entry);
 }
 
@@ -139,8 +139,11 @@ bool Performance::Measure(const Performance::string_view& name,
 }
 
 bool Performance::InsertEntry(const std::shared_ptr<PerformanceEntry>& entry) {
-  if (entry->GetType() == PerformanceEntry::Type::kResource && resource_timing_current_buffer_size_ >= resource_timing_max_buffer_size_) {
-    return false;
+  if (entry->GetType() == PerformanceEntry::Type::kResource) {
+    if (resource_timing_current_buffer_size_ >= resource_timing_max_buffer_size_) {
+      return false;
+    }
+    ++resource_timing_current_buffer_size_;
   }
   auto name = entry->GetName();
   auto name_iterator = name_map_.find(name);
@@ -163,9 +166,9 @@ bool Performance::Measure(const Performance::string_view& name,
                           const std::shared_ptr<PerformanceEntry>& start_mark,
                           const std::shared_ptr<PerformanceEntry>& end_mark) {
   FOOTSTONE_CHECK(start_mark && end_mark);
-  auto entry = std::make_shared<PerformanceEntry>(
-      name, PerformanceEntry::SubType::kPerformanceMeasure, PerformanceEntry::Type::kMeasure, start_mark->GetStartTime(),
-      end_mark->GetStartTime() - end_mark->GetStartTime());
+  auto entry = std::make_shared<PerformanceMeasure>(
+      name, start_mark->GetStartTime(),
+      end_mark->GetStartTime() - end_mark->GetStartTime(), nullptr);
   return InsertEntry(entry);
 }
 
