@@ -39,6 +39,58 @@ Performance::Performance(): resource_timing_current_buffer_size_(0),
     resource_timing_max_buffer_size_(kMaxSize),
     time_origin_(TimePoint::Now()) {}
 
+std::shared_ptr<PerformanceNavigationTiming> Performance::PerformanceNavigation(const string_view& name) {
+  auto name_iterator = name_map_.find(name);
+  if (name_iterator != name_map_.end()) {
+    for (auto& entry : name_iterator->second) {
+      if (entry->GetType() == PerformanceEntry::Type::kNavigation) {
+        return std::static_pointer_cast<PerformanceNavigationTiming>(entry);
+      }
+    }
+  }
+
+  auto entry = std::make_shared<PerformanceNavigationTiming>(name);
+  if (InsertEntry(entry)) {
+    return entry;
+  }
+  return nullptr;
+}
+
+std::shared_ptr<PerformancePaintTiming> Performance::PerformancePaint(const PerformancePaintTiming::Type& type) {
+  auto name = (type == PerformancePaintTiming::Type::kFirstPaint ? "first-paint" : "first-contentful-paint");
+  auto name_iterator = name_map_.find(name);
+  if (name_iterator != name_map_.end()) {
+    for (auto& entry : name_iterator->second) {
+      if (entry->GetType() == PerformanceEntry::Type::kPaint) {
+        return std::static_pointer_cast<PerformancePaintTiming>(entry);
+      }
+    }
+  }
+
+  auto entry = std::make_shared<PerformancePaintTiming>(type);
+  if (InsertEntry(entry)) {
+    return entry;
+  }
+  return nullptr;
+}
+
+std::shared_ptr<PerformanceResourceTiming> Performance::PerformanceResource(const string_view& name) {
+  auto name_iterator = name_map_.find(name);
+  if (name_iterator != name_map_.end()) {
+    for (auto& entry : name_iterator->second) {
+      if (entry->GetType() == PerformanceEntry::Type::kResource) {
+        return std::static_pointer_cast<PerformanceResourceTiming>(entry);
+      }
+    }
+  }
+
+  auto entry = std::make_shared<PerformanceResourceTiming>(name);
+  if (InsertEntry(entry)) {
+    return entry;
+  }
+  return nullptr;
+}
+
 void Performance::Mark(const Performance::string_view& name) {
   auto entry = std::make_shared<PerformanceMark>(
       name, TimePoint::Now(), nullptr);

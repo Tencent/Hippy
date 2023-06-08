@@ -38,6 +38,9 @@ PerformanceNavigationTiming::PerformanceNavigationTiming(
         engine_initialization_start_(engine_initialization_start), engine_initialization_end_(engine_initialization_end),
         bundle_info_(std::move(bundle_info)), load_instance_start_(load_instance_start), load_instance_end_(load_instance_end) {}
 
+PerformanceNavigationTiming::PerformanceNavigationTiming(const string_view& name)
+: PerformanceEntry(name, SubType::kPerformanceNavigationTiming, Type::kNavigation) {}
+
 PerformanceEntry::string_view PerformanceNavigationTiming::ToJSON() {
   return PerformanceEntry::ToJSON();
 }

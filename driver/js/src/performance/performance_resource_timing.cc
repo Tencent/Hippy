@@ -73,6 +73,9 @@ PerformanceResourceTiming::PerformanceResourceTiming(
     encoded_body_size_(encoded_body_size),
     decoded_body_size_(decoded_body_size) {}
 
+PerformanceResourceTiming::PerformanceResourceTiming(const string_view& name)
+: PerformanceEntry(name, SubType::kPerformanceResourceTiming, Type::kResource) {}
+
 string_view PerformanceResourceTiming::ToJSON() {
   return "";
 }

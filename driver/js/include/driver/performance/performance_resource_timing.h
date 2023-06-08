@@ -43,6 +43,8 @@ class PerformanceResourceTiming: public PerformanceEntry {
                             TimePoint response_start, TimePoint response_end,  uint64_t transfer_size,
                             uint64_t encoded_body_size, uint64_t decoded_body_size);
 
+  PerformanceResourceTiming(const string_view& name);
+
   inline InitiatorType GetInitiatorType() {
     return initiator_type_;
   }
@@ -111,6 +113,19 @@ class PerformanceResourceTiming: public PerformanceEntry {
     return decoded_body_size_;
   }
 
+#define DEFINE_SET_AND_GET_METHOD(method_name, member_type, member) \
+  void Set##method_name(member_type t) { \
+    member = t; \
+  } \
+  inline auto Get##method_name() const { \
+    return member; \
+  }
+  DEFINE_SET_AND_GET_METHOD(LoadSourceStart, TimePoint, load_source_start_)
+  DEFINE_SET_AND_GET_METHOD(LoadSourceEnd, TimePoint, load_source_end_)
+  DEFINE_SET_AND_GET_METHOD(ExecuteSourceStart, TimePoint, execute_source_start_)
+  DEFINE_SET_AND_GET_METHOD(ExecuteSourceEnd, TimePoint, execute_source_end_)
+#undef DEFINE_SET_AND_GET_METHOD
+
   virtual string_view ToJSON() override;
 
   static string_view GetInitiatorString(InitiatorType type);
@@ -134,6 +149,11 @@ class PerformanceResourceTiming: public PerformanceEntry {
   uint64_t encoded_body_size_;
   uint64_t decoded_body_size_;
   // std::vector<> server_timing_{};
+
+  TimePoint load_source_start_;
+  TimePoint load_source_end_;
+  TimePoint execute_source_start_;
+  TimePoint execute_source_end_;
 };
 
 }

@@ -384,7 +384,7 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
       auto entry = entries[i];
       auto javascript_class = scope->GetJavascriptClass(PerformanceEntry::GetSubTypeString(entry->GetSubType()));
       std::shared_ptr<CtxValue> argv[] = { context->CreateString(entry->GetName()),
-                                           context->CreateNumber(static_cast<uint32_t>(entry->GetSubType())) };
+                                           context->CreateNumber(static_cast<uint32_t>(entry->GetType())) };
       instances[i] = context->NewInstance(javascript_class, 2, argv, entry.get());
     }
     return context->CreateArray(entries.size(), instances);

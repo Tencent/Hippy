@@ -28,6 +28,8 @@
 #include "footstone/string_view.h"
 #include "driver/performance/performance_entry.h"
 #include "driver/performance/performance_resource_timing.h"
+#include "driver/performance/performance_navigation_timing.h"
+#include "driver/performance/performance_paint_timing.h"
 
 namespace hippy {
 inline namespace driver {
@@ -53,6 +55,10 @@ class Performance {
   inline const TimePoint& GetTimeOrigin() {
     return time_origin_;
   }
+
+  std::shared_ptr<PerformanceNavigationTiming> PerformanceNavigation(const string_view& name);
+  std::shared_ptr<PerformancePaintTiming> PerformancePaint(const PerformancePaintTiming::Type& type);
+  std::shared_ptr<PerformanceResourceTiming> PerformanceResource(const string_view& name);
 
   void Mark(const string_view& name);
   void ClearMarks(const string_view& name);

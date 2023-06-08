@@ -55,6 +55,12 @@ class PerformanceEntry {
                                          start_time_(start_time),
                                          duration_(duration) {}
 
+  PerformanceEntry(const string_view& name,
+                   SubType sub_type,
+                   Type type) : name_(name),
+                                sub_type_(sub_type),
+                                type_(type) {}
+
   virtual ~PerformanceEntry() = default;
 
   inline auto GetName() const {
