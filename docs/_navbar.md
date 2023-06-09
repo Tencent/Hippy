@@ -21,7 +21,7 @@
   * [JS 引擎切换](feature3.0/js-engine.md)
   * [Layout 引擎切换](feature3.0/layout.md)
   * [Performance API](feature3.0/performance.md)
-  * [SVG组件](feature3.0/svg.md)
+  * [双端一致性](feature3.0/cross-platform-consistency.md)
   * [Snapshot](feature3.0/snapshot.md)
 
 * 平台

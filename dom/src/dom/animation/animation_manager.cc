@@ -104,6 +104,7 @@ void AnimationManager::ParseAnimation(const std::shared_ptr<DomNode>& node) {
           auto prop = pair.second;
           if (orig_animation_prop_map[animation_id] == prop) {
             auto animation = GetAnimation(animation_id);
+            if (animation == nullptr) continue;
             node->EmplaceStyleMap(prop, HippyValue(animation->GetCurrentValue()));
           } else {
             orig_animation_prop_map[animation_id] = animation_prop_map[animation_id];
