@@ -412,13 +412,6 @@ public class ControllerManager {
         mControllerRegistry.addView(view, rootId, newId);
     }
 
-    public void postInvalidateDelayed(int rootId, int id, long delayMilliseconds) {
-        View view = mControllerRegistry.getView(rootId, id);
-        if (view != null) {
-            view.postInvalidateDelayed(delayMilliseconds);
-        }
-    }
-
     @Nullable
     public RenderNode createRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
             String className, boolean isLazy) {
