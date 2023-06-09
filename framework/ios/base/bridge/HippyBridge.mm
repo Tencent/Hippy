@@ -61,6 +61,7 @@
 #include "dom/scene.h"
 #include "dom/render_manager.h"
 #include "driver/scope.h"
+#include "driver/performance/performance.h"
 #include "footstone/worker_manager.h"
 #include "vfs/uri_loader.h"
 #include "VFSUriHandler.h"
@@ -245,6 +246,7 @@ dispatch_queue_t HippyBridgeQueue() {
     _performanceLogger = [HippyPerformanceLogger new];
     [_performanceLogger markStartForTag:HippyPLBridgeStartup forKey:nil];
     _valid = YES;
+    auto bridgeSetupStartTimePoint = footstone::TimePoint::Now();
     self.moduleSemaphore = dispatch_semaphore_create(0);
     @try {
         __weak HippyBridge *weakSelf = self;
@@ -272,12 +274,21 @@ dispatch_queue_t HippyBridgeQueue() {
         //The caller may attempt to look up a module immediately after creating the HippyBridge,
         //therefore the initialization of all modules cannot be placed in a sub-thread
 //        dispatch_async(HippyBridgeQueue(), ^{
-            [self initWithModulesCompletion:^{
-                HippyBridge *strongSelf = weakSelf;
-                if (strongSelf) {
-                    dispatch_semaphore_signal(strongSelf.moduleSemaphore);
-                }
-            }];
+        [self initWithModulesCompletion:^{
+            HippyBridge *strongSelf = weakSelf;
+            if (strongSelf) {
+                dispatch_semaphore_signal(strongSelf.moduleSemaphore);
+            }
+        }];
+        auto bridgeSetupEndTimePoint = footstone::TimePoint::Now();
+        auto scope = self.javaScriptExecutor.pScope;
+        HPAssert(scope, @"scope must not be null");
+        [self.javaScriptExecutor executeBlockOnJavaScriptQueue:^{
+            auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
+            HPAssert(entry, @"hippy init entry must not be null");
+            entry->SetHippyBridgeStartupStart(bridgeSetupStartTimePoint);
+            entry->SetHippyBridgeStartupEnd(bridgeSetupEndTimePoint);
+        }];
 //        });
     } @catch (NSException *exception) {
         HippyBridgeHandleException(exception, self);
