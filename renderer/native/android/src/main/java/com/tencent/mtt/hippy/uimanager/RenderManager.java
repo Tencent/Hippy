@@ -292,6 +292,11 @@ public class RenderManager {
         RenderNode node = getRenderNode(rootId, nodeId);
         if (node != null) {
             node.updateExtra(object);
+            // when getGestureEnable() returns true, flattened leaf node may create view,
+            // we should notify the parent node to call mountHostView()
+            if (node.getGestureEnable() && node.getHostView() == null && node.getParent() != null) {
+                addUpdateNodeIfNeeded(rootId, node.getParent());
+            }
             addUpdateNodeIfNeeded(rootId, node);
         }
     }
