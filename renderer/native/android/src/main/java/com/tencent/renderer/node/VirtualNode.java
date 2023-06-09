@@ -56,11 +56,13 @@ public abstract class VirtualNode {
     }
 
     public int getAncestorId() {
-        VirtualNode node = this;
-        while (node.mParent != null) {
-            node = node.mParent;
+        VirtualNode parent = mParent;
+        int id = mId;
+        while (parent != null) {
+            id = parent.getId();
+            parent = parent.mParent;
         }
-        return node.mPid;
+        return id;
     }
 
     protected abstract void createSpanOperation(List<SpanOperation> ops,
