@@ -21,7 +21,7 @@
   * [JS 引擎切换](feature3.0/js-engine.md)
   * [Layout 引擎切换](feature3.0/layout.md)
   * [Performance API](feature3.0/performance.md)
-  * [SVG组件](feature3.0/svg.md)
+  * [SVG 组件](feature3.0/svg.md)
   * [Snapshot](feature3.0/snapshot.md)
 
 * 平台
@@ -33,6 +33,7 @@
   * [Android](android/integration.md)
   * [iOS](ios/integration.md)
   * [Voltron](voltron/integration.md)
+  * [TDF](tdf/integration.md)
   * [Web](web/integration.md)
 
 * 驱动层
