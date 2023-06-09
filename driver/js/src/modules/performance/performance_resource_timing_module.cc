@@ -77,7 +77,7 @@ std::shared_ptr<ClassTemplate<PerformanceResourceTiming>> RegisterPerformanceRes
   initiator_type.getter = [weak_scope](PerformanceResourceTiming* thiz,
       std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
-    if (scope) {
+    if (!scope) {
       return nullptr;
     }
     auto context = scope->GetContext();
@@ -91,7 +91,7 @@ std::shared_ptr<ClassTemplate<PerformanceResourceTiming>> RegisterPerformanceRes
   prop_var.getter = [weak_scope](PerformanceResourceTiming* thiz, \
       std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<CtxValue> { \
     auto scope = weak_scope.lock(); \
-    if (scope) { \
+    if (!scope) { \
       return nullptr; \
     } \
     auto context = scope->GetContext(); \

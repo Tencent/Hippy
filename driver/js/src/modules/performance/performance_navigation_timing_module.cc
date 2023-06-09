@@ -77,7 +77,7 @@ std::shared_ptr<ClassTemplate<PerformanceNavigationTiming>> RegisterPerformanceN
   prop_var.getter = [weak_scope](PerformanceNavigationTiming* thiz, \
       std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<CtxValue> { \
     auto scope = weak_scope.lock(); \
-    if (scope) { \
+    if (!scope) { \
       return nullptr; \
     } \
     auto context = scope->GetContext(); \
