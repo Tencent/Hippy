@@ -252,6 +252,9 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
     }
     if (argument_count == 1) {
       auto entry = performance->GetEntriesByName(name);
+      if (!entry) {
+        return nullptr;
+      }
       auto javascript_class = scope->GetJavascriptClass(PerformanceEntry::GetSubTypeString(entry->GetSubType()));
       std::shared_ptr<CtxValue> argv[] = { context->CreateString(entry->GetName()),
                                            context->CreateNumber(static_cast<uint32_t>(entry->GetType())) };
