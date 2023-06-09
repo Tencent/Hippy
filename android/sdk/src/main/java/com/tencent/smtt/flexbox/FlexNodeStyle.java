@@ -126,7 +126,6 @@ public class FlexNodeStyle {
   protected void finalize() throws Throwable {
     try {
       nativeFlexNodeStyleFree(mNativePointer);
-      mNativePointer = 0;
     } finally {
       super.finalize();
     }
