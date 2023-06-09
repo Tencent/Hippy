@@ -180,7 +180,7 @@ bool Performance::Measure(const Performance::string_view& name,
   FOOTSTONE_CHECK(start_mark && end_mark);
   auto entry = std::make_shared<PerformanceMeasure>(
       name, start_mark->GetStartTime(),
-      end_mark->GetStartTime() - end_mark->GetStartTime(), nullptr);
+      end_mark->GetStartTime() - start_mark->GetStartTime(), nullptr);
   return InsertEntry(entry);
 }
 
@@ -310,15 +310,15 @@ std::vector<std::shared_ptr<PerformanceEntry>> Performance::GetEntries() {
   std::vector<std::shared_ptr<PerformanceEntry>> ret;
   for (auto [ key, value ]: type_map_) {
     if (!ret.empty()) {
-      auto size = ret.size() + value.size();
-      ret.resize(size);
-      std::merge(ret.begin(), ret.end(), value.begin(), value.end(), ret.begin(),
+      std::vector<std::shared_ptr<PerformanceEntry>> merged_ret;
+      std::merge(ret.begin(), ret.end(), value.begin(), value.end(), std::back_inserter(merged_ret),
                  [](const std::shared_ptr<PerformanceEntry>& lhs, const std::shared_ptr<PerformanceEntry>& rhs) {
                    if (lhs && rhs) {
                      return lhs->GetStartTime() < rhs->GetStartTime();
                    }
                    return true;
                  });
+      ret = merged_ret;
     } else {
       ret = value;
     }
