@@ -306,7 +306,7 @@ public class RenderManager {
         if (node == null) {
             return;
         }
-        if (node.getParent() != null && mControllerManager.hasView(rootId, id)) {
+        if (node.getParent() != null) {
             node.getParent().addDeleteChild(node);
             addUpdateNodeIfNeeded(rootId, node.getParent());
         } else if (TextUtils.equals(NodeProps.ROOT_NODE, node.getClassName())) {
