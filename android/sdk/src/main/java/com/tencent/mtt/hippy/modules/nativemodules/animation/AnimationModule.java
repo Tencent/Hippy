@@ -111,6 +111,11 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
     if (mContext.getDomManager() != null) {
       mContext.getDomManager().removeActionInterceptor(this);
     }
+    for (int i = 0, size = mAnimations.size(); i < size; ++i) {
+        Animation animation = mAnimations.valueAt(i);
+        animation.stop();
+    }
+    mAnimations.clear();
     super.destroy();
   }
 
