@@ -63,12 +63,12 @@ std::shared_ptr<ClassTemplate<PerformanceNavigationTiming>> RegisterPerformanceN
       return nullptr;
     }
 
-    auto entry = scope->GetPerformance()->GetEntriesByName(name, static_cast<PerformanceEntry::Type>(type));
-    if (!entry) {
+    auto entries = scope->GetPerformance()->GetEntriesByName(name, static_cast<PerformanceEntry::Type>(type));
+    if (entries.empty()) {
       exception = context->CreateException("entry not found");
       return nullptr;
     }
-    return std::static_pointer_cast<PerformanceNavigationTiming>(entry);
+    return std::static_pointer_cast<PerformanceNavigationTiming>(entries.back());
   };
 
 #define ADD_PROPERTY(prop_var, prop_name, get_prop_method) \

@@ -63,12 +63,12 @@ std::shared_ptr<ClassTemplate<PerformanceFrameTiming>> RegisterPerformanceFrameT
       return nullptr;
     }
 
-    auto entry = scope->GetPerformance()->GetEntriesByName(name, static_cast<PerformanceEntry::Type>(type));
-    if (!entry) {
+    auto entries = scope->GetPerformance()->GetEntriesByName(name, static_cast<PerformanceEntry::Type>(type));
+    if (entries.empty()) {
       exception = context->CreateException("entry not found");
       return nullptr;
     }
-    return std::static_pointer_cast<PerformanceFrameTiming>(entry);
+    return std::static_pointer_cast<PerformanceFrameTiming>(entries.back());
   };
 
   return std::make_shared<ClassTemplate<PerformanceFrameTiming>>(std::move(class_template));

@@ -113,7 +113,11 @@ bool Performance::Measure(const Performance::string_view &name) {
 
 bool Performance::Measure(const Performance::string_view &name,
                           const Performance::string_view &start_mark) {
-  auto start_mark_entry = GetEntriesByName(start_mark, PerformanceEntry::Type::kMark);
+  auto entries = GetEntriesByName(start_mark, PerformanceEntry::Type::kMark);
+  if (entries.empty()) {
+    return false;
+  }
+  auto start_mark_entry = entries.back();
   if (!start_mark_entry) {
     return false;
   }
@@ -126,11 +130,19 @@ bool Performance::Measure(const Performance::string_view &name,
 bool Performance::Measure(const Performance::string_view& name,
                           const Performance::string_view& start_mark,
                           const Performance::string_view& end_mark) {
-  auto start_mark_entry = GetEntriesByName(start_mark, PerformanceEntry::Type::kMark);
+  auto start_entries = GetEntriesByName(start_mark, PerformanceEntry::Type::kMark);
+  if (start_entries.empty()) {
+    return false;
+  }
+  auto start_mark_entry = start_entries.back();
   if (!start_mark_entry) {
     return false;
   }
-  auto end_mark_entry = GetEntriesByName(end_mark, PerformanceEntry::Type::kMark);
+  auto end_entries = GetEntriesByName(end_mark, PerformanceEntry::Type::kMark);
+  if (end_entries.empty()) {
+    return false;
+  }
+  auto end_mark_entry = end_entries.back();
   if (!end_mark_entry) {
     return false;
   }
@@ -172,29 +184,29 @@ bool Performance::Measure(const Performance::string_view& name,
   return InsertEntry(entry);
 }
 
-std::shared_ptr<PerformanceEntry> Performance::GetEntriesByName(const Performance::string_view& name) {
+std::vector<std::shared_ptr<PerformanceEntry>> Performance::GetEntriesByName(const Performance::string_view& name) {
   auto iterator = name_map_.find(name);
   if (iterator == name_map_.end()) {
-    return nullptr;
+    return {};
   }
-  return iterator->second.back();
+  return iterator->second;
 }
 
-std::shared_ptr<PerformanceEntry> Performance::GetEntriesByName(const Performance::string_view& name,
-                                                                PerformanceEntry::Type type) {
+std::vector<std::shared_ptr<PerformanceEntry>> Performance::GetEntriesByName(const Performance::string_view& name,
+                                                                             PerformanceEntry::Type type) {
   auto iterator = name_map_.find(name);
   if (iterator == name_map_.end()) {
-    return nullptr;
+    return {};
   }
   auto array = iterator->second;
-  auto array_iterator = std::find_if(array.rbegin(), array.rend(),
+  auto array_iterator = std::find_if(array.begin(), array.end(),
                                   [type](const std::shared_ptr<PerformanceEntry>& entry) {
     return entry->GetType() == type;
   });
-  if (array_iterator == array.rend()) {
-    return nullptr;
+  if (array_iterator == array.end()) {
+    return {};
   }
-  return *array_iterator;
+  return std::vector<std::shared_ptr<PerformanceEntry>>(array_iterator, array.end());
 }
 
 std::vector<std::shared_ptr<PerformanceEntry>> Performance::GetEntriesByType(PerformanceEntry::Type type) {

@@ -64,12 +64,12 @@ std::shared_ptr<ClassTemplate<PerformanceResourceTiming>> RegisterPerformanceRes
       return nullptr;
     }
 
-    auto entry = scope->GetPerformance()->GetEntriesByName(name, static_cast<PerformanceEntry::Type>(type));
-    if (!entry) {
+    auto entries = scope->GetPerformance()->GetEntriesByName(name, static_cast<PerformanceEntry::Type>(type));
+    if (entries.empty()) {
       exception = context->CreateException("entry not found");
       return nullptr;
     }
-    return std::static_pointer_cast<PerformanceResourceTiming>(entry);
+    return std::static_pointer_cast<PerformanceResourceTiming>(entries.back());
   };
 
   PropertyDefine<PerformanceResourceTiming> initiator_type;

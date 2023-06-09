@@ -73,8 +73,8 @@ class Performance {
   void ClearResourceTimings();
   std::vector<std::shared_ptr<PerformanceEntry>> GetEntries(const PerformanceEntryFilterOptions& options);
   std::vector<std::shared_ptr<PerformanceEntry>> GetEntries();
-  std::shared_ptr<PerformanceEntry> GetEntriesByName(const string_view& name);
-  std::shared_ptr<PerformanceEntry> GetEntriesByName(const string_view& name, PerformanceEntry::Type type);
+  std::vector<std::shared_ptr<PerformanceEntry>> GetEntriesByName(const string_view& name);
+  std::vector<std::shared_ptr<PerformanceEntry>> GetEntriesByName(const string_view& name, PerformanceEntry::Type type);
   std::vector<std::shared_ptr<PerformanceEntry>> GetEntriesByType(PerformanceEntry::Type type);
   string_view ToJSON();
 

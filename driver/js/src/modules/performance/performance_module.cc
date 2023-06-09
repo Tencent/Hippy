@@ -251,14 +251,16 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
       return nullptr;
     }
     if (argument_count == 1) {
-      auto entry = performance->GetEntriesByName(name);
-      if (!entry) {
-        return nullptr;
+      auto entries = performance->GetEntriesByName(name);
+      std::shared_ptr<CtxValue> instances[entries.size()];
+      for (size_t i = 0; i < entries.size(); ++i) {
+        auto entry = entries[i];
+        auto javascript_class = scope->GetJavascriptClass(PerformanceEntry::GetSubTypeString(entry->GetSubType()));
+        std::shared_ptr<CtxValue> argv[] = { context->CreateString(entry->GetName()),
+                                             context->CreateNumber(static_cast<uint32_t>(entry->GetType())) };
+        instances[i] = context->NewInstance(javascript_class, 2, argv, entry.get());
       }
-      auto javascript_class = scope->GetJavascriptClass(PerformanceEntry::GetSubTypeString(entry->GetSubType()));
-      std::shared_ptr<CtxValue> argv[] = { context->CreateString(entry->GetName()),
-                                           context->CreateNumber(static_cast<uint32_t>(entry->GetType())) };
-      return context->NewInstance(javascript_class, 2, argv, entry.get());
+      return context->CreateArray(entries.size(), instances);
     }
     string_view type;
     flag = context->GetValueString(arguments[1], &type);
@@ -271,14 +273,16 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
       exception = context->CreateException("entry_type error");
       return nullptr;
     }
-    auto entry = performance->GetEntriesByName(name, entry_type);
-    if (!entry) {
-      return nullptr;
+    auto entries = performance->GetEntriesByName(name, entry_type);
+    std::shared_ptr<CtxValue> instances[entries.size()];
+    for (size_t i = 0; i < entries.size(); ++i) {
+      auto entry = entries[i];
+      auto javascript_class = scope->GetJavascriptClass(PerformanceEntry::GetSubTypeString(entry->GetSubType()));
+      std::shared_ptr<CtxValue> argv[] = { context->CreateString(entry->GetName()),
+                                           context->CreateNumber(static_cast<uint32_t>(entry->GetType())) };
+      instances[i] = context->NewInstance(javascript_class, 2, argv, entry.get());
     }
-    auto javascript_class = scope->GetJavascriptClass(PerformanceEntry::GetSubTypeString(entry->GetSubType()));
-    std::shared_ptr<CtxValue> argv[] = { context->CreateString(entry->GetName()),
-                                         context->CreateNumber(static_cast<uint32_t>(entry->GetType())) };
-    return context->NewInstance(javascript_class, 2, argv, entry.get());
+    return context->CreateArray(entries.size(), instances);
   };
   class_template.functions.emplace_back(std::move(get_entries_by_name_function_define));
 
