@@ -184,6 +184,7 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
         exception = context->CreateException("measure startMark not found");
         return nullptr;
       }
+      return nullptr;
     }
     string_view end_mark;
     flag = context->GetValueString(arguments[2], &end_mark);
@@ -253,7 +254,7 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
       auto entry = performance->GetEntriesByName(name);
       auto javascript_class = scope->GetJavascriptClass(PerformanceEntry::GetSubTypeString(entry->GetSubType()));
       std::shared_ptr<CtxValue> argv[] = { context->CreateString(entry->GetName()),
-                                           context->CreateNumber(static_cast<uint32_t>(entry->GetSubType())) };
+                                           context->CreateNumber(static_cast<uint32_t>(entry->GetType())) };
       return context->NewInstance(javascript_class, 2, argv, entry.get());
     }
     string_view type;
@@ -273,7 +274,7 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
     }
     auto javascript_class = scope->GetJavascriptClass(PerformanceEntry::GetSubTypeString(entry->GetSubType()));
     std::shared_ptr<CtxValue> argv[] = { context->CreateString(entry->GetName()),
-                                         context->CreateNumber(static_cast<uint32_t>(entry->GetSubType())) };
+                                         context->CreateNumber(static_cast<uint32_t>(entry->GetType())) };
     return context->NewInstance(javascript_class, 2, argv, entry.get());
   };
   class_template.functions.emplace_back(std::move(get_entries_by_name_function_define));
@@ -311,7 +312,7 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
       auto entry = entries[i];
       auto javascript_class = scope->GetJavascriptClass(PerformanceEntry::GetSubTypeString(entry->GetSubType()));
       std::shared_ptr<CtxValue> argv[] = { context->CreateString(entry->GetName()),
-                                           context->CreateNumber(static_cast<uint32_t>(entry->GetSubType())) };
+                                           context->CreateNumber(static_cast<uint32_t>(entry->GetType())) };
       instances[i] = context->NewInstance(javascript_class, 2, argv, entry.get());
     }
     return context->CreateArray(entries.size(), instances);
