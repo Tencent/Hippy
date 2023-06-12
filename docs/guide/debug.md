@@ -39,7 +39,7 @@ Hippy 中运行的 JS 代码可以来源于本地文件(local file)，或者远�
 
 2. **iOS**：
 
-   ```objective-c
+   ```objectivec
    - (void)viewDidLoad {
        // 开启调试
        NSDictionary *launchOptions = @{@"DebugMode": @(YES)};
@@ -574,7 +574,7 @@ webpack(webpackConfig, (err, stats) => {
 
 2. **iOS**：
 
-   ```objective-c
+   ```objectivec
    - (void)viewDidLoad {
        // 开启调试
        NSDictionary *launchOptions = @{@"DebugMode": @(YES)};

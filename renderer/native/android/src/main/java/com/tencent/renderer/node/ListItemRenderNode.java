@@ -155,6 +155,11 @@ public class ListItemRenderNode extends RenderNode {
     }
 
     @Override
+    public void onZIndexChanged() {
+        // List view items do not need to support changes to z index
+    }
+
+    @Override
     public void updateLayout(int x, int y, int w, int h) {
         super.updateLayout(x, y, w, h);
         mLeft = x;

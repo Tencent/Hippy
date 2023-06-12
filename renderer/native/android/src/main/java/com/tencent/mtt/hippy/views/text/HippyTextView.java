@@ -20,16 +20,17 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.Layout;
 import android.text.Spannable;
-import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
 import android.view.MotionEvent;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
+import com.tencent.renderer.component.drawable.TextDrawable;
 import com.tencent.renderer.node.RenderNode;
 import com.tencent.renderer.component.Component;
 import com.tencent.renderer.component.FlatViewGroup;
@@ -101,7 +102,7 @@ public class HippyTextView extends FlatViewGroup implements HippyViewBase {
         }
         int action = event.getAction();
         if (action == MotionEvent.ACTION_DOWN) {
-            mGestureSpan = findGestureSpan(event, component.getTextLayout());
+            mGestureSpan = findGestureSpan(event, component);
         }
         if (mGestureSpan != null) {
             boolean flag = mGestureSpan.handleDispatchTouchEvent(this, event);
@@ -168,28 +169,15 @@ public class HippyTextView extends FlatViewGroup implements HippyViewBase {
     }
 
     @Nullable
-    private TextGestureSpan findGestureSpan(MotionEvent event, @Nullable Layout layout) {
+    private TextGestureSpan findGestureSpan(MotionEvent event, @NonNull Component component) {
+        Layout layout = component.getTextLayout();
         if (layout == null) {
             return null;
         }
-        float x = event.getX();
-        float y = event.getY();
-        float dx;
-        float dy;
-        switch (layout.getAlignment()) {
-            case ALIGN_CENTER:
-                dy = (getHeight() - layout.getHeight()) / 2.0f;
-                dx = (getWidth() - layout.getWidth()) / 2.0f;
-                x -= dx;
-                y -= dy;
-                break;
-            case ALIGN_OPPOSITE:
-                dx = getWidth() - getPaddingRight() - layout.getWidth();
-                x -= dx;
-                break;
-            default:
-                // Just need to handle center and opposite alignment.
-        }
+        TextDrawable textDrawable = component.getTextDrawable();
+        assert textDrawable != null;
+        float x = event.getX() - textDrawable.getTextLayoutOffsetX();
+        float y = event.getY() - textDrawable.getTextLayoutOffsetY();
         return findGestureSpan((int) x, (int) y, layout);
     }
 }

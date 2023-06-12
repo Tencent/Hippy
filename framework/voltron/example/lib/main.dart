@@ -69,7 +69,7 @@ class _MyWidgetInspector with WidgetInspectorService {
   }
 
   @override
-  void setPubRootDirectories(List<String> pubRootDirectories) {
+  void addPubRootDirectories(List<String> pubRootDirectories) {
     for (final dir in pubRootDirectories) {
       if (dir.contains('flutter/example')) {
         pubRootDirectories.add(dir.replaceFirst(
@@ -90,6 +90,6 @@ class _MyWidgetInspector with WidgetInspectorService {
         break;
       }
     }
-    super.setPubRootDirectories(pubRootDirectories);
+    super.addPubRootDirectories(pubRootDirectories);
   }
 }

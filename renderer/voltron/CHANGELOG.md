@@ -1,3 +1,7 @@
+## 0.0.19
+
+- fix layout density error
+
 ## 0.0.18
 
 - fix font weight parse function

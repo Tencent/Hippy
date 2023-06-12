@@ -72,7 +72,7 @@ class VoltronRenderBridgeManager implements Destroyable {
   }
 
   int createNativeRenderManager() {
-    return VoltronRenderApi.createNativeRender();
+    return VoltronRenderApi.createNativeRender(ScreenUtil.getInstance().screenDensity);
   }
 
   Future destroyNativeRenderManager() async {

@@ -16,18 +16,17 @@
 
 package com.tencent.mtt.hippy.uimanager;
 
-import static com.tencent.renderer.NativeRenderer.SCREEN_SNAPSHOT_ROOT_ID;
-import static com.tencent.renderer.node.RenderNode.FLAG_ALREADY_UPDATED;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.ADD_CHILD_VIEW_FAILED_ERR;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.REMOVE_CHILD_VIEW_FAILED_ERR;
+import static com.tencent.renderer.NativeRenderer.SCREEN_SNAPSHOT_ROOT_ID;
+import static com.tencent.renderer.node.RenderNode.FLAG_ALREADY_UPDATED;
+import static com.tencent.renderer.node.RenderNode.FLAG_UPDATE_LAYOUT;
 
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.view.ViewParent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.openhippy.pool.BasePool.PoolType;
 import com.openhippy.pool.Pool;
 import com.openhippy.pool.PreCreateViewPool;
@@ -51,20 +50,17 @@ import com.tencent.mtt.hippy.views.scroll.HippyScrollViewController;
 import com.tencent.mtt.hippy.views.text.HippyTextViewController;
 import com.tencent.mtt.hippy.views.textinput.HippyTextInputController;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
-
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerController;
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerItemController;
 import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallItemViewController;
 import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallViewController;
 import com.tencent.mtt.hippy.views.webview.HippyWebViewController;
 import com.tencent.renderer.NativeRender;
-
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.Renderer;
-import com.tencent.renderer.node.VirtualNode;
 import com.tencent.renderer.node.RenderNode;
-
+import com.tencent.renderer.node.VirtualNode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -91,6 +87,7 @@ public class ControllerManager {
         mControllerUpdateManger = new ControllerUpdateManger<>(renderer);
     }
 
+    @NonNull
     public RenderManager getRenderManager() {
         return ((NativeRender) mRenderer).getRenderManager();
     }
@@ -270,7 +267,7 @@ public class ControllerManager {
         }
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Nullable
     public View createView(@NonNull RenderNode node, PoolType cachePoolType) {
         final int rootId = node.getRootId();
@@ -286,11 +283,12 @@ public class ControllerManager {
                 if (rootView == null) {
                     return null;
                 }
-                HippyViewController controller = mControllerRegistry.getViewController(className);
+                HippyViewController<?> controller = mControllerRegistry.getViewController(className);
                 if (controller == null) {
                     return null;
                 }
                 view = controller.createView(rootView, id, mRenderer, className, node.getProps());
+                node.setNodeFlag(FLAG_UPDATE_LAYOUT);
             }
             if (view != null) {
                 mControllerRegistry.addView(view, rootId, id);
@@ -299,7 +297,7 @@ public class ControllerManager {
         return view;
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public void updateProps(@NonNull RenderNode node, @Nullable Map<String, Object> newProps,
             @Nullable Map<String, Object> events, @Nullable Map<String, Object> diffProps,
             boolean skipComponentProps) {
@@ -473,7 +471,7 @@ public class ControllerManager {
         }
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public void onBatchStart(int rootId, int id, String className) {
         HippyViewController controller = mControllerRegistry.getViewController(className);
         View view = mControllerRegistry.getView(rootId, id);
@@ -588,8 +586,8 @@ public class ControllerManager {
         }
     }
 
-    public void addChild(int rootId, int pid, int id, int index) {
-        View child = mControllerRegistry.getView(rootId, id);
+    public void addChild(int rootId, int pid, @NonNull RenderNode node) {
+        View child = mControllerRegistry.getView(rootId, node.getId());
         View parent = mControllerRegistry.getView(rootId, pid);
         if (child != null && parent instanceof ViewGroup && child.getParent() == null) {
             String parentClassName = NativeViewTag.getClassName(parent);
@@ -598,10 +596,10 @@ public class ControllerManager {
                 controller = mControllerRegistry.getViewController(parentClassName);
             }
             if (controller != null) {
-                controller.addView((ViewGroup) parent, child, index);
+                controller.addView((ViewGroup) parent, child, node.indexOfDrawingOrder());
             }
         } else {
-            reportAddViewException(pid, parent, id, child);
+            reportAddViewException(pid, parent, node.getId(), child);
         }
     }
 

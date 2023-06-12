@@ -62,10 +62,10 @@ class FlexValue {
   FlexValue.point(this.value) : unit = FlexUnit.POINT;
 
   FlexValue.fromNative(FlexValueNative native)
-      : value = native.value ?? 0,
-        unit = flexUnitFromInt(native.unit ?? 0);
+      : value = native.value,
+        unit = flexUnitFromInt(native.unit);
 
   FlexValue.fromPointer(Pointer<FlexValueNative> pointer)
-      : value = pointer.ref.value ?? 0,
-        unit = flexUnitFromInt(pointer.ref.unit ?? 0);
+      : value = pointer.ref.value,
+        unit = flexUnitFromInt(pointer.ref.unit);
 }

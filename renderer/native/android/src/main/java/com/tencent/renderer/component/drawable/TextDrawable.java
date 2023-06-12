@@ -114,21 +114,7 @@ public class TextDrawable extends Drawable {
         } else {
             canvas.clipRect(mContentRegion);
         }
-        float borderWidth = (mBackgroundHolder != null) ? mBackgroundHolder.getBorderWidth() : 0.0f;
-        float dx = mLeftPadding + borderWidth;
-        float dy = mTopPadding + borderWidth;
-        switch (mLayout.getAlignment()) {
-            case ALIGN_CENTER:
-                dx = (width - mLayout.getWidth()) / 2.0f;
-                canvas.translate(dx, dy);
-                break;
-            case ALIGN_OPPOSITE:
-                dx = width - mRightPadding - borderWidth - mLayout.getWidth();
-                canvas.translate(dx, dy);
-                break;
-            default:
-                canvas.translate(dx, dy);
-        }
+        canvas.translate(getTextLayoutOffsetX(), getTextLayoutOffsetY());
         Paint paint = mLayout.getPaint();
         if (paint != null) {
             paint.setFakeBoldText(mTextBold);
@@ -150,5 +136,29 @@ public class TextDrawable extends Drawable {
     @Override
     public void setColorFilter(ColorFilter colorFilter) {
 
+    }
+
+    public float getTextLayoutOffsetX() {
+        if (mLayout == null) {
+            return 0;
+        }
+        final int width = getBounds().width();
+        final float borderWidth = (mBackgroundHolder != null) ? mBackgroundHolder.getBorderWidth() : 0.0f;
+        switch (mLayout.getAlignment()) {
+            case ALIGN_CENTER:
+                return (width - mLayout.getWidth()) / 2.0f;
+            case ALIGN_OPPOSITE:
+                return width - mRightPadding - borderWidth - mLayout.getWidth();
+            default:
+                return mLeftPadding + borderWidth;
+        }
+    }
+
+    public float getTextLayoutOffsetY() {
+        if (mLayout == null) {
+            return 0;
+        }
+        final float borderWidth = (mBackgroundHolder != null) ? mBackgroundHolder.getBorderWidth() : 0.0f;
+        return mTopPadding + borderWidth;
     }
 }

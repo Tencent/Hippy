@@ -57,11 +57,6 @@ public class ControllerRegistry {
         return mControllers.get(className);
     }
 
-    public boolean checkFlattening (@NonNull String className) {
-        ControllerHolder holder = mControllers.get(className);
-        return holder != null && holder.supportFlatten();
-    }
-
     @SuppressWarnings({"rawtypes"})
     @Nullable
     public HippyViewController getViewController(@NonNull String className) {

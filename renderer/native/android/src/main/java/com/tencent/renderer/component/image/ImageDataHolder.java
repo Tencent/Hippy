@@ -166,7 +166,7 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
         mOptions = null;
         mSource = null;
         mStateFlags = 0;
-        //recycle();
+        recycle();
     }
 
     @Override

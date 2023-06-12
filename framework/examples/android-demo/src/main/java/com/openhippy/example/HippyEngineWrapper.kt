@@ -95,7 +95,7 @@ class HippyEngineWrapper {
             }
         }
         devButton?.let {
-            val parent: ViewParent = it.parent
+            val parent: ViewParent? = it.parent
             parent?.let {
                 (parent as ViewGroup).removeView(devButton)
             }
