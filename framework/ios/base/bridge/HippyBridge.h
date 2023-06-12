@@ -32,7 +32,6 @@
 
 #include <memory>
 
-@class HippyPerformanceLogger;
 @class HippyJSExecutor;
 @class HippyModuleData;
 
@@ -250,11 +249,6 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  * Inform the bridge, and anything subscribing to it, that it should reload.
  */
 - (void)requestReload;
-
-/**
- * Link to the Performance Logger that logs Hippy Native perf events.
- */
-@property (nonatomic, readonly, strong) HippyPerformanceLogger *performanceLogger;
 
 @property (nonatomic, assign) BOOL debugMode;
 
