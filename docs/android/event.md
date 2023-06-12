@@ -11,8 +11,5 @@
 ```java
 HippyMap hippyMap = new HippyMap();
 hippyMap.pushString("result", "hello i am from native");
-mEngineManager.getCurrentEngineContext()
-    .getModuleManager()
-    .getJavaScriptModule(EventDispatcher.class)
-    .receiveNativeEvent("rotate", hippyMap);
+hippyEngine.sendEvent("rotate", hippyMap);
 ```
