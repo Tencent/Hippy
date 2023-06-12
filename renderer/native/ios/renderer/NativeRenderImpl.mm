@@ -33,12 +33,14 @@
 #import "NativeRenderImpl.h"
 #import "NativeRenderObjectRootView.h"
 #import "NativeRenderObjectView.h"
+#import "NativeRenderUtils.h"
 #import "NativeRenderView.h"
 #import "NativeRenderViewManager.h"
 #import "RenderVsyncManager.h"
 #import "UIView+DomEvent.h"
 #import "UIView+NativeRender.h"
 #import "UIView+Render.h"
+
 #include <mutex>
 
 #include "dom/root_node.h"
@@ -206,6 +208,8 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     _pendingUIBlocks = [NSMutableArray new];
     _componentTransactionListeners = [NSMutableSet new];
     _componentDataByName = [NSMutableDictionary dictionaryWithCapacity:64];
+    NativeRenderScreenScale();
+    NativeRenderScreenSize();
 }
 
 - (void)invalidate {
