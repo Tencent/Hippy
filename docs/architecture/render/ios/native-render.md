@@ -50,7 +50,7 @@ NativeRenderImpl负责处理以下行为：
 - render_manager根据dom节点信息构建出对应的render节点与树结构，并做一些预处理以满足UI构建需求
 - 之后render_manager将根据render数选择性构建UI树结构并上屏
 
-![image](./img/ui_process.png)
+![image](../../../assets/ui_process.png)
 
 ### UI懒加载
 
@@ -59,16 +59,16 @@ NativeRenderImpl负责处理以下行为：
 为此，需要设定render节点的懒加载属性，以保证UI的懒创建。
 
 在iOS中，此能力由`[NativeRenderObjectView creationType:NativeRenderCreationType]`属性控制。
-![image](./img/lazy_load1.png)
+![image](../../../assets/lazy_load1.png)
 对于懒加载组件，需要手动调用创建方法才会创建。
-![image](./img/lazy_load2.png)
+![image](../../../assets/lazy_load2.png)
 
 ### Text组件构建
 
 Text组件算是一个比较特殊的组件，相对于其他组件，其有两个特色：`测量`与`合并`。
 
 - <font color=#DEBB85>测量</font>：一个普通的组件，其布局结果完全有layout系统计算，无需与render系统交互。但是对于text组件，需要由render系统设置测量函数，由render系统计算出其长宽。
-![image](./img/text_measure.png)
+![image](../../../assets/text_measure.png)
 
 - <font color=#DEBB85>合并</font>：富文本结构，在dom树中，是一个text节点持有一个或者多个text类型子节点。但是在render系统中，render_manager会将其合并为一个text节点，与UI结构保持一致。之后便是正常的上屏流程。
 
@@ -78,7 +78,7 @@ Text组件算是一个比较特殊的组件，相对于其他组件，其有两�
 
 为此，长列表组件会将其子render node节点作为数据源，在创建UI时，会先根据数据源节点信息找到对应的render节点，然后实时创建UI。
 
-![image](./img/list.png)
+![image](../../../assets/list.png)
 
 ### 长列表组件内存策略
 
@@ -180,4 +180,4 @@ Hippy3.0默认实现了一套decoder作为默认decoder，实现对系统支持�
 - NativeRenderAnimatedImageView实现一个vsync回调，每次回调向NativeRenderAnimatedImage询问当前帧对应的Image
 - NativeRenderAnimatedImage持有HPImageProviderProtocol实例，负责解析动图，并返回对应帧的Image
 
-![image](./img/animated_image.png)
+![image](../../../assets/animated_image.png)

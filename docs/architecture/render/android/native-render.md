@@ -19,7 +19,7 @@
       </View>
 ```
 
-  ![UI层级优化效果对比](../assets/img/flatten-ui-1.png)
+  ![UI层级优化效果对比](../../../assets/img/flatten-ui-1.png)
 
 - 无层级优化情况下dom  -> render -> view 一一对应
 - 2.0将只参与排版的节点在render中被优化，render节点和view一一对应
@@ -29,7 +29,7 @@
 
 ### 2.0 UI主体结构
 
-  ![2.0 UI主体结构](../assets/img/flatten-ui-2.png)
+  ![2.0 UI主体结构](../../../assets/img/flatten-ui-2.png)
 
 - HippyViewGroup是我们页面中最常见的元素，但绝大部分view是不需要展示图片与处理图片属性的，从imageview派生出来让view组件变得异常臃肿;
 - AsyncImageView是HippyViewGroup的基类，也是属于Support-ui里面的一个基础组件，这个基类里面包括图片拉取管理，drawable的管理与渲染诸多逻辑，让组件渲染与view强耦合在一起，除了设计不合理以外代码实现质量也较差。
@@ -37,7 +37,7 @@
 
 ### 3.0 UI主体结构
 
-  ![3.0 UI主体结构](../assets/img/flatten-ui-3.png)
+  ![3.0 UI主体结构](../../../assets/img/flatten-ui-3.png)
 
 - 废弃 suppor-ui AsyncImageView，使用轻量化FlatViewGroup替代，FlatViewGroup只负责子节点渲染顺序的管理;
 - 通过新增Component体系实现view属性与渲染属性处理逻辑的分离；
@@ -70,13 +70,13 @@
 
    在2.0中主要通过recycler view自身item pool对ViewHolder进行缓存，这里的缓冲池分类主要依赖item type，也就是每个item的UI样式，由前端开发者自行分类定义，由于很多开发者对item type分类不精准甚至根本就没有去设置item type，再加上本身SDK的diff机制不够最优，导致这种强依赖item type的缓存复用机制效率很低，有概率会引起列表滚动的掉帧不流畅。
 
-   ![2.0复用机制](../assets/img/flatten-ui-4.png)
+   ![2.0复用机制](../../../assets/img/flatten-ui-4.png)
 
 #### 3.0复用机制
 
    3.0增加以view为单位的缓存池，在list view滚动过程中不论是item被淘汰还是被复用，都会先拆解item，将子view放到复用池彻底解决同样type item内部由于子节点结构差异造成的复用率低的问题，取消Patch机制，整个复用diff过程不产生任何多余的临时对象。
 
-   ![3.0复用机制](../assets/img/flatten-ui-5.png)
+   ![3.0复用机制](../../../assets/img/flatten-ui-5.png)
 
    增加基于view type缓存池的细粒度复用机制以后，已经最大程度上减弱的对item type分类的依赖，也就是说即使前端item type不设置，也可以获得较好的复用性能。细粒度复用可以很好优化列表滚动性能，同时也是保证Flatten UI的体系的一个必要能力，因为在滚动的候，下一个即将展示的节点有可能是一个偏平化的节点，不需要创建view，如果没有view的缓存池，那么上一个从item pool取出的item会把子view全部delete掉，造成很大的性能损耗。
 
@@ -112,7 +112,7 @@
 FlatViewGroup直接派生于系统ViewGroup，作为 text view，imge view与普通view组件的基类，相对于原来suppor-ui AsyncImageView要轻量化很多，只包含子节点渲染顺序相关的处理逻辑，所以基于FlatViewGroup派生的组件不论在创建耗时上还是代码可维护方面比2.0都有明显提升。
 子节点遍历与渲染最关键要支持扁平化元素与常规view混合的组合，例如：
 
-![扁平化元素与普通view混合渲染](../assets/img/flatten-ui-6.png)
+![扁平化元素与普通view混合渲染](../../../assets/img/flatten-ui-6.png)
 
 #### 触发扁平化渲染的条件
 
