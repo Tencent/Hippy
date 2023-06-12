@@ -23,33 +23,21 @@
 #import "HPToolUtils.h"
 #import "NativeRenderUtils.h"
 
-CGFloat NativeRenderScreenScale() {
+CGFloat NativeRenderScreenScale(void) {
     static CGFloat scale = CGFLOAT_MAX;
     static dispatch_once_t onceToken;
-    if (CGFLOAT_MAX == scale) {
-        HPExecuteOnMainThread(
-            ^{
-                dispatch_once(&onceToken, ^{
-                    scale = [UIScreen mainScreen].scale;
-                });
-            }, YES);
-    }
-
+    dispatch_once(&onceToken, ^{
+        scale = [UIScreen mainScreen].scale;
+    });
     return scale;
 }
 
-CGSize NativeRenderScreenSize() {
+CGSize NativeRenderScreenSize(void) {
     static CGSize size = { 0, 0 };
     static dispatch_once_t onceToken;
-    if (CGSizeEqualToSize(CGSizeZero, size)) {
-        HPExecuteOnMainThread(
-            ^{
-                dispatch_once(&onceToken, ^{
-                    size = [UIScreen mainScreen].bounds.size;
-                });
-            }, YES);
-    }
-
+    dispatch_once(&onceToken, ^{
+        size = [UIScreen mainScreen].bounds.size;
+    });
     return size;
 }
 
