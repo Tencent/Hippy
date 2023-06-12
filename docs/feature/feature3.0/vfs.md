@@ -24,7 +24,7 @@
 
    2.0中所以的资源请求都是从JAVA层发起，但3.0由于接入了自绘内核以及dev tools对接C++ dom以后，资源请求有可能从C++层发起，所以JAVA层和C++层各维护了一条VFS链表，形成对称结构：
 
-   ![render node replay与dom node replay性能对比](../assets/img/vfs-chain.png)
+   ![render node replay与dom node replay性能对比](../../assets/img/vfs-chain.png)
 
 3. 链表遍历访问规则
 
@@ -90,6 +90,6 @@ public void onHandleCompleted()
 
 引擎初始化阶段会将开发者自定义的processor设置到VFS链表中
 
-![render node replay与dom node replay性能对比](../assets/img/vfs-processor.png)
+![render node replay与dom node replay性能对比](../../assets/img/vfs-processor.png)
 
 关于Devtools processor和Default processor是SDK内部默认添加的，其存放位置不可以更改

@@ -52,4 +52,4 @@ public static Map<String, Object> decodeSnapshot(@NonNull byte[] buffer)
 
 在中低端机型华为M10上对比demo首屏还原耗时：3.0 replay耗时47.8ms，2.0 relplay耗时146.9ms，优化后耗时下降67.5%
 
-![render node replay与dom node replay性能对比](../assets/img/render-snapshot-performance.png)
+![render node replay与dom node replay性能对比](../../assets/img/render-snapshot-performance.png)
