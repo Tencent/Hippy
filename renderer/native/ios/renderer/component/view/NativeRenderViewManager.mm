@@ -195,10 +195,10 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getLocationOnScreen:(nonnull NSNumber *)co
         }
         CGRect windowFrame = [view.window convertRect:view.frame fromView:view.superview];
         NSDictionary *locationDict = @{
-            @"xOnScreen": @(windowFrame.origin.x),
-            @"yOnScreen": @(windowFrame.origin.y),
-            @"viewWidth": @(CGRectGetHeight(windowFrame)),
-            @"viewHeight": @(CGRectGetWidth(windowFrame))
+            @"xOnScreen": @(static_cast<int>(windowFrame.origin.x)),
+            @"yOnScreen": @(static_cast<int>(windowFrame.origin.y)),
+            @"viewWidth": @(static_cast<int>(CGRectGetHeight(windowFrame))),
+            @"viewHeight": @(static_cast<int>(CGRectGetWidth(windowFrame)))
         };
         callback(@[locationDict]);
     }];
