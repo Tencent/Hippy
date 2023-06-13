@@ -62,3 +62,18 @@ CGSize NativeRenderSizeInPixels(CGSize pointSize, CGFloat scale) {
         ceil(pointSize.height * scale),
     };
 }
+
+BOOL NativeRenderCGRectNearlyEqual(CGRect frame1, CGRect frame2) {
+    return NativeRenderCGPointNearlyEqual(frame1.origin, frame2.origin) &&
+            NativeRenderCGSizeNearlyEqual(frame1.size, frame2.size);
+}
+
+BOOL NativeRenderCGPointNearlyEqual(CGPoint point1, CGPoint point2) {
+    return fabs(point1.x - point2.x) < CGFLOAT_EPSILON &&
+            fabs(point1.y - point2.y) < CGFLOAT_EPSILON;
+}
+
+BOOL NativeRenderCGSizeNearlyEqual(CGSize size1, CGSize size2) {
+    return fabs(size1.width - size2.width) < CGFLOAT_EPSILON &&
+            fabs(size1.height - size2.height) < CGFLOAT_EPSILON;
+}

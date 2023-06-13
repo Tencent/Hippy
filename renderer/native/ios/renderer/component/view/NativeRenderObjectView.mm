@@ -312,6 +312,10 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 }
 
 - (void)setLayoutFrame:(CGRect)frame {
+    [self setLayoutFrame:frame dirtyPropagation:YES];
+}
+
+- (void)setLayoutFrame:(CGRect)frame dirtyPropagation:(BOOL)dirtyPropagation {
     CGRect currentFrame = self.frame;
     if (CGRectEqualToRect(currentFrame, frame)) {
         return;
@@ -320,7 +324,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     auto domManager = self.domManager.lock();
     if (domManager) {
         __weak NativeRenderObjectView *weakSelf = self;
-        std::vector<std::function<void()>> ops = {[weakSelf, domManager, frame](){
+        std::vector<std::function<void()>> ops = {[weakSelf, domManager, frame, dirtyPropagation](){
             @autoreleasepool {
                 if (!weakSelf) {
                     return;
@@ -336,8 +340,9 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
                 node->SetLayoutSize(frame.size.width, frame.size.height);
                 std::vector<std::shared_ptr<hippy::DomNode>> changed_nodes;
                 node->DoLayout(changed_nodes);
-                renderManager->UpdateLayout(strongSelf.rootNode, std::move(changed_nodes));
-                [strongSelf dirtyPropagation];
+                if (dirtyPropagation) {
+                    [strongSelf dirtyPropagation];
+                }
                 domManager->EndBatch(strongSelf.rootNode);
             }
         }};
