@@ -23,5 +23,5 @@ public interface HippyScrollView {
 
     void setInitialContentOffset(int offset);
 
-    void scrollToInitContentOffset();
+    void updateContentOffset();
 }

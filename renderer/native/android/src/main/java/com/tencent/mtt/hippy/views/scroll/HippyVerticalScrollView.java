@@ -291,8 +291,11 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
     }
 
     @Override
-    public void scrollToInitContentOffset() {
+    public void updateContentOffset() {
         if (hasCompleteFirstBatch) {
+            // When the ScrollView content becomes shorter,
+            // scrollTo() can correct the scroll position to the new end
+            scrollTo(getScrollX(), getScrollY());
             return;
         }
 
