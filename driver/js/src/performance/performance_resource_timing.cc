@@ -42,7 +42,10 @@ string_view PerformanceResourceTiming::ToJSON() {
 
 string_view PerformanceResourceTiming::GetInitiatorString(InitiatorType type) {
   switch (type) {
-    case InitiatorType::AUDIO:{
+    case InitiatorType::OTHER: {
+      return "other";
+    }
+    case InitiatorType::AUDIO: {
       return "audio";
     }
     case InitiatorType::BEACON: {

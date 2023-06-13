@@ -31,7 +31,7 @@ inline namespace performance {
 class PerformanceResourceTiming: public PerformanceEntry {
  public:
   enum class InitiatorType {
-    AUDIO, BEACON, BODY, CSS, EARLY_HINT, EMBED, FETCH, FRAME, IFRAME, ICON, IMAGE, IMG, INPUT, LINK, NAVIGATION, OBJECT,
+    OTHER, AUDIO, BEACON, BODY, CSS, EARLY_HINT, EMBED, FETCH, FRAME, IFRAME, ICON, IMAGE, IMG, INPUT, LINK, NAVIGATION, OBJECT,
     PING, SCRIPT, TRACK, VIDEO, XMLHTTPREQUEST
   };
 
@@ -56,7 +56,7 @@ class PerformanceResourceTiming: public PerformanceEntry {
   static string_view GetInitiatorString(InitiatorType type);
 
  private:
-  InitiatorType initiator_type_;
+  InitiatorType initiator_type_ = InitiatorType::OTHER;
   TimePoint load_source_start_;
   TimePoint load_source_end_;
   TimePoint execute_source_start_;

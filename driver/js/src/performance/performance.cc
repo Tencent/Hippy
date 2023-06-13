@@ -28,6 +28,7 @@
 #include "driver/performance/performance_measure.h"
 #include "footstone/check.h"
 #include "footstone/logging.h"
+#include "footstone/string_view_utils.h"
 
 namespace hippy {
 inline namespace driver {
@@ -40,7 +41,8 @@ Performance::Performance(): resource_timing_current_buffer_size_(0),
     time_origin_(TimePoint::Now()) {}
 
 std::shared_ptr<PerformanceNavigationTiming> Performance::PerformanceNavigation(const string_view& name) {
-  auto name_iterator = name_map_.find(name);
+  auto u16n = footstone::StringViewUtils::ConvertEncoding(name, string_view::Encoding::Utf16);
+  auto name_iterator = name_map_.find(u16n);
   if (name_iterator != name_map_.end()) {
     for (auto& entry : name_iterator->second) {
       if (entry->GetType() == PerformanceEntry::Type::kNavigation) {
@@ -58,7 +60,8 @@ std::shared_ptr<PerformanceNavigationTiming> Performance::PerformanceNavigation(
 
 std::shared_ptr<PerformancePaintTiming> Performance::PerformancePaint(const PerformancePaintTiming::Type& type) {
   auto name = (type == PerformancePaintTiming::Type::kFirstPaint ? "first-paint" : "first-contentful-paint");
-  auto name_iterator = name_map_.find(name);
+  auto u16n = footstone::StringViewUtils::ConvertEncoding(name, string_view::Encoding::Utf16);
+  auto name_iterator = name_map_.find(u16n);
   if (name_iterator != name_map_.end()) {
     for (auto& entry : name_iterator->second) {
       if (entry->GetType() == PerformanceEntry::Type::kPaint) {
@@ -75,7 +78,8 @@ std::shared_ptr<PerformancePaintTiming> Performance::PerformancePaint(const Perf
 }
 
 std::shared_ptr<PerformanceResourceTiming> Performance::PerformanceResource(const string_view& name) {
-  auto name_iterator = name_map_.find(name);
+  auto u16n = footstone::StringViewUtils::ConvertEncoding(name, string_view::Encoding::Utf16);
+  auto name_iterator = name_map_.find(u16n);
   if (name_iterator != name_map_.end()) {
     for (auto& entry : name_iterator->second) {
       if (entry->GetType() == PerformanceEntry::Type::kResource) {
@@ -158,11 +162,12 @@ bool Performance::InsertEntry(const std::shared_ptr<PerformanceEntry>& entry) {
     ++resource_timing_current_buffer_size_;
   }
   auto name = entry->GetName();
-  auto name_iterator = name_map_.find(name);
+  auto u16n = footstone::StringViewUtils::ConvertEncoding(name, string_view::Encoding::Utf16);
+  auto name_iterator = name_map_.find(u16n);
   if (name_iterator == name_map_.end()) {
-    name_map_[name] = { entry };
+    name_map_[u16n] = { entry };
   } else {
-    name_map_[name].push_back(entry);
+    name_map_[u16n].push_back(entry);
   }
   auto type = entry->GetType();
   auto type_iterator = type_map_.find(type);
@@ -185,7 +190,8 @@ bool Performance::Measure(const Performance::string_view& name,
 }
 
 std::vector<std::shared_ptr<PerformanceEntry>> Performance::GetEntriesByName(const Performance::string_view& name) {
-  auto iterator = name_map_.find(name);
+  auto u16n = footstone::StringViewUtils::ConvertEncoding(name, string_view::Encoding::Utf16);
+  auto iterator = name_map_.find(u16n);
   if (iterator == name_map_.end()) {
     return {};
   }
@@ -194,7 +200,8 @@ std::vector<std::shared_ptr<PerformanceEntry>> Performance::GetEntriesByName(con
 
 std::vector<std::shared_ptr<PerformanceEntry>> Performance::GetEntriesByName(const Performance::string_view& name,
                                                                              PerformanceEntry::Type type) {
-  auto iterator = name_map_.find(name);
+  auto u16n = footstone::StringViewUtils::ConvertEncoding(name, string_view::Encoding::Utf16);
+  auto iterator = name_map_.find(u16n);
   if (iterator == name_map_.end()) {
     return {};
   }
@@ -218,7 +225,8 @@ std::vector<std::shared_ptr<PerformanceEntry>> Performance::GetEntriesByType(Per
 }
 
 void Performance::RemoveEntry(const Performance::string_view& name) {
-  auto name_iterator = name_map_.find(name);
+  auto u16n = footstone::StringViewUtils::ConvertEncoding(name, string_view::Encoding::Utf16);
+  auto name_iterator = name_map_.find(u16n);
   if (name_iterator == name_map_.end()) {
     return;
   }
@@ -227,8 +235,9 @@ void Performance::RemoveEntry(const Performance::string_view& name) {
     FOOTSTONE_CHECK(type_iterator != type_map_.end());
     auto array = type_iterator->second;
     auto erase_iterator = std::remove_if(array.begin(), array.end(),
-                                      [name](const std::shared_ptr<PerformanceEntry>& item) {
-      return item->GetName() == name;
+                                      [u16n](const std::shared_ptr<PerformanceEntry>& item) {
+      auto u16n2 = footstone::StringViewUtils::ConvertEncoding(item->GetName(), string_view::Encoding::Utf16);
+      return u16n2 == u16n;
     });
     if (entry->GetType() == PerformanceEntry::Type::kResource) {
       auto count = std::distance(erase_iterator, array.end());
@@ -246,7 +255,8 @@ void Performance::RemoveEntry(PerformanceEntry::Type type) {
     return;
   }
   for (const auto& entry: type_iterator->second) {
-    auto name_iterator = name_map_.find(entry->GetName());
+    auto u16n = footstone::StringViewUtils::ConvertEncoding(entry->GetName(), string_view::Encoding::Utf16);
+    auto name_iterator = name_map_.find(u16n);
     FOOTSTONE_CHECK(name_iterator != name_map_.end());
     auto array = name_iterator->second;
     array.erase(std::remove_if(array.begin(), array.end(),
@@ -261,14 +271,15 @@ void Performance::RemoveEntry(PerformanceEntry::Type type) {
 }
 
 void Performance::RemoveEntry(const Performance::string_view& name, PerformanceEntry::Type type) {
-  auto name_iterator = name_map_.find(name);
+  auto u16n = footstone::StringViewUtils::ConvertEncoding(name, string_view::Encoding::Utf16);
+  auto name_iterator = name_map_.find(u16n);
   if (name_iterator == name_map_.end()) {
     return;
   }
 
   auto name_array = name_iterator->second;
   name_array.erase(std::remove_if(name_array.begin(), name_array.end(),
-                               [&type_map = type_map_, &size = resource_timing_current_buffer_size_, type](
+                               [&type_map = type_map_, &size = resource_timing_current_buffer_size_, u16n, type](
                                    const std::shared_ptr<PerformanceEntry>& entry) {
     if (entry->GetType() != type) {
       return false;
@@ -277,8 +288,9 @@ void Performance::RemoveEntry(const Performance::string_view& name, PerformanceE
     FOOTSTONE_CHECK(type_iterator != type_map.end());
     auto type_array = type_iterator->second;
     auto erase_iterator = std::remove_if(type_array.begin(), type_array.end(),
-                                      [name = entry->GetName()](const std::shared_ptr<PerformanceEntry>& item) {
-      return item->GetName() == name;
+                                      [u16n](const std::shared_ptr<PerformanceEntry>& item) {
+      auto u16n2 = footstone::StringViewUtils::ConvertEncoding(item->GetName(), string_view::Encoding::Utf16);
+      return u16n2 == u16n;
     });
     if (type == PerformanceEntry::Type::kResource) {
       auto count = std::distance(erase_iterator, type_array.end());
