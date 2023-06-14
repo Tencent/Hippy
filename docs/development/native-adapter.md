@@ -1,6 +1,8 @@
 # 终端能力适配
+
 可以把 Native 的一些基础能力接口，抽象为 Adapter，方便业务注入实现。支持 Android、iOS、Flutter平台。
 <br/>
+
 # Android
 
 ---
@@ -55,7 +57,10 @@ Hippy SDK 提供默认空实现 `DefaultEngineMonitorAdapter`。当你需要查�
 
 
 
-##
+<br/>
+<br/>
+<br/>
+
 # iOS
 
 ---
@@ -109,7 +114,10 @@ PS: 若有多个模块实现 `HippyImageViewCustomLoader` 协议，系统只会�
 
 
 
-##
+<br/>
+<br/>
+<br/>
+
 # Voltron
 
 ---

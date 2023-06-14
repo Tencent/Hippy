@@ -1,6 +1,9 @@
 # 自定义终端模块
+
 很多时候 JS 需要访问对应终端的一些能力模块，比如数据库、下载、网络请求等，这时候就需要使用 Module 来暴露接口给JS使用。Hippy SDK 中默认实现了部分 Module，但这极有可能无法满足你的需求，这就需要你对 Module 进行扩展封装。Hippy支持 Android、iOS、Flutter平台的模块扩展。
+
 <br/>
+
 # Android
 
 ---
@@ -169,8 +172,8 @@ public class ExamplePackages implements HippyPackage
 
 我们将SDK中的功能模块分为两种类型：
 
-* 非事件型功能--当业务需要某种信息或者需要终端执行某项指令，直接通过接口调用终端代码即可。
-* 事件型功能--业务需要终端监听某个事件。当事件触发时，终端通知前端。
+- 非事件型功能--当业务需要某种信息或者需要终端执行某项指令，直接通过接口调用终端代码即可。
+- 事件型功能--业务需要终端监听某个事件。当事件触发时，终端通知前端。
 
 ---
 
@@ -178,9 +181,9 @@ public class ExamplePackages implements HippyPackage
 
 扩展一个非事件型功能组件包括以下工作：
 
-* 创建对应的功能类，并绑定前端组件，
+- 创建对应的功能类，并绑定前端组件，
     >非事件型功能只需要继承自简单的NSObject类即可。在实现文件中使用 `HIPPY_EXPORT_MODULE()` 宏导出。
-* 绑定前端方法
+- 绑定前端方法
     >与扩展UI组件类似，使用`HIPPY_EXPORT_METHOD()`宏绑定前端方法。注意方法名需要对齐。
 
 TestModule.h
@@ -206,17 +209,17 @@ HIPPY_EXPORT_METHOD(click) {
 事件型功能除了拥有非事件型功能的全部特点外，还拥有事件监听与反馈的能力。前端可能有个 `MyModule.addListener(string eventname)` 方法调用用于驱动终端监听某个事件，以及一套接收终端事件回调的机制。因此终端将这些机制封装为一个基类`HippyEventObserverModule`。所有事件型功能都必须继承自这个基类并实现必要的方法。
 扩展一个事件型功能包括以下工作：
 
-* 创建对应的事件型功能类，必须继承自 `HippyEventObserverModule`，并绑定前端组件。
+- 创建对应的事件型功能类，必须继承自 `HippyEventObserverModule`，并绑定前端组件。
     >在实现文件中使用 `HIPPY_EXPORT_MODULE()` 宏导出。
-* 绑定前端方法
+- 绑定前端方法
 
     >与扩展UI组件类似，使用 `HIPPY_EXPORT_METHOD()` 宏绑定前端方法。注意方法名需要对齐。
 
-* 实现 `[MyModule addEventObserverForName:]` 与 `[MyModule removeEventObserverForName:]` 方法用以开启、关闭对某个事件的监听行为
+- 实现 `[MyModule addEventObserverForName:]` 与 `[MyModule removeEventObserverForName:]` 方法用以开启、关闭对某个事件的监听行为
 
     >这两个方法在基类 `HippyEventObserverModule` 中已经实现但未作任何处理，需要MyModule根据需要自行实现。同时这一步是否需要实现取决于前端是否有对应的MyModule.addListener()操作，即希望终端监听某个事件。若无，则终端可以不实现。
 
-* 事件发生后通知前端
+- 事件发生后通知前端
 
     >终端使用 `[MyModule sendEvent:params:]` 方法通知前端。此方法在基类中已经实现。用户需要将制定参数填入并调用方法即可。
     >第一个参数为事件名，前端终端事件名必须一致。

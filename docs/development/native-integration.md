@@ -1,6 +1,10 @@
 # 环境搭建 
+
 这篇教程，讲述了如何将 Hippy 集成到 Android、iOS 或者Flutter工程。
 <br/>
+<br/>
+<br/>
+
 # Android 
 
 > 注：以下文档都是假设您已经具备一定的 Android 开发经验。
@@ -71,11 +75,12 @@
     destroyModule接口参数以及loadModule接口返回值均使用系统ViewGroup类型替代，尽量减少对SDK的耦合
 
 5. loadModule接口参数ModuleListener接口有所变更
-
    - onLoadCompleted回调接口remove root view参数
    - 增加onFirstViewAdded接口回调
   
-## 
+<br/>
+<br/>
+
 # iOS 
 
 >注：以下文档都是假设您已经具备一定的 iOS 开发经验。
@@ -139,11 +144,11 @@ Hippy中大量使用了反射调用。若以静态链接库形式编译Hippy代�
 
 App可使用多种方式达到 `force load` 目的,下列方式自行选择合适的一项进行配置。并要根据实际情况自行适配
 
-* 直接在主工程对应的 target 的 Build Settings 中的 `Other Linker Flags` 配置中设置 `*-force_load "${PODS_CONFIGURATION_BUILD_DIR}/hippy/libhippy.a"*`。
+- 直接在主工程对应的 target 的 Build Settings 中的 `Other Linker Flags` 配置中设置 `*-force_load "${PODS_CONFIGURATION_BUILD_DIR}/hippy/libhippy.a"*`。
 
-* 在App工程的 Podfile 配置文件中添加 `post_install hook`，自行给 xcconfig 添加 `force load`。
+- 在App工程的 Podfile 配置文件中添加 `post_install hook`，自行给 xcconfig 添加 `force load`。
 
-* fork一份Hippy源码，并修改对应的 `hippy.podspec` 配置文件，并给 `user_target` 添加如下配置，再引用此源码。
+- fork一份Hippy源码，并修改对应的 `hippy.podspec` 配置文件，并给 `user_target` 添加如下配置，再引用此源码。
 
 ```ruby
 
@@ -536,7 +541,10 @@ ENV['layout_engine'] = 'Yoga'
 
 之后，直接执行`pod update`命令更新代码即可。
 
-## 
+<br/>
+<br/>
+<br/>
+
 # Voltron 
 
 > 注：以下文档都是假设您已经具备一定的 Flutter 开发经验。
