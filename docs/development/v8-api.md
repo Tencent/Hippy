@@ -4,7 +4,7 @@
 
 ---
 
-# GetHeapStatistics
+## GetHeapStatistics
 
 获取 js 堆内存信息。
 
@@ -29,7 +29,7 @@ if (v8 != null) {
 }
 ```
 
-# GetHeapCodeStatistics
+## GetHeapCodeStatistics
 
 获取js堆中代码及其元数据的统计信息。
 > 最低支持版本 `2.15.0`
@@ -53,7 +53,7 @@ if (v8 != null) {
 }
 ```
 
-# GetHeapSpaceStatistics
+## GetHeapSpaceStatistics
 
 返回堆各个空间的统计信息。
 > 最低支持版本 `2.15.0`
@@ -77,7 +77,7 @@ if (v8 != null) {
 }
 ```
 
-# WriteHeapSnapshot
+## WriteHeapSnapshot
 
 生成一个堆快照（可导入Chrome浏览器开发者工具分析）。
 > 最低支持版本 `2.15.0`

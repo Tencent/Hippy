@@ -1,6 +1,9 @@
-# 自定义适配器
-
+# 终端能力适配
+可以把 Native 的一些基础能力接口，抽象为 Adapter，方便业务注入实现。支持 Android、iOS、Flutter平台。
+<br/>
 # Android
+
+---
 
 Android App 开发中存在很多第三方基础库。
 
@@ -17,7 +20,6 @@ Hippy SDK 现在所提供的 Adapter 包括：
 - `HippyExecutorSupplierAdapter`：线程池 Adapter。
 - `HippyEngineMonitorAdapter`：Hippy 引擎状态监控 Adapter。
 
----
 
 ## HippyHttpAdapter
 
@@ -51,6 +53,9 @@ Hippy SDK 提供默认空实现 `DefaultEngineMonitorAdapter`。当你需要查�
 
 用于支持开发者有自定义格式图片的解码需求，需要开发者自行提供接口类实例。
 
+
+
+##
 # iOS
 
 ---
@@ -103,7 +108,11 @@ HIPPY_EXPORT_MODULE()
 PS: 若有多个模块实现 `HippyImageViewCustomLoader` 协议，系统只会使用其中一个作为默认 ImageLoader
 
 
+
+##
 # Voltron
+
+---
 
 Flutter App 开发中存在很多第三方基础库。
 

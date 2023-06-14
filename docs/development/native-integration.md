@@ -1,10 +1,9 @@
-# 环境搭建
-
+# 环境搭建 
+这篇教程，讲述了如何将 Hippy 集成到 Android、iOS 或者Flutter工程。
+<br/>
 # Android 
 
 > 注：以下文档都是假设您已经具备一定的 Android 开发经验。
-
-这篇教程，讲述了如何将 Hippy 集成到 Android 工程。
 
 ---
 
@@ -76,7 +75,7 @@
    - onLoadCompleted回调接口remove root view参数
    - 增加onFirstViewAdded接口回调
   
-
+## 
 # iOS 
 
 >注：以下文档都是假设您已经具备一定的 iOS 开发经验。
@@ -537,7 +536,7 @@ ENV['layout_engine'] = 'Yoga'
 
 之后，直接执行`pod update`命令更新代码即可。
 
-
+## 
 # Voltron 
 
 > 注：以下文档都是假设您已经具备一定的 Flutter 开发经验。

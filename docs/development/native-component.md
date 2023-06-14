@@ -1,8 +1,7 @@
-# 自定义界面组件
-
+# 自定义组件
+App 开发中有可能使用到大量的UI组件，Hippy SDK 已包括其中常用的部分，如`View`、`Text`、`Image` 等，但这极有可能无法满足你的需求，这就需要对 UI 组件进行扩展封装。支持 Android、iOS、Flutter平台。
+<br/>
 # Android
-
-App 开发中有可能使用到大量的UI组件，Hippy SDK 已包括其中常用的部分，如`View`、`Text`、`Image` 等，但这极有可能无法满足你的需求，这就需要对 UI 组件进行扩展封装。
 
 ---
 
@@ -161,9 +160,6 @@ protected void onAttachedToWindow() {
 
 # iOS
 
-App开发中会使用大量UI组件，Hippy SDK已经包含了一些基本UI，比如 View, Text, Image 等。
-而用户若想进行自定义组件也十分简单。
-
 ---
 
 ## 组件扩展
@@ -250,9 +246,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(focus:(nonnull NSNumber *)reactTag callbac
 ## 方法导出
 
 `NATIVE_RENDER_COMPONENT_EXPORT_METHOD` 能够使前端随时调用终端对应的方法。前端通过三种模式调用，分别是 `callNative`, `callNativeWithCallbackId`。终端调用这三种方式时，函数体写法可以参照上面的示例。
-
 * callNative：此方法不需要终端返回任何值。
-
 * callNativeWithCallbackId: 此方法需要终端在函数体中以单个block形式返回数据。block类型为 `RenderUIResponseSenderBlock`，参数为一个`id`变量。
 
 一个`ViewManager`可以管理一种类型的多个实例，为了在ViewManager中区分当前操作的是哪个View，每一个导出方法对应的第一个参数都是View对应的tag值，用户可根据这个tag值找到对应操作的view。
@@ -274,8 +268,6 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(focus:(nonnull NSNumber *)reactTag callbac
 
 
 # Voltron
-
-App 开发中有可能使用到大量的 UI 组件，Hippy SDK 已包括其中常用的部分，如 `View` , `Text` , `Image` 等，但这极有可能无法满足你的需求，这就需要对 UI 组件进行扩展封装。
 
 ---
 

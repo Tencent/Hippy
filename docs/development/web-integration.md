@@ -11,7 +11,7 @@ hippy-react 工程暂时只能通过手工配置初始化，建议直接 clone �
 
 当然，也可以从头开始进行配置。
 
-### 准备 hippy-react 运行时依赖
+## 准备 hippy-react 运行时依赖
 
 请使用 `npm i` 安装以下 npm 包。
 
@@ -21,7 +21,7 @@ hippy-react 工程暂时只能通过手工配置初始化，建议直接 clone �
 | react               | react 本体                 |
 | regenerator-runtime | async/await 转换运行时     |
 
-### 准备 hippy-react 编译时依赖
+## 准备 hippy-react 编译时依赖
 
 以官方提供的 [范例工程](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 范例工程为例，需要使用 `npm i -D` 准备好以下依赖，当然开发者可以根据需要自行选择：
 
@@ -49,11 +49,11 @@ hippy-react 工程暂时只能通过手工配置初始化，建议直接 clone �
 | file-loader                         | 静态文件加载                               |
 | url-loader                          | 静态文件以 Base64 形式加载                 |
 
-### hippy-react 编译配置
+## hippy-react 编译配置
 
 当前 hippy-react 采用 `Webpack 4`构建，配置全部放置于 [scripts](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/scripts) 目录下，其实只是 [webpack](//webpack.js.org/) 的配置文件，建议先阅读 [webpack](//webpack.js.org/) 官网内容，具备一定基础后再进行修改。
 
-#### hippy-react 开发调试编译配置
+### hippy-react 开发调试编译配置
 
 该配置展示了将 Hippy 运行于终端的最小化配置。
 
@@ -61,7 +61,7 @@ hippy-react 工程暂时只能通过手工配置初始化，建议直接 clone �
 | ------------------------------------------------------------ | ---------- |
 | [hippy-webpack.dev.js](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/scripts/hippy-webpack.dev.js) | 调试用配置 |
 
-#### hippy-react 生产环境编译配置
+### hippy-react 生产环境编译配置
 
 生产环境和开发调试的包主要有两个区别：
 
@@ -80,7 +80,7 @@ hippy-react 工程暂时只能通过手工配置初始化，建议直接 clone �
 
 !> **特别说明：** JS 可以使用的语法受到 iOS 覆盖的最低版本的影响，绝大多数能力可以通过 `@babel/preset-env` 自动安装 polyfill，但是部分特性不行，例如要使用 [Proxy](//caniuse.com/#feat=proxy)，就无法覆盖 iOS 10 以下版本。
 
-### hippy-react 入口文件
+## hippy-react 入口文件
 
 入口文件非常简单，只是从 hippy-react 里初始化一个 Hippy 实例。注意，入口文件组件需要通过单节点包裹，如下：
 
@@ -115,7 +115,7 @@ export default function app() {
 
 ```
 
-### hippy-react npm 脚本
+## hippy-react npm 脚本
 
 在 [package.json](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/package.json#L13) 中提供了几个以 `hippy:`开头的 npm 脚本，可用来启动 [@hippy/debug-server-next](//www.npmjs.com/package/@hippy/debug-server-next) 等调试工具。
 
@@ -127,7 +127,7 @@ export default function app() {
   }
 ```
 
-### hippy-react 转 Web
+## hippy-react 转 Web
 
 请参考专门的 [hippy-react 转 Web 章节](hippy-react/web.md)。
 
@@ -137,7 +137,7 @@ export default function app() {
 
 hippy-vue 相对简单很多，hippy-vue 只是 [Vue](//vuejs.org) 在终端上的渲染层，组件也基本和浏览器保持一致。可以通过 [vue-cli](//cli.vuejs.org/) 先[创建一个 Web 项目](//cli.vuejs.org/zh/guide/creating-a-project.html)，然后加上一些 hippy-vue 的内容就可以直接将网页渲染到终端了。
 
-### 准备 hippy-vue 运行时依赖
+## 准备 hippy-vue 运行时依赖
 
 请使用 `npm i` 安装以下 npm 包，保证运行时正常。
 
@@ -147,7 +147,7 @@ hippy-vue 相对简单很多，hippy-vue 只是 [Vue](//vuejs.org) 在终端上�
 | @hippy/vue-native-components | hippy-vue 的扩展终端组件         |
 | @hippy/vue-router            | vue-router 在 hippy-vue 上的移植 |
 
-### hippy-vue 编译时依赖
+## hippy-vue 编译时依赖
 
 以官方提供的 [范例工程](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo) 范例工程为例，需要使用 `npm i -D` 准备好以下依赖，当然开发者可以根据需要自行选择：
 
@@ -174,11 +174,11 @@ hippy-vue 相对简单很多，hippy-vue 只是 [Vue](//vuejs.org) 在终端上�
 | file-loader                         | 静态文件加载                               |
 | url-loader                          | 静态文件以 Base64 形式加载                 |
 
-### hippy-vue 编译配置
+## hippy-vue 编译配置
 
 当前 hippy-vue 采用 `Webpack 4`构建，配置全部放置于 [scripts](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/scripts) 目录下，其实只是 [webpack](//webpack.js.org/) 的配置文件，建议先阅读 [webpack](//webpack.js.org/) 官网内容，具备一定基础后再进行修改。
 
-#### hippy-vue 开发调试编译配置
+### hippy-vue 开发调试编译配置
 
 该配置展示了将 Hippy 运行于终端的最小化配置。
 
@@ -186,7 +186,7 @@ hippy-vue 相对简单很多，hippy-vue 只是 [Vue](//vuejs.org) 在终端上�
 | ------------------------------------------------------------ | ---------- |
 | [hippy-webpack.dev.js](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/scripts/hippy-webpack.dev.js) | 调试用配置 |
 
-#### hippy-vue 生产环境编译配置
+### hippy-vue 生产环境编译配置
 
 线上包和开发调试用包主要有两个区别：
 
@@ -205,7 +205,7 @@ hippy-vue 相对简单很多，hippy-vue 只是 [Vue](//vuejs.org) 在终端上�
 
 !> **特别说明：** JS 可以使用的语法受到 iOS 覆盖的最低版本的影响，绝大多数能力可以通过 `@babel/preset-env` 自动安装 polyfill，但是部分特性不行，例如要使用 [Proxy](//caniuse.com/#feat=proxy)，就无法覆盖 iOS 10 以下版本。
 
-### hippy-vue 入口文件
+## hippy-vue 入口文件
 
 hippy-cli 初始化的项目自带了一个 [Web 端入口文件](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/main.js)，可以保留着用来启动 Web 端网页，但是因为 hippy-vue 的启动参数不一样，需要专门的 [终端入口文件](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/main-native.js)来加载一些终端上用到的模块。
 
@@ -280,7 +280,7 @@ app.$start((/* app */) => {
 setApp(app);
 ```
 
-### hippy-vue npm 脚本
+## hippy-vue npm 脚本
 
 在 [package.json](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/package.json#L13) 中提供了几个以 `hippy:`开头的 npm 脚本，可用来启动 [@hippy/debug-server-next](//www.npmjs.com/package/@hippy/debug-server-next) 等调试工具。
 
@@ -292,7 +292,7 @@ setApp(app);
   },
 ```
 
-### 路由
+## 路由
 
 `@hippy/vue-router` 完整支持 vue-router 中的跳转功能，具体请参考 [hippy-vue-router](hippy-vue/router.md) 文档。
 

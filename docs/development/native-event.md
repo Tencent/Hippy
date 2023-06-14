@@ -3,8 +3,7 @@
 当终端网络切换，或者横竖屏改变的时候，终端需要像前端发送一些全局的广播事件，这样前端可以根据不同的状态来控制业务状态。
 
 Hippy中的事件分为两种类型：UI组件(component)事件与模块(module)事件
-
----
+<br/>
 
 ## UI组件事件
 
@@ -113,6 +112,8 @@ node->HandleEvent(event);
 <div class="toolbar" @click="onClickHandler">
 </div>
 ```
+
+我们支持Android、iOS、Flutter的事件通讯：
 
 # Android
 
