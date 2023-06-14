@@ -601,17 +601,17 @@ Widget build(BuildContext context) {
 
 其中 `HippyView` 类，实现了一些 HippyBaseView 的接口和属性定义，在一个自定义组件中有几个比较重要的属性：
 
-* id: 每一个实例化 component 的唯一标识，默认会赋值给组件 dom 的 id 属性
-* pId: 每一个实例化 component 的父组件标识
-* tagName: 是用来区分组件的类型，也是业务侧代码使用该组件时在 `nativeName` 属性上填写的值，用来关联自定义组件的 key
-* dom: 真正挂载到document上的节点
-* props: 承载了从业务侧传递过来的属性和style的记录
+- id: 每一个实例化 component 的唯一标识，默认会赋值给组件 dom 的 id 属性
+- pId: 每一个实例化 component 的父组件标识
+- tagName: 是用来区分组件的类型，也是业务侧代码使用该组件时在 `nativeName` 属性上填写的值，用来关联自定义组件的 key
+- dom: 真正挂载到document上的节点
+- props: 承载了从业务侧传递过来的属性和style的记录
 
 ### 例子
 
 下面这个例子中，我们创建了 `CustomView` 的自定义组件，用来显示一个视频
 
-* 第一步，进行初始化
+- 第一步，进行初始化
 
 ```javascript
 
@@ -632,7 +632,7 @@ class CustomView extends HippyView {
 
 ```
 
-* 第二步，实现自定义组件的 API 能力和相关属性
+- 第二步，实现自定义组件的 API 能力和相关属性
 
     我们为 `CustomView` 实现了一个属性 `src`，当 JS 业务侧修改 src 属性时就会触发 `set src()` 方法并且获取到变更后的 value。 
   
@@ -685,14 +685,14 @@ export interface ComponentContext {
 
 有的时候我们可能需要提供一个容器，用来装载一些已有的组件。而这个容器有一些特殊的形态或者行为，比如需要自己管理子节点插入和移除，或者修改样式和拦截属性等。那么这个时候就需要使用一些复杂的组件实现方式。
 
-* 关于组件自己实现子节点的 dom 插入和删除，`HippyWebRender` 默认的组件 `dom` 插入和删除，是使用 Web 的方法：
+- 关于组件自己实现子节点的 dom 插入和删除，`HippyWebRender` 默认的组件 `dom` 插入和删除，是使用 Web 的方法：
 
 ```javascript
 Node.insertBefore<T extends Node>(node: T, child: Node | null): T;
 Node.removeChild<T extends Node>(child: T): T;
 ```
 
-* 如果组件不希望以这种默认的形式来实现，可以自行通过 `insertChild` 和 `removeChild` 方法管理节点的插入和移除逻辑。
+- 如果组件不希望以这种默认的形式来实现，可以自行通过 `insertChild` 和 `removeChild` 方法管理节点的插入和移除逻辑。
 
 ```javascript
 class CustomView extends HippyView{
@@ -705,7 +705,7 @@ class CustomView extends HippyView{
 }
 ```
 
-* 关于组件 `props` 更新的拦截，需要实现组件的 `updateProps` 方法。
+- 关于组件 `props` 更新的拦截，需要实现组件的 `updateProps` 方法。
 
 > 例子中，`data` 是组件本次更新的 `props` 数据信息，`defaultProcess()` 是 `HippyWebRenderer` 默认处理 `props` 更新的方法，开发者可以在这里拦截修改更新的数据后，依然使用默认的 `props` 进行更新，也可以不用默认的方法自行进行属性更新的遍历操作。
 

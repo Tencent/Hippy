@@ -431,8 +431,8 @@ class MyAPIProvider implements APIProvider {
 
 其中 `HippyWebModule` 类标准化了 HippyWebRenderer 可使用的模块，提供了一些 HippyWebRenderer 的上下文，在一个自定义组件中有几个比较重要的属性：
 
-* name：定义了模块的名字，与 JS 业务侧使用 `callNative(moduleName，methodName)` 中的 `moduleName` 相对应
-* context：提供了一系列的方法
+- name：定义了模块的名字，与 JS 业务侧使用 `callNative(moduleName，methodName)` 中的 `moduleName` 相对应
+- context：提供了一系列的方法
 
 ```javascript
 sendEvent(type: string, params: any); //发送事件
