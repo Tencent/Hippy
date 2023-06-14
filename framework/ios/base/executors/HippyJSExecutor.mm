@@ -100,12 +100,15 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 }
 
 - (void)setup {
-    auto entry = self.pScope->GetPerformance()->PerformanceNavigation("hippyInit");
-    entry->SetHippyInitEngineStart(footstone::TimePoint::Now());
+    auto startPoint = footstone::TimePoint::Now();
     auto engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:self.enginekey];
-    entry->SetHippyInitEngineEnd(footstone::TimePoint::Now());
+    auto endPoint = footstone::TimePoint::Now();
     const char *pName = [self.enginekey UTF8String] ?: "";
     auto scope = engine->GetEngine()->CreateScope(pName);
+    auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
+    HPAssert(entry, @"Performance navigation timing hippyInit must not be null");
+    entry->SetHippyInitEngineStart(startPoint);
+    entry->SetHippyInitEngineEnd(endPoint);
     __weak HippyJSExecutor *weakSelf = self;
     engine->GetEngine()->GetJsTaskRunner()->PostTask([weakSelf](){
         @autoreleasepool {
@@ -516,9 +519,11 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 - (void)executeApplicationScript:(NSData *)script sourceURL:(NSURL *)sourceURL onComplete:(HippyJavaScriptCallback)onComplete {
     HPAssertParam(script);
     HPAssertParam(sourceURL);
-    // HippyProfileBeginFlowEvent();
+    auto entry = self.pScope->GetPerformance()->PerformanceResource(NSStringToU16StringView([sourceURL absoluteString]));
+    entry->SetExecuteSourceStart(footstone::TimePoint::Now());
     [self executeBlockOnJavaScriptQueue:^{
         // HippyProfileEndFlowEvent();
+        entry->SetExecuteSourceEnd(footstone::TimePoint::Now());
         if (!self.isValid) {
             onComplete(nil, HPErrorWithMessageAndModuleName(@"jsexecutor is not invalid", self.bridge.moduleName));
             return;

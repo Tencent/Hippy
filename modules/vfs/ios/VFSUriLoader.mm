@@ -134,7 +134,16 @@ void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request, VFSHandlerProg
     auto &cur_convenient = (*cur_convenient_it);
     //check if convenient loader exists, or forward to cpp loader
     if (cur_convenient) {
-        cur_convenient->RequestUntrustedContent(request, progress, completion, block);
+        auto startPoint = footstone::TimePoint::Now();
+        VFSHandlerCompletionBlock callback = ^(NSData *data, NSURLResponse *response, NSError *error) {
+            auto endPoint = footstone::TimePoint::Now();
+            string_view uri(NSStringToU16StringView([[response URL] absoluteString]));
+            DoRequestTimePerformanceCallback(uri, startPoint, endPoint);
+            if (completion) {
+                completion(data, response, error);
+            }
+        };
+        cur_convenient->RequestUntrustedContent(request, progress, callback, block);
     }
     else {
         string_view uri = NSStringToU8StringView([requestURL absoluteString]);
