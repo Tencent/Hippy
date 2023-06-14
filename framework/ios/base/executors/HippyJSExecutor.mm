@@ -100,7 +100,10 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 }
 
 - (void)setup {
+    auto entry = self.pScope->GetPerformance()->PerformanceNavigation("hippyInit");
+    entry->SetHippyInitEngineStart(footstone::TimePoint::Now());
     auto engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:self.enginekey];
+    entry->SetHippyInitEngineEnd(footstone::TimePoint::Now());
     const char *pName = [self.enginekey UTF8String] ?: "";
     auto scope = engine->GetEngine()->CreateScope(pName);
     __weak HippyJSExecutor *weakSelf = self;
