@@ -276,6 +276,11 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
                       << ", code_cache_dir = " << code_cache_dir
                       << ", uri = " << uri
                       << ", is_local_file = " << is_local_file;
+
+  // perfromance start time
+  auto entry = scope->GetPerformance()->PerformanceResource(uri);
+  entry->SetExecuteSourceStart(footstone::TimePoint::Now());
+
   string_view code_cache_content;
   uint64_t modify_time = 0;
   std::future<std::string> read_file_future;
@@ -357,8 +362,12 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
   auto ret = scope->GetContext()->RunScript(script_content, file_name);
 #endif
 
+  // perfromance end time
+  entry->SetExecuteSourceEnd(footstone::TimePoint::Now());
+
   auto flag = (ret != nullptr);
   FOOTSTONE_LOG(INFO) << "runScript end, flag = " << flag;
+
   return flag;
 }
 
