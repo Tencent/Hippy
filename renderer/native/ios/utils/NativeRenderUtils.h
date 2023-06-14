@@ -38,4 +38,10 @@ HP_EXTERN CGFloat NativeRenderFloorPixelValue(CGFloat value);
 // Convert a size in points to pixels, rounded up to the nearest integral size
 HP_EXTERN CGSize NativeRenderSizeInPixels(CGSize pointSize, CGFloat scale);
 
+HP_EXTERN BOOL NativeRenderCGRectNearlyEqual(CGRect frame1, CGRect frame2);
+
+HP_EXTERN BOOL NativeRenderCGPointNearlyEqual(CGPoint point1, CGPoint point2);
+
+HP_EXTERN BOOL NativeRenderCGSizeNearlyEqual(CGSize size1, CGSize size2);
+
 NS_ASSUME_NONNULL_END

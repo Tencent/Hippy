@@ -313,7 +313,7 @@ dispatch_queue_t HippyBridgeQueue() {
                 completion:(void (^)(NSURL  * _Nullable, NSError * _Nullable))completion {
     dispatch_group_t group = dispatch_group_create();
     __weak HippyBridge *weakSelf = self;
-    __block NSString *script = nil;
+    __block NSData *script = nil;
     self.loadingCount++;
     dispatch_group_enter(group);
     HippyBundleLoadOperation *fetchOp = [[HippyBundleLoadOperation alloc] initWithBridge:self
@@ -324,7 +324,7 @@ dispatch_queue_t HippyBridgeQueue() {
             HippyBridgeFatal(error, weakSelf);
         }
         else {
-            script = [[NSString alloc] initWithData:source encoding:NSUTF8StringEncoding];
+            script = source;
         }
         dispatch_group_leave(group);
     };
@@ -424,7 +424,7 @@ dispatch_queue_t HippyBridgeQueue() {
     [self.javaScriptExecutor setInspecable:isInspectable];
 }
 
-- (void)executeJSCode:(NSString *)script
+- (void)executeJSCode:(NSData *)script
             sourceURL:(NSURL *)sourceURL
          onCompletion:(HippyJavaScriptCallback)completion {
     if (!script) {

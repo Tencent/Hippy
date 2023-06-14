@@ -513,7 +513,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     }];
 }
 
-- (void)executeApplicationScript:(NSString *)script sourceURL:(NSURL *)sourceURL onComplete:(HippyJavaScriptCallback)onComplete {
+- (void)executeApplicationScript:(NSData *)script sourceURL:(NSURL *)sourceURL onComplete:(HippyJavaScriptCallback)onComplete {
     HPAssertParam(script);
     HPAssertParam(sourceURL);
     // HippyProfileBeginFlowEvent();
@@ -540,10 +540,11 @@ static NSLock *jslock() {
     return lock;
 }
 
-static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, HippyPerformanceLogger *performanceLogger, SharedCtxPtr context, NSError **error) {
+static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, HippyPerformanceLogger *performanceLogger, SharedCtxPtr context, NSError **error) {
     @autoreleasepool {
-        string_view view = string_view::new_from_utf8([script UTF8String]);
-        string_view fileName = NSStringToU8StringView([sourceURL absoluteString]);
+        const char *scriptBytes = reinterpret_cast<const char *>([script bytes]);
+        string_view view = string_view::new_from_utf8(scriptBytes, [script length]);
+        string_view fileName = NSStringToU16StringView([sourceURL absoluteString]);
         string_view errorMsg;
         NSLock *lock = jslock();
         BOOL lockSuccess = [lock lockBeforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];

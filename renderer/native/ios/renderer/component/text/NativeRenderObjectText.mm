@@ -292,12 +292,8 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                                                     textFrame.origin.y + positionY + top,
                                                     roundedWidth, roundedHeight);
                 CGRect childFrame = child.frame;
-#define ChildFrameParamNearlyEqual(x, y) (fabs((x) - (y)) < 0.00001f)
-                if (!ChildFrameParamNearlyEqual(childFrame.origin.x, childFrameToSet.origin.x) ||
-                    !ChildFrameParamNearlyEqual(childFrame.origin.y, childFrameToSet.origin.y) ||
-                    !ChildFrameParamNearlyEqual(childFrame.size.width, childFrameToSet.size.width) ||
-                    !ChildFrameParamNearlyEqual(childFrame.size.height, childFrameToSet.size.height)) {
-                    [child setLayoutFrame:childFrameToSet];
+                if (!NativeRenderCGRectNearlyEqual(childFrame, childFrameToSet)) {
+                    [child setLayoutFrame:childFrameToSet dirtyPropagation:NO];
                 }
             }
         }];
