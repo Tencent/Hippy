@@ -519,10 +519,15 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
   std::weak_ptr<Ctx> weak_context = context_;
 #ifdef ENABLE_INSPECTOR
   std::weak_ptr<hippy::devtools::DevtoolsDataSource> weak_data_source = devtools_data_source_;
-  auto cb = [weak_context, value, weak_data_source]() mutable {
+  auto cb = [WEAK_THIS, weak_context, value, weak_data_source]() mutable {
 #else
-  auto cb = [weak_context, value]() mutable {
+  auto cb = [WEAK_THIS, weak_context, value]() mutable {
 #endif
+    DEFINE_AND_CHECK_SELF(Scope)
+    // perfromance start time
+    auto entry = self->GetPerformance()->PerformanceNavigation("hippyInit");
+    entry->SetHippyRunApplicationStart(footstone::TimePoint::Now());
+
     std::shared_ptr<Ctx> context = weak_context.lock();
     if (context) {
       auto global_object = context->GetGlobalObject();
@@ -553,6 +558,10 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
         context->ThrowException("Application entry not found");
       }
     }
+
+    // perfromance end time
+    entry->SetHippyRunApplicationEnd(footstone::TimePoint::Now());
+    entry->SetHippyFirstFrameStart(footstone::TimePoint::Now());
   };
   auto runner = GetTaskRunner();
   if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
