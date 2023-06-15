@@ -6,5 +6,6 @@
   "no-multiple-blanks": false,
   "no-trailing-spaces": false,
   "no-inline-html" : false,
-  "no-bare-urls": false
+  "no-bare-urls": false,
+  "no-duplicate-header": false
 }
