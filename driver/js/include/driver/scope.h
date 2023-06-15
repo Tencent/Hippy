@@ -242,6 +242,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
   uint64_t GetListenerId(const EventListenerInfo& event_listener_info);
 
   void RunJS(const string_view& js,
+             const string_view& uri,
              const string_view& name,
              bool is_copy = true);
 

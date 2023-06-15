@@ -481,10 +481,16 @@ uint64_t Scope::GetListenerId(const EventListenerInfo& event_listener_info) {
 }
 
 void Scope::RunJS(const string_view& data,
+                  const string_view& uri,
                   const string_view& name,
                   bool is_copy) {
   std::weak_ptr<Ctx> weak_context = context_;
-  auto callback = [data, name, is_copy, weak_context] {
+  auto callback = [WEAK_THIS, data, uri, name, is_copy, weak_context] {
+    DEFINE_AND_CHECK_SELF(Scope)
+    // perfromance start time
+    auto entry = self->GetPerformance()->PerformanceResource(uri);
+    entry->SetExecuteSourceStart(footstone::TimePoint::Now());
+
 #ifdef JS_V8
     auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
     if (context) {
@@ -496,6 +502,9 @@ void Scope::RunJS(const string_view& data,
       context->RunScript(data, name);
     }
 #endif
+
+    // perfromance end time
+    entry->SetExecuteSourceEnd(footstone::TimePoint::Now());
   };
 
   auto runner = GetTaskRunner();
