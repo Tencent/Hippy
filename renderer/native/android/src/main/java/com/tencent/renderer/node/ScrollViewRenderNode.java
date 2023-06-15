@@ -14,30 +14,17 @@
  * limitations under the License.
  */
 
-package com.tencent.mtt.hippy.views.scroll;
+package com.tencent.renderer.node;
 
-import com.tencent.mtt.hippy.common.HippyMap;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.tencent.mtt.hippy.uimanager.ControllerManager;
+import java.util.Map;
 
-public interface HippyScrollView {
+public class ScrollViewRenderNode extends RenderNode {
 
-    void setScrollEnabled(boolean enabled);
-
-    void showScrollIndicator(boolean showScrollIndicator);
-
-    void setFlingEnabled(boolean flag);
-
-    @SuppressWarnings("deprecation")
-    void setContentOffset4Reuse(HippyMap offsetMap);
-
-    void setPagingEnabled(boolean pagingEnabled);
-
-    void setScrollEventThrottle(int scrollEventThrottle);
-
-    void callSmoothScrollTo(int x, int y, int duration);
-
-    void setScrollMinOffset(int scrollMinOffset);
-
-    void setInitialContentOffset(int offset);
-
-    void updateContentOffset();
+    public ScrollViewRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
+            @NonNull String className, @NonNull ControllerManager controllerManager, boolean isLazyLoad) {
+        super(rootId, id, props, className, controllerManager, isLazyLoad);
+    }
 }

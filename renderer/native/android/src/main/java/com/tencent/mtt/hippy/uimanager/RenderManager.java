@@ -33,6 +33,7 @@ import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.Renderer;
 import com.tencent.renderer.node.ListItemRenderNode;
 import com.tencent.renderer.node.RootRenderNode;
+import com.tencent.renderer.node.ScrollViewRenderNode;
 import com.tencent.renderer.node.VirtualNode;
 import com.tencent.renderer.node.TextRenderNode;
 import com.tencent.renderer.node.RenderNode;
@@ -180,6 +181,11 @@ public class RenderManager {
         if (node != null) {
             node.updateLayout(left, top, width, height);
             addUpdateNodeIfNeeded(rootId, node);
+            if (node.getParent() instanceof ScrollViewRenderNode) {
+                // ScrollView doesn't receive updateLayout when its content changes,
+                // so we specifically call addUpdateNodeIfNeeded()
+                addUpdateNodeIfNeeded(rootId, node.getParent());
+            }
         }
     }
 
