@@ -298,8 +298,8 @@ public class RenderManager {
         RenderNode node = getRenderNode(rootId, nodeId);
         if (node != null) {
             node.updateExtra(object);
-            // when getGestureEnable() returns true, flattened leaf node may create view,
-            // we should notify the parent node to call mountHostView()
+            // The gesture set by the child nodes of the flattened text node will recreate
+            // the host view, so the parent text node must be added to the update list.
             if (node.getGestureEnable() && node.getHostView() == null && node.getParent() != null) {
                 addUpdateNodeIfNeeded(rootId, node.getParent());
             }
