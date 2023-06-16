@@ -39,7 +39,6 @@
 #import "HippyRedBox.h"
 #import "HippyTurboModule.h"
 #import "HippyUtils.h"
-
 #import "HPAsserts.h"
 #import "HPConvert.h"
 #import "HPDefaultImageProvider.h"
@@ -48,6 +47,7 @@
 #import "HPLog.h"
 #import "HPOCToHippyValue.h"
 #import "HPToolUtils.h"
+#import "NSObject+Render.h"
 #import "TypeConverter.h"
 #import "VFSUriLoader.h"
 
@@ -98,6 +98,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     NSURL *_debugURL;
     NSURL *_sandboxDirectory;
     std::weak_ptr<VFSUriLoader> _uriLoader;
+    std::weak_ptr<hippy::RenderManager> _renderManager;
 }
 
 @property(readwrite, strong) dispatch_semaphore_t moduleSemaphore;
@@ -144,6 +145,7 @@ dispatch_queue_t HippyBridgeQueue() {
         _invalidateReason = HPInvalidateReasonDealloc;
         _valid = YES;
         _bundlesQueue = [[HippyBundleOperationQueue alloc] init];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rootViewContentDidAppear:) name:kRootViewDidAddContent object:nil];
         [self setUp];
         HPExecuteOnMainThread(^{
             [self bindKeys];
@@ -151,6 +153,20 @@ dispatch_queue_t HippyBridgeQueue() {
         HPLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ Init %p", NSStringFromClass([self class]), self);
     }
     return self;
+}
+
+- (void)rootViewContentDidAppear:(NSNotification *)noti {
+    UIView *rootView = [[noti userInfo] objectForKey:kRootViewKey];
+    if (rootView) {
+        auto domManager = _javaScriptExecutor.pScope->GetDomManager().lock();
+        if (domManager) {
+            auto viewRenderManager = [rootView renderManager];
+            if (_renderManager.lock() == viewRenderManager.lock()) {
+                auto entry = _javaScriptExecutor.pScope->GetPerformance()->PerformanceNavigation("hippyInit");
+                entry->SetHippyFirstFrameEnd(footstone::TimePoint::Now());
+            }
+        }
+    }
 }
 
 - (void)dealloc {

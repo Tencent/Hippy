@@ -22,25 +22,20 @@
 
 #import "UIView+Render.h"
 #import "NativeRenderImpl.h"
+#import "NSObject+Render.h"
+#import "NativeRenderManager.h"
 
 #include <objc/runtime.h>
 
 @implementation UIView (Render)
 
-- (void)setRenderImpl:(NativeRenderImpl *)renderContext {
-    if (renderContext) {
-        NSHashTable *weakContainer = [NSHashTable weakObjectsHashTable];
-        [weakContainer addObject:renderContext];
-        objc_setAssociatedObject(self, @selector(renderImpl), weakContainer, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-    else {
-        objc_setAssociatedObject(self, @selector(renderImpl), nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-}
-
 - (NativeRenderImpl *)renderImpl {
-    NSHashTable *hashTable = objc_getAssociatedObject(self, _cmd);
-    return [hashTable anyObject];
+    auto renderManager = [self renderManager].lock();
+    if (renderManager) {
+        auto nativeRenderManager = std::static_pointer_cast<NativeRenderManager>(renderManager);
+        return nativeRenderManager->GetNativeRenderImpl();
+    }
+    return nil;
 }
 
 @end
