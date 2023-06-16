@@ -40,9 +40,9 @@
 #import "HippyI18nUtils.h"
 #import "HippyDevManager.h"
 #import "HippyBundleURLProvider.h"
-#include "core/scope.h"
 #import "HippyTurboModuleManager.h"
-#import <core/napi/jsc/js_native_api_jsc.h>
+
+#include "core/scope.h"
 
 #define HippyAssertJSThread()
 //
@@ -211,12 +211,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
 }
 
 - (void)loadSource:(HippySourceLoadBlock)_onSourceLoad onProgress:(HippySourceLoadProgressBlock)onProgress {
-    [_performanceLogger markStartForTag:HippyPLScriptDownload];
-
+    [_performanceLogger markStartForTag:HippyPLCommonStartup];
+    [_performanceLogger markStartForTag:HippyPLCommonLoadSource];
     HippyPerformanceLogger *performanceLogger = _performanceLogger;
     HippySourceLoadBlock onSourceLoad = ^(NSError *error, NSData *source, int64_t sourceLength) {
-        [performanceLogger markStopForTag:HippyPLScriptDownload];
-        [performanceLogger setValue:sourceLength forTag:HippyPLBundleSize];
+        [performanceLogger markStopForTag:HippyPLCommonLoadSource];
+        [performanceLogger setValue:sourceLength forTag:HippyPLCommonBundleSize];
         _onSourceLoad(error, source, sourceLength);
     };
 
@@ -541,8 +541,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
         return;
     }
 
-    [self->_performanceLogger markStartForTag:HippyExecuteSource];
-    [self enqueueApplicationScript:sourceCode url:self.bundleURL onComplete:^(NSError *loadError) {
+    [self.performanceLogger markStartForTag:HippyPLCommonExecuteSource];
+    [self enqueueApplicationScript:sourceCode url:self.bundleURL isCommonBundle:YES onComplete:^(NSError *loadError) {
         if (!self->_valid) {
             return;
         }
@@ -555,30 +555,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
             return;
         }
 
-        // Log metrics about native requires during the bridge startup.
-        uint64_t nativeRequiresCount = [self->_performanceLogger valueForTag:HippyPLRAMNativeRequiresCount];
-        [self->_performanceLogger setValue:nativeRequiresCount forTag:HippyPLRAMStartupNativeRequiresCount];
-        uint64_t nativeRequires = [self->_performanceLogger valueForTag:HippyPLRAMNativeRequires];
-        [self->_performanceLogger setValue:nativeRequires forTag:HippyPLRAMStartupNativeRequires];
-
-        [self->_performanceLogger markStopForTag:HippyPLBridgeStartup];
-        [self->_performanceLogger markStopForTag:HippyExecuteSource];
-        // Perform the notification on the main thread, so we can't run into
-        // timing issues with HippyRootView
-
-#ifdef DEBUG
-        NSUInteger HippyPLScriptDownloads = (NSUInteger)[self->_performanceLogger durationForTag:HippyPLScriptDownload];
-        NSUInteger HippyPLNativeModuleInits = (NSUInteger)[self->_performanceLogger durationForTag:HippyPLNativeModuleInit];
-        NSUInteger HippyPLJSCExecutorSetups = (NSUInteger)[self->_performanceLogger durationForTag:HippyPLJSCExecutorSetup];
-        NSUInteger HippyPLNativeModuleInjectConfigs = (NSUInteger)[self->_performanceLogger durationForTag:HippyPLNativeModuleInjectConfig];
-        NSUInteger HippyPLNativeModulePrepareConfigs = (NSUInteger)[self->_performanceLogger durationForTag:HippyPLNativeModulePrepareConfig];
-        NSUInteger HippyExecuteSources = (NSUInteger)[self->_performanceLogger durationForTag:HippyExecuteSource];
-        NSUInteger HippyPLBridgeStartups = (NSUInteger)[self->_performanceLogger durationForTag:HippyPLBridgeStartup];
-
-        NSLog(@"common cost: read source:%@ init module:%@ executor setups:%@ inject config:%@ prepare config:%@ load source:%@ bridge starup:%@",
-            @(HippyPLScriptDownloads), @(HippyPLNativeModuleInits), @(HippyPLJSCExecutorSetups), @(HippyPLNativeModuleInjectConfigs),
-            @(HippyPLNativeModulePrepareConfigs), @(HippyExecuteSources), @(HippyPLBridgeStartups));
-#endif
+        [self.performanceLogger markStopForTag:HippyPLBridgeStartup];
+        [self.performanceLogger markStopForTag:HippyPLCommonExecuteSource];
+        [self.performanceLogger markStopForTag:HippyPLCommonStartup];
 
         dispatch_async(dispatch_get_main_queue(), ^{
         // Register the display link to start sending js calls after everything is setup
@@ -587,7 +566,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
         // hipp core功能中线程全部由c++创建，因此将所有displayLink放在mainRunLoop
         //fixIssue: https://github.com/Tencent/Hippy/issues/1788, 放到主线程运行
             [self->_displayLink addToRunLoop:[NSRunLoop mainRunLoop]];
-            [[NSNotificationCenter defaultCenter] postNotificationName:HippyJavaScriptDidLoadNotification object:self->_parentBridge
+            [[NSNotificationCenter defaultCenter] postNotificationName:HippyJavaScriptDidLoadNotification
+                                                                object:self->_parentBridge
                                                               userInfo:@ { @"bridge": self }];
         });
 
@@ -928,11 +908,17 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     return turboModule;
 }
 
-- (void)enqueueApplicationScript:(NSData *)script url:(NSURL *)url onComplete:(HippyJavaScriptCompleteBlock)onComplete {
+- (void)enqueueApplicationScript:(NSData *)script
+                             url:(NSURL *)url
+                  isCommonBundle:(BOOL)isCommonBundle
+                      onComplete:(HippyJavaScriptCompleteBlock)onComplete {
     HippyAssert(onComplete != nil, @"onComplete block passed in should be non-nil");
     _errorOccured = NO;
     // HippyProfileBeginFlowEvent();
-    [_javaScriptExecutor executeApplicationScript:script sourceURL:url onComplete:^(NSError *scriptLoadError) {
+    [_javaScriptExecutor executeApplicationScript:script
+                                        sourceURL:url
+                                   isCommonBundle:isCommonBundle
+                                       onComplete:^(NSError *scriptLoadError) {
         // HippyProfileEndFlowEvent();
         HippyAssertJSThread();
         if (scriptLoadError) {

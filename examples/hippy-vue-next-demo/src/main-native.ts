@@ -93,43 +93,6 @@ const initCallback = ({ superProps, rootViewId }) => {
   //   // mount app
   //   app.mount('#root');
   // });
-
-  // invoke custom native apis with type hints
-  Native.callNative('customModule', 'customMethod', '123', 456);
-  Native.callNativeWithPromise(
-    'customModule',
-    'customMethodWithPromise',
-    '123',
-    456,
-  ).then((result) => {
-    console.log(result);
-  });
-
-  // register custom component with type inference
-  registerElement('customComponent', {
-    component: {
-      name: 'custom-component',
-      processEventData(
-        evtData: EventsUnionType,
-        nativeEventParams: { [key: string]: NeedToTyped },
-      ) {
-        const { handler: event, __evt: nativeEventName } = evtData;
-
-        switch (nativeEventName) {
-          // this can infer event is HippyTouchEvent from type narrowing
-          case 'onTest':
-            event.contentOffset = nativeEventParams.position;
-            break;
-          // extended HippyEvent which has testProp
-          case 'onAnotherTest':
-            event.testProp = 123;
-            break;
-          default:
-        }
-        return event;
-      },
-    },
-  });
 };
 
 // start hippy app

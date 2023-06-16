@@ -178,6 +178,12 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)setRedBoxShowEnabled:(BOOL)enabled;
 
 /**
+ * Inspectable need to be set above ios16.4 system
+ * Default is YES for HIPPY_DEBUG mode
+ */
+- (void)setInspectable:(BOOL)isInspectable;
+
+/**
  * All registered bridge module classes.
  */
 @property (nonatomic, copy, readonly) NSArray<Class> *moduleClasses;

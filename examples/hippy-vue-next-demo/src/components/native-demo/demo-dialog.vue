@@ -3,14 +3,27 @@
     <label>显示或者隐藏对话框:</label>
     <button
       class="dialog-demo-button-1"
-      @click.stop="onClickView"
+      @click.stop="() => onClickView('slide')"
     >
-      <span class="button-text">显示对话框</span>
+      <span class="button-text">显示对话框--slide</span>
+    </button>
+    <button
+      class="dialog-demo-button-1"
+      @click.stop="() => onClickView('fade')"
+    >
+      <span class="button-text">显示对话框--fade</span>
+    </button>
+    <button
+      class="dialog-demo-button-1"
+      @click.stop="() => onClickView('slide_fade')"
+    >
+      <span class="button-text">显示对话框--slide_fade</span>
     </button>
     <!-- dialog can't support v-show, can only use v-if for explicit switching -->
+
     <dialog
       v-if="dialogIsVisible"
-      animationType="slide"
+      :animationType="dialogAnimationType"
       :transparent="true"
       :supportedOrientations="supportedOrientations"
       @show="onShow"
@@ -38,7 +51,7 @@
           </div>
           <dialog
             v-if="dialog2IsVisible"
-            animationType="slide"
+            :animationType="dialogAnimationType"
             :transparent="true"
             @requestClose="onClose"
           >
@@ -78,9 +91,12 @@ export default defineComponent({
     const dialogIsVisible = ref(false);
     // dialog 2 是否展示
     const dialog2IsVisible = ref(false);
+    // dialog 动画效果
+    const dialogAnimationType = ref('fade');
 
-    const onClickView = () => {
+    const onClickView = (type = '') => {
       dialogIsVisible.value = !dialogIsVisible.value;
+      dialogAnimationType.value = type;
     };
     const onClickOpenSecond = (evt) => {
       evt.stopPropagation();
@@ -122,6 +138,7 @@ export default defineComponent({
       supportedOrientations,
       dialogIsVisible,
       dialog2IsVisible,
+      dialogAnimationType,
       stopPropagation,
       onClose,
       onShow,
@@ -174,10 +191,12 @@ export default defineComponent({
 }
 
 .dialog-demo-wrapper {
+  flex: 1;
   background-color: #40b88377;
 }
 
 .dialog-2-demo-wrapper {
+  flex: 1;
   background-color: #444444ee;
   justify-content: center;
   align-items: center;

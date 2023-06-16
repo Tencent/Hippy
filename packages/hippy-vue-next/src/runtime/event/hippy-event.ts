@@ -43,6 +43,9 @@ export class HippyEvent {
   // whether the event can bubble, the default is true
   public bubbles = true;
 
+  // native parameters
+  public nativeParams?: NeedToTyped;
+
   // whether the default behavior of the event can be canceled, the default is true
   protected cancelable = true;
 
@@ -147,6 +150,8 @@ export class HippyLoadResourceEvent extends HippyEvent {
   public url?: string;
   public success?: boolean;
   public error?: string;
+  public width?: number;
+  public height?: number;
 }
 
 export class HippyKeyboardEvent extends HippyEvent {

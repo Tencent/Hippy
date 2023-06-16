@@ -106,7 +106,6 @@ HIPPY_EXPORT_MODULE(AnimationModule)
     return YES;
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(createAnimation:(NSNumber *__nonnull)animationId mode:(NSString *)mode params:(NSDictionary *)params) {
     [_lock lock];
     HippyExtAnimation *ani = [[HippyExtAnimation alloc] initWithMode: mode animationId: animationId config: params];
@@ -114,9 +113,7 @@ HIPPY_EXPORT_METHOD(createAnimation:(NSNumber *__nonnull)animationId mode:(NSStr
     [_lock unlock];
     HippyLogInfo(@"[Hippy_OC_Log][Animation],Create_Animation:%@", animationId);
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(createAnimationSet:(NSNumber *__nonnull)animationId animations:(NSDictionary *)animations) {
     [_lock lock];
     HippyExtAnimationGroup *group = [[HippyExtAnimationGroup alloc] initWithMode: @"group" animationId: animationId config: animations];
@@ -141,9 +138,7 @@ HIPPY_EXPORT_METHOD(createAnimationSet:(NSNumber *__nonnull)animationId animatio
     
     HippyLogInfo(@"[Hippy_OC_Log][Animation],Create_AnimationSet:%@", animationId);
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(startAnimation:(NSNumber *__nonnull)animationId) {
     [_lock lock];
     HippyExtAnimation *ani = _animationById[animationId];
@@ -175,9 +170,7 @@ HIPPY_EXPORT_METHOD(startAnimation:(NSNumber *__nonnull)animationId) {
     }
     [_lock unlock];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(pauseAnimation:(NSNumber *__nonnull)animationId) {
     [_lock lock];
     NSArray <HippyExtAnimationViewParams *> *params = [_paramsByAnimationId[animationId] copy];
@@ -189,9 +182,7 @@ HIPPY_EXPORT_METHOD(pauseAnimation:(NSNumber *__nonnull)animationId) {
     }];
     [_lock unlock];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(resumeAnimation:(NSNumber *__nonnull)animationId) {
     [_lock lock];
     NSArray <HippyExtAnimationViewParams *> *params = [_paramsByAnimationId[animationId] copy];
@@ -203,7 +194,6 @@ HIPPY_EXPORT_METHOD(resumeAnimation:(NSNumber *__nonnull)animationId) {
     }];
     [_lock unlock];
 }
-// clang-format on
 
 - (void)paramForAnimationId:(NSNumber *)animationId {
     NSArray<HippyExtAnimationViewParams *> *params = _paramsByAnimationId[animationId];
@@ -218,38 +208,40 @@ HIPPY_EXPORT_METHOD(resumeAnimation:(NSNumber *__nonnull)animationId) {
 
     __weak HippyExtAnimationModule *weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
+        HippyExtAnimationModule *strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
         [hippyTags enumerateObjectsUsingBlock:^(NSNumber *_Nonnull tag, __unused NSUInteger idx, __unused BOOL *stop) {
-            UIView *view = [weakSelf.bridge.uiManager viewForHippyTag:tag];
+            UIView *view = [strongSelf.bridge.uiManager viewForHippyTag:tag];
             if (!view) {
                 return;
             }
             if (view.window) {
                 [view.layer resumeLayerAnimation];
-                [weakSelf connectAnimationToView:view];
+                [strongSelf connectAnimationToView:view];
                 return;
             }
             
-            HippyLogInfo(@"[Hippy_OC_Log][Animation],Animation_Not_Add_To_Window, %@", animationId);
-            [params enumerateObjectsUsingBlock:^(HippyExtAnimationViewParams *p, __unused NSUInteger idx, __unused BOOL *stop) {
-                [p.animationIdWithPropDictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSNumber *obj, __unused BOOL *stop1) {
-                    HippyExtAnimation *ani = self->_animationById[obj];
-                    if (![obj isEqual:animationId]) {
-                        return;
-                    }
-
-                    [p setValue:@(ani.endValue) forProp:key];
-                    ani.state = HippyExtAnimationFinishState;
-                }];
-            }];
             [self.bridge.uiManager executeBlockOnUIManagerQueue:^{
-                [self.bridge.uiManager updateViewsFromParams:params completion:^(__unused HippyUIManager *uiManager) {
+                HippyLogInfo(@"[Hippy_OC_Log][Animation],Animation_Not_Add_To_Window, %@", animationId);
+                [params enumerateObjectsUsingBlock:^(HippyExtAnimationViewParams *p, __unused NSUInteger idx, __unused BOOL *stop) {
+                    [p.animationIdWithPropDictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSNumber *obj, __unused BOOL *stop1) {
+                        HippyExtAnimation *ani = self->_animationById[obj];
+                        if (![obj isEqual:animationId]) {
+                            return;
+                        }
+
+                        [p setValue:@(ani.endValue) forProp:key];
+                        ani.state = HippyExtAnimationFinishState;
+                    }];
                 }];
+                [self.bridge.uiManager updateViewsFromParams:params completion:nil];
             }];
         }];
     });
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(updateAnimation:(NSNumber *__nonnull)animationId params:(NSDictionary *)params) {
     if (params == nil) {
         return;
@@ -278,9 +270,7 @@ HIPPY_EXPORT_METHOD(updateAnimation:(NSNumber *__nonnull)animationId params:(NSD
     }];
     [_lock unlock];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
     [_lock lock];
     [_animationById removeObjectForKey: animationId];
@@ -295,7 +285,6 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
     [_lock unlock];
     HippyLogInfo(@"[Hippy_OC_Log][Animation],Destroy_Animation:%@", animationId);
 }
-// clang-format on
 
 #pragma mark - CAAnimationDelegate
 - (void)animationDidStart:(CAAnimation *)anim {

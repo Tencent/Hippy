@@ -81,7 +81,7 @@ NSString *HippyBridgeModuleNameForClass(Class cls) {
     if ([cls conformsToProtocol:@protocol(HippyBridgeModule)]) {
         name = [cls moduleName];
     } else if ([cls conformsToProtocol:@protocol(HippyTurboModule)]) {
-        name = [cls turoboModuleName];
+        name = [cls turboModuleName];
     }
     if (name.length == 0) {
         name = NSStringFromClass(cls);
@@ -200,10 +200,6 @@ static HippyBridge *HippyCurrentBridgeInstance = nil;
         _executorKey = executorKey;
         _invalidateReason = HippyInvalidateReasonDealloc;
         [self setUp];
-
-        HippyExecuteOnMainQueue(^{
-            [self bindKeys];
-        });
         HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ Init %p", NSStringFromClass([self class]), self);
     }
     return self;
@@ -221,21 +217,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     self.invalidateReason = HippyInvalidateReasonDealloc;
     self.batchedBridge.invalidateReason = HippyInvalidateReasonDealloc;
     [self invalidate];
-}
-
-- (void)bindKeys {
-    HippyAssertMainQueue();
-
-#if TARGET_IPHONE_SIMULATOR
-    HippyKeyCommands *commands = [HippyKeyCommands sharedInstance];
-
-    // reload in current mode
-    __weak __typeof(self) weakSelf = self;
-    [commands registerKeyCommandWithInput:@"r" modifierFlags:UIKeyModifierCommand action:^(__unused UIKeyCommand *command) {
-        // 暂时屏蔽掉RN的调试
-        [weakSelf requestReload];
-    }];
-#endif
 }
 
 - (NSArray<Class> *)moduleClasses {
@@ -332,7 +313,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ setUp %p", NSStringFromClass([self class]), self);
     _performanceLogger = [HippyPerformanceLogger new];
     [_performanceLogger markStartForTag:HippyPLBridgeStartup];
-    //  [_performanceLogger markStartForTag:HippyPLTTI];
 
     // Only update bundleURL from delegate if delegate bundleURL has changed
     NSURL *previousDelegateURL = _delegateBundleURL;
@@ -431,6 +411,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     HippyRedBox *redBox = [self redBox];
     redBox.showEnabled = enabled;
 #endif  // HIPPY_DEBUG
+}
+
+- (void)setInspectable:(BOOL)isInspectable {
+    [self.batchedBridge.javaScriptExecutor setInspectable:isInspectable];
 }
 
 - (HippyOCTurboModule *)turboModuleWithName:(NSString *)name {

@@ -155,6 +155,9 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
 
 - (instancetype)initWithParentBridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
 - (void)start;
-- (void)enqueueApplicationScript:(NSData *)script url:(NSURL *)url onComplete:(HippyJavaScriptCompleteBlock)onComplete;
+- (void)enqueueApplicationScript:(NSData *)script
+                             url:(NSURL *)url
+                  isCommonBundle:(BOOL)isCommonBundle
+                      onComplete:(HippyJavaScriptCompleteBlock)onComplete;
 
 @end

@@ -51,7 +51,7 @@ import icon from './qb_icon_new.png';
 | source        | uri 是一个表示图片的资源标识的字符串。 现在支持的图片格式有 `png` , `jpg` , `jpeg` , `bmp` , `gif` 。                                                                                                | `{ uri: string }`                                            | `Android、iOS、hippy-react-web、Web-Renderer`    |
 | tintColor     | 对图片进行染色(对非纯色图片进行有透明度的染色时，Android 和 iOS 的 `blendMode` 默认值有差异)。                                                                                                            | [color](style/color.md) | `Android、iOS、Web-Renderer`|
 | onLayout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置                                                                        | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer`    |
-| onLoad        | 加载成功完成时调用此回调函数。                                                                                                                                                          | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onLoad        | 加载成功完成时调用此回调函数，`2.16.0`后支持参数返回，参数为：`nativeEvent: { width: number, height: number, url: string }`                                                                           | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
 | onLoadStart   | 加载开始时调用。 例如, `onLoadStart={() => this.setState({ loading: true })}`                                                                                                      | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
 | onLoadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。                                                                                                                                                  | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
 | resizeMode    | 决定当组件尺寸和图片尺寸不成比例的时候如何调整图片的大小。`注意：hippy-react-web、Web-Renderer 不支持 repeat`                                                                                                |  `enum (cover, contain, stretch, repeat, center)` | `Android、iOS、hippy-react-web、Web-Renderer` |
@@ -356,13 +356,13 @@ import icon from './qb_icon_new.png';
 | editable              | 如果为 false，文本框是不可编辑的。 `default: true`                          | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
 | keyboardType          | 决定弹出的何种软键盘的。 注意，`password`仅在属性 `multiline=false` 单行文本框时生效。 | `enum (default, numeric, password, email, phone-pad)` | `Android、iOS、hippy-react-web、Web-Renderer` |
 | maxLength             | 限制文本框中最多的字符数。使用这个属性而不用JS 逻辑去实现，可以避免闪烁的现象。 | `number`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
-| multiline             | 如果为 `true` ，文本框中可以输入多行文字。 由于终端特性。    | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
+| multiline             | 如果为 `true` ，文本框中可以输入多行文字。  | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
 | numberOfLines         | 设置 `TextInput` 最大显示行数，如果 `TextInput` 没有显式设置高度，会根据 `numberOfLines` 来计算高度撑开。在使用的时候必需同时设置 `multiline` 参数为 `true`。 | `number`                                                     | `Android、hippy-react-web、Web-Renderer` |
 | onBlur                | 当文本框失去焦点的时候调用此回调函数。                       | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
 | onFocus | 当文本框获得焦点的时候调用此回调函数。 | `Function` | `Android、iOS` |
 | onChangeText          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
 | onKeyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`。 | `Function`                                                   | `Android、iOS、hippy-react-web` |
-| onKeyboardWillHide    | 在隐藏输入法键盘时候会触发此回调函数 | `Function`                                                   | `Android`     |
+| onKeyboardWillHide    | 在隐藏输入法键盘时候会触发此回调函数 `iOS最低支持版本2.16.0`  | `Function`                                                   | `Android、iOS`     |
 | onKeyboardHeightChanged    | 在输入法键盘高度改变时触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`, `最低支持版本2.14.0`。 | `Function`                                                   | `iOS`     |
 | onEndEditing          | 当文本输入结束后调用此回调函数。                             | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
 | onLayout              | 当组件挂载或者布局变化的时候调用，参数为`nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
@@ -432,6 +432,7 @@ import icon from './qb_icon_new.png';
 | onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web、Web-Renderer` |
 | onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web、Web-Renderer` |
 | breakStrategy* | 设置Android API 23及以上系统的文本折行策略。`default: simple` | `enum(simple, high_quality, balanced)` | `Android(版本 2.14.2以上)` |
+| verticalAlign* | 设置文本组件内嵌套文本组件或文本组件内嵌套图片组件时的对齐策略。`default: baseline` | `enum(top, middle, baseline, bottom)` | `Android、iOS(版本2.16.0以上)` |
 
 * ellipsizeMode 的参数含义：
   * `clip` - 超过指定行数的文字会被直接截断，不显示“...”；（Android 2.14.1以上、iOS）
@@ -442,7 +443,11 @@ import icon from './qb_icon_new.png';
   * `simple`（默认值）：简单折行，每一行显示尽可能多的字符，直到这一行不能显示更多字符时才进行换行，这种策略下不会自动折断单词（当一行只有一个单词并且宽度显示不下的情况下才会折断）；
   * `high_quality`：高质量折行，针对整段文本的折行进行布局优化，必要时会自动折断单词，比其他两种策略略微影响性能，通常比较适合只读文本；
   * `balanced`：平衡折行，尽可能保证一个段落的每一行的宽度相同，必要时会折断单词。
-
+* verticalAlign 的参数含义：
+  * `top`: 行顶部对齐
+  * `middle`: 居中对齐
+  * `baseline`: 基线对齐
+  * `bottom`: 行底部对齐
 
 ---
 

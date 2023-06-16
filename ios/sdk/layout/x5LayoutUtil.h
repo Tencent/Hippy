@@ -22,13 +22,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-//#include <stdio.h>
-//#include "MTTNode.h"
-//#include "MTTFlex.h"
-// void CSSNodeCalculateLayout(const MTTNodeRef node,
-//                            const float availableWidth,
-//                            const float availableHeight,
-//                            const CSSDirection parentDirection);
+
 #ifdef __cplusplus
 extern "C" {
 #endif

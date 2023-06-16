@@ -25,7 +25,7 @@
 #include "core/base/string_view_utils.h"
 #include "core/modules/module_base.h"
 #include "core/napi/callback_info.h"
-#include "core/napi/js_native_api_types.h"
+#include "core/napi/js_ctx_value.h"
 
 class Scope;
 
@@ -35,11 +35,11 @@ class ContextifyModule : public ModuleBase {
   using CtxValue = hippy::napi::CtxValue;
 
   ContextifyModule() {}
-  void RunInThisContext(const hippy::napi::CallbackInfo& info);
-  void LoadUntrustedContent(const hippy::napi::CallbackInfo& info);
+  void RunInThisContext(const hippy::napi::CallbackInfo& info, void* data);
+  void LoadUntrustedContent(const hippy::napi::CallbackInfo& info, void* data);
   void RemoveCBFunc(const unicode_string_view& uri);
 
+  virtual std::shared_ptr<CtxValue> BindFunction(std::shared_ptr<Scope> scope, std::shared_ptr<CtxValue> rest_args[]) override;
  private:
-  std::unordered_map<unicode_string_view, std::shared_ptr<CtxValue>>
-      cb_func_map_;
+  std::unordered_map<unicode_string_view, std::shared_ptr<CtxValue>> cb_func_map_;
 };

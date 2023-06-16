@@ -98,4 +98,18 @@ class PullFooterRefreshHelper extends PullRefreshHelper {
                 - v.computeHorizontalScrollOffset();
     }
 
+    @Override
+    public void enableRefresh() {
+        mRefreshStatus = PullRefreshStatus.PULL_STATUS_REFRESHING;
+        int nodeSize = isVertical() ? mRenderNode.getHeight() : mRenderNode.getWidth();
+        endAnimation();
+        int visibleSize = getVisibleSize();
+        if (visibleSize < nodeSize) {
+            setVisibleSize(nodeSize);
+        }
+        HippyRecyclerListAdapter<?> adapter = mRecyclerView.getAdapter();
+        if (adapter != null) {
+            mRecyclerView.smoothScrollToPosition(adapter.getItemCount());
+        }
+    }
 }

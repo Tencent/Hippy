@@ -1,12 +1,12 @@
 # iOS 集成
 
->注：以下文档都是假设您已经具备一定的 iOS 开发经验。
+> 注：以下文档都是假设您已经具备一定的 iOS 开发经验。
 
 这篇教程，讲述了如何将 Hippy 集成到 iOS 工程。
 
 ---
 
-# 使用 pod 集成
+# 使用 Cocoapods 集成
 
 1. 安装 [CocoaPods](https://cocoapods.org/)，Hippy iOS SDK [版本查询](https://cocoapods.org/pods/hippy)
 
@@ -14,8 +14,8 @@
 
     ```text
     #保持pod文件目录结构
-    install! "cocoapods", :preserve_pod_file_structure => true
-    platform :ios, '8.0'
+    install! "cocoapods", :deterministic_uuids => false
+    platform :ios, '11.0'
     #TargetName替换成用户工程名
     target TargetName do
         #使用hippy最新版本
@@ -25,48 +25,24 @@
     end
     ```
 
-3. 配置 force load 选项
+    > 提示：集成`2.13.0`至`2.16.x`版本时，如以静态链接库形式接入hippy，需设置`force_load`编译参数来加载hippy所有符号。
+    >
+    > `2.17.x`及以上版本无需配置。
+    >
+    > 可通过多种方式实现设置`force_load`，可选如下任意一项进行配置，并结合实际情况自行调整：
+    >
+    > * 直接在主工程对应 target 的 Build Settings - `Other Linker Flags` 配置中添加 `*-force_load "${PODS_CONFIGURATION_BUILD_DIR}/hippy/libhippy.a"*`。
+    >
+    > * 在App工程的 Podfile 配置文件中添加 `post_install hook`，自行给 xcconfig 添加 `force_load`。
+    >
 
-    Hippy中大量使用了反射调用。若以静态链接库形式编译Hippy代码，其中未显式调用的代码将会被编译器 dead code strip。
-    因此若 App 使用静态链接库接入 hippy，务必设置 `force load` 强制加载 hippy 静态链接库所有符号。
-   
-    > 2.13.0版本开始删除了 force load。若使用静态链接库接入，需要 app 自行配置。
-
-    App可使用多种方式达到 `force load` 目的,下列方式自行选择合适的一项进行配置。并要根据实际情况自行适配
-
-    * 直接在主工程对应的 target 的 Build Settings 中的 `Other Linker Flags` 配置中设置 `*-force_load "${PODS_CONFIGURATION_BUILD_DIR}/hippy/libhippy.a"*`。
-
-    * 在App工程的 Podfile 配置文件中添加 `post_install hook`，自行给 xcconfig 添加 `force load`。
-
-    * fork一份Hippy源码，并修改对应的 `hippy.podspec` 配置文件，并给 `user_target` 添加如下配置，再引用此源码。
-
-    ```text
-    s.user_target_xcconfig = {'OTHER_LDFLAGS' => '-force_load "${PODS_CONFIGURATION_BUILD_DIR}/hippy/libhippy.a"'}
-    ```
-
-4. 在命令行中执行
+3. 在命令行中执行
 
     ```text
     pod install
     ```
 
-5. 使用 cocoapods 生成的 `.xcworkspace` 后缀名的工程文件来打开工程。
-
-# 使用源码直接集成
-
-1. 从 GitHub 中将 Hippy iOS SDK 源码下载，将ios/sdk文件夹以及 core 文件夹拖入工程中
-
-2. 删除对 `core/js` 文件夹的引用。
-
-   > core/js文件夹中包含的是不参与编译的 js 文件
-
-3. 删除对 `core/napi/v8` 文件夹的引用
-
-   > core 文件夹代码涉及 iOS/Android 不同平台的 JS 引擎，iOS 使用的是 JSCore
-
-4. 在 `xcode build settings` 中设置 *User Header Search Paths* 项为core文件夹所在路径
-
- > 假设core文件夹路径为 `~/documents/project/hippy/demo/core`，那应当设置为 `~/documents/project/hippy/demo/` 而不是 `~/documents/project/hippy/demo/core`
+4. 使用 cocoapods 生成的 `.xcworkspace` 后缀名的工程文件来打开工程。
 
 # 编写代码开始调试或者加载业务代码
 

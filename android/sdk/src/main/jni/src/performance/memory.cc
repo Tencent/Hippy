@@ -23,6 +23,7 @@
 #include "performance/memory.h"
 
 #include "bridge/runtime.h"
+#include "jni/jni_env.h"
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
 
@@ -54,7 +55,7 @@ jint ThrowNoSuchMethodError(JNIEnv* j_env, const char* msg){
 }
 
 using unicode_string_view = tdf::base::unicode_string_view;
-using V8VM = hippy::napi::V8VM;
+using V8VM = hippy::vm::V8VM;
 
 #ifndef V8_X5_LITE
 

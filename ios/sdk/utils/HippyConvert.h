@@ -26,7 +26,7 @@
 #include "MTTFlex.h"
 #import "HippyAnimationType.h"
 #import "HippyBorderStyle.h"
-#import "HippyTextDecorationLineType.h"
+#import "HippyTextEnumDefines.h"
 #import "HippyDefines.h"
 #import "HippyLog.h"
 #import "HippyPointerEvents.h"

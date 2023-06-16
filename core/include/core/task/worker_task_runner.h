@@ -40,6 +40,9 @@ class WorkerTaskRunner {
   explicit WorkerTaskRunner(uint32_t pool_size);
   ~WorkerTaskRunner() = default;
 
+  // std::future cannot be canceled, so it needs to be executed immediately when it cannot be executed in other threads
+  void PostPromiseTask(std::unique_ptr<CommonTask> task,
+                       uint32_t priority = WorkerTaskRunner::kDefaultTaskPriority);
   void PostTask(std::unique_ptr<CommonTask> task,
                 uint32_t priority = WorkerTaskRunner::kDefaultTaskPriority);
   std::unique_ptr<CommonTask> GetNext();

@@ -179,8 +179,8 @@
         <label class="vue-native-title">Native.getBoundingClientRect</label>
         <div class="item-wrapper">
           <button
-              class="item-button"
-              @click="() => getBoundingClientRect(false)"
+            class="item-button"
+            @click="() => getBoundingClientRect(false)"
           >
             <span>relative to App</span>
           </button>
@@ -188,8 +188,8 @@
         </div>
         <div class="item-wrapper">
           <button
-              class="item-button"
-              @click="() => getBoundingClientRect(true)"
+            class="item-button"
+            @click="() => getBoundingClientRect(true)"
           >
             <span>relative to Container</span>
           </button>
@@ -293,32 +293,6 @@
           <span>{{ cookiesValue }}</span>
         </div>
       </div>
-      <!-- Clipboard -->
-      <div
-        v-if="Native.Clipboard"
-        class="native-block"
-      >
-        <label class="vue-native-title">Clipboard 使用</label>
-        <div class="item-wrapper">
-          <button
-            class="item-button"
-            @click="setString"
-          >
-            <span>setString</span>
-          </button>
-          <span>{{ clipboardString }}</span>
-        </div>
-        <div class="item-wrapper">
-          <button
-            class="item-button"
-            @click="getString"
-          >
-            <span>getString</span>
-          </button>
-          <span>{{ clipboardValue }}</span>
-        </div>
-      </div>
-
       <!-- iOS platform  -->
       <div
         v-if="Native.isIOS()"

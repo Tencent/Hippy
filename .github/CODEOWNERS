@@ -9,47 +9,49 @@
 #
 
 # universal files
-* @zoomchan-cxj
+* @churchill-zhang @ilikethese
 
 # cmake related
-*.cmake @medns
-CMakeLists.txt @medns
+*.cmake @churchill-zhang @ilikethese
+CMakeLists.txt @churchill-zhang @ilikethese
 
 # driver: js
-/.eslintignore @zoomchan-cxj
-/.eslintrc.js @zoomchan-cxj
-/.nycrc @zoomchan-cxj
-/ava.config.js @zoomchan-cxj
+/.eslintignore @zealotchen0
+/.eslintrc.js @zealotchen0
+/.nycrc @zealotchen0
+/package.json @zealotchen0
+/package-lock.json @zealotchen0
+/ava.config.js @zealotchen0
 /core/ @churchill-zhang @ilikethese
-/core/js/ @zoomchan-cxj
-/packages/ @zoomchan-cxj
-/packages/hippy-web-renderer/ @pba-cra @zoomchan-cxj
+/core/js/ @zealotchen0
+/packages/ @zealotchen0
+/packages/hippy-web-renderer/ @pba-cra @zealotchen0
 
 # framework: android
 /android/ @siguangli
 /android/**/src/main/jni/ @churchill-zhang @ilikethese
 
 # framework: ios
-/ios/ @ozonelmy
+/ios/ @ozonelmy @wwwcg
 
 # dom: layout
 /layout/ @ilikethese
 
 # gh: config
-/.github/ @zoomchan-cxj
+/.github/ @zealotchen0
 
 # doc: example
-/examples/ @zoomchan-cxj
-/examples/hippy-*-demo/ @zoomchan-cxj
+/examples/ @zealotchen0
+/examples/hippy-*-demo/ @zealotchen0
 /examples/android-demo/ @siguangli
-/examples/android-demo/res/ @zoomchan-cxj
-/examples/ios-demo/ @ozonelmy
-/examples/ios-demo/res/ @zoomchan-cxj
-/static/ @zoomchan-cxj
+/examples/android-demo/res/ @zealotchen0
+/examples/ios-demo/ @ozonelmy @wwwcg
+/examples/ios-demo/res/ @zealotchen0
+/static/ @zealotchen0
 
 # doc: pages
-/*.md @zoomchan-cxj
-/docs/ @zoomchan-cxj
+/*.md @zealotchen0
+/docs/ @zealotchen0
 
 # build: gradle
 /gradle.properties @siguangli
@@ -60,14 +62,14 @@ CMakeLists.txt @medns
 /gradle/ @siguangli
 
 # build: xcode
-/hippy.podspec
-/Hippy.xcworkspace/ @ozonelmy
+/hippy.podspec @ozonelmy @wwwcg
+/_Pods.xcodeproj/ @wwwcg @ozonelmy
 
 # build: config
-/buildconfig/ @medns
+/buildconfig/ @churchill-zhang @ilikethese
 
 # build: js
-/tsdoc.json @zoomchan-cxj
-/tsconfig.json @zoomchan-cxj
-/lerna.json @zoomchan-cxj
-/scripts/ @zoomchan-cxj
+/tsdoc.json @zealotchen0
+/tsconfig.json @zealotchen0
+/lerna.json @zealotchen0
+/scripts/ @zealotchen0

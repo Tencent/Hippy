@@ -29,6 +29,13 @@ namespace bridge {
 
 void setNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger);
 
+jint CreateSnapshot(JNIEnv* j_env,
+                    __unused jobject j_obj,
+                    jobjectArray j_script_array,
+                    jstring j_base_uri,
+                    jstring j_snapshot_uri,
+                    jstring j_config);
+
 jlong InitInstance(JNIEnv* j_env,
                    jobject j_object,
                    jbyteArray j_global_config,
@@ -61,6 +68,7 @@ void RunInJsThread(JNIEnv *j_env,
                    jobject j_object,
                    jlong j_runtime_id,
                    jobject j_callback);
+
 
 }  // namespace bridge
 }  // namespace hippy

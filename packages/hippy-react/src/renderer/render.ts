@@ -149,8 +149,10 @@ function getNativeProps(node: Element) {
 function getTargetNodeAttributes(targetNode: Element) {
   try {
     const targetNodeAttributes = deepCopy(targetNode.attributes);
+    const { id, nodeId } = targetNode;
     const attributes = {
-      id: targetNode.id,
+      id,
+      hippyNodeId: `${nodeId}`,
       ...targetNodeAttributes,
     };
     delete attributes.text;
@@ -186,10 +188,10 @@ function renderToNative(rootViewId: number, targetNode: Element): HippyTypes.Nat
       ...getNativeProps(targetNode),
       style: targetNode.style,
     },
+    tagName: targetNode.nativeName,
   };
   // Add nativeNode attributes info for debugging
   if (isDev()) {
-    nativeNode.tagName = targetNode.nativeName;
     nativeNode.props!.attributes = getTargetNodeAttributes(targetNode);
   }
   return nativeNode;

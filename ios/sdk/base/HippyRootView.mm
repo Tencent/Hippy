@@ -237,6 +237,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
             [_loadingView removeFromSuperview];
         }
     }
+    [_bridge.performanceLogger markStopForTag:HippyPLRunApplication];
     [self contentDidAppear:[n.userInfo[@"cost"] longLongValue]];
 }
 
@@ -341,13 +342,15 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 - (void)runApplication:(HippyBridge *)bridge {
     if (_contentView == nil) {
-        assert(0);  // 这里不正常了，走到这里联系下 pennyli
+        NSAssert(NO, @"fatal error occurs");
         return;
     }
+    [bridge.performanceLogger markStartForTag:HippyPLRunApplication];
     NSString *moduleName = _moduleName ?: @"";
-    NSDictionary *appParameters =
-        @{ @"rootTag": _contentView.hippyTag, @"initialProps": _appProperties ?: @ {}, @"commonSDKVersion": _HippySDKVersion };
-
+    NSDictionary *appParameters = @{ @"rootTag": _contentView.hippyTag,
+                                     @"initialProps": _appProperties ?: @ {},
+                                     @"commonSDKVersion": _HippySDKVersion };
+    
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", moduleName, appParameters);
     [bridge enqueueJSCall:@"AppRegistry" method:@"runApplication" args:@[moduleName, appParameters] completion:NULL];
 }
@@ -471,9 +474,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder
 }
 
 - (void)setFrame:(CGRect)frame {
-    super.frame = frame;
-    if (self.hippyTag && _bridge.isValid) {
-        [_bridge.uiManager setFrame:frame forView:self];
+    CGRect originFrame = self.frame;
+    if (!CGRectEqualToRect(originFrame, frame)) {
+        super.frame = frame;
+        if (self.hippyTag && _bridge.isValid) {
+            [_bridge.uiManager setFrame:frame fromOriginFrame:originFrame forView:self];
+        }
     }
 }
 

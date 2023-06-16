@@ -183,7 +183,7 @@ const router: Router = createRouter({
   ```javascript
   import { EventBus } from '@hippy/vue-next';
   
-  // 监听容器大小改变事件(仅 Android)
+  // 监听容器大小改变事件
   EventBus.$on('onSizeChanged', ({ oldWidth, oldHeight, width, height }) => {
     // oldWidth: 旧的宽度；oldHeight: 旧的高度；width: 新的宽度; height: 新的高度
     console.log('size', oldWidth, oldHeight, width, height);
@@ -226,6 +226,8 @@ const router: Router = createRouter({
 
   在示例代码中，我们的路由组件是包裹在 Keep-Alive 组件内的，但是目前使用 Keep-Alive 包裹的路由组件无法实现开发时热更新，需要刷新整个实例才能完成刷新。
   如果是不包裹在 Keep-Alive 中则没有这个问题。目前官方[该问题](https://github.com/vuejs/core/pull/5165)也尚未解决，等待官方解决后升级 Vue 即可解决该问题。
+
+  !> vue@3.2.45+ 已经修复了该[问题](https://github.com/vuejs/core/pull/7049)，使用3.2.45及以上版本进行开发时，keep-alive内的组件也可以热更新了
 
 - Vue3.x 变量 Proxy 问题
 
@@ -298,6 +300,10 @@ const router: Router = createRouter({
      },
     ]
   ```
+
+- dialog 差异
+
+  `<dialog>` 组件的第一个子元素不能设置  `{ position: absolute }` 样式，如果想将 `<dialog>` 内容铺满全屏，可以给第一个子元素设置 `{ flex: 1 }` 样式或者显式设置 width 和 height 数值。这与 Hippy3.0 的逻辑保持一致。
 
 # 示例
 

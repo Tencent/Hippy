@@ -25,7 +25,7 @@ import type { NeedToTyped } from '../../types';
 import { trace } from '../../util';
 import { getNodeById } from '../../util/node-cache';
 import type { HippyNode } from '../node/hippy-node';
-
+import type { HippyElement } from '../element/hippy-element';
 import { EventBus } from './event-bus';
 import {
   type EventsUnionType,
@@ -64,12 +64,10 @@ function getVueEventName(eventName: string, targetNode: HippyNode): string {
   if (eventNamesMap?.has(eventName)) {
     return eventNamesMap.get(eventName) as string;
   }
-
   // events that do not start with on maybe custom events, and return the event name directly
   if (eventName.indexOf('on') !== 0) {
     return eventName;
   }
-
   // remove the on in the event name and convert the first letter to lowercase, eg. onClick => click
   const str = eventName.slice(2, eventName.length);
   return `${str.charAt(0).toLowerCase()}${str.slice(1)}`;
@@ -96,13 +94,10 @@ const HippyEventDispatcher = {
    */
   receiveNativeEvent(nativeEvent: NativeEvent): void {
     trace(...componentName, 'receiverNativeEvent', nativeEvent);
-
     if (isInvalidNativeEvent(nativeEvent)) {
       return;
     }
-
     const [eventName, eventParams] = nativeEvent;
-
     // forward native events directly to the event bus for distribution by the bus
     EventBus.$emit(eventName, eventParams);
   },
@@ -118,16 +113,14 @@ const HippyEventDispatcher = {
     if (!nativeEvent) {
       return;
     }
-
-    const { id: targetNodeId, name: eventName } = nativeEvent;
-    const targetNode = getNodeById(targetNodeId);
-
+    const { id: targetNodeId, name: eventName, ...params } = nativeEvent;
+    const targetNode = getNodeById(targetNodeId) as HippyElement;
     if (!targetNode) {
       return;
     }
-
     const targetEventName = getVueEventName(eventName, targetNode);
     const targetEvent = new HippyEvent(targetEventName);
+    targetEvent.nativeParams = params;
     const { processEventData } = targetNode.component;
     if (processEventData) {
       processEventData(
@@ -150,34 +143,31 @@ const HippyEventDispatcher = {
     if (isInvalidNativeEvent(nativeEvent)) {
       return;
     }
-
     const [targetNodeId, eventName, params] = nativeEvent;
     if (typeof targetNodeId !== 'number' || typeof eventName !== 'string') {
       return;
     }
-
-    const targetNode = getNodeById(targetNodeId);
+    const targetNode = getNodeById(targetNodeId) as HippyElement;
     if (!targetNode) {
       return;
     }
-
     const targetEventName = getVueEventName(eventName, targetNode);
-
     // process layout event
     if (eventName === 'onLayout') {
-      const { layout } = params;
+      const { layout: { x, y, height, width } } = params;
       const targetLayoutEvent = new HippyLayoutEvent(targetEventName);
-      targetLayoutEvent.top = layout.y;
-      targetLayoutEvent.left = layout.x;
-      targetLayoutEvent.bottom = layout.y + layout.height;
-      targetLayoutEvent.right = layout.x + layout.width;
-      targetLayoutEvent.width = layout.width;
-      targetLayoutEvent.height = layout.height;
+      targetLayoutEvent.nativeParams = params ?? {};
+      targetLayoutEvent.top = y;
+      targetLayoutEvent.left = x;
+      targetLayoutEvent.bottom = y + height;
+      targetLayoutEvent.right = x + width;
+      targetLayoutEvent.width = width;
+      targetLayoutEvent.height = height;
       // dispatch event
       targetNode.dispatchEvent(targetLayoutEvent);
     } else {
       const targetEvent = new HippyEvent(targetEventName);
-
+      targetEvent.nativeParams = params ?? {};
       // other event processing, if the node itself has additional event processing logic, it also needs to be processed
       const { processEventData } = targetNode.component;
 
@@ -200,3 +190,7 @@ const HippyEventDispatcher = {
 if (global.__GLOBAL__) {
   global.__GLOBAL__.jsModuleList.EventDispatcher = HippyEventDispatcher;
 }
+
+export {
+  HippyEventDispatcher,
+};

@@ -108,11 +108,11 @@ This component is mapped to the View component, and the container can be used to
 
 > This parameter is applicable only to overflow-y/x: scroll
 
-`(x: number, y: number, duration: boolean) => void` Scroll to the specified X, Y offset, and the third parameter is whether to enable smooth scrolling animation.
+`(x: number, y: number, duration: number) => void` Scroll to the specified X, Y offset, and the third parameter is the duration of scrolling animation.
 
 > * x: number - X offset
 > * y: number - Y offset
-> * duration: number | boolean - The scroll time is in milliseconds. Default: 1000ms. False: 0ms
+> * duration: number - The scroll time is in milliseconds. Default: 1000ms.
 
 
 ### setPressed
@@ -194,17 +194,17 @@ Image component, same as browser.
 
 ## Events
 
-| Event Name          | Description                                                         | Type                                      | Supported Platforms |
-| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| layout      | Called when an element is mounted or the layout changes. The argument is: `nativeEvent: { layout: { x, y, width, height } }`, where `x` and `y` are coordinates relative to the parent element | `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| load        | Called when the web page is successfully loaded                | `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| loadStart   | Called when the web page starts loading | `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| loadEnd     | After loading, whether it successes or nor, this callback function is called with or without success    | `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| error       | Called when loading errors occur.| `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| progress    | In the process of loading calls, parameters `nativeEvent: { loaded: number, total: number }`, `loaded` indicate the size of the loading image, `total` indicates the total size of the image.                                    | `iOS`    |
-| touchstart  | Called when screen touch starts, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS、Web-Renderer`    |
-| touchmove   | Called when screen touch moves, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS、Web-Renderer`    |
-| touchend    | Called when screen touch ends, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS、Web-Renderer`    |
+| Event Name          | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Type                                      | Supported Platforms |
+| ------------- |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ----------------------------------------- | -------- |
+| layout      | Called when an element is mounted or the layout changes. The argument is: `nativeEvent: { layout: { x, y, width, height } }`, where `x` and `y` are coordinates relative to the parent element                                                                                                                                                                                                                                                                                                          | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| load        | Called when the image is successfully loaded. Argument will be returned after version `2.16.0`, which is `evt: { width: number, height: number, url: string }`                                                                                                                                                                                                                                                                                                                                          | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| loadStart   | Called when the image starts loading                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| loadEnd     | After loading, whether it successes or nor, this callback function is called with or without success                                                                                                                                                                                                                                                                                                                                                                                                    | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| error       | Called when loading errors occur.                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| progress    | In the process of loading calls, parameters `nativeEvent: { loaded: number, total: number }`, `loaded` indicate the size of the loading image, `total` indicates the total size of the image.                                                                                                                                                                                                                                                                                                           | `iOS`    |
+| touchstart  | Called when screen touch starts, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen.                                                                                                                                                                                                                                                    | `Function`                                | `Android、iOS、Web-Renderer`    |
+| touchmove   | Called when screen touch moves, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen.                                                                                                                                                                                                                                                     | `Function`                                | `Android、iOS、Web-Renderer`    |
+| touchend    | Called when screen touch ends, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen.                                                                                                                                                                                                                                                      | `Function`                                | `Android、iOS、Web-Renderer`    |
 | touchcancel | Called when screen touch cancels. When a system event interrupts the touch screen when the user touches the screen, such as an incoming phone call, a component change (e.g., set to hidden), or a sliding gesture of another component, this function will receive a callback. The minimum supported version is 2.6.2. The parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY`  respectively represent the absolute position of the click on the screen. | `Function`                                | `Android、iOS、Web-Renderer`    |
 
 ---
@@ -289,7 +289,7 @@ Please refer to the Android development documentation for details.
 | focus | Called when the text box is focused. | `Function` | `Android、iOS` |
 | change          | Called when the contents of the text box change. The changed text is passed as a parameter. | `Function`                                                   | `Android、iOS、Web-Renderer`     |
 | keyboardWillShow    | Called when the input keyboard pops-up, the return value contains the keyboard height `keyboardHeight`, style such as `{keyboardHeight: 260 }`| `Function`                                                   | `Android、iOS`     |
-| keyboardWillHide     | Called when hiding input keyboard.| `Function`                                                   | `Android`     |
+| keyboardWillHide     | Called when hiding input keyboard. `Supported from version 2.16.0 on iOS`| `Function`                                                   | `Android、iOS`     |
 | endEditing          | Called when the text input is complete.    | `Function`                                                   | `Android、iOS、Web-Renderer`     |
 | layout              |  Called when an element is mounted or the layout changes. The argument is: `nativeEvent: { layout: { x, y, width, height } }`, where `x` and `y` are coordinates relative to the parent element | `Function`                                                   | `Android、iOS、Web-Renderer`     |
 | selectionChange     | Called when the range of the input box selection text is changed.The style of the return parameters such as `{nativeEvent: { selection: { start, end } } }` | `Function`                                                   | `Android、iOS、Web-Renderer`     |
@@ -460,6 +460,7 @@ Display text, but because there is no `display: Inline` display mode, the defaul
 | opacity       | Configure the transparency of the `View`, at the same time will affect the transparency of the child nodes.             | `number`                                  | `Android、iOS、Web-Renderer`    |
 | ellipsizeMode* | When set the `numberOfLines` value, this parameter specifies how the string is truncated. So when using `ellipsizeMode`, `numberOfLines` value must be specified at the same time. `default: tail` | `enum(head, middle, tail, clip)` | `Android( minimum supported version 2.14.1, earlier version only supported tail)、iOS(full supported)、hippy-react-web(clip、ellipsis)` |
 | break-strategy* | Set text break strategy on Android API 23 and above. `default: simple` | `enum(simple, high_quality, balanced)` | `Android(minimum supported version 2.14.2)` |
+| verticalAlign* | Sets the alignment strategy when text components are nested within text components or image components are nested within text components. `default: baseline` | `enum(top, middle, baseline, bottom)` | `Android, iOS (minimum supported version 2.16.0)` |
 
 * The meaning of parameters of ellipsizeMode：
   * `clip` - Texts that exceed the specified number of lines will be truncated directly, "..." will not shows;(Android  2.14.1+, iOS full supported)
@@ -470,6 +471,11 @@ Display text, but because there is no `display: Inline` display mode, the defaul
   * `simple`(default value): strategy indicating simple line breaking, automatic hyphens are not added, and modifying text generally doesn't affect the layout before it (which yields a more consistent user experience when editing), but layout may not be the highest quality;
   * `high_quality`: strategy indicating high quality line breaking, including automatic hyphenation and doing whole-paragraph optimization of line breaks;
   * `balanced`: strategy indicating balanced line breaking, the breaks are chosen to make all lines as close to the same length as possible, including automatic hyphenation.
+* Parameter meaning of verticalAlign:
+  * `top`: line top alignment
+  * `middle`: center alignment
+  * `baseline`: baseline alignment
+  * `bottom`: line bottom alignment
 
 ## whitespace handler
 

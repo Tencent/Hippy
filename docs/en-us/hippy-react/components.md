@@ -354,13 +354,13 @@ For more details, please refer to the Android development documentation.
 | editable              | If false, the text box is not editable. `default: true`      | `boolean`                                             | `Android、iOS、hippy-react-web、Web-Renderer`             |
 | keyboardType          | Determines which type of soft keyboard pops up. Note：`password` only takes effect in a single-line text box with the attribute `multiple=false`. | `enum (default, numeric, password, email, phone-pad)` | `Android、iOS、hippy-react-web、Web-Renderer`             |
 | maxLength             | Limits the maximum number of characters in a text box. Use this property instead of Javascript to avoid flickering. | `number`                                              | `Android、iOS、hippy-react-web、Web-Renderer`             |
-| multiline             | If `true` , multiple lines of text can be entered in the text box. Due to native characteristics. | `boolean`                                             | `Android、iOS、hippy-react-web、Web-Renderer`             |
+| multiline             | If `true` , multiple lines of text can be entered in the text box. | `boolean`                                             | `Android、iOS、hippy-react-web、Web-Renderer`             |
 | numberOfLines         | Set the maximum number of lines displayed by `TextInput`. If `TextInput` does not explicitly set the height, it will calculate the height according to `numberOfLines` and expand. When using it, you must also set the `multiline` parameter to `true`. | `number`                                              | `Android、hippy-react-web、Web-Renderer`                  |
 | onBlur                | This callback function is called when the text box is blurred. | `Function`                                            | `Android、iOS、hippy-react-web、Web-Renderer`             |                             |
 | onFocus               | This callback function is called when the text box is focused. | `Function`                                            | `Android、iOS`                              |
 | onChangeText          | This callback function is called when the text box content changes. The changed text content is passed as a parameter. | `Function`                                            | `Android、iOS、hippy-react-web、Web-Renderer`             |
 | onKeyboardWillShow    | This callback function is called when the input method keyboard pops up. The return value contains the keyboard height`keyboardHeight`, style is as follow`{ keyboardHeight: 260 }`. | `Function`                                            | `Android、iOS、hippy-react-web`             |
-| onKeyboardWillHide    | This callback function is called when the input keyboard is hidden. | `Function`                                            | `Android`                                   |
+| onKeyboardWillHide    | This callback function is called when the input keyboard is hidden. `Supported from version 2.16.0 on iOS` | `Function` | `Android、iOS`   |
 | onEndEditing          | This callback function is called when the text input ends.   | `Function`                                            | `Android、iOS、hippy-react-web、Web-Renderer`             |
 | onLayout              | This callback function is called when the component is mounted or the layout changes. The parameter is `nativeEvent: { layout: { x, y, width, height } }`, where `x` and `y` are the coordinates relative to the parent element. | `Function`                                            | `Android、iOS、hippy-react-web、Web-Renderer`             |
 | onSelectionChange     | This callback function is called when the range of the selected text in the input box is changed, and the return parameter is in the form of `nativeEvent: { selection: { start, end } }`. | `Function`                                            | `Android、iOS、Web-Renderer`                              |
@@ -429,6 +429,7 @@ Text component.
 | onTouchEnd     | This callback function is called when the user lifts his finger on the control after the touch screen operation, and the touch screen point information is passed in as a parameter.. The parameters is: `nativeEvent: { name, page_x, page_y, id }`, `page_x` and `page_y` respectively represent the absolute position of the click on the screen. | `Function`                             | `Android、iOS、hippy-react-web、Web-Renderer`                              |
 | onTouchCancel  | This callback function is called when a system event interrupts the touch screen during the user's touch screen process, such as incoming phone calls, component changes (such as setting hidden), sliding gestures of other components, etc., and the touch point information is passed in as a parameter. The parameters is: `nativeEvent: { name, page_x, page_y, id }`, `page_x` and `page_y` respectively represent the absolute position of the click on the screen. | `Function`                             | `Android、iOS、hippy-react-web、Web-Renderer`                              |
 | breakStrategy* | Set text break strategy on Android API 23 and above. `default: simple` | `enum(simple, high_quality, balanced)` | `Android(minimum supported version 2.14.2)`                  |
+| verticalAlign* | Sets the alignment strategy when text components are nested within text components or image components are nested within text components. `default: baseline` | `enum(top, middle, baseline, bottom)` | `Android, iOS (minimum supported version 2.16.0)` |
 
 * Attributes meaning of ellipsizeMode:
   * `clip` - Text that exceeds the specified number of lines will be directly truncated without displaying "...". (Android  2.14.1+, iOS full supported)
@@ -439,6 +440,11 @@ Text component.
   * `simple`(default value): strategy indicating simple line breaking, automatic hyphens are not added, and modifying text generally doesn't affect the layout before it (which yields a more consistent user experience when editing), but layout may not be the highest quality;
   * `high_quality`: strategy indicating high quality line breaking, including automatic hyphenation and doing whole-paragraph optimization of line breaks;
   * `balanced`: strategy indicating balanced line breaking, the breaks are chosen to make all lines as close to the same length as possible, including automatic hyphenation.
+* Parameter meaning of verticalAlign:
+  * `top`: line top alignment
+  * `middle`: center alignment
+  * `baseline`: baseline alignment
+  * `bottom`: line bottom alignment
 
 ---
 

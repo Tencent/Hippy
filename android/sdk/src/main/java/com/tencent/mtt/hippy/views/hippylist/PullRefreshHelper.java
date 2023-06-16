@@ -72,13 +72,13 @@ public abstract class PullRefreshHelper {
                 mRefreshStatus = PullRefreshStatus.PULL_STATUS_REFRESHING;
                 sendReleasedEvent();
             }
-            smoothScrollTo(getVisibleSize(), nodeSize, DURATION);
+            smoothResizeTo(getVisibleSize(), nodeSize, DURATION);
         } else { // only partially showing
             if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_DRAGGING) {
                 mRefreshStatus = PullRefreshStatus.PULL_STATUS_FOLDED;
             }
             if (visibleSize > 0) {
-                smoothScrollTo(getVisibleSize(), 0, DURATION);
+                smoothResizeTo(getVisibleSize(), 0, DURATION);
             }
         }
     }
@@ -91,6 +91,10 @@ public abstract class PullRefreshHelper {
 
     protected abstract void sendPullingEvent(int offset);
 
+    protected void sendCompatScrollEvent() {
+        mRecyclerView.getRecyclerViewEventHelper().checkSendOnScrollEvent();
+    }
+
     public void onDestroy() {
         mItemView = null;
         mContainer.removeAllViews();
@@ -100,26 +104,11 @@ public abstract class PullRefreshHelper {
     public void onRefreshCompleted() {
         if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_REFRESHING) {
             mRefreshStatus = PullRefreshStatus.PULL_STATUS_FOLDED;
-            endAnimation();
-            setVisibleSize(0);
+            smoothResizeTo(getVisibleSize(), 0, DURATION);
         }
     }
 
-    public void enableRefresh() {
-        switch (mRefreshStatus) {
-            case PULL_STATUS_FOLDED:
-                int nodeSize = isVertical() ? mRenderNode.getHeight() : mRenderNode.getWidth();
-                setVisibleSize(nodeSize);
-                mRefreshStatus = PullRefreshStatus.PULL_STATUS_REFRESHING;
-                break;
-            case PULL_STATUS_DRAGGING:
-                mRefreshStatus = PullRefreshStatus.PULL_STATUS_REFRESHING;
-                break;
-            case PULL_STATUS_REFRESHING:
-            default:
-                break;
-        }
-    }
+    public abstract void enableRefresh();
 
     public View getView() {
         return mContainer;
@@ -216,9 +205,10 @@ public abstract class PullRefreshHelper {
         }
         mContainer.setLayoutParams(layoutParams);
         mRecyclerView.dispatchLayout();
+        sendCompatScrollEvent();
     }
 
-    protected void smoothScrollTo(int fromValue, int toValue, int duration) {
+    protected void smoothResizeTo(int fromValue, int toValue, int duration) {
         endAnimation();
         mAnimator = ValueAnimator.ofInt(fromValue, toValue);
         mAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {

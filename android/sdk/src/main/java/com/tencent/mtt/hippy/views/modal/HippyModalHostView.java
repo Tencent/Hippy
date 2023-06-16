@@ -15,14 +15,10 @@
  */
 package com.tencent.mtt.hippy.views.modal;
 
-import android.animation.ObjectAnimator;
-import android.animation.PropertyValuesHolder;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Resources;
-import android.content.res.Resources.NotFoundException;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Build;
@@ -39,12 +35,12 @@ import android.widget.FrameLayout;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
+import com.tencent.mtt.hippy.R;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 @SuppressWarnings({"unused"})
@@ -278,33 +274,23 @@ public class HippyModalHostView extends HippyViewGroup implements
     }
 
     assert mDialog != null;
+    switch (mAniType) {
+      case STYLE_THEME_ANIMATED_FADE_DIALOG:
+        mDialog.getWindow().setWindowAnimations(R.style.modal_style_theme_animated_fade);
+        break;
+      case STYLE_THEME_ANIMATED_SLIDE_DIALOG:
+        mDialog.getWindow().setWindowAnimations(R.style.modal_style_theme_animated_slide);
+        break;
+      case STYLE_THEME_ANIMATED_SLIDE_FADE_DIALOG:
+        mDialog.getWindow().setWindowAnimations(R.style.modal_style_theme_animated_slide_fade);
+        break;
+      default:
+    }
+
     mDialog.setOnShowListener(new DialogInterface.OnShowListener() {
       @Override
       public void onShow(DialogInterface dialogInterface) {
         mOnShowListener.onShow(dialogInterface);
-        ObjectAnimator alphaAnimation = null;
-        switch (mAniType) {
-          case STYLE_THEME_ANIMATED_FADE_DIALOG:
-            alphaAnimation = ObjectAnimator.ofFloat(mContentView, "alpha", 0.0f, 1.0f);
-            break;
-          case STYLE_THEME_ANIMATED_SLIDE_DIALOG:
-            alphaAnimation = ObjectAnimator.ofFloat(mContentView, "translationY", 0);
-            break;
-          case STYLE_THEME_ANIMATED_SLIDE_FADE_DIALOG:
-            PropertyValuesHolder fadeValuesHolder = PropertyValuesHolder
-                .ofFloat("alpha", 0.0f, 1.0f);
-            PropertyValuesHolder slideValuesHolder = PropertyValuesHolder
-                .ofFloat("translationY", 0);
-            alphaAnimation = ObjectAnimator
-                .ofPropertyValuesHolder(mContentView, fadeValuesHolder, slideValuesHolder);
-            break;
-          default:
-        }
-
-        if (alphaAnimation != null) {
-          alphaAnimation.setDuration(200);
-          alphaAnimation.start();
-        }
       }
     });
     mDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -336,25 +322,6 @@ public class HippyModalHostView extends HippyViewGroup implements
 
     mDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
     mDialog.show();
-
-    int nScreenHeight = getScreenHeight();
-    switch (mAniType) {
-      case STYLE_THEME_ANIMATED_FADE_DIALOG:
-        mContentView.setAlpha(0);
-        break;
-      case STYLE_THEME_ANIMATED_SLIDE_DIALOG:
-        if (nScreenHeight != -1) {
-          mContentView.setTranslationY(nScreenHeight);
-        }
-        break;
-      case STYLE_THEME_ANIMATED_SLIDE_FADE_DIALOG:
-        mContentView.setAlpha(0);
-        if (nScreenHeight != -1) {
-          mContentView.setTranslationY(nScreenHeight);
-        }
-        break;
-      default:
-    }
   }
 
   private int getScreenHeight() {
@@ -375,29 +342,14 @@ public class HippyModalHostView extends HippyViewGroup implements
 
   @SuppressWarnings("SameReturnValue")
   protected int getThemeResId() {
-    return 0;
+      return android.R.style.Theme_Translucent_NoTitleBar;
   }
 
   protected Dialog createDialog(Context context) {
     int themeResId = getThemeResId();
-    if (context != null) {
-      Resources res = context.getResources();
-      themeResId = res.getIdentifier("HippyFullScreenDialog", "style", context.getPackageName());
-    }
 
     assert context != null;
-    Dialog dialog = new Dialog(context, themeResId);
-    if (themeResId == 0) {
-      Window window = dialog.getWindow();
-      if (window != null) {
-        window.requestFeature(Window.FEATURE_NO_TITLE);
-        window.setBackgroundDrawableResource(android.R.color.transparent);
-        window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams
-            .MATCH_PARENT);
-      }
-    }
-
-    return dialog;
+    return new Dialog(context, themeResId);
   }
 
   protected View createContentView(View hostView) {

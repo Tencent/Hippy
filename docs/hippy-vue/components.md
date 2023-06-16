@@ -108,11 +108,11 @@
 
 > 仅在 overflow-y/x: scroll 时适用
 
-`(x: number, y: number, duration: boolean) => void` 滚动到指定的 X，Y 偏移值，第三个参数为是否启用平滑滚动动画。
+`(x: number, y: number, duration: number) => void` 滚动到指定的 X，Y 偏移值，第三个参数为滚动持续时间。
 
 > * x: number - X 偏移值
 > * y: number - Y 偏移值
-> * duration: number | boolean - 毫秒为单位的滚动时间, 默认 1000ms，false 等同 0ms
+> * duration: number - 毫秒为单位的滚动时间, 默认 1000ms
 
 
 ### setPressed
@@ -194,17 +194,17 @@
 
 ## 事件
 
-| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
-| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| layout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置 | `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| load        | 加载成功完成时调用此回调函数。                               | `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| loadStart   | 加载开始时调用。 | `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| loadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。               | `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| error       | 当加载错误的时候调用此回调函数。| `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| progress    | 在加载过程中不断调用，参数为 `nativeEvent: { loaded: number, total: number }`, `loaded` 表示加载中的图片大小， `total` 表示图片总大小 | `Function`                                                   | `iOS`    |
-| touchstart  | 触屏开始事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、Web-Renderer`    |
-| touchmove   | 触屏移动事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、Web-Renderer`    |
-| touchend    | 触屏结束事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、Web-Renderer`    |
+| 事件名称          | 描述                                                                                                                                                                                     | 类型                                      | 支持平台 |
+| ------------- |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ----------------------------------------- | -------- |
+| layout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置                                                                                      | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| load        | 加载成功完成时调用此回调函数，`2.16.0`后支持参数返回，参数为：`evt: { width: number, height: number, url: string }`                                                                               | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| loadStart   | 加载开始时调用。                                                                                                                                                                               | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| loadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。                                                                                                                                                                | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| error       | 当加载错误的时候调用此回调函数。                                                                                                                                                                       | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| progress    | 在加载过程中不断调用，参数为 `nativeEvent: { loaded: number, total: number }`, `loaded` 表示加载中的图片大小， `total` 表示图片总大小                                                                                  | `Function`                                                   | `iOS`    |
+| touchstart  | 触屏开始事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置                                                               | `Function`                                | `Android、iOS、Web-Renderer`    |
+| touchmove   | 触屏移动事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置                                                               | `Function`                                | `Android、iOS、Web-Renderer`    |
+| touchend    | 触屏结束事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置                                                               | `Function`                                | `Android、iOS、Web-Renderer`    |
 | touchcancel | 触屏取消事件，当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、Web-Renderer`    |
 
 ---
@@ -288,8 +288,8 @@
 | focus | 当文本框获得焦点的时候调用此回调函数。 | `Function` | `Android、iOS` |
 | change          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `Android、iOS`     |
 | keyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`。                                     | `Function`                                                   | `Android、iOS`     |
-| keyboardWillHide     | 在隐藏输入法键盘时候会触发此回调函数 | `Function`                                                   | `Android`     |
-| keyboardHeightChanged | 在输入法键盘高度改变时触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`, `最低支持版本2.14.0`。 | `Function` | `iOS` |                                 
+| keyboardWillHide     | 在隐藏输入法键盘时候会触发此回调函数 `iOS最低支持版本2.16.0` | `Function`                                                   | `Android、iOS`     |
+| keyboardHeightChanged | 在输入法键盘高度改变时触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`, `最低支持版本2.14.0`。 | `Function` | `iOS` |
 | endEditing          | 当文本输入结束后调用此回调函数。                             | `Function`                                                   | `Android、iOS、Web-Renderer`     |
 | layout              | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                                   | `Android、iOS、Web-Renderer`     |
 | selectionChange     | 当输入框选择文字的范围被改变时调用。返回参数的样式如 `{ nativeEvent: { selection: { start, end } } }`。 | `Function`                                                   | `Android、iOS、Web-Renderer`     |
@@ -460,6 +460,7 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 | opacity       | 配置 `View` 的透明度，同时会影响子节点的透明度。             | `number`                                  | `Android、iOS、Web-Renderer`    |
 | ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。`default: tail` | `enum(head, middle, tail, clip)` | `Android(版本2.14.1以上全支持，低版本仅支持tail)、iOS(全支持)` |
 | break-strategy* | 设置Android API 23及以上系统的文本换行策略。`default: simple` | `enum(simple, high_quality, balanced)` | `Android(版本 2.14.2以上)` |
+| verticalAlign* | 设置文本组件内嵌套文本组件或文本组件内嵌套图片组件时的对齐策略。`default: baseline` | `enum(top, middle, baseline, bottom)` | `Android、iOS(版本2.16.0以上)` |
 
 * ellipsizeMode 的参数含义：
   * `clip` - 超过指定行数的文字会被直接截断，不显示“...”；（Android 2.14.1以上、iOS全支持）
@@ -470,6 +471,11 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
   * `simple`（默认值）：简单折行，每一行显示尽可能多的字符，直到这一行不能显示更多字符时才进行换行，这种策略下不会自动折断单词（当一行只有一个单词并且宽度显示不下的情况下才会折断）；
   * `high_quality`：高质量折行，针对整段文本的折行进行布局优化，必要时会自动折断单词，比其他两种策略略微影响性能，通常比较适合只读文本；
   * `balanced`：平衡折行，尽可能保证一个段落的每一行的宽度相同，必要时会折断单词。
+* verticalAlign 的参数含义：
+  * `top`: 行顶部对齐
+  * `middle`: 居中对齐
+  * `baseline`: 基线对齐
+  * `bottom`: 行底部对齐
 
 ## whitespace 处理
 

@@ -246,7 +246,9 @@ export function registerAnimation(vueApp: App): void {
     mounted() {
       const { playing } = this.$props;
       if (playing) {
-        this.start();
+        setTimeout(() => {
+          this.start();
+        }, 0);
       }
     },
     beforeDestroy() {
@@ -342,7 +344,6 @@ export function registerAnimation(vueApp: App): void {
           useAnimation: true,
           style: this.style,
           tag: this.$props.tag,
-          playing: this.$props.playing,
           ...this.$props.props,
         },
         this.$slots.default ? this.$slots.default() : null,

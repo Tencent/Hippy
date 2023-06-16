@@ -35,13 +35,13 @@ import {
   tryConvertNumber,
   unicodeToChar,
   warn,
-  isEmpty,
   deepCopy,
   isStyleMatched,
   whitespaceFilter,
   getBeforeRenderToNative,
 } from '../../util';
 import { isRTL } from '../../util/i18n';
+import { EventMethod } from '../../util/event';
 import { getHippyCachedInstance } from '../../util/instance';
 import { parseRemStyle } from '../../util/rem';
 import { getTagComponent, type TagComponent } from '../component';
@@ -204,7 +204,16 @@ export class HippyElement extends HippyNode {
   public filterAttribute?: CallbackType;
 
   // polyFill of native event
-  protected polyFillNativeEvents?: (type: string) => string;
+  protected polyfillNativeEvents?: (
+    method: string,
+    eventNames: string,
+    callback: CallbackType,
+    options?: EventListenerOptions
+  ) => {
+    eventNames: string,
+    callback: CallbackType,
+    options?: EventListenerOptions
+  };
 
   // style scoped id for element
   private scopedIdList: NeedToTyped[] = [];
@@ -454,10 +463,12 @@ export class HippyElement extends HippyNode {
   /**
    * remove style attr
    */
-  public removeStyle(): void {
+  public removeStyle(notToNative = false): void {
     // remove all style
     this.style = {};
-    this.updateNativeNode();
+    if (!notToNative) {
+      this.updateNativeNode();
+    }
   }
 
   /**
@@ -466,7 +477,9 @@ export class HippyElement extends HippyNode {
    * @param batchStyles - batched style to set
    */
   public setStyles(batchStyles) {
-    if (isEmpty(batchStyles)) return;
+    if (!batchStyles || typeof batchStyles !== 'object') {
+      return;
+    }
     Object.keys(batchStyles).forEach((styleKey) => {
       const styleValue = batchStyles[styleKey];
       this.setStyle(styleKey, styleValue, true);
@@ -614,34 +627,32 @@ export class HippyElement extends HippyNode {
   /**
    * add element event listener
    *
-   * @param type - event type
-   * @param callback - callback
-   * @param options - options
+   * @param rawEventNames - event names
+   * @param rawCallback - callback
+   * @param rawOptions - options
    */
   public addEventListener(
-    type: string,
-    callback: CallbackType,
-    options?: EventListenerOptions,
+    rawEventNames: string,
+    rawCallback: CallbackType,
+    rawOptions?: EventListenerOptions,
   ): void {
-    let eventName = type;
+    let eventNames = rawEventNames;
+    let callback = rawCallback;
+    let options = rawOptions;
     // Added default scrollEventThrottle when scroll event is added.
-    if (
-      eventName === 'scroll'
-      && !(this.getAttribute('scrollEventThrottle') > 0)
-    ) {
+    if (eventNames === 'scroll' && !(this.getAttribute('scrollEventThrottle') > 0)) {
       this.attributes.scrollEventThrottle = 200;
     }
-
-    // If there is an event polyfill, bind the corresponding event callback to the event that needs polyfill
-    if (typeof this.polyFillNativeEvents === 'function') {
-      const polyfillEventName = this.polyFillNativeEvents(type);
-
-      if (polyfillEventName) {
-        eventName = polyfillEventName;
-      }
+    // If there is an event polyfill, override the event names, callback and options
+    if (typeof this.polyfillNativeEvents === 'function') {
+      ({ eventNames, callback, options } = this.polyfillNativeEvents(
+        EventMethod.ADD,
+        eventNames,
+        callback,
+        options,
+      ));
     }
-
-    super.addEventListener(eventName, callback, options);
+    super.addEventListener(eventNames, callback, options);
     // update native node
     this.updateNativeNode();
   }
@@ -649,27 +660,28 @@ export class HippyElement extends HippyNode {
   /**
    * remove event listener
    *
-   * @param type - event type
-   * @param callback - callback
-   * @param options - options
+   * @param rawEventNames - event type
+   * @param rawCallback - callback
+   * @param rawOptions - options
    */
   public removeEventListener(
-    type: string,
-    callback: CallbackType,
-    options?: EventListenerOptions,
+    rawEventNames: string,
+    rawCallback: CallbackType,
+    rawOptions?: EventListenerOptions,
   ): void {
-    let eventName = type;
-    // If there is an event polyfill, remove the corresponding event callback for events that require polyfill
-    if (typeof this.polyFillNativeEvents === 'function') {
-      const polyfillEventName = this.polyFillNativeEvents(type);
-
-      if (polyfillEventName) {
-        eventName = polyfillEventName;
-      }
+    let eventNames = rawEventNames;
+    let callback = rawCallback;
+    let options = rawOptions;
+    // If there is an event polyfill, override the event names, callback and options
+    if (typeof this.polyfillNativeEvents === 'function') {
+      ({ eventNames, callback, options } = this.polyfillNativeEvents(
+        EventMethod.REMOVE,
+        eventNames,
+        callback,
+        options,
+      ));
     }
-
-    super.removeEventListener(eventName, callback, options);
-
+    super.removeEventListener(eventNames, callback, options);
     // update native node
     this.updateNativeNode();
   }
@@ -697,7 +709,7 @@ export class HippyElement extends HippyNode {
 
     // event bubbling
     if (this.parentNode && event.bubbles) {
-      this.parentNode.dispatchEvent.call(this.parentNode, event);
+      (this.parentNode as HippyElement).dispatchEvent.call(this.parentNode, event);
     }
   }
 
@@ -739,11 +751,11 @@ export class HippyElement extends HippyNode {
         // node style
         style,
       },
+      tagName: this.tagName,
     };
 
     // hack in dev environment, added properties for chrome inspector debugging
     if (!IS_PROD) {
-      elementExtraAttributes.tagName = this.tagName;
       if (elementExtraAttributes.props) {
         elementExtraAttributes.props.attributes = this.getNodeAttributes();
       }
@@ -962,6 +974,7 @@ export class HippyElement extends HippyNode {
       const classInfo = Array.from(this.classList ?? []).join(' ');
       const attributes = {
         id: this.id,
+        hippyNodeId: `${this.nodeId}`,
         class: classInfo,
         ...nodeAttributes,
       };

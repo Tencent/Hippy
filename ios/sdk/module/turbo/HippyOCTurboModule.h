@@ -23,6 +23,7 @@
 #import <Foundation/Foundation.h>
 #import "HippyTurboModule.h"
 
+
 @interface HippyOCTurboModule : NSObject <HippyTurboModule, HippyTurboModuleImpProtocol>
 
 @property (nonatomic, weak, readonly) HippyBridge *bridge;

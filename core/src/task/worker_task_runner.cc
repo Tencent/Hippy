@@ -23,7 +23,6 @@
 #include "core/task/worker_task_runner.h"
 
 #include "base/logging.h"
-#include "core/napi/js_native_api.h"
 
 const uint32_t WorkerTaskRunner::kDefaultTaskPriority = 10000;
 const uint32_t WorkerTaskRunner::kHighPriorityTaskPriority = 5000;
@@ -33,6 +32,16 @@ WorkerTaskRunner::WorkerTaskRunner(uint32_t pool_size) : pool_size_(pool_size) {
   for (uint32_t i = 0; i < pool_size_; ++i) {
     thread_pool_.push_back(std::make_unique<WorkerThread>(this));
   }
+}
+
+void WorkerTaskRunner::PostPromiseTask(std::unique_ptr<CommonTask> task, uint32_t priority) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  if (terminated_) {
+    task->Run(); // Run the task immediately
+    return;
+  }
+  task_queue_.push(std::make_pair(priority, std::move(task)));
+  cv_.notify_one();
 }
 
 void WorkerTaskRunner::PostTask(std::unique_ptr<CommonTask> task,

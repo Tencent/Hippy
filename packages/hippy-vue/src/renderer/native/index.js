@@ -324,8 +324,10 @@ function getTargetNodeAttributes(targetNode) {
   try {
     const targetNodeAttributes = deepCopy(targetNode.attributes);
     const classInfo = Array.from(targetNode.classList || []).join(' ');
+    const { id, nodeId } = targetNode;
     const attributes = {
-      id: targetNode.id,
+      id,
+      hippyNodeId: `${nodeId}`,
       class: classInfo,
       ...targetNodeAttributes,
     };
@@ -390,10 +392,10 @@ function renderToNative(rootViewId, targetNode) {
       ...events,
       style,
     },
+    tagName: targetNode.tagName,
   };
   // Add nativeNode attributes info for Element debugging
   if (isDev()) {
-    nativeNode.tagName = targetNode.tagName;
     nativeNode.props.attributes = getTargetNodeAttributes(targetNode);
   }
   parseViewComponent(targetNode, nativeNode, style);
