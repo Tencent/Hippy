@@ -113,6 +113,7 @@ dependencies {
     } else {
         api project(path: ':android-sdk')
     }
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     // noinspection GradleDependency
     api 'com.github.bumptech.glide:glide:3.6.1'
     api 'androidx.legacy:legacy-support-v4:1.0.0'
