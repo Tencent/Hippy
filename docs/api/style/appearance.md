@@ -10,7 +10,7 @@
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
-| [color](style/color.md) | 否  | Android、iOS
+| [color](api/style/color.md) | 否  | Android、iOS
 
 # borderTopColor
 
@@ -18,7 +18,7 @@
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
-| [color](style/color.md) | 否  |  Android、iOS
+| [color](api/style/color.md) | 否  |  Android、iOS
 
 # borderBottomColor
 
@@ -26,7 +26,7 @@
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
-| [color](style/color.md) | 否 | Android、iOS
+| [color](api/style/color.md) | 否 | Android、iOS
 
 # borderLeftColor
 
@@ -34,7 +34,7 @@
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
-| [color](style/color.md) | 否  |  Android、iOS
+| [color](api/style/color.md) | 否  |  Android、iOS
 
 # borderRightColor
 
@@ -42,7 +42,7 @@
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
-| [color](style/color.md) | 否  |  Android、iOS
+| [color](api/style/color.md) | 否  |  Android、iOS
 
 # borderRadius
 
@@ -108,7 +108,7 @@
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
-| [color](style/color.md) | 否   | Android、iOS
+| [color](api/style/color.md) | 否   | Android、iOS
 
 # borderStyle
 
@@ -132,7 +132,7 @@
 
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
-| [color](style/color.md) | 否 | Android、iOS
+| [color](api/style/color.md) | 否 | Android、iOS
 
 # fontFamily
 
@@ -210,7 +210,7 @@
 
 | 类型   | 必需 | 平台 |
 | ------ | -------- | --------|
-| [color](style/color.md)  | 否 | iOS |
+| [color](api/style/color.md)  | 否 | iOS |
 
 # textDecorationLine
 
@@ -248,7 +248,7 @@
 
 | 类型   | 必需 | 平台 | 
 | ------ | -------- | --------|
-| [color](style/color.md)  | 否 | Android、iOS |
+| [color](api/style/color.md)  | 否 | Android、iOS |
 
 # textShadowOffset
 
@@ -318,7 +318,7 @@
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
-| [color](style/color.md) | 否  |  Android、iOS
+| [color](api/style/color.md) | 否  |  Android、iOS
 
 # visibility
 

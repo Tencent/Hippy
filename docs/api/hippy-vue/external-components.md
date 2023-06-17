@@ -105,7 +105,7 @@ export default {
   > 
   > * 设置 `actions` 对 `backgroundColor` 进行修饰
   > * 设置 `valueType` 为 `color`
-  > * 设置 `startValue` 和 `toValue` 为 [color值](style/color.md)
+  > * 设置 `startValue` 和 `toValue` 为 [color值](api/style/color.md)
 
   > `2.12.2` 及以上版本支持循环播放参数 `repeatCount: 'loop'` 写法，低版本请使用 `repeatCount: -1`
 
