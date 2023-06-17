@@ -12,11 +12,11 @@ Hippy 为了方便前端开发便于理解，样式也采用了 CSS 的盒模型
 
 ![盒模型](../assets/img/border-box.png)
 
-* [width](style/layout.md?id=width)
-* [height](style/layout.md?id=height)
-* [padding](style/layout.md?id=padding)
-* [margin](style/layout.md?id=margin)
-* [border](style/layout.md?id=borderWidth)
+* [width](api/style/layout.md?id=width)
+* [height](api/style/layout.md?id=height)
+* [padding](api/style/layout.md?id=padding)
+* [margin](api/style/layout.md?id=margin)
+* [border](api/style/layout.md?id=borderWidth)
 
 # 布局（Flex）
 
