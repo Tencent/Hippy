@@ -65,7 +65,7 @@ Hippy 仓库根目录运行 `git clone https://github.com/Tencent/Hippy.git` 和
 
 4. 用`Xcode`打开上一步Cocoapods生成的 `HippyDemo.xcworkspace`工程文件，进行 iOS App 构建。
 
-> 更多细节请参考 [iOS 集成章节](ios/integration).
+> 更多细节请参考 [iOS 集成章节](development/native-integration?id=ios).
 
 ## 使用 js demo 构建 Android App
 
@@ -86,7 +86,7 @@ Hippy 仓库根目录运行 `git clone https://github.com/Tencent/Hippy.git` 和
 
 > 如果 `步骤二` 出现异常，你也可以 `cd` 到 `examples` 下的任意一个 JS Demo 目录，执行 `npm install --legacy-peer-deps` 去安装 Demo 的依赖。
 >
-> 更多细节请参考 [Android 集成章节](android/integration)。
+> 更多细节请参考 [Android 集成章节](development/native-integration?id=android)。
 
 ## 调试 js demo
 
@@ -98,7 +98,7 @@ Hippy 仓库根目录运行 `git clone https://github.com/Tencent/Hippy.git` 和
 >
 > 为了在 Demo 调试模式下便于修改SDK源码进行调试，@hippy/react、 @hippy/vue,、@hippy/vue-next 等 npm 包会链接到 `packages` > `[different package]` > `dist` 的生产文件下，所以一旦你修改了 JS SDK的源码并想要在目标 JS DEMO 里立即生效，请再次在 Hippy 项目driver/js目录执行 `npm run build`。
 >
-> 更多调试细节请参考 [Hippy 调试文档](guide/debug)。
+> 更多调试细节请参考 [Hippy 调试文档](development/debug)。
 
 ## 构建生产环境 JS demo
 

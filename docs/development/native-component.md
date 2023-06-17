@@ -522,11 +522,11 @@ initParams.providers = [
 
 ### 如果您使用的是`hippy-vue`
 
-可以参考 [hippy-vue/customize](hippy-vue/customize)
+可以参考 [hippy-vue/customize](api/hippy-vue/customize)
 
 ### 如果您是用的是`hippy-react`
 
-可以参考 [hippy-react/customize](hippy-react/customize)
+可以参考 [hippy-react/customize](api/hippy-react/customize)
 
 ## 手势事件处理
 
@@ -536,7 +536,7 @@ Voltron 手势处理集成在 `PositionWidget` 或者 `BoxWidget` 中，无需�
 
 ## 处理组件方法调用
 
-在有些场景，JavaScript 需要调用组件的一些方法，比如 `QrView` 的 `changeText`。这个时候需要在 `QrController`重载 `dispatchFunction` 方法来处理JS的方法调用。对应的前端调用文档 [hippy-react/customize](hippy-react/customize)
+在有些场景，JavaScript 需要调用组件的一些方法，比如 `QrView` 的 `changeText`。这个时候需要在 `QrController`重载 `dispatchFunction` 方法来处理JS的方法调用。对应的前端调用文档 [hippy-react/customize](api/hippy-react/customize)
 
 ```dart
 @override
