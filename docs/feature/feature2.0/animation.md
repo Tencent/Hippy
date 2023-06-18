@@ -145,5 +145,5 @@ export default class AnimationExample extends Component {
 
 详细使用，可以参考
 
-* [HippyReact Animation 模块](hippy-react/modules.md?id=animation)
-* [HippyVue animation 组件](hippy-vue/external-components?id=animation)
+* [HippyReact Animation 模块](api/hippy-react/modules.md?id=animation)
+* [HippyVue Animation 模块](api/hippy-vue/external-components?id=animation)

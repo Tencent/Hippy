@@ -17,7 +17,7 @@ Hippy 正在进行 3.x 架构的升级，在 3.x 中业务与渲染层中的具�
 
 # Hippy 2.x 架构
 
-Hippy 2.x 架构主要分成三层，UI(JS) 层 `Hippy-React` 和 `Hippy-Vue` 负责驱动 UI 指令生成；中间层 [C++ HippyCore](structure/core.md) 负责抹平平台差异性和提供高性能模块；渲染层 `Android` 和 `iOS` 负责提供终端底层模块、组件，并与布局引擎通信
+Hippy 2.x 架构主要分成三层，UI(JS) 层 `Hippy-React` 和 `Hippy-Vue` 负责驱动 UI 指令生成；中间层 [C++ HippyCore](architecture/core.md) 负责抹平平台差异性和提供高性能模块；渲染层 `Android` 和 `iOS` 负责提供终端底层模块、组件，并与布局引擎通信
 
 <br/>
 

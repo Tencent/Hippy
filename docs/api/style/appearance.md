@@ -138,7 +138,7 @@
 
 字体名，如 `PingFangSC-Regular`
 
-若需自定义字体，参考 [自定义字体说明](guide/custom-font)
+若需自定义字体，参考 [自定义字体说明](feature/feature2.0/custom-font)
 
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |

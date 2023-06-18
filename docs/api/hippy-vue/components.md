@@ -44,7 +44,7 @@
 
 [[范例：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
 
-> div 组件容器，默认不可以滚动。可以通过增加样式参数 `overflow-y: scroll` 切换为可以纵向滚动容器，或者增加样式参数 `overflow-x: scroll` 切换为水平滚动容器。在终端侧会被映射成 [ScrollView](hippy-react/components.md?id=ScrollView)，因此具备 [ScrollView](hippy-react/components.md?id=ScrollView) 通用的能力。
+> div 组件容器，默认不可以滚动。可以通过增加样式参数 `overflow-y: scroll` 切换为可以纵向滚动容器，或者增加样式参数 `overflow-x: scroll` 切换为水平滚动容器。在终端侧会被映射成 [ScrollView](api/hippy-react/components.md?id=ScrollView)，因此具备 [ScrollView](hippy-react/components.md?id=ScrollView) 通用的能力。
 
 !> Android 具有节点优化的特性，请注意 `collapsable` 属性的使用
 
@@ -402,7 +402,7 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 | 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
 | type            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。`注意：同一 type 的 item 组件由于复用可能不会走完整组件创建生命周期` | `number`              | `Android、iOS、Web-Renderer、Voltron`    |
-| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官文](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS、Web-Renderer、Voltron`    |
+| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官网](//vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS、Web-Renderer、Voltron`    |
 | sticky       | 对应的 item 是否需要使用悬停效果（滚动到顶部时，会悬停在 ListView 顶部，不会滚出屏幕），需跟 `ul` 的 `rowShouldSticky` 配合使用 | `boolean`                                | `Android、iOS、Web-Renderer、Voltron`
 | appear       | 当有`li`节点滑动进入屏幕时（曝光）触发，入参返回曝光的`li`节点对应索引值。 | `(index) => any` | `Android、iOS、Web-Renderer、Voltron` |
 | disappear       | 当有`li`节点滑动离开屏幕时触发，入参返回离开的`li`节点对应索引值。 | `(index) => any` | `Android、iOS、Web-Renderer、Voltron` |
