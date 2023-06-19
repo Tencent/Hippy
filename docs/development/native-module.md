@@ -1,6 +1,6 @@
 # 自定义终端模块
 
-很多时候 JS 需要访问对应终端的一些能力模块，比如数据库、下载、网络请求等，这时候就需要使用 Module 来暴露接口给JS使用。Hippy SDK 中默认实现了部分 Module，但这极有可能无法满足你的需求，这就需要你对 Module 进行扩展封装。Hippy支持 Android、iOS、Flutter平台的模块扩展。
+很多时候 JS 需要访问对应终端的一些能力模块，比如数据库、下载、网络请求等，这时候就需要使用 Module 来暴露接口给JS使用。Hippy SDK 中默认实现了部分 Module，但这极有可能无法满足你的需求，这就需要你对 Module 进行扩展封装。Hippy支持 Android、iOS、Flutter、Web(同构) 等平台的模块扩展。
 
 <br/>
 
