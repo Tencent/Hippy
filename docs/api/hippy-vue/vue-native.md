@@ -320,7 +320,7 @@ console.log(Vue.Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0
 
 `(ref) => Promise<{top: number, left: number, right: number, bottom: number, width: number, height: number}>`
 
-> * Promise resolve 的参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错或 [节点被优化（仅在Android）](style/layout?id=collapsable) 会返回 { top: -1, left: -1, right: -1, bottom: -1, width: -1, height: -1 }
+> * Promise resolve 的参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错或 [节点被优化（仅在Android）](api/style/layout?id=collapsable) 会返回 { top: -1, left: -1, right: -1, bottom: -1, width: -1, height: -1 }
 
 ---
 
@@ -334,7 +334,7 @@ console.log(Vue.Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0
 
 > * instance: 元素或组件的引用 Ref。
 > * options: 可选参数，`relToContainer` 表示是否相对宿主容器（RootView）进行测量，默认 `false` 相对 App 窗口或屏幕进行测量。当对宿主容器（RootView）进行测量时，`iOS` 包含顶部状态栏高度，`Android` 不包含。
-> * DOMRect: 与 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Element/getBoundingClientRect) 一致的返回参数, 可以获取元素相应的位置信息和尺寸，如果出错或者 [节点被优化（仅在Android）](style/layout?id=collapsable)，会触发 `Promise.reject`。
+> * DOMRect: 与 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Element/getBoundingClientRect) 一致的返回参数, 可以获取元素相应的位置信息和尺寸，如果出错或者 [节点被优化（仅在Android）](api/style/layout?id=collapsable)，会触发 `Promise.reject`。
 
 ---
 

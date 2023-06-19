@@ -49,7 +49,7 @@ import icon from './qb_icon_new.png';
 | capInsets     | 当调整 `Image` 大小的时候，由 `capInsets` 指定的边角尺寸会被固定而不进行缩放，而中间和边上其他的部分则会被拉伸。这在制作一些可变大小的圆角按钮、阴影、以及其它资源的时候非常有用。                                                                     | `{ top: number, left: number, bottom: number, right: number }` | `Android、iOS、Voltron`    |
 | defaultSource | 指定当 `Image` 组件还没加载出来 `source` 属性指定的图片的占位符图片，当 `source` 属性指定的图片加载失败时， `Image` 组件会显示 `defaultSource` 属性指定的图片                                                               | `string`: 图片 base64 字符串                                     | `Android、iOS、hippy-react-web、Web-Renderer、Voltron`    |
 | source        | uri 是一个表示图片的资源标识的字符串。 现在支持的图片格式有 `png` , `jpg` , `jpeg` , `bmp` , `gif` 。                                                                                                | `{ uri: string }`                                            | `Android、iOS、hippy-react-web、Web-Renderer、Voltron`    |
-| tintColor     | 对图片进行染色(对非纯色图片进行有透明度的染色时，Android 和 iOS 的 `blendMode` 默认值有差异)。                                                                                                            | [color](style/color.md) | `Android、iOS、Web-Renderer`|
+| tintColor     | 对图片进行染色(对非纯色图片进行有透明度的染色时，Android 和 iOS 的 `blendMode` 默认值有差异)。                                                                                                            | [color](api/style/color.md) | `Android、iOS、Web-Renderer`|
 | onLayout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置                                                                        | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer、Voltron`    |
 | onLoad        | 加载成功完成时调用此回调函数。                                                                                                                                                          | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | onLoadStart   | 加载开始时调用。 例如, `onLoadStart={() => this.setState({ loading: true })}`                                                                                                      | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
@@ -321,7 +321,7 @@ import icon from './qb_icon_new.png';
 
 | 参数                  | 描述                                                         | 类型                                                         | 支持平台  |
 | --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------- |
-| caretColor          | 输入光标颜色。（也可设置为 Style 属性） `最低支持版本2.11.5` | [`color`](style/color.md)    | `Android、hippy-react-web、Voltron` |
+| caretColor          | 输入光标颜色。（也可设置为 Style 属性） `最低支持版本2.11.5` | [`color`](api/style/color.md)    | `Android、hippy-react-web、Voltron` |
 | defaultValue          | 提供一个文本框中的初始值。当用户开始输入的时候，值就可以改变。  在一些简单的使用情形下，如果你不想用监听消息然后更新 value 属性的方法来保持属性和状态同步的时候，就可以用 defaultValue 来代替。 | `string`                                                     | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | editable              | 如果为 false，文本框是不可编辑的。 `default: true`                          | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | keyboardType          | 决定弹出的何种软键盘的。 注意，`password`仅在属性 `multiline=false` 单行文本框时生效。 | `enum (default, numeric, password, email, phone-pad)` | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
@@ -338,9 +338,9 @@ import icon from './qb_icon_new.png';
 | onLayout              | 当组件挂载或者布局变化的时候调用，参数为`nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | onSelectionChange     | 当输入框选择文字的范围被改变时调用。返回参数的样式如 `nativeEvent: { selection: { start, end } }`。 | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`     |
 | placeholder           | 如果没有任何文字输入，会显示此字符串。                       | `string`                                                     | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
-| placeholderTextColor  | 占位字符串显示的文字颜色。（也可设置为 Style 属性）`最低支持版本2.13.4`                | [`color`](style/color.md)                                | `Android、iOS、Web-Renderer、Voltron`     |
+| placeholderTextColor  | 占位字符串显示的文字颜色。（也可设置为 Style 属性）`最低支持版本2.13.4`                | [`color`](api/style/color.md)                                | `Android、iOS、Web-Renderer、Voltron`     |
 | returnKeyType         | 指定软键盘的回车键显示的样式。                               | `enum (done, go, next, search, send)`              | `Android、iOS、Web-Renderer、Voltron`     |
-| underlineColorAndroid | `TextInput` 下底线的颜色。 可以设置为 'transparent' 来去掉下底线。（也可设置为 Style 属性） | [`color`](style/color.md)                                                      | `Android` |
+| underlineColorAndroid | `TextInput` 下底线的颜色。 可以设置为 'transparent' 来去掉下底线。（也可设置为 Style 属性） | [`color`](api/style/color.md)                                                      | `Android` |
 | value                 | 指定 `TextInput` 组件的值。                                  | `string`                                                     | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | autoFocus             | 组件渲染时自动获得焦点。                                       | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | breakStrategy* | 设置Android API 23及以上系统的文本折行策略。`default: simple` | `enum(simple, high_quality, balanced)` | `Android(版本 2.14.2以上)` |
@@ -431,7 +431,7 @@ import icon from './qb_icon_new.png';
 | accessible         | 当此属性为 `true` 时，表示此视图时一个启用了无障碍功能的元素。启用无障碍的其他属性时，必须优先设置 `accessible` 为 `true`。 | `boolean` | `Android、iOS、hippy-react-web` |
 | accessibilityLabel | 设置当用户与此元素交互时，“读屏器”（对视力障碍人士的辅助功能）阅读的文字。默认情况下，这个文字会通过遍历所有的子元素并累加所有的文本标签来构建。 | `string`                               | `Android、iOS、hippy-react-web` |
 | collapsable        | Android 里如果一个 `View` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除，因此该节点 DOM 的引用会丢失 `（比如调用 measureInAppWindow 无法获取到大小和位置信息）`。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。`（Android 2.14.1 版本后支持在 Attribute 设置，以前版本请在 Style 属性里设置)` | `boolean`                            | `Android、Voltron` |
-| style              | -                                                            | [`View Styles`](style/layout.md) | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
+| style              | -                                                            | [`View Styles`](api/style/layout.md) | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | opacity            | 配置 `View` 的透明度，同时会影响子节点的透明度               | `number`                             | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | overflow           | 指定当子节点内容溢出其父级 `View` 容器时, 是否剪辑内容       | `enum(visible, hidden)`         | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | nativeBackgroundAndroid    | 配置水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: number }`； `borderless` 表示波纹是否有边界，默认 false；`color` 波纹颜色；`rippleRadius` 波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用 setPressed 和 setHotspot 方法进行水波纹展示，详情参考相关`[demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/RippleViewAndroid/index.jsx) | `Object`| `Android`    |

@@ -1,10 +1,10 @@
 <!-- docs/_sidebar.md -->
 * [Demo体验](development/demo.md)
 * [前端接入](development/web-integration.md)
-* [终端环境搭建](development/native-integration.md)
+* [环境搭建](development/native-integration.md)
 * [自定义组件](development/native-component.md)
 * [自定义模块](development/native-module.md)
-* [终端事件](development/native-event.md)
+* [事件](development/native-event.md)
 * [终端能力适配](development/native-adapter.md)
 * [数据类型映射](development/type-mapping.md)
 * [V8 API](development/v8-api.md)
