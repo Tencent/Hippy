@@ -277,6 +277,8 @@ jobs:
       run: |
         $env:DEPOT_TOOLS_WIN_TOOLCHAIN = 0
         $env:Path += ";C:\depot_tools"
+        echo "MSVC Install Dir: $env:VSCMD_ARG_MSBUILD_INSTALL_ROOT"
+        echo "MSVC Path to cl.exe: $env:VSCMD_ARG_MSBUILD_INSTALL_ROOT\VC\Tools\MSVC\$env:VSCMD_VER\bin\Hostx64\x64\cl.exe"
         gn gen out --args="target_cpu=""""""${{ matrix.arch }}"""""" v8_target_cpu=""""""${{ matrix.arch }}"""""" is_component_build=false v8_monolithic=true use_custom_libcxx=false chrome_pgo_phase=0 ${{ github.event.inputs.build_type == 'release' && 'is_debug=false is_official_build=true' || 'is_debug=true enable_iterator_debugging=true' }} ${{ github.event.inputs.build_args }}"
     - name: Compile ${{ matrix.arch }}
       working-directory: ./v8
