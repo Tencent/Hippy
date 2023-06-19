@@ -265,10 +265,10 @@ jobs:
         rm depot_tools.zip
         choco install ninja
     - name: Install Clang 15.0.1
-      run: |
-        Invoke-WebRequest -OutFile LLVM-15.0.1-win64.exe https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.1/LLVM-15.0.1-win64.exe
-        Start-Process -Wait -FilePath LLVM-15.0.1-win64.exe -ArgumentList '--layout C:\llvm-install-15.0.1'
-        Get-ChildItem -Path "C:\llvm-install-15.0.1"
+      uses: KyleMayes/install-llvm-action@v1
+      with:
+        version: "15.0.1"
+        directory: C:\llvm
     - name: Checkout v8
       run: |
         $env:DEPOT_TOOLS_WIN_TOOLCHAIN = 0
