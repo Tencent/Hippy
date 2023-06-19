@@ -630,8 +630,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
     }
 
     _loading = NO;
+    __weak HippyBatchedBridge *weakSelf = self;
     [_javaScriptExecutor executeBlockOnJavaScriptQueue:^{
-        [self->_javaScriptExecutor invalidate];
+        HippyBatchedBridge *strongSelf = weakSelf;
+        if (strongSelf) {
+            [strongSelf->_javaScriptExecutor invalidate];
+        }
     }];
 
     [[NSNotificationCenter defaultCenter] postNotificationName:HippyJavaScriptDidFailToLoadNotification object:_parentBridge
@@ -714,22 +718,18 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     if (queue == HippyJSThread) {
         // HippyProfileBeginFlowEvent();
         HippyAssert(_javaScriptExecutor != nil, @"Need JS executor to schedule JS work");
-
+        __weak HippyBatchedBridge *weakSelf = self;
         [_javaScriptExecutor executeBlockOnJavaScriptQueue:^{
-            // HippyProfileEndFlowEvent();
-
-            // HIPPY_PROFILE_BEGIN_EVENT(0, @"-[HippyBatchedBridge dispatchBlock", @{ @"loading": @(self.loading) });
-
-            @autoreleasepool {
-                if (self.loading) {
-                    HippyAssert(self->_pendingCalls != nil, @"Can't add pending call, bridge is no longer loading");
-                    [self->_pendingCalls addObject:block];
-                } else {
-                    block();
-                }
+            HippyBatchedBridge *strongSelf = weakSelf;
+            if (!strongSelf) {
+                return;
             }
-
-            // HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"");
+            if (strongSelf.loading) {
+                HippyAssert(strongSelf->_pendingCalls != nil, @"Can't add pending call, bridge is no longer loading");
+                [strongSelf->_pendingCalls addObject:block];
+            } else {
+                block();
+            }
         }];
     } else if (queue) {
         dispatch_async(queue, block);
@@ -785,19 +785,24 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 
     dispatch_group_notify(group, dispatch_get_main_queue(), ^{
         [self->_displayLink invalidate];
+        __weak HippyBatchedBridge *weakSelf = self;
         [self->_javaScriptExecutor executeBlockOnJavaScriptQueue:^{
-            std::lock_guard<std::mutex> lock(self->_moduleDataMutex);
-            self->_displayLink = nil;
-            [self->_javaScriptExecutor invalidate];
-            self->_javaScriptExecutor = nil;
+            HippyBatchedBridge *strongSelf = weakSelf;
+            if (!strongSelf) {
+                return;
+            }
+            std::lock_guard<std::mutex> lock(strongSelf->_moduleDataMutex);
+            strongSelf->_displayLink = nil;
+            [strongSelf->_javaScriptExecutor invalidate];
+            strongSelf->_javaScriptExecutor = nil;
 
-            self->_moduleDataByName = nil;
-            self->_moduleDataByID = nil;
-            self->_moduleClassesByID = nil;
-            self->_pendingCalls = nil;
+            strongSelf->_moduleDataByName = nil;
+            strongSelf->_moduleDataByID = nil;
+            strongSelf->_moduleClassesByID = nil;
+            strongSelf->_pendingCalls = nil;
 
-            if (self->_flowIDMap != NULL) {
-                CFRelease(self->_flowIDMap);
+            if (strongSelf->_flowIDMap != NULL) {
+                CFRelease(strongSelf->_flowIDMap);
             }
         }];
     });
@@ -885,8 +890,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
  */
 - (void)_immediatelyCallTimer:(NSNumber *)timer {
     HippyAssertJSThread();
+    __weak HippyBatchedBridge *weakSelf = self;
     [_javaScriptExecutor executeAsyncBlockOnJavaScriptQueue:^{
-        [self _actuallyInvokeAndProcessModule:@"JSTimersExecution" method:@"callTimers" arguments:@[@[timer]]];
+        HippyBatchedBridge *strongSelf = weakSelf;
+        if (strongSelf) {
+            [strongSelf _actuallyInvokeAndProcessModule:@"JSTimersExecution" method:@"callTimers" arguments:@[@[timer]]];
+        }
     }];
 }
 
