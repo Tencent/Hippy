@@ -22,7 +22,7 @@ function InlineStyleDemo() {
 
 # 外部样式
 
-当然，为了代码的整洁，我们更加推荐将样式用 [StyleSheet](hippy-react/modules.md?id=stylesheet) 统一管理，类似 HTML 编程指定 DOM 的 Class 后，再统一在 CSS 书写 Class 对应的样式，示例代码如下：
+当然，为了代码的整洁，我们更加推荐将样式用 [StyleSheet](api/hippy-react/modules.md?id=stylesheet) 统一管理，类似 HTML 编程指定 DOM 的 Class 后，再统一在 CSS 书写 Class 对应的样式，示例代码如下：
 
 ```jsx  
 import React from 'react';

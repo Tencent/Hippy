@@ -10,7 +10,7 @@
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
-| [color](style/color.md) | 否  | Android、iOS
+| [color](api/style/color.md) | 否  | Android、iOS
 
 # borderTopColor
 
@@ -18,7 +18,7 @@
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
-| [color](style/color.md) | 否  |  Android、iOS
+| [color](api/style/color.md) | 否  |  Android、iOS
 
 # borderBottomColor
 
@@ -26,7 +26,7 @@
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
-| [color](style/color.md) | 否 | Android、iOS
+| [color](api/style/color.md) | 否 | Android、iOS
 
 # borderLeftColor
 
@@ -34,7 +34,7 @@
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
-| [color](style/color.md) | 否  |  Android、iOS
+| [color](api/style/color.md) | 否  |  Android、iOS
 
 # borderRightColor
 
@@ -42,7 +42,7 @@
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
-| [color](style/color.md) | 否  |  Android、iOS
+| [color](api/style/color.md) | 否  |  Android、iOS
 
 # borderRadius
 
@@ -108,7 +108,7 @@
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
-| [color](style/color.md) | 否   | Android、iOS
+| [color](api/style/color.md) | 否   | Android、iOS
 
 # borderStyle
 
@@ -132,13 +132,13 @@
 
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
-| [color](style/color.md) | 否 | Android、iOS
+| [color](api/style/color.md) | 否 | Android、iOS
 
 # fontFamily
 
 字体名，如 `PingFangSC-Regular`
 
-若需自定义字体，参考 [自定义字体说明](guide/custom-font)
+若需自定义字体，参考 [自定义字体说明](feature/feature2.0/custom-font)
 
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
@@ -210,7 +210,7 @@
 
 | 类型   | 必需 | 平台 |
 | ------ | -------- | --------|
-| [color](style/color.md)  | 否 | iOS |
+| [color](api/style/color.md)  | 否 | iOS |
 
 # textDecorationLine
 
@@ -248,7 +248,7 @@
 
 | 类型   | 必需 | 平台 | 
 | ------ | -------- | --------|
-| [color](style/color.md)  | 否 | Android、iOS |
+| [color](api/style/color.md)  | 否 | Android、iOS |
 
 # textShadowOffset
 
@@ -318,7 +318,7 @@
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
-| [color](style/color.md) | 否  |  Android、iOS
+| [color](api/style/color.md) | 否  |  Android、iOS
 
 # visibility
 
