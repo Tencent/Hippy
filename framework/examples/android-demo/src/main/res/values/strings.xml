@@ -4,10 +4,15 @@
   <string name="driver_js_vue2">Js Vue2.0</string>
   <string name="driver_js_vue3">Js Vue3.0</string>
   <string name="driver_js_vl">VL</string>
+  <string name="react">React</string>
+  <string name="vue2">Vue2.0</string>
+  <string name="vue3">Vue3.0</string>
   <string name="renderer_native">Native</string>
   <string name="renderer_tdf_core">TDF Core</string>
   <string name="renderer_flutter">Flutter</string>
   <string name="setting_not_available">Coming soon</string>
   <string name="page_configuration_navigation_title">Page setting</string>
   <string name="page_configuration_navigation_title_demo">Demo</string>
+  <string name="page_add_item_tips_text">添加页</string>
+  <string name="unknown_text">unknown</string>
 </resources>
