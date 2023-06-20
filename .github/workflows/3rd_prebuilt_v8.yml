@@ -268,7 +268,7 @@ jobs:
       uses: KyleMayes/install-llvm-action@v1
       with:
         version: "15.0.1"
-        directory:  ${{ echo %cd:~0,1% }}:\llvm
+        directory:  "./llvm"
     - name: Checkout v8
       run: |
         $env:DEPOT_TOOLS_WIN_TOOLCHAIN = 0
@@ -282,8 +282,8 @@ jobs:
       run: |
         $env:DEPOT_TOOLS_WIN_TOOLCHAIN = 0
         $env:Path += ";C:\depot_tools"
-        ${{ echo %cd:~0,1% }}:\llvm\bin\clang.exe --version
-        gn gen out --args="target_cpu=""""""${{ matrix.arch }}"""""" v8_target_cpu=""""""${{ matrix.arch }}"""""" is_component_build=false v8_monolithic=true use_custom_libcxx=false chrome_pgo_phase=0 ${{ github.event.inputs.build_type == 'release' && 'is_debug=false is_official_build=true clang_use_chrome_plugins=false clang_base_path=""""${{ echo %cd:~0,1% }}:/llvm""""'  || 'is_debug=true enable_iterator_debugging=true' }} ${{ github.event.inputs.build_args }}"
+        $env:LLVM_PATH\bin\clang.exe --version
+        gn gen out --args="target_cpu=""""""${{ matrix.arch }}"""""" v8_target_cpu=""""""${{ matrix.arch }}"""""" is_component_build=false v8_monolithic=true use_custom_libcxx=false chrome_pgo_phase=0 ${{ github.event.inputs.build_type == 'release' && 'is_debug=false is_official_build=true clang_use_chrome_plugins=false clang_base_path=""""${{ env:LLVM_PATH }}""""'  || 'is_debug=true enable_iterator_debugging=true' }} ${{ github.event.inputs.build_args }}"
         type out/args.gn
         echo %cd%
     - name: Compile ${{ matrix.arch }}
