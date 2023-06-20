@@ -286,7 +286,7 @@ jobs:
         $llvmPath = $($env:GITHUB_WORKSPACE + "\llvm")
         & $($llvmPath + "\bin\clang.exe") --version
         echo $llvmPath
-        gn gen out --args="target_cpu=""""""${{ matrix.arch }}"""""" v8_target_cpu=""""""${{ matrix.arch }}"""""" is_component_build=false v8_monolithic=true use_custom_libcxx=false chrome_pgo_phase=0 ${{ github.event.inputs.build_type == 'release' && 'is_debug=false is_official_build=true clang_use_chrome_plugins=false clang_base_path=""""${{ llvmPath }}""""'  || 'is_debug=true enable_iterator_debugging=true' }} ${{ github.event.inputs.build_args }}"
+        gn gen out --args="target_cpu=""""""${{ matrix.arch }}"""""" v8_target_cpu=""""""${{ matrix.arch }}"""""" is_component_build=false v8_monolithic=true use_custom_libcxx=false chrome_pgo_phase=0 ${{ github.event.inputs.build_type == 'release' && 'is_debug=false is_official_build=true clang_use_chrome_plugins=false clang_base_path=""""$llvmPath""""'  || 'is_debug=true enable_iterator_debugging=true' }} ${{ github.event.inputs.build_args }}"
         type out/args.gn
     - name: Compile ${{ matrix.arch }}
       working-directory: ./v8
