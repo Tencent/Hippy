@@ -29,9 +29,15 @@ abstract class VoltronExceptionHandlerAdapter {
 }
 
 class DefaultExceptionHandlerAdapter implements VoltronExceptionHandlerAdapter {
-  void handleJsException(JsError exception) {}
+  void handleJsException(JsError exception) {
+    LogUtils.dBridge(exception.toString());
+  }
 
-  void handleNativeException(Error error, bool haveCaught) {}
+  void handleNativeException(Error error, bool haveCaught) {
+    LogUtils.dBridge('error: ${error.toString()}, haveCaught: $haveCaught');
+  }
 
-  void handleBackgroundTracing(String details) {}
+  void handleBackgroundTracing(String details) {
+    LogUtils.dBridge(details);
+  }
 }

@@ -1,3 +1,7 @@
+## 0.0.20
+
+- optimize js error
+
 ## 0.0.19
 
 - fix layout density error

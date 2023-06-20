@@ -480,7 +480,11 @@ class VoltronBridgeManager implements Destroyable {
     }
   }
 
-  void reportException(String exception, String stackTrace) {}
+  void reportException(String exception, String stackTrace) {
+    LogUtils.dBridge('exception: $exception, stackTrace: $stackTrace');
+
+    _context.handleException(JsError(exception, stackTrace));
+  }
 
   Future<dynamic> initCodeCacheDir() async {
     if (sCodeCacheRootDir == null) {
