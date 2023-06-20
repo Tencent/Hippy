@@ -283,8 +283,8 @@ jobs:
       run: |
         $env:DEPOT_TOOLS_WIN_TOOLCHAIN = 0
         $env:Path += ";C:\depot_tools"
-        ${{ steps.install-clang.outputs.LLVM_SYS }}\bin\clang.exe --version
-        gn gen out --args="target_cpu=""""""${{ matrix.arch }}"""""" v8_target_cpu=""""""${{ matrix.arch }}"""""" is_component_build=false v8_monolithic=true use_custom_libcxx=false chrome_pgo_phase=0 ${{ github.event.inputs.build_type == 'release' && 'is_debug=false is_official_build=true clang_use_chrome_plugins=false clang_base_path=""""${{ env:LLVM_PATH }}""""'  || 'is_debug=true enable_iterator_debugging=true' }} ${{ github.event.inputs.build_args }}"
+        ..\llvm\bin\clang.exe --version
+        gn gen out --args="target_cpu=""""""${{ matrix.arch }}"""""" v8_target_cpu=""""""${{ matrix.arch }}"""""" is_component_build=false v8_monolithic=true use_custom_libcxx=false chrome_pgo_phase=0 ${{ github.event.inputs.build_type == 'release' && 'is_debug=false is_official_build=true clang_use_chrome_plugins=false clang_base_path=""""../llvm/""""'  || 'is_debug=true enable_iterator_debugging=true' }} ${{ github.event.inputs.build_args }}"
         type out/args.gn
         echo %cd%
     - name: Compile ${{ matrix.arch }}
