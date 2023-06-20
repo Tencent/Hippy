@@ -23,7 +23,6 @@ import 'dart:io';
 
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
-import 'package:system_proxy/system_proxy.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
 
 import '../channel.dart' as channel;
@@ -176,9 +175,6 @@ class DefaultHttpAdapter extends VoltronHttpAdapter {
   @override
   Future<VoltronHttpResponse> sendRequest(VoltronHttpRequest request) async {
     var headers = _fillHeader(request);
-    var proxy = await SystemProxy.getProxySettings().catchError((e) {
-      LogUtils.i("HttpAdapter getProxySettings", e.toString());
-    });
     var dio = Dio(
       BaseOptions(
         method: request.method,
@@ -189,19 +185,6 @@ class DefaultHttpAdapter extends VoltronHttpAdapter {
         followRedirects: request.followRedirects,
       ),
     );
-    if (proxy != null && proxy['host'] != null && proxy['port'] != null) {
-      (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
-        // 设置代理
-        client.findProxy = (uri) {
-          return 'PROXY ${proxy['host']}:${proxy['port']}';
-        };
-        // 解决Android https
-        client.badCertificateCallback = (cert, host, port) {
-          return Platform.isAndroid;
-        };
-        return null;
-      };
-    }
     dio.interceptors.add(channel.CookieManager.getInstance());
     var dioResponse = await dio.request(request.url, data: request.body);
     return VoltronHttpResponse(

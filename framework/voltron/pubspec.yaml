@@ -54,7 +54,6 @@ dependencies:
   webview_cookie_manager: ^2.0.6
   cookie_jar: ^3.0.1
   web_socket_channel: ^2.0.0
-  system_proxy: ^0.1.0
   device_info_plus: ^9.0.0
   package_info_plus: ^4.0.0
   intl: ^0.17.0
