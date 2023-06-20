@@ -4,8 +4,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@color/white"
-    android:elevation="3dp"
     >
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -17,6 +15,7 @@
       app:layout_constraintTop_toTopOf="parent"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintRight_toRightOf="parent"
+      android:elevation="3dp"
       >
 
         <ImageView
@@ -49,6 +48,39 @@
               app:layout_constraintRight_toRightOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+      android:id="@+id/page_item_tips_container"
+      android:layout_width="wrap_content"
+      android:layout_height="17dp"
+      android:layout_marginTop="6dp"
+      app:layout_constraintLeft_toLeftOf="@id/page_item_container"
+      app:layout_constraintTop_toBottomOf="@id/page_item_container"
+      app:layout_constraintRight_toRightOf="@id/page_item_container"
+      >
+        <ImageView
+          android:id="@+id/page_item_tips_image"
+          android:layout_width="12dp"
+          android:layout_height="12dp"
+          android:src="@drawable/page_item_add_4x"
+          app:layout_constraintLeft_toLeftOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          app:layout_constraintBottom_toBottomOf="parent" />
+
+        <TextView
+          android:id="@+id/page_item_tips"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="4dp"
+          android:gravity="center"
+          android:text="@string/page_add_item_tips_text"
+          android:textColor="#4A5970"
+          android:textFontWeight="400"
+          android:textSize="12sp"
+          app:layout_constraintLeft_toRightOf="@id/page_item_tips_image"
+          app:layout_constraintTop_toTopOf="parent"
+          app:layout_constraintRight_toRightOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.openhippy.example.PageIndexItem>

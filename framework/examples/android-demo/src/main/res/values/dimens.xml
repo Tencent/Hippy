@@ -5,6 +5,7 @@
     <dimen name="page_item_add_image_width">38dp</dimen>
     <dimen name="page_item_add_image_height">38dp</dimen>
     <dimen name="page_item_default_width">164dp</dimen>
-    <dimen name="page_item_default_height">216dp</dimen>
+    <dimen name="page_item_default_height">239dp</dimen>
+    <dimen name="page_item_attribute_prompt_height">23dp</dimen>
 
 </resources>

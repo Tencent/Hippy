@@ -37,6 +37,8 @@
     "framework/examples/android-demo/res/**",
     "framework/examples/ios-demo/res/**",
     "framework/examples/ios-demo/*.sh",
+    "framework/examples/voltron-demo/flutter_module/assets/**",
+    "framework/examples/voltron-demo/flutter_proj/assets/**",
     "driver/js/examples/static/**",
     "driver/js/examples/hippy-**-demo/**",
     "framework/voltron/example/assets/**",

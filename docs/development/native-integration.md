@@ -545,7 +545,7 @@ ENV['layout_engine'] = 'Yoga'
 <br/>
 <br/>
 
-# Voltron 
+# Voltron/Flutter 
 
 > 注：以下文档都是假设您已经具备一定的 Flutter 开发经验。
 
@@ -559,11 +559,20 @@ ENV['layout_engine'] = 'Yoga'
 
 ## Demo 体验
 
-若想快速体验，可以直接基于我们的 [Voltron Demo](https://github.com/Tencent/Hippy/tree/master/framework/voltron/example) 来开发
+若想快速体验，可以直接基于我们的 `Voltron Demo` 来开发，我们提供以下两种 `Demo`
 
-> 注意使用相应的分支及tag，3.0正式发布前，请使用 [Voltron Demo](https://github.com/Tencent/Hippy/tree/v3.0-dev/framework/voltron/example)
+- 如果您的应用完全通过 `Flutter` 进行开发，可以参考[flutter_proj](https://github.com/Tencent/Hippy/tree/master/framework/example/voltron-demo/flutter_proj)，3.0正式发布前，请使用 [flutter_proj](https://github.com/Tencent/Hippy/tree/v3.0-dev/framework/example/voltron-demo/flutter_proj)
+
+- 如果您希望将 `Voltron` 集成进您的原生 `IOS` 或 `Android` 应用，可以使用 `flutter module` 进行集成
+
+  - `Android` 应用请参考[android-proj](https://github.com/Tencent/Hippy/tree/master/framework/example/voltron-demo/android-proj)，3.0正式发布前，请使用 [flutter_proj](https://github.com/Tencent/Hippy/tree/v3.0-dev/framework/example/voltron-demo/android-proj)
+  - `IOS` 应用请参考[IOSProj](https://github.com/Tencent/Hippy/tree/master/framework/example/voltron-demo/IOSProj)，3.0正式发布前，请使用 [flutter_proj](https://github.com/Tencent/Hippy/tree/v3.0-dev/framework/example/voltron-demo/IOSProj)
+
+> 注意，使用 `flutter_module` 方式进行开发时，原生工程和 `Flutter` 工程在两个目录，上面所提到的 `android-proj` 和 `IOSProj` 均需要配合 [flutter_module](https://github.com/Tencent/Hippy/tree/master/framework/example/voltron-demo/flutter_module)进行使用，3.0正式发布前，请使用 [flutter_proj](https://github.com/Tencent/Hippy/tree/v3.0-dev/framework/example/voltron-demo/flutter_module)
 
 ## 快速接入
+
+### 如果您的应用完全通过 `Flutter` 进行开发
 
 1. 创建一个 Flutter 工程
 
@@ -602,96 +611,18 @@ ENV['layout_engine'] = 'Yoga'
     ```
 
 5. 使用 `Voltron`
-
-    ```dart
-    import 'package:flutter/material.dart';
-    import 'package:voltron/voltron.dart';
     
-    class VoltronPage extends StatefulWidget {
-     VoltronPage();
-    
-     @override
-     State<StatefulWidget> createState() {
-       return _VoltronPageState();
-     }
-    }
-    
-    class _VoltronPageState extends State<VoltronPage> {
-     late VoltronJSLoaderManager _loaderManager;
-     late VoltronJSLoader _jsLoader;
-    
-     @override
-     void initState() {
-       super.initState();
-       _initVoltronData();
-     }
-    
-     void _initVoltronData() async {
-       var initParams = EngineInitParams();
-       initParams.debugMode = false;
-       initParams.enableLog = true;
-       initParams.coreJSAssetsPath = 'assets/jsbundle/vendor.android.js';
-       initParams.codeCacheTag = "common";
-       _loaderManager = VoltronJSLoaderManager.createLoaderManager(
-         initParams,
-         (statusCode, msg) {
-           LogUtils.i(
-             'loadEngine',
-             'code($statusCode), msg($msg)',
-           );
-         },
-       );
-       var loadParams = ModuleLoadParams();
-       loadParams.componentName = "Demo";
-       loadParams.codeCacheTag = "Demo";
-       loadParams.jsAssetsPath = 'assets/jsbundle/index.android.js';
-       loadParams.jsParams = VoltronMap();
-       loadParams.jsParams?.push(
-         "msgFromNative",
-         "Hi js developer, I come from native code!",
-       );
-       _jsLoader = _loaderManager.createLoader(
-         loadParams,
-         moduleListener: (status, msg) {
-           LogUtils.i(
-             "flutterRender",
-             "loadModule status($status), msg ($msg)",
-           );
-         },
-       );
-     }
-    
-     @override
-     void dispose() {
-       super.dispose();
-       _jsLoader.destroy();
-       _loaderManager.destroy();
-     }
-    
-     @override
-     Widget build(BuildContext context) {
-       return WillPopScope(
-         onWillPop: () async {
-           return !(_jsLoader.back(() {
-             Navigator.of(context).pop();
-           }));
-         },
-         child: Scaffold(
-           body: VoltronWidget(
-             loader: _jsLoader,
-           ),
-         ),
-       );
-     }
-    }
-    ```
+    建议参考[flutter_proj](https://github.com/Tencent/Hippy/tree/master/framework/example/voltron-demo/flutter_proj)，3.0正式发布前，请使用 [flutter_proj](https://github.com/Tencent/Hippy/tree/v3.0-dev/framework/example/voltron-demo/flutter_proj)
 
     > Pub 集成方式在 Android 平台默认支持 `arm64-v8a` 和 `armeabi-v7a`，如需支持 `x86` 和 `x86_64`，请使用本地集成，iOS 无影响。
 
     > 需要注意，如果 **debugMode** 为YES的情况下，会忽略所有参数，直接使用 npm 本地服务加载测试 bundle，
-    
-    > 其他使用说明，可直接参考 [Voltron Demo](https://github.com/Tencent/Hippy/tree/master/framework/voltron/example/lib/voltron_demo_page.dart)，3.0正式发布前，请查看 [Voltron Demo](https://github.com/Tencent/Hippy/tree/v3.0-dev/framework/voltron/example/lib/voltron_demo_page.dart)
 
+### 如果您希望将 `Voltron` 集成进您的原生 `IOS` 或 `Android` 应用
+
+1. 使用该方式进行集成时，要首先集成 Flutter Module，该部分可直接参考官网[Add Flutter to an existing app](https://docs.flutter.dev/add-to-app)
+
+2. 后续流程与完全通过 `Flutter` 进行开发保持一致即可。也可直接参考我们的[Demo](#demo-体验-1)工程
 
 # Web同构
 

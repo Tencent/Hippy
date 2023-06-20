@@ -24,6 +24,7 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.ImageView
 import android.widget.ScrollView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.WindowInsetsControllerCompat
@@ -147,6 +148,7 @@ class PageManagement : AppCompatActivity() {
                 layoutParams.topToBottom = it.id
                 layoutParams.topToTop = ConstraintLayout.LayoutParams.UNSET
             }
+            layoutParams.topMargin = 4
         }
         if (column == 0) {
             layoutParams.leftToLeft = scrollerContainer.id
@@ -165,12 +167,23 @@ class PageManagement : AppCompatActivity() {
         (scrollerContainer as ViewGroup).addView(pageItem, layoutParams)
     }
 
+    private fun getDriverText(hippyEngineWrapper: HippyEngineWrapper): CharSequence {
+        return when (hippyEngineWrapper.driverMode) {
+            PageConfiguration.DriverMode.JS_REACT -> resources.getText(R.string.react)
+            PageConfiguration.DriverMode.JS_VUE_2 -> resources.getText(R.string.vue2)
+            PageConfiguration.DriverMode.JS_VUE_3 -> resources.getText(R.string.vue3)
+            PageConfiguration.DriverMode.VL -> resources.getText(R.string.driver_js_vl)
+        }
+    }
+
     private fun initPageItem(hippyEngineWrapper: HippyEngineWrapper?): View {
         val pageItem = layoutInflater.inflate(R.layout.page_index_item, null)
         pageItem.id = pageItemIdCounter.getAndIncrement()
         val pageItemContainer = pageItem.findViewById<View>(R.id.page_item_container)
         val pageItemImage = pageItem.findViewById<ImageView>(R.id.page_item_image)
         val deletePageButton = pageItem.findViewById<View>(R.id.page_item_delete)
+        val pageItemTipsImage = pageItem.findViewById<ImageView>(R.id.page_item_tips_image)
+        val pageItemTips = pageItem.findViewById<TextView>(R.id.page_item_tips)
         if (hippyEngineWrapper == null) {
             deletePageButton.visibility = View.GONE
             pageItemImage.setImageResource(R.drawable.add_page_2x)
@@ -178,6 +191,8 @@ class PageManagement : AppCompatActivity() {
                 it.width = resources.getDimension(R.dimen.page_item_add_image_width).toInt()
                 it.height = resources.getDimension(R.dimen.page_item_add_image_height).toInt()
             }
+            pageItemTips.text = resources.getText(R.string.page_add_item_tips_text)
+            pageItemTipsImage.setImageResource(R.drawable.page_item_add_4x)
         } else {
             hippyEngineWrapper.snapshot?.let {
                 pageItemImage.setImageBitmap(it)
@@ -188,10 +203,16 @@ class PageManagement : AppCompatActivity() {
                 pageCount = HippyEngineHelper.getHippyEngineList().size
                 hippyEngineWrapper.destroy()
             }
+            var tips: String = getDriverText(hippyEngineWrapper) as String
+            if (hippyEngineWrapper.isDebugMode) {
+                tips += " + debug"
+            }
+            pageItemTips.text = tips
+            pageItemTipsImage.setImageResource(R.drawable.page_item_tips_4x)
         }
         pageItemContainer.layoutParams?.let {
             it.width = pageItemWidth
-            it.height = pageItemHeight
+            it.height = pageItemHeight - resources.getDimension(R.dimen.page_item_attribute_prompt_height).toInt()
         }
         pageItemImage.setOnClickListener { v ->
             PageConfiguration.currentEngineId = hippyEngineWrapper?.engineId?: -1
