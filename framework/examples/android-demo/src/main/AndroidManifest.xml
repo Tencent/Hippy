@@ -1,44 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+  xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
+
     <application
-        android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
-        android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@drawable/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/Theme.Hippy"
-        android:usesCleartextTraffic="true"
-        tools:targetApi="31">
+      android:allowBackup="true"
+      android:dataExtractionRules="@xml/data_extraction_rules"
+      android:fullBackupContent="@xml/backup_rules"
+      android:icon="@drawable/ic_launcher"
+      android:label="@string/app_name"
+      android:roundIcon="@drawable/ic_launcher_round"
+      android:supportsRtl="true"
+      android:theme="@style/Theme.Hippy"
+      android:usesCleartextTraffic="true"
+      tools:targetApi="31">
         <activity
-            android:exported="false"
-            android:name=".PageConfiguration"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            android:launchMode="singleInstance">
+          android:name=".PageSetting"
+          android:exported="false"
+          android:launchMode="singleInstance"
+          android:configChanges="orientation|screenSize|keyboardHidden"
+          android:screenOrientation="portrait">
             <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
+              android:name="android.app.lib_name"
+              android:value="" />
         </activity>
         <activity
-            android:exported="false"
-            android:name=".PageManagement"
-            android:screenOrientation="portrait"
-            android:configChanges="orientation|screenSize|keyboardHidden">
+          android:name=".PageConfiguration"
+          android:configChanges="orientation|screenSize|keyboardHidden"
+          android:exported="false"
+          android:launchMode="singleInstance">
             <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
+              android:name="android.app.lib_name"
+              android:value="" />
         </activity>
         <activity
-            android:exported="true"
-            android:name=".MainActivity"
-            android:screenOrientation="portrait"
-            android:configChanges="orientation|screenSize|keyboardHidden">
+          android:name=".PageManagement"
+          android:configChanges="orientation|screenSize|keyboardHidden"
+          android:exported="false"
+
+          >
+            <meta-data
+              android:name="android.app.lib_name"
+              android:value="" />
+        </activity>
+        <activity
+          android:name=".MainActivity"
+          android:configChanges="orientation|screenSize|keyboardHidden"
+          android:exported="true"
+          android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -46,8 +58,8 @@
             </intent-filter>
 
             <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
+              android:name="android.app.lib_name"
+              android:value="" />
         </activity>
     </application>
 

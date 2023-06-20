@@ -102,6 +102,15 @@
       app:layout_constraintLeft_toLeftOf="parent"
       app:layout_constraintTop_toBottomOf="@id/version" />
 
+  <ImageView
+    android:id="@+id/start_prompt"
+    android:layout_width="136dp"
+    android:layout_height="36dp"
+    android:src="@drawable/start_prompt_2x"
+    app:layout_constraintLeft_toLeftOf="@id/page_management_button"
+    app:layout_constraintRight_toRightOf="@id/page_management_button"
+    app:layout_constraintBottom_toTopOf="@id/page_management_button" />
+
   <androidx.constraintlayout.widget.ConstraintLayout
       android:id="@+id/page_management_button"
       android:layout_width="0dp"

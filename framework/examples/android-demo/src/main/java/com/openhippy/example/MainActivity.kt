@@ -24,7 +24,7 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowInsetsControllerCompat
 
-var mainActivityContext: Context? = null
+var appContext: Context? = null
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mainActivityContext = this
+        appContext = applicationContext
         setAppContext(this.applicationContext)
         WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
         activityMainRoot = layoutInflater.inflate(R.layout.activity_main, null)
@@ -51,7 +51,8 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
         settingButton.setOnClickListener { v ->
-
+            val intent = Intent(this, PageSetting::class.java)
+            startActivity(intent)
         }
         pageManagementButton.setOnTouchListener { v, event ->
             when (event.action) {
