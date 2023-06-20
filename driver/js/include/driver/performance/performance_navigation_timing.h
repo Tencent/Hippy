@@ -32,6 +32,12 @@ inline namespace performance {
 
 class PerformanceNavigationTiming : public PerformanceEntry {
  public:
+  struct BundleInfo {
+    string_view url_;
+    TimePoint execute_source_start_;
+    TimePoint execute_source_end_;
+  };
+
   PerformanceNavigationTiming(const string_view& name);
 
 #define DEFINE_SET_AND_GET_METHOD(method_name, member_type, member) \
@@ -41,27 +47,30 @@ class PerformanceNavigationTiming : public PerformanceEntry {
   inline auto Get##method_name() const { \
     return member; \
   }
-  DEFINE_SET_AND_GET_METHOD(HippyInitEngineStart, TimePoint, hippy_init_engine_start_)
-  DEFINE_SET_AND_GET_METHOD(HippyInitEngineEnd, TimePoint, hippy_init_engine_end_)
-  DEFINE_SET_AND_GET_METHOD(HippyJsFrameworkStart, TimePoint, hippy_init_js_framework_start_)
-  DEFINE_SET_AND_GET_METHOD(HippyJsFrameworkEnd, TimePoint, hippy_init_js_framework_end_)
-  DEFINE_SET_AND_GET_METHOD(HippyBridgeStartupStart, TimePoint, hippy_bridge_startup_start_)
-  DEFINE_SET_AND_GET_METHOD(HippyBridgeStartupEnd, TimePoint, hippy_bridge_startup_end_)
+  DEFINE_SET_AND_GET_METHOD(HippyNativeInitStart, TimePoint, hippy_native_init_start_)
+  DEFINE_SET_AND_GET_METHOD(HippyNativeInitEnd, TimePoint, hippy_native_init_end_)
+  DEFINE_SET_AND_GET_METHOD(HippyJsEngineInitStart, TimePoint, hippy_js_engine_init_start_)
+  DEFINE_SET_AND_GET_METHOD(HippyJsEngineInitEnd, TimePoint, hippy_js_engine_init_end_)
   DEFINE_SET_AND_GET_METHOD(HippyRunApplicationStart, TimePoint, hippy_run_application_start_)
   DEFINE_SET_AND_GET_METHOD(HippyRunApplicationEnd, TimePoint, hippy_run_application_end_)
   DEFINE_SET_AND_GET_METHOD(HippyFirstFrameStart, TimePoint, hippy_first_frame_start_)
   DEFINE_SET_AND_GET_METHOD(HippyFirstFrameEnd, TimePoint, hippy_first_frame_end_)
 #undef DEFINE_SET_AND_GET_METHOD
 
+  inline const std::vector<BundleInfo>& GetBundleInfoArray() const {
+    return bundle_info_array_;
+  }
+
+  BundleInfo& BundleInfoOfUrl(const string_view& url);
+
   virtual string_view ToJSON() override;
 
  private:
-  TimePoint hippy_init_engine_start_;
-  TimePoint hippy_init_engine_end_;
-  TimePoint hippy_init_js_framework_start_; // supported by Android only
-  TimePoint hippy_init_js_framework_end_;   // supported by Android only
-  TimePoint hippy_bridge_startup_start_;
-  TimePoint hippy_bridge_startup_end_;
+  TimePoint hippy_native_init_start_;
+  TimePoint hippy_native_init_end_;
+  TimePoint hippy_js_engine_init_start_;
+  TimePoint hippy_js_engine_init_end_;
+  std::vector<BundleInfo> bundle_info_array_;
   TimePoint hippy_run_application_start_;
   TimePoint hippy_run_application_end_;
   TimePoint hippy_first_frame_start_;

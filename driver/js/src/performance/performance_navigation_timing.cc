@@ -21,7 +21,7 @@
  */
 
 #include "driver/performance/performance_navigation_timing.h"
-
+#include "footstone/string_view_utils.h"
 #include <utility>
 
 namespace hippy {
@@ -33,6 +33,21 @@ PerformanceNavigationTiming::PerformanceNavigationTiming(const string_view& name
 
 PerformanceEntry::string_view PerformanceNavigationTiming::ToJSON() {
   return PerformanceEntry::ToJSON();
+}
+
+PerformanceNavigationTiming::BundleInfo& PerformanceNavigationTiming::BundleInfoOfUrl(const string_view& url) {
+  auto u16n = footstone::StringViewUtils::ConvertEncoding(url, string_view::Encoding::Utf16);
+  for (auto& info : bundle_info_array_) {
+    auto u16n2 = footstone::StringViewUtils::ConvertEncoding(info.url_, string_view::Encoding::Utf16);
+    if (u16n2 == u16n) {
+      return info;
+    }
+  }
+
+  PerformanceNavigationTiming::BundleInfo info;
+  info.url_ = url;
+  bundle_info_array_.emplace_back(info);
+  return bundle_info_array_.back();
 }
 
 }

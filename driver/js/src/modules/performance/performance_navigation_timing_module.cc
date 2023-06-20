@@ -32,6 +32,10 @@ namespace hippy {
 inline namespace driver {
 inline namespace module {
 
+constexpr char kBundleInfoUrlKey[] = "url";
+constexpr char kBundleInfoStartKey[] = "executeSourceStart";
+constexpr char kBundleInfoEndKey[] = "executeSourceEnd";
+
 std::shared_ptr<ClassTemplate<PerformanceNavigationTiming>> RegisterPerformanceNavigationTiming(const std::weak_ptr<Scope>& weak_scope) {
   ClassTemplate<PerformanceNavigationTiming> class_template;
   class_template.name = "PerformanceNavigationTiming";
@@ -85,17 +89,41 @@ std::shared_ptr<ClassTemplate<PerformanceNavigationTiming>> RegisterPerformanceN
   }; \
   class_template.properties.push_back(std::move(prop_var));
 
-  ADD_PROPERTY(hippy_init_engine_start, "hippyInitEngineStart", GetHippyInitEngineStart)
-  ADD_PROPERTY(hippy_init_engine_end, "hippyInitEngineEnd", GetHippyInitEngineEnd)
-  ADD_PROPERTY(hippy_init_js_framework_start, "hippyJsFrameworkStart", GetHippyJsFrameworkStart)
-  ADD_PROPERTY(hippy_init_js_framework_end, "hippyJsFrameworkEnd", GetHippyJsFrameworkEnd)
-  ADD_PROPERTY(hippy_bridge_startup_start, "hippyBridgeStartupStart", GetHippyBridgeStartupStart)
-  ADD_PROPERTY(hippy_bridge_startup_end, "hippyBridgeStartupEnd", GetHippyBridgeStartupEnd)
+  ADD_PROPERTY(hippy_native_init_start, "hippyNativeInitStart", GetHippyNativeInitStart)
+  ADD_PROPERTY(hippy_native_init_end, "hippyNativeInitEnd", GetHippyNativeInitEnd)
+  ADD_PROPERTY(hippy_js_engine_init_start, "hippyJsEngineInitStart", GetHippyJsEngineInitStart)
+  ADD_PROPERTY(hippy_js_engine_init_end, "hippyJsEngineInitEnd", GetHippyJsEngineInitEnd)
   ADD_PROPERTY(hippy_run_application_start, "hippyRunApplicationStart", GetHippyRunApplicationStart)
   ADD_PROPERTY(hippy_run_application_end, "hippyRunApplicationEnd", GetHippyRunApplicationEnd)
   ADD_PROPERTY(hippy_first_frame_start, "hippyFirstFrameStart", GetHippyFirstFrameStart)
   ADD_PROPERTY(hippy_first_frame_end, "hippyFirstFrameEnd", GetHippyFirstFrameEnd)
 #undef ADD_PROPERTY
+
+  PropertyDefine<PerformanceNavigationTiming> bundle_info;
+  bundle_info.name = "bundleInfo";
+  bundle_info.getter = [weak_scope](PerformanceNavigationTiming* thiz,
+                                    std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<CtxValue> {
+    auto scope = weak_scope.lock();
+    if (!scope) {
+      return nullptr;
+    }
+    auto context = scope->GetContext();
+    auto bundle_info_array = thiz->GetBundleInfoArray();
+    std::shared_ptr<CtxValue> array[bundle_info_array.size()];
+    for (size_t i = 0; i < bundle_info_array.size(); ++i) {
+      auto& info = bundle_info_array[i];
+      auto object = context->CreateObject();
+      context->SetProperty(object, context->CreateString(kBundleInfoUrlKey),
+                           context->CreateString(info.url_));
+      context->SetProperty(object, context->CreateString(kBundleInfoStartKey),
+                           context->CreateNumber(info.execute_source_start_.ToEpochDelta().ToMillisecondsF()));
+      context->SetProperty(object, context->CreateString(kBundleInfoEndKey),
+                           context->CreateNumber(info.execute_source_end_.ToEpochDelta().ToMillisecondsF()));
+      array[i] = object;
+    }
+    return context->CreateArray(bundle_info_array.size(), array);
+  };
+  class_template.properties.push_back(std::move(bundle_info));
 
   return std::make_shared<ClassTemplate<PerformanceNavigationTiming>>(std::move(class_template));
 }

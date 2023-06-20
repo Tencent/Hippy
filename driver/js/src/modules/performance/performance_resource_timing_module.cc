@@ -101,8 +101,6 @@ std::shared_ptr<ClassTemplate<PerformanceResourceTiming>> RegisterPerformanceRes
 
   ADD_PROPERTY(load_source_start, "loadSourceStart", GetLoadSourceStart)
   ADD_PROPERTY(load_source_end, "loadSourceEnd", GetLoadSourceEnd)
-  ADD_PROPERTY(execute_source_start, "executeSourceStart", GetExecuteSourceStart)
-  ADD_PROPERTY(execute_source_end, "executeSourceEnd", GetExecuteSourceEnd)
 #undef ADD_PROPERTY
 
   return std::make_shared<ClassTemplate<PerformanceResourceTiming>>(std::move(class_template));

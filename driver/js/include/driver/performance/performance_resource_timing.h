@@ -47,8 +47,6 @@ class PerformanceResourceTiming: public PerformanceEntry {
   DEFINE_SET_AND_GET_METHOD(InitiatorType, InitiatorType, initiator_type_)
   DEFINE_SET_AND_GET_METHOD(LoadSourceStart, TimePoint, load_source_start_)
   DEFINE_SET_AND_GET_METHOD(LoadSourceEnd, TimePoint, load_source_end_)
-  DEFINE_SET_AND_GET_METHOD(ExecuteSourceStart, TimePoint, execute_source_start_)
-  DEFINE_SET_AND_GET_METHOD(ExecuteSourceEnd, TimePoint, execute_source_end_)
 #undef DEFINE_SET_AND_GET_METHOD
 
   virtual string_view ToJSON() override;
@@ -59,8 +57,6 @@ class PerformanceResourceTiming: public PerformanceEntry {
   InitiatorType initiator_type_ = InitiatorType::OTHER;
   TimePoint load_source_start_;
   TimePoint load_source_end_;
-  TimePoint execute_source_start_;
-  TimePoint execute_source_end_;
 };
 
 }
