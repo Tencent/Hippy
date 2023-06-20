@@ -153,6 +153,10 @@ jint CreateJsDriver(JNIEnv* j_env,
                       << ", j_is_dev_module = "
                       << static_cast<uint32_t>(j_is_dev_module)
                       << ", j_group_id = " << j_group_id;
+
+  // perfromance start time
+  auto perf_start_time = footstone::TimePoint::SystemNow();
+
   auto global_config = JniUtils::JByteArrayToStrView(j_env, j_global_config);
   auto java_callback = std::make_shared<JavaRef>(j_env, j_callback);
 
@@ -196,10 +200,16 @@ jint CreateJsDriver(JNIEnv* j_env,
   auto dom_task_runner = dom_manager_object->GetTaskRunner();
   auto bridge = std::make_shared<Bridge>(j_env, j_object);
   auto scope_id = hippy::global_data_holder_key.fetch_add(1);
-  auto scope_initialized_callback = [
+  auto scope_initialized_callback = [perf_start_time,
       scope_id, java_callback, bridge, &holder = hippy::global_data_holder](std::shared_ptr<Scope> scope) {
     scope->SetBridge(bridge);
     holder.Insert(scope_id, scope);
+
+    // perfromance end time
+    auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
+    entry->SetHippyJsEngineInitStart(perf_start_time);
+    entry->SetHippyJsEngineInitEnd(footstone::TimePoint::SystemNow());
+
     FOOTSTONE_LOG(INFO) << "run scope cb";
     hippy::bridge::CallJavaMethod(java_callback->GetObj(), INIT_CB_STATE::SUCCESS);
   };

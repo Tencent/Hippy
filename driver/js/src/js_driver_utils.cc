@@ -276,11 +276,6 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
                       << ", code_cache_dir = " << code_cache_dir
                       << ", uri = " << uri
                       << ", is_local_file = " << is_local_file;
-
-  // perfromance start time
-  auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
-  entry->BundleInfoOfUrl(uri).execute_source_start_ = footstone::TimePoint::SystemNow();
-
   string_view code_cache_content;
   uint64_t modify_time = 0;
   std::future<std::string> read_file_future;
@@ -325,6 +320,11 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
                            << ", script content empty, uri = " << uri;
     return false;
   }
+
+  // perfromance start time
+  auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
+  entry->BundleInfoOfUrl(uri).execute_source_start_ = footstone::TimePoint::SystemNow();
+
 #ifdef JS_V8
   auto ret = std::static_pointer_cast<V8Ctx>(scope->GetContext())->RunScript(
       script_content, file_name, is_use_code_cache,&code_cache_content, true);

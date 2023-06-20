@@ -526,6 +526,7 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
     DEFINE_AND_CHECK_SELF(Scope)
     // perfromance start time
     auto entry = self->GetPerformance()->PerformanceNavigation("hippyInit");
+    entry->SetHippyFirstFrameStart(footstone::TimePoint::SystemNow());
     entry->SetHippyRunApplicationStart(footstone::TimePoint::SystemNow());
 
     std::shared_ptr<Ctx> context = weak_context.lock();
@@ -561,7 +562,6 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
 
     // perfromance end time
     entry->SetHippyRunApplicationEnd(footstone::TimePoint::SystemNow());
-    entry->SetHippyFirstFrameStart(footstone::TimePoint::SystemNow());
   };
   auto runner = GetTaskRunner();
   if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
