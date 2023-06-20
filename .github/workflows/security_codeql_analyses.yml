@@ -92,6 +92,7 @@ jobs:
     runs-on: ${{ github.repository == 'Tencent/Hippy' && fromJson('[''self-hosted'', ''linux'', ''codeql'']') || 'ubuntu-latest' }}
     container:
       image: ghcr.io/tencent/android-release:latest
+      options: --user root
     strategy:
       fail-fast: false
       matrix:
