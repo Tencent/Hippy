@@ -466,10 +466,14 @@ class TextEditingControllerProxy {
 
   TextEditingController get _newController => _cacheTextEditingValue != null
       ? TextEditingController.fromValue(_cacheTextEditingValue)
-      : TextEditingController.fromValue(TextEditingValue(
-          text: "",
-          selection: TextSelection.fromPosition(
-              const TextPosition(offset: 0, affinity: TextAffinity.downstream))));
+      : TextEditingController.fromValue(
+          TextEditingValue(
+            text: "",
+            selection: TextSelection.fromPosition(
+              const TextPosition(offset: 0, affinity: TextAffinity.downstream),
+            ),
+          ),
+        );
 
   TextEditingController get realController {
     return controller ??= _newController;
@@ -482,16 +486,19 @@ class TextEditingControllerProxy {
 
   TextEditingValue get value {
     return _cacheTextEditingValue ??= TextEditingValue(
-        text: '',
-        selection: TextSelection.fromPosition(
-            const TextPosition(offset: 0, affinity: TextAffinity.downstream)));
+      text: '',
+      selection: TextSelection.fromPosition(
+        const TextPosition(offset: 0, affinity: TextAffinity.downstream),
+      ),
+    );
   }
 
   TextSelection get selection =>
       controller?.selection ??
       (_cacheTextEditingValue?.selection ??
           TextSelection.fromPosition(
-              const TextPosition(offset: 0, affinity: TextAffinity.downstream)));
+            const TextPosition(offset: 0, affinity: TextAffinity.downstream),
+          ));
 
   String get text {
     var v = controller?.value;

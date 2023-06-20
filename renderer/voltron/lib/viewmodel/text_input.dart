@@ -114,26 +114,21 @@ class TextInputRenderViewModel extends RenderViewModel {
         break;
       case "next":
         returnKeyFlag = TextInputAction.next;
-        // numberOfLine = 1;
         break;
       case "none":
         returnKeyFlag = TextInputAction.none;
         break;
       case "previous":
         returnKeyFlag = TextInputAction.previous;
-        // numberOfLine = 1;
         break;
       case "search":
         returnKeyFlag = TextInputAction.search;
-        // numberOfLine = 1;
         break;
       case "send":
         returnKeyFlag = TextInputAction.send;
-        // numberOfLine = 1;
         break;
       case "done":
         returnKeyFlag = TextInputAction.done;
-        // numberOfLine = 1;
         break;
     }
     textInputAction = returnKeyFlag;
@@ -145,14 +140,11 @@ class TextInputRenderViewModel extends RenderViewModel {
     var flagsToSet = TextInputType.text;
     if (kKeyboardTypeNumeric.toLowerCase() == keyboardType.toLowerCase()) {
       flagsToSet = TextInputType.number;
-    } else if (kKeyboardTypeEmailAddress.toLowerCase() ==
-        keyboardType.toLowerCase()) {
+    } else if (kKeyboardTypeEmailAddress.toLowerCase() == keyboardType.toLowerCase()) {
       flagsToSet = TextInputType.emailAddress;
-    } else if (kKeyboardTypePhonePad.toLowerCase() ==
-        keyboardType.toLowerCase()) {
+    } else if (kKeyboardTypePhonePad.toLowerCase() == keyboardType.toLowerCase()) {
       flagsToSet = TextInputType.phone;
-    } else if (kKeyboardTypePassword.toLowerCase() ==
-        keyboardType.toLowerCase()) {
+    } else if (kKeyboardTypePassword.toLowerCase() == keyboardType.toLowerCase()) {
       flagsToSet = TextInputType.visiblePassword;
       obscureText = true;
     }
@@ -253,8 +245,7 @@ class TextInputRenderViewModel extends RenderViewModel {
     var selectionStart = controller.selection.start;
     var selectionEnd = controller.selection.end;
 
-    LogUtils.d("text_input",
-        "setText: selectionStart:$selectionStart selectionEnd:$selectionEnd");
+    LogUtils.d("text_input", "setText: selectionStart:$selectionStart selectionEnd:$selectionEnd");
     var oldValue = controller.text;
 
     if (value == oldValue) {
@@ -272,27 +263,24 @@ class TextInputRenderViewModel extends RenderViewModel {
         value.startsWith(sub1) &&
         value.endsWith(sub2)) {
       // 未选中状态 && insert
-      var insertStr =
-          value.substring(selectionStart, value.length - sub2.length);
+      var insertStr = value.substring(selectionStart, value.length - sub2.length);
       LogUtils.d("text_input", "setText: InsertStr: [$insertStr]");
       var offset = selectionStart + insertStr.length;
       if (offset > value.length || offset < 0) {
         offset = value.length;
       }
       controller.value = TextEditingValue(
-          text: value,
-          selection: TextSelection.fromPosition(
-            TextPosition(
-              offset: offset,
-              affinity: TextAffinity.downstream,
-            ),
-          ));
-    } else if (selectionStart < selectionEnd &&
-        value.startsWith(sub1) &&
-        value.endsWith(sub2)) {
+        text: value,
+        selection: TextSelection.fromPosition(
+          TextPosition(
+            offset: offset,
+            affinity: TextAffinity.downstream,
+          ),
+        ),
+      );
+    } else if (selectionStart < selectionEnd && value.startsWith(sub1) && value.endsWith(sub2)) {
       // 选中状态 && replace选中部分
-      var replaceStr =
-          value.substring(selectionStart, value.length - sub2.length);
+      var replaceStr = value.substring(selectionStart, value.length - sub2.length);
       LogUtils.d("text_input", "setText: ReplaceStr: [$replaceStr]");
       var offsetStart = selectionStart;
       var offsetEnd = selectionStart + replaceStr.length;
@@ -309,8 +297,7 @@ class TextInputRenderViewModel extends RenderViewModel {
     } else if (selectionStart == selectionEnd &&
         value.length < oldValue.length &&
         value.endsWith(sub2) &&
-        value.startsWith(sub1.substring(
-            0, selectionStart - (oldValue.length - value.length)))) {
+        value.startsWith(sub1.substring(0, selectionStart - (oldValue.length - value.length)))) {
       // 未选中状态 && delete
       var delLen = oldValue.length - value.length;
       var offset = selectionEnd - delLen;
