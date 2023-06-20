@@ -65,10 +65,6 @@ class DevSupportManager {
     return _devImp.createDebugUrl(host, null, _uuid.toString());
   }
 
-  void handleException(JsError error) {
-    _devImp.handleException(error);
-  }
-
   String getDevInstanceUUID() {
     return _uuid;
   }

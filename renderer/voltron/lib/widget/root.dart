@@ -35,8 +35,6 @@ class RootWidgetViewModel extends ChangeNotifier {
 
   static int sIdCounter = 0;
 
-  OnSizeChangedListener? _sizeChangListener;
-
   int _instanceId = 0;
 
   OnResumeAndPauseListener? _onResumeAndPauseListener;
@@ -66,8 +64,6 @@ class RootWidgetViewModel extends ChangeNotifier {
   RenderContext? _context;
 
   TimeMonitor? timeMonitor;
-
-  OnSizeChangedListener? onSizeChangedListener;
 
   OnResumeAndPauseListener? onResumeAndPauseListener;
 
@@ -150,24 +146,6 @@ class RootWidgetViewModel extends ChangeNotifier {
           _timeMonitor.events,
         );
       }
-    }
-  }
-
-  void onSizeChanged(
-    int rootId,
-    double width,
-    double height,
-    double oldWidth,
-    double oldHeight,
-  ) {
-    if (_loadCompleted) {
-      _sizeChangListener?.onSizeChanged(
-        rootId,
-        width,
-        height,
-        oldWidth,
-        oldHeight,
-      );
     }
   }
 
@@ -257,7 +235,8 @@ class VoltronWidget extends StatefulWidget {
 }
 
 // ignore: prefer_mixin
-class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateMixin, WidgetsBindingObserver {
+class _VoltronWidgetState extends State<VoltronWidget>
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   Size? oldSize;
   late RootWidgetViewModel viewModel;
 
@@ -527,7 +506,8 @@ class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateM
     if (!hasDispose) {
       viewModel.onGlobalLayout();
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        final RenderBox? renderBox = viewModel.rootKey.currentContext?.findRenderObject() as RenderBox;
+        final RenderBox? renderBox =
+            viewModel.rootKey.currentContext?.findRenderObject() as RenderBox;
         var newSize = renderBox?.size;
         if (newSize != null) {
           var originOldSize = oldSize;
@@ -568,12 +548,6 @@ typedef ModuleErrorBuilder = Widget Function(
 );
 
 typedef OnLoadCompleteListener = Function(int loadTime, List<EngineMonitorEvent> loadEvents);
-
-mixin OnSizeChangedListener {
-  void onSizeChanged(int rootId, double width, double height, double oldWidth, double oldHeight);
-}
-
-// typedef OnSizeChangedListener = void Function(int rootId, double width, double height, double oldWidth, double oldHeight);
 
 abstract class OnResumeAndPauseListener {
   void onInstanceResume(int id);

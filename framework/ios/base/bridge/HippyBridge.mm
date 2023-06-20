@@ -820,14 +820,9 @@ dispatch_queue_t HippyBridgeQueue() {
     _javaScriptExecutor = nil;
     _moduleSetup = nil;
     self.moduleSemaphore = nil;
-    __weak __typeof(self) weakSelf = self;
     dispatch_group_notify(group, dispatch_get_main_queue(), ^{
         [jsExecutor executeBlockOnJavaScriptQueue:^{
             @autoreleasepool {
-                __strong HippyBridge *strongSelf = weakSelf;
-                if (!strongSelf) {
-                    return;
-                }
                 [displayLink invalidate];
                 [jsExecutor invalidate];
                 [moduleSetup invalidate];
