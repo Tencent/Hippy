@@ -54,7 +54,7 @@ fun getScreenOrientation() : Int {
 }
 
 fun getPageIndexItemWidth() : Int {
-    val margin = mainActivityContext?.resources?.getDimension(R.dimen.page_index_item_margin)
+    val margin = appContext?.resources?.getDimension(R.dimen.page_index_item_margin)
     margin?.let {
         val width = (getScreenWidth() - margin*3)/2
         return width.toInt()

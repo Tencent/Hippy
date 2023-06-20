@@ -6,7 +6,7 @@ Hippy 开发的时候，前端 JS 经常需要访问一些双端（Android 和 i
 
 但如果涉及到平台相关，依然需要分平台桥接。
 
-目前 Hippy 里的[定时器](../guide/timer.md)和[日志](../guide/console.md)模块都是使用 Core 实现。
+目前 Hippy 里的[定时器](api/timer.md)和[日志](feature/feature2.0/console.md)模块都是使用 Core 实现。
 
 ![Core 架构对比](../assets/img/hippy-core.png)
 

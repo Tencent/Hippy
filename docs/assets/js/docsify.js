@@ -8501,16 +8501,16 @@
     if (!el) {
       return;
     }
+    el.setAttribute('href', 'https://openhippy.com');
+    // if (isPrimitive(vm.config.nameLink)) {
+    //   el.setAttribute('href', nameLink);
+    // } else if (typeof nameLink === 'object') {
+    //   var match = Object.keys(nameLink).filter(
+    //     function (key) { return path.indexOf(key) > -1; }
+    //   )[0];
 
-    if (isPrimitive(vm.config.nameLink)) {
-      el.setAttribute('href', nameLink);
-    } else if (typeof nameLink === 'object') {
-      var match = Object.keys(nameLink).filter(
-        function (key) { return path.indexOf(key) > -1; }
-      )[0];
-
-      el.setAttribute('href', nameLink[match]);
-    }
+    //   el.setAttribute('href', nameLink[match]);
+    // }
   }
 
   /** @typedef {import('../Docsify').Constructor} Constructor */

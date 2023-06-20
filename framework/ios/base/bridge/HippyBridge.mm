@@ -484,9 +484,11 @@ dispatch_queue_t HippyBridgeQueue() {
     }
     __weak HippyBridge *weakSelf = self;
     [self.javaScriptExecutor executeBlockOnJavaScriptQueue:^{
-        HippyBridge *strongSelf = weakSelf;
-        if (!strongSelf || ![strongSelf isValid]) {
-            [strongSelf.javaScriptExecutor invalidate];
+        @autoreleasepool {
+            HippyBridge *strongSelf = weakSelf;
+            if (!strongSelf || ![strongSelf isValid]) {
+                [strongSelf.javaScriptExecutor invalidate];
+            }
         }
     }];
     NSDictionary *userInfo = @{@"bridge": self, @"error": error, @"sourceURL": sourceURL};
@@ -572,7 +574,9 @@ dispatch_queue_t HippyBridgeQueue() {
     for (HippyModuleData *moduleData in moduleDataByID) {
         if (moduleData.hasInstance && moduleData.implementsPartialBatchDidFlush) {
             [self dispatchBlock:^{
-                [moduleData.instance partialBatchDidFlush];
+                @autoreleasepool {
+                    [moduleData.instance partialBatchDidFlush];
+                }
             } queue:moduleData.methodQueue];
         }
     }
@@ -583,7 +587,9 @@ dispatch_queue_t HippyBridgeQueue() {
     for (HippyModuleData *moduleData in moduleDataByID) {
         if (moduleData.hasInstance && moduleData.implementsBatchDidComplete) {
             [self dispatchBlock:^{
-                [moduleData.instance batchDidComplete];
+                @autoreleasepool {
+                    [moduleData.instance batchDidComplete];
+                }
             } queue:moduleData.methodQueue];
         }
     }
@@ -633,12 +639,12 @@ dispatch_queue_t HippyBridgeQueue() {
         for (dispatch_queue_t queue in buckets) {
             __weak id weakSelf = self;
             dispatch_block_t block = ^{
-                id strongSelf = weakSelf;
-                if (!strongSelf) {
-                    return;
-                }
-                NSOrderedSet *calls = [buckets objectForKey:queue];
                 @autoreleasepool {
+                    id strongSelf = weakSelf;
+                    if (!strongSelf) {
+                        return;
+                    }
+                    NSOrderedSet *calls = [buckets objectForKey:queue];
                     for (NSNumber *indexObj in calls) {
                         NSUInteger index = indexObj.unsignedIntegerValue;
                         [strongSelf callNativeModule:[moduleIDs[index] integerValue]
@@ -815,7 +821,9 @@ dispatch_queue_t HippyBridgeQueue() {
         if ([instance respondsToSelector:@selector(invalidate)]) {
             dispatch_group_enter(group);
             [self dispatchBlock:^{
-                [(id<HPInvalidating>)instance invalidate];
+                @autoreleasepool {
+                    [(id<HPInvalidating>)instance invalidate];
+                }
                 dispatch_group_leave(group);
             } queue:moduleData.methodQueue];
         }
@@ -830,9 +838,11 @@ dispatch_queue_t HippyBridgeQueue() {
     self.moduleSemaphore = nil;
     dispatch_group_notify(group, dispatch_get_main_queue(), ^{
         [jsExecutor executeBlockOnJavaScriptQueue:^{
-            [displayLink invalidate];
-            [jsExecutor invalidate];
-            [moduleSetup invalidate];
+            @autoreleasepool {
+                [displayLink invalidate];
+                [jsExecutor invalidate];
+                [moduleSetup invalidate];
+            }
         }];
     });
 }
@@ -919,8 +929,12 @@ dispatch_queue_t HippyBridgeQueue() {
 }
 
 - (void)immediatelyCallTimer:(NSNumber *)timer {
+    __weak HippyBridge *weakSelf = self;
     [_javaScriptExecutor executeAsyncBlockOnJavaScriptQueue:^{
-        [self actuallyInvokeAndProcessModule:@"JSTimersExecution" method:@"callTimers" arguments:@[@[timer]]];
+        HippyBridge *strongSelf = weakSelf;
+        if (strongSelf) {
+            [strongSelf actuallyInvokeAndProcessModule:@"JSTimersExecution" method:@"callTimers" arguments:@[@[timer]]];
+        }
     }];
 }
 

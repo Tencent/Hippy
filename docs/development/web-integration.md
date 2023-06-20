@@ -5,7 +5,7 @@ Hippy 同时支持 React 和 Vue 两种 UI 框架，通过 [@hippy/react](//www.
 
 # hippy-react
 
-[[hippy-react 介绍]](hippy-react/introduction.md) [[范例工程]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo)
+[[hippy-react 介绍]](api/hippy-react/introduction.md) [[范例工程]](https://github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo)
 
 hippy-react 工程暂时只能通过手工配置初始化，建议直接 clone 范例工程并基于它进行修改。
 
@@ -129,11 +129,11 @@ export default function app() {
 
 ## hippy-react 转 Web
 
-请参考专门的 [hippy-react 转 Web 章节](hippy-react/web.md)。
+请参考专门的 [hippy-react 转 Web 章节](api/hippy-react/web.md)。
 
 # hippy-vue
 
-[[hippy-vue 介绍]](hippy-vue/introduction.md) [[范例工程]](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)
+[[hippy-vue 介绍]](api/hippy-vue/introduction.md) [[范例工程]](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)
 
 hippy-vue 相对简单很多，hippy-vue 只是 [Vue](//vuejs.org) 在终端上的渲染层，组件也基本和浏览器保持一致。可以通过 [vue-cli](//cli.vuejs.org/) 先[创建一个 Web 项目](//cli.vuejs.org/zh/guide/creating-a-project.html)，然后加上一些 hippy-vue 的内容就可以直接将网页渲染到终端了。
 
@@ -294,5 +294,5 @@ setApp(app);
 
 ## 路由
 
-`@hippy/vue-router` 完整支持 vue-router 中的跳转功能，具体请参考 [hippy-vue-router](hippy-vue/router.md) 文档。
+`@hippy/vue-router` 完整支持 vue-router 中的跳转功能，具体请参考 [hippy-vue-router](api/hippy-vue/router.md) 文档。
 

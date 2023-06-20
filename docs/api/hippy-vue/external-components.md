@@ -23,7 +23,7 @@
 
 * actions 详解
   
-  和 HippyReact 不同，HippyVue 将单个动画 Animation 和动画序列 AnimationSet 合二为一，如果是一个对象，就使用 Animation 处理，如果是数组动画序列就用 AnimationSet 处理。动画参数具体可参考 [HippyReact Animation 模块](../hippy-react/modules.md?id=animation) 和 [范例](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/native-demos/animations)。
+  和 HippyReact 不同，HippyVue 将单个动画 Animation 和动画序列 AnimationSet 合二为一，如果是一个对象，就使用 Animation 处理，如果是数组动画序列就用 AnimationSet 处理。动画参数具体可参考 [HippyReact Animation 模块](api/hippy-react/modules.md?id=animation) 和 [范例](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/native-demos/animations)。
 
 
 ```vue
@@ -105,7 +105,7 @@ export default {
   > 
   > * 设置 `actions` 对 `backgroundColor` 进行修饰
   > * 设置 `valueType` 为 `color`
-  > * 设置 `startValue` 和 `toValue` 为 [color值](style/color.md)
+  > * 设置 `startValue` 和 `toValue` 为 [color值](api/style/color.md)
 
   > `2.12.2` 及以上版本支持循环播放参数 `repeatCount: 'loop'` 写法，低版本请使用 `repeatCount: -1`
 
@@ -318,4 +318,4 @@ export default {
 | 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
 | type            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。 | `number`              | `Android、iOS、Voltron`    |
-| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官文](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS、Voltron`    |
+| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官网](//vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS、Voltron`    |

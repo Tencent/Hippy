@@ -39,20 +39,22 @@ class HippyEngineWrapper {
     var devButton: View? = null
     var snapshot: Bitmap? = null
     var pageItem: View? = null
+    var isDebugMode: Boolean = false
     val driverMode: PageConfiguration.DriverMode
     val renderMode: PageConfiguration.RenderMode
     val engineId: Int
 
     constructor(dm: PageConfiguration.DriverMode,
                 rm: PageConfiguration.RenderMode,
-                isDebugMode: Boolean,
+                isDebug: Boolean,
                 debugServerHost: String) {
         driverMode = dm
         renderMode = rm
+        isDebugMode = isDebug
         val initParams = EngineInitParams()
         initParams.context = applicationContext
         initParams.debugServerHost = debugServerHost
-        initParams.debugMode = isDebugMode
+        initParams.debugMode = isDebug
         initParams.enableLog = true
         initParams.logAdapter = DefaultLogAdapter()
         when(driverMode) {

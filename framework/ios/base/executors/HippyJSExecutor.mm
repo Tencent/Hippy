@@ -258,17 +258,19 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     if (directory) {
         __weak HippyJSExecutor *weakSelf = self;
         [self executeBlockOnJavaScriptQueue:^{
-            HippyJSExecutor *strongSelf = weakSelf;
-            if (!strongSelf) {
-                return;
+            @autoreleasepool {
+                HippyJSExecutor *strongSelf = weakSelf;
+                if (!strongSelf) {
+                    return;
+                }
+                HPAssert(strongSelf.pScope, @"scope must not be null");
+                HPAssert(strongSelf.pScope->GetContext(), @"context must not be null");
+                auto context = strongSelf.pScope->GetContext();
+                auto global_object = context->GetGlobalObject();
+                auto key = context->CreateString("__HIPPYCURDIR__");
+                auto value = context->CreateString(NSStringToU8StringView(directory));
+                context->SetProperty(global_object, key, value);
             }
-            HPAssert(strongSelf.pScope, @"scope must not be null");
-            HPAssert(strongSelf.pScope->GetContext(), @"context must not be null");
-            auto context = strongSelf.pScope->GetContext();
-            auto global_object = context->GetGlobalObject();
-            auto key = context->CreateString("__HIPPYCURDIR__");
-            auto value = context->CreateString(NSStringToU8StringView(directory));
-            context->SetProperty(global_object, key, value);
         }];
     }
 }
@@ -369,16 +371,18 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     }
     WeakCtxPtr weak_ctx = self.pScope->GetContext();
     [self executeBlockOnJavaScriptQueue:^{
-        SharedCtxPtr context = weak_ctx.lock();
-        if (!context) {
-            return;
-        }
-        auto tryCatch = hippy::napi::CreateTryCatchScope(true, context);
-        auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(self.pScope->GetContext());
-        NSString *finalName = [NSString stringWithFormat:@"HippyContext: %@", contextName];
-        jsc_context->SetName((__bridge CFStringRef)finalName);
-        if (tryCatch->HasCaught()) {
-            HPLogWarn(@"set context throw exception");
+        @autoreleasepool {
+            SharedCtxPtr context = weak_ctx.lock();
+            if (!context) {
+                return;
+            }
+            auto tryCatch = hippy::napi::CreateTryCatchScope(true, context);
+            auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(context);
+            NSString *finalName = [NSString stringWithFormat:@"HippyContext: %@", contextName];
+            jsc_context->SetName((__bridge CFStringRef)finalName);
+            if (tryCatch->HasCaught()) {
+                HPLogWarn(@"set context throw exception");
+            }
         }
     }];
 #endif //JS_JSC
@@ -391,13 +395,15 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     if (@available(iOS 16.4, *)) {
         WeakCtxPtr weak_ctx = self.pScope->GetContext();
         [self executeBlockOnJavaScriptQueue:^{
-            SharedCtxPtr context = weak_ctx.lock();
-            if (!context) {
-                return;
+            @autoreleasepool {
+                SharedCtxPtr context = weak_ctx.lock();
+                if (!context) {
+                    return;
+                }
+                auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(context);
+                JSGlobalContextRef contextRef = jsc_context->context_;
+                JSGlobalContextSetInspectable(contextRef, inspectable);
             }
-            auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(self.pScope->GetContext());
-            JSGlobalContextRef contextRef = jsc_context->context_;
-            JSGlobalContextSetInspectable(contextRef, inspectable);
         }];
     }
 #endif //defined(__IPHONE_16_4) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_16_4
@@ -519,6 +525,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 - (void)executeApplicationScript:(NSData *)script sourceURL:(NSURL *)sourceURL onComplete:(HippyJavaScriptCallback)onComplete {
     HPAssertParam(script);
     HPAssertParam(sourceURL);
+<<<<<<< HEAD
     auto entry = self.pScope->GetPerformance()->PerformanceResource(NSStringToU16StringView([sourceURL absoluteString]));
     entry->SetExecuteSourceStart(footstone::TimePoint::Now());
     [self executeBlockOnJavaScriptQueue:^{
@@ -532,6 +539,23 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
         id result = executeApplicationScript(script, sourceURL, self.pScope->GetContext(), &error);
         if (onComplete) {
             onComplete(result, error);
+=======
+    // HippyProfileBeginFlowEvent();
+    __weak HippyJSExecutor* weakSelf = self;
+    [self executeBlockOnJavaScriptQueue:^{
+        // HippyProfileEndFlowEvent();
+        @autoreleasepool {
+            HippyJSExecutor *strongSelf = weakSelf;
+            if (!strongSelf || !strongSelf.isValid) {
+                onComplete(nil, HPErrorWithMessageAndModuleName(@"jsexecutor is not invalid", strongSelf.bridge.moduleName));
+                return;
+            }
+            NSError *error = nil;
+            id result = executeApplicationScript(script, sourceURL, strongSelf->_performanceLogger, strongSelf.pScope->GetContext(), &error);
+            if (onComplete) {
+                onComplete(result, error);
+            }
+>>>>>>> v3.0-dev
         }
     }];
 }
@@ -611,27 +635,29 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Share
 
     __weak HippyJSExecutor *weakSelf = self;
     [self executeBlockOnJavaScriptQueue:^{
-        HippyJSExecutor *strongSelf = weakSelf;
-        if (!strongSelf || !strongSelf.isValid) {
-            return;
-        }
-        string_view json_view = NSStringToU8StringView(script);
-        string_view name_view = NSStringToU8StringView(objectName);
-        auto context = strongSelf.pScope->GetContext();
-        auto tryCatch = hippy::napi::CreateTryCatchScope(true, context);
-        auto global_object = context->GetGlobalObject();
-        auto name_key = context->CreateString(name_view);
-        auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:self.enginekey];
-        auto json_value = engine->GetEngine()->GetVM()->ParseJson(context, json_view);
-        context->SetProperty(global_object, name_key, json_value);
-        if (tryCatch->HasCaught()) {
-            string_view errorMsg = tryCatch->GetExceptionMessage();
-            NSError *error = [NSError errorWithDomain:HPErrorDomain code:2 userInfo:@{
-                NSLocalizedDescriptionKey: StringViewToNSString(errorMsg)}];
-            onComplete(@(NO), error);
-        }
-        else {
-            onComplete(@(YES), nil);
+        @autoreleasepool {
+            HippyJSExecutor *strongSelf = weakSelf;
+            if (!strongSelf || !strongSelf.isValid) {
+                return;
+            }
+            string_view json_view = NSStringToU8StringView(script);
+            string_view name_view = NSStringToU8StringView(objectName);
+            auto context = strongSelf.pScope->GetContext();
+            auto tryCatch = hippy::napi::CreateTryCatchScope(true, context);
+            auto global_object = context->GetGlobalObject();
+            auto name_key = context->CreateString(name_view);
+            auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:strongSelf.enginekey];
+            auto json_value = engine->GetEngine()->GetVM()->ParseJson(context, json_view);
+            context->SetProperty(global_object, name_key, json_value);
+            if (tryCatch->HasCaught()) {
+                string_view errorMsg = tryCatch->GetExceptionMessage();
+                NSError *error = [NSError errorWithDomain:HPErrorDomain code:2 userInfo:@{
+                    NSLocalizedDescriptionKey: StringViewToNSString(errorMsg)}];
+                onComplete(@(NO), error);
+            }
+            else {
+                onComplete(@(YES), nil);
+            }
         }
     }];
 }

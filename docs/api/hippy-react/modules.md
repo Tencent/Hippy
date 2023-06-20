@@ -22,8 +22,8 @@
 | ---------------- | ------------------ | ---- | ------ | ------------------------------------------------------------------------------------------------------------------------- |
 | mode             | `string`           | 是   | timing | 动画时间轴模式，当前仅支持 `timing` 模式，即随时间改变控件的属性，默认配置即为 `timing`                                                                                                         |
 | delay            | `number`           | 是   | -      | 动画延迟开始的时间，单位为毫秒，默认为 0，即动画 start 之后立即执行 |
-| startValue       | `number`, `string`,  [color](style/color.md) | 是   | -      | 动画开始时的值，可为 Number 类型、String 类型，颜色值 [color](style/color.md) 类型                                  |
-| toValue          | `number`, `string`,  [color](style/color.md) | 是   | -      | 动画结束时候的值；如果为颜色值参考 [color](style/color.md)                                                                |
+| startValue       | `number`, `string`,  [color](api/style/color.md) | 是   | -      | 动画开始时的值，可为 Number 类型、String 类型，颜色值 [color](api/style/color.md) 类型                                  |
+| toValue          | `number`, `string`,  [color](api/style/color.md) | 是   | -      | 动画结束时候的值；如果为颜色值参考 [color](api/style/color.md)                                                                |
 | valueType\*      | `enum(undefined,rad,deg,color)` | 否   | undefined `(rotate 动画默认单位为 rad)`  | 动画的开始和结束值的类型，默认为空，代表动画起止的单位是普通数值。 PS: Web 平台此接口只支持 number 类型传参            |
 | duration         | `number`           | 否   | 0     | 动画时长，单位为毫秒(ms)                                                                                                  |
 | timingFunction\* | `string`    | 否   | linear | 动画插值器类型, 支持 `linear`，`ease-in`， `ease-out`，`ease-in-out`，`cubic-bezier`                                                                                                       |
@@ -348,7 +348,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 主要包含了网络相关的模块，目前主要是操作 Cookie。
 
-普通的网络请求请参考: [起步 - 网络请求](guide/network-request.md)
+普通的网络请求请参考: [起步 - 网络请求](api/network-request.md)
 
 `hippy-react-web` 获取 cookie 和 设置 cookie 有域名限制，具体参考 https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#define_where_cookies_are_sent
 
@@ -468,7 +468,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 `(ref, callback: Function) => Promise`
 
-> - callback: ({ x, y, width, height } | string | -1) => void - 回调函数, 参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错或者 [节点被优化（仅在Android）](style/layout?id=collapsable)可能返回 -1 或者 `this view is null` 字符串
+> - callback: ({ x, y, width, height } | string | -1) => void - 回调函数, 参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错或者 [节点被优化（仅在Android）](api/style/layout?id=collapsable)可能返回 -1 或者 `this view is null` 字符串
 
 ### UIManagerModule.getBoundingClientRect
 
@@ -482,4 +482,4 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 > - instance: 元素或组件的引用 Ref。
 > - options: 可选参数，`relToContainer` 表示是否相对宿主容器（RootView）进行测量，默认 `false` 相对 App 窗口或屏幕进行测量。当对宿主容器（RootView）进行测量时，`iOS` 包含顶部状态栏高度，`Android` 不包含。
-> - DOMRect: 与 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Element/getBoundingClientRect) 一致的返回参数, 可以获取元素相应的位置信息和尺寸，如果出错或者 [节点被优化（仅在Android）](style/layout?id=collapsable)，会触发 `Promise.reject`。
+> - DOMRect: 与 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Element/getBoundingClientRect) 一致的返回参数, 可以获取元素相应的位置信息和尺寸，如果出错或者 [节点被优化（仅在Android）](api/style/layout?id=collapsable)，会触发 `Promise.reject`。
