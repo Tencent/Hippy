@@ -84,7 +84,7 @@ void UriLoader::RequestUntrustedContent(const string_view& uri,
 
 void UriLoader::RequestUntrustedContent(const std::shared_ptr<RequestJob>& request, std::shared_ptr<JobResponse> response) {
   // performance start time
-  auto start_time = TimePoint::Now();
+  auto start_time = TimePoint::SystemNow();
 
   auto uri = request->GetUri();
   auto scheme = GetScheme(uri);
@@ -110,14 +110,14 @@ void UriLoader::RequestUntrustedContent(const std::shared_ptr<RequestJob>& reque
   (*cur_it)->RequestUntrustedContent(request, std::move(response), next);
 
   // performance end time
-  auto end_time = TimePoint::Now();
+  auto end_time = TimePoint::SystemNow();
   DoRequestTimePerformanceCallback(request->GetUri(), start_time, end_time);
 }
 
 void UriLoader::RequestUntrustedContent(const std::shared_ptr<RequestJob>& request,
                                         const std::function<void(std::shared_ptr<JobResponse>)>& cb) {
   // performance start time
-  auto start_time = TimePoint::Now();
+  auto start_time = TimePoint::SystemNow();
 
   auto uri = request->GetUri();
   auto scheme = GetScheme(uri);
@@ -153,7 +153,7 @@ void UriLoader::RequestUntrustedContent(const std::shared_ptr<RequestJob>& reque
     }
 
     // performance end time
-    auto end_time = TimePoint::Now();
+    auto end_time = TimePoint::SystemNow();
     self->DoRequestTimePerformanceCallback(request->GetUri(), start_time, end_time);
 
     orig_cb(response);

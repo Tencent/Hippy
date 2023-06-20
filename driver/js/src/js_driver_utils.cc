@@ -279,7 +279,7 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
 
   // perfromance start time
   auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
-  entry->BundleInfoOfUrl(uri).execute_source_start_ = footstone::TimePoint::Now();
+  entry->BundleInfoOfUrl(uri).execute_source_start_ = footstone::TimePoint::SystemNow();
 
   string_view code_cache_content;
   uint64_t modify_time = 0;
@@ -363,7 +363,7 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
 #endif
 
   // perfromance end time
-  entry->BundleInfoOfUrl(uri).execute_source_end_ = footstone::TimePoint::Now();
+  entry->BundleInfoOfUrl(uri).execute_source_end_ = footstone::TimePoint::SystemNow();
 
   auto flag = (ret != nullptr);
   FOOTSTONE_LOG(INFO) << "runScript end, flag = " << flag;

@@ -489,7 +489,7 @@ void Scope::RunJS(const string_view& data,
     DEFINE_AND_CHECK_SELF(Scope)
     // perfromance start time
     auto entry = self->GetPerformance()->PerformanceNavigation("hippyInit");
-    entry->BundleInfoOfUrl(uri).execute_source_start_ = footstone::TimePoint::Now();
+    entry->BundleInfoOfUrl(uri).execute_source_start_ = footstone::TimePoint::SystemNow();
 
 #ifdef JS_V8
     auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
@@ -504,7 +504,7 @@ void Scope::RunJS(const string_view& data,
 #endif
 
     // perfromance end time
-    entry->BundleInfoOfUrl(uri).execute_source_end_ = footstone::TimePoint::Now();
+    entry->BundleInfoOfUrl(uri).execute_source_end_ = footstone::TimePoint::SystemNow();
   };
 
   auto runner = GetTaskRunner();
@@ -526,7 +526,7 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
     DEFINE_AND_CHECK_SELF(Scope)
     // perfromance start time
     auto entry = self->GetPerformance()->PerformanceNavigation("hippyInit");
-    entry->SetHippyRunApplicationStart(footstone::TimePoint::Now());
+    entry->SetHippyRunApplicationStart(footstone::TimePoint::SystemNow());
 
     std::shared_ptr<Ctx> context = weak_context.lock();
     if (context) {
@@ -560,8 +560,8 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
     }
 
     // perfromance end time
-    entry->SetHippyRunApplicationEnd(footstone::TimePoint::Now());
-    entry->SetHippyFirstFrameStart(footstone::TimePoint::Now());
+    entry->SetHippyRunApplicationEnd(footstone::TimePoint::SystemNow());
+    entry->SetHippyFirstFrameStart(footstone::TimePoint::SystemNow());
   };
   auto runner = GetTaskRunner();
   if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
