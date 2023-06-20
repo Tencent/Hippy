@@ -1,3 +1,7 @@
+## 0.0.29
+
+- add debug dialog for js error
+
 ## 0.0.28
 
 - update voltron_render to 0.0.19 to fix layout density error

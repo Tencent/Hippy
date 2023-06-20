@@ -33,6 +33,7 @@ import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.Renderer;
 import com.tencent.renderer.node.ListItemRenderNode;
 import com.tencent.renderer.node.RootRenderNode;
+import com.tencent.renderer.node.ScrollViewRenderNode;
 import com.tencent.renderer.node.VirtualNode;
 import com.tencent.renderer.node.TextRenderNode;
 import com.tencent.renderer.node.RenderNode;
@@ -180,6 +181,11 @@ public class RenderManager {
         if (node != null) {
             node.updateLayout(left, top, width, height);
             addUpdateNodeIfNeeded(rootId, node);
+            if (node.getParent() instanceof ScrollViewRenderNode) {
+                // ScrollView doesn't receive updateLayout when its content changes,
+                // so we specifically call addUpdateNodeIfNeeded()
+                addUpdateNodeIfNeeded(rootId, node.getParent());
+            }
         }
     }
 
@@ -292,8 +298,8 @@ public class RenderManager {
         RenderNode node = getRenderNode(rootId, nodeId);
         if (node != null) {
             node.updateExtra(object);
-            // when getGestureEnable() returns true, flattened leaf node may create view,
-            // we should notify the parent node to call mountHostView()
+            // The gesture set by the child nodes of the flattened text node will recreate
+            // the host view, so the parent text node must be added to the update list.
             if (node.getGestureEnable() && node.getHostView() == null && node.getParent() != null) {
                 addUpdateNodeIfNeeded(rootId, node.getParent());
             }

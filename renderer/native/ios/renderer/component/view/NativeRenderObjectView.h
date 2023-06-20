@@ -172,6 +172,7 @@ extern NSString *const NativeRenderShadowViewDiffTag;
  * reset layout frame to mark dirty and re-layout
  */
 - (void)setLayoutFrame:(CGRect)frame;
+- (void)setLayoutFrame:(CGRect)frame dirtyPropagation:(BOOL)dirtyPropagation;
 
 /**
  * Calculate property changes that need to be propagated to the view.

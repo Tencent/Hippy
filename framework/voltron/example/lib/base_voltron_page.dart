@@ -45,6 +45,54 @@ class Monitor extends EngineMonitor {
   bool enableCreateElementTime = true;
 }
 
+/// 自定义错误处理
+class CustomExceptionHandler extends VoltronExceptionHandlerAdapter {
+  final bool isDebugMode;
+  final GlobalKey<State> key;
+
+  CustomExceptionHandler(this.isDebugMode, this.key);
+
+  void handleJsException(JsError exception) {
+    LogUtils.e('Voltron3Page', exception.toString());
+    var currentRootContext = key.currentContext;
+    /// 只有开发模式下把js异常抛出来
+    if (currentRootContext == null || !isDebugMode) return;
+    showDialog(
+      context: currentRootContext,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('JS Error'),
+          content: Container(
+            height: 300,
+            child: SingleChildScrollView(
+              child: Text(
+                exception.toString(),
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('确定'),
+              onPressed: () {
+                // 执行确认操作
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void handleNativeException(Error error, bool haveCaught) {
+    LogUtils.e('Voltron3Page', 'error: ${error.toString()}, haveCaught: $haveCaught');
+  }
+
+  void handleBackgroundTracing(String details) {
+    LogUtils.e('Voltron3Page', details);
+  }
+}
+
 class BaseVoltronPage extends StatefulWidget {
   final bool isHome;
   final bool debugMode;
@@ -67,7 +115,9 @@ class BaseVoltronPage extends StatefulWidget {
 }
 
 class _BaseVoltronPageState extends State<BaseVoltronPage> {
-  PageStatus pageStatus = PageStatus.init;
+  GlobalKey<State> dialogRootKey = GlobalKey();
+  PageStatus engineStatus = PageStatus.init;
+  PageStatus loadModuleStatus = PageStatus.init;
   late VoltronJSLoaderManager _loaderManager;
   late VoltronJSLoader _jsLoader;
   int errorCode = -1;
@@ -93,7 +143,7 @@ class _BaseVoltronPageState extends State<BaseVoltronPage> {
         deviceData = await DeviceInfoPlugin().iosInfo;
       } catch (err) {
         setState(() {
-          pageStatus = PageStatus.error;
+          engineStatus = PageStatus.error;
         });
       }
     }
@@ -112,6 +162,7 @@ class _BaseVoltronPageState extends State<BaseVoltronPage> {
       MyAPIProvider(),
     ];
     initParams.engineMonitor = Monitor();
+    initParams.exceptionHandler = CustomExceptionHandler(_debugMode, dialogRootKey);
     _loaderManager = VoltronJSLoaderManager.createLoaderManager(
       initParams,
       (statusCode, msg) {
@@ -121,11 +172,11 @@ class _BaseVoltronPageState extends State<BaseVoltronPage> {
         );
         if (statusCode == EngineInitStatus.ok) {
           setState(() {
-            pageStatus = PageStatus.success;
+            engineStatus = PageStatus.success;
           });
         } else {
           setState(() {
-            pageStatus = PageStatus.error;
+            engineStatus = PageStatus.error;
             errorCode = statusCode.value;
           });
         }
@@ -153,6 +204,11 @@ class _BaseVoltronPageState extends State<BaseVoltronPage> {
     _jsLoader = _loaderManager.createLoader(
       loadParams,
       moduleListener: (status, msg) {
+        if (status == ModuleLoadStatus.ok) {
+          loadModuleStatus = PageStatus.success;
+        } else {
+          loadModuleStatus = PageStatus.error;
+        }
         LogUtils.i(
           "flutterRender",
           "loadModule status($status), msg ($msg)",
@@ -171,14 +227,14 @@ class _BaseVoltronPageState extends State<BaseVoltronPage> {
   @override
   Widget build(BuildContext context) {
     Widget child;
-    if (pageStatus == PageStatus.success) {
+    if (engineStatus == PageStatus.success) {
       child = Scaffold(
         body: VoltronWidget(
           loader: _jsLoader,
           loadingBuilder: _debugMode ? null : (context) => Container(),
         ),
       );
-    } else if (pageStatus == PageStatus.error) {
+    } else if (engineStatus == PageStatus.error) {
       child = Center(
         child: Text('init engine error, code: ${errorCode.toString()}'),
       );
@@ -186,6 +242,7 @@ class _BaseVoltronPageState extends State<BaseVoltronPage> {
       child = Container();
     }
     child = SafeArea(
+      key: dialogRootKey,
       bottom: false,
       child: child,
     );

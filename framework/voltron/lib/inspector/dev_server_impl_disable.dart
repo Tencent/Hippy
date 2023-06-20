@@ -36,9 +36,6 @@ class DevServerImplDisable implements DevServerInterface {
   }
 
   @override
-  void handleException(JsError error) {}
-
-  @override
   void attachToHost(RootWidgetViewModel viewModel) {}
 
   @override

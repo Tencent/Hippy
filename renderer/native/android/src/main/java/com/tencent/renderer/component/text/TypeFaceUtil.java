@@ -56,10 +56,26 @@ public class TypeFaceUtil {
         for (String fileExtension : FONT_EXTENSIONS) {
             String fileName = FONTS_PATH + fontFamilyName + extension + fileExtension;
             try {
-                typeface = Typeface
-                        .createFromAsset(ContextHolder.getAppContext().getAssets(), fileName);
+                typeface = Typeface.createFromAsset(ContextHolder.getAppContext().getAssets(), fileName);
+                if (typeface != null) {
+                    return typeface;
+                }
             } catch (Exception e) {
                 // If create type face from asset failed, other builder can also be used
+                LogUtils.w(TAG, e.getMessage());
+            }
+            if (style == Typeface.NORMAL) {
+                continue;
+            }
+            // try to load font file without extension
+            fileName = FONTS_PATH + fontFamilyName + fileExtension;
+            try {
+                typeface = Typeface.create(
+                        Typeface.createFromAsset(ContextHolder.getAppContext().getAssets(), fileName), style);
+                if (typeface != null) {
+                    return typeface;
+                }
+            } catch (Exception e) {
                 LogUtils.w(TAG, e.getMessage());
             }
         }

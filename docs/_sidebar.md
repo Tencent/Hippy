@@ -1,10 +1,7 @@
 <!-- docs/_sidebar.md -->
+* [开发指引](development/demo.md)
+* [API](api/hippy-react/introduction.md)
+* [特性](feature/feature3.0/vfs.md)
+* [架构](architecture/introduction.md)
+* [版本日志](https://github.com/Tencent/Hippy/releases)
 
-* [首页](/)
-* [开始接入](guide/integration.md)
-* [Android](android/integration.md)
-* [iOS](ios/integration.md)
-* [Web](web/integration.md)
-* [Hippy-React](hippy-react/introduction.md)
-* [Hippy-Vue](hippy-vue/introduction.md)
-* [样式](style/layout.md)
