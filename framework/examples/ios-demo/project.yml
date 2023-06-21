@@ -16,6 +16,7 @@ targets:
       PRODUCT_BUNDLE_IDENTIFIER: "com.tencent.HippyDemo2.db"
     sources:
       - path: HippyDemo
+      - path: Assets.xcassets
       - path: fonts
         buildPhase: 
           copyFiles:

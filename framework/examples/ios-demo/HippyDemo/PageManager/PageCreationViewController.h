@@ -20,10 +20,12 @@
 * limitations under the License.
 */
 
-#import <UIKit/UIKit.h>
+#import "DemoBaseViewController.h"
 
-@interface ViewController : UIViewController
+NS_ASSUME_NONNULL_BEGIN
 
+@interface PageCreationViewController : DemoBaseViewController
 
 @end
 
+NS_ASSUME_NONNULL_END
