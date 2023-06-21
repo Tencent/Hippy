@@ -29,8 +29,7 @@ import '../engine.dart';
 import '../inspector.dart';
 import '../module.dart';
 
-class VoltronJSEngine
-    implements OnSizeChangedListener, OnResumeAndPauseListener, DevServerCallback {
+class VoltronJSEngine implements OnResumeAndPauseListener, DevServerCallback {
   static const String _kTag = "EngineManagerImpl";
 
   static bool _hasInit = false;
@@ -429,7 +428,6 @@ class VoltronJSEngine
     timeMonitor.begin();
     timeMonitor.startEvent(EngineMonitorEventKey.moduleLoadEventWaitEngine);
     viewModel.onResumeAndPauseListener = this;
-    viewModel.onSizeChangedListener = this;
     _devSupportManager.attachToHost(viewModel);
     if (!_devManagerInitFlag && _debugMode) {
       _devManagerInitFlag = true;
@@ -468,21 +466,6 @@ class VoltronJSEngine
     _engineContext?.bridgeManager.resumeInstance(id);
   }
 
-  @override
-  void onSizeChanged(
-    int rootId,
-    double width,
-    double height,
-    double oldWidth,
-    double oldHeight,
-  ) async {
-    await _engineContext?.renderContext.renderBridgeManager.updateNodeSize(
-      rootId,
-      width: width,
-      height: height,
-    );
-  }
-
   void destroyEngine() {
     _currentState = EngineState.destroyed;
     _engineContext?.renderContext.forEachInstance(destroyInstance);
@@ -498,7 +481,6 @@ class VoltronJSEngine
       return;
     }
     rootWidget.onResumeAndPauseListener = null;
-    rootWidget.onSizeChangedListener = null;
     _devSupportManager.detachFromHost(rootWidget);
 
     _engineContext?.bridgeManager.unloadInstance(rootWidget.id);
