@@ -112,6 +112,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     private final String mRemoteServerUrl;
     private ViewGroup mRootView;
     final boolean enableV8Serialization;
+    private long mInitStartTime = 0;
     private final TimeMonitor mMonitor;
     private final HippyThirdPartyAdapter mThirdPartyAdapter;
     private final V8InitParams v8InitParams;
@@ -151,6 +152,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             throw new IllegalStateException(
                     "Cannot repeatedly call engine initialization, current state=" + mCurrentState);
         }
+        mInitStartTime = System.currentTimeMillis();
         mCurrentState = EngineState.INITING;
         if (listener != null) {
             mEventListeners.add(listener);
@@ -217,6 +219,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
     @Override
     public void onFirstViewAdded() {
+        mEngineContext.getJsDriver().recordFirstFrameEndTime(System.currentTimeMillis());
         MonitorGroup monitorGroup = mEngineContext.getMonitor()
                 .endGroup(MonitorGroupType.LOAD_INSTANCE);
         if (monitorGroup != null) {
@@ -549,6 +552,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     private void onEngineInitialized(EngineInitStatus statusCode, Throwable error) {
+        mEngineContext.getJsDriver().recordNativeInitEndTime(System.currentTimeMillis());
         MonitorGroup monitorGroup = mEngineContext.getMonitor()
                 .endGroup(MonitorGroupType.ENGINE_INITIALIZE);
         if (monitorGroup != null) {
@@ -727,8 +731,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         public HippyEngineContextImpl(@Nullable DomManager domManager) throws RuntimeException {
             mVfsManager = (mProcessors != null) ? new VfsManager(mProcessors) : new VfsManager();
             mVfsManager.setId(onCreateVfs(mVfsManager));
-            DefaultProcessor processor = new DefaultProcessor(new HippyResourceLoader(this));
-            mVfsManager.addProcessorAtLast(processor);
+            DefaultProcessor defaultProcessor = new DefaultProcessor(new HippyResourceLoader(this));
+            PerformanceProcessor performanceProcessor = new PerformanceProcessor(this);
+            mVfsManager.addProcessorAtFirst(performanceProcessor);
+            mVfsManager.addProcessorAtLast(defaultProcessor);
             if (mDebugMode) {
                 mDevtoolsManager = new DevtoolsManager(true);
                 String localCachePath = getGlobalConfigs().getContext().getCacheDir()
@@ -758,6 +764,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 }
             }
             mRenderer.init(controllers, mRootView);
+            mJsDriver.recordNativeInitStartTime(mInitStartTime);
         }
 
         private RenderConnector createRenderer(String rendererName) {
@@ -790,6 +797,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             if (mDevtoolsManager != null) {
                 mDevtoolsManager.bind(mJsDriver, mDomManager, mRenderer);
             }
+        }
+
+        @Override
+        @NonNull
+        public JsDriver getJsDriver() {
+            return mJsDriver;
         }
 
         @NonNull

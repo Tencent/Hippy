@@ -102,6 +102,26 @@ REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
              "(II)V",
              SetDomManager)
 
+REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
+             "onNativeInitStart",
+             "(J)V",
+             OnNativeInitStart)
+
+REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
+             "onNativeInitEnd",
+             "(J)V",
+             OnNativeInitEnd)
+
+REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
+             "onFirstFrameEnd",
+             "(J)V",
+             OnFirstFrameEnd)
+
+REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
+             "onResourceLoadEnd",
+             "(Ljava/lang/String;JJ)V",
+             OnResourceLoadEnd)
+
 using string_view = footstone::stringview::string_view;
 using u8string = footstone::string_view::u8string;
 using StringViewUtils = footstone::stringview::StringViewUtils;
@@ -132,6 +152,22 @@ std::shared_ptr<Scope> GetScope(jint j_scope_id) {
   auto flag = hippy::global_data_holder.Find(scope_id, scope_object);
   FOOTSTONE_CHECK(flag);
   return std::any_cast<std::shared_ptr<Scope>>(scope_object);
+}
+
+void OnNativeInitStart(JNIEnv* j_env, jobject j_object, jlong time) {
+
+}
+
+void OnNativeInitEnd(JNIEnv* j_env, jobject j_object, jlong time) {
+
+}
+
+void OnFirstFrameEnd(JNIEnv* j_env, jobject j_object, jlong time) {
+
+}
+
+void OnResourceLoadEnd(JNIEnv* j_env, jobject j_object, jstring j_uri, jlong j_start_time, jlong j_end_time) {
+
 }
 
 jint CreateJsDriver(JNIEnv* j_env,
