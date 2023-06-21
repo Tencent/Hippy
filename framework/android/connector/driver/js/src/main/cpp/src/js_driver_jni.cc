@@ -104,22 +104,22 @@ REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
 
 REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
              "onNativeInitStart",
-             "(J)V",
+             "(IJ)V",
              OnNativeInitStart)
 
 REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
              "onNativeInitEnd",
-             "(J)V",
+             "(IJ)V",
              OnNativeInitEnd)
 
 REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
              "onFirstFrameEnd",
-             "(J)V",
+             "(IJ)V",
              OnFirstFrameEnd)
 
 REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
              "onResourceLoadEnd",
-             "(Ljava/lang/String;JJ)V",
+             "(ILjava/lang/String;JJ)V",
              OnResourceLoadEnd)
 
 using string_view = footstone::stringview::string_view;
@@ -154,20 +154,33 @@ std::shared_ptr<Scope> GetScope(jint j_scope_id) {
   return std::any_cast<std::shared_ptr<Scope>>(scope_object);
 }
 
-void OnNativeInitStart(JNIEnv* j_env, jobject j_object, jlong time) {
-
+void OnNativeInitStart(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong time) {
+  auto scope = GetScope(j_scope_id);
+  auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
+  entry->SetHippyNativeInitStart(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(time)));
 }
 
-void OnNativeInitEnd(JNIEnv* j_env, jobject j_object, jlong time) {
-
+void OnNativeInitEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong time) {
+  auto scope = GetScope(j_scope_id);
+  auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
+  entry->SetHippyNativeInitEnd(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(time)));
 }
 
-void OnFirstFrameEnd(JNIEnv* j_env, jobject j_object, jlong time) {
-
+void OnFirstFrameEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong time) {
+  auto scope = GetScope(j_scope_id);
+  auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
+  entry->SetHippyFirstFrameEnd(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(time)));
 }
 
-void OnResourceLoadEnd(JNIEnv* j_env, jobject j_object, jstring j_uri, jlong j_start_time, jlong j_end_time) {
-
+void OnResourceLoadEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jstring j_uri, jlong j_start_time, jlong j_end_time) {
+  if (!j_uri) {
+    return;
+  }
+  auto uri = JniUtils::ToStrView(j_env, j_uri);
+  auto scope = GetScope(j_scope_id);
+  auto entry = scope->GetPerformance()->PerformanceResource(uri);
+  entry->SetLoadSourceStart(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(j_start_time)));
+  entry->SetLoadSourceEnd(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(j_end_time)));
 }
 
 jint CreateJsDriver(JNIEnv* j_env,
