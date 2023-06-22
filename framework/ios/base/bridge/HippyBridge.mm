@@ -99,6 +99,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     NSURL *_sandboxDirectory;
     std::weak_ptr<VFSUriLoader> _uriLoader;
     std::weak_ptr<hippy::RenderManager> _renderManager;
+    footstone::TimePoint _startTime;
 }
 
 @property(readwrite, strong) dispatch_semaphore_t moduleSemaphore;
@@ -145,6 +146,7 @@ dispatch_queue_t HippyBridgeQueue() {
         _invalidateReason = HPInvalidateReasonDealloc;
         _valid = YES;
         _bundlesQueue = [[HippyBundleOperationQueue alloc] init];
+        _startTime = footstone::TimePoint::Now();
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rootViewContentDidAppear:) name:kRootViewDidAddContent object:nil];
         [self setUp];
         HPExecuteOnMainThread(^{
@@ -288,6 +290,11 @@ dispatch_queue_t HippyBridgeQueue() {
             HippyBridge *strongSelf = weakSelf;
             if (strongSelf) {
                 dispatch_semaphore_signal(strongSelf.moduleSemaphore);
+                footstone::TimePoint endTime = footstone::TimePoint::Now();
+                auto enty =
+                    strongSelf.javaScriptExecutor.pScope->GetPerformance()->PerformanceNavigation("hippyInit");
+                enty->SetHippyNativeInitStart(strongSelf->_startTime);
+                enty->SetHippyNativeInitEnd(endTime);
             }
         }];
 //        });
@@ -825,6 +832,7 @@ dispatch_queue_t HippyBridgeQueue() {
     _displayLink = nil;
     _javaScriptExecutor = nil;
     _moduleSetup = nil;
+    _startTime = footstone::TimePoint::Now();
     self.moduleSemaphore = nil;
     dispatch_group_notify(group, dispatch_get_main_queue(), ^{
         [jsExecutor executeBlockOnJavaScriptQueue:^{
