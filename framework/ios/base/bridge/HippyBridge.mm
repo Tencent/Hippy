@@ -259,7 +259,6 @@ dispatch_queue_t HippyBridgeQueue() {
 
 - (void)setUp {
     _valid = YES;
-    auto bridgeSetupStartTimePoint = footstone::TimePoint::Now();
     self.moduleSemaphore = dispatch_semaphore_create(0);
     @try {
         __weak HippyBridge *weakSelf = self;
@@ -290,15 +289,6 @@ dispatch_queue_t HippyBridgeQueue() {
             if (strongSelf) {
                 dispatch_semaphore_signal(strongSelf.moduleSemaphore);
             }
-        }];
-        auto bridgeSetupEndTimePoint = footstone::TimePoint::Now();
-        auto scope = self.javaScriptExecutor.pScope;
-        HPAssert(scope, @"scope must not be null");
-        [self.javaScriptExecutor executeBlockOnJavaScriptQueue:^{
-            auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
-            HPAssert(entry, @"hippy init entry must not be null");
-            entry->SetHippyBridgeStartupStart(bridgeSetupStartTimePoint);
-            entry->SetHippyBridgeStartupEnd(bridgeSetupEndTimePoint);
         }];
 //        });
     } @catch (NSException *exception) {

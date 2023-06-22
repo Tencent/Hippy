@@ -100,15 +100,9 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 }
 
 - (void)setup {
-    auto startPoint = footstone::TimePoint::Now();
     auto engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:self.enginekey];
-    auto endPoint = footstone::TimePoint::Now();
     const char *pName = [self.enginekey UTF8String] ?: "";
     auto scope = engine->GetEngine()->CreateScope(pName);
-    auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
-    HPAssert(entry, @"Performance navigation timing hippyInit must not be null");
-    entry->SetHippyInitEngineStart(startPoint);
-    entry->SetHippyInitEngineEnd(endPoint);
     __weak HippyJSExecutor *weakSelf = self;
     engine->GetEngine()->GetJsTaskRunner()->PostTask([weakSelf](){
         @autoreleasepool {
@@ -525,25 +519,8 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 - (void)executeApplicationScript:(NSData *)script sourceURL:(NSURL *)sourceURL onComplete:(HippyJavaScriptCallback)onComplete {
     HPAssertParam(script);
     HPAssertParam(sourceURL);
-<<<<<<< HEAD
-    auto entry = self.pScope->GetPerformance()->PerformanceResource(NSStringToU16StringView([sourceURL absoluteString]));
-    entry->SetExecuteSourceStart(footstone::TimePoint::Now());
-    [self executeBlockOnJavaScriptQueue:^{
-        // HippyProfileEndFlowEvent();
-        entry->SetExecuteSourceEnd(footstone::TimePoint::Now());
-        if (!self.isValid) {
-            onComplete(nil, HPErrorWithMessageAndModuleName(@"jsexecutor is not invalid", self.bridge.moduleName));
-            return;
-        }
-        NSError *error = nil;
-        id result = executeApplicationScript(script, sourceURL, self.pScope->GetContext(), &error);
-        if (onComplete) {
-            onComplete(result, error);
-=======
-    // HippyProfileBeginFlowEvent();
     __weak HippyJSExecutor* weakSelf = self;
     [self executeBlockOnJavaScriptQueue:^{
-        // HippyProfileEndFlowEvent();
         @autoreleasepool {
             HippyJSExecutor *strongSelf = weakSelf;
             if (!strongSelf || !strongSelf.isValid) {
@@ -551,11 +528,10 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                 return;
             }
             NSError *error = nil;
-            id result = executeApplicationScript(script, sourceURL, strongSelf->_performanceLogger, strongSelf.pScope->GetContext(), &error);
+            id result = executeApplicationScript(script, sourceURL, strongSelf.pScope->GetContext(), &error);
             if (onComplete) {
                 onComplete(result, error);
             }
->>>>>>> v3.0-dev
         }
     }];
 }
