@@ -102,9 +102,10 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 - (void)setup {
     auto engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:self.enginekey];
     const char *pName = [self.enginekey UTF8String] ?: "";
+    footstone::TimePoint startPoint = footstone::TimePoint::SystemNow();
     auto scope = engine->GetEngine()->CreateScope(pName);
     __weak HippyJSExecutor *weakSelf = self;
-    engine->GetEngine()->GetJsTaskRunner()->PostTask([weakSelf](){
+    engine->GetEngine()->GetJsTaskRunner()->PostTask([weakSelf, startPoint](){
         @autoreleasepool {
             HippyJSExecutor *strongSelf = weakSelf;
             if (!strongSelf) {
@@ -211,6 +212,9 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                 [strongSelf executeBlockOnJavaScriptQueue:obj];
             }];
             [strongSelf->_pendingCalls removeAllObjects];
+            auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
+            entry->SetHippyJsEngineInitStart(startPoint);
+            entry->SetHippyJsEngineInitEnd(footstone::TimePoint::SystemNow());
         }
     });
     self.pScope = scope;
