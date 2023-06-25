@@ -151,15 +151,35 @@ std::shared_ptr<Scope> GetScope(jint j_scope_id) {
 
 void OnNativeInitEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong startTime, jlong endTime) {
   auto scope = GetScope(j_scope_id);
-  auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
-  entry->SetHippyNativeInitStart(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(startTime)));
-  entry->SetHippyNativeInitEnd(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(endTime)));
+  auto runner = scope->GetEngine().lock()->GetJsTaskRunner();
+  if (runner) {
+    std::weak_ptr<Scope> weak_scope = scope;
+    auto task = [weak_scope, startTime, endTime]() {
+      auto scope = weak_scope.lock();
+      if (scope) {
+        auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
+        entry->SetHippyNativeInitStart(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(startTime)));
+        entry->SetHippyNativeInitEnd(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(endTime)));
+      }
+    };
+    runner->PostTask(std::move(task));
+  }
 }
 
 void OnFirstFrameEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong time) {
   auto scope = GetScope(j_scope_id);
-  auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
-  entry->SetHippyFirstFrameEnd(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(time)));
+  auto runner = scope->GetEngine().lock()->GetJsTaskRunner();
+  if (runner) {
+    std::weak_ptr<Scope> weak_scope = scope;
+    auto task = [weak_scope, time]() {
+      auto scope = weak_scope.lock();
+      if (scope) {
+        auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
+        entry->SetHippyFirstFrameEnd(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(time)));
+      }
+    };
+    runner->PostTask(std::move(task));
+  }
 }
 
 void OnResourceLoadEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jstring j_uri, jlong j_start_time, jlong j_end_time) {
@@ -168,9 +188,19 @@ void OnResourceLoadEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jstring
   }
   auto uri = JniUtils::ToStrView(j_env, j_uri);
   auto scope = GetScope(j_scope_id);
-  auto entry = scope->GetPerformance()->PerformanceResource(uri);
-  entry->SetLoadSourceStart(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(j_start_time)));
-  entry->SetLoadSourceEnd(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(j_end_time)));
+  auto runner = scope->GetEngine().lock()->GetJsTaskRunner();
+  if (runner) {
+    std::weak_ptr<Scope> weak_scope = scope;
+    auto task = [weak_scope, uri, j_start_time, j_end_time]() {
+      auto scope = weak_scope.lock();
+      if (scope) {
+        auto entry = scope->GetPerformance()->PerformanceResource(uri);
+        entry->SetLoadSourceStart(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(j_start_time)));
+        entry->SetLoadSourceEnd(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(j_end_time)));
+      }
+    };
+    runner->PostTask(std::move(task));
+  }
 }
 
 jint CreateJsDriver(JNIEnv* j_env,
