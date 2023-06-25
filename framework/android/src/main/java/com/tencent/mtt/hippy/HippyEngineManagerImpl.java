@@ -552,7 +552,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     private void onEngineInitialized(EngineInitStatus statusCode, Throwable error) {
-        mEngineContext.getJsDriver().recordNativeInitEndTime(System.currentTimeMillis());
+        mEngineContext.getJsDriver().recordNativeInitEndTime(mInitStartTime, System.currentTimeMillis());
         MonitorGroup monitorGroup = mEngineContext.getMonitor()
                 .endGroup(MonitorGroupType.ENGINE_INITIALIZE);
         if (monitorGroup != null) {
@@ -764,7 +764,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 }
             }
             mRenderer.init(controllers, mRootView);
-            mJsDriver.recordNativeInitStartTime(mInitStartTime);
         }
 
         private RenderConnector createRenderer(String rendererName) {

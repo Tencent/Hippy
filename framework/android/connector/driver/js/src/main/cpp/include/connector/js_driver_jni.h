@@ -84,9 +84,7 @@ void SetDomManager(JNIEnv* j_env,
                    jint j_runtime_id,
                    jint j_dom_manager_id);
 
-void OnNativeInitStart(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong time);
-
-void OnNativeInitEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong time);
+void OnNativeInitEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong startTime, jlong endTime);
 
 void OnFirstFrameEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong time);
 

@@ -69,12 +69,8 @@ public class JsDriver implements Connector {
         }
     }
 
-    public void recordNativeInitStartTime(long time) {
-        onNativeInitStart(mInstanceId, time);
-    }
-
-    public void recordNativeInitEndTime(long time) {
-        onNativeInitEnd(mInstanceId, time);
+    public void recordNativeInitEndTime(long startTime, long endTime) {
+        onNativeInitEnd(mInstanceId, startTime, endTime);
     }
 
     public void recordFirstFrameEndTime(long time) {
@@ -165,9 +161,7 @@ public class JsDriver implements Connector {
 
     private native void onResourceReady(int instanceId, ByteBuffer output, long resId);
 
-    private native void onNativeInitStart(int instanceId, long time);
-
-    private native void onNativeInitEnd(int instanceId, long time);
+    private native void onNativeInitEnd(int instanceId, long startTime, long endTime);
 
     private native void onFirstFrameEnd(int instanceId, long time);
 

@@ -103,13 +103,8 @@ REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
              SetDomManager)
 
 REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
-             "onNativeInitStart",
-             "(IJ)V",
-             OnNativeInitStart)
-
-REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
              "onNativeInitEnd",
-             "(IJ)V",
+             "(IJJ)V",
              OnNativeInitEnd)
 
 REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
@@ -154,16 +149,11 @@ std::shared_ptr<Scope> GetScope(jint j_scope_id) {
   return std::any_cast<std::shared_ptr<Scope>>(scope_object);
 }
 
-void OnNativeInitStart(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong time) {
+void OnNativeInitEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong startTime, jlong endTime) {
   auto scope = GetScope(j_scope_id);
   auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
-  entry->SetHippyNativeInitStart(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(time)));
-}
-
-void OnNativeInitEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong time) {
-  auto scope = GetScope(j_scope_id);
-  auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
-  entry->SetHippyNativeInitEnd(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(time)));
+  entry->SetHippyNativeInitStart(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(startTime)));
+  entry->SetHippyNativeInitEnd(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(endTime)));
 }
 
 void OnFirstFrameEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong time) {
