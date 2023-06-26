@@ -74,6 +74,10 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
         new ControllerHolder(new HippyViewGroupController(), false));
   }
 
+  public int getControllerCount() {
+      return mControllerRegistry.getControllersCount();
+  }
+
   /**
    * Add view controllers defined in {@link HippyAPIProvider}.
    *
