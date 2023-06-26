@@ -95,6 +95,9 @@ export class ViewPager extends HippyWebView<HTMLDivElement> {
   }
 
   public setPage(index: number) {
+    if (index === this.pageIndex) {
+      return;
+    }
     this.scrollPage(index, true);
   }
 
