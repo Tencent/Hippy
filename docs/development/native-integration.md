@@ -1,6 +1,6 @@
 # 环境搭建 
 
-这篇教程，讲述了如何将 Hippy 集成到 Android、iOS 或者Flutter工程。
+这篇教程，讲述了如何将 Hippy 集成到 Android、iOS 、Flutter、Web(同构) 等平台。
 <br/>
 <br/>
 <br/>
