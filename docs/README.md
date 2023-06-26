@@ -4,17 +4,17 @@ Hippy 可以理解为一个精简版的浏览器，从底层做了大量工作�
 
 同时，Hippy 从底层进行了大量优化，在启动速度、渲染性能、动画速度、内存占用、包体积等方面都提供了业内顶尖的性能表现。
 
-在Hippy 3.0版本，我们对 Hippy 架构做了一次比较大的重构, 采用Driver，Dom Manager，Renderer分层解耦的设计理念，其设计目标就是希望框架在未来具有很好的可扩展性，以复用的DOM管理、排版布局为核心连接上层Driver和下层Renderer，同时支持不同Driver和Renderer的接入和自由切换。
+在Hippy 3.0版本，我们对 Hippy 架构做了一次比较大的重构, 采用 Driver，Dom Manager，Renderer 分层解耦的设计理念，其设计目标就是希望框架在未来具有很好的可扩展性，以复用的 DOM 管理、排版布局为核心连接上层 Driver 和下层 Renderer，同时支持不同 Driver 和 Renderer 的接入和自由切换。
 
 ## 和 Web 接近的开发体验
 
-* Hippy 对齐浏览器DOM的事件、网络、日志、定时器、Performance等API, 前端开发同学没有太高的学习成本。
+* Hippy 对齐浏览器 DOM 的事件、网络、日志、定时器、Performance 等API, 前端开发同学没有太高的学习成本。
 
-* Hippy-Vue、Hippy-React兼容 Vue 和 React框架, 使用Vue、React开发的 Web 项目基本无缝迁移。
+* Hippy-Vue、Hippy-React兼容 Vue 和 React 框架, 使用 Vue、React 开发的 Web 项目基本无缝迁移。
 
 * 完全支持 Flex 布局, 和常用的 CSS 属性。
 
-* 兼容 Webpack/Rollup等打包工具, 支持分包, 代码动态加载, 有完善的 devtools 工具, 对齐前端的开发体验。
+* 兼容 Webpack/Rollup 等打包工具, 支持分包, 代码动态加载, 有完善的 devtools 工具, 对齐前端的开发体验。
 
 
 ## 一次开发，多端运行
@@ -56,7 +56,7 @@ Hippy 的包体积在业内也是非常具有竞争力的。
 
 ### 驱动层
 
-驱动层为业务封装了对接DOM层的渲染指令和底层接口, 用户可以使用 Hippy 框架提供的 React/Vue 驱动层来开发业务，也支持切换其它任意DSL 语言进行驱动。详见 [Hippy-React](api/hippy-react/introduction)、[Hippy-Vue](api/hippy-vue/introduction)。
+驱动层为业务封装了对接DOM层的渲染指令和底层接口, 用户可以使用 Hippy 框架提供的 React/Vue 驱动层来开发业务，也支持扩展其它任意 DSL 语言进行驱动。详见 [Hippy-React](api/hippy-react/introduction)、[Hippy-Vue](api/hippy-vue/introduction)。
 
 ### DOM层
 
