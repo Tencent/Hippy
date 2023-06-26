@@ -21,7 +21,8 @@
 */
 
 #import "AppDelegate.h"
-#import "ViewController.h"
+#import "HomePageViewController.h"
+#import "DemoNavigationViewController.h"
 
 @interface AppDelegate ()
 
@@ -31,43 +32,16 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-
-    // List available fonts exist.
-    /*
-    for (NSString* family in [UIFont familyNames])
-    {
-      NSLog(@"%@", family);
-      for (NSString* name in [UIFont fontNamesForFamilyName: family])
-      {
-        NSLog(@" %@", name);
-      }
-    }
-    */
-
     // Override point for customization after application launch.
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    ViewController *vc = [ViewController new];
-    [self.window setRootViewController: vc];
+    DemoNavigationViewController *navVC = [[DemoNavigationViewController alloc] initWithRootViewController:[[HomePageViewController alloc] initWithNibName:@"HomePageView" bundle:[NSBundle mainBundle]]];
+    [self.window setRootViewController: navVC];
     [self.window makeKeyAndVisible];
     return YES;
 }
 
-
-#pragma mark - UISceneSession lifecycle
-
-
-//- (UISceneConfiguration *)application:(UIApplication *)application configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession options:(UISceneConnectionOptions *)options {
-//    // Called when a new scene session is being created.
-//    // Use this method to select a configuration to create the new scene with.
-//    return [[UISceneConfiguration alloc] initWithName:@"Default Configuration" sessionRole:connectingSceneSession.role];
+//- (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(nullable UIWindow *)window {
+//    return UIInterfaceOrientationMaskPortrait;
 //}
-
-
-//- (void)application:(UIApplication *)application didDiscardSceneSessions:(NSSet<UISceneSession *> *)sceneSessions {
-//    // Called when the user discards a scene session.
-//    // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
-//    // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
-//}
-
 
 @end

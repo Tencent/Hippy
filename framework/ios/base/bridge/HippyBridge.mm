@@ -95,7 +95,6 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     BOOL _valid;
     HippyBundleOperationQueue *_bundlesQueue;
     NSMutableArray<NSURL *> *_bundleURLs;
-    NSURL *_debugURL;
     NSURL *_sandboxDirectory;
     std::weak_ptr<VFSUriLoader> _uriLoader;
 }
@@ -138,7 +137,6 @@ dispatch_queue_t HippyBridgeQueue() {
         _moduleProvider = block;
         _bundleURLs = [NSMutableArray arrayWithCapacity:8];
         _debugMode = [launchOptions[@"DebugMode"] boolValue];
-        _debugURL = launchOptions[@"DebugURL"];
         _enableTurbo = !!launchOptions[@"EnableTurbo"] ? [launchOptions[@"EnableTurbo"] boolValue] : YES;
         _engineKey = engineKey;
         _invalidateReason = HPInvalidateReasonDealloc;
