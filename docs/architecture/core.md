@@ -16,7 +16,7 @@ Hippy 开发的时候，前端 JS 经常需要访问一些双端（Android 和 i
 
 ## 继承 ModuleBase
 
-在 [core/modules/](//github.com/Tencent/Hippy/tree/master/core/modules) 下创建 test-module.h
+在 [driver/js/include/driver/modules/](//github.com/Tencent/Hippy/tree/v3.0-dev/driver/js/include/driver/modules) 下创建 test-module.h
 
 ```cpp
 #ifndef CORE_MODULES_TEST_MODULE_H_
@@ -35,7 +35,7 @@ class TestModule : public ModuleBase {
 #endif // CORE_MODULES_TEST_MODULE_H_
 ```
 
-在 [core/modules/](//github.com/Tencent/Hippy/tree/master/core/modules) 下创建 test-module.cc
+在 [driver/js/src/modules/](//github.com/Tencent/Hippy/tree/v3.0-dev/driver/js/src/modules) 下创建 test-module.cc
 
 ```cpp
 #include "core/modules/module-register.h"

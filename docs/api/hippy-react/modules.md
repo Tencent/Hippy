@@ -218,26 +218,6 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ---
 
-# Clipboard
-
-[[Clipboard 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/Clipboard)
-
-模块提供了 iOS/Android 双端的剪贴板能力，开发者可使用其来读取或写入剪贴板，目前仅支持字符串作为存取类型。
-
-## 方法
-
-### Clipboard.getString
-
-`() => string` 获取剪贴板的内容。 `hippy-react-web: () => Promise<string>`
-
-### Clipboard.setString
-
-`(value: string) => void` 设置剪贴板的内容。 `hippy-react-web: () => Promise<void>`
-
-> - value: string - 需要设置到剪贴板中的内容。
-
----
-
 # ConsoleModule
 
 提供了将前端日志输出到 iOS 终端日志和 [Android logcat](//developer.android.com/studio/command-line/logcat) 的能力
