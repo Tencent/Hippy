@@ -210,7 +210,7 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
     this.dom = this.tintModeContainerDom!;
     newParent.appendChild(this.renderImgDom!);
     oldParent.insertBefore(this.dom, oldParent.childNodes[realIndex] ?? null);
-    this.context.getModuleByName('UIManagerModule').defaultUpdateViewProps(this, this.props);
+    this.context.getModuleByName('UIManagerModule').defaultUpdateViewProps(this, this.props, true);
     this.imgDomFilterNoUseStyle();
   }
 

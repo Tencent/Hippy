@@ -169,12 +169,12 @@ export class UIManagerModule extends HippyWebModule {
     delete this.viewDictionary[childId];
   }
 
-  public defaultUpdateViewProps(view: HippyBaseView, props: any) {
+  public defaultUpdateViewProps(view: HippyBaseView, props: any, jumpDiff = false) {
     if (!view.dom) {
       error(`component update props process failed ,component's dom must be exited ${view.tagName ?? ''}`);
     }
     const keys = Object.keys(props);
-    const [diffStyle, diffSize] = diffObject(props.style, view.props?.style ?? {});
+    const [diffStyle, diffSize] = diffObject(props.style, jumpDiff ? {} : (view.props?.style ?? {}));
     if (props.style && diffSize > 0) {
       setElementStyle(view.dom!, diffStyle, (key: string, value: any) => {
         this.animationProcess(key, value, view);
