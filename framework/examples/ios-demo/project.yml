@@ -13,8 +13,10 @@ targets:
       OTHER_LDFLAGS: "${inherited}"
       TARGETED_DEVICE_FAMILY: "1"
       CLANG_CXX_LANGUAGE_STANDARD: "c++17"
+      PRODUCT_BUNDLE_IDENTIFIER: "com.tencent.HippyDemo2.db"
     sources:
       - path: HippyDemo
+      - path: Assets.xcassets
       - path: fonts
         buildPhase: 
           copyFiles:
