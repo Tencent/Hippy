@@ -10,12 +10,15 @@ Hippy 正在进行 3.x 架构的升级，在 3.x 中业务与渲染层中的具�
 <img src="assets/img/3.0-structure.png" alt="3.0架构" width="55%"/>
 
 ## 驱动层
+
 驱动层为业务封装了对接DOM层的渲染指令和底层接口, 用户可以使用 Hippy 框架提供的 React/Vue 驱动层来开发业务，也支持切换其它任意DSL 语言进行驱动。详见 [Hippy-React](api/hippy-react/introduction)、[Hippy-Vue](api/hippy-vue/introduction)。
 
 ## DOM层
+
 DOM Manager 从 Java/OC 抽离到 C++，作为中间枢纽，除了接收处理来自上层的消息，进行 DOM Tree 的创建和维护外，还负责与不同渲染引擎，排版引擎和调试工具的对接通信。
 
 ## 渲染层
+
 * Native Renderer：使用 Android/iOS 原生组件进行渲染, 详见 [Android](architecture/render/android/native-render)、[iOS](architecture/render/ios/native-render)。
 * Voltron Renderer：使用 Flutter 渲染, 详见 [Voltron](architecture/render/voltron/voltron-render)。
 * Web Renderer：使用 WebView 渲染（Web 同构）, 详见 [Web](architecture/render/web/web-render)。
