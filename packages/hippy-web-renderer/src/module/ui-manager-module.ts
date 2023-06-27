@@ -20,7 +20,14 @@
 
 import { HippyWebEngineContext, HippyWebModule, HippyWebView } from '../base';
 import { HippyBaseView, HippyCallBack, InnerNodeTag, NodeData, UIProps } from '../types';
-import { setElementStyle, warn, error, positionAssociate, zIndexAssociate } from '../common';
+import {
+  setElementStyle,
+  warn,
+  error,
+  positionAssociate,
+  zIndexAssociate,
+  fontSizeAssociate
+} from '../common';
 import { AnimationModule } from './animation-module';
 
 let ENV_STYLE_INIT_FLAG = false;
@@ -180,11 +187,16 @@ export class UIManagerModule extends HippyWebModule {
         this.animationProcess(key, value, view);
       });
       const parent = this.findViewById(view.pId) as HippyWebView<any>;
+      const styleCopy: any = {};
+      const transformStyle = fontSizeAssociate(diffStyle);
       positionAssociate(diffStyle, view, parent);
-      const styleCopy = {};
-      Object.assign(styleCopy, props.style);
-      view.updateProperty?.('style', styleCopy);
       zIndexAssociate(diffStyle, view, parent);
+      Object.assign(styleCopy, props.style);
+      if (transformStyle) {
+        this.animationProcess('transform', transformStyle, view);
+        styleCopy.transform = transformStyle;
+      }
+      view.updateProperty?.('style', styleCopy);
     }
     for (const key of keys) {
       if (key === 'style' || key === 'attributes' || key.indexOf('__bind__') !== -1) {
@@ -301,8 +313,13 @@ export class UIManagerModule extends HippyWebModule {
           animationModule.linkInitAnimation2Element(item[itemKey].animationId, view, itemKey);
           continue;
         }
-        valueString += `${itemKey}(${item[itemKey]}${isNaN(item[itemKey])
-        || itemKey.startsWith('scale') ? '' : 'px'}) `;
+        let transformValue = item[itemKey];
+        if (itemKey.startsWith('rotate')) {
+          transformValue += 'deg';
+        } else if (!itemKey.startsWith('scale')) {
+          transformValue += 'px';
+        }
+        valueString += `${itemKey}(${transformValue}) `;
       }
     }
     if (!valueString) {
