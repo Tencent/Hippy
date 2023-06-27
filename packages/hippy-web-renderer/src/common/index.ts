@@ -98,6 +98,10 @@ export function positionAssociate(
   if (newStyle.position === 'absolute' && !parent?.props?.style?.position
     && !parent?.defaultStyle().position) {
     setElementStyle(parent!.dom!, { position: 'relative' });
+    const pzIndex = parent?.props?.style?.zIndex;
+    if (pzIndex === undefined) {
+      setElementStyle(parent!.dom!, { zIndex: 0 });
+    }
   }
   if (newStyle.position === 'absolute' && !newStyle.width && !newStyle.height && !newStyle.overflow) {
     setElementStyle(component.dom!, { overflow: 'visible' });
@@ -116,6 +120,19 @@ export function zIndexAssociate(
     (component as HippyWebView<any>).updateSelfStackContext(false);
   } else if (parent?.exitChildrenStackContext && diffStyle.zIndex === null) {
     (component as HippyWebView<any>).updateSelfStackContext(true);
+  }
+}
+
+export  function fontSizeAssociate(newStyle: {[prop: string]: any}) {
+  if (newStyle.fontSize && newStyle.fontSize < 12) {
+    let { transform } = newStyle;
+    if (!transform) {
+      transform = [];
+    }
+    if (Array.isArray(transform) && transform.filter(value => !!value.scale).length === 0) {
+      transform.push({ scale: newStyle.fontSize / 12 });
+    }
+    return transform;
   }
 }
 
