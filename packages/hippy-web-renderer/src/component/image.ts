@@ -238,16 +238,6 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
     this.renderImgDom!.style.borderBottomStyle = '';
   }
 
-  private findDomIndex() {
-    let realIndex = 0;
-    this.dom?.parentNode!.childNodes.forEach((item, index) => {
-      if (item === this.dom) {
-        realIndex = index;
-      }
-    });
-    return realIndex;
-  }
-
   private updateTintColor() {
     const colorValue = convertHexToRgba(this.tintColor);
     setElementStyle(this.renderImgDom!, {

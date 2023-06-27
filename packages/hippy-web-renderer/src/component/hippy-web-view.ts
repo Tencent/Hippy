@@ -232,7 +232,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   }
 
   public defaultStyle(): {[key: string]: any} {
-    return { display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0, boxSizing: 'border-box' };
+    return { display: 'flex', flexDirection: 'column', flexShrink: 0, boxSizing: 'border-box' };
   }
 
   public onAttachedToWindow() {
@@ -307,6 +307,16 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
 
     this.context.sendUiEvent(this.id, 'onLayout', { layout: this.layoutCache,
       target: this.id });
+  }
+
+  public findDomIndex() {
+    let realIndex = 0;
+    this.dom?.parentNode!.childNodes.forEach((item, index) => {
+      if (item === this.dom) {
+        realIndex = index;
+      }
+    });
+    return realIndex;
   }
 
   private handleOnLongClick(event) {
