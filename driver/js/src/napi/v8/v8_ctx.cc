@@ -1332,9 +1332,6 @@ std::shared_ptr<CtxValue> V8Ctx::NewInstance(const std::shared_ptr<CtxValue>& cl
   auto cls_handle_value = v8::Local<v8::Value>::New(isolate_, v8_cls->global_value_);
   auto function = v8::Local<v8::Function>::Cast(cls_handle_value);
   v8::Local<v8::Object> instance;
-  if (external) {
-    context->SetAlignedPointerInEmbedderData(kNewInstanceExternalIndex, external);
-  }
   if (argc > 0 && argv) {
     v8::Local<v8::Value> v8_argv[argc];
     for (auto i = 0; i < argc; ++i) {
@@ -1346,7 +1343,8 @@ std::shared_ptr<CtxValue> V8Ctx::NewInstance(const std::shared_ptr<CtxValue>& cl
     instance = function->NewInstance(context).ToLocalChecked();
   }
   if (external) {
-    context->SetAlignedPointerInEmbedderData(kNewInstanceExternalIndex, nullptr);
+    auto external_value = v8::External::New(isolate_, external);
+    instance->SetInternalField(kExternalIndex, external_value);
   }
   return std::make_shared<V8CtxValue>(isolate_, instance);
 }
