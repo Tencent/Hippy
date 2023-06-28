@@ -35,7 +35,7 @@ export interface HippyBaseView {
   onLayout?: boolean;
   updateProps?: (data: UIProps, defaultProcess: DefaultPropsProcess) => void;
   updateProperty?: (key: string, value: any) => void;
-  beforeMount?: (parent: HippyBaseView|null, position: number) => Promise<void>;
+  beforeMount?: (parent: HippyBaseView, position: number) => Promise<void>;
   beforeChildMount?: (child: HippyBaseView, childPosition: number) => Promise<void>;
   beforeRemove?: () => Promise<void>;
   beforeChildRemove?: (child: HippyBaseView) => void;

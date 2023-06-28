@@ -229,7 +229,7 @@ export class Modal extends HippyWebView<HTMLDivElement> {
     }
   }
 
-  public async beforeMount(parent: HippyBaseView|null, position: number) {
+  public async beforeMount(parent: HippyBaseView, position: number) {
     await super.beforeMount(parent, position);
     this.entryAnimationAction = this.runAnimation(ModalAnimationModel.ENTRY, position);
     (this.context.getModuleByName('DeviceEventModule') as any).setModuleListener(this.onBackListener);

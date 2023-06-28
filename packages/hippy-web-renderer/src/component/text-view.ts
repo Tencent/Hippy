@@ -34,14 +34,15 @@ export class TextView extends HippyWebView<HTMLSpanElement> {
     this.props[NodeProps.ELLIPSIZE_MODE] = EllipsizeMode.TAIL;
   }
   public defaultStyle(): { [p: string]: any } {
-    return { boxSizing: 'border-box', zIndex: 0, ...HippyEllipsizeModeMap[this.ellipsizeMode] };
+    return { boxSizing: 'border-box', zIndex: 0, ...HippyEllipsizeModeMap[this.ellipsizeMode],
+      lineHeight: '100%', overflow: 'hidden' };
   }
 
   public set numberOfLines(value: number|undefined) {
     this.props[NodeProps.NUMBER_OF_LINES] = value;
     if (value === 1) {
       this.dom && setElementStyle(this.dom, { 'white-space': 'nowrap', 'word-break': 'keep-all', display: 'initial',
-        '-webkit-box-orient': '', '-webkit-line-clamp': '', overflow: '' });
+        '-webkit-box-orient': '', '-webkit-line-clamp': '' });
     } else {
       this.dom && setElementStyle(this.dom, { 'white-space': 'normal', 'word-break': 'break-all', display: '-webkit-box',
         '-webkit-box-orient': 'vertical', '-webkit-line-clamp': `${value}`, overflow: 'hidden' });

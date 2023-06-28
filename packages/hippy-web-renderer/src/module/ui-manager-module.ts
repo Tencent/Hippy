@@ -26,10 +26,10 @@ import {
   error,
   positionAssociate,
   zIndexAssociate,
-  fontSizeAssociate
+  fontSizeAssociate,
 } from '../common';
+import { Modal } from '../component';
 import { AnimationModule } from './animation-module';
-import {Modal} from "../component";
 
 let ENV_STYLE_INIT_FLAG = false;
 export class UIManagerModule extends HippyWebModule {
@@ -222,7 +222,15 @@ export class UIManagerModule extends HippyWebModule {
     const isModal = view instanceof Modal;
 
     if (isModal) {
-      await view.beforeMount?.(null, this.modalDom?.childNodes.length ?? 0);
+      const tempView: HippyBaseView = {
+        id: -1,
+        pId: -1,
+        tagName: 'View',
+        index: 0,
+        props: {},
+        dom: this.modalDom!,
+      };
+      await view.beforeMount?.(tempView, this.modalDom?.childNodes.length ?? 0);
       this.modalDom?.appendChild(view.dom);
       this.viewDictionary[view.id] = view;
       view.mounted?.();
@@ -406,6 +414,7 @@ function  createModalContainer() {
   dom.style.width = '100%';
   dom.style.height = '100%';
   dom.style.position = 'absolute';
+  dom.id = 'web-renderer-id';
   return dom;
 }
 
