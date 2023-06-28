@@ -149,7 +149,7 @@ void VFSUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob> r
                 cb(job_resp);
                 return;
             }
-            loader->RequestUntrustedContent(req, ^(NSUInteger current, NSUInteger total) {
+            loader->RequestUntrustedContent(req, nil, ^(NSUInteger current, NSUInteger total) {
                 request->GetProgressCallback()(current, total);
             }, ^(NSData *data, NSURLResponse *resp, NSError *error) {
                 RetCode code = RetCodeFromNSError(error);
@@ -170,6 +170,7 @@ void VFSUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob> r
 }
 
 void VFSUriHandler::RequestUntrustedContent(NSURLRequest *request,
+                                            NSOperationQueue *queue,
                                             VFSHandlerProgressBlock progress,
                                             VFSHandlerCompletionBlock completion,
                                             VFSGetNextHandlerBlock next) {
@@ -189,12 +190,12 @@ void VFSUriHandler::RequestUntrustedContent(NSURLRequest *request,
         return;
     }
     NSURLSessionDataProgress *dataProgress = [[NSURLSessionDataProgress alloc] initWithProgress:progress result:completion];
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:dataProgress delegateQueue:nil];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:dataProgress delegateQueue:queue];
     NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request];
     if (!dataTask) {
         auto nextHandler = next();
         if (nextHandler) {
-            nextHandler->RequestUntrustedContent(request, progress, completion, next);
+            nextHandler->RequestUntrustedContent(request, queue, progress, completion, next);
         }
         else {
             //try to forward to cpp uri handler

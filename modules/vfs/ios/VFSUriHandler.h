@@ -38,7 +38,9 @@ class VFSUriHandler : public hippy::vfs::UriHandler {
         std::function<void(std::shared_ptr<hippy::JobResponse>)> cb,
         std::function<std::shared_ptr<UriHandler>()> next) override;
 
-    virtual void RequestUntrustedContent(NSURLRequest *request, VFSHandlerProgressBlock progress,
+    virtual void RequestUntrustedContent(NSURLRequest *request,
+                                         NSOperationQueue *queue,
+                                         VFSHandlerProgressBlock progress,
                                          VFSHandlerCompletionBlock completion,
                                          VFSGetNextHandlerBlock next);
     inline void SetLoader(const std::shared_ptr<VFSUriLoader> &loader){weakLoader_ = loader;}

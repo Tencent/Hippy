@@ -32,6 +32,7 @@
                                    method:(NSString *_Nullable)method
                                    params:(NSDictionary<NSString *, NSString *> *)httpHeaders
                                      body:(NSData *)body
+                                    queue:(NSOperationQueue *_Nullable)queue
                                  progress:(void(^)(NSUInteger current, NSUInteger total))progress
                         completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
     if (!urlString || !completionHandler) {
@@ -52,7 +53,7 @@
         if (body) {
             [request setHTTPBody:body];
         }
-        loader->RequestUntrustedContent(request, progress, completionHandler);
+        loader->RequestUntrustedContent(request, queue, progress, completionHandler);
     }
 }
 
