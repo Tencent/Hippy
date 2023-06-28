@@ -93,6 +93,12 @@ const DefaultLeaveAnimationMap = {
   },
 };
 export class Modal extends HippyWebView<HTMLDivElement> {
+  public static zIndexId = 0;
+  public static getModalIndex() {
+    Modal.zIndexId += 1;
+    return Modal.zIndexId;
+  }
+
   public static buildModalEntryAnimation(animationType: ModalAnimationType): ModalAnimationData {
     return DefaultEntryAnimationMap[animationType];
   }
@@ -103,6 +109,7 @@ export class Modal extends HippyWebView<HTMLDivElement> {
   public entryAnimationAction: Function|undefined;
   public leaveAnimationAction: Function|undefined;
   public onBackListener;
+  public zIndex = Modal.getModalIndex();
   public constructor(context, id, pId) {
     super(context, id, pId);
     this.tagName = InnerNodeTag.MODAL;
@@ -112,7 +119,6 @@ export class Modal extends HippyWebView<HTMLDivElement> {
       this.onOrientationChange(null);
     };
   }
-
 
   public defaultStyle(): {[key: string]: any} {
     return  {
@@ -124,6 +130,7 @@ export class Modal extends HippyWebView<HTMLDivElement> {
       top: '0%',
       position: 'fixed',
       boxSizing: 'border-box',
+      zIndex: this.zIndex,
     };
   }
 
@@ -222,7 +229,7 @@ export class Modal extends HippyWebView<HTMLDivElement> {
     }
   }
 
-  public async beforeMount(parent: HippyBaseView, position: number) {
+  public async beforeMount(parent: HippyBaseView|null, position: number) {
     await super.beforeMount(parent, position);
     this.entryAnimationAction = this.runAnimation(ModalAnimationModel.ENTRY, position);
     (this.context.getModuleByName('DeviceEventModule') as any).setModuleListener(this.onBackListener);
