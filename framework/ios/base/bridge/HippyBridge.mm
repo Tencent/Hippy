@@ -314,9 +314,12 @@ dispatch_queue_t HippyBridgeQueue() {
     __block NSData *script = nil;
     self.loadingCount++;
     dispatch_group_enter(group);
+    NSOperationQueue *bundleQueue = [[NSOperationQueue alloc] init];
+    bundleQueue.maxConcurrentOperationCount = 1;
+    bundleQueue.name = @"com.hippy.bundleQueue";
     HippyBundleLoadOperation *fetchOp = [[HippyBundleLoadOperation alloc] initWithBridge:self
                                                                                bundleURL:bundleURL
-                                                                                   queue:HippyBridgeQueue()];
+                                                                                   queue:bundleQueue];
     fetchOp.onLoad = ^(NSData *source, NSError *error) {
         if (error) {
             HippyBridgeFatal(error, weakSelf);
@@ -348,7 +351,7 @@ dispatch_queue_t HippyBridgeQueue() {
             }
             dispatch_group_leave(group);
         }];
-    } queue:HippyBridgeQueue()];
+    } queue:bundleQueue];
     //set dependency
     [executeOp addDependency:fetchOp];
     if (_lastOperation) {

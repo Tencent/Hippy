@@ -249,7 +249,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, NativeRenderView) 
     if (!loader) {
         return;
     }
-    loader->RequestUntrustedContent(path, nil, ^(NSData *data, NSURLResponse *response, NSError *error) {
+    loader->RequestUntrustedContent(path, nil, nil, ^(NSData *data, NSURLResponse *response, NSError *error) {
         NativeRenderImpl *renderImpl = self.renderImpl;
         id<HPImageProviderProtocol> imageProvider = nil;
         if (renderImpl) {

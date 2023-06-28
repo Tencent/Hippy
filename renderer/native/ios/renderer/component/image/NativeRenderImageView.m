@@ -44,11 +44,12 @@ typedef struct _BorderRadiusStruct {
     CGFloat bottomRightRadius;
 } BorderRadiusStruct;
 
-static NSOperationQueue *animated_image_queue() {
+static NSOperationQueue *animated_image_queue(void) {
     static dispatch_once_t onceToken;
     static NSOperationQueue *_animatedImageOQ = nil;
     dispatch_once(&onceToken, ^{
         _animatedImageOQ = [[NSOperationQueue alloc] init];
+        _animatedImageOQ.name = @"com.hippy.animatedImage";
     });
     return _animatedImageOQ;
 }
