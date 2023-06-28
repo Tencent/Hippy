@@ -240,7 +240,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
     this.context.sendUiEvent(this.id, 'onAttachedToWindow', null);
   }
 
-  public async beforeMount(parent: HippyBaseView, position: number) {
+  public async beforeMount(parent: HippyBaseView|null, position: number) {
     this.index = position;
   }
 

@@ -29,6 +29,7 @@ import {
   fontSizeAssociate
 } from '../common';
 import { AnimationModule } from './animation-module';
+import {Modal} from "../component";
 
 let ENV_STYLE_INIT_FLAG = false;
 export class UIManagerModule extends HippyWebModule {
@@ -38,6 +39,7 @@ export class UIManagerModule extends HippyWebModule {
   private rootDom: HTMLElement | undefined;
   private contentDom: HTMLElement | undefined;
   private afterCreateAction: Array<() => void> = [];
+  private modalDom: HTMLElement | undefined;
   constructor(context) {
     super(context);
     this.mode = 'sequential';
@@ -137,7 +139,6 @@ export class UIManagerModule extends HippyWebModule {
     if (parent.dom && child.dom) {
       parent.dom.insertBefore(child.dom, parent.dom.childNodes[index] ?? null);
     }
-    this.viewDictionary[child.id] = child;
   }
 
   public async removeChild(parent: HippyBaseView, childId: number) {
@@ -212,42 +213,62 @@ export class UIManagerModule extends HippyWebModule {
 
   public async viewInit(view: HippyBaseView, props: any, index: number) {
     if (!view.dom) {
-      throw Error(`component init process failed ,component's dom must be exit after component create ${view.tagName ?? ''}`);
+      throw Error(`component init process failed ,component's dom must be exit after component
+       create ${view.tagName ?? ''}`);
     }
     const { dom } = view;
     dom.id = String(view.id);
     this.updateViewProps(view, props);
+    const isModal = view instanceof Modal;
+
+    if (isModal) {
+      await view.beforeMount?.(null, this.modalDom?.childNodes.length ?? 0);
+      this.modalDom?.appendChild(view.dom);
+      this.viewDictionary[view.id] = view;
+      view.mounted?.();
+      return;
+    }
+
     const parent = this.findViewById(view.pId);
     if (!parent || !parent.dom) {
-      warn(`component init process failed ,component's parent not exist or dom not exist, pid: ${view.pId}`);
+      warn(`component init process failed ,component's parent not exist or dom not exist,
+      pid: ${view.pId}`);
       return;
     }
     let realIndex = index;
-    if (!parent.insertChild && parent.dom?.childNodes?.length !== undefined && index > parent.dom?.childNodes?.length) {
+    if (!parent.insertChild && parent.dom?.childNodes?.length !== undefined
+      && index > parent.dom?.childNodes?.length) {
       realIndex = parent.dom?.childNodes?.length ?? index;
     }
+
     await view.beforeMount?.(parent, realIndex);
     await parent.beforeChildMount?.(view, realIndex);
     if (parent.insertChild) {
       parent.insertChild(view, index);
-      this.viewDictionary[view.id] = view;
     } else {
       this.appendChild(parent, view, realIndex);
     }
+    this.viewDictionary[view.id] = view;
     view.mounted?.();
   }
 
   public async viewDelete(view: HippyBaseView | undefined | null) {
-    const parentView = view ? this.findViewById(view.pId) : null;
-    if (!parentView) {
+    if (!view) {
       return;
     }
-    await view!.beforeRemove?.();
-    await parentView.beforeChildRemove?.(view!);
-    if (parentView.removeChild) {
-      await parentView.removeChild(view!);
-    } else {
-      await this.removeChild(parentView, view!.id);
+    await view.beforeRemove?.();
+    const parentView = this.findViewById(view.pId);
+    const isModal = view instanceof Modal;
+    if (isModal) {
+      this.modalDom?.removeChild(view.dom!);
+    }
+    if (parentView && !isModal) {
+      await parentView?.beforeChildRemove?.(view!);
+      if (parentView?.removeChild) {
+        await parentView.removeChild(view!);
+      } else if (parentView) {
+        await this.removeChild(parentView, view!.id);
+      }
     }
     view!.destroy?.();
     delete this.viewDictionary[view!.id];
@@ -279,6 +300,8 @@ export class UIManagerModule extends HippyWebModule {
       } else {
         this.contentDom = window.document.getElementById(rootViewId)!;
       }
+      this.modalDom = createModalContainer();
+      this.rootDom.appendChild(this.modalDom);
       this.contentDom.parentNode!.childNodes.forEach((item, index) => {
         if (item === this.contentDom) {
           position = index;
@@ -376,6 +399,14 @@ function createRoot(id: string) {
   root.setAttribute('id', id);
   root.id = id;
   return root;
+}
+
+function  createModalContainer() {
+  const dom = window.document.createElement('div');
+  dom.style.width = '100%';
+  dom.style.height = '100%';
+  dom.style.position = 'absolute';
+  return dom;
 }
 
 function setRootDefaultStyle(element: HTMLElement) {
