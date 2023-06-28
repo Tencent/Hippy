@@ -31,7 +31,6 @@ const baseTextStyle = {
   backgroundColor: 'transparent',
   border: '0 solid black',
   boxSizing: 'border-box',
-  font: '14px System',
   listStyle: 'none',
   margin: 0,
   padding: 0,
