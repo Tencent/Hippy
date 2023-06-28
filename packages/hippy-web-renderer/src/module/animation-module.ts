@@ -340,7 +340,7 @@ class SimpleAnimation {
   }
 
   public start() {
-    if (this.cleared) {
+    if (this.cleared || this.refNodeIds.size === 0) {
       return;
     }
     const data = this.createAnimationKeyFrame(this.createAnimationBeginAndEndValue());
