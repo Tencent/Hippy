@@ -134,7 +134,6 @@ public class FlexNode implements FlexNodeAPI<FlexNode> {
   protected void finalize() throws Throwable {
     try {
       nativeFlexNodeFree(mNativeFlexNode);
-      mFlexNodeStyle = null;
     } finally {
       super.finalize();
     }
