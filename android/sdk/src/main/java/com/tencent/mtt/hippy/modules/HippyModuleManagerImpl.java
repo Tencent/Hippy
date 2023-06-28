@@ -225,6 +225,11 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
         return null;
     }
 
+    @Override
+    public int getNativeModuleCount() {
+        return mNativeModuleInfo.size();
+    }
+
     @Nullable
     public HippyNativeModuleInfo getModuleInfo(@NonNull String moduleName) {
         return mNativeModuleInfo.get(moduleName);
