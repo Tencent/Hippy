@@ -42,8 +42,11 @@ void HippyFileHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob
     FOOTSTONE_UNIMPLEMENTED();
 }
 
-void HippyFileHandler::RequestUntrustedContent(NSURLRequest *request, VFSHandlerProgressBlock progress,
-                                               VFSHandlerCompletionBlock completion, VFSGetNextHandlerBlock next) {
+void HippyFileHandler::RequestUntrustedContent(NSURLRequest *request,
+                                               NSOperationQueue *queue,
+                                               VFSHandlerProgressBlock progress,
+                                               VFSHandlerCompletionBlock completion,
+                                               VFSGetNextHandlerBlock next) {
     if (!completion) {
         return;
     }
@@ -71,5 +74,5 @@ void HippyFileHandler::RequestUntrustedContent(NSURLRequest *request, VFSHandler
     }
     NSMutableURLRequest *req = [request mutableCopy];
     [req setURL:absoluteURL];
-    VFSUriHandler::RequestUntrustedContent(req, progress, completion, next);
+    VFSUriHandler::RequestUntrustedContent(req, queue, progress, completion, next);
 }
