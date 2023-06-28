@@ -84,6 +84,7 @@ class HippyEngineWrapper {
             }
         }
         val providers: MutableList<HippyAPIProvider> = ArrayList()
+        providers.add(ExampleAPIProvider())
         initParams.providers = providers
         initParams.enableTurbo = true
         hippyEngine = create(initParams)

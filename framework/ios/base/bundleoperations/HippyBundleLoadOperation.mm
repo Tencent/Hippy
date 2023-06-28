@@ -47,6 +47,7 @@
 @synthesize executing = _executing;
 
 - (instancetype)initWithBridge:(HippyBridge *)bridge bundleURL:(NSURL *)bundleURL queue:(dispatch_queue_t)queue {
+    self = [super init];
     if (self) {
         _bridge = bridge;
         _bundleURL = bundleURL;
