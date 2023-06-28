@@ -669,27 +669,11 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
     HippyAssertParam(script);
     HippyAssertParam(sourceURL);
 
-    BOOL isRAMBundle = NO;
-    {
-        NSError *error;
-        script = loadPossiblyBundledApplicationScript(script, sourceURL, _performanceLogger, isRAMBundle, _randomAccessBundle, &error);
-        if (script == nil) {
-            if (onComplete) {
-                onComplete(error);
-            }
-            return;
-        }
-    }
-
     // HippyProfileBeginFlowEvent();
     [self executeBlockOnJavaScriptQueue:^{
         // HippyProfileEndFlowEvent();
         if (!self.isValid) {
             return;
-        }
-
-        if (isRAMBundle) {
-            registerNativeRequire([self JSContext], self);
         }
 
         NSError *error = executeApplicationScript(script, sourceURL, isCommonBundle, self->_performanceLogger, [self JSGlobalContextRef]);
@@ -719,26 +703,6 @@ static void handleJsExcepiton(std::shared_ptr<Scope> scope) {
   }
 }
 
-static NSData *loadPossiblyBundledApplicationScript(NSData *script, __unused NSURL *sourceURL, __unused HippyPerformanceLogger *performanceLogger,
-    __unused BOOL &isRAMBundle, __unused RandomAccessBundleData &randomAccessBundle, __unused NSError **error) {
-    // JSStringCreateWithUTF8CString expects a null terminated C string.
-    // RAM Bundling already provides a null terminated one.
-    @autoreleasepool {
-        NSMutableData *nullTerminatedScript = [NSMutableData dataWithCapacity:script.length + 1];
-        [nullTerminatedScript appendData:script];
-        [nullTerminatedScript appendBytes:"" length:1];
-        script = nullTerminatedScript;
-        return script;
-    }
-}
-
-static void registerNativeRequire(JSContext *context, HippyJSCExecutor *executor) {
-    __weak HippyJSCExecutor *weakExecutor = executor;
-    context[@"nativeRequire"] = ^(NSNumber *moduleID) {
-        [weakExecutor _nativeRequire:moduleID];
-    };
-}
-
 static NSLock *jslock() {
     static dispatch_once_t onceToken;
     static NSLock *lock = nil;
@@ -762,7 +726,9 @@ static NSError *executeApplicationScript(NSData *script,
         }
         
         JSValueRef jsError = NULL;
-        JSStringRef execJSString = JSStringCreateWithUTF8CString((const char *)script.bytes);
+        NSString *scriptText = [[NSString alloc] initWithData:script encoding:NSUTF8StringEncoding];
+        JSStringRef execJSString = JSStringCreateWithCFString((__bridge CFStringRef)scriptText);
+        //JSStringCreateWithUTF8CString((const char *)script.bytes);
         JSStringRef bundleURL = JSStringCreateWithCFString((__bridge CFStringRef)sourceURL.absoluteString);
 
         NSLock *lock = jslock();
