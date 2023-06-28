@@ -98,17 +98,19 @@ export function positionAssociate(
   if (!parent) {
     return;
   }
+  const updateStyle: any = {};
   if (newStyle.position === 'absolute' && !parent?.props?.style?.position
     && !parent?.defaultStyle().position) {
-    setElementStyle(parent!.dom!, { position: 'relative' });
+    updateStyle.position = 'relative';
     const pzIndex = parent?.props?.style?.zIndex;
     if (pzIndex === undefined) {
-      setElementStyle(parent!.dom!, { zIndex: 0 });
+      updateStyle.zIndex = 0;
     }
   }
   if (newStyle.position === 'absolute' && !newStyle.width && !newStyle.height && !newStyle.overflow) {
-    setElementStyle(component.dom!, { overflow: 'visible' });
+    updateStyle.overflow = 'visible';
   }
+  setElementStyle(parent!.dom!, updateStyle);
 }
 
 export function zIndexAssociate(
