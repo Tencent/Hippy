@@ -60,7 +60,7 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
   }
 
   public defaultStyle(): {[key: string]: any} {
-    return { boxSizing: 'border-box', zIndex: 0 };
+    return { boxSizing: 'border-box', zIndex: 0, objectFit: 'fill' };
   }
 
   public set tintColor(value) {
@@ -176,6 +176,12 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
   }
 
   public mounted() {
+    const { style } = this.props;
+    if (!style.width && !style.height && style.position === 'absolute') {
+      this.props.style.width = '100%';
+      this.props.style.height = '100%';
+      setElementStyle(this.dom!, { width: '100%', height: '100%' });
+    }
     if (this.tintModeContainerDom && this.dom !== this.tintModeContainerDom) {
       const oldParentNode = this.dom!.parentNode!;
       this.imgDomChangeContainer(oldParentNode as HTMLElement, this.tintModeContainerDom);
@@ -230,6 +236,7 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
       this.clearBorder();
     }
   }
+
   private clearBorder() {
     this.renderImgDom!.style.borderStyle = '';
     this.renderImgDom!.style.borderTopStyle = '';
