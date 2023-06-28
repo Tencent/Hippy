@@ -93,8 +93,11 @@ export function setElementStyle(element: HTMLElement, object: any, animationProc
 
 export function positionAssociate(
   newStyle: {[prop: string]: any},
-  component: HippyBaseView, parent: HippyWebView<any>,
+  component: HippyBaseView, parent: HippyWebView<any>|null,
 ) {
+  if (!parent) {
+    return;
+  }
   if (newStyle.position === 'absolute' && !parent?.props?.style?.position
     && !parent?.defaultStyle().position) {
     setElementStyle(parent!.dom!, { position: 'relative' });
@@ -110,8 +113,11 @@ export function positionAssociate(
 
 export function zIndexAssociate(
   diffStyle: {[prop: string]: any},
-  component: HippyBaseView, parent: HippyWebView<any>,
+  component: HippyBaseView, parent: HippyWebView<any>|null,
 ) {
+  if (!parent) {
+    return;
+  }
   if ((diffStyle.position === 'absolute' || diffStyle.position === 'relative')) {
     parent?.changeStackContext(true);
     (component as HippyWebView<any>).updateSelfStackContext(true);
