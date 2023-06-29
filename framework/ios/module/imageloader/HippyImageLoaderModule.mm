@@ -61,6 +61,7 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
                                             method:@"Get"
                                             params:nil
                                               body:nil
+                                             queue:nil
                                           progress:nil
                                  completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         if (!error) {
@@ -100,6 +101,7 @@ HIPPY_EXPORT_METHOD(prefetch:(NSString *)urlString) {
                                             method:@"Get"
                                             params:nil
                                               body:nil
+                                             queue:nil
                                           progress:nil
                                  completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
 
