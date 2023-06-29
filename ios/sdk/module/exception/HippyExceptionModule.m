@@ -31,7 +31,6 @@
 
 HIPPY_EXPORT_MODULE(ExceptionModule)
 
-// clang-format off
 HIPPY_EXPORT_METHOD(handleException:(NSString *)title detail:(NSString *)detail
                     timeInterval:(nonnull NSNumber *)timeInterval
                     resolver:(__unused HippyPromiseResolveBlock)resolve
@@ -67,6 +66,5 @@ HIPPY_EXPORT_METHOD(handleException:(NSString *)title detail:(NSString *)detail
     NSError *error = [NSError errorWithDomain:HippyErrorDomain code:1 userInfo:errorInfo];
     HippyFatal(error);
 }
-// clang-format on
 
 @end

@@ -740,7 +740,6 @@ static BOOL HippyLayerHasShadow(CALayer *layer) {
 
 #pragma mark Border Color
 
-// clang-format off
 #define setBorderColor(side)                                    \
     -(void)setBorder##side##Color : (CGColorRef)color {         \
         if (CGColorEqualToColor(_border##side##Color, color)) { \
@@ -803,7 +802,6 @@ setBorderRadius(BottomRight)
     }
 
 setBorderStyle()
-// clang-format on
 
 - (void)dealloc {
     CGColorRelease(_borderColor);
