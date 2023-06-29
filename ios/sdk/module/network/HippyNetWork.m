@@ -45,7 +45,6 @@ HippyFetchInfo *fetchInfoForSessionTask(NSURLSessionTask *task) {
 
 HIPPY_EXPORT_MODULE(network)
 
-// clang-format off
 HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromiseResolveBlock)resolve rejecter:(__unused HippyPromiseRejectBlock)reject) {
     NSString *method = params[@"method"];
     NSString *url = params[@"url"];
@@ -98,7 +97,6 @@ HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromise
     setFetchInfoForSessionTask(task, fetchInfo);
     [task resume];
 }
-// clang-format on
 
 - (void)URLSession:(NSURLSession *)session
                           task:(NSURLSessionTask *)task
@@ -157,7 +155,6 @@ HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromise
     return nil;
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(getCookie:(NSString *)urlString resolver:(HippyPromiseResolveBlock)resolve rejecter:(__unused HippyPromiseRejectBlock)reject) {
     NSData *uriData = [urlString dataUsingEncoding:NSUTF8StringEncoding];
     if (nil == uriData) {
@@ -176,9 +173,7 @@ HIPPY_EXPORT_METHOD(getCookie:(NSString *)urlString resolver:(HippyPromiseResolv
     }
     resolve(string);
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(setCookie:(NSString *)urlString keyValue:(NSString *)keyValue expireString:(NSString *)expireString) {
     NSData *uriData = [urlString dataUsingEncoding:NSUTF8StringEncoding];
     if (nil == uriData) {
@@ -247,7 +242,6 @@ HIPPY_EXPORT_METHOD(setCookie:(NSString *)urlString keyValue:(NSString *)keyValu
         [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookies:cookies forURL:source_url mainDocumentURL:nil];
     });
 }
-// clang-format on
 
 - (void)deleteCookiesForURL:(NSURL *)url {
     NSString *path = [[url path] isEqualToString:@""]?@"/":[url path];

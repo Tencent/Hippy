@@ -613,7 +613,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
  * A method to be called from JS, which takes a container ID and then releases
  * all subviews for that container upon receipt.
  */
-// clang-format off
 HIPPY_EXPORT_METHOD(removeSubviewsFromContainerWithID:(nonnull NSNumber *)containerID) {
     id<HippyComponent> container = _shadowViewRegistry[containerID];
     HippyAssert(container != nil, @"container view (for ID %@) not found", containerID);
@@ -631,7 +630,6 @@ HIPPY_EXPORT_METHOD(removeSubviewsFromContainerWithID:(nonnull NSNumber *)contai
             addAtIndices:nil
          removeAtIndices:indices];
 }
-// clang-format on
 
 /**
  * Disassociates children from container. Doesn't remove from registries.
@@ -674,7 +672,6 @@ HIPPY_EXPORT_METHOD(removeSubviewsFromContainerWithID:(nonnull NSNumber *)contai
     }
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(removeRootView:(nonnull NSNumber *)rootHippyTag) {
     HippyShadowView *rootShadowView = _shadowViewRegistry[rootHippyTag];
     HippyAssert(rootShadowView.superview == nil, @"root view cannot have superview (ID %@)", rootHippyTag);
@@ -704,9 +701,7 @@ HIPPY_EXPORT_METHOD(removeRootView:(nonnull NSNumber *)rootHippyTag) {
         }
     }];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(replaceExistingNonRootView:(nonnull NSNumber *)hippyTag
                   withView:(nonnull NSNumber *)newHippyTag) {
     HippyShadowView *shadowView = _shadowViewRegistry[hippyTag];
@@ -726,9 +721,7 @@ HIPPY_EXPORT_METHOD(replaceExistingNonRootView:(nonnull NSNumber *)hippyTag
             addAtIndices:removeAtIndices
          removeAtIndices:removeAtIndices];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(setChildren:(nonnull NSNumber *)containerTag
                   hippyTags:(NSArray<NSNumber *> *)hippyTags) {
     HippySetChildren(containerTag, hippyTags,
@@ -744,7 +737,6 @@ HIPPY_EXPORT_METHOD(setChildren:(nonnull NSNumber *)containerTag
                        (NSDictionary<NSNumber *, id<HippyComponent>> *)viewRegistry);
     }];
 }
-// clang-format on
 
 static void HippySetVirtualChildren(
     NSNumber *containerTag, NSArray<NSNumber *> *hippyTags, NSDictionary<NSNumber *, HippyVirtualNode *> *virtualNodeRegistry) {
@@ -770,12 +762,9 @@ static void HippySetChildren(NSNumber *containerTag, NSArray<NSNumber *> *hippyT
     }
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(startBatch) {
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(endBatch) {
     if (_pendingUIBlocks.count) {
         [self batchDidComplete];
@@ -783,9 +772,7 @@ HIPPY_EXPORT_METHOD(endBatch) {
                                                             object:self];
     }
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
                   moveFromIndices:(NSArray<NSNumber *> *)moveFromIndices
                   moveToIndices:(NSArray<NSNumber *> *)moveToIndices
@@ -821,7 +808,6 @@ HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
                           registry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)viewRegistry];
     }];
 }
-// clang-format on
 
 - (void)_manageChildren:(NSNumber *)containerTag
         moveFromIndices:(NSArray<NSNumber *> *)moveFromIndices
@@ -885,7 +871,6 @@ HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
     }
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
                   viewName:(NSString *)viewName
                   rootTag:(nonnull NSNumber *)rootTag
@@ -951,7 +936,6 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
         }
     }];
 }
-// clang-format on
 
 - (UIView *)createViewByComponentData:(HippyComponentData *)componentData
                      hippyVirtualNode:(HippyVirtualNode *)node
@@ -1025,7 +1009,6 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
     [self batchDidComplete];
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(updateView:(nonnull NSNumber *)hippyTag
                   viewName:(NSString *)viewName // not always reliable, use shadowView.viewName if available
                   props:(NSDictionary *)props) {
@@ -1060,9 +1043,7 @@ HIPPY_EXPORT_METHOD(updateView:(nonnull NSNumber *)hippyTag
         [componentData setProps:newProps forView:view];
     }];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(dispatchViewManagerCommand:(nonnull NSNumber *)hippyTag
                   commandID:(NSInteger)commandID
                   commandArgs:(NSArray<id> *)commandArgs) {
@@ -1075,7 +1056,6 @@ HIPPY_EXPORT_METHOD(dispatchViewManagerCommand:(nonnull NSNumber *)hippyTag
     NSArray *args = [@[hippyTag] arrayByAddingObjectsFromArray:commandArgs];
     [method invokeWithBridge:_bridge module:componentData.manager arguments:args];
 }
-// clang-format on
 
 - (void)partialBatchDidFlush {
     if (self.unsafeFlushUIChangesBeforeBatchEnds) {
