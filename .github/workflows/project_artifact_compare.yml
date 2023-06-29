@@ -99,7 +99,7 @@ jobs:
       run: |
         pushd framework/examples/ios-demo
         xcodegen
-        pop install
+        pod install
         popd
         xcodebuild build \
           -destination 'generic/platform=iOS' \

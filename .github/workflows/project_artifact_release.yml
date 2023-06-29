@@ -169,9 +169,6 @@ jobs:
   js_release:
     if: github.event.inputs.is_release_for_js == 'true'
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [ 16.x, 17.x ]
     steps:
       - name: Checkout (${{ github.event.inputs.git_ref }})
         uses: actions/checkout@v3
@@ -181,17 +178,17 @@ jobs:
       - name: setup-node
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 18
           registry-url: https://npm.pkg.github.com
           cache: 'npm'
           cache-dependency-path: driver/js/package-lock.json
       - name: Install dependencies
-        run: npm ci
+        run: npm install
       - name: Build packages
         run: npm run build
       - uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 18
           registry-url: 'https://registry.npmjs.org'
       - name: Publish to NPM
         if: github.event.inputs.js_npm_dist_tag_name != null && (github.event.inputs.registry_choice == 'Both' || github.event.inputs.registry_choice == 'Default')
