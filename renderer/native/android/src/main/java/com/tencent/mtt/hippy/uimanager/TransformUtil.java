@@ -15,6 +15,11 @@
  */
 package com.tencent.mtt.hippy.uimanager;
 
+
+import android.graphics.Matrix;
+
+import com.tencent.mtt.hippy.utils.PixelUtil;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -44,6 +49,94 @@ public class TransformUtil {
       value = ((Number) transformMap.get(key)).doubleValue();
     }
     return inRadians ? value : MatrixUtil.degreesToRadians(value);
+  }
+
+  private static double convertToDegrees(HashMap<String, Object> transformMap, String key) {
+    double value = 0;
+    boolean inRadians = true;
+    if (transformMap.get(key) instanceof String) {
+      String stringValue = (String) transformMap.get(key);
+      if (stringValue.endsWith("deg")) {
+        inRadians = false;
+      }
+      if (stringValue.endsWith("rad") || stringValue.endsWith("deg")) {
+        stringValue = stringValue.substring(0, stringValue.length() - 3);
+      }
+      value = Float.parseFloat(stringValue);
+    } else if (transformMap.get(key) instanceof Number) {
+      // number as radians
+      value = ((Number) transformMap.get(key)).doubleValue();
+    }
+    return inRadians ? MatrixUtil.radiansToDegrees(value) : value;
+  }
+
+  public static boolean tryProcessTransformBySkiaMatrix(ArrayList<Object> transforms, Matrix matrix,
+                                                        int viewWidth, int viewHeight) {
+    assert matrix != null;
+    matrix.reset();
+    // center of view.
+    int originX = viewWidth / 2, originY = viewHeight / 2;
+
+    for (int transformIdx = 0, size = transforms.size(); transformIdx < size; transformIdx++) {
+      Object transformObj = transforms.get(transformIdx);
+      if (!(transformObj instanceof HashMap)) {
+        continue;
+      }
+      HashMap<String, Object> transform = (HashMap) transformObj;
+      String transformType = transform.keySet().iterator().next();
+
+      Object value = transform.get(transformType);
+      if ("rotate".equals(transformType) || "rotateZ".equals(transformType)) {
+        matrix.postRotate((float) convertToDegrees(transform, transformType), originX, originY);
+      } else if ("scale".equals(transformType) && value instanceof Number) {
+        float scale = ((Number) value).floatValue();
+        matrix.postScale(scale, scale, originX, originY);
+      } else if ("scaleX".equals(transformType) && value instanceof Number) {
+        matrix.postScale(((Number) value).floatValue(), 0, originX, originY);
+      } else if ("scaleY".equals(transformType) && value instanceof Number) {
+        matrix.postScale(0, ((Number) value).floatValue(), originX, originY);
+      } else if ("translate".equals(transformType) && value instanceof ArrayList) {
+        double x = 0d, y = 0d, z = 0d;
+
+        if (((ArrayList) value).size() > 0) {
+          Object tranX = ((ArrayList) value).get(0);
+          if (tranX instanceof Number) {
+            x = ((Number) tranX).doubleValue();
+          }
+        }
+
+        if (((ArrayList) value).size() > 1) {
+          Object tranY = ((ArrayList) value).get(1);
+          if (tranY instanceof Number) {
+            y = ((Number) tranY).doubleValue();
+          }
+        }
+
+        if (((ArrayList) value).size() > 2) {
+          Object tranZ = ((ArrayList) value).get(2);
+          if (tranZ instanceof Number) {
+            z = ((Number) tranZ).doubleValue();
+          }
+        }
+        // no translate in z axis.
+        if (z != 0) {
+          return false;
+        }
+        matrix.postTranslate(PixelUtil.dp2px((float) x), PixelUtil.dp2px((float) y));
+      } else if ("translateX".equals(transformType) && value instanceof Number) {
+        matrix.postTranslate(PixelUtil.dp2px(((Number) value).floatValue()), 0);
+      } else if ("translateY".equals(transformType) && value instanceof Number) {
+        matrix.postTranslate(0, PixelUtil.dp2px(((Number) value).floatValue()));
+      } else if ("skewX".equals(transformType)) {
+        matrix.postSkew((float) convertToRadians(transform, transformType), 0);
+      } else if ("skewY".equals(transformType)) {
+        matrix.postSkew(0, (float) convertToRadians(transform, transformType));
+      } else {
+        // matrix, perspective rotateX rotateY
+        return false;
+      }
+    }
+    return true;
   }
 
   public static void processTransform(ArrayList<Object> transforms, double[] result) {

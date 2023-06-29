@@ -17,6 +17,8 @@
 package com.tencent.mtt.hippy.uimanager;
 
 import android.content.Context;
+import android.graphics.Matrix;
+import android.os.Build;
 import android.os.Looper;
 import android.os.MessageQueue;
 import android.view.View;
@@ -341,6 +343,14 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     }
 
     private void applyTransform(T view, ArrayList<Object> transformArray) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Matrix matrix = new Matrix();
+            if (TransformUtil.tryProcessTransformBySkiaMatrix(transformArray, matrix,
+                view.getWidth(), view.getHeight())) {
+                view.setAnimationMatrix(matrix);
+                return;
+            }
+        }
         TransformUtil.processTransform(transformArray, sTransformDecompositionArray);
         sMatrixDecompositionContext.reset();
         MatrixUtil.decomposeMatrix(sTransformDecompositionArray, sMatrixDecompositionContext);
