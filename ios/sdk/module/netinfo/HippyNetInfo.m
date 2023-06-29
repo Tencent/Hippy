@@ -70,7 +70,6 @@ HIPPY_EXPORT_MODULE()
 
 #pragma mark - Public API
 
-// clang-format off
 HIPPY_EXPORT_METHOD(getCurrentConnectivity:(HippyPromiseResolveBlock)resolve
                   reject:(__unused HippyPromiseRejectBlock)reject) {
     if (!resolve) {
@@ -80,6 +79,5 @@ HIPPY_EXPORT_METHOD(getCurrentConnectivity:(HippyPromiseResolveBlock)resolve
     NSDictionary *dic = callbackParamFromCellType(obj);
     resolve(dic);
 }
-// clang-format on
 
 @end

@@ -34,22 +34,18 @@ HIPPY_EXPORT_VIEW_PROPERTY(bounceTime, CGFloat)
     return [HippyRefreshWrapper new];
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(refreshComplected:(NSNumber *__nonnull)hippyTag args:(id)arg) {
     [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyRefreshWrapper *wrapperView = viewRegistry[hippyTag];
         [wrapperView refreshCompleted];
     }];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(startRefresh:(NSNumber *__nonnull)hippyTag args:(id)arg) {
     [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyRefreshWrapper *wrapperView = viewRegistry[hippyTag];
         [wrapperView startRefresh];
     }];
 }
-// clang-format on
 
 @end
