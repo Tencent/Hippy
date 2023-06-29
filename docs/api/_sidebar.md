@@ -1,4 +1,3 @@
-<!-- docs/hippy-vue/_sidebar.md -->
 * hippy-react
   * [介绍](api/hippy-react/introduction.md)
   * [组件](api/hippy-react/components.md)
@@ -18,7 +17,16 @@
   * [自定义组件和模块](api/hippy-vue/customize.md)
   * [路由](api/hippy-vue/router.md)
   * [转 Web](api/hippy-vue/web.md)
-  * [Vue 3.x](api/hippy-vue/vue3.md)
+* hippy-vue-next
+  * [介绍](api/hippy-vue-next/introduction.md)
+  * [核心组件](api/hippy-vue-next/components.md)
+  * [扩展组件](api/hippy-vue-next/external-components.md)
+  * [模块](api/hippy-vue-next/vue-native.md)
+  * [样式](api/hippy-vue-next/style.md)
+  * [事件](api/hippy-vue-next/native-event.md)
+  * [自定义组件和模块](api/hippy-vue-next/customize.md)
+  * [路由](api/hippy-vue-next/router.md)
+  * [转 Web](api/hippy-vue-next/web.md)
 * 样式
   * [布局](api/style/layout.md)
   * [外观](api/style/appearance.md)

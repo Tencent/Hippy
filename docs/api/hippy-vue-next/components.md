@@ -8,7 +8,7 @@
 
 # a
 
-该组件目前映射到终端 Text 组件，目前主要用于在 hippy-vue-router 中进行页面跳转。 一切同 [p](api/hippy-vue/components.md?id=p)。
+该组件目前映射到终端 Text 组件，目前主要用于在 hippy-vue-router 中进行页面跳转。 一切同 [p](api/hippy-vue-next/components.md?id=p)。
 
 ## 事件
 
@@ -23,9 +23,9 @@
 
 # button
 
-[[范例：demo-button.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-button.vue)
+[[范例：demo-button.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/components/demo/demo-button.vue)
 
-该组件映射到 View 组件，容器里面可以放图片、也可以放文本。但是因为 View 不能包裹文本，所以需要在 `<button>` 里包裹其它文本组件才能显示文字，这个跟浏览器不一样，浏览器的 `<button>` 也可以包裹 `<span>` 组件，开发时注意一下。一切同 [div](api/hippy-vue/components.md?id=div)。
+该组件映射到 View 组件，容器里面可以放图片、也可以放文本。但是因为 View 不能包裹文本，所以需要在 `<button>` 里包裹其它文本组件才能显示文字，这个跟浏览器不一样，浏览器的 `<button>` 也可以包裹 `<span>` 组件，开发时注意一下。一切同 [div](api/hippy-vue-next/components.md?id=div)。
 
 ## 事件
 
@@ -42,7 +42,7 @@
 
 # div
 
-[[范例：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
+[[范例：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/components/demo/demo-div.vue)
 
 > div 组件容器，默认不可以滚动。可以通过增加样式参数 `overflow-y: scroll` 切换为可以纵向滚动容器，或者增加样式参数 `overflow-x: scroll` 切换为水平滚动容器。在终端侧会被映射成 [ScrollView](api/hippy-react/components.md?id=ScrollView)，因此具备 [ScrollView](hippy-react/components.md?id=ScrollView) 通用的能力。
 
@@ -66,7 +66,7 @@
 | showScrollIndicator            | 是否显示滚动条。 `default: false`（仅在 overflow-y/x: scroll 时适用） | `boolean`  | `Android、Voltron`    |
 | showsHorizontalScrollIndicator | 当此值设为 `false` 的时候，`ScrollView` 会隐藏水平的滚动条。`default: true` `（仅在 overflow-y/x: scroll 时适用）`| `boolean`                                                    | `iOS、Voltron`    |
 | showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` `（仅在 overflow-y/x: scroll 时适用）`| `boolean`  | `iOS、Voltron`   | 
-| nativeBackgroundAndroid        | 配置水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: number }`； `borderless` 表示波纹是否有边界，默认false；`color` 波纹颜色；`rippleRadius` 波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用 setPressed 和 setHotspot 方法进行水波纹展示，详情参考相关`[demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue) | `Object`| `Android`    |
+| nativeBackgroundAndroid        | 配置水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: number }`； `borderless` 表示波纹是否有边界，默认false；`color` 波纹颜色；`rippleRadius` 波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用 setPressed 和 setHotspot 方法进行水波纹展示，详情参考相关`[demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo/src/components/demo/demo-div.vue) | `Object`| `Android`    |
 
 ---
 
@@ -104,7 +104,7 @@
 
 ### setPressed
 
-[[setPressed 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/demos/demo-ripple-div.vue)
+[[setPressed 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo/src/components/demo/demo-ripple-div.vue)
 
 `最低支持版本 2.13.1`
 
@@ -114,7 +114,7 @@
 
 ### setHotspot
 
-[[setHotspot 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/demos/demo-ripple-div.vue)
+[[setHotspot 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo/src/components/demo/demo-ripple-div.vue)
 
 `最低支持版本 2.13.1`
 
@@ -124,15 +124,15 @@
 
 # form
 
-[[范例：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
+[[范例：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/components/demo/demo-div.vue)
 
-容器组件。 一切同 [div](api/hippy-vue/components.md?id=div)。
+容器组件。 一切同 [div](api/hippy-vue-next/components.md?id=div)。
 
 ---
 
 # iframe
 
-[[范例：demo-iframe.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-iframe.vue)
+[[范例：demo-iframe.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/components/demo/demo-iframe.vue)
 
 内嵌网页容器。
 
@@ -156,7 +156,7 @@
 
 # img
 
-[[范例：demo-img.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-img.vue)
+[[范例：demo-img.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/components/demo/demo-img.vue)
 
 图片组件，和浏览器的一样。
 
@@ -198,7 +198,7 @@
 
 # input
 
-[[范例：demo-input.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-input.vue)
+[[范例：demo-input.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/components/demo/demo-input.vue)
 
 单行文本组件。
 
@@ -315,9 +315,9 @@
 
 # label
 
-[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
+[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/components/demo/demo-p.vue)
 
-显示文本。 一切同 [p](api/hippy-vue/components.md?id=p)。
+显示文本。 一切同 [p](api/hippy-vue-next/components.md?id=p)。
 
 ## 事件
 
@@ -332,7 +332,7 @@
 
 # ul
 
-[[范例：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-list.vue)
+[[范例：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/components/demo/demo-list.vue)
 
 Hippy 的重点功能，高性能的可复用列表组件，在终端侧会被映射成 `ListView`，包含 `ListView` 所有能力。里面第一层只能包含 `<li>`。
 
@@ -393,7 +393,7 @@ Hippy 的重点功能，高性能的可复用列表组件，在终端侧会被�
 
 ul 的子节点，终端层节点回收和复用的最小颗粒度。
 
-[[范例：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-list.vue)
+[[范例：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/components/demo/demo-list.vue)
 
 ## 参数
 
@@ -402,7 +402,7 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 | 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
 | type            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。`注意：同一 type 的 item 组件由于复用可能不会走完整组件创建生命周期` | `number`              | `Android、iOS、Web-Renderer、Voltron`    |
-| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官网](//vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS、Web-Renderer、Voltron`    |
+| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官网](//cn.vuejs.org/guide/essentials/list.html) | `string`                                    | `Android、iOS、Web-Renderer、Voltron`    |
 | sticky       | 对应的 item 是否需要使用悬停效果（滚动到顶部时，会悬停在 ListView 顶部，不会滚出屏幕），需跟 `ul` 的 `rowShouldSticky` 配合使用 | `boolean`                                | `Android、iOS、Web-Renderer、Voltron`
 | appear       | 当有`li`节点滑动进入屏幕时（曝光）触发，入参返回曝光的`li`节点对应索引值。 | `(index) => any` | `Android、iOS、Web-Renderer、Voltron` |
 | disappear       | 当有`li`节点滑动离开屏幕时触发，入参返回离开的`li`节点对应索引值。 | `(index) => any` | `Android、iOS、Web-Renderer、Voltron` |
@@ -413,7 +413,7 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 
 # p
 
-[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
+[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/components/demo/demo-p.vue)
 
 显示文本，不过因为 Hippy 下没有 `display: inline` 的显示模式，默认全部都是 flex 的。
 
@@ -447,43 +447,48 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 
 ## whitespace 处理
 
+Vue3.x 默认值为 `condense`（可参考 [Vue3 whitespace说明](https://cn.vuejs.org/api/application.html#app-config-compileroptions-whitespace)）。
+
 `2.15.3` 版本前，Hippy 对模板中文本空格的处理行为默认采用 `trim` 的处理，即会将元素中开头和结尾的空格（包括特殊 `&nbsp;`）均去除。
 
-`2.15.3` 版本后，增加 `Vue.config.trimWhitespace` 配置，设为 `false` 可关闭 `trim` 的处理，其余遵循 [Vue-Loader compilerOptions](https://cn.vuejs.org/api/application.html#app-config-compileroptions-whitespace) 本身的配置。
-
-!> 注意：Vue2.x compilerOptions.whitespace 的默认值为 `preserve`
+`2.15.3` 版本后，支持在初始化 APP （createApp）时传入 whitespace 的处理方式
 
 ```javascript
-// entry file
-// trimWhitespace default is  true
-Vue.config.trimWhitespace = false; // close trim handler
+  // entry file
+  const app: HippyApp = createApp(App, {
+   // hippy native module name
+   appName: 'Demo',
+   // trimWhitespace default is true
+   trimWhitespace: false,
+  });
 
-// webpack script
-rules: [
+  //  webpack script
+  rules: [
   {
-    test: /\.vue$/,
-    use: [
+      test: /\.vue$/,
+      use: [
       {
         loader: vueLoader,
         options: {
-          compilerOptions: {
-            // whitespace handler, default is 'preserve'
-            whitespace: 'condense',
-          },
+            compilerOptions: {
+              // whitespace handler, default is 'condense'
+              whitespace: 'condense',
+            },
         },
-      },
-    ],
-  },
-]
+      }],
+   },
+  ]
 ```
+
+!> 注意：Vue2.x compilerOptions.whitespace 的默认值为 `preserve`
 
 ---
 
 # span
 
-[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
+[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/components/demo/demo-p.vue)
 
-显示文本。 一切同 [p](api/hippy-vue/components.md?id=p)。
+显示文本。 一切同 [p](api/hippy-vue-next/components.md?id=p)。
 
 ## 事件
 
@@ -498,6 +503,6 @@ rules: [
 
 # textarea
 
-[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-textarea.vue)
+[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/components/demo/demo-textarea.vue)
 
-多行文本输入框。 一切同 [input](api/hippy-vue/components.md?id=input)。
+多行文本输入框。 一切同 [input](api/hippy-vue-next/components.md?id=input)。

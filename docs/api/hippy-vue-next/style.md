@@ -1,22 +1,25 @@
 # 样式
 
-标准 Hippy 中长度单位是不允许带有单位，不过为了和浏览器保持兼容，hippy-vue 采取了 1px = 1pt 的方案进行换算，把 CSS 单位中的 px 直接去掉变成了 Hippy 中不带单位的数字。
+标准 Hippy 中长度单位是不允许带有单位，不过为了和浏览器保持兼容，@hippy/vue-next 与 @hippy/vue 一致，采取了 1px = 1pt 的方案进行换算，把 CSS 单位中的 px 直接去掉变成了 Hippy 中不带单位的数字。
 
-HippyVue 提供了 `beforeLoadStyle` 的 Vue options 勾子函数，供开发者做定制化修改 CSS 样式，如
+@hippy/vue-next 提供了 `beforeLoadStyle` 的 options 勾子函数，供开发者做定制化修改 CSS 样式，如
 
 ```js
-    new Vue({
-      // ...
-      beforeLoadStyle(decl) {
-         let { type, property, value } = decl;
-         console.log('property|value', property, value); // => height, 1rem
-          // 比如可以对 rem 单位进行处理
-         if(typeof value === 'string' && /rem$/.test(value)) {
-             // ...value = xxx
-         } 
-         return { ...decl, value}
+// 创建 hippy-app 实例
+const app: HippyApp = createApp(App, {
+  // 样式相关钩子
+  styleOptions: {
+    beforeLoadStyle(decl) {
+      let { type, property, value } = decl;
+      console.log('property|value', property, value); // => height, 1rem
+      // 比如可以对 rem 单位进行处理
+      if(typeof value === 'string' && /rem$/.test(value)) {
+        // ...value = xxx
       }
-    });
+      return { ...decl, value}
+    }
+  },
+});
 ```
 
 # CSS 选择器
@@ -31,8 +34,7 @@ HippyVue 提供了 `beforeLoadStyle` 的 Vue options 勾子函数，供开发者
 
 如何开启？
 
-1. 升级 `@hippy/vue` 和 `@hippy/vue-css-loader` 到 `2.15.1+` 版本
-2. Vue2.0 设置全局开关 `Vue.config.scoped = true;`（Vue2.0 默认 `scoped` 和 `Attribute` 选择器能力关闭，Vue3.0 默认开启无需设置开关）
+1. 升级 `@hippy/vue-next` 和 `@hippy/vue-css-loader` 到 `2.15.1+` 版本
 
 
 

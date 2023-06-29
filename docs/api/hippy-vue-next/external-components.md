@@ -2,15 +2,15 @@
 
 # 终端扩展组件
 
-扩展组件是终端提供了一些很方便的组件，在 hippy-vue 中由 [@hippy/vue-native-components](//www.npmjs.com/package/@hippy/vue-native-components) 提供
+扩展组件是终端提供了一些很方便的组件，在 @hippy/vue-next 中已经默认集成，只需直接使用即可
 
 ---
 
 # animation
 
-[[范例：demo-animation.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-animation.vue)
+[[范例：demo-animation.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/components/native-demo/demo-animation.vue)
 
-该组件是 hippy-vue 的动画解决方案，直接传入一个样式值和动画方案数组，即可触发动作效果。
+该组件是 @hippy/vue-next 的动画解决方案，直接传入一个样式值和动画方案数组，即可触发动作效果。
 
 需要说明的是一个 animation 本身就是个 View，它会带动所有子节点一起动画，所以如果动画需要分开控制的话，需要在界面层级上进行拆分。
 
@@ -23,7 +23,7 @@
 
 * actions 详解
   
-  和 HippyReact 不同，HippyVue 将单个动画 Animation 和动画序列 AnimationSet 合二为一，如果是一个对象，就使用 Animation 处理，如果是数组动画序列就用 AnimationSet 处理。动画参数具体可参考 [HippyReact Animation 模块](api/hippy-react/modules.md?id=animation) 和 [范例](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/native-demos/animations)。
+  和 HippyReact 不同，HippyVue 将单个动画 Animation 和动画序列 AnimationSet 合二为一，如果是一个对象，就使用 Animation 处理，如果是数组动画序列就用 AnimationSet 处理。动画参数具体可参考 [HippyReact Animation 模块](api/hippy-react/modules.md?id=animation) 和 [范例](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo/src/components/native-demo/animations)。
 
 
 ```vue
@@ -41,10 +41,41 @@
     />
   </div>
 </template>
-<script>
-export default {
-  data() {
+<script lang="ts">
+import { defineComponent, ref, nextTick } from 'vue';
+
+export default defineComponent({
+  setup(){
+    const animationRef = ref(null);
+    
+    const animationStart = () => {
+      console.log('animation-start callback');
+    };
+    const animationEnd = () => {
+      console.log('animation-end callback');
+    };
+    const animationRepeat = () => {
+      console.log('animation-repeat callback');
+    };
+    const animationCancel = () => {
+      console.log('animation-cancel callback');
+    };
+    const actionsDidUpdate = () => {
+      // pay attention pls, animate operate should execute
+      // after dom render finished
+      nextTick().then(() => {
+        console.log('actions updated & startAnimation');
+        if (animationRef.value) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          animationRef.value.start();
+        }
+      });
+    };
+    
+    
     return {
+      animationRef,
       actionsConfig: {
         // AnimationSet
         top: [
@@ -65,43 +96,31 @@ export default {
         transform: {
           // 单个 Animation
           rotate: {
-              startValue: 0,
-              toValue: 90,
-              duration: 250,
-              timingFunction: 'linear',
-              valueType: 'deg',  // 动画的开始和结束值的单位类型，默认为 undefined, 可设为 rad、deg、color
-            },
+            startValue: 0,
+            toValue: 90,
+            duration: 250,
+            timingFunction: 'linear',
+            valueType: 'deg',  // 动画的开始和结束值的单位类型，默认为 undefined, 可设为 rad、deg、color
+          },
         },
       },
-    };
-  },
-  methods: {
-    animationStart() {
-      console.log('animation-start callback');
-    },
-    animationEnd() {
-      console.log('animation-end callback');
-    },
-    animationRepeat() {
-      console.log('animation-repeat callback');
-    },
-    animationCancel() {
-      console.log('animation-cancel callback');
-    },
-    actionsDidUpdate() {
-      this.animationRef.start();
+      animationStart,
+      animationEnd,
+      animationRepeat,
+      animationCancel,
+      actionsDidUpdate,
     }
   },
-};
+});
 </script>
 ```
 
   > 特别说明，对 actions 替换后会重新创建动画，需手动启动新动画。有两种处理方式：
   > 
-  > * 替换 actions => 延迟一定时间（如setTimeout）后 或者在 `actionsDidUpdate` 勾子内 `(2.14.0 版本后支持)`，调用 `this.[animation ref].start()`（推荐）
+  > * 替换 actions => 延迟一定时间（如setTimeout）后 或者在 `actionsDidUpdate` 勾子内 `(2.14.0 版本后支持)`，调用 `animationRef.value.start()`（推荐）
   > * 设置 `playing = false` =>  替换 actions  => 延迟一定时间（如setTimeout）后 或者在 `actionsDidUpdate` 勾子内 `(2.14.0 版本后支持)`，设置 `playing = true`
 
-  > `2.6.0` 及以上版本支持 `backgroundColor` 背景色渐变动画，参考 [渐变色动画DEMO](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/animations/color-change.vue)
+  > `2.6.0` 及以上版本支持 `backgroundColor` 背景色渐变动画，参考 [渐变色动画DEMO](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/components/native-demo/animations/color-change.vue)
   > 
   > * 设置 `actions` 对 `backgroundColor` 进行修饰
   > * 设置 `valueType` 为 `color`
@@ -150,7 +169,7 @@ export default {
 
 # dialog
 
-[[范例：demo-dialog.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-dialog.vue)
+[[范例：demo-dialog.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/components/native-demo/demo-dialog.vue)
 
 用于模态弹窗，默认透明背景色，需要加一个带背景色的 `<div>` 填充。
 
@@ -176,7 +195,7 @@ export default {
 
 # swiper
 
-[[范例：demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-swiper.vue)
+[[范例：demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/components/native-demo/demo-swiper.vue)
 
 支持翻页的容器，它的每一个子容器组件会被视作一个单独的页面，对应终端 `ViewPager`组件， 里面只能包含 `<swiper-slide>` 组件。
 
@@ -208,7 +227,7 @@ export default {
 
 # swiper-slide
 
-[[范例：demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-swiper.vue)
+[[范例：demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/components/native-demo/demo-swiper.vue)
 
 翻页子容器组件容器。
 
@@ -216,7 +235,7 @@ export default {
 
 # pull-header
 
-[[范例：demo-pull-header.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header-footer.vue)
+[[范例：demo-pull-header.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/components/native-demo/demo-pull-header-footer.vue)
 
 下拉刷新组件，嵌套在 `ul` 中作为第一个子元素使用
 
@@ -242,7 +261,7 @@ export default {
 
 # pull-footer
 
-[[范例：demo-pull-footer.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header-footer.vue)
+[[范例：demo-pull-footer.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/components/native-demo/demo-pull-header-footer.vue)
 
 上拉刷新组件，嵌套在 `ul` 中作为最后一个子元素使用
 
@@ -266,7 +285,7 @@ export default {
 
 > 最低支持版本 2.9.0
 
-[[范例：demo-waterfall]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-waterfall.vue)
+[[范例：demo-waterfall]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/components/native-demo/demo-waterfall.vue)
 
 瀑布流组件，子元素必须是 `waterfall-item` ，瀑布流组件下拉刷新需在最外层用`ul-refresh-wrapper`， 可在`waterfall` 内用 `pull-footer` 展示上拉加载文案。
 
@@ -318,4 +337,4 @@ export default {
 | 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
 | type            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。 | `number`              | `Android、iOS、Voltron`    |
-| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官网](//vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS、Voltron`    |
+| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官网](//cn.vuejs.org/guide/essentials/list.html) | `string`                                    | `Android、iOS、Voltron`    |

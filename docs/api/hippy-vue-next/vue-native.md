@@ -2,9 +2,9 @@
 
 # 模块
 
-hippy-vue 通过在 Vue 上绑定了一个 `Native` 属性，实现获取终端设备信息、以及调用终端模块。也可以用来监测是否在 Hippy 环境下运行。
+@hippy/vue-next package 导出了 `Native` 属性，实现获取终端设备信息、以及调用终端模块。也可以用来监测是否在 Hippy 环境下运行。
 
-> 对应 Demo: [demo-vue-native.vue](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-vue-native.vue)
+> 对应 Demo: [demo-vue-native.vue](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/components/native-demo/demo-vue-native.vue)
 
 ---
 
@@ -14,12 +14,12 @@ hippy-vue 通过在 Vue 上绑定了一个 `Native` 属性，实现获取终端�
 
 ## version
 
-获取 hippy-vue 的版本
+获取 @hippy/vue-next 的版本
 
 * 示例
 
 ```javascript
-console.log(Vue.Native.version); // => 2.0.0
+console.log(Native.version); // => 3.0.0
 ```
 
 ## Device
@@ -45,7 +45,7 @@ Hippy 终端 SDK 版本。
 * 示例
 
 ```javascript
-console.log(Vue.Native.Platform); // => android
+console.log(Native.Platform); // => android
 ```
 
 ## Dimensions
@@ -55,7 +55,7 @@ console.log(Vue.Native.Platform); // => android
 * 示例
 
 ```javascript
-const { window, screen } = Vue.Native.Dimensions;
+const { window, screen } = Native.Dimensions;
 console.log(`屏幕尺寸：${screen.height}x${screen.width}`); // => 640x480
 console.log(`带状态栏的窗口尺寸：${window.height}x${window.width}`); // => 640x460
 ```
@@ -67,7 +67,7 @@ console.log(`带状态栏的窗口尺寸：${window.height}x${window.width}`); /
 * 示例
 
 ```javascript
-console.log(Vue.Native.PixelRatio); // => 3
+console.log(Native.PixelRatio); // => 3
 ```
 
 ## isIPhoneX
@@ -102,8 +102,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 * 示例：
 
 ``` js
-Vue.Native.AsyncStorage.setItem('itemKey', 'itemValue');
-Vue.Native.AsyncStorage.getItem('itemKey');
+Native.AsyncStorage.setItem('itemKey', 'itemValue');
+Native.AsyncStorage.getItem('itemKey');
 ```
 
 ## 方法
@@ -153,7 +153,7 @@ Vue.Native.AsyncStorage.getItem('itemKey');
 
 # BackAndroid
 
-[[BackAndroid 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/main-native.js)
+[[BackAndroid 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/main-native.ts)
 
 可以监听 Android 实体键的回退，在退出前做操作或拦截实体键的回退。
 
@@ -285,7 +285,7 @@ Hippy 中通过 fetch 服务返回的 `set-cookie` Header 会自动将 Cookie �
 
 ```js
 this.demon1Point = this.$refs['demo-1-point'];
-console.log(Vue.Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0, position: "absolute" }
+console.log(Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0, position: "absolute" }
 ```
 
 ---
@@ -396,5 +396,5 @@ console.log(Vue.Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0
 * 示例：
 
 ``` js
-const int32Color = Vue.Native.parseColor('#40b883') // int32Color: 4282431619
+const int32Color = Native.parseColor('#40b883') // int32Color: 4282431619
 ```
