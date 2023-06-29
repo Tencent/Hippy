@@ -85,11 +85,16 @@ jobs:
       with:
         ref: ${{ matrix.ref }}
         lfs: true
+    - name: Xcodegen
+      uses: xavierLowmiller/xcodegen-action@1.1.2
+      with:
+        spec: framework/examples/ios-demo/project.yml
+        version: '2.32.0'
     - name: Build
       if: ${{ matrix.ref }}
       run: |
         pushd framework/examples/ios-demo
-        pod install
+        xcodegen
         popd
         xcodebuild build \
           -destination 'generic/platform=iOS' \
