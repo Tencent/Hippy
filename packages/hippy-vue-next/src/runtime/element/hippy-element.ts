@@ -39,6 +39,7 @@ import {
   isStyleMatched,
   whitespaceFilter,
   getBeforeRenderToNative,
+  getBeforeLoadStyle,
 } from '../../util';
 import { isRTL } from '../../util/i18n';
 import { EventMethod } from '../../util/event';
@@ -203,6 +204,9 @@ export class HippyElement extends HippyNode {
   // additional processing of properties
   public filterAttribute?: CallbackType;
 
+  // style preprocessor
+  public beforeLoadStyle: CallbackType;
+
   // polyFill of native event
   protected polyfillNativeEvents?: (
     method: string,
@@ -226,12 +230,10 @@ export class HippyElement extends HippyNode {
     this.classList = new Set();
     this.attributes = {};
     this.style = {};
+    this.beforeLoadStyle = getBeforeLoadStyle();
     // hack special problems
     this.hackSpecialIssue();
   }
-
-  // style preprocessor
-  public beforeLoadStyle: CallbackType = val => val;
 
   /**
    * get component info
