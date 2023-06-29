@@ -472,7 +472,6 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
     return _executorkey ?: [NSString stringWithFormat:@"%p", self];
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
     [self executeBlockOnJavaScriptQueue:^{
         [[self JSContext] setName:contextName];
@@ -481,7 +480,6 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
         });
     }];
 }
-// clang-format on
 
 - (void)dealloc {
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor dealloc %p", self);

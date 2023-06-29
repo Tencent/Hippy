@@ -45,7 +45,6 @@ HIPPY_EXPORT_MODULE(EventObserver)
     return self;
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(addListener:(NSString *)eventName) {
     HippyAssertParam(eventName);
     NSNumber *value = _config[eventName];
@@ -57,9 +56,7 @@ HIPPY_EXPORT_METHOD(addListener:(NSString *)eventName) {
     }
     _config[eventName] = value;
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(removeListener:(NSString *)eventName) {
     NSNumber *value = _config[eventName];
     if (value == nil || value.integerValue == 1) {
@@ -70,7 +67,6 @@ HIPPY_EXPORT_METHOD(removeListener:(NSString *)eventName) {
         _config[eventName] = value;
     }
 }
-// clang-format on
 
 - (void)addEventObserverForName:(__unused NSString *)eventName
 {
