@@ -17,6 +17,7 @@
 package com.tencent.mtt.hippy.uimanager;
 
 import android.content.Context;
+import android.graphics.Matrix;
 import android.os.Looper;
 import android.os.MessageQueue;
 import android.view.View;
@@ -32,6 +33,7 @@ import com.tencent.mtt.hippy.utils.DevtoolsUtil;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.mtt.hippy.utils.HiddenApiUtil;
 import com.tencent.mtt.hippy.views.common.ClipChildrenView;
 import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
 import com.tencent.renderer.NativeRenderContext;
@@ -341,7 +343,10 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     }
 
     private void applyTransform(T view, ArrayList<Object> transformArray) {
-        TransformUtil.processTransform(transformArray, sTransformDecompositionArray);
+        Matrix matrix;
+        matrix = TransformUtil.ProcessSkew(transformArray);
+        boolean skipSkew = HiddenApiUtil.setAnimationMatrix(view, matrix);
+        TransformUtil.processTransform(transformArray, sTransformDecompositionArray, skipSkew);
         sMatrixDecompositionContext.reset();
         MatrixUtil.decomposeMatrix(sTransformDecompositionArray, sMatrixDecompositionContext);
         view.setTranslationX(PixelUtil.dp2px((float) sMatrixDecompositionContext.translation[0]));
@@ -361,6 +366,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         view.setRotationY(0);
         view.setScaleX(1);
         view.setScaleY(1);
+        HiddenApiUtil.setAnimationMatrix(view, null);
     }
 
     @SuppressWarnings("deprecation")

@@ -177,10 +177,6 @@ public class MatrixUtil {
     skew[0] = v3Dot(row[0], row[1]);
     row[1] = v3Combine(row[1], row[0], 1.0, -skew[0]);
 
-    // Compute XY shear factor and make 2nd row orthogonal to 1st.
-    skew[0] = v3Dot(row[0], row[1]);
-    row[1] = v3Combine(row[1], row[0], 1.0, -skew[0]);
-
     // Now, compute Y scale and normalize 2nd row.
     scale[1] = v3Length(row[1]);
     row[1] = v3Normalize(row[1], scale[1]);
@@ -437,13 +433,11 @@ public class MatrixUtil {
   }
 
   public static void applySkewX(double[] m, double radians) {
-    m[4] = Math.sin(radians);
-    m[5] = Math.cos(radians);
+    m[4] = Math.tan(radians);
   }
 
   public static void applySkewY(double[] m, double radians) {
-    m[0] = Math.cos(radians);
-    m[1] = Math.sin(radians);
+    m[1] = Math.tan(radians);
   }
 
   public static void applyRotateX(double[] m, double radians) {

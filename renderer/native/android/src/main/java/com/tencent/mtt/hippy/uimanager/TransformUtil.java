@@ -15,6 +15,11 @@
  */
 package com.tencent.mtt.hippy.uimanager;
 
+
+import android.graphics.Matrix;
+
+import com.tencent.mtt.hippy.utils.PixelUtil;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -46,7 +51,29 @@ public class TransformUtil {
     return inRadians ? value : MatrixUtil.degreesToRadians(value);
   }
 
-  public static void processTransform(ArrayList<Object> transforms, double[] result) {
+  public static Matrix ProcessSkew(ArrayList<Object> transforms) {
+    Matrix matrix = new Matrix();
+
+    for (int transformIdx = 0, size = transforms.size(); transformIdx < size; transformIdx++) {
+
+      Object transformObj = transforms.get(transformIdx);
+      if (!(transformObj instanceof HashMap)) {
+        continue;
+      }
+      HashMap<String, Object> transform = (HashMap) transformObj;
+      String transformType = transform.keySet().iterator().next();
+
+      Object value = transform.get(transformType);
+      if ("skewX".equals(transformType)) {
+        matrix.postSkew((float) convertToRadians(transform, transformType), 0);
+      } else if ("skewY".equals(transformType)) {
+        matrix.postSkew(0, (float) convertToRadians(transform, transformType));
+      }
+    }
+    return matrix;
+  }
+
+  public static void processTransform(ArrayList<Object> transforms, double[] result, boolean skipSkew) {
     double[] helperMatrix = sHelperMatrix.get();
     MatrixUtil.resetIdentityMatrix(result);
 
@@ -114,8 +141,14 @@ public class TransformUtil {
       } else if ("translateY".equals(transformType) && value instanceof Number) {
         MatrixUtil.applyTranslate2D(helperMatrix, 0d, ((Number) value).doubleValue());
       } else if ("skewX".equals(transformType)) {
+        if (skipSkew) {
+          continue;
+        }
         MatrixUtil.applySkewX(helperMatrix, convertToRadians(transform, transformType));
       } else if ("skewY".equals(transformType)) {
+        if (skipSkew) {
+          continue;
+        }
         MatrixUtil.applySkewY(helperMatrix, convertToRadians(transform, transformType));
       } else {
         RuntimeException runtimeException = new RuntimeException(
