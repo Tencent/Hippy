@@ -22,10 +22,14 @@ on:
         default: true
         required: true
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   android:
     if: ${{ github.event.inputs.is_compare_for_android == 'true' }}
-    runs-on: ${{ github.repository == 'Tencent/Hippy' && fromJson('[''self-hosted'', ''linux'']') || 'ubuntu-latest' }}
+    runs-on: ${{ github.repository == 'Tencent/Hippy' && fromJson('[''self-hosted'', ''linux'',  ''shared'']') || 'ubuntu-latest' }}
     container:
       image: ghcr.io/tencent/android-release:latest # repository name must be lowercase(${{ github.repository_owner }})
     strategy:
@@ -95,6 +99,7 @@ jobs:
       run: |
         pushd framework/examples/ios-demo
         xcodegen
+        pop install
         popd
         xcodebuild build \
           -destination 'generic/platform=iOS' \
