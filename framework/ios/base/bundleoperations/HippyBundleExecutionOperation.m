@@ -33,21 +33,19 @@
     
     dispatch_semaphore_t _statusSem;
     dispatch_semaphore_t _dependencySem;
-    dispatch_queue_t _opQueue;
 }
 
 @end
 
 @implementation HippyBundleExecutionOperation
 
-- (instancetype)initWithBlock:(dispatch_block_t)block queue:(dispatch_queue_t)queue {
+- (instancetype)initWithBlock:(dispatch_block_t)block queue:(NSOperationQueue *)queue {
     self = [super init];
     if (self) {
         _block = [block copy];
         _dependencies = [NSMutableSet setWithCapacity:8];
         _statusSem = dispatch_semaphore_create(1);
         _dependencySem = dispatch_semaphore_create(1);
-        _opQueue = queue;
         self.ready = YES;
     }
     return self;
@@ -77,12 +75,7 @@
     self.finished = NO;
     self.executing = YES;
     if (_block) {
-        if (_opQueue) {
-            dispatch_sync(_opQueue, _block);
-        }
-        else {
-            _block();
-        }
+        _block();
     }
     self.finished = YES;
     self.executing = NO;

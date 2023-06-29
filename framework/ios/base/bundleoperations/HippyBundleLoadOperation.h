@@ -32,7 +32,7 @@ typedef void (^HippyBundleLoadCompletionBlock)(NSData *, NSError *);
 
 @property(nonatomic, copy) HippyBundleLoadCompletionBlock onLoad;
 
-- (instancetype)initWithBridge:(HippyBridge *)bridge bundleURL:(NSURL *)bundleURL queue:(dispatch_queue_t)queue;
+- (instancetype)initWithBridge:(HippyBridge *)bridge bundleURL:(NSURL *)bundleURL queue:(NSOperationQueue *)queue;
 
 @end
 

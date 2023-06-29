@@ -77,6 +77,7 @@ HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromise
                                             method:method?:@"Get"
                                             params:vfsParams
                                               body:data
+                                             queue:nil
                                           progress:nil
                                  completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         NSStringEncoding encoding = GetStringEncodingFromURLResponse(response);

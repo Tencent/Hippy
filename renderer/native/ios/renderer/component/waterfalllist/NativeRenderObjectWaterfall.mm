@@ -26,6 +26,8 @@
 
 @implementation NativeRenderObjectWaterfall
 
+static NSTimeInterval kWaterfallViewDelayTime = .1f;
+
 - (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
     if ([self isPropagationDirty]) {
         __weak NativeRenderObjectWaterfall *weakSelf = self;
@@ -37,7 +39,8 @@
             NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)[viewRegistry objectForKey:[strongSelf componentTag]];
             HPAssert([view isKindOfClass:[NativeRenderWaterfallView class]], @"view must be kind of NativeRenderWaterfallView");
             if ([view isKindOfClass:[NativeRenderWaterfallView class]]) {
-                [view reloadData];
+                [NSObject cancelPreviousPerformRequestsWithTarget:view selector:@selector(reloadData) object:nil];
+                [view performSelector:@selector(reloadData) withObject:nil afterDelay:kWaterfallViewDelayTime];
             }
         };
         [blocks addObject:block];
