@@ -45,6 +45,9 @@ on:
         default: true
         required: false
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   context_in_lowercase:
@@ -182,10 +185,11 @@ jobs:
           registry-url: https://npm.pkg.github.com
           cache: 'npm'
           cache-dependency-path: driver/js/package-lock.json
-      - name: Install dependencies
-        run: npm install
-      - name: Build packages
-        run: npm run build
+      - name: Install && Build
+        working-directory: ./driver/js
+        run: |
+          npm install && npx lerna bootstrap
+          npm run build
       - uses: actions/setup-node@v3
         with:
           node-version: 18

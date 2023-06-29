@@ -100,7 +100,6 @@ jobs:
         pushd framework/examples/ios-demo
         xcodegen
         pod install
-        popd
         xcodebuild build \
           -destination 'generic/platform=iOS' \
           -project '_Pods.xcodeproj' \
