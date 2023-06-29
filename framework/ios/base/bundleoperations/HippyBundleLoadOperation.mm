@@ -36,7 +36,7 @@
     BOOL _asynchronous;
     BOOL _ready;
     std::mutex _statusMutex;
-    dispatch_queue_t _finishQueue;
+    NSOperationQueue *_finishQueue;
 }
 
 @end
@@ -46,7 +46,8 @@
 @synthesize finished = _finished;
 @synthesize executing = _executing;
 
-- (instancetype)initWithBridge:(HippyBridge *)bridge bundleURL:(NSURL *)bundleURL queue:(dispatch_queue_t)queue {
+- (instancetype)initWithBridge:(HippyBridge *)bridge bundleURL:(NSURL *)bundleURL queue:(NSOperationQueue *)queue {
+    self = [super init];
     if (self) {
         _bridge = bridge;
         _bundleURL = bundleURL;
@@ -77,6 +78,7 @@
                                        method:@"get"
                                        params:nil
                                          body:nil
+                                        queue:_finishQueue
                                      progress:nil
                             completionHandler:^(NSData * _Nonnull data, NSURLResponse * _Nonnull response, NSError * _Nonnull error) {
         HippyBundleLoadOperation *strongSelf = weakSelf;
@@ -89,14 +91,7 @@
         [performanceLogger markStopForTag:HippyPLScriptDownload forKey:bundleURL];
         [performanceLogger setValue:sourceLength forTag:HippyPLBundleSize forKey:bundleURL];
         if (strongSelf.onLoad) {
-            if (strongSelf->_finishQueue) {
-                dispatch_sync(strongSelf->_finishQueue, ^{
-                    strongSelf.onLoad(data, error);
-                });
-            }
-            else {
-                strongSelf.onLoad(data, error);
-            }
+            strongSelf.onLoad(data, error);
         }
         strongSelf.finished = YES;
         strongSelf.executing = NO;
