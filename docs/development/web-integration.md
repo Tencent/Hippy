@@ -1,7 +1,7 @@
 
 # 前端接入
 
-Hippy 同时支持 React 和 Vue 两种 UI 框架，通过 [@hippy/react](//www.npmjs.com/package/@hippy/react) 和 [@hippy/vue](//www.npmjs.com/package/@hippy/vue) 两个包提供实现。
+Hippy 同时支持 React 和 Vue 两种 UI 框架，通过 [@hippy/react](//www.npmjs.com/package/@hippy/react) 和 [@hippy/vue](//www.npmjs.com/package/@hippy/vue) 及 [@hippy/vue-next](//www.npmjs.com/package/@hippy/vue-next) 三个包提供实现。
 
 # hippy-react
 
