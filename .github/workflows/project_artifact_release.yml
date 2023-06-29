@@ -45,6 +45,9 @@ on:
         default: true
         required: false
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   context_in_lowercase:
@@ -70,7 +73,7 @@ jobs:
         - build_type: Debug
           artifact_id: hippy-debug
         - build_type: Release
-          artifact_id: hippy-common
+          artifact_id: hippy-release
     container:
       image: ghcr.io/${{ needs.context_in_lowercase.outputs.repository_owner }}/android-release:latest
     steps:
@@ -92,7 +95,7 @@ jobs:
       run: |
         pip3 install -U cos-python-sdk-v5
     - name: Archive artifacts
-      working-directory: ./android/sdk/build
+      working-directory: ./framework/android/build
       shell: python3 {0}
       run: |
         from qcloud_cos import CosConfig
@@ -164,7 +167,7 @@ jobs:
         env:
           COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
         run: |
-          pod trunk push hippy.podspec --allow-warnings --use-libraries --verbose
+          pod trunk push hippy.podspec --allow-warnings --use-libraries --verbose --skip-import-validation
 
   js_release:
     if: github.event.inputs.is_release_for_js == 'true'
@@ -181,11 +184,12 @@ jobs:
           node-version: 18
           registry-url: https://npm.pkg.github.com
           cache: 'npm'
-          cache-dependency-path: package-lock.json
-      - name: Install dependencies
-        run: npm ci && lerna bootstrap --no-ci
-      - name: Build packages
-        run: npm run build
+          cache-dependency-path: driver/js/package-lock.json
+      - name: Install && Build
+        run: |
+          pushd driver/js
+          npm install && npx lerna bootstrap --no-ci
+          npm run build
       - uses: actions/setup-node@v3
         with:
           node-version: 18
@@ -195,6 +199,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          pushd driver/js
           echo "released js_npm_dist_tag_name is '${{ github.event.inputs.js_npm_dist_tag_name }}'"
           npx lerna publish from-package --ignore-scripts --yes --dist-tag ${{ github.event.inputs.js_npm_dist_tag_name }}
       - name: Change tag to latest
@@ -202,6 +207,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          pushd driver/js
           npm run release:tag-to-latest ${{ github.event.inputs.version_name }}  
         
         
