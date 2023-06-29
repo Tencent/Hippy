@@ -635,14 +635,10 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         NSArray<Class> *classes = NativeRenderGetViewManagerClasses();
         NSMutableDictionary *defaultViewManagerClasses = [NSMutableDictionary dictionaryWithCapacity:[classes count]];
         for (Class cls in classes) {
-            if ([_extraComponents containsObject:cls]) {
+            NSString *viewName = GetViewNameFromViewManagerClass(cls);
+            if ([_viewManagers objectForKey:viewName]) {
                 continue;
             }
-            NSString *viewName = GetViewNameFromViewManagerClass(cls);
-            HPAssert(![defaultViewManagerClasses objectForKey:viewName],
-                     @"duplicated component %@ for class %@ and %@", viewName,
-                     NSStringFromClass(cls),
-                     NSStringFromClass([defaultViewManagerClasses objectForKey:viewName]));
             [defaultViewManagerClasses setObject:cls forKey:viewName];
         }
         [_viewManagers addEntriesFromDictionary:defaultViewManagerClasses];
