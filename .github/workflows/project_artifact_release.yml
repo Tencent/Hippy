@@ -188,7 +188,7 @@ jobs:
       - name: Install && Build
         working-directory: ./driver/js
         run: |
-          npm install && npx lerna bootstrap
+          npm ci && npx lerna bootstrap
           npm run build
       - uses: actions/setup-node@v3
         with:

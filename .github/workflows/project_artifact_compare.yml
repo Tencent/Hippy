@@ -102,7 +102,7 @@ jobs:
         pod install
         xcodebuild build \
           -destination 'generic/platform=iOS' \
-          -project '_Pods.xcodeproj' \
+          -project 'Pods/Pods.xcodeproj' \
           -scheme 'hippy' \
           -configuration 'Release' \
           CODE_SIGN_IDENTITY="" \
