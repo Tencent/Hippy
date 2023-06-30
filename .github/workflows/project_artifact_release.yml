@@ -73,7 +73,7 @@ jobs:
         - build_type: Debug
           artifact_id: hippy-debug
         - build_type: Release
-          artifact_id: hippy-common
+          artifact_id: hippy-release
     container:
       image: ghcr.io/${{ needs.context_in_lowercase.outputs.repository_owner }}/android-release:latest
     steps:
@@ -167,7 +167,7 @@ jobs:
         env:
           COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
         run: |
-          pod trunk push hippy.podspec --allow-warnings --use-libraries --verbose
+          pod trunk push hippy.podspec --allow-warnings --use-libraries --verbose --skip-import-validation --no-subspecs
 
   js_release:
     if: github.event.inputs.is_release_for_js == 'true'
@@ -188,7 +188,7 @@ jobs:
       - name: Install && Build
         working-directory: ./driver/js
         run: |
-          npm ci && npx lerna bootstrap
+          npm install && npx lerna bootstrap
           npm run build
       - uses: actions/setup-node@v3
         with:
