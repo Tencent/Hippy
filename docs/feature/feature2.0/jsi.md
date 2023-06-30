@@ -27,25 +27,22 @@ JSI 并非适用于所有场景:
 
 * 通过设置引擎初始化参数开启JSI能力
 
-```java
-    HippyEngine.EngineInitParams initParams = new HippyEngine.EngineInitParams();
-    initParams.enableTurbo = true;
+```kotlin
+val initParams = HippyEngine.EngineInitParams()
+initParams.enableTurbo = true
 ```
 
 * 定义Module
 
 > 跟普通NativeModule类似，区别在于需要添加以下注解表明是同步调用 `@HippyMethod(isSync = true)`
 
-```java
+```kotlin
 @HippyNativeModule(name = "demoTurbo")
-public class DemoJavaTurboModule extends HippyNativeModuleBase {
-
-  ...
-  @HippyMethod(isSync = true)
-  public double getNum(double num) {
-    return num;
-  }
-  ...
+class DemoTurboModule(context: HippyEngineContext?) : HippyNativeModuleBase(context) {
+    ...
+    @HippyMethod(isSync = true)
+    fun getNum(num: Double): Double = num
+    ...
 }
 ```
 
@@ -56,26 +53,21 @@ public class DemoJavaTurboModule extends HippyNativeModuleBase {
 <br />
 <br />
 
-更多示例可参考类[DemoJavaTurboModule](https://github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/module/turbo/DemoJavaTurboModule.java)
+更多示例可参考类[DemoTurboModule](https://github.com/Tencent/Hippy/blob/v3.0-dev/framework/examples/android-demo/src/main/java/com/openhippy/example/turbo/DemoTurboModule.kt)
 
 * 注册TurboModule模块，跟NativeModule注册方法完全一致
 
-```java
-public class MyAPIProvider implements HippyAPIProvider {
- 
-  @Override
-  public Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> getNativeModules(final HippyEngineContext context) {
-    Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> modules = new HashMap<>();
+```kotlin
+class ExampleAPIProvider : HippyAPIProvider {
+
+    override fun getNativeModules(context: HippyEngineContext): Map<Class<out HippyNativeModuleBase>, Provider<out HippyNativeModuleBase>> {
+        return mapOf(
+            ...
+            DemoTurboModule::class.java to Provider { DemoTurboModule(context) }
+        )
+    }
     ...
-    modules.put(DemoJavaTurboModule.class, new Provider<HippyNativeModuleBase>() {
-      @Override
-      public HippyNativeModuleBase get() {
-        return new DemoJavaTurboModule(context);
-      }
-    });
-    ...
-    return modules;
-  }
+}
 ```
 
 ## iOS

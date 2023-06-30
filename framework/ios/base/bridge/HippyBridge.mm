@@ -95,7 +95,6 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     BOOL _valid;
     HippyBundleOperationQueue *_bundlesQueue;
     NSMutableArray<NSURL *> *_bundleURLs;
-    NSURL *_debugURL;
     NSURL *_sandboxDirectory;
     std::weak_ptr<VFSUriLoader> _uriLoader;
     std::weak_ptr<hippy::RenderManager> _renderManager;
@@ -140,7 +139,6 @@ dispatch_queue_t HippyBridgeQueue() {
         _moduleProvider = block;
         _bundleURLs = [NSMutableArray arrayWithCapacity:8];
         _debugMode = [launchOptions[@"DebugMode"] boolValue];
-        _debugURL = launchOptions[@"DebugURL"];
         _enableTurbo = !!launchOptions[@"EnableTurbo"] ? [launchOptions[@"EnableTurbo"] boolValue] : YES;
         _engineKey = engineKey;
         _invalidateReason = HPInvalidateReasonDealloc;
@@ -332,9 +330,12 @@ dispatch_queue_t HippyBridgeQueue() {
     __block NSData *script = nil;
     self.loadingCount++;
     dispatch_group_enter(group);
+    NSOperationQueue *bundleQueue = [[NSOperationQueue alloc] init];
+    bundleQueue.maxConcurrentOperationCount = 1;
+    bundleQueue.name = @"com.hippy.bundleQueue";
     HippyBundleLoadOperation *fetchOp = [[HippyBundleLoadOperation alloc] initWithBridge:self
                                                                                bundleURL:bundleURL
-                                                                                   queue:HippyBridgeQueue()];
+                                                                                   queue:bundleQueue];
     fetchOp.onLoad = ^(NSData *source, NSError *error) {
         if (error) {
             HippyBridgeFatal(error, weakSelf);
@@ -366,7 +367,7 @@ dispatch_queue_t HippyBridgeQueue() {
             }
             dispatch_group_leave(group);
         }];
-    } queue:HippyBridgeQueue()];
+    } queue:bundleQueue];
     //set dependency
     [executeOp addDependency:fetchOp];
     if (_lastOperation) {

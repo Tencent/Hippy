@@ -1,0 +1,133 @@
+name: '[3rd] prebuilt sqlite'
+
+on:
+  workflow_dispatch:
+    inputs:
+      sqlite_version:
+        description: 'Sqlite TAG(Branch) to build'
+        type: string
+        default: '3.42.0'
+        required: true
+      sqlite_download_url:
+        description: 'Sqlite Amalgamation Url'
+        type: string
+        default: 'https://sqlite.org/2023/sqlite-amalgamation-3420000.zip'
+        required: true
+      hip_sqlite_root:
+        description: 'HIP Sqlite root path'
+        type: string
+        default: 'global_packages'
+        required: true
+      writing_mode:
+        description: 'The mode of writing'
+        type: choice
+        options:
+        - preserve
+        - overwrite
+        default: 'preserve'
+        required: true
+
+env:
+  publish_package_script: |
+    from qcloud_cos import CosS3Client, CosConfig
+    import hashlib
+    import os
+    try:
+        from urllib.parse import urlencode
+    except ImportError:
+        from urllib import urlencode
+
+    metadata = {}
+    metadata["ci-name"] = "Github Action"
+    metadata["ci-id"] = "${{ github.run_id }}"
+    metadata["ci-url"] = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+    metadata["sqlite-builder"] = "${{ github.event.sender.login }}"
+    with open(os.environ["local_file"], "rb") as artifact_file:
+      metadata["sqlite-md5"] = hashlib.md5(artifact_file.read()).hexdigest()
+    metadata["sqlite-url"] = "${{ github.event.inputs.sqlite_download_url }}"
+    metadata["sqlite-version"] = "${{ github.event.inputs.sqlite_version }}"
+
+    config = CosConfig(Region="${{ secrets.COS_REGION }}", SecretId="${{ secrets.TC_SECRET_ID }}", SecretKey="${{ secrets.TC_SECRET_KEY }}")
+    client = CosS3Client(config)
+    if "${{ github.event.inputs.writing_mode }}" == "preserve" and client.object_exists(
+      Bucket="${{ secrets.COS_BUCKET }}",
+      Key=os.environ["cos_key"]
+    ):
+      raise Exception("Package already exists")
+
+    response = client.upload_file(
+      Bucket="${{ secrets.COS_BUCKET }}",
+      Key=os.environ["cos_key"],
+      LocalFilePath=os.environ["local_file"],
+      EnableMD5=True,
+      ContentMD5=metadata["sqlite-md5"],
+      Metadata={"x-cos-tagging": urlencode(metadata)}
+    )
+    print("ETag: " + response["ETag"])
+
+  cmakelists_template: |
+    #
+    # Tencent is pleased to support the open source community by making
+    # Hippy available.
+    #
+    # Copyright (C) 2022 THL A29 Limited, a Tencent company.
+    # All rights reserved.
+    #
+    # Licensed under the Apache License, Version 2.0 (the "License");
+    # you may not use this file except in compliance with the License.
+    # You may obtain a copy of the License at
+    #
+    #     http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing, software
+    # distributed under the License is distributed on an "AS IS" BASIS,
+    # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    # See the License for the specific language governing permissions and
+    # limitations under the License.
+    #
+    cmake_minimum_required(VERSION 3.0)
+
+    project("sqlite")
+
+    add_library(${PROJECT_NAME} STATIC)
+    target_include_directories(${PROJECT_NAME} INTERFACE "include")
+
+    set(SRC_SET src/sqlite3.c)
+    target_sources(${PROJECT_NAME} PRIVATE ${SRC_SET})
+
+jobs:
+  prebuilt:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download sqlite
+      run: |
+        file_name=$(basename ${{github.event.inputs.sqlite_download_url}})
+        curl -L ${{github.event.inputs.sqlite_download_url}} -o $file_name
+        unzip -o $file_name
+    - name: Generate CMakeLists
+      uses: DamianReeves/write-file-action@v1.0
+      with:
+        path: ./artifact/CMakeLists.txt
+        write-mode: overwrite
+        contents: ${{ env.cmakelists_template }}
+    - name: Prepare package
+      run: |
+        unzip_directory=$(basename -s .zip ${{github.event.inputs.sqlite_download_url}})
+        mkdir -p artifact/include/sqlite artifact/src
+        cp ./$unzip_directory/sqlite3.h artifact/include/sqlite
+        cp ./$unzip_directory/sqlite3ext.h artifact/include/sqlite
+        cp ./$unzip_directory/sqlite3.c artifact/src
+    - name: Release package
+      id: release_package
+      run: |
+        tar -zcvf sqlite-${{ github.event.inputs.sqlite_version }}.tgz -C artifact .
+    - name: Install Requirement
+      shell: bash
+      run: |
+        pip3 install -U cos-python-sdk-v5
+    - name: Publish package
+      shell: python3 {0}
+      env:
+        local_file: ./sqlite-${{ github.event.inputs.sqlite_version }}.tgz
+        cos_key: hippy/${{ github.event.inputs.hip_sqlite_root }}/sqlite/sqlite-${{ github.event.inputs.sqlite_version }}.tgz
+      run: ${{ env.publish_package_script }}

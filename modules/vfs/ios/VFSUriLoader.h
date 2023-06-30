@@ -60,9 +60,9 @@ class VFSUriLoader : public hippy::vfs::UriLoader {
 
     virtual void AddConvenientDefaultHandler(const std::shared_ptr<VFSUriHandler>& handler);
     virtual const std::list<std::shared_ptr<VFSUriHandler>> &GetConvenientDefaultHandlers();
-    virtual void RequestUntrustedContent(NSString *urlString, VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion);
-    virtual void RequestUntrustedContent(NSString *urlString, NSString *method, NSDictionary<NSString *, NSString *> *httpHeader, NSData *body, VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion);
-    virtual void RequestUntrustedContent(NSURLRequest *request, VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion);
+    virtual void RequestUntrustedContent(NSString *urlString, NSOperationQueue *operationQueue, VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion);
+    virtual void RequestUntrustedContent(NSString *urlString, NSString *method, NSOperationQueue *operationQueue, NSDictionary<NSString *, NSString *> *httpHeader, NSData *body, VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion);
+    virtual void RequestUntrustedContent(NSURLRequest *request, NSOperationQueue *operationQueue, VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion);
   private:
     std::shared_ptr<VFSUriHandler> GetNextConvinentHandler(std::list<std::shared_ptr<VFSUriHandler>>::iterator &cur_con_handler_it,
                                                            const std::list<std::shared_ptr<VFSUriHandler>>::iterator &end_con_handler_it);

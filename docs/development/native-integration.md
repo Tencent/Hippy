@@ -1,6 +1,6 @@
 # 环境搭建 
 
-这篇教程，讲述了如何将 Hippy 集成到 Android、iOS 或者Flutter工程。
+这篇教程，讲述了如何将 Hippy 集成到 Android、iOS 、Flutter、Web(同构) 等平台。
 <br/>
 <br/>
 <br/>
@@ -19,7 +19,7 @@
 
 ## Demo 体验
 
-若想快速体验，可以直接基于我们的 [Android Demo](https://github.com/Tencent/Hippy/tree/main/framework/examples/android-demo) 来开发
+若想快速体验，可以直接基于我们的 [Android Demo](https://github.com/Tencent/Hippy/tree/v3.0-dev/framework/examples/android-demo) 来开发
 
 ## 快速接入
 
@@ -41,7 +41,7 @@
 
 3. 本地集成（可选）
 
-   - [Demo](https://github.com/Tencent/Hippy/tree/main/framework/examples/android-demo) 工程运行 Gradle Task `other => assembleRelease` 或者 `other => assembleDebug` 后会在 `android\sdk\build\outputs\aar` 目录下生成 `release` 或者 `debug` 模式的`android-sdk.aar`，将 `android-sdk.aar` 拷贝到你项目的 `libs` 目录下。
+   - [hippy-framework](https://github.com/Tencent/Hippy/tree/v3.0-dev/framework/android) 工程运行 Gradle Task `other => assembleRelease` 或者 `other => assembleDebug` 后会在 `framework/android/build/outputs/aar` 目录下生成 `release` 或者 `debug` 模式的`android-sdk.aar`，将 `android-sdk.aar` 拷贝到你项目的 `libs` 目录下。
 
      !> 通过 `assembleRelease` task 生成的 AAR 默认不携带 `inspector` 模块，不能在前端通过 Devtools 对代码进行调试，若需要集成 `inspector`，请执行 `assembleDebug` task
 
@@ -54,7 +54,7 @@
     implementation 'androidx.viewpager:viewpager:1.0.0'
    ```
 
-4. 在宿主 APP 工程中增加引擎初始化与 `hippyRootView` 挂载逻辑，具体可以参考 [Demo](https://github.com/Tencent/Hippy/tree/main/framework/examples/android-demo) 工程中 `MyActivity` 实现
+4. 在宿主 APP 工程中增加引擎初始化与 `hippyRootView` 挂载逻辑，具体可以参考 [Demo](https://github.com/Tencent/Hippy/tree/v3.0-dev/framework/examples/android-demo) 工程中 `HippyEngineWrapper` 实现
 
 ## 3.0与2.0的接入区别
 

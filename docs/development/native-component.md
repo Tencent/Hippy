@@ -1,6 +1,6 @@
 # 自定义组件
 
-App 开发中有可能使用到大量的UI组件，Hippy SDK 已包括其中常用的部分，如`View`、`Text`、`Image` 等，但这极有可能无法满足你的需求，这就需要对 UI 组件进行扩展封装。支持 Android、iOS、Flutter平台。
+App 开发中有可能使用到大量的UI组件，Hippy SDK 已包括其中常用的部分，如`View`、`Text`、`Image` 等，但这极有可能无法满足你的需求，这就需要对 UI 组件进行扩展封装。支持 Android、iOS、Flutter、Web(同构) 等平台。
 
 <br/>
 <br/>

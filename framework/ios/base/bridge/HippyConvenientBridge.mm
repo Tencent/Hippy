@@ -185,7 +185,7 @@
         auto strongDomManager = weakDomManager.lock();
         if (strongRootNode && strongDomManager) {
             strongRootNode->SetRootSize(size.width, size.height);
-            strongRootNode->DoLayout();
+            strongDomManager->DoLayout(strongRootNode);
             strongDomManager->EndBatch(strongRootNode);
         }
     }};

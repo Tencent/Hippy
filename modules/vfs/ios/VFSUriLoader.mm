@@ -86,12 +86,18 @@ void VFSUriLoader::RequestUntrustedContent(const std::shared_ptr<hippy::RequestJ
     hippy::vfs::UriLoader::RequestUntrustedContent(request, cb);
 }
 
-void VFSUriLoader::RequestUntrustedContent(NSString *urlString, VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion) {
+void VFSUriLoader::RequestUntrustedContent(NSString *urlString, NSOperationQueue *operationQueue,
+                                           VFSHandlerProgressBlock progress,
+                                           VFSHandlerCompletionBlock completion) {
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]];
-    RequestUntrustedContent(request, progress, completion);
+    RequestUntrustedContent(request, operationQueue, progress, completion);
 }
 
-void VFSUriLoader::RequestUntrustedContent(NSString *urlString, NSString *method, NSDictionary<NSString *, NSString *> *httpHeader, NSData *body, VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion) {
+void VFSUriLoader::RequestUntrustedContent(NSString *urlString, NSString *method,
+                                           NSOperationQueue *operationQueue,
+                                           NSDictionary<NSString *, NSString *> *httpHeader, NSData *body,
+                                           VFSHandlerProgressBlock progress,
+                                           VFSHandlerCompletionBlock completion) {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     if (method) {
         [request setHTTPMethod:method];
@@ -104,10 +110,11 @@ void VFSUriLoader::RequestUntrustedContent(NSString *urlString, NSString *method
     if (body) {
         [request setHTTPBody:body];
     }
-    RequestUntrustedContent(request, progress, completion);
+    RequestUntrustedContent(request, operationQueue, progress, completion);
 }
 
-void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request, VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion) {
+void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request, NSOperationQueue *operationQueue,
+                                           VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion) {
     if (!request || !completion) {
         return;
     }
@@ -143,12 +150,12 @@ void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request, VFSHandlerProg
                 completion(data, response, error);
             }
         };
-        cur_convenient->RequestUntrustedContent(request, progress, callback, block);
+        cur_convenient->RequestUntrustedContent(request, operationQueue, progress, callback, block);
     }
     else {
         string_view uri = NSStringToU8StringView([requestURL absoluteString]);
         auto meta = NSDictionaryToStringUnorderedMap([request allHTTPHeaderFields]);
-        auto progressCallback = [progress](int64_t current, int64_t total){
+        auto progressCallback = [progress, operationQueue](int64_t current, int64_t total){
             if (progress) {
                 progress(current, total);
             }

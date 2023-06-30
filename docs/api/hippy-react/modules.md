@@ -196,7 +196,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 可以监听 Android 实体键的回退，在退出前做操作或拦截实体键的回退。 `hippy-react-web` 不支持。
 
-> 注意：该方法需要终端拦截实体返回按钮的事件，可以参考 [android-demo 的 onBackPressed 方法](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/MyActivity.java)
+> 注意：该方法需要终端拦截实体返回按钮的事件，可以参考 [android-demo 的 onBackPressed 方法](//github.com/Tencent/Hippy/blob/v3.0-dev/framework/examples/android-demo/src/main/java/com/openhippy/example/PageConfiguration.kt)
 
 ## 方法
 
@@ -215,26 +215,6 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 `(handler: () => boolean) => void` 移除 BackAndroid 关于 Android 实体健回退事件的监听器。
 
 - handler: Function - 建议使用 `addListener` 返回的包含 `remove()` 方法的对象，也可以是之前 BackAndroid 的回调函数。
-
----
-
-# Clipboard
-
-[[Clipboard 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/Clipboard)
-
-模块提供了 iOS/Android 双端的剪贴板能力，开发者可使用其来读取或写入剪贴板，目前仅支持字符串作为存取类型。
-
-## 方法
-
-### Clipboard.getString
-
-`() => string` 获取剪贴板的内容。 `hippy-react-web: () => Promise<string>`
-
-### Clipboard.setString
-
-`(value: string) => void` 设置剪贴板的内容。 `hippy-react-web: () => Promise<void>`
-
-> - value: string - 需要设置到剪贴板中的内容。
 
 ---
 
