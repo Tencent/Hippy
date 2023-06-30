@@ -69,6 +69,10 @@ Pod::Spec.new do |s|
       'GCC_ENABLE_CPP_EXCEPTIONS' => false,
       'GCC_ENABLE_CPP_RTTI' => false,
     }
+    framework.dependency 'hippy/Base'
+    framework.dependency 'hippy/JSDriver'
+    framework.dependency 'hippy/Image'
+    framework.dependency 'hippy/NativeRenderer'
     puts 'hippy subspec \'framework\' read end'
   end
 
@@ -110,6 +114,7 @@ Pod::Spec.new do |s|
       'GCC_ENABLE_CPP_RTTI' => false,
     }
     footstoneutils.dependency 'hippy/Footstone'
+    footstoneutils.dependency 'hippy/Base'
     puts 'hippy subspec \'footstoneutils\' read end'
   end
 
@@ -127,6 +132,7 @@ Pod::Spec.new do |s|
     base.libraries = 'c++'
     base.source_files = ['modules/ios/base/*.{h,m,mm}', 'modules/ios/logutils/*.{h,mm}']
     base.public_header_files = ['modules/ios/base/*.h', 'modules/ios/logutils/*.h']
+    base.dependency 'hippy/Footstone'
     puts 'hippy subspec \'base\' read end'
   end
 
@@ -151,6 +157,7 @@ Pod::Spec.new do |s|
       'HEADER_SEARCH_PATHS' => header_search_paths
     }
     vfs.preserve_path = 'modules/vfs/native'
+    vfs.dependency 'hippy/Footstone'
     puts 'hippy subspec \'vfs\' read end'
   end
 
@@ -165,6 +172,8 @@ Pod::Spec.new do |s|
       'GCC_ENABLE_CPP_RTTI' => false,
     }
     iosvfs.dependency 'hippy/VFS'
+    iosvfs.dependency 'hippy/Footstone'
+    iosvfs.dependency 'hippy/FootstoneUtils'
     puts 'hippy subspec \'iosvfs\' read end'
   end
 
@@ -225,6 +234,9 @@ Pod::Spec.new do |s|
     driver.user_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => header_search_paths, 
     }
+    driver.dependency 'hippy/Footstone'
+    driver.dependency 'hippy/Dom'
+    driver.dependency 'hippy/iOSVFS'
     driver.preserve_path = 'driver/js'
     puts 'hippy subspec \'driver\' read end'
   end 
@@ -234,6 +246,10 @@ Pod::Spec.new do |s|
     renderer.libraries = 'c++'
     renderer.source_files = 'renderer/native/ios/**/*.{h,m,mm}'
     renderer.public_header_files = 'renderer/native/ios/**/*.h'
+    renderer.dependency 'hippy/Base'
+    renderer.dependency 'hippy/DomUtils'
+    renderer.dependency 'hippy/Image'
+    renderer.dependency 'hippy/iOSVFS'
     puts 'hippy subspec \'nativerenderer\' read end'
   end 
 
@@ -291,6 +307,8 @@ Pod::Spec.new do |s|
       'GCC_ENABLE_CPP_RTTI' => false,
     }
     domutils.dependency 'hippy/Dom'
+    domutils.dependency 'hippy/FootstoneUtils'
+    domutils.dependency 'hippy/Base'
     puts 'hippy subspec \'domutils\' read end'
   end 
 
