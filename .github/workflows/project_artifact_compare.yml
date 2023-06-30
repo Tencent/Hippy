@@ -111,6 +111,7 @@ jobs:
     - name: Size
       id: get_size
       run: |
+        pushd framework/examples/ios-demo
         if [[ "${{ matrix.ref }}" ]]; then
           echo "${{ matrix.source }}=$(ls -l $(xcodebuild -project 'Pods/hippy.xcodeproj' -showBuildSettings | grep -m 1 TARGET_BUILD_DIR | grep -oEi "\/.*")/libhippy.a | awk '{print $5}')" >> $GITHUB_OUTPUT
         else

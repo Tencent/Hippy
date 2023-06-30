@@ -186,8 +186,8 @@ jobs:
           cache: 'npm'
           cache-dependency-path: driver/js/package-lock.json
       - name: Install && Build
-        working-directory: ./driver/js
         run: |
+          pushd driver/js
           npm install && npx lerna bootstrap
           npm run build
       - uses: actions/setup-node@v3
@@ -199,6 +199,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          pushd driver/js
           echo "released js_npm_dist_tag_name is '${{ github.event.inputs.js_npm_dist_tag_name }}'"
           npx lerna publish from-package --ignore-scripts --yes --dist-tag ${{ github.event.inputs.js_npm_dist_tag_name }}
       - name: Change tag to latest
@@ -206,6 +207,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          pushd driver/js
           npm run release:tag-to-latest ${{ github.event.inputs.version_name }}  
         
         
