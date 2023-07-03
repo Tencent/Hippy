@@ -20,7 +20,7 @@ on:
       - 'devtools/devtools-backend/**'
 
 jobs:
-  ios_build_tests:
+  pod_spec_lint:
     runs-on: macos-latest
     steps:
       - name: Checkout
