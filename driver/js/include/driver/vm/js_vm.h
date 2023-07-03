@@ -29,9 +29,9 @@
 
 namespace hippy {
 #ifdef ENABLE_INSPECTOR
-namespace devtools{
+namespace devtools {
 class DevtoolsDataSource;
-};
+}
 #endif
 inline namespace driver {
 inline namespace vm {
