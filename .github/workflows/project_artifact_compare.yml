@@ -1,0 +1,164 @@
+name: "[project] artifact compare"
+
+on:
+  workflow_dispatch:
+    inputs:
+      git_ref_a:
+        description: 'Git Ref A'
+        type: string
+        required: true
+      git_ref_b:
+        description: 'Git Ref B(contrast)'
+        type: string
+        required: false
+      is_compare_for_android:
+        description: 'Compare for Android artifact'
+        type: boolean
+        default: true
+        required: true
+      is_compare_for_ios:
+        description: 'Compare for iOS artifact'
+        type: boolean
+        default: true
+        required: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    if: ${{ github.event.inputs.is_compare_for_android == 'true' }}
+    runs-on: ${{ github.repository == 'Tencent/Hippy' && fromJson('[''self-hosted'', ''linux'',  ''shared'']') || 'ubuntu-latest' }}
+    container:
+      image: ghcr.io/tencent/android-release:latest # repository name must be lowercase(${{ github.repository_owner }})
+    strategy:
+      matrix:
+        ref: ${{ fromJSON(format('[''{0}'', ''{1}'']', github.event.inputs.git_ref_a, github.event.inputs.git_ref_b)) }}
+        include:
+          - ref: ${{ github.event.inputs.git_ref_a }}
+            source: ref_a
+          - ref: ${{ github.event.inputs.git_ref_b }}
+            source: ref_b
+    defaults:
+      run:
+        shell: bash
+    outputs:
+      ref_a: ${{ steps.get_size.outputs.ref_a }}
+      ref_b: ${{ steps.get_size.outputs.ref_b }}
+      artifact: Android(android-sdk.aar)
+    steps:
+    - name: Checkout
+      if: ${{ matrix.ref }}
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ matrix.ref }}
+        lfs: true
+    - name: Build
+      if: ${{ matrix.ref }}
+      run: |
+        ./gradlew assembleRelease -PINCLUDE_ABI_X86=true -PINCLUDE_ABI_X86_64=true
+    - name: Size
+      id: get_size
+      run: |
+        if [[ "${{ matrix.ref }}" ]]; then
+          echo "${{ matrix.source }}=$(ls -l ./framework/android/build/outputs/aar/android-sdk.aar | awk '{print $5}')" >> $GITHUB_OUTPUT
+        else
+          echo "${{ matrix.source }}=-1" >> $GITHUB_OUTPUT
+        fi
+
+  ios:
+    if: ${{ github.event.inputs.is_compare_for_ios == 'true' }}
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        ref: ${{ fromJSON(format('[''{0}'', ''{1}'']', github.event.inputs.git_ref_a, github.event.inputs.git_ref_b)) }}
+        include:
+          - ref: ${{ github.event.inputs.git_ref_a }}
+            source: ref_a
+          - ref: ${{ github.event.inputs.git_ref_b }}
+            source: ref_b
+    outputs:
+      ref_a: ${{ steps.get_size.outputs.ref_a }}
+      ref_b: ${{ steps.get_size.outputs.ref_b }}
+      artifact: iOS(libhippy.a)
+    steps:
+    - name: Checkout
+      if: ${{ matrix.ref }}
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ matrix.ref }}
+        lfs: true
+    - name: Xcodegen
+      uses: xavierLowmiller/xcodegen-action@1.1.2
+      with:
+        spec: framework/examples/ios-demo/project.yml
+        version: '2.32.0'
+    - name: Build
+      if: ${{ matrix.ref }}
+      run: |
+        pushd framework/examples/ios-demo
+        xcodegen
+        pod install
+        xcodebuild build \
+          -destination 'generic/platform=iOS' \
+          -project 'Pods/hippy.xcodeproj' \
+          -scheme 'hippy' \
+          -configuration 'Release' \
+          CODE_SIGN_IDENTITY="" 
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO
+    - name: Size
+      id: get_size
+      run: |
+        pushd framework/examples/ios-demo
+        if [[ "${{ matrix.ref }}" ]]; then
+          echo "${{ matrix.source }}=$(ls -l $(xcodebuild -project 'Pods/hippy.xcodeproj' -showBuildSettings | grep -m 1 TARGET_BUILD_DIR | grep -oEi "\/.*")/libhippy.a | awk '{print $5}')" >> $GITHUB_OUTPUT
+        else
+          echo "${{ matrix.source }}=-1" >> $GITHUB_OUTPUT
+        fi
+
+  collector:
+    needs: [ android, ios ]
+    if: ${{ always() && contains(needs.*.result, 'success') && !(contains(needs.*.result, 'failure')) }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Summary
+      shell: python
+      run: |
+        from os import getenv
+        from json import loads
+
+        def sizeof_fmt(num):
+          if num == 0:
+            return "0"
+          for unit in ["", "K", "M", "G", "T", "P", "E", "Z"]:
+              if abs(num) < 1024.0:
+                  return f"{num:3.2f}{unit}"
+              num /= 1024.0
+          return f"{num:.1f}Yi"
+
+        def delta(a, b):
+          num = a - b
+          return "$$\color{%s}{%s%s (%s)}$$" % ("red" if num > 0 else "green", "+" if num > 0 else "", sizeof_fmt(num), "%.2f\\\\%%" % abs(num / a * 100))
+
+        json = loads("""${{ toJSON(needs.*.outputs) }}""")
+        with open(getenv("GITHUB_STEP_SUMMARY"), 'w', encoding='utf-8') as file:
+          for result in json:
+            if "artifact" in result:
+              ref_a = int(result["ref_a"])
+              ref_b = int(result["ref_b"])
+              if ref_a > 0 and ref_b > 0:
+                file.write("## %s Artifact Compare\n" % result["artifact"])
+                file.write("| Ref  | Size | Delta |\n")
+                file.write("|------|------|-------|\n")
+                file.write("| %s   | %s   | %s    |\n" % ("${{ github.event.inputs.git_ref_a }}", sizeof_fmt(ref_a), delta(ref_a, ref_b)))
+                file.write("| %s   | %s   | %s    |\n" % ("${{ github.event.inputs.git_ref_b }}", sizeof_fmt(ref_b), delta(ref_b, ref_a)))
+                file.write("\n")
+              elif ref_a > 0:
+                ref_a = int(result["ref_a"])
+                file.write("## %s Artifact\n" % result["artifact"])
+                file.write("| Ref  | Size |\n")
+                file.write("|------|------|\n")
+                file.write("| %s   | %s   |\n" % ("${{ github.event.inputs.git_ref_a }}", sizeof_fmt(ref_a)))
+                file.write("\n")
