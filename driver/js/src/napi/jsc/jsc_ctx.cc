@@ -90,7 +90,7 @@ JSValueRef InvokeJsCallback(JSContextRef ctx,
   JSObjectRef global_object = JSContextGetGlobalObject(ctx);
   auto global_external_data = JSObjectGetPrivate(global_object);
   cb_info.SetSlot(global_external_data);
-  auto context = const_cast<JSGlobalContextRef>(ctx);
+  auto context = JSContextGetGlobalContext(ctx);
   cb_info.SetReceiver(std::make_shared<JSCCtxValue>(context, object));
   if (object != global_object) {
     auto object_private_data = JSObjectGetPrivate(object);
@@ -141,7 +141,7 @@ JSObjectRef InvokeConstructorCallback(JSContextRef ctx,
   JSObjectRef global_obj = JSContextGetGlobalObject(ctx);
   auto global_external_data = JSObjectGetPrivate(global_obj);
   cb_info.SetSlot(global_external_data);
-  auto context = const_cast<JSGlobalContextRef>(ctx);
+  auto context = JSContextGetGlobalContext(ctx);
   auto proto = std::static_pointer_cast<JSCCtxValue>(constructor_data->prototype)->value_;
   JSObjectSetPrototype(ctx, instance, proto);
   cb_info.SetReceiver(std::make_shared<JSCCtxValue>(context, instance));
@@ -209,7 +209,7 @@ static JSValueRef JSObjectGetPropertyCallback(JSContextRef ctx,
                                               JSValueRef *exception_ref) {
 
   auto data = JSObjectGetPrivate(object);
-  auto context = const_cast<JSGlobalContextRef>(ctx);
+  auto context = JSContextGetGlobalContext(ctx);
   auto constructor_data = reinterpret_cast<ConstructorData*>(data);
   auto function_wrapper = reinterpret_cast<FunctionWrapper*>(constructor_data->function_wrapper);
   auto js_cb = function_wrapper->callback;
