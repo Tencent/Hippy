@@ -20,13 +20,13 @@ on:
       - 'devtools/devtools-backend/**'
 
 jobs:
-  ios_build_tests:
+  pod_spec_lint:
     runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           lfs: true
-      - name: Pod_Spec_Lint
+      - name: Pod Spec Lint
         run: |
           pod spec lint hippy.podspec --allow-warnings --use-libraries --verbose --skip-import-validation
