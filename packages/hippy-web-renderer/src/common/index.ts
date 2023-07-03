@@ -27,7 +27,7 @@ import {
   STYLE_PADDING_V,
 } from '../types';
 import { HippyWebView } from '../component';
-
+export type TransmitDataCheck = (key: string) => boolean;
 export function hasOwnProperty(obj: Object, name: string | number | symbol) {
   return obj && Object.prototype.hasOwnProperty.call(obj, name);
 }
@@ -129,6 +129,45 @@ export function zIndexAssociate(
   } else if (parent?.exitChildrenStackContext && diffStyle.zIndex === null) {
     (component as HippyWebView<any>).updateSelfStackContext(true);
   }
+}
+
+export function customDataAssociate(
+  props: {[prop: string]: any},
+  component: HippyBaseView, config: Array<string|RegExp|TransmitDataCheck>,
+) {
+  for (const itemKey in props) {
+    let find = false;
+    for (let i = 0;i < config.length;i++) {
+      if (typeof config[i] === 'string') {
+        find = config[i] === itemKey;
+      } else if (isRegExp(config[i])) {
+        find = !!(config[i] as RegExp).exec(itemKey);
+      } else if (typeof config[i] === 'function') {
+        find = (config[i] as TransmitDataCheck)(itemKey);
+      }
+    }
+    if (!find) {
+      return;
+    }
+    const itemValue = props[itemKey];
+    const attrValue = obj2QueryString(itemValue);
+    component.dom?.setAttribute(itemKey, attrValue);
+  }
+}
+
+function isRegExp(v) {
+  return Object.prototype.toString.call(v) === '[object RegExp]';
+}
+
+function obj2QueryString(obj) {
+  const str: Array<any> = [];
+  if (typeof obj === 'string') {
+    return obj;
+  }
+  obj.keys().map((itemKey) => {
+    str.push(`${encodeURIComponent(itemKey)}=${encodeURIComponent(obj[itemKey])}`);
+  });
+  return str.join('&');
 }
 
 export  function fontSizeAssociate(newStyle: {[prop: string]: any}) {

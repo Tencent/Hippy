@@ -27,6 +27,7 @@ import {
   positionAssociate,
   zIndexAssociate,
   fontSizeAssociate,
+  customDataAssociate,
 } from '../common';
 import { Modal } from '../component';
 import { AnimationModule } from './animation-module';
@@ -198,6 +199,7 @@ export class UIManagerModule extends HippyWebModule {
         this.animationProcess('transform', transformStyle, view);
       }
     }
+    customDataAssociate(props, view, this.context.transmitData);
     for (const key of keys) {
       if (key === 'style' || key === 'attributes' || key.indexOf('__bind__') !== -1) {
         continue;
