@@ -27,11 +27,12 @@
 #include "driver/napi/js_ctx.h"
 #include "footstone/logging.h"
 
-#ifdef ENABLE_INSPECTOR
-#include "devtools/devtools_data_source.h"
-#endif
-
 namespace hippy {
+#ifdef ENABLE_INSPECTOR
+namespace devtools{
+class DevtoolsDataSource;
+};
+#endif
 inline namespace driver {
 inline namespace vm {
 
