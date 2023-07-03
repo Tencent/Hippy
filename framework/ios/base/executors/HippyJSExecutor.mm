@@ -104,8 +104,9 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     const char *pName = [self.enginekey UTF8String] ?: "";
     footstone::TimePoint startPoint = footstone::TimePoint::SystemNow();
     auto scope = engine->GetEngine()->CreateScope(pName);
+    dispatch_semaphore_t scopeSemaphore = dispatch_semaphore_create(0);
     __weak HippyJSExecutor *weakSelf = self;
-    engine->GetEngine()->GetJsTaskRunner()->PostTask([weakSelf, startPoint](){
+    engine->GetEngine()->GetJsTaskRunner()->PostTask([weakSelf, scopeSemaphore, startPoint](){
         @autoreleasepool {
             HippyJSExecutor *strongSelf = weakSelf;
             if (!strongSelf) {
@@ -115,6 +116,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
             if (!bridge) {
                 return;
             }
+            dispatch_semaphore_wait(scopeSemaphore, DISPATCH_TIME_FOREVER);
             auto scope = strongSelf->_pScope;
             scope->CreateContext();
             auto context = scope->GetContext();
@@ -218,6 +220,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
         }
     });
     self.pScope = scope;
+    dispatch_semaphore_signal(scopeSemaphore);
 #ifdef ENABLE_INSPECTOR
     HippyBridge *bridge = self.bridge;
     if (bridge && bridge.debugMode) {
