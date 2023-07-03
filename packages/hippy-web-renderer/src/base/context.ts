@@ -18,13 +18,16 @@
  * limitations under the License.
  */
 
-import { HippyTransferData } from '../types/hippy-internal-types';
+import { HippyTransferData } from '../types';
+import { TransmitDataCheck } from '../common';
 import { HippyWebEngine } from './engine';
 
 export class HippyWebEngineContext {
   engine: HippyWebEngine;
-  constructor(engine: HippyWebEngine) {
+  transmitData: Array<string|RegExp|TransmitDataCheck>;
+  constructor(engine: HippyWebEngine, transmitConfig) {
     this.engine = engine;
+    this.transmitData = transmitConfig;
   }
   /**
    * send normal event to js side

@@ -20,6 +20,7 @@
 
 import global from '../get-global';
 import { HippyBaseViewConstructor } from '../types';
+import { TransmitDataCheck } from '../common';
 import { HippyWebModule } from './base-unit';
 import { HippyWebEngineContext } from './context';
 import { createCallNatives } from './create-call-natives';
@@ -29,6 +30,7 @@ import { scriptLoader } from './script-loader';
 export interface HippyWebEngineCreatorOptions {
   modules?: { [key: string]: (typeof HippyWebModule) };
   components?: { [key: string]: HippyBaseViewConstructor };
+  transmitData?: Array<string|RegExp|TransmitDataCheck>;
 }
 
 export interface HippyWebEngineStartOptions {
@@ -61,9 +63,8 @@ export class HippyWebEngine {
   pendingModules = {};
 
   constructor(options?: HippyWebEngineCreatorOptions) {
-    this.context = new HippyWebEngineContext(this);
-
-    const { modules, components } = options || {};
+    const { modules, components, transmitData } = options || {};
+    this.context = new HippyWebEngineContext(this, transmitData || []);
 
     this.registerCore();
     this.registerModules(modules);
