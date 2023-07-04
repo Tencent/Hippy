@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -20,15 +20,21 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+
+#include <memory>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class NativeRenderImpl;
+namespace hippy {
+inline namespace dom {
+class RenderManager;
+};
+};
 
-@interface UIView (Render)
+@interface NSObject (Render)
 
-- (NativeRenderImpl *)renderImpl;
+@property(nonatomic, assign) std::weak_ptr<hippy::RenderManager> renderManager;
 
 @end
 

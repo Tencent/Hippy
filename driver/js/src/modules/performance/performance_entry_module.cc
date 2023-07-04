@@ -63,12 +63,12 @@ std::shared_ptr<ClassTemplate<PerformanceEntry>> RegisterPerformanceEntry(const 
       return nullptr;
     }
 
-    auto entry = scope->GetPerformance()->GetEntriesByName(name, static_cast<PerformanceEntry::Type>(type));
-    if (!entry) {
+    auto entries = scope->GetPerformance()->GetEntriesByName(name, static_cast<PerformanceEntry::Type>(type));
+    if (entries.empty()) {
       exception = context->CreateException("entry not found");
       return nullptr;
     }
-    return entry;
+    return entries.back();
   };
   return std::make_shared<ClassTemplate<PerformanceEntry>>(std::move(class_template));
 }

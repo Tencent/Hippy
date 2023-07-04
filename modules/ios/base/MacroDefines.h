@@ -67,3 +67,6 @@
  */
 #define HP_CONCAT2(A, B) A##B
 #define HP_CONCAT(A, B) HP_CONCAT2(A, B)
+
+#define kRootViewDidAddContent @"RootViewDidAddContent"
+#define kRootViewKey @"RootViewKey"
