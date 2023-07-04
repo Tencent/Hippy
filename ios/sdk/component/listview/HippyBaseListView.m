@@ -129,7 +129,10 @@
     [_tableView reloadData];
 
     if (self.initialContentOffset) {
-        [_tableView setContentOffset:CGPointMake(0, self.initialContentOffset) animated:NO];
+        CGFloat initialContentOffset = self.initialContentOffset;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.tableView setContentOffset:CGPointMake(0, initialContentOffset) animated:NO];
+        });
         self.initialContentOffset = 0;
     }
 
