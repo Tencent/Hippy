@@ -412,9 +412,10 @@ function createRoot(id: string) {
 
 function  createModalContainer() {
   const dom = window.document.createElement('div');
-  dom.style.width = '100%';
-  dom.style.height = '100%';
+  dom.style.width = '0%';
+  dom.style.height = '0%';
   dom.style.position = 'absolute';
+  dom.style.top = '0px';
   dom.id = 'web-renderer-id';
   return dom;
 }
