@@ -32,7 +32,6 @@
 
 #include <memory>
 
-@class HippyPerformanceLogger;
 @class HippyJSExecutor;
 @class HippyModuleData;
 
@@ -42,6 +41,7 @@ namespace hippy {
 inline namespace dom {
 class DomManager;
 class RootNode;
+class RenderManager;
 };
 };
 
@@ -89,6 +89,8 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 @property (nonatomic, weak, readonly) id<HippyBridgeDelegate> delegate;
 
 @property (nonatomic, copy, readonly) NSDictionary *launchOptions;
+
+@property (nonatomic, assign) std::weak_ptr<hippy::RenderManager> renderManager;
 
 /**
  *  Create A HippyBridge instance
@@ -250,11 +252,6 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  * Inform the bridge, and anything subscribing to it, that it should reload.
  */
 - (void)requestReload;
-
-/**
- * Link to the Performance Logger that logs Hippy Native perf events.
- */
-@property (nonatomic, readonly, strong) HippyPerformanceLogger *performanceLogger;
 
 @property (nonatomic, assign) BOOL debugMode;
 

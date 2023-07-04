@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -20,22 +20,32 @@
  * limitations under the License.
  */
 
-#import "UIView+Render.h"
-#import "NativeRenderImpl.h"
 #import "NSObject+Render.h"
-#import "NativeRenderManager.h"
+#import "objc/runtime.h"
 
-#include <objc/runtime.h>
+#include "dom/render_manager.h"
 
-@implementation UIView (Render)
+@interface RenderManagerWrapper : NSObject
 
-- (NativeRenderImpl *)renderImpl {
-    auto renderManager = [self renderManager].lock();
-    if (renderManager) {
-        auto nativeRenderManager = std::static_pointer_cast<NativeRenderManager>(renderManager);
-        return nativeRenderManager->GetNativeRenderImpl();
-    }
-    return nil;
+@property(nonatomic, assign) std::weak_ptr<hippy::RenderManager> renderManager;
+
+@end
+
+@implementation RenderManagerWrapper
+
+@end
+
+@implementation NSObject (Render)
+
+- (void)setRenderManager:(std::weak_ptr<hippy::RenderManager>)renderManager {
+    RenderManagerWrapper *wrapper = [[RenderManagerWrapper alloc] init];
+    wrapper.renderManager = renderManager;
+    objc_setAssociatedObject(self, @selector(renderManager), wrapper, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (std::weak_ptr<hippy::RenderManager>)renderManager {
+    RenderManagerWrapper *wrapper = objc_getAssociatedObject(self, _cmd);
+    return wrapper.renderManager;
 }
 
 @end

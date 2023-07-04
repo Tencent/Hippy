@@ -35,6 +35,7 @@
 class VFSUriLoader;
 namespace hippy {
 inline namespace dom {
+class RenderManager;
 class DomManager;
 class DomArgument;
 class RootNode;
@@ -57,9 +58,14 @@ class HippyValue;
  */
 @interface NativeRenderImpl : NSObject <HPInvalidating>
 
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithRenderManager:(std::weak_ptr<hippy::RenderManager>)renderManager NS_DESIGNATED_INITIALIZER;
+
 @property(nonatomic, assign) BOOL uiCreationLazilyEnabled;
 
 @property(nonatomic, assign) std::weak_ptr<VFSUriLoader> VFSUriLoader;
+@property(nonatomic, assign) std::weak_ptr<hippy::RenderManager> renderManager;
 @property(nonatomic, readonly) std::weak_ptr<hippy::DomManager> domManager;
 @property(nonatomic, readonly) NativeRenderComponentMap *viewRegistry;
 
