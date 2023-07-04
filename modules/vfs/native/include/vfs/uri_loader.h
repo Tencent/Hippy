@@ -38,9 +38,11 @@ inline namespace vfs {
 class UriLoader: public std::enable_shared_from_this<UriLoader> {
  public:
   using string_view = footstone::string_view;
+  using TimePoint = footstone::TimePoint;
   using WorkerManager = footstone::WorkerManager;
   using bytes = vfs::UriHandler::bytes;
   using RetCode = vfs::JobResponse::RetCode;
+  using RequestTimePerformanceCallback = std::function<void(const string_view& uri, const TimePoint& start, const TimePoint& end)>;
 
   UriLoader();
   virtual ~UriLoader() = default;
@@ -73,6 +75,11 @@ class UriLoader: public std::enable_shared_from_this<UriLoader> {
 
   void Terminate();
 
+  void SetRequestTimePerformanceCallback(const RequestTimePerformanceCallback& cb) { on_request_time_performance_ = cb; }
+
+ protected:
+  void DoRequestTimePerformanceCallback(const string_view& uri, const TimePoint& start, const TimePoint& end);
+
  private:
   std::shared_ptr<UriHandler> GetNextHandler(std::list<std::shared_ptr<UriHandler>>::iterator& cur,
                                              const std::list<std::shared_ptr<UriHandler>>::iterator& end);
@@ -86,6 +93,8 @@ class UriLoader: public std::enable_shared_from_this<UriLoader> {
   std::list<std::shared_ptr<UriHandler>> default_handler_list_;
   std::list<std::shared_ptr<UriHandler>> interceptor_;
   std::mutex mutex_;
+
+  RequestTimePerformanceCallback on_request_time_performance_;
 };
 
 }

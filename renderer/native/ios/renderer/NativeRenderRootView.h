@@ -24,13 +24,6 @@
 #import "HPInvalidating.h"
 
 /**
- * This notification is sent when the first subviews are added to the root view
- * after the application has loaded. This is used to hide the `loadingView`, and
- * is a good indicator that the application is ready to use.
- */
-extern NSString *const NativeRenderContentDidAppearNotification;
-
-/**
  * Native view used to host Hippy-managed views within the app. Can be used just
  * like any ordinary UIView. You can have multiple HippyRootViews on screen at
  * once, all controlled by the same JavaScript application.
@@ -42,7 +35,7 @@ extern NSString *const NativeRenderContentDidAppearNotification;
  */
 @property (nonatomic, weak) UIViewController *nativeRenderViewController;
 
-- (void)contentDidAppear:(NSUInteger)cost;
+- (void)contentDidAppear;
 
 /**
  * Timings for hiding the loading view after the content has loaded. Both of

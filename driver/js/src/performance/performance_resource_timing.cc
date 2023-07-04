@@ -33,45 +33,8 @@ namespace hippy {
 inline namespace driver {
 inline namespace performance {
 
-PerformanceResourceTiming::PerformanceResourceTiming(
-    const string_view& name,
-    TimePoint start_time,
-    TimeDelta duration,
-    const InitiatorType& initiator_type,
-    const string_view& next_hop_protocol,
-    TimePoint worker_start,
-    TimePoint redirect_start,
-    TimePoint redirect_end,
-    TimePoint fetch_start,
-    TimePoint domain_lookup_start,
-    TimePoint domain_lookup_end,
-    TimePoint connect_start,
-    TimePoint connect_end,
-    TimePoint secure_connection_start,
-    TimePoint request_start,
-    TimePoint response_start,
-    TimePoint response_end,
-    uint64_t transfer_size,
-    uint64_t encoded_body_size,
-    uint64_t decoded_body_size) :
-    PerformanceEntry(name, SubType::kPerformanceResourceTiming, Type::kResource, start_time, duration),
-    initiator_type_(initiator_type),
-    next_hop_protocol_(next_hop_protocol),
-    worker_start_(worker_start),
-    redirect_start_(redirect_start),
-    redirect_end_(redirect_end),
-    fetch_start_(fetch_start),
-    domain_lookup_start_(domain_lookup_start),
-    domain_lookup_end_(domain_lookup_end),
-    connect_start_(connect_start),
-    connect_end_(connect_end),
-    secure_connection_start_(secure_connection_start),
-    request_start_(request_start),
-    response_start_(response_start),
-    response_end_(response_end),
-    transfer_size_(transfer_size),
-    encoded_body_size_(encoded_body_size),
-    decoded_body_size_(decoded_body_size) {}
+PerformanceResourceTiming::PerformanceResourceTiming(const string_view& name)
+: PerformanceEntry(name, SubType::kPerformanceResourceTiming, Type::kResource) {}
 
 string_view PerformanceResourceTiming::ToJSON() {
   return "";
@@ -79,7 +42,10 @@ string_view PerformanceResourceTiming::ToJSON() {
 
 string_view PerformanceResourceTiming::GetInitiatorString(InitiatorType type) {
   switch (type) {
-    case InitiatorType::AUDIO:{
+    case InitiatorType::OTHER: {
+      return "other";
+    }
+    case InitiatorType::AUDIO: {
       return "audio";
     }
     case InitiatorType::BEACON: {
