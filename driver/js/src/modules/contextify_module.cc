@@ -175,7 +175,7 @@ void ContextifyModule::LoadUntrustedContent(CallbackInfo& info, void* data) {
         auto try_catch = CreateTryCatchScope(true, scope->GetContext());
         try_catch->SetVerbose(true);
         string_view view_code(reinterpret_cast<const string_view::char8_t_ *>(move_code.c_str()), move_code.length());
-        scope->RunJS(view_code, file_name);
+        scope->RunJS(view_code, uri, file_name);
         ctx->SetProperty(global_object, cur_dir_key, last_dir_str_obj, hippy::napi::PropertyAttribute::ReadOnly);
         if (try_catch->HasCaught()) {
           error = try_catch->Exception();

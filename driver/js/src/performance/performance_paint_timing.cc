@@ -29,13 +29,19 @@ inline namespace performance {
 PerformancePaintTiming::PerformancePaintTiming(PerformancePaintTiming::Type type,
                                                const TimePoint& start_time)
     : PerformanceEntry(
-    type == Type::kFirstContentfulPaint ? "first-paint" : "first-contentful-paint",
+    type == Type::kFirstPaint ? "first-paint" : "first-contentful-paint",
     SubType::kPerformancePaintTiming,
     PerformanceEntry::Type::kPaint,
     start_time,
     TimeDelta::Zero()) {
 
 }
+
+PerformancePaintTiming::PerformancePaintTiming(Type type)
+: PerformanceEntry(
+    type == Type::kFirstPaint ? "first-paint" : "first-contentful-paint",
+    SubType::kPerformancePaintTiming,
+    PerformanceEntry::Type::kPaint) {}
 
 PerformanceEntry::string_view PerformancePaintTiming::ToJSON() {
   return PerformanceEntry::ToJSON();

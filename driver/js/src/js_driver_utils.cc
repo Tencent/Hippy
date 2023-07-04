@@ -320,6 +320,11 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
                            << ", script content empty, uri = " << uri;
     return false;
   }
+
+  // perfromance start time
+  auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
+  entry->BundleInfoOfUrl(uri).execute_source_start_ = footstone::TimePoint::SystemNow();
+
 #ifdef JS_V8
   auto ret = std::static_pointer_cast<V8Ctx>(scope->GetContext())->RunScript(
       script_content, file_name, is_use_code_cache,&code_cache_content, true);
@@ -357,8 +362,12 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
   auto ret = scope->GetContext()->RunScript(script_content, file_name);
 #endif
 
+  // perfromance end time
+  entry->BundleInfoOfUrl(uri).execute_source_end_ = footstone::TimePoint::SystemNow();
+
   auto flag = (ret != nullptr);
   FOOTSTONE_LOG(INFO) << "runScript end, flag = " << flag;
+
   return flag;
 }
 

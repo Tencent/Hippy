@@ -61,12 +61,12 @@ std::shared_ptr<ClassTemplate<PerformancePaintTiming>> RegisterPerformancePaintT
       return nullptr;
     }
 
-    auto entry = scope->GetPerformance()->GetEntriesByName(name, static_cast<PerformanceEntry::Type>(type));
-    if (!entry) {
+    auto entries = scope->GetPerformance()->GetEntriesByName(name, static_cast<PerformanceEntry::Type>(type));
+    if (entries.empty()) {
       exception = context->CreateException("entry not found");
       return nullptr;
     }
-    return std::static_pointer_cast<PerformancePaintTiming>(entry);
+    return std::static_pointer_cast<PerformancePaintTiming>(entries.back());
   };
 
   return std::make_shared<ClassTemplate<PerformancePaintTiming>>(std::move(class_template));
