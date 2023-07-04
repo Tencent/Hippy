@@ -199,11 +199,11 @@ NSString *StringViewToNSString(const string_view &view) {
 
             std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::driver::napi::JSCCtx>(scope->GetContext());
             JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context->GetCtxRef()];
-//            #if __IPHONE_OS_VERSION_MAX_ALLOWED > __IPHONE_16_2
-//                if (@available(iOS 16.4, *)) {
-//                    jsContext.inspectable = true;
-//                }
-//            #endif
+            #if defined(__IPHONE_16_4) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_16_4
+                if (@available(iOS 16.4, *)) {
+                    jsContext.inspectable = true;
+                }
+            #endif
             auto global_object = context->GetGlobalObject();
             auto user_global_object_key = context->CreateString(kGlobalKey);
             context->SetProperty(global_object, user_global_object_key, global_object);
