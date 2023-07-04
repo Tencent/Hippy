@@ -16,6 +16,7 @@
 
 package com.tencent.mtt.hippy.uimanager;
 
+import android.graphics.Color;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -28,9 +29,11 @@ import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
 import com.tencent.renderer.Renderer;
 import com.tencent.renderer.component.Component;
 import com.tencent.renderer.component.ComponentController;
+import com.tencent.renderer.component.FlatViewGroup;
 import com.tencent.renderer.component.image.ImageComponentController;
 import com.tencent.renderer.node.TextRenderNode;
 import com.tencent.renderer.node.TextVirtualNode;
+import com.tencent.renderer.utils.MapUtils;
 import com.tencent.renderer.utils.PropertyUtils;
 import com.tencent.renderer.utils.PropertyUtils.PropertyMethodHolder;
 import com.tencent.renderer.node.RenderNode;
@@ -210,8 +213,15 @@ public class ControllerUpdateManger<T, G> {
                     invokePropMethod(controller, arg, props, key, methodHolder);
                 }
             } else {
-                if (key.equals(NodeProps.STYLE) && props.get(key) instanceof Map) {
-                    updateProps(node, controller, view, (Map) props.get(key), skipComponentProps);
+                // Background color is a property supported by both view and component, if the
+                // host view of a node has already been created, we need to set this property
+                // separately on the view, otherwise the background color setting for non
+                // flattened elements will not take effect.
+                if (key.equals(NodeProps.BACKGROUND_COLOR) && view instanceof View
+                        && !(view instanceof FlatViewGroup)) {
+                    ((View) view).setBackgroundColor(
+                            MapUtils.getIntValue(props, NodeProps.BACKGROUND_COLOR,
+                                    Color.TRANSPARENT));
                 } else if (!handleComponentProps(node, key, props, skipComponentProps)) {
                     handleCustomProps(controller, view, key, props);
                 }
