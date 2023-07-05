@@ -137,9 +137,9 @@ public class NodeProps {
     public static final String VIEW_CLASS_NAME = "View";
     public static final String TEXT_CLASS_NAME = "Text";
     public static final String IMAGE_CLASS_NAME = "Image";
+    public static final String TEXT_INPUT_CLASS_NAME = "TextInput";
     public static final String IMAGE_SPAN_TEXT = "[img]";
 
-    public static final String STYLE = "style";
     public static final String PROPS = "props";
     public static final String ROOT_NODE = "RootNode";
     public static final String CUSTOM_PROP = "customProp";
