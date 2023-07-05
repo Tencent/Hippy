@@ -527,7 +527,7 @@ public class ControllerManager {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public void deleteChildRecursive(int rootId, ViewGroup parent, View child, boolean recyclable) {
-        if (parent == null || child == null) {
+        if (child == null) {
             return;
         }
         HippyViewController childController = null;
@@ -555,15 +555,17 @@ public class ControllerManager {
                 }
             }
         }
-        String parentTag = NativeViewTag.getClassName(parent);
-        if (parentTag != null) {
-            HippyViewController parentController = mControllerRegistry.getViewController(
-                    parentTag);
-            if (parentController != null) {
-                parentController.deleteChild(parent, child);
+        if (parent != null) {
+            String parentTag = NativeViewTag.getClassName(parent);
+            if (parentTag != null) {
+                HippyViewController parentController = mControllerRegistry.getViewController(
+                        parentTag);
+                if (parentController != null) {
+                    parentController.deleteChild(parent, child);
+                }
+            } else {
+                parent.removeView(child);
             }
-        } else {
-            parent.removeView(child);
         }
         mControllerRegistry.removeView(rootId, child.getId());
         if (checkRecyclable(childController, recyclable) && childTag != null) {
