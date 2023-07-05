@@ -92,10 +92,12 @@ public class ImageVirtualNode extends VirtualNode {
         if (mDefaultSource != null && imageLoader != null) {
             ImageDataSupplier supplier = imageLoader.fetchImageSync(mDefaultSource, null, mWidth,
                     mHeight);
-            Bitmap bitmap = supplier.getBitmap();
-            if (bitmap != null) {
-                Resources resources = ContextHolder.getAppContext().getResources();
-                drawable = new BitmapDrawable(resources, bitmap);
+            if (supplier != null) {
+                Bitmap bitmap = supplier.getBitmap();
+                if (bitmap != null) {
+                    Resources resources = ContextHolder.getAppContext().getResources();
+                    drawable = new BitmapDrawable(resources, bitmap);
+                }
             }
         }
         if (drawable == null) {
