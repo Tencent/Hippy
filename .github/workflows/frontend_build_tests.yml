@@ -33,7 +33,6 @@ jobs:
           cache-dependency-path: driver/js/package-lock.json
       - name: install
         run: |
-          pushd driver/js
           npm install && lerna bootstrap --no-ci
       - name: lint & build
         run: npm run lint & npm run build
