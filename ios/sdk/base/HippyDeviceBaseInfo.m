@@ -26,6 +26,22 @@
 #import "HippyAssert.h"
 #import "HippyUtils.h"
 
+static UIInterfaceOrientation orientation(void) { 
+    static UIInterfaceOrientation interfaceOrientation = UIInterfaceOrientationPortrait;/// 异常情况给一个默认的UIDeviceOrientationPortrait
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [[NSNotificationCenter defaultCenter] addObserverForName:UIDeviceOrientationDidChangeNotification
+                                                          object:nil
+                                                           queue:nil
+                                                      usingBlock:^(__unused NSNotification *note) {
+            
+            UIInterfaceOrientation orientation = (UIInterfaceOrientation)UIDevice.currentDevice.orientation;/// 设备方向转化成界面方向
+            interfaceOrientation = orientation;
+        }];
+    });
+    return interfaceOrientation;
+}
+
 static BOOL isiPhoneX() {
     if (@available(iOS 11.0, *)) {
         CGFloat height = [[UIApplication sharedApplication] delegate].window.safeAreaInsets.bottom;
@@ -57,7 +73,8 @@ NSDictionary *hippyExportedDimensions() {
             @"height": @(screenSize.height),
             @"scale": screenScale,
             @"fontScale": @(1),
-            @"statusBarHeight": @(statusBarHeight)
+            @"statusBarHeight": @(statusBarHeight),
+            @"orientation": @(orientation())
         }
     };
     return dimensions;
