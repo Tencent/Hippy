@@ -239,6 +239,10 @@ void BridgeImpl::Destroy(int64_t scope_id,
       engine_holder.erase(it);
     }
   }
+
+  voltron::EraseObject(footstone::checked_numeric_cast<
+      int64_t,
+      uint32_t>(scope_id));
   JsDriverUtils::DestroyInstance(engine, scope, [callback](bool ret) {
     if (ret) {
       callback(INIT_CB_STATE::SUCCESS);
@@ -246,6 +250,7 @@ void BridgeImpl::Destroy(int64_t scope_id,
       callback(INIT_CB_STATE::DESTROY_ERROR);
     }
   }, is_reload);
+  scope = nullptr;
 }
 
 void BridgeImpl::LoadInstance(int64_t scope_id,
