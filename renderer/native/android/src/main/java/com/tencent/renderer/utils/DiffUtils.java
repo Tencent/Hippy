@@ -21,8 +21,6 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.tencent.mtt.hippy.dom.node.NodeProps;
-
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.renderer.node.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -36,29 +34,6 @@ public class DiffUtils {
     private static final String TAG = "DiffUtils";
     private static final String TINT_COLORS = "tintColors";
     private static final String TINT_COLOR = "tintColor";
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    @Nullable
-    private static Map<String, Object> findResetStyles(@Nullable Map<String, Object> fromProps,
-            @Nullable Map<String, Object> toProps) {
-        Map<String, Object> diffStyles = null;
-        Map<String, Object> fromStyle =
-                (fromProps != null) ? (Map) fromProps.get(NodeProps.STYLE) : null;
-        if (fromStyle == null) {
-            return null;
-        }
-        Map<String, Object> toStyle = (toProps != null) ? (Map) toProps.get(NodeProps.STYLE) : null;
-        Set<String> styleKeys = fromStyle.keySet();
-        for (String styleKey : styleKeys) {
-            if (toStyle == null || !toStyle.containsKey(styleKey)) {
-                if (diffStyles == null) {
-                    diffStyles = new HashMap<>();
-                }
-                diffStyles.put(styleKey, null);
-            }
-        }
-        return diffStyles;
-    }
 
     /**
      * Find the attribute that exists in the from node but does not exist in the to node.
@@ -79,18 +54,9 @@ public class DiffUtils {
             return null;
         }
         Map<String, Object> diffProps = null;
-        Map<String, Object> diffStyles;
         Set<String> fromKeys = fromProps.keySet();
         try {
-            diffStyles = findResetStyles(fromProps, toProps);
-            if (diffStyles != null) {
-                diffProps = new HashMap<>();
-                diffProps.put(NodeProps.STYLE, diffStyles);
-            }
             for (String fromKey : fromKeys) {
-                if (fromKey.equals(NodeProps.STYLE)) {
-                    continue;
-                }
                 if (toProps == null || !toProps.containsKey(fromKey)) {
                     if (diffProps == null) {
                         diffProps = new HashMap<>();
@@ -162,9 +128,6 @@ public class DiffUtils {
                 if (diffResult.isEmpty()) {
                     return;
                 }
-            } else if (diffLevel == 0 && fromKey.equals(NodeProps.STYLE)) {
-                diffResult = diffMap((Map) fromValue, new HashMap<String, Object>(),
-                        diffLevel + 1, controllerManager, componentProps);
             }
             updateProps.put(fromKey, diffResult);
         }
