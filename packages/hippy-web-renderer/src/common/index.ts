@@ -62,7 +62,6 @@ export function setElementStyle(element: HTMLElement, object: any, animationProc
     if (isFontSize(key) && element.tagName === 'span') {
       const newValue = transformForSize(object[key]);
       styleUpdateWithCheck(element, key, newValue);
-      styleUpdateWithCheck(element, 'line-height', newValue);
       continue;
     }
     if (isLayout(key, object[key])) {
@@ -170,7 +169,7 @@ function obj2QueryString(obj) {
   return str.join('&');
 }
 
-export  function fontSizeAssociate(newStyle: {[prop: string]: any}) {
+export function fontSizeAssociate(newStyle: {[prop: string]: any}) {
   if (newStyle.fontSize && newStyle.fontSize < 12) {
     let { transform } = newStyle;
     if (!transform) {

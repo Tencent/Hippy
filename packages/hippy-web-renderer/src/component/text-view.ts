@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EllipsizeMode, InnerNodeTag, NodeProps } from '../types';
+import { DefaultPropsProcess, EllipsizeMode, InnerNodeTag, NodeProps, UIProps } from '../types';
 import { setElementStyle } from '../common';
 import { HippyWebView } from './hippy-web-view';
 const HippyEllipsizeModeMap = {
@@ -35,7 +35,19 @@ export class TextView extends HippyWebView<HTMLSpanElement> {
   }
   public defaultStyle(): { [p: string]: any } {
     return { boxSizing: 'border-box', zIndex: 0, ...HippyEllipsizeModeMap[this.ellipsizeMode],
-      lineHeight: '100%', overflow: 'hidden' };
+      overflow: 'hidden', '-webkit-transform-origin': 'center left' };
+  }
+
+  public updateProps(data: UIProps, defaultProcess: DefaultPropsProcess) {
+    if (this.firstUpdateStyle) {
+      defaultProcess(this, { style: this.defaultStyle() });
+      this.firstUpdateStyle = false;
+    }
+    const { style } = data;
+    if (style.height && !style.lineHeight) {
+      style.lineHeight = '100%';
+    }
+    defaultProcess(this, data);
   }
 
   public set numberOfLines(value: number|undefined) {
