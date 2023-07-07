@@ -30,7 +30,7 @@ import { HippyElement } from './hippy-element';
 export class HippyInputElement extends HippyElement {
   /**
    * show input menu
-   * @deprecated
+   * @deprecated not implemented method
    */
   public showInputMenu(): void {
     // noop
@@ -38,7 +38,7 @@ export class HippyInputElement extends HippyElement {
 
   /**
    * hide input menu
-   * @deprecated
+   * @deprecated not implemented method
    */
   public hideInputMenu(): void {
     // noop

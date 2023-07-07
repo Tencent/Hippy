@@ -19,6 +19,7 @@
  */
 
 import { getGlobal } from '../get-global';
+import { SceneBuilder } from '../dom/scene-builder';
 import { Dimensions } from './dimensions';
 import { dealloc } from './event';
 import { nativeGlobal } from './native-global';
@@ -87,6 +88,9 @@ Hippy.asyncStorage = asyncStorage;
 Hippy.turboPromise = turboPromise;
 Hippy.document = document;
 Hippy.device.platform = platform();
+
+// scene builder for hippy 3.0
+Hippy.SceneBuilder = SceneBuilder;
 
 
 global.__localStorage = global.localStorage;

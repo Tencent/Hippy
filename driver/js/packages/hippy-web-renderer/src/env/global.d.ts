@@ -19,6 +19,7 @@
  */
 
 import { HippyWebModule } from '../base';
+import { type SceneBuilder } from '../dom/scene-builder';
 import { dealloc } from './event';
 import { nativeGlobal } from './native-global';
 import { emitter, hippyRegister } from './others';
@@ -39,6 +40,7 @@ declare global {
     }
     device: HippyDeviceInfo,
     document: typeof document,
+    SceneBuilder: typeof SceneBuilder,
   }
 
   interface HippyDeviceInfo {

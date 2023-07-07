@@ -263,16 +263,19 @@ declare namespace HippyTypes {
     [key: string]: null | string | number | number[] | AnimationStyle | AnimationStyle[];
   }
 
+  export interface NativeNodeProps {
+    [key: string]: NeedToTyped;
+    attributes?: Attributes;
+  }
+
   export interface NativeNode {
     id: number;
     pId: number;
+    index?: number;
     name?: string;
     style?: NativeStyle;
     tagName?: string;
-    props?: {
-      [key: string]: NeedToTyped;
-      attributes?: Attributes;
-    }
+    props?: NativeNodeProps;
   }
 
   export enum RelativeToRef {

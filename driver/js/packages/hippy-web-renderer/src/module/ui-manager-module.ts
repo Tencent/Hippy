@@ -19,9 +19,17 @@
  */
 
 import { HippyWebEngineContext, HippyWebModule, HippyWebView } from '../base';
-import { HippyBaseView, HippyCallBack, InnerNodeTag, NodeData, UIProps } from '../types';
+import { HippyBaseView, HippyCallBack, InnerNodeTag, UIProps } from '../types';
 import { setElementStyle, warn, error, positionAssociate, zIndexAssociate } from '../common';
 import { AnimationModule } from './animation-module';
+
+/**
+ * get native event name
+ */
+function getNativeEventName(eventName: string) {
+  // add the 'on' for the event name and convert the first letter to uppercase, eg. click -> onClick
+  return `on${eventName.charAt(0).toUpperCase()}${eventName.slice(1)}`;
+}
 
 let ENV_STYLE_INIT_FLAG = false;
 export class UIManagerModule extends HippyWebModule {
@@ -41,19 +49,23 @@ export class UIManagerModule extends HippyWebModule {
     ENV_STYLE_INIT_FLAG = true;
   }
 
-  public async createNode(rootViewId: any, data: Array<NodeData>) {
+  public async createNode(rootViewId: any, data: Array<HippyTypes.TranslatedNodes>) {
     this.createNodePreCheck(rootViewId);
     const updateViewIdSet = new Set();
     for (let c = 0; c < data.length; c++) {
-      const nodeItemData = data[c];
+      const [nodeItemData] = data[c];
       const { id, pId, index, props, name: tagName } = nodeItemData;
+      if (!tagName) {
+        warn(`create component failed, tagName is ${tagName}`);
+        continue;
+      }
       const view = mapView(this.context, tagName, id, pId);
       if (!view) {
         warn(`create component failed, not support the component ${tagName}`);
         continue;
       }
       try {
-        await this.viewInit(view, props, index);
+        await this.viewInit(view, props, index!);
       } catch (e) {
         error(e);
       }
@@ -75,19 +87,74 @@ export class UIManagerModule extends HippyWebModule {
     this.afterCreateAction = [];
   }
 
-  public async deleteNode(rootViewId: string, data: Array<{ id: number }>) {
+  public async deleteNode(rootViewId: string, data: Array<HippyTypes.TranslatedNodes>) {
     for (let i = 0; i < data.length; i++) {
-      const deleteItem = data[i];
+      const [deleteItem] = data[i];
       const deleteView = this.findViewById(deleteItem.id);
       await this.viewDelete(deleteView);
     }
   }
 
-  public updateNode(rootViewId: string, data: Array<{ id: number, props: UIProps }>) {
+  public updateNode(rootViewId: string, data: Array<HippyTypes.TranslatedNodes>) {
     for (let i = 0; i < data.length; i++) {
-      const updateItem = data[i];
+      const [updateItem] = data[i];
       const updateView = this.findViewById(updateItem.id);
-      this.viewUpdate(updateView, updateItem.props);
+      if (updateItem?.props) {
+        // only update node when it has props
+        this.viewUpdate(updateView, updateItem.props);
+      }
+    }
+  }
+
+  /**
+   * move native node
+   *
+   * @param rootViewId
+   * @param data
+   */
+  public async moveNode(rootViewId: string, data: Array<HippyTypes.TranslatedNodes>) {
+    for (let i = 0; i < data.length; i++) {
+      const [moveItem] = data[i];
+      const moveView = this.findViewById(moveItem.id);
+      if (moveView) {
+        // find new parent
+        const newParentView = this.findViewById(moveItem.pId);
+        // do not move when the node has same parent or new parent is null
+        if (newParentView && moveView?.pId !== moveItem.pId) {
+          // remove view from old parent
+          await this.viewDelete(moveView);
+        }
+      }
+
+      // create new view
+      await this.createNode(rootViewId, [data[i]]);
+    }
+  }
+
+  /**
+   * add event bind for native node
+   *
+   * @param id
+   * @param eventName
+   */
+  public addEventListener(id: number, eventName: string) {
+    const view = this.findViewById(id);
+    if (view) {
+      // set hippy-web-view onClick
+      view[getNativeEventName(eventName)] = true;
+    }
+  }
+
+  /**
+   * remove event bind for native node
+   *
+   * @param id
+   * @param eventName
+   */
+  public removeEventListener(id: number, eventName: string) {
+    const view = this.findViewById(id);
+    if (view) {
+      view[getNativeEventName(eventName)] = false;
     }
   }
 

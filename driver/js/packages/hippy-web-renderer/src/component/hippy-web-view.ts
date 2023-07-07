@@ -316,6 +316,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   }
 
   private handleOnClick(event) {
+    console.log('on click', event);
     if (!this.onClick) {
       return;
     }

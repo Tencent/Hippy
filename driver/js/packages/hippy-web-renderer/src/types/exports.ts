@@ -20,9 +20,7 @@
 
 import { HippyTransferData } from './hippy-internal-types';
 
-export interface UIProps {
-  [key: string]: any
-}
+export type UIProps = HippyTypes.NativeNodeProps;
 export type DefaultPropsProcess = (component: HippyBaseView, data: UIProps) => void;
 export interface HippyBaseView {
   tagName: InnerNodeTag|string;

@@ -44,7 +44,7 @@ const builds = {
     entry: resolvePackage('hippy-vue-next', 'src/index.ts'),
     dest: resolvePackage('hippy-vue-next', 'dist/index.js'),
     format: 'es',
-    banner: banner('@hippy/vue', hippyVueNextPackage.version, bannerStrAndHippyVueString, 2022),
+    banner: banner('@hippy/vue-next', hippyVueNextPackage.version, bannerStrAndHippyVueString, 2022),
     name: 'hippy-vue-next',
     external: ['@vue/runtime-core'],
   },

@@ -108,7 +108,7 @@ export const nativeBridge: HippyNativeBridge = (_action, _callObj) => {
         if (!targetModule || typeof targetModule[callObj.methodName] !== 'function') {
           resp = 'error: callJsModule targetting an undefined module or method';
         } else {
-          targetModule[callObj.methodName](callObj.params);
+          targetModule[callObj.methodName](callObj.params, callObj.secondParams);
         }
       }
       break;
