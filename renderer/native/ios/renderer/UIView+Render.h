@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UIView (Render)
 
-@property(nonatomic, weak)NativeRenderImpl *renderImpl;
+- (NativeRenderImpl *)renderImpl;
 
 @end
 

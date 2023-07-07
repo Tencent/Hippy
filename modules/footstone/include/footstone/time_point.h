@@ -42,6 +42,12 @@ class TimePoint {
                          .count());
   }
 
+  static TimePoint SystemNow() {
+    return TimePoint(std::chrono::duration_cast<std::chrono::nanoseconds>(
+        std::chrono::system_clock::now().time_since_epoch())
+                         .count());
+  }
+
   static constexpr TimePoint Min() { return TimePoint(std::numeric_limits<int64_t>::min()); }
 
   static constexpr TimePoint Max() { return TimePoint(std::numeric_limits<int64_t>::max()); }

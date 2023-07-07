@@ -16,8 +16,6 @@
 
 package com.tencent.mtt.hippy.views.modal;
 
-import android.animation.ObjectAnimator;
-import android.animation.PropertyValuesHolder;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -37,6 +35,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.openhippy.renderer.R;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
@@ -44,7 +43,6 @@ import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
-import com.tencent.renderer.utils.DisplayUtils;
 
 public class HippyModalHostView extends HippyViewGroup implements
         HippyInstanceLifecycleEventListener {
@@ -261,36 +259,24 @@ public class HippyModalHostView extends HippyViewGroup implements
         if (mDialog.getWindow() != null && mEnterImmersionStatusBar) {
             setDialogBar(mStatusBarTextDarkColor);
         }
+        switch (mAnimationStyleTheme) {
+            case STYLE_THEME_ANIMATED_FADE_DIALOG:
+                mDialog.getWindow().setWindowAnimations(R.style.modal_style_theme_animated_fade);
+                break;
+            case STYLE_THEME_ANIMATED_SLIDE_DIALOG:
+                mDialog.getWindow().setWindowAnimations(R.style.modal_style_theme_animated_slide);
+                break;
+            case STYLE_THEME_ANIMATED_SLIDE_FADE_DIALOG:
+                mDialog.getWindow().setWindowAnimations(R.style.modal_style_theme_animated_slide_fade);
+                break;
+            default:
+        }
+
         mDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
                 if (mOnShowListener != null) {
                     mOnShowListener.onShow(dialogInterface);
-                }
-                ObjectAnimator alphaAnimation = null;
-                switch (mAnimationStyleTheme) {
-                    case STYLE_THEME_ANIMATED_FADE_DIALOG:
-                        alphaAnimation = ObjectAnimator
-                                .ofFloat(mContentView, ANIMATION_PROPERTY_ALPHA, 0.0f, 1.0f);
-                        break;
-                    case STYLE_THEME_ANIMATED_SLIDE_DIALOG:
-                        alphaAnimation = ObjectAnimator
-                                .ofFloat(mContentView, ANIMATION_PROPERTY_TRANSLATION_Y, 0);
-                        break;
-                    case STYLE_THEME_ANIMATED_SLIDE_FADE_DIALOG:
-                        PropertyValuesHolder fadeValuesHolder = PropertyValuesHolder
-                                .ofFloat(ANIMATION_PROPERTY_ALPHA, 0.0f, 1.0f);
-                        PropertyValuesHolder slideValuesHolder = PropertyValuesHolder
-                                .ofFloat(ANIMATION_PROPERTY_TRANSLATION_Y, 0);
-                        alphaAnimation = ObjectAnimator
-                                .ofPropertyValuesHolder(mContentView, fadeValuesHolder,
-                                        slideValuesHolder);
-                        break;
-                    default:
-                }
-                if (alphaAnimation != null) {
-                    alphaAnimation.setDuration(200);
-                    alphaAnimation.start();
                 }
             }
         });
@@ -342,24 +328,6 @@ public class HippyModalHostView extends HippyViewGroup implements
         updateProperties();
         initDialog();
         mDialog.show();
-        int screenHeight = DisplayUtils.getScreenHeight();
-        switch (mAnimationStyleTheme) {
-            case STYLE_THEME_ANIMATED_FADE_DIALOG:
-                mContentView.setAlpha(0);
-                break;
-            case STYLE_THEME_ANIMATED_SLIDE_DIALOG:
-                if (screenHeight > 0) {
-                    mContentView.setTranslationY(screenHeight);
-                }
-                break;
-            case STYLE_THEME_ANIMATED_SLIDE_FADE_DIALOG:
-                mContentView.setAlpha(0);
-                if (screenHeight > 0) {
-                    mContentView.setTranslationY(screenHeight);
-                }
-                break;
-            default:
-        }
     }
 
     @NonNull

@@ -77,12 +77,14 @@
     auto domManager = engineResource->GetDomManager();
     //Create NativeRenderManager
     _nativeRenderManager = std::make_shared<NativeRenderManager>();
+    _nativeRenderManager->Initialize();
     //set dom manager
     _nativeRenderManager->SetDomManager(domManager);
     //set image provider for native render manager
     _nativeRenderManager->AddImageProviderClass([HPDefaultImageProvider class]);
     _nativeRenderManager->RegisterExtraComponent(_extraComponents);
     _nativeRenderManager->SetVFSUriLoader([self URILoader]);
+    _bridge.renderManager = _nativeRenderManager;
 }
 
 - (std::shared_ptr<VFSUriLoader>)URILoader {
@@ -155,7 +157,9 @@
     _rootNode->SetRootSize(rootView.frame.size.width, rootView.frame.size.height);
         
     //set rendermanager for dommanager
-    domManager->SetRenderManager(_nativeRenderManager);
+    if (!domManager->GetRenderManager().lock()) {
+        domManager->SetRenderManager(_nativeRenderManager);
+    }
     //bind rootview and root node
     _nativeRenderManager->RegisterRootView(rootView, _rootNode);
 

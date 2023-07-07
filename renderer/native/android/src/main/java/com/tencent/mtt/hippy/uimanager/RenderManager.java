@@ -300,7 +300,7 @@ public class RenderManager {
             node.updateExtra(object);
             // The gesture set by the child nodes of the flattened text node will recreate
             // the host view, so the parent text node must be added to the update list.
-            if (node.getGestureEnable() && node.getHostView() == null && node.getParent() != null) {
+            if (node.checkGestureEnable() && node.getHostView() == null && node.getParent() != null) {
                 addUpdateNodeIfNeeded(rootId, node.getParent());
             }
             addUpdateNodeIfNeeded(rootId, node);

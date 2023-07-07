@@ -1,0 +1,213 @@
+name: '[project] artifact release'
+
+on:
+  workflow_dispatch:
+    inputs:
+      git_ref:
+        description: 'Git Ref'
+        type: string
+        required: true
+      version_name:
+        description: 'Version name'
+        type: string
+        required: true
+      registry_choice:
+        description: 'Registry choice'
+        type: choice
+        required: true
+        default: 'Both'
+        options:
+          - Default
+          - Github
+          - Both
+      is_release_for_android:
+        description: 'Release for Android'
+        type: boolean
+        default: true
+        required: false
+      is_release_for_ios:
+        description: 'Release for iOS'
+        type: boolean
+        default: true
+        required: false
+      is_release_for_js:
+        description: 'Release for JS'
+        type: boolean
+        default: true
+        required: false
+      js_npm_dist_tag_name:
+        description: 'NPM dist tag name to release'
+        type: string
+        required: false
+      is_npm_version_to_latest_tag:
+        description: 'Set current version to npm latest tag'
+        type: boolean
+        default: true
+        required: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  context_in_lowercase:
+    if: github.event.inputs.is_release_for_android == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      repository_owner: ${{ steps.get_owner.outputs.lowercase }}
+    steps:
+      - name: Get repo owner(in lowercase)
+        id: get_owner
+        uses: ASzc/change-string-case-action@v2
+        with:
+          string: ${{ github.repository_owner }}
+
+  android_release:
+    if: github.event.inputs.is_release_for_android == 'true'
+    needs: context_in_lowercase
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build_type: [Debug, Release]
+        include:
+        - build_type: Debug
+          artifact_id: hippy-debug
+        - build_type: Release
+          artifact_id: hippy-release
+    container:
+      image: ghcr.io/${{ needs.context_in_lowercase.outputs.repository_owner }}/android-release:latest
+    steps:
+    - name: Checkout (${{ github.event.inputs.git_ref }})
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.inputs.git_ref }}
+        lfs: true
+    - name: ${{ matrix.build_type }} build
+      env:
+        SIGNING_KEY_ID: ${{ secrets.ANDROID_SIGNING_KEY_ID }}
+        SIGNING_PASSWORD: ${{ secrets.ANDROID_SIGNING_PASSWORD }}
+        SIGNING_SECRET_KEY: ${{ secrets.ANDROID_SIGNING_SECRET_KEY }}
+      run: |
+        ./gradlew assemble${{ matrix.build_type }} -PVERSION_NAME=${{ github.event.inputs.version_name }} -PPUBLISH_ARTIFACT_ID=${{ matrix.artifact_id }} -PINCLUDE_ABI_X86=true -PINCLUDE_ABI_X86_64=true
+        ./gradlew signMavenAarPublication
+    - name: Pre Archive artifacts
+      shell: bash
+      run: |
+        pip3 install -U cos-python-sdk-v5
+    - name: Archive artifacts
+      working-directory: ./framework/android/build
+      shell: python3 {0}
+      run: |
+        from qcloud_cos import CosConfig
+        from qcloud_cos import CosS3Client
+        from urllib.parse import urlencode
+        import os
+        import tempfile
+        import zipfile
+
+        artifacts = [("outputs/aar/android-sdk.aar", "hippy/android/${{ matrix.artifact_id }}/${{ github.event.inputs.version_name }}/android-sdk.aar")]
+        for path, dirs, files in os.walk("intermediates/merged_native_libs/%s/out/lib" % "${{ matrix.build_type }}".lower()):
+          if files:
+            with zipfile.ZipFile(tempfile.mkstemp()[1], "w", zipfile.ZIP_DEFLATED) as zip_file:
+              for file in files:
+                zip_file.write(os.path.join(path, file), file)
+              artifacts.append((zip_file.filename, "hippy/android/${{ matrix.artifact_id }}/${{ github.event.inputs.version_name }}/symbols/%s.zip" % os.path.basename(path)))
+
+        metadata = {}
+        metadata["ci-name"] = "Github Action"
+        metadata["ci-id"] = "${{ github.run_id }}"
+        metadata["ci-url"] = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        metadata["artifact-author"] = "${{ github.event.sender.login }}"
+        metadata["git-ref"] = "${{ github.event.inputs.git_ref }}"
+
+        config = CosConfig(Region="${{ secrets.COS_REGION }}", SecretId="${{ secrets.TC_SECRET_ID }}", SecretKey="${{ secrets.TC_SECRET_KEY }}")
+        client = CosS3Client(config)
+        for artifact in artifacts:
+          print("Uploading %s" % artifact[0])
+          response = client.upload_file(
+              Bucket="${{ secrets.COS_BUCKET_ARTIFACTS_STORE }}",
+              Key=artifact[1],
+              LocalFilePath=artifact[0],
+              Metadata={"x-cos-tagging": urlencode(metadata)}
+          )
+          print("Archived %s" % artifact[1])
+    - name: Publish to Github Packages
+      if: github.event.inputs.registry_choice == 'Both' || github.event.inputs.registry_choice == 'Github'
+      env:
+        SIGNING_KEY_ID: ${{ secrets.ANDROID_SIGNING_KEY_ID }}
+        SIGNING_PASSWORD: ${{ secrets.ANDROID_SIGNING_PASSWORD }}
+        SIGNING_SECRET_KEY: ${{ secrets.ANDROID_SIGNING_SECRET_KEY }}
+        MAVEN_USERNAME: ${{ secrets.GITHUB_ACTOR }}
+        MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        MAVEN_URL: https://maven.pkg.github.com/${{ github.repository }}
+      run: |
+        ./gradlew publish -PVERSION_NAME=${{ github.event.inputs.version_name }} -PPUBLISH_ARTIFACT_ID=${{ matrix.artifact_id }} -PINCLUDE_ABI_X86=true -PINCLUDE_ABI_X86_64=true
+    - name: Publish to OSSRH
+      if: github.event.inputs.registry_choice == 'Both' || github.event.inputs.registry_choice == 'Default'
+      env:
+        SIGNING_KEY_ID: ${{ secrets.ANDROID_SIGNING_KEY_ID }}
+        SIGNING_PASSWORD: ${{ secrets.ANDROID_SIGNING_PASSWORD }}
+        SIGNING_SECRET_KEY: ${{ secrets.ANDROID_SIGNING_SECRET_KEY }}
+        MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+        MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+      run: |
+        ./gradlew publish -PVERSION_NAME=${{ github.event.inputs.version_name }} -PPUBLISH_ARTIFACT_ID=${{ matrix.artifact_id }} -PINCLUDE_ABI_X86=true -PINCLUDE_ABI_X86_64=true
+
+  ios_release:
+    if: github.event.inputs.is_release_for_ios == 'true'
+    runs-on: macos-latest
+    steps:
+      - name: Checkout (${{ github.event.inputs.git_ref }})
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.git_ref }}
+          lfs: true
+      - name: Publish to Cocoapods
+        if: github.event.inputs.registry_choice == 'Both' || github.event.inputs.registry_choice == 'Default'
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+        run: |
+          pod trunk push hippy.podspec --allow-warnings --use-libraries --verbose --skip-import-validation
+
+  js_release:
+    if: github.event.inputs.is_release_for_js == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (${{ github.event.inputs.git_ref }})
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.git_ref }}
+          lfs: true
+      - name: setup-node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          registry-url: https://npm.pkg.github.com
+          cache: 'npm'
+          cache-dependency-path: driver/js/package-lock.json
+      - name: Install && Build
+        run: |
+          pushd driver/js
+          npm install && npx lerna bootstrap --no-ci
+          npm run build
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          registry-url: 'https://registry.npmjs.org'
+      - name: Publish to NPM
+        if: github.event.inputs.js_npm_dist_tag_name != null && (github.event.inputs.registry_choice == 'Both' || github.event.inputs.registry_choice == 'Default')
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          pushd driver/js
+          echo "released js_npm_dist_tag_name is '${{ github.event.inputs.js_npm_dist_tag_name }}'"
+          npx lerna publish from-package --ignore-scripts --yes --dist-tag ${{ github.event.inputs.js_npm_dist_tag_name }}
+      - name: Change tag to latest
+        if: github.event.inputs.is_npm_version_to_latest_tag == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          pushd driver/js
+          npm run release:tag-to-latest ${{ github.event.inputs.version_name }}  
+        
+        

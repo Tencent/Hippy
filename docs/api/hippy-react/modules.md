@@ -196,7 +196,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 可以监听 Android 实体键的回退，在退出前做操作或拦截实体键的回退。 `hippy-react-web` 不支持。
 
-> 注意：该方法需要终端拦截实体返回按钮的事件，可以参考 [android-demo 的 onBackPressed 方法](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/MyActivity.java)
+> 注意：该方法需要终端拦截实体返回按钮的事件，可以参考 [android-demo 的 onBackPressed 方法](//github.com/Tencent/Hippy/blob/v3.0-dev/framework/examples/android-demo/src/main/java/com/openhippy/example/PageConfiguration.kt)
 
 ## 方法
 

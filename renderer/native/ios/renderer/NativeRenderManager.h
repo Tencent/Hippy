@@ -29,6 +29,7 @@
 #include "dom/render_manager.h"
 
 @class UIView, NativeRenderImpl;
+
 class VFSUriLoader;
 namespace hippy {
 inline namespace dom {
@@ -41,13 +42,15 @@ class RootNode;
 /**
  * NativeRenderManager is used to manager view creation, update and delete for Native UI
  */
-class NativeRenderManager : public hippy::RenderManager {
+class NativeRenderManager : public hippy::RenderManager ,public std::enable_shared_from_this<NativeRenderManager> {
     
 public:
     NativeRenderManager();
     NativeRenderManager(NativeRenderImpl *uiManager): hippy::RenderManager("NativeRenderManager"), renderImpl_(uiManager){}
     
     ~NativeRenderManager();
+    
+    void Initialize();
 
     /**
      *  create views from dom nodes
@@ -203,6 +206,13 @@ public:
      *@param cb callback
      */
     void SetRootViewSizeChangedEvent(std::function<void(int32_t rootTag, NSDictionary *)> cb);
+    
+    /**
+     * Get NativeRenderImpl variable
+     *
+     * @return A NativeRenderImpl instance
+     */
+    NativeRenderImpl *GetNativeRenderImpl();
     
 private:
     NativeRenderImpl *renderImpl_;

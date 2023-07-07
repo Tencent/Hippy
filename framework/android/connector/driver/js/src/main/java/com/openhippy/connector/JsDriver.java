@@ -69,6 +69,18 @@ public class JsDriver implements Connector {
         }
     }
 
+    public void recordNativeInitEndTime(long startTime, long endTime) {
+        onNativeInitEnd(mInstanceId, startTime, endTime);
+    }
+
+    public void recordFirstFrameEndTime(long time) {
+        onFirstFrameEnd(mInstanceId, time);
+    }
+
+    public void recordResourceLoadEndTime(@NonNull String uri, long startTime, long endTime) {
+        onResourceLoadEnd(mInstanceId, uri, startTime, endTime);
+    }
+
     public void onResourceReady(ByteBuffer output, long resId) {
         onResourceReady(mInstanceId, output, resId);
     }
@@ -148,4 +160,10 @@ public class JsDriver implements Connector {
             byte[] buffer, int offset, int length);
 
     private native void onResourceReady(int instanceId, ByteBuffer output, long resId);
+
+    private native void onNativeInitEnd(int instanceId, long startTime, long endTime);
+
+    private native void onFirstFrameEnd(int instanceId, long time);
+
+    private native void onResourceLoadEnd(int instanceId, String uri, long startTime, long endTime);
 }

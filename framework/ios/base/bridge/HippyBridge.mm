@@ -36,11 +36,9 @@
 #import "HippyModuleMethod.h"
 #import "HippyTurboModuleManager.h"
 #import "HippyOCTurboModule.h"
-#import "HippyPerformanceLogger.h"
 #import "HippyRedBox.h"
 #import "HippyTurboModule.h"
 #import "HippyUtils.h"
-
 #import "HPAsserts.h"
 #import "HPConvert.h"
 #import "HPDefaultImageProvider.h"
@@ -49,6 +47,7 @@
 #import "HPLog.h"
 #import "HPOCToHippyValue.h"
 #import "HPToolUtils.h"
+#import "NSObject+Render.h"
 #import "TypeConverter.h"
 #import "VFSUriLoader.h"
 
@@ -61,6 +60,7 @@
 #include "dom/scene.h"
 #include "dom/render_manager.h"
 #include "driver/scope.h"
+#include "driver/performance/performance.h"
 #include "footstone/worker_manager.h"
 #include "vfs/uri_loader.h"
 #include "VFSUriHandler.h"
@@ -97,6 +97,8 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     NSMutableArray<NSURL *> *_bundleURLs;
     NSURL *_sandboxDirectory;
     std::weak_ptr<VFSUriLoader> _uriLoader;
+    std::weak_ptr<hippy::RenderManager> _renderManager;
+    footstone::TimePoint _startTime;
 }
 
 @property(readwrite, strong) dispatch_semaphore_t moduleSemaphore;
@@ -142,6 +144,8 @@ dispatch_queue_t HippyBridgeQueue() {
         _invalidateReason = HPInvalidateReasonDealloc;
         _valid = YES;
         _bundlesQueue = [[HippyBundleOperationQueue alloc] init];
+        _startTime = footstone::TimePoint::SystemNow();
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rootViewContentDidAppear:) name:kRootViewDidAddContent object:nil];
         [self setUp];
         HPExecuteOnMainThread(^{
             [self bindKeys];
@@ -149,6 +153,20 @@ dispatch_queue_t HippyBridgeQueue() {
         HPLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ Init %p", NSStringFromClass([self class]), self);
     }
     return self;
+}
+
+- (void)rootViewContentDidAppear:(NSNotification *)noti {
+    UIView *rootView = [[noti userInfo] objectForKey:kRootViewKey];
+    if (rootView) {
+        auto domManager = _javaScriptExecutor.pScope->GetDomManager().lock();
+        if (domManager) {
+            auto viewRenderManager = [rootView renderManager];
+            if (_renderManager.lock() == viewRenderManager.lock()) {
+                auto entry = _javaScriptExecutor.pScope->GetPerformance()->PerformanceNavigation("hippyInit");
+                entry->SetHippyFirstFrameEnd(footstone::TimePoint::SystemNow());
+            }
+        }
+    }
 }
 
 - (void)dealloc {
@@ -240,14 +258,11 @@ dispatch_queue_t HippyBridgeQueue() {
 }
 
 - (void)setUp {
-    _performanceLogger = [HippyPerformanceLogger new];
-    [_performanceLogger markStartForTag:HippyPLBridgeStartup forKey:nil];
     _valid = YES;
     self.moduleSemaphore = dispatch_semaphore_create(0);
     @try {
         __weak HippyBridge *weakSelf = self;
         _moduleSetup = [[HippyModulesSetup alloc] initWithBridge:self extraProviderModulesBlock:_moduleProvider];
-        [_performanceLogger markStartForTag:HippyPLJSExecutorSetup forKey:nil];
         _javaScriptExecutor = [[HippyJSExecutor alloc] initWithEngineKey:_engineKey bridge:self];
         _javaScriptExecutor.contextCreatedBlock = ^(id<HippyContextWrapper> ctxWrapper){
             HippyBridge *strongSelf = weakSelf;
@@ -255,7 +270,6 @@ dispatch_queue_t HippyBridgeQueue() {
                 dispatch_semaphore_wait(strongSelf.moduleSemaphore, DISPATCH_TIME_FOREVER);
                 NSString *moduleConfig = [strongSelf moduleConfig];
                 [ctxWrapper createGlobalObject:@"__hpBatchedBridgeConfig" withJsonValue:moduleConfig];
-                [strongSelf->_performanceLogger markStopForTag:HippyPLJSExecutorSetup forKey:nil];
 #if HP_DEV
                 //default is yes when debug mode
                 [strongSelf setInspectable:YES];
@@ -270,17 +284,21 @@ dispatch_queue_t HippyBridgeQueue() {
         //The caller may attempt to look up a module immediately after creating the HippyBridge,
         //therefore the initialization of all modules cannot be placed in a sub-thread
 //        dispatch_async(HippyBridgeQueue(), ^{
-            [self initWithModulesCompletion:^{
-                HippyBridge *strongSelf = weakSelf;
-                if (strongSelf) {
-                    dispatch_semaphore_signal(strongSelf.moduleSemaphore);
-                }
-            }];
+        [self initWithModulesCompletion:^{
+            HippyBridge *strongSelf = weakSelf;
+            if (strongSelf) {
+                dispatch_semaphore_signal(strongSelf.moduleSemaphore);
+                footstone::TimePoint endTime = footstone::TimePoint::SystemNow();
+                auto enty =
+                    strongSelf.javaScriptExecutor.pScope->GetPerformance()->PerformanceNavigation("hippyInit");
+                enty->SetHippyNativeInitStart(strongSelf->_startTime);
+                enty->SetHippyNativeInitEnd(endTime);
+            }
+        }];
 //        });
     } @catch (NSException *exception) {
         HippyBridgeHandleException(exception, self);
     }
-    [_performanceLogger markStopForTag:HippyPLBridgeStartup forKey:nil];
 }
 
 - (void)loadBundleURL:(NSURL *)bundleURL
@@ -302,9 +320,7 @@ dispatch_queue_t HippyBridgeQueue() {
 
 
 - (void)initWithModulesCompletion:(dispatch_block_t)completion {
-    [_performanceLogger markStartForTag:HippyPLNativeModuleInit forKey:nil];
     [_moduleSetup setupModulesCompletion:completion];
-    [_performanceLogger markStopForTag:HippyPLNativeModuleInit forKey:nil];
 }
 
 - (void)beginLoadingBundle:(NSURL *)bundleURL
@@ -314,9 +330,12 @@ dispatch_queue_t HippyBridgeQueue() {
     __block NSData *script = nil;
     self.loadingCount++;
     dispatch_group_enter(group);
+    NSOperationQueue *bundleQueue = [[NSOperationQueue alloc] init];
+    bundleQueue.maxConcurrentOperationCount = 1;
+    bundleQueue.name = @"com.hippy.bundleQueue";
     HippyBundleLoadOperation *fetchOp = [[HippyBundleLoadOperation alloc] initWithBridge:self
                                                                                bundleURL:bundleURL
-                                                                                   queue:HippyBridgeQueue()];
+                                                                                   queue:bundleQueue];
     fetchOp.onLoad = ^(NSData *source, NSError *error) {
         if (error) {
             HippyBridgeFatal(error, weakSelf);
@@ -348,7 +367,7 @@ dispatch_queue_t HippyBridgeQueue() {
             }
             dispatch_group_leave(group);
         }];
-    } queue:HippyBridgeQueue()];
+    } queue:bundleQueue];
     //set dependency
     [executeOp addDependency:fetchOp];
     if (_lastOperation) {
@@ -434,13 +453,11 @@ dispatch_queue_t HippyBridgeQueue() {
         return;
     }
     HPAssert(self.javaScriptExecutor, @"js executor must not be null");
-    [_performanceLogger markStartForTag:HippyExecuteSource forKey:[sourceURL absoluteString]];
     __weak HippyBridge *weakSelf = self;
     [self.javaScriptExecutor executeApplicationScript:script sourceURL:sourceURL onComplete:^(id result ,NSError *error) {
         HippyBridge *strongSelf = weakSelf;
         if (!strongSelf || ![strongSelf isValid]) {
             completion(result, error);
-            [strongSelf->_performanceLogger markStopForTag:HippyExecuteSource forKey:[sourceURL absoluteString]];
             return;
         }
         if (error) {
@@ -454,7 +471,6 @@ dispatch_queue_t HippyBridgeQueue() {
                                                                   userInfo:userInfo];
             });
         }
-        [strongSelf->_performanceLogger markStopForTag:HippyExecuteSource forKey:[sourceURL absoluteString]];
         completion(result, error);
     }];
 }
@@ -817,6 +833,7 @@ dispatch_queue_t HippyBridgeQueue() {
     _displayLink = nil;
     _javaScriptExecutor = nil;
     _moduleSetup = nil;
+    _startTime = footstone::TimePoint::SystemNow();
     self.moduleSemaphore = nil;
     dispatch_group_notify(group, dispatch_get_main_queue(), ^{
         [jsExecutor executeBlockOnJavaScriptQueue:^{
