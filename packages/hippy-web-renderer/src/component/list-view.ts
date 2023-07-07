@@ -70,7 +70,7 @@ export class ListView extends HippyWebView<HTMLDivElement> {
   }
 
   public defaultStyle() {
-    return  { display: 'flex', flexDirection: 'column', flexShrink: 0, boxSizing: 'border-box', overflow: 'scroll' };
+    return  { display: 'flex', flexDirection: 'column', flexShrink: 0, boxSizing: 'border-box', overflowY: 'scroll' };
   }
 
   public get overScrollEnabled() {
@@ -126,7 +126,7 @@ export class ListView extends HippyWebView<HTMLDivElement> {
 
   public set scrollEnabled(value: boolean) {
     this.props[NodeProps.SCROLL_ENABLED] = value;
-    setElementStyle(this.dom!, { overflow: !this.scrollEnabled ? 'hidden' : 'scroll' });
+    setElementStyle(this.dom!, { overflowX: !this.scrollEnabled ? 'hidden' : 'scroll' });
   }
 
   public get showScrollIndicator() {
