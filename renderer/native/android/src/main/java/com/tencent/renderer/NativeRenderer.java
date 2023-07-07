@@ -737,8 +737,9 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     public long measure(int rootId, int nodeId, float width, int widthMode, float height,
             int heightMode) {
         try {
-            FlexMeasureMode flexMeasureMode = FlexMeasureMode.fromInt(widthMode);
-            return mVirtualNodeManager.measure(rootId, nodeId, width, flexMeasureMode);
+            FlexMeasureMode wm = FlexMeasureMode.fromInt(widthMode);
+            FlexMeasureMode hm = FlexMeasureMode.fromInt(heightMode);
+            return mVirtualNodeManager.measure(rootId, nodeId, width, wm, height, hm);
         } catch (NativeRenderException e) {
             handleRenderException(e);
         }

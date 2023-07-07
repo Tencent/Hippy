@@ -42,7 +42,6 @@ constexpr char kHeight[] = "height";
 constexpr char kLeft[] = "left";
 constexpr char kTop[] = "top";
 constexpr char kProps[] = "props";
-constexpr char kMeasureNode[] = "Text";
 constexpr char kDeleteProps[] = "deleteProps";
 constexpr char kFontStyle[] = "fontStyle";
 constexpr char kLetterSpacing[] = "letterSpacing";
@@ -72,6 +71,10 @@ constexpr char kNumberOfLines[] = "numberOfLines";
 namespace hippy {
 inline namespace render {
 inline namespace native {
+
+static bool IsMeasureNode(const std::string &name) {
+  return name == "Text" || name == "TextInput";
+}
 
 std::atomic<uint32_t> NativeRenderManager::unique_native_render_manager_id_{1};
 footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<hippy::NativeRenderManager>> NativeRenderManager::persistent_map_;
@@ -112,7 +115,7 @@ void NativeRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
     dom_node[kIndex] = footstone::value::HippyValue(render_info.index);
     dom_node[kName] = footstone::value::HippyValue(nodes[i]->GetViewName());
 
-    if (nodes[i]->GetViewName() == kMeasureNode) {
+    if (IsMeasureNode(nodes[i]->GetViewName())) {
       int32_t id =  footstone::check::checked_numeric_cast<uint32_t, int32_t>(nodes[i]->GetId());
       MeasureFunction measure_function = [WEAK_THIS, root_id, id](float width, LayoutMeasureMode width_measure_mode,
                                                                   float height, LayoutMeasureMode height_measure_mode,
@@ -329,7 +332,7 @@ void NativeRenderManager::UpdateLayout(std::weak_ptr<RootNode> root_node,
     dom_node[kHeight] = footstone::value::HippyValue(DpToPx(result.height));
     dom_node[kLeft] = footstone::value::HippyValue(DpToPx(result.left));
     dom_node[kTop] = footstone::value::HippyValue(DpToPx(result.top));
-    if (nodes[i]->GetViewName() == kMeasureNode) {
+    if (IsMeasureNode(nodes[i]->GetViewName())) {
       dom_node["paddingLeft"] = footstone::value::HippyValue(DpToPx(result.paddingLeft));
       dom_node["paddingTop"] = footstone::value::HippyValue(DpToPx(result.paddingTop));
       dom_node["paddingRight"] = footstone::value::HippyValue(DpToPx(result.paddingRight));
