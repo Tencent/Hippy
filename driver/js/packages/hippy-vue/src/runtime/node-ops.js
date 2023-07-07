@@ -20,7 +20,6 @@
 
 import document from '../renderer/document-node';
 import { unCacheNodeOnIdle } from '../util/node';
-import { getApp } from '../util';
 import { setAttrs } from './modules/attrs';
 import { setStyle } from './modules/style';
 import { setClass } from './modules/class';
@@ -34,12 +33,6 @@ function setRootViewAttr(elm, vnode) {
   let isRootView = false;
   if (elm.nodeId === ROOT_VIEW_ID) {
     isRootView = true;
-  } else if (vnode && vnode.data && vnode.data.attrs && vnode.data.attrs.id) {
-    const app  = getApp();
-    if (app) {
-      const { $options: { rootView } } = app;
-      isRootView = vnode.data.attrs.id === rootView.slice(1 - rootView.length);
-    }
   }
   if (isRootView) {
     setAttrs(vnode, elm, { notToNative: true });
