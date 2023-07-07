@@ -18,6 +18,8 @@
  * limitations under the License.
  */
 
+const globalUiFunctions: string[] = ['measureInWindow', 'measureInAppWindow', 'getBoundingClientRect'];
+
 export const document = {
   createNode(rootViewId, queue) {
     Hippy.bridge.callNative('UIManagerModule', 'createNode', rootViewId, queue);
@@ -44,6 +46,15 @@ export const document = {
   sendRenderError(error) {
     if (error) {
       throw error;
+    }
+  },
+  callUIFunction(id: any, name: any, param?: any, cb?: any) {
+    if (globalUiFunctions.includes(name)) {
+      // global ui function, call ui module function direct
+      Hippy.bridge.callNative('UIManagerModule', name, [id, param], cb);
+    } else {
+      // view ui function
+      Hippy.bridge.callNative('UIManagerModule', 'callUIFunction', [id, name, param], cb);
     }
   },
 };

@@ -169,7 +169,8 @@ export class UIManagerModule extends HippyWebModule {
     viewFunctionInvoke(this.findViewById(nodeId), functionName, paramList, callBack);
   }
 
-  public measureInWindow(nodeId, callBack: HippyCallBack) {
+  public measureInWindow(params, callBack: HippyCallBack) {
+    const [nodeId] = params;
     if (!nodeId || !this.findViewById(nodeId)?.dom) {
       return;
     }
@@ -177,13 +178,20 @@ export class UIManagerModule extends HippyWebModule {
     if (view!.dom) {
       const rect = view!.dom.getBoundingClientRect();
       callBack.resolve({
-        x: rect.x,
-        y: rect.y,
-        width: rect.width,
-        height: rect.height,
+        ...rect,
         statusBarHeight: 0,
       });
     }
+  }
+
+  public measureInAppWindow(params, callBack: HippyCallBack) {
+    // same method with measureInWindow. compatible different platform
+    this.measureInWindow(params, callBack);
+  }
+
+  public getBoundingClientRect(params, callBack: HippyCallBack) {
+    // const [nodeId, options] = params; todo this method should handle refInfo
+    this.measureInWindow(params, callBack);
   }
 
   public findViewById(id: number): HippyBaseView | null {
