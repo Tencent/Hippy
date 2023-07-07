@@ -294,7 +294,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
 
     public final HippyMap generateScrollEvent() {
         HippyMap contentOffset = new HippyMap();
-        contentOffset.pushDouble("x", PixelUtil.px2dp(0));
+        contentOffset.pushDouble("x", PixelUtil.px2dp(hippyRecyclerView.getContnetOffsetX()));
         contentOffset.pushDouble("y", PixelUtil.px2dp(hippyRecyclerView.getContentOffsetY()));
         HippyMap event = new HippyMap();
         event.pushMap("contentOffset", contentOffset);

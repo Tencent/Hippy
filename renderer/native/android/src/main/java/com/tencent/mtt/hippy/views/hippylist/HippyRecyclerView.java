@@ -160,20 +160,33 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     }
 
     /**
-     * 内容偏移，返回recyclerView顶部被滑出去的内容 1、找到顶部第一个View前面的逻辑内容高度 2、加上第一个View被遮住的区域
+     * Vertical offset of the content, might be different than the
+     * {@link #computeVerticalScrollOffset()} if pullHeader exist.
      */
     public int getContentOffsetY() {
-        return computeVerticalScrollOffset();
+        if (HippyListUtils.isVerticalLayout(this)) {
+            int offset = computeVerticalScrollOffset();
+            if (listAdapter.headerRefreshHelper != null) {
+                offset -= listAdapter.headerRefreshHelper.getVisibleSize();
+            }
+            return offset;
+        }
+        return 0;
     }
 
     /**
-     * 内容偏移，返回recyclerView被滑出去的内容 1、找到顶部第一个View前面的逻辑内容宽度 2、加上第一个View被遮住的区域
+     * Horizontal offset of the content, might be different than the
+     * {@link #computeHorizontalScrollOffset()} if pullHeader exist.
      */
     public int getContentOffsetX() {
-        int firstChildPosition = getFirstChildPosition();
-        int totalWidthBeforePosition = getTotalWithBefore(firstChildPosition);
-        int firstChildOffset = listAdapter.getItemWidth(firstChildPosition) - getVisibleWidth(getChildAt(0));
-        return totalWidthBeforePosition + firstChildOffset;
+        if (HippyListUtils.isHorizontalLayout(this)) {
+            int offset = computeHorizontalScrollOffset();
+            if (listAdapter.headerRefreshHelper != null) {
+                offset -= listAdapter.headerRefreshHelper.getVisibleSize();
+            }
+            return offset;
+        }
+        return 0;
     }
 
     /**
