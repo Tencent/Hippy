@@ -294,7 +294,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
 
     public final HippyMap generateScrollEvent() {
         HippyMap contentOffset = new HippyMap();
-        contentOffset.pushDouble("x", PixelUtil.px2dp(0));
+        contentOffset.pushDouble("x", PixelUtil.px2dp(hippyRecyclerView.getContentOffsetX()));
         contentOffset.pushDouble("y", PixelUtil.px2dp(hippyRecyclerView.getContentOffsetY()));
         HippyMap event = new HippyMap();
         event.pushMap("contentOffset", contentOffset);
@@ -390,13 +390,14 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     public void onOverPullStateChanged(int oldState, int newState, int offset) {
         LogUtils.d("QBRecyclerViewEventHelper", "oldState:" + oldState + ",newState:" + newState);
         if (oldState == HippyOverPullHelper.OVER_PULL_NONE && (isOverPulling(newState)
-                || newState == HippyOverPullHelper.OVER_PULL_NORMAL)) {
+            || newState == HippyOverPullHelper.OVER_PULL_NORMAL) && scrollBeginDragEventEnable) {
             getOnScrollDragStartedEvent().send(getParentView(), generateScrollEvent());
         }
-        if (isOverPulling(oldState) && isOverPulling(newState)) {
+        if (isOverPulling(oldState) && isOverPulling(newState) && onScrollEventEnable) {
             sendOnScrollEvent();
         }
-        if (newState == HippyOverPullHelper.OVER_PULL_SETTLING && oldState != HippyOverPullHelper.OVER_PULL_SETTLING) {
+        if (newState == HippyOverPullHelper.OVER_PULL_SETTLING &&
+            oldState != HippyOverPullHelper.OVER_PULL_SETTLING && scrollEndDragEventEnable) {
             getOnScrollDragEndedEvent().send(getParentView(), generateScrollEvent());
         }
     }
