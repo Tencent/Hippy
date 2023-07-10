@@ -131,9 +131,9 @@ export class UIManagerModule extends HippyWebModule {
    */
   public addEventListener(id: number, eventName: string) {
     const view = this.findViewById(id);
-    if (view) {
-      // set hippy-web-view onClick
-      view[eventName] = true;
+    if (view?.updateProperty) {
+      // add event props
+      view.updateProperty(eventName, true);
     }
   }
 
@@ -145,8 +145,9 @@ export class UIManagerModule extends HippyWebModule {
    */
   public removeEventListener(id: number, eventName: string) {
     const view = this.findViewById(id);
-    if (view) {
-      view[eventName] = false;
+    if (view?.updateProperty) {
+      // remove event props
+      view.updateProperty(eventName, false);
     }
   }
 
