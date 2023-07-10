@@ -125,7 +125,8 @@ public class ControllerUpdateManger<T, G> {
     private void invokePropMethod(@NonNull Object obj, @NonNull Object arg1,
             Map<String, Object> props, String key, @NonNull PropertyMethodHolder methodHolder) {
         try {
-            if (props.get(key) == null) {
+            Object value = props.get(key);
+            if (value == null) {
                 switch (methodHolder.defaultType) {
                     case HippyControllerProps.BOOLEAN:
                         methodHolder.method.invoke(obj, arg1, methodHolder.defaultBoolean);
@@ -147,7 +148,6 @@ public class ControllerUpdateManger<T, G> {
                         break;
                 }
             } else {
-                Object value = props.get(key);
                 if (methodHolder.paramTypes == null) {
                     methodHolder.paramTypes = methodHolder.method.getGenericParameterTypes();
                 }
