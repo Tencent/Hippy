@@ -37,6 +37,19 @@ const EventPhase = {
   BUBBLING_PHASE: 3,
 };
 
+// native gesture event map
+const NativeEventMap = {
+  onClick: 'click',
+  onLongClick: 'longclick',
+  onPressIn: 'pressin',
+  onPressOut: 'pressout',
+  onTouchDown: 'touchstart', // compatible with w3c standard name touchstart
+  onTouchStart: 'touchstart',
+  onTouchEnd: 'touchend',
+  onTouchMove: 'touchmove',
+  onTouchCancel: 'touchcancel',
+};
+
 /**
  * get client original event name
  */
@@ -45,6 +58,12 @@ function getOriginalEventName(nativeEventName: string) {
   if (nativeEventName.indexOf('on') !== 0) {
     return nativeEventName;
   }
+
+  // native gesture event name should convert
+  if (!!NativeEventMap[nativeEventName]) {
+    return NativeEventMap[nativeEventName];
+  }
+
   // remove the on in the event name and convert the first letter to lowercase, eg. onClick => click
   const str = nativeEventName.slice(2, nativeEventName.length);
   return `${str.charAt(0).toLowerCase()}${str.slice(1)}`;
@@ -113,12 +132,21 @@ export class HippyWebEngineContext {
    * send gesture event to js side
    */
   sendGestureEvent(e: HippyTransferData.NativeGestureEvent) {
-    console.log('gesture event', e);
-    hippyBridge('callJsModule', {
-      moduleName: 'EventDispatcher',
-      methodName: 'receiveNativeGesture',
-      params: e,
-    });
+    const params = {
+      page_x: e.page_x,
+      page_y: e.page_y,
+    };
+    const originalEventName = getOriginalEventName(e.name);
+    const domEvent: HippyTypes.DOMEvent = getDomEvent(e.id, originalEventName, params);
+
+    this.sendComponentEvent({
+      id: e.id,
+      currentId: e.id,
+      nativeName: e.name,
+      originalName: getOriginalEventName(e.name),
+      eventPhase: domEvent.eventPhase,
+      params,
+    }, domEvent);
   }
 
   /**

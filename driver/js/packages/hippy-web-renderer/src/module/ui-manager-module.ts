@@ -23,14 +23,6 @@ import { HippyBaseView, HippyCallBack, InnerNodeTag, UIProps } from '../types';
 import { setElementStyle, warn, error, positionAssociate, zIndexAssociate } from '../common';
 import { AnimationModule } from './animation-module';
 
-/**
- * get native event name
- */
-function getNativeEventName(eventName: string) {
-  // add the 'on' for the event name and convert the first letter to uppercase, eg. click -> onClick
-  return `on${eventName.charAt(0).toUpperCase()}${eventName.slice(1)}`;
-}
-
 let ENV_STYLE_INIT_FLAG = false;
 export class UIManagerModule extends HippyWebModule {
   public name = 'UIManagerModule';
@@ -141,7 +133,7 @@ export class UIManagerModule extends HippyWebModule {
     const view = this.findViewById(id);
     if (view) {
       // set hippy-web-view onClick
-      view[getNativeEventName(eventName)] = true;
+      view[eventName] = true;
     }
   }
 
@@ -154,7 +146,7 @@ export class UIManagerModule extends HippyWebModule {
   public removeEventListener(id: number, eventName: string) {
     const view = this.findViewById(id);
     if (view) {
-      view[getNativeEventName(eventName)] = false;
+      view[eventName] = false;
     }
   }
 

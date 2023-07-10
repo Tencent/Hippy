@@ -21,6 +21,46 @@
 // event handler type
 type EventHandler = (...args: any[]) => void;
 
+// native gesture event map
+const NativeGestureEventMap = {
+  click: 'onClick',
+  longclick: 'onLongClick',
+  pressin: 'onPressIn',
+  pressout: 'onPressOut',
+  touchstart: 'onTouchDown', // compatible with w3c standard name touchstart
+  touchend: 'onTouchEnd',
+  touchmove: 'onTouchMove',
+  touchcancel: 'onTouchCancel',
+};
+
+/**
+ * return event name is native gesture or not
+ *
+ * @param name
+ */
+function isNativeGesture(name): boolean {
+  return !!NativeGestureEventMap[name];
+}
+
+/**
+ * get normalize event name
+ */
+function getNormalizeEventName(eventName: string): string {
+  // add the 'on' for the event name and convert the first letter to uppercase, eg. click -> onClick
+  return `on${eventName.charAt(0).toUpperCase()}${eventName.slice(1)}`;
+}
+
+/**
+ * get real native event name
+ *
+ * @param eventName
+ */
+function getNativeEventName(eventName: string): string {
+  return isNativeGesture(eventName)
+    ? NativeGestureEventMap[eventName]
+    : getNormalizeEventName(eventName);
+}
+
 /**
  * hippy 3.x scene builder class, provide node operate func and event listener
  */
@@ -85,8 +125,7 @@ export class SceneBuilder {
    * @param handler
    */
   public addEventListener(id: number, eventName: string, handler: EventHandler) {
-    console.log('add event listener', id, eventName);
-    Hippy.bridge.callNative('UIManagerModule', 'addEventListener', id, eventName, handler);
+    Hippy.bridge.callNative('UIManagerModule', 'addEventListener', id, getNativeEventName(eventName), handler);
   }
 
   /**
@@ -97,7 +136,6 @@ export class SceneBuilder {
    * @param handler
    */
   public removeEventListener(id: number, eventName: string, handler: EventHandler) {
-    console.log('remove event listener', id, eventName);
-    Hippy.bridge.callNative('UIManagerModule', 'removeEventListener', id, eventName, handler);
+    Hippy.bridge.callNative('UIManagerModule', 'removeEventListener', id, getNativeEventName(eventName), handler);
   }
 }
