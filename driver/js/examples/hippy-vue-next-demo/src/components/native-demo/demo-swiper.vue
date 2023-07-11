@@ -79,7 +79,7 @@ export default defineComponent({
        */
     const scrollToNextPage = () => {
       console.log('scroll next', currentSlide.value, currentSlideNum.value);
-      if (currentSlide.value < max) {
+      if (currentSlide.value < max - 1) {
         currentSlide.value = currentSlideNum.value + 1;
       } else {
         currentSlide.value = 0;
@@ -120,6 +120,7 @@ export default defineComponent({
       console.log('onDropped', evt);
       // update current page number
       currentSlideNum.value = evt.currentSlide;
+      currentSlide.value = evt.currentSlide;
     };
     const onStateChanged = (evt) => {
       console.log('onStateChanged', evt);

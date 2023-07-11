@@ -102,6 +102,7 @@ export default {
     onDropped(evt) {
       // 更细当前页码
       this.currentSlideNum = evt.currentSlide;
+      this.currentSlide = evt.currentSlide;
     },
     onStateChanged(evt) {
       // 更新当前滚屏状态

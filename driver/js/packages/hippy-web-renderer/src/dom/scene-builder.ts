@@ -40,6 +40,14 @@ const NativeInputEventMap = {
   keyboardwillshow: 'onKeyboardWillShow',
 };
 
+// native gesture event map
+const NativeSwiperEventMap = {
+  pageselected: 'onPageSelected',
+  pagescroll: 'onPageScroll',
+  statechanged: 'onStateChanged',
+  pagescrollstatechanged: 'onPageScrollStateChanged',
+};
+
 /**
  * return event name is native gesture or not
  *
@@ -58,6 +66,14 @@ function isNativeInput(name): boolean {
   return !!NativeInputEventMap[name];
 }
 
+/**
+ * return event name is swiper event or not
+ *
+ * @param name
+ */
+function isNativeSwiper(name): boolean {
+  return !!NativeSwiperEventMap[name];
+}
 
 /**
  * get normalize event name
@@ -80,6 +96,11 @@ function getNativeEventName(eventName: string): string {
   if (isNativeInput(eventName)) {
     return NativeInputEventMap[eventName];
   }
+
+  if (isNativeSwiper(eventName)) {
+    return NativeSwiperEventMap[eventName];
+  }
+
   return getNormalizeEventName(eventName);
 }
 
@@ -147,7 +168,7 @@ export class SceneBuilder {
    * @param handler
    */
   public addEventListener(id: number, eventName: string, handler: EventHandler) {
-    console.log('add event listener', id, eventName, getNormalizeEventName(eventName));
+    console.log('add event listener', id, eventName, getNativeEventName(eventName));
     Hippy.bridge.callNative('UIManagerModule', 'addEventListener', id, getNativeEventName(eventName), handler);
   }
 
