@@ -381,7 +381,6 @@ hippy::dom::EventListenerInfo Scope::AddListener(const EventListenerInfo& event_
     auto context = weak_context.lock();
     if (context) {
       auto callback = event_listener_info.callback.lock();
-      FOOTSTONE_DCHECK(callback != nullptr);
       if (callback == nullptr) return;
       hippy::DomEventWrapper::Set(event);
       auto event_class = scope->GetJavascriptClass(kEventName);
