@@ -190,14 +190,10 @@ export class UIManagerModule extends HippyWebModule {
       });
       const parent = this.findViewById(view.pId) as HippyWebView<any>;
       const styleCopy: any = {};
-      const transformStyle = fontSizeAssociate(diffStyle);
       Object.assign(styleCopy, props.style);
       view.updateProperty?.('style', styleCopy);
       positionAssociate(diffStyle, view, parent);
       zIndexAssociate(diffStyle, view, parent);
-      if (transformStyle) {
-        this.animationProcess('transform', transformStyle, view);
-      }
     }
     customDataAssociate(props, view, this.context.transmitData);
     for (const key of keys) {

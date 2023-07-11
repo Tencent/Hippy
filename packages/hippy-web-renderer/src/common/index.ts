@@ -265,6 +265,7 @@ function isLayout(key: string, value: number) {
     || key.startsWith('-webkit')
     || key.startsWith('z-index')
     || key.startsWith('opacity')
+    || key.startsWith('zoom')
   );
 }
 function isZIndex(key: string) {

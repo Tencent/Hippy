@@ -35,7 +35,7 @@ export class TextView extends HippyWebView<HTMLSpanElement> {
   }
   public defaultStyle(): { [p: string]: any } {
     return { boxSizing: 'border-box', zIndex: 0, ...HippyEllipsizeModeMap[this.ellipsizeMode],
-      overflow: 'hidden', '-webkit-transform-origin': 'center left' };
+      overflow: 'hidden' };
   }
 
   public updateProps(data: UIProps, defaultProcess: DefaultPropsProcess) {
@@ -45,7 +45,10 @@ export class TextView extends HippyWebView<HTMLSpanElement> {
     }
     const { style } = data;
     if (style.height && !style.lineHeight) {
-      style.lineHeight = '100%';
+      style.lineHeight = style.height;
+    }
+    if (style.fontSize && style.fontSize < 12) {
+      style.zoom = (4 - Math.min(12 - style.fontSize, 4)) / 4 * 0.15 + 0.85;
     }
     defaultProcess(this, data);
   }
