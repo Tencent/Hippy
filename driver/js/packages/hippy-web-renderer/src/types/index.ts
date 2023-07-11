@@ -113,6 +113,7 @@ export enum NodeProps {
   BLUR_TEXT_INPUT = 'blurTextInput',
   CLEAR = 'clear',
   FOCUS_TEXT_INPUT = 'focusTextInput',
+  IS_FOCUSED = 'isFocused',
   GET_VALUE = 'getValue',
   HIDE_INPUT_METHOD = 'hideInputMethod',
   SET_VALUE = 'setValue',

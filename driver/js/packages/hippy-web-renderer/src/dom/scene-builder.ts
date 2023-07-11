@@ -33,6 +33,13 @@ const NativeGestureEventMap = {
   touchcancel: 'onTouchCancel',
 };
 
+// native gesture event map
+const NativeInputEventMap = {
+  changetext: 'onChangeText',
+  keyboardwillhide: 'onKeyboardWillHide',
+  keyboardwillshow: 'onKeyboardWillShow',
+};
+
 /**
  * return event name is native gesture or not
  *
@@ -41,6 +48,16 @@ const NativeGestureEventMap = {
 function isNativeGesture(name): boolean {
   return !!NativeGestureEventMap[name];
 }
+
+/**
+ * return event name is input event or not
+ *
+ * @param name
+ */
+function isNativeInput(name): boolean {
+  return !!NativeInputEventMap[name];
+}
+
 
 /**
  * get normalize event name
@@ -56,9 +73,14 @@ function getNormalizeEventName(eventName: string): string {
  * @param eventName
  */
 function getNativeEventName(eventName: string): string {
-  return isNativeGesture(eventName)
-    ? NativeGestureEventMap[eventName]
-    : getNormalizeEventName(eventName);
+  if (isNativeGesture(eventName)) {
+    return NativeGestureEventMap[eventName];
+  }
+
+  if (isNativeInput(eventName)) {
+    return NativeInputEventMap[eventName];
+  }
+  return getNormalizeEventName(eventName);
 }
 
 /**
@@ -125,6 +147,7 @@ export class SceneBuilder {
    * @param handler
    */
   public addEventListener(id: number, eventName: string, handler: EventHandler) {
+    console.log('add event listener', id, eventName, getNormalizeEventName(eventName));
     Hippy.bridge.callNative('UIManagerModule', 'addEventListener', id, getNativeEventName(eventName), handler);
   }
 

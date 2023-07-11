@@ -147,9 +147,9 @@ function shadowProcess(shadow: {shadowOpacity?: number, shadowRadius?: number,
   shadowOffsetX?: number, shadowOffsetY?: number, shadowColor?: number}) {
   return `${shadow.shadowOffsetX ?? 0}px ${shadow.shadowOffsetY ?? 0}px ${shadow.shadowRadius ?? 0}px ${convertHexToRgba(shadow.shadowColor)}`;
 }
-function textShadowProcess(shadow: {textShadowColor?: number, textShadowOffset: {width: number, height: number},
-  textShadowRadius: number, textShadowOffsetX: number, textShadowOffsetY: number}) {
-  return `${shadow.textShadowOffsetX ?? shadow.textShadowOffset.width ?? 0}px ${shadow.textShadowOffsetY ?? shadow.textShadowOffset.height ?? 0}px
+function textShadowProcess(shadow: {textShadowColor?: number, textShadowOffset?: {width: number, height: number},
+  textShadowRadius?: number, textShadowOffsetX?: number, textShadowOffsetY?: number}) {
+  return `${shadow?.textShadowOffsetX ?? shadow?.textShadowOffset?.width ?? 0}px ${shadow?.textShadowOffsetY ?? shadow?.textShadowOffset?.height ?? 0}px
   ${shadow.textShadowRadius ?? 0}px ${convertHexToRgba(shadow.textShadowColor)}`;
 }
 

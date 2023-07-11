@@ -37,7 +37,7 @@ const EventPhase = {
   BUBBLING_PHASE: 3,
 };
 
-// native gesture event map
+// native event name to frontend event name map
 const NativeEventMap = {
   onClick: 'click',
   onLongClick: 'longclick',
@@ -48,6 +48,7 @@ const NativeEventMap = {
   onTouchEnd: 'touchend',
   onTouchMove: 'touchmove',
   onTouchCancel: 'touchcancel',
+  onChangeText: 'change',
 };
 
 /**

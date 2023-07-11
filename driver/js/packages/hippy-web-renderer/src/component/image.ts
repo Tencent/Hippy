@@ -189,13 +189,28 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
 
   private handleLoad(_event: Event, loadUrl?: string) {
     this.isLoadSuccess = false;
+    let img: HTMLImageElement;
+    const eventParams = {
+      width: 0,
+      height: 0,
+      url: loadUrl ?? '',
+    };
+    const { currentTarget } = _event;
+
+    if (currentTarget) {
+      img = currentTarget as HTMLImageElement;
+      eventParams.width = img.width;
+      eventParams.height = img.height;
+    }
+
     if ((!loadUrl && this.renderImgDom?.src === this.src) || loadUrl === this.src) {
-      this.onLoad(null);
+      eventParams.url = this.src;
+      this.onLoad(eventParams);
       if (this.renderImgDom?.src !== this.src) {
         this.renderImgDom!.src = this.src;
       }
     }
-    this.onLoadEnd(null);
+    this.onLoadEnd(eventParams);
   }
 
   private buildTintDomContainer() {
