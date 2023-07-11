@@ -472,12 +472,18 @@ void NativeRenderManager::ReceivedEvent(std::weak_ptr<RootNode> root_node, uint3
   FOOTSTONE_DCHECK(root != nullptr);
   if (root == nullptr) return;
 
-  auto node = manager->GetNode(root_node, dom_id);
-  // FOOTSTONE_DCHECK(node != nullptr);
-  if (node == nullptr) return;
+  std::vector<std::function<void()>> ops = {[weak_dom_manager = dom_manager_, weak_root_node = root_node, dom_id,
+                                             params = std::move(params), use_capture = capture, use_bubble = bubble,
+                                             event_name = std::move(event_name)] {
+    auto manager = weak_dom_manager.lock();
+    if (manager == nullptr) return;
 
-  std::vector<std::function<void()>> ops = {[node = std::move(node), params = std::move(params), use_capture = capture,
-                                             use_bubble = bubble, event_name = std::move(event_name)] {
+    auto root = weak_root_node.lock();
+    if (root == nullptr) return;
+
+    auto node = manager->GetNode(root, dom_id);
+    if (node == nullptr) return;
+
     auto event = std::make_shared<DomEvent>(event_name, node, use_capture, use_bubble, params);
     node->HandleEvent(event);
   }};
