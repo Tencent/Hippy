@@ -176,7 +176,7 @@ export function fontSizeAssociate(newStyle: {[prop: string]: any}) {
       transform = [];
     }
     if (Array.isArray(transform) && transform.filter(value => !!value.scale).length === 0) {
-      transform.push({ scale: newStyle.fontSize / 12 });
+      transform.push({ scale: (4 - Math.min(12 - newStyle.fontSize, 4)) / 4 * 0.15 + 0.85 });
     }
     return transform;
   }
