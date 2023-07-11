@@ -1608,6 +1608,14 @@ static UIView *_jsResponder;
     }];
 }
 
+- (void)removeNativeViewFromTags:(NSArray<NSNumber *> *)hippyTags {
+    NSArray<UIView *> *views = [_viewRegistry objectsForKeys:hippyTags
+                                              notFoundMarker:[[UIView alloc] initWithFrame:CGRectZero]];
+    for (UIView *view in views) {
+        [self removeNativeNodeView:view];
+    }
+}
+
 - (NSDictionary *)mergeProps:(NSDictionary *)newProps oldProps:(NSDictionary *)oldProps {
     NSMutableDictionary *tmpProps = [NSMutableDictionary dictionaryWithDictionary:newProps];
     [oldProps enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, __unused id _Nonnull obj, __unused BOOL *stop) {
