@@ -170,10 +170,26 @@ export class UIManagerModule extends HippyWebModule {
     }
     const view = this.findViewById(nodeId);
     if (view!.dom) {
-      const rect = view!.dom.getBoundingClientRect();
+      const {
+        x,
+        y,
+        width,
+        height,
+        top,
+        left,
+        right,
+        bottom,
+      } = view!.dom.getBoundingClientRect();
       callBack.resolve({
-        ...rect,
         statusBarHeight: 0,
+        x,
+        y,
+        width,
+        height,
+        top,
+        left,
+        right,
+        bottom,
       });
     }
   }
