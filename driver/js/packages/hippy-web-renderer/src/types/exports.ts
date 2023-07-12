@@ -20,7 +20,9 @@
 
 import { HippyTransferData } from './hippy-internal-types';
 
-export type UIProps = HippyTypes.NativeNodeProps;
+export type UIProps = {
+  [key: string]: any
+};
 export type DefaultPropsProcess = (component: HippyBaseView, data: UIProps) => void;
 export interface HippyBaseView {
   tagName: InnerNodeTag|string;
@@ -92,14 +94,6 @@ export enum InnerNodeTag {
   TEXT_INPUT = 'TextInput',
   MODAL = 'Modal',
   WEB_VIEW = 'WebView'
-}
-
-// native event params
-export interface NativeEventParams{
-  id: number;
-  currentId: number;
-  params: any;
-  eventPhase: HippyTypes.EventPhase;
 }
 
 // event phase
