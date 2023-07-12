@@ -202,14 +202,10 @@ LayoutResult DevToolsUtil::GetLayoutOnScreen(const std::shared_ptr<DomNode>& roo
           promise.set_value(result);
           return;
         }
-        auto xOnScreen = result_dom_object.find(kXOnScreen)->second.ToInt32Checked();
-        auto yOnScreen = result_dom_object.find(kYOnScreen)->second.ToInt32Checked();
-        auto width = result_dom_object.find(kViewWidth)->second.ToInt32Checked();
-        auto height = result_dom_object.find(kViewHeight)->second.ToInt32Checked();
-        result.left = static_cast<float>(xOnScreen);
-        result.top = static_cast<float>(yOnScreen);
-        result.width = static_cast<float>(width);
-        result.height = static_cast<float>(height);
+        result.left = static_cast<float>(result_dom_object.find(kXOnScreen)->second.ToDoubleChecked());
+        result.top = static_cast<float>(result_dom_object.find(kYOnScreen)->second.ToDoubleChecked());
+        result.width = static_cast<float>(result_dom_object.find(kViewWidth)->second.ToDoubleChecked());
+        result.height = static_cast<float>(result_dom_object.find(kViewHeight)->second.ToDoubleChecked());
         promise.set_value(result);
       });
   find_node->CallFunction(kGetLocationOnScreen, argument, screen_shot_callback);
