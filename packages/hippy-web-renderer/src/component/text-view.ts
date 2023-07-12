@@ -27,12 +27,15 @@ const HippyEllipsizeModeMap = {
   tail: { 'text-overflow': 'ellipsis' },
 };
 export class TextView extends HippyWebView<HTMLSpanElement> {
+
+  private innerTextDom: HTMLSpanElement|null = null;
   public constructor(context, id, pId) {
     super(context, id, pId);
     this.tagName = InnerNodeTag.TEXT;
     this.dom = document.createElement('span');
     this.props[NodeProps.ELLIPSIZE_MODE] = EllipsizeMode.TAIL;
   }
+
   public defaultStyle(): { [p: string]: any } {
     return { boxSizing: 'border-box', zIndex: 0, ...HippyEllipsizeModeMap[this.ellipsizeMode],
       overflow: 'hidden' };
@@ -48,7 +51,8 @@ export class TextView extends HippyWebView<HTMLSpanElement> {
       style.lineHeight = style.height;
     }
     if (style.fontSize && style.fontSize < 12) {
-      style.zoom = (4 - Math.min(12 - style.fontSize, 4)) / 4 * 0.15 + 0.85;
+      !this.innerTextDom && this.buildInnerText();
+      setElementStyle(this.innerTextDom!, { zoom: (4 - Math.min(12 - style.fontSize, 4)) / 4 * 0.15 + 0.85 });
     }
     defaultProcess(this, data);
   }
@@ -80,26 +84,52 @@ export class TextView extends HippyWebView<HTMLSpanElement> {
 
   public set text(value) {
     this.props[NodeProps.VALUE] = value;
-    if (this.dom!.childNodes.length > 0) {
-      let textNode: Text | null = null;
-      this.dom!.childNodes.forEach((item) => {
-        if (item instanceof Text) {
-          textNode = item;
-        }
-      });
-      if (textNode && (textNode as Text).textContent !== value) {
-        (textNode as Text).textContent = value;
-      }
+
+    if (this.textContentNode) {
+      this.textContentNode.textContent = value;
       return;
     }
+
     const textNode = document.createTextNode(value);
+    this.appendTextNode(textNode);
+  }
+
+  public get text() {
+    return this.props[NodeProps.VALUE];
+  }
+
+  public buildInnerText() {
+    this.innerTextDom = document.createElement('span');
+    this.dom?.appendChild(this.innerTextDom);
+    const textNode: Text | null = this.textContentNode;
+    if (textNode) {
+      textNode.parentNode?.removeChild(textNode);
+      this.innerTextDom.appendChild(textNode);
+      return;
+    }
+  }
+
+  public appendTextNode(textNode: Text) {
+    if (this.innerTextDom) {
+      this.innerTextDom.appendChild(textNode);
+      return;
+    }
     if (this.dom!.childNodes.length > 0) {
       this.dom!.removeChild(this.dom!.childNodes[0]);
     }
     this.dom!.appendChild(textNode);
   }
 
-  public get text() {
-    return this.props[NodeProps.VALUE];
+  private get textContentNode() {
+    if (this.innerTextDom && this.innerTextDom.childNodes.length > 0) {
+      return this.innerTextDom.childNodes[0] as Text;
+    }
+    let textNode: Text | null = null;
+    this.dom!.childNodes.forEach((item) => {
+      if (item instanceof Text) {
+        textNode = item;
+      }
+    });
+    return textNode;
   }
 }
