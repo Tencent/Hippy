@@ -32,4 +32,8 @@ export const getGlobal = (): typeof globalThis => {
   return win;
 };
 
+export function isIos() {
+  return /.*?(iPad|iPhone|iPod).*/.test(getGlobal().navigator.userAgent);
+}
+
 export default getGlobal();
