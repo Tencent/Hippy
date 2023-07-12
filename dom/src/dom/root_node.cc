@@ -102,8 +102,43 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   for (const auto& interceptor : interceptors_) {
     interceptor->OnDomNodeUpdate(nodes);
   }
-  std::vector<std::shared_ptr<DomNode>> nodes_to_update;
+
+  // In Hippy Vue, there are some special cases where there are multiple update instructions for the same node. This can
+  // cause issues with the diff algorithm and lead to incorrect results.
+  //  Example:
+  //
+  //  Dom Node Style:
+  //  |------|----------------|
+  //  |  id  |  style         |
+  //  |  1   |  text : {}     |
+  //  |  2   |  some style    |
+  //
+  //  Update instructions:
+  //  |------|-------------------------------|----------------|------------------------|
+  //  |  id  |  style                        |   operation    |   diff style result    |
+  //  |  1   |  text : { "color": "blue" }   |    compare     |  { "color": "blue" }   |
+  //  |  2   |  some style                   |                |                        |
+  //  |  1   |  text : { "color": "red" }    |    compare     |  { "color": "red" }    |
+  //  |  1   |  text : { "color": "red" }    |    compare     |  { }                   |
+  //  In last diff algroithm the diff_style = {}
+  //
+  //  To Solve this case we should use the last update instruction to generate the diff style.
+  //  Update instructions:
+  //  |------|-------------------------------|----------------|------------------------|
+  //  |  id  |  style                        |   operation    |   diff style result    |
+  //  |  1   |  text : { "color": "blue" }   |    skip        |         { }            |
+  //  |  2   |  some style                   |                |                        |
+  //  |  1   |  text : { "color": "red" }    |    skip        |         { }            |
+  //  |  1   |  text : { "color": "red" }    |    compare     |  { "color": "red" }    |
+  //  In new diff algroithm the diff_style = { "color": "red" }
+  std::unordered_map<uint32_t, std::shared_ptr<DomInfo>> skipped_instructions;
   for (const auto& node_info : nodes) {
+    auto id = node_info->dom_node->GetId();
+    skipped_instructions[id] = node_info;
+  }
+
+  std::vector<std::shared_ptr<DomNode>> nodes_to_update;
+  for (const auto& [id, node_info] : skipped_instructions) {
     std::shared_ptr<DomNode> dom_node = GetNode(node_info->dom_node->GetId());
     if (dom_node == nullptr) {
       continue;
@@ -124,6 +159,7 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
     dom_node->SetStyleMap(node_info->dom_node->GetStyleMap());
     dom_node->SetExtStyleMap(node_info->dom_node->GetExtStyle());
     dom_node->SetDiffStyle(diff_value);
+
     auto style_delete = std::get<1>(style_diff_value);
     auto ext_delete = std::get<1>(ext_diff_value);
     std::shared_ptr<std::vector<std::string>> delete_value = std::make_shared<std::vector<std::string>>();
