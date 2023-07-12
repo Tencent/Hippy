@@ -141,10 +141,10 @@ class DevtoolsUtil {
     }
 
     final resultMap = VoltronMap();
-    resultMap.push(kXOnScreen, x);
-    resultMap.push(kYOnScreen, y);
-    resultMap.push(kViewWidth, width);
-    resultMap.push(kViewHeight, height);
+    resultMap.push(kXOnScreen, x.toInt());
+    resultMap.push(kYOnScreen, y.toInt());
+    resultMap.push(kViewWidth, width.toInt());
+    resultMap.push(kViewHeight, height.toInt());
     promise.resolve(resultMap);
   }
 }
