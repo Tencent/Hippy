@@ -147,58 +147,58 @@ export class ListView extends HippyWebView<HTMLDivElement> {
 
   public onMomentumScrollBegin(event: { contentOffset: { x: number, y: number } }) {
     this.props[NodeProps.ON_MOMENTUM_SCROLL_BEGIN]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_MOMENTUM_SCROLL_BEGIN, event);
+    && this.dispatchEvent(NodeProps.ON_MOMENTUM_SCROLL_BEGIN, event);
   }
 
   public onMomentumScrollEnd(event: { contentOffset: { x: number, y: number } }) {
     this.props[NodeProps.ON_MOMENTUM_SCROLL_END]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_MOMENTUM_SCROLL_END, event);
+    && this.dispatchEvent(NodeProps.ON_MOMENTUM_SCROLL_END, event);
   }
 
   public onScroll(event: { contentOffset: { x: number, y: number } }) {
     this.props[NodeProps.ON_SCROLL]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL, event);
+    && this.dispatchEvent(NodeProps.ON_SCROLL, event);
   }
 
   public onScrollBeginDrag(event: { contentOffset: { x: number, y: number } }) {
     this.props[NodeProps.ON_SCROLL_BEGIN_DRAG]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL_BEGIN_DRAG, event);
+    && this.dispatchEvent(NodeProps.ON_SCROLL_BEGIN_DRAG, event);
   }
 
   public onScrollEndDrag(event: { contentOffset: { x: number, y: number } }) {
     this.props[NodeProps.ON_SCROLL_END_DRAG]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL_END_DRAG, event);
+    && this.dispatchEvent(NodeProps.ON_SCROLL_END_DRAG, event);
   }
 
   public onInitialListReady() {
-    this.context.sendUiEvent(this.id, NodeProps.INITIAL_LIST_READY, null);
+    this.dispatchEvent(NodeProps.INITIAL_LIST_READY, null);
   }
 
   public onAppear(event) {
     this.props[NodeProps.ON_APPEAR]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_APPEAR, event);
+    && this.dispatchEvent(NodeProps.ON_APPEAR, event);
   }
 
   public onDisappear(event) {
     this.props[NodeProps.ON_DISAPPEAR]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_DISAPPEAR, event);
+    && this.dispatchEvent(NodeProps.ON_DISAPPEAR, event);
   }
 
   public onWillAppear(event) {
     this.props[NodeProps.ON_WILL_APPEAR]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_WILL_APPEAR, event);
+    && this.dispatchEvent(NodeProps.ON_WILL_APPEAR, event);
   }
 
   public onWillDisappear(event) {
     this.props[NodeProps.ON_WILL_DISAPPEAR]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_WILL_DISAPPEAR, event);
+    && this.dispatchEvent(NodeProps.ON_WILL_DISAPPEAR, event);
   }
 
   public onLoadMore() {
     this.props[NodeProps.ON_LOAD_MORE]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_LOAD_MORE, null);
+    && this.dispatchEvent(NodeProps.ON_LOAD_MORE, null);
     this.props[NodeProps.ON_LOAD_MORE]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_END_REACHED, null);
+    && this.dispatchEvent(NodeProps.ON_END_REACHED, null);
   }
 
   public scrollToContentOffset(xOffset: number, yOffset: number, animated: boolean) {

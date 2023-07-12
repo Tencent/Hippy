@@ -23,13 +23,15 @@
 import ResizeObserver from 'resize-observer-polyfill';
 import * as Hammer from 'hammerjs';
 import {
-  NodeProps,
-  HippyBaseView,
   ComponentContext,
-  InnerNodeTag,
-  UIProps,
-  HippyTransferData,
   DefaultPropsProcess,
+  HippyBaseView,
+  HippyTransferData,
+  InnerNodeTag,
+  NodeProps,
+  UIProps,
+  EventPhase,
+  HippyCallBack,
 } from '../types';
 import { setElementStyle } from '../common';
 
@@ -46,6 +48,9 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public layoutCache: {x: number, y: number, height: number, width: number}|null = null;
   public hammer;
   public exitChildrenStackContext = false;
+  public events: {
+    [key: string]: HippyCallBack | null;
+  } = {};
   private mountedLayoutDispatch = false;
   private updatedZIndex = false;
   public constructor(context, id, pId) {
@@ -237,7 +242,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
     if (!this.props[NodeProps.ON_ATTACHED_TO_WINDOW]) {
       return;
     }
-    this.context.sendUiEvent(this.id, 'onAttachedToWindow', null);
+    this.dispatchEvent('onAttachedToWindow', null);
   }
 
   public async beforeMount(parent: HippyBaseView, position: number) {
@@ -267,7 +272,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
             height: this.dom!.clientHeight,
           };
         }
-        this.context.sendUiEvent(this.id, 'onLayout', { layout: eventParam, target: this.id });
+        this.dispatchEvent('onLayout', { layout: eventParam, target: this.id });
       });
       return;
     }
@@ -283,6 +288,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
 
   public destroy() {
     this.dom = null;
+    this.events = {};
   }
 
   public handleReLayout(entries: ResizeObserverEntry[]) {
@@ -303,15 +309,39 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
       height,
     };
 
-    this.context.sendUiEvent(this.id, 'onLayout', { layout: this.layoutCache,
+    this.dispatchEvent('onLayout', { layout: this.layoutCache,
       target: this.id });
+  }
+
+  public addEventListener(eventName: string, listener: HippyCallBack) {
+    this.updateProperty(eventName, true);
+    this.events[eventName] = listener;
+  }
+
+  public removeEventListener(eventName: string) {
+    this.updateProperty(eventName, false);
+    this.events[eventName] = null;
+  }
+
+  public dispatchEvent(eventName: string, params: any) {
+    const listener = this.events[eventName];
+    if (listener) {
+      listener.resolve({
+        id: this.id,
+        currentId: this.id,
+        type: eventName,
+        params,
+        eventPhase: EventPhase.AT_TARGET,
+        stopPropagation: () => {},
+      });
+    }
   }
 
   private handleOnLongClick(event) {
     if (!this.onLongClick) {
       return;
     }
-    this.context.sendUiEvent(this.id, NodeProps.ON_LONG_CLICK, event);
+    this.dispatchEvent(NodeProps.ON_LONG_CLICK, event);
     event.srcEvent.stopPropagation();
   }
 
@@ -319,7 +349,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
     if (!this.onClick) {
       return;
     }
-    this.context.sendUiEvent(this.id, NodeProps.ON_CLICK, event);
+    this.dispatchEvent(NodeProps.ON_CLICK, event);
     event.srcEvent.stopPropagation();
   }
 
@@ -327,14 +357,14 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
     if (!this.onTouchDown) {
       return;
     }
-    this.context.sendGestureEvent(buildHippyTouchEvent(event, 'onTouchDown', this.id));
+    this.dispatchEvent('onTouchDown', buildHippyTouchEvent(event, 'onTouchDown', this.id));
     event.stopPropagation();
   }
   private handleOnTouchMove(event) {
     if (!this.onTouchMove) {
       return;
     }
-    this.context.sendGestureEvent(buildHippyTouchEvent(event, 'onTouchMove', this.id));
+    this.dispatchEvent('onTouchMove', buildHippyTouchEvent(event, 'onTouchMove', this.id));
     event.stopPropagation();
     event.preventDefault();
   }
@@ -343,7 +373,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
     if (!this.onTouchCancel) {
       return;
     }
-    this.context.sendGestureEvent(buildHippyTouchEvent(event, 'onTouchCancel', this.id));
+    this.dispatchEvent('onTouchCancel', buildHippyTouchEvent(event, 'onTouchCancel', this.id));
     event.stopPropagation();
   }
 
@@ -351,7 +381,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
     if (!this.onTouchEnd) {
       return;
     }
-    this.context.sendGestureEvent(buildHippyTouchEvent(event, 'onTouchEnd', this.id));
+    this.dispatchEvent('onTouchEnd', buildHippyTouchEvent(event, 'onTouchEnd', this.id));
     event.stopPropagation();
   }
 }

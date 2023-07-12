@@ -53,7 +53,7 @@ export class RefreshWrapper extends HippyWebView<HTMLDivElement> {
 
   public onRefresh() {
     this.props[NodeProps.ON_REFRESH]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_REFRESH, null);
+    && this.dispatchEvent(NodeProps.ON_REFRESH, null);
   }
 
   public refreshComplected() {

@@ -81,17 +81,17 @@ export class ViewPager extends HippyWebView<HTMLDivElement> {
 
   public onPageSelected(event: {position: number}) {
     this.props[NodeProps.ON_PAGE_SELECTED]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_PAGE_SELECTED, event);
+    && this.dispatchEvent(NodeProps.ON_PAGE_SELECTED, event);
   }
 
   public onPageScroll(event: {position: number, offset: number}) {
     this.props[NodeProps.ON_PAGE_SCROLL]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_PAGE_SCROLL, event);
+    && this.dispatchEvent(NodeProps.ON_PAGE_SCROLL, event);;
   }
 
   public onPageScrollStateChanged(event: {pageScrollState: SCROLL_STATE}) {
     this.props[NodeProps.ON_PAGE_SCROLL_STATE_CHANGED]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_PAGE_SCROLL_STATE_CHANGED, event);
+    && this.dispatchEvent(NodeProps.ON_PAGE_SCROLL_STATE_CHANGED, event);;
   }
 
   public setPage(index: number) {

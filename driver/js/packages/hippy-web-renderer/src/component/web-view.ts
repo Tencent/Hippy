@@ -58,19 +58,17 @@ export class WebView extends HippyWebView<HTMLIFrameElement> {
     return this.props[NodeProps.METHOD];
   }
 
-  public  onLoadStart(value: { uri: string }) {
-    this.props[NodeProps.ON_LOAD_START] && this.context.sendUiEvent(this.id, NodeProps.ON_LOAD_START, value);
+  public onLoadStart(value: { uri: string }) {
+    this.props[NodeProps.ON_LOAD_START] && this.dispatchEvent(NodeProps.ON_LOAD_START, value);
   }
 
-  public  onLoad(value: { uri: string }) {
-    this.props[NodeProps.ON_LOAD] && this.context.sendUiEvent(this.id, NodeProps.ON_LOAD, value);
+  public onLoad(value: { uri: string }) {
+    this.props[NodeProps.ON_LOAD] && this.dispatchEvent(NodeProps.ON_LOAD, value);
   }
 
-  public  onLoadEnd() {
-    this.props[NodeProps.ON_LOAD_END] && this.context.sendUiEvent(
-      this.id,
-      NodeProps.ON_LOAD_END, this.props[NodeProps.SOURCE],
-    );
+  public onLoadEnd() {
+    this.props[NodeProps.ON_LOAD_END]
+    && this.dispatchEvent(NodeProps.ON_LOAD_END, this.props[NodeProps.SOURCE]);
   }
 
   public async beforeMount(parent: HippyBaseView, position: number) {

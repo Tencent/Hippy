@@ -205,22 +205,22 @@ export class TextInput extends HippyWebView<HTMLInputElement | HTMLTextAreaEleme
 
   public onBlur(event) {
     this.props[NodeProps.ON_BLUR]
-      && this.context.sendUiEvent(this.id, NodeProps.ON_BLUR, event);
+      && this.dispatchEvent(NodeProps.ON_BLUR, event);
   }
 
   public onChangeText(value) {
     this.props[NodeProps.ON_CHANGE_TEXT]
-      && this.context.sendUiEvent(this.id, NodeProps.ON_CHANGE_TEXT, value);
+      && this.dispatchEvent(NodeProps.ON_CHANGE_TEXT, value);
   }
 
   public onEndEditing(value) {
     this.props[NodeProps.ON_END_EDITING]
-      && this.context.sendUiEvent(this.id, NodeProps.ON_END_EDITING, value);
+      && this.dispatchEvent(NodeProps.ON_END_EDITING, value);
   }
 
   public onSelectionChange(value) {
     this.props[NodeProps.ON_SELECTION_CHANGE]
-      && this.context.sendUiEvent(this.id, NodeProps.ON_SELECTION_CHANGE, value);
+      && this.dispatchEvent(NodeProps.ON_SELECTION_CHANGE, value);
   }
 
   public blurTextInput() {

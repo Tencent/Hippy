@@ -20,6 +20,7 @@
 
 export interface HippyJsBridge {
   callNative(moduleName: string, methodName: string, ...args: any[]): void;
+  callNativeWithoutDelete(moduleName: string, methodName: string, ...args: any[]): void;
   callNativeWithCallbackId(moduleName: string, methodName: string, ...args: any[]): number;
   callNativeWithPromise<T>(moduleName: string, methodName: string, ...args: any[]): Promise<T>;
   removeNativeCallback(callbackId: number): void;
@@ -47,6 +48,41 @@ const callNative = (...callArguments) => {
       __GLOBAL__.moduleCallList[currentCallId] = {
         cb: callArguments[i],
         type: 0,
+      };
+    } else {
+      param.push(callArguments[i]);
+    }
+  }
+
+  let moduleCallbackId = -1;
+  if (cbCount > 0) {
+    moduleCallbackId = currentCallId;
+  }
+
+  hippyCallNatives(callArguments[0], callArguments[1], (moduleCallbackId.toString()), param);
+};
+
+const callNativeWithoutDelete = (...callArguments) => {
+  if (typeof hippyCallNatives === 'undefined') {
+    throw new ReferenceError('hippyCallNatives not defined');
+  }
+
+  if (callArguments.length < 2) {
+    throw new TypeError('Arguments length must be larger than 2');
+  }
+
+  const currentCallId = __GLOBAL__.moduleCallId;
+  __GLOBAL__.moduleCallId += 1;
+
+  const param: any[] = [];
+  let cbCount = 0;
+
+  for (let i = 2; i < callArguments.length; i += 1) {
+    if (typeof callArguments[i] === 'function' && cbCount === 0) {
+      cbCount += 1;
+      __GLOBAL__.moduleCallList[currentCallId] = {
+        cb: callArguments[i],
+        type: 2,
       };
     } else {
       param.push(callArguments[i]);
@@ -168,5 +204,6 @@ export const bridge: HippyJsBridge = {
   callNative,
   callNativeWithCallbackId,
   callNativeWithPromise,
+  callNativeWithoutDelete,
   removeNativeCallback,
 };

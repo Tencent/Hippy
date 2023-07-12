@@ -155,27 +155,27 @@ export class ScrollView extends HippyWebView<HTMLDivElement> {
 
   public onMomentumScrollBegin(event) {
     this.props[NodeProps.ON_MOMENTUM_SCROLL_BEGIN]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_MOMENTUM_SCROLL_BEGIN, event);
+    && this.dispatchEvent(NodeProps.ON_MOMENTUM_SCROLL_BEGIN, event);
   }
 
   public onMomentumScrollEnd(event) {
     this.props[NodeProps.ON_MOMENTUM_SCROLL_END]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_MOMENTUM_SCROLL_END, event);
+    && this.dispatchEvent(NodeProps.ON_MOMENTUM_SCROLL_END, event);
   }
 
   public onScroll(event: HippyScrollEvent) {
     this.props[NodeProps.ON_SCROLL]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL, event);
+    && this.dispatchEvent(NodeProps.ON_SCROLL, event);
   }
 
   public onScrollBeginDrag(event: HippyScrollEvent) {
     this.props[NodeProps.ON_SCROLL_BEGIN_DRAG]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL_BEGIN_DRAG, event);
+    && this.dispatchEvent(NodeProps.ON_SCROLL_BEGIN_DRAG, event);
   }
 
   public onScrollEndDrag(event: HippyScrollEvent) {
     this.props[NodeProps.ON_SCROLL_END_DRAG]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL_END_DRAG, event);
+    && this.dispatchEvent(NodeProps.ON_SCROLL_END_DRAG, event);
   }
 
   public async beforeMount(parent: HippyBaseView, position: number): Promise<void> {

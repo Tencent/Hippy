@@ -193,17 +193,17 @@ export class Modal extends HippyWebView<HTMLDivElement> {
   }
 
   public onShow(value?) {
-    this.props[NodeProps.ON_SHOW] && this.context.sendUiEvent(this.id, NodeProps.ON_SHOW, value);
+    this.props[NodeProps.ON_SHOW] && this.dispatchEvent(NodeProps.ON_SHOW, value);
   }
 
   public onOrientationChange(event) {
     this.props[NodeProps.ON_ORIENTATION_CHANGE]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_ORIENTATION_CHANGE, event);
+    && this.dispatchEvent(NodeProps.ON_ORIENTATION_CHANGE, event);
   }
 
   public onRequestClose(value?) {
     this.props[NodeProps.ON_ORIENTATION_CHANGE]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_REQUEST_CLOSE, value);
+    && this.dispatchEvent(NodeProps.ON_REQUEST_CLOSE, value);
     // TODO to implement
   }
 

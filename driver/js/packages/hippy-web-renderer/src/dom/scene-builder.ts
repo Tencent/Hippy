@@ -21,6 +21,26 @@
 // event handler type
 type EventHandler = (...args: any[]) => void;
 
+// native custom event map
+const NativeCustomEventMap = {
+  initiallistready: 'initialListReady',
+  momentumscrollbegin: 'onMomentumScrollBegin',
+  momentumscrollend: 'onMomentumScrollEnd',
+  scrollbegindrag: 'onScrollBeginDrag',
+  scrollenddrag: 'onScrollEndDrag',
+  willappear: 'willAppear',
+  willdisappear: 'willDisappear',
+  endreached: 'onEndReached',
+  loadstart: 'onLoadStart',
+  loadend: 'onLoadEnd',
+  requestclose: 'onRequestClose',
+  headerreleased: 'onHeaderReleased',
+  headerpulling: 'onHeaderPulling',
+  footerreleased: 'onFooterReleased',
+  footerpulling: 'onFooterPulling',
+  getrefresh: 'onGetRefresh',
+};
+
 // native gesture event map
 const NativeGestureEventMap = {
   click: 'onClick',
@@ -38,6 +58,8 @@ const NativeInputEventMap = {
   changetext: 'onChangeText',
   keyboardwillhide: 'onKeyboardWillHide',
   keyboardwillshow: 'onKeyboardWillShow',
+  contentsizechange: 'onContentSizeChange',
+  endediting: 'onEndEditing',
 };
 
 // native gesture event map
@@ -47,6 +69,15 @@ const NativeSwiperEventMap = {
   statechanged: 'onStateChanged',
   pagescrollstatechanged: 'onPageScrollStateChanged',
 };
+
+/**
+ * return event name is native custom event or not
+ *
+ * @param name
+ */
+function isNativeCustom(name): boolean {
+  return !!NativeCustomEventMap[name];
+}
 
 /**
  * return event name is native gesture or not
@@ -80,7 +111,7 @@ function isNativeSwiper(name): boolean {
  */
 function getNormalizeEventName(eventName: string): string {
   // add the 'on' for the event name and convert the first letter to uppercase, eg. click -> onClick
-  return `on${eventName.charAt(0).toUpperCase()}${eventName.slice(1)}`;
+  return eventName.startsWith('on') ? eventName : `on${eventName.charAt(0).toUpperCase()}${eventName.slice(1)}`;
 }
 
 /**
@@ -89,6 +120,10 @@ function getNormalizeEventName(eventName: string): string {
  * @param eventName
  */
 function getNativeEventName(eventName: string): string {
+  if (isNativeCustom(eventName)) {
+    return NativeCustomEventMap[eventName];
+  }
+
   if (isNativeGesture(eventName)) {
     return NativeGestureEventMap[eventName];
   }
@@ -168,8 +203,7 @@ export class SceneBuilder {
    * @param handler
    */
   public addEventListener(id: number, eventName: string, handler: EventHandler) {
-    console.log('add event listener', id, eventName, getNativeEventName(eventName));
-    Hippy.bridge.callNative('UIManagerModule', 'addEventListener', id, getNativeEventName(eventName), handler);
+    Hippy.bridge.callNativeWithoutDelete('UIManagerModule', 'addEventListener', id, getNativeEventName(eventName), handler);
   }
 
   /**

@@ -128,12 +128,13 @@ export class UIManagerModule extends HippyWebModule {
    *
    * @param id
    * @param eventName
+   * @param callback
    */
-  public addEventListener(id: number, eventName: string) {
+  public addEventListener(id: number, eventName: string, callback: HippyCallBack) {
     const view = this.findViewById(id);
-    if (view?.updateProperty) {
-      // add event props
-      view.updateProperty(eventName, true);
+    if (view?.addEventListener) {
+      // add event listener
+      view.addEventListener(eventName, callback);
     }
   }
 
@@ -145,9 +146,9 @@ export class UIManagerModule extends HippyWebModule {
    */
   public removeEventListener(id: number, eventName: string) {
     const view = this.findViewById(id);
-    if (view?.updateProperty) {
+    if (view?.removeEventListener) {
       // remove event props
-      view.updateProperty(eventName, false);
+      view.removeEventListener(eventName);
     }
   }
 

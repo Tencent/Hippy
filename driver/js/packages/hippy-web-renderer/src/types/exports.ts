@@ -41,6 +41,9 @@ export interface HippyBaseView {
   removeChild?: (child: HippyBaseView) => Promise<void>;
   destroy?: () => void;
   mounted?: () => void;
+  addEventListener?: (eventName: string, listener: HippyCallBack) => void;
+  removeEventListener?: (eventName: string) => void;
+  dispatchEvent?: (eventName: string, params: any) => void;
 }
 
 export type HippyBaseViewConstructor = new (context: ComponentContext, id, pId) => HippyBaseView;
@@ -90,3 +93,19 @@ export enum InnerNodeTag {
   MODAL = 'Modal',
   WEB_VIEW = 'WebView'
 }
+
+// native event params
+export interface NativeEventParams{
+  id: number;
+  currentId: number;
+  params: any;
+  eventPhase: HippyTypes.EventPhase;
+}
+
+// event phase
+export const EventPhase = {
+  NONE: 0,
+  CAPTURING_PHASE: 1,
+  AT_TARGET: 2,
+  BUBBLING_PHASE: 3,
+};
