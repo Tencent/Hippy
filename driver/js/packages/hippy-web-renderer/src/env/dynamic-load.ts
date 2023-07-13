@@ -18,14 +18,17 @@
  * limitations under the License.
  */
 
-import { warn } from '../common';
-
-export const dynamicLoad = (/* path, encode, cb */) => {
-  warn('dynamicLoad is unsupported');
-  // let requestPath = path || '';
-  // const isSchema = ['https://', 'http://', '//'].some(schema => requestPath.indexOf(schema) === 0);
-  // if (!isSchema) {
-  //   requestPath = global.__HIPPYCURDIR__ + path;
-  // }
-  // ContextifyModule.LoadUntrustedContent(requestPath, encode, cb);
+export const dynamicLoad = (path: string, cb) => {
+  const s = document.createElement('script');
+  s.async = true;
+  s.setAttribute('src', path);
+  if (cb) {
+    s.onload = () => {
+      cb();
+    };
+    s.onerror = () => {
+      cb('load script error');
+    };
+  }
+  document.head.appendChild(s);
 };

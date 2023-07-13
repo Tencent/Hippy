@@ -36,6 +36,11 @@ import { dynamicLoad } from './dynamic-load';
 
 const global = getGlobal();
 
+if (typeof window !== 'undefined') {
+  // compatible global variable used
+  window.global = global as any;
+}
+
 // global
 global.Hippy = {} as any;
 global.__GLOBAL__ = {} as any;
