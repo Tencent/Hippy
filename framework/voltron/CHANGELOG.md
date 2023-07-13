@@ -1,3 +1,7 @@
+## 0.0.32
+
+- fix crash on debug mode
+
 ## 0.0.31
 
 - fix crash on debug mode
