@@ -25,16 +25,9 @@ buildscript {
 
       if (enable == "true") {
         println("system env enable local cmake inner:$enable")
-        enableLocalCmake = false
+        enableLocalCmake = true
       } else {
-        // 系统环境里面没有从local.properties里面取
-        def dir = System.getProperty("user.dir")
-        def file = new File(dir, 'local.properties')
-        Properties properties = new Properties()
-        if (file.exists()) {
-          properties.load(file.newDataInputStream())
-          enableLocalCmake = Boolean.valueOf(properties.getProperty('enableLocalCmake', "false"))
-        }
+        enableLocalCmake = false
       }
     }
     println("enable local cmake:$enableLocalCmake")
