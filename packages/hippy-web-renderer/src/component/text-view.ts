@@ -19,8 +19,8 @@
  */
 import { DefaultPropsProcess, EllipsizeMode, InnerNodeTag, NodeProps, UIProps } from '../types';
 import { setElementStyle } from '../common';
+import { isIos } from '../get-global';
 import { HippyWebView } from './hippy-web-view';
-import {isIos} from "../get-global";
 const HippyEllipsizeModeMap = {
   head: { 'text-overflow': 'ellipsis', direction: 'rtl' },
   clip: { 'text-overflow': 'clip' },
@@ -29,7 +29,7 @@ const HippyEllipsizeModeMap = {
 };
 export class TextView extends HippyWebView<HTMLSpanElement> {
   public static SCALE_SIZE = 4;
-  public static SALE_RANGE = 0.3;
+  public static SALE_RANGE = 0.2;
 
   private innerTextDom: HTMLSpanElement|null = null;
 
@@ -55,8 +55,8 @@ export class TextView extends HippyWebView<HTMLSpanElement> {
       style.lineHeight = style.height;
       delete style.height;
     }
+    !this.innerTextDom && this.buildInnerText();
     if (style.fontSize && style.fontSize < 12 && !isIos()) {
-      !this.innerTextDom && this.buildInnerText();
       setElementStyle(this.innerTextDom!, { zoom: (TextView.SCALE_SIZE
             - Math.min(12 - style.fontSize, TextView.SCALE_SIZE))
           / TextView.SCALE_SIZE * TextView.SALE_RANGE + (1 - TextView.SALE_RANGE) });
@@ -107,6 +107,7 @@ export class TextView extends HippyWebView<HTMLSpanElement> {
 
   public buildInnerText() {
     this.innerTextDom = document.createElement('span');
+    setElementStyle(this.innerTextDom, { 'vertical-align': 'middle' });
     this.dom?.appendChild(this.innerTextDom);
     const textNode: Text | null = this.textContentNode;
     if (textNode) {
