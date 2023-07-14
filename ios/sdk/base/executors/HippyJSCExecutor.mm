@@ -472,16 +472,19 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
     return _executorkey ?: [NSString stringWithFormat:@"%p", self];
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
+    __weak HippyJSCExecutor *weakSelf = self;
     [self executeBlockOnJavaScriptQueue:^{
-        [[self JSContext] setName:contextName];
+        HippyJSCExecutor *strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        [[strongSelf JSContext] setName:contextName];
         dispatch_async(dispatch_get_global_queue(0, 0), ^{
-            [self.bridge setUpDevClientWithName:contextName];
+            [strongSelf.bridge setUpDevClientWithName:contextName];
         });
     }];
 }
-// clang-format on
 
 - (void)dealloc {
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor dealloc %p", self);
@@ -594,72 +597,70 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
     HippyAssert(onComplete != nil, @"onComplete block should not be nil");
     __weak HippyJSCExecutor *weakSelf = self;
     [self executeBlockOnJavaScriptQueue:^{
-        @autoreleasepool {
-            HippyJSCExecutor *strongSelf = weakSelf;
-            if (!strongSelf || !strongSelf.isValid || nullptr == strongSelf.pScope) {
+        HippyJSCExecutor *strongSelf = weakSelf;
+        if (!strongSelf || !strongSelf.isValid || nullptr == strongSelf.pScope) {
+            return;
+        }
+        @try {
+            HippyBridge *bridge = [strongSelf bridge];
+            NSString *moduleName = [bridge moduleName];
+            NSError *executeError = nil;
+            id objcValue = nil;
+            std::shared_ptr<hippy::napi::Ctx> jscContext = self.pScope->GetContext();
+            std::shared_ptr<hippy::napi::CtxValue> batchedbridge_value = jscContext->GetProperty(jscContext->GetGlobalObject(), "__fbBatchedBridge");
+            std::shared_ptr<hippy::napi::JSCCtxValue> jsc_resultValue = nullptr;
+            std::u16string exception;
+            JSContext *jsContext = [strongSelf JSContext];
+            JSGlobalContextRef globalContextRef = [strongSelf JSGlobalContextRef];
+            if (!jsContext || !globalContextRef) {
+                onComplete([NSNull null], nil);
                 return;
             }
-            @try {
-                HippyBridge *bridge = [strongSelf bridge];
-                NSString *moduleName = [bridge moduleName];
-                NSError *executeError = nil;
-                id objcValue = nil;
-                std::shared_ptr<hippy::napi::Ctx> jscContext = self.pScope->GetContext();
-                std::shared_ptr<hippy::napi::CtxValue> batchedbridge_value = jscContext->GetProperty(jscContext->GetGlobalObject(), "__fbBatchedBridge");
-                std::shared_ptr<hippy::napi::JSCCtxValue> jsc_resultValue = nullptr;
-                std::u16string exception;
-                JSContext *jsContext = [strongSelf JSContext];
-                JSGlobalContextRef globalContextRef = [strongSelf JSGlobalContextRef];
-                if (!jsContext || !globalContextRef) {
-                    onComplete([NSNull null], nil);
-                    return;
-                }
-                if (batchedbridge_value) {
-                    std::shared_ptr<hippy::napi::CtxValue> method_value = jscContext->GetProperty(batchedbridge_value, [method UTF8String]);
-                    if (method_value) {
-                        if (jscContext->IsFunction(method_value)) {
-                            std::shared_ptr<hippy::napi::CtxValue> function_params[arguments.count];
-                            for (NSUInteger i = 0; i < arguments.count; i++) {
-                                JSValueRef value = [JSValue valueWithObject:arguments[i] inContext:jsContext].JSValueRef;
-                                function_params[i] = std::make_shared<hippy::napi::JSCCtxValue>(globalContextRef, value);
-                            }
-                            hippy::napi::JSCTryCatch tryCatch(true, jscContext);
-                            std::shared_ptr<hippy::napi::CtxValue> resultValue
-                                = jscContext->CallFunction(method_value, arguments.count, function_params);
-                            if (tryCatch.HasCaught()) {
-                              exception = StringViewUtils::Convert(tryCatch.GetExceptionMsg(), unicode_string_view::Encoding::Utf16).utf16_value();
-                            }
-                            jsc_resultValue = std::static_pointer_cast<hippy::napi::JSCCtxValue>(resultValue);
-                        } else {
-                            executeError
-                                = HippyErrorWithMessageAndModuleName([NSString stringWithFormat:@"%@ is not a function", method], moduleName);
+            if (batchedbridge_value) {
+                std::shared_ptr<hippy::napi::CtxValue> method_value = jscContext->GetProperty(batchedbridge_value, [method UTF8String]);
+                if (method_value) {
+                    if (jscContext->IsFunction(method_value)) {
+                        std::shared_ptr<hippy::napi::CtxValue> function_params[arguments.count];
+                        for (NSUInteger i = 0; i < arguments.count; i++) {
+                            JSValueRef value = [JSValue valueWithObject:arguments[i] inContext:jsContext].JSValueRef;
+                            function_params[i] = std::make_shared<hippy::napi::JSCCtxValue>(globalContextRef, value);
                         }
+                        hippy::napi::JSCTryCatch tryCatch(true, jscContext);
+                        std::shared_ptr<hippy::napi::CtxValue> resultValue
+                            = jscContext->CallFunction(method_value, arguments.count, function_params);
+                        if (tryCatch.HasCaught()) {
+                          exception = StringViewUtils::Convert(tryCatch.GetExceptionMsg(), unicode_string_view::Encoding::Utf16).utf16_value();
+                        }
+                        jsc_resultValue = std::static_pointer_cast<hippy::napi::JSCCtxValue>(resultValue);
                     } else {
-                        executeError = HippyErrorWithMessageAndModuleName(
-                            [NSString stringWithFormat:@"property/function %@ not found in __fbBatchedBridge", method], moduleName);
+                        executeError
+                            = HippyErrorWithMessageAndModuleName([NSString stringWithFormat:@"%@ is not a function", method], moduleName);
                     }
                 } else {
-                    executeError = HippyErrorWithMessageAndModuleName(@"__fbBatchedBridge not found", moduleName);
+                    executeError = HippyErrorWithMessageAndModuleName(
+                        [NSString stringWithFormat:@"property/function %@ not found in __fbBatchedBridge", method], moduleName);
                 }
-                if (!exception.empty() || executeError) {
-                    if (!exception.empty()) {
-                        NSString *string = [NSString stringWithCharacters: reinterpret_cast<const unichar*>(exception.c_str()) length:exception.length()];
-                        executeError = HippyErrorWithMessageAndModuleName(string, moduleName);
-                    }
-                } else if (jsc_resultValue) {
-                    JSValueRef resutlRef = jsc_resultValue->value_;
-                    JSValue *objc_value = [JSValue valueWithJSValueRef:resutlRef inContext:[strongSelf JSContext]];
-                    objcValue = unwrapResult ? [objc_value toObject] : objc_value;
-                }
-                onComplete(objcValue, executeError);
-            } @catch (NSException *exception) {
-                NSString *moduleName = strongSelf.bridge.moduleName?:@"unknown";
-                NSMutableDictionary *userInfo = [exception.userInfo mutableCopy]?:[NSMutableDictionary dictionary];
-                [userInfo setObject:moduleName forKey:HippyFatalModuleName];
-                [userInfo setObject:arguments?:[NSArray array] forKey:@"arguments"];
-                NSException *reportException = [NSException exceptionWithName:exception.name reason:exception.reason userInfo:userInfo];
-                MttHippyException(reportException);
+            } else {
+                executeError = HippyErrorWithMessageAndModuleName(@"__fbBatchedBridge not found", moduleName);
             }
+            if (!exception.empty() || executeError) {
+                if (!exception.empty()) {
+                    NSString *string = [NSString stringWithCharacters: reinterpret_cast<const unichar*>(exception.c_str()) length:exception.length()];
+                    executeError = HippyErrorWithMessageAndModuleName(string, moduleName);
+                }
+            } else if (jsc_resultValue) {
+                JSValueRef resutlRef = jsc_resultValue->value_;
+                JSValue *objc_value = [JSValue valueWithJSValueRef:resutlRef inContext:[strongSelf JSContext]];
+                objcValue = unwrapResult ? [objc_value toObject] : objc_value;
+            }
+            onComplete(objcValue, executeError);
+        } @catch (NSException *exception) {
+            NSString *moduleName = strongSelf.bridge.moduleName?:@"unknown";
+            NSMutableDictionary *userInfo = [exception.userInfo mutableCopy]?:[NSMutableDictionary dictionary];
+            [userInfo setObject:moduleName forKey:HippyFatalModuleName];
+            [userInfo setObject:arguments?:[NSArray array] forKey:@"arguments"];
+            NSException *reportException = [NSException exceptionWithName:exception.name reason:exception.reason userInfo:userInfo];
+            MttHippyException(reportException);
         }
     }];
 }
@@ -671,14 +672,13 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
     HippyAssertParam(script);
     HippyAssertParam(sourceURL);
 
-    // HippyProfileBeginFlowEvent();
+    __weak HippyJSCExecutor *weakSelf = self;
     [self executeBlockOnJavaScriptQueue:^{
-        // HippyProfileEndFlowEvent();
-        if (!self.isValid) {
+        HippyJSCExecutor *strongSelf = weakSelf;
+        if (!strongSelf || !strongSelf.isValid) {
             return;
         }
-
-        NSError *error = executeApplicationScript(script, sourceURL, isCommonBundle, self->_performanceLogger, [self JSGlobalContextRef]);
+        NSError *error = executeApplicationScript(script, sourceURL, isCommonBundle, strongSelf->_performanceLogger, [strongSelf JSGlobalContextRef]);
         if (onComplete) {
             onComplete(error);
         }
@@ -758,12 +758,19 @@ static NSError *executeApplicationScript(NSData *script,
 - (void)executeBlockOnJavaScriptQueue:(dispatch_block_t)block {
     auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey];
     if (engine) {
+        dispatch_block_t autoReleaseBlock = ^(void){
+            if (block) {
+                @autoreleasepool {
+                    block();
+                }
+            }
+        };
         if (engine->GetJSRunner()->IsJsThread() == false) {
             std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-            task->callback = block;
+            task->callback = autoReleaseBlock;
             engine->GetJSRunner()->PostTask(task);
         } else {
-            block();
+            autoReleaseBlock();
         }
     }
 }
@@ -772,7 +779,14 @@ static NSError *executeApplicationScript(NSData *script,
     auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey];
     if (engine) {
         std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-        task->callback = block;
+        dispatch_block_t autoReleaseBlock = ^(void){
+            if (block) {
+                @autoreleasepool {
+                    block();
+                }
+            }
+        };
+        task->callback = autoReleaseBlock;
         engine->GetJSRunner()->PostTask(task);
     }
 }
@@ -792,10 +806,7 @@ static NSError *executeApplicationScript(NSData *script,
     }
 
     __weak HippyJSCExecutor *weakSelf = self;
-    // HippyProfileBeginFlowEvent();
     [self executeBlockOnJavaScriptQueue:^{
-        // HippyProfileEndFlowEvent();
-
         HippyJSCExecutor *strongSelf = weakSelf;
         if (!strongSelf || !strongSelf.isValid) {
             return;

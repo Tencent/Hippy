@@ -106,7 +106,6 @@
     return object.parent;
 }
 
-// clang-format off
 HippyEventMethod(OnClick, onClick, HippyDirectEventBlock)
 HippyEventMethod(OnPressIn, onPressIn, HippyDirectEventBlock)
 HippyEventMethod(OnPressOut, onPressOut, HippyDirectEventBlock)
@@ -117,7 +116,6 @@ HippyEventMethod(OnTouchCancel, onTouchCancel, HippyDirectEventBlock)
 HippyEventMethod(OnTouchEnd, onTouchEnd, HippyDirectEventBlock)
 HippyEventMethod(OnAttachedToWindow, onAttachedToWindow, HippyDirectEventBlock)
 HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlock)
-// clang-format on
 #if HIPPY_DEV
 
 - (HippyShadowView *)_DEBUG_hippyShadowView {
