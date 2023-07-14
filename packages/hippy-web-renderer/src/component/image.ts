@@ -248,7 +248,7 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
   private updateTintColor() {
     const colorValue = convertHexToRgba(this.tintColor);
     setElementStyle(this.renderImgDom!, {
-      transform: 'translateX(-100%)',
+      transform: 'translateX(-100%) translateZ(0)',
       filter: `drop-shadow(${this.props.style.width}px 0 ${colorValue})`,
     });
   }
