@@ -73,8 +73,11 @@ export class TextInput extends HippyWebView<HTMLInputElement | HTMLTextAreaEleme
   public set defaultValue(value: string) {
     this.props[NodeProps.DEFAULT_VALUE] = value;
     // TODO to implement js logic
-    if (!this.value || this.value.length === 0) {
-      this.dom?.setAttribute('value', value);
+    if ((!this.value || this.value.length === 0) && this.dom) {
+      this.dom.value = value;
+      this.onChangeText({
+        text: this.dom.value,
+      });
     }
   }
 
