@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     color: '#4c9afa',
+    backgroundColor: '#fff',
   },
   itemEven: {
     height: 40,
