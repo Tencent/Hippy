@@ -85,7 +85,7 @@ public class StyleNode extends DomNode {
     }
   }
 
-  @HippyControllerProps(name = NodeProps.DIRECTION)
+  @HippyControllerProps(name = NodeProps.DIRECTION, defaultType = HippyControllerProps.STRING, defaultString = "ltr")
   public void setDirection(String direction) {
     if (TextUtils.isEmpty(direction)) {
       return;
@@ -144,7 +144,7 @@ public class StyleNode extends DomNode {
   }
 
   @SuppressWarnings("SwitchStatementWithTooFewBranches")
-  @HippyControllerProps(name = NodeProps.DISPLAY)
+  @HippyControllerProps(name = NodeProps.DISPLAY, defaultType = HippyControllerProps.STRING)
   public void setDisplay(String display) {
     FlexNodeStyle.Display flexDisplay = FlexNodeStyle.Display.DISPLAY_FLEX;
     switch (display) {

@@ -162,6 +162,7 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 
 - (void)removeNativeNode:(HippyVirtualNode *)node;
 - (void)removeNativeNodeView:(UIView *)nodeView;
+- (void)removeNativeViewFromTags:(NSArray<NSNumber *> *)hippyTags;
 - (void)updateViewsFromParams:(NSArray<HippyExtAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block;
 - (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)pros;
 @end
