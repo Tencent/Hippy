@@ -18,7 +18,7 @@ export const Type = {
 export default [
   {
     path: '/Components',
-    name: 'Componemts',
+    name: 'Components',
     meta: {
       type: Type.TITLE,
       mapType: Type.COMPONENT,
