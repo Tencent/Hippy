@@ -40,6 +40,7 @@
 #import "UIView+DomEvent.h"
 #import "UIView+NativeRender.h"
 #import "UIView+Render.h"
+#import "NSObject+Render.h"
 
 #include <mutex>
 
@@ -180,6 +181,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     std::mutex _imageProviderMutex;
     
     std::function<void(int32_t, NSDictionary *)> _rootViewSizeChangedCb;
+    std::weak_ptr<hippy::RenderManager> _renderManager;
 }
 
 @end
@@ -190,9 +192,10 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 
 #pragma mark Life cycle
 
-- (instancetype)init {
+- (instancetype)initWithRenderManager:(std::weak_ptr<hippy::RenderManager>)renderManager {
     self = [super init];
     if (self) {
+        _renderManager = renderManager;
         [self initContext];
     }
     return self;
@@ -282,6 +285,10 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     return [_renderObjectRegistry componentForTag:componentTag onRootTag:rootTag];
 }
 
+- (std::weak_ptr<hippy::RenderManager>)renderManager {
+    return _renderManager;
+}
+
 - (std::mutex &)renderQueueLock {
     return _renderQueueLock;
 }
@@ -317,7 +324,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     [_viewRegistry addRootComponent:rootView rootNode:rootNode forTag:componentTag];
     
     [rootView addObserver:self forKeyPath:@"frame" options:(NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew) context:NULL];
-    
+    rootView.renderManager = [self renderManager];
     CGRect frame = rootView.frame;
 
     UIColor *backgroundColor = [rootView backgroundColor];
@@ -487,7 +494,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
                                            rootTag:renderObject.rootTag
                                         properties:renderObject.props
                                           viewName:renderObject.viewName];
-    view.renderImpl = self;
+    view.renderManager = [self renderManager];
     [view nativeRenderSetFrame:renderObject.frame];
     const std::vector<std::string> &eventNames = [renderObject allEventNames];
     for (auto &event : eventNames) {
@@ -513,7 +520,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         index++;
     }
     view.nativeRenderObjectView = renderObject;
-    view.renderImpl = self;
+    view.renderManager = [self renderManager];
     [view clearSortedSubviews];
     [view didUpdateNativeRenderSubviews];
     NSMutableSet<NativeRenderApplierBlock> *applierBlocks = [NSMutableSet setWithCapacity:1];
@@ -587,7 +594,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     if (view) {
         view.viewName = viewName;
         view.rootTag = rootTag;
-        view.renderImpl = self;
+        view.renderManager = [self renderManager];
         [componentData setProps:props forView:view];  // Must be done before bgColor to prevent wrong default
 
         if ([view respondsToSelector:@selector(nativeRenderComponentDidFinishTransaction)]) {
@@ -760,7 +767,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
             [self addUIBlock:^(NativeRenderImpl *renderContext, __unused NSDictionary<NSNumber *,UIView *> *viewRegistry) {
                 UIView *view = [renderContext createViewFromRenderObject:renderObject];
                 view.nativeRenderObjectView = renderObject;
-                view.renderImpl = renderContext;
+                view.renderManager = [renderContext renderManager];
             }];
         }
     }

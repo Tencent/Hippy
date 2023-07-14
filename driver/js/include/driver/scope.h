@@ -136,6 +136,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
   using Encoding = hippy::napi::Encoding;
   using TaskRunner = footstone::runner::TaskRunner;
   using Task = footstone::Task;
+  using TimePoint = footstone::TimePoint;
 
 #ifdef ENABLE_INSPECTOR
   using DevtoolsDataSource = hippy::devtools::DevtoolsDataSource;
@@ -241,6 +242,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
   uint64_t GetListenerId(const EventListenerInfo& event_listener_info);
 
   void RunJS(const string_view& js,
+             const string_view& uri,
              const string_view& name,
              bool is_copy = true);
 
@@ -270,6 +272,22 @@ class Scope : public std::enable_shared_from_this<Scope> {
 
   inline void SetUriLoader(std::weak_ptr<UriLoader> loader) {
     loader_ = loader;
+    auto the_loader = loader_.lock();
+    if (the_loader) {
+      the_loader->SetRequestTimePerformanceCallback([WEAK_THIS](const string_view& uri, const TimePoint& start, const TimePoint& end) {
+        DEFINE_AND_CHECK_SELF(Scope)
+        auto runner = self->GetTaskRunner();
+        if (runner) {
+          auto task = [weak_this, uri, start, end]() {
+            DEFINE_AND_CHECK_SELF(Scope)
+            auto entry = self->GetPerformance()->PerformanceResource(uri);
+            entry->SetLoadSourceStart(start);
+            entry->SetLoadSourceEnd(end);
+          };
+          runner->PostTask(std::move(task));
+        }
+      });
+    }
   }
 
   inline std::weak_ptr<UriLoader> GetUriLoader() { return loader_; }

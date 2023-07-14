@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.openhippy.connector.JsDriver;
 import com.tencent.devtools.DevtoolsManager;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManager;
@@ -40,6 +41,9 @@ public interface HippyEngineContext {
 
     @NonNull
     VfsManager getVfsManager();
+
+    @NonNull
+    JsDriver getJsDriver();
 
     @NonNull
     TimeMonitor getMonitor();

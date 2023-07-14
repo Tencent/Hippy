@@ -91,7 +91,7 @@ jobs:
         working-directory: framework/voltron
 
   voltron_ios_flutter_build:
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
@@ -103,3 +103,5 @@ jobs:
         run: flutter pub get
       - name: Build for iOS
         run: flutter build ios --release --no-codesign
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_14.3.1.app/Contents/Developer

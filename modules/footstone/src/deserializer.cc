@@ -372,6 +372,10 @@ bool Deserializer::ReadObjectProperties(HippyValueObjectType& property, uint32_t
       HippyValue value;
       ret = ReadObject(value);
       if (!ret) return false;
+      if (!key.IsString()) {
+        FOOTSTONE_DLOG(WARNING) << "error key type:" + std::to_string(static_cast<int>(key.GetType()));
+        return false;
+      }
       object.insert(std::pair<std::string, HippyValue>(key.ToStringChecked(), value));
       property = object;
     }

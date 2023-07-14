@@ -120,8 +120,8 @@ public class NodeProps {
     public static final String ON_TOUCH_CANCEL = "touchcancel";
     public static final String ON_INTERCEPT_TOUCH_EVENT = "onInterceptTouchEvent";
     public static final String ON_INTERCEPT_PULL_UP_EVENT = "onInterceptPullUpEvent";
-    public static final String ON_ATTACHED_TO_WINDOW = "attachedToWindow";
-    public static final String ON_DETACHED_FROM_WINDOW = "detachedFromWindow";
+    public static final String ON_ATTACHED_TO_WINDOW = "attachedtowindow";
+    public static final String ON_DETACHED_FROM_WINDOW = "detachedfromwindow";
 
     public static final String BORDER_RADIUS = "borderRadius";
     public static final String BORDER_TOP_LEFT_RADIUS = "borderTopLeftRadius";
@@ -137,9 +137,9 @@ public class NodeProps {
     public static final String VIEW_CLASS_NAME = "View";
     public static final String TEXT_CLASS_NAME = "Text";
     public static final String IMAGE_CLASS_NAME = "Image";
+    public static final String TEXT_INPUT_CLASS_NAME = "TextInput";
     public static final String IMAGE_SPAN_TEXT = "[img]";
 
-    public static final String STYLE = "style";
     public static final String PROPS = "props";
     public static final String ROOT_NODE = "RootNode";
     public static final String CUSTOM_PROP = "customProp";

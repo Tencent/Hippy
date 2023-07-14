@@ -24,6 +24,7 @@
 #import "NativeRenderManager.h"
 #import "NativeRenderObjectText.h"
 #import "RenderVsyncManager.h"
+#import "HPAsserts.h"
 
 #include "dom/dom_manager.h"
 #include "dom/layout_node.h"
@@ -38,12 +39,16 @@ using CallFunctionCallback = hippy::CallFunctionCallback;
 using RootNode = hippy::RootNode;
 
 NativeRenderManager::NativeRenderManager(): hippy::RenderManager("NativeRenderManager") {
-    renderImpl_ = [[NativeRenderImpl alloc] init];
+}
+
+void NativeRenderManager::Initialize() {
+    renderImpl_ = [[NativeRenderImpl alloc] initWithRenderManager:weak_from_this()];
 }
 
 void NativeRenderManager::CreateRenderNode(std::weak_ptr<hippy::RootNode> root_node,
                                            std::vector<std::shared_ptr<DomNode>> &&nodes) {
     @autoreleasepool {
+        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
         [renderImpl_ createRenderNodes:std::move(nodes) onRootNode:root_node];
     }
 }
@@ -51,6 +56,7 @@ void NativeRenderManager::CreateRenderNode(std::weak_ptr<hippy::RootNode> root_n
 void NativeRenderManager::UpdateRenderNode(std::weak_ptr<hippy::RootNode> root_node,
                                            std::vector<std::shared_ptr<DomNode>>&& nodes) {
     @autoreleasepool {
+        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
         [renderImpl_ updateRenderNodes:std::move(nodes) onRootNode:root_node];
     }
 }
@@ -58,6 +64,7 @@ void NativeRenderManager::UpdateRenderNode(std::weak_ptr<hippy::RootNode> root_n
 void NativeRenderManager::DeleteRenderNode(std::weak_ptr<hippy::RootNode> root_node,
                                            std::vector<std::shared_ptr<DomNode>>&& nodes) {
     @autoreleasepool {
+        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
         [renderImpl_ deleteRenderNodesIds:std::move(nodes) onRootNode:root_node];
     }
 }
@@ -65,6 +72,7 @@ void NativeRenderManager::DeleteRenderNode(std::weak_ptr<hippy::RootNode> root_n
 void NativeRenderManager::UpdateLayout(std::weak_ptr<hippy::RootNode> root_node,
                                        const std::vector<std::shared_ptr<DomNode>>& nodes) {
     @autoreleasepool {
+        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
         using DomNodeUpdateInfoTuple = std::tuple<int32_t, hippy::LayoutResult>;
         std::vector<DomNodeUpdateInfoTuple> nodes_infos;
         nodes_infos.reserve(nodes.size());
@@ -84,6 +92,7 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<hippy::RootNode> root_nod
                                          int32_t to_pid,
                                          int32_t index) {
     @autoreleasepool {
+        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
         [renderImpl_ renderMoveViews:std::move(moved_ids)
                        fromContainer:from_pid
                          toContainer:to_pid
@@ -95,12 +104,14 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<hippy::RootNode> root_nod
 void NativeRenderManager::MoveRenderNode(std::weak_ptr<hippy::RootNode> root_node,
                                          std::vector<std::shared_ptr<DomNode>>&& nodes) {
     @autoreleasepool {
+        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
         [renderImpl_ renderMoveNodes:std::move(nodes) onRootNode:root_node];
     }
 }
 
 void NativeRenderManager::EndBatch(std::weak_ptr<hippy::RootNode> root_node) {
     @autoreleasepool {
+        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
         [renderImpl_ batchOnRootNode:root_node];
     }
 }
@@ -113,6 +124,7 @@ void NativeRenderManager::AddEventListener(std::weak_ptr<hippy::RootNode> root_n
                                            std::weak_ptr<DomNode> dom_node,
                                            const std::string& name) {
     @autoreleasepool {
+        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
         auto node = dom_node.lock();
         if (node) {
             int32_t tag = node->GetId();
@@ -125,6 +137,7 @@ void NativeRenderManager::RemoveEventListener(std::weak_ptr<hippy::RootNode> roo
                                               std::weak_ptr<DomNode> dom_node,
                                               const std::string &name) {
     @autoreleasepool {
+        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
         auto node = dom_node.lock();
         if (node) {
             int32_t node_id = node->GetId();
@@ -139,6 +152,7 @@ void NativeRenderManager::CallFunction(std::weak_ptr<hippy::RootNode> root_node,
                                        const DomArgument& param,
                                        uint32_t cb) {
     @autoreleasepool {
+        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
         std::shared_ptr<DomNode> node = dom_node.lock();
         if (node) {
             HippyValue dom_value;
@@ -153,56 +167,71 @@ void NativeRenderManager::CallFunction(std::weak_ptr<hippy::RootNode> root_node,
 
 void NativeRenderManager::RegisterExtraComponent(NSArray<Class> *extraComponents) {
     @autoreleasepool {
+        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
         [renderImpl_ registerExtraComponent:extraComponents];
     }
 }
 
 void NativeRenderManager::RegisterRootView(UIView *view, std::weak_ptr<hippy::RootNode> root_node) {
     @autoreleasepool {
+        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
         [renderImpl_ registerRootView:view asRootNode:root_node];
     }
 }
 
 void NativeRenderManager::UnregisterRootView(uint32_t id) {
     @autoreleasepool {
+        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
         [renderImpl_ unregisterRootViewFromTag:@(id)];
     }
 }
 
 NSArray<UIView *> *NativeRenderManager::rootViews() {
     @autoreleasepool {
+        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
         return [renderImpl_ rootViews];
     }
 }
 
 void NativeRenderManager::SetDomManager(std::weak_ptr<DomManager> dom_manager) {
     @autoreleasepool {
+        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
         [renderImpl_ setDomManager:dom_manager];
     }
 }
 
 void NativeRenderManager::SetUICreationLazilyEnabled(bool enabled) {
+    HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
     renderImpl_.uiCreationLazilyEnabled = enabled;
 }
 
 void NativeRenderManager::AddImageProviderClass(Class<HPImageProviderProtocol> cls) {
     @autoreleasepool {
+        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
         [renderImpl_ addImageProviderClass:cls];
     }
 }
 
 NSArray<Class<HPImageProviderProtocol>> *NativeRenderManager::GetImageProviderClasses() {
     @autoreleasepool {
+        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
         return [renderImpl_ imageProviderClasses];
     }
 }
 
 void NativeRenderManager::SetVFSUriLoader(std::shared_ptr<VFSUriLoader> loader) {
-    renderImpl_.VFSUriLoader = loader;
+    @autoreleasepool {
+        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
+        renderImpl_.VFSUriLoader = loader;
+    }
 }
 
 void NativeRenderManager::SetRootViewSizeChangedEvent(std::function<void(int32_t rootTag, NSDictionary *)> cb) {
     [renderImpl_ setRootViewSizeChangedEvent:cb];
+}
+
+NativeRenderImpl *NativeRenderManager::GetNativeRenderImpl() {
+    return renderImpl_;
 }
 
 NativeRenderManager::~NativeRenderManager() {

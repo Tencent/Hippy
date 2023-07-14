@@ -69,7 +69,7 @@ public class ListItemRenderNode extends RenderNode {
         if (parentNode != null) {
             mControllerManager.deleteChild(mRootId, parentNode.getId(), mId, true);
         } else {
-            removeChildrenView(this);
+            mControllerManager.deleteChildRecursive(mRootId, null, getHostView(), true);
         }
     }
 
