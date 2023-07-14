@@ -39,5 +39,5 @@ global.Hippy = {
 };
 global.getTurboModule = () => {
   warn('getTurboModule is unsupported');
-  return {};
+  return {} as any;
 };
