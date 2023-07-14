@@ -308,20 +308,20 @@ void NativeRenderBoarderColorsRelease(NativeRenderBorderColors c) {
     const NativeRenderBorderColors borderColors = [self borderColors];
     UIColor *backgroundColor = self.backgroundColor;
 
-    BOOL useIOSBorderRendering = !HPRunningInTestEnvironment() && NativeRenderCornerRadiiAreEqual(cornerRadii) && NativeRenderBorderInsetsAreEqual(borderInsets)
-                                 && NativeRenderBorderColorsAreEqual(borderColors) && (_borderStyle == NativeRenderBorderStyleSolid || _borderStyle == NativeRenderBorderStyleNone) &&
-
-                                 // iOS draws borders in front of the content whereas CSS draws them behind
-                                 // the content. For this reason, only use iOS border drawing when clipping
-                                 // or when the border is hidden.
-
-                                 (borderInsets.top == 0 || (borderColors.top && CGColorGetAlpha(borderColors.top) == 0) || self.clipsToBounds);
+    BOOL isRunningInTest = HPRunningInTestEnvironment();
+    BOOL isCornerEqual = NativeRenderCornerRadiiAreEqual(cornerRadii);
+    BOOL isBorderInsetsEqual = NativeRenderBorderInsetsAreEqual(borderInsets);
+    BOOL isBorderColorsEqual = NativeRenderBorderColorsAreEqual(borderColors);
+    BOOL borderStyle = (_borderStyle == NativeRenderBorderStyleSolid || _borderStyle == NativeRenderBorderStyleNone);
+    BOOL borderColorCheck = (borderInsets.top == 0 || (borderColors.top && CGColorGetAlpha(borderColors.top) == 0) || self.clipsToBounds);
+    
+    BOOL useIOSBorderRendering = !isRunningInTest && isCornerEqual && isBorderInsetsEqual && isBorderColorsEqual && borderStyle && borderColorCheck;
 
     // iOS clips to the outside of the border, but CSS clips to the inside. To
     // solve this, we'll need to add a container view inside the main view to
     // correctly clip the subviews.
 
-    if (useIOSBorderRendering && !self.backgroundImage) {
+    if (useIOSBorderRendering && !self.backgroundImage && !self.gradientObject) {
         layer.cornerRadius = cornerRadii.topLeft;
         layer.borderColor = borderColors.left;
         layer.borderWidth = borderInsets.left;
