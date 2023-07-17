@@ -26,6 +26,7 @@ import {
   DefaultPropsProcess,
 } from '../types';
 import { convertHexToRgba, hasOwnProperty, setElementStyle } from '../common';
+import {isIos} from "../get-global";
 import { HippyWebView } from './hippy-web-view';
 
 export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
@@ -208,6 +209,9 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
     this.tintModeContainerDom = document.createElement('div');
     this.tintModeContainerDom.style.overflow = 'hidden';
     this.tintModeContainerDom.style.fontSize = '0px';
+    if (isIos()) {
+      document.addEventListener('visibilitychange', this.pageVisibleHandle.bind(this));
+    }
   }
 
   private imgDomChangeContainer(oldParent: HTMLElement, newParent: HTMLElement) {
@@ -248,9 +252,23 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
   private updateTintColor() {
     const colorValue = convertHexToRgba(this.tintColor);
     setElementStyle(this.renderImgDom!, {
-      transform: 'translateX(-100%) translateZ(0)',
+      transform: 'translateX(-100%)',
       filter: `drop-shadow(${this.props.style.width}px 0 ${colorValue})`,
     });
+  }
+
+  private imgRefreshForIOS(isShow: boolean) {
+    if (isShow) {
+      setElementStyle(this.renderImgDom!, {
+        transform: 'translateX(0%) translateZ(0)',
+      });
+      return;
+    }
+    this.updateTintColor();
+  }
+
+  private pageVisibleHandle() {
+    this.imgRefreshForIOS(!document.hidden);
   }
 }
 export const ImageResizeModeToObjectFit = (function () {
