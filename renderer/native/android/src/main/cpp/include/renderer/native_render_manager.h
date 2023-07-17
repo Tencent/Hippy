@@ -24,6 +24,7 @@
 
 #include <atomic>
 #include <memory>
+#include <unordered_set>
 
 #include "dom/dom_node.h"
 #include "dom/render_manager.h"
@@ -120,6 +121,7 @@ class NativeRenderManager : public RenderManager, public std::enable_shared_from
 
   std::weak_ptr<DomManager> dom_manager_;
   static std::atomic<uint32_t> unique_native_render_manager_id_;
+  static std::unordered_set<std::string> style_for_render_set_;
   static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<NativeRenderManager>> persistent_map_;
 };
 }  // namespace native

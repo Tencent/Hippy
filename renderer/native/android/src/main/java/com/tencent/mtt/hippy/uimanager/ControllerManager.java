@@ -97,6 +97,11 @@ public class ControllerManager {
         return (NativeRender) mRenderer;
     }
 
+    @NonNull
+    public ControllerUpdateManger getControllerUpdateManger() {
+        return mControllerUpdateManger;
+    }
+
     private synchronized static void checkDefaultControllers() {
         if (sDefaultControllers != null) {
             return;
@@ -267,7 +272,6 @@ public class ControllerManager {
         }
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     @Nullable
     public View createView(@NonNull RenderNode node, PoolType cachePoolType) {
         final int rootId = node.getRootId();

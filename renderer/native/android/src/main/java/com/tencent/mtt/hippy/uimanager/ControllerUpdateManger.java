@@ -39,6 +39,7 @@ import com.tencent.renderer.utils.PropertyUtils.PropertyMethodHolder;
 import com.tencent.renderer.node.RenderNode;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -48,7 +49,8 @@ public class ControllerUpdateManger<T, G> {
 
     private static final Map<Class<?>, Map<String, PropertyMethodHolder>> sViewPropsMethodMap = new HashMap<>();
     private static final Map<String, PropertyMethodHolder> sComponentPropsMethodMap = new HashMap<>();
-    private static final Set<String> sTextPropsMap = new HashSet<>();
+    private static final Set<String> sTextPropsSet = new HashSet<>();
+    private static final ArrayList<String> sRenderPropsList = new ArrayList<>();
     @NonNull
     private final Renderer mRenderer;
     @Nullable
@@ -70,6 +72,11 @@ public class ControllerUpdateManger<T, G> {
         mCustomPropsController = controller;
     }
 
+    @NonNull
+    public ArrayList<String> getPropsRegisterForRender() {
+        return sRenderPropsList;
+    }
+
     private static void collectMethodHolder(@NonNull Class<?> cls,
             @NonNull Map<String, PropertyMethodHolder> methodHolderMap) {
         Method[] methods = cls.getMethods();
@@ -78,6 +85,7 @@ public class ControllerUpdateManger<T, G> {
                     .getAnnotation(HippyControllerProps.class);
             if (controllerProps != null) {
                 String style = controllerProps.name();
+                sRenderPropsList.add(style);
                 PropertyMethodHolder propsMethodHolder = new PropertyMethodHolder();
                 propsMethodHolder.defaultNumber = controllerProps.defaultNumber();
                 propsMethodHolder.defaultType = controllerProps.defaultType();
@@ -102,7 +110,8 @@ public class ControllerUpdateManger<T, G> {
             HippyControllerProps controllerProps = method
                     .getAnnotation(HippyControllerProps.class);
             if (controllerProps != null) {
-                sTextPropsMap.add(controllerProps.name());
+                sTextPropsSet.add(controllerProps.name());
+                sRenderPropsList.add(controllerProps.name());
             }
         }
     }
@@ -201,7 +210,7 @@ public class ControllerUpdateManger<T, G> {
         }
         Set<String> keySet = props.keySet();
         for (String key : keySet) {
-            if (node instanceof TextRenderNode && sTextPropsMap.contains(key)) {
+            if (node instanceof TextRenderNode && sTextPropsSet.contains(key)) {
                 // The text related attributes have been processed in the build layout,
                 // so the following process no longer needs to be executed.
                 continue;

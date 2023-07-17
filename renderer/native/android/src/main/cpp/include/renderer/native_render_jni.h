@@ -23,7 +23,7 @@
 #pragma once
 
 #include <jni.h>
-
+#include <unordered_set>
 #include <memory>
 
 #include "jni/scoped_java_ref.h"
@@ -64,6 +64,8 @@ bool CreateJavaRenderManager(uint32_t id, std::shared_ptr<JavaRef>&j_render_mana
                              std::shared_ptr<JavaRef>&render_delegate);
 
 float GetDensity(std::shared_ptr<JavaRef>&j_render_manager);
+
+void GetPropsRegisterForRender(std::shared_ptr<JavaRef>&j_render_manager, std::unordered_set<std::string>&);
 
 } // namespace native
 } // namespace render
