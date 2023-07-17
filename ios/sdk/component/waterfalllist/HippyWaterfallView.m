@@ -26,8 +26,6 @@
 #import "HippyFooterRefresh.h"
 #import "HippyWaterfallItemView.h"
 #import "HippyVirtualList.h"
-#import "HippyReusableViewPool.h"
-#import "HippyWaterfallViewDatasource.h"
 
 #define CELL_TAG 10089
 
@@ -62,6 +60,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     BOOL _isInitialListReady;
     HippyHeaderRefresh *_headerRefreshView;
     HippyFooterRefresh *_footerRefreshView;
+    NSMutableDictionary<NSIndexPath *, NSNumber *> *_cachedItems;
 }
 
 @property (nonatomic, strong) HippyCollectionViewWaterfallLayout *layout;
@@ -83,8 +82,6 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     UIColor *_backgroundColor;
     BOOL _allowNextScrollNoMatterWhat;
     double _lastOnScrollEventTimeInterval;
-    HippyWaterfallViewDatasource *_datasource;
-    HippyWaterfallViewDatasource *_lastDatasource;
 }
 
 @synthesize node = _node;
@@ -96,7 +93,11 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
         self.bridge = bridge;
         _scrollListeners = [NSMutableArray array];
         _scrollEventThrottle = 100.f;
-
+        _cachedItems = [NSMutableDictionary dictionaryWithCapacity:64];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didReceiveMemoryWarning)
+                                                     name:UIApplicationDidReceiveMemoryWarningNotification
+                                                   object:nil];
         [self initCollectionView];
         if (@available(iOS 11.0, *)) {
             self.collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
@@ -127,11 +128,36 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 - (void)removeHippySubview:(UIView *)subview {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self
+                                             selector:@selector(purgeFurthestIndexPathsFromScreen)
+                                               object:nil];
+    [self purgeFurthestIndexPathsFromScreen];
 }
 
 - (void)hippySetFrame:(CGRect)frame {
     [super hippySetFrame:frame];
     _collectionView.frame = self.bounds;
+}
+
+- (NSArray<HippyVirtualNode *> *)nodesWithOnlyCell {
+    NSMutableArray<HippyVirtualNode *> *subNodes = self.node.subNodes;
+    NSUInteger location = 0;
+    NSUInteger length = [subNodes count];
+    if ([subNodes count] <= 0) {
+        return subNodes;
+    }
+    if (_containBannerView) {
+        location += 1;
+        length -= 1;
+    }
+    if (_containPullHeader) {
+        location += 1;
+        length -= 1;
+    }
+    if (_containPullFooter) {
+        length -= 1;
+    }
+    return [subNodes subarrayWithRange:NSMakeRange(location, length)];
 }
 
 - (__kindof HippyVirtualNode *)nodesWithBannerView {
@@ -198,18 +224,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 - (BOOL)flush {
-    HippyVirtualNode *bannerNode = _containBannerView ? [self.node.subNodes firstObject] : nil;
-    NSPredicate *cellNodesPredicate = [NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
-        HippyVirtualCell *cellNode = (HippyVirtualCell *)evaluatedObject;
-        if (![cellNode isKindOfClass:[HippyVirtualCell class]]) {
-            return NO;
-        }
-        return YES;
-    }];
-    NSArray<HippyVirtualCell *> *cellNodes = (NSArray<HippyVirtualCell *> *)[self.node.subNodes filteredArrayUsingPredicate:cellNodesPredicate];
-    _datasource = [[HippyWaterfallViewDatasource alloc] initWithCellNodes:cellNodes bannerNode:bannerNode];
-    [_datasource applyDiff:_lastDatasource forWaterfallView:self.collectionView];
-    _lastDatasource = _datasource;
+    [self.collectionView reloadData];
     if (!_isInitialListReady) {
         _isInitialListReady = YES;
         if (self.onInitialListReady) {
@@ -242,13 +257,54 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     }
 }
 
+- (__kindof HippyVirtualNode *)nodeAtIndexPath:(NSIndexPath *)indexPath {
+    NSInteger section = [indexPath section];
+    NSInteger row = [indexPath item];
+    HippyVirtualNode *cellNode = nil;
+    if (_containBannerView) {
+        if (0 == section) {
+            cellNode = [self nodesWithBannerView];
+        } else {
+            NSArray<HippyVirtualNode *> *subNodes = [self nodesWithOnlyCell];
+            if ([subNodes count] > row) {
+                cellNode = subNodes[row];
+            }
+        }
+    } else {
+        NSArray<HippyVirtualNode *> *subNodes = [self nodesWithOnlyCell];
+        if ([subNodes count] > row) {
+            cellNode = subNodes[row];
+        }
+    }
+    return cellNode;
+}
+
+- (NSString *)reuseIdentifierForIndexPath:(NSIndexPath *)indexPath {
+    HippyVirtualNode *node = [self nodeAtIndexPath:indexPath];
+    if ([node isKindOfClass:[HippyVirtualCell class]]) {
+        return [(HippyVirtualCell *)node itemViewType];
+    }
+    else {
+        return kCellIdentifier;
+    }
+}
+
 #pragma mark - UICollectionViewDataSource
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
-    return [_datasource numberOfSections];
+    if (_containBannerView) {
+        return 2;
+    }
+    return 1;
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return [_datasource numberOfItemInSection:section];
+    if (_containBannerView) {
+        if (0 == section) {
+            return 1;
+        }
+    }
+    NSInteger count = [[self nodesWithOnlyCell] count];
+    return count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -275,16 +331,17 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     if (0 == [indexPath section] && _containBannerView) {
         return;
     }
-    NSInteger count = [_datasource itemNodes].count;
+    NSInteger count = [self nodesWithOnlyCell].count;
     NSInteger leftCnt = count - indexPath.item - 1;
     if (leftCnt == _preloadItemNumber) {
         [self startLoadMoreData];
     }
 
     if (indexPath.item == count - 1) {
+        [self startLoadMoreData];
         if (self.onFooterAppeared) {
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                self.onFooterAppeared(@{});
+                self.onFooterAppeared(@ {});
             });
         }
     }
@@ -292,15 +349,22 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
     HippyCollectionViewCell *hpCell = (HippyCollectionViewCell *)cell;
-    [[self.bridge.uiManager reusePool] addHippyViewRecursively:hpCell.cellView];
+    [_cachedItems setObject:[hpCell.cellView hippyTag] forKey:indexPath];
+    [hpCell.cellView removeFromSuperview];
+    HippyVirtualNode *cellNode = hpCell.node;
+    NSString *reuseIdentifier = [self reuseIdentifierForIndexPath:indexPath];
+    if (cellNode && reuseIdentifier) {
+        hpCell.node = nil;
+    }
 }
 
 - (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
-    HippyVirtualCell *cellNode = [_datasource cellAtIndexPath:indexPath];
+    HippyVirtualNode *cellNode = [self nodeAtIndexPath:indexPath];
     HippyCollectionViewCell *hpCell = (HippyCollectionViewCell *)cell;
     HippyWaterfallItemView *cellView = (HippyWaterfallItemView *)[self.bridge.uiManager createViewFromNode:cellNode];
     hpCell.cellView = cellView;
     hpCell.node = cellNode;
+    [_cachedItems removeObjectForKey:indexPath];
 }
 
 #pragma mark - HippyCollectionViewDelegateWaterfallLayout
@@ -314,14 +378,14 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
             HippyVirtualNode *node = [self nodesWithBannerView];
             return node.frame.size;
         } else {
-            NSArray<HippyVirtualNode *> *subNodes = [_datasource itemNodes];
+            NSArray<HippyVirtualNode *> *subNodes = [self nodesWithOnlyCell];
             if ([subNodes count] > row) {
                 HippyVirtualNode *node = subNodes[row];
                 return node.frame.size;
             }
         }
     } else {
-        NSArray<HippyVirtualNode *> *subNodes = [_datasource itemNodes];
+        NSArray<HippyVirtualNode *> *subNodes = [self nodesWithOnlyCell];
         if ([subNodes count] > row) {
             HippyVirtualNode *node = subNodes[row];
             return node.frame.size;
@@ -375,7 +439,8 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
             _allowNextScrollNoMatterWhat = NO;
         }
     }
-
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
+    [self performSelector:@selector(purgeFurthestIndexPathsFromScreen) withObject:nil afterDelay:.5f];
     [_headerRefreshView scrollViewDidScroll];
     [_footerRefreshView scrollViewDidScroll];
 }
@@ -508,6 +573,81 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView {
 }
 
+- (NSUInteger)maxCachedItemCount {
+    return NSUIntegerMax;
+}
+
+- (NSUInteger)differenceFromIndexPath:(NSIndexPath *)indexPath1 againstAnother:(NSIndexPath *)indexPath2 {
+    NSAssert([NSThread mainThread], @"must be in main thread");
+    long diffCount = 0;
+    for (NSUInteger index = MIN([indexPath1 section], [indexPath2 section]); index < MAX([indexPath1 section], [indexPath2 section]); index++) {
+        diffCount += [_collectionView numberOfItemsInSection:index];
+    }
+    diffCount = diffCount + [indexPath1 row] - [indexPath2 row];
+    return labs(diffCount);
+}
+
+- (NSInteger)differenceFromIndexPath:(NSIndexPath *)indexPath
+            againstVisibleIndexPaths:(NSArray<NSIndexPath *> *)visibleIndexPaths {
+    NSIndexPath *firstIndexPath = [visibleIndexPaths firstObject];
+    NSIndexPath *lastIndexPath = [visibleIndexPaths lastObject];
+    NSUInteger diffFirst = [self differenceFromIndexPath:indexPath againstAnother:firstIndexPath];
+    NSUInteger diffLast = [self differenceFromIndexPath:indexPath againstAnother:lastIndexPath];
+    return MIN(diffFirst, diffLast);
+}
+
+- (NSArray<NSIndexPath *> *)findFurthestIndexPathsFromScreen {
+    NSUInteger visibleItemsCount = [[self.collectionView visibleCells] count];
+    NSUInteger maxCachedItemCount = [self maxCachedItemCount] == NSUIntegerMax ? visibleItemsCount * 2 : [self maxCachedItemCount];
+    NSUInteger cachedCount = [_cachedItems count];
+    NSInteger cachedCountToRemove = cachedCount > maxCachedItemCount ? cachedCount - maxCachedItemCount : 0;
+    if (0 != cachedCountToRemove) {
+        NSArray<NSIndexPath *> *visibleIndexPaths = [_collectionView indexPathsForVisibleItems];
+        NSArray<NSIndexPath *> *sortedCachedItemKey = [[_cachedItems allKeys] sortedArrayUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+            NSIndexPath *ip1 = obj1;
+            NSIndexPath *ip2 = obj2;
+            NSUInteger ip1Diff = [self differenceFromIndexPath:ip1 againstVisibleIndexPaths:visibleIndexPaths];
+            NSUInteger ip2Diff = [self differenceFromIndexPath:ip2 againstVisibleIndexPaths:visibleIndexPaths];
+            if (ip1Diff > ip2Diff) {
+                return NSOrderedAscending;
+            }
+            else if (ip1Diff < ip2Diff) {
+                return NSOrderedDescending;
+            }
+            else {
+                return NSOrderedSame;
+            }
+        }];
+        NSArray<NSIndexPath *> *result = [sortedCachedItemKey subarrayWithRange:NSMakeRange(0, cachedCountToRemove)];
+        return result;
+    }
+    return nil;
+}
+
+- (void)purgeFurthestIndexPathsFromScreen {
+    NSArray<NSIndexPath *> *furthestIndexPaths = [self findFurthestIndexPathsFromScreen];
+    if (furthestIndexPaths) {
+        //purge view
+        NSArray<NSNumber *> *objects = [_cachedItems objectsForKeys:furthestIndexPaths notFoundMarker:@(-1)];
+        [self.bridge.uiManager removeNativeViewFromTags:objects];
+        //purge cache
+        [_cachedItems removeObjectsForKeys:furthestIndexPaths];
+    }
+}
+
+
+- (void)didReceiveMemoryWarning {
+    [self cleanUpCachedItems];
+}
+
+- (void)cleanUpCachedItems {
+    //purge view
+    NSArray<NSNumber *> *objects = [_cachedItems allValues];
+    [self.bridge.uiManager removeNativeViewFromTags:objects];
+    [_cachedItems removeAllObjects];
+}
+
+
 #pragma mark -
 #pragma mark JS CALL Native
 - (void)refreshCompleted:(NSInteger)status text:(NSString *)text {
@@ -578,6 +718,17 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 
 - (void)didMoveToSuperview {
     _rootView = nil;
+}
+
+- (void)didMoveToWindow {
+    if (!self.window) {
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
+        [self purgeFurthestIndexPathsFromScreen];
+    }
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 @end

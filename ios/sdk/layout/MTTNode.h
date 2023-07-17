@@ -142,7 +142,7 @@ class MTTNode {
   void layoutFixedItems(MTTSizeMode measureMode, void *layoutContext);
   void calculateFixedItemPosition(MTTNodeRef item, FlexDirection axis);
 
-  void convertLayoutResult(float absLeft, float absTop, float scaleFactor);
+  void convertLayoutResult(double absLeft, double absTop, double scaleFactor);
 
  public:
   MTTStyle style;

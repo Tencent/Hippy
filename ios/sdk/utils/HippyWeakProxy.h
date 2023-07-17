@@ -20,12 +20,13 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
-#import "HippyBridgeModule.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface HippyClipboardModule : NSObject <HippyBridgeModule>
+@interface HippyWeakProxy : NSProxy
+
++ (instancetype)weakProxyForObject:(id)target;
 
 @end
 

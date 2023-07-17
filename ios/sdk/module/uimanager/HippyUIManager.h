@@ -30,7 +30,6 @@
 
 @class HippyVirtualNode;
 @class HippyExtAnimationViewParams;
-@class HippyReusableViewPool;
 
 typedef void (^HippyViewUpdateCompletedBlock)(HippyUIManager *uiManager);
 
@@ -78,8 +77,6 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  * The HippyUIManager is the module responsible for updating the view hierarchy.
  */
 @interface HippyUIManager : NSObject <HippyBridgeModule, HippyInvalidating>
-
-@property(nonatomic, strong) HippyReusableViewPool *reusePool;
 
 /**
  * Register a root view with the HippyUIManager.
@@ -161,9 +158,11 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 - (void)setNeedsLayout;
 
 - (UIView *)createViewFromNode:(HippyVirtualNode *)node;
+- (UIView *)updateNode:(HippyVirtualNode *)oldNode withNode:(HippyVirtualNode *)node;
 
 - (void)removeNativeNode:(HippyVirtualNode *)node;
 - (void)removeNativeNodeView:(UIView *)nodeView;
+- (void)removeNativeViewFromTags:(NSArray<NSNumber *> *)hippyTags;
 - (void)updateViewsFromParams:(NSArray<HippyExtAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block;
 - (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)pros;
 @end

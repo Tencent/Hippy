@@ -51,7 +51,6 @@
 #import "HippyMemoryOpt.h"
 #import "HippyDeviceBaseInfo.h"
 #import "HippyVirtualList.h"
-#import "HippyReusableViewPool.h"
 
 @protocol HippyBaseListViewProtocol;
 
@@ -93,13 +92,12 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     NSMutableArray<HippyViewUpdateCompletedBlock> *_completeBlocks;
 
     NSMutableSet<NSNumber *> *_listAnimatedViewTags;
-    HippyReusableViewPool *_reusePool;
 }
 
 @synthesize bridge = _bridge;
 
 HIPPY_EXPORT_MODULE()
- 
+
 - (instancetype)init {
     self = [super init];
     if (self) {
@@ -305,13 +303,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
     [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerDidRegisterRootViewNotification object:self
                                                       userInfo:@{ HippyUIManagerRootViewKey: rootView }];
-}
-
-- (HippyReusableViewPool *)reusePool {
-    if (!_reusePool) {
-        _reusePool = [[HippyReusableViewPool alloc] init];
-    }
-    return _reusePool;
 }
 
 - (UIView *)viewForHippyTag:(NSNumber *)hippyTag {
@@ -622,7 +613,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
  * A method to be called from JS, which takes a container ID and then releases
  * all subviews for that container upon receipt.
  */
-// clang-format off
 HIPPY_EXPORT_METHOD(removeSubviewsFromContainerWithID:(nonnull NSNumber *)containerID) {
     id<HippyComponent> container = _shadowViewRegistry[containerID];
     HippyAssert(container != nil, @"container view (for ID %@) not found", containerID);
@@ -640,7 +630,6 @@ HIPPY_EXPORT_METHOD(removeSubviewsFromContainerWithID:(nonnull NSNumber *)contai
             addAtIndices:nil
          removeAtIndices:indices];
 }
-// clang-format on
 
 /**
  * Disassociates children from container. Doesn't remove from registries.
@@ -683,7 +672,6 @@ HIPPY_EXPORT_METHOD(removeSubviewsFromContainerWithID:(nonnull NSNumber *)contai
     }
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(removeRootView:(nonnull NSNumber *)rootHippyTag) {
     HippyShadowView *rootShadowView = _shadowViewRegistry[rootHippyTag];
     HippyAssert(rootShadowView.superview == nil, @"root view cannot have superview (ID %@)", rootHippyTag);
@@ -713,9 +701,7 @@ HIPPY_EXPORT_METHOD(removeRootView:(nonnull NSNumber *)rootHippyTag) {
         }
     }];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(replaceExistingNonRootView:(nonnull NSNumber *)hippyTag
                   withView:(nonnull NSNumber *)newHippyTag) {
     HippyShadowView *shadowView = _shadowViewRegistry[hippyTag];
@@ -735,9 +721,7 @@ HIPPY_EXPORT_METHOD(replaceExistingNonRootView:(nonnull NSNumber *)hippyTag
             addAtIndices:removeAtIndices
          removeAtIndices:removeAtIndices];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(setChildren:(nonnull NSNumber *)containerTag
                   hippyTags:(NSArray<NSNumber *> *)hippyTags) {
     HippySetChildren(containerTag, hippyTags,
@@ -753,7 +737,6 @@ HIPPY_EXPORT_METHOD(setChildren:(nonnull NSNumber *)containerTag
                        (NSDictionary<NSNumber *, id<HippyComponent>> *)viewRegistry);
     }];
 }
-// clang-format on
 
 static void HippySetVirtualChildren(
     NSNumber *containerTag, NSArray<NSNumber *> *hippyTags, NSDictionary<NSNumber *, HippyVirtualNode *> *virtualNodeRegistry) {
@@ -779,12 +762,9 @@ static void HippySetChildren(NSNumber *containerTag, NSArray<NSNumber *> *hippyT
     }
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(startBatch) {
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(endBatch) {
     if (_pendingUIBlocks.count) {
         [self batchDidComplete];
@@ -792,9 +772,7 @@ HIPPY_EXPORT_METHOD(endBatch) {
                                                             object:self];
     }
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
                   moveFromIndices:(NSArray<NSNumber *> *)moveFromIndices
                   moveToIndices:(NSArray<NSNumber *> *)moveToIndices
@@ -830,7 +808,6 @@ HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
                           registry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)viewRegistry];
     }];
 }
-// clang-format on
 
 - (void)_manageChildren:(NSNumber *)containerTag
         moveFromIndices:(NSArray<NSNumber *> *)moveFromIndices
@@ -894,7 +871,6 @@ HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
     }
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
                   viewName:(NSString *)viewName
                   rootTag:(nonnull NSNumber *)rootTag
@@ -960,18 +936,32 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
         }
     }];
 }
-// clang-format on
 
 - (UIView *)createViewByComponentData:(HippyComponentData *)componentData
                      hippyVirtualNode:(HippyVirtualNode *)node
                              hippyTag:(NSNumber *)hippyTag
                            properties:(NSDictionary *)props
                              viewName:(NSString *)viewName {
-    UIView *view = [componentData createViewWithTag:hippyTag initProps:props];
+    UIView *view = [self viewForHippyTag:hippyTag];
+    
+    BOOL canBeRetrievedFromCache = YES;
+    if (view && [view respondsToSelector:@selector(canBeRetrievedFromViewCache)]) {
+        canBeRetrievedFromCache = [view canBeRetrievedFromViewCache];
+    }
+
+    /**
+     * subviews & hippySubviews should be removed from the view which we get from cache(_viewRegistry).
+     * otherwise hippySubviews will be inserted multiple times.
+     */
+    if (view && canBeRetrievedFromCache) {
+        [view resetHippySubviews];
+    }
+    else {
+        view = [componentData createViewWithTag:hippyTag initProps:props];
+    }
     if (view) {
         view.viewName = viewName;
         view.rootTag = node.rootTag;
-        view.hippyTag = hippyTag;
         [componentData setProps:props forView:view];  // Must be done before bgColor to prevent wrong default
 
         if ([view respondsToSelector:@selector(hippyBridgeDidFinishTransaction)]) {
@@ -1019,7 +1009,6 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
     [self batchDidComplete];
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(updateView:(nonnull NSNumber *)hippyTag
                   viewName:(NSString *)viewName // not always reliable, use shadowView.viewName if available
                   props:(NSDictionary *)props) {
@@ -1054,9 +1043,7 @@ HIPPY_EXPORT_METHOD(updateView:(nonnull NSNumber *)hippyTag
         [componentData setProps:newProps forView:view];
     }];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(dispatchViewManagerCommand:(nonnull NSNumber *)hippyTag
                   commandID:(NSInteger)commandID
                   commandArgs:(NSArray<id> *)commandArgs) {
@@ -1069,7 +1056,6 @@ HIPPY_EXPORT_METHOD(dispatchViewManagerCommand:(nonnull NSNumber *)hippyTag
     NSArray *args = [@[hippyTag] arrayByAddingObjectsFromArray:commandArgs];
     [method invokeWithBridge:_bridge module:componentData.manager arguments:args];
 }
-// clang-format on
 
 - (void)partialBatchDidFlush {
     if (self.unsafeFlushUIChangesBeforeBatchEnds) {
@@ -1465,6 +1451,110 @@ static UIView *_jsResponder;
     return _jsResponder;
 }
 
+- (UIView *)updateNode:(HippyVirtualNode *)oldNode withNode:(HippyVirtualNode *)node {
+    UIView *result = nil;
+    @try {
+        UIView *cachedView = self->_viewRegistry[node.hippyTag];
+        if (cachedView) {
+            return cachedView;
+        }
+
+        if (oldNode == nil) {
+            return nil;
+        }
+        
+        if (![[oldNode viewName] isEqualToString:[node viewName]]) {
+            return nil;
+        }
+
+        NSDictionary *diff = [oldNode diff:node];
+
+        if (diff == nil) {
+            HippyAssert(diff != nil, @"updateView two view node data struct is different");
+        }
+
+        NSDictionary *update = diff[@"update"];
+        NSDictionary *insert = diff[@"insert"];
+        NSArray *remove = diff[@"remove"];
+        NSDictionary *tags = diff[@"tag"];
+
+        for (NSNumber *tag in remove) {
+            UIView *view = self->_viewRegistry[tag];
+            [view.superview clearSortedSubviews];
+            [view.superview removeHippySubview:view];
+            [self removeNativeNodeView:view];
+        }
+
+        result = [node createView:^UIView *(HippyVirtualNode *subNode) {
+            NSNumber *subTag = subNode.hippyTag;
+            UIView *subview = nil;
+
+            if (update[subTag]) {  // 更新props
+                HippyVirtualNode *oldSubNode = self->_nodeRegistry[update[subTag]];
+                subview = self->_viewRegistry[oldSubNode.hippyTag];
+                if (subview == nil) {
+                    NSString *viewName = subNode.viewName;
+                    NSNumber *tag = subNode.hippyTag;
+                    NSDictionary *props = subNode.props;
+                    HippyComponentData *componentData = self->_componentDataByName[viewName];
+                    subview = [self createViewByComponentData:componentData hippyVirtualNode:subNode hippyTag:tag properties:props viewName:viewName];
+                } else {
+                    HippyComponentData *componentData = self->_componentDataByName[oldSubNode.viewName];
+                    NSDictionary *oldProps = oldSubNode.props;
+                    NSDictionary *newProps = subNode.props;
+                    newProps = [self mergeProps:newProps oldProps:oldProps];
+                    [componentData setProps:newProps forView:subview];
+                    [subview.layer removeAllAnimations];
+                    [subview didUpdateWithNode:subNode];
+                }
+            } else if (insert[subTag]) {  // 插入
+                subview = self->_viewRegistry[subTag];
+                if (subview == nil) {
+                    subview = [self createViewFromNode:subNode];
+                }
+            }
+
+            if (tags[subTag]) {  // 更新tag
+                NSNumber *oldSubTag = tags[subTag];
+                subview = self->_viewRegistry[oldSubTag];
+                if (subview == nil) {
+                    NSString *viewName = subNode.viewName;
+                    NSNumber *tag = subNode.hippyTag;
+                    NSDictionary *props = subNode.props;
+                    HippyComponentData *componentData = self->_componentDataByName[viewName];
+                    subview = [self createViewByComponentData:componentData hippyVirtualNode:subNode hippyTag:tag properties:props viewName:viewName];
+                } else {
+                    [subview sendDetachedFromWindowEvent];
+                    [subview.layer removeAllAnimations];
+                    subview.hippyTag = subTag;
+                    [self->_viewRegistry removeObjectForKey:oldSubTag];
+                    self->_viewRegistry[subTag] = subview;
+                    [subview sendAttachedToWindowEvent];
+                }
+            }
+
+            if (!CGRectEqualToRect(subview.frame, subNode.frame)) {
+                [subview hippySetFrame:subNode.frame];
+            }
+
+            return subview;
+        } insertChildrens:^(UIView *container, NSArray<UIView *> *childrens) {
+            NSInteger index = 0;
+            for (UIView *subview in childrens) {
+                [container removeHippySubview:subview];
+                [container insertHippySubview:subview atIndex:index];
+                index++;
+            }
+            [container clearSortedSubviews];
+            [container didUpdateHippySubviews];
+        }];
+
+    } @catch (NSException *exception) {
+        MttHippyException(exception);
+    }
+    return result;
+}
+
 - (UIView *)createViewFromNode:(HippyVirtualNode *)node {
     UIView *result = nil;
     NSMutableArray *tranctions = [NSMutableArray new];
@@ -1474,37 +1564,13 @@ static UIView *_jsResponder;
             NSNumber *tag = subNode.hippyTag;
             NSDictionary *props = subNode.props;
             HippyComponentData *componentData = self->_componentDataByName[viewName];
-            UIView *view = [[self reusePool] popViewForKey:viewName];
-            if (!view) {
-                view = [self createViewByComponentData:componentData
-                                      hippyVirtualNode:subNode
-                                              hippyTag:tag
-                                            properties:props
-                                              viewName:viewName];
-            }
-            else {
-                NSNumber *oldHippyTag = [view hippyTag];
-                HippyVirtualNode *oldNode = [self->_nodeRegistry objectForKey:oldHippyTag];
-                if (oldNode) {
-                    NSDictionary *oldProps = [oldNode props];
-                    NSDictionary *mergedProps = [self mergeProps:props oldProps:oldProps];
-                    [componentData setProps:mergedProps forView:view];
-                    view.hippyTag = tag;
-                    self->_viewRegistry[tag] = view;
-                }
-                else {
-                    view = [self createViewByComponentData:componentData
-                                          hippyVirtualNode:subNode
-                                                  hippyTag:tag
-                                                properties:props
-                                                  viewName:viewName];
-                }
-            }
+            UIView *view = [self createViewByComponentData:componentData hippyVirtualNode:subNode hippyTag:tag properties:props viewName:viewName];
             CGRect frame = subNode.frame;
             [view hippySetFrame:frame];
             if ([view respondsToSelector:@selector(hippyBridgeDidFinishTransaction)]) {
                 [tranctions addObject:view];
             }
+            //            [self callCacheUIFunctionCallIfNeed: tag];
             if ([self->_listAnimatedViewTags containsObject:tag]) {
                 [self.bridge.animationModule connectAnimationToView:view];
             }
@@ -1540,6 +1606,14 @@ static UIView *_jsResponder;
             [self->_viewRegistry removeObjectForKey:hippyTag];
         }
     }];
+}
+
+- (void)removeNativeViewFromTags:(NSArray<NSNumber *> *)hippyTags {
+    NSArray<UIView *> *views = [_viewRegistry objectsForKeys:hippyTags
+                                              notFoundMarker:[[UIView alloc] initWithFrame:CGRectZero]];
+    for (UIView *view in views) {
+        [self removeNativeNodeView:view];
+    }
 }
 
 - (NSDictionary *)mergeProps:(NSDictionary *)newProps oldProps:(NSDictionary *)oldProps {

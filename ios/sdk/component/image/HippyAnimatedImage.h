@@ -102,8 +102,3 @@ typedef NS_ENUM(NSUInteger, RAILogLevel) {
 #define RAILog(logLevel, format, ...)
 //[HippyAnimatedImage logStringFromBlock:^NSString *{ return [NSString stringWithFormat:(format), ## __VA_ARGS__]; } withLevel:(logLevel)]
 
-@interface HippyWeakProxy : NSProxy
-
-+ (instancetype)weakProxyForObject:(id)targetObject;
-
-@end

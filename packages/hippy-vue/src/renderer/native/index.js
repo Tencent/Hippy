@@ -324,8 +324,10 @@ function getTargetNodeAttributes(targetNode) {
   try {
     const targetNodeAttributes = deepCopy(targetNode.attributes);
     const classInfo = Array.from(targetNode.classList || []).join(' ');
+    const { id, nodeId } = targetNode;
     const attributes = {
-      id: targetNode.id,
+      id,
+      hippyNodeId: `${nodeId}`,
       class: classInfo,
       ...targetNodeAttributes,
     };

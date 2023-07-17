@@ -16,40 +16,42 @@
 CMakeLists.txt @churchill-zhang @ilikethese
 
 # driver: js
-/.eslintignore @zealotchen0 @zoomchan-cxj
-/.eslintrc.js @zealotchen0 @zoomchan-cxj
-/.nycrc @zealotchen0 @zoomchan-cxj
-/ava.config.js @zealotchen0 @zoomchan-cxj
+/.eslintignore @zealotchen0
+/.eslintrc.js @zealotchen0
+/.nycrc @zealotchen0
+/package.json @zealotchen0
+/package-lock.json @zealotchen0
+/ava.config.js @zealotchen0
 /core/ @churchill-zhang @ilikethese
-/core/js/ @zealotchen0 @zoomchan-cxj
-/packages/ @zealotchen0 @zoomchan-cxj
-/packages/hippy-web-renderer/ @pba-cra @zealotchen0 @zoomchan-cxj
+/core/js/ @zealotchen0
+/packages/ @zealotchen0
+/packages/hippy-web-renderer/ @pba-cra @zealotchen0
 
 # framework: android
 /android/ @siguangli
 /android/**/src/main/jni/ @churchill-zhang @ilikethese
 
 # framework: ios
-/ios/ @ozonelmy
+/ios/ @ozonelmy @wwwcg
 
 # dom: layout
 /layout/ @ilikethese
 
 # gh: config
-/.github/ @zealotchen0 @zoomchan-cxj
+/.github/ @zealotchen0
 
 # doc: example
-/examples/ @zealotchen0 @zoomchan-cxj
-/examples/hippy-*-demo/ @zealotchen0 @zoomchan-cxj
+/examples/ @zealotchen0
+/examples/hippy-*-demo/ @zealotchen0
 /examples/android-demo/ @siguangli
-/examples/android-demo/res/ @zealotchen0 @zoomchan-cxj
-/examples/ios-demo/ @ozonelmy
-/examples/ios-demo/res/ @zealotchen0 @zoomchan-cxj
-/static/ @zealotchen0 @zoomchan-cxj
+/examples/android-demo/res/ @zealotchen0
+/examples/ios-demo/ @ozonelmy @wwwcg
+/examples/ios-demo/res/ @zealotchen0
+/static/ @zealotchen0
 
 # doc: pages
-/*.md @zealotchen0 @zoomchan-cxj
-/docs/ @zealotchen0 @zoomchan-cxj
+/*.md @zealotchen0
+/docs/ @zealotchen0
 
 # build: gradle
 /gradle.properties @siguangli
@@ -60,14 +62,14 @@ CMakeLists.txt @churchill-zhang @ilikethese
 /gradle/ @siguangli
 
 # build: xcode
-/hippy.podspec @ozonelmy
-/Hippy.xcworkspace/ @ozonelmy
+/hippy.podspec @ozonelmy @wwwcg
+/_Pods.xcodeproj/ @wwwcg @ozonelmy
 
 # build: config
 /buildconfig/ @churchill-zhang @ilikethese
 
 # build: js
-/tsdoc.json @zealotchen0 @zoomchan-cxj
-/tsconfig.json @zealotchen0 @zoomchan-cxj
-/lerna.json @zealotchen0 @zoomchan-cxj
-/scripts/ @zealotchen0 @zoomchan-cxj
+/tsdoc.json @zealotchen0
+/tsconfig.json @zealotchen0
+/lerna.json @zealotchen0
+/scripts/ @zealotchen0

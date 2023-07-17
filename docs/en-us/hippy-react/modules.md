@@ -218,26 +218,6 @@ You can listen to the fallback of the Android entity key, and perform operations
 
 ---
 
-# Clipboard
-
-[[Clipboard example]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/Clipboard)
-
-The module provides the clipboard capability on both sides of iOS/Android, and developers can use it to read or write to the clipboard. Currently, only string types are supported.
-
-## Methods
-
-### Clipboard.getString
-
-`() => string` Get the contents of the clipboard. `hippy-react-web: () => Promise<string>`
-
-### Clipboard.setString
-
-`(value: string) => void` Set the contents of the clipboard. `hippy-react-web: () => Promise<void>`
-
->- value: string - Content that needs to be set to the clipboard.
-
----
-
 # ConsoleModule
 
 Provides the ability to output front-end logs to iOS native logs and [Android logcat](//developer.android.com/studio/command-line/logcat)

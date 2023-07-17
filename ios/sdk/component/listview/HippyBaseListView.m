@@ -30,7 +30,6 @@
 #import "UIView+AppearEvent.h"
 #import "HippyBaseListViewCell.h"
 #import "HippyVirtualList.h"
-#import "HippyReusableViewPool.h"
 
 @interface HippyBaseListView () <HippyScrollProtocol, HippyRefreshDelegate>
 
@@ -48,6 +47,7 @@
     HippyHeaderRefresh *_headerRefreshView;
     HippyFooterRefresh *_footerRefreshView;
     NSArray<HippyBaseListViewCell *> *_previousVisibleCells;
+    NSMutableDictionary<NSIndexPath *, NSNumber *> *_cachedItems;
 }
 
 @synthesize node = _node;
@@ -60,6 +60,10 @@
         _isInitialListReady = NO;
         _preNumberOfRows = 0;
         _preloadItemNumber = 1;
+        _cachedItems = [NSMutableDictionary dictionaryWithCapacity:64];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didReceiveMemoryWarning)
+                                                     name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
         [self initTableView];
     }
 
@@ -130,7 +134,10 @@
     [_tableView reloadData];
 
     if (self.initialContentOffset) {
-        [_tableView setContentOffset:CGPointMake(0, self.initialContentOffset) animated:NO];
+        CGFloat initialContentOffset = self.initialContentOffset;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.tableView setContentOffset:CGPointMake(0, initialContentOffset) animated:NO];
+        });
         self.initialContentOffset = 0;
     }
 
@@ -165,6 +172,13 @@
         _footerRefreshView.delegate = self;
         _footerRefreshView.frame = [self.node.subNodes[atIndex] frame];
     }
+}
+
+- (void)removeHippySubview:(UIView *)subview {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self
+                                             selector:@selector(purgeFurthestIndexPathsFromScreen)
+                                               object:nil];
+    [self purgeFurthestIndexPathsFromScreen];
 }
 
 #pragma mark -Scrollable
@@ -252,28 +266,16 @@
         return 0.00001;
 }
 
-static NSUInteger headerTag = 1023;
-
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
     HippyVirtualCell *header = [_dataSource headerForSection:section];
     if (header) {
-        static NSString *type = @"header";
+        NSString *type = header.itemViewType;
         UIView *headerView = [tableView dequeueReusableHeaderFooterViewWithIdentifier:type];
-        if (!headerView) {
-            headerView = [[UITableViewHeaderFooterView alloc] initWithReuseIdentifier:type];
-        }
-        UIView *headSub = [_bridge.uiManager createViewFromNode:header];
-        headSub.tag = headerTag;
-        [headerView addSubview:headSub];
+        headerView = [_bridge.uiManager createViewFromNode:header];
         return headerView;
     } else {
         return nil;
     }
-}
-
-- (void)tableView:(UITableView *)tableView didEndDisplayingHeaderView:(UIView *)view forSection:(NSInteger)section {
-    UIView *headerSub = [view viewWithTag:headerTag];
-    [[_bridge.uiManager reusePool] addHippyViewRecursively:headerSub];
 }
 
 - (CGFloat)tableView:(__unused UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
@@ -288,13 +290,6 @@ static NSUInteger headerTag = 1023;
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
     HippyVirtualCell *node = [_dataSource cellForIndexPath:indexPath];
-    UIView *cellView = [_bridge.uiManager createViewFromNode:node];
-    HippyAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
-        @"subviews of HippyBaseListViewCell must conform to protocol ViewAppearStateProtocol");
-    HippyBaseListViewCell *hpCell = (HippyBaseListViewCell *)cell;
-
-    hpCell.cellView = (UIView<ViewAppearStateProtocol> *)cellView;
-
     NSInteger index = [_subNodes indexOfObject:node];
     if (self.onRowWillDisplay) {
         self.onRowWillDisplay(@{
@@ -327,8 +322,8 @@ static NSUInteger headerTag = 1023;
     NSAssert([cell isKindOfClass:[HippyBaseListViewCell class]], @"cell must be subclass of HippyBaseListViewCell");
     if ([cell isKindOfClass:[HippyBaseListViewCell class]]) {
         HippyBaseListViewCell *hippyCell = (HippyBaseListViewCell *)cell;
+        [_cachedItems setObject:[hippyCell.cellView hippyTag] forKey:indexPath];
         hippyCell.node.cell = nil;
-        [[_bridge.uiManager reusePool] addHippyViewRecursively:hippyCell.cellView];
     }
 }
 
@@ -342,8 +337,15 @@ static NSUInteger headerTag = 1023;
         cell = [[cls alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
         cell.tableView = tableView;
     }
+    UIView *cellView = [_bridge.uiManager createViewFromNode:indexNode];
+    HippyAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
+        @"subviews of HippyBaseListViewCell must conform to protocol ViewAppearStateProtocol");
+    cell.cellView = (UIView<ViewAppearStateProtocol> *)cellView;
     cell.node = indexNode;
     cell.node.cell = cell;
+    if (cellView) {
+        [_cachedItems removeObjectForKey:indexPath];
+    }
     return cell;
 }
 
@@ -387,7 +389,8 @@ static NSUInteger headerTag = 1023;
             [scrollViewListener scrollViewDidScroll:scrollView];
         }
     }
-
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
+    [self performSelector:@selector(purgeFurthestIndexPathsFromScreen) withObject:nil afterDelay:.5f];
     [_headerRefreshView scrollViewDidScroll];
     [_footerRefreshView scrollViewDidScroll];
 }
@@ -544,6 +547,13 @@ static NSUInteger headerTag = 1023;
     _rootView = nil;
 }
 
+- (void)didMoveToWindow {
+    if (!self.window) {
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
+        [self purgeFurthestIndexPathsFromScreen];
+    }
+}
+
 - (BOOL)isManualScrolling {
     return _manualScroll;
 }
@@ -564,7 +574,82 @@ static NSUInteger headerTag = 1023;
     return [_tableView showsVerticalScrollIndicator];
 }
 
+- (NSUInteger)maxCachedItemCount {
+    return NSUIntegerMax;
+}
+
+- (NSUInteger)differenceFromIndexPath:(NSIndexPath *)indexPath1 againstAnother:(NSIndexPath *)indexPath2 {
+    NSAssert([NSThread mainThread], @"must be in main thread");
+    long diffCount = 0;
+    for (NSUInteger index = MIN([indexPath1 section], [indexPath2 section]); index < MAX([indexPath1 section], [indexPath2 section]); index++) {
+        diffCount += [_tableView numberOfRowsInSection:index];
+    }
+    diffCount = diffCount + [indexPath1 row] - [indexPath2 row];
+    return labs(diffCount);
+}
+
+- (NSInteger)differenceFromIndexPath:(NSIndexPath *)indexPath
+            againstVisibleIndexPaths:(NSArray<NSIndexPath *> *)visibleIndexPaths {
+    NSIndexPath *firstIndexPath = [visibleIndexPaths firstObject];
+    NSIndexPath *lastIndexPath = [visibleIndexPaths lastObject];
+    NSUInteger diffFirst = [self differenceFromIndexPath:indexPath againstAnother:firstIndexPath];
+    NSUInteger diffLast = [self differenceFromIndexPath:indexPath againstAnother:lastIndexPath];
+    return MIN(diffFirst, diffLast);
+}
+
+- (NSArray<NSIndexPath *> *)findFurthestIndexPathsFromScreen {
+    NSUInteger visibleItemsCount = [[self.tableView visibleCells] count];
+    NSUInteger maxCachedItemCount = [self maxCachedItemCount] == NSUIntegerMax ? visibleItemsCount * 2 : [self maxCachedItemCount];
+    NSUInteger cachedCount = [_cachedItems count];
+    NSInteger cachedCountToRemove = cachedCount > maxCachedItemCount ? cachedCount - maxCachedItemCount : 0;
+    if (0 != cachedCountToRemove) {
+        NSArray<NSIndexPath *> *visibleIndexPaths = [_tableView indexPathsForVisibleRows];
+        NSArray<NSIndexPath *> *sortedCachedItemKey = [[_cachedItems allKeys] sortedArrayUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+            NSIndexPath *ip1 = obj1;
+            NSIndexPath *ip2 = obj2;
+            NSUInteger ip1Diff = [self differenceFromIndexPath:ip1 againstVisibleIndexPaths:visibleIndexPaths];
+            NSUInteger ip2Diff = [self differenceFromIndexPath:ip2 againstVisibleIndexPaths:visibleIndexPaths];
+            if (ip1Diff > ip2Diff) {
+                return NSOrderedAscending;
+            }
+            else if (ip1Diff < ip2Diff) {
+                return NSOrderedDescending;
+            }
+            else {
+                return NSOrderedSame;
+            }
+        }];
+        NSArray<NSIndexPath *> *result = [sortedCachedItemKey subarrayWithRange:NSMakeRange(0, cachedCountToRemove)];
+        return result;
+    }
+    return nil;
+}
+
+- (void)purgeFurthestIndexPathsFromScreen {
+    NSArray<NSIndexPath *> *furthestIndexPaths = [self findFurthestIndexPathsFromScreen];
+    if (furthestIndexPaths) {
+        //purge view
+        NSArray<NSNumber *> *objects = [_cachedItems objectsForKeys:furthestIndexPaths notFoundMarker:@(-1)];
+        [_bridge.uiManager removeNativeViewFromTags:objects];
+        //purge cache
+        [_cachedItems removeObjectsForKeys:furthestIndexPaths];
+    }
+}
+
+
+- (void)didReceiveMemoryWarning {
+    [self cleanUpCachedItems];
+}
+
+- (void)cleanUpCachedItems {
+    //purge view
+    NSArray<NSNumber *> *objects = [_cachedItems allValues];
+    [_bridge.uiManager removeNativeViewFromTags:objects];
+    [_cachedItems removeAllObjects];
+}
+
 - (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [_headerRefreshView unsetFromScrollView];
     [_footerRefreshView unsetFromScrollView];
 }

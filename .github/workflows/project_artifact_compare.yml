@@ -88,10 +88,13 @@ jobs:
     - name: Build
       if: ${{ matrix.ref }}
       run: |
+        pushd examples/ios-demo
+        pod install
+        popd
         xcodebuild build \
           -destination 'generic/platform=iOS' \
-          -workspace 'Hippy.xcworkspace' \
-          -scheme 'HippyLibrary' \
+          -project '_Pods.xcodeproj' \
+          -scheme 'hippy' \
           -configuration 'Release' \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
@@ -100,7 +103,7 @@ jobs:
       id: get_size
       run: |
         if [[ "${{ matrix.ref }}" ]]; then
-          echo "${{ matrix.source }}=$(ls -l $(xcodebuild -scheme 'HippyLibrary' -showBuildSettings | grep -m 1 TARGET_BUILD_DIR | grep -oEi "\/.*")/libhippy.a | awk '{print $5}')" >> $GITHUB_OUTPUT
+          echo "${{ matrix.source }}=$(ls -l $(xcodebuild -scheme 'hippy' -showBuildSettings | grep -m 1 TARGET_BUILD_DIR | grep -oEi "\/.*")/libhippy.a | awk '{print $5}')" >> $GITHUB_OUTPUT
         else
           echo "${{ matrix.source }}=-1" >> $GITHUB_OUTPUT
         fi
