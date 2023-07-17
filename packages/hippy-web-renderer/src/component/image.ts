@@ -26,13 +26,14 @@ import {
   DefaultPropsProcess,
 } from '../types';
 import { convertHexToRgba, hasOwnProperty, setElementStyle } from '../common';
-import {isIos} from "../get-global";
+import { isIos } from '../get-global';
 import { HippyWebView } from './hippy-web-view';
 
 export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
   private isLoadSuccess = false;
   private tintModeContainerDom: HTMLElement | null = null;
   private readonly renderImgDom: HTMLImageElement | null = null;
+  private visibleChangeListener: Function | null = null;
   public constructor(context, id, pId) {
     super(context, id, pId);
     this.tagName = InnerNodeTag.IMAGE;
@@ -190,6 +191,16 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
     }
   }
 
+  async beforeRemove(): Promise<void> {
+    await super.beforeRemove();
+    if (this.tintModeContainerDom) {
+      document.removeEventListener(
+        'visibilitychange',
+        this.visibleChangeListener as EventListenerOrEventListenerObject,
+      );
+    }
+  }
+
   private init() {
     this.dom!.addEventListener('load', this.handleLoad);
   }
@@ -210,7 +221,11 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
     this.tintModeContainerDom.style.overflow = 'hidden';
     this.tintModeContainerDom.style.fontSize = '0px';
     if (isIos()) {
-      document.addEventListener('visibilitychange', this.pageVisibleHandle.bind(this));
+      this.visibleChangeListener = this.pageVisibleHandle.bind(this);
+      document.addEventListener(
+        'visibilitychange',
+        this.visibleChangeListener as EventListenerOrEventListenerObject,
+      );
     }
   }
 
@@ -258,7 +273,7 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
   }
 
   private imgRefreshForIOS(isShow: boolean) {
-    if (isShow) {
+    if (!isShow) {
       setElementStyle(this.renderImgDom!, {
         transform: 'translateX(0%) translateZ(0)',
       });
