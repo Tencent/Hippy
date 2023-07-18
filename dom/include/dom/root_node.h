@@ -66,6 +66,7 @@ class RootNode : public DomNode {
   std::shared_ptr<DomNode> GetNode(uint32_t id);
   std::tuple<float, float> GetRootSize();
   void SetRootSize(float width, float height);
+  void SetRootOrigin(float x, float y);
   void Traverse(const std::function<void(const std::shared_ptr<DomNode>&)>& on_traverse);
   void AddInterceptor(const std::shared_ptr<DomActionInterceptor>& interceptor);
 
