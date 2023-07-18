@@ -392,6 +392,8 @@ std::tuple<float, float> RootNode::GetRootSize() { return GetLayoutSize(); }
 
 void RootNode::SetRootSize(float width, float height) { SetLayoutSize(width, height); }
 
+void RootNode::SetRootOrigin(float x, float y) { SetLayoutOrigin(x, y); }
+
 void RootNode::DoAndFlushLayout(const std::shared_ptr<RenderManager>& render_manager) {
   // Before Layout
   render_manager->BeforeLayout(GetWeakSelf());
