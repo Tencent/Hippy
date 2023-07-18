@@ -27,7 +27,7 @@ import {
   STYLE_PADDING_V,
 } from '../types';
 import { HippyWebView } from '../component';
-export type TransmitDataCheck = (key: string) => boolean;
+export type TransmitDataCheck = (key: string,value: any) => {[key: string]: any};
 export function hasOwnProperty(obj: Object, name: string | number | symbol) {
   return obj && Object.prototype.hasOwnProperty.call(obj, name);
 }
@@ -135,17 +135,28 @@ export function customDataAssociate(
   component: HippyBaseView, config: Array<string|RegExp|TransmitDataCheck>,
 ) {
   for (const itemKey in props) {
-    let find = false;
+    let find: any = false;
     for (let i = 0;i < config.length;i++) {
       if (typeof config[i] === 'string') {
         find = config[i] === itemKey;
       } else if (isRegExp(config[i])) {
         find = !!(config[i] as RegExp).exec(itemKey);
       } else if (typeof config[i] === 'function') {
-        find = (config[i] as TransmitDataCheck)(itemKey);
+        find = (config[i] as TransmitDataCheck)(itemKey, props[itemKey]);
+      }
+      if (find) {
+        break;
       }
     }
     if (!find) {
+      return;
+    }
+    if (typeof find === 'object') {
+      Object.keys(find).forEach((value) => {
+        const itemValue = find[value];
+        const attrValue = obj2QueryString(itemValue);
+        component.dom?.setAttribute(value, attrValue);
+      });
       return;
     }
     const itemValue = props[itemKey];
