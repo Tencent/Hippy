@@ -60,6 +60,11 @@ interface TextProps extends LayoutableProps, ClickableProps {
   children: number | string | string[];
   text?: string;
   style?: HippyTypes.Style | HippyTypes.Style[];
+
+  /**
+   * When forbidUnicodeToChar is set，component will not convert unicode string to normal string
+   */
+  forbidUnicodeToChar?: boolean;
 }
 
 /**
@@ -69,7 +74,7 @@ interface TextProps extends LayoutableProps, ClickableProps {
  * @noInheritDoc
  */
 function forwardRef(
-  { style, ...nativeProps }: TextProps,
+  { style, forbidUnicodeToChar, ...nativeProps }: TextProps,
   // eslint-disable-next-line max-len
   ref: string | ((instance: HTMLParagraphElement | null) => void) | React.RefObject<HTMLParagraphElement> | null | undefined,
 ) {
@@ -88,19 +93,23 @@ function forwardRef(
       }
     }
   }
+
+  // return char or origin text
+  const getText = (children: string): string => (forbidUnicodeToChar ? children : unicodeToChar(children));
+
   // Important: Text must receive text props.
   nativeProps.text = '';
   if (typeof nativeProps.children === 'string') {
-    nativeProps.text = unicodeToChar(nativeProps.children);
+    nativeProps.text = getText(nativeProps.children);
   } else if (typeof nativeProps.children === 'number') {
-    nativeProps.text = unicodeToChar(nativeProps.children.toString());
+    nativeProps.text = getText(nativeProps.children.toString());
   } else if (Array.isArray(nativeProps.children)) {
     const text = nativeProps.children
       .filter(t => typeof t === 'string' || typeof t === 'number')
       .join('');
     // FIXME: if Text is nested, all child components of this component need to be wrapped by Text
     if (text) {
-      nativeProps.text = unicodeToChar(text);
+      nativeProps.text = getText(text);
       nativeProps.children = nativeProps.text;
     }
   }
