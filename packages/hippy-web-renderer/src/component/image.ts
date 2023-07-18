@@ -288,10 +288,10 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
 }
 export const ImageResizeModeToObjectFit = (function () {
   const map = {};
-  map[ImageResizeMode.CENTER] = 'none';
+  map[ImageResizeMode.CENTER] = 'contain';
   map[ImageResizeMode.CONTAIN] = 'contain';
   map[ImageResizeMode.STRETCH] = 'fill';
-  map[ImageResizeMode.REPEAT] = 'none';
+  map[ImageResizeMode.REPEAT] = 'initial';
   map[ImageResizeMode.COVER] = 'cover';
   return map;
 }());
