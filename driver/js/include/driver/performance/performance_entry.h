@@ -89,7 +89,7 @@ class PerformanceEntry {
 
   virtual string_view ToJSON();
 
- private:
+ protected:
   string_view name_;
   SubType sub_type_;
   Type type_;

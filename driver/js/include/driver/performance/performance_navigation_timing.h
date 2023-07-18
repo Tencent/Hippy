@@ -43,6 +43,11 @@ class PerformanceNavigationTiming : public PerformanceEntry {
 #define DEFINE_SET_AND_GET_METHOD(method_name, member_type, member) \
   void Set##method_name(member_type t) { \
     member = t; \
+    if (start_time_.ToEpochDelta() == TimeDelta::Zero()) { \
+      start_time_ = t; \
+    } else if (t - start_time_ > duration_) { \
+      duration_ = t - start_time_; \
+    } \
   } \
   inline auto Get##method_name() const { \
     return member; \
