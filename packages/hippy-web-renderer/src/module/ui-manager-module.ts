@@ -26,7 +26,6 @@ import {
   error,
   positionAssociate,
   zIndexAssociate,
-  fontSizeAssociate,
   customDataAssociate,
 } from '../common';
 import { Modal } from '../component';
