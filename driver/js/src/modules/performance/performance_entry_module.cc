@@ -47,7 +47,7 @@ std::shared_ptr<ClassTemplate<PerformanceEntry>> RegisterPerformanceEntry(const 
     }
     auto context = scope->GetContext();
     if (!external || argument_count != 2) {
-      exception = context->CreateException("legal constructor");
+      exception = context->CreateException("illegal constructor");
       return nullptr;
     }
     string_view name;
