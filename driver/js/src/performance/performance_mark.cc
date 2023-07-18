@@ -34,7 +34,7 @@ PerformanceMark::PerformanceMark(const PerformanceEntry::string_view& name,
 }
 
 PerformanceMark::PerformanceMark(const string_view& name, const std::any& detail): PerformanceMark(
-    name, TimePoint::Now(), detail) {}
+    name, TimePoint::SystemNow(), detail) {}
 
 PerformanceEntry::string_view PerformanceMark::ToJSON() {
   return PerformanceEntry::ToJSON();

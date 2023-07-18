@@ -37,14 +37,24 @@ class PerformanceResourceTiming: public PerformanceEntry {
 
   PerformanceResourceTiming(const string_view& name);
 
+  void SetInitiatorType(InitiatorType t) {
+    initiator_type_ = t;
+  }
+  inline auto GetInitiatorType() const {
+    return initiator_type_;
+  }
 #define DEFINE_SET_AND_GET_METHOD(method_name, member_type, member) \
   void Set##method_name(member_type t) { \
     member = t; \
+    if (start_time_.ToEpochDelta() == TimeDelta::Zero()) { \
+      start_time_ = t; \
+    } else if (t - start_time_ > duration_) { \
+      duration_ = t - start_time_; \
+    } \
   } \
   inline auto Get##method_name() const { \
     return member; \
   }
-  DEFINE_SET_AND_GET_METHOD(InitiatorType, InitiatorType, initiator_type_)
   DEFINE_SET_AND_GET_METHOD(LoadSourceStart, TimePoint, load_source_start_)
   DEFINE_SET_AND_GET_METHOD(LoadSourceEnd, TimePoint, load_source_end_)
 #undef DEFINE_SET_AND_GET_METHOD
