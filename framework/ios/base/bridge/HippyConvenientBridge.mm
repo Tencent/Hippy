@@ -153,6 +153,7 @@
     //Set screen scale factor and size for Layout system in RooNode
     _rootNode->GetLayoutNode()->SetScaleFactor([UIScreen mainScreen].scale);
     _rootNode->SetRootSize(rootView.frame.size.width, rootView.frame.size.height);
+    _rootNode->SetRootOrigin(rootView.frame.origin.x, rootView.frame.origin.y);
         
     //set rendermanager for dommanager
     domManager->SetRenderManager(_nativeRenderManager);
