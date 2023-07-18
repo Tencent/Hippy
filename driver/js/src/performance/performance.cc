@@ -38,7 +38,7 @@ constexpr uint32_t kMaxSize = 250;
 
 Performance::Performance(): resource_timing_current_buffer_size_(0),
     resource_timing_max_buffer_size_(kMaxSize),
-    time_origin_(TimePoint::Now()) {}
+    time_origin_(TimePoint::SystemNow()) {}
 
 std::shared_ptr<PerformanceNavigationTiming> Performance::PerformanceNavigation(const string_view& name) {
   auto u16n = footstone::StringViewUtils::ConvertEncoding(name, string_view::Encoding::Utf16);
@@ -97,7 +97,7 @@ std::shared_ptr<PerformanceResourceTiming> Performance::PerformanceResource(cons
 
 void Performance::Mark(const Performance::string_view& name) {
   auto entry = std::make_shared<PerformanceMark>(
-      name, TimePoint::Now(), nullptr);
+      name, TimePoint::SystemNow(), nullptr);
   InsertEntry(entry);
 }
 
@@ -303,7 +303,7 @@ void Performance::RemoveEntry(const Performance::string_view& name, PerformanceE
 }
 
 Performance::TimePoint Performance::Now() {
-  return TimePoint::Now();
+  return TimePoint::SystemNow();
 }
 
 void Performance::ClearMeasures(const Performance::string_view& name) {

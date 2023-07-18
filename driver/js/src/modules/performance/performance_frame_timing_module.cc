@@ -47,7 +47,7 @@ std::shared_ptr<ClassTemplate<PerformanceFrameTiming>> RegisterPerformanceFrameT
     }
     auto context = scope->GetContext();
     if (!external) {
-      exception = context->CreateException("legal constructor");
+      exception = context->CreateException("illegal constructor");
       return nullptr;
     }
     string_view name;
