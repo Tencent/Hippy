@@ -29,16 +29,6 @@ namespace hippy {
 inline namespace driver {
 inline namespace module {
 
-class DomEventWrapper {
- public:
-  static void Set(std::shared_ptr<DomEvent> dom_event) { dom_event_ = dom_event; }
-  static std::shared_ptr<DomEvent> Get() { return dom_event_; }
-  static void Release() { dom_event_ = nullptr; }
-
- private:
-  static std::shared_ptr<DomEvent> dom_event_;
-};
-
 std::shared_ptr<hippy::ClassTemplate<DomEvent>> MakeEventClassTemplate(const std::weak_ptr<Scope>& weak_scope);
 
 } // namespace module
