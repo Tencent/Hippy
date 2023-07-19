@@ -60,7 +60,6 @@ std::shared_ptr<ClassTemplate<DomEvent>> MakeEventClassTemplate(
       void* external,
       std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<DomEvent> {
     auto event = DomEventWrapper::Get();
-    DomEventWrapper::Release();
     return event;
   };
 
