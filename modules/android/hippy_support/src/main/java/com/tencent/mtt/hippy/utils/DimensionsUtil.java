@@ -169,7 +169,7 @@ public class DimensionsUtil {
         return STATUS_BAR_HEIGHT;
     }
 
-    public static HippyMap getDimensions(int windowWidth, int windowHeight, Context context,
+    public static HippyMap getDimensions(int ww, int wh, Context context,
             boolean shouldUseScreenDisplay) {
         if (context == null) {
             return null;
@@ -185,30 +185,26 @@ public class DimensionsUtil {
         // construct param
         HippyMap dimensionMap = new HippyMap();
         getStatusBarHeight();
-        if (windowWidth >= 0) {
-            windowWidth = Math.round(PixelUtil.px2dp(windowWidth));
-        }
-        if (windowHeight >= 0) {
-            windowHeight = Math.round(PixelUtil.px2dp(windowHeight));
-        }
         int navigationBarHeight = getNavigationBarHeight(context);
         int statusBarHeight =
                 STATUS_BAR_HEIGHT > 0 ? Math.round(PixelUtil.px2dp(STATUS_BAR_HEIGHT)) : -1;
-        int screenDisplayWidth = Math.round(PixelUtil.px2dp(screenDisplayMetrics.widthPixels));
-        int screenDisplayHeight = Math.round(PixelUtil.px2dp(screenDisplayMetrics.heightPixels));
-        int windowDisplayWidth = Math.round(PixelUtil.px2dp(windowDisplayMetrics.widthPixels));
-        int windowDisplayHeight = Math.round(PixelUtil.px2dp(windowDisplayMetrics.heightPixels));
+        float windowWidth = (ww >= 0) ? PixelUtil.px2dp(ww) : ww;
+        float windowHeight = (wh >= 0) ? PixelUtil.px2dp(wh) : wh;
+        float screenDisplayWidth = PixelUtil.px2dp(screenDisplayMetrics.widthPixels);
+        float screenDisplayHeight = PixelUtil.px2dp(screenDisplayMetrics.heightPixels);
+        float windowDisplayWidth = PixelUtil.px2dp(windowDisplayMetrics.widthPixels);
+        float windowDisplayHeight = PixelUtil.px2dp(windowDisplayMetrics.heightPixels);
         navigationBarHeight = Math.round(PixelUtil.px2dp(navigationBarHeight));
         HippyMap windowDisplayMetricsMap = new HippyMap();
         if (shouldUseScreenDisplay) {
-            windowDisplayMetricsMap.pushInt("width", windowWidth >= 0 ? windowWidth : screenDisplayWidth);
-            windowDisplayMetricsMap.pushInt("height", windowHeight >= 0 ? windowHeight : screenDisplayHeight);
+            windowDisplayMetricsMap.pushDouble("width", windowWidth >= 0.0f ? windowWidth : screenDisplayWidth);
+            windowDisplayMetricsMap.pushDouble("height", windowHeight >= 0.0f ? windowHeight : screenDisplayHeight);
             windowDisplayMetricsMap.pushDouble("scale", screenDisplayMetrics.density);
             windowDisplayMetricsMap.pushDouble("fontScale", screenDisplayMetrics.scaledDensity);
             windowDisplayMetricsMap.pushDouble("densityDpi", screenDisplayMetrics.densityDpi);
         } else {
-            windowDisplayMetricsMap.pushInt("width", windowWidth >= 0 ? windowWidth : windowDisplayWidth);
-            windowDisplayMetricsMap.pushInt("height", windowHeight >= 0 ? windowHeight : windowDisplayHeight);
+            windowDisplayMetricsMap.pushDouble("width", windowWidth >= 0.0f ? windowWidth : windowDisplayWidth);
+            windowDisplayMetricsMap.pushDouble("height", windowHeight >= 0.0f ? windowHeight : windowDisplayHeight);
             windowDisplayMetricsMap.pushDouble("scale", windowDisplayMetrics.density);
             windowDisplayMetricsMap.pushDouble("fontScale", windowDisplayMetrics.scaledDensity);
             windowDisplayMetricsMap.pushDouble("densityDpi", windowDisplayMetrics.densityDpi);
@@ -217,8 +213,8 @@ public class DimensionsUtil {
         windowDisplayMetricsMap.pushDouble("navigationBarHeight", navigationBarHeight);
         dimensionMap.pushMap("windowPhysicalPixels", windowDisplayMetricsMap);
         HippyMap screenDisplayMetricsMap = new HippyMap();
-        screenDisplayMetricsMap.pushInt("width", screenDisplayWidth);
-        screenDisplayMetricsMap.pushInt("height", screenDisplayHeight);
+        screenDisplayMetricsMap.pushDouble("width", screenDisplayWidth);
+        screenDisplayMetricsMap.pushDouble("height", screenDisplayHeight);
         screenDisplayMetricsMap.pushDouble("scale", screenDisplayMetrics.density);
         screenDisplayMetricsMap.pushDouble("fontScale", screenDisplayMetrics.scaledDensity);
         screenDisplayMetricsMap.pushDouble("densityDpi", screenDisplayMetrics.densityDpi);
