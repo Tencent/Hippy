@@ -267,7 +267,6 @@ public class ControllerManager {
         }
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     @Nullable
     public View createView(@NonNull RenderNode node, PoolType cachePoolType) {
         final int rootId = node.getRootId();
@@ -325,6 +324,9 @@ public class ControllerManager {
             mControllerUpdateManger.updateProps(node, controller, view, total, skipComponentProps);
             if (view != null) {
                 controller.onAfterUpdateProps(view);
+                // The purpose of calling the update events interface separately here is to
+                // handle those event that are not registered by controller annotation.
+                controller.updateEvents(view, events);
             }
             node.setNodeFlag(FLAG_ALREADY_UPDATED);
         }

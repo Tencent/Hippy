@@ -84,6 +84,10 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         view.invalidate();
     }
 
+    protected void updateEvents(@NonNull T view, @Nullable Map<String, Object> events) {
+
+    }
+
     protected void updateExtra(@NonNull View view, @Nullable Object object) {
         view.invalidate();
     }
