@@ -55,6 +55,7 @@ class CustomExceptionHandler extends VoltronExceptionHandlerAdapter {
   void handleJsException(JsError exception) {
     LogUtils.e('Voltron3Page', exception.toString());
     var currentRootContext = key.currentContext;
+
     /// 只有开发模式下把js异常抛出来
     if (currentRootContext == null || !isDebugMode) return;
     showDialog(
@@ -94,6 +95,7 @@ class CustomExceptionHandler extends VoltronExceptionHandlerAdapter {
 }
 
 class BaseVoltronPage extends StatefulWidget {
+  final String title;
   final bool isHome;
   final bool debugMode;
   final String coreBundle;
@@ -101,6 +103,7 @@ class BaseVoltronPage extends StatefulWidget {
   final String remoteServerUrl;
 
   BaseVoltronPage({
+    this.title = '',
     this.isHome = false,
     this.debugMode = false,
     this.coreBundle = '',
@@ -229,6 +232,11 @@ class _BaseVoltronPageState extends State<BaseVoltronPage> {
     Widget child;
     if (engineStatus == PageStatus.success) {
       child = Scaffold(
+        appBar: AppBar(
+          title: Text(
+            widget.title,
+          ),
+        ),
         body: VoltronWidget(
           loader: _jsLoader,
           loadingBuilder: _debugMode ? null : (context) => Container(),
@@ -241,11 +249,6 @@ class _BaseVoltronPageState extends State<BaseVoltronPage> {
     } else {
       child = Container();
     }
-    child = SafeArea(
-      key: dialogRootKey,
-      bottom: false,
-      child: child,
-    );
     return WillPopScope(
       onWillPop: () async {
         return !(_jsLoader.back(() {
