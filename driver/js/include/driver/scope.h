@@ -239,6 +239,8 @@ class Scope : public std::enable_shared_from_this<Scope> {
   hippy::dom::EventListenerInfo RemoveListener(const EventListenerInfo& event_listener_info);
   bool HasListener(const EventListenerInfo& event_listener_info);
   uint64_t GetListenerId(const EventListenerInfo& event_listener_info);
+  inline void SetCurrentEvent(std::any current_event) { current_event_ = current_event; }
+  inline std::any GetCurrentEvent() { return current_event_; }
 
   void RunJS(const string_view& js,
              const string_view& name,
@@ -461,6 +463,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
   std::unordered_map<uint32_t, std::shared_ptr<CtxValue>> call_ui_function_callback_holder_;
   std::unordered_map<uint32_t, std::unordered_map<std::string, std::unordered_map<uint64_t, std::shared_ptr<CtxValue>>>>
       bind_listener_map_; // bind js function and dom event listener id
+  std::any current_event_;
   std::unique_ptr<ScopeWrapper> wrapper_;
   std::weak_ptr<UriLoader> loader_;
   std::weak_ptr<DomManager> dom_manager_;
