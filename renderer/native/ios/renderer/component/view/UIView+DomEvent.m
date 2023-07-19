@@ -82,10 +82,14 @@ static SEL SelectorFromCName(const char *name) {
     }
     [[self _propertyEventsName] addObject:@(name)];
     if (0 == strcmp(name, "onDidMount") ) {
-        [self viewDidMountEvent];
+        if ([self superview]) {
+            [self viewDidMountEvent];
+        }
     }
     else if (0 == strcmp(name, "onAttachedToWindow")) {
-        [self sendAttachedToWindowEvent];
+        if ([self window]) {
+            [self sendAttachedToWindowEvent];
+        }
     }
 }
 
