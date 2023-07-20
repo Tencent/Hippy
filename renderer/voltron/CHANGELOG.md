@@ -1,3 +1,11 @@
+## 0.0.22
+
+- fix crash on debug mode
+
+## 0.0.21
+
+- fix crash on debug mode
+
 ## 0.0.20
 
 - optimize js error

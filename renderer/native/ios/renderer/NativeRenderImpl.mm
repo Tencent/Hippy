@@ -804,6 +804,10 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     std::lock_guard<std::mutex> lock([self renderQueueLock]);
     NSNumber *rootTag = @(strongRootNode->GetId());
     for (const auto &node : nodes) {
+        auto diffCount = node->GetDiffStyle()->size();
+        if (0 == diffCount) {
+            continue;
+        }
         NSNumber *componentTag = @(node->GetRenderInfo().id);
         NSDictionary *styleProps = UnorderedMapDomValueToDictionary(node->GetStyleMap());
         NSDictionary *extProps = UnorderedMapDomValueToDictionary(node->GetExtStyle());
