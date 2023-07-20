@@ -48,7 +48,7 @@ dependencies:
   path_provider: ^2.0.10
   shared_preferences: ^2.0.5
   benchmark_harness: ^2.0.0
-  dio: ^4.0.0
+  dio: ">=4.0.0 <6.0.0"
   sqflite: ^2.0.0+3
   dio_cookie_manager: ^2.0.0
   webview_cookie_manager: ^2.0.6
