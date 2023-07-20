@@ -96,7 +96,7 @@ public class RenderManager {
     public void preCreateView(int rootId, int id, int pid, @NonNull String className,
             @Nullable Map<String, Object> props) {
         boolean isLazy = mControllerManager.checkLazy(className);
-        if (isLazy) {
+        if (isLazy || id == rootId) {
             return;
         }
         if (pid != rootId) {
