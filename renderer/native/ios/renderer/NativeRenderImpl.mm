@@ -798,7 +798,9 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     NSNumber *rootTag = @(strongRootNode->GetId());
     for (const auto &node : nodes) {
         auto diffCount = node->GetDiffStyle()->size();
-        if (0 == diffCount) {
+        auto deleteCount = node->GetDeleteProps()->size();
+        //TODO(mengyanluo): it is better to use diff and delete properties to update view
+        if (0 == diffCount && 0 == deleteCount) {
             continue;
         }
         NSNumber *componentTag = @(node->GetRenderInfo().id);
