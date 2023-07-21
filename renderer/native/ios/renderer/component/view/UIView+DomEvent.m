@@ -81,16 +81,17 @@ static SEL SelectorFromCName(const char *name) {
         return;
     }
     [[self _propertyEventsName] addObject:@(name)];
-    if (0 == strcmp(name, "onDidMount") ) {
-        if ([self superview]) {
-            [self viewDidMountEvent];
-        }
-    }
-    else if (0 == strcmp(name, "onAttachedToWindow")) {
-        if ([self window]) {
-            [self sendAttachedToWindowEvent];
-        }
-    }
+    //TODO(mengyanluo): update properties will cause event to be removed/added, needs frontend to fix first
+//    if (0 == strcmp(name, "onDidMount") ) {
+//        if ([self superview]) {
+//            [self viewDidMountEvent];
+//        }
+//    }
+//    else if (0 == strcmp(name, "onAttachedToWindow")) {
+//        if ([self window]) {
+//            [self sendAttachedToWindowEvent];
+//        }
+//    }
 }
 
 - (void)removePropertyEvent:(const char *)name {
