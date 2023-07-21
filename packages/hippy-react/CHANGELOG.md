@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.16.5](https://github.com/Tencent/Hippy/compare/2.16.4...2.16.5) (2023-07-21)
+
+
+### Features
+
+* **hippy-react:** Text component add forbidUnicodeToChar ([#3380](https://github.com/Tencent/Hippy/issues/3380)) ([979faf7](https://github.com/Tencent/Hippy/commit/979faf79e52311fc8a99d1bb7aa84db2581e0e82))
+
+
+
+
+
 ## [2.16.4](https://github.com/Tencent/Hippy/compare/2.16.2...2.16.4) (2023-05-25)
 
 
