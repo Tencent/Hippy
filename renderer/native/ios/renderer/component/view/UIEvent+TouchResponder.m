@@ -20,25 +20,30 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
+#import "UIEvent+TouchResponder.h"
+#import "objc/runtime.h"
 
-#import "NativeRenderTouchesProtocol.h"
-#import "HPConvert+NativeRender.h"
+@implementation UIEvent (TouchResponder)
 
-NS_ASSUME_NONNULL_BEGIN
+- (NSMapTable<NSNumber *, id> *)respondersMap {
+    NSMapTable<NSNumber *, id> *map = objc_getAssociatedObject(self, _cmd);
+    if (!map) {
+        map = [NSMapTable strongToWeakObjectsMapTable];
+        objc_setAssociatedObject(self, _cmd, map, OBJC_ASSOCIATION_RETAIN);
+    }
+    return map;
+}
 
-/**
- * NativeRenderTouchesView is used to response NativeRenderTouchesProtocol
- * which is used to handle touches event.
- * We need to override touchesBegan/touchesEnded/touchesCancelled/touchesMoved methods to handle coresponding event.
- */
-@interface NativeRenderTouchesView : UIView<NativeRenderTouchesProtocol>
+- (void)setResponder:(__weak id)responder forType:(NativeRenderViewEventType)type {
+    [[self respondersMap] setObject:responder forKey:@(type)];
+}
 
-/**
- * Used to control how touch events are processed.
- */
-@property (nonatomic, assign) NativeRenderPointerEvents pointerEvents;
+- (id)responderForType:(NativeRenderViewEventType)type {
+    return [[self respondersMap] objectForKey:@(type)];
+}
+
+- (void)removeAllResponders {
+    [[self respondersMap] removeAllObjects];
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

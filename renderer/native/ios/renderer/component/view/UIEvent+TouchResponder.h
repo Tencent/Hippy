@@ -21,24 +21,19 @@
  */
 
 #import <UIKit/UIKit.h>
-
-#import "NativeRenderTouchesProtocol.h"
-#import "HPConvert+NativeRender.h"
+#import "NativeRenderViewEventType.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
- * NativeRenderTouchesView is used to response NativeRenderTouchesProtocol
- * which is used to handle touches event.
- * We need to override touchesBegan/touchesEnded/touchesCancelled/touchesMoved methods to handle coresponding event.
- */
-@interface NativeRenderTouchesView : UIView<NativeRenderTouchesProtocol>
+@interface UIEvent (TouchResponder)
 
-/**
- * Used to control how touch events are processed.
- */
-@property (nonatomic, assign) NativeRenderPointerEvents pointerEvents;
+- (void)setResponder:(__weak id)responder forType:(NativeRenderViewEventType)type;
+
+- (id)responderForType:(NativeRenderViewEventType)type;
+
+- (void)removeAllResponders;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
