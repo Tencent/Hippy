@@ -22,18 +22,12 @@
 
 #import <UIKit/UIKit.h>
 
-#import "HPConvert+NativeRender.h"
 #import "NativeRenderComponentProtocol.h"
 #import "NativeRenderTouchesView.h"
 
 @class NativeRenderGradientObject;
 
 @interface NativeRenderView : NativeRenderTouchesView
-
-/**
- * Used to control how touch events are processed.
- */
-@property (nonatomic, assign) NativeRenderPointerEvents pointerEvents;
 
 /**
  * z-index, used to override sibling order in didUpdateHippySubviews. This is

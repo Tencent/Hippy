@@ -27,6 +27,14 @@
 
 @implementation UIView(DomEvent)
 
+- (void)setOnInterceptTouchEvent:(BOOL)onInterceptTouchEvent {
+    objc_setAssociatedObject(self, @selector(onInterceptTouchEvent), @(onInterceptTouchEvent), OBJC_ASSOCIATION_RETAIN);
+}
+
+- (BOOL)onInterceptTouchEvent {
+    return [objc_getAssociatedObject(self, @selector(onInterceptTouchEvent)) boolValue];
+}
+
 - (NSMutableSet<NSString *> *)_propertyEventsName {
     NSMutableSet<NSString *> *names = objc_getAssociatedObject(self, @selector(_propertyEventsName));
     if (!names) {
