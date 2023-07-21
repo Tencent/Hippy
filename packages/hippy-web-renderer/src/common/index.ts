@@ -157,7 +157,7 @@ export function customDataAssociate(
         const attrValue = obj2QueryString(itemValue);
         component.dom?.setAttribute(value, attrValue);
       });
-      return;
+      continue;
     }
     const itemValue = props[itemKey];
     const attrValue = obj2QueryString(itemValue);
@@ -174,7 +174,7 @@ function obj2QueryString(obj) {
   if (typeof obj === 'string') {
     return obj;
   }
-  obj.keys().map((itemKey) => {
+  Object.keys(obj).forEach((itemKey) => {
     str.push(`${encodeURIComponent(itemKey)}=${encodeURIComponent(obj[itemKey])}`);
   });
   return str.join('&');
