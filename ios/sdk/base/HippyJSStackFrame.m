@@ -24,7 +24,7 @@
 #import "HippyLog.h"
 #import "HippyUtils.h"
 
-static NSRegularExpression *HippyJSStackFrameRegex() {
+static NSRegularExpression *HippyJSStackFrameRegex(void) {
     static dispatch_once_t onceToken;
     static NSRegularExpression *_regex;
     dispatch_once(&onceToken, ^{

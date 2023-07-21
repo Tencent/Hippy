@@ -261,11 +261,6 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 @property (nonatomic, assign) HippyInvalidateReason invalidateReason;
 
 /**
- * just for debugger
- */
-- (void)bindKeys;
-
-/**
  * Get the turbo module for a given name.
  */
 - (HippyOCTurboModule *)turboModuleWithName:(NSString *)name;

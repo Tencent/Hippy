@@ -26,7 +26,7 @@
 #import "HippyLog.h"
 #import <UIKit/UIDevice.h>
 
-static NSString *generateRandomUUID() {
+static NSString *generateRandomUUID(void) {
     static char alpha[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     static uint32_t length = 16;
     char buffer[length + 1];

@@ -658,8 +658,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
  */
 - (void)setUp {
 }
-- (void)bindKeys {
-}
 
 - (void)reload {
     [_parentBridge reload];

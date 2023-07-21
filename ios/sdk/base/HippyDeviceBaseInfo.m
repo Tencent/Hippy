@@ -26,7 +26,7 @@
 #import "HippyAssert.h"
 #import "HippyUtils.h"
 
-static BOOL isiPhoneX() {
+static BOOL isiPhoneX(void) {
     if (@available(iOS 11.0, *)) {
         CGFloat height = [[UIApplication sharedApplication] delegate].window.safeAreaInsets.bottom;
         return (height > 0);
@@ -35,7 +35,7 @@ static BOOL isiPhoneX() {
     }
 }
 
-NSDictionary *hippyExportedDimensions() {
+NSDictionary *hippyExportedDimensions(void) {
     NSCAssert([NSThread mainThread], @"this function can only be called in main thread");
     CGSize screenSize = [UIScreen mainScreen].bounds.size;
     CGSize windowSize = HippyKeyWindow() ? HippyKeyWindow().bounds.size : screenSize;
