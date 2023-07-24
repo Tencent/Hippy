@@ -40,6 +40,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public index!: number;
   public dom!: T|null;
   public props: any = {};
+  public updatedZIndex = false;
   public firstUpdateStyle = true;
   public context!: ComponentContext;
   public resizeObserver: ResizeObserver|undefined;
@@ -47,7 +48,6 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public hammer;
   public exitChildrenStackContext = false;
   private mountedLayoutDispatch = false;
-  private updatedZIndex = false;
   public constructor(context, id, pId) {
     this.id = id;
     this.pId = pId;

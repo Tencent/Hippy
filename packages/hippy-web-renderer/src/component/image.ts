@@ -26,7 +26,7 @@ import {
   DefaultPropsProcess,
 } from '../types';
 import { convertHexToRgba, hasOwnProperty, setElementStyle } from '../common';
-import { isIos } from '../get-global';
+import { iOSVersion, isIos } from '../get-global';
 import { HippyWebView } from './hippy-web-view';
 
 export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
@@ -63,6 +63,25 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
 
   public defaultStyle(): {[key: string]: any} {
     return { boxSizing: 'border-box', zIndex: 0, objectFit: 'fill' };
+  }
+
+  public updateSelfStackContext(value = true) {
+    if (value && (this.props.style.zIndex === null || this.props.style.zIndex === undefined)) {
+      let zIndex = 0;
+      if (isIos() && iOSVersion() === 11) {
+        zIndex = -1;
+      }
+      this.props.style.zIndex = zIndex;
+      setElementStyle(this.dom as HTMLElement, { zIndex });
+      this.updatedZIndex = true;
+      return;
+    }
+
+    if (!value) {
+      delete this.props.style.zIndex;
+      setElementStyle(this.dom as HTMLElement, { zIndex: 'auto' });
+      this.updatedZIndex = false;
+    }
   }
 
   public set tintColor(value) {
