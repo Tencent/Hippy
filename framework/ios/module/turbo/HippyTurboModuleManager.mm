@@ -86,52 +86,61 @@ void HippyRegisterTurboModule(NSString *moduleName, Class moduleClass) {
 #pragma mark -
 
 - (void)invalidate {
-    // clear cache
-    [self.turboModuleCache removeAllObjects];
+    @autoreleasepool {
+        // clear cache
+        [self.turboModuleCache removeAllObjects];
+    }
 }
 
 #pragma mark -
 
 + (BOOL)isTurboModule:(NSString *)name {
-    return !![HippyTurboModuleMap objectForKey:name];
+    @autoreleasepool {
+        return !![HippyTurboModuleMap objectForKey:name];
+    }
 }
 
 - (__kindof HippyOCTurboModule *)turboModuleWithName:(NSString *)name {
-    if (!name || name.length == 0) {
-        return nil;
-    }
-    HippyOCTurboModule *module = nil;
-    if ([self.turboModuleCache.allKeys containsObject:name]) {
-        module = [self.turboModuleCache objectForKey:name];
-    } else {
-        Class moduleCls = [HippyTurboModuleMap objectForKey:name] ? : [HippyOCTurboModule class];
-        if ([moduleCls conformsToProtocol:@protocol(HippyTurboModuleImpProtocol)]) {
-            module = [[moduleCls alloc] initWithName:name bridge:_bridge];
-            [self.turboModuleCache setObject:module forKey:name];
-        } else {
-            HPAssert(NO, @"moduleClass of %@ is not conformsToProtocol(HippyTurboModuleImpProtocol)!", name);
+    @autoreleasepool {
+        if (!name || name.length == 0) {
+            return nil;
         }
+        HippyOCTurboModule *module = nil;
+        if ([self.turboModuleCache.allKeys containsObject:name]) {
+            module = [self.turboModuleCache objectForKey:name];
+        } else {
+            Class moduleCls = [HippyTurboModuleMap objectForKey:name] ? : [HippyOCTurboModule class];
+            if ([moduleCls conformsToProtocol:@protocol(HippyTurboModuleImpProtocol)]) {
+                module = [[moduleCls alloc] initWithName:name bridge:_bridge];
+                [self.turboModuleCache setObject:module forKey:name];
+            } else {
+                HPAssert(NO, @"moduleClass of %@ is not conformsToProtocol(HippyTurboModuleImpProtocol)!", name);
+            }
+        }
+        return module;
     }
-    return module;
 }
 
 - (void)bindJSObject:(const std::shared_ptr<hippy::napi::CtxValue> &)object toModuleName:(NSString *)moduleName {
-    std::string key([moduleName UTF8String]);
-    _objectMap[key] = object;
+    @autoreleasepool {
+        std::string key([moduleName UTF8String]);
+        _objectMap[key] = object;
+    }
 }
 
 - (NSString *)turboModuleNameForJSObject:(const std::shared_ptr<hippy::napi::CtxValue> &)object {
-    NSString *name = nil;
-    for (const auto &map : self->_objectMap) {
-        bool isEqual = self.bridge.javaScriptExecutor.pScope->GetContext()->Equals(map.second, object);
-        if (isEqual) {
-            name = [NSString stringWithUTF8String:map.first.c_str()];
-            break;
+    @autoreleasepool {
+        NSString *name = nil;
+        for (const auto &map : self->_objectMap) {
+            bool isEqual = self.bridge.javaScriptExecutor.pScope->GetContext()->Equals(map.second, object);
+            if (isEqual) {
+                name = [NSString stringWithUTF8String:map.first.c_str()];
+                break;
+            }
         }
+        return name;
     }
-    return name;
 }
-
 
 @end
 
@@ -139,11 +148,15 @@ void HippyRegisterTurboModule(NSString *moduleName, Class moduleClass) {
 @implementation HippyBridge (HippyTurboModuleManager)
 
 - (HippyTurboModuleManager *)turboModuleManager {
-    return objc_getAssociatedObject(self, @selector(turboModuleManager));
+    @autoreleasepool {
+        return objc_getAssociatedObject(self, @selector(turboModuleManager));
+    }
 }
 
 - (void)setTurboModuleManager:(HippyTurboModuleManager *)turboModuleManager {
-    objc_setAssociatedObject(self, @selector(turboModuleManager), turboModuleManager, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    @autoreleasepool {
+        objc_setAssociatedObject(self, @selector(turboModuleManager), turboModuleManager, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
 }
 
 @end
