@@ -65,7 +65,7 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
     }
     auto context = scope->GetContext();
     if (!external) {
-      exception = context->CreateException("legal constructor");
+      exception = context->CreateException("illegal constructor");
       return nullptr;
     }
     return scope->GetPerformance();

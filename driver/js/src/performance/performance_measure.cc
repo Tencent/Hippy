@@ -41,7 +41,7 @@ PerformanceMeasure::PerformanceMeasure(const PerformanceEntry::string_view& name
                                        const std::any& detail) : PerformanceMeasure(
     name,
     start,
-    TimePoint::Now() - start,
+    TimePoint::SystemNow() - start,
     detail) {}
 
 PerformanceEntry::string_view PerformanceMeasure::ToJSON() {

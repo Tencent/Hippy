@@ -46,22 +46,23 @@ namespace hippy {
 inline namespace driver {
 inline namespace module {
 
-std::shared_ptr<DomEvent> DomEventWrapper::dom_event_ = nullptr;
-
 std::shared_ptr<ClassTemplate<DomEvent>> MakeEventClassTemplate(
     const std::weak_ptr<Scope>& weak_scope) {
   using DomEvent = hippy::dom::DomEvent;
   ClassTemplate<DomEvent> class_template;
   class_template.name = "Event";
-  class_template.constructor = [](
+  class_template.constructor = [weak_scope](
       const std::shared_ptr<CtxValue>& receiver,
       size_t argument_count,
       const std::shared_ptr<CtxValue> arguments[],
       void* external,
       std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<DomEvent> {
-    auto event = DomEventWrapper::Get();
-    DomEventWrapper::Release();
-    return event;
+    auto scope = weak_scope.lock();
+    if (!scope) {
+      return nullptr;
+    }
+    auto current_event =std::any_cast<std::shared_ptr<DomEvent>>(scope->GetCurrentEvent());
+    return current_event;
   };
 
   // function

@@ -35,9 +35,6 @@ namespace hippy {
 inline namespace driver {
 inline namespace module {
 
-constexpr char kDetailKey[] = "detail";
-constexpr char kStartTimeKey[] = "startTime";
-
 std::shared_ptr<ClassTemplate<PerformanceMark>> RegisterPerformanceMark(const std::weak_ptr<Scope>& weak_scope) {
   ClassTemplate<PerformanceMark> class_template;
   class_template.name = "PerformanceMark";
@@ -52,48 +49,29 @@ std::shared_ptr<ClassTemplate<PerformanceMark>> RegisterPerformanceMark(const st
       return nullptr;
     }
     auto context = scope->GetContext();
-    auto performance_entry_class = scope->GetJavascriptClass("PerformanceEntry");
-    if (external) {
-      auto mark = reinterpret_cast<PerformanceMark*>(external);
-      return std::make_shared<PerformanceMark>(mark->GetName(), mark->GetStartTime(), mark->GetDetail());
-    }
-    if (!argument_count || argument_count > 2) {
-      exception = context->CreateException("PerformanceMark parameter error");
+    if (!external) {
+      exception = context->CreateException("illegal constructor");
       return nullptr;
     }
     string_view name;
     auto flag = context->GetValueString(arguments[0], &name);
     if (!flag) {
-      exception = context->CreateException("PerformanceMark name error");
+      exception = context->CreateException("name error");
       return nullptr;
     }
-    if (argument_count == 1) {
-      return std::make_shared<PerformanceMark>(name, nullptr);
-    } else if (argument_count == 2) {
-      auto performance_mark_options = arguments[1];
-      if (context->IsObject(performance_mark_options)) {
-        exception = context->CreateException("The provided value is not of type 'PerformanceMarkOptions'");
-        return nullptr;
-      }
-      auto start_time_key = context->CreateString(kStartTimeKey);
-      auto start_time_value = context->GetProperty(performance_mark_options, start_time_key);
-      if (!context->IsNumber(start_time_value)) {
-        exception = context->CreateException("Failed to read the 'startTime' property from 'PerformanceMarkOptions'");
-        return nullptr;
-      }
-      int32_t start_time;
-      flag = context->GetValueNumber(start_time_value, &start_time);
-      if (!flag) {
-        exception = context->CreateException("PerformanceMarkOptions startTime error");
-        return nullptr;
-      }
-      auto detail_key = context->CreateString(kDetailKey);
-      auto detail_value = context->GetProperty(performance_mark_options, detail_key);
-      return std::make_shared<PerformanceMark>(name, TimePoint::FromEpochDelta(
-          TimeDelta::FromMilliseconds(static_cast<int64_t>(start_time))));
-    } else {
-      FOOTSTONE_UNREACHABLE();
+    int32_t type;
+    flag = context->GetValueNumber(arguments[1], &type);
+    if (!flag || type < 0) {
+      exception = context->CreateException("type error");
+      return nullptr;
     }
+
+    auto entries = scope->GetPerformance()->GetEntriesByName(name, static_cast<PerformanceEntry::Type>(type));
+    if (entries.empty()) {
+      exception = context->CreateException("entry not found");
+      return nullptr;
+    }
+    return std::static_pointer_cast<PerformanceMark>(entries.back());
   };
 
   PropertyDefine<PerformanceMark> name_property_define;

@@ -9,8 +9,13 @@ buildscript {
     JNI_LIBRARY_PATH = "$projectDir.absolutePath/libs"
 
     // 默认不编译C++代码，可以加快编译速度和调试速度(默认关闭LLVM调试器)
-    // 如果需要本地调试/修改C++代码，打开这个即可
-    enableLocalCmake = true
+    // 系统环境里面没有从local.properties里面取
+    def file = rootProject.file('local.properties')
+    Properties properties = new Properties()
+    if (file.exists()) {
+      properties.load(file.newDataInputStream())
+      enableLocalCmake = Boolean.valueOf(properties.getProperty('enableLocalCmake', "false"))
+    }
 
     if (!enableLocalCmake) {
       def enable = System.getenv("ENABLE_LOCAL_CMAKE")
@@ -19,16 +24,9 @@ buildscript {
 
       if (enable == "true") {
         println("system env enable local cmake inner:$enable")
-        enableLocalCmake = false
+        enableLocalCmake = true
       } else {
-        // 系统环境里面没有从local.properties里面取
-        def dir = System.getProperty("user.dir")
-        def file = new File(dir, 'local.properties')
-        Properties properties = new Properties()
-        if (file.exists()) {
-          properties.load(file.newDataInputStream())
-          enableLocalCmake = Boolean.valueOf(properties.getProperty('enableLocalCmake', "false"))
-        }
+        enableLocalCmake = false
       }
     }
     println("enable local cmake:$enableLocalCmake")

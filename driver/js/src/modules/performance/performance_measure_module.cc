@@ -47,14 +47,28 @@ std::shared_ptr<ClassTemplate<PerformanceMeasure>> RegisterPerformanceMeasure(co
     }
     auto context = scope->GetContext();
     if (!external) {
-      exception = context->CreateException("legal constructor");
+      exception = context->CreateException("illegal constructor");
       return nullptr;
     }
-    auto measure = reinterpret_cast<PerformanceMeasure*>(external);
-    return std::make_shared<PerformanceMeasure>(measure->GetName(),
-                                                measure->GetStartTime(),
-                                                measure->GetDuration(),
-                                                measure->GetDetail());
+    string_view name;
+    auto flag = context->GetValueString(arguments[0], &name);
+    if (!flag) {
+      exception = context->CreateException("name error");
+      return nullptr;
+    }
+    int32_t type;
+    flag = context->GetValueNumber(arguments[1], &type);
+    if (!flag || type < 0) {
+      exception = context->CreateException("type error");
+      return nullptr;
+    }
+
+    auto entries = scope->GetPerformance()->GetEntriesByName(name, static_cast<PerformanceEntry::Type>(type));
+    if (entries.empty()) {
+      exception = context->CreateException("entry not found");
+      return nullptr;
+    }
+    return std::static_pointer_cast<PerformanceMeasure>(entries.back());
   };
 
   PropertyDefine<PerformanceMeasure> name_property_define;
