@@ -24,6 +24,7 @@
 
 #include <atomic>
 #include <memory>
+#include <unordered_set>
 
 #include "dom/dom_node.h"
 #include "dom/render_manager.h"
@@ -35,6 +36,23 @@
 namespace hippy {
 inline namespace render {
 inline namespace native {
+
+class StyleFilter {
+public:
+  StyleFilter(const std::shared_ptr<JavaRef>& j_render_manager);
+  ~StyleFilter() = default;
+  StyleFilter(const StyleFilter&) = delete;
+  StyleFilter(StyleFilter&&) = delete;
+  StyleFilter& operator=(const StyleFilter&) = delete;
+  StyleFilter& operator=(StyleFilter&&) = delete;
+
+  bool Enable(const std::string& style) {
+    return styles_.find(style) != styles_.end();
+  }
+
+private:
+  std::unordered_set<std::string> styles_;
+};
 
 class NativeRenderManager : public RenderManager, public std::enable_shared_from_this<NativeRenderManager> {
  public:
@@ -81,6 +99,11 @@ class NativeRenderManager : public RenderManager, public std::enable_shared_from
 
   static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<NativeRenderManager>>& PersistentMap() {
     return persistent_map_;
+  }
+
+  static std::shared_ptr<StyleFilter> GetStyleFilter(const std::shared_ptr<JavaRef>& j_render_manager) {
+    static std::shared_ptr<StyleFilter> style_filter = std::make_shared<StyleFilter>(j_render_manager);
+    return style_filter;
   }
 
  private:

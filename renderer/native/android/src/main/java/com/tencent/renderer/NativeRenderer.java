@@ -146,6 +146,12 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         return mRenderProvider;
     }
 
+    public Object[] getPropsRegisterForRender() {
+        ArrayList<String> props = mRenderManager.getControllerManager().getControllerUpdateManger()
+                .getPropsRegisterForRender();
+        return props.toArray();
+    }
+
     public void setId(int instanceId) {
         mRenderProvider.setInstanceId(instanceId);
     }
