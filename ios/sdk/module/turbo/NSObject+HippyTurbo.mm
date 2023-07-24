@@ -31,39 +31,43 @@
 @implementation NSObject (HippyTurbo)
 
 - (NSArray<id<HippyBridgeMethod>> *)hippyTurboSetupModuleMethods {
-    NSMutableArray<id<HippyBridgeMethod>> *moduleMethods = [NSMutableArray new];
-    unsigned int methodCount;
-    Class cls = [self class];
-    while (cls && cls != [NSObject class] && cls != [NSProxy class]) {
-        Method *methods = class_copyMethodList(object_getClass(cls), &methodCount);
-        for (unsigned int i = 0; i < methodCount; i++) {
-            Method method = methods[i];
-            SEL selector = method_getName(method);
-            if ([NSStringFromSelector(selector) hasPrefix:@"__hippy_export_turbo__"]) {
-                IMP imp = method_getImplementation(method);
-                NSArray<NSString *> *entries = ((NSArray<NSString *> * (*)(id, SEL)) imp)(cls, selector);
-                id<HippyBridgeMethod> moduleMethod = [[HippyModuleMethod alloc] initWithMethodSignature:entries[1] JSMethodName:entries[0]
-                                                                                            moduleClass:cls];
-                [moduleMethods addObject:moduleMethod];
+    @autoreleasepool {
+        NSMutableArray<id<HippyBridgeMethod>> *moduleMethods = [NSMutableArray new];
+        unsigned int methodCount;
+        Class cls = [self class];
+        while (cls && cls != [NSObject class] && cls != [NSProxy class]) {
+            Method *methods = class_copyMethodList(object_getClass(cls), &methodCount);
+            for (unsigned int i = 0; i < methodCount; i++) {
+                Method method = methods[i];
+                SEL selector = method_getName(method);
+                if ([NSStringFromSelector(selector) hasPrefix:@"__hippy_export_turbo__"]) {
+                    IMP imp = method_getImplementation(method);
+                    NSArray<NSString *> *entries = ((NSArray<NSString *> * (*)(id, SEL)) imp)(cls, selector);
+                    id<HippyBridgeMethod> moduleMethod = [[HippyModuleMethod alloc] initWithMethodSignature:entries[1] JSMethodName:entries[0]
+                                                                                                moduleClass:cls];
+                    [moduleMethods addObject:moduleMethod];
+                }
             }
-        }
 
-        free(methods);
-        cls = class_getSuperclass(cls);
+            free(methods);
+            cls = class_getSuperclass(cls);
+        }
+        return [moduleMethods copy];
     }
-    return [moduleMethods copy];
 }
 
 - (NSArray<id<HippyBridgeMethod>> *)hippyTurboModuleMethods {
-    NSArray<id<HippyBridgeMethod>> *hippyTurboModules = objc_getAssociatedObject(self, @selector(hippyTurboModuleMethods));
-    if (!hippyTurboModules || hippyTurboModules.count == 0) {
-        hippyTurboModules = [self hippyTurboSetupModuleMethods];
-        objc_setAssociatedObject(self,
-                                 @selector(hippyTurboModuleMethods),
-                                 hippyTurboModules,
-                                 OBJC_ASSOCIATION_COPY_NONATOMIC);
+    @autoreleasepool {
+        NSArray<id<HippyBridgeMethod>> *hippyTurboModules = objc_getAssociatedObject(self, @selector(hippyTurboModuleMethods));
+        if (!hippyTurboModules || hippyTurboModules.count == 0) {
+            hippyTurboModules = [self hippyTurboSetupModuleMethods];
+            objc_setAssociatedObject(self,
+                                     @selector(hippyTurboModuleMethods),
+                                     hippyTurboModules,
+                                     OBJC_ASSOCIATION_COPY_NONATOMIC);
+        }
+        return hippyTurboModules;
     }
-    return hippyTurboModules;
 }
 
 @end

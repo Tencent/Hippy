@@ -90,12 +90,14 @@ void HippyRegisterTurboModule(NSString *moduleName, Class moduleClass) {
 - (instancetype)initWithBridge:(HippyBridge *)bridge delegate:(id<HippyTurboModuleDelegate>) delegate {
     self = [self init];
     if (self) {
-        _bridge = bridge;
-        _delegate = delegate;
-        _turboModuleCache = @{}.mutableCopy;
-        _bindingInfos = @{}.mutableCopy;
-        _cacheQueue = dispatch_queue_create("com.tencent.hippy.turboCache", DISPATCH_QUEUE_SERIAL);
-        _bindingQueue = dispatch_queue_create("com.tencent.hippy.turboBinding", DISPATCH_QUEUE_SERIAL);
+        @autoreleasepool {
+            _bridge = bridge;
+            _delegate = delegate;
+            _turboModuleCache = @{}.mutableCopy;
+            _bindingInfos = @{}.mutableCopy;
+            _cacheQueue = dispatch_queue_create("com.tencent.hippy.turboCache", DISPATCH_QUEUE_SERIAL);
+            _bindingQueue = dispatch_queue_create("com.tencent.hippy.turboBinding", DISPATCH_QUEUE_SERIAL);
+        }
     }
     return self;
 }
@@ -116,51 +118,56 @@ void HippyRegisterTurboModule(NSString *moduleName, Class moduleClass) {
 }
 
 - (__kindof HippyOCTurboModule *)turboModuleWithName:(NSString *)name {
-    
-    if (!name || name.length == 0) {
-        return nil;
-    }
-    
-    __kindof HippyOCTurboModule __block * module;
-    dispatch_sync(_cacheQueue, ^{
-        if ([self.turboModuleCache.allKeys containsObject:name]) {
-            module = [self.turboModuleCache objectForKey:name];
-        } else {
-            Class moduleCls = [HippyTurboModuleMap objectForKey:name] ? : [HippyOCTurboModule class];
-            if ([moduleCls conformsToProtocol:@protocol(HippyTurboModuleImpProtocol)]) {
-                module = [[moduleCls alloc] initWithName:name bridge:_bridge];
-                [self.turboModuleCache setObject:module forKey:name];
-            } else {
-                HippyAssert(NO, @"moduleClass of %@ is not conformsToProtocol(HippyTurboModuleImpProtocol)!", name);
-            }
+    @autoreleasepool {
+        if (!name || name.length == 0) {
+            return nil;
         }
-    });
-    return module;
+        
+        __kindof HippyOCTurboModule __block * module;
+        dispatch_sync(_cacheQueue, ^{
+            if ([self.turboModuleCache.allKeys containsObject:name]) {
+                module = [self.turboModuleCache objectForKey:name];
+            } else {
+                Class moduleCls = [HippyTurboModuleMap objectForKey:name] ? : [HippyOCTurboModule class];
+                if ([moduleCls conformsToProtocol:@protocol(HippyTurboModuleImpProtocol)]) {
+                    module = [[moduleCls alloc] initWithName:name bridge:_bridge];
+                    [self.turboModuleCache setObject:module forKey:name];
+                } else {
+                    HippyAssert(NO, @"moduleClass of %@ is not conformsToProtocol(HippyTurboModuleImpProtocol)!", name);
+                }
+            }
+        });
+        return module;
+    }
 }
 
 - (void)bindJSObject:(JSValue *)jsObj toModuleName:(NSString *)moduleName {
-    HippyTurboBindInfo *info = [[HippyTurboBindInfo alloc] init];
-    info.moduleName = moduleName;
-    info.managedJsObject = [[JSManagedValue alloc] initWithValue:jsObj];
-    dispatch_sync(_bindingQueue, ^{
-        [self.bindingInfos setObject:info forKey:@(self.moduleStorageCount++)];
-    });
+    @autoreleasepool {
+        HippyTurboBindInfo *info = [[HippyTurboBindInfo alloc] init];
+        info.moduleName = moduleName;
+        info.managedJsObject = [[JSManagedValue alloc] initWithValue:jsObj];
+        dispatch_sync(_bindingQueue, ^{
+            [self.bindingInfos setObject:info forKey:@(self.moduleStorageCount++)];
+        });
+    }
 }
 
 - (NSString *)turboModuleNameForJSObject:(JSValue *)jsObj {
-    HippyTurboBindInfo __block * bindInfo = nil;
-    dispatch_sync(_bindingQueue, ^{
-        [self.bindingInfos enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key, HippyTurboBindInfo * _Nonnull obj, BOOL * _Nonnull stop) {
-            if (obj.managedJsObject.value == jsObj) {
-                bindInfo = obj;
-                *stop = YES;
-            }
-        }];
-    });
-    if (bindInfo) {
-        return bindInfo.moduleName;
+    @autoreleasepool {
+        HippyTurboBindInfo __block * bindInfo = nil;
+        dispatch_sync(_bindingQueue, ^{
+            [self.bindingInfos enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key, HippyTurboBindInfo * _Nonnull obj, BOOL * _Nonnull stop) {
+                if (obj.managedJsObject.value == jsObj) {
+                    bindInfo = obj;
+                    *stop = YES;
+                }
+            }];
+        });
+        if (bindInfo) {
+            return bindInfo.moduleName;
+        }
+        return nil;
     }
-    return nil;
 }
 
 @end
@@ -169,11 +176,15 @@ void HippyRegisterTurboModule(NSString *moduleName, Class moduleClass) {
 @implementation HippyBridge (HippyTurboModuleManager)
 
 - (HippyTurboModuleManager *)turboModuleManager {
-    return objc_getAssociatedObject(self, @selector(turboModuleManager));
+    @autoreleasepool {
+        return objc_getAssociatedObject(self, @selector(turboModuleManager));
+    }
 }
 
 - (void)setTurboModuleManager:(HippyTurboModuleManager *)turboModuleManager {
-    objc_setAssociatedObject(self, @selector(turboModuleManager), turboModuleManager, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    @autoreleasepool {
+        objc_setAssociatedObject(self, @selector(turboModuleManager), turboModuleManager, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
 }
 
 @end
