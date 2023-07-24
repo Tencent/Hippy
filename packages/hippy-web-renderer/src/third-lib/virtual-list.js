@@ -102,7 +102,10 @@ export  class VirtualizedList {
   handleScroll(e) {
     const {onScroll} = this.options;
     const offset = this.container.scrollTop;
-
+    if (offset < 0 || offset > (this._sizeAndPositionManager.getTotalSize()
+      - this.container.clientHeight)) {
+      return;
+    }
     this.setState({offset});
 
     if (typeof onScroll === 'function') {
@@ -125,7 +128,7 @@ export  class VirtualizedList {
 
     return offset;
   }
-  getOffset(){
+  getOffset() {
     return this.state.offset??0;
   }
 
