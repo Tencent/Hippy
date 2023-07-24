@@ -79,6 +79,11 @@ static bool IsMeasureNode(const std::string &name) {
 std::atomic<uint32_t> NativeRenderManager::unique_native_render_manager_id_{1};
 footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<hippy::NativeRenderManager>> NativeRenderManager::persistent_map_;
 
+
+StyleFilter::StyleFilter(const std::shared_ptr<JavaRef>& j_render_manager) {
+  hippy::GetPropsRegisterForRender(j_render_manager, styles_);
+}
+
 NativeRenderManager::NativeRenderManager() : RenderManager("NativeRenderManager"),
       serializer_(std::make_shared<footstone::value::Serializer>()) {
   id_ = unique_native_render_manager_id_.fetch_add(1);
@@ -87,6 +92,7 @@ NativeRenderManager::NativeRenderManager() : RenderManager("NativeRenderManager"
 void NativeRenderManager::CreateRenderDelegate() {
   persistent_map_.Insert(id_, shared_from_this());
   FOOTSTONE_CHECK(hippy::CreateJavaRenderManager(id_, j_render_manager_, j_render_delegate_));
+  NativeRenderManager::GetStyleFilter(j_render_manager_);
 }
 
 void NativeRenderManager::InitDensity() {
@@ -139,11 +145,13 @@ void NativeRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
     // 样式属性
     auto style = nodes[i]->GetStyleMap();
     auto iter = style->begin();
+    auto style_filter = NativeRenderManager::GetStyleFilter(j_render_manager_);
     while (iter != style->end()) {
-      props[iter->first] = *(iter->second);
+      if (style_filter->Enable(iter->first)) {
+        props[iter->first] = *(iter->second);
+      }
       iter++;
     }
-
     // 用户自定义属性
     auto dom_ext = *nodes[i]->GetExtStyle();
     iter = dom_ext.begin();
