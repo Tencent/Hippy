@@ -37,6 +37,23 @@ namespace hippy {
 inline namespace render {
 inline namespace native {
 
+class StyleFilter {
+public:
+  StyleFilter(const std::shared_ptr<JavaRef>& j_render_manager);
+  ~StyleFilter() = default;
+  StyleFilter(const StyleFilter&) = delete;
+  StyleFilter(StyleFilter&&) = delete;
+  StyleFilter& operator=(const StyleFilter&) = delete;
+  StyleFilter& operator=(StyleFilter&&) = delete;
+
+  bool Enable(const std::string& style) {
+    return styles_.find(style) != styles_.end();
+  }
+
+private:
+  std::unordered_set<std::string> styles_;
+};
+
 class NativeRenderManager : public RenderManager, public std::enable_shared_from_this<NativeRenderManager> {
  public:
   NativeRenderManager();
@@ -84,6 +101,11 @@ class NativeRenderManager : public RenderManager, public std::enable_shared_from
     return persistent_map_;
   }
 
+  static std::shared_ptr<StyleFilter> GetStyleFilter(const std::shared_ptr<JavaRef>& j_render_manager) {
+    static std::shared_ptr<StyleFilter> style_filter = std::make_shared<StyleFilter>(j_render_manager);
+    return style_filter;
+  }
+
  private:
   inline void MarkTextDirty(std::weak_ptr<RootNode> weak_root_node, uint32_t node_id);
 
@@ -121,7 +143,6 @@ class NativeRenderManager : public RenderManager, public std::enable_shared_from
 
   std::weak_ptr<DomManager> dom_manager_;
   static std::atomic<uint32_t> unique_native_render_manager_id_;
-  static std::unordered_set<std::string> style_for_render_set_;
   static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<NativeRenderManager>> persistent_map_;
 };
 }  // namespace native

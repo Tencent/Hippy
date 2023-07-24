@@ -65,7 +65,8 @@ bool CreateJavaRenderManager(uint32_t id, std::shared_ptr<JavaRef>&j_render_mana
 
 float GetDensity(std::shared_ptr<JavaRef>&j_render_manager);
 
-void GetPropsRegisterForRender(std::shared_ptr<JavaRef>&j_render_manager, std::unordered_set<std::string>&);
+void GetPropsRegisterForRender(const std::shared_ptr<JavaRef>& j_render_manager,
+                               std::unordered_set<std::string>& style_set);
 
 } // namespace native
 } // namespace render

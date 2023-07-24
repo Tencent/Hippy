@@ -132,17 +132,19 @@ float GetDensity(std::shared_ptr<JavaRef>&j_render_manager) {
   return static_cast<float>(j_float);
 }
 
-void GetPropsRegisterForRender(std::shared_ptr<JavaRef>&j_render_manager, std::unordered_set<std::string>&css_style_for_render_set_) {
+void GetPropsRegisterForRender(const std::shared_ptr<JavaRef>& j_render_manager,
+                               std::unordered_set<std::string>& style_set) {
   auto instance = JNIEnvironment::GetInstance();
   auto j_env = instance->AttachCurrentThread();
-  jobjectArray j_object_array = (jobjectArray) j_env->CallObjectMethod(j_render_manager->GetObj(), j_render_manager_get_style_for_render_id);
+  jobjectArray j_object_array =
+      (jobjectArray)j_env->CallObjectMethod(j_render_manager->GetObj(), j_render_manager_get_style_for_render_id);
   jsize j_size = j_env->GetArrayLength(j_object_array);
-  for (int i=0; i<j_size; i++) {
+  for (int i = 0; i < j_size; i++) {
     jstring j_style = reinterpret_cast<jstring>(j_env->GetObjectArrayElement(j_object_array, i));
     const char* utf_c = j_env->GetStringUTFChars(j_style, nullptr);
     if (utf_c != nullptr) {
       std::string style_name(utf_c);
-      css_style_for_render_set_.insert(style_name);
+      style_set.insert(style_name);
       j_env->ReleaseStringUTFChars(j_style, utf_c);
     }
   }
