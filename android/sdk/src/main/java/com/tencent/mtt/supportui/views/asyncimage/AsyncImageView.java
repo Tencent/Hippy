@@ -733,7 +733,6 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 		if (mRippleDrawable != null) {
 			drawableList.add(mRippleDrawable);
 		}
-        super.setBackground(null);
 		if (drawableList.size() > 0) {
 			Drawable[] drawables = new Drawable[drawableList.size()];
 			for (int i = 0; i < drawableList.size(); i++) {
@@ -741,6 +740,8 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 			}
 			LayerDrawable layerDrawable = new LayerDrawable(drawables);
 			super.setBackground(layerDrawable);
+		} else {
+			super.setBackground(null);
 		}
 	}
 }
