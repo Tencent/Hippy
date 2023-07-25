@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.0.0-alpha.21](https://github.com/Tencent/Hippy/compare/2.2.1...3.0.0-alpha.21) (2023-07-25)
+
+
+### Bug Fixes
+
+* **npm:** update lerna to fix vulernable npm package ([22ae601](https://github.com/Tencent/Hippy/commit/22ae601e50e7070b6290170938b984c85dac4940))
+
+
+
+
+
 # [3.0.0](https://github.com/Tencent/Hippy/compare/2.2.1...3.0.0) (2023-06-29)
 
 
