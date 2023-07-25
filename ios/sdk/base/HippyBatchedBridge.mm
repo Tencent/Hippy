@@ -21,7 +21,6 @@
  */
 
 #import <Foundation/Foundation.h>
-
 #import "HippyAssert.h"
 #import "HippyBridge.h"
 #import "HippyBridge+Private.h"
@@ -41,21 +40,22 @@
 #import "HippyDevManager.h"
 #import "HippyBundleURLProvider.h"
 #import "HippyTurboModuleManager.h"
-
+#import "HippyDeviceBaseInfo.h"
+#import <sys/utsname.h>
 #include "core/scope.h"
 
-#define HippyAssertJSThread()
-//
-// #define HippyAssertJSThread() \
-//HippyAssert(![NSStringFromClass([self->_javaScriptExecutor class]) isEqualToString:@"HippyJSCExecutor"] || \
-//[[[NSThread currentThread] name] isEqualToString:HippyJSCThreadName], \
-//@"This method must be called on JS thread")
-#import <sys/utsname.h>
 
-#define HippyAssertJSThread() \
-//HippyAssert(![NSStringFromClass([self->_javaScriptExecutor class]) isEqualToString:@"HippyJSCExecutor"] || \
-//[[[NSThread currentThread] name] isEqualToString:HippyJSCThreadName], \
-//@"This method must be called on JS thread")
+#define HippyAssertJSThread() // TODO: add assert imp
+
+static NSString *const HippyNativeGlobalKeyOS = @"OS";
+static NSString *const HippyNativeGlobalKeyOSVersion = @"OSVersion";
+static NSString *const HippyNativeGlobalKeyDevice = @"Device";
+static NSString *const HippyNativeGlobalKeySDKVersion = @"SDKVersion";
+static NSString *const HippyNativeGlobalKeyAppVersion = @"AppVersion";
+static NSString *const HippyNativeGlobalKeyDimensions = @"Dimensions";
+static NSString *const HippyNativeGlobalKeyLocalization = @"Localization";
+NSString *const HippyNativeGlobalKeyNightMode = @"NightMode";
+
 
 /**
  * Must be kept in sync with `MessageQueue.js`.
@@ -67,6 +67,16 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     HippyBridgeFieldCallID,
 };
 
+
+#pragma mark -
+
+@interface HippyBatchedBridge ()
+
+/// A helper class for getting device related info, like `Dimensions`.
+@property (nonatomic, strong) HippyDeviceBaseInfo *deviceBaseInfo;
+
+@end
+
 @implementation HippyBatchedBridge {
     BOOL _wasBatchActive;
     NSMutableArray<dispatch_block_t> *_pendingCalls;
@@ -76,6 +86,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     NSUInteger _modulesInitializedOnMainQueue;
     HippyDisplayLink *_displayLink;
     NSDictionary *_dimDic;
+    NSDictionary *_cachedDeviceInfo;
     HippyDevManager *_devManager;
     std::mutex _moduleDataMutex;
 }
@@ -87,19 +98,23 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
 @synthesize valid = _valid;
 @synthesize errorOccured = _errorOccured;
 @synthesize performanceLogger = _performanceLogger;
+@synthesize isOSNightMode = _isOSNightMode;
 
 - (instancetype)initWithParentBridge:(HippyBridge *)bridge {
     HippyAssertParam(bridge);
 
-    if (self = [super initWithDelegate:bridge.delegate bundleURL:bridge.bundleURL moduleProvider:bridge.moduleProvider
+    if (self = [super initWithDelegate:bridge.delegate
+                             bundleURL:bridge.bundleURL
+                        moduleProvider:bridge.moduleProvider
                          launchOptions:bridge.launchOptions
                            executorKey:bridge.executorKey]) {
-        HippyExecuteOnMainThread(
-            ^{
-                self->_dimDic = hippyExportedDimensions();
-            }, YES);
         _parentBridge = bridge;
         _performanceLogger = [bridge performanceLogger];
+        
+        HippyExecuteOnMainThread(^{
+            self->_isOSNightMode = isHippyScreenInOSDarkMode();
+            self->_dimDic = hippyExportedDimensions(bridge);
+        }, YES);
         /**
          * Set Initial State
          */
@@ -107,6 +122,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
         _loading = YES;
         _pendingCalls = [NSMutableArray new];
         _displayLink = [HippyDisplayLink new];
+        _deviceBaseInfo = [[HippyDeviceBaseInfo alloc] initWithHippyBridge:bridge];
 
         [HippyBridge setCurrentBridge:self];
         HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyBatchedBridge Init %p", self);
@@ -586,28 +602,53 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
 #endif
 }
 
-- (NSDictionary *)deviceInfo {
-    //该方法可能从非UI线程调用
+#pragma mark -
+
+- (NSDictionary *)genRawDeviceInfoDict {
+    // This method may be called from a child thread
     NSString *iosVersion = [[UIDevice currentDevice] systemVersion];
     struct utsname systemInfo;
     uname(&systemInfo);
     NSString *deviceModel = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
     NSMutableDictionary *deviceInfo = [NSMutableDictionary dictionary];
-    [deviceInfo setValue:@"ios" forKey:@"OS"];
-    [deviceInfo setValue:iosVersion forKey:@"OSVersion"];
-    [deviceInfo setValue:deviceModel forKey:@"Device"];
-    [deviceInfo setValue:_HippySDKVersion forKey:@"SDKVersion"];
-    [deviceInfo setValue:_parentBridge.appVerson forKey:@"AppVersion"];
-    if (_dimDic) {
-        [deviceInfo setValue:_dimDic forKey:@"Dimensions"];
+    [deviceInfo setValue:@"ios" forKey:HippyNativeGlobalKeyOS];
+    [deviceInfo setValue:iosVersion forKey:HippyNativeGlobalKeyOSVersion];
+    [deviceInfo setValue:deviceModel forKey:HippyNativeGlobalKeyDevice];
+    [deviceInfo setValue:_HippySDKVersion forKey:HippyNativeGlobalKeySDKVersion];
+    
+    NSString *appVer = [[NSBundle.mainBundle infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+    if (appVer) {
+        [deviceInfo setValue:appVer forKey:HippyNativeGlobalKeyAppVersion];
     }
+    
+    if (_dimDic) {
+        [deviceInfo setValue:_dimDic forKey:HippyNativeGlobalKeyDimensions];
+    }
+    
     NSString *countryCode = [[HippyI18nUtils sharedInstance] currentCountryCode];
     NSString *lanCode = [[HippyI18nUtils sharedInstance] currentAppLanguageCode];
     NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
-    NSDictionary *local = @{@"country": countryCode?:@"unknown", @"language": lanCode?:@"unknown", @"direction": @(direction)};
-    [deviceInfo setValue:local forKey:@"Localization"];
-    return [NSDictionary dictionaryWithDictionary:deviceInfo];
+    NSDictionary *localizaitionInfo = @{
+        @"country" : countryCode?:@"unknown",
+        @"language" : lanCode?:@"unknown",
+        @"direction" : @(direction)
+    };
+    [deviceInfo setValue:localizaitionInfo forKey:HippyNativeGlobalKeyLocalization];
+    [deviceInfo setValue:@([self isOSNightMode]) forKey:HippyNativeGlobalKeyNightMode];
+    return deviceInfo;
 }
+
+- (NSDictionary *)deviceInfo {
+    @synchronized (self) {
+        if (!_cachedDeviceInfo) {
+            _cachedDeviceInfo = [self genRawDeviceInfoDict];
+        }
+        return _cachedDeviceInfo;
+    }
+}
+
+
+#pragma mark -
 
 - (void)_flushPendingCalls {
     HippyAssertJSThread();
@@ -1188,6 +1229,17 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 
 - (BOOL)isBatchActive {
     return _wasBatchActive;
+}
+
+- (void)updateNativeInfoToHippyGlobalObject:(NSDictionary *)nativeInfo {
+    [self.javaScriptExecutor updateNativeInfoToHippyGlobalObject:nativeInfo];
+}
+
+- (void)setOSNightMode:(BOOL)isOSNightMode notifyToJS:(BOOL)shouldNotify {
+    _isOSNightMode = isOSNightMode;
+    if (shouldNotify) {
+        [self updateNativeInfoToHippyGlobalObject:@{HippyNativeGlobalKeyNightMode: @(isOSNightMode)}];
+    }
 }
 
 @end

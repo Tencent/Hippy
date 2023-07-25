@@ -23,6 +23,8 @@
 #import "HippyBridge.h"
 #import "HippyJavaScriptExecutor.h"
 
+FOUNDATION_EXTERN NSString *const HippyNativeGlobalKeyNightMode;
+
 @class HippyModuleData;
 @protocol HippyJavaScriptExecutor;
 
@@ -141,6 +143,10 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
  * Get the turbo module for a given name.
  */
 - (HippyOCTurboModule *)turboModuleWithName:(NSString *)name;
+
+/// update info to hippy js native global
+/// - Parameter nativeInfo: info dict
+- (void)updateNativeInfoToHippyGlobalObject:(NSDictionary *)nativeInfo;
 
 @end
 

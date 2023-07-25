@@ -60,29 +60,15 @@ extern NSString *const HippyContentDidAppearNotification;
                   shareOptions:(NSDictionary *)shareOptions
                       delegate:(id<HippyRootViewDelegate>)delegate;
 
-- (instancetype)initWithBundleURL:(NSURL *)bundleURL
-                       moduleName:(NSString *)moduleName
-                initialProperties:(NSDictionary *)initialProperties
-                    launchOptions:(NSDictionary *)launchOptions
-                     shareOptions:(NSDictionary *)shareOptions
-                        debugMode:(BOOL)mode
-                         delegate:(id<HippyRootViewDelegate>)delegate;
-
 /**
- * - Convenience initializer -
- * A bridge will be created internally.
- * This initializer is intended to be used when the app has a single HippyRootView,
- * otherwise create an `HippyBridge` and pass it in via `initWithBridge:moduleName:`
- * to all the instances.
+ * - Convenience initializer
  */
-
 - (instancetype)initWithBridge:(HippyBridge *)bridge
                    businessURL:(NSURL *)businessURL
                     moduleName:(NSString *)moduleName
              initialProperties:(NSDictionary *)initialProperties
                  launchOptions:(NSDictionary *)launchOptions
                   shareOptions:(NSDictionary *)shareOptions
-                     debugMode:(BOOL)mode
                       delegate:(id<HippyRootViewDelegate>)delegate;
 
 /**
@@ -177,7 +163,20 @@ extern NSString *const HippyContentDidAppearNotification;
 @property (nonatomic, assign) NSTimeInterval loadingViewFadeDuration;
 @property (nonatomic, assign) Class customTouchHandler;
 
-// MttRN:
 - (void)bundleFinishedLoading:(HippyBridge *)bridge;
 - (void)runApplication:(HippyBridge *)bridge;
+
+
+#pragma mark -
+
+/// This method should be called when the host controller's view's size is changed
+///  (i.e. for the root view controller when its window rotates or is resized).
+///
+///  Note that `useViewWillTransitionMethodToMonitorOrientation` flag must be set when init bridge,
+///  otherwise calling this function takes no effect.
+///
+/// - Parameter size: the new size
+- (void)onHostControllerTransitionedToSize:(CGSize)size;
+
+
 @end

@@ -546,7 +546,21 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
     }];
 }
 
--(void)addInfoToGlobalObject:(NSDictionary*)addInfoDict{
+- (void)updateNativeInfoToHippyGlobalObject:(NSDictionary *)updatedInfoDict {
+    if (updatedInfoDict.count <= 0){
+        return;
+    }
+    __weak __typeof(self)weakSelf = self;
+    [self executeBlockOnJavaScriptQueue:^{
+        __strong __typeof(weakSelf)strongSelf = weakSelf;
+        if (!strongSelf || !strongSelf.isValid || nullptr == strongSelf.pScope) {
+            return;
+        }
+        [strongSelf addInfoToGlobalObject:updatedInfoDict.copy];
+    }];
+}
+
+- (void)addInfoToGlobalObject:(NSDictionary*)addInfoDict{
     JSContext *context = [self JSContext];
     if (context) {
         JSValue *value = context[@"__HIPPYNATIVEGLOBAL__"];
@@ -574,8 +588,16 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
     [self _executeJSCall:bridgeMethod arguments:@[module, method, args] unwrapResult:unwrapResult callback:onComplete];
 }
 
-- (void)callFunctionOnModule:(NSString *)module method:(NSString *)method arguments:(NSArray *)args callback:(HippyJavaScriptCallback)onComplete {
-    [self _callFunctionOnModule:module method:method arguments:args returnValue:YES unwrapResult:YES callback:onComplete];
+- (void)callFunctionOnModule:(NSString *)moduleName
+                      method:(NSString *)method
+                   arguments:(NSArray *)args
+                    callback:(HippyJavaScriptCallback)onComplete {
+    [self _callFunctionOnModule:moduleName
+                         method:method
+                      arguments:args
+                    returnValue:YES
+                   unwrapResult:YES
+                       callback:onComplete];
 }
 
 - (void)callFunctionOnModule:(NSString *)module

@@ -22,9 +22,7 @@
 
 #import "HippyBridge.h"
 #import "HippyBridge+Private.h"
-
 #import <objc/runtime.h>
-
 #import "HippyConvert.h"
 #import "HippyEventDispatcher.h"
 #import "HippyKeyCommands.h"
@@ -174,16 +172,6 @@ static HippyBridge *HippyCurrentBridgeInstance = nil;
     HippyCurrentBridgeInstance = currentBridge;
 }
 
-- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate launchOptions:(NSDictionary *)launchOptions {
-    return [self initWithDelegate:delegate bundleURL:nil moduleProvider:nil launchOptions:launchOptions executorKey:nil];
-}
-
-- (instancetype)initWithBundleURL:(NSURL *)bundleURL
-                   moduleProvider:(HippyBridgeModuleProviderBlock)block
-                    launchOptions:(NSDictionary *)launchOptions
-                      executorKey:(NSString *)executorKey;
-{ return [self initWithDelegate:nil bundleURL:bundleURL moduleProvider:block launchOptions:launchOptions executorKey:executorKey]; }
-
 - (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
                        bundleURL:(NSURL *)bundleURL
                   moduleProvider:(HippyBridgeModuleProviderBlock)block
@@ -195,8 +183,8 @@ static HippyBridge *HippyCurrentBridgeInstance = nil;
         _moduleProvider = block;
         _debugMode = [launchOptions[@"DebugMode"] boolValue];
         _enableTurbo = !!launchOptions[@"EnableTurbo"] ? [launchOptions[@"EnableTurbo"] boolValue] : YES;
+        _launchOptions = launchOptions;
         _shareOptions = [NSMutableDictionary new];
-        _appVerson = @"";
         _executorKey = executorKey;
         _invalidateReason = HippyInvalidateReasonDealloc;
         [self setUp];
@@ -417,6 +405,16 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     [self.batchedBridge.javaScriptExecutor setInspectable:isInspectable];
 }
 
+- (BOOL)isOSNightMode {
+    return self.batchedBridge.isOSNightMode;
+}
+
+- (void)setOSNightMode:(BOOL)isOSNightMode notifyToJS:(BOOL)shouldNotify {
+    [self.batchedBridge setOSNightMode:isOSNightMode notifyToJS:shouldNotify];
+}
+
+#pragma mark -
+
 - (HippyOCTurboModule *)turboModuleWithName:(NSString *)name {
     return [self.batchedBridge turboModuleWithName:name];
 }
@@ -442,3 +440,4 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 @end
+
