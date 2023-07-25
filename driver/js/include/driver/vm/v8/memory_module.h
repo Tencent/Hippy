@@ -29,6 +29,8 @@ namespace hippy {
 inline namespace driver {
 inline namespace module {
 
+std::shared_ptr<CtxValue> GetV8Memory(std::shared_ptr<Scope> scope);
+
 class MemoryModule : public ModuleBase {
  public:
   MemoryModule() {}
