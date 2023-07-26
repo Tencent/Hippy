@@ -41,8 +41,9 @@
 #import "HippyBundleURLProvider.h"
 #import "HippyTurboModuleManager.h"
 #import "HippyDeviceBaseInfo.h"
+#import "HippyEventDispatcher.h"
 #import <sys/utsname.h>
-#include "core/scope.h"
+#import "core/scope.h"
 
 
 #define HippyAssertJSThread() // TODO: add assert imp
@@ -54,7 +55,7 @@ static NSString *const HippyNativeGlobalKeySDKVersion = @"SDKVersion";
 static NSString *const HippyNativeGlobalKeyAppVersion = @"AppVersion";
 static NSString *const HippyNativeGlobalKeyDimensions = @"Dimensions";
 static NSString *const HippyNativeGlobalKeyLocalization = @"Localization";
-NSString *const HippyNativeGlobalKeyNightMode = @"NightMode";
+static NSString *const HippyNativeGlobalKeyNightMode = @"NightMode";
 
 
 /**
@@ -1235,11 +1236,19 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     [self.javaScriptExecutor updateNativeInfoToHippyGlobalObject:nativeInfo];
 }
 
-- (void)setOSNightMode:(BOOL)isOSNightMode notifyToJS:(BOOL)shouldNotify {
+static NSString *const hippyOnNightModeChangedEvent = @"onNightModeChanged";
+static NSString *const hippyOnNightModeChangedParam1 = @"NightMode";
+static NSString *const hippyOnNightModeChangedParam2 = @"RootViewTag";
+
+- (void)setOSNightMode:(BOOL)isOSNightMode withRootViewTag:(nonnull NSNumber *)rootViewTag {
     _isOSNightMode = isOSNightMode;
-    if (shouldNotify) {
-        [self updateNativeInfoToHippyGlobalObject:@{HippyNativeGlobalKeyNightMode: @(isOSNightMode)}];
-    }
+    // notify to js side
+    [self updateNativeInfoToHippyGlobalObject:@{HippyNativeGlobalKeyNightMode: @(isOSNightMode)}];
+    NSDictionary *args = @{@"eventName": hippyOnNightModeChangedEvent,
+                           @"extra": @{ hippyOnNightModeChangedParam1 : @(isOSNightMode),
+                                        hippyOnNightModeChangedParam2 : rootViewTag } };
+    [self.parentBridge.eventDispatcher dispatchEvent:@"EventDispatcher"
+                                          methodName:@"receiveNativeEvent" args:args];
 }
 
 @end

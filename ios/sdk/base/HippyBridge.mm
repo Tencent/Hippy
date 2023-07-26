@@ -409,8 +409,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     return self.batchedBridge.isOSNightMode;
 }
 
-- (void)setOSNightMode:(BOOL)isOSNightMode notifyToJS:(BOOL)shouldNotify {
-    [self.batchedBridge setOSNightMode:isOSNightMode notifyToJS:shouldNotify];
+- (void)setOSNightMode:(BOOL)isOSNightMode withRootViewTag:(NSNumber *)rootViewTag {
+    [self.batchedBridge setOSNightMode:isOSNightMode withRootViewTag:rootViewTag];
 }
 
 #pragma mark -
