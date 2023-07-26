@@ -629,4 +629,14 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
             }
         }
     }
+
+    @Override
+    public void requestLayout() {
+        super.requestLayout();
+        // Since HippyRootView doesn't measure and layout child Views, notify the RenderManager to schedule a layout
+        RenderNode node = RenderManager.getRenderNode(this);
+        if (node != null) {
+            node.requestLayout();
+        }
+    }
 }

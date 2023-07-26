@@ -28,6 +28,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 
 import com.openhippy.pool.BasePool.PoolType;
+import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.Renderer;
@@ -63,6 +64,9 @@ public class RenderManager {
     private final ControllerManager mControllerManager;
     @NonNull
     private final Map<Integer, List<RenderNode>> mUIUpdateNodes = new HashMap<>();
+
+    @NonNull
+    private final Map<Integer, List<RenderNode>> mPostUIUpdateNodes = new HashMap<>();
 
     public RenderManager(Renderer renderer) {
         mControllerManager = new ControllerManager(renderer);
@@ -173,6 +177,26 @@ public class RenderManager {
             mUIUpdateNodes.put(rootId, updateNodes);
         } else if (!updateNodes.contains(node)) {
             updateNodes.add(node);
+        }
+    }
+
+    public void postUpdateNodeIfNeeded(int rootId, RenderNode node) {
+        if (isBatching) {
+            List<RenderNode> postUpdateNodes = mPostUIUpdateNodes.get(rootId);
+            if (postUpdateNodes == null) {
+                postUpdateNodes = new ArrayList<>();
+                postUpdateNodes.add(node);
+                mPostUIUpdateNodes.put(rootId, postUpdateNodes);
+            } else if (!postUpdateNodes.contains(node)) {
+                postUpdateNodes.add(node);
+            }
+        } else {
+            List<RenderNode> updateNodes = mUIUpdateNodes.get(rootId);
+            boolean needBatch = updateNodes == null || updateNodes.isEmpty();
+            addUpdateNodeIfNeeded(rootId, node);
+            if (needBatch) {
+                UIThreadUtils.runOnUiThreadDelayed(() -> batch(rootId), 0);
+            }
         }
     }
 
@@ -356,6 +380,13 @@ public class RenderManager {
         }
         mControllerManager.onBatchEnd(rootId);
         updateNodes.clear();
+
+        List<RenderNode> postUpdateNodes = mPostUIUpdateNodes.get(rootId);
+        if (postUpdateNodes != null && !postUpdateNodes.isEmpty()) {
+            updateNodes.addAll(postUpdateNodes);
+            postUpdateNodes.clear();
+            UIThreadUtils.runOnUiThreadDelayed(() -> batch(rootId), 0);
+        }
         isBatching = false;
     }
 

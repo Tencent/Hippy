@@ -737,4 +737,9 @@ public class RenderNode {
     public boolean checkGestureEnable() {
         return mComponent != null && mComponent.getGestureEnable();
     }
+
+    public void requestLayout() {
+        setNodeFlag(FLAG_UPDATE_LAYOUT);
+        mControllerManager.getRenderManager().postUpdateNodeIfNeeded(mRootId, this);
+    }
 }
