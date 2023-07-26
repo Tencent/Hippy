@@ -86,3 +86,16 @@ app.$on('onSizeChanged', ({ oldWidth, oldHeight, width, height }) => {
     console.log('size', oldWidth, oldHeight, width, height);
 });
 ```
+
+# System night mode change event
+
+`Only supported by iOS, the minimum supported version is 2.16.6, (Note: The page will be recreated when Android modifies the night mode)`
+
+This event is triggered when the system night mode changes
+
+```jsx
+app.$on('onNightModeChanged', ({ NightMode, RootViewTag }) => {
+     // NightMode: whether the current night mode, the value is 0 or 1; RootViewTag: the Tag of the HippyRootView that sends the event
+     console.log(`onDarkModeChanged: ${NightMode}, rootViewTag: ${RootViewTag}`);
+});
+```

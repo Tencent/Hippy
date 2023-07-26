@@ -158,3 +158,18 @@ hippyEventEmitter.addListener('onSizeChanged', ({ oldWidth, oldHeight, width, he
     console.log('size', oldWidth, oldHeight, width, height);
 });
 ```
+
+# 系统夜间模式改变事件
+
+`仅iOS支持，最低支持版本 2.16.6，（注：Android修改夜间模式时页面将被重新创建）`
+
+在当系统夜间模式发生改变时，会触发该事件
+
+```jsx
+import { HippyEventEmitter } from '@hippy/react';
+const hippyEventEmitter = new HippyEventEmitter();
+hippyEventEmitter.addListener('onNightModeChanged', ({ NightMode, RootViewTag }) => {
+    // NightMode: 当前是否夜间模式，取值0或1；RootViewTag: 发送事件的HippyRootView的Tag
+    console.log(`onDarkModeChanged: ${NightMode}, rootViewTag: ${RootViewTag}`);
+});
+```

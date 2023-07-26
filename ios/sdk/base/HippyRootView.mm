@@ -401,7 +401,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
         if (currentStyle != previousTraitCollection.userInterfaceStyle) {
             BOOL isNightMode = (UIUserInterfaceStyleDark == currentStyle);
             if (self.bridge.isOSNightMode != isNightMode) {
-                [self.bridge setOSNightMode:isNightMode notifyToJS:YES];
+                [self.bridge setOSNightMode:isNightMode withRootViewTag:self.hippyTag];
             }
         }
     }

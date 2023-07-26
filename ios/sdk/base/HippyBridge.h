@@ -266,8 +266,8 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 /// update `NightMode` state when changed
 /// - Parameter isOSNightMode: bool
-/// - Parameter shouldNotify: should notify js side or not
-- (void)setOSNightMode:(BOOL)isOSNightMode notifyToJS:(BOOL)shouldNotify;
+/// - Parameter rootViewTag: rootView's hippyTag
+- (void)setOSNightMode:(BOOL)isOSNightMode withRootViewTag:(NSNumber *)rootViewTag;
 
 
 #pragma mark - Turbo Module
