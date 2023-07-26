@@ -25,15 +25,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-extern NSDictionary *hippyExportedDimensions(void);
-#ifdef __cplusplus
-}
-#endif
+FOUNDATION_EXTERN BOOL isHippyScreenInOSDarkMode(void);
+FOUNDATION_EXTERN NSDictionary *hippyExportedDimensions(HippyBridge *);
+FOUNDATION_EXTERN NSString *const HippyDimensionsShouldUpdateNotification;
 
-@interface HippyDeviceBaseInfo : NSObject <HippyBridgeModule>
+/// A Helper class that collects `Dimensions` info
+@interface HippyDeviceBaseInfo : NSObject
+
++ (instancetype)new NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
+
+/// Init Method
+/// - Parameter bridge: the hippy bridge
+- (instancetype)initWithHippyBridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
 
 @end
 

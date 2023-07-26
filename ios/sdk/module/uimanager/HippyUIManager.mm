@@ -1390,7 +1390,7 @@ HIPPY_EXPORT_METHOD(measureInAppWindow:(nonnull NSNumber *)hippyTag
         allJSConstants[name] = constantsNamespace;
     }];
 
-    NSDictionary *dim = hippyExportedDimensions();
+    NSDictionary *dim = hippyExportedDimensions(self.bridge);
     [allJSConstants addEntriesFromDictionary:@{ @"customDirectEventTypes": directEvents, @"Dimensions": dim }];
     return allJSConstants;
 }

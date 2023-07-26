@@ -123,7 +123,7 @@ static NSString *hippyReachabilityGetCellType(NSString *cellType) {
     return HippNetworkCellTypeUnknown;
 }
 
-static SCNetworkReachabilityRef createReachabilityRefWithZeroAddress() {
+static SCNetworkReachabilityRef createReachabilityRefWithZeroAddress(void) {
     struct sockaddr_in zeroAddress;
     bzero(&zeroAddress, sizeof(zeroAddress));
     zeroAddress.sin_len = sizeof(zeroAddress);
