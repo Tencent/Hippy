@@ -47,7 +47,7 @@ typedef struct _BorderRadiusStruct {
     CGFloat bottomRightRadius;
 } BorderRadiusStruct;
 
-static NSOperationQueue *hippy_image_queue() {
+static NSOperationQueue *hippy_image_queue(void) {
     static dispatch_once_t onceToken;
     static NSOperationQueue *_hippy_image_queue = nil;
     dispatch_once(&onceToken, ^{
@@ -57,7 +57,7 @@ static NSOperationQueue *hippy_image_queue() {
     return _hippy_image_queue;
 }
 
-static NSOperationQueue *animated_image_queue() {
+static NSOperationQueue *animated_image_queue(void) {
     static dispatch_once_t onceToken;
     static NSOperationQueue *_animatedImageOQ = nil;
     dispatch_once(&onceToken, ^{

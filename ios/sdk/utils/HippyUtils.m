@@ -223,7 +223,7 @@ NSString *HippyMD5Hash(NSString *string) {
                      result[15]];
 }
 
-BOOL HippyIsMainQueue() {
+BOOL HippyIsMainQueue(void) {
     static void *mainQueueKey = &mainQueueKey;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -250,7 +250,7 @@ void HippyExecuteOnMainThread(dispatch_block_t block, BOOL sync) {
     }
 }
 
-CGFloat HippyScreenScale() {
+CGFloat HippyScreenScale(void) {
     static CGFloat scale = CGFLOAT_MAX;
     static dispatch_once_t onceToken;
     if (CGFLOAT_MAX == scale) {
@@ -265,7 +265,7 @@ CGFloat HippyScreenScale() {
     return scale;
 }
 
-CGSize HippyScreenSize() {
+CGSize HippyScreenSize(void) {
     static CGSize size = { 0, 0 };
     static dispatch_once_t onceToken;
     if (CGSizeEqualToSize(CGSizeZero, size)) {

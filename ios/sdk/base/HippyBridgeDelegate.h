@@ -26,7 +26,9 @@
 @class HippyBridge;
 @protocol HippyBridgeModule;
 
+
 @protocol HippyBridgeDelegate <NSObject>
+
 
 @optional
 
@@ -125,7 +127,26 @@
 
 - (BOOL)dynamicLoad:(HippyBridge *)bridge URI:(NSString *)uri completion:(void (^)(NSString *))completion;
 
-//chrome dev tools inspector delegate
+/// When return YES,
+/// it indicates that you want to use the `viewWillTransitionToSize` method in UIViewController
+/// instead of the deprecated UIApplicationDidChangeStatusBarOrientationNotification.
+///
+/// Note that you must call `onHostControllerTransitionedToSize` of HippyRootView when size changed.
+- (BOOL)shouldUseViewWillTransitionMethodToMonitorOrientation;
+
+
+/// The default status bar height when hippy cannot obtained dynamically.
+///
+/// Note: In general, the page layout should not depend on `StatusBar` height,
+/// Its height is dynamically changed and should be obtained dynamically.
+/// This value is only used as a default value if hippy cannot be obtained.
+///
+/// Only for compatibility with old code, strongly discouraged.
+/// return values less than 0 will be treated as 0.
+- (CGFloat)defaultStatusBarHeightNoMatterHiddenOrNot;
+
+
+#pragma mark - DevTools inspector delegate
 
 /**
  * ask delegate should bridge start a web inspector

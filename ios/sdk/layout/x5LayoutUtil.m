@@ -32,7 +32,7 @@ static void x5ExecuteOnMainThread(dispatch_block_t block, BOOL sync) {
     }
 }
 
-static CGFloat x5ScreenScale() {
+static CGFloat x5ScreenScale(void) {
     static CGFloat scale;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{

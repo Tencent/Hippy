@@ -110,7 +110,7 @@ static NSMutableDictionary *mutableDictionaryForKey(NSString *key, BOOL *created
     return [[NSMutableDictionary alloc] initWithCapacity:16];
 }
 
-static dispatch_queue_t HippyGetMethodQueue() {
+static dispatch_queue_t HippyGetMethodQueue(void) {
     // We want all instances to share the same queue since they will be reading/writing the same files.
     static dispatch_queue_t queue;
     static dispatch_once_t onceToken;
@@ -120,7 +120,7 @@ static dispatch_queue_t HippyGetMethodQueue() {
     return queue;
 }
 
-static NSCache *HippyGetCache() {
+static NSCache *HippyGetCache(void) {
     // We want all instances to share the same cache since they will be reading/writing the same files.
     static NSCache *cache;
     static dispatch_once_t onceToken;
