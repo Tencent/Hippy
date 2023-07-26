@@ -364,7 +364,6 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     return _enginekey ?: [NSString stringWithFormat:@"%p", self];
 }
 
-// clang-format off
 - (void)setContextName:(NSString *)contextName {
 #ifdef JS_JSC
     if (!contextName) {
@@ -410,7 +409,6 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 #endif //defined(__IPHONE_16_4) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_16_4
 #endif //JS_JSC
 }
-// clang-format on
 
 - (void)dealloc {
     HPLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor dealloc %p", self);

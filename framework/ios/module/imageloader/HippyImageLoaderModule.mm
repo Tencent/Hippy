@@ -55,7 +55,6 @@ HIPPY_EXPORT_MODULE(ImageLoaderModule)
     return nil;
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveBlock)resolve rejecter:(HippyPromiseRejectBlock)reject) {
     [self.bridge loadContentsAsynchronouslyFromUrl:urlString
                                             method:@"Get"
@@ -93,9 +92,7 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
         }
     }];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(prefetch:(NSString *)urlString) {
     [self.bridge loadContentsAsynchronouslyFromUrl:urlString
                                             method:@"Get"
@@ -107,6 +104,5 @@ HIPPY_EXPORT_METHOD(prefetch:(NSString *)urlString) {
 
     }];
 }
-// clang-format on
 
 @end
