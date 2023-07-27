@@ -33,7 +33,7 @@ import { isFunc } from '../utils';
  * @noInheritDoc
  */
 export interface TextInputProps extends LayoutableProps, ClickableProps {
-  style?: HippyTypes.Style;
+  style?: HippyTypes.TextStyle | HippyTypes.TextStyle[];
   caretColor?: string;
   defaultValue?: string;
   editable?: boolean;

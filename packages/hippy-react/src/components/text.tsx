@@ -59,7 +59,7 @@ export interface TextProps extends LayoutableProps, ClickableProps {
   ellipsizeMode?: 'head' | 'middle' | 'tail' | 'clip';
   children: number | string | string[];
   text?: string;
-  style?: HippyTypes.Style | HippyTypes.Style[];
+  style?: HippyTypes.TextStyle | HippyTypes.TextStyle[];
 
   /**
    * When forbidUnicodeToChar is set，component will not convert unicode string to normal string

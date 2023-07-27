@@ -63,7 +63,7 @@ export interface ImageProps extends LayoutableProps, ClickableProps {
   /**
    * Image style when `Image` have other children.
    */
-  imageStyle?: HippyTypes.Style;
+  imageStyle?: HippyTypes.ImageStyle;
 
   /**
    * Image ref when `Image` have other children.
@@ -87,7 +87,7 @@ export interface ImageProps extends LayoutableProps, ClickableProps {
     left: number;
   };
 
-  style: HippyTypes.Style;
+  style: HippyTypes.ImageStyle;
 
   /**
    * Invoked on `Image` is loaded.

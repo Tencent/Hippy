@@ -30,8 +30,8 @@ import { isFunc, noop } from '../utils';
 type ImageResizeMode = 'cover' | 'contain' | 'stretch' | 'center' | 'none';
 export interface ImageProps extends LayoutableProps, TouchableProps, ClickableProps {
   [key: string]: any;
-  style: HippyTypes.Style;
-  tintColor?: HippyTypes.color;
+  style: HippyTypes.ImageStyle | HippyTypes.ImageStyle[];
+  tintColor?: HippyTypes.tintColor;
   children?: any;
   onError?: LoadError;
   defaultSource?: string;
