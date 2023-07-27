@@ -19,7 +19,7 @@
  */
 
 import { Property } from 'csstype';
-import { ComponentContext, HippyBaseView } from '../types';
+import { ComponentContext, HippyBaseView, HippyCallBack } from '../types';
 import { convertHexToRgba, setElementStyle, warn } from '../common';
 import { HippyWebModule } from '../base';
 import AnimationFillMode = Property.AnimationFillMode;
@@ -138,6 +138,24 @@ export class AnimationModule extends HippyWebModule {
     return this.animationPool[animationId];
   }
 
+  public addEventListener(animationId: number, eventName: string, listener: HippyCallBack) {
+    if (this.animationPool[animationId]) {
+      this.animationPool[animationId]?.addAnimationEventListener(eventName, listener);
+    }
+    if (this.animationSetPool[animationId]) {
+      this.animationSetPool[animationId]?.addAnimationEventListener(eventName, listener);
+    }
+  }
+
+  public removeEventListener(animationId: number, eventName: string, listener: HippyCallBack) {
+    if (this.animationPool[animationId]) {
+      this.animationPool[animationId]?.removeAnimationEventListener(eventName, listener);
+    }
+    if (this.animationSetPool[animationId]) {
+      this.animationSetPool[animationId]?.removeAnimationEventListener(eventName, listener);
+    }
+  }
+
   private isValidAnimationId(animationId: number) {
     return this.animationPool[animationId] || this.animationSetPool[animationId];
   }
@@ -215,7 +233,72 @@ interface AnimationSetOptions {
   children: Array<{animationId: number, follow: boolean}>
 }
 
-class SimpleAnimation {
+/**
+ * get real animation event name, compatible vue-next change
+ */
+function getRealEventName(type: string): string {
+  switch (type) {
+    case 'animationstart':
+      return HippyAnimationEvent.START;
+    case 'animationend':
+      return HippyAnimationEvent.END;
+    case 'animationrepeat':
+      return HippyAnimationEvent.REPEAT;
+    case 'animationcancel':
+      return HippyAnimationEvent.CANCEL;
+    default:
+      return type;
+  }
+}
+
+class AnimationEventTarget {
+  private events: { [key: string]: HippyCallBack[] } = {};
+
+  public addAnimationEventListener(type: string, listener: HippyCallBack) {
+    const eventName = getRealEventName(type);
+    const eventListeners = this.events[eventName];
+    if (eventListeners?.length) {
+      eventListeners.push(listener);
+    } else {
+      this.events[eventName] = [listener];
+    }
+  }
+
+  public removeAnimationEventListener(type: string, listener?: HippyCallBack) {
+    const eventName = getRealEventName(type);
+    if (!listener) {
+      this.events[eventName] = [];
+      return;
+    }
+    const eventListeners = this.events[eventName];
+    if (eventListeners) {
+      const indexList: number[] = [];
+      eventListeners.forEach((value, index) => {
+        if (value === listener) {
+          indexList.push(index);
+        }
+      });
+      if (indexList) {
+        indexList.forEach((value) => {
+          delete eventListeners[value];
+        });
+      }
+    } else {
+      this.events[eventName] = [];
+    }
+  }
+
+  protected dispatchEvent(eventName: HippyAnimationEvent) {
+    const eventListeners = this.events[eventName];
+    if (eventListeners?.length) {
+      eventListeners.forEach((listener: HippyCallBack) => {
+        listener.resolve(null);
+      });
+    }
+  }
+}
+
+class SimpleAnimation extends AnimationEventTarget {
   public id: string | number;
   public context: ComponentContext;
   public timeMode: string | undefined;
@@ -233,6 +316,7 @@ class SimpleAnimation {
     context: ComponentContext, animationId: string | number,
     options: AnimationOptions, mode?: string,
   ) {
+    super();
     this.animationInfo = options;
     this.timeMode = mode;
     this.id = animationId;
@@ -477,10 +561,6 @@ class SimpleAnimation {
     setElementStyle(element, { animation: oldAnimationList.join(',') });
   }
 
-  private dispatchEvent(eventName: HippyAnimationEvent) {
-    this.context.sendEvent(eventName, this.id);
-  }
-
   private buildCssValue(value: string) {
     if (this.useForSetProperty === 'transform') {
       return `${this.refCssProperty}(${value})`;
@@ -521,7 +601,7 @@ class SimpleAnimation {
     });
   }
 }
-class SimpleAnimationSet {
+class SimpleAnimationSet extends AnimationEventTarget {
   public id: string | number;
   public context: ComponentContext;
   public setOption: AnimationSetOptions;
@@ -531,6 +611,7 @@ class SimpleAnimationSet {
     context: ComponentContext, animationId: string | number,
     options: AnimationSetOptions,
   ) {
+    super();
     this.id = animationId;
     this.context = context;
     this.setOption = options;
@@ -618,10 +699,6 @@ class SimpleAnimationSet {
 
   private handleAnimationEnd() {
     this.dispatchEvent(HippyAnimationEvent.END);
-  }
-
-  private dispatchEvent(eventName: HippyAnimationEvent) {
-    this.context.sendEvent(eventName, this.id);
   }
 }
 function object2Style(object: {[key: string]: string}) {

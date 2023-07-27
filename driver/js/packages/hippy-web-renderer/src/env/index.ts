@@ -20,6 +20,7 @@
 
 import { getGlobal } from '../get-global';
 import { SceneBuilder } from '../dom/scene-builder';
+import { Animation, AnimationSet } from '../dom/animation';
 import { Dimensions } from './dimensions';
 import { dealloc } from './event';
 import { nativeGlobal } from './native-global';
@@ -94,8 +95,12 @@ Hippy.turboPromise = turboPromise;
 Hippy.document = document;
 Hippy.device.platform = platform();
 
-// scene builder for hippy 3.0
+// scene builder for hippy 3.x
 Hippy.SceneBuilder = SceneBuilder;
+
+// animation module for hippy 3.x
+Hippy.Animation = Animation;
+Hippy.AnimationSet = AnimationSet;
 
 
 global.__localStorage = global.localStorage;
