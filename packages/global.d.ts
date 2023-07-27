@@ -189,7 +189,9 @@ declare namespace HippyTypes {
     tintColors?: tintColors;
     underlineColorAndroid?: string;
     transform?: Transform[];
-    collapse?: boolean,
+    collapse?: boolean;
+    opacity?: number;
+    ellipsizeMode?: 'head' | 'middle' | 'tail' | 'clip';
   }
 
   export interface Style extends BaseStyle {
@@ -284,6 +286,7 @@ declare namespace HippyTypes {
     multiSet: (keys: { [key: string]: string | number }) => Promise<void>;
     removeItem: (key: string) => Promise<void>;
     setItem: (key: string, value: string | number) => Promise<void>;
+    clear: () => Promise<void>;
   }
 
   export interface Bridge {
@@ -343,7 +346,7 @@ declare namespace HippyTypes {
       vibrate: (pattern: number, repeatTimes?: number) => void;
       platform: {
         Localization: { country: string, language: string, direction: number } | undefined;
-        OS: Platform;
+        OS: Platform['OS'];
         APILevel?: number; // Android Only
       };
       screen: Sizes;
@@ -409,7 +412,7 @@ declare namespace HippyTypes {
     __HIPPYNATIVEGLOBAL__: __HIPPYNATIVEGLOBAL__;
     __PLATFORM__: __PLATFORM__;
     __HIPPYCURDIR__?: string;
-    Hippy: HippyTypes.HippyConstance;
+    Hippy: HippyConstance;
     WebSocket: WebSocket | any;
     ConsoleModule: ConsoleModule;
     HippyDealloc?: () => void;
@@ -423,13 +426,4 @@ declare namespace HippyTypes {
   }
 }
 
-declare type Diff<T extends keyof any, U extends keyof any> =
-  ({ [P in T]: P } & { [P in U]: never } & { [x: string]: never })[T];
-
-declare type Overwrite<T, U> = Pick<T, Diff<keyof T, keyof U>> & U;
-
-declare const __PLATFORM__: HippyTypes.Platform;
-
-/* eslint-disable */
-// @ts-ignore
-declare var global: HippyTypes.HippyGlobal & typeof globalThis;
+declare const __PLATFORM__: HippyTypes.Platform['OS'];

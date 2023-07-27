@@ -21,7 +21,7 @@
 /* eslint-disable no-underscore-dangle */
 
 import React from 'react';
-import { LayoutableProps, ClickableProps } from '../types';
+import { LayoutableProps, ClickableProps, Platform } from '../types';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { Device } from '../native';
 import Element from '../dom/element-node';
@@ -31,7 +31,7 @@ interface KeyboardWillShowEvent {
   keyboardHeight: number;
 }
 
-interface TextInputProps extends LayoutableProps, ClickableProps {
+export interface TextInputProps extends LayoutableProps, ClickableProps {
   /**
    * The value to show for the text input. TextInput is a controlled component,
    * which means the native value will be forced to match this value prop if provided.
@@ -189,7 +189,7 @@ const propsMap = {
  * placeholder text, and different keyboard types, such as a numeric keypad.
  * @noInheritDoc
  */
-class TextInput extends React.Component<TextInputProps, {}> {
+export class TextInput extends React.Component<TextInputProps, {}> {
   private instance: HTMLDivElement | Element | null = null;
   private _lastNativeText?: string = '';
 
@@ -355,7 +355,7 @@ class TextInput extends React.Component<TextInputProps, {}> {
   private onKeyboardWillShow(originEvt: KeyboardWillShowEvent) {
     const { onKeyboardWillShow } = this.props;
     const evt = originEvt;
-    if (Device.platform.OS === 'android') {
+    if (Device.platform.OS === Platform.android) {
       evt.keyboardHeight /= Device.screen.scale;
     }
     if (typeof onKeyboardWillShow === 'function') {

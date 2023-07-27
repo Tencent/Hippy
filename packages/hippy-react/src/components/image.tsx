@@ -19,7 +19,7 @@
  */
 
 import React, { LegacyRef } from 'react';
-import { LayoutableProps, ClickableProps } from '../types';
+import { LayoutableProps, ClickableProps, Platform } from '../types';
 import { prefetch, getSize } from '../modules/image-loader-module';
 import { Device } from '../native';
 import { warn, convertImgUrl } from '../utils';
@@ -30,11 +30,11 @@ interface Size {
   height: number;
 }
 
-interface ImageSource {
+export interface ImageSource {
   uri: string;
 }
 
-interface ImageProps extends LayoutableProps, ClickableProps {
+export interface ImageProps extends LayoutableProps, ClickableProps {
   /**
    * Single image source
    */
@@ -127,14 +127,14 @@ interface ImageProps extends LayoutableProps, ClickableProps {
  * static resources, temporary local images, and images from local disk, such as the camera roll.
  * @noInheritDoc
  */
-class Image extends React.Component<ImageProps, {}> {
+export class Image extends React.Component<ImageProps, {}> {
   public static get resizeMode() {
     return {
-      contain: 'contain',
-      cover: 'cover',
-      stretch: 'stretch',
-      center: 'center',
-      repeat: 'repeat', // iOS Only
+      contain: 'contain' as const,
+      cover: 'cover' as const,
+      stretch: 'stretch' as const,
+      center: 'center' as const,
+      repeat: 'repeat' as const, // iOS Only
     };
   }
 
@@ -179,11 +179,11 @@ class Image extends React.Component<ImageProps, {}> {
     const imageUrls: string[] = this.getImageUrls({ src, srcs, source, sources });
 
     // Set sources props by platform specification
-    if (Device.platform.OS === 'ios') {
+    if (Device.platform.OS === Platform.ios) {
       if (imageUrls.length) {
         (nativeProps as ImageProps).source = imageUrls.map(uri => ({ uri }));
       }
-    } else if (Device.platform.OS === 'android') {
+    } else if (Device.platform.OS === Platform.android) {
       if (imageUrls.length === 1) {
         [(nativeProps as ImageProps).src] = imageUrls;
       } else if (imageUrls.length > 1) {
@@ -300,4 +300,7 @@ class Image extends React.Component<ImageProps, {}> {
     }
   }
 }
+
+export const ImageBackground = Image;
+
 export default Image;

@@ -20,7 +20,7 @@
 
 import React from 'react';
 
-interface ListViewItemProps {
+export interface ListViewItemProps {
   [props: string]: any;
   type?: number | string | undefined;
   key?: string;
@@ -30,7 +30,7 @@ interface ListViewItemProps {
   onLayout?: (evt: any) => void;
 }
 
-function ListViewItem(props: ListViewItemProps) {
+export function ListViewItem(props: ListViewItemProps) {
   return (
     // @ts-ignore
     <li nativeName="ListViewItem" {...props} />
@@ -38,6 +38,3 @@ function ListViewItem(props: ListViewItemProps) {
 }
 
 export default ListViewItem;
-export {
-  ListViewItemProps,
-};

@@ -24,7 +24,7 @@ import { LayoutableProps } from '../types';
 import { callUIFunction } from '../modules/ui-manager-module';
 import Element from '../dom/element-node';
 
-interface PullFooterProps extends LayoutableProps {
+export interface PullFooterProps extends LayoutableProps {
   /**
    * Keep content displaying after onFooterReleased trigged.
    */
@@ -44,7 +44,7 @@ interface PullFooterProps extends LayoutableProps {
   onFooterPulling?: (evt: HippyTypes.PullingEvent) => void;
 }
 
-class PullFooter extends React.Component<PullFooterProps, {}> {
+export class PullFooter extends React.Component<PullFooterProps, {}> {
   private instance: Element | Fiber | HTMLDivElement | null = null;
 
   /**

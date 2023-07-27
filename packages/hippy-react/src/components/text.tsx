@@ -24,7 +24,7 @@ import React from 'react';
 import { LayoutableProps, ClickableProps } from '../types';
 import { unicodeToChar } from '../utils';
 
-interface TextProps extends LayoutableProps, ClickableProps {
+export interface TextProps extends LayoutableProps, ClickableProps {
   /**
    * Used to truncate the text with an ellipsis after computing the text layout,
    * including line wrapping, such that the total number of lines does not exceed this number.
@@ -35,7 +35,7 @@ interface TextProps extends LayoutableProps, ClickableProps {
   /**
    * Determines what the opacity of the wrapped view.
    */
-  opacity: number;
+  opacity?: number;
 
   /**
    * When numberOfLines is set, this prop defines how text will be truncated.
@@ -56,7 +56,7 @@ interface TextProps extends LayoutableProps, ClickableProps {
    *
    * The default is `tail`.
    */
-  ellipsizeMode: 'head' | 'middle' | 'tail' | 'clip';
+  ellipsizeMode?: 'head' | 'middle' | 'tail' | 'clip';
   children: number | string | string[];
   text?: string;
   style?: HippyTypes.Style | HippyTypes.Style[];
@@ -120,6 +120,6 @@ function forwardRef(
   );
 }
 forwardRef.displayName = 'Text';
-const Text = React.forwardRef(forwardRef);
+export const Text = React.forwardRef(forwardRef);
 Text.displayName = 'Text';
 export default Text;

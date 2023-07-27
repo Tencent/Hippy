@@ -22,7 +22,7 @@ import { warn } from '../utils';
 import EventDispatcher from './dispatcher';
 import HippyEventListener from './listener';
 
-interface GlobalEventListeners {
+export interface GlobalEventListeners {
   [eventName: string]: {
     eventListener: HippyEventListener,
     eventMap: any,

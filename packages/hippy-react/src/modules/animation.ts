@@ -23,6 +23,7 @@ import { Bridge, Device } from '../native';
 import { warn } from '../utils';
 import { repeatCountDict } from '../utils/animation';
 import { colorParse } from '../color';
+import { Platform } from '../types';
 
 type AnimationValue = number | { animationId: number} | string;
 type AnimationCallback = () => void;
@@ -195,7 +196,7 @@ class Animation implements Animation {
     // Set as iOS default
     let animationEventName = 'onAnimation';
     // If running in Android, change it.
-    if (__PLATFORM__ === 'android' || Device.platform.OS === 'android') {
+    if (__PLATFORM__ === Platform.android || Device.platform.OS === Platform.android) {
       animationEventName = 'onHippyAnimation';
     }
 

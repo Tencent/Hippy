@@ -20,11 +20,11 @@
 
 import React from 'react';
 
-interface LoadEvent {
+export interface LoadEvent {
   url: string;
 }
 
-interface WebViewProps {
+export interface WebViewProps {
   /**
    * WebView loads url
    */
@@ -72,7 +72,7 @@ interface WebViewProps {
  *
  * For iOS it uses WKWebView, for Android it uses Webkit built-in.
  */
-function WebView(props: WebViewProps) {
+export function WebView(props: WebViewProps) {
   return (
     // @ts-ignore
     <iframe title="hippy" nativeName="WebView" {...props} />

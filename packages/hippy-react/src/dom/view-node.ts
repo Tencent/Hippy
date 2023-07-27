@@ -34,7 +34,7 @@ function getNodeId() {
   return currentNodeId;
 }
 
-interface NodeMeta {
+export interface NodeMeta {
   skipAddToDom?: boolean;
   component: {
     name?: string;
@@ -42,7 +42,7 @@ interface NodeMeta {
   };
 }
 
-class ViewNode {
+export class ViewNode {
   public nodeId: number;
 
   // Component meta information, such as native component will use.

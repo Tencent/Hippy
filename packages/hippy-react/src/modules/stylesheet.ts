@@ -27,7 +27,7 @@ if (HAIRLINE_WIDTH === 0) {
   HAIRLINE_WIDTH = 1 / ratio;
 }
 
-interface StyleObj {
+export interface StyleObj {
   [key: string]: HippyTypes.Style;
 }
 
@@ -42,7 +42,9 @@ function create(styleObj: StyleObj): StyleObj {
 }
 
 
-export {
-  HAIRLINE_WIDTH as hairlineWidth,
+export const StyleSheet = {
+  hairlineWidth: HAIRLINE_WIDTH,
   create,
 };
+
+export default StyleSheet;
