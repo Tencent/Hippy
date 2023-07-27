@@ -25,7 +25,7 @@
 #import "HippyLog.h"
 #import "HippyBundleURLProvider.h"
 #import "DemoConfigs.h"
-#import <hippy/HippyBridge.h>
+#import "HippyBridge.h"
 #import <sys/utsname.h>
 
 
