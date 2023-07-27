@@ -804,8 +804,10 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     std::lock_guard<std::mutex> lock([self renderQueueLock]);
     NSNumber *rootTag = @(strongRootNode->GetId());
     for (const auto &node : nodes) {
-        auto diffCount = node->GetDiffStyle()->size();
-        auto deleteCount = node->GetDeleteProps()->size();
+        const auto &diffStyle = node->GetDiffStyle();
+        const auto &deleteProps = node->GetDeleteProps();
+        auto diffCount = diffStyle ? diffStyle->size() : 0;
+        auto deleteCount = deleteProps ? deleteProps->size() : 0;
         //TODO(mengyanluo): it is better to use diff and delete properties to update view
         if (0 == diffCount && 0 == deleteCount) {
             continue;
