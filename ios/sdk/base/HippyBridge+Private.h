@@ -23,8 +23,6 @@
 #import "HippyBridge.h"
 #import "HippyJavaScriptExecutor.h"
 
-FOUNDATION_EXTERN NSString *const HippyNativeGlobalKeyNightMode;
-
 @class HippyModuleData;
 @protocol HippyJavaScriptExecutor;
 
