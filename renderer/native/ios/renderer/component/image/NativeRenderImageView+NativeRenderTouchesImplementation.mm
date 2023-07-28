@@ -21,8 +21,9 @@
  */
 
 #import "NativeRenderImageView+NativeRenderTouchesImplementation.h"
-#import "UIView+NativeRender.h"
 #import "UIView+DomEvent.h"
+#import "UIView+NativeRender.h"
+#import "UIEvent+TouchResponder.h"
 #import "objc/runtime.h"
 
 @implementation NativeRenderImageView (NativeRenderTouchesImplementation)
@@ -178,15 +179,21 @@
     if ([self pressInEventEnabled]) {
         [self enablePressInTimer];
     }
-    OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeTouchStart];
-    if (listener) {
-        UITouch *touch = [touches anyObject];
-        CGPoint point = [touch locationInView:[self NativeRenderRootView]];
-        listener(point);
+    if ([self tryToHandleEvent:event forEventType:NativeRenderViewEventTypeTouchStart]) {
+        OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeTouchStart];
+        if (listener) {
+            UITouch *touch = [touches anyObject];
+            UIView *rootView = [self NativeRenderRootView];
+            CGPoint point = [touch locationInView:rootView];
+            const char *name = viewEventNameFromType(NativeRenderViewEventTypeTouchStart);
+            listener(point,
+                     [self canCapture:name],
+                     [self canBubble:name],
+                     [self canBePreventedByInCapturing:name],
+                     [self canBePreventInBubbling:name]);
+        }
     }
-    else {
-        [super touchesBegan:touches withEvent:event];
-    }
+    [super touchesBegan:touches withEvent:event];
 }
 
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
@@ -194,43 +201,97 @@
         [self disablePressInTimer];
     }
     [self handlePressOutEvent];
-    OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeTouchEnd];
-    if (listener) {
-        UITouch *touch = [touches anyObject];
-        CGPoint point = [touch locationInView:[self NativeRenderRootView]];
-        listener(point);
+    if ([self tryToHandleEvent:event forEventType:NativeRenderViewEventTypeTouchEnd]) {
+        OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeTouchEnd];
+        if (listener) {
+            UITouch *touch = [touches anyObject];
+            UIView *rootView = [self NativeRenderRootView];
+            CGPoint point = [touch locationInView:rootView];
+            const char *name = viewEventNameFromType(NativeRenderViewEventTypeTouchEnd);
+            listener(point,
+                     [self canCapture:name],
+                     [self canBubble:name],
+                     [self canBePreventedByInCapturing:name],
+                     [self canBePreventInBubbling:name]);
+        }
     }
-    else {
-        [super touchesEnded:touches withEvent:event];
-    }
+    [super touchesEnded:touches withEvent:event];
 }
 
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeTouchMove];
-    if (listener) {
-        UITouch *touch = [touches anyObject];
-        CGPoint point = [touch locationInView:[self NativeRenderRootView]];
-        listener(point);
+    if ([self tryToHandleEvent:event forEventType:NativeRenderViewEventTypeTouchMove]) {
+        OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeTouchMove];
+        if (listener) {
+            [self handlePressOutEvent];
+            UITouch *touch = [touches anyObject];
+            UIView *rootView = [self NativeRenderRootView];
+            CGPoint point = [touch locationInView:rootView];
+            const char *name = viewEventNameFromType(NativeRenderViewEventTypeTouchMove);
+            listener(point,
+                     [self canCapture:name],
+                     [self canBubble:name],
+                     [self canBePreventedByInCapturing:name],
+                     [self canBePreventInBubbling:name]);
+        }
     }
-    else {
-        [super touchesMoved:touches withEvent:event];
-    }
-
+    [super touchesMoved:touches withEvent:event];
 }
 
 - (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     if ([self pressInEventEnabled]) {
         [self disablePressInTimer];
     }
-    OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeTouchCancel];
-    if (listener) {
-        UITouch *touch = [touches anyObject];
-        CGPoint point = [touch locationInView:[self NativeRenderRootView]];
-        listener(point);
+    [self handlePressOutEvent];
+    if ([self tryToHandleEvent:event forEventType:NativeRenderViewEventTypeTouchCancel]) {
+        OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeTouchCancel];
+        if (listener) {
+            UITouch *touch = [touches anyObject];
+            UIView *rootView = [self NativeRenderRootView];
+            CGPoint point = [touch locationInView:rootView];
+            const char *name = viewEventNameFromType(NativeRenderViewEventTypeTouchCancel);
+            listener(point,
+                     [self canCapture:name],
+                     [self canBubble:name],
+                     [self canBePreventedByInCapturing:name],
+                     [self canBePreventInBubbling:name]);
+        }
     }
-    else {
-        [super touchesCancelled:touches withEvent:event];
+    [super touchesCancelled:touches withEvent:event];
+}
+
+- (BOOL)tryToHandleEvent:(UIEvent *)event forEventType:(NativeRenderViewEventType)eventType {
+    id responder = [event responderForType:eventType];
+    if (self == responder) {
+        return YES;
     }
+    if (nil == responder) {
+        // assume first responder is self
+        UIView *responder = nil;
+        // find out is there any parent view who can handle `eventType` and `onInterceptTouchEvent` is YES
+        UIView *testingView = self;
+        while (testingView) {
+            OnTouchEventHandler handler = [testingView eventListenerForEventType:eventType];
+            if (!responder && handler) {
+                responder = testingView;
+            }
+            BOOL onInterceptTouchEvent = testingView.onInterceptTouchEvent;
+            if (handler && onInterceptTouchEvent) {
+                responder = testingView;
+            }
+            testingView = [testingView parentComponent];
+        }
+        // set first responder for `eventType`
+        if (responder) {
+            [event setResponder:responder forType:eventType];
+        }
+        else {
+            [event setResponder:[NSNull null] forType:eventType];
+        }
+        if (responder == self) {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 - (void)handleClickEvent {
@@ -238,7 +299,12 @@
     if (listener) {
         UITapGestureRecognizer *tap = objc_getAssociatedObject(self, @selector(tapGestureRecognizer));
         CGPoint point = [tap locationInView:[self NativeRenderRootView]];
-        listener(point);
+        const char *name = viewEventNameFromType(NativeRenderViewEventTypeClick);
+        listener(point,
+                 [self canCapture:name],
+                 [self canBubble:name],
+                 [self canBePreventedByInCapturing:name],
+                 [self canBePreventInBubbling:name]);
     }
 }
 
@@ -248,7 +314,12 @@
         UILongPressGestureRecognizer *longPress = objc_getAssociatedObject(self, @selector(longGestureRecognizer));
         if (longPress.state == UIGestureRecognizerStateBegan) {
             CGPoint point = [longPress locationInView:[self NativeRenderRootView]];
-            listener(point);
+            const char *name = viewEventNameFromType(NativeRenderViewEventTypeLongClick);
+            listener(point,
+                     [self canCapture:name],
+                     [self canBubble:name],
+                     [self canBePreventedByInCapturing:name],
+                     [self canBePreventInBubbling:name]);
         }
     }
 }
@@ -257,15 +328,36 @@
     [self disablePressInTimer];
     OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypePressIn];
     if (listener) {
-        listener(CGPointZero);
+        const char *name = viewEventNameFromType(NativeRenderViewEventTypePressIn);
+        listener(CGPointZero,
+                 [self canCapture:name],
+                 [self canBubble:name],
+                 [self canBePreventedByInCapturing:name],
+                 [self canBePreventInBubbling:name]);
     }
 }
 
 - (void)handlePressOutEvent {
     OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypePressOut];
     if (listener) {
-        listener(CGPointZero);
+        const char *name = viewEventNameFromType(NativeRenderViewEventTypePressOut);
+        listener(CGPointZero,
+                 [self canCapture:name],
+                 [self canBubble:name],
+                 [self canBePreventedByInCapturing:name],
+                 [self canBePreventInBubbling:name]);
     }
+}
+
+- (void)resetAllEvents {
+    [self removeViewEvent:NativeRenderViewEventTypeTouchStart];
+    [self removeViewEvent:NativeRenderViewEventTypeTouchEnd];
+    [self removeViewEvent:NativeRenderViewEventTypeTouchMove];
+    [self removeViewEvent:NativeRenderViewEventTypeTouchCancel];
+    [self removeViewEvent:NativeRenderViewEventTypePressIn];
+    [self removeViewEvent:NativeRenderViewEventTypePressOut];
+    [self removeViewEvent:NativeRenderViewEventTypeClick];
+    [self removeViewEvent:NativeRenderViewEventTypeLongClick];
 }
 
 @end
