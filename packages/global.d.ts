@@ -221,7 +221,7 @@ declare namespace HippyTypes {
 
   export interface BackgroundStyle {
     backgroundColor?: Color;
-    backgroundColors?: Color;
+    backgroundColors?: Colors;
     backgroundImage?: string;
     backgroundSize?: string;
     backgroundPosition?: string;

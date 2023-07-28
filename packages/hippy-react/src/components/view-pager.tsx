@@ -53,7 +53,11 @@ export interface ViewPagerProps {
    * > Note that the view can always be scrolled by calling setPage.
    */
   scrollEnabled?: boolean;
-
+  /**
+   * iOS only
+   * https://developer.apple.com/documentation/uikit/uiscrollview/keyboarddismissmode
+   */
+  keyboardDismissMode?: 'none' | 'on-drag' | 'interactive' | 'onDrag';
   /**
    * Fires at most once per page is selected
    *
