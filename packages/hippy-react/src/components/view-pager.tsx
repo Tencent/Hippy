@@ -37,7 +37,7 @@ export interface PageScrollStateEvent {
 }
 
 export interface ViewPagerProps {
-  style?: HippyTypes.Style | HippyTypes.Style[];
+  style?: HippyTypes.StyleProp;
   /**
    * Specific initial page after rendering.
    *

@@ -30,6 +30,7 @@ export interface CollapsePullHeaderOptions {
 }
 
 export interface PullHeaderProps extends LayoutableProps {
+  style?: HippyTypes.StyleProp;
   /**
    * Trigger when release the finger after pulling distance larger than the content height
    */
@@ -67,13 +68,15 @@ export class PullHeader extends React.Component<PullHeaderProps, {}> {
   }
 
   public render() {
-    const { children, ...nativeProps } = this.props;
+    const { children, style, ...nativeProps } = this.props;
     return (
       <div
         nativeName="PullHeaderView"
         ref={(ref) => {
           this.instance = ref;
         }}
+        // @ts-ignore
+        style={style}
         {...nativeProps}
       >
         { children }

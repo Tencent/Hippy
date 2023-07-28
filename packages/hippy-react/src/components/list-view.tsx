@@ -106,7 +106,7 @@ export interface ListViewProps {
    * @param {number} index - Index Of data.
    * @returns {Object}
    */
-  getRowStyle?: (index: number) => HippyTypes.Style;
+  getRowStyle?: (index: number) => HippyTypes.StyleProp;
 
   /**
    * Returns the style for PullHeader.
@@ -114,7 +114,7 @@ export interface ListViewProps {
    * @param {number} index - Index Of data.
    * @returns {Object}
    */
-  getHeaderStyle?: () => HippyTypes.Style;
+  getHeaderStyle?: () => HippyTypes.StyleProp;
 
   /**
    * Returns the style for PullFooter.
@@ -122,7 +122,7 @@ export interface ListViewProps {
    * @param {number} index - Index Of data.
    * @returns {Object}
    */
-  getFooterStyle?: () => HippyTypes.Style;
+  getFooterStyle?: () => HippyTypes.StyleProp;
 
   /**
    * Specfic the key of row, for better data diff
@@ -139,7 +139,7 @@ export interface ListViewProps {
    * @returns {boolean}
    */
   rowShouldSticky?: (index: number) => boolean;
-  style?: HippyTypes.Style;
+  style?: HippyTypes.StyleProp;
 
   /**
    *  Called when the `ListView` is scrolling to bottom.
@@ -480,14 +480,13 @@ export class ListView<P extends ListViewProps, S extends ListViewState>
   protected getPullHeader() {
     const { renderPullHeader, onHeaderPulling, onHeaderReleased, getHeaderStyle } = this.props;
     let pullHeader: JSX.Element | null = null;
-    let style = {};
+    let style: HippyTypes.Style = {};
     if (typeof getHeaderStyle === 'function') {
       style = getHeaderStyle();
     }
     if (typeof renderPullHeader === 'function') {
       pullHeader = (
         <PullHeader
-          // @ts-ignore
           style={style}
           key={'pull-header'}
           ref={(ref) => {
@@ -506,14 +505,13 @@ export class ListView<P extends ListViewProps, S extends ListViewState>
   protected getPullFooter() {
     const { renderPullFooter, onFooterPulling, onFooterReleased, getFooterStyle } = this.props;
     let pullFooter: JSX.Element | null = null;
-    let style = {};
+    let style: HippyTypes.Style = {};
     if (typeof getFooterStyle === 'function') {
       style = getFooterStyle();
     }
     if (typeof renderPullFooter === 'function') {
       pullFooter = (
         <PullFooter
-          // @ts-ignore
           style={style}
           key={'pull-footer'}
           ref={(ref) => {

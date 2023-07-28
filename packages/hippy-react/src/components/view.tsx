@@ -58,7 +58,7 @@ export interface ViewProps extends LayoutableProps, ClickableProps, TouchablePro
   nextFocusUpId?: string | Fiber;
   nextFocusLeftId?: string | Fiber;
   nextFocusRightId?: string | Fiber;
-  style?: HippyTypes.Style;
+  style?: HippyTypes.StyleProp;
   nativeBackgroundAndroid?: { color: Color, borderless: boolean, rippleRadius: number }
 
   /**
@@ -94,10 +94,16 @@ export class View extends React.Component<ViewProps, {}> {
 
   public render() {
     const { collapsable, style = {}, ...nativeProps } = this.props;
-    const nativeStyle: HippyTypes.Style = style;
+    let nativeStyle: HippyTypes.StyleProp = style;
     const { nativeBackgroundAndroid } = nativeProps;
     if (typeof collapsable === 'boolean') {
-      nativeStyle.collapsable = collapsable;
+      if (Array.isArray(style)) {
+        (nativeStyle as HippyTypes.Style[]) = [...style, {
+          collapsable,
+        }];
+      } else {
+        (nativeStyle as HippyTypes.Style).collapsable = collapsable;
+      }
     }
     if (typeof nativeBackgroundAndroid?.color !== 'undefined') {
       nativeBackgroundAndroid.color = colorParse(nativeBackgroundAndroid.color);

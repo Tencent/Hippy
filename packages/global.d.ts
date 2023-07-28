@@ -278,11 +278,13 @@ declare namespace HippyTypes {
     textShadowOffset?: {width: number; height: number};
     textShadowRadius?: number;
     textTransform?: 'none' | 'capitalize' | 'uppercase' | 'lowercase';
+    placeholderTextColor?: Color;
+    placeholderTextColors?: Colors;
+    caretColor?: Color;
   }
 
   export interface ImageStyle extends FlexStyle, BoxShadowStyle, BorderBoxStyle, TransformsStyle, BackgroundStyle {
     resizeMode?: 'cover' | 'contain' | 'stretch' | 'repeat' | 'center';
-    overflow?: 'visible' | 'hidden';
     tintColor?: tintColor;
     tintColors?: tintColors;
     opacity?: DimensionValue;
@@ -291,6 +293,12 @@ declare namespace HippyTypes {
   export interface Style extends ViewStyle, TextStyle, ImageStyle {
     [props: string]: any
   }
+
+  type GenericStyleProp<T> = T | T[];
+  export type StyleProp = GenericStyleProp<Style>;
+  export type ViewStyleProp = GenericStyleProp<ViewStyle>;
+  export type ImageStyleProp = GenericStyleProp<ImageStyle>;
+  export type TextStyleProp = GenericStyleProp<TextStyle>;
 
   interface ConsoleModule {
     log: (...args: any[]) => void;

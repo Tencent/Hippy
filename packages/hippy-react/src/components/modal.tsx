@@ -91,7 +91,7 @@ export interface ModalProps {
    */
   supportedOrientations?: ModalOrientation[];
 
-  style?: HippyTypes.Style;
+  style?: HippyTypes.StyleProp;
 
   /**
    * Trigger when hardware button pressed

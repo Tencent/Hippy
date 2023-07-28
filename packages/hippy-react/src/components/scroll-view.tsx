@@ -28,6 +28,7 @@ import { isRTL } from '../utils/i18n';
 import View from './view';
 
 export interface ScrollViewProps {
+  // TODO: allow HippyTypes.Style[]
   style?: HippyTypes.Style;
   /**
    * When true, the scroll view's children are arranged horizontally in a row
@@ -67,7 +68,7 @@ export interface ScrollViewProps {
    * These styles will be applied to the scroll view content container which wraps all
    * of the child views.
    */
-  contentContainerStyle?: HippyTypes.Style;
+  contentContainerStyle?: HippyTypes.StyleProp;
 
   /**
    * This controls how often the scroll event will be fired while scrolling
@@ -209,7 +210,7 @@ export class ScrollView extends React.Component<ScrollViewProps, {}> {
       horizontal ? styles.contentContainerHorizontal : styles.contentContainerVertical,
       contentContainerStyle,
     ];
-    const newStyle = horizontal
+    const newStyle: HippyTypes.Style = horizontal
       ? Object.assign({}, styles.baseHorizontal, style)
       : Object.assign({}, styles.baseVertical, style);
 

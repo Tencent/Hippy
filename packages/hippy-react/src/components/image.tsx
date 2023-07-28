@@ -23,6 +23,7 @@ import { LayoutableProps, ClickableProps, Platform } from '../types';
 import { prefetch, getSize } from '../modules/image-loader-module';
 import { Device } from '../native';
 import { warn, convertImgUrl } from '../utils';
+import StyleSheet from '../modules/stylesheet';
 import View from './view';
 
 interface Size {
@@ -63,7 +64,7 @@ export interface ImageProps extends LayoutableProps, ClickableProps {
   /**
    * Image style when `Image` have other children.
    */
-  imageStyle?: HippyTypes.ImageStyle;
+  imageStyle?: HippyTypes.ImageStyleProp;
 
   /**
    * Image ref when `Image` have other children.
@@ -86,9 +87,7 @@ export interface ImageProps extends LayoutableProps, ClickableProps {
     bottom: number;
     left: number;
   };
-
-  style: HippyTypes.ImageStyle;
-
+  style:  HippyTypes.ImageStyleProp;
   /**
    * Invoked on `Image` is loaded.
    */
@@ -172,22 +171,23 @@ export class Image extends React.Component<ImageProps, {}> {
       srcs,
       tintColor,
       tintColors,
-      ...nativeProps
+      ...restProps
     } = this.props;
 
+    const nativeProps = { ...restProps } as ImageProps;
     // Define the image source url array.
     const imageUrls: string[] = this.getImageUrls({ src, srcs, source, sources });
 
     // Set sources props by platform specification
     if (Device.platform.OS === Platform.ios) {
       if (imageUrls.length) {
-        (nativeProps as ImageProps).source = imageUrls.map(uri => ({ uri }));
+        nativeProps.source = imageUrls.map(uri => ({ uri }));
       }
     } else if (Device.platform.OS === Platform.android) {
       if (imageUrls.length === 1) {
-        [(nativeProps as ImageProps).src] = imageUrls;
+        [nativeProps.src] = imageUrls;
       } else if (imageUrls.length > 1) {
-        (nativeProps as ImageProps).srcs = imageUrls;
+        nativeProps.srcs = imageUrls;
       }
     }
 
@@ -204,9 +204,9 @@ export class Image extends React.Component<ImageProps, {}> {
     /**
      * tintColor(s)
      */
-    const nativeStyle: { tintColor?: HippyTypes.tintColor, tintColors?: HippyTypes.tintColors } = { ...style };
-    this.handleTintColor(nativeStyle, tintColor as HippyTypes.tintColor, tintColors as HippyTypes.tintColors);
-    (nativeProps as ImageProps).style = nativeStyle;
+    const nativeStyle =  StyleSheet.flatten(style);
+    this.handleTintColor(nativeStyle, tintColor, tintColors);
+    nativeProps.style = nativeStyle;
 
     if (children) {
       return (
@@ -224,8 +224,8 @@ export class Image extends React.Component<ImageProps, {}> {
               right: 0,
               top: 0,
               bottom: 0,
-              width: style.width,
-              height: style.height,
+              width: nativeStyle.width,
+              height: nativeStyle.height,
             }, imageStyle]}
           />
           {children}
@@ -285,15 +285,16 @@ export class Image extends React.Component<ImageProps, {}> {
   }
 
   private handleTintColor(
-    nativeStyle: { tintColor?: HippyTypes.tintColor, tintColors?: HippyTypes.tintColors },
-    tintColor: HippyTypes.tintColor, tintColors: HippyTypes.tintColors,
+    nativeStyle: HippyTypes.Style,
+    tintColor?: HippyTypes.tintColor,
+    tintColors?: HippyTypes.tintColors,
   ) {
     if (tintColor) {
       Object.assign(nativeStyle, {
         tintColor,
       });
     }
-    if (Array.isArray(tintColors)) {
+    if (tintColors && Array.isArray(tintColors)) {
       Object.assign(nativeStyle, {
         tintColors,
       });

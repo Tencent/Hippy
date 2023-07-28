@@ -24,7 +24,7 @@ import React from 'react';
 import { Fiber } from '@hippy/react-reconciler';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { warn } from '../utils';
-import type { LayoutEvent } from '../types';
+import type { LayoutEvent, LayoutableProps } from '../types';
 import PullHeader from './pull-header';
 import PullFooter from './pull-footer';
 import View from './view';
@@ -50,7 +50,7 @@ export interface WaterfallViewProps {
   // Number of items to preload on reaching the listview end
   preloadItemNumber?: number;
 
-  style?: HippyTypes.Style;
+  style?: HippyTypes.StyleProp;
 
   // Declare whether PullHeader view exists
   containPullHeader?: boolean;
@@ -95,7 +95,7 @@ export interface WaterfallViewProps {
    * @param {number} index - Index Of data.
    * @returns {Object}
    */
-  getItemStyle?: (index: number) => HippyTypes.Style;
+  getItemStyle?: (index: number) => HippyTypes.StyleProp;
 
   /**
    * Specific the key of row, for better data diff
@@ -155,15 +155,15 @@ export interface WaterfallViewProps {
   onInitialListReady?: () => void;
 }
 
-export interface WaterfallViewItemProps {
-  onLayout?: (e: any) => void;
+export interface WaterfallViewItemProps extends LayoutableProps {
   type?: number | void | undefined;
   key: string;
-  style: object;
+  style: HippyTypes.StyleProp;
 }
 
 export function WaterfallViewItem(props: WaterfallViewItemProps) {
   return (
+    // @ts-ignore for style
     <li nativeName={'WaterfallItem'} {...props} />
   );
 }

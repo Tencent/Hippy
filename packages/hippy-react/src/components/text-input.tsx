@@ -129,7 +129,7 @@ export interface TextInputProps extends LayoutableProps, ClickableProps {
    */
   placeholderTextColors?: string[];
 
-  style?: HippyTypes.TextStyle;
+  style?: HippyTypes.TextStyleProp;
 
   /**
    * Callback that is called when the text input is blurred.

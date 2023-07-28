@@ -19,15 +19,15 @@
  */
 
 import React from 'react';
+import { LayoutableProps } from '../types';
 
-export interface ListViewItemProps {
+export interface ListViewItemProps extends LayoutableProps {
   [props: string]: any;
   type?: number | string | undefined;
   key?: string;
   itemViewType?: string;
   sticky?: boolean;
-  style?: HippyTypes.Style;
-  onLayout?: (evt: any) => void;
+  style?:  HippyTypes.StyleProp;
 }
 
 export function ListViewItem(props: ListViewItemProps) {
