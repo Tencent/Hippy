@@ -1179,16 +1179,18 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     int32_t root_id = strongRootNode->GetId();
     UIView *view = [self viewForComponentTag:@(componentTag) onRootTag:@(root_id)];
     if (view) {
-        BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:hippy::kClickEvent];
-        BOOL canBePreventedInBubbling = [view canBePreventInBubbling:hippy::kClickEvent];
         __weak id weakSelf = self;
-        [view addViewEvent:NativeRenderViewEventTypeClick eventListener:^(CGPoint) {
+        [view addViewEvent:NativeRenderViewEventTypeClick eventListener:^(CGPoint point,
+                                                                          BOOL canCapture,
+                                                                          BOOL canBubble,
+                                                                          BOOL canBePreventedInCapture,
+                                                                          BOOL canBePreventedInBubbling) {
             id strongSelf = weakSelf;
             if (strongSelf) {
                 [strongSelf domNodeForComponentTag:componentTag onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> node) {
                     if (node) {
                         auto event = std::make_shared<hippy::DomEvent>(hippy::kClickEvent, node,
-                                                                       canBePreventedInCapturing, canBePreventedInBubbling,
+                                                                       canCapture, canBubble,
                                                                        static_cast<std::shared_ptr<HippyValue>>(nullptr));
                         node->HandleEvent(event);
                         [strongSelf domEventDidHandle:hippy::kClickEvent forNode:componentTag onRoot:root_id];
@@ -1210,16 +1212,18 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     int32_t root_id = strongRootNode->GetId();
     UIView *view = [self viewForComponentTag:@(componentTag) onRootTag:@(root_id)];
     if (view) {
-        BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:hippy::kLongClickEvent];
-        BOOL canBePreventedInBubbling = [view canBePreventInBubbling:hippy::kLongClickEvent];
         __weak id weakSelf = self;
-        [view addViewEvent:NativeRenderViewEventTypeLongClick eventListener:^(CGPoint) {
+        [view addViewEvent:NativeRenderViewEventTypeLongClick eventListener:^(CGPoint point,
+                                                                              BOOL canCapture,
+                                                                              BOOL canBubble,
+                                                                              BOOL canBePreventedInCapture,
+                                                                              BOOL canBePreventedInBubbling) {
             id strongSelf = weakSelf;
             if (strongSelf) {
                 [strongSelf domNodeForComponentTag:componentTag onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> node) {
                     if (node) {
                         auto event = std::make_shared<hippy::DomEvent>(hippy::kLongClickEvent, node,
-                                                                       canBePreventedInCapturing, canBePreventedInBubbling,
+                                                                       canCapture, canBubble,
                                                                        static_cast<std::shared_ptr<HippyValue>>(nullptr));
                         node->HandleEvent(event);
                         [strongSelf domEventDidHandle:hippy::kLongClickEvent forNode:componentTag onRoot:root_id];
@@ -1244,17 +1248,19 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     UIView *view = [self viewForComponentTag:@(componentTag) onRootTag:@(root_id)];
     NativeRenderViewEventType eventType = hippy::kPressIn == type ? NativeRenderViewEventType::NativeRenderViewEventTypePressIn : NativeRenderViewEventType::NativeRenderViewEventTypePressOut;
     if (view) {
-        BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:type.c_str()];
-        BOOL canBePreventedInBubbling = [view canBePreventInBubbling:type.c_str()];
         std::string block_type = type;
         __weak id weakSelf = self;
-        [view addViewEvent:eventType eventListener:^(CGPoint) {
+        [view addViewEvent:eventType eventListener:^(CGPoint point,
+                                                     BOOL canCapture,
+                                                     BOOL canBubble,
+                                                     BOOL canBePreventedInCapture,
+                                                     BOOL canBePreventedInBubbling) {
             id strongSelf = weakSelf;
             if (strongSelf) {
                 [strongSelf domNodeForComponentTag:componentTag onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> node) {
                     if (node) {
                         auto event = std::make_shared<hippy::DomEvent>(block_type, node,
-                                                                       canBePreventedInCapturing, canBePreventedInBubbling,
+                                                                       canCapture, canBubble,
                                                                        static_cast<std::shared_ptr<HippyValue>>(nullptr));
                         node->HandleEvent(event);
                         [strongSelf domEventDidHandle:block_type forNode:componentTag onRoot:root_id];
@@ -1289,11 +1295,13 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         } else if (type == hippy::kTouchCancelEvent) {
             event_type = NativeRenderViewEventType::NativeRenderViewEventTypeTouchCancel;
         }
-        BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:type.c_str()];
-        BOOL canBePreventedInBubbling = [view canBePreventInBubbling:type.c_str()];
         const std::string type_ = type;
         __weak id weakSelf = self;
-        [view addViewEvent:event_type eventListener:^(CGPoint point) {
+        [view addViewEvent:event_type eventListener:^(CGPoint point,
+                                                      BOOL canCapture,
+                                                      BOOL canBubble,
+                                                      BOOL canBePreventedInCapture,
+                                                      BOOL canBePreventedInBubbling) {
             id strongSelf = weakSelf;
             if (strongSelf) {
                 [strongSelf domNodeForComponentTag:componentTag onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> node) {
@@ -1302,8 +1310,8 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
                         domValue["page_x"] = footstone::value::HippyValue(point.x);
                         domValue["page_y"] = footstone::value::HippyValue(point.y);
                         std::shared_ptr<footstone::value::HippyValue> value = std::make_shared<footstone::value::HippyValue>(domValue);
-                        auto event = std::make_shared<DomEvent>(type_, node, canBePreventedInCapturing,
-                                                                canBePreventedInBubbling,value);
+                        auto event = std::make_shared<DomEvent>(type_, node, canCapture,
+                                                                canBubble,value);
                         node->HandleEvent(event);
                         [strongSelf domEventDidHandle:type_ forNode:componentTag onRoot:root_id];
                     }
@@ -1327,18 +1335,19 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     UIView *view = [self viewForComponentTag:@(componentTag) onRootTag:@(root_id)];
     if (view) {
         NativeRenderViewEventType event_type = hippy::kShowEvent == type ? NativeRenderViewEventTypeShow : NativeRenderViewEventTypeDismiss;
-        BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:type.c_str()];
-        BOOL canBePreventedInBubbling = [view canBePreventInBubbling:type.c_str()];
         __weak id weakSelf = self;
         std::string type_ = type;
-        [view addViewEvent:event_type eventListener:^(CGPoint point) {
+        [view addViewEvent:event_type eventListener:^(CGPoint point,
+                                                      BOOL canCapture,
+                                                      BOOL canBubble,
+                                                      BOOL canBePreventedInCapture,
+                                                      BOOL canBePreventedInBubbling) {
             id strongSelf = weakSelf;
             if (strongSelf) {
                 [strongSelf domNodeForComponentTag:componentTag onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> node) {
                     if (node) {
                         std::shared_ptr<HippyValue> domValue = std::make_shared<HippyValue>(true);
-                        auto event = std::make_shared<DomEvent>(type_, node, canBePreventedInCapturing,
-                                                                canBePreventedInBubbling, domValue);
+                        auto event = std::make_shared<DomEvent>(type_, node, canCapture, canBubble, domValue);
                         node->HandleEvent(event);
                         [strongSelf domEventDidHandle:type_ forNode:componentTag onRoot:root_id];
                     }

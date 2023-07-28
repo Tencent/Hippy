@@ -45,4 +45,6 @@ typedef NS_ENUM(NSInteger, NativeRenderViewEventType) {
     NativeRenderViewEventTypeUnknown = -1,
 };
 
-HP_EXTERN NativeRenderViewEventType viewEventTypeFromName(const char *name);
+HP_EXTERN NativeRenderViewEventType viewEventTypeFromName(const char * _Nullable name);
+
+HP_EXTERN const char *_Nullable viewEventNameFromType(NativeRenderViewEventType eventType);
