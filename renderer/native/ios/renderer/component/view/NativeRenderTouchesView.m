@@ -137,14 +137,6 @@
     }
 }
 
-- (BOOL)canBePreventedByInCapturing:(const char *)name {
-    return NO;
-}
-
-- (BOOL)canBePreventInBubbling:(const char *)name {
-    return NO;
-}
-
 - (void)setPointerEvents:(NativeRenderPointerEvents)pointerEvents {
     _pointerEvents = pointerEvents;
     self.userInteractionEnabled = (pointerEvents != NativeRenderPointerEventsNone);
@@ -154,7 +146,6 @@
 }
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
-    [event removeAllResponders];
     BOOL canReceiveTouchEvents = ([self isUserInteractionEnabled] && ![self isHidden]);
     if (!canReceiveTouchEvents) {
         return nil;
@@ -249,7 +240,12 @@
             UITouch *touch = [touches anyObject];
             UIView *rootView = [self NativeRenderRootView];
             CGPoint point = [touch locationInView:rootView];
-            listener(point);
+            const char *name = viewEventNameFromType(NativeRenderViewEventTypeTouchStart);
+            listener(point,
+                     [self canCapture:name],
+                     [self canBubble:name],
+                     [self canBePreventedByInCapturing:name],
+                     [self canBePreventInBubbling:name]);
         }
     }
     [super touchesBegan:touches withEvent:event];
@@ -267,7 +263,12 @@
             UITouch *touch = [touches anyObject];
             UIView *rootView = [self NativeRenderRootView];
             CGPoint point = [touch locationInView:rootView];
-            listener(point);
+            const char *name = viewEventNameFromType(NativeRenderViewEventTypeTouchEnd);
+            listener(point,
+                     [self canCapture:name],
+                     [self canBubble:name],
+                     [self canBePreventedByInCapturing:name],
+                     [self canBePreventInBubbling:name]);
         }
     }
     [super touchesEnded:touches withEvent:event];
@@ -281,7 +282,12 @@
             UITouch *touch = [touches anyObject];
             UIView *rootView = [self NativeRenderRootView];
             CGPoint point = [touch locationInView:rootView];
-            listener(point);
+            const char *name = viewEventNameFromType(NativeRenderViewEventTypeTouchMove);
+            listener(point,
+                     [self canCapture:name],
+                     [self canBubble:name],
+                     [self canBePreventedByInCapturing:name],
+                     [self canBePreventInBubbling:name]);
         }
     }
     [super touchesMoved:touches withEvent:event];
@@ -299,7 +305,12 @@
             UITouch *touch = [touches anyObject];
             UIView *rootView = [self NativeRenderRootView];
             CGPoint point = [touch locationInView:rootView];
-            listener(point);
+            const char *name = viewEventNameFromType(NativeRenderViewEventTypeTouchCancel);
+            listener(point,
+                     [self canCapture:name],
+                     [self canBubble:name],
+                     [self canBePreventedByInCapturing:name],
+                     [self canBePreventInBubbling:name]);
         }
     }
     [super touchesCancelled:touches withEvent:event];
@@ -344,7 +355,12 @@
     OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeClick];
     if (listener) {
         CGPoint point = [_tapGestureRecognizer locationInView:[self NativeRenderRootView]];
-        listener(point);
+        const char *name = viewEventNameFromType(NativeRenderViewEventTypeClick);
+        listener(point,
+                 [self canCapture:name],
+                 [self canBubble:name],
+                 [self canBePreventedByInCapturing:name],
+                 [self canBePreventInBubbling:name]);
     }
 }
 
@@ -353,7 +369,12 @@
     if (listener) {
         if (_longGestureRecognizer.state == UIGestureRecognizerStateBegan) {
             CGPoint point = [_longGestureRecognizer locationInView:[self NativeRenderRootView]];
-            listener(point);
+            const char *name = viewEventNameFromType(NativeRenderViewEventTypeLongClick);
+            listener(point,
+                     [self canCapture:name],
+                     [self canBubble:name],
+                     [self canBePreventedByInCapturing:name],
+                     [self canBePreventInBubbling:name]);
         }
     }
 }
@@ -363,14 +384,24 @@
     _pressInTimer = nil;
     OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypePressIn];
     if (listener) {
-        listener(CGPointZero);
+        const char *name = viewEventNameFromType(NativeRenderViewEventTypePressIn);
+        listener(CGPointZero,
+                 [self canCapture:name],
+                 [self canBubble:name],
+                 [self canBePreventedByInCapturing:name],
+                 [self canBePreventInBubbling:name]);
     }
 }
 
 - (void)handlePressOutEvent {
     OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypePressOut];
     if (listener) {
-        listener(CGPointZero);
+        const char *name = viewEventNameFromType(NativeRenderViewEventTypePressOut);
+        listener(CGPointZero,
+                 [self canCapture:name],
+                 [self canBubble:name],
+                 [self canBePreventedByInCapturing:name],
+                 [self canBePreventInBubbling:name]);
     }
 }
 
