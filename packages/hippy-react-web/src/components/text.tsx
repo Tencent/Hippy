@@ -69,7 +69,7 @@ const styles = {
 const TextAncestorContext = createContext(false);
 
 interface TextProps extends LayoutableProps, TouchableProps, ClickableProps {
-  style?: HippyTypes.TextStyle | HippyTypes.TextStyle[];
+  style?: HippyTypes.TextStyleProp;
   numberOfLines?: number;
   opacity?: number;
   ellipsizeMode?: 'clip' | 'ellipsis';

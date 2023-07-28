@@ -44,7 +44,7 @@ interface ViewProps extends LayoutableProps, TouchableProps, ClickableProps {
   ref?: any;
   accessible?: boolean;
   accessibilityLabel?: string;
-  style?: HippyTypes.ViewStyle | HippyTypes.ViewStyle[];
+  style?: HippyTypes.ViewStyleProp;
   opacity?: number;
   overflow?: 'visible' | 'hidden';
   className?: any;
