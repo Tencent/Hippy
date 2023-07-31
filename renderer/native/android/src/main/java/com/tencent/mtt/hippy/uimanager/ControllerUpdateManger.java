@@ -51,6 +51,16 @@ public class ControllerUpdateManger<T, G> {
     private static final Map<String, PropertyMethodHolder> sComponentPropsMethodMap = new HashMap<>();
     private static final Set<String> sTextPropsSet = new HashSet<>();
     private static final ArrayList<String> sRenderPropsList = new ArrayList<>();
+    private static final String[] sLayoutStyleList = {
+            NodeProps.WIDTH,
+            NodeProps.HEIGHT,
+            NodeProps.LEFT,
+            NodeProps.TOP,
+            NodeProps.VISIBILITY,
+            NodeProps.TRANSFORM,
+            NodeProps.OPACITY,
+            NodeProps.OVERFLOW
+    };
     @NonNull
     private final Renderer mRenderer;
     @Nullable
@@ -113,6 +123,9 @@ public class ControllerUpdateManger<T, G> {
                 sTextPropsSet.add(controllerProps.name());
                 sRenderPropsList.add(controllerProps.name());
             }
+        }
+        for (String layoutStyle : sLayoutStyleList) {
+            sRenderPropsList.add(layoutStyle);
         }
     }
 
