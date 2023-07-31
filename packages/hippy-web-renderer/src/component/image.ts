@@ -68,7 +68,7 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
   public updateSelfStackContext(value = true) {
     if (value && (this.props.style.zIndex === null || this.props.style.zIndex === undefined)) {
       let zIndex = 0;
-      if (isIos() && iOSVersion() === 11) {
+      if (isIos() && iOSVersion()! <= 12) {
         zIndex = -1;
       }
       this.props.style.zIndex = zIndex;
