@@ -44,7 +44,6 @@ import java.util.List;
 
 public class ImageVirtualNode extends VirtualNode {
 
-    public static final String PROP_VERTICAL_ALIGNMENT = "verticalAlignment";
     protected int mWidth;
     protected int mHeight;
     protected int mLeft;
@@ -153,7 +152,7 @@ public class ImageVirtualNode extends VirtualNode {
     }
 
     @SuppressWarnings("unused")
-    @HippyControllerProps(name = PROP_VERTICAL_ALIGNMENT, defaultType = HippyControllerProps.NUMBER,
+    @HippyControllerProps(name = NodeProps.PROP_VERTICAL_ALIGNMENT, defaultType = HippyControllerProps.NUMBER,
             defaultNumber = ImageSpan.ALIGN_BASELINE)
     public void setVerticalAlignment(int alignment) {
         if (alignment != mVerticalAlignment) {
