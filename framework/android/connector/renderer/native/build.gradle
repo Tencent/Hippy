@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.kezong.fat-aar'
 
 allprojects {
     repositories {
@@ -39,7 +38,7 @@ android {
 }
 
 dependencies {
-    embed project(path: ':renderer-native', configuration: 'default')
+    implementation project(path: ':renderer-native')
 
     compileOnly project(path: ':connector-support')
     compileOnly project(path: ':hippy-support')
