@@ -107,7 +107,7 @@ export class TextView extends HippyWebView<HTMLSpanElement> {
 
   public buildInnerText() {
     this.innerTextDom = document.createElement('span');
-    if (isIos() && iOSVersion() === 12) {
+    if ((isIos() && iOSVersion() === 12) || !isIos()) {
       setElementStyle(this.innerTextDom, { 'vertical-align': 'middle' });
     }
     this.dom?.appendChild(this.innerTextDom);
