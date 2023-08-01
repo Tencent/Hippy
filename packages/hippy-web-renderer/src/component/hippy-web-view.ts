@@ -32,6 +32,7 @@ import {
   DefaultPropsProcess,
 } from '../types';
 import { setElementStyle } from '../common';
+import {iOSVersion, isIos} from "../get-global";
 
 export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public tagName!: InnerNodeTag;
@@ -210,8 +211,12 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
 
   public updateSelfStackContext(value = true) {
     if (value && (this.props.style.zIndex === null || this.props.style.zIndex === undefined)) {
-      this.props.style.zIndex = 0;
-      setElementStyle(this.dom as HTMLElement, { zIndex: 0 });
+      let zIndex = 0;
+      if (isIos() && iOSVersion()! <= 12) {
+        zIndex = -1;
+      }
+      this.props.style.zIndex = zIndex;
+      setElementStyle(this.dom as HTMLElement, { zIndex });
       this.updatedZIndex = true;
       return;
     }
