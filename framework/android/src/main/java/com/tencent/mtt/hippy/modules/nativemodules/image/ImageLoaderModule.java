@@ -34,6 +34,7 @@ import java.util.HashMap;
 public class ImageLoaderModule extends HippyNativeModuleBase {
 
     private final VfsManager mVfsManager;
+    private static final String ERROR_KEY_MESSAGE = "message";
 
     public ImageLoaderModule(HippyEngineContext context) {
         super(context);
@@ -50,7 +51,9 @@ public class ImageLoaderModule extends HippyNativeModuleBase {
             jsObject.set("height", options.outHeight);
             promise.resolve(jsObject);
         } catch (OutOfMemoryError | Exception e) {
-            promise.reject("Fetch image failed, url=" + url + ", msg=" + e.getMessage());
+            JSObject jsObject = new JSObject();
+            jsObject.set(ERROR_KEY_MESSAGE, "Fetch image failed, url=" + url + ", msg=" + e.getMessage());
+            promise.reject(jsObject);
         }
     }
 
@@ -64,7 +67,9 @@ public class ImageLoaderModule extends HippyNativeModuleBase {
     @HippyMethod(name = "getSize")
     public void getSize(final String url, final Promise promise) {
         if (TextUtils.isEmpty(url)) {
-            promise.reject("Url parameter is empty!");
+            JSObject jsObject = new JSObject();
+            jsObject.set(ERROR_KEY_MESSAGE, "Url parameter is empty!");
+            promise.reject(jsObject);
             return;
         }
         mVfsManager.fetchResourceAsync(url, null, generateRequestParams(),
@@ -77,7 +82,10 @@ public class ImageLoaderModule extends HippyNativeModuleBase {
                                 || bytes.length <= 0) {
                             String message =
                                     dataHolder.errorMessage != null ? dataHolder.errorMessage : "";
-                            promise.reject("Fetch image failed, url=" + url + ", msg=" + message);
+                            String errorMsg = "Fetch image failed, url=" + url + ", msg=" + message;
+                            JSObject jsObject = new JSObject();
+                            jsObject.set(ERROR_KEY_MESSAGE, errorMsg);
+                            promise.reject(jsObject);
                         } else {
                             decodeImageData(url, bytes, promise);
                         }
