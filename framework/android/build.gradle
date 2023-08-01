@@ -175,7 +175,11 @@ dependencies {
             }
         }
 
+
         embed project(path: ":${path.reverse().join('-')}", configuration: 'default')
+        if (it == 'renderer/native') {
+            embed project(path: ':renderer-native', configuration: 'default')
+        }
     }
     compileOnly project(path: ':renderer-native')
     //noinspection GradleDependency
@@ -309,16 +313,6 @@ task dealAfterAssembleRelease() {
         copy {
             from fileName
             into "$projectDir.absolutePath/../examples/android-demo/libs"
-        }
-    }
-}
-
-project.afterEvaluate {
-    project.android.libraryVariants.all { variant ->
-        def variantName = variant.name.capitalize()
-        def taskMergeClasses = project.tasks.named("mergeClasses${variantName}")
-        project.tasks.named("bundleLibCompileToJar${variantName}").configure {
-            dependsOn(taskMergeClasses)
         }
     }
 }
