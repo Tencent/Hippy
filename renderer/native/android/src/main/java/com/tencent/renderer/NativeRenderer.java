@@ -556,8 +556,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             }
             final Map<String, Object> diffProps = MapUtils.getMapValue(node, NODE_PROPS);
             final List<Object> delProps = MapUtils.getListValue(node, NODE_DELETE_PROPS);
-            LogUtils.d(TAG, "updateNode: id " + nodeId);
-            LogUtils.d(TAG, "diff " + diffProps + ", delete " + delProps);
+            LogUtils.d(TAG,
+                    "updateNode: id " + nodeId + ", diff " + diffProps + ", delete " + delProps);
             LogUtils.d(TAG, "  ");
             mVirtualNodeManager.updateNode(rootId, nodeId, diffProps, delProps);
             // If multiple level are nested, the parent is outermost text node.
@@ -761,6 +761,10 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                     TAG + ": callUIFunction: invalid negative id=" + nodeId);
         }
+        LogUtils.d(TAG,
+                "callUIFunction: id " + nodeId + ", functionName " + functionName + ", params"
+                        + params);
+        LogUtils.d(TAG, "  ");
         // If callbackId equal to 0 mean this call does not need to callback.
         final UIPromise promise =
                 (callbackId == 0) ? null : new UIPromise(callbackId, functionName, rootId, nodeId,
