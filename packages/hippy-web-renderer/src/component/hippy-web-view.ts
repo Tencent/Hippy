@@ -211,11 +211,10 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
 
   public updateSelfStackContext(value = true) {
     if (value && (this.props.style.zIndex === null || this.props.style.zIndex === undefined)) {
-      let zIndex = 0;
+      let zIndex: string|number = 0;
       if (isIos() && iOSVersion()! <= 12) {
-        zIndex = -1;
+        zIndex = 'auto';
       }
-      this.props.style.zIndex = zIndex;
       setElementStyle(this.dom as HTMLElement, { zIndex });
       this.updatedZIndex = true;
       return;

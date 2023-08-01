@@ -65,6 +65,25 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
     return { boxSizing: 'border-box', zIndex: 0, objectFit: 'fill' };
   }
 
+  public updateSelfStackContext(value = true) {
+    if (value && (this.props.style.zIndex === null || this.props.style.zIndex === undefined)) {
+      let zIndex = 0;
+      if (isIos() && iOSVersion()! <= 12) {
+        zIndex = -1;
+      }
+      this.props.style.zIndex = zIndex;
+      setElementStyle(this.dom as HTMLElement, { zIndex });
+      this.updatedZIndex = true;
+      return;
+    }
+
+    if (!value) {
+      delete this.props.style.zIndex;
+      setElementStyle(this.dom as HTMLElement, { zIndex: 'auto' });
+      this.updatedZIndex = false;
+    }
+  }
+
   public set tintColor(value) {
     this.props[NodeProps.TINY_COLOR] = value;
     if (value !== undefined && value !== 0) {

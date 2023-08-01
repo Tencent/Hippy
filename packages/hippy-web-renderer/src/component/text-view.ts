@@ -19,7 +19,7 @@
  */
 import { DefaultPropsProcess, EllipsizeMode, InnerNodeTag, NodeProps, UIProps } from '../types';
 import { setElementStyle } from '../common';
-import { isIos } from '../get-global';
+import {iOSVersion, isIos} from '../get-global';
 import { HippyWebView } from './hippy-web-view';
 const HippyEllipsizeModeMap = {
   head: { 'text-overflow': 'ellipsis', direction: 'rtl' },
@@ -107,7 +107,9 @@ export class TextView extends HippyWebView<HTMLSpanElement> {
 
   public buildInnerText() {
     this.innerTextDom = document.createElement('span');
-    setElementStyle(this.innerTextDom, { 'vertical-align': 'middle' });
+    if (isIos() && iOSVersion() === 12) {
+      setElementStyle(this.innerTextDom, { 'vertical-align': 'middle' });
+    }
     this.dom?.appendChild(this.innerTextDom);
     const textNode: Text | null = this.textContentNode;
     if (textNode) {

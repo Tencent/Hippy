@@ -125,7 +125,7 @@ export function zIndexAssociate(
   } else if (diffStyle.position === null) {
     parent?.changeStackContext(false);
     (component as HippyWebView<any>).updateSelfStackContext(false);
-  } else if (parent?.exitChildrenStackContext && diffStyle.zIndex === null) {
+  } else if (parent?.exitChildrenStackContext && !diffStyle.zIndex) {
     (component as HippyWebView<any>).updateSelfStackContext(true);
   }
 }
