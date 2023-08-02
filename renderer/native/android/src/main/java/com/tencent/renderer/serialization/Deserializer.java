@@ -19,6 +19,7 @@ package com.tencent.renderer.serialization;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.DESERIALIZE_NOT_SUPPORTED_ERR;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.DESERIALIZE_READ_LENGTH_ERR;
 
+import com.tencent.mtt.hippy.exception.UnexpectedException;
 import com.tencent.mtt.hippy.serialization.PrimitiveSerializationTag;
 import com.tencent.mtt.hippy.serialization.exception.DataCloneOutOfRangeException;
 import com.tencent.mtt.hippy.serialization.PrimitiveValueDeserializer;
@@ -77,6 +78,8 @@ public class Deserializer extends PrimitiveValueDeserializer {
                 return readMap();
             case SerializationTag.BEGIN_DENSE_ARRAY:
                 return readDenseArray();
+            case SerializationTag.BEGIN_SPARSE_JS_ARRAY:
+                return readSparseArray();
             default:
                 throw createUnsupportedTagException(tag);
         }
@@ -191,6 +194,61 @@ public class Deserializer extends PrimitiveValueDeserializer {
         if (totalLength != expected) {
             throw new NativeRenderException(DESERIALIZE_READ_LENGTH_ERR,
                     TAG + ": readDenseArray: length ambiguity");
+        }
+        return array;
+    }
+
+
+    /**
+     * Reads Spare Array from buffer.
+     *
+     * <h2>Note</h2>
+     * Sparse arrays will be serialized as an object-like manner. Normally, it should be representable
+     * as {@link ArrayList}, but in order to be compatible with the previous serialization implement,
+     * we use {@link ArrayList} to express sparse arrays. <br/> When a hole is encountered, null is
+     * used to fill it.
+     * @return array
+     */
+    private List<Object> readSparseArray() {
+        long length = reader.getVarint();
+        List<Object> array = new ArrayList<>();
+        assignId(array);
+        byte tag;
+        int read = 0;
+        while ((tag = readTag()) != SerializationTag.END_SPARSE_JS_ARRAY) {
+            read++;
+            Object key = readValue(tag, StringLocation.SPARSE_ARRAY_KEY, null);
+            Object value = readValue(StringLocation.SPARSE_ARRAY_ITEM, key);
+            int index = -1;
+            if (key instanceof Number) {
+                index = ((Number) key).intValue();
+            } else if (key instanceof String) {
+                try {
+                    index = Integer.parseInt((String) key);
+                } catch (NumberFormatException ignored) {
+                    // ignore not parsable string
+                }
+            }
+            if (index >= 0) {
+                int spaceNeeded = (index + 1) - array.size();
+                if (spaceNeeded
+                        == 1) { // Fast path, item are ordered in general ECMAScript(VM) implementation
+                    array.add(value);
+                } else {  // Slow path, universal
+                    for (int i = 0; i < spaceNeeded; i++) {
+                        array.add(null);
+                    }
+                    array.set(index, value);
+                }
+            }
+        }
+        int expected = (int) reader.getVarint();
+        if (read != expected) {
+            throw new UnexpectedException("unexpected number of properties");
+        }
+        long length2 = reader.getVarint();
+        if (length != length2) {
+            throw new AssertionError("length ambiguity");
         }
         return array;
     }
