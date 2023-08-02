@@ -44,6 +44,7 @@ Engine::Engine()
 
 Engine::~Engine() {
   FOOTSTONE_DLOG(INFO) << "~Engine";
+  class_template_holder_map_.clear();
 }
 
 void Engine::AsyncInitialize(std::shared_ptr<TaskRunner> js,
