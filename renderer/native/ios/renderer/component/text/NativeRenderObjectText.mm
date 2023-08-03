@@ -381,7 +381,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                     auto domNode = domManager->GetNode(strongSelf.rootNode, componentTag);
                     if (domNode) {
                         domNode->GetLayoutNode()->MarkDirty();
-                        [strongSelf dirtyPropagation];
                         domManager->DoLayout(strongSelf.rootNode);
                         domManager->EndBatch(strongSelf.rootNode);
                     }
@@ -399,7 +398,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 - (void)recomputeText {
     [self attributedString];
     [self setTextComputed];
-    [self dirtyPropagation];
+    [self dirtyPropagation:NativeRenderUpdateLifecycleAllDirtied];
 }
 
 #pragma mark - AttributeString

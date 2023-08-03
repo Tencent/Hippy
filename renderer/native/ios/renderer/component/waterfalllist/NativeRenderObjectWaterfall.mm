@@ -24,26 +24,38 @@
 #import "NativeRenderWaterfallView.h"
 #import "HPAsserts.h"
 
+@interface NativeRenderObjectWaterfall () {
+    NativeRenderApplierBlock _reloadBlock;
+}
+
+@end
+
 @implementation NativeRenderObjectWaterfall
 
-static NSTimeInterval kWaterfallViewDelayTime = .1f;
-
 - (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
-    if ([self isPropagationDirty]) {
-        __weak NativeRenderObjectWaterfall *weakSelf = self;
-        NativeRenderApplierBlock block = ^void(NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-            NativeRenderObjectWaterfall *strongSelf = weakSelf;
-            if (!strongSelf) {
-                return;
-            }
-            NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)[viewRegistry objectForKey:[strongSelf componentTag]];
-            HPAssert([view isKindOfClass:[NativeRenderWaterfallView class]], @"view must be kind of NativeRenderWaterfallView");
-            if ([view isKindOfClass:[NativeRenderWaterfallView class]]) {
-                [NSObject cancelPreviousPerformRequestsWithTarget:view selector:@selector(reloadData) object:nil];
-                [view performSelector:@selector(reloadData) withObject:nil afterDelay:kWaterfallViewDelayTime];
-            }
-        };
-        [blocks addObject:block];
+    if ([self isPropagationDirty:NativeRenderUpdateLifecycleLayoutDirtied]) {
+        if (!_reloadBlock) {
+            __weak NativeRenderObjectWaterfall *weakSelf = self;
+            NativeRenderApplierBlock block = ^void(NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+                NativeRenderObjectWaterfall *strongSelf = weakSelf;
+                if (!strongSelf) {
+                    return;
+                }
+                NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)[viewRegistry objectForKey:[strongSelf componentTag]];
+                HPAssert([view isKindOfClass:[NativeRenderWaterfallView class]], @"view must be kind of NativeRenderWaterfallView");
+                if ([view isKindOfClass:[NativeRenderWaterfallView class]]) {
+                    [view reloadData];
+                }
+            };
+            _reloadBlock = block;
+        }
+        BOOL containBlock = [blocks containsObject:_reloadBlock];
+        if (!containBlock) {
+            [blocks addObject:_reloadBlock];
+        }
+        else {
+            
+        }
     }
     [super amendLayoutBeforeMount:blocks];
 }
