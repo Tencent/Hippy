@@ -45,6 +45,8 @@ class PerformanceNavigationTiming : public PerformanceEntry {
     member = t; \
     if (start_time_.ToEpochDelta() == TimeDelta::Zero()) { \
       start_time_ = t; \
+    } else if (t.ToEpochDelta() < start_time_.ToEpochDelta()) { \
+      start_time_ = t; \
     } else if (t - start_time_ > duration_) { \
       duration_ = t - start_time_; \
     } \
