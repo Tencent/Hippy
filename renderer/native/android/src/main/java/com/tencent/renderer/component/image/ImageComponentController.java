@@ -26,6 +26,7 @@ import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import androidx.core.graphics.Insets;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
@@ -142,6 +143,14 @@ public class ImageComponentController {
     @SuppressWarnings({"unused", "deprecation"})
     @HippyControllerProps(name = "capInsets", defaultType = HippyControllerProps.MAP)
     public void setCapInsets(@NonNull Component component, HippyMap capInsets) {
-        // TODO: support 9-Patch image draw.
+        if (capInsets == null) {
+            component.setNinePatchCoordinate(Insets.NONE);
+        } else {
+            int left = Math.round(PixelUtil.dp2px(capInsets.getDouble("left")));
+            int top = Math.round(PixelUtil.dp2px(capInsets.getDouble("top")));
+            int right = Math.round(PixelUtil.dp2px(capInsets.getDouble("right")));
+            int bottom = Math.round(PixelUtil.dp2px(capInsets.getDouble("bottom")));
+            component.setNinePatchCoordinate(Insets.of(left, top, right, bottom));
+        }
     }
 }

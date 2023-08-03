@@ -14,22 +14,6 @@
  * limitations under the License.
  */
 
-/* Tencent is pleased to support the open source community by making Hippy available.
- * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.tencent.renderer.component.drawable;
 
 import android.graphics.Bitmap;
@@ -50,15 +34,18 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 
+import android.graphics.drawable.NinePatchDrawable;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 
+import androidx.core.graphics.Insets;
 import com.tencent.renderer.component.image.ImageDataSupplier;
 
 public class ContentDrawable extends Drawable {
 
+    private static final Runnable NO_OP = () -> {};
     private int mTintColor;
     private int mImagePositionX;
     private int mImagePositionY;
@@ -74,6 +61,14 @@ public class ContentDrawable extends Drawable {
     private GifMovieState mGifMovieState;
     @Nullable
     private BackgroundHolder mBackgroundHolder;
+    @Nullable
+    private Insets mNinePatchInsets;
+    @Nullable
+    private NinePatchDrawable mNinePatchDrawable;
+    @Nullable
+    private PorterDuffColorFilter mColorFilter;
+    @Nullable
+    private Shader mShader;
 
     public enum ScaleType {
         FIT_XY,
@@ -129,10 +124,14 @@ public class ContentDrawable extends Drawable {
     public void clear() {
         mGifMovieState = null;
         mImageHolder = null;
+        mNinePatchDrawable = null;
+        mShader = null;
     }
 
     public void setImageData(@NonNull ImageDataSupplier imageHolder) {
         mImageHolder = imageHolder;
+        mNinePatchDrawable = null;
+        mShader = null;
     }
 
     private void updateContentRegionIfNeeded() {
@@ -159,26 +158,42 @@ public class ContentDrawable extends Drawable {
         } else {
             canvas.clipRect(mContentRegion);
         }
+        if (mColorFilter == null && mTintColor != Color.TRANSPARENT) {
+            mColorFilter = new PorterDuffColorFilter(mTintColor, mTintColorBlendMode);
+        }
         if (mImageHolder.getDrawable() != null) {
-            mImageHolder.getDrawable().draw(canvas);
+            drawDrawable(canvas, mImageHolder.getDrawable());
         } else if (mImageHolder.isAnimated()) {
             drawGif(canvas, mImageHolder.getGifMovie());
         } else {
-            if (mPaint == null) {
-                mPaint = new Paint();
-            } else {
-                mPaint.reset();
-            }
-            mPaint.setAntiAlias(true);
-            if (mTintColor != Color.TRANSPARENT) {
-                mPaint.setColorFilter(new PorterDuffColorFilter(mTintColor, mTintColorBlendMode));
-            }
             Bitmap bitmap = mImageHolder.getBitmap();
             if (bitmap != null) {
                 drawBitmap(canvas, bitmap);
             }
         }
         canvas.restore();
+    }
+
+    private void drawDrawable(@NonNull Canvas canvas, Drawable drawable) {
+        final boolean clearColorFilter;
+        if (drawable.getColorFilter() == null && mColorFilter != null) {
+            clearColorFilter = true;
+            drawable.setColorFilter(mColorFilter);
+        } else {
+            clearColorFilter = false;
+        }
+        if (mNinePatchInsets != null && !mNinePatchInsets.equals(Insets.NONE)
+                && !(drawable instanceof NinePatchDrawable)
+                && drawable.getIntrinsicWidth() > 0
+                && drawable.getIntrinsicHeight() > 0
+        ) {
+            NinePatchHelper.drawDrawable(canvas, drawable, mContentRegion, mNinePatchInsets);
+        } else {
+            drawable.draw(canvas);
+        }
+        if (clearColorFilter) {
+            drawable.setColorFilter(null);
+        }
     }
 
     private void updateBitmapMatrix(@NonNull Bitmap bitmap) {
@@ -231,15 +246,41 @@ public class ContentDrawable extends Drawable {
     }
 
     private void drawBitmap(@NonNull Canvas canvas, @NonNull Bitmap bitmap) {
-        assert mPaint != null;
-        updateBitmapMatrix(bitmap);
-        if (mScaleType == ScaleType.REPEAT) {
-            BitmapShader bitmapShader = new BitmapShader(bitmap, Shader.TileMode.REPEAT,
-                    Shader.TileMode.REPEAT);
-            mPaint.setShader(bitmapShader);
+        if (mNinePatchInsets != null && !mNinePatchInsets.equals(Insets.NONE)) {
+            if (mNinePatchDrawable == null) {
+                mNinePatchDrawable = NinePatchHelper.createNinePatchDrawable(bitmap, mNinePatchInsets);
+                if (mColorFilter != null) {
+                    mNinePatchDrawable.setColorFilter(mColorFilter);
+                }
+            }
+            mNinePatchDrawable.setBounds((int) mContentRegion.left, (int) mContentRegion.top,
+                    (int) mContentRegion.right, (int) mContentRegion.bottom);
+            mNinePatchDrawable.draw(canvas);
+        } else {
+            Paint paint = getPaint();
+            updateBitmapMatrix(bitmap);
+            if (mScaleType == ScaleType.REPEAT) {
+                if (mShader == null) {
+                    mShader = new BitmapShader(bitmap, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
+                }
+                paint.setShader(mShader);
+            }
+            paint.setFilterBitmap(true);
+            canvas.drawBitmap(bitmap, mBitmapMatrix, paint);
         }
-        mPaint.setFilterBitmap(true);
-        canvas.drawBitmap(bitmap, mBitmapMatrix, mPaint);
+    }
+
+    private Paint getPaint() {
+        if (mPaint == null) {
+            mPaint = new Paint();
+        } else {
+            mPaint.reset();
+        }
+        mPaint.setAntiAlias(true);
+        if (mColorFilter != null) {
+            mPaint.setColorFilter(mColorFilter);
+        }
+        return mPaint;
     }
 
     private void drawGif(@NonNull Canvas canvas, @Nullable Movie movie) {
@@ -265,20 +306,21 @@ public class ContentDrawable extends Drawable {
         int progress =
                 mGifMovieState.progress > Integer.MAX_VALUE ? 0 : (int) mGifMovieState.progress;
         movie.setTime(progress);
-        canvas.save();
-        canvas.scale(mGifMovieState.scaleX, mGifMovieState.scaleY);
-        movie.draw(canvas, mGifMovieState.startX, mGifMovieState.startY + 1.0f);
-        canvas.restore();
-        scheduleSelf(new Runnable() {
-            @Override
-            public void run() {
-
-            }
-        }, 40);
+        Paint paint = getPaint();
+        if (mNinePatchInsets != null && !mNinePatchInsets.equals(Insets.NONE)) {
+            NinePatchHelper.drawGif(canvas, movie, paint, mContentRegion, mNinePatchInsets);
+        } else {
+            canvas.save();
+            canvas.scale(mGifMovieState.scaleX, mGifMovieState.scaleY);
+            movie.draw(canvas, mGifMovieState.startX, mGifMovieState.startY + 1.0f, paint);
+            canvas.restore();
+        }
+        scheduleSelf(NO_OP, 40);
     }
 
     public void setScaleType(ScaleType scaleType) {
         mScaleType = scaleType;
+        mShader = null;
     }
 
     public void setImagePositionX(@Px int positionX) {
@@ -291,10 +333,17 @@ public class ContentDrawable extends Drawable {
 
     public void setTintColor(@ColorInt int tintColor) {
         mTintColor = tintColor;
+        mColorFilter = null;
     }
 
     public void setTintColorBlendMode(int tintColorBlendMode) {
         mTintColorBlendMode = convertToPorterDuffMode(tintColorBlendMode);
+        mColorFilter = null;
+    }
+
+    public void setNinePatchCoordinate(Insets insets) {
+        mNinePatchInsets = insets;
+        mNinePatchDrawable = null;
     }
 
     private Mode convertToPorterDuffMode(int val) {
