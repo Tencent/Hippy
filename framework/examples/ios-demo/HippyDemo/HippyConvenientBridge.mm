@@ -72,8 +72,12 @@
     return self;
 }
 
+- (NSString *)engineKey {
+    return _engineKey ?: [NSString stringWithFormat:@"%p", self];
+}
+
 - (void)setUpNativeRenderManager {
-    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:_engineKey];
+    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:[self engineKey]];
     auto domManager = engineResource->GetDomManager();
     //Create NativeRenderManager
     _nativeRenderManager = std::make_shared<NativeRenderManager>();
@@ -143,7 +147,7 @@
 }
 
 - (void)setRootView:(UIView *)rootView {
-    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:_engineKey];
+    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:[self engineKey]];
     auto domManager = engineResource->GetDomManager();
     NSNumber *rootTag = [rootView componentTag];
     //Create a RootNode instance with a root tag
@@ -177,7 +181,7 @@
 }
 
 - (void)resetRootSize:(CGSize)size {
-    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:_engineKey];
+    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:[self engineKey]];
     std::weak_ptr<hippy::RootNode> rootNode = _rootNode;
     auto domManager = engineResource->GetDomManager();
     std::weak_ptr<hippy::DomManager> weakDomManager = domManager;

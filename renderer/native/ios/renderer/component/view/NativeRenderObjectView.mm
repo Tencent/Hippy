@@ -134,23 +134,24 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     return NO;
 }
 
-- (void)dirtyPropagation {
-    if (NativeRenderUpdateLifecycleDirtied == _propagationLifecycle) {
+- (void)dirtyPropagation:(NativeRenderUpdateLifecycle)dirtyType {
+    if (dirtyType == _propagationLifecycle ||
+        NativeRenderUpdateLifecycleAllDirtied == _propagationLifecycle) {
         return;
     }
-    _propagationLifecycle = NativeRenderUpdateLifecycleDirtied;
-    [_superview dirtyPropagation];
+    if (NativeRenderUpdateLifecycleUninitialized == _propagationLifecycle ||
+        NativeRenderUpdateLifecycleComputed == _propagationLifecycle) {
+        _propagationLifecycle = dirtyType;
+    }
+    else {
+        _propagationLifecycle = NativeRenderUpdateLifecycleAllDirtied;
+    }
+    [_superview dirtyPropagation:dirtyType];
 }
 
-- (void)dirtySelfPropagation {
-    _propagationLifecycle = NativeRenderUpdateLifecycleDirtied;
-}
-
-- (void)dirtyDescendantPropagation {
-}
-
-- (BOOL)isPropagationDirty {
-    return _propagationLifecycle != NativeRenderUpdateLifecycleComputed;
+- (BOOL)isPropagationDirty:(NativeRenderUpdateLifecycle)dirtyType {
+    BOOL isDirty = _propagationLifecycle == dirtyType || _propagationLifecycle == NativeRenderUpdateLifecycleAllDirtied;
+    return isDirty;
 }
 
 - (void)dirtyText {
@@ -225,7 +226,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     subview->_superview = self;
     _didUpdateSubviews = YES;
     [self dirtyText];
-    [self dirtyPropagation];
+    [self dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
 }
 
 - (void)moveNativeRenderSubview:(id<NativeRenderComponentProtocol>)subview toIndex:(NSInteger)atIndex {
@@ -237,7 +238,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 
 - (void)removeNativeRenderSubview:(NativeRenderObjectView *)subview {
     [subview dirtyText];
-    [subview dirtyPropagation];
+    [subview dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
     _didUpdateSubviews = YES;
     subview->_superview = nil;
     [_objectSubviews removeObject:subview];
@@ -341,7 +342,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
                 std::vector<std::shared_ptr<hippy::DomNode>> changed_nodes;
                 node->DoLayout(changed_nodes);
                 if (dirtyPropagation) {
-                    [strongSelf dirtyPropagation];
+                    [strongSelf dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
                 }
                 domManager->EndBatch(strongSelf.rootNode);
             }
@@ -352,7 +353,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 
 - (void)setBackgroundColor:(UIColor *)color {
     _backgroundColor = color;
-    [self dirtyPropagation];
+    [self dirtyPropagation:NativeRenderUpdateLifecyclePropsDirtied];
 }
 
 - (void)didUpdateNativeRenderSubviews {
