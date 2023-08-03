@@ -39,8 +39,10 @@ enum class Direction;
 
 typedef NS_ENUM(NSUInteger, NativeRenderUpdateLifecycle) {
     NativeRenderUpdateLifecycleUninitialized = 0,
-    NativeRenderUpdateLifecycleComputed,
-    NativeRenderUpdateLifecycleDirtied,
+    NativeRenderUpdateLifecycleComputed = 1,
+    NativeRenderUpdateLifecyclePropsDirtied = 2,
+    NativeRenderUpdateLifecycleLayoutDirtied = 3,
+    NativeRenderUpdateLifecycleAllDirtied = 4,
 };
 
 typedef NS_ENUM(NSUInteger, NativeRenderCreationType) {
@@ -198,10 +200,8 @@ extern NSString *const NativeRenderShadowViewDiffTag;
  */
 - (BOOL)isCSSLeafNode;
 
-- (void)dirtyPropagation NS_REQUIRES_SUPER;
-- (void)dirtySelfPropagation;
-- (void)dirtyDescendantPropagation;
-- (BOOL)isPropagationDirty;
+- (void)dirtyPropagation:(NativeRenderUpdateLifecycle)type NS_REQUIRES_SUPER;
+- (BOOL)isPropagationDirty:(NativeRenderUpdateLifecycle)dirtyType;
 
 - (void)dirtyText NS_REQUIRES_SUPER;
 - (void)setTextComputed NS_REQUIRES_SUPER;
