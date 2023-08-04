@@ -14,14 +14,24 @@ const updateList = [];
 const updatedList = [];
 const needUpdateList = [];
 /** update file */
-const updateFile = (file, content) => updateList.push(new Promise(r => fs.writeFile(file, `${banner(undefined, undefined, undefined, undefined, false)}\n${content}`, 'utf8', (err) =>  {
-  if (err) return console.error(err);
-  updatedList.push(file);
-  r();
-})));
+const updateFile = (file, content, replace = false) => {
+  const copyright = banner(undefined, undefined, undefined, undefined, false);
+  let fileContent;
+  if (replace) {
+    fileContent = content.replace(/\/\*(\s|.)*?\*\//, copyright);
+  } else {
+    fileContent = `${copyright}\n${content}`;
+  }
+  updateList.push(new Promise(r => fs.writeFile(file, fileContent, 'utf8', (err) =>  {
+    if (err) return console.error(err);
+    updatedList.push(file);
+    r();
+  })));
+};
 
 /**
  * @example node scripts/copyright.js hippy-react hippy-react-web
+ * @example node scripts/copyright.js hippy-react hippy-react-web --force  强制更新
  */
 console.log('choise packages', packages);
 packages.forEach((pkg) => {
@@ -33,9 +43,9 @@ packages.forEach((pkg) => {
     if (!content.includes('* Copyright (C) 2017-') || !content.includes('THL A29 Limited, a Tencent company')) {
       // not found copyright, add it.
       updateFile(file, content);
-    } else if (!content.includes(banner(undefined, undefined, undefined, undefined, false))) {
+    } else if (!content.includes(banner(undefined, undefined, undefined, undefined, false)) && file === 'packages/hippy-react/src/adapters/animated.ts') {
       if (yargs.argv.force) {
-        updateFile(file, content);
+        updateFile(file, content, true);
       } else {
         needUpdateList.push(file);
       }
@@ -55,7 +65,9 @@ packages.forEach((pkg) => {
       console.log(chalk.yellow('add copyright found err'), e);
     })
     .finally(() => {
-      console.log(chalk.yellow('\nneed to update copyright:'));
-      console.log(chalk.grey(needUpdateList.join('\n')));
+      if (needUpdateList.length) {
+        console.log(chalk.yellow('\nneed to update copyright:'));
+        console.log(chalk.grey(needUpdateList.join('\n')));
+      }
     });
 });
