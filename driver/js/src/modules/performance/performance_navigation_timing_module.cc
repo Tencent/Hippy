@@ -95,6 +95,8 @@ std::shared_ptr<ClassTemplate<PerformanceNavigationTiming>> RegisterPerformanceN
   ADD_PROPERTY(hippy_js_engine_init_end, "hippyJsEngineInitEnd", GetHippyJsEngineInitEnd)
   ADD_PROPERTY(hippy_run_application_start, "hippyRunApplicationStart", GetHippyRunApplicationStart)
   ADD_PROPERTY(hippy_run_application_end, "hippyRunApplicationEnd", GetHippyRunApplicationEnd)
+  ADD_PROPERTY(hippy_dom_start, "hippyDomStart", GetHippyDomStart)
+  ADD_PROPERTY(hippy_dom_end, "hippyDomEnd", GetHippyDomEnd)
   ADD_PROPERTY(hippy_first_frame_start, "hippyFirstFrameStart", GetHippyFirstFrameStart)
   ADD_PROPERTY(hippy_first_frame_end, "hippyFirstFrameEnd", GetHippyFirstFrameEnd)
 #undef ADD_PROPERTY

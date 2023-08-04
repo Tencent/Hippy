@@ -277,6 +277,10 @@ void RootNode::SyncWithRenderManager(const std::shared_ptr<RenderManager>& rende
   FlushDomOperations(render_manager);
   FlushEventOperations(render_manager);
   DoAndFlushLayout(render_manager);
+  auto dom_manager = dom_manager_.lock();
+  if (dom_manager) {
+    dom_manager->RecordDomEndTimePoint();
+  }
   render_manager->EndBatch(GetWeakSelf());
 }
 
