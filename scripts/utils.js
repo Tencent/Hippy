@@ -21,17 +21,15 @@ const path = require('path');
 const fs = require('fs-extra');
 const dts = require('rollup-plugin-dts').default;
 
-function banner(name, version, extra = '', startYear = 2017) {
+function banner(name, version, extra = '', startYear = 2017, build = true) {
   const thisYear = new Date().getFullYear();
   let copyRightYears = thisYear;
   if (startYear !== thisYear) {
     copyRightYears = `${startYear}-${thisYear}`;
   }
+  const buildStr = build ? `\n * ${name} v${version}${extra}\n * Build at: ${new Date()}\n *\n ` : '';
 
-  return `/*!
- * ${name} v${version}${extra}
- * Build at: ${new Date()}
- *
+  return `/* !${buildStr}
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
