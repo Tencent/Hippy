@@ -24,13 +24,14 @@ import React from 'react';
 import { Fiber } from '@hippy/react-reconciler';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { warn } from '../utils';
+import type { LayoutEvent, LayoutableProps } from '../types';
 import PullHeader from './pull-header';
 import PullFooter from './pull-footer';
 import View from './view';
 
 type DataItem = any;
 
-interface WaterfallViewProps {
+export interface WaterfallViewProps {
   // Specific number of waterfall column
   numberOfColumns: number;
 
@@ -49,7 +50,7 @@ interface WaterfallViewProps {
   // Number of items to preload on reaching the listview end
   preloadItemNumber?: number;
 
-  style?: HippyTypes.Style;
+  style?: HippyTypes.StyleProp;
 
   // Declare whether PullHeader view exists
   containPullHeader?: boolean;
@@ -94,7 +95,7 @@ interface WaterfallViewProps {
    * @param {number} index - Index Of data.
    * @returns {Object}
    */
-  getItemStyle?: (index: number) => HippyTypes.Style;
+  getItemStyle?: (index: number) => HippyTypes.StyleProp;
 
   /**
    * Specific the key of row, for better data diff
@@ -110,15 +111,8 @@ interface WaterfallViewProps {
 
   /**
    *  Called when the row first layout or layout changed.
-   *
-   * @param {Object} evt - Layout event data
-   * @param {number} evt.x - The position X of component
-   * @param {number} evt.y - The position Y of component
-   * @param {number} evt.width - The width of component
-   * @param {number} evt.height - The height of component
-   * @param {number} index - Index of data.
    */
-  onItemLayout?: (evt: HippyTypes.LayoutEvent, index: number) => void;
+  onItemLayout?: (evt: LayoutEvent, index: number) => void;
 
   /**
    * Called when user scrolls WaterfallView
@@ -161,15 +155,15 @@ interface WaterfallViewProps {
   onInitialListReady?: () => void;
 }
 
-interface WaterfallViewItemProps {
-  onLayout?: (e: any) => void;
+export interface WaterfallViewItemProps extends LayoutableProps {
   type?: number | void | undefined;
   key: string;
-  style: object;
+  style: HippyTypes.StyleProp;
 }
 
-function WaterfallViewItem(props: WaterfallViewItemProps) {
+export function WaterfallViewItem(props: WaterfallViewItemProps) {
   return (
+    // @ts-ignore for style
     <li nativeName={'WaterfallItem'} {...props} />
   );
 }
@@ -178,7 +172,7 @@ function WaterfallViewItem(props: WaterfallViewItemProps) {
  * Recyclable list for better performance, and lower memory usage.
  * @noInheritDoc
  */
-class WaterfallView extends React.Component<WaterfallViewProps> {
+export class WaterfallView extends React.Component<WaterfallViewProps> {
   private instance: HTMLUListElement | Fiber | null = null;
 
   private pullHeader: PullHeader | null = null;
@@ -302,8 +296,8 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
     }
 
     if (typeof renderItem === 'function') {
-      const pullHeader = this.getPullHeader(renderPullHeader, onHeaderPulling, onHeaderReleased);
-      const pullFooter = this.getPullFooter(renderPullFooter, onFooterPulling, onFooterReleased);
+      const pullHeader = this.getPullHeader();
+      const pullFooter = this.getPullFooter();
       for (let index = 0; index < numberOfItems; index += 1) {
         const itemProps: WaterfallViewItemProps = {} as WaterfallViewItemProps;
         const rowChildren = renderItem(index) || null;
@@ -370,12 +364,12 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
     itemProps: WaterfallViewItemProps,
     index: number,
     { getItemKey, getItemStyle, onItemLayout, getItemType }:
-    {
-      getItemKey: ((index: number) => string) | undefined,
-      getItemStyle: ((index: number) => HippyTypes.Style) | undefined,
-      onItemLayout: ((evt: HippyTypes.LayoutEvent, index: number) => void) | undefined,
-      getItemType: ((index: number) => number) | undefined,
-    },
+    Pick<WaterfallViewProps,
+    'getItemKey'
+    | 'getItemStyle'
+    | 'onItemLayout'
+    | 'getItemType'
+    >,
   ) {
     if (typeof getItemKey === 'function') {
       itemProps.key = getItemKey(index);
@@ -401,17 +395,10 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
   }
 
   /**
-   *
-   * @param renderPullHeader - PullHeader View
-   * @param onHeaderPulling - Called when header is pulled
-   * @param onHeaderReleased - Called when header is released
    * @private
    */
-  private getPullHeader(
-    renderPullHeader: undefined | (() => React.ReactElement),
-    onHeaderPulling: undefined | (() => void),
-    onHeaderReleased: undefined | (() => void),
-  ) {
+  private getPullHeader() {
+    const { renderPullHeader, onHeaderPulling, onHeaderReleased } = this.props;
     let pullHeader: JSX.Element | null = null;
     if (typeof renderPullHeader === 'function') {
       pullHeader = (
@@ -431,17 +418,10 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
   }
 
   /**
-   *
-   * @param renderPullFooter - PullHeader View
-   * @param onFooterPulling - Called when footer is pulled
-   * @param onFooterReleased - Called when footer is released
    * @private
    */
-  private getPullFooter(
-    renderPullFooter: undefined | (() => React.ReactElement),
-    onFooterPulling: undefined | (() => void),
-    onFooterReleased: undefined | (() => void),
-  ) {
+  private getPullFooter() {
+    const { renderPullFooter, onFooterPulling, onFooterReleased } = this.props;
     let pullFooter: JSX.Element | null = null;
     if (typeof renderPullFooter === 'function') {
       pullFooter = (

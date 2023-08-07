@@ -19,7 +19,9 @@
  */
 
 if (!global.__GLOBAL__) {
-  global.__GLOBAL__ = {} as HippyTypes.__GLOBAL__;
+  global.__GLOBAL__ = {
+    nodeId: 0,
+  };
 }
 
 global.__GLOBAL__.nodeId = 0;

@@ -21,13 +21,14 @@
 /* eslint-disable no-underscore-dangle */
 
 import React from 'react';
-import * as StyleSheet from '../modules/stylesheet';
+import StyleSheet from '../modules/stylesheet';
 import { callUIFunction } from '../modules/ui-manager-module';
 import Element from '../dom/element-node';
 import { isRTL } from '../utils/i18n';
 import View from './view';
 
-interface ScrollViewProps {
+export interface ScrollViewProps {
+  // TODO: allow HippyTypes.Style[]
   style?: HippyTypes.Style;
   /**
    * When true, the scroll view's children are arranged horizontally in a row
@@ -67,7 +68,7 @@ interface ScrollViewProps {
    * These styles will be applied to the scroll view content container which wraps all
    * of the child views.
    */
-  contentContainerStyle?: HippyTypes.Style;
+  contentContainerStyle?: HippyTypes.StyleProp;
 
   /**
    * This controls how often the scroll event will be fired while scrolling
@@ -156,7 +157,7 @@ const styles = StyleSheet.create({
  * If you need to implement a long list, use `ListView`.
  * @noInheritDoc
  */
-class ScrollView extends React.Component<ScrollViewProps, {}> {
+export class ScrollView extends React.Component<ScrollViewProps, {}> {
   private instance: Element | HTMLDivElement | null = null;
 
   /**
@@ -209,7 +210,7 @@ class ScrollView extends React.Component<ScrollViewProps, {}> {
       horizontal ? styles.contentContainerHorizontal : styles.contentContainerVertical,
       contentContainerStyle,
     ];
-    const newStyle = horizontal
+    const newStyle: HippyTypes.Style = horizontal
       ? Object.assign({}, styles.baseHorizontal, style)
       : Object.assign({}, styles.baseVertical, style);
 

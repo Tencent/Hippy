@@ -22,6 +22,7 @@
 
 import { HippyEventEmitter } from '../event';
 import { Bridge, Device } from '../global';
+import { Platform } from '../types';
 
 const hippyEventEmitter = new HippyEventEmitter();
 const backPressSubscriptions = new Set();
@@ -90,7 +91,7 @@ const fakeBackAndroid = {
 };
 
 const BackAndroid = (() => {
-  if (__PLATFORM__ === 'android' || Device.platform.OS === 'android') {
+  if (__PLATFORM__ === Platform.android || Device.platform.OS === Platform.android) {
     realBackAndroid.initEventListener();
     return realBackAndroid;
   }

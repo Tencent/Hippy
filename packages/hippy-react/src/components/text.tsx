@@ -24,7 +24,7 @@ import React from 'react';
 import { LayoutableProps, ClickableProps } from '../types';
 import { unicodeToChar } from '../utils';
 
-interface TextProps extends LayoutableProps, ClickableProps {
+export interface TextProps extends LayoutableProps, ClickableProps {
   /**
    * Used to truncate the text with an ellipsis after computing the text layout,
    * including line wrapping, such that the total number of lines does not exceed this number.
@@ -35,7 +35,7 @@ interface TextProps extends LayoutableProps, ClickableProps {
   /**
    * Determines what the opacity of the wrapped view.
    */
-  opacity: number;
+  opacity?: number;
 
   /**
    * When numberOfLines is set, this prop defines how text will be truncated.
@@ -56,10 +56,10 @@ interface TextProps extends LayoutableProps, ClickableProps {
    *
    * The default is `tail`.
    */
-  ellipsizeMode: 'head' | 'middle' | 'tail' | 'clip';
+  ellipsizeMode?: 'head' | 'middle' | 'tail' | 'clip';
   children: number | string | string[];
   text?: string;
-  style?: HippyTypes.Style | HippyTypes.Style[];
+  style?: HippyTypes.TextStyleProp;
 
   /**
    * When forbidUnicodeToChar is set，component will not convert unicode string to normal string
@@ -78,18 +78,18 @@ function forwardRef(
   // eslint-disable-next-line max-len
   ref: string | ((instance: HTMLParagraphElement | null) => void) | React.RefObject<HTMLParagraphElement> | null | undefined,
 ) {
-  const nativeStyle: undefined | HippyTypes.Style | HippyTypes.Style[] = style;
+  const nativeStyle = style;
 
   // Fill default color
   // Workaround for Android meet empty front color not render issue.
   if (style) {
     if (Array.isArray(style)) {
       if (style.filter(x => typeof x === 'object' && x).findIndex(s => s.color || s.colors) === -1) {
-        (nativeStyle as HippyTypes.Style[])[0].color = '#000';
+        (nativeStyle as HippyTypes.TextStyle[])[0].color = '#000';
       }
     } else if (typeof style === 'object') {
       if (style.color === undefined && style.colors === undefined) {
-        (nativeStyle as HippyTypes.Style).color = '#000';
+        (nativeStyle as HippyTypes.TextStyle).color = '#000';
       }
     }
   }
@@ -120,6 +120,6 @@ function forwardRef(
   );
 }
 forwardRef.displayName = 'Text';
-const Text = React.forwardRef(forwardRef);
+export const Text = React.forwardRef(forwardRef);
 Text.displayName = 'Text';
 export default Text;
