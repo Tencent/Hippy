@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.17.0](https://github.com/Tencent/Hippy/compare/2.16.5...2.17.0) (2023-08-07)
+
+
+### Bug Fixes
+
+* **@hippy/react-web:** fix Image repeatedly triggering onError ([fb6efb3](https://github.com/Tencent/Hippy/commit/fb6efb3d62844cf238f603580bcd7c17ffa53b65))
+* **hippy-react-web:** fix multiple react in dev ([d1b313c](https://github.com/Tencent/Hippy/commit/d1b313c700bb7085c2963af94540142c91c17a6c))
+
+
+### Features
+
+* **@hippy/react-web:** remove font default style for Text ([cf1209a](https://github.com/Tencent/Hippy/commit/cf1209a16766e369e007afd06cd6e6dd4b6a58e2))
+* **hippy-react:** fix declaration and export it ([#3414](https://github.com/Tencent/Hippy/issues/3414)) ([4e49d4f](https://github.com/Tencent/Hippy/commit/4e49d4f4563b27d25a33ad0c055b917293ecae4f))
+
+
+
+
+
 ## [2.16.5](https://github.com/Tencent/Hippy/compare/2.16.4...2.16.5) (2023-07-21)
 
 **Note:** Version bump only for package @hippy/react-web

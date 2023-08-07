@@ -3,6 +3,47 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.17.0](https://github.com/Tencent/Hippy/compare/2.16.5...2.17.0) (2023-08-07)
+
+
+### Bug Fixes
+
+* **@hippy/react-web:** fix Image repeatedly triggering onError ([fb6efb3](https://github.com/Tencent/Hippy/commit/fb6efb3d62844cf238f603580bcd7c17ffa53b65))
+* **android:** animation may cause `IllegalStateException` after destroy ([e30d2a1](https://github.com/Tencent/Hippy/commit/e30d2a1d39b65e279e0f8793eaccd83b64c6ea99))
+* **android:** animationModule memory leak ([55c38b9](https://github.com/Tencent/Hippy/commit/55c38b907c1ed0c2b81fb3f76289d7069edb79fc))
+* **android:** check imageAdapter result before use ([c8c16c2](https://github.com/Tencent/Hippy/commit/c8c16c283e43c2247a28b0bfa4bd2b5b1a453794))
+* **android:** correct default value type for `StyleNode` ([dfe30bf](https://github.com/Tencent/Hippy/commit/dfe30bf7d7b45d8514dfdfd43abd4a05ef1415c0))
+* **android:** initialContentOffset not working ([a51fdc0](https://github.com/Tencent/Hippy/commit/a51fdc0641570c36e7e41b43a85121bf004a79c6))
+* **android:** memory leak in `WebSocketModule` ([4136f5a](https://github.com/Tencent/Hippy/commit/4136f5a20ff57c3011e59e47897a2de63988a02c))
+* **android:** prevent unnecessary requestLayout ([1c7d630](https://github.com/Tencent/Hippy/commit/1c7d630a3d87a3abfd1c8c048e997fd6768ecc05))
+* **android:** textNode memory leak ([4f8c340](https://github.com/Tencent/Hippy/commit/4f8c3406471da29dc7cdb3a007a2f0d6d5824e8e))
+* **core:** fix std hash for xcode15 ([6607478](https://github.com/Tencent/Hippy/commit/6607478b1abc14d4e348929d9b98fe18d784c09b))
+* **hippy-react-web:** fix multiple react in dev ([d1b313c](https://github.com/Tencent/Hippy/commit/d1b313c700bb7085c2963af94540142c91c17a6c))
+* **ios:** fix initialContentOffset bug for listview ([702e4a6](https://github.com/Tencent/Hippy/commit/702e4a6d265bae05f017609bc08a1073c3cea964))
+* **ios:** fix potential bug and analyzer issues in HippyGradientObject ([8fad0f3](https://github.com/Tencent/Hippy/commit/8fad0f3a39cdc8e323f0f08a0fc56924a326874d))
+* **ios:** key commands for dev menu not working ([0cba450](https://github.com/Tencent/Hippy/commit/0cba4502eed45b6a09955c2d9f1139e0acd5109c))
+* **ios:** network session not being reused ([46c5a52](https://github.com/Tencent/Hippy/commit/46c5a523584ca2f18cde8a1d32be28cc9b767f5e))
+* **ios:** use auto release pool for cpp thread ([2afda7f](https://github.com/Tencent/Hippy/commit/2afda7fadd57d3040162e24d0ab8b544e48665a1))
+* **jsc:** fix jsc crash on ios12 ([4f3f5d8](https://github.com/Tencent/Hippy/commit/4f3f5d81ac28eb4b7b66c89e560ac6081a27d2d1))
+* **release:** fix js release action install error ([5ba3bc1](https://github.com/Tencent/Hippy/commit/5ba3bc172bd205d3787fbf5b5bed9330a1315232))
+* **test:** fix front build test failed ([30f21f7](https://github.com/Tencent/Hippy/commit/30f21f7e4ccaa1a436849fb769f6dbd0347b9f00))
+* **vue-next:** fix element do not use beforeLoadStyle hooks issue ([#3339](https://github.com/Tencent/Hippy/issues/3339)) ([2d63fa5](https://github.com/Tencent/Hippy/commit/2d63fa54953b496de131bf796241bae7ff66c026))
+
+
+### Features
+
+* **@hippy/react-web:** remove font default style for Text ([cf1209a](https://github.com/Tencent/Hippy/commit/cf1209a16766e369e007afd06cd6e6dd4b6a58e2))
+* **android:** image add param to `onError` ([6dc4461](https://github.com/Tencent/Hippy/commit/6dc446175ac4ae613b63f63b7ad83acf273fc1be))
+* **devtools:** add rendererType and componentCount report ([#3322](https://github.com/Tencent/Hippy/issues/3322)) ([fc66d48](https://github.com/Tencent/Hippy/commit/fc66d4866edf1c1625fd8aff757c22a776333fd9))
+* **hippy-react:** fix declaration and export it ([#3414](https://github.com/Tencent/Hippy/issues/3414)) ([4e49d4f](https://github.com/Tencent/Hippy/commit/4e49d4f4563b27d25a33ad0c055b917293ecae4f))
+* **ios:** add NightMode & improve method of getting UI state ([#3411](https://github.com/Tencent/Hippy/issues/3411)) ([4a6d4de](https://github.com/Tencent/Hippy/commit/4a6d4debcf81a52b6a4e14dee89883b6f9725a7e))
+* **ios:** add NightMode change event ([9dc8caf](https://github.com/Tencent/Hippy/commit/9dc8caf8dfe1b41c8403f62a05f9bc9b655098c4))
+* **ios:** delete items in a range off screen in list component ([285e3ba](https://github.com/Tencent/Hippy/commit/285e3ba749425dd4bff9b55e54f5b1db7ff84ce8))
+
+
+
+
+
 ## [2.16.5](https://github.com/Tencent/Hippy/compare/2.16.4...2.16.5) (2023-07-21)
 
 

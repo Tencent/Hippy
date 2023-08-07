@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.17.0](https://github.com/Tencent/Hippy/compare/2.16.5...2.17.0) (2023-08-07)
+
+
+### Bug Fixes
+
+* **vue-next:** fix element do not use beforeLoadStyle hooks issue ([#3339](https://github.com/Tencent/Hippy/issues/3339)) ([2d63fa5](https://github.com/Tencent/Hippy/commit/2d63fa54953b496de131bf796241bae7ff66c026))
+
+
+
+
+
 ## [2.16.5](https://github.com/Tencent/Hippy/compare/2.16.4...2.16.5) (2023-07-21)
 
 **Note:** Version bump only for package @hippy/vue-next

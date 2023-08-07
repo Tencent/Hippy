@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.17.0](https://github.com/Tencent/Hippy/compare/2.16.5...2.17.0) (2023-08-07)
+
+
+### Features
+
+* **hippy-react:** fix declaration and export it ([#3414](https://github.com/Tencent/Hippy/issues/3414)) ([4e49d4f](https://github.com/Tencent/Hippy/commit/4e49d4f4563b27d25a33ad0c055b917293ecae4f))
+
+
+
+
+
 ## [2.16.5](https://github.com/Tencent/Hippy/compare/2.16.4...2.16.5) (2023-07-21)
 
 
