@@ -208,6 +208,10 @@ void NativeRenderManager::SetRootViewSizeChangedEvent(std::function<void(int32_t
     [renderImpl_ setRootViewSizeChangedEvent:cb];
 }
 
+NativeRenderImpl *NativeRenderManager::GetNativeRenderImpl() {
+    return renderImpl_;
+}
+
 NativeRenderManager::~NativeRenderManager() {
     [renderImpl_ invalidate];
     renderImpl_ = nil;
