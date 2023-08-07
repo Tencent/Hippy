@@ -28,7 +28,7 @@ Pod::Spec.new do |s|
   end
   puts 'hippy.podspec read begins'
   s.name             = 'hippy'
-  s.version          = '3.0.0'
+  s.version          = '3.0.1'
   s.summary          = 'Hippy Cross Platform Framework'
 
 # This description is used to generate tags and improve search results.

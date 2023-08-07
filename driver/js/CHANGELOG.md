@@ -3,6 +3,59 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.1](https://github.com/Tencent/Hippy/compare/3.0.0...3.0.1) (2023-08-07)
+
+
+### Bug Fixes
+
+* **action:** fix 3.0 release and compare action ([8b3f572](https://github.com/Tencent/Hippy/commit/8b3f572cc94fe2759ad23950cbcfe15b5b269fa6))
+* **android:** add call function log ([5fc52e4](https://github.com/Tencent/Hippy/commit/5fc52e4312cb6237d8d94cda96792aa8d578f58c))
+* **android:** event to lower case ([e368ad5](https://github.com/Tencent/Hippy/commit/e368ad584540c3ee07ce0891a6d7b8eb8bb793f9))
+* **android:** fix incremental build ([06c22c2](https://github.com/Tencent/Hippy/commit/06c22c270e05fbc1ca40c95e834bcf9ffc6136a4))
+* **android:** initialContentOffset not working ([3e3b5a8](https://github.com/Tencent/Hippy/commit/3e3b5a868ed78188812927ef724cd692c7aef2ad))
+* **android:** issues of ScrollEvent ([#3362](https://github.com/Tencent/Hippy/issues/3362)) ([733f303](https://github.com/Tencent/Hippy/commit/733f303a4fd1cac5a7bc0d8a57742d4d008834ce))
+* **android:** non flattened elements background color ([#3352](https://github.com/Tencent/Hippy/issues/3352)) ([2a7402a](https://github.com/Tencent/Hippy/commit/2a7402a52be698f2df15b2ee604217807c973804))
+* **android:** recycle view event use low case name ([a4f4cde](https://github.com/Tencent/Hippy/commit/a4f4cde9a1d45bb556ec3390eaa99a28de503d46))
+* **android:** sticky header not deleted from ControllerManager ([#3356](https://github.com/Tencent/Hippy/issues/3356)) ([797eadd](https://github.com/Tencent/Hippy/commit/797eaddbf034ac5d95e3a5f73547a904df2671ce))
+* **android:** supply some layout style for filter ([6ff2398](https://github.com/Tencent/Hippy/commit/6ff239840299bbd89827e8f33f791f743b3a566d))
+* **android:** support sparse array for call ui function ([0b06be7](https://github.com/Tencent/Hippy/commit/0b06be7810e7f12cae064050b1f67a7504167fc5))
+* **android:** window and screen size use float ([6402189](https://github.com/Tencent/Hippy/commit/640218905b33fb39f51a482ab2846f50517f6d9f))
+* **devtools:** fix location double for all ([fb1be52](https://github.com/Tencent/Hippy/commit/fb1be5210d677b4ec246e714667f0077b9405787))
+* **dom:** filter nodes with same style ([82a0792](https://github.com/Tencent/Hippy/commit/82a079231e8d18d6873f34dadab81b46ab9bb351))
+* **dom:** fix dom ext style diff error ([e3351e6](https://github.com/Tencent/Hippy/commit/e3351e66c79c82faa5088db089d486084d78a04f))
+* **dom:** fix event empty pointer ([c690f86](https://github.com/Tencent/Hippy/commit/c690f8645bf722e6db933d4b363b30b1506780a3))
+* **dom:** fix modifying event by multi hippy engine ([4a731a2](https://github.com/Tencent/Hippy/commit/4a731a2f658f14fcf1f11936a0405f77c3f79344))
+* **dom:** fix vue diff style alogrithm ([3463362](https://github.com/Tencent/Hippy/commit/346336231078ff88a9459c6651fe6202923a20f1))
+* **ios:** add semaphore to make sure scope is created ([f27c513](https://github.com/Tencent/Hippy/commit/f27c51327fbfb810a11970b54e89bd07b2c76339))
+* **ios:** fix crash caused by null pointer ([15e2bc5](https://github.com/Tencent/Hippy/commit/15e2bc5c3b414633df189de43e1030b27cf45468))
+* **ios:** fix gradient color drawing bug ([a0e11c4](https://github.com/Tencent/Hippy/commit/a0e11c496b4c32787cafcc6d08fd9cd11fc9530b))
+* **ios:** fix ios event capture and bubbling process ([1d05545](https://github.com/Tencent/Hippy/commit/1d05545d7b9c53b7cfeb7a2c0d975d18a517b49d))
+* **ios:** remove the semicolon after namespace syntax ([a132dea](https://github.com/Tencent/Hippy/commit/a132dea5f8079dcea31f15d6f7ef4dab82db39b9))
+* **ios:** support intercept touche event ([a85040d](https://github.com/Tencent/Hippy/commit/a85040d4515b21d08aee53df8311c65591befeea))
+* **jsc:** fix jsc crash on ios12 ([d78bb47](https://github.com/Tencent/Hippy/commit/d78bb47e0083ce96b3c92ab717ba9bde027ec067))
+* **jsc:** fix JSCCtxValue crash after destroy engine ([a166fe3](https://github.com/Tencent/Hippy/commit/a166fe347cc461fcbaec15ba93b08da17461e37e))
+* **jsc:** temporarily used for testing jsc crash ([a053f1a](https://github.com/Tencent/Hippy/commit/a053f1a68438d4eceb3e052ee8a75d6a178b8b51))
+* **voltron:** fix crash when dom value type error ([ffbab34](https://github.com/Tencent/Hippy/commit/ffbab348fcf1638b484c3a105608d8f385741d68))
+* **voltron:** fix voltron android scope not erase when destroy ([eebd7a1](https://github.com/Tencent/Hippy/commit/eebd7a1d437e73c117f1a642e628f969f8f5fc37))
+* **vue-next:** fix element do not use beforeLoadStyle hooks issue ([604a231](https://github.com/Tencent/Hippy/commit/604a23193f032e7911c4168ee0e3203efcbb33e4))
+* **vue:** fix rootview conditional statement ([#3355](https://github.com/Tencent/Hippy/issues/3355)) ([5364548](https://github.com/Tencent/Hippy/commit/5364548e5f3cb11d501b79989419e3608c2562da))
+
+
+### Features
+
+* **android:** add filter for css style to native renderer ([#3405](https://github.com/Tencent/Hippy/issues/3405)) ([c459934](https://github.com/Tencent/Hippy/commit/c45993435633b938587d1a29196fe4a26d489326))
+* **dom:** fix empty dom event function crash ([388beef](https://github.com/Tencent/Hippy/commit/388beef1fb648b66b903b02d25c94a5c90ed62b2))
+* **dom:** measure textinput node ([c9cedd1](https://github.com/Tencent/Hippy/commit/c9cedd14adcff622dbdca75bb2d7f5f9d77b33f9))
+* **dom:** remove DCHECK for taitank node ([c779738](https://github.com/Tencent/Hippy/commit/c779738d5dddb9f8bd116a8e2cc8f252805149ab))
+* **ios:** add 'SetRootOrigin' function for root node ([ef7d9ce](https://github.com/Tencent/Hippy/commit/ef7d9ce506feb073d72164c99a77830e7a462679))
+* **ios:** strip hippyconvenientbridge from bridge module to host module ([3f28b9e](https://github.com/Tencent/Hippy/commit/3f28b9e6fd47ac9a6b4af4bc59dc791ae7f6b1a2))
+* **voltron:** publish voltron 0.0.31 ([#3375](https://github.com/Tencent/Hippy/issues/3375)) ([f02c1a7](https://github.com/Tencent/Hippy/commit/f02c1a7830b0e860ed6203e3cdaab633eaf80606))
+* **voltron:** update workflow xcode version ([2fcd955](https://github.com/Tencent/Hippy/commit/2fcd9559a192ab2c48709f7c5c04c76c04b3bf59))
+
+
+
+
+
 # [3.0.0](https://github.com/Tencent/Hippy/compare/2.2.1...3.0.0) (2023-06-29)
 
 

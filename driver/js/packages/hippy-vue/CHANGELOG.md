@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.1](https://github.com/Tencent/Hippy/compare/3.0.0...3.0.1) (2023-08-07)
+
+
+### Bug Fixes
+
+* **vue:** fix rootview conditional statement ([#3355](https://github.com/Tencent/Hippy/issues/3355)) ([5364548](https://github.com/Tencent/Hippy/commit/5364548e5f3cb11d501b79989419e3608c2562da))
+
+
+
+
+
 # [3.0.0](https://github.com/Tencent/Hippy/compare/2.2.1...3.0.0) (2023-06-29)
 
 
