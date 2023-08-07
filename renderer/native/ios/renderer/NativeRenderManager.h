@@ -206,6 +206,8 @@ public:
      */
     void SetRootViewSizeChangedEvent(std::function<void(int32_t rootTag, NSDictionary *)> cb);
     
+    NativeRenderImpl *GetNativeRenderImpl();
+    
 private:
     NativeRenderImpl *renderImpl_;
 };
