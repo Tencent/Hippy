@@ -180,6 +180,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     std::mutex _imageProviderMutex;
     
     std::function<void(int32_t, NSDictionary *)> _rootViewSizeChangedCb;
+    std::weak_ptr<hippy::RenderManager> _renderManager;
 }
 
 @end
@@ -190,9 +191,10 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 
 #pragma mark Life cycle
 
-- (instancetype)init {
+- (instancetype)initWithRenderManager:(std::weak_ptr<hippy::RenderManager>)renderManager {
     self = [super init];
     if (self) {
+        _renderManager = renderManager;
         [self initContext];
     }
     return self;

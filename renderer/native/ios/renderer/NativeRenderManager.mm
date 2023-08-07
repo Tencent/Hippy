@@ -38,7 +38,10 @@ using CallFunctionCallback = hippy::CallFunctionCallback;
 using RootNode = hippy::RootNode;
 
 NativeRenderManager::NativeRenderManager(): hippy::RenderManager("NativeRenderManager") {
-    renderImpl_ = [[NativeRenderImpl alloc] init];
+}
+
+void NativeRenderManager::Initialize() {
+    renderImpl_ = [[NativeRenderImpl alloc] initWithRenderManager:weak_from_this()];
 }
 
 void NativeRenderManager::CreateRenderNode(std::weak_ptr<hippy::RootNode> root_node,
