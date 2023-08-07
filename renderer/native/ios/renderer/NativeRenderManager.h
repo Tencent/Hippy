@@ -41,13 +41,15 @@ class RootNode;
 /**
  * NativeRenderManager is used to manager view creation, update and delete for Native UI
  */
-class NativeRenderManager : public hippy::RenderManager {
+class NativeRenderManager : public hippy::RenderManager, public std::enable_shared_from_this<NativeRenderManager> {
     
 public:
     NativeRenderManager();
     NativeRenderManager(NativeRenderImpl *uiManager): hippy::RenderManager("NativeRenderManager"), renderImpl_(uiManager){}
     
     ~NativeRenderManager();
+    
+    void Initialize();
 
     /**
      *  create views from dom nodes

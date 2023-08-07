@@ -35,6 +35,7 @@
 class VFSUriLoader;
 namespace hippy {
 inline namespace dom {
+class RenderManager;
 class DomManager;
 class DomArgument;
 class RootNode;
@@ -56,6 +57,9 @@ class HippyValue;
  * The NativeRenderUIManager is the module responsible for updating the view hierarchy.
  */
 @interface NativeRenderImpl : NSObject <HPInvalidating>
+
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithRenderManager:(std::weak_ptr<hippy::RenderManager>)renderManager NS_DESIGNATED_INITIALIZER;
 
 @property(nonatomic, assign) BOOL uiCreationLazilyEnabled;
 
