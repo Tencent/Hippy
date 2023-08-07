@@ -26,6 +26,7 @@ import * as UIManagerModule from '../modules/ui-manager-module';
 import { Device } from '../global';
 import { getRootViewId, getRootContainer } from '../utils/node';
 import { deepCopy, isDev, trace, warn } from '../utils';
+import { Platform } from '../types';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
 
@@ -82,7 +83,7 @@ function batchUpdate(rootViewId: number): void {
         break;
       case NODE_OPERATION_TYPES.updateNode:
         trace(...componentName, 'updateNode', chunk.nodes);
-        if (__PLATFORM__ === 'ios' || Device.platform.OS === 'ios') {
+        if (__PLATFORM__ === Platform.ios || Device.platform.OS === Platform.ios) {
           chunk.nodes.forEach(node => (
             UIManagerModule.updateNode(rootViewId, [node])
           ));
@@ -92,7 +93,7 @@ function batchUpdate(rootViewId: number): void {
         break;
       case NODE_OPERATION_TYPES.deleteNode:
         trace(...componentName, 'deleteNode', chunk.nodes);
-        if (__PLATFORM__ === 'ios' || Device.platform.OS === 'ios') {
+        if (__PLATFORM__ === Platform.ios || Device.platform.OS === Platform.ios) {
           chunk.nodes.forEach(node => (
             UIManagerModule.deleteNode(rootViewId, [node])
           ));

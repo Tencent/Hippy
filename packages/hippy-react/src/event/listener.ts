@@ -20,7 +20,7 @@
 
 import EventDispatcher from './dispatcher';
 
-class HippyEventListener {
+export class HippyEventListener {
   public eventName: string;
   public listenerIdList: number[];
 
@@ -83,4 +83,6 @@ class HippyEventListener {
   }
 }
 
+// Forward compatibilities
+export const RNfqbEventListener = HippyEventListener;
 export default HippyEventListener;

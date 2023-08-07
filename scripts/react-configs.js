@@ -24,7 +24,7 @@ const replace = require('@rollup/plugin-replace');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const commonjs = require('@rollup/plugin-commonjs');
 const hippyReactPackage = require('../packages/hippy-react/package.json');
-const { banner, resolvePackage } = require('./utils');
+const { banner, resolvePackage, getDtsConfig } = require('./utils');
 
 const builds = {
   '@hippy/react': {
@@ -41,9 +41,17 @@ const builds = {
     },
   },
 };
+builds.declaration = getDtsConfig({
+  ...builds['@hippy/react'],
+  fixHippyTypes: true,
+});
 
 function genConfig(name) {
   const opts = builds[name];
+  // declaration
+  if (name === 'declaration') {
+    return opts;
+  }
   const config = {
     input: opts.entry,
     external: opts.external,
