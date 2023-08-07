@@ -44,7 +44,21 @@ global.hippyBridge = (_action, _callObj) => {
 
   switch (action) {
     case 'callBack': {
-      if (__GLOBAL__.moduleCallList[callObj.callId]) {
+      if (callObj.moduleName === 'AnimationFrameModule' && callObj.moduleFunc === 'requestAnimationFrame') {
+        if (callObj.result !== 0) {
+          resp = 'native2js error: native failed to call AnimationFrameModule requestAnimationFrame()';
+          break;
+        }
+        __GLOBAL__.canRequestAnimationFrame = true;
+        if (__GLOBAL__.requestAnimationFrameQueue[callObj.frameId]) {
+          __GLOBAL__.requestAnimationFrameQueue[callObj.frameId].forEach((cb) => {
+            if (typeof cb === 'function') {
+              cb(callObj.params);
+            }
+          });
+          delete __GLOBAL__.requestAnimationFrameQueue[callObj.frameId];
+        }
+      } else if (__GLOBAL__.moduleCallList[callObj.callId]) {
         const callbackObj = __GLOBAL__.moduleCallList[callObj.callId];
         if (callObj.result !== 0 && typeof callbackObj.reject === 'function') {
           callbackObj.reject(callObj.params);

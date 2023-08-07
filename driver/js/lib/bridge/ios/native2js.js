@@ -21,12 +21,9 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-underscore-dangle */
 
-const { JSTimersExecution } = require('../../modules/ios/jsTimersExecution.js');
-
 global.__hpBatchedBridge = {};
 
 __hpBatchedBridge.flushedQueue = () => {
-  JSTimersExecution.callImmediates();
   const queue = __GLOBAL__._queue;
   __GLOBAL__._queue = [[], [], [], __GLOBAL__._callID];
   return queue[0].length ? queue : null;
@@ -34,7 +31,6 @@ __hpBatchedBridge.flushedQueue = () => {
 
 __hpBatchedBridge.invokeCallbackAndReturnFlushedQueue = (cbID, args) => {
   __hpBatchedBridge.__invokeCallback(cbID, args);
-  JSTimersExecution.callImmediates();
   return __hpBatchedBridge.flushedQueue();
 };
 
@@ -59,22 +55,19 @@ __hpBatchedBridge.callFunctionReturnFlushedQueue = (module, method, args) => {
     } else {
       targetModule[method].call(targetModule, args[1].params);
     }
-  } else if (module === 'JSTimersExecution') {
-    if (method === 'callTimers') {
-      args[0].forEach((timerId) => {
-        const timerCallFunc = JSTimersExecution.callbacks[
-          JSTimersExecution.timerIDs.indexOf(timerId)
-        ];
-        if (typeof timerCallFunc === 'function') {
-          try {
-            timerCallFunc();
-          } catch (e) {
-            console.reportUncaughtException(e); // eslint-disable-line
+  } else if (module === 'AnimationFrameModule') {
+    if (method === 'requestAnimationFrame') {
+      __GLOBAL__.canRequestAnimationFrame = true;
+      const frameId = args[0];
+      if (__GLOBAL__.requestAnimationFrameQueue[frameId]) {
+        __GLOBAL__.requestAnimationFrameQueue[frameId].forEach((cb) => {
+          if (typeof cb === 'function') {
+            cb();
           }
-        }
-      });
+        });
+        delete __GLOBAL__.requestAnimationFrameQueue[frameId];
+      }
     }
   }
-  JSTimersExecution.callImmediates();
   return __hpBatchedBridge.flushedQueue();
 };
