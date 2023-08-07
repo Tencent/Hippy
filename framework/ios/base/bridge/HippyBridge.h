@@ -183,8 +183,6 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
                  args:(NSArray *)args
            completion:(dispatch_block_t _Nullable)completion;
 
-- (void)immediatelyCallTimer:(NSNumber *)timer;
-
 - (void)enqueueCallback:(NSNumber *)cbID args:(NSArray *)args;
 
 - (void)registerModuleForFrameUpdates:(id<HippyBridgeModule>)module withModuleData:(HippyModuleData *)moduleData;

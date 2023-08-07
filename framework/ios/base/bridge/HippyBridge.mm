@@ -927,16 +927,6 @@ dispatch_queue_t HippyBridgeQueue() {
     return turboModule;
 }
 
-- (void)immediatelyCallTimer:(NSNumber *)timer {
-    __weak HippyBridge *weakSelf = self;
-    [_javaScriptExecutor executeAsyncBlockOnJavaScriptQueue:^{
-        HippyBridge *strongSelf = weakSelf;
-        if (strongSelf) {
-            [strongSelf actuallyInvokeAndProcessModule:@"JSTimersExecution" method:@"callTimers" arguments:@[@[timer]]];
-        }
-    }];
-}
-
 - (void)registerModuleForFrameUpdates:(id<HippyBridgeModule>)module withModuleData:(HippyModuleData *)moduleData {
     [_displayLink registerModuleForFrameUpdates:module withModuleData:moduleData];
 }
