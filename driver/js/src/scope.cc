@@ -35,6 +35,7 @@
 #include "driver/modules/contextify_module.h"
 #include "driver/modules/console_module.h"
 #include "driver/modules/event_module.h"
+#include "driver/modules/animation_frame_module.h"
 #include "driver/modules/performance/performance_entry_module.h"
 #include "driver/modules/performance/performance_frame_timing_module.h"
 #include "driver/modules/performance/performance_mark_module.h"
@@ -196,6 +197,7 @@ void Scope::BindModule() {
   module_object_map_["TimerModule"] = std::make_shared<TimerModule>();
   module_object_map_["ContextifyModule"] = std::make_shared<ContextifyModule>();
   module_object_map_["UIManagerModule"] = std::make_shared<UIManagerModule>();
+  module_object_map_["AnimationFrameModule"] = std::make_shared<AnimationFrameModule>();
 #ifdef JS_V8
   module_object_map_["MemoryModule"] = std::make_shared<MemoryModule>();
 #endif

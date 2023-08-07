@@ -35,7 +35,7 @@ require('../../global/UtilsModule.js'); // Hippy.device.vibrate Hippy.device.can
 require('../../global/flutter/global.js'); // __GLOBAL__
 require('../../bridge/flutter/native2js.js');
 require('../../global/Event.js'); // register global events callback
-require('../../global/flutter/requestAnimationFrame.js'); // requestAnimationFrame cancelAnimationFrame
+require('../../global/AnimationFrameModule.js'); // requestAnimationFrame cancelAnimationFrame
 // require('../../global/flutter/Turbo.js'); // turbo
 
 // alias

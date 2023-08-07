@@ -46,17 +46,17 @@ global.hippyBridge = (_action, _callObj) => {
     case 'callBack': {
       if (callObj.result === 1) {
         resp = 'error: native no modules';
-      } else if (callObj.callId && callObj.moduleName === 'AnimationFrameModule' && callObj.moduleFunc === 'requestAnimationFrame') {
+      } else if (callObj.frameId && callObj.moduleName === 'AnimationFrameModule' && callObj.moduleFunc === 'requestAnimationFrame') {
         __GLOBAL__.canRequestAnimationFrame = true;
 
-        if (__GLOBAL__.requestAnimationFrameQueue[callObj.callId]) {
-          __GLOBAL__.requestAnimationFrameQueue[callObj.callId].forEach((cb) => {
+        if (__GLOBAL__.requestAnimationFrameQueue[callObj.frameId]) {
+          __GLOBAL__.requestAnimationFrameQueue[callObj.frameId].forEach((cb) => {
             if (typeof cb === 'function') {
               cb(callObj.params);
             }
           });
 
-          delete __GLOBAL__.requestAnimationFrameQueue[callObj.callId];
+          delete __GLOBAL__.requestAnimationFrameQueue[callObj.frameId];
         }
       } else if (callObj.callId && __GLOBAL__.moduleCallList[callObj.callId]) {
         const callbackObj = __GLOBAL__.moduleCallList[callObj.callId];

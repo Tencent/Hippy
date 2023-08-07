@@ -18,24 +18,29 @@
  * limitations under the License.
  */
 
+/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable prefer-rest-params */
+/* eslint-disable prefer-spread */
+
+const AnimationFrameModule = internalBinding('AnimationFrameModule');
+
 global.requestAnimationFrame = (cb) => {
   if (cb) {
     if (__GLOBAL__.canRequestAnimationFrame) {
-      __GLOBAL__.requestAnimationFrameId = __GLOBAL__.moduleCallId;
+      __GLOBAL__.canRequestAnimationFrame = false;
+      __GLOBAL__.requestAnimationFrameId += 1;
       __GLOBAL__.requestAnimationFrameQueue[__GLOBAL__.requestAnimationFrameId] = [];
       __GLOBAL__.requestAnimationFrameQueue[__GLOBAL__.requestAnimationFrameId].push(cb);
-
-      __GLOBAL__.canRequestAnimationFrame = false;
-
-      Hippy.bridge.callNativeWithCallbackId('AnimationFrameModule', 'requestAnimationFrame', true);
+      AnimationFrameModule.RequestAnimationFrame(__GLOBAL__.requestAnimationFrameId);
     } else if (__GLOBAL__.requestAnimationFrameQueue[__GLOBAL__.requestAnimationFrameId]) {
       __GLOBAL__.requestAnimationFrameQueue[__GLOBAL__.requestAnimationFrameId].push(cb);
     }
-
     return '';
   }
-
   throw new TypeError('Invalid arguments');
 };
 
-global.cancelAnimationFrame = () => {};
+global.cancelAnimationFrame = () => {
+  AnimationFrameModule.CancelAnimationFrame();
+};
