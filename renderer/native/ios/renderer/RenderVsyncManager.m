@@ -95,6 +95,17 @@
     }
 }
 
+- (void)registerVsyncObserver:(dispatch_block_t)observer forKey:(NSString *)key {
+    if (observer && key) {
+        CADisplayLink *vsync = [CADisplayLink displayLinkWithTarget:self selector:@selector(vsyncSignalInvoked:)];
+        [vsync addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
+        vsync.block = observer;
+        dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+        [_observers setObject:vsync forKey:key];
+        dispatch_semaphore_signal(_semaphore);
+    }
+}
+
 - (void)registerVsyncObserver:(dispatch_block_t)observer rate:(float)rate forKey:(NSString *)key {
     if (observer && key) {
         CADisplayLink *vsync = [CADisplayLink displayLinkWithTarget:self selector:@selector(vsyncSignalInvoked:)];
