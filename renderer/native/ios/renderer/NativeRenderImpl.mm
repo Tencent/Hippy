@@ -1137,7 +1137,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
                         };
                         domManager->PostTask(hippy::Scene({func}));
                     }
-                } rate:30 forKey:vsyncKey];
+                } forKey:vsyncKey];
             }
         }];
     }
