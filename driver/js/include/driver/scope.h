@@ -119,6 +119,7 @@ struct ClassTemplate {
   string_view name;
   size_t size = SIZE_OF<T>;
   std::unordered_map<void*, std::shared_ptr<T>> holder_map;
+  std::vector<std::shared_ptr<CtxValue>> holder_ctx_values;
 };
 
 class Scope : public std::enable_shared_from_this<Scope> {
