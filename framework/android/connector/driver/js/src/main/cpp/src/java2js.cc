@@ -83,7 +83,10 @@ void CallFunction(JNIEnv* j_env,
   std::any scope_object;
   auto scope_id = footstone::checked_numeric_cast<jint, uint32_t>(j_scope_id);
   auto flag = hippy::global_data_holder.Find(scope_id, scope_object);
-  FOOTSTONE_CHECK(flag);
+  if (!flag)  {
+    FOOTSTONE_LOG(ERROR) << "scope can not found, scope id = " << scope_id << "!!!";
+    return;
+  }
   auto scope = std::any_cast<std::shared_ptr<Scope>>(scope_object);
   JsDriverUtils::CallJs(action_name, scope,
                         [callback](CALLFUNCTION_CB_STATE state, const string_view& msg) {
