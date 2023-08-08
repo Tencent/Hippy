@@ -104,6 +104,9 @@ export  class VirtualizedList {
     const offset = this.container.scrollTop;
     if (offset < 0 || offset > (this._sizeAndPositionManager.getTotalSize()
       - this.container.clientHeight)) {
+      if (offset < 0) {
+        this.stopScroll();
+      }
       return;
     }
     this.setState({offset});
@@ -111,6 +114,11 @@ export  class VirtualizedList {
     if (typeof onScroll === 'function') {
       onScroll(offset, e);
     }
+  }
+
+  stopScroll() {
+    this.container.style['overflowY'] = 'hidden';
+    requestAnimationFrame(()=>{this.container.style['overflowY'] = 'scroll'});
   }
 
   getRowHeight = ({index}) => {
