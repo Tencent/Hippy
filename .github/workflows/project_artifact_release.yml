@@ -178,7 +178,7 @@ jobs:
       - name: setup-node
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 16
           registry-url: https://npm.pkg.github.com
           cache: 'npm'
           cache-dependency-path: package-lock.json
@@ -188,7 +188,7 @@ jobs:
         run: npm run build
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 16
           registry-url: 'https://registry.npmjs.org'
       - name: Publish to NPM
         if: github.event.inputs.js_npm_dist_tag_name != null && (github.event.inputs.registry_choice == 'Both' || github.event.inputs.registry_choice == 'Default')
