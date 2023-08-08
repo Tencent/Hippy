@@ -40,6 +40,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(activityMainRoot)
     }
 
+    override fun onResume() {
+        super.onResume()
+        HippyEngineHelper.clearAbandonHippyEngine()
+    }
+
     private fun intPageMain() {
         val pageManagementButton = activityMainRoot.findViewById<View>(R.id.page_management_button)
         val pageManagementImage =
