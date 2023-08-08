@@ -41,6 +41,10 @@ class HippyEngineHelper {
             hippyEngineList.remove(hippyEngineWrapper)
             abandonHippyEngineList.add(hippyEngineWrapper)
         }
+
+        fun clearAbandonHippyEngine() {
+            abandonHippyEngineList.clear()
+        }
     }
 
 }

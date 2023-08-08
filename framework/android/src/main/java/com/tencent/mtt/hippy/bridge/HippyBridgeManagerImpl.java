@@ -213,6 +213,9 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                 mCallFunctionCallback = null;
             }
         }, (msg.arg1 == DESTROY_RELOAD));
+        // When the driver is destroyed, the corresponding scope is also cleared, so there can
+        // be no more call function calls, destroy needs to be called here.
+        destroy();
     }
 
     @Override
