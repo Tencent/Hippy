@@ -537,16 +537,22 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
       exception = context->CreateException("cb is not a function");
       return nullptr;
     }
-    auto cb = [weak_scope, func] { // run in js thread
+    std::weak_ptr<CtxValue> weak_func = func;
+    auto cb = [weak_scope, weak_func] { // run in js thread
       auto scope = weak_scope.lock();
       if (!scope) {
         return;
       }
       auto context = scope->GetContext();
-      context->CallFunction(func, context->GetGlobalObject(), 0, nullptr);
+      auto func = weak_func.lock();
+      if (func) {
+        context->CallFunction(func, context->GetGlobalObject(), 0, nullptr);
+      }
     };
     animation->AddEventListener(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
         event_name, string_view::Encoding::Utf8).utf8_value()), std::move(cb));
+    auto class_template_ptr = std::any_cast<std::shared_ptr<ClassTemplate<CubicBezierAnimation>>>(scope->GetClassTemplate("Animation"));
+    class_template_ptr->holder_ctx_values.emplace_back(func);
     return nullptr;
   };
   class_template.functions.emplace_back(std::move(add_event_listener_func_def));
@@ -809,16 +815,22 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
       exception = context->CreateException("cb is not a function");
       return nullptr;
     }
-    auto cb = [weak_scope, func] {
+    std::weak_ptr<CtxValue> weak_func = func;
+    auto cb = [weak_scope, weak_func] {
       auto scope = weak_scope.lock();
       if (!scope) {
         return;
       }
       auto context = scope->GetContext();
-      context->CallFunction(func, context->GetGlobalObject(), 0, nullptr);
+      auto func = weak_func.lock();
+      if (func) {
+        context->CallFunction(func, context->GetGlobalObject(), 0, nullptr);
+      }
     };
     animation_set->AddEventListener(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
         event_name, string_view::Encoding::Utf8).utf8_value()), std::move(cb));
+    auto class_template_ptr = std::any_cast<std::shared_ptr<ClassTemplate<AnimationSet>>>(scope->GetClassTemplate("AnimationSet"));
+    class_template_ptr->holder_ctx_values.emplace_back(func);
     return nullptr;
   };
   def.functions.emplace_back(std::move(add_event_listener_func_def));
