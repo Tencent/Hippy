@@ -452,9 +452,9 @@ public class TextVirtualNode extends VirtualNode {
         if (mSpanned == null || mDirty) {
             mSpanned = createSpan(true);
             mDirty = false;
-        } else if (mLayout != null && width > 0 && mLastLayoutWidth == width) {
-            // If the property of text node no change, and the measure width same as last time,
-            // no need to create layout again.
+        } else if (mLayout != null && width >= mLastLayoutWidth && width <= (mLastLayoutWidth + 1)) {
+            // If the property of text node no change, and the current layout width is equal
+            // to the last measurement result, no need to create layout again.
             return mLayout;
         }
         final TextPaint textPaint = getTextPaint();
