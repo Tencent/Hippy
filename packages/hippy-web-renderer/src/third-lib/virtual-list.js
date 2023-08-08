@@ -118,7 +118,7 @@ export  class VirtualizedList {
 
   stopScroll() {
     this.container.style['overflowY'] = 'hidden';
-    requestAnimationFrame(()=>{this.container.style['overflowY'] = 'scroll'});
+    setTimeout(()=>{this.container.style['overflowY'] = 'scroll';},16);
   }
 
   getRowHeight = ({index}) => {
