@@ -15,6 +15,8 @@
 - Start the animation through the start interface of Animation, or stop and destroy the animation through destroy.
 
 > Note that when switching to the web, you need to use the setRef method to manually pass in the ref to run the animation normally. hippy-react-web does not support color gradient animation.
+>
+> Note that version 2.17.1 greatly upgraded iOS animation, fixing the inconsistency between the historical version and the Android animation performance. Please pay attention to compatibility when upgrading.
 
 ## Construction Attributes
 
@@ -33,7 +35,7 @@
 
   - `rad`: Indicates that the starting and ending values of the animation parameters are in radians, `this is default unit of rotate`.
   - `deg`: Indicates that the starting and ending values of the animation parameters are in degrees.
-  - `color`: Indicates that the starting and ending values of the animation parameters are color values, which can modify the background color `backgroundColor` and text color `color` (only supported by Android), refer to [examples.](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx) `Minimum supported version 2.6.0`
+  - `color`: Indicates that the starting and ending values of the animation parameters are color values, which can modify the background color `backgroundColor` and text color `color` (Supported by iOS since version 2.17.1), refer to [examples.](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx) `Minimum supported version 2.6.0`
 
 - Other options for timingFunction:
   - `linear`: With a linear interpolator, the animation will proceed at a constant speed.
@@ -74,7 +76,7 @@
 
 `(callback: () => void) => void` Register an animation listener callback, which will be called back when the animation ends.
 
-### onAnimationRepeat (Android only)
+### onAnimationRepeat (Supported by iOS since version 2.17.1)
 
 `(callback: () => void) => void` Register an animation listener callback, which will be called back when the animation starts to repeat the next time.
 
