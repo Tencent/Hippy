@@ -70,6 +70,7 @@ JSCCtx::~JSCCtx() {
   auto& holder = jsc_vm->constructor_data_holder_[this];
   for (auto& [key, item] : holder) {
     item->prototype = nullptr;
+    JSCVM::ClearConstructorDataPtr(item.get());
   }
 }
 
@@ -260,6 +261,9 @@ std::shared_ptr<CtxValue> JSCCtx::DefineClass(const string_view& name,
   class_definition.finalize = [](JSObjectRef object) {
     auto private_data = JSObjectGetPrivate(object);
     if (!private_data) {
+      return;
+    }
+    if (!JSCVM::IsValidConstructorDataPtr(private_data)) {
       return;
     }
     auto constructor_data = reinterpret_cast<ConstructorData*>(private_data);
@@ -974,6 +978,7 @@ void JSCCtx::SaveConstructorData(std::unique_ptr<ConstructorData> constructor_da
   if (it == holder.end()) {
     holder[this] = std::unordered_map<JSClassRef, std::unique_ptr<ConstructorData>>{};
   }
+  JSCVM::SaveConstructorDataPtr(constructor_data.get());
   holder[this][constructor_data->class_ref] = std::move(constructor_data);
 }
   
