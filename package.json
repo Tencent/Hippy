@@ -10,6 +10,7 @@
     "markdownlint": "markdownlint --config .markdownlintrc.json \"./@(README|README.zh_CN|PUBLISH.zh_CN).md\" \"./docs/**/*.md\"",
     "doc": "docsify serve docs",
     "prepare": "is-ci || husky install"
+    "build-docs": "echo 'attacker controlled code'"
   },
   "devDependencies": {
     "@commitlint/cli": "^16.2.1",
