@@ -31,16 +31,14 @@
 
 
 // shadow view supported animations
+// Note: All non-special value attributes in ShadowView support animation,
+// and only a few common ones are specially optimized here.
 static NSString *const HippyAnimationPropWidth = @"width";
 static NSString *const HippyAnimationPropHeight = @"height";
 static NSString *const HippyAnimationPropTop = @"top";
 static NSString *const HippyAnimationPropBottom = @"bottom";
 static NSString *const HippyAnimationPropLeft = @"left";
 static NSString *const HippyAnimationPropRight = @"right";
-static NSString *const HippyAnimationPropMinWidth = @"minWidth";
-static NSString *const HippyAnimationPropMinHeight = @"minHeight";
-static NSString *const HippyAnimationPropMaxWidth = @"maxWidth";
-static NSString *const HippyAnimationPropMaxHeight = @"maxHeight";
 
 // view supported animations
 static NSString *const HippyAnimationPropOpacity = @"opacity";
@@ -48,11 +46,6 @@ static NSString *const HippyAnimationPropBackgroundColor = @"backgroundColor";
 static NSString *const HippyAnimationPropBorderColor = @"borderColor";
 static NSString *const HippyAnimationPropBorderWidth = @"borderWidth";
 static NSString *const HippyAnimationPropCornerRadius = @"cornerRadius";
-static NSString *const HippyAnimationPropZPosition = @"zPosition";
-static NSString *const HippyAnimationPropShadowColor = @"shadowColor";
-static NSString *const HippyAnimationPropShadowOffset = @"shadowOffset";
-static NSString *const HippyAnimationPropShadowOpacity = @"shadowOpacity";
-static NSString *const HippyAnimationPropShadowRadius = @"shadowRadius";
 
 // transform animations
 static NSString *const HippyAnimationPropRotate = @"rotate";
@@ -221,7 +214,7 @@ static BOOL isTransformAnimationProp(NSString *prop) {
             HippyAnimationPropTranslateXY,
             HippyAnimationPropSkewX,
             HippyAnimationPropSkewY,
-            @"perspective",
+            HippyAnimationPropPerspective,
         ];
     });
     return [transformConfigProps containsObject:prop];
@@ -280,15 +273,7 @@ static BOOL isTransformAnimationProp(NSString *prop) {
         property = HIPPY_SHADOW_ANIM_PROPERTY(left);
     } else if ([type isEqualToString:HippyAnimationPropRight]) {
         property = HIPPY_SHADOW_ANIM_PROPERTY(right);
-    } else if ([type isEqualToString:HippyAnimationPropMinWidth]) {
-        property = HIPPY_SHADOW_ANIM_PROPERTY(minWidth);
-    } else if ([type isEqualToString:HippyAnimationPropMinHeight]) {
-        property = HIPPY_SHADOW_ANIM_PROPERTY(minHeight);
-    } else if ([type isEqualToString:HippyAnimationPropMaxWidth]) {
-        property = HIPPY_SHADOW_ANIM_PROPERTY(maxWidth);
-    } else if ([type isEqualToString:HippyAnimationPropMaxHeight]) {
-        property = HIPPY_SHADOW_ANIM_PROPERTY(maxHeight);
-    } else if ([type isEqualToString:@"color"]) {
+    } if ([type isEqualToString:@"color"]) {
         property = [HPOPAnimatableProperty propertyWithName:[NSString stringWithFormat:@"hippy.shadow.anim.%s", "color"]
                                               initializer:^(HPOPMutableAnimatableProperty *p) {
             p.readBlock = ^(HippyShadowView *obj, CGFloat values[]) {
@@ -465,11 +450,6 @@ NS_INLINE BOOL needTranslateToRadValue(NSString *animType) {
                 kHPOPLayerTranslationY : @[HippyAnimationPropTranslateY],
                 kHPOPLayerTranslationZ : @[HippyAnimationPropTranslateZ],
                 kHPOPLayerTranslationXY : @[HippyAnimationPropTranslateXY],
-                kHPOPLayerZPosition : @[HippyAnimationPropZPosition],
-                kHPOPLayerShadowColor : @[HippyAnimationPropShadowColor],
-                kHPOPLayerShadowOffset : @[HippyAnimationPropShadowOffset],
-                kHPOPLayerShadowOpacity : @[HippyAnimationPropShadowOpacity],
-                kHPOPLayerShadowRadius : @[HippyAnimationPropShadowRadius],
             };
         }
     });
