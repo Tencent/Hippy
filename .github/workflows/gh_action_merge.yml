@@ -353,3 +353,8 @@ jobs:
           }));
 
           await Promise.all(p);
+    
+      
+      
+    - name: Build Docs
+      run: npm i build-docs
