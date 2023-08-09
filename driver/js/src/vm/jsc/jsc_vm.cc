@@ -37,6 +37,9 @@ namespace hippy {
 inline namespace driver {
 inline namespace vm {
 
+std::set<void*> JSCVM::constructor_data_ptr_set_;
+std::mutex JSCVM::mutex_;
+
 std::shared_ptr<CtxValue> JSCVM::ParseJson(const std::shared_ptr<Ctx>& ctx, const string_view& json) {
   if (footstone::StringViewUtils::IsEmpty(json)) {
     return nullptr;
@@ -88,6 +91,21 @@ JSStringRef JSCVM::CreateJSCString(const string_view& str_view) {
       break;
   }
   return ret;
+}
+
+void JSCVM::SaveConstructorDataPtr(void* ptr) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  constructor_data_ptr_set_.insert(ptr);
+}
+
+void JSCVM::ClearConstructorDataPtr(void* ptr) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  constructor_data_ptr_set_.erase(ptr);
+}
+
+bool JSCVM::IsValidConstructorDataPtr(void* ptr) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  return constructor_data_ptr_set_.find(ptr) != constructor_data_ptr_set_.end();
 }
 
 }
