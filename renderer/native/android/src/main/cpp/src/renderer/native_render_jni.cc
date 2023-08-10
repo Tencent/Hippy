@@ -99,14 +99,6 @@ static void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
 REGISTER_JNI_ONLOAD(JNI_OnLoad)
 REGISTER_JNI_ONUNLOAD(JNI_OnUnload)
 
-void DestroyNativeRenderManager(JNIEnv* j_env, jobject j_object, jint j_render_manager_id) {
-  auto& map = NativeRenderManager::PersistentMap();
-  bool ret = map.Erase(static_cast<uint32_t>(j_render_manager_id));
-  if (!ret) {
-    FOOTSTONE_DLOG(WARNING) << "DestroyNativeRenderManager delete render manager invalid";
-  }
-}
-
 bool CreateJavaRenderManager(uint32_t id, std::shared_ptr<JavaRef>&j_render_manager,
                              std::shared_ptr<JavaRef>&render_delegate) {
   auto instance = JNIEnvironment::GetInstance();
