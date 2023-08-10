@@ -69,8 +69,6 @@ import java.util.Map;
 public class ControllerManager {
 
     @NonNull
-    private final Renderer mRenderer;
-    @NonNull
     private final ControllerRegistry mControllerRegistry;
     @NonNull
     private final ControllerUpdateManger<HippyViewController<?>, View> mControllerUpdateManger;
@@ -78,6 +76,8 @@ public class ControllerManager {
     private final Map<Integer, Pool<Integer, View>> mPreCreateViewPools = new HashMap<>();
     @NonNull
     private final Map<Integer, Pool<String, View>> mRecycleViewPools = new HashMap<>();
+    @Nullable
+    private Renderer mRenderer;
     @Nullable
     private static List<Class<?>> sDefaultControllers;
 
@@ -87,14 +87,14 @@ public class ControllerManager {
         mControllerUpdateManger = new ControllerUpdateManger<>(renderer);
     }
 
-    @NonNull
+    @Nullable
     public RenderManager getRenderManager() {
-        return ((NativeRender) mRenderer).getRenderManager();
+        return mRenderer != null ? ((NativeRender) mRenderer).getRenderManager() : null;
     }
 
-    @NonNull
+    @Nullable
     public NativeRender getNativeRender() {
-        return (NativeRender) mRenderer;
+        return mRenderer != null ? ((NativeRender) mRenderer) : null;
     }
 
     @NonNull
@@ -179,6 +179,8 @@ public class ControllerManager {
     }
 
     public void destroy() {
+        mControllerRegistry.clear();
+        mControllerUpdateManger.clear();
         for (Pool<Integer, View> pool : mPreCreateViewPools.values()) {
             pool.clear();
         }
@@ -193,6 +195,7 @@ public class ControllerManager {
                 deleteRootView(mControllerRegistry.getRootIdAt(i));
             }
         }
+        mRenderer = null;
     }
 
     @Nullable
@@ -647,15 +650,21 @@ public class ControllerManager {
     }
 
     private void reportRemoveViewException(int pid, View parent, int id, View child) {
-        NativeRenderException exception = new NativeRenderException(REMOVE_CHILD_VIEW_FAILED_ERR,
-                getViewOperationExceptionMessage(pid, parent, id, child, "Remove view failed:"));
-        mRenderer.handleRenderException(exception);
+        if (mRenderer != null) {
+            NativeRenderException exception = new NativeRenderException(
+                    REMOVE_CHILD_VIEW_FAILED_ERR,
+                    getViewOperationExceptionMessage(pid, parent, id, child,
+                            "Remove view failed:"));
+            mRenderer.handleRenderException(exception);
+        }
     }
 
     private void reportAddViewException(int pid, View parent, int id, View child) {
-        NativeRenderException exception = new NativeRenderException(ADD_CHILD_VIEW_FAILED_ERR,
-                getViewOperationExceptionMessage(pid, parent, id, child,
-                        "Add child to parent failed:"));
-        mRenderer.handleRenderException(exception);
+        if (mRenderer != null) {
+            NativeRenderException exception = new NativeRenderException(ADD_CHILD_VIEW_FAILED_ERR,
+                    getViewOperationExceptionMessage(pid, parent, id, child,
+                            "Add child to parent failed:"));
+            mRenderer.handleRenderException(exception);
+        }
     }
 }

@@ -77,7 +77,12 @@ jint CreateNativeRenderManager(JNIEnv* j_env, jobject j_object) {
 
 void DestroyNativeRenderManager(JNIEnv* j_env, jobject j_object, jint j_render_manager_id) {
   auto render_manager_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_render_manager_id);
-  auto flag = hippy::global_data_holder.Erase(render_manager_id);
+  std::any render_manager;
+  auto flag = hippy::global_data_holder.Find(render_manager_id, render_manager);
+  if (flag) {
+    std::static_pointer_cast<NativeRenderManager>(std::any_cast<std::shared_ptr<RenderManager>>(render_manager))->DestroyRenderDelegate(j_env);
+  }
+  flag = hippy::global_data_holder.Erase(render_manager_id);
   FOOTSTONE_DCHECK(flag);
 }
 

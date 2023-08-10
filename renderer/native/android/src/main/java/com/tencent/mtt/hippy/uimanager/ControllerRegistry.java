@@ -41,11 +41,15 @@ public class ControllerRegistry {
     private final SparseArray<View> mRootViews = new SparseArray<>();
     @NonNull
     private final Map<String, ControllerHolder> mControllers =  new HashMap<>();
-    @NonNull
-    private final Renderer mRenderer;
+    @Nullable
+    private Renderer mRenderer;
 
     public ControllerRegistry(@NonNull Renderer renderer) {
         mRenderer = renderer;
+    }
+
+    public void clear() {
+        mRenderer = null;
     }
 
     public void addControllerHolder(String name, ControllerHolder controllerHolder) {
@@ -62,9 +66,11 @@ public class ControllerRegistry {
     public HippyViewController getViewController(@NonNull String className) {
         ControllerHolder holder = mControllers.get(className);
         if (holder == null) {
-            NativeRenderException exception = new NativeRenderException(
-                    GET_VIEW_CONTROLLER_FAILED_ERR, "Unknown class name=" + className);
-            mRenderer.handleRenderException(exception);
+            if (mRenderer != null) {
+                NativeRenderException exception = new NativeRenderException(
+                        GET_VIEW_CONTROLLER_FAILED_ERR, "Unknown class name=" + className);
+                mRenderer.handleRenderException(exception);
+            }
             return null;
         }
         return holder.getViewController();
