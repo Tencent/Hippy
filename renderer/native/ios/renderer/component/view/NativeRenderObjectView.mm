@@ -154,7 +154,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     return isDirty;
 }
 
-- (void)dirtyText {
+- (void)dirtyText:(BOOL)needToDoLayout {
 }
 
 - (BOOL)isTextDirty {
@@ -225,7 +225,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     }
     subview->_superview = self;
     _didUpdateSubviews = YES;
-    [self dirtyText];
+    [self dirtyText:NO];
     [self dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
 }
 
@@ -237,7 +237,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 }
 
 - (void)removeNativeRenderSubview:(NativeRenderObjectView *)subview {
-    [subview dirtyText];
+    [subview dirtyText:NO];
     [subview dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
     _didUpdateSubviews = YES;
     subview->_superview = nil;

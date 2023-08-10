@@ -184,7 +184,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 }
 
 - (void)contentSizeMultiplierDidChange:(__unused NSNotification *)note {
-    [self dirtyText];
+    [self dirtyText:YES];
 }
 
 - (NSDictionary<NSString *, id> *)processUpdatedProperties:(NSMutableSet<NativeRenderApplierBlock> *)applierBlocks
@@ -310,7 +310,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         return;
     }
     [super applyConfirmedLayoutDirectionToSubviews:confirmedLayoutDirection];
-    [self dirtyText];
+    [self dirtyText:YES];
 }
 
 - (NSTextStorage *)buildTextStorageForWidth:(CGFloat)width widthMode:(hippy::LayoutMeasureMode)widthMode {
@@ -366,28 +366,43 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     return textStorage;
 }
 
-- (void)dirtyText {
-    [super dirtyText];
+- (void)dirtyText:(BOOL)needToDoLayout {
+    [super dirtyText:needToDoLayout];
     _isTextDirty = YES;
     _cachedTextStorage = nil;
     auto domManager = self.domManager.lock();
+    auto weakDomManager = self.domManager;
     if (domManager) {
         __weak NativeRenderObjectView *weakSelf = self;
-        std::vector<std::function<void()>> ops_ = {[weakSelf, domManager](){
+        auto domNodeAction = [needToDoLayout, weakSelf, weakDomManager](){
             @autoreleasepool {
                 NativeRenderObjectView *strongSelf = weakSelf;
-                if (strongSelf) {
-                    int32_t componentTag = [[strongSelf componentTag] intValue];
-                    auto domNode = domManager->GetNode(strongSelf.rootNode, componentTag);
-                    if (domNode) {
-                        domNode->GetLayoutNode()->MarkDirty();
-                        domManager->DoLayout(strongSelf.rootNode);
-                        domManager->EndBatch(strongSelf.rootNode);
+                if (!strongSelf) {
+                    return;
+                }
+                auto strongDomManager = weakDomManager.lock();
+                if (!strongDomManager) {
+                    return;
+                }
+                int32_t componentTag = [[strongSelf componentTag] intValue];
+                auto domNode = strongDomManager->GetNode(strongSelf.rootNode, componentTag);
+                if (domNode) {
+                    domNode->GetLayoutNode()->MarkDirty();
+                    if (needToDoLayout) {
+                        strongDomManager->DoLayout(strongSelf.rootNode);
+                        strongDomManager->EndBatch(strongSelf.rootNode);
                     }
                 }
             }
-        }};
-        domManager->PostTask(hippy::dom::Scene(std::move(ops_)));
+        };
+        BOOL isJSTaskRunner = (domManager->GetTaskRunner() && footstone::TaskRunner::GetCurrentTaskRunner());
+        if (isJSTaskRunner) {
+            domNodeAction();
+        }
+        else {
+            std::vector<std::function<void()>> ops = {domNodeAction};
+            domManager->PostTask(hippy::dom::Scene(std::move(ops)));
+        }
     }
 }
 
@@ -707,7 +722,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         _textAlignSet = YES;
     }
     if (_needDirtyText) {
-        [self dirtyText];
+        [self dirtyText:NO];
         _needDirtyText =NO;
     }
 }
@@ -952,7 +967,7 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
             ((NativeRenderObjectText *)child).fontSizeMultiplier = fontSizeMultiplier;
         }
     }
-    [self dirtyText];
+    [self dirtyText:NO];
 }
 
 - (void)setMinimumFontScale:(CGFloat)minimumFontScale {

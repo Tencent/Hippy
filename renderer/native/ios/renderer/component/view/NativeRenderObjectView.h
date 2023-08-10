@@ -203,7 +203,7 @@ extern NSString *const NativeRenderShadowViewDiffTag;
 - (void)dirtyPropagation:(NativeRenderUpdateLifecycle)type NS_REQUIRES_SUPER;
 - (BOOL)isPropagationDirty:(NativeRenderUpdateLifecycle)dirtyType;
 
-- (void)dirtyText NS_REQUIRES_SUPER;
+- (void)dirtyText:(BOOL)needToDoLayout NS_REQUIRES_SUPER;
 - (void)setTextComputed NS_REQUIRES_SUPER;
 - (BOOL)isTextDirty;
 
