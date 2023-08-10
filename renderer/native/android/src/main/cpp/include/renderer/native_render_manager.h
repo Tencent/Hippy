@@ -69,6 +69,7 @@ class NativeRenderManager : public RenderManager, public std::enable_shared_from
     return j_render_manager_;
   }
   void CreateRenderDelegate();
+  void DestroyRenderDelegate(JNIEnv* j_env);
   void InitDensity();
   void CreateRenderNode(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>>&& nodes) override;
   void UpdateRenderNode(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>>&& nodes) override;

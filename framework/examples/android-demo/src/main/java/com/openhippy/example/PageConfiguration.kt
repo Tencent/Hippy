@@ -121,7 +121,9 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onBackPressed() {
-        val goBack: () -> Unit = { buildSnapshot { moveTaskToBack(true) } }
+        val goBack: () -> Unit = { buildSnapshot {
+            moveTaskToBack(true)
+        } }
         hippyEngineWrapper?.apply {
             if (hippyEngine.onBackPressed(goBack)) {
                 return
@@ -140,6 +142,7 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
                     hippyEngineWrapper?.snapshot = bitmap
                     (pageConfigurationContainer as ViewGroup).removeAllViews()
                     runnable.run()
+                    hippyEngineWrapper = null
                 }
             })
         }

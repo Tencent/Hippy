@@ -37,10 +37,6 @@ void OnCreateNativeRenderProvider(JNIEnv* j_env,
                                   jint j_render_manager_id,
                                   jfloat j_density);
 
-void DestroyNativeRenderManager(JNIEnv* j_env,
-                                jobject j_object,
-                                jint j_render_manager_id);
-
 jobject GetNativeRendererInstance(JNIEnv* j_env,
                                   jobject j_object,
                                   jint j_render_manager_id);

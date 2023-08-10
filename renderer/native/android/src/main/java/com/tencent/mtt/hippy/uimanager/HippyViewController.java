@@ -59,11 +59,11 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     private static final double[] sTransformDecompositionArray = new double[16];
     private boolean bUserChangeFocus = false;
 
-    public View createView(@NonNull View rootView, int id, @NonNull Renderer renderer,
+    public View createView(@NonNull View rootView, int id, @Nullable Renderer renderer,
             @NonNull String className, @Nullable Map<String, Object> props) {
         View view = null;
         Context context = rootView.getContext();
-        Object object = renderer.getCustomViewCreator();
+        Object object = renderer != null ? renderer.getCustomViewCreator() : null;
         if (object instanceof HippyCustomViewCreator) {
             view = ((HippyCustomViewCreator) object)
                     .createCustomView(className, context, props);

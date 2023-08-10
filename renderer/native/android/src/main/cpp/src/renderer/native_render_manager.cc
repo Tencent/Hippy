@@ -95,6 +95,23 @@ void NativeRenderManager::CreateRenderDelegate() {
   NativeRenderManager::GetStyleFilter(j_render_manager_);
 }
 
+void NativeRenderManager::DestroyRenderDelegate(JNIEnv* j_env) {
+  jobject j_object = j_render_manager_->GetObj();
+  jclass j_class = j_env->GetObjectClass(j_object);
+  if (!j_class) {
+    FOOTSTONE_LOG(ERROR) << "CallNativeMethod j_class error";
+    return;
+  }
+  jmethodID j_method_id = j_env->GetMethodID(j_class, "destroy", "()V");
+  if (!j_method_id) {
+    FOOTSTONE_LOG(ERROR) << "destroy" << " j_method_id error";
+    return;
+  }
+  j_env->CallVoidMethod(j_object, j_method_id);
+  JNIEnvironment::ClearJEnvException(j_env);
+  j_env->DeleteLocalRef(j_class);
+}
+
 void NativeRenderManager::InitDensity() {
   density_ = hippy::GetDensity(j_render_manager_);
 }
