@@ -133,6 +133,7 @@ public class NativeRenderer implements NativeRenderConnector {
     @Override
     public void destroy() {
         destroyNativeRenderManager(mInstanceId);
+        mRenderer = null;
     }
 
     @Override

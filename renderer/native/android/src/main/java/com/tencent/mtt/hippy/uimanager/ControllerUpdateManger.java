@@ -38,8 +38,10 @@ import com.tencent.renderer.utils.PropertyUtils;
 import com.tencent.renderer.utils.PropertyUtils.PropertyMethodHolder;
 import com.tencent.renderer.node.RenderNode;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -61,8 +63,8 @@ public class ControllerUpdateManger<T, G> {
             NodeProps.OPACITY,
             NodeProps.OVERFLOW
     };
-    @NonNull
-    private final Renderer mRenderer;
+    @Nullable
+    private Renderer mRenderer;
     @Nullable
     private ComponentController mComponentController;
     @Nullable
@@ -76,6 +78,10 @@ public class ControllerUpdateManger<T, G> {
 
     public ControllerUpdateManger(@NonNull Renderer renderer) {
         mRenderer = renderer;
+    }
+
+    public void clear() {
+        mRenderer = null;
     }
 
     public void setCustomPropsController(T controller) {
@@ -124,9 +130,7 @@ public class ControllerUpdateManger<T, G> {
                 sRenderPropsList.add(controllerProps.name());
             }
         }
-        for (String layoutStyle : sLayoutStyleList) {
-            sRenderPropsList.add(layoutStyle);
-        }
+        Collections.addAll(sRenderPropsList, sLayoutStyleList);
     }
 
     void findViewPropsMethod(Class<?> cls,
@@ -177,9 +181,11 @@ public class ControllerUpdateManger<T, G> {
                 methodHolder.method.invoke(obj, arg1, value);
             }
         } catch (Exception exception) {
-            mRenderer.handleRenderException(
-                    PropertyUtils.makePropertyConvertException(exception, key,
-                            methodHolder.method));
+            if (mRenderer != null) {
+                mRenderer.handleRenderException(
+                        PropertyUtils.makePropertyConvertException(exception, key,
+                                methodHolder.method));
+            }
         }
     }
 

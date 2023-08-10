@@ -452,7 +452,8 @@ public class TextVirtualNode extends VirtualNode {
         if (mSpanned == null || mDirty) {
             mSpanned = createSpan(true);
             mDirty = false;
-        } else if (mLayout != null && width >= mLastLayoutWidth && width <= (mLastLayoutWidth + 1)) {
+        } else if (mLayout != null && width >= (mLastLayoutWidth - 1)
+                && width <= (mLastLayoutWidth + 1)) {
             // If the property of text node no change, and the current layout width is equal
             // to the last measurement result, no need to create layout again.
             return mLayout;
@@ -468,7 +469,7 @@ public class TextVirtualNode extends VirtualNode {
         } else {
             float desiredWidth = Layout.getDesiredWidth(mSpanned, textPaint);
             if (!unconstrainedWidth && (widthMode == FlexMeasureMode.EXACTLY
-                || desiredWidth > width)) {
+                    || desiredWidth > width)) {
                 desiredWidth = width;
             }
             layout = buildStaticLayout(mSpanned, textPaint, (int) Math.ceil(desiredWidth));
