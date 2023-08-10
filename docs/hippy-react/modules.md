@@ -15,6 +15,8 @@
 - 通过 Animation 的 start 接口启动动画，或是通过 destroy 停止并销毁动画。
 
 > 注意，转 Web 需要用 setRef 方法手动传入 ref 才可以正常运行动画，hippy-react-web 不支持颜色渐变动画。
+>
+> 注意，2.17.1版本对iOS动画进行了较大升级，修复了历史版本与Android端动画表现不一致的问题，升级时请关注兼容性。
 
 ## 构造参数
 
@@ -33,7 +35,7 @@
 
   - `rad`：代表动画参数的起止值为弧度， `这是 rotate 动画的默认单位`；
   - `deg`：代表动画参数的起止值为度数；
-  - `color`：代表动画参数的起止值为颜色值，可修饰背景色 `backgroundColor` 和文字颜色 `color`(仅 Android 支持)，参考 [例子](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx) `最低支持版本2.6.0`
+  - `color`：代表动画参数的起止值为颜色值，可修饰背景色 `backgroundColor` 和文字颜色 `color`(iOS 2.17.1版本开始支持)，参考 [例子](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx) `最低支持版本2.6.0`
 
 - timingFunction 的参数选项：
   - `linear`：使用线性插值器，动画将匀速进行；
@@ -74,7 +76,7 @@
 
 `(callback: () => void) => void` 注册一个动画的监听回调，在动画结束时将会回调 callback。
 
-### onAnimationRepeat（仅 Android 支持）
+### onAnimationRepeat（iOS 2.17.1版本开始支持）
 
 `(callback: () => void) => void` 注册一个动画的监听回调，当动画开始下一次重复播放时 callback 将被回调。
 

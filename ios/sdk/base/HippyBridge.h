@@ -37,7 +37,7 @@
 @class HippyEventDispatcher;
 @class HippyPerformanceLogger;
 @class HippyUIManager;
-@class HippyExtAnimationModule;
+@class HippyNextAnimationModule;
 @class HippyOCTurboModule;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -206,7 +206,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 @property (nonatomic, weak, readonly) id<HippyBridgeDelegate> delegate;
 
-@property (nonatomic, weak, readonly) HippyExtAnimationModule *animationModule;
+@property (nonatomic, weak, readonly) HippyNextAnimationModule *animationModule;
 
 @property (nonatomic, strong, readonly) id<HippyImageViewCustomLoader> imageLoader;
 @property (nonatomic, strong, readonly) id<HippyCustomTouchHandlerProtocol> customTouchHandler;
