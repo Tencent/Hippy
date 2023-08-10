@@ -230,7 +230,7 @@ export default class AnimationExample extends React.Component {
       ],
       repeatCount: 'loop',
     });
-    // TODO iOS暂不支持文字颜色渐变动画
+    // iOS support text color animation since 2.17.1
     this.txtColorAnimationSet = new AnimationSet({
       children: [
         {
@@ -561,7 +561,7 @@ export default class AnimationExample extends React.Component {
             }]}
           />
         </View>
-        <Text style={styles.title}>颜色渐变动画（文字渐变仅Android支持）</Text>
+        <Text style={styles.title}>颜色渐变动画</Text>
         <View style={styles.buttonContainer}>
           <View
               style={styles.button}
@@ -607,8 +607,8 @@ export default class AnimationExample extends React.Component {
           ><Text ref={(ref) => {
             this.textColorRef = ref;
           }} style={[styles.colorText, {
-            // TODO iOS暂不支持文字颜色渐变动画
-            color: Platform.OS === 'android' ? this.txtColorAnimationSet : 'white',
+            // iOS support text color animation since 2.17.1
+            color: this.txtColorAnimationSet,
           }]}>颜色渐变背景和文字</Text></View>
         </View>
 
