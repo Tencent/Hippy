@@ -72,7 +72,10 @@ extern NSString *const NativeRenderShadowViewDiffTag;
  * 3. If a node is "computed" and the constraint passed from above is identical to the constraint used to
  *    perform the last computation, we skip laying out the subtree entirely.
  */
-@interface NativeRenderObjectView : NSObject <NativeRenderComponentProtocol>
+@interface NativeRenderObjectView : NSObject <NativeRenderComponentProtocol> {
+@protected
+    NativeRenderUpdateLifecycle _propagationLifecycle;
+}
 
 /**
  * NativeRenderComponent interface.
