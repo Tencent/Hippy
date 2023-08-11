@@ -29,7 +29,7 @@ public class RecycleObjectPool extends BasePool<String, RecycleObject> {
     private static final String TAG = "RecycleObjectPool";
     private final Object mLock = new Object();
     private final Map<String, SimplePool<RecycleObject>> mPools = new HashMap<>();
-    private int mPoolSize = 12;
+    private int mPoolSize = 24;
 
     public RecycleObjectPool() {}
 

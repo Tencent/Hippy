@@ -58,6 +58,13 @@ public interface ImageLoaderAdapter {
     ImageDataSupplier getImageFromCache(@NonNull String url);
 
     /**
+     * Save image data to cache.
+     *
+     * @param data the image data holder
+     */
+    void saveImageToCache(@NonNull ImageDataSupplier data);
+
+    /**
      * Clear image cache pool.
      */
     void clear();

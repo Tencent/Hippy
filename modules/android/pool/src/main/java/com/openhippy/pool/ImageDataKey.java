@@ -23,6 +23,7 @@ public class ImageDataKey {
     private static final int MAX_SOURCE_KEY_LEN = 128;
     @NonNull
     private final String mUri;
+    private int mUriKey = 0;
 
     public ImageDataKey(@NonNull String url) {
         mUri = url;
@@ -42,10 +43,13 @@ public class ImageDataKey {
 
     @Override
     public int hashCode() {
-        String keyUrl = mUri;
-        if (mUri.length() > MAX_SOURCE_KEY_LEN) {
-            keyUrl = mUri.substring(mUri.length() - MAX_SOURCE_KEY_LEN);
+        if (mUriKey == 0) {
+            String keyUrl = mUri;
+            if (mUri.length() > MAX_SOURCE_KEY_LEN) {
+                keyUrl = mUri.substring(mUri.length() - MAX_SOURCE_KEY_LEN);
+            }
+            mUriKey = keyUrl.hashCode();
         }
-        return keyUrl.hashCode();
+        return mUriKey;
     }
 }
