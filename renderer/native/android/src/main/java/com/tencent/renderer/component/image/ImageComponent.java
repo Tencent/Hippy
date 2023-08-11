@@ -241,6 +241,9 @@ public class ImageComponent extends Component {
             }
         }
         imageHolder.attached();
+        if (mImageLoader != null) {
+            mImageLoader.saveImageToCache(imageHolder);
+        }
         postInvalidateDelayed(0);
     }
 

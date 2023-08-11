@@ -63,7 +63,10 @@ public class ImageDataPool extends BasePool<ImageDataKey, ImageRecycleObject> {
 
     @Override
     public void release(@NonNull ImageRecycleObject data) {
-        release(data.getCacheKey(), data);
+        ImageDataKey key = data.getCacheKey();
+        if (key != null) {
+            release(data.getCacheKey(), data);
+        }
     }
 
     @Override
