@@ -21,10 +21,11 @@
  */
 
 #import "NativeRenderObjectView.h"
+#import "NativeRenderObjectWaterfallItem.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NativeRenderObjectBaseListItem : NativeRenderObjectView
+@interface NativeRenderObjectBaseListItem : NativeRenderObjectWaterfallItem
 
 @end
 

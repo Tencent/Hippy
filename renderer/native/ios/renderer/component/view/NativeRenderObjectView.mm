@@ -39,7 +39,6 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 
 
 @interface NativeRenderObjectView () {
-    NativeRenderUpdateLifecycle _propagationLifecycle;
     NSMutableArray<NativeRenderObjectView *> *_objectSubviews;
     BOOL _recomputePadding;
     BOOL _recomputeMargin;
