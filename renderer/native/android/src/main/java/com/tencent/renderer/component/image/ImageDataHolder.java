@@ -168,8 +168,7 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
         mSource = null;
         mKey = null;
         mStateFlags = 0;
-        // TODO: image holder reuse causes display confusion.
-        //recycle();
+        recycle();
     }
 
     @Override
