@@ -20,12 +20,30 @@
  * limitations under the License.
  */
 
-#import "NativeRenderObjectView.h"
+#import "NativeRenderObjectWaterfallItem.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation NativeRenderObjectWaterfallItem
 
-@interface NativeRenderObjectWatefallItem : NativeRenderObjectView
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        self.creationType = NativeRenderCreationTypeLazily;
+    }
+    return self;
+}
+
+- (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
+    _layoutDirty = NO;
+    if (NativeRenderUpdateLifecycleComputed == _propagationLifecycle) {
+        return;
+    }
+    if (NativeRenderUpdateLifecycleLayoutDirtied == _propagationLifecycle) {
+        _layoutDirty = YES;
+    }
+    _propagationLifecycle = NativeRenderUpdateLifecycleComputed;
+    for (NativeRenderObjectView *renderObjectView in self.subcomponents) {
+        [renderObjectView amendLayoutBeforeMount:blocks];
+    }
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

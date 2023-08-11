@@ -24,12 +24,4 @@
 
 @implementation NativeRenderObjectBaseListItem
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        self.creationType = NativeRenderCreationTypeLazily;
-    }
-    return self;
-}
-
 @end

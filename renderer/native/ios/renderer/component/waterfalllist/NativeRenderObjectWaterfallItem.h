@@ -20,16 +20,14 @@
  * limitations under the License.
  */
 
-#import "NativeRenderObjectWatefallItem.h"
+#import "NativeRenderObjectView.h"
 
-@implementation NativeRenderObjectWatefallItem
+NS_ASSUME_NONNULL_BEGIN
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        self.creationType = NativeRenderCreationTypeLazily;
-    }
-    return self;
-}
+@interface NativeRenderObjectWaterfallItem : NativeRenderObjectView
+
+@property(nonatomic, assign, getter=isLayoutDirty) BOOL layoutDirty;
 
 @end
+
+NS_ASSUME_NONNULL_END
