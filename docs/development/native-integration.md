@@ -31,9 +31,11 @@
 
    - 配置 build.gradle
 
+     下面引用Hippy最新版本号可在上述链接中查询
+
    ```java
-    // implementation 'com.tencent.hippy:hippy-debug:1.0.0'
-    implementation 'com.tencent.hippy:hippy-release:1.0.0'
+    // implementation 'com.tencent.hippy:hippy-debug:3.0.1'
+    implementation 'com.tencent.hippy:hippy-release:3.0.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.viewpager:viewpager:1.0.0'
