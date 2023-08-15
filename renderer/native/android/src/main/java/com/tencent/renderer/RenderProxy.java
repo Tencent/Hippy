@@ -126,4 +126,9 @@ public interface RenderProxy {
      */
     View replaySnapshot(@NonNull Context context, @NonNull Map<String, Object> snapshotMap);
 
+    /**
+     * Notify renderer to remove snapshot view and delete snapshot node.
+     */
+    void removeSnapshotView();
+
 }

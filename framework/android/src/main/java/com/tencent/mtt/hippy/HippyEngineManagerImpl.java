@@ -332,6 +332,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         return null;
     }
 
+    public void removeSnapshotView() {
+        if (mEngineContext != null) {
+            mEngineContext.getRenderer().removeSnapshotView();
+        }
+    }
+
     public void addControllers(@NonNull List<HippyAPIProvider> providers) {
         if (mEngineContext != null) {
             List<Class<?>> controllers = null;

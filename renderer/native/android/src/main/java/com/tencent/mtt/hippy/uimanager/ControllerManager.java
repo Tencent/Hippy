@@ -490,32 +490,10 @@ public class ControllerManager {
         }
     }
 
-    private void checkAndRemoveSnapshotView() {
-        final View snapshotRootView = getRootView(SCREEN_SNAPSHOT_ROOT_ID);
-        if (snapshotRootView == null) {
-            return;
-        }
-        UIThreadUtils.runOnUiThreadDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ViewParent parent = snapshotRootView.getParent();
-                if (parent instanceof ViewGroup) {
-                    ((ViewGroup) parent).removeView(snapshotRootView);
-                }
-                NativeRendererManager.removeSnapshotRootNode();
-                deleteRootView(SCREEN_SNAPSHOT_ROOT_ID);
-            }
-        }, 100);
-
-    }
-
     public void onBatchEnd(int rootId) {
         Pool<Integer, View> pool = mPreCreateViewPools.get(rootId);
         if (pool != null) {
             pool.clear();
-        }
-        if (rootId != SCREEN_SNAPSHOT_ROOT_ID) {
-            checkAndRemoveSnapshotView();
         }
     }
 
