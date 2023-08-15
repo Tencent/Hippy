@@ -163,7 +163,14 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 
 - (void)didUpdateNativeRenderSubviews {
     [self refreshItemNodes];
-    [self flush];
+    self.dirtyContent = YES;
+}
+
+- (void)nativeRenderComponentDidFinishTransaction {
+    if (self.dirtyContent) {
+        [self flush];
+        self.dirtyContent = NO;
+    }
 }
 
 - (void)setContainBannerView:(BOOL)containBannerView {
