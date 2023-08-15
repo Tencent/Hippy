@@ -52,6 +52,8 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
     NativeRenderFooterRefresh *_footerRefreshView;
 }
 
+@property(nonatomic, assign) BOOL dirtyContent;
+
 /**
  * Content inset for NativeRenderWaterfallView
  */
