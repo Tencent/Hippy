@@ -164,7 +164,14 @@ static NSString *const kListViewItem = @"ListViewItem";
 
 - (void)didUpdateNativeRenderSubviews {
     [self refreshItemNodes];
-    [self reloadData];
+    self.dirtyContent = YES;
+}
+
+- (void)nativeRenderComponentDidFinishTransaction {
+    if (self.dirtyContent) {
+        [self reloadData];
+        self.dirtyContent = NO;
+    }
 }
 
 - (void)refreshItemNodes {
