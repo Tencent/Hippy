@@ -44,7 +44,7 @@
                 NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)[viewRegistry objectForKey:[strongSelf componentTag]];
                 HPAssert([view isKindOfClass:[NativeRenderWaterfallView class]], @"view must be kind of NativeRenderWaterfallView");
                 if ([view isKindOfClass:[NativeRenderWaterfallView class]]) {
-                    [view reloadData];
+                    view.dirtyContent = YES;
                 }
             };
             _reloadBlock = block;
