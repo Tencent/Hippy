@@ -30,6 +30,7 @@ import android.text.Layout;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.view.ViewParent;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -90,7 +91,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     /**
      * This specific ID is used to identify the root view of snapshot restore
      */
-    public static final int SCREEN_SNAPSHOT_ROOT_ID = 1000;
+    public static final int SCREEN_SNAPSHOT_ROOT_ID = 10000;
     public static final String NODE_ID = "id";
     public static final String NODE_INDEX = "index";
     public static final String NODE_PROPS = "props";
@@ -979,6 +980,24 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         } catch (Exception e) {
             callback.callback(null, e);
         }
+    }
+
+    /**
+     * Remove snapshot view and render node.
+     */
+    @MainThread
+    @Override
+    public void removeSnapshotView() {
+        final View snapshotRootView = getRootView(SCREEN_SNAPSHOT_ROOT_ID);
+        if (snapshotRootView == null) {
+            return;
+        }
+        ViewParent parent = snapshotRootView.getParent();
+        if (parent instanceof ViewGroup) {
+            ((ViewGroup) parent).removeView(snapshotRootView);
+        }
+        mRenderManager.getControllerManager().deleteRootView(SCREEN_SNAPSHOT_ROOT_ID);
+        mRenderManager.deleteSnapshotNode(SCREEN_SNAPSHOT_ROOT_ID);
     }
 
     private ByteBuffer encodeSnapshot(@NonNull Map<String, Object> snapshot)
