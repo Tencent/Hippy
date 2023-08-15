@@ -121,11 +121,13 @@
     if (NativeRenderViewEventTypeClick == touchEvent) {
         if (_tapGestureRecognizer) {
             [self removeGestureRecognizer:_tapGestureRecognizer];
+            _tapGestureRecognizer = nil;
         }
     }
     else if (NativeRenderViewEventTypeLongClick == touchEvent) {
         if (_longGestureRecognizer) {
             [self removeGestureRecognizer:_longGestureRecognizer];
+            _longGestureRecognizer = nil;
         }
     }
     else if (NativeRenderViewEventTypePressIn == touchEvent) {
@@ -198,7 +200,7 @@
 
 - (void)addClickEventListener:(OnTouchEventHandler)eventListener {
     if (_tapGestureRecognizer) {
-        [self removeGestureRecognizer:_tapGestureRecognizer];
+        return;
     }
     _tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleClickEvent)];
     _tapGestureRecognizer.cancelsTouchesInView = NO;
@@ -209,7 +211,7 @@
 
 - (void)addLongClickEventListener:(OnTouchEventHandler)eventListener {
     if (_longGestureRecognizer) {
-        [self removeGestureRecognizer:_longGestureRecognizer];
+        return;
     }
     _longGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongClickEvent)];
     _longGestureRecognizer.cancelsTouchesInView = NO;
@@ -218,6 +220,9 @@
 }
 
 - (void)addPressInEventListener:(OnTouchEventHandler)eventListener {
+    if (_pressInEventEnabled) {
+        return;
+    }
     if (_pressInTimer) {
         [_pressInTimer invalidate];
     }

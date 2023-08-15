@@ -754,6 +754,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
             NativeRenderObjectView *subRenderObject = [self->_renderObjectRegistry componentForTag:@(subviewTags[index]) onRootTag:rootNodeTag];
             [superRenderObject insertNativeRenderSubview:subRenderObject atIndex:subviewIndices[index]];
         }
+        [superRenderObject didUpdateNativeRenderSubviews];
     }];
     for (const std::shared_ptr<DomNode> &node : nodes) {
         NSNumber *componentTag = @(node->GetId());
@@ -775,7 +776,9 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
                 UIView *superView = viewRegistry[@(tag)];
                 for (NSUInteger index = 0; index < subViewTags_.size(); index++) {
                     UIView *subview = viewRegistry[@(subViewTags_[index])];
-                    [superView insertNativeRenderSubview:subview atIndex:subViewIndices_[index]];
+                    if (subview) {
+                        [superView insertNativeRenderSubview:subview atIndex:subViewIndices_[index]];
+                    }
                 }
                 [superView clearSortedSubviews];
                 [superView didUpdateNativeRenderSubviews];
