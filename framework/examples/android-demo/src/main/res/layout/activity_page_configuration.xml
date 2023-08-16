@@ -242,7 +242,7 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                  android:id="@+id/page_configuration_debug"
+                  android:id="@+id/page_configuration_snapshot"
                   android:layout_width="match_parent"
                   android:layout_height="58dp"
                   android:layout_marginTop="12dp"
@@ -253,6 +253,56 @@
                   app:layout_constraintRight_toRightOf="parent"
                   app:layout_constraintLeft_toLeftOf="parent"
                   app:layout_constraintTop_toBottomOf="@id/page_configuration_renderer" >
+                    <ImageView
+                      android:id="@+id/page_configuration_snapshot_image"
+                      android:layout_width="24dp"
+                      android:layout_height="24dp"
+                      android:layout_marginLeft="16dp"
+                      android:layout_gravity="center"
+                      android:src="@drawable/page_config_debug_2x"
+                      android:clickable="false"
+                      app:layout_constraintLeft_toLeftOf="parent"
+                      app:layout_constraintTop_toTopOf="parent"
+                      app:layout_constraintBottom_toBottomOf="parent" />
+                    <TextView
+                      android:id="@+id/page_configuration_snapshot_desc"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_marginLeft="10dp"
+                      android:gravity="center"
+                      android:text="Node snapshot"
+                      android:textColor="#1E304A"
+                      android:textFontWeight="500"
+                      android:textSize="14sp"
+                      app:layout_constraintLeft_toRightOf="@id/page_configuration_snapshot_image"
+                      app:layout_constraintTop_toTopOf="parent"
+                      app:layout_constraintBottom_toBottomOf="parent" />
+                    <ImageView
+                      android:id="@+id/page_configuration_snapshot_setting_image"
+                      android:layout_width="44dp"
+                      android:layout_height="22dp"
+                      android:layout_marginRight="16dp"
+                      android:layout_gravity="center"
+                      android:src="@drawable/page_config_debug_off_2x"
+                      android:clickable="true"
+                      android:focusable="true"
+                      app:layout_constraintRight_toRightOf="parent"
+                      app:layout_constraintTop_toTopOf="parent"
+                      app:layout_constraintBottom_toBottomOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                  android:id="@+id/page_configuration_debug"
+                  android:layout_width="match_parent"
+                  android:layout_height="58dp"
+                  android:layout_marginTop="12dp"
+                  android:layout_marginLeft="16dp"
+                  android:layout_marginRight="16dp"
+                  android:background="@color/white"
+                  android:clickable="false"
+                  app:layout_constraintRight_toRightOf="parent"
+                  app:layout_constraintLeft_toLeftOf="parent"
+                  app:layout_constraintTop_toBottomOf="@id/page_configuration_snapshot" >
                     <ImageView
                       android:id="@+id/page_configuration_debug_image"
                       android:layout_width="24dp"
