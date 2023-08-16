@@ -26,19 +26,25 @@
 public void recordSnapshot(@NonNull View rootView, @NonNull final Callback<byte[]> callback)
 ```
 
-   记录指定root view的节点缓存，SDK内部会完成节点遍历，序列化相关的任务，最终通过Callback返回节点序列化后的buffer，节点数据存储，生命周期管理由宿主自行完成，由于序列化节点数据有一定耗时，为了防止卡UI线程，序列化数据的操作是分发到子线程异步执行的，最终也在子线程callback buffer
+   记录指定root view的节点缓存，SDK内部会完成节点遍历，序列化相关的任务，最终通过Callback返回节点序列化后的buffer，节点数据存储，生命周期管理由宿主自行完成
 
 ```java
 public View replaySnapshot(@NonNull Context context, byte[] buffer)
 ```
 
-   传入之前record的buffer回放节点数据，由于render node和view的操作都必须在UI线程完成，所有这个接口调用将同步返回还原的view
+   传入之前record的buffer回放节点数据，这个接口调用将同步返回还原的view
 
 ```java
 public View replaySnapshot(@NonNull Context context, @NonNull Map<String, Object> snapshotMap)
 ```
 
-   传入decode后的节点Map数据，同步返回还原的view，必须在UI线程调用，由于节点数据decode有一定耗时，为了最大程度减少UI线程的占用，这个接口用于在子线程提前decode buffer后调用
+   传入decode后的节点Map数据，同步返回还原的view
+
+```java
+public View removeSnapshotView()
+```
+
+   从view tree中移除snapshot view及其子view，同时删除所有对应的render node节点，调用该接口的时机需要根据不同的业务场景做调整，保证真正页面完整显示后再移除snapshot view，不会产生页面的跳变视觉体验
 
 ### NativeRenderer Public static methods
 
@@ -47,6 +53,8 @@ public static Map<String, Object> decodeSnapshot(@NonNull byte[] buffer)
 ```
 
    NativeRenderer静态方法，对节点数据进行decode操作，支持子线程异步调用，返回的Map可以直接用作 replaySnapshot接口的输入参数
+
+   > 注意：replaySnapshot接口调用必须在Hippy engine初始化完成以后，可以在引擎回调的子线程中执行，也可以在UI主线程执行，但必须在replay调用结束后再调用loadModule，否则有可能会有多线程的问题，在子线程执行好处就是不卡UI线程，但需要post到UI线程挂载到父容器，中间还是会有短暂白屏过程，在主线程直接replay并挂载到父容器，虽然会卡UI，但可以保证页面切换无白屏效果
 
 ## Performance
 
