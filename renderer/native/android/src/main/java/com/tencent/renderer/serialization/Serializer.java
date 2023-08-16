@@ -31,6 +31,7 @@ import com.tencent.renderer.serialization.Oddball.valueType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Provide encode ability, all data object should serialize to byte buffer before send to native(C++)
@@ -91,13 +92,18 @@ public class Serializer extends PrimitiveValueSerializer {
         }
         if (object instanceof Map) {
             assignId(object);
-            for (Object key : ((Map) object).keySet()) {
-                if (key instanceof String) {
-                    writeObject((Map) object);
-                } else {
-                    writeMap((Map) object);
+            Set<Object> keySet = ((Map) object).keySet();
+            if (keySet.size() > 0) {
+                for (Object key : keySet) {
+                    if (key instanceof String) {
+                        writeObject((Map) object);
+                    } else {
+                        writeMap((Map) object);
+                    }
+                    break;
                 }
-                break;
+            } else {
+                writeObject((Map) object);
             }
         } else if (object instanceof List) {
             assignId(object);

@@ -1064,7 +1064,10 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         nodeInfo.put(NODE_PID, pid);
         nodeInfo.put(NODE_INDEX, child.indexFromParent());
         nodeInfo.put(CLASS_NAME, child.getClassName());
-        nodeInfo.put(NODE_PROPS, child.getProps());
+        Map<String, Object> props = child.getProps();
+        if (props != null && !props.isEmpty()) {
+            nodeInfo.put(NODE_PROPS, props);
+        }
         nodeInfoList.add(nodeInfo);
         if (child instanceof TextRenderNode) {
             ((TextRenderNode) child).recordVirtualChildren(nodeInfoList);
