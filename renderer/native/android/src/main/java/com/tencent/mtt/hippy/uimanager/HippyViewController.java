@@ -84,6 +84,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         view.invalidate();
     }
 
+    @SuppressWarnings("unused")
     protected void updateEvents(@NonNull T view, @Nullable Map<String, Object> events) {
 
     }
@@ -448,6 +449,18 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         parentView.removeView(childView);
     }
 
+    private boolean checkOverflowVisible(@NonNull View view) {
+        RenderNode node = RenderManager.getRenderNode(view);
+        if (node != null) {
+            Map<String, Object> props = node.getProps();
+            if (props != null) {
+                String overflow = MapUtils.getStringValue(props, NodeProps.OVERFLOW);
+                return (overflow != null && overflow.equals(NodeProps.VISIBLE));
+            }
+        }
+        return false;
+    }
+
     protected void addView(ViewGroup parentView, View view, int index) {
         int realIndex = index;
         if (realIndex > parentView.getChildCount()) {
@@ -455,7 +468,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         }
         try {
             parentView.addView(view, realIndex);
-            if (view instanceof ClipChildrenView) {
+            if (view instanceof ClipChildrenView && !checkOverflowVisible(parentView)) {
                 parentView.setClipChildren(true);
             }
         } catch (Exception e) {
