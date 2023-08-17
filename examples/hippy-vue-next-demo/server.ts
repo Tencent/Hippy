@@ -1,5 +1,5 @@
-const express = require('express');
-const { render, HIPPY_GLOBAL_STYLE_NAME } = require('./dist/main-server');
+import express from 'express';
+import { render, HIPPY_GLOBAL_STYLE_NAME } from 'src/main-server';
 
 interface MinifiedStyleDeclaration {
   [key: number]: number | string;
@@ -54,13 +54,15 @@ server.all('/getSsrFirstScreenData', (req, rsp) => {
   render('/', {
     appName: 'Demo',
   }, req.body).then(({
-    list, store, uniqueId,
+    list,
+    // store,
+    uniqueId,
   }) => {
     // send response
     rsp.json({
       code: 0,
       data: list,
-      store: store.state.value,
+      // store: store.state.value,
       uniqueId,
       styleContent: getSsrStyleContent(HIPPY_GLOBAL_STYLE_NAME),
     });

@@ -51,9 +51,6 @@ function buildServerEntry() {
  * build ssr sever and client bundle
  */
 function buildJsBundle() {
-  // 1. build server bundle
-  runScript(getScriptCommand('server.bundle.js'));
-  // 2. build async client bundle(include Android and iOS)
   // build Android client bundle
   runScript(getScriptCommand('client.android.js'));
   // build iOS client bundle
