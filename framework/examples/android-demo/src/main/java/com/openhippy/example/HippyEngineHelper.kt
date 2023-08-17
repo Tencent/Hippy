@@ -22,18 +22,26 @@ class HippyEngineHelper {
         private val hippyEngineList: MutableList<HippyEngineWrapper> = mutableListOf()
         private val abandonHippyEngineList: MutableList<HippyEngineWrapper> = mutableListOf()
 
+
         fun createHippyEngine(
             driverType: PageConfiguration.DriverMode,
             rendererType: PageConfiguration.RenderMode,
             isDebugMode: Boolean,
+            isSnapshotMode: Boolean,
             debugServerHost: String
         ): HippyEngineWrapper {
-            val hippyEngineWrapper = HippyEngineWrapper(driverType, rendererType, isDebugMode, debugServerHost)
+            val hippyEngineWrapper = HippyEngineWrapper(
+                driverType,
+                rendererType,
+                isDebugMode,
+                isSnapshotMode,
+                debugServerHost
+            )
             hippyEngineList.add(hippyEngineWrapper)
             return hippyEngineWrapper
         }
 
-        fun getHippyEngineList() : MutableList<HippyEngineWrapper> {
+        fun getHippyEngineList(): MutableList<HippyEngineWrapper> {
             return hippyEngineList
         }
 
