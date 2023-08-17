@@ -394,6 +394,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 rootId, nodeId, lowerCaseEventName)) {
             return;
         }
+        LogUtils.d(TAG, "dispatchEvent: id " + nodeId + ", eventName " + eventName
+                + ", eventType " + eventType + ", params " + params + "\n ");
         mRenderProvider.dispatchEvent(rootId, nodeId, lowerCaseEventName, params, useCapture,
                 useBubble);
     }
@@ -478,9 +480,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             }
             final Map<String, Object> props = MapUtils.getMapValue(node, NODE_PROPS);
             LogUtils.d(TAG, "createNode: id " + nodeId + ", pid " + nodePid
-                    + ", index " + nodeIndex + ", name " + className);
-            LogUtils.d(TAG, "props " + props);
-            LogUtils.d(TAG, "  ");
+                    + ", index " + nodeIndex + ", name " + className + "\n  props " + props
+                    + "\n ");
             mVirtualNodeManager.createNode(rootId, nodeId, nodePid, nodeIndex, className, props);
             // If multiple level are nested, the parent is outermost text node.
             VirtualNode parent = mVirtualNodeManager.checkVirtualParent(rootId, nodeId);
@@ -558,8 +559,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             final Map<String, Object> diffProps = MapUtils.getMapValue(node, NODE_PROPS);
             final List<Object> delProps = MapUtils.getListValue(node, NODE_DELETE_PROPS);
             LogUtils.d(TAG,
-                    "updateNode: id " + nodeId + ", diff " + diffProps + ", delete " + delProps);
-            LogUtils.d(TAG, "  ");
+                    "updateNode: id " + nodeId + ", diff " + diffProps + ", delete " + delProps
+                            + "\n ");
             mVirtualNodeManager.updateNode(rootId, nodeId, diffProps, delProps);
             // If multiple level are nested, the parent is outermost text node.
             VirtualNode parent = mVirtualNodeManager.checkVirtualParent(rootId, nodeId);
@@ -589,8 +590,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     @Override
     public void deleteNode(final int rootId, @NonNull int[] ids) throws NativeRenderException {
         final List<UITaskExecutor> taskList = new ArrayList<>(ids.length);
-        LogUtils.d(TAG, "deleteNode " + Arrays.toString(ids));
-        LogUtils.d(TAG, "  ");
+        LogUtils.d(TAG, "deleteNode " + Arrays.toString(ids) + "\n ");
         for (final int nodeId : ids) {
             // The node id should not be negative number.
             if (nodeId < 0) {
@@ -635,8 +635,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     @Override
     public void moveNode(final int rootId, final int pid, @NonNull final List<Object> list) {
-        LogUtils.d(TAG, "moveNode: pid " + pid + ", node list " + list);
-        LogUtils.d(TAG, "  ");
+        LogUtils.d(TAG, "moveNode: pid " + pid + ", node list " + list + "\n ");
         VirtualNode parent = mVirtualNodeManager.getVirtualNode(rootId, pid);
         if (parent == null) {
             addUITask(new UITaskExecutor() {
@@ -764,8 +763,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         }
         LogUtils.d(TAG,
                 "callUIFunction: id " + nodeId + ", functionName " + functionName + ", params"
-                        + params);
-        LogUtils.d(TAG, "  ");
+                        + params + "\n ");
         // If callbackId equal to 0 mean this call does not need to callback.
         final UIPromise promise =
                 (callbackId == 0) ? null : new UIPromise(callbackId, functionName, rootId, nodeId,
