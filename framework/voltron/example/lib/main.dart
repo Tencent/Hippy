@@ -31,12 +31,13 @@ void main() {
   // debugPrintRebuildDirtyWidgets = true; // 记录每帧重建的 widget
   // debugProfilePaintsEnabled = true;
   if (Platform.isAndroid) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(
-      statusBarColor: Colors.black,
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      systemNavigationBarColor: Color(0XFFE5E5E5),
     ));
   }
   runApp(MyApp());
 }
+
 class _MyWidgetInspector with WidgetInspectorService {
   static void init() {
     WidgetInspectorService.instance = _MyWidgetInspector();
@@ -93,7 +94,9 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       backgroundColor: const Color(0XFFE5E5E5),
       appBar: AppBar(
-        title: const Text('Demo'),
+        title: const Text(
+          'Demo',
+        ),
       ),
       body: Center(
         child: Column(
@@ -168,6 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => BaseVoltronPage(
+                            title: 'Vue 2.0',
                             coreBundle: "assets/jsbundle/vue2/vendor.android.js",
                             indexBundle: "assets/jsbundle/vue2/index.android.js",
                           ),
@@ -183,6 +187,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => BaseVoltronPage(
+                            title: 'Vue 3.0',
                             coreBundle: "assets/jsbundle/vue3/vendor.android.js",
                             indexBundle: "assets/jsbundle/vue3/index.android.js",
                           ),
@@ -198,6 +203,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => BaseVoltronPage(
+                            title: 'React',
                             coreBundle: "assets/jsbundle/react/vendor.android.js",
                             indexBundle: "assets/jsbundle/react/index.android.js",
                           ),
