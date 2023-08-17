@@ -1,5 +1,9 @@
 ## 0.0.32
 
+- fix navigation bar color error after modal show
+
+## 0.0.32
+
 - fix crash on debug mode
 
 ## 0.0.31
