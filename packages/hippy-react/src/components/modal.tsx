@@ -33,9 +33,9 @@ export interface ModalProps {
   /**
    * Show or hide
    *
-   * Default false
+   * Default true
    */
-  visible: boolean;
+  visible?: boolean;
 
   /**
    * Primary key
