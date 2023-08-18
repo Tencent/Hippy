@@ -30,7 +30,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class NativeRenderWaterfallViewDataSource, NativeRenderHeaderRefresh, NativeRenderFooterRefresh;
+@class NativeRenderWaterfallViewDataSource, NativeRenderHeaderRefresh, NativeRenderFooterRefresh, WaterfallItemChangeContext, NativeRenderObjectView;
 
 typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
     ScrollStateStop,
@@ -43,8 +43,9 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
  */
 @interface NativeRenderWaterfallView : NativeRenderTouchesView <UICollectionViewDataSource, UICollectionViewDelegate,
                                         NativeRenderCollectionViewDelegateWaterfallLayout, NativeRenderScrollableProtocol, NativeRenderScrollProtocol> {
-    NativeRenderWaterfallViewDataSource *_dataSource;
 @protected
+    NativeRenderWaterfallViewDataSource *_dataSource;
+    NativeRenderWaterfallViewDataSource *_previousDataSource;
     NSMapTable<NSNumber *, UIView *> *_weakItemMap;
     NSMutableDictionary<NSIndexPath *, NSNumber *> *_cachedItems;
     double _lastOnScrollEventTimeInterval;
@@ -53,6 +54,8 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
 }
 
 @property(nonatomic, assign) BOOL dirtyContent;
+
+@property(nonatomic, strong) WaterfallItemChangeContext *changeContext;
 
 /**
  * Content inset for NativeRenderWaterfallView
@@ -160,6 +163,9 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
  * Reload data
  */
 - (void)reloadData;
+
+- (void)pushDataSource:(NSArray<NativeRenderObjectView *> *)dataSource;
+- (NSArray<NativeRenderObjectView *> *)popDataSource;
 
 /**
  * Reserved, not implemented
