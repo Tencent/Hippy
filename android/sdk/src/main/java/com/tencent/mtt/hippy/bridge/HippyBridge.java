@@ -60,4 +60,6 @@ public interface HippyBridge {
         void reportException(Throwable e);
     }
     public void connectDebugUrl(String wsDebugUrl);
+
+    String getComponentName();
 }

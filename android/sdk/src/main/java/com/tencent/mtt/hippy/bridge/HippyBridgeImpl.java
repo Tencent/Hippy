@@ -505,4 +505,14 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
             }
         }
     }
+
+    @Override
+    public String getComponentName() {
+        HippyEngineContext context = mContext;
+        if (context != null) {
+            return context.getComponentName();
+        }
+
+        return "";
+    }
 }

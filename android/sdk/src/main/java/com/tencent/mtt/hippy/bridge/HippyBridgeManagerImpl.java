@@ -53,6 +53,7 @@ import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -81,6 +82,8 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     public static final int DESTROY_CLOSE = 0;
     public static final int DESTROY_RELOAD = 1;
 
+    private static final int JNI_REF_WARNING_COUNT = 20000;
+
     final HippyEngineContext mContext;
     final HippyBundleLoader mCoreBundleLoader;
     HippyBridge mHippyBridge;
@@ -103,6 +106,8 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     private HippyEngine.V8InitParams v8InitParams;
     @Nullable
     private NativeCallback mCallFunctionCallback;
+
+    private final AtomicInteger mJniRefCount = new AtomicInteger(0);
 
     public HippyBridgeManagerImpl(HippyEngineContext context, HippyBundleLoader coreBundleLoader,
             int bridgeType, boolean enableV8Serialization, HippyEngine.DebugMode debugMode,
@@ -130,6 +135,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         return new NativeCallback(mHandler) {
             @Override
             public void callback(long result, String reason, @Nullable String payload) {
+                mJniRefCount.decrementAndGet();
                 if ("loadInstance".equals(payload)) {
                     HippyRootView rootView = mContext.getInstance();
                     TimeMonitor monitor = rootView == null ? null : rootView.getTimeMonitor();
@@ -181,6 +187,19 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
             case FUNCTION_ACTION_CALL_JSMODULE: {
                 action = "callJsModule";
                 break;
+            }
+        }
+
+        mJniRefCount.incrementAndGet();
+        if (mJniRefCount.get() >= JNI_REF_WARNING_COUNT) {
+            String projectName = "unknown";
+            HippyBridge bridge = mHippyBridge;
+            if (bridge != null) {
+                projectName = bridge.getComponentName();
+            }
+            String logStr = "handleCallFunction, project:" + projectName + ", action:" + action + ", msg=" + msg;
+            if (mContext.getGlobalConfigs().getLogAdapter() != null) {
+                mContext.getGlobalConfigs().getLogAdapter().onReceiveLogMessage(com.tencent.mtt.hippy.adapter.HippyLogAdapter.LOG_SEVERITY_FATAL, "HippyBridgeManagerImpl", logStr);
             }
         }
 
