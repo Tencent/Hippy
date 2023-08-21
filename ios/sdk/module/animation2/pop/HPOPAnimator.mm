@@ -123,6 +123,7 @@ static uint64_t _displayTimerFrequency = kDisplayTimerFrequency;
   POPAnimatorItemList _list;
   CFMutableDictionaryRef _dict;
   NSMutableArray *_observers;
+  NSHashTable<id<HPOPAnimatorDelegate>> *_animatorDelegates;
   POPAnimatorItemList _pendingList;
   CFRunLoopObserverRef _pendingListObserver;
   CFTimeInterval _slowMotionStartTime;
@@ -135,7 +136,6 @@ static uint64_t _displayTimerFrequency = kDisplayTimerFrequency;
 @end
 
 @implementation HPOPAnimator
-@synthesize delegate = _delegate;
 @synthesize disableDisplayLink = _disableDisplayLink;
 @synthesize beginTime = _beginTime;
 
@@ -539,8 +539,10 @@ static void stopAndCleanup(HPOPAnimator *self, POPAnimatorItemRef item, bool sho
   [CATransaction setDisableActions:YES];
 
   // notify delegate
-  __strong __typeof__(_delegate) delegate = _delegate;
-  [delegate animatorWillAnimate:self];
+  NSArray *allDelegates = _animatorDelegates.allObjects;
+  for (id<HPOPAnimatorDelegate> delegate in allDelegates) {
+    [delegate animatorWillAnimate:self];
+  }
 
   // lock
   pthread_mutex_lock(&_lock);
@@ -583,7 +585,9 @@ static void stopAndCleanup(HPOPAnimator *self, POPAnimatorItemRef item, bool sho
   pthread_mutex_unlock(&_lock);
 
   // notify delegate and commit
-  [delegate animatorDidAnimate:self];
+  for (id<HPOPAnimatorDelegate> delegate in allDelegates) {
+    [delegate animatorDidAnimate:self];
+  }
   [CATransaction commit];
 }
 
@@ -936,6 +940,55 @@ static void stopAndCleanup(HPOPAnimator *self, POPAnimatorItemRef item, bool sho
   [_observers removeObject:observer];
   updateDisplayLink(self);
 
+  // unlock
+  pthread_mutex_unlock(&_lock);
+}
+
+- (NSArray<id<HPOPAnimatorDelegate>> *)delegates
+{
+  // lock
+  pthread_mutex_lock(&_lock);
+  
+  // get observers
+  NSArray *delegates = _animatorDelegates.allObjects;
+  
+  // unlock
+  pthread_mutex_unlock(&_lock);
+  return delegates;
+}
+
+- (void)addAnimatorDelegate:(id<HPOPAnimatorDelegate>)delegate
+{
+  NSAssert(nil != delegate, @"attempting to add nil %@ delegate", self);
+  if (nil == delegate) {
+    return;
+  }
+  
+  // lock
+  pthread_mutex_lock(&_lock);
+  
+  if (!_animatorDelegates) {
+    _animatorDelegates = [NSHashTable weakObjectsHashTable];
+  }
+  
+  [_animatorDelegates addObject:delegate];
+  
+  // unlock
+  pthread_mutex_unlock(&_lock);
+}
+
+- (void)removeAnimatorDelegate:(id<HPOPAnimatorDelegate>)delegate
+{
+  NSAssert(nil != delegate, @"attempting to remove nil %@ delegate", self);
+  if (nil == delegate) {
+    return;
+  }
+  
+  // lock
+  pthread_mutex_lock(&_lock);
+  
+  [_animatorDelegates removeObject:delegate];
+  
   // unlock
   pthread_mutex_unlock(&_lock);
 }
