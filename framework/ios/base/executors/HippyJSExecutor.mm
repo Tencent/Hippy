@@ -535,7 +535,11 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                 return;
             }
             NSError *error = nil;
+            auto entry = strongSelf.pScope->GetPerformance()->PerformanceNavigation("hippyInit");
+            string_view url = [[sourceURL absoluteString] UTF8String]?:"";
+            entry->BundleInfoOfUrl(url).execute_source_start_ = footstone::TimePoint::SystemNow();
             id result = executeApplicationScript(script, sourceURL, strongSelf.pScope->GetContext(), &error);
+            entry->BundleInfoOfUrl(url).execute_source_end_ = footstone::TimePoint::SystemNow();
             if (onComplete) {
                 onComplete(result, error);
             }
