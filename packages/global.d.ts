@@ -196,7 +196,7 @@ declare namespace HippyTypes {
     transform?: Transform[];
   }
 
-  export type BorderStyle = 'solid' | 'dotted' | 'dashed';
+  export type BorderStyle = 'solid' | 'dotted' | 'dashed' | 'none';
   export interface BorderBoxStyle {
     borderStyle?: BorderStyle;
     borderTopStyle?: BorderStyle;
