@@ -52,14 +52,24 @@
 #endif
 
 /**
- @abstract The optional animator delegate.
+ @abstract The optional animator delegates.
  */
-@property (weak, nonatomic) id<HPOPAnimatorDelegate> delegate;
+@property (readonly, nonatomic) NSArray<id<HPOPAnimatorDelegate>>* delegates;
 
 /**
  @abstract Retrieves the nominal refresh period of a display link. Returns zero if unavailable.
  */
 @property (readonly, nonatomic) CFTimeInterval refreshPeriod;
+
+/**
+ @abstract Add an optional animator delegate, internal weak reference.
+ */
+- (void)addAnimatorDelegate:(id<HPOPAnimatorDelegate>)delegate;
+
+/**
+ @abstract Remove the optional animator delegate.
+ */
+- (void)removeAnimatorDelegate:(id<HPOPAnimatorDelegate>)delegate;
 
 @end
 
