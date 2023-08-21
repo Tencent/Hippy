@@ -26,10 +26,9 @@
 #import "HippyNextAnimation.h"
 #import "HippyNextAnimationGroup.h"
 #import "HippyShadowView.h"
-#import "HPOPAnimatorPrivate.h"
 
 
-@interface HippyNextAnimationModule () <HPOPAnimationDelegate, HPOPAnimatorObserving, HippyNextAnimationControlDelegate>
+@interface HippyNextAnimationModule () <HPOPAnimationDelegate, HPOPAnimatorDelegate, HippyNextAnimationControlDelegate>
 
 /// Map of id-animation
 @property (atomic, strong) NSMutableDictionary *animationById;
@@ -61,7 +60,7 @@ HIPPY_EXPORT_MODULE(AnimationModule)
     [self.animationById removeAllObjects];
     [self.paramsByHippyTag removeAllObjects];
     [self.paramsByAnimationId removeAllObjects];
-    [HPOPAnimator.sharedAnimator removeObserver:self];
+    [HPOPAnimator.sharedAnimator removeAnimatorDelegate:self];
 }
 
 - (instancetype)init {
@@ -71,7 +70,7 @@ HIPPY_EXPORT_MODULE(AnimationModule)
         _paramsByHippyTag = [NSMutableDictionary dictionary];
         _paramsByAnimationId = [NSMutableDictionary dictionary];
         _updatedPropsForNextFrameDict = [NSMutableDictionary dictionary];
-        [HPOPAnimator.sharedAnimator addObserver:self];
+        [HPOPAnimator.sharedAnimator addAnimatorDelegate:self];
     }
     return self;
 }
@@ -371,7 +370,11 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
 }
 
 
-#pragma mark - HPOPAnimatorObserving
+#pragma mark - HPOPAnimatorDelegate
+
+- (void)animatorWillAnimate:(HPOPAnimator *)animator {
+    // do nothing
+}
 
 - (void)animatorDidAnimate:(HPOPAnimator *)animator {
     // relayout, call from main thread
@@ -388,6 +391,7 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
             [strongSelf.bridge.uiManager batchDidComplete];
             [strongSelf->_updatedPropsForNextFrameDict removeAllObjects];
         }];
+        self.shouldCallUIManagerToUpdateLayout = NO;
     }
 }
 
