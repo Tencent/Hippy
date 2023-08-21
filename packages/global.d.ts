@@ -88,6 +88,7 @@ declare namespace HippyTypes {
   export type DimensionValue =
     | number
     | 'auto'
+    | `${number}%`
     | Animation
     | AnimationSet;
 
