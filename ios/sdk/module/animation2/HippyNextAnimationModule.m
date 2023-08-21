@@ -26,8 +26,10 @@
 #import "HippyNextAnimation.h"
 #import "HippyNextAnimationGroup.h"
 #import "HippyShadowView.h"
+#import "HPOPAnimatorPrivate.h"
 
-@interface HippyNextAnimationModule () <HPOPAnimationDelegate, HPOPAnimatorDelegate, HippyNextAnimationControlDelegate>
+
+@interface HippyNextAnimationModule () <HPOPAnimationDelegate, HPOPAnimatorObserving, HippyNextAnimationControlDelegate>
 
 /// Map of id-animation
 @property (atomic, strong) NSMutableDictionary *animationById;
@@ -59,6 +61,7 @@ HIPPY_EXPORT_MODULE(AnimationModule)
     [self.animationById removeAllObjects];
     [self.paramsByHippyTag removeAllObjects];
     [self.paramsByAnimationId removeAllObjects];
+    [HPOPAnimator.sharedAnimator removeObserver:self];
 }
 
 - (instancetype)init {
@@ -68,7 +71,7 @@ HIPPY_EXPORT_MODULE(AnimationModule)
         _paramsByHippyTag = [NSMutableDictionary dictionary];
         _paramsByAnimationId = [NSMutableDictionary dictionary];
         _updatedPropsForNextFrameDict = [NSMutableDictionary dictionary];
-        HPOPAnimator.sharedAnimator.delegate = self;
+        [HPOPAnimator.sharedAnimator addObserver:self];
     }
     return self;
 }
@@ -368,11 +371,7 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
 }
 
 
-#pragma mark - POPAnimatorDelegate
-
-- (void)animatorWillAnimate:(HPOPAnimator *)animator {
-    // do nothing
-}
+#pragma mark - HPOPAnimatorObserving
 
 - (void)animatorDidAnimate:(HPOPAnimator *)animator {
     // relayout, call from main thread
