@@ -88,7 +88,6 @@ declare namespace HippyTypes {
   export type DimensionValue =
     | number
     | 'auto'
-    | `${number}%`
     | Animation
     | AnimationSet;
 
@@ -107,7 +106,7 @@ declare namespace HippyTypes {
     collapse?: boolean;
     collapsable?: boolean;
     display?: 'none' | 'flex';
-    flex?: number;
+    flex?: DimensionValue | `${number}%`;
     flexBasis?: DimensionValue;
     flexDirection?:
     | 'row'
