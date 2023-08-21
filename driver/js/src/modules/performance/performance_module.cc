@@ -86,7 +86,7 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
       return nullptr;
     }
     auto context = scope->GetContext();
-    auto now = hippy::Performance::Now().ToEpochDelta().ToNanosecondsF();
+    auto now = hippy::Performance::Now().ToEpochDelta().ToMillisecondsF();
     return context->CreateNumber(now);
   };
   class_template.functions.emplace_back(std::move(now_function_define));
