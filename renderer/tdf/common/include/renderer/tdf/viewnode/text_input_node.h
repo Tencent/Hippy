@@ -160,7 +160,7 @@ class TextInputNode : public ViewNode {
 
  protected:
   void HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeleteProps& dom_delete_props) override;
-  std::shared_ptr<tdfcore::View> CreateView() override;
+  std::shared_ptr<tdfcore::View> CreateView(const std::shared_ptr<ViewContext> &context) override;
 
  private:
   void InitCallBackMap();

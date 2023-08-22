@@ -26,8 +26,8 @@ namespace hippy {
 inline namespace render {
 inline namespace tdf {
 
-std::shared_ptr<tdfcore::View> ScrollViewNode::CreateView() {
-  auto scroll_view = TDF_MAKE_SHARED(tdfcore::ScrollView);
+std::shared_ptr<tdfcore::View> ScrollViewNode::CreateView(const std::shared_ptr<ViewContext> &context) {
+  auto scroll_view = TDF_MAKE_SHARED(tdfcore::ScrollView, context);
   scroll_view->SetClipToBounds(true);
   scroll_view->SetVerticalOverscrollEnabled(true);  // defaultValue
   return scroll_view;
