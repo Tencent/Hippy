@@ -52,7 +52,6 @@ public class NativeRenderProvider {
     @Nullable
     private SafeHeapWriter mSafeHeapWriter;
     private int mInstanceId;
-    private final Object mSnapshotsSyncLock = new Object();
 
     public NativeRenderProvider(@NonNull NativeRenderDelegate renderDelegate) {
         mRenderDelegateRef = new WeakReference<>(renderDelegate);
@@ -132,15 +131,11 @@ public class NativeRenderProvider {
     public void createNode(int rootId, byte[] buffer) {
         NativeRenderDelegate renderDelegate = mRenderDelegateRef.get();
         if (renderDelegate != null) {
-            // Replay snapshots are executed in the UI thread, which may generate multithreaded problem with
-            // the create node of the dom thread, so synchronized with lock object here.
-            synchronized (mSnapshotsSyncLock) {
-                try {
-                    final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
-                    renderDelegate.createNode(rootId, list);
-                } catch (NativeRenderException e) {
-                    renderDelegate.handleRenderException(e);
-                }
+            try {
+                final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
+                renderDelegate.createNode(rootId, list);
+            } catch (NativeRenderException e) {
+                renderDelegate.handleRenderException(e);
             }
         }
     }

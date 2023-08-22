@@ -1,4 +1,5 @@
 <!-- docs/_sidebar.md -->
+* [简介](/)
 * [开发指引](development/demo.md)
 * [API](api/hippy-react/introduction.md)
 * [特性](feature/feature3.0/vfs.md)
