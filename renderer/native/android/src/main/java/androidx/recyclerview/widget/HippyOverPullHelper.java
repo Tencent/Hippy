@@ -54,6 +54,8 @@ public class HippyOverPullHelper {
     private HippyOverPullListener overPullListener = null;
     private RecyclerViewBase recyclerView;
     private int scrollState;
+    private boolean enableOverPullUp = true;
+    private boolean enableOverPullDown = true;
 
     public HippyOverPullHelper(RecyclerViewBase recyclerView) {
         this.recyclerView = recyclerView;
@@ -257,6 +259,9 @@ public class HippyOverPullHelper {
      * 顶部是否可以越界下拉，拉出一段空白区域，越界的部分最多不能超过RecyclerView高度+1
      */
     private boolean isOverPullDown(MotionEvent event) {
+        if (!enableOverPullDown) {
+            return false;
+        }
         //常规情况，内容在顶部offset为0，异常情况，内容被完全拉到最底部，看不见内容的时候，offset也为0
         int offset = recyclerView.computeVerticalScrollOffset();
         int dy = Math.abs((int) (event.getRawY() - lastRawY)) + 1;
@@ -271,6 +276,9 @@ public class HippyOverPullHelper {
      * 底部是否可以越界上拉，拉出一段空白区域，越界的部分最多不能超过RecyclerView高度的一般
      */
     private boolean isOverPullUp(MotionEvent event) {
+        if (!enableOverPullUp) {
+            return false;
+        }
         int dy = Math.abs((int) (event.getRawY() - lastRawY)) + 1;
         //不能让内容完全被滚出屏幕，否则computeVerticalScrollOffset为0是一个无效的值
         int distanceToBottom = recyclerView.computeVerticalScrollOffset() + recyclerView.getHeight() - recyclerView
@@ -352,5 +360,13 @@ public class HippyOverPullHelper {
             setOverPullState(OVER_PULL_SETTLING);
             currentValue = value;
         }
+    }
+
+    public void enableOverPullUp(boolean enable) {
+        this.enableOverPullUp = enable;
+    }
+
+    public void enableOverPullDown(boolean enable) {
+        this.enableOverPullDown = enable;
     }
 }

@@ -173,10 +173,18 @@ void OnFirstFrameEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong tim
     std::weak_ptr<Scope> weak_scope = scope;
     auto task = [weak_scope, time]() {
       auto scope = weak_scope.lock();
-      if (scope) {
-        auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
-        entry->SetHippyFirstFrameEnd(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(time)));
+      if (!scope) {
+        return;
       }
+      auto dom_manager = scope->GetDomManager().lock();
+      if (!dom_manager) {
+        return;
+      }
+      auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
+      entry->SetHippyDomStart(dom_manager->GetDomStartTimePoint());
+      entry->SetHippyDomEnd(dom_manager->GetDomEndTimePoint());
+      entry->SetHippyFirstFrameStart(dom_manager->GetDomEndTimePoint());
+      entry->SetHippyFirstFrameEnd(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(time)));
     };
     runner->PostTask(std::move(task));
   }

@@ -51,6 +51,7 @@ import com.tencent.renderer.node.ImageVirtualNode;
 import com.tencent.renderer.node.TextVirtualNode;
 import com.tencent.renderer.utils.EventUtils.EventType;
 import com.tencent.vfs.UrlUtils;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
 public class TextImageSpan extends ImageSpan {
@@ -80,7 +81,7 @@ public class TextImageSpan extends ImageSpan {
     private long mGifProgress;
     private long mGifLastPlayTime = -1;
     @NonNull
-    private final NativeRender mNativeRenderer;
+    private final WeakReference<NativeRender> mNativeRendererRef;
     @Nullable
     private Drawable mSrcDrawable;
     @Nullable
@@ -98,7 +99,7 @@ public class TextImageSpan extends ImageSpan {
     public TextImageSpan(Drawable drawable, String source, @NonNull ImageVirtualNode node,
             @NonNull NativeRender nativeRenderer) {
         super(drawable, source, node.getVerticalAlignment());
-        mNativeRenderer = nativeRenderer;
+        mNativeRendererRef = new WeakReference<>(nativeRenderer);
         mRootId = node.getRootId();
         mId = node.getId();
         mAncestorId = node.getAncestorId();
@@ -258,7 +259,8 @@ public class TextImageSpan extends ImageSpan {
 
     @MainThread
     private void loadImageWithUrl(@NonNull final String url) {
-        ImageLoaderAdapter imageLoader = mNativeRenderer.getImageLoader();
+        NativeRender nativeRender = mNativeRendererRef.get();
+        ImageLoaderAdapter imageLoader = nativeRender != null ? nativeRender.getImageLoader() : null;
         if (mImageLoadState == STATE_LOADING || imageLoader == null) {
             return;
         }
@@ -330,7 +332,10 @@ public class TextImageSpan extends ImageSpan {
 
     @MainThread
     private void postInvalidateDelayed(long delayMilliseconds) {
-        mNativeRenderer.postInvalidateDelayed(mRootId, mAncestorId, delayMilliseconds);
+        NativeRender nativeRender = mNativeRendererRef.get();
+        if (nativeRender != null) {
+            nativeRender.postInvalidateDelayed(mRootId, mAncestorId, delayMilliseconds);
+        }
     }
 
     private void shouldReplaceDrawable(@NonNull ImageDataHolder imageHolder) {
@@ -397,7 +402,6 @@ public class TextImageSpan extends ImageSpan {
                 mGifPaint.setColorFilter(new PorterDuffColorFilter(mTintColor, PorterDuff.Mode.SRC_ATOP));
             }
         }
-        imageHolder.attached();
         postInvalidateDelayed(0);
     }
 
@@ -413,8 +417,11 @@ public class TextImageSpan extends ImageSpan {
             mImageLoadState = STATE_LOADED;
             eventName = EVENT_IMAGE_ON_LOAD;
         }
-        mNativeRenderer.dispatchEvent(mRootId, mId, eventName, null, false, false,
-                EventType.EVENT_TYPE_COMPONENT);
+        NativeRender nativeRender = mNativeRendererRef.get();
+        if (nativeRender != null) {
+            nativeRender.dispatchEvent(mRootId, mId, eventName, null, false, false,
+                    EventType.EVENT_TYPE_COMPONENT);
+        }
     }
 
     public void setTintColor(final int tintColor) {

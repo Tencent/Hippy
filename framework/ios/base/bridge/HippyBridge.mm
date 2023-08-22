@@ -163,6 +163,9 @@ dispatch_queue_t HippyBridgeQueue() {
             auto viewRenderManager = [rootView renderManager];
             if (_renderManager.lock() == viewRenderManager.lock()) {
                 auto entry = _javaScriptExecutor.pScope->GetPerformance()->PerformanceNavigation("hippyInit");
+                entry->SetHippyDomStart(domManager->GetDomStartTimePoint());
+                entry->SetHippyDomEnd(domManager->GetDomEndTimePoint());
+                entry->SetHippyFirstFrameStart(domManager->GetDomEndTimePoint());
                 entry->SetHippyFirstFrameEnd(footstone::TimePoint::SystemNow());
             }
         }

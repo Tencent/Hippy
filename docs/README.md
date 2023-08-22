@@ -1,26 +1,45 @@
-# Hippy 概述
+# Hippy 简介
+
+Hippy 是 TDF 腾讯端框架（Tencent Device-oriented Framework）下的开源跨平台应用开发解决方案。
 
 Hippy 可以理解为一个精简版的浏览器，从底层做了大量工作，抹平了 iOS 和 Android 双端差异，提供了接近 Web 的开发体验，目前上层支持了 React 和 Vue 两套界面框架，前端开发人员可以通过它，将前端代码转换为终端的原生指令，进行原生终端 App 的开发。
 
-同时，Hippy 从底层进行了大量优化，在启动速度、可复用列表组件、渲染效率、动画速度、网络通信等方面都提供了业内顶尖的性能表现。
+同时，Hippy 从底层进行了大量优化，在启动速度、渲染性能、动画速度、内存占用、包体积等方面都提供了业内顶尖的性能表现。
 
-## 功能对比
+在Hippy 3.0版本，我们对 Hippy 架构做了一次比较大的重构, 采用 Driver，Dom Manager，Renderer 分层解耦的设计理念，其设计目标就是希望框架在未来具有很好的可扩展性，以复用的 DOM 管理、排版布局为核心连接上层 Driver 和下层 Renderer，同时支持不同 Driver 和 Renderer 的接入和自由切换。
 
-Hippy 从底层增加了很多和浏览器相同的接口，方便了开发者使用，这里有几个 Hippy 的独有功能。
+## 和 Web 接近的开发体验
 
-| 分类 | 特性                     | 说明                     | 支持情况 |
-| ---- | ------------------------ | ------------------------ | -------- |
-| 接口 | fetch                    | Http/Https 协议请求      | ✅ 支持   |
-|      | WebSocket                | 基于 Http 协议的即时通讯 | ✅ 支持   |
-| 事件 | onClick                  | 点击事件                 | ✅ 支持   |
-|      | onTouchStart/onTouchDown | 触屏开始事件             | ✅ 支持   |
-|      | onTouchMove              | 触屏移动事件             | ✅ 支持   |
-|      | onTouchEnd               | 触屏结束事件             | ✅ 支持   |
-|      | onTouchCancel            | 触屏取消事件             | ✅ 支持   |
-| 样式 | zIndex                   | 界面层级                 | ✅ 支持   |
-|      | backgroundImage          | 背景图片                 | ✅ 支持   |
+* Hippy 对齐浏览器 DOM 的事件、网络、日志、定时器、Performance 等API, 前端开发同学没有太高的学习成本。
 
-## 包体积
+* Hippy-Vue、Hippy-React兼容 Vue 和 React 框架, 使用 Vue、React 开发的 Web 项目基本无缝迁移。
+
+* 完全支持 Flex 布局, 和常用的 CSS 属性。
+
+* 兼容 Webpack/Rollup 等打包工具, 支持分包, 代码动态加载, 有完善的 devtools 工具, 对齐前端的开发体验。
+
+
+## 一次开发，多端运行
+
+使用 Hippy 框架开发后，代码可以同时运行在 Android、iOS、 Web等多个平台。
+
+## 出色的性能表现
+
+Hippy 有比竞品更出色的性能表现。
+
+### 渲染性能
+
+ListView 在滑动时的性能对比，Hippy 可以一直保持十分流畅的状态。
+
+<img src="assets/img/listxingneng.png" alt="渲染性能" width="50%"/>
+
+### 内存占用
+
+而在内存占用上，初始化 List 时 Hippy 就略占优势，在滑动了几屏后内存开销的差距越来越大。
+
+![内存占用](assets/img/listmeicun.png)
+
+### 包体积
 
 Hippy 的包体积在业内也是非常具有竞争力的。
 
@@ -32,21 +51,25 @@ Hippy 的包体积在业内也是非常具有竞争力的。
 
 上图是在前端搭建了一个最简单的 ListView 后，前端打出的 JS 的包大小对比。
 
-## 渲染性能
+## 可扩展的架构设计
 
-ListView 在滑动时的性能对比，Hippy 可以一直保持十分流畅的状态
+<br/>
+<img src="assets/img/3.0-structure.png" alt="3.0架构" width="55%"/>
 
-<img src="assets/img/listxingneng.png" alt="渲染性能" width="50%"/>
+### 驱动层
 
-## 内存占用
+驱动层为业务封装了对接DOM层的渲染指令和底层接口, 用户可以使用 Hippy 框架提供的 React/Vue 驱动层来开发业务，也支持扩展其它任意 DSL 语言进行驱动。详见 [Hippy-React](api/hippy-react/introduction)、[Hippy-Vue](api/hippy-vue/introduction)。
 
-而在内存占用上，初始化 List 时 Hippy 就略占优势，在滑动了几屏后内存开销的差距越来越大。
+### DOM层
 
-![内存占用](assets/img/listmeicun.png)
+DOM Manager 从 Java/OC 抽离到 C++，作为中间枢纽，除了接收处理来自上层的消息，进行 DOM Tree 的创建和维护外，还负责与不同渲染引擎，排版引擎和调试工具的对接通信。
 
-## 跟 Web 接近的开发体验
+### 渲染层
 
-Hippy 在开发体验上也进行了大量优化，包含但不限于，跟浏览器一样的 onClick、onTouch 系列触屏事件，更加简单的动画方案，hippy-vue 提供了和 Vue 的完全兼容等等。
+* Native Renderer：使用 Android/iOS 原生组件进行渲染, 详见 [Android](architecture/render/android/native-render)、[iOS](architecture/render/ios/native-render)。
+* Voltron Renderer：使用 Flutter 渲染, 详见 [Voltron](architecture/render/voltron/voltron-render)。
+* Web Renderer：使用 WebView 渲染（Web 同构）, 详见 [Web](architecture/render/web/web-render)。
+
 
 ## 交流链接
 
@@ -57,4 +80,4 @@ Hippy 在开发体验上也进行了大量优化，包含但不限于，跟浏�
 
 ## 总结
 
-如果您准备好了，那就 [开始接入 Hippy](development/integration.md) 吧。
+如果您准备好了，那就 [开始接入 Hippy](development/demo.md) 吧。

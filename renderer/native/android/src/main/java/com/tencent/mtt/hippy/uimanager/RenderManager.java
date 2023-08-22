@@ -321,6 +321,14 @@ public class RenderManager {
         deleteSelfFromParent(rootId, node);
     }
 
+    public void deleteSnapshotNode(int rootId) {
+        RootRenderNode rootNode = NativeRendererManager.getRootNode(rootId);
+        if (rootNode != null) {
+            deleteSelfFromParent(rootId, rootNode);
+            rootNode.clear();
+        }
+    }
+
     public void dispatchUIFunction(int rootId, int nodeId, @NonNull String functionName,
             @NonNull List<Object> params, @Nullable Promise promise) {
         RenderNode node = getRenderNode(rootId, nodeId);
