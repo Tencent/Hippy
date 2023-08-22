@@ -27,6 +27,7 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.FrameLayout;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
+import com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IHeaderHost;
 
 /**
@@ -37,7 +38,7 @@ import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IHeaderH
  * 这样不会影响RecyclerView的Layout的排版，否则就需要重写LayoutManager，重新layoutManager也是后面要考虑的。
  */
 public class HippyRecyclerViewWrapper<HRCV extends HippyRecyclerView> extends FrameLayout implements HippyViewBase,
-        IHeaderHost {
+        IHeaderHost, HippyNestedScrollComponent {
 
     protected HRCV recyclerView;
     private NativeGestureDispatcher nativeGestureDispatcher;
@@ -139,5 +140,15 @@ public class HippyRecyclerViewWrapper<HRCV extends HippyRecyclerView> extends Fr
 
     public void onBatchComplete() {
         recyclerView.onBatchComplete();
+    }
+
+    @Override
+    public void setNestedScrollPriority(int direction, Priority priority) {
+        recyclerView.setNestedScrollPriority(direction, priority);
+    }
+
+    @Override
+    public Priority getNestedScrollPriority(int direction) {
+        return recyclerView.getNestedScrollPriority(direction);
     }
 }

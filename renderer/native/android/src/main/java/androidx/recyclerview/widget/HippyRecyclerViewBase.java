@@ -79,6 +79,10 @@ public class HippyRecyclerViewBase extends RecyclerViewBase {
     @Override
     public void dispatchLayout() {
         if (!isBatching) {
+            LayoutManager layoutManager = getLayoutManager();
+            if (layoutManager instanceof HippyLinearLayoutManager) {
+                ((HippyLinearLayoutManager) layoutManager).resetCache();
+            }
             super.dispatchLayout();
         }
         //由于上面屏蔽了super.onLayout,这里需要对齐框架的代码，把mFirstLayoutComplete该为true
