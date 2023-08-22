@@ -24,8 +24,11 @@ import android.graphics.Rect;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.HippyOverPullHelper;
 import androidx.recyclerview.widget.HippyOverPullListener;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
+
+import android.os.SystemClock;
 import android.view.View;
 import android.view.View.OnAttachStateChangeListener;
 import android.view.View.OnLayoutChangeListener;
@@ -59,6 +62,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     private HippyViewEvent onScrollEvent;
     private long lastScrollEventTimeStamp;
     private int scrollEventThrottle;
+    private boolean mHasUnsentScrollEvent;
     private boolean exposureEventEnable;
     private HippyViewEvent onScrollDragStartedEvent;
 
@@ -67,7 +71,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     private ViewTreeObserver viewTreeObserver;
     private OnPreDrawListener preDrawListener;
     private boolean isLastTimeReachEnd;
-
+    private int preloadItemNumber;
 
     public RecyclerViewEventHelper(HippyRecyclerView recyclerView) {
         this.hippyRecyclerView = recyclerView;
@@ -171,6 +175,9 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
         int oldState = currentState;
         currentState = newState;
+        if (mHasUnsentScrollEvent) {
+            sendOnScrollEvent();
+        }
         sendDragEvent(newState);
         sendDragEndEvent(oldState, currentState);
         sendFlingEvent(newState);
@@ -213,6 +220,11 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
      * 竖向滑动，内容已经到达最下边
      */
     private boolean isVerticalReachEnd() {
+        RecyclerView.LayoutManager manager;
+        if (preloadItemNumber > 0 && (manager = hippyRecyclerView.getLayoutManager()) instanceof LinearLayoutManager) {
+            return ((LinearLayoutManager) manager).findLastVisibleItemPosition()
+                    >= manager.getItemCount() - preloadItemNumber;
+        }
         return !hippyRecyclerView.canScrollVertically(1);
     }
 
@@ -220,6 +232,11 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
      * 水平滑动，内容已经到达最右边
      */
     private boolean isHorizontalReachEnd() {
+        RecyclerView.LayoutManager manager;
+        if (preloadItemNumber > 0 && (manager = hippyRecyclerView.getLayoutManager()) instanceof LinearLayoutManager) {
+            return ((LinearLayoutManager) manager).findLastVisibleItemPosition()
+                    >= manager.getItemCount() - preloadItemNumber;
+        }
         return !hippyRecyclerView.canScrollHorizontally(1);
     }
 
@@ -230,15 +247,18 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
 
     protected void checkSendOnScrollEvent() {
         if (onScrollEventEnable) {
-            long currTime = System.currentTimeMillis();
+            long currTime = SystemClock.elapsedRealtime();
             if (currTime - lastScrollEventTimeStamp >= scrollEventThrottle) {
                 lastScrollEventTimeStamp = currTime;
                 sendOnScrollEvent();
+            } else {
+                mHasUnsentScrollEvent = true;
             }
         }
     }
 
     public void sendOnScrollEvent() {
+        mHasUnsentScrollEvent = false;
         getOnScrollEvent().send(getParentView(), generateScrollEvent());
     }
 
@@ -404,5 +424,13 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
 
     private boolean isOverPulling(int newState) {
         return newState == HippyOverPullHelper.OVER_PULL_DOWN_ING || newState == HippyOverPullHelper.OVER_PULL_UP_ING;
+    }
+
+    /**
+     * @param preloadItemNumber 提前多少条Item，通知前端加载下一页数据
+     */
+    public void setPreloadItemNumber(int preloadItemNumber) {
+        this.preloadItemNumber = preloadItemNumber;
+        checkSendReachEndEvent();
     }
 }
