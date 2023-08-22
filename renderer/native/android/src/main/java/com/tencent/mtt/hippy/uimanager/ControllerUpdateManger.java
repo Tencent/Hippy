@@ -126,7 +126,9 @@ public class ControllerUpdateManger<T, G> {
             HippyControllerProps controllerProps = method
                     .getAnnotation(HippyControllerProps.class);
             if (controllerProps != null) {
-                sTextPropsSet.add(controllerProps.name());
+                if (!sComponentPropsMethodMap.containsKey(controllerProps.name())) {
+                    sTextPropsSet.add(controllerProps.name());
+                }
                 sRenderPropsList.add(controllerProps.name());
             }
         }
