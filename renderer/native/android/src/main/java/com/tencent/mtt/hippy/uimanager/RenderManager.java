@@ -424,6 +424,9 @@ public class RenderManager {
     }
 
     public void postInvalidateDelayed(int rootId, int id, long delayMilliseconds) {
-        mControllerManager.postInvalidateDelayed(rootId, id, delayMilliseconds);
+        RenderNode node = getRenderNode(rootId, id);
+        if (node != null) {
+            node.postInvalidateDelayed(delayMilliseconds);
+        }
     }
 }
