@@ -606,7 +606,6 @@ function moveChild(parentNode, childNode, refInfo = {}) {
     // ref节点与childNode节点相同, 属于无效操作, 这里先过滤
     return;
   }
-  childNode.isMounted = false;
   const app = getApp();
   const { $options: { rootViewId } } = app;
   const nativeNode =  {
