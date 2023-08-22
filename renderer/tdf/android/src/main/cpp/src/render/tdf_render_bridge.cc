@@ -88,7 +88,8 @@ void RegisterTDFEngine(JNIEnv *j_env, jobject j_obj, jint j_render_id,
   auto render_manager_object = std::static_pointer_cast<TDFRenderManager>(
       std::any_cast<std::shared_ptr<RenderManager>>(render_manager));
   auto engine = reinterpret_cast<tdfcore::TDFEngineAndroid *>(j_engine_id);
-  render_manager_object->RegisterShell(static_cast<uint32_t>(j_root_view_id), engine->GetShell());
+  render_manager_object->RegisterShell(static_cast<uint32_t>(j_root_view_id), engine->GetShell(),
+                                       engine->GetPipeline()->GetRenderContext());
 }
 
 void SetUriLoader(JNIEnv *j_env, jobject j_obj,

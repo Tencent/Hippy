@@ -154,6 +154,9 @@ public class TDFRenderer extends Renderer implements RenderProxy {
     }
 
     @Override
+    public void removeSnapshotView() {}
+
+    @Override
     public void handleRenderException(@NonNull Exception exception) {
         LogUtils.d(TAG, "handleRenderException: " + exception.getMessage());
     }

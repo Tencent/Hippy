@@ -41,7 +41,6 @@
 #include "dom/dom_node.h"
 #include "footstone/hippy_value.h"
 #include "footstone/logging.h"
-#include "renderer/tdf/gesture/touch_recognizer.h"
 
 #define TDF_RENDER_CHECK_ATTACH \
   if (!IsAttached()) {          \
@@ -151,6 +150,8 @@ class ViewNode;
 
 class RootViewNode;
 
+using tdfcore::ViewContext;
+
 /*
  * Binding a tdfcore::View with  a hippy::DomNode.
  */
@@ -230,7 +231,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
    * @brief attach current ViewNode to a tdfcore::View
    *        if view != nullptr(ListViewItem for example),then reuse it.Otherwise create a new tdfcore::View
    */
-  void Attach(const std::shared_ptr<tdfcore::View> &view = nullptr);
+  void Attach(const std::shared_ptr<ViewContext> &context, const std::shared_ptr<tdfcore::View> &view = nullptr);
 
   /**
    * @brief detach current ViewNode to a tdfcore::View.
@@ -278,7 +279,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   /**
    * @brief create the related tdfcore::View when attach if needed.
    */
-  virtual std::shared_ptr<tdfcore::View> CreateView();
+  virtual std::shared_ptr<tdfcore::View> CreateView(const std::shared_ptr<ViewContext> &context);
 
   void SendGestureDomEvent(std::string type, const std::shared_ptr<footstone::HippyValue> &value = nullptr) {
     SendUIDomEvent(type, value, true, true);
@@ -380,6 +381,9 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   void HandleInterceptEvent(const DomStyleMap& dom_style);
 
+  static std::shared_ptr<footstone::HippyValue> PointerDataList2HippyValue(
+      uint32_t id, const char *name, const tdfcore::PointerDataList &data_list);
+
   /**
    * @brief DomNode's RenderInfo.index is not always the related View's index, it may need to be corrected.
    */
@@ -397,7 +401,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   std::shared_ptr<tdfcore::TapGestureRecognizer> tap_recognizer_;
   std::shared_ptr<tdfcore::LongPressGestureRecognizer> long_press_recognizer_;
-  std::shared_ptr<TouchRecognizer> touch_recognizer_;
+  std::shared_ptr<tdfcore::PointerEventListener> touch_event_;
   std::weak_ptr<tdfcore::View> tap_view_;
   std::weak_ptr<tdfcore::View> long_press_view_;
   std::weak_ptr<tdfcore::View> touch_view_;

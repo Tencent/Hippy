@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include "dom/root_node.h"
 #include "renderer/tdf/viewnode/view_node.h"
+#include "dom/root_node.h"
 
 namespace hippy {
 inline namespace render {
@@ -34,12 +34,13 @@ class RootViewNode : public ViewNode {
   using UriDataGetter = std::function<void(const StringView& uri, const DataCb cb)>;
 
   RootViewNode(const RenderInfo info, const std::shared_ptr<tdfcore::Shell>& shell,
+               const std::shared_ptr<tdfcore::RenderContext>& render_context,
                const std::shared_ptr<hippy::DomManager>& manager, UriDataGetter getter);
   ~RootViewNode() override = default;
 
   void Init() override;
 
-  std::shared_ptr<tdfcore::View> CreateView() override;
+  std::shared_ptr<tdfcore::View> CreateView(const std::shared_ptr<ViewContext> &context) override;
 
   void RegisterViewNode(uint32_t id, const std::shared_ptr<ViewNode>& view_node);
   void UnregisterViewNode(uint32_t id);
@@ -55,6 +56,10 @@ class RootViewNode : public ViewNode {
 
   std::shared_ptr<tdfcore::Shell> GetShell() { return shell_.lock(); }
 
+  std::shared_ptr<tdfcore::RenderContext> GetRenderContext() { return render_context_.lock(); }
+
+  std::shared_ptr<tdfcore::ViewContext> GetViewContext() { return view_context_; }
+
  protected:
   bool isRoot() override { return true; }
 
@@ -66,6 +71,7 @@ class RootViewNode : public ViewNode {
   std::unordered_map<uint32_t, std::shared_ptr<ViewNode>> nodes_query_table_;
   tdfcore::NoArgListener end_batch_listener_;
   std::weak_ptr<tdfcore::Shell> shell_;
+  std::weak_ptr<tdfcore::RenderContext> render_context_;
   std::weak_ptr<hippy::DomManager> dom_manager_;
   std::shared_ptr<tdfcore::ViewContext> view_context_;
   UriDataGetter getter_;

@@ -61,8 +61,8 @@ void ViewPagerNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
   has_layout_ = true;
 }
 
-std::shared_ptr<tdfcore::View> ViewPagerNode::CreateView() {
-  auto view_pager = TDF_MAKE_SHARED(ViewPager);
+std::shared_ptr<tdfcore::View> ViewPagerNode::CreateView(const std::shared_ptr<ViewContext> &context) {
+  auto view_pager = TDF_MAKE_SHARED(ViewPager, context);
   return view_pager;
 }
 

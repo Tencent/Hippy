@@ -44,8 +44,8 @@ EmbeddedViewNode::EmbeddedViewNode(const std::shared_ptr<hippy::dom::DomNode> &d
                                    const std::string &native_view_type)
     : ViewNode(dom_node, render_info), native_view_type_(native_view_type) {}
 
-std::shared_ptr<tdfcore::View> EmbeddedViewNode::CreateView() {
-  auto view = TDF_MAKE_SHARED(tdfcore::EmbeddedView, native_view_type_);
+std::shared_ptr<tdfcore::View> EmbeddedViewNode::CreateView(const std::shared_ptr<ViewContext> &context) {
+  auto view = TDF_MAKE_SHARED(tdfcore::EmbeddedView, context, native_view_type_);
   // 默认不要支持tdfcore手势，因为业务可以写一个全屏的自定义View在最上面但什么也不显示，从而把下面手势都竞技掉。
   view->SetSupportedGestures({});
   return view;

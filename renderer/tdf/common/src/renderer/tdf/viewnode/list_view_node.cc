@@ -35,10 +35,10 @@ constexpr const char kSticky[] = "sticky";
 constexpr const char kViewTypeNew[] = "itemViewType";
 }  // namespace listviewitem
 
-std::shared_ptr<tdfcore::View> ListViewNode::CreateView() {
+std::shared_ptr<tdfcore::View> ListViewNode::CreateView(const std::shared_ptr<ViewContext> &context) {
   auto data_source = TDF_MAKE_SHARED(ListViewDataSource, std::static_pointer_cast<ListViewNode>(shared_from_this()));
   auto layout = TDF_MAKE_SHARED(tdfcore::LinearCustomLayout);
-  auto view = TDF_MAKE_SHARED(tdfcore::CustomLayoutView, data_source, layout);
+  auto view = TDF_MAKE_SHARED(tdfcore::CustomLayoutView, context, data_source, layout);
   view->SetClipToBounds(true);
   view->SetScrollDirection(tdfcore::ScrollDirection::kVertical);
   return view;
@@ -54,7 +54,7 @@ void ListViewNode::OnAttach() {
           FOOTSTONE_DCHECK(new_index >= 0 && new_index < self->GetChildren().size());
           auto node = self->GetChildren()[new_index];
           FOOTSTONE_DCHECK(!node->IsAttached());
-          node->Attach(item);
+          node->Attach(self->GetView()->GetViewContext(), item);
         } else {
           FOOTSTONE_DCHECK(new_index >= 0);
           bool found = false;
@@ -179,8 +179,8 @@ void ListViewNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t in
 
 void ListViewNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) { should_reload_ = true; }
 
-std::shared_ptr<tdfcore::View> ListViewItemNode::CreateView() {
-  auto view = TDF_MAKE_SHARED(tdfcore::View);
+std::shared_ptr<tdfcore::View> ListViewItemNode::CreateView(const std::shared_ptr<ViewContext> &context) {
+  auto view = TDF_MAKE_SHARED(tdfcore::View, context);
   view->SetClipToBounds(true);
   return view;
 }
@@ -227,7 +227,7 @@ std::shared_ptr<tdfcore::View> ListViewDataSource::GetItem(
   FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < item_nodes_.size());
   auto node =
       std::static_pointer_cast<ListViewItemNode>(item_nodes_[static_cast<uint32_t>(index)]);
-  return node->CreateView();
+  return node->CreateView(custom_layout_view->GetViewContext());
 }
 
 int64_t ListViewDataSource::GetItemCount() {
