@@ -62,6 +62,7 @@ class RootNode : public DomNode {
   void RemoveEvent(uint32_t id, const std::string& event_name);
   void HandleEvent(const std::shared_ptr<DomEvent>& event) override;
   void UpdateRenderNode(const std::shared_ptr<DomNode>& node);
+  uint32_t GetChildCount();
 
   std::shared_ptr<DomNode> GetNode(uint32_t id);
   std::tuple<float, float> GetRootSize();

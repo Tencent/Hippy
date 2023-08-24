@@ -385,6 +385,12 @@ void RootNode::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {
   SyncWithRenderManager(render_manager);
 }
 
+uint32_t RootNode::GetChildCount() {
+  uint32_t child_count = 0;
+  Traverse([&child_count](const std::shared_ptr<DomNode>&) { child_count++; });
+  return child_count;
+}
+
 std::shared_ptr<DomNode> RootNode::GetNode(uint32_t id) {
   if (id == GetId()) {
     return shared_from_this();
