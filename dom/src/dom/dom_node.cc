@@ -321,9 +321,8 @@ LayoutResult DomNode::GetLayoutInfoFromRoot() {
 
 void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode>>& changed_nodes) {
   auto not_equal = std::not_equal_to<>();
-  bool changed = not_equal(layout_.left, layout_node_->GetLeft()) || not_equal(layout_.top, layout_node_->GetTop()) ||
-                 not_equal(layout_.width, layout_node_->GetWidth()) ||
-                 not_equal(layout_.height, layout_node_->GetHeight());
+  bool changed =  layout_node_->IsDirty() || layout_node_->HasNewLayout();
+
   layout_.left = layout_node_->GetLeft();
   layout_.top = layout_node_->GetTop();
   layout_.width = layout_node_->GetWidth();
