@@ -562,12 +562,6 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
 
     // perfromance end time
     entry->SetHippyRunApplicationEnd(footstone::TimePoint::SystemNow());
-    auto dom_manager = self->GetDomManager().lock();
-    if (dom_manager) {
-      entry->SetHippyDomStart(dom_manager->GetDomStartTimePoint());
-      entry->SetHippyDomEnd(dom_manager->GetDomEndTimePoint());
-      entry->SetHippyFirstFrameStart(dom_manager->GetDomEndTimePoint());
-    }
   };
   auto runner = GetTaskRunner();
   if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
