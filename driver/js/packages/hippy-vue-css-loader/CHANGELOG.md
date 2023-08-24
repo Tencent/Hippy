@@ -3,6 +3,45 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.2-beta](https://github.com/Tencent/Hippy/compare/3.0.1...3.0.2-beta) (2023-08-22)
+
+**Note:** Version bump only for package @hippy/vue-css-loader
+
+
+
+
+
+## [3.0.1](https://github.com/Tencent/Hippy/compare/3.0.0...3.0.1) (2023-08-07)
+
+**Note:** Version bump only for package @hippy/vue-css-loader
+
+
+
+
+
+# [3.0.0](https://github.com/Tencent/Hippy/compare/2.2.1...3.0.0) (2023-06-29)
+
+
+### Bug Fixes
+
+* **hippy-vue-css-loader:** support to parse letter-spacing ([f6fd081](https://github.com/Tencent/Hippy/commit/f6fd081005c796f595888a3a087c1f598fd26089))
+* **npm:** update got from vulnerable to safe version ([93cf4d8](https://github.com/Tencent/Hippy/commit/93cf4d8e3752143c62dae49c3318ef6316abf134))
+* **npm:** update vulnerable npm packages ([a5897fa](https://github.com/Tencent/Hippy/commit/a5897fafea94d9fd25977bb4c30db55704a10903))
+* **vue-css-loader:** fixed collapsable boolean convert error ([c096c0d](https://github.com/Tencent/Hippy/commit/c096c0db0c4bec002639bfb065dbba7608f30de7))
+* **vue-css-loader:** update loader-utils to safe version ([1a088ab](https://github.com/Tencent/Hippy/commit/1a088ab330f3e57654612ccaa26f2d2015360a63))
+* **vue:** fix regular expressions catastrophic backtracking ([1fe30ed](https://github.com/Tencent/Hippy/commit/1fe30eda6cf05e46bb929da53194cdba265c8887))
+* **vue:** revert a catastrophic backtracking fix ([8c1ab54](https://github.com/Tencent/Hippy/commit/8c1ab544bc006fb822c8eba47d60e41bc09b1dbb))
+
+
+### Features
+
+* **vue-css-loader:** change dist file name to be parsed by vue-loader ([7b829e0](https://github.com/Tencent/Hippy/commit/7b829e0efb825acefe51d8edcc109fc3fca6b588))
+* **vue:** add beforeRenderToNative hook to support computed style ([0220dc4](https://github.com/Tencent/Hippy/commit/0220dc4f815b94730da587d0ba3987fbf14b21af))
+
+
+
+
+
 ## [2.2.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/compare/2.2.0...2.2.1) (2020-12-28)
 
 **Note:** Version bump only for package @hippy/vue-css-loader
