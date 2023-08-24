@@ -154,6 +154,9 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 }
 
 - (void)dirtyText:(BOOL)needToDoLayout {
+    if ([self parentComponent]) {
+        [[self parentComponent] dirtyText:needToDoLayout];
+    }
 }
 
 - (BOOL)isTextDirty {
