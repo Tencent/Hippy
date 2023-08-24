@@ -3,6 +3,64 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.2-beta](https://github.com/Tencent/Hippy/compare/3.0.1...3.0.2-beta) (2023-08-22)
+
+**Note:** Version bump only for package @hippy/react
+
+
+
+
+
+## [3.0.1](https://github.com/Tencent/Hippy/compare/3.0.0...3.0.1) (2023-08-07)
+
+**Note:** Version bump only for package @hippy/react
+
+
+
+
+
+# [3.0.0](https://github.com/Tencent/Hippy/compare/2.2.1...3.0.0) (2023-06-29)
+
+
+### Bug Fixes
+
+* **hippy-react-web:**  fix hippy-react-web some issues ([#1850](https://github.com/Tencent/Hippy/issues/1850)) ([7a44339](https://github.com/Tencent/Hippy/commit/7a44339edcc7e396351f29e507e6fbabaa4676a1))
+* **hippy-react:** add overflow scroll to fix listview unable to scroll ([41beca2](https://github.com/Tencent/Hippy/commit/41beca2c353c31c3258fef17b1be1c357e3e8e70))
+* **hippy-react:** remove NetInfo duplicated EventEmitter creating ([6393dc3](https://github.com/Tencent/Hippy/commit/6393dc3cea6af87fe022398994baa6719601daea))
+* **hippy-react:** support to emit multi parameters for HippyEvent ([ddfbf75](https://github.com/Tencent/Hippy/commit/ddfbf75a1eef98834978c2d2a278802fede82f65))
+* **npm:** update lerna to fix vulernable npm package ([22ae601](https://github.com/Tencent/Hippy/commit/22ae601e50e7070b6290170938b984c85dac4940))
+* **react,vue:** fix event register error ([67e92cf](https://github.com/Tencent/Hippy/commit/67e92cf572587a3092900a5bc8a46c7a098fe899))
+* **react:** add ref null judgement for getElementFromFiberRef ([96b6640](https://github.com/Tencent/Hippy/commit/96b6640e69a76a1ada5ddcf67444e59cc92c814c))
+* **react:** fix animation repeat event error ([407855b](https://github.com/Tencent/Hippy/commit/407855b09404b09951dc8f6db1789906590bb83b))
+* **react:** listview initialListSize default value set to 15 ([a87b037](https://github.com/Tencent/Hippy/commit/a87b0378a51b541e486ba819614b2c62d75e7645))
+* **vue:** fix regular expressions catastrophic backtracking ([1fe30ed](https://github.com/Tencent/Hippy/commit/1fe30eda6cf05e46bb929da53194cdba265c8887))
+* **vue:** fix vue node sequence error ([27a3124](https://github.com/Tencent/Hippy/commit/27a312419c72a2a2742ba7f4264f610c96540f6f))
+
+
+### Features
+
+* **android,ios,js:** add getBoundingClientRect api ([#2914](https://github.com/Tencent/Hippy/issues/2914)) ([60f71e9](https://github.com/Tencent/Hippy/commit/60f71e9459b77b2f0a4cb39bcf3585ebd20a2640))
+* **devtools:** change to debug-server-next ([bae90f0](https://github.com/Tencent/Hippy/commit/bae90f0e2b56281d741d8c2321eda94040c74b44))
+* **hippy-react:** add HippyEvent to listen global events ([4f88ad2](https://github.com/Tencent/Hippy/commit/4f88ad20f7953ff192cf67d22105235bf24b5b13))
+* **hippy-react:** support horizontal PullHeader & PullFooter ([983d098](https://github.com/Tencent/Hippy/commit/983d09821d11254494edebe6ef88be253c2cca9e))
+* **hippy-vue:** support breakStrategy ([348183c](https://github.com/Tencent/Hippy/commit/348183cea800e267f999f765a08c39abb2c6e67c))
+* **react,vue:** add collapsePullHeaderWithOptions api ([0b82e18](https://github.com/Tencent/Hippy/commit/0b82e18d20ebbb6370143fc590bd04340b39e7e4))
+* **react,vue:** add isFoucus function ([b365a97](https://github.com/Tencent/Hippy/commit/b365a97a536e33318061b00cdece5ab7835c135d))
+* **react,vue:** add tagName attribute to production mode ([bc67c5d](https://github.com/Tencent/Hippy/commit/bc67c5dec12e40c548c29de4dcfadf9a2c47dfc8))
+* **react,vue:** perf print log logic & remove event attribute in props ([f1fbbf1](https://github.com/Tencent/Hippy/commit/f1fbbf198bbc5c2abc70379307f752ce70b7ee24))
+* **react,vue:** support event capture & bubbling ([4b498d4](https://github.com/Tencent/Hippy/commit/4b498d46a5b481270588020f02eb71e080ccab7c))
+* **react,vue:** use callUIFunction to call measureInWindow ([04468e0](https://github.com/Tencent/Hippy/commit/04468e0f55ffdfc241444e9f4ce98d3ce3b5dd8e))
+* **react:** support fontWeight in number ([2ee66be](https://github.com/Tencent/Hippy/commit/2ee66bef7ce688659ecfa6155bad66890a973e60))
+
+
+### Performance Improvements
+
+* **react:** assign initialListSize if not undefined ([e1d1507](https://github.com/Tencent/Hippy/commit/e1d15070d656455f89399b826fa0c952dabac0ac))
+
+
+
+
+
 ## [2.2.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.2.0...2.2.1) (2020-12-28)
 
 **Note:** Version bump only for package @hippy/react
