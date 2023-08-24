@@ -3,6 +3,41 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.2-beta](https://github.com/Tencent/Hippy/compare/3.0.1...3.0.2-beta) (2023-08-22)
+
+**Note:** Version bump only for package @hippy/vue-native-components
+
+
+
+
+
+## [3.0.1](https://github.com/Tencent/Hippy/compare/3.0.0...3.0.1) (2023-08-07)
+
+**Note:** Version bump only for package @hippy/vue-native-components
+
+
+
+
+
+# [3.0.0](https://github.com/Tencent/Hippy/compare/2.2.1...3.0.0) (2023-06-29)
+
+
+### Bug Fixes
+
+* **hippy-vue:** fix dialog default style not take effect ([195a06b](https://github.com/Tencent/Hippy/commit/195a06bbb027473cf72374895c99b0b9d098ff4f))
+* **vue:** make sure start animation after node created ([478307f](https://github.com/Tencent/Hippy/commit/478307f94322d2af0af15fbd5c88cb2189d3fbcd))
+
+
+### Features
+
+* **hippy-vue:** add animaiton actionsDidUpdate hook ([24fea20](https://github.com/Tencent/Hippy/commit/24fea20394d2b4d370d86ac40000424458883930))
+* **hippy-vue:** change animation module ([1e3cd60](https://github.com/Tencent/Hippy/commit/1e3cd60b4b8f63c95a5f5a0c5bd6072f89bf8269))
+* **react,vue:** add collapsePullHeaderWithOptions api ([0b82e18](https://github.com/Tencent/Hippy/commit/0b82e18d20ebbb6370143fc590bd04340b39e7e4))
+
+
+
+
+
 ## [2.1.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/compare/2.1.1...2.1.2) (2020-11-23)
 
 **Note:** Version bump only for package @hippy/vue-native-components

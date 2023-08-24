@@ -3,6 +3,50 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.2-beta](https://github.com/Tencent/Hippy/compare/3.0.1...3.0.2-beta) (2023-08-22)
+
+**Note:** Version bump only for package @hippy/react-web
+
+
+
+
+
+## [3.0.1](https://github.com/Tencent/Hippy/compare/3.0.0...3.0.1) (2023-08-07)
+
+**Note:** Version bump only for package @hippy/react-web
+
+
+
+
+
+# [3.0.0](https://github.com/Tencent/Hippy/compare/2.2.1...3.0.0) (2023-06-29)
+
+
+### Bug Fixes
+
+* **@hippy/react-web:** fix text default value and ellipsis not work ([780b1f3](https://github.com/Tencent/Hippy/commit/780b1f3f8d423d2e6ee1a1380e4f1b541a370cde))
+* **@hippy/react-web:** fixed style when numberofLines > 1 ([cf078c6](https://github.com/Tencent/Hippy/commit/cf078c6dc4ac5b41963693c45ed36cd47cc6f5fb))
+* **hippy-react-web:**  fix hippy-react-web some issues ([#1850](https://github.com/Tencent/Hippy/issues/1850)) ([7a44339](https://github.com/Tencent/Hippy/commit/7a44339edcc7e396351f29e507e6fbabaa4676a1))
+* **hippy-react-web:** add unhandleRejection event handler ([bed4551](https://github.com/Tencent/Hippy/commit/bed4551c6fe00b67d68fd6e57b04625484cf5917))
+* **hippy-react-web:** change rmc-list-view to hippy domain ([401de8c](https://github.com/Tencent/Hippy/commit/401de8c9e7886cb01af3adcb5e887acbb189bff6))
+* **hippy-react-web:** fix borwser does not support addRule ([1593538](https://github.com/Tencent/Hippy/commit/159353859c0ae7b2eed72d6e58b9993ca30f8511))
+* **hippy-react-web:** fix error handler ([ac32a1a](https://github.com/Tencent/Hippy/commit/ac32a1aacc9e457d205afd73bea1aa61105154a9))
+* **hippy-react-web:** fix img onClick envet does not emit ([d4b0180](https://github.com/Tencent/Hippy/commit/d4b0180642b509bcf21f0a40926f2efe5489b78d))
+* **hippy-react-web:** support ListView renderPullFooter ([#2166](https://github.com/Tencent/Hippy/issues/2166)) ([f8548ab](https://github.com/Tencent/Hippy/commit/f8548ab5eaa2dd46f03c7b97d7fd13aa42d814c9))
+* **npm:** update lerna to fix vulernable npm package ([22ae601](https://github.com/Tencent/Hippy/commit/22ae601e50e7070b6290170938b984c85dac4940))
+
+
+### Features
+
+* **@hippy/react-web:** add build config for the declaration ([1a0e12c](https://github.com/Tencent/Hippy/commit/1a0e12cf5b3a19f3caf0ee305aa6925f03051b40))
+* **hippy-react-web:** add cjs formatted output ([86c6b50](https://github.com/Tencent/Hippy/commit/86c6b50199afc11524b43f55c10aa448c651ccd2))
+* **hippy-react-web:** fix web style issues ([#2087](https://github.com/Tencent/Hippy/issues/2087)) ([ffe715d](https://github.com/Tencent/Hippy/commit/ffe715d50aed02017e1ea4d5592ed2fa7ce57eba))
+* **hippy-react-web:** support tree-sharking & fix issues ([d8b2617](https://github.com/Tencent/Hippy/commit/d8b261740f61180ca3042e04c0ac82bee610cc31))
+
+
+
+
+
 ## [2.2.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.2.0...2.2.1) (2020-12-28)
 
 
