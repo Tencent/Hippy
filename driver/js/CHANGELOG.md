@@ -3,6 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.1.0-beta](https://github.com/Tencent/Hippy/compare/3.0.1...3.1.0-beta) (2023-08-24)
+
+
+### Bug Fixes
+
+* **android:** add removeSnapshotView interface ([418c55e](https://github.com/Tencent/Hippy/commit/418c55e9620dc96894f53ea1907ad3b862fe438e))
+* **android:** adjust image caching strategy ([dd05ee5](https://github.com/Tencent/Hippy/commit/dd05ee53689bd00f1b55748694c3ae23410865ed))
+* **android:** check overflow visible before setClipChildren ([f0727cc](https://github.com/Tencent/Hippy/commit/f0727cc2c3b24fae7210d526e8f7bfd7f43f7a82))
+* **android:** expand cache hit range ([12368f2](https://github.com/Tencent/Hippy/commit/12368f269a3c3704fb434c97467b0de105649180))
+* **android:** open image holder recycle ([eb3e56f](https://github.com/Tencent/Hippy/commit/eb3e56f5b49a81248308ea3aeda6fc18adfe9862))
+* **android:** should call native renderer destroy ([d8a0402](https://github.com/Tencent/Hippy/commit/d8a040247004a1c61499620dde57f6eb54adbb4f))
+* **android:** supplementary node snapshot usage examples ([77a949a](https://github.com/Tencent/Hippy/commit/77a949ac432a42abb0decca69761b8261f5c9424))
+* **android:** support empty HashMap serialization ([44fe614](https://github.com/Tencent/Hippy/commit/44fe614b9dac8b02ee4e601b24cbce6a863777f8))
+* **android:** support focusTextInput event without params ([e92100f](https://github.com/Tencent/Hippy/commit/e92100f26bf76b815080e2c36e24bfec6ea5a4e9))
+* **android:** update integration.md ([ff5fd6a](https://github.com/Tencent/Hippy/commit/ff5fd6a31933ad1f5e23f8f43e85f0838563f2c8))
+* **android:** update NativeRenderer log ([e55641e](https://github.com/Tencent/Hippy/commit/e55641eacaf1712ba4b91b3c568ac94f527cd890))
+* **layout:** fix layout changed error ([42493ec](https://github.com/Tencent/Hippy/commit/42493ecbadd280c8115c2fc57c793626aa100092))
+* **perf:** fix performance api for ios params ([b3b7df6](https://github.com/Tencent/Hippy/commit/b3b7df670b8d94e0454ffdca3678e36c6f9392a1))
+* **vue:** fix node not mounted when move ([51a59e8](https://github.com/Tencent/Hippy/commit/51a59e86f69f863bb4b6b3da8f8b4fb38b8d84a7))
+
+
+### Features
+
+* **android:** nested rich text support vertical alignment setting ([#3402](https://github.com/Tencent/Hippy/issues/3402)) ([22607ed](https://github.com/Tencent/Hippy/commit/22607ed3d87c7f011c235a8513af067b78763f7a))
+* **android:** scroll features and fixes ([#3401](https://github.com/Tencent/Hippy/issues/3401)) ([3c10220](https://github.com/Tencent/Hippy/commit/3c102205cf561619b14db249eb587a9fdf655f11))
+* **voltron:** fix navigation bar color error after modal show ([6b5a9f5](https://github.com/Tencent/Hippy/commit/6b5a9f555ca55fa9ad7b2067ab8d90b281227d3c))
+* **voltron:** update voltron to 0.0.33 ([c88fbb6](https://github.com/Tencent/Hippy/commit/c88fbb6b00438f877db66392425af7fd13bdeb20))
+
+
+
+
+
 ## [3.0.2-beta](https://github.com/Tencent/Hippy/compare/3.0.1...3.0.2-beta) (2023-08-22)
 
 

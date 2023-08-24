@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.1.0-beta](https://github.com/Tencent/Hippy/compare/3.0.1...3.1.0-beta) (2023-08-24)
+
+
+### Bug Fixes
+
+* **vue:** fix node not mounted when move ([51a59e8](https://github.com/Tencent/Hippy/commit/51a59e86f69f863bb4b6b3da8f8b4fb38b8d84a7))
+
+
+
+
+
 ## [3.0.2-beta](https://github.com/Tencent/Hippy/compare/3.0.1...3.0.2-beta) (2023-08-22)
 
 

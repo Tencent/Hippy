@@ -74,7 +74,7 @@ NSString *const HippyReloadNotification = @"HippyReloadNotification";
 NSString *const HippyJavaScriptDidLoadNotification = @"HippyJavaScriptDidLoadNotification";
 NSString *const HippyJavaScriptDidFailToLoadNotification = @"HippyJavaScriptDidFailToLoadNotification";
 NSString *const HippyDidInitializeModuleNotification = @"HippyDidInitializeModuleNotification";
-NSString *const HippySDKVersion = @"unspecified";
+NSString *const HippySDKVersion = @"3.1.0-beta";
 
 typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     HippyBridgeFieldRequestModuleIDs = 0,
