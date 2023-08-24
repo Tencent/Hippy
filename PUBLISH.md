@@ -9,7 +9,7 @@ The front-end Uses [lerna](https://lerna.js.org/) for versioning and CHANGELOG g
 Update version and CHANGELOG usage:
 
 ```bash
-npx lerna version [VERSION] --conventional-commits --tag-version-prefix='' --no-push
+npx lerna version [VERSION] --force-publish --conventional-commits --tag-version-prefix='' --no-push
 ```
 
 * `[version]` - The version number to be released, such as 2.1.0.
@@ -84,10 +84,10 @@ Enter a commit message that conforms to [Convention Commit](https://conventional
 git commit -m 'chore(release): released [VERSION]'
 ```
 
-tag
+tag (如果是大版本, 在主干打tag, 如果是hotfix，在hotfix分支打tag，然后把changelog合回主干)
 
 ```bash
-git tag [VERSION]
+git tag -a [VERSION] -m "version release xxx"
 ```
 
 Commit the code and prepare to publish the PR merge into the master branch.
