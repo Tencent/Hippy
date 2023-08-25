@@ -34,11 +34,11 @@ CMakeLists.txt @ilikethese @etkmao
 /driver/vl/ @ilikethese @etkmao
 
 # framework: android
-/framework/android/ @siguangli
+/framework/android/ @siguangli @iPel
 /framework/android/**/src/main/cpp/ @etkmao @ilikethese
 
 # framework: ios
-/framework/ios/ @ozonelmy
+/framework/ios/ @ozonelmy @wwwcg
 
 # framework: voltron
 /framework/voltron/ @lvfen @skindhu
@@ -47,34 +47,34 @@ CMakeLists.txt @ilikethese @etkmao
 /dom/ @etkmao @ilikethese
 
 # renderer: native
-/renderer/native/android/ @siguangli
-/renderer/native/ios/ @ozonelmy
+/renderer/native/android/ @siguangli @iPel
+/renderer/native/ios/ @ozonelmy @wwwcg
 
 # renderer: tdf
 /renderer/tdf/ @vimerzhao
-/renderer/tdf/android/ @siguangli
+/renderer/tdf/android/ @siguangli @iPel
 /renderer/tdf/android/**/src/main/cpp/ @ilikethese @etkmao
-/renderer/tdf/ios/ @ozonelmy
+/renderer/tdf/ios/ @ozonelmy @wwwcg
 
 # renderer: voltron
 /renderer/voltron/ @lvfen @skindhu
 
 # module: vfs
 /modules/vfs/ @etkmao @ilikethese
-/modules/vfs/android/ @siguangli
+/modules/vfs/android/ @siguangli @iPel
 /modules/vfs/android/**/src/main/cpp/ @etkmao @ilikethese
-/modules/vfs/ios/ @ozonelmy
+/modules/vfs/ios/ @ozonelmy @wwwcg
 /modules/vfs/voltron/ @lvfen @skindhu
 
 # module: voltron
 /modules/voltron/ @lvfen @skindhu
 
 # module: android
-/modules/android/ @siguangli
+/modules/android/ @siguangli @iPel
 /modules/android/jni/ @etkmao @ilikethese
 
 # module: ios
-/modules/ios/ @ozonelmy
+/modules/ios/ @ozonelmy @wwwcg
 
 # module: footstone
 /modules/footstone/ @etkmao @ilikethese
@@ -86,9 +86,9 @@ CMakeLists.txt @ilikethese @etkmao
 /.github/ @zealotchen0
 
 # doc: example
-/framework/examples/android-demo/ @siguangli
+/framework/examples/android-demo/ @siguangli @iPel
 /framework/examples/android-demo/res/ @zealotchen0
-/framework/examples/ios-demo/ @ozonelmy
+/framework/examples/ios-demo/ @ozonelmy @wwwcg
 /framework/examples/ios-demo/res/ @zealotchen0
 
 # doc: pages
@@ -96,17 +96,17 @@ CMakeLists.txt @ilikethese @etkmao
 /docs/ @zealotchen0
 
 # build: gradle
-/gradle.properties @siguangli
-/gradlew @siguangli
-/gradlew.bat @siguangli
-/settings.gradle @siguangli
-/build.gradle @siguangli
-/gradle/ @siguangli
+/gradle.properties @siguangli @iPel
+/gradlew @siguangli @iPel
+/gradlew.bat @siguangli @iPel
+/settings.gradle @siguangli @iPel
+/build.gradle @siguangli @iPel
+/gradle/ @siguangli @iPel
 
 # build: xcode
-/HippySDK.xcworkspace/ @ozonelmy
-/hippy.podspec @ozonelmy
-/xcodeinitscript.sh @ozonelmy
+/HippySDK.xcworkspace/ @ozonelmy @wwwcg
+/hippy.podspec @ozonelmy @wwwcg
+/xcodeinitscript.sh @ozonelmy @wwwcg
 
 # build: config
 /buildconfig/ @ilikethese @etkmao
