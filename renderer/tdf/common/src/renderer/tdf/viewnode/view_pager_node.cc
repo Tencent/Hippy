@@ -72,13 +72,13 @@ void ViewPagerNode::CallFunction(const std::string& function_name, const DomArgu
   auto view_pager = GetView<ViewPager>();
   footstone::HippyValue value;
   param.ToObject(value);
-  footstone::value::HippyValue::DomValueArrayType dom_value_array;
-  auto result = value.ToArray(dom_value_array);
+  footstone::value::HippyValue::HippyValueArrayType hippy_value_array;
+  auto result = value.ToArray(hippy_value_array);
   FOOTSTONE_CHECK(result);
   if (!result) {
     return;
   }
-  auto index = dom_value_array.at(0).ToInt32Checked();
+  auto index = hippy_value_array.at(0).ToInt32Checked();
   FOOTSTONE_LOG(INFO) << "CallFunction index = " << index;
   if (function_name == kSetPage) {
     view_pager->SwitchToPage(index, true);

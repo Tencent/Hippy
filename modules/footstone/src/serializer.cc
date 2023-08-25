@@ -39,8 +39,8 @@ Serializer::~Serializer() {
   }
 }
 
-void Serializer::WriteValue(const HippyValue& dom_value) {
-  WriteObject(dom_value);
+void Serializer::WriteValue(const HippyValue& hippy_value) {
+  WriteObject(hippy_value);
 }
 
 void Serializer::WriteHeader() {
@@ -109,15 +109,15 @@ void Serializer::WriteString(const std::string& value) {
   }
 }
 
-void Serializer::WriteDenseJSArray(const HippyValue::DomValueArrayType& dom_value) {
-  uint32_t length = footstone::check::checked_numeric_cast<size_t, uint32_t>(dom_value.size());
+void Serializer::WriteDenseJSArray(const HippyValue::HippyValueArrayType& hippy_value_array) {
+  uint32_t length = footstone::check::checked_numeric_cast<size_t, uint32_t>(hippy_value_array.size());
 
   WriteTag(SerializationTag::kBeginDenseJSArray);
   WriteVarint<uint32_t>(length);
   uint32_t i = 0;
 
   for (; i < length; i++) {
-    WriteObject(dom_value[i]);
+    WriteObject(hippy_value_array[i]);
   }
 
   uint32_t properties_written = 0;
@@ -126,10 +126,10 @@ void Serializer::WriteDenseJSArray(const HippyValue::DomValueArrayType& dom_valu
   WriteVarint<uint32_t>(length);
 }
 
-void Serializer::WriteJSObject(const HippyValue::HippyValueObjectType& dom_value) {
-  uint32_t length = footstone::check::checked_numeric_cast<size_t, uint32_t>(dom_value.size());
+void Serializer::WriteJSObject(const HippyValue::HippyValueObjectType& hippy_value_object) {
+  uint32_t length = footstone::check::checked_numeric_cast<size_t, uint32_t>(hippy_value_object.size());
   WriteTag(SerializationTag::kBeginJSObject);
-  for (const auto& it: dom_value) {
+  for (const auto& it: hippy_value_object) {
     WriteString(it.first);
     WriteObject(it.second);
   }
@@ -192,8 +192,8 @@ void Serializer::WriteRawBytes(const void* source, size_t length) {
   memcpy(dest, source, length);
 }
 
-void Serializer::WriteObject(const HippyValue& dom_value) {
-  HippyValue::Type type = dom_value.GetType();
+void Serializer::WriteObject(const HippyValue& hippy_value) {
+  HippyValue::Type type = hippy_value.GetType();
   switch (type) {
     case HippyValue::Type::kUndefined:
     case HippyValue::Type::kNull:
@@ -201,27 +201,27 @@ void Serializer::WriteObject(const HippyValue& dom_value) {
       Oddball ball = Oddball::kUndefined;
       if (type == HippyValue::Type::kNull) {
         ball = Oddball::kNull;
-      } else if (type == HippyValue::Type::kBoolean && dom_value.ToBooleanChecked()) {
+      } else if (type == HippyValue::Type::kBoolean && hippy_value.ToBooleanChecked()) {
         ball = Oddball::kTrue;
-      } else if (type == HippyValue::Type::kBoolean && !dom_value.ToBooleanChecked()) {
+      } else if (type == HippyValue::Type::kBoolean && !hippy_value.ToBooleanChecked()) {
         ball = Oddball::kFalse;
       }
       WriteOddball(ball);
       break;
     }
     case HippyValue::Type::kNumber: {
-      HippyValue::NumberType number_type = dom_value.GetNumberType();
+      HippyValue::NumberType number_type = hippy_value.GetNumberType();
       switch (number_type) {
         case HippyValue::NumberType::kInt32: {
-          WriteInt32(dom_value.ToInt32Checked());
+          WriteInt32(hippy_value.ToInt32Checked());
           break;
         }
         case HippyValue::NumberType::kUInt32: {
-          WriteUint32(dom_value.ToUint32Checked());
+          WriteUint32(hippy_value.ToUint32Checked());
           break;
         }
         case HippyValue::NumberType::kDouble: {
-          WriteDouble(dom_value.ToDoubleChecked());
+          WriteDouble(hippy_value.ToDoubleChecked());
           break;
         }
         default: {
@@ -231,15 +231,15 @@ void Serializer::WriteObject(const HippyValue& dom_value) {
       break;
     }
     case HippyValue::Type::kString: {
-      WriteString(dom_value.ToStringChecked());
+      WriteString(hippy_value.ToStringChecked());
       break;
     }
     case HippyValue::Type::kObject: {
-      WriteJSObject(dom_value.ToObjectChecked());
+      WriteJSObject(hippy_value.ToObjectChecked());
       break;
     }
     case HippyValue::Type::kArray: {
-      WriteDenseJSArray(dom_value.ToArrayChecked());
+      WriteDenseJSArray(hippy_value.ToArrayChecked());
       break;
     }
     default:FOOTSTONE_UNREACHABLE();

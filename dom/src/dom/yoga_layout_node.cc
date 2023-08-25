@@ -85,13 +85,13 @@ const std::map<std::string, YGDirection> kDirectionMap = {
     {"inherit", YGDirectionInherit}, {"ltr", YGDirectionLTR}, {"rtl", YGDirectionRTL}};
 
 #define YG_SET_NUMBER_PERCENT_AUTO_DECL(NAME)                                                      \
-  void YogaLayoutNode::SetYG##NAME(std::shared_ptr<footstone::value::HippyValue> dom_value) {      \
-    footstone::value::HippyValue::Type type = dom_value->GetType();                                \
+  void YogaLayoutNode::SetYG##NAME(std::shared_ptr<footstone::value::HippyValue> hippy_value) {    \
+    footstone::value::HippyValue::Type type = hippy_value->GetType();                              \
     if (type == footstone::value::HippyValue::Type::kNumber) {                                     \
-      auto value = static_cast<float>(dom_value->ToDoubleChecked());                               \
+      auto value = static_cast<float>(hippy_value->ToDoubleChecked());                             \
       YGNodeStyleSet##NAME(yoga_node_, value);                                                     \
     } else if (type == footstone::value::HippyValue::Type::kString) {                              \
-      std::string value = dom_value->ToStringChecked();                                            \
+      std::string value = hippy_value->ToStringChecked();                                          \
       if (value == "auto") {                                                                       \
         YGNodeStyleSet##NAME##Auto(yoga_node_);                                                    \
       } else if (value.at(value.length() - 1) == '%') {                                            \
@@ -105,13 +105,13 @@ const std::map<std::string, YGDirection> kDirectionMap = {
   }
 
 #define YG_SET_NUMBER_PERCENT_DECL(NAME)                                                           \
-  void YogaLayoutNode::SetYG##NAME(std::shared_ptr<footstone::value::HippyValue> dom_value) {      \
-    footstone::value::HippyValue::Type type = dom_value->GetType();                                \
+  void YogaLayoutNode::SetYG##NAME(std::shared_ptr<footstone::value::HippyValue> hippy_value) {    \
+    footstone::value::HippyValue::Type type = hippy_value->GetType();                              \
     if (type == footstone::value::HippyValue::Type::kNumber) {                                     \
-      auto value = static_cast<float>(dom_value->ToDoubleChecked());                               \
+      auto value = static_cast<float>(hippy_value->ToDoubleChecked());                             \
       YGNodeStyleSet##NAME(yoga_node_, value);                                                     \
     } else if (type == footstone::value::HippyValue::Type::kString) {                              \
-      std::string value = dom_value->ToStringChecked();                                            \
+      std::string value = hippy_value->ToStringChecked();                                          \
       if (value.at(value.length() - 1) == '%') {                                                   \
         YGNodeStyleSet##NAME##Percent(yoga_node_, std::stof(value.substr(0, value.length() - 1))); \
       } else {                                                                                     \
@@ -122,53 +122,53 @@ const std::map<std::string, YGDirection> kDirectionMap = {
     }                                                                                              \
   }
 
-#define YG_SET_EDGE_NUMBER_PRECENT_DECL(NAME)                                                              \
-  void YogaLayoutNode::SetYG##NAME(YGEdge edge, std::shared_ptr<footstone::value::HippyValue> dom_value) { \
-    footstone::value::HippyValue::Type type = dom_value->GetType();                                        \
-    if (type == footstone::value::HippyValue::Type::kNumber) {                                             \
-      auto value = static_cast<float>(dom_value->ToDoubleChecked());                                       \
-      YGNodeStyleSet##NAME(yoga_node_, edge, value);                                                       \
-    } else if (type == footstone::value::HippyValue::Type::kString) {                                      \
-      std::string value = dom_value->ToStringChecked();                                                    \
-      if (value.at(value.length() - 1) == '%') {                                                           \
-        YGNodeStyleSet##NAME##Percent(yoga_node_, edge, std::stof(value.substr(0, value.length() - 1)));   \
-      } else {                                                                                             \
-        FOOTSTONE_DCHECK(false);                                                                           \
-      }                                                                                                    \
-    } else {                                                                                               \
-      FOOTSTONE_DCHECK(false);                                                                             \
-    }                                                                                                      \
+#define YG_SET_EDGE_NUMBER_PRECENT_DECL(NAME)                                                                \
+  void YogaLayoutNode::SetYG##NAME(YGEdge edge, std::shared_ptr<footstone::value::HippyValue> hippy_value) { \
+    footstone::value::HippyValue::Type type = hippy_value->GetType();                                        \
+    if (type == footstone::value::HippyValue::Type::kNumber) {                                               \
+      auto value = static_cast<float>(hippy_value->ToDoubleChecked());                                       \
+      YGNodeStyleSet##NAME(yoga_node_, edge, value);                                                         \
+    } else if (type == footstone::value::HippyValue::Type::kString) {                                        \
+      std::string value = hippy_value->ToStringChecked();                                                    \
+      if (value.at(value.length() - 1) == '%') {                                                             \
+        YGNodeStyleSet##NAME##Percent(yoga_node_, edge, std::stof(value.substr(0, value.length() - 1)));     \
+      } else {                                                                                               \
+        FOOTSTONE_DCHECK(false);                                                                             \
+      }                                                                                                      \
+    } else {                                                                                                 \
+      FOOTSTONE_DCHECK(false);                                                                               \
+    }                                                                                                        \
   }
 
-#define YG_SET_EDGE_NUMBER_PERCENT_AUTO_DECL(NAME)                                                         \
-  void YogaLayoutNode::SetYG##NAME(YGEdge edge, std::shared_ptr<footstone::value::HippyValue> dom_value) { \
-    footstone::value::HippyValue::Type type = dom_value->GetType();                                        \
-    if (type == footstone::value::HippyValue::Type::kNumber) {                                             \
-      float value = static_cast<float>(dom_value->ToDoubleChecked());                                      \
-      YGNodeStyleSet##NAME(yoga_node_, edge, value);                                                       \
-    } else if (type == footstone::value::HippyValue::Type::kString) {                                      \
-      std::string value = dom_value->ToStringChecked();                                                    \
-      if (value == "auto") {                                                                               \
-        YGNodeStyleSet##NAME##Auto(yoga_node_, edge);                                                      \
-      } else if (value.at(value.length() - 1) == '%') {                                                    \
-        YGNodeStyleSet##NAME##Percent(yoga_node_, edge, std::stof(value.substr(0, value.length() - 1)));   \
-      } else {                                                                                             \
-        FOOTSTONE_DCHECK(false);                                                                           \
-      }                                                                                                    \
-    } else {                                                                                               \
-      FOOTSTONE_DCHECK(false);                                                                             \
-    }                                                                                                      \
+#define YG_SET_EDGE_NUMBER_PERCENT_AUTO_DECL(NAME)                                                           \
+  void YogaLayoutNode::SetYG##NAME(YGEdge edge, std::shared_ptr<footstone::value::HippyValue> hippy_value) { \
+    footstone::value::HippyValue::Type type = hippy_value->GetType();                                        \
+    if (type == footstone::value::HippyValue::Type::kNumber) {                                               \
+      float value = static_cast<float>(hippy_value->ToDoubleChecked());                                      \
+      YGNodeStyleSet##NAME(yoga_node_, edge, value);                                                         \
+    } else if (type == footstone::value::HippyValue::Type::kString) {                                        \
+      std::string value = hippy_value->ToStringChecked();                                                    \
+      if (value == "auto") {                                                                                 \
+        YGNodeStyleSet##NAME##Auto(yoga_node_, edge);                                                        \
+      } else if (value.at(value.length() - 1) == '%') {                                                      \
+        YGNodeStyleSet##NAME##Percent(yoga_node_, edge, std::stof(value.substr(0, value.length() - 1)));     \
+      } else {                                                                                               \
+        FOOTSTONE_DCHECK(false);                                                                             \
+      }                                                                                                      \
+    } else {                                                                                                 \
+      FOOTSTONE_DCHECK(false);                                                                               \
+    }                                                                                                        \
   }
 
-#define YG_SET_EDGE_NUMBER_DECL(NAME)                                                                      \
-  void YogaLayoutNode::SetYG##NAME(YGEdge edge, std::shared_ptr<footstone::value::HippyValue> dom_value) { \
-    footstone::value::HippyValue::Type type = dom_value->GetType();                                        \
-    if (type == footstone::value::HippyValue::Type::kNumber) {                                             \
-      float value = static_cast<float>(dom_value->ToDoubleChecked());                                      \
-      YGNodeStyleSet##NAME(yoga_node_, edge, value);                                                       \
-    } else {                                                                                               \
-      FOOTSTONE_DCHECK(false);                                                                             \
-    }                                                                                                      \
+#define YG_SET_EDGE_NUMBER_DECL(NAME)                                                                        \
+  void YogaLayoutNode::SetYG##NAME(YGEdge edge, std::shared_ptr<footstone::value::HippyValue> hippy_value) { \
+    footstone::value::HippyValue::Type type = hippy_value->GetType();                                        \
+    if (type == footstone::value::HippyValue::Type::kNumber) {                                               \
+      float value = static_cast<float>(hippy_value->ToDoubleChecked());                                      \
+      YGNodeStyleSet##NAME(yoga_node_, edge, value);                                                         \
+    } else {                                                                                                 \
+      FOOTSTONE_DCHECK(false);                                                                               \
+    }                                                                                                        \
   }
 
 static YGOverflow GetFlexOverflow(const std::string& overflow) {
@@ -320,9 +320,7 @@ void YogaLayoutNode::SetMeasureFunction(MeasureFunction measure_function) {
   return YGNodeSetMeasureFunc(yoga_node_, YGMeasureFunction);
 }
 
-bool YogaLayoutNode::HasMeasureFunction() {
-  return measure_function_map.find(key_) != measure_function_map.end();
-}
+bool YogaLayoutNode::HasMeasureFunction() { return measure_function_map.find(key_) != measure_function_map.end(); }
 float YogaLayoutNode::GetLeft() { return YGNodeLayoutGetLeft(yoga_node_); }
 
 float YogaLayoutNode::GetTop() { return YGNodeLayoutGetTop(yoga_node_); }
@@ -405,43 +403,43 @@ void YogaLayoutNode::Parser(
     const std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_update,
     const std::vector<std::string>& style_delete) {
   if (style_update.find(kWidth) != style_update.end()) {
-    auto dom_value = style_update.find(kWidth)->second;
-    SetYGWidth(dom_value);
+    auto hippy_value = style_update.find(kWidth)->second;
+    SetYGWidth(hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kWidth);
     if (it != style_delete.end()) YGNodeStyleSetWidth(yoga_node_, NAN);
   }
   if (style_update.find(kMinWidth) != style_update.end()) {
-    auto dom_value = style_update.find(kMinWidth)->second;
-    SetYGMinWidth(dom_value);
+    auto hippy_value = style_update.find(kMinWidth)->second;
+    SetYGMinWidth(hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kMinWidth);
     if (it != style_delete.end()) YGNodeStyleSetMinWidth(yoga_node_, NAN);
   }
   if (style_update.find(kMaxWidth) != style_update.end()) {
-    auto dom_value = style_update.find(kMaxWidth)->second;
-    SetYGMaxWidth(dom_value);
+    auto hippy_value = style_update.find(kMaxWidth)->second;
+    SetYGMaxWidth(hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kMaxWidth);
     if (it != style_delete.end()) YGNodeStyleSetMaxWidth(yoga_node_, NAN);
   }
   if (style_update.find(kHeight) != style_update.end()) {
-    auto dom_value = style_update.find(kHeight)->second;
-    SetYGHeight(dom_value);
+    auto hippy_value = style_update.find(kHeight)->second;
+    SetYGHeight(hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kHeight);
     if (it != style_delete.end()) YGNodeStyleSetHeight(yoga_node_, NAN);
   }
   if (style_update.find(kMinHeight) != style_update.end()) {
-    auto dom_value = style_update.find(kMinHeight)->second;
-    SetYGMinHeight(dom_value);
+    auto hippy_value = style_update.find(kMinHeight)->second;
+    SetYGMinHeight(hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kMinHeight);
     if (it != style_delete.end()) YGNodeStyleSetMinHeight(yoga_node_, NAN);
   }
   if (style_update.find(kMaxHeight) != style_update.end()) {
-    auto dom_value = style_update.find(kMaxHeight)->second;
-    SetYGMaxHeight(dom_value);
+    auto hippy_value = style_update.find(kMaxHeight)->second;
+    SetYGMaxHeight(hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kMaxHeight);
     if (it != style_delete.end()) YGNodeStyleSetMaxHeight(yoga_node_, NAN);
@@ -519,162 +517,162 @@ void YogaLayoutNode::Parser(
     if (it != style_delete.end()) YGNodeStyleSetDisplay(yoga_node_, YGDisplayFlex);
   }
   if (style_update.find(kMargin) != style_update.end()) {
-    auto dom_value = style_update.find(kMargin)->second;
-    SetYGMargin(GetMarginEdge(kMargin), dom_value);
+    auto hippy_value = style_update.find(kMargin)->second;
+    SetYGMargin(GetMarginEdge(kMargin), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kMargin);
     if (it != style_delete.end()) YGNodeStyleSetMargin(yoga_node_, YGEdgeAll, 0);
   }
   if (style_update.find(kMarginVertical) != style_update.end()) {
-    auto dom_value = style_update.find(kMarginVertical)->second;
-    SetYGMargin(GetMarginEdge(kMarginVertical), dom_value);
+    auto hippy_value = style_update.find(kMarginVertical)->second;
+    SetYGMargin(GetMarginEdge(kMarginVertical), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kMarginVertical);
     if (it != style_delete.end()) YGNodeStyleSetMargin(yoga_node_, YGEdgeVertical, 0);
   }
   if (style_update.find(kMarginHorizontal) != style_update.end()) {
-    auto dom_value = style_update.find(kMarginHorizontal)->second;
-    SetYGMargin(GetMarginEdge(kMarginHorizontal), dom_value);
+    auto hippy_value = style_update.find(kMarginHorizontal)->second;
+    SetYGMargin(GetMarginEdge(kMarginHorizontal), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kMarginHorizontal);
     if (it != style_delete.end()) YGNodeStyleSetMargin(yoga_node_, YGEdgeHorizontal, 0);
   }
   if (style_update.find(kMarginLeft) != style_update.end()) {
-    auto dom_value = style_update.find(kMarginLeft)->second;
-    SetYGMargin(GetMarginEdge(kMarginLeft), dom_value);
+    auto hippy_value = style_update.find(kMarginLeft)->second;
+    SetYGMargin(GetMarginEdge(kMarginLeft), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kMarginLeft);
     if (it != style_delete.end()) YGNodeStyleSetMargin(yoga_node_, YGEdgeLeft, 0);
   }
   if (style_update.find(kMarginRight) != style_update.end()) {
-    auto dom_value = style_update.find(kMarginRight)->second;
-    SetYGMargin(GetMarginEdge(kMarginRight), dom_value);
+    auto hippy_value = style_update.find(kMarginRight)->second;
+    SetYGMargin(GetMarginEdge(kMarginRight), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kMarginRight);
     if (it != style_delete.end()) YGNodeStyleSetMargin(yoga_node_, YGEdgeRight, 0);
   }
   if (style_update.find(kMarginTop) != style_update.end()) {
-    auto dom_value = style_update.find(kMarginTop)->second;
-    SetYGMargin(GetMarginEdge(kMarginTop), dom_value);
+    auto hippy_value = style_update.find(kMarginTop)->second;
+    SetYGMargin(GetMarginEdge(kMarginTop), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kMarginTop);
     if (it != style_delete.end()) YGNodeStyleSetMargin(yoga_node_, YGEdgeTop, 0);
   }
   if (style_update.find(kMarginBottom) != style_update.end()) {
-    auto dom_value = style_update.find(kMarginBottom)->second;
-    SetYGMargin(GetMarginEdge(kMarginBottom), dom_value);
+    auto hippy_value = style_update.find(kMarginBottom)->second;
+    SetYGMargin(GetMarginEdge(kMarginBottom), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kMarginBottom);
     if (it != style_delete.end()) YGNodeStyleSetMargin(yoga_node_, YGEdgeBottom, 0);
   }
   if (style_update.find(kPadding) != style_update.end()) {
-    auto dom_value = style_update.find(kPadding)->second;
-    SetYGPadding(GetPaddingEdge(kPadding), dom_value);
+    auto hippy_value = style_update.find(kPadding)->second;
+    SetYGPadding(GetPaddingEdge(kPadding), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kPadding);
     if (it != style_delete.end()) YGNodeStyleSetPadding(yoga_node_, YGEdgeAll, 0);
   }
   if (style_update.find(kPaddingVertical) != style_update.end()) {
-    auto dom_value = style_update.find(kPaddingVertical)->second;
-    SetYGPadding(GetPaddingEdge(kPaddingVertical), dom_value);
+    auto hippy_value = style_update.find(kPaddingVertical)->second;
+    SetYGPadding(GetPaddingEdge(kPaddingVertical), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kPaddingVertical);
     if (it != style_delete.end()) YGNodeStyleSetPadding(yoga_node_, YGEdgeVertical, 0);
   }
   if (style_update.find(kPaddingHorizontal) != style_update.end()) {
-    auto dom_value = style_update.find(kPaddingHorizontal)->second;
-    SetYGPadding(GetPaddingEdge(kPaddingHorizontal), dom_value);
+    auto hippy_value = style_update.find(kPaddingHorizontal)->second;
+    SetYGPadding(GetPaddingEdge(kPaddingHorizontal), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kPaddingHorizontal);
     if (it != style_delete.end()) YGNodeStyleSetPadding(yoga_node_, YGEdgeHorizontal, 0);
   }
   if (style_update.find(kPaddingLeft) != style_update.end()) {
-    auto dom_value = style_update.find(kPaddingLeft)->second;
-    SetYGPadding(GetPaddingEdge(kPaddingLeft), dom_value);
+    auto hippy_value = style_update.find(kPaddingLeft)->second;
+    SetYGPadding(GetPaddingEdge(kPaddingLeft), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kPaddingLeft);
     if (it != style_delete.end()) YGNodeStyleSetPadding(yoga_node_, YGEdgeLeft, 0);
   }
   if (style_update.find(kPaddingRight) != style_update.end()) {
-    auto dom_value = style_update.find(kPaddingRight)->second;
-    SetYGPadding(GetPaddingEdge(kPaddingRight), dom_value);
+    auto hippy_value = style_update.find(kPaddingRight)->second;
+    SetYGPadding(GetPaddingEdge(kPaddingRight), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kPaddingRight);
     if (it != style_delete.end()) YGNodeStyleSetPadding(yoga_node_, YGEdgeRight, 0);
   }
   if (style_update.find(kPaddingTop) != style_update.end()) {
-    auto dom_value = style_update.find(kPaddingTop)->second;
-    SetYGPadding(GetPaddingEdge(kPaddingTop), dom_value);
+    auto hippy_value = style_update.find(kPaddingTop)->second;
+    SetYGPadding(GetPaddingEdge(kPaddingTop), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kPaddingTop);
     if (it != style_delete.end()) YGNodeStyleSetPadding(yoga_node_, YGEdgeTop, 0);
   }
   if (style_update.find(kPaddingBottom) != style_update.end()) {
-    auto dom_value = style_update.find(kPaddingBottom)->second;
-    SetYGPadding(GetPaddingEdge(kPaddingBottom), dom_value);
+    auto hippy_value = style_update.find(kPaddingBottom)->second;
+    SetYGPadding(GetPaddingEdge(kPaddingBottom), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kPaddingBottom);
     if (it != style_delete.end()) YGNodeStyleSetPadding(yoga_node_, YGEdgeBottom, 0);
   }
   if (style_update.find(kBorderWidth) != style_update.end()) {
-    auto dom_value = style_update.find(kBorderWidth)->second;
-    SetYGBorder(GetBorderEdge(kBorderWidth), dom_value);
+    auto hippy_value = style_update.find(kBorderWidth)->second;
+    SetYGBorder(GetBorderEdge(kBorderWidth), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kBorderWidth);
     if (it != style_delete.end()) YGNodeStyleSetBorder(yoga_node_, YGEdgeAll, 0);
   }
   if (style_update.find(kBorderLeftWidth) != style_update.end()) {
-    auto dom_value = style_update.find(kBorderLeftWidth)->second;
-    SetYGBorder(GetBorderEdge(kBorderLeftWidth), dom_value);
+    auto hippy_value = style_update.find(kBorderLeftWidth)->second;
+    SetYGBorder(GetBorderEdge(kBorderLeftWidth), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kBorderLeftWidth);
     if (it != style_delete.end()) YGNodeStyleSetBorder(yoga_node_, YGEdgeLeft, 0);
   }
   if (style_update.find(kBorderTopWidth) != style_update.end()) {
-    auto dom_value = style_update.find(kBorderTopWidth)->second;
-    SetYGBorder(GetBorderEdge(kBorderTopWidth), dom_value);
+    auto hippy_value = style_update.find(kBorderTopWidth)->second;
+    SetYGBorder(GetBorderEdge(kBorderTopWidth), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kBorderTopWidth);
     if (it != style_delete.end()) YGNodeStyleSetBorder(yoga_node_, YGEdgeTop, 0);
   }
   if (style_update.find(kBorderRightWidth) != style_update.end()) {
-    auto dom_value = style_update.find(kBorderRightWidth)->second;
-    SetYGBorder(GetBorderEdge(kBorderRightWidth), dom_value);
+    auto hippy_value = style_update.find(kBorderRightWidth)->second;
+    SetYGBorder(GetBorderEdge(kBorderRightWidth), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kBorderRightWidth);
     if (it != style_delete.end()) YGNodeStyleSetBorder(yoga_node_, YGEdgeRight, 0);
   }
   if (style_update.find(kBorderBottomWidth) != style_update.end()) {
-    auto dom_value = style_update.find(kBorderBottomWidth)->second;
-    SetYGBorder(GetBorderEdge(kBorderBottomWidth), dom_value);
+    auto hippy_value = style_update.find(kBorderBottomWidth)->second;
+    SetYGBorder(GetBorderEdge(kBorderBottomWidth), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kBorderBottomWidth);
     if (it != style_delete.end()) YGNodeStyleSetBorder(yoga_node_, YGEdgeBottom, 0);
   }
   if (style_update.find(kLeft) != style_update.end()) {
-    auto dom_value = style_update.find(kLeft)->second;
-    SetYGPosition(GetPositionEdge(kLeft), dom_value);
+    auto hippy_value = style_update.find(kLeft)->second;
+    SetYGPosition(GetPositionEdge(kLeft), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kLeft);
     if (it != style_delete.end()) YGNodeStyleSetPosition(yoga_node_, YGEdgeLeft, 0);
   }
   if (style_update.find(kRight) != style_update.end()) {
-    auto dom_value = style_update.find(kRight)->second;
-    SetYGPosition(GetPositionEdge(kRight), dom_value);
+    auto hippy_value = style_update.find(kRight)->second;
+    SetYGPosition(GetPositionEdge(kRight), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kRight);
     if (it != style_delete.end()) YGNodeStyleSetPosition(yoga_node_, YGEdgeRight, 0);
   }
   if (style_update.find(kTop) != style_update.end()) {
-    auto dom_value = style_update.find(kTop)->second;
-    SetYGPosition(GetPositionEdge(kTop), dom_value);
+    auto hippy_value = style_update.find(kTop)->second;
+    SetYGPosition(GetPositionEdge(kTop), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kTop);
     if (it != style_delete.end()) YGNodeStyleSetPosition(yoga_node_, YGEdgeTop, 0);
   }
   if (style_update.find(kBottom) != style_update.end()) {
-    auto dom_value = style_update.find(kBottom)->second;
-    SetYGPosition(GetPositionEdge(kBottom), dom_value);
+    auto hippy_value = style_update.find(kBottom)->second;
+    SetYGPosition(GetPositionEdge(kBottom), hippy_value);
   } else {
     auto it = std::find(style_delete.begin(), style_delete.end(), kBottom);
     if (it != style_delete.end()) YGNodeStyleSetPosition(yoga_node_, YGEdgeBottom, 0);

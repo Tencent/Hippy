@@ -51,7 +51,7 @@ std::size_t std::hash<HippyValue>::operator()(const HippyValue& value) const noe
     case HippyValue::Type::kString:
       return std::hash<std::string>{}(value.str_);
     case HippyValue::Type::kArray:
-      return std::hash<HippyValue::DomValueArrayType>{}(value.arr_);
+      return std::hash<HippyValue::HippyValueArrayType>{}(value.arr_);
     case HippyValue::Type::kObject:
       return std::hash<HippyValue::HippyValueObjectType>{}(value.obj_);
     default:
@@ -104,7 +104,7 @@ HippyValue::HippyValue(const HippyValue& source) : type_(source.type_), number_t
       new (&obj_) HippyValueObjectType(source.obj_);
       break;
     case HippyValue::Type::kArray:
-      new (&arr_) DomValueArrayType(source.arr_);
+      new (&arr_) HippyValueArrayType(source.arr_);
       break;
     default:
       break;
@@ -164,7 +164,7 @@ HippyValue& HippyValue::operator=(const HippyValue& rhs) noexcept {
     case HippyValue::Type::kArray:
       if (type_ != HippyValue::Type::kArray) {
         Deallocate();
-        new (&arr_) DomValueArrayType(rhs.arr_);
+        new (&arr_) HippyValueArrayType(rhs.arr_);
       } else {
         arr_ = rhs.arr_;
       }
@@ -248,10 +248,10 @@ HippyValue& HippyValue::operator=(const HippyValueObjectType& rhs) noexcept {
   return *this;
 }
 
-HippyValue& HippyValue::operator=(const DomValueArrayType& rhs) noexcept {
+HippyValue& HippyValue::operator=(const HippyValueArrayType& rhs) noexcept {
   if (type_ != HippyValue::Type::kArray) {
     Deallocate();
-    new (&arr_) DomValueArrayType(rhs);
+    new (&arr_) HippyValueArrayType(rhs);
   } else {
     arr_ = rhs;
   }
@@ -318,24 +318,24 @@ bool HippyValue::operator<=(const HippyValue& rhs) const noexcept { return !oper
 
 bool HippyValue::operator>=(const HippyValue& rhs) const noexcept { return !operator<(rhs); }
 
-std::ostream& operator<<(std::ostream& os, const HippyValue& dom_value) {
-  if (dom_value.type_ == HippyValue::Type::kUndefined) {
+std::ostream& operator<<(std::ostream& os, const HippyValue& hippy_value) {
+  if (hippy_value.type_ == HippyValue::Type::kUndefined) {
     os << "undefined";
-  } else if (dom_value.type_ == HippyValue::Type::kNull) {
+  } else if (hippy_value.type_ == HippyValue::Type::kNull) {
     os << "null";
-  } else if (dom_value.type_ == HippyValue::Type::kNumber) {
-    if (dom_value.number_type_ == HippyValue::NumberType::kNaN) {
+  } else if (hippy_value.type_ == HippyValue::Type::kNumber) {
+    if (hippy_value.number_type_ == HippyValue::NumberType::kNaN) {
       os << "NaN";
     } else {
-      os << dom_value.ToDoubleChecked();
+      os << hippy_value.ToDoubleChecked();
     }
-  } else if (dom_value.type_ == HippyValue::Type::kBoolean) {
-    os << dom_value.ToBooleanChecked();
-  } else if (dom_value.type_ == HippyValue::Type::kString) {
-    os << "\"" << dom_value.ToStringChecked() << "\"";
-  } else if (dom_value.type_ == HippyValue::Type::kObject) {
+  } else if (hippy_value.type_ == HippyValue::Type::kBoolean) {
+    os << hippy_value.ToBooleanChecked();
+  } else if (hippy_value.type_ == HippyValue::Type::kString) {
+    os << "\"" << hippy_value.ToStringChecked() << "\"";
+  } else if (hippy_value.type_ == HippyValue::Type::kObject) {
     os << "{";
-    auto map = dom_value.ToObjectChecked();
+    auto map = hippy_value.ToObjectChecked();
     size_t index = 0;
     for (const auto& kv : map) {
       os << "\"" << kv.first << "\": " << kv.second;
@@ -343,9 +343,9 @@ std::ostream& operator<<(std::ostream& os, const HippyValue& dom_value) {
       index++;
     }
     os << "}";
-  } else if (dom_value.type_ == HippyValue::Type::kArray) {
+  } else if (hippy_value.type_ == HippyValue::Type::kArray) {
     os << "[ ";
-    auto arr = dom_value.ToArrayChecked();
+    auto arr = hippy_value.ToArrayChecked();
     for (size_t i = 0; i < arr.size(); i++) {
       os << arr[i];
       if (i != arr.size() - 1) os << ",";
@@ -456,18 +456,18 @@ HippyValue::HippyValueObjectType& HippyValue::ToObjectChecked() {
   return obj_;
 }
 
-bool HippyValue::ToArray(HippyValue::DomValueArrayType& arr) const {
+bool HippyValue::ToArray(HippyValue::HippyValueArrayType& arr) const {
   bool is_array = IsArray();
   arr = arr_;
   return is_array;
 }
 
-const HippyValue::DomValueArrayType& HippyValue::ToArrayChecked() const {
+const HippyValue::HippyValueArrayType& HippyValue::ToArrayChecked() const {
   FOOTSTONE_CHECK(IsArray());
   return arr_;
 }
 
-HippyValue::DomValueArrayType& HippyValue::ToArrayChecked() {
+HippyValue::HippyValueArrayType& HippyValue::ToArrayChecked() {
   FOOTSTONE_CHECK(IsArray());
   return arr_;
 }

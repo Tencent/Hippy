@@ -52,31 +52,31 @@ class Deserializer {
 
   bool ReadInt32(int32_t& value);
 
-  bool ReadInt32(HippyValue& dom_value);
+  bool ReadInt32(HippyValue& hippy_value);
 
   bool ReadUInt32(uint32_t& value);
 
-  bool ReadUInt32(HippyValue& dom_value);
+  bool ReadUInt32(HippyValue& hippy_value);
 
   bool ReadDouble(double& value);
 
-  bool ReadDouble(HippyValue& dom_value);
+  bool ReadDouble(HippyValue& hippy_value);
 
   bool ReadUtf8String(std::string& value);
 
-  bool ReadUtf8String(HippyValue& dom_value);
+  bool ReadUtf8String(HippyValue& hippy_value);
 
   bool ReadOneByteString(std::string& value);
 
-  bool ReadOneByteString(HippyValue& dom_value);
+  bool ReadOneByteString(HippyValue& hippy_value);
 
   bool ReadTwoByteString(std::string& value);
 
-  bool ReadTwoByteString(HippyValue& dom_value);
+  bool ReadTwoByteString(HippyValue& hippy_value);
 
-  bool ReadDenseJSArray(HippyValue& dom_value);
+  bool ReadDenseJSArray(HippyValue& hippy_value);
 
-  bool ReadJSObject(HippyValue& dom_value);
+  bool ReadJSObject(HippyValue& hippy_value);
 
  private:
   template <typename T>
