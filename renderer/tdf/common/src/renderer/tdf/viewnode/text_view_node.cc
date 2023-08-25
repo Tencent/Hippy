@@ -168,11 +168,11 @@ void TextViewNode::SetFontSize(const DomStyleMap& dom_style, TextStyle& text_sty
 
 void TextViewNode::SetFontWeight(const DomStyleMap& dom_style, TextStyle& text_style) {
   if (auto it = dom_style.find(text::kFontWeight); it != dom_style.end() && it->second != nullptr) {
-    auto dom_value = it->second;
-    if (dom_value->IsString()) {
-      font_weight_ = dom_value->ToStringChecked();
+    auto hippy_value = it->second;
+    if (hippy_value->IsString()) {
+      font_weight_ = hippy_value->ToStringChecked();
     } else {
-      auto font_weight = dom_value->ToDoubleChecked();
+      auto font_weight = hippy_value->ToDoubleChecked();
       if (font_weight > 500) {
         font_weight_ = "bold";
       }

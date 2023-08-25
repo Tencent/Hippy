@@ -84,16 +84,16 @@ void ScrollViewNode::CallFunction(const std::string &function_name,
   auto scroll_view = GetView<tdfcore::ScrollView>();
   footstone::HippyValue value;
   param.ToObject(value);
-  footstone::value::HippyValue::DomValueArrayType dom_value_array;
-  auto result = value.ToArray(dom_value_array);
+  footstone::value::HippyValue::HippyValueArrayType hippy_value_array;
+  auto result = value.ToArray(hippy_value_array);
   FOOTSTONE_CHECK(result);
   if (!result) {
     return;
   }
   if (function_name == kScrollTo) {
-    auto x = static_cast<float>(dom_value_array.at(0).ToDoubleChecked());
-    auto y = static_cast<float>(dom_value_array.at(1).ToDoubleChecked());
-    auto animated = dom_value_array.at(2).ToBooleanChecked();
+    auto x = static_cast<float>(hippy_value_array.at(0).ToDoubleChecked());
+    auto y = static_cast<float>(hippy_value_array.at(1).ToDoubleChecked());
+    auto animated = hippy_value_array.at(2).ToBooleanChecked();
     scroll_view->SetOffset({x, y}, animated);
   }
 }

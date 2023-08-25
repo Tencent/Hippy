@@ -37,7 +37,7 @@ std::shared_ptr<HippyValue> JsonToDomValue(const json& json) {
   } else if (json.is_null()) {
     return std::make_shared<HippyValue>(HippyValue::Null());
   } else if (json.is_array()) {
-    HippyValue::DomValueArrayType ret;
+    HippyValue::HippyValueArrayType ret;
     auto array = json.get<json::array_t>();
     for (const auto& j : array) {
       auto v = JsonToDomValue(j);
