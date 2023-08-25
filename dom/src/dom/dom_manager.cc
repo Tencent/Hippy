@@ -76,7 +76,9 @@ void DomManager::CreateDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
   if (!root_node) {
     return;
   }
+  size_t create_size = nodes.size();
   root_node->CreateDomNodes(std::move(nodes));
+  FOOTSTONE_DLOG(INFO) << "[Hippy Statistic] create node size = " << create_size << ", total node size = " << root_node->GetChildCount();
 }
 
 void DomManager::UpdateDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
@@ -85,7 +87,9 @@ void DomManager::UpdateDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
   if (!root_node) {
     return;
   }
+  size_t update_size = nodes.size();
   root_node->UpdateDomNodes(std::move(nodes));
+  FOOTSTONE_DLOG(INFO) << "[Hippy Statistic] update node size = " << update_size << ", total node size = " << root_node->GetChildCount();
 }
 
 void DomManager::MoveDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
@@ -94,7 +98,9 @@ void DomManager::MoveDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
   if (!root_node) {
     return;
   }
+  size_t move_size = nodes.size();
   root_node->MoveDomNodes(std::move(nodes));
+  FOOTSTONE_DLOG(INFO) << "[Hippy Statistic] move node size = " << move_size << ", total node size = " << root_node->GetChildCount();
 }
 
 void DomManager::UpdateAnimation(const std::weak_ptr<RootNode>& weak_root_node,
@@ -112,7 +118,9 @@ void DomManager::DeleteDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
   if (!root_node) {
     return;
   }
+  size_t delete_size = nodes.size();
   root_node->DeleteDomNodes(std::move(nodes));
+  FOOTSTONE_DLOG(INFO) << "[Hippy Statistic] delete node size = " << delete_size << ", total node size = " << root_node->GetChildCount();
 }
 
 void DomManager::EndBatch(const std::weak_ptr<RootNode>& weak_root_node) {
@@ -125,6 +133,7 @@ void DomManager::EndBatch(const std::weak_ptr<RootNode>& weak_root_node) {
   if (!root_node) {
     return;
   }
+  FOOTSTONE_DLOG(INFO) << "[Hippy Statistic] total node size = " << root_node->GetChildCount();
   root_node->SyncWithRenderManager(render_manager);
 }
 
