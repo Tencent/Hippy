@@ -20,9 +20,9 @@
  * limitations under the License.
  */
 
-#import "NativeRenderObjectWatefallItem.h"
+#import "NativeRenderObjectWaterfallItem.h"
 
-@implementation NativeRenderObjectWatefallItem
+@implementation NativeRenderObjectWaterfallItem
 
 - (instancetype)init {
     self = [super init];
@@ -30,6 +30,29 @@
         self.creationType = NativeRenderCreationTypeLazily;
     }
     return self;
+}
+
+- (void)setFrame:(CGRect)frame {
+    CGRect originFrame = self.frame;
+    [super setFrame:frame];
+    if (!CGSizeEqualToSize(originFrame.size, frame.size) &&
+        [self.observer respondsToSelector:@selector(itemFrameChanged:)]) {
+        [self.observer itemFrameChanged:self];
+    }
+}
+
+- (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
+    _layoutDirty = NO;
+    if (NativeRenderUpdateLifecycleComputed == _propagationLifecycle) {
+        return;
+    }
+    if (NativeRenderUpdateLifecycleLayoutDirtied == _propagationLifecycle) {
+        _layoutDirty = YES;
+    }
+    _propagationLifecycle = NativeRenderUpdateLifecycleComputed;
+    for (NativeRenderObjectView *renderObjectView in self.subcomponents) {
+        [renderObjectView amendLayoutBeforeMount:blocks];
+    }
 }
 
 @end

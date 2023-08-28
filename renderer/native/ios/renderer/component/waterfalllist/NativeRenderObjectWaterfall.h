@@ -21,10 +21,24 @@
  */
 
 #import "NativeRenderObjectView.h"
+#import "NativeRenderObjectWaterfallItem.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NativeRenderObjectWaterfall : NativeRenderObjectView
+@interface WaterfallItemChangeContext : NSObject<NSCopying>
+
+- (NSHashTable<__kindof NativeRenderObjectView *> *)addedItems;
+- (NSHashTable<__kindof NativeRenderObjectView *> *)frameChangedItems;
+- (NSSet<__kindof NativeRenderObjectView *> *)deletedItems;
+- (NSHashTable<__kindof NativeRenderObjectView *> *)movedItems;
+
+- (void)clear;
+
+@end
+
+@interface NativeRenderObjectWaterfall : NativeRenderObjectView<NativeRenderObjectWaterfallItemFrameChangedProtocol>
+
+@property(nonatomic, readonly, strong)WaterfallItemChangeContext *itemChangeContext;
 
 @end
 

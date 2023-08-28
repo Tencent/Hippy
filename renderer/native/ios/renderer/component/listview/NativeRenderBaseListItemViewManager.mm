@@ -36,11 +36,11 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onWillAppear, NativeRenderDirectEventBlock)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onWillDisappear, NativeRenderDirectEventBlock)
 
 - (UIView *)view {
-    return [NativeRenderBaseListItemView new];
+    return [[NativeRenderBaseListItemView alloc] init];
 }
 
 - (NativeRenderObjectView *)nativeRenderObjectView {
-    return [NativeRenderObjectBaseListItem new];
+    return [[NativeRenderObjectBaseListItem alloc] init];
 }
 
 @end

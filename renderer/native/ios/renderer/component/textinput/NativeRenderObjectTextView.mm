@@ -110,7 +110,6 @@ static hippy::LayoutSize x5MeasureFunc(
                     auto domNode = domManager->GetNode(strongSelf.rootNode, componentTag);
                     if (domNode) {
                         domNode->GetLayoutNode()->MarkDirty();
-                        [strongSelf dirtyPropagation];
                         domManager->DoLayout(strongSelf.rootNode);
                         domManager->EndBatch(strongSelf.rootNode);
                     }
