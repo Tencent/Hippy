@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.17.1](https://github.com/Tencent/Hippy/compare/2.17.0...2.17.1) (2023-08-28)
+
+
+### Features
+
+* **hippy-react:** modal visible default true and optional props ([#3446](https://github.com/Tencent/Hippy/issues/3446)) ([26f04c2](https://github.com/Tencent/Hippy/commit/26f04c2c238c0678e984a1423e5bd7dd2893525c))
+
+
+
+
+
 # [2.17.0](https://github.com/Tencent/Hippy/compare/2.16.5...2.17.0) (2023-08-07)
 
 
