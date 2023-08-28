@@ -76,7 +76,6 @@ class AnimationSet implements AnimationSet {
     this.animationId = Bridge.callNativeWithCallbackId('AnimationModule', 'createAnimationSet', true, {
       repeatCount: repeatCountDict(config.repeatCount || 0),
       children: this.animationList,
-      virtual: config.virtual,
     });
 
     // TODO: Deprecated compatible, will remove soon.
