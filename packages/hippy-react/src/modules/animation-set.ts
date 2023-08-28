@@ -38,8 +38,7 @@ interface AnimationChild {
 
 interface AnimationSetOption {
   children: AnimationChild[];
-  repeatCount: number;
-  virtual: any; // TODO: What's it?
+  repeatCount: number | 'loop';
 }
 
 interface AnimationSet extends Animation {

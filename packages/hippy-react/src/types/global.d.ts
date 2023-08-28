@@ -28,3 +28,18 @@ declare global {
     interface Global extends HippyTypes.HippyGlobal {};
   }
 };
+
+declare namespace HippyTypes {
+  export interface FlexStyle {
+    aspectRatio?: number | string;
+  }
+  export interface ViewStyle extends FlexStyle, BoxShadowStyle, BorderBoxStyle, TransformsStyle, BackgroundStyle {
+    pointerEvents?: 'box-none' | 'none' | 'box-only' | 'auto';
+  }
+  export interface TransformsStyle {
+    transform?: Transform[];
+  }
+  export interface TextStyle {
+    textAlign?: 'auto' | 'left' | 'right' | 'center' | 'justify';
+  }
+}

@@ -20,6 +20,10 @@
 
 // @ts-nocheck
 import { Device } from '../native';
+export interface StyleObj {
+  [key: string]: HippyTypes.Style | HippyTypes.ViewStyle | HippyTypes.ImageStyle | HippyTypes.TextStyle;
+}
+
 
 const ratio = Device.screen.scale;
 let onePixel = Math.round(0.4 * ratio) / ratio;
@@ -28,7 +32,7 @@ if (onePixel === 0) {
 }
 
 const StyleSheet = {
-  create: styleObj => styleObj,
+  create: (styleObj: StyleObj): StyleObj => styleObj,
   hairlineWidth: onePixel,
   compose: (style: any, style2: Record<string, any>) => {
     let cloneStyle = {};

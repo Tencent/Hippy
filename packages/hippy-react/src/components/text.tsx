@@ -57,7 +57,7 @@ export interface TextProps extends LayoutableProps, ClickableProps {
    * The default is `tail`.
    */
   ellipsizeMode?: 'head' | 'middle' | 'tail' | 'clip';
-  children: number | string | string[];
+  children: number | string | string[] | React.ReactNode;
   text?: string;
   style?: HippyTypes.TextStyleProp;
 
@@ -76,7 +76,7 @@ export interface TextProps extends LayoutableProps, ClickableProps {
 function forwardRef(
   { style, forbidUnicodeToChar, ...nativeProps }: TextProps,
   // eslint-disable-next-line max-len
-  ref: string | ((instance: HTMLParagraphElement | null) => void) | React.RefObject<HTMLParagraphElement> | null | undefined,
+  ref: string | React.ReactNode | ((instance: HTMLParagraphElement | null) => void) | React.RefObject<HTMLParagraphElement> | null | undefined,
 ) {
   const nativeStyle = style;
 

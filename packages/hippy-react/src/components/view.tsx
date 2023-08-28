@@ -93,7 +93,7 @@ export class View extends React.Component<ViewProps, {}> {
   }
 
   public render() {
-    const { collapsable, style = {}, ...nativeProps } = this.props;
+    const { collapsable, style = {}, onFocus, ...nativeProps } = this.props;
     let nativeStyle: HippyTypes.StyleProp = style;
     const { nativeBackgroundAndroid } = nativeProps;
     if (typeof collapsable === 'boolean') {
@@ -116,6 +116,8 @@ export class View extends React.Component<ViewProps, {}> {
         nativeName="View"
         // @ts-ignore
         style={nativeStyle}
+        // @ts-ignore
+        onFocus={onFocus}
         {...nativeProps}
       />
     );
