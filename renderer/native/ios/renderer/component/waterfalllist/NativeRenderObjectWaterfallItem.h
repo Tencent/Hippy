@@ -24,7 +24,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NativeRenderObjectWatefallItem : NativeRenderObjectView
+@class NativeRenderObjectWaterfallItem;
+
+@protocol NativeRenderObjectWaterfallItemFrameChangedProtocol <NSObject>
+
+@required
+- (void)itemFrameChanged:(__kindof NativeRenderObjectWaterfallItem *)item;
+
+@end
+
+@interface NativeRenderObjectWaterfallItem : NativeRenderObjectView
+
+@property(nonatomic, assign, getter=isLayoutDirty) BOOL layoutDirty;
+@property(nonatomic, weak) id<NativeRenderObjectWaterfallItemFrameChangedProtocol> observer;
 
 @end
 

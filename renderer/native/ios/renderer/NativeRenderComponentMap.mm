@@ -143,4 +143,21 @@ using RootNode = hippy::RootNode;
     return nil;
 }
 
+- (NSString *)description {
+    NSMutableString *description = [NSMutableString stringWithCapacity:256];
+    [description appendFormat:@"<NativeRenderComponentMap %p contains ", self];
+    NSArray<id<NativeRenderComponentProtocol>> *rootComponentsArray = [self rootComponents];
+    [description appendFormat:@"%ld root component(s): ", [rootComponentsArray count]];
+    long index = 1;
+    for (id<NativeRenderComponentProtocol> object in rootComponentsArray) {
+        NSMutableString *objectDescription = [NSMutableString stringWithCapacity:64];
+        NSNumber *componentTag = [object componentTag];
+        NSUInteger count = [[self componentsForRootTag:componentTag] count];
+        [objectDescription appendFormat:@"%ld-<Root Component %p-%@ contains %ld subcomponents>;", index++, object, componentTag, count];
+        [description appendString:objectDescription];
+    }
+    [description appendString:@">"];
+    return [description copy];
+}
+
 @end

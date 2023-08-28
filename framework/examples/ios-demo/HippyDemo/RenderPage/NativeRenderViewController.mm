@@ -107,13 +107,15 @@ static NSString *const engineKey = @"Demo";
 
 - (void)runHippyDemo {
     NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(_isDebugMode)};
+    NSString *key = [NSString stringWithFormat:@"%@_%u", engineKey, arc4random()];
+
     _convenientBridge = [[HippyConvenientBridge alloc] initWithDelegate:self
                                                          moduleProvider:nil
                                                         extraComponents:nil
                                                           launchOptions:launchOptions
-                                                              engineKey:engineKey];
+                                                              engineKey:key];
     [_convenientBridge setInspectable:YES];
-    _convenientBridge.contextName = @"Demo";
+    _convenientBridge.contextName = key;
     _convenientBridge.moduleName = @"Demo";
     _convenientBridge.methodInterceptor = self;
     [self mountConnector:_convenientBridge];
