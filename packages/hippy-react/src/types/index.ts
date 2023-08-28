@@ -69,6 +69,8 @@ export interface LayoutableProps {
    * @param {number} evt.layout.height - The height of component
    */
   onLayout?: (evt: LayoutEvent) => void;
+  onAttachedToWindow?: () => void;
+  onDetachedFromWindow?: () => void;
 }
 
 export interface ClickableProps {

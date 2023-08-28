@@ -74,7 +74,7 @@ interface AnimationOptions {
   /**
    * Animation repeat times, use 'loop' to be always repeating.
    */
-  repeatCount?: number;
+  repeatCount?: number | 'loop';
 
   inputRange?: any[];
   outputRange?: any[];
@@ -277,7 +277,7 @@ class Animation implements Animation {
    *
    * @param {Object} newConfig - new animation schema
    */
-  public updateAnimation(newConfig: AnimationOptions) {
+  public updateAnimation(newConfig: Partial<AnimationOptions>) {
     if (typeof newConfig !== 'object') {
       throw new TypeError('Invalid arguments');
     }

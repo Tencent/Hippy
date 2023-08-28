@@ -73,7 +73,7 @@ declare namespace HippyTypes {
     height: number | undefined;
   }
 
-  export type Color = string | number;
+  export type Color = string;
   export type Colors = Color[];
   export type tintColor = Color;
   export type tintColors = Colors;
@@ -101,12 +101,11 @@ declare namespace HippyTypes {
     | 'space-around';
     alignItems?: FlexAlignType;
     alignSelf?: 'auto' | FlexAlignType;
-    aspectRatio?: number | string;
     bottom?: DimensionValue;
     collapse?: boolean;
     collapsable?: boolean;
     display?: 'none' | 'flex';
-    flex?: number;
+    flex?: DimensionValue;
     flexBasis?: DimensionValue;
     flexDirection?:
     | 'row'
@@ -191,11 +190,11 @@ declare namespace HippyTypes {
     skewY?: string | Animation;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
   export interface TransformsStyle {
-    transform?: Transform[];
   }
 
-  export type BorderStyle = 'solid' | 'dotted' | 'dashed';
+  export type BorderStyle = 'solid' | 'dotted' | 'dashed' | 'none';
   export interface BorderBoxStyle {
     borderStyle?: BorderStyle;
     borderTopStyle?: BorderStyle;
@@ -229,7 +228,6 @@ declare namespace HippyTypes {
 
   export interface ViewStyle extends FlexStyle, BoxShadowStyle, BorderBoxStyle, TransformsStyle, BackgroundStyle {
     opacity?: DimensionValue;
-    pointerEvents?: 'box-none' | 'none' | 'box-only' | 'auto';
   }
 
   export type TextStyleIOS = ViewStyle;
@@ -265,7 +263,6 @@ declare namespace HippyTypes {
     ;
     letterSpacing?: number;
     lineHeight?: number;
-    textAlign?: 'auto' | 'left' | 'right' | 'center' | 'justify';
     textDecorationLine?:
     | 'none'
     | 'underline'
@@ -293,8 +290,14 @@ declare namespace HippyTypes {
   export interface Style extends ViewStyle, TextStyle, ImageStyle {
     [props: string]: any
   }
+  type Falsy = undefined | null | false;
+  type RecursiveArray<T> = Array<T | ReadonlyArray<T> | RecursiveArray<T>>;
+  export type GenericStyleProp<T> =
+  | T
+  | RegisteredStyle<T>
+  | RecursiveArray<T | RegisteredStyle<T> | Falsy>
+  | Falsy;
 
-  type GenericStyleProp<T> = T | T[];
   export type StyleProp = GenericStyleProp<Style>;
   export type ViewStyleProp = GenericStyleProp<ViewStyle>;
   export type ImageStyleProp = GenericStyleProp<ImageStyle>;
@@ -403,6 +406,8 @@ declare namespace HippyTypes {
     height: number;
     scale: number;
     statusBarHeight: number;
+    // Android bottom navigatorBar height; supported version is 2.3.4
+    navigatorBarHeight: number;
     width: number;
   }
 

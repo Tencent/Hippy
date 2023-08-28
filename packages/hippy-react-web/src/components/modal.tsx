@@ -31,6 +31,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   container: {
+    // @ts-ignore
     position: 'fixed',
     top: 0,
     right: 0,
@@ -64,10 +65,12 @@ const styles = StyleSheet.create({
     animationName: 'fadeout',
   },
   slideIn: {
+    // @ts-ignore
     transform: 'translateY(0%)',
     animationName: 'slidein',
   },
   slideOut: {
+    // @ts-ignore
     transform: 'translateY(100%)',
     animationName: 'slideout',
   },
