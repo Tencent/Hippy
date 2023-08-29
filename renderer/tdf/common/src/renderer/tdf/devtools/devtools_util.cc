@@ -106,17 +106,17 @@ void DevtoolsUtil::GetScreenshot(const std::weak_ptr<RootViewNode> &root_node,
                                  const uint32_t call_back_id) {
   footstone::HippyValue value;
   param.ToObject(value);
-  footstone::HippyValue::HippyValueObjectType dom_value;
+  footstone::HippyValue::HippyValueObjectType hippy_value;
   if (value.IsArray() && !value.ToArrayChecked().empty()) {
-    dom_value = value.ToArrayChecked()[0].ToObjectChecked();
+    hippy_value = value.ToArrayChecked()[0].ToObjectChecked();
   } else if (value.IsObject()) {
-    dom_value = value.ToObjectChecked();
+    hippy_value = value.ToObjectChecked();
   }
-  auto maxWidth = dom_value.find(kMaxWidth)->second.ToInt32Checked();
-  auto maxHeight = dom_value.find(kMaxHeight)->second.ToInt32Checked();
+  auto max_width = hippy_value.find(kMaxWidth)->second.ToInt32Checked();
+  auto max_height = hippy_value.find(kMaxHeight)->second.ToInt32Checked();
   auto shell = root_node.lock()->GetShell();
-  auto scaleX = static_cast<float>(maxWidth) / static_cast<float>(shell->GetViewportMetrics().width);
-  auto scaleY = static_cast<float>(maxHeight) / static_cast<float>(shell->GetViewportMetrics().height);
+  auto scaleX = static_cast<float>(max_width) / static_cast<float>(shell->GetViewportMetrics().width);
+  auto scaleY = static_cast<float>(max_height) / static_cast<float>(shell->GetViewportMetrics().height);
   auto scale = std::min(scaleX, scaleY);
   screen_scale_ = scale;
   std::weak_ptr<ViewNode> weak_view_node = view_node;

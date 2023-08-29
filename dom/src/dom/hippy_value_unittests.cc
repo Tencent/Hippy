@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "gtest/gtest.h"
 
 #include <cstdlib>
@@ -12,7 +32,7 @@ namespace testing {
 
 using HippyValue = footstone::value::HippyValue;
 using HippyValueObjectType = typename std::unordered_map<std::string, HippyValue>;
-using DomValueArrayType = typename std::vector<HippyValue>;
+using HippyValueArrayType = typename std::vector<HippyValue>;
 
 TEST(DomValueTest, Undefined) {
   HippyValue undefined = HippyValue::Undefined();
@@ -157,47 +177,47 @@ TEST(DomValueTest, Double) {
 
 TEST(DomValueTest, String) {
   std::string str = "abcdefghijklmnopqrstuvwxyz";
-  HippyValue dom_value = HippyValue(str);
-  EXPECT_EQ(dom_value.GetType() == HippyValue::Type::kString, true)
+  HippyValue hippy_value = HippyValue(str);
+  EXPECT_EQ(hippy_value.GetType() == HippyValue::Type::kString, true)
       << "String Value GetType() return is not HippyValue::Type::kString.";
-  EXPECT_EQ(dom_value.IsString(), true) << "String Value IsString() return is not true.";
-  EXPECT_EQ(dom_value.ToStringChecked() == str, true) << "String Value ToStringChecked() is not equal to " << str << ".";
+  EXPECT_EQ(hippy_value.IsString(), true) << "String Value IsString() return is not true.";
+  EXPECT_EQ(hippy_value.ToStringChecked() == str, true) << "String Value ToStringChecked() is not equal to " << str << ".";
 
   str = "~!@#$%^&*()-=";
-  dom_value = HippyValue(str);
-  EXPECT_EQ(dom_value.ToStringChecked() == str, true) << "String Value ToStringChecked() is not equal to " << str << ".";
+  hippy_value = HippyValue(str);
+  EXPECT_EQ(hippy_value.ToStringChecked() == str, true) << "String Value ToStringChecked() is not equal to " << str << ".";
 
   str = "1234567890";
-  dom_value = HippyValue(str);
-  EXPECT_EQ(dom_value.ToStringChecked() == str, true) << "String Value ToStringChecked() is not equal to " << str << ".";
+  hippy_value = HippyValue(str);
+  EXPECT_EQ(hippy_value.ToStringChecked() == str, true) << "String Value ToStringChecked() is not equal to " << str << ".";
 
   str = "腾讯";
-  dom_value = HippyValue(str);
-  EXPECT_EQ(dom_value.ToStringChecked() == str, true) << "String Value ToStringChecked() is not equal to " << str << ".";
+  hippy_value = HippyValue(str);
+  EXPECT_EQ(hippy_value.ToStringChecked() == str, true) << "String Value ToStringChecked() is not equal to " << str << ".";
 
   str = "";
-  dom_value = HippyValue(str);
-  EXPECT_EQ(dom_value.ToStringChecked() == str, true) << "String Value ToStringChecked() is not equal to ''.";
+  hippy_value = HippyValue(str);
+  EXPECT_EQ(hippy_value.ToStringChecked() == str, true) << "String Value ToStringChecked() is not equal to ''.";
 
   const char* cstr = "abcdefghijklmnopqrstuvwxyz";
-  dom_value = HippyValue(cstr);
-  EXPECT_STREQ(dom_value.ToStringChecked().c_str(), cstr) << "String Value ToStringChecked() is not equal to " << cstr << ".";
+  hippy_value = HippyValue(cstr);
+  EXPECT_STREQ(hippy_value.ToStringChecked().c_str(), cstr) << "String Value ToStringChecked() is not equal to " << cstr << ".";
 
   cstr = "~!@#$%^&*()-=";
-  dom_value = HippyValue(cstr);
-  EXPECT_STREQ(dom_value.ToStringChecked().c_str(), cstr) << "String Value ToStringChecked() is not equal to " << cstr << ".";
+  hippy_value = HippyValue(cstr);
+  EXPECT_STREQ(hippy_value.ToStringChecked().c_str(), cstr) << "String Value ToStringChecked() is not equal to " << cstr << ".";
 
   cstr = "1234567890";
-  dom_value = HippyValue(cstr);
-  EXPECT_STREQ(dom_value.ToStringChecked().c_str(), cstr) << "String Value ToStringChecked() is not equal to " << cstr << ".";
+  hippy_value = HippyValue(cstr);
+  EXPECT_STREQ(hippy_value.ToStringChecked().c_str(), cstr) << "String Value ToStringChecked() is not equal to " << cstr << ".";
 
   cstr = "腾讯";
-  dom_value = HippyValue(cstr);
-  EXPECT_STREQ(dom_value.ToStringChecked().c_str(), cstr) << "String Value ToStringChecked() is not equal to " << cstr << ".";
+  hippy_value = HippyValue(cstr);
+  EXPECT_STREQ(hippy_value.ToStringChecked().c_str(), cstr) << "String Value ToStringChecked() is not equal to " << cstr << ".";
 
 //   cstr = nullptr;
-//   dom_value = HippyValue(cstr);
-//   EXPECT_STREQ(dom_value.ToStringChecked().c_str(), cstr) << "String Value ToStringChecked() is not equal to " << cstr << ".";
+//   hippy_value = HippyValue(cstr);
+//   EXPECT_STREQ(hippy_value.ToStringChecked().c_str(), cstr) << "String Value ToStringChecked() is not equal to " << cstr << ".";
 }
 
 TEST(DomValueTest, kObject) {
@@ -209,17 +229,17 @@ TEST(DomValueTest, kObject) {
   object_type["double"] = HippyValue(0.);
   object_type["string"] = HippyValue("string");
   object_type["object"] = HippyValueObjectType();
-  object_type["array"] = DomValueArrayType();
+  object_type["array"] = HippyValueArrayType();
 
-  HippyValue dom_value(object_type);
-  EXPECT_EQ(dom_value.GetType() == HippyValue::Type::kObject, true)
+  HippyValue hippy_value(object_type);
+  EXPECT_EQ(hippy_value.GetType() == HippyValue::Type::kObject, true)
       << "Object Value GetType() return is not HippyValue::Type::kObject.";
-  EXPECT_EQ(dom_value.IsObject(), true) << "Object Value IsObject() return is not true.";
-  EXPECT_EQ(dom_value.ToObjectChecked().size() == 8, true) << "Object Value size() is not equal to 8.";
+  EXPECT_EQ(hippy_value.IsObject(), true) << "Object Value IsObject() return is not true.";
+  EXPECT_EQ(hippy_value.ToObjectChecked().size() == 8, true) << "Object Value size() is not equal to 8.";
 }
 
 TEST(DomValueTest, kArray) {
-  DomValueArrayType array_type;
+  HippyValueArrayType array_type;
   array_type.push_back(HippyValue::Undefined());
   array_type.push_back(HippyValue::Null());
   array_type.push_back(HippyValue(static_cast<int32_t>(0)));
@@ -227,13 +247,13 @@ TEST(DomValueTest, kArray) {
   array_type.push_back(HippyValue(0.));
   array_type.push_back(HippyValue("string"));
   array_type.push_back(HippyValue(HippyValueObjectType()));
-  array_type.push_back(HippyValue(DomValueArrayType()));
+  array_type.push_back(HippyValue(HippyValueArrayType()));
 
-  HippyValue dom_value(array_type);
-  EXPECT_EQ(dom_value.GetType() == HippyValue::Type::kArray, true)
+  HippyValue hippy_value(array_type);
+  EXPECT_EQ(hippy_value.GetType() == HippyValue::Type::kArray, true)
       << "Array Value GetType() return is not HippyValue::Type::kArray.";
-  EXPECT_EQ(dom_value.IsArray(), true) << "Array Value IsArray() return is not true.";
-  EXPECT_EQ(dom_value.ToArrayChecked().size() == 8, true) << "Array Value size() is not equal to 8.";
+  EXPECT_EQ(hippy_value.IsArray(), true) << "Array Value IsArray() return is not true.";
+  EXPECT_EQ(hippy_value.ToArrayChecked().size() == 8, true) << "Array Value size() is not equal to 8.";
 }
 
 }  // namespace testing

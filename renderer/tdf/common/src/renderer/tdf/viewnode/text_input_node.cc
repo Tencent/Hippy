@@ -246,13 +246,13 @@ void TextInputNode::InitCallBackMap() {
     auto fn = [param] (std::shared_ptr<View> view) {
       footstone::HippyValue value;
       param.ToObject(value);
-      footstone::value::HippyValue::DomValueArrayType dom_value_array;
-      auto result = value.ToArray(dom_value_array);
+      footstone::value::HippyValue::HippyValueArrayType hippy_value_array;
+      auto result = value.ToArray(hippy_value_array);
       FOOTSTONE_CHECK(result);
       if (!result) {
         return;
       }
-      auto unicode_str = footstone::string_view::new_from_utf8(dom_value_array.at(0).ToStringChecked().c_str());
+      auto unicode_str = footstone::string_view::new_from_utf8(hippy_value_array.at(0).ToStringChecked().c_str());
       auto text_u16 = StringViewUtils::ConvertEncoding(unicode_str, unicode_string_view::Encoding::Utf16).utf16_value();
       std::static_pointer_cast<TextInputView>(view)->SetText(text_u16);
     };

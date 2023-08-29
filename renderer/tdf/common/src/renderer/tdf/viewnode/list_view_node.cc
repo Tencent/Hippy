@@ -129,16 +129,16 @@ void ListViewNode::CallFunction(const std::string &function_name,
   auto list_view = GetView<tdfcore::CustomLayoutView>();
   footstone::HippyValue value;
   param.ToObject(value);
-  footstone::value::HippyValue::DomValueArrayType dom_value_array;
-  auto result = value.ToArray(dom_value_array);
+  footstone::value::HippyValue::HippyValueArrayType hippy_value_array;
+  auto result = value.ToArray(hippy_value_array);
   FOOTSTONE_CHECK(result);
   if (!result) {
     return;
   }
   if (function_name == kScrollToIndex) {
-    auto x_offset = dom_value_array.at(0).ToInt32Checked();
-    auto y_offset = dom_value_array.at(1).ToInt32Checked();
-    auto animated = dom_value_array.at(2).ToBooleanChecked();
+    auto x_offset = hippy_value_array.at(0).ToInt32Checked();
+    auto y_offset = hippy_value_array.at(1).ToInt32Checked();
+    auto animated = hippy_value_array.at(2).ToBooleanChecked();
     auto scroll_direction = list_view->GetScrollDirection();
     if (scroll_direction == tdfcore::ScrollDirection::kHorizontal) {
       list_view->ScrollToIndex(x_offset, animated);
@@ -146,9 +146,9 @@ void ListViewNode::CallFunction(const std::string &function_name,
       list_view->ScrollToIndex(y_offset, animated);
     }
   } else if (function_name == kScrollToContentOffset) {
-    auto x = static_cast<float>(dom_value_array.at(0).ToDoubleChecked());
-    auto y = static_cast<float>(dom_value_array.at(1).ToDoubleChecked());
-    auto animated = dom_value_array.at(2).ToBooleanChecked();
+    auto x = static_cast<float>(hippy_value_array.at(0).ToDoubleChecked());
+    auto y = static_cast<float>(hippy_value_array.at(1).ToDoubleChecked());
+    auto animated = hippy_value_array.at(2).ToBooleanChecked();
     list_view->SetOffset({x, y}, animated);
   }
 }

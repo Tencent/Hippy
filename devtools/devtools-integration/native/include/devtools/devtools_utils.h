@@ -62,7 +62,7 @@ class DevToolsUtil {
   static void AppendDomKeyValue(std::string& node_str,
                                 bool& first_object,
                                 const std::string& node_key,
-                                const HippyValue& dom_value);
+                                const HippyValue& hippy_value);
   static LayoutResult GetLayoutOnScreen(const std::shared_ptr<DomNode>& root_node, const std::shared_ptr<DomNode>& dom_node);
 };
 }  // namespace hippy::devtools

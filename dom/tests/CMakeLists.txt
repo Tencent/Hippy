@@ -66,7 +66,7 @@ set(SOURCE_SET
 		${ROOT_DIR}/tests/main.cc
 		src/dom/deserializer_unittests.cc
 		src/dom/dom_manager_unittests.cc
-		src/dom/dom_value_unittests.cc
+		src/dom/hippy_value_unittests.cc
 		src/dom/serializer_unittests.cc)
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
 # endregion

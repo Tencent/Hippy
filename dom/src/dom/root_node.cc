@@ -40,7 +40,7 @@ constexpr char kDomTreeDeleted[] = "DomTreeDeleted";
 
 using Deserializer = footstone::value::Deserializer;
 using Serializer = footstone::value::Serializer;
-using DomValueArrayType = footstone::value::HippyValue::DomValueArrayType;
+using HippyValueArrayType = footstone::value::HippyValue::HippyValueArrayType;
 using Task = footstone::Task;
 
 footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<RootNode>> RootNode::persistent_map_;
