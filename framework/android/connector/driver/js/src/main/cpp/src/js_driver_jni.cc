@@ -117,6 +117,11 @@ REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
              "(ILjava/lang/String;JJ)V",
              OnResourceLoadEnd)
 
+REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
+             "onResourceLoadError",
+             "(ILjava/lang/String;JLjava/lang/String;)V",
+             OnResourceLoadError)
+
 using string_view = footstone::stringview::string_view;
 using u8string = footstone::string_view::u8string;
 using StringViewUtils = footstone::stringview::StringViewUtils;
@@ -207,6 +212,27 @@ void OnResourceLoadEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jstring
           entry->SetLoadSourceStart(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(j_start_time)));
           entry->SetLoadSourceEnd(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(j_end_time)));
         }
+      }
+    };
+    runner->PostTask(std::move(task));
+  }
+}
+
+void OnResourceLoadError(JNIEnv* j_env, jobject j_object, jint j_scope_id, jstring j_uri, jlong j_ret_code, jstring j_error_msg) {
+  if (!j_uri) {
+    return;
+  }
+  auto uri = JniUtils::ToStrView(j_env, j_uri);
+  auto ret_code = static_cast<int32_t>(j_ret_code);
+  auto error_msg = j_error_msg ? JniUtils::ToStrView(j_env, j_error_msg) : string_view("");
+  auto scope = GetScope(j_scope_id);
+  auto runner = scope->GetEngine().lock()->GetJsTaskRunner();
+  if (runner) {
+    std::weak_ptr<Scope> weak_scope = scope;
+    auto task = [weak_scope, uri, ret_code, error_msg]() {
+      auto scope = weak_scope.lock();
+      if (scope) {
+        scope->HandleUriLoaderError(uri, ret_code, error_msg);
       }
     };
     runner->PostTask(std::move(task));

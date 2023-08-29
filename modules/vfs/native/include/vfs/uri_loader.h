@@ -43,6 +43,7 @@ class UriLoader: public std::enable_shared_from_this<UriLoader> {
   using bytes = vfs::UriHandler::bytes;
   using RetCode = vfs::JobResponse::RetCode;
   using RequestTimePerformanceCallback = std::function<void(const string_view& uri, const TimePoint& start, const TimePoint& end)>;
+  using RequestErrorCallback = std::function<void(const string_view& uri, const int32_t ret_code, const string_view& error_msg)>;
 
   UriLoader();
   virtual ~UriLoader() = default;
@@ -76,9 +77,11 @@ class UriLoader: public std::enable_shared_from_this<UriLoader> {
   void Terminate();
 
   void SetRequestTimePerformanceCallback(const RequestTimePerformanceCallback& cb) { on_request_time_performance_ = cb; }
+  void SetRequestErrorCallback(const RequestErrorCallback& cb) { on_request_error_ = cb; }
 
  protected:
   void DoRequestTimePerformanceCallback(const string_view& uri, const TimePoint& start, const TimePoint& end);
+  void DoRequestErrorCallback(const string_view& uri, const int32_t ret_code, const string_view& error_msg);
 
  private:
   std::shared_ptr<UriHandler> GetNextHandler(std::list<std::shared_ptr<UriHandler>>::iterator& cur,
@@ -95,6 +98,7 @@ class UriLoader: public std::enable_shared_from_this<UriLoader> {
   std::mutex mutex_;
 
   RequestTimePerformanceCallback on_request_time_performance_;
+  RequestErrorCallback on_request_error_;
 };
 
 }

@@ -275,24 +275,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
 
   inline void SetUriLoader(std::weak_ptr<UriLoader> loader) {
     loader_ = loader;
-    auto the_loader = loader_.lock();
-    if (the_loader) {
-      the_loader->SetRequestTimePerformanceCallback([WEAK_THIS](const string_view& uri, const TimePoint& start, const TimePoint& end) {
-        DEFINE_AND_CHECK_SELF(Scope)
-        auto runner = self->GetTaskRunner();
-        if (runner) {
-          auto task = [weak_this, uri, start, end]() {
-            DEFINE_AND_CHECK_SELF(Scope)
-            auto entry = self->GetPerformance()->PerformanceResource(uri);
-            if (entry) {
-              entry->SetLoadSourceStart(start);
-              entry->SetLoadSourceEnd(end);
-            }
-          };
-          runner->PostTask(std::move(task));
-        }
-      });
-    }
+    SetCallbackForUriLoader();
   }
 
   inline std::weak_ptr<UriLoader> GetUriLoader() { return loader_; }
@@ -326,6 +309,8 @@ class Scope : public std::enable_shared_from_this<Scope> {
   inline std::shared_ptr<Performance> GetPerformance() {
     return performance_;
   }
+
+  void HandleUriLoaderError(const string_view& uri, const int32_t ret_code, const string_view& error_msg);
 
 #ifdef ENABLE_INSPECTOR
   inline void SetDevtoolsDataSource(std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source) {
@@ -472,6 +457,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
   friend class Engine;
   void BindModule();
   void Bootstrap();
+  void SetCallbackForUriLoader();
 
  private:
   std::weak_ptr<Engine> engine_;

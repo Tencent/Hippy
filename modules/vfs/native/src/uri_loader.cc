@@ -107,11 +107,14 @@ void UriLoader::RequestUntrustedContent(const std::shared_ptr<RequestJob>& reque
   std::function<std::shared_ptr<UriHandler>()> next = [this, &cur_it, end_it]() -> std::shared_ptr<UriHandler> {
     return this->GetNextHandler(cur_it, end_it);
   };
-  (*cur_it)->RequestUntrustedContent(request, std::move(response), next);
+  (*cur_it)->RequestUntrustedContent(request, response, next);
 
   // performance end time
   auto end_time = TimePoint::SystemNow();
   DoRequestTimePerformanceCallback(request->GetUri(), start_time, end_time);
+  if (response->GetRetCode() != JobResponse::RetCode::Success) {
+    DoRequestErrorCallback(request->GetUri(), static_cast<int32_t>(response->GetRetCode()), response->GetErrorMessage());
+  }
 }
 
 void UriLoader::RequestUntrustedContent(const std::shared_ptr<RequestJob>& request,
@@ -155,6 +158,9 @@ void UriLoader::RequestUntrustedContent(const std::shared_ptr<RequestJob>& reque
     // performance end time
     auto end_time = TimePoint::SystemNow();
     self->DoRequestTimePerformanceCallback(request->GetUri(), start_time, end_time);
+    if (response->GetRetCode() != JobResponse::RetCode::Success) {
+      self->DoRequestErrorCallback(request->GetUri(), static_cast<int32_t>(response->GetRetCode()), response->GetErrorMessage());
+    }
 
     orig_cb(response);
   };
@@ -188,5 +194,10 @@ void UriLoader::DoRequestTimePerformanceCallback(const string_view& uri, const T
   }
 }
 
+void UriLoader::DoRequestErrorCallback(const string_view& uri, const int32_t ret_code, const string_view& error_msg) {
+  if (on_request_error_ != nullptr) {
+    on_request_error_(uri, ret_code, error_msg);
+  }
+}
 }
 }

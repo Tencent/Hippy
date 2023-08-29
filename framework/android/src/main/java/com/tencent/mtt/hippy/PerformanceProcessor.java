@@ -60,6 +60,10 @@ public class PerformanceProcessor extends Processor {
         if (shouldDoRecord(holder) && engineContext != null) {
             engineContext.getJsDriver().recordResourceLoadEndTime(holder.uri, holder.loadStartTime,
                     System.currentTimeMillis());
+            if (holder.resultCode != 0) {
+                engineContext.getJsDriver().recordResourceLoadError(holder.uri, holder.resultCode,
+                    holder.errorMessage);
+            }
         }
         super.handleResponseAsync(holder, callback);
     }
@@ -70,6 +74,10 @@ public class PerformanceProcessor extends Processor {
         if (shouldDoRecord(holder) && engineContext != null) {
             engineContext.getJsDriver().recordResourceLoadEndTime(holder.uri, holder.loadStartTime,
                     System.currentTimeMillis());
+            if (holder.resultCode != 0) {
+                engineContext.getJsDriver().recordResourceLoadError(holder.uri, holder.resultCode,
+                    holder.errorMessage);
+            }
         }
         super.handleResponseSync(holder);
     }

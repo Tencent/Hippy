@@ -146,6 +146,10 @@ void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request, NSOperationQue
             auto endPoint = footstone::TimePoint::SystemNow();
             string_view uri(NSStringToU16StringView([[response URL] absoluteString]));
             DoRequestTimePerformanceCallback(uri, startPoint, endPoint);
+            if (error.code != 0) {
+                string_view msg([error.localizedDescription UTF8String]?:"");
+                DoRequestErrorCallback(uri, static_cast<int32_t>(error.code), msg);
+            }
             if (completion) {
                 completion(data, response, error);
             }

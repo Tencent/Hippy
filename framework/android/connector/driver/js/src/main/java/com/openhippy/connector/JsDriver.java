@@ -81,6 +81,10 @@ public class JsDriver implements Connector {
         onResourceLoadEnd(mInstanceId, uri, startTime, endTime);
     }
 
+    public void recordResourceLoadError(@NonNull String uri, long retCode, String errorMsg) {
+        onResourceLoadError(mInstanceId, uri, retCode, errorMsg);
+    }
+
     public void onResourceReady(ByteBuffer output, long resId) {
         onResourceReady(mInstanceId, output, resId);
     }
@@ -166,4 +170,6 @@ public class JsDriver implements Connector {
     private native void onFirstFrameEnd(int instanceId, long time);
 
     private native void onResourceLoadEnd(int instanceId, String uri, long startTime, long endTime);
+
+    private native void onResourceLoadError(int instanceId, String uri, long retCode, String errorMsg);
 }

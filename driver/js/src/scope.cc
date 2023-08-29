@@ -599,5 +599,51 @@ void Scope::UnloadInstance(const std::shared_ptr<HippyValue>& value) {
     }
 }
 
+void Scope::SetCallbackForUriLoader() {
+  auto the_loader = loader_.lock();
+  if (the_loader) {
+    the_loader->SetRequestTimePerformanceCallback([WEAK_THIS](const string_view& uri, const TimePoint& start, const TimePoint& end) {
+      DEFINE_AND_CHECK_SELF(Scope)
+      auto runner = self->GetTaskRunner();
+      if (runner) {
+        auto task = [weak_this, uri, start, end]() {
+          DEFINE_AND_CHECK_SELF(Scope)
+          auto entry = self->GetPerformance()->PerformanceResource(uri);
+          if (entry) {
+            entry->SetLoadSourceStart(start);
+            entry->SetLoadSourceEnd(end);
+          }
+        };
+        runner->PostTask(std::move(task));
+      }
+    });
+    the_loader->SetRequestErrorCallback([WEAK_THIS](const string_view& uri, const int32_t ret_code, const string_view& error_msg) {
+      DEFINE_AND_CHECK_SELF(Scope)
+      auto runner = self->GetTaskRunner();
+      if (runner) {
+        auto task = [weak_this, uri, ret_code, error_msg]() {
+          DEFINE_AND_CHECK_SELF(Scope)
+          self->HandleUriLoaderError(uri, ret_code, error_msg);
+        };
+        runner->PostTask(std::move(task));
+      }
+    });
+  }
+}
+
+void Scope::HandleUriLoaderError(const string_view& uri, const int32_t ret_code, const string_view& error_msg) {
+  std::unordered_map<string_view, std::shared_ptr<CtxValue>> error_map;
+  error_map["code"] = context_->CreateNumber(static_cast<double>(ret_code));
+  error_map["message"] = context_->CreateString(error_msg);
+  auto event = context_->CreateString("vfs error");
+  auto source = context_->CreateString(uri);
+  auto lineno = context_->CreateNumber(0);
+  auto colno = context_->CreateNumber(0);
+  auto error = context_->CreateObject(error_map);
+  std::shared_ptr<CtxValue> arr[5] = {event, source, lineno, colno, error};
+  auto exception = context_->CreateArray(5, arr);
+  VM::HandleException(context_, "error", exception);
+}
+
 }
 }
