@@ -45,7 +45,7 @@ class ImageViewNode : public ViewNode {
   std::string default_src_;
   std::string image_src_;
   std::string scale_type_;
-  std::shared_ptr<tdfcore::View> CreateView() override;
+  std::shared_ptr<tdfcore::View> CreateView(const std::shared_ptr<ViewContext> &context) override;
 };
 
 }  // namespace tdf
