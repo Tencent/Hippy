@@ -77,7 +77,7 @@ class ListViewItemNode : public ViewNode {
   /**
    * @brief ListViewItemNode's CreateView is Public, can be called by ListViewDataSource.
    */
-  std::shared_ptr<tdfcore::View> CreateView() override;
+  std::shared_ptr<tdfcore::View> CreateView(const std::shared_ptr<ViewContext> &context) override;
 
   void UpdateViewType(const DomStyleMap& dom_style);
 
@@ -94,7 +94,7 @@ class ListViewItemNode : public ViewNode {
 
 class ListViewNode;
 
-class ListViewDataSource : public tdfcore::CustomLayoutViewDataSource, public tdfcore::Object {
+class ListViewDataSource : public tdfcore::CustomLayoutViewDataSource {
  public:
   ListViewDataSource(std::shared_ptr<ListViewNode> host) : list_view_node_(host) {}
 
@@ -136,7 +136,7 @@ class ListViewNode : public ScrollViewNode {
 
   void HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeleteProps& dom_delete_props) override;
 
-  std::shared_ptr<tdfcore::View> CreateView() override;
+  std::shared_ptr<tdfcore::View> CreateView(const std::shared_ptr<ViewContext> &context) override;
 
   void SetShouldReload() { should_reload_ = true; }
 

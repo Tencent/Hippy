@@ -181,22 +181,22 @@ LayoutResult DevToolsUtil::GetLayoutOnScreen(const std::shared_ptr<DomNode>& roo
   if (!find_node) {
     return layout_result;
   }
-  footstone::value::HippyValue::HippyValueObjectType dom_value_object;
-  dom_value_object["id"] = footstone::value::HippyValue(1);
-  footstone::value::HippyValue::DomValueArrayType dom_value_array;
-  dom_value_array.push_back(footstone::value::HippyValue(dom_value_object));
-  footstone::value::HippyValue argument_dom_value(dom_value_array);
-  hippy::dom::DomArgument argument(argument_dom_value);
+  footstone::value::HippyValue::HippyValueObjectType hippy_value_object;
+  hippy_value_object["id"] = footstone::value::HippyValue(1);
+  footstone::value::HippyValue::HippyValueArrayType hippy_value_array;
+  hippy_value_array.push_back(footstone::value::HippyValue(hippy_value_object));
+  footstone::value::HippyValue argument_hippy_value(hippy_value_array);
+  hippy::dom::DomArgument argument(argument_hippy_value);
   auto screen_shot_callback =
       MakeCopyable([promise = std::move(layout_promise)](std::shared_ptr<hippy::dom::DomArgument> arg) mutable {
-        footstone::value::HippyValue result_dom_value;
-        arg->ToObject(result_dom_value);
+        footstone::value::HippyValue result_hippy_value;
+        arg->ToObject(result_hippy_value);
         footstone::value::HippyValue::HippyValueObjectType result_dom_object;
         LayoutResult result;
-        if (result_dom_value.IsArray() && !result_dom_value.ToArrayChecked().empty()) {
-          result_dom_object = result_dom_value.ToArrayChecked()[0].ToObjectChecked();
-        } else if (result_dom_value.IsObject()) {
-          result_dom_object = result_dom_value.ToObjectChecked();
+        if (result_hippy_value.IsArray() && !result_hippy_value.ToArrayChecked().empty()) {
+          result_dom_object = result_hippy_value.ToArrayChecked()[0].ToObjectChecked();
+        } else if (result_hippy_value.IsObject()) {
+          result_dom_object = result_hippy_value.ToObjectChecked();
         } else {
           // maybe flat ui optimization and remove it
           promise.set_value(result);
@@ -218,14 +218,14 @@ LayoutResult DevToolsUtil::GetLayoutOnScreen(const std::shared_ptr<DomNode>& roo
   return layout_result;
 }
 
-std::string DevToolsUtil::ParseDomValue(const HippyValue& dom_value) {
-  if (!dom_value.IsObject()) {
+std::string DevToolsUtil::ParseDomValue(const HippyValue& hippy_value) {
+  if (!hippy_value.IsObject()) {
     FOOTSTONE_DLOG(INFO) << kDevToolsTag << "ParseTotalProps, node props is not object";
     return "{}";
   }
   std::string node_str = "{";
   bool first_object = true;
-  for (auto iterator : dom_value.ToObjectChecked()) {
+  for (auto iterator : hippy_value.ToObjectChecked()) {
     if (iterator.first == "uri" || iterator.first == "src") {
       iterator.second = "";
     }
@@ -347,40 +347,40 @@ std::string DevToolsUtil::ParseNodeProps(const std::unordered_map<std::string, H
 void DevToolsUtil::AppendDomKeyValue(std::string& node_str,
                                      bool& first_object,
                                      const std::string& node_key,
-                                     const HippyValue& dom_value) {
-  if (dom_value.IsBoolean()) {
+                                     const HippyValue& hippy_value) {
+  if (hippy_value.IsBoolean()) {
     node_str += first_object ? "\"" : ",\"";
     node_str += node_key;
     node_str += "\":";
-    node_str += dom_value.ToBooleanChecked() ? "true" : "false";
+    node_str += hippy_value.ToBooleanChecked() ? "true" : "false";
     first_object = false;
-  } else if (dom_value.IsInt32()) {
+  } else if (hippy_value.IsInt32()) {
     node_str += first_object ? "\"" : ",\"";
     node_str += node_key;
     node_str += "\":";
-    node_str += std::to_string(dom_value.ToInt32Checked());
+    node_str += std::to_string(hippy_value.ToInt32Checked());
     first_object = false;
-  } else if (dom_value.IsUInt32()) {
+  } else if (hippy_value.IsUInt32()) {
     node_str += first_object ? "\"" : ",\"";
     node_str += node_key;
     node_str += "\":";
-    node_str += std::to_string(dom_value.IsUInt32());
+    node_str += std::to_string(hippy_value.IsUInt32());
     first_object = false;
-  } else if (dom_value.IsDouble()) {
+  } else if (hippy_value.IsDouble()) {
     node_str += first_object ? "\"" : ",\"";
     node_str += node_key;
     node_str += "\":";
-    node_str += std::to_string(dom_value.ToDoubleChecked());
+    node_str += std::to_string(hippy_value.ToDoubleChecked());
     first_object = false;
-  } else if (dom_value.IsString()) {
+  } else if (hippy_value.IsString()) {
     node_str += first_object ? "\"" : ",\"";
     node_str += node_key;
     node_str += "\":\"";
-    node_str += dom_value.ToStringChecked();
+    node_str += hippy_value.ToStringChecked();
     node_str += "\"";
     first_object = false;
-  } else if (dom_value.IsArray()) {
-    auto props_array = dom_value.ToArrayChecked();
+  } else if (hippy_value.IsArray()) {
+    auto props_array = hippy_value.ToArrayChecked();
     std::string array = "[";
     for (auto it = props_array.begin(); it != props_array.end(); ++it) {
       if (it->IsNull() || it->IsUndefined()) {
@@ -397,11 +397,11 @@ void DevToolsUtil::AppendDomKeyValue(std::string& node_str,
     node_str += "\":";
     node_str += array;
     first_object = false;
-  } else if (dom_value.IsObject()) {
+  } else if (hippy_value.IsObject()) {
     node_str += first_object ? "\"" : ",\"";
     node_str += node_key;
     node_str += "\":";
-    node_str += ParseDomValue(dom_value);
+    node_str += ParseDomValue(hippy_value);
     first_object = false;
   }
 }

@@ -49,7 +49,7 @@ class ModalViewNode : public ViewNode {
   void OnCreate() override;
   void HandleLayoutUpdate(hippy::LayoutResult layout_result) override;
   void HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeleteProps& dom_delete_props) override;
-  std::shared_ptr<tdfcore::View> CreateView() override;
+  std::shared_ptr<tdfcore::View> CreateView(const std::shared_ptr<ViewContext> &context) override;
   std::string GetViewName() const override { return kModaViewName; }
 
  private:

@@ -109,12 +109,12 @@ void TextInputNode::HandleStyleUpdate(const DomStyleMap& dom_style, const DomDel
   text_input_view->SetKeyboardAction(keyboard_action_);
 }
 
-std::shared_ptr<View> TextInputNode::CreateView() {
-  edit_controller_ = TDF_MAKE_SHARED(TextEditingController);
+std::shared_ptr<View> TextInputNode::CreateView(const std::shared_ptr<ViewContext> &context) {
+  edit_controller_ = TDF_MAKE_SHARED(TextEditingController, context);
   selection_control_ = TDF_MAKE_SHARED(CupertinoTextSelectionControl);
-  auto text_input_view = TDF_MAKE_SHARED(TextInputView, edit_controller_, selection_control_);
+  auto text_input_view = TDF_MAKE_SHARED(TextInputView, context, edit_controller_, selection_control_);
   text_input_view->SetVerticalAlign(tdfcore::VerticalAlign::kCenter);
-  edit_controller_->AddListener([&, text_input_view](const auto& v) { DidChangeTextEditingValue(text_input_view); });
+  edit_controller_->AddValueChangeListener([&, text_input_view](const auto& v) { DidChangeTextEditingValue(text_input_view); });
   text_input_view_ = text_input_view;
   text_input_view->GetViewContext()->GetShell()->GetEventCenter()->AddListener(
       tdfcore::KeyboardActionEvent::ClassType(),
@@ -166,7 +166,7 @@ void TextInputNode::SendKeyActionEvent(const std::shared_ptr<tdfcore::Event>& ev
   SendUIDomEvent(kOnEditorAction, std::make_shared<footstone::HippyValue>(param));
 
   DomValueObjectType param2;
-  auto u16text = GetView<tdfcore::TextInputView>()->GetTextEditingValue().GetText();
+  auto u16text = GetView<tdfcore::TextInputView>()->GetTextEditingValue().text;
   auto u8text = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t >{}.to_bytes(u16text);
   param2[kText] = u8text;
   SendUIDomEvent(kOnEndEditing, std::make_shared<footstone::HippyValue>(param2));
@@ -230,7 +230,7 @@ void TextInputNode::InitCallBackMap() {
                                                 const uint32_t callback_id,
                                                 const DomArgument &param) {
     auto fn = [this, function_name, callback_id](std::shared_ptr<tdfcore::View> view) {
-      auto u16text = std::static_pointer_cast<TextInputView>(view)->GetTextEditingValue().GetText();
+      auto u16text = std::static_pointer_cast<TextInputView>(view)->GetTextEditingValue().text;
       auto text = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>{}.to_bytes(u16text);
       DomValueObjectType param;
       param["text"] = footstone::HippyValue(text);
@@ -246,13 +246,13 @@ void TextInputNode::InitCallBackMap() {
     auto fn = [param] (std::shared_ptr<View> view) {
       footstone::HippyValue value;
       param.ToObject(value);
-      footstone::value::HippyValue::DomValueArrayType dom_value_array;
-      auto result = value.ToArray(dom_value_array);
+      footstone::value::HippyValue::HippyValueArrayType hippy_value_array;
+      auto result = value.ToArray(hippy_value_array);
       FOOTSTONE_CHECK(result);
       if (!result) {
         return;
       }
-      auto unicode_str = footstone::string_view::new_from_utf8(dom_value_array.at(0).ToStringChecked().c_str());
+      auto unicode_str = footstone::string_view::new_from_utf8(hippy_value_array.at(0).ToStringChecked().c_str());
       auto text_u16 = StringViewUtils::ConvertEncoding(unicode_str, unicode_string_view::Encoding::Utf16).utf16_value();
       std::static_pointer_cast<TextInputView>(view)->SetText(text_u16);
     };
@@ -263,7 +263,7 @@ void TextInputNode::InitCallBackMap() {
                                                        const uint32_t callback_id,
                                                        const DomArgument &param) {
     auto fn = [](std::shared_ptr<tdfcore::View> view) {
-      std::static_pointer_cast<tdfcore::TextInputView>(view)->TryHidingInputMethod();
+      std::static_pointer_cast<tdfcore::TextInputView>(view)->ClearFocus();
     };
     INVOKE_IF_VIEW_IS_VALIDATE(fn);
   };
@@ -272,7 +272,7 @@ void TextInputNode::InitCallBackMap() {
                                                        const uint32_t callback_id,
                                                        const DomArgument &param) {
     auto fn = [](std::shared_ptr<tdfcore::View> view) {
-      std::static_pointer_cast<tdfcore::TextInputView>(view)->TryShowingInputMethod();
+      std::static_pointer_cast<tdfcore::TextInputView>(view)->RequestFocus();
     };
     INVOKE_IF_VIEW_IS_VALIDATE(fn);
   };
@@ -324,13 +324,13 @@ void TextInputNode::RegisterViewportListener() {
       return tdfcore::EventDispatchBehavior::kContinue;
     };
     viewport_listener_id_ =
-        ViewContext::GetCurrent()->GetShell()->GetEventCenter()->AddListener(ViewportEvent::ClassType(), listener);
+        GetView()->GetViewContext()->GetShell()->GetEventCenter()->AddListener(ViewportEvent::ClassType(), listener);
   }
 }
 
 void TextInputNode::UnregisterViewportListener() {
   if (viewport_listener_id_ != kViewportListenerInvalidID) {
-    ViewContext::GetCurrent()->GetShell()->GetEventCenter()->RemoveListener(ViewportEvent::ClassType(),
+    GetView()->GetViewContext()->GetShell()->GetEventCenter()->RemoveListener(ViewportEvent::ClassType(),
                                                                             viewport_listener_id_);
   }
 }
@@ -378,7 +378,9 @@ void TextInputNode::SetEditable(const DomStyleMap& dom_style, std::shared_ptr<Te
 
 void TextInputNode::SetFontFamily(const DomStyleMap& dom_style, TextStyle& text_style) {
   if (auto it = dom_style.find(textinput::kFontFamily); it != dom_style.end() && it->second != nullptr) {
-    text_style.font_family = it->second->ToStringChecked().c_str();
+    std::vector<std::string> families;
+    families.push_back(it->second->ToStringChecked());
+    text_style.font_families = families;
   }
 }
 
@@ -416,16 +418,16 @@ void TextInputNode::SetFontWeight(const DomStyleMap& dom_style, TextStyle& text_
 }
 
 void TextInputNode::SetKeyBoardType(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
-  static std::map<std::string, KeyboardInputType> type_map = {{kKeyboardType_Default, KeyboardInputType::Text()},
-                                                              {kKeyboardType_Numeric, KeyboardInputType::Number()},
-                                                              {kKeyboardType_Password, KeyboardInputType::Password()},
-                                                              {kKeyboardType_Email, KeyboardInputType::EmailAddress()},
-                                                              {kKeyboardType_PhonePad, KeyboardInputType::Phone()}};
+  static std::map<std::string, tdfcore::KeyboardType> type_map = {{kKeyboardType_Default, tdfcore::KeyboardType::kText},
+                                                                  {kKeyboardType_Numeric, tdfcore::KeyboardType::kNumbers},
+                                                                  {kKeyboardType_Password, tdfcore::KeyboardType::kPassword},
+                                                                  {kKeyboardType_Email, tdfcore::KeyboardType::kEmailAddress},
+                                                                  {kKeyboardType_PhonePad, tdfcore::KeyboardType::kPhone}};
 
   if (auto it = dom_style.find(textinput::kKeyboardType); it != dom_style.end() && it->second != nullptr) {
     auto key_board_type = it->second->ToStringChecked();
     if (type_map.find(key_board_type) != type_map.end()) {
-      text_input_view->SetInputType(type_map.at(key_board_type));
+      text_input_view->SetKeyboardType(type_map.at(key_board_type));
     }
   }
 }

@@ -74,12 +74,12 @@ void HippyScreenAdapter::RemovePostFrameCallback(uint64_t id) {
 }
 
 hippy::dom::DomArgument HippyScreenAdapter::makeFrameCallbackArgument(uint64_t id) const {
-  footstone::value::HippyValue::HippyValueObjectType dom_value_object;
-  dom_value_object[kFrameCallbackId] = footstone::value::HippyValue(static_cast<int32_t>(id));
-  footstone::value::HippyValue::DomValueArrayType dom_value_array;
-  dom_value_array.push_back(footstone::value::HippyValue(dom_value_object));
-  footstone::value::HippyValue argument_dom_value(dom_value_array);
-  hippy::dom::DomArgument argument(argument_dom_value);
+  footstone::value::HippyValue::HippyValueObjectType hippy_value_object;
+  hippy_value_object[kFrameCallbackId] = footstone::value::HippyValue(static_cast<int32_t>(id));
+  footstone::value::HippyValue::HippyValueArrayType hippy_value_array;
+  hippy_value_array.push_back(footstone::value::HippyValue(hippy_value_object));
+  footstone::value::HippyValue argument_hippy_value(hippy_value_array);
+  hippy::dom::DomArgument argument(argument_hippy_value);
   return argument;
 }
 
@@ -97,21 +97,21 @@ void HippyScreenAdapter::GetScreenShot(const hippy::devtools::ScreenRequest& req
     hippy::dom::DomArgument argument = makeScreenRequestArgument(request);
     auto screen_shot_callback = [WEAK_THIS, callback](std::shared_ptr<hippy::dom::DomArgument> arg) {
       DEFINE_AND_CHECK_SELF(HippyScreenAdapter)
-      footstone::value::HippyValue result_dom_value;
-      arg->ToObject(result_dom_value);
-      footstone::value::HippyValue::HippyValueObjectType base64_dom_value;
-      if (result_dom_value.IsArray() && !result_dom_value.ToArrayChecked().empty()) {
-        base64_dom_value = result_dom_value.ToArrayChecked()[0].ToObjectChecked();
-      } else if (result_dom_value.IsObject()) {
-        base64_dom_value = result_dom_value.ToObjectChecked();
+      footstone::value::HippyValue result_hippy_value;
+      arg->ToObject(result_hippy_value);
+      footstone::value::HippyValue::HippyValueObjectType base64_hippy_value;
+      if (result_hippy_value.IsArray() && !result_hippy_value.ToArrayChecked().empty()) {
+        base64_hippy_value = result_hippy_value.ToArrayChecked()[0].ToObjectChecked();
+      } else if (result_hippy_value.IsObject()) {
+        base64_hippy_value = result_hippy_value.ToObjectChecked();
       } else {
         // don't have screenshot
         return;
       }
-      std::string base64_str = base64_dom_value.find(kScreenShot)->second.ToStringChecked();
-      int32_t width = base64_dom_value.find(kScreenWidth)->second.ToInt32Checked();
-      int32_t height = base64_dom_value.find(kScreenHeight)->second.ToInt32Checked();
-      self->screen_scale_ = base64_dom_value.find(kScreenScale)->second.ToDoubleChecked();
+      std::string base64_str = base64_hippy_value.find(kScreenShot)->second.ToStringChecked();
+      int32_t width = base64_hippy_value.find(kScreenWidth)->second.ToInt32Checked();
+      int32_t height = base64_hippy_value.find(kScreenHeight)->second.ToInt32Checked();
+      self->screen_scale_ = base64_hippy_value.find(kScreenScale)->second.ToDoubleChecked();
       callback(base64_str, width, height);
     };
     children[0]->CallFunction(kGetScreenShot, argument, screen_shot_callback);
@@ -119,14 +119,14 @@ void HippyScreenAdapter::GetScreenShot(const hippy::devtools::ScreenRequest& req
 }
 
 hippy::dom::DomArgument HippyScreenAdapter::makeScreenRequestArgument(const ScreenRequest& request) const {
-  footstone::value::HippyValue::HippyValueObjectType dom_value_object;
-  dom_value_object[kRequestMaxWidth] = footstone::value::HippyValue(request.req_width);
-  dom_value_object[kRequestMaxHeight] = footstone::value::HippyValue(request.req_height);
-  dom_value_object[kQuality] = footstone::value::HippyValue(request.quality);
-  footstone::value::HippyValue::DomValueArrayType dom_value_array;
-  dom_value_array.push_back(footstone::value::HippyValue(dom_value_object));
-  footstone::value::HippyValue argument_dom_value(dom_value_array);
-  hippy::dom::DomArgument argument(argument_dom_value);
+  footstone::value::HippyValue::HippyValueObjectType hippy_value_object;
+  hippy_value_object[kRequestMaxWidth] = footstone::value::HippyValue(request.req_width);
+  hippy_value_object[kRequestMaxHeight] = footstone::value::HippyValue(request.req_height);
+  hippy_value_object[kQuality] = footstone::value::HippyValue(request.quality);
+  footstone::value::HippyValue::HippyValueArrayType hippy_value_array;
+  hippy_value_array.push_back(footstone::value::HippyValue(hippy_value_object));
+  footstone::value::HippyValue argument_hippy_value(hippy_value_array);
+  hippy::dom::DomArgument argument(argument_hippy_value);
   return argument;
 }
 }  // namespace hippy::devtools

@@ -129,7 +129,8 @@ TDFRenderManager::TDFRenderManager() : RenderManager("TDFRenderManager") {
   id_ = global_tdf_render_manager_key.fetch_add(1);
 }
 
-void TDFRenderManager::RegisterShell(uint32_t root_id, const std::shared_ptr<tdfcore::Shell>& shell) {
+void TDFRenderManager::RegisterShell(uint32_t root_id, const std::shared_ptr<tdfcore::Shell> &shell,
+                                     const std::shared_ptr<tdfcore::RenderContext> &render_context) {
   auto uri_data_getter =  [WEAK_THIS](const string_view &uri, const RootViewNode::DataCb& callback) {
     DEFINE_AND_CHECK_SELF(TDFRenderManager);
     auto uri_loader = self->GetUriLoader();
@@ -155,6 +156,7 @@ void TDFRenderManager::RegisterShell(uint32_t root_id, const std::shared_ptr<tdf
   auto root_node = TDF_MAKE_SHARED(RootViewNode,
                                    RenderInfo{root_id, 0, 0},
                                    shell,
+                                   render_context,
                                    GetDomManager(),
                                    uri_data_getter);
   root_view_nodes_map_.Insert(root_id, root_node);

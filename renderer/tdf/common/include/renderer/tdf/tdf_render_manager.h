@@ -87,7 +87,8 @@ class TDFRenderManager
                     const DomArgument &param,
                     uint32_t cb_id) override;
 
-  void RegisterShell(uint32_t root_id, const std::shared_ptr<tdfcore::Shell> &shell);
+  void RegisterShell(uint32_t root_id, const std::shared_ptr<tdfcore::Shell> &shell,
+                     const std::shared_ptr<tdfcore::RenderContext> &render_context);
 
   void SetDomManager(std::weak_ptr<DomManager> dom_manager) { dom_manager_ = dom_manager; }
 

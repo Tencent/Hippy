@@ -39,8 +39,10 @@ enum class Direction;
 
 typedef NS_ENUM(NSUInteger, NativeRenderUpdateLifecycle) {
     NativeRenderUpdateLifecycleUninitialized = 0,
-    NativeRenderUpdateLifecycleComputed,
-    NativeRenderUpdateLifecycleDirtied,
+    NativeRenderUpdateLifecycleComputed = 1,
+    NativeRenderUpdateLifecyclePropsDirtied = 2,
+    NativeRenderUpdateLifecycleLayoutDirtied = 3,
+    NativeRenderUpdateLifecycleAllDirtied = 4,
 };
 
 typedef NS_ENUM(NSUInteger, NativeRenderCreationType) {
@@ -70,7 +72,10 @@ extern NSString *const NativeRenderShadowViewDiffTag;
  * 3. If a node is "computed" and the constraint passed from above is identical to the constraint used to
  *    perform the last computation, we skip laying out the subtree entirely.
  */
-@interface NativeRenderObjectView : NSObject <NativeRenderComponentProtocol>
+@interface NativeRenderObjectView : NSObject <NativeRenderComponentProtocol> {
+@protected
+    NativeRenderUpdateLifecycle _propagationLifecycle;
+}
 
 /**
  * NativeRenderComponent interface.
@@ -198,12 +203,10 @@ extern NSString *const NativeRenderShadowViewDiffTag;
  */
 - (BOOL)isCSSLeafNode;
 
-- (void)dirtyPropagation NS_REQUIRES_SUPER;
-- (void)dirtySelfPropagation;
-- (void)dirtyDescendantPropagation;
-- (BOOL)isPropagationDirty;
+- (void)dirtyPropagation:(NativeRenderUpdateLifecycle)type NS_REQUIRES_SUPER;
+- (BOOL)isPropagationDirty:(NativeRenderUpdateLifecycle)dirtyType;
 
-- (void)dirtyText NS_REQUIRES_SUPER;
+- (void)dirtyText:(BOOL)needToDoLayout NS_REQUIRES_SUPER;
 - (void)setTextComputed NS_REQUIRES_SUPER;
 - (BOOL)isTextDirty;
 

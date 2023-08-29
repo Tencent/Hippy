@@ -523,7 +523,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     view.renderManager = [self renderManager];
     [view clearSortedSubviews];
     [view didUpdateNativeRenderSubviews];
-    NSMutableSet<NativeRenderApplierBlock> *applierBlocks = [NSMutableSet setWithCapacity:1];
+    NSMutableSet<NativeRenderApplierBlock> *applierBlocks = [NSMutableSet setWithCapacity:256];
     [renderObject amendLayoutBeforeMount:applierBlocks];
     if (applierBlocks.count) {
         NSDictionary<NSNumber *, UIView *> *viewRegistry =
@@ -618,7 +618,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     newProps = [renderObject mergeProps:props];
     virtualProps = renderObject.props;
     [componentData setProps:newProps forRenderObjectView:renderObject];
-    [renderObject dirtyPropagation];
+    [renderObject dirtyPropagation:NativeRenderUpdateLifecyclePropsDirtied];
     [self addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[componentTag];
         [componentData setProps:newProps forView:view];
@@ -676,7 +676,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 }
 
 - (void)amendPendingUIBlocksWithStylePropagationUpdateForRenderObject:(NativeRenderObjectView *)topView {
-    NSMutableSet<NativeRenderApplierBlock> *applierBlocks = [NSMutableSet setWithCapacity:1];
+    NSMutableSet<NativeRenderApplierBlock> *applierBlocks = [NSMutableSet setWithCapacity:256];
 
     [topView collectUpdatedProperties:applierBlocks parentProperties:@{}];
     if (applierBlocks.count) {
@@ -759,6 +759,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
             NativeRenderObjectView *subRenderObject = [self->_renderObjectRegistry componentForTag:@(subviewTags[index]) onRootTag:rootNodeTag];
             [superRenderObject insertNativeRenderSubview:subRenderObject atIndex:subviewIndices[index]];
         }
+        [superRenderObject didUpdateNativeRenderSubviews];
     }];
     for (const std::shared_ptr<DomNode> &node : nodes) {
         NSNumber *componentTag = @(node->GetId());
@@ -780,7 +781,9 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
                 UIView *superView = viewRegistry[@(tag)];
                 for (NSUInteger index = 0; index < subViewTags_.size(); index++) {
                     UIView *subview = viewRegistry[@(subViewTags_[index])];
-                    [superView insertNativeRenderSubview:subview atIndex:subViewIndices_[index]];
+                    if (subview) {
+                        [superView insertNativeRenderSubview:subview atIndex:subViewIndices_[index]];
+                    }
                 }
                 [superView clearSortedSubviews];
                 [superView didUpdateNativeRenderSubviews];
@@ -839,7 +842,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     for (auto dom_node : nodes) {
         int32_t tag = dom_node->GetRenderInfo().id;
         NativeRenderObjectView *renderObject = [_renderObjectRegistry componentForTag:@(tag) onRootTag:rootTag];
-        [renderObject dirtyPropagation];
+        [renderObject dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
         if (renderObject) {
             [renderObject removeFromNativeRenderSuperview];
             [self purgeChildren:@[renderObject] onRootTag:rootTag fromRegistry:_renderObjectRegistry];
@@ -896,8 +899,8 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         [view removeFromNativeRenderSuperview];
         [toObjectView insertNativeRenderSubview:view atIndex:index];
     }
-    [fromObjectView dirtyPropagation];
-    [toObjectView dirtyPropagation];
+    [fromObjectView dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
+    [toObjectView dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
     [fromObjectView didUpdateNativeRenderSubviews];
     [toObjectView didUpdateNativeRenderSubviews];
     auto strongTags = std::move(ids);
@@ -933,7 +936,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         int32_t index = node->GetRenderInfo().index;
         int32_t componentTag = node->GetId();
         NativeRenderObjectView *objectView = [_renderObjectRegistry componentForTag:@(componentTag) onRootTag:@(rootTag)];
-        [objectView dirtyPropagation];
+        [objectView dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
         HPAssert(!parentObjectView || parentObjectView == [objectView parentComponent], @"try to move object view on different parent object view");
         if (!parentObjectView) {
             parentObjectView = [objectView parentComponent];
@@ -977,7 +980,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         CGRect frame = CGRectMakeFromLayoutResult(layoutResult);
         NativeRenderObjectView *renderObject = [_renderObjectRegistry componentForTag:componentTag onRootTag:rootTag];
         if (renderObject) {
-            [renderObject dirtyPropagation];
+            [renderObject dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
             renderObject.frame = frame;
             renderObject.nodeLayoutResult = layoutResult;
             [self addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
@@ -1465,7 +1468,8 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     }
     [self addUIBlock:^(NativeRenderImpl *renderContext, __unused NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         NativeRenderImpl *uiManager = (NativeRenderImpl *)renderContext;
-        for (id<NativeRenderComponentProtocol> node in uiManager->_componentTransactionListeners) {
+        NSSet<id<NativeRenderComponentProtocol>> *nodes = [uiManager->_componentTransactionListeners copy];
+        for (id<NativeRenderComponentProtocol> node in nodes) {
             [node nativeRenderComponentDidFinishTransaction];
         }
     }];

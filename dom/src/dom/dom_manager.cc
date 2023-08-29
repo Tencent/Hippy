@@ -51,7 +51,7 @@ using OneShotTimer = footstone::timer::OneShotTimer;
 using Serializer = footstone::value::Serializer;
 using Deserializer = footstone::value::Deserializer;
 
-using DomValueArrayType = footstone::value::HippyValue::DomValueArrayType;
+using HippyValueArrayType = footstone::value::HippyValue::HippyValueArrayType;
 
 void DomManager::SetRenderManager(const std::weak_ptr<RenderManager>& render_manager) {
 #ifdef EXPERIMENT_LAYER_OPTIMIZATION
@@ -218,7 +218,7 @@ DomManager::byte_string DomManager::GetSnapShot(const std::shared_ptr<RootNode>&
   if (!root_node) {
     return {};
   }
-  DomValueArrayType array;
+  HippyValueArrayType array;
   root_node->Traverse([&array](const std::shared_ptr<DomNode>& node) { array.emplace_back(node->Serialize()); });
   Serializer serializer;
   serializer.WriteHeader();
@@ -235,7 +235,7 @@ bool DomManager::SetSnapShot(const std::shared_ptr<RootNode>& root_node, const b
   if (!flag || !value.IsArray()) {
     return false;
   }
-  DomValueArrayType array;
+  HippyValueArrayType array;
   value.ToArray(array);
   if (array.empty()) {
     return false;
@@ -278,7 +278,8 @@ void DomManager::RecordDomStartTimePoint() {
 }
 
 void DomManager::RecordDomEndTimePoint() {
-  if (dom_end_time_point_.ToEpochDelta() == TimeDelta::Zero()) {
+  if (dom_end_time_point_.ToEpochDelta() == TimeDelta::Zero()
+  && dom_start_time_point_.ToEpochDelta() != TimeDelta::Zero()) {
     dom_end_time_point_ = footstone::TimePoint::SystemNow();
   }
 }

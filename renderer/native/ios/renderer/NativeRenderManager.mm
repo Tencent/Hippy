@@ -155,10 +155,10 @@ void NativeRenderManager::CallFunction(std::weak_ptr<hippy::RootNode> root_node,
         HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
         std::shared_ptr<DomNode> node = dom_node.lock();
         if (node) {
-            HippyValue dom_value;
-            param.ToObject(dom_value);
+            HippyValue hippy_value;
+            param.ToObject(hippy_value);
             [renderImpl_ dispatchFunction:name viewName:node->GetViewName()
-                                 viewTag:node->GetId() onRootNode:root_node params:dom_value
+                                viewTag:node->GetId() onRootNode:root_node params:hippy_value
                                 callback:node->GetCallback(name, cb)];
         }
         EndBatch(root_node);

@@ -43,6 +43,6 @@ dependencies {
   compileOnly project(path: ':pool')
   // tdf render need ControllerManager from native manager
   compileOnly project(path: ':renderer-native')
-  compileOnly "com.tencent.tdfcore:embedder:0.0.8"
+  compileOnly "com.tencent.tdfcore:embedder:0.0.16"
   compileOnly deps.annotation
 }

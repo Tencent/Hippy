@@ -57,7 +57,7 @@ class ViewPagerNode : public ScrollViewNode {
 
   void OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) override;
   void HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeleteProps& dom_delete_props) override;
-  std::shared_ptr<tdfcore::View> CreateView() override;
+  std::shared_ptr<tdfcore::View> CreateView(const std::shared_ptr<ViewContext> &context) override;
   void CallFunction(const std::string& function_name, const DomArgument& param, const uint32_t call_back_id) override;
 
  protected:

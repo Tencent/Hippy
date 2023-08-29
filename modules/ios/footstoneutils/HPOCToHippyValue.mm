@@ -51,7 +51,7 @@ using HippyValue = footstone::HippyValue;
 @implementation NSArray (ToHippyValue)
 
 - (HippyValue)toHippyValue {
-    HippyValue::DomValueArrayType array;
+    HippyValue::HippyValueArrayType array;
     for (NSObject *obj in self) {
         array.push_back([obj toHippyValue]);
     }

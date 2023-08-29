@@ -57,7 +57,7 @@ inline namespace render {
 inline namespace tdf {
 
 using footstone::check::checked_numeric_cast;
-using DomValueArrayType = footstone::value::HippyValue::DomValueArrayType;
+using HippyValueArrayType = footstone::value::HippyValue::HippyValueArrayType;
 using HippyValueObjectType = footstone::value::HippyValue::HippyValueObjectType;
 
 ViewNode::ViewNode(const std::shared_ptr<hippy::dom::DomNode> &dom_node, const RenderInfo info,
@@ -180,7 +180,7 @@ void ViewNode::SetBackgroundImage(const std::string &img_url) {
     auto style = std::make_shared<DomStyleMap>();
     style->emplace(std::string(hippy::kImageSrc), std::make_shared<footstone::HippyValue>(img_url));
     auto ext = std::make_shared<DomStyleMap>();
-    auto dom_node = std::make_shared<hippy::dom::DomNode>(0,
+    auto dom_node = std::make_shared<hippy::dom::DomNode>(hippy::dom::kInvalidId,
                                                           id_,
                                                           0,
                                                           "BackgroundImage",
@@ -219,7 +219,7 @@ tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style,
   }
 
   HippyValueObjectType transform_style;
-  DomValueArrayType parsed_array;
+  HippyValueArrayType parsed_array;
   if (!transform_it->second->ToArray(parsed_array)) {
     return transform;
   }
@@ -229,7 +229,7 @@ tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style,
 
   if (auto it = transform_style.find(kMatrix); it != transform_style.end()) {
     FOOTSTONE_CHECK(it->second.IsArray());
-    DomValueArrayType matrix_array;
+    HippyValueArrayType matrix_array;
     auto result = it->second.ToArray(matrix_array);
     if (!result) {
       return transform;
@@ -298,7 +298,7 @@ tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style,
 
   if (auto it = transform_style.find(kTranslate); it != transform_style.end()) {
     FOOTSTONE_DCHECK(it->second.IsDouble());
-    DomValueArrayType translation_array;
+    HippyValueArrayType translation_array;
     auto result = it->second.ToArray(translation_array);
     if (!result) {
       return transform;
@@ -384,8 +384,8 @@ void ViewNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
   }
 }
 
-std::shared_ptr<tdfcore::View> ViewNode::CreateView() {
-  auto view = TDF_MAKE_SHARED(tdfcore::View);
+std::shared_ptr<tdfcore::View> ViewNode::CreateView(const std::shared_ptr<ViewContext> &context) {
+  auto view = TDF_MAKE_SHARED(tdfcore::View, context);
   view->SetClipToBounds(true);
   return view;
 }
@@ -410,9 +410,7 @@ void ViewNode::OnRemoveEventListener(uint32_t id, const std::string& name) {
 }
 
 void ViewNode::HandleEventInfoUpdate() {
-  if (supported_events_.find(hippy::kClickEvent) != supported_events_.end() ||
-      supported_events_.find(hippy::kPressIn) != supported_events_.end() ||
-      supported_events_.find(hippy::kPressOut) != supported_events_.end()) {
+  if (supported_events_.find(hippy::kClickEvent) != supported_events_.end()) {
     RegisterClickEvent();
   }
 
@@ -423,7 +421,9 @@ void ViewNode::HandleEventInfoUpdate() {
   if (supported_events_.find(hippy::kTouchStartEvent) != supported_events_.end() ||
       supported_events_.find(hippy::kTouchMoveEvent) != supported_events_.end() ||
       supported_events_.find(hippy::kTouchEndEvent) != supported_events_.end() ||
-      supported_events_.find(hippy::kTouchCancelEvent) != supported_events_.end()) {
+      supported_events_.find(hippy::kTouchCancelEvent) != supported_events_.end() ||
+      supported_events_.find(hippy::kPressIn) != supported_events_.end() ||
+      supported_events_.find(hippy::kPressOut) != supported_events_.end()) {
     RegisterTouchEvent();
   }
 }
@@ -436,37 +436,10 @@ void ViewNode::RegisterClickEvent() {
     tap_view_.lock()->AddGesture(tap_recognizer_);
   }
 
-  if (supported_events_.find(hippy::kClickEvent) != supported_events_.end()) {
-    tap_recognizer_->SetTap([WEAK_THIS]() {
-      DEFINE_AND_CHECK_SELF(ViewNode)
-      self->SendGestureDomEvent(kClickEvent, nullptr);
-    });
-  } else {
-    tap_recognizer_->SetTap(nullptr);
-  }
-
-  if (supported_events_.find(hippy::kPressIn) != supported_events_.end()) {
-    tap_recognizer_->SetTapDown([WEAK_THIS](const tdfcore::TapDetails& detail) {
-      DEFINE_AND_CHECK_SELF(ViewNode)
-      self->SendGestureDomEvent(kPressIn, nullptr);
-    });
-  } else {
-    tap_recognizer_->SetTapDown(nullptr);
-  }
-
-  if (supported_events_.find(hippy::kPressOut) != supported_events_.end()) {
-    tap_recognizer_->SetTapUp([WEAK_THIS](const tdfcore::TapDetails& detail) {
-      DEFINE_AND_CHECK_SELF(ViewNode)
-      self->SendGestureDomEvent(kPressOut, nullptr);
-    });
-    tap_recognizer_->SetTapCancel([WEAK_THIS]() {
-      DEFINE_AND_CHECK_SELF(ViewNode)
-      self->SendGestureDomEvent(kPressOut, nullptr);
-    });
-  } else {
-    tap_recognizer_->SetTapUp(nullptr);
-    tap_recognizer_->SetTapCancel(nullptr);
-  }
+  tap_recognizer_->SetTap([WEAK_THIS](const tdfcore::TapDetails &details) {
+    DEFINE_AND_CHECK_SELF(ViewNode)
+    self->SendGestureDomEvent(kClickEvent, nullptr);
+  });
 }
 
 void ViewNode::RegisterLongClickEvent() {
@@ -485,51 +458,72 @@ void ViewNode::RegisterLongClickEvent() {
 }
 
 void ViewNode::RegisterTouchEvent() {
-  if (touch_recognizer_ == nullptr || GetView() != touch_view_.lock()) {
-    touch_recognizer_ = TDF_MAKE_SHARED(TouchRecognizer);
-    gestures_map_[kTouchStartEvent] = touch_recognizer_;
+  if (touch_event_ == nullptr || GetView() != touch_view_.lock()) {
+    touch_event_ = TDF_MAKE_SHARED(tdfcore::PointerEventListener);
     touch_view_ = GetView();
-    touch_view_.lock()->AddGesture(touch_recognizer_);
+    touch_view_.lock()->AddUIEventListener(touch_event_);
   }
 
-  if (supported_events_.find(hippy::kTouchStartEvent) != supported_events_.end()) {
-    touch_recognizer_->SetTouchStart([WEAK_THIS](const TouchDetails &details) {
+  bool has_touch_start = supported_events_.find(hippy::kTouchStartEvent) != supported_events_.end();
+  bool has_touch_move = supported_events_.find(hippy::kTouchMoveEvent) != supported_events_.end();
+  bool has_touch_end = supported_events_.find(hippy::kTouchEndEvent) != supported_events_.end();
+  bool has_touch_cancel = supported_events_.find(hippy::kTouchCancelEvent) != supported_events_.end();
+  bool has_press_in = supported_events_.find(hippy::kPressIn) != supported_events_.end();
+  bool has_press_out = supported_events_.find(hippy::kPressOut) != supported_events_.end();
+
+  if (has_touch_start || has_press_in) {
+    touch_event_->SetTouchesBegan([WEAK_THIS, has_touch_start, has_press_in](const tdfcore::PointerDataList &data_list) {
       DEFINE_AND_CHECK_SELF(ViewNode)
-      auto value = TouchRecognizer::TouchDetails2HippyValue(self->GetRenderInfo().id, "onTouchDown", details);
-      self->SendGestureDomEvent(kTouchStartEvent, value);
+      if (has_touch_start) {
+        auto value = PointerDataList2HippyValue(self->GetRenderInfo().id, "onTouchDown", data_list);
+        self->SendGestureDomEvent(kTouchStartEvent, value);
+      }
+      if (has_press_in) {
+        self->SendGestureDomEvent(kPressIn, nullptr);
+      }
     });
   } else {
-    touch_recognizer_->SetTouchStart(nullptr);
+    touch_event_->SetTouchesBegan(nullptr);
   }
 
-  if (supported_events_.find(hippy::kTouchMoveEvent) != supported_events_.end()) {
-    touch_recognizer_->SetTouchMove([WEAK_THIS](const TouchDetails &details) {
+  if (has_touch_move) {
+    touch_event_->SetTouchesMoved([WEAK_THIS](const tdfcore::PointerDataList &data_list) {
       DEFINE_AND_CHECK_SELF(ViewNode)
-      auto value = TouchRecognizer::TouchDetails2HippyValue(self->GetRenderInfo().id, "onTouchMove", details);
+      auto value = PointerDataList2HippyValue(self->GetRenderInfo().id, "onTouchMove", data_list);
       self->SendGestureDomEvent(kTouchMoveEvent, value);
     });
   } else {
-    touch_recognizer_->SetTouchMove(nullptr);
+    touch_event_->SetTouchesMoved(nullptr);
   }
 
-  if (supported_events_.find(hippy::kTouchEndEvent) != supported_events_.end()) {
-    touch_recognizer_->SetTouchEnd([WEAK_THIS](const TouchDetails &details) {
+  if (has_touch_end || has_press_out) {
+    touch_event_->SetTouchesEnded([WEAK_THIS, has_touch_end, has_press_out](const tdfcore::PointerDataList &data_list) {
       DEFINE_AND_CHECK_SELF(ViewNode)
-      auto value = TouchRecognizer::TouchDetails2HippyValue(self->GetRenderInfo().id, "onTouchEnd", details);
-      self->SendGestureDomEvent(kTouchEndEvent, value);
+      if (has_touch_end) {
+        auto value = PointerDataList2HippyValue(self->GetRenderInfo().id, "onTouchEnd", data_list);
+        self->SendGestureDomEvent(kTouchEndEvent, value);
+      }
+      if (has_press_out) {
+        self->SendGestureDomEvent(kPressOut, nullptr);
+      }
     });
   } else {
-    touch_recognizer_->SetTouchEnd(nullptr);
+    touch_event_->SetTouchesEnded(nullptr);
   }
 
-  if (supported_events_.find(hippy::kTouchCancelEvent) != supported_events_.end()) {
-    touch_recognizer_->SetTouchCancel([WEAK_THIS](const TouchDetails &details) {
+  if (has_touch_cancel || has_press_out) {
+    touch_event_->SetTouchesCanceled([WEAK_THIS, has_touch_cancel, has_press_out](const tdfcore::PointerDataList &data_list) {
       DEFINE_AND_CHECK_SELF(ViewNode)
-      auto value = TouchRecognizer::TouchDetails2HippyValue(self->GetRenderInfo().id, "onTouchCancel", details);
-      self->SendGestureDomEvent(kTouchCancelEvent, value);
+      if (has_touch_cancel) {
+        auto value = PointerDataList2HippyValue(self->GetRenderInfo().id, "onTouchCancel", data_list);
+        self->SendGestureDomEvent(kTouchCancelEvent, value);
+      }
+      if (has_press_out) {
+        self->SendGestureDomEvent(kPressOut, nullptr);
+      }
     });
   } else {
-    touch_recognizer_->SetTouchCancel(nullptr);
+    touch_event_->SetTouchesCanceled(nullptr);
   }
 }
 
@@ -546,10 +540,15 @@ void ViewNode::RemoveGestureEvent(std::string&& event_type) {
 void ViewNode::RemoveAllEventInfo() {
   RemoveGestureEvent(hippy::kClickEvent);
   RemoveGestureEvent(hippy::kLongClickEvent);
-  RemoveGestureEvent(hippy::kTouchStartEvent);
   tap_recognizer_ = nullptr;
   long_press_recognizer_ = nullptr;
-  touch_recognizer_ = nullptr;
+  if (touch_event_) {
+    auto view = attached_view_.lock();
+    if (view) {
+      view->RemoveUIEventListener(touch_event_);
+    }
+    touch_event_ = nullptr;
+  }
 }
 
 void ViewNode::HandleInterceptEvent(const DomStyleMap& dom_style) {
@@ -573,7 +572,7 @@ void ViewNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index)
   if (!IsAttached()) {
     return;
   }
-  child->Attach();
+  child->Attach(GetView()->GetViewContext());
 }
 
 void ViewNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) { child->Detach(); }
@@ -685,7 +684,7 @@ bool ViewNode::IsAttachViewMatch(const std::shared_ptr<ViewNode>& node, const st
   return true;
 }
 
-void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
+void ViewNode::Attach(const std::shared_ptr<ViewContext> &context, const std::shared_ptr<tdfcore::View>& view) {
   FOOTSTONE_DCHECK(!is_attached_);
   FOOTSTONE_DCHECK(!parent_.expired());
   FOOTSTONE_DCHECK(parent_.lock()->IsAttached());
@@ -699,7 +698,7 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
     attached_view_ = view;
   } else {
     // this should be the only caller of CreateView.
-    auto v = CreateView();
+    auto v = CreateView(context);
     v->SetId(render_info_.id);
     v->SetHitTestBehavior(tdfcore::HitTestBehavior::kTranslucent);
     if (parent_.lock()->GetInterceptTouchEventFlag()) {
@@ -747,7 +746,7 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
       }
     }
     if (!child->IsAttached()) {
-      child->Attach(child_view);
+      child->Attach(context, child_view);
     }
     ++child_index;
   }
@@ -792,6 +791,20 @@ void ViewNode::CallFunction(const std::string &name, const DomArgument &param, c
     DoCallback(name, call_back_id, std::make_shared<footstone::HippyValue>(obj));
   }
   DevtoolsUtil::CallDevtoolsFunction(root_node_, shared_from_this(), name, param, call_back_id);
+}
+
+std::shared_ptr<footstone::HippyValue> ViewNode::PointerDataList2HippyValue(
+    uint32_t id, const char *name, const tdfcore::PointerDataList &data_list) {
+  if (data_list.size() == 0) {
+    return nullptr;
+  }
+  auto pointer = data_list[0];
+  footstone::HippyValue::HippyValueObjectType obj;
+  obj["id"] = footstone::HippyValue(id);
+  obj["name"] = footstone::HippyValue(name);
+  obj["page_x"] = footstone::HippyValue(pointer.position.x);
+  obj["page_y"] = footstone::HippyValue(pointer.position.y);
+  return std::make_shared<footstone::HippyValue>(obj);
 }
 
 }  // namespace tdf
