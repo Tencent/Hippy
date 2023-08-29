@@ -269,7 +269,8 @@ void DomManager::RecordDomStartTimePoint() {
 }
 
 void DomManager::RecordDomEndTimePoint() {
-  if (dom_end_time_point_.ToEpochDelta() == TimeDelta::Zero()) {
+  if (dom_end_time_point_.ToEpochDelta() == TimeDelta::Zero()
+  && dom_start_time_point_.ToEpochDelta() != TimeDelta::Zero()) {
     dom_end_time_point_ = footstone::TimePoint::SystemNow();
   }
 }
