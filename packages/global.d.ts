@@ -294,8 +294,7 @@ declare namespace HippyTypes {
   type RecursiveArray<T> = Array<T | ReadonlyArray<T> | RecursiveArray<T>>;
   export type GenericStyleProp<T> =
   | T
-  | RegisteredStyle<T>
-  | RecursiveArray<T | RegisteredStyle<T> | Falsy>
+  | RecursiveArray<T | Falsy>
   | Falsy;
 
   export type StyleProp = GenericStyleProp<Style>;
