@@ -76,25 +76,13 @@ module.exports = {
           },
         ],
       },
-      // {
-      //   test: /\.(png|jpe?g|gif)$/i,
-      //   use: [{
-      //     loader: 'file-loader',
-      //     options: {
-      //       name: '[name].[ext]',
-      //       outputPath: 'assets/',
-      //     },
-      //   }],
-      // },
       {
         test: /\.(png|jpe?g|gif)$/i,
         use: [{
-          loader: 'url-loader',
+          loader: 'file-loader',
           options: {
-            limit: true,
-            // fallback: 'file-loader',
-            // name: '[name].[ext]',
-            // outputPath: 'assets/',
+            name: '[name].[ext]',
+            outputPath: 'assets/',
           },
         }],
       },
