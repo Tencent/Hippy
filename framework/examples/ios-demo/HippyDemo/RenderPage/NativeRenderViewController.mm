@@ -115,7 +115,7 @@ static NSString *const engineKey = @"Demo";
                                                           launchOptions:launchOptions
                                                               engineKey:key];
     [_convenientBridge setInspectable:YES];
-    _convenientBridge.contextName = key;
+    _convenientBridge.contextName = @"Demo";
     _convenientBridge.moduleName = @"Demo";
     _convenientBridge.methodInterceptor = self;
     [self mountConnector:_convenientBridge];
