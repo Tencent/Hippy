@@ -44,11 +44,10 @@ Due to `hippy-react` and `hippy-vue` have more coupling with `global OS paramete
 
 ## Wait to do
 
-    1. WaterfallView组件补充
-    2. AnimationSet模块的补充
-    3. Platform-Localization模块的补充
-    4. Dynamic-load能力的补充
-    5. List.rowShouldSticky\bounces\overScrollEnabled\showScrollIndicator\rowShouldSticky属性补充
-    6. ScrollView.scrollIndicatorInsets\showScrollIndicator\showsHorizontalScrollIndicator\showsVerticalScrollIndicator属性补充
-    7. Image.capInsets属性补充
+    1. WaterfallView Component support
+    2. AnimationSet Component support
+    3. Platform-Localization Component support
+    4. List.rowShouldSticky\bounces\overScrollEnabled\showScrollIndicator\rowShouldSticky attribute support
+    5. ScrollView.scrollIndicatorInsets\showScrollIndicator\showsHorizontalScrollIndicator\showsVerticalScrollIndicator attribute support
+    6. Image.capInsets attribute support
  

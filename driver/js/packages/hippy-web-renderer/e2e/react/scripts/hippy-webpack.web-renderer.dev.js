@@ -161,13 +161,24 @@ module.exports = {
       const aliases = {};
       // If hippy-react was built exist then make a alias
       // Remove the section if you don't use it
-      const hippyReactPath = path.resolve(__dirname, '../../../packages/hippy-react');
+      const hippyReactPath = path.resolve(__dirname, '../../../../hippy-react');
       if (fs.existsSync(path.resolve(hippyReactPath, 'dist/index.js'))) {
         console.warn(`* Using the @hippy/react in ${hippyReactPath}`);
         aliases['@hippy/react'] = hippyReactPath;
       } else {
         console.warn('* Using the @hippy/react defined in package.json');
       }
+
+      // If @hippy/web-renderer was built exist in packages directory then make an alias
+      // Remove the section if you don't use it
+      const webRendererPath = path.resolve(__dirname, '../../../dist');
+      if (fs.existsSync(path.resolve(webRendererPath, 'index.js'))) {
+        console.warn(`* Using the @hippy/web-renderer in ${webRendererPath} as @hippy/web-renderer alias`);
+        aliases['@hippy/web-renderer'] = webRendererPath;
+      } else {
+        console.warn('* Using the @hippy/web-renderer defined in package.json');
+      }
+
 
       return aliases;
     })(),
