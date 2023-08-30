@@ -209,8 +209,8 @@
     }];
 
     BOOL success = YES;
-    [UIView setAnimationsEnabled:NO];
     if ([batchUpdate count]) {
+        [UIView setAnimationsEnabled:NO];
         @try {
             [view performBatchUpdates:^{
                 for (NSInvocation *invocation in batchUpdate) {
