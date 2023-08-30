@@ -47,6 +47,7 @@ inline namespace tdf {
 inline namespace view {
 
 using tdfcore::ScrollView;
+using tdfcore::ViewContext;
 
 using ScrollOffsetListener = std::function<void(int32_t position, double offset)>;
 using PageSelectedListener = std::function<void(int32_t position)>;
@@ -68,7 +69,7 @@ class ViewPager : public ScrollView {
   TDF_REFF_CLASS_META(ViewPager)
 
  public:
-  ViewPager();
+  ViewPager(const std::shared_ptr<ViewContext> &context);
 
   void Init() override;
 

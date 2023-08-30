@@ -36,6 +36,7 @@ class PerformancePaintTiming : public PerformanceEntry {
   };
 
   PerformancePaintTiming(Type type, const TimePoint& start_time);
+  PerformancePaintTiming(Type type);
 
   virtual string_view ToJSON() override;
 

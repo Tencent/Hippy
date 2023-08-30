@@ -25,16 +25,20 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class NativeRenderObjectView;
+@class NativeRenderObjectView, WaterfallItemChangeContext;
 
 @interface NativeRenderWaterfallViewDataSource : NSObject<NSCopying>
 
+- (instancetype)initWithDataSource:(NSArray<__kindof NativeRenderObjectView *> *)dataSource
+                      itemViewName:(NSString *)itemViewName
+                 containBannerView:(BOOL)containBannerView;
+
 @property(nonatomic, readonly) BOOL containBannerView;
 @property(nonatomic, readonly) NativeRenderObjectView *bannerView;
-@property(nonatomic, readonly, copy) NSArray<NativeRenderObjectView *> *cellRenderObjectViews;
+@property(nonatomic, copy) NSArray<NSArray<NativeRenderObjectView *> *> *cellRenderObjectViews;
 @property(nonatomic, copy) NSString *itemViewName;
 
-- (void)setDataSource:(NSArray<NativeRenderObjectView *> *)dataSource containBannerView:(BOOL)containBannerView;
+- (void)setDataSource:(NSArray<__kindof NativeRenderObjectView *> *)dataSource containBannerView:(BOOL)containBannerView;
 - (NativeRenderObjectView *)cellForIndexPath:(NSIndexPath *)indexPath;
 - (NativeRenderObjectView *)headerForSection:(NSInteger)section;
 - (NSInteger)numberOfSection;
@@ -43,11 +47,19 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSIndexPath *)indexPathForFlatIndex:(NSInteger)index;
 - (NSInteger)flatIndexForIndexPath:(NSIndexPath *)indexPath;
 
-@end
+- (void)applyDiff:(NativeRenderWaterfallViewDataSource *)another
+    changedConext:(WaterfallItemChangeContext *)context
+ forWaterfallView:(UICollectionView *)view
+       completion:(void(^)(BOOL success))completion;
 
-@interface NativeRenderWaterfallViewDataSource (ApplyDiff)
-
-- (void)applyDiff:(NativeRenderWaterfallViewDataSource *)another forWaterfallView:(UICollectionView *)view;
+- (void)cellDiffFromAnother:(NativeRenderWaterfallViewDataSource *)another
+             sectionStartAt:(NSUInteger)startSection
+          frameChangedItems:(NSHashTable<__kindof NativeRenderObjectView *> *)frameChangedItems
+                     result:(void(^)(NSArray<NSIndexPath *> *reloadedItemIndexPath,
+                                     NSArray<NSIndexPath *> *InsertedIndexPath,
+                                     NSArray<NSIndexPath *> *deletedIndexPath,
+                                     NSIndexSet *insertedSecionIndexSet,
+                                     NSIndexSet *deletedSectionIndexSet))result;
 
 @end
 

@@ -55,6 +55,12 @@ class PerformanceEntry {
                                          start_time_(start_time),
                                          duration_(duration) {}
 
+  PerformanceEntry(const string_view& name,
+                   SubType sub_type,
+                   Type type) : name_(name),
+                                sub_type_(sub_type),
+                                type_(type) {}
+
   virtual ~PerformanceEntry() = default;
 
   inline auto GetName() const {
@@ -83,7 +89,7 @@ class PerformanceEntry {
 
   virtual string_view ToJSON();
 
- private:
+ protected:
   string_view name_;
   SubType sub_type_;
   Type type_;

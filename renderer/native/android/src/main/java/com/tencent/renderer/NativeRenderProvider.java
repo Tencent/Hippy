@@ -28,6 +28,7 @@ import com.tencent.renderer.annotation.CalledByNative;
 import com.tencent.renderer.serialization.Deserializer;
 import com.tencent.renderer.serialization.Serializer;
 
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,11 +42,11 @@ import java.util.List;
 public class NativeRenderProvider {
 
     @NonNull
-    private final NativeRenderDelegate mRenderDelegate;
-    @NonNull
     private final Deserializer mDeserializer;
     @NonNull
     private final Serializer mSerializer;
+    @NonNull
+    private final WeakReference<NativeRenderDelegate> mRenderDelegateRef;
     @Nullable
     private BinaryReader mSafeHeapReader;
     @Nullable
@@ -53,13 +54,16 @@ public class NativeRenderProvider {
     private int mInstanceId;
 
     public NativeRenderProvider(@NonNull NativeRenderDelegate renderDelegate) {
-        mRenderDelegate = renderDelegate;
+        mRenderDelegateRef = new WeakReference<>(renderDelegate);
         mSerializer = new Serializer();
         mDeserializer = new Deserializer(null, new InternalizedStringTable());
     }
 
     public void setInstanceId(int instanceId) {
-        NativeRendererManager.addNativeRendererInstance(instanceId, (NativeRender)mRenderDelegate);
+        // Call set id follows the create native renderer, so RenderDelegate should not be null here.
+        assert mRenderDelegateRef.get() != null;
+        NativeRendererManager.addNativeRendererInstance(instanceId,
+                (NativeRender) (mRenderDelegateRef.get()));
         mInstanceId = instanceId;
     }
 
@@ -125,14 +129,13 @@ public class NativeRenderProvider {
     @CalledByNative
     @SuppressWarnings("unused")
     public void createNode(int rootId, byte[] buffer) {
-        // Replay snapshots are executed in the UI thread, which may generate multithreaded problem with
-        // the create node of the dom thread, so synchronized with native renderer object here.
-        synchronized(mRenderDelegate) {
+        NativeRenderDelegate renderDelegate = mRenderDelegateRef.get();
+        if (renderDelegate != null) {
             try {
                 final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
-                mRenderDelegate.createNode(rootId, list);
+                renderDelegate.createNode(rootId, list);
             } catch (NativeRenderException e) {
-                mRenderDelegate.handleRenderException(e);
+                renderDelegate.handleRenderException(e);
             }
         }
     }
@@ -146,11 +149,14 @@ public class NativeRenderProvider {
     @CalledByNative
     @SuppressWarnings("unused")
     public void updateNode(int rootId, byte[] buffer) {
-        try {
-            final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
-            mRenderDelegate.updateNode(rootId, list);
-        } catch (NativeRenderException e) {
-            mRenderDelegate.handleRenderException(e);
+        NativeRenderDelegate renderDelegate = mRenderDelegateRef.get();
+        if (renderDelegate != null) {
+            try {
+                final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
+                renderDelegate.updateNode(rootId, list);
+            } catch (NativeRenderException e) {
+                renderDelegate.handleRenderException(e);
+            }
         }
     }
 
@@ -163,10 +169,13 @@ public class NativeRenderProvider {
     @CalledByNative
     @SuppressWarnings("unused")
     public void deleteNode(int rootId, int[] ids) {
-        try {
-            mRenderDelegate.deleteNode(rootId, ids);
-        } catch (NativeRenderException e) {
-            mRenderDelegate.handleRenderException(e);
+        NativeRenderDelegate renderDelegate = mRenderDelegateRef.get();
+        if (renderDelegate != null) {
+            try {
+                renderDelegate.deleteNode(rootId, ids);
+            } catch (NativeRenderException e) {
+                renderDelegate.handleRenderException(e);
+            }
         }
     }
 
@@ -174,8 +183,7 @@ public class NativeRenderProvider {
      * Call from native (C++) render manager to move render node
      *
      * <p>
-     * Move the child node to the new parent node
-     * </>
+     * Move the child node to the new parent node </>
      *
      * @param rootId the root node id
      * @param ids the node id array list
@@ -186,10 +194,13 @@ public class NativeRenderProvider {
     @CalledByNative
     @SuppressWarnings("unused")
     public void moveNode(int rootId, int[] ids, int newPid, int oldPid, int insertIndex) {
-        try {
-            mRenderDelegate.moveNode(rootId, ids, newPid, oldPid, insertIndex);
-        } catch (NativeRenderException e) {
-            mRenderDelegate.handleRenderException(e);
+        NativeRenderDelegate renderDelegate = mRenderDelegateRef.get();
+        if (renderDelegate != null) {
+            try {
+                renderDelegate.moveNode(rootId, ids, newPid, oldPid, insertIndex);
+            } catch (NativeRenderException e) {
+                renderDelegate.handleRenderException(e);
+            }
         }
     }
 
@@ -197,8 +208,7 @@ public class NativeRenderProvider {
      * Call from native (C++) render manager to move render node
      *
      * <p>
-     * Adjust the order of child nodes under the same parent node
-     * </>
+     * Adjust the order of child nodes under the same parent node </>
      *
      * @param rootId the root node id
      * @param pid the parent node id
@@ -207,11 +217,14 @@ public class NativeRenderProvider {
     @CalledByNative
     @SuppressWarnings("unused")
     public void moveNode(int rootId, int pid, byte[] buffer) {
-        try {
-            final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
-            mRenderDelegate.moveNode(rootId, pid, list);
-        } catch (NativeRenderException e) {
-            mRenderDelegate.handleRenderException(e);
+        NativeRenderDelegate renderDelegate = mRenderDelegateRef.get();
+        if (renderDelegate != null) {
+            try {
+                final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
+                renderDelegate.moveNode(rootId, pid, list);
+            } catch (NativeRenderException e) {
+                renderDelegate.handleRenderException(e);
+            }
         }
     }
 
@@ -224,11 +237,14 @@ public class NativeRenderProvider {
     @CalledByNative
     @SuppressWarnings("unused")
     public void updateLayout(int rootId, byte[] buffer) {
-        try {
-            final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
-            mRenderDelegate.updateLayout(rootId, list);
-        } catch (NativeRenderException e) {
-            mRenderDelegate.handleRenderException(e);
+        NativeRenderDelegate renderDelegate = mRenderDelegateRef.get();
+        if (renderDelegate != null) {
+            try {
+                final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
+                renderDelegate.updateLayout(rootId, list);
+            } catch (NativeRenderException e) {
+                renderDelegate.handleRenderException(e);
+            }
         }
     }
 
@@ -241,11 +257,14 @@ public class NativeRenderProvider {
     @CalledByNative
     @SuppressWarnings("unused")
     public void updateEventListener(int rootId, byte[] buffer) {
-        try {
-            final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
-            mRenderDelegate.updateEventListener(rootId, list);
-        } catch (NativeRenderException e) {
-            mRenderDelegate.handleRenderException(e);
+        NativeRenderDelegate renderDelegate = mRenderDelegateRef.get();
+        if (renderDelegate != null) {
+            try {
+                final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
+                renderDelegate.updateEventListener(rootId, list);
+            } catch (NativeRenderException e) {
+                renderDelegate.handleRenderException(e);
+            }
         }
     }
 
@@ -264,7 +283,11 @@ public class NativeRenderProvider {
     @SuppressWarnings("unused")
     public long measure(int rootId, int nodeId, float width, int widthMode, float height,
             int heightMode) {
-        return mRenderDelegate.measure(rootId, nodeId, width, widthMode, height, heightMode);
+        NativeRenderDelegate renderDelegate = mRenderDelegateRef.get();
+        if (renderDelegate != null) {
+            return renderDelegate.measure(rootId, nodeId, width, widthMode, height, heightMode);
+        }
+        return 0;
     }
 
     /**
@@ -280,11 +303,14 @@ public class NativeRenderProvider {
     @SuppressWarnings("unused")
     public void callUIFunction(int rootId, int nodeId, long callbackId, String functionName,
             byte[] buffer) {
-        try {
-            final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
-            mRenderDelegate.callUIFunction(rootId, nodeId, callbackId, functionName, list);
-        } catch (NativeRenderException e) {
-            mRenderDelegate.handleRenderException(e);
+        NativeRenderDelegate renderDelegate = mRenderDelegateRef.get();
+        if (renderDelegate != null) {
+            try {
+                final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
+                renderDelegate.callUIFunction(rootId, nodeId, callbackId, functionName, list);
+            } catch (NativeRenderException e) {
+                renderDelegate.handleRenderException(e);
+            }
         }
     }
 
@@ -296,10 +322,13 @@ public class NativeRenderProvider {
     @CalledByNative
     @SuppressWarnings("unused")
     public void endBatch(int rootId) {
-        try {
-            mRenderDelegate.endBatch(rootId);
-        } catch (NativeRenderException e) {
-            mRenderDelegate.handleRenderException(e);
+        NativeRenderDelegate renderDelegate = mRenderDelegateRef.get();
+        if (renderDelegate != null) {
+            try {
+                renderDelegate.endBatch(rootId);
+            } catch (NativeRenderException e) {
+                renderDelegate.handleRenderException(e);
+            }
         }
     }
 
@@ -335,7 +364,10 @@ public class NativeRenderProvider {
                 offset += buffer.arrayOffset();
                 bytes = buffer.array();
             } catch (Exception e) {
-                mRenderDelegate.handleRenderException(e);
+                NativeRenderDelegate renderDelegate = mRenderDelegateRef.get();
+                if (renderDelegate != null) {
+                    renderDelegate.handleRenderException(e);
+                }
                 return;
             }
         }
@@ -356,22 +388,16 @@ public class NativeRenderProvider {
                 offset += buffer.arrayOffset();
                 bytes = buffer.array();
             } catch (Exception e) {
-                mRenderDelegate.handleRenderException(e);
+                NativeRenderDelegate renderDelegate = mRenderDelegateRef.get();
+                if (renderDelegate != null) {
+                    renderDelegate.handleRenderException(e);
+                }
                 return;
             }
         }
         onReceivedEvent(mInstanceId, rootId, nodeId, eventName, bytes, offset, length, useCapture,
                 useBubble);
     }
-
-    /**
-     * Set screen displayMetrics density to native (C++) render manager.
-     *
-     * @param density screen displayMetrics density
-     * @return the unique id of native (C++) render manager
-     */
-    @SuppressWarnings("JavaJniMissingFunction")
-    private native void onCreateNativeRenderProvider(int instanceId, float density);
 
     /**
      * Call back from Android system when size changed, just like horizontal and vertical screen

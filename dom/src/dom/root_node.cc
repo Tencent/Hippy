@@ -40,7 +40,7 @@ constexpr char kDomTreeDeleted[] = "DomTreeDeleted";
 
 using Deserializer = footstone::value::Deserializer;
 using Serializer = footstone::value::Serializer;
-using DomValueArrayType = footstone::value::HippyValue::DomValueArrayType;
+using HippyValueArrayType = footstone::value::HippyValue::HippyValueArrayType;
 using Task = footstone::Task;
 
 footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<RootNode>> RootNode::persistent_map_;
@@ -102,13 +102,47 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   for (const auto& interceptor : interceptors_) {
     interceptor->OnDomNodeUpdate(nodes);
   }
-  std::vector<std::shared_ptr<DomNode>> nodes_to_update;
+
+  // In Hippy Vue, there are some special cases where there are multiple update instructions for the same node. This can
+  // cause issues with the diff algorithm and lead to incorrect results.
+  //  Example:
+  //
+  //  Dom Node Style:
+  //  |------|----------------|
+  //  |  id  |  style         |
+  //  |  1   |  text : {}     |
+  //  |  2   |  some style    |
+  //
+  //  Update instructions:
+  //  |------|-------------------------------|----------------|------------------------|
+  //  |  id  |  style                        |   operation    |   diff style result    |
+  //  |  1   |  text : { "color": "blue" }   |    compare     |  { "color": "blue" }   |
+  //  |  2   |  some style                   |                |                        |
+  //  |  1   |  text : { "color": "red" }    |    compare     |  { "color": "red" }    |
+  //  |  1   |  text : { "color": "red" }    |    compare     |  { }                   |
+  //  In last diff algroithm the diff_style = {}
+  //
+  //  To Solve this case we should use the last update instruction to generate the diff style.
+  //  Update instructions:
+  //  |------|-------------------------------|----------------|------------------------|
+  //  |  id  |  style                        |   operation    |   diff style result    |
+  //  |  1   |  text : { "color": "blue" }   |    skip        |         { }            |
+  //  |  2   |  some style                   |                |                        |
+  //  |  1   |  text : { "color": "red" }    |    skip        |         { }            |
+  //  |  1   |  text : { "color": "red" }    |    compare     |  { "color": "red" }    |
+  //  In new diff algroithm the diff_style = { "color": "red" }
+  std::unordered_map<uint32_t, std::shared_ptr<DomInfo>> skipped_instructions;
   for (const auto& node_info : nodes) {
+    auto id = node_info->dom_node->GetId();
+    skipped_instructions[id] = node_info;
+  }
+
+  std::vector<std::shared_ptr<DomNode>> nodes_to_update;
+  for (const auto& [id, node_info] : skipped_instructions) {
     std::shared_ptr<DomNode> dom_node = GetNode(node_info->dom_node->GetId());
     if (dom_node == nullptr) {
       continue;
     }
-    nodes_to_update.push_back(dom_node);
     // diff props
     auto style_diff_value = DiffUtils::DiffProps(*dom_node->GetStyleMap(), *node_info->dom_node->GetStyleMap());
     auto ext_diff_value = DiffUtils::DiffProps(*dom_node->GetExtStyle(), *node_info->dom_node->GetExtStyle());
@@ -124,6 +158,7 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
     dom_node->SetStyleMap(node_info->dom_node->GetStyleMap());
     dom_node->SetExtStyleMap(node_info->dom_node->GetExtStyle());
     dom_node->SetDiffStyle(diff_value);
+
     auto style_delete = std::get<1>(style_diff_value);
     auto ext_delete = std::get<1>(ext_diff_value);
     std::shared_ptr<std::vector<std::string>> delete_value = std::make_shared<std::vector<std::string>>();
@@ -140,6 +175,11 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
     if (!style_update->empty() || !style_delete->empty()) {
       dom_node->UpdateLayoutStyleInfo(*style_update, *style_delete);
     }
+
+    if (delete_value->size() != 0 || diff_value->size() != 0) {
+      nodes_to_update.push_back(dom_node);
+    }
+
     auto event = std::make_shared<DomEvent>(kDomUpdated, dom_node, nullptr);
     dom_node->HandleEvent(event);
   }
@@ -237,6 +277,10 @@ void RootNode::SyncWithRenderManager(const std::shared_ptr<RenderManager>& rende
   FlushDomOperations(render_manager);
   FlushEventOperations(render_manager);
   DoAndFlushLayout(render_manager);
+  auto dom_manager = dom_manager_.lock();
+  if (dom_manager) {
+    dom_manager->RecordDomEndTimePoint();
+  }
   render_manager->EndBatch(GetWeakSelf());
 }
 
@@ -341,6 +385,12 @@ void RootNode::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {
   SyncWithRenderManager(render_manager);
 }
 
+uint32_t RootNode::GetChildCount() {
+  uint32_t child_count = 0;
+  Traverse([&child_count](const std::shared_ptr<DomNode>&) { child_count++; });
+  return child_count;
+}
+
 std::shared_ptr<DomNode> RootNode::GetNode(uint32_t id) {
   if (id == GetId()) {
     return shared_from_this();
@@ -355,6 +405,8 @@ std::shared_ptr<DomNode> RootNode::GetNode(uint32_t id) {
 std::tuple<float, float> RootNode::GetRootSize() { return GetLayoutSize(); }
 
 void RootNode::SetRootSize(float width, float height) { SetLayoutSize(width, height); }
+
+void RootNode::SetRootOrigin(float x, float y) { SetLayoutOrigin(x, y); }
 
 void RootNode::DoAndFlushLayout(const std::shared_ptr<RenderManager>& render_manager) {
   // Before Layout

@@ -39,6 +39,8 @@ public interface RenderConnector extends Connector {
 
     View replaySnapshot(@NonNull Context context, @NonNull Map<String, Object> snapshotMap);
 
+    void removeSnapshotView();
+
     void setFrameworkProxy(@NonNull Object proxy);
 
     View createRootView(@NonNull Context context);

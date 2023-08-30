@@ -33,62 +33,59 @@ inline namespace performance {
 class PerformanceNavigationTiming : public PerformanceEntry {
  public:
   struct BundleInfo {
-    string_view bundle_url;
-    TimePoint start;
-    TimePoint end;
+    string_view url_;
+    TimePoint execute_source_start_;
+    TimePoint execute_source_end_;
   };
 
-  PerformanceNavigationTiming(const string_view& name, const TimePoint& start,
-                              const TimePoint& engine_initialization_start, const TimePoint& engine_initialization_end,
-                              std::vector<BundleInfo> bundle_info,
-                              const TimePoint& load_instance_start, const TimePoint& load_instance_end,
-                              const TimePoint& first_frame);
+  PerformanceNavigationTiming(const string_view& name);
 
-  inline auto GetEngineInitializationStart() const {
-    return engine_initialization_start_;
+#define DEFINE_SET_AND_GET_METHOD(method_name, member_type, member) \
+  void Set##method_name(member_type t) { \
+    member = t; \
+    if (start_time_.ToEpochDelta() == TimeDelta::Zero()) { \
+      start_time_ = t; \
+    } else if (t.ToEpochDelta() < start_time_.ToEpochDelta()) { \
+      start_time_ = t; \
+    } else if (t - start_time_ > duration_) { \
+      duration_ = t - start_time_; \
+    } \
+  } \
+  inline auto Get##method_name() const { \
+    return member; \
+  }
+  DEFINE_SET_AND_GET_METHOD(HippyNativeInitStart, TimePoint, hippy_native_init_start_)
+  DEFINE_SET_AND_GET_METHOD(HippyNativeInitEnd, TimePoint, hippy_native_init_end_)
+  DEFINE_SET_AND_GET_METHOD(HippyJsEngineInitStart, TimePoint, hippy_js_engine_init_start_)
+  DEFINE_SET_AND_GET_METHOD(HippyJsEngineInitEnd, TimePoint, hippy_js_engine_init_end_)
+  DEFINE_SET_AND_GET_METHOD(HippyRunApplicationStart, TimePoint, hippy_run_application_start_)
+  DEFINE_SET_AND_GET_METHOD(HippyRunApplicationEnd, TimePoint, hippy_run_application_end_)
+  DEFINE_SET_AND_GET_METHOD(HippyDomStart, TimePoint, hippy_dom_start_)
+  DEFINE_SET_AND_GET_METHOD(HippyDomEnd, TimePoint, hippy_dom_end_)
+  DEFINE_SET_AND_GET_METHOD(HippyFirstFrameStart, TimePoint, hippy_first_frame_start_)
+  DEFINE_SET_AND_GET_METHOD(HippyFirstFrameEnd, TimePoint, hippy_first_frame_end_)
+#undef DEFINE_SET_AND_GET_METHOD
+
+  inline const std::vector<BundleInfo>& GetBundleInfoArray() const {
+    return bundle_info_array_;
   }
 
-  inline auto GetEngineInitializationEnd() const {
-    return engine_initialization_end_;
-  }
-
-  inline auto GetBundleInfo() const {
-    return bundle_info_;
-  }
-
-  inline auto GetLoadInstanceStart() const {
-    return load_instance_start_;
-  }
-
-  inline auto GetLoadInstanceEnd() const {
-    return load_instance_end_;
-  }
-
-  inline auto GetFirstFrame() const {
-    return first_frame_;
-  }
+  BundleInfo& BundleInfoOfUrl(const string_view& url);
 
   virtual string_view ToJSON() override;
 
  private:
-//  TimePoint dom_complete_;
-//  TimePoint dom_content_loaded_event_end_;
-//  TimePoint dom_content_loaded_event_start_;
-//  TimePoint dom_interactive_;
-//  TimePoint load_event_end_;
-//  TimePoint load_event_start_;
-//  uint32_t redirect_count_;
-//  TimePoint request_start_;
-//  TimePoint response_start_;
-//  string_view type_; // navigate, reload, back_forward or prerender
-//  TimePoint unload_event_end_;
-//  TimePoint unload_event_start_;
-    TimePoint engine_initialization_start_;
-    TimePoint engine_initialization_end_;
-    std::vector<BundleInfo> bundle_info_;
-    TimePoint load_instance_start_;
-    TimePoint load_instance_end_;
-    TimePoint first_frame_;
+  TimePoint hippy_native_init_start_;
+  TimePoint hippy_native_init_end_;
+  TimePoint hippy_js_engine_init_start_;
+  TimePoint hippy_js_engine_init_end_;
+  std::vector<BundleInfo> bundle_info_array_;
+  TimePoint hippy_run_application_start_;
+  TimePoint hippy_run_application_end_;
+  TimePoint hippy_dom_start_;
+  TimePoint hippy_dom_end_;
+  TimePoint hippy_first_frame_start_;
+  TimePoint hippy_first_frame_end_;
 };
 
 }

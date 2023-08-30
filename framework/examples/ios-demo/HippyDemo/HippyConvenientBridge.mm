@@ -72,17 +72,23 @@
     return self;
 }
 
+- (NSString *)engineKey {
+    return _engineKey ?: [NSString stringWithFormat:@"%p", self];
+}
+
 - (void)setUpNativeRenderManager {
-    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:_engineKey];
+    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:[self engineKey]];
     auto domManager = engineResource->GetDomManager();
     //Create NativeRenderManager
     _nativeRenderManager = std::make_shared<NativeRenderManager>();
+    _nativeRenderManager->Initialize();
     //set dom manager
     _nativeRenderManager->SetDomManager(domManager);
     //set image provider for native render manager
     _nativeRenderManager->AddImageProviderClass([HPDefaultImageProvider class]);
     _nativeRenderManager->RegisterExtraComponent(_extraComponents);
     _nativeRenderManager->SetVFSUriLoader([self URILoader]);
+    _bridge.renderManager = _nativeRenderManager;
 }
 
 - (std::shared_ptr<VFSUriLoader>)URILoader {
@@ -141,7 +147,7 @@
 }
 
 - (void)setRootView:(UIView *)rootView {
-    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:_engineKey];
+    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:[self engineKey]];
     auto domManager = engineResource->GetDomManager();
     NSNumber *rootTag = [rootView componentTag];
     //Create a RootNode instance with a root tag
@@ -153,9 +159,12 @@
     //Set screen scale factor and size for Layout system in RooNode
     _rootNode->GetLayoutNode()->SetScaleFactor([UIScreen mainScreen].scale);
     _rootNode->SetRootSize(rootView.frame.size.width, rootView.frame.size.height);
+    _rootNode->SetRootOrigin(rootView.frame.origin.x, rootView.frame.origin.y);
         
     //set rendermanager for dommanager
-    domManager->SetRenderManager(_nativeRenderManager);
+    if (!domManager->GetRenderManager().lock()) {
+        domManager->SetRenderManager(_nativeRenderManager);
+    }
     //bind rootview and root node
     _nativeRenderManager->RegisterRootView(rootView, _rootNode);
 
@@ -172,7 +181,7 @@
 }
 
 - (void)resetRootSize:(CGSize)size {
-    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:_engineKey];
+    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:[self engineKey]];
     std::weak_ptr<hippy::RootNode> rootNode = _rootNode;
     auto domManager = engineResource->GetDomManager();
     std::weak_ptr<hippy::DomManager> weakDomManager = domManager;

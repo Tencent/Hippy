@@ -18,6 +18,8 @@ package com.openhippy.example
 import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewParent
@@ -32,25 +34,32 @@ import com.tencent.mtt.hippy.common.HippyMap
 import com.tencent.mtt.hippy.utils.LogUtils
 import com.tencent.mtt.hippy.utils.UIThreadUtils
 
-class HippyEngineWrapper {
+class HippyEngineWrapper//TODO: Coming soon
+    (
+    dm: PageConfiguration.DriverMode,
+    rm: PageConfiguration.RenderMode,
+    isDebug: Boolean,
+    useNodeSnapshot: Boolean,
+    debugServerHost: String
+) {
 
     var hippyEngine: HippyEngine
     var hippyRootView: ViewGroup? = null
+    var hippySnapshotView: ViewGroup? = null
     var devButton: View? = null
     var snapshot: Bitmap? = null
     var pageItem: View? = null
-    var isDebugMode: Boolean = false
-    val driverMode: PageConfiguration.DriverMode
-    val renderMode: PageConfiguration.RenderMode
+    var isDebugMode: Boolean = isDebug
+    var isSnapshotMode: Boolean = useNodeSnapshot
+    val driverMode: PageConfiguration.DriverMode = dm
+    val renderMode: PageConfiguration.RenderMode = rm
     val engineId: Int
 
-    constructor(dm: PageConfiguration.DriverMode,
-                rm: PageConfiguration.RenderMode,
-                isDebug: Boolean,
-                debugServerHost: String) {
-        driverMode = dm
-        renderMode = rm
-        isDebugMode = isDebug
+    companion object {
+        val renderNodeSnapshot: HashMap<PageConfiguration.DriverMode, ByteArray> = HashMap()
+    }
+
+    init {
         val initParams = EngineInitParams()
         initParams.context = applicationContext
         initParams.debugServerHost = debugServerHost
@@ -122,6 +131,19 @@ class HippyEngineWrapper {
         hippyEngine.destroyModule(hippyRootView) { result, e ->
             hippyEngine.destroyEngine()
         }
+        hippyRootView = null
+        hippySnapshotView = null
+    }
+
+    fun recordRenderNodeSnapshot() {
+        hippyEngine.recordSnapshot(hippyRootView as View) {
+                buffer, e ->
+            run {
+                buffer?.let {
+                    renderNodeSnapshot[driverMode] = buffer
+                }
+            }
+        }
     }
 
     fun load(context: Context, callback: HippyEngineLoadCallback) {
@@ -153,6 +175,16 @@ class HippyEngineWrapper {
                         "msgFromNative",
                         "Hi js developer, I come from native code!"
                     )
+                    var snapshotView: View? = null
+                    if (!isDebugMode && isSnapshotMode) {
+                        var buffer = renderNodeSnapshot[driverMode]
+                        buffer?.let {
+                            snapshotView = hippyEngine.replaySnapshot(context, it)
+                        }
+                        snapshotView?.let {
+                            hippySnapshotView = snapshotView as ViewGroup
+                        }
+                    }
                     hippyRootView = hippyEngine.loadModule(loadParams, object : ModuleListener {
                         override fun onLoadCompleted(statusCode: ModuleLoadStatus, msg: String?) {
                             callback.onLoadModuleCompleted(statusCode, msg)
@@ -163,14 +195,26 @@ class HippyEngineWrapper {
                         }
 
                         override fun onFirstViewAdded() {
-                            LogUtils.e("MyActivity", "onFirstViewAdded")
+                            snapshotView?.let {
+                                val handler = Handler(Looper.getMainLooper())
+                                handler.postDelayed({
+                                    hippyEngine.removeSnapshotView()
+                                }, 400)
+                            }
                         }
                     })
-                    if (UIThreadUtils.isOnUiThread()) {
+
+                    var loadCallbackTask = Runnable {
                         callback.onCreateRootView(hippyRootView)
+                        snapshotView?.let {
+                            callback.onReplaySnapshotViewCompleted(snapshotView as ViewGroup)
+                        }
+                    }
+                    if (UIThreadUtils.isOnUiThread()) {
+                        loadCallbackTask.run()
                     } else {
                         UIThreadUtils.runOnUiThread {
-                            callback.onCreateRootView(hippyRootView)
+                            loadCallbackTask.run()
                         }
                     }
                 }
@@ -181,6 +225,7 @@ class HippyEngineWrapper {
     interface HippyEngineLoadCallback {
         fun onInitEngineCompleted(statusCode: EngineInitStatus, msg: String?)
         fun onCreateRootView(hippyRootView: ViewGroup?)
+        fun onReplaySnapshotViewCompleted(snapshotView: ViewGroup)
         fun onLoadModuleCompleted(statusCode: ModuleLoadStatus, msg: String?)
     }
 }

@@ -174,8 +174,8 @@
 - (UIView *)NativeRenderRootView {
     UIView *candidateRootView = self;
     BOOL isRootView = [candidateRootView isNativeRenderRootView];
-    while (!isRootView && !candidateRootView) {
-        candidateRootView = [candidateRootView superview];
+    while (!isRootView && candidateRootView) {
+        candidateRootView = [candidateRootView parentComponent];
         isRootView = [candidateRootView isNativeRenderRootView];
     }
     return candidateRootView;

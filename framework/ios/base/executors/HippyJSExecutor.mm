@@ -31,7 +31,6 @@
 #import "HippyJSEnginesMapper.h"
 #import "HippyJSExecutor.h"
 #import "HippyOCTurboModule+Inner.h"
-#import "HippyPerformanceLogger.h"
 #import "HippyRedBox.h"
 #import "HippyUtils.h"
 #import "HippyTurboModuleManager.h"
@@ -78,7 +77,6 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 
 @interface HippyJSExecutor () {
     // Set at setUp time:
-    HippyPerformanceLogger *_performanceLogger;
     id<HippyContextWrapper> _contextWrapper;
     NSMutableArray<dispatch_block_t> *_pendingCalls;
     __weak HippyBridge *_bridge;
@@ -95,7 +93,6 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 
 - (void)setBridge:(HippyBridge *)bridge {
     _bridge = bridge;
-    _performanceLogger = [bridge performanceLogger];
 }
 
 - (HippyBridge *)bridge {
@@ -105,10 +102,11 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 - (void)setup {
     auto engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:self.enginekey];
     const char *pName = [self.enginekey UTF8String] ?: "";
+    footstone::TimePoint startPoint = footstone::TimePoint::SystemNow();
     auto scope = engine->GetEngine()->CreateScope(pName);
     dispatch_semaphore_t scopeSemaphore = dispatch_semaphore_create(0);
     __weak HippyJSExecutor *weakSelf = self;
-    engine->GetEngine()->GetJsTaskRunner()->PostTask([weakSelf, scopeSemaphore](){
+    engine->GetEngine()->GetJsTaskRunner()->PostTask([weakSelf, scopeSemaphore, startPoint](){
         @autoreleasepool {
             HippyJSExecutor *strongSelf = weakSelf;
             if (!strongSelf) {
@@ -216,6 +214,9 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                 [strongSelf executeBlockOnJavaScriptQueue:obj];
             }];
             [strongSelf->_pendingCalls removeAllObjects];
+            auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
+            entry->SetHippyJsEngineInitStart(startPoint);
+            entry->SetHippyJsEngineInitEnd(footstone::TimePoint::SystemNow());
         }
     });
     self.pScope = scope;
@@ -525,10 +526,8 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 - (void)executeApplicationScript:(NSData *)script sourceURL:(NSURL *)sourceURL onComplete:(HippyJavaScriptCallback)onComplete {
     HPAssertParam(script);
     HPAssertParam(sourceURL);
-    // HippyProfileBeginFlowEvent();
     __weak HippyJSExecutor* weakSelf = self;
     [self executeBlockOnJavaScriptQueue:^{
-        // HippyProfileEndFlowEvent();
         @autoreleasepool {
             HippyJSExecutor *strongSelf = weakSelf;
             if (!strongSelf || !strongSelf.isValid) {
@@ -536,7 +535,11 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                 return;
             }
             NSError *error = nil;
-            id result = executeApplicationScript(script, sourceURL, strongSelf->_performanceLogger, strongSelf.pScope->GetContext(), &error);
+            auto entry = strongSelf.pScope->GetPerformance()->PerformanceNavigation("hippyInit");
+            string_view url = [[sourceURL absoluteString] UTF8String]?:"";
+            entry->BundleInfoOfUrl(url).execute_source_start_ = footstone::TimePoint::SystemNow();
+            id result = executeApplicationScript(script, sourceURL, strongSelf.pScope->GetContext(), &error);
+            entry->BundleInfoOfUrl(url).execute_source_end_ = footstone::TimePoint::SystemNow();
             if (onComplete) {
                 onComplete(result, error);
             }
@@ -553,7 +556,7 @@ static NSLock *jslock() {
     return lock;
 }
 
-static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, HippyPerformanceLogger *performanceLogger, SharedCtxPtr context, NSError **error) {
+static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, SharedCtxPtr context, NSError **error) {
     @autoreleasepool {
         const char *scriptBytes = reinterpret_cast<const char *>([script bytes]);
         string_view view = string_view::new_from_utf8(scriptBytes, [script length]);

@@ -20,12 +20,14 @@
  * limitations under the License.
  */
 
-#import "NativeRenderView.h"
-#import "NativeRenderBorderDrawing.h"
 #import "HPConvert.h"
 #import "HPToolUtils.h"
-#import "UIView+NativeRender.h"
+#import "NativeRenderBorderDrawing.h"
 #import "NativeRenderGradientObject.h"
+#import "NativeRenderView.h"
+#import "UIEvent+TouchResponder.h"
+#import "UIView+DomEvent.h"
+#import "UIView+NativeRender.h"
 
 static CGSize makeSizeConstrainWithType(CGSize originSize, CGSize constrainSize, NSString *resizeMode) {
     // width / height
@@ -96,71 +98,6 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
         return super.accessibilityLabel;
     }
     return NativeRenderRecursiveAccessibilityLabel(self);
-}
-
-- (void)setPointerEvents:(NativeRenderPointerEvents)pointerEvents {
-    _pointerEvents = pointerEvents;
-    self.userInteractionEnabled = (pointerEvents != NativeRenderPointerEventsNone);
-    if (pointerEvents == NativeRenderPointerEventsBoxNone) {
-        self.accessibilityViewIsModal = NO;
-    }
-}
-
-- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
-    BOOL canReceiveTouchEvents = ([self isUserInteractionEnabled] && ![self isHidden]);
-    if (!canReceiveTouchEvents) {
-        return nil;
-    }
-
-    // `hitSubview` is the topmost subview which was hit. The hit point can
-    // be outside the bounds of `view` (e.g., if -clipsToBounds is NO).
-    UIView *hitSubview = nil;
-    BOOL isPointInside = [self pointInside:point withEvent:event];
-    BOOL needsHitSubview = !(_pointerEvents == NativeRenderPointerEventsNone || _pointerEvents == NativeRenderPointerEventsBoxOnly);
-    if (needsHitSubview && (![self clipsToBounds] || isPointInside)) {
-        // The default behaviour of UIKit is that if a view does not contain a point,
-        // then no subviews will be returned from hit testing, even if they contain
-        // the hit point. By doing hit testing directly on the subviews, we bypass
-        // the strict containment policy (i.e., UIKit guarantees that every ancestor
-        // of the hit view will return YES from -pointInside:withEvent:). See:
-        //  - https://developer.apple.com/library/ios/qa/qa2013/qa1812.html
-        for (UIView *subview in [self.subviews reverseObjectEnumerator]) {
-            CGPoint convertedPoint = [subview convertPoint:point fromView:self];
-            hitSubview = [subview hitTest:convertedPoint withEvent:event];
-            if (hitSubview != nil) {
-                break;
-            }
-        }
-    }
-
-    UIView *hitView = (isPointInside ? self : nil);
-
-    switch (_pointerEvents) {
-        case NativeRenderPointerEventsNone:
-            return nil;
-        case NativeRenderPointerEventsUnspecified:
-            return hitSubview ?: hitView;
-        case NativeRenderPointerEventsBoxOnly:
-            return hitView;
-        case NativeRenderPointerEventsBoxNone:
-            return hitSubview;
-        default:
-            HPLogError(@"Invalid pointer-events specified %ld on %@", (long)_pointerEvents, self);
-            return hitSubview ?: hitView;
-    }
-}
-
-- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event {
-    //require clickable when animating.
-    //we check presentationLayer frame.
-    //point inside presentationLayer means point inside view
-    if ([[self.layer animationKeys] count] > 0) {
-        CGRect presentationLayerFrame = self.layer.presentationLayer.frame;
-        CGRect convertPresentationLayerFrame = [self.superview convertRect:presentationLayerFrame toView:self];
-        return CGRectContainsPoint(convertPresentationLayerFrame, point);
-    }
-    BOOL pointInside = [super pointInside:point withEvent:event];
-    return pointInside;
 }
 
 - (NSString *)description {
@@ -308,20 +245,20 @@ void NativeRenderBoarderColorsRelease(NativeRenderBorderColors c) {
     const NativeRenderBorderColors borderColors = [self borderColors];
     UIColor *backgroundColor = self.backgroundColor;
 
-    BOOL useIOSBorderRendering = !HPRunningInTestEnvironment() && NativeRenderCornerRadiiAreEqual(cornerRadii) && NativeRenderBorderInsetsAreEqual(borderInsets)
-                                 && NativeRenderBorderColorsAreEqual(borderColors) && (_borderStyle == NativeRenderBorderStyleSolid || _borderStyle == NativeRenderBorderStyleNone) &&
-
-                                 // iOS draws borders in front of the content whereas CSS draws them behind
-                                 // the content. For this reason, only use iOS border drawing when clipping
-                                 // or when the border is hidden.
-
-                                 (borderInsets.top == 0 || (borderColors.top && CGColorGetAlpha(borderColors.top) == 0) || self.clipsToBounds);
+    BOOL isRunningInTest = HPRunningInTestEnvironment();
+    BOOL isCornerEqual = NativeRenderCornerRadiiAreEqual(cornerRadii);
+    BOOL isBorderInsetsEqual = NativeRenderBorderInsetsAreEqual(borderInsets);
+    BOOL isBorderColorsEqual = NativeRenderBorderColorsAreEqual(borderColors);
+    BOOL borderStyle = (_borderStyle == NativeRenderBorderStyleSolid || _borderStyle == NativeRenderBorderStyleNone);
+    BOOL borderColorCheck = (borderInsets.top == 0 || (borderColors.top && CGColorGetAlpha(borderColors.top) == 0) || self.clipsToBounds);
+    
+    BOOL useIOSBorderRendering = !isRunningInTest && isCornerEqual && isBorderInsetsEqual && isBorderColorsEqual && borderStyle && borderColorCheck;
 
     // iOS clips to the outside of the border, but CSS clips to the inside. To
     // solve this, we'll need to add a container view inside the main view to
     // correctly clip the subviews.
 
-    if (useIOSBorderRendering && !self.backgroundImage) {
+    if (useIOSBorderRendering && !self.backgroundImage && !self.gradientObject) {
         layer.cornerRadius = cornerRadii.topLeft;
         layer.borderColor = borderColors.left;
         layer.borderWidth = borderInsets.left;

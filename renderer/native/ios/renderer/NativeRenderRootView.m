@@ -24,10 +24,9 @@
 #import "HPAsserts.h"
 #import "NativeRenderView.h"
 #import "UIView+NativeRender.h"
+#import "NativeRenderDefines.h"
 
 #include <objc/runtime.h>
-
-NSString *const NativeRenderContentDidAppearNotification = @"NativeRenderContentDidAppearNotification";
 
 NSNumber *AllocRootViewTag(void) {
     static NSString * const token = @"allocateRootTag";
@@ -38,7 +37,6 @@ NSNumber *AllocRootViewTag(void) {
 }
 
 @interface NativeRenderRootView () {
-    CFTimeInterval _cost;
     BOOL _contentHasAppeared;
 }
 
@@ -48,26 +46,17 @@ NSNumber *AllocRootViewTag(void) {
 
 @implementation NativeRenderRootView
 
-- (instancetype)initWithFrame:(CGRect)frame {
-    self = [super initWithFrame:frame];
-    if (self) {
-        _cost = CACurrentMediaTime() * 1000.f;
-    }
-    return self;
-}
-
 - (UIViewController *)nativeRenderViewController {
     return _nativeRenderViewController?:[super nativeRenderViewController];
 }
 
 - (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex {
     [super insertNativeRenderSubview:subview atIndex:atIndex];
-    CFTimeInterval cost = CACurrentMediaTime() * 1000.f;
-    CFTimeInterval diff = cost - _cost;
     if (!_contentHasAppeared) {
         _contentHasAppeared = YES;
-        [[NSNotificationCenter defaultCenter] postNotificationName:NativeRenderContentDidAppearNotification object:self userInfo:@{
-            @"cost": @(diff)
+        [self contentDidAppear];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kRootViewDidAddContent object:nil userInfo:@{
+            kRootViewKey: self
         }];
     }
 }
@@ -80,7 +69,7 @@ NSNumber *AllocRootViewTag(void) {
     return super.componentTag;
 }
 
-- (void)contentDidAppear:(__unused NSUInteger)cost {
+- (void)contentDidAppear {
 }
 
 - (void)dealloc

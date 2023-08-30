@@ -31,109 +31,42 @@ inline namespace performance {
 class PerformanceResourceTiming: public PerformanceEntry {
  public:
   enum class InitiatorType {
-    AUDIO, BEACON, BODY, CSS, EARLY_HINT, EMBED, FETCH, FRAME, IFRAME, ICON, IMAGE, IMG, INPUT, LINK, NAVIGATION, OBJECT,
+    OTHER, AUDIO, BEACON, BODY, CSS, EARLY_HINT, EMBED, FETCH, FRAME, IFRAME, ICON, IMAGE, IMG, INPUT, LINK, NAVIGATION, OBJECT,
     PING, SCRIPT, TRACK, VIDEO, XMLHTTPREQUEST
   };
 
-  PerformanceResourceTiming(const string_view& name, TimePoint start_time, TimeDelta duration,
-                            const InitiatorType& initiator_type, const string_view& next_hop_protocol, TimePoint worker_start,
-                            TimePoint redirect_start, TimePoint redirect_end, TimePoint fetch_start,
-                            TimePoint domain_lookup_start, TimePoint domain_lookup_end, TimePoint connect_start,
-                            TimePoint connect_end, TimePoint secure_connection_start, TimePoint request_start_,
-                            TimePoint response_start, TimePoint response_end,  uint64_t transfer_size,
-                            uint64_t encoded_body_size, uint64_t decoded_body_size);
+  PerformanceResourceTiming(const string_view& name);
 
-  inline InitiatorType GetInitiatorType() {
+  void SetInitiatorType(InitiatorType t) {
+    initiator_type_ = t;
+  }
+  inline auto GetInitiatorType() const {
     return initiator_type_;
   }
-
-  inline string_view GetNextHopProtocol() {
-    return next_hop_protocol_;
+#define DEFINE_SET_AND_GET_METHOD(method_name, member_type, member) \
+  void Set##method_name(member_type t) { \
+    member = t; \
+    if (start_time_.ToEpochDelta() == TimeDelta::Zero()) { \
+      start_time_ = t; \
+    } else if (t - start_time_ > duration_) { \
+      duration_ = t - start_time_; \
+    } \
+  } \
+  inline auto Get##method_name() const { \
+    return member; \
   }
-
-  inline TimePoint GetWorkerStart() {
-    return worker_start_;
-  }
-
-  inline TimePoint GetRedirectStart() {
-    return redirect_start_;
-  }
-
-  inline TimePoint GetRedirectEnd() {
-    return redirect_end_;
-  }
-
-  inline TimePoint GetFetchStart() {
-    return fetch_start_;
-  }
-
-  inline TimePoint GetDomainLookupStart() {
-    return domain_lookup_start_;
-  }
-
-  inline TimePoint GetDomainLookupEnd() {
-    return domain_lookup_end_;
-  }
-
-  inline TimePoint GetConnectStart() {
-    return connect_start_;
-  }
-
-  inline TimePoint GetConnectEnd() {
-    return connect_end_;
-  }
-
-  inline TimePoint GetSecureConnectionStart() {
-    return secure_connection_start_;
-  }
-
-  inline TimePoint GetRequestStart() {
-    return request_start_;
-  }
-
-  inline TimePoint GetResponseStart() {
-    return response_start_;
-  }
-
-  inline TimePoint GetResponseEnd() {
-    return response_end_;
-  }
-
-  inline uint64_t GetTransferSize() {
-    return transfer_size_;
-  }
-
-  inline uint64_t GetEncodedBodySize() {
-    return encoded_body_size_;
-  }
-
-  inline uint64_t GetDecodedBodySize() {
-    return decoded_body_size_;
-  }
+  DEFINE_SET_AND_GET_METHOD(LoadSourceStart, TimePoint, load_source_start_)
+  DEFINE_SET_AND_GET_METHOD(LoadSourceEnd, TimePoint, load_source_end_)
+#undef DEFINE_SET_AND_GET_METHOD
 
   virtual string_view ToJSON() override;
 
   static string_view GetInitiatorString(InitiatorType type);
 
  private:
-  InitiatorType initiator_type_;
-  string_view next_hop_protocol_;
-  TimePoint worker_start_;
-  TimePoint redirect_start_;
-  TimePoint redirect_end_;
-  TimePoint fetch_start_;
-  TimePoint domain_lookup_start_;
-  TimePoint domain_lookup_end_;
-  TimePoint connect_start_;
-  TimePoint connect_end_;
-  TimePoint secure_connection_start_;
-  TimePoint request_start_;
-  TimePoint response_start_;
-  TimePoint response_end_;
-  uint64_t transfer_size_;
-  uint64_t encoded_body_size_;
-  uint64_t decoded_body_size_;
-  // std::vector<> server_timing_{};
+  InitiatorType initiator_type_ = InitiatorType::OTHER;
+  TimePoint load_source_start_;
+  TimePoint load_source_end_;
 };
 
 }

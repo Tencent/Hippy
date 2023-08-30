@@ -23,12 +23,10 @@ import com.openhippy.pool.ImageDataKey;
 import com.openhippy.pool.ImageDataPool;
 import com.openhippy.pool.ImageRecycleObject;
 import com.openhippy.pool.Pool;
-import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.NativeRenderException;
 
 import com.tencent.vfs.ResourceDataHolder;
-import com.tencent.vfs.UrlUtils;
 import com.tencent.vfs.VfsManager;
 import com.tencent.vfs.VfsManager.FetchResourceCallback;
 
@@ -41,12 +39,12 @@ public class ImageLoader implements ImageLoaderAdapter {
     private static final String TAG = "ImageLoader";
     public static final String REQUEST_CONTENT_TYPE = "Content-Type";
     public static final String REQUEST_CONTENT_TYPE_IMAGE = "image";
-    @NonNull
-    private final VfsManager mVfsManager;
     @Nullable
     private final ImageDecoderAdapter mImageDecoderAdapter;
-    @Nullable
-    private HashMap<ImageDataKey, ArrayList<ImageRequestListener>> mListenersMap;
+    @NonNull
+    private final VfsManager mVfsManager;
+    @NonNull
+    private final HashMap<ImageDataKey, ArrayList<ImageRequestListener>> mListenersMap = new HashMap<>();
     @NonNull
     private final Pool<ImageDataKey, ImageRecycleObject> mImagePool = new ImageDataPool();
 
@@ -57,10 +55,16 @@ public class ImageLoader implements ImageLoaderAdapter {
     }
 
     @Nullable
+    @Override
     public ImageDataSupplier getImageFromCache(@NonNull String url) {
         ImageRecycleObject imageObject = mImagePool.acquire(new ImageDataKey(url));
         return (imageObject instanceof ImageDataSupplier) ? ((ImageDataSupplier) imageObject)
                 : null;
+    }
+
+    @Override
+    public void saveImageToCache(@NonNull ImageDataSupplier data) {
+        mImagePool.release((ImageDataHolder) data);
     }
 
     private void doListenerCallback(@NonNull final ImageRequestListener listener,
@@ -80,8 +84,7 @@ public class ImageLoader implements ImageLoaderAdapter {
         return new Runnable() {
             @Override
             public void run() {
-                ArrayList<ImageRequestListener> listeners =
-                        (mListenersMap != null) ? mListenersMap.get(urlKey) : null;
+                ArrayList<ImageRequestListener> listeners = mListenersMap.get(urlKey);
                 mListenersMap.remove(urlKey);
                 if (listeners != null && listeners.size() > 0) {
                     for (ImageRequestListener listener : listeners) {
@@ -112,9 +115,7 @@ public class ImageLoader implements ImageLoaderAdapter {
                 imageHolder.decodeImageData(bytes, initProps, mImageDecoderAdapter);
                 // Should check the request data returned from the host, if the data is
                 // invalid, the request is considered to have failed
-                if (imageHolder.checkImageData()) {
-                    saveImageToCache(imageHolder);
-                } else {
+                if (!imageHolder.checkImageData()) {
                     imageHolder = null;
                     errorMessage = "Image data decoding failed!";
                 }
@@ -140,8 +141,7 @@ public class ImageLoader implements ImageLoaderAdapter {
         Runnable progressRunnable = new Runnable() {
             @Override
             public void run() {
-                ArrayList<ImageRequestListener> listeners =
-                        (mListenersMap != null) ? mListenersMap.get(urlKey) : null;
+                ArrayList<ImageRequestListener> listeners = mListenersMap.get(urlKey);
                 if (listeners != null) {
                     for (ImageRequestListener listener : listeners) {
                         if (listener != null) {
@@ -156,10 +156,6 @@ public class ImageLoader implements ImageLoaderAdapter {
         } else {
             UIThreadUtils.runOnUiThread(progressRunnable);
         }
-    }
-
-    private void saveImageToCache(@NonNull ImageDataHolder data) {
-        mImagePool.release(data);
     }
 
     @NonNull
@@ -190,7 +186,6 @@ public class ImageLoader implements ImageLoaderAdapter {
         try {
             imageHolder.decodeImageData(bytes, initProps, mImageDecoderAdapter);
             if (imageHolder.checkImageData()) {
-                saveImageToCache(imageHolder);
                 return imageHolder;
             }
         } catch (NativeRenderException e) {
@@ -203,9 +198,6 @@ public class ImageLoader implements ImageLoaderAdapter {
 
     private boolean checkRepeatRequest(@NonNull ImageDataKey urlKey,
             @NonNull final ImageRequestListener listener) {
-        if (mListenersMap == null) {
-            mListenersMap = new HashMap<>();
-        }
         ArrayList<ImageRequestListener> listenerList = mListenersMap.get(urlKey);
         if (listenerList != null) {
             listenerList.add(listener);
@@ -250,9 +242,6 @@ public class ImageLoader implements ImageLoaderAdapter {
     @Override
     public void destroy() {
         clear();
-        if (mListenersMap != null) {
-            mListenersMap.clear();
-            mListenersMap = null;
-        }
+        mListenersMap.clear();
     }
 }

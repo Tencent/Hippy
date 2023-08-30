@@ -67,7 +67,7 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
     private int mWidth;
     private int mHeight;
     private String mSource;
-    @NonNull
+    @Nullable
     private ImageDataKey mKey;
     @Nullable
     private Drawable mDrawable;
@@ -119,6 +119,7 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
     }
 
     @Override
+    @Nullable
     public ImageDataKey getCacheKey() {
         return mKey;
     }
@@ -165,9 +166,9 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
         mDrawable = null;
         mOptions = null;
         mSource = null;
+        mKey = null;
         mStateFlags = 0;
-        // TODO: image holder reuse causes display confusion.
-        //recycle();
+        recycle();
     }
 
     @Override

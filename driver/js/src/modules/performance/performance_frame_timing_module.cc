@@ -47,7 +47,7 @@ std::shared_ptr<ClassTemplate<PerformanceFrameTiming>> RegisterPerformanceFrameT
     }
     auto context = scope->GetContext();
     if (!external) {
-      exception = context->CreateException("legal constructor");
+      exception = context->CreateException("illegal constructor");
       return nullptr;
     }
     string_view name;
@@ -63,12 +63,12 @@ std::shared_ptr<ClassTemplate<PerformanceFrameTiming>> RegisterPerformanceFrameT
       return nullptr;
     }
 
-    auto entry = scope->GetPerformance()->GetEntriesByName(name, static_cast<PerformanceEntry::Type>(type));
-    if (!entry) {
+    auto entries = scope->GetPerformance()->GetEntriesByName(name, static_cast<PerformanceEntry::Type>(type));
+    if (entries.empty()) {
       exception = context->CreateException("entry not found");
       return nullptr;
     }
-    return std::static_pointer_cast<PerformanceFrameTiming>(entry);
+    return std::static_pointer_cast<PerformanceFrameTiming>(entries.back());
   };
 
   return std::make_shared<ClassTemplate<PerformanceFrameTiming>>(std::move(class_template));

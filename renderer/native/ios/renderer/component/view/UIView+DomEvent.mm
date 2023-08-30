@@ -24,8 +24,32 @@
 #import <objc/runtime.h>
 #import "UIView+MountEvent.h"
 #import "UIView+NativeRender.h"
+#import "UIEvent+TouchResponder.h"
+
+#include "dom/dom_listener.h"
 
 @implementation UIView(DomEvent)
+
++ (void)load {
+    if (self == [UIView self]) {
+        Method originMethod = class_getInstanceMethod([UIView class], @selector(hitTest:withEvent:));
+        Method exchangeMethod = class_getInstanceMethod([UIView class], @selector(hippy_domEvent_hitTest:withEvent:));
+        method_exchangeImplementations(originMethod, exchangeMethod);
+    }
+}
+
+- (UIView *)hippy_domEvent_hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    [event removeAllResponders];
+    return [self hippy_domEvent_hitTest:point withEvent:event];
+}
+
+- (void)setOnInterceptTouchEvent:(BOOL)onInterceptTouchEvent {
+    objc_setAssociatedObject(self, @selector(onInterceptTouchEvent), @(onInterceptTouchEvent), OBJC_ASSOCIATION_RETAIN);
+}
+
+- (BOOL)onInterceptTouchEvent {
+    return [objc_getAssociatedObject(self, @selector(onInterceptTouchEvent)) boolValue];
+}
 
 - (NSMutableSet<NSString *> *)_propertyEventsName {
     NSMutableSet<NSString *> *names = objc_getAssociatedObject(self, @selector(_propertyEventsName));
@@ -81,12 +105,17 @@ static SEL SelectorFromCName(const char *name) {
         return;
     }
     [[self _propertyEventsName] addObject:@(name)];
-    if (0 == strcmp(name, "onDidMount") ) {
-        [self viewDidMountEvent];
-    }
-    else if (0 == strcmp(name, "onAttachedToWindow")) {
-        [self sendAttachedToWindowEvent];
-    }
+    //TODO(mengyanluo): update properties will cause event to be removed/added, needs frontend to fix first
+//    if (0 == strcmp(name, "onDidMount") ) {
+//        if ([self superview]) {
+//            [self viewDidMountEvent];
+//        }
+//    }
+//    else if (0 == strcmp(name, "onAttachedToWindow")) {
+//        if ([self window]) {
+//            [self sendAttachedToWindowEvent];
+//        }
+//    }
 }
 
 - (void)removePropertyEvent:(const char *)name {
@@ -135,6 +164,37 @@ static SEL SelectorFromCName(const char *name) {
 
 - (BOOL)canBePreventInBubbling:(const char *)name {
     return NO;
+}
+
+static BOOL IsGestureEvent(const char *name) {
+    if (!name) {
+        return NO;
+    }
+    if (0 == strcmp(name, hippy::kClickEvent) ||
+        0 == strcmp(name, hippy::kLongClickEvent) ||
+        0 == strcmp(name, hippy::kPressIn) ||
+        0 == strcmp(name, hippy::kPressOut) ||
+        0 == strcmp(name, hippy::kTouchStartEvent) ||
+        0 == strcmp(name, hippy::kTouchEndEvent) ||
+        0 == strcmp(name, hippy::kTouchMoveEvent) ||
+        0 == strcmp(name, hippy::kTouchCancelEvent)) {
+        return YES;
+    }
+    return NO;
+}
+
+- (BOOL)canCapture:(const char *)name {
+    if (!name) {
+        return YES;
+    }
+    return IsGestureEvent(name);
+}
+
+- (BOOL)canBubble:(const char *)name {
+    if (!name) {
+        return YES;
+    }
+    return IsGestureEvent(name);
 }
 
 - (void)resetAllEvents {}

@@ -1,3 +1,19 @@
+## 0.0.32
+
+- fix navigation bar color error after modal show
+
+## 0.0.32
+
+- fix crash on debug mode
+
+## 0.0.31
+
+- fix crash on debug mode
+
+## 0.0.30
+
+- fix android scope not erase when destroy
+
 ## 0.0.29
 
 - add debug dialog for js error

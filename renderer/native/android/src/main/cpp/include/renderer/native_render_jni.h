@@ -23,7 +23,7 @@
 #pragma once
 
 #include <jni.h>
-
+#include <unordered_set>
 #include <memory>
 
 #include "jni/scoped_java_ref.h"
@@ -36,10 +36,6 @@ void OnCreateNativeRenderProvider(JNIEnv* j_env,
                                   jobject j_obj,
                                   jint j_render_manager_id,
                                   jfloat j_density);
-
-void DestroyNativeRenderManager(JNIEnv* j_env,
-                                jobject j_object,
-                                jint j_render_manager_id);
 
 jobject GetNativeRendererInstance(JNIEnv* j_env,
                                   jobject j_object,
@@ -64,6 +60,9 @@ bool CreateJavaRenderManager(uint32_t id, std::shared_ptr<JavaRef>&j_render_mana
                              std::shared_ptr<JavaRef>&render_delegate);
 
 float GetDensity(std::shared_ptr<JavaRef>&j_render_manager);
+
+void GetPropsRegisterForRender(const std::shared_ptr<JavaRef>& j_render_manager,
+                               std::unordered_set<std::string>& style_set);
 
 } // namespace native
 } // namespace render

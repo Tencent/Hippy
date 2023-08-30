@@ -24,7 +24,7 @@
 
 #include "dom/dom_listener.h"
 
-NativeRenderViewEventType viewEventTypeFromName(const char *name) {
+NativeRenderViewEventType viewEventTypeFromName(const char * _Nullable name) {
     if (!name) {
         return NativeRenderViewEventTypeUnknown;
     }
@@ -63,4 +63,46 @@ NativeRenderViewEventType viewEventTypeFromName(const char *name) {
         type = NativeRenderViewEventTypeDismiss;
     }
     return type;
+}
+
+const char * _Nullable viewEventNameFromType(NativeRenderViewEventType eventType) {
+    const char *name = nullptr;
+    switch (eventType) {
+        case NativeRenderViewEventTypeTouchStart:
+            name = hippy::kTouchStartEvent;
+            break;
+        case NativeRenderViewEventTypeTouchMove:
+            name = hippy::kTouchMoveEvent;
+            break;
+        case NativeRenderViewEventTypeTouchEnd:
+            name = hippy::kTouchEndEvent;
+            break;
+        case NativeRenderViewEventTypeTouchCancel:
+            name = hippy::kTouchCancelEvent;
+            break;
+        case NativeRenderViewEventTypePressIn:
+            name = hippy::kPressIn;
+            break;
+        case NativeRenderViewEventTypePressOut:
+            name = hippy::kPressOut;
+            break;
+        case NativeRenderViewEventLayout:
+            name = hippy::kLayoutEvent;
+            break;
+        case NativeRenderViewEventTypeShow:
+            name = hippy::kShowEvent;
+            break;
+        case NativeRenderViewEventTypeDismiss:
+            name = hippy::kDismissEvent;
+            break;
+        case NativeRenderViewEventTypeClick:
+            name = hippy::kClickEvent;
+            break;
+        case NativeRenderViewEventTypeLongClick:
+            name = hippy::kLongClickEvent;
+            break;
+        default:
+            break;
+    }
+    return name;
 }

@@ -45,6 +45,7 @@ inline namespace view {
 
 using tdfcore::TRect;
 using tdfcore::View;
+using tdfcore::ViewContext;
 
 using OnShowCallBack = std::function<void()>;
 using OnDismissCallBack = std::function<void()>;
@@ -57,7 +58,7 @@ class ModalView : public View {
  public:
   ~ModalView() override;
 
-  ModalView();
+  ModalView(const std::shared_ptr<ViewContext> &context);
 
   void AddView(const std::shared_ptr<View> &child) override;
 

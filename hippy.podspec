@@ -72,7 +72,6 @@ Pod::Spec.new do |s|
     framework.dependency 'hippy/Base'
     framework.dependency 'hippy/JSDriver'
     framework.dependency 'hippy/Image'
-    framework.dependency 'hippy/NativeRenderer'
     puts 'hippy subspec \'framework\' read end'
   end
 

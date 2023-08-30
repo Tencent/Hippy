@@ -546,8 +546,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
                 if (!result) {
                     textInput.requestFocus();
                 }
-                boolean showImm = ArrayUtils.getBooleanValue(params, 0);
-                if (showImm) {
+                if (params.isEmpty() || ArrayUtils.getBooleanValue(params, 0)) {
                     textInput.showInputMethodManager();
                 }
                 return false;
@@ -556,18 +555,21 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     }
 
     private void handleBlurFunction(@NonNull HippyTextInput textInput) {
-        NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(textInput.getContext());
+        NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(
+                textInput.getContext());
         if (nativeRenderer == null) {
             return;
         }
         ViewGroup rootView = (ViewGroup) nativeRenderer.getRootView(textInput);
-        if (rootView == null) {
-            return;
+        int oldFocusability = 0;
+        if (rootView != null) {
+            oldFocusability = rootView.getDescendantFocusability();
+            rootView.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
         }
-        int oldFoucusAbaility = rootView.getDescendantFocusability();
-        rootView.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
         textInput.hideInputMethod();
         textInput.clearFocus();
-        rootView.setDescendantFocusability(oldFoucusAbaility);
+        if (rootView != null) {
+            rootView.setDescendantFocusability(oldFocusability);
+        }
     }
 }

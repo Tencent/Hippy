@@ -96,7 +96,7 @@ public class RenderManager {
     public void preCreateView(int rootId, int id, int pid, @NonNull String className,
             @Nullable Map<String, Object> props) {
         boolean isLazy = mControllerManager.checkLazy(className);
-        if (isLazy) {
+        if (isLazy || id == rootId) {
             return;
         }
         if (pid != rootId) {
@@ -300,7 +300,7 @@ public class RenderManager {
             node.updateExtra(object);
             // The gesture set by the child nodes of the flattened text node will recreate
             // the host view, so the parent text node must be added to the update list.
-            if (node.getGestureEnable() && node.getHostView() == null && node.getParent() != null) {
+            if (node.checkGestureEnable() && node.getHostView() == null && node.getParent() != null) {
                 addUpdateNodeIfNeeded(rootId, node.getParent());
             }
             addUpdateNodeIfNeeded(rootId, node);
@@ -319,6 +319,14 @@ public class RenderManager {
             addUpdateNodeIfNeeded(rootId, node);
         }
         deleteSelfFromParent(rootId, node);
+    }
+
+    public void deleteSnapshotNode(int rootId) {
+        RootRenderNode rootNode = NativeRendererManager.getRootNode(rootId);
+        if (rootNode != null) {
+            deleteSelfFromParent(rootId, rootNode);
+            rootNode.clear();
+        }
     }
 
     public void dispatchUIFunction(int rootId, int nodeId, @NonNull String functionName,
@@ -416,6 +424,9 @@ public class RenderManager {
     }
 
     public void postInvalidateDelayed(int rootId, int id, long delayMilliseconds) {
-        mControllerManager.postInvalidateDelayed(rootId, id, delayMilliseconds);
+        RenderNode node = getRenderNode(rootId, id);
+        if (node != null) {
+            node.postInvalidateDelayed(delayMilliseconds);
+        }
     }
 }

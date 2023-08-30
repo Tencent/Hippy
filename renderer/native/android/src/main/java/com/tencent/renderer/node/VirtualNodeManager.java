@@ -22,6 +22,7 @@ import static com.tencent.mtt.hippy.dom.node.NodeProps.PADDING_LEFT;
 import static com.tencent.mtt.hippy.dom.node.NodeProps.PADDING_RIGHT;
 import static com.tencent.mtt.hippy.dom.node.NodeProps.PADDING_TOP;
 import static com.tencent.mtt.hippy.dom.node.NodeProps.TEXT_CLASS_NAME;
+import static com.tencent.mtt.hippy.dom.node.NodeProps.TEXT_INPUT_CLASS_NAME;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.INVALID_MEASURE_STATE_ERR;
 import static com.tencent.renderer.NativeRenderer.NODE_ID;
 import static com.tencent.renderer.NativeRenderer.NODE_INDEX;
@@ -32,7 +33,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
-import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderException;
@@ -43,6 +43,7 @@ import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 import com.tencent.renderer.utils.PropertyUtils;
 import com.tencent.renderer.utils.PropertyUtils.PropertyMethodHolder;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,10 +62,10 @@ public class VirtualNodeManager {
      */
     private final Map<Integer, List<VirtualNode>> mUpdateNodes = new HashMap<>();
     @NonNull
-    private final NativeRender mNativeRenderer;
+    private final WeakReference<NativeRender> mNativeRendererRef;
 
     public VirtualNodeManager(@NonNull NativeRender nativeRenderer) {
-        mNativeRenderer = nativeRenderer;
+        mNativeRendererRef = new WeakReference<>(nativeRenderer);
     }
 
     /**
@@ -101,7 +102,7 @@ public class VirtualNodeManager {
      */
     public boolean updateEventListener(int rootId, int nodeId, @NonNull Map<String, Object> props) {
         VirtualNode node = getVirtualNode(rootId, nodeId);
-        if (node == null) {
+        if (node == null || node instanceof TextInputVirtualNode) {
             return false;
         }
         boolean isChanged = false;
@@ -169,9 +170,13 @@ public class VirtualNodeManager {
                 rightPadding, bottomPadding);
     }
 
-    public long measure(int rootId, int nodeId, float width, FlexMeasureMode widthMode)
+    public long measure(int rootId, int nodeId, float width, FlexMeasureMode widthMode,
+            float height, FlexMeasureMode heightMode)
             throws NativeRenderException {
         VirtualNode node = getVirtualNode(rootId, nodeId);
+        if (node instanceof TextInputVirtualNode) {
+            return ((TextInputVirtualNode) node).measure(width, widthMode, height, heightMode);
+        }
         if (!(node instanceof TextVirtualNode) || node.mParent != null) {
             throw new NativeRenderException(INVALID_MEASURE_STATE_ERR,
                     TAG + ": measure: encounter wrong state when check node, "
@@ -215,15 +220,10 @@ public class VirtualNodeManager {
 
     @SuppressWarnings("rawtypes")
     private void invokePropertyMethod(@NonNull VirtualNode node, @NonNull Map props,
-            @NonNull String key, @Nullable PropertyMethodHolder methodHolder) {
-        if (methodHolder == null) {
-            if (key.equals(NodeProps.STYLE) && (props.get(key) instanceof Map)) {
-                updateProps(node, (Map) props.get(key));
-            }
-            return;
-        }
+            @NonNull String key, @NonNull PropertyMethodHolder methodHolder) {
         try {
-            if (props.get(key) == null) {
+            Object value = props.get(key);
+            if (value == null) {
                 switch (methodHolder.defaultType) {
                     case HippyControllerProps.BOOLEAN:
                         methodHolder.method.invoke(node, methodHolder.defaultBoolean);
@@ -248,12 +248,14 @@ public class VirtualNodeManager {
                 }
             } else {
                 methodHolder.method.invoke(node,
-                        PropertyUtils.convertProperty(methodHolder.paramTypes[0], props.get(key)));
+                        PropertyUtils.convertProperty(methodHolder.paramTypes[0], value));
             }
         } catch (Exception exception) {
-            mNativeRenderer.handleRenderException(
-                    PropertyUtils
-                            .makePropertyConvertException(exception, key, methodHolder.method));
+            if (mNativeRendererRef.get() != null) {
+                mNativeRendererRef.get().handleRenderException(
+                        PropertyUtils
+                                .makePropertyConvertException(exception, key, methodHolder.method));
+            }
         }
     }
 
@@ -271,24 +273,34 @@ public class VirtualNodeManager {
         Set<String> keySet = props.keySet();
         for (String key : keySet) {
             PropertyMethodHolder methodHolder = methodMap.get(key);
-            invokePropertyMethod(node, props, key, methodHolder);
+            if (methodHolder != null) {
+                invokePropertyMethod(node, props, key, methodHolder);
+            }
         }
     }
 
     @Nullable
     private VirtualNode createVirtualNode(int rootId, int id, int pid, int index,
             @NonNull String className, @Nullable Map<String, Object> props) {
-        VirtualNode node = mNativeRenderer.createVirtualNode(rootId, id, pid, index, className,
+        NativeRender nativeRender = mNativeRendererRef.get();
+        if (nativeRender == null) {
+            return null;
+        }
+        VirtualNode node = nativeRender.createVirtualNode(rootId, id, pid, index, className,
                 props);
         VirtualNode parent = getVirtualNode(rootId, pid);
-        // Only text or text child need to create virtual node.
+        // Only text、text child and text input need to create virtual node.
         if (className.equals(TEXT_CLASS_NAME)) {
             if (!(node instanceof TextVirtualNode)) {
-                node = new TextVirtualNode(rootId, id, pid, index, mNativeRenderer);
+                node = new TextVirtualNode(rootId, id, pid, index, nativeRender);
             }
         } else if (className.equals(IMAGE_CLASS_NAME) && parent != null) {
             if (!(node instanceof ImageVirtualNode)) {
-                node = new ImageVirtualNode(rootId, id, pid, index, mNativeRenderer);
+                node = new ImageVirtualNode(rootId, id, pid, index, nativeRender);
+            }
+        } else if (className.equals(TEXT_INPUT_CLASS_NAME)) {
+            if (!(node instanceof TextInputVirtualNode)) {
+                node = new TextInputVirtualNode(rootId, id, pid, index);
             }
         }
         return node;
@@ -331,6 +343,11 @@ public class VirtualNodeManager {
             }
         }
         updateProps(node, propsToUpdate);
+        // The text input node is only used for measurement purposes and does not
+        // require any layout updates
+        if (node instanceof TextInputVirtualNode) {
+            return;
+        }
         // add the top VirtualNode to mUpdateNodes
         while (node.mParent != null) {
             node = node.mParent;
@@ -374,7 +391,7 @@ public class VirtualNodeManager {
         for (int i = 0; i < list.size(); i++) {
             try {
                 final Map node = (Map) list.get(i);
-                Integer nodeId = ((Number) Objects.requireNonNull(node.get(NODE_ID))).intValue();
+                int nodeId = ((Number) Objects.requireNonNull(node.get(NODE_ID))).intValue();
                 int index = ((Number) Objects.requireNonNull(node.get(NODE_INDEX))).intValue();
                 VirtualNode child = getVirtualNode(rootId, nodeId);
                 if (child != null) {

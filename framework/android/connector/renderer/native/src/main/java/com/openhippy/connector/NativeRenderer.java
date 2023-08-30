@@ -74,6 +74,13 @@ public class NativeRenderer implements NativeRenderConnector {
     }
 
     @Override
+    public void removeSnapshotView() {
+        if (mRenderer != null) {
+            mRenderer.removeSnapshotView();
+        }
+    }
+
+    @Override
     public void setFrameworkProxy(@NonNull Object proxy) {
         if (mRenderer != null && proxy instanceof FrameworkProxy) {
             mRenderer.setFrameworkProxy((FrameworkProxy) proxy);
@@ -133,6 +140,7 @@ public class NativeRenderer implements NativeRenderConnector {
     @Override
     public void destroy() {
         destroyNativeRenderManager(mInstanceId);
+        mRenderer = null;
     }
 
     @Override

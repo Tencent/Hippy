@@ -188,22 +188,29 @@ class ModalRenderViewModel extends GroupViewModel implements InstanceLifecycleEv
     } else {
       content = SafeArea(child: child);
     }
+    content = Scaffold(
+      backgroundColor: const Color(0x01ffffff),
+      resizeToAvoidBottomInset: true,
+      body: WillPopScope(
+        onWillPop: () async {
+          onRequestClose();
+          return false;
+        },
+        child: content,
+      ),
+    );
+    if (statusBarTextDarkColor) {
+      content = AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle(
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+        ),
+        child: content,
+      );
+    }
     return Material(
       type: MaterialType.transparency,
-      child: Scaffold(
-        backgroundColor: const Color(0x01ffffff),
-        resizeToAvoidBottomInset: true,
-        body: AnnotatedRegion<SystemUiOverlayStyle>(
-          value: statusBarTextDarkColor ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
-          child: WillPopScope(
-            onWillPop: () async {
-              onRequestClose();
-              return false;
-            },
-            child: content,
-          ),
-        ),
-      ),
+      child: content,
     );
   }
 

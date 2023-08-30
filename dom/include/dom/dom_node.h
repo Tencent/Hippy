@@ -211,7 +211,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void UpdateObjectStyle(HippyValue& style_map, const HippyValue& update_style);
   bool ReplaceStyle(HippyValue& object, const std::string& key, const HippyValue& value);
 
-  friend std::ostream& operator<<(std::ostream& os, const DomNode& dom_value);
+  friend std::ostream& operator<<(std::ostream& os, const DomNode& hippy_value);
 
  private:
   uint32_t id_{};          // node id

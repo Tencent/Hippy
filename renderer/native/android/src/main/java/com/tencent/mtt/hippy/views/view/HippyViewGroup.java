@@ -75,10 +75,10 @@ public class HippyViewGroup extends FlatViewGroup implements HippyViewBase {
 
     public static void setOverflow(@NonNull String overflow, @NonNull ViewGroup viewGroup) {
         switch (overflow) {
-            case "visible":
+            case NodeProps.VISIBLE:
                 viewGroup.setClipChildren(false);
                 break;
-            case "hidden": {
+            case NodeProps.HIDDEN: {
                 viewGroup.setClipChildren(true);
                 break;
             }

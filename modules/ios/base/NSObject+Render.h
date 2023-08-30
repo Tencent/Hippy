@@ -22,10 +22,20 @@
 
 #import <Foundation/Foundation.h>
 
-#import "HippyBridgeModule.h"
-#import "HippyFrameUpdate.h"
-#import "HPInvalidating.h"
+#include <memory>
 
-@interface HippyTiming : NSObject <HippyBridgeModule, HPInvalidating, HippyFrameUpdateObserver>
+NS_ASSUME_NONNULL_BEGIN
+
+namespace hippy {
+inline namespace dom {
+class RenderManager;
+};
+};
+
+@interface NSObject (Render)
+
+@property(nonatomic, assign) std::weak_ptr<hippy::RenderManager> renderManager;
 
 @end
+
+NS_ASSUME_NONNULL_END

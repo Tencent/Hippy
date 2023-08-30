@@ -59,6 +59,7 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
     private var hasRunOnCreate = false
     private var hippyEngineWrapper: HippyEngineWrapper? = null
     private var debugMode: Boolean = false
+    private var snapshotMode: Boolean = false
     private var debugServerHost: String = "localhost:38989"
     private var dialog: Dialog? = null
     private var driverMode: DriverMode = DriverMode.JS_REACT
@@ -71,7 +72,8 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
         pageConfigurationRoot = layoutInflater.inflate(R.layout.activity_page_configuration, null)
         pageConfigurationContainer =
             pageConfigurationRoot.findViewById(R.id.page_configuration_container)
-        pageConfigurationSetting = pageConfigurationRoot.findViewById(R.id.page_configuration_setting)
+        pageConfigurationSetting =
+            pageConfigurationRoot.findViewById(R.id.page_configuration_setting)
         pageConfigurationTitle =
             pageConfigurationRoot.findViewById(R.id.page_configuration_navigation_title)
 
@@ -121,7 +123,11 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onBackPressed() {
-        val goBack: () -> Unit = { buildSnapshot { moveTaskToBack(true) } }
+        val goBack: () -> Unit = {
+            buildSnapshot {
+                moveTaskToBack(true)
+            }
+        }
         hippyEngineWrapper?.apply {
             if (hippyEngine.onBackPressed(goBack)) {
                 return
@@ -135,11 +141,17 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
         if (rootView == null || currentEngineId == -1) {
             runnable.run()
         } else {
+            hippyEngineWrapper?.let {
+                if (!it.isDebugMode) {
+                    hippyEngineWrapper?.recordRenderNodeSnapshot()
+                }
+            }
             generateBitmapFromView(rootView, object : SnapshotBuildCallback {
                 override fun onSnapshotReady(bitmap: Bitmap?) {
                     hippyEngineWrapper?.snapshot = bitmap
                     (pageConfigurationContainer as ViewGroup).removeAllViews()
                     runnable.run()
+                    hippyEngineWrapper = null
                 }
             })
         }
@@ -150,7 +162,7 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
             pageConfigurationRoot.findViewById<View>(R.id.page_configuration_driver_setting)
         driverSettingText =
             pageConfigurationRoot.findViewById(R.id.page_configuration_driver_setting_title)
-        driverSettingButton.setOnClickListener { v ->
+        driverSettingButton.setOnClickListener {
             onDriverSettingClick()
         }
 
@@ -158,26 +170,35 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
             pageConfigurationRoot.findViewById<View>(R.id.page_configuration_renderer_setting)
         rendererSettingText =
             pageConfigurationRoot.findViewById(R.id.page_configuration_renderer_setting_title)
-        rendererSettingButton.setOnClickListener { v ->
+        rendererSettingButton.setOnClickListener {
             onRendererSettingClick()
         }
-
         val debugButton =
             pageConfigurationRoot.findViewById<View>(R.id.page_configuration_debug_setting_image)
         val debugServerHost =
             pageConfigurationRoot.findViewById<View>(R.id.page_configuration_debug_server_host)
-        debugButton.setOnClickListener { v ->
+        debugButton.setOnClickListener {
             if (debugMode) {
                 (debugButton as ImageView).setImageResource(R.drawable.page_config_debug_off_2x)
-                debugMode = false
                 debugServerHost.visibility = View.GONE
+                debugMode = false
             } else {
                 (debugButton as ImageView).setImageResource(R.drawable.page_config_debug_on_2x)
-                debugMode = true
                 debugServerHost.visibility = View.VISIBLE
+                debugMode = true
             }
         }
-
+        val snapshotButton =
+            pageConfigurationRoot.findViewById<View>(R.id.page_configuration_snapshot_setting_image)
+        snapshotButton.setOnClickListener {
+            snapshotMode = if (snapshotMode) {
+                (snapshotButton as ImageView).setImageResource(R.drawable.page_config_debug_off_2x)
+                false
+            } else {
+                (snapshotButton as ImageView).setImageResource(R.drawable.page_config_debug_on_2x)
+                true
+            }
+        }
         val createButton =
             pageConfigurationRoot.findViewById<View>(R.id.page_configuration_create_image)
         createButton.setOnClickListener { v ->
@@ -237,6 +258,7 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
                 driverMode,
                 renderMode,
                 debugMode,
+                snapshotMode,
                 debugServerHost
             )
             hippyEngineWrapper?.let {
@@ -253,8 +275,11 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
                 override fun onCreateRootView(hippyRootView: ViewGroup?) {
                     hippyRootView?.let {
                         (pageConfigurationContainer as ViewGroup).addView(hippyRootView)
-                        hippyEngineWrapper?.hippyRootView = hippyRootView
                     }
+                }
+
+                override fun onReplaySnapshotViewCompleted(snapshotView: ViewGroup) {
+                    (pageConfigurationContainer as ViewGroup).addView(snapshotView)
                 }
 
                 override fun onLoadModuleCompleted(
@@ -335,7 +360,12 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
             R.id.page_configuration_driver_vl -> {
                 val text = resources.getText(R.string.setting_not_available)
                 val span = SpannableString(text)
-                span.setSpan(ForegroundColorSpan(Color.BLACK), 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                span.setSpan(
+                    ForegroundColorSpan(Color.BLACK),
+                    0,
+                    text.length,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
                 val toast: Toast =
                     Toast.makeText(
                         this,

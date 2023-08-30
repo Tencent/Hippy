@@ -33,7 +33,7 @@ using tdfcore::TPoint;
 using tdfcore::TRect;
 using tdfcore::TScalar;
 
-ViewPager::ViewPager() : tdfcore::ScrollView() {}
+ViewPager::ViewPager(const std::shared_ptr<ViewContext> &context) : tdfcore::ScrollView(context) {}
 
 void ViewPager::Init() {
   ScrollView::Init();

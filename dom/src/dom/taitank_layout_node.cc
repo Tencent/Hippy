@@ -131,38 +131,39 @@ TAITANK_GET_STYLE_DECL(DisplayType, DisplayType, DisplayType::DISPLAY_TYPE_FLEX)
 
 TAITANK_GET_STYLE_DECL(Direction, TaitankDirection, TaitankDirection::DIRECTION_LTR)
 
-#define SET_STYLE_VALUE(NAME, DEFAULT)                                                     \
-  if (style_update.find(k##NAME) != style_update.end()) {                                  \
-    auto dom_value = style_update.find(k##NAME)->second;                                   \
-    FOOTSTONE_DCHECK(dom_value != nullptr);                                                \
-    if (dom_value != nullptr) {                                                            \
-      CheckValueType(dom_value->GetType());                                                \
-      float value = DEFAULT;                                                               \
-      if (dom_value->IsNumber()) value = static_cast<float>(dom_value->ToDoubleChecked()); \
-      Set##NAME(value);                                                                    \
-    }                                                                                      \
-  } else {                                                                                 \
-    auto it = std::find(style_delete.begin(), style_delete.end(), k##NAME);                \
-    if (it != style_delete.end()) Set##NAME(DEFAULT);                                      \
+#define SET_STYLE_VALUE(NAME, DEFAULT)                                                         \
+  if (style_update.find(k##NAME) != style_update.end()) {                                      \
+    auto hippy_value = style_update.find(k##NAME)->second;                                     \
+    FOOTSTONE_DCHECK(hippy_value != nullptr);                                                  \
+    if (hippy_value != nullptr) {                                                              \
+      CheckValueType(hippy_value->GetType());                                                  \
+      float value = DEFAULT;                                                                   \
+      if (hippy_value->IsNumber()) value = static_cast<float>(hippy_value->ToDoubleChecked()); \
+      Set##NAME(value);                                                                        \
+    }                                                                                          \
+  } else {                                                                                     \
+    auto it = std::find(style_delete.begin(), style_delete.end(), k##NAME);                    \
+    if (it != style_delete.end()) Set##NAME(DEFAULT);                                          \
   }
 
-#define SET_STYLE_VALUES(NAME, STYLENAME, DEFAULT)                                         \
-  if (style_update.find(k##STYLENAME) != style_update.end()) {                             \
-    auto dom_value = style_update.find(k##STYLENAME)->second;                              \
-    FOOTSTONE_DCHECK(dom_value != nullptr);                                                \
-    if (dom_value != nullptr) {                                                            \
-      CheckValueType(dom_value->GetType());                                                \
-      float value = DEFAULT;                                                               \
-      if (dom_value->IsNumber()) value = static_cast<float>(dom_value->ToDoubleChecked()); \
-      Set##NAME(GetStyle##NAME(k##STYLENAME), value);                                      \
-    }                                                                                      \
-  } else {                                                                                 \
-    auto it = std::find(style_delete.begin(), style_delete.end(), k##STYLENAME);           \
-    if (it != style_delete.end()) Set##NAME(GetStyle##NAME(k##STYLENAME), DEFAULT);        \
+#define SET_STYLE_VALUES(NAME, STYLENAME, DEFAULT)                                             \
+  if (style_update.find(k##STYLENAME) != style_update.end()) {                                 \
+    auto hippy_value = style_update.find(k##STYLENAME)->second;                                \
+    FOOTSTONE_DCHECK(hippy_value != nullptr);                                                  \
+    if (hippy_value != nullptr) {                                                              \
+      CheckValueType(hippy_value->GetType());                                                  \
+      float value = DEFAULT;                                                                   \
+      if (hippy_value->IsNumber()) value = static_cast<float>(hippy_value->ToDoubleChecked()); \
+      Set##NAME(GetStyle##NAME(k##STYLENAME), value);                                          \
+    }                                                                                          \
+  } else {                                                                                     \
+    auto it = std::find(style_delete.begin(), style_delete.end(), k##STYLENAME);               \
+    if (it != style_delete.end()) Set##NAME(GetStyle##NAME(k##STYLENAME), DEFAULT);            \
   }
 
 static void CheckValueType(footstone::value::HippyValue::Type type) {
-  FOOTSTONE_DCHECK(type == footstone::value::HippyValue::Type::kNumber || type == footstone::value::HippyValue::Type::kObject);
+  if (type == footstone::value::HippyValue::Type::kNumber || type == footstone::value::HippyValue::Type::kObject)
+    FOOTSTONE_DLOG(WARNING) << "Taitank Layout Node Value Type Error";
 }
 
 static float GetDefaultValue(
@@ -174,8 +175,8 @@ static float GetDefaultValue(
 
   float default_value = 0;
   if (style_update.find(relation_key) != style_update.end()) {
-    auto dom_value = style_update.find(relation_key)->second;
-    if (dom_value->IsNumber()) default_value = static_cast<float>(dom_value->ToDoubleChecked());
+    auto hippy_value = style_update.find(relation_key)->second;
+    if (hippy_value->IsNumber()) default_value = static_cast<float>(hippy_value->ToDoubleChecked());
   }
   return default_value;
 }
@@ -444,8 +445,10 @@ void TaitankLayoutNode::Parser(
   SET_STYLE_VALUES(Border, BorderWidth, 0)
   SET_STYLE_VALUES(Border, BorderLeftWidth, GetDefaultValue(kBorderLeftWidth, kBorderWidth, style_update, style_delete))
   SET_STYLE_VALUES(Border, BorderTopWidth, GetDefaultValue(kBorderTopWidth, kBorderWidth, style_update, style_delete))
-  SET_STYLE_VALUES(Border, BorderRightWidth, GetDefaultValue(kBorderRightWidth, kBorderWidth, style_update, style_delete))
-  SET_STYLE_VALUES(Border, BorderBottomWidth, GetDefaultValue(kBorderBottomWidth, kBorderWidth, style_update, style_delete))
+  SET_STYLE_VALUES(Border, BorderRightWidth,
+                   GetDefaultValue(kBorderRightWidth, kBorderWidth, style_update, style_delete))
+  SET_STYLE_VALUES(Border, BorderBottomWidth,
+                   GetDefaultValue(kBorderBottomWidth, kBorderWidth, style_update, style_delete))
   SET_STYLE_VALUES(Position, Left, NAN)
   SET_STYLE_VALUES(Position, Right, NAN)
   SET_STYLE_VALUES(Position, Top, NAN)

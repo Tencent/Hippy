@@ -50,7 +50,7 @@ void TextViewNode::RegisterMeasureFunction(uint32_t root_id, const std::shared_p
   dom_node->GetLayoutNode()->SetMeasureFunction([view_node](float width, LayoutMeasureMode width_measure_mode,
                                                             float height, LayoutMeasureMode height_measure_mode,
                                                             void* layoutContext) {
-    auto size = view_node->layout_view_->MeasureText(static_cast<uint64_t>(width));
+    auto size = view_node->layout_view_->MeasureText(width);
     hippy::LayoutSize layout_result{static_cast<float>(size.width), static_cast<float>(size.height)};
     return layout_result;
   });
@@ -89,8 +89,8 @@ std::shared_ptr<tdfcore::TextView> TextViewNode::GetTextView() {
   return GetView<tdfcore::TextView>();
 }
 
-std::shared_ptr<tdfcore::View> TextViewNode::CreateView() {
-  auto text_view = TDF_MAKE_SHARED(TextView);
+std::shared_ptr<tdfcore::View> TextViewNode::CreateView(const std::shared_ptr<ViewContext> &context) {
+  auto text_view = TDF_MAKE_SHARED(TextView, context);
   auto text_style = text_view->GetTextStyle();
   text_style.color = kDefaultTextColor;
   text_view->SetTextStyle(text_style);
@@ -168,11 +168,11 @@ void TextViewNode::SetFontSize(const DomStyleMap& dom_style, TextStyle& text_sty
 
 void TextViewNode::SetFontWeight(const DomStyleMap& dom_style, TextStyle& text_style) {
   if (auto it = dom_style.find(text::kFontWeight); it != dom_style.end() && it->second != nullptr) {
-    auto dom_value = it->second;
-    if (dom_value->IsString()) {
-      font_weight_ = dom_value->ToStringChecked();
+    auto hippy_value = it->second;
+    if (hippy_value->IsString()) {
+      font_weight_ = hippy_value->ToStringChecked();
     } else {
-      auto font_weight = dom_value->ToDoubleChecked();
+      auto font_weight = hippy_value->ToDoubleChecked();
       if (font_weight > 500) {
         font_weight_ = "bold";
       }
@@ -204,7 +204,9 @@ void TextViewNode::SetLetterSpacing(const DomStyleMap& dom_style, TextStyle& tex
 
 void TextViewNode::SetFontFamily(const DomStyleMap& dom_style, TextStyle& text_style) {
   if (auto it = dom_style.find(text::kFontFamily); it != dom_style.end() && it->second != nullptr) {
-    text_style.font_family = it->second->ToStringChecked();
+    std::vector<std::string> families;
+    families.push_back(it->second->ToStringChecked());
+    text_style.font_families = families;
   }
 }
 

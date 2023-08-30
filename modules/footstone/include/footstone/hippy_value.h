@@ -31,7 +31,7 @@ inline namespace value {
 class HippyValue final {
  public:
   using HippyValueObjectType = typename std::unordered_map<std::string, HippyValue>;
-  using DomValueArrayType = typename std::vector<HippyValue>;
+  using HippyValueArrayType = typename std::vector<HippyValue>;
   enum class Type { kUndefined, kNull, kNumber, kBoolean, kString, kObject, kArray };
   enum class NumberType { kInt32, kUInt32, kDouble, kNaN };
 
@@ -121,15 +121,15 @@ class HippyValue final {
 
   /**
    * @brief 移动构造 array 类型的 dom value
-   * @param array_value DomValueArrayType 的对象
+   * @param array_value HippyValueArrayType 的对象
    */
-  explicit HippyValue(DomValueArrayType&& array_value) : type_(Type::kArray), arr_(array_value) {}
+  explicit HippyValue(HippyValueArrayType&& array_value) : type_(Type::kArray), arr_(array_value) {}
 
   /**
    * @brief 移动构造 array 类型的 dom value
-   * @param array_value DomValueArrayType 的对象
+   * @param array_value HippyValueArrayType 的对象
    */
-  explicit HippyValue(DomValueArrayType& array_value) : type_(Type::kArray), arr_(array_value) {}
+  explicit HippyValue(HippyValueArrayType& array_value) : type_(Type::kArray), arr_(array_value) {}
   ~HippyValue();
 
   HippyValue& operator=(const HippyValue& rhs) noexcept;
@@ -140,7 +140,7 @@ class HippyValue final {
   HippyValue& operator=(const std::string& rhs) noexcept;
   HippyValue& operator=(const char* rhs) noexcept;
   HippyValue& operator=(const HippyValueObjectType& rhs) noexcept;
-  HippyValue& operator=(const DomValueArrayType& rhs) noexcept;
+  HippyValue& operator=(const HippyValueArrayType& rhs) noexcept;
 
   bool operator==(const HippyValue& rhs) const noexcept;
   bool operator!=(const HippyValue& rhs) const noexcept;
@@ -310,29 +310,29 @@ class HippyValue final {
   HippyValueObjectType& ToObjectChecked();
 
   /**
-   * @brief 转化成 DomValueArrayType 类型, crash if failed
-   * @param arr get DomValueArrayType value
+   * @brief 转化成 HippyValueArrayType 类型, crash if failed
+   * @param arr get HippyValueArrayType value
    * @return return true if success else return false
    */
-  bool ToArray(DomValueArrayType& arr) const;
+  bool ToArray(HippyValueArrayType& arr) const;
 
   /**
-   * @brief 转化成 DomValueArrayType 类型, crash if failed
-   * @return return DomValueArrayType value
+   * @brief 转化成 HippyValueArrayType 类型, crash if failed
+   * @return return HippyValueArrayType value
    */
-  const DomValueArrayType& ToArrayChecked() const;
+  const HippyValueArrayType& ToArrayChecked() const;
 
   /**
-   * @brief 转化成 DomValueArrayType 类型, crash if failed
-   * @return return DomValueArrayType value
+   * @brief 转化成 HippyValueArrayType 类型, crash if failed
+   * @return return HippyValueArrayType value
    */
-  DomValueArrayType& ToArrayChecked();
+  HippyValueArrayType& ToArrayChecked();
 
  private:
   inline void Deallocate();
 
   friend std::hash<HippyValue>;
-  friend std::ostream& operator<<(std::ostream& os, const HippyValue& dom_value);
+  friend std::ostream& operator<<(std::ostream& os, const HippyValue& hippy_value);
 
 
   Type type_ = Type::kUndefined;
@@ -340,7 +340,7 @@ class HippyValue final {
   union {
     bool b_{};
     HippyValueObjectType obj_;
-    DomValueArrayType arr_;
+    HippyValueArrayType arr_;
     std::string str_;
     Number num_;
   };

@@ -32,6 +32,9 @@
 #include "driver/performance/performance_paint_timing.h"
 #include "footstone/time_point.h"
 #include "footstone/string_view.h"
+#ifdef JS_V8
+#include "driver/vm/v8/memory_module.h"
+#endif
 
 using string_view = footstone::string_view;
 
@@ -65,7 +68,7 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
     }
     auto context = scope->GetContext();
     if (!external) {
-      exception = context->CreateException("legal constructor");
+      exception = context->CreateException("illegal constructor");
       return nullptr;
     }
     return scope->GetPerformance();
@@ -83,7 +86,7 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
       return nullptr;
     }
     auto context = scope->GetContext();
-    auto now = hippy::Performance::Now().ToEpochDelta().ToNanosecondsF();
+    auto now = hippy::Performance::Now().ToEpochDelta().ToMillisecondsF();
     return context->CreateNumber(now);
   };
   class_template.functions.emplace_back(std::move(now_function_define));
@@ -184,6 +187,7 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
         exception = context->CreateException("measure startMark not found");
         return nullptr;
       }
+      return nullptr;
     }
     string_view end_mark;
     flag = context->GetValueString(arguments[2], &end_mark);
@@ -250,11 +254,16 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
       return nullptr;
     }
     if (argument_count == 1) {
-      auto entry = performance->GetEntriesByName(name);
-      auto javascript_class = scope->GetJavascriptClass(PerformanceEntry::GetSubTypeString(entry->GetSubType()));
-      std::shared_ptr<CtxValue> argv[] = { context->CreateString(entry->GetName()),
-                                           context->CreateNumber(static_cast<uint32_t>(entry->GetSubType())) };
-      return context->NewInstance(javascript_class, 2, argv, entry.get());
+      auto entries = performance->GetEntriesByName(name);
+      std::shared_ptr<CtxValue> instances[entries.size()];
+      for (size_t i = 0; i < entries.size(); ++i) {
+        auto entry = entries[i];
+        auto javascript_class = scope->GetJavascriptClass(PerformanceEntry::GetSubTypeString(entry->GetSubType()));
+        std::shared_ptr<CtxValue> argv[] = { context->CreateString(entry->GetName()),
+                                             context->CreateNumber(static_cast<uint32_t>(entry->GetType())) };
+        instances[i] = context->NewInstance(javascript_class, 2, argv, entry.get());
+      }
+      return context->CreateArray(entries.size(), instances);
     }
     string_view type;
     flag = context->GetValueString(arguments[1], &type);
@@ -267,14 +276,16 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
       exception = context->CreateException("entry_type error");
       return nullptr;
     }
-    auto entry = performance->GetEntriesByName(name, entry_type);
-    if (!entry) {
-      return nullptr;
+    auto entries = performance->GetEntriesByName(name, entry_type);
+    std::shared_ptr<CtxValue> instances[entries.size()];
+    for (size_t i = 0; i < entries.size(); ++i) {
+      auto entry = entries[i];
+      auto javascript_class = scope->GetJavascriptClass(PerformanceEntry::GetSubTypeString(entry->GetSubType()));
+      std::shared_ptr<CtxValue> argv[] = { context->CreateString(entry->GetName()),
+                                           context->CreateNumber(static_cast<uint32_t>(entry->GetType())) };
+      instances[i] = context->NewInstance(javascript_class, 2, argv, entry.get());
     }
-    auto javascript_class = scope->GetJavascriptClass(PerformanceEntry::GetSubTypeString(entry->GetSubType()));
-    std::shared_ptr<CtxValue> argv[] = { context->CreateString(entry->GetName()),
-                                         context->CreateNumber(static_cast<uint32_t>(entry->GetSubType())) };
-    return context->NewInstance(javascript_class, 2, argv, entry.get());
+    return context->CreateArray(entries.size(), instances);
   };
   class_template.functions.emplace_back(std::move(get_entries_by_name_function_define));
 
@@ -311,7 +322,7 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
       auto entry = entries[i];
       auto javascript_class = scope->GetJavascriptClass(PerformanceEntry::GetSubTypeString(entry->GetSubType()));
       std::shared_ptr<CtxValue> argv[] = { context->CreateString(entry->GetName()),
-                                           context->CreateNumber(static_cast<uint32_t>(entry->GetSubType())) };
+                                           context->CreateNumber(static_cast<uint32_t>(entry->GetType())) };
       instances[i] = context->NewInstance(javascript_class, 2, argv, entry.get());
     }
     return context->CreateArray(entries.size(), instances);
@@ -384,12 +395,30 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
       auto entry = entries[i];
       auto javascript_class = scope->GetJavascriptClass(PerformanceEntry::GetSubTypeString(entry->GetSubType()));
       std::shared_ptr<CtxValue> argv[] = { context->CreateString(entry->GetName()),
-                                           context->CreateNumber(static_cast<uint32_t>(entry->GetSubType())) };
+                                           context->CreateNumber(static_cast<uint32_t>(entry->GetType())) };
       instances[i] = context->NewInstance(javascript_class, 2, argv, entry.get());
     }
     return context->CreateArray(entries.size(), instances);
   };
   class_template.functions.emplace_back(std::move(get_entries_function_define));
+
+  PropertyDefine<Performance> memory_property_define;
+  memory_property_define.name = "memory";
+  memory_property_define.getter = [weak_scope](
+      Performance* thiz,
+      std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<CtxValue> {
+    auto scope = weak_scope.lock();
+    if (!scope) {
+      return nullptr;
+    }
+#ifdef JS_V8
+    return GetV8Memory(scope);
+#else
+    auto context = scope->GetContext();
+    return context->CreateUndefined();
+#endif
+  };
+  class_template.properties.push_back(std::move(memory_property_define));
 
   return std::make_shared<ClassTemplate<Performance>>(std::move(class_template));
 }

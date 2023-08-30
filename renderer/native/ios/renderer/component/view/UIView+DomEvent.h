@@ -36,6 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UIView(DomEvent)<NativeRenderTouchesProtocol>
 
+@property(nonatomic, assign)BOOL onInterceptTouchEvent;
+
 @property(nonatomic, readonly, copy)NSSet<NSString *> *propertyEventsName;
 
 /**

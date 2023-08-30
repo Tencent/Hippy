@@ -278,6 +278,11 @@ public class RenderNode {
         index = (index < 0) ? 0 : Math.min(index, mChildren.size());
         mChildren.add(index, node);
         node.mParent = this;
+        // If has set z index in the child nodes, the rendering order needs to be rearranged
+        // after adding nodes
+        if (mDrawingOrder != null) {
+            setNodeFlag(FLAG_UPDATE_DRAWING_ORDER);
+        }
     }
 
     public void setLazy(boolean isLazy) {
@@ -434,8 +439,7 @@ public class RenderNode {
             // regular view node.
             if (createNow || !mControllerManager.checkFlatten(mClassName)
                     || !mParent.getClassName().equals(HippyViewGroupController.CLASS_NAME)
-                    || getChildCount() > 0
-                    || getGestureEnable()) {
+                    || getChildCount() > 0 || checkGestureEnable()) {
                 mParent.addChildToPendingList(this);
                 View view = mControllerManager.createView(this, mPoolInUse);
                 setHostView(view);
@@ -735,7 +739,7 @@ public class RenderNode {
         }
     }
 
-    public boolean getGestureEnable() {
+    public boolean checkGestureEnable() {
         return mComponent != null && mComponent.getGestureEnable();
     }
 }

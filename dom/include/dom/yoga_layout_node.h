@@ -95,7 +95,7 @@ class YogaLayoutNode : public LayoutNode, public std::enable_shared_from_this<Yo
 
   void Print() override;
 
-  bool IsDirty();
+  bool IsDirty() override;
 
   void Reset();
 
@@ -105,19 +105,19 @@ class YogaLayoutNode : public LayoutNode, public std::enable_shared_from_this<Yo
   void Parser(const std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_update,
               const std::vector<std::string>& style_delete);
 
-  void SetYGWidth(std::shared_ptr<footstone::value::HippyValue> dom_value);
+  void SetYGWidth(std::shared_ptr<footstone::value::HippyValue> hippy_value);
 
-  void SetYGHeight(std::shared_ptr<footstone::value::HippyValue> dom_value);
+  void SetYGHeight(std::shared_ptr<footstone::value::HippyValue> hippy_value);
 
   void SetDirection(YGDirection direction);
 
-  void SetYGMaxWidth(std::shared_ptr<footstone::value::HippyValue> dom_value);
+  void SetYGMaxWidth(std::shared_ptr<footstone::value::HippyValue> hippy_value);
 
-  void SetYGMaxHeight(std::shared_ptr<footstone::value::HippyValue> dom_value);
+  void SetYGMaxHeight(std::shared_ptr<footstone::value::HippyValue> hippy_value);
 
-  void SetYGMinWidth(std::shared_ptr<footstone::value::HippyValue> dom_value);
+  void SetYGMinWidth(std::shared_ptr<footstone::value::HippyValue> hippy_value);
 
-  void SetYGMinHeight(std::shared_ptr<footstone::value::HippyValue> dom_value);
+  void SetYGMinHeight(std::shared_ptr<footstone::value::HippyValue> hippy_value);
 
   void SetFlexBasis(float flex_basis);
 
@@ -131,13 +131,13 @@ class YogaLayoutNode : public LayoutNode, public std::enable_shared_from_this<Yo
 
   void SetPositionType(YGPositionType position_type);
 
-  void SetYGPosition(YGEdge edge, std::shared_ptr<footstone::value::HippyValue> dom_value);
+  void SetYGPosition(YGEdge edge, std::shared_ptr<footstone::value::HippyValue> hippy_value);
 
-  void SetYGMargin(YGEdge edge, std::shared_ptr<footstone::value::HippyValue> dom_value);
+  void SetYGMargin(YGEdge edge, std::shared_ptr<footstone::value::HippyValue> hippy_value);
 
-  void SetYGPadding(YGEdge edge, std::shared_ptr<footstone::value::HippyValue> dom_value);
+  void SetYGPadding(YGEdge edge, std::shared_ptr<footstone::value::HippyValue> hippy_value);
 
-  void SetYGBorder(YGEdge edge, std::shared_ptr<footstone::value::HippyValue> dom_value);
+  void SetYGBorder(YGEdge edge, std::shared_ptr<footstone::value::HippyValue> hippy_value);
 
   void SetFlexWrap(YGWrap wrap_mode);
 

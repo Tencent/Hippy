@@ -35,6 +35,7 @@
 #include "driver/modules/contextify_module.h"
 #include "driver/modules/console_module.h"
 #include "driver/modules/event_module.h"
+#include "driver/modules/animation_frame_module.h"
 #include "driver/modules/performance/performance_entry_module.h"
 #include "driver/modules/performance/performance_frame_timing_module.h"
 #include "driver/modules/performance/performance_mark_module.h"
@@ -196,6 +197,7 @@ void Scope::BindModule() {
   module_object_map_["TimerModule"] = std::make_shared<TimerModule>();
   module_object_map_["ContextifyModule"] = std::make_shared<ContextifyModule>();
   module_object_map_["UIManagerModule"] = std::make_shared<UIManagerModule>();
+  module_object_map_["AnimationFrameModule"] = std::make_shared<AnimationFrameModule>();
 #ifdef JS_V8
   module_object_map_["MemoryModule"] = std::make_shared<MemoryModule>();
 #endif
@@ -381,9 +383,8 @@ hippy::dom::EventListenerInfo Scope::AddListener(const EventListenerInfo& event_
     auto context = weak_context.lock();
     if (context) {
       auto callback = event_listener_info.callback.lock();
-      FOOTSTONE_DCHECK(callback != nullptr);
       if (callback == nullptr) return;
-      hippy::DomEventWrapper::Set(event);
+      scope->SetCurrentEvent(std::make_any<std::shared_ptr<hippy::dom::DomEvent>>(event));
       auto event_class = scope->GetJavascriptClass(kEventName);
       auto event_instance = context->NewInstance(event_class, 0, nullptr, nullptr);
       FOOTSTONE_DCHECK(callback) << "callback is nullptr";
@@ -481,10 +482,16 @@ uint64_t Scope::GetListenerId(const EventListenerInfo& event_listener_info) {
 }
 
 void Scope::RunJS(const string_view& data,
+                  const string_view& uri,
                   const string_view& name,
                   bool is_copy) {
   std::weak_ptr<Ctx> weak_context = context_;
-  auto callback = [data, name, is_copy, weak_context] {
+  auto callback = [WEAK_THIS, data, uri, name, is_copy, weak_context] {
+    DEFINE_AND_CHECK_SELF(Scope)
+    // perfromance start time
+    auto entry = self->GetPerformance()->PerformanceNavigation("hippyInit");
+    entry->BundleInfoOfUrl(uri).execute_source_start_ = footstone::TimePoint::SystemNow();
+
 #ifdef JS_V8
     auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
     if (context) {
@@ -496,6 +503,9 @@ void Scope::RunJS(const string_view& data,
       context->RunScript(data, name);
     }
 #endif
+
+    // perfromance end time
+    entry->BundleInfoOfUrl(uri).execute_source_end_ = footstone::TimePoint::SystemNow();
   };
 
   auto runner = GetTaskRunner();
@@ -510,10 +520,15 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
   std::weak_ptr<Ctx> weak_context = context_;
 #ifdef ENABLE_INSPECTOR
   std::weak_ptr<hippy::devtools::DevtoolsDataSource> weak_data_source = devtools_data_source_;
-  auto cb = [weak_context, value, weak_data_source]() mutable {
+  auto cb = [WEAK_THIS, weak_context, value, weak_data_source]() mutable {
 #else
-  auto cb = [weak_context, value]() mutable {
+  auto cb = [WEAK_THIS, weak_context, value]() mutable {
 #endif
+    DEFINE_AND_CHECK_SELF(Scope)
+    // perfromance start time
+    auto entry = self->GetPerformance()->PerformanceNavigation("hippyInit");
+    entry->SetHippyRunApplicationStart(footstone::TimePoint::SystemNow());
+
     std::shared_ptr<Ctx> context = weak_context.lock();
     if (context) {
       auto global_object = context->GetGlobalObject();
@@ -544,6 +559,9 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
         context->ThrowException("Application entry not found");
       }
     }
+
+    // perfromance end time
+    entry->SetHippyRunApplicationEnd(footstone::TimePoint::SystemNow());
   };
   auto runner = GetTaskRunner();
   if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {

@@ -23,6 +23,7 @@
 #include "driver/performance/performance_entry.h"
 
 #include "footstone/string_view.h"
+#include "footstone/string_view_utils.h"
 #include "footstone/logging.h"
 
 using string_view = footstone::string_view;
@@ -58,17 +59,18 @@ string_view PerformanceEntry::GetEntryTypeString(Type type) {
 }
 
 PerformanceEntry::Type PerformanceEntry::GetEntryType(const string_view& string_type) {
-  if (string_type == "frame") {
+  auto u16n = footstone::StringViewUtils::ConvertEncoding(string_type, string_view::Encoding::Utf16);
+  if (u16n == u"frame") {
     return Type::kFrame;
-  } else if (string_type == "navigation") {
+  } else if (u16n == u"navigation") {
     return Type::kNavigation;
-  } else if (string_type == "resource") {
+  } else if (u16n == u"resource") {
     return Type::kResource;
-  } else if (string_type == "mark") {
+  } else if (u16n == u"mark") {
     return Type::kMark;
-  } else if (string_type == "measure") {
+  } else if (u16n == u"measure") {
     return Type::kMeasure;
-  } else if (string_type == "paint") {
+  } else if (u16n == u"paint") {
     return Type::kPaint;
   } else {
     return Type::kError;

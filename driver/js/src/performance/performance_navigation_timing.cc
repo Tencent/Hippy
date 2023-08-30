@@ -21,25 +21,33 @@
  */
 
 #include "driver/performance/performance_navigation_timing.h"
-
+#include "footstone/string_view_utils.h"
 #include <utility>
 
 namespace hippy {
 inline namespace driver {
 inline namespace performance {
 
-PerformanceNavigationTiming::PerformanceNavigationTiming(
-    const string_view& name, const TimePoint& start,
-    const TimePoint& engine_initialization_start, const TimePoint& engine_initialization_end,
-    std::vector<BundleInfo> bundle_info,
-    const TimePoint& load_instance_start, const TimePoint& load_instance_end,
-    const TimePoint& first_frame): PerformanceEntry(
-        name, SubType::kPerformanceNavigationTiming, Type::kNavigation, start, TimePoint::Now() - start),
-        engine_initialization_start_(engine_initialization_start), engine_initialization_end_(engine_initialization_end),
-        bundle_info_(std::move(bundle_info)), load_instance_start_(load_instance_start), load_instance_end_(load_instance_end) {}
+PerformanceNavigationTiming::PerformanceNavigationTiming(const string_view& name)
+: PerformanceEntry(name, SubType::kPerformanceNavigationTiming, Type::kNavigation) {}
 
 PerformanceEntry::string_view PerformanceNavigationTiming::ToJSON() {
   return PerformanceEntry::ToJSON();
+}
+
+PerformanceNavigationTiming::BundleInfo& PerformanceNavigationTiming::BundleInfoOfUrl(const string_view& url) {
+  auto u16n = footstone::StringViewUtils::ConvertEncoding(url, string_view::Encoding::Utf16);
+  for (auto& info : bundle_info_array_) {
+    auto u16n2 = footstone::StringViewUtils::ConvertEncoding(info.url_, string_view::Encoding::Utf16);
+    if (u16n2 == u16n) {
+      return info;
+    }
+  }
+
+  PerformanceNavigationTiming::BundleInfo info;
+  info.url_ = url;
+  bundle_info_array_.emplace_back(info);
+  return bundle_info_array_.back();
 }
 
 }

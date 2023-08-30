@@ -16,7 +16,6 @@
 
 package com.tencent.mtt.hippy.views.hippylist;
 
-import android.view.MotionEvent;
 import androidx.annotation.NonNull;
 import com.tencent.renderer.node.RenderNode;
 import com.tencent.mtt.hippy.utils.PixelUtil;
@@ -29,6 +28,48 @@ class PullFooterRefreshHelper extends PullRefreshHelper {
     PullFooterRefreshHelper(@NonNull HippyRecyclerView recyclerView,
             @NonNull RenderNode renderNode) {
         super(recyclerView, renderNode);
+    }
+
+    @Override
+    protected int handleDrag(int distance) {
+        int consumed = 0;
+        int size = 0;
+        switch (mRefreshStatus) {
+            case PULL_STATUS_FOLDED:
+                if (distance > 0) { // down towards
+                    // make sure edge reached, aka distance - getOffsetFromEnd() > 0
+                    consumed = Math.max(0, distance - getOffsetFromEnd());
+                    if (consumed != 0) {
+                        mRefreshStatus = PullRefreshStatus.PULL_STATUS_DRAGGING;
+                        size = getVisibleSize() + Math.round(consumed / PULL_RATIO);
+                        setVisibleSize(size);
+                    }
+                }
+                break;
+            case PULL_STATUS_DRAGGING:
+            case PULL_STATUS_REFRESHING:
+                if (distance > 0) { // down towards
+                    // make sure edge reached, aka distance - getOffsetFromEnd() > 0
+                    consumed = Math.max(0, distance - getOffsetFromEnd());
+                } else {
+                    // make sure consume no more than the opposite of footer size (converted by
+                    // PULL_RATIO)
+                    consumed = Math.max(-Math.round(getVisibleSize() * PULL_RATIO), distance);
+                }
+                if (consumed != 0) {
+                    size = getVisibleSize() + Math.round(consumed / PULL_RATIO);
+                    setVisibleSize(size);
+                }
+                break;
+            default:
+                break;
+        }
+        if (consumed != 0) {
+            endAnimation();
+            sendPullingEvent(size);
+        }
+        // reduce value of changed size, let the RecyclerView scroll to the correct position
+        return consumed - Math.round(consumed / PULL_RATIO);
     }
 
     @Override
@@ -47,40 +88,30 @@ class PullFooterRefreshHelper extends PullRefreshHelper {
         }
     }
 
+    /**
+     * scrollable distance from list end, value greater than or equal to 0
+     */
+    protected int getOffsetFromEnd() {
+        final HippyRecyclerView<?> v = mRecyclerView;
+        return isVertical()
+            ? v.computeVerticalScrollRange() - v.computeVerticalScrollExtent()
+                - v.computeVerticalScrollOffset()
+            : v.computeHorizontalScrollRange() - v.computeHorizontalScrollExtent()
+                - v.computeHorizontalScrollOffset();
+    }
+
     @Override
-    protected void handleTouchMoveEvent(MotionEvent event) {
-        boolean isVertical = isVertical();
-        if (isVertical && mRecyclerView.canScrollVertically(1)
-                && mRefreshStatus == PullRefreshStatus.PULL_STATUS_FOLDED) {
-            return;
-        }
-        if (!isVertical) {
-            int offset = mRecyclerView.computeHorizontalScrollOffset();
-            int extent = mRecyclerView.computeHorizontalScrollExtent();
-            int range = mRecyclerView.computeHorizontalScrollRange();
-            if ((offset + extent < range - extent) && mRefreshStatus == PullRefreshStatus.PULL_STATUS_FOLDED) {
-                return;
-            }
-        }
-        float current = isVertical ? event.getRawY() : event.getRawX();
-        if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_FOLDED) {
-            boolean isOnMove = Math.abs(current - mStartPosition - getTouchSlop()) > 0;
-            if (!isOnMove) {
-                return;
-            }
-            mRefreshStatus = PullRefreshStatus.PULL_STATUS_DRAGGING;
-        }
+    public void enableRefresh() {
+        mRefreshStatus = PullRefreshStatus.PULL_STATUS_REFRESHING;
+        int nodeSize = isVertical() ? mRenderNode.getHeight() : mRenderNode.getWidth();
         endAnimation();
-        int nodeSize = isVertical ? mRenderNode.getHeight() : mRenderNode.getWidth();
-        int distance = getVisibleSize() - ((int) ((current - mLastPosition) / PULL_RATIO));
-        if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_REFRESHING) {
-            setVisibleSize(Math.max(distance, nodeSize));
-        } else {
-            setVisibleSize(distance);
+        int visibleSize = getVisibleSize();
+        if (visibleSize < nodeSize) {
+            setVisibleSize(nodeSize);
         }
-        if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_DRAGGING) {
-            sendPullingEvent(Math.max(getVisibleSize(), 0));
+        HippyRecyclerListAdapter<?> adapter = mRecyclerView.getAdapter();
+        if (adapter != null) {
+            mRecyclerView.smoothScrollToPosition(adapter.getItemCount());
         }
-        mLastPosition = current;
     }
 }

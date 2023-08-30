@@ -99,7 +99,7 @@ class TextViewNode : public ViewNode {
   void HandleLayoutUpdate(hippy::LayoutResult layout_result) override;
 
  private:
-  std::shared_ptr<tdfcore::View> CreateView() override;
+  std::shared_ptr<tdfcore::View> CreateView(const std::shared_ptr<ViewContext> &context) override;
 
   void SetText(const DomStyleMap& dom_style, std::shared_ptr<TextView>& text_view);
   void SetTextColor(const DomStyleMap& dom_style, TextStyle& text_style);
