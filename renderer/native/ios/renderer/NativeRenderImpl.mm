@@ -168,7 +168,9 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     // Keyed by viewName
     NSMutableDictionary<NSString *, NativeRenderComponentData *> *_componentDataByName;
 
-    NSMutableSet<id<NativeRenderComponentProtocol>> *_componentTransactionListeners;
+    // Listeners such as ScrollView/ListView etc. witch will listen to start layout event
+    // The implementation here needs to be improved to provide a registration mechanism.
+    NSHashTable<id<NativeRenderComponentProtocol>> *_componentTransactionListeners;
 
     std::weak_ptr<DomManager> _domManager;
     std::mutex _renderQueueLock;
@@ -208,7 +210,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     _viewRegistry = [[NativeRenderComponentMap alloc] init];
     _viewRegistry.requireInMainThread = YES;
     _pendingUIBlocks = [NSMutableArray new];
-    _componentTransactionListeners = [NSMutableSet new];
+    _componentTransactionListeners = [NSHashTable weakObjectsHashTable];
     _componentDataByName = [NSMutableDictionary dictionaryWithCapacity:64];
     NativeRenderScreenScale();
     NativeRenderScreenSize();
@@ -221,7 +223,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         NativeRenderImpl *strongSelf = weakSelf;
         if (strongSelf) {
             strongSelf->_viewRegistry = nil;
-            strongSelf->_componentTransactionListeners = nil;
+            [strongSelf->_componentTransactionListeners removeAllObjects];
             [[NSNotificationCenter defaultCenter] removeObserver:strongSelf];
         }
     });
@@ -426,8 +428,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
  */
 - (void)purgeChildren:(NSArray<id<NativeRenderComponentProtocol>> *)children
             onRootTag:(NSNumber *)rootTag
-         fromRegistry:(NativeRenderComponentMap *)componentMap {
-    NSMutableDictionary<NSNumber *, __kindof id<NativeRenderComponentProtocol>> *registry = [componentMap componentsForRootTag:rootTag];
+         fromRegistry:(NSMutableDictionary<NSNumber *, __kindof id<NativeRenderComponentProtocol>> *)registry {
     for (id<NativeRenderComponentProtocol> child in children) {
         NativeRenderTraverseViewNodes(registry[child.componentTag], ^(id<NativeRenderComponentProtocol> subview) {
             NSAssert(![subview isNativeRenderRootView], @"Root views should not be unregistered");
@@ -435,9 +436,6 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
                 [subview performSelector:@selector(invalidate)];
             }
             [registry removeObjectForKey:subview.componentTag];
-            if (registry == (NSMutableDictionary<NSNumber *, id<NativeRenderComponentProtocol>> *)self->_viewRegistry) {
-                [self->_componentTransactionListeners removeObject:subview];
-            }
         });
     }
 }
@@ -449,21 +447,6 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         NativeRenderTraverseViewNodes(view, ^(id<NativeRenderComponentProtocol> subview) {
             NSAssert(![subview isNativeRenderRootView], @"Root views should not be unregistered");
             [componentMap removeComponent:subview forRootTag:rootTag];
-        });
-    }
-}
-
-- (void)purgeChildren:(NSArray<id<NativeRenderComponentProtocol>> *)children fromRegistry:(NSMutableDictionary<NSNumber *, id<NativeRenderComponentProtocol>> *)registry {
-    for (id<NativeRenderComponentProtocol> child in children) {
-        NativeRenderTraverseViewNodes(registry[child.componentTag], ^(id<NativeRenderComponentProtocol> subview) {
-            NSAssert(![subview isNativeRenderRootView], @"Root views should not be unregistered");
-            if ([subview respondsToSelector:@selector(invalidate)]) {
-                [subview performSelector:@selector(invalidate)];
-            }
-            [registry removeObjectForKey:subview.componentTag];
-            if (registry == (NSMutableDictionary<NSNumber *, id<NativeRenderComponentProtocol>> *)self->_viewRegistry) {
-                [self->_componentTransactionListeners removeObject:subview];
-            }
         });
     }
 }
@@ -830,14 +813,15 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 #endif
     std::lock_guard<std::mutex> lock([self renderQueueLock]);
     NSNumber *rootTag = @(strongRootNode->GetId());
+    NSMutableDictionary *currentRegistry = [_renderObjectRegistry componentsForRootTag:rootTag];
     
     for (auto dom_node : nodes) {
         int32_t tag = dom_node->GetRenderInfo().id;
-        NativeRenderObjectView *renderObject = [_renderObjectRegistry componentForTag:@(tag) onRootTag:rootTag];
+        NativeRenderObjectView *renderObject = [currentRegistry objectForKey:@(tag)];
         [renderObject dirtyPropagation];
         if (renderObject) {
             [renderObject removeFromNativeRenderSuperview];
-            [self purgeChildren:@[renderObject] onRootTag:rootTag fromRegistry:_renderObjectRegistry];
+            [self purgeChildren:@[renderObject] onRootTag:rootTag fromRegistry:currentRegistry];
         }
     }
     __weak NativeRenderImpl *weakSelf = self;
@@ -862,7 +846,8 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
             [view removeFromNativeRenderSuperview];
             [views addObject:view];
         }
-        [strongSelf purgeChildren:views onRootTag:rootTag fromRegistry:strongSelf->_viewRegistry];
+        NSMutableDictionary *currentViewRegistry = [strongSelf->_viewRegistry componentsForRootTag:rootTag];
+        [strongSelf purgeChildren:views onRootTag:rootTag fromRegistry:currentViewRegistry];
         for (UIView *view in parentViews) {
             [view clearSortedSubviews];
             [view didUpdateNativeRenderSubviews];
