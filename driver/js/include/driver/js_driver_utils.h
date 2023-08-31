@@ -62,7 +62,9 @@ class JsDriverUtils {
                         bool is_use_code_cache,
                         const string_view& code_cache_dir,
                         const string_view& uri,
-                        bool is_local_file);
+                        bool is_local_file,
+                        std::chrono::time_point<std::chrono::system_clock> &load_start,
+                        std::chrono::time_point<std::chrono::system_clock> &load_end);
   static void CallJs(const string_view& action,
                      const std::shared_ptr<Scope>& scope,
                      std::function<void(CALL_FUNCTION_CB_STATE, string_view)> cb,
@@ -76,7 +78,7 @@ class JsDriverUtils {
                                                   string_view,
                                                   bool,
                                                   byte_string)>& callback);
-  static void LoadInstance(const std::shared_ptr<Scope>& scope, byte_string&& buffer_data);
+  static void LoadInstance(const std::shared_ptr<Scope>& scope, byte_string&& buffer_data, std::function<void(bool)> cb);
   static void UnloadInstance(const std::shared_ptr<Scope>& scope, byte_string&& buffer_data);
 };
 

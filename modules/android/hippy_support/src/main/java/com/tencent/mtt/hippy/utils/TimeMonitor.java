@@ -16,11 +16,14 @@
 
 package com.tencent.mtt.hippy.utils;
 
+import android.os.SystemClock;
+import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TimeMonitor {
 
@@ -38,8 +41,11 @@ public class TimeMonitor {
     public static final String MONITOR_POINT_LOAD_BUSINESS_JS = "loadBusinessJs";
     public static final String MONITOR_POINT_LOAD_INSTANCE = "loadInstance";
     public static final String MONITOR_POINT_FIRST_FRAME = "firstFrame";
+    private static final long SYS_TIME_DIFF = System.currentTimeMillis() - SystemClock.elapsedRealtime();
     @Nullable
     HashMap<MonitorGroupType, MonitorGroup> mMonitorGroups;
+
+    private final ConcurrentHashMap<HippyEngineMonitorPoint, Long> mStandardPoints = new ConcurrentHashMap<>();
 
     public synchronized void startPoint(@NonNull MonitorGroupType groupType,
             @NonNull String point) {
@@ -72,6 +78,23 @@ public class TimeMonitor {
             return null;
         }
         return (mMonitorGroups == null) ? null : mMonitorGroups.get(groupType);
+    }
+
+    public void addPoint(HippyEngineMonitorPoint eventName) {
+        addPoint(eventName, currentTimeMillis());
+    }
+
+    public void addPoint(HippyEngineMonitorPoint eventName, long timeMillis) {
+        LogUtils.d("HP_PERF", eventName + " timeMillis=" + timeMillis);
+        mStandardPoints.put(eventName, timeMillis);
+    }
+
+    public void clearAllPoints() {
+        mStandardPoints.clear();
+    }
+
+    public long currentTimeMillis() {
+        return SystemClock.elapsedRealtime() + SYS_TIME_DIFF;
     }
 
     public static class MonitorGroup {
