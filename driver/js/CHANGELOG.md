@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.2-beta](https://github.com/Tencent/Hippy/compare/3.0.1...3.0.2-beta) (2023-08-22)
+
+
+### Bug Fixes
+
+* **vue:** fix node not mounted when move ([74d6444](https://github.com/Tencent/Hippy/commit/74d6444f63adaa92faed306f5997bc8447a28101))
+
+
+### Features
+
+* **layout:** update layout engine version to 1.0.5 ([#3434](https://github.com/Tencent/Hippy/issues/3434)) ([c6abd8e](https://github.com/Tencent/Hippy/commit/c6abd8ec5d0547f6df30b30bc248ba9c201c21cd))
+
+
+
+
+
 ## [3.0.1](https://github.com/Tencent/Hippy/compare/3.0.0...3.0.1) (2023-08-07)
 
 
