@@ -284,8 +284,10 @@ class Scope : public std::enable_shared_from_this<Scope> {
           auto task = [weak_this, uri, start, end]() {
             DEFINE_AND_CHECK_SELF(Scope)
             auto entry = self->GetPerformance()->PerformanceResource(uri);
-            entry->SetLoadSourceStart(start);
-            entry->SetLoadSourceEnd(end);
+            if (entry) {
+              entry->SetLoadSourceStart(start);
+              entry->SetLoadSourceEnd(end);
+            }
           };
           runner->PostTask(std::move(task));
         }
