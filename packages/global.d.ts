@@ -230,9 +230,24 @@ declare namespace HippyTypes {
     opacity?: DimensionValue;
   }
 
-  export type TextStyleIOS = ViewStyle;
+
+  export type FontVariant =
+  | 'small-caps'
+  | 'oldstyle-nums'
+  | 'lining-nums'
+  | 'tabular-nums'
+  | 'proportional-nums';
+
+  export interface TextStyleIOS extends ViewStyle {
+    fontVariant?: FontVariant[] | undefined;
+    textDecorationColor?: Color | undefined;
+    textDecorationStyle?: 'solid' | 'double' | 'dotted' | 'dashed' | undefined;
+    writingDirection?: 'auto' | 'ltr' | 'rtl' | undefined;
+  }
 
   export interface TextStyleAndroid extends ViewStyle {
+    textAlignVertical?: 'auto' | 'top' | 'bottom' | 'center' | undefined;
+    verticalAlign?: 'auto' | 'top' | 'bottom' | 'middle' | undefined;
     underlineColorAndroid?: string;
   }
 
@@ -263,6 +278,7 @@ declare namespace HippyTypes {
     ;
     letterSpacing?: number;
     lineHeight?: number;
+    textAlign?: 'auto' | 'left' | 'right' | 'center' | 'justify' | undefined;
     textDecorationLine?:
     | 'none'
     | 'underline'
@@ -290,12 +306,11 @@ declare namespace HippyTypes {
   export interface Style extends ViewStyle, TextStyle, ImageStyle {
     [props: string]: any
   }
-  type Falsy = undefined | null | false;
+  export type Falsy = undefined | null | false;
   type RecursiveArray<T> = Array<T | ReadonlyArray<T> | RecursiveArray<T>>;
   export type GenericStyleProp<T> =
   | T
-  | RegisteredStyle<T>
-  | RecursiveArray<T | RegisteredStyle<T> | Falsy>
+  | RecursiveArray<T | Falsy>
   | Falsy;
 
   export type StyleProp = GenericStyleProp<Style>;

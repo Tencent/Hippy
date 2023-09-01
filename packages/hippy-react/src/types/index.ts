@@ -86,7 +86,14 @@ export interface ClickableProps {
 }
 
 export interface TouchableProps {
-
+  /**
+   * The touchdown event occurs when the user touches an component.
+   *
+   * @param {Object} evt - Touch event data
+   * @param {number} evt.page_x - Touch coordinate X
+   * @param {number} evt.page_y = Touch coordinate Y
+   */
+  onTouchStart?: (evt: HippyTypes.TouchEvent) => void;
   /**
    * The touchdown event occurs when the user touches an component.
    *

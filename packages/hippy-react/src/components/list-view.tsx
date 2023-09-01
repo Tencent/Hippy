@@ -480,7 +480,7 @@ export class ListView<P extends ListViewProps, S extends ListViewState>
   protected getPullHeader() {
     const { renderPullHeader, onHeaderPulling, onHeaderReleased, getHeaderStyle } = this.props;
     let pullHeader: JSX.Element | null = null;
-    let style: HippyTypes.Style = {};
+    let style;
     if (typeof getHeaderStyle === 'function') {
       style = getHeaderStyle();
     }
@@ -505,7 +505,7 @@ export class ListView<P extends ListViewProps, S extends ListViewState>
   protected getPullFooter() {
     const { renderPullFooter, onFooterPulling, onFooterReleased, getFooterStyle } = this.props;
     let pullFooter: JSX.Element | null = null;
-    let style: HippyTypes.Style = {};
+    let style;
     if (typeof getFooterStyle === 'function') {
       style = getFooterStyle();
     }

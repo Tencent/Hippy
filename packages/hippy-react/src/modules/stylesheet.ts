@@ -28,7 +28,7 @@ if (HAIRLINE_WIDTH === 0) {
 }
 
 export interface StyleObj {
-  [key: string]: HippyTypes.Style | HippyTypes.ViewStyle | HippyTypes.ImageStyle | HippyTypes.TextStyle;
+  [key: string]: HippyTypes.Style;
 }
 
 /**

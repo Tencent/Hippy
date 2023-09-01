@@ -67,7 +67,7 @@ const TextInput: React.FC<TextInputProps> = React.forwardRef<any, TextInputProps
     if (Array.isArray(style)) {
       style.push({ [property]: value });
     } else {
-      style[property] = value;
+      (style as HippyTypes.Style)[property] = value;
     }
   };
 
