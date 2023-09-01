@@ -352,6 +352,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
       }
     }, [pullHeaderRef]);
     return (
+      // @ts-ignore
       <div ref={pullHeaderRef} style={styles.pullHeaderContainer}>
         {renderPullHeader()}
       </div>
@@ -369,6 +370,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
       }
     }, [pullFooterRef]);
     return (
+      // @ts-ignore
       <div ref={pullFooterRef} style={styles.pullHeaderContainer}>
         { renderPullFooter() }
       </div>

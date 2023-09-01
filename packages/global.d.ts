@@ -306,7 +306,7 @@ declare namespace HippyTypes {
   export interface Style extends ViewStyle, TextStyle, ImageStyle {
     [props: string]: any
   }
-  type Falsy = undefined | null | false;
+  export type Falsy = undefined | null | false;
   type RecursiveArray<T> = Array<T | ReadonlyArray<T> | RecursiveArray<T>>;
   export type GenericStyleProp<T> =
   | T

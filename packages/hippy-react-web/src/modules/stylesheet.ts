@@ -21,7 +21,7 @@
 // @ts-nocheck
 import { Device } from '../native';
 export interface StyleObj {
-  [key: string]: HippyTypes.Style | HippyTypes.ViewStyle | HippyTypes.ImageStyle | HippyTypes.TextStyle;
+  [key: string]: HippyTypes.Style;
 }
 
 
@@ -34,7 +34,7 @@ if (onePixel === 0) {
 const StyleSheet = {
   create: (styleObj: StyleObj): StyleObj => styleObj,
   hairlineWidth: onePixel,
-  compose: (style: any, style2: Record<string, any>) => {
+  compose: (style: any, style2: HippyTypes.Style | HippyTypes.False) => {
     let cloneStyle = {};
     if (Array.isArray(style)) {
       cloneStyle = [...style, style2];
