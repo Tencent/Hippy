@@ -986,7 +986,9 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     if (domManager) {
         int32_t componentTag = [self.componentTag intValue];
         auto node = domManager->GetNode(self.rootNode, componentTag);
-        node->GetLayoutNode()->MarkDirty();
+        if (node) {
+            node->GetLayoutNode()->MarkDirty();
+        }
     }
 }
 
