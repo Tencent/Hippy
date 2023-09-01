@@ -84,7 +84,9 @@ function forwardRef(
   // Workaround for Android meet empty front color not render issue.
   if (style) {
     if (Array.isArray(style)) {
-      if (style.filter(x => typeof x === 'object' && x).findIndex(s => s.color || s.colors) === -1) {
+      if (style.filter(x => typeof x === 'object' && x).findIndex(s =>
+        // @ts-ignore FIXME: ts not omit False type for s
+        s.color || s.colors) === -1) {
         (nativeStyle as HippyTypes.TextStyle[])[0].color = '#000';
       }
     } else if (typeof style === 'object') {
