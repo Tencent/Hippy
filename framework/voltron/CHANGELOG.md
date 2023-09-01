@@ -1,4 +1,8 @@
-## 0.0.32
+## 0.0.34
+
+- update voltron_render to 0.0.24 to fix width calculate error and add modal navigator param
+
+## 0.0.33
 
 - fix navigation bar color error after modal show
 

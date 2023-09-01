@@ -277,6 +277,11 @@ class RenderManager
     }
   }
 
+  double correctPixel(double len) {
+    var density = ScreenUtil.getInstance().screenDensity;
+    return (len * density).roundToDouble() / density;
+  }
+
   void updateLayout(
     int instanceId,
     int id,
@@ -286,6 +291,8 @@ class RenderManager
     double h,
   ) {
     var uiNode = controllerManager.findNode(instanceId, id);
+    w = correctPixel(w);
+    h = correctPixel(h);
     LogUtils.dLayout(
       "ID:$id, updateLayout, x:$x, y:$y, w:$w, h:$h",
     );
