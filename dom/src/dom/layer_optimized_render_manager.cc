@@ -122,19 +122,6 @@ void LayerOptimizedRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_
     }
   }
   if (!nodes_to_delete.empty()) {
-    for (auto& node : nodes_to_delete) {
-      // Recursively delete all ids on the node tree.
-      std::vector<std::shared_ptr<DomNode>> node_stack;
-      node_stack.push_back(node);
-      while (!node_stack.empty()) {
-        auto back_node = node_stack.back();
-        node_stack.pop_back();
-        not_eliminated_node_ids_.erase(back_node->GetId());
-        for (auto& child : back_node->GetChildren()) {
-          node_stack.push_back(child);
-        }
-      }
-    }
     render_manager_->DeleteRenderNode(root_node, std::move(nodes_to_delete));
   }
 }
@@ -283,10 +270,9 @@ bool LayerOptimizedRenderManager::IsJustLayoutProp(const char *prop_name) const 
 }
 
 bool LayerOptimizedRenderManager::CanBeEliminated(const std::shared_ptr<DomNode>& node) {
-  bool eliminated = (node->IsLayoutOnly() || node->IsVirtual()) &&
-                    (not_eliminated_node_ids_.find(node->GetId()) == not_eliminated_node_ids_.end());
+  bool eliminated = (node->IsLayoutOnly() || node->IsVirtual()) && node->IsEnableEliminated();
   if (!eliminated) {
-    not_eliminated_node_ids_.insert(node->GetId());
+    node->SetEnableEliminated(false);
   }
   return eliminated;
 }
