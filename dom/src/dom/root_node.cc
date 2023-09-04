@@ -74,7 +74,7 @@ void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   }
   std::vector<std::shared_ptr<DomNode>> nodes_to_create;
   for (const auto& node_info : nodes) {
-    auto node = node_info->dom_node;
+    auto& node = node_info->dom_node;
     std::shared_ptr<DomNode> parent_node = GetNode(node->GetPid());
     if (parent_node == nullptr) {
       continue;
