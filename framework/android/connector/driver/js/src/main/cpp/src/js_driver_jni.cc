@@ -203,8 +203,10 @@ void OnResourceLoadEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jstring
       auto scope = weak_scope.lock();
       if (scope) {
         auto entry = scope->GetPerformance()->PerformanceResource(uri);
-        entry->SetLoadSourceStart(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(j_start_time)));
-        entry->SetLoadSourceEnd(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(j_end_time)));
+        if (entry) {
+          entry->SetLoadSourceStart(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(j_start_time)));
+          entry->SetLoadSourceEnd(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(j_end_time)));
+        }
       }
     };
     runner->PostTask(std::move(task));
