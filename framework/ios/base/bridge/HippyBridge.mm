@@ -150,6 +150,7 @@ dispatch_queue_t HippyBridgeQueue() {
         HPExecuteOnMainThread(^{
             [self bindKeys];
         }, YES);
+        [HippyBridge setCurrentBridge:self];
         HPLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ Init %p", NSStringFromClass([self class]), self);
     }
     return self;
@@ -838,6 +839,10 @@ dispatch_queue_t HippyBridgeQueue() {
     _moduleSetup = nil;
     _startTime = footstone::TimePoint::SystemNow();
     self.moduleSemaphore = nil;
+    
+    if ([HippyBridge currentBridge] == self) {
+        [HippyBridge setCurrentBridge:nil];
+    }
     dispatch_group_notify(group, dispatch_get_main_queue(), ^{
         [jsExecutor executeBlockOnJavaScriptQueue:^{
             @autoreleasepool {
@@ -994,3 +999,26 @@ void HippyBridgeFatal(NSError *error, HippyBridge *bridge) {
 void HippyBridgeHandleException(NSException *exception, HippyBridge *bridge) {
     HPHandleException(exception, bridge?@{@"bridge": bridge}:nil);
 }
+
+
+#pragma mark -
+
+@implementation HippyBridge (RedBoxDebug)
+
+static HippyBridge *HippyCurrentBridgeInstance = nil;
+
+/**
+ * The last current active bridge instance. This is set automatically whenever
+ * the bridge is accessed. It can be useful for static functions or singletons
+ * that need to access the bridge for purposes such as logging, but should not
+ * be relied upon to return any particular instance, due to race conditions.
+ */
++ (instancetype)currentBridge {
+    return HippyCurrentBridgeInstance;
+}
+
++ (void)setCurrentBridge:(nullable HippyBridge *)currentBridge {
+    HippyCurrentBridgeInstance = currentBridge;
+}
+
+@end
