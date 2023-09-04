@@ -73,10 +73,6 @@ class LayerOptimizedRenderManager : public RenderManager {
 
   void FindValidChildren(const std::shared_ptr<DomNode>& node,
                          std::vector<std::shared_ptr<DomNode>>& valid_children_nodes);
-
-  // Record nodes that cannot be eliminated. Nodes can only be eliminated for the first time,
-  // and if they cannot be eliminated for the first time, they cannot be eliminated at all times.
-  std::set<uint32_t> not_eliminated_node_ids_;
 };
 
 }  // namespace dom
