@@ -26,6 +26,8 @@
 
 + (instancetype)sharedInstance;
 
+- (void)registerVsyncObserver:(dispatch_block_t)observer forKey:(NSString *)key;
+
 - (void)registerVsyncObserver:(dispatch_block_t)observer rate:(float)rate forKey:(NSString *)key;
 
 - (void)unregisterVsyncObserverForKey:(NSString *)key;

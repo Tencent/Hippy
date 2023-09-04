@@ -40,7 +40,7 @@ constexpr char kDomTreeDeleted[] = "DomTreeDeleted";
 
 using Deserializer = footstone::value::Deserializer;
 using Serializer = footstone::value::Serializer;
-using DomValueArrayType = footstone::value::HippyValue::DomValueArrayType;
+using HippyValueArrayType = footstone::value::HippyValue::HippyValueArrayType;
 using Task = footstone::Task;
 
 footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<RootNode>> RootNode::persistent_map_;
@@ -143,7 +143,6 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
     if (dom_node == nullptr) {
       continue;
     }
-    nodes_to_update.push_back(dom_node);
     // diff props
     auto style_diff_value = DiffUtils::DiffProps(*dom_node->GetStyleMap(), *node_info->dom_node->GetStyleMap());
     auto ext_diff_value = DiffUtils::DiffProps(*dom_node->GetExtStyle(), *node_info->dom_node->GetExtStyle());
@@ -176,6 +175,11 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
     if (!style_update->empty() || !style_delete->empty()) {
       dom_node->UpdateLayoutStyleInfo(*style_update, *style_delete);
     }
+
+    if (delete_value->size() != 0 || diff_value->size() != 0) {
+      nodes_to_update.push_back(dom_node);
+    }
+
     auto event = std::make_shared<DomEvent>(kDomUpdated, dom_node, nullptr);
     dom_node->HandleEvent(event);
   }
@@ -273,6 +277,10 @@ void RootNode::SyncWithRenderManager(const std::shared_ptr<RenderManager>& rende
   FlushDomOperations(render_manager);
   FlushEventOperations(render_manager);
   DoAndFlushLayout(render_manager);
+  auto dom_manager = dom_manager_.lock();
+  if (dom_manager) {
+    dom_manager->RecordDomEndTimePoint();
+  }
   render_manager->EndBatch(GetWeakSelf());
 }
 
@@ -375,6 +383,12 @@ void RootNode::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {
   nodes.push_back(node);
   render_manager->UpdateRenderNode(GetWeakSelf(), std::move(nodes));
   SyncWithRenderManager(render_manager);
+}
+
+uint32_t RootNode::GetChildCount() {
+  uint32_t child_count = 0;
+  Traverse([&child_count](const std::shared_ptr<DomNode>&) { child_count++; });
+  return child_count;
 }
 
 std::shared_ptr<DomNode> RootNode::GetNode(uint32_t id) {

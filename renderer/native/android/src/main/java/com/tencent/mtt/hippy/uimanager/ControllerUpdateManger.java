@@ -38,7 +38,10 @@ import com.tencent.renderer.utils.PropertyUtils;
 import com.tencent.renderer.utils.PropertyUtils.PropertyMethodHolder;
 import com.tencent.renderer.node.RenderNode;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -48,9 +51,20 @@ public class ControllerUpdateManger<T, G> {
 
     private static final Map<Class<?>, Map<String, PropertyMethodHolder>> sViewPropsMethodMap = new HashMap<>();
     private static final Map<String, PropertyMethodHolder> sComponentPropsMethodMap = new HashMap<>();
-    private static final Set<String> sTextPropsMap = new HashSet<>();
-    @NonNull
-    private final Renderer mRenderer;
+    private static final Set<String> sTextPropsSet = new HashSet<>();
+    private static final ArrayList<String> sRenderPropsList = new ArrayList<>();
+    private static final String[] sLayoutStyleList = {
+            NodeProps.WIDTH,
+            NodeProps.HEIGHT,
+            NodeProps.LEFT,
+            NodeProps.TOP,
+            NodeProps.VISIBILITY,
+            NodeProps.TRANSFORM,
+            NodeProps.OPACITY,
+            NodeProps.OVERFLOW
+    };
+    @Nullable
+    private Renderer mRenderer;
     @Nullable
     private ComponentController mComponentController;
     @Nullable
@@ -66,8 +80,17 @@ public class ControllerUpdateManger<T, G> {
         mRenderer = renderer;
     }
 
+    public void clear() {
+        mRenderer = null;
+    }
+
     public void setCustomPropsController(T controller) {
         mCustomPropsController = controller;
+    }
+
+    @NonNull
+    public ArrayList<String> getPropsRegisterForRender() {
+        return sRenderPropsList;
     }
 
     private static void collectMethodHolder(@NonNull Class<?> cls,
@@ -78,6 +101,7 @@ public class ControllerUpdateManger<T, G> {
                     .getAnnotation(HippyControllerProps.class);
             if (controllerProps != null) {
                 String style = controllerProps.name();
+                sRenderPropsList.add(style);
                 PropertyMethodHolder propsMethodHolder = new PropertyMethodHolder();
                 propsMethodHolder.defaultNumber = controllerProps.defaultNumber();
                 propsMethodHolder.defaultType = controllerProps.defaultType();
@@ -102,9 +126,13 @@ public class ControllerUpdateManger<T, G> {
             HippyControllerProps controllerProps = method
                     .getAnnotation(HippyControllerProps.class);
             if (controllerProps != null) {
-                sTextPropsMap.add(controllerProps.name());
+                if (!sComponentPropsMethodMap.containsKey(controllerProps.name())) {
+                    sTextPropsSet.add(controllerProps.name());
+                }
+                sRenderPropsList.add(controllerProps.name());
             }
         }
+        Collections.addAll(sRenderPropsList, sLayoutStyleList);
     }
 
     void findViewPropsMethod(Class<?> cls,
@@ -155,9 +183,11 @@ public class ControllerUpdateManger<T, G> {
                 methodHolder.method.invoke(obj, arg1, value);
             }
         } catch (Exception exception) {
-            mRenderer.handleRenderException(
-                    PropertyUtils.makePropertyConvertException(exception, key,
-                            methodHolder.method));
+            if (mRenderer != null) {
+                mRenderer.handleRenderException(
+                        PropertyUtils.makePropertyConvertException(exception, key,
+                                methodHolder.method));
+            }
         }
     }
 
@@ -201,7 +231,7 @@ public class ControllerUpdateManger<T, G> {
         }
         Set<String> keySet = props.keySet();
         for (String key : keySet) {
-            if (node instanceof TextRenderNode && sTextPropsMap.contains(key)) {
+            if (node instanceof TextRenderNode && sTextPropsSet.contains(key)) {
                 // The text related attributes have been processed in the build layout,
                 // so the following process no longer needs to be executed.
                 continue;

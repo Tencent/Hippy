@@ -54,6 +54,7 @@ void DevtoolsUtil::CallDevtoolsFunction(const std::weak_ptr<RootViewNode> &root_
                                         const DomArgument &param,
                                         const uint32_t call_back_id) {
   auto shell = root_node.lock()->GetShell();
+  auto vew_context = root_node.lock()->GetViewContext();
   if (name == kGetScreenShot) {
     GetScreenshot(root_node, view_node, name, param, call_back_id);
   } else if (name == kAddFrameCallback) {
@@ -81,7 +82,7 @@ void DevtoolsUtil::CallDevtoolsFunction(const std::weak_ptr<RootViewNode> &root_
     }
   } else if (name == kGetLocationOnScreen) {
     DomValueObjectType obj;
-    auto ratio = shell->GetViewportMetrics().device_pixel_ratio;
+    auto ratio = vew_context->GetViewportMetrics().device_pixel_ratio;
     int32_t x_onScreen = 0, y_onScreen = 0, view_width = 0, view_height = 0;
     if (view_node->IsAttached()) {
       auto frame = view_node->GetView()->GetFrame();
@@ -106,22 +107,24 @@ void DevtoolsUtil::GetScreenshot(const std::weak_ptr<RootViewNode> &root_node,
                                  const uint32_t call_back_id) {
   footstone::HippyValue value;
   param.ToObject(value);
-  footstone::HippyValue::HippyValueObjectType dom_value;
+  footstone::HippyValue::HippyValueObjectType hippy_value;
   if (value.IsArray() && !value.ToArrayChecked().empty()) {
-    dom_value = value.ToArrayChecked()[0].ToObjectChecked();
+    hippy_value = value.ToArrayChecked()[0].ToObjectChecked();
   } else if (value.IsObject()) {
-    dom_value = value.ToObjectChecked();
+    hippy_value = value.ToObjectChecked();
   }
-  auto maxWidth = dom_value.find(kMaxWidth)->second.ToInt32Checked();
-  auto maxHeight = dom_value.find(kMaxHeight)->second.ToInt32Checked();
+  auto max_width = hippy_value.find(kMaxWidth)->second.ToInt32Checked();
+  auto max_height = hippy_value.find(kMaxHeight)->second.ToInt32Checked();
   auto shell = root_node.lock()->GetShell();
-  auto scaleX = static_cast<float>(maxWidth) / static_cast<float>(shell->GetViewportMetrics().width);
-  auto scaleY = static_cast<float>(maxHeight) / static_cast<float>(shell->GetViewportMetrics().height);
+  auto vew_context = root_node.lock()->GetViewContext();
+  auto scaleX = static_cast<float>(max_width) / static_cast<float>(vew_context->GetViewportMetrics().width);
+  auto scaleY = static_cast<float>(max_height) / static_cast<float>(vew_context->GetViewportMetrics().height);
   auto scale = std::min(scaleX, scaleY);
   screen_scale_ = scale;
   std::weak_ptr<ViewNode> weak_view_node = view_node;
   std::weak_ptr<tdfcore::Shell> weak_shell = shell;
-  shell->GetLastScreenshot([weak_shell, name, call_back_id, weak_view_node](const std::shared_ptr<tdfcore::Texture> &screenshot) {
+  auto pipeline_id = root_node.lock()->GetRenderContext()->GetPipeline()->GetId();
+  shell->GetLastScreenshot(static_cast<int>(pipeline_id), [weak_shell, name, call_back_id, weak_view_node](const std::shared_ptr<tdfcore::Texture> &screenshot) {
     auto shell = weak_shell.lock();
     if (screenshot && shell) {
       tdfcore::RenderCommand command;

@@ -205,6 +205,8 @@ public abstract class HippyEngine {
 
   public abstract View replaySnapshot(@NonNull Context context, @NonNull Map<String, Object> snapshotMap);
 
+  public abstract void removeSnapshotView();
+
   public interface BackPressHandler {
 
     void handleBackPress();

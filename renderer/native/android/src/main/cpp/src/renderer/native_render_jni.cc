@@ -52,6 +52,7 @@ static jmethodID j_render_manager_init_method_id;
 static jmethodID j_render_manager_set_id_method_id;
 static jmethodID j_render_manager_get_density_method_id;
 static jmethodID j_render_manager_get_provider_method_id;
+static jmethodID j_render_manager_get_style_for_render_id;
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "updateNodeSize",
@@ -84,6 +85,9 @@ static jint JNI_OnLoad(__unused JavaVM* j_vm, __unused void* reserved) {
   j_render_manager_get_provider_method_id = j_env->GetMethodID(j_render_manager_clazz,
                                                                "getRenderProvider",
                                                                "()Lcom/tencent/renderer/NativeRenderProvider;");
+  j_render_manager_get_style_for_render_id = j_env->GetMethodID(j_render_manager_clazz,
+                                                               "getPropsRegisterForRender",
+                                                               "()[Ljava/lang/Object;");
   return JNI_VERSION_1_4;;
 }
 
@@ -94,14 +98,6 @@ static void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
 
 REGISTER_JNI_ONLOAD(JNI_OnLoad)
 REGISTER_JNI_ONUNLOAD(JNI_OnUnload)
-
-void DestroyNativeRenderManager(JNIEnv* j_env, jobject j_object, jint j_render_manager_id) {
-  auto& map = NativeRenderManager::PersistentMap();
-  bool ret = map.Erase(static_cast<uint32_t>(j_render_manager_id));
-  if (!ret) {
-    FOOTSTONE_DLOG(WARNING) << "DestroyNativeRenderManager delete render manager invalid";
-  }
-}
 
 bool CreateJavaRenderManager(uint32_t id, std::shared_ptr<JavaRef>&j_render_manager,
                              std::shared_ptr<JavaRef>&render_delegate) {
@@ -126,6 +122,24 @@ float GetDensity(std::shared_ptr<JavaRef>&j_render_manager) {
   auto j_float = j_env->CallFloatMethod(j_render_manager->GetObj(), j_render_manager_get_density_method_id);
   instance->ClearJEnvException(j_env);
   return static_cast<float>(j_float);
+}
+
+void GetPropsRegisterForRender(const std::shared_ptr<JavaRef>& j_render_manager,
+                               std::unordered_set<std::string>& style_set) {
+  auto instance = JNIEnvironment::GetInstance();
+  auto j_env = instance->AttachCurrentThread();
+  jobjectArray j_object_array =
+      (jobjectArray)j_env->CallObjectMethod(j_render_manager->GetObj(), j_render_manager_get_style_for_render_id);
+  jsize j_size = j_env->GetArrayLength(j_object_array);
+  for (int i = 0; i < j_size; i++) {
+    jstring j_style = reinterpret_cast<jstring>(j_env->GetObjectArrayElement(j_object_array, i));
+    const char* utf_c = j_env->GetStringUTFChars(j_style, nullptr);
+    if (utf_c != nullptr) {
+      std::string style_name(utf_c);
+      style_set.insert(style_name);
+      j_env->ReleaseStringUTFChars(j_style, utf_c);
+    }
+  }
 }
 
 jobject GetNativeRendererInstance(JNIEnv* j_env, jobject j_object, jint j_render_manager_id) {

@@ -45,6 +45,8 @@ class PerformanceNavigationTiming : public PerformanceEntry {
     member = t; \
     if (start_time_.ToEpochDelta() == TimeDelta::Zero()) { \
       start_time_ = t; \
+    } else if (t.ToEpochDelta() < start_time_.ToEpochDelta()) { \
+      start_time_ = t; \
     } else if (t - start_time_ > duration_) { \
       duration_ = t - start_time_; \
     } \
@@ -58,6 +60,8 @@ class PerformanceNavigationTiming : public PerformanceEntry {
   DEFINE_SET_AND_GET_METHOD(HippyJsEngineInitEnd, TimePoint, hippy_js_engine_init_end_)
   DEFINE_SET_AND_GET_METHOD(HippyRunApplicationStart, TimePoint, hippy_run_application_start_)
   DEFINE_SET_AND_GET_METHOD(HippyRunApplicationEnd, TimePoint, hippy_run_application_end_)
+  DEFINE_SET_AND_GET_METHOD(HippyDomStart, TimePoint, hippy_dom_start_)
+  DEFINE_SET_AND_GET_METHOD(HippyDomEnd, TimePoint, hippy_dom_end_)
   DEFINE_SET_AND_GET_METHOD(HippyFirstFrameStart, TimePoint, hippy_first_frame_start_)
   DEFINE_SET_AND_GET_METHOD(HippyFirstFrameEnd, TimePoint, hippy_first_frame_end_)
 #undef DEFINE_SET_AND_GET_METHOD
@@ -78,6 +82,8 @@ class PerformanceNavigationTiming : public PerformanceEntry {
   std::vector<BundleInfo> bundle_info_array_;
   TimePoint hippy_run_application_start_;
   TimePoint hippy_run_application_end_;
+  TimePoint hippy_dom_start_;
+  TimePoint hippy_dom_end_;
   TimePoint hippy_first_frame_start_;
   TimePoint hippy_first_frame_end_;
 };

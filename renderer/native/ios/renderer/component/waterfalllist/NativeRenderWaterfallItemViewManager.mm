@@ -22,7 +22,7 @@
 
 #import "NativeRenderWaterfallItemViewManager.h"
 #import "NativeRenderWaterfallItemView.h"
-#import "NativeRenderObjectWatefallItem.h"
+#import "NativeRenderObjectWaterfallItem.h"
 
 @implementation NativeRenderWaterfallItemViewManager
 
@@ -33,7 +33,7 @@ NATIVE_RENDER_EXPORT_VIEW(WaterfallItem)
 }
 
 - (NativeRenderObjectView *)nativeRenderObjectView {
-    return [[NativeRenderObjectWatefallItem alloc] init];
+    return [[NativeRenderObjectWaterfallItem alloc] init];
 }
 
 @end

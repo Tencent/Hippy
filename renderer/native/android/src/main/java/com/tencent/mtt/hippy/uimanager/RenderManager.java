@@ -96,7 +96,7 @@ public class RenderManager {
     public void preCreateView(int rootId, int id, int pid, @NonNull String className,
             @Nullable Map<String, Object> props) {
         boolean isLazy = mControllerManager.checkLazy(className);
-        if (isLazy) {
+        if (isLazy || id == rootId) {
             return;
         }
         if (pid != rootId) {
@@ -321,6 +321,14 @@ public class RenderManager {
         deleteSelfFromParent(rootId, node);
     }
 
+    public void deleteSnapshotNode(int rootId) {
+        RootRenderNode rootNode = NativeRendererManager.getRootNode(rootId);
+        if (rootNode != null) {
+            deleteSelfFromParent(rootId, rootNode);
+            rootNode.clear();
+        }
+    }
+
     public void dispatchUIFunction(int rootId, int nodeId, @NonNull String functionName,
             @NonNull List<Object> params, @Nullable Promise promise) {
         RenderNode node = getRenderNode(rootId, nodeId);
@@ -416,6 +424,9 @@ public class RenderManager {
     }
 
     public void postInvalidateDelayed(int rootId, int id, long delayMilliseconds) {
-        mControllerManager.postInvalidateDelayed(rootId, id, delayMilliseconds);
+        RenderNode node = getRenderNode(rootId, id);
+        if (node != null) {
+            node.postInvalidateDelayed(delayMilliseconds);
+        }
     }
 }

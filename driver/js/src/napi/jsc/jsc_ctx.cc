@@ -70,6 +70,7 @@ JSCCtx::~JSCCtx() {
   auto& holder = jsc_vm->constructor_data_holder_[this];
   for (auto& [key, item] : holder) {
     item->prototype = nullptr;
+    JSCVM::ClearConstructorDataPtr(item.get());
   }
 }
 
@@ -262,13 +263,16 @@ std::shared_ptr<CtxValue> JSCCtx::DefineClass(const string_view& name,
     if (!private_data) {
       return;
     }
+    if (!JSCVM::IsValidConstructorDataPtr(private_data)) {
+      return;
+    }
     auto constructor_data = reinterpret_cast<ConstructorData*>(private_data);
     auto weak_callback_wrapper = constructor_data->weak_callback_wrapper;
     if (weak_callback_wrapper) {
       auto wrapper = reinterpret_cast<WeakCallbackWrapper*>(weak_callback_wrapper);
-      auto object_data_map = constructor_data->object_data_map;
+      auto& object_data_map = constructor_data->object_data_map;
       wrapper->callback(wrapper->data, object_data_map[object]);
-      object_data_map.erase(object_data_map.find(object));
+      object_data_map.erase(object);
     }
   };
   class_definition.hasInstance = [](JSContextRef ctx, JSObjectRef constructor, JSValueRef instance, JSValueRef* exception) -> bool {
@@ -283,7 +287,7 @@ std::shared_ptr<CtxValue> JSCCtx::DefineClass(const string_view& name,
     auto constructor_prototype = reinterpret_cast<ConstructorData*>(constructor_private)->prototype;
     auto constructor_prototype_value = std::static_pointer_cast<JSCCtxValue>(constructor_prototype)->value_;
     auto instance_prototype = JSObjectGetPrototype(ctx, instance_object);
-    
+
     while (!JSValueIsNull(ctx, instance_prototype)) {
       if (JSValueIsEqual(ctx, instance_prototype, constructor_prototype_value, exception)) {
         return true;
@@ -294,7 +298,7 @@ std::shared_ptr<CtxValue> JSCCtx::DefineClass(const string_view& name,
       }
       instance_prototype = JSObjectGetPrototype(ctx, instance_prototype_object);
     }
-    
+
     return false;
   };
   JSClassRef parent_class_ref = nullptr;
@@ -375,7 +379,7 @@ std::shared_ptr<CtxValue> JSCCtx::DefineClass(const string_view& name,
   JSStringRelease(set_key_name);
   JSStringRelease(define_property_name);
   JSStringRelease(object_name);
-  
+
   if (parent_prototype_value) {
     JSObjectSetPrototype(context_, prototype, parent_prototype_value);
   }
@@ -893,14 +897,14 @@ std::shared_ptr<CtxValue> JSCCtx::CallFunction(const std::shared_ptr<CtxValue>& 
     SetException(std::make_shared<JSCCtxValue>(context_, exception));
     return nullptr;
   }
-  
+
   auto receiver_value = std::static_pointer_cast<JSCCtxValue>(receiver);
   auto receiver_object = JSValueToObject(context_, receiver_value->value_, &exception);
   if (exception) {
     SetException(std::make_shared<JSCCtxValue>(context_, exception));
     return nullptr;
   }
-  
+
   if (argc <= 0) {
     auto ret_value_ref = JSObjectCallAsFunction(context_, function_object, receiver_object, 0, nullptr, &exception);
     if (exception) {
@@ -974,9 +978,10 @@ void JSCCtx::SaveConstructorData(std::unique_ptr<ConstructorData> constructor_da
   if (it == holder.end()) {
     holder[this] = std::unordered_map<JSClassRef, std::unique_ptr<ConstructorData>>{};
   }
+  JSCVM::SaveConstructorDataPtr(constructor_data.get());
   holder[this][constructor_data->class_ref] = std::move(constructor_data);
 }
-  
+
 std::shared_ptr<JSCCtxValue> JSCCtx::GetClassPrototype(JSClassRef ref) {
   auto vm = vm_.lock();
   FOOTSTONE_CHECK(vm);

@@ -86,8 +86,8 @@ bool Deserializer::ReadInt32(int32_t& value) {
   return true;
 }
 
-bool Deserializer::ReadInt32(HippyValue& dom_value) {
-  dom_value = HippyValue(ReadZigZag<int32_t>());
+bool Deserializer::ReadInt32(HippyValue& hippy_value) {
+  hippy_value = HippyValue(ReadZigZag<int32_t>());
   return true;
 }
 
@@ -96,8 +96,8 @@ bool Deserializer::ReadUInt32(uint32_t& value) {
   return true;
 }
 
-bool Deserializer::ReadUInt32(HippyValue& dom_value) {
-  dom_value = HippyValue(ReadVarint<uint32_t>());
+bool Deserializer::ReadUInt32(HippyValue& hippy_value) {
+  hippy_value = HippyValue(ReadVarint<uint32_t>());
   return true;
 }
 
@@ -109,13 +109,13 @@ bool Deserializer::ReadDouble(double& value) {
   return true;
 }
 
-bool Deserializer::ReadDouble(HippyValue& dom_value) {
+bool Deserializer::ReadDouble(HippyValue& hippy_value) {
   if (sizeof(double) > static_cast<unsigned>(end_ - position_)) return false;
   double value;
   memcpy(&value, position_, sizeof(double));
   position_ += sizeof(double);
   if (std::isnan(value)) value = std::numeric_limits<double>::quiet_NaN();
-  dom_value = HippyValue(value);
+  hippy_value = HippyValue(value);
   return true;
 }
 
@@ -132,7 +132,7 @@ bool Deserializer::ReadUtf8String(std::string& value) {
   return true;
 }
 
-bool Deserializer::ReadUtf8String(HippyValue& dom_value) {
+bool Deserializer::ReadUtf8String(HippyValue& hippy_value) {
   uint32_t utf8_length;
   utf8_length = ReadVarint<uint32_t>();
   if (utf8_length > static_cast<uint32_t>(end_ - position_)) return false;
@@ -140,7 +140,7 @@ bool Deserializer::ReadUtf8String(HippyValue& dom_value) {
   const uint8_t* start = position_;
   position_ += utf8_length;
   string_view string_view(reinterpret_cast<const string_view::char8_t_ *>(start), utf8_length);
-  dom_value = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+  hippy_value = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
       string_view, string_view::Encoding::Utf8).utf8_value());
   return true;
 }
@@ -158,7 +158,7 @@ bool Deserializer::ReadOneByteString(std::string& value) {
   return true;
 }
 
-bool Deserializer::ReadOneByteString(HippyValue& dom_value) {
+bool Deserializer::ReadOneByteString(HippyValue& hippy_value) {
   uint32_t one_byte_length;
   one_byte_length = ReadVarint<uint32_t>();
   if (one_byte_length > static_cast<uint32_t>(end_ - position_)) return false;
@@ -166,7 +166,7 @@ bool Deserializer::ReadOneByteString(HippyValue& dom_value) {
   const char* start = reinterpret_cast<char*>(const_cast<uint8_t*>(position_));
   position_ += one_byte_length;
   string_view string_view(start, one_byte_length);
-  dom_value = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+  hippy_value = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
       string_view, string_view::Encoding::Utf8).utf8_value());
   return true;
 }
@@ -184,7 +184,7 @@ bool Deserializer::ReadTwoByteString(std::string& value) {
   return true;
 }
 
-bool Deserializer::ReadTwoByteString(HippyValue& dom_value) {
+bool Deserializer::ReadTwoByteString(HippyValue& hippy_value) {
   uint32_t two_byte_length;
   two_byte_length = ReadVarint<uint32_t>();
   if (two_byte_length > static_cast<uint32_t>(end_ - position_)) return false;
@@ -192,16 +192,16 @@ bool Deserializer::ReadTwoByteString(HippyValue& dom_value) {
   const char16_t* start = reinterpret_cast<char16_t*>(const_cast<uint8_t*>(position_));
   position_ += two_byte_length;
   string_view string_view(start, two_byte_length / sizeof(char16_t));
-  dom_value = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+  hippy_value = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
       string_view, string_view::Encoding::Utf8).utf8_value());
   return true;
 }
 
-bool Deserializer::ReadDenseJSArray(HippyValue& dom_value) {
+bool Deserializer::ReadDenseJSArray(HippyValue& hippy_value) {
   uint32_t length = ReadVarint<uint32_t>();
   FOOTSTONE_DCHECK(length <= static_cast<uint32_t>(end_ - position_));
 
-  HippyValue::DomValueArrayType array;
+  HippyValue::HippyValueArrayType array;
   array.resize(length);
 
   for (uint32_t i = 0; i < length; i++) {
@@ -227,11 +227,11 @@ bool Deserializer::ReadDenseJSArray(HippyValue& dom_value) {
   if (num_properties != expected_num_properties) return false;
   if (length != expected_length) return false;
 
-  dom_value = array;
+  hippy_value = array;
   return true;
 }
 
-bool Deserializer::ReadJSObject(HippyValue& dom_value) {
+bool Deserializer::ReadJSObject(HippyValue& hippy_value) {
   uint32_t num_properties;
   HippyValueObjectType object;
   if (!ReadObjectProperties(object, num_properties, SerializationTag::kEndJSObject)) {
@@ -243,7 +243,7 @@ bool Deserializer::ReadJSObject(HippyValue& dom_value) {
     return false;
   }
 
-  dom_value = object;
+  hippy_value = object;
   return true;
 }
 

@@ -355,8 +355,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     if (!enginekey) {
         return;
     }
-    // TODO(etkmao): delay is temporarily used for testing jsc crash
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
         [[HippyJSEnginesMapper defaultInstance] removeEngineResourceForKey:enginekey];
     });
 }
@@ -536,7 +535,11 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                 return;
             }
             NSError *error = nil;
+            auto entry = strongSelf.pScope->GetPerformance()->PerformanceNavigation("hippyInit");
+            string_view url = [[sourceURL absoluteString] UTF8String]?:"";
+            entry->BundleInfoOfUrl(url).execute_source_start_ = footstone::TimePoint::SystemNow();
             id result = executeApplicationScript(script, sourceURL, strongSelf.pScope->GetContext(), &error);
+            entry->BundleInfoOfUrl(url).execute_source_end_ = footstone::TimePoint::SystemNow();
             if (onComplete) {
                 onComplete(result, error);
             }

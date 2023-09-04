@@ -113,7 +113,7 @@ std::shared_ptr<HippyValue> ToDomValueWithCycleCheck(const std::shared_ptr<Ctx>&
     return std::make_shared<HippyValue>(ret);
   } else if (ctx->IsArray(value)) {
     auto len = ctx->GetArrayLength(value);
-    HippyValue::DomValueArrayType ret;
+    HippyValue::HippyValueArrayType ret;
     for (uint32_t i = 0; i < len; ++i) {
       std::string value_key = "array";
       value_key.append(IntToString(static_cast<int>(i)));

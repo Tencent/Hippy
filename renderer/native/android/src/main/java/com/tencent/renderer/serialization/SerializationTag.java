@@ -29,4 +29,6 @@ public interface SerializationTag {
   byte END_OBJECT = (byte) '{';
   byte BEGIN_DENSE_ARRAY = (byte) 'A';
   byte END_DENSE_ARRAY = (byte) '$';
+  byte BEGIN_SPARSE_JS_ARRAY = (byte) 'a'; // kBeginSparseJSArray
+  byte END_SPARSE_JS_ARRAY = (byte) '@'; // kEndSparseJSArray
 }

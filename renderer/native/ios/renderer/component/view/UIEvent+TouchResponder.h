@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * Hippy available.
+ * NativeRender available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -20,12 +20,20 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#import "NativeRenderViewEventType.h"
 
-#import "HippyBridgeModule.h"
-#import "HippyFrameUpdate.h"
-#import "HPInvalidating.h"
+NS_ASSUME_NONNULL_BEGIN
 
-@interface HippyTiming : NSObject <HippyBridgeModule, HPInvalidating, HippyFrameUpdateObserver>
+@interface UIEvent (TouchResponder)
+
+- (void)setResponder:(__weak id)responder forType:(NativeRenderViewEventType)type;
+
+- (id)responderForType:(NativeRenderViewEventType)type;
+
+- (void)removeAllResponders;
 
 @end
+
+NS_ASSUME_NONNULL_END
+

@@ -111,24 +111,21 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
                 initDefault(context, props, new HippyRecyclerView(context)));
     }
 
-    public static HippyRecyclerView initDefault(@NonNull Context context,
+    protected HippyRecyclerView initDefault(@NonNull Context context,
             @Nullable Map<String, Object> props, HippyRecyclerView recyclerView) {
         LinearLayoutManager layoutManager = new HippyLinearLayoutManager(context);
         recyclerView.setItemAnimator(null);
-        boolean enableScrollEvent = false;
         boolean enableOverPull = true;
         boolean hasStableIds = true;
         if (props != null) {
             if (MapUtils.getBooleanValue(props, HORIZONTAL)) {
                 layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
             }
-            enableScrollEvent = MapUtils.getBooleanValue(props, "onScroll");
             enableOverPull = MapUtils.getBooleanValue(props, NodeProps.OVER_PULL, true);
             hasStableIds = MapUtils.getBooleanValue(props, NodeProps.HAS_STABLE_IDS, true);
         }
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.initRecyclerView(hasStableIds);
-        recyclerView.getRecyclerViewEventHelper().setOnScrollEventEnable(enableScrollEvent);
         if (HippyListUtils.isVerticalLayout(recyclerView)) {
             recyclerView.setEnableOverPull(enableOverPull);
         }
@@ -174,27 +171,27 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
         view.setRowShouldSticky(enable);
     }
 
-    @HippyControllerProps(name = "onScrollBeginDrag", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    @HippyControllerProps(name = "scrollbegindrag", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
     public void setScrollBeginDragEventEnable(HRW view, boolean flag) {
         view.getRecyclerViewEventHelper().setScrollBeginDragEventEnable(flag);
     }
 
-    @HippyControllerProps(name = "onScrollEndDrag", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    @HippyControllerProps(name = "scrollenddrag", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
     public void setScrollEndDragEventEnable(HRW view, boolean flag) {
         view.getRecyclerViewEventHelper().setScrollEndDragEventEnable(flag);
     }
 
-    @HippyControllerProps(name = "onMomentumScrollBegin", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    @HippyControllerProps(name = "momentumscrollbegin", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
     public void setMomentumScrollBeginEventEnable(HRW view, boolean flag) {
         view.getRecyclerViewEventHelper().setMomentumScrollBeginEventEnable(flag);
     }
 
-    @HippyControllerProps(name = "onMomentumScrollEnd", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    @HippyControllerProps(name = "momentumscrollend", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
     public void setMomentumScrollEndEventEnable(HRW view, boolean flag) {
         view.getRecyclerViewEventHelper().setMomentumScrollEndEventEnable(flag);
     }
 
-    @HippyControllerProps(name = "onScrollEnable", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    @HippyControllerProps(name = "scroll", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
     public void setOnScrollEventEnable(HRW view, boolean flag) {
         view.getRecyclerViewEventHelper().setOnScrollEventEnable(flag);
     }
@@ -216,7 +213,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
 
     @HippyControllerProps(name = "preloadItemNumber")
     public void setPreloadItemNumber(HRW view, int preloadItemNumber) {
-        getAdapter(view).setPreloadItemNumber(preloadItemNumber);
+        view.getRecyclerViewEventHelper().setPreloadItemNumber(preloadItemNumber);
     }
 
     @HippyControllerProps(name = "suspendViewListener", defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
@@ -288,9 +285,5 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
                 LogUtils.w(TAG, "Unknown function name: " + functionName);
             }
         }
-    }
-
-    private HippyRecyclerListAdapter getAdapter(HRW view) {
-        return view.getRecyclerView().getAdapter();
     }
 }

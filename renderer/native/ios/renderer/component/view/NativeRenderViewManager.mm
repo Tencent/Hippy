@@ -218,7 +218,7 @@ NATIVE_RENDER_REMAP_VIEW_PROPERTY(shadowRadius, layer.shadowRadius, CGFloat)
 
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(backgroundPositionX, CGFloat)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(backgroundPositionY, CGFloat)
-
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onInterceptTouchEvent, BOOL)
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(visibility, NSString, NativeRenderView) {
     if (json) {
         NSString *status = [HPConvert NSString:json];

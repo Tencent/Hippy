@@ -139,6 +139,9 @@ public class NodeProps {
     public static final String IMAGE_CLASS_NAME = "Image";
     public static final String TEXT_INPUT_CLASS_NAME = "TextInput";
     public static final String IMAGE_SPAN_TEXT = "[img]";
+    @Deprecated
+    public static final String PROP_VERTICAL_ALIGNMENT = "verticalAlignment";
+    public static final String VERTICAL_ALIGN = "verticalAlign";
 
     public static final String PROPS = "props";
     public static final String ROOT_NODE = "RootNode";

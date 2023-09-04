@@ -19,8 +19,8 @@
  */
 
 #include "renderer/tdf/view/modal_view.h"
-
 #include "footstone/logging.h"
+#include "tdfui/view/window_manager.h"
 
 namespace hippy {
 inline namespace render {
@@ -33,9 +33,9 @@ ModalView::~ModalView() {
   }
 }
 
-ModalView::ModalView() : tdfcore::View() {
-  modal_view_ = TDF_MAKE_SHARED(View);
-  root_view_ = tdfcore::ViewContext::GetCurrent()->GetRootView();
+ModalView::ModalView(const std::shared_ptr<ViewContext> &context) : tdfcore::View(context) {
+  modal_view_ = TDF_MAKE_SHARED(View, GetViewContext());
+  root_view_ = GetViewContext()->GetWindowManager()->GetMainWindow()->GetContentView();
 }
 
 void ModalView::Mount() {
@@ -72,7 +72,7 @@ void ModalView::InternalSetFrame(const TRect& frame) {
   if (is_immersion_status_bar) {
     modal_view_->SetFrame(frame);
   } else {
-    auto viewport = tdfcore::ViewContext::GetCurrent()->GetShell()->GetViewportMetrics();
+    auto viewport = GetViewContext()->GetViewportMetrics();
     auto padding_top = viewport.view_padding_top / viewport.device_pixel_ratio;
     modal_view_->SetFrame(TRect::MakeXYWH(frame.left, static_cast<float>(padding_top + frame.top), frame.Width(),
                                           static_cast<float>(frame.Height() - padding_top)));

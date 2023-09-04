@@ -21,7 +21,9 @@
  */
 
 #import <UIKit/UIKit.h>
+
 #import "NativeRenderTouchesProtocol.h"
+#import "HPConvert+NativeRender.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,6 +33,11 @@ NS_ASSUME_NONNULL_BEGIN
  * We need to override touchesBegan/touchesEnded/touchesCancelled/touchesMoved methods to handle coresponding event.
  */
 @interface NativeRenderTouchesView : UIView<NativeRenderTouchesProtocol>
+
+/**
+ * Used to control how touch events are processed.
+ */
+@property (nonatomic, assign) NativeRenderPointerEvents pointerEvents;
 
 @end
 

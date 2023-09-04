@@ -163,6 +163,9 @@ dispatch_queue_t HippyBridgeQueue() {
             auto viewRenderManager = [rootView renderManager];
             if (_renderManager.lock() == viewRenderManager.lock()) {
                 auto entry = _javaScriptExecutor.pScope->GetPerformance()->PerformanceNavigation("hippyInit");
+                entry->SetHippyDomStart(domManager->GetDomStartTimePoint());
+                entry->SetHippyDomEnd(domManager->GetDomEndTimePoint());
+                entry->SetHippyFirstFrameStart(domManager->GetDomEndTimePoint());
                 entry->SetHippyFirstFrameEnd(footstone::TimePoint::SystemNow());
             }
         }
@@ -925,16 +928,6 @@ dispatch_queue_t HippyBridgeQueue() {
     // getTurboModule
     HippyOCTurboModule *turboModule = [self.turboModuleManager turboModuleWithName:name];
     return turboModule;
-}
-
-- (void)immediatelyCallTimer:(NSNumber *)timer {
-    __weak HippyBridge *weakSelf = self;
-    [_javaScriptExecutor executeAsyncBlockOnJavaScriptQueue:^{
-        HippyBridge *strongSelf = weakSelf;
-        if (strongSelf) {
-            [strongSelf actuallyInvokeAndProcessModule:@"JSTimersExecution" method:@"callTimers" arguments:@[@[timer]]];
-        }
-    }];
 }
 
 - (void)registerModuleForFrameUpdates:(id<HippyBridgeModule>)module withModuleData:(HippyModuleData *)moduleData {

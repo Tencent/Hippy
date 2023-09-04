@@ -119,6 +119,7 @@ struct ClassTemplate {
   string_view name;
   size_t size = SIZE_OF<T>;
   std::unordered_map<void*, std::shared_ptr<T>> holder_map;
+  std::vector<std::shared_ptr<CtxValue>> holder_ctx_values;
 };
 
 class Scope : public std::enable_shared_from_this<Scope> {
@@ -283,8 +284,10 @@ class Scope : public std::enable_shared_from_this<Scope> {
           auto task = [weak_this, uri, start, end]() {
             DEFINE_AND_CHECK_SELF(Scope)
             auto entry = self->GetPerformance()->PerformanceResource(uri);
-            entry->SetLoadSourceStart(start);
-            entry->SetLoadSourceEnd(end);
+            if (entry) {
+              entry->SetLoadSourceStart(start);
+              entry->SetLoadSourceEnd(end);
+            }
           };
           runner->PostTask(std::move(task));
         }
@@ -372,7 +375,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
       FOOTSTONE_CHECK(context);
       auto weak_callback_wrapper = std::make_unique<WeakCallbackWrapper>([](void* callback_data, void* internal_data) {
         auto class_template = reinterpret_cast<ClassTemplate<T>*>(callback_data);
-        auto holder_map = class_template->holder_map;
+        auto& holder_map = class_template->holder_map;
         auto it = holder_map.find(internal_data);
         if (it != holder_map.end()) {
           holder_map.erase(it);

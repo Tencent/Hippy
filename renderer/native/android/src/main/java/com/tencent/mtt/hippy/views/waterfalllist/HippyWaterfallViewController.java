@@ -185,6 +185,11 @@ public class HippyWaterfallViewController extends HippyViewController<HippyWater
         listView.setEnableExposureReport(enable);
     }
 
+    @HippyControllerProps(name = "scrollEventThrottle", defaultType = HippyControllerProps.NUMBER, defaultNumber = 30.0)
+    public void setScrollEventThrottle(HippyWaterfallView listView, int scrollEventThrottle) {
+        listView.setScrollEventThrottle(scrollEventThrottle);
+    }
+
     @Override
     public void dispatchFunction(@NonNull HippyWaterfallView waterfallView, @NonNull String functionName,
             @NonNull HippyArray params) {

@@ -59,7 +59,7 @@ using OnEndEditing = std::function<void(std::u16string)>;
 using OnSelectionChange = std::function<void(size_t, size_t)>;
 using InputEventCallBack = std::function<void(const std::string &function_name,
                                               const uint32_t callback_id,
-                                              const ViewNode::DomArgument &dom_value)>;
+                                              const ViewNode::DomArgument &hippy_value)>;
 
 inline namespace textinput {
 constexpr const char kTextInput[] = "TextInput";
@@ -160,7 +160,7 @@ class TextInputNode : public ViewNode {
 
  protected:
   void HandleStyleUpdate(const DomStyleMap& dom_style, const DomDeleteProps& dom_delete_props) override;
-  std::shared_ptr<tdfcore::View> CreateView() override;
+  std::shared_ptr<tdfcore::View> CreateView(const std::shared_ptr<ViewContext> &context) override;
 
  private:
   void InitCallBackMap();

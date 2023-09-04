@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.2-beta](https://github.com/Tencent/Hippy/compare/3.0.1...3.0.2-beta) (2023-08-22)
+
+**Note:** Version bump only for package @hippy/vue-router
+
+
+
+
+
+## [3.0.1](https://github.com/Tencent/Hippy/compare/3.0.0...3.0.1) (2023-08-07)
+
+**Note:** Version bump only for package @hippy/vue-router
+
+
+
+
+
+# [3.0.0](https://github.com/Tencent/Hippy/compare/2.2.1...3.0.0) (2023-06-29)
+
+
+### Bug Fixes
+
+* **npm:** update lerna to fix vulernable npm package ([22ae601](https://github.com/Tencent/Hippy/commit/22ae601e50e7070b6290170938b984c85dac4940))
+
+
+
+
+
 ## [2.1.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-router/compare/2.1.1...2.1.2) (2020-11-23)
 
 **Note:** Version bump only for package @hippy/vue-router

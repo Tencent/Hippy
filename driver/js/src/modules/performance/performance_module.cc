@@ -32,6 +32,9 @@
 #include "driver/performance/performance_paint_timing.h"
 #include "footstone/time_point.h"
 #include "footstone/string_view.h"
+#ifdef JS_V8
+#include "driver/vm/v8/memory_module.h"
+#endif
 
 using string_view = footstone::string_view;
 
@@ -83,7 +86,7 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
       return nullptr;
     }
     auto context = scope->GetContext();
-    auto now = hippy::Performance::Now().ToEpochDelta().ToNanosecondsF();
+    auto now = hippy::Performance::Now().ToEpochDelta().ToMillisecondsF();
     return context->CreateNumber(now);
   };
   class_template.functions.emplace_back(std::move(now_function_define));
@@ -398,6 +401,24 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
     return context->CreateArray(entries.size(), instances);
   };
   class_template.functions.emplace_back(std::move(get_entries_function_define));
+
+  PropertyDefine<Performance> memory_property_define;
+  memory_property_define.name = "memory";
+  memory_property_define.getter = [weak_scope](
+      Performance* thiz,
+      std::shared_ptr<CtxValue>& exception) -> std::shared_ptr<CtxValue> {
+    auto scope = weak_scope.lock();
+    if (!scope) {
+      return nullptr;
+    }
+#ifdef JS_V8
+    return GetV8Memory(scope);
+#else
+    auto context = scope->GetContext();
+    return context->CreateUndefined();
+#endif
+  };
+  class_template.properties.push_back(std::move(memory_property_define));
 
   return std::make_shared<ClassTemplate<Performance>>(std::move(class_template));
 }

@@ -40,6 +40,8 @@ namespace hippy {
 inline namespace render {
 inline namespace tdf {
 
+using tdfcore::ViewContext;
+
 inline namespace refreshwrapper {
 constexpr const char kRefreshWrapper[] = "RefreshWrapper";
 constexpr const char kBounceTime[] = "bounceTime";                    // int
@@ -51,8 +53,8 @@ constexpr const char kRefreshComplected[] = "refreshComplected";
 
 class HippyRefreshHeader : public tdfcore::RefreshHeader {
  public:
-  explicit HippyRefreshHeader(std::shared_ptr<tdfcore::View> content_view)
-      : tdfcore::RefreshHeader(), content_view_(std::move(content_view)) {}
+  explicit HippyRefreshHeader(const std::shared_ptr<ViewContext> &context, std::shared_ptr<tdfcore::View> content_view)
+      : tdfcore::RefreshHeader(context), content_view_(std::move(content_view)) {}
 
   std::shared_ptr<tdfcore::View> GetView() override { return content_view_; }
 
@@ -69,7 +71,7 @@ class RefreshWrapperItemNode : public ViewNode {
   /**
    * @brief make CreateView public,because it's call by RefreshWrapperNode
    */
-  std::shared_ptr<tdfcore::View> CreateView() override;
+  std::shared_ptr<tdfcore::View> CreateView(const std::shared_ptr<ViewContext> &context) override;
 
   void HandleLayoutUpdate(hippy::LayoutResult layout_result) override;
 };
@@ -86,7 +88,7 @@ class RefreshWrapperNode : public ViewNode {
   void CallFunction(const std::string& name, const DomArgument& param, const uint32_t call_back_id) override;
 
  private:
-  std::shared_ptr<tdfcore::View> CreateView() override;
+  std::shared_ptr<tdfcore::View> CreateView(const std::shared_ptr<ViewContext> &context) override;
   void HandleOffsetListener(int32_t position, double offset);
   std::shared_ptr<RefreshWrapperItemNode> item_node_;
   std::shared_ptr<HippyRefreshHeader> refresh_header_;

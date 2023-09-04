@@ -44,6 +44,12 @@ Engine::Engine()
 
 Engine::~Engine() {
   FOOTSTONE_DLOG(INFO) << "~Engine";
+  for(auto& [key, template_map] : class_template_holder_map_) {
+    auto animation_template = std::any_cast<std::shared_ptr<ClassTemplate<CubicBezierAnimation>>>(template_map["Animation"]);
+    animation_template->holder_ctx_values.clear();
+    auto animation_set_template = std::any_cast<std::shared_ptr<ClassTemplate<AnimationSet>>>(template_map["AnimationSet"]);
+    animation_set_template->holder_ctx_values.clear();
+  }
 }
 
 void Engine::AsyncInitialize(std::shared_ptr<TaskRunner> js,

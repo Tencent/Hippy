@@ -211,7 +211,7 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @brief 是否脏节点
    * @return 是否脏节点
    */
-  bool IsDirty();
+  bool IsDirty() override;
 
   /**
    * @brief 重置节点

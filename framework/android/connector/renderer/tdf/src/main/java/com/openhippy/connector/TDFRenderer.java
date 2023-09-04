@@ -79,6 +79,13 @@ public class TDFRenderer implements RenderConnector {
     }
 
     @Override
+    public void removeSnapshotView() {
+        if (mRenderer != null) {
+            mRenderer.removeSnapshotView();
+        }
+    }
+
+    @Override
     public void setFrameworkProxy(@NonNull Object proxy) {
         if (mRenderer != null && proxy instanceof FrameworkProxy) {
             mRenderer.setFrameworkProxy((FrameworkProxy) proxy);

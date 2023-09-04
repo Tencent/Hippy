@@ -43,6 +43,7 @@ import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 import com.tencent.renderer.utils.PropertyUtils;
 import com.tencent.renderer.utils.PropertyUtils.PropertyMethodHolder;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,10 +62,10 @@ public class VirtualNodeManager {
      */
     private final Map<Integer, List<VirtualNode>> mUpdateNodes = new HashMap<>();
     @NonNull
-    private final NativeRender mNativeRenderer;
+    private final WeakReference<NativeRender> mNativeRendererRef;
 
     public VirtualNodeManager(@NonNull NativeRender nativeRenderer) {
-        mNativeRenderer = nativeRenderer;
+        mNativeRendererRef = new WeakReference<>(nativeRenderer);
     }
 
     /**
@@ -250,9 +251,11 @@ public class VirtualNodeManager {
                         PropertyUtils.convertProperty(methodHolder.paramTypes[0], value));
             }
         } catch (Exception exception) {
-            mNativeRenderer.handleRenderException(
-                    PropertyUtils
-                            .makePropertyConvertException(exception, key, methodHolder.method));
+            if (mNativeRendererRef.get() != null) {
+                mNativeRendererRef.get().handleRenderException(
+                        PropertyUtils
+                                .makePropertyConvertException(exception, key, methodHolder.method));
+            }
         }
     }
 
@@ -279,17 +282,21 @@ public class VirtualNodeManager {
     @Nullable
     private VirtualNode createVirtualNode(int rootId, int id, int pid, int index,
             @NonNull String className, @Nullable Map<String, Object> props) {
-        VirtualNode node = mNativeRenderer.createVirtualNode(rootId, id, pid, index, className,
+        NativeRender nativeRender = mNativeRendererRef.get();
+        if (nativeRender == null) {
+            return null;
+        }
+        VirtualNode node = nativeRender.createVirtualNode(rootId, id, pid, index, className,
                 props);
         VirtualNode parent = getVirtualNode(rootId, pid);
         // Only text、text child and text input need to create virtual node.
         if (className.equals(TEXT_CLASS_NAME)) {
             if (!(node instanceof TextVirtualNode)) {
-                node = new TextVirtualNode(rootId, id, pid, index, mNativeRenderer);
+                node = new TextVirtualNode(rootId, id, pid, index, nativeRender);
             }
         } else if (className.equals(IMAGE_CLASS_NAME) && parent != null) {
             if (!(node instanceof ImageVirtualNode)) {
-                node = new ImageVirtualNode(rootId, id, pid, index, mNativeRenderer);
+                node = new ImageVirtualNode(rootId, id, pid, index, nativeRender);
             }
         } else if (className.equals(TEXT_INPUT_CLASS_NAME)) {
             if (!(node instanceof TextInputVirtualNode)) {

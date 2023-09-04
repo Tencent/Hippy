@@ -44,12 +44,7 @@ constexpr char kUsedJSHeapSize[] = "usedJSHeapSize";
 constexpr char kJsNumberOfNativeContexts[] = "jsNumberOfNativeContexts";
 constexpr char kJsNumberOfDetachedContexts[] = "jsNumberOfDetachedContexts";
 
-GEN_INVOKE_CB(MemoryModule, Get) // NOLINT(cert-err58-cpp)
-
-void MemoryModule::Get(hippy::napi::CallbackInfo& info, void* data) {
-  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
-  auto scope = scope_wrapper->scope.lock();
-  FOOTSTONE_CHECK(scope);
+std::shared_ptr<CtxValue> GetV8Memory(std::shared_ptr<Scope> scope) {
   auto ctx = std::static_pointer_cast<V8Ctx>(scope->GetContext());
   v8::Isolate* isolate = ctx->isolate_;
   v8::HandleScope handle_scope(isolate);
@@ -82,7 +77,16 @@ void MemoryModule::Get(hippy::napi::CallbackInfo& info, void* data) {
           {jsNumberOfDetachedContexts, jsNumberOfDetachedContextsValue}
       }
   );
-  info.GetReturnValue()->Set(ctx->CreateObject(map));
+  return ctx->CreateObject(map);
+}
+
+GEN_INVOKE_CB(MemoryModule, Get) // NOLINT(cert-err58-cpp)
+
+void MemoryModule::Get(hippy::napi::CallbackInfo& info, void* data) {
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+  auto scope = scope_wrapper->scope.lock();
+  FOOTSTONE_CHECK(scope);
+  info.GetReturnValue()->Set(GetV8Memory(scope));
 }
 
 std::shared_ptr<CtxValue> MemoryModule::BindFunction(std::shared_ptr<Scope> scope,
