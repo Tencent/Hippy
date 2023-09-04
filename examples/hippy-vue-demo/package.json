@@ -16,10 +16,10 @@
     "web:build": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.web-renderer.js"
   },
   "dependencies": {
-    "@hippy/vue": "latest",
-    "@hippy/vue-native-components": "latest",
-    "@hippy/vue-router": "latest",
-    "@hippy/web-renderer": "latest",
+    "@hippy/vue": "v2.17-latest",
+    "@hippy/vue-native-components": "v2.17-latest",
+    "@hippy/vue-router": "v2.17-latest",
+    "@hippy/web-renderer": "v2.17-latest",
     "core-js": "^3.11.0",
     "vue": "^2.6.10",
     "vue-router": "^3.1.3"
