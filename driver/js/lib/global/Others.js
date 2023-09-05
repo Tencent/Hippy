@@ -23,6 +23,16 @@ global.__GLOBAL__ = {
   globalEventHandle: {},
 };
 
+class ErrorEvent {
+  constructor(message, filename, lineno, colno, error) {
+    this.message = message;
+    this.filename = filename;
+    this.lineno = lineno;
+    this.colno = colno;
+    this.error = error;
+  }
+}
+
 /**
  * Register the Hippy app entry function, the native will trigger an event to execute the function
  * and start the app.
@@ -99,15 +109,38 @@ function emit(eventName, ...args) {
   if (typeof eventName !== 'string') {
     throw new TypeError('Hippy.emit() only accept a string as event name');
   }
+
+  let isErr = eventName === 'error';
+  let errObj = new Error();
+  if (isErr) {
+    let arr = args[0];
+    if (!(arr instanceof Array)) {
+      throw new TypeError('Hippy.emit() error event, args0 must be array');
+    }
+    if (arr.length !== 5) {
+      throw new TypeError('Hippy.emit() error event, args0 length must be 5');
+    }
+    errObj.message = JSON.stringify(arr[4]);
+    if (Hippy.onerror) {
+      Hippy.onerror(arr[0], arr[1], arr[2], arr[3], errObj);
+    }
+  }
+
   const eventListeners = __GLOBAL__.globalEventHandle[eventName];
   if (!eventListeners) {
-    if (eventName === 'uncaughtException' && args[0]) {
+    if (args[0]) {
       console.error(args[0].toString());
     }
     return;
   }
   try {
-    eventListeners.forEach(listener => listener(...args));
+    if (isErr) {
+      let arr = args[0];
+      let event = new ErrorEvent(arr[0], arr[1], arr[2], arr[3], errObj);
+      eventListeners.forEach(listener => listener(event));
+    } else {
+      eventListeners.forEach(listener => listener(...args));
+    }
   } catch (err) {
     /* eslint-disable-next-line no-console */
     console.error(err);
@@ -122,3 +155,6 @@ Hippy.register = {
 Hippy.on = on;
 Hippy.off = off;
 Hippy.emit = emit;
+Hippy.addEventListener = on;
+Hippy.removeEventListener = off;
+Hippy.onerror = undefined;
