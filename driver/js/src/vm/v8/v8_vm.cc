@@ -89,8 +89,8 @@ V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param) : VM(param) {
       FOOTSTONE_DLOG(INFO) << "Initialize";
       v8::V8::Initialize();
 #ifdef ENABLE_INSPECTOR
-    auto trace = reinterpret_cast<v8::platform::tracing::TracingController*>(platform->GetTracingController());
-    devtools::DevtoolsDataSource::OnGlobalTracingControlGenerate(trace);
+      auto trace = reinterpret_cast<v8::platform::tracing::TracingController*>(platform->GetTracingController());
+      devtools::DevtoolsDataSource::OnGlobalTracingControlGenerate(trace);
 #endif    
     }
   }
