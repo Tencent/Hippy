@@ -18,11 +18,11 @@
  * limitations under the License.
  */
 
-(function exceptionHandler(eventName, err) {
+(function exceptionHandler(eventName, exception) {
   if (global.Hippy) {
-    global.Hippy.emit('uncaughtException', err);
+    global.Hippy.emit(eventName, exception);
   } else {
     /* eslint-disable-next-line no-console */
-    console.error(eventName, err);
+    console.error(eventName, exception);
   }
 });
