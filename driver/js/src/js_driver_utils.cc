@@ -103,7 +103,7 @@ void AsyncInitializeEngine(const std::shared_ptr<Engine>& engine,
       auto scope = scope_wrapper->scope.lock();
       FOOTSTONE_CHECK(scope);
       auto exception = info[0];
-      V8VM::HandleUncaughtException(scope->GetContext(), exception);
+      V8VM::HandleException(scope->GetContext(), "uncaughtException", exception);
       auto engine = scope->GetEngine().lock();
       FOOTSTONE_CHECK(engine);
       auto callback = engine->GetVM()->GetUncaughtExceptionCallback();
