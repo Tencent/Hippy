@@ -96,7 +96,7 @@ android {
                     assert !(INCLUDE_ABI_ARMEABI.toBoolean() && ANDROID_ARM_NEON.toBoolean())
                     arguments (
                             "-DCMAKE_BUILD_TYPE=Release",
-                             "-DENABLE_INSPECTOR=$ENABLE_INSPECTOR",
+                            "-DENABLE_INSPECTOR=$ENABLE_INSPECTOR",
                             "-DMODULES=${getAllModules().join(';')}",
                             *mergeCppDefinitions()
                     )
