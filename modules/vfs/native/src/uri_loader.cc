@@ -111,10 +111,8 @@ void UriLoader::RequestUntrustedContent(const std::shared_ptr<RequestJob>& reque
 
   // performance end time
   auto end_time = TimePoint::SystemNow();
-  DoRequestTimePerformanceCallback(request->GetUri(), start_time, end_time);
-  if (response->GetRetCode() != JobResponse::RetCode::Success) {
-    DoRequestErrorCallback(request->GetUri(), static_cast<int32_t>(response->GetRetCode()), response->GetErrorMessage());
-  }
+  DoRequestResultCallback(request->GetUri(), start_time, end_time,
+                          static_cast<int32_t>(response->GetRetCode()), response->GetErrorMessage());
 }
 
 void UriLoader::RequestUntrustedContent(const std::shared_ptr<RequestJob>& request,
@@ -157,10 +155,8 @@ void UriLoader::RequestUntrustedContent(const std::shared_ptr<RequestJob>& reque
 
     // performance end time
     auto end_time = TimePoint::SystemNow();
-    self->DoRequestTimePerformanceCallback(request->GetUri(), start_time, end_time);
-    if (response->GetRetCode() != JobResponse::RetCode::Success) {
-      self->DoRequestErrorCallback(request->GetUri(), static_cast<int32_t>(response->GetRetCode()), response->GetErrorMessage());
-    }
+    self->DoRequestResultCallback(request->GetUri(), start_time, end_time,
+                                  static_cast<int32_t>(response->GetRetCode()), response->GetErrorMessage());
 
     orig_cb(response);
   };
@@ -188,16 +184,13 @@ std::string UriLoader::GetScheme(const UriLoader::string_view& uri) {
   return {};
 }
 
-void UriLoader::DoRequestTimePerformanceCallback(const string_view& uri, const TimePoint& start, const TimePoint& end) {
-  if (on_request_time_performance_ != nullptr) {
-    on_request_time_performance_(uri, start, end);
+void UriLoader::DoRequestResultCallback(const string_view& uri,
+                                        const TimePoint& start, const TimePoint& end,
+                                        const int32_t ret_code, const string_view& error_msg) {
+  if (on_request_result_ != nullptr) {
+    on_request_result_(uri, start, end, ret_code, error_msg);
   }
 }
 
-void UriLoader::DoRequestErrorCallback(const string_view& uri, const int32_t ret_code, const string_view& error_msg) {
-  if (on_request_error_ != nullptr) {
-    on_request_error_(uri, ret_code, error_msg);
-  }
-}
 }
 }

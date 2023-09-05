@@ -602,28 +602,22 @@ void Scope::UnloadInstance(const std::shared_ptr<HippyValue>& value) {
 void Scope::SetCallbackForUriLoader() {
   auto the_loader = loader_.lock();
   if (the_loader) {
-    the_loader->SetRequestTimePerformanceCallback([WEAK_THIS](const string_view& uri, const TimePoint& start, const TimePoint& end) {
+    the_loader->SetRequestResultCallback([WEAK_THIS](const string_view& uri,
+        const TimePoint& start, const TimePoint& end,
+        const int32_t ret_code, const string_view& error_msg) {
       DEFINE_AND_CHECK_SELF(Scope)
       auto runner = self->GetTaskRunner();
       if (runner) {
-        auto task = [weak_this, uri, start, end]() {
+        auto task = [weak_this, uri, start, end, ret_code, error_msg]() {
           DEFINE_AND_CHECK_SELF(Scope)
           auto entry = self->GetPerformance()->PerformanceResource(uri);
           if (entry) {
             entry->SetLoadSourceStart(start);
             entry->SetLoadSourceEnd(end);
           }
-        };
-        runner->PostTask(std::move(task));
-      }
-    });
-    the_loader->SetRequestErrorCallback([WEAK_THIS](const string_view& uri, const int32_t ret_code, const string_view& error_msg) {
-      DEFINE_AND_CHECK_SELF(Scope)
-      auto runner = self->GetTaskRunner();
-      if (runner) {
-        auto task = [weak_this, uri, ret_code, error_msg]() {
-          DEFINE_AND_CHECK_SELF(Scope)
-          self->HandleUriLoaderError(uri, ret_code, error_msg);
+          if (ret_code != 0) {
+            self->HandleUriLoaderError(uri, ret_code, error_msg);
+          }
         };
         runner->PostTask(std::move(task));
       }
