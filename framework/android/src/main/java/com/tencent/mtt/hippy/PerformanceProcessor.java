@@ -58,8 +58,8 @@ public class PerformanceProcessor extends Processor {
             @NonNull ProcessorCallback callback) {
         HippyEngineContext engineContext = mEngineContextRef.get();
         if (shouldDoRecord(holder) && engineContext != null) {
-            engineContext.getJsDriver().recordResourceLoadEndTime(holder.uri, holder.loadStartTime,
-                    System.currentTimeMillis());
+            engineContext.getJsDriver().doRecordResourceLoadResult(holder.uri, holder.loadStartTime,
+                    System.currentTimeMillis(), holder.resultCode, holder.errorMessage);
         }
         super.handleResponseAsync(holder, callback);
     }
@@ -68,8 +68,8 @@ public class PerformanceProcessor extends Processor {
     public void handleResponseSync(@NonNull ResourceDataHolder holder) {
         HippyEngineContext engineContext = mEngineContextRef.get();
         if (shouldDoRecord(holder) && engineContext != null) {
-            engineContext.getJsDriver().recordResourceLoadEndTime(holder.uri, holder.loadStartTime,
-                    System.currentTimeMillis());
+            engineContext.getJsDriver().doRecordResourceLoadResult(holder.uri, holder.loadStartTime,
+                    System.currentTimeMillis(), holder.resultCode, holder.errorMessage);
         }
         super.handleResponseSync(holder);
     }

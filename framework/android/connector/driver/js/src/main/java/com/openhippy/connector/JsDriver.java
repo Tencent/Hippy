@@ -77,8 +77,9 @@ public class JsDriver implements Connector {
         onFirstFrameEnd(mInstanceId, time);
     }
 
-    public void recordResourceLoadEndTime(@NonNull String uri, long startTime, long endTime) {
-        onResourceLoadEnd(mInstanceId, uri, startTime, endTime);
+    public void doRecordResourceLoadResult(@NonNull String uri, long startTime, long endTime,
+            long retCode, @Nullable String errorMsg) {
+        onResourceLoadEnd(mInstanceId, uri, startTime, endTime, retCode, errorMsg);
     }
 
     public void onResourceReady(ByteBuffer output, long resId) {
@@ -109,7 +110,8 @@ public class JsDriver implements Connector {
 
     public boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
             String codeCacheDir, int vfsId, NativeCallback callback) {
-        return runScriptFromUri(mInstanceId, uri, assetManager, canUseCodeCache, codeCacheDir, vfsId,
+        return runScriptFromUri(mInstanceId, uri, assetManager, canUseCodeCache, codeCacheDir,
+                vfsId,
                 callback);
     }
 
@@ -146,7 +148,8 @@ public class JsDriver implements Connector {
     private native void onDestroy(int instanceId, boolean useLowMemoryMode, boolean isReload,
             NativeCallback callback);
 
-    private native void loadInstance(int instanceId, byte[] buffer, int offset, int length, NativeCallback callback);
+    private native void loadInstance(int instanceId, byte[] buffer, int offset, int length,
+            NativeCallback callback);
 
     private native void unloadInstance(int instanceId, byte[] buffer, int offset, int length);
 
@@ -165,5 +168,6 @@ public class JsDriver implements Connector {
 
     private native void onFirstFrameEnd(int instanceId, long time);
 
-    private native void onResourceLoadEnd(int instanceId, String uri, long startTime, long endTime);
+    private native void onResourceLoadEnd(int instanceId, String uri, long startTime, long endTime,
+            long retCode, String errorMsg);
 }
