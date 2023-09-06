@@ -73,7 +73,6 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onKeyboardWillShow, NativeRenderDirectEventBl
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(defaultValue, NSString)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(isNightMode, BOOL)
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)componentTag) {
     [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
          NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
@@ -84,9 +83,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)compone
          [view focus];
      }];
 }
-// clang-format on
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(isFocused:(nonnull NSNumber *)componentTag callback:(RenderUIResponseSenderBlock)callback) {
     [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
@@ -98,9 +95,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(isFocused:(nonnull NSNumber *)componentTag
         callback([NSDictionary dictionaryWithObject:[NSNumber numberWithBool:isFocused] forKey:@"value"]);
     }];
 }
-// clang-format on
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)componentTag) {
     [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
          NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
@@ -111,9 +106,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)componen
          [view blur];
      }];
 }
-// clang-format on
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(clear:(nonnull NSNumber *)componentTag) {
     [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
@@ -124,9 +117,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(clear:(nonnull NSNumber *)componentTag) {
         [view clearText];
     }];
 }
-// clang-format on
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setValue:(nonnull NSNumber *)componentTag
                   text:(NSString *)text ) {
     [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
@@ -138,9 +129,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setValue:(nonnull NSNumber *)componentTag
         [view setValue: text];
     }];
 }
-// clang-format on
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getValue:(nonnull NSNumber *)componentTag
                   callback:(RenderUIResponseSenderBlock)callback ) {
     [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
@@ -152,7 +141,6 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getValue:(nonnull NSNumber *)componentTag
         callback([NSDictionary dictionaryWithObject:stringValue forKey:@"text"]);
     }];
 }
-// clang-format on
 
 NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(text, NSString)
 NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(placeholder, NSString)
