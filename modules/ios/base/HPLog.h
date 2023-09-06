@@ -33,6 +33,14 @@
 #endif  //#ifndef HP_LOG_ENABLED
 
 /**
+ * Thresholds for logs to display a redbox. You can override these values when debugging
+ * in order to tweak the default logging behavior.
+ */
+#ifndef HPLOG_REDBOX_LEVEL
+#define HPLOG_REDBOX_LEVEL HPLogLevelError
+#endif
+
+/**
  * Logging macros. Use these to log information, warnings and errors in your
  * own code.
  */
