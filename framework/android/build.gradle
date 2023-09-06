@@ -123,6 +123,7 @@ android {
                     arguments (
                             "-DCMAKE_BUILD_TYPE=Debug",
                             "-DMODULES=${getAllModules().join(';')}",
+                            "-DENABLE_INSPECTOR=$ENABLE_INSPECTOR",
                             *mergeCppDefinitions()
                     )
 
