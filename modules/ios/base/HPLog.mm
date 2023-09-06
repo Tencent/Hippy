@@ -21,7 +21,8 @@
  */
 
 #import "HPLog.h"
-
+#import "HippyBridge.h"
+#import "HippyRedBox.h"
 #include <string>
 #include <mutex>
 
@@ -165,7 +166,7 @@ void HPLogNativeInternal(HPLogLevel level, const char *fileName, int lineNumber,
         va_end(args);
         NSArray<NSDictionary *> *callStacks = nil;
 #if HP_DEBUG
-        if (level >= HPLogLevelError) {
+        if (level >= HPLOG_REDBOX_LEVEL) {
             NSArray<NSString *> *stackSymbols = [NSThread callStackSymbols];
             NSMutableArray<NSDictionary *> *stack = [NSMutableArray arrayWithCapacity:(stackSymbols.count - 1)];
             [stackSymbols enumerateObjectsUsingBlock:^(NSString *frameSymbols, NSUInteger idx, __unused BOOL *stop) {
@@ -182,6 +183,12 @@ void HPLogNativeInternal(HPLogLevel level, const char *fileName, int lineNumber,
                 }
             }];
             callStacks = [stack copy];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // red box is thread safe, but by deferring to main queue we avoid a startup
+                // race condition that causes the module to be accessed before it has loaded
+                [[HippyBridge currentBridge].redBox showErrorMessage:message withStack:stack];
+            });
         }
 #endif
         // Call log function

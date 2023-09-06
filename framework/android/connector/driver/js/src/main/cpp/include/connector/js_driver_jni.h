@@ -88,7 +88,7 @@ void OnNativeInitEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong sta
 
 void OnFirstFrameEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong time);
 
-void OnResourceLoadEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jstring j_uri, jlong j_start_time, jlong j_end_time);
+void OnResourceLoadEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jstring j_uri, jlong j_start_time, jlong j_end_time, jlong j_ret_code, jstring j_error_msg);
 
 }
 }
