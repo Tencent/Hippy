@@ -37,21 +37,17 @@ NATIVE_RENDER_EXPORT_VIEW(Navigator)
     return hostView;
 }
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(push:(NSNumber *__nonnull)componentTag parms:(NSDictionary *__nonnull)params) {
     [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         NativeRenderNavigatorHostView *navigatorHostView = viewRegistry[componentTag];
         [navigatorHostView push:params];
     }];
 }
-// clang-format on
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(pop:(NSNumber *__nonnull)componentTag parms:(NSDictionary *__nonnull)params) {
     [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         NativeRenderNavigatorHostView *navigatorHostView = viewRegistry[componentTag];
         [navigatorHostView pop:params];
     }];
 }
-// clang-format on
 @end
