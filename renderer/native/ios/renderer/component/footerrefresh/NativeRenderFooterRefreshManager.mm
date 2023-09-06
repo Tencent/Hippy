@@ -32,32 +32,26 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(refreshStick, BOOL)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onFooterReleased, NativeRenderDirectEventBlock)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onFooterPulling, NativeRenderDirectEventBlock)
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(collapsePullFooter:(nonnull NSNumber *)reactTag) {
     [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         NativeRenderRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refreshFinish];
     }];
 }
-// clang-format on
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(collapsePullFooterWithOptions:(nonnull NSNumber *)reactTag options:(NSDictionary *)options) {
     [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         NativeRenderRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refreshFinishWithOption:options];
     }];
 }
-// clang-format on
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(expandPullFooter:(nonnull NSNumber *)reactTag) {
     [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         NativeRenderRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refresh];
     }];
 }
-// clang-format on
 
 - (UIView *)view {
     return [[NativeRenderFooterRefresh alloc] init];
