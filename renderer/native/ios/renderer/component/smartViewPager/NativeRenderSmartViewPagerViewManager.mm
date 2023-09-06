@@ -47,7 +47,6 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(autoplay, BOOL)
     return [[NativeRenderSmartViewPagerView alloc] init];
 }
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)componentTag
         pageNumber:(NSNumber *)pageNumber) {
     [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
@@ -61,9 +60,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)componentTag
         [(NativeRenderSmartViewPagerView *)view setPage:pageNumberInteger animated:YES];
     }];
 }
-// clang-format on
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)componentTag
         pageNumber:(NSNumber *)pageNumber) {
     [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
@@ -76,9 +73,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber 
         [(NativeRenderSmartViewPagerView *)view setPage:pageNumberInteger animated:NO];
     }];
 }
-// clang-format on
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getPageIndex:(nonnull NSNumber *)componentTag
                     callback:(RenderUIResponseSenderBlock)callback) {
     [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
@@ -87,7 +82,6 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getPageIndex:(nonnull NSNumber *)component
         callback(@(currrentPage));
     }];
 }
-// clang-format on
 
 @end
 

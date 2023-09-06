@@ -97,7 +97,6 @@ NATIVE_RENDER_REMAP_VIEW_PROPERTY(contentInset, _scrollView.contentInset, UIEdge
 //    view.overflow = OverflowScroll;
 //}
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)componentTag
                     callback:(RenderUIResponseSenderBlock)callback) {
     [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
@@ -106,9 +105,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)compone
         callback(@{@"width" : @(size.width),@"height" : @(size.height)});
     }];
 }
-// clang-format on
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)componentTag
                     offsetX:(NSNumber *)x
                     offsetY:(NSNumber *)y
@@ -124,9 +121,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)componentTag
         }
     }];
 }
-// clang-format on
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)componentTag
                     options:(NSDictionary *)options) {
     [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
@@ -154,6 +149,5 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)co
         }
     }];
 }
-// clang-format on
 
 @end

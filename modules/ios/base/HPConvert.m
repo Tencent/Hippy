@@ -28,7 +28,6 @@
 
 @implementation HPConvert
 
-// clang-format off
 
 HP_CONVERTER(id, id, self)
 HP_CONVERTER(BOOL, BOOL, boolValue)
