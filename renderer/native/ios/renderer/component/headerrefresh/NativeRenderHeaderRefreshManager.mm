@@ -31,32 +31,26 @@ NATIVE_RENDER_EXPORT_VIEW(PullHeaderView);
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onHeaderReleased, NativeRenderDirectEventBlock)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onHeaderPulling, NativeRenderDirectEventBlock)
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(expandPullHeader:(nonnull NSNumber *)reactTag) {
     [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         NativeRenderRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refresh];
     }];
 }
-// clang-format on
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(collapsePullHeader:(nonnull NSNumber *)reactTag) {
     [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         NativeRenderRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refreshFinish];
     }];
 }
-// clang-format on
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(collapsePullHeaderWithOptions:(nonnull NSNumber *)reactTag options:(NSDictionary *)options) {
     [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         NativeRenderRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refreshFinishWithOption:options];
     }];
 }
-// clang-format on
 
 - (UIView *)view {
     return [[NativeRenderHeaderRefresh alloc] init];

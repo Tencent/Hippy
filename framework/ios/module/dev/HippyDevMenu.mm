@@ -225,13 +225,10 @@ HIPPY_EXPORT_MODULE()
     return items;
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(reload) {
     [_bridge requestReload];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(show) {
     if (_actionSheet || !_bridge || HPRunningInAppExtension()) {
         return;
@@ -269,7 +266,6 @@ HIPPY_EXPORT_METHOD(show) {
     
     [HPPresentedViewController() presentViewController:_actionSheet animated:YES completion:^(void){}];
 }
-// clang-format on
 
 @end
 
