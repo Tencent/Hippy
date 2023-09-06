@@ -55,7 +55,6 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
     return [[NativeRenderObjectWaterfall alloc] init];
 }
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)componentTag
 									xIndex:(__unused NSNumber *)xIndex
 									yIndex:(NSNumber *)yIndex
@@ -70,9 +69,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)componen
 		 [view scrollToIndex: yIndex.integerValue animated: [animation boolValue]];
 	 }];
 }
-// clang-format on
 
-// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)componentTag
                                x:(nonnull NSNumber *)x
                                y:(nonnull NSNumber *)y
@@ -87,6 +84,5 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)
 		 [view scrollToContentOffset:CGPointMake([x floatValue], [y floatValue]) animated: [animation boolValue]];
 	 }];
 }
-// clang-format on
 
 @end
