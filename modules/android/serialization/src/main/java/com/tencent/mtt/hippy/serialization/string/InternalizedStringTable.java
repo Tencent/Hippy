@@ -69,8 +69,9 @@ public class InternalizedStringTable extends DirectStringTable {
    */
   public static int DJB_HASH(byte[] value, int offset, int length) {
     long hash = 5381;
+    int end = offset + length;
 
-    for (int i = offset; i < length; i++) {
+    for (int i = offset; i < end; i++) {
       hash = ((hash << 5) + hash) + value[i];
     }
 
@@ -87,8 +88,9 @@ public class InternalizedStringTable extends DirectStringTable {
    */
   private static int STRING_HASH(byte[] value, int offset, int length) {
     int hash = 0;
+    int end = offset + length;
 
-    for (int i = offset; i < length; i++) {
+    for (int i = offset; i < end; i++) {
       hash = hash * 31 + (value[i] & 0xff);
     }
 
@@ -154,8 +156,8 @@ public class InternalizedStringTable extends DirectStringTable {
       if (valuePrefix != null) {
         boolean cacheables = true;
 
-        for (int i = 0; i < valuePrefix.length; i++) {
-          if (((byte) valuePrefix[i]) != sequence[i]) {
+        for (int i = 0; i < valuePrefix.length && i < length; i++) {
+          if (((byte) valuePrefix[i]) != sequence[i + offset]) {
             cacheables = false;
             break;
           }
