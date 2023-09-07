@@ -19,6 +19,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+# if defined(__OBJC__)
 
 #import <Foundation/Foundation.h>
 
@@ -134,3 +135,4 @@ HP_EXTERN void HPPerformBlockWithLogPrefix(void (^block)(void), NSString *prefix
 
 HP_EXTERN void HPLogNativeInternal(HPLogLevel, const char *, int, NSDictionary *, NSString *, ...) NS_FORMAT_FUNCTION(5, 6);
 
+#endif // defined(__OBJC__)

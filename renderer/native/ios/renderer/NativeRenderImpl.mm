@@ -679,6 +679,9 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     if (!strongRootNode) {
         return;
     }
+    unsigned int rand = arc4random();
+    HP_PERF_LOG("flushUIBlocksOnRootNode(random id:%u", rand);
+
     int32_t rootTag = strongRootNode->GetId();
     NSArray<NativeRenderRenderUIBlock> *previousPendingUIBlocks = _pendingUIBlocks;
     _pendingUIBlocks = [NSMutableArray new];
@@ -687,18 +690,26 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         // Execute the previously queued UI blocks
         dispatch_async(dispatch_get_main_queue(), ^{
             if (weakManager) {
+                HP_PERF_LOG("flushUIBlocksOnRootNode on main thread(random id:%u)",rand);
+                int cnt = 0;
+
                 NativeRenderImpl *strongSelf = weakManager;
                 NSDictionary<NSNumber *, UIView *> *viewReg =
                     [strongSelf->_viewRegistry componentsForRootTag:@(rootTag)];
                 @try {
                     for (NativeRenderRenderUIBlock block in previousPendingUIBlocks) {
                         block(strongSelf, viewReg);
+                        ++cnt;
                     }
                 } @catch (NSException *exception) {
                 }
+                HP_PERF_LOG("flushUIBlocksOnRootNode on main thread done, block count:%d(random id:%u)", cnt, rand);
+
             }
         });
     }
+    HP_PERF_LOG("flushUIBlocksOnRootNode End(random id:%u)",rand);
+
 }
 
 #pragma mark -
