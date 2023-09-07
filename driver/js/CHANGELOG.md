@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.2-beta.2](https://github.com/Tencent/Hippy/compare/3.0.2-beta...3.0.2-beta.2) (2023-09-07)
+
+
+### Bug Fixes
+
+* **ios:** NativeRenderView leak ([bc3bcc6](https://github.com/Tencent/Hippy/commit/bc3bcc6cb6adcd3c23d7c1f01e45675d45f68a99))
+* **js:** skip css preudo class check ([f1a9664](https://github.com/Tencent/Hippy/commit/f1a96641e9dc9f999a2321a92fb9d771ca3c26db))
+
+
+
+
+
 ## [3.0.2-beta](https://github.com/Tencent/Hippy/compare/3.0.1...3.0.2-beta) (2023-08-22)
 
 
