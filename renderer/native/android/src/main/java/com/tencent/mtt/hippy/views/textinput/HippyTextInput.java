@@ -63,7 +63,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
         TextView.OnEditorActionListener, View.OnFocusChangeListener {
 
     boolean mHasAddWatcher = false;
-    private String mPreviousText;
+    private String mPreviousText = "";
     TextWatcher mTextWatcher = null;
     boolean mHasSetOnSelectListener = false;
 
@@ -365,7 +365,6 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
     private String mValidator = "";    //这则表达式,前端传入,要比较小心导致的crash
     private String sRegrexValidBefore = "";
     private String sRegrexValidRepeat = "";    //如果有无效的正则输入,会设置.
-    private boolean mTextInputed = false;  //文本是否输入过
 
     public void setValidator(String validator) {
         mValidator = validator;
@@ -402,12 +401,11 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
                     if (TextUtils.isEmpty((mValidator))) //如果没有正则匹配
                     {
                         //如果文本输入过,判断是否两次相同
-                        if (mTextInputed && TextUtils.equals(s.toString(), mPreviousText)) {
+                        if (TextUtils.equals(s.toString(), mPreviousText)) {
                             return;
                         }
                         //这里为什么不用sRegrexValidBefore,sRegrexValidBefore是每次有词汇变化就会被回调设置.
                         mPreviousText = s.toString();
-                        mTextInputed = true;
                         if (!bUserSetValue) //如果是前端设置下来的值,不再需要回调给前端.
                         {
                             HippyMap hippyMap = new HippyMap();
@@ -425,13 +423,11 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
                                 //为了避免前端收到两次内容同样的通知.记录一下正则匹配设置回去的值.
                                 sRegrexValidRepeat = sRegrexValidBefore;
                                 setSelection(getText().toString().length()); // TODO这里不应该通知
-                                mTextInputed = true;
                             } else {
                                 //如果文本输入过,判断是否两次相同
-                                if (mTextInputed && TextUtils.equals(s.toString(), mPreviousText)) {
+                                if (TextUtils.equals(s.toString(), mPreviousText)) {
                                     return;
                                 }
-                                mTextInputed = true;
                                 mPreviousText = s.toString();
                                 if (!bUserSetValue //如果是前端设置的一定不通知
                                         && (TextUtils.isEmpty(sRegrexValidRepeat) //如果没有,输入过无效的内容
