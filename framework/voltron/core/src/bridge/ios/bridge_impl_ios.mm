@@ -103,7 +103,7 @@ footstone::value::HippyValue OCTypeToDomValue(id value) {
         return footstone::value::HippyValue(std::move(object));
     }
     else if ([value isKindOfClass:[NSArray class]]) {
-        footstone::value::HippyValue::DomValueArrayType array;
+        footstone::value::HippyValue::HippyValueArrayType array;
         for (id obj in value) {
             auto dom_obj = OCTypeToDomValue(obj);
             array.push_back(std::move(dom_obj));

@@ -81,7 +81,6 @@ const CodePieces = {
 #include "driver/vm/native_source_code.h"
 #include "footstone/macros.h"
 
-// clang-format off
 
 namespace {`;
   },

@@ -32,8 +32,8 @@ public class TDFRenderEngine extends TDFEngine {
     }
 
     @Override
-    public void onShellCreated(long shell) {
-        super.onShellCreated(shell);
+    public void onShellCreated(long shell, long pipelineId) {
+        super.onShellCreated(shell, pipelineId);
         LogUtils.d(TAG, "onShellCreated: " + shell);
     }
 

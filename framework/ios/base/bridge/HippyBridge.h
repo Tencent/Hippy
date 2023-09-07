@@ -283,6 +283,19 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 @end
 
+
+@interface HippyBridge (RedBoxDebug)
+
+/// The last current active bridge instance.
++ (instancetype)currentBridge;
+
+/// Record the last active bridge instance.
+/// - Parameter currentBridge: bridge instance, pass nil to reset.
++ (void)setCurrentBridge:(nullable HippyBridge *)currentBridge;
+
+@end
+
+
 HP_EXTERN void HippyBridgeFatal(NSError *, HippyBridge *);
 
 HP_EXTERN void HippyBridgeHandleException(NSException *exception, HippyBridge *bridge);

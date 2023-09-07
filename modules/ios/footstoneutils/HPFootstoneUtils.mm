@@ -115,9 +115,9 @@ id DomValueToOCType(const HippyValue *const pDomValue) {
         }
             break;
         case DomValueType::kArray: {
-            HippyValue::DomValueArrayType domValueArray = pDomValue->ToArrayChecked();
-            NSMutableArray *array = [NSMutableArray arrayWithCapacity:domValueArray.size()];
-            for (auto it = domValueArray.begin(); it != domValueArray.end(); it++) {
+            HippyValue::HippyValueArrayType hippyValueArray = pDomValue->ToArrayChecked();
+            NSMutableArray *array = [NSMutableArray arrayWithCapacity:hippyValueArray.size()];
+            for (auto it = hippyValueArray.begin(); it != hippyValueArray.end(); it++) {
                 const HippyValue &v = *it;
                 id subValue = DomValueToOCType(&v);
                 [array addObject:subValue];

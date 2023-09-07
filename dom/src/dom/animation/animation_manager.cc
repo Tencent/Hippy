@@ -154,7 +154,7 @@ void AnimationManager::FetchAnimationsFromObject(
 void AnimationManager::FetchAnimationsFromArray(HippyValue& value,
                                                 std::unordered_map<uint32_t, std::string>& result) {
   if (value.IsArray()) {
-    footstone::value::HippyValue::DomValueArrayType array;
+    footstone::value::HippyValue::HippyValueArrayType array;
     if (value.ToArray(array)) {
       for (auto& val: array) {
         if (val.IsObject()) {

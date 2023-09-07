@@ -40,7 +40,7 @@ constexpr char kDomTreeDeleted[] = "DomTreeDeleted";
 
 using Deserializer = footstone::value::Deserializer;
 using Serializer = footstone::value::Serializer;
-using DomValueArrayType = footstone::value::HippyValue::DomValueArrayType;
+using HippyValueArrayType = footstone::value::HippyValue::HippyValueArrayType;
 using Task = footstone::Task;
 
 footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<RootNode>> RootNode::persistent_map_;
@@ -74,7 +74,7 @@ void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   }
   std::vector<std::shared_ptr<DomNode>> nodes_to_create;
   for (const auto& node_info : nodes) {
-    auto node = node_info->dom_node;
+    auto& node = node_info->dom_node;
     std::shared_ptr<DomNode> parent_node = GetNode(node->GetPid());
     if (parent_node == nullptr) {
       continue;
@@ -383,6 +383,12 @@ void RootNode::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {
   nodes.push_back(node);
   render_manager->UpdateRenderNode(GetWeakSelf(), std::move(nodes));
   SyncWithRenderManager(render_manager);
+}
+
+uint32_t RootNode::GetChildCount() {
+  uint32_t child_count = 0;
+  Traverse([&child_count](const std::shared_ptr<DomNode>&) { child_count++; });
+  return child_count;
 }
 
 std::shared_ptr<DomNode> RootNode::GetNode(uint32_t id) {

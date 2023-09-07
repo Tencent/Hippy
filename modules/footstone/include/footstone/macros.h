@@ -29,7 +29,9 @@ constexpr inline size_t SIZE_OF = sizeof(T);
 template <typename CharType, size_t N>
 char (&ARRAY_SIZE_HELPER(CharType (&array)[N]))[N];
 
+#ifndef WEAK_THIS
 #define WEAK_THIS weak_this = weak_from_this()
+#endif
 #define SHARED_THIS self = this->shared_from_this()
 // 表明该lambda不会被存储，可以安全使用this
 #define THIS_NO_STORE this

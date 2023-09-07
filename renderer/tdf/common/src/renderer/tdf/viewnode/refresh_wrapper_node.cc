@@ -30,8 +30,8 @@ constexpr const char kRefreshEvent[] = "refresh";
 
 void HippyRefreshHeader::Init() { tdfcore::RefreshHeader::Init(); }
 
-std::shared_ptr<tdfcore::View> RefreshWrapperItemNode::CreateView() {
-  auto view = ViewNode::CreateView();
+std::shared_ptr<tdfcore::View> RefreshWrapperItemNode::CreateView(const std::shared_ptr<ViewContext> &context) {
+  auto view = ViewNode::CreateView(context);
   view->SetClipToBounds(true);
   return view;
 }
@@ -46,8 +46,8 @@ void RefreshWrapperItemNode::HandleLayoutUpdate(hippy::LayoutResult layout_resul
   ViewNode::HandleLayoutUpdate(layout_result);
 }
 
-std::shared_ptr<tdfcore::View> RefreshWrapperNode::CreateView() {
-  auto view = ViewNode::CreateView();
+std::shared_ptr<tdfcore::View> RefreshWrapperNode::CreateView(const std::shared_ptr<ViewContext> &context) {
+  auto view = ViewNode::CreateView(context);
   view->SetClipToBounds(true);
   return view;
 }
@@ -58,8 +58,9 @@ void RefreshWrapperNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int6
   if (child_dom_node->GetViewName() == kRefreshWrapperItemViewName) {
     item_node_ = std::static_pointer_cast<RefreshWrapperItemNode>(child->GetSharedPtr());
     item_node_id_ = child->GetRenderInfo().id;
-    refresh_header_ = TDF_MAKE_SHARED(HippyRefreshHeader, item_node_->CreateView());
-    child->Attach(refresh_header_->GetView());
+    auto view_context = GetView()->GetViewContext();
+    refresh_header_ = TDF_MAKE_SHARED(HippyRefreshHeader, view_context, item_node_->CreateView(view_context));
+    child->Attach(view_context, refresh_header_->GetView());
     return;
   }
 

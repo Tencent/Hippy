@@ -21,25 +21,28 @@
 #include "renderer/tdf/viewnode/root_view_node.h"
 #include "renderer/tdf/viewnode/base64_image_loader.h"
 #include "renderer/tdf/viewnode/net_image_loader.h"
+#include "tdfui/view/window_manager.h"
 
 namespace hippy {
 inline namespace render {
 inline namespace tdf {
 
+using tdfcore::ViewContext;
+
 constexpr const char kUpdateFrame[] = "frameupdate";
 
 RootViewNode::RootViewNode(const RenderInfo info, const std::shared_ptr<tdfcore::Shell>& shell,
+                           const std::shared_ptr<tdfcore::RenderContext>& render_context,
                            const std::shared_ptr<hippy::DomManager>& manager, UriDataGetter getter)
-    : ViewNode(nullptr, info), shell_(shell), dom_manager_(manager), getter_(getter) {}
+    : ViewNode(nullptr, info), shell_(shell), render_context_(render_context), dom_manager_(manager), getter_(getter) {}
 
 void RootViewNode::Init() {
   RegisterViewNode(render_info_.id, shared_from_this());
   shell_.lock()->GetUITaskRunner()->PostTask([WEAK_THIS] {
     DEFINE_AND_CHECK_SELF(RootViewNode)
-    self->view_context_ = TDF_MAKE_SHARED(tdfcore::ViewContext, self->shell_.lock());
-    self->view_context_->SetCurrent();
-    self->view_context_->SetupDefaultBuildFunction();
-    self->AttachView(self->view_context_->GetRootView());
+    auto on_create_content_view = [](const std::shared_ptr<ViewContext> &vc) { return TDF_MAKE_SHARED(tdfcore::View, vc); };
+    self->view_context_ = tdfcore::ViewContext::Make(self->shell_.lock(), self->render_context_.lock(), on_create_content_view);
+    self->AttachView(self->view_context_->GetWindowManager()->GetMainWindow()->GetContentView());
     if (auto shell = self->shell_.lock()) {
       shell->GetEventCenter()->AddListener(tdfcore::PostRunLoopEvent::ClassType(),
                                            [weak_this](const std::shared_ptr<tdfcore::Event>& event, uint64_t id) {
@@ -51,7 +54,7 @@ void RootViewNode::Init() {
                                              return tdfcore::EventDispatchBehavior::kContinue;
                                            });
     }
-    self->UpdateDomeRootNodeSize(self->shell_.lock()->GetViewportMetrics());
+    self->UpdateDomeRootNodeSize(self->view_context_->GetViewportMetrics());
     self->GetShell()->GetEventCenter()->AddListener(
         tdfcore::ViewportEvent::ClassType(), [weak_this](const std::shared_ptr<tdfcore::Event>& event, uint64_t id) {
           auto self = std::static_pointer_cast<RootViewNode>(weak_this.lock());
@@ -88,7 +91,7 @@ void RootViewNode::AttachView(std::shared_ptr<tdfcore::View> view) {
   attached_view_ = view;
 }
 
-std::shared_ptr<tdfcore::View> RootViewNode::CreateView() {
+std::shared_ptr<tdfcore::View> RootViewNode::CreateView(const std::shared_ptr<ViewContext> &context) {
   // Should never be called.
   FOOTSTONE_UNREACHABLE();
 }
@@ -99,6 +102,9 @@ void RootViewNode::RegisterViewNode(uint32_t id, const std::shared_ptr<ViewNode>
 }
 
 void RootViewNode::UnregisterViewNode(uint32_t id) {
+  if (id == hippy::dom::kInvalidId) {
+    return;
+  }
   FOOTSTONE_DCHECK(nodes_query_table_.find(id) != nodes_query_table_.end());
   nodes_query_table_.erase(id);
 }

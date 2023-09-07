@@ -3,6 +3,88 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.2-beta](https://github.com/Tencent/Hippy/compare/3.0.1...3.0.2-beta) (2023-08-22)
+
+
+### Bug Fixes
+
+* **vue:** fix node not mounted when move ([74d6444](https://github.com/Tencent/Hippy/commit/74d6444f63adaa92faed306f5997bc8447a28101))
+
+
+
+
+
+## [3.0.1](https://github.com/Tencent/Hippy/compare/3.0.0...3.0.1) (2023-08-07)
+
+
+### Bug Fixes
+
+* **vue:** fix rootview conditional statement ([#3355](https://github.com/Tencent/Hippy/issues/3355)) ([5364548](https://github.com/Tencent/Hippy/commit/5364548e5f3cb11d501b79989419e3608c2562da))
+
+
+
+
+
+# [3.0.0](https://github.com/Tencent/Hippy/compare/2.2.1...3.0.0) (2023-06-29)
+
+
+### Bug Fixes
+
+* **hippy-vue:** fix referendeNode not found error ([4c52546](https://github.com/Tencent/Hippy/commit/4c52546474190cec9d29ead5b7cafb35f9ce2bb2))
+* **hippy-vue:** remove unused code ([3977dd4](https://github.com/Tencent/Hippy/commit/3977dd46567f0a7dbcb19314ae228650b24a91a6))
+* **hippy-vue:** use non-skipAddToDom node for referencen node ([04db6e0](https://github.com/Tencent/Hippy/commit/04db6e0ad3c947ebbacae5c231d33cad134018ce))
+* **npm:** update got from vulnerable to safe version ([93cf4d8](https://github.com/Tencent/Hippy/commit/93cf4d8e3752143c62dae49c3318ef6316abf134))
+* **npm:** update vulnerable npm packages ([a5897fa](https://github.com/Tencent/Hippy/commit/a5897fafea94d9fd25977bb4c30db55704a10903))
+* **react,vue:** fix event register error ([67e92cf](https://github.com/Tencent/Hippy/commit/67e92cf572587a3092900a5bc8a46c7a098fe899))
+* **vue3:** fix listViewItem disappear event not triggered ([b14d4c4](https://github.com/Tencent/Hippy/commit/b14d4c485659bf90ec714df979f797bad19ce730))
+* **vue:** fix regular expressions catastrophic backtracking ([1fe30ed](https://github.com/Tencent/Hippy/commit/1fe30eda6cf05e46bb929da53194cdba265c8887))
+* **vue:** fix static style not updated in some case ([68be47a](https://github.com/Tencent/Hippy/commit/68be47acf6499bc55eabc4669ea0704fc3edfb7f))
+* **vue:** fix vNode element empty error ([de7dc93](https://github.com/Tencent/Hippy/commit/de7dc93b7785ed8cac780758d69199fa41aacfd8))
+* **vue:** fix vue node sequence error ([27a3124](https://github.com/Tencent/Hippy/commit/27a312419c72a2a2742ba7f4264f610c96540f6f))
+* **vue:** fix vue style diff error ([6e067d3](https://github.com/Tencent/Hippy/commit/6e067d3550b837ecfd43a34085b0f682b56cd182))
+* **vue:** fix web-renderer script ([d5577ee](https://github.com/Tencent/Hippy/commit/d5577ee8b8c92e80ed5574bf1d7187ec9117882f))
+* **vue:** not to move node when refNode is same as newNode ([4b718fe](https://github.com/Tencent/Hippy/commit/4b718feafd70cd936062194a107beef309c47fd3))
+* **vue:** perf style diff ([8fc1a5e](https://github.com/Tencent/Hippy/commit/8fc1a5ec47e0ed1ddfd0b04749596a3c625d4211))
+* **vue:** set id for root view to fix style missed ([8c38d29](https://github.com/Tencent/Hippy/commit/8c38d2921125a81b497e5445d5528aa87763033a))
+* **vue:** support static style diff in updateNode ([dd32e19](https://github.com/Tencent/Hippy/commit/dd32e19d5359e5c264703e90a87a0f069eecf892))
+
+
+### Features
+
+* **android,ios,js:** add getBoundingClientRect api ([#2914](https://github.com/Tencent/Hippy/issues/2914)) ([60f71e9](https://github.com/Tencent/Hippy/commit/60f71e9459b77b2f0a4cb39bcf3585ebd20a2640))
+* **hippy-vue:** change node api to lowercase ([42f06c5](https://github.com/Tencent/Hippy/commit/42f06c5a1d83fadf58e3bea67c7791e735a233cc))
+* **hippy-vue:** perf attribute & style update performance ([e7272ef](https://github.com/Tencent/Hippy/commit/e7272efec40a55f3b4036c221d40ad0346b10b71))
+* **hippy-vue:** perf attribute update ([55174ed](https://github.com/Tencent/Hippy/commit/55174ed47208d6aac65adc9fd8066941509b54a9))
+* **hippy-vue:** support breakStrategy ([348183c](https://github.com/Tencent/Hippy/commit/348183cea800e267f999f765a08c39abb2c6e67c))
+* **hippy-vue:** support once modifier ([04a5e8a](https://github.com/Tencent/Hippy/commit/04a5e8acafcbf13afa0672ba1ca771d3da8a6818))
+* **ios,android,vue:** add load result param for webView's onLoadEnd api ([#2668](https://github.com/Tencent/Hippy/issues/2668)) ([e9eb76e](https://github.com/Tencent/Hippy/commit/e9eb76e45ce78ef288af01be90680662bb2b4ac7))
+* **react,vue:** add isFoucus function ([b365a97](https://github.com/Tencent/Hippy/commit/b365a97a536e33318061b00cdece5ab7835c135d))
+* **react,vue:** add tagName attribute to production mode ([bc67c5d](https://github.com/Tencent/Hippy/commit/bc67c5dec12e40c548c29de4dcfadf9a2c47dfc8))
+* **react,vue:** perf print log logic & remove event attribute in props ([f1fbbf1](https://github.com/Tencent/Hippy/commit/f1fbbf198bbc5c2abc70379307f752ce70b7ee24))
+* **react,vue:** support event capture & bubbling ([4b498d4](https://github.com/Tencent/Hippy/commit/4b498d46a5b481270588020f02eb71e080ccab7c))
+* **react,vue:** use callUIFunction to call measureInWindow ([04468e0](https://github.com/Tencent/Hippy/commit/04468e0f55ffdfc241444e9f4ce98d3ce3b5dd8e))
+* **vue3.0:** change unit test for hippy3.0 ([53ed799](https://github.com/Tencent/Hippy/commit/53ed7999cdc7820e652bf09252ea173bac696cd6))
+* **vue3:** support vue3 for hippy3.0 ([5923ea8](https://github.com/Tencent/Hippy/commit/5923ea80778a6ef5eecf49a3dd8de80f42266663))
+* **vue:** add beforeRenderToNative hook to support computed style ([0220dc4](https://github.com/Tencent/Hippy/commit/0220dc4f815b94730da587d0ba3987fbf14b21af))
+* **vue:** add getElemCss scoped judgement ([46d30f3](https://github.com/Tencent/Hippy/commit/46d30f3e6023864681a2d8fd219f80af3ddd8faf))
+* **vue:** add native event parameters ([72fc39c](https://github.com/Tencent/Hippy/commit/72fc39c5fdb1c892e8ec978ed9b18885091b7064))
+* **vue:** add whitespace handler config ([9ed39d7](https://github.com/Tencent/Hippy/commit/9ed39d704ca6fc66f704898f4c5265756550675b))
+* **vue:** fix attribute selector & support deep selector ([875d8ee](https://github.com/Tencent/Hippy/commit/875d8eea849cbd03b566aed18e5b159f27a0b6bb))
+* **vue:** perf first screen attributes node update ([53919fa](https://github.com/Tencent/Hippy/commit/53919fa97ff1a01a6ab58cab48b2cdcf91373dc5))
+* **vue:** support scoped & attribute selector ([d72d9f8](https://github.com/Tencent/Hippy/commit/d72d9f8486d5f5c93ee09b26f641c48c8f1a7d5a))
+* **vue:** support ScrollView & ListView scroll related event params ([4b8bcd9](https://github.com/Tencent/Hippy/commit/4b8bcd9473995429dd809004f2fe117fa2fe9f85))
+* **vue:** support to merge styles on root element of child component ([a9c4f37](https://github.com/Tencent/Hippy/commit/a9c4f37c5d24b889ebda553d97b7bc012cd068f7))
+
+
+### Performance Improvements
+
+* **vue:** ignore to append existed node to improve router performance ([5c3a7ef](https://github.com/Tencent/Hippy/commit/5c3a7efc0fd3be8b19af4a1559d851fc73563e52))
+* **vue:** refer native script source code to reduce number of loops ([c09818b](https://github.com/Tencent/Hippy/commit/c09818baefc8a947451fedcc8354d3e2fba819c2))
+
+
+
+
+
 ## [2.2.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.2.0...2.2.1) (2020-12-28)
 
 **Note:** Version bump only for package @hippy/vue

@@ -41,7 +41,7 @@ class EmbeddedViewNode : public ViewNode {
   std::string DomStyleMap2String(const DomStyleMap &dom_style);
 
  private:
-  std::shared_ptr<tdfcore::View> CreateView() override;
+  std::shared_ptr<tdfcore::View> CreateView(const std::shared_ptr<ViewContext> &context) override;
 
   std::map<std::string, std::string> property_;
   std::string native_view_type_;

@@ -119,6 +119,8 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   inline void SetLayoutOnly(bool layout_only) { layout_only_ = layout_only; }
   inline bool IsVirtual() { return is_virtual_; }
   inline void SetIsVirtual(bool is_virtual) { is_virtual_ = is_virtual; }
+  inline bool IsEnableEliminated() { return enable_eliminated_; }
+  inline void SetEnableEliminated(bool enable_eliminated) { enable_eliminated_ = enable_eliminated; }
   inline void SetIndex(int32_t index) { index_ = index; }
   inline int32_t GetIndex() const { return index_; }
   inline void SetRootNode(std::weak_ptr<RootNode> root_node) { root_node_ = root_node; }
@@ -211,7 +213,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void UpdateObjectStyle(HippyValue& style_map, const HippyValue& update_style);
   bool ReplaceStyle(HippyValue& object, const std::string& key, const HippyValue& value);
 
-  friend std::ostream& operator<<(std::ostream& os, const DomNode& dom_value);
+  friend std::ostream& operator<<(std::ostream& os, const DomNode& hippy_value);
 
  private:
   uint32_t id_{};          // node id
@@ -229,6 +231,10 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   LayoutResult render_layout_;  // 层级优化后的Layout 结果
   bool is_virtual_{};
   bool layout_only_ = false;
+
+  // Node can only be eliminated for the first time,
+  // and if they cannot be eliminated for the first time, they cannot be eliminated at all times.
+  bool enable_eliminated_ = true;
 
   std::weak_ptr<DomNode> parent_;
   std::vector<std::shared_ptr<DomNode>> children_;

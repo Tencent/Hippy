@@ -53,10 +53,8 @@ static NSString *const kListViewItem = @"ListViewItem";
     if (self = [super initWithFrame:frame]) {
         _isInitialListReady = NO;
         self.preloadItemNumber = 1;
-        _dataSource = [[NativeRenderBaseListViewDataSource alloc] init];
         self.dataSource.itemViewName = [self compoentItemName];
     }
-
     return self;
 }
 
@@ -120,13 +118,19 @@ static NSString *const kListViewItem = @"ListViewItem";
 
 #pragma mark Data Load
  
-- (BOOL)flush {
-    [self refreshItemNodes];
-    return YES;
-}
-
 - (void)reloadData {
-    [self.collectionView reloadData];
+    [self refreshItemNodes];
+    [_dataSource applyDiff:_previousDataSource
+             changedConext:self.changeContext
+          forWaterfallView:self.collectionView
+                completion:^(BOOL success) {
+        if (success) {
+            self->_previousDataSource = [self->_dataSource copy];
+        }
+        else {
+            self->_previousDataSource = nil;
+        }
+    }];
     if (self.initialContentOffset) {
         CGFloat initialContentOffset = self.initialContentOffset;
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -163,13 +167,21 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)didUpdateNativeRenderSubviews {
-    [self refreshItemNodes];
-    [self reloadData];
+    self.dirtyContent = YES;
+}
+
+- (void)nativeRenderComponentDidFinishTransaction {
+    if (self.dirtyContent) {
+        [self reloadData];
+        self.dirtyContent = NO;
+    }
 }
 
 - (void)refreshItemNodes {
-    NSArray<NativeRenderObjectView *> *datasource = self.nativeRenderObjectView.subcomponents;
-    [self.dataSource setDataSource:datasource containBannerView:NO];
+    NSArray<NativeRenderObjectView *> *datasource = [self popDataSource];
+    self->_dataSource = [[NativeRenderBaseListViewDataSource alloc] initWithDataSource:datasource
+                                                                          itemViewName:[self compoentItemName]
+                                                                     containBannerView:NO];
 }
 
 #pragma mark -Scrollable
@@ -297,8 +309,10 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
     if ([cell isKindOfClass:[NativeRenderBaseListViewCell class]]) {
         NativeRenderBaseListViewCell *hpCell = (NativeRenderBaseListViewCell *)cell;
-        [_cachedItems setObject:[hpCell.cellView componentTag] forKey:indexPath];
-        hpCell.cellView = nil;
+        if (hpCell.cellView) {
+            [_cachedItems setObject:[hpCell.cellView componentTag] forKey:indexPath];
+            hpCell.cellView = nil;
+        }
     }
 }
 

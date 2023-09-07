@@ -87,6 +87,7 @@ class LayoutNode {
   virtual void SetMeasureFunction(MeasureFunction measure_function) = 0;
   virtual bool HasMeasureFunction() = 0;
   virtual void MarkDirty() = 0;
+  virtual bool IsDirty() = 0;
   virtual bool HasParentEngineNode() = 0;
   virtual void Print() = 0;
 

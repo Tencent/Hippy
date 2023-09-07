@@ -78,7 +78,7 @@ class Serializer {
 
   void WriteHeader();
 
-  void WriteValue(const HippyValue& dom_value);
+  void WriteValue(const HippyValue& hippy_value);
 
   std::pair<uint8_t*, size_t> Release();
  private:
@@ -93,9 +93,9 @@ class Serializer {
 
   void WriteString(const std::string& value);
 
-  void WriteDenseJSArray(const HippyValue::DomValueArrayType& dom_value);
+  void WriteDenseJSArray(const HippyValue::HippyValueArrayType& hippy_value_array);
 
-  void WriteJSObject(const HippyValue::HippyValueObjectType& dom_value);
+  void WriteJSObject(const HippyValue::HippyValueObjectType& hippy_value_obj);
 
  private:
   void WriteTag(SerializationTag tag);
@@ -112,7 +112,7 @@ class Serializer {
 
   void WriteRawBytes(const void* source, size_t length);
 
-  void WriteObject(const HippyValue& dom_value);
+  void WriteObject(const HippyValue& hippy_value);
 
   uint8_t* ReserveRawBytes(size_t bytes);
 

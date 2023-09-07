@@ -20,6 +20,7 @@
 
 #include "renderer/tdf/viewnode/modal_view_node.h"
 #include "renderer/tdf/viewnode/root_view_node.h"
+#include "tdfui/view/window_manager.h"
 
 namespace hippy {
 inline namespace render {
@@ -50,12 +51,12 @@ void ModalViewNode::OnCreate() {
 
 void ModalViewNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
   ViewNode::HandleLayoutUpdate(layout_result);
-  auto root_view_frame = tdfcore::ViewContext::GetCurrent()->GetRootView()->GetFrame();
+  auto root_view_frame = GetView()->GetViewContext()->GetWindowManager()->GetMainWindow()->GetContentView()->GetFrame();
   GetView()->SetFrame(TRect::MakeXYWH(0, 0, root_view_frame.Width(), root_view_frame.Height()));
 }
 
-std::shared_ptr<View> ModalViewNode::CreateView() {
-  auto modal_view = TDF_MAKE_SHARED(ModalView);
+std::shared_ptr<View> ModalViewNode::CreateView(const std::shared_ptr<ViewContext> &context) {
+  auto modal_view = TDF_MAKE_SHARED(ModalView, context);
   modal_view->SetShowCallback([WEAK_THIS] {
     DEFINE_AND_CHECK_SELF(ModalViewNode)
     self->OnShow();
