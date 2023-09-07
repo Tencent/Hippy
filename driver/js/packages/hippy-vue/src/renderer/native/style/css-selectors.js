@@ -228,8 +228,7 @@ class PseudoClassSelector extends SimpleSelector {
   }
 
   match(node) {
-    if (!node) return false;
-    return node.cssPseudoClasses && node.cssPseudoClasses.has(this.cssPseudoClass);
+    return !!node;
   }
 
   mayMatch() {
