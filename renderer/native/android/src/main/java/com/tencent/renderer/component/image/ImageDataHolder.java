@@ -203,7 +203,9 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
         if (mDrawable != null) {
             return false;
         }
-        if (ImageDataUtils.isJpeg(mOptions) || ImageDataUtils.isPng(mOptions)) {
+        if (ImageDataUtils.isJpeg(mOptions)
+                || ImageDataUtils.isPng(mOptions)
+                || ImageDataUtils.isWebp(mOptions)) {
             return mBitmap == null || mBitmap.isRecycled();
         }
         if (ImageDataUtils.isGif(mOptions)) {
@@ -271,7 +273,8 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
                 // we recommend using an external drawable method to play GIF, such as android gif
                 // drawable.
                 mGifMovie = Movie.decodeByteArray(data, 0, data.length);
-            } else if (ImageDataUtils.isJpeg(mOptions) || ImageDataUtils.isPng(mOptions)) {
+            } else if (ImageDataUtils.isJpeg(mOptions) || ImageDataUtils.isPng(mOptions)
+                    || ImageDataUtils.isWebp(mOptions)) {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
                     decodeImageForTarget28(data);
                 } else {
