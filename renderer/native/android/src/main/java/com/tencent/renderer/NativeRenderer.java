@@ -625,6 +625,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     @Override
     public void moveNode(final int rootId, final int[] ids, final int newPid, final int oldPid,
             final int insertIndex) throws NativeRenderException {
+        LogUtils.d(TAG, "moveNode: ids " + ids + ", newPid " +
+                newPid + ", oldPid " + oldPid + ", insertIndex " + insertIndex + "\n ");
         addUITask(new UITaskExecutor() {
             @Override
             public void exec() {
@@ -853,7 +855,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                     }
                     count--;
                 }
-                LogUtils.d(TAG,
+                LogUtils.e(TAG,
                         "executeUITask: size " + size + ", time " + (System.currentTimeMillis()
                                 - start));
             }
