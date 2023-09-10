@@ -28,9 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface NativeRenderSimpleWebView : WKWebView <WKUIDelegate, WKNavigationDelegate>
 @property (nonatomic, strong) NSString *url;
 @property (nonatomic, strong) NSDictionary *source;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onLoadStart;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onLoadEnd;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onLoad;
+@property (nonatomic, copy) HippyDirectEventBlock onLoadStart;
+@property (nonatomic, copy) HippyDirectEventBlock onLoadEnd;
+@property (nonatomic, copy) HippyDirectEventBlock onLoad;
 
 @end
 

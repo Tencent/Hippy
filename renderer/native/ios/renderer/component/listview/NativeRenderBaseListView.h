@@ -33,13 +33,13 @@
 /**
  * NativeRender events
  */
-@property(nonatomic, copy) NativeRenderDirectEventBlock initialListReady;
-@property(nonatomic, copy) NativeRenderDirectEventBlock onScrollBeginDrag;
-@property(nonatomic, copy) NativeRenderDirectEventBlock onScrollEndDrag;
-@property(nonatomic, copy) NativeRenderDirectEventBlock onMomentumScrollBegin;
-@property(nonatomic, copy) NativeRenderDirectEventBlock onMomentumScrollEnd;
-@property(nonatomic, copy) NativeRenderDirectEventBlock onRowWillDisplay;
-@property(nonatomic, copy) NativeRenderDirectEventBlock onDelete;
+@property(nonatomic, copy) HippyDirectEventBlock initialListReady;
+@property(nonatomic, copy) HippyDirectEventBlock onScrollBeginDrag;
+@property(nonatomic, copy) HippyDirectEventBlock onScrollEndDrag;
+@property(nonatomic, copy) HippyDirectEventBlock onMomentumScrollBegin;
+@property(nonatomic, copy) HippyDirectEventBlock onMomentumScrollEnd;
+@property(nonatomic, copy) HippyDirectEventBlock onRowWillDisplay;
+@property(nonatomic, copy) HippyDirectEventBlock onDelete;
 
 /**
  * Indication initial content offset when NativeRenderBaseListView finish loading data

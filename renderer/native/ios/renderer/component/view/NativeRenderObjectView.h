@@ -110,7 +110,7 @@ extern NSString *const NativeRenderShadowViewDiffTag;
 @property(nonatomic, weak, readonly) NativeRenderObjectView *superview;
 @property(nonatomic, copy) NSString *viewName;
 @property(nonatomic, strong) UIColor *backgroundColor;  // Used to propagate to children
-@property(nonatomic, copy) NativeRenderDirectEventBlock onLayout;
+@property(nonatomic, copy) HippyDirectEventBlock onLayout;
 @property(nonatomic, readonly) BOOL confirmedLayoutDirectionDidUpdated;
 
 /**

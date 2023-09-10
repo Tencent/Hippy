@@ -267,7 +267,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     _layout.minimumInteritemSpacing = _interItemSpacing;
 }
 
-- (void)setOnInitialListReady:(NativeRenderDirectEventBlock)onInitialListReady {
+- (void)setOnInitialListReady:(HippyDirectEventBlock)onInitialListReady {
     _onInitialListReady = onInitialListReady;
     _isInitialListReady = NO;
 }

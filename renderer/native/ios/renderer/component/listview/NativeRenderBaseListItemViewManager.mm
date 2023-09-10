@@ -30,10 +30,10 @@ NATIVE_RENDER_EXPORT_VIEW(ListViewItem)
 
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(type, id)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(isSticky, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onAppear, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onDisappear, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onWillAppear, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onWillDisappear, NativeRenderDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onAppear, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onDisappear, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onWillAppear, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onWillDisappear, HippyDirectEventBlock)
 
 - (UIView *)view {
     return [[NativeRenderBaseListItemView alloc] init];

@@ -69,11 +69,11 @@ typedef NS_ENUM(NSInteger, NativeRenderShapeMode) {
 @property (nonatomic, assign) CGFloat borderRadius;
 @property (nonatomic, assign) NativeRenderShapeMode shape;
 
-@property (nonatomic, copy) NativeRenderDirectEventBlock onLoadStart;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onProgress;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onError;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onLoad;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onLoadEnd;
+@property (nonatomic, copy) HippyDirectEventBlock onLoadStart;
+@property (nonatomic, copy) HippyDirectEventBlock onProgress;
+@property (nonatomic, copy) HippyDirectEventBlock onError;
+@property (nonatomic, copy) HippyDirectEventBlock onLoad;
+@property (nonatomic, copy) HippyDirectEventBlock onLoadEnd;
 
 - (void)reloadImage;
 

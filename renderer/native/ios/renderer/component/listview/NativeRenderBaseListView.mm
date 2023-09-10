@@ -111,7 +111,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     self.collectionView.frame = self.bounds;
 }
 
-- (void)setInitialListReady:(NativeRenderDirectEventBlock)initialListReady {
+- (void)setInitialListReady:(HippyDirectEventBlock)initialListReady {
     _initialListReady = initialListReady;
     _isInitialListReady = NO;
 }

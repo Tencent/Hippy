@@ -35,13 +35,13 @@
 @property (nonatomic, assign, getter=isTransparent) BOOL transparent;
 @property (nonatomic, assign) BOOL darkStatusBarText;
 
-@property (nonatomic, copy) NativeRenderDirectEventBlock onShow;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onRequestClose;
+@property (nonatomic, copy) HippyDirectEventBlock onShow;
+@property (nonatomic, copy) HippyDirectEventBlock onRequestClose;
 
 @property (nonatomic, weak) id<NativeRenderModalHostViewInteractor, UIViewControllerTransitioningDelegate> delegate;
 
 @property (nonatomic, strong) NSArray<NSString *> *supportedOrientations;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onOrientationChange;
+@property (nonatomic, copy) HippyDirectEventBlock onOrientationChange;
 @property (nonatomic, strong) NSNumber *hideStatusBar;
 @property (nonatomic, readonly) BOOL isPresented;
 @property (nonatomic, strong) NativeRenderModalHostViewController *modalViewController;

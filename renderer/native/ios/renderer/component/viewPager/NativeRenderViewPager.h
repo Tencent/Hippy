@@ -32,9 +32,9 @@
 typedef void (^ViewPagerItemsCountChanged)(NSUInteger count);
 
 @interface NativeRenderViewPager : UIScrollView <UIScrollViewDelegate>
-@property (nonatomic, strong) NativeRenderDirectEventBlock onPageSelected;
-@property (nonatomic, strong) NativeRenderDirectEventBlock onPageScroll;
-@property (nonatomic, strong) NativeRenderDirectEventBlock onPageScrollStateChanged;
+@property (nonatomic, strong) HippyDirectEventBlock onPageSelected;
+@property (nonatomic, strong) HippyDirectEventBlock onPageScroll;
+@property (nonatomic, strong) HippyDirectEventBlock onPageScrollStateChanged;
 
 @property (nonatomic, assign) NSInteger initialPage;
 @property (nonatomic, assign) CGPoint targetOffset;

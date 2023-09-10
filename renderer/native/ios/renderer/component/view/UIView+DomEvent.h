@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param name event name
  * @param callback event call back for event
  */
-- (void)addPropertyEvent:(const char *)name eventCallback:(NativeRenderDirectEventBlock)callback;
+- (void)addPropertyEvent:(const char *)name eventCallback:(HippyDirectEventBlock)callback;
 
 /**
  * Remove status change event for view
@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @discussion The default implementation of this method is to trigger onDidMount event if it is onDidMount event
  */
-- (void)didAddPropertyEvent:(const char *)name eventCallback:(NativeRenderDirectEventBlock)callback;
+- (void)didAddPropertyEvent:(const char *)name eventCallback:(HippyDirectEventBlock)callback;
 
 /**
  * Notify view event has been removed from view

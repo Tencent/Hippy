@@ -29,8 +29,8 @@
 NATIVE_RENDER_EXPORT_VIEW(PullFooterView);
 
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(refreshStick, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onFooterReleased, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onFooterPulling, NativeRenderDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onFooterReleased, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onFooterPulling, HippyDirectEventBlock)
 
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(collapsePullFooter:(nonnull NSNumber *)reactTag) {
     [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {

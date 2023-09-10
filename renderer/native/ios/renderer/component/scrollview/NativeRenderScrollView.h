@@ -71,12 +71,12 @@
 // NOTE: currently these event props are only declared so we can export the
 // event names to JS - we don't call the blocks directly because scroll events
 // need to be coalesced before sending, for performance reasons.
-@property (nonatomic, copy) NativeRenderDirectEventBlock onScrollBeginDrag;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onScroll;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onScrollEndDrag;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onMomentumScrollBegin;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onMomentumScrollEnd;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onScrollAnimationEnd;
+@property (nonatomic, copy) HippyDirectEventBlock onScrollBeginDrag;
+@property (nonatomic, copy) HippyDirectEventBlock onScroll;
+@property (nonatomic, copy) HippyDirectEventBlock onScrollEndDrag;
+@property (nonatomic, copy) HippyDirectEventBlock onMomentumScrollBegin;
+@property (nonatomic, copy) HippyDirectEventBlock onMomentumScrollEnd;
+@property (nonatomic, copy) HippyDirectEventBlock onScrollAnimationEnd;
 
 @property (nonatomic, assign) CGPoint targetOffset;
 

@@ -26,7 +26,7 @@
 @interface NativeRenderFooterRefresh : NativeRenderRefresh
 
 @property (nonatomic, assign) BOOL refreshStick;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onFooterReleased;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onFooterPulling;
+@property (nonatomic, copy) HippyDirectEventBlock onFooterReleased;
+@property (nonatomic, copy) HippyDirectEventBlock onFooterPulling;
 
 @end

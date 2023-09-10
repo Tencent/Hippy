@@ -27,9 +27,9 @@
 NATIVE_RENDER_EXPORT_VIEW(WebView)
 
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(source, NSDictionary)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoadStart, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoadEnd, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoad, NativeRenderDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoadStart, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoadEnd, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoad, HippyDirectEventBlock)
 
 - (UIView *)view {
     return [NativeRenderSimpleWebView new];

@@ -27,7 +27,7 @@
  * These block types can be used for mapping input event handlers from JS to view
  * properties. Unlike JS method callbacks, these can be called multiple times.
  */
-typedef void (^NativeRenderDirectEventBlock)(NSDictionary *body);
+typedef void (^HippyDirectEventBlock)(NSDictionary *body);
 
 /**
  * Logical node in a tree of application components. Both `NativeRenderObject` and

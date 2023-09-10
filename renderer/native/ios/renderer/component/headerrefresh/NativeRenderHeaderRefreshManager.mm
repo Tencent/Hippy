@@ -28,8 +28,8 @@
 
 NATIVE_RENDER_EXPORT_VIEW(PullHeaderView);
 
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onHeaderReleased, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onHeaderPulling, NativeRenderDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onHeaderReleased, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onHeaderPulling, HippyDirectEventBlock)
 
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(expandPullHeader:(nonnull NSNumber *)reactTag) {
     [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {

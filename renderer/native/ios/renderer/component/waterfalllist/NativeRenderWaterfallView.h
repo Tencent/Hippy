@@ -110,12 +110,12 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
 /**
  * NativeRender Events
  */
-@property (nonatomic, copy) NativeRenderDirectEventBlock onScroll;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onInitialListReady;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onEndReached;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onFooterAppeared;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onRefresh;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onExposureReport;
+@property (nonatomic, copy) HippyDirectEventBlock onScroll;
+@property (nonatomic, copy) HippyDirectEventBlock onInitialListReady;
+@property (nonatomic, copy) HippyDirectEventBlock onEndReached;
+@property (nonatomic, copy) HippyDirectEventBlock onFooterAppeared;
+@property (nonatomic, copy) HippyDirectEventBlock onRefresh;
+@property (nonatomic, copy) HippyDirectEventBlock onExposureReport;
 
 - (NSUInteger)maxCachedItemCount;
 

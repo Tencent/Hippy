@@ -36,9 +36,9 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(bounces, BOOL)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(initialPage, NSInteger)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
 
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageSelected, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageScroll, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, NativeRenderDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageSelected, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageScroll, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, HippyDirectEventBlock)
 
 
 - (void)setPage:(NSNumber *)pageNumber withTag:(NSNumber * _Nonnull)componentTag animated:(BOOL)animated {

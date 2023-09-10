@@ -25,14 +25,14 @@
 
 @interface UIView (MountEvent)
 
-@property (nonatomic, copy) NativeRenderDirectEventBlock onAppear;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onDisappear;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onWillAppear;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onWillDisappear;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onDidMount;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onDidUnmount;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onAttachedToWindow;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onDetachedFromWindow;
+@property (nonatomic, copy) HippyDirectEventBlock onAppear;
+@property (nonatomic, copy) HippyDirectEventBlock onDisappear;
+@property (nonatomic, copy) HippyDirectEventBlock onWillAppear;
+@property (nonatomic, copy) HippyDirectEventBlock onWillDisappear;
+@property (nonatomic, copy) HippyDirectEventBlock onDidMount;
+@property (nonatomic, copy) HippyDirectEventBlock onDidUnmount;
+@property (nonatomic, copy) HippyDirectEventBlock onAttachedToWindow;
+@property (nonatomic, copy) HippyDirectEventBlock onDetachedFromWindow;
 
 - (void)viewAppearEvent;
 - (void)viewDisappearEvent;

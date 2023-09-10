@@ -26,11 +26,11 @@
 @implementation UIView (MountEvent)
 
 #define MountEvent(setter, getter)                                                      \
-    - (void)setter:(NativeRenderDirectEventBlock)getter {                                          \
+    - (void)setter:(HippyDirectEventBlock)getter {                                          \
         objc_setAssociatedObject(self, @selector(getter), getter, OBJC_ASSOCIATION_COPY);   \
     }                                                                                       \
                                                                                             \
-    - (NativeRenderDirectEventBlock)getter {                                                       \
+    - (HippyDirectEventBlock)getter {                                                       \
         return objc_getAssociatedObject(self, @selector(getter));                           \
     }
 

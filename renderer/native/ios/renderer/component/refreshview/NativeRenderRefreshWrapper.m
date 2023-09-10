@@ -29,7 +29,7 @@
 
 @property (nonatomic, weak) NativeRenderRefreshWrapperItemView *wrapperItemView;
 @property (nonatomic, weak) id<NativeRenderScrollableProtocol> scrollableView;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onRefresh;
+@property (nonatomic, copy) HippyDirectEventBlock onRefresh;
 @property (nonatomic, assign) CGFloat bounceTime;
 
 @end

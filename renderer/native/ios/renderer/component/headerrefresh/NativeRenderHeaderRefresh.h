@@ -27,7 +27,7 @@
 
 @interface NativeRenderHeaderRefresh : NativeRenderRefresh
 
-@property (nonatomic, copy) NativeRenderDirectEventBlock onHeaderReleased;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onHeaderPulling;
+@property (nonatomic, copy) HippyDirectEventBlock onHeaderReleased;
+@property (nonatomic, copy) HippyDirectEventBlock onHeaderPulling;
 
 @end

@@ -193,7 +193,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
 
             // Build setter block
             void (^setterBlock)(id target, id json) = nil;
-            if (type == NSSelectorFromString(@"NativeRenderDirectEventBlock:")) {
+            if (type == NSSelectorFromString(@"HippyDirectEventBlock:")) {
                 //TODO
                 //The component event response logic no longer executes this code
             } else {
@@ -402,7 +402,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
                         if (nameRange.length) {
                             NSString *name = [methodName substringFromIndex:nameRange.location + 1];
                             NSString *type = ((NSArray<NSString *> * (*)(id, SEL)) objc_msgSend)(_managerClass, selector)[0];
-                            if ([type isEqualToString:@"NativeRenderDirectEventBlock"]) {
+                            if ([type isEqualToString:@"HippyDirectEventBlock"]) {
                                 //remove 'on' prefix if exists
                                 NSString *nameNoOn = name;
                                 if ([nameNoOn hasPrefix:@"on"]) {
