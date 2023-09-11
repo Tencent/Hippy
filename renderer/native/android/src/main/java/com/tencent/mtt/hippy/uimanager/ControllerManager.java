@@ -371,14 +371,21 @@ public class ControllerManager {
         }
     }
 
-    public void moveView(int rootId, int id, int newPid, int index) {
+    public void moveView(int rootId, int id, int oldPid, int newPid, int index) {
         View view = mControllerRegistry.getView(rootId, id);
         if (view == null) {
             return;
         }
-        ViewParent oldParent = view.getParent();
+        View oldParent = mControllerRegistry.getView(rootId, oldPid);
         if (oldParent instanceof ViewGroup) {
-            ((ViewGroup) oldParent).removeView(view);
+            String className = NativeViewTag.getClassName(oldParent);
+            HippyViewController<?> controller = null;
+            if (className != null) {
+                controller = mControllerRegistry.getViewController(className);
+            }
+            if (controller != null) {
+                controller.deleteChild((ViewGroup) oldParent, view);
+            }
         }
         View newParent = mControllerRegistry.getView(rootId, newPid);
         if (newParent instanceof ViewGroup) {
