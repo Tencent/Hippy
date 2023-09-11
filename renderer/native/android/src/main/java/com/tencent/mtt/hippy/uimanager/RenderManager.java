@@ -23,6 +23,7 @@ import static com.tencent.renderer.node.RenderNode.FLAG_LAZY_LOAD;
 import static com.tencent.renderer.node.RenderNode.FLAG_UPDATE_TOTAL_PROPS;
 
 import android.content.Context;
+import android.util.Pair;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -228,7 +229,7 @@ public class RenderManager {
             LogUtils.w(TAG, "moveNode: get parent failed!");
             return;
         }
-        List<RenderNode> moveNodes = null;
+        List<Pair<RenderNode, Integer>> moveNodes = null;
         List<MoveNodeInfo> infoList = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
             try {
@@ -244,7 +245,7 @@ public class RenderManager {
         Collections.sort(infoList, new Comparator<MoveNodeInfo>() {
             @Override
             public int compare(MoveNodeInfo n1, MoveNodeInfo n2) {
-                return n1.index < n2.index ? -1 : 0;
+                return n1.index - n2.index;
             }
         });
         for (int i = 0; i < infoList.size(); i++) {
@@ -263,7 +264,7 @@ public class RenderManager {
                     if (moveNodes == null) {
                         moveNodes = new ArrayList<>();
                     }
-                    moveNodes.add(child);
+                    moveNodes.add(new Pair<>(child, pid));
                 }
                 parent.resetChildIndex(child, info.index);
             } catch (Exception e) {
@@ -283,11 +284,11 @@ public class RenderManager {
             LogUtils.w(TAG, "moveNode: oldParent=" + oldParent + ", newParent=" + newParent);
             return;
         }
-        List<RenderNode> moveNodes = new ArrayList<>(ids.length);
+        List<Pair<RenderNode, Integer>> moveNodes = new ArrayList<>(ids.length);
         for (int i = 0; i < ids.length; i++) {
             RenderNode node = getRenderNode(rootId, ids[i]);
             if (node != null) {
-                moveNodes.add(node);
+                moveNodes.add(new Pair<>(node, oldPid));
                 oldParent.removeChild(node);
                 newParent.addChild(node, (i + insertIndex));
             }
