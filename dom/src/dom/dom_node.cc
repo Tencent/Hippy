@@ -322,6 +322,9 @@ LayoutResult DomNode::GetLayoutInfoFromRoot() {
 void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode>>& changed_nodes) {
   auto not_equal = std::not_equal_to<>();
   bool changed =  layout_node_->IsDirty() || layout_node_->HasNewLayout();
+  bool trigger_layout_event =
+      not_equal(layout_.left, layout_node_->GetLeft()) || not_equal(layout_.top, layout_node_->GetTop()) ||
+      not_equal(layout_.width, layout_node_->GetWidth()) || not_equal(layout_.height, layout_node_->GetHeight());
 
   layout_.left = layout_node_->GetLeft();
   layout_.top = layout_node_->GetTop();
@@ -364,19 +367,19 @@ void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode
     layout_param[kLayoutHeightKey] = HippyValue(layout_.height);
     HippyValueObjectType layout_obj;
     layout_obj[kLayoutLayoutKey] = layout_param;
-    auto event =
-        std::make_shared<DomEvent>(kLayoutEvent,
-                                   weak_from_this(),
-                                   std::make_shared<HippyValue>(std::move(layout_obj)));
-    auto root = root_node_.lock();
-    if (root != nullptr) {
-      auto manager = root->GetDomManager().lock();
-      if (manager != nullptr) {
-        std::vector<std::function<void()>> ops = {[WEAK_THIS, event] {
-          DEFINE_AND_CHECK_SELF(DomNode)
-          self->HandleEvent(event);
-        }};
-        manager->PostTask(Scene(std::move(ops)));
+    if (trigger_layout_event) {
+      auto event = std::make_shared<DomEvent>(kLayoutEvent, weak_from_this(),
+                                              std::make_shared<HippyValue>(std::move(layout_obj)));
+      auto root = root_node_.lock();
+      if (root != nullptr) {
+        auto manager = root->GetDomManager().lock();
+        if (manager != nullptr) {
+          std::vector<std::function<void()>> ops = {[WEAK_THIS, event] {
+            DEFINE_AND_CHECK_SELF(DomNode)
+            self->HandleEvent(event);
+          }};
+          manager->PostTask(Scene(std::move(ops)));
+        }
       }
     }
   }
