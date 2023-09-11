@@ -19,6 +19,7 @@ package com.tencent.renderer.node;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.REUSE_VIEW_HAS_ABANDONED_NODE_ERR;
 
 import android.text.TextUtils;
+import android.util.Pair;
 import android.util.SparseIntArray;
 import android.view.View;
 
@@ -114,7 +115,7 @@ public class RenderNode {
     @Nullable
     protected Object mExtra;
     @Nullable
-    protected List<RenderNode> mMoveNodes;
+    protected List<Pair<RenderNode, Integer>> mMoveNodes;
     @Nullable
     protected SparseIntArray mDeletedChildren;
     @Nullable
@@ -550,15 +551,15 @@ public class RenderNode {
             mChildrenUnattached.clear();
         }
         if (mMoveNodes != null && !mMoveNodes.isEmpty()) {
-            Collections.sort(mMoveNodes, new Comparator<RenderNode>() {
+            Collections.sort(mMoveNodes, new Comparator<Pair<RenderNode, Integer>>() {
                 @Override
-                public int compare(RenderNode o1, RenderNode o2) {
-                    return o1.indexFromParent() < o2.indexFromParent() ? -1 : 0;
+                public int compare(Pair<RenderNode, Integer> o1, Pair<RenderNode, Integer> o2) {
+                    return o1.first.indexFromParent() - o2.first.indexFromParent();
                 }
             });
-            for (RenderNode moveNode : mMoveNodes) {
-                mControllerManager.moveView(mRootId, moveNode.getId(), mId,
-                        getChildDrawingOrder(moveNode));
+            for (Pair<RenderNode, Integer> pair : mMoveNodes) {
+                mControllerManager.moveView(mRootId, pair.first.getId(), pair.second, mId,
+                        getChildDrawingOrder(pair.first));
             }
             mMoveNodes.clear();
         }
@@ -630,7 +631,7 @@ public class RenderNode {
         setNodeFlag(FLAG_UPDATE_LAYOUT);
     }
 
-    public void addMoveNodes(@NonNull List<RenderNode> moveNodes) {
+    public void addMoveNodes(@NonNull List<Pair<RenderNode, Integer>> moveNodes) {
         if (mMoveNodes == null) {
             mMoveNodes = new ArrayList<>();
         }
