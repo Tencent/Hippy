@@ -372,8 +372,11 @@ public class VirtualNodeManager {
             node.mParent = null;
         }
         if (node.mChildren != null) {
-            for (VirtualNode child : node.mChildren) {
-                deleteNode(rootNode, child.mId);
+            for (int i = node.getChildCount() - 1; i >= 0; --i) {
+                VirtualNode child = node.getChildAt(i);
+                if (child != null) {
+                    deleteNode(rootNode, child.mId);
+                }
             }
             node.mChildren.clear();
         }
