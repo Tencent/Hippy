@@ -1,3 +1,7 @@
+## 0.0.24
+
+- fix width calculate error and add modal navigator param
+
 ## 0.0.23
 
 - fix navigation bar color error after modal show
