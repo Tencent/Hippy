@@ -19,9 +19,6 @@ package com.tencent.renderer.component.image;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.IMAGE_DATA_DECODE_ERR;
 
 import android.graphics.ImageDecoder;
-import android.graphics.ImageDecoder.ImageInfo;
-import android.graphics.ImageDecoder.OnHeaderDecodedListener;
-import android.graphics.ImageDecoder.Source;
 import android.os.Build.VERSION_CODES;
 
 import androidx.annotation.RequiresApi;
@@ -203,15 +200,10 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
         if (mDrawable != null) {
             return false;
         }
-        if (ImageDataUtils.isJpeg(mOptions)
-                || ImageDataUtils.isPng(mOptions)
-                || ImageDataUtils.isWebp(mOptions)) {
-            return mBitmap == null || mBitmap.isRecycled();
-        }
         if (ImageDataUtils.isGif(mOptions)) {
             return mGifMovie == null;
         }
-        return true;
+        return mBitmap == null || mBitmap.isRecycled();
     }
 
     @Override
@@ -320,12 +312,7 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
         // will work around the issue
         ImageDecoder.Source source = ImageDecoder.createSource(ByteBuffer.wrap(data));
         return ImageDecoder.decodeDrawable(source,
-                new OnHeaderDecodedListener() {
-                    @Override
-                    public void onHeaderDecoded(@NonNull ImageDecoder decoder,
-                            @NonNull ImageInfo info, @NonNull Source source1) {
-                    }
-                });
+                (decoder, info, source1) -> {});
     }
 
     @RequiresApi(api = VERSION_CODES.P)
