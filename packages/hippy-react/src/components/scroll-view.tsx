@@ -27,7 +27,29 @@ import Element from '../dom/element-node';
 import { isRTL } from '../utils/i18n';
 import View from './view';
 
-export interface ScrollViewProps {
+interface ScrollViewPropsIOS {
+
+  /**
+   * When `true`, shows a horizontal scroll indicator.
+   * Default: true
+   */
+  showsHorizontalScrollIndicator?: boolean;
+
+  /**
+   * When `true`, shows a vertical scroll indicator.
+   * Default: true
+   */
+  showsVerticalScrollIndicator?: boolean;
+}
+
+interface ScrollViewPropsAndroid {
+  /**
+   * When false, the scroll view will hide scroll indicator
+   * @default false
+   */
+  showScrollIndicator?: boolean;
+}
+export interface ScrollViewProps extends ScrollViewPropsAndroid, ScrollViewPropsIOS {
   // TODO: allow HippyTypes.Style[]
   style?: HippyTypes.Style;
   /**
@@ -51,18 +73,6 @@ export interface ScrollViewProps {
    * > Note that the view can always be scrolled by calling scrollTo.
    */
   scrollEnabled?: boolean;
-
-  /**
-   * When `true`, shows a horizontal scroll indicator.
-   * Default: true
-   */
-  showsHorizontalScrollIndicator?: boolean;
-
-  /**
-   * When `true`, shows a vertical scroll indicator.
-   * Default: true
-   */
-  showsVerticalScrollIndicator?: boolean;
 
   /**
    * These styles will be applied to the scroll view content container which wraps all

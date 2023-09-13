@@ -59,7 +59,7 @@ interface AnimationOptions {
    * Value type, leave it blank in most case, except use rotate/color related
    * animation, set it to be 'deg' or 'color'.
    */
-  valueType?: 'deg'; // TODO: fill more options
+  valueType?: 'deg' | 'rad' | 'color'; // TODO: fill more options
 
   /**
    * Animation start position
