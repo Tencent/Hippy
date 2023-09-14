@@ -205,15 +205,14 @@ function getNodeProps(
 
   // compatible iOS image src and fontWeight
   if (
-    isIOS
+    isIOS && node.name === 'Image' && props.src
   ) {
-    if (node.name === 'Image' && props.src) {
-      props.source = [{ uri: props.src }];
-      delete props.src;
-    }
-    if (props.style.fontWeight) {
-      props.style.fontWeight = String(props.style.fontWeight);
-    }
+    props.source = [{ uri: props.src }];
+    delete props.src;
+  }
+  // compatible fontWeight
+  if (props.style.fontWeight) {
+    props.style.fontWeight = String(props.style.fontWeight);
   }
   // compatible placeholder
   if (typeof props.placeholder !== 'undefined') {
