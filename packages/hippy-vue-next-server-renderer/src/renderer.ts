@@ -203,15 +203,23 @@ function getNodeProps(
   delete props.attributes.style;
   delete props.attributes.text;
 
-  // compatible iOS image src
+  // compatible iOS image src and fontWeight
   if (
     isIOS
-    && node.name === 'Image'
-    && props.src
   ) {
-    props.source = [{ uri: props.src }];
-    delete props.src;
+    if (node.name === 'Image' && props.src) {
+      props.source = [{ uri: props.src }];
+      delete props.src;
+    }
+    if (props.style.fontWeight) {
+      props.style.fontWeight = String(props.style.fontWeight);
+    }
   }
+  // compatible placeholder
+  if (typeof props.placeholder !== 'undefined') {
+    props.placeholder = String(props.placeholder);
+  }
+
 
   return props;
 }
