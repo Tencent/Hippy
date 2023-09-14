@@ -135,11 +135,14 @@ public class EventUtils {
      * @param params event extra params object
      */
     @MainThread
-    public static void sendComponentEvent(@NonNull View view, @NonNull String eventName,
+    public static void sendComponentEvent(@Nullable View view, @NonNull String eventName,
             @Nullable Object params) {
-        // UI component event default disable capture and bubble phase,
-        // can not enable both in native and js.
-        send(view, view.getId(), eventName, params, false, false, EventType.EVENT_TYPE_COMPONENT);
+        if (view != null) {
+            // UI component event default disable capture and bubble phase,
+            // can not enable both in native and js.
+            send(view, view.getId(), eventName, params, false, false,
+                    EventType.EVENT_TYPE_COMPONENT);
+        }
     }
 
     @MainThread
