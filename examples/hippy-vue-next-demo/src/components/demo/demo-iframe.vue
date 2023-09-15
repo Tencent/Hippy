@@ -14,6 +14,7 @@
       @keyup="onKeyUp"
     >
     <iframe
+      v-if="loadIframe"
       id="iframe"
       :ref="iframe"
       :src="targetUrl"
@@ -27,7 +28,7 @@
 
 <script lang="ts">
 import { Native, type HippyLoadResourceEvent, type HippyKeyboardEvent } from '@hippy/vue-next';
-import { defineComponent, ref } from '@vue/runtime-core';
+import { defineComponent, ref, onMounted } from '@vue/runtime-core';
 
 export default defineComponent({
   setup() {
@@ -35,6 +36,8 @@ export default defineComponent({
     const displayUrl = ref('https://hippyjs.org');
     const input = ref(null);
     const iframe = ref(null);
+    // load iframe or not, iframe load should execute after mounted
+    const loadIframe = ref(false);
 
     /**
        * 跳转到指定链接
@@ -66,7 +69,6 @@ export default defineComponent({
     const onKeyUp = (evt: HippyKeyboardEvent) => {
       if (evt.keyCode === 13) {
         evt.preventDefault();
-
         if (input.value) {
           goToUrl((input.value as HTMLInputElement).value);
         }
@@ -83,6 +85,12 @@ export default defineComponent({
       console.log('onLoadEnd', url, success, error);
     };
 
+    onMounted(() => {
+      // mounted success, load iframe
+      loadIframe.value = true;
+      console.log('mounted and load iframe');
+    });
+
     return {
       targetUrl,
       displayUrl,
@@ -91,6 +99,7 @@ export default defineComponent({
       },
       input,
       iframe,
+      loadIframe,
       onLoad,
       onKeyUp,
       goToUrl,
