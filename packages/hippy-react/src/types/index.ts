@@ -28,6 +28,11 @@ interface HTMLAttributesExtension {
   initialListReady?: () => void;
 }
 
+declare type Diff<T extends keyof any, U extends keyof any> =
+  ({ [P in T]: P } & { [P in U]: never } & { [x: string]: never })[T];
+
+declare type Overwrite<T, U> = Pick<T, Diff<keyof T, keyof U>> & U;
+
 declare module 'react' {
   // eslint-disable-next-line
   interface HTMLAttributes<T> extends Overwrite<React.DetailedHTMLProps<any, any>, HTMLAttributesExtension> {}
@@ -38,23 +43,34 @@ export type Props = any;
 export type Container = number;
 export type UpdatePayload = any;
 
+export type LayoutEvent = {
+  nativeEvent: {
+    layout: HippyTypes.LayoutEvent,
+  },
+  layout: HippyTypes.LayoutEvent,
+  target: any
+  timeStamp: number
+};
+
 export interface LayoutableProps {
   /**
    * Invoked on mount and layout changes with:
    *
-   * `{nativeEvent: { layout: {x, y, width, height}}}`
+   * `{ layout: {x, y, width, height}`
    *
    * This event is fired immediately once the layout has been calculated,
    * but the new layout may not yet be reflected on the screen
    * at the time the event is received, especially if a layout animation is in progress.
    *
    * @param {Object} evt - Layout event data
-   * @param {number} evt.nativeEvent.x - The position X of component
-   * @param {number} evt.nativeEvent.y - The position Y of component
-   * @param {number} evt.nativeEvent.width - The width of component
-   * @param {number} evt.nativeEvent.height - The height of component
+   * @param {number} evt.layout.x - The position X of component
+   * @param {number} evt.layout.y - The position Y of component
+   * @param {number} evt.layout.width - The width of component
+   * @param {number} evt.layout.height - The height of component
    */
-  onLayout?: (evt: HippyTypes.LayoutEvent) => void;
+  onLayout?: (evt: LayoutEvent) => void;
+  onAttachedToWindow?: () => void;
+  onDetachedFromWindow?: () => void;
 }
 
 export interface ClickableProps {
@@ -70,7 +86,14 @@ export interface ClickableProps {
 }
 
 export interface TouchableProps {
-
+  /**
+   * The touchdown event occurs when the user touches an component.
+   *
+   * @param {Object} evt - Touch event data
+   * @param {number} evt.page_x - Touch coordinate X
+   * @param {number} evt.page_y = Touch coordinate Y
+   */
+  onTouchStart?: (evt: HippyTypes.TouchEvent) => void;
   /**
    * The touchdown event occurs when the user touches an component.
    *
@@ -107,4 +130,17 @@ export interface TouchableProps {
    * @param {number} evt.page_y - Touch coordinate Y
    */
   onTouchCancel?: (evt: HippyTypes.TouchEvent) => void;
+  /**
+   * @deprecated pressIn, pressOut will be deprecated in future
+   */
+  onPressIn?: (evt: any) => void;
+  /**
+   * @deprecated pressIn, pressOut will be deprecated in future
+   */
+  onPressOut?: (evt: any) => void;
+}
+
+export enum Platform {
+  android = 'android',
+  ios = 'ios',
 }

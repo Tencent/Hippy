@@ -22,27 +22,28 @@ import React, { ReactElement, ReactNode } from 'react';
 import { callUIFunction } from '../modules/ui-manager-module';
 import Element from '../dom/element-node';
 
-interface PageSelectedEvent {
+export interface PageSelectedEvent {
   position: number;
 }
-interface PageScrollEvent {
+export interface PageScrollEvent {
   position: number;
   offset: number;
 }
 
-type PageScrollState = 'idle' | 'dragging' | 'settling';
+export type PageScrollState = 'idle' | 'dragging' | 'settling';
 
-interface PageScrollStateEvent {
+export interface PageScrollStateEvent {
   pageScrollState: PageScrollState;
 }
 
-interface ViewPagerProps {
+export interface ViewPagerProps {
+  style?: HippyTypes.StyleProp;
   /**
    * Specific initial page after rendering.
    *
    * Default: 0
    */
-  initialPage: number;
+  initialPage?: number;
 
   /**
    * When `false`, the view cannot be scrolled via touch interaction.
@@ -52,7 +53,11 @@ interface ViewPagerProps {
    * > Note that the view can always be scrolled by calling setPage.
    */
   scrollEnabled?: boolean;
-
+  /**
+   * iOS only
+   * https://developer.apple.com/documentation/uikit/uiscrollview/keyboarddismissmode
+   */
+  keyboardDismissMode?: 'none' | 'on-drag' | 'interactive' | 'onDrag';
   /**
    * Fires at most once per page is selected
    *
@@ -83,7 +88,7 @@ interface ViewPagerProps {
   onPageScrollStateChanged?: (evt: PageScrollState) => void;
 }
 
-function ViewPagerItem(props: any) {
+export function ViewPagerItem(props: any) {
   return (
     <div
       nativeName="ViewPagerItem"
@@ -106,7 +111,7 @@ function ViewPagerItem(props: any) {
  * and will be stretched to fill the ViewPage.
  * @noInheritDoc
  */
-class ViewPager extends React.Component<ViewPagerProps, {}> {
+export class ViewPager extends React.Component<ViewPagerProps, {}> {
   private instance: Element | HTMLDivElement | null = null;
 
   public constructor(props: ViewPagerProps) {
@@ -138,7 +143,7 @@ class ViewPager extends React.Component<ViewPagerProps, {}> {
   }
 
   public render() {
-    const { children, onPageScrollStateChanged, ...nativeProps } = this.props;
+    const { children, onPageScrollStateChanged, style, ...nativeProps } = this.props;
     let mappedChildren: ReactElement[] = [];
     if (Array.isArray(children)) {
       mappedChildren = children.map((child: ReactNode) => {
@@ -165,6 +170,8 @@ class ViewPager extends React.Component<ViewPagerProps, {}> {
         ref={(ref) => {
           this.instance = ref;
         }}
+        // @ts-ignore
+        style={style}
         {...nativeProps}
       >
         {mappedChildren}

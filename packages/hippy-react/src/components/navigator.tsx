@@ -24,20 +24,21 @@ import Hippy from '../hippy';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { Device } from '../native';
 import Element from '../dom/element-node';
+import { Platform } from '../types';
 
 interface Top {
   data: any;
   next: Top
 }
 
-interface Route {
+export interface Route {
   routeName: string;
   component?: string | React.FunctionComponent<any> | React.ComponentClass<any, any>;
   initProps?: any;
   animated?: boolean
 }
 
-interface NavigatorProps {
+export interface NavigatorProps {
   /**
    * Initial page option, the option object should contains.
    *
@@ -49,7 +50,7 @@ interface NavigatorProps {
   initialRoute: Route;
 }
 
-class Stack {
+export class Stack {
   public top: Top | null = null;
   public size = 0;
 
@@ -124,7 +125,7 @@ class Stack {
  * Simply router component for switch in multiple Hippy page.
  * @noInheritDoc
  */
-class Navigator extends React.Component<NavigatorProps, {}> {
+export class Navigator extends React.Component<NavigatorProps, {}> {
   private stack = new Stack();
 
   private instance: HTMLDivElement | Element | null = null;
@@ -158,7 +159,7 @@ class Navigator extends React.Component<NavigatorProps, {}> {
    * @ignore
    */
   public componentWillMount() {
-    if (Device.platform.OS === 'android') {
+    if (Device.platform.OS === Platform.android) {
       this.backListener = BackAndroid.addListener(this.handleAndroidBack);
     }
   }

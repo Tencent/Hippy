@@ -22,18 +22,18 @@ import EventEmitterRevoker from './emitter-revoker';
 import HippyEventListener from './listener';
 import EventDispatcher from './dispatcher';
 
-interface EventListeners {
+export interface EventListeners {
   [eventName: string]: HippyEventListener;
 }
 
-function getNameForEvent(event: string | undefined) {
+export function getNameForEvent(event: string | undefined) {
   if (typeof event !== 'string') {
     throw new TypeError('Invalid arguments for getNameForEvent');
   }
   return `eventEmitter_${event}`;
 }
 
-class HippyEventEmitter {
+export class HippyEventEmitter {
   public hippyEventListeners: EventListeners;
   public constructor(sharedListeners?: EventListeners) {
     if (sharedListeners && typeof sharedListeners === 'object') {
@@ -101,4 +101,6 @@ class HippyEventEmitter {
 
 (HippyEventEmitter as any).emit = HippyEventEmitter.prototype.emit;
 
+// Forward compatibilities
+export const RNfqbEventEmitter = HippyEventEmitter;
 export default HippyEventEmitter;

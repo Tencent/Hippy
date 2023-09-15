@@ -93,7 +93,6 @@ typedef NSURL HippyFileURL;
 + (CGLineCap)CGLineCap:(id)json;
 + (CGLineJoin)CGLineJoin:(id)json;
 
-//+ (CATransform3D)CATransform3D:(id)json;
 + (CGAffineTransform)CGAffineTransform:(id)json;
 
 + (UIColor *)UIColor:(id)json;

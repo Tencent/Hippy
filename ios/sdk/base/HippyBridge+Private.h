@@ -142,6 +142,10 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
  */
 - (HippyOCTurboModule *)turboModuleWithName:(NSString *)name;
 
+/// update info to hippy js native global
+/// - Parameter nativeInfo: info dict
+- (void)updateNativeInfoToHippyGlobalObject:(NSDictionary *)nativeInfo;
+
 @end
 
 @interface HippyBatchedBridge : HippyBridge <HippyInvalidating>

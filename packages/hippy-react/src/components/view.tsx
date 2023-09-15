@@ -24,7 +24,7 @@ import { callUIFunction } from '../modules/ui-manager-module';
 import { LayoutableProps, ClickableProps, TouchableProps } from '../types';
 import { Color, colorParse } from '../color';
 
-interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
+export interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
   /**
    * Overrides the text that's read by the screen reader when the user interacts with the element.
    * By default, the label is constructed by traversing all the children and accumulating
@@ -58,7 +58,7 @@ interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
   nextFocusUpId?: string | Fiber;
   nextFocusLeftId?: string | Fiber;
   nextFocusRightId?: string | Fiber;
-  style?: HippyTypes.Style;
+  style?: HippyTypes.StyleProp;
   nativeBackgroundAndroid?: { color: Color, borderless: boolean, rippleRadius: number }
 
   /**
@@ -79,7 +79,7 @@ interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
  * View is designed to be nested inside other views and can have 0 to many children of any type.
  * @noInheritDoc
  */
-class View extends React.Component<ViewProps, {}> {
+export class View extends React.Component<ViewProps, {}> {
   private instance: HTMLDivElement | Fiber | null = null;
 
   // startRipple
@@ -93,11 +93,17 @@ class View extends React.Component<ViewProps, {}> {
   }
 
   public render() {
-    const { collapsable, style = {}, ...nativeProps } = this.props;
-    const nativeStyle: HippyTypes.Style = style;
+    const { collapsable, style = {}, onFocus, ...nativeProps } = this.props;
+    let nativeStyle = style;
     const { nativeBackgroundAndroid } = nativeProps;
     if (typeof collapsable === 'boolean') {
-      nativeStyle.collapsable = collapsable;
+      if (Array.isArray(style)) {
+        nativeStyle = [...style, {
+          collapsable,
+        }];
+      } else {
+        (nativeStyle as HippyTypes.Style).collapsable = collapsable;
+      }
     }
     if (typeof nativeBackgroundAndroid?.color !== 'undefined') {
       nativeBackgroundAndroid.color = colorParse(nativeBackgroundAndroid.color);
@@ -110,6 +116,8 @@ class View extends React.Component<ViewProps, {}> {
         nativeName="View"
         // @ts-ignore
         style={nativeStyle}
+        // @ts-ignore
+        onFocus={onFocus}
         {...nativeProps}
       />
     );

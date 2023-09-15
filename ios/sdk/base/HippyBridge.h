@@ -37,8 +37,11 @@
 @class HippyEventDispatcher;
 @class HippyPerformanceLogger;
 @class HippyUIManager;
-@class HippyExtAnimationModule;
+@class HippyNextAnimationModule;
 @class HippyOCTurboModule;
+
+NS_ASSUME_NONNULL_BEGIN
+
 extern NSString *const _HippySDKVersion;
 /**
  * This notification triggers a reload of all bridges currently running.
@@ -80,7 +83,7 @@ HIPPY_EXTERN NSString *const HippyBusinessDidLoadNotification;
  * For this reason, the block should always return new module instances, and
  * module instances should not be shared between bridges.
  */
-typedef NSArray<id<HippyBridgeModule>> * (^HippyBridgeModuleProviderBlock)(void);
+typedef NSArray<id<HippyBridgeModule>> * _Nullable (^HippyBridgeModuleProviderBlock)(void);
 
 /**
  * This function returns the module name for a given class.
@@ -92,11 +95,6 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 @interface HippyBridge : NSObject <HippyInvalidating>
 
-- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
-                       bundleURL:(NSURL *)bundleURL
-                  moduleProvider:(HippyBridgeModuleProviderBlock)block
-                   launchOptions:(NSDictionary *)launchOptions
-                     executorKey:(NSString *)executorKey;
 /**
  * Creates a new bridge with a custom HippyBridgeDelegate.
  *
@@ -106,20 +104,24 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  * pre-initialized module instances if they require additional init parameters
  * or configuration.
  */
-- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate launchOptions:(NSDictionary *)launchOptions;
+- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
+                       bundleURL:(NSURL *)bundleURL
+                  moduleProvider:(nullable HippyBridgeModuleProviderBlock)block
+                   launchOptions:(NSDictionary *)launchOptions
+                     executorKey:(NSString *)executorKey;
 
-- (instancetype)initWithBundleURL:(NSURL *)bundleURL
-                   moduleProvider:(HippyBridgeModuleProviderBlock)block
-                    launchOptions:(NSDictionary *)launchOptions
-                      executorKey:(NSString *)executorKey;
 
+#pragma mark -
 /**
  * This method is used to call functions in the JavaScript application context.
  * It is primarily intended for use by modules that require two-way communication
  * with the JavaScript code. Safe to call from any thread.
  */
 - (void)enqueueJSCall:(NSString *)moduleDotMethod args:(NSArray *)args;
-- (void)enqueueJSCall:(NSString *)module method:(NSString *)method args:(NSArray *)args completion:(dispatch_block_t)completion;
+- (void)enqueueJSCall:(NSString *)moduleName
+               method:(NSString *)method
+                 args:(NSArray *)args
+           completion:(nullable dispatch_block_t)completion;
 
 /**
  * set up chrome dev tools connection
@@ -204,7 +206,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 @property (nonatomic, weak, readonly) id<HippyBridgeDelegate> delegate;
 
-@property (nonatomic, weak, readonly) HippyExtAnimationModule *animationModule;
+@property (nonatomic, weak, readonly) HippyNextAnimationModule *animationModule;
 
 @property (nonatomic, strong, readonly) id<HippyImageViewCustomLoader> imageLoader;
 @property (nonatomic, strong, readonly) id<HippyCustomTouchHandlerProtocol> customTouchHandler;
@@ -256,14 +258,19 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 @property (nonatomic, strong) NSString *moduleName;
 
-@property (nonatomic, strong) NSString *appVerson;  //
-
 @property (nonatomic, assign) HippyInvalidateReason invalidateReason;
 
-/**
- * just for debugger
- */
-- (void)bindKeys;
+/// NightMode or not, default is NO.
+/// Updated by HippyRootView
+@property (atomic, assign, readonly) BOOL isOSNightMode;
+
+/// update `NightMode` state when changed
+/// - Parameter isOSNightMode: bool
+/// - Parameter rootViewTag: rootView's hippyTag
+- (void)setOSNightMode:(BOOL)isOSNightMode withRootViewTag:(NSNumber *)rootViewTag;
+
+
+#pragma mark - Turbo Module
 
 /**
  * Get the turbo module for a given name.
@@ -273,8 +280,14 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 @end
 
+
+#pragma mark -
+
 @interface UIView(Bridge)
 
 @property(nonatomic, weak) HippyBridge *bridge;
 
 @end
+
+
+NS_ASSUME_NONNULL_END

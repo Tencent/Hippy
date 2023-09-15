@@ -25,23 +25,24 @@ import { Fiber } from '@hippy/react-reconciler';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { warn } from '../utils';
 import { Device } from '../native';
+import { LayoutEvent, Platform } from '../types';
 import ListViewItem, { ListViewItemProps } from './list-view-item';
 import PullHeader from './pull-header';
 import PullFooter from './pull-footer';
 
 type DataItem = any;
 
-interface ListViewProps {
+export interface ListViewProps {
   /**
    * Render specific number of rows of data.
    * Set equal to dataSource.length in most case.
    */
-  numberOfRows: number;
+  numberOfRows?: number;
 
   /**
    * Data source
    */
-  dataSource: DataItem[];
+  dataSource?: DataItem[];
 
   /**
    * Specfic how many data will render at first screen.
@@ -65,7 +66,7 @@ interface ListViewProps {
    * The default value is zero, which results in the scroll event being sent only once
    * each time the view is scrolled.
    */
-  scrollEventThrottle: number;
+  scrollEventThrottle?: number;
 
   /**
    * When `true`, shows a horizon scroll indicator.
@@ -105,7 +106,7 @@ interface ListViewProps {
    * @param {number} index - Index Of data.
    * @returns {Object}
    */
-  getRowStyle?: (index: number) => HippyTypes.Style;
+  getRowStyle?: (index: number) => HippyTypes.StyleProp;
 
   /**
    * Returns the style for PullHeader.
@@ -113,7 +114,7 @@ interface ListViewProps {
    * @param {number} index - Index Of data.
    * @returns {Object}
    */
-  getHeaderStyle?: () => HippyTypes.Style;
+  getHeaderStyle?: () => HippyTypes.StyleProp;
 
   /**
    * Returns the style for PullFooter.
@@ -121,7 +122,7 @@ interface ListViewProps {
    * @param {number} index - Index Of data.
    * @returns {Object}
    */
-  getFooterStyle?: () => HippyTypes.Style;
+  getFooterStyle?: () => HippyTypes.StyleProp;
 
   /**
    * Specfic the key of row, for better data diff
@@ -138,7 +139,7 @@ interface ListViewProps {
    * @returns {boolean}
    */
   rowShouldSticky?: (index: number) => boolean;
-  style?: HippyTypes.Style;
+  style?: HippyTypes.StyleProp;
 
   /**
    *  Called when the `ListView` is scrolling to bottom.
@@ -152,15 +153,8 @@ interface ListViewProps {
 
   /**
    *  Called when the row first layouting or layout changed.
-   *
-   * @param {Object} evt - Layout event data
-   * @param {number} evt.x - The position X of component
-   * @param {number} evt.y - The position Y of component
-   * @param {number} evt.width - The width of component
-   * @param {number} evt.height - The height of component
-   * @param {number} index - Index of data.
    */
-  onRowLayout?: (evt: HippyTypes.LayoutEvent, index: number) => void;
+  onRowLayout?: (evt: LayoutEvent, index: number) => void;
 
   /**
    * Called when the momentum scroll starts (scroll which occurs as the ListView starts gliding).
@@ -238,7 +232,7 @@ interface ListViewProps {
   onWillDisappear?: (index: number) => void
 }
 
-interface ListViewState {
+export interface ListViewState {
   initialListReady: boolean;
 }
 
@@ -257,31 +251,31 @@ const iosAttrMap: AttrMap = {
  * Recyclable list for better performance, and lower memory usage.
  * @noInheritDoc
  */
-class ListView extends React.Component<ListViewProps, ListViewState> {
-  private static defaultProps = {
+export class ListView<P extends ListViewProps, S extends ListViewState>
+  extends React.Component<P, S> {
+  protected static defaultProps = {
     numberOfRows: 0,
   };
   /**
    * change key
    */
-  private static convertName(functionName: string): string {
-    if (Device.platform.OS === 'android' && androidAttrMap[functionName]) {
+  protected static convertName(functionName: string): string {
+    if (Device.platform.OS === Platform.android && androidAttrMap[functionName]) {
       return androidAttrMap[functionName];
-    } if (Device.platform.OS === 'ios' && iosAttrMap[functionName]) {
+    } if (Device.platform.OS === Platform.ios && iosAttrMap[functionName]) {
       return iosAttrMap[functionName];
     }
     return functionName;
   }
-  private instance: HTMLUListElement | Fiber | null = null;
-  private pullHeader: PullHeader | null = null;
-  private pullFooter: PullFooter | null = null;
+  protected instance: HTMLUListElement | Fiber | null = null;
+  protected pullHeader: PullHeader | null = null;
+  protected pullFooter: PullFooter | null = null;
 
-  public constructor(props: ListViewProps) {
+
+  public constructor(props: P) {
     super(props);
     this.handleInitialListReady = this.handleInitialListReady.bind(this);
-    this.state = {
-      initialListReady: false,
-    };
+    this.state = this.getInitialState();
   }
 
   public componentDidMount() {
@@ -383,16 +377,17 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
       onDisappear,
       onWillAppear,
       onWillDisappear,
-      ...nativeProps
+      ...restProps
     } = this.props;
     const itemList: JSX.Element[] = [];
+    const nativeProps = restProps as P;
     if (typeof renderRow === 'function') {
       const {
         initialListReady,
       } = this.state;
-      let { numberOfRows } = this.props;
-      const pullHeader = this.getPullHeader(renderPullHeader, onHeaderPulling, onHeaderReleased, getHeaderStyle);
-      const pullFooter = this.getPullFooter(renderPullFooter, onFooterPulling, onFooterReleased, getFooterStyle);
+      let { numberOfRows = ListView.defaultProps.numberOfRows } = this.props;
+      const pullHeader = this.getPullHeader();
+      const pullFooter = this.getPullFooter();
       if (!numberOfRows && dataSource) {
         numberOfRows = dataSource.length;
       }
@@ -442,14 +437,16 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
         });
       }
       const appearEventList = [onAppear, onDisappear, onWillAppear, onWillDisappear];
-      nativeProps.exposureEventEnabled = appearEventList.some(func => typeof func === 'function');
-      if (Device.platform.OS === 'ios') {
+      Object.assign(nativeProps, {
+        exposureEventEnabled: appearEventList.some(func => typeof func === 'function'),
+      });
+      if (Device.platform.OS ===  Platform.ios) {
         nativeProps.numberOfRows = itemList.length;
       }
       if (typeof initialListSize !== 'undefined') {
-        (nativeProps as ListViewProps).initialListSize = initialListSize;
+        nativeProps.initialListSize = initialListSize;
       }
-      (nativeProps as ListViewProps).style = {
+      nativeProps.style = {
         overflow: 'scroll',
         ...style,
       };
@@ -470,25 +467,26 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
     );
   }
 
-  private handleInitialListReady() {
+  protected getInitialState(): S {
+    return {
+      initialListReady: false,
+    } as S;
+  }
+
+  protected handleInitialListReady() {
     this.setState({ initialListReady: true });
   }
 
-  private getPullHeader(
-    renderPullHeader: undefined | (() => React.ReactElement),
-    onHeaderPulling: undefined | (() => void),
-    onHeaderReleased: undefined | (() => void),
-    getHeaderStyle: undefined | (() => any),
-  ) {
+  protected getPullHeader() {
+    const { renderPullHeader, onHeaderPulling, onHeaderReleased, getHeaderStyle } = this.props;
     let pullHeader: JSX.Element | null = null;
-    let style = {};
+    let style;
     if (typeof getHeaderStyle === 'function') {
       style = getHeaderStyle();
     }
     if (typeof renderPullHeader === 'function') {
       pullHeader = (
         <PullHeader
-          // @ts-ignore
           style={style}
           key={'pull-header'}
           ref={(ref) => {
@@ -504,21 +502,16 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
     return pullHeader;
   }
 
-  private getPullFooter(
-    renderPullFooter: undefined | (() => React.ReactElement),
-    onFooterPulling: undefined | (() => void),
-    onFooterReleased: undefined | (() => void),
-    getFooterStyle: undefined | (() => any),
-  ) {
+  protected getPullFooter() {
+    const { renderPullFooter, onFooterPulling, onFooterReleased, getFooterStyle } = this.props;
     let pullFooter: JSX.Element | null = null;
-    let style = {};
+    let style;
     if (typeof getFooterStyle === 'function') {
       style = getFooterStyle();
     }
     if (typeof renderPullFooter === 'function') {
       pullFooter = (
         <PullFooter
-          // @ts-ignore
           style={style}
           key={'pull-footer'}
           ref={(ref) => {
@@ -534,17 +527,17 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
     return pullFooter;
   }
 
-  private handleRowProps(
+  protected handleRowProps(
     itemProps: ListViewItemProps,
     index: number,
     { getRowKey, getRowStyle, onRowLayout, getRowType, rowShouldSticky }:
-    {
-      getRowKey: ((index: number) => string) | undefined,
-      getRowStyle: ((index: number) => HippyTypes.Style) | undefined,
-      getRowType: ((index: number) => number) | undefined,
-      onRowLayout: ((evt: HippyTypes.LayoutEvent, index: number) => void) | undefined,
-      rowShouldSticky: ((index: number) => boolean) | undefined,
-    },
+    Pick<ListViewProps,
+    'getRowKey'
+    | 'getRowStyle'
+    | 'onRowLayout'
+    | 'getRowType'
+    | 'rowShouldSticky'
+    >,
   ) {
     if (typeof getRowKey === 'function') {
       itemProps.key = getRowKey(index);

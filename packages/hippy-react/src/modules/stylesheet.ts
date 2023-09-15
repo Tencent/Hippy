@@ -27,7 +27,7 @@ if (HAIRLINE_WIDTH === 0) {
   HAIRLINE_WIDTH = 1 / ratio;
 }
 
-interface StyleObj {
+export interface StyleObj {
   [key: string]: HippyTypes.Style;
 }
 
@@ -42,7 +42,70 @@ function create(styleObj: StyleObj): StyleObj {
 }
 
 
-export {
-  HAIRLINE_WIDTH as hairlineWidth,
+/**
+ * Flattens an array of style objects, into one aggregated style object.
+ * Alternatively, this method can be used to lookup IDs, returned by
+ * StyleSheet.register.
+ *
+ * > **NOTE**: Exercise caution as abusing this can tax you in terms of
+ * > optimizations.
+ * >
+ * > IDs enable optimizations through the bridge and memory in general. Referring
+ * > to style objects directly will deprive you of these optimizations.
+ *
+ * Example:
+ * ```
+ * const styles = StyleSheet.create({
+ *   listItem: {
+ *     flex: 1,
+ *     fontSize: 16,
+ *     color: 'white'
+ *   },
+ *   selectedListItem: {
+ *     color: 'green'
+ *   }
+ * });
+ *
+ * StyleSheet.flatten([styles.listItem, styles.selectedListItem])
+ * // returns { flex: 1, fontSize: 16, color: 'green' }
+ * ```
+ * Alternative use:
+ * ```
+ * StyleSheet.flatten(styles.listItem);
+ * // return { flex: 1, fontSize: 16, color: 'white' }
+ * // Simply styles.listItem would return its ID (number)
+ * ```
+ * This method internally uses `StyleSheetRegistry.getStyleByID(style)`
+ * to resolve style objects represented by IDs. Thus, an array of style
+ * objects (instances of StyleSheet.create), are individually resolved to,
+ * their respective objects, merged as one and then returned. This also explains
+ * the alternative use.
+ */
+function flatten(style: HippyTypes.StyleProp | null | undefined): HippyTypes.Style {
+  if (style === null || typeof style !== 'object') {
+    return {};
+  }
+
+  if (!Array.isArray(style)) {
+    return style;
+  }
+
+  const result = {};
+  for (let i = 0, styleLength = style.length; i < styleLength; ++i) {
+    const computedStyle = flatten(style[i]);
+    if (computedStyle) {
+      Object.entries(computedStyle).forEach(([key, value]) => {
+        result[key] = value;
+      });
+    }
+  }
+  return result;
+}
+
+export const StyleSheet = {
+  hairlineWidth: HAIRLINE_WIDTH,
   create,
+  flatten,
 };
+
+export default StyleSheet;

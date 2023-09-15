@@ -44,13 +44,13 @@ interface ViewProps extends LayoutableProps, TouchableProps, ClickableProps {
   ref?: any;
   accessible?: boolean;
   accessibilityLabel?: string;
-  style?: HippyTypes.Style;
+  style?: HippyTypes.ViewStyleProp;
   opacity?: number;
   overflow?: 'visible' | 'hidden';
   className?: any;
   nativeBackgroundAndroid?: {
     borderless: boolean;
-    color: HippyTypes.color;
+    color: HippyTypes.Color;
     rippleRadius: number;
   };
   onScroll?: (e: any) => void;

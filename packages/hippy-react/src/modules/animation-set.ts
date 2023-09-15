@@ -22,6 +22,7 @@ import { HippyEventEmitter, HippyEventRevoker } from '../event';
 import { Bridge, Device } from '../native';
 import { warn } from '../utils';
 import { repeatCountDict } from '../utils/animation';
+import { Platform } from '../types';
 import { Animation, AnimationCallback } from './animation';
 import '../global';
 
@@ -37,8 +38,7 @@ interface AnimationChild {
 
 interface AnimationSetOption {
   children: AnimationChild[];
-  repeatCount: number;
-  virtual: any; // TODO: What's it?
+  repeatCount: number | 'loop';
 }
 
 interface AnimationSet extends Animation {
@@ -76,7 +76,6 @@ class AnimationSet implements AnimationSet {
     this.animationId = Bridge.callNativeWithCallbackId('AnimationModule', 'createAnimationSet', true, {
       repeatCount: repeatCountDict(config.repeatCount || 0),
       children: this.animationList,
-      virtual: config.virtual,
     });
 
     // TODO: Deprecated compatible, will remove soon.
@@ -117,7 +116,7 @@ class AnimationSet implements AnimationSet {
     // Set as iOS default
     let animationEventName = 'onAnimation';
     // If running in Android, change it.
-    if (__PLATFORM__ === 'android' || Device.platform.OS === 'android') {
+    if (__PLATFORM__ ===  Platform.android || Device.platform.OS ===  Platform.android) {
       animationEventName = 'onHippyAnimation';
     }
 

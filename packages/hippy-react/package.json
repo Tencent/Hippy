@@ -3,6 +3,7 @@
   "version": "unspecified",
   "description": "Hippy react framework",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "homepage": "https://hippyjs.org",
   "repository": "https://github.com/Tencent/Hippy",
   "author": "OpenHippy Team",

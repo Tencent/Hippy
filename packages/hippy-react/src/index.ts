@@ -19,11 +19,6 @@
  */
 
 import './global';
-import {
-  HippyEventEmitter,
-  HippyEventListener,
-  EventBus,
-} from './event';
 import { colorParse } from './color';
 import HippyReact from './hippy';
 import AppRegistry from './adapters/app-registry';
@@ -31,25 +26,13 @@ import Animated from './adapters/animated';
 import Easing from './adapters/easing';
 import Animation from './modules/animation';
 import AnimationSet from './modules/animation-set';
-import View from './components/view';
-import Text from './components/text';
-import Image from './components/image';
-import ListView from './components/list-view';
-import ListViewItem from './components/list-view-item';
-import RefreshWrapper from './components/refresh-wrapper';
-import Navigator from './components/navigator';
-import ViewPager from './components/view-pager';
-import TextInput from './components/text-input';
-import ScrollView from './components/scroll-view';
-import Modal from './components/modal';
-import Focusable from './components/focusable';
-import WebView from './components/web-view';
 import WebSocket from './modules/websocket';
-import PullHeader from './components/pull-header';
-import PullFooter from './components/pull-footer';
-import WaterfallView from './components/waterfall-view';
 import * as Native from './native';
-import * as StyleSheet from './modules/stylesheet';
+export * from './modules/stylesheet';
+export * from './event';
+export * from './components';
+export * from './dom';
+export * from './types';
 
 global.WebSocket = WebSocket as HippyTypes.WebSocket;
 
@@ -80,12 +63,9 @@ const ConsoleModule = global.ConsoleModule || global.console;
 const Platform = Device.platform;
 const Hippy = HippyReact;
 const RNfqb = HippyReact;
-const ImageBackground = Image;
 
 // Forward compatibilities
 const RNfqbRegister = HippyRegister;
-const RNfqbEventEmitter = HippyEventEmitter;
-const RNfqbEventListener = HippyEventListener;
 
 const Dimensions = {
   get(name: 'window' | 'screen') {
@@ -107,18 +87,12 @@ export {
   callNativeWithCallbackId,
   removeNativeCallback,
   RNfqbRegister,
-  RNfqbEventEmitter,
-  RNfqbEventListener,
   HippyRegister,
-  EventBus,
-  HippyEventEmitter,
-  HippyEventListener,
   AsyncStorage,
   AppRegistry,
   Animated,
   Easing,
   UIManagerModule,
-  StyleSheet,
   Dimensions,
   PixelRatio,
   TimerModule,
@@ -133,24 +107,9 @@ export {
   AnimationSet,
   Hippy,
   RNfqb,
-  View,
-  Text,
-  Image,
-  ListView,
-  ListViewItem,
-  RefreshWrapper,
-  Navigator,
-  ViewPager,
-  TextInput,
-  ScrollView,
-  Modal,
-  Focusable,
-  WebView,
-  ImageBackground,
   WebSocket,
-  PullHeader,
-  PullFooter,
-  WaterfallView,
 };
-
+type Style = HippyTypes.Style;
+type HippyTypes = typeof HippyTypes;
+export type { Style, HippyTypes };
 export default HippyReact;
