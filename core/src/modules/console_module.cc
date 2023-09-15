@@ -34,8 +34,6 @@ using unicode_string_view = tdf::base::unicode_string_view;
 using Ctx = hippy::napi::Ctx;
 using StringViewUtils = hippy::base::StringViewUtils;
 
-REGISTER_MODULE(ConsoleModule, Log) // NOLINT(cert-err58-cpp)
-
 namespace {
 
 unicode_string_view EscapeMessage(const unicode_string_view& str_view) {

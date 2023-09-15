@@ -29,11 +29,6 @@
 #include "core/task/javascript_task.h"
 #include "core/task/javascript_task_runner.h"
 
-REGISTER_MODULE(TimerModule, SetTimeout) // NOLINT(cert-err58-cpp)
-REGISTER_MODULE(TimerModule, ClearTimeout) // NOLINT(cert-err58-cpp)
-REGISTER_MODULE(TimerModule, SetInterval) // NOLINT(cert-err58-cpp)
-REGISTER_MODULE(TimerModule, ClearInterval) // NOLINT(cert-err58-cpp)
-
 namespace napi = ::hippy::napi;
 
 using unicode_string_view = tdf::base::unicode_string_view;
