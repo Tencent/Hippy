@@ -211,7 +211,7 @@ function getNodeProps(
     delete props.src;
   }
   // compatible fontWeight
-  if (props.style.fontWeight) {
+  if (props?.style?.fontWeight) {
     props.style.fontWeight = String(props.style.fontWeight);
   }
   // compatible placeholder

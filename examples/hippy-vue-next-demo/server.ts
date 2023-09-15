@@ -55,14 +55,14 @@ server.all('/getSsrFirstScreenData', (req, rsp) => {
     appName: 'Demo',
   }, req.body).then(({
     list,
-    // store,
+    store,
     uniqueId,
   }) => {
     // send response
     rsp.json({
       code: 0,
       data: list,
-      // store: store.state.value,
+      store: store.state.value,
       uniqueId,
       styleContent: getSsrStyleContent(HIPPY_GLOBAL_STYLE_NAME),
     });
