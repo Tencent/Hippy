@@ -25,6 +25,7 @@ import { renderToString } from '@vue/server-renderer';
 import type { HippyAppOptions } from '@hippy-vue-next/index';
 import { getObjectNodeList } from './util';
 import type {
+  SsrCommonParams,
   SsrNode,
   SsrNodeProps,
 } from './index';
@@ -53,6 +54,13 @@ interface SsrRenderOption {
   ssrOptions?: HippyAppOptions;
   context?: SsrRequestContext;
 }
+
+// native text input type
+const INPUT_VALUE_MAP = {
+  number: 'numeric',
+  text: 'default',
+  search: 'web-search',
+};
 
 /**
  * merge default props to ssr node. some native node should have default props, so we need to add
@@ -172,6 +180,48 @@ function mergeDefaultNativeProps(
 }
 
 /**
+ * parse text input map props
+ *
+ * @param tagName
+ * @param rawProps
+ */
+function parseTextInputProps(tagName: string, rawProps: SsrCommonParams): SsrCommonParams {
+  const props = rawProps;
+
+  // handle common input props map
+  if (props.type) {
+    props.keyboardType = INPUT_VALUE_MAP[props.type] ?? props.type;
+    delete props.type;
+  }
+  if (props.disabled) {
+    props.editable = !props.disabled;
+    delete props.disabled;
+  }
+  if (props.value) {
+    props.defaultValue = props.value;
+    delete props.value;
+  }
+  if (props.maxlength) {
+    props.maxLength = props.maxlength;
+    delete props.maxlength;
+  }
+
+  if (tagName === 'textarea') {
+    props.multiline = true;
+    // handle textarea props map
+    if (props.rows) {
+      props.numberOfLines = props.rows;
+      delete props.rows;
+    }
+  } else {
+    props.numberOfLines = 1;
+    props.multiline = false;
+  }
+
+  return props;
+}
+
+/**
  * get node's props. merge all props need to merged
  *
  * @param node - ssr node
@@ -219,6 +269,16 @@ function getNodeProps(
     props.placeholder = String(props.placeholder);
   }
 
+  if (node.name === 'TextInput') {
+    parseTextInputProps(node.tagName ?? '', props);
+  }
+
+  if (node.name === 'WebView') {
+    props.source = {
+      uri: props.src,
+    };
+    delete props.src;
+  }
 
   return props;
 }
