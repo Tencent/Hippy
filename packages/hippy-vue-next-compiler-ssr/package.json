@@ -17,7 +17,7 @@
     "compiler"
   ],
   "main": "./dist/index.js",
-  "types": "index.d.ts",
+  "types": "dist/index.d.ts",
   "files": [
     "dist/index.js",
     "dist/index.d.ts",

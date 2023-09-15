@@ -33,7 +33,7 @@
     "vue": "^3.2.46",
     "vue-router": "^4.0.12",
     "express": "^4.18.2",
-    "pinia": "^2.0.23"
+    "pinia": "2.0.30"
   },
   "devDependencies": {
     "@babel/core": "^7.12.0",

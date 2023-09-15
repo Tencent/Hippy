@@ -12,6 +12,7 @@
     "style",
     "parser"
   ],
+  "types": "dist/index.d.ts",
   "files": [
     "dist/index.js",
     "dist/index.esm.js",
