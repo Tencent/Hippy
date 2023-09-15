@@ -32,6 +32,7 @@ import {
   DefaultPropsProcess,
 } from '../types';
 import { setElementStyle } from '../common';
+import { iOSVersion, isIos } from '../get-global';
 
 export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public tagName!: InnerNodeTag;
@@ -199,8 +200,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public updateChildzIndex() {
     this.dom?.childNodes.forEach((item) => {
       const childDom = this.context.getModuleByName('UIManagerModule').findViewById((item as HTMLElement).id);
-      if (this.exitChildrenStackContext
-        && !childDom.props.style.zIndex !== undefined) {
+      if (this.exitChildrenStackContext && !childDom.props.style.zIndex !== undefined) {
         childDom.updateSelfStackContext();
       }
       if (!this.exitChildrenStackContext && childDom.updatedZIndex) {
@@ -210,15 +210,22 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   }
 
   public updateSelfStackContext(value = true) {
-    if (value) {
-      this.props.style.zIndex = 0;
-      setElementStyle(this.dom as HTMLElement, { zIndex: 0 });
+    if (value && (this.props.style.zIndex === null || this.props.style.zIndex === undefined)) {
+      let zIndex = 0;
+      if (isIos() && iOSVersion()! <= 12) {
+        zIndex = -1;
+      }
+      this.props.style.zIndex = zIndex;
+      setElementStyle(this.dom as HTMLElement, { zIndex });
       this.updatedZIndex = true;
       return;
     }
-    delete this.props.style.zIndex;
-    setElementStyle(this.dom as HTMLElement, { zIndex: 'auto' });
-    this.updatedZIndex = false;
+
+    if (!value) {
+      delete this.props.style.zIndex;
+      setElementStyle(this.dom as HTMLElement, { zIndex: 'auto' });
+      this.updatedZIndex = false;
+    }
   }
 
   public updateProps(data: UIProps, defaultProcess: DefaultPropsProcess) {
