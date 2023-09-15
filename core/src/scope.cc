@@ -29,6 +29,9 @@
 
 #include "base/logging.h"
 #include "core/modules/module_register.h"
+#include "core/modules/contextify_module.h"
+#include "core/modules/timer_module.h"
+#include "core/modules/console_module.h"
 #include "core/napi/native_source_code.h"
 #include "core/task/javascript_task.h"
 #include "core/task/javascript_task_runner.h"
@@ -50,7 +53,15 @@ constexpr char kHippyBootstrapJSName[] = "bootstrap.js";
 Scope::Scope(Engine* engine,
              std::string name,
              std::unique_ptr<RegisterMap> map)
-    : engine_(engine), context_(nullptr), name_(std::move(name)), map_(std::move(map)) {}
+    : engine_(engine), context_(nullptr), name_(std::move(name)), map_(std::move(map)) {
+  REGISTER_MODULE(ContextifyModule, RunInThisContext)
+  REGISTER_MODULE(ContextifyModule, LoadUntrustedContent)
+  REGISTER_MODULE(TimerModule, SetTimeout)
+  REGISTER_MODULE(TimerModule, ClearTimeout)
+  REGISTER_MODULE(TimerModule, SetInterval)
+  REGISTER_MODULE(TimerModule, ClearInterval)
+  REGISTER_MODULE(ConsoleModule, Log)
+}
 
 Scope::~Scope() {
   TDF_BASE_DLOG(INFO) << "~Scope";

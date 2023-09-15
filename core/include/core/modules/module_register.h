@@ -34,12 +34,9 @@
 #include "core/napi/js_native_api_types.h"
 #include "core/scope.h"
 
-#define REGISTER_MODULE(Module, Function)                                   \
-  auto __##Module##Function##__ = [] {                                      \
-    ModuleRegister::instance()->RegisterInternalModule(&Module::Function,   \
-                                                       #Module, #Function); \
-    return 0;                                                               \
-  }();
+#define REGISTER_MODULE(Module, Function)                                 \
+  ModuleRegister::instance()->RegisterInternalModule(&Module::Function,   \
+                                                     #Module, #Function);
 
 #define REGISTER_GLOBAL_MODULE(Module, Function)                          \
   auto __##Module##Function##__ = [] {                                    \

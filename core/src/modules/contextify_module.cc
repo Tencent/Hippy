@@ -37,9 +37,6 @@
 #include "core/napi/v8/js_native_api_v8.h"
 #endif
 
-REGISTER_MODULE(ContextifyModule, RunInThisContext) // NOLINT(cert-err58-cpp)
-REGISTER_MODULE(ContextifyModule, LoadUntrustedContent) // NOLINT(cert-err58-cpp)
-
 using unicode_string_view = tdf::base::unicode_string_view;
 using u8string = unicode_string_view::u8string;
 using Ctx = hippy::napi::Ctx;
