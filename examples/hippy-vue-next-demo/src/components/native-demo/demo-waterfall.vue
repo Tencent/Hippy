@@ -66,7 +66,6 @@
 </template>
 
 <script lang="ts">
-import { Native } from '@hippy/vue-next';
 import type { Ref } from '@vue/runtime-core';
 import { defineComponent, ref, computed } from '@vue/runtime-core';
 
@@ -74,6 +73,7 @@ import mockData from '../list-items/mock';
 import StyleOne from '../list-items/style1.vue';
 import StyleTwo from '../list-items/style2.vue';
 import StyleFive from '../list-items/style5.vue';
+import { getScreenSize } from '../../util';
 
 const STYLE_LOADING = 100;
 const MAX_FETCH_TIMES = 50;
@@ -120,7 +120,7 @@ export default defineComponent({
     const gridView = ref(null);
     const header = ref(null);
     const itemWidth = computed(() => {
-      const screenWidth = Native.Dimensions.screen.width;
+      const screenWidth = getScreenSize().width;
       const width = screenWidth - contentInset.left - contentInset.right;
       return (
         (width - (numberOfColumns - 1) * columnSpacing) / numberOfColumns

@@ -797,7 +797,15 @@ export class HippyElement extends HippyNode {
      * inherit node in beforeRenderToNative hook
      */
     if (this.component.defaultNativeStyle) {
-      style = { ...this.component.defaultNativeStyle, ...style };
+      const { defaultNativeStyle } = this.component;
+      const updateStyle: NativeNodeProps = {};
+      Object.keys(defaultNativeStyle).forEach((key) => {
+        if (!this.getAttribute(key)) {
+          // save no default value style
+          updateStyle[key] = defaultNativeStyle[key];
+        }
+      });
+      style = { ...updateStyle, ...style };
     }
 
     const elementExtraAttributes: Partial<NativeNode> = {

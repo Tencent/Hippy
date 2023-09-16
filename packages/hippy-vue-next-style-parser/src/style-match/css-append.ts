@@ -23,6 +23,7 @@
 /**
  * insert hippy style for ssr nodes
  */
+import { camelize } from '@vue/shared';
 import {
   translateColor,
   type NeedToTyped,
@@ -390,8 +391,9 @@ export function insertStyleForSsrNodes(
       if (keys.length) {
         hasInnerStyle = true;
         keys.forEach((key) => {
+          const camelKey = camelize(key);
           // save original inner style
-          originalInnerStyle[key] = item.props.style[key];
+          originalInnerStyle[camelKey] = item.props.style[key];
         });
       }
     }
