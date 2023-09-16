@@ -924,7 +924,7 @@ export class HippyElement extends HippyNode {
       }
       if (matchedSelector.ruleSet?.declarations?.length) {
         matchedSelector.ruleSet.declarations.forEach((cssStyle) => {
-          if (cssStyle) {
+          if (cssStyle.property) {
             style[cssStyle.property] = cssStyle.value;
           }
         });
