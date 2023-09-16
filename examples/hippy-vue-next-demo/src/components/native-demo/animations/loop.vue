@@ -21,8 +21,9 @@ import {
   watch,
   ref,
   onMounted,
-  type Ref,
+  type Ref, nextTick,
 } from '@vue/runtime-core';
+import { IS_SSR_MODE } from '../../../env';
 
 const horizonAnimation = {
   transform: {
@@ -64,28 +65,38 @@ export default defineComponent({
     const loopActions: Ref = ref('');
     const animationLoop = ref(null);
 
+    const setActions = (direction: string) => {
+      switch (direction) {
+        case 'horizon':
+          loopActions.value = horizonAnimation;
+          break;
+        case 'vertical':
+          loopActions.value = verticalAnimation;
+          break;
+        default:
+          throw new Error('direction must be defined in props');
+      }
+    };
+
     watch(
       direction,
       (newVal) => {
-        switch (newVal) {
-          case 'horizon':
-            loopActions.value = horizonAnimation;
-            break;
-          case 'vertical':
-            loopActions.value = verticalAnimation;
-            break;
-          default:
-            throw new Error('direction must be defined in props');
-        }
+        setActions(newVal);
       },
       {
         immediate: true,
       },
     );
 
-    onMounted(() => {
+    onMounted(async () => {
       if (props.onRef) {
         props.onRef(animationLoop.value);
+      }
+      if (IS_SSR_MODE) {
+        // ssr mode should update action to start animation
+        loopActions.value = '';
+        await nextTick();
+        setActions(props.direction);
       }
     });
 
