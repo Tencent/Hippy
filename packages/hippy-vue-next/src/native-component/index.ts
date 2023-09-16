@@ -27,6 +27,18 @@ import { registerSwiper } from './swiper';
 import { registerUlRefresh } from './ul-refresh';
 import { registerWaterfall } from './waterfall';
 
+// native component interface export
+export interface AnimationInstance {
+  create: () => void;
+  start: () => void;
+  reset: () => void;
+  resume: () => void;
+  pause: () => void;
+  destroy: () => void;
+  addAnimationEvent: () => void;
+  removeAnimationEvent: () => void;
+}
+
 // native tag list
 const nativeTags = [
   'dialog', 'hi-pull-header', 'hi-pull-footer', 'hi-swiper', 'hi-swiper-slider',

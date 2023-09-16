@@ -54,7 +54,7 @@ interface Dimensions {
 }
 
 // Element position information type
-interface MeasurePosition {
+export interface MeasurePosition {
   top: number;
   left: number;
   bottom: number;
@@ -64,7 +64,7 @@ interface MeasurePosition {
 }
 
 // DOM Bounding Rect
-interface DOMRect {
+export interface DOMRect {
   x: number | undefined;
   y: number | undefined;
   top: number | undefined;

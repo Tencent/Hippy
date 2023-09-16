@@ -38,7 +38,7 @@ import type { NeedToTyped, CallbackType, CommonMapParams, NativeInterfaceMap, Ss
 import { BackAndroid } from './android-back';
 import BuiltInComponent from './built-in-component';
 import { drawIphoneStatusBar } from './iphone';
-import HippyNativeComponents, { isNativeTag } from './native-component';
+import HippyNativeComponents, { isNativeTag, type AnimationInstance } from './native-component';
 import { nodeOps } from './node-ops';
 import { patchProp } from './patch-prop';
 import { getTagComponent, registerElement, type TagComponent, type ElementComponent } from './runtime/component';
@@ -48,7 +48,7 @@ import type { HippyInputElement } from './runtime/element/hippy-input-element';
 import type { HippyListElement } from './runtime/element/hippy-list-element';
 import { EventBus } from './runtime/event/event-bus';
 import { Native } from './runtime/native';
-import type { NativeApiType } from './runtime/native';
+import type { NativeApiType, MeasurePosition, DOMRect } from './runtime/native';
 import './runtime/event/hippy-event-dispatcher';
 import './runtime/websocket/websocket';
 import type { HippyNode } from './runtime/node/hippy-node';
@@ -355,6 +355,9 @@ export type {
   NativeInterfaceMap,
   SsrNode,
   SsrNodeProps,
+  MeasurePosition,
+  DOMRect,
+  AnimationInstance,
 };
 
 export * from './config';

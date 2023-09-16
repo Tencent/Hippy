@@ -1050,6 +1050,13 @@ export class HippyElement extends HippyNode {
       delete attributes.text;
       delete attributes.value;
 
+      Object.keys(attributes).forEach((key) => {
+        if (key.toLowerCase().includes('color')) {
+          // color value may big int that iOS do not support, should delete
+          delete attributes[key];
+        }
+      });
+
       return attributes;
     } catch (error) {
       return {};

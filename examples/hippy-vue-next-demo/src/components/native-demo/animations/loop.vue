@@ -5,7 +5,7 @@
       :playing="playing"
       :actions="loopActions"
       class="loop-green"
-      @actionsDidUpdate="$emit('actionsDidUpdate')"
+      @actionsDidUpdate="actionsDidUpdate"
     >
       <div class="loop-white">
         <slot />
@@ -23,6 +23,7 @@ import {
   onMounted,
   type Ref, nextTick,
 } from '@vue/runtime-core';
+import { type AnimationInstance } from '@hippy/vue-next';
 import { IS_SSR_MODE } from '../../../env';
 
 const horizonAnimation = {
@@ -59,11 +60,10 @@ export default defineComponent({
       default: () => {},
     },
   },
-  emits: ['actionsDidUpdate'],
   setup(props) {
     const { direction } = toRefs(props);
     const loopActions: Ref = ref('');
-    const animationLoop = ref(null);
+    const animationLoop: Ref<null | AnimationInstance> = ref(null);
 
     const setActions = (direction: string) => {
       switch (direction) {
@@ -88,6 +88,17 @@ export default defineComponent({
       },
     );
 
+    const actionsDidUpdate = () => {
+      // pay attention pls, animate operate should execute
+      // after dom render finished
+      nextTick().then(() => {
+        console.log('loop actions updated & startAnimation');
+        if (animationLoop.value) {
+          animationLoop.value.start();
+        }
+      });
+    };
+
     onMounted(async () => {
       if (props.onRef) {
         props.onRef(animationLoop.value);
@@ -103,6 +114,7 @@ export default defineComponent({
     return {
       loopActions,
       animationLoop,
+      actionsDidUpdate,
     };
   },
 });

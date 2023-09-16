@@ -23,7 +23,6 @@
           :playing="loopPlaying"
           :direction="direction"
           :on-ref="onRef"
-          @actionsDidUpdate="actionsDidUpdate"
         >
           <p>I'm a looping animation</p>
         </loop>
@@ -115,7 +114,7 @@
    * After the actions are replaced, the animation needs to be started manually
    *
    */
-import { defineComponent, ref, type Ref, shallowRef, nextTick } from '@vue/runtime-core';
+import { defineComponent, ref, type Ref, shallowRef } from '@vue/runtime-core';
 
 import colorComponent from './animations/color-change.vue';
 import CubicBezier from './animations/cubic-bezier.vue';
@@ -162,18 +161,6 @@ export default defineComponent({
     const toggleDirection = () => {
       direction.value = direction.value === 'horizon' ? 'vertical' : 'horizon';
     };
-    const actionsDidUpdate = () => {
-      // pay attention pls, animate operate should execute
-      // after dom render finished
-      nextTick().then(() => {
-        console.log('actions updated & startAnimation');
-        if (animationRef.value) {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          animationRef.value.start();
-        }
-      });
-    };
 
     return {
       loopPlaying,
@@ -191,7 +178,6 @@ export default defineComponent({
       toggleColorPlaying,
       toggleCubicPlaying,
       toggleDirection,
-      actionsDidUpdate,
     };
   },
 });
