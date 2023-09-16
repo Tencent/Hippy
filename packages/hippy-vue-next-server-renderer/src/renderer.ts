@@ -197,7 +197,7 @@ function parseTextInputProps(tagName: string, rawProps: SsrCommonParams): SsrCom
     props.editable = !props.disabled;
     delete props.disabled;
   }
-  if (props.value) {
+  if (typeof props.value !== 'undefined') {
     props.defaultValue = props.value;
     delete props.value;
   }
@@ -284,6 +284,37 @@ function getNodeProps(
 }
 
 /**
+ * convert ssr node's special kebabCase props name to camelCase name
+ *
+ * @param rawProps
+ */
+function convertSpecialKebabCaseToCamelCase(rawProps: SsrNodeProps): SsrNodeProps {
+  const props = rawProps;
+
+  if (props['caret-color']) {
+    props.caretColor = props['caret-color'];
+    delete props['caret-color'];
+  }
+
+  if (props['underline-color-android']) {
+    props.underlineColorAndroid = props['underline-color-android'];
+    delete props['underline-color-android'];
+  }
+
+  if (props['placeholder-text-color']) {
+    props.placeholderTextColor = props['placeholder-text-color'];
+    delete props['placeholder-text-color'];
+  }
+
+  if (props['break-strategy']) {
+    props.breakStrategy = props['break-strategy'];
+    delete props['break-strategy'];
+  }
+
+  return props;
+}
+
+/**
  * convert ssr node list to hippy node list, add props for every node
  *
  * @param nodeList - ssr node list
@@ -295,7 +326,7 @@ function convertToHippyNodeList(
 ): SsrNode[] {
   return nodeList.map((item) => {
     // add props for every node
-    const props = getNodeProps(item, nodeList, options?.context?.isIOS);
+    const props = convertSpecialKebabCaseToCamelCase(getNodeProps(item, nodeList, options?.context?.isIOS));
     return {
       ...item,
       props,

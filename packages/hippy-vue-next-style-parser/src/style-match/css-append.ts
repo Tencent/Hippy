@@ -199,6 +199,15 @@ function polyfillSpecialNodeStyle(
     nativeNode.props.display = inlineStyle.display;
   }
 
+  // compatible Input
+  if (nativeNode.name === 'TextInput') {
+    ['caretColor', 'underlineColorAndroid', 'placeholderTextColor'].forEach((key) => {
+      if (nativeNode.props[key] && typeof nativeNode.props[key] !== 'number') {
+        nativeNode.props[key] = translateColor(nativeNode.props[key]);
+      }
+    });
+  }
+
   return node;
 }
 
@@ -392,6 +401,7 @@ export function insertStyleForSsrNodes(
       : {};
     // current used style, include dynamic class's style value
     item.props.style = parseItemStyle(Object.assign(defaultNativeStyle, style, originalInnerStyle));
+
     // polyfill special node
     return polyfillSpecialNodeStyle(item, scrollViewContainerIdList);
   });
