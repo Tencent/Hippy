@@ -244,9 +244,9 @@ export class HippyElement extends HippyNode {
       // assign dom id
       this.id = props?.attributes?.id ?? '';
       // assign inline style
-      if (props.innerStyle) {
-        this.ssrInlineStyle = props.innerStyle;
-        delete props.innerStyle;
+      if (props.inlineStyle) {
+        this.ssrInlineStyle = props.inlineStyle;
+        delete props.inlineStyle;
       }
       // remove unnecessary attr
       delete props.attributes;
@@ -930,6 +930,11 @@ export class HippyElement extends HippyNode {
         });
       }
     });
+
+    // add ssr inline style
+    if (this.ssrInlineStyle) {
+      style = { ...style, ...this.ssrInlineStyle };
+    }
 
     // finally, get the style from the style attribute of the node and process the rem unit
     style = HippyElement.parseRem({ ...style, ...this.getInlineStyle() });

@@ -229,37 +229,13 @@ function getItemHippyCssStyle(selectors) {
         // eslint-disable-next-line @typescript-eslint/prefer-for-of
         for (let j = 0; j < declarations.length; j++) {
           const declaration = declarations[j];
-          if (declaration) {
+          if (declaration.property) {
             style[declaration.property] = declaration.value;
           }
         }
       }
     }
   }
-  return style;
-}
-
-/**
- * parse color string to native known color number
- *
- * @param style - style object
- */
-function parseStyleColor<T>(style): T {
-  if (style) {
-    const keys = Object.keys(style);
-    if (keys.length) {
-      keys.forEach((key) => {
-        // if color value is number, do not translate again
-        if (
-          key.toLowerCase().indexOf('color') >= 0
-          && typeof style[key] !== 'number'
-        ) {
-          style[key] = translateColor(style[key]);
-        }
-      });
-    }
-  }
-
   return style;
 }
 
@@ -377,11 +353,11 @@ export function insertStyleForSsrNodes(
   return nodeList.map((item) => {
     // find matched selectors
     const matchedSelectors = cssMap.query(item, ssrNodes);
-    // parse color
-    const style = parseStyleColor(getItemHippyCssStyle(matchedSelectors.selectors));
-    // get default style
+    // parse css style sheet
+    const style = parseItemStyle(getItemHippyCssStyle(matchedSelectors.selectors));
+    // get component default style
     const defaultNativeStyle = getDefaultNativeStyle(item);
-    // inner style
+    // handle item style
     const originalInnerStyle = {};
     let hasInnerStyle = false;
 
@@ -399,10 +375,10 @@ export function insertStyleForSsrNodes(
     }
     // inner style is the top priority, save to use later
     item.props.inlineStyle = hasInnerStyle
-      ? originalInnerStyle
+      ? parseItemStyle(originalInnerStyle)
       : {};
-    // current used style, include dynamic class's style value
-    item.props.style = parseItemStyle(Object.assign(defaultNativeStyle, style, originalInnerStyle));
+    // current used style, include default style, style sheet and inline style
+    item.props.style = Object.assign(defaultNativeStyle, style, item.props.inlineStyle);
 
     // polyfill special node
     return polyfillSpecialNodeStyle(item, scrollViewContainerIdList);

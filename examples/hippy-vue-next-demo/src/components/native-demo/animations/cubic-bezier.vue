@@ -42,14 +42,10 @@ const horizonAnimation = {
 export default defineComponent({
   props: {
     playing: Boolean,
-    onRef: {
-      type: Function,
-      default: () => {},
-    },
   },
-  setup(props) {
+  setup() {
     const animationView: Ref<null | AnimationInstance> = ref(null);
-    const loopActions: Ref = ref('');
+    const loopActions: Ref = ref({});
 
     if (!IS_SSR_MODE) {
       loopActions.value = horizonAnimation;
@@ -67,12 +63,9 @@ export default defineComponent({
     };
 
     onMounted(async () => {
-      if (props.onRef) {
-        props.onRef(animationView.value);
-      }
       if (IS_SSR_MODE) {
         // ssr mode should update action to start animation
-        loopActions.value = '';
+        loopActions.value = {};
         await nextTick();
         loopActions.value = horizonAnimation;
       }

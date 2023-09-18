@@ -105,9 +105,7 @@
           alignItems: 'center',
         }"
       >
-        <p :style="{ color: 'white' }">
-          切换方向
-        </p>
+        <span :style="{ color: 'white' }">切换方向</span>
       </div>
     </div>
   </div>

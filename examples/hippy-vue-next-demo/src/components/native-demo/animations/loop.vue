@@ -55,14 +55,10 @@ export default defineComponent({
       type: String,
       default: '',
     },
-    onRef: {
-      type: Function,
-      default: () => {},
-    },
   },
   setup(props) {
     const { direction } = toRefs(props);
-    const loopActions: Ref = ref('');
+    const loopActions: Ref = ref({});
     const animationLoop: Ref<null | AnimationInstance> = ref(null);
 
     const setActions = (direction: string) => {
@@ -100,12 +96,9 @@ export default defineComponent({
     };
 
     onMounted(async () => {
-      if (props.onRef) {
-        props.onRef(animationLoop.value);
-      }
       if (IS_SSR_MODE) {
         // ssr mode should update action to start animation
-        loopActions.value = '';
+        loopActions.value = {};
         await nextTick();
         setActions(props.direction);
       }

@@ -350,6 +350,26 @@ function renderElementVNode(
   if (dirs) {
     props = applySSRDirectives(vnode, props, dirs);
   }
+
+  // because native tag compiled as custom element, so the native tag doesn't have
+  // scopeId(scopeId generated at compiler time)
+  // we use the child scopeId or parent scopeId if exist
+  let { scopeId } = vnode;
+  if (!scopeId && children?.length) {
+    scopeId = children[0].scopeId ?? null;
+  }
+  // use parent scopedId if exist
+  if (!scopeId && parentComponent?.vnode) {
+    scopeId = parentComponent.vnode.scopeId ?? null;
+  }
+
+  if (scopeId && typeof props[scopeId] === 'undefined') {
+    // custom element do not generate scopeId, so inserted here
+    props[scopeId] = '';
+    vnode.scopeId = scopeId;
+  }
+
+
   // span/label/p/a, these nodes are all text node in native. so we should set text prop
   if (
     isTextTag(tag)

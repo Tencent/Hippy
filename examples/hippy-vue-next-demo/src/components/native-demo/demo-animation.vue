@@ -22,7 +22,6 @@
         <loop
           :playing="loopPlaying"
           :direction="direction"
-          :on-ref="onRef"
         >
           <p>I'm a looping animation</p>
         </loop>
@@ -134,12 +133,8 @@ export default defineComponent({
     const cubicPlaying = ref(true);
     const direction = ref('horizon');
     const isChanged = ref(true);
-    const animationRef = ref(null);
     const voteComponent: Ref = shallowRef(VoteUp);
 
-    const onRef = (eleRef) => {
-      animationRef.value = eleRef;
-    };
     const voteDown = () => {
       voteComponent.value = VoteDown;
       // toggle isChanged to change actions
@@ -170,10 +165,8 @@ export default defineComponent({
       voteComponent,
       colorComponent,
       isChanged,
-      animationRef,
       voteUp,
       voteDown,
-      onRef,
       toggleLoopPlaying,
       toggleColorPlaying,
       toggleCubicPlaying,

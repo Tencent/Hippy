@@ -88,6 +88,11 @@ export function registerSwiper(vueApp: App): void {
         defaultValue: true,
       },
     },
+    data() {
+      return {
+        $initialSlide: 0,
+      };
+    },
     watch: {
       current(to) {
         if (this.$props.needAnimation) {

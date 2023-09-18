@@ -31,8 +31,8 @@ export function getScreenSize(): {
   if (IS_SSR) {
     const ssrContext = useSSRContext();
     if (ssrContext?.context) {
-      const { dimensions, isIOS } = ssrContext.context;
-      if (dimensions?.screen && isIOS) {
+      const { dimensions } = ssrContext.context;
+      if (dimensions?.screen) {
         return dimensions.screen;
       }
     }

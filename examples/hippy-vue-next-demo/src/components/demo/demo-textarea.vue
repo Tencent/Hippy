@@ -3,6 +3,7 @@
     <label>多行文本:</label>
     <textarea
       :value="content"
+      :defaultValue="content"
       :rows="10"
       placeholder="多行文本编辑器"
       class="textarea"
