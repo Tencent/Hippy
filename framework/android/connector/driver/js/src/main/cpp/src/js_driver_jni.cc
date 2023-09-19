@@ -145,7 +145,10 @@ std::shared_ptr<Scope> GetScope(jint j_scope_id) {
   std::any scope_object;
   auto scope_id = footstone::checked_numeric_cast<jint, uint32_t>(j_scope_id);
   auto flag = hippy::global_data_holder.Find(scope_id, scope_object);
-  FOOTSTONE_CHECK(flag);
+  if (!flag) {
+    FOOTSTONE_LOG(ERROR) << "Can't find scope, scope id = " << scope_id;
+    return nullptr;
+  }
   return std::any_cast<std::shared_ptr<Scope>>(scope_object);
 }
 
@@ -461,6 +464,7 @@ void SetRootNode(__unused JNIEnv* j_env,
                  jint j_scope_id,
                  jint j_root_id) {
   auto scope = GetScope(j_scope_id);
+  if (scope == nullptr) return;
   auto root_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_root_id);
   std::shared_ptr<RootNode> root_node;
   auto& persistent_map = RootNode::PersistentMap();
