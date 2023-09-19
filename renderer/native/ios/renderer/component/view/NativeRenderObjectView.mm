@@ -343,10 +343,13 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
                 node->SetLayoutSize(frame.size.width, frame.size.height);
                 std::vector<std::shared_ptr<hippy::DomNode>> changed_nodes;
                 node->DoLayout(changed_nodes);
+                if (!changed_nodes.empty()) {
+                    renderManager->UpdateLayout(strongSelf.rootNode, changed_nodes);
+                }
                 if (dirtyPropagation) {
                     [strongSelf dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
                 }
-                domManager->EndBatch(strongSelf.rootNode);
+                renderManager->EndBatch(strongSelf.rootNode);
             }
         }};
         domManager->PostTask(hippy::dom::Scene(std::move(ops)));
