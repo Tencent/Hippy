@@ -17,6 +17,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import type { SsrNode } from '@hippy/vue-next-server-renderer';
+import { IS_IOS } from './env';
 
 /**
  * offer ssr node operates, without hippy-vue-next runtime
@@ -27,8 +29,63 @@
 // key of ssr uniqueId
 export const SSR_UNIQUE_ID_KEY = 'hippyUniqueId';
 
-// current platform is iOS or not
-export const IS_IOS = global.Hippy?.device?.platform.OS === 'ios';
+// SSR render tree type
+interface SsrTreeNode {
+  id: number;
+  pId?: number;
+  node: SsrNode;
+  children: SsrTreeNode[];
+}
+
+// native operate node type
+interface OperateNodeType {
+  create: SsrNode[];
+  update: SsrNode[];
+  delete: SsrNode[];
+  newNodeList: SsrNode[];
+}
+
+/**
+ * Encapsulate the JSON.parse method and handle the catch block uniformly
+ *
+ * @param jsonStr - input json string
+ */
+function jsonParse(jsonStr: string): NeedToTyped {
+  try {
+    return JSON.parse(jsonStr);
+  } catch (e) {
+    return {};
+  }
+}
+
+/**
+ * get the cache data
+ *
+ * @param key - cache key
+ */
+async function getStorageItem(key: string): Promise<NeedToTyped> {
+  return jsonParse(await global.Hippy.asyncStorage.getItem(key));
+}
+
+/**
+ * set cache data
+ *
+ * @param key - cache key
+ * @param data - cache data
+ */
+async function setStorageItem(key: string, data: NeedToTyped): Promise<void> {
+  await global.Hippy.asyncStorage.setItem(key, JSON.stringify(data));
+}
+
+/**
+ * set global uniqueId，ensure uniqueId is the max one, won't repeat with rendered nodes
+ *
+ * @param svrUniqueId - server returned unique ID
+ * @param cachedUniqueId - cached unique ID
+ */
+export function setGlobalUniqueId(svrUniqueId = 0, cachedUniqueId = 0): void {
+  global[SSR_UNIQUE_ID_KEY] = svrUniqueId > cachedUniqueId ? svrUniqueId : cachedUniqueId;
+}
 
 /**
  * get uniqueId
@@ -106,7 +163,7 @@ function equalObjects(object: {}, other: {}): boolean {
  *
  * @param nodes - native node list
  */
-function filterUnUsedNodes(nodes) {
+function filterUnUsedNodes(nodes: SsrNode[]): SsrNode[] {
   // comment node and text node do not have tagName no need render
   return nodes.filter(v => v.name !== 'comment' && v.tagName);
 }
@@ -117,7 +174,7 @@ function filterUnUsedNodes(nodes) {
  * @param lNode - to compare node
  * @param rNode - compare node
  */
-function isSameNode(lNode, rNode): {
+function isSameNode(lNode: SsrNode, rNode: SsrNode): {
   isSameType: boolean;
   isSameNode: boolean;
 } {
@@ -129,7 +186,7 @@ function isSameNode(lNode, rNode): {
   result.isSameType = true;
 
   // this feature used to optimize image render, if img has noRenderSsrCache props,
-  // we use default base64 image to instead img's src when used cache. so we need
+  // we use default base64 image to instead img src when used cache. so we need
   // update img when insert cgi ssr node
   if (rNode.tagName === 'img' && rNode.props.noRenderSsrCache === true) {
     result.isSameNode = false;
@@ -150,7 +207,7 @@ function isSameNode(lNode, rNode): {
  * @param list - ssr node list
  * @param parentId - parent node id
  */
-function treeToList(tree, list: NeedToTyped[] = [], parentId = 0) {
+function treeToList(tree: SsrTreeNode, list: SsrNode[] = [], parentId = 0): SsrNode[] {
   if (parentId) {
     tree.pId = parentId;
     tree.id = getUniqueId();
@@ -169,7 +226,7 @@ function treeToList(tree, list: NeedToTyped[] = [], parentId = 0) {
  * @param node - ssr node tree
  * @param list - ssr node list
  */
-function listToTree(node, list): NeedToTyped {
+function listToTree(node: SsrNode, list: SsrNode[]): SsrTreeNode {
   let childrens = list
     .filter(v => v.pId === node.id)
     .sort((v, k) => v.index - k.index);
@@ -200,7 +257,7 @@ function listToTree(node, list): NeedToTyped {
  * @param type - operate type
  * @param list - to add node list
  */
-function addDiffNodes(chunkNodes, type, list) {
+function addDiffNodes(chunkNodes: OperateNodeType, type: string, list: SsrNode[]): OperateNodeType {
   if (type === 'create') {
     chunkNodes.newNodeList = chunkNodes.newNodeList.concat(list);
     chunkNodes.create = chunkNodes.create.concat(list.filter(v => v.name !== 'comment'));
@@ -222,7 +279,7 @@ function addDiffNodes(chunkNodes, type, list) {
  * @param serverTree - server returned node tree
  * @param chunkNodes - operate node chunk
  */
-function diffNodeTree(cacheTree, serverTree, chunkNodes) {
+function diffNodeTree(cacheTree: SsrTreeNode, serverTree: SsrTreeNode, chunkNodes: OperateNodeType): OperateNodeType {
   const oldChildren = cacheTree.children;
   const { children } = serverTree;
   const commonLen = Math.min(oldChildren.length, children.length);
@@ -286,15 +343,10 @@ function diffNodeTree(cacheTree, serverTree, chunkNodes) {
  * @param serverList - server returned node list
  */
 export function diffSsrNodes(
-  cacheList: NeedToTyped[],
-  serverList: NeedToTyped[],
-): {
-    newNodeList: NeedToTyped[];
-    create: NeedToTyped[];
-    update: NeedToTyped[];
-    delete: NeedToTyped[];
-  } {
-  const chunkNodes = {
+  cacheList: SsrNode[],
+  serverList: SsrNode[],
+): OperateNodeType {
+  const chunkNodes: OperateNodeType = {
     // merged node list
     newNodeList: [],
     create: [],
@@ -314,7 +366,7 @@ export function diffSsrNodes(
  */
 export function insertNativeNodes(
   rootViewId: number,
-  nodes: NeedToTyped[],
+  nodes: SsrNode[],
 ): void {
   global.Hippy.document.startBatch();
   global.Hippy.document.createNode(rootViewId, filterUnUsedNodes(nodes));
@@ -329,7 +381,7 @@ export function insertNativeNodes(
  */
 export function deleteNativeNodes(
   rootViewId: number,
-  nodes: NeedToTyped[],
+  nodes: SsrNode[],
 ): void {
   global.Hippy.document.startBatch();
   if (IS_IOS) {
@@ -350,7 +402,7 @@ export function deleteNativeNodes(
  */
 export function updateNativeNodes(
   rootViewId: number,
-  nodes: NeedToTyped[],
+  nodes: SsrNode[],
 ): void {
   global.Hippy.document.startBatch();
   if (IS_IOS) {
@@ -372,7 +424,7 @@ export function updateNativeNodes(
  */
 export function handleDifferentNodes(
   rootViewId: number,
-  unHandleNodes: NeedToTyped,
+  unHandleNodes: OperateNodeType,
 ): void {
   if (unHandleNodes.create.length) {
     insertNativeNodes(rootViewId, unHandleNodes.create);
@@ -383,4 +435,98 @@ export function handleDifferentNodes(
   if (unHandleNodes.delete.length) {
     deleteNativeNodes(rootViewId, unHandleNodes.delete);
   }
+}
+
+/**
+ * use cache to render native nodes
+ *
+ * @param rootViewId - native root id
+ * @param cacheKey - cached key
+ *
+ * @public
+ */
+export async function renderNativeNodesByCache(
+  rootViewId: number,
+  cacheKey: string,
+): Promise<[SsrNode[], SsrNode[], number]> {
+  const cacheData = await getStorageItem(cacheKey);
+
+  // cache exist and valid
+  if (cacheData?.list?.length) {
+    const cacheNodes = cacheData.list;
+    // deep copy origin cached nodes, because node insert to native will change some props that
+    // should cause hydrate mismatch, so we need cache origin nodes
+    const backNodes = JSON.parse(JSON.stringify(cacheNodes));
+    // root Node should be child of native rootView, so set root node's pId(parent Id) to
+    // rootViewId(native view id)
+    cacheNodes[0].pId = rootViewId;
+    backNodes[0].pId = rootViewId;
+    // use cache nodes to render
+    insertNativeNodes(rootViewId, cacheNodes);
+    // return all list
+    return [cacheNodes, backNodes, cacheData.uniqueId];
+  }
+  // no cache data or exception, return empty
+  return [[], [], 0];
+}
+
+/**
+ * render ssrNodes to native, cache rendered nodes when useCache is true.
+ * return value is boolean, false should clear cached nodes
+ *
+ * @param rootViewId - native root id
+ * @param ssrNodes - server render nodes
+ * @param uniqueId - server render unique id
+ * @param cacheNodes - cached nodes
+ * @param backNodes - backup cached nodes, use to diff
+ * @param cacheUniqueId - cached unique id
+ * @param useCache - use cache or not
+ * @param cacheKey - cache key
+ *
+ * @public
+ */
+export async function renderSsrNodes(
+  rootViewId: number,
+  ssrNodes: SsrNode[],
+  uniqueId: number,
+  useCache?: boolean,
+  cacheKey?: string,
+  cacheNodes?: SsrNode[],
+  backNodes?: SsrNode[],
+  cacheUniqueId?: number,
+): Promise<boolean> {
+  if (ssrNodes.length) {
+    // deep copy to cached, because node insert to native will change node props that
+    // cause mismatch
+    const ssrCacheNodes = JSON.parse(JSON.stringify(ssrNodes));
+    // handle global uniqueId，compare with uniqueId, use the max one
+    setGlobalUniqueId(uniqueId, cacheUniqueId);
+    if (cacheNodes?.length && backNodes?.length) {
+      // used cache, we should diff nodes
+      try {
+        // find different nodes, use origin server node list diff with origin cached node list
+        const chunkNodes = diffSsrNodes(backNodes, ssrNodes);
+        // update different nodes
+        handleDifferentNodes(rootViewId, chunkNodes);
+        // save rendered nodes to hydrate
+        global.hippySSRNodes = chunkNodes.newNodeList;
+      } catch (e) {
+        // diff exception happens
+        return false;
+      }
+    } else {
+      // no cache, insert ssrNodes directly
+      insertNativeNodes(rootViewId, ssrNodes);
+      // save rendered nodes to hydrate
+      global.hippySSRNodes = ssrNodes;
+    }
+    if (useCache && cacheKey) {
+      await setStorageItem(cacheKey, {
+        // current global unique Id
+        uniqueId: global[SSR_UNIQUE_ID_KEY] ?? 0,
+        list: ssrCacheNodes,
+      });
+    }
+  }
+  return true;
 }

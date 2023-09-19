@@ -68,7 +68,10 @@ if (global.__INITIAL_STATE__) {
 
 
 // Monitor screen size and update size data
-EventBus.$on('onSizeChanged', (newScreenSize) => {
+EventBus.$on('onSizeChanged', (newScreenSize: {
+  width: number;
+  height: number;
+}) => {
   if (newScreenSize.width && newScreenSize.height) {
     setScreenSize({
       width: newScreenSize.width,
