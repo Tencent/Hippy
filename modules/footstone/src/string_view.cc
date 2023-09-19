@@ -24,6 +24,15 @@
 
 using string_view = footstone::stringview::string_view;
 
+#ifdef __APPLE__
+#if defined(__clang__) && __clang_major__ >= 15
+std::size_t std::hash<footstone::stringview::string_view::u8string>::operator()(
+  const footstone::stringview::string_view::u8string& value) const noexcept {
+  return std::hash<std::string>()(std::string(value.begin(), value.end()));
+}
+#endif
+#endif
+
 #if defined(__GLIBC__) && !defined(__cpp_char8_t)
 std::size_t std::hash<string_view::u8string>::operator()(
   const string_view::u8string& value) const noexcept {
