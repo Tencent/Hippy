@@ -157,6 +157,15 @@ class string_view final {
 }  // namespace stringview
 }  // namespace footstone
 
+#ifdef __APPLE__
+#if defined(__clang__) && __clang_major__ >= 15
+template<>
+struct std::hash<footstone::stringview::string_view::u8string> {
+  std::size_t operator()(const footstone::stringview::string_view::u8string& value) const noexcept;
+};
+#endif
+#endif
+
 template<>
 struct std::hash<footstone::stringview::string_view> {
   std::size_t operator()(const footstone::stringview::string_view& value) const noexcept;
