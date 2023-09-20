@@ -618,8 +618,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 mCurrentState = result ? EngineState.INITED : EngineState.INITERRORED;
                 if (state != EngineState.ONRESTART) {
                     notifyEngineInitialized(
-                            result ? EngineInitStatus.STATUS_OK
-                                    : EngineInitStatus.STATUS_ERR_BRIDGE,
+                            result ? EngineInitStatus.STATUS_OK : EngineInitStatus.STATUS_ERR_BRIDGE,
                             e);
                 } else {
                     LogUtils.e(TAG,
@@ -937,12 +936,14 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 mDevSupportManager.handleException(throwable);
             } else {
                 if (throwable instanceof HippyJsException) {
-                    mGlobalConfigs.getExceptionHandler()
-                            .handleJsException((HippyJsException) throwable);
+                    if (mGlobalConfigs != null) {
+                        mGlobalConfigs.getExceptionHandler()
+                                .handleJsException((HippyJsException) throwable);
+                    }
                     if (mModuleListener != null) {
                         mModuleListener.onJsException((HippyJsException) throwable);
                     }
-                } else {
+                } else if (mGlobalConfigs != null) {
                     mGlobalConfigs.getExceptionHandler()
                             .handleNativeException(new RuntimeException(throwable), true);
                 }
