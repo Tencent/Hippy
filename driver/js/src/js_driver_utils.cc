@@ -278,25 +278,35 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
                       << ", is_local_file = " << is_local_file;
   string_view code_cache_content;
   uint64_t modify_time = 0;
-  std::future<std::string> read_file_future;
   string_view code_cache_path;
+  std::future<u8string> read_file_future;
   auto loader = scope->GetUriLoader().lock();
   FOOTSTONE_CHECK(loader);
+  auto& worker_manager = loader->GetWorkerManager();
+  auto worker_task_runner = worker_manager->CreateTaskRunner(kWorkerRunnerName);
   if (is_use_code_cache) {
     if (is_local_file) {
       modify_time = HippyFile::GetFileModifyTime(uri);
     }
     code_cache_path = code_cache_dir + file_name + string_view("_") + string_view(std::to_string(modify_time));
-    std::promise<std::string> read_file_promise;
+    std::promise<u8string> read_file_promise;
     read_file_future = read_file_promise.get_future();
     auto engine = scope->GetEngine().lock();
     FOOTSTONE_CHECK(engine);
-    loader->RequestUntrustedContent(file_name, {}, MakeCopyable([p = std::move(read_file_promise)](
-        UriLoader::RetCode ret_code,
-        const std::unordered_map<std::string, std::string>& meta,
-        UriLoader::bytes content) mutable {
+    auto func = hippy::base::MakeCopyable([p = std::move(read_file_promise), code_cache_path, code_cache_dir]() mutable {
+      u8string content;
+      HippyFile::ReadFile(code_cache_path, content, true);
+      if (content.empty()) {
+        FOOTSTONE_DLOG(INFO) << "Read code cache failed";
+        int ret = HippyFile::RmFullPath(code_cache_dir);
+        FOOTSTONE_DLOG(INFO) << "RmFullPath ret = " << ret;
+        FOOTSTONE_USE(ret);
+      } else {
+        FOOTSTONE_DLOG(INFO) << "Read code cache succ";
+      }
       p.set_value(std::move(content));
-    }));
+    });
+    worker_task_runner->PostTask(std::move(func));
   }
   UriLoader::RetCode code;
   std::unordered_map<std::string, std::string> meta;
@@ -353,8 +363,6 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
       };
       auto engine = scope->GetEngine().lock();
       FOOTSTONE_CHECK(engine);
-      auto& worker_manager = loader->GetWorkerManager();
-      auto worker_task_runner = worker_manager->CreateTaskRunner(kWorkerRunnerName);
       worker_task_runner->PostTask(std::move(func));
     }
   }
