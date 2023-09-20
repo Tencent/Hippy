@@ -32,7 +32,7 @@ CMakeLists.txt @churchill-zhang @ilikethese
 /android/**/src/main/jni/ @churchill-zhang @ilikethese
 
 # framework: ios
-/ios/ @ozonelmy @wwwcg
+/ios/ @wwwcg @ruifanyuan
 
 # dom: layout
 /layout/ @ilikethese
@@ -45,7 +45,7 @@ CMakeLists.txt @churchill-zhang @ilikethese
 /examples/hippy-*-demo/ @zealotchen0
 /examples/android-demo/ @siguangli
 /examples/android-demo/res/ @zealotchen0
-/examples/ios-demo/ @ozonelmy @wwwcg
+/examples/ios-demo/ @wwwcg @ruifanyuan
 /examples/ios-demo/res/ @zealotchen0
 /static/ @zealotchen0
 
@@ -62,8 +62,8 @@ CMakeLists.txt @churchill-zhang @ilikethese
 /gradle/ @siguangli
 
 # build: xcode
-/hippy.podspec @ozonelmy @wwwcg
-/_Pods.xcodeproj/ @wwwcg @ozonelmy
+/hippy.podspec @wwwcg @ruifanyuan
+/_Pods.xcodeproj/ @wwwcg @ruifanyuan
 
 # build: config
 /buildconfig/ @churchill-zhang @ilikethese
