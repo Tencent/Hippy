@@ -38,7 +38,7 @@ CMakeLists.txt @ilikethese @etkmao
 /framework/android/**/src/main/cpp/ @etkmao @ilikethese
 
 # framework: ios
-/framework/ios/ @ozonelmy @wwwcg
+/framework/ios/ @wwwcg @ruifanyuan
 
 # framework: voltron
 /framework/voltron/ @lvfen @skindhu
@@ -48,13 +48,13 @@ CMakeLists.txt @ilikethese @etkmao
 
 # renderer: native
 /renderer/native/android/ @siguangli @iPel
-/renderer/native/ios/ @ozonelmy @wwwcg
+/renderer/native/ios/ @wwwcg @ruifanyuan
 
 # renderer: tdf
 /renderer/tdf/ @vimerzhao
 /renderer/tdf/android/ @siguangli @iPel
 /renderer/tdf/android/**/src/main/cpp/ @ilikethese @etkmao
-/renderer/tdf/ios/ @ozonelmy @wwwcg
+/renderer/tdf/ios/ @wwwcg @ruifanyuan
 
 # renderer: voltron
 /renderer/voltron/ @lvfen @skindhu
@@ -63,7 +63,7 @@ CMakeLists.txt @ilikethese @etkmao
 /modules/vfs/ @etkmao @ilikethese
 /modules/vfs/android/ @siguangli @iPel
 /modules/vfs/android/**/src/main/cpp/ @etkmao @ilikethese
-/modules/vfs/ios/ @ozonelmy @wwwcg
+/modules/vfs/ios/ @wwwcg @ruifanyuan
 /modules/vfs/voltron/ @lvfen @skindhu
 
 # module: voltron
@@ -74,7 +74,7 @@ CMakeLists.txt @ilikethese @etkmao
 /modules/android/jni/ @etkmao @ilikethese
 
 # module: ios
-/modules/ios/ @ozonelmy @wwwcg
+/modules/ios/ @wwwcg @ruifanyuan
 
 # module: footstone
 /modules/footstone/ @etkmao @ilikethese
@@ -88,7 +88,7 @@ CMakeLists.txt @ilikethese @etkmao
 # doc: example
 /framework/examples/android-demo/ @siguangli @iPel
 /framework/examples/android-demo/res/ @zealotchen0
-/framework/examples/ios-demo/ @ozonelmy @wwwcg
+/framework/examples/ios-demo/ @wwwcg @ruifanyuan
 /framework/examples/ios-demo/res/ @zealotchen0
 
 # doc: pages
@@ -104,9 +104,9 @@ CMakeLists.txt @ilikethese @etkmao
 /gradle/ @siguangli @iPel
 
 # build: xcode
-/HippySDK.xcworkspace/ @ozonelmy @wwwcg
-/hippy.podspec @ozonelmy @wwwcg
-/xcodeinitscript.sh @ozonelmy @wwwcg
+/HippySDK.xcworkspace/ @wwwcg @ruifanyuan
+/hippy.podspec @wwwcg @ruifanyuan
+/xcodeinitscript.sh @wwwcg @ruifanyuan
 
 # build: config
 /buildconfig/ @ilikethese @etkmao
