@@ -18,6 +18,7 @@ package com.openhippy.connector;
 
 import android.view.View;
 import androidx.annotation.NonNull;
+import android.os.Process;
 
 @SuppressWarnings("JavaJniMissingFunction")
 public class DomManager implements Connector {
@@ -54,6 +55,11 @@ public class DomManager implements Connector {
 
     public void attachToRoot(View root) {
         setDomManager(root.getId(), mInstanceId);
+    }
+
+    public void setThreadPrority() {
+        int tid = Process.myTid();
+        Process.setThreadPriority(tid, Thread.MAX_PRIORITY);
     }
 
     /**
