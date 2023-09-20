@@ -36,7 +36,7 @@ import {
 } from '../util';
 import { EventMethod, EventHandlerType } from '../util/event';
 import Native from '../runtime/native';
-import { updateChild, updateWithChildren } from './native';
+import { updateChild, updateWithChildren, updateEvent } from './native';
 import { Event, EventDispatcher, EventEmitter } from './native/event';
 import { Text } from './native/components';
 import ViewNode from './view-node';
@@ -621,7 +621,7 @@ class ElementNode extends ViewNode {
         this.events[nativeEventName].type = EventHandlerType.ADD;
       }
     });
-    updateChild(this);
+    updateEvent(this);
   }
 
   removeEventListener(eventNames, callback, options) {
@@ -643,7 +643,7 @@ class ElementNode extends ViewNode {
         this.events[nativeEventName].type = EventHandlerType.REMOVE;
       }
     });
-    updateChild(this);
+    updateEvent(this);
     return observer;
   }
 

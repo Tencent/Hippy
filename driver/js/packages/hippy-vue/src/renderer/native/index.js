@@ -67,6 +67,7 @@ const NODE_OPERATION_TYPES = {
   updateNode: Symbol('updateNode'),
   deleteNode: Symbol('deleteNode'),
   moveNode: Symbol('moveNode'),
+  updateEvent: Symbol('updateEvent'),
 };
 
 let batchIdle = true;
@@ -173,6 +174,8 @@ function endBatch(app) {
           printNodeOperation(chunk.printedNodes, 'moveNode');
           sceneBuilder.move(chunk.nodes);
           break;
+        case NODE_OPERATION_TYPES.updateEvent:
+          handleEventListeners(chunk.eventNodes, sceneBuilder);
         default:
       }
     });
@@ -403,15 +406,6 @@ function getEventNode(targetNode) {
     Object.keys(eventsAttributes)
       .forEach((key) => {
         const { name, type, isCapture, listener } = eventsAttributes[key];
-        // if (!targetNode.isListenerHandled(key, type)) {
-        //   targetNode.setListenerHandledType(key, type);
-        //   eventList.push({
-        //     name,
-        //     type,
-        //     isCapture,
-        //     listener,
-        //   });
-        // }
         eventList.push({
           name,
           type,
@@ -628,6 +622,22 @@ function moveChild(parentNode, childNode, refInfo = {}) {
   endBatch(app);
 }
 
+function updateEvent(parentNode) {
+  if (!parentNode.isMounted) {
+    return;
+  }
+  const app = getApp();
+  const eventNode = getEventNode(parentNode);
+  batchNodes.push({
+    type: NODE_OPERATION_TYPES.updateEvent,
+    nodes: [],
+    eventNodes: [eventNode],
+    printedNodes: [],
+    updateEvent,
+  });
+  endBatch(app);
+}
+
 function updateChild(parentNode) {
   if (!parentNode.isMounted) {
     return;
@@ -669,6 +679,7 @@ export {
   insertChild,
   removeChild,
   updateChild,
+  updateEvent,
   moveChild,
   updateWithChildren,
   getElemCss,
