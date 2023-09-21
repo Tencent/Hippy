@@ -1,10 +1,10 @@
 const path = require('path');
 const fs = require('fs');
+const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
+const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
+const { VueLoaderPlugin } = require('vue-loader');
 const webpack = require('webpack');
 
-const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
-const compilerSSR = require('@hippy/vue-next-compiler-ssr');
-const { VueLoaderPlugin } = require('vue-loader');
 const pkg = require('../../package.json');
 
 let cssLoader = '@hippy/vue-css-loader';
@@ -16,44 +16,67 @@ if (fs.existsSync(hippyVueCssLoaderPath)) {
   console.warn('* Using the @hippy/vue-css-loader defined in package.json');
 }
 
-let vueNext = '@hippy/vue-next';
-const hippyVueNextPath = path.resolve(__dirname, '../../../../packages/hippy-vue-next/dist/index.js');
-if (fs.existsSync(hippyVueNextPath)) {
-  console.warn(`* Using the @hippy/vue-next in ${hippyVueNextPath}`);
-  vueNext = hippyVueNextPath;
-} else {
-  console.warn('* Using the @hippy/vue-next defined in package.json');
-}
-const { isNativeTag } = require(vueNext);
-
+/**
+ * webpack ssr client dev config
+ */
 module.exports = {
-  mode: 'production',
+  mode: 'development',
   bail: true,
-  devtool: false,
-  target: 'node',
+  devtool: 'eval-source-map',
+  watch: true,
+  watchOptions: {
+    // file changed, rebuild delay time
+    aggregateTimeout: 1000,
+  },
+  devServer: {
+    remote: {
+      protocol: 'http',
+      host: '127.0.0.1',
+      port: 38989,
+    },
+    // support vue dev tools，default is false
+    vueDevtools: false,
+    // not support one debug server debug multiple app
+    multiple: false,
+    // ssr do not support hot replacement now
+    hot: false,
+    // default is true
+    liveReload: false,
+    client: {
+      // hippy do not support error tips layer
+      overlay: false,
+    },
+    devMiddleware: {
+      // write hot replacement file to disk
+      writeToDisk: true,
+    },
+  },
   entry: {
-    index: path.resolve(pkg.serverEntry),
+    // client async bundle
+    home: [path.resolve(pkg.nativeMain)],
+    // client ssr entry
+    index: [path.resolve(pkg.ssrMain)],
   },
   output: {
-    filename: 'index.js',
-    strictModuleExceptionHandling: true,
-    path: path.resolve('dist/server'),
+    filename: '[name].bundle',
+    path: path.resolve('./dist/dev/'),
+    globalObject: '(0, eval)("this")',
   },
   plugins: [
-    // only generate one chunk at server side
-    new webpack.optimize.LimitChunkCountPlugin({
-      maxChunks: 1,
-    }),
+    new webpack.NamedModulesPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: JSON.stringify('production'),
-        HIPPY_SSR: true,
+        NODE_ENV: JSON.stringify('development'),
+        HOST: JSON.stringify(process.env.DEV_HOST || '127.0.0.1'),
+        PORT: JSON.stringify(process.env.DEV_PORT || 38989),
       },
       __VUE_OPTIONS_API__: true,
       __VUE_PROD_DEVTOOLS__: false,
+      __PLATFORM__: null,
     }),
     new CaseSensitivePathsPlugin(),
     new VueLoaderPlugin(),
+    new HippyDynamicImportPlugin(),
   ],
   module: {
     rules: [
@@ -64,20 +87,13 @@ module.exports = {
             loader: 'vue-loader',
             options: {
               compilerOptions: {
-                // because hippy do not support innerHTML, so we should close this feature
+                // disable vue3 dom patch flag，because hippy do not support innerHTML
                 hoistStatic: false,
                 // whitespace handler, default is 'condense', it can be set 'preserve'
                 whitespace: 'condense',
-                // Vue will recognize non-HTML tags as components, so for Hippy native tags,
-                // Vue needs to be informed to render them as custom elements
-                isCustomElement: tag => isNativeTag && isNativeTag(tag),
-                // real used ssr runtime package, render vue node at server side
-                ssrRuntimeModuleName: '@hippy/vue-next-server-renderer',
                 // do not generate html comment node
                 comments: false,
               },
-              // real used vue compiler
-              compiler: compilerSSR,
             },
           },
         ],
@@ -98,13 +114,16 @@ module.exports = {
                   '@babel/preset-env',
                   {
                     targets: {
-                      node: '16.0',
+                      chrome: 57,
+                      ios: 9,
                     },
                   },
                 ],
               ],
               plugins: [
-                ['@babel/plugin-proposal-nullish-coalescing-operator'],
+                ['@babel/plugin-proposal-class-properties'],
+                ['@babel/plugin-proposal-decorators', { legacy: true }],
+                ['@babel/plugin-transform-runtime', { regenerator: true }],
               ],
             },
           },
@@ -117,7 +136,6 @@ module.exports = {
           options: {
             // if you would like to use base64 for picture, uncomment limit: true
             // limit: true,
-            limit: 8192,
             fallback: 'file-loader',
             name: '[name].[ext]',
             outputPath: 'assets/',

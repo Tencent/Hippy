@@ -12,15 +12,15 @@ import { type CallbackType } from '@hippy/vue-next';
 export function ssrEntry(bundleName: string, entryCallback?: CallbackType): void {
   let params = null;
   // save raw register function
-  const { regist } = Hippy.register;
-  Hippy.register.regist = (bundleName, callback) => {
+  const { regist } = global.Hippy.register;
+  global.Hippy.register.regist = (bundleName, callback) => {
     // hijack raw register, avoid multiple execution
     if (callback) {
       callback(params);
     }
   };
   // register hippy instance
-  regist.call(Hippy.register, bundleName, (superProps) => {
+  regist.call(global.Hippy.register, bundleName, (superProps) => {
     params = superProps;
     // execute entry function
     if (entryCallback) {

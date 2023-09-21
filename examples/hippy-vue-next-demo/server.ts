@@ -77,4 +77,4 @@ server.all('/getSsrFirstScreenData', (req, rsp) => {
 
 // start server
 server.listen(serverPort);
-console.log(`Server listen on :${serverPort}`);
+console.log(`Server listen on:${serverPort}`);

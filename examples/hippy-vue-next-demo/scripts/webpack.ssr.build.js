@@ -1,11 +1,10 @@
 /**
- * build script for ssr
+ * build js script for ssr production
  */
 const { arch } = require('os');
 const { exec, rm, cp } = require('shelljs');
-const { watch } = require('chokidar');
 
-let envPrefixStr = 'cross-env-os os="Windows_NT,Linux,Darwin" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider HIPPY_SSR=true';
+let envPrefixStr = 'cross-env-os os="Windows_NT,Linux,Darwin" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider';
 const isArmCpu = arch()
   .toLowerCase()
   .includes('arm');
@@ -13,16 +12,13 @@ if (isArmCpu) {
   envPrefixStr = '';
 }
 
-const isProd = process.argv[process.argv.length - 1] !== 'development';
-const mode = isProd ? '--mode production' : '--mode development';
-
 /**
  * get executed script
  *
  * @param configFile - config file name
  */
 function getScriptCommand(configFile) {
-  return `${envPrefixStr} webpack --config scripts/webpack-ssr-config/${configFile} ${mode}`;
+  return `${envPrefixStr} webpack --config scripts/webpack-ssr-config/${configFile} --mode production`;
 }
 
 /**
@@ -107,37 +103,7 @@ function buildProduction() {
   copyFilesToNativeDemo();
 }
 
-/**
- * build development bundle
- */
-function buildDevelopment() {
-  // development, build all entry bundle and execute all server, watching
-  // first, remove dist directory
-  rm('-rf', './dist');
-  // second, build all js bundle
-  buildJsBundle();
-  // third, build server entry
-  buildServerEntry();
-}
-
-// build bundle
-isProd ? buildProduction() : buildDevelopment();
-
-// development watch and rebuild
-if (!isProd) {
-  // watch all js
-  watch('./src').on('change', (eventName) => {
-    console.log(`file changed: ${eventName}, rebuild all js bundle.`);
-    buildJsBundle();
-    buildServerEntry();
-  });
-
-
-  // watch server entry
-  watch('./server.ts').on('change', (eventName) => {
-    console.log(`file changed: ${eventName}, rebuild server entry.`);
-    buildServerEntry();
-  });
-}
+// build production bundle
+buildProduction();
 
 

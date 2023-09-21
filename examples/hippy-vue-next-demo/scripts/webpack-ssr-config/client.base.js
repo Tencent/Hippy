@@ -24,19 +24,18 @@ if (fs.existsSync(hippyVueCssLoaderPath)) {
  * @param env build environment
  */
 exports.getWebpackSsrBaseConfig = function (platform, env) {
-  const isDev = env === 'development';
   // do not generate vendor at development
-  const manifest = isDev ? '' : require(`../../dist/${platform}/vendor-manifest.json`);
+  const manifest = require(`../../dist/${platform}/vendor-manifest.json`);
   return {
     mode: env,
     bail: true,
-    devtool: env === 'production' ? false : 'eval-source-map',
+    devtool: false,
     entry: {
       home: [path.resolve(pkg.nativeMain)],
     },
     output: {
       filename: `[name].${platform}.js`,
-      path: path.resolve(`./dist/${isDev ? 'dev' : `${platform}`}/`),
+      path: path.resolve(`./dist/${platform}/`),
       globalObject: '(0, eval)("this")',
       // CDN path can be configured to load children bundles from remote server
       // publicPath: 'https://xxx/hippy/hippyVueNextDemo/',
@@ -44,11 +43,7 @@ exports.getWebpackSsrBaseConfig = function (platform, env) {
     plugins: [
       new webpack.NamedModulesPlugin(),
       new webpack.DefinePlugin({
-        'process.env': isDev ? {
-          NODE_ENV: JSON.stringify('development'),
-          HOST: JSON.stringify(process.env.DEV_HOST || '127.0.0.1'),
-          PORT: JSON.stringify(process.env.DEV_PORT || 38989),
-        } : {
+        'process.env': {
           NODE_ENV: JSON.stringify(env),
         },
         __VUE_OPTIONS_API__: true,
@@ -61,7 +56,7 @@ exports.getWebpackSsrBaseConfig = function (platform, env) {
       new WebpackManifestPlugin({
         fileName: `manifest.${platform}.json`,
       }),
-      isDev ? () => {} : new webpack.DllReferencePlugin({
+      new webpack.DllReferencePlugin({
         context: path.resolve(__dirname, '../..'),
         manifest,
       }),
@@ -125,7 +120,7 @@ exports.getWebpackSsrBaseConfig = function (platform, env) {
             options: {
               // if you would like to use base64 for picture, uncomment limit: true
               // limit: true,
-              limit: isDev ? true : 8192,
+              limit: 1024,
               fallback: 'file-loader',
               name: '[name].[ext]',
               outputPath: 'assets/',
