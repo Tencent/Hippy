@@ -1,7 +1,7 @@
 import { type StyleNode, insertStyleForSsrNodes } from '@hippy/vue-next-style-parser';
 import type { SsrNode } from '@hippy/vue-next-server-renderer';
 import { renderNativeNodesByCache, renderSsrNodes, deleteNativeNodes, SSR_UNIQUE_ID_KEY } from './ssr-node-ops';
-import { IS_IOS } from './env';
+import { IS_IOS, isDev } from './env';
 import { ssrEntry } from './webpack-plugin';
 
 // hippy bundle name
@@ -12,9 +12,9 @@ const bundleName = 'Demo';
  */
 async function executionAsyncResource() {
   const platform = IS_IOS ? 'ios' : 'android';
-  const isDev = process.env.NODE_ENV === 'development';
-  // this is async js name, write in client.base.js config file
-  const fileName = `home.${platform}.js`;
+  // this is async js name, write in client.base.js config file for production
+  // in client.dev.js config file for development
+  const fileName = `home.${isDev ? 'bundle' : `${platform}.js`}`;
   const url = `${isDev ? `http://${process.env.HOST}:${process.env.PORT}/` : ''}${fileName}`;
   // @ts-ignore
   global.dynamicLoad(url, (ret) => {
@@ -140,6 +140,8 @@ function ssr(): void {
       })
       .catch((error) => {
         console.log('response error: ', error);
+        // execute client bundle
+        executionAsyncResource();
       });
   });
 }
