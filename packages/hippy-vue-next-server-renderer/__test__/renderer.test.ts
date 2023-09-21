@@ -27,14 +27,14 @@ jest.spyOn(vueServerRender, 'renderToString').mockImplementation((app, options) 
   if (options?.isError) {
     return Promise.resolve('');
   }
-  const nodeString = '{"id":2,"name":"View","props":{"onTouchStart":true,"onTouchstart":true,"onTouchMove":true,"onTouchend":true,"onTouchcancel":true},"children":['
-    + '{"id":3,"name":"Text","props":{"text":"hello"},},'
+  const nodeString = '{"id":2,"name":"View","props":{"caret-color":"gray","underline-color-android":"gray","placeholder-text-color":"gray","break-strategy":"simple","onTouchStart":true,"onTouchstart":true,"onTouchMove":true,"onTouchend":true,"onTouchcancel":true},"children":['
+    + '{"id":3,"name":"Text","props":{"text":"hello", "style": {"fontWeight":100}},},'
     + '{"id":4,"name":"ViewPager","props":{"attributes":{"class":"wrapper"},"onDropped":true,"onDragging":true,"onStateChanged":true},"children":['
     + '{"id":5,"name":"ViewPagerItem","props":{"attributes":{"id":"root-item"}}},],},'
     + '{"id":-1,"name":"comment","props":{},},'
-    + '{"id":6,"name":"WebView","props":{}},'
+    + '{"id":6,"name":"WebView","props":{"src":"https://hippyjs.org"}},'
     + '{"id":7,"name":"Modal","props":{}},'
-    + '{"id":8,"name":"TextInput","props":{"onChange":true,"onSelect":true}},'
+    + '{"id":8,"name":"TextInput","props":{"onChange":true,"onSelect":true, "placeholder": 100, "maxlength": 5, "value": "123", "disabled": true, "type": "search"}},'
     + '{"id":9,"name":"ListView","props":{"onListReady":true,"onEndReached":true}},'
     + '],}';
   return Promise.resolve(nodeString);
@@ -113,9 +113,9 @@ describe('renderer.ts', () => {
       expect(rootNode.pId).toEqual(0);
       expect(rootNode.props).toEqual({ style: { flex: 1 }, attributes: { id: 'root', class: '' } });
       expect(divNode.pId).toEqual(1);
-      expect(divNode.props).toEqual({ attributes: { id: '', class: '' }, onTouchCancel: true, onTouchDown: true, onTouchEnd: true, onTouchMove: true });
+      expect(divNode.props).toEqual({ attributes: { id: '', class: '' }, caretColor: 'gray', underlineColorAndroid: 'gray', placeholderTextColor: 'gray', breakStrategy: 'simple', onTouchCancel: true, onTouchDown: true, onTouchEnd: true, onTouchMove: true });
       expect(textNode.pId).toEqual(2);
-      expect(textNode.props).toEqual({ attributes: { id: '', class: '' }, text: 'hello' });
+      expect(textNode.props).toEqual({ attributes: { id: '', class: '' }, text: 'hello', style: { fontWeight: '100' } });
       expect(swiperNode.pId).toEqual(2);
       expect(swiperNode.index).toEqual(1);
       expect(swiperNode.props).toEqual({ attributes: { id: '', class: 'wrapper' }, initialPage: undefined, onPageSelected: true, onPageScroll: true, onPageScrollStateChanged: true });
@@ -124,9 +124,21 @@ describe('renderer.ts', () => {
       expect(commentNode.pId).toEqual(2);
       expect((commentNode.index)).toEqual(2);
       expect(webviewNode.pId).toEqual(2);
-      expect(webviewNode.props).toEqual({ method: 'get', userAgent: '', attributes: { id: '', class: '' } });
+      expect(webviewNode.props).toEqual({ method: 'get', source: { uri: 'https://hippyjs.org' }, userAgent: '', attributes: { id: '', class: '' } });
       expect(inputNode.pId).toEqual(2);
-      expect(inputNode.props).toEqual({ attributes: { id: '', class: '' }, underlineColorAndroid: 0, changeText: true, selectionChange: true });
+      expect(inputNode.props).toEqual({
+        attributes: { id: '', class: '' },
+        underlineColorAndroid: 0,
+        changeText: true,
+        selectionChange: true,
+        placeholder: '100',
+        multiline: false,
+        numberOfLines: 1,
+        maxLength: 5,
+        defaultValue: '123',
+        editable: false,
+        keyboardType: 'web-search',
+      });
       expect(modalNode.pId).toEqual(2);
       expect(modalNode.props).toEqual({ collapsable: false, immersionStatusBar: true, transparent: true, attributes: { id: '', class: '' } });
       expect(ulNode.pId).toEqual(2);

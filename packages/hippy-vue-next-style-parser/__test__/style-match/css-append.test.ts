@@ -35,8 +35,19 @@ describe('style-match/index.ts', () => {
       { id: 6, pId: 4, index: 0, name: 'Text', props: { }, tagName: 'span' },
       { id: 7, pId: 4, index: 0, name: 'ViewPagerItem', props: { }, tagName: 'swiper-item' },
       { id: 8, pId: 4, index: 0, name: 'Modal', props: { }, tagName: 'dialog' },
-      { id: 9, pId: 4, index: 0, name: 'TextInput', props: { }, tagName: 'input' },
-      { id: 11, pId: 4, index: 0, name: 'View', props: { style: { overflowX: 'scroll' } }, tagName: 'div' },
+      { id: 9, pId: 4, index: 0, name: 'TextInput', props: { style: { caretColor: 'gray', underlineColorAndroid: 'gray', placeholderTextColor: 'gray' } }, tagName: 'input' },
+      { id: 11, pId: 4, index: 0, name: 'View', props: { style: {
+        overflowX: 'scroll',
+        textShadowOffset: {
+          x: 1,
+          y: 1,
+        },
+        // support declare textShadowOffsetX & textShadowOffsetY separately
+        textShadowOffsetX: 1,
+        textShadowOffsetY: 1,
+        textShadowRadius: 3,
+        textShadowColor: 'grey',
+      } }, tagName: 'div' },
     ];
     const styleContent = [
       // root class
@@ -71,9 +82,17 @@ describe('style-match/index.ts', () => {
             'flex',
           ],
           [
-            'overflow-y',
+            'overflowY',
             'scroll',
           ],
+        ],
+      ],
+      [
+        ['span'],
+        [
+          ['fontWeight', 123],
+          ['backgroundImage', 'url("https://hippyjs.org")'],
+          ['width', '24px'],
         ],
       ],
     ];
@@ -81,17 +100,29 @@ describe('style-match/index.ts', () => {
     // default style and css style check
     expect(nativeNodes[0].props.style).toEqual({ width: 50, backgroundColor: 4286611584, height: 50, flex: 1 });
     expect(nativeNodes[0].props.inlineStyle).toEqual({ flex: 1 });
-    expect(nativeNodes[1].props.style).toEqual({ display: 'flex', 'overflow-y': 'scroll' });
-    expect(nativeNodes[2].props.style).toEqual({ flex: 1 });
+    expect(nativeNodes[1].props.style).toEqual({ display: 'flex', overflowY: 'scroll' });
+    expect(nativeNodes[2].props.style).toEqual({ flex: 1, collapsable: false });
     expect(nativeNodes[4].props.style).toEqual({ backgroundColor: 0 });
-    expect(nativeNodes[5].props.style).toEqual({ color: 4278190080 });
+    expect(nativeNodes[5].props.style).toEqual({ color: 4278190080, backgroundImage: 'https://hippyjs.org', fontWeight: '123', width: 24 });
     expect(nativeNodes[6].props.style).toEqual({ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 });
-
     expect(nativeNodes[7].props.style).toEqual({ position: 'absolute' });
+    expect(nativeNodes[8].props.style).toEqual({
+      padding: 0,
+      color: 4278190080,
+      caretColor: 4286611584,
+      placeholderTextColor: 4286611584,
+      underlineColorAndroid: 4286611584,
+    });
 
-    expect(nativeNodes[8].props.style).toEqual({ padding: 0, color: 4278190080 });
-
-    expect(nativeNodes[9].props.style).toEqual({ overflowX: 'scroll', flexDirection: 'row' });
+    expect(nativeNodes[9].props.style).toEqual({ overflowX: 'scroll', flexDirection: 'row', textShadowColor: 4286611584,
+      textShadowOffset: {
+        height: 1,
+        width: 1,
+        x: 1,
+        y: 1,
+      },
+      textShadowRadius: 3,
+    });
     expect(nativeNodes[9].props.horizontal).toBeTruthy();
   });
 });
