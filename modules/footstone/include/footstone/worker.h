@@ -77,6 +77,7 @@ class Worker {
   }
   static bool IsTaskRunning();
   bool RunTask();
+  void BeforeStart(std::function<void()> before_start) { before_start_ = before_start; }
   void Start(bool in_new_thread = true);
 
   virtual void SetName(const std::string& name) = 0;
@@ -108,6 +109,7 @@ class Worker {
   void UpdateSpecific(uint32_t task_runner_id, std::array<void *, kWorkerKeysMax> array);
 
   std::thread thread_;
+  std::function<void()> before_start_;
   std::string name_;
   std::list<std::vector<std::shared_ptr<TaskRunner>>> running_group_list_;
   std::list<std::vector<std::shared_ptr<TaskRunner>>> pending_group_list_;
