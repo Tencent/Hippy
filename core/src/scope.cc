@@ -54,13 +54,16 @@ Scope::Scope(Engine* engine,
              std::string name,
              std::unique_ptr<RegisterMap> map)
     : engine_(engine), context_(nullptr), name_(std::move(name)), map_(std::move(map)) {
-  REGISTER_MODULE(ContextifyModule, RunInThisContext)
-  REGISTER_MODULE(ContextifyModule, LoadUntrustedContent)
-  REGISTER_MODULE(TimerModule, SetTimeout)
-  REGISTER_MODULE(TimerModule, ClearTimeout)
-  REGISTER_MODULE(TimerModule, SetInterval)
-  REGISTER_MODULE(TimerModule, ClearInterval)
-  REGISTER_MODULE(ConsoleModule, Log)
+  static std::once_flag flag;
+  std::call_once(flag, [] {
+    REGISTER_MODULE(ContextifyModule, RunInThisContext)
+    REGISTER_MODULE(ContextifyModule, LoadUntrustedContent)
+    REGISTER_MODULE(TimerModule, SetTimeout)
+    REGISTER_MODULE(TimerModule, ClearTimeout)
+    REGISTER_MODULE(TimerModule, SetInterval)
+    REGISTER_MODULE(TimerModule, ClearInterval)
+    REGISTER_MODULE(ConsoleModule, Log)
+  });
 }
 
 Scope::~Scope() {
