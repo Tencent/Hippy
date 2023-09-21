@@ -128,6 +128,7 @@ void Worker::Start(bool in_new_thread) {
   if (in_new_thread) {
     thread_ = std::thread([this]() -> void {
       SetName(name_);
+      if (before_start_) before_start_();
       driver_->Start();
     });
   } else {
