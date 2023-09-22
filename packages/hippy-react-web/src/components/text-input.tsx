@@ -33,7 +33,7 @@ import { isFunc } from '../utils';
  * @noInheritDoc
  */
 export interface TextInputProps extends LayoutableProps, ClickableProps {
-  style?: HippyTypes.Style;
+  style?: HippyTypes.TextStyleProp;
   caretColor?: string;
   defaultValue?: string;
   editable?: boolean;
@@ -65,9 +65,9 @@ const TextInput: React.FC<TextInputProps> = React.forwardRef<any, TextInputProps
   const copyProps = { ...props };
   const setStyle = (property: string, value: any) => {
     if (Array.isArray(style)) {
-      style.push({ property: value });
+      style.push({ [property]: value });
     } else {
-      style[property] = value;
+      (style as HippyTypes.Style)[property] = value;
     }
   };
 

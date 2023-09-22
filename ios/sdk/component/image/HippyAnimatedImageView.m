@@ -24,6 +24,8 @@
 #import "HippyAnimatedImage.h"
 #import <QuartzCore/QuartzCore.h>
 #import "HippyAssert.h"
+#import "HippyWeakProxy.h"
+
 @interface HippyAnimatedImageView ()
 
 // Override of public `readonly` properties as private `readwrite`

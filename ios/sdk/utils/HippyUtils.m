@@ -223,7 +223,7 @@ NSString *HippyMD5Hash(NSString *string) {
                      result[15]];
 }
 
-BOOL HippyIsMainQueue() {
+BOOL HippyIsMainQueue(void) {
     static void *mainQueueKey = &mainQueueKey;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -250,7 +250,7 @@ void HippyExecuteOnMainThread(dispatch_block_t block, BOOL sync) {
     }
 }
 
-CGFloat HippyScreenScale() {
+CGFloat HippyScreenScale(void) {
     static CGFloat scale = CGFLOAT_MAX;
     static dispatch_once_t onceToken;
     if (CGFLOAT_MAX == scale) {
@@ -265,7 +265,7 @@ CGFloat HippyScreenScale() {
     return scale;
 }
 
-CGSize HippyScreenSize() {
+CGSize HippyScreenSize(void) {
     static CGSize size = { 0, 0 };
     static dispatch_once_t onceToken;
     if (CGSizeEqualToSize(CGSizeZero, size)) {
@@ -332,6 +332,19 @@ void HippySwapInstanceMethods(Class cls, SEL original, SEL replacement) {
     } else {
         method_exchangeImplementations(originalMethod, replacementMethod);
     }
+}
+
+void HippySwapInstanceMethodWithBlock(Class cls, SEL original, id replacementBlock, SEL replacementSelector)
+{
+  Method originalMethod = class_getInstanceMethod(cls, original);
+  if (!originalMethod) {
+    return;
+  }
+
+  IMP implementation = imp_implementationWithBlock(replacementBlock);
+  class_addMethod(cls, replacementSelector, implementation, method_getTypeEncoding(originalMethod));
+  Method newMethod = class_getInstanceMethod(cls, replacementSelector);
+  method_exchangeImplementations(originalMethod, newMethod);
 }
 
 BOOL HippyClassOverridesClassMethod(Class cls, SEL selector) {

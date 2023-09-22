@@ -100,7 +100,6 @@ HIPPY_CUSTOM_SHADOW_PROPERTY(overflow, OverflowType, HippyShadowView) {
     view.overflow = OverflowScroll;
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
                     callback:(HippyResponseSenderBlock)callback) {
     [self.bridge.uiManager addUIBlock:
@@ -122,9 +121,7 @@ HIPPY_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
         }]);
     }];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)hippyTag
                     offsetX:(CGFloat)x
                     offsetY:(CGFloat)y
@@ -141,9 +138,7 @@ HIPPY_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)hippyTag
         }
     }];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)hippyTag
                     options:(NSDictionary *)options) {
     [self.bridge.uiManager addUIBlock:
@@ -172,6 +167,5 @@ HIPPY_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)hippyTag
         }
     }];
 }
-// clang-format on
 
 @end

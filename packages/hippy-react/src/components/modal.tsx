@@ -21,26 +21,27 @@
 /* eslint-disable no-underscore-dangle */
 
 import React from 'react';
-import * as StyleSheet from '../modules/stylesheet';
+import StyleSheet from '../modules/stylesheet';
 import { HippyEventListener } from '../event';
 import { Device } from '../native';
+import { Platform } from '../types';
 import View from './view';
 
-type ModalOrientation = 'portrait' | 'portrait-upside-down' | 'landscape' | 'landscape-left' | 'landscape-right';
+export type ModalOrientation = 'portrait' | 'portrait-upside-down' | 'landscape' | 'landscape-left' | 'landscape-right';
 
-interface ModalProps {
+export interface ModalProps {
   /**
    * Show or hide
    *
-   * Default false
+   * Default true
    */
-  visible: boolean;
+  visible?: boolean;
 
   /**
    * Primary key
    * > iOS only
    */
-  primaryKey: string;
+  primaryKey?: string;
 
   /**
    * Background is transparent or not
@@ -90,7 +91,7 @@ interface ModalProps {
    */
   supportedOrientations?: ModalOrientation[];
 
-  style?: HippyTypes.Style;
+  style?: HippyTypes.StyleProp;
 
   /**
    * Trigger when hardware button pressed
@@ -130,7 +131,7 @@ const styles = StyleSheet.create({
  * The Modal component is a basic way to present content above an enclosing view.
  * @noInheritDoc
  */
-class Modal extends React.Component<ModalProps, {}> {
+export class Modal extends React.Component<ModalProps, {}> {
   private static defaultProps = {
     visible: true,
   };
@@ -147,7 +148,7 @@ class Modal extends React.Component<ModalProps, {}> {
    * @ignore
    */
   public componentDidMount() {
-    if (Device.platform.OS === 'ios') {
+    if (Device.platform.OS === Platform.ios) {
       this.eventSubscription = new HippyEventListener('modalDismissed');
       this.eventSubscription.addCallback((params: any) => {
         const { primaryKey, onDismiss } = this.props;
@@ -162,7 +163,7 @@ class Modal extends React.Component<ModalProps, {}> {
    * @ignore
    */
   public componentWillUnmount() {
-    if (Device.platform.OS === 'ios') {
+    if (Device.platform.OS === Platform.ios) {
       if (this.eventSubscription) {
         this.eventSubscription.unregister();
       }

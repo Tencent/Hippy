@@ -22,12 +22,12 @@
     "React"
   ],
   "dependencies": {
-    "@hippy/react": "latest",
+    "@hippy/react": "v2.17-latest",
     "@hippy/react-reconciler": "react17",
-    "@hippy/react-web": "latest",
+    "@hippy/react-web": "v2.17-latest",
     "@hippy/rmc-list-view": "latest",
     "@hippy/rmc-pull-to-refresh": "latest",
-    "@hippy/web-renderer": "latest",
+    "@hippy/web-renderer": "v2.17-latest",
     "animated-scroll-to": "^2.2.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",

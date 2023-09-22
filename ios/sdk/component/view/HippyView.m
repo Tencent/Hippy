@@ -311,7 +311,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
     while (view) {
         UIViewController *controller = view.hippyViewController;
         if (controller) {
-            return (UIEdgeInsets) { controller.topLayoutGuide.length, 0, controller.bottomLayoutGuide.length, 0 };
+            return controller.view.safeAreaInsets;
         }
         view = view.superview;
     }
@@ -740,7 +740,6 @@ static BOOL HippyLayerHasShadow(CALayer *layer) {
 
 #pragma mark Border Color
 
-// clang-format off
 #define setBorderColor(side)                                    \
     -(void)setBorder##side##Color : (CGColorRef)color {         \
         if (CGColorEqualToColor(_border##side##Color, color)) { \
@@ -803,7 +802,6 @@ setBorderRadius(BottomRight)
     }
 
 setBorderStyle()
-// clang-format on
 
 - (void)dealloc {
     CGColorRelease(_borderColor);

@@ -22,9 +22,7 @@
 
 #import "HippyBridge.h"
 #import "HippyBridge+Private.h"
-
 #import <objc/runtime.h>
-
 #import "HippyConvert.h"
 #import "HippyEventDispatcher.h"
 #import "HippyKeyCommands.h"
@@ -33,7 +31,7 @@
 #import "HippyPerformanceLogger.h"
 #import "HippyUtils.h"
 #import "HippyUIManager.h"
-#import "HippyExtAnimationModule.h"
+#import "HippyNextAnimationModule.h"
 #import "HippyRedBox.h"
 #import "HippyTurboModule.h"
 
@@ -174,16 +172,6 @@ static HippyBridge *HippyCurrentBridgeInstance = nil;
     HippyCurrentBridgeInstance = currentBridge;
 }
 
-- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate launchOptions:(NSDictionary *)launchOptions {
-    return [self initWithDelegate:delegate bundleURL:nil moduleProvider:nil launchOptions:launchOptions executorKey:nil];
-}
-
-- (instancetype)initWithBundleURL:(NSURL *)bundleURL
-                   moduleProvider:(HippyBridgeModuleProviderBlock)block
-                    launchOptions:(NSDictionary *)launchOptions
-                      executorKey:(NSString *)executorKey;
-{ return [self initWithDelegate:nil bundleURL:bundleURL moduleProvider:block launchOptions:launchOptions executorKey:executorKey]; }
-
 - (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
                        bundleURL:(NSURL *)bundleURL
                   moduleProvider:(HippyBridgeModuleProviderBlock)block
@@ -195,15 +183,11 @@ static HippyBridge *HippyCurrentBridgeInstance = nil;
         _moduleProvider = block;
         _debugMode = [launchOptions[@"DebugMode"] boolValue];
         _enableTurbo = !!launchOptions[@"EnableTurbo"] ? [launchOptions[@"EnableTurbo"] boolValue] : YES;
+        _launchOptions = launchOptions;
         _shareOptions = [NSMutableDictionary new];
-        _appVerson = @"";
         _executorKey = executorKey;
         _invalidateReason = HippyInvalidateReasonDealloc;
         [self setUp];
-
-        HippyExecuteOnMainQueue(^{
-            [self bindKeys];
-        });
         HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ Init %p", NSStringFromClass([self class]), self);
     }
     return self;
@@ -223,21 +207,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     [self invalidate];
 }
 
-- (void)bindKeys {
-    HippyAssertMainQueue();
-
-#if TARGET_IPHONE_SIMULATOR
-    HippyKeyCommands *commands = [HippyKeyCommands sharedInstance];
-
-    // reload in current mode
-    __weak __typeof(self) weakSelf = self;
-    [commands registerKeyCommandWithInput:@"r" modifierFlags:UIKeyModifierCommand action:^(__unused UIKeyCommand *command) {
-        // 暂时屏蔽掉RN的调试
-        [weakSelf requestReload];
-    }];
-#endif
-}
-
 - (NSArray<Class> *)moduleClasses {
     return self.batchedBridge.moduleClasses;
 }
@@ -253,7 +222,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     return [self moduleForName:HippyBridgeModuleNameForClass(moduleClass)];
 }
 
-- (HippyExtAnimationModule *)animationModule {
+- (HippyNextAnimationModule *)animationModule {
     return [self moduleForName:@"AnimationModule"];
 }
 
@@ -436,6 +405,16 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     [self.batchedBridge.javaScriptExecutor setInspectable:isInspectable];
 }
 
+- (BOOL)isOSNightMode {
+    return self.batchedBridge.isOSNightMode;
+}
+
+- (void)setOSNightMode:(BOOL)isOSNightMode withRootViewTag:(NSNumber *)rootViewTag {
+    [self.batchedBridge setOSNightMode:isOSNightMode withRootViewTag:rootViewTag];
+}
+
+#pragma mark -
+
 - (HippyOCTurboModule *)turboModuleWithName:(NSString *)name {
     return [self.batchedBridge turboModuleWithName:name];
 }
@@ -461,3 +440,4 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 @end
+

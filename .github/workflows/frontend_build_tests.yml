@@ -28,7 +28,8 @@ jobs:
           cache: 'npm'
           cache-dependency-path: package-lock.json
       - name: install
-        run: npm ci && lerna bootstrap --no-ci
+        run: |
+          npm install && npx lerna bootstrap --no-ci
       - name: lint & build
         run: npm run lint & npm run build
       - name: test

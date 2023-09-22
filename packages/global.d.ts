@@ -73,128 +73,250 @@ declare namespace HippyTypes {
     height: number | undefined;
   }
 
-  export interface Transform {
-    perspective?: number;
-    rotate?: string;
-    rotateX?: string;
-    rotateY?: string;
-    rotateZ?: string;
-    scale?: number;
-    scaleX?: number;
-    scaleY?: number;
-    translateX?: number;
-    translateY?: number;
-    skewX?: string;
-    skewY?: string;
-  }
+  export type Color = string;
+  export type Colors = Color[];
+  export type tintColor = Color;
+  export type tintColors = Colors;
 
-  export type color = string | number;
-  export type colors = string[] | number[];
-  export type backgroundColor = string | number;
-  export type tintColor = string | number;
-  export type tintColors = string[] | number[] | null;
-  export type position =
-    | 'relative'
-    | 'absolute';
-  export type flexDirection =
-    | 'row'
-    | 'column'
-    | 'row-reverse';
-  export type flexWrap =
-    | 'nowrap'
-    | 'wrap'
-    | 'wrap-reverse';
-  export type justifyContent =
-    | 'start'
-    | 'center'
-    | 'end'
+  export type FlexAlignType =
     | 'flex-start'
     | 'flex-end'
-    | 'left'
-    | 'right'
-    | 'normal'
+    | 'center'
+    | 'stretch'
+    | 'baseline';
+
+  export type DimensionValue =
+    | number
+    | 'auto'
+    | Animation
+    | AnimationSet;
+
+  export interface FlexStyle {
+    alignContent?:
+    | 'flex-start'
+    | 'flex-end'
+    | 'center'
+    | 'stretch'
+    | 'space-between'
+    | 'space-around';
+    alignItems?: FlexAlignType;
+    alignSelf?: 'auto' | FlexAlignType;
+    bottom?: DimensionValue;
+    collapse?: boolean;
+    collapsable?: boolean;
+    display?: 'none' | 'flex';
+    flex?: DimensionValue;
+    flexBasis?: DimensionValue;
+    flexDirection?:
+    | 'row'
+    | 'column'
+    | 'row-reverse'
+    | 'column-reverse'
+    ;
+    rowGap?: number;
+    gap?: number;
+    columnGap?: number;
+    flexGrow?: number;
+    flexShrink?: number;
+    flexWrap?: 'wrap' | 'nowrap' | 'wrap-reverse';
+    height?: DimensionValue;
+    justifyContent?:
+    | 'flex-start'
+    | 'flex-end'
+    | 'center'
     | 'space-between'
     | 'space-around'
     | 'space-evenly'
-    | 'stretch';
-  export type alignItems =
-    | 'stretch'
-    | 'center'
-    | 'flex-start'
-    | 'flex-end'
-    | 'baseline';
-  export type alignSelf =
-    | 'stretch'
-    | 'center'
-    | 'flex-start'
-    | 'flex-end'
-    | 'baseline';
-  export type overflow =
-    | 'hidden'
-    | 'scroll';
-  export interface BaseStyle {
-    color?: color;
-    colors?: colors;
-    collapsable?: false;
-    backgroundColor?: backgroundColor;
-    backgroundImage?: string;
-    backgroundSize?: string;
-    backgroundPosition?: string;
-    width?: number;
-    height?: number;
-    top?: number;
-    left?: number;
-    right?: number;
-    bottom?: number;
-    minWidth?: number;
-    maxWidth?: number;
-    minHeight?: number;
-    maxHeight?: number;
-    margin?: number;
-    marginVertical?: number;
-    marginHorizontal?: number;
-    marginTop?: number;
-    marginBottom?: number;
-    marginLeft?: number;
-    marginRight?: number;
-    padding?: number;
-    paddingVertical?: number;
-    paddingHorizontal?: number;
-    paddingTop?: number;
-    paddingBottom?: number;
-    paddingLeft?: number;
-    paddingRight?: number;
+    ;
+    left?: DimensionValue;
+    margin?: DimensionValue;
+    marginBottom?: DimensionValue;
+    marginHorizontal?: DimensionValue;
+    marginLeft?: DimensionValue;
+    marginRight?: DimensionValue;
+    marginTop?: DimensionValue;
+    marginVertical?: DimensionValue;
+    maxHeight?: DimensionValue;
+    maxWidth?: DimensionValue;
+    minHeight?: DimensionValue;
+    minWidth?: DimensionValue;
+    overflow?: 'visible' | 'hidden' | 'scroll';
+    padding?: DimensionValue;
+    paddingBottom?: DimensionValue;
+    paddingHorizontal?: DimensionValue;
+    paddingLeft?: DimensionValue;
+    paddingRight?: DimensionValue;
+    paddingTop?: DimensionValue;
+    paddingVertical?: DimensionValue;
+    position?: 'absolute' | 'relative';
+    right?: DimensionValue;
+    start?: DimensionValue;
+    top?: DimensionValue;
+    width?: DimensionValue;
+    zIndex?: number;
+  }
+
+  export interface BoxShadowStyle {
+    boxShadowOpacity?: number;
+    boxShadowRadius?: number;
+    boxShadowColor?: Color;
+    boxShadowOffsetX?: number;
+    boxShadowOffsetY?: number;
+    /** iOS only */
+    boxShadowSpread?: number;
+    shadowColor?: string;
+    shadowOffset?:
+    | string
+    | {
+      width?: number;
+      height?: number;
+    };
+    shadowOpacity?: number;
+    shadowRadius?: string | number;
+  }
+
+  export interface Transform {
+    perspective?: number | Animation;
+    rotate?: string | Animation;
+    rotateX?: string | Animation;
+    rotateY?: string | Animation;
+    rotateZ?: string | Animation;
+    scale?: number | Animation;
+    scaleX?: number | Animation;
+    scaleY?: number | Animation;
+    translateX?: number | Animation;
+    translateY?: number | Animation;
+    skewX?: string | Animation;
+    skewY?: string | Animation;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  export interface TransformsStyle {
+  }
+
+  export type BorderStyle = 'solid' | 'dotted' | 'dashed' | 'none';
+  export interface BorderBoxStyle {
+    borderStyle?: BorderStyle;
+    borderTopStyle?: BorderStyle;
+    borderRightStyle?: BorderStyle;
+    borderLeftStyle?: BorderStyle;
+    borderBottomStyle?: BorderStyle;
     borderWidth?: number;
     borderTopWidth?: number;
     borderRightWidth?: number;
     borderBottomWidth?: number;
     borderLeftWidth?: number;
-    position?: position;
-    flexDirection?: flexDirection;
-    flexWrap?: flexWrap;
-    justifyContent?: justifyContent;
-    alignItems?: alignItems;
-    alignSelf?: alignSelf;
-    overflow?: overflow;
-    flex?: any;
-    flexGrow?: number;
-    flexShrink?: number;
-    flexBasis?: true;
-    zIndex?: number;
-    shadowColor?: string;
-    shadowOffset?: string;
-    shadowOpacity?: number;
-    shadowRadius?: string;
-    tintColor?: tintColor;
-    tintColors?: tintColors;
-    underlineColorAndroid?: string;
-    transform?: Transform[];
-    collapse?: boolean,
+    borderRadius?: number;
+    borderTopLeftRadius?: number;
+    borderTopRightRadius?: number;
+    borderBottomLeftRadius?: number;
+    borderBottomRightRadius?: number;
+    borderColor?: Color;
+    borderTopColor?: Color;
+    borderLeftColor?: Color;
+    borderBottomColor?: Color;
+    borderRightColor?: Color;
   }
 
-  export interface Style extends BaseStyle {
+  export interface BackgroundStyle {
+    backgroundColor?: Color;
+    backgroundColors?: Colors;
+    backgroundImage?: string;
+    backgroundSize?: string;
+    backgroundPosition?: string;
+  }
+
+  export interface ViewStyle extends FlexStyle, BoxShadowStyle, BorderBoxStyle, TransformsStyle, BackgroundStyle {
+    opacity?: DimensionValue;
+  }
+
+
+  export type FontVariant =
+  | 'small-caps'
+  | 'oldstyle-nums'
+  | 'lining-nums'
+  | 'tabular-nums'
+  | 'proportional-nums';
+
+  export interface TextStyleIOS extends ViewStyle {
+    fontVariant?: FontVariant[] | undefined;
+    textDecorationColor?: Color | undefined;
+    textDecorationStyle?: 'solid' | 'double' | 'dotted' | 'dashed' | undefined;
+    writingDirection?: 'auto' | 'ltr' | 'rtl' | undefined;
+  }
+
+  export interface TextStyleAndroid extends ViewStyle {
+    textAlignVertical?: 'auto' | 'top' | 'bottom' | 'center' | undefined;
+    verticalAlign?: 'auto' | 'top' | 'bottom' | 'middle' | undefined;
+    underlineColorAndroid?: string;
+  }
+
+  export interface TextStyle extends TextStyleIOS, TextStyleAndroid, ViewStyle {
+    color?: Color;
+    colors?: Colors;
+    ellipsizeMode?: 'head' | 'middle' | 'tail' | 'clip';
+    fontFamily?: string;
+    fontSize?: number;
+    fontStyle?: 'normal' | 'italic';
+    /**
+     * Specifies font weight. The values 'normal' and 'bold' are supported
+     * for most fonts. Not all fonts have a variant for each of the numeric
+     * values, in that case the closest one is chosen.
+     */
+    fontWeight?:
+    | 'normal'
+    | 'bold'
+    | '100'
+    | '200'
+    | '300'
+    | '400'
+    | '500'
+    | '600'
+    | '700'
+    | '800'
+    | '900'
+    ;
+    letterSpacing?: number;
+    lineHeight?: number;
+    textAlign?: 'auto' | 'left' | 'right' | 'center' | 'justify' | undefined;
+    textDecorationLine?:
+    | 'none'
+    | 'underline'
+    | 'line-through'
+    | 'underline line-through'
+    ;
+    textDecorationStyle?: 'solid' | 'double' | 'dotted' | 'dashed';
+    textDecorationColor?: Color;
+    textShadowColor?: Color;
+    textShadowOffset?: {width: number; height: number};
+    textShadowRadius?: number;
+    textTransform?: 'none' | 'capitalize' | 'uppercase' | 'lowercase';
+    placeholderTextColor?: Color;
+    placeholderTextColors?: Colors;
+    caretColor?: Color;
+  }
+
+  export interface ImageStyle extends FlexStyle, BoxShadowStyle, BorderBoxStyle, TransformsStyle, BackgroundStyle {
+    resizeMode?: 'cover' | 'contain' | 'stretch' | 'repeat' | 'center';
+    tintColor?: tintColor;
+    tintColors?: tintColors;
+    opacity?: DimensionValue;
+  }
+
+  export interface Style extends ViewStyle, TextStyle, ImageStyle {
     [props: string]: any
   }
+  export type Falsy = undefined | null | false;
+  type RecursiveArray<T> = Array<T | ReadonlyArray<T> | RecursiveArray<T>>;
+  export type GenericStyleProp<T> =
+  | T
+  | RecursiveArray<T | Falsy>
+  | Falsy;
+
+  export type StyleProp = GenericStyleProp<Style>;
+  export type ViewStyleProp = GenericStyleProp<ViewStyle>;
+  export type ImageStyleProp = GenericStyleProp<ImageStyle>;
+  export type TextStyleProp = GenericStyleProp<TextStyle>;
 
   interface ConsoleModule {
     log: (...args: any[]) => void;
@@ -284,6 +406,7 @@ declare namespace HippyTypes {
     multiSet: (keys: { [key: string]: string | number }) => Promise<void>;
     removeItem: (key: string) => Promise<void>;
     setItem: (key: string, value: string | number) => Promise<void>;
+    clear: () => Promise<void>;
   }
 
   export interface Bridge {
@@ -298,6 +421,8 @@ declare namespace HippyTypes {
     height: number;
     scale: number;
     statusBarHeight: number;
+    // Android bottom navigatorBar height; supported version is 2.3.4
+    navigatorBarHeight: number;
     width: number;
   }
 
@@ -343,7 +468,7 @@ declare namespace HippyTypes {
       vibrate: (pattern: number, repeatTimes?: number) => void;
       platform: {
         Localization: { country: string, language: string, direction: number } | undefined;
-        OS: Platform;
+        OS: Platform['OS'];
         APILevel?: number; // Android Only
       };
       screen: Sizes;
@@ -409,7 +534,7 @@ declare namespace HippyTypes {
     __HIPPYNATIVEGLOBAL__: __HIPPYNATIVEGLOBAL__;
     __PLATFORM__: __PLATFORM__;
     __HIPPYCURDIR__?: string;
-    Hippy: HippyTypes.HippyConstance;
+    Hippy: HippyConstance;
     WebSocket: WebSocket | any;
     ConsoleModule: ConsoleModule;
     HippyDealloc?: () => void;
@@ -423,13 +548,4 @@ declare namespace HippyTypes {
   }
 }
 
-declare type Diff<T extends keyof any, U extends keyof any> =
-  ({ [P in T]: P } & { [P in U]: never } & { [x: string]: never })[T];
-
-declare type Overwrite<T, U> = Pick<T, Diff<keyof T, keyof U>> & U;
-
-declare const __PLATFORM__: HippyTypes.Platform;
-
-/* eslint-disable */
-// @ts-ignore
-declare var global: HippyTypes.HippyGlobal & typeof globalThis;
+declare const __PLATFORM__: HippyTypes.Platform['OS'];

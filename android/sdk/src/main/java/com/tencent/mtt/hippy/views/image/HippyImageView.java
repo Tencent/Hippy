@@ -329,7 +329,11 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
   protected void handleGetImageFail(Throwable throwable) {
     // send onError event
     if (mShouldSendImageEvent[ImageEvent.ONERROR.ordinal()]) {
-      getOnErrorEvent().send(this, null);
+      HippyMap map = new HippyMap();
+      map.pushString("error", String.valueOf(throwable));
+      map.pushInt("errorCode", -1);
+      map.pushString("errorURL", mUrl != null ? mUrl : "");
+      getOnErrorEvent().send(this, map);
     }
     // send onLoadEnd event
     if (mShouldSendImageEvent[ImageEvent.ONLOAD_END.ordinal()]) {
@@ -454,6 +458,13 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     } else {
       super.handleImageRequest(target, sourceType, requestInfo);
     }
+  }
+
+  @Override
+  protected boolean hasImage(IDrawableTarget resultDrawable) {
+    return (resultDrawable != null && resultDrawable.getBitmap() != null)
+            || (resultDrawable != null && resultDrawable.getDrawable() != null)
+            || (resultDrawable instanceof HippyDrawable && ((HippyDrawable) resultDrawable).getGIF() != null);
   }
 
   @Override

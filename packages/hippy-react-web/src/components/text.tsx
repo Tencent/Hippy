@@ -31,7 +31,6 @@ const baseTextStyle = {
   backgroundColor: 'transparent',
   border: '0 solid black',
   boxSizing: 'border-box',
-  font: '14px System',
   listStyle: 'none',
   margin: 0,
   padding: 0,
@@ -70,7 +69,7 @@ const styles = {
 const TextAncestorContext = createContext(false);
 
 interface TextProps extends LayoutableProps, TouchableProps, ClickableProps {
-  style?: HippyTypes.Style | HippyTypes.Style[];
+  style?: HippyTypes.TextStyleProp;
   numberOfLines?: number;
   opacity?: number;
   ellipsizeMode?: 'clip' | 'ellipsis';

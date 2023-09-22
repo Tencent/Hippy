@@ -62,6 +62,7 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
   private long mLastUpdateTime;
   private final Set<Integer> mNeedUpdateAnimationNodes;
   private Set<AnimationNode> mWaitUpdateAnimationNodes;
+  private boolean mInitialized = false;
 
 
   public AnimationModule(HippyEngineContext context) {
@@ -71,6 +72,9 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
 
   @Override
   public boolean handleMessage(Message msg) {
+    if (!mInitialized) {
+      return true;
+    }
     int what = msg.what;
     switch (what) {
       case MSG_CHANGE_ANIMATION_STATUS: {
@@ -103,14 +107,21 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
     if (mContext.getDomManager() != null) {
       mContext.getDomManager().addActionInterceptor(this);
     }
+    mInitialized = true;
   }
 
   @Override
   public void destroy() {
+    mInitialized = false;
     mContext.removeEngineLifecycleEventListener(this);
     if (mContext.getDomManager() != null) {
       mContext.getDomManager().removeActionInterceptor(this);
     }
+    for (int i = 0, size = mAnimations.size(); i < size; ++i) {
+        Animation animation = mAnimations.valueAt(i);
+        animation.stop();
+    }
+    mAnimations.clear();
     super.destroy();
   }
 
@@ -151,7 +162,7 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
 
     mNeedUpdateAnimationNodes.addAll(nodeIds);
 
-    if (!mHandler.hasMessages(MSG_CHANGE_ANIMATION_STATUS)) {
+    if (mInitialized && !mHandler.hasMessages(MSG_CHANGE_ANIMATION_STATUS)) {
       mHandler.sendEmptyMessage(MSG_CHANGE_ANIMATION_STATUS);
     }
   }
@@ -315,7 +326,7 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
 
   @Override
   public void onEngineResume() {
-    if (mHandler != null) {
+    if (mInitialized && mHandler != null) {
       mHandler.post(new Runnable() {
         @Override
         public void run() {
@@ -335,7 +346,7 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
 
   @Override
   public void onEnginePause() {
-    if (mHandler != null) {
+    if (mInitialized && mHandler != null) {
       mHandler.post(new Runnable() {
         @Override
         public void run() {

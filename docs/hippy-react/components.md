@@ -433,6 +433,7 @@ import icon from './qb_icon_new.png';
 | onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web、Web-Renderer` |
 | breakStrategy* | 设置Android API 23及以上系统的文本折行策略。`default: simple` | `enum(simple, high_quality, balanced)` | `Android(版本 2.14.2以上)` |
 | verticalAlign* | 设置文本组件内嵌套文本组件或文本组件内嵌套图片组件时的对齐策略。`default: baseline` | `enum(top, middle, baseline, bottom)` | `Android、iOS(版本2.16.0以上)` |
+| forbidUnicodeToChar | 是否禁止文本组件内嵌套文本转换成真实的字符。`default: false` | `boolean` | `hippy-react` |
 
 * ellipsizeMode 的参数含义：
   * `clip` - 超过指定行数的文字会被直接截断，不显示“...”；（Android 2.14.1以上、iOS）

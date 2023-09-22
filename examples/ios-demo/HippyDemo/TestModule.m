@@ -41,6 +41,9 @@ HIPPY_EXPORT_MODULE()
 
 HIPPY_EXPORT_METHOD(debug:(nonnull NSNumber *)instanceId)
 {
+//#define REMOTEDEBUG
+
+#ifdef REMOTEDEBUG
 	AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
 	UIViewController *nav = delegate.window.rootViewController;
 	UIViewController *vc = [[UIViewController alloc] init];
@@ -48,23 +51,16 @@ HIPPY_EXPORT_METHOD(debug:(nonnull NSNumber *)instanceId)
 #if TARGET_IPHONE_SIMULATOR
 	isSimulator = YES;
 #endif
-
-
-//#define REMOTEDEBUG
     
-#ifdef REMOTEDEBUG
     NSURL *url = [NSURL URLWithString:@"your server ip address"];
     HippyBridge *bridge = [[HippyBridge alloc] initWithBundleURL:url moduleProvider:nil launchOptions:nil];
     HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge moduleName:@"your module name" initialProperties:@{@"isSimulator": @(isSimulator) shareOptions:nil delegate:nil];
-#else
-    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:nil businessURL:nil moduleName:@"Demo" initialProperties:@{@"isSimulator": @(isSimulator)} launchOptions:nil shareOptions:nil debugMode:YES delegate:nil];
-    rootView.bridge.enableTurbo = YES;  // keep the same logic with Android
-#endif
 	rootView.backgroundColor = [UIColor whiteColor];
 	rootView.frame = vc.view.bounds;
 	[vc.view addSubview:rootView];
     vc.modalPresentationStyle = UIModalPresentationFullScreen;
     [nav presentViewController:vc animated:YES completion:NULL];
+#endif
 }
 
 HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnull NSString *)bundleUrl)
@@ -98,6 +94,15 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
 
 - (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge {
     return bridge.bundleURL;
+}
+
+#pragma mark - Hippy Bridge Delegate
+
+- (BOOL)shouldUseViewWillTransitionMethodToMonitorOrientation {
+    // 是否使用viewWillTransitionToSize方法替换UIApplicationDidChangeStatusBarOrientationNotification通知，
+    // 推荐设置 (该系统通知已废弃，且部分场景下存在异常)
+    // 注意，设置后必须实现viewWillTransitionToSize方法，并调用onHostControllerTransitionedToSize向hippy同步事件。
+    return NO;
 }
 
 @end

@@ -33,7 +33,6 @@ import { IS_PROD, NATIVE_COMPONENT_MAP } from '../../config';
 import {
   capitalizeFirstLetter,
   convertImageLocalPath,
-  getBeforeLoadStyle,
   setsAreEqual,
   tryConvertNumber,
   unicodeToChar,
@@ -43,6 +42,7 @@ import {
   whitespaceFilter,
   getBeforeRenderToNative,
   getStyleClassList,
+  getBeforeLoadStyle,
 } from '../../util';
 import { isRTL } from '../../util/i18n';
 import { EventMethod } from '../../util/event';
@@ -212,6 +212,9 @@ export class HippyElement extends HippyNode {
   // ssr inline style
   public ssrInlineStyle?: NativeNodeProps;
 
+  // style preprocessor
+  public beforeLoadStyle: CallbackType;
+
   // polyFill of native event
   protected polyfillNativeEvents?: (
     method: string,
@@ -234,6 +237,7 @@ export class HippyElement extends HippyNode {
     // tag name should be lowercase
     this.tagName = tagName.toLowerCase();
     this.style = {};
+    this.beforeLoadStyle = getBeforeLoadStyle();
 
     if (ssrNode) {
       // assign ssr node exist attributes for element init
@@ -269,9 +273,6 @@ export class HippyElement extends HippyNode {
     // hack special problems
     this.hackSpecialIssue();
   }
-
-  // style preprocessor
-  public beforeLoadStyle: CallbackType = val => val;
 
   /**
    * get component info

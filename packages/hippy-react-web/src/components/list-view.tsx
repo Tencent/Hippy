@@ -31,7 +31,7 @@ import { DEFAULT_DISTANCE_TO_REFRESH, REFRESH_DISTANCE_SCREEN_Y_OFFSET } from '.
 import View from './view';
 
 interface ListViewItemProps {
-  style?: any;
+  style?: HippyTypes.StyleProp;
   height?: any;
   children?: any;
   type?: any;
@@ -352,7 +352,8 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
       }
     }, [pullHeaderRef]);
     return (
-      <div ref={pullHeaderRef} style={{  ...styles.pullHeaderContainer }}>
+      // @ts-ignore
+      <div ref={pullHeaderRef} style={styles.pullHeaderContainer}>
         {renderPullHeader()}
       </div>
     );
@@ -369,6 +370,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
       }
     }, [pullFooterRef]);
     return (
+      // @ts-ignore
       <div ref={pullFooterRef} style={styles.pullHeaderContainer}>
         { renderPullFooter() }
       </div>

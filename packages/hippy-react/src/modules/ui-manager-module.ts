@@ -23,6 +23,7 @@ import { Bridge, Device, UIManager } from '../global';
 import { getRootViewId, findNodeById, findNodeByCondition } from '../utils/node';
 import { isFunction, warn, trace } from '../utils';
 import Element from '../dom/element-node';
+import { Platform } from '../types';
 
 const {
   createNode,
@@ -134,12 +135,12 @@ function callUIFunction(ref: Element | Fiber, funcName: string, ...options: any[
     return;
   }
   trace('callUIFunction', { nodeId, funcName, paramList });
-  if (Device.platform.OS === 'ios') {
+  if (Device.platform.OS === Platform.ios) {
     if (isFunction(callback) && Array.isArray(paramList)) {
       paramList.push(callback);
     }
     Bridge.callNative('UIManagerModule', 'callUIFunction', [componentName, nodeId, funcName, paramList]);
-  } else if (Device.platform.OS === 'android') {
+  } else if (Device.platform.OS === Platform.android) {
     if (isFunction(callback)) {
       Bridge.callNative('UIManagerModule', 'callUIFunction', [nodeId, funcName, paramList], callback);
     } else {

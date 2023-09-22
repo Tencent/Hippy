@@ -111,7 +111,10 @@ const builds = {
   },
 };
 
-builds.declaration = getDtsConfig(builds['@hippy/react-web']);
+builds.declaration = getDtsConfig({
+  ...builds['@hippy/react-web'],
+  fixHippyTypes: true,
+});
 
 function genConfig(name) {
   const opts = builds[name];

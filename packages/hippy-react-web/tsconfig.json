@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": [
+    "src",
+    "../global.d.ts",
+    "../../node_modules/@types/web/index.d.ts",
+  ]
+}
+  

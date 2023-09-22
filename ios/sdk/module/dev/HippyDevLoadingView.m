@@ -68,7 +68,6 @@ HIPPY_EXPORT_MODULE()
     }
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(showMessage:(NSString *)message color:(UIColor *)color backgroundColor:(UIColor *)backgroundColor) {
     if (!isEnabled) {
         return;
@@ -104,9 +103,7 @@ HIPPY_EXPORT_METHOD(showMessage:(NSString *)message color:(UIColor *)color backg
         self->_window.hidden = NO;
     });
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(hide) {
     if (!isEnabled) {
         return;
@@ -129,7 +126,6 @@ HIPPY_EXPORT_METHOD(hide) {
         }];
     });
 }
-// clang-format on
 
 - (void)showWithURL:(NSURL *)URL {
     UIColor *color;

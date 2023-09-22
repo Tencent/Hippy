@@ -29,7 +29,9 @@
 /**
  * Register a single-press keyboard command.
  */
-- (void)registerKeyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags action:(void (^)(UIKeyCommand *command))block;
+- (void)registerKeyCommandWithInput:(NSString *)input
+                      modifierFlags:(UIKeyModifierFlags)flags
+                             action:(void (^)(UIKeyCommand *command))block;
 
 /**
  * Unregister a single-press keyboard command.

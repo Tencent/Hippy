@@ -9,11 +9,11 @@
 #
 
 # universal files
-* @churchill-zhang @ilikethese
+* @ilikethese @etkmao
 
 # cmake related
-*.cmake @churchill-zhang @ilikethese
-CMakeLists.txt @churchill-zhang @ilikethese
+*.cmake @ilikethese @etkmao
+CMakeLists.txt @ilikethese @etkmao
 
 # driver: js
 /.eslintignore @zealotchen0
@@ -22,17 +22,17 @@ CMakeLists.txt @churchill-zhang @ilikethese
 /package.json @zealotchen0
 /package-lock.json @zealotchen0
 /ava.config.js @zealotchen0
-/core/ @churchill-zhang @ilikethese
+/core/ @ilikethese @etkmao
 /core/js/ @zealotchen0
 /packages/ @zealotchen0
 /packages/hippy-web-renderer/ @pba-cra @zealotchen0
 
 # framework: android
 /android/ @siguangli
-/android/**/src/main/jni/ @churchill-zhang @ilikethese
+/android/**/src/main/jni/ @ilikethese @etkmao
 
 # framework: ios
-/ios/ @ozonelmy
+/ios/ @ozonelmy @wwwcg
 
 # dom: layout
 /layout/ @ilikethese
@@ -45,7 +45,7 @@ CMakeLists.txt @churchill-zhang @ilikethese
 /examples/hippy-*-demo/ @zealotchen0
 /examples/android-demo/ @siguangli
 /examples/android-demo/res/ @zealotchen0
-/examples/ios-demo/ @ozonelmy
+/examples/ios-demo/ @ozonelmy @wwwcg
 /examples/ios-demo/res/ @zealotchen0
 /static/ @zealotchen0
 
@@ -66,7 +66,7 @@ CMakeLists.txt @churchill-zhang @ilikethese
 /_Pods.xcodeproj/ @wwwcg @ozonelmy
 
 # build: config
-/buildconfig/ @churchill-zhang @ilikethese
+/buildconfig/ @ilikethese @etkmao
 
 # build: js
 /tsdoc.json @zealotchen0

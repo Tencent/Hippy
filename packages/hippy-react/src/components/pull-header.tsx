@@ -24,12 +24,13 @@ import { LayoutableProps } from '../types';
 import { callUIFunction } from '../modules/ui-manager-module';
 import Element from '../dom/element-node';
 
-interface CollapsePullHeaderOptions {
+export interface CollapsePullHeaderOptions {
   // time left to hide pullHeader after collapsePullHeader() is called, unit is ms
   time?: number,
 }
 
-interface PullHeaderProps extends LayoutableProps {
+export interface PullHeaderProps extends LayoutableProps {
+  style?: HippyTypes.StyleProp;
   /**
    * Trigger when release the finger after pulling distance larger than the content height
    */
@@ -44,7 +45,7 @@ interface PullHeaderProps extends LayoutableProps {
   onHeaderPulling?: (evt: HippyTypes.PullingEvent) => void;
 }
 
-class PullHeader extends React.Component<PullHeaderProps, {}> {
+export class PullHeader extends React.Component<PullHeaderProps, {}> {
   private instance: Element | Fiber | HTMLDivElement | null = null;
 
   /**
@@ -67,13 +68,15 @@ class PullHeader extends React.Component<PullHeaderProps, {}> {
   }
 
   public render() {
-    const { children, ...nativeProps } = this.props;
+    const { children, style, ...nativeProps } = this.props;
     return (
       <div
         nativeName="PullHeaderView"
         ref={(ref) => {
           this.instance = ref;
         }}
+        // @ts-ignore
+        style={style}
         {...nativeProps}
       >
         { children }

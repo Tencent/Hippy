@@ -84,7 +84,6 @@ HIPPY_EXPORT_VIEW_PROPERTY(onKeyboardHeightChanged, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(defaultValue, NSString)
 HIPPY_EXPORT_VIEW_PROPERTY(isNightMode, BOOL)
 
-// clang-format off
 HIPPY_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)hippyTag) {
     [self.bridge.uiManager addUIBlock:
      ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
@@ -96,9 +95,7 @@ HIPPY_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)hippyTag) {
          [view focus];
      }];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(isFocused:(nonnull NSNumber *)hippyTag callback:(HippyResponseSenderBlock)callback) {
     [self.bridge.uiManager addUIBlock:
      ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
@@ -112,9 +109,7 @@ HIPPY_EXPORT_METHOD(isFocused:(nonnull NSNumber *)hippyTag callback:(HippyRespon
          callback(callBack);
      }];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)hippyTag) {
     [self.bridge.uiManager addUIBlock:
      ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
@@ -126,9 +121,7 @@ HIPPY_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)hippyTag) {
          [view blur];
      }];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(clear:(nonnull NSNumber *)hippyTag) {
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         HippyBaseTextInput *view = (HippyBaseTextInput *)viewRegistry[hippyTag];
@@ -139,9 +132,7 @@ HIPPY_EXPORT_METHOD(clear:(nonnull NSNumber *)hippyTag) {
         [view clearText];
     }];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(setValue:(nonnull NSNumber *)hippyTag
                   text:(NSString *)text ) {
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
@@ -153,9 +144,7 @@ HIPPY_EXPORT_METHOD(setValue:(nonnull NSNumber *)hippyTag
         [view setValue: text];
     }];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(getValue:(nonnull NSNumber *)hippyTag
                   callback:(HippyResponseSenderBlock)callback ) {
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
@@ -172,7 +161,6 @@ HIPPY_EXPORT_METHOD(getValue:(nonnull NSNumber *)hippyTag
         callback(callBack);
     }];
 }
-// clang-format on
 
 HIPPY_EXPORT_SHADOW_PROPERTY(text, NSString)
 HIPPY_EXPORT_SHADOW_PROPERTY(placeholder, NSString)

@@ -708,8 +708,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     CGSize viewportSize = self.bounds.size;
     if (_automaticallyAdjustContentInsets) {
         UIEdgeInsets contentInsets = [HippyView contentInsetsForView:self];
-        viewportSize = CGSizeMake(
-            self.bounds.size.width - contentInsets.left - contentInsets.right, self.bounds.size.height - contentInsets.top - contentInsets.bottom);
+        viewportSize = CGSizeMake(self.bounds.size.width - contentInsets.left - contentInsets.right,
+                                  self.bounds.size.height - contentInsets.top - contentInsets.bottom);
     }
     return viewportSize;
 }
