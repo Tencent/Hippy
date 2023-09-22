@@ -34,7 +34,7 @@ describe('style-match/index.ts', () => {
       { id: 5, pId: 4, index: 0, name: 'Image', props: { }, tagName: 'img' },
       { id: 6, pId: 4, index: 0, name: 'Text', props: { }, tagName: 'span' },
       { id: 7, pId: 4, index: 0, name: 'ViewPagerItem', props: { }, tagName: 'swiper-item' },
-      { id: 8, pId: 4, index: 0, name: 'Modal', props: { }, tagName: 'dialog' },
+      { id: 8, pId: 4, index: 0, name: 'Modal', props: { style: { 'margin-left': '10px' } }, tagName: 'dialog' },
       { id: 9, pId: 4, index: 0, name: 'TextInput', props: { style: { caretColor: 'gray', underlineColorAndroid: 'gray', placeholderTextColor: 'gray' } }, tagName: 'input' },
       { id: 11, pId: 4, index: 0, name: 'View', props: { style: {
         overflowX: 'scroll',
@@ -105,7 +105,7 @@ describe('style-match/index.ts', () => {
     expect(nativeNodes[4].props.style).toEqual({ backgroundColor: 0 });
     expect(nativeNodes[5].props.style).toEqual({ color: 4278190080, backgroundImage: 'https://hippyjs.org', fontWeight: '123', width: 24 });
     expect(nativeNodes[6].props.style).toEqual({ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 });
-    expect(nativeNodes[7].props.style).toEqual({ position: 'absolute' });
+    expect(nativeNodes[7].props.style).toEqual({ position: 'absolute', marginLeft: 10 });
     expect(nativeNodes[8].props.style).toEqual({
       padding: 0,
       color: 4278190080,

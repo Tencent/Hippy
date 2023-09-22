@@ -610,7 +610,7 @@ describe('runtime/element/hippy-element', () => {
             class: 'classA  classB',
           },
           text: 'hello',
-          innerStyle: {
+          inlineStyle: {
             fontSize: 24,
           },
         },
@@ -640,7 +640,7 @@ describe('runtime/element/hippy-element', () => {
             class: 'classA  classB',
           },
           text: 'hello',
-          innerStyle: {
+          inlineStyle: {
             fontSize: 24,
           },
           onClick: true,
