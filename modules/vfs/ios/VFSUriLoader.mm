@@ -142,11 +142,15 @@ void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request, NSOperationQue
     //check if convenient loader exists, or forward to cpp loader
     if (cur_convenient) {
         auto startPoint = footstone::TimePoint::SystemNow();
+        auto weak_this = weak_from_this();
         VFSHandlerCompletionBlock callback = ^(NSData *data, NSURLResponse *response, NSError *error) {
             auto endPoint = footstone::TimePoint::SystemNow();
             string_view uri(NSStringToU16StringView([[response URL] absoluteString]));
             string_view msg([error.localizedDescription UTF8String]?:"");
-            DoRequestResultCallback(uri, startPoint, endPoint, static_cast<int32_t>(error.code), msg);
+            auto shared_this = weak_this.lock();
+            if (shared_this) {
+                DoRequestResultCallback(uri, startPoint, endPoint, static_cast<int32_t>(error.code), msg);
+            }
             if (completion) {
                 completion(data, response, error);
             }
