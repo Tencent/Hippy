@@ -212,7 +212,7 @@ There are some differences between the Demo initialization of the SSR version an
 - src/main-native.ts Change
 
 1. Use createSSRApp to replace the previous createApp, createApp only supports CSR rendering, while createSSRApp supports both CSR and SSR
-2. The ssrNodeList parameter is added during initialization as the Hydrate initialization node list. Here the initialized node list returned by our server is stored in global.hippySSRNodes . If you need to modify this variable name, you can change it in src/main-client.ts
+2. The ssrNodeList parameter is added during initialization as the Hydrate initialization node list. Here the initialized node list returned by our server is stored in global.hippySSRNodes, and pass it as a parameter to createSSRApp when calling it.
 3. Call app.mount after router.isReady is completed, because if you don’t wait for the routing to complete, it will be different from the node rendered by the server, causing Hydrate to report an error
 
 ```javascript

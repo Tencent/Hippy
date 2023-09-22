@@ -212,7 +212,7 @@ SSR 版本的 Demo 初始化与异步版的初始化有一些差异部分，这�
 - src/main-native.ts 变更
 
 1. 使用 createSSRApp 替换之前的 createApp，createApp 仅支持 CSR 渲染，而 createSSRApp 同时支持 CSR 和 SSR
-2. 在初始化时候新增了 ssrNodeList 参数，作为 Hydrate 的初始化节点列表。这里我们服务端返回的初始化节点列表保存在了 global.hippySSRNodes 中。如果需要修改这个变量名，可以在 src/main-client.ts 中进行更改
+2. 在初始化时候新增了 ssrNodeList 参数，作为 Hydrate 的初始化节点列表。这里我们服务端返回的初始化节点列表保存在了 global.hippySSRNodes 中，并将其作为参数在createSSRApp时传入
 3. 将 app.mount 放到 router.isReady 完成后调用，因为如果不等待路由完成，会与服务端渲染的节点有所不同，导致 Hydrate 时报错
 
 ```javascript
