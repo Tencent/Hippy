@@ -201,7 +201,9 @@ TimeDelta TaskRunner::GetNextTimeDelta(TimePoint now) {
 
 void TaskRunner::NotifyWorker() {
   auto worker = worker_.lock();
-  FOOTSTONE_CHECK(worker);
+  if (!worker) {
+    return;
+  }
   worker->Notify();
 }
 
