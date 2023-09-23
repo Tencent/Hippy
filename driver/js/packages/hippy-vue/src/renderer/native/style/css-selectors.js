@@ -219,7 +219,7 @@ class PseudoClassSelector extends SimpleSelector {
     super();
     this.specificity = 0x00000100;
     this.rarity = 0;
-    this.dynamic = true;
+    this.dynamic = false;
     this.cssPseudoClass = cssPseudoClass;
   }
 
