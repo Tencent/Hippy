@@ -457,40 +457,26 @@ class SiblingGroup {
 class Selector extends SelectorCore {
   constructor(selectors) {
     super();
-    const supportedCombinator = [undefined, ' ', '>', '+', '~'];
-    let siblingGroup = [];
-    let lastGroup = [];
+    const supportedCombinator = [undefined, ' ', '>', '+'];
+    let siblingGroup;
+    let lastGroup;
     const groups = [];
-    const selectorList = [...selectors];
-    const length = selectorList.length - 1;
-    this.specificity = 0;
-    this.dynamic = false;
-
-    for (let i = length; i >= 0; i--) {
-      const sel = selectorList[i];
+    selectors.reverse().forEach((sel) => {
       if (supportedCombinator.indexOf(sel.combinator) === -1) {
-        console.error(`Unsupported combinator "${sel.combinator}".`);
         throw new Error(`Unsupported combinator "${sel.combinator}".`);
       }
-
       if (sel.combinator === undefined || sel.combinator === ' ') {
-        groups.push(lastGroup = [(siblingGroup = [])]);
+        groups.push(lastGroup = [siblingGroup = []]);
       }
       if (sel.combinator === '>') {
-        lastGroup.push((siblingGroup = []));
+        lastGroup.push(siblingGroup = []);
       }
-
-      this.specificity += sel.specificity;
-
-      if (sel.dynamic) {
-        this.dynamic = true;
-      }
-
       siblingGroup.push(sel);
-    }
-
-    this.groups = groups.map(g => new ChildGroup(g.map(sg => new SiblingGroup(sg))));
-    this.last = selectorList[length];
+    });
+    this.groups = groups.map(g => new Selector.ChildGroup(g.map(sg => new Selector.SiblingGroup(sg))));
+    this.last = selectors[0];
+    this.specificity = selectors.reduce((sum, sel) => sel.specificity + sum, 0);
+    this.dynamic = selectors.some(sel => sel.dynamic);
   }
 
   toString() {
@@ -498,7 +484,6 @@ class Selector extends SelectorCore {
   }
 
   match(node) {
-    if (!node) return false;
     return this.groups.every((group, i) => {
       if (i === 0) {
         node = group.match(node);
@@ -547,7 +532,7 @@ class Selector extends SelectorCore {
       return false;
     });
 
-    // Calculating the right bounds for each selector won't save much
+    // Calculating the right bounds for each selectors won't save much
     if (!mayMatch) {
       return false;
     }
@@ -562,12 +547,12 @@ class Selector extends SelectorCore {
         continue;
       }
       const bound = bounds[i];
-      let node = bound.left;
+      let leftBound = bound.left;
       do {
-        if (group.mayMatch(node)) {
-          group.trackChanges(node, map);
+        if (group.mayMatch(leftBound)) {
+          group.trackChanges(leftBound, map);
         }
-      } while ((node !== bound.right) && (node = node.parentNode));
+      } while ((leftBound !== bound.right) && (leftBound = node.parentNode));
     }
 
     return mayMatch;
