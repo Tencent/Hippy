@@ -39,7 +39,7 @@ ensure you were at `examples/hippy-vue-next-demo`.
 > In production, you can use process manage tool to manage your NodeJs process, like pm2.
 > 
 > And you should deploy you web server at real server with real domain, then you can request
-> SSR cgi like https://xxx.com/getFirstScreenData
+> SSR cgi like https://xxx.com/getSsrFirstScreenData
 >
 
 #### Tips

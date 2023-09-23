@@ -62,11 +62,9 @@ export function getObjectNodeList(nodeString: (string | string[])[], rootNode?: 
   const rawString = nodeString.flat(Infinity).join('');
   // remove unnecessary punctuation
   let parsedStr = rawString
-    .replaceAll(/,}/g, '}')
-    .replace(/,]/g, ']')
+    .replace(/,}|,]/g, match => match.slice(1))
     .replace(/,$/, '')
-    .replace(/\n/g, '\\n')
-    .replace(/\r/g, '\\r');
+    .replace(/\n/g, '\\n');
   let ssrNodeTree: NeedToTyped;
   try {
     if (rootNode) {
