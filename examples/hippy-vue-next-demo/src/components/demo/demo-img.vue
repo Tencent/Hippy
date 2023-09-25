@@ -44,7 +44,6 @@
       >
       <label>Gif:</label>
       <img
-        v-if="isMounted"
         alt=""
         :placeholder="defaultImage"
         src="https://user-images.githubusercontent.com/12878546/148736255-7193f89e-9caf-49c0-86b0-548209506bd6.gif"
@@ -58,14 +57,13 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, ref, onMounted } from '@vue/runtime-core';
+import { defineComponent, ref } from '@vue/runtime-core';
 
 import defaultImage from '../../assets/defaultSource.jpg';
 import hippyLogoImage from '../../assets/hippyLogoWhite.png';
 
 export default defineComponent({
   setup() {
-    const isMounted = ref(false);
     // img touch event is supported after hippy-vue 2.6.2
     const onTouchStart = (evt: Event) => {
       console.log('onTouchDown', evt);
@@ -95,18 +93,10 @@ export default defineComponent({
 
     const gifLoadResult = ref({});
 
-    onMounted(() => {
-      // In SSR, node event will be bind at client bundle side, you should make img load
-      // in mounted lifecycle.
-      // You don't need this if you don't want to use SSR.
-      isMounted.value = true;
-    });
-
     return {
       defaultImage,
       hippyLogoImage,
       gifLoadResult,
-      isMounted,
       onTouchEnd,
       onTouchMove,
       onTouchStart,

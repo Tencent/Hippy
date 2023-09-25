@@ -28,9 +28,8 @@ import {
   type Ref,
   toRefs,
 } from '@vue/runtime-core';
-import { type AnimationInstance } from '@hippy/vue-next';
-import downVoteFace from './down-vote-face.png';
 
+import downVoteFace from './down-vote-face.png';
 
 const face1 = {
   transform: {
@@ -80,7 +79,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const animationRef: Ref<null | AnimationInstance> = ref(null);
+    const animationRef = ref(null);
     const animations: Ref = ref({
       face: face1,
       downVoteFace: {
@@ -156,6 +155,8 @@ export default defineComponent({
        */
       setTimeout(() => {
         if (animationRef.value) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           animationRef.value.start();
         }
       }, 10);

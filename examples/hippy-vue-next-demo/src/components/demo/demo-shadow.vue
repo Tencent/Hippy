@@ -1,7 +1,7 @@
 <template>
   <div id="shadow-demo">
     <div
-      v-if="!isIOS"
+      v-if="Platform === 'android'"
       class="no-offset-shadow-demo-cube-android"
     >
       <div class="no-offset-shadow-demo-content-android">
@@ -9,7 +9,7 @@
       </div>
     </div>
     <div
-      v-if="isIOS"
+      v-if="Platform === 'ios'"
       class="no-offset-shadow-demo-cube-ios"
     >
       <div class="no-offset-shadow-demo-content-ios">
@@ -17,7 +17,7 @@
       </div>
     </div>
     <div
-      v-if="!isIOS"
+      v-if="Platform === 'android'"
       class="offset-shadow-demo-cube-android"
     >
       <div class="offset-shadow-demo-content-android">
@@ -25,7 +25,7 @@
       </div>
     </div>
     <div
-      v-if="isIOS"
+      v-if="Platform === 'ios'"
       class="offset-shadow-demo-cube-ios"
     >
       <div class="offset-shadow-demo-content-ios">
@@ -35,13 +35,13 @@
   </div>
 </template>
 <script lang="ts">
+import { Native } from '@hippy/vue-next';
 import { defineComponent } from '@vue/runtime-core';
-import { isIOS } from '../../util';
 
 export default defineComponent({
   setup() {
     return {
-      isIOS: isIOS(),
+      Platform: Native.Platform,
     };
   },
 });

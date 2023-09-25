@@ -39,11 +39,11 @@ export default defineComponent({
     /**
        * 跳转到指定链接
        *
-       * @param evt
+       * @param url
        */
-    const goToUrl = (evt) => {
-      if (evt.value) {
-        targetUrl.value = evt.value;
+    const goToUrl = (url: string) => {
+      if (url) {
+        targetUrl.value = url;
       }
     };
 
@@ -66,6 +66,7 @@ export default defineComponent({
     const onKeyUp = (evt: HippyKeyboardEvent) => {
       if (evt.keyCode === 13) {
         evt.preventDefault();
+
         if (input.value) {
           goToUrl((input.value as HTMLInputElement).value);
         }

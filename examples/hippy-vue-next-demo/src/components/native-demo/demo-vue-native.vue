@@ -1,6 +1,5 @@
 <template>
   <div
-    v-if="isMounted"
     id="demo-vue-native"
     ref="rectRef"
   >
@@ -340,7 +339,6 @@ export default defineComponent({
     const cookieString = ref('ready to set');
     const cookiesValue = ref('');
     const eventTriggeredTimes = ref(0);
-    const isMounted = ref(false);
 
     /**
        * set local storage
@@ -427,9 +425,6 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      // native props and native api only can call at client side
-      isMounted.value = true;
-
       superProps.value = JSON.stringify(getGlobalInitProps());
 
       Native.NetInfo.fetch().then((netInfo) => {
@@ -480,7 +475,6 @@ export default defineComponent({
       getBoundingClientRect,
       triggerAppEvent,
       eventTriggeredTimes,
-      isMounted,
     };
   },
   beforeDestroy() {

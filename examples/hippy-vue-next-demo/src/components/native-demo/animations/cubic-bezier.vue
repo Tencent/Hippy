@@ -5,7 +5,6 @@
       :playing="playing"
       :actions="loopActions"
       class="loop-green"
-      @actionsDidUpdate="actionsDidUpdate"
     >
       <div class="loop-white">
         <slot />
@@ -15,9 +14,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, nextTick, onMounted, ref, type Ref } from '@vue/runtime-core';
-import { type AnimationInstance } from '@hippy/vue-next';
-import { IS_SSR_MODE } from '../../../env';
+import { defineComponent, onMounted, ref } from '@vue/runtime-core';
 
 const horizonAnimation = {
   transform: {
@@ -42,39 +39,23 @@ const horizonAnimation = {
 export default defineComponent({
   props: {
     playing: Boolean,
+    onRef: {
+      type: Function,
+      default: () => {},
+    },
   },
-  setup() {
-    const animationView: Ref<null | AnimationInstance> = ref(null);
-    const loopActions: Ref = ref({});
+  setup(props) {
+    const animationView = ref(null);
 
-    if (!IS_SSR_MODE) {
-      loopActions.value = horizonAnimation;
-    }
-
-    const actionsDidUpdate = () => {
-      // pay attention pls, animate operate should execute
-      // after dom render finished
-      nextTick().then(() => {
-        console.log('cubic-bezier actions updated & startAnimation');
-        if (animationView.value) {
-          animationView.value.start();
-        }
-      });
-    };
-
-    onMounted(async () => {
-      if (IS_SSR_MODE) {
-        // ssr mode should update action to start animation
-        loopActions.value = {};
-        await nextTick();
-        loopActions.value = horizonAnimation;
+    onMounted(() => {
+      if (props.onRef) {
+        props.onRef(animationView.value);
       }
     });
 
     return {
       animationView,
-      loopActions,
-      actionsDidUpdate,
+      loopActions: horizonAnimation,
     };
   },
 });

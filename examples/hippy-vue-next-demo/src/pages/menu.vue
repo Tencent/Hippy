@@ -62,11 +62,9 @@ interface RouterList {
     name: string;
   };
 }
-// To tell webpack that this function call is safe to be tree-shaken,
-// you can add a /*#__PURE__*/ comment notation before the function call:
-// eslint-disable-next-line spaced-comment
-export default /*#__PURE__*/ defineComponent({
-  name: 'AppMenu',
+
+export default defineComponent({
+  name: 'App',
   setup() {
     // list of currently supported feature routes
     const featureList = Object.keys(Demos).map(demoId => ({

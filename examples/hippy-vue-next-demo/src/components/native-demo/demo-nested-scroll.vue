@@ -1,8 +1,7 @@
 <template>
   <div
     id="demo-wrap"
-    ref="demoRef"
-    :collapsable="false"
+    @layout="onLayout"
   >
     <div id="demo-content">
       <div id="banner" />
@@ -17,12 +16,11 @@
         </p>
       </div>
       <swiper
-        v-if="showNestedList"
         id="swiper"
         ref="swiper"
         need-animation
         :current="currentSlide"
-        :style="{ height: layoutHeight }"
+        :style="{ height: layoutHeight - 80 }"
         @dropped="onDropped"
       >
         <swiper-slide key="slide1">
@@ -53,39 +51,25 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from '@vue/runtime-core';
-import { Native } from '@hippy/vue-next';
+import { defineComponent, ref } from '@vue/runtime-core';
 
 export default defineComponent({
   setup() {
-    const demoRef = ref(null);
     const layoutHeight = ref(0);
     const currentSlide = ref(0);
-    const showNestedList = ref(false);
+    const onLayout = (e) => {
+      layoutHeight.value = e.height;
+    };
     const onTabClick = (i) => {
       currentSlide.value = i - 1;
     };
     const onDropped = (e) => {
       currentSlide.value = e.currentSlide;
     };
-
-    onMounted(async () => {
-      if (demoRef.value) {
-        // get wrap position
-        const position = await Native.measureInAppWindow(demoRef.value);
-        if (position.height) {
-          // wrap height - banner height - tab height
-          layoutHeight.value = position.height - 150 - 30;
-        }
-      }
-      showNestedList.value = true;
-    });
-
     return {
-      demoRef,
       layoutHeight,
       currentSlide,
-      showNestedList,
+      onLayout,
       onTabClick,
       onDropped,
     };
@@ -110,6 +94,11 @@ export default defineComponent({
     justify-content: flex-end;
 }
 
+#banner p {
+    color: coral;
+    text-align: center;
+}
+
 #tabs {
     flex-direction: row;
     height: 30px;
@@ -119,9 +108,6 @@ export default defineComponent({
     flex: 1;
     text-align: center;
     background-color: #eee;
-    color: coral;
-    height: 30px;
-    line-height: 30px;
 }
 
 #tabs .selected {

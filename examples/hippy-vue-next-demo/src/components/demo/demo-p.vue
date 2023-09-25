@@ -180,9 +180,9 @@
           </button>
         </div>
       </div>
-      <label v-if="!isIOS">break-strategy={{ breakStrategy }}</label>
+      <label v-if="Platform === 'android'">break-strategy={{ breakStrategy }}</label>
       <div
-        v-if="!isIOS"
+        v-if="Platform === 'android'"
         class="p-demo-content"
       >
         <p
@@ -252,11 +252,11 @@
           <span style="font-size: 16; vertical-align: baseline;">字</span>
           <span style="font-size: 16; vertical-align: bottom;">字</span>
         </p>
-        <p v-if="!isIOS">
+        <p v-if="Platform === 'android'">
           legacy mode:
         </p>
         <p
-          v-if="!isIOS"
+          v-if="Platform === 'android'"
           style="lineHeight: 50; background-color: #40b883; padding-horizontal: 10; padding-vertical: 5;"
         >
           <img
@@ -314,11 +314,11 @@
           >
           <span style="vertical-align: middle; background-color: #99f;">text</span>
         </p>
-        <p v-if="!isIOS">
+        <p v-if="Platform === 'android'">
           legacy mode:
         </p>
         <p
-          v-if="!isIOS"
+          v-if="Platform === 'android'"
           style="background-color: #40b883; padding-horizontal: 10; padding-vertical: 5;"
         >
           <img
@@ -355,11 +355,11 @@
             :src="img2"
           >
         </p>
-        <p v-if="!isIOS">
+        <p v-if="Platform === 'android'">
           legacy mode:
         </p>
         <p
-          v-if="!isIOS"
+          v-if="Platform === 'android'"
           style="line-height: 50; background-color: #40b883; padding-horizontal: 10; padding-vertical: 5;"
         >
           <img
@@ -386,7 +386,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from '@vue/runtime-core';
-import { isIOS } from '../../util';
+import { Native } from '@hippy/vue-next';
 
 export default defineComponent({
   setup() {
@@ -467,7 +467,7 @@ export default defineComponent({
       textMode,
       textShadow,
       textShadowIndex,
-      isIOS: isIOS(),
+      Platform: Native.Platform,
       breakStrategy,
       onTouchTextEnd,
       onTouchTextMove,

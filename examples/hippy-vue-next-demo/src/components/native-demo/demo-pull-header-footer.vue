@@ -27,14 +27,14 @@
       :rowShouldSticky="true"
       @scroll="onScroll"
     >
-      <!--
+      /**
       * 下拉组件
       *
       * 事件：
       *   idle: 滑动距离在 pull-header 区域内触发一次，参数 contentOffset，滑动距离
       *   pulling: 滑动距离超出 pull-header 后触发一次，参数 contentOffset，滑动距离
       *   refresh: 滑动超出距离，松手后触发一次
-      *-->
+      */
       <pull-header
         ref="pullHeader"
         class="ul-refresh"
@@ -66,7 +66,7 @@
           :item-bean="ui.itemBean"
         />
       </li>
-      <!--
+      /**
       * 上拉组件
       *   > 如果不需要显示加载情况，可以直接使用 ul 的 onEndReached 实现一直加载
       *
@@ -74,7 +74,7 @@
       *   idle: 滑动距离在 pull-footer 区域内触发一次，参数 contentOffset，滑动距离
       *   pulling: 滑动距离超出 pull-footer 后触发一次，参数 contentOffset，滑动距离
       *   released: 滑动超出距离，松手后触发一次
-      *-->
+      */
       <pull-footer
         ref="pullFooter"
         class="pull-footer"
@@ -94,7 +94,6 @@
 import { Native, type HippyListElement } from '@hippy/vue-next';
 import type { Ref } from '@vue/runtime-core';
 import { defineComponent, onMounted, ref } from '@vue/runtime-core';
-import { getScreenSize } from '../../util';
 
 import mockData from '../list-items/mock';
 import StyleOne from '../list-items/style1.vue';
@@ -274,7 +273,9 @@ export default defineComponent({
       dataSource.value = [...mockData];
 
       // Save the screen height, it will be used later when calculating the exposure
-      $windowHeight = getScreenSize().height;
+      $windowHeight = Native?.Dimensions
+        ? Native.Dimensions.window.height
+        : window.innerHeight;
 
       /**
        * You need to actively call collapsePullHeader to close the pullHeader,

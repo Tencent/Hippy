@@ -5,7 +5,7 @@
       :playing="playing"
       :actions="loopActions"
       class="loop-green"
-      @actionsDidUpdate="actionsDidUpdate"
+      @actionsDidUpdate="$emit('actionsDidUpdate')"
     >
       <div class="loop-white">
         <slot />
@@ -21,10 +21,8 @@ import {
   watch,
   ref,
   onMounted,
-  type Ref, nextTick,
+  type Ref,
 } from '@vue/runtime-core';
-import { type AnimationInstance } from '@hippy/vue-next';
-import { IS_SSR_MODE } from '../../../env';
 
 const horizonAnimation = {
   transform: {
@@ -55,59 +53,45 @@ export default defineComponent({
       type: String,
       default: '',
     },
+    onRef: {
+      type: Function,
+      default: () => {},
+    },
   },
+  emits: ['actionsDidUpdate'],
   setup(props) {
     const { direction } = toRefs(props);
-    const loopActions: Ref = ref({});
-    const animationLoop: Ref<null | AnimationInstance> = ref(null);
-
-    const setActions = (direction: string) => {
-      switch (direction) {
-        case 'horizon':
-          loopActions.value = horizonAnimation;
-          break;
-        case 'vertical':
-          loopActions.value = verticalAnimation;
-          break;
-        default:
-          throw new Error('direction must be defined in props');
-      }
-    };
+    const loopActions: Ref = ref('');
+    const animationLoop = ref(null);
 
     watch(
       direction,
       (newVal) => {
-        setActions(newVal);
+        switch (newVal) {
+          case 'horizon':
+            loopActions.value = horizonAnimation;
+            break;
+          case 'vertical':
+            loopActions.value = verticalAnimation;
+            break;
+          default:
+            throw new Error('direction must be defined in props');
+        }
       },
       {
         immediate: true,
       },
     );
 
-    const actionsDidUpdate = () => {
-      // pay attention pls, animate operate should execute
-      // after dom render finished
-      nextTick().then(() => {
-        console.log('loop actions updated & startAnimation');
-        if (animationLoop.value) {
-          animationLoop.value.start();
-        }
-      });
-    };
-
-    onMounted(async () => {
-      if (IS_SSR_MODE) {
-        // ssr mode should update action to start animation
-        loopActions.value = {};
-        await nextTick();
-        setActions(props.direction);
+    onMounted(() => {
+      if (props.onRef) {
+        props.onRef(animationLoop.value);
       }
     });
 
     return {
       loopActions,
       animationLoop,
-      actionsDidUpdate,
     };
   },
 });

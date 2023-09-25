@@ -5,7 +5,6 @@
       :playing="playing"
       :actions="colorActions"
       class="color-green"
-      @actionsDidUpdate="actionsDidUpdate"
     >
       <div class="color-white">
         <slot />
@@ -15,9 +14,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, type Ref, onMounted, nextTick } from '@vue/runtime-core';
-import { type AnimationInstance } from '@hippy/vue-next';
-import { IS_SSR_MODE } from '../../../env';
+import { defineComponent } from '@vue/runtime-core';
 
 const backgroundColorAnimation = {
   backgroundColor: [
@@ -38,7 +35,7 @@ const backgroundColorAnimation = {
       delay: 0,
       mode: 'timing',
       timingFunction: 'linear',
-      repeatCount: -1, // 'loop' string supported above 2.12.2
+      repeatCount: -1,
     },
   ],
 };
@@ -52,42 +49,14 @@ export default defineComponent({
     },
   },
   setup() {
-    const animationView: Ref<null | AnimationInstance> = ref(null);
-    const colorActions: Ref = ref({});
-
-    if (!IS_SSR_MODE) {
-      colorActions.value = backgroundColorAnimation;
-    }
-
-    const actionsDidUpdate = () => {
-      // pay attention pls, animate operate should execute
-      // after dom render finished
-      nextTick().then(() => {
-        console.log('color-change actions updated & startAnimation');
-        if (animationView.value) {
-          animationView.value.start();
-        }
-      });
-    };
-
-    onMounted(async () => {
-      if (IS_SSR_MODE) {
-        colorActions.value = {};
-        await nextTick();
-        colorActions.value = backgroundColorAnimation;
-      }
-    });
-
     return {
-      animationView,
-      colorActions,
-      actionsDidUpdate,
+      colorActions: backgroundColorAnimation,
     };
   },
 });
 </script>
 
-<style>
+<style scoped>
 .color-green {
   margin-top: 10px;
   justify-content: center;
