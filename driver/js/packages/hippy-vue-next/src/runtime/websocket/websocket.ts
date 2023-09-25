@@ -284,4 +284,5 @@ class WebSocket {
 }
 
 // assign websocket to global
+// @ts-ignore
 global.WebSocket = WebSocket;
