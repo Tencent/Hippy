@@ -41,6 +41,7 @@ namespace base {
 class HippyFile {
  public:
   using unicode_string_view = tdf::base::unicode_string_view;
+  static int RmFile(const unicode_string_view& file_path);
   static int RmFullPath(const unicode_string_view& dir_full_path);
   static int CreateDir(const unicode_string_view& path, mode_t mode);
   static int CheckDir(const unicode_string_view& path, int mode);
