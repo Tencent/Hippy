@@ -68,6 +68,14 @@ bool HippyFile::ReadFile(const unicode_string_view& file_path,
   return false;
 }
 
+int HippyFile::RmFile(const unicode_string_view& file_path) {
+  TDF_BASE_DLOG(INFO) << "RmFile file_path = " << file_path;
+  unicode_string_view owner(u8""_u8s);
+  const char* path = StringViewUtils::ToConstCharPointer(file_path, owner);
+  unlink(path);
+  return 0;
+}
+
 int HippyFile::RmFullPath(const unicode_string_view& dir_full_path) {
   TDF_BASE_DLOG(INFO) << "RmFullPath dir_full_path = " << dir_full_path;
   unicode_string_view owner(u8""_u8s);
