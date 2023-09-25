@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import type { SsrNode } from '../../types';
 import { HippyElement } from './hippy-element';
 
 /**
@@ -27,11 +27,14 @@ import { HippyElement } from './hippy-element';
  */
 class HippyCommentElement extends HippyElement {
   public text: string;
+  // used to hydrate, same to vue
+  public data: string;
 
-  constructor(text: string) {
-    super(text);
+  constructor(text: string, ssrNode?: SsrNode) {
+    super('comment', ssrNode);
 
     this.text = text;
+    this.data = text;
 
     // comment nodes do not need to be inserted into Native
     this.isNeedInsertToNative = false;

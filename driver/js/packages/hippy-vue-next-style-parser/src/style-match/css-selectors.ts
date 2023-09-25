@@ -29,14 +29,17 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-param-reassign */
 // eslint-disable-next-line max-classes-per-file
-import type { CssDeclarationType } from '@hippy-vue-next-style-parser/index';
-
-import type { HippyElement } from '../element/hippy-element';
-import type { HippyNode } from '../node/hippy-node';
-
-import { isNullOrUndefined } from '../../util';
+import type { CssDeclarationType, StyleNode, StyleNodeList } from '../index';
 import type { SelectorsMap, SelectorsMatch } from './css-selectors-match';
 
+/**
+ * determine if the value is null or undefined
+ *
+ * @param value - value
+ */
+export function isNullOrUndefined(value: any): boolean {
+  return typeof value === 'undefined' || value === null;
+}
 
 /**
  * wrap string text
@@ -45,6 +48,26 @@ import type { SelectorsMap, SelectorsMatch } from './css-selectors-match';
  */
 function wrap(text: string | undefined): string {
   return text ? ` ${text}` : '';
+}
+
+/**
+ * get node's parent node, in client side, node has parentNode props. in server side, find parentNode
+ * by pId
+ *
+ * @param node - child node
+ * @param ssrNodes - ssr node list
+ *
+ * @internal
+ */
+function getParentNode(node: StyleNode, ssrNodes?: StyleNodeList): StyleNode | null {
+  if (ssrNodes) {
+    // in server side mode, find parent node with pId
+    if (node?.pId && ssrNodes[node.pId]) {
+      return ssrNodes[node.pId];
+    }
+    return null;
+  }
+  return node?.parentNode;
 }
 
 /**
@@ -92,7 +115,7 @@ class SimpleSelector extends SelectorCore {
 
   public combinator?: string;
 
-  public accumulateChanges(node: HippyElement, match: SelectorsMatch) {
+  public accumulateChanges(node: StyleNode, match: SelectorsMatch) {
     if (!this.dynamic) {
       return this.match(node);
     }
@@ -108,7 +131,7 @@ class SimpleSelector extends SelectorCore {
    *
    * @param node - target node
    */
-  public match(node: HippyElement): boolean {
+  public match(node: StyleNode): boolean {
     return !!node;
   }
 
@@ -117,7 +140,7 @@ class SimpleSelector extends SelectorCore {
    *
    * @param node - target node
    */
-  public mayMatch(node: HippyElement) {
+  public mayMatch(node: StyleNode) {
     return this.match(node);
   }
 
@@ -127,7 +150,7 @@ class SimpleSelector extends SelectorCore {
    * @param node - target node
    * @param match - SelectorsMatch
    */
-  public trackChanges(node?: HippyElement, match?: SelectorsMatch): void {
+  public trackChanges(node?: StyleNode, match?: SelectorsMatch): void {
     if (node && match) {
       /**
        * fixme This should be defined as an abstract method, but because some selectors do not need this method,
@@ -163,21 +186,21 @@ class SimpleSelectorSequence extends SimpleSelector {
     return `${this.selectors.join('')}${wrap(this.combinator)}`;
   }
 
-  match(node?: HippyElement): boolean {
+  match(node?: StyleNode): boolean {
     if (!node) {
       return false;
     }
     return this.selectors.every(sel => sel.match(node));
   }
 
-  mayMatch(node?: HippyElement): boolean {
+  mayMatch(node?: StyleNode): boolean {
     if (!node) {
       return false;
     }
     return this.selectors.every(sel => sel.mayMatch(node));
   }
 
-  trackChanges(node: HippyElement, match: SelectorsMatch): void {
+  trackChanges(node: StyleNode, match: SelectorsMatch): void {
     this.selectors.forEach(sel => sel.trackChanges(node, match));
   }
 
@@ -233,11 +256,12 @@ class IdSelector extends SimpleSelector {
     return `#${this.id}${wrap(this.combinator)}`;
   }
 
-  match(node?: HippyElement): boolean {
+  match(node?: StyleNode): boolean {
     if (!node) {
       return false;
     }
-    return node.id === this.id;
+    // ssr node's id is native id, the dom id is attribute's id
+    return node.props?.attributes?.id === this.id || node.id === this.id;
   }
 
   lookupSort(sorter: SelectorsMap, base: SelectorCore): void {
@@ -267,7 +291,7 @@ class TypeSelector extends SimpleSelector {
     return `${this.cssType}${wrap(this.combinator)}`;
   }
 
-  match(node?: HippyElement): boolean {
+  match(node?: StyleNode): boolean {
     if (!node) {
       return false;
     }
@@ -301,11 +325,18 @@ class ClassSelector extends SimpleSelector {
     return `.${this.className}${wrap(this.combinator)}`;
   }
 
-  match(node?: HippyElement): boolean {
+  match(node?: StyleNode): boolean {
     if (!node) {
       return false;
     }
-    return !!(node.classList.size && node.classList.has(this.className));
+    // props and attributes exist means this node is generated from server side(except development).
+    // so we need to use these props when we are ssr
+    const classList = node.classList
+      ?? new Set((node.props?.attributes?.class || '')
+        .split(' ')
+        .filter(x => x.trim()));
+
+    return !!(classList.size && classList.has(this.className));
   }
 
   lookupSort(sorter: SelectorsMap, base: SelectorCore): void {
@@ -343,7 +374,7 @@ class PseudoClassSelector extends SimpleSelector {
     return true;
   }
 
-  trackChanges(node: HippyElement, match: SelectorsMatch): void {
+  trackChanges(node: StyleNode, match: SelectorsMatch): void {
     match.addPseudoClass(node, this.cssPseudoClass);
   }
 }
@@ -356,11 +387,12 @@ class PseudoClassSelector extends SimpleSelector {
  * @returns {*}
  */
 const getNodeAttrVal = (node, attribute) => {
-  const attr = node.attributes[attribute];
+  // node.props is ssrNode's attributes list
+  const attr = node?.props?.[attribute] || node?.attributes?.[attribute];
   if (typeof attr !== 'undefined') {
     return attr;
   }
-  if (Array.isArray(node.styleScopeId) && node.styleScopeId.includes(attribute)) {
+  if (Array.isArray(node?.styleScopeId) && node?.styleScopeId?.includes(attribute)) {
     return attribute;
   }
 };
@@ -391,8 +423,10 @@ class AttributeSelector extends SimpleSelector {
 
     if (!test) {
       // HasAttribute
-      this.match = (node?: HippyElement) => {
-        if (!node || !node.attributes) {
+      this.match = (node: StyleNode) => {
+        if (!node || (!node?.attributes && !node?.props)) {
+          // in client side render, node not exist or do not have attributes props means no attribute
+          // in server side render, node do not have attribute in props means no attribute
           return false;
         }
 
@@ -406,8 +440,10 @@ class AttributeSelector extends SimpleSelector {
       return;
     }
 
-    this.match = (node?: HippyElement) => {
-      if (!node || !node.attributes) {
+    this.match = (node?: StyleNode) => {
+      // props and attributes exist means this node is generated from server side(except development).
+      // so we need to use these props when we are ssr
+      if (!node || (!node?.attributes && !node?.props[attribute])) {
         return false;
       }
       const attr = `${getNodeAttrVal(node, attribute)}`;
@@ -457,7 +493,7 @@ class AttributeSelector extends SimpleSelector {
    *
    * @param node - target node
    */
-  match(node?: HippyElement): boolean {
+  match(node?: StyleNode): boolean {
     return node ? !node : false;
   }
 
@@ -465,7 +501,7 @@ class AttributeSelector extends SimpleSelector {
     return true;
   }
 
-  trackChanges(node: HippyElement, match: SelectorsMatch): void {
+  trackChanges(node: StyleNode, match: SelectorsMatch): void {
     match.addAttribute(node, this.attribute);
   }
 }
@@ -663,7 +699,7 @@ class Selector extends SelectorCore {
     return this.selectors.join('');
   }
 
-  match(node?: HippyElement): boolean {
+  match(node?: StyleNode, ssrNodes?: StyleNodeList): boolean {
     if (!node) {
       return false;
     }
@@ -672,14 +708,12 @@ class Selector extends SelectorCore {
         node = group.match(node);
         return !!node;
       }
-      if (node?.parentNode) {
-        let ancestor: HippyNode | null = node.parentNode;
-        while (ancestor) {
-          if ((node = group.match(ancestor))) {
-            return true;
-          }
-          ancestor = ancestor.parentNode;
+      let ancestor = getParentNode(node as StyleNode, ssrNodes);
+      while (ancestor) {
+        if ((node = group.match(ancestor))) {
+          return true;
         }
+        ancestor = getParentNode(ancestor, ssrNodes);
       }
       return false;
     });
@@ -693,14 +727,14 @@ class Selector extends SelectorCore {
     this.last.removeSort(sorter, this);
   }
 
-  accumulateChanges(node: HippyElement, map: SelectorsMap): boolean {
+  accumulateChanges(node: StyleNode, map: SelectorsMap, ssrNodes?: StyleNodeList): boolean {
     if (!this.dynamic) {
-      return this.match(node);
+      return this.match(node, ssrNodes);
     }
 
     const bounds: {
-      left: HippyElement;
-      right: HippyElement | null;
+      left: StyleNode;
+      right: StyleNode | null;
     }[] = [];
     const mayMatch = this.groups.every((group, i) => {
       if (i === 0) {
@@ -709,14 +743,15 @@ class Selector extends SelectorCore {
         node = nextNode;
         return !!node;
       }
-      let ancestor = node;
-      while ((ancestor = ancestor.parentNode as HippyElement)) {
+      let ancestor = getParentNode(node, ssrNodes);
+      while (ancestor) {
         const nextNode = group.mayMatch(ancestor);
         if (nextNode) {
           bounds.push({ left: ancestor, right: null });
           node = nextNode;
           return true;
         }
+        ancestor = getParentNode(ancestor, ssrNodes);
       }
       return false;
     });
@@ -743,7 +778,7 @@ class Selector extends SelectorCore {
         }
       } while (
         node !== bound.right
-        && (node = node.parentNode as HippyElement)
+        && (node = node.parentNode as StyleNode)
       );
     }
 

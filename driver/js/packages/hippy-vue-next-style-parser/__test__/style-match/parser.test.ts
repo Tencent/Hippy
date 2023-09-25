@@ -18,18 +18,12 @@
  * limitations under the License.
  */
 
-/**
- * runtime/style/parser unit test
- *
- */
-import { parseSelector } from '../../../src/runtime/style/parser';
+import { parseSelector } from '../../src/style-match/parser';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * style-match/parser.ts unit test case
  */
-describe('runtime/style/parser.ts', () => {
+describe('style-match/parser.ts', () => {
   // id selector parser
   it('id selector should parser correctly', async () => {
     const parsedValue = {

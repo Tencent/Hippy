@@ -68,6 +68,11 @@ const HIPPY_GLOBAL_DISPOSE_STYLE_NAME = '__HIPPY_VUE_DISPOSE_STYLES__';
 // eslint-disable-next-line
 const HIPPY_VUE_VERSION = process.env.HIPPY_VUE_VERSION;
 
+/**
+ * the key of generate hippy unique id
+ */
+const HIPPY_UNIQUE_ID_KEY = 'hippyUniqueId';
+
 export {
   HIPPY_DEBUG_ADDRESS,
   HIPPY_STATIC_PROTOCOL,
@@ -76,4 +81,5 @@ export {
   HIPPY_GLOBAL_STYLE_NAME,
   HIPPY_GLOBAL_DISPOSE_STYLE_NAME,
   HIPPY_VUE_VERSION,
+  HIPPY_UNIQUE_ID_KEY,
 };

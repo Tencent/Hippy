@@ -283,6 +283,5 @@ class WebSocket {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
+// assign websocket to global
 global.WebSocket = WebSocket;

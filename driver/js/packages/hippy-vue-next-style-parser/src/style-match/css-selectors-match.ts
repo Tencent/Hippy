@@ -22,8 +22,7 @@
 /* eslint-disable no-param-reassign */
 
 // eslint-disable-next-line max-classes-per-file
-import type { NeedToTyped, CommonMapParams } from '../../types';
-import type { HippyElement } from '../element/hippy-element';
+import type { StyleNode, CommonMapParams, StyleNodeList } from '../index';
 import type { RuleSet, SelectorCore } from './css-selectors';
 
 export type CssAttribute = CommonMapParams;
@@ -51,7 +50,7 @@ class SelectorsMatch {
    * @param node - target node
    * @param attribute - attribute name
    */
-  addAttribute(node: HippyElement, attribute: NeedToTyped): void {
+  addAttribute(node: StyleNode, attribute: any): void {
     const deps = this.properties(node);
     if (!deps.attributes) {
       deps.attributes = new Set();
@@ -65,7 +64,7 @@ class SelectorsMatch {
    * @param node - target node
    * @param pseudoClass - pseudo class
    */
-  addPseudoClass(node: HippyElement, pseudoClass: string): void {
+  addPseudoClass(node: StyleNode, pseudoClass: string): void {
     const deps = this.properties(node);
     if (!deps.pseudoClasses) {
       deps.pseudoClasses = new Set();
@@ -73,7 +72,7 @@ class SelectorsMatch {
     deps.pseudoClasses.add(pseudoClass);
   }
 
-  properties(node: HippyElement): CommonMapParams {
+  properties(node: StyleNode): CommonMapParams {
     let set = this.changeMap.get(node);
     if (!set) {
       this.changeMap.set(node, (set = {}));
@@ -82,7 +81,12 @@ class SelectorsMatch {
   }
 }
 
-
+/**
+ * selectors map class
+ *
+ * @public
+ *
+ */
 class SelectorsMap {
   /**
    * Remove the specified style from the style rules map
@@ -163,21 +167,31 @@ class SelectorsMap {
    * Find the matching style information according to the id, class, attribute of the hippy node
    *
    * @param node - target node
+   * @param ssrNodes - ssr node list
    */
-  public query(node: HippyElement): SelectorsMatch {
-    const { tagName, id, classList } = node;
-    const selectorClasses = [this.universal, this.id[id], this.type[tagName]];
-    if (classList.size) {
-      classList.forEach(c => selectorClasses.push(this.class[c]));
+  public query(node: StyleNode, ssrNodes?: StyleNodeList): SelectorsMatch {
+    const { tagName, id, classList, props } = node;
+    let domId = id;
+    let domClassList = classList;
+    if (props?.attributes) {
+      // props and attributes exist means this node is generated from server side(except development).
+      // so we need to use these props first
+      const { attributes } = props;
+      domClassList = new Set((attributes?.class || '').split(' ').filter(x => x.trim()));
+      domId = attributes.id;
+    }
+    const selectorClasses = [this.universal, this.id[domId], this.type[tagName]];
+    if (domClassList?.size) {
+      domClassList.forEach(c => selectorClasses.push(this.class[c]));
     }
     const selectors = selectorClasses
       .filter(arr => !!arr)
-      .reduce((cur, next) => cur.concat(next || []), []);
+      .reduce((cur, next) => cur.concat(next), []);
 
     const selectorsMatch = new SelectorsMatch();
 
     selectorsMatch.selectors = selectors
-      .filter(sel => sel.sel.accumulateChanges(node, selectorsMatch))
+      .filter(sel => sel.sel.accumulateChanges(node, selectorsMatch, ssrNodes))
       .sort((a, b) => a.sel.specificity - b.sel.specificity || a.pos - b.pos)
       .map(docSel => docSel.sel);
 

@@ -251,6 +251,14 @@ export function registerAnimation(vueApp: App): void {
     beforeDestroy() {
       this.destroy();
     },
+    deactivated() {
+      // for keep-alive deactivated
+      this.pause();
+    },
+    activated() {
+      // for keep-alive activated
+      this.resume();
+    },
     methods: {
       create() {
         const { actions: { transform, ...actions } } = this.$props;

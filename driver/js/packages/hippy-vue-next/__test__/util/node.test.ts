@@ -29,11 +29,9 @@ import {
 } from '../../src/util/node';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * node.ts unit test case
  */
-describe('util/index.ts', () => {
+describe('util/node.ts', () => {
   jest.useFakeTimers();
   it('check node cache operation', async () => {
     const node = new HippyElement('div');
