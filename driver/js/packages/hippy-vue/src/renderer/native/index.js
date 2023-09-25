@@ -634,7 +634,6 @@ function updateEvent(parentNode) {
     nodes: [],
     eventNodes: [eventNode],
     printedNodes: [],
-    updateEvent,
   });
   endBatch(app);
 }
