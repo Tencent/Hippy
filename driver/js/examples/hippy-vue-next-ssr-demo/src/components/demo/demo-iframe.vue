@@ -120,6 +120,7 @@ export default defineComponent({
 }
 
 #iframe-demo #iframe {
+  display: flex;
   flex: 1;
 }
 </style>

@@ -143,6 +143,7 @@ export default defineComponent({
   margin-bottom: 18px;
 }
 #root .body-container {
+  display: flex;
   flex: 1;
 }
 .row {
@@ -156,21 +157,10 @@ export default defineComponent({
   align-content: center;
 }
 .fullscreen {
+  display: flex;
   flex: 1;
 }
-.row {
-  flex-direction: row;
-}
-.column {
-  flex-direction: column;
-}
-.center {
-  justify-content: center;
-  align-content: center;
-}
-.fullscreen {
-  flex: 1;
-}
+
 .toolbar {
   display: flex;
   height: 40px;

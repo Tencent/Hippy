@@ -1194,7 +1194,8 @@ export class HippyElement extends HippyNode {
    *
    */
   private fixVShowDirectiveIssue(): void {
-    let display;
+    // use current value if exists
+    let display = this.style.display ?? undefined;
     // watch the modification of this.style.display and update it with the modified value
     // fixme If the user here actively sets the display by means of setStyle,
     // the updateNode may be triggered one more time, here's how to deal with it

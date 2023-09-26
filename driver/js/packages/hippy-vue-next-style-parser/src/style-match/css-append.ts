@@ -195,10 +195,10 @@ function polyfillSpecialNodeStyle(
     }
   }
   // compatible v-show
-  if (inlineStyle.display) {
-    delete nativeNode.props.style.display;
-    nativeNode.props.display = inlineStyle.display;
-  }
+  // if (inlineStyle.display) {
+    // delete nativeNode.props.style.display;
+    // nativeNode.props.display = inlineStyle.display;
+  // }
 
   // compatible Input
   if (nativeNode.name === 'TextInput') {

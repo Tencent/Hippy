@@ -328,7 +328,7 @@ function createSSRRootNode(rootContainer: string): SsrNode {
     index: 0,
     name: 'View',
     props: {
-      style: { flex: 1 },
+      style: { flex: 1, display: 'flex' },
       attributes: { id: rootContainer, class: '' },
     },
     tagName: 'div',

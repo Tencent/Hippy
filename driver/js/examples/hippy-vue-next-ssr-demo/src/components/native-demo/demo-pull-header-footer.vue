@@ -311,6 +311,7 @@ export default defineComponent({
 
 <style scoped>
 #demo-pull-header-footer {
+  display: flex;
   flex: 1;
   padding: 12px;
 }
@@ -338,6 +339,7 @@ export default defineComponent({
 }
 
 #demo-pull-header-footer #list {
+  display: flex;
   flex: 1;
   background-color: white;
 }
@@ -364,12 +366,14 @@ export default defineComponent({
 }
 
 [specital-attr='pull-header-footer'] :deep(.image) {
+  display: flex;
   flex: 1;
   height: 160px;
   resize-mode: cover;
 }
 
 [specital-attr='pull-header-footer'] :deep(.style-one-image-container) {
+  display: flex;
   flex-direction: row;
   justify-content: center;
   margin-top: 8px;
@@ -386,6 +390,7 @@ export default defineComponent({
 }
 
 [specital-attr='pull-header-footer'] :deep(.style-two-left-container) {
+  display: flex;
   flex: 1;
   flex-direction: column;
   justify-content: center;
@@ -393,6 +398,7 @@ export default defineComponent({
 }
 
 [specital-attr='pull-header-footer'] :deep(.style-two-image-container) {
+  display: flex;
   flex: 1;
 }
 
@@ -401,6 +407,7 @@ export default defineComponent({
 }
 
 [specital-attr='pull-header-footer'] :deep(.style-five-image-container) {
+  display: flex;
   flex-direction: row;
   justify-content: center;
   margin-top: 8px;

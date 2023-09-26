@@ -289,6 +289,7 @@ export default defineComponent({
 
 <style scoped>
 #demo-list {
+  display: flex;
   collapsable: false;
   flex: 1;
 }

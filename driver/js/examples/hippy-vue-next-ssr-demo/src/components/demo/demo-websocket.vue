@@ -188,6 +188,7 @@ export default defineComponent({
 }
 
 #websocket-demo input {
+  display: flex;
   color: black;
   flex: 1;
   height: 36px;

@@ -95,6 +95,7 @@ export default defineComponent({
 
 <style scoped>
 #demo-wrap {
+    display: flex;
     overflow-y: scroll;
     flex: 1;
 }
@@ -116,6 +117,7 @@ export default defineComponent({
 }
 
 #tabs p {
+    display: flex;
     flex: 1;
     text-align: center;
     background-color: #eee;

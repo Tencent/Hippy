@@ -484,6 +484,7 @@ export default defineComponent({
 
 <style scoped>
 .p-demo {
+  display: flex;
   margin: 7px;
   overflow-y: scroll;
   flex: 1;

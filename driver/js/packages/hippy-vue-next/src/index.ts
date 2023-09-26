@@ -65,7 +65,7 @@ import {
   setHippyCachedInstance,
   setHippyCachedInstanceParams,
 } from './util/instance';
-import { setScreenSize } from './util/screen';
+import { type ScreenSize, setScreenSize } from './util/screen';
 import { convertToHippyElementTree } from './hydration';
 
 /**
@@ -362,6 +362,7 @@ export type {
   MeasurePosition,
   DOMRect,
   AnimationInstance,
+  ScreenSize,
 };
 
 export * from './config';

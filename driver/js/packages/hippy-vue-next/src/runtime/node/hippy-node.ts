@@ -358,7 +358,7 @@ export class HippyNode extends HippyEventTarget {
    * @param rawChild - child node to be added
    * @param isHydrate - is hydrate operate or not
    */
-  public appendChild(rawChild: HippyNode, isHydrate: boolean = false): void {
+  public appendChild(rawChild: HippyNode, isHydrate = false): void {
     const child = rawChild;
 
     if (!child) {

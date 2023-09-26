@@ -1,11 +1,13 @@
 import {
-  createApp,
+  createSSRApp,
   type HippyApp,
   EventBus,
   setScreenSize,
   BackAndroid,
+  type ScreenSize,
 } from '@hippy/vue-next';
 
+import { createPinia } from 'pinia';
 import App from './app.vue';
 import { createRouter } from './routes';
 import { setGlobalInitProps } from './util';
@@ -20,20 +22,22 @@ global.Hippy.on('unhandledRejection', (reason) => {
 });
 
 // create hippy app instance
-const app: HippyApp = createApp(App, {
+// pay attention: createSSRApp can both used for client side render & server side render, createApp
+// only support client side render, but if you only used in CSR, just use createApp.
+const app: HippyApp = createSSRApp(App, {
   // hippy native module name
   appName: 'Demo',
   iPhone: {
     // config of statusBar
     statusBar: {
       // disable status bar autofill
-      // disabled: true,
+      disabled: true,
 
       // Status bar background color, if not set, it will use 4282431619, as #40b883, Vue default green
       // hippy-vue-css-loader/src/compiler/style/color-parser.js
-      backgroundColor: 4283416717,
+      // backgroundColor: 4283416717,
 
-      // 状态栏背景图，要注意这个会根据容器尺寸拉伸。
+      // status background image, image will auto-scale by screen size
       // background image of status bar, scale with wrapper size
       // backgroundImage: 'https://user-images.githubusercontent.com/12878546/148737148-d0b227cb-69c8-4b21-bf92-739fb0c3f3aa.png',
     },
@@ -45,13 +49,23 @@ const app: HippyApp = createApp(App, {
    * default is true, if set false, it will follow vue-loader compilerOptions whitespace setting
    */
   trimWhitespace: true,
+  // ssr rendered node list, use for hydration
+  ssrNodeList: global.hippySSRNodes,
 });
 // create router
 const router = createRouter();
 app.use(router);
 
+// create store
+const store = createPinia();
+app.use(store);
+// if server side return store，then use server store replace
+if (global.__INITIAL_STATE__) {
+  store.state.value = global.__INITIAL_STATE__;
+}
+
 // Monitor screen size and update size data
-EventBus.$on('onSizeChanged', (newScreenSize) => {
+EventBus.$on('onSizeChanged', (newScreenSize: ScreenSize) => {
   if (newScreenSize.width && newScreenSize.height) {
     setScreenSize({
       width: newScreenSize.width,
@@ -81,16 +95,16 @@ const initCallback = ({ superProps, rootViewId }) => {
   });
 
   // mount first， you can do something before mount
-  app.mount('#root');
+  // app.mount('#root');
 
   /**
    * You can also mount the app after the route is ready, However,
    * it is recommended to mount first, because it can render content on the screen as soon as possible
    */
-  // router.isReady().then(() => {
-  //   // mount app
-  //   app.mount('#root');
-  // });
+  router.isReady().then(() => {
+    // mount app
+    app.mount('#root');
+  });
 };
 
 // start hippy app

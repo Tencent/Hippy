@@ -117,6 +117,7 @@ export default defineComponent({
 </script>
 <style scoped>
 #demo-img {
+  display: flex;
   overflow-y: scroll;
   flex: 1;
   margin: 7px;

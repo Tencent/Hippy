@@ -149,10 +149,12 @@ export default defineComponent({
 
 <style>
 #demo-swiper {
+  display: flex;
   flex: 1;
 }
 
 #demo-swiper #swiper {
+  display: flex;
   flex: 1;
   height: 400px;
 }

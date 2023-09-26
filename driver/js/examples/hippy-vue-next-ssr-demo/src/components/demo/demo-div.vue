@@ -257,6 +257,7 @@ export default defineComponent({
 
 <style scoped>
 #div-demo {
+  display: flex;
   flex: 1;
   overflow-y: scroll;
   margin: 7px;

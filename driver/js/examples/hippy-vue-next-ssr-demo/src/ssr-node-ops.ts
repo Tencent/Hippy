@@ -44,6 +44,8 @@ interface OperateNodeType {
   newNodeList: SsrNode[];
 }
 
+type NativeNode = [SsrNode, Record<string, SsrNode>];
+
 /**
  * Encapsulate the JSON.parse method and handle the catch block uniformly
  *
@@ -335,6 +337,15 @@ function diffNodeTree(cacheTree: SsrTreeNode, serverTree: SsrTreeNode, chunkNode
 }
 
 /**
+ * convert ssr node to native node format
+ *
+ * @param nodes
+ */
+function convertToNativeNodes(nodes: SsrNode[]): NativeNode[] {
+  return nodes.map(node => [node, {}]);
+}
+
+/**
  * compare cache tree and server tree, refresh native node tree, because cache node is rendered.
  * so native node id is cached first, but props is server first
  *
@@ -369,7 +380,7 @@ export function insertNativeNodes(
 ): void {
   // create Scene Builder with rootView id
   const sceneBuilder = new global.Hippy.SceneBuilder(rootViewId);
-  sceneBuilder.create(filterUnUsedNodes(nodes));
+  sceneBuilder.create(convertToNativeNodes(filterUnUsedNodes(nodes)));
   sceneBuilder.build();
 }
 
@@ -385,7 +396,7 @@ export function deleteNativeNodes(
 ): void {
   // create Scene Builder with rootView id
   const sceneBuilder = new global.Hippy.SceneBuilder(rootViewId);
-  sceneBuilder.delete(filterUnUsedNodes(nodes));
+  sceneBuilder.delete(convertToNativeNodes(filterUnUsedNodes(nodes)));
   sceneBuilder.build();
 }
 
@@ -401,7 +412,7 @@ export function updateNativeNodes(
 ): void {
   // create Scene Builder with rootView id
   const sceneBuilder = new global.Hippy.SceneBuilder(rootViewId);
-  sceneBuilder.update(filterUnUsedNodes(nodes));
+  sceneBuilder.update(convertToNativeNodes(filterUnUsedNodes(nodes)));
   sceneBuilder.build();
 }
 

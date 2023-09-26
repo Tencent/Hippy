@@ -206,6 +206,7 @@ export default defineComponent({
 
 <style scoped>
 #demo-waterfall {
+  display: flex;
   flex: 1;
 }
 
@@ -229,6 +230,7 @@ export default defineComponent({
 }
 
 #demo-waterfall .pull-footer {
+  display: flex;
   flex: 1;
   height: 40px;
   background-color: #40b883;
@@ -253,12 +255,14 @@ export default defineComponent({
 }
 
 #demo-waterfall :deep(.image) {
+  display: flex;
   flex: 1;
   height: 120px;
   resize: both;
 }
 
 #demo-waterfall :deep(.style-one-image-container) {
+  display: flex;
   flex-direction: row;
   justify-content: center;
   margin-top: 8px;
@@ -275,6 +279,7 @@ export default defineComponent({
 }
 
 #demo-waterfall :deep(.style-two-left-container) {
+  display: flex;
   flex: 1;
   flex-direction: column;
   justify-content: center;
@@ -282,6 +287,7 @@ export default defineComponent({
 }
 
 #demo-waterfall :deep(.style-two-image-container) {
+  display: flex;
   flex: 1;
 }
 

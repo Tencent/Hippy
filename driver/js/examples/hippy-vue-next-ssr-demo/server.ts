@@ -53,6 +53,9 @@ server.all('/getSsrFirstScreenData', (req, rsp) => {
   // get hippy ssr node list and other const
   render('/', {
     appName: 'Demo',
+    iPhone: {
+      statusBar: { disabled: true },
+    },
   }, req.body).then(({
     list,
     store,

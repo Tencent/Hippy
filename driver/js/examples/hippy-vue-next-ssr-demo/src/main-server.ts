@@ -45,12 +45,12 @@ export async function render(url: string, hippyOptions: HippyAppOptions, context
     context,
   };
   // get ssr render hippy node list
-  const hippyNodeList = await renderToHippyList(app, ssrContext);
+  const hippyNodeList = await renderToHippyList(app as NeedToTyped, ssrContext);
   return {
     list: hippyNodeList,
     // modules
     modules: ssrContext.modules as Set<string>,
     store,
-    uniqueId: getCurrentUniqueId(app),
+    uniqueId: getCurrentUniqueId(app as NeedToTyped),
   };
 }

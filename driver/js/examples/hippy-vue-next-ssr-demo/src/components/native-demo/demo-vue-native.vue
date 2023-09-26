@@ -520,6 +520,7 @@ export default defineComponent({
 
 <style scoped>
 #demo-vue-native {
+  display: flex;
   flex: 1;
   padding: 12px;
   overflow-y: scroll;
@@ -540,6 +541,7 @@ export default defineComponent({
 }
 
 .event-btn {
+  display: flex;
   background-color: #40b883;
   flex: 1;
   flex-direction: column;
@@ -553,6 +555,7 @@ export default defineComponent({
 }
 
 .event-btn-result {
+  display: flex;
   flex: 1;
   flex-direction: column;
 }

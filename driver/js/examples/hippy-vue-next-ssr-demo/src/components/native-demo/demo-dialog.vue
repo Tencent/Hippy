@@ -191,11 +191,13 @@ export default defineComponent({
 }
 
 .dialog-demo-wrapper {
+  display: flex;
   flex: 1;
   background-color: #40b88377;
 }
 
 .dialog-2-demo-wrapper {
+  display: flex;
   flex: 1;
   background-color: #444444ee;
   justify-content: center;

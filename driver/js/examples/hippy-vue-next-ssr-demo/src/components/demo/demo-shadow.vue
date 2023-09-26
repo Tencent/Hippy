@@ -48,6 +48,7 @@ export default defineComponent({
 </script>
 <style scoped>
 #shadow-demo {
+  display: flex;
   flex: 1;
 }
 
