@@ -1386,6 +1386,11 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     }
 }
 
+- (void)removeVSyncEventOnRootNode:(std::weak_ptr<hippy::RootNode>)rootNode {
+    NSString *vsyncKey = [NSString stringWithFormat:@"%p-%d", self, static_cast<int>(rootNode.lock()->GetId())];
+    [[RenderVsyncManager sharedInstance] unregisterVsyncObserverForKey:vsyncKey];
+}
+
 - (void)addPropertyEvent:(const std::string &)name forDomNode:(int32_t)node_id
               onRootNode:(std::weak_ptr<RootNode>)rootNode {
     AssertMainQueue();

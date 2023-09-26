@@ -146,6 +146,13 @@ void NativeRenderManager::RemoveEventListener(std::weak_ptr<hippy::RootNode> roo
     }
 }
 
+void NativeRenderManager::RemoveVSyncEventListener(std::weak_ptr<hippy::RootNode> root_node) {
+    @autoreleasepool {
+        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
+        [renderImpl_ removeVSyncEventOnRootNode:root_node];
+    }
+}
+
 void NativeRenderManager::CallFunction(std::weak_ptr<hippy::RootNode> root_node,
                                        std::weak_ptr<DomNode> dom_node,
                                        const std::string &name,

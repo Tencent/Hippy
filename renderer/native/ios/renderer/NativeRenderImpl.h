@@ -229,6 +229,11 @@ class HippyValue;
              onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
 
 /**
+ * unregister vsync event
+ */
+- (void)removeVSyncEventOnRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
+
+/**
  * Set root view size changed event callback
  *
  *@param cb callback
