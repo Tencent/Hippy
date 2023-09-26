@@ -64,9 +64,7 @@ void RootNode::RemoveEventListener(const std::string& name, uint64_t listener_id
   RemoveEvent(GetId(), name);
 }
 
-void RootNode::ReleaseResources() {
-  animation_manager_->RemoveVSyncEventListenerOnRelease();
-}
+void RootNode::ReleaseResources() {}
 
 void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   for (const auto& interceptor : interceptors_) {
@@ -282,24 +280,6 @@ void RootNode::SyncWithRenderManager(const std::shared_ptr<RenderManager>& rende
     dom_manager->RecordDomEndTimePoint();
   }
   render_manager->EndBatch(GetWeakSelf());
-}
-
-void RootNode::SyncWithRenderManagerOnRelease(const std::shared_ptr<RenderManager>& render_manager) {
-  for (auto& event_operation : event_operations_) {
-    const auto& node = GetNode(event_operation.id);
-    if (node == nullptr) {
-      continue;
-    }
-
-    switch (event_operation.op) {
-      case EventOperation::Op::kOpRemove:
-        render_manager->RemoveEventListener(GetWeakSelf(), node, event_operation.name);
-        break;
-      default:
-        break;
-    }
-  }
-  event_operations_.clear();
 }
 
 void RootNode::AddEvent(uint32_t id, const std::string& event_name) {

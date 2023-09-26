@@ -106,7 +106,6 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   static void UpdateAnimation(const std::weak_ptr<RootNode>& weak_root_node,
                        std::vector<std::shared_ptr<DomNode>>&& nodes);
   void EndBatch(const std::weak_ptr<RootNode>& root_node);
-  void EndBatchOnRelease(const std::weak_ptr<RootNode>& root_node);
   // 返回0代表失败，正常id从1开始
   static void AddEventListener(const std::weak_ptr<RootNode>& weak_root_node,
                         uint32_t dom_id,
