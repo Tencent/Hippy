@@ -216,41 +216,41 @@
       <div class="p-demo-content">
         <p style="line-height: 50; background-color: #40b883; padding-horizontal: 10; padding-vertical: 5;">
           <img
-            style="width: 24; height: 24; vertical-align: top;"
+            style="width: 24px; height: 24px; vertical-align: top;"
             :src="img2"
           >
           <img
-            style="width: 18; height: 12; vertical-align: middle;"
+            style="width: 18px; height: 12px; vertical-align: middle;"
             :src="img2"
           >
           <img
-            style="width: 24; height: 12; vertical-align: baseline;"
+            style="width: 24px; height: 12px; vertical-align: baseline;"
             :src="img2"
           >
           <img
-            style="width: 36; height: 24; vertical-align: bottom;"
+            style="width: 36px; height: 24px; vertical-align: bottom;"
             :src="img2"
           >
           <img
-            style="width: 24; height: 24; vertical-align: top;"
+            style="width: 24px; height: 24px; vertical-align: top;"
             :src="img3"
           >
           <img
-            style="width: 18; height: 12; vertical-align: middle;"
+            style="width: 18px; height: 12px; vertical-align: middle;"
             :src="img3"
           >
           <img
-            style="width: 24; height: 12; vertical-align: baseline;"
+            style="width: 24px; height: 12px; vertical-align: baseline;"
             :src="img3"
           >
           <img
-            style="width: 36; height: 24; vertical-align: bottom;"
+            style="width: 36px; height: 24px; vertical-align: bottom;"
             :src="img3"
           >
-          <span style="font-size: 16; vertical-align: top;">字</span>
-          <span style="font-size: 16; vertical-align: middle;">字</span>
-          <span style="font-size: 16; vertical-align: baseline;">字</span>
-          <span style="font-size: 16; vertical-align: bottom;">字</span>
+          <span style="font-size: 16px; vertical-align: top;">字</span>
+          <span style="font-size: 16px; vertical-align: middle;">字</span>
+          <span style="font-size: 16px; vertical-align: baseline;">字</span>
+          <span style="font-size: 16px; vertical-align: bottom;">字</span>
         </p>
         <p v-if="Platform === 'android'">
           legacy mode:
@@ -260,56 +260,56 @@
           style="lineHeight: 50; background-color: #40b883; padding-horizontal: 10; padding-vertical: 5;"
         >
           <img
-            style="width: 24; height: 24; vertical-alignment: 0;"
+            style="width: 24px; height: 24px; vertical-alignment: 0;"
             :src="img2"
           >
           <img
-            style="width: 18; height: 12; vertical-alignment: 1;"
+            style="width: 18px; height: 12px; vertical-alignment: 1;"
             :src="img2"
           >
           <img
-            style="width: 24; height: 12; vertical-alignment: 2;"
+            style="width: 24px; height: 12px; vertical-alignment: 2;"
             :src="img2"
           >
           <img
-            style="width: 36; height: 24; vertical-alignment: 3;"
+            style="width: 36px; height: 24px; vertical-alignment: 3;"
             :src="img2"
           >
           <img
-            style="width: 24; height: 24; top: -10;"
+            style="width: 24px; height: 24px; top: -10px;"
             :src="img3"
           >
           <img
-            style="width: 18; height: 12; top: -5;"
+            style="width: 18px; height: 12px; top: -5px;"
             :src="img3"
           >
           <img
-            style="width: 24; height: 12;"
+            style="width: 24px; height: 12px;"
             :src="img3"
           >
           <img
-            style="width: 36; height: 24; top: 5;"
+            style="width: 36px; height: 24px; top: 5px;"
             :src="img3"
           >
-          <span style="font-size: 16;">字</span>
-          <span style="font-size: 16;">字</span>
-          <span style="font-size: 16;">字</span>
-          <span style="font-size: 16;">字</span>
+          <span style="font-size: 16px;">字</span>
+          <span style="font-size: 16px;">字</span>
+          <span style="font-size: 16px;">字</span>
+          <span style="font-size: 16px;">字</span>
         </p>
       </div>
       <label>tint-color & background-color</label>
       <div class="p-demo-content">
         <p style="background-color: #40b883; padding-horizontal: 10; padding-vertical: 5;">
           <img
-            style="width: 24; height: 24; vertical-align: middle; tint-color: orange;"
+            style="width: 24px; height: 24px; vertical-align: middle; tint-color: orange;"
             :src="img2"
           >
           <img
-            style="width: 24; height: 24; vertical-align: middle; tint-color: orange; background-color: #ccc;"
+            style="width: 24px; height: 24px; vertical-align: middle; tint-color: orange; background-color: #ccc;"
             :src="img2"
           >
           <img
-            style="width: 24; height: 24; vertical-align: middle; background-color: #ccc;"
+            style="width: 24px; height: 24px; vertical-align: middle; background-color: #ccc;"
             :src="img2"
           >
           <span style="vertical-align: middle; background-color: #99f;">text</span>
@@ -322,15 +322,15 @@
           style="background-color: #40b883; padding-horizontal: 10; padding-vertical: 5;"
         >
           <img
-            style="width: 24; height: 24; tint-color: orange;"
+            style="width: 24px; height: 24px; tint-color: orange;"
             :src="img2"
           >
           <img
-            style="width: 24; height: 24; tint-color: orange; background-color: #ccc;"
+            style="width: 24px; height: 24px; tint-color: orange; background-color: #ccc;"
             :src="img2"
           >
           <img
-            style="width: 24; height: 24; background-color: #ccc;"
+            style="width: 24px; height: 24px; background-color: #ccc;"
             :src="img2"
           >
         </p>
@@ -339,19 +339,19 @@
       <div class="p-demo-content">
         <p style="line-height: 50; background-color: #40b883; padding-horizontal: 10; padding-vertical: 5;">
           <img
-            style="width: 24; height: 24; vertical-align: top; background-color: #ccc; margin: 5;"
+            style="width: 24px; height: 24px; vertical-align: top; background-color: #ccc; margin: 5px;"
             :src="img2"
           >
           <img
-            style="width: 24; height: 24; vertical-align: middle; background-color: #ccc; margin: 5;"
+            style="width: 24px; height: 24px; vertical-align: middle; background-color: #ccc; margin: 5px;"
             :src="img2"
           >
           <img
-            style="width: 24; height: 24; vertical-align: baseline; background-color: #ccc; margin: 5;"
+            style="width: 24px; height: 24px; vertical-align: baseline; background-color: #ccc; margin: 5px;"
             :src="img2"
           >
           <img
-            style="width: 24; height: 24; vertical-align: bottom; background-color: #ccc; margin: 5;"
+            style="width: 24px; height: 24px; vertical-align: bottom; background-color: #ccc; margin: 5px;"
             :src="img2"
           >
         </p>
@@ -363,19 +363,19 @@
           style="line-height: 50; background-color: #40b883; padding-horizontal: 10; padding-vertical: 5;"
         >
           <img
-            style="width: 24; height: 24; vertical-alignment: 0; background-color: #ccc; margin: 5;"
+            style="width: 24px; height: 24px; vertical-alignment: 0; background-color: #ccc; margin: 5px;"
             :src="img2"
           >
           <img
-            style="width: 24; height: 24; vertical-alignment: 1; background-color: #ccc; margin: 5;"
+            style="width: 24px; height: 24px; vertical-alignment: 1; background-color: #ccc; margin: 5px;"
             :src="img2"
           >
           <img
-            style="width: 24; height: 24; vertical-alignment: 2; background-color: #ccc; margin: 5;"
+            style="width: 24px; height: 24px; vertical-alignment: 2; background-color: #ccc; margin: 5px;"
             :src="img2"
           >
           <img
-            style="width: 24; height: 24; vertical-alignment: 3; background-color: #ccc; margin: 5;"
+            style="width: 24px; height: 24px; vertical-alignment: 3; background-color: #ccc; margin: 5px;"
             :src="img2"
           >
         </p>

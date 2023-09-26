@@ -18,7 +18,6 @@
  * limitations under the License.
  */
 import type { SsrNode } from '@hippy/vue-next-server-renderer';
-import { IS_IOS } from './env';
 
 /**
  * offer ssr node operates, without hippy-vue-next runtime
