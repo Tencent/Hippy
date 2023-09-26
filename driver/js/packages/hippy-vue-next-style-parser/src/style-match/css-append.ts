@@ -165,7 +165,6 @@ function polyfillSpecialNodeStyle(
   const nativeNode = node;
   const currentScrollViewContainerIdList = scrollViewContainerIdList;
   const style = node.props.style || {};
-  const inlineStyle = node.props.inlineStyle || {};
   if (node.name === 'View') {
     // View do not scroll, so we should change to ScrollView when props have overflow: scroll
     if (style.overflowY === 'scroll') {
@@ -194,11 +193,6 @@ function polyfillSpecialNodeStyle(
       }
     }
   }
-  // compatible v-show
-  // if (inlineStyle.display) {
-    // delete nativeNode.props.style.display;
-    // nativeNode.props.display = inlineStyle.display;
-  // }
 
   // compatible Input
   if (nativeNode.name === 'TextInput') {

@@ -22,7 +22,6 @@ export function ssrEntry(bundleName: string, entryCallback?: CallbackType): void
   // register hippy instance
   regist.call(global.Hippy.register, bundleName, (superProps) => {
     params = superProps;
-    console.log('registered', superProps);
     // execute entry function
     if (entryCallback) {
       entryCallback();

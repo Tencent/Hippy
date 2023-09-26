@@ -73,7 +73,6 @@ function ssr(): void {
     const pageCacheKey = `${bundleName}_index`;
     // first, use cache nodes render
     const [cacheNodes, backNodes, cacheUniqueId] = await renderNativeNodesByCache(rootViewId, pageCacheKey);
-    console.log('cache', cacheNodes, backNodes, cacheUniqueId);
     // second, send ssr first screen request and use server node list insert/update
     fetch('http://localhost:8080/getSsrFirstScreenData', {
       mode: 'no-cors', // 2.14.0 or above supports other options(not only method/headers/url/body),
