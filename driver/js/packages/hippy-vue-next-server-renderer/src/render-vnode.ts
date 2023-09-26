@@ -400,15 +400,6 @@ function renderElementVNode(
       props.text = children;
     }
   }
-  // transform event listener
-  Object.keys(props).forEach((key) => {
-    // event listener like onClick, onTouchStart is function. hippy just used true to marked.
-    // for example: <a @click="()=>{}"></a> to { tagName: "a", onClick: true }
-    // real event listener should bind at hydration
-    if (isFunction(props[key])) {
-      props[key] = true;
-    }
-  });
 
   openTag += `${JSON.stringify(props)},`;
   push(`${openTag}`);

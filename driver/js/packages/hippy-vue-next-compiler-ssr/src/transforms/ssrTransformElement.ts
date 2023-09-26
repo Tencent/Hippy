@@ -55,7 +55,6 @@ import {
   type PropsExpression,
 } from '@vue/compiler-dom';
 import {
-  capitalize,
   isBooleanAttr,
   isBuiltInDirective,
   isSSRSafeAttrName,
@@ -92,66 +91,6 @@ TemplateLiteral['elements'][0]
  */
 function isTextTag(tag: string): boolean {
   return ['span', 'p', 'label', 'a'].includes(tag);
-}
-
-/**
- * get native real event listener name for binding event name
- *
- * @param event - event name
- * @param tagName - event target tag name
- */
-function getHippyEventKeyInSSR(event: string, tagName: string): string {
-  const eventMap = {
-    div: {
-      touchStart: 'onTouchDown',
-      touchstart: 'onTouchDown',
-      touchmove: 'onTouchMove',
-      touchend: 'onTouchEnd',
-      touchcancel: 'onTouchCancel',
-    },
-    ul: { listReady: 'initialListReady' },
-    li: { disappear: 'onDisappear' },
-    input: {
-      change: 'onChangeText',
-      select: 'onSelectionChange',
-    },
-    swiper: {
-      dropped: 'onPageSelected',
-      dragging: 'onPageScroll',
-      stateChanged: 'onPageScrollStateChanged',
-    },
-  };
-  let curEventMap = {};
-  switch (tagName) {
-    case 'div':
-    case 'button':
-    case 'img':
-    case 'span':
-    case 'label':
-    case 'p':
-    case 'a':
-      curEventMap = eventMap.div;
-      break;
-    case 'ul':
-      curEventMap = eventMap.ul;
-      break;
-    case 'li':
-      curEventMap = eventMap.li;
-      break;
-    case 'textarea':
-    case 'input':
-      curEventMap = eventMap.input;
-      break;
-    case 'swiper':
-      curEventMap = eventMap.swiper;
-      break;
-    default:
-      break;
-  }
-  if (curEventMap[event]) {
-    return curEventMap[event];
-  }
-  return `on${capitalize(event)}`;
 }
 
 export const ssrTransformElement: NodeTransform = (node, context) => {
@@ -214,10 +153,11 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
           // directive event handled for hippy.
           // hippy event handle: at ssr for web, onXXX will ignore, so we need to add Event listener
           // onXXX=true, so that hippy native should add event listener
-          const { arg } = prop;
-          if (arg?.type === NodeTypes.SIMPLE_EXPRESSION && arg.isStatic) {
-            openTag.push(`"${getHippyEventKeyInSSR(arg.content, node.tag)}": true,`);
-          }
+          // const { arg } = prop;
+          // if (arg?.type === NodeTypes.SIMPLE_EXPRESSION && arg.isStatic) {
+            // hippy 3.x no need to set event name props
+            // openTag.push(`"${getHippyEventKeyInSSR(arg.content, node.tag)}": true,`);
+          // }
         } else if (prop.name === 'html' && prop.exp) {
           // v-html/v-text/v-textarea/ hippy do not support
           // rawChildrenMap.set(node, prop.exp);
