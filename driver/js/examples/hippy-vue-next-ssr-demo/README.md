@@ -14,14 +14,14 @@ how to use.
 we were support SSR for @hippy/vue-next. here is only how to use SSR. how to use vue-next doc is [here](https://hippyjs.org/en-us/#/hippy-vue/vue3)
 
 1. Before running vue-next-ssr-demo, you should run `npm run init` at root directory to install dependencies and build front-end sdk packages.
-2. Then run `cd examples/hippy-vue-next-demo` and `npm install --legacy-peer-deps` to install demo dependencies.
+2. Then run `cd examples/hippy-vue-next-ssr-demo` and `npm install --legacy-peer-deps` to install demo dependencies.
 
 Now determine which environment you want build 
 
 > Because our server listening port 8080, so if you are using android device, you should run `adb reverse tcp:8080 tcp:8080`
 > to forward mobile device port to pc port, iOS simulator doesn't need this step.
 
-ensure you were at `examples/hippy-vue-next-demo`.
+ensure you were at `examples/hippy-vue-next-ssr-demo`.
 
 #### Development
 

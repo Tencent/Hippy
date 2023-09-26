@@ -160,7 +160,16 @@ function genConfig(name) {
             plugins: [
               // only deal with d.ts，ignore js
               // do not transform external npm package path in d.ts
-              { transform: 'typescript-transform-paths', afterDeclarations: true, exclude: ['**/@vue/runtime-core/**'] },
+              {
+                transform: 'typescript-transform-paths',
+                afterDeclarations: true,
+                exclude: [
+                  '**/@vue/runtime-core/**',
+                  '**/@vue/compiler-dom/**',
+                  '**/@vue/server-renderer/**',
+                  '**/@vue/shared/**',
+                ],
+              },
             ],
           },
         },
