@@ -218,8 +218,6 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    */
   bool Reset();
 
-  int64_t GetKey() { return key_; }
-
  private:
   /**
    * @brief 解析属性
@@ -391,7 +389,7 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
   std::vector<std::shared_ptr<TaitankLayoutNode>> children_;
 
   TaitankNodeRef engine_node_;
-  int64_t key_;
+  MeasureFunction measure_function_ = nullptr;
 };
 
 }  // namespace dom
