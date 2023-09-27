@@ -137,20 +137,6 @@ void DomManager::EndBatch(const std::weak_ptr<RootNode>& weak_root_node) {
   root_node->SyncWithRenderManager(render_manager);
 }
 
-void DomManager::EndBatchOnRelease(const std::weak_ptr<RootNode>& weak_root_node) {
-  auto render_manager = render_manager_.lock();
-  FOOTSTONE_DCHECK(render_manager);
-  if (!render_manager) {
-    return;
-  }
-  auto root_node = weak_root_node.lock();
-  if (!root_node) {
-    return;
-  }
-  FOOTSTONE_DLOG(INFO) << "[Hippy Statistic] total node size = " << root_node->GetChildCount();
-  root_node->SyncWithRenderManagerOnRelease(render_manager);
-}
-
 void DomManager::AddEventListener(const std::weak_ptr<RootNode>& weak_root_node, uint32_t dom_id,
                                   const std::string& name, uint64_t listener_id, bool use_capture,
                                   const EventCallback& cb) {
