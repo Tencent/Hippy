@@ -362,7 +362,7 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
     }
 
     if (context.scopeId) {
-      // hippy scopeId just set props, like <div data-v-sdkfj12="true" />
+      // hippy scopeId just set props, like <div data-v-sdkfj12="" />
       openTag.push(`"${context.scopeId}":""`);
       openTag.push(',');
     }

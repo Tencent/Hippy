@@ -210,7 +210,6 @@ export function processChildren(
           .replace(/"/g, '\\"')}"}},`);
         break;
       case NodeTypes.INTERPOLATION:
-        // 没有用标签包裹的双花括号差值，类似纯文本，Hippy 不支持
         // NodeTypes.INTERPOLATION like <div>{{content}}</div>. hippy do not support.
         // just comment it like TEXT
         // context.pushStringPart(
