@@ -22,7 +22,6 @@
 
 #include <cmath>
 #include <map>
-#include <mutex>
 
 #include "footstone/logging.h"
 
@@ -30,10 +29,6 @@
 
 namespace hippy {
 inline namespace dom {
-
-static std::atomic<int64_t> global_measure_function_key{0};
-static std::map<int64_t, MeasureFunction> measure_function_map;
-static std::mutex mutex;
 
 const std::map<std::string, OverflowType> kOverflowMap = {{"visible", OverflowType::OVERFLOW_VISIBLE},
                                                           {"hidden", OverflowType::OVERFLOW_HIDDEN},
@@ -208,17 +203,11 @@ static CSSDirection GetCSSDirectionFromEdge(Edge edge) {
   }
 }
 
-TaitankLayoutNode::TaitankLayoutNode() : key_(global_measure_function_key.fetch_add(1)) { Allocate(); }
+TaitankLayoutNode::TaitankLayoutNode() { Allocate(); }
 
-TaitankLayoutNode::TaitankLayoutNode(TaitankNodeRef engine_node_)
-    : engine_node_(engine_node_), key_(global_measure_function_key.fetch_add(1)) {}
+TaitankLayoutNode::TaitankLayoutNode(TaitankNodeRef engine_node_) : engine_node_(engine_node_) {}
 
-TaitankLayoutNode::~TaitankLayoutNode() {
-  std::lock_guard<std::mutex> lock(mutex);
-  const auto it = measure_function_map.find(key_);
-  if (it != measure_function_map.end()) measure_function_map.erase(it);
-  Deallocate();
-}
+TaitankLayoutNode::~TaitankLayoutNode() { Deallocate(); }
 
 void TaitankLayoutNode::CalculateLayout(float parent_width, float parent_height, Direction direction,
                                         void* layout_context) {
@@ -469,32 +458,30 @@ void TaitankLayoutNode::Parser(
   }
 }
 
-static TaitankSize TaitankMeasureFunction(TaitankNodeRef node, float width, MeasureMode width_measrue_mode,
-                                          float height, MeasureMode height_measure_mode, void* context) {
-  auto taitank_node = reinterpret_cast<TaitankLayoutNode*>(node->GetContext());
-  int64_t key = taitank_node->GetKey();
-  auto iter = measure_function_map.find(key);
-  if (iter != measure_function_map.end()) {
-    auto size = iter->second(width, ToLayoutMeasureMode(width_measrue_mode), height,
-                             ToLayoutMeasureMode(height_measure_mode), context);
-    TaitankSize result;
-    result.width = size.width;
-    result.height = size.height;
-    return result;
-  }
-  return TaitankSize{0, 0};
-}
-
 void TaitankLayoutNode::SetMeasureFunction(MeasureFunction measure_function) {
   assert(engine_node_ != nullptr);
-  measure_function_map[key_] = measure_function;
+  measure_function_ = measure_function;
   engine_node_->SetContext(reinterpret_cast<void*>(this));
-  engine_node_->SetMeasureFunction(TaitankMeasureFunction);
+  auto func = [](TaitankNodeRef node, float width, MeasureMode width_measrue_mode, float height,
+                 MeasureMode height_measure_mode, void* context) -> TaitankSize {
+    auto taitank_node = reinterpret_cast<TaitankLayoutNode*>(node->GetContext());
+    if (taitank_node->measure_function_) {
+      auto size = taitank_node->measure_function_(width, ToLayoutMeasureMode(width_measrue_mode), height,
+                                                  ToLayoutMeasureMode(height_measure_mode), context);
+      TaitankSize result;
+      result.width = size.width;
+      result.height = size.height;
+      return result;
+    }
+    return TaitankSize{0, 0};
+  };
+  TaitankMeasureFunction taitank_measure_function = func;
+  engine_node_->SetMeasureFunction(taitank_measure_function);
 }
 
 bool TaitankLayoutNode::HasMeasureFunction() {
   assert(engine_node_ != nullptr);
-  return measure_function_map.find(key_) != measure_function_map.end();
+  return measure_function_ != nullptr;
 }
 
 float TaitankLayoutNode::GetLeft() {
