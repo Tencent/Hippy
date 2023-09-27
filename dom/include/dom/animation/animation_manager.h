@@ -62,15 +62,6 @@ class AnimationManager
 
   void RemoveVSyncEventListener();
 
-  /**
-   * When destroying, it is necessary to remove the VSync event, but it should not indirectly create RenderNode due to EndBatch,
-   * otherwise there will be multi-threading issues between the main thread and the Dom thread.
-   * Therefore, a new method is needed to differentiate the destruction scenario.
-   * This has occasionally caused crashes on iOS.
-   * In the future, there will be better refactoring solutions for the main thread and Dom thread in the destruction scenario, and this method can be deleted.
-  */
-  void RemoveVSyncEventListenerOnRelease();
-
   void OnDomNodeCreate(const std::vector<std::shared_ptr<DomInfo>>& nodes) override;
   void OnDomNodeUpdate(const std::vector<std::shared_ptr<DomInfo>>& nodes) override;
   void OnDomNodeMove(const std::vector<std::shared_ptr<DomInfo>>& nodes) override;
