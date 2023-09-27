@@ -26,6 +26,7 @@ public class ChoreographerUtils {
 
     public static final String DO_FRAME = "frameUpdate";
     private static boolean sEnablePostFrame = false;
+    private static boolean sInForeground = true;
     private static HashMap<Integer, ArrayList<Integer>> sListeners = null;
 
     private static void handleDoFrameCallback() {
@@ -42,16 +43,26 @@ public class ChoreographerUtils {
     }
 
     private static void doPostFrame() {
-        Choreographer.FrameCallback frameCallback = new Choreographer.FrameCallback() {
-            @Override
-            public void doFrame(long frameTimeNanos) {
+        Choreographer.FrameCallback frameCallback = frameTimeNanos -> {
+            if (sEnablePostFrame && sInForeground) {
                 handleDoFrameCallback();
-                if (sEnablePostFrame) {
-                    doPostFrame();
-                }
+                doPostFrame();
             }
         };
         Choreographer.getInstance().postFrameCallback(frameCallback);
+    }
+
+    @MainThread
+    public static void onResume() {
+        sInForeground = true;
+        if (sEnablePostFrame) {
+            doPostFrame();
+        }
+    }
+
+    @MainThread
+    public static void onPause() {
+        sInForeground = false;
     }
 
     /**
