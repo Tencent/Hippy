@@ -59,6 +59,7 @@ import com.tencent.renderer.node.VirtualNodeManager;
 import com.tencent.renderer.serialization.Deserializer;
 import com.tencent.renderer.serialization.Serializer;
 import com.tencent.renderer.utils.ArrayUtils;
+import com.tencent.renderer.utils.ChoreographerUtils;
 import com.tencent.renderer.utils.DisplayUtils;
 import com.tencent.renderer.utils.EventUtils.EventType;
 
@@ -404,6 +405,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 listener.onInstanceResume();
             }
         }
+        ChoreographerUtils.onResume();
     }
 
     @Override
@@ -413,6 +415,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 listener.onInstancePause();
             }
         }
+        ChoreographerUtils.onPause();
     }
 
     @MainThread
@@ -423,6 +426,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 listener.onInstanceDestroy(rootId);
             }
         }
+        ChoreographerUtils.unregisterDoFrameListener(getInstanceId(), rootId);
         mRenderManager.deleteNode(rootId, rootId);
         mRenderManager.batch(rootId);
     }
