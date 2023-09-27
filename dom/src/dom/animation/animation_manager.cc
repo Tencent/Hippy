@@ -366,22 +366,6 @@ void AnimationManager::RemoveVSyncEventListener() {
   }
 }
 
-void AnimationManager::RemoveVSyncEventListenerOnRelease() {
-  auto root_node = root_node_.lock();
-  if (!root_node) {
-    return;
-  }
-  auto weak_dom_manager = root_node->GetDomManager();
-  auto dom_manager = weak_dom_manager.lock();
-  if (!dom_manager) {
-    return;
-  }
-  if (dom_manager) {
-    dom_manager->RemoveEventListener(root_node, root_node->GetId(), kVSyncKey, listener_id_);
-    dom_manager->EndBatchOnRelease(root_node_);
-  }
-}
-
 void AnimationManager::UpdateAnimation(const std::shared_ptr<Animation>& animation, uint64_t now,
                                        std::unordered_map<uint32_t, std::shared_ptr<DomNode>>& update_node_map) {
   auto animation_id = animation->GetId();

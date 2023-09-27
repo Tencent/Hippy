@@ -128,6 +128,11 @@ public:
     void RemoveEventListener(std::weak_ptr<hippy::RootNode> root_node, std::weak_ptr<hippy::DomNode> dom_node, const std::string &name) override;
 
     /**
+     * unregister vsync event
+     */
+    void RemoveVSyncEventListener(std::weak_ptr<hippy::RootNode> root_node);
+    
+    /**
      * invoke function of view
      *
      * @param dom_node A dom node whose function to be invoked
