@@ -34,8 +34,8 @@
 #import "NativeRenderObjectRootView.h"
 #import "NativeRenderObjectView.h"
 #import "NativeRenderUtils.h"
-#import "NativeRenderView.h"
-#import "NativeRenderViewManager.h"
+#import "HippyView.h"
+#import "HippyViewManager.h"
 #import "RenderVsyncManager.h"
 #import "UIView+DomEvent.h"
 #import "UIView+NativeRender.h"
@@ -301,7 +301,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     if (viewName) {
         NativeRenderComponentData *componentData = _componentDataByName[viewName];
         if (!componentData) {
-            NativeRenderViewManager *viewManager = [self renderViewManagerForViewName:viewName];
+            HippyViewManager *viewManager = [self renderViewManagerForViewName:viewName];
             NSAssert(viewManager, @"No view manager found for %@", viewName);
             if (viewManager) {
                 componentData = [[NativeRenderComponentData alloc] initWithViewManager:viewManager viewName:viewName];
@@ -609,7 +609,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 }
 
 #pragma mark Render Context Implementation
-- (__kindof NativeRenderViewManager *)renderViewManagerForViewName:(NSString *)viewName {
+- (__kindof HippyViewManager *)renderViewManagerForViewName:(NSString *)viewName {
     if (!_viewManagers) {
         _viewManagers = [NSMutableDictionary dictionaryWithCapacity:64];
         if (_extraComponents) {
@@ -635,9 +635,9 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     }
     id object = [_viewManagers objectForKey:viewName];
     if (object_isClass(object)) {
-        NativeRenderViewManager *viewManager = [object new];
+        HippyViewManager *viewManager = [object new];
         viewManager.renderImpl = self;
-        NSAssert([viewManager isKindOfClass:[NativeRenderViewManager class]], @"It must be a NativeRenderViewManager instance");
+        NSAssert([viewManager isKindOfClass:[HippyViewManager class]], @"It must be a NativeRenderViewManager instance");
         [_viewManagers setObject:viewManager forKey:viewName];
         object = viewManager;
     }
@@ -728,12 +728,12 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     NSNumber *rootNodeTag = @(strongRootNode->GetId());
     std::lock_guard<std::mutex> lock([self renderQueueLock]);
     NativeRenderViewsRelation *manager = [[NativeRenderViewsRelation alloc] init];
-    NSMutableDictionary *dicProps = [NSMutableDictionary dictionaryWithCapacity:nodes.size()];
+//    NSMutableDictionary *dicProps = [NSMutableDictionary dictionaryWithCapacity:nodes.size()];
     for (const std::shared_ptr<DomNode> &node : nodes) {
         const auto& render_info = node->GetRenderInfo();
         [manager addViewTag:render_info.id forSuperViewTag:render_info.pid atIndex:render_info.index];
         NSDictionary *nodeProps = [self createRenderObjectFromNode:node onRootNode:rootNode];
-        [dicProps setObject:nodeProps forKey:@(node->GetId())];
+//        [dicProps setObject:nodeProps forKey:@(node->GetId())];
     }
     [manager enumerateViewsHierarchy:^(int32_t tag, const std::vector<int32_t> &subviewTags, const std::vector<int32_t> &subviewIndices) {
         NSAssert(subviewTags.size() == subviewIndices.size(), @"subviewTags count must be equal to subviewIndices count");
@@ -1029,7 +1029,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     }
     NSString *nativeModuleName = [NSString stringWithUTF8String:viewName.c_str()];
 
-    NativeRenderViewManager *viewManager = [self renderViewManagerForViewName:nativeModuleName];
+    HippyViewManager *viewManager = [self renderViewManagerForViewName:nativeModuleName];
     NativeRenderComponentData *componentData = [self componentDataForViewName:nativeModuleName];
     NSValue *selectorPointer = [componentData.methodsByName objectForKey:name];
     SEL selector = (SEL)[selectorPointer pointerValue];

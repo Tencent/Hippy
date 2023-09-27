@@ -24,7 +24,7 @@
 #import "HPToolUtils.h"
 #import "NativeRenderBorderDrawing.h"
 #import "NativeRenderGradientObject.h"
-#import "NativeRenderView.h"
+#import "HippyView.h"
 #import "UIEvent+TouchResponder.h"
 #import "UIView+DomEvent.h"
 #import "UIView+NativeRender.h"
@@ -68,7 +68,7 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
     return str;
 }
 
-@implementation NativeRenderView {
+@implementation HippyView {
     UIColor *_backgroundColor;
 }
 

@@ -20,11 +20,11 @@
  * limitations under the License.
  */
 
-#import "NativeRenderViewManager.h"
+#import "HippyViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NativeRenderSmartViewPagerViewManager : NativeRenderViewManager
+@interface NativeRenderSmartViewPagerViewManager : HippyViewManager
 
 @end
 

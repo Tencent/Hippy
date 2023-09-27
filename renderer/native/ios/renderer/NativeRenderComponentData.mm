@@ -23,7 +23,7 @@
 #import <objc/message.h>
 #import "NativeRenderComponentData.h"
 #import "NativeRenderObjectView.h"
-#import "NativeRenderViewManager.h"
+#import "HippyViewManager.h"
 #import "HPConvert.h"
 #import "HPToolUtils.h"
 #import "UIView+NativeRender.h"
@@ -55,7 +55,7 @@ typedef void (^NativeRenderPropBlock)(id<NativeRenderComponentProtocol> view, id
     NSMutableDictionary<NSString *, NativeRenderPropBlock> *_renderObjectPropBlocks;
     NSMutableDictionary<NSString *, NSString *> *_eventNameMap;
     BOOL _implementsUIBlockToAmendWithRenderObjectRegistry;
-    __weak NativeRenderViewManager *_manager;
+    __weak HippyViewManager *_manager;
     NSDictionary<NSString *, NSValue *> *_methodsByName;
 }
 
@@ -63,11 +63,11 @@ typedef void (^NativeRenderPropBlock)(id<NativeRenderComponentProtocol> view, id
 
 @implementation NativeRenderComponentData
 
-//NativeRenderViewManager is base class of all ViewManager class
-//we use a variable to cache NativeRenderViewManager's event name map
+//HippyViewManager is base class of all ViewManager class
+//we use a variable to cache HippyViewManager's event name map
 static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
 
-- (instancetype)initWithViewManager:(NativeRenderViewManager *)viewManager viewName:(NSString *)viewName {
+- (instancetype)initWithViewManager:(HippyViewManager *)viewManager viewName:(NSString *)viewName {
     self = [super init];
     if (self) {
         _managerClass = [viewManager class];
@@ -86,7 +86,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
 
         _implementsUIBlockToAmendWithRenderObjectRegistry = NO;
         Class cls = _managerClass;
-        while (cls != [NativeRenderViewManager class]) {
+        while (cls != [HippyViewManager class]) {
             _implementsUIBlockToAmendWithRenderObjectRegistry
                 = _implementsUIBlockToAmendWithRenderObjectRegistry
                   || HPClassOverridesInstanceMethod(cls, @selector(uiBlockToAmendWithRenderObjectRegistry:));
@@ -384,10 +384,10 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
         static dispatch_once_t onceToken;
         static Class viewManagerMetaClass = nil;
         dispatch_once(&onceToken, ^{
-            viewManagerMetaClass = object_getClass([NativeRenderViewManager class]);
+            viewManagerMetaClass = object_getClass([HippyViewManager class]);
         });
         while ([metaClass isSubclassOfClass:viewManagerMetaClass]) {
-            //if metaclass is NativeRenderViewManager's meta class,we try to get event name map from cache if exists
+            //if metaclass is HippyViewManager's meta class,we try to get event name map from cache if exists
             if (metaClass == viewManagerMetaClass && gBaseViewManagerDic) {
                 [_eventNameMap addEntriesFromDictionary:gBaseViewManagerDic];
             }
@@ -416,7 +416,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
                 }
                 free(methods);
                 if (metaClass == viewManagerMetaClass) {
-                    //if metaclass is NativeRenderViewManager's meta class,we try to save event name map from cache
+                    //if metaclass is HippyViewManager's meta class,we try to save event name map from cache
                     gBaseViewManagerDic = [_eventNameMap copy];
                 }
             }

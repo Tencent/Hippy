@@ -20,8 +20,8 @@
  * limitations under the License.
  */
 
-#import "NativeRenderViewManager.h"
+#import "HippyViewManager.h"
 
-@interface NativeRenderImageViewManager : NativeRenderViewManager
+@interface NativeRenderImageViewManager : HippyViewManager
 
 @end

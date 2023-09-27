@@ -20,9 +20,9 @@
  * limitations under the License.
  */
 
-#import "NativeRenderRefresh.h"
+#import "HippyRefresh.h"
 
-@implementation NativeRenderRefresh
+@implementation HippyRefresh
 
 - (void)setScrollView:(UIScrollView *)scrollView {
     _scrollView = scrollView;
@@ -40,7 +40,7 @@
 - (void)scrollViewDidEndDragging {
 }
 
-- (void)setStatus:(NativeRenderRefreshStatus)status {
+- (void)setStatus:(HippyRefreshStatus)status {
     if (_status == status) {
         return;
     }
@@ -54,21 +54,21 @@
     [UIView animateWithDuration:.2f animations:^{
         self.scrollView.contentOffset = CGPointZero;
     } completion:^(BOOL finished) {
-        self.status = NativeRenderRefreshStatusStartLoading;
+        self.status = HippyRefreshStatusStartLoading;
     }];
 }
 
 - (void)refreshFinish {
-    self.status = NativeRenderRefreshStatusFinishLoading;
+    self.status = HippyRefreshStatusFinishLoading;
     [self setRefreshStatusToIdle];
 }
 
 - (void)setRefreshStatusToIdle {
-    self.status = NativeRenderRefreshStatusIdle;
+    self.status = HippyRefreshStatusIdle;
 }
 
 - (void)refreshFinishWithOption:(NSDictionary *)options {
-    self.status = NativeRenderRefreshStatusFinishLoading;
+    self.status = HippyRefreshStatusFinishLoading;
     CGFloat time = [options[@"time"] doubleValue] / 1000.f;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(setRefreshStatusToIdle) object:nil];
     [self performSelector:@selector(setRefreshStatusToIdle) withObject:nil afterDelay:time];

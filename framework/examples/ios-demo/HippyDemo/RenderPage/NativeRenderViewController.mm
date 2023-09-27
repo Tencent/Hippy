@@ -27,7 +27,7 @@
 #import "DemoConfigs.h"
 #import "HPAsserts.h"
 #import "HippyMethodInterceptorProtocol.h"
-#import "NativeRenderRootView.h"
+#import "HippyRootView.h"
 #import "UIView+NativeRender.h"
 #import "HippyPageCache.h"
 #import "UIViewController+Title.h"
@@ -126,7 +126,7 @@ static NSString *const engineKey = @"Demo";
 #if TARGET_IPHONE_SIMULATOR
         isSimulator = YES;
 #endif
-    NativeRenderRootView *rootView = [[NativeRenderRootView alloc] initWithFrame:self.contentAreaView.bounds];
+    HippyRootView *rootView = [[HippyRootView alloc] initWithFrame:self.contentAreaView.bounds];
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [convenientBridge setRootView:rootView];
     NSNumber *rootTag = [rootView componentTag];

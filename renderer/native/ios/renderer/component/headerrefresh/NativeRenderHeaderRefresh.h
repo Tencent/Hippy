@@ -22,10 +22,10 @@
 
 #import <UIKit/UIKit.h>
 
-#import "NativeRenderRefresh.h"
+#import "HippyRefresh.h"
 #import "NativeRenderComponentProtocol.h"
 
-@interface NativeRenderHeaderRefresh : NativeRenderRefresh
+@interface NativeRenderHeaderRefresh : HippyRefresh
 
 @property (nonatomic, copy) HippyDirectEventBlock onHeaderReleased;
 @property (nonatomic, copy) HippyDirectEventBlock onHeaderPulling;

@@ -28,7 +28,7 @@
  * like any ordinary UIView. You can have multiple HippyRootViews on screen at
  * once, all controlled by the same JavaScript application.
  */
-@interface NativeRenderRootView : UIView
+@interface HippyRootView : UIView
 
 /**
  * The backing view controller of the root view.

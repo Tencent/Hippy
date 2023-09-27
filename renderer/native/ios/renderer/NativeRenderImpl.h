@@ -29,7 +29,7 @@
 #include <unordered_map>
 #include <functional>
 
-@class NativeRenderAnimationViewParams, NativeRenderObjectView, NativeRenderImpl,NativeRenderViewManager;
+@class NativeRenderAnimationViewParams, NativeRenderObjectView, NativeRenderImpl,HippyViewManager;
 @class NativeRenderReusePool, NativeRenderComponentMap;
 
 class VFSUriLoader;
@@ -115,7 +115,7 @@ class HippyValue;
 
 - (void)updateView:(NSNumber *)componentTag onRootTag:(NSNumber *)rootTag props:(NSDictionary *)pros;
 
-- (__kindof NativeRenderViewManager *)renderViewManagerForViewName:(NSString *)viewName;
+- (__kindof HippyViewManager *)renderViewManagerForViewName:(NSString *)viewName;
 
 /**
  * Manully create views recursively from hippy tag

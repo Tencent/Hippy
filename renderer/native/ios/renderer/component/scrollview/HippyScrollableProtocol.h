@@ -25,7 +25,7 @@
 /**
  * Protocol for any scrollable components inherit from UIScrollView
  */
-@protocol NativeRenderScrollableProtocol <UIScrollViewDelegate>
+@protocol HippyScrollableProtocol <UIScrollViewDelegate>
 
 /**
  * Content size for components

@@ -20,10 +20,10 @@
  * limitations under the License.
  */
 
-#import "NativeRenderRefresh.h"
+#import "HippyRefresh.h"
 #import "NativeRenderComponentProtocol.h"
 
-@interface NativeRenderFooterRefresh : NativeRenderRefresh
+@interface NativeRenderFooterRefresh : HippyRefresh
 
 @property (nonatomic, assign) BOOL refreshStick;
 @property (nonatomic, copy) HippyDirectEventBlock onFooterReleased;

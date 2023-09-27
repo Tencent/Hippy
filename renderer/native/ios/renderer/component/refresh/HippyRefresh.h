@@ -23,30 +23,30 @@
 #import <UIKit/UIKit.h>
 #import "NativeRenderTouchesView.h"
 
-typedef NS_ENUM(NSUInteger, NativeRenderRefreshStatus) {
-    NativeRenderRefreshStatusIdle,
-    NativeRenderRefreshStatusPulling,
-    NativeRenderRefreshStatusStartLoading,
-    NativeRenderRefreshStatusFinishLoading,
+typedef NS_ENUM(NSUInteger, HippyRefreshStatus) {
+    HippyRefreshStatusIdle,
+    HippyRefreshStatusPulling,
+    HippyRefreshStatusStartLoading,
+    HippyRefreshStatusFinishLoading,
 };
 
-@class NativeRenderRefresh;
+@class HippyRefresh;
 @protocol NativeRenderRefreshDelegate <NSObject>
 
 @optional
-- (void)refreshView:(NativeRenderRefresh *)refreshView statusChanged:(NativeRenderRefreshStatus)status;
+- (void)refreshView:(HippyRefresh *)refreshView statusChanged:(HippyRefreshStatus)status;
 
 @end
 
-@interface NativeRenderRefresh : NativeRenderTouchesView {
+@interface HippyRefresh : NativeRenderTouchesView {
 @protected
     __weak UIScrollView *_scrollView;
-    NativeRenderRefreshStatus _status;
+    HippyRefreshStatus _status;
     __weak id<NativeRenderRefreshDelegate> _delegate;
 }
 
 @property (nonatomic, weak) UIScrollView *scrollView;
-@property (nonatomic, readonly) NativeRenderRefreshStatus status;
+@property (nonatomic, readonly) HippyRefreshStatus status;
 @property (nonatomic, weak) id<NativeRenderRefreshDelegate> delegate;
 
 - (void)unsetFromScrollView;

@@ -20,9 +20,9 @@
  * limitations under the License.
  */
 
-#import "NativeRenderRootView.h"
+#import "HippyRootView.h"
 #import "HPAsserts.h"
-#import "NativeRenderView.h"
+#import "HippyView.h"
 #import "UIView+NativeRender.h"
 #import "NativeRenderDefines.h"
 
@@ -36,7 +36,7 @@ NSNumber *AllocRootViewTag(void) {
     }
 }
 
-@interface NativeRenderRootView () {
+@interface HippyRootView () {
     BOOL _contentHasAppeared;
 }
 
@@ -44,7 +44,7 @@ NSNumber *AllocRootViewTag(void) {
 
 @end
 
-@implementation NativeRenderRootView
+@implementation HippyRootView
 
 - (UIViewController *)nativeRenderViewController {
     return _nativeRenderViewController?:[super nativeRenderViewController];

@@ -36,7 +36,7 @@
 
 - (void)scrollViewDidScroll {
     if (_scrollView) {
-        if (self.onHeaderPulling && NativeRenderRefreshStatusStartLoading != [self status] && NativeRenderRefreshStatusFinishLoading != [self status]) {
+        if (self.onHeaderPulling && HippyRefreshStatusStartLoading != [self status] && HippyRefreshStatusFinishLoading != [self status]) {
             CGFloat offset = _scrollView.contentOffset.y;
             if (offset <= 0) {
                 self.onHeaderPulling(@{ @"contentOffset": @(-offset) });
@@ -44,7 +44,7 @@
         }
     }
     // Section cell will stick in wrong position while header is still refresh. in this scenario，the scrollview inset need to be reset.
-    if ([self status] == NativeRenderRefreshStatusStartLoading || [self status] == NativeRenderRefreshStatusFinishLoading) {
+    if ([self status] == HippyRefreshStatusStartLoading || [self status] == HippyRefreshStatusFinishLoading) {
         [self resetInset];
     }
 }
@@ -63,23 +63,23 @@
 
 - (void)scrollViewDidEndDragging {
     if (_scrollView && -_scrollView.contentOffset.y > CGRectGetHeight(self.bounds)) {
-        self.status = NativeRenderRefreshStatusStartLoading;
+        self.status = HippyRefreshStatusStartLoading;
     }
 }
 
-- (void)setStatus:(NativeRenderRefreshStatus)status {
+- (void)setStatus:(HippyRefreshStatus)status {
     if (_status == status) {
         return;
     }
     switch (status) {
-        case NativeRenderRefreshStatusIdle: {
+        case HippyRefreshStatusIdle: {
             [UIView animateWithDuration:.2f animations:^{
                 UIEdgeInsets insets = self.scrollView.contentInset;
                 self.scrollView.contentInset = UIEdgeInsetsMake(0, insets.left, insets.bottom, insets.right);
             } completion:^(BOOL finished) {
             }];
         } break;
-        case NativeRenderRefreshStatusStartLoading: {
+        case HippyRefreshStatusStartLoading: {
             CGFloat height = CGRectGetHeight(self.bounds);
             [UIView animateWithDuration:.2f animations:^{
                 UIEdgeInsets insets = self.scrollView.contentInset;

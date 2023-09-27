@@ -25,7 +25,7 @@
 #import "HippyBundleURLProvider.h"
 #import "HippyDemoLoader.h"
 #import "HippyJSEnginesMapper.h"
-#import "NativeRenderRootView.h"
+#import "HippyRootView.h"
 #import "UIView+NativeRender.h"
 #import "HippyConvenientBridge.h"
 #import "HPLog.h"
@@ -90,7 +90,7 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
     NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
 
-    NativeRenderRootView *rootView = [[NativeRenderRootView alloc] initWithFrame:view.bounds];
+    HippyRootView *rootView = [[HippyRootView alloc] initWithFrame:view.bounds];
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [_connector setRootView:rootView];
     NSNumber *rootTag = [rootView componentTag];

@@ -27,7 +27,7 @@
 @class NativeRenderObjectView;
 @class NativeRenderImpl;
 
-@interface NativeRenderViewManager : NSObject
+@interface HippyViewManager : NSObject
 
 @property(nonatomic, weak)NativeRenderImpl *renderImpl;
 
@@ -125,6 +125,6 @@ typedef void (^RenderUIResponseSenderBlock)(id response);
 
 @end
 
-@interface NativeRenderViewManager (InitProps)
+@interface HippyViewManager (InitProps)
 @property (nonatomic, strong) NSDictionary *props;
 @end

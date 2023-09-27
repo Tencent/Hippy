@@ -23,12 +23,12 @@
 #import "NativeRenderRefreshWrapper.h"
 #import "UIView+NativeRender.h"
 #import "NativeRenderRefreshWrapperItemView.h"
-#import "NativeRenderScrollableProtocol.h"
+#import "HippyScrollableProtocol.h"
 
 @interface NativeRenderRefreshWrapper () <UIScrollViewDelegate>
 
 @property (nonatomic, weak) NativeRenderRefreshWrapperItemView *wrapperItemView;
-@property (nonatomic, weak) id<NativeRenderScrollableProtocol> scrollableView;
+@property (nonatomic, weak) id<HippyScrollableProtocol> scrollableView;
 @property (nonatomic, copy) HippyDirectEventBlock onRefresh;
 @property (nonatomic, assign) CGFloat bounceTime;
 
@@ -77,8 +77,8 @@
     [super insertNativeRenderSubview:view atIndex:index];
     if ([view isKindOfClass:[NativeRenderRefreshWrapperItemView class]]) {
         _wrapperItemView = (NativeRenderRefreshWrapperItemView *)view;
-    } else if ([view conformsToProtocol:@protocol(NativeRenderScrollableProtocol)]) {
-        _scrollableView = (id<NativeRenderScrollableProtocol>)view;
+    } else if ([view conformsToProtocol:@protocol(HippyScrollableProtocol)]) {
+        _scrollableView = (id<HippyScrollableProtocol>)view;
         [_scrollableView addScrollListener:self];
     }
 }

@@ -20,9 +20,9 @@
  * limitations under the License.
  */
 
-#import "NativeRenderView.h"
+#import "HippyView.h"
 
-@interface NativeRenderBaseTextInput : NativeRenderView
+@interface NativeRenderBaseTextInput : HippyView
 
 @property (nonatomic, strong) UIFont *font;
 @property (nonatomic, assign) UIEdgeInsets contentInset;

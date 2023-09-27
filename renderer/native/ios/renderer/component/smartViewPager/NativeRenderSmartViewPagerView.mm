@@ -537,6 +537,6 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 #pragma mark NativeRenderRefresh Delegate
-- (void)refreshView:(NativeRenderRefresh *)refreshView statusChanged:(NativeRenderRefreshStatus)status {
+- (void)refreshView:(HippyRefresh *)refreshView statusChanged:(HippyRefreshStatus)status {
 }
 @end

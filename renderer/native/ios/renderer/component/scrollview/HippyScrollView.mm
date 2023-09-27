@@ -21,12 +21,12 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "NativeRenderScrollView.h"
+#import "HippyScrollView.h"
 #import "UIView+NativeRender.h"
 #import "UIView+MountEvent.h"
 #import "UIView+DirectionalLayout.h"
 
-@implementation NativeRenderCustomScrollView
+@implementation HippyCustomScrollView
 
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
@@ -45,7 +45,7 @@
 }
 
 - (UIView *)contentView {
-    return ((NativeRenderScrollView *)self.superview).contentView;
+    return ((HippyScrollView *)self.superview).contentView;
 }
 
 /**
@@ -159,8 +159,8 @@ static inline BOOL CGPointIsNull(CGPoint point) {
 
 @end
 
-@interface NativeRenderScrollView () {
-    NativeRenderCustomScrollView *_scrollView;
+@interface HippyScrollView () {
+    HippyCustomScrollView *_scrollView;
     UIView *_contentView;
     NSTimeInterval _lastScrollDispatchTime;
     BOOL _allowNextScrollNoMatterWhat;
@@ -179,7 +179,7 @@ static inline BOOL CGPointIsNull(CGPoint point) {
 
 @end
 
-@implementation NativeRenderScrollView
+@implementation HippyScrollView
 
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
@@ -199,8 +199,8 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     return self;
 }
 
-- (NativeRenderCustomScrollView *)loadScrollView {
-    NativeRenderCustomScrollView *scrollview = [[NativeRenderCustomScrollView alloc] initWithFrame:CGRectZero];
+- (HippyCustomScrollView *)loadScrollView {
+    HippyCustomScrollView *scrollview = [[HippyCustomScrollView alloc] initWithFrame:CGRectZero];
     scrollview.delegate = self;
     scrollview.delaysContentTouches = NO;
     return scrollview;

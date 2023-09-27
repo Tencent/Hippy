@@ -22,8 +22,8 @@
 
 #import "NativeRenderImpl.h"
 #import "NativeRenderObjectView.h"
-#import "NativeRenderScrollViewManager.h"
-#import "NativeRenderScrollView.h"
+#import "HippyScrollViewManager.h"
+#import "HippyScrollView.h"
 
 @implementation HPConvert (UIScrollView)
 
@@ -45,12 +45,12 @@ HP_ENUM_CONVERTER(UIScrollViewIndicatorStyle, (@{
 
 @end
 
-@implementation NativeRenderScrollViewManager
+@implementation HippyScrollViewManager
 
 NATIVE_RENDER_EXPORT_VIEW(ScrollView)
 
 - (UIView *)view {
-    return [[NativeRenderScrollView alloc] init];
+    return [[HippyScrollView alloc] init];
 }
 
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(alwaysBounceHorizontal, BOOL)
@@ -100,7 +100,7 @@ NATIVE_RENDER_REMAP_VIEW_PROPERTY(contentInset, _scrollView.contentInset, UIEdge
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)componentTag
                     callback:(RenderUIResponseSenderBlock)callback) {
     [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-        NativeRenderScrollView *view = viewRegistry[componentTag];
+        HippyScrollView *view = viewRegistry[componentTag];
         CGSize size = view.scrollView.contentSize;
         callback(@{@"width" : @(size.width),@"height" : @(size.height)});
     }];
@@ -113,8 +113,8 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)componentTag
     [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
         if (view == nil) return ;
-        if ([view conformsToProtocol:@protocol(NativeRenderScrollableProtocol)]) {
-            [(id<NativeRenderScrollableProtocol>)view scrollToOffset:(CGPoint){[x floatValue], [y floatValue]} animated:[animated boolValue]];
+        if ([view conformsToProtocol:@protocol(HippyScrollableProtocol)]) {
+            [(id<HippyScrollableProtocol>)view scrollToOffset:(CGPoint){[x floatValue], [y floatValue]} animated:[animated boolValue]];
         } else {
             HPLogError(@"tried to scrollTo: on non-NativeRenderScrollableProtocol view %@ "
                           "with tag #%@", view, componentTag);
@@ -127,7 +127,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)co
     [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
         if (view == nil) return ;
-        if ([view conformsToProtocol:@protocol(NativeRenderScrollableProtocol)]) {
+        if ([view conformsToProtocol:@protocol(HippyScrollableProtocol)]) {
             CGFloat duration = 1.0;
             CGFloat x = 0;
             CGFloat y = 0;
@@ -141,7 +141,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)co
                 y = ((NSNumber *)(options[@"y"])).floatValue;
             }
             [UIView animateWithDuration:duration animations:^{
-                [(id<NativeRenderScrollableProtocol>)view scrollToOffset:(CGPoint){x,y} animated:NO];
+                [(id<HippyScrollableProtocol>)view scrollToOffset:(CGPoint){x,y} animated:NO];
             }];
         } else {
             HPLogError(@"tried to scrollTo: on non-NativeRenderScrollableProtocol view %@ "

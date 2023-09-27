@@ -21,24 +21,24 @@
  */
 
 #import <UIKit/UIScrollView.h>
-#import "NativeRenderScrollableProtocol.h"
-#import "NativeRenderView.h"
+#import "HippyScrollableProtocol.h"
+#import "HippyView.h"
 
 @protocol UIScrollViewDelegate;
 
-@interface NativeRenderCustomScrollView : UIScrollView <UIGestureRecognizerDelegate>
+@interface HippyCustomScrollView : UIScrollView <UIGestureRecognizerDelegate>
 
 @property (nonatomic, assign) BOOL centerContent;
 
 @end
 
-@interface NativeRenderScrollView : NativeRenderView <UIScrollViewDelegate, NativeRenderScrollableProtocol>
+@interface HippyScrollView : HippyView <UIScrollViewDelegate, HippyScrollableProtocol>
 
 /**
  * This is where subclasses should create their custom scroll view hierarchy if they dont want to use default scroll view.
  * Should never be called directly.
  */
-- (NativeRenderCustomScrollView *)loadScrollView;
+- (HippyCustomScrollView *)loadScrollView;
 
 /**
  * The `NativeRenderScrollView` may have at most one single subview. This will ensure

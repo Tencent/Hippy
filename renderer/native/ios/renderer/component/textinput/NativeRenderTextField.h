@@ -21,7 +21,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "NativeRenderView.h"
+#import "HippyView.h"
 #import "NativeRenderComponentProtocol.h"
 #import "NativeRenderBaseTextInput.h"
 

@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "NativeRenderViewManager.h"
+#import "HippyViewManager.h"
 #import "HPConvert.h"
 
 @interface HPConvert (UIScrollView)
@@ -29,6 +29,6 @@
 
 @end
 
-@interface NativeRenderScrollViewManager : NativeRenderViewManager
+@interface HippyScrollViewManager : HippyViewManager
 
 @end

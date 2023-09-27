@@ -21,11 +21,11 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "NativeRenderView.h"
+#import "HippyView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NativeRenderWaterfallItemView : NativeRenderView
+@interface NativeRenderWaterfallItemView : HippyView
 
 @property (nonatomic, copy) NSString *type;
 

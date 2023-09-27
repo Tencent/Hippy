@@ -22,8 +22,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "NativeRenderViewManager.h"
+#import "HippyViewManager.h"
 
-@interface NativeRenderViewPagerManager : NativeRenderViewManager
+@interface NativeRenderViewPagerManager : HippyViewManager
 
 @end

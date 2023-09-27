@@ -203,7 +203,7 @@ NATIVE_RENDER_EXPORT_VIEW(MyView)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(backgroundColor, UIColor)
 NATIVE_RENDER_REMAP_VIEW_PROPERTY(opacity, alpha, CGFloat)
 
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(overflow, CSSOverflow, NativeRenderView)
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(overflow, CSSOverflow, HippyView)
 {
     if (json) {
         view.clipsToBounds = [HPConvert CSSOverflow:json] != CSSOverflowVisible;

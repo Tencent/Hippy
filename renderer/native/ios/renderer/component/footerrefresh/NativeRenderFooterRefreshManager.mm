@@ -34,21 +34,21 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onFooterPulling, HippyDirectEventBlock)
 
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(collapsePullFooter:(nonnull NSNumber *)reactTag) {
     [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
-        NativeRenderRefresh *refreshView = viewRegistry[reactTag];
+        HippyRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refreshFinish];
     }];
 }
 
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(collapsePullFooterWithOptions:(nonnull NSNumber *)reactTag options:(NSDictionary *)options) {
     [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
-        NativeRenderRefresh *refreshView = viewRegistry[reactTag];
+        HippyRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refreshFinishWithOption:options];
     }];
 }
 
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(expandPullFooter:(nonnull NSNumber *)reactTag) {
     [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
-        NativeRenderRefresh *refreshView = viewRegistry[reactTag];
+        HippyRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refresh];
     }];
 }

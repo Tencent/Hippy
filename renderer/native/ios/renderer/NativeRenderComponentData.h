@@ -25,16 +25,16 @@
 #import "NativeRenderComponentProtocol.h"
 #import "NativeRenderDefines.h"
 
-@class NativeRenderObjectView, NativeRenderViewManager;
+@class NativeRenderObjectView, HippyViewManager;
 @class UIView;
 
 @interface NativeRenderComponentData : NSObject
 
 @property (nonatomic, readonly) Class managerClass;
 @property (nonatomic, copy, readonly) NSString *name;
-@property (nonatomic, weak, readonly) NativeRenderViewManager *manager;
+@property (nonatomic, weak, readonly) HippyViewManager *manager;
 
-- (instancetype)initWithViewManager:(NativeRenderViewManager *)viewManager viewName:(NSString *)viewName;
+- (instancetype)initWithViewManager:(HippyViewManager *)viewManager viewName:(NSString *)viewName;
 
 - (UIView *)createViewWithTag:(NSNumber *)tag;
 

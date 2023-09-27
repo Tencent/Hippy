@@ -22,9 +22,9 @@
 
 #import <UIKit/UIKit.h>
 #import "NativeRenderBaseListViewCell.h"
-#import "NativeRenderView.h"
+#import "HippyView.h"
 
-@interface NativeRenderBaseListItemView : NativeRenderView <ViewAppearStateProtocol>
+@interface NativeRenderBaseListItemView : HippyView <ViewAppearStateProtocol>
 
 @property (nonatomic, strong) id type;
 @property (nonatomic, assign) BOOL isSticky;

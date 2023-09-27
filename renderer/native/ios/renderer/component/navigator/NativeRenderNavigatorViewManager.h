@@ -20,12 +20,12 @@
  * limitations under the License.
  */
 
-#import "NativeRenderViewManager.h"
+#import "HippyViewManager.h"
 #import "NativeRenderNavigatorHostView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NativeRenderNavigatorViewManager : NativeRenderViewManager <NavigatorHostViewDelegate>
+@interface NativeRenderNavigatorViewManager : HippyViewManager <NavigatorHostViewDelegate>
 
 @end
 

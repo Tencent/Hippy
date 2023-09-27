@@ -21,7 +21,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "NativeRenderScrollView.h"
+#import "HippyScrollView.h"
 #import "NativeRenderListTableView.h"
 #import "NativeRenderTouchesView.h"
 #import "NativeRenderWaterfallView.h"

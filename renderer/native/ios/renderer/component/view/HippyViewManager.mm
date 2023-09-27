@@ -28,8 +28,8 @@
 #import "NativeRenderGradientObject.h"
 #import "NativeRenderImpl.h"
 #import "NativeRenderObjectView.h"
-#import "NativeRenderViewManager.h"
-#import "NativeRenderView.h"
+#import "HippyViewManager.h"
+#import "HippyView.h"
 #import "UIView+DirectionalLayout.h"
 #import "UIView+NativeRender.h"
 
@@ -38,19 +38,19 @@
 #include "VFSUriLoader.h"
 #include "dom/layout_node.h"
 
-@interface NativeRenderViewManager () {
+@interface HippyViewManager () {
     NSUInteger _sequence;
     __weak NativeRenderImpl *_renderImpl;
 }
 
 @end
 
-@implementation NativeRenderViewManager
+@implementation HippyViewManager
 
 NATIVE_RENDER_EXPORT_VIEW(View);
 
 - (UIView *)view {
-    return [[NativeRenderView alloc] init];
+    return [[HippyView alloc] init];
 }
 
 - (NativeRenderObjectView *)nativeRenderObjectView {
@@ -219,7 +219,7 @@ NATIVE_RENDER_REMAP_VIEW_PROPERTY(shadowRadius, layer.shadowRadius, CGFloat)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(backgroundPositionX, CGFloat)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(backgroundPositionY, CGFloat)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onInterceptTouchEvent, BOOL)
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(visibility, NSString, NativeRenderView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(visibility, NSString, HippyView) {
     if (json) {
         NSString *status = [HPConvert NSString:json];
         view.hidden = [status isEqualToString:@"hidden"];
@@ -229,7 +229,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(visibility, NSString, NativeRenderView) {
     }
 }
 
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, NativeRenderView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
     if (json) {
         NSString *imagePath = [HPConvert NSString:json];
         [self loadImageSource:imagePath forView:view];
@@ -239,12 +239,12 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, NativeRenderView) 
     }
 }
 
-- (void)loadImageSource:(NSString *)path forView:(NativeRenderView *)view {
+- (void)loadImageSource:(NSString *)path forView:(HippyView *)view {
     if (!path || !view) {
         return;
     }
     NSString *standardizeAssetUrlString = path;
-    __weak NativeRenderView *weakView = view;
+    __weak HippyView *weakView = view;
     auto loader = [[self renderImpl] VFSUriLoader].lock();
     if (!loader) {
         return;
@@ -263,7 +263,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, NativeRenderView) 
             [imageProvider setImageData:data];
             UIImage *backgroundImage = [imageProvider image];
             dispatch_async(dispatch_get_main_queue(), ^{
-                NativeRenderView *strongView = weakView;
+                HippyView *strongView = weakView;
                 if (strongView) {
                     strongView.backgroundImage = backgroundImage;
                 }
@@ -272,7 +272,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, NativeRenderView) 
     });
 }
 
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(linearGradient, NSDictionary, NativeRenderView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(linearGradient, NSDictionary, HippyView) {
     if (json) {
         NSDictionary *linearGradientObject = [HPConvert NSDictionary:json];
         view.gradientObject = [[NativeRenderGradientObject alloc] initWithGradientObject:linearGradientObject];
@@ -284,7 +284,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(linearGradient, NSDictionary, NativeRenderVie
     }
 }
 
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundSize, NSString, NativeRenderView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundSize, NSString, HippyView) {
     NSString *bgSize = @"auto";
     if (json) {
         bgSize = [HPConvert NSString:json];
@@ -293,7 +293,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundSize, NSString, NativeRenderView) {
     [view.layer setNeedsDisplay];
 }
 
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowColor, UIColor, NativeRenderView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowColor, UIColor, HippyView) {
     if (json) {
         view.layer.shadowColor = [HPConvert UIColor:json].CGColor;
     } else {
@@ -301,7 +301,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowColor, UIColor, NativeRenderView) {
     }
 }
 
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffsetX, CGFloat, NativeRenderView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffsetX, CGFloat, HippyView) {
     CGSize shadowOffset = view.layer.shadowOffset;
     if (json) {
         shadowOffset.width = [HPConvert CGFloat:json];
@@ -312,7 +312,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffsetX, CGFloat, NativeRenderView) {
     view.layer.shadowOffset = shadowOffset;
 }
 
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffsetY, CGFloat, NativeRenderView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffsetY, CGFloat, HippyView) {
     CGSize shadowOffset = view.layer.shadowOffset;
     if (json) {
         shadowOffset.height = [HPConvert CGFloat:json];
@@ -323,7 +323,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffsetY, CGFloat, NativeRenderView) {
     view.layer.shadowOffset = shadowOffset;
 }
 
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffset, NSDictionary, NativeRenderView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffset, NSDictionary, HippyView) {
     if (json) {
         NSDictionary *offset = [HPConvert NSDictionary:json];
         NSNumber *width = offset[@"width"];
@@ -341,23 +341,23 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffset, NSDictionary, NativeRenderView)
     }
 }
 
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(overflow, NSString, NativeRenderView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(overflow, NSString, HippyView) {
     if (json) {
         view.clipsToBounds = ![json isEqualToString:@"visible"];
     } else {
         view.clipsToBounds = defaultView.clipsToBounds;
     }
 }
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shouldRasterizeIOS, BOOL, NativeRenderView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shouldRasterizeIOS, BOOL, HippyView) {
     view.layer.shouldRasterize = json ? [HPConvert BOOL:json] : defaultView.layer.shouldRasterize;
     view.layer.rasterizationScale = view.layer.shouldRasterize ? [UIScreen mainScreen].scale : defaultView.layer.rasterizationScale;
 }
 
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(transform, CATransform3D, NativeRenderView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(transform, CATransform3D, HippyView) {
     view.layer.transform = json ? [HPConvert CATransform3D:json] : defaultView.layer.transform;
     view.layer.allowsEdgeAntialiasing = !CATransform3DIsIdentity(view.layer.transform);
 }
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(pointerEvents, NativeRenderPointerEvents, NativeRenderView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(pointerEvents, NativeRenderPointerEvents, HippyView) {
     if ([view respondsToSelector:@selector(setPointerEvents:)]) {
         view.pointerEvents = json ? [HPConvert NativeRenderPointerEvents:json] : defaultView.pointerEvents;
         return;
@@ -386,14 +386,14 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(pointerEvents, NativeRenderPointerEvents, Nat
     }
 }
 
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(borderRadius, CGFloat, NativeRenderView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(borderRadius, CGFloat, HippyView) {
     if ([view respondsToSelector:@selector(setBorderRadius:)]) {
         view.borderRadius = json ? [HPConvert CGFloat:json] : defaultView.borderRadius;
     } else {
         view.layer.cornerRadius = json ? [HPConvert CGFloat:json] : defaultView.layer.cornerRadius;
     }
 }
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(borderColor, CGColor, NativeRenderView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(borderColor, CGColor, HippyView) {
     if ([view respondsToSelector:@selector(setBorderColor:)]) {
         view.borderColor = json ? [HPConvert CGColor:json] : defaultView.borderColor;
     } else {
@@ -401,26 +401,26 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(borderColor, CGColor, NativeRenderView) {
     }
 }
 
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(borderWidth, CGFloat, NativeRenderView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(borderWidth, CGFloat, HippyView) {
     if ([view respondsToSelector:@selector(setBorderWidth:)]) {
         view.borderWidth = json ? [HPConvert CGFloat:json] : defaultView.borderWidth;
     } else {
         view.layer.borderWidth = json ? [HPConvert CGFloat:json] : defaultView.layer.borderWidth;
     }
 }
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(borderStyle, NativeRenderBorderStyle, NativeRenderView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(borderStyle, NativeRenderBorderStyle, HippyView) {
     if ([view respondsToSelector:@selector(setBorderStyle:)]) {
         view.borderStyle = json ? [HPConvert NativeRenderBorderStyle:json] : defaultView.borderStyle;
     }
 }
 
 #define NATIVE_RENDER_VIEW_BORDER_PROPERTY(SIDE)                                                                    \
-    NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Width, CGFloat, NativeRenderView) {                            \
+    NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Width, CGFloat, HippyView) {                            \
         if ([view respondsToSelector:@selector(setBorder##SIDE##Width:)]) {                                         \
             view.border##SIDE##Width = json ? [HPConvert CGFloat:json] : defaultView.border##SIDE##Width; \
         }                                                                                                           \
     }                                                                                                               \
-    NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Color, UIColor, NativeRenderView) {                            \
+    NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Color, UIColor, HippyView) {                            \
         if ([view respondsToSelector:@selector(setBorder##SIDE##Color:)]) {                                         \
             view.border##SIDE##Color = json ? [HPConvert CGColor:json] : defaultView.border##SIDE##Color; \
         }                                                                                                           \
@@ -432,7 +432,7 @@ NATIVE_RENDER_VIEW_BORDER_PROPERTY(Bottom)
 NATIVE_RENDER_VIEW_BORDER_PROPERTY(Left)
 
 #define NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(SIDE)                                                                 \
-    NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Radius, CGFloat, NativeRenderView) {                               \
+    NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Radius, CGFloat, HippyView) {                               \
         if ([view respondsToSelector:@selector(setBorder##SIDE##Radius:)]) {                                            \
             view.border##SIDE##Radius = json ? [HPConvert CGFloat:json] : defaultView.border##SIDE##Radius;   \
         }                                                                                                               \
@@ -544,7 +544,7 @@ NATIVE_RENDER_CUSTOM_RENDER_OBJECT_PROPERTY(verticalAlign, HippyTextAttachmentVe
 
 static const char *init_props_identifier = "init_props_identifier";
 
-@implementation NativeRenderViewManager (InitProps)
+@implementation HippyViewManager (InitProps)
 
 - (NSDictionary *)props {
     return objc_getAssociatedObject(self, init_props_identifier);

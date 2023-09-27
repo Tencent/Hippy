@@ -25,7 +25,7 @@
 #import "NativeRenderFooterRefresh.h"
 #import "NativeRenderWaterfallItemView.h"
 #import "UIView+NativeRender.h"
-#import "NativeRenderRefresh.h"
+#import "HippyRefresh.h"
 #import "NativeRenderWaterfallViewDataSource.h"
 #import "NativeRenderObjectView.h"
 #import "NativeRenderImpl.h"

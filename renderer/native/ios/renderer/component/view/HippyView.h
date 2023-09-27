@@ -27,7 +27,7 @@
 
 @class NativeRenderGradientObject;
 
-@interface NativeRenderView : NativeRenderTouchesView
+@interface HippyView : NativeRenderTouchesView
 
 /**
  * z-index, used to override sibling order in didUpdateHippySubviews. This is

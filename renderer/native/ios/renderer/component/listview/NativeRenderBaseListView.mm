@@ -526,6 +526,6 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 }
 
 #pragma mark NativeRenderRefresh Delegate
-- (void)refreshView:(NativeRenderRefresh *)refreshView statusChanged:(NativeRenderRefreshStatus)status {
+- (void)refreshView:(HippyRefresh *)refreshView statusChanged:(HippyRefreshStatus)status {
 }
 @end
