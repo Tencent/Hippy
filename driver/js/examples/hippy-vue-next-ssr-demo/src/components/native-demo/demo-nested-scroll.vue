@@ -72,7 +72,7 @@ export default defineComponent({
     onMounted(async () => {
       if (demoRef.value) {
         // get wrap position
-        const position = await Native.getBoundingClientRect(demoRef.value);
+        const position = await Native.measureInAppWindow(demoRef.value);
         if (position.height) {
           // wrap height - banner height - tab height
           layoutHeight.value = position.height - 150 - 30;

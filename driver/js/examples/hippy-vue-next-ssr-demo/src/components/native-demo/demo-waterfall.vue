@@ -19,7 +19,7 @@
         :inter-item-spacing="interItemSpacing"
         :number-of-columns="numberOfColumns"
         :preload-item-number="0"
-        :style="{flex: 1}"
+        :style="{display: 'flex', flex: 1}"
         @endReached="onEndReached"
         @scroll="onScroll"
       >
@@ -121,6 +121,7 @@ export default defineComponent({
     const header = ref(null);
     const itemWidth = computed(() => {
       const screenWidth = getScreenSize().width;
+      console.log('screenWidth', getScreenSize());
       const width = screenWidth - contentInset.left - contentInset.right;
       return (
         (width - (numberOfColumns - 1) * columnSpacing) / numberOfColumns

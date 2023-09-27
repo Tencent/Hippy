@@ -78,7 +78,7 @@
       </li>
     </ul>
     <div
-      v-if="Platform === 'android'"
+      v-if="!isIOS"
       :style="{
         position: 'absolute',
         right: 20,
@@ -105,17 +105,16 @@
           alignItems: 'center',
         }"
       >
-        <p :style="{ color: 'white' }">
-          切换方向
-        </p>
+        <span :style="{ color: 'white' }">切换方向</span>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { type ListViewEvent, Native } from '@hippy/vue-next';
+import { type ListViewEvent } from '@hippy/vue-next';
 import { defineComponent, ref, onMounted, type Ref } from '@vue/runtime-core';
+import { isIOS } from '../../util';
 
 const STYLE_LOADING = 100;
 const mockDataArray = [
@@ -269,7 +268,7 @@ export default defineComponent({
       list,
       STYLE_LOADING,
       horizontal,
-      Platform: Native.Platform,
+      isIOS: isIOS(),
       onAppear,
       onDelete,
       onDisappear,

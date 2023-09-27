@@ -100,7 +100,7 @@ export default defineComponent({
     onMounted(async () => {
       if (IS_SSR_MODE) {
         // ssr mode should update action to start animation
-        loopActions.value = '';
+        loopActions.value = {};
         await nextTick();
         setActions(props.direction);
       }

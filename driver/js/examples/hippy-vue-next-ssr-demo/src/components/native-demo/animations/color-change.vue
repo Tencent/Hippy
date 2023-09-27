@@ -49,7 +49,7 @@ export default defineComponent({
   },
   setup() {
     const animationView: Ref<null | AnimationInstance> = ref(null);
-    const colorActions: Ref = ref('');
+    const colorActions: Ref = ref({});
 
     if (!IS_SSR_MODE) {
       colorActions.value = backgroundColorAnimation;
@@ -68,7 +68,7 @@ export default defineComponent({
 
     onMounted(async () => {
       if (IS_SSR_MODE) {
-        colorActions.value = '';
+        colorActions.value = {};
         await nextTick();
         colorActions.value = backgroundColorAnimation;
       }

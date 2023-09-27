@@ -4,7 +4,7 @@
     @scroll="onOuterScroll"
   >
     <div>
-      <div v-if="Native.Platform !== 'ios'">
+      <div v-if="!isIOS">
         <label>水波纹效果: </label>
         <div :style="{ ...imgRectangle, ...imgRectangleExtra }">
           <demo-ripple-div
@@ -84,21 +84,11 @@
       >
         <!-- div 带着 overflow 属性的，只能有一个子节点，否则终端会崩溃 -->
         <div class="display-flex flex-row">
-          <p class="text-block">
-            A
-          </p>
-          <p class="text-block">
-            B
-          </p>
-          <p class="text-block">
-            C
-          </p>
-          <p class="text-block">
-            D
-          </p>
-          <p class="text-block">
-            E
-          </p>
+          <span class="text-block">A</span>
+          <span class="text-block">B</span>
+          <span class="text-block">C</span>
+          <span class="text-block">D</span>
+          <span class="text-block">E</span>
         </div>
       </div>
       <label>垂直滚动:</label>
@@ -107,21 +97,11 @@
         :showsVerticalScrollIndicator="false"
       >
         <div class="display-flex flex-column">
-          <p class="text-block">
-            A
-          </p>
-          <p class="text-block">
-            B
-          </p>
-          <p class="text-block">
-            C
-          </p>
-          <p class="text-block">
-            D
-          </p>
-          <p class="text-block">
-            E
-          </p>
+          <span class="text-block">A</span>
+          <span class="text-block">B</span>
+          <span class="text-block">C</span>
+          <span class="text-block">D</span>
+          <span class="text-block">E</span>
         </div>
       </div>
     </div>
@@ -129,7 +109,7 @@
 </template>
 
 <script lang="ts">
-import { type HippyElement, Native } from '@hippy/vue-next';
+import { type HippyElement } from '@hippy/vue-next';
 import {
   defineComponent,
   onActivated,
@@ -137,6 +117,7 @@ import {
   onMounted,
   ref,
 } from '@vue/runtime-core';
+import { isIOS } from '../../util';
 
 import defaultImage from '../../assets/defaultSource.jpg';
 
@@ -242,7 +223,7 @@ export default defineComponent({
         borderRadius: '12px',
         overflow: 'hidden',
       },
-      Native,
+      isIOS: isIOS(),
       offsetY,
       onScroll,
       onMomentumScrollBegin,

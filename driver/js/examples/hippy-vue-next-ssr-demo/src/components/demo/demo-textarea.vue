@@ -15,8 +15,8 @@
         输入的文本为：{{ content }}
       </p>
     </div>
-    <label v-if="Platform === 'android'">break-strategy={{ breakStrategy }}</label>
-    <div v-if="Platform === 'android'">
+    <label v-if="!isIOS">break-strategy={{ breakStrategy }}</label>
+    <div v-if="!isIOS">
       <textarea
         class="textarea"
         :defaultValue="longText"
@@ -47,8 +47,8 @@
 </template>
 
 <script lang="ts">
-import { Native } from '@hippy/vue-next';
 import { defineComponent, ref } from '@vue/runtime-core';
+import { isIOS } from '../../util';
 
 export default defineComponent({
   setup() {
@@ -71,7 +71,7 @@ export default defineComponent({
     return {
       content,
       breakStrategy,
-      Platform: Native.Platform,
+      isIOS: isIOS(),
       longText: 'The 58-letter name Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch is the name of a town on Anglesey, an island of Wales.',
       contentSizeChange,
       changeBreakStrategy,
