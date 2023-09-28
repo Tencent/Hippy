@@ -39,9 +39,9 @@ GEN_INVOKE_CB(ConsoleModule, Log) // NOLINT(cert-err58-cpp)
 namespace {
 
 unicode_string_view EscapeMessage(const unicode_string_view& str_view) {
-  std::string u8_str = StringViewUtils::ToU8StdStr(str_view);
+  unicode_string_view::u8string u8_str = StringViewUtils::Convert(str_view, unicode_string_view::Encoding::Utf8).utf8_value();
   size_t len = u8_str.length();
-  std::string ret;
+  unicode_string_view::u8string ret;
   for (size_t i = 0; i < len; i++) {
     auto c = u8_str[i];
     ret += c;
