@@ -284,8 +284,10 @@ bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
   if (!read_script_flag || StringViewUtils::IsEmpty(script_content)) {
     TDF_BASE_LOG(WARNING) << "read_script_flag = " << read_script_flag
                           << ", script content empty, uri = " << uri;
-    std::lock_guard<std::mutex> lock(code_cache_file_mutex);
-    CheckUseCodeCacheAfterRunScript(code_cache_path);
+    if (is_use_code_cache) {
+      std::lock_guard<std::mutex> lock(code_cache_file_mutex);
+      CheckUseCodeCacheAfterRunScript(code_cache_path);
+    }
     return false;
   }
 
