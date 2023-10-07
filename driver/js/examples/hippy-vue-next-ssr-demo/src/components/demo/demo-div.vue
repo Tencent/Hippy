@@ -82,7 +82,6 @@
         @scrollBeginDrag="onScrollBeginDrag"
         @scrollEndDrag="onScrollEndDrag"
       >
-        <!-- div 带着 overflow 属性的，只能有一个子节点，否则终端会崩溃 -->
         <div class="display-flex flex-row">
           <span class="text-block">A</span>
           <span class="text-block">B</span>

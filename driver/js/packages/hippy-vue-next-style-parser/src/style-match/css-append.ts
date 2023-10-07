@@ -176,6 +176,11 @@ function polyfillSpecialNodeStyle(
       // ssr default set to row, updated at client side
       style.flexDirection = 'row';
     }
+    // compatible nativeBackgroundAndroid style props
+    const { nativeBackgroundAndroid } = nativeNode.props;
+    if (nativeBackgroundAndroid && typeof nativeBackgroundAndroid.color !== 'undefined') {
+      nativeNode.props.nativeBackgroundAndroid.color = translateColor(nativeBackgroundAndroid.color);
+    }
   }
   // Change the ScrollView child collapsable attribute
   if (nativeNode.name === 'ScrollView') {
