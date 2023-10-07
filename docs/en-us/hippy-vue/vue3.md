@@ -157,12 +157,12 @@ const router = createRouter({
 
 # Server Side Render
 
-@hippy/vue-next is now supported SSR, the specific code can be viewed in [Demo](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo)'s SSR Part
+@hippy/vue-next is now supported SSR, the specific code can be viewed in [Demo](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-ssr-demo)'s SSR Part
 , For the implementation and principle of Vue SSR, you can refer to the [official document](https://cn.vuejs.org/guide/scaling-up/ssr.html)。
 
 ## How To Use SSR
 
-Read `How To Use SSR` in [Demo](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo)
+Read `How To Use SSR` in [Demo](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-ssr-demo)
 
 ## Principle
 
@@ -236,7 +236,7 @@ And return the maximum uniqueId of the currently generated node for subsequent u
 
 >Note that the server-side code is executed synchronously. If a data request is made asynchronously, the request may have been returned before the data is obtained. For this problem, Vue SSR provides a dedicated API to handle this problem:
 >[onServerPrefetch](https://cn.vuejs.org/api/composition-api-lifecycle.html#onserverprefetch).
->There is also an example of using onServerPrefetch in app.vue of [Demo](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/app.vue)
+>There is also an example of using onServerPrefetch in app.vue of [Demo](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-ssr-demo/src/app.vue)
 
 - server.ts Add
 

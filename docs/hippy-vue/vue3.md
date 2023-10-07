@@ -156,12 +156,12 @@ const router: Router = createRouter({
 
 # 服务端渲染
 
-@hippy/vue-next 现已支持服务端渲染，具体代码可以查看[示例项目](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo)中的 SSR
+@hippy/vue-next 现已支持服务端渲染，具体代码可以查看[示例项目](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-ssr-demo)中的 SSR
 部分，关于 Vue SSR 的实现及原理，可以参考[官方文档](https://cn.vuejs.org/guide/scaling-up/ssr.html)。
 
 ## 如何使用SSR
 
-请参考[示例项目](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo)说明文档中的 How To Use SSR
+请参考[示例项目](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-ssr-demo)说明文档中的 How To Use SSR
 
 ## 实现原理
 
@@ -236,7 +236,7 @@ main-server.ts 是在服务端运行的业务 jsBundle，因此不需要做代�
 
 >注意，服务端代码是同步执行的，如果有数据请求走了异步方式，可能会出现还没有拿到数据，请求就已经返回了的情况。对于这个问题，Vue SSR 提供了专用 API 来处理这个问题:
 >[onServerPrefetch](https://cn.vuejs.org/api/composition-api-lifecycle.html#onserverprefetch)。
->在 [Demo](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/app.vue) 的 app.vue 中也有 onServerPrefetch 的使用示例
+>在 [Demo](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-ssr-demo/src/app.vue) 的 app.vue 中也有 onServerPrefetch 的使用示例
 
 - server.ts 新增
 
