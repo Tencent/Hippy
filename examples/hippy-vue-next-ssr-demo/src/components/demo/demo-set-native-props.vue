@@ -29,18 +29,15 @@
 </template>
 
 <script lang="ts">
-import { type HippyElement, Native } from '@hippy/vue-next';
-import { defineComponent, ref, onMounted } from '@vue/runtime-core';
+import { type HippyElement } from '@hippy/vue-next';
+import { defineComponent, ref } from '@vue/runtime-core';
+import { getScreenSize } from '../../util';
 
 export default defineComponent({
   setup() {
     const demoOnePointRef = ref(null);
     const demon2Left = ref(0);
-    const screenWidth = ref(0);
-
-    onMounted(() => {
-      screenWidth.value = Native.Dimensions.screen.width;
-    });
+    const screenWidth = ref(getScreenSize().width);
 
     const onTouchDown1 = (evt) => {
       const position = evt.touches[0].clientX - 40;
