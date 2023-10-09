@@ -22,7 +22,7 @@
 
 @class HippyBridge;
 
-#import "HPInvalidating.h"
+#import "HippyInvalidating.h"
 
 @protocol HippyBridgeDelegate <NSObject>
 
@@ -77,6 +77,6 @@
  * @param reason reson for HippyBridge invalidation, typically reload, or dealloc
  * @param bridge HippyBridge to be invalidated
  */
-- (void)invalidateForReason:(HPInvalidateReason)reason bridge:(HippyBridge *)bridge;
+- (void)invalidateForReason:(HippyInvalidateReason)reason bridge:(HippyBridge *)bridge;
 
 @end

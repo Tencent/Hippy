@@ -247,7 +247,7 @@ static BOOL SelectorBelongsToProtocol(SEL selector, Protocol *protocol) {
     return [super forwardingTargetForSelector:aSelector];
 }
 
-- (void)invalidateForReason:(HPInvalidateReason)reason bridge:(HippyBridge *)bridge {
+- (void)invalidateForReason:(HippyInvalidateReason)reason bridge:(HippyBridge *)bridge {
     [_nativeRenderManager->rootViews() enumerateObjectsUsingBlock:^(UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         if ([obj respondsToSelector:@selector(invalidate)]) {
             [obj performSelector:@selector(invalidate)];

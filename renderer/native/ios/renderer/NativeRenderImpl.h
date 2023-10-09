@@ -22,7 +22,7 @@
 
 #import <UIKit/UIKit.h>
 
-#import "HPInvalidating.h"
+#import "HippyInvalidating.h"
 #import "NativeRenderDefines.h"
 
 #include <memory>
@@ -56,7 +56,7 @@ class HippyValue;
 /**
  * The NativeRenderUIManager is the module responsible for updating the view hierarchy.
  */
-@interface NativeRenderImpl : NSObject <HPInvalidating>
+@interface NativeRenderImpl : NSObject <HippyInvalidating>
 
 - (instancetype)init NS_UNAVAILABLE;
 

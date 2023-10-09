@@ -335,7 +335,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 #ifdef ENABLE_INSPECTOR
     auto devtools_data_source = self.pScope->GetDevtoolsDataSource();
     if (devtools_data_source) {
-        bool reload = self.bridge.invalidateReason == HPInvalidateReasonReload ? true : false;
+        bool reload = self.bridge.invalidateReason == HippyInvalidateReasonReload ? true : false;
         devtools_data_source->Destroy(reload);
     }
 #endif

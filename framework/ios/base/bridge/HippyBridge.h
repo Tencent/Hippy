@@ -27,7 +27,7 @@
 #import "HippyMethodInterceptorProtocol.h"
 #import "HippyModulesSetup.h"
 #import "HPImageProviderProtocol.h"
-#import "HPInvalidating.h"
+#import "HippyInvalidating.h"
 #import "MacroDefines.h"
 
 #include <memory>
@@ -84,7 +84,7 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 /**
  * Async batched bridge used to communicate with the JavaScript application.
  */
-@interface HippyBridge : NSObject <HPInvalidating>
+@interface HippyBridge : NSObject <HippyInvalidating>
 
 @property (nonatomic, weak, readonly) id<HippyBridgeDelegate> delegate;
 
@@ -255,7 +255,7 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 @property (nonatomic, strong) NSString *appVerson;  //
 
-@property (nonatomic, assign) HPInvalidateReason invalidateReason;
+@property (nonatomic, assign) HippyInvalidateReason invalidateReason;
 
 @property (nonatomic, weak) id<HippyMethodInterceptorProtocol> methodInterceptor;
 

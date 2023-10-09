@@ -43,7 +43,7 @@
 #import "HPConvert.h"
 #import "HPDefaultImageProvider.h"
 #import "HPI18nUtils.h"
-#import "HPInvalidating.h"
+#import "HippyInvalidating.h"
 #import "HPLog.h"
 #import "HPOCToHippyValue.h"
 #import "HPToolUtils.h"
@@ -141,7 +141,7 @@ dispatch_queue_t HippyBridgeQueue() {
         _debugMode = [launchOptions[@"DebugMode"] boolValue];
         _enableTurbo = !!launchOptions[@"EnableTurbo"] ? [launchOptions[@"EnableTurbo"] boolValue] : YES;
         _engineKey = engineKey;
-        _invalidateReason = HPInvalidateReasonDealloc;
+        _invalidateReason = HippyInvalidateReasonDealloc;
         _valid = YES;
         _bundlesQueue = [[HippyBundleOperationQueue alloc] init];
         _startTime = footstone::TimePoint::SystemNow();
@@ -180,7 +180,7 @@ dispatch_queue_t HippyBridgeQueue() {
      */
     HPLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ dealloc %p", NSStringFromClass([self class]), self);
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    self.invalidateReason = HPInvalidateReasonDealloc;
+    self.invalidateReason = HippyInvalidateReasonDealloc;
     [self invalidate];
 }
 
@@ -246,11 +246,11 @@ dispatch_queue_t HippyBridgeQueue() {
 
 - (void)reload {
     if ([self.delegate respondsToSelector:@selector(reload:)]) {
-        self.invalidateReason = HPInvalidateReasonReload;
+        self.invalidateReason = HippyInvalidateReasonReload;
         [self invalidate];
         [self setUp];
         [self.delegate reload:self];
-        self.invalidateReason = HPInvalidateReasonDealloc;
+        self.invalidateReason = HippyInvalidateReasonDealloc;
     }
 }
 
@@ -824,7 +824,7 @@ dispatch_queue_t HippyBridgeQueue() {
             dispatch_group_enter(group);
             [self dispatchBlock:^{
                 @autoreleasepool {
-                    [(id<HPInvalidating>)instance invalidate];
+                    [(id<HippyInvalidating>)instance invalidate];
                 }
                 dispatch_group_leave(group);
             } queue:moduleData.methodQueue];

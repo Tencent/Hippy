@@ -22,12 +22,12 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSUInteger, HPInvalidateReason) {
-    HPInvalidateReasonDealloc = 0,
-    HPInvalidateReasonReload
+typedef NS_ENUM(NSUInteger, HippyInvalidateReason) {
+    HippyInvalidateReasonDealloc = 0,
+    HippyInvalidateReasonReload
 };
 
-@protocol HPInvalidating <NSObject>
+@protocol HippyInvalidating <NSObject>
 
 - (void)invalidate;
 

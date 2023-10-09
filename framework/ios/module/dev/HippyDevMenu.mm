@@ -107,7 +107,7 @@ typedef NS_ENUM(NSInteger, HippyDevMenuType) { HippyDevMenuTypeButton, HippyDevM
 
 @end
 
-@interface HippyDevMenu () <HippyBridgeModule, HPInvalidating> {
+@interface HippyDevMenu () <HippyBridgeModule, HippyInvalidating> {
     __weak UIAlertController *_actionSheet;
     NSUserDefaults *_defaults;
 }

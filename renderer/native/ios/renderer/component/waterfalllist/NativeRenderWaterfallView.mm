@@ -37,7 +37,7 @@ static NSString *kCellIdentifier = @"cellIdentifier";
 static NSString *kWaterfallItemName = @"WaterfallItem";
 static const NSTimeInterval delayForPurgeView = 1.f;
 
-@interface NativeRenderWaterfallView () <HPInvalidating, NativeRenderRefreshDelegate, NativeRenderListTableViewLayoutProtocol> {
+@interface NativeRenderWaterfallView () <HippyInvalidating, NativeRenderRefreshDelegate, NativeRenderListTableViewLayoutProtocol> {
     NSHashTable<id<UIScrollViewDelegate>> *_scrollListeners;
     BOOL _isInitialListReady;
     UIColor *_backgroundColor;

@@ -21,7 +21,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "HPInvalidating.h"
+#import "HippyInvalidating.h"
 
 /**
  * Native view used to host Hippy-managed views within the app. Can be used just

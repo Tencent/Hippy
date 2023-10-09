@@ -23,7 +23,7 @@
 #import "HippyBridgeModule.h"
 #import "HippyDefines.h"
 #import "MacroDefines.h"
-#import "HPInvalidating.h"
+#import "HippyInvalidating.h"
 
 #include <memory>
 
@@ -57,7 +57,7 @@ HP_EXTERN NSString *const HippyJSCThreadName;
 /**
  * Uses a JavaScriptCore context as the execution engine.
  */
-@interface HippyJSExecutor : NSObject<HPInvalidating>
+@interface HippyJSExecutor : NSObject<HippyInvalidating>
 
 @property (nonatomic, strong) HippyBridge *bridge;
 

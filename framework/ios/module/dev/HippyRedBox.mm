@@ -311,7 +311,7 @@
 
 @end
 
-@interface HippyRedBox () <HPInvalidating, HippyRedBoxWindowActionDelegate>
+@interface HippyRedBox () <HippyInvalidating, HippyRedBoxWindowActionDelegate>
 @end
 
 @implementation HippyRedBox {

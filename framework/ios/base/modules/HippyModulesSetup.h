@@ -24,7 +24,7 @@
 
 #import "HippyBridgeModule.h"
 #import "MacroDefines.h"
-#import "HPInvalidating.h"
+#import "HippyInvalidating.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -46,7 +46,7 @@ typedef NSArray<id<HippyBridgeModule>> *_Nullable(^HippyBridgeModuleProviderBloc
 
 @class HippyBridge, HippyModuleData, HippyModuleData;
 
-@interface HippyModulesSetup : NSObject<HPInvalidating>
+@interface HippyModulesSetup : NSObject<HippyInvalidating>
 
 @property(nonatomic, copy, readonly) HippyBridgeModuleProviderBlock moduleProvider;
 
