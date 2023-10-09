@@ -180,7 +180,7 @@ typedef NSDictionary NativeRenderFontVariantDescriptor;
         };
     });
     NativeRenderFontVariantDescriptor *value = mapping[json];
-    if (HP_DEBUG && !value && [json description].length > 0) {
+    if (HIPPY_DEBUG && !value && [json description].length > 0) {
         HPLogError(@"Invalid NativeRenderFontVariantDescriptor '%@'. should be one of: %@", json,
             [[mapping allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)]);
     }

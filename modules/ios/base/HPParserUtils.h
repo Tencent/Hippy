@@ -21,19 +21,19 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "MacroDefines.h"
+#import "HippyDefines.h"
 
 /**
  * Generic utility functions for parsing Objective-C source code.
  */
-HP_EXTERN BOOL HPParseReadChar(const char **input, char c);
-HP_EXTERN BOOL HPParseReadString(const char **input, const char *string);
-HP_EXTERN void HPParseSkipWhitespace(const char **input);
-HP_EXTERN BOOL HPParseIdentifier(const char **input, NSString **string);
+HIPPY_EXTERN BOOL HPParseReadChar(const char **input, char c);
+HIPPY_EXTERN BOOL HPParseReadString(const char **input, const char *string);
+HIPPY_EXTERN void HPParseSkipWhitespace(const char **input);
+HIPPY_EXTERN BOOL HPParseIdentifier(const char **input, NSString **string);
 
 /**
  * Parse an Objective-C type into a form that can be used by HPConvert.
  * This doesn't really belong here, but it's used by both HPConvert and
  *  which makes it difficult to find a better home for it.
  */
-HP_EXTERN NSString *HPParseType(const char **input);
+HIPPY_EXTERN NSString *HPParseType(const char **input);

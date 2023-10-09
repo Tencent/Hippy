@@ -274,7 +274,7 @@ dispatch_queue_t HippyBridgeQueue() {
                 dispatch_semaphore_wait(strongSelf.moduleSemaphore, DISPATCH_TIME_FOREVER);
                 NSString *moduleConfig = [strongSelf moduleConfig];
                 [ctxWrapper createGlobalObject:@"__hpBatchedBridgeConfig" withJsonValue:moduleConfig];
-#if HP_DEV
+#if HIPPY_DEV
                 //default is yes when debug mode
                 [strongSelf setInspectable:YES];
 #endif //HIPPY_DEV
@@ -600,7 +600,7 @@ dispatch_queue_t HippyBridgeQueue() {
 - (void)handleBuffer:(NSArray *)buffer {
     NSArray *requestsArray = [HPConvert NSArray:buffer];
 
-    if (HP_DEBUG && requestsArray.count <= HippyBridgeFieldParams) {
+    if (HIPPY_DEBUG && requestsArray.count <= HippyBridgeFieldParams) {
         HPLogError(@"Buffer should contain at least %tu sub-arrays. Only found %tu", HippyBridgeFieldParams + 1, requestsArray.count);
         return;
     }
@@ -615,7 +615,7 @@ dispatch_queue_t HippyBridgeQueue() {
         callID = [requestsArray[HippyBridgeFieldCallID] longLongValue];
     }
 
-    if (HP_DEBUG && (moduleIDs.count != methodIDs.count || moduleIDs.count != paramsArrays.count)) {
+    if (HIPPY_DEBUG && (moduleIDs.count != methodIDs.count || moduleIDs.count != paramsArrays.count)) {
         HPLogError(@"Invalid data message - all must be length: %lu", (unsigned long)moduleIDs.count);
         return;
     }
@@ -676,7 +676,7 @@ dispatch_queue_t HippyBridgeQueue() {
         return nil;
     }
     HippyModuleData *moduleData = moduleDataByID[moduleID];
-    if (HP_DEBUG && !moduleData) {
+    if (HIPPY_DEBUG && !moduleData) {
         if (isValid) {
             HPLogError(@"No module found for id '%lu'", (unsigned long)moduleID);
         }
@@ -696,7 +696,7 @@ dispatch_queue_t HippyBridgeQueue() {
         return nil;
     }
     id<HippyBridgeMethod> method = methods[methodID];
-    if (HP_DEBUG && !method) {
+    if (HIPPY_DEBUG && !method) {
         if (isValid) {
             HPLogError(@"Unknown methodID: %lu for module: %lu (%@)", (unsigned long)methodID, (unsigned long)moduleID, moduleData.name);
         }
@@ -911,10 +911,10 @@ dispatch_queue_t HippyBridgeQueue() {
 }
 
 - (void)setRedBoxShowEnabled:(BOOL)enabled {
-#if HP_DEBUG
+#if HIPPY_DEBUG
     HippyRedBox *redBox = [self redBox];
     redBox.showEnabled = enabled;
-#endif  // HP_DEBUG
+#endif  // HIPPY_DEBUG
 }
 
 - (HippyOCTurboModule *)turboModuleWithName:(NSString *)name {

@@ -23,7 +23,7 @@
 #import <UIKit/UIKit.h>
 
 #import "HPConvert+NativeRender.h"
-#import "MacroDefines.h"
+#import "HippyDefines.h"
 
 typedef struct {
     CGFloat topLeft;
@@ -49,21 +49,21 @@ typedef struct {
 /**
  * Determine if the border widths, colors and radii are all equal.
  */
-HP_EXTERN BOOL NativeRenderBorderInsetsAreEqual(UIEdgeInsets borderInsets);
-HP_EXTERN BOOL NativeRenderCornerRadiiAreEqual(NativeRenderCornerRadii cornerRadii);
-HP_EXTERN BOOL NativeRenderBorderColorsAreEqual(NativeRenderBorderColors borderColors);
+HIPPY_EXTERN BOOL NativeRenderBorderInsetsAreEqual(UIEdgeInsets borderInsets);
+HIPPY_EXTERN BOOL NativeRenderCornerRadiiAreEqual(NativeRenderCornerRadii cornerRadii);
+HIPPY_EXTERN BOOL NativeRenderBorderColorsAreEqual(NativeRenderBorderColors borderColors);
 
 /**
  * Convert NativeRenderCornerRadii to NativeRenderCornerInsets by applying border insets.
  * Effectively, returns radius - inset, with a lower bound of 0.0.
  */
-HP_EXTERN NativeRenderCornerInsets NativeRenderGetCornerInsets(NativeRenderCornerRadii cornerRadii, UIEdgeInsets borderInsets);
+HIPPY_EXTERN NativeRenderCornerInsets NativeRenderGetCornerInsets(NativeRenderCornerRadii cornerRadii, UIEdgeInsets borderInsets);
 
 /**
  * Create a CGPath representing a rounded rectangle with the specified bounds
  * and corner insets. Note that the CGPathRef must be released by the caller.
  */
-HP_EXTERN CGPathRef NativeRenderPathCreateWithRoundedRect(CGRect bounds, NativeRenderCornerInsets cornerInsets, const CGAffineTransform *transform);
+HIPPY_EXTERN CGPathRef NativeRenderPathCreateWithRoundedRect(CGRect bounds, NativeRenderCornerInsets cornerInsets, const CGAffineTransform *transform);
 
 /**
  * Draw a CSS-compliant border as an image. You can determine if it's scalable
@@ -71,7 +71,7 @@ HP_EXTERN CGPathRef NativeRenderPathCreateWithRoundedRect(CGRect bounds, NativeR
  *
  * `borderInsets` defines the border widths for each edge.
  */
-HP_EXTERN UIImage *NativeRenderGetBorderImage(NativeRenderBorderStyle borderStyle, CGSize viewSize, NativeRenderCornerRadii cornerRadii, UIEdgeInsets borderInsets,
+HIPPY_EXTERN UIImage *NativeRenderGetBorderImage(NativeRenderBorderStyle borderStyle, CGSize viewSize, NativeRenderCornerRadii cornerRadii, UIEdgeInsets borderInsets,
     NativeRenderBorderColors borderColors, CGColorRef backgroundColor, BOOL drawToEdge, BOOL drawBackgroundColor);
 
-HP_EXTERN CGPathRef NativeRenderPathCreateOuterOutline(BOOL drawToEdge, CGRect rect, NativeRenderCornerRadii cornerRadii);
+HIPPY_EXTERN CGPathRef NativeRenderPathCreateOuterOutline(BOOL drawToEdge, CGRect rect, NativeRenderCornerRadii cornerRadii);

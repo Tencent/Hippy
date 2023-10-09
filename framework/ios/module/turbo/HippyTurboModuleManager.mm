@@ -32,7 +32,7 @@
 
 static NSMutableDictionary<NSString *, Class> *HippyTurboModuleMap;
 
-HP_EXTERN void HippyRegisterTurboModule(NSString *, Class);
+HIPPY_EXTERN void HippyRegisterTurboModule(NSString *, Class);
 void HippyRegisterTurboModule(NSString *moduleName, Class moduleClass) {
     if (!moduleClass || !moduleName || moduleName.length == 0) {
         HPAssert(NO, @"moduleName or moduleClass is nil or empty!");

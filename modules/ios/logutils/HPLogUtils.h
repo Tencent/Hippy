@@ -22,11 +22,11 @@
 
 #import <Foundation/Foundation.h>
 
-#import "MacroDefines.h"
+#import "HippyDefines.h"
 #import "HPLog.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-HP_EXTERN void HPSetTDFLogFunction(HPLogFunction logFunction);
+HIPPY_EXTERN void HPSetTDFLogFunction(HPLogFunction logFunction);
 
 NS_ASSUME_NONNULL_END

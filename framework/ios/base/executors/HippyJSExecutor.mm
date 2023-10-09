@@ -25,7 +25,7 @@
 #import "HPAsserts.h"
 #import "HippyBundleURLProvider.h"
 #import "HippyContextWrapper.h"
-#import "MacroDefines.h"
+#import "HippyDefines.h"
 #import "HippyDevInfo.h"
 #import "HippyDevMenu.h"
 #import "HippyJSEnginesMapper.h"
@@ -614,7 +614,7 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Share
         }
         return;
     }
-    if (HP_DEBUG) {
+    if (HIPPY_DEBUG) {
         HPAssert(HippyJSONParse(script, NULL) != nil, @"%@ wasn't valid JSON!", script);
     }
 

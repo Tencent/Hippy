@@ -112,14 +112,14 @@ typedef BOOL css_backface_visibility_t;
 
 @end
 
-HP_EXTERN NSNumber *HPConvertEnumValue(const char *, NSDictionary *, NSNumber *, id);
-HP_EXTERN NSNumber *HPConvertMultiEnumValue(const char *, NSDictionary *, NSNumber *, id);
-HP_EXTERN NSArray *HPConvertArrayValue(SEL, id);
+HIPPY_EXTERN NSNumber *HPConvertEnumValue(const char *, NSDictionary *, NSNumber *, id);
+HIPPY_EXTERN NSNumber *HPConvertMultiEnumValue(const char *, NSDictionary *, NSNumber *, id);
+HIPPY_EXTERN NSArray *HPConvertArrayValue(SEL, id);
 
 /**
  * Get the converter function for the specified type
  */
-HP_EXTERN SEL HPConvertSelectorForType(NSString *type);
+HIPPY_EXTERN SEL HPConvertSelectorForType(NSString *type);
 
 /**
  * This macro is used for logging conversion errors. This is just used to
@@ -139,7 +139,7 @@ HP_EXTERN SEL HPConvertSelectorForType(NSString *type);
  */
 #define HP_CUSTOM_CONVERTER(type, name, code)     \
     +(type)name : (id)json {                         \
-        if (!HP_DEBUG) {                          \
+        if (!HIPPY_DEBUG) {                          \
             return code;                             \
         } else {                                     \
             @try {                                   \
@@ -158,7 +158,7 @@ HP_EXTERN SEL HPConvertSelectorForType(NSString *type);
  * detailed error reporting if an invalid value is passed in.
  */
 #define HP_NUMBER_CONVERTER(type, getter) \
-    HP_CUSTOM_CONVERTER(type, type, [HP_DEBUG ? [self NSNumber:json] : json getter])
+    HP_CUSTOM_CONVERTER(type, type, [HIPPY_DEBUG ? [self NSNumber:json] : json getter])
 
 /**
  * This macro is used for creating converters for enum types.

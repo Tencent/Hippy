@@ -328,7 +328,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
             };
         }
 
-        if (HP_DEBUG) {
+        if (HIPPY_DEBUG) {
             // Provide more useful log feedback if there's an error
             NativeRenderPropBlock unwrappedBlock = propBlock;
             propBlock = ^(id<NativeRenderComponentProtocol> view, id json) {

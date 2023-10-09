@@ -38,7 +38,7 @@ const char *HPLogLevels[] = {
     "fatal",
 };
 
-#if HP_DEBUG
+#if HIPPY_DEBUG
 HPLogLevel HPDefaultLogThreshold = HPLogLevelTrace;
 #else
 HPLogLevel HPDefaultLogThreshold = HPLogLevelError;
@@ -157,7 +157,7 @@ NSString *HPFormatLog(NSDate *timestamp, HPLogLevel level, NSString *fileName, N
 
 void HPLogNativeInternal(HPLogLevel level, const char *fileName, int lineNumber, NSDictionary *userInfo, NSString *format, ...) {
     HPLogFunction logFunction = HPGetLogFunction();
-    BOOL log = HP_DEBUG || (logFunction != nil);
+    BOOL log = HIPPY_DEBUG || (logFunction != nil);
     if (log && level >= HPGetLogThreshold()) {
         // Get message
         va_list args;
@@ -165,7 +165,7 @@ void HPLogNativeInternal(HPLogLevel level, const char *fileName, int lineNumber,
         NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
         va_end(args);
         NSArray<NSDictionary *> *callStacks = nil;
-#if HP_DEBUG
+#if HIPPY_DEBUG
         if (level >= HPLOG_REDBOX_LEVEL) {
             NSArray<NSString *> *stackSymbols = [NSThread callStackSymbols];
             NSMutableArray<NSDictionary *> *stack = [NSMutableArray arrayWithCapacity:(stackSymbols.count - 1)];

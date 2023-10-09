@@ -26,11 +26,11 @@
 #import "HippyWebSocketProxy.h"
 #import "HPAsserts.h"
 #import "HPToolUtils.h"
-#import "MacroDefines.h"
+#import "HippyDefines.h"
 
 #include <objc/runtime.h>
 
-#if HP_DEV
+#if HIPPY_DEV
 
 static NSString *const HippyShowDevMenuNotification = @"HippyShowDevMenuNotification";
 static NSString *const HippyDevMenuSettingsKey = @"HippyDevMenu";
@@ -289,7 +289,7 @@ HIPPY_EXPORT_METHOD(show) {
 @implementation HippyBridge (HippyDevMenu)
 
 - (HippyDevMenu *)devMenu {
-#if HP_DEV
+#if HIPPY_DEV
     return [self moduleForClass:[HippyDevMenu class]];
 #else
     return nil;

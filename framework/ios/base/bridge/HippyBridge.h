@@ -28,7 +28,7 @@
 #import "HippyModulesSetup.h"
 #import "HPImageProviderProtocol.h"
 #import "HippyInvalidating.h"
-#import "MacroDefines.h"
+#import "HippyDefines.h"
 
 #include <memory>
 
@@ -50,23 +50,23 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Indicate hippy sdk version
  */
-HP_EXTERN NSString *const HippySDKVersion;
+HIPPY_EXTERN NSString *const HippySDKVersion;
 /**
  * This notification triggers a reload of all bridges currently running.
  * Deprecated, use HippyBridge::requestReload instead.
  */
-HP_EXTERN NSString *const HippyReloadNotification;
+HIPPY_EXTERN NSString *const HippyReloadNotification;
 
 /**
  * This notification fires when the bridge has finished loading the JS bundle.
  */
-HP_EXTERN NSString *const HippyJavaScriptDidLoadNotification;
+HIPPY_EXTERN NSString *const HippyJavaScriptDidLoadNotification;
 
 /**
  * This notification fires when the bridge failed to load the JS bundle. The
  * `error` key can be used to determine the error that occured.
  */
-HP_EXTERN NSString *const HippyJavaScriptDidFailToLoadNotification;
+HIPPY_EXTERN NSString *const HippyJavaScriptDidFailToLoadNotification;
 
 /**
  * This notification fires each time a native module is instantiated. The
@@ -74,12 +74,12 @@ HP_EXTERN NSString *const HippyJavaScriptDidFailToLoadNotification;
  * Note that this notification may be fired before the module is available via
  * the `[bridge moduleForClass:]` method.
  */
-HP_EXTERN NSString *const HippyDidInitializeModuleNotification;
+HIPPY_EXTERN NSString *const HippyDidInitializeModuleNotification;
 
 /**
  * This function returns the module name for a given class.
  */
-HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
+HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 /**
  * Async batched bridge used to communicate with the JavaScript application.
@@ -225,7 +225,7 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (BOOL)moduleIsInitialized:(Class)moduleClass;
 
 /** A red box will show when error occurs by default
- *  only work on HP_DEBUG mode
+ *  only work on HIPPY_DEBUG mode
  */
 - (void)setRedBoxShowEnabled:(BOOL)enabled;
 
@@ -296,8 +296,8 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 @end
 
 
-HP_EXTERN void HippyBridgeFatal(NSError *, HippyBridge *);
+HIPPY_EXTERN void HippyBridgeFatal(NSError *, HippyBridge *);
 
-HP_EXTERN void HippyBridgeHandleException(NSException *exception, HippyBridge *bridge);
+HIPPY_EXTERN void HippyBridgeHandleException(NSException *exception, HippyBridge *bridge);
 
 NS_ASSUME_NONNULL_END

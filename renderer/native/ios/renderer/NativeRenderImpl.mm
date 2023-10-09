@@ -65,7 +65,7 @@ NSArray<Class> *NativeRenderGetViewManagerClasses(void) {
     return NativeRenderViewManagerClasses;
 }
 
-HP_EXTERN void NativeRenderRegisterView(Class);
+HIPPY_EXTERN void NativeRenderRegisterView(Class);
 void NativeRenderRegisterView(Class moduleClass) {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -319,7 +319,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     NSNumber *componentTag = rootView.componentTag;
     NSAssert(NativeRenderIsRootView(componentTag), @"View %@ with tag #%@ is not a root view", rootView, componentTag);
 
-#if HP_DEBUG
+#if HIPPY_DEBUG
     NSAssert(![_viewRegistry containRootComponentWithTag:componentTag], @"RootView Tag already exists. Added %@ twice", componentTag);
 #endif
     // Register view
@@ -719,7 +719,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     if (!strongRootNode) {
         return;
     }
-#if HP_DEBUG
+#if HIPPY_DEBUG
     auto &nodeMap = _domNodesMap[strongRootNode->GetId()];
     for (auto node : nodes) {
         nodeMap[node->GetId()] = node;
@@ -781,7 +781,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     if (!strongRootNode) {
         return;
     }
-#if HP_DEBUG
+#if HIPPY_DEBUG
     auto &nodeMap = _domNodesMap[strongRootNode->GetId()];
     for (auto node : nodes) {
         nodeMap[node->GetId()] = node;
@@ -813,7 +813,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     if (!strongRootNode) {
         return;
     }
-#if HP_DEBUG
+#if HIPPY_DEBUG
     auto &nodeMap = _domNodesMap[strongRootNode->GetId()];
     for (auto node : nodes) {
         nodeMap[node->GetId()] = nullptr;
@@ -1516,7 +1516,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 }
 
 #pragma mark Debug Methods
-#if HP_DEBUG
+#if HIPPY_DEBUG
 - (std::shared_ptr<hippy::DomNode>)domNodeForTag:(int32_t)dom_tag onRootNode:(int32_t)root_tag {
     auto find = _domNodesMap.find(root_tag);
     if (_domNodesMap.end() == find) {

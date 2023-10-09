@@ -93,7 +93,7 @@
         // so ModuleData needs to be valid
         if (!_setupComplete) {
             if (!_instance) {
-                if (HP_DEBUG && _requiresMainQueueSetup) {
+                if (HIPPY_DEBUG && _requiresMainQueueSetup) {
                     HPAssertMainQueue();
                 }
                 _instance = [_moduleClass new];

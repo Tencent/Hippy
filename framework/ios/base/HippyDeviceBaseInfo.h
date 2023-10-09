@@ -25,7 +25,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-HP_EXTERN NSDictionary *HippyExportedDimensions(void);
+HIPPY_EXTERN NSDictionary *HippyExportedDimensions(void);
 
 @interface HippyDeviceBaseInfo : NSObject <HippyBridgeModule>
 

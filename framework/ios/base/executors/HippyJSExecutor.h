@@ -22,10 +22,16 @@
 
 #import "HippyBridgeModule.h"
 #import "HippyDefines.h"
-#import "MacroDefines.h"
+#import "HippyDefines.h"
 #import "HippyInvalidating.h"
-
 #include <memory>
+
+
+/**
+ * Block that when js script execution completion
+ */
+typedef void (^HippyJavaScriptCallback)(id result, NSError *error);
+
 
 namespace hippy {
 inline namespace driver {
@@ -52,7 +58,7 @@ typedef void (^HippyContextCreatedBlock)(id<HippyContextWrapper>);
 /**
  * Default name for the JS thread
  */
-HP_EXTERN NSString *const HippyJSCThreadName;
+HIPPY_EXTERN NSString *const HippyJSCThreadName;
 
 /**
  * Uses a JavaScriptCore context as the execution engine.

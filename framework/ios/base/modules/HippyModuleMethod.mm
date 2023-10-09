@@ -194,7 +194,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
 
     __weak HippyModuleMethod *weakSelf = self;
     void (^addBlockArgument)(void) = ^{
-        HIPPY_ARG_BLOCK(if (HP_DEBUG && json && ![json isKindOfClass:[NSNumber class]]) {
+        HIPPY_ARG_BLOCK(if (HIPPY_DEBUG && json && ![json isKindOfClass:[NSNumber class]]) {
             HPLogArgumentError(weakSelf, index, json, "should be a function");
             return NO;
         }
@@ -301,7 +301,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
         } else if ([typeName isEqualToString:@"HippyResponseErrorBlock"]) {
             HIPPY_ARG_BLOCK(
 
-                if (HP_DEBUG && json && ![json isKindOfClass:[NSNumber class]]) {
+                if (HIPPY_DEBUG && json && ![json isKindOfClass:[NSNumber class]]) {
                     HPLogArgumentError(weakSelf, index, json, "should be a function");
                     return NO;
                 }
@@ -328,7 +328,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
                 });)
         } else if ([typeName isEqualToString:@"HippyPromiseResolveBlock"]) {
             HPAssert(i == numberOfArguments - 2, @"The HippyPromiseResolveBlock must be the second to last parameter in -[%@ %@]", _moduleClass, _methodSignature);
-            HIPPY_ARG_BLOCK(if (HP_DEBUG && ![json isKindOfClass:[NSNumber class]]) {
+            HIPPY_ARG_BLOCK(if (HIPPY_DEBUG && ![json isKindOfClass:[NSNumber class]]) {
                 HPLogArgumentError(weakSelf, index, json, "should be a promise resolver function");
                 return NO;
             }
@@ -356,7 +356,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
         } else if ([typeName isEqualToString:@"HippyPromiseRejectBlock"]) {
             HPAssert(
                 i == numberOfArguments - 1, @"The HippyPromiseRejectBlock must be the last parameter in -[%@ %@]", _moduleClass, _methodSignature);
-            HIPPY_ARG_BLOCK(if (HP_DEBUG && ![json isKindOfClass:[NSNumber class]]) {
+            HIPPY_ARG_BLOCK(if (HIPPY_DEBUG && ![json isKindOfClass:[NSNumber class]]) {
                 HPLogArgumentError(weakSelf, index, json, "should be a promise rejecter function");
                 return NO;
             }
@@ -395,7 +395,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
                 typeName, [self methodName]);
         }
 
-        if (HP_DEBUG) {
+        if (HIPPY_DEBUG) {
             HippyNullability nullability = argument.nullability;
             if (!isNullableType) {
                 if (nullability == HippyNullable) {
@@ -492,7 +492,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
     if (_argumentBlocks == nil) {
         [self processMethodSignature];
     }
-    if (HP_DEBUG) {
+    if (HIPPY_DEBUG) {
         // Sanity check
         HPAssert([module class] == _moduleClass, @"Attempted to invoke method \
                   %@ on a module of class %@", [self methodName], [module class]);

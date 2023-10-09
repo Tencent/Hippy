@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "MacroDefines.h"
+#import "HippyDefines.h"
 #import "HippyWebSocketManager.h"
 #import "HPConvert.h"
 #import "HPToolUtils.h"

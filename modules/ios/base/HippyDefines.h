@@ -28,45 +28,41 @@
  * Make global functions usable in C++
  */
 #if defined(__cplusplus)
-#define HP_EXTERN extern "C" __attribute__((visibility("default")))
+#define HIPPY_EXTERN extern "C" __attribute__((visibility("default")))
 #else
-#define HP_EXTERN extern __attribute__((visibility("default")))
+#define HIPPY_EXTERN extern __attribute__((visibility("default")))
 #endif
 
 /**
- * The HP_DEBUG macro can be used to exclude error checking and logging code
+ * The HIPPY_DEBUG macro can be used to exclude error checking and logging code
  * from release builds to improve performance and reduce binary size.
  */
-#ifndef HP_DEBUG
+#ifndef HIPPY_DEBUG
 #ifdef DEBUG
-#define HP_DEBUG 1
+#define HIPPY_DEBUG 1
 #else
-#define HP_DEBUG 0
+#define HIPPY_DEBUG 0
 #endif  //#ifdef DEBUG
-#endif  //#ifndef HP_DEBUG
+#endif  //#ifndef HIPPY_DEBUG
 
 /**
- * The HP_DEV macro can be used to enable or disable development tools
+ * The HIPPY_DEV macro can be used to enable or disable development tools
  * such as the debug executors, dev menu, red box, etc.
  */
-#ifndef HP_DEV
+#ifndef HIPPY_DEV
 #ifdef DEBUG
-#define HP_DEV 1
+#define HIPPY_DEV 1
 #else
-#define HP_DEV 0
+#define HIPPY_DEV 0
 #endif //#ifdef DEBUG
-#endif //#ifndef HP_DEV
-
-#ifndef HP_NSASSERT
-#define HP_NSASSERT HP_DEBUG
-#endif //#ifndef HIPPY_NSASSERT
+#endif //#ifndef HIPPY_DEV
 
 /**
  * Concat two literals. Supports macro expansions,
- * e.g. HP_CONCAT(foo, __FILE__).
+ * e.g. HIPPY_CONCAT(foo, __FILE__).
  */
-#define HP_CONCAT2(A, B) A##B
-#define HP_CONCAT(A, B) HP_CONCAT2(A, B)
+#define HIPPY_CONCAT2(A, B) A##B
+#define HIPPY_CONCAT(A, B) HIPPY_CONCAT2(A, B)
 
 #define kRootViewDidAddContent @"RootViewDidAddContent"
 #define kRootViewKey @"RootViewKey"

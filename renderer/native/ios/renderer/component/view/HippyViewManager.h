@@ -115,8 +115,8 @@
 #define NATIVE_RENDER_COMPONENT_EXPORT_METHOD(method_name) NATIVE_RENDER_COMPONENT_REMAP_METHOD(, method_name)
 
 #define NATIVE_RENDER_COMPONENT_REMAP_METHOD(js_name, method_name)      \
-    +(NSArray<NSString *> *)HP_CONCAT(__render_export__,                \
-        HP_CONCAT(js_name, HP_CONCAT(__LINE__, __COUNTER__))) {         \
+    +(NSArray<NSString *> *)HIPPY_CONCAT(__render_export__,                \
+        HIPPY_CONCAT(js_name, HIPPY_CONCAT(__LINE__, __COUNTER__))) {         \
         return @[@#js_name, @#method_name];                             \
     }                                                                   \
     -(void)method_name

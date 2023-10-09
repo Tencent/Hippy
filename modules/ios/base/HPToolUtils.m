@@ -251,7 +251,7 @@ static void HPGetRGBAColorComponents(CGColorRef color, CGFloat rgba[4]) {
         case kCGColorSpaceModelLab:
         case kCGColorSpaceModelPattern:
         case kCGColorSpaceModelUnknown: {
-#if HP_DEBUG
+#if HIPPY_DEBUG
             // unsupported format
             HPLogError(@"Unsupported color model: %i", model);
 #endif

@@ -91,7 +91,7 @@ NSString *HPParseType(const char **input) {
             if ([type isEqualToString:@"NSDictionary"]) {
                 // Dictionaries have both a key *and* value type, but the key type has
                 // to be a string for JSON, so we only care about the value type
-                if (HP_DEBUG && ![subtype isEqualToString:@"NSString"]) {
+                if (HIPPY_DEBUG && ![subtype isEqualToString:@"NSString"]) {
                     HPLogError(@"%@ is not a valid key type for a JSON dictionary", subtype);
                 }
                 HPParseSkipWhitespace(input);

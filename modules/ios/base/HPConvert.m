@@ -42,7 +42,7 @@ HP_NUMBER_CONVERTER(NSUInteger, unsignedIntegerValue)
  * This macro is used for creating converter functions for directly
  * representable json values that require no conversion.
  */
-#if HP_DEBUG
+#if HIPPY_DEBUG
 #define HP_JSON_CONVERTER(type)                  \
     +(type *)type : (id)json {                              \
         if ([json isKindOfClass:[type class]]) {            \
@@ -80,7 +80,7 @@ HP_CUSTOM_CONVERTER(NSSet *, NSSet, [NSSet setWithArray:json])
     NSMutableIndexSet *indexSet = [NSMutableIndexSet new];
     for (NSNumber *number in json) {
         NSInteger index = number.integerValue;
-        if (HP_DEBUG && index < 0) {
+        if (HIPPY_DEBUG && index < 0) {
             HPLogError(@"Invalid index value %ld. Indices must be positive.", (long)index);
         }
         [indexSet addIndex:index];
@@ -234,11 +234,11 @@ NSNumber *HPConvertEnumValue(__unused const char *typeName, NSDictionary *mappin
         HPLogError(@"Invalid %s '%@'. should be one of: %@", typeName, json, allValues);
         return defaultValue;
     }
-    if (HP_DEBUG && ![json isKindOfClass:[NSString class]]) {
+    if (HIPPY_DEBUG && ![json isKindOfClass:[NSString class]]) {
         HPLogError(@"Expected NSNumber or NSString for %s, received %@: %@", typeName, [json classForCoder], json);
     }
     id value = mapping[json];
-    if (HP_DEBUG && !value && [json description].length > 0) {
+    if (HIPPY_DEBUG && !value && [json description].length > 0) {
         HPLogError(@"Invalid %s '%@'. should be one of: %@", typeName, json,
             [[mapping allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)]);
     }
@@ -391,7 +391,7 @@ UIBarStyleDefault, integerValue)
 static void HPConvertCGStructValue(__unused const char *type, NSArray *fields, NSDictionary *aliases, CGFloat *result, id json) {
     NSUInteger count = fields.count;
     if ([json isKindOfClass:[NSArray class]]) {
-        if (HP_DEBUG && [json count] != count) {
+        if (HIPPY_DEBUG && [json count] != count) {
             HPLogError(@"Expected array with count %lu, but count is %lu: %@", (unsigned long)count, (unsigned long)[json count], json);
         } else {
             for (NSUInteger i = 0; i < count; i++) {
@@ -527,7 +527,7 @@ HP_ARRAY_CONVERTER(UIColor)
  * This macro is used for creating converter functions for directly
  * representable json array values that require no conversion.
  */
-#if HP_DEBUG
+#if HIPPY_DEBUG
 #define HP_JSON_ARRAY_CONVERTER(type) HP_ARRAY_CONVERTER(type)
 #else
 #define HP_JSON_ARRAY_CONVERTER(type)    \

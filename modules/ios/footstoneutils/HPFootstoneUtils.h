@@ -25,7 +25,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "MacroDefines.h"
+#include "HippyDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -43,17 +43,17 @@ extern footstone::string_view NSStringToU8StringView(NSString *str);
 
 extern footstone::string_view NSStringToU16StringView(NSString *string);
 
-HP_EXTERN NSString *StringViewToNSString(const footstone::string_view &view);
+HIPPY_EXTERN NSString *StringViewToNSString(const footstone::string_view &view);
 
-HP_EXTERN NSURL *StringViewToNSURL(const footstone::string_view &uri);
+HIPPY_EXTERN NSURL *StringViewToNSURL(const footstone::string_view &uri);
 
 extern footstone::value::HippyValue OCTypeToDomValue(id value);
 
 //footstone::hippyValue
-HP_EXTERN id DomValueToOCType(const footstone::value::HippyValue *const pDomValue);
+HIPPY_EXTERN id DomValueToOCType(const footstone::value::HippyValue *const pDomValue);
 
-HP_EXTERN NSDictionary *UnorderedMapDomValueToDictionary(const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>> &domValuesObject);
+HIPPY_EXTERN NSDictionary *UnorderedMapDomValueToDictionary(const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>> &domValuesObject);
 
-HP_EXTERN NSNumber *DomValueToNumber(const footstone::value::HippyValue *const pDomValue);
+HIPPY_EXTERN NSNumber *DomValueToNumber(const footstone::value::HippyValue *const pDomValue);
 
 NS_ASSUME_NONNULL_END

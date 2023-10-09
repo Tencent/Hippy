@@ -39,7 +39,7 @@ NSArray<Class> *HippyGetModuleClasses(void) {
  * Register the given class as a bridge module. All modules must be registered
  * prior to the first bridge initialization.
  */
-HP_EXTERN void HippyRegisterModule(Class);
+HIPPY_EXTERN void HippyRegisterModule(Class);
 void HippyRegisterModule(Class moduleClass) {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -56,7 +56,7 @@ void HippyRegisterModule(Class moduleClass) {
  * This function returns the module name for a given class.
  */
 NSString *HippyBridgeModuleNameForClass(Class cls) {
-#if HP_DEBUG
+#if HIPPY_DEBUG
     HPAssert([cls conformsToProtocol:@protocol(HippyBridgeModule)] || [cls conformsToProtocol:@protocol(HippyTurboModule)],
                 @"Bridge module `%@` does not conform to HippyBridgeModule or HippyTurboModule", cls);
 #endif
@@ -80,7 +80,7 @@ NSString *HippyBridgeModuleNameForClass(Class cls) {
     return name;
 }
 
-#if HP_DEBUG
+#if HIPPY_DEBUG
 void HippyVerifyAllModulesExported(NSArray *extraModules) {
     // Check for unexported modules
     unsigned int classCount;
@@ -158,12 +158,12 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
 - (void)setupModulesCompletion:(dispatch_block_t)completion {
     HPLogInfo(@"Begin Modules Setup");
     NSArray<id<HippyBridgeModule>> *extraModules = _providerBlock ? _providerBlock() : @[];
-#if HP_DEBUG
+#if HIPPY_DEBUG
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         HippyVerifyAllModulesExported(extraModules);
     });
-#endif //HP_DEBUG
+#endif //HIPPY_DEBUG
     NSMutableArray<Class> *moduleClassesByID = [NSMutableArray new];
     NSMutableArray<HippyModuleData *> *moduleDataByID = [NSMutableArray new];
     NSMutableDictionary<NSString *, HippyModuleData *> *moduleDataByName = [NSMutableDictionary new];
@@ -171,7 +171,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
     for (id<HippyBridgeModule> module in extraModules) {
         Class moduleClass = [module class];
         NSString *moduleName = HippyBridgeModuleNameForClass(moduleClass);
-        if (HP_DEBUG) {
+        if (HIPPY_DEBUG) {
             // Check for name collisions between preregistered modules
             HippyModuleData *moduleData = moduleDataByName[moduleName];
             if (moduleData) {

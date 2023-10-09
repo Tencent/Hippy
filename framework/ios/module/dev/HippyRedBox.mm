@@ -31,9 +31,9 @@
 #import "HPLog.h"
 #import "HPToolUtils.h"
 
-#import "MacroDefines.h"
+#import "HippyDefines.h"
 
-#if HP_DEBUG
+#if HIPPY_DEBUG
 
 @class HippyRedBoxWindow;
 

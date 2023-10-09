@@ -86,7 +86,7 @@ typedef struct _CanvasInfo {
 
 @end
 
-HP_EXTERN void NativeRenderDrawLinearGradientInContext(NativeRenderGradientObject *object, CGContextRef context, CanvasInfo canvasInfo);
-HP_EXTERN void NativeRenderDrawRadialGradientInContext(NativeRenderGradientObject *object, CGContextRef context, CGSize);
+HIPPY_EXTERN void NativeRenderDrawLinearGradientInContext(NativeRenderGradientObject *object, CGContextRef context, CanvasInfo canvasInfo);
+HIPPY_EXTERN void NativeRenderDrawRadialGradientInContext(NativeRenderGradientObject *object, CGContextRef context, CGSize);
 
 NS_ASSUME_NONNULL_END

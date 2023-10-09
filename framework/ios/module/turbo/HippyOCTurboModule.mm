@@ -118,7 +118,7 @@ HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
         }
     }
 
-    if (HP_DEBUG && !method) {
+    if (HIPPY_DEBUG && !method) {
         HPLogError(@"Unknown methodID: %@ for module:%@", methodName, obj);
         return nil;
     }

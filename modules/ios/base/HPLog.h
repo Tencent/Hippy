@@ -22,7 +22,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "MacroDefines.h"
+#import "HippyDefines.h"
 
 #ifndef HP_LOG_ENABLED
 #ifdef DEBUG
@@ -77,7 +77,7 @@ typedef void (^HPLogShowFunction)(NSString *message, NSArray<NSDictionary *> *st
  * A method to generate a string from a collection of log data. To omit any
  * particular data from the log, just pass nil or zero for the argument.
  */
-HP_EXTERN NSString *HPFormatLog(NSDate *timestamp, HPLogLevel level, NSString *fileName, NSNumber *lineNumber, NSString *message);
+HIPPY_EXTERN NSString *HPFormatLog(NSDate *timestamp, HPLogLevel level, NSString *fileName, NSNumber *lineNumber, NSString *message);
 
 /**
  * The default logging function used by HPLogXX.
@@ -89,37 +89,37 @@ extern HPLogFunction HPDefaultLogFunction;
  * below which logs will be ignored. Default is HPLogLevelInfo for debug and
  * HPLogLevelError for production.
  */
-HP_EXTERN void HPSetLogThreshold(HPLogLevel threshold);
-HP_EXTERN HPLogLevel HPGetLogThreshold(void);
+HIPPY_EXTERN void HPSetLogThreshold(HPLogLevel threshold);
+HIPPY_EXTERN HPLogLevel HPGetLogThreshold(void);
 
 /**
  * These methods get and set the global logging function called by the HPLogXX
  * macros. You can use these to replace the standard behavior with custom log
  * functionality.
  */
-HP_EXTERN void HPSetLogFunction(HPLogFunction logFunction);
-HP_EXTERN HPLogFunction HPGetLogFunction(void);
+HIPPY_EXTERN void HPSetLogFunction(HPLogFunction logFunction);
+HIPPY_EXTERN HPLogFunction HPGetLogFunction(void);
 
 /**
  * This appends additional code to the existing log function, without replacing
  * the existing functionality. Useful if you just want to forward logs to an
  * extra service without changing the default behavior.
  */
-HP_EXTERN void HPAddLogFunction(HPLogFunction logFunction);
+HIPPY_EXTERN void HPAddLogFunction(HPLogFunction logFunction);
 
 /**
  * This method temporarily overrides the log function while performing the
  * specified block. This is useful for testing purposes (to detect if a given
  * function logs something) or to suppress or override logging temporarily.
  */
-HP_EXTERN void HPPerformBlockWithLogFunction(void (^block)(void), HPLogFunction logFunction);
+HIPPY_EXTERN void HPPerformBlockWithLogFunction(void (^block)(void), HPLogFunction logFunction);
 
 /**
  * This method adds a conditional prefix to any messages logged within the scope
  * of the passed block. This is useful for adding additional context to log
  * messages. The block will be performed synchronously on the current thread.
  */
-HP_EXTERN void HPPerformBlockWithLogPrefix(void (^block)(void), NSString *prefix);
+HIPPY_EXTERN void HPPerformBlockWithLogPrefix(void (^block)(void), NSString *prefix);
 
 /**
  * Private logging function - ignore this.
@@ -132,5 +132,5 @@ HP_EXTERN void HPPerformBlockWithLogPrefix(void (^block)(void), NSString *prefix
     } while (0)
 #endif
 
-HP_EXTERN void HPLogNativeInternal(HPLogLevel, const char *, int, NSDictionary *, NSString *, ...) NS_FORMAT_FUNCTION(5, 6);
+HIPPY_EXTERN void HPLogNativeInternal(HPLogLevel, const char *, int, NSDictionary *, NSString *, ...) NS_FORMAT_FUNCTION(5, 6);
 

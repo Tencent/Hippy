@@ -23,10 +23,10 @@
 #import "HippyKeyCommands.h"
 #import <UIKit/UIKit.h>
 #import "HPAsserts.h"
-#import "MacroDefines.h"
+#import "HippyDefines.h"
 #import "HPToolUtils.h"
 
-#if HP_DEV
+#if HIPPY_DEV
 
 static BOOL HippyIsIOS8OrEarlier() {
     return [UIDevice currentDevice].systemVersion.floatValue < 9;

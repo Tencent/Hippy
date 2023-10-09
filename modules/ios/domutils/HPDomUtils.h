@@ -23,7 +23,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "MacroDefines.h"
+#import "HippyDefines.h"
 
 #include <memory>
 
@@ -36,14 +36,14 @@ class DomNode;
 
 NS_ASSUME_NONNULL_BEGIN
 
-HP_EXTERN CGRect CGRectMakeFromLayoutResult(hippy::LayoutResult result);
+HIPPY_EXTERN CGRect CGRectMakeFromLayoutResult(hippy::LayoutResult result);
 
-HP_EXTERN UIEdgeInsets UIEdgeInsetsFromLayoutResult(hippy::LayoutResult result);
+HIPPY_EXTERN UIEdgeInsets UIEdgeInsetsFromLayoutResult(hippy::LayoutResult result);
 
-HP_EXTERN CGSize CGSizeMakeFromLayoutResult(hippy::LayoutResult result);
+HIPPY_EXTERN CGSize CGSizeMakeFromLayoutResult(hippy::LayoutResult result);
 
-HP_EXTERN CGRect CGRectMakeFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode);
+HIPPY_EXTERN CGRect CGRectMakeFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode);
 
-HP_EXTERN NSDictionary *StylesFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode);
+HIPPY_EXTERN NSDictionary *StylesFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode);
 
 NS_ASSUME_NONNULL_END

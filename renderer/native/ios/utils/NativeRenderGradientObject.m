@@ -355,7 +355,7 @@ void NativeRenderDrawLinearGradientInContext(NativeRenderGradientObject *object,
     CGContextRestoreGState(context);
 }
 
-HP_EXTERN void NativeRenderDrawRadialGradientInContext(NativeRenderGradientObject *object, CGContextRef context, CGSize size) {
+HIPPY_EXTERN void NativeRenderDrawRadialGradientInContext(NativeRenderGradientObject *object, CGContextRef context, CGSize size) {
     NSCAssert(context, @"context cannot be null for drawing radial gradient");
     NSCAssert(NO, @"NativeRenderDrawRadialGradientInContext not implemented");
 }
