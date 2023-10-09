@@ -27,7 +27,7 @@
 #import "HippyJSExecutor.h"
 #import "HippyAsserts.h"
 #import "HippyLog.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 #import "NSObject+CtxValue.h"
 #import "NSObject+HippyTurbo.h"
 
@@ -134,7 +134,7 @@ HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
 
         NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on target %@ with params %@", exception,
                                       method.JSMethodName, NSStringFromClass([self class]) ,argumentArray];
-        NSError *error = HPErrorWithMessageAndModuleName(message, self.bridge.moduleName);
+        NSError *error = HippyErrorWithMessageAndModuleName(message, self.bridge.moduleName);
         HippyBridgeFatal(error, self.bridge);
         return nil;
     }

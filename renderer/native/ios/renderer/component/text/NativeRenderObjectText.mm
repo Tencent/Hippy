@@ -22,7 +22,7 @@
 
 #import "HippyConvert.h"
 #import "HippyI18nUtils.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 #import "NativeRenderFont.h"
 #import "NativeRenderObjectText.h"
 #import "NativeRenderText.h"

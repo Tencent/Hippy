@@ -24,7 +24,7 @@
 #import "HippyConvert.h"
 #import "HippyConvert+NativeRender.h"
 #import "HPImageProviderProtocol.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 #import "NativeRenderGradientObject.h"
 #import "NativeRenderImpl.h"
 #import "NativeRenderObjectView.h"

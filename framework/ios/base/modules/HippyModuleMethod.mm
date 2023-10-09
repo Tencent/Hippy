@@ -28,7 +28,7 @@
 #import "HippyConvert.h"
 #import "HippyLog.h"
 #import "HippyParserUtils.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 
 #include <objc/message.h>
 
@@ -527,7 +527,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
             break;
         }
         HippyArgumentBlock block = _argumentBlocks[index];
-        if (!block(bridge, index, HPNilIfNull(json))) {
+        if (!block(bridge, index, HippyNilIfNull(json))) {
             // Invalid argument, abort
             HippyLogArgumentError(self, index, json, "could not be processed. Aborting method call.");
             return nil;

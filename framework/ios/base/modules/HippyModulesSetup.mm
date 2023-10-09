@@ -26,7 +26,7 @@
 #import "HippyModulesSetup.h"
 #import "HippyTurboModule.h"
 #import "HippyLog.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 
 #include "objc/runtime.h"
 
@@ -241,7 +241,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
                 (void)[moduleData instance];
                 [moduleData gatherConstants];
             };
-            if (HPIsMainQueue()) {
+            if (HippyIsMainQueue()) {
                 block();
             } else {
                 dispatch_async(dispatch_get_main_queue(), block);

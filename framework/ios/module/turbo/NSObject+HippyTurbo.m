@@ -22,7 +22,7 @@
 
 #import "HippyModuleMethod.h"
 #import "HippyAsserts.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 #import "NSObject+HippyTurbo.h"
 
 #include <objc/message.h>

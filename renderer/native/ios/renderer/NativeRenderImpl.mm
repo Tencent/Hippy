@@ -26,7 +26,7 @@
 #import "HPOCToDomArgument.h"
 #import "HPOCToHippyValue.h"
 #import "HPImageProviderProtocol.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 #import "NativeRenderComponentProtocol.h"
 #import "NativeRenderComponentData.h"
 #import "NativeRenderComponentMap.h"
@@ -153,7 +153,7 @@ static void NativeRenderTraverseViewNodes(id<NativeRenderComponentProtocol> view
     }
 }
 
-#define AssertMainQueue() NSAssert(HPIsMainQueue(), @"This function must be called on the main thread")
+#define AssertMainQueue() NSAssert(HippyIsMainQueue(), @"This function must be called on the main thread")
 
 NSString *const NativeRenderUIManagerDidRegisterRootViewNotification = @"NativeRenderUIManagerDidRegisterRootViewNotification";
 NSString *const NativeRenderUIManagerRootViewTagKey = @"NativeRenderUIManagerRootViewKey";
@@ -1054,7 +1054,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         return nil;
     } @catch (NSException *exception) {
         NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on component target %@ with params %@", exception, name, nativeModuleName, finalParams];
-        NSError *error = HPErrorWithMessage(message);
+        NSError *error = HippyErrorWithMessage(message);
         HippyFatal(error);
         return nil;
     }

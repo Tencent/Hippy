@@ -24,8 +24,8 @@
 #import <Foundation/Foundation.h>
 #endif
 #import "HippyDefines.h"
-#import "HippyDriverStackFrame.h"
-#import "HPToolUtils.h"
+#import "HippyJSStackFrame.h"
+#import "HippyUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -109,12 +109,12 @@ typedef void (^HippyExceptionHandler)(NSException *e);
 /**
  * Convenience macro for asserting that we're running on main queue.
  */
-#define HippyAssertMainQueue() HippyAssert(HPIsMainQueue(), @"This function must be called on the main thread")
+#define HippyAssertMainQueue() HippyAssert(HippyIsMainQueue(), @"This function must be called on the main thread")
 
 /**
  * Convenience macro for asserting that we're running off the main queue.
  */
-#define HippyAssertNotMainQueue() HippyAssert(!HPIsMainQueue(), @"This function must not be called on the main thread")
+#define HippyAssertNotMainQueue() HippyAssert(!HippyIsMainQueue(), @"This function must not be called on the main thread")
 
 /**
  * These methods get and set the current assert function called by the HippyAssert
@@ -152,7 +152,7 @@ HIPPY_EXTERN HippyFatalHandler HippyGetFatalHandler(void);
 HIPPY_EXTERN void HippySetExceptionHandler(HippyExceptionHandler exceptionhandler);
 HIPPY_EXTERN HippyExceptionHandler HippyGetExceptionHandler(void);
 
-HIPPY_EXTERN NSString *HippyFormatError(NSString *message, NSArray<HippyDriverStackFrame *> *stackTrace, NSUInteger maxMessageLength);
+HIPPY_EXTERN NSString *HippyFormatError(NSString *message, NSArray<HippyJSStackFrame *> *stackTrace, NSUInteger maxMessageLength);
 
 /**
  * Convenience macro to assert which thread is currently running (DEBUG mode only)

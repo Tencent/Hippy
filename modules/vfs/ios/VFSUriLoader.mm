@@ -21,7 +21,7 @@
  */
 
 #import "HPFootstoneUtils.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 #import "TypeConverter.h"
 #import "VFSUriLoader.h"
 #import "VFSUriHandler.h"

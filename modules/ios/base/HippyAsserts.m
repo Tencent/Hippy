@@ -162,7 +162,7 @@ HippyExceptionHandler HippyGetExceptionHandler(void) {
     return HippyCurrentExceptionHandler;
 }
 
-NSString *HippyFormatError(NSString *message, NSArray<HippyDriverStackFrame *> *stackTrace, NSUInteger maxMessageLength) {
+NSString *HippyFormatError(NSString *message, NSArray<HippyJSStackFrame *> *stackTrace, NSUInteger maxMessageLength) {
     if (maxMessageLength > 0 && message.length > maxMessageLength) {
         message = [[message substringToIndex:maxMessageLength] stringByAppendingString:@"..."];
     }
@@ -174,7 +174,7 @@ NSString *HippyFormatError(NSString *message, NSArray<HippyDriverStackFrame *> *
         NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^(\\d+\\.js)$"
                                                                                options:NSRegularExpressionCaseInsensitive
                                                                                  error:NULL];
-        for (HippyDriverStackFrame *frame in stackTrace) {
+        for (HippyJSStackFrame *frame in stackTrace) {
             NSString *fileName = frame.file;
             if (fileName && [regex numberOfMatchesInString:fileName options:0 range:NSMakeRange(0, [fileName length])]) {
                 fileName = [fileName stringByAppendingString:@":"];

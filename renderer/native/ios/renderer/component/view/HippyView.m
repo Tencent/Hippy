@@ -21,7 +21,7 @@
  */
 
 #import "HippyConvert.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 #import "NativeRenderBorderDrawing.h"
 #import "NativeRenderGradientObject.h"
 #import "HippyView.h"
@@ -148,10 +148,10 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
 
     // Get scale factors required to prevent radii from overlapping
     const CGSize size = self.bounds.size;
-    const CGFloat topScaleFactor = HPZeroIfNaN(MIN(1, size.width / (topLeftRadius + topRightRadius)));
-    const CGFloat bottomScaleFactor = HPZeroIfNaN(MIN(1, size.width / (bottomLeftRadius + bottomRightRadius)));
-    const CGFloat rightScaleFactor = HPZeroIfNaN(MIN(1, size.height / (topRightRadius + bottomRightRadius)));
-    const CGFloat leftScaleFactor = HPZeroIfNaN(MIN(1, size.height / (topLeftRadius + bottomLeftRadius)));
+    const CGFloat topScaleFactor = HippyZeroIfNaN(MIN(1, size.width / (topLeftRadius + topRightRadius)));
+    const CGFloat bottomScaleFactor = HippyZeroIfNaN(MIN(1, size.width / (bottomLeftRadius + bottomRightRadius)));
+    const CGFloat rightScaleFactor = HippyZeroIfNaN(MIN(1, size.height / (topRightRadius + bottomRightRadius)));
+    const CGFloat leftScaleFactor = HippyZeroIfNaN(MIN(1, size.height / (topLeftRadius + bottomLeftRadius)));
 
     // Return scaled radii
     return (NativeRenderCornerRadii) {
@@ -245,7 +245,7 @@ void NativeRenderBoarderColorsRelease(NativeRenderBorderColors c) {
     const NativeRenderBorderColors borderColors = [self borderColors];
     UIColor *backgroundColor = self.backgroundColor;
 
-    BOOL isRunningInTest = HPRunningInTestEnvironment();
+    BOOL isRunningInTest = HippyRunningInTestEnvironment();
     BOOL isCornerEqual = NativeRenderCornerRadiiAreEqual(cornerRadii);
     BOOL isBorderInsetsEqual = NativeRenderBorderInsetsAreEqual(borderInsets);
     BOOL isBorderColorsEqual = NativeRenderBorderColorsAreEqual(borderColors);

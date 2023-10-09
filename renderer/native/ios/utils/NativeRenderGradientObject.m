@@ -21,7 +21,7 @@
  */
 
 #import "HippyAsserts.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 #import "NativeRenderBorderDrawing.h"
 #import "NativeRenderGradientObject.h"
 
@@ -284,7 +284,7 @@ static LinearGradientPoints pointsFromDirection(NativeRenderGradientObject *obje
             self.locations = [locationParser computeLocations];
         } @catch (NSException *exception) {
             NSString *errorString = [NSString stringWithFormat:@"gradient parse error:%@", [exception reason]];
-            NSError *error = HPErrorWithMessageAndModuleName(errorString, nil);
+            NSError *error = HippyErrorWithMessageAndModuleName(errorString, nil);
             HippyFatal(error);
             return self;
         }

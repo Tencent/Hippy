@@ -21,7 +21,7 @@
  */
 
 #import "HippyConvert+NativeRender.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 
 @implementation HippyConvert (Transform)
 
@@ -89,7 +89,7 @@ static const NSUInteger kMatrixArrayLength = 4 * 4;
             return transform;
         }
         NSString *property = transformConfig.allKeys[0];
-        id value = HPNilIfNull(transformConfig[property]);
+        id value = HippyNilIfNull(transformConfig[property]);
         if ([property isEqualToString:@"matrix"]) {
             transform = [self CATransform3DFromMatrix:value];
 
@@ -127,9 +127,9 @@ static const NSUInteger kMatrixArrayLength = 4 * 4;
 
         } else if ([property isEqualToString:@"translate"]) {
             NSArray *array = (NSArray<NSNumber *> *)value;
-            CGFloat translateX = [HPNilIfNull(array[0]) floatValue];
-            CGFloat translateY = [HPNilIfNull(array[1]) floatValue];
-            CGFloat translateZ = array.count > 2 ? [HPNilIfNull(array[2]) floatValue] : 0;
+            CGFloat translateX = [HippyNilIfNull(array[0]) floatValue];
+            CGFloat translateY = [HippyNilIfNull(array[1]) floatValue];
+            CGFloat translateZ = array.count > 2 ? [HippyNilIfNull(array[2]) floatValue] : 0;
             transform = CATransform3DTranslate(transform, translateX, translateY, translateZ);
 
         } else if ([property isEqualToString:@"translateX"]) {

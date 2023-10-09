@@ -21,7 +21,7 @@
  */
 
 #import "HippyAsserts.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 #import "NativeRenderImageViewManager.h"
 #import "NativeRenderImageView.h"
 #import "NativeRenderImpl.h"

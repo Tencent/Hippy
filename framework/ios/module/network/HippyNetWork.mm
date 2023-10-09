@@ -27,7 +27,7 @@
 #import "HippyDefines.h"
 #import "HippyNetWork.h"
 #import "HippyAsserts.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 
 static NSStringEncoding GetStringEncodingFromURLResponse(NSURLResponse *response) {
     NSString *textEncoding = [response textEncodingName];

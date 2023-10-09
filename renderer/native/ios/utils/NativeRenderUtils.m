@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 #import "NativeRenderUtils.h"
 
 CGFloat NativeRenderScreenScale(void) {

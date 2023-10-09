@@ -24,7 +24,7 @@
 
 #import "HippyBridge+VFSLoader.h"
 #import "HippyImageLoaderModule.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 #import "HippyDefines.h"
 
 static NSString *const kImageLoaderModuleErrorDomain = @"kImageLoaderModuleErrorDomain";

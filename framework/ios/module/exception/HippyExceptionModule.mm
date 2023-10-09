@@ -24,7 +24,7 @@
 #import "HippyBridge.h"
 #import "HippyDefines.h"
 #import "HippyAsserts.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 
 @implementation HippyExceptionModule
 

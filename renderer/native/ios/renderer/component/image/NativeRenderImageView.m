@@ -23,7 +23,7 @@
 #import <Accelerate/Accelerate.h>
 
 #import "HippyAsserts.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 #import "NativeRenderImageView.h"
 #import "NativeRenderAnimatedImage.h"
 #import "UIView+MountEvent.h"
@@ -448,15 +448,15 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
             NSError *error = nil;
             UIImage *blurredImage = NativeRenderBlurredImageWithRadiusv(image, br, &error);
             if (error) {
-                NSError *finalError = HPErrorFromErrorAndModuleName(error, @"unknown");
+                NSError *finalError = HippyErrorFromErrorAndModuleName(error, @"unknown");
                 HippyFatal(finalError);
             }
-            HPExecuteOnMainQueue(^{
+            HippyExecuteOnMainQueue(^{
                 setImageBlock(blurredImage);
             });
         });
     } else {
-        HPExecuteOnMainQueue(^{
+        HippyExecuteOnMainQueue(^{
             setImageBlock(image);
         });
     }
@@ -567,7 +567,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     } else {
         //radius must be smaller than MIN(self.frame.size.width, self.frame.size.height) / 2.0
         CGFloat minOfRadius = MIN(self.frame.size.width, self.frame.size.height) / 2.0f;
-        double radius = HPZeroIfNaN(MIN(minOfRadius, _borderRadius));
+        double radius = HippyZeroIfNaN(MIN(minOfRadius, _borderRadius));
         self.layer.mask = nil;
         self.layer.cornerRadius = radius;
     }

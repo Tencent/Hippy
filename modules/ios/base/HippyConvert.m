@@ -22,7 +22,7 @@
 
 #import "HippyConvert.h"
 #import "HippyParserUtils.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 
 #include <objc/message.h>
 
@@ -96,7 +96,7 @@ HP_CUSTOM_CONVERTER(NSSet *, NSSet, [NSSet setWithArray:json])
 
     @try {  // NSURL has a history of crashing with bad input, so let's be safe
 
-        NSURL *URL = HPURLWithString(path, NULL);
+        NSURL *URL = HippyURLWithString(path, NULL);
         if (URL.scheme) {  // Was a well-formed absolute URL
             return URL;
         }
@@ -110,7 +110,7 @@ HP_CUSTOM_CONVERTER(NSSet *, NSSet, [NSSet setWithArray:json])
             CFURLRef urlRef = CFURLCreateWithBytes(NULL, (const UInt8 *)[uriData bytes], [uriData length], kCFStringEncodingUTF8, NULL);
             // bug:直接将CFURLRef转化为NSURL，如果包含有汉字字符，UIWebView载入之后，在shouldstartload中的request对应的URL会出现不正确的情况，不知道为什么。只能先转换为string，在转换为NSURL解决
             CFStringRef stringRef = CFURLGetString(urlRef);
-            URL = HPURLWithString((__bridge NSString *)stringRef, NULL);
+            URL = HippyURLWithString((__bridge NSString *)stringRef, NULL);
             CFRelease(urlRef);
             if (URL) {
                 return URL;

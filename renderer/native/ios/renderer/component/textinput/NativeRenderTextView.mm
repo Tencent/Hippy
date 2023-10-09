@@ -25,7 +25,7 @@
 #import "HippyConvert.h"
 #import "NativeRenderObjectText.h"
 #import "NativeRenderText.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 #import "NativeRenderTextSelection.h"
 #import "UIView+NativeRender.h"
 

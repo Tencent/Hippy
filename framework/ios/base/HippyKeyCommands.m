@@ -24,7 +24,7 @@
 #import <UIKit/UIKit.h>
 #import "HippyAsserts.h"
 #import "HippyDefines.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 
 #if HIPPY_DEV
 
@@ -198,12 +198,12 @@ static BOOL HippyIsIOS8OrEarlier() {
 + (void)initialize {
     if (HippyIsIOS8OrEarlier()) {
         // swizzle UIApplication
-        HPSwapInstanceMethods([UIApplication class], @selector(keyCommands), @selector(hippy_keyCommands));
+        HippySwapInstanceMethods([UIApplication class], @selector(keyCommands), @selector(hippy_keyCommands));
 
-        HPSwapInstanceMethods([UIApplication class], @selector(sendAction:to:from:forEvent:), @selector(hippy_sendAction:to:from:forEvent:));
+        HippySwapInstanceMethods([UIApplication class], @selector(sendAction:to:from:forEvent:), @selector(hippy_sendAction:to:from:forEvent:));
     } else {
         // swizzle UIResponder
-        HPSwapInstanceMethods([UIResponder class], @selector(keyCommands), @selector(hippy_keyCommands));
+        HippySwapInstanceMethods([UIResponder class], @selector(keyCommands), @selector(hippy_keyCommands));
     }
 }
 

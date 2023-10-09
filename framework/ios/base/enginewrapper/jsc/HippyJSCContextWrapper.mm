@@ -25,7 +25,7 @@
 #import "NSObject+JSValue.h"
 #import "HippyAsserts.h"
 #import "HippyJSCContextWrapper.h"
-#import "HippyDriverStackFrame.h"
+#import "HippyJSStackFrame.h"
 
 #include <memory.h>
 #include "driver/napi/jsc/jsc_ctx.h"
@@ -93,9 +93,9 @@ static BOOL IsJSValueFunction(JSValue *value) {
                     double lineNumber = JSValueToNumber(contextRef, [exception objectForKeyedSubscript:@"line"].JSValueRef, NULL);
                     double column = JSValueToNumber(contextRef, [exception objectForKeyedSubscript:@"column"].JSValueRef, NULL);
                     NSArray<NSString *> *stacksArray = [stacksString componentsSeparatedByString:@"\n"];
-                    NSMutableArray<HippyDriverStackFrame *> *stackFrames = [NSMutableArray arrayWithCapacity:[stacksArray count]];
+                    NSMutableArray<HippyJSStackFrame *> *stackFrames = [NSMutableArray arrayWithCapacity:[stacksArray count]];
                     for (NSString *line in stacksArray) {
-                        HippyDriverStackFrame *stackFrame = [[HippyDriverStackFrame alloc] initWithMethodName:line file:@"" lineNumber:lineNumber column:column];
+                        HippyJSStackFrame *stackFrame = [[HippyJSStackFrame alloc] initWithMethodName:line file:@"" lineNumber:lineNumber column:column];
                         [stackFrames addObject:stackFrame];
                     }
                     exceptionHandler(strongSelf, message, [stackFrames copy]);

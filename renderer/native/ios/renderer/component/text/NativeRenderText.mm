@@ -22,7 +22,7 @@
 
 #import "NativeRenderText.h"
 #import "NativeRenderObjectText.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 #import "UIView+NativeRender.h"
 #import "HippyLog.h"
 

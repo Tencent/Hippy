@@ -20,11 +20,11 @@
  * limitations under the License.
  */
 
-#import "HippyDriverStackFrame.h"
+#import "HippyJSStackFrame.h"
 #import "HippyLog.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 
-static NSRegularExpression *HPJSStackFrameRegex() {
+static NSRegularExpression *HippyJSStackFrameRegex(void) {
     static dispatch_once_t onceToken;
     static NSRegularExpression *_regex;
     dispatch_once(&onceToken, ^{
@@ -37,7 +37,7 @@ static NSRegularExpression *HPJSStackFrameRegex() {
     return _regex;
 }
 
-@implementation HippyDriverStackFrame
+@implementation HippyJSStackFrame
 
 - (instancetype)initWithMethodName:(NSString *)methodName file:(NSString *)file lineNumber:(NSInteger)lineNumber column:(NSInteger)column {
     if (self = [super init]) {
@@ -51,15 +51,15 @@ static NSRegularExpression *HPJSStackFrameRegex() {
 
 - (NSDictionary *)toDictionary {
     return @{
-        @"methodName": HPNullIfNil(self.methodName),
-        @"file": HPNullIfNil(self.file),
+        @"methodName": HippyNullIfNil(self.methodName),
+        @"file": HippyNullIfNil(self.file),
         @"lineNumber": @(self.lineNumber),
         @"column": @(self.column)
     };
 }
 
 + (instancetype)stackFrameWithLine:(NSString *)line {
-    NSTextCheckingResult *match = [HPJSStackFrameRegex() firstMatchInString:line options:0 range:NSMakeRange(0, line.length)];
+    NSTextCheckingResult *match = [HippyJSStackFrameRegex() firstMatchInString:line options:0 range:NSMakeRange(0, line.length)];
     if (!match) {
         return nil;
     }
@@ -77,10 +77,10 @@ static NSRegularExpression *HPJSStackFrameRegex() {
                                      column:[dict[@"column"] integerValue]];
 }
 
-+ (NSArray<HippyDriverStackFrame *> *)stackFramesWithLines:(NSString *)lines {
++ (NSArray<HippyJSStackFrame *> *)stackFramesWithLines:(NSString *)lines {
     NSMutableArray *stack = [NSMutableArray new];
     for (NSString *line in [lines componentsSeparatedByString:@"\n"]) {
-        HippyDriverStackFrame *frame = [self stackFrameWithLine:line];
+        HippyJSStackFrame *frame = [self stackFrameWithLine:line];
         if (frame) {
             [stack addObject:frame];
         }
@@ -88,10 +88,10 @@ static NSRegularExpression *HPJSStackFrameRegex() {
     return stack;
 }
 
-+ (NSArray<HippyDriverStackFrame *> *)stackFramesWithDictionaries:(NSArray<NSDictionary *> *)dicts {
++ (NSArray<HippyJSStackFrame *> *)stackFramesWithDictionaries:(NSArray<NSDictionary *> *)dicts {
     NSMutableArray *stack = [NSMutableArray new];
     for (NSDictionary *dict in dicts) {
-        HippyDriverStackFrame *frame = [self stackFrameWithDictionary:dict];
+        HippyJSStackFrame *frame = [self stackFrameWithDictionary:dict];
         if (frame) {
             [stack addObject:frame];
         }

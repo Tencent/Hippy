@@ -25,7 +25,7 @@
 #import "HippyKeyCommands.h"
 #import "HippyWebSocketProxy.h"
 #import "HippyAsserts.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 #import "HippyDefines.h"
 
 #include <objc/runtime.h>
@@ -124,7 +124,7 @@ HIPPY_EXPORT_MODULE()
     // We're swizzling here because it's poor form to override methods in a category,
     // however UIWindow doesn't actually implement motionEnded:withEvent:, so there's
     // no need to call the original implementation.
-    HPSwapInstanceMethods([UIWindow class], @selector(motionEnded:withEvent:), @selector(hippy_motionEnded:withEvent:));
+    HippySwapInstanceMethods([UIWindow class], @selector(motionEnded:withEvent:), @selector(hippy_motionEnded:withEvent:));
 }
 
 - (instancetype)init {
@@ -230,7 +230,7 @@ HIPPY_EXPORT_METHOD(reload) {
 }
 
 HIPPY_EXPORT_METHOD(show) {
-    if (_actionSheet || !_bridge || HPRunningInAppExtension()) {
+    if (_actionSheet || !_bridge || HippyRunningInAppExtension()) {
         return;
     }
     
@@ -264,7 +264,7 @@ HIPPY_EXPORT_METHOD(show) {
                                                    handler:^(__unused UIAlertAction *action) {
     }]];
     
-    [HPPresentedViewController() presentViewController:_actionSheet animated:YES completion:^(void){}];
+    [HippyPresentedViewController() presentViewController:_actionSheet animated:YES completion:^(void){}];
 }
 
 @end

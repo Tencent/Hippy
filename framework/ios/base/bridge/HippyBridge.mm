@@ -46,7 +46,7 @@
 #import "HippyInvalidating.h"
 #import "HippyLog.h"
 #import "HPOCToHippyValue.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 #import "NSObject+Render.h"
 #import "TypeConverter.h"
 #import "VFSUriLoader.h"
@@ -147,7 +147,7 @@ dispatch_queue_t HippyBridgeQueue() {
         _startTime = footstone::TimePoint::SystemNow();
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rootViewContentDidAppear:) name:kRootViewDidAddContent object:nil];
         [self setUp];
-        HPExecuteOnMainThread(^{
+        HippyExecuteOnMainThread(^{
             [self bindKeys];
         }, YES);
         [HippyBridge setCurrentBridge:self];
@@ -449,11 +449,11 @@ dispatch_queue_t HippyBridgeQueue() {
             sourceURL:(NSURL *)sourceURL
          onCompletion:(HippyJavaScriptCallback)completion {
     if (!script) {
-        completion(nil, HPErrorWithMessageAndModuleName(@"no valid data", _moduleName));
+        completion(nil, HippyErrorWithMessageAndModuleName(@"no valid data", _moduleName));
         return;
     }
     if (![self isValid] || !script || !sourceURL) {
-        completion(nil, HPErrorWithMessageAndModuleName(@"bridge is not valid", _moduleName));
+        completion(nil, HippyErrorWithMessageAndModuleName(@"bridge is not valid", _moduleName));
         return;
     }
     HippyAssert(self.javaScriptExecutor, @"js executor must not be null");
@@ -547,7 +547,7 @@ dispatch_queue_t HippyBridgeQueue() {
                                     withStack:[error userInfo][HippyJSStackTraceKey]];
             }
         }
-        NSError *retError = HPErrorFromErrorAndModuleName(error, self.moduleName);
+        NSError *retError = HippyErrorFromErrorAndModuleName(error, self.moduleName);
         HippyBridgeFatal(retError, self);
     }
 
@@ -728,7 +728,7 @@ dispatch_queue_t HippyBridgeQueue() {
         }
 
         NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on target %@ with params %@", exception, method.JSMethodName, moduleData.name, params];
-        NSError *error = HPErrorWithMessageAndModuleName(message, self.moduleName);
+        NSError *error = HippyErrorWithMessageAndModuleName(message, self.moduleName);
         HippyBridgeFatal(error, self);
         return nil;
     }
@@ -752,7 +752,7 @@ dispatch_queue_t HippyBridgeQueue() {
         }
 
         NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on target %@ with params %@", exception, method.JSMethodName, module.name, params];
-        NSError *error = HPErrorWithMessageAndModuleName(message, self.moduleName);
+        NSError *error = HippyErrorWithMessageAndModuleName(message, self.moduleName);
         HippyBridgeFatal(error, self);
         return nil;
     }
@@ -902,7 +902,7 @@ dispatch_queue_t HippyBridgeQueue() {
     NSMutableArray<NSArray *> *config = [NSMutableArray new];
     for (HippyModuleData *moduleData in [_moduleSetup moduleDataByID]) {
         NSArray *moduleDataConfig = [moduleData config];
-        [config addObject:HPNullIfNil(moduleDataConfig)];
+        [config addObject:HippyNullIfNil(moduleDataConfig)];
     }
     id jsonArray = @{
         @"remoteModuleConfig": config,

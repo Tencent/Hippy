@@ -25,7 +25,7 @@
 #import "HippyModuleMethod.h"
 #import "HippyAsserts.h"
 #import "HippyLog.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 
 #import <objc/runtime.h>
 
@@ -59,7 +59,7 @@
 
     // If a module overrides `constantsToExport` then we must assume that it
     // must be called on the main thread, because it may need to access UIKit.
-    _hasConstantsToExport = HPClassOverridesInstanceMethod(_moduleClass, @selector(constantsToExport));
+    _hasConstantsToExport = HippyClassOverridesInstanceMethod(_moduleClass, @selector(constantsToExport));
     
     _instanceSem = dispatch_semaphore_create(1);
 }
@@ -204,10 +204,10 @@
             // calls out to other threads, however we can't control when a module might
             // get accessed by client code during bridge setup, and a very low risk of
             // deadlock is better than a fairly high risk of an assertion being thrown.
-            if (!HPIsMainQueue()) {
+            if (!HippyIsMainQueue()) {
                 HippyLogWarn(@"HippyBridge required dispatch_sync to load %@. This may lead to deadlocks", _moduleClass);
             }
-            HPExecuteOnMainQueue(^{
+            HippyExecuteOnMainQueue(^{
                 [self setUpInstanceAndBridge];
             });
         } else {
@@ -259,10 +259,10 @@
 - (void)gatherConstants {
     if (_hasConstantsToExport && !_constantsToExport) {
         (void)[self instance];
-        if (!HPIsMainQueue()) {
+        if (!HippyIsMainQueue()) {
             HippyLogWarn(@"Required dispatch_sync to load constants for %@. This may lead to deadlocks", _moduleClass);
         }
-        HPExecuteOnMainQueue(^{
+        HippyExecuteOnMainQueue(^{
             self->_constantsToExport = [self->_instance constantsToExport] ?: @ {};
         });
     }
@@ -295,7 +295,7 @@
         [methods addObject:method.JSMethodName];
     }
 
-    NSArray *config = @[self.name, HPNullIfNil(constants), HPNullIfNil(methods), HPNullIfNil(promiseMethods), HPNullIfNil(syncMethods)];
+    NSArray *config = @[self.name, HippyNullIfNil(constants), HippyNullIfNil(methods), HippyNullIfNil(promiseMethods), HippyNullIfNil(syncMethods)];
     return config;
 }
 

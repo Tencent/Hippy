@@ -21,7 +21,7 @@
  */
 
 #import "NativeRenderModalHostViewController.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 
 @interface NativeRenderModalHostViewController () {
     CGRect _lastViewFrame;
@@ -36,7 +36,7 @@
     self = [super init];
     if (self) {
         if (@available(iOS 13.0, *)) {
-            _preferredStatusBarStyle = [[[HPKeyWindow() windowScene] statusBarManager] statusBarStyle];
+            _preferredStatusBarStyle = [[[HippyKeyWindow() windowScene] statusBarManager] statusBarStyle];
         }
         else {
             _preferredStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
@@ -76,13 +76,13 @@
     if (_hideStatusBar) {
         return [_hideStatusBar boolValue];
     }
-    BOOL hidden = [HPKeyWindow().rootViewController prefersStatusBarHidden];
+    BOOL hidden = [HippyKeyWindow().rootViewController prefersStatusBarHidden];
     return hidden;
 }
 
 #if HIPPY_DEBUG
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
-    UIWindow *keyWindow = HPKeyWindow();
+    UIWindow *keyWindow = HippyKeyWindow();
     UIInterfaceOrientationMask appSupportedOrientationsMask = [[UIApplication sharedApplication] supportedInterfaceOrientationsForWindow:keyWindow];
     if (!(_supportedInterfaceOrientations & appSupportedOrientationsMask)) {
         return UIInterfaceOrientationMaskAll;

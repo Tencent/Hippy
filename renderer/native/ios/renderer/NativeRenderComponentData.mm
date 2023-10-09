@@ -25,7 +25,7 @@
 #import "NativeRenderObjectView.h"
 #import "HippyViewManager.h"
 #import "HippyConvert.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 #import "UIView+NativeRender.h"
 
 typedef void (^NativeRenderPropBlock)(id<NativeRenderComponentProtocol> view, id json);
@@ -89,7 +89,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
         while (cls != [HippyViewManager class]) {
             _implementsUIBlockToAmendWithRenderObjectRegistry
                 = _implementsUIBlockToAmendWithRenderObjectRegistry
-                  || HPClassOverridesInstanceMethod(cls, @selector(uiBlockToAmendWithRenderObjectRegistry:));
+                  || HippyClassOverridesInstanceMethod(cls, @selector(uiBlockToAmendWithRenderObjectRegistry:));
             cls = [cls superclass];
         }
     }
@@ -97,7 +97,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
 }
 
 - (UIView *)createViewWithTag:(NSNumber *)tag {
-    NSAssert(HPIsMainQueue(), @"This function must be called on the main thread");
+    NSAssert(HippyIsMainQueue(), @"This function must be called on the main thread");
     UIView *view = [self.manager view];
     view.componentTag = tag;
     view.multipleTouchEnabled = YES;
@@ -107,7 +107,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
 }
 
 - (UIView *)createViewWithTag:(NSNumber *)tag initProps:(NSDictionary *)props {
-    NSAssert(HPIsMainQueue(), @"This function must be called on the main thread");
+    NSAssert(HippyIsMainQueue(), @"This function must be called on the main thread");
     self.manager.props = props;
     UIView *view = [self.manager view];
     view.componentTag = tag;
@@ -163,7 +163,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
                 if (!strongSelf) {
                     return;
                 }
-                json = HPNilIfNull(json);
+                json = HippyNilIfNull(json);
                 if (!renderObject) {
                     if (!json && !strongSelf->_defaultView) {
                         // Only create default view if json is null
@@ -323,7 +323,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
                 }
                 // Set property with json
                 if (setterBlock) {
-                    setterBlock(target, HPNilIfNull(json));
+                    setterBlock(target, HippyNilIfNull(json));
                 }
             };
         }

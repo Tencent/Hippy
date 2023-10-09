@@ -21,7 +21,7 @@
  */
 
 #import "HPFootstoneUtils.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 
 #include "footstone/hippy_value.h"
 #include "footstone/logging.h"
@@ -84,7 +84,7 @@ NSURL *StringViewToNSURL(const footstone::string_view &uri) {
     if (!uriString) {
         return nil;
     }
-    return HPURLWithString(uriString, nil);
+    return HippyURLWithString(uriString, nil);
 }
 
 #pragma mark HippyValue utils
