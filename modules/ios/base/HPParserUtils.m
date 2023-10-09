@@ -21,7 +21,7 @@
  */
 
 #import "HPParserUtils.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 
 BOOL HPParseReadChar(const char **input, char c) {
     if (**input == c) {
@@ -92,7 +92,7 @@ NSString *HPParseType(const char **input) {
                 // Dictionaries have both a key *and* value type, but the key type has
                 // to be a string for JSON, so we only care about the value type
                 if (HIPPY_DEBUG && ![subtype isEqualToString:@"NSString"]) {
-                    HPLogError(@"%@ is not a valid key type for a JSON dictionary", subtype);
+                    HippyLogError(@"%@ is not a valid key type for a JSON dictionary", subtype);
                 }
                 HPParseSkipWhitespace(input);
                 HPParseReadChar(input, ',');

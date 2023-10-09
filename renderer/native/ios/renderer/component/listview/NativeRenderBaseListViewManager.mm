@@ -64,7 +64,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)componen
 		 NativeRenderBaseListView *view = (NativeRenderBaseListView *)viewRegistry[componentTag];
 		 if (view == nil) return ;
 		 if (![view isKindOfClass:[NativeRenderBaseListView class]]) {
-			 HPLogError(@"Invalid view returned from registry, expecting NativeRenderBaseListView, got: %@", view);
+			 HippyLogError(@"Invalid view returned from registry, expecting NativeRenderBaseListView, got: %@", view);
 		 }
 		 [view scrollToIndex: yIndex.integerValue animated: [animation boolValue]];
 	 }];
@@ -79,7 +79,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)
 		 NativeRenderBaseListView *view = (NativeRenderBaseListView *)viewRegistry[componentTag];
 		 if (view == nil) return ;
 		 if (![view isKindOfClass:[NativeRenderBaseListView class]]) {
-			 HPLogError(@"Invalid view returned from registry, expecting NativeRenderBaseListView, got: %@", view);
+			 HippyLogError(@"Invalid view returned from registry, expecting NativeRenderBaseListView, got: %@", view);
 		 }
 		 [view scrollToContentOffset:CGPointMake([x floatValue], [y floatValue]) animated: [animation boolValue]];
 	 }];

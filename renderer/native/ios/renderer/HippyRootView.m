@@ -75,7 +75,7 @@ NSNumber *AllocRootViewTag(void) {
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    HPLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyRootView dealloc %p", self);
+    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyRootView dealloc %p", self);
 }
 
 @end

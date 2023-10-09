@@ -24,7 +24,7 @@
 
 #import "HippyUtils.h"
 #import "HPAsserts.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 
 #include <objc/message.h>
 
@@ -72,7 +72,7 @@ NSString *__nullable HippyJSONStringify(id __nullable jsonObject, NSError **erro
         NSError *localError;
         NSString *json = _HPJSONStringifyNoRetry(jsonObject, &localError);
         if (localError) {
-            HPLogError(@"HPJSONStringify() encountered the following error: %@", localError.localizedDescription);
+            HippyLogError(@"HPJSONStringify() encountered the following error: %@", localError.localizedDescription);
             // Sanitize the data, then retry. This is slow, but it prevents uncaught
             // data issues from crashing in production
             return _HPJSONStringifyNoRetry(HippyJSONClean(jsonObject), NULL);
@@ -115,7 +115,7 @@ static id __nullable _HPJSONParse(NSString *__nullable jsonString, BOOL mutable,
         if (!jsonData) {
             jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES];
             if (jsonData) {
-                HPLogWarn(@"HPJSONParse received the following string, which could "
+                HippyLogWarn(@"HPJSONParse received the following string, which could "
                               "not be losslessly converted to UTF8 data: '%@'",
                     jsonString);
             } else {
@@ -123,7 +123,7 @@ static id __nullable _HPJSONParse(NSString *__nullable jsonString, BOOL mutable,
                 if (error) {
                     *error = HPErrorWithMessage(errorMessage);
                 } else {
-                    HPLogError(@"%@", errorMessage);
+                    HippyLogError(@"%@", errorMessage);
                 }
                 return nil;
             }
@@ -225,7 +225,7 @@ NSDictionary<NSString *, id> *HippyMakeError(NSString *message, id __nullable to
 
 NSDictionary<NSString *, id> *HippyMakeAndLogError(NSString *message, id __nullable toStringify, NSDictionary<NSString *, id> *__nullable extraData) {
     NSDictionary<NSString *, id> *error = HippyMakeError(message, toStringify, extraData);
-    HPLogError(@"\nError: %@", error);
+    HippyLogError(@"\nError: %@", error);
     return error;
 }
 

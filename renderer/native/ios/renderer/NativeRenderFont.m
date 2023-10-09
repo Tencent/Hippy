@@ -23,7 +23,7 @@
 #import <CoreText/CoreText.h>
 
 #import "NativeRenderFont.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 
 #if !defined(__IPHONE_8_2) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_2
 
@@ -181,7 +181,7 @@ typedef NSDictionary NativeRenderFontVariantDescriptor;
     });
     NativeRenderFontVariantDescriptor *value = mapping[json];
     if (HIPPY_DEBUG && !value && [json description].length > 0) {
-        HPLogError(@"Invalid NativeRenderFontVariantDescriptor '%@'. should be one of: %@", json,
+        HippyLogError(@"Invalid NativeRenderFontVariantDescriptor '%@'. should be one of: %@", json,
             [[mapping allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)]);
     }
     return value;
@@ -290,7 +290,7 @@ HP_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
 
         } else {
             // Not a valid font or family
-            HPLogError(@"Unrecognized font family '%@'", familyName);
+            HippyLogError(@"Unrecognized font family '%@'", familyName);
             if (@available(iOS 8.2, *)) {
                 font = [UIFont systemFontOfSize:fontSize weight:fontWeight];
             } else if (fontWeight > UIFontWeightRegular) {

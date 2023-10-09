@@ -21,7 +21,7 @@
 */
 
 #import "NativeRenderViewController.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 #import "HippyBridge.h"
 #import "HippyConvenientBridge.h"
 #import "DemoConfigs.h"
@@ -92,10 +92,7 @@ static NSString *const engineKey = @"Demo";
 }
 
 - (void)registerLogFunction {
-    HPSetLogFunction(^(HPLogLevel level, NSString *fileName, NSNumber *lineNumber,
-                       NSString *message, NSArray<NSDictionary *> *stack, NSDictionary *userInfo) {
-        if (HPLogLevelError <= level && userInfo) {
-        }
+    HippySetLogFunction(^(HippyLogLevel level, HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message) {
         NSLog(@"hippy says:%@ in file %@ at line %@", message, fileName, lineNumber);
     });
 }

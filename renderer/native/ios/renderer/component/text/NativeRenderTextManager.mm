@@ -99,7 +99,7 @@ NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(autoLetterSpacing, BOOL)
         for (NSInteger i = 0; i < queue.count; i++) {
             NativeRenderObjectView *renderObject = queue[i];
             if (!renderObject) {
-                HPLogWarn(@"renderObject is nil, please remain xcode state and call rainywan");
+                HippyLogWarn(@"renderObject is nil, please remain xcode state and call rainywan");
                 continue;
             }
 //            NSAssert([renderObject isTextDirty], @"Don't process any nodes that don't have dirty text");

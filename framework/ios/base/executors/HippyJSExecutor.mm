@@ -34,7 +34,7 @@
 #import "HippyRedBox.h"
 #import "HippyUtils.h"
 #import "HippyTurboModuleManager.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 #import "HPToolUtils.h"
 #import "HPFootstoneUtils.h"
 #import "NSObject+CtxValue.h"
@@ -243,7 +243,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 
         self.ready = NO;
         _pendingCalls = [NSMutableArray arrayWithCapacity:4];
-        HPLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor Init %p, engineKey:%@", self, engineKey);
+        HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor Init %p, engineKey:%@", self, engineKey);
     }
 
     return self;
@@ -339,7 +339,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
         devtools_data_source->Destroy(reload);
     }
 #endif
-    HPLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor invalide %p", self);
+    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor invalide %p", self);
     _valid = NO;
 #ifdef JS_JSC
     auto scope = self.pScope;
@@ -381,7 +381,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
             NSString *finalName = [NSString stringWithFormat:@"HippyContext: %@", contextName];
             jsc_context->SetName((__bridge CFStringRef)finalName);
             if (tryCatch->HasCaught()) {
-                HPLogWarn(@"set context throw exception");
+                HippyLogWarn(@"set context throw exception");
             }
         }
     }];
@@ -411,7 +411,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 }
 
 - (void)dealloc {
-    HPLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor dealloc %p", self);
+    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor dealloc %p", self);
     [self invalidate];
 }
 

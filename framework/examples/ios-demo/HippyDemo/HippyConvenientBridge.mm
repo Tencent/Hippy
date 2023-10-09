@@ -29,7 +29,7 @@
 #import "HippyMethodInterceptorProtocol.h"
 #import "NativeRenderManager.h"
 #import "HPDefaultImageProvider.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 #import "UIView+NativeRender.h"
 #import "VFSUriLoader.h"
 

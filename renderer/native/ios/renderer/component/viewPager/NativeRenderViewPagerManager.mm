@@ -46,7 +46,7 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, HippyDirectEventBlo
                                   NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
         if (![view isKindOfClass:[NativeRenderViewPager class]]) {
-            HPLogError(@"tried to setPage: on an error viewPager %@ with tag #%@", view, componentTag);
+            HippyLogError(@"tried to setPage: on an error viewPager %@ with tag #%@", view, componentTag);
         }
         NSInteger pageNumberInteger = pageNumber.integerValue;
         [(NativeRenderViewPager *)view setPage:pageNumberInteger animated:animated];

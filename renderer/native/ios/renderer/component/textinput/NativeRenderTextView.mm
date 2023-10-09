@@ -130,7 +130,7 @@
     [super insertNativeRenderSubview:subview atIndex:index];
     if ([subview isKindOfClass:[NativeRenderText class]]) {
         if (_richTextView) {
-            HPLogError(@"Tried to insert a second <Text> into <TextInput> - there can only be one.");
+            HippyLogError(@"Tried to insert a second <Text> into <TextInput> - there can only be one.");
         }
         _richTextView = (NativeRenderText *)subview;
 

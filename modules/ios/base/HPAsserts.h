@@ -54,7 +54,7 @@ HIPPY_EXTERN void _HPAssertFormat(const char *, const char *, int, const char *,
 
 #define HPAssertUnimplemented()                             \
   do {                                                      \
-    HPLogError(@"Not implemented in: %s", __FUNCTION__)     \
+    HippyLogError(@"Not implemented in: %s", __FUNCTION__)     \
     abort();                                                \
   } while (0)
 

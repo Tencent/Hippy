@@ -23,7 +23,7 @@
 #import <CommonCrypto/CommonDigest.h>
 
 #import "HPAsserts.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 #import "HippySRSIMDHelpers.h"
 
 typedef NS_ENUM(NSInteger, HippySROpCode) {
@@ -50,7 +50,7 @@ static NSString *const HippySRWebSocketAppendToSecKeyString = @"258EAFA5-E914-47
 
 //#define HippySR_ENABLE_LOG
 #ifdef HippySR_ENABLE_LOG
-#define HippySRLog(format...) HPLogInfo(format)
+#define HippySRLog(format...) HippyLogInfo(format)
 #else
 #define HippySRLog(...) \
     do {                \

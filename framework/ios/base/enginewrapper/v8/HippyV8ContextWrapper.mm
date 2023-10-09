@@ -21,7 +21,7 @@
  */
 
 #import "HPAsserts.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 #import "HPDriverStackFrame.h"
 #import "HippyV8ContextWrapper.h"
 #import "NSObject+CtxValue.h"
@@ -385,7 +385,7 @@ static void HandleUncaughtJsError(v8::Local<v8::Message> message, v8::Local<v8::
     v8::Local<v8::String> v8Name = [propertyName toV8StringInIsolate:isolate];
     v8::MaybeLocal<v8::Value> maybeValue = targetObject->Get(localContext, v8Name);
     if (maybeValue.IsEmpty()) {
-        HPLog(@"get property %@ for object failed", propertyName);
+        HippyLog(@"get property %@ for object failed", propertyName);
         return nullptr;
     }
     v8::Local<v8::Value> value = maybeValue.ToLocalChecked();

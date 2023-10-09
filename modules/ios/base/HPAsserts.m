@@ -21,7 +21,7 @@
  */
 
 #import "HPAsserts.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 
 NSString *const HPErrorDomain = @"HPErrorDomain";
 NSString *const HPJSStackTraceKey = @"HPJSStackTraceKey";
@@ -72,9 +72,9 @@ void HPFatal(NSError *error, NSDictionary *__nullable userInfo) {
     } else {
         fatalMessage = [NSString stringWithFormat:@"%@,%@", moduleDescription, error.localizedDescription];
     }
-    //void HPLogNativeInternal(HPLogLevel, const char *, int, NSDictionary *, NSString *, ...)
+    //void HippyLogNativeInternal(HippyLogLevel, const char *, int, NSDictionary *, NSString *, ...)
 
-    HPLogNativeInternal(HPLogLevelFatal, NULL, 0, userInfo, @"%@", fatalMessage);
+    HippyLogNativeInternal(HippyLogLevelFatal, NULL, 0, @"%@", fatalMessage);
 
     HPFatalHandler fatalHandler = HPGetFatalHandler();
     if (fatalHandler) {
@@ -95,7 +95,7 @@ void HPFatal(NSError *error, NSDictionary *__nullable userInfo) {
 }
 
 void HPHandleException(NSException *exception, NSDictionary *userInfo) {
-    HPLogNativeInternal(HPLogLevelFatal, NULL, 0, userInfo, @"%@", exception.description);
+    HippyLogNativeInternal(HippyLogLevelFatal, NULL, 0, @"%@", exception.description);
     HPExceptionHandler exceptionHandler = HPGetExceptionHandler();
     if (exceptionHandler) {
         exceptionHandler(exception);

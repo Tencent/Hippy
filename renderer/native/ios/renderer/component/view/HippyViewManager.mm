@@ -381,7 +381,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(pointerEvents, NativeRenderPointerEvents, Hip
             view.userInteractionEnabled = NO;
             break;
         default:
-            HPLogError(@"UIView base class does not support pointerEvent value: %@", json);
+            HippyLogError(@"UIView base class does not support pointerEvent value: %@", json);
             break;
     }
 }
@@ -533,7 +533,7 @@ NATIVE_RENDER_CUSTOM_RENDER_OBJECT_PROPERTY(verticalAlign, HippyTextAttachmentVe
         view.verticalAlignType = NativeRenderTextVerticalAlignMiddle;
         view.verticalAlignOffset = [HPConvert CGFloat:json];
     } else {
-        HPLogError(@"Unsupported value for verticalAlign of Text: %@, type: %@", json, [json classForCoder]);
+        HippyLogError(@"Unsupported value for verticalAlign of Text: %@, type: %@", json, [json classForCoder]);
     }
 }
 

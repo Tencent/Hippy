@@ -63,7 +63,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(refreshCompleted:(nonnull NSNumber *)react
         if (view == nil)
             return;
         if (![view isKindOfClass:[NativeRenderWaterfallView class]]) {
-            HPLogError(@"Invalid view returned from registry, expecting NativeRenderWaterfallView, got: %@", view);
+            HippyLogError(@"Invalid view returned from registry, expecting NativeRenderWaterfallView, got: %@", view);
         }
         [view refreshCompleted:status.integerValue text:text];
     }];
@@ -75,7 +75,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(startRefresh:(nonnull NSNumber *)reactTag)
         if (view == nil)
             return;
         if (![view isKindOfClass:[NativeRenderWaterfallView class]]) {
-            HPLogError(@"Invalid view returned from registry, expecting NativeRenderWaterfallView, got: %@", view);
+            HippyLogError(@"Invalid view returned from registry, expecting NativeRenderWaterfallView, got: %@", view);
         }
         [view startRefreshFromJS];
     }];
@@ -88,7 +88,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(startRefreshWithType:(nonnull NSNumber *)r
         if (view == nil)
             return;
         if (![view isKindOfClass:[NativeRenderWaterfallView class]]) {
-            HPLogError(@"Invalid view returned from registry, expecting NativeRenderWaterfallView, got: %@", view);
+            HippyLogError(@"Invalid view returned from registry, expecting NativeRenderWaterfallView, got: %@", view);
         }
         [view startRefreshFromJSWithType:[type unsignedIntegerValue]];
     }];
@@ -100,7 +100,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(callExposureReport:(nonnull NSNumber *)rea
         if (view == nil)
             return;
         if (![view isKindOfClass:[NativeRenderWaterfallView class]]) {
-            HPLogError(@"Invalid view returned from registry, expecting NativeRenderWaterfallView, got: %@", view);
+            HippyLogError(@"Invalid view returned from registry, expecting NativeRenderWaterfallView, got: %@", view);
         }
         [view callExposureReport];
     }];
@@ -115,7 +115,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)reactTag
         if (view == nil)
             return;
         if (![view isKindOfClass:[NativeRenderWaterfallView class]]) {
-            HPLogError(@"Invalid view returned from registry, expecting NativeRenderWaterfallView, got: %@", view);
+            HippyLogError(@"Invalid view returned from registry, expecting NativeRenderWaterfallView, got: %@", view);
         }
         [view scrollToIndex:xIndex.integerValue animated:[animation boolValue]];
     }];
@@ -130,7 +130,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)
         if (view == nil)
             return;
         if (![view isKindOfClass:[NativeRenderWaterfallView class]]) {
-            HPLogError(@"Invalid view returned from registry, expecting NativeRenderWaterfallView, got: %@", view);
+            HippyLogError(@"Invalid view returned from registry, expecting NativeRenderWaterfallView, got: %@", view);
         }
         [view scrollToOffset:CGPointMake([x floatValue], [y floatValue]) animated:[animation boolValue]];
     }];
@@ -142,7 +142,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(startLoadMore:(nonnull NSNumber *)reactTag
         if (view == nil)
             return;
         if (![view isKindOfClass:[NativeRenderWaterfallView class]]) {
-            HPLogError(@"Invalid view returned from registry, expecting NativeRenderWaterfallView, got: %@", view);
+            HippyLogError(@"Invalid view returned from registry, expecting NativeRenderWaterfallView, got: %@", view);
         }
         [view startLoadMore];
     }];

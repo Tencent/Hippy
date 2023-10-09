@@ -44,7 +44,7 @@
 #import "HPDefaultImageProvider.h"
 #import "HPI18nUtils.h"
 #import "HippyInvalidating.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 #import "HPOCToHippyValue.h"
 #import "HPToolUtils.h"
 #import "NSObject+Render.h"
@@ -151,7 +151,7 @@ dispatch_queue_t HippyBridgeQueue() {
             [self bindKeys];
         }, YES);
         [HippyBridge setCurrentBridge:self];
-        HPLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ Init %p", NSStringFromClass([self class]), self);
+        HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ Init %p", NSStringFromClass([self class]), self);
     }
     return self;
 }
@@ -178,7 +178,7 @@ dispatch_queue_t HippyBridgeQueue() {
      * This runs only on the main thread, but crashes the subclass
      * HPAssertMainQueue();
      */
-    HPLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ dealloc %p", NSStringFromClass([self class]), self);
+    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ dealloc %p", NSStringFromClass([self class]), self);
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     self.invalidateReason = HippyInvalidateReasonDealloc;
     [self invalidate];
@@ -406,7 +406,7 @@ dispatch_queue_t HippyBridgeQueue() {
 
 - (void)innerLoadInstanceForRootView:(NSNumber *)rootTag withProperties:(NSDictionary *)props {
     HPAssert(_moduleName, @"module name must not be null");
-    HPLogInfo(@"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", _moduleName, props);
+    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", _moduleName, props);
     NSDictionary *param = @{@"name": _moduleName,
                             @"id": rootTag,
                             @"params": props ?: @{},
@@ -601,7 +601,7 @@ dispatch_queue_t HippyBridgeQueue() {
     NSArray *requestsArray = [HPConvert NSArray:buffer];
 
     if (HIPPY_DEBUG && requestsArray.count <= HippyBridgeFieldParams) {
-        HPLogError(@"Buffer should contain at least %tu sub-arrays. Only found %tu", HippyBridgeFieldParams + 1, requestsArray.count);
+        HippyLogError(@"Buffer should contain at least %tu sub-arrays. Only found %tu", HippyBridgeFieldParams + 1, requestsArray.count);
         return;
     }
 
@@ -616,7 +616,7 @@ dispatch_queue_t HippyBridgeQueue() {
     }
 
     if (HIPPY_DEBUG && (moduleIDs.count != methodIDs.count || moduleIDs.count != paramsArrays.count)) {
-        HPLogError(@"Invalid data message - all must be length: %lu", (unsigned long)moduleIDs.count);
+        HippyLogError(@"Invalid data message - all must be length: %lu", (unsigned long)moduleIDs.count);
         return;
     }
 
@@ -671,14 +671,14 @@ dispatch_queue_t HippyBridgeQueue() {
     NSArray<HippyModuleData *> *moduleDataByID = [_moduleSetup moduleDataByID];
     if (moduleID >= [moduleDataByID count]) {
         if (isValid) {
-            HPLogError(@"moduleID %lu exceed range of moduleDataByID %lu, bridge is valid %ld", moduleID, [moduleDataByID count], (long)isValid);
+            HippyLogError(@"moduleID %lu exceed range of moduleDataByID %lu, bridge is valid %ld", moduleID, [moduleDataByID count], (long)isValid);
         }
         return nil;
     }
     HippyModuleData *moduleData = moduleDataByID[moduleID];
     if (HIPPY_DEBUG && !moduleData) {
         if (isValid) {
-            HPLogError(@"No module found for id '%lu'", (unsigned long)moduleID);
+            HippyLogError(@"No module found for id '%lu'", (unsigned long)moduleID);
         }
         return nil;
     }
@@ -691,14 +691,14 @@ dispatch_queue_t HippyBridgeQueue() {
     NSArray<id<HippyBridgeMethod>> *methods = [moduleData.methods copy];
     if (methodID >= [methods count]) {
         if (isValid) {
-            HPLogError(@"methodID %lu exceed range of moduleData.methods %lu, bridge is valid %ld", moduleID, [methods count], (long)isValid);
+            HippyLogError(@"methodID %lu exceed range of moduleData.methods %lu, bridge is valid %ld", moduleID, [methods count], (long)isValid);
         }
         return nil;
     }
     id<HippyBridgeMethod> method = methods[methodID];
     if (HIPPY_DEBUG && !method) {
         if (isValid) {
-            HPLogError(@"Unknown methodID: %lu for module: %lu (%@)", (unsigned long)methodID, (unsigned long)moduleID, moduleData.name);
+            HippyLogError(@"Unknown methodID: %lu for module: %lu (%@)", (unsigned long)methodID, (unsigned long)moduleID, moduleData.name);
         }
         return nil;
     }
@@ -802,7 +802,7 @@ dispatch_queue_t HippyBridgeQueue() {
 }
 
 - (void)invalidate {
-    HPLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ invalide %p", NSStringFromClass([self class]), self);
+    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ invalide %p", NSStringFromClass([self class]), self);
     if (![self isValid]) {
         return;
     }

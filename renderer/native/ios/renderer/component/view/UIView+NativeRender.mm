@@ -24,7 +24,7 @@
 #import <objc/runtime.h>
 #import "NativeRenderObjectView.h"
 #import "UIView+MountEvent.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 
 @implementation UIView (NativeRender)
 
@@ -246,7 +246,7 @@
     // Avoid crashes due to nan coords
     if (isnan(position.x) || isnan(position.y) || isnan(bounds.origin.x) || isnan(bounds.origin.y) || isnan(bounds.size.width)
         || isnan(bounds.size.height)) {
-        HPLogError(
+        HippyLogError(
             @"Invalid layout for (%@)%@. position: %@. bounds: %@", self.componentTag, self, NSStringFromCGPoint(position), NSStringFromCGRect(bounds));
         return;
     }

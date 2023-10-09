@@ -186,7 +186,7 @@
         case NativeRenderPointerEventsBoxNone:
             return hitSubview;
         default:
-            HPLogError(@"Invalid pointer-events specified %ld on %@", (long)_pointerEvents, self);
+            HippyLogError(@"Invalid pointer-events specified %ld on %@", (long)_pointerEvents, self);
             return hitSubview ?: hitView;
     }
 }

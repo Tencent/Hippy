@@ -21,7 +21,7 @@
  */
 
 #import "HPDriverStackFrame.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 #import "HPToolUtils.h"
 
 static NSRegularExpression *HPJSStackFrameRegex() {
@@ -31,7 +31,7 @@ static NSRegularExpression *HPJSStackFrameRegex() {
         NSError *regexError;
         _regex = [NSRegularExpression regularExpressionWithPattern:@"^([^@]+)@(.*):(\\d+):(\\d+)$" options:0 error:&regexError];
         if (regexError) {
-            HPLogError(@"Failed to build regex: %@", [regexError localizedDescription]);
+            HippyLogError(@"Failed to build regex: %@", [regexError localizedDescription]);
         }
     });
     return _regex;

@@ -240,7 +240,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             if (child) {
                 float width = child.frame.size.width, height = child.frame.size.height;
                 if (isnan(width) || isnan(height)) {
-                    HPLogError(@"Views nested within a <Text> must have a width and height");
+                    HippyLogError(@"Views nested within a <Text> must have a width and height");
                 }
                 
                 // Use line fragment's rect instead of glyph rect for calculation,
@@ -512,7 +512,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 }
             }
             if (isnan(width) || isnan(height)) {
-                HPLogError(@"Views nested within a <Text> must have a width and height");
+                HippyLogError(@"Views nested within a <Text> must have a width and height");
             }
             // take margin into account
             // FIXME: margin not working, may have bug in layout process
@@ -959,7 +959,7 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     }
     _fontSizeMultiplier = fontSizeMultiplier;
     if (_fontSizeMultiplier == 0) {
-        HPLogError(@"fontSizeMultiplier value must be > zero.");
+        HippyLogError(@"fontSizeMultiplier value must be > zero.");
         _fontSizeMultiplier = 1.0;
     }
     for (NativeRenderObjectView *child in [self subcomponents]) {

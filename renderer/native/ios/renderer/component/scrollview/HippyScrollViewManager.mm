@@ -116,7 +116,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)componentTag
         if ([view conformsToProtocol:@protocol(HippyScrollableProtocol)]) {
             [(id<HippyScrollableProtocol>)view scrollToOffset:(CGPoint){[x floatValue], [y floatValue]} animated:[animated boolValue]];
         } else {
-            HPLogError(@"tried to scrollTo: on non-NativeRenderScrollableProtocol view %@ "
+            HippyLogError(@"tried to scrollTo: on non-NativeRenderScrollableProtocol view %@ "
                           "with tag #%@", view, componentTag);
         }
     }];
@@ -144,7 +144,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)co
                 [(id<HippyScrollableProtocol>)view scrollToOffset:(CGPoint){x,y} animated:NO];
             }];
         } else {
-            HPLogError(@"tried to scrollTo: on non-NativeRenderScrollableProtocol view %@ "
+            HippyLogError(@"tried to scrollTo: on non-NativeRenderScrollableProtocol view %@ "
                           "with tag #%@", view, componentTag);
         }
     }];

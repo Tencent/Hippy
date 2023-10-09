@@ -26,7 +26,7 @@
 #import "HippyTurboModuleManager.h"
 #import "HippyJSExecutor.h"
 #import "HPAsserts.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 #import "HPToolUtils.h"
 #import "NSObject+CtxValue.h"
 #import "NSObject+HippyTurbo.h"
@@ -119,7 +119,7 @@ HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
     }
 
     if (HIPPY_DEBUG && !method) {
-        HPLogError(@"Unknown methodID: %@ for module:%@", methodName, obj);
+        HippyLogError(@"Unknown methodID: %@ for module:%@", methodName, obj);
         return nil;
     }
 
@@ -265,7 +265,7 @@ static id convertJSIObjectToNSObject(const std::shared_ptr<hippy::napi::Ctx> &co
     NSError *error;
     id objcObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
     if (error) {
-        HPLogError(@"JSONObjectWithData error:%@", error);
+        HippyLogError(@"JSONObjectWithData error:%@", error);
     }
     return objcObject;
 }

@@ -20,17 +20,15 @@
  * limitations under the License.
  */
 
-#import "HPLog.h"
+#import "HippyLog.h"
 #import "HippyBridge.h"
 #import "HippyRedBox.h"
-#include <string>
-#include <mutex>
 
 #pragma mark NativeLog Methods
 
-static NSString *const HPLogFunctionStack = @"HPLogFunctionStack";
+static NSString *const HippyLogFunctionStack = @"HippyLogFunctionStack";
 
-const char *HPLogLevels[] = {
+const char *HippyLogLevels[] = {
     "trace",
     "info",
     "warn",
@@ -39,73 +37,72 @@ const char *HPLogLevels[] = {
 };
 
 #if HIPPY_DEBUG
-HPLogLevel HPDefaultLogThreshold = HPLogLevelTrace;
+HippyLogLevel HPDefaultLogThreshold = HippyLogLevelTrace;
 #else
-HPLogLevel HPDefaultLogThreshold = HPLogLevelError;
+HippyLogLevel HPDefaultLogThreshold = HippyLogLevelError;
 #endif
 
-static HPLogFunction HPCurrentLogFunction;
-static HPLogLevel HPCurrentLogThreshold = HPDefaultLogThreshold;
-static HPLogShowFunction HPLogShowFunc;
+static HippyLogFunction HPCurrentLogFunction;
+static HippyLogLevel HPCurrentLogThreshold = HPDefaultLogThreshold;
 
-HPLogLevel HPGetLogThreshold() {
+HippyLogLevel HippyGetLogThreshold() {
     return HPCurrentLogThreshold;
 }
 
-void HPSetLogThreshold(HPLogLevel threshold) {
+void HippySetLogThreshold(HippyLogLevel threshold) {
     HPCurrentLogThreshold = threshold;
 }
 
-HPLogFunction HPDefaultLogFunction
-    = ^(HPLogLevel level, NSString *fileName, NSNumber *lineNumber,
-        NSString *message, NSArray<NSDictionary *> *stack, NSDictionary *userInfo) {
-          NSString *log = HPFormatLog([NSDate date], level, fileName, lineNumber, message);
-          fprintf(stderr, "%s\n", log.UTF8String);
-          fflush(stderr);
-      };
+HippyLogFunction HippyDefaultLogFunction = ^(HippyLogLevel level, __unused HippyLogSource source,
+    NSString *fileName, NSNumber *lineNumber, NSString *message) {
+    NSString *log = HippyFormatLog([NSDate date], level, fileName, lineNumber, message);
+    fprintf(stderr, "%s\n", log.UTF8String);
+    fflush(stderr);
+};
 
-void HPSetLogFunction(HPLogFunction logFunction) {
+void HippySetLogFunction(HippyLogFunction logFunction) {
     HPCurrentLogFunction = logFunction;
 }
 
-HPLogFunction HPGetLogFunction() {
+HippyLogFunction HippyGetLogFunction() {
     if (!HPCurrentLogFunction) {
-        HPCurrentLogFunction = HPDefaultLogFunction;
+        HPCurrentLogFunction = HippyDefaultLogFunction;
     }
     return HPCurrentLogFunction;
 }
 
-void HPAddLogFunction(HPLogFunction logFunction) {
-    HPLogFunction existing = HPGetLogFunction();
+void HippyAddLogFunction(HippyLogFunction logFunction) {
+    HippyLogFunction existing = HippyGetLogFunction();
     if (existing) {
-        HPSetLogFunction(^(HPLogLevel level, NSString *fileName, NSNumber *lineNumber, NSString *message, NSArray<NSDictionary *> *stack, NSDictionary *userInfo) {
-            existing(level, fileName, lineNumber, message, stack, userInfo);
-            logFunction(level, fileName, lineNumber, message, stack, userInfo);
+        HippySetLogFunction(^(HippyLogLevel level, HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message) {
+            existing(level, source, fileName, lineNumber, message);
+            logFunction(level, source, fileName, lineNumber, message);
         });
     } else {
-        HPSetLogFunction(logFunction);
+        HippySetLogFunction(logFunction);
     }
 }
 
-void HPPerformBlockWithLogFunction(void (^block)(void), HPLogFunction logFunction) {
+void HippyPerformBlockWithLogFunction(void (^block)(void), HippyLogFunction logFunction) {
     NSMutableDictionary *threadDictionary = [NSThread currentThread].threadDictionary;
-    NSMutableArray<HPLogFunction> *functionStack = threadDictionary[HPLogFunctionStack];
+    NSMutableArray<HippyLogFunction> *functionStack = threadDictionary[HippyLogFunctionStack];
     if (!functionStack) {
         functionStack = [NSMutableArray new];
-        threadDictionary[HPLogFunctionStack] = functionStack;
+        threadDictionary[HippyLogFunctionStack] = functionStack;
     }
     [functionStack addObject:logFunction];
     block();
     [functionStack removeLastObject];
 }
 
-void HPPerformBlockWithLogPrefix(void (^block)(void), NSString *prefix) {
-    HPLogFunction logFunction = HPGetLogFunction();
+void HippyPerformBlockWithLogPrefix(void (^block)(void), NSString *prefix) {
+    HippyLogFunction logFunction = HippyGetLogFunction();
     if (logFunction) {
-        HPPerformBlockWithLogFunction(
-            block, ^(HPLogLevel level, NSString *fileName, NSNumber *lineNumber, NSString *message, NSArray<NSDictionary *> *stack, NSDictionary *userInfo) {
-                logFunction(level, fileName, lineNumber, [prefix stringByAppendingString:message], stack, userInfo);
-            });
+        HippyPerformBlockWithLogFunction(block,
+                                         ^(HippyLogLevel level, HippyLogSource source,
+                                           NSString *fileName, NSNumber *lineNumber, NSString *message) {
+            logFunction(level, source, fileName, lineNumber, [prefix stringByAppendingString:message]);
+        });
     }
 }
 
@@ -123,7 +120,7 @@ static NSString *currentThreadName(void) {
     return threadName;
 }
 
-NSString *HPFormatLog(NSDate *timestamp, HPLogLevel level, NSString *fileName, NSNumber *lineNumber, NSString *message) {
+NSString *HippyFormatLog(NSDate *timestamp, HippyLogLevel level, NSString *fileName, NSNumber *lineNumber, NSString *message) {
     NSMutableString *log = [NSMutableString new];
     if (timestamp) {
         static NSDateFormatter *formatter;
@@ -135,7 +132,7 @@ NSString *HPFormatLog(NSDate *timestamp, HPLogLevel level, NSString *fileName, N
         [log appendString:[formatter stringFromDate:timestamp]];
     }
     if (level) {
-        [log appendFormat:@"[%s]", HPLogLevels[level]];
+        [log appendFormat:@"[%s]", HippyLogLevels[level]];
     }
 
     [log appendFormat:@"[tid:%@]", currentThreadName()];
@@ -155,18 +152,23 @@ NSString *HPFormatLog(NSDate *timestamp, HPLogLevel level, NSString *fileName, N
     return log;
 }
 
-void HPLogNativeInternal(HPLogLevel level, const char *fileName, int lineNumber, NSDictionary *userInfo, NSString *format, ...) {
-    HPLogFunction logFunction = HPGetLogFunction();
+void HippyLogNativeInternal(HippyLogLevel level, const char *fileName, int lineNumber, NSString *format, ...) {
+    HippyLogFunction logFunction = HippyGetLogFunction();
     BOOL log = HIPPY_DEBUG || (logFunction != nil);
-    if (log && level >= HPGetLogThreshold()) {
+    if (log && level >= HippyGetLogThreshold()) {
         // Get message
         va_list args;
         va_start(args, format);
         NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
         va_end(args);
-        NSArray<NSDictionary *> *callStacks = nil;
+        
+        // Call log function
+        if (logFunction) {
+            logFunction(level, HippyLogSourceNative, fileName ? @(fileName) : nil, lineNumber > 0 ? @(lineNumber) : nil, message);
+        }
+        
 #if HIPPY_DEBUG
-        if (level >= HPLOG_REDBOX_LEVEL) {
+        if (level >= HIPPYLOG_REDBOX_LEVEL) {
             NSArray<NSString *> *stackSymbols = [NSThread callStackSymbols];
             NSMutableArray<NSDictionary *> *stack = [NSMutableArray arrayWithCapacity:(stackSymbols.count - 1)];
             [stackSymbols enumerateObjectsUsingBlock:^(NSString *frameSymbols, NSUInteger idx, __unused BOOL *stop) {
@@ -182,8 +184,6 @@ void HPLogNativeInternal(HPLogLevel level, const char *fileName, int lineNumber,
                     }
                 }
             }];
-            callStacks = [stack copy];
-            
             dispatch_async(dispatch_get_main_queue(), ^{
                 // red box is thread safe, but by deferring to main queue we avoid a startup
                 // race condition that causes the module to be accessed before it has loaded
@@ -191,9 +191,5 @@ void HPLogNativeInternal(HPLogLevel level, const char *fileName, int lineNumber,
             });
         }
 #endif
-        // Call log function
-        if (logFunction) {
-            logFunction(level, fileName ? @(fileName) : nil, lineNumber > 0 ? @(lineNumber) : nil, message, callStacks, userInfo);
-        }
     }
 }

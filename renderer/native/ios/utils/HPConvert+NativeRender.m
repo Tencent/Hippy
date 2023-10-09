@@ -51,11 +51,11 @@ static const NSUInteger kMatrixArrayLength = 4 * 4;
         return transform;
     }
     if (![json isKindOfClass:[NSArray class]]) {
-        HPLogError(@"[%@], a CATransform3D. Expected array for transform matrix.", json);
+        HippyLogError(@"[%@], a CATransform3D. Expected array for transform matrix.", json);
         return transform;
     }
     if ([json count] != kMatrixArrayLength) {
-        HPLogError(@"[%@], a CATransform3D. Expected 4x4 matrix array.", json);
+        HippyLogError(@"[%@], a CATransform3D. Expected 4x4 matrix array.", json);
         return transform;
     }
     for (NSUInteger i = 0; i < kMatrixArrayLength; i++) {
@@ -71,12 +71,12 @@ static const NSUInteger kMatrixArrayLength = 4 * 4;
         return transform;
     }
     if (![json isKindOfClass:[NSArray class]]) {
-        HPLogError(@"[%@],a CATransform3D. Did you pass something other than an array?", json);
+        HippyLogError(@"[%@],a CATransform3D. Did you pass something other than an array?", json);
         return transform;
     }
     // legacy matrix support
     if ([(NSArray *)json count] == kMatrixArrayLength && [json[0] isKindOfClass:[NSNumber class]]) {
-        HPLogWarn(
+        HippyLogWarn(
             @"[HPConvert CATransform3D:] has deprecated a matrix as input. Pass an array of configs (which can contain a matrix key) instead.");
         return [self CATransform3DFromMatrix:json];
     }
@@ -85,7 +85,7 @@ static const NSUInteger kMatrixArrayLength = 4 * 4;
 
     for (NSDictionary *transformConfig in (NSArray<NSDictionary *> *)json) {
         if (transformConfig.count != 1) {
-            HPLogError(@"[%@], a CATransform3D. You must specify exactly one property per transform object.", json);
+            HippyLogError(@"[%@], a CATransform3D. You must specify exactly one property per transform object.", json);
             return transform;
         }
         NSString *property = transformConfig.allKeys[0];
@@ -153,7 +153,7 @@ static const NSUInteger kMatrixArrayLength = 4 * 4;
             transform.m12 = tanf(skew);
 
         } else {
-            HPLogError(@"Unsupported transform type for a CATransform3D: %@.", property);
+            HippyLogError(@"Unsupported transform type for a CATransform3D: %@.", property);
         }
     }
     return transform;

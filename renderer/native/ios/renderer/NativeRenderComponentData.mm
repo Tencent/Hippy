@@ -200,7 +200,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
                 // Ordinary property handlers
                 NSMethodSignature *typeSignature = [[HPConvert class] methodSignatureForSelector:type];
                 if (!typeSignature) {
-                    HPLogError(@"No +[HPConvert %@] function found.", NSStringFromSelector(type));
+                    HippyLogError(@"No +[HPConvert %@] function found.", NSStringFromSelector(type));
                     return ^(__unused id<NativeRenderComponentProtocol> view, __unused id json) {
                     };
                 }
@@ -335,7 +335,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
                 NSString *logPrefix =
                     [NSString stringWithFormat:@"Error setting property '%@' of %@ with tag #%@: ", name, weakSelf.name, view.componentTag];
 
-                HPPerformBlockWithLogPrefix(^{
+                HippyPerformBlockWithLogPrefix(^{
                     unwrappedBlock(view, json);
                 }, logPrefix);
             };

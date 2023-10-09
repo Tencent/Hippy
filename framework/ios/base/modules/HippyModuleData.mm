@@ -24,7 +24,7 @@
 #import "HippyBridge.h"
 #import "HippyModuleMethod.h"
 #import "HPAsserts.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 #import "HPToolUtils.h"
 
 #import <objc/runtime.h>
@@ -102,7 +102,7 @@
                     // of the module is not supported, and it is supposed to be passed in to
                     // the bridge constructor. Mark setup complete to avoid doing more work.
                     _setupComplete = YES;
-                    HPLogWarn(@"The module %@ is returning nil from its constructor. You "
+                    HippyLogWarn(@"The module %@ is returning nil from its constructor. You "
                                   "may need to instantiate it yourself and pass it into the "
                                   "bridge.",
                         _moduleClass);
@@ -142,7 +142,7 @@
         @try {
             [(id)_instance setValue:_bridge forKey:@"bridge"];
         } @catch (NSException *exception) {
-            HPLogError(@"%@ has no setter or ivar for its bridge, which is not "
+            HippyLogError(@"%@ has no setter or ivar for its bridge, which is not "
                            "permitted. You must either @synthesize the bridge property, "
                            "or provide your own setter method.",
                 self.name);
@@ -180,7 +180,7 @@
                 @try {
                     [(id)_instance setValue:[self methodQueueWithoutInstance] forKey:@"methodQueue"];
                 } @catch (NSException *exception) {
-                    HPLogError(@"%@ is returning nil for its methodQueue, which is not "
+                    HippyLogError(@"%@ is returning nil for its methodQueue, which is not "
                                    "permitted. You must either return a pre-initialized "
                                    "queue, or @synthesize the methodQueue to let the bridge "
                                    "create a queue for you.",
@@ -205,7 +205,7 @@
             // get accessed by client code during bridge setup, and a very low risk of
             // deadlock is better than a fairly high risk of an assertion being thrown.
             if (!HPIsMainQueue()) {
-                HPLogWarn(@"HippyBridge required dispatch_sync to load %@. This may lead to deadlocks", _moduleClass);
+                HippyLogWarn(@"HippyBridge required dispatch_sync to load %@. This may lead to deadlocks", _moduleClass);
             }
             HPExecuteOnMainQueue(^{
                 [self setUpInstanceAndBridge];
@@ -260,7 +260,7 @@
     if (_hasConstantsToExport && !_constantsToExport) {
         (void)[self instance];
         if (!HPIsMainQueue()) {
-            HPLogWarn(@"Required dispatch_sync to load constants for %@. This may lead to deadlocks", _moduleClass);
+            HippyLogWarn(@"Required dispatch_sync to load constants for %@. This may lead to deadlocks", _moduleClass);
         }
         HPExecuteOnMainQueue(^{
             self->_constantsToExport = [self->_instance constantsToExport] ?: @ {};

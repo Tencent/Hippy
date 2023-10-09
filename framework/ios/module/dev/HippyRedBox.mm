@@ -28,7 +28,7 @@
 #import "HPAsserts.h"
 #import "HPConvert.h"
 #import "HPDriverStackFrame.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 #import "HPToolUtils.h"
 
 #import "HippyDefines.h"
@@ -419,7 +419,7 @@ HIPPY_EXPORT_METHOD(dismiss) {
 - (void)redBoxWindow:(__unused HippyRedBoxWindow *)redBoxWindow
 openStackFrameInEditor:(HPDriverStackFrame *)stackFrame {
     //todo 
-    HPLog(@"red box cannot open stack frame");
+    HippyLog(@"red box cannot open stack frame");
 }
 
 - (void)reloadFromRedBoxWindow:(__unused HippyRedBoxWindow *)redBoxWindow {

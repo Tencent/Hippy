@@ -21,7 +21,7 @@
  */
 
 #import "HPAsserts.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 #import "HPToolUtils.h"
 
 #include <objc/message.h>
@@ -253,7 +253,7 @@ static void HPGetRGBAColorComponents(CGColorRef color, CGFloat rgba[4]) {
         case kCGColorSpaceModelUnknown: {
 #if HIPPY_DEBUG
             // unsupported format
-            HPLogError(@"Unsupported color model: %i", model);
+            HippyLogError(@"Unsupported color model: %i", model);
 #endif
 
             rgba[0] = 0.0;

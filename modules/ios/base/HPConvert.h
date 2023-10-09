@@ -22,7 +22,7 @@
 
 #import <UIKit/UIKit.h>
 
-#import "HPLog.h"
+#import "HippyLog.h"
 
 /**
  * This class provides a collection of conversion functions for mapping
@@ -125,8 +125,8 @@ HIPPY_EXTERN SEL HPConvertSelectorForType(NSString *type);
  * This macro is used for logging conversion errors. This is just used to
  * avoid repeating the same boilerplate for every error message.
  */
-#define HPLogConvertError(json, typeName) \
-    HPLogError(@"JSON value '%@' of type %@ cannot be converted to %@", json, [json classForCoder], typeName)
+#define HippyLogConvertError(json, typeName) \
+    HippyLogError(@"JSON value '%@' of type %@ cannot be converted to %@", json, [json classForCoder], typeName)
 
 /**
  * This macro is used for creating simple converter functions that just call
@@ -145,7 +145,7 @@ HIPPY_EXTERN SEL HPConvertSelectorForType(NSString *type);
             @try {                                   \
                 return code;                         \
             } @catch (__unused NSException * e) {    \
-                HPLogConvertError(json, @ #type); \
+                HippyLogConvertError(json, @ #type); \
                 json = nil;                          \
                 return code;                         \
             }                                        \

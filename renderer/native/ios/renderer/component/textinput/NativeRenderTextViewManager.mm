@@ -78,7 +78,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)compone
          NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
          if (view == nil) return ;
          if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
-             HPLogError(@"Invalid view returned from registry, expecting NativeRenderBaseTextInput, got: %@", view);
+             HippyLogError(@"Invalid view returned from registry, expecting NativeRenderBaseTextInput, got: %@", view);
          }
          [view focus];
      }];
@@ -89,7 +89,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(isFocused:(nonnull NSNumber *)componentTag
         NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
         if (view == nil) return ;
         if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
-            HPLogError(@"Invalid view returned from registry, expecting NativeRenderBaseTextInput, got: %@", view);
+            HippyLogError(@"Invalid view returned from registry, expecting NativeRenderBaseTextInput, got: %@", view);
         }
         BOOL isFocused = [view isFirstResponder];
         callback([NSDictionary dictionaryWithObject:[NSNumber numberWithBool:isFocused] forKey:@"value"]);
@@ -101,7 +101,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)componen
          NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
          if (view == nil) return ;
          if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
-             HPLogError(@"Invalid view returned from registry, expecting NativeRenderBaseTextInput, got: %@", view);
+             HippyLogError(@"Invalid view returned from registry, expecting NativeRenderBaseTextInput, got: %@", view);
          }
          [view blur];
      }];
@@ -112,7 +112,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(clear:(nonnull NSNumber *)componentTag) {
         NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
         if (view == nil) return ;
         if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
-            HPLogError(@"Invalid view returned from registry, expecting NativeRenderBaseTextInput, got: %@", view);
+            HippyLogError(@"Invalid view returned from registry, expecting NativeRenderBaseTextInput, got: %@", view);
         }
         [view clearText];
     }];
@@ -124,7 +124,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setValue:(nonnull NSNumber *)componentTag
         NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
         if (view == nil) return ;
         if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
-            HPLogError(@"Invalid view returned from registry, expecting NativeRenderBaseTextInput, got: %@", view);
+            HippyLogError(@"Invalid view returned from registry, expecting NativeRenderBaseTextInput, got: %@", view);
         }
         [view setValue: text];
     }];

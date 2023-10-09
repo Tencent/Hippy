@@ -48,7 +48,7 @@ HP_NUMBER_CONVERTER(NSUInteger, unsignedIntegerValue)
         if ([json isKindOfClass:[type class]]) {            \
             return json;                                    \
         } else if (json) {                                  \
-            HPLogConvertError(json, @ #type);     \
+            HippyLogConvertError(json, @ #type);     \
         }                                                   \
         return nil;                                         \
     }
@@ -81,7 +81,7 @@ HP_CUSTOM_CONVERTER(NSSet *, NSSet, [NSSet setWithArray:json])
     for (NSNumber *number in json) {
         NSInteger index = number.integerValue;
         if (HIPPY_DEBUG && index < 0) {
-            HPLogError(@"Invalid index value %ld. Indices must be positive.", (long)index);
+            HippyLogError(@"Invalid index value %ld. Indices must be positive.", (long)index);
         }
         [indexSet addIndex:index];
     }
@@ -127,11 +127,11 @@ HP_CUSTOM_CONVERTER(NSSet *, NSSet, [NSSet setWithArray:json])
             path = [[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:path];
         }
         if (!(URL = [NSURL fileURLWithPath:path])) {
-            HPLogConvertError(json, @"a valid URL");
+            HippyLogConvertError(json, @"a valid URL");
         }
         return URL;
     } @catch (__unused NSException *e) {
-        HPLogConvertError(json, @"a valid URL");
+        HippyLogConvertError(json, @"a valid URL");
         return nil;
     }
 }
@@ -166,7 +166,7 @@ HP_CUSTOM_CONVERTER(NSSet *, NSSet, [NSSet setWithArray:json])
             __block BOOL allHeadersAreStrings = YES;
             [headers enumerateKeysAndObjectsUsingBlock:^(__unused NSString *key, id header, BOOL *stop) {
                 if (![header isKindOfClass:[NSString class]]) {
-                    HPLogError(@"Values of HTTP headers passed must be  of type string. "
+                    HippyLogError(@"Values of HTTP headers passed must be  of type string. "
                                    "Value of header '%@' is not a string.",
                         key);
                     allHeadersAreStrings = NO;
@@ -186,7 +186,7 @@ HP_CUSTOM_CONVERTER(NSSet *, NSSet, [NSSet setWithArray:json])
         return [request copy];
     }
     if (json) {
-        HPLogConvertError(json, @"a valid URLRequest");
+        HippyLogConvertError(json, @"a valid URLRequest");
     }
     return nil;
 }
@@ -205,13 +205,13 @@ HP_CUSTOM_CONVERTER(NSSet *, NSSet, [NSSet setWithArray:json])
         });
         NSDate *date = [formatter dateFromString:json];
         if (!date) {
-            HPLogError(@"JSON String '%@' could not be interpreted as a date. "
+            HippyLogError(@"JSON String '%@' could not be interpreted as a date. "
                            "Expected format: YYYY-MM-DD'T'HH:mm:ss.sssZ",
                 json);
         }
         return date;
     } else if (json) {
-        HPLogConvertError(json, @"a date");
+        HippyLogConvertError(json, @"a date");
     }
     return nil;
 }
@@ -231,15 +231,15 @@ NSNumber *HPConvertEnumValue(__unused const char *typeName, NSDictionary *mappin
         if ([allValues containsObject:json] || [json isEqual:defaultValue]) {
             return json;
         }
-        HPLogError(@"Invalid %s '%@'. should be one of: %@", typeName, json, allValues);
+        HippyLogError(@"Invalid %s '%@'. should be one of: %@", typeName, json, allValues);
         return defaultValue;
     }
     if (HIPPY_DEBUG && ![json isKindOfClass:[NSString class]]) {
-        HPLogError(@"Expected NSNumber or NSString for %s, received %@: %@", typeName, [json classForCoder], json);
+        HippyLogError(@"Expected NSNumber or NSString for %s, received %@: %@", typeName, [json classForCoder], json);
     }
     id value = mapping[json];
     if (HIPPY_DEBUG && !value && [json description].length > 0) {
-        HPLogError(@"Invalid %s '%@'. should be one of: %@", typeName, json,
+        HippyLogError(@"Invalid %s '%@'. should be one of: %@", typeName, json,
             [[mapping allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)]);
     }
     return value ?: defaultValue;
@@ -392,7 +392,7 @@ static void HPConvertCGStructValue(__unused const char *type, NSArray *fields, N
     NSUInteger count = fields.count;
     if ([json isKindOfClass:[NSArray class]]) {
         if (HIPPY_DEBUG && [json count] != count) {
-            HPLogError(@"Expected array with count %lu, but count is %lu: %@", (unsigned long)count, (unsigned long)[json count], json);
+            HippyLogError(@"Expected array with count %lu, but count is %lu: %@", (unsigned long)count, (unsigned long)[json count], json);
         } else {
             for (NSUInteger i = 0; i < count; i++) {
                 result[i] = [HPConvert CGFloat:json[i]];
@@ -405,7 +405,7 @@ static void HPConvertCGStructValue(__unused const char *type, NSArray *fields, N
                 NSString *key = aliases[alias];
                 NSNumber *number = json[alias];
                 if (number != nil) {
-                    HPLogWarn(@"Using deprecated '%@' property for '%s'. Use '%@' instead.", alias, type, key);
+                    HippyLogWarn(@"Using deprecated '%@' property for '%s'. Use '%@' instead.", alias, type, key);
                     ((NSMutableDictionary *)json)[key] = number;
                 }
             }
@@ -414,7 +414,7 @@ static void HPConvertCGStructValue(__unused const char *type, NSArray *fields, N
             result[i] = [HPConvert CGFloat:json[fields[i]]];
         }
     } else if (json) {
-        HPLogConvertError(json, @(type));
+        HippyLogConvertError(json, @(type));
     }
 }
 
@@ -478,7 +478,7 @@ HP_CGSTRUCT_CONVERTER(CGAffineTransform, (@[@"a", @"b", @"c", @"d", @"tx", @"ty"
         CGFloat b = (argb & 0xFF) / 255.0;
         return [UIColor colorWithRed:r green:g blue:b alpha:a];
     } else {
-        HPLogConvertError(json, @"a UIColor. Did you forget to call processColor() on the JS side?");
+        HippyLogConvertError(json, @"a UIColor. Did you forget to call processColor() on the JS side?");
         return nil;
     }
 }

@@ -28,7 +28,7 @@
 #import "HippyUtils.h"
 #import "HPAsserts.h"
 #import "HPConvert.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 #import "HPToolUtils.h"
 
 NSString *const HippyStorageDirectory = @"HippyAsyncLocalStorage_V1";
@@ -228,7 +228,7 @@ HIPPY_EXPORT_MODULE(StorageModule)
             NSString *serialized = [self _readFileFromPath:[self HippyGetManifestFilePath] key:nil error:&errorOut];
             NSMutableDictionary *tmpDic = serialized ? HippyJSONParseMutable(serialized, &error) : [NSMutableDictionary new];
             if (error) {
-                HPLogWarn(@"Failed to parse manifest - creating new one.\n\n%@", error);
+                HippyLogWarn(@"Failed to parse manifest - creating new one.\n\n%@", error);
                 tmpDic = [NSMutableDictionary new];
             }
             [_manifest addEntriesFromDictionary:tmpDic];

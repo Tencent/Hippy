@@ -28,7 +28,7 @@
 #import "HippyRootView.h"
 #import "UIView+NativeRender.h"
 #import "HippyConvenientBridge.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 #import "HippyRedBox.h"
 #import "DemoConfigs.h"
 #import "HippyMethodInterceptorProtocol.h"

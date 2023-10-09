@@ -21,7 +21,7 @@
  */
 
 #import "NativeRenderBorderDrawing.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 
 static const CGFloat NativeRenderViewBorderThreshold = 0.001;
 
@@ -403,7 +403,7 @@ static UIImage *NativeRenderGetDashedOrDottedBorderImage(NativeRenderBorderStyle
     NSCParameterAssert(borderStyle == NativeRenderBorderStyleDashed || borderStyle == NativeRenderBorderStyleDotted);
 
     if (!NativeRenderBorderColorsAreEqual(borderColors) || !NativeRenderBorderInsetsAreEqual(borderInsets)) {
-        HPLogWarn(@"Unsupported dashed / dotted border style");
+        HippyLogWarn(@"Unsupported dashed / dotted border style");
         return nil;
     }
 

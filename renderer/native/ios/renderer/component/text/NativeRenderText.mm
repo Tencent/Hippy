@@ -24,7 +24,7 @@
 #import "NativeRenderObjectText.h"
 #import "HPToolUtils.h"
 #import "UIView+NativeRender.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 
 static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *nonTextDescendants) {
     for (UIView *child in view.subcomponents) {
@@ -222,7 +222,7 @@ static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *no
 }
 
 - (void)setBackgroundImageUrl:(NSString *)backgroundImageUrl {
-    HPLogWarn(@"Warning: backgroundImage is not available in NativeRenderText.");
+    HippyLogWarn(@"Warning: backgroundImage is not available in NativeRenderText.");
 }
 
 @end
