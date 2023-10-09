@@ -21,7 +21,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "HPConvert.h"
+#import "HippyConvert.h"
 #import "NativeRenderDefines.h"
 
 @class NativeRenderObjectView;

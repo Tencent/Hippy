@@ -22,7 +22,7 @@
 
 #import <Accelerate/Accelerate.h>
 
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 #import "HPToolUtils.h"
 #import "NativeRenderImageView.h"
 #import "NativeRenderAnimatedImage.h"
@@ -449,7 +449,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
             UIImage *blurredImage = NativeRenderBlurredImageWithRadiusv(image, br, &error);
             if (error) {
                 NSError *finalError = HPErrorFromErrorAndModuleName(error, @"unknown");
-                HPFatal(finalError, nil);
+                HippyFatal(finalError);
             }
             HPExecuteOnMainQueue(^{
                 setImageBlock(blurredImage);
@@ -668,7 +668,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
 
 @end
 
-@implementation HPConvert (NativeRenderResizeMode)
+@implementation HippyConvert (NativeRenderResizeMode)
 
 HP_ENUM_CONVERTER(NativeRenderResizeMode, (@{
     @"cover": @(NativeRenderResizeModeCover),

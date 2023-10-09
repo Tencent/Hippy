@@ -22,7 +22,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface HPDriverStackFrame : NSObject
+@interface HippyDriverStackFrame : NSObject
 
 @property (nonatomic, copy, readonly) NSString *methodName;
 @property (nonatomic, copy, readonly) NSString *file;
@@ -34,7 +34,7 @@
 + (instancetype)stackFrameWithDictionary:(NSDictionary *)dict;
 
 - (NSDictionary *)toDictionary;
-+ (NSArray<HPDriverStackFrame *> *)stackFramesWithLines:(NSString *)lines;
-+ (NSArray<HPDriverStackFrame *> *)stackFramesWithDictionaries:(NSArray<NSDictionary *> *)dicts;
++ (NSArray<HippyDriverStackFrame *> *)stackFramesWithLines:(NSString *)lines;
++ (NSArray<HippyDriverStackFrame *> *)stackFramesWithDictionaries:(NSArray<NSDictionary *> *)dicts;
 
 @end

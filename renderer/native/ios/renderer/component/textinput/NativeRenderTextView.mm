@@ -22,7 +22,7 @@
 
 #import "NativeRenderTextView.h"
 
-#import "HPConvert.h"
+#import "HippyConvert.h"
 #import "NativeRenderObjectText.h"
 #import "NativeRenderText.h"
 #import "HPToolUtils.h"

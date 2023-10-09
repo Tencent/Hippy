@@ -22,7 +22,7 @@
 
 #import "HippyDefines.h"
 #import "HippyWebSocketManager.h"
-#import "HPConvert.h"
+#import "HippyConvert.h"
 #import "HPToolUtils.h"
 #import "HippySRWebSocket.h"
 #import "HippyDefines.h"

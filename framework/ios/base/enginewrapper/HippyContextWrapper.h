@@ -38,13 +38,13 @@ class CtxValue;
 }
 }
 
-@class HPDriverStackFrame;
+@class HippyDriverStackFrame;
 
 typedef id __nullable (^FunctionImplementationBlock)(NSArray *arguments);
 
 @protocol HippyContextWrapper <NSObject>
 
-typedef void (^ExceptionHandler)(id<HippyContextWrapper>wrapper, NSString *message, NSArray<HPDriverStackFrame *> *stackFrames);
+typedef void (^ExceptionHandler)(id<HippyContextWrapper>wrapper, NSString *message, NSArray<HippyDriverStackFrame *> *stackFrames);
 
 @required
 

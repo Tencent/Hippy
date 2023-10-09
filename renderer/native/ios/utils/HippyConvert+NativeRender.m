@@ -20,10 +20,10 @@
  * limitations under the License.
  */
 
-#import "HPConvert+NativeRender.h"
+#import "HippyConvert+NativeRender.h"
 #import "HPToolUtils.h"
 
-@implementation HPConvert (Transform)
+@implementation HippyConvert (Transform)
 
 static const NSUInteger kMatrixArrayLength = 4 * 4;
 
@@ -59,7 +59,7 @@ static const NSUInteger kMatrixArrayLength = 4 * 4;
         return transform;
     }
     for (NSUInteger i = 0; i < kMatrixArrayLength; i++) {
-        ((CGFloat *)&transform)[i] = [HPConvert CGFloat:json[i]];
+        ((CGFloat *)&transform)[i] = [HippyConvert CGFloat:json[i]];
     }
     return transform;
 }
@@ -77,7 +77,7 @@ static const NSUInteger kMatrixArrayLength = 4 * 4;
     // legacy matrix support
     if ([(NSArray *)json count] == kMatrixArrayLength && [json[0] isKindOfClass:[NSNumber class]]) {
         HippyLogWarn(
-            @"[HPConvert CATransform3D:] has deprecated a matrix as input. Pass an array of configs (which can contain a matrix key) instead.");
+            @"[HippyConvert CATransform3D:] has deprecated a matrix as input. Pass an array of configs (which can contain a matrix key) instead.");
         return [self CATransform3DFromMatrix:json];
     }
 
@@ -161,7 +161,7 @@ static const NSUInteger kMatrixArrayLength = 4 * 4;
 
 @end
 
-@implementation HPConvert (NativeRenderAnimationType)
+@implementation HippyConvert (NativeRenderAnimationType)
 
 HP_ENUM_CONVERTER(NativeRenderAnimationType, (@{
     @"spring": @(NativeRenderAnimationTypeSpring),
@@ -175,7 +175,7 @@ NativeRenderAnimationTypeEaseInEaseOut, integerValue)
 
 @end
 
-@implementation HPConvert (NativeRenderPointerEvents)
+@implementation HippyConvert (NativeRenderPointerEvents)
 
 HP_ENUM_CONVERTER(NativeRenderPointerEvents, (@{
     @"none": @(NativeRenderPointerEventsNone),
@@ -187,7 +187,7 @@ NativeRenderPointerEventsUnspecified, integerValue)
 
 @end
 
-@implementation HPConvert (NativeRenderBorderStyle)
+@implementation HippyConvert (NativeRenderBorderStyle)
 
 HP_ENUM_CONVERTER(NativeRenderBorderStyle, (@{
     @"solid": @(NativeRenderBorderStyleSolid),
@@ -199,7 +199,7 @@ NativeRenderBorderStyleSolid, integerValue)
 
 @end
 
-@implementation HPConvert (NativeRenderTextEnumDefines)
+@implementation HippyConvert (NativeRenderTextEnumDefines)
 
 HP_ENUM_CONVERTER(NativeRenderTextDecorationLineType, (@{
     @"none": @(NativeRenderTextDecorationLineTypeNone),

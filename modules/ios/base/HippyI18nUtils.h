@@ -25,7 +25,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol HPI18nProtocol <NSObject>
+@protocol HippyI18nProtocol <NSObject>
 
 @optional
 
@@ -37,9 +37,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** I18n manager for render
  */
-@interface HPI18nUtils : NSObject
+@interface HippyI18nUtils : NSObject
 
-@property(nonatomic, weak) id<HPI18nProtocol> delegate;
+@property(nonatomic, weak) id<HippyI18nProtocol> delegate;
 
 + (instancetype)sharedInstance;
 

@@ -22,7 +22,7 @@
 
 #import <UIKit/UIKit.h>
 #import "NativeRenderComponentProtocol.h"
-#import "HPConvert.h"
+#import "HippyConvert.h"
 #import "NativeRenderAnimatedImageView.h"
 #import "HPImageProviderProtocol.h"
 
@@ -86,7 +86,7 @@ typedef NS_ENUM(NSInteger, NativeRenderShapeMode) {
 - (BOOL)needsUpdateCornerRadiusManully;
 @end
 
-@interface HPConvert (NativeRenderResizeMode)
+@interface HippyConvert (NativeRenderResizeMode)
 
 + (NativeRenderResizeMode)NativeRenderResizeMode:(id)json;
 + (NativeRenderShapeMode)NativeRenderShapeMode:(id)json;

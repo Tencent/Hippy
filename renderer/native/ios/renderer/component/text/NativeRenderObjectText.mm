@@ -20,8 +20,8 @@
  * limitations under the License.
  */
 
-#import "HPConvert.h"
-#import "HPI18nUtils.h"
+#import "HippyConvert.h"
+#import "HippyI18nUtils.h"
 #import "HPToolUtils.h"
 #import "NativeRenderFont.h"
 #import "NativeRenderObjectText.h"
@@ -163,7 +163,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         _fontSizeMultiplier = 1.0;
         _lineHeightMultiple = 1.0f;
         _textAlign = NSTextAlignmentLeft;
-        if (NSWritingDirectionRightToLeft ==  [[HPI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage]) {
+        if (NSWritingDirectionRightToLeft ==  [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage]) {
             self.textAlign = NSTextAlignmentRight;
         }
     }

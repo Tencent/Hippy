@@ -22,7 +22,7 @@
 
 #import <CommonCrypto/CommonDigest.h>
 
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 #import "HippyLog.h"
 #import "HippySRSIMDHelpers.h"
 
@@ -257,7 +257,7 @@ static __strong NSData *CRLFCRLF;
 { CRLFCRLF = [[NSData alloc] initWithBytes:"\r\n\r\n" length:4]; }
 
 - (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols {
-    HPAssertParam(request);
+    HippyAssertParam(request);
 
     if ((self = [super init])) {
         _url = request.URL;
@@ -371,7 +371,7 @@ static __strong NSData *CRLFCRLF;
 - (void)open;
 {
     assert(_url);
-    HPAssert(_readyState == HippySR_CONNECTING, @"Cannot call -(void)open on HippySRWebSocket more than once");
+    HippyAssert(_readyState == HippySR_CONNECTING, @"Cannot call -(void)open on HippySRWebSocket more than once");
 
     _selfRetain = self;
 
@@ -676,7 +676,7 @@ static __strong NSData *CRLFCRLF;
 
 - (void)send:(id)data;
 {
-    HPAssert(self.readyState != HippySR_CONNECTING, @"Invalid State: Cannot call send: until connection is open");
+    HippyAssert(self.readyState != HippySR_CONNECTING, @"Invalid State: Cannot call send: until connection is open");
     // TODO: maybe not copy this for performance
     data = [data copy];
     dispatch_async(_workQueue, ^{
@@ -694,7 +694,7 @@ static __strong NSData *CRLFCRLF;
 
 - (void)sendPing:(NSData *)data;
 {
-    HPAssert(self.readyState == HippySR_OPEN, @"Invalid State: Cannot call send: until connection is open");
+    HippyAssert(self.readyState == HippySR_OPEN, @"Invalid State: Cannot call send: until connection is open");
     // TODO: maybe not copy this for performance
     data = [data copy] ?: [NSData data];  // It's okay for a ping to be empty
     dispatch_async(_workQueue, ^{

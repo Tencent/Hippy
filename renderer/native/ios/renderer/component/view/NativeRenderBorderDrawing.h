@@ -22,7 +22,7 @@
 
 #import <UIKit/UIKit.h>
 
-#import "HPConvert+NativeRender.h"
+#import "HippyConvert+NativeRender.h"
 #import "HippyDefines.h"
 
 typedef struct {

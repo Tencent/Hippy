@@ -69,13 +69,13 @@ HIPPY_EXTERN UIViewController *__nullable HPPresentedViewController(void);
 // Does this device support force touch (aka 3D Touch)?
 HIPPY_EXTERN BOOL HPForceTouchAvailable(void);
 
-// Create an NSError in the HPErrorDomain
+// Create an NSError in the HippyErrorDomain
 HIPPY_EXTERN NSError *HPErrorWithMessage(NSString *message);
 
-// Create an NSError in the HPErrorDomain
+// Create an NSError in the HippyErrorDomain
 HIPPY_EXTERN NSError *HPErrorWithMessageAndModuleName(NSString *message, NSString *__nullable moduleName);
 
-// Create an NSError with HPFatalModuleName from another error
+// Create an NSError with HippyFatalModuleName from another error
 HIPPY_EXTERN NSError *HPErrorFromErrorAndModuleName(NSError *error, NSString *__nullable moduleName);
 
 // Convert nil values to NSNull, and vice-versa
@@ -93,9 +93,9 @@ HIPPY_EXTERN NSString *HPColorToHexString(CGColorRef color);
  * colorString could be 'fff','#fff','ffffff','#ffffff','ffffffff','#ffffffff'
  * or 'red', 'green','blue'.etc
  */
-HIPPY_EXTERN UIColor *HPConvertStringToColor(NSString *colorString);
+HIPPY_EXTERN UIColor *HippyConvertStringToColor(NSString *colorString);
 
-HIPPY_EXTERN UIColor *HPConvertNumberToColor(NSInteger colorNumber);
+HIPPY_EXTERN UIColor *HippyConvertNumberToColor(NSInteger colorNumber);
 
 // Get standard localized string (if it exists)
 HIPPY_EXTERN NSString *HPUIKitLocalizedString(NSString *string);

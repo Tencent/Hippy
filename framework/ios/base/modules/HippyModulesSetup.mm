@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 #import "HippyBridge.h"
 #import "HippyModuleData.h"
 #import "HippyModulesSetup.h"
@@ -46,7 +46,7 @@ void HippyRegisterModule(Class moduleClass) {
         HippyModuleClasses = [NSMutableArray new];
     });
 
-    HPAssert([moduleClass conformsToProtocol:@protocol(HippyBridgeModule)], @"%@ does not conform to the HippyBridgeModule protocol", moduleClass);
+    HippyAssert([moduleClass conformsToProtocol:@protocol(HippyBridgeModule)], @"%@ does not conform to the HippyBridgeModule protocol", moduleClass);
 
     // Register module
     [HippyModuleClasses addObject:moduleClass];
@@ -57,7 +57,7 @@ void HippyRegisterModule(Class moduleClass) {
  */
 NSString *HippyBridgeModuleNameForClass(Class cls) {
 #if HIPPY_DEBUG
-    HPAssert([cls conformsToProtocol:@protocol(HippyBridgeModule)] || [cls conformsToProtocol:@protocol(HippyTurboModule)],
+    HippyAssert([cls conformsToProtocol:@protocol(HippyBridgeModule)] || [cls conformsToProtocol:@protocol(HippyTurboModule)],
                 @"Bridge module `%@` does not conform to HippyBridgeModule or HippyTurboModule", cls);
 #endif
     NSString *name = nil;
@@ -266,13 +266,13 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
 }
 
 - (id)moduleForName:(NSString *)moduleName {
-    HPAssert(moduleName, @"module name must not be null for [HippyModulesSetup moduleForName:]");
+    HippyAssert(moduleName, @"module name must not be null for [HippyModulesSetup moduleForName:]");
     id module = _moduleDataByName[moduleName].instance;
     return module;
 }
 
 - (id)moduleForClass:(Class)cls {
-    HPAssert(cls, @"class must not be null for [HippyModulesSetup moduleForClass:]");
+    HippyAssert(cls, @"class must not be null for [HippyModulesSetup moduleForClass:]");
     return [self moduleForName:HippyBridgeModuleNameForClass(cls)];
 }
 

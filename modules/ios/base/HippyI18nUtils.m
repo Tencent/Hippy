@@ -20,13 +20,13 @@
  * limitations under the License.
  */
 
-#import "HPI18nUtils.h"
+#import "HippyI18nUtils.h"
 
-@implementation HPI18nUtils
+@implementation HippyI18nUtils
 
 + (instancetype)sharedInstance {
     static dispatch_once_t onceToken;
-    static HPI18nUtils *instance = nil;
+    static HippyI18nUtils *instance = nil;
     dispatch_once(&onceToken, ^{
         instance = [[[self class] alloc] init];
     });

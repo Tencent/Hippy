@@ -22,7 +22,7 @@
 
 #import "NativeRenderObjectRootView.h"
 #import "HPToolUtils.h"
-#import "HPI18nUtils.h"
+#import "HippyI18nUtils.h"
 
 @implementation NativeRenderObjectRootView
 

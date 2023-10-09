@@ -22,7 +22,7 @@
 
 #import <UIKit/UIApplication.h>
 
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 #import "HPToolUtils.h"
 #import "HippyDeviceBaseInfo.h"
 #import "HippyEventDispatcher.h"

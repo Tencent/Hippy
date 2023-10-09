@@ -39,10 +39,10 @@
 #import "HippyRedBox.h"
 #import "HippyTurboModule.h"
 #import "HippyUtils.h"
-#import "HPAsserts.h"
-#import "HPConvert.h"
+#import "HippyAsserts.h"
+#import "HippyConvert.h"
 #import "HPDefaultImageProvider.h"
-#import "HPI18nUtils.h"
+#import "HippyI18nUtils.h"
 #import "HippyInvalidating.h"
 #import "HippyLog.h"
 #import "HPOCToHippyValue.h"
@@ -176,7 +176,7 @@ dispatch_queue_t HippyBridgeQueue() {
 - (void)dealloc {
     /**
      * This runs only on the main thread, but crashes the subclass
-     * HPAssertMainQueue();
+     * HippyAssertMainQueue();
      */
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ dealloc %p", NSStringFromClass([self class]), self);
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -186,7 +186,7 @@ dispatch_queue_t HippyBridgeQueue() {
 
 - (void)bindKeys {
 #if TARGET_IPHONE_SIMULATOR
-    HPAssertMainQueue();
+    HippyAssertMainQueue();
     HippyKeyCommands *commands = [HippyKeyCommands sharedInstance];
 
     // reload in current mode
@@ -210,7 +210,7 @@ dispatch_queue_t HippyBridgeQueue() {
 }
 
 - (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls {
-    HPAssertParam(cls);
+    HippyAssertParam(cls);
     @synchronized (self) {
         if (!_imageProviders) {
             _imageProviders = [NSMutableArray arrayWithCapacity:8];
@@ -405,7 +405,7 @@ dispatch_queue_t HippyBridgeQueue() {
 }
 
 - (void)innerLoadInstanceForRootView:(NSNumber *)rootTag withProperties:(NSDictionary *)props {
-    HPAssert(_moduleName, @"module name must not be null");
+    HippyAssert(_moduleName, @"module name must not be null");
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", _moduleName, props);
     NSDictionary *param = @{@"name": _moduleName,
                             @"id": rootTag,
@@ -456,7 +456,7 @@ dispatch_queue_t HippyBridgeQueue() {
         completion(nil, HPErrorWithMessageAndModuleName(@"bridge is not valid", _moduleName));
         return;
     }
-    HPAssert(self.javaScriptExecutor, @"js executor must not be null");
+    HippyAssert(self.javaScriptExecutor, @"js executor must not be null");
     __weak HippyBridge *weakSelf = self;
     [self.javaScriptExecutor executeApplicationScript:script sourceURL:sourceURL onComplete:^(id result ,NSError *error) {
         HippyBridge *strongSelf = weakSelf;
@@ -480,7 +480,7 @@ dispatch_queue_t HippyBridgeQueue() {
 }
 
 - (void)stopLoadingWithError:(NSError *)error scriptSourceURL:(NSURL *)sourceURL {
-    HPAssertMainQueue();
+    HippyAssertMainQueue();
     if (![self isValid]) {
         return;
     }
@@ -497,8 +497,8 @@ dispatch_queue_t HippyBridgeQueue() {
     [[NSNotificationCenter defaultCenter] postNotificationName:HippyJavaScriptDidFailToLoadNotification
                                                         object:nil
                                                       userInfo:userInfo];
-    if ([error userInfo][HPJSStackTraceKey]) {
-        [self.redBox showErrorMessage:[error localizedDescription] withStack:[error userInfo][HPJSStackTraceKey]];
+    if ([error userInfo][HippyJSStackTraceKey]) {
+        [self.redBox showErrorMessage:[error localizedDescription] withStack:[error userInfo][HippyJSStackTraceKey]];
     }
 }
 
@@ -537,14 +537,14 @@ dispatch_queue_t HippyBridgeQueue() {
 
 - (void)processResponse:(id)json error:(NSError *)error {
     if (error) {
-        if ([error userInfo][HPJSStackTraceKey]) {
+        if ([error userInfo][HippyJSStackTraceKey]) {
             if (error.localizedFailureReason) {
                 [self.redBox
                     showErrorMessage:[NSString stringWithFormat:@"%@ 【reason】%@:", error.localizedDescription, error.localizedFailureReason]
-                           withStack:[error userInfo][HPJSStackTraceKey]];
+                           withStack:[error userInfo][HippyJSStackTraceKey]];
             } else {
                 [self.redBox showErrorMessage:[NSString stringWithFormat:@"%@", error.localizedDescription]
-                                    withStack:[error userInfo][HPJSStackTraceKey]];
+                                    withStack:[error userInfo][HippyJSStackTraceKey]];
             }
         }
         NSError *retError = HPErrorFromErrorAndModuleName(error, self.moduleName);
@@ -598,16 +598,16 @@ dispatch_queue_t HippyBridgeQueue() {
 }
 
 - (void)handleBuffer:(NSArray *)buffer {
-    NSArray *requestsArray = [HPConvert NSArray:buffer];
+    NSArray *requestsArray = [HippyConvert NSArray:buffer];
 
     if (HIPPY_DEBUG && requestsArray.count <= HippyBridgeFieldParams) {
         HippyLogError(@"Buffer should contain at least %tu sub-arrays. Only found %tu", HippyBridgeFieldParams + 1, requestsArray.count);
         return;
     }
 
-    NSArray<NSNumber *> *moduleIDs = [HPConvert NSNumberArray:requestsArray[HippyBridgeFieldRequestModuleIDs]];
-    NSArray<NSNumber *> *methodIDs = [HPConvert NSNumberArray:requestsArray[HippyBridgeFieldMethodIDs]];
-    NSArray<NSArray *> *paramsArrays = [HPConvert NSArrayArray:requestsArray[HippyBridgeFieldParams]];
+    NSArray<NSNumber *> *moduleIDs = [HippyConvert NSNumberArray:requestsArray[HippyBridgeFieldRequestModuleIDs]];
+    NSArray<NSNumber *> *methodIDs = [HippyConvert NSNumberArray:requestsArray[HippyBridgeFieldMethodIDs]];
+    NSArray<NSArray *> *paramsArrays = [HippyConvert NSArrayArray:requestsArray[HippyBridgeFieldParams]];
 
     int64_t callID = -1;
 
@@ -723,7 +723,7 @@ dispatch_queue_t HippyBridgeQueue() {
         }
     } @catch (NSException *exception) {
         // Pass on JS exceptions
-        if ([exception.name hasPrefix:HPFatalExceptionName]) {
+        if ([exception.name hasPrefix:HippyFatalExceptionName]) {
             @throw exception;
         }
 
@@ -747,7 +747,7 @@ dispatch_queue_t HippyBridgeQueue() {
     @try {
         return [method invokeWithBridge:self module:module.instance arguments:params];
     } @catch (NSException *exception) {
-        if ([exception.name hasPrefix:HPFatalExceptionName]) {
+        if ([exception.name hasPrefix:HippyFatalExceptionName]) {
             @throw exception;
         }
 
@@ -771,7 +771,7 @@ dispatch_queue_t HippyBridgeQueue() {
     __weak HippyBridge *weakSelf = self;
     dispatch_block_t block = ^(void){
         HippyBridge *strongSelf = weakSelf;
-        HPAssertParam(domManager);
+        HippyAssertParam(domManager);
         if (!strongSelf || !domManager) {
             return;
         }
@@ -890,9 +890,9 @@ dispatch_queue_t HippyBridgeQueue() {
     [deviceInfo setValue:deviceModel forKey:@"Device"];
     [deviceInfo setValue:HippySDKVersion forKey:@"SDKVersion"];
     [deviceInfo setValue:HippyExportedDimensions() forKey:@"Dimensions"];
-    NSString *countryCode = [[HPI18nUtils sharedInstance] currentCountryCode];
-    NSString *lanCode = [[HPI18nUtils sharedInstance] currentAppLanguageCode];
-    NSWritingDirection direction = [[HPI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
+    NSString *countryCode = [[HippyI18nUtils sharedInstance] currentCountryCode];
+    NSString *lanCode = [[HippyI18nUtils sharedInstance] currentAppLanguageCode];
+    NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
     NSDictionary *local = @{@"country": countryCode?:@"unknown", @"language": lanCode?:@"unknown", @"direction": @(direction)};
     [deviceInfo setValue:local forKey:@"Localization"];
     return [NSDictionary dictionaryWithDictionary:deviceInfo];
@@ -993,11 +993,11 @@ dispatch_queue_t HippyBridgeQueue() {
 @end
 
 void HippyBridgeFatal(NSError *error, HippyBridge *bridge) {
-    HPFatal(error, bridge?@{@"bridge": bridge}:nil);
+    HippyFatal(error);
 }
 
 void HippyBridgeHandleException(NSException *exception, HippyBridge *bridge) {
-    HPHandleException(exception, bridge?@{@"bridge": bridge}:nil);
+    HippyHandleException(exception);
 }
 
 

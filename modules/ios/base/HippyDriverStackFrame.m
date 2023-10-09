@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HPDriverStackFrame.h"
+#import "HippyDriverStackFrame.h"
 #import "HippyLog.h"
 #import "HPToolUtils.h"
 
@@ -37,7 +37,7 @@ static NSRegularExpression *HPJSStackFrameRegex() {
     return _regex;
 }
 
-@implementation HPDriverStackFrame
+@implementation HippyDriverStackFrame
 
 - (instancetype)initWithMethodName:(NSString *)methodName file:(NSString *)file lineNumber:(NSInteger)lineNumber column:(NSInteger)column {
     if (self = [super init]) {
@@ -77,10 +77,10 @@ static NSRegularExpression *HPJSStackFrameRegex() {
                                      column:[dict[@"column"] integerValue]];
 }
 
-+ (NSArray<HPDriverStackFrame *> *)stackFramesWithLines:(NSString *)lines {
++ (NSArray<HippyDriverStackFrame *> *)stackFramesWithLines:(NSString *)lines {
     NSMutableArray *stack = [NSMutableArray new];
     for (NSString *line in [lines componentsSeparatedByString:@"\n"]) {
-        HPDriverStackFrame *frame = [self stackFrameWithLine:line];
+        HippyDriverStackFrame *frame = [self stackFrameWithLine:line];
         if (frame) {
             [stack addObject:frame];
         }
@@ -88,10 +88,10 @@ static NSRegularExpression *HPJSStackFrameRegex() {
     return stack;
 }
 
-+ (NSArray<HPDriverStackFrame *> *)stackFramesWithDictionaries:(NSArray<NSDictionary *> *)dicts {
++ (NSArray<HippyDriverStackFrame *> *)stackFramesWithDictionaries:(NSArray<NSDictionary *> *)dicts {
     NSMutableArray *stack = [NSMutableArray new];
     for (NSDictionary *dict in dicts) {
-        HPDriverStackFrame *frame = [self stackFrameWithDictionary:dict];
+        HippyDriverStackFrame *frame = [self stackFrameWithDictionary:dict];
         if (frame) {
             [stack addObject:frame];
         }

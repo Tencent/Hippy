@@ -22,7 +22,7 @@
 
 #import "NativeRenderObjectWaterfall.h"
 #import "NativeRenderWaterfallView.h"
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 
 @interface WaterfallItemChangeContext () {
     NSMutableSet<NativeRenderObjectView *> *_deletedItems;
@@ -172,7 +172,7 @@
                 return;
             }
             NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)[viewRegistry objectForKey:[strongSelf componentTag]];
-            HPAssert([view isKindOfClass:[NativeRenderWaterfallView class]], @"view must be kind of NativeRenderWaterfallView");
+            HippyAssert([view isKindOfClass:[NativeRenderWaterfallView class]], @"view must be kind of NativeRenderWaterfallView");
             if ([view isKindOfClass:[NativeRenderWaterfallView class]]) {
                 view.dirtyContent = YES;
                 view.changeContext = [context copy];

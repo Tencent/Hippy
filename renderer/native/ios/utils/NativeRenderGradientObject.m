@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 #import "HPToolUtils.h"
 #import "NativeRenderBorderDrawing.h"
 #import "NativeRenderGradientObject.h"
@@ -273,7 +273,7 @@ static LinearGradientPoints pointsFromDirection(NativeRenderGradientObject *obje
             for (NSUInteger i = 0; i < [colorStopList count]; i++) {
                 NSDictionary *colorStop = [colorStopList objectAtIndex:i];
                 NSNumber *colorNumber = [colorStop objectForKey:@"color"];
-                UIColor *color = HPConvertNumberToColor([colorNumber integerValue]);
+                UIColor *color = HippyConvertNumberToColor([colorNumber integerValue]);
                 [colors addObject:color];
                 NSNumber *stop = [colorStop objectForKey:@"ratio"];
                 if (stop) {
@@ -285,7 +285,7 @@ static LinearGradientPoints pointsFromDirection(NativeRenderGradientObject *obje
         } @catch (NSException *exception) {
             NSString *errorString = [NSString stringWithFormat:@"gradient parse error:%@", [exception reason]];
             NSError *error = HPErrorWithMessageAndModuleName(errorString, nil);
-            HPFatal(error, nil);
+            HippyFatal(error);
             return self;
         }
     }

@@ -26,7 +26,7 @@
 #import "HippyBridge+VFSLoader.h"
 #import "HippyDefines.h"
 #import "HippyNetWork.h"
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 #import "HPToolUtils.h"
 
 static NSStringEncoding GetStringEncodingFromURLResponse(NSURLResponse *response) {
@@ -54,8 +54,8 @@ HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromise
     NSDictionary *header = params[@"headers"];
     NSString *body = params[@"body"];
   
-    HPAssertParam(url);
-    HPAssertParam(method);
+    HippyAssertParam(url);
+    HippyAssertParam(method);
 
     NSMutableDictionary *vfsParams = [NSMutableDictionary new];
     [header enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, __unused BOOL *stop) {

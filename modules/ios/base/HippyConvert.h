@@ -30,7 +30,7 @@
  * custom setter methods.
  */
 
-@interface HPConvert : NSObject
+@interface HippyConvert : NSObject
 
 + (id)id:(id)json;
 
@@ -112,14 +112,14 @@ typedef BOOL css_backface_visibility_t;
 
 @end
 
-HIPPY_EXTERN NSNumber *HPConvertEnumValue(const char *, NSDictionary *, NSNumber *, id);
-HIPPY_EXTERN NSNumber *HPConvertMultiEnumValue(const char *, NSDictionary *, NSNumber *, id);
-HIPPY_EXTERN NSArray *HPConvertArrayValue(SEL, id);
+HIPPY_EXTERN NSNumber *HippyConvertEnumValue(const char *, NSDictionary *, NSNumber *, id);
+HIPPY_EXTERN NSNumber *HippyConvertMultiEnumValue(const char *, NSDictionary *, NSNumber *, id);
+HIPPY_EXTERN NSArray *HippyConvertArrayValue(SEL, id);
 
 /**
  * Get the converter function for the specified type
  */
-HIPPY_EXTERN SEL HPConvertSelectorForType(NSString *type);
+HIPPY_EXTERN SEL HippyConvertSelectorForType(NSString *type);
 
 /**
  * This macro is used for logging conversion errors. This is just used to
@@ -170,7 +170,7 @@ HIPPY_EXTERN SEL HPConvertSelectorForType(NSString *type);
         dispatch_once(&onceToken, ^{                                                          \
             mapping = values;                                                                 \
         });                                                                                   \
-        return (type)[HPConvertEnumValue(#type, mapping, @(default), json) getter]; \
+        return (type)[HippyConvertEnumValue(#type, mapping, @(default), json) getter]; \
     }
 
 /**
@@ -184,7 +184,7 @@ HIPPY_EXTERN SEL HPConvertSelectorForType(NSString *type);
         dispatch_once(&onceToken, ^{                                                          \
             mapping = values;                                                                 \
         });                                                                                   \
-        return [HPConvertMultiEnumValue(#type, mapping, @(default), json) getter];  \
+        return [HippyConvertMultiEnumValue(#type, mapping, @(default), json) getter];  \
     }
 
 /**
@@ -192,5 +192,5 @@ HIPPY_EXTERN SEL HPConvertSelectorForType(NSString *type);
  */
 #define HP_ARRAY_CONVERTER(type)                             \
     +(NSArray<type *> *)type##Array : (id)json {                        \
-        return HPConvertArrayValue(@selector(type:), json);   \
+        return HippyConvertArrayValue(@selector(type:), json);   \
     }

@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 #import "HPToolUtils.h"
 #import "NativeRenderImageViewManager.h"
 #import "NativeRenderImageView.h"
@@ -50,12 +50,12 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoadEnd, HippyDirectEventBlock)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(downSample, BOOL)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(shape, NativeRenderShapeMode)
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(src, NSString, NativeRenderImageView) {
-    NSString *path = [HPConvert NSString:json];
+    NSString *path = [HippyConvert NSString:json];
     [self loadImageSource:path forView:view];
 }
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
-    NSArray *pathSources = [HPConvert NSArray:json];
+    NSArray *pathSources = [HippyConvert NSArray:json];
     if ([pathSources isKindOfClass:[NSArray class]]) {
         NSDictionary *dicSource = [pathSources firstObject];
         NSString *path = dicSource[@"uri"];
@@ -83,7 +83,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
                     break;
                 }
             }
-            HPAssert(imageProvider, @"Image Provider is required");
+            HippyAssert(imageProvider, @"Image Provider is required");
             imageProvider.imageDataPath = standardizeAssetUrlString;
             [imageProvider setImageData:data];
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -98,19 +98,19 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
 }
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, NativeRenderImageView) {
-    view.tintColor = [HPConvert UIColor:json] ?: defaultView.tintColor;
+    view.tintColor = [HippyConvert UIColor:json] ?: defaultView.tintColor;
     view.renderingMode = json ? UIImageRenderingModeAlwaysTemplate : defaultView.renderingMode;
 }
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, NativeRenderImageView) {
-    NSString *source = [HPConvert NSString:json];
+    NSString *source = [HippyConvert NSString:json];
     [self loadImageSource:source forView:view];
 }
 
 #define NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(SIDE)                                                                 \
     NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Radius, CGFloat, NativeRenderImageView) {                          \
         if ([view respondsToSelector:@selector(setBorder##SIDE##Radius:)]) {                                            \
-            view.border##SIDE##Radius = json ? [HPConvert CGFloat:json] : defaultView.border##SIDE##Radius;   \
+            view.border##SIDE##Radius = json ? [HippyConvert CGFloat:json] : defaultView.border##SIDE##Radius;   \
         }                                                                                                               \
     }
 

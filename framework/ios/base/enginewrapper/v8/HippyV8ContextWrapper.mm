@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 #import "HippyLog.h"
 #import "HPDriverStackFrame.h"
 #import "HippyV8ContextWrapper.h"
@@ -50,9 +50,9 @@ static v8::Local<v8::Object> V8ObjectFromCtxValue(const std::shared_ptr<hippy::n
                                                        v8::Local<v8::Context> context) {
     auto ctxValue = std::static_pointer_cast<hippy::napi::V8CtxValue>(value);
     v8::Local<v8::Value> v8Value = ctxValue->global_value_.Get(context->GetIsolate());
-    HPAssert(v8Value->IsObject(), @"value is not a object");
+    HippyAssert(v8Value->IsObject(), @"value is not a object");
     v8::MaybeLocal<v8::Object> maybeObject = v8Value->ToObject(context);
-    HPAssert(!maybeObject.IsEmpty(), @"maybe object is not a object");
+    HippyAssert(!maybeObject.IsEmpty(), @"maybe object is not a object");
     return maybeObject.ToLocalChecked();
 }
 

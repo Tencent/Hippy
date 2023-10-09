@@ -25,7 +25,7 @@
 #import "HippyBridge.h"
 #import "HippyConvenientBridge.h"
 #import "DemoConfigs.h"
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 #import "HippyMethodInterceptorProtocol.h"
 #import "HippyRootView.h"
 #import "UIView+NativeRender.h"
@@ -230,8 +230,8 @@ static NSString *const engineKey = @"Demo";
                          arguments:(NSArray<id<HippyBridgeArgument>> *)arguments
                    argumentsValues:(NSArray *)argumentsValue
                    containCallback:(BOOL)containCallback {
-    HPAssert(moduleName, @"module name must not be null");
-    HPAssert(methodName, @"method name must not be null");
+    HippyAssert(moduleName, @"module name must not be null");
+    HippyAssert(methodName, @"method name must not be null");
     return YES;
 }
 
@@ -239,8 +239,8 @@ static NSString *const engineKey = @"Demo";
                                    methodName:(NSString *)methodName
                                    callbackId:(NSNumber *)cbId
                                     arguments:(id)arguments {
-    HPAssert(moduleName, @"module name must not be null");
-    HPAssert(methodName, @"method name must not be null");
+    HippyAssert(moduleName, @"module name must not be null");
+    HippyAssert(methodName, @"method name must not be null");
     return YES;
 }
 

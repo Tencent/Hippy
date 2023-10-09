@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 #import "NativeRenderBaseListView.h"
 #import "NativeRenderBaseListViewCell.h"
 #import "NativeRenderBaseListViewDataSource.h"
@@ -321,7 +321,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 }
 
 - (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
-    HPAssert(self.renderImpl, @"no rendercontext detected");
+    HippyAssert(self.renderImpl, @"no rendercontext detected");
     if (!self.renderImpl) {
         return;
     }
@@ -331,7 +331,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     if (cellView) {
         [_cachedItems removeObjectForKey:indexPath];
     }
-    HPAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
+    HippyAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of NativeRenderBaseListViewCell must conform to protocol ViewAppearStateProtocol");
     hpCell.cellView = cellView;
     cellView.parentComponent = self;

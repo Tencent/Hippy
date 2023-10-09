@@ -117,14 +117,14 @@ static UIFont *cachedSystemFont(CGFloat size, NativeRenderFontWeight weight) {
     return font;
 }
 
-@implementation HPConvert (NativeRenderFont)
+@implementation HippyConvert (NativeRenderFont)
 
 + (UIFont *)UIFont:(id)json {
     json = [self NSDictionary:json];
-    return [NativeRenderFont updateFont:nil withFamily:[HPConvert NSString:json[@"fontFamily"]] size:[HPConvert NSNumber:json[@"fontSize"]]
-                          weight:[HPConvert NSString:json[@"fontWeight"]]
-                           style:[HPConvert NSString:json[@"fontStyle"]]
-                         variant:[HPConvert NSStringArray:json[@"fontVariant"]]
+    return [NativeRenderFont updateFont:nil withFamily:[HippyConvert NSString:json[@"fontFamily"]] size:[HippyConvert NSNumber:json[@"fontSize"]]
+                          weight:[HippyConvert NSString:json[@"fontWeight"]]
+                           style:[HippyConvert NSString:json[@"fontStyle"]]
+                         variant:[HippyConvert NSStringArray:json[@"fontVariant"]]
                  scaleMultiplier:1];
 }
 
@@ -231,13 +231,13 @@ HP_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
     }
 
     // Get font attributes
-    fontSize = [HPConvert CGFloat:size] ?: fontSize;
+    fontSize = [HippyConvert CGFloat:size] ?: fontSize;
     if (scaleMultiplier > 0.0 && scaleMultiplier != 1.0) {
         fontSize = round(fontSize * scaleMultiplier);
     }
-    familyName = [HPConvert NSString:family] ?: familyName;
-    isItalic = style ? [HPConvert NativeRenderFontStyle:style] : isItalic;
-    fontWeight = weight ? [HPConvert NativeRenderFontWeight:weight] : fontWeight;
+    familyName = [HippyConvert NSString:family] ?: familyName;
+    isItalic = style ? [HippyConvert NativeRenderFontStyle:style] : isItalic;
+    fontWeight = weight ? [HippyConvert NativeRenderFontWeight:weight] : fontWeight;
 
     BOOL didFindFont = NO;
 
@@ -317,7 +317,7 @@ HP_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
     }
     // Apply font variants to font object
     if (variant) {
-        NSArray *fontFeatures = [HPConvert NativeRenderFontVariantDescriptorArray:variant];
+        NSArray *fontFeatures = [HippyConvert NativeRenderFontVariantDescriptorArray:variant];
         UIFontDescriptor *fontDescriptor =
             [font.fontDescriptor fontDescriptorByAddingAttributes:@{ UIFontDescriptorFeatureSettingsAttribute: fontFeatures }];
         font = [UIFont fontWithDescriptor:fontDescriptor size:fontSize];

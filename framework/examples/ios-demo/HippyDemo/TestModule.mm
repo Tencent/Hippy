@@ -32,7 +32,7 @@
 #import "HippyRedBox.h"
 #import "DemoConfigs.h"
 #import "HippyMethodInterceptorProtocol.h"
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 
 static NSString *const engineKey = @"Demo";
 
@@ -120,14 +120,14 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
 }
 
 - (BOOL)shouldInvokeWithModuleName:(NSString *)moduleName methodName:(NSString *)methodName arguments:(NSArray<id<HippyBridgeArgument>> *)arguments argumentsValues:(NSArray *)argumentsValue containCallback:(BOOL)containCallback {
-    HPAssert(moduleName, @"module name must not be null");
-    HPAssert(methodName, @"method name must not be null");
+    HippyAssert(moduleName, @"module name must not be null");
+    HippyAssert(methodName, @"method name must not be null");
     return YES;
 }
 
 - (BOOL)shouldCallbackBeInvokedWithModuleName:(NSString *)moduleName methodName:(NSString *)methodName callbackId:(NSNumber *)cbId arguments:(id)arguments {
-    HPAssert(moduleName, @"module name must not be null");
-    HPAssert(methodName, @"method name must not be null");
+    HippyAssert(moduleName, @"module name must not be null");
+    HippyAssert(methodName, @"method name must not be null");
     return YES;
 }
 @end

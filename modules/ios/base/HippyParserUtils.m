@@ -20,10 +20,10 @@
  * limitations under the License.
  */
 
-#import "HPParserUtils.h"
+#import "HippyParserUtils.h"
 #import "HippyLog.h"
 
-BOOL HPParseReadChar(const char **input, char c) {
+BOOL HippyReadChar(const char **input, char c) {
     if (**input == c) {
         (*input)++;
         return YES;
@@ -31,7 +31,7 @@ BOOL HPParseReadChar(const char **input, char c) {
     return NO;
 }
 
-BOOL HPParseReadString(const char **input, const char *string) {
+BOOL HippyReadString(const char **input, const char *string) {
     int i;
     for (i = 0; string[i] != 0; i++) {
         if (string[i] != (*input)[i]) {
@@ -42,27 +42,27 @@ BOOL HPParseReadString(const char **input, const char *string) {
     return YES;
 }
 
-void HPParseSkipWhitespace(const char **input) {
+void HippySkipWhitespace(const char **input) {
     while (isspace(**input)) {
         (*input)++;
     }
 }
 
-static BOOL HPParseIsIdentifierHead(const char c) {
+static BOOL HippyParseIsIdentifierHead(const char c) {
     return isalpha(c) || c == '_';
 }
 
-static BOOL HPParseIsIdentifierTail(const char c) {
+static BOOL HippyParseIsIdentifierTail(const char c) {
     return isalnum(c) || c == '_';
 }
 
-BOOL HPParseIdentifier(const char **input, NSString **string) {
+BOOL HippyParseIdentifier(const char **input, NSString **string) {
     const char *start = *input;
-    if (!HPParseIsIdentifierHead(**input)) {
+    if (!HippyParseIsIdentifierHead(**input)) {
         return NO;
     }
     (*input)++;
-    while (HPParseIsIdentifierTail(**input)) {
+    while (HippyParseIsIdentifierTail(**input)) {
         (*input)++;
     }
     if (string) {
@@ -71,7 +71,7 @@ BOOL HPParseIdentifier(const char **input, NSString **string) {
     return YES;
 }
 
-static BOOL HPParseIsCollectionType(NSString *type) {
+static BOOL HippyParseIsCollectionType(NSString *type) {
     static NSSet *collectionTypes;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -80,24 +80,24 @@ static BOOL HPParseIsCollectionType(NSString *type) {
     return [collectionTypes containsObject:type];
 }
 
-NSString *HPParseType(const char **input) {
+NSString *HippyParseType(const char **input) {
     NSString *type;
-    HPParseIdentifier(input, &type);
-    HPParseSkipWhitespace(input);
-    if (HPParseReadChar(input, '<')) {
-        HPParseSkipWhitespace(input);
-        NSString *subtype = HPParseType(input);
-        if (HPParseIsCollectionType(type)) {
+    HippyParseIdentifier(input, &type);
+    HippySkipWhitespace(input);
+    if (HippyReadChar(input, '<')) {
+        HippySkipWhitespace(input);
+        NSString *subtype = HippyParseType(input);
+        if (HippyParseIsCollectionType(type)) {
             if ([type isEqualToString:@"NSDictionary"]) {
                 // Dictionaries have both a key *and* value type, but the key type has
                 // to be a string for JSON, so we only care about the value type
                 if (HIPPY_DEBUG && ![subtype isEqualToString:@"NSString"]) {
                     HippyLogError(@"%@ is not a valid key type for a JSON dictionary", subtype);
                 }
-                HPParseSkipWhitespace(input);
-                HPParseReadChar(input, ',');
-                HPParseSkipWhitespace(input);
-                subtype = HPParseType(input);
+                HippySkipWhitespace(input);
+                HippyReadChar(input, ',');
+                HippySkipWhitespace(input);
+                subtype = HippyParseType(input);
             }
             if (![subtype isEqualToString:@"id"]) {
                 type = [type stringByReplacingCharactersInRange:(NSRange) { 0, 2 /* "NS" */ } withString:subtype];
@@ -105,10 +105,10 @@ NSString *HPParseType(const char **input) {
         } else {
             // It's a protocol rather than a generic collection - ignore it
         }
-        HPParseSkipWhitespace(input);
-        HPParseReadChar(input, '>');
+        HippySkipWhitespace(input);
+        HippyReadChar(input, '>');
     }
-    HPParseSkipWhitespace(input);
-    HPParseReadChar(input, '*');
+    HippySkipWhitespace(input);
+    HippyReadChar(input, '*');
     return type;
 }

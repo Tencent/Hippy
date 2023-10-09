@@ -23,7 +23,7 @@
 #import <UIKit/UIKit.h>
 
 #import "NativeRenderComponentProtocol.h"
-#import "HPConvert+NativeRender.h"
+#import "HippyConvert+NativeRender.h"
 
 #include <memory>
 

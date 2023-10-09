@@ -24,7 +24,7 @@
 #import "NativeRenderComponentData.h"
 #import "NativeRenderObjectView.h"
 #import "HippyViewManager.h"
-#import "HPConvert.h"
+#import "HippyConvert.h"
 #import "HPToolUtils.h"
 #import "UIView+NativeRender.h"
 
@@ -138,7 +138,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
         NSAssert(selector, @"no propConfig setter selector found for property %@", name);
         if ([_managerClass respondsToSelector:selector]) {
             NSArray<NSString *> *typeAndKeyPath = ((NSArray<NSString *> * (*)(id, SEL)) objc_msgSend)(_managerClass, selector);
-            type = HPConvertSelectorForType(typeAndKeyPath[0]);
+            type = HippyConvertSelectorForType(typeAndKeyPath[0]);
             keyPath = typeAndKeyPath.count > 1 ? typeAndKeyPath[1] : nil;
         } else {
             propBlock = ^(__unused id view, __unused id json) {
@@ -198,9 +198,9 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
                 //The component event response logic no longer executes this code
             } else {
                 // Ordinary property handlers
-                NSMethodSignature *typeSignature = [[HPConvert class] methodSignatureForSelector:type];
+                NSMethodSignature *typeSignature = [[HippyConvert class] methodSignatureForSelector:type];
                 if (!typeSignature) {
-                    HippyLogError(@"No +[HPConvert %@] function found.", NSStringFromSelector(type));
+                    HippyLogError(@"No +[HippyConvert %@] function found.", NSStringFromSelector(type));
                     return ^(__unused id<NativeRenderComponentProtocol> view, __unused id json) {
                     };
                 }
@@ -221,7 +221,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
                     setDefaultValue = YES;                                                  \
                 }                                                                           \
                 if ([target respondsToSelector:setter]) {                                   \
-                    set(target, setter, convert([HPConvert class], type, json));  \
+                    set(target, setter, convert([HippyConvert class], type, json));  \
                 }                                                                           \
             } else if (setDefaultValue) {                                                   \
                 if ([target respondsToSelector:setter]) {                                   \
@@ -254,7 +254,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
                     default: {
                         NSInvocation *typeInvocation = [NSInvocation invocationWithMethodSignature:typeSignature];
                         typeInvocation.selector = type;
-                        typeInvocation.target = [HPConvert class];
+                        typeInvocation.target = [HippyConvert class];
 
                         __block NSInvocation *targetInvocation = nil;
                         __block NSMutableData *defaultValue = nil;

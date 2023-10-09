@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HPConvert.h"
+#import "HippyConvert.h"
 #import "HPToolUtils.h"
 #import "NativeRenderBorderDrawing.h"
 #import "NativeRenderGradientObject.h"

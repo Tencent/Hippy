@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 #import "HippyLog.h"
 #import "HPToolUtils.h"
 
@@ -196,22 +196,22 @@ BOOL HPForceTouchAvailable(void) {
 
 NSError *HPErrorWithMessage(NSString *message) {
     NSDictionary<NSString *, id> *errorInfo = @ { NSLocalizedDescriptionKey: message };
-    return [[NSError alloc] initWithDomain:HPErrorDomain code:0 userInfo:errorInfo];
+    return [[NSError alloc] initWithDomain:HippyErrorDomain code:0 userInfo:errorInfo];
 }
 
 NSError *HPErrorWithMessageAndModuleName(NSString *message, NSString *moduleName) {
-    NSDictionary<NSString *, id> *errorInfo = @ { NSLocalizedDescriptionKey: message, HPFatalModuleName: moduleName ?: @"unknown" };
-    return [[NSError alloc] initWithDomain:HPErrorDomain code:0 userInfo:errorInfo];
+    NSDictionary<NSString *, id> *errorInfo = @ { NSLocalizedDescriptionKey: message, HippyFatalModuleName: moduleName ?: @"unknown" };
+    return [[NSError alloc] initWithDomain:HippyErrorDomain code:0 userInfo:errorInfo];
 }
 
 NSError *HPErrorFromErrorAndModuleName(NSError *error, NSString *moduleName) {
     NSDictionary *userInfo = [error userInfo];
     if (userInfo) {
         NSMutableDictionary *ui = [NSMutableDictionary dictionaryWithDictionary:userInfo];
-        [ui setObject:moduleName ?: @"unknown" forKey:HPFatalModuleName];
+        [ui setObject:moduleName ?: @"unknown" forKey:HippyFatalModuleName];
         userInfo = [NSDictionary dictionaryWithDictionary:ui];
     } else {
-        userInfo = @ { HPFatalModuleName: moduleName ?: @"unknown" };
+        userInfo = @ { HippyFatalModuleName: moduleName ?: @"unknown" };
     }
     NSError *retError = [NSError errorWithDomain:error.domain code:error.code userInfo:userInfo];
     return retError;
@@ -298,7 +298,7 @@ UIColor *defaultColorForString(NSString *colorString) {
             unsigned int colorInteger;
             BOOL scanSuccess = [scan scanHexInt:&colorInteger];
             if (scanSuccess) {
-                UIColor *tmpColor = HPConvertNumberToColor(colorInteger);
+                UIColor *tmpColor = HippyConvertNumberToColor(colorInteger);
                 [tmpColorDic setObject:tmpColor forKey:key];
             }
         }
@@ -310,7 +310,7 @@ UIColor *defaultColorForString(NSString *colorString) {
     return color;
 }
 
-UIColor *HPConvertStringToColor(NSString *colorString) {
+UIColor *HippyConvertStringToColor(NSString *colorString) {
     if (!colorString) {
         return nil;
     }
@@ -361,12 +361,12 @@ UIColor *HPConvertStringToColor(NSString *colorString) {
         scanResult = colorInteger;
     }
     if (scanSuccess) {
-        color = HPConvertNumberToColor(scanResult);
+        color = HippyConvertNumberToColor(scanResult);
     }
     return color;
 }
 
-UIColor *HPConvertNumberToColor(NSInteger colorNumber) {
+UIColor *HippyConvertNumberToColor(NSInteger colorNumber) {
     NSInteger a = (colorNumber >> 24) & 0xFF;
     NSInteger r = (colorNumber >> 16) & 0xFF;
     NSInteger g = (colorNumber >> 8) & 0xFF;

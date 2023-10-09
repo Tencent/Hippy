@@ -22,7 +22,7 @@
 
 #import <UIKit/UIDevice.h>
 #import "VFSUriHandler.h"
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 #import "HippyBundleURLProvider.h"
 #import "HippyContextWrapper.h"
 #import "HippyDefines.h"
@@ -126,7 +126,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
             auto hippy_key = context->CreateString(kHippyKey);
             context->SetProperty(global_object, hippy_key, context->CreateObject());
             id<HippyContextWrapper> contextWrapper = CreateContextWrapper(context);
-            contextWrapper.excpetionHandler = ^(id<HippyContextWrapper>  _Nonnull wrapper, NSString * _Nonnull message, NSArray<HPDriverStackFrame *> * _Nonnull stackFrames) {
+            contextWrapper.excpetionHandler = ^(id<HippyContextWrapper>  _Nonnull wrapper, NSString * _Nonnull message, NSArray<HippyDriverStackFrame *> * _Nonnull stackFrames) {
                 HippyJSExecutor *strongSelf = weakSelf;
                 if (!strongSelf) {
                     return;
@@ -136,11 +136,11 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                     return;
                 }
                 NSDictionary *userInfo = @{
-                    HPFatalModuleName: bridge.moduleName?:@"unknown",
+                    HippyFatalModuleName: bridge.moduleName?:@"unknown",
                     NSLocalizedDescriptionKey:message?:@"unknown",
-                    HPJSStackTraceKey:stackFrames
+                    HippyJSStackTraceKey:stackFrames
                 };
-                NSError *error = [NSError errorWithDomain:HPErrorDomain code:2 userInfo:userInfo];
+                NSError *error = [NSError errorWithDomain:HippyErrorDomain code:2 userInfo:userInfo];
                 HippyBridgeFatal(error, bridge);
             };
             strongSelf->_contextWrapper = contextWrapper;
@@ -264,8 +264,8 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                 if (!strongSelf) {
                     return;
                 }
-                HPAssert(strongSelf.pScope, @"scope must not be null");
-                HPAssert(strongSelf.pScope->GetContext(), @"context must not be null");
+                HippyAssert(strongSelf.pScope, @"scope must not be null");
+                HippyAssert(strongSelf.pScope->GetContext(), @"context must not be null");
                 auto context = strongSelf.pScope->GetContext();
                 auto global_object = context->GetGlobalObject();
                 auto key = context->CreateString("__HIPPYCURDIR__");
@@ -421,7 +421,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     auto global_object = context->GetGlobalObject();
     auto hippy_native_object_key = context->CreateString(str);
     auto hippy_native_object_value = context->GetProperty(global_object, hippy_native_object_key);
-    HPAssert(hippy_native_object_value, @"__HIPPYNATIVEGLOBAL__ must not be null");
+    HippyAssert(hippy_native_object_value, @"__HIPPYNATIVEGLOBAL__ must not be null");
     if (!context->IsNullOrUndefined(hippy_native_object_value)) {
         for (NSString *key in addInfoDict) {
             id value = addInfoDict[key];
@@ -455,7 +455,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 - (void)_executeJSCall:(NSString *)method
              arguments:(NSArray *)arguments
               callback:(HippyJavaScriptCallback)onComplete {
-    HPAssert(onComplete != nil, @"onComplete block should not be nil");
+    HippyAssert(onComplete != nil, @"onComplete block should not be nil");
     __weak HippyJSExecutor *weakSelf = self;
     [self executeBlockOnJavaScriptQueue:^{
         @autoreleasepool {
@@ -512,7 +512,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
             } @catch (NSException *exception) {
                 NSString *moduleName = strongSelf.bridge.moduleName?:@"unknown";
                 NSMutableDictionary *userInfo = [exception.userInfo mutableCopy]?:[NSMutableDictionary dictionary];
-                [userInfo setObject:moduleName forKey:HPFatalModuleName];
+                [userInfo setObject:moduleName forKey:HippyFatalModuleName];
                 [userInfo setObject:arguments?:[NSArray array] forKey:@"arguments"];
                 NSException *reportException = [NSException exceptionWithName:exception.name reason:exception.reason userInfo:userInfo];
                 HippyBridgeHandleException(reportException, self.bridge);
@@ -522,8 +522,8 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 }
 
 - (void)executeApplicationScript:(NSData *)script sourceURL:(NSURL *)sourceURL onComplete:(HippyJavaScriptCallback)onComplete {
-    HPAssertParam(script);
-    HPAssertParam(sourceURL);
+    HippyAssertParam(script);
+    HippyAssertParam(sourceURL);
     __weak HippyJSExecutor* weakSelf = self;
     [self executeBlockOnJavaScriptQueue:^{
         @autoreleasepool {
@@ -570,7 +570,7 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Share
         if (lockSuccess) {
             [lock unlock];
         }
-        *error = !StringViewUtils::IsEmpty(errorMsg) ? [NSError errorWithDomain:HPErrorDomain code:2 userInfo:@{
+        *error = !StringViewUtils::IsEmpty(errorMsg) ? [NSError errorWithDomain:HippyErrorDomain code:2 userInfo:@{
             NSLocalizedDescriptionKey: StringViewToNSString(errorMsg)}] : nil;
         id objcResult = ObjectFromCtxValue(context, result);
         return objcResult;
@@ -605,17 +605,17 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Share
 }
 
 - (void)injectJSONText:(NSString *)script asGlobalObjectNamed:(NSString *)objectName callback:(HippyJavaScriptCallback)onComplete {
-    HPAssert(nil != script, @"param 'script' can't be nil");
+    HippyAssert(nil != script, @"param 'script' can't be nil");
     if (nil == script) {
         if (onComplete) {
             NSString *errorMessage = [NSString stringWithFormat:@"param 'script' is nil"];
-            NSError *error = [NSError errorWithDomain:HPErrorDomain code:2 userInfo:@{ NSLocalizedDescriptionKey: errorMessage }];
+            NSError *error = [NSError errorWithDomain:HippyErrorDomain code:2 userInfo:@{ NSLocalizedDescriptionKey: errorMessage }];
             onComplete(@(NO), error);
         }
         return;
     }
     if (HIPPY_DEBUG) {
-        HPAssert(HippyJSONParse(script, NULL) != nil, @"%@ wasn't valid JSON!", script);
+        HippyAssert(HippyJSONParse(script, NULL) != nil, @"%@ wasn't valid JSON!", script);
     }
 
     __weak HippyJSExecutor *weakSelf = self;
@@ -636,7 +636,7 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Share
             context->SetProperty(global_object, name_key, json_value);
             if (tryCatch->HasCaught()) {
                 string_view errorMsg = tryCatch->GetExceptionMessage();
-                NSError *error = [NSError errorWithDomain:HPErrorDomain code:2 userInfo:@{
+                NSError *error = [NSError errorWithDomain:HippyErrorDomain code:2 userInfo:@{
                     NSLocalizedDescriptionKey: StringViewToNSString(errorMsg)}];
                 onComplete(@(NO), error);
             }

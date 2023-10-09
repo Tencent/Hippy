@@ -22,7 +22,7 @@
 
 #import <UIKit/NSIndexPath+UIKitAdditions.h>
 
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 #import "NativeRenderWaterfallViewDataSource.h"
 #import "NativeRenderObjectView.h"
 #import "NativeRenderObjectWaterfall.h"
@@ -232,7 +232,7 @@ static NSArray<NSIndexPath *> *IndexPathForIndexSet(NSUInteger section, NSIndexS
     }
     NSUInteger indexBuffer[[indexSet count]];
     NSUInteger resultCount = [indexSet getIndexes:indexBuffer maxCount:[indexSet count] inIndexRange:nil];
-    HPAssert(resultCount == [indexSet count], @"Should get all index from indexset");
+    HippyAssert(resultCount == [indexSet count], @"Should get all index from indexset");
     NSMutableArray<NSIndexPath *> *indexPaths = [NSMutableArray arrayWithCapacity:resultCount];
     for (NSUInteger i = 0; i < resultCount; i++) {
         NSUInteger index = indexBuffer[i];

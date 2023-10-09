@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HPConvert+NativeRender.h"
+#import "HippyConvert+NativeRender.h"
 #import "NativeRenderObjectView.h"
 
 typedef NS_ENUM(NSInteger, NativeRenderSizeComparison) {

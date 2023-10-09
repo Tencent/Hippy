@@ -26,8 +26,8 @@
 #import "HippyBridge.h"
 #import "HippyDefines.h"
 #import "HippyUtils.h"
-#import "HPAsserts.h"
-#import "HPConvert.h"
+#import "HippyAsserts.h"
+#import "HippyConvert.h"
 #import "HippyLog.h"
 #import "HPToolUtils.h"
 
@@ -209,7 +209,7 @@ HIPPY_EXPORT_MODULE(StorageModule)
 }
 
 - (NSDictionary *)_ensureSetup {
-    HPAssertThread(HippyGetMethodQueue(), @"Must be executed on storage thread");
+    HippyAssertThread(HippyGetMethodQueue(), @"Must be executed on storage thread");
 
     NSError *error = nil;
     if (!_HippyHasCreatedStorageDirectory) {

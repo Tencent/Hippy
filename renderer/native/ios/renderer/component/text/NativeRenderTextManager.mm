@@ -21,7 +21,7 @@
  */
 
 #import "NativeRenderTextManager.h"
-#import "HPConvert.h"
+#import "HippyConvert.h"
 #import "NativeRenderObjectText.h"
 #import "NativeRenderText.h"
 #import "NativeRenderTextView.h"

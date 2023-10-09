@@ -21,7 +21,7 @@
  */
 
 #import "HippyRootView.h"
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 #import "HippyView.h"
 #import "UIView+NativeRender.h"
 #import "NativeRenderDefines.h"
@@ -62,7 +62,7 @@ NSNumber *AllocRootViewTag(void) {
 }
 
 - (NSNumber *)componentTag {
-    HPAssertMainQueue();
+    HippyAssertMainQueue();
     if (!super.componentTag) {
         self.componentTag = AllocRootViewTag();
     }

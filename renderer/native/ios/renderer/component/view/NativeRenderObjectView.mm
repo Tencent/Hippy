@@ -20,9 +20,9 @@
  * limitations under the License.
  */
 
-#import "HPConvert.h"
+#import "HippyConvert.h"
 #import "HPDomUtils.h"
-#import "HPI18nUtils.h"
+#import "HippyI18nUtils.h"
 #import "NativeRenderObjectView.h"
 #import "UIView+DirectionalLayout.h"
 #import "UIView+NativeRender.h"
@@ -466,7 +466,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
         if (!shadowSuperview) {
             if (direction) {
                 NSWritingDirection writingDirection =
-                    [[HPI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
+                    [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
                 *direction = NSWritingDirectionRightToLeft == writingDirection ? hippy::Direction::RTL : hippy::Direction::LTR;
             }
         }

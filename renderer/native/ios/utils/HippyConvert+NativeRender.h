@@ -20,11 +20,11 @@
  * limitations under the License.
  */
 
-#import "HPConvert.h"
+#import "HippyConvert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface HPConvert (Transform)
+@interface HippyConvert (Transform)
 
 + (CATransform3D)CATransform3D:(id)json;
 + (CGFloat)convertToRadians:(id)json;
@@ -41,7 +41,7 @@ typedef NS_ENUM(NSInteger, NativeRenderAnimationType) {
     NativeRenderAnimationTypeKeyboard,
 };
 
-@interface HPConvert (NativeRenderAnimationType)
+@interface HippyConvert (NativeRenderAnimationType)
 
 + (NativeRenderAnimationType)NativeRenderAnimationType:(id)json;
 
@@ -54,7 +54,7 @@ typedef NS_ENUM(NSInteger, NativeRenderPointerEvents) {
     NativeRenderPointerEventsBoxOnly,
 };
 
-@interface HPConvert (NativeRenderPointerEvents)
+@interface HippyConvert (NativeRenderPointerEvents)
 
 + (NativeRenderPointerEvents)NativeRenderPointerEvents:(id)json;
 
@@ -67,7 +67,7 @@ typedef NS_ENUM(NSInteger, NativeRenderBorderStyle) {
     NativeRenderBorderStyleNone,
 };
 
-@interface HPConvert (NativeRenderBorderStyle)
+@interface HippyConvert (NativeRenderBorderStyle)
 
 + (NativeRenderBorderStyle)NativeRenderBorderStyle:(id)json;
 
@@ -92,7 +92,7 @@ typedef NS_ENUM(NSInteger, NativeRenderTextVerticalAlignType) {
     NativeRenderTextVerticalAlignTop = 4,
 };
 
-@interface HPConvert (NativeRenderTextEnumDefines)
+@interface HippyConvert (NativeRenderTextEnumDefines)
 
 + (NativeRenderTextDecorationLineType)NativeRenderTextDecorationLineType:(id)json;
 

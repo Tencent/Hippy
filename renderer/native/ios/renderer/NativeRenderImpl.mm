@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 #import "HPDomUtils.h"
 #import "HPFootstoneUtils.h"
 #import "HPOCToDomArgument.h"
@@ -71,12 +71,12 @@ void NativeRenderRegisterView(Class moduleClass) {
     dispatch_once(&onceToken, ^{
         NativeRenderViewManagerClasses = [NSMutableArray new];
     });
-    HPAssert([moduleClass respondsToSelector:@selector(viewName)], @"%@ must respond to selector viewName", NSStringFromClass(moduleClass));
+    HippyAssert([moduleClass respondsToSelector:@selector(viewName)], @"%@ must respond to selector viewName", NSStringFromClass(moduleClass));
     [NativeRenderViewManagerClasses addObject:moduleClass];
 }
 
 static NSString *GetViewNameFromViewManagerClass(Class cls) {
-    HPAssert([cls respondsToSelector:@selector(viewName)], @"%@ must respond to selector viewName", NSStringFromClass(cls));
+    HippyAssert([cls respondsToSelector:@selector(viewName)], @"%@ must respond to selector viewName", NSStringFromClass(cls));
     NSString *viewName = [cls performSelector:@selector(viewName)];
     return viewName;
 }
@@ -470,7 +470,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 
 - (UIView *)createViewFromRenderObject:(NativeRenderObjectView *)renderObject {
     AssertMainQueue();
-    HPAssert(renderObject.viewName, @"view name is needed for creating a view");
+    HippyAssert(renderObject.viewName, @"view name is needed for creating a view");
     NativeRenderComponentData *componentData = [self componentDataForViewName:renderObject.viewName];
     UIView *view = [self createViewByComponentData:componentData
                                       componentTag:renderObject.componentTag
@@ -615,7 +615,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         if (_extraComponents) {
             for (Class cls in _extraComponents) {
                 NSString *viewName = GetViewNameFromViewManagerClass(cls);
-                HPAssert(![_viewManagers objectForKey:viewName],
+                HippyAssert(![_viewManagers objectForKey:viewName],
                          @"duplicated component %@ for class %@ and %@", viewName,
                          NSStringFromClass(cls),
                          NSStringFromClass([_viewManagers objectForKey:viewName]));
@@ -880,7 +880,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
                                                                         onRootTag:@(rootTag)];
     for (int32_t componentTag : ids) {
         NativeRenderObjectView *view = [_renderObjectRegistry componentForTag:@(componentTag) onRootTag:@(rootTag)];
-        HPAssert(fromObjectView == [view parentComponent], @"parent of object view with tag %d is not object view with tag %d", componentTag, fromContainer);
+        HippyAssert(fromObjectView == [view parentComponent], @"parent of object view with tag %d is not object view with tag %d", componentTag, fromContainer);
         [view removeFromNativeRenderSuperview];
         [toObjectView insertNativeRenderSubview:view atIndex:index];
     }
@@ -897,7 +897,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
             if (!view) {
                 continue;
             }
-            HPAssert(fromView == [view parentComponent], @"parent of object view with tag %d is not object view with tag %d", tag, fromContainer);
+            HippyAssert(fromView == [view parentComponent], @"parent of object view with tag %d is not object view with tag %d", tag, fromContainer);
             [view removeFromNativeRenderSuperview];
             [toView insertNativeRenderSubview:view atIndex:index];
         }
@@ -922,7 +922,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         int32_t componentTag = node->GetId();
         NativeRenderObjectView *objectView = [_renderObjectRegistry componentForTag:@(componentTag) onRootTag:@(rootTag)];
         [objectView dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
-        HPAssert(!parentObjectView || parentObjectView == [objectView parentComponent], @"try to move object view on different parent object view");
+        HippyAssert(!parentObjectView || parentObjectView == [objectView parentComponent], @"try to move object view on different parent object view");
         if (!parentObjectView) {
             parentObjectView = [objectView parentComponent];
         }
@@ -939,7 +939,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
             if (!view) {
                 continue;
             }
-            HPAssert(!superView || superView == [view parentComponent], @"try to move views on different parent views");
+            HippyAssert(!superView || superView == [view parentComponent], @"try to move views on different parent views");
             if (!superView) {
                 superView = [view parentComponent];
             }
@@ -1055,7 +1055,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     } @catch (NSException *exception) {
         NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on component target %@ with params %@", exception, name, nativeModuleName, finalParams];
         NSError *error = HPErrorWithMessage(message);
-        HPFatal(error, nil);
+        HippyFatal(error);
         return nil;
     }
 }
@@ -1484,7 +1484,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 }
 
 - (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls {
-    HPAssertParam(cls);
+    HippyAssertParam(cls);
     std::lock_guard<std::mutex> lock(_imageProviderMutex);
     if (!_imageProviders) {
         _imageProviders = [NSMutableArray arrayWithCapacity:8];

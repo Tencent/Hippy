@@ -21,7 +21,7 @@
  */
 
 #import "HippyEventDispatcher.h"
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 #import "HPToolUtils.h"
 
 const NSInteger HippyTextUpdateLagWarningThreshold = 3;

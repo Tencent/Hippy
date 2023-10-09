@@ -22,7 +22,7 @@
 
 #import "HippyKeyCommands.h"
 #import <UIKit/UIKit.h>
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 #import "HippyDefines.h"
 #import "HPToolUtils.h"
 
@@ -225,7 +225,7 @@ static BOOL HippyIsIOS8OrEarlier() {
 }
 
 - (void)registerKeyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags action:(void (^)(UIKeyCommand *))block {
-    HPAssertMainQueue();
+    HippyAssertMainQueue();
 
     if (input.length && flags && HippyIsIOS8OrEarlier()) {
         // Workaround around the first cmd not working: http://openradar.appspot.com/19613391
@@ -243,7 +243,7 @@ static BOOL HippyIsIOS8OrEarlier() {
 }
 
 - (void)unregisterKeyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags {
-    HPAssertMainQueue();
+    HippyAssertMainQueue();
 
     for (HippyKeyCommand *command in _commands.allObjects) {
         if ([command matchesInput:input flags:flags]) {
@@ -254,7 +254,7 @@ static BOOL HippyIsIOS8OrEarlier() {
 }
 
 - (BOOL)isKeyCommandRegisteredForInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags {
-    HPAssertMainQueue();
+    HippyAssertMainQueue();
 
     for (HippyKeyCommand *command in _commands.allObjects) {  // add by stockGroup
         if ([command matchesInput:input flags:flags]) {
@@ -265,7 +265,7 @@ static BOOL HippyIsIOS8OrEarlier() {
 }
 
 - (void)registerDoublePressKeyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags action:(void (^)(UIKeyCommand *))block {
-    HPAssertMainQueue();
+    HippyAssertMainQueue();
 
     if (input.length && flags && HippyIsIOS8OrEarlier()) {
         // Workaround around the first cmd not working: http://openradar.appspot.com/19613391
@@ -283,7 +283,7 @@ static BOOL HippyIsIOS8OrEarlier() {
 }
 
 - (void)unregisterDoublePressKeyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags {
-    HPAssertMainQueue();
+    HippyAssertMainQueue();
 
     for (HippyKeyCommand *command in _commands.allObjects) {
         if ([command matchesInput:input flags:flags]) {
@@ -294,7 +294,7 @@ static BOOL HippyIsIOS8OrEarlier() {
 }
 
 - (BOOL)isDoublePressKeyCommandRegisteredForInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags {
-    HPAssertMainQueue();
+    HippyAssertMainQueue();
 
     for (HippyKeyCommand *command in _commands.allObjects) {  // add by stockGroup
         if ([command matchesInput:input flags:flags]) {

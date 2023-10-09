@@ -21,9 +21,9 @@
  */
 
 #import "HippyViewManager.h"
-#import "HPConvert.h"
+#import "HippyConvert.h"
 
-@interface HPConvert (UIScrollView)
+@interface HippyConvert (UIScrollView)
 
 + (UIScrollViewKeyboardDismissMode)UIScrollViewKeyboardDismissMode:(id)json;
 

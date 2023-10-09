@@ -25,7 +25,7 @@
 #import "HippyScrollViewManager.h"
 #import "HippyScrollView.h"
 
-@implementation HPConvert (UIScrollView)
+@implementation HippyConvert (UIScrollView)
 
 HP_ENUM_CONVERTER(UIScrollViewKeyboardDismissMode, (@{
     @"none": @(UIScrollViewKeyboardDismissModeNone),

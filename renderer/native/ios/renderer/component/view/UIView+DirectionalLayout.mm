@@ -22,7 +22,7 @@
 
 #import "UIView+DirectionalLayout.h"
 #import "UIView+NativeRender.h"
-#import "HPI18nUtils.h"
+#import "HippyI18nUtils.h"
 
 #include <objc/runtime.h>
 

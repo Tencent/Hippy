@@ -21,7 +21,7 @@
  */
 
 #import "NSObject+CtxValue.h"
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 
 #include "driver/napi/js_ctx.h"
 #include "driver/napi/js_ctx_value.h"
@@ -32,7 +32,7 @@
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context; {
     @autoreleasepool {
-        HPAssert(NO, @"%@ must implemente convertToCtxValue method", NSStringFromClass([self class]));
+        HippyAssert(NO, @"%@ must implemente convertToCtxValue method", NSStringFromClass([self class]));
         std::unordered_map<CtxValuePtr, CtxValuePtr> valueMap;
         return context->CreateObject(valueMap);
     }

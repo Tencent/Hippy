@@ -23,7 +23,7 @@
 #import <CommonCrypto/CommonCrypto.h>
 
 #import "HippyUtils.h"
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 #import "HippyLog.h"
 
 #include <objc/message.h>
@@ -59,7 +59,7 @@ static NSString *__nullable _HPJSONStringifyNoRetry(id __nullable jsonObject, NS
     } @catch (NSException *exception) {
         // Convert exception to error
         if (error) {
-            *error = [NSError errorWithDomain:HPErrorDomain code:0 userInfo:@ { NSLocalizedDescriptionKey: exception.description ?: @"" }];
+            *error = [NSError errorWithDomain:HippyErrorDomain code:0 userInfo:@ { NSLocalizedDescriptionKey: exception.description ?: @"" }];
         }
         return nil;
     }
@@ -241,10 +241,10 @@ NSDictionary<NSString *, id> *HippyJSErrorFromCodeMessageAndNSError(NSString *co
 
     if (error) {
         errorMessage = error.localizedDescription ?: @"Unknown error from a native module";
-        errorInfo[@"domain"] = error.domain ?: HPErrorDomain;
+        errorInfo[@"domain"] = error.domain ?: HippyErrorDomain;
     } else {
         errorMessage = @"Unknown error from a native module";
-        errorInfo[@"domain"] = HPErrorDomain;
+        errorInfo[@"domain"] = HippyErrorDomain;
     }
     errorInfo[@"code"] = code ?: HippyErrorUnspecified;
     errorInfo[@"userInfo"] = HPNullIfNil(error.userInfo);

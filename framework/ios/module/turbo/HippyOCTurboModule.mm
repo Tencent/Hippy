@@ -25,7 +25,7 @@
 #import "HippyOCTurboModule+Inner.h"
 #import "HippyTurboModuleManager.h"
 #import "HippyJSExecutor.h"
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 #import "HippyLog.h"
 #import "HPToolUtils.h"
 #import "NSObject+CtxValue.h"
@@ -128,7 +128,7 @@ HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
         return value;
     } @catch (NSException *exception) {
         // Pass on JS exceptions
-        if ([exception.name hasPrefix:HPFatalExceptionName]) {
+        if ([exception.name hasPrefix:HippyFatalExceptionName]) {
             @throw exception;
         }
 

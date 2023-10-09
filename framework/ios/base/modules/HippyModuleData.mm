@@ -23,7 +23,7 @@
 #import "HippyModuleData.h"
 #import "HippyBridge.h"
 #import "HippyModuleMethod.h"
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 #import "HippyLog.h"
 #import "HPToolUtils.h"
 
@@ -94,7 +94,7 @@
         if (!_setupComplete) {
             if (!_instance) {
                 if (HIPPY_DEBUG && _requiresMainQueueSetup) {
-                    HPAssertMainQueue();
+                    HippyAssertMainQueue();
                 }
                 _instance = [_moduleClass new];
                 if (!_instance) {

@@ -22,7 +22,7 @@
 
 #import "NativeRenderTextField.h"
 
-#import "HPConvert.h"
+#import "HippyConvert.h"
 #import "HPToolUtils.h"
 #import "NativeRenderTextSelection.h"
 #import "UIView+NativeRender.h"

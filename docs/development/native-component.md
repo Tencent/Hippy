@@ -206,7 +206,7 @@ NATIVE_RENDER_REMAP_VIEW_PROPERTY(opacity, alpha, CGFloat)
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(overflow, CSSOverflow, HippyView)
 {
     if (json) {
-        view.clipsToBounds = [HPConvert CSSOverflow:json] != CSSOverflowVisible;
+        view.clipsToBounds = [HippyConvert CSSOverflow:json] != CSSOverflowVisible;
     } else {
         view.clipsToBounds = defaultView.clipsToBounds;
     }
@@ -244,7 +244,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(focus:(nonnull NSNumber *)reactTag callbac
 
 `NATIVE_RENDER_REMAP_VIEW_PROPERTY()` 负责将前端对应的参数名和终端对应的参数名对应起来。以上述代码为例，前端的`opacity` 参数对应终端的`alpha`参数。此宏一共包含三个参数，第一个为前端参数名，第二个为对应的终端参数名称，第三个为参数类型。另外，此宏在设置终端参数时使用的是`keyPath`方法，即终端可以使用`keyPath`参数。
 
-`NATIVE_RENDER_CUSTOM_VIEW_PROPERTY()` 允许终端自行解析前端参数。SDK将前端传递过来的原始json类型数据传递给函数体（用户可以使用`HPConvert`类中的方法解析对应的数据），用户获取后自行解析。
+`NATIVE_RENDER_CUSTOM_VIEW_PROPERTY()` 允许终端自行解析前端参数。SDK将前端传递过来的原始json类型数据传递给函数体（用户可以使用`HippyConvert`类中的方法解析对应的数据），用户获取后自行解析。
 
 >这个方法带有两个隐藏参数-`view`, `defaultView`。`view`是指当前前端要求渲染的view。`defaultView`指当前端渲染参数为nil时创建的一个临时view，使用其默认参数赋值。
 

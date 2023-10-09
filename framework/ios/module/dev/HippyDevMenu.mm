@@ -24,7 +24,7 @@
 #import "HippyEventDispatcher.h"
 #import "HippyKeyCommands.h"
 #import "HippyWebSocketProxy.h"
-#import "HPAsserts.h"
+#import "HippyAsserts.h"
 #import "HPToolUtils.h"
 #import "HippyDefines.h"
 
@@ -209,7 +209,7 @@ HIPPY_EXPORT_MODULE()
 }
 
 - (void)addItem:(__unused HippyDevMenuItem *)item {
-    HPAssert(NO, @"[HippyDevMenu addItem:]方法没有实现，怎么没问题？");
+    HippyAssert(NO, @"[HippyDevMenu addItem:]方法没有实现，怎么没问题？");
 }
 
 - (NSArray<HippyDevMenuItem *> *)menuItems {

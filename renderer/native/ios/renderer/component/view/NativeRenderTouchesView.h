@@ -23,7 +23,7 @@
 #import <UIKit/UIKit.h>
 
 #import "NativeRenderTouchesProtocol.h"
-#import "HPConvert+NativeRender.h"
+#import "HippyConvert+NativeRender.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
