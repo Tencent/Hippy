@@ -63,7 +63,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  voltron: ^0.0.29
+  voltron: 0.0.35
 
   qr_flutter: 4.0.0
 

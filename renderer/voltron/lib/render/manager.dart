@@ -278,7 +278,7 @@ class RenderManager
   }
 
   double correctPixel(double len) {
-    var density = ScreenUtil.getInstance().screenDensity;
+    var density = ScreenUtil.getInstance().scale;
     return (len * density).roundToDouble() / density;
   }
 

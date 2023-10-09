@@ -1,3 +1,7 @@
+## 0.0.35
+
+- update voltron_render to 0.0.25 to make flutter module faster
+
 ## 0.0.34
 
 - support voltron dynamic library load
