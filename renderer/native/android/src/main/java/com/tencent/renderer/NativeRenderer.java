@@ -405,7 +405,6 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 listener.onInstanceResume();
             }
         }
-        ChoreographerUtils.onResume();
     }
 
     @Override
@@ -415,7 +414,6 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 listener.onInstancePause();
             }
         }
-        ChoreographerUtils.onPause();
     }
 
     @MainThread
