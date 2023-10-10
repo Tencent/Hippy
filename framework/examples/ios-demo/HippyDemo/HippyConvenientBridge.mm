@@ -28,7 +28,7 @@
 #import "HippyFileHandler.h"
 #import "HippyMethodInterceptorProtocol.h"
 #import "NativeRenderManager.h"
-#import "HPDefaultImageProvider.h"
+#import "HippyDefaultImageProvider.h"
 #import "HippyLog.h"
 #import "UIView+NativeRender.h"
 #import "VFSUriLoader.h"
@@ -65,7 +65,7 @@
                                           launchOptions:launchOptions engineKey:engineKey];
         _engineKey = engineKey;
         _extraComponents = extraComponents;
-        [_bridge addImageProviderClass:[HPDefaultImageProvider class]];
+        [_bridge addImageProviderClass:[HippyDefaultImageProvider class]];
         [_bridge setVFSUriLoader:[self URILoader]];
         [self setUpNativeRenderManager];
     }
@@ -85,7 +85,7 @@
     //set dom manager
     _nativeRenderManager->SetDomManager(domManager);
     //set image provider for native render manager
-    _nativeRenderManager->AddImageProviderClass([HPDefaultImageProvider class]);
+    _nativeRenderManager->AddImageProviderClass([HippyDefaultImageProvider class]);
     _nativeRenderManager->RegisterExtraComponent(_extraComponents);
     _nativeRenderManager->SetVFSUriLoader([self URILoader]);
     _bridge.renderManager = _nativeRenderManager;
@@ -214,9 +214,9 @@
     }
 }
 
-- (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls {
+- (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls {
     [_bridge addImageProviderClass:cls];
-    _nativeRenderManager->AddImageProviderClass([HPDefaultImageProvider class]);
+    _nativeRenderManager->AddImageProviderClass([HippyDefaultImageProvider class]);
 }
 
 - (void)setInspectable:(BOOL)inspectable {

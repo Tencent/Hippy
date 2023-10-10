@@ -21,11 +21,11 @@
  */
 
 #import "HippyAsserts.h"
-#import "HPDomUtils.h"
-#import "HPFootstoneUtils.h"
-#import "HPOCToDomArgument.h"
-#import "HPOCToHippyValue.h"
-#import "HPImageProviderProtocol.h"
+#import "HippyDomUtils.h"
+#import "HippyFootstoneUtils.h"
+#import "HippyOCToDomArgument.h"
+#import "HippyOCToHippyValue.h"
+#import "HippyImageProviderProtocol.h"
 #import "HippyUtils.h"
 #import "NativeRenderComponentProtocol.h"
 #import "HippyComponentData.h"
@@ -179,7 +179,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     NSArray<Class> *_extraComponents;
     
     std::weak_ptr<VFSUriLoader> _VFSUriLoader;
-    NSMutableArray<Class<HPImageProviderProtocol>> *_imageProviders;
+    NSMutableArray<Class<HippyImageProviderProtocol>> *_imageProviders;
     std::mutex _imageProviderMutex;
     
     std::function<void(int32_t, NSDictionary *)> _rootViewSizeChangedCb;
@@ -1475,7 +1475,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     return tmpProps;
 }
 
-- (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls {
+- (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls {
     HippyAssertParam(cls);
     std::lock_guard<std::mutex> lock(_imageProviderMutex);
     if (!_imageProviders) {
@@ -1483,7 +1483,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     }
     [_imageProviders addObject:cls];
 }
-- (NSArray<Class<HPImageProviderProtocol>> *)imageProviderClasses {
+- (NSArray<Class<HippyImageProviderProtocol>> *)imageProviderClasses {
     std::lock_guard<std::mutex> lock(_imageProviderMutex);
     if (!_imageProviders) {
         _imageProviders = [NSMutableArray arrayWithCapacity:8];

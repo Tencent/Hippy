@@ -22,7 +22,7 @@
 
 #import <CoreText/CoreText.h>
 
-#import "NativeRenderFont.h"
+#import "HippyFont.h"
 #import "HippyLog.h"
 
 #if !defined(__IPHONE_8_2) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_2
@@ -121,7 +121,7 @@ static UIFont *cachedSystemFont(CGFloat size, NativeRenderFontWeight weight) {
 
 + (UIFont *)UIFont:(id)json {
     json = [self NSDictionary:json];
-    return [NativeRenderFont updateFont:nil withFamily:[HippyConvert NSString:json[@"fontFamily"]] size:[HippyConvert NSNumber:json[@"fontSize"]]
+    return [HippyFont updateFont:nil withFamily:[HippyConvert NSString:json[@"fontFamily"]] size:[HippyConvert NSNumber:json[@"fontSize"]]
                           weight:[HippyConvert NSString:json[@"fontWeight"]]
                            style:[HippyConvert NSString:json[@"fontStyle"]]
                          variant:[HippyConvert NSStringArray:json[@"fontVariant"]]
@@ -191,10 +191,10 @@ HP_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
 
     @end
 
-@implementation NativeRenderFont
+@implementation HippyFont
 
 + (void)initialize {
-    if (self == [NativeRenderFont class]) {
+    if (self == [HippyFont class]) {
         fontCache = [NSCache new];
     }
 }

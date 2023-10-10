@@ -21,11 +21,11 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "HPDefaultImageProvider.h"
+#import "HippyDefaultImageProvider.h"
 #import "NSData+DataType.h"
 #import <CoreServices/CoreServices.h>
 
-@interface HPDefaultImageProvider () {
+@interface HippyDefaultImageProvider () {
     NSData *_data;
     UIImage *_image;
     CGImageSourceRef _imageSourceRef;
@@ -33,7 +33,7 @@
 
 @end
 
-@implementation HPDefaultImageProvider
+@implementation HippyDefaultImageProvider
 
 @synthesize imageDataPath;
 

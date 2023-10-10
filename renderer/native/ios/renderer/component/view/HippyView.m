@@ -22,7 +22,7 @@
 
 #import "HippyConvert.h"
 #import "HippyUtils.h"
-#import "NativeRenderBorderDrawing.h"
+#import "HippyBorderDrawing.h"
 #import "NativeRenderGradientObject.h"
 #import "HippyView.h"
 #import "UIEvent+TouchResponder.h"

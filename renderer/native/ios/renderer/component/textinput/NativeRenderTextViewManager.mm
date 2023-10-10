@@ -21,7 +21,7 @@
  */
 
 #import "NativeRenderBaseTextInput.h"
-#import "NativeRenderFont.h"
+#import "HippyFont.h"
 #import "HippyUIManager.h"
 #import "NativeRenderObjectTextView.h"
 #import "NativeRenderObjectView.h"
@@ -171,35 +171,35 @@ HIPPY_EXPORT_VIEW_PROPERTY(selection, NativeRenderTextSelection)
 HIPPY_EXPORT_VIEW_PROPERTY(text, NSString)
 
 HIPPY_CUSTOM_SHADOW_PROPERTY(fontSize, NSNumber, NativeRenderObjectTextView) {
-    view.font = [NativeRenderFont updateFont:view.font withSize:json];
+    view.font = [HippyFont updateFont:view.font withSize:json];
 }
 
 HIPPY_CUSTOM_SHADOW_PROPERTY(fontWeight, NSString, NativeRenderObjectTextView) {
-    view.font = [NativeRenderFont updateFont:view.font withWeight:json];
+    view.font = [HippyFont updateFont:view.font withWeight:json];
 }
 
 HIPPY_CUSTOM_SHADOW_PROPERTY(fontStyle, NSString, NativeRenderObjectTextView) {
-    view.font = [NativeRenderFont updateFont:view.font withStyle:json];  // defaults to normal
+    view.font = [HippyFont updateFont:view.font withStyle:json];  // defaults to normal
 }
 
 HIPPY_CUSTOM_SHADOW_PROPERTY(fontFamily, NSString, NativeRenderObjectTextView) {
-    view.font = [NativeRenderFont updateFont:view.font withFamily:json];
+    view.font = [HippyFont updateFont:view.font withFamily:json];
 }
 
 HIPPY_CUSTOM_VIEW_PROPERTY(fontSize, NSNumber, NativeRenderBaseTextInput) {
-    UIFont *theFont = [NativeRenderFont updateFont:view.font withSize:json ?: @(defaultView.font.pointSize)];
+    UIFont *theFont = [HippyFont updateFont:view.font withSize:json ?: @(defaultView.font.pointSize)];
     view.font = theFont;
 }
 HIPPY_CUSTOM_VIEW_PROPERTY(fontWeight, NSString, __unused NativeRenderBaseTextInput) {
-    UIFont *theFont = [NativeRenderFont updateFont:view.font withWeight:json];  // defaults to normal
+    UIFont *theFont = [HippyFont updateFont:view.font withWeight:json];  // defaults to normal
     view.font = theFont;
 }
 HIPPY_CUSTOM_VIEW_PROPERTY(fontStyle, NSString, __unused NativeRenderBaseTextInput) {
-    UIFont *theFont = [NativeRenderFont updateFont:view.font withStyle:json];
+    UIFont *theFont = [HippyFont updateFont:view.font withStyle:json];
     view.font = theFont;  // defaults to normal
 }
 HIPPY_CUSTOM_VIEW_PROPERTY(fontFamily, NSString, NativeRenderBaseTextInput) {
-    view.font = [NativeRenderFont updateFont:view.font withFamily:json ?: defaultView.font.familyName];
+    view.font = [HippyFont updateFont:view.font withFamily:json ?: defaultView.font.familyName];
 }
 
 - (HippyViewManagerUIBlock)uiBlockToAmendWithNativeRenderObjectView:(NativeRenderObjectView *)nativeRenderObjectView {

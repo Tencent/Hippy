@@ -41,11 +41,11 @@
 #import "HippyUtils.h"
 #import "HippyAsserts.h"
 #import "HippyConvert.h"
-#import "HPDefaultImageProvider.h"
+#import "HippyDefaultImageProvider.h"
 #import "HippyI18nUtils.h"
 #import "HippyInvalidating.h"
 #import "HippyLog.h"
-#import "HPOCToHippyValue.h"
+#import "HippyOCToHippyValue.h"
 #import "HippyUtils.h"
 #import "NSObject+Render.h"
 #import "TypeConverter.h"
@@ -84,7 +84,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
 };
 
 @interface HippyBridge() {
-    NSMutableArray<Class<HPImageProviderProtocol>> *_imageProviders;
+    NSMutableArray<Class<HippyImageProviderProtocol>> *_imageProviders;
     __weak id<HippyMethodInterceptorProtocol> _methodInterceptor;
     HippyModulesSetup *_moduleSetup;
     __weak NSOperation *_lastOperation;
@@ -209,7 +209,7 @@ dispatch_queue_t HippyBridgeQueue() {
     return [_moduleSetup moduleForClass:moduleClass];
 }
 
-- (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls {
+- (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls {
     HippyAssertParam(cls);
     @synchronized (self) {
         if (!_imageProviders) {
@@ -218,7 +218,7 @@ dispatch_queue_t HippyBridgeQueue() {
         [_imageProviders addObject:cls];
     }
 }
-- (NSArray<Class<HPImageProviderProtocol>> *)imageProviderClasses {
+- (NSArray<Class<HippyImageProviderProtocol>> *)imageProviderClasses {
     @synchronized (self) {
         if (!_imageProviders) {
             _imageProviders = [NSMutableArray arrayWithCapacity:8];

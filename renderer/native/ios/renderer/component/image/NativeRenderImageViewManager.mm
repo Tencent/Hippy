@@ -75,9 +75,9 @@ HIPPY_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
     }
     loader->RequestUntrustedContent(path, nil, nil, ^(NSData *data, NSURLResponse *response, NSError *error) {
         HippyUIManager *renderImpl = self.renderImpl;
-        id<HPImageProviderProtocol> imageProvider = nil;
+        id<HippyImageProviderProtocol> imageProvider = nil;
         if (renderImpl) {
-            for (Class<HPImageProviderProtocol> cls in [renderImpl imageProviderClasses]) {
+            for (Class<HippyImageProviderProtocol> cls in [renderImpl imageProviderClasses]) {
                 if ([cls canHandleData:data]) {
                     imageProvider = [[(Class)cls alloc] init];
                     break;

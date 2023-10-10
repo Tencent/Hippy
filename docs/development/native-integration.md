@@ -236,7 +236,7 @@ HippyBridge中有些必须属性，需要调用方设置。如果不设置，将
 @property(nonatomic, assign)std::weak_ptr<VFSUriLoader> VFSUriLoader;
 
 //添加Image
-- (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls;
+- (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls;
 
 //调用方代码
 _bridge.moduleName = @"Demo"
@@ -253,7 +253,7 @@ demoLoader->RegisterConvenientUriHandler(@"hpfile", fileHandler);
 _bridge.VFSUriLoader = demoLoader; //使用Hippy默认的vfs
 
 //使用系统默认的image解码器
-[_bridge addImageProviderClass:[HPDefaultImageProvider class]];
+[_bridge addImageProviderClass:[HippyDefaultImageProvider class]];
 
 ```
 
@@ -279,7 +279,7 @@ auto nativeRenderManager = std::make_shared<NativeRenderManager>();
 nativeRenderManager->SetDomManager(domManager);
 
 //设置Image解码类
-nativeRenderManager->AddImageProviderClass([HPDefaultImageProvider class]);
+nativeRenderManager->AddImageProviderClass([HippyDefaultImageProvider class]);
 //设置额外的自定义组件
 nativeRenderManager->RegisterExtraComponent(_extraComponents);
 //设置vfs系统

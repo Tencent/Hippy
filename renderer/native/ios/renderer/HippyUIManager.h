@@ -51,7 +51,7 @@ class HippyValue;
 }
 }
 
-@protocol HPImageProviderProtocol;
+@protocol HippyImageProviderProtocol;
 
 /**
  * The NativeRenderUIManager is the module responsible for updating the view hierarchy.
@@ -69,8 +69,8 @@ class HippyValue;
 @property(nonatomic, readonly) std::weak_ptr<hippy::DomManager> domManager;
 @property(nonatomic, readonly) NativeRenderComponentMap *viewRegistry;
 
-- (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls;
-- (NSArray<Class<HPImageProviderProtocol>> *)imageProviderClasses;
+- (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls;
+- (NSArray<Class<HippyImageProviderProtocol>> *)imageProviderClasses;
 
 /**
  * Gets the view associated with a componentTag.

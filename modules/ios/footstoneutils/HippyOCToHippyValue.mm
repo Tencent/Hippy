@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HPOCToHippyValue.h"
+#import "HippyOCToHippyValue.h"
 
 #include "footstone/hippy_value.h"
 

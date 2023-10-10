@@ -23,7 +23,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIColor.h>
 #import <CoreGraphics/CGContext.h>
-#import "NativeRenderBorderDrawing.h"
+#import "HippyBorderDrawing.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

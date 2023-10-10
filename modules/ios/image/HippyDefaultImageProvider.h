@@ -21,9 +21,9 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "HPImageProviderProtocol.h"
+#import "HippyImageProviderProtocol.h"
 
-@interface HPDefaultImageProvider : NSObject <HPImageProviderProtocol>
+@interface HippyDefaultImageProvider : NSObject <HippyImageProviderProtocol>
 
 @property (nonatomic, assign) BOOL downSample;
 @property (nonatomic, assign) CGSize imageViewSize;

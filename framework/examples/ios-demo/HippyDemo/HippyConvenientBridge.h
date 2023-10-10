@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef void(^_Nullable HippyBridgeBundleLoadCompletion)(NSURL *_Nullable, NSError *_Nullable);
 
-@protocol HippyBridgeDelegate, HPImageProviderProtocol, HippyMethodInterceptorProtocol;
+@protocol HippyBridgeDelegate, HippyImageProviderProtocol, HippyMethodInterceptorProtocol;
 
 /**
  * Convenient class for adative 2.0 interface
@@ -72,7 +72,7 @@ typedef void(^_Nullable HippyBridgeBundleLoadCompletion)(NSURL *_Nullable, NSErr
 - (void)setInspectable:(BOOL)inspectable;
 
 //Optianl properties set
-- (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls;
+- (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls;
 
 #pragma mark event
 - (void)sendEvent:(NSString *)eventName params:(NSDictionary *_Nullable)params;

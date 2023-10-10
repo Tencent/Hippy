@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HPFootstoneUtils.h"
+#import "HippyFootstoneUtils.h"
 #import "HippyUtils.h"
 
 #include "footstone/hippy_value.h"

@@ -26,7 +26,7 @@
 #import "HippyBridgeModule.h"
 #import "HippyMethodInterceptorProtocol.h"
 #import "HippyModulesSetup.h"
-#import "HPImageProviderProtocol.h"
+#import "HippyImageProviderProtocol.h"
 #import "HippyInvalidating.h"
 #import "HippyDefines.h"
 
@@ -146,8 +146,8 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  * Image provider method
  * Users adds or obtains image providers in the following methods
  */
-- (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls;
-- (NSArray<Class<HPImageProviderProtocol>> *)imageProviderClasses;
+- (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls;
+- (NSArray<Class<HippyImageProviderProtocol>> *)imageProviderClasses;
 
 /**
  * Set basic configuration for native render

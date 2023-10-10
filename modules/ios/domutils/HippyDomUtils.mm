@@ -22,8 +22,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "HPDomUtils.h"
-#import "HPFootstoneUtils.h"
+#import "HippyDomUtils.h"
+#import "HippyFootstoneUtils.h"
 
 #include "dom/dom_listener.h"
 #include "dom/dom_node.h"

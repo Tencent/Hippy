@@ -23,7 +23,7 @@
 #import "HippyConvert.h"
 #import "HippyI18nUtils.h"
 #import "HippyUtils.h"
-#import "NativeRenderFont.h"
+#import "HippyFont.h"
 #import "NativeRenderObjectText.h"
 #import "NativeRenderText.h"
 #import "NativeRenderTextView.h"
@@ -469,7 +469,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         f = [UIFont fontWithName:styleInfo.fontFamily size:[styleInfo.fontSize floatValue]];
     }
 
-    UIFont *font = [NativeRenderFont updateFont:f
+    UIFont *font = [HippyFont updateFont:f
                                      withFamily:styleInfo.fontFamily
                                            size:styleInfo.fontSize
                                          weight:styleInfo.fontWeight

@@ -20,7 +20,7 @@
  *
  */
 
-#import "HPFootstoneUtils.h"
+#import "HippyFootstoneUtils.h"
 #import "HippyUtils.h"
 #import "TypeConverter.h"
 #import "VFSUriLoader.h"

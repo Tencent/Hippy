@@ -22,7 +22,7 @@
 
 #import "HippyAsserts.h"
 #import "HippyUtils.h"
-#import "NativeRenderBorderDrawing.h"
+#import "HippyBorderDrawing.h"
 #import "NativeRenderGradientObject.h"
 
 @interface NativeRenderGradientLocationParser () {

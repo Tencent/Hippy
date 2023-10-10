@@ -24,7 +24,7 @@
 
 #import "HippyConvert.h"
 
-@interface NativeRenderFont : NSObject
+@interface HippyFont : NSObject
 
 /**
  * Update a font with a given font-family, size, weight and style.

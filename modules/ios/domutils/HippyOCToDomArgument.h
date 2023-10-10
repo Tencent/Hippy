@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface NSObject (HPOCToDomArgument)
+@interface NSObject (HippyOCToDomArgument)
 
 @end
 

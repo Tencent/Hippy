@@ -202,7 +202,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     BOOL _needsUpdateBorderRadiusManully;
     BOOL _needsReloadImage;
     BOOL _needsUpdateImage;
-    id<HPImageProviderProtocol> _imageProvider;
+    id<HippyImageProviderProtocol> _imageProvider;
 }
 
 @property (nonatomic) NativeRenderAnimatedImageOperation *animatedImageOperation;
@@ -341,7 +341,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     }
 }
 
-- (void)setImageProvider:(id<HPImageProviderProtocol>)imageProvider {
+- (void)setImageProvider:(id<HippyImageProviderProtocol>)imageProvider {
     if (_imageProvider != imageProvider) {
         _imageProvider = imageProvider;
     }
@@ -688,7 +688,7 @@ HP_ENUM_CONVERTER(NativeRenderShapeMode, (@{
 
 @implementation NativeRenderAnimatedImageOperation
 
-- (id)initWithAnimatedImageProvider:(id<HPImageProviderProtocol>)imageProvider imageView:(NativeRenderImageView *)imageView imageURL:(NSString *)url {
+- (id)initWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider imageView:(NativeRenderImageView *)imageView imageURL:(NSString *)url {
     self = [super init];
     if (self) {
         _imageProvider = imageProvider;

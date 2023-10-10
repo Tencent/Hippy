@@ -37,7 +37,7 @@ class RootNode;
 }
 }
 
-@protocol HPImageProviderProtocol;
+@protocol HippyImageProviderProtocol;
 
 /**
  * NativeRenderManager is used to manager view creation, update and delete for Native UI
@@ -194,9 +194,9 @@ public:
      * Image provider method
      * Users adds or obtains image providers in the following methods
      */
-    void AddImageProviderClass(Class<HPImageProviderProtocol> cls);
+    void AddImageProviderClass(Class<HippyImageProviderProtocol> cls);
     
-    NSArray<Class<HPImageProviderProtocol>> *GetImageProviderClasses();
+    NSArray<Class<HippyImageProviderProtocol>> *GetImageProviderClasses();
     
     /**
      * Set vfs uri loader of CPP version

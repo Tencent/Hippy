@@ -24,7 +24,7 @@
 #import "NativeRenderComponentProtocol.h"
 #import "HippyConvert.h"
 #import "NativeRenderAnimatedImageView.h"
-#import "HPImageProviderProtocol.h"
+#import "HippyImageProviderProtocol.h"
 
 @class NativeRenderImageView;
 
@@ -32,11 +32,11 @@
     NSData *_animatedImageData;
     NSString *_url;
     __weak NativeRenderImageView *_imageView;
-    id<HPImageProviderProtocol> _imageProvider;
+    id<HippyImageProviderProtocol> _imageProvider;
 }
 
 - (id)initWithAnimatedImageData:(NSData *)data imageView:(NativeRenderImageView *)imageView imageURL:(NSString *)url;
-- (id)initWithAnimatedImageProvider:(id<HPImageProviderProtocol>)imageProvider imageView:(NativeRenderImageView *)imageView imageURL:(NSString *)url;
+- (id)initWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider imageView:(NativeRenderImageView *)imageView imageURL:(NSString *)url;
 
 @end
 
@@ -79,7 +79,7 @@ typedef NS_ENUM(NSInteger, NativeRenderShapeMode) {
 
 - (void)updateImage:(UIImage *)image;
 
-- (void)setImageProvider:(id<HPImageProviderProtocol>)imageProvider;
+- (void)setImageProvider:(id<HippyImageProviderProtocol>)imageProvider;
 
 - (void)clearImageIfDetached;
 

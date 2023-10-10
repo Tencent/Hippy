@@ -20,13 +20,13 @@
  * limitations under the License.
  */
 
-#import "HPOCToDomArgument.h"
+#import "HippyOCToDomArgument.h"
 
-#import "HPOCToHippyValue.h"
+#import "HippyOCToHippyValue.h"
 
 #include "dom/dom_argument.h"
 
-@implementation NSObject (HPOCToDomArgument)
+@implementation NSObject (HippyOCToDomArgument)
 
 - (hippy::DomArgument)toDomArgument {
     return hippy::DomArgument([self toHippyValue]);

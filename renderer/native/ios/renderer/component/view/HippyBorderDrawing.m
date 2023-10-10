@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "NativeRenderBorderDrawing.h"
+#import "HippyBorderDrawing.h"
 #import "HippyLog.h"
 
 static const CGFloat NativeRenderViewBorderThreshold = 0.001;

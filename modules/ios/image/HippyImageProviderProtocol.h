@@ -24,7 +24,7 @@
 
 @class UIImage;
 
-@protocol HPImageProviderProtocol <NSObject>
+@protocol HippyImageProviderProtocol <NSObject>
 
 @required
 

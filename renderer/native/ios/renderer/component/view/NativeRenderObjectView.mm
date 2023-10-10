@@ -21,7 +21,7 @@
  */
 
 #import "HippyConvert.h"
-#import "HPDomUtils.h"
+#import "HippyDomUtils.h"
 #import "HippyI18nUtils.h"
 #import "NativeRenderObjectView.h"
 #import "UIView+DirectionalLayout.h"
