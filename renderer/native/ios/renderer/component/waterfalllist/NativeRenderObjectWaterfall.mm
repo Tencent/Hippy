@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -134,8 +134,8 @@
     return _itemChangeContext;
 }
 
-- (void)insertNativeRenderSubview:(NativeRenderObjectView *)subview atIndex:(NSInteger)atIndex {
-    [super insertNativeRenderSubview:subview atIndex:atIndex];
+- (void)insertHippySubview:(NativeRenderObjectView *)subview atIndex:(NSInteger)atIndex {
+    [super insertHippySubview:subview atIndex:atIndex];
     if ([subview isKindOfClass:[NativeRenderObjectWaterfallItem class]]) {
         NativeRenderObjectWaterfallItem *objectItem = (NativeRenderObjectWaterfallItem *)subview;
         objectItem.observer = self;
@@ -143,8 +143,8 @@
     [_itemChangeContext appendAddedItem:subview];
 }
 
-- (void)removeNativeRenderSubview:(NativeRenderObjectView *)subview {
-    [super removeNativeRenderSubview:subview];
+- (void)removeHippySubview:(NativeRenderObjectView *)subview {
+    [super removeHippySubview:subview];
     if ([subview isKindOfClass:[NativeRenderObjectWaterfallItem class]]) {
         NativeRenderObjectWaterfallItem *objectItem = (NativeRenderObjectWaterfallItem *)subview;
         objectItem.observer = nil;
@@ -152,8 +152,8 @@
     [_itemChangeContext appendDeletedItem:subview];
 }
 
-- (void)moveNativeRenderSubview:(id<NativeRenderComponentProtocol>)subview toIndex:(NSInteger)atIndex {
-    [super moveNativeRenderSubview:subview toIndex:atIndex];
+- (void)moveHippySubview:(id<HippyComponent>)subview toIndex:(NSInteger)atIndex {
+    [super moveHippySubview:subview toIndex:atIndex];
     [_itemChangeContext appendMovedItem:subview];
 }
 
@@ -171,7 +171,7 @@
             if (!strongSelf) {
                 return;
             }
-            NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)[viewRegistry objectForKey:[strongSelf componentTag]];
+            NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)[viewRegistry objectForKey:[strongSelf hippyTag]];
             HippyAssert([view isKindOfClass:[NativeRenderWaterfallView class]], @"view must be kind of NativeRenderWaterfallView");
             if ([view isKindOfClass:[NativeRenderWaterfallView class]]) {
                 view.dirtyContent = YES;

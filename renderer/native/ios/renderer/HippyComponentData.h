@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -21,7 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "NativeRenderComponentProtocol.h"
+#import "HippyComponent.h"
 #import "NativeRenderDefines.h"
 
 @class NativeRenderObjectView, HippyViewManager;
@@ -40,7 +40,7 @@
 - (UIView *)createViewWithTag:(NSNumber *)tag initProps:(NSDictionary *)props;
 
 - (NativeRenderObjectView *)createRenderObjectViewWithTag:(NSNumber *)tag;
-- (void)setProps:(NSDictionary<NSString *, id> *)props forView:(id<NativeRenderComponentProtocol>)view;
+- (void)setProps:(NSDictionary<NSString *, id> *)props forView:(id<HippyComponent>)view;
 - (void)setProps:(NSDictionary<NSString *, id> *)props forShadowView:(NativeRenderObjectView *)renderObject;
 
 - (NSDictionary<NSString *, NSString *> *)eventNameMap;

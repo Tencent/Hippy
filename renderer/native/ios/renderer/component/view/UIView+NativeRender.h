@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -22,18 +22,13 @@
 
 #import <UIKit/UIKit.h>
 
-#import "NativeRenderComponentProtocol.h"
+#import "HippyComponent.h"
 
 @class NativeRenderObjectView;
 
-@interface UIView (NativeRender) <NativeRenderComponentProtocol>
+@interface UIView (NativeRender) <HippyComponent>
 
-/**
- * NativeRenderComponent interface.
- */
-- (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex;
-- (void)moveNativeRenderSubview:(UIView *)subview toIndex:(NSInteger)atIndex;
-- (void)removeNativeRenderSubview:(UIView *)subview;
+
 - (void)resetNativeRenderSubviews;
 - (void)clearSortedSubviews;
 - (UIView *)NativeRenderRootView;
@@ -58,13 +53,13 @@
  * Updates the subviews array based on the hippySubviews. Default behavior is
  * to insert the sortedHippySubviews into the UIView.
  */
-- (void)didUpdateNativeRenderSubviews;
+- (void)didUpdateHippySubviews;
 
 /**
  * Used by the UIIManager to set the view frame.
  * May be overriden to disable animation, etc.
  */
-- (void)nativeRenderSetFrame:(CGRect)frame;
+- (void)hippySetFrame:(CGRect)frame;
 
 /**
  * Used to improve performance when compositing views with translucent content.

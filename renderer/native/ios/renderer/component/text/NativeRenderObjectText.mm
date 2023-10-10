@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -198,13 +198,13 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     UIEdgeInsets padding = self.paddingAsInsets;
     CGFloat width = self.frame.size.width - (padding.left + padding.right);
 
-    NSNumber *parentTag = [[self parentComponent] componentTag];
+    NSNumber *parentTag = [[self parentComponent] hippyTag];
     // MTTlayout
     NSTextStorage *textStorage = [self buildTextStorageForWidth:width widthMode:hippy::LayoutMeasureMode::Exactly];
     CGRect textFrame = [self calculateTextFrame:textStorage];
     UIColor *color = self.color ?: [UIColor blackColor];
     [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        NativeRenderText *view = (NativeRenderText *)viewRegistry[self.componentTag];
+        NativeRenderText *view = (NativeRenderText *)viewRegistry[self.hippyTag];
         view.textFrame = textFrame;
         view.textStorage = textStorage;
         view.textColor = color;
@@ -384,7 +384,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 if (!strongDomManager) {
                     return;
                 }
-                int32_t componentTag = [[strongSelf componentTag] intValue];
+                int32_t componentTag = [[strongSelf hippyTag] intValue];
                 auto domNode = strongDomManager->GetNode(strongSelf.rootNode, componentTag);
                 if (domNode) {
                     domNode->GetLayoutNode()->MarkDirty();
@@ -500,7 +500,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             float width = 0, height = 0;
             auto domManager = [child domManager].lock();
             if (domManager) {
-                int32_t componentTag = [child.componentTag intValue];
+                int32_t componentTag = [child.hippyTag intValue];
                 auto domNode = domManager->GetNode(child.rootNode, componentTag);
                 if (domNode) {
                     width = domNode->GetLayoutNode()->GetStyleWidth();
@@ -569,7 +569,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     [self _addAttribute:NSFontAttributeName withValue:font toAttributedString:attributedString];
     [self _addAttribute:NSKernAttributeName withValue:styleInfo.letterSpacing toAttributedString:attributedString];
-    [self _addAttribute:NativeRenderComponentTagAttributeName withValue:self.componentTag toAttributedString:attributedString];
+    [self _addAttribute:NativeRenderComponentTagAttributeName withValue:self.hippyTag toAttributedString:attributedString];
     if (NativeRenderTextVerticalAlignUndefined != self.verticalAlignType) {
         [self _addAttribute:NativeRenderTextVerticalAlignAttributeName
                   withValue:@(self.verticalAlignType)
@@ -893,7 +893,7 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     [super setDomManager:domManager];
     auto shared_domNode = domManager.lock();
     if (shared_domNode) {
-        int32_t componentTag = [self.componentTag intValue];
+        int32_t componentTag = [self.hippyTag intValue];
         auto node = shared_domNode->GetNode(self.rootNode, componentTag);
         if (node) {
             __weak NativeRenderObjectText *weakSelf = self;
@@ -980,11 +980,11 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     _needDirtyText = YES;
 }
 
-- (void)didUpdateNativeRenderSubviews {
-    [super didUpdateNativeRenderSubviews];
+- (void)didUpdateHippySubviews {
+    [super didUpdateHippySubviews];
     auto domManager = [self domManager].lock();
     if (domManager) {
-        int32_t componentTag = [self.componentTag intValue];
+        int32_t componentTag = [self.hippyTag intValue];
         auto node = domManager->GetNode(self.rootNode, componentTag);
         if (node) {
             node->GetLayoutNode()->MarkDirty();

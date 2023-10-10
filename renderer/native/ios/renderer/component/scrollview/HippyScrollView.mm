@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -214,13 +214,13 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     [_scrollListeners removeAllObjects];
 }
 
-- (void)insertNativeRenderSubview:(UIView *)view atIndex:(NSInteger)atIndex {
+- (void)insertHippySubview:(UIView *)view atIndex:(NSInteger)atIndex {
     if (view == _contentView && 0 == atIndex) {
         return;
     }
     NSAssert(0 == atIndex, @"NativeRenderScrollView only contain one subview at index 0");
     if (_contentView) {
-        [self removeNativeRenderSubview:_contentView];
+        [self removeHippySubview:_contentView];
     }
     _contentView = view;
     [_contentView addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
@@ -235,7 +235,7 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     /**
      * reset its contentOffset when subviews are ready
      */
-    NSString *offsetString = [_contentOffsetCache objectForKey:self.componentTag];
+    NSString *offsetString = [_contentOffsetCache objectForKey:self.hippyTag];
     if (offsetString) {
         CGPoint point = CGPointFromString(offsetString);
         if (CGRectContainsPoint(_contentView.frame, point)) {
@@ -257,22 +257,22 @@ static inline BOOL CGPointIsNull(CGPoint point) {
                        context:(__unused void *)context {
     if ([keyPath isEqualToString:@"frame"]) {
         if (object == _contentView) {
-            [self nativeRenderComponentDidFinishTransaction];
+            [self hippyBridgeDidFinishTransaction];
         }
     }
 }
 
-- (void)removeNativeRenderSubview:(UIView *)subview {
-    [super removeNativeRenderSubview:subview];
+- (void)removeHippySubview:(UIView *)subview {
+    [super removeHippySubview:subview];
     NSAssert(_contentView == subview, @"Attempted to remove non-existent subview");
     [_contentView removeObserver:self forKeyPath:@"frame"];
     _contentView.parentComponent = nil;
     _contentView = nil;
 }
 
-- (void)didUpdateNativeRenderSubviews
+- (void)didUpdateHippySubviews
 {
-    // Do nothing, as subviews are managed by `insertNativeRenderSubview:atIndex:`
+    // Do nothing, as subviews are managed by `insertHippySubview:atIndex:`
 }
 
 - (BOOL)centerContent {
@@ -599,15 +599,15 @@ static inline BOOL CGPointIsNull(CGPoint point) {
  * we need to cache scroll view's contentOffset.
  * if scroll view is reused in list view cell, we can save its contentOffset in every cells,
  * and set right contentOffset for each cell.
- * resetting componentTag meas scroll view is in reusing.
+ * resetting hippyTag meas scroll view is in reusing.
  */
-- (void)setComponentTag:(NSNumber *)componentTag {
-    if (![self.componentTag isEqualToNumber:componentTag]) {
-        if (self.componentTag) {
+- (void)setHippyTag:(NSNumber *)componentTag {
+    if (![self.hippyTag isEqualToNumber:componentTag]) {
+        if (self.hippyTag) {
             NSString *offsetString = NSStringFromCGPoint(self.scrollView.contentOffset);
-            [_contentOffsetCache setObject:offsetString forKey:self.componentTag];
+            [_contentOffsetCache setObject:offsetString forKey:self.hippyTag];
         }
-        [super setComponentTag:componentTag];
+        [super setHippyTag:componentTag];
     }
 }
 
@@ -639,7 +639,7 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     }
 }
 
-- (void)nativeRenderComponentDidFinishTransaction {
+- (void)hippyBridgeDidFinishTransaction {
     CGSize contentSize = self.contentSize;
     if (!CGSizeEqualToSize(_scrollView.contentSize, contentSize)) {
         // When contentSize is set manually, ScrollView internals will reset

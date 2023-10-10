@@ -93,7 +93,7 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     HippyRootView *rootView = [[HippyRootView alloc] initWithFrame:view.bounds];
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [_connector setRootView:rootView];
-    NSNumber *rootTag = [rootView componentTag];
+    NSNumber *rootTag = [rootView hippyTag];
     [connector loadBundleURL:bundleUrl completion:^(NSURL * _Nullable, NSError * _Nullable) {
         NSLog(@"url %@ load finish", bundleStr);
         [connector loadInstanceForRootViewTag:rootTag props:@{@"isSimulator": @(isSimulator)}];

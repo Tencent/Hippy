@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -52,26 +52,26 @@ static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *no
 - (NSString *)description {
     NSString *superDescription = super.description;
     NSRange semicolonRange = [superDescription rangeOfString:@";"];
-    NSString *replacement = [NSString stringWithFormat:@"; componentTag: %@; text: %@", self.componentTag, self.textStorage.string];
+    NSString *replacement = [NSString stringWithFormat:@"; componentTag: %@; text: %@", self.hippyTag, self.textStorage.string];
     return [superDescription stringByReplacingCharactersInRange:semicolonRange withString:replacement];
 }
 
-- (void)nativeRenderSetFrame:(CGRect)frame {
+- (void)hippySetFrame:(CGRect)frame {
     // Text looks super weird if its frame is animated.
     // This disables the frame animation, without affecting opacity, etc.
     [UIView performWithoutAnimation:^{
-        [super nativeRenderSetFrame:frame];
+        [super hippySetFrame:frame];
     }];
 }
 
-- (void)removeNativeRenderSubview:(UIView *)subview {
+- (void)removeHippySubview:(UIView *)subview {
     if ([[self subcomponents] containsObject:subview]) {
-        [super removeNativeRenderSubview:subview];
+        [super removeHippySubview:subview];
     }
     else {
         NSArray<UIView *> *hippySubviews = [self subcomponents];
         for (UIView *hippySubview in hippySubviews) {
-            [hippySubview removeNativeRenderSubview:subview];
+            [hippySubview removeHippySubview:subview];
         }
     }
 }
@@ -90,7 +90,7 @@ static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *no
     //  	self.backgroundColor = inheritedBackgroundColor;
 }
 
-- (void)didUpdateNativeRenderSubviews {
+- (void)didUpdateHippySubviews {
     // Do nothing, as subviews are managed by `setTextStorage:` method
 }
 
@@ -164,8 +164,8 @@ static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *no
     }
 }
 
-- (NSNumber *)componentTagAtPoint:(CGPoint)point {
-    NSNumber *componentTag = self.componentTag;
+- (NSNumber *)hippyTagAtPoint:(CGPoint)point {
+    NSNumber *componentTag = self.hippyTag;
 
     CGFloat fraction;
     NSLayoutManager *layoutManager = _textStorage.layoutManagers.firstObject;

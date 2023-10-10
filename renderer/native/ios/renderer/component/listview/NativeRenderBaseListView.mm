@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -106,8 +106,8 @@ static NSString *const kListViewItem = @"ListViewItem";
     [super setFrame:frame];
 }
 
-- (void)nativeRenderSetFrame:(CGRect)frame {
-    [super nativeRenderSetFrame:frame];
+- (void)hippySetFrame:(CGRect)frame {
+    [super hippySetFrame:frame];
     self.collectionView.frame = self.bounds;
 }
 
@@ -146,7 +146,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     }
 }
 
-- (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex {
+- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
     if ([subview isKindOfClass:[NativeRenderHeaderRefresh class]]) {
         if (_headerRefreshView) {
             [_headerRefreshView unsetFromScrollView];
@@ -154,7 +154,7 @@ static NSString *const kListViewItem = @"ListViewItem";
         _headerRefreshView = (NativeRenderHeaderRefresh *)subview;
         [_headerRefreshView setScrollView:self.collectionView];
         _headerRefreshView.delegate = self;
-        [_weakItemMap setObject:subview forKey:[subview componentTag]];
+        [_weakItemMap setObject:subview forKey:[subview hippyTag]];
     } else if ([subview isKindOfClass:[NativeRenderFooterRefresh class]]) {
         if (_footerRefreshView) {
             [_footerRefreshView unsetFromScrollView];
@@ -162,15 +162,15 @@ static NSString *const kListViewItem = @"ListViewItem";
         _footerRefreshView = (NativeRenderFooterRefresh *)subview;
         [_footerRefreshView setScrollView:self.collectionView];
         _footerRefreshView.delegate = self;
-        [_weakItemMap setObject:subview forKey:[subview componentTag]];
+        [_weakItemMap setObject:subview forKey:[subview hippyTag]];
     }
 }
 
-- (void)didUpdateNativeRenderSubviews {
+- (void)didUpdateHippySubviews {
     self.dirtyContent = YES;
 }
 
-- (void)nativeRenderComponentDidFinishTransaction {
+- (void)hippyBridgeDidFinishTransaction {
     if (self.dirtyContent) {
         [self reloadData];
         self.dirtyContent = NO;
@@ -259,7 +259,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
                                                                                forIndexPath:indexPath];
     NativeRenderObjectView *headerRenderObject = [self.dataSource headerForSection:section];
     if (headerRenderObject && [headerRenderObject isKindOfClass:[NativeRenderObjectView class]]) {
-        UIView *headerView = [self.renderImpl viewFromRenderViewTag:headerRenderObject.componentTag onRootTag:headerRenderObject.rootTag];
+        UIView *headerView = [self.renderImpl viewFromRenderViewTag:headerRenderObject.hippyTag onRootTag:headerRenderObject.rootTag];
         if (!headerView) {
             headerView = [self.renderImpl createViewRecursivelyFromRenderObject:headerRenderObject];
         }
@@ -310,7 +310,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     if ([cell isKindOfClass:[NativeRenderBaseListViewCell class]]) {
         NativeRenderBaseListViewCell *hpCell = (NativeRenderBaseListViewCell *)cell;
         if (hpCell.cellView) {
-            [_cachedItems setObject:[hpCell.cellView componentTag] forKey:indexPath];
+            [_cachedItems setObject:[hpCell.cellView hippyTag] forKey:indexPath];
             hpCell.cellView = nil;
         }
     }
@@ -335,7 +335,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
         @"subviews of NativeRenderBaseListViewCell must conform to protocol ViewAppearStateProtocol");
     hpCell.cellView = cellView;
     cellView.parentComponent = self;
-    [_weakItemMap setObject:cellView forKey:[cellView componentTag]];
+    [_weakItemMap setObject:cellView forKey:[cellView hippyTag]];
 }
 
 - (void)tableViewDidLayoutSubviews:(NativeRenderListTableView *)tableView {

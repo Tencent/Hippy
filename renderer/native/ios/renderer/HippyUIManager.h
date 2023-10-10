@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -73,14 +73,14 @@ class HippyValue;
 - (NSArray<Class<HippyImageProviderProtocol>> *)imageProviderClasses;
 
 /**
- * Gets the view associated with a componentTag.
+ * Gets the view associated with a hippyTag.
  */
 - (UIView *)viewForComponentTag:(NSNumber *)componentTag
                       onRootTag:(NSNumber *)rootTag;
 
 
 /**
- * Get the shadow view associated with a componentTag
+ * Get the shadow view associated with a hippyTag
  */
 - (NativeRenderObjectView *)renderObjectForcomponentTag:(NSNumber *)componentTag
                                           onRootTag:(NSNumber *)rootTag;
@@ -120,7 +120,7 @@ class HippyValue;
 /**
  * Manully create views recursively from hippy tag
  *
- * @param componentTag hippy tag corresponding to UIView
+ * @param hippyTag hippy tag corresponding to UIView
  * @return view created by hippy tag
  */
 - (UIView *)createViewRecursivelyFromcomponentTag:(NSNumber *)componentTag
@@ -193,7 +193,7 @@ class HippyValue;
  *
  * @param functionName Function Name to be invoked
  * @param viewName Name of target view whose function invokes
- * @param componentTag id of target view whose function invokes
+ * @param hippyTag id of target view whose function invokes
  * @param params parameters of function to be invoked
  * @param cb A callback for the return value of function
  *

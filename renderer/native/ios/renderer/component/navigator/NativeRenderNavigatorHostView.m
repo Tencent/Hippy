@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -84,8 +84,8 @@
     }
 }
 
-- (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex {
-    [super insertNativeRenderSubview:subview atIndex:0];
+- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
+    [super insertHippySubview:subview atIndex:0];
 }
 
 - (void)didMoveToSuperview {

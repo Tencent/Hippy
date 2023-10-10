@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -103,7 +103,7 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
 - (NSString *)description {
     NSString *superDescription = super.description;
     NSRange semicolonRange = [superDescription rangeOfString:@";"];
-    NSString *replacement = [NSString stringWithFormat:@"; componentTag: %@;", self.componentTag];
+    NSString *replacement = [NSString stringWithFormat:@"; componentTag: %@;", self.hippyTag];
     return [superDescription stringByReplacingCharactersInRange:semicolonRange withString:replacement];
 }
 
@@ -162,12 +162,12 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
     };
 }
 
-- (void)nativeRenderSetFrame:(CGRect)frame {
+- (void)hippySetFrame:(CGRect)frame {
     // If frame is zero, or below the threshold where the border radii can
     // be rendered as a stretchable image, we'll need to re-render.
     // TODO: detect up-front if re-rendering is necessary
     CGSize oldSize = self.bounds.size;
-    [super nativeRenderSetFrame:frame];
+    [super hippySetFrame:frame];
     if (!CGSizeEqualToSize(self.bounds.size, oldSize)) {
         [self.layer setNeedsDisplay];
     }

@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -203,7 +203,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(fontFamily, NSString, NativeRenderBaseTextInput) {
 }
 
 - (HippyViewManagerUIBlock)uiBlockToAmendWithNativeRenderObjectView:(NativeRenderObjectView *)nativeRenderObjectView {
-    NSNumber *componentTag = nativeRenderObjectView.componentTag;
+    NSNumber *componentTag = nativeRenderObjectView.hippyTag;
     UIEdgeInsets padding = nativeRenderObjectView.paddingAsInsets;
     return ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, NativeRenderBaseTextInput *> *viewRegistry) {
         viewRegistry[componentTag].contentInset = padding;

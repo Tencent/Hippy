@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -53,7 +53,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 
 @implementation NativeRenderObjectView
 
-@synthesize componentTag = _componentTag;
+@synthesize hippyTag = _hippyTag;
 @synthesize props = _props;
 @synthesize rootTag = _rootTag;
 @synthesize tagName =_tagName;
@@ -72,17 +72,17 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
                                           parentProperties:(NSDictionary<NSString *, id> *)parentProperties {
     if (_didUpdateSubviews) {
         _didUpdateSubviews = NO;
-        [self didUpdateNativeRenderSubviews];
+        [self didUpdateHippySubviews];
         [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-            UIView *view = viewRegistry[self->_componentTag];
+            UIView *view = viewRegistry[self->_hippyTag];
             [view clearSortedSubviews];
-            [view didUpdateNativeRenderSubviews];
+            [view didUpdateHippySubviews];
         }];
     }
     if (_confirmedLayoutDirectionDidUpdated) {
         hippy::Direction direction = [self confirmedLayoutDirection];
         [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-            UIView *view = viewRegistry[self->_componentTag];
+            UIView *view = viewRegistry[self->_hippyTag];
             [view applyLayoutDirectionFromParent:direction];
         }];
         _confirmedLayoutDirectionDidUpdated = NO;
@@ -91,7 +91,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
         UIColor *parentBackgroundColor = parentProperties[NativeRenderBackgroundColorProp];
         if (parentBackgroundColor) {
             [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-                UIView *view = viewRegistry[self->_componentTag];
+                UIView *view = viewRegistry[self->_hippyTag];
                 [view nativeRenderSetInheritedBackgroundColor:parentBackgroundColor];
             }];
         }
@@ -125,8 +125,8 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     return self;
 }
 
-- (BOOL)isNativeRenderRootView {
-    return NativeRenderIsRootView(self.componentTag);
+- (BOOL)isHippyRootView {
+    return HippyIsHippyRootView(self.hippyTag);
 }
 
 - (BOOL)isCSSLeafNode {
@@ -166,7 +166,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 - (NativeRenderCreationType)creationType {
     if (NativeRenderCreationTypeUndetermined == _creationType) {
         NativeRenderObjectView *superRenderObject = [self parentComponent];
-        if (superRenderObject && ![superRenderObject isNativeRenderRootView]) {
+        if (superRenderObject && ![superRenderObject isHippyRootView]) {
             _creationType = [superRenderObject creationType];
         }
         else {
@@ -218,7 +218,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     return container;
 }
 
-- (void)insertNativeRenderSubview:(NativeRenderObjectView *)subview atIndex:(NSInteger)atIndex {
+- (void)insertHippySubview:(NativeRenderObjectView *)subview atIndex:(NSInteger)atIndex {
     if (atIndex <= [_objectSubviews count]) {
         [_objectSubviews insertObject:subview atIndex:atIndex];
     }
@@ -231,14 +231,14 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     [self dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
 }
 
-- (void)moveNativeRenderSubview:(id<NativeRenderComponentProtocol>)subview toIndex:(NSInteger)atIndex {
+- (void)moveHippySubview:(id<HippyComponent>)subview toIndex:(NSInteger)atIndex {
     if ([_objectSubviews containsObject:subview]) {
         [_objectSubviews removeObject:subview];
     }
-    [self insertNativeRenderSubview:subview atIndex:atIndex];
+    [self insertHippySubview:subview atIndex:atIndex];
 }
 
-- (void)removeNativeRenderSubview:(NativeRenderObjectView *)subview {
+- (void)removeHippySubview:(NativeRenderObjectView *)subview {
     [subview dirtyText:NO];
     [subview dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
     _didUpdateSubviews = YES;
@@ -246,9 +246,9 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     [_objectSubviews removeObject:subview];
 }
 
-- (void)removeFromNativeRenderSuperview {
+- (void)removeFromHippySuperview {
     id superview = [self parentComponent];
-    [superview removeNativeRenderSubview:self];
+    [superview removeHippySubview:self];
 }
 
 - (NSArray<NativeRenderObjectView *> *)subcomponents {
@@ -259,27 +259,27 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     return _superview;
 }
 
-- (void)setParentComponent:(__kindof id<NativeRenderComponentProtocol>)parentComponent {
+- (void)setParentComponent:(__kindof id<HippyComponent>)parentComponent {
     _superview = parentComponent;
 }
 
-- (NSNumber *)componentTagAtPoint:(CGPoint)point {
+- (NSNumber *)hippyTagAtPoint:(CGPoint)point {
     for (NativeRenderObjectView *renderObject in _objectSubviews) {
         if (CGRectContainsPoint(renderObject.frame, point)) {
             CGPoint relativePoint = point;
             CGPoint origin = renderObject.frame.origin;
             relativePoint.x -= origin.x;
             relativePoint.y -= origin.y;
-            return [renderObject componentTagAtPoint:relativePoint];
+            return [renderObject hippyTagAtPoint:relativePoint];
         }
     }
-    return self.componentTag;
+    return self.hippyTag;
 }
 
 - (NSString *)description {
     NSString *description = super.description;
     description = [[description substringToIndex:description.length - 1]
-        stringByAppendingFormat:@"; viewName: %@; componentTag: %@; frame: %@>", self.viewName, self.componentTag, NSStringFromCGRect(self.frame)];
+        stringByAppendingFormat:@"; viewName: %@; componentTag: %@; frame: %@>", self.viewName, self.hippyTag, NSStringFromCGRect(self.frame)];
     return description;
 }
 
@@ -333,7 +333,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
                     return;
                 }
                 NativeRenderObjectView *strongSelf = weakSelf;
-                int32_t componentTag = [[strongSelf componentTag] intValue];
+                int32_t componentTag = [[strongSelf hippyTag] intValue];
                 auto node = domManager->GetNode(strongSelf.rootNode, componentTag);
                 auto renderManager = domManager->GetRenderManager().lock();
                 if (!node || !renderManager) {
@@ -361,14 +361,14 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     [self dirtyPropagation:NativeRenderUpdateLifecyclePropsDirtied];
 }
 
-- (void)didUpdateNativeRenderSubviews {
+- (void)didUpdateHippySubviews {
     // Does nothing by default
 }
 
 - (void)didSetProps:(__unused NSArray<NSString *> *)changedProps {
 }
 
-- (void)nativeRenderSetFrame:(__unused CGRect)frame {
+- (void)hippySetFrame:(__unused CGRect)frame {
 }
 
 - (NSDictionary *)mergeProps:(NSDictionary *)props {

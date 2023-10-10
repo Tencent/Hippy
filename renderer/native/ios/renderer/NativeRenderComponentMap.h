@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -22,7 +22,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "NativeRenderComponentProtocol.h"
+#import "HippyComponent.h"
 
 #include <memory>
 
@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, assign) BOOL requireInMainThread;
 
-- (void)addRootComponent:(id<NativeRenderComponentProtocol>)component
+- (void)addRootComponent:(id<HippyComponent>)component
                 rootNode:(std::weak_ptr<hippy::RootNode>)rootNode
                   forTag:(NSNumber *)tag;
 
@@ -46,23 +46,23 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)containRootComponentWithTag:(NSNumber *)tag;
 
-- (NSArray<id<NativeRenderComponentProtocol>> *)rootComponents;
+- (NSArray<id<HippyComponent>> *)rootComponents;
 
-- (__kindof id<NativeRenderComponentProtocol>)rootComponentForTag:(NSNumber *)tag;
+- (__kindof id<HippyComponent>)rootComponentForTag:(NSNumber *)tag;
 
 - (std::weak_ptr<hippy::RootNode>)rootNodeForTag:(NSNumber *)tag;
 
-- (void)addComponent:(__kindof id<NativeRenderComponentProtocol>)component
+- (void)addComponent:(__kindof id<HippyComponent>)component
           forRootTag:(NSNumber *)tag;
 
-- (void)removeComponent:(__kindof id<NativeRenderComponentProtocol>)component
+- (void)removeComponent:(__kindof id<HippyComponent>)component
              forRootTag:(NSNumber *)tag;
 
 - (void)removeComponentByComponentTag:(NSNumber *)componentTag onRootTag:(NSNumber *)rootTag;
 
-- (NSMutableDictionary<NSNumber *, __kindof id<NativeRenderComponentProtocol>> *)componentsForRootTag:(NSNumber *)tag;
+- (NSMutableDictionary<NSNumber *, __kindof id<HippyComponent>> *)componentsForRootTag:(NSNumber *)tag;
 
-- (__kindof id<NativeRenderComponentProtocol>)componentForTag:(NSNumber *)componentTag
+- (__kindof id<HippyComponent>)componentForTag:(NSNumber *)componentTag
                                                     onRootTag:(NSNumber *)tag;
 
 @end

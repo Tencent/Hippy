@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -28,7 +28,7 @@
 #import "HippyUtils.h"
 #import "UIView+NativeRender.h"
 
-typedef void (^HippyPropBlock)(id<NativeRenderComponentProtocol> view, id json);
+typedef void (^HippyPropBlock)(id<HippyComponent> view, id json);
 
 @interface NativeRenderComponentProp : NSObject {
 }
@@ -50,7 +50,7 @@ typedef void (^HippyPropBlock)(id<NativeRenderComponentProtocol> view, id json);
 @end
 
 @interface HippyComponentData () {
-    id<NativeRenderComponentProtocol> _defaultView;  // Only needed for HIPPY_CUSTOM_VIEW_PROPERTY
+    id<HippyComponent> _defaultView;  // Only needed for HIPPY_CUSTOM_VIEW_PROPERTY
     NSMutableDictionary<NSString *, HippyPropBlock> *_viewPropBlocks;
     NSMutableDictionary<NSString *, HippyPropBlock> *_shadowPropBlocks;
     NSMutableDictionary<NSString *, NSString *> *_eventNameMap;
@@ -99,7 +99,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
 - (UIView *)createViewWithTag:(NSNumber *)tag {
     NSAssert(HippyIsMainQueue(), @"This function must be called on the main thread");
     UIView *view = [self.manager view];
-    view.componentTag = tag;
+    view.hippyTag = tag;
     view.multipleTouchEnabled = YES;
     view.userInteractionEnabled = YES;    // required for touch handling
     view.layer.allowsGroupOpacity = YES;  // required for touch handling
@@ -110,7 +110,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
     NSAssert(HippyIsMainQueue(), @"This function must be called on the main thread");
     self.manager.props = props;
     UIView *view = [self.manager view];
-    view.componentTag = tag;
+    view.hippyTag = tag;
     view.rootTag = props[@"rootTag"];
     view.multipleTouchEnabled = YES;
     view.userInteractionEnabled = YES;    // required for touch handling
@@ -120,7 +120,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
 
 - (NativeRenderObjectView *)createRenderObjectViewWithTag:(NSNumber *)tag {
     NativeRenderObjectView *renderObject = [self.manager nativeRenderObjectView];
-    renderObject.componentTag = tag;
+    renderObject.hippyTag = tag;
     renderObject.viewName = _name;
     return renderObject;
 }
@@ -158,7 +158,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
             }
             SEL customSetter = NSSelectorFromString(selectorString);
             NSAssert(customSetter, @"no __custom__ setter selector found for property %@", name);
-            propBlock = ^(id<NativeRenderComponentProtocol> view, id json) {
+            propBlock = ^(id<HippyComponent> view, id json) {
                 HippyComponentData *strongSelf = weakSelf;
                 if (!strongSelf) {
                     return;
@@ -201,7 +201,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
                 NSMethodSignature *typeSignature = [[HippyConvert class] methodSignatureForSelector:type];
                 if (!typeSignature) {
                     HippyLogError(@"No +[HippyConvert %@] function found.", NSStringFromSelector(type));
-                    return ^(__unused id<NativeRenderComponentProtocol> view, __unused id json) {
+                    return ^(__unused id<HippyComponent> view, __unused id json) {
                     };
                 }
                 switch (typeSignature.methodReturnType[0]) {
@@ -331,9 +331,9 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
         if (HIPPY_DEBUG) {
             // Provide more useful log feedback if there's an error
             HippyPropBlock unwrappedBlock = propBlock;
-            propBlock = ^(id<NativeRenderComponentProtocol> view, id json) {
+            propBlock = ^(id<HippyComponent> view, id json) {
                 NSString *logPrefix =
-                [NSString stringWithFormat:@"Error setting property '%@' of %@ with tag #%@: ", name, weakSelf.name, view.componentTag];
+                [NSString stringWithFormat:@"Error setting property '%@' of %@ with tag #%@: ", name, weakSelf.name, view.hippyTag];
                 
                 HippyPerformBlockWithLogPrefix(^{
                     unwrappedBlock(view, json);
@@ -346,7 +346,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
     return propBlock;
 }
 
-- (void)setProps:(NSDictionary<NSString *, id> *)props forView:(id<NativeRenderComponentProtocol>)view {
+- (void)setProps:(NSDictionary<NSString *, id> *)props forView:(id<HippyComponent>)view {
     if (!view) {
         return;
     }
@@ -476,7 +476,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
 }
 
 - (NSString *)selectorStringFromSignature:(NSString *)signature {
-    //    signature = @"createView:(nonnull NSNumber *)componentTag viewName:(NSString *)viewName rootTag:(nonnull NSNumber *)rootTag tagName:(NSString *)tagName props:(NSDictionary *)props";
+    //    signature = @"createView:(nonnull NSNumber *)hippyTag viewName:(NSString *)viewName rootTag:(nonnull NSNumber *)rootTag tagName:(NSString *)tagName props:(NSDictionary *)props";
     //    signature = @"startBatch";
     //    signature = @"endBatch:";
     //    signature = @"startBatch:::";

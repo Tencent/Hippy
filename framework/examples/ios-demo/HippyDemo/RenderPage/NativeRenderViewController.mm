@@ -126,7 +126,7 @@ static NSString *const engineKey = @"Demo";
     HippyRootView *rootView = [[HippyRootView alloc] initWithFrame:self.contentAreaView.bounds];
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [convenientBridge setRootView:rootView];
-    NSNumber *rootTag = [rootView componentTag];
+    NSNumber *rootTag = [rootView hippyTag];
     if (_isDebugMode) {
         convenientBridge.sandboxDirectory = [_debugURL URLByDeletingLastPathComponent];
         [convenientBridge loadBundleURL:_debugURL completion:^(NSURL * _Nullable, NSError * _Nullable) {

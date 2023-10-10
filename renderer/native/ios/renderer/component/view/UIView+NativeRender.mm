@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -28,12 +28,12 @@
 
 @implementation UIView (NativeRender)
 
-- (NSNumber *)componentTag {
+- (NSNumber *)hippyTag {
     return objc_getAssociatedObject(self, _cmd);
 }
 
-- (void)setComponentTag:(NSNumber *)tag {
-    objc_setAssociatedObject(self, @selector(componentTag), tag, OBJC_ASSOCIATION_COPY_NONATOMIC);
+- (void)setHippyTag:(NSNumber *)tag {
+    objc_setAssociatedObject(self, @selector(hippyTag), tag, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
 - (NSNumber *)rootTag {
@@ -81,16 +81,16 @@
     objc_setAssociatedObject(self, @selector(nativeRenderObjectView), hashTable, OBJC_ASSOCIATION_RETAIN);
 }
 
-- (BOOL)isNativeRenderRootView {
-    return NativeRenderIsRootView(self.componentTag);
+- (BOOL)isHippyRootView {
+    return HippyIsHippyRootView(self.hippyTag);
 }
 
-- (NSNumber *)componentTagAtPoint:(CGPoint)point {
+- (NSNumber *)hippyTagAtPoint:(CGPoint)point {
     UIView *view = [self hitTest:point withEvent:nil];
-    while (view && !view.componentTag) {
+    while (view && !view.hippyTag) {
         view = view.superview;
     }
-    return view.componentTag;
+    return view.hippyTag;
 }
 
 - (NSArray<UIView *> *)subcomponents {
@@ -101,7 +101,7 @@
     return [objc_getAssociatedObject(self, _cmd) anyObject];
 }
 
-- (void)setParentComponent:(__kindof id<NativeRenderComponentProtocol>)parentComponent {
+- (void)setParentComponent:(__kindof id<HippyComponent>)parentComponent {
     if (parentComponent) {
         NSHashTable *hashTable = [NSHashTable weakObjectsHashTable];
         [hashTable addObject:parentComponent];
@@ -112,7 +112,7 @@
     }
 }
 
-- (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex {
+- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
     // We access the associated object directly here in case someone overrides
     // the `subcomponents` getter method and returns an immutable array.
     if (nil == subview) {
@@ -133,7 +133,7 @@
     subview.parentComponent = self;
 }
 
-- (void)moveNativeRenderSubview:(UIView *)subview toIndex:(NSInteger)atIndex {
+- (void)moveHippySubview:(UIView *)subview toIndex:(NSInteger)atIndex {
     if (nil == subview) {
         return;
     }
@@ -144,10 +144,10 @@
     if ([subviews containsObject:subview]) {
         [subviews removeObject:subview];
     }
-    [self insertNativeRenderSubview:subview atIndex:atIndex];
+    [self insertHippySubview:subview atIndex:atIndex];
 }
 
-- (void)removeNativeRenderSubview:(UIView *)subview {
+- (void)removeHippySubview:(UIView *)subview {
     // We access the associated object directly here in case someone overrides
     // the `subcomponents` getter method and returns an immutable array.
     NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(subcomponents));
@@ -157,8 +157,8 @@
     subview.parentComponent = nil;
 }
 
-- (void)removeFromNativeRenderSuperview {
-    [(UIView *)self.parentComponent removeNativeRenderSubview:self];
+- (void)removeFromHippySuperview {
+    [(UIView *)self.parentComponent removeHippySubview:self];
 }
 
 - (void)resetNativeRenderSubviews {
@@ -173,10 +173,10 @@
 
 - (UIView *)NativeRenderRootView {
     UIView *candidateRootView = self;
-    BOOL isRootView = [candidateRootView isNativeRenderRootView];
+    BOOL isRootView = [candidateRootView isHippyRootView];
     while (!isRootView && candidateRootView) {
         candidateRootView = [candidateRootView parentComponent];
-        isRootView = [candidateRootView isNativeRenderRootView];
+        isRootView = [candidateRootView isHippyRootView];
     }
     return candidateRootView;
 }
@@ -226,7 +226,7 @@
     objc_setAssociatedObject(self, @selector(sortedNativeRenderSubviews), nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (void)didUpdateNativeRenderSubviews {
+- (void)didUpdateHippySubviews {
     for (UIView *subview in self.sortedNativeRenderSubviews) {
         if (subview.superview != self) {
             [subview sendAttachedToWindowEvent];
@@ -236,7 +236,7 @@
     }
 }
 
-- (void)nativeRenderSetFrame:(CGRect)frame {
+- (void)hippySetFrame:(CGRect)frame {
     // These frames are in terms of anchorPoint = topLeft, but internally the
     // views are anchorPoint = center for easier scale and rotation animations.
     // Convert the frame so it works with anchorPoint = center.
@@ -247,7 +247,7 @@
     if (isnan(position.x) || isnan(position.y) || isnan(bounds.origin.x) || isnan(bounds.origin.y) || isnan(bounds.size.width)
         || isnan(bounds.size.height)) {
         HippyLogError(
-            @"Invalid layout for (%@)%@. position: %@. bounds: %@", self.componentTag, self, NSStringFromCGPoint(position), NSStringFromCGRect(bounds));
+            @"Invalid layout for (%@)%@. position: %@. bounds: %@", self.hippyTag, self, NSStringFromCGPoint(position), NSStringFromCGRect(bounds));
         return;
     }
 

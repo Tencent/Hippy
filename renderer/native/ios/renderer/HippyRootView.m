@@ -50,8 +50,8 @@ NSNumber *AllocRootViewTag(void) {
     return _nativeRenderViewController?:[super nativeRenderViewController];
 }
 
-- (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex {
-    [super insertNativeRenderSubview:subview atIndex:atIndex];
+- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
+    [super insertHippySubview:subview atIndex:atIndex];
     if (!_contentHasAppeared) {
         _contentHasAppeared = YES;
         [self contentDidAppear];
@@ -61,12 +61,12 @@ NSNumber *AllocRootViewTag(void) {
     }
 }
 
-- (NSNumber *)componentTag {
+- (NSNumber *)hippyTag {
     HippyAssertMainQueue();
-    if (!super.componentTag) {
-        self.componentTag = AllocRootViewTag();
+    if (!super.hippyTag) {
+        self.hippyTag = AllocRootViewTag();
     }
-    return super.componentTag;
+    return super.hippyTag;
 }
 
 - (void)contentDidAppear {

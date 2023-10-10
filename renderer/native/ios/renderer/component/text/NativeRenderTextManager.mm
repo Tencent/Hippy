@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -85,7 +85,7 @@ HIPPY_EXPORT_SHADOW_PROPERTY(autoLetterSpacing, BOOL)
 
 - (HippyViewManagerUIBlock)uiBlockToAmendWithRenderObjectRegistry:(NSDictionary<NSNumber *, NativeRenderObjectView *> *)renderObjectRegistry {
     for (NativeRenderObjectView *rootView in renderObjectRegistry.allValues) {
-        if (![rootView isNativeRenderRootView]) {
+        if (![rootView isHippyRootView]) {
             // This isn't a root view
             continue;
         }
@@ -124,7 +124,7 @@ HIPPY_EXPORT_SHADOW_PROPERTY(autoLetterSpacing, BOOL)
 }
 
 - (HippyViewManagerUIBlock)uiBlockToAmendWithNativeRenderObjectView:(NativeRenderObjectText *)renderObjectText {
-    NSNumber *componentTag = renderObjectText.componentTag;
+    NSNumber *componentTag = renderObjectText.hippyTag;
     UIEdgeInsets padding = renderObjectText.paddingAsInsets;
 
     return ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, NativeRenderText *> *viewRegistry) {

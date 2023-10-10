@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -67,7 +67,7 @@ static hippy::LayoutSize x5MeasureFunc(
     [super setDomManager:domManager];
     auto shared_domNode = domManager.lock();
     if (shared_domNode) {
-        int32_t componentTag = [self.componentTag intValue];
+        int32_t componentTag = [self.hippyTag intValue];
         auto node = shared_domNode->GetNode(self.rootNode, componentTag);
         if (node) {
             __weak NativeRenderObjectTextView *weakSelf = self;
@@ -97,11 +97,11 @@ static hippy::LayoutSize x5MeasureFunc(
     return newProps;
 }
 
-- (void)didUpdateNativeRenderSubviews {
-    [super didUpdateNativeRenderSubviews];
+- (void)didUpdateHippySubviews {
+    [super didUpdateHippySubviews];
     auto domManager = [self domManager].lock();
     if (domManager) {
-        int32_t componentTag = [self.componentTag intValue];
+        int32_t componentTag = [self.hippyTag intValue];
         __weak NativeRenderObjectView *weakSelf = self;
         std::vector<std::function<void()>> ops_ = {[componentTag, weakSelf, domManager](){
             @autoreleasepool {

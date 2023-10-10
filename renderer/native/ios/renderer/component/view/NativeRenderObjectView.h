@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -22,7 +22,7 @@
 
 #import <UIKit/UIKit.h>
 
-#import "NativeRenderComponentProtocol.h"
+#import "HippyComponent.h"
 #import "HippyConvert+NativeRender.h"
 
 #include <memory>
@@ -72,7 +72,7 @@ extern NSString *const NativeRenderShadowViewDiffTag;
  * 3. If a node is "computed" and the constraint passed from above is identical to the constraint used to
  *    perform the last computation, we skip laying out the subtree entirely.
  */
-@interface NativeRenderObjectView : NSObject <NativeRenderComponentProtocol> {
+@interface NativeRenderObjectView : NSObject <HippyComponent> {
 @protected
     NativeRenderUpdateLifecycle _propagationLifecycle;
 }
@@ -98,14 +98,14 @@ extern NSString *const NativeRenderShadowViewDiffTag;
  * @param atIndex position for hippy subview to insert
  * @discussion atIndex must not exceed range of current index
  */
-- (void)insertNativeRenderSubview:(NativeRenderObjectView *)subview atIndex:(NSInteger)atIndex;
+- (void)insertHippySubview:(NativeRenderObjectView *)subview atIndex:(NSInteger)atIndex;
 
 /**
  * Remove render object
  *
  * @param subview A render object to delete
  */
-- (void)removeNativeRenderSubview:(NativeRenderObjectView *)subview;
+- (void)removeHippySubview:(NativeRenderObjectView *)subview;
 
 @property(nonatomic, weak, readonly) NativeRenderObjectView *superview;
 @property(nonatomic, copy) NSString *viewName;
@@ -213,7 +213,7 @@ extern NSString *const NativeRenderShadowViewDiffTag;
 /**
  * As described in NativeRenderComponent protocol.
  */
-- (void)didUpdateNativeRenderSubviews NS_REQUIRES_SUPER;
+- (void)didUpdateHippySubviews NS_REQUIRES_SUPER;
 - (void)didSetProps:(NSArray<NSString *> *)changedProps NS_REQUIRES_SUPER;
 
 - (NSDictionary *)mergeProps:(NSDictionary *)props;

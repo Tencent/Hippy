@@ -149,7 +149,7 @@
 - (void)setRootView:(UIView *)rootView {
     auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:[self engineKey]];
     auto domManager = engineResource->GetDomManager();
-    NSNumber *rootTag = [rootView componentTag];
+    NSNumber *rootTag = [rootView hippyTag];
     //Create a RootNode instance with a root tag
     _rootNode = std::make_shared<hippy::RootNode>([rootTag unsignedIntValue]);
     //Set RootNode for AnimationManager in RootNode
@@ -252,7 +252,7 @@ static BOOL SelectorBelongsToProtocol(SEL selector, Protocol *protocol) {
         if ([obj respondsToSelector:@selector(invalidate)]) {
             [obj performSelector:@selector(invalidate)];
         }
-        [self unloadRootViewByTag:[obj componentTag]];
+        [self unloadRootViewByTag:[obj hippyTag]];
     }];
     if ([_delegate respondsToSelector:@selector(invalidateForReason:bridge:)]) {
         [_delegate invalidateForReason:reason bridge:bridge];

@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -121,11 +121,11 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     _scrollEventThrottle = scrollEventThrottle;
 }
 
-- (void)removeNativeRenderSubview:(UIView *)subview {
+- (void)removeHippySubview:(UIView *)subview {
 }
 
-- (void)nativeRenderSetFrame:(CGRect)frame {
-    [super nativeRenderSetFrame:frame];
+- (void)hippySetFrame:(CGRect)frame {
+    [super hippySetFrame:frame];
     _collectionView.frame = self.bounds;
 }
 
@@ -163,11 +163,11 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 - (void)zoomToRect:(CGRect)rect animated:(BOOL)animated {
 }
 
-- (void)didUpdateNativeRenderSubviews {
+- (void)didUpdateHippySubviews {
     self.dirtyContent = YES;
 }
 
-- (void)nativeRenderComponentDidFinishTransaction {
+- (void)hippyBridgeDidFinishTransaction {
     if (self.dirtyContent) {
         [self reloadData];
         self.dirtyContent = NO;
@@ -311,7 +311,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     return datasource;
 }
 
-- (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex {
+- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
     if ([subview isKindOfClass:[NativeRenderHeaderRefresh class]]) {
         if (_headerRefreshView) {
             [_headerRefreshView removeFromSuperview];
@@ -320,7 +320,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
         [_headerRefreshView setScrollView:self.collectionView];
         _headerRefreshView.delegate = self;
         _headerRefreshView.frame = subview.nativeRenderObjectView.frame;
-        [_weakItemMap setObject:subview forKey:[subview componentTag]];
+        [_weakItemMap setObject:subview forKey:[subview hippyTag]];
     } else if ([subview isKindOfClass:[NativeRenderFooterRefresh class]]) {
         if (_footerRefreshView) {
             [_footerRefreshView removeFromSuperview];
@@ -331,7 +331,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
         _footerRefreshView.frame = subview.nativeRenderObjectView.frame;
         UIEdgeInsets insets = self.collectionView.contentInset;
         self.collectionView.contentInset = UIEdgeInsetsMake(insets.top, insets.left, _footerRefreshView.frame.size.height, insets.right);
-        [_weakItemMap setObject:subview forKey:[subview componentTag]];
+        [_weakItemMap setObject:subview forKey:[subview hippyTag]];
     }
 }
 
@@ -339,8 +339,8 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     return [[_weakItemMap dictionaryRepresentation] allValues];
 }
 
-- (void)removeFromNativeRenderSuperview {
-    [super removeFromNativeRenderSuperview];
+- (void)removeFromHippySuperview {
+    [super removeFromHippySuperview];
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
     [self purgeFurthestIndexPathsFromScreen];
 }
@@ -397,7 +397,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     if ([cell isKindOfClass:[NativeRenderWaterfallViewCell class]]) {
         NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
         if (hpCell.cellView) {
-            [_cachedItems setObject:[hpCell.cellView componentTag] forKey:indexPath];
+            [_cachedItems setObject:[hpCell.cellView hippyTag] forKey:indexPath];
             hpCell.cellView = nil;
         }
     }
@@ -413,7 +413,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     }
     hpCell.cellView = cellView;
     cellView.parentComponent = self;
-    [_weakItemMap setObject:cellView forKey:[cellView componentTag]];
+    [_weakItemMap setObject:cellView forKey:[cellView hippyTag]];
 }
 
 #pragma mark - NativeRenderCollectionViewDelegateWaterfallLayout
@@ -652,7 +652,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     }
     UIView *view = [self superview];
     while (view) {
-        if (0 == [[view componentTag] intValue] % 10) {
+        if (0 == [[view hippyTag] intValue] % 10) {
             _rootView = view;
             return view;
         }
