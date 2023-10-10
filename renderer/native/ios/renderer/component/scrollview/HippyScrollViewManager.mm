@@ -21,7 +21,7 @@
  */
 
 #import "HippyUIManager.h"
-#import "NativeRenderObjectView.h"
+#import "HippyShadowView.h"
 #import "HippyScrollViewManager.h"
 #import "HippyScrollView.h"
 #import "HippyBridgeModule.h"
@@ -93,7 +93,7 @@ HIPPY_REMAP_VIEW_PROPERTY(contentInset, _scrollView.contentInset, UIEdgeInsets)
 // is set to from js we want to clip drawing or not. This piece of code ensures
 // that css-layout is always treating the contents of a scroll container as
 // overflow: 'scroll'.
-//HIPPY_CUSTOM_SHADOW_PROPERTY(overflow, OverflowType, NativeRenderObjectView) {
+//HIPPY_CUSTOM_SHADOW_PROPERTY(overflow, OverflowType, HippyShadowView) {
 //    (void)json;
 //    view.overflow = OverflowScroll;
 //}

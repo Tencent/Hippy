@@ -27,11 +27,11 @@
 #import "HippyUtils.h"
 #import "NativeRenderGradientObject.h"
 #import "HippyUIManager.h"
-#import "NativeRenderObjectView.h"
+#import "HippyShadowView.h"
 #import "HippyViewManager.h"
 #import "HippyView.h"
 #import "UIView+DirectionalLayout.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "HippyBridgeModule.h"
 #include <objc/runtime.h>
 #include "VFSUriLoader.h"
@@ -52,15 +52,15 @@ HIPPY_EXPORT_MODULE(View);
     return [[HippyView alloc] init];
 }
 
-- (NativeRenderObjectView *)nativeRenderObjectView {
-    return [[NativeRenderObjectView alloc] init];
+- (HippyShadowView *)hippyShadowView {
+    return [[HippyShadowView alloc] init];
 }
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithNativeRenderObjectView:(__unused NativeRenderObjectView *)renderObject {
+- (HippyViewManagerUIBlock)uiBlockToAmendWithHippyShadowView:(__unused HippyShadowView *)renderObject {
     return nil;
 }
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithRenderObjectRegistry:(__unused NSDictionary<NSNumber *, NativeRenderObjectView *> *)renderObjectRegistry {
+- (HippyViewManagerUIBlock)uiBlockToAmendWithRenderObjectRegistry:(__unused NSDictionary<NSNumber *, HippyShadowView *> *)renderObjectRegistry {
     return nil;
 }
 
@@ -371,7 +371,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(pointerEvents, NativeRenderPointerEvents, HippyView) 
         case NativeRenderPointerEventsUnspecified:
             // Pointer events "unspecified" acts as if a stylesheet had not specified,
             // which is different than "auto" in CSS (which cannot and will not be
-            // supported in `NativeRender`. "auto" may override a parent's "none".
+            // supported in `Hippy`. "auto" may override a parent's "none".
             // Unspecified values do not.
             // This wouldn't override a container view's `userInteractionEnabled = NO`
             view.userInteractionEnabled = YES;
@@ -442,7 +442,7 @@ NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(TopRight)
 NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(BottomLeft)
 NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(BottomRight)
 
-HIPPY_REMAP_VIEW_PROPERTY(zIndex, nativeRenderZIndex, NSInteger)
+HIPPY_REMAP_VIEW_PROPERTY(zIndex, hippyZIndex, NSInteger)
 
 #pragma mark - native render object properties
 
@@ -521,11 +521,11 @@ static inline hippy::Direction ConvertDirection(id direction) {
     return hippy::Direction::Inherit;
 }
 
-HIPPY_CUSTOM_SHADOW_PROPERTY(direction, id, NativeRenderObjectView) {
+HIPPY_CUSTOM_SHADOW_PROPERTY(direction, id, HippyShadowView) {
     view.layoutDirection = ConvertDirection(json);
 }
 
-HIPPY_CUSTOM_SHADOW_PROPERTY(verticalAlign, HippyTextAttachmentVerticalAlign, NativeRenderObjectView) {
+HIPPY_CUSTOM_SHADOW_PROPERTY(verticalAlign, HippyTextAttachmentVerticalAlign, HippyShadowView) {
     if (json && [json isKindOfClass:NSString.class]) {
         view.verticalAlignType = [HippyConvert NativeRenderTextVerticalAlignType:json];
     } else if ([json isKindOfClass:NSNumber.class]) {

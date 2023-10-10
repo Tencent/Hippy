@@ -23,7 +23,7 @@
 #import "HippyRootView.h"
 #import "HippyAsserts.h"
 #import "HippyView.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "NativeRenderDefines.h"
 
 #include <objc/runtime.h>
@@ -46,8 +46,8 @@ NSNumber *AllocRootViewTag(void) {
 
 @implementation HippyRootView
 
-- (UIViewController *)nativeRenderViewController {
-    return _nativeRenderViewController?:[super nativeRenderViewController];
+- (UIViewController *)hippyViewController {
+    return _hippyViewController?:[super hippyViewController];
 }
 
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {

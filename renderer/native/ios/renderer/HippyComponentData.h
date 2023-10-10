@@ -24,7 +24,7 @@
 #import "HippyComponent.h"
 #import "NativeRenderDefines.h"
 
-@class NativeRenderObjectView, HippyViewManager;
+@class HippyShadowView, HippyViewManager;
 @class UIView;
 
 @interface HippyComponentData : NSObject
@@ -39,14 +39,14 @@
 
 - (UIView *)createViewWithTag:(NSNumber *)tag initProps:(NSDictionary *)props;
 
-- (NativeRenderObjectView *)createRenderObjectViewWithTag:(NSNumber *)tag;
+- (HippyShadowView *)createRenderObjectViewWithTag:(NSNumber *)tag;
 - (void)setProps:(NSDictionary<NSString *, id> *)props forView:(id<HippyComponent>)view;
-- (void)setProps:(NSDictionary<NSString *, id> *)props forShadowView:(NativeRenderObjectView *)renderObject;
+- (void)setProps:(NSDictionary<NSString *, id> *)props forShadowView:(HippyShadowView *)renderObject;
 
 - (NSDictionary<NSString *, NSString *> *)eventNameMap;
 
 - (NSDictionary<NSString *, NSValue *> *)methodsByName;
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithRenderObjectViewRegistry:(NSDictionary<NSNumber *, NativeRenderObjectView *> *)registry;
+- (HippyViewManagerUIBlock)uiBlockToAmendWithRenderObjectViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)registry;
 
 @end

@@ -32,7 +32,7 @@ HIPPY_EXPORT_MODULE(WaterfallItem)
     return [NativeRenderWaterfallItemView new];
 }
 
-- (NativeRenderObjectView *)nativeRenderObjectView {
+- (HippyShadowView *)hippyShadowView {
     return [[NativeRenderObjectWaterfallItem alloc] init];
 }
 

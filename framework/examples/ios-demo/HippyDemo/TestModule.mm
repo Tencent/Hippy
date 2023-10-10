@@ -26,7 +26,7 @@
 #import "HippyDemoLoader.h"
 #import "HippyJSEnginesMapper.h"
 #import "HippyRootView.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "HippyConvenientBridge.h"
 #import "HippyLog.h"
 #import "HippyRedBox.h"

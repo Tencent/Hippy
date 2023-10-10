@@ -27,7 +27,7 @@
 #import "HippyView.h"
 #import "UIEvent+TouchResponder.h"
 #import "UIView+DomEvent.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 
 static CGSize makeSizeConstrainWithType(CGSize originSize, CGSize constrainSize, NSString *resizeMode) {
     // width / height
@@ -72,7 +72,7 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
     UIColor *_backgroundColor;
 }
 
-@synthesize nativeRenderZIndex = _nativeRenderZIndex;
+@synthesize hippyZIndex = _hippyZIndex;
 
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
@@ -382,7 +382,7 @@ static BOOL NativeRenderLayerHasShadow(CALayer *layer) {
     return layer.shadowOpacity * CGColorGetAlpha(layer.shadowColor) > 0;
 }
 
-- (void)nativeRenderSetInheritedBackgroundColor:(UIColor *)inheritedBackgroundColor {
+- (void)hippySetInheritedBackgroundColor:(UIColor *)inheritedBackgroundColor {
     // Inherit background color if a shadow has been set, as an optimization
     if (NativeRenderLayerHasShadow(self.layer)) {
         self.backgroundColor = inheritedBackgroundColor;

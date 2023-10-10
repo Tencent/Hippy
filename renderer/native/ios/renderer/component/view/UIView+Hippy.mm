@@ -20,13 +20,13 @@
  * limitations under the License.
  */
 
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import <objc/runtime.h>
-#import "NativeRenderObjectView.h"
+#import "HippyShadowView.h"
 #import "UIView+MountEvent.h"
 #import "HippyLog.h"
 
-@implementation UIView (NativeRender)
+@implementation UIView (Hippy)
 
 - (NSNumber *)hippyTag {
     return objc_getAssociatedObject(self, _cmd);
@@ -68,17 +68,17 @@
     objc_setAssociatedObject(self, @selector(tagName), tagName, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
-- (__kindof NativeRenderObjectView *)nativeRenderObjectView {
+- (__kindof HippyShadowView *)hippyShadowView {
     NSHashTable *hashTable = objc_getAssociatedObject(self, _cmd);
     return [hashTable anyObject];
 }
 
-- (void)setNativeRenderObjectView:(__kindof NativeRenderObjectView *)renderObject {
+- (void)setHippyShadowView:(__kindof HippyShadowView *)renderObject {
     NSHashTable *hashTable = [NSHashTable weakObjectsHashTable];
     if (renderObject) {
         [hashTable addObject:renderObject];
     }
-    objc_setAssociatedObject(self, @selector(nativeRenderObjectView), hashTable, OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(self, @selector(hippyShadowView), hashTable, OBJC_ASSOCIATION_RETAIN);
 }
 
 - (BOOL)isHippyRootView {
@@ -161,7 +161,7 @@
     [(UIView *)self.parentComponent removeHippySubview:self];
 }
 
-- (void)resetNativeRenderSubviews {
+- (void)resetHippySubviews {
     NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(subcomponents));
     if (subviews) {
         [subviews makeObjectsPerformSelector:@selector(sendDetachedFromWindowEvent)];
@@ -181,12 +181,12 @@
     return candidateRootView;
 }
 
-- (NSInteger)nativeRenderZIndex {
+- (NSInteger)hippyZIndex {
     return [objc_getAssociatedObject(self, _cmd) integerValue];
 }
 
-- (void)setNativeRenderZIndex:(NSInteger)zIndex {
-    objc_setAssociatedObject(self, @selector(nativeRenderZIndex), @(zIndex), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (void)setHippyZIndex:(NSInteger)zIndex {
+    objc_setAssociatedObject(self, @selector(hippyZIndex), @(zIndex), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (BOOL)isNativeRenderSubviewsUpdated {
@@ -203,13 +203,13 @@
         // Check if sorting is required - in most cases it won't be
         BOOL sortingRequired = NO;
         for (UIView *subview in self.subcomponents) {
-            if (subview.nativeRenderZIndex != 0) {
+            if (subview.hippyZIndex != 0) {
                 sortingRequired = YES;
                 break;
             }
         }
         subviews = sortingRequired ? [self.subcomponents sortedArrayUsingComparator:^NSComparisonResult(UIView *a, UIView *b) {
-            if (a.nativeRenderZIndex > b.nativeRenderZIndex) {
+            if (a.hippyZIndex > b.hippyZIndex) {
                 return NSOrderedDescending;
             } else {
                 // ensure sorting is stable by treating equal zIndex as ascending so
@@ -257,11 +257,11 @@
     self.frame = frame;
 }
 
-- (void)nativeRenderSetInheritedBackgroundColor:(__unused UIColor *)inheritedBackgroundColor {
+- (void)hippySetInheritedBackgroundColor:(__unused UIColor *)inheritedBackgroundColor {
     // Does nothing by default
 }
 
-- (UIViewController *)nativeRenderViewController {
+- (UIViewController *)hippyViewController {
     id responder = [self nextResponder];
     while (responder) {
         if ([responder isKindOfClass:[UIViewController class]]) {
@@ -274,21 +274,6 @@
 
 - (BOOL)canBeRetrievedFromViewCache {
     return YES;
-}
-
-- (void)NativeRenderAddControllerToClosestParent:(UIViewController *)controller {
-    if (!controller.parentViewController) {
-        UIView *parentView = (UIView *)self.parentComponent;
-        while (parentView) {
-            if (parentView.nativeRenderViewController) {
-                [parentView.nativeRenderViewController addChildViewController:controller];
-                [controller didMoveToParentViewController:parentView.nativeRenderViewController];
-                break;
-            }
-            parentView = (UIView *)parentView.parentComponent;
-        }
-        return;
-    }
 }
 
 - (BOOL)interceptTouchEvent {

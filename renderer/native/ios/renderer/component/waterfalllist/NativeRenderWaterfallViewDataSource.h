@@ -25,25 +25,25 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class NativeRenderObjectView, WaterfallItemChangeContext;
+@class HippyShadowView, WaterfallItemChangeContext;
 
 @interface NativeRenderWaterfallViewDataSource : NSObject<NSCopying>
 
-- (instancetype)initWithDataSource:(NSArray<__kindof NativeRenderObjectView *> *)dataSource
+- (instancetype)initWithDataSource:(NSArray<__kindof HippyShadowView *> *)dataSource
                       itemViewName:(NSString *)itemViewName
                  containBannerView:(BOOL)containBannerView;
 
 @property(nonatomic, readonly) BOOL containBannerView;
-@property(nonatomic, readonly) NativeRenderObjectView *bannerView;
-@property(nonatomic, copy) NSArray<NSArray<NativeRenderObjectView *> *> *cellRenderObjectViews;
+@property(nonatomic, readonly) HippyShadowView *bannerView;
+@property(nonatomic, copy) NSArray<NSArray<HippyShadowView *> *> *cellRenderObjectViews;
 @property(nonatomic, copy) NSString *itemViewName;
 
-- (void)setDataSource:(NSArray<__kindof NativeRenderObjectView *> *)dataSource containBannerView:(BOOL)containBannerView;
-- (NativeRenderObjectView *)cellForIndexPath:(NSIndexPath *)indexPath;
-- (NativeRenderObjectView *)headerForSection:(NSInteger)section;
+- (void)setDataSource:(NSArray<__kindof HippyShadowView *> *)dataSource containBannerView:(BOOL)containBannerView;
+- (HippyShadowView *)cellForIndexPath:(NSIndexPath *)indexPath;
+- (HippyShadowView *)headerForSection:(NSInteger)section;
 - (NSInteger)numberOfSection;
 - (NSInteger)numberOfCellForSection:(NSInteger)section;
-- (NSIndexPath *)indexPathOfCell:(NativeRenderObjectView *)cell;
+- (NSIndexPath *)indexPathOfCell:(HippyShadowView *)cell;
 - (NSIndexPath *)indexPathForFlatIndex:(NSInteger)index;
 - (NSInteger)flatIndexForIndexPath:(NSIndexPath *)indexPath;
 
@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)cellDiffFromAnother:(NativeRenderWaterfallViewDataSource *)another
              sectionStartAt:(NSUInteger)startSection
-          frameChangedItems:(NSHashTable<__kindof NativeRenderObjectView *> *)frameChangedItems
+          frameChangedItems:(NSHashTable<__kindof HippyShadowView *> *)frameChangedItems
                      result:(void(^)(NSArray<NSIndexPath *> *reloadedItemIndexPath,
                                      NSArray<NSIndexPath *> *InsertedIndexPath,
                                      NSArray<NSIndexPath *> *deletedIndexPath,

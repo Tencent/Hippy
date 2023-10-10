@@ -21,7 +21,7 @@
  */
 
 #import "NativeRenderWaterfallItemView.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 
 @implementation NativeRenderWaterfallItemView
 

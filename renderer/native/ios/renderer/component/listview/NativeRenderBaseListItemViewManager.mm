@@ -39,7 +39,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(onWillDisappear, HippyDirectEventBlock)
     return [[NativeRenderBaseListItemView alloc] init];
 }
 
-- (NativeRenderObjectView *)nativeRenderObjectView {
+- (HippyShadowView *)hippyShadowView {
     return [[NativeRenderObjectBaseListItem alloc] init];
 }
 

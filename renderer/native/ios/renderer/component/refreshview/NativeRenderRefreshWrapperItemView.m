@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 #import "NativeRenderRefreshWrapperItemView.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 
 @implementation NativeRenderRefreshWrapperItemView
 

@@ -34,7 +34,7 @@ class RootNode;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NativeRenderComponentMap : NSObject
+@interface HippyComponentMap : NSObject
 
 @property(nonatomic, assign) BOOL requireInMainThread;
 

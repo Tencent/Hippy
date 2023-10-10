@@ -24,7 +24,7 @@
 
 #import "HippyView.h"
 #import "NativeRenderBaseTextInput.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 
 @protocol NativeRenderUITextViewResponseDelegate <NSObject>
 @required

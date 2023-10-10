@@ -236,7 +236,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         NSRange glyphRange = [layoutManager glyphRangeForTextContainer:textContainer];
         NSRange characterRange = [layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
         [textStorage enumerateAttribute:NativeRenderRenderObjectAttributeName inRange:characterRange options:0 usingBlock:^(
-            NativeRenderObjectView *child, NSRange range, __unused BOOL *_) {
+            HippyShadowView *child, NSRange range, __unused BOOL *_) {
             if (child) {
                 float width = child.frame.size.width, height = child.frame.size.height;
                 if (isnan(width) || isnan(height)) {
@@ -373,10 +373,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     auto domManager = self.domManager.lock();
     auto weakDomManager = self.domManager;
     if (domManager) {
-        __weak NativeRenderObjectView *weakSelf = self;
+        __weak HippyShadowView *weakSelf = self;
         auto domNodeAction = [needToDoLayout, weakSelf, weakDomManager](){
             @autoreleasepool {
-                NativeRenderObjectView *strongSelf = weakSelf;
+                HippyShadowView *strongSelf = weakSelf;
                 if (!strongSelf) {
                     return;
                 }
@@ -479,7 +479,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     CGFloat heightOfTallestSubview = 0.0;
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.text ?: @""];
-    for (NativeRenderObjectView *child in [self subcomponents]) {
+    for (HippyShadowView *child in [self subcomponents]) {
         if ([child isKindOfClass:[NativeRenderObjectText class]]) {
             NativeRenderObjectText *shadowText = (NativeRenderObjectText *)child;
             NativeRenderAttributedStringStyleInfo *childInfo = [NativeRenderAttributedStringStyleInfo new];
@@ -945,7 +945,7 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
         return;
     }
     _allowFontScaling = allowFontScaling;
-    for (NativeRenderObjectView *child in [self subcomponents]) {
+    for (HippyShadowView *child in [self subcomponents]) {
         if ([child isKindOfClass:[NativeRenderObjectText class]]) {
             ((NativeRenderObjectText *)child).allowFontScaling = allowFontScaling;
         }
@@ -962,7 +962,7 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
         HippyLogError(@"fontSizeMultiplier value must be > zero.");
         _fontSizeMultiplier = 1.0;
     }
-    for (NativeRenderObjectView *child in [self subcomponents]) {
+    for (HippyShadowView *child in [self subcomponents]) {
         if ([child isKindOfClass:[NativeRenderObjectText class]]) {
             ((NativeRenderObjectText *)child).fontSizeMultiplier = fontSizeMultiplier;
         }

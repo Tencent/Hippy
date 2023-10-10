@@ -22,11 +22,11 @@
 
 #import <objc/message.h>
 #import "HippyComponentData.h"
-#import "NativeRenderObjectView.h"
+#import "HippyShadowView.h"
 #import "HippyViewManager.h"
 #import "HippyConvert.h"
 #import "HippyUtils.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 
 typedef void (^HippyPropBlock)(id<HippyComponent> view, id json);
 
@@ -118,8 +118,8 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
     return view;
 }
 
-- (NativeRenderObjectView *)createRenderObjectViewWithTag:(NSNumber *)tag {
-    NativeRenderObjectView *renderObject = [self.manager nativeRenderObjectView];
+- (HippyShadowView *)createRenderObjectViewWithTag:(NSNumber *)tag {
+    HippyShadowView *renderObject = [self.manager hippyShadowView];
     renderObject.hippyTag = tag;
     renderObject.viewName = _name;
     return renderObject;
@@ -361,7 +361,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
     }
 }
 
-- (void)setProps:(NSDictionary<NSString *, id> *)props forShadowView:(NativeRenderObjectView *)renderObject {
+- (void)setProps:(NSDictionary<NSString *, id> *)props forShadowView:(HippyShadowView *)renderObject {
     if (!renderObject) {
         return;
     }
@@ -509,7 +509,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
     return [selString copy];
 }
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithRenderObjectViewRegistry:(NSDictionary<NSNumber *, NativeRenderObjectView *> *)registry {
+- (HippyViewManagerUIBlock)uiBlockToAmendWithRenderObjectViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)registry {
     if (_implementsUIBlockToAmendWithRenderObjectRegistry) {
         return [[self manager] uiBlockToAmendWithRenderObjectRegistry:registry];
     }

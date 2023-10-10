@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface NativeRenderSmartViewPagerView : NativeRenderWaterfallView <NativeRenderListTableViewLayoutProtocol>
 
 /**
- * NativeRender events
+ * Hippy events
  */
 @property(nonatomic, copy) HippyDirectEventBlock initialListReady;
 @property(nonatomic, copy) HippyDirectEventBlock onScrollBeginDrag;

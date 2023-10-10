@@ -22,7 +22,7 @@
 
 #import <UIKit/UIKit.h>
 #import "HippyScrollView.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "UIView+MountEvent.h"
 #import "UIView+DirectionalLayout.h"
 
@@ -91,7 +91,7 @@
  *
  * By default this returns NO for all views that are UIControls and YES for
  * everything else. What that does is allows scroll views to scroll even when a
- * touch started inside of a `UIControl` (`UIButton` etc). For NativeRender scroll
+ * touch started inside of a `UIControl` (`UIButton` etc). For Hippy scroll
  * views, we want the default to be the same behavior as `UIControl`s so we
  * return `YES` by default. But there's one case where we want to block the
  * scrolling no matter what: When JS believes it has its own responder lock on

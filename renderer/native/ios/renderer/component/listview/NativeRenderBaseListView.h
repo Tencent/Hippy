@@ -31,7 +31,7 @@
 @interface NativeRenderBaseListView : NativeRenderWaterfallView <NativeRenderListTableViewLayoutProtocol>
 
 /**
- * NativeRender events
+ * Hippy events
  */
 @property(nonatomic, copy) HippyDirectEventBlock initialListReady;
 @property(nonatomic, copy) HippyDirectEventBlock onScrollBeginDrag;

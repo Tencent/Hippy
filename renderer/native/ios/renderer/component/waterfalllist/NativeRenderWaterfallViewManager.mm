@@ -49,7 +49,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(onScroll, HippyDirectEventBlock)
     return [[NativeRenderWaterfallView alloc] init];
 }
 
-- (NativeRenderObjectView *)nativeRenderObjectView {
+- (HippyShadowView *)hippyShadowView {
     return [[NativeRenderObjectWaterfall alloc] init];
 }
 

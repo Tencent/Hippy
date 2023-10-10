@@ -21,7 +21,7 @@
  */
 
 #import "UIView+DirectionalLayout.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "HippyI18nUtils.h"
 
 #include <objc/runtime.h>

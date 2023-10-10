@@ -30,7 +30,7 @@
 #import "NativeRenderManager.h"
 #import "HippyDefaultImageProvider.h"
 #import "HippyLog.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "VFSUriLoader.h"
 
 #include <memory>

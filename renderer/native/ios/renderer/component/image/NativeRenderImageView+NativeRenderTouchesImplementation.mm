@@ -22,7 +22,7 @@
 
 #import "NativeRenderImageView+NativeRenderTouchesImplementation.h"
 #import "UIView+DomEvent.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "UIEvent+TouchResponder.h"
 #import "objc/runtime.h"
 

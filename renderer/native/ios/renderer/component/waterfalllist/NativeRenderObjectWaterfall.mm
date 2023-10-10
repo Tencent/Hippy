@@ -25,16 +25,16 @@
 #import "HippyAsserts.h"
 
 @interface WaterfallItemChangeContext () {
-    NSMutableSet<NativeRenderObjectView *> *_deletedItems;
-    NSHashTable<NativeRenderObjectView *> *_addedItems;
-    NSHashTable<NativeRenderObjectView *> *_movedItems;
-    NSHashTable<NativeRenderObjectView *> *_frameChangedItems;
+    NSMutableSet<HippyShadowView *> *_deletedItems;
+    NSHashTable<HippyShadowView *> *_addedItems;
+    NSHashTable<HippyShadowView *> *_movedItems;
+    NSHashTable<HippyShadowView *> *_frameChangedItems;
 }
 //append methods
-- (void)appendDeletedItem:(NativeRenderObjectView *)objectView;
-- (void)appendAddedItem:(NativeRenderObjectView *)objectView;
-- (void)appendMovedItem:(NativeRenderObjectView *)objectView;
-- (void)appendFrameChangedItem:(NativeRenderObjectView *)objectView;
+- (void)appendDeletedItem:(HippyShadowView *)objectView;
+- (void)appendAddedItem:(HippyShadowView *)objectView;
+- (void)appendMovedItem:(HippyShadowView *)objectView;
+- (void)appendFrameChangedItem:(HippyShadowView *)objectView;
 
 @end
 
@@ -60,37 +60,37 @@
     return context;
 }
 
-- (void)appendDeletedItem:(__kindof NativeRenderObjectView *)objectView {
+- (void)appendDeletedItem:(__kindof HippyShadowView *)objectView {
     [_deletedItems addObject:objectView];
 }
 
-- (void)appendAddedItem:(__kindof NativeRenderObjectView *)objectView{
+- (void)appendAddedItem:(__kindof HippyShadowView *)objectView{
     [_addedItems addObject:objectView];
 }
 
-- (void)appendMovedItem:(__kindof NativeRenderObjectView *)objectView {
+- (void)appendMovedItem:(__kindof HippyShadowView *)objectView {
     [_movedItems addObject:objectView];
 }
 
-- (void)appendFrameChangedItem:(__kindof NativeRenderObjectView *)objectView {
+- (void)appendFrameChangedItem:(__kindof HippyShadowView *)objectView {
     if (![_addedItems containsObject:objectView]) {
         [_frameChangedItems addObject:objectView];
     }
 }
 
-- (NSSet<__kindof NativeRenderObjectView *> *)deletedItems {
+- (NSSet<__kindof HippyShadowView *> *)deletedItems {
     return [_deletedItems copy];
 }
 
-- (NSMapTable<__kindof NativeRenderObjectView *, NSNumber *> *)addedItems {
+- (NSMapTable<__kindof HippyShadowView *, NSNumber *> *)addedItems {
     return [_addedItems copy];
 }
 
-- (NSMapTable<__kindof NativeRenderObjectView *, NSValue *> *)movedItems {
+- (NSMapTable<__kindof HippyShadowView *, NSValue *> *)movedItems {
     return [_movedItems copy];
 }
 
-- (NSHashTable<__kindof NativeRenderObjectView *> *)frameChangedItems {
+- (NSHashTable<__kindof HippyShadowView *> *)frameChangedItems {
     return [_frameChangedItems copy];
 }
 
@@ -134,7 +134,7 @@
     return _itemChangeContext;
 }
 
-- (void)insertHippySubview:(NativeRenderObjectView *)subview atIndex:(NSInteger)atIndex {
+- (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex {
     [super insertHippySubview:subview atIndex:atIndex];
     if ([subview isKindOfClass:[NativeRenderObjectWaterfallItem class]]) {
         NativeRenderObjectWaterfallItem *objectItem = (NativeRenderObjectWaterfallItem *)subview;
@@ -143,7 +143,7 @@
     [_itemChangeContext appendAddedItem:subview];
 }
 
-- (void)removeHippySubview:(NativeRenderObjectView *)subview {
+- (void)removeHippySubview:(HippyShadowView *)subview {
     [super removeHippySubview:subview];
     if ([subview isKindOfClass:[NativeRenderObjectWaterfallItem class]]) {
         NativeRenderObjectWaterfallItem *objectItem = (NativeRenderObjectWaterfallItem *)subview;
@@ -165,7 +165,7 @@
     if ([self isPropagationDirty:NativeRenderUpdateLifecycleLayoutDirtied]) {
         __weak NativeRenderObjectWaterfall *weakSelf = self;
         WaterfallItemChangeContext *context = [_itemChangeContext copy];
-        NSArray<NativeRenderObjectView *> *dataSource = [self.subcomponents copy];
+        NSArray<HippyShadowView *> *dataSource = [self.subcomponents copy];
         NativeRenderApplierBlock block = ^void(NSDictionary<NSNumber *, UIView *> *viewRegistry) {
             NativeRenderObjectWaterfall *strongSelf = weakSelf;
             if (!strongSelf) {

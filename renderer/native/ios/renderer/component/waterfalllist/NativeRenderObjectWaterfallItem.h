@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "NativeRenderObjectView.h"
+#import "HippyShadowView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface NativeRenderObjectWaterfallItem : NativeRenderObjectView
+@interface NativeRenderObjectWaterfallItem : HippyShadowView
 
 @property(nonatomic, assign, getter=isLayoutDirty) BOOL layoutDirty;
 @property(nonatomic, weak) id<NativeRenderObjectWaterfallItemFrameChangedProtocol> observer;

@@ -21,7 +21,6 @@
  */
 
 #import <UIKit/UIKit.h>
-
 #import "HippyComponent.h"
 #import "HippyConvert+NativeRender.h"
 
@@ -51,11 +50,11 @@ typedef NS_ENUM(NSUInteger, NativeRenderCreationType) {
     NativeRenderCreationTypeLazily,
 };
 
-@class NativeRenderObjectView;
+@class HippyShadowView;
 
 typedef void (^NativeRenderApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegistry);
 
-typedef UIView *(^NativeRenderViewCreationBlock)(NativeRenderObjectView *renderObject);
+typedef UIView *(^NativeRenderViewCreationBlock)(HippyShadowView *renderObject);
 typedef void (^NativeRenderViewInsertionBlock)(UIView *container, NSArray<UIView *> *children);
 
 //TODO remove unused string
@@ -65,14 +64,14 @@ extern NSString *const NativeRenderShadowViewDiffUpdate;
 extern NSString *const NativeRenderShadowViewDiffTag;
 
 /**
- * RenderObject tree mirrors NativeRender view tree. Every node is highly stateful.
+ * ShadowView tree mirrors Hippy view tree. Every node is highly stateful.
  * 1. A node is in one of three lifecycles: uninitialized, computed, dirtied.
  * 2. At the end of each Bridge transaction, we call collectUpdatedFrames:widthConstraint:heightConstraint
  *    at the root node to recursively layout the entire hierarchy.
  * 3. If a node is "computed" and the constraint passed from above is identical to the constraint used to
  *    perform the last computation, we skip laying out the subtree entirely.
  */
-@interface NativeRenderObjectView : NSObject <HippyComponent> {
+@interface HippyShadowView : NSObject <HippyComponent> {
 @protected
     NativeRenderUpdateLifecycle _propagationLifecycle;
 }
@@ -84,12 +83,12 @@ extern NSString *const NativeRenderShadowViewDiffTag;
 /**
  * Get all native render object
  */
-- (NSArray<NativeRenderObjectView *> *)subcomponents;
+- (NSArray<HippyShadowView *> *)subcomponents;
 
 /**
  * Get super render object
  */
-- (NativeRenderObjectView *)parentComponent;
+- (HippyShadowView *)parentComponent;
 
 /**
  * Insert native render object at index.
@@ -98,16 +97,16 @@ extern NSString *const NativeRenderShadowViewDiffTag;
  * @param atIndex position for hippy subview to insert
  * @discussion atIndex must not exceed range of current index
  */
-- (void)insertHippySubview:(NativeRenderObjectView *)subview atIndex:(NSInteger)atIndex;
+- (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex;
 
 /**
  * Remove render object
  *
  * @param subview A render object to delete
  */
-- (void)removeHippySubview:(NativeRenderObjectView *)subview;
+- (void)removeHippySubview:(HippyShadowView *)subview;
 
-@property(nonatomic, weak, readonly) NativeRenderObjectView *superview;
+@property(nonatomic, weak, readonly) HippyShadowView *superview;
 @property(nonatomic, copy) NSString *viewName;
 @property(nonatomic, strong) UIColor *backgroundColor;  // Used to propagate to children
 @property(nonatomic, copy) HippyDirectEventBlock onLayout;

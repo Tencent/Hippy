@@ -21,21 +21,31 @@
  */
 
 #import <UIKit/UIKit.h>
-
 #import "HippyComponent.h"
 
-@class NativeRenderObjectView;
+@class HippyShadowView;
 
-@interface UIView (NativeRender) <HippyComponent>
+@interface UIView (Hippy) <HippyComponent>
 
+/**
+ * reset all hippy subviews
+ */
+- (void)resetHippySubviews;
 
-- (void)resetNativeRenderSubviews;
+/**
+ * reset all hippy subviews
+ */
 - (void)clearSortedSubviews;
+
+/**
+ * TODO: remove
+ */
 - (UIView *)NativeRenderRootView;
+
 /**
  * z-index, used to override sibling order in didUpdateHippySubviews.
  */
-@property (nonatomic, assign) NSInteger nativeRenderZIndex;
+@property (nonatomic, assign) NSInteger hippyZIndex;
 
 /**
  * set true when hippy subviews changed, but subviews does not.
@@ -64,13 +74,14 @@
 /**
  * Used to improve performance when compositing views with translucent content.
  */
-- (void)nativeRenderSetInheritedBackgroundColor:(UIColor *)inheritedBackgroundColor;
+- (void)hippySetInheritedBackgroundColor:(UIColor *)inheritedBackgroundColor;
 
 /**
  * This method finds and returns the containing view controller for the view.
  */
-- (UIViewController *)nativeRenderViewController;
+- (UIViewController *)hippyViewController;
 
+// FIXME: remove this method
 /**
  * CellView is reusable.
  * but sometimes it misdisplays.
@@ -79,14 +90,6 @@
  */
 - (BOOL)canBeRetrievedFromViewCache;
 
-/**
- * This method attaches the specified controller as a child of the
- * the owning view controller of this view. Returns NO if no view
- * controller is found (which may happen if the view is not currently
- * attached to the view hierarchy).
- */
-- (void)NativeRenderAddControllerToClosestParent:(UIViewController *)controller;
-
-@property (nonatomic, weak) __kindof NativeRenderObjectView *nativeRenderObjectView;
+@property (nonatomic, weak) __kindof HippyShadowView *hippyShadowView;
 
 @end

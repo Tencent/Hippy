@@ -25,10 +25,10 @@
 #import "NativeRenderObjectText.h"
 #import "NativeRenderText.h"
 #import "NativeRenderTextView.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 
 static void collectDirtyNonTextDescendants(NativeRenderObjectText *renderObject, NSMutableArray *nonTextDescendants) {
-    for (NativeRenderObjectView *child in renderObject.subcomponents) {
+    for (HippyShadowView *child in renderObject.subcomponents) {
         if ([child isKindOfClass:[NativeRenderObjectText class]]) {
             collectDirtyNonTextDescendants((NativeRenderObjectText *)child, nonTextDescendants);
         } else if ([child isTextDirty]) {
@@ -50,7 +50,7 @@ HIPPY_EXPORT_MODULE(Text)
     return [NativeRenderText new];
 }
 
-- (NativeRenderObjectView *)nativeRenderObjectView {
+- (HippyShadowView *)hippyShadowView {
     return [NativeRenderObjectText new];
 }
 
@@ -83,8 +83,8 @@ HIPPY_EXPORT_SHADOW_PROPERTY(minimumFontScale, CGFloat)
 HIPPY_EXPORT_SHADOW_PROPERTY(text, NSString)
 HIPPY_EXPORT_SHADOW_PROPERTY(autoLetterSpacing, BOOL)
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithRenderObjectRegistry:(NSDictionary<NSNumber *, NativeRenderObjectView *> *)renderObjectRegistry {
-    for (NativeRenderObjectView *rootView in renderObjectRegistry.allValues) {
+- (HippyViewManagerUIBlock)uiBlockToAmendWithRenderObjectRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)renderObjectRegistry {
+    for (HippyShadowView *rootView in renderObjectRegistry.allValues) {
         if (![rootView isHippyRootView]) {
             // This isn't a root view
             continue;
@@ -95,9 +95,9 @@ HIPPY_EXPORT_SHADOW_PROPERTY(autoLetterSpacing, BOOL)
             continue;
         }
 
-        NSMutableArray<NativeRenderObjectView *> *queue = [NSMutableArray arrayWithObject:rootView];
+        NSMutableArray<HippyShadowView *> *queue = [NSMutableArray arrayWithObject:rootView];
         for (NSInteger i = 0; i < queue.count; i++) {
-            NativeRenderObjectView *renderObject = queue[i];
+            HippyShadowView *renderObject = queue[i];
             if (!renderObject) {
                 HippyLogWarn(@"renderObject is nil, please remain xcode state and call rainywan");
                 continue;
@@ -109,7 +109,7 @@ HIPPY_EXPORT_SHADOW_PROPERTY(autoLetterSpacing, BOOL)
                 [(NativeRenderObjectText *)renderObject recomputeText];
                 collectDirtyNonTextDescendants((NativeRenderObjectText *)renderObject, queue);
             } else {
-                for (NativeRenderObjectView *child in [renderObject subcomponents]) {
+                for (HippyShadowView *child in [renderObject subcomponents]) {
                     if ([child isTextDirty]) {
                         [queue addObject:child];
                     }
@@ -123,7 +123,7 @@ HIPPY_EXPORT_SHADOW_PROPERTY(autoLetterSpacing, BOOL)
     return nil;
 }
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithNativeRenderObjectView:(NativeRenderObjectText *)renderObjectText {
+- (HippyViewManagerUIBlock)uiBlockToAmendWithHippyShadowView:(NativeRenderObjectText *)renderObjectText {
     NSNumber *componentTag = renderObjectText.hippyTag;
     UIEdgeInsets padding = renderObjectText.paddingAsInsets;
 

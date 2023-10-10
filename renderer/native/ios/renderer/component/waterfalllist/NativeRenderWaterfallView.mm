@@ -24,10 +24,10 @@
 #import "NativeRenderHeaderRefresh.h"
 #import "NativeRenderFooterRefresh.h"
 #import "NativeRenderWaterfallItemView.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "HippyRefresh.h"
 #import "NativeRenderWaterfallViewDataSource.h"
-#import "NativeRenderObjectView.h"
+#import "HippyShadowView.h"
 #import "HippyUIManager.h"
 #import "UIView+Render.h"
 #import "NativeRenderListTableView.h"
@@ -42,7 +42,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     BOOL _isInitialListReady;
     UIColor *_backgroundColor;
     BOOL _manualScroll;
-    NSMutableArray<NSArray<NativeRenderObjectView *> *> *_dataSourcePool;
+    NSMutableArray<NSArray<HippyShadowView *> *> *_dataSourcePool;
     dispatch_semaphore_t _dataSourceSem;
 }
 
@@ -179,7 +179,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 }
 
 - (void)refreshItemNodes {
-    NSArray<NativeRenderObjectView *> *datasource = [self popDataSource];
+    NSArray<HippyShadowView *> *datasource = [self popDataSource];
     _dataSource = [[NativeRenderWaterfallViewDataSource alloc] initWithDataSource:datasource
                                                                      itemViewName:[self compoentItemName]
                                                                     containBannerView:_containBannerView];
@@ -297,15 +297,15 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     }
 }
 
-- (void)pushDataSource:(NSArray<NativeRenderObjectView *> *)dataSource {
+- (void)pushDataSource:(NSArray<HippyShadowView *> *)dataSource {
     dispatch_semaphore_wait(_dataSourceSem, DISPATCH_TIME_FOREVER);
     [_dataSourcePool addObject:dataSource];
     dispatch_semaphore_signal(_dataSourceSem);
 }
 
-- (NSArray<NativeRenderObjectView *> *)popDataSource {
+- (NSArray<HippyShadowView *> *)popDataSource {
     dispatch_semaphore_wait(_dataSourceSem, DISPATCH_TIME_FOREVER);
-    NSArray<NativeRenderObjectView *> *datasource = [_dataSourcePool lastObject];
+    NSArray<HippyShadowView *> *datasource = [_dataSourcePool lastObject];
     [_dataSourcePool removeLastObject];
     dispatch_semaphore_signal(_dataSourceSem);
     return datasource;
@@ -319,7 +319,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
         _headerRefreshView = (NativeRenderHeaderRefresh *)subview;
         [_headerRefreshView setScrollView:self.collectionView];
         _headerRefreshView.delegate = self;
-        _headerRefreshView.frame = subview.nativeRenderObjectView.frame;
+        _headerRefreshView.frame = subview.hippyShadowView.frame;
         [_weakItemMap setObject:subview forKey:[subview hippyTag]];
     } else if ([subview isKindOfClass:[NativeRenderFooterRefresh class]]) {
         if (_footerRefreshView) {
@@ -328,7 +328,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
         _footerRefreshView = (NativeRenderFooterRefresh *)subview;
         [_footerRefreshView setScrollView:self.collectionView];
         _footerRefreshView.delegate = self;
-        _footerRefreshView.frame = subview.nativeRenderObjectView.frame;
+        _footerRefreshView.frame = subview.hippyShadowView.frame;
         UIEdgeInsets insets = self.collectionView.contentInset;
         self.collectionView.contentInset = UIEdgeInsetsMake(insets.top, insets.left, _footerRefreshView.frame.size.height, insets.right);
         [_weakItemMap setObject:subview forKey:[subview hippyTag]];
@@ -405,7 +405,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 
 - (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
     NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
-    NativeRenderObjectView *renderObjectView = [_dataSource cellForIndexPath:indexPath];
+    HippyShadowView *renderObjectView = [_dataSource cellForIndexPath:indexPath];
     [renderObjectView recusivelySetCreationTypeToInstant];
     UIView *cellView = [self.renderImpl createViewRecursivelyFromRenderObject:renderObjectView];
     if (cellView) {
@@ -420,7 +420,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 - (CGSize)collectionView:(UICollectionView *)collectionView
                   layout:(UICollectionViewLayout *)collectionViewLayout
     sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    NativeRenderObjectView *renderObjectView = [_dataSource cellForIndexPath:indexPath];
+    HippyShadowView *renderObjectView = [_dataSource cellForIndexPath:indexPath];
     return renderObjectView.frame.size;
 }
 

@@ -23,7 +23,7 @@
 #import "NativeRenderText.h"
 #import "NativeRenderObjectText.h"
 #import "HippyUtils.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "HippyLog.h"
 
 static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *nonTextDescendants) {
@@ -80,7 +80,7 @@ static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *no
     return NO;
 }
 
-- (void)nativeRenderSetInheritedBackgroundColor:(__unused UIColor *)inheritedBackgroundColor {
+- (void)hippySetInheritedBackgroundColor:(__unused UIColor *)inheritedBackgroundColor {
     // mttrn:
     //	UIColor *backgroundColor = [self rightBackgroundColorOfTheme];
     //

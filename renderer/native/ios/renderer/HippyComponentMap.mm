@@ -20,13 +20,13 @@
  * limitations under the License.
  */
 
-#import "NativeRenderComponentMap.h"
+#import "HippyComponentMap.h"
 
 #include "dom/root_node.h"
 
 using RootNode = hippy::RootNode;
 
-@interface NativeRenderComponentMap () {
+@interface HippyComponentMap () {
     NSMutableDictionary<NSNumber *, NSMutableDictionary<NSNumber *, id<HippyComponent>> *> *_componentsMap;
     NSMutableDictionary<NSNumber *, id<HippyComponent>> *_rootComponentsMap;
     std::unordered_map<int32_t, std::weak_ptr<RootNode>> _rootNodesMap;
@@ -34,7 +34,7 @@ using RootNode = hippy::RootNode;
 
 @end
 
-@implementation NativeRenderComponentMap
+@implementation HippyComponentMap
 
 - (instancetype)init {
     self = [super init];
@@ -145,7 +145,7 @@ using RootNode = hippy::RootNode;
 
 - (NSString *)description {
     NSMutableString *description = [NSMutableString stringWithCapacity:256];
-    [description appendFormat:@"<NativeRenderComponentMap %p contains ", self];
+    [description appendFormat:@"<HippyComponentMap %p contains ", self];
     NSArray<id<HippyComponent>> *rootComponentsArray = [self rootComponents];
     [description appendFormat:@"%ld root component(s): ", [rootComponentsArray count]];
     long index = 1;

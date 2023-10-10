@@ -216,8 +216,8 @@ HIPPY_CUSTOM_VIEW_PROPERTY(overflow, CSSOverflow, HippyView)
     return [[NativeRenderMyView alloc] init];
 }
 
-- (NativeRenderObjectView *)shadowView {
-    return [[NativeRenderObjectView alloc] init];
+- (HippyShadowView *)shadowView {
+    return [[HippyShadowView alloc] init];
 }
 
 HIPPY_EXPORT_METHOD(focus:(nonnull NSNumber *)reactTag) {
@@ -266,7 +266,7 @@ HIPPY_EXPORT_METHOD(focus:(nonnull NSNumber *)reactTag callback:(HippyPromiseRes
 
 在OC层，`HippyUIManager`负责构建Render树，对应的每一个节点都是一个RenderObjectView。Render树结构不保证与dom树一致，因为Render可能有自己的渲染逻辑。
 
->`NativeRenderView`会根据`NativeRenderObjectView`的映射结果构建真正的View视图。因此对于大多数情况下的自定义view manager来说，直接创建一个`NativeRenderObjectView`即可。
+>`NativeRenderView`会根据`HippyShadowView`的映射结果构建真正的View视图。因此对于大多数情况下的自定义view manager来说，直接创建一个`HippyShadowView`即可。
 
 `HippyUIManager`将调用[NativeRenderMyViewManager view]方法去创建一个真正的view，用户需要实现这个方法并返回自己所需要的`NativeRenderMyView`。
 

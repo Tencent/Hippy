@@ -31,10 +31,10 @@
 
 /**
  * z-index, used to override sibling order in didUpdateHippySubviews. This is
- * inherited from UIView+NativeRender, but we override it here to reduce the boxing
+ * inherited from UIView+Hippy, but we override it here to reduce the boxing
  * and associated object overheads.
  */
-@property (nonatomic, assign) NSInteger nativeRenderZIndex;
+@property (nonatomic, assign) NSInteger hippyZIndex;
 
 @property (nonatomic, assign) CGFloat shadowSpread;
 

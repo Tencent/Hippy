@@ -33,7 +33,7 @@
 /**
  * The backing view controller of the root view.
  */
-@property (nonatomic, weak) UIViewController *nativeRenderViewController;
+@property (nonatomic, weak) UIViewController *hippyViewController;
 
 - (void)contentDidAppear;
 

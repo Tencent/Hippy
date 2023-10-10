@@ -51,7 +51,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
     return [[NativeRenderBaseListView alloc] init];
 }
 
-- (NativeRenderObjectView *)nativeRenderObjectView {
+- (HippyShadowView *)hippyShadowView {
     return [[NativeRenderObjectWaterfall alloc] init];
 }
 

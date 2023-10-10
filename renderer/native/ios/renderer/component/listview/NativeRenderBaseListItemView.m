@@ -21,7 +21,7 @@
  */
 
 #import "NativeRenderBaseListItemView.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "UIView+MountEvent.h"
 
 @implementation NativeRenderBaseListItemView

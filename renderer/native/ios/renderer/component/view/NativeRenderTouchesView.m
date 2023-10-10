@@ -24,7 +24,7 @@
 #import "UIEvent+TouchResponder.h"
 #import "UIView+DomEvent.h"
 #import "UIView+MountEvent.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "objc/runtime.h"
 
 @interface NativeRenderTouchesView () {

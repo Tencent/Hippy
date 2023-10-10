@@ -28,9 +28,9 @@
 #import "NativeRenderFooterRefresh.h"
 #import "NativeRenderHeaderRefresh.h"
 #import "HippyUIManager.h"
-#import "NativeRenderObjectView.h"
+#import "HippyShadowView.h"
 #import "UIView+DirectionalLayout.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "UIView+Render.h"
 
 static NSString *const kCellIdentifier = @"cellIdentifier";
@@ -178,7 +178,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)refreshItemNodes {
-    NSArray<NativeRenderObjectView *> *datasource = [self popDataSource];
+    NSArray<HippyShadowView *> *datasource = [self popDataSource];
     self->_dataSource = [[NativeRenderBaseListViewDataSource alloc] initWithDataSource:datasource
                                                                           itemViewName:[self compoentItemName]
                                                                      containBannerView:NO];
@@ -232,7 +232,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout
  heightForHeaderInSection:(NSInteger)section {
-    NativeRenderObjectView *header = [self.dataSource headerForSection:section];
+    HippyShadowView *header = [self.dataSource headerForSection:section];
     if (header) {
         return CGRectGetHeight(header.frame);
     } else {
@@ -243,8 +243,8 @@ static NSString *const kListViewItem = @"ListViewItem";
 - (CGSize)collectionView:(UICollectionView *)collectionView
                   layout:(UICollectionViewLayout*)collectionViewLayout
 referenceSizeForHeaderInSection:(NSInteger)section {
-    NativeRenderObjectView *headerObjectView = [self.dataSource headerForSection:section];
-    if ([headerObjectView isKindOfClass:[NativeRenderObjectView class]]) {
+    HippyShadowView *headerObjectView = [self.dataSource headerForSection:section];
+    if ([headerObjectView isKindOfClass:[HippyShadowView class]]) {
         return headerObjectView.frame.size;
     }
     return CGSizeZero;
@@ -257,8 +257,8 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     UICollectionReusableView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind
                                                                         withReuseIdentifier:kSupplementaryIdentifier
                                                                                forIndexPath:indexPath];
-    NativeRenderObjectView *headerRenderObject = [self.dataSource headerForSection:section];
-    if (headerRenderObject && [headerRenderObject isKindOfClass:[NativeRenderObjectView class]]) {
+    HippyShadowView *headerRenderObject = [self.dataSource headerForSection:section];
+    if (headerRenderObject && [headerRenderObject isKindOfClass:[HippyShadowView class]]) {
         UIView *headerView = [self.renderImpl viewFromRenderViewTag:headerRenderObject.hippyTag onRootTag:headerRenderObject.rootTag];
         if (!headerView) {
             headerView = [self.renderImpl createViewRecursivelyFromRenderObject:headerRenderObject];
@@ -278,7 +278,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 
 - (void)collectionView:(UICollectionView *)collectionView
        willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-    NativeRenderObjectView *cellRenderObjectView = [self.dataSource cellForIndexPath:indexPath];
+    HippyShadowView *cellRenderObjectView = [self.dataSource cellForIndexPath:indexPath];
     [cellRenderObjectView recusivelySetCreationTypeToInstant];
     [self itemViewForCollectionViewCell:cell indexPath:indexPath];
     NSInteger index = [self.dataSource flatIndexForIndexPath:indexPath];
@@ -325,7 +325,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     if (!self.renderImpl) {
         return;
     }
-    NativeRenderObjectView *cellRenderObject = [self.dataSource cellForIndexPath:indexPath];
+    HippyShadowView *cellRenderObject = [self.dataSource cellForIndexPath:indexPath];
     NativeRenderBaseListViewCell *hpCell = (NativeRenderBaseListViewCell *)cell;
     UIView *cellView = [self.renderImpl createViewRecursivelyFromRenderObject:cellRenderObject];
     if (cellView) {

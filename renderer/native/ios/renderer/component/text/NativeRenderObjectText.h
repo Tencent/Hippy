@@ -21,7 +21,7 @@
  */
 
 #import "HippyConvert+NativeRender.h"
-#import "NativeRenderObjectView.h"
+#import "HippyShadowView.h"
 
 typedef NS_ENUM(NSInteger, NativeRenderSizeComparison) {
     NativeRenderSizeTooLarge,
@@ -45,7 +45,7 @@ hippy::LayoutSize textMeasureFunc(float width, hippy::LayoutMeasureMode widthMea
                                             __unused hippy::LayoutMeasureMode heightMeasureMode,
                                             void *layoutContext);
 
-@interface NativeRenderObjectText : NativeRenderObjectView {
+@interface NativeRenderObjectText : HippyShadowView {
 @protected
     NSTextStorage *_cachedTextStorage;
     CGFloat _cachedTextStorageWidth;

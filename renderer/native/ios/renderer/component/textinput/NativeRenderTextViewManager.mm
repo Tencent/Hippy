@@ -24,7 +24,7 @@
 #import "HippyFont.h"
 #import "HippyUIManager.h"
 #import "NativeRenderObjectTextView.h"
-#import "NativeRenderObjectView.h"
+#import "HippyShadowView.h"
 #import "NativeRenderTextField.h"
 #import "NativeRenderTextView.h"
 #import "NativeRenderTextViewManager.h"
@@ -61,7 +61,7 @@ HIPPY_EXPORT_MODULE(TextInput)
     return theView;
 }
 
-- (NativeRenderObjectView *)nativeRenderObjectView {
+- (HippyShadowView *)hippyShadowView {
     return [NativeRenderObjectTextView new];
 }
 
@@ -202,9 +202,9 @@ HIPPY_CUSTOM_VIEW_PROPERTY(fontFamily, NSString, NativeRenderBaseTextInput) {
     view.font = [HippyFont updateFont:view.font withFamily:json ?: defaultView.font.familyName];
 }
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithNativeRenderObjectView:(NativeRenderObjectView *)nativeRenderObjectView {
-    NSNumber *componentTag = nativeRenderObjectView.hippyTag;
-    UIEdgeInsets padding = nativeRenderObjectView.paddingAsInsets;
+- (HippyViewManagerUIBlock)uiBlockToAmendWithHippyShadowView:(HippyShadowView *)hippyShadowView {
+    NSNumber *componentTag = hippyShadowView.hippyTag;
+    UIEdgeInsets padding = hippyShadowView.paddingAsInsets;
     return ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, NativeRenderBaseTextInput *> *viewRegistry) {
         viewRegistry[componentTag].contentInset = padding;
     };

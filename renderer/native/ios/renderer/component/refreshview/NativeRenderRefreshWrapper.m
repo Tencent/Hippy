@@ -21,7 +21,7 @@
  */
 
 #import "NativeRenderRefreshWrapper.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "NativeRenderRefreshWrapperItemView.h"
 #import "HippyScrollableProtocol.h"
 

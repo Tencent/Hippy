@@ -23,7 +23,7 @@
 #import "UIView+DomEvent.h"
 #import <objc/runtime.h>
 #import "UIView+MountEvent.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "UIEvent+TouchResponder.h"
 
 #include "dom/dom_listener.h"

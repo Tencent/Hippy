@@ -22,7 +22,7 @@
 
 #import <UIKit/UIKit.h>
 #import "NativeRenderBaseListViewDataSource.h"
-#import "NativeRenderObjectView.h"
+#import "HippyShadowView.h"
 #import "NativeRenderObjectWaterfall.h"
 
 @interface NativeRenderBaseListViewDataSource () {
@@ -33,12 +33,12 @@
 
 @implementation NativeRenderBaseListViewDataSource
 
-- (void)setDataSource:(NSArray<NativeRenderObjectView *> *)dataSource containBannerView:(BOOL)containBannerView {
+- (void)setDataSource:(NSArray<HippyShadowView *> *)dataSource containBannerView:(BOOL)containBannerView {
     NSMutableArray *headerRenderObjects = [NSMutableArray array];
-    NSMutableArray<NSMutableArray<NativeRenderObjectView *> *> *cellRenderObjects = [NSMutableArray array];
-    NSMutableArray<NativeRenderObjectView *> *sectionCellRenderObject = nil;
+    NSMutableArray<NSMutableArray<HippyShadowView *> *> *cellRenderObjects = [NSMutableArray array];
+    NSMutableArray<HippyShadowView *> *sectionCellRenderObject = nil;
     BOOL isFirstIndex = YES;
-    for (NativeRenderObjectView *renderObject in dataSource) {
+    for (HippyShadowView *renderObject in dataSource) {
         NSString *viewName = [renderObject viewName];
         if ([self.itemViewName isEqualToString:viewName]) {
             NSNumber *sticky = renderObject.props[@"sticky"];
@@ -68,9 +68,9 @@
     self.cellRenderObjectViews = [cellRenderObjects copy];
 }
 
-- (NativeRenderObjectView *)cellForIndexPath:(NSIndexPath *)indexPath {
+- (HippyShadowView *)cellForIndexPath:(NSIndexPath *)indexPath {
     if (self.cellRenderObjectViews.count > indexPath.section) {
-        NSArray<NativeRenderObjectView *> *sectionCellRenderObject = [self.cellRenderObjectViews objectAtIndex:indexPath.section];
+        NSArray<HippyShadowView *> *sectionCellRenderObject = [self.cellRenderObjectViews objectAtIndex:indexPath.section];
         if (sectionCellRenderObject.count > indexPath.row) {
             return [sectionCellRenderObject objectAtIndex:indexPath.row];
         }
@@ -78,13 +78,13 @@
     return nil;
 }
 
-- (NSIndexPath *)indexPathOfCell:(NativeRenderObjectView *)cell {
+- (NSIndexPath *)indexPathOfCell:(HippyShadowView *)cell {
     NSInteger section = 0;
     NSInteger row = 0;
     for (NSInteger sec = 0; sec < [self.cellRenderObjectViews count]; sec++) {
-        NSArray<NativeRenderObjectView *> *sectionCellRenderObjects = [self.cellRenderObjectViews objectAtIndex:sec];
+        NSArray<HippyShadowView *> *sectionCellRenderObjects = [self.cellRenderObjectViews objectAtIndex:sec];
         for (NSUInteger r = 0; r < [sectionCellRenderObjects count]; r++) {
-            NativeRenderObjectView *cellRenderObject = [sectionCellRenderObjects objectAtIndex:r];
+            HippyShadowView *cellRenderObject = [sectionCellRenderObjects objectAtIndex:r];
             if (cellRenderObject == cell) {
                 section = sec;
                 row = r;
@@ -94,7 +94,7 @@
     return [NSIndexPath indexPathForRow:row inSection:section];
 }
 
-- (NativeRenderObjectView *)headerForSection:(NSInteger)section {
+- (HippyShadowView *)headerForSection:(NSInteger)section {
     if (_headerRenderObjects.count > section) {
         return [_headerRenderObjects objectAtIndex:section];
     }
@@ -118,7 +118,7 @@
     NSInteger rowIndex = 0;
     NSInteger selfIncreaseIndex = 0;
     for (NSInteger sec = 0; sec < [self.cellRenderObjectViews count]; sec++) {
-        NSArray<NativeRenderObjectView *> *sectionCellRenderObjects = [self.cellRenderObjectViews objectAtIndex:sec];
+        NSArray<HippyShadowView *> *sectionCellRenderObjects = [self.cellRenderObjectViews objectAtIndex:sec];
         for (NSUInteger r = 0; r < [sectionCellRenderObjects count]; r++) {
             if (index == selfIncreaseIndex) {
                 sectionIndex = sec;
@@ -140,7 +140,7 @@
             flatIndex += row;
         }
         else {
-            NSArray<NativeRenderObjectView *> *sectionCellRenderObjects = [self.cellRenderObjectViews objectAtIndex:sec];
+            NSArray<HippyShadowView *> *sectionCellRenderObjects = [self.cellRenderObjectViews objectAtIndex:sec];
             flatIndex += [sectionCellRenderObjects count];
         }
     }
@@ -245,12 +245,12 @@ static NSInvocation *InvocationFromSelector(id object, SEL selector, id param) {
     return invocation;
 }
 
-static inline void EnumCellRenderObjects(NSArray<NSArray<__kindof NativeRenderObjectView *> *> *objects,
-                                         void (^ _Nonnull block)(__kindof NativeRenderObjectView * object, NSUInteger section, NSUInteger row)) {
+static inline void EnumCellRenderObjects(NSArray<NSArray<__kindof HippyShadowView *> *> *objects,
+                                         void (^ _Nonnull block)(__kindof HippyShadowView * object, NSUInteger section, NSUInteger row)) {
     for (NSUInteger section = 0; section < [objects count]; section ++) {
-        NSArray<__kindof NativeRenderObjectView *> *sectionObjects = [objects objectAtIndex:section];
+        NSArray<__kindof HippyShadowView *> *sectionObjects = [objects objectAtIndex:section];
         for (NSUInteger row = 0; row < [sectionObjects count]; row++) {
-            __kindof NativeRenderObjectView *object = [sectionObjects objectAtIndex:row];
+            __kindof HippyShadowView *object = [sectionObjects objectAtIndex:row];
             block(object, section, row);
         }
     }
@@ -266,9 +266,9 @@ static inline void EnumCellRenderObjects(NSArray<NSArray<__kindof NativeRenderOb
 //    }
     
     NSMutableArray<NSInvocation *> *invocations = [NSMutableArray arrayWithCapacity:8];
-    NSHashTable<__kindof NativeRenderObjectView *> *insertedItems = [context addedItems];
-    NSMutableSet<__kindof NativeRenderObjectView *> *deletedItems = [[context deletedItems] mutableCopy];
-    NSHashTable<__kindof NativeRenderObjectView *> *frameChangedItems = [context frameChangedItems];
+    NSHashTable<__kindof HippyShadowView *> *insertedItems = [context addedItems];
+    NSMutableSet<__kindof HippyShadowView *> *deletedItems = [[context deletedItems] mutableCopy];
+    NSHashTable<__kindof HippyShadowView *> *frameChangedItems = [context frameChangedItems];
     //get section number change
     //section number increased or decreased
     NSUInteger selfSectionCount = [self.cellRenderObjectViews count];
@@ -277,7 +277,7 @@ static inline void EnumCellRenderObjects(NSArray<NSArray<__kindof NativeRenderOb
         NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
         do {
             //remove added items from [WaterfallItemChangeContext addedItems] to avoid insertItemsAtIndexes: below
-            NSArray<__kindof NativeRenderObjectView *> *objects = [self.cellRenderObjectViews objectAtIndex:anotherSectionCount];
+            NSArray<__kindof HippyShadowView *> *objects = [self.cellRenderObjectViews objectAtIndex:anotherSectionCount];
             [objects enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
                 [insertedItems removeObject:obj];
             }];
@@ -292,8 +292,8 @@ static inline void EnumCellRenderObjects(NSArray<NSArray<__kindof NativeRenderOb
         do {
             anotherSectionCount--;
             //remove deleted items from [WaterfallItemChangeContext deletedItems] to avoid deleteItemsAtIndexPaths: below
-            NSArray<__kindof NativeRenderObjectView *> *objects = [another.cellRenderObjectViews objectAtIndex:anotherSectionCount];
-            [objects enumerateObjectsUsingBlock:^(__kindof NativeRenderObjectView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            NSArray<__kindof HippyShadowView *> *objects = [another.cellRenderObjectViews objectAtIndex:anotherSectionCount];
+            [objects enumerateObjectsUsingBlock:^(__kindof HippyShadowView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
                 [deletedItems removeObject:obj];
             }];
             [indexSet addIndex:anotherSectionCount];
@@ -307,7 +307,7 @@ static inline void EnumCellRenderObjects(NSArray<NSArray<__kindof NativeRenderOb
         if ([insertedItems count] || [frameChangedItems count]) {
             NSMutableArray<NSIndexPath *> *insertedIndexPaths = [NSMutableArray arrayWithCapacity:16];
             NSMutableArray<NSIndexPath *> *frameChangedIndexPaths = [NSMutableArray arrayWithCapacity:16];
-            EnumCellRenderObjects(self.cellRenderObjectViews, ^(__kindof NativeRenderObjectView *object, NSUInteger section, NSUInteger row) {
+            EnumCellRenderObjects(self.cellRenderObjectViews, ^(__kindof HippyShadowView *object, NSUInteger section, NSUInteger row) {
                 if ([insertedItems count] && [insertedItems containsObject:object]) {
                     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
                     [insertedIndexPaths addObject:indexPath];
@@ -331,7 +331,7 @@ static inline void EnumCellRenderObjects(NSArray<NSArray<__kindof NativeRenderOb
         //get deleted items
         if ([deletedItems count]) {
             NSMutableArray<NSIndexPath *> *deletedIndexPaths = [NSMutableArray arrayWithCapacity:16];
-            EnumCellRenderObjects(another.cellRenderObjectViews, ^(__kindof NativeRenderObjectView *object, NSUInteger section, NSUInteger row) {
+            EnumCellRenderObjects(another.cellRenderObjectViews, ^(__kindof HippyShadowView *object, NSUInteger section, NSUInteger row) {
                 if ([deletedItems containsObject:object]) {
                     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
                     [deletedIndexPaths addObject:indexPath];

@@ -29,8 +29,8 @@
 #include <unordered_map>
 #include <functional>
 
-@class NativeRenderAnimationViewParams, NativeRenderObjectView, HippyUIManager,HippyViewManager;
-@class NativeRenderReusePool, NativeRenderComponentMap;
+@class NativeRenderAnimationViewParams, HippyShadowView, HippyUIManager,HippyViewManager;
+@class NativeRenderReusePool, HippyComponentMap;
 
 class VFSUriLoader;
 namespace hippy {
@@ -67,7 +67,7 @@ class HippyValue;
 @property(nonatomic, assign) std::weak_ptr<VFSUriLoader> VFSUriLoader;
 @property(nonatomic, assign) std::weak_ptr<hippy::RenderManager> renderManager;
 @property(nonatomic, readonly) std::weak_ptr<hippy::DomManager> domManager;
-@property(nonatomic, readonly) NativeRenderComponentMap *viewRegistry;
+@property(nonatomic, readonly) HippyComponentMap *viewRegistry;
 
 - (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls;
 - (NSArray<Class<HippyImageProviderProtocol>> *)imageProviderClasses;
@@ -82,12 +82,12 @@ class HippyValue;
 /**
  * Get the shadow view associated with a hippyTag
  */
-- (NativeRenderObjectView *)renderObjectForcomponentTag:(NSNumber *)componentTag
+- (HippyShadowView *)renderObjectForcomponentTag:(NSNumber *)componentTag
                                           onRootTag:(NSNumber *)rootTag;
 
 /**
  * Update the frame of a view. This might be in response to a screen rotation
- * or some other layout event outside of the NativeRender-managed view hierarchy.
+ * or some other layout event outside of the Hippy-managed view hierarchy.
  */
 - (void)setFrame:(CGRect)frame forRootView:(UIView *)view;
 
@@ -99,7 +99,7 @@ class HippyValue;
 
 /**
  * In some cases we might want to trigger layout from native side.
- * NativeRender won't be aware of this, so we need to make sure it happens.
+ * Hippy won't be aware of this, so we need to make sure it happens.
  */
 - (void)setNeedsLayoutForRootNodeTag:(NSNumber *)tag;
 
@@ -129,10 +129,10 @@ class HippyValue;
 /**
  * Manully create views recursively from renderObject
  *
- * @param renderObject NativeRenderObjectView corresponding to UIView
- * @return view created by NativeRenderObjectView
+ * @param renderObject HippyShadowView corresponding to UIView
+ * @return view created by HippyShadowView
  */
-- (UIView *)createViewRecursivelyFromRenderObject:(NativeRenderObjectView *)renderObject;
+- (UIView *)createViewRecursivelyFromRenderObject:(HippyShadowView *)renderObject;
 
 /**
  * set dom manager for NativeRenderUIManager which holds a weak reference to domManager

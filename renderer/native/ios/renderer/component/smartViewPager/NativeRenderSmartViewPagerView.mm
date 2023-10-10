@@ -25,12 +25,12 @@
 #import "NativeRenderFooterRefresh.h"
 #import "NativeRenderHeaderRefresh.h"
 #import "HippyUIManager.h"
-#import "NativeRenderObjectView.h"
+#import "HippyShadowView.h"
 #import "NativeRenderSmartViewPagerView.h"
 #import "NativeRenderScrollProtocol.h"
 #import "UIView+MountEvent.h"
 #import "UIView+Render.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 
 #include <objc/runtime.h>
 
@@ -79,7 +79,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 {
     _circular = NO;
     _autoplay = NO;
-    _itemWidth = self.nativeRenderObjectView.frame.size.width;
+    _itemWidth = self.hippyShadowView.frame.size.width;
     _previousMargin = 0.0f;
     _nextMargin = 0.0f;
     _pageGap = 0;
@@ -209,8 +209,8 @@ static NSString *const kListViewItem = @"ListViewItem";
     _previousMargin = previousMargin;
     _nextMargin = nextMargin;
     _pageGap = pageGap;
-    _itemWidth = self.nativeRenderObjectView.frame.size.width - (previousMargin + nextMargin + pageGap * 2);
-    _viewPagerLayout.itemSize = CGSizeMake(_itemWidth, self.nativeRenderObjectView.frame.size.height);
+    _itemWidth = self.hippyShadowView.frame.size.width - (previousMargin + nextMargin + pageGap * 2);
+    _viewPagerLayout.itemSize = CGSizeMake(_itemWidth, self.hippyShadowView.frame.size.height);
     _viewPagerLayout.minimumLineSpacing = pageGap;
     _viewPagerLayout.minimumInteritemSpacing = pageGap;
     _currentPage = [self adjustInitialPage:_initialPage];
@@ -244,7 +244,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 - (__kindof UICollectionViewLayout *)collectionViewLayout {
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     layout.minimumLineSpacing = .0f;
-    layout.itemSize = CGSizeMake(self.nativeRenderObjectView.frame.size.width, self.nativeRenderObjectView.frame.size.height);
+    layout.itemSize = CGSizeMake(self.hippyShadowView.frame.size.width, self.hippyShadowView.frame.size.height);
     layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
     _viewPagerLayout = layout;
     return layout;
@@ -312,8 +312,8 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)refreshItemNodes {
-    [self.dataSource setDataSource:self.nativeRenderObjectView.subcomponents containBannerView:NO];
-    _itemIndexArray = [self refreshItemIndexArrayWithOldArrayLength:self.nativeRenderObjectView.subcomponents.count];
+    [self.dataSource setDataSource:self.hippyShadowView.subcomponents containBannerView:NO];
+    _itemIndexArray = [self refreshItemIndexArrayWithOldArrayLength:self.hippyShadowView.subcomponents.count];
     [self setPreviousMargin:_previousMargin nextMargin:_nextMargin pageGap:_pageGap];
 }
 
@@ -345,7 +345,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
     NSInteger cellIndex = _itemIndexArray[indexPath.row].integerValue;
     NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
-    NativeRenderObjectView *renderObject = [_dataSource cellForIndexPath:adjustIndexPath];
+    HippyShadowView *renderObject = [_dataSource cellForIndexPath:adjustIndexPath];
     return renderObject.frame.size;
 }
 
@@ -355,7 +355,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     NSInteger cellIndex = _itemIndexArray[indexPath.row].integerValue;
     NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
     NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
-    NativeRenderObjectView *renderObject = [_dataSource cellForIndexPath:adjustIndexPath];
+    HippyShadowView *renderObject = [_dataSource cellForIndexPath:adjustIndexPath];
     [renderObject recusivelySetCreationTypeToInstant];
     UIView *cellView = [self.renderImpl createViewRecursivelyFromRenderObject:renderObject];
     hpCell.cellView = cellView;

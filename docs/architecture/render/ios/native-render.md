@@ -58,7 +58,7 @@ HippyUIManager负责处理以下行为：
 
 为此，需要设定render节点的懒加载属性，以保证UI的懒创建。
 
-在iOS中，此能力由`[NativeRenderObjectView creationType:NativeRenderCreationType]`属性控制。
+在iOS中，此能力由`[HippyShadowView creationType:NativeRenderCreationType]`属性控制。
 ![image](../../../assets/img/lazy_load1.png)
 对于懒加载组件，需要手动调用创建方法才会创建。
 ![image](../../../assets/img/lazy_load2.png)

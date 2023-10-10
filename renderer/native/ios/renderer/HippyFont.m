@@ -30,7 +30,7 @@
 // These constants are defined in iPhone SDK 8.2, but the app cannot run on
 // iOS < 8.2 unless we redefine them here. If you target iOS 8.2 or above
 // as a base target, the standard constants will be used instead.
-// These constants can only be removed when NativeRender Native drops iOS8 support.
+// These constants can only be removed when Hippy Native drops iOS8 support.
 
 #define UIFontWeightUltraLight -0.8
 #define UIFontWeightThin -0.6

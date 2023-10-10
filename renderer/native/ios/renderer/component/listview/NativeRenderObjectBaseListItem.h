@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "NativeRenderObjectView.h"
+#import "HippyShadowView.h"
 #import "NativeRenderObjectWaterfallItem.h"
 
 NS_ASSUME_NONNULL_BEGIN

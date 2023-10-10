@@ -22,7 +22,7 @@
 
 #import "NativeRenderModalHostView.h"
 #import "NativeRenderModalHostViewController.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "UIView+MountEvent.h"
 #import "NativeRenderModalHostViewInteractor.h"
 
@@ -92,7 +92,7 @@
     [super didMoveToWindow];
 
     if (!_isPresented && self.window) {
-        NSAssert(self.nativeRenderViewController, @"Can't present modal view controller without a presenting view controller");
+        NSAssert(self.hippyViewController, @"Can't present modal view controller without a presenting view controller");
         _modalViewController.supportedInterfaceOrientations = [self supportedOrientationsMask];
         if ([self.animationType isEqualToString:@"fade"]) {
             _modalViewController.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;

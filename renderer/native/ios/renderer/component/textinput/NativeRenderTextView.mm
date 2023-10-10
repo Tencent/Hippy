@@ -27,7 +27,7 @@
 #import "NativeRenderText.h"
 #import "HippyUtils.h"
 #import "NativeRenderTextSelection.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 
 @implementation NativeRenderUITextView
 

@@ -20,7 +20,7 @@
 * limitations under the License.
 */
 
-#import "NativeRenderViewController.h"
+#import "HippyDemoViewController.h"
 #import "HippyLog.h"
 #import "HippyBridge.h"
 #import "HippyConvenientBridge.h"
@@ -28,13 +28,13 @@
 #import "HippyAsserts.h"
 #import "HippyMethodInterceptorProtocol.h"
 #import "HippyRootView.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "HippyPageCache.h"
 #import "UIViewController+Title.h"
 
 static NSString *const engineKey = @"Demo";
 
-@interface NativeRenderViewController ()<HippyMethodInterceptorProtocol, HippyBridgeDelegate> {
+@interface HippyDemoViewController ()<HippyMethodInterceptorProtocol, HippyBridgeDelegate> {
     DriverType _driverType;
     RenderType _renderType;
     BOOL _isDebugMode;
@@ -46,7 +46,7 @@ static NSString *const engineKey = @"Demo";
 
 @end
 
-@implementation NativeRenderViewController
+@implementation HippyDemoViewController
 
 - (instancetype)initWithDriverType:(DriverType)driverType
                         renderType:(RenderType)renderType

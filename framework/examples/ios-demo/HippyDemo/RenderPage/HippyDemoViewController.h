@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class HippyPageCache;
 
-@interface NativeRenderViewController : DemoBaseViewController
+@interface HippyDemoViewController : DemoBaseViewController
 
 @property(nonatomic, assign, readonly) DriverType driverType;
 @property(nonatomic, assign, readonly) RenderType renderType;

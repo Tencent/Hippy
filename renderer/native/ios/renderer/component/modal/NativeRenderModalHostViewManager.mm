@@ -24,10 +24,10 @@
 #import "NativeRenderModalHostViewController.h"
 #import "NativeRenderModalHostViewManager.h"
 #import "NativeRenderModalTransitioningDelegate.h"
-#import "NativeRenderObjectView.h"
+#import "HippyShadowView.h"
 #import "NativeRenderUtils.h"
 
-@interface NativeRenderObjectModalHost : NativeRenderObjectView
+@interface NativeRenderObjectModalHost : HippyShadowView
 
 @end
 
@@ -72,7 +72,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(hideStatusBar, NSNumber)
     return _transitioningDelegate;
 }
 
-- (NativeRenderObjectView *)nativeRenderObjectView {
+- (HippyShadowView *)hippyShadowView {
     return [NativeRenderObjectModalHost new];
 }
 

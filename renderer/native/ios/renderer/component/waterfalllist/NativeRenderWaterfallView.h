@@ -30,7 +30,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class NativeRenderWaterfallViewDataSource, NativeRenderHeaderRefresh, NativeRenderFooterRefresh, WaterfallItemChangeContext, NativeRenderObjectView;
+@class NativeRenderWaterfallViewDataSource, NativeRenderHeaderRefresh, NativeRenderFooterRefresh, WaterfallItemChangeContext, HippyShadowView;
 
 typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
     ScrollStateStop,
@@ -108,7 +108,7 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
 @property(nonatomic, assign) BOOL manualScroll;
 
 /**
- * NativeRender Events
+ * Hippy Events
  */
 @property (nonatomic, copy) HippyDirectEventBlock onScroll;
 @property (nonatomic, copy) HippyDirectEventBlock onInitialListReady;
@@ -164,8 +164,8 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
  */
 - (void)reloadData;
 
-- (void)pushDataSource:(NSArray<NativeRenderObjectView *> *)dataSource;
-- (NSArray<NativeRenderObjectView *> *)popDataSource;
+- (void)pushDataSource:(NSArray<HippyShadowView *> *)dataSource;
+- (NSArray<HippyShadowView *> *)popDataSource;
 
 /**
  * Reserved, not implemented

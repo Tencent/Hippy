@@ -20,9 +20,9 @@
  * limitations under the License.
  */
 
-#import "NativeRenderObjectView.h"
+#import "HippyShadowView.h"
 
-@interface NativeRenderObjectRootView : NativeRenderObjectView
+@interface NativeRenderObjectRootView : HippyShadowView
 
 /**
  * Calculate all views whose frame needs updating after layout has been calculated.

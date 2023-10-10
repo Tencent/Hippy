@@ -25,7 +25,7 @@
 #import "NativeRenderDefines.h"
 #import "HippyBridgeModule.h"
 
-@class NativeRenderObjectView;
+@class HippyShadowView;
 @class HippyUIManager;
 
 @interface HippyViewManager : NSObject <HippyBridgeModule>
@@ -43,17 +43,17 @@
 
 /**
  * This method instantiates a shadow view to be managed by the module. If omitted,
- * an ordinary NativeRenderObjectView instance will be created, which is typically fine for
+ * an ordinary HippyShadowView instance will be created, which is typically fine for
  * most view types. As with the -view method, the -renderObject method should return
  * a fresh instance each time it is called.
  */
-- (NativeRenderObjectView *)nativeRenderObjectView;
+- (HippyShadowView *)hippyShadowView;
 
 /**
  * Called to notify manager that layout has finished, in case any calculated
  * properties need to be copied over from shadow view to view.
  */
-- (HippyViewManagerUIBlock)uiBlockToAmendWithNativeRenderObjectView:(NativeRenderObjectView *)renderObject;
+- (HippyViewManagerUIBlock)uiBlockToAmendWithHippyShadowView:(HippyShadowView *)renderObject;
 
 /**
  * Called after view hierarchy manipulation has finished, and all shadow props
@@ -61,7 +61,7 @@
  * custom layout logic or tasks that involve walking the view hierarchy.
  * To be deprecated, hopefully.
  */
-- (HippyViewManagerUIBlock)uiBlockToAmendWithRenderObjectRegistry:(NSDictionary<NSNumber *, NativeRenderObjectView *> *)renderObjectRegistry;
+- (HippyViewManagerUIBlock)uiBlockToAmendWithRenderObjectRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)renderObjectRegistry;
 
 /**
  * This handles the simple case, where JS and native property names match.

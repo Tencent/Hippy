@@ -30,7 +30,7 @@
 }
 
 - (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
-    for (NativeRenderObjectView *renderObject in self.subcomponents) {
+    for (HippyShadowView *renderObject in self.subcomponents) {
         [renderObject amendLayoutBeforeMount:blocks];
     }
 }
