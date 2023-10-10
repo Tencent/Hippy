@@ -69,12 +69,12 @@ HIPPY_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
     }
     NSString *standardizeAssetUrlString = path;
     __weak NativeRenderImageView *weakView = view;
-    auto loader = [[self renderImpl] VFSUriLoader].lock();
+    auto loader = [self.bridge.uiManager VFSUriLoader].lock();
     if (!loader) {
         return;
     }
     loader->RequestUntrustedContent(path, nil, nil, ^(NSData *data, NSURLResponse *response, NSError *error) {
-        HippyUIManager *renderImpl = self.renderImpl;
+        HippyUIManager *renderImpl = self.bridge.uiManager;
         id<HippyImageProviderProtocol> imageProvider = nil;
         if (renderImpl) {
             for (Class<HippyImageProviderProtocol> cls in [renderImpl imageProviderClasses]) {

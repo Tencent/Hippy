@@ -38,14 +38,14 @@ HIPPY_EXPORT_MODULE(Navigator)
 }
 
 HIPPY_EXPORT_METHOD(push:(NSNumber *__nonnull)componentTag parms:(NSDictionary *__nonnull)params) {
-    [self.renderImpl addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         NativeRenderNavigatorHostView *navigatorHostView = viewRegistry[componentTag];
         [navigatorHostView push:params];
     }];
 }
 
 HIPPY_EXPORT_METHOD(pop:(NSNumber *__nonnull)componentTag parms:(NSDictionary *__nonnull)params) {
-    [self.renderImpl addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         NativeRenderNavigatorHostView *navigatorHostView = viewRegistry[componentTag];
         [navigatorHostView pop:params];
     }];

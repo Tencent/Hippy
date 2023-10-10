@@ -42,7 +42,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, HippyDirectEventBlock)
 
 
 - (void)setPage:(NSNumber *)pageNumber withTag:(NSNumber * _Nonnull)componentTag animated:(BOOL)animated {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager,
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager,
                                   NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
         if (![view isKindOfClass:[NativeRenderViewPager class]]) {

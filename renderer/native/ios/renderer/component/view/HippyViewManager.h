@@ -25,12 +25,17 @@
 #import "NativeRenderDefines.h"
 #import "HippyBridgeModule.h"
 
+@class HippyBridge;
 @class HippyShadowView;
-@class HippyUIManager;
 
 @interface HippyViewManager : NSObject <HippyBridgeModule>
 
-@property(nonatomic, weak)HippyUIManager *renderImpl;
+/**
+ * The bridge can be used to access both the HippyUIIManager and the HippyEventDispatcher,
+ * allowing the manager (or the views that it manages) to manipulate the view
+ * hierarchy and send events back to the JS context.
+ */
+@property (nonatomic, weak) HippyBridge *bridge;
 
 /**
  * This method instantiates a native view to be managed by the module. Override
@@ -53,7 +58,7 @@
  * Called to notify manager that layout has finished, in case any calculated
  * properties need to be copied over from shadow view to view.
  */
-- (HippyViewManagerUIBlock)uiBlockToAmendWithHippyShadowView:(HippyShadowView *)renderObject;
+- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowView:(HippyShadowView *)shadowView;
 
 /**
  * Called after view hierarchy manipulation has finished, and all shadow props
@@ -61,7 +66,7 @@
  * custom layout logic or tasks that involve walking the view hierarchy.
  * To be deprecated, hopefully.
  */
-- (HippyViewManagerUIBlock)uiBlockToAmendWithRenderObjectRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)renderObjectRegistry;
+- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)shadowViewRegistry;
 
 /**
  * This handles the simple case, where JS and native property names match.
@@ -118,4 +123,10 @@
 
 @interface HippyViewManager (InitProps)
 @property (nonatomic, strong) NSDictionary *props;
+@end
+
+@interface HippyViewManager (UIManager)
+
+@property (nonatomic, strong) HippyUIManager *uiManager;
+
 @end

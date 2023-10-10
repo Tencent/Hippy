@@ -83,7 +83,7 @@ HIPPY_EXPORT_SHADOW_PROPERTY(minimumFontScale, CGFloat)
 HIPPY_EXPORT_SHADOW_PROPERTY(text, NSString)
 HIPPY_EXPORT_SHADOW_PROPERTY(autoLetterSpacing, BOOL)
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithRenderObjectRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)renderObjectRegistry {
+- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)renderObjectRegistry {
     for (HippyShadowView *rootView in renderObjectRegistry.allValues) {
         if (![rootView isHippyRootView]) {
             // This isn't a root view
@@ -123,7 +123,7 @@ HIPPY_EXPORT_SHADOW_PROPERTY(autoLetterSpacing, BOOL)
     return nil;
 }
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithHippyShadowView:(NativeRenderObjectText *)renderObjectText {
+- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowView:(NativeRenderObjectText *)renderObjectText {
     NSNumber *componentTag = renderObjectText.hippyTag;
     UIEdgeInsets padding = renderObjectText.paddingAsInsets;
 

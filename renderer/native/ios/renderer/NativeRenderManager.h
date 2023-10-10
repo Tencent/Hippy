@@ -204,6 +204,13 @@ public:
      *@param loader vfs url loader instance
      */
     void SetVFSUriLoader(std::shared_ptr<VFSUriLoader> loader);
+    
+    /**
+     * Set HippyBridge pointer to renderManager
+     *
+     *@param bridge HippyBridge instance
+     */
+    void SetHippyBridge(HippyBridge *bridge);
         
     /**
      * Set root view size changed event callback

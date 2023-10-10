@@ -50,7 +50,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(autoplay, BOOL)
 
 HIPPY_EXPORT_METHOD(setPage:(nonnull NSNumber *)componentTag
         pageNumber:(NSNumber *)pageNumber) {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
 
         if (view == nil || ![view isKindOfClass:[NativeRenderSmartViewPagerView class]]) {
@@ -64,7 +64,7 @@ HIPPY_EXPORT_METHOD(setPage:(nonnull NSNumber *)componentTag
 
 HIPPY_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)componentTag
         pageNumber:(NSNumber *)pageNumber) {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
         if (view == nil || ![view isKindOfClass:[NativeRenderSmartViewPagerView class]]) {
             HippyLogError(@"tried to setPage: on an error viewPager %@ "
@@ -77,7 +77,7 @@ HIPPY_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)componentTag
 
 HIPPY_EXPORT_METHOD(getPageIndex:(nonnull NSNumber *)componentTag
                     callback:(HippyPromiseResolveBlock)callback) {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         NativeRenderSmartViewPagerView *view = viewRegistry[componentTag];
         NSInteger currrentPage = [view getCurrentPage];
         callback(@(currrentPage));

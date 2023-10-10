@@ -100,7 +100,7 @@ HIPPY_REMAP_VIEW_PROPERTY(contentInset, _scrollView.contentInset, UIEdgeInsets)
 
 HIPPY_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)componentTag
                     callback:(HippyPromiseResolveBlock)callback) {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyScrollView *view = viewRegistry[componentTag];
         CGSize size = view.scrollView.contentSize;
         callback(@{@"width" : @(size.width),@"height" : @(size.height)});
@@ -111,7 +111,7 @@ HIPPY_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)componentTag
                     offsetX:(NSNumber *)x
                     offsetY:(NSNumber *)y
                     animated:(NSNumber *)animated) {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
         if (view == nil) return ;
         if ([view conformsToProtocol:@protocol(HippyScrollableProtocol)]) {
@@ -125,7 +125,7 @@ HIPPY_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)componentTag
 
 HIPPY_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)componentTag
                     options:(NSDictionary *)options) {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
         if (view == nil) return ;
         if ([view conformsToProtocol:@protocol(HippyScrollableProtocol)]) {

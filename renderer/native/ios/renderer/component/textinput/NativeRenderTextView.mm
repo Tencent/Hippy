@@ -159,7 +159,7 @@
 - (void)setMostRecentEventCount:(NSInteger)mostRecentEventCount {
     _mostRecentEventCount = mostRecentEventCount;
 
-    // Props are set after uiBlockToAmendWithRenderObjectRegistry, which means that
+    // Props are set after uiBlockToAmendWithShadowViewRegistry, which means that
     // at the time performTextUpdate is called, _mostRecentEventCount will be
     // behind _eventCount, with the result that performPendingTextUpdate will do
     // nothing. For that reason we call it again here after mostRecentEventCount

@@ -183,13 +183,13 @@ protected void onAttachedToWindow() {
 ## 创建对应的ViewManager
 
 > ViewManager 是对应的视图管理组件，负责前端视图和终端视图直接进行属性、方法的调用。
-> SDK 中最基础的 `ViewManager` 是 `NativeRenderViewManager`，封装了基本的方法，负责管理 `NativeRenderView`。
-> 用户自定的 `ViewManager` 必须继承自 `NativeRenderViewManager`。
+> SDK 中最基础的 `ViewManager` 是 `HippyViewManager`，封装了基本的方法，负责管理 `NativeRenderView`。
+> 用户自定的 `ViewManager` 必须继承自 `HippyViewManager`。
 
 NativeRenderMyViewManager.h
 
 ```objectivec
-@interface NativeRenderMyViewManager:NativeRenderViewManager
+@interface NativeRenderMyViewManager:HippyViewManager
 @end
 ```
 

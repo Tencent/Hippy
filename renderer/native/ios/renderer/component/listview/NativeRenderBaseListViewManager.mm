@@ -59,7 +59,7 @@ HIPPY_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)componentTag
                     xIndex:(__unused NSNumber *)xIndex
 					yIndex:(NSNumber *)yIndex
 					animation:(nonnull NSNumber *)animation) {
-	[self.renderImpl addUIBlock:
+	[self.bridge.uiManager addUIBlock:
 	 ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
 		 NativeRenderBaseListView *view = (NativeRenderBaseListView *)viewRegistry[componentTag];
 		 if (view == nil) return ;
@@ -74,7 +74,7 @@ HIPPY_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)componentTag
                     x:(nonnull NSNumber *)x
                     y:(nonnull NSNumber *)y
                     animation:(nonnull NSNumber *)animation) {
-	[self.renderImpl addUIBlock:
+	[self.bridge.uiManager addUIBlock:
 	 ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
 		 NativeRenderBaseListView *view = (NativeRenderBaseListView *)viewRegistry[componentTag];
 		 if (view == nil) return ;

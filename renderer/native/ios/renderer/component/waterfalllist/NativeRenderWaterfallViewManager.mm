@@ -58,7 +58,7 @@ HIPPY_EXPORT_METHOD(refreshCompleted:(nonnull NSNumber *)reactTag
                                text:(nonnull NSString *)text
                                duration:(nonnull NSNumber *)duration
                                imageUrl:(nonnull NSString *)imageUrl) {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
             return;
@@ -70,7 +70,7 @@ HIPPY_EXPORT_METHOD(refreshCompleted:(nonnull NSNumber *)reactTag
 }
 
 HIPPY_EXPORT_METHOD(startRefresh:(nonnull NSNumber *)reactTag) {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
             return;
@@ -83,7 +83,7 @@ HIPPY_EXPORT_METHOD(startRefresh:(nonnull NSNumber *)reactTag) {
 
 HIPPY_EXPORT_METHOD(startRefreshWithType:(nonnull NSNumber *)reactTag
                                type:(NSNumber *)type) {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
             return;
@@ -95,7 +95,7 @@ HIPPY_EXPORT_METHOD(startRefreshWithType:(nonnull NSNumber *)reactTag
 }
 
 HIPPY_EXPORT_METHOD(callExposureReport:(nonnull NSNumber *)reactTag) {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
             return;
@@ -110,7 +110,7 @@ HIPPY_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)reactTag
                                xIndex:(nonnull NSNumber *)xIndex
                                yIndex:(nonnull NSNumber *)yIndex
                                animation:(nonnull NSNumber *)animation) {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
             return;
@@ -125,7 +125,7 @@ HIPPY_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)reactTag
                                x:(nonnull NSNumber *)x
                                y:(nonnull NSNumber *)y
                                animation:(nonnull NSNumber *)animation) {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
             return;
@@ -137,7 +137,7 @@ HIPPY_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)reactTag
 }
 
 HIPPY_EXPORT_METHOD(startLoadMore:(nonnull NSNumber *)reactTag) {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
             return;

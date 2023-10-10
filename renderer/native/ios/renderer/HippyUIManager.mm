@@ -43,6 +43,7 @@
 #import "NSObject+Render.h"
 #import "HippyBridgeModule.h"
 #import "HippyModulesSetup.h"
+#import "NativeRenderManager.h"
 #include "dom/root_node.h"
 #include "objc/runtime.h"
 
@@ -609,6 +610,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 }
 
 #pragma mark Render Context Implementation
+
 - (__kindof HippyViewManager *)renderViewManagerForViewName:(NSString *)viewName {
     if (!_viewManagers) {
         _viewManagers = [NSMutableDictionary dictionaryWithCapacity:64];
@@ -636,8 +638,8 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     id object = [_viewManagers objectForKey:viewName];
     if (object_isClass(object)) {
         HippyViewManager *viewManager = [object new];
-        viewManager.renderImpl = self;
-        NSAssert([viewManager isKindOfClass:[HippyViewManager class]], @"It must be a NativeRenderViewManager instance");
+        viewManager.bridge = self.bridge;
+        NSAssert([viewManager isKindOfClass:[HippyViewManager class]], @"It must be a HippyViewManager instance");
         [_viewManagers setObject:viewManager forKey:viewName];
         object = viewManager;
     }
@@ -1528,4 +1530,19 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 #endif
 
 @end
+
+
+@implementation HippyBridge (HippyUIManager)
+
+- (HippyUIManager *)uiManager {
+    auto renderManager = [self renderManager].lock();
+    if (renderManager) {
+        auto nativeRenderManager = std::static_pointer_cast<NativeRenderManager>(renderManager);
+        return nativeRenderManager->GetHippyUIManager();
+    }
+    return nil;
+}
+
+@end
+
 

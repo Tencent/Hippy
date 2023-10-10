@@ -75,7 +75,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(defaultValue, NSString)
 HIPPY_EXPORT_VIEW_PROPERTY(isNightMode, BOOL)
 
 HIPPY_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)componentTag) {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
          NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
          if (view == nil) return ;
          if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
@@ -86,7 +86,7 @@ HIPPY_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)componentTag) {
 }
 
 HIPPY_EXPORT_METHOD(isFocused:(nonnull NSNumber *)componentTag callback:(HippyPromiseResolveBlock)callback) {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
         if (view == nil) return ;
         if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
@@ -98,7 +98,7 @@ HIPPY_EXPORT_METHOD(isFocused:(nonnull NSNumber *)componentTag callback:(HippyPr
 }
 
 HIPPY_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)componentTag) {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
          NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
          if (view == nil) return ;
          if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
@@ -109,7 +109,7 @@ HIPPY_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)componentTag) {
 }
 
 HIPPY_EXPORT_METHOD(clear:(nonnull NSNumber *)componentTag) {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
         if (view == nil) return ;
         if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
@@ -121,7 +121,7 @@ HIPPY_EXPORT_METHOD(clear:(nonnull NSNumber *)componentTag) {
 
 HIPPY_EXPORT_METHOD(setValue:(nonnull NSNumber *)componentTag
                   text:(NSString *)text ) {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
         if (view == nil) return ;
         if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
@@ -133,7 +133,7 @@ HIPPY_EXPORT_METHOD(setValue:(nonnull NSNumber *)componentTag
 
 HIPPY_EXPORT_METHOD(getValue:(nonnull NSNumber *)componentTag
                   callback:(HippyPromiseResolveBlock)callback ) {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
         NSString *stringValue = [view value];
         if (nil == stringValue) {
@@ -202,7 +202,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(fontFamily, NSString, NativeRenderBaseTextInput) {
     view.font = [HippyFont updateFont:view.font withFamily:json ?: defaultView.font.familyName];
 }
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithHippyShadowView:(HippyShadowView *)hippyShadowView {
+- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowView:(HippyShadowView *)hippyShadowView {
     NSNumber *componentTag = hippyShadowView.hippyTag;
     UIEdgeInsets padding = hippyShadowView.paddingAsInsets;
     return ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, NativeRenderBaseTextInput *> *viewRegistry) {

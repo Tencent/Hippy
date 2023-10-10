@@ -33,18 +33,19 @@
 #import "UIView+DirectionalLayout.h"
 #import "UIView+Hippy.h"
 #import "HippyBridgeModule.h"
-#include <objc/runtime.h>
-#include "VFSUriLoader.h"
-#include "dom/layout_node.h"
+#import <objc/runtime.h>
+#import "VFSUriLoader.h"
+#import "dom/layout_node.h"
 
 @interface HippyViewManager () {
     NSUInteger _sequence;
-    __weak HippyUIManager *_renderImpl;
 }
 
 @end
 
 @implementation HippyViewManager
+
+@synthesize bridge = _bridge;
 
 HIPPY_EXPORT_MODULE(View);
 
@@ -56,24 +57,20 @@ HIPPY_EXPORT_MODULE(View);
     return [[HippyShadowView alloc] init];
 }
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithHippyShadowView:(__unused HippyShadowView *)renderObject {
+- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowView:(__unused HippyShadowView *)shadowView {
     return nil;
 }
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithRenderObjectRegistry:(__unused NSDictionary<NSNumber *, HippyShadowView *> *)renderObjectRegistry {
+- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowViewRegistry:(__unused NSDictionary<NSNumber *, HippyShadowView *> *)shadowViewRegistry {
     return nil;
 }
 
-- (HippyUIManager *)renderImpl {
-    return _renderImpl;
-}
-
-static NSString * const NativeRenderViewManagerGetBoundingRelToContainerKey = @"relToContainer";
-static NSString * const NativeRenderViewManagerGetBoundingErrMsgrKey = @"errMsg";
+static NSString * const HippyViewManagerGetBoundingRelToContainerKey = @"relToContainer";
+static NSString * const HippyViewManagerGetBoundingErrMsgrKey = @"errMsg";
 HIPPY_EXPORT_METHOD(getBoundingClientRect:(nonnull NSNumber *)hippyTag
-                                      options:(nullable NSDictionary *)options
-                                      callback:(HippyPromiseResolveBlock)callback ) {
-    if (options && [[options objectForKey:NativeRenderViewManagerGetBoundingRelToContainerKey] boolValue]) {
+                    options:(nullable NSDictionary *)options
+                    callback:(HippyPromiseResolveBlock)callback ) {
+    if (options && [[options objectForKey:HippyViewManagerGetBoundingRelToContainerKey] boolValue]) {
         [self measureInWindow:hippyTag withErrMsg:YES callback:callback];
     } else {
         [self measureInAppWindow:hippyTag withErrMsg:YES callback:callback];
@@ -81,21 +78,21 @@ HIPPY_EXPORT_METHOD(getBoundingClientRect:(nonnull NSNumber *)hippyTag
 }
 
 HIPPY_EXPORT_METHOD(measureInWindow:(NSNumber *)componentTag
-                                      callback:(HippyPromiseResolveBlock)callback) {
+                    callback:(HippyPromiseResolveBlock)callback) {
     [self measureInWindow:componentTag withErrMsg:NO callback:callback];
 }
 
 - (void)measureInWindow:(NSNumber *)componentTag
              withErrMsg:(BOOL)withErrMsg
                callback:(HippyPromiseResolveBlock)callback {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager,
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager,
                                      NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[componentTag];
         if (!view) {
             if (withErrMsg) {
                 NSString *formatStr = @"measure cannot find view with tag #%@";
                 NSString *errMsg = [NSString stringWithFormat:formatStr, componentTag];
-                callback(@{NativeRenderViewManagerGetBoundingErrMsgrKey : errMsg});
+                callback(@{HippyViewManagerGetBoundingErrMsgrKey : errMsg});
             } else {
                 callback(@{});
             }
@@ -106,7 +103,7 @@ HIPPY_EXPORT_METHOD(measureInWindow:(NSNumber *)componentTag
             if (withErrMsg) {
                 NSString *formatStr = @"measure cannot find view's root view with tag #%@";
                 NSString *errMsg = [NSString stringWithFormat:formatStr, componentTag];
-                callback(@{NativeRenderViewManagerGetBoundingErrMsgrKey : errMsg});
+                callback(@{HippyViewManagerGetBoundingErrMsgrKey : errMsg});
             } else {
                 callback(@{});
             }
@@ -128,7 +125,7 @@ HIPPY_EXPORT_METHOD(measureInAppWindow:(NSNumber *)componentTag
 - (void)measureInAppWindow:(NSNumber *)componentTag
                 withErrMsg:(BOOL)withErrMsg
                   callback:(HippyPromiseResolveBlock)callback {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager,
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager,
                                      NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[componentTag];
         if (!view) {
@@ -146,7 +143,7 @@ HIPPY_EXPORT_METHOD(measureInAppWindow:(NSNumber *)componentTag
 HIPPY_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)componentTag
                                       params:(NSDictionary *__nonnull)params
                                     callback:(HippyPromiseResolveBlock)callback) {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[componentTag];
         if (view == nil) {
             callback(@[]);
@@ -186,7 +183,7 @@ HIPPY_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)componentTag
 HIPPY_EXPORT_METHOD(getLocationOnScreen:(nonnull NSNumber *)componentTag
                                       params:(NSDictionary *__nonnull)params
                                     callback:(HippyPromiseResolveBlock)callback) {
-    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[componentTag];
         if (view == nil) {
             callback(@[]);
@@ -244,12 +241,14 @@ HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
     }
     NSString *standardizeAssetUrlString = path;
     __weak HippyView *weakView = view;
-    auto loader = [[self renderImpl] VFSUriLoader].lock();
+    auto loader = [self.bridge.uiManager VFSUriLoader].lock();
     if (!loader) {
         return;
     }
+    __weak __typeof(self)weakSelf = self;
     loader->RequestUntrustedContent(path, nil, nil, ^(NSData *data, NSURLResponse *response, NSError *error) {
-        HippyUIManager *renderImpl = self.renderImpl;
+        __strong __typeof(weakSelf)strongSelf = weakSelf;
+        HippyUIManager *renderImpl = strongSelf.bridge.uiManager;
         id<HippyImageProviderProtocol> imageProvider = nil;
         if (renderImpl) {
             for (Class<HippyImageProviderProtocol> cls in [renderImpl imageProviderClasses]) {

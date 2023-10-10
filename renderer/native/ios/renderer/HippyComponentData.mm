@@ -89,7 +89,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
         while (cls != [HippyViewManager class]) {
             _implementsUIBlockToAmendWithRenderObjectRegistry
                 = _implementsUIBlockToAmendWithRenderObjectRegistry
-                  || HippyClassOverridesInstanceMethod(cls, @selector(uiBlockToAmendWithRenderObjectRegistry:));
+                  || HippyClassOverridesInstanceMethod(cls, @selector(uiBlockToAmendWithShadowViewRegistry:));
             cls = [cls superclass];
         }
     }
@@ -511,7 +511,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
 
 - (HippyViewManagerUIBlock)uiBlockToAmendWithRenderObjectViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)registry {
     if (_implementsUIBlockToAmendWithRenderObjectRegistry) {
-        return [[self manager] uiBlockToAmendWithRenderObjectRegistry:registry];
+        return [[self manager] uiBlockToAmendWithShadowViewRegistry:registry];
     }
     return nil;
 }

@@ -36,14 +36,14 @@ HIPPY_EXPORT_VIEW_PROPERTY(bounceTime, CGFloat)
 }
 
 HIPPY_EXPORT_METHOD(refreshComplected:(NSNumber *__nonnull)componentTag) {
-    [self.renderImpl addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         NativeRenderRefreshWrapper *wrapperView = viewRegistry[componentTag];
         [wrapperView refreshCompleted];
     }];
 }
 
 HIPPY_EXPORT_METHOD(startRefresh:(NSNumber *__nonnull)componentTag) {
-    [self.renderImpl addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         NativeRenderRefreshWrapper *wrapperView = viewRegistry[componentTag];
         [wrapperView startRefresh];
     }];

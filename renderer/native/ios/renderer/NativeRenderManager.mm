@@ -233,6 +233,11 @@ void NativeRenderManager::SetVFSUriLoader(std::shared_ptr<VFSUriLoader> loader) 
     }
 }
 
+void NativeRenderManager::SetHippyBridge(HippyBridge *bridge) {
+    HippyAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
+    renderImpl_.bridge = bridge;
+}
+
 void NativeRenderManager::SetRootViewSizeChangedEvent(std::function<void(int32_t rootTag, NSDictionary *)> cb) {
     [renderImpl_ setRootViewSizeChangedEvent:cb];
 }

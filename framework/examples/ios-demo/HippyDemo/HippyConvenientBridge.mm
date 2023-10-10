@@ -88,6 +88,7 @@
     _nativeRenderManager->AddImageProviderClass([HippyDefaultImageProvider class]);
     _nativeRenderManager->RegisterExtraComponent(_extraComponents);
     _nativeRenderManager->SetVFSUriLoader([self URILoader]);
+    _nativeRenderManager->SetHippyBridge(self.bridge);
     _bridge.renderManager = _nativeRenderManager;
 }
 

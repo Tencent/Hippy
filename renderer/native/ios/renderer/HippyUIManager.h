@@ -21,7 +21,7 @@
  */
 
 #import <UIKit/UIKit.h>
-
+#import "HippyBridge.h"
 #import "HippyInvalidating.h"
 #import "NativeRenderDefines.h"
 #import "HippyBridgeModule.h"
@@ -64,10 +64,11 @@ class HippyValue;
 
 @property(nonatomic, assign) BOOL uiCreationLazilyEnabled;
 
-@property(nonatomic, assign) std::weak_ptr<VFSUriLoader> VFSUriLoader;
-@property(nonatomic, assign) std::weak_ptr<hippy::RenderManager> renderManager;
-@property(nonatomic, readonly) std::weak_ptr<hippy::DomManager> domManager;
-@property(nonatomic, readonly) HippyComponentMap *viewRegistry;
+@property (nonatomic, weak) HippyBridge *bridge;
+@property (nonatomic, assign) std::weak_ptr<VFSUriLoader> VFSUriLoader;
+@property (nonatomic, assign) std::weak_ptr<hippy::RenderManager> renderManager;
+@property (nonatomic, readonly) std::weak_ptr<hippy::DomManager> domManager;
+@property (nonatomic, readonly) HippyComponentMap *viewRegistry;
 
 - (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls;
 - (NSArray<Class<HippyImageProviderProtocol>> *)imageProviderClasses;
@@ -123,7 +124,7 @@ class HippyValue;
  * @param hippyTag hippy tag corresponding to UIView
  * @return view created by hippy tag
  */
-- (UIView *)createViewRecursivelyFromcomponentTag:(NSNumber *)componentTag
+- (UIView *)createViewRecursivelyFromcomponentTag:(NSNumber *)hippyTag
                                         onRootTag:(NSNumber *)rootTag;
 
 /**
@@ -201,7 +202,7 @@ class HippyValue;
  */
 - (id)dispatchFunction:(const std::string &)functionName
               viewName:(const std::string &)viewName
-               viewTag:(int32_t)componentTag
+               viewTag:(int32_t)hippyTag
             onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode
                 params:(const footstone::value::HippyValue &)params
               callback:(hippy::CallFunctionCallback)cb;
@@ -250,5 +251,18 @@ class HippyValue;
 - (std::shared_ptr<hippy::DomNode>)domNodeForTag:(int32_t)dom_tag onRootNode:(int32_t)root_tag;
 - (std::vector<std::shared_ptr<hippy::DomNode>>)childrenForNodeTag:(int32_t)tag onRootNode:(int32_t)root_tag;
 #endif
+
+@end
+
+
+/**
+ * This category makes the current HippyUIManager instance available via the
+ * HippyBridge, which is useful for HippyBridgeModules or HippyViewManagers that
+ * need to access the HippyUIManager.
+ */
+@interface HippyBridge (HippyUIManager)
+
+/// The current HippyUIManager instance
+@property (nonatomic, readonly) HippyUIManager *uiManager;
 
 @end
