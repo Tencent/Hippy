@@ -20,36 +20,37 @@
  * limitations under the License.
  */
 
-#import "NativeRenderImpl.h"
+#import "HippyUIManager.h"
 #import "NativeRenderSmartViewPagerViewManager.h"
 #import "NativeRenderSmartViewPagerView.h"
+#import "HippyBridgeModule.h"
 
 @implementation NativeRenderSmartViewPagerViewManager
 
-NATIVE_RENDER_EXPORT_VIEW(SmartViewPager)
+HIPPY_EXPORT_MODULE(SmartViewPager)
 
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(scrollEventThrottle, NSTimeInterval)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(initialListReady, HippyDirectEventBlock);
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onScrollBeginDrag, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageSelected, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onScroll, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(scrollEventThrottle, NSTimeInterval)
+HIPPY_EXPORT_VIEW_PROPERTY(initialListReady, HippyDirectEventBlock);
+HIPPY_EXPORT_VIEW_PROPERTY(onScrollBeginDrag, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onPageSelected, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onScroll, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, HippyDirectEventBlock)
 
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(pageGap, CGFloat)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(previousMargin, CGFloat)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(nextMargin, CGFloat)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(autoplayTimeInterval, CGFloat)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(initialPage, NSInteger)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(circular, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(autoplay, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(pageGap, CGFloat)
+HIPPY_EXPORT_VIEW_PROPERTY(previousMargin, CGFloat)
+HIPPY_EXPORT_VIEW_PROPERTY(nextMargin, CGFloat)
+HIPPY_EXPORT_VIEW_PROPERTY(autoplayTimeInterval, CGFloat)
+HIPPY_EXPORT_VIEW_PROPERTY(initialPage, NSInteger)
+HIPPY_EXPORT_VIEW_PROPERTY(circular, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(autoplay, BOOL)
 
 - (UIView *)view {
     return [[NativeRenderSmartViewPagerView alloc] init];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)componentTag
+HIPPY_EXPORT_METHOD(setPage:(nonnull NSNumber *)componentTag
         pageNumber:(NSNumber *)pageNumber) {
-    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
 
         if (view == nil || ![view isKindOfClass:[NativeRenderSmartViewPagerView class]]) {
@@ -61,9 +62,9 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)componentTag
     }];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)componentTag
+HIPPY_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)componentTag
         pageNumber:(NSNumber *)pageNumber) {
-    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
         if (view == nil || ![view isKindOfClass:[NativeRenderSmartViewPagerView class]]) {
             HippyLogError(@"tried to setPage: on an error viewPager %@ "
@@ -74,9 +75,9 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber 
     }];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getPageIndex:(nonnull NSNumber *)componentTag
-                    callback:(RenderUIResponseSenderBlock)callback) {
-    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+HIPPY_EXPORT_METHOD(getPageIndex:(nonnull NSNumber *)componentTag
+                    callback:(HippyPromiseResolveBlock)callback) {
+    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         NativeRenderSmartViewPagerView *view = viewRegistry[componentTag];
         NSInteger currrentPage = [view getCurrentPage];
         callback(@(currrentPage));

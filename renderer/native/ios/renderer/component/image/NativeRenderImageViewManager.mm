@@ -24,7 +24,7 @@
 #import "HippyUtils.h"
 #import "NativeRenderImageViewManager.h"
 #import "NativeRenderImageView.h"
-#import "NativeRenderImpl.h"
+#import "HippyUIManager.h"
 #import "TypeConverter.h"
 
 #include "VFSUriLoader.h"
@@ -36,25 +36,25 @@
 
 @implementation NativeRenderImageViewManager
 
-NATIVE_RENDER_EXPORT_VIEW(Image);
+HIPPY_EXPORT_MODULE(Image);
 
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(blurRadius, CGFloat)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(capInsets, UIEdgeInsets)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(resizeMode, NativeRenderResizeMode)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoadStart, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onProgress, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onError, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPartialLoad, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoad, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoadEnd, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(downSample, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(shape, NativeRenderShapeMode)
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(src, NSString, NativeRenderImageView) {
+HIPPY_EXPORT_VIEW_PROPERTY(blurRadius, CGFloat)
+HIPPY_EXPORT_VIEW_PROPERTY(capInsets, UIEdgeInsets)
+HIPPY_EXPORT_VIEW_PROPERTY(resizeMode, NativeRenderResizeMode)
+HIPPY_EXPORT_VIEW_PROPERTY(onLoadStart, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onProgress, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onError, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onPartialLoad, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onLoad, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onLoadEnd, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(downSample, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(shape, NativeRenderShapeMode)
+HIPPY_CUSTOM_VIEW_PROPERTY(src, NSString, NativeRenderImageView) {
     NSString *path = [HippyConvert NSString:json];
     [self loadImageSource:path forView:view];
 }
 
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
+HIPPY_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
     NSArray *pathSources = [HippyConvert NSArray:json];
     if ([pathSources isKindOfClass:[NSArray class]]) {
         NSDictionary *dicSource = [pathSources firstObject];
@@ -74,7 +74,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
         return;
     }
     loader->RequestUntrustedContent(path, nil, nil, ^(NSData *data, NSURLResponse *response, NSError *error) {
-        NativeRenderImpl *renderImpl = self.renderImpl;
+        HippyUIManager *renderImpl = self.renderImpl;
         id<HPImageProviderProtocol> imageProvider = nil;
         if (renderImpl) {
             for (Class<HPImageProviderProtocol> cls in [renderImpl imageProviderClasses]) {
@@ -97,18 +97,18 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
     });
 }
 
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, NativeRenderImageView) {
+HIPPY_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, NativeRenderImageView) {
     view.tintColor = [HippyConvert UIColor:json] ?: defaultView.tintColor;
     view.renderingMode = json ? UIImageRenderingModeAlwaysTemplate : defaultView.renderingMode;
 }
 
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, NativeRenderImageView) {
+HIPPY_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, NativeRenderImageView) {
     NSString *source = [HippyConvert NSString:json];
     [self loadImageSource:source forView:view];
 }
 
 #define NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(SIDE)                                                                 \
-    NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Radius, CGFloat, NativeRenderImageView) {                          \
+    HIPPY_CUSTOM_VIEW_PROPERTY(border##SIDE##Radius, CGFloat, NativeRenderImageView) {                          \
         if ([view respondsToSelector:@selector(setBorder##SIDE##Radius:)]) {                                            \
             view.border##SIDE##Radius = json ? [HippyConvert CGFloat:json] : defaultView.border##SIDE##Radius;   \
         }                                                                                                               \

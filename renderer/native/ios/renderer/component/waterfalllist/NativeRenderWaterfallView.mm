@@ -28,7 +28,7 @@
 #import "HippyRefresh.h"
 #import "NativeRenderWaterfallViewDataSource.h"
 #import "NativeRenderObjectView.h"
-#import "NativeRenderImpl.h"
+#import "HippyUIManager.h"
 #import "UIView+Render.h"
 #import "NativeRenderListTableView.h"
 #import "NativeRenderWaterfallViewCell.h"

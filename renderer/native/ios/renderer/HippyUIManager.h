@@ -24,12 +24,12 @@
 
 #import "HippyInvalidating.h"
 #import "NativeRenderDefines.h"
-
+#import "HippyBridgeModule.h"
 #include <memory>
 #include <unordered_map>
 #include <functional>
 
-@class NativeRenderAnimationViewParams, NativeRenderObjectView, NativeRenderImpl,HippyViewManager;
+@class NativeRenderAnimationViewParams, NativeRenderObjectView, HippyUIManager,HippyViewManager;
 @class NativeRenderReusePool, NativeRenderComponentMap;
 
 class VFSUriLoader;
@@ -56,7 +56,7 @@ class HippyValue;
 /**
  * The NativeRenderUIManager is the module responsible for updating the view hierarchy.
  */
-@interface NativeRenderImpl : NSObject <HippyInvalidating>
+@interface HippyUIManager : NSObject <HippyInvalidating>
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -95,7 +95,7 @@ class HippyValue;
  * Schedule a block to be executed on the UI thread. Useful if you need to execute
  * view logic after all currently queued view updates have completed.
  */
-- (void)addUIBlock:(NativeRenderRenderUIBlock)block;
+- (void)addUIBlock:(HippyViewManagerUIBlock)block;
 
 /**
  * In some cases we might want to trigger layout from native side.

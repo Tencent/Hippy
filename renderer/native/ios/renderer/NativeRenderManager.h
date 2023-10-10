@@ -28,7 +28,7 @@
 
 #include "dom/render_manager.h"
 
-@class UIView, NativeRenderImpl;
+@class UIView, HippyUIManager;
 
 class VFSUriLoader;
 namespace hippy {
@@ -46,7 +46,7 @@ class NativeRenderManager : public hippy::RenderManager ,public std::enable_shar
     
 public:
     NativeRenderManager();
-    NativeRenderManager(NativeRenderImpl *uiManager): hippy::RenderManager("NativeRenderManager"), renderImpl_(uiManager){}
+    NativeRenderManager(HippyUIManager *uiManager): hippy::RenderManager("NativeRenderManager"), renderImpl_(uiManager){}
     
     ~NativeRenderManager();
     
@@ -213,14 +213,14 @@ public:
     void SetRootViewSizeChangedEvent(std::function<void(int32_t rootTag, NSDictionary *)> cb);
     
     /**
-     * Get NativeRenderImpl variable
+     * Get HippyUIManager variable
      *
-     * @return A NativeRenderImpl instance
+     * @return A HippyUIManager instance
      */
-    NativeRenderImpl *GetNativeRenderImpl();
+    HippyUIManager *GetHippyUIManager();
     
 private:
-    NativeRenderImpl *renderImpl_;
+    HippyUIManager *renderImpl_;
 };
 
 #endif /* NativeRenderManager_h */

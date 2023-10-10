@@ -4,9 +4,9 @@
 
 Hippy抽象了RenderManager的接口，允许接入方自行实现RenderManager接口，并实现上屏操作。其中Native Renderer由Hippy默认实现，通过Native组件构建出整个Hippy界面。
 
-NativeRenderManager负责实现Hippy::RenderManager的抽象接口，并将Render树的构建与UI上屏的行为交由NativeRenderImpl处理。
+NativeRenderManager负责实现Hippy::RenderManager的抽象接口，并将Render树的构建与UI上屏的行为交由HippyUIManager处理。
 
-NativeRenderImpl负责处理以下行为：
+HippyUIManager负责处理以下行为：
 
 - Render节点的创建与管理
 - RooView与RootNode绑定与管理（不持有）

@@ -24,12 +24,12 @@
 
 @implementation NativeRenderSimpleWebViewManager
 
-NATIVE_RENDER_EXPORT_VIEW(WebView)
+HIPPY_EXPORT_MODULE(WebView)
 
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(source, NSDictionary)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoadStart, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoadEnd, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoad, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(source, NSDictionary)
+HIPPY_EXPORT_VIEW_PROPERTY(onLoadStart, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onLoadEnd, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onLoad, HippyDirectEventBlock)
 
 - (UIView *)view {
     return [NativeRenderSimpleWebView new];

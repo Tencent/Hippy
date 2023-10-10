@@ -27,7 +27,7 @@
 #import "NativeRenderCollectionViewFlowLayout.h"
 #import "NativeRenderFooterRefresh.h"
 #import "NativeRenderHeaderRefresh.h"
-#import "NativeRenderImpl.h"
+#import "HippyUIManager.h"
 #import "NativeRenderObjectView.h"
 #import "UIView+DirectionalLayout.h"
 #import "UIView+NativeRender.h"

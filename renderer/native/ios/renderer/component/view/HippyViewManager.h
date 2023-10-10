@@ -23,13 +23,14 @@
 #import <UIKit/UIKit.h>
 #import "HippyConvert.h"
 #import "NativeRenderDefines.h"
+#import "HippyBridgeModule.h"
 
 @class NativeRenderObjectView;
-@class NativeRenderImpl;
+@class HippyUIManager;
 
-@interface HippyViewManager : NSObject
+@interface HippyViewManager : NSObject <HippyBridgeModule>
 
-@property(nonatomic, weak)NativeRenderImpl *renderImpl;
+@property(nonatomic, weak)HippyUIManager *renderImpl;
 
 /**
  * This method instantiates a native view to be managed by the module. Override
@@ -52,7 +53,7 @@
  * Called to notify manager that layout has finished, in case any calculated
  * properties need to be copied over from shadow view to view.
  */
-- (NativeRenderRenderUIBlock)uiBlockToAmendWithNativeRenderObjectView:(NativeRenderObjectView *)renderObject;
+- (HippyViewManagerUIBlock)uiBlockToAmendWithNativeRenderObjectView:(NativeRenderObjectView *)renderObject;
 
 /**
  * Called after view hierarchy manipulation has finished, and all shadow props
@@ -60,22 +61,22 @@
  * custom layout logic or tasks that involve walking the view hierarchy.
  * To be deprecated, hopefully.
  */
-- (NativeRenderRenderUIBlock)uiBlockToAmendWithRenderObjectRegistry:(NSDictionary<NSNumber *, NativeRenderObjectView *> *)renderObjectRegistry;
+- (HippyViewManagerUIBlock)uiBlockToAmendWithRenderObjectRegistry:(NSDictionary<NSNumber *, NativeRenderObjectView *> *)renderObjectRegistry;
 
 /**
  * This handles the simple case, where JS and native property names match.
  */
-#define NATIVE_RENDER_EXPORT_VIEW_PROPERTY(name, type)  \
-    +(NSArray<NSString *> *)propConfig_##name {         \
-        return @[@ #type];                              \
+#define HIPPY_EXPORT_VIEW_PROPERTY(name, type)  \
+    +(NSArray<NSString *> *)propConfig_##name { \
+        return @[@ #type];                      \
     }
 
 /**
  * This macro maps a named property to an arbitrary key path in the view.
  */
-#define NATIVE_RENDER_REMAP_VIEW_PROPERTY(name, keyPath, type)  \
-    +(NSArray<NSString *> *)propConfig_##name {                 \
-        return @[@ #type, @ #keyPath];                          \
+#define HIPPY_REMAP_VIEW_PROPERTY(name, keyPath, type) \
+    +(NSArray<NSString *> *)propConfig_##name {        \
+        return @[@ #type, @ #keyPath];                 \
     }
 
 /**
@@ -83,24 +84,24 @@
  * view properties. The macro should be followed by a method body, which can
  * refer to "json", "view" and "defaultView" to implement the required logic.
  */
-#define NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(name, type, viewClass) \
-    NATIVE_RENDER_REMAP_VIEW_PROPERTY(name, __custom__, type)     \
+#define HIPPY_CUSTOM_VIEW_PROPERTY(name, type, viewClass) \
+    HIPPY_REMAP_VIEW_PROPERTY(name, __custom__, type)     \
     -(void)set_##name : (id)json forView : (viewClass *)view withDefaultView : (viewClass *)defaultView
 
 /**
  * This macro is used to map properties to the shadow view, instead of the view.
  */
-#define NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(name, type) \
-    +(NSArray<NSString *> *)propConfigRenderObject_##name {     \
-        return @[@ #type];                                      \
+#define HIPPY_EXPORT_SHADOW_PROPERTY(name, type)      \
+    +(NSArray<NSString *> *)propConfigShadow_##name { \
+        return @[@ #type];                            \
     }
 
 /**
  * This macro maps a named property to an arbitrary key path in the shadow view.
  */
-#define NATIVE_RENDER_REMAP_RENDER_OBJECT_PROPERTY(name, keyPath, type) \
-    +(NSArray<NSString *> *)propConfigRenderObject_##name {             \
-        return @[@ #type, @ #keyPath];                                  \
+#define HIPPY_REMAP_SHADOW_PROPERTY(name, keyPath, type) \
+    +(NSArray<NSString *> *)propConfigShadow_##name {    \
+        return @[@ #type, @ #keyPath];                   \
     }
 
 /**
@@ -108,20 +109,10 @@
  * shadow view properties. The macro should be followed by a method body, which can
  * refer to "json" and "view".
  */
-#define NATIVE_RENDER_CUSTOM_RENDER_OBJECT_PROPERTY(name, type, viewClass) \
-    NATIVE_RENDER_REMAP_RENDER_OBJECT_PROPERTY(name, __custom__, type)     \
-    -(void)set_##name : (id)json forRenderObject : (viewClass *)view
+#define HIPPY_CUSTOM_SHADOW_PROPERTY(name, type, viewClass) \
+    HIPPY_REMAP_SHADOW_PROPERTY(name, __custom__, type) \
+    -(void)set_##name : (id)json forShadowView : (viewClass *)view
 
-#define NATIVE_RENDER_COMPONENT_EXPORT_METHOD(method_name) NATIVE_RENDER_COMPONENT_REMAP_METHOD(, method_name)
-
-#define NATIVE_RENDER_COMPONENT_REMAP_METHOD(js_name, method_name)      \
-    +(NSArray<NSString *> *)HIPPY_CONCAT(__render_export__,                \
-        HIPPY_CONCAT(js_name, HIPPY_CONCAT(__LINE__, __COUNTER__))) {         \
-        return @[@#js_name, @#method_name];                             \
-    }                                                                   \
-    -(void)method_name
-
-typedef void (^RenderUIResponseSenderBlock)(id response);
 
 @end
 

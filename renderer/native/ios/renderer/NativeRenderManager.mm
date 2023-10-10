@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "NativeRenderImpl.h"
+#import "HippyUIManager.h"
 #import "NativeRenderManager.h"
 #import "NativeRenderObjectText.h"
 #import "RenderVsyncManager.h"
@@ -42,7 +42,7 @@ NativeRenderManager::NativeRenderManager(): hippy::RenderManager("NativeRenderMa
 }
 
 void NativeRenderManager::Initialize() {
-    renderImpl_ = [[NativeRenderImpl alloc] initWithRenderManager:weak_from_this()];
+    renderImpl_ = [[HippyUIManager alloc] initWithRenderManager:weak_from_this()];
 }
 
 void NativeRenderManager::CreateRenderNode(std::weak_ptr<hippy::RootNode> root_node,
@@ -237,7 +237,7 @@ void NativeRenderManager::SetRootViewSizeChangedEvent(std::function<void(int32_t
     [renderImpl_ setRootViewSizeChangedEvent:cb];
 }
 
-NativeRenderImpl *NativeRenderManager::GetNativeRenderImpl() {
+HippyUIManager *NativeRenderManager::GetHippyUIManager() {
     return renderImpl_;
 }
 

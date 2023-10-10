@@ -20,10 +20,11 @@
  * limitations under the License.
  */
 
-#import "NativeRenderImpl.h"
+#import "HippyUIManager.h"
 #import "NativeRenderObjectView.h"
 #import "HippyScrollViewManager.h"
 #import "HippyScrollView.h"
+#import "HippyBridgeModule.h"
 
 @implementation HippyConvert (UIScrollView)
 
@@ -47,70 +48,70 @@ HP_ENUM_CONVERTER(UIScrollViewIndicatorStyle, (@{
 
 @implementation HippyScrollViewManager
 
-NATIVE_RENDER_EXPORT_VIEW(ScrollView)
+HIPPY_EXPORT_MODULE(ScrollView)
 
 - (UIView *)view {
     return [[HippyScrollView alloc] init];
 }
 
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(alwaysBounceHorizontal, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(alwaysBounceVertical, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(bounces, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(bouncesZoom, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(canCancelContentTouches, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(centerContent, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(decelerationRate, CGFloat)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(directionalLockEnabled, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(indicatorStyle, UIScrollViewIndicatorStyle)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(keyboardDismissMode, UIScrollViewKeyboardDismissMode)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(maximumZoomScale, CGFloat)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(minimumZoomScale, CGFloat)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(pagingEnabled, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(scrollsToTop, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(showsHorizontalScrollIndicator, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(showsVerticalScrollIndicator, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(stickyHeaderIndices, NSIndexSet)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(scrollEventThrottle, NSTimeInterval)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(zoomScale, CGFloat)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(scrollIndicatorInsets, UIEdgeInsets)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(snapToInterval, int)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(snapToAlignment, NSString)
-NATIVE_RENDER_REMAP_VIEW_PROPERTY(contentOffset, scrollView.contentOffset, CGPoint)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onScrollBeginDrag, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onScroll, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onScrollEndDrag, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onMomentumScrollBegin, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onMomentumScrollEnd, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onScrollAnimationEnd, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(alwaysBounceHorizontal, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(alwaysBounceVertical, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(bounces, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(bouncesZoom, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(canCancelContentTouches, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(centerContent, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(decelerationRate, CGFloat)
+HIPPY_EXPORT_VIEW_PROPERTY(directionalLockEnabled, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(indicatorStyle, UIScrollViewIndicatorStyle)
+HIPPY_EXPORT_VIEW_PROPERTY(keyboardDismissMode, UIScrollViewKeyboardDismissMode)
+HIPPY_EXPORT_VIEW_PROPERTY(maximumZoomScale, CGFloat)
+HIPPY_EXPORT_VIEW_PROPERTY(minimumZoomScale, CGFloat)
+HIPPY_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(pagingEnabled, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(scrollsToTop, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(showsHorizontalScrollIndicator, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(showsVerticalScrollIndicator, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(stickyHeaderIndices, NSIndexSet)
+HIPPY_EXPORT_VIEW_PROPERTY(scrollEventThrottle, NSTimeInterval)
+HIPPY_EXPORT_VIEW_PROPERTY(zoomScale, CGFloat)
+HIPPY_EXPORT_VIEW_PROPERTY(scrollIndicatorInsets, UIEdgeInsets)
+HIPPY_EXPORT_VIEW_PROPERTY(snapToInterval, int)
+HIPPY_EXPORT_VIEW_PROPERTY(snapToAlignment, NSString)
+HIPPY_REMAP_VIEW_PROPERTY(contentOffset, scrollView.contentOffset, CGPoint)
+HIPPY_EXPORT_VIEW_PROPERTY(onScrollBeginDrag, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onScroll, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onScrollEndDrag, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onMomentumScrollBegin, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onMomentumScrollEnd, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onScrollAnimationEnd, HippyDirectEventBlock)
 
-NATIVE_RENDER_REMAP_VIEW_PROPERTY(contentInset, _scrollView.contentInset, UIEdgeInsets)
+HIPPY_REMAP_VIEW_PROPERTY(contentInset, _scrollView.contentInset, UIEdgeInsets)
 
 // overflow is used both in css-layout as well as by reac-native. In css-layout
 // we always want to treat overflow as scroll but depending on what the overflow
 // is set to from js we want to clip drawing or not. This piece of code ensures
 // that css-layout is always treating the contents of a scroll container as
 // overflow: 'scroll'.
-//NATIVE_RENDER_CUSTOM_RENDER_OBJECT_PROPERTY(overflow, OverflowType, NativeRenderObjectView) {
+//HIPPY_CUSTOM_SHADOW_PROPERTY(overflow, OverflowType, NativeRenderObjectView) {
 //    (void)json;
 //    view.overflow = OverflowScroll;
 //}
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)componentTag
-                    callback:(RenderUIResponseSenderBlock)callback) {
-    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+HIPPY_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)componentTag
+                    callback:(HippyPromiseResolveBlock)callback) {
+    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyScrollView *view = viewRegistry[componentTag];
         CGSize size = view.scrollView.contentSize;
         callback(@{@"width" : @(size.width),@"height" : @(size.height)});
     }];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)componentTag
+HIPPY_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)componentTag
                     offsetX:(NSNumber *)x
                     offsetY:(NSNumber *)y
                     animated:(NSNumber *)animated) {
-    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
         if (view == nil) return ;
         if ([view conformsToProtocol:@protocol(HippyScrollableProtocol)]) {
@@ -122,9 +123,9 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)componentTag
     }];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)componentTag
+HIPPY_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)componentTag
                     options:(NSDictionary *)options) {
-    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
         if (view == nil) return ;
         if ([view conformsToProtocol:@protocol(HippyScrollableProtocol)]) {

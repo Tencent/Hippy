@@ -20,29 +20,29 @@
  * limitations under the License.
  */
 
-#import "NativeRenderImpl.h"
+#import "HippyUIManager.h"
 #import "NativeRenderViewPagerManager.h"
 #import "NativeRenderViewPager.h"
 
 @implementation NativeRenderViewPagerManager
 
-NATIVE_RENDER_EXPORT_VIEW(ViewPager)
+HIPPY_EXPORT_MODULE(ViewPager)
 
 - (UIView *)view {
     return [NativeRenderViewPager new];
 }
 
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(bounces, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(initialPage, NSInteger)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(bounces, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(initialPage, NSInteger)
+HIPPY_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
 
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageSelected, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageScroll, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onPageSelected, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onPageScroll, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, HippyDirectEventBlock)
 
 
 - (void)setPage:(NSNumber *)pageNumber withTag:(NSNumber * _Nonnull)componentTag animated:(BOOL)animated {
-    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext,
+    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager,
                                   NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
         if (![view isKindOfClass:[NativeRenderViewPager class]]) {
@@ -53,12 +53,12 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, HippyDirectEventBlo
     }];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)componentTag
+HIPPY_EXPORT_METHOD(setPage:(nonnull NSNumber *)componentTag
                                       pageNumber:(__unused NSNumber *)pageNumber) {
     [self setPage:pageNumber withTag:componentTag animated:YES];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)componentTag
+HIPPY_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)componentTag
                                       pageNumber:(__unused NSNumber *)pageNumber) {
     [self setPage:pageNumber withTag:componentTag animated:NO];
 }

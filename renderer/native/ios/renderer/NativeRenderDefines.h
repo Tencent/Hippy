@@ -24,18 +24,10 @@
 #define NativeRenderDefines_h
 #import "HippyDefines.h"
 
-@class NativeRenderImpl, UIView, NSDictionary;
+@class HippyUIManager, UIView, NSDictionary;
 
-#define NATIVE_RENDER_EXPORT_VIEW(js_name)              \
-    HIPPY_EXTERN void NativeRenderRegisterView(Class);     \
-    +(NSString *)viewName {                             \
-        return @ #js_name;                              \
-    }                                                   \
-    +(void)load {                                       \
-        NativeRenderRegisterView(self);                 \
-    }
 
-typedef void (^NativeRenderRenderUIBlock)(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry);
+typedef void (^HippyViewManagerUIBlock)(HippyUIManager *uiManager, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry);
 /**
  * Posted whenever a new root view is registered with NativeRenderUIManager. The userInfo property
  * will contain a NativeRenderUIManagerRootViewKey with the registered root view.

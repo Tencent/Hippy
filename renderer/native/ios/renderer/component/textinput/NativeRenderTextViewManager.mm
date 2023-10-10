@@ -22,16 +22,17 @@
 
 #import "NativeRenderBaseTextInput.h"
 #import "NativeRenderFont.h"
-#import "NativeRenderImpl.h"
+#import "HippyUIManager.h"
 #import "NativeRenderObjectTextView.h"
 #import "NativeRenderObjectView.h"
 #import "NativeRenderTextField.h"
 #import "NativeRenderTextView.h"
 #import "NativeRenderTextViewManager.h"
+#import "HippyBridgeModule.h"
 
 @implementation NativeRenderTextViewManager
 
-NATIVE_RENDER_EXPORT_VIEW(TextInput)
+HIPPY_EXPORT_MODULE(TextInput)
 
 - (UIView *)view {
     NSNumber *multiline = self.props[@"multiline"];
@@ -64,17 +65,17 @@ NATIVE_RENDER_EXPORT_VIEW(TextInput)
     return [NativeRenderObjectTextView new];
 }
 
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(value, NSString)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onChangeText, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onKeyPress, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onBlur, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onFocus, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onKeyboardWillShow, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(defaultValue, NSString)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(isNightMode, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(value, NSString)
+HIPPY_EXPORT_VIEW_PROPERTY(onChangeText, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onKeyPress, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onBlur, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onFocus, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onKeyboardWillShow, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(defaultValue, NSString)
+HIPPY_EXPORT_VIEW_PROPERTY(isNightMode, BOOL)
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)componentTag) {
-    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+HIPPY_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)componentTag) {
+    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
          NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
          if (view == nil) return ;
          if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
@@ -84,8 +85,8 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)compone
      }];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(isFocused:(nonnull NSNumber *)componentTag callback:(RenderUIResponseSenderBlock)callback) {
-    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
+HIPPY_EXPORT_METHOD(isFocused:(nonnull NSNumber *)componentTag callback:(HippyPromiseResolveBlock)callback) {
+    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
         if (view == nil) return ;
         if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
@@ -96,8 +97,8 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(isFocused:(nonnull NSNumber *)componentTag
     }];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)componentTag) {
-    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+HIPPY_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)componentTag) {
+    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
          NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
          if (view == nil) return ;
          if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
@@ -107,8 +108,8 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)componen
      }];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(clear:(nonnull NSNumber *)componentTag) {
-    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
+HIPPY_EXPORT_METHOD(clear:(nonnull NSNumber *)componentTag) {
+    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
         if (view == nil) return ;
         if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
@@ -118,9 +119,9 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(clear:(nonnull NSNumber *)componentTag) {
     }];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setValue:(nonnull NSNumber *)componentTag
+HIPPY_EXPORT_METHOD(setValue:(nonnull NSNumber *)componentTag
                   text:(NSString *)text ) {
-    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
         if (view == nil) return ;
         if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
@@ -130,9 +131,9 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setValue:(nonnull NSNumber *)componentTag
     }];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getValue:(nonnull NSNumber *)componentTag
-                  callback:(RenderUIResponseSenderBlock)callback ) {
-    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
+HIPPY_EXPORT_METHOD(getValue:(nonnull NSNumber *)componentTag
+                  callback:(HippyPromiseResolveBlock)callback ) {
+    [self.renderImpl addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
         NSString *stringValue = [view value];
         if (nil == stringValue) {
@@ -142,69 +143,69 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getValue:(nonnull NSNumber *)componentTag
     }];
 }
 
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(text, NSString)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(placeholder, NSString)
+HIPPY_EXPORT_SHADOW_PROPERTY(text, NSString)
+HIPPY_EXPORT_SHADOW_PROPERTY(placeholder, NSString)
 
-NATIVE_RENDER_REMAP_VIEW_PROPERTY(autoCapitalize, textView.autocapitalizationType, UITextAutocapitalizationType)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(autoCorrect, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(blurOnSubmit, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(clearTextOnFocus, BOOL)
-NATIVE_RENDER_REMAP_VIEW_PROPERTY(color, textView.textColor, UIColor)
-NATIVE_RENDER_REMAP_VIEW_PROPERTY(textAlign, textView.textAlignment, NSTextAlignment)
-NATIVE_RENDER_REMAP_VIEW_PROPERTY(editable, textView.editable, BOOL)
-NATIVE_RENDER_REMAP_VIEW_PROPERTY(enablesReturnKeyAutomatically, textView.enablesReturnKeyAutomatically, BOOL)
-NATIVE_RENDER_REMAP_VIEW_PROPERTY(keyboardType, textView.keyboardType, UIKeyboardType)
-NATIVE_RENDER_REMAP_VIEW_PROPERTY(keyboardAppearance, textView.keyboardAppearance, UIKeyboardAppearance)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(maxLength, NSNumber)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onContentSizeChange, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onSelectionChange, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onTextInput, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onEndEditing, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(placeholder, NSString)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(placeholderTextColor, UIColor)
-NATIVE_RENDER_REMAP_VIEW_PROPERTY(returnKeyType, textView.returnKeyType, UIReturnKeyType)
-NATIVE_RENDER_REMAP_VIEW_PROPERTY(secureTextEntry, textView.secureTextEntry, BOOL)
-NATIVE_RENDER_REMAP_VIEW_PROPERTY(selectionColor, tintColor, UIColor)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(selectTextOnFocus, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(selection, NativeRenderTextSelection)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(text, NSString)
+HIPPY_REMAP_VIEW_PROPERTY(autoCapitalize, textView.autocapitalizationType, UITextAutocapitalizationType)
+HIPPY_EXPORT_VIEW_PROPERTY(autoCorrect, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(blurOnSubmit, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(clearTextOnFocus, BOOL)
+HIPPY_REMAP_VIEW_PROPERTY(color, textView.textColor, UIColor)
+HIPPY_REMAP_VIEW_PROPERTY(textAlign, textView.textAlignment, NSTextAlignment)
+HIPPY_REMAP_VIEW_PROPERTY(editable, textView.editable, BOOL)
+HIPPY_REMAP_VIEW_PROPERTY(enablesReturnKeyAutomatically, textView.enablesReturnKeyAutomatically, BOOL)
+HIPPY_REMAP_VIEW_PROPERTY(keyboardType, textView.keyboardType, UIKeyboardType)
+HIPPY_REMAP_VIEW_PROPERTY(keyboardAppearance, textView.keyboardAppearance, UIKeyboardAppearance)
+HIPPY_EXPORT_VIEW_PROPERTY(maxLength, NSNumber)
+HIPPY_EXPORT_VIEW_PROPERTY(onContentSizeChange, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onSelectionChange, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onTextInput, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onEndEditing, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(placeholder, NSString)
+HIPPY_EXPORT_VIEW_PROPERTY(placeholderTextColor, UIColor)
+HIPPY_REMAP_VIEW_PROPERTY(returnKeyType, textView.returnKeyType, UIReturnKeyType)
+HIPPY_REMAP_VIEW_PROPERTY(secureTextEntry, textView.secureTextEntry, BOOL)
+HIPPY_REMAP_VIEW_PROPERTY(selectionColor, tintColor, UIColor)
+HIPPY_EXPORT_VIEW_PROPERTY(selectTextOnFocus, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(selection, NativeRenderTextSelection)
+HIPPY_EXPORT_VIEW_PROPERTY(text, NSString)
 
-NATIVE_RENDER_CUSTOM_RENDER_OBJECT_PROPERTY(fontSize, NSNumber, NativeRenderObjectTextView) {
+HIPPY_CUSTOM_SHADOW_PROPERTY(fontSize, NSNumber, NativeRenderObjectTextView) {
     view.font = [NativeRenderFont updateFont:view.font withSize:json];
 }
 
-NATIVE_RENDER_CUSTOM_RENDER_OBJECT_PROPERTY(fontWeight, NSString, NativeRenderObjectTextView) {
+HIPPY_CUSTOM_SHADOW_PROPERTY(fontWeight, NSString, NativeRenderObjectTextView) {
     view.font = [NativeRenderFont updateFont:view.font withWeight:json];
 }
 
-NATIVE_RENDER_CUSTOM_RENDER_OBJECT_PROPERTY(fontStyle, NSString, NativeRenderObjectTextView) {
+HIPPY_CUSTOM_SHADOW_PROPERTY(fontStyle, NSString, NativeRenderObjectTextView) {
     view.font = [NativeRenderFont updateFont:view.font withStyle:json];  // defaults to normal
 }
 
-NATIVE_RENDER_CUSTOM_RENDER_OBJECT_PROPERTY(fontFamily, NSString, NativeRenderObjectTextView) {
+HIPPY_CUSTOM_SHADOW_PROPERTY(fontFamily, NSString, NativeRenderObjectTextView) {
     view.font = [NativeRenderFont updateFont:view.font withFamily:json];
 }
 
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(fontSize, NSNumber, NativeRenderBaseTextInput) {
+HIPPY_CUSTOM_VIEW_PROPERTY(fontSize, NSNumber, NativeRenderBaseTextInput) {
     UIFont *theFont = [NativeRenderFont updateFont:view.font withSize:json ?: @(defaultView.font.pointSize)];
     view.font = theFont;
 }
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(fontWeight, NSString, __unused NativeRenderBaseTextInput) {
+HIPPY_CUSTOM_VIEW_PROPERTY(fontWeight, NSString, __unused NativeRenderBaseTextInput) {
     UIFont *theFont = [NativeRenderFont updateFont:view.font withWeight:json];  // defaults to normal
     view.font = theFont;
 }
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(fontStyle, NSString, __unused NativeRenderBaseTextInput) {
+HIPPY_CUSTOM_VIEW_PROPERTY(fontStyle, NSString, __unused NativeRenderBaseTextInput) {
     UIFont *theFont = [NativeRenderFont updateFont:view.font withStyle:json];
     view.font = theFont;  // defaults to normal
 }
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(fontFamily, NSString, NativeRenderBaseTextInput) {
+HIPPY_CUSTOM_VIEW_PROPERTY(fontFamily, NSString, NativeRenderBaseTextInput) {
     view.font = [NativeRenderFont updateFont:view.font withFamily:json ?: defaultView.font.familyName];
 }
 
-- (NativeRenderRenderUIBlock)uiBlockToAmendWithNativeRenderObjectView:(NativeRenderObjectView *)nativeRenderObjectView {
+- (HippyViewManagerUIBlock)uiBlockToAmendWithNativeRenderObjectView:(NativeRenderObjectView *)nativeRenderObjectView {
     NSNumber *componentTag = nativeRenderObjectView.componentTag;
     UIEdgeInsets padding = nativeRenderObjectView.paddingAsInsets;
-    return ^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, NativeRenderBaseTextInput *> *viewRegistry) {
+    return ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, NativeRenderBaseTextInput *> *viewRegistry) {
         viewRegistry[componentTag].contentInset = padding;
     };
 }

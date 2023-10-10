@@ -26,7 +26,7 @@
 
 @implementation NativeRenderWaterfallItemViewManager
 
-NATIVE_RENDER_EXPORT_VIEW(WaterfallItem)
+HIPPY_EXPORT_MODULE(WaterfallItem)
 
 - (UIView *)view {
     return [NativeRenderWaterfallItemView new];

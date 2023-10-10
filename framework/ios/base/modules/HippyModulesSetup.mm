@@ -46,9 +46,10 @@ void HippyRegisterModule(Class moduleClass) {
         HippyModuleClasses = [NSMutableArray new];
     });
 
-    HippyAssert([moduleClass conformsToProtocol:@protocol(HippyBridgeModule)], @"%@ does not conform to the HippyBridgeModule protocol", moduleClass);
+    HippyAssert([moduleClass conformsToProtocol:@protocol(HippyBridgeModule)],
+                @"%@ does not conform to the HippyBridgeModule protocol", moduleClass);
 
-    // Register module
+    // Register module (including viewManagers)
     [HippyModuleClasses addObject:moduleClass];
 }
 

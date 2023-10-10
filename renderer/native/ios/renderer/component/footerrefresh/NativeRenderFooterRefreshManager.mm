@@ -22,32 +22,32 @@
 
 #import "NativeRenderFooterRefreshManager.h"
 #import "NativeRenderFooterRefresh.h"
-#import "NativeRenderImpl.h"
+#import "HippyUIManager.h"
 
 @implementation NativeRenderFooterRefreshManager
 
-NATIVE_RENDER_EXPORT_VIEW(PullFooterView);
+HIPPY_EXPORT_MODULE(PullFooterView);
 
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(refreshStick, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onFooterReleased, HippyDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onFooterPulling, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(refreshStick, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(onFooterReleased, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onFooterPulling, HippyDirectEventBlock)
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(collapsePullFooter:(nonnull NSNumber *)reactTag) {
-    [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
+HIPPY_EXPORT_METHOD(collapsePullFooter:(nonnull NSNumber *)reactTag) {
+    [self.renderImpl addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         HippyRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refreshFinish];
     }];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(collapsePullFooterWithOptions:(nonnull NSNumber *)reactTag options:(NSDictionary *)options) {
-    [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
+HIPPY_EXPORT_METHOD(collapsePullFooterWithOptions:(nonnull NSNumber *)reactTag options:(NSDictionary *)options) {
+    [self.renderImpl addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         HippyRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refreshFinishWithOption:options];
     }];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(expandPullFooter:(nonnull NSNumber *)reactTag) {
-    [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
+HIPPY_EXPORT_METHOD(expandPullFooter:(nonnull NSNumber *)reactTag) {
+    [self.renderImpl addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         HippyRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refresh];
     }];

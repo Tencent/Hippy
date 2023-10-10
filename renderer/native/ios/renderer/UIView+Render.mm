@@ -21,7 +21,7 @@
  */
 
 #import "UIView+Render.h"
-#import "NativeRenderImpl.h"
+#import "HippyUIManager.h"
 #import "NSObject+Render.h"
 #import "NativeRenderManager.h"
 
@@ -29,11 +29,11 @@
 
 @implementation UIView (Render)
 
-- (NativeRenderImpl *)renderImpl {
+- (HippyUIManager *)renderImpl {
     auto renderManager = [self renderManager].lock();
     if (renderManager) {
         auto nativeRenderManager = std::static_pointer_cast<NativeRenderManager>(renderManager);
-        return nativeRenderManager->GetNativeRenderImpl();
+        return nativeRenderManager->GetHippyUIManager();
     }
     return nil;
 }

@@ -24,11 +24,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class NativeRenderImpl;
+@class HippyUIManager;
 
 @interface UIView (Render)
 
-- (NativeRenderImpl *)renderImpl;
+- (HippyUIManager *)renderImpl;
 
 @end
 

@@ -21,14 +21,13 @@
  */
 
 #import <Foundation/Foundation.h>
-
 #import "NativeRenderComponentProtocol.h"
 #import "NativeRenderDefines.h"
 
 @class NativeRenderObjectView, HippyViewManager;
 @class UIView;
 
-@interface NativeRenderComponentData : NSObject
+@interface HippyComponentData : NSObject
 
 @property (nonatomic, readonly) Class managerClass;
 @property (nonatomic, copy, readonly) NSString *name;
@@ -42,12 +41,12 @@
 
 - (NativeRenderObjectView *)createRenderObjectViewWithTag:(NSNumber *)tag;
 - (void)setProps:(NSDictionary<NSString *, id> *)props forView:(id<NativeRenderComponentProtocol>)view;
-- (void)setProps:(NSDictionary<NSString *, id> *)props forRenderObjectView:(NativeRenderObjectView *)renderObject;
+- (void)setProps:(NSDictionary<NSString *, id> *)props forShadowView:(NativeRenderObjectView *)renderObject;
 
 - (NSDictionary<NSString *, NSString *> *)eventNameMap;
 
 - (NSDictionary<NSString *, NSValue *> *)methodsByName;
 
-- (NativeRenderRenderUIBlock)uiBlockToAmendWithRenderObjectViewRegistry:(NSDictionary<NSNumber *, NativeRenderObjectView *> *)registry;
+- (HippyViewManagerUIBlock)uiBlockToAmendWithRenderObjectViewRegistry:(NSDictionary<NSNumber *, NativeRenderObjectView *> *)registry;
 
 @end

@@ -21,20 +21,20 @@
  */
 
 #import <objc/message.h>
-#import "NativeRenderComponentData.h"
+#import "HippyComponentData.h"
 #import "NativeRenderObjectView.h"
 #import "HippyViewManager.h"
 #import "HippyConvert.h"
 #import "HippyUtils.h"
 #import "UIView+NativeRender.h"
 
-typedef void (^NativeRenderPropBlock)(id<NativeRenderComponentProtocol> view, id json);
+typedef void (^HippyPropBlock)(id<NativeRenderComponentProtocol> view, id json);
 
 @interface NativeRenderComponentProp : NSObject {
 }
 
 @property (nonatomic, copy, readonly) NSString *type;
-@property (nonatomic, copy) NativeRenderPropBlock propBlock;
+@property (nonatomic, copy) HippyPropBlock propBlock;
 
 @end
 
@@ -49,10 +49,10 @@ typedef void (^NativeRenderPropBlock)(id<NativeRenderComponentProtocol> view, id
 
 @end
 
-@interface NativeRenderComponentData () {
-    id<NativeRenderComponentProtocol> _defaultView;  // Only needed for NATIVE_RENDER_CUSTOM_VIEW_PROPERTY
-    NSMutableDictionary<NSString *, NativeRenderPropBlock> *_viewPropBlocks;
-    NSMutableDictionary<NSString *, NativeRenderPropBlock> *_renderObjectPropBlocks;
+@interface HippyComponentData () {
+    id<NativeRenderComponentProtocol> _defaultView;  // Only needed for HIPPY_CUSTOM_VIEW_PROPERTY
+    NSMutableDictionary<NSString *, HippyPropBlock> *_viewPropBlocks;
+    NSMutableDictionary<NSString *, HippyPropBlock> *_shadowPropBlocks;
     NSMutableDictionary<NSString *, NSString *> *_eventNameMap;
     BOOL _implementsUIBlockToAmendWithRenderObjectRegistry;
     __weak HippyViewManager *_manager;
@@ -61,7 +61,7 @@ typedef void (^NativeRenderPropBlock)(id<NativeRenderComponentProtocol> view, id
 
 @end
 
-@implementation NativeRenderComponentData
+@implementation HippyComponentData
 
 //HippyViewManager is base class of all ViewManager class
 //we use a variable to cache HippyViewManager's event name map
@@ -73,7 +73,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
         _managerClass = [viewManager class];
         _manager = viewManager;
         _viewPropBlocks = [NSMutableDictionary new];
-        _renderObjectPropBlocks = [NSMutableDictionary new];
+        _shadowPropBlocks = [NSMutableDictionary new];
         NSString *name = viewName;
         if (name.length == 0) {
             name = NSStringFromClass(_managerClass);
@@ -125,16 +125,16 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
     return renderObject;
 }
 
-- (NativeRenderPropBlock)propBlockForKey:(NSString *)name inDictionary:(NSMutableDictionary<NSString *, NativeRenderPropBlock> *)propBlocks {
-    BOOL renderObject = (propBlocks == _renderObjectPropBlocks);
-    NativeRenderPropBlock propBlock = propBlocks[name];
+- (HippyPropBlock)propBlockForKey:(NSString *)name inDictionary:(NSMutableDictionary<NSString *, HippyPropBlock> *)propBlocks {
+    BOOL isShadowView = (propBlocks == _shadowPropBlocks);
+    HippyPropBlock propBlock = propBlocks[name];
     if (!propBlock) {
-        __weak NativeRenderComponentData *weakSelf = self;
+        __weak HippyComponentData *weakSelf = self;
 
         // Get type
         SEL type = NULL;
         NSString *keyPath = nil;
-        SEL selector = NSSelectorFromString([NSString stringWithFormat:@"propConfig%@_%@", renderObject ? @"RenderObject" : @"", name]);
+        SEL selector = NSSelectorFromString([NSString stringWithFormat:@"propConfig%@_%@", isShadowView ? @"Shadow" : @"", name]);
         NSAssert(selector, @"no propConfig setter selector found for property %@", name);
         if ([_managerClass respondsToSelector:selector]) {
             NSArray<NSString *> *typeAndKeyPath = ((NSArray<NSString *> * (*)(id, SEL)) objc_msgSend)(_managerClass, selector);
@@ -151,20 +151,20 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
         if ([keyPath isEqualToString:@"__custom__"]) {
             // Get custom setter. There is no default view in the shadow case, so the selector is different.
             NSString *selectorString;
-            if (!renderObject) {
-                selectorString = [NSString stringWithFormat:@"set_%@:for%@View:withDefaultView:", name, renderObject ? @"Render" : @""];
+            if (!isShadowView) {
+                selectorString = [NSString stringWithFormat:@"set_%@:for%@View:withDefaultView:", name, isShadowView ? @"Shadow" : @""];
             } else {
-                selectorString = [NSString stringWithFormat:@"set_%@:forRenderObject:", name];
+                selectorString = [NSString stringWithFormat:@"set_%@:forShadowView:", name];
             }
             SEL customSetter = NSSelectorFromString(selectorString);
             NSAssert(customSetter, @"no __custom__ setter selector found for property %@", name);
             propBlock = ^(id<NativeRenderComponentProtocol> view, id json) {
-                NativeRenderComponentData *strongSelf = weakSelf;
+                HippyComponentData *strongSelf = weakSelf;
                 if (!strongSelf) {
                     return;
                 }
                 json = HippyNilIfNull(json);
-                if (!renderObject) {
+                if (!isShadowView) {
                     if (!json && !strongSelf->_defaultView) {
                         // Only create default view if json is null
                         strongSelf->_defaultView = [strongSelf createViewWithTag:nil];
@@ -205,7 +205,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
                     };
                 }
                 switch (typeSignature.methodReturnType[0]) {
-#define NATIVE_RENDER_CASE(_value, _type)                                                   \
+#define HIPPY_CASE(_value, _type)                                                           \
     case _value: {                                                                          \
         __block BOOL setDefaultValue = NO;                                                  \
         __block _type defaultValue;                                                         \
@@ -231,39 +231,39 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
         };                                                                                  \
         break;                                                                              \
     }
-
-                    NATIVE_RENDER_CASE(_C_SEL, SEL)
-                    NATIVE_RENDER_CASE(_C_CHARPTR, const char *)
-                    NATIVE_RENDER_CASE(_C_CHR, char)
-                    NATIVE_RENDER_CASE(_C_UCHR, unsigned char)
-                    NATIVE_RENDER_CASE(_C_SHT, short)
-                    NATIVE_RENDER_CASE(_C_USHT, unsigned short)
-                    NATIVE_RENDER_CASE(_C_INT, int)
-                    NATIVE_RENDER_CASE(_C_UINT, unsigned int)
-                    NATIVE_RENDER_CASE(_C_LNG, long)
-                    NATIVE_RENDER_CASE(_C_ULNG, unsigned long)
-                    NATIVE_RENDER_CASE(_C_LNG_LNG, long long)
-                    NATIVE_RENDER_CASE(_C_ULNG_LNG, unsigned long long)
-                    NATIVE_RENDER_CASE(_C_FLT, float)
-                    NATIVE_RENDER_CASE(_C_DBL, double)
-                    NATIVE_RENDER_CASE(_C_BOOL, BOOL)
-                    NATIVE_RENDER_CASE(_C_PTR, void *)
-                    NATIVE_RENDER_CASE(_C_ID, id)
-
+                        
+                        HIPPY_CASE(_C_SEL, SEL)
+                        HIPPY_CASE(_C_CHARPTR, const char *)
+                        HIPPY_CASE(_C_CHR, char)
+                        HIPPY_CASE(_C_UCHR, unsigned char)
+                        HIPPY_CASE(_C_SHT, short)
+                        HIPPY_CASE(_C_USHT, unsigned short)
+                        HIPPY_CASE(_C_INT, int)
+                        HIPPY_CASE(_C_UINT, unsigned int)
+                        HIPPY_CASE(_C_LNG, long)
+                        HIPPY_CASE(_C_ULNG, unsigned long)
+                        HIPPY_CASE(_C_LNG_LNG, long long)
+                        HIPPY_CASE(_C_ULNG_LNG, unsigned long long)
+                        HIPPY_CASE(_C_FLT, float)
+                        HIPPY_CASE(_C_DBL, double)
+                        HIPPY_CASE(_C_BOOL, BOOL)
+                        HIPPY_CASE(_C_PTR, void *)
+                        HIPPY_CASE(_C_ID, id)
+                        
                     case _C_STRUCT_B:
                     default: {
                         NSInvocation *typeInvocation = [NSInvocation invocationWithMethodSignature:typeSignature];
                         typeInvocation.selector = type;
                         typeInvocation.target = [HippyConvert class];
-
+                        
                         __block NSInvocation *targetInvocation = nil;
                         __block NSMutableData *defaultValue = nil;
-
+                        
                         setterBlock = ^(id target, id json) {
                             if (!target) {
                                 return;
                             }
-
+                            
                             // Get default value
                             if (!defaultValue) {
                                 if (!json) {
@@ -284,7 +284,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
                                     [sourceInvocation getReturnValue:defaultValue.mutableBytes];
                                 }
                             }
-
+                            
                             // Get value
                             BOOL freeValueOnCompletion = NO;
                             void *value = defaultValue.mutableBytes;
@@ -295,7 +295,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
                                 [typeInvocation invoke];
                                 [typeInvocation getReturnValue:value];
                             }
-
+                            
                             // Set value
                             if (!targetInvocation) {
                                 NSMethodSignature *signature = [target methodSignatureForSelector:setter];
@@ -314,7 +314,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
                     }
                 }
             }
-
+            
             propBlock = ^(__unused id view, __unused id json) {
                 // Follow keypath
                 id target = view;
@@ -327,20 +327,20 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
                 }
             };
         }
-
+        
         if (HIPPY_DEBUG) {
             // Provide more useful log feedback if there's an error
-            NativeRenderPropBlock unwrappedBlock = propBlock;
+            HippyPropBlock unwrappedBlock = propBlock;
             propBlock = ^(id<NativeRenderComponentProtocol> view, id json) {
                 NSString *logPrefix =
-                    [NSString stringWithFormat:@"Error setting property '%@' of %@ with tag #%@: ", name, weakSelf.name, view.componentTag];
-
+                [NSString stringWithFormat:@"Error setting property '%@' of %@ with tag #%@: ", name, weakSelf.name, view.componentTag];
+                
                 HippyPerformBlockWithLogPrefix(^{
                     unwrappedBlock(view, json);
                 }, logPrefix);
             };
         }
-
+        
         propBlocks[name] = [propBlock copy];
     }
     return propBlock;
@@ -350,27 +350,27 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
     if (!view) {
         return;
     }
-
+    
     [props enumerateKeysAndObjectsUsingBlock:^(NSString *key, id json, __unused BOOL *stop) {
-        NativeRenderPropBlock block = [self propBlockForKey:key inDictionary:self->_viewPropBlocks];
+        HippyPropBlock block = [self propBlockForKey:key inDictionary:self->_viewPropBlocks];
         block(view, json);
     }];
-
+    
     if ([view respondsToSelector:@selector(didSetProps:)]) {
         [view didSetProps:[props allKeys]];
     }
 }
 
-- (void)setProps:(NSDictionary<NSString *, id> *)props forRenderObjectView:(NativeRenderObjectView *)renderObject {
+- (void)setProps:(NSDictionary<NSString *, id> *)props forShadowView:(NativeRenderObjectView *)renderObject {
     if (!renderObject) {
         return;
     }
-
+    
     [props enumerateKeysAndObjectsUsingBlock:^(NSString *key, id json, __unused BOOL *stop) {
-        NativeRenderPropBlock propBlock = [self propBlockForKey:key inDictionary:_renderObjectPropBlocks];
+        HippyPropBlock propBlock = [self propBlockForKey:key inDictionary:_shadowPropBlocks];
         propBlock(renderObject, json);
     }];
-
+    
     if ([renderObject respondsToSelector:@selector(didSetProps:)]) {
         [renderObject didSetProps:[props allKeys]];
     }
@@ -443,7 +443,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
             for (unsigned int i = 0; i < methodCount; i++) {
                 Method method = methods[i];
                 SEL selector = method_getName(method);
-                if ([NSStringFromSelector(selector) hasPrefix:@"__render_export__"]) {
+                if ([NSStringFromSelector(selector) hasPrefix:@"__hippy_export__"]) {
                     IMP imp = method_getImplementation(method);
                     NSArray<NSString *> *entries = ((NSArray<NSString *> * (*)(id, SEL)) imp)(_managerClass, selector);
                     NSString *JSMethodName = [self JSMethodNameFromEntries:entries];
@@ -476,11 +476,11 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
 }
 
 - (NSString *)selectorStringFromSignature:(NSString *)signature {
-//    signature = @"createView:(nonnull NSNumber *)componentTag viewName:(NSString *)viewName rootTag:(nonnull NSNumber *)rootTag tagName:(NSString *)tagName props:(NSDictionary *)props";
-//    signature = @"startBatch";
-//    signature = @"endBatch:";
-//    signature = @"startBatch:::";
-//    signature = @"startBatch:_::";
+    //    signature = @"createView:(nonnull NSNumber *)componentTag viewName:(NSString *)viewName rootTag:(nonnull NSNumber *)rootTag tagName:(NSString *)tagName props:(NSDictionary *)props";
+    //    signature = @"startBatch";
+    //    signature = @"endBatch:";
+    //    signature = @"startBatch:::";
+    //    signature = @"startBatch:_::";
     NSArray<NSString *> *colonsComponent = [signature componentsSeparatedByString:@":"];
     NSUInteger colonsComponentCount = [colonsComponent count];
     NSMutableString *selString = [NSMutableString stringWithCapacity:64];
@@ -509,7 +509,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
     return [selString copy];
 }
 
-- (NativeRenderRenderUIBlock)uiBlockToAmendWithRenderObjectViewRegistry:(NSDictionary<NSNumber *, NativeRenderObjectView *> *)registry {
+- (HippyViewManagerUIBlock)uiBlockToAmendWithRenderObjectViewRegistry:(NSDictionary<NSNumber *, NativeRenderObjectView *> *)registry {
     if (_implementsUIBlockToAmendWithRenderObjectRegistry) {
         return [[self manager] uiBlockToAmendWithRenderObjectRegistry:registry];
     }

@@ -25,7 +25,7 @@
 
 @implementation NativeRenderViewPagerItemManager
 
-NATIVE_RENDER_EXPORT_VIEW(ViewPagerItem)
+HIPPY_EXPORT_MODULE(ViewPagerItem)
 
 - (UIView *)view {
     return [NativeRenderViewPagerItem new];

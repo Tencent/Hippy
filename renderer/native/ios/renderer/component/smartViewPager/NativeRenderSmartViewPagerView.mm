@@ -24,7 +24,7 @@
 #import "NativeRenderBaseListViewDataSource.h"
 #import "NativeRenderFooterRefresh.h"
 #import "NativeRenderHeaderRefresh.h"
-#import "NativeRenderImpl.h"
+#import "HippyUIManager.h"
 #import "NativeRenderObjectView.h"
 #import "NativeRenderSmartViewPagerView.h"
 #import "NativeRenderScrollProtocol.h"
