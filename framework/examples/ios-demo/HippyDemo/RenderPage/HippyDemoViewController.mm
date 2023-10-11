@@ -21,26 +21,28 @@
 */
 
 #import "HippyDemoViewController.h"
-#import "HippyLog.h"
-#import "HippyBridge.h"
-#import "HippyConvenientBridge.h"
-#import "DemoConfigs.h"
-#import "HippyAsserts.h"
-#import "HippyMethodInterceptorProtocol.h"
-#import "HippyRootView.h"
-#import "UIView+Hippy.h"
-#import "HippyPageCache.h"
 #import "UIViewController+Title.h"
+#import "HippyPageCache.h"
+#import "DemoConfigs.h"
+
+#import "HippyMethodInterceptorProtocol.h"
+
+#import <hippy/HippyBridge.h>
+#import <hippy/HippyRootView.h>
+#import <hippy/HippyLog.h>
+#import <hippy/HippyAsserts.h>
+#import <hippy/UIView+Hippy.h>
 
 static NSString *const engineKey = @"Demo";
 
-@interface HippyDemoViewController ()<HippyMethodInterceptorProtocol, HippyBridgeDelegate> {
+@interface HippyDemoViewController () <HippyMethodInterceptorProtocol, HippyBridgeDelegate> {
     DriverType _driverType;
     RenderType _renderType;
     BOOL _isDebugMode;
-    HippyConvenientBridge *_convenientBridge;
     NSURL *_debugURL;
-    UIView *_rootView;
+    
+    HippyBridge *_hippyBridge;
+    UIView *_hippyRootView;
     BOOL _fromCache;
 }
 
@@ -69,24 +71,29 @@ static NSString *const engineKey = @"Demo";
         _renderType = pageCache.renderType;
         _debugURL = pageCache.debugURL;
         _isDebugMode = pageCache.isDebugMode;
-        _rootView = pageCache.rootView;
-        [_rootView addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:NULL];
-        _convenientBridge = pageCache.convenientBridge;
+        _hippyRootView = pageCache.rootView;
+        [_hippyRootView addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:NULL];
+        _hippyBridge = pageCache.hippyBridge;
         _fromCache = YES;
     }
     return self;
 }
 
+- (void)dealloc {
+    [_hippyRootView removeObserver:self forKeyPath:@"frame"];
+    [[HippyPageCacheManager defaultPageCacheManager] addPageCache:[self toPageCache]];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
     [self setNavigationAreaBackground:[UIColor whiteColor]];
     [self setNavigationItemTitle:@"Demo"];
+    
     [self registerLogFunction];
+    
     if (_fromCache) {
         [self runHippyCache];
-    }
-    else {
+    } else {
         [self runHippyDemo];
     }
 }
@@ -98,62 +105,65 @@ static NSString *const engineKey = @"Demo";
 }
 
 - (void)runHippyCache {
-    _rootView.frame = self.contentAreaView.bounds;
-    [self.contentAreaView addSubview:_rootView];
+    _hippyRootView.frame = self.contentAreaView.bounds;
+    [self.contentAreaView addSubview:_hippyRootView];
 }
 
 - (void)runHippyDemo {
     NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(_isDebugMode)};
-    NSString *key = [NSString stringWithFormat:@"%@_%u", engineKey, arc4random()];
+    NSString *executorKey = [NSString stringWithFormat:@"%@_%u", engineKey, arc4random()];
 
-    _convenientBridge = [[HippyConvenientBridge alloc] initWithDelegate:self
-                                                         moduleProvider:nil
-                                                        extraComponents:nil
-                                                          launchOptions:launchOptions
-                                                              engineKey:key];
-    [_convenientBridge setInspectable:YES];
-    _convenientBridge.contextName = key;
-    _convenientBridge.moduleName = @"Demo";
-    _convenientBridge.methodInterceptor = self;
-    [self mountConnector:_convenientBridge];
+    _hippyBridge = [[HippyBridge alloc] initWithDelegate:self
+                                          moduleProvider:nil
+                                           launchOptions:launchOptions
+                                             executorKey:executorKey];
+    _hippyBridge.contextName = executorKey;
+    _hippyBridge.moduleName = @"Demo";
+    _hippyBridge.methodInterceptor = self;
+    
+    [_hippyBridge setInspectable:YES];
+    
+    [self mountConnector:_hippyBridge];
 }
 
-- (void)mountConnector:(HippyConvenientBridge *)convenientBridge {
+- (void)mountConnector:(HippyBridge *)hippyBridge {
     BOOL isSimulator = NO;
 #if TARGET_IPHONE_SIMULATOR
-        isSimulator = YES;
+    isSimulator = YES;
 #endif
+    
     HippyRootView *rootView = [[HippyRootView alloc] initWithFrame:self.contentAreaView.bounds];
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    [convenientBridge setRootView:rootView];
+    [hippyBridge setRootView:rootView];
     NSNumber *rootTag = [rootView hippyTag];
+    
     if (_isDebugMode) {
-        convenientBridge.sandboxDirectory = [_debugURL URLByDeletingLastPathComponent];
-        [convenientBridge loadBundleURL:_debugURL completion:^(NSURL * _Nullable, NSError * _Nullable) {
-            [convenientBridge loadInstanceForRootViewTag:rootTag props:@{@"isSimulator": @(isSimulator)}];
+        hippyBridge.sandboxDirectory = [_debugURL URLByDeletingLastPathComponent];
+        [hippyBridge loadBundleURL:_debugURL completion:^(NSURL * _Nullable, NSError * _Nullable) {
+            [hippyBridge loadInstanceForRootView:rootTag withProperties:@{@"isSimulator": @(isSimulator)}];
         }];
-    }
-    else {
+    } else {
         NSURL *vendorBundleURL = [self vendorBundleURL];
-        [convenientBridge loadBundleURL:vendorBundleURL completion:^(NSURL * _Nullable, NSError * _Nullable) {
+        [hippyBridge loadBundleURL:vendorBundleURL completion:^(NSURL * _Nullable, NSError * _Nullable) {
             NSLog(@"url %@ load finish", vendorBundleURL);
         }];
         NSURL *indexBundleURL = [self indexBundleURL];
-        convenientBridge.sandboxDirectory = [indexBundleURL URLByDeletingLastPathComponent];
-        [convenientBridge loadBundleURL:indexBundleURL completion:^(NSURL * _Nullable, NSError * _Nullable) {
+        hippyBridge.sandboxDirectory = [indexBundleURL URLByDeletingLastPathComponent];
+        [hippyBridge loadBundleURL:indexBundleURL completion:^(NSURL * _Nullable, NSError * _Nullable) {
             NSLog(@"url %@ load finish", indexBundleURL);
-            [convenientBridge loadInstanceForRootViewTag:rootTag props:@{@"isSimulator": @(isSimulator)}];
+            [hippyBridge loadInstanceForRootView:rootTag withProperties:@{@"isSimulator": @(isSimulator)}];
         }];
     }
+    
     [self.contentAreaView addSubview:rootView];
-    if (_rootView) {
-        [_rootView removeObserver:self forKeyPath:@"frame" context:NULL];
+    if (_hippyRootView) {
+        [_hippyRootView removeObserver:self forKeyPath:@"frame" context:NULL];
     }
     [rootView addObserver:self
                forKeyPath:@"frame"
                   options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld
                   context:NULL];
-    _rootView = rootView;
+    _hippyRootView = rootView;
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath
@@ -161,18 +171,18 @@ static NSString *const engineKey = @"Demo";
                         change:(NSDictionary<NSKeyValueChangeKey,id> *)change
                        context:(void *)context {
     if ([keyPath isEqualToString:@"frame"] &&
-        object == _rootView) {
+        object == _hippyRootView) {
         CGRect frame = [change[NSKeyValueChangeNewKey] CGRectValue];
         CGRect oldFrame = [change[NSKeyValueChangeOldKey] CGRectValue];
         if (!CGRectEqualToRect(frame, oldFrame)) {
-            [_convenientBridge resetRootSize:frame.size];
+            [_hippyBridge resetRootSize:frame.size];
         }
     }
 }
 
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
-    _rootView.frame = self.contentAreaView.bounds;
+    _hippyRootView.frame = self.contentAreaView.bounds;
 }
 
 - (NSURL *)vendorBundleURL {
@@ -214,16 +224,46 @@ static NSString *const engineKey = @"Demo";
 }
 
 - (void)reload:(HippyBridge *)bridge {
-    [self mountConnector:_convenientBridge];
+    [self mountConnector:_hippyBridge];
 }
 
 - (void)removeRootView:(NSNumber *)rootTag bridge:(HippyBridge *)bridge {
     [[[self.contentAreaView subviews] firstObject] removeFromSuperview];
 }
 
+- (HippyPageCache *)toPageCache {
+    HippyPageCache *pageCache = [[HippyPageCache alloc] init];
+    pageCache.hippyBridge = _hippyBridge;
+    pageCache.rootView = _hippyRootView;
+    pageCache.driverType = _driverType;
+    pageCache.renderType = _renderType;
+    pageCache.debugURL = _debugURL;
+    pageCache.debugMode = _isDebugMode;
+    UIGraphicsBeginImageContextWithOptions(_hippyRootView.bounds.size, NO, [UIScreen mainScreen].scale);
+    [_hippyRootView drawViewHierarchyInRect:_hippyRootView.bounds afterScreenUpdates:YES];
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    pageCache.snapshot = image;
+    return pageCache;
+}
+
+- (BOOL)shouldAutorotate {
+    return YES;
+}
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    return UIInterfaceOrientationMaskAllButUpsideDown;
+}
+
+
+#pragma mark - HippyBridgeDelegate
+
 - (BOOL)shouldStartInspector:(HippyBridge *)bridge {
     return bridge.debugMode;
 }
+
+
+#pragma mark - HippyMethodInterceptorProtocol
 
 - (BOOL)shouldInvokeWithModuleName:(NSString *)moduleName
                         methodName:(NSString *)methodName
@@ -242,39 +282,6 @@ static NSString *const engineKey = @"Demo";
     HippyAssert(moduleName, @"module name must not be null");
     HippyAssert(methodName, @"method name must not be null");
     return YES;
-}
-
-- (HippyPageCache *)toPageCache {
-    HippyPageCache *pageCache = [[HippyPageCache alloc] init];
-    pageCache.convenientBridge = _convenientBridge;
-    pageCache.rootView = _rootView;
-    pageCache.driverType = _driverType;
-    pageCache.renderType = _renderType;
-    pageCache.debugURL = _debugURL;
-    pageCache.debugMode = _isDebugMode;
-    UIGraphicsBeginImageContextWithOptions(_rootView.bounds.size, NO, [UIScreen mainScreen].scale);
-    [_rootView drawViewHierarchyInRect:_rootView.bounds afterScreenUpdates:YES];
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    pageCache.snapshot = image;
-    return pageCache;
-}
-
-- (BOOL)shouldAutorotate {
-    return YES;
-}
-
-- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
-    return UIInterfaceOrientationMaskAllButUpsideDown;
-}
-
-- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation {
-    return UIInterfaceOrientationPortrait;
-}
-
-- (void)dealloc {
-    [_rootView removeObserver:self forKeyPath:@"frame"];
-    [[HippyPageCacheManager defaultPageCacheManager] addPageCache:[self toPageCache]];
 }
 
 @end

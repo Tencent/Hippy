@@ -70,9 +70,6 @@ class HippyValue;
 @property (nonatomic, readonly) std::weak_ptr<hippy::DomManager> domManager;
 @property (nonatomic, readonly) HippyComponentMap *viewRegistry;
 
-- (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls;
-- (NSArray<Class<HippyImageProviderProtocol>> *)imageProviderClasses;
-
 /**
  * Gets the view associated with a hippyTag.
  */

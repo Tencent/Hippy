@@ -65,6 +65,11 @@
 #include "vfs/uri_loader.h"
 #include "VFSUriHandler.h"
 
+#import "NativeRenderManager.h"
+#import "HippyRootView.h"
+#import "UIView+Hippy.h"
+
+
 #ifdef ENABLE_INSPECTOR
 #include "devtools/vfs/devtools_handler.h"
 #include "devtools/devtools_data_source.h"
@@ -96,9 +101,12 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     HippyBundleOperationQueue *_bundlesQueue;
     NSMutableArray<NSURL *> *_bundleURLs;
     NSURL *_sandboxDirectory;
-    std::weak_ptr<VFSUriLoader> _uriLoader;
-    std::weak_ptr<hippy::RenderManager> _renderManager;
+    
     footstone::TimePoint _startTime;
+    
+    std::shared_ptr<VFSUriLoader> _uriLoader;
+    std::shared_ptr<hippy::RootNode> _rootNode;
+    
 }
 
 @property(readwrite, strong) dispatch_semaphore_t moduleSemaphore;
@@ -133,14 +141,14 @@ dispatch_queue_t HippyBridgeQueue() {
 - (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
                   moduleProvider:(HippyBridgeModuleProviderBlock)block
                    launchOptions:(NSDictionary *)launchOptions
-                     engineKey:(NSString *)engineKey {
+                     executorKey:(NSString *)executorKey {
     if (self = [super init]) {
         _delegate = delegate;
         _moduleProvider = block;
-        _bundleURLs = [NSMutableArray arrayWithCapacity:8];
+        _bundleURLs = [NSMutableArray array];
         _debugMode = [launchOptions[@"DebugMode"] boolValue];
         _enableTurbo = !!launchOptions[@"EnableTurbo"] ? [launchOptions[@"EnableTurbo"] boolValue] : YES;
-        _engineKey = engineKey;
+        _engineKey = executorKey;
         _invalidateReason = HippyInvalidateReasonDealloc;
         _valid = YES;
         _bundlesQueue = [[HippyBundleOperationQueue alloc] init];
@@ -150,6 +158,13 @@ dispatch_queue_t HippyBridgeQueue() {
         HippyExecuteOnMainThread(^{
             [self bindKeys];
         }, YES);
+        
+        
+        
+        [self addImageProviderClass:[HippyDefaultImageProvider class]];
+        [self setVFSUriLoader:[self createURILoaderIfNeeded]];
+        [self setUpNativeRenderManager];
+        
         [HippyBridge setCurrentBridge:self];
         HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ Init %p", NSStringFromClass([self class]), self);
     }
@@ -162,7 +177,7 @@ dispatch_queue_t HippyBridgeQueue() {
         auto domManager = _javaScriptExecutor.pScope->GetDomManager().lock();
         if (domManager) {
             auto viewRenderManager = [rootView renderManager];
-            if (_renderManager.lock() == viewRenderManager.lock()) {
+            if (_renderManager == viewRenderManager.lock()) {
                 auto entry = _javaScriptExecutor.pScope->GetPerformance()->PerformanceNavigation("hippyInit");
                 entry->SetHippyDomStart(domManager->GetDomStartTimePoint());
                 entry->SetHippyDomEnd(domManager->GetDomEndTimePoint());
@@ -182,6 +197,15 @@ dispatch_queue_t HippyBridgeQueue() {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     self.invalidateReason = HippyInvalidateReasonDealloc;
     [self invalidate];
+    
+    // FIXME: 检查问题
+    if (_uriLoader) {
+        _uriLoader->Terminate();
+    }
+    if (_rootNode) {
+        _renderManager->RemoveVSyncEventListener(_rootNode);
+        _rootNode->ReleaseResources();
+    }
 }
 
 - (void)bindKeys {
@@ -195,6 +219,36 @@ dispatch_queue_t HippyBridgeQueue() {
         [weakSelf requestReload];
     }];
 #endif
+}
+
+- (NSString *)engineKey {
+    return _engineKey ?: [NSString stringWithFormat:@"%p", self];
+}
+
+- (void)setUpNativeRenderManager {
+    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:[self engineKey]];
+    auto domManager = engineResource->GetDomManager();
+    //Create NativeRenderManager
+    auto nativeRenderManager = std::make_shared<NativeRenderManager>();
+    nativeRenderManager->Initialize();
+    //set dom manager
+    nativeRenderManager->SetDomManager(domManager);
+    nativeRenderManager->SetVFSUriLoader([self createURILoaderIfNeeded]);
+    nativeRenderManager->SetHippyBridge(self);
+    _renderManager = nativeRenderManager;
+}
+
+- (std::shared_ptr<VFSUriLoader>)createURILoaderIfNeeded {
+    if (!_uriLoader) {
+        auto uriHandler = std::make_shared<VFSUriHandler>();
+        auto uriLoader = std::make_shared<VFSUriLoader>();
+        uriLoader->PushDefaultHandler(uriHandler);
+        uriLoader->AddConvenientDefaultHandler(uriHandler);
+        auto fileHandler = std::make_shared<HippyFileHandler>(self);
+        uriLoader->RegisterConvenientUriHandler(@"hpfile", fileHandler);
+        _uriLoader = uriLoader;
+    }
+    return _uriLoader;
 }
 
 - (NSArray<Class> *)moduleClasses {
@@ -213,15 +267,16 @@ dispatch_queue_t HippyBridgeQueue() {
     HippyAssertParam(cls);
     @synchronized (self) {
         if (!_imageProviders) {
-            _imageProviders = [NSMutableArray arrayWithCapacity:8];
+            _imageProviders = [NSMutableArray array];
         }
         [_imageProviders addObject:cls];
     }
 }
+
 - (NSArray<Class<HippyImageProviderProtocol>> *)imageProviderClasses {
     @synchronized (self) {
         if (!_imageProviders) {
-            _imageProviders = [NSMutableArray arrayWithCapacity:8];
+            _imageProviders = [NSMutableArray array];
         }
         return [_imageProviders copy];
     }
@@ -397,6 +452,12 @@ dispatch_queue_t HippyBridgeQueue() {
         footstone::value::HippyValue value = [param toHippyValue];
         std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
         self.javaScriptExecutor.pScope->UnloadInstance(domValue);
+        
+        _renderManager->UnregisterRootView([rootTag intValue]);
+        if (_rootNode) {
+            _rootNode->ReleaseResources();
+            _rootNode = nullptr;
+        }
     }
 }
 
@@ -423,7 +484,6 @@ dispatch_queue_t HippyBridgeQueue() {
 }
 
 - (void)setVFSUriLoader:(std::weak_ptr<VFSUriLoader>)uriLoader {
-    _uriLoader = uriLoader;
     [_javaScriptExecutor setUriLoader:uriLoader];
 #ifdef ENABLE_INSPECTOR
     auto devtools_data_source = _javaScriptExecutor.pScope->GetDevtoolsDataSource();
@@ -775,8 +835,8 @@ dispatch_queue_t HippyBridgeQueue() {
         if (!strongSelf || !domManager) {
             return;
         }
-        strongSelf->_javaScriptExecutor.pScope->SetDomManager(domManager);
-        strongSelf->_javaScriptExecutor.pScope->SetRootNode(rootNode);
+        strongSelf.javaScriptExecutor.pScope->SetDomManager(domManager);
+        strongSelf.javaScriptExecutor.pScope->SetRootNode(rootNode);
       #ifdef ENABLE_INSPECTOR
         auto devtools_data_source = strongSelf->_javaScriptExecutor.pScope->GetDevtoolsDataSource();
         if (devtools_data_source) {
@@ -989,6 +1049,64 @@ dispatch_queue_t HippyBridgeQueue() {
     std::string string(reinterpret_cast<const char *>([data bytes]), [data length]);
     domManager->SetSnapShot(rootNode, string);
 }
+
+
+#pragma mark -
+
+
+//FIXME: 调整优化
+- (void)setRootView:(HippyRootView *)rootView {
+    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:[self engineKey]];
+    auto domManager = engineResource->GetDomManager();
+    NSNumber *rootTag = [rootView hippyTag];
+    //Create a RootNode instance with a root tag
+    _rootNode = std::make_shared<hippy::RootNode>([rootTag unsignedIntValue]);
+    //Set RootNode for AnimationManager in RootNode
+    _rootNode->GetAnimationManager()->SetRootNode(_rootNode);
+    //Set DomManager for RootNode
+    _rootNode->SetDomManager(domManager);
+    //Set screen scale factor and size for Layout system in RooNode
+    _rootNode->GetLayoutNode()->SetScaleFactor([UIScreen mainScreen].scale);
+    _rootNode->SetRootSize(rootView.frame.size.width, rootView.frame.size.height);
+    _rootNode->SetRootOrigin(rootView.frame.origin.x, rootView.frame.origin.y);
+    
+    //set rendermanager for dommanager
+    if (!domManager->GetRenderManager().lock()) {
+        domManager->SetRenderManager(_renderManager);
+    }
+    //bind rootview and root node
+    _renderManager->RegisterRootView(rootView, _rootNode);
+    
+    __weak HippyBridge *weakBridge = self;
+    auto cb = [weakBridge](int32_t tag, NSDictionary *params){
+        HippyBridge *strongBridge = weakBridge;
+        if (strongBridge) {
+            [strongBridge rootViewSizeChangedEvent:@(tag) params:params];
+        }
+    };
+    _renderManager->SetRootViewSizeChangedEvent(cb);
+    //setup necessary params for bridge
+    [self setupDomManager:domManager rootNode:_rootNode];
+}
+
+- (void)resetRootSize:(CGSize)size {
+    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:[self engineKey]];
+    std::weak_ptr<hippy::RootNode> rootNode = _rootNode;
+    auto domManager = engineResource->GetDomManager();
+    std::weak_ptr<hippy::DomManager> weakDomManager = domManager;
+    std::vector<std::function<void()>> ops = {[rootNode, weakDomManager, size](){
+        auto strongRootNode = rootNode.lock();
+        auto strongDomManager = weakDomManager.lock();
+        if (strongRootNode && strongDomManager) {
+            strongRootNode->SetRootSize(size.width, size.height);
+            strongDomManager->DoLayout(strongRootNode);
+            strongDomManager->EndBatch(strongRootNode);
+        }
+    }};
+    domManager->PostTask(hippy::dom::Scene(std::move(ops)));
+}
+
+
 
 @end
 

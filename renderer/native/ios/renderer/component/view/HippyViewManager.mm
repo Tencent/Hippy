@@ -251,7 +251,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
         HippyUIManager *renderImpl = strongSelf.bridge.uiManager;
         id<HippyImageProviderProtocol> imageProvider = nil;
         if (renderImpl) {
-            for (Class<HippyImageProviderProtocol> cls in [renderImpl imageProviderClasses]) {
+            for (Class<HippyImageProviderProtocol> cls in [strongSelf.bridge imageProviderClasses]) {
                 if ([cls canHandleData:data]) {
                     imageProvider = [[(Class)cls alloc] init];
                     break;

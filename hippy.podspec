@@ -26,17 +26,10 @@ Pod::Spec.new do |s|
     framework_header_path = '${PODS_CONFIGURATION_BUILD_DIR}/hippy/hippy.framework/Headers'
     s.module_map = false;
   end
-  puts 'hippy.podspec read begins'
+  
   s.name             = 'hippy'
   s.version          = '3.0.0'
   s.summary          = 'Hippy Cross Platform Framework'
-
-# This description is used to generate tags and improve search results.
-#   * Think: What does it do? Why did you write it? What is the focus?
-#   * Try to keep it short, snappy and to the point.
-#   * Write the description between the DESC delimiters below.
-#   * Finally, don't worry about the indent, CocoaPods strips it!
-
   s.description      = <<-DESC
                         Hippy is designed for developers to easily build cross-platform and high-performance awesome apps.
                        DESC
@@ -72,6 +65,8 @@ Pod::Spec.new do |s|
     framework.dependency 'hippy/Base'
     framework.dependency 'hippy/JSDriver'
     framework.dependency 'hippy/Image'
+    framework.dependency 'hippy/iOSVFS'
+    framework.dependency 'hippy/NativeRenderer'
     puts 'hippy subspec \'framework\' read end'
   end
 
@@ -455,5 +450,4 @@ Pod::Spec.new do |s|
     end
   end
 
-  puts 'hippy.podspec read ends'
 end

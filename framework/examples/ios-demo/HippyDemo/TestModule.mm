@@ -27,7 +27,6 @@
 #import "HippyJSEnginesMapper.h"
 #import "HippyRootView.h"
 #import "UIView+Hippy.h"
-#import "HippyConvenientBridge.h"
 #import "HippyLog.h"
 #import "HippyRedBox.h"
 #import "DemoConfigs.h"
@@ -36,8 +35,8 @@
 
 static NSString *const engineKey = @"Demo";
 
-@interface TestModule ()<HippyMethodInterceptorProtocol, HippyBridgeDelegate> {
-    HippyConvenientBridge *_connector;
+@interface TestModule () <HippyMethodInterceptorProtocol, HippyBridgeDelegate> {
+    HippyBridge *_connector;
 }
 
 @end
@@ -69,7 +68,10 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     NSURL *url = [NSURL URLWithString:bundleUrl];
     NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": url};
     NSURL *sandboxDirectory = [url URLByDeletingLastPathComponent];
-    _connector = [[HippyConvenientBridge alloc] initWithDelegate:self moduleProvider:nil extraComponents:nil launchOptions:launchOptions engineKey:engineKey];
+    _connector = [[HippyBridge alloc] initWithDelegate:self
+                                        moduleProvider:nil
+                                         launchOptions:launchOptions
+                                           executorKey:engineKey];
     [_connector setInspectable:YES];
     //set custom vfs loader
     _connector.sandboxDirectory = sandboxDirectory;
@@ -81,7 +83,7 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     [rootViewController presentViewController:vc animated:YES completion:NULL];
 }
 
-- (void)mountConnector:(HippyConvenientBridge *)connector onView:(UIView *)view {
+- (void)mountConnector:(HippyBridge *)connector onView:(UIView *)view {
     BOOL isSimulator = NO;
 #if TARGET_IPHONE_SIMULATOR
         isSimulator = YES;
@@ -96,7 +98,7 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     NSNumber *rootTag = [rootView hippyTag];
     [connector loadBundleURL:bundleUrl completion:^(NSURL * _Nullable, NSError * _Nullable) {
         NSLog(@"url %@ load finish", bundleStr);
-        [connector loadInstanceForRootViewTag:rootTag props:@{@"isSimulator": @(isSimulator)}];
+        [connector loadInstanceForRootView:rootTag withProperties:@{@"isSimulator": @(isSimulator)}];
     }];
     [view addSubview:rootView];
 }

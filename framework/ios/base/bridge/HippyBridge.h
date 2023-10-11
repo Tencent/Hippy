@@ -34,8 +34,10 @@
 
 @class HippyJSExecutor;
 @class HippyModuleData;
+@class HippyRootView;
 
 class VFSUriLoader;
+class NativeRenderManager;
 
 namespace hippy {
 inline namespace dom {
@@ -90,21 +92,19 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 @property (nonatomic, copy, readonly) NSDictionary *launchOptions;
 
-@property (nonatomic, assign) std::weak_ptr<hippy::RenderManager> renderManager;
-
 /**
  *  Create A HippyBridge instance
  *
  *  @param delegate bridge delegate
  *  @param block for user-defined module
  *  @param launchOptions launch options, will not be sent to frontend
- *  @param engineKey key to engine instance. HippyBridge with same engine key will share same engine intance
+ *  @param executorKey key to engine instance. HippyBridge with same engine key will share same engine intance
  *  @return A HippyBridge instance
  */
 - (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
-                  moduleProvider:(HippyBridgeModuleProviderBlock)block
+                  moduleProvider:(nullable HippyBridgeModuleProviderBlock)block
                    launchOptions:(NSDictionary *)launchOptions
-                       engineKey:(NSString *)engineKey;
+                     executorKey:(NSString *)executorKey;
 
 /**
  * Context name for HippyBridge
@@ -174,6 +174,11 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  * JS VM outside of Hippy Native. Use with care!
  */
 @property (nonatomic, readonly) HippyJSExecutor *javaScriptExecutor;
+
+
+/// The C++ version of RenderManager instance, bridge holds
+@property (nonatomic, assign) std::shared_ptr<NativeRenderManager> renderManager;
+
 
 /**
  * JS invocation methods
@@ -280,6 +285,14 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (NSData *)snapShotData;
 
 - (void)setSnapShotData:(NSData *)data;
+
+
+
+- (void)setRootView:(HippyRootView *)rootView;
+
+- (void)resetRootSize:(CGSize)size;
+
+
 
 @end
 

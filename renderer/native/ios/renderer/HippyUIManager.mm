@@ -181,7 +181,6 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     
     std::weak_ptr<VFSUriLoader> _VFSUriLoader;
     NSMutableArray<Class<HippyImageProviderProtocol>> *_imageProviders;
-    std::mutex _imageProviderMutex;
     
     std::function<void(int32_t, NSDictionary *)> _rootViewSizeChangedCb;
     std::weak_ptr<hippy::RenderManager> _renderManager;
@@ -1477,22 +1476,6 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     return tmpProps;
 }
 
-- (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls {
-    HippyAssertParam(cls);
-    std::lock_guard<std::mutex> lock(_imageProviderMutex);
-    if (!_imageProviders) {
-        _imageProviders = [NSMutableArray arrayWithCapacity:8];
-    }
-    [_imageProviders addObject:cls];
-}
-- (NSArray<Class<HippyImageProviderProtocol>> *)imageProviderClasses {
-    std::lock_guard<std::mutex> lock(_imageProviderMutex);
-    if (!_imageProviders) {
-        _imageProviders = [NSMutableArray arrayWithCapacity:8];
-    }
-    return [_imageProviders copy];
-}
-
 - (void)setVFSUriLoader:(std::weak_ptr<VFSUriLoader>)loader {
     _VFSUriLoader = loader;
 }
@@ -1535,7 +1518,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 @implementation HippyBridge (HippyUIManager)
 
 - (HippyUIManager *)uiManager {
-    auto renderManager = [self renderManager].lock();
+    auto renderManager = [self renderManager];
     if (renderManager) {
         auto nativeRenderManager = std::static_pointer_cast<NativeRenderManager>(renderManager);
         return nativeRenderManager->GetHippyUIManager();

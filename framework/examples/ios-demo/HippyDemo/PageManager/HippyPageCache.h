@@ -34,7 +34,7 @@ typedef NS_ENUM(NSUInteger, RenderType) {
     RenderTypeNative,
 };
 
-@class HippyConvenientBridge;
+@class HippyBridge;
 @class HippyPageCacheManager, HippyPageCache;
 
 @protocol HippyPageCacheManagerObserverProtocol <NSObject>
@@ -55,7 +55,7 @@ typedef NS_ENUM(NSUInteger, RenderType) {
 
 @interface HippyPageCache : NSObject
 
-@property(nonatomic, strong) HippyConvenientBridge *convenientBridge;
+@property(nonatomic, strong) HippyBridge *hippyBridge;
 @property(nonatomic, strong) UIView *rootView;
 @property(nonatomic, strong, nullable) UIImage *snapshot;
 

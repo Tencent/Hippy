@@ -212,20 +212,6 @@ void NativeRenderManager::SetUICreationLazilyEnabled(bool enabled) {
     renderImpl_.uiCreationLazilyEnabled = enabled;
 }
 
-void NativeRenderManager::AddImageProviderClass(Class<HippyImageProviderProtocol> cls) {
-    @autoreleasepool {
-        HippyAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
-        [renderImpl_ addImageProviderClass:cls];
-    }
-}
-
-NSArray<Class<HippyImageProviderProtocol>> *NativeRenderManager::GetImageProviderClasses() {
-    @autoreleasepool {
-        HippyAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
-        return [renderImpl_ imageProviderClasses];
-    }
-}
-
 void NativeRenderManager::SetVFSUriLoader(std::shared_ptr<VFSUriLoader> loader) {
     @autoreleasepool {
         HippyAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");

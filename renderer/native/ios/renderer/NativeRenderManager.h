@@ -191,14 +191,6 @@ public:
     void SetUICreationLazilyEnabled(bool enabled);
     
     /**
-     * Image provider method
-     * Users adds or obtains image providers in the following methods
-     */
-    void AddImageProviderClass(Class<HippyImageProviderProtocol> cls);
-    
-    NSArray<Class<HippyImageProviderProtocol>> *GetImageProviderClasses();
-    
-    /**
      * Set vfs uri loader of CPP version
      *
      *@param loader vfs url loader instance
