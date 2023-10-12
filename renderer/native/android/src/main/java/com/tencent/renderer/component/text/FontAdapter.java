@@ -16,6 +16,8 @@
 
 package com.tencent.renderer.component.text;
 
+import android.graphics.Typeface;
+
 /**
  * Provide and implement by host
  */
@@ -45,4 +47,13 @@ public interface FontAdapter {
      * @return a {@link String} that represents custom font file path
      */
     String getCustomFontFilePath(String fontFamily, int style);
+
+    /**
+     * Get the type face customized by the host.
+     *
+     * @param fontFamily the property of text node
+     * @param style the typeface's intrinsic style attributes
+     * @return a {@link Typeface}
+     */
+    Typeface getCustomTypeface(String fontFamily, int style);
 }
