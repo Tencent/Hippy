@@ -38,13 +38,17 @@ public class TypeFaceUtil {
 
     public static Typeface getTypeface(String fontFamilyName, int style,
             @Nullable FontAdapter fontAdapter) {
-        String cache = fontFamilyName + style;
-        Typeface typeface = sFontCache.get(cache);
+        Typeface typeface =
+                (fontAdapter != null) ? fontAdapter.getCustomTypeface(fontFamilyName, style) : null;
         if (typeface == null) {
-            typeface = createTypeface(fontFamilyName, style, fontAdapter);
-        }
-        if (typeface != null) {
-            sFontCache.put(cache, typeface);
+            String cache = fontFamilyName + style;
+            typeface = sFontCache.get(cache);
+            if (typeface == null) {
+                typeface = createTypeface(fontFamilyName, style, fontAdapter);
+            }
+            if (typeface != null) {
+                sFontCache.put(cache, typeface);
+            }
         }
         return typeface;
     }
@@ -56,7 +60,8 @@ public class TypeFaceUtil {
         for (String fileExtension : FONT_EXTENSIONS) {
             String fileName = FONTS_PATH + fontFamilyName + extension + fileExtension;
             try {
-                typeface = Typeface.createFromAsset(ContextHolder.getAppContext().getAssets(), fileName);
+                typeface = Typeface.createFromAsset(ContextHolder.getAppContext().getAssets(),
+                        fileName);
                 if (typeface != null) {
                     return typeface;
                 }
@@ -71,7 +76,8 @@ public class TypeFaceUtil {
             fileName = FONTS_PATH + fontFamilyName + fileExtension;
             try {
                 typeface = Typeface.create(
-                        Typeface.createFromAsset(ContextHolder.getAppContext().getAssets(), fileName), style);
+                        Typeface.createFromAsset(ContextHolder.getAppContext().getAssets(),
+                                fileName), style);
                 if (typeface != null) {
                     return typeface;
                 }
