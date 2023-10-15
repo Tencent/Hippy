@@ -21,7 +21,6 @@
  */
 
 #import <UIKit/UIKit.h>
-
 #import "HippyBridgeDelegate.h"
 #import "HippyBridgeModule.h"
 #import "HippyMethodInterceptorProtocol.h"
@@ -29,7 +28,6 @@
 #import "HippyImageProviderProtocol.h"
 #import "HippyInvalidating.h"
 #import "HippyDefines.h"
-
 #include <memory>
 
 @class HippyJSExecutor;
@@ -92,19 +90,40 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 @property (nonatomic, copy, readonly) NSDictionary *launchOptions;
 
-/**
- *  Create A HippyBridge instance
- *
- *  @param delegate bridge delegate
- *  @param block for user-defined module
- *  @param launchOptions launch options, will not be sent to frontend
- *  @param executorKey key to engine instance. HippyBridge with same engine key will share same engine intance
- *  @return A HippyBridge instance
- */
+
+
+/// Create A HippyBridge instance, without load/execute any js bundle.
+///
+/// @param delegate bridge delegate
+/// @param block for user-defined module
+/// @param launchOptions launch options, will not be sent to frontend
+/// @param executorKey key to engine instance. HippyBridge with same engine key will share same engine intance.
+///
+/// Note: 多个bridge使用相同的共享engineKey时，只有全部bridge实例销毁时engine资源才将释放，因此，请注意合理使用，避免出现意外的内存泄漏。
+/// 传空时默认不共享，SDK内部默认分配一随机key。
 - (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
                   moduleProvider:(nullable HippyBridgeModuleProviderBlock)block
-                   launchOptions:(NSDictionary *)launchOptions
-                     executorKey:(NSString *)executorKey;
+                   launchOptions:(nullable NSDictionary *)launchOptions
+                     executorKey:(nullable NSString *)executorKey;
+
+
+/// Create A HippyBridge instance with a common js bundle.
+///
+/// This method is compatible with the Hippy2 initializer function.
+///
+/// @param delegate bridge delegate
+/// @param bundleURL the
+/// @param block for user-defined module
+/// @param launchOptions launch options, will not be sent to frontend
+/// @param executorKey key to engine instance. HippyBridge with same engine key will share same engine intance.
+///
+/// Note: 多个bridge使用相同的共享engineKey时，只有全部bridge实例销毁时engine资源才将释放，因此，请注意合理使用，避免出现意外的内存泄漏。
+/// 传空时默认不共享，SDK内部默认分配一随机key。
+- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
+                       bundleURL:(nullable NSURL *)bundleURL
+                  moduleProvider:(nullable HippyBridgeModuleProviderBlock)block
+                   launchOptions:(nullable NSDictionary *)launchOptions
+                     executorKey:(nullable NSString *)executorKey;
 
 /**
  * Context name for HippyBridge
@@ -258,7 +277,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 @property (nonatomic, assign) BOOL debugMode;
 
-@property (nonatomic, strong) NSString *appVerson;  //
+@property (nonatomic, strong) NSString *appVerson;
 
 @property (nonatomic, assign) HippyInvalidateReason invalidateReason;
 

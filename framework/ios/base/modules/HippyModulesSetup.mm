@@ -169,8 +169,8 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
     NSMutableArray<HippyModuleData *> *moduleDataByID = [NSMutableArray new];
     NSMutableDictionary<NSString *, HippyModuleData *> *moduleDataByName = [NSMutableDictionary new];
 
-    for (id<HippyBridgeModule> module in extraModules) {
-        Class moduleClass = [module class];
+    for (id<HippyBridgeModule> extraModule in extraModules) {
+        Class moduleClass = [extraModule class];
         NSString *moduleName = HippyBridgeModuleNameForClass(moduleClass);
         if (HIPPY_DEBUG) {
             // Check for name collisions between preregistered modules
@@ -183,7 +183,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
             }
         }
         // Instantiate moduleData container
-        HippyModuleData *moduleData = [[HippyModuleData alloc] initWithModuleInstance:module bridge:_bridge];
+        HippyModuleData *moduleData = [[HippyModuleData alloc] initWithModuleInstance:extraModule bridge:_bridge];
         moduleDataByName[moduleName] = moduleData;
         [moduleClassesByID addObject:moduleClass];
         [moduleDataByID addObject:moduleData];

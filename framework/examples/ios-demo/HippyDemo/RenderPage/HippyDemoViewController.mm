@@ -35,7 +35,7 @@
 
 static NSString *const engineKey = @"Demo";
 
-@interface HippyDemoViewController () <HippyMethodInterceptorProtocol, HippyBridgeDelegate> {
+@interface HippyDemoViewController () <HippyMethodInterceptorProtocol, HippyBridgeDelegate, HippyRootViewDelegate> {
     DriverType _driverType;
     RenderType _renderType;
     BOOL _isDebugMode;
@@ -111,13 +111,13 @@ static NSString *const engineKey = @"Demo";
 
 - (void)runHippyDemo {
     NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(_isDebugMode)};
-    NSString *executorKey = [NSString stringWithFormat:@"%@_%u", engineKey, arc4random()];
-
+    NSString *uniqueEngineKey = [NSString stringWithFormat:@"%@_%u", engineKey, arc4random()];
+    
     _hippyBridge = [[HippyBridge alloc] initWithDelegate:self
                                           moduleProvider:nil
                                            launchOptions:launchOptions
-                                             executorKey:executorKey];
-    _hippyBridge.contextName = executorKey;
+                                             executorKey:uniqueEngineKey];
+    _hippyBridge.contextName = uniqueEngineKey;
     _hippyBridge.moduleName = @"Demo";
     _hippyBridge.methodInterceptor = self;
     
@@ -132,15 +132,17 @@ static NSString *const engineKey = @"Demo";
     isSimulator = YES;
 #endif
     
-    HippyRootView *rootView = [[HippyRootView alloc] initWithFrame:self.contentAreaView.bounds];
+    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:hippyBridge
+                                                         moduleName:@"Demo"
+                                                  initialProperties:@{@"isSimulator": @(isSimulator)}
+                                                           delegate:self];
+    rootView.frame = self.contentAreaView.bounds;
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    [hippyBridge setRootView:rootView];
-    NSNumber *rootTag = [rootView hippyTag];
     
     if (_isDebugMode) {
         hippyBridge.sandboxDirectory = [_debugURL URLByDeletingLastPathComponent];
         [hippyBridge loadBundleURL:_debugURL completion:^(NSURL * _Nullable, NSError * _Nullable) {
-            [hippyBridge loadInstanceForRootView:rootTag withProperties:@{@"isSimulator": @(isSimulator)}];
+            [rootView runHippyApplication];
         }];
     } else {
         NSURL *vendorBundleURL = [self vendorBundleURL];
@@ -151,7 +153,7 @@ static NSString *const engineKey = @"Demo";
         hippyBridge.sandboxDirectory = [indexBundleURL URLByDeletingLastPathComponent];
         [hippyBridge loadBundleURL:indexBundleURL completion:^(NSURL * _Nullable, NSError * _Nullable) {
             NSLog(@"url %@ load finish", indexBundleURL);
-            [hippyBridge loadInstanceForRootView:rootTag withProperties:@{@"isSimulator": @(isSimulator)}];
+            [rootView runHippyApplication];
         }];
     }
     

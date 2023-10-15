@@ -96,7 +96,6 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     BOOL _wasBatchActive;
     HippyDisplayLink *_displayLink;
     HippyBridgeModuleProviderBlock _moduleProvider;
-    NSString *_engineKey;
     BOOL _valid;
     HippyBundleOperationQueue *_bundlesQueue;
     NSMutableArray<NSURL *> *_bundleURLs;
@@ -108,6 +107,15 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     std::shared_ptr<hippy::RootNode> _rootNode;
     
 }
+
+/// 用于标记bridge所使用的JS引擎的Key
+///
+/// 注意：传入相同值的bridge将共享底层JS引擎。
+/// 在共享情况下，只有全部bridge实例均释放，JS引擎资源才会销毁。
+/// 默认情况下对每个bridge使用独立JS引擎
+@property (nonatomic, strong) NSString *engineKey;
+/// 等待加载(Load)的 Vendor bundleURL
+@property (nonatomic, strong) NSURL *pendingLoadingVendorBundleURL;
 
 @property(readwrite, strong) dispatch_semaphore_t moduleSemaphore;
 @property(readwrite, assign) NSInteger loadingCount;
@@ -141,19 +149,33 @@ dispatch_queue_t HippyBridgeQueue() {
 - (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
                   moduleProvider:(HippyBridgeModuleProviderBlock)block
                    launchOptions:(NSDictionary *)launchOptions
-                     executorKey:(NSString *)executorKey {
+                     executorKey:(nullable NSString *)executorKey {
+    return [self initWithDelegate:delegate
+                        bundleURL:nil
+                   moduleProvider:block
+                    launchOptions:launchOptions
+                      executorKey:executorKey];
+}
+
+- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
+                       bundleURL:(NSURL *)bundleURL
+                  moduleProvider:(HippyBridgeModuleProviderBlock)block
+                   launchOptions:(NSDictionary *)launchOptions
+                     executorKey:(nullable NSString *)executorKey {
     if (self = [super init]) {
         _delegate = delegate;
         _moduleProvider = block;
+        _pendingLoadingVendorBundleURL = bundleURL;
         _bundleURLs = [NSMutableArray array];
         _debugMode = [launchOptions[@"DebugMode"] boolValue];
         _enableTurbo = !!launchOptions[@"EnableTurbo"] ? [launchOptions[@"EnableTurbo"] boolValue] : YES;
-        _engineKey = executorKey;
+        _engineKey = executorKey.length > 0 ? executorKey : [NSString stringWithFormat:@"%p", self];
         _invalidateReason = HippyInvalidateReasonDealloc;
         _valid = YES;
         _bundlesQueue = [[HippyBundleOperationQueue alloc] init];
         _startTime = footstone::TimePoint::SystemNow();
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rootViewContentDidAppear:) name:kRootViewDidAddContent object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rootViewContentDidAppear:)
+                                                     name:HippyContentDidAppearNotification object:nil];
         [self setUp];
         HippyExecuteOnMainThread(^{
             [self bindKeys];
@@ -166,13 +188,15 @@ dispatch_queue_t HippyBridgeQueue() {
         [self setUpNativeRenderManager];
         
         [HippyBridge setCurrentBridge:self];
+        
+        [self loadPendingVendorBundleURLIfNeeded];
         HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ Init %p", NSStringFromClass([self class]), self);
     }
     return self;
 }
 
 - (void)rootViewContentDidAppear:(NSNotification *)noti {
-    UIView *rootView = [[noti userInfo] objectForKey:kRootViewKey];
+    UIView *rootView = [noti object];
     if (rootView) {
         auto domManager = _javaScriptExecutor.pScope->GetDomManager().lock();
         if (domManager) {
@@ -221,12 +245,8 @@ dispatch_queue_t HippyBridgeQueue() {
 #endif
 }
 
-- (NSString *)engineKey {
-    return _engineKey ?: [NSString stringWithFormat:@"%p", self];
-}
-
 - (void)setUpNativeRenderManager {
-    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:[self engineKey]];
+    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:self.engineKey];
     auto domManager = engineResource->GetDomManager();
     //Create NativeRenderManager
     auto nativeRenderManager = std::make_shared<NativeRenderManager>();
@@ -299,6 +319,9 @@ dispatch_queue_t HippyBridgeQueue() {
     return [_moduleSetup moduleIsInitialized:moduleClass];
 }
 
+
+#pragma mark - Debug Reload
+
 - (void)reload {
     if ([self.delegate respondsToSelector:@selector(reload:)]) {
         self.invalidateReason = HippyInvalidateReasonReload;
@@ -316,13 +339,16 @@ dispatch_queue_t HippyBridgeQueue() {
     }
 }
 
+
+#pragma mark - Bridge SetUp
+
 - (void)setUp {
     _valid = YES;
     self.moduleSemaphore = dispatch_semaphore_create(0);
     @try {
         __weak HippyBridge *weakSelf = self;
         _moduleSetup = [[HippyModulesSetup alloc] initWithBridge:self extraProviderModulesBlock:_moduleProvider];
-        _javaScriptExecutor = [[HippyJSExecutor alloc] initWithEngineKey:_engineKey bridge:self];
+        _javaScriptExecutor = [[HippyJSExecutor alloc] initWithEngineKey:self.engineKey bridge:self];
         _javaScriptExecutor.contextCreatedBlock = ^(id<HippyContextWrapper> ctxWrapper){
             HippyBridge *strongSelf = weakSelf;
             if (strongSelf) {
@@ -340,25 +366,38 @@ dispatch_queue_t HippyBridgeQueue() {
             _javaScriptExecutor.contextName = _contextName;
         }
         _displayLink = [[HippyDisplayLink alloc] init];
-        //The caller may attempt to look up a module immediately after creating the HippyBridge,
-        //therefore the initialization of all modules cannot be placed in a sub-thread
-//        dispatch_async(HippyBridgeQueue(), ^{
-        [self initWithModulesCompletion:^{
+
+        // Setup all extra and internal modules
+        [_moduleSetup setupModulesCompletion:^{
             HippyBridge *strongSelf = weakSelf;
             if (strongSelf) {
                 dispatch_semaphore_signal(strongSelf.moduleSemaphore);
                 footstone::TimePoint endTime = footstone::TimePoint::SystemNow();
-                auto enty =
-                    strongSelf.javaScriptExecutor.pScope->GetPerformance()->PerformanceNavigation("hippyInit");
+                auto enty = strongSelf.javaScriptExecutor.pScope->GetPerformance()->PerformanceNavigation("hippyInit");
                 enty->SetHippyNativeInitStart(strongSelf->_startTime);
                 enty->SetHippyNativeInitEnd(endTime);
             }
         }];
-//        });
+        
     } @catch (NSException *exception) {
         HippyBridgeHandleException(exception, self);
     }
 }
+
+
+/// 加载初始化bridge时传入的Bundle URL
+- (void)loadPendingVendorBundleURLIfNeeded {
+    if (self.pendingLoadingVendorBundleURL) {
+        [self loadBundleURL:self.pendingLoadingVendorBundleURL completion:^(NSURL * _Nullable url, NSError * _Nullable error) {
+            if (error) {
+                HippyLogError(@"[Hippy_OC_Log][HippyBridge], bundle loaded error:%@, %@", url, error.description);
+            } else {
+                HippyLogInfo(@"[Hippy_OC_Log][HippyBridge], bundle loaded success:%@", url);
+            }
+        }];
+    }
+}
+
 
 - (void)loadBundleURL:(NSURL *)bundleURL
            completion:(void (^_Nullable)(NSURL  * _Nullable, NSError * _Nullable))completion {
@@ -374,12 +413,6 @@ dispatch_queue_t HippyBridgeQueue() {
     dispatch_async(HippyBridgeQueue(), ^{
         [self beginLoadingBundle:bundleURL completion:completion];
     });
-}
-
-
-
-- (void)initWithModulesCompletion:(dispatch_block_t)completion {
-    [_moduleSetup setupModulesCompletion:completion];
 }
 
 - (void)beginLoadingBundle:(NSURL *)bundleURL
@@ -531,7 +564,7 @@ dispatch_queue_t HippyBridgeQueue() {
             dispatch_async(dispatch_get_main_queue(), ^{
                 NSDictionary *userInfo = @{@"bridge": self, sourceURL: sourceURL};
                 [[NSNotificationCenter defaultCenter] postNotificationName:HippyJavaScriptDidLoadNotification
-                                                                    object:nil
+                                                                    object:self
                                                                   userInfo:userInfo];
             });
         }
@@ -555,7 +588,7 @@ dispatch_queue_t HippyBridgeQueue() {
     }];
     NSDictionary *userInfo = @{@"bridge": self, @"error": error, @"sourceURL": sourceURL};
     [[NSNotificationCenter defaultCenter] postNotificationName:HippyJavaScriptDidFailToLoadNotification
-                                                        object:nil
+                                                        object:self
                                                       userInfo:userInfo];
     if ([error userInfo][HippyJSStackTraceKey]) {
         [self.redBox showErrorMessage:[error localizedDescription] withStack:[error userInfo][HippyJSStackTraceKey]];
@@ -1056,7 +1089,7 @@ dispatch_queue_t HippyBridgeQueue() {
 
 //FIXME: 调整优化
 - (void)setRootView:(HippyRootView *)rootView {
-    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:[self engineKey]];
+    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:self.engineKey];
     auto domManager = engineResource->GetDomManager();
     NSNumber *rootTag = [rootView hippyTag];
     //Create a RootNode instance with a root tag
@@ -1090,7 +1123,7 @@ dispatch_queue_t HippyBridgeQueue() {
 }
 
 - (void)resetRootSize:(CGSize)size {
-    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:[self engineKey]];
+    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:self.engineKey];
     std::weak_ptr<hippy::RootNode> rootNode = _rootNode;
     auto domManager = engineResource->GetDomManager();
     std::weak_ptr<hippy::DomManager> weakDomManager = domManager;

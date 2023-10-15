@@ -233,11 +233,9 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 }
 
 - (instancetype)initWithEngineKey:(NSString *)engineKey bridge:(HippyBridge *)bridge {
+    NSParameterAssert(engineKey.length > 0);
     if (self = [super init]) {
         _valid = YES;
-        // maybe bug in JavaScriptCore：
-        // JSContextRef held by JSContextGroupRef cannot be deallocated,
-        // unless JSContextGroupRef is deallocated
         self.enginekey = engineKey;
         self.bridge = bridge;
 
@@ -351,17 +349,13 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 #endif //JS_JSC
     self.pScope->WillExit();
     self.pScope = nullptr;
-    NSString *enginekey = [self enginekey];
+    NSString *enginekey = self.enginekey;
     if (!enginekey) {
         return;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
         [[HippyJSEnginesMapper defaultInstance] removeEngineResourceForKey:enginekey];
     });
-}
-
-- (NSString *)enginekey {
-    return _enginekey ?: [NSString stringWithFormat:@"%p", self];
 }
 
 - (void)setContextName:(NSString *)contextName {

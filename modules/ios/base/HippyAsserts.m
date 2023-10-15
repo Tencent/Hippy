@@ -35,6 +35,15 @@ HippyAssertFunction HippyCurrentAssertFunction = nil;
 HippyFatalHandler HippyCurrentFatalHandler = nil;
 HippyExceptionHandler HippyCurrentExceptionHandler = nil;
 
+
+NSException *_HippyNotImplementedException(SEL, Class);
+NSException *_HippyNotImplementedException(SEL cmd, Class cls) {
+    NSString *msg = [NSString stringWithFormat:@"%s is not implemented "
+                     "for the class %@",
+                     sel_getName(cmd), cls];
+    return [NSException exceptionWithName:@"HippyNotDesignatedInitializerException" reason:msg userInfo:nil];
+}
+
 /**
  * returns the topmost stacked assert function for the current thread, which
  * may not be the same as the current value of HippyCurrentAssertFunction.

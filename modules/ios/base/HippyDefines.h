@@ -64,5 +64,14 @@
 #define HIPPY_CONCAT2(A, B) A##B
 #define HIPPY_CONCAT(A, B) HIPPY_CONCAT2(A, B)
 
-#define kRootViewDidAddContent @"RootViewDidAddContent"
-#define kRootViewKey @"RootViewKey"
+
+/**
+ * Throw an assertion for unimplemented methods.
+ */
+#define HIPPY_NOT_IMPLEMENTED(method)                                                                                                   \
+_Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wmissing-method-return-type\"")                               \
+_Pragma("clang diagnostic ignored \"-Wunused-parameter\"") HIPPY_EXTERN NSException *_HippyNotImplementedException(SEL, Class); \
+method NS_UNAVAILABLE {                                                                                                             \
+@throw _HippyNotImplementedException(_cmd, [self class]);                                                                       \
+}                                                                                                                                   \
+_Pragma("clang diagnostic pop")
