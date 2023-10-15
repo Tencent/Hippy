@@ -254,11 +254,6 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)setRedBoxShowEnabled:(BOOL)enabled;
 
 /**
- * just for debugger
- */
-- (void)bindKeys;
-
-/**
  * Use this to check if the bridge has been invalidated.
  */
 @property (nonatomic, readonly, getter=isValid) BOOL valid;
@@ -311,6 +306,17 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 - (void)resetRootSize:(CGSize)size;
 
+
+#pragma mark - App UI State Related
+
+/// NightMode or not, default is NO.
+/// Updated by HippyRootView
+@property (atomic, assign, readonly) BOOL isOSNightMode;
+
+/// update `NightMode` state when changed
+/// - Parameter isOSNightMode: bool
+/// - Parameter rootViewTag: rootView's hippyTag
+- (void)setOSNightMode:(BOOL)isOSNightMode withRootViewTag:(NSNumber *)rootViewTag;
 
 
 @end

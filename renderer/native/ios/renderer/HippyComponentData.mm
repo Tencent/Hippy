@@ -509,7 +509,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
     return [selString copy];
 }
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithRenderObjectViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)registry {
+- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)registry {
     if (_implementsUIBlockToAmendWithRenderObjectRegistry) {
         return [[self manager] uiBlockToAmendWithShadowViewRegistry:registry];
     }

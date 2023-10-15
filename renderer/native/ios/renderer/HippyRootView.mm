@@ -27,6 +27,7 @@
 #import "NativeRenderDefines.h"
 #import "HippyInvalidating.h"
 #import "HippyBridge.h"
+#import "HippyDeviceBaseInfo.h"
 #include <objc/runtime.h>
 
 NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotification";
@@ -41,30 +42,10 @@ NSNumber *AllocRootViewTag(void) {
 }
 
 
-@interface HippyRootContentView : HippyView <HippyInvalidating>
-
-@property (nonatomic, readonly) BOOL contentHasAppeared;
-//@property (nonatomic, strong) HippyTouchHandler *touchHandler;
-@property (nonatomic, assign) int64_t startTimpStamp;
-
-- (instancetype)initWithFrame:(CGRect)frame
-                       bridge:(HippyBridge *)bridge
-                     hippyTag:(NSNumber *)hippyTag
-               sizeFlexiblity:(HippyRootViewSizeFlexibility)sizeFlexibility NS_DESIGNATED_INITIALIZER;
-
-@end
-
-
 
 @interface HippyRootView () {
     BOOL _contentHasAppeared;
-    HippyRootContentView *_contentView;
 }
-
-/**
- * The Hippy-managed contents view of the root view.
- */
-@property (nonatomic, strong) UIView *contentView;
 
 @property (nonatomic, strong) NSDictionary *shareOptions;
 
@@ -93,7 +74,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
         }
         _moduleName = moduleName;
         _appProperties = [initialProperties copy];
-        _sizeFlexibility = HippyRootViewSizeFlexibilityNone;
         _delegate = delegate;
         self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         
@@ -154,7 +134,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 - (void)dealloc {
-    [_contentView invalidate];
     if ([_delegate respondsToSelector:@selector(rootViewWillBePurged:)]) {
         [_delegate rootViewWillBePurged:self];
     }
@@ -167,26 +146,15 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     __weak __typeof(self)weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         __strong __typeof(weakSelf)strongSelf = weakSelf;
-        [strongSelf.contentView removeFromSuperview];
-        strongSelf.contentView = [[HippyRootContentView alloc] initWithFrame:strongSelf.bounds
-                                                                      bridge:strongSelf.bridge
-                                                                    hippyTag:strongSelf.hippyTag
-                                                              sizeFlexiblity:strongSelf.sizeFlexibility];
-        // 注册
+        // 注册RootView
         [strongSelf.bridge setRootView:strongSelf];
         [strongSelf.bridge loadInstanceForRootView:strongSelf.hippyTag withProperties:strongSelf.appProperties];
         HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", strongSelf.moduleName, strongSelf.appProperties);
     });
 }
 
-
-- (void)setBackgroundColor:(UIColor *)backgroundColor {
-    super.backgroundColor = backgroundColor;
-    _contentView.backgroundColor = backgroundColor;
-}
-
 - (UIViewController *)hippyViewController {
-    return _hippyViewController?:[super hippyViewController];
+    return _hippyViewController ?: [super hippyViewController];
 }
 
 - (BOOL)canBecomeFirstResponder {
@@ -244,16 +212,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     });
 }
 
-- (void)setSizeFlexibility:(HippyRootViewSizeFlexibility)sizeFlexibility {
-    _sizeFlexibility = sizeFlexibility;
-    [self setNeedsLayout];
-}
-
-- (void)layoutSubviews {
-    [super layoutSubviews];
-    _contentView.frame = self.bounds;
-}
-
 - (void)setAppProperties:(NSDictionary *)appProperties {
     HippyAssertMainQueue();
     
@@ -263,129 +221,33 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     
     _appProperties = [appProperties copy];
     
-    if (_contentView && _bridge.valid && !_bridge.loading) {
+    if (_bridge.valid) {
         [self runHippyApplication];
     }
-}
-
-- (void)setIntrinsicSize:(CGSize)intrinsicSize {
-    BOOL oldSizeHasAZeroDimension = _intrinsicSize.height == 0 || _intrinsicSize.width == 0;
-    BOOL newSizeHasAZeroDimension = intrinsicSize.height == 0 || intrinsicSize.width == 0;
-    BOOL bothSizesHaveAZeroDimension = oldSizeHasAZeroDimension && newSizeHasAZeroDimension;
-    
-    BOOL sizesAreEqual = CGSizeEqualToSize(_intrinsicSize, intrinsicSize);
-    
-    _intrinsicSize = intrinsicSize;
-    
-    // Don't notify the delegate if the content remains invisible or its size has not changed
-    if (bothSizesHaveAZeroDimension || sizesAreEqual) {
-        return;
-    }
-    if ([_delegate respondsToSelector:@selector(rootViewDidChangeIntrinsicSize:)]) {
-        [_delegate rootViewDidChangeIntrinsicSize:self];
-    }
-}
-
-- (void)contentViewInvalidated {
-    [_contentView removeFromSuperview];
-    _contentView = nil;
 }
 
 
 #pragma mark -
 
-//- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
-//    [super traitCollectionDidChange:previousTraitCollection];
-//    if (@available(iOS 12.0, *)) {
-//        // on dark mode change
-//        UIUserInterfaceStyle currentStyle = self.traitCollection.userInterfaceStyle;
-//        if (currentStyle != previousTraitCollection.userInterfaceStyle) {
-//            BOOL isNightMode = (UIUserInterfaceStyleDark == currentStyle);
-//            if (self.bridge.isOSNightMode != isNightMode) {
-//                [self.bridge setOSNightMode:isNightMode withRootViewTag:self.hippyTag];
-//            }
-//        }
-//    }
-//}
-//
-//static NSString *const HippyHostControllerSizeKeyNewSize = @"NewSize";
-//- (void)onHostControllerTransitionedToSize:(CGSize)size {
-//    [NSNotificationCenter.defaultCenter postNotificationName:HippyDimensionsShouldUpdateNotification
-//                                                      object:nil
-//                                                    userInfo:@{HippyHostControllerSizeKeyNewSize : @(size)}];
-//}
-
-@end
-
-
-@implementation HippyRootContentView {
-    __weak HippyBridge *_bridge;
-    UIColor *_backgroundColor;
-}
-
-- (instancetype)initWithFrame:(CGRect)frame
-                       bridge:(HippyBridge *)bridge
-                     hippyTag:(NSNumber *)hippyTag
-               sizeFlexiblity:(HippyRootViewSizeFlexibility)sizeFlexibility {
-    if ((self = [super initWithFrame:frame])) {
-        _bridge = bridge;
-        self.hippyTag = hippyTag;
-        
-//        _touchHandler = [[HippyTouchHandler alloc] initWithRootView:self bridge:bridge];
-//        [self addGestureRecognizer:_touchHandler];
-//        [_bridge.uiManager registerRootView:self withSizeFlexibility:sizeFlexibility];
-        
-        self.layer.backgroundColor = NULL;
-        _startTimpStamp = CACurrentMediaTime() * 1000;
-    }
-    return self;
-}
-
-HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
-HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder)
-
-- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
-    [super insertHippySubview:subview atIndex:atIndex];
-//    [_bridge.performanceLogger markStopForTag:HippyPLTTI];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (!self->_contentHasAppeared) {
-            self->_contentHasAppeared = YES;
-//            int64_t cost = [self->_bridge.performanceLogger durationForTag:HippyPLTTI];
-//            [[NSNotificationCenter defaultCenter] postNotificationName:HippyContentDidAppearNotification object:self.superview userInfo:@{
-//                @"cost": @(cost)
-//            }];
-        }
-    });
-}
-
-- (void)setFrame:(CGRect)frame {
-    CGRect originFrame = self.frame;
-    if (!CGRectEqualToRect(originFrame, frame)) {
-        super.frame = frame;
-        if (self.hippyTag && _bridge.isValid) {
-//            [_bridge.uiManager setFrame:frame fromOriginFrame:originFrame forView:self];
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
+    [super traitCollectionDidChange:previousTraitCollection];
+    if (@available(iOS 12.0, *)) {
+        // on dark mode change
+        UIUserInterfaceStyle currentStyle = self.traitCollection.userInterfaceStyle;
+        if (currentStyle != previousTraitCollection.userInterfaceStyle) {
+            BOOL isNightMode = (UIUserInterfaceStyleDark == currentStyle);
+            if (self.bridge.isOSNightMode != isNightMode) {
+                [self.bridge setOSNightMode:isNightMode withRootViewTag:self.hippyTag];
+            }
         }
     }
 }
 
-- (void)setBackgroundColor:(UIColor *)backgroundColor {
-    _backgroundColor = backgroundColor;
-    if (self.hippyTag && _bridge.isValid) {
-//        [_bridge.uiManager setBackgroundColor:backgroundColor forView:self];
-    }
-}
-
-- (UIColor *)backgroundColor {
-    return _backgroundColor;
-}
-
-- (void)invalidate {
-    if (self.userInteractionEnabled) {
-        self.userInteractionEnabled = NO;
-        [(HippyRootView *)self.superview contentViewInvalidated];
-        [_bridge enqueueJSCall:@"AppRegistry" method:@"unmountApplicationComponentAtRootTag" args:@[self.hippyTag] completion:NULL];
-    }
+static NSString *const HippyHostControllerSizeKeyNewSize = @"NewSize";
+- (void)onHostControllerTransitionedToSize:(CGSize)size {
+    [NSNotificationCenter.defaultCenter postNotificationName:HippyDimensionsShouldUpdateNotification
+                                                      object:self
+                                                    userInfo:@{HippyHostControllerSizeKeyNewSize : @(size)}];
 }
 
 @end

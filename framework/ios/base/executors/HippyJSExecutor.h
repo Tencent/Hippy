@@ -140,4 +140,8 @@ HIPPY_EXTERN NSString *const HippyJSCThreadName;
  */
 - (void)executeAsyncBlockOnJavaScriptQueue:(dispatch_block_t)block;
 
+/// Updated hippy global info
+/// - Parameter dict: updated info
+- (void)updateNativeInfoToHippyGlobalObject:(NSDictionary *)dict;
+
 @end

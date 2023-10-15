@@ -47,6 +47,6 @@
 
 - (NSDictionary<NSString *, NSValue *> *)methodsByName;
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithRenderObjectViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)registry;
+- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)registry;
 
 @end

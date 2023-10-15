@@ -409,6 +409,20 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     [self invalidate];
 }
 
+- (void)updateNativeInfoToHippyGlobalObject:(NSDictionary *)updatedInfoDict {
+    if (updatedInfoDict.count <= 0){
+        return;
+    }
+    __weak __typeof(self)weakSelf = self;
+    [self executeBlockOnJavaScriptQueue:^{
+        __strong __typeof(weakSelf)strongSelf = weakSelf;
+        if (!strongSelf || !strongSelf.isValid || nullptr == strongSelf.pScope) {
+            return;
+        }
+        [strongSelf addInfoToGlobalObject:updatedInfoDict.copy];
+    }];
+}
+
 -(void)addInfoToGlobalObject:(NSDictionary*)addInfoDict{
     string_view str("__HIPPYNATIVEGLOBAL__");
     auto context = self.pScope->GetContext();

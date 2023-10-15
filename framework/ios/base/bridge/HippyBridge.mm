@@ -81,6 +81,17 @@ NSString *const HippyJavaScriptDidFailToLoadNotification = @"HippyJavaScriptDidF
 NSString *const HippyDidInitializeModuleNotification = @"HippyDidInitializeModuleNotification";
 NSString *const HippySDKVersion = @"unspecified";
 
+
+static NSString *const HippyNativeGlobalKeyOS = @"OS";
+static NSString *const HippyNativeGlobalKeyOSVersion = @"OSVersion";
+static NSString *const HippyNativeGlobalKeyDevice = @"Device";
+static NSString *const HippyNativeGlobalKeySDKVersion = @"SDKVersion";
+static NSString *const HippyNativeGlobalKeyAppVersion = @"AppVersion";
+static NSString *const HippyNativeGlobalKeyDimensions = @"Dimensions";
+static NSString *const HippyNativeGlobalKeyLocalization = @"Localization";
+static NSString *const HippyNativeGlobalKeyNightMode = @"NightMode";
+
+
 typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     HippyBridgeFieldRequestModuleIDs = 0,
     HippyBridgeFieldMethodIDs,
@@ -106,6 +117,8 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     std::shared_ptr<VFSUriLoader> _uriLoader;
     std::shared_ptr<hippy::RootNode> _rootNode;
     
+    // 缓存的设备信息
+    NSDictionary *_cachedDeviceInfo;
 }
 
 /// 用于标记bridge所使用的JS引擎的Key
@@ -119,6 +132,10 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
 
 @property(readwrite, strong) dispatch_semaphore_t moduleSemaphore;
 @property(readwrite, assign) NSInteger loadingCount;
+
+
+/// 缓存的Dimensions信息，用于传递给JS Side
+@property (atomic, strong) NSDictionary *cachedDimensionsInfo;
 
 @end
 
@@ -176,12 +193,12 @@ dispatch_queue_t HippyBridgeQueue() {
         _startTime = footstone::TimePoint::SystemNow();
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rootViewContentDidAppear:)
                                                      name:HippyContentDidAppearNotification object:nil];
-        [self setUp];
         HippyExecuteOnMainThread(^{
-            [self bindKeys];
+            self->_isOSNightMode = [HippyDeviceBaseInfo isUIScreenInOSDarkMode];
+            self.cachedDimensionsInfo = hippyExportedDimensions(self);
         }, YES);
         
-        
+        [self setUp];
         
         [self addImageProviderClass:[HippyDefaultImageProvider class]];
         [self setVFSUriLoader:[self createURILoaderIfNeeded]];
@@ -230,19 +247,6 @@ dispatch_queue_t HippyBridgeQueue() {
         _renderManager->RemoveVSyncEventListener(_rootNode);
         _rootNode->ReleaseResources();
     }
-}
-
-- (void)bindKeys {
-#if TARGET_IPHONE_SIMULATOR
-    HippyAssertMainQueue();
-    HippyKeyCommands *commands = [HippyKeyCommands sharedInstance];
-
-    // reload in current mode
-    __weak __typeof(self) weakSelf = self;
-    [commands registerKeyCommandWithInput:@"r" modifierFlags:UIKeyModifierCommand action:^(__unused UIKeyCommand *command) {
-        [weakSelf requestReload];
-    }];
-#endif
 }
 
 - (void)setUpNativeRenderManager {
@@ -971,25 +975,75 @@ dispatch_queue_t HippyBridgeQueue() {
     }];
 }
 
-- (NSDictionary *)deviceInfo {
-    //该方法可能从非UI线程调用
+
+#pragma mark - DeviceInfo
+
+- (NSDictionary *)genRawDeviceInfoDict {
+    // This method may be called from a child thread
     NSString *iosVersion = [[UIDevice currentDevice] systemVersion];
     struct utsname systemInfo;
     uname(&systemInfo);
     NSString *deviceModel = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
     NSMutableDictionary *deviceInfo = [NSMutableDictionary dictionary];
-    [deviceInfo setValue:@"ios" forKey:@"OS"];
-    [deviceInfo setValue:iosVersion forKey:@"OSVersion"];
-    [deviceInfo setValue:deviceModel forKey:@"Device"];
-    [deviceInfo setValue:HippySDKVersion forKey:@"SDKVersion"];
-    [deviceInfo setValue:HippyExportedDimensions() forKey:@"Dimensions"];
+    [deviceInfo setValue:@"ios" forKey:HippyNativeGlobalKeyOS];
+    [deviceInfo setValue:iosVersion forKey:HippyNativeGlobalKeyOSVersion];
+    [deviceInfo setValue:deviceModel forKey:HippyNativeGlobalKeyDevice];
+    [deviceInfo setValue:HippySDKVersion forKey:HippyNativeGlobalKeySDKVersion];
+    
+    NSString *appVer = [[NSBundle.mainBundle infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+    if (appVer) {
+        [deviceInfo setValue:appVer forKey:HippyNativeGlobalKeyAppVersion];
+    }
+    
+    if (self.cachedDimensionsInfo) {
+        [deviceInfo setValue:self.cachedDimensionsInfo forKey:HippyNativeGlobalKeyDimensions];
+    }
+    
     NSString *countryCode = [[HippyI18nUtils sharedInstance] currentCountryCode];
     NSString *lanCode = [[HippyI18nUtils sharedInstance] currentAppLanguageCode];
     NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
-    NSDictionary *local = @{@"country": countryCode?:@"unknown", @"language": lanCode?:@"unknown", @"direction": @(direction)};
-    [deviceInfo setValue:local forKey:@"Localization"];
-    return [NSDictionary dictionaryWithDictionary:deviceInfo];
+    NSDictionary *localizaitionInfo = @{
+        @"country" : countryCode?:@"unknown",
+        @"language" : lanCode?:@"unknown",
+        @"direction" : @(direction)
+    };
+    [deviceInfo setValue:localizaitionInfo forKey:HippyNativeGlobalKeyLocalization];
+    [deviceInfo setValue:@([self isOSNightMode]) forKey:HippyNativeGlobalKeyNightMode];
+    return deviceInfo;
 }
+
+- (NSDictionary *)deviceInfo {
+    @synchronized (self) {
+        if (!_cachedDeviceInfo) {
+            _cachedDeviceInfo = [self genRawDeviceInfoDict];
+        }
+        return _cachedDeviceInfo;
+    }
+}
+
+
+#pragma mark -
+
+static NSString *const hippyOnNightModeChangedEvent = @"onNightModeChanged";
+static NSString *const hippyOnNightModeChangedParam1 = @"NightMode";
+static NSString *const hippyOnNightModeChangedParam2 = @"RootViewTag";
+
+- (void)setOSNightMode:(BOOL)isOSNightMode withRootViewTag:(nonnull NSNumber *)rootViewTag {
+    _isOSNightMode = isOSNightMode;
+    // Notify to JS Driver Side
+    // 1. Update global object
+    [self.javaScriptExecutor updateNativeInfoToHippyGlobalObject:@{ HippyNativeGlobalKeyNightMode: @(isOSNightMode) }];
+    
+    // 2. Send event
+    NSDictionary *args = @{@"eventName": hippyOnNightModeChangedEvent,
+                           @"extra": @{ hippyOnNightModeChangedParam1 : @(isOSNightMode),
+                                        hippyOnNightModeChangedParam2 : rootViewTag } };
+    [self.eventDispatcher dispatchEvent:@"EventDispatcher"
+                             methodName:@"receiveNativeEvent" args:args];
+}
+
+
+#pragma mark -
 
 - (NSString *)moduleConfig {
     NSMutableArray<NSArray *> *config = [NSMutableArray new];

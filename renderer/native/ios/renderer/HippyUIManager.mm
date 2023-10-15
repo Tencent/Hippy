@@ -164,8 +164,8 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 @interface HippyUIManager() {
     NSMutableArray<HippyViewManagerUIBlock> *_pendingUIBlocks;
 
-    HippyComponentMap *_renderObjectRegistry;
     HippyComponentMap *_viewRegistry;
+    HippyComponentMap *_shadowViewRegistry;
 
     // Keyed by viewName
     NSMutableDictionary<NSString *, HippyComponentData *> *_componentDataByName;
@@ -207,7 +207,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 }
 
 - (void)initContext {
-    _renderObjectRegistry = [[HippyComponentMap alloc] init];
+    _shadowViewRegistry = [[HippyComponentMap alloc] init];
     _viewRegistry = [[HippyComponentMap alloc] init];
     _viewRegistry.requireInMainThread = YES;
     _pendingUIBlocks = [NSMutableArray new];
@@ -258,10 +258,10 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 }
 
 - (HippyComponentMap *)renderObjectRegistry {
-     if (!_renderObjectRegistry) {
-        _renderObjectRegistry = [[HippyComponentMap alloc] init];
+     if (!_shadowViewRegistry) {
+        _shadowViewRegistry = [[HippyComponentMap alloc] init];
      }
-     return _renderObjectRegistry;
+     return _shadowViewRegistry;
  }
 
 - (HippyComponentMap *)viewRegistry {
@@ -284,7 +284,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 
 - (HippyShadowView *)renderObjectForcomponentTag:(NSNumber *)componentTag
                                           onRootTag:(NSNumber *)rootTag {
-    return [_renderObjectRegistry componentForTag:componentTag onRootTag:rootTag];
+    return [_shadowViewRegistry componentForTag:componentTag onRootTag:rootTag];
 }
 
 - (std::weak_ptr<hippy::RenderManager>)renderManager {
@@ -347,7 +347,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
             renderObject.viewName = rootViewClassName;
             renderObject.rootNode = rootNode;
             renderObject.domNode = rootNode;
-            [strongSelf->_renderObjectRegistry addRootComponent:renderObject rootNode:rootNode forTag:componentTag];
+            [strongSelf->_shadowViewRegistry addRootComponent:renderObject rootNode:rootNode forTag:componentTag];
             NSDictionary *userInfo = @{ NativeRenderUIManagerRootViewTagKey: componentTag,
                                         NativeRenderUIManagerKey: strongSelf};
             [[NSNotificationCenter defaultCenter] postNotificationName:NativeRenderUIManagerDidRegisterRootViewNotification
@@ -366,7 +366,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     }
     std::lock_guard<std::mutex> lock([self renderQueueLock]);
     [_viewRegistry removeRootComponentWithTag:rootTag];
-    [_renderObjectRegistry removeRootComponentWithTag:rootTag];
+    [_shadowViewRegistry removeRootComponentWithTag:rootTag];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
@@ -415,13 +415,13 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
             return;
         }
         HippyUIManager *strongSelf = weakSelf;
-        HippyShadowView *renderObject = [strongSelf->_renderObjectRegistry rootComponentForTag:componentTag];
+        HippyShadowView *renderObject = [strongSelf->_shadowViewRegistry rootComponentForTag:componentTag];
         if (renderObject == nil) {
             return;
         }
         if (!CGRectEqualToRect(frame, renderObject.frame)) {
             renderObject.frame = frame;
-            std::weak_ptr<RootNode> rootNode = [strongSelf->_renderObjectRegistry rootNodeForTag:componentTag];
+            std::weak_ptr<RootNode> rootNode = [strongSelf->_shadowViewRegistry rootNodeForTag:componentTag];
             [strongSelf batchOnRootNode:rootNode];
         }
     }};
@@ -464,7 +464,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 
 - (UIView *)createViewRecursivelyFromcomponentTag:(NSNumber *)componentTag
                                     onRootTag:(NSNumber *)rootTag {
-    HippyShadowView *renderObject = [_renderObjectRegistry componentForTag:componentTag onRootTag:rootTag];
+    HippyShadowView *renderObject = [_shadowViewRegistry componentForTag:componentTag onRootTag:rootTag];
     return [self createViewRecursivelyFromRenderObject:renderObject];
 }
 
@@ -548,7 +548,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         renderObject.nodeLayoutResult = domNode->GetLayoutResult();
         renderObject.frame = CGRectMakeFromLayoutResult(domNode->GetLayoutResult());
         [componentData setProps:props forShadowView:renderObject];
-        [_renderObjectRegistry addComponent:renderObject forRootTag:rootTag];
+        [_shadowViewRegistry addComponent:renderObject forRootTag:rootTag];
     }
     return props;
 }
@@ -591,7 +591,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 - (void)updateView:(nonnull NSNumber *)componentTag
          onRootTag:(NSNumber *)rootTag
              props:(NSDictionary *)props {
-    HippyShadowView *renderObject = [_renderObjectRegistry componentForTag:componentTag onRootTag:rootTag];
+    HippyShadowView *renderObject = [_shadowViewRegistry componentForTag:componentTag onRootTag:rootTag];
     if (!renderObject) {
         return;
     }
@@ -738,16 +738,16 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     }
     [manager enumerateViewsHierarchy:^(int32_t tag, const std::vector<int32_t> &subviewTags, const std::vector<int32_t> &subviewIndices) {
         NSAssert(subviewTags.size() == subviewIndices.size(), @"subviewTags count must be equal to subviewIndices count");
-        HippyShadowView *superRenderObject = [self->_renderObjectRegistry componentForTag:@(tag) onRootTag:rootNodeTag];
+        HippyShadowView *superRenderObject = [self->_shadowViewRegistry componentForTag:@(tag) onRootTag:rootNodeTag];
         for (NSUInteger index = 0; index < subviewTags.size(); index++) {
-            HippyShadowView *subRenderObject = [self->_renderObjectRegistry componentForTag:@(subviewTags[index]) onRootTag:rootNodeTag];
+            HippyShadowView *subRenderObject = [self->_shadowViewRegistry componentForTag:@(subviewTags[index]) onRootTag:rootNodeTag];
             [superRenderObject insertHippySubview:subRenderObject atIndex:subviewIndices[index]];
         }
         [superRenderObject didUpdateHippySubviews];
     }];
     for (const std::shared_ptr<DomNode> &node : nodes) {
         NSNumber *componentTag = @(node->GetId());
-        HippyShadowView *renderObject = [_renderObjectRegistry componentForTag:componentTag onRootTag:rootNodeTag];
+        HippyShadowView *renderObject = [_shadowViewRegistry componentForTag:componentTag onRootTag:rootNodeTag];
         if (NativeRenderCreationTypeInstantly == [renderObject creationType] && !_uiCreationLazilyEnabled) {
             [self addUIBlock:^(HippyUIManager *uiManager, __unused NSDictionary<NSNumber *,UIView *> *viewRegistry) {
                 UIView *view = [uiManager createViewFromRenderObject:renderObject];
@@ -759,7 +759,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     [manager enumerateViewsHierarchy:^(int32_t tag, const std::vector<int32_t> &subviewTags, const std::vector<int32_t> &subviewIndices) {
         auto subViewTags_ = subviewTags;
         auto subViewIndices_ = subviewIndices;
-        HippyShadowView *renderObject = [self->_renderObjectRegistry componentForTag:@(tag) onRootTag:rootNodeTag];
+        HippyShadowView *renderObject = [self->_shadowViewRegistry componentForTag:@(tag) onRootTag:rootNodeTag];
         if (NativeRenderCreationTypeInstantly == [renderObject creationType] && !self->_uiCreationLazilyEnabled) {
             [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
                 UIView *superView = viewRegistry[@(tag)];
@@ -822,7 +822,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 #endif
     std::lock_guard<std::mutex> lock([self renderQueueLock]);
     NSNumber *rootTag = @(strongRootNode->GetId());
-    NSMutableDictionary *currentRegistry = [_renderObjectRegistry componentsForRootTag:rootTag];
+    NSMutableDictionary *currentRegistry = [_shadowViewRegistry componentsForRootTag:rootTag];
     
     for (auto dom_node : nodes) {
         int32_t tag = dom_node->GetRenderInfo().id;
@@ -875,12 +875,12 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     }
     int32_t rootTag = strongRootNode->GetId();
     
-    HippyShadowView *fromObjectView = [_renderObjectRegistry componentForTag:@(fromContainer)
+    HippyShadowView *fromObjectView = [_shadowViewRegistry componentForTag:@(fromContainer)
                                                                           onRootTag:@(rootTag)];
-    HippyShadowView *toObjectView = [_renderObjectRegistry componentForTag:@(toContainer)
+    HippyShadowView *toObjectView = [_shadowViewRegistry componentForTag:@(toContainer)
                                                                         onRootTag:@(rootTag)];
     for (int32_t componentTag : ids) {
-        HippyShadowView *view = [_renderObjectRegistry componentForTag:@(componentTag) onRootTag:@(rootTag)];
+        HippyShadowView *view = [_shadowViewRegistry componentForTag:@(componentTag) onRootTag:@(rootTag)];
         HippyAssert(fromObjectView == [view parentComponent], @"parent of object view with tag %d is not object view with tag %d", componentTag, fromContainer);
         [view removeFromHippySuperview];
         [toObjectView insertHippySubview:view atIndex:index];
@@ -921,7 +921,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     for (auto &node : nodes) {
         int32_t index = node->GetRenderInfo().index;
         int32_t componentTag = node->GetId();
-        HippyShadowView *objectView = [_renderObjectRegistry componentForTag:@(componentTag) onRootTag:@(rootTag)];
+        HippyShadowView *objectView = [_shadowViewRegistry componentForTag:@(componentTag) onRootTag:@(rootTag)];
         [objectView dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
         HippyAssert(!parentObjectView || parentObjectView == [objectView parentComponent], @"try to move object view on different parent object view");
         if (!parentObjectView) {
@@ -964,7 +964,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         NSNumber *componentTag = @(tag);
         hippy::LayoutResult layoutResult = std::get<1>(layoutInfoTuple);
         CGRect frame = CGRectMakeFromLayoutResult(layoutResult);
-        HippyShadowView *renderObject = [_renderObjectRegistry componentForTag:componentTag onRootTag:rootTag];
+        HippyShadowView *renderObject = [_shadowViewRegistry componentForTag:componentTag onRootTag:rootTag];
         if (renderObject) {
             [renderObject dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
             renderObject.frame = frame;
@@ -1440,7 +1440,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         return;
     }
     int32_t root_id = strongRootNode->GetId();
-    HippyShadowView *rootView = [_renderObjectRegistry rootComponentForTag:@(root_id)];
+    HippyShadowView *rootView = [_shadowViewRegistry rootComponentForTag:@(root_id)];
     NSMutableSet<NativeRenderApplierBlock> *uiBlocks = [NSMutableSet setWithCapacity:128];
     [rootView amendLayoutBeforeMount:uiBlocks];
     if (uiBlocks.count) {
@@ -1462,7 +1462,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 - (void)setNeedsLayoutForRootNodeTag:(NSNumber *)tag {
     // If there is an active batch layout will happen when batch finished, so we will wait for that.
     // Otherwise we immidiately trigger layout.
-    auto rootNode = [_renderObjectRegistry rootNodeForTag:tag];
+    auto rootNode = [_shadowViewRegistry rootNodeForTag:tag];
     [self layoutAndMountOnRootNode:rootNode];
 }
 
