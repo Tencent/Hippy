@@ -34,7 +34,7 @@ typedef NS_ENUM(NSUInteger, RenderType) {
     RenderTypeNative,
 };
 
-@class HippyBridge;
+@class HippyBridge, HippyRootView;
 @class HippyPageCacheManager, HippyPageCache;
 
 @protocol HippyPageCacheManagerObserverProtocol <NSObject>
@@ -56,7 +56,7 @@ typedef NS_ENUM(NSUInteger, RenderType) {
 @interface HippyPageCache : NSObject
 
 @property(nonatomic, strong) HippyBridge *hippyBridge;
-@property(nonatomic, strong) UIView *rootView;
+@property(nonatomic, strong) HippyRootView *rootView;
 @property(nonatomic, strong, nullable) UIImage *snapshot;
 
 @property(nonatomic, assign) DriverType driverType;

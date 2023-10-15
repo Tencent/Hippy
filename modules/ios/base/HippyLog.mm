@@ -187,7 +187,7 @@ void HippyLogNativeInternal(HippyLogLevel level, const char *fileName, int lineN
             dispatch_async(dispatch_get_main_queue(), ^{
                 // red box is thread safe, but by deferring to main queue we avoid a startup
                 // race condition that causes the module to be accessed before it has loaded
-                [[HippyBridge currentBridge].redBox showErrorMessage:message withStack:stack];
+                [((HippyBridge *)[HippyBridge currentBridge]).redBox showErrorMessage:message withStack:stack];
             });
         }
 #endif

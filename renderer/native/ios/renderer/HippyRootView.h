@@ -25,6 +25,20 @@
 
 @class HippyBridge;
 
+/**
+ * This enum is used to define size flexibility type of the root view.
+ * If a dimension is flexible, the view will recalculate that dimension
+ * so the content fits. Recalculations are performed when the root's frame,
+ * size flexibility mode or content size changes. After a recalculation,
+ * rootViewDidChangeIntrinsicSize method of the HippyRootViewDelegate will be called.
+ */
+typedef NS_ENUM(NSInteger, HippyRootViewSizeFlexibility) {
+    HippyRootViewSizeFlexibilityNone = 0,
+    HippyRootViewSizeFlexibilityWidth,
+    HippyRootViewSizeFlexibilityHeight,
+    HippyRootViewSizeFlexibilityWidthAndHeight,
+};
+
 
 /// This notification is sent when the first subviews are added to the root view
 /// after the application has loaded. This is used to hide the `loadingView`, and
@@ -42,6 +56,28 @@ extern NSString *const HippySecondaryBundleDidLoadNotification DEPRECATED_MSG_AT
 /// You can have multiple HippyRootViews on screen at once,
 /// all controlled by the same JavaScript application.
 @interface HippyRootView : UIView
+
+/// The delegate of hippyRootView.
+@property (nonatomic, weak) id<HippyRootViewDelegate> delegate;
+
+/// The name of the JavaScript module to execute within the
+/// specified scriptURL (required). Setting this will not have
+/// any immediate effect, but it must be done prior to loading the script.
+@property (nonatomic, copy, readonly) NSString *moduleName;
+
+/// The bridge used by the root view. Bridges can be shared between multiple
+/// root views, so you can use this property to initialize another HippyRootView.
+@property (nonatomic, strong, readonly) HippyBridge *bridge;
+
+/// The properties to apply to the view. Use this property to update
+/// application properties and rerender the view. Initialized with
+/// initialProperties argument of the initializer.
+/// Set this property only on the main thread.
+@property (nonatomic, copy, readwrite) NSDictionary *appProperties;
+
+/// The backing view controller of the root view.
+@property (nonatomic, weak) UIViewController *hippyViewController;
+
 
 /// Create HippyRootView instance
 ///
@@ -69,32 +105,11 @@ extern NSString *const HippySecondaryBundleDidLoadNotification DEPRECATED_MSG_AT
              initialProperties:(NSDictionary *)initialProperties
                       delegate:(id<HippyRootViewDelegate>)delegate;
 
-/// The delegate of hippyRootView.
-@property (nonatomic, weak) id<HippyRootViewDelegate> delegate;
 
-/// The name of the JavaScript module to execute within the
-/// specified scriptURL (required). Setting this will not have
-/// any immediate effect, but it must be done prior to loading the script.
-@property (nonatomic, copy, readonly) NSString *moduleName;
-
-/// The bridge used by the root view. Bridges can be shared between multiple
-/// root views, so you can use this property to initialize another HippyRootView.
-@property (nonatomic, strong, readonly) HippyBridge *bridge;
-
-/// The properties to apply to the view. Use this property to update
-/// application properties and rerender the view. Initialized with
-/// initialProperties argument of the initializer.
-/// Set this property only on the main thread.
-@property (nonatomic, copy, readwrite) NSDictionary *appProperties;
-
-/// The backing view controller of the root view.
-@property (nonatomic, weak) UIViewController *hippyViewController;
-
-
-/// Run Hippy
-///
+/// Run Hippy!
 /// This is the Hippy program entry.
 ///
+/// Note: If init with businessURL, not need to call this method again.
 - (void)runHippyApplication;
 
 

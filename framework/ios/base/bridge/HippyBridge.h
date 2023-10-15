@@ -81,15 +81,17 @@ HIPPY_EXTERN NSString *const HippyDidInitializeModuleNotification;
  */
 HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
-/**
- * Async batched bridge used to communicate with the JavaScript application.
- */
+
+
+/// Async bridge used to communicate with the JavaScript application.
 @interface HippyBridge : NSObject <HippyInvalidating>
 
+/// The bridge delegate
 @property (nonatomic, weak, readonly) id<HippyBridgeDelegate> delegate;
 
+/// SDK launch config
+/// TODO: 优化 launchOptions 参数
 @property (nonatomic, copy, readonly) NSDictionary *launchOptions;
-
 
 
 /// Create A HippyBridge instance, without load/execute any js bundle.
@@ -159,6 +161,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)loadBundleURL:(NSURL *)bundleURL
            completion:(void (^_Nullable)(NSURL * _Nullable, NSError * _Nullable))completion;
 
+
 @property(nonatomic, assign)std::weak_ptr<VFSUriLoader> VFSUriLoader;
 
 /**
@@ -213,11 +216,13 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 - (void)handleBuffer:(id _Nullable)buffer batchEnded:(BOOL)batchEnded;
 
+
+/// <#Description#>
+/// - Parameter isInspectable: <#isInspectable description#>
 - (void)setInspectable:(BOOL)isInspectable;
 
-/**
- * All registered bridge module classes.
- */
+
+/// All registered bridge module classes.
 @property (nonatomic, copy, readonly) NSArray<Class> *moduleClasses;
 
 - (NSString *)moduleConfig;
@@ -302,7 +307,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 
 
-- (void)setRootView:(HippyRootView *)rootView;
+- (void)setRootView:(UIView *)rootView;
 
 - (void)resetRootSize:(CGSize)size;
 
@@ -318,18 +323,6 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 /// - Parameter rootViewTag: rootView's hippyTag
 - (void)setOSNightMode:(BOOL)isOSNightMode withRootViewTag:(NSNumber *)rootViewTag;
 
-
-@end
-
-
-@interface HippyBridge (RedBoxDebug)
-
-/// The last current active bridge instance.
-+ (instancetype)currentBridge;
-
-/// Record the last active bridge instance.
-/// - Parameter currentBridge: bridge instance, pass nil to reset.
-+ (void)setCurrentBridge:(nullable HippyBridge *)currentBridge;
 
 @end
 

@@ -179,11 +179,9 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     NSMutableDictionary<NSString *, id> *_viewManagers;
     NSArray<Class> *_extraComponents;
     
-    std::weak_ptr<VFSUriLoader> _VFSUriLoader;
     NSMutableArray<Class<HippyImageProviderProtocol>> *_imageProviders;
     
     std::function<void(int32_t, NSDictionary *)> _rootViewSizeChangedCb;
-    std::weak_ptr<hippy::RenderManager> _renderManager;
 }
 
 @end
@@ -1474,14 +1472,6 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         }
     }];
     return tmpProps;
-}
-
-- (void)setVFSUriLoader:(std::weak_ptr<VFSUriLoader>)loader {
-    _VFSUriLoader = loader;
-}
-
-- (std::weak_ptr<VFSUriLoader>)VFSUriLoader {
-    return _VFSUriLoader;
 }
 
 - (void)setRootViewSizeChangedEvent:(std::function<void(int32_t rootTag, NSDictionary *)>)cb {

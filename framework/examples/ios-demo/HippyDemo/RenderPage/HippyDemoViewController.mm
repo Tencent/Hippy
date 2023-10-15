@@ -42,7 +42,7 @@ static NSString *const engineKey = @"Demo";
     NSURL *_debugURL;
     
     HippyBridge *_hippyBridge;
-    UIView *_hippyRootView;
+    HippyRootView *_hippyRootView;
     BOOL _fromCache;
 }
 
@@ -82,6 +82,7 @@ static NSString *const engineKey = @"Demo";
 - (void)dealloc {
     [_hippyRootView removeObserver:self forKeyPath:@"frame"];
     [[HippyPageCacheManager defaultPageCacheManager] addPageCache:[self toPageCache]];
+    NSLog(@"%@ dealloc", self.class);
 }
 
 - (void)viewDidLoad {
@@ -132,12 +133,11 @@ static NSString *const engineKey = @"Demo";
     isSimulator = YES;
 #endif
     
+#if USE_NEW_LOAD
     HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:hippyBridge
                                                          moduleName:@"Demo"
                                                   initialProperties:@{@"isSimulator": @(isSimulator)}
                                                            delegate:self];
-    rootView.frame = self.contentAreaView.bounds;
-    rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     
     if (_isDebugMode) {
         hippyBridge.sandboxDirectory = [_debugURL URLByDeletingLastPathComponent];
@@ -156,6 +156,35 @@ static NSString *const engineKey = @"Demo";
             [rootView runHippyApplication];
         }];
     }
+    
+#else
+    HippyRootView *rootView = nil;
+    
+    if (_isDebugMode) {
+        hippyBridge.sandboxDirectory = [_debugURL URLByDeletingLastPathComponent];
+        rootView = [[HippyRootView alloc] initWithBridge:hippyBridge
+                                             businessURL:_debugURL
+                                              moduleName:@"Demo"
+                                       initialProperties:@{@"isSimulator": @(isSimulator)}
+                                                delegate:self];
+    } else {
+        NSURL *vendorBundleURL = [self vendorBundleURL];
+        NSURL *indexBundleURL = [self indexBundleURL];
+        [hippyBridge loadBundleURL:vendorBundleURL completion:^(NSURL * _Nullable, NSError * _Nullable) {
+            NSLog(@"url %@ load finish", vendorBundleURL);
+        }];
+        hippyBridge.sandboxDirectory = [indexBundleURL URLByDeletingLastPathComponent];
+        rootView = [[HippyRootView alloc] initWithBridge:hippyBridge
+                                             businessURL:indexBundleURL
+                                              moduleName:@"Demo"
+                                       initialProperties:@{@"isSimulator": @(isSimulator)}
+                                                delegate:self];
+    }
+    
+#endif
+    
+    rootView.frame = self.contentAreaView.bounds;
+    rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     
     [self.contentAreaView addSubview:rootView];
     if (_hippyRootView) {

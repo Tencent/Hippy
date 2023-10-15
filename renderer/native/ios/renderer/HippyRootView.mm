@@ -30,6 +30,7 @@
 #import "HippyDeviceBaseInfo.h"
 #include <objc/runtime.h>
 
+
 NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotification";
 NSString *const HippySecondaryBundleDidLoadNotification = @"HippySecondaryBundleDidLoadNotification";
 
@@ -42,11 +43,25 @@ NSNumber *AllocRootViewTag(void) {
 }
 
 
+@interface HippyRootContentView : HippyView <HippyInvalidating>
+
+@property (nonatomic, readonly) BOOL contentHasAppeared;
+//@property (nonatomic, strong) HippyTouchHandler *touchHandler;
+@property (nonatomic, assign) int64_t startTimpStamp;
+
+- (instancetype)initWithFrame:(CGRect)frame
+                       bridge:(HippyBridge *)bridge
+                     hippyTag:(NSNumber *)hippyTag
+               sizeFlexiblity:(HippyRootViewSizeFlexibility)sizeFlexibility NS_DESIGNATED_INITIALIZER;
+
+@end
+
 
 @interface HippyRootView () {
     BOOL _contentHasAppeared;
 }
 
+@property (nonatomic, strong) HippyRootContentView *contentView;
 @property (nonatomic, strong) NSDictionary *shareOptions;
 
 @end
@@ -69,13 +84,13 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
         self.backgroundColor = [UIColor clearColor];
         
         _bridge = bridge;
-        if (nil == _bridge.moduleName) {
+        if (!_bridge.moduleName) {
             _bridge.moduleName = moduleName;
         }
         _moduleName = moduleName;
         _appProperties = [initialProperties copy];
         _delegate = delegate;
-        self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+
         
 //        [[NSNotificationCenter defaultCenter] addObserver:self
 //                                                 selector:@selector(javaScriptDidLoad:)
@@ -134,21 +149,39 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 - (void)dealloc {
+    [_contentView invalidate];
     if ([_delegate respondsToSelector:@selector(rootViewWillBePurged:)]) {
         [_delegate rootViewWillBePurged:self];
     }
+    [_bridge unloadInstanceForRootView:self.hippyTag];
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyRootView dealloc %p", self);
 }
 
+- (void)contentViewInvalidated {
+    [_contentView removeFromSuperview];
+    _contentView = nil;
+}
+
+
 - (void)runHippyApplication {
     // [_bridge.performanceLogger markStartForTag:HippyPLRunApplication];
-    
+
     __weak __typeof(self)weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         __strong __typeof(weakSelf)strongSelf = weakSelf;
+        
+        [strongSelf.contentView removeFromSuperview];
+        // todo: ContentRootView sizeFlexibility feature
+        HippyRootContentView *contentView = [[HippyRootContentView alloc] initWithFrame:strongSelf.bounds
+                                                                                 bridge:strongSelf.bridge
+                                                                               hippyTag:strongSelf.hippyTag
+                                                                         sizeFlexiblity:HippyRootViewSizeFlexibilityWidthAndHeight];
+        
         // 注册RootView
-        [strongSelf.bridge setRootView:strongSelf];
+        [strongSelf.bridge setRootView:contentView];
         [strongSelf.bridge loadInstanceForRootView:strongSelf.hippyTag withProperties:strongSelf.appProperties];
+        strongSelf.contentView = contentView;
+        [strongSelf insertSubview:contentView atIndex:0];
         HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", strongSelf.moduleName, strongSelf.appProperties);
     });
 }
@@ -191,27 +224,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     }
 }
 
-
-#pragma mark - HippyComponent Method
-
-- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
-    [super insertHippySubview:subview atIndex:atIndex];
-    // [_bridge.performanceLogger markStopForTag:HippyPLTTI];
-    
-    __weak __typeof(self)weakSelf = self;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        __strong __typeof(weakSelf)strongSelf = weakSelf;
-        if (strongSelf && !strongSelf->_contentHasAppeared) {
-            strongSelf->_contentHasAppeared = YES;
-            // int64_t cost = [strongSelf.bridge.performanceLogger durationForTag:HippyPLTTI];
-            [[NSNotificationCenter defaultCenter] postNotificationName:HippyContentDidAppearNotification
-                                                                object:self userInfo:@{
-                // @"cost": @(cost)
-            }];
-        }
-    });
-}
-
 - (void)setAppProperties:(NSDictionary *)appProperties {
     HippyAssertMainQueue();
     
@@ -249,5 +261,77 @@ static NSString *const HippyHostControllerSizeKeyNewSize = @"NewSize";
                                                       object:self
                                                     userInfo:@{HippyHostControllerSizeKeyNewSize : @(size)}];
 }
+
+@end
+
+
+
+#pragma mark - HippyRootContentView
+
+@implementation HippyRootContentView {
+    __weak HippyBridge *_bridge;
+    UIColor *_backgroundColor;
+}
+
+- (instancetype)initWithFrame:(CGRect)frame
+                       bridge:(HippyBridge *)bridge
+                     hippyTag:(NSNumber *)hippyTag
+               sizeFlexiblity:(HippyRootViewSizeFlexibility)sizeFlexibility {
+    if ((self = [super initWithFrame:frame])) {
+        _bridge = bridge;
+        self.hippyTag = hippyTag;
+        
+        // FIXME: HippyTouchHandler
+//        _touchHandler = [[HippyTouchHandler alloc] initWithRootView:self bridge:bridge];
+//        [self addGestureRecognizer:_touchHandler];
+
+        self.layer.backgroundColor = NULL;
+        _startTimpStamp = CACurrentMediaTime() * 1000;
+    }
+    return self;
+}
+
+HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
+HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder)
+
+
+// FIXME: check
+//- (void)setFrame:(CGRect)frame {
+//    CGRect originFrame = self.frame;
+//    if (!CGRectEqualToRect(originFrame, frame)) {
+//        super.frame = frame;
+//        if (self.hippyTag && _bridge.isValid) {
+//            [_bridge.uiManager setFrame:frame fromOriginFrame:originFrame forView:self];
+//        }
+//    }
+//}
+
+#pragma mark - HippyComponent Method
+
+- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
+    [super insertHippySubview:subview atIndex:atIndex];
+    // [_bridge.performanceLogger markStopForTag:HippyPLTTI];
+    
+    __weak __typeof(self)weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        __strong __typeof(weakSelf)strongSelf = weakSelf;
+        if (strongSelf && !strongSelf->_contentHasAppeared) {
+            strongSelf->_contentHasAppeared = YES;
+            // int64_t cost = [strongSelf.bridge.performanceLogger durationForTag:HippyPLTTI];
+            [[NSNotificationCenter defaultCenter] postNotificationName:HippyContentDidAppearNotification
+                                                                object:self userInfo:@{
+                // @"cost": @(cost)
+            }];
+        }
+    });
+}
+
+- (void)invalidate {
+    if (self.userInteractionEnabled) {
+        self.userInteractionEnabled = NO;
+        [(HippyRootView *)self.superview contentViewInvalidated];
+    }
+}
+
 
 @end

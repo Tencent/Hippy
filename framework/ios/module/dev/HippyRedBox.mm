@@ -24,7 +24,7 @@
 #import "HippyErrorInfo.h"
 #import "HippyRedBox.h"
 #import "HippyUtils.h"
-
+#import "HippyWeakProxy.h"
 #import "HippyAsserts.h"
 #import "HippyConvert.h"
 #import "HippyJSStackFrame.h"
@@ -428,13 +428,35 @@ openStackFrameInEditor:(HippyJSStackFrame *)stackFrame {
 
 @end
 
+
+#pragma mark -
+
+
 @implementation HippyBridge (HippyRedBox)
 
 - (HippyRedBox *)redBox {
     return [self moduleForClass:[HippyRedBox class]];
 }
 
+static HippyWeakProxy *HippyCurrentBridgeInstance = nil;
+
+/**
+ * The last current active bridge instance. This is set automatically whenever
+ * the bridge is accessed. It can be useful for static functions or singletons
+ * that need to access the bridge for purposes such as logging, but should not
+ * be relied upon to return any particular instance, due to race conditions.
+ */
++ (instancetype)currentBridge {
+    return (id)HippyCurrentBridgeInstance;
+}
+
++ (void)setCurrentBridge:(nullable HippyBridge *)currentBridge {
+    HippyCurrentBridgeInstance = [HippyWeakProxy weakProxyForObject:currentBridge];
+}
+
+
 @end
+
 
 #else  // Disabled
 

@@ -21,6 +21,7 @@
 */
 
 #import "HippyPageCache.h"
+#import <hippy/HippyRootView.h>
 
 @implementation HippyPageCache
 
