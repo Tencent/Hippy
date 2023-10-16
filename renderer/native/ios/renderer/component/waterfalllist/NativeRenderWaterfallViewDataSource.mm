@@ -367,20 +367,19 @@ static NSArray<NSIndexPath *> *IndexPathForIndexSet(NSUInteger section, NSIndexS
     }];
     BOOL success = YES;
     if ([batchUpdate count]) {
-        [UIView setAnimationsEnabled:NO];
+        [CATransaction begin];
+        [CATransaction setDisableActions:YES];
         @try {
             [view performBatchUpdates:^{
                 for (NSInvocation *invocation in batchUpdate) {
                     [invocation invoke];
                 }
-            } completion:^(BOOL finished) {
-                [UIView setAnimationsEnabled:YES];
-            }];
+            } completion:nil];
         } @catch (NSException *exception) {
-            success = NO;
             [view reloadData];
-            [UIView setAnimationsEnabled:YES];
+            success = NO;
         }
+        [CATransaction commit];
     }
     completion(success);
 }

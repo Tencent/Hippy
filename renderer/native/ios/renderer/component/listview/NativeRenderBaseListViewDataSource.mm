@@ -210,20 +210,19 @@
 
     BOOL success = YES;
     if ([batchUpdate count]) {
-        [UIView setAnimationsEnabled:NO];
+        [CATransaction begin];
+        [CATransaction setDisableActions:YES];
         @try {
             [view performBatchUpdates:^{
                 for (NSInvocation *invocation in batchUpdate) {
                     [invocation invoke];
                 }
-            } completion:^(BOOL finished) {
-                [UIView setAnimationsEnabled:YES];
-            }];
+            } completion:nil];
         } @catch (NSException *exception) {
             [view reloadData];
             success = NO;
-            [UIView setAnimationsEnabled:YES];
         }
+        [CATransaction commit];
     }
     completion(success);
 }
