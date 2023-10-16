@@ -76,7 +76,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
                     moduleName:(NSString *)moduleName
              initialProperties:(NSDictionary *)initialProperties
                       delegate:(id<HippyRootViewDelegate>)delegate {
-    HippyAssertMainQueue();
+    //HippyAssertMainQueue();
     HippyAssert(bridge, @"A bridge instance is required to create an HippyRootView");
     HippyAssert(moduleName, @"A moduleName is required to create an HippyRootView");
     
@@ -90,12 +90,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
         _moduleName = moduleName;
         _appProperties = [initialProperties copy];
         _delegate = delegate;
-
+        self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         
-//        [[NSNotificationCenter defaultCenter] addObserver:self
-//                                                 selector:@selector(javaScriptDidLoad:)
-//                                                     name:HippyJavaScriptDidLoadNotification
-//                                                   object:_bridge];
+        //        [[NSNotificationCenter defaultCenter] addObserver:self
+        //                                                 selector:@selector(javaScriptDidLoad:)
+        //                                                     name:HippyJavaScriptDidLoadNotification
+        //                                                   object:_bridge];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(javaScriptDidFailToLoad:)
@@ -165,7 +165,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 - (void)runHippyApplication {
     // [_bridge.performanceLogger markStartForTag:HippyPLRunApplication];
-
+    
     __weak __typeof(self)weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         __strong __typeof(weakSelf)strongSelf = weakSelf;
@@ -195,7 +195,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 - (void)cancelTouches {
-//    [[_contentView touchHandler] cancelTouch];
+    //    [[_contentView touchHandler] cancelTouch];
 }
 
 - (NSNumber *)hippyTag {
@@ -224,6 +224,13 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     }
 }
 
+#pragma mark -
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    _contentView.frame = self.bounds;
+}
+
 - (void)setAppProperties:(NSDictionary *)appProperties {
     HippyAssertMainQueue();
     
@@ -239,7 +246,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 
-#pragma mark -
+#pragma mark - App UI State Related
 
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
     [super traitCollectionDidChange:previousTraitCollection];
@@ -282,9 +289,9 @@ static NSString *const HippyHostControllerSizeKeyNewSize = @"NewSize";
         self.hippyTag = hippyTag;
         
         // FIXME: HippyTouchHandler
-//        _touchHandler = [[HippyTouchHandler alloc] initWithRootView:self bridge:bridge];
-//        [self addGestureRecognizer:_touchHandler];
-
+        //        _touchHandler = [[HippyTouchHandler alloc] initWithRootView:self bridge:bridge];
+        //        [self addGestureRecognizer:_touchHandler];
+        
         self.layer.backgroundColor = NULL;
         _startTimpStamp = CACurrentMediaTime() * 1000;
     }

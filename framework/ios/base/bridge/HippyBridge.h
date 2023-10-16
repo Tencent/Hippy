@@ -28,12 +28,16 @@
 #import "HippyImageProviderProtocol.h"
 #import "HippyInvalidating.h"
 #import "HippyDefines.h"
+
+#ifdef __cplusplus
 #include <memory>
+#endif
 
 @class HippyJSExecutor;
 @class HippyModuleData;
 @class HippyRootView;
 
+#ifdef __cplusplus
 class VFSUriLoader;
 class NativeRenderManager;
 
@@ -44,6 +48,7 @@ class RootNode;
 class RenderManager;
 };
 };
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -161,8 +166,9 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)loadBundleURL:(NSURL *)bundleURL
            completion:(void (^_Nullable)(NSURL * _Nullable, NSError * _Nullable))completion;
 
-
+#ifdef __cplusplus
 @property(nonatomic, assign)std::weak_ptr<VFSUriLoader> VFSUriLoader;
+#endif
 
 /**
  * Image provider method
@@ -171,6 +177,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls;
 - (NSArray<Class<HippyImageProviderProtocol>> *)imageProviderClasses;
 
+#ifdef __cplusplus
 /**
  * Set basic configuration for native render
  * @param domManager DomManager
@@ -178,6 +185,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 - (void)setupDomManager:(std::shared_ptr<hippy::DomManager>)domManager
                rootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
+#endif
 
 /**
  *  Load instance for root view and show views
@@ -198,8 +206,10 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 @property (nonatomic, readonly) HippyJSExecutor *javaScriptExecutor;
 
 
+#ifdef __cplusplus
 /// The C++ version of RenderManager instance, bridge holds
 @property (nonatomic, assign) std::shared_ptr<NativeRenderManager> renderManager;
+#endif
 
 
 /**

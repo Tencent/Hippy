@@ -125,8 +125,3 @@
 @property (nonatomic, strong) NSDictionary *props;
 @end
 
-@interface HippyViewManager (UIManager)
-
-@property (nonatomic, strong) HippyUIManager *uiManager;
-
-@end
