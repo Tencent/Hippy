@@ -18,7 +18,6 @@ package com.tencent.mtt.hippy.views.textinput;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Looper;
@@ -38,7 +37,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import androidx.annotation.NonNull;
 
-import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
@@ -47,7 +45,6 @@ import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
-import com.tencent.mtt.hippy.views.hippypager.HippyPager;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.NativeRendererManager;
@@ -348,13 +345,23 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     }
 
     @HippyControllerProps(name = "focus", defaultType = HippyControllerProps.BOOLEAN)
-    public void setOnFocus(HippyTextInput hippyTextInput, boolean change) {
-        hippyTextInput.setBlurOrOnFocus(change);
+    public void setOnFocus(HippyTextInput hippyTextInput, boolean enable) {
+        hippyTextInput.setEventListener(enable, HippyTextInput.EVENT_FOCUS);
     }
 
     @HippyControllerProps(name = "blur", defaultType = HippyControllerProps.BOOLEAN)
-    public void setBlur(HippyTextInput hippyTextInput, boolean change) {
-        hippyTextInput.setBlurOrOnFocus(change);
+    public void setBlur(HippyTextInput hippyTextInput, boolean enable) {
+        hippyTextInput.setEventListener(enable, HippyTextInput.EVENT_BLUR);
+    }
+
+    @HippyControllerProps(name = "keyboardwillshow", defaultType = HippyControllerProps.BOOLEAN)
+    public void setOnKeyboardWillShow(HippyTextInput hippyTextInput, boolean enable) {
+        hippyTextInput.setEventListener(enable, HippyTextInput.EVENT_KEYBOARD_SHOW);
+    }
+
+    @HippyControllerProps(name = "keyboardwillhide", defaultType = HippyControllerProps.BOOLEAN)
+    public void setOnKeyboardWillHide(HippyTextInput hippyTextInput, boolean enable) {
+        hippyTextInput.setEventListener(enable, HippyTextInput.EVENT_KEYBOARD_HIDE);
     }
 
     @HippyControllerProps(name = "contentSizeChange", defaultType = HippyControllerProps.BOOLEAN)
