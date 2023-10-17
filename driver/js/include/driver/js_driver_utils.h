@@ -53,8 +53,8 @@ class JsDriverUtils {
                            const string_view& global_config,
                            std::function<void(std::shared_ptr<Scope>)>&& scope_initialized_callback,
                            const JsCallback& call_host_callback);
-  static void DestroyInstance(const std::shared_ptr<Engine>& engine,
-                              const std::shared_ptr<Scope>& scope,
+  static void DestroyInstance(std::shared_ptr<Engine>&& engine,
+                              std::shared_ptr<Scope>&& scope,
                               const std::function<void(bool)>& callback,
                               bool is_reload);
   static bool RunScript(const std::shared_ptr<Scope>& scope,
