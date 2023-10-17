@@ -251,41 +251,47 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
     return;
   }
 
-  auto& root_map = RootNode::PersistentMap();
-  std::shared_ptr<RootNode> root_node;
   uint32_t root_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_root_id);
-  ret = root_map.Find(root_id, root_node);
-  if (!ret) {
-    FOOTSTONE_DLOG(WARNING) << "DoCallBack root_node is nullptr";
-    return;
-  }
-
-  auto node = dom_manager->GetNode(root_node,
-                                   footstone::check::checked_numeric_cast<jlong, uint32_t>(j_node_id));
-  if (node == nullptr) {
-    FOOTSTONE_DLOG(WARNING) << "DoCallBack DomNode not found for id: " << j_node_id;
-    return;
-  }
-
+  uint32_t node_id = footstone::check::checked_numeric_cast<jlong, uint32_t>(j_node_id);
+  uint32_t cb_id = footstone::check::checked_numeric_cast<jlong, uint32_t>(j_cb_id);
   jboolean is_copy = JNI_TRUE;
-  const char* func_name = j_env->GetStringUTFChars(j_func_name, &is_copy);
-  auto callback = node->GetCallback(func_name,
-                                    footstone::check::checked_numeric_cast<jlong, uint32_t>(j_cb_id));
-  if (callback == nullptr) {
-    FOOTSTONE_DLOG(WARNING) << "DoCallBack Callback not found for func_name: " << func_name;
-    return;
-  }
+  const char* c = j_env->GetStringUTFChars(j_func_name, &is_copy);
+  std::string func_name(c);
 
   std::shared_ptr<HippyValue> params = std::make_shared<HippyValue>();
   if (j_buffer != nullptr && j_length > 0) {
     jbyte params_buffer[j_length];
     j_env->GetByteArrayRegion(j_buffer, j_offset, j_length, params_buffer);
     footstone::value::Deserializer deserializer((const uint8_t*) params_buffer,
-                                         footstone::check::checked_numeric_cast<jlong, size_t>(j_length));
+                                        footstone::check::checked_numeric_cast<jlong, size_t>(j_length));
     deserializer.ReadHeader();
     deserializer.ReadValue(*params);
   }
-  callback(std::make_shared<DomArgument>(*params));
+
+  std::vector<std::function<void()>> ops = {[root_id, node_id, cb_id, func_name, dom_manager, params]{
+    auto& root_map = RootNode::PersistentMap();
+    std::shared_ptr<RootNode> root_node;
+    bool ret = root_map.Find(root_id, root_node);
+    if (!ret) {
+      FOOTSTONE_DLOG(WARNING) << "DoCallBack root_node is nullptr";
+      return;
+    }
+
+    auto node = dom_manager->GetNode(root_node, node_id);
+    if (node == nullptr) {
+      FOOTSTONE_DLOG(WARNING) << "DoCallBack DomNode not found for id: " << node_id;
+      return;
+    }
+
+    auto callback = node->GetCallback(func_name, cb_id);
+    if (callback == nullptr) {
+      FOOTSTONE_DLOG(WARNING) << "DoCallBack Callback not found for func_name: " << func_name;
+      return;
+    }
+
+    callback(std::make_shared<DomArgument>(*params));
+  }};
+  dom_manager->PostTask(Scene(std::move(ops)));
 }
 
 void OnReceivedEvent(JNIEnv* j_env, jobject j_object, jint j_render_manager_id, jint j_root_id, jint j_dom_id, jstring j_event_name,
