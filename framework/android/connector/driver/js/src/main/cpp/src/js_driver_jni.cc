@@ -51,6 +51,8 @@
 #include "vfs/uri.h"
 #include "vfs/vfs_resource_holder.h"
 
+#include <unistd.h>
+
 #ifdef JS_V8
 #include "driver/vm/v8/v8_vm.h"
 #endif
@@ -368,14 +370,13 @@ void DestroyJsDriver(__unused JNIEnv* j_env,
   auto scope_id = footstone::checked_numeric_cast<jint, uint32_t>(j_scope_id);
   auto flag = hippy::global_data_holder.Erase(scope_id);
   FOOTSTONE_CHECK(flag);
-  JsDriverUtils::DestroyInstance(engine, scope, [bridge_callback_object](bool ret) {
+  JsDriverUtils::DestroyInstance(std::move(engine), std::move(scope), [bridge_callback_object](bool ret) {
       if (ret) {
         hippy::bridge::CallJavaMethod(bridge_callback_object->GetObj(),INIT_CB_STATE::SUCCESS);
       } else {
         hippy::bridge::CallJavaMethod(bridge_callback_object->GetObj(),INIT_CB_STATE::DESTROY_ERROR);
       }
     }, static_cast<bool>(j_is_reload));
-  scope = nullptr;
 }
 
 void LoadInstance(JNIEnv* j_env,
