@@ -19,6 +19,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+# if defined(__OBJC__)
 
 #import <Foundation/Foundation.h>
 #import "HippyDefines.h"
@@ -134,3 +135,4 @@ HIPPY_EXTERN void HippyPerformBlockWithLogPrefix(void (^block)(void), NSString *
 
 HIPPY_EXTERN void HippyLogNativeInternal(HippyLogLevel, const char *, int, NSString *, ...) NS_FORMAT_FUNCTION(4, 5);
 
+#endif // defined(__OBJC__)

@@ -20,6 +20,8 @@
 
 #pragma once
 
+#if defined(__cplusplus)
+
 #include <cassert>
 #include <codecvt>
 #include <mutex>
@@ -105,7 +107,29 @@ class LogMessage {
     }
     delegate_ = delegate;
   }
-
+  inline static void LogWithFormat(const char * file, int line, const char *format, ...){
+    char *log_msg = NULL;
+    va_list args;
+    va_start(args, format);
+    int ret = vasprintf(&log_msg, format, args);
+    va_end(args);
+    
+    if (ret <= 0 && log_msg == NULL) {
+        return;
+    }
+    
+    std::ostringstream s;
+    s<<"thread:"<<pthread_self()<<", "<<log_msg<<std::endl;
+    
+    if (LogMessage::delegate_) {
+      delegate_(s, TDF_LOG_WARNING);
+    } else {
+      default_delegate_(s, TDF_LOG_WARNING);
+    }
+    
+    free(log_msg);
+  }
+    
   std::ostringstream& stream() { return stream_; }
 
  private:
@@ -186,3 +210,19 @@ bool ShouldCreateLogMessage(LogSeverity severity);
   do {                      \
     (void)(expr);           \
   } while (0)
+
+#endif
+
+inline void HPDoPerfLog( const char* file, int line, const char *format, ...){
+    va_list args;
+    va_start(args, format);
+    footstone::LogMessage::LogWithFormat(file, line, format, args);
+    va_end(args);
+}
+
+void HPDoPerfLog( const char *, int, const char *format, ...);
+#define HP_PERF_LOG(format, ...) \
+  HPDoPerfLog(__FILE_NAME__, __LINE__, "[HP PERF]"                      \
+        " " format,                                    \
+         ##__VA_ARGS__)
+

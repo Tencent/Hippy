@@ -67,9 +67,12 @@ void RootNode::RemoveEventListener(const std::string& name, uint64_t listener_id
 void RootNode::ReleaseResources() {}
 
 void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
+    HP_PERF_LOG("CreateDomNodes Begin");
+
   for (const auto& interceptor : interceptors_) {
     interceptor->OnDomNodeCreate(nodes);
   }
+    HP_PERF_LOG("CreateDomNodes Interceptor callback done");
   std::vector<std::shared_ptr<DomNode>> nodes_to_create;
   for (const auto& node_info : nodes) {
     auto& node = node_info->dom_node;
@@ -85,6 +88,7 @@ void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
     node->HandleEvent(event);
     OnDomNodeCreated(node);
   }
+    HP_PERF_LOG("CreateDomNodes Nodes created and finished callback");
   for (const auto& node : nodes_to_create) {
     node->SetRenderInfo({node->GetId(), node->GetPid(), node->GetSelfIndex()});
   }
@@ -94,6 +98,7 @@ void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   if (!nodes_to_create.empty()) {
     dom_operations_.push_back({DomOperation::Op::kOpCreate, nodes_to_create});
   }
+    HP_PERF_LOG("CreateDomNodes End");
 }
 
 void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
@@ -272,14 +277,21 @@ void RootNode::CallFunction(uint32_t id, const std::string& name, const DomArgum
 }
 
 void RootNode::SyncWithRenderManager(const std::shared_ptr<RenderManager>& render_manager) {
+  HP_PERF_LOG("RootNode::SyncWithRenderManager");
+  unsigned long cnt = dom_operations_.size();
   FlushDomOperations(render_manager);
+  HP_PERF_LOG("RootNode::FlushDomOperations Done, dom op count:%lld", cnt);
+  cnt = event_operations_.size();
   FlushEventOperations(render_manager);
+  HP_PERF_LOG("RootNode::FlushEventOperations Done, event op count:%d",cnt);
   DoAndFlushLayout(render_manager);
+  HP_PERF_LOG("RootNode::DoAndFlushLayout Done");
   auto dom_manager = dom_manager_.lock();
   if (dom_manager) {
     dom_manager->RecordDomEndTimePoint();
   }
   render_manager->EndBatch(GetWeakSelf());
+  HP_PERF_LOG("RootNode::SyncWithRenderManager End");
 }
 
 void RootNode::AddEvent(uint32_t id, const std::string& event_name) {
@@ -422,6 +434,7 @@ void RootNode::DoAndFlushLayout(const std::shared_ptr<RenderManager>& render_man
 
 void RootNode::FlushDomOperations(const std::shared_ptr<RenderManager>& render_manager) {
   for (auto& dom_operation : dom_operations_) {
+    HP_PERF_LOG("RootNode::FlushDomOperations dom_operation.op cnt:%lld", dom_operation.nodes.size());
     MarkLayoutNodeDirty(dom_operation.nodes);
     switch (dom_operation.op) {
       case DomOperation::Op::kOpCreate:
