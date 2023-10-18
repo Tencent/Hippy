@@ -59,6 +59,7 @@ constexpr char kNodePropertyProps[] = "props";
 constexpr char kNodePropertyStyle[] = "style";
 constexpr char kNodePropertyRefId[] = "refId";
 constexpr char kNodePropertyRelativeToRef[] = "relativeToRef";
+constexpr char KNodePropertySkipStyleDiff[] = "skipStyleDiff";
 constexpr char kEventCapture[] = "capture";
 
 const int32_t kInvalidValue = -1;
@@ -322,6 +323,7 @@ std::tuple<bool, std::string, std::shared_ptr<DomInfo>> CreateDomInfo(
   std::shared_ptr<DomInfo> dom_info = nullptr;
   std::shared_ptr<DomNode> dom_node = nullptr;
   std::shared_ptr<RefInfo> ref_info = nullptr;
+  std::shared_ptr<DiffInfo> diff_info = nullptr;
   uint32_t len = context->GetArrayLength(node);
   if (len > 0) {
     auto dom_node_tuple =
@@ -330,17 +332,26 @@ std::tuple<bool, std::string, std::shared_ptr<DomInfo>> CreateDomInfo(
       return std::make_tuple(false, "get dom node info error.", dom_info);
     }
     dom_node = std::get<2>(dom_node_tuple);
-    if (len == 2) {
+    if (len > 1) {
       auto ref_info_tuple =
           CreateRefInfo(context, context->CopyArrayElement(node, 1), scope);
       if (std::get<0>(ref_info_tuple)) {
         ref_info = std::get<2>(ref_info_tuple);
       }
     }
+    if (len == 3) {
+      auto diff = context->CopyArrayElement(node, 2);
+      std::shared_ptr<CtxValue> style_diff  = context->GetProperty(diff, KNodePropertySkipStyleDiff);
+      if (style_diff) {
+          bool skip_style_diff;
+          context->GetValueBoolean(style_diff, &skip_style_diff);
+          diff_info = std::make_shared<hippy::dom::DiffInfo>(skip_style_diff);
+      }
+    }
   } else {
     return std::make_tuple(false, "dom info length error.", dom_info);
   }
-  dom_info = std::make_shared<DomInfo>(dom_node, ref_info);
+  dom_info = std::make_shared<DomInfo>(dom_node, ref_info, diff_info);
   return std::make_tuple(true, "", dom_info);
 }
 
@@ -484,7 +495,8 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
                   std::get<2>(id_tuple),
                   std::get<2>(pid_tuple),
                   scope->GetRootNode()),
-              std::get<2>(ref_info_tuple)));
+              std::get<2>(ref_info_tuple),
+              nullptr));
         }
       }
     }
@@ -528,7 +540,7 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
                 std::get<2>(id_tuple),
                 std::get<2>(pid_tuple),
                 scope->GetRootNode()),
-            nullptr));
+            nullptr, nullptr));
       }
     }
     SceneBuilder::Delete(scope->GetDomManager(), scope->GetRootNode(), std::move(dom_infos));

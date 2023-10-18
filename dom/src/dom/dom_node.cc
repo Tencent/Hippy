@@ -494,8 +494,8 @@ void DomNode::UpdateDiff(const std::unordered_map<std::string,
                                                   std::shared_ptr<HippyValue>>& update_style,
                          const std::unordered_map<std::string,
                                                   std::shared_ptr<HippyValue>>& update_dom_ext) {
-  auto style_diff_value = DiffUtils::DiffProps(*this->GetStyleMap(), update_style);
-  auto ext_diff_value = DiffUtils::DiffProps(*this->GetExtStyle(), update_dom_ext);
+  auto style_diff_value = DiffUtils::DiffProps(*this->GetStyleMap(), update_style, false);
+  auto ext_diff_value = DiffUtils::DiffProps(*this->GetExtStyle(), update_dom_ext, false);
   auto style_update = std::get<0>(style_diff_value);
   auto ext_update = std::get<0>(ext_diff_value);
   std::shared_ptr<DomValueMap> diff_value = std::make_shared<DomValueMap>();

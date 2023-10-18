@@ -53,7 +53,7 @@ class DiffUtils {
    *   k: 11,
    * }
    */
-  static DiffValue DiffProps(const DomValueMap& old_props_map, const DomValueMap& new_props_map);
+  static DiffValue DiffProps(const DomValueMap& old_props_map, const DomValueMap& new_props_map, bool skip_style_diff);
 };
 }  // namespace dom
 }  // namespace hippy
