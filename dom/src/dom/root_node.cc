@@ -146,9 +146,13 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
     if (dom_node == nullptr) {
       continue;
     }
+    auto skip_style_diff = false;
+    if (node_info->diff_info != nullptr) {
+      skip_style_diff = node_info->diff_info->skip_style_diff;
+    }
     // diff props
-    auto style_diff_value = DiffUtils::DiffProps(*dom_node->GetStyleMap(), *node_info->dom_node->GetStyleMap());
-    auto ext_diff_value = DiffUtils::DiffProps(*dom_node->GetExtStyle(), *node_info->dom_node->GetExtStyle());
+    auto style_diff_value = DiffUtils::DiffProps(*dom_node->GetStyleMap(), *node_info->dom_node->GetStyleMap(), skip_style_diff);
+    auto ext_diff_value = DiffUtils::DiffProps(*dom_node->GetExtStyle(), *node_info->dom_node->GetExtStyle(), false);
     auto style_update = std::get<0>(style_diff_value);
     auto ext_update = std::get<0>(ext_diff_value);
     std::shared_ptr<DomValueMap> diff_value = std::make_shared<DomValueMap>();
@@ -210,7 +214,7 @@ void RootNode::MoveDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
       continue;
     }
     nodes_to_move.push_back(node);
-    parent_node->AddChildByRefInfo(std::make_shared<DomInfo>(node, node_info->ref_info));
+    parent_node->AddChildByRefInfo(std::make_shared<DomInfo>(node, node_info->ref_info, nullptr));
   }
   for (const auto& node : nodes_to_move) {
     node->SetRenderInfo({node->GetId(), node->GetPid(), node->GetSelfIndex()});

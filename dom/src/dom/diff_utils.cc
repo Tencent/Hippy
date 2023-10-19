@@ -69,9 +69,13 @@ static bool ShouldUpdateProperty(const std::string& key, const DomValueMap& old_
   return false;
 }
 
-DiffValue DiffUtils::DiffProps(const DomValueMap& old_props_map, const DomValueMap& new_props_map) {
+DiffValue DiffUtils::DiffProps(const DomValueMap& old_props_map, const DomValueMap& new_props_map, bool skip_style_diff) {
   std::shared_ptr<DomValueMap> update_props = std::make_shared<DomValueMap>();
   std::shared_ptr<std::vector<std::string>> delete_props = std::make_shared<std::vector<std::string>>();
+  if (skip_style_diff) {
+    // 跳过 style diff 计算
+    return std::make_tuple(update_props, delete_props);
+  }
 
   // delete props
   // Example:
