@@ -21,8 +21,8 @@
  */
 
 #import "HippyEventObserverModule.h"
-#import "HPInvalidating.h"
+#import "HippyInvalidating.h"
 
-@interface HippyNetInfo : HippyEventObserverModule <HPInvalidating>
+@interface HippyNetInfo : HippyEventObserverModule <HippyInvalidating>
 
 @end

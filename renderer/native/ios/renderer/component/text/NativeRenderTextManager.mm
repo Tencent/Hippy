@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -21,14 +21,14 @@
  */
 
 #import "NativeRenderTextManager.h"
-#import "HPConvert.h"
+#import "HippyConvert.h"
 #import "NativeRenderObjectText.h"
 #import "NativeRenderText.h"
 #import "NativeRenderTextView.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 
 static void collectDirtyNonTextDescendants(NativeRenderObjectText *renderObject, NSMutableArray *nonTextDescendants) {
-    for (NativeRenderObjectView *child in renderObject.subcomponents) {
+    for (HippyShadowView *child in renderObject.subcomponents) {
         if ([child isKindOfClass:[NativeRenderObjectText class]]) {
             collectDirtyNonTextDescendants((NativeRenderObjectText *)child, nonTextDescendants);
         } else if ([child isTextDirty]) {
@@ -44,48 +44,48 @@ static void collectDirtyNonTextDescendants(NativeRenderObjectText *renderObject,
 
 @implementation NativeRenderTextManager
 
-NATIVE_RENDER_EXPORT_VIEW(Text)
+HIPPY_EXPORT_MODULE(Text)
 
 - (UIView *)view {
     return [NativeRenderText new];
 }
 
-- (NativeRenderObjectView *)nativeRenderObjectView {
+- (HippyShadowView *)hippyShadowView {
     return [NativeRenderObjectText new];
 }
 
 #pragma mark - Shadow properties
 
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(color, UIColor)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(fontFamily, NSString)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(fontSize, CGFloat)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(fontWeight, NSString)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(fontStyle, NSString)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(fontVariant, NSArray)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(isHighlighted, BOOL)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(letterSpacing, CGFloat)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(lineHeightMultiple, CGFloat)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(lineSpacingMultiplier, CGFloat)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(lineHeight, CGFloat)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(numberOfLines, NSUInteger)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(ellipsizeMode, NSLineBreakMode)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(textAlign, NSTextAlignment)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(textDecorationStyle, NSUnderlineStyle)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(textDecorationColor, UIColor)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(textDecorationLine, NativeRenderTextDecorationLineType)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(allowFontScaling, BOOL)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(opacity, CGFloat)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(textShadowOffset, CGSize)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(textShadowRadius, CGFloat)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(textShadowColor, UIColor)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(adjustsFontSizeToFit, BOOL)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(minimumFontScale, CGFloat)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(text, NSString)
-NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(autoLetterSpacing, BOOL)
+HIPPY_EXPORT_SHADOW_PROPERTY(color, UIColor)
+HIPPY_EXPORT_SHADOW_PROPERTY(fontFamily, NSString)
+HIPPY_EXPORT_SHADOW_PROPERTY(fontSize, CGFloat)
+HIPPY_EXPORT_SHADOW_PROPERTY(fontWeight, NSString)
+HIPPY_EXPORT_SHADOW_PROPERTY(fontStyle, NSString)
+HIPPY_EXPORT_SHADOW_PROPERTY(fontVariant, NSArray)
+HIPPY_EXPORT_SHADOW_PROPERTY(isHighlighted, BOOL)
+HIPPY_EXPORT_SHADOW_PROPERTY(letterSpacing, CGFloat)
+HIPPY_EXPORT_SHADOW_PROPERTY(lineHeightMultiple, CGFloat)
+HIPPY_EXPORT_SHADOW_PROPERTY(lineSpacingMultiplier, CGFloat)
+HIPPY_EXPORT_SHADOW_PROPERTY(lineHeight, CGFloat)
+HIPPY_EXPORT_SHADOW_PROPERTY(numberOfLines, NSUInteger)
+HIPPY_EXPORT_SHADOW_PROPERTY(ellipsizeMode, NSLineBreakMode)
+HIPPY_EXPORT_SHADOW_PROPERTY(textAlign, NSTextAlignment)
+HIPPY_EXPORT_SHADOW_PROPERTY(textDecorationStyle, NSUnderlineStyle)
+HIPPY_EXPORT_SHADOW_PROPERTY(textDecorationColor, UIColor)
+HIPPY_EXPORT_SHADOW_PROPERTY(textDecorationLine, NativeRenderTextDecorationLineType)
+HIPPY_EXPORT_SHADOW_PROPERTY(allowFontScaling, BOOL)
+HIPPY_EXPORT_SHADOW_PROPERTY(opacity, CGFloat)
+HIPPY_EXPORT_SHADOW_PROPERTY(textShadowOffset, CGSize)
+HIPPY_EXPORT_SHADOW_PROPERTY(textShadowRadius, CGFloat)
+HIPPY_EXPORT_SHADOW_PROPERTY(textShadowColor, UIColor)
+HIPPY_EXPORT_SHADOW_PROPERTY(adjustsFontSizeToFit, BOOL)
+HIPPY_EXPORT_SHADOW_PROPERTY(minimumFontScale, CGFloat)
+HIPPY_EXPORT_SHADOW_PROPERTY(text, NSString)
+HIPPY_EXPORT_SHADOW_PROPERTY(autoLetterSpacing, BOOL)
 
-- (NativeRenderRenderUIBlock)uiBlockToAmendWithRenderObjectRegistry:(NSDictionary<NSNumber *, NativeRenderObjectView *> *)renderObjectRegistry {
-    for (NativeRenderObjectView *rootView in renderObjectRegistry.allValues) {
-        if (![rootView isNativeRenderRootView]) {
+- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)renderObjectRegistry {
+    for (HippyShadowView *rootView in renderObjectRegistry.allValues) {
+        if (![rootView isHippyRootView]) {
             // This isn't a root view
             continue;
         }
@@ -95,11 +95,11 @@ NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(autoLetterSpacing, BOOL)
             continue;
         }
 
-        NSMutableArray<NativeRenderObjectView *> *queue = [NSMutableArray arrayWithObject:rootView];
+        NSMutableArray<HippyShadowView *> *queue = [NSMutableArray arrayWithObject:rootView];
         for (NSInteger i = 0; i < queue.count; i++) {
-            NativeRenderObjectView *renderObject = queue[i];
+            HippyShadowView *renderObject = queue[i];
             if (!renderObject) {
-                HPLogWarn(@"renderObject is nil, please remain xcode state and call rainywan");
+                HippyLogWarn(@"renderObject is nil, please remain xcode state and call rainywan");
                 continue;
             }
 //            NSAssert([renderObject isTextDirty], @"Don't process any nodes that don't have dirty text");
@@ -109,7 +109,7 @@ NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(autoLetterSpacing, BOOL)
                 [(NativeRenderObjectText *)renderObject recomputeText];
                 collectDirtyNonTextDescendants((NativeRenderObjectText *)renderObject, queue);
             } else {
-                for (NativeRenderObjectView *child in [renderObject subcomponents]) {
+                for (HippyShadowView *child in [renderObject subcomponents]) {
                     if ([child isTextDirty]) {
                         [queue addObject:child];
                     }
@@ -123,11 +123,11 @@ NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(autoLetterSpacing, BOOL)
     return nil;
 }
 
-- (NativeRenderRenderUIBlock)uiBlockToAmendWithNativeRenderObjectView:(NativeRenderObjectText *)renderObjectText {
-    NSNumber *componentTag = renderObjectText.componentTag;
+- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowView:(NativeRenderObjectText *)renderObjectText {
+    NSNumber *componentTag = renderObjectText.hippyTag;
     UIEdgeInsets padding = renderObjectText.paddingAsInsets;
 
-    return ^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, NativeRenderText *> *viewRegistry) {
+    return ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, NativeRenderText *> *viewRegistry) {
         NativeRenderText *text = viewRegistry[componentTag];
         text.contentInset = padding;
     };

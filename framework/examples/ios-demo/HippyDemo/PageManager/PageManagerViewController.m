@@ -24,7 +24,7 @@
 #import "HippyPageCache.h"
 #import "PageCreationViewController.h"
 #import "HippyPageCacheContainerView.h"
-#import "NativeRenderViewController.h"
+#import "HippyDemoViewController.h"
 #import "UIViewController+Title.h"
 
 @interface PageManagerViewController () {
@@ -85,7 +85,7 @@
 }
 
 - (void)clickAction:(HippyPageCache *)pageCache {
-    NativeRenderViewController *vc = [[NativeRenderViewController alloc] initWithPageCache:pageCache];
+    HippyDemoViewController *vc = [[HippyDemoViewController alloc] initWithPageCache:pageCache];
     self.navigationItem.backButtonTitle = @" ";
     [self.navigationController pushViewController:vc animated:YES];
 }

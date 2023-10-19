@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -20,9 +20,9 @@
  * limitations under the License.
  */
 
-#import "HPAsserts.h"
-#import "HPToolUtils.h"
-#import "NativeRenderBorderDrawing.h"
+#import "HippyAsserts.h"
+#import "HippyUtils.h"
+#import "HippyBorderDrawing.h"
 #import "NativeRenderGradientObject.h"
 
 @interface NativeRenderGradientLocationParser () {
@@ -273,7 +273,7 @@ static LinearGradientPoints pointsFromDirection(NativeRenderGradientObject *obje
             for (NSUInteger i = 0; i < [colorStopList count]; i++) {
                 NSDictionary *colorStop = [colorStopList objectAtIndex:i];
                 NSNumber *colorNumber = [colorStop objectForKey:@"color"];
-                UIColor *color = HPConvertNumberToColor([colorNumber integerValue]);
+                UIColor *color = HippyConvertNumberToColor([colorNumber integerValue]);
                 [colors addObject:color];
                 NSNumber *stop = [colorStop objectForKey:@"ratio"];
                 if (stop) {
@@ -284,8 +284,8 @@ static LinearGradientPoints pointsFromDirection(NativeRenderGradientObject *obje
             self.locations = [locationParser computeLocations];
         } @catch (NSException *exception) {
             NSString *errorString = [NSString stringWithFormat:@"gradient parse error:%@", [exception reason]];
-            NSError *error = HPErrorWithMessageAndModuleName(errorString, nil);
-            HPFatal(error, nil);
+            NSError *error = HippyErrorWithMessageAndModuleName(errorString, nil);
+            HippyFatal(error);
             return self;
         }
     }
@@ -355,7 +355,7 @@ void NativeRenderDrawLinearGradientInContext(NativeRenderGradientObject *object,
     CGContextRestoreGState(context);
 }
 
-HP_EXTERN void NativeRenderDrawRadialGradientInContext(NativeRenderGradientObject *object, CGContextRef context, CGSize size) {
+HIPPY_EXTERN void NativeRenderDrawRadialGradientInContext(NativeRenderGradientObject *object, CGContextRef context, CGSize size) {
     NSCAssert(context, @"context cannot be null for drawing radial gradient");
     NSCAssert(NO, @"NativeRenderDrawRadialGradientInContext not implemented");
 }

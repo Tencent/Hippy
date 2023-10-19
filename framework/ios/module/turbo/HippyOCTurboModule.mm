@@ -25,9 +25,9 @@
 #import "HippyOCTurboModule+Inner.h"
 #import "HippyTurboModuleManager.h"
 #import "HippyJSExecutor.h"
-#import "HPAsserts.h"
-#import "HPLog.h"
-#import "HPToolUtils.h"
+#import "HippyAsserts.h"
+#import "HippyLog.h"
+#import "HippyUtils.h"
 #import "NSObject+CtxValue.h"
 #import "NSObject+HippyTurbo.h"
 
@@ -118,8 +118,8 @@ HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
         }
     }
 
-    if (HP_DEBUG && !method) {
-        HPLogError(@"Unknown methodID: %@ for module:%@", methodName, obj);
+    if (HIPPY_DEBUG && !method) {
+        HippyLogError(@"Unknown methodID: %@ for module:%@", methodName, obj);
         return nil;
     }
 
@@ -128,13 +128,13 @@ HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
         return value;
     } @catch (NSException *exception) {
         // Pass on JS exceptions
-        if ([exception.name hasPrefix:HPFatalExceptionName]) {
+        if ([exception.name hasPrefix:HippyFatalExceptionName]) {
             @throw exception;
         }
 
         NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on target %@ with params %@", exception,
                                       method.JSMethodName, NSStringFromClass([self class]) ,argumentArray];
-        NSError *error = HPErrorWithMessageAndModuleName(message, self.bridge.moduleName);
+        NSError *error = HippyErrorWithMessageAndModuleName(message, self.bridge.moduleName);
         HippyBridgeFatal(error, self.bridge);
         return nil;
     }
@@ -265,7 +265,7 @@ static id convertJSIObjectToNSObject(const std::shared_ptr<hippy::napi::Ctx> &co
     NSError *error;
     id objcObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
     if (error) {
-        HPLogError(@"JSONObjectWithData error:%@", error);
+        HippyLogError(@"JSONObjectWithData error:%@", error);
     }
     return objcObject;
 }

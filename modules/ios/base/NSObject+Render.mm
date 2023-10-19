@@ -35,7 +35,7 @@
 
 @end
 
-@implementation NSObject (Render)
+@implementation UIView (HippyRenderManager)
 
 - (void)setRenderManager:(std::weak_ptr<hippy::RenderManager>)renderManager {
     RenderManagerWrapper *wrapper = [[RenderManagerWrapper alloc] init];

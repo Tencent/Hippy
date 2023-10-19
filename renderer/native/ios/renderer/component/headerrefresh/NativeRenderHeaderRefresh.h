@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -22,12 +22,12 @@
 
 #import <UIKit/UIKit.h>
 
-#import "NativeRenderRefresh.h"
-#import "NativeRenderComponentProtocol.h"
+#import "HippyRefresh.h"
+#import "HippyComponent.h"
 
-@interface NativeRenderHeaderRefresh : NativeRenderRefresh
+@interface NativeRenderHeaderRefresh : HippyRefresh
 
-@property (nonatomic, copy) NativeRenderDirectEventBlock onHeaderReleased;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onHeaderPulling;
+@property (nonatomic, copy) HippyDirectEventBlock onHeaderReleased;
+@property (nonatomic, copy) HippyDirectEventBlock onHeaderPulling;
 
 @end
