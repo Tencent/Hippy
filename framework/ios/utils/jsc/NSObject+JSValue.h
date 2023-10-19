@@ -22,7 +22,7 @@
 
 #import <Foundation/Foundation.h>
 #import <JavaScriptCore/JavaScriptCore.h>
-#import "MacroDefines.h"
+#import "HippyDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -50,6 +50,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-HP_EXTERN id ObjectFromJSValueRef(JSGlobalContextRef const context, JSValueRef const value, JSValueRef _Nonnull * _Nonnull exception);
+HIPPY_EXTERN id ObjectFromJSValueRef(JSGlobalContextRef const context, JSValueRef const value, JSValueRef _Nonnull * _Nonnull exception);
 
 NS_ASSUME_NONNULL_END

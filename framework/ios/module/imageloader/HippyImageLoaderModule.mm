@@ -24,7 +24,7 @@
 
 #import "HippyBridge+VFSLoader.h"
 #import "HippyImageLoaderModule.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 #import "HippyDefines.h"
 
 static NSString *const kImageLoaderModuleErrorDomain = @"kImageLoaderModuleErrorDomain";
@@ -43,11 +43,11 @@ HIPPY_EXPORT_MODULE(ImageLoaderModule)
 
 @synthesize bridge = _bridge;
 
-- (id<HPImageProviderProtocol>)imageProviderForData:(NSData *)data {
-    NSArray<Class<HPImageProviderProtocol>> *providers = [self.bridge imageProviderClasses];
-    for (Class<HPImageProviderProtocol> cls in providers) {
+- (id<HippyImageProviderProtocol>)imageProviderForData:(NSData *)data {
+    NSArray<Class<HippyImageProviderProtocol>> *providers = [self.bridge imageProviderClasses];
+    for (Class<HippyImageProviderProtocol> cls in providers) {
         if ([cls canHandleData:data]) {
-            id<HPImageProviderProtocol> object = [[(Class)cls alloc] init];
+            id<HippyImageProviderProtocol> object = [[(Class)cls alloc] init];
             [object setImageData:data];
             return object;
         }
@@ -64,7 +64,7 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
                                           progress:nil
                                  completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         if (!error) {
-            id<HPImageProviderProtocol> imageProvider = [self imageProviderForData:data];
+            id<HippyImageProviderProtocol> imageProvider = [self imageProviderForData:data];
             if (!imageProvider) {
                 NSError *error = [NSError errorWithDomain:kImageLoaderModuleErrorDomain
                                                      code:ImageLoaderErrorParseError userInfo:@{@"reason": @"no image provider error"}];

@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -21,7 +21,7 @@
  */
 
 #import "NativeRenderSimpleWebView.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 
 @implementation NativeRenderSimpleWebView
 
@@ -44,7 +44,7 @@
 
 - (void)loadUrl:(NSString *)urlString {
     _url = urlString;
-    NSURL *url = HPURLWithString(urlString, NULL);
+    NSURL *url = HippyURLWithString(urlString, NULL);
     if (!url) {
         return;
     }

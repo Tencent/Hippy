@@ -405,7 +405,7 @@ class ElementNode extends ViewNode {
       if (typeof this.filterAttribute === 'function') {
         this.filterAttribute(this.attributes);
       }
-      !options.notToNative && updateChild(this);
+      !options.notToNative && updateChild(this, options.notUpdateStyle);
     } catch (err) {
       // Throw error in development mode
       if (isDev()) {

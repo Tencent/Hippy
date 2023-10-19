@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -24,7 +24,7 @@
 #import "UIEvent+TouchResponder.h"
 #import "UIView+DomEvent.h"
 #import "UIView+MountEvent.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "objc/runtime.h"
 
 @interface NativeRenderTouchesView () {
@@ -186,7 +186,7 @@
         case NativeRenderPointerEventsBoxNone:
             return hitSubview;
         default:
-            HPLogError(@"Invalid pointer-events specified %ld on %@", (long)_pointerEvents, self);
+            HippyLogError(@"Invalid pointer-events specified %ld on %@", (long)_pointerEvents, self);
             return hitSubview ?: hitView;
     }
 }

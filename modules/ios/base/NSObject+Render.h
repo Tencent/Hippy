@@ -32,7 +32,8 @@ class RenderManager;
 };
 };
 
-@interface NSObject (Render)
+// FIXME: remove this category
+@interface UIView (HippyRenderManager)
 
 @property(nonatomic, assign) std::weak_ptr<hippy::RenderManager> renderManager;
 

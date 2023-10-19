@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "NativeRenderObjectView.h"
+#import "HippyShadowView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface NativeRenderObjectWaterfallItem : NativeRenderObjectView
+@interface NativeRenderObjectWaterfallItem : HippyShadowView
 
 @property(nonatomic, assign, getter=isLayoutDirty) BOOL layoutDirty;
 @property(nonatomic, weak) id<NativeRenderObjectWaterfallItemFrameChangedProtocol> observer;

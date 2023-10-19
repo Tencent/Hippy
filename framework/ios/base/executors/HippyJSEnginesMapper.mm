@@ -21,7 +21,7 @@
  */
 
 #import "HippyJSEnginesMapper.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 
 #include "dom/dom_manager.h"
 #include "driver/engine.h"
@@ -125,7 +125,7 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
         EngineRef &ref = it->second;
         ref.second--;
         if (0 == ref.second) {
-            HPLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor destroy engine %@", key);
+            HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor destroy engine %@", key);
             _engineMapper.erase(it);
         }
     }
