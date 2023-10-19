@@ -21,7 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "MacroDefines.h"
+#import "HippyDefines.h"
 
 #include <unordered_map>
 
@@ -44,4 +44,4 @@ constexpr char kStatusCode[] = "statusCode";
 
 @end
 
-HP_EXTERN NSURLResponse *ResponseMapToURLResponse(NSURL *url, const std::unordered_map<std::string, std::string> &headerMap, size_t contentsLength);
+HIPPY_EXTERN NSURLResponse *ResponseMapToURLResponse(NSURL *url, const std::unordered_map<std::string, std::string> &headerMap, size_t contentsLength);

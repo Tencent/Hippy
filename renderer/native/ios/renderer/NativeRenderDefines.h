@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -22,39 +22,31 @@
 
 #ifndef NativeRenderDefines_h
 #define NativeRenderDefines_h
-#import "MacroDefines.h"
+#import "HippyDefines.h"
 
-@class NativeRenderImpl, UIView, NSDictionary;
+@class HippyUIManager, UIView, NSDictionary;
 
-#define NATIVE_RENDER_EXPORT_VIEW(js_name)              \
-    HP_EXTERN void NativeRenderRegisterView(Class);     \
-    +(NSString *)viewName {                             \
-        return @ #js_name;                              \
-    }                                                   \
-    +(void)load {                                       \
-        NativeRenderRegisterView(self);                 \
-    }
 
-typedef void (^NativeRenderRenderUIBlock)(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry);
+typedef void (^HippyViewManagerUIBlock)(HippyUIManager *uiManager, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry);
 /**
  * Posted whenever a new root view is registered with NativeRenderUIManager. The userInfo property
  * will contain a NativeRenderUIManagerRootViewKey with the registered root view.
  */
-HP_EXTERN NSString *const NativeRenderUIManagerDidRegisterRootViewNotification;
+HIPPY_EXTERN NSString *const NativeRenderUIManagerDidRegisterRootViewNotification;
 
 /**
  * Key for the root view property in the above notifications
  */
-HP_EXTERN NSString *const NativeRenderUIManagerRootViewTagKey;
+HIPPY_EXTERN NSString *const NativeRenderUIManagerRootViewTagKey;
 
 /**
  * Key for Render UIManager
  */
-HP_EXTERN NSString *const NativeRenderUIManagerKey;
+HIPPY_EXTERN NSString *const NativeRenderUIManagerKey;
 
 /**
  * Posted whenever endBatch is called
  */
-HP_EXTERN NSString *const NativeRenderUIManagerDidEndBatchNotification;
+HIPPY_EXTERN NSString *const NativeRenderUIManagerDidEndBatchNotification;
 
 #endif /* NativeRenderDefines_h */

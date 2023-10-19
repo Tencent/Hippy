@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -22,7 +22,7 @@
 
 #import "NativeRenderNavigatorHostView.h"
 #import "NativeRenderNavigationControllerAnimator.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "NativeRenderNavigatorItemViewController.h"
 #import "NativeRenderNavigatorRootViewController.h"
 #import "UIView+MountEvent.h"
@@ -72,7 +72,7 @@
         _isPresented = YES;
         UIView *rootView = [self createRootViewForModuleName:_appName initProperties:_initProps];
         NativeRenderNavigatorItemViewController *itemViewController = [[NativeRenderNavigatorItemViewController alloc] initWithView:rootView];
-        UIViewController *presentingViewController = [self nativeRenderViewController];
+        UIViewController *presentingViewController = [self hippyViewController];
         NSAssert(presentingViewController, @"no presenting view controller for navigator module");
         _navigatorRootViewController = [[NativeRenderNavigatorRootViewController alloc] initWithRootViewController:itemViewController];
         _navigatorRootViewController.navigationBar.hidden = YES;
@@ -84,8 +84,8 @@
     }
 }
 
-- (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex {
-    [super insertNativeRenderSubview:subview atIndex:0];
+- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
+    [super insertHippySubview:subview atIndex:0];
 }
 
 - (void)didMoveToSuperview {

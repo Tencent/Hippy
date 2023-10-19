@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -20,14 +20,14 @@
  * limitations under the License.
  */
 
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 #import "NativeRenderModalHostViewController.h"
 #import "NativeRenderModalHostViewManager.h"
 #import "NativeRenderModalTransitioningDelegate.h"
-#import "NativeRenderObjectView.h"
+#import "HippyShadowView.h"
 #import "NativeRenderUtils.h"
 
-@interface NativeRenderObjectModalHost : NativeRenderObjectView
+@interface NativeRenderObjectModalHost : HippyShadowView
 
 @end
 
@@ -43,17 +43,17 @@
 
 @implementation NativeRenderModalHostViewManager
 
-NATIVE_RENDER_EXPORT_VIEW(Modal)
+HIPPY_EXPORT_MODULE(Modal)
 
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(animationType, NSString)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(transparent, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(darkStatusBarText, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onShow, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onRequestClose, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(supportedOrientations, NSArray)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onOrientationChange, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(primaryKey, NSString)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(hideStatusBar, NSNumber)
+HIPPY_EXPORT_VIEW_PROPERTY(animationType, NSString)
+HIPPY_EXPORT_VIEW_PROPERTY(transparent, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(darkStatusBarText, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(onShow, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onRequestClose, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(supportedOrientations, NSArray)
+HIPPY_EXPORT_VIEW_PROPERTY(onOrientationChange, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(primaryKey, NSString)
+HIPPY_EXPORT_VIEW_PROPERTY(hideStatusBar, NSNumber)
 
 - (UIView *)view {
     NativeRenderModalHostView *view = [[NativeRenderModalHostView alloc] init];
@@ -72,7 +72,7 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(hideStatusBar, NSNumber)
     return _transitioningDelegate;
 }
 
-- (NativeRenderObjectView *)nativeRenderObjectView {
+- (HippyShadowView *)hippyShadowView {
     return [NativeRenderObjectModalHost new];
 }
 

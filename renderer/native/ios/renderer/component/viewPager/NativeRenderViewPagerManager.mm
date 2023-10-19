@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -20,45 +20,45 @@
  * limitations under the License.
  */
 
-#import "NativeRenderImpl.h"
+#import "HippyUIManager.h"
 #import "NativeRenderViewPagerManager.h"
 #import "NativeRenderViewPager.h"
 
 @implementation NativeRenderViewPagerManager
 
-NATIVE_RENDER_EXPORT_VIEW(ViewPager)
+HIPPY_EXPORT_MODULE(ViewPager)
 
 - (UIView *)view {
     return [NativeRenderViewPager new];
 }
 
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(bounces, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(initialPage, NSInteger)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(bounces, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(initialPage, NSInteger)
+HIPPY_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
 
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageSelected, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageScroll, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, NativeRenderDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onPageSelected, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onPageScroll, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, HippyDirectEventBlock)
 
 
 - (void)setPage:(NSNumber *)pageNumber withTag:(NSNumber * _Nonnull)componentTag animated:(BOOL)animated {
-    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext,
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager,
                                   NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
         if (![view isKindOfClass:[NativeRenderViewPager class]]) {
-            HPLogError(@"tried to setPage: on an error viewPager %@ with tag #%@", view, componentTag);
+            HippyLogError(@"tried to setPage: on an error viewPager %@ with tag #%@", view, componentTag);
         }
         NSInteger pageNumberInteger = pageNumber.integerValue;
         [(NativeRenderViewPager *)view setPage:pageNumberInteger animated:animated];
     }];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)componentTag
+HIPPY_EXPORT_METHOD(setPage:(nonnull NSNumber *)componentTag
                                       pageNumber:(__unused NSNumber *)pageNumber) {
     [self setPage:pageNumber withTag:componentTag animated:YES];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)componentTag
+HIPPY_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)componentTag
                                       pageNumber:(__unused NSNumber *)pageNumber) {
     [self setPage:pageNumber withTag:componentTag animated:NO];
 }

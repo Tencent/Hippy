@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -22,10 +22,10 @@
 
 #import "NativeRenderViewPager.h"
 #import "NativeRenderViewPagerItem.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "UIView+DirectionalLayout.h"
 #import "UIView+MountEvent.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 
 #include "float.h"
 
@@ -85,9 +85,9 @@
 
 #pragma mark native render native methods
 
-- (void)insertNativeRenderSubview:(UIView *)view atIndex:(NSInteger)atIndex {
+- (void)insertHippySubview:(UIView *)view atIndex:(NSInteger)atIndex {
     if (atIndex > self.viewPagerItems.count) {
-        HPLogWarn(@"Error In NativeRenderViewPager: addSubview —— out of bound of array");
+        HippyLogWarn(@"Error In NativeRenderViewPager: addSubview —— out of bound of array");
         return;
     }
     if (atIndex < [self.viewPagerItems count]) {
@@ -97,7 +97,7 @@
     if ([self isLayoutSubviewsRTL]) {
         view.transform = CGAffineTransformMakeRotation(M_PI);
     }
-    [super insertNativeRenderSubview:view atIndex:(NSInteger)atIndex];
+    [super insertHippySubview:view atIndex:(NSInteger)atIndex];
     [self.viewPagerItems insertObject:view atIndex:atIndex];
     
     if ([view isKindOfClass:[NativeRenderViewPagerItem class]]) {
@@ -130,8 +130,8 @@
     return CGRectMake(originX, 0, viewPagerSize.width, viewPagerSize.height);
 }
 
-- (void)removeNativeRenderSubview:(UIView *)subview {
-    [super removeNativeRenderSubview:subview];
+- (void)removeHippySubview:(UIView *)subview {
+    [super removeHippySubview:subview];
     [self.viewPagerItems removeObject:subview];
     [self setNeedsLayout];
     if (_itemsChangedBlock) {
@@ -139,15 +139,15 @@
     }
 }
 
-- (void)nativeRenderSetFrame:(CGRect)frame {
-    [super nativeRenderSetFrame:frame];
+- (void)hippySetFrame:(CGRect)frame {
+    [super hippySetFrame:frame];
     self.needsLayoutItems = YES;
     self.needsResetPageIndex = YES;
     [self setNeedsLayout];
 }
 
-- (void)didUpdateNativeRenderSubviews {
-    [super didUpdateNativeRenderSubviews];
+- (void)didUpdateHippySubviews {
+    [super didUpdateHippySubviews];
     self.needsLayoutItems = YES;
     [self setNeedsLayout];
 }
@@ -155,7 +155,7 @@
 #pragma mark native render js call methods
 - (void)setPage:(NSInteger)pageNumber animated:(BOOL)animated {
     if (pageNumber >= self.viewPagerItems.count || pageNumber < 0) {
-        HPLogWarn(@"Error In ViewPager setPage: pageNumber invalid");
+        HippyLogWarn(@"Error In ViewPager setPage: pageNumber invalid");
         return;
     }
 
@@ -386,7 +386,7 @@
     [super setContentOffset:contentOffset animated:animated];
 }
 
-- (void)nativeRenderComponentDidFinishTransaction {
+- (void)hippyBridgeDidFinishTransaction {
     BOOL isFrameEqual = CGRectEqualToRect(self.frame, self.previousFrame);
     BOOL isContentSizeEqual = CGSizeEqualToSize(self.contentSize, self.previousSize);
 
@@ -413,14 +413,14 @@
     }
 
     if (self.initialPage >= self.viewPagerItems.count) {
-        HPLogWarn(@"Error In NativeRenderViewPager: layoutSubviews");
+        HippyLogWarn(@"Error In NativeRenderViewPager: layoutSubviews");
         self.contentSize = CGSizeZero;
         return;
     }
 
     UIView *lastViewPagerItem = self.viewPagerItems.lastObject;
     if (!lastViewPagerItem) {
-        HPLogWarn(@"Error In NativeRenderViewPager: addSubview");
+        HippyLogWarn(@"Error In NativeRenderViewPager: addSubview");
         self.contentSize = CGSizeZero;
         return;
     }
@@ -458,7 +458,7 @@
     }
 
     if (thePage < 0) {
-        HPLogWarn(@"Error In ViewPager nowPage: thePage invalid");
+        HippyLogWarn(@"Error In ViewPager nowPage: thePage invalid");
         return 0;
     } else {
         return (NSUInteger)thePage;

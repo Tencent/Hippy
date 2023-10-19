@@ -39,7 +39,7 @@
 + (NSString *)turoboModuleName;
 
 #define HIPPY_EXPORT_TURBO_MODULE(js_name)                          \
-    HP_EXTERN void HippyRegisterTurboModule(NSString *, Class);     \
+    HIPPY_EXTERN void HippyRegisterTurboModule(NSString *, Class);     \
     +(NSString *)turoboModuleName {                                 \
         return @ #js_name;                                          \
     }                                                               \
@@ -54,8 +54,8 @@
     -(id)method
 
 #define HIPPY_EXTERN_REMAP_TURBO_METHOD(js_name, method)                                            \
-    +(NSArray<NSString *> *)HP_CONCAT(__hippy_export_turbo__,                                       \
-                                         HP_CONCAT(js_name, HP_CONCAT(__LINE__, __COUNTER__))) {    \
+    +(NSArray<NSString *> *)HIPPY_CONCAT(__hippy_export_turbo__,                                       \
+                                         HIPPY_CONCAT(js_name, HIPPY_CONCAT(__LINE__, __COUNTER__))) {    \
         return @[@ #js_name, @ #method];                                                            \
     }
 

@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -26,20 +26,20 @@
 
 @implementation NativeRenderBaseListItemViewManager
 
-NATIVE_RENDER_EXPORT_VIEW(ListViewItem)
+HIPPY_EXPORT_MODULE(ListViewItem)
 
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(type, id)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(isSticky, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onAppear, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onDisappear, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onWillAppear, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onWillDisappear, NativeRenderDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(type, id)
+HIPPY_EXPORT_VIEW_PROPERTY(isSticky, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(onAppear, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onDisappear, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onWillAppear, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onWillDisappear, HippyDirectEventBlock)
 
 - (UIView *)view {
     return [[NativeRenderBaseListItemView alloc] init];
 }
 
-- (NativeRenderObjectView *)nativeRenderObjectView {
+- (HippyShadowView *)hippyShadowView {
     return [[NativeRenderObjectBaseListItem alloc] init];
 }
 

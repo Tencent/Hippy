@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "NativeRenderViewManager.h"
+#import "HippyViewManager.h"
 #import "NativeRenderModalHostView.h"
 
 @protocol NativeRenderModalHostViewInteractor;
@@ -28,7 +28,7 @@
 typedef void (^NativeRenderModalViewInteractionBlock)(
     UIViewController *reactViewController, UIViewController *viewController, BOOL animated, dispatch_block_t completionBlock);
 
-@interface NativeRenderModalHostViewManager : NativeRenderViewManager
+@interface NativeRenderModalHostViewManager : HippyViewManager
 
 @property (nonatomic, strong) NSHashTable *hostViews;
 @property (nonatomic, strong) id<NativeRenderModalHostViewInteractor, UIViewControllerTransitioningDelegate> transitioningDelegate;

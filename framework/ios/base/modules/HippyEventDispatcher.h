@@ -28,14 +28,14 @@
  * The threshold at which text inputs will start warning that the JS thread
  * has fallen behind (resulting in poor input performance, missed keys, etc.)
  */
-HP_EXTERN const NSInteger HippyTextUpdateLagWarningThreshold;
+HIPPY_EXTERN const NSInteger HippyTextUpdateLagWarningThreshold;
 
 /**
  * Takes an input event name and normalizes it to the form that is required
  * by the events system (currently that means starting with the "top" prefix,
  * but that's an implementation detail that may change in future).
  */
-HP_EXTERN NSString *HippyNormalizeInputEventName(NSString *eventName);
+HIPPY_EXTERN NSString *HippyNormalizeInputEventName(NSString *eventName);
 
 /**
  * This class wraps the -[HippyBridge enqueueJSCall:args:] method, and
