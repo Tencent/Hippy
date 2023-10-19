@@ -1,9 +1,12 @@
-# ENV["layout_engine"]="Taitank"
-# ENV["js_engine"] = "v8"
+#ENV["layout_engine"]="Taitank"
+#ENV["js_engine"] = "v8"
+#ENV["USE_FRAMEWORKS"] = "true"
 
 install! 'cocoapods',
          :deterministic_uuids => false,
          :generate_multiple_pod_projects => true
+
+#use_frameworks! #:linkage => :static  # 静态库framework格式
 
 workspace 'HippyDemo.xcworkspace'
 

@@ -8,6 +8,7 @@
 
 layout_engine = "Taitank"
 js_engine = "jsc"
+use_frameworks = ENV['USE_FRAMEWORKS'] != nil
 
 Pod::Spec.new do |s|
   if ENV["layout_engine"]
@@ -17,7 +18,10 @@ Pod::Spec.new do |s|
     js_engine = ENV["js_engine"]
   end
   puts "layout engine is #{layout_engine}, js engine is #{js_engine}"
-  
+  puts "use_frameworks trigger is #{use_frameworks}"
+  if use_frameworks
+    framework_header_path = '${PODS_CONFIGURATION_BUILD_DIR}/hippy/hippy.framework/Headers'
+  end
   
   s.name             = 'hippy'
   s.version          = '3.0.0'
@@ -69,8 +73,15 @@ Pod::Spec.new do |s|
     footstone.source_files = ['modules/footstone/**/*.{h,cc}']
     footstone.public_header_files = ['modules/footstone/**/*.h']
     footstone.exclude_files = ['modules/footstone/include/footstone/platform/adr', 'modules/footstone/src/platform/adr']
-    footstone.header_mappings_dir = 'modules/footstone/include/'
-    header_search_paths = '$(PODS_TARGET_SRCROOT)/modules/footstone/include' + ' $(PODS_TARGET_SRCROOT)/modules/footstone'
+    footstone.header_mappings_dir = 'modules/footstone/'
+    if use_frameworks
+      header_search_paths = "#{framework_header_path}" + " #{framework_header_path}/include"
+    else
+      header_search_paths = '$(PODS_TARGET_SRCROOT)/modules/footstone' + ' $(PODS_TARGET_SRCROOT)/modules/footstone/include'
+    end
+    footstone.user_target_xcconfig = {
+      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/modules/footstone' + ' ${PODS_ROOT}/hippy/modules/footstone/include'
+    }
     footstone.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
       'GCC_PREPROCESSOR_DEFINITIONS[config=Release]' => '${inherited} NDEBUG=1',
@@ -121,7 +132,11 @@ Pod::Spec.new do |s|
     vfs.source_files = ['modules/vfs/native/**/*.{h,cc}']
     vfs.public_header_files = ['modules/vfs/native/include/**/*.h']
     vfs.header_mappings_dir = 'modules/vfs/native/include/'
-    header_search_paths = '$(PODS_TARGET_SRCROOT)/modules/vfs/native/include/'
+    if use_frameworks
+      header_search_paths = framework_header_path
+    else
+      header_search_paths = '$(PODS_TARGET_SRCROOT)/modules/vfs/native/include/'
+    end
     vfs.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
       'HEADER_SEARCH_PATHS' => header_search_paths,
@@ -184,7 +199,11 @@ Pod::Spec.new do |s|
         'driver/js/src/vm/jsc']
     end
 
-    header_search_paths = '$(PODS_TARGET_SRCROOT)/driver/js/include/'
+    if use_frameworks
+      header_search_paths = framework_header_path
+    else
+      header_search_paths = '$(PODS_TARGET_SRCROOT)/driver/js/include/'
+    end
     definition_engine = ''
     if js_engine == "jsc"
       definition_engine = 'JS_JSC=1'
@@ -223,7 +242,11 @@ Pod::Spec.new do |s|
     dom_source_files = Array['dom/include/**/*.h', 'dom/src/**/*.cc']
     dom_exclude_files = Array['dom/src/dom/*unittests.cc', 
                               'dom/src/dom/tools']
-    dom_pod_target_header_path = '$(PODS_TARGET_SRCROOT)/dom/include/'
+    if use_frameworks
+      dom_pod_target_header_path = framework_header_path
+    else
+      dom_pod_target_header_path = '$(PODS_TARGET_SRCROOT)/dom/include/'
+    end
     if layout_engine == "Taitank"
       dom_exclude_files.append('dom/include/dom/yoga_layout_node.h')
       dom_exclude_files.append('dom/src/dom/yoga_layout_node.cc')
@@ -275,7 +298,11 @@ Pod::Spec.new do |s|
       puts 'hippy subspec \'Taitank\' read begin'
       taitank.source_files = ['dom/dom_project/_deps/taitank-src/src/*.{h,cc}']
       taitank.public_header_files = ['dom/include/dom/taitank_layout_node.h', 'dom/dom_project/_deps/taitank-src/src/*.h']
-      header_search_paths = '$(PODS_TARGET_SRCROOT)/dom/dom_project/_deps/taitank-src/src'
+      if use_frameworks
+        header_search_paths = framework_header_path
+      else
+        header_search_paths = '$(PODS_TARGET_SRCROOT)/dom/dom_project/_deps/taitank-src/src'
+      end
       taitank.pod_target_xcconfig = {
         'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
         'HEADER_SEARCH_PATHS' => header_search_paths,
@@ -291,7 +318,11 @@ Pod::Spec.new do |s|
       puts 'hippy subspec \'yoga\' read begin'
       yoga.source_files = ['dom/dom_project/_deps/yoga-src/yoga/**/*.{c,h,cpp}']
       yoga.public_header_files = ['dom/include/dom/yoga_layout_node.h', 'dom/dom_project/_deps/yoga-src/yoga/**/*.h']
-      header_search_paths = '$(PODS_TARGET_SRCROOT)/dom/dom_project/_deps/yoga-src'
+      if use_frameworks
+        header_search_paths = framework_header_path
+      else
+        header_search_paths = '$(PODS_TARGET_SRCROOT)/dom/dom_project/_deps/yoga-src'
+      end
       yoga.pod_target_xcconfig = {
         'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
         'HEADER_SEARCH_PATHS' => header_search_paths,
@@ -352,16 +383,26 @@ Pod::Spec.new do |s|
       #devtools_backend
       'devtools/devtools-backend/**/*.{h,hpp,cc}',
     ]
-
-    
-    pod_search_path = '$(PODS_TARGET_SRCROOT)/devtools/devtools-integration/ios/DevtoolsBackend/_deps/asio-src/asio/include' +
-    ' $(PODS_TARGET_SRCROOT)/devtools/devtools-integration/ios/DevtoolsBackend/_deps/json-src/include' +
-    ' $(PODS_TARGET_SRCROOT)/devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/include' +
-    ' $(PODS_TARGET_SRCROOT)/devtools/devtools-integration/ios/DevtoolsBackend/_deps/websocketpp-src' +
-    ' $(PODS_TARGET_SRCROOT)/devtools/devtools-integration/native/include' +
-    ' $(PODS_TARGET_SRCROOT)/devtools/devtools-backend/include' +
-    ' $(PODS_TARGET_SRCROOT)/devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/lib/arch'
-
+    if use_frameworks
+      pod_search_path = "#{framework_header_path}/devtools-integration/ios/DevtoolsBackend/_deps/asio-src/asio/include" +
+      " #{framework_header_path}/devtools-integration/ios/DevtoolsBackend/_deps/json-src/include" +
+      " #{framework_header_path}/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/include" +
+      " #{framework_header_path}/devtools-integration/ios/DevtoolsBackend/_deps/websocketpp-src" +
+      " #{framework_header_path}/devtools-integration/native/include" +
+      " #{framework_header_path}/devtools-backend/include" +
+      " #{framework_header_path}/devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/lib/arch"
+      
+      devtools.header_mappings_dir = 'devtools'
+    else
+      pod_search_path = '$(PODS_TARGET_SRCROOT)/devtools/devtools-integration/ios/DevtoolsBackend/_deps/asio-src/asio/include' +
+      ' $(PODS_TARGET_SRCROOT)/devtools/devtools-integration/ios/DevtoolsBackend/_deps/json-src/include' +
+      ' $(PODS_TARGET_SRCROOT)/devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/include' +
+      ' $(PODS_TARGET_SRCROOT)/devtools/devtools-integration/ios/DevtoolsBackend/_deps/websocketpp-src' +
+      ' $(PODS_TARGET_SRCROOT)/devtools/devtools-integration/native/include' +
+      ' $(PODS_TARGET_SRCROOT)/devtools/devtools-backend/include' +
+      ' $(PODS_TARGET_SRCROOT)/devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/lib/arch'
+    end
+    devtools.header_mappings_dir = 'devtools/'
     devtools.pod_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => pod_search_path,
       'GCC_PREPROCESSOR_DEFINITIONS' => 'ENABLE_INSPECTOR=1 ASIO_NO_TYPEID ASIO_NO_EXCEPTIONS ASIO_DISABLE_ALIGNOF _WEBSOCKETPP_NO_EXCEPTIONS_ JSON_NOEXCEPTION BASE64_STATIC_DEFINE',
