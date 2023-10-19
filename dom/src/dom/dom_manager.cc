@@ -262,7 +262,7 @@ bool DomManager::SetSnapShot(const std::shared_ptr<RootNode>& root_node, const b
     if (dom_node->GetPid() == orig_root_id) {
       dom_node->SetPid(root_node->GetId());
     }
-    nodes.push_back(std::make_shared<DomInfo>(dom_node, nullptr));
+    nodes.push_back(std::make_shared<DomInfo>(dom_node, nullptr, nullptr));
   }
 
   CreateDomNodes(root_node, std::move(nodes));

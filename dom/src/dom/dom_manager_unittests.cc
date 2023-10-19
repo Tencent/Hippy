@@ -110,7 +110,8 @@ std::vector<std::shared_ptr<hippy::DomInfo>> ParserJson(const std::string& json_
       ref = std::make_shared<hippy::dom::RefInfo>(id, ref_id);
     }
 
-    std::shared_ptr<hippy::dom::DomInfo> dom_info = std::make_shared<hippy::dom::DomInfo>(dom_node, ref);
+    auto diff_info = std::make_shared<hippy::dom::DiffInfo>(false);
+    std::shared_ptr<hippy::dom::DomInfo> dom_info = std::make_shared<hippy::dom::DomInfo>(dom_node, ref, diff_info);
     nodes.push_back(dom_info);
   }
   return nodes;
