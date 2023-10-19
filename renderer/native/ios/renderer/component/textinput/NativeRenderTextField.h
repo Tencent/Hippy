@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -21,8 +21,8 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "NativeRenderView.h"
-#import "NativeRenderComponentProtocol.h"
+#import "HippyView.h"
+#import "HippyComponent.h"
 #import "NativeRenderBaseTextInput.h"
 
 @protocol NativeRenderUITextFieldResponseDelegate <NSObject>
@@ -35,13 +35,13 @@
 @property (nonatomic, assign) BOOL textWasPasted;
 @property (nonatomic, weak) id<NativeRenderUITextFieldResponseDelegate> responderDelegate;
 
-@property (nonatomic, copy) NativeRenderDirectEventBlock onBlur;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onFocus;
+@property (nonatomic, copy) HippyDirectEventBlock onBlur;
+@property (nonatomic, copy) HippyDirectEventBlock onFocus;
 @property (nonatomic, assign) BOOL editable;
 @end
 
 @interface NativeRenderTextField : NativeRenderBaseTextInput <UITextFieldDelegate>
-@property (nonatomic, copy) NativeRenderDirectEventBlock onKeyPress;
+@property (nonatomic, copy) HippyDirectEventBlock onKeyPress;
 @property (nonatomic, assign) BOOL autoCorrect;
 //@property (nonatomic, assign) UIEdgeInsets contentInset;
 @property (nonatomic, strong) UIColor *placeholderTextColor;
@@ -49,17 +49,17 @@
 @property (nonatomic, strong) NSNumber *maxLength;
 @property (nonatomic, assign) BOOL textWasPasted;
 
-@property (nonatomic, copy) NativeRenderDirectEventBlock onSelectionChange;
+@property (nonatomic, copy) HippyDirectEventBlock onSelectionChange;
 
 - (void)textFieldDidChange;
 
-@property (nonatomic, copy) NativeRenderDirectEventBlock onChangeText;
+@property (nonatomic, copy) HippyDirectEventBlock onChangeText;
 
-@property (nonatomic, copy) NativeRenderDirectEventBlock onBlur;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onFocus;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onEndEditing;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onKeyboardWillShow;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onKeyboardWillHide;
+@property (nonatomic, copy) HippyDirectEventBlock onBlur;
+@property (nonatomic, copy) HippyDirectEventBlock onFocus;
+@property (nonatomic, copy) HippyDirectEventBlock onEndEditing;
+@property (nonatomic, copy) HippyDirectEventBlock onKeyboardWillShow;
+@property (nonatomic, copy) HippyDirectEventBlock onKeyboardWillHide;
 
 @property (nonatomic, copy) NSString *value;
 @property (nonatomic, strong) NSNumber *fontSize;

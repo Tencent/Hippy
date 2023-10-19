@@ -22,7 +22,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "HPFootstoneUtils.h"
+#import "HippyFootstoneUtils.h"
 #import "NSURLResponse+ToUnorderedMap.h"
 #import "NSURLSessionDataProgress.h"
 #import "TypeConverter.h"

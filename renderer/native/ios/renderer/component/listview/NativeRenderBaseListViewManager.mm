@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -23,63 +23,63 @@
 #import "NativeRenderBaseListViewManager.h"
 #import "NativeRenderBaseListView.h"
 #import "NativeRenderObjectWaterfall.h"
-#import "NativeRenderImpl.h"
+#import "HippyUIManager.h"
 
 @implementation NativeRenderBaseListViewManager
 
-NATIVE_RENDER_EXPORT_VIEW(ListView)
+HIPPY_EXPORT_MODULE(ListView)
 
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(scrollEventThrottle, double)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(initialListReady, NativeRenderDirectEventBlock);
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onScrollBeginDrag, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onScroll, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onScrollEndDrag, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onMomentumScrollBegin, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onMomentumScrollEnd, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onRowWillDisplay, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onEndReached, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onDelete, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(preloadItemNumber, NSUInteger)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(bounces, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(initialContentOffset, CGFloat)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(editable, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(showScrollIndicator, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(scrollEventThrottle, double)
+HIPPY_EXPORT_VIEW_PROPERTY(initialListReady, HippyDirectEventBlock);
+HIPPY_EXPORT_VIEW_PROPERTY(onScrollBeginDrag, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onScroll, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onScrollEndDrag, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onMomentumScrollBegin, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onMomentumScrollEnd, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onRowWillDisplay, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onEndReached, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onDelete, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(preloadItemNumber, NSUInteger)
+HIPPY_EXPORT_VIEW_PROPERTY(bounces, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(initialContentOffset, CGFloat)
+HIPPY_EXPORT_VIEW_PROPERTY(editable, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(showScrollIndicator, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
 
 - (UIView *)view {
     return [[NativeRenderBaseListView alloc] init];
 }
 
-- (NativeRenderObjectView *)nativeRenderObjectView {
+- (HippyShadowView *)hippyShadowView {
     return [[NativeRenderObjectWaterfall alloc] init];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)componentTag
-									xIndex:(__unused NSNumber *)xIndex
-									yIndex:(NSNumber *)yIndex
-									animation:(nonnull NSNumber *)animation) {
-	[self.renderImpl addUIBlock:
-	 ^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+HIPPY_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)componentTag
+                    xIndex:(__unused NSNumber *)xIndex
+					yIndex:(NSNumber *)yIndex
+					animation:(nonnull NSNumber *)animation) {
+	[self.bridge.uiManager addUIBlock:
+	 ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
 		 NativeRenderBaseListView *view = (NativeRenderBaseListView *)viewRegistry[componentTag];
 		 if (view == nil) return ;
 		 if (![view isKindOfClass:[NativeRenderBaseListView class]]) {
-			 HPLogError(@"Invalid view returned from registry, expecting NativeRenderBaseListView, got: %@", view);
+			 HippyLogError(@"Invalid view returned from registry, expecting NativeRenderBaseListView, got: %@", view);
 		 }
 		 [view scrollToIndex: yIndex.integerValue animated: [animation boolValue]];
 	 }];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)componentTag
-                               x:(nonnull NSNumber *)x
-                               y:(nonnull NSNumber *)y
-                               animation:(nonnull NSNumber *)animation) {
-	[self.renderImpl addUIBlock:
-	 ^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+HIPPY_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)componentTag
+                    x:(nonnull NSNumber *)x
+                    y:(nonnull NSNumber *)y
+                    animation:(nonnull NSNumber *)animation) {
+	[self.bridge.uiManager addUIBlock:
+	 ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
 		 NativeRenderBaseListView *view = (NativeRenderBaseListView *)viewRegistry[componentTag];
 		 if (view == nil) return ;
 		 if (![view isKindOfClass:[NativeRenderBaseListView class]]) {
-			 HPLogError(@"Invalid view returned from registry, expecting NativeRenderBaseListView, got: %@", view);
+			 HippyLogError(@"Invalid view returned from registry, expecting NativeRenderBaseListView, got: %@", view);
 		 }
 		 [view scrollToContentOffset:CGPointMake([x floatValue], [y floatValue]) animated: [animation boolValue]];
 	 }];

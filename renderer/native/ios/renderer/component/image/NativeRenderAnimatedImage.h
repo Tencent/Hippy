@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -21,7 +21,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "HPImageProviderProtocol.h"
+#import "HippyImageProviderProtocol.h"
 #import "NativeRenderAnimatedImageView.h"
 
 extern const NSTimeInterval kAnimatedImageDelayTimeIntervalMinimum;
@@ -56,11 +56,11 @@ extern const NSTimeInterval kAnimatedImageDelayTimeIntervalMinimum;
 
 - (UIImage *)imageAtIndex:(NSUInteger)index;
 
-- (instancetype)initWithAnimatedImageProvider:(id<HPImageProviderProtocol>)imageProvider;
-- (instancetype)initWithAnimatedImageProvider:(id<HPImageProviderProtocol>)imageProvider
+- (instancetype)initWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider;
+- (instancetype)initWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider
                         optimalFrameCacheSize:(NSUInteger)optimalFrameCacheSize
                             predrawingEnabled:(BOOL)isPredrawingEnabled;
-+ (instancetype)animatedImageWithAnimatedImageProvider:(id<HPImageProviderProtocol>)imageProvider;
++ (instancetype)animatedImageWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider;
 
 // On success, the initializers return an `NativeRenderAnimatedImage` with all fields initialized, on failure they return `nil` and an error will be logged.
 - (instancetype)initWithAnimatedGIFData:(NSData *)data;
@@ -71,7 +71,7 @@ extern const NSTimeInterval kAnimatedImageDelayTimeIntervalMinimum;
 + (instancetype)animatedImageWithGIFData:(NSData *)data;
 
 @property (nonatomic, strong, readonly) NSData *data;  // The data the receiver was initialized with; read-only
-@property (nonatomic, strong, readonly) id<HPImageProviderProtocol> imageProvider;
+@property (nonatomic, strong, readonly) id<HippyImageProviderProtocol> imageProvider;
 
 @end
 

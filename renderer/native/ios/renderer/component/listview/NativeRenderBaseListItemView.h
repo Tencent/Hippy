@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -22,9 +22,9 @@
 
 #import <UIKit/UIKit.h>
 #import "NativeRenderBaseListViewCell.h"
-#import "NativeRenderView.h"
+#import "HippyView.h"
 
-@interface NativeRenderBaseListItemView : NativeRenderView <ViewAppearStateProtocol>
+@interface NativeRenderBaseListItemView : HippyView <ViewAppearStateProtocol>
 
 @property (nonatomic, strong) id type;
 @property (nonatomic, assign) BOOL isSticky;

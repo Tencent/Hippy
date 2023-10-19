@@ -20,8 +20,8 @@
  * limitations under the License.
  */
 
-#import "HPAsserts.h"
-#import "HPLog.h"
+#import "HippyAsserts.h"
+#import "HippyLog.h"
 #import "HPDriverStackFrame.h"
 #import "HippyV8ContextWrapper.h"
 #import "NSObject+CtxValue.h"
@@ -50,9 +50,9 @@ static v8::Local<v8::Object> V8ObjectFromCtxValue(const std::shared_ptr<hippy::n
                                                        v8::Local<v8::Context> context) {
     auto ctxValue = std::static_pointer_cast<hippy::napi::V8CtxValue>(value);
     v8::Local<v8::Value> v8Value = ctxValue->global_value_.Get(context->GetIsolate());
-    HPAssert(v8Value->IsObject(), @"value is not a object");
+    HippyAssert(v8Value->IsObject(), @"value is not a object");
     v8::MaybeLocal<v8::Object> maybeObject = v8Value->ToObject(context);
-    HPAssert(!maybeObject.IsEmpty(), @"maybe object is not a object");
+    HippyAssert(!maybeObject.IsEmpty(), @"maybe object is not a object");
     return maybeObject.ToLocalChecked();
 }
 
@@ -385,7 +385,7 @@ static void HandleUncaughtJsError(v8::Local<v8::Message> message, v8::Local<v8::
     v8::Local<v8::String> v8Name = [propertyName toV8StringInIsolate:isolate];
     v8::MaybeLocal<v8::Value> maybeValue = targetObject->Get(localContext, v8Name);
     if (maybeValue.IsEmpty()) {
-        HPLog(@"get property %@ for object failed", propertyName);
+        HippyLog(@"get property %@ for object failed", propertyName);
         return nullptr;
     }
     v8::Local<v8::Value> value = maybeValue.ToLocalChecked();

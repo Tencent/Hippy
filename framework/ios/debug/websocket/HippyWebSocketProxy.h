@@ -20,9 +20,9 @@
  * limitations under the License.
  */
 
-#import "MacroDefines.h"
+#import "HippyDefines.h"
 
-#if HP_DEV  // Only supported in dev mode
+#if HIPPY_DEV  // Only supported in dev mode
 
 #import "HippyWebSocketProxyDelegate.h"
 

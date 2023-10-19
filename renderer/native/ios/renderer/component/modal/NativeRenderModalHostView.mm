@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -22,7 +22,7 @@
 
 #import "NativeRenderModalHostView.h"
 #import "NativeRenderModalHostViewController.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "UIView+MountEvent.h"
 #import "NativeRenderModalHostViewInteractor.h"
 
@@ -70,13 +70,13 @@
     _onOrientationChange(eventPayload);
 }
 
-- (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex {
-    [super insertNativeRenderSubview:subview atIndex:atIndex];
+- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
+    [super insertHippySubview:subview atIndex:atIndex];
     [_modalViewController.view insertSubview:subview atIndex:atIndex];
     [subview sendAttachedToWindowEvent];
 }
 
-- (void)didUpdateNativeRenderSubviews {
+- (void)didUpdateHippySubviews {
     // Do nothing, as subview (singular) is managed by `insertHippySubview:atIndex:`
 }
 
@@ -92,7 +92,7 @@
     [super didMoveToWindow];
 
     if (!_isPresented && self.window) {
-        NSAssert(self.nativeRenderViewController, @"Can't present modal view controller without a presenting view controller");
+        NSAssert(self.hippyViewController, @"Can't present modal view controller without a presenting view controller");
         _modalViewController.supportedInterfaceOrientations = [self supportedOrientationsMask];
         if ([self.animationType isEqualToString:@"fade"]) {
             _modalViewController.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;

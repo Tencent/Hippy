@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -21,15 +21,15 @@
  */
 
 #import "NativeRenderRefreshWrapper.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "NativeRenderRefreshWrapperItemView.h"
-#import "NativeRenderScrollableProtocol.h"
+#import "HippyScrollableProtocol.h"
 
 @interface NativeRenderRefreshWrapper () <UIScrollViewDelegate>
 
 @property (nonatomic, weak) NativeRenderRefreshWrapperItemView *wrapperItemView;
-@property (nonatomic, weak) id<NativeRenderScrollableProtocol> scrollableView;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onRefresh;
+@property (nonatomic, weak) id<HippyScrollableProtocol> scrollableView;
+@property (nonatomic, copy) HippyDirectEventBlock onRefresh;
 @property (nonatomic, assign) CGFloat bounceTime;
 
 @end
@@ -73,12 +73,12 @@
     }
 }
 
-- (void)insertNativeRenderSubview:(UIView *)view atIndex:(NSInteger)index {
-    [super insertNativeRenderSubview:view atIndex:index];
+- (void)insertHippySubview:(UIView *)view atIndex:(NSInteger)index {
+    [super insertHippySubview:view atIndex:index];
     if ([view isKindOfClass:[NativeRenderRefreshWrapperItemView class]]) {
         _wrapperItemView = (NativeRenderRefreshWrapperItemView *)view;
-    } else if ([view conformsToProtocol:@protocol(NativeRenderScrollableProtocol)]) {
-        _scrollableView = (id<NativeRenderScrollableProtocol>)view;
+    } else if ([view conformsToProtocol:@protocol(HippyScrollableProtocol)]) {
+        _scrollableView = (id<HippyScrollableProtocol>)view;
         [_scrollableView addScrollListener:self];
     }
 }

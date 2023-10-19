@@ -21,7 +21,7 @@
  */
 
 #import "TypeConverter.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 
 NSDictionary<NSString *, NSString *> *StringUnorderedMapToNSDictionary(const std::unordered_map<std::string, std::string> &map) {
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:map.size()];

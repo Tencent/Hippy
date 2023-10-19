@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -22,9 +22,9 @@
 
 #import <UIKit/UIKit.h>
 
-#import "NativeRenderView.h"
+#import "HippyView.h"
 #import "NativeRenderBaseTextInput.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 
 @protocol NativeRenderUITextViewResponseDelegate <NSObject>
 @required
@@ -51,11 +51,11 @@
 @property (nonatomic, strong) UIFont *font;
 @property (nonatomic, assign) NSInteger mostRecentEventCount;
 @property (nonatomic, strong) NSNumber *maxLength;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onKeyPress;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onContentSizeChange;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onSelectionChange;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onTextInput;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onEndEditing;
+@property (nonatomic, copy) HippyDirectEventBlock onKeyPress;
+@property (nonatomic, copy) HippyDirectEventBlock onContentSizeChange;
+@property (nonatomic, copy) HippyDirectEventBlock onSelectionChange;
+@property (nonatomic, copy) HippyDirectEventBlock onTextInput;
+@property (nonatomic, copy) HippyDirectEventBlock onEndEditing;
 
 - (void)performTextUpdate;
 
@@ -63,11 +63,11 @@
 @property (nonatomic, strong) NSNumber *fontSize;
 @property (nonatomic, strong) NSString *defaultValue;
 @property (nonatomic, strong) UIColor *textColor;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onChangeText;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onBlur;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onFocus;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onKeyboardWillShow;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onKeyboardWillHide;
+@property (nonatomic, copy) HippyDirectEventBlock onChangeText;
+@property (nonatomic, copy) HippyDirectEventBlock onBlur;
+@property (nonatomic, copy) HippyDirectEventBlock onFocus;
+@property (nonatomic, copy) HippyDirectEventBlock onKeyboardWillShow;
+@property (nonatomic, copy) HippyDirectEventBlock onKeyboardWillHide;
 
 - (void)updateFrames;
 @end

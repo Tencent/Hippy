@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 #import "NativeRenderObjectTextView.h"
 
 #include "dom/dom_manager.h"
@@ -67,7 +67,7 @@ static hippy::LayoutSize x5MeasureFunc(
     [super setDomManager:domManager];
     auto shared_domNode = domManager.lock();
     if (shared_domNode) {
-        int32_t componentTag = [self.componentTag intValue];
+        int32_t componentTag = [self.hippyTag intValue];
         auto node = shared_domNode->GetNode(self.rootNode, componentTag);
         if (node) {
             __weak NativeRenderObjectTextView *weakSelf = self;
@@ -97,15 +97,15 @@ static hippy::LayoutSize x5MeasureFunc(
     return newProps;
 }
 
-- (void)didUpdateNativeRenderSubviews {
-    [super didUpdateNativeRenderSubviews];
+- (void)didUpdateHippySubviews {
+    [super didUpdateHippySubviews];
     auto domManager = [self domManager].lock();
     if (domManager) {
-        int32_t componentTag = [self.componentTag intValue];
-        __weak NativeRenderObjectView *weakSelf = self;
+        int32_t componentTag = [self.hippyTag intValue];
+        __weak HippyShadowView *weakSelf = self;
         std::vector<std::function<void()>> ops_ = {[componentTag, weakSelf, domManager](){
             @autoreleasepool {
-                NativeRenderObjectView *strongSelf = weakSelf;
+                HippyShadowView *strongSelf = weakSelf;
                 if (strongSelf) {
                     auto domNode = domManager->GetNode(strongSelf.rootNode, componentTag);
                     if (domNode) {

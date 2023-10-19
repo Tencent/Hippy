@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -22,10 +22,10 @@
 
 #import "NativeRenderTextField.h"
 
-#import "HPConvert.h"
-#import "HPToolUtils.h"
+#import "HippyConvert.h"
+#import "HippyUtils.h"
 #import "NativeRenderTextSelection.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 
 @implementation NativeRenderUITextField
 
@@ -170,7 +170,7 @@
     // selectedTextRange observer isn't triggered when you type even though the
     // cursor position moves, so we send event again here.
 
-    if (!self.componentTag || !_onChangeText) {
+    if (!self.hippyTag || !_onChangeText) {
         return;
     }
 

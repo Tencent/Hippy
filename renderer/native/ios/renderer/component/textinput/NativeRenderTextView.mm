@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -22,12 +22,12 @@
 
 #import "NativeRenderTextView.h"
 
-#import "HPConvert.h"
+#import "HippyConvert.h"
 #import "NativeRenderObjectText.h"
 #import "NativeRenderText.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 #import "NativeRenderTextSelection.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 
 @implementation NativeRenderUITextView
 
@@ -126,11 +126,11 @@
     return self;
 }
 
-- (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)index {
-    [super insertNativeRenderSubview:subview atIndex:index];
+- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)index {
+    [super insertHippySubview:subview atIndex:index];
     if ([subview isKindOfClass:[NativeRenderText class]]) {
         if (_richTextView) {
-            HPLogError(@"Tried to insert a second <Text> into <TextInput> - there can only be one.");
+            HippyLogError(@"Tried to insert a second <Text> into <TextInput> - there can only be one.");
         }
         _richTextView = (NativeRenderText *)subview;
 
@@ -144,22 +144,22 @@
     }
 }
 
-- (void)removeNativeRenderSubview:(UIView *)subview {
-    [super removeNativeRenderSubview:subview];
+- (void)removeHippySubview:(UIView *)subview {
+    [super removeHippySubview:subview];
     if (_richTextView == subview) {
         _richTextView = nil;
         [self performTextUpdate];
     }
 }
 
-- (void)didUpdateNativeRenderSubviews {
+- (void)didUpdateHippySubviews {
     // Do nothing, as we don't allow non-text subviews
 }
 
 - (void)setMostRecentEventCount:(NSInteger)mostRecentEventCount {
     _mostRecentEventCount = mostRecentEventCount;
 
-    // Props are set after uiBlockToAmendWithRenderObjectRegistry, which means that
+    // Props are set after uiBlockToAmendWithShadowViewRegistry, which means that
     // at the time performTextUpdate is called, _mostRecentEventCount will be
     // behind _eventCount, with the result that performPendingTextUpdate will do
     // nothing. For that reason we call it again here after mostRecentEventCount
@@ -270,7 +270,7 @@ static NSAttributedString *removeComponentTagFromString(NSAttributedString *stri
                 @"height": @(size.height),
                 @"width": @(size.width),
             },
-            @"target": self.componentTag,
+            @"target": self.hippyTag,
         });
     }
 }
@@ -600,7 +600,7 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
     _nativeUpdatesInFlight = NO;
     //  _nativeEventCount++;
 
-    if (!self.componentTag || !_onChangeText) {
+    if (!self.hippyTag || !_onChangeText) {
         return;
     }
     
@@ -624,7 +624,7 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
     _onChangeText(@{
         @"text": self.text,
         @"contentSize": @ { @"height": @(contentHeight), @"width": @(textView.contentSize.width) },
-        @"target": self.componentTag,
+        @"target": self.hippyTag,
         @"eventCount": @(_nativeEventCount),
     });
 }
