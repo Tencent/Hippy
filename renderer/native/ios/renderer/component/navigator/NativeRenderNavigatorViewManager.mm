@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "NativeRenderImpl.h"
+#import "HippyUIManager.h"
 #import "NativeRenderNavigatorViewManager.h"
 
 @interface NativeRenderNavigatorViewManager ()
@@ -29,7 +29,7 @@
 
 @implementation NativeRenderNavigatorViewManager
 
-NATIVE_RENDER_EXPORT_VIEW(Navigator)
+HIPPY_EXPORT_MODULE(Navigator)
 
 - (UIView *)view {
     NativeRenderNavigatorHostView *hostView = [[NativeRenderNavigatorHostView alloc] initWithProps:self.props];
@@ -37,15 +37,15 @@ NATIVE_RENDER_EXPORT_VIEW(Navigator)
     return hostView;
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(push:(NSNumber *__nonnull)componentTag parms:(NSDictionary *__nonnull)params) {
-    [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+HIPPY_EXPORT_METHOD(push:(NSNumber *__nonnull)componentTag parms:(NSDictionary *__nonnull)params) {
+    [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         NativeRenderNavigatorHostView *navigatorHostView = viewRegistry[componentTag];
         [navigatorHostView push:params];
     }];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(pop:(NSNumber *__nonnull)componentTag parms:(NSDictionary *__nonnull)params) {
-    [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+HIPPY_EXPORT_METHOD(pop:(NSNumber *__nonnull)componentTag parms:(NSDictionary *__nonnull)params) {
+    [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         NativeRenderNavigatorHostView *navigatorHostView = viewRegistry[componentTag];
         [navigatorHostView pop:params];
     }];

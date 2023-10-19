@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-#import "MacroDefines.h"
+#import "HippyDefines.h"
 #import "VFSUriHandler.h"
 #import "VFSUriLoader.h"
 

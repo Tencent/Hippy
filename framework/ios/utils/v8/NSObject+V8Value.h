@@ -70,8 +70,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-HP_EXTERN id ObjectFromV8Value(v8::Local<v8::Value> value, v8::Isolate *isolate, v8::Local<v8::Context> context);
+HIPPY_EXTERN id ObjectFromV8Value(v8::Local<v8::Value> value, v8::Isolate *isolate, v8::Local<v8::Context> context);
 
-HP_EXTERN NSString *TryToFetchStringFromV8Value(v8::Local<v8::Value> value, v8::Isolate *isolate);
+HIPPY_EXTERN NSString *TryToFetchStringFromV8Value(v8::Local<v8::Value> value, v8::Isolate *isolate);
 
 NS_ASSUME_NONNULL_END

@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -47,7 +47,7 @@
 
 - (void)scrollViewDidScroll {
     if (_scrollView && _scrollView.contentSize.height > 0) {
-        if (self.onFooterPulling && NativeRenderRefreshStatusStartLoading != [self status] && NativeRenderRefreshStatusFinishLoading != [self status]) {
+        if (self.onFooterPulling && HippyRefreshStatusStartLoading != [self status] && HippyRefreshStatusFinishLoading != [self status]) {
             CGFloat offset = _scrollView.contentOffset.y;
             if (offset >= 0) {
                 self.onFooterPulling(@{ @"contentOffset": @(offset) });
@@ -60,24 +60,24 @@
     if (_scrollView) {
         CGFloat offset = _scrollView.contentOffset.y;
         if (offset > _scrollView.contentSize.height - CGRectGetHeight(_scrollView.bounds) + CGRectGetHeight(self.bounds)) {
-            self.status = NativeRenderRefreshStatusStartLoading;
+            self.status = HippyRefreshStatusStartLoading;
         }
     }
 }
 
-- (void)setStatus:(NativeRenderRefreshStatus)status {
+- (void)setStatus:(HippyRefreshStatus)status {
     if (_status == status) {
         return;
     }
     switch (status) {
-        case NativeRenderRefreshStatusIdle: {
+        case HippyRefreshStatusIdle: {
             [UIView animateWithDuration:.2f animations:^{
                 UIEdgeInsets insets = self.scrollView.contentInset;
                 self.scrollView.contentInset = UIEdgeInsetsMake(insets.top, insets.left, 0, insets.right);
             } completion:^(BOOL finished) {
             }];
         } break;
-        case NativeRenderRefreshStatusStartLoading: {
+        case HippyRefreshStatusStartLoading: {
             CGFloat height = CGRectGetHeight(self.bounds);
             if (_refreshStick) {
                 CGFloat currentOffset = _scrollView.contentOffset.y;
@@ -94,7 +94,7 @@
                 }
             }];
         } break;
-        case NativeRenderRefreshStatusFinishLoading: {
+        case HippyRefreshStatusFinishLoading: {
         } break;
         default:
             break;
@@ -111,7 +111,7 @@
             = CGPointMake(0, self.scrollView.contentSize.height - self.scrollView.bounds.size.height + self.scrollView.contentInset.bottom);
         [self.scrollView setContentOffset:bottomOffset animated:YES];
     } completion:^(BOOL finished) {
-        self.status = NativeRenderRefreshStatusStartLoading;
+        self.status = HippyRefreshStatusStartLoading;
     }];
 }
 

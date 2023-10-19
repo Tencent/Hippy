@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "MacroDefines.h"
+#import "HippyDefines.h"
 
 typedef NS_ENUM(NSInteger, NativeRenderViewEventType) {
     //touche event
@@ -45,6 +45,6 @@ typedef NS_ENUM(NSInteger, NativeRenderViewEventType) {
     NativeRenderViewEventTypeUnknown = -1,
 };
 
-HP_EXTERN NativeRenderViewEventType viewEventTypeFromName(const char * _Nullable name);
+HIPPY_EXTERN NativeRenderViewEventType viewEventTypeFromName(const char * _Nullable name);
 
-HP_EXTERN const char *_Nullable viewEventNameFromType(NativeRenderViewEventType eventType);
+HIPPY_EXTERN const char *_Nullable viewEventNameFromType(NativeRenderViewEventType eventType);

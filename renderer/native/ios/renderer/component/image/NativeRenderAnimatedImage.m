@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -73,7 +73,7 @@ typedef NS_ENUM(NSUInteger, NativeRenderAnimatedImageFrameCacheSize) {
 // We are lying about the actual type here to gain static type checking and eliminate casts.
 // The actual type of the object is `NativeRenderWeakProxy`.
 @property (nonatomic, strong, readonly) NativeRenderAnimatedImage *weakProxy;
-@property (nonatomic, strong) id<HPImageProviderProtocol> imageProvider;
+@property (nonatomic, strong) id<HippyImageProviderProtocol> imageProvider;
 
 @end
 
@@ -165,11 +165,11 @@ static NSHashTable *allAnimatedImagesWeak;
     return animatedImage;
 }
 
-- (instancetype)initWithAnimatedImageProvider:(id<HPImageProviderProtocol>)imageProvider {
+- (instancetype)initWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider {
     return [self initWithAnimatedImageProvider:imageProvider optimalFrameCacheSize:9 predrawingEnabled:NO];
 }
 
-- (instancetype)initWithAnimatedImageProvider:(id<HPImageProviderProtocol>)imageProvider
+- (instancetype)initWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider
                         optimalFrameCacheSize:(NSUInteger)optimalFrameCacheSize
                             predrawingEnabled:(BOOL)isPredrawingEnabled {
     if (nil == imageProvider) {
@@ -302,7 +302,7 @@ static NSHashTable *allAnimatedImagesWeak;
     return self;
 }
 
-+ (instancetype)animatedImageWithAnimatedImageProvider:(id<HPImageProviderProtocol>)imageProvider {
++ (instancetype)animatedImageWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider {
     NativeRenderAnimatedImage *animatedImage = [[NativeRenderAnimatedImage alloc] initWithAnimatedImageProvider:imageProvider];
     return animatedImage;
 }

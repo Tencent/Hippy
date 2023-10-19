@@ -50,4 +50,13 @@
 
 @property (nonatomic, readonly) HippyRedBox *redBox;
 
+/// The last current active bridge instance.
++ (nullable id)currentBridge;
+
+/// Record the last active bridge instance.
+/// - Parameter currentBridge: bridge instance, pass nil to reset.
++ (void)setCurrentBridge:(nullable HippyBridge *)currentBridge;
+
 @end
+
+

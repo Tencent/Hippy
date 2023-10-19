@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -23,7 +23,7 @@
 #import <UIKit/UIKit.h>
 
 #import "NativeRenderTouchesProtocol.h"
-#import "NativeRenderComponentProtocol.h"
+#import "HippyComponent.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param name event name
  * @param callback event call back for event
  */
-- (void)addPropertyEvent:(const char *)name eventCallback:(NativeRenderDirectEventBlock)callback;
+- (void)addPropertyEvent:(const char *)name eventCallback:(HippyDirectEventBlock)callback;
 
 /**
  * Remove status change event for view
@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @discussion The default implementation of this method is to trigger onDidMount event if it is onDidMount event
  */
-- (void)didAddPropertyEvent:(const char *)name eventCallback:(NativeRenderDirectEventBlock)callback;
+- (void)didAddPropertyEvent:(const char *)name eventCallback:(HippyDirectEventBlock)callback;
 
 /**
  * Notify view event has been removed from view

@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -26,13 +26,13 @@
 
 @implementation NativeRenderWaterfallItemViewManager
 
-NATIVE_RENDER_EXPORT_VIEW(WaterfallItem)
+HIPPY_EXPORT_MODULE(WaterfallItem)
 
 - (UIView *)view {
     return [NativeRenderWaterfallItemView new];
 }
 
-- (NativeRenderObjectView *)nativeRenderObjectView {
+- (HippyShadowView *)hippyShadowView {
     return [[NativeRenderObjectWaterfallItem alloc] init];
 }
 

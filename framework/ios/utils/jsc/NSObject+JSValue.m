@@ -21,7 +21,7 @@
  */
 
 #import "NSObject+JSValue.h"
-#import "HPLog.h"
+#import "HippyLog.h"
 
 @implementation NSObject (JSValue)
 
@@ -34,7 +34,7 @@
             [self isKindOfClass:NSClassFromString(@"NSNull")]) {
         }
         else {
-            HPLogError(@"unsupport type to JSValue:%@", NSStringFromClass([self class]));
+            HippyLogError(@"unsupport type to JSValue:%@", NSStringFromClass([self class]));
         }
 #endif //DEBUG
         return [JSValue valueWithObject:self inContext:context];
@@ -86,7 +86,7 @@ static void JSCCtx_dataBufferFree(void* bytes, void* deallocatorContext) {
         size_t length = [self length];
         void *data = malloc(length);
         if (!data) {
-            HPLogError(@"out of memory, NSData to JSValue memory allocation failure");
+            HippyLogError(@"out of memory, NSData to JSValue memory allocation failure");
             return [JSValue valueWithObject:self inContext:context];
         }
         [self getBytes:data length:length];

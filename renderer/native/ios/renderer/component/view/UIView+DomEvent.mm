@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -23,7 +23,7 @@
 #import "UIView+DomEvent.h"
 #import <objc/runtime.h>
 #import "UIView+MountEvent.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "UIEvent+TouchResponder.h"
 
 #include "dom/dom_listener.h"
@@ -82,7 +82,7 @@ static SEL SelectorFromCName(const char *name) {
     return selector;
 }
 
-- (void)addPropertyEvent:(const char *)name eventCallback:(NativeRenderDirectEventBlock)callback {
+- (void)addPropertyEvent:(const char *)name eventCallback:(HippyDirectEventBlock)callback {
     @try {
         SEL selector = SelectorFromCName(name);
         if ([self respondsToSelector:selector]) {
@@ -100,7 +100,7 @@ static SEL SelectorFromCName(const char *name) {
     }
 }
 
-- (void)didAddPropertyEvent:(const char *)name eventCallback:(NativeRenderDirectEventBlock)callback {
+- (void)didAddPropertyEvent:(const char *)name eventCallback:(HippyDirectEventBlock)callback {
     if (!name) {
         return;
     }
@@ -123,7 +123,7 @@ static SEL SelectorFromCName(const char *name) {
     SEL selector = SelectorFromCName(name);
     @try {
         if ([self respondsToSelector:selector]) {
-            NativeRenderDirectEventBlock cb = NULL;
+            HippyDirectEventBlock cb = NULL;
             NSMethodSignature *methodSign = [self methodSignatureForSelector:selector];
             NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSign];
             [invocation setTarget:self];

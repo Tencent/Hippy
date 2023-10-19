@@ -21,7 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "MacroDefines.h"
+#import "HippyDefines.h"
 
 #include <memory>
 
@@ -77,6 +77,6 @@ using CtxPtr = std::shared_ptr<hippy::napi::Ctx>;
 
 @end
 
-HP_EXTERN id ObjectFromCtxValue(CtxPtr context, CtxValuePtr value);
+HIPPY_EXTERN id ObjectFromCtxValue(CtxPtr context, CtxValuePtr value);
 
 NS_ASSUME_NONNULL_END

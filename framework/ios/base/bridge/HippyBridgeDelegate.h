@@ -22,7 +22,7 @@
 
 @class HippyBridge;
 
-#import "HPInvalidating.h"
+#import "HippyInvalidating.h"
 
 @protocol HippyBridgeDelegate <NSObject>
 
@@ -77,6 +77,27 @@
  * @param reason reson for HippyBridge invalidation, typically reload, or dealloc
  * @param bridge HippyBridge to be invalidated
  */
-- (void)invalidateForReason:(HPInvalidateReason)reason bridge:(HippyBridge *)bridge;
+- (void)invalidateForReason:(HippyInvalidateReason)reason bridge:(HippyBridge *)bridge;
+
+
+#pragma mark - UI/Layout Related
+
+/// When return YES,
+/// it indicates that you want to use the `viewWillTransitionToSize` method in UIViewController
+/// instead of the deprecated UIApplicationDidChangeStatusBarOrientationNotification.
+///
+/// Note that you must call `onHostControllerTransitionedToSize` of HippyRootView when size changed.
+- (BOOL)shouldUseViewWillTransitionMethodToMonitorOrientation;
+
+/// The default status bar height when hippy cannot obtained dynamically.
+///
+/// Note: In general, the page layout should not depend on `StatusBar` height,
+/// Its height is dynamically changed and should be obtained dynamically.
+/// This value is only used as a default value if hippy cannot be obtained.
+///
+/// Only for compatibility with old code, strongly discouraged.
+/// return values less than 0 will be treated as 0.
+- (CGFloat)defaultStatusBarHeightNoMatterHiddenOrNot;
+
 
 @end
