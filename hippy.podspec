@@ -8,7 +8,7 @@
 
 layout_engine = "Taitank"
 js_engine = "jsc"
-use_frameworks = ENV['USE_FRAMEWORKS'] != nil
+use_frameworks = false;
 
 Pod::Spec.new do |s|
   if ENV["layout_engine"]
@@ -16,6 +16,9 @@ Pod::Spec.new do |s|
   end
   if ENV["js_engine"]
     js_engine = ENV["js_engine"]
+  end
+  if ENV["USE_FRAMEWORKS"]
+    use_frameworks = true
   end
   puts "layout engine is #{layout_engine}, js engine is #{js_engine}"
   puts "use_frameworks trigger is #{use_frameworks}"
