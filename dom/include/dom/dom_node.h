@@ -55,6 +55,14 @@ enum RelativeType {
   kBack = 1,
 };
 
+struct DiffInfo {
+  bool skip_style_diff;
+  DiffInfo(bool skip_style_diff) : skip_style_diff(skip_style_diff) {}
+
+ private:
+  friend std::ostream& operator<<(std::ostream& os, const DiffInfo& diff_info);
+};
+
 struct RefInfo {
   uint32_t ref_id;
   int32_t relative_to_ref = RelativeType::kDefault;
@@ -67,7 +75,8 @@ struct RefInfo {
 struct DomInfo {
   std::shared_ptr<DomNode> dom_node;
   std::shared_ptr<RefInfo> ref_info;
-  DomInfo(std::shared_ptr<DomNode> node, std::shared_ptr<RefInfo> ref) : dom_node(node), ref_info(ref) {}
+  std::shared_ptr<DiffInfo> diff_info;
+  DomInfo(std::shared_ptr<DomNode> node, std::shared_ptr<RefInfo> ref, std::shared_ptr<DiffInfo> diff) : dom_node(node), ref_info(ref), diff_info(diff) {}
 
  private:
   friend std::ostream& operator<<(std::ostream& os, const DomInfo& dom_info);
