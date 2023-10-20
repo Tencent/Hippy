@@ -27,11 +27,16 @@
 #import "NativeRenderDefines.h"
 #import "HippyInvalidating.h"
 #import "HippyBridge.h"
+#import "HippyUIManager.h"
 #import "HippyDeviceBaseInfo.h"
 #include <objc/runtime.h>
 
-
+// Sent when the first subviews are added to the root view
 NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotification";
+
+// In hippy2 there are two concepts: common package and business package;
+// After the success of the business package loading will send a `SecondaryBundleDidLoad` notification;
+// For compatibility, hippy3 retains this notice and its actual meaning.
 NSString *const HippySecondaryBundleDidLoadNotification = @"HippySecondaryBundleDidLoadNotification";
 
 NSNumber *AllocRootViewTag(void) {
@@ -302,16 +307,18 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
 HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder)
 
 
-// FIXME: check
-//- (void)setFrame:(CGRect)frame {
-//    CGRect originFrame = self.frame;
-//    if (!CGRectEqualToRect(originFrame, frame)) {
-//        super.frame = frame;
-//        if (self.hippyTag && _bridge.isValid) {
-//            [_bridge.uiManager setFrame:frame fromOriginFrame:originFrame forView:self];
-//        }
-//    }
-//}
+- (void)setFrame:(CGRect)frame {
+    CGRect originFrame = self.frame;
+    if (!CGRectEqualToRect(originFrame, frame)) {
+        super.frame = frame;
+        if (self.hippyTag && _bridge.isValid) {
+            // TODO: check
+            // hippy2 使用[_bridge.uiManager setFrame:frame fromOriginFrame:originFrame forView:self];
+            // 进行frame更新时的UI重布局及刷新，有待检查hippy3此处架构合理性
+            [_bridge resetRootSize:frame.size];
+        }
+    }
+}
 
 #pragma mark - HippyComponent Method
 
