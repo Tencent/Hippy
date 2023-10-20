@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
   if ENV["js_engine"]
     js_engine = ENV["js_engine"]
   end
-  if ENV["USE_FRAMEWORKS"]
+  if ENV["use_frameworks"]
     use_frameworks = true
   end
   puts "layout engine is #{layout_engine}, js engine is #{js_engine}"
