@@ -33,6 +33,11 @@
 
 @implementation NativeRenderObjectModalHost
 
+- (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex{
+    [super insertHippySubview:subview atIndex:atIndex];
+    CGRect frame = { .origin = CGPointZero, .size = NativeRenderScreenSize() };
+    [subview setLayoutFrame:frame];
+}
 - (void)setDomManager:(std::weak_ptr<hippy::DomManager>)domManager {
     [super setDomManager:domManager];
     CGRect frame = { .origin = CGPointZero, .size = NativeRenderScreenSize() };
