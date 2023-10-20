@@ -1182,6 +1182,10 @@ static NSString *const hippyOnNightModeChangedParam2 = @"RootViewTag";
         auto strongRootNode = rootNode.lock();
         auto strongDomManager = weakDomManager.lock();
         if (strongRootNode && strongDomManager) {
+            if (std::abs(std::get<0>(strongRootNode->GetRootSize()) - size.width) < DBL_EPSILON &&
+                std::abs(std::get<1>(strongRootNode->GetRootSize()) - size.height) < DBL_EPSILON) {
+                return;
+            }
             strongRootNode->SetRootSize(size.width, size.height);
             strongDomManager->DoLayout(strongRootNode);
             strongDomManager->EndBatch(strongRootNode);
