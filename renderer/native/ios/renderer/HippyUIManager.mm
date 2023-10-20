@@ -690,7 +690,6 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         dispatch_async(dispatch_get_main_queue(), ^{
             if (weakManager) {
                 HP_PERF_LOG("flushUIBlocksOnRootNode on main thread(random id:%u)",rand);
-                int cnt = 0;
 
                 HippyUIManager *strongSelf = weakManager;
                 NSDictionary<NSNumber *, UIView *> *viewReg =
@@ -698,11 +697,11 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
                 @try {
                     for (HippyViewManagerUIBlock block in previousPendingUIBlocks) {
                         block(strongSelf, viewReg);
-                        ++cnt;
                     }
                 } @catch (NSException *exception) {
                 }
-                HP_PERF_LOG("flushUIBlocksOnRootNode on main thread done, block count:%d(random id:%u)", cnt, rand);
+                HP_PERF_LOG("flushUIBlocksOnRootNode on main thread done, block count:%d(random id:%u)", previousPendingUIBlocks.count, rand);
+
             }
         });
     }
