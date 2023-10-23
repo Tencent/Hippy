@@ -213,16 +213,9 @@ bool ShouldCreateLogMessage(LogSeverity severity);
 
 #endif
 
-inline void HPDoPerfLog( const char* file, int line, const char *format, ...){
-    va_list args;
-    va_start(args, format);
-    footstone::LogMessage::LogWithFormat(file, line, format, args);
-    va_end(args);
-}
 
-void HPDoPerfLog( const char *, int, const char *format, ...);
+#define HP_CSTR_NOT_NULL( p ) (p ? p : "")
 #define HP_PERF_LOG(format, ...) \
-  HPDoPerfLog(__FILE_NAME__, __LINE__, "[HP PERF]"                      \
-        " " format,                                    \
+footstone::LogMessage::LogWithFormat(__FILE_NAME__, __LINE__, "[HP PERF] " format,                                    \
          ##__VA_ARGS__)
 

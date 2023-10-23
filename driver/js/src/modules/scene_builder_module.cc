@@ -431,15 +431,12 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
       size_t argument_count,
       const std::shared_ptr<CtxValue> arguments[],
       std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
-    HP_PERF_LOG("SceneBuilder.create()");
     auto scope = weak_scope.lock();
     if (!scope) {
-       HP_PERF_LOG("SceneBuilder.create() exit with error");
       return nullptr;
     }
     auto ret = HandleJsValue(scope->GetContext(), arguments[0], scope);
     SceneBuilder::Create(scope->GetDomManager(), scope->GetRootNode(), std::move(std::get<2>(ret)));
-    HP_PERF_LOG("SceneBuilder.create() End");
     return nullptr;
   };
   class_template.functions.emplace_back(std::move(create_func_def));
@@ -451,15 +448,12 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
       size_t argument_count,
       const std::shared_ptr<CtxValue> arguments[],
       std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
-    HP_PERF_LOG("SceneBuilder.update()");
     auto scope = weak_scope.lock();
     if (!scope) {
-      HP_PERF_LOG("SceneBuilder.update() exit with error");
       return nullptr;
     }
     auto ret = HandleJsValue(scope->GetContext(), arguments[0], scope);
     SceneBuilder::Update(scope->GetDomManager(), scope->GetRootNode(), std::move(std::get<2>(ret)));
-    HP_PERF_LOG("SceneBuilder.update() End");
 
     return nullptr;
   };
@@ -471,11 +465,8 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
                                         const std::shared_ptr<CtxValue> arguments[],
                                         std::shared_ptr<CtxValue>&)
       -> std::shared_ptr<CtxValue> {
-    HP_PERF_LOG("SceneBuilder.move()");
-
     auto scope = weak_scope.lock();
     if (!scope) {
-    HP_PERF_LOG("SceneBuilder.move() exit with error");
       return nullptr;
     }
     auto weak_dom_manager = scope->GetDomManager();
@@ -491,13 +482,11 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
         auto node = context->CopyArrayElement(info, 0);
         auto id_tuple = GetNodeId(context, node);
         if (!std::get<0>(id_tuple)) {
-          HP_PERF_LOG("SceneBuilder.move() exit with error");
           return nullptr;
         }
 
         auto pid_tuple = GetNodePid(context, node);
         if (!std::get<0>(pid_tuple)) {
-          HP_PERF_LOG("SceneBuilder.move() exit with error");
           return nullptr;
         }
         if (length >= 2) {
@@ -514,7 +503,6 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
       }
     }
     SceneBuilder::Move(weak_dom_manager, scope->GetRootNode(), std::move(dom_infos));
-    HP_PERF_LOG("SceneBuilder.move() End");
     return nullptr;
   };
   class_template.functions.emplace_back(std::move(move_func_def));
@@ -526,11 +514,9 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
       size_t argument_count,
       const std::shared_ptr<CtxValue> arguments[],
       std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
-    HP_PERF_LOG("SceneBuilder.delete()");
 
     auto scope = weak_scope.lock();
     if (!scope) {
-      HP_PERF_LOG("SceneBuilder.delete() exit with error");
       return nullptr;
     }
     auto nodes = arguments[0];
@@ -550,7 +536,6 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
 
         auto pid_tuple = GetNodePid(context, node);
         if (!std::get<0>(pid_tuple)) {
-          HP_PERF_LOG("SceneBuilder.delete() exit with error");
 
           return nullptr;
         }
@@ -563,7 +548,6 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
       }
     }
     SceneBuilder::Delete(scope->GetDomManager(), scope->GetRootNode(), std::move(dom_infos));
-    HP_PERF_LOG("SceneBuilder.delete() End");
 
     return nullptr;
   };
@@ -576,17 +560,14 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
       size_t argument_count,
       const std::shared_ptr<CtxValue> arguments[],
       std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
-      HP_PERF_LOG("SceneBuilder.addEventListener()");
     auto scope = weak_scope.lock();
     if (!scope) {
-      HP_PERF_LOG("SceneBuilder.addEventListener() exit with error");
       return nullptr;
     }
     Scope::EventListenerInfo listener_info;
     HandleEventListenerInfo(scope->GetContext(), argument_count, arguments, listener_info);
     auto dom_listener_info = scope->AddListener(listener_info);
     SceneBuilder::AddEventListener(scope->GetDomManager(), scope->GetRootNode(), dom_listener_info);
-    HP_PERF_LOG("SceneBuilder.addEventListener() End");
     return nullptr;
   };
   class_template.functions.emplace_back(std::move(add_event_listener_def));
@@ -598,18 +579,15 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
       size_t argument_count,
       const std::shared_ptr<CtxValue> arguments[],
       std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
-      HP_PERF_LOG("SceneBuilder.removeEventListener()");
 
     auto scope = weak_scope.lock();
     if (!scope) {
-      HP_PERF_LOG("SceneBuilder.removeEventListener() exit with error");
       return nullptr;
     }
     Scope::EventListenerInfo listener_info;
     HandleEventListenerInfo(scope->GetContext(), argument_count, arguments, listener_info);
     auto dom_listener_info = scope->RemoveListener(listener_info);
     SceneBuilder::RemoveEventListener(scope->GetDomManager(), scope->GetRootNode(), dom_listener_info);
-    HP_PERF_LOG("SceneBuilder.removeEventListener() End");
     return nullptr;
   };
   class_template.functions.emplace_back(std::move(remove_event_listener_def));
