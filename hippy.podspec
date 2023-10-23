@@ -79,12 +79,15 @@ Pod::Spec.new do |s|
     footstone.header_mappings_dir = 'modules/footstone/'
     if use_frameworks
       header_search_paths = "#{framework_header_path}" + " #{framework_header_path}/include"
+      footstone.user_target_xcconfig = {
+        'HEADER_SEARCH_PATHS' => header_search_paths
+      }
     else
       header_search_paths = '$(PODS_TARGET_SRCROOT)/modules/footstone' + ' $(PODS_TARGET_SRCROOT)/modules/footstone/include'
+      footstone.user_target_xcconfig = {
+        'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/Headers/Public/hippy/include/'
+      }
     end
-    footstone.user_target_xcconfig = {
-      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/modules/footstone' + ' ${PODS_ROOT}/hippy/modules/footstone/include'
-    }
     footstone.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
       'GCC_PREPROCESSOR_DEFINITIONS[config=Release]' => '${inherited} NDEBUG=1',

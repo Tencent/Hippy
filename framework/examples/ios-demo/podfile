@@ -5,8 +5,8 @@ install! 'cocoapods',
          :deterministic_uuids => false,
          :generate_multiple_pod_projects => true
 
-use_frameworks! :linkage => :static  # 静态库framework格式
-ENV["use_frameworks"] = "true" # for hippy when set use_frameworks!
+#use_frameworks! :linkage => :static  # 静态库framework格式
+#ENV["use_frameworks"] = "true" # for hippy when set use_frameworks!
 
 workspace 'HippyDemo.xcworkspace'
 
