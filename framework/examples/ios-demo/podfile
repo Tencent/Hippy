@@ -11,7 +11,9 @@ install! 'cocoapods',
 workspace 'HippyDemo.xcworkspace'
 
 target "HippyDemo" do
-    project './HippyDemo.xcodeproj'
-    pod 'hippy', :path => '../../..'
+  platform :ios, '11.0'
+  
+  pod 'hippy', :path => '../../..'
+  
 end
 
