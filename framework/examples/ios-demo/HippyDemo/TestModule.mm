@@ -23,7 +23,6 @@
 #import "AppDelegate.h"
 #import "TestModule.h"
 #import "HippyBundleURLProvider.h"
-#import "HippyDemoLoader.h"
 #import "HippyJSEnginesMapper.h"
 #import "HippyRootView.h"
 #import "UIView+Hippy.h"
