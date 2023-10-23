@@ -142,4 +142,16 @@ HIPPY_EXTERN NSString *HippySchemeFromURLString(NSString *urlString);
 //Get String Encoding From HTTP URL Response
 HIPPY_EXTERN NSStringEncoding HippyGetStringEncodingFromURLResponse(NSURLResponse *response);
 
+
+#pragma mark -
+
+/// 工具类
+@interface HippyUtils : NSObject
+
+/// SDK版本号
++ (NSString *)sdkVersion;
+
+@end
+
+
 NS_ASSUME_NONNULL_END
