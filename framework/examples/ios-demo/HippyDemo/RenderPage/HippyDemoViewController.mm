@@ -72,7 +72,6 @@ static NSString *const engineKey = @"Demo";
         _debugURL = pageCache.debugURL;
         _isDebugMode = pageCache.isDebugMode;
         _hippyRootView = pageCache.rootView;
-        [_hippyRootView addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:NULL];
         _hippyBridge = pageCache.hippyBridge;
         _fromCache = YES;
     }
@@ -80,7 +79,6 @@ static NSString *const engineKey = @"Demo";
 }
 
 - (void)dealloc {
-    [_hippyRootView removeObserver:self forKeyPath:@"frame"];
     [[HippyPageCacheManager defaultPageCacheManager] addPageCache:[self toPageCache]];
     NSLog(@"%@ dealloc", self.class);
 }
@@ -187,28 +185,7 @@ static NSString *const engineKey = @"Demo";
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     
     [self.contentAreaView addSubview:rootView];
-    if (_hippyRootView) {
-        [_hippyRootView removeObserver:self forKeyPath:@"frame" context:NULL];
-    }
-    [rootView addObserver:self
-               forKeyPath:@"frame"
-                  options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld
-                  context:NULL];
     _hippyRootView = rootView;
-}
-
-- (void)observeValueForKeyPath:(NSString *)keyPath
-                      ofObject:(id)object
-                        change:(NSDictionary<NSKeyValueChangeKey,id> *)change
-                       context:(void *)context {
-    if ([keyPath isEqualToString:@"frame"] &&
-        object == _hippyRootView) {
-        CGRect frame = [change[NSKeyValueChangeNewKey] CGRectValue];
-        CGRect oldFrame = [change[NSKeyValueChangeOldKey] CGRectValue];
-        if (!CGRectEqualToRect(frame, oldFrame)) {
-            [_hippyBridge resetRootSize:frame.size];
-        }
-    }
 }
 
 - (void)viewDidLayoutSubviews {
