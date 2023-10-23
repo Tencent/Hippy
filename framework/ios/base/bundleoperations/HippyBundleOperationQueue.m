@@ -33,7 +33,7 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _ops = [NSMutableArray arrayWithCapacity:8];
+        _ops = [NSMutableArray array];
     }
     return self;
 }
@@ -43,22 +43,27 @@
         for (NSOperation *op in ops) {
             if ([op isReady]) {
                 [op addObserver:self forKeyPath:@"finished" options:NSKeyValueObservingOptionNew context:NULL];
-                [_ops addObject:op];
+                @synchronized (self) {
+                    [_ops addObject:op];
+                }
                 [op start];
-            }
-            else if ([op isCancelled]) {
-                
-            }
-            else {
+            } else if ([op isCancelled]) {
+                // do nothing
+            } else {
                 [op addObserver:self forKeyPath:@"ready" options:NSKeyValueObservingOptionNew context:NULL];
                 [op addObserver:self forKeyPath:@"finished" options:NSKeyValueObservingOptionNew context:NULL];
-                [_ops addObject:op];
+                @synchronized (self) {
+                    [_ops addObject:op];
+                }
             }
         }
     }
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary<NSKeyValueChangeKey,id> *)change
+                       context:(void *)context {
     NSNumber *value = [change objectForKey:NSKeyValueChangeNewKey];
     if (!value) {
         return;
@@ -71,9 +76,10 @@
     if ([keyPath isEqualToString:@"ready"] && status) {
         [op removeObserver:self forKeyPath:@"ready" context:NULL];
         [op start];
-    }
-    else if ([keyPath isEqualToString:@"finished"] && status) {
-        [_ops removeObject:object];
+    } else if ([keyPath isEqualToString:@"finished"] && status) {
+        @synchronized (self) {
+            [_ops removeObject:object];
+        }
         [op removeObserver:self forKeyPath:@"finished" context:NULL];
     }
 }
