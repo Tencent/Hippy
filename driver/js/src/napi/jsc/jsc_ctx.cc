@@ -893,11 +893,9 @@ std::shared_ptr<CtxValue> JSCCtx::CallFunction(const std::shared_ptr<CtxValue>& 
                                                const std::shared_ptr<CtxValue> argv[]) {
   auto function_value = std::static_pointer_cast<JSCCtxValue>(function);
   JSValueRef exception = nullptr;
-  HP_PERF_LOG("JSCCtx::CallFunction");
   auto function_object = JSValueToObject(context_, function_value->value_, &exception);
   if (exception) {
     SetException(std::make_shared<JSCCtxValue>(context_, exception));
-      HP_PERF_LOG("JSCCtx::CallFunction End with exception");
 
     return nullptr;
   }
@@ -906,7 +904,6 @@ std::shared_ptr<CtxValue> JSCCtx::CallFunction(const std::shared_ptr<CtxValue>& 
   auto receiver_object = JSValueToObject(context_, receiver_value->value_, &exception);
   if (exception) {
     SetException(std::make_shared<JSCCtxValue>(context_, exception));
-      HP_PERF_LOG("JSCCtx::CallFunction End with exception");
     return nullptr;
   }
 
@@ -914,10 +911,8 @@ std::shared_ptr<CtxValue> JSCCtx::CallFunction(const std::shared_ptr<CtxValue>& 
     auto ret_value_ref = JSObjectCallAsFunction(context_, function_object, receiver_object, 0, nullptr, &exception);
     if (exception) {
       SetException(std::make_shared<JSCCtxValue>(context_, exception));
-      HP_PERF_LOG("JSCCtx::CallFunction End with exception");
       return nullptr;
     }
-    HP_PERF_LOG("JSCCtx::CallFunction End with exception");
     return std::make_shared<JSCCtxValue>(context_, ret_value_ref);
   }
 
@@ -930,15 +925,12 @@ std::shared_ptr<CtxValue> JSCCtx::CallFunction(const std::shared_ptr<CtxValue>& 
   auto ret_value_ref = JSObjectCallAsFunction(context_, function_object, receiver_object, argc, values, &exception);
   if (exception) {
     SetException(std::make_shared<JSCCtxValue>(context_, exception));
-    HP_PERF_LOG("JSCCtx::CallFunction End with exception");
     return nullptr;
   }
 
   if (!ret_value_ref) {
-    HP_PERF_LOG("JSCCtx::CallFunction End with exception");
     return nullptr;
   }
-  HP_PERF_LOG("JSCCtx::CallFunction End with exception");
 
   return std::make_shared<JSCCtxValue>(context_, ret_value_ref);
 }
@@ -1134,7 +1126,6 @@ std::shared_ptr<CtxValue> JSCCtx::RunScript(const string_view& data,
   if (StringViewUtils::IsEmpty(data)) {
     return nullptr;
   }
-  HP_PERF_LOG("JSCCtx::RunScript");
 
   JSStringRef js = JSCVM::CreateJSCString(data);
   JSValueRef exception = nullptr;
@@ -1150,15 +1141,12 @@ std::shared_ptr<CtxValue> JSCCtx::RunScript(const string_view& data,
 
   if (exception) {
     SetException(std::make_shared<JSCCtxValue>(context_, exception));
-    HP_PERF_LOG("JSCCtx::RunScript Error");
     return nullptr;
   }
 
   if (!value) {
-    HP_PERF_LOG("JSCCtx::RunScript Error");
     return nullptr;
   }
-  HP_PERF_LOG("JSCCtx::RunScript End");
   return std::make_shared<JSCCtxValue>(context_, value);
 }
 
