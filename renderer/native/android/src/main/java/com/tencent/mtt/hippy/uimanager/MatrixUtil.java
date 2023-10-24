@@ -22,7 +22,6 @@ public class MatrixUtil {
   public static class MatrixDecompositionContext {
 
     final double[] perspective = new double[4];
-    final double[] quaternion = new double[4];
     final double[] scale = new double[3];
     final double[] skew = new double[3];
     final double[] translation = new double[3];
@@ -33,11 +32,6 @@ public class MatrixUtil {
       perspective[1] = 0;
       perspective[2] = 0;
       perspective[3] = 0;
-
-      quaternion[0] = 0;
-      quaternion[1] = 0;
-      quaternion[2] = 0;
-      quaternion[3] = 0;
 
       scale[0] = 0;
       scale[1] = 0;
@@ -68,43 +62,55 @@ public class MatrixUtil {
   // 输入：matrixA，长度16的一维数组，代表四维矩阵
   // 输入：matrixB，长度16的一维数组，代表四维矩阵
   public static void multiplyInto(double[] out, double[] matrixA, double[] matrixB) {
-    double b00 = matrixB[0], b01 = matrixB[1], b02 = matrixB[2], b03 = matrixB[3],
-        b10 = matrixB[4], b11 = matrixB[5], b12 = matrixB[6], b13 = matrixB[7],
-        b20 = matrixB[8], b21 = matrixB[9], b22 = matrixB[10], b23 = matrixB[11],
-        b30 = matrixB[12], b31 = matrixB[13], b32 = matrixB[14], b33 = matrixB[15];
+    double a00 = matrixA[0],
+            a01 = matrixA[1],
+            a02 = matrixA[2],
+            a03 = matrixA[3],
+            a10 = matrixA[4],
+            a11 = matrixA[5],
+            a12 = matrixA[6],
+            a13 = matrixA[7],
+            a20 = matrixA[8],
+            a21 = matrixA[9],
+            a22 = matrixA[10],
+            a23 = matrixA[11],
+            a30 = matrixA[12],
+            a31 = matrixA[13],
+            a32 = matrixA[14],
+            a33 = matrixA[15];
 
-    double a0 = matrixA[0], a1 = matrixA[1], a2 = matrixA[2], a3 = matrixA[3];
-    out[0] = a0 * b00 + a1 * b10 + a2 * b20 + a3 * b30;
-    out[1] = a0 * b01 + a1 * b11 + a2 * b21 + a3 * b31;
-    out[2] = a0 * b02 + a1 * b12 + a2 * b22 + a3 * b32;
-    out[3] = a0 * b03 + a1 * b13 + a2 * b23 + a3 * b33;
+    double b0 = matrixB[0], b1 = matrixB[1], b2 = matrixB[2], b3 = matrixB[3];
+    out[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+    out[1] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+    out[2] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+    out[3] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
 
-    a0 = matrixA[4];
-    a1 = matrixA[5];
-    a2 = matrixA[6];
-    a3 = matrixA[7];
-    out[4] = a0 * b00 + a1 * b10 + a2 * b20 + a3 * b30;
-    out[5] = a0 * b01 + a1 * b11 + a2 * b21 + a3 * b31;
-    out[6] = a0 * b02 + a1 * b12 + a2 * b22 + a3 * b32;
-    out[7] = a0 * b03 + a1 * b13 + a2 * b23 + a3 * b33;
+    b0 = matrixB[4];
+    b1 = matrixB[5];
+    b2 = matrixB[6];
+    b3 = matrixB[7];
+    out[4] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+    out[5] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+    out[6] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+    out[7] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
 
-    a0 = matrixA[8];
-    a1 = matrixA[9];
-    a2 = matrixA[10];
-    a3 = matrixA[11];
-    out[8] = a0 * b00 + a1 * b10 + a2 * b20 + a3 * b30;
-    out[9] = a0 * b01 + a1 * b11 + a2 * b21 + a3 * b31;
-    out[10] = a0 * b02 + a1 * b12 + a2 * b22 + a3 * b32;
-    out[11] = a0 * b03 + a1 * b13 + a2 * b23 + a3 * b33;
+    b0 = matrixB[8];
+    b1 = matrixB[9];
+    b2 = matrixB[10];
+    b3 = matrixB[11];
+    out[8] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+    out[9] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+    out[10] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+    out[11] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
 
-    a0 = matrixA[12];
-    a1 = matrixA[13];
-    a2 = matrixA[14];
-    a3 = matrixA[15];
-    out[12] = a0 * b00 + a1 * b10 + a2 * b20 + a3 * b30;
-    out[13] = a0 * b01 + a1 * b11 + a2 * b21 + a3 * b31;
-    out[14] = a0 * b02 + a1 * b12 + a2 * b22 + a3 * b32;
-    out[15] = a0 * b03 + a1 * b13 + a2 * b23 + a3 * b33;
+    b0 = matrixB[12];
+    b1 = matrixB[13];
+    b2 = matrixB[14];
+    b3 = matrixB[15];
+    out[12] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+    out[13] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+    out[14] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+    out[15] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
   }
 
   /**
@@ -113,7 +119,6 @@ public class MatrixUtil {
   public static void decomposeMatrix(double[] transformMatrix, MatrixDecompositionContext ctx) {
     // output values
     final double[] perspective = ctx.perspective;
-    final double[] quaternion = ctx.quaternion;
     final double[] scale = ctx.scale;
     final double[] skew = ctx.skew;
     final double[] translation = ctx.translation;
@@ -177,10 +182,6 @@ public class MatrixUtil {
     skew[0] = v3Dot(row[0], row[1]);
     row[1] = v3Combine(row[1], row[0], 1.0, -skew[0]);
 
-    // Compute XY shear factor and make 2nd row orthogonal to 1st.
-    skew[0] = v3Dot(row[0], row[1]);
-    row[1] = v3Combine(row[1], row[0], 1.0, -skew[0]);
-
     // Now, compute Y scale and normalize 2nd row.
     scale[1] = v3Length(row[1]);
     row[1] = v3Normalize(row[1], scale[1]);
@@ -212,31 +213,12 @@ public class MatrixUtil {
     }
 
     // Now, get the rotations out
-    quaternion[0] = 0.5 * Math.sqrt(Math.max(1 + row[0][0] - row[1][1] - row[2][2], 0));
-    quaternion[1] = 0.5 * Math.sqrt(Math.max(1 - row[0][0] + row[1][1] - row[2][2], 0));
-    quaternion[2] = 0.5 * Math.sqrt(Math.max(1 - row[0][0] - row[1][1] + row[2][2], 0));
-    quaternion[3] = 0.5 * Math.sqrt(Math.max(1 + row[0][0] + row[1][1] + row[2][2], 0));
-
-    if (row[2][1] > row[1][2]) {
-      quaternion[0] = -quaternion[0];
-    }
-    if (row[0][2] > row[2][0]) {
-      quaternion[1] = -quaternion[1];
-    }
-    if (row[1][0] > row[0][1]) {
-      quaternion[2] = -quaternion[2];
-    }
-
-    // correct for occasional, weird Euler synonyms for 2d rotation
-
-    if (quaternion[0] < 0.001 && quaternion[0] >= 0 && quaternion[1] < 0.001
-        && quaternion[1] >= 0) {
-      // this is a 2d rotation on the z-axis
-      rotationDegrees[0] = rotationDegrees[1] = 0d;
-      rotationDegrees[2] = roundTo3Places(Math.atan2(row[0][1], row[0][0]) * 180 / Math.PI);
-    } else {
-      quaternionToDegreesXYZ(quaternion, rotationDegrees);
-    }
+    // Based on: http://nghiaho.com/?page_id=846
+    double conv = 180 / Math.PI;
+    rotationDegrees[0] = roundTo3Places(-Math.atan2(row[2][1], row[2][2]) * conv);
+    rotationDegrees[1] =
+        roundTo3Places(-Math.atan2(-row[2][0], Math.sqrt(row[2][1] * row[2][1] + row[2][2] * row[2][2])) * conv);
+    rotationDegrees[2] = roundTo3Places(-Math.atan2(row[1][0], row[0][0]) * conv);
   }
 
   public static double determinant(double[] matrix) {
@@ -360,46 +342,6 @@ public class MatrixUtil {
         a[0] * b[1] - a[1] * b[0]};
   }
 
-  /**
-   * Based on: http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
-   * and: http://quat.zachbennett.com/
-   * <p>
-   * Note that this rounds degrees to the thousandth of a degree, due to floating point errors in
-   * the creation of the quaternion.
-   * <p>
-   * Also note that this expects the qw value to be last, not first.
-   * <p>
-   * Also, when researching this, remember that: yaw === heading === z-axis pitch ===
-   * elevation/attitude === y-axis roll === bank === x-axis
-   */
-  public static void quaternionToDegreesXYZ(double[] q, double[] result) {
-    double qx = q[0], qy = q[1], qz = q[2], qw = q[3];
-    double qw2 = qw * qw;
-    double qx2 = qx * qx;
-    double qy2 = qy * qy;
-    double qz2 = qz * qz;
-    double test = qx * qy + qz * qw;
-    double unit = qw2 + qx2 + qy2 + qz2;
-    double conv = 180 / Math.PI;
-
-    if (test > 0.49999 * unit) {
-      result[0] = 0;
-      result[1] = 2 * Math.atan2(qx, qw) * conv;
-      result[2] = 90;
-      return;
-    }
-    if (test < -0.49999 * unit) {
-      result[0] = 0;
-      result[1] = -2 * Math.atan2(qx, qw) * conv;
-      result[2] = -90;
-      return;
-    }
-
-    result[0] = roundTo3Places(Math.atan2(2 * qx * qw - 2 * qy * qz, 1 - 2 * qx2 - 2 * qz2) * conv);
-    result[1] = roundTo3Places(Math.atan2(2 * qy * qw - 2 * qx * qz, 1 - 2 * qy2 - 2 * qz2) * conv);
-    result[2] = roundTo3Places(Math.asin(2 * qx * qy + 2 * qz * qw) * conv);
-  }
-
   public static double roundTo3Places(double n) {
     return Math.round(n * 1000d) * 0.001;
   }
@@ -425,6 +367,10 @@ public class MatrixUtil {
     m[5] = factor;
   }
 
+  public static void applyScaleZ(double[] m, double factor) {
+    m[10] = factor;
+  }
+
   public static void applyTranslate2D(double[] m, double x, double y) {
     m[12] = x;
     m[13] = y;
@@ -437,13 +383,11 @@ public class MatrixUtil {
   }
 
   public static void applySkewX(double[] m, double radians) {
-    m[4] = Math.sin(radians);
-    m[5] = Math.cos(radians);
+    m[4] = Math.tan(radians);
   }
 
   public static void applySkewY(double[] m, double radians) {
-    m[0] = Math.cos(radians);
-    m[1] = Math.sin(radians);
+    m[1] = Math.tan(radians);
   }
 
   public static void applyRotateX(double[] m, double radians) {

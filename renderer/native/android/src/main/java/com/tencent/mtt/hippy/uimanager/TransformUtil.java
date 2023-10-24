@@ -83,7 +83,7 @@ public class TransformUtil {
         MatrixUtil.applyScaleY(helperMatrix, scale);
       } else if ("scaleX".equals(transformType) && value instanceof Number) {
         MatrixUtil.applyScaleX(helperMatrix, ((Number) value).doubleValue());
-      } else if ("scaleY".equals(transformType)) {
+      } else if ("scaleY".equals(transformType) && value instanceof Number) {
         MatrixUtil.applyScaleY(helperMatrix, ((Number) value).doubleValue());
       } else if ("translate".equals(transformType) && value instanceof ArrayList) {
         double x = 0d, y = 0d, z = 0d;
