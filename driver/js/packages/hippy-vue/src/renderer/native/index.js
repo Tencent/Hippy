@@ -666,7 +666,7 @@ function updateChild(parentNode, notUpdateStyle = false) {
   let eventNode;
   let printedNode;
   if (notUpdateStyle) {
-    nativeNode = getNativeNode(rootViewId, parentNode, refInfo);
+    nativeNode = getNativeNode(rootViewId, parentNode);
   } else {
     [nativeNode, eventNode, printedNode] = renderToNative(rootViewId, parentNode);
   }
