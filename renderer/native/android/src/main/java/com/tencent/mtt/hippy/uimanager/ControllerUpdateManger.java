@@ -240,6 +240,7 @@ public class ControllerUpdateManger<T, G> {
             if (methodHolder != null) {
                 Object arg = (view == null) ? node.createView(true) : view;
                 if (arg != null) {
+                    view = (G) arg;
                     invokePropMethod(controller, arg, props, key, methodHolder);
                 }
             } else {
