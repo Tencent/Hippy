@@ -18,13 +18,11 @@ package com.tencent.mtt.hippy.uimanager;
 
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.ADD_CHILD_VIEW_FAILED_ERR;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.REMOVE_CHILD_VIEW_FAILED_ERR;
-import static com.tencent.renderer.NativeRenderer.SCREEN_SNAPSHOT_ROOT_ID;
 import static com.tencent.renderer.node.RenderNode.FLAG_ALREADY_UPDATED;
 import static com.tencent.renderer.node.RenderNode.FLAG_UPDATE_LAYOUT;
 
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.openhippy.pool.BasePool.PoolType;
@@ -35,7 +33,6 @@ import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
-import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewController;
 import com.tencent.mtt.hippy.views.image.HippyImageViewController;
@@ -57,7 +54,6 @@ import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallViewController;
 import com.tencent.mtt.hippy.views.webview.HippyWebViewController;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderException;
-import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.Renderer;
 import com.tencent.renderer.node.RenderNode;
 import com.tencent.renderer.node.VirtualNode;
@@ -71,7 +67,7 @@ public class ControllerManager {
     @NonNull
     private final ControllerRegistry mControllerRegistry;
     @NonNull
-    private final ControllerUpdateManger<HippyViewController<?>, View> mControllerUpdateManger;
+    private final ControllerUpdateManger<HippyViewController<?>> mControllerUpdateManger;
     @NonNull
     private final Map<Integer, Pool<Integer, View>> mPreCreateViewPools = new HashMap<>();
     @NonNull

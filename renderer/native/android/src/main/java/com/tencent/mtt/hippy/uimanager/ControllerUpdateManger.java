@@ -38,7 +38,6 @@ import com.tencent.renderer.utils.PropertyUtils;
 import com.tencent.renderer.utils.PropertyUtils.PropertyMethodHolder;
 import com.tencent.renderer.node.RenderNode;
 
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,7 +46,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class ControllerUpdateManger<T, G> {
+public class ControllerUpdateManger<T> {
 
     private static final Map<Class<?>, Map<String, PropertyMethodHolder>> sViewPropsMethodMap = new HashMap<>();
     private static final Map<String, PropertyMethodHolder> sComponentPropsMethodMap = new HashMap<>();
@@ -191,12 +190,12 @@ public class ControllerUpdateManger<T, G> {
         }
     }
 
-    private void handleCustomProps(T t, G g, @NonNull String key,
+    private void handleCustomProps(T t, @Nullable View g, @NonNull String key,
             @NonNull Map<String, Object> props) {
-        boolean hasCustomMethodHolder = false;
-        if (!(g instanceof View)) {
+        if (g == null) {
             return;
         }
+        boolean hasCustomMethodHolder = false;
         Object customProps = props.get(key);
         if (mCustomPropsController != null
                 && mCustomPropsController instanceof HippyCustomPropsController) {
@@ -214,11 +213,11 @@ public class ControllerUpdateManger<T, G> {
         }
         if (!hasCustomMethodHolder && t instanceof HippyViewController) {
             //noinspection unchecked
-            ((HippyViewController) t).setCustomProp((View) g, key, customProps);
+            ((HippyViewController) t).setCustomProp(g, key, customProps);
         }
     }
 
-    protected void updateProps(@NonNull RenderNode node, @NonNull T controller, @Nullable G view,
+    protected void updateProps(@NonNull RenderNode node, @NonNull T controller, @Nullable View view,
             @Nullable Map<String, Object> props, boolean skipComponentProps) {
         if (props == null || props.isEmpty()) {
             return;
@@ -238,18 +237,20 @@ public class ControllerUpdateManger<T, G> {
             }
             PropertyMethodHolder methodHolder = methodHolderMap.get(key);
             if (methodHolder != null) {
-                Object arg = (view == null) ? node.createView(true) : view;
-                if (arg != null) {
-                    invokePropMethod(controller, arg, props, key, methodHolder);
+                if (view == null) {
+                    view = node.createView(true);
+                }
+                if (view != null) {
+                    invokePropMethod(controller, view, props, key, methodHolder);
                 }
             } else {
                 // Background color is a property supported by both view and component, if the
                 // host view of a node has already been created, we need to set this property
                 // separately on the view, otherwise the background color setting for non
                 // flattened elements will not take effect.
-                if (key.equals(NodeProps.BACKGROUND_COLOR) && view instanceof View
+                if (key.equals(NodeProps.BACKGROUND_COLOR) && view != null
                         && !(view instanceof FlatViewGroup)) {
-                    ((View) view).setBackgroundColor(
+                    view.setBackgroundColor(
                             MapUtils.getIntValue(props, NodeProps.BACKGROUND_COLOR,
                                     Color.TRANSPARENT));
                 } else if (!handleComponentProps(node, key, props, skipComponentProps)) {
