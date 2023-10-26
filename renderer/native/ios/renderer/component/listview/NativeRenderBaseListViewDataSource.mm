@@ -173,6 +173,7 @@
     if (context.allChangedItems.count > 1) {
         [view reloadData];
         completion(YES);
+        return;
     }
     
     // The following logic is not perfect and needs to be further refined

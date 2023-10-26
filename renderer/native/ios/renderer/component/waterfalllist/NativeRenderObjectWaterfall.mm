@@ -94,7 +94,8 @@
 }
 
 - (BOOL)hasChanges {
-    return _addedItems.count != 0 || _deletedItems.count != 0 || _movedItems.count != 0 || _frameChangedItems.count != 0;
+    return _addedItems.count != 0 || _deletedItems.count != 0 ||
+    _movedItems.count != 0 || _frameChangedItems.count != 0;
 }
 
 - (NSSet<HippyShadowView *> *)allChangedItems {
