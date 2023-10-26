@@ -51,4 +51,6 @@ public interface FrameworkProxy {
 
     void updateDimension(int width, int height, boolean shouldUseScreenDisplay,
             boolean systemUiVisibilityChanged);
+
+    void onSizeChanged(int rootId, int w, int h, int ow, int oh);
 }
