@@ -166,7 +166,16 @@
         completion(YES);
         return;
     }
-//    NSArray<NSInvocation *> *batchUpdateInvocations = [self cellViewChangeInvocation:another context:context forCollectionView:view];
+    
+    // Attention, we do partial reload only when 1 item change!
+    // because differential refreshing causes the display event of the cell to not trigger,
+    // So we limit this to when only one cell is updated
+    if (context.allChangedItems.count > 1) {
+        [view reloadData];
+        completion(YES);
+    }
+    
+    // The following logic is not perfect and needs to be further refined
     NSMutableArray<NSInvocation *> *batchUpdate = [NSMutableArray arrayWithCapacity:8];
     [self cellDiffFromAnother:another
                sectionStartAt:0

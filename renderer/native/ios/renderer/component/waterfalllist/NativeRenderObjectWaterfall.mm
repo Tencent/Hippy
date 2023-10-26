@@ -73,9 +73,8 @@
 }
 
 - (void)appendFrameChangedItem:(__kindof HippyShadowView *)objectView {
-    if (![_addedItems containsObject:objectView]) {
-        [_frameChangedItems addObject:objectView];
-    }
+    // _frameChangedItems may be also in other addedItems/movedItems
+    [_frameChangedItems addObject:objectView];
 }
 
 - (NSSet<__kindof HippyShadowView *> *)deletedItems {
@@ -92,6 +91,19 @@
 
 - (NSHashTable<__kindof HippyShadowView *> *)frameChangedItems {
     return [_frameChangedItems copy];
+}
+
+- (BOOL)hasChanges {
+    return _addedItems.count != 0 || _deletedItems.count != 0 || _movedItems.count != 0 || _frameChangedItems.count != 0;
+}
+
+- (NSSet<HippyShadowView *> *)allChangedItems {
+    NSMutableSet *allChanges = [NSMutableSet set];
+    [allChanges addObjectsFromArray:_addedItems.allObjects];
+    [allChanges addObjectsFromArray:_deletedItems.allObjects];
+    [allChanges addObjectsFromArray:_movedItems.allObjects];
+    [allChanges addObjectsFromArray:_frameChangedItems.allObjects];
+    return allChanges;
 }
 
 - (void)clear {
@@ -163,11 +175,14 @@
 
 - (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
     if ([self isPropagationDirty:NativeRenderUpdateLifecycleLayoutDirtied]) {
-        __weak NativeRenderObjectWaterfall *weakSelf = self;
+        if (!_itemChangeContext.hasChanges) {
+            return;
+        }
         WaterfallItemChangeContext *context = [_itemChangeContext copy];
         NSArray<HippyShadowView *> *dataSource = [self.subcomponents copy];
+        __weak __typeof(self)weakSelf = self;
         NativeRenderApplierBlock block = ^void(NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-            NativeRenderObjectWaterfall *strongSelf = weakSelf;
+            __strong __typeof(weakSelf)strongSelf = weakSelf;
             if (!strongSelf) {
                 return;
             }
@@ -175,7 +190,7 @@
             HippyAssert([view isKindOfClass:[NativeRenderWaterfallView class]], @"view must be kind of NativeRenderWaterfallView");
             if ([view isKindOfClass:[NativeRenderWaterfallView class]]) {
                 view.dirtyContent = YES;
-                view.changeContext = [context copy];
+                view.changeContext = context;
                 [view pushDataSource:dataSource];
             }
         };
