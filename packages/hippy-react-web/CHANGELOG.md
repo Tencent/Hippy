@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.17.2](https://github.com/Tencent/Hippy/compare/2.17.1...2.17.2) (2023-10-27)
+
+
+### Bug Fixes
+
+* **hippy-react-web:** HippyTypes.Style for web ([#3468](https://github.com/Tencent/Hippy/issues/3468)) ([2220cda](https://github.com/Tencent/Hippy/commit/2220cda97dda547a40eb8b1626d02d9ee1aad80d))
+
+
+
+
+
 ## [2.17.1](https://github.com/Tencent/Hippy/compare/2.17.0...2.17.1) (2023-08-28)
 
 

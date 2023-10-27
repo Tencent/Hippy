@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.17.2](https://github.com/Tencent/Hippy/compare/2.17.1...2.17.2) (2023-10-27)
+
+
+### Bug Fixes
+
+* **android:** fix npe when preload ([bdc3fa4](https://github.com/Tencent/Hippy/commit/bdc3fa4feaf98a7142e5af5c56d7d23b6fdeb7d0))
+* **core:** fix console module log encode ([bf266b9](https://github.com/Tencent/Hippy/commit/bf266b9346b4f87af1d32b20bd95b038c8f49027))
+* **hippy-react-web:** HippyTypes.Style for web ([#3468](https://github.com/Tencent/Hippy/issues/3468)) ([2220cda](https://github.com/Tencent/Hippy/commit/2220cda97dda547a40eb8b1626d02d9ee1aad80d))
+* **ios:** animation module multi-instance support ([8ca6754](https://github.com/Tencent/Hippy/commit/8ca67546fc94d5983122c7ff0acd7b8eaa5365da))
+* **ios:** animation module multi-instance support 2 ([5fad881](https://github.com/Tencent/Hippy/commit/5fad88155f55239a11adf1975bfb79a989fec790))
+* **ios:** fix context leak when using shared engine ([#3451](https://github.com/Tencent/Hippy/issues/3451)) ([66d516b](https://github.com/Tencent/Hippy/commit/66d516bf76a75db16aeace766a1b59f1de726935))
+* **ios:** onChange event not triggered when typing Chinese Pinyin ([6b57bed](https://github.com/Tencent/Hippy/commit/6b57bedef97d00782d730359b7850228a1421960))
+* **js:** remove virtual for animation ([#3467](https://github.com/Tencent/Hippy/issues/3467)) ([021a204](https://github.com/Tencent/Hippy/commit/021a204e36c420686ac37b09ef6cbc93a6a33274))
+* **v8:** v8 code cache file broken protect ([f9b468e](https://github.com/Tencent/Hippy/commit/f9b468e4060f24da842173dd6733f36e2a4927cb))
+* **v8:** v8 code cache file broken protect ([d39881c](https://github.com/Tencent/Hippy/commit/d39881ce7179bbbcfdb8b37b751a077de03d2897))
+
+
+### Features
+
+* **ios:** rewrite animation module ([#3436](https://github.com/Tencent/Hippy/issues/3436)) ([92c7c30](https://github.com/Tencent/Hippy/commit/92c7c304fb4b0c2a3b6f287b79fc88a56108ec92))
+
+
+
+
+
 ## [2.17.1](https://github.com/Tencent/Hippy/compare/2.17.0...2.17.1) (2023-08-28)
 
 
