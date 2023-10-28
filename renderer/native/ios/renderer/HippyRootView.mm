@@ -29,6 +29,7 @@
 #import "HippyBridge.h"
 #import "HippyUIManager.h"
 #import "HippyDeviceBaseInfo.h"
+#import "HippyTouchHandler.h"
 #include <objc/runtime.h>
 
 // Sent when the first subviews are added to the root view
@@ -51,7 +52,7 @@ NSNumber *AllocRootViewTag(void) {
 @interface HippyRootContentView : HippyView <HippyInvalidating>
 
 @property (nonatomic, readonly) BOOL contentHasAppeared;
-//@property (nonatomic, strong) HippyTouchHandler *touchHandler;
+@property (nonatomic, strong) HippyTouchHandler *touchHandler;
 @property (nonatomic, assign) int64_t startTimpStamp;
 
 - (instancetype)initWithFrame:(CGRect)frame
@@ -200,7 +201,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 - (void)cancelTouches {
-    //    [[_contentView touchHandler] cancelTouch];
+    [[_contentView touchHandler] cancelTouch];
 }
 
 - (NSNumber *)hippyTag {
@@ -293,9 +294,9 @@ static NSString *const HippyHostControllerSizeKeyNewSize = @"NewSize";
         _bridge = bridge;
         self.hippyTag = hippyTag;
         
-        // FIXME: HippyTouchHandler
-        //        _touchHandler = [[HippyTouchHandler alloc] initWithRootView:self bridge:bridge];
-        //        [self addGestureRecognizer:_touchHandler];
+        // 添加Hippy自定义手势识别器，用于管理手势事件，并将其发送至js端。
+        _touchHandler = [[HippyTouchHandler alloc] initWithRootView:self bridge:bridge];
+        [self addGestureRecognizer:_touchHandler];
         
         self.layer.backgroundColor = NULL;
         _startTimpStamp = CACurrentMediaTime() * 1000;

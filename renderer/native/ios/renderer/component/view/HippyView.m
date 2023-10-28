@@ -25,7 +25,6 @@
 #import "HippyBorderDrawing.h"
 #import "NativeRenderGradientObject.h"
 #import "HippyView.h"
-#import "UIEvent+TouchResponder.h"
 #import "UIView+DomEvent.h"
 #import "UIView+Hippy.h"
 
