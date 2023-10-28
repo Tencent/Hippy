@@ -22,10 +22,11 @@
 
 #import <UIKit/UIKit.h>
 #import "HippyComponent.h"
+#import "HippyViewEventProtocol.h"
 
 @class HippyShadowView;
 
-@interface UIView (Hippy) <HippyComponent>
+@interface UIView (Hippy) <HippyComponent, HippyViewEventProtocol>
 
 /**
  * reset all hippy subviews
