@@ -270,18 +270,17 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 
 - (__kindof UIView *)viewFromRenderViewTag:(NSNumber *)componentTag
                                  onRootTag:(NSNumber *)rootTag {
-    return [self viewForComponentTag:componentTag onRootTag:rootTag];
+    return [self viewForHippyTag:componentTag onRootTag:rootTag];
 }
 
-- (UIView *)viewForComponentTag:(NSNumber *)componentTag
-                  onRootTag:(NSNumber *)rootTag {
+- (UIView *)viewForHippyTag:(NSNumber *)hippyTag onRootTag:(NSNumber *)rootTag {
     AssertMainQueue();
-    return [_viewRegistry componentForTag:componentTag onRootTag:rootTag];
+    return [_viewRegistry componentForTag:hippyTag onRootTag:rootTag];
 }
 
-- (HippyShadowView *)renderObjectForcomponentTag:(NSNumber *)componentTag
+- (HippyShadowView *)shadowViewForHippyTag:(NSNumber *)hippyTag
                                           onRootTag:(NSNumber *)rootTag {
-    return [_shadowViewRegistry componentForTag:componentTag onRootTag:rootTag];
+    return [_shadowViewRegistry componentForTag:hippyTag onRootTag:rootTag];
 }
 
 - (std::weak_ptr<hippy::RenderManager>)renderManager {
@@ -444,7 +443,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 
 - (void)purgeViewsFromComponentTags:(NSArray<NSNumber *> *)componentTags onRootTag:(NSNumber *)rootTag {
     for (NSNumber *componentTag in componentTags) {
-        UIView *view = [self viewForComponentTag:componentTag onRootTag:rootTag];
+        UIView *view = [self viewForHippyTag:componentTag onRootTag:rootTag];
         HippyComponentMap *componentMap = _viewRegistry;
         NativeRenderTraverseViewNodes(view, ^(id<HippyComponent> subview) {
             NSAssert(![subview isHippyRootView], @"Root views should not be unregistered");
@@ -555,7 +554,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
                               rootTag:(NSNumber *)rootTag
                            properties:(NSDictionary *)props
                              viewName:(NSString *)viewName {
-    UIView *view = [self viewForComponentTag:componentTag onRootTag:rootTag];
+    UIView *view = [self viewForHippyTag:componentTag onRootTag:rootTag];
     BOOL canBeRetrievedFromCache = YES;
     if (view && [view respondsToSelector:@selector(canBeRetrievedFromViewCache)]) {
         canBeRetrievedFromCache = [view canBeRetrievedFromViewCache];
@@ -1068,8 +1067,8 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     _extraComponents = extraComponents;
 }
 
-#pragma mark -
-#pragma mark Event Handler
+
+#pragma mark - Event Handler
 
 - (void)addEventName:(const std::string &)name forDomNodeId:(int32_t)node_id
           onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode {
@@ -1078,7 +1077,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         return;
     }
     int32_t root_id = strongRootNode->GetId();
-    HippyShadowView *renderObject = [self renderObjectForcomponentTag:@(node_id) onRootTag:@(root_id)];
+    HippyShadowView *renderObject = [self shadowViewForHippyTag:@(node_id) onRootTag:@(root_id)];
     [renderObject addEventName:name];
     if (name == hippy::kClickEvent) {
         [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
@@ -1136,6 +1135,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     }
 }
 
+/// Called when creating view from shadowView
 - (void)addEventNameInMainThread:(const std::string &)name
                     forDomNodeId:(int32_t)node_id
                     onRootNode:(std::weak_ptr<RootNode>)rootNode {
@@ -1163,14 +1163,14 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         return;
     }
     int32_t root_id = strongRootNode->GetId();
-    UIView *view = [self viewForComponentTag:@(componentTag) onRootTag:@(root_id)];
+    UIView *view = [self viewForHippyTag:@(componentTag) onRootTag:@(root_id)];
     if (view) {
         __weak id weakSelf = self;
-        [view addViewEvent:NativeRenderViewEventTypeClick eventListener:^(CGPoint point,
-                                                                          BOOL canCapture,
-                                                                          BOOL canBubble,
-                                                                          BOOL canBePreventedInCapture,
-                                                                          BOOL canBePreventedInBubbling) {
+        OnTouchEventHandler eventListener = ^(CGPoint point,
+                                              BOOL canCapture,
+                                              BOOL canBubble,
+                                              BOOL canBePreventedInCapture,
+                                              BOOL canBePreventedInBubbling) {
             id strongSelf = weakSelf;
             if (strongSelf) {
                 [strongSelf domNodeForComponentTag:componentTag onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> node) {
@@ -1183,7 +1183,9 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
                     }
                 }];
             }
-        }];
+        };
+//        [view addViewEvent:NativeRenderViewEventTypeClick eventListener:eventListener];
+        [view setOnClick:eventListener];
     }
     else {
     }
@@ -1196,14 +1198,14 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         return;
     }
     int32_t root_id = strongRootNode->GetId();
-    UIView *view = [self viewForComponentTag:@(componentTag) onRootTag:@(root_id)];
+    UIView *view = [self viewForHippyTag:@(componentTag) onRootTag:@(root_id)];
     if (view) {
         __weak id weakSelf = self;
-        [view addViewEvent:NativeRenderViewEventTypeLongClick eventListener:^(CGPoint point,
-                                                                              BOOL canCapture,
-                                                                              BOOL canBubble,
-                                                                              BOOL canBePreventedInCapture,
-                                                                              BOOL canBePreventedInBubbling) {
+        OnTouchEventHandler eventListener = ^(CGPoint point,
+                                              BOOL canCapture,
+                                              BOOL canBubble,
+                                              BOOL canBePreventedInCapture,
+                                              BOOL canBePreventedInBubbling) {
             id strongSelf = weakSelf;
             if (strongSelf) {
                 [strongSelf domNodeForComponentTag:componentTag onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> node) {
@@ -1216,7 +1218,10 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
                     }
                 }];
             }
-        }];
+        };
+        
+//        [view addViewEvent:NativeRenderViewEventTypeLongClick eventListener:];
+        [view setOnLongClick:eventListener];
     }
     else {
     }
@@ -1231,16 +1236,15 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     }
     int32_t root_id = strongRootNode->GetId();
     AssertMainQueue();
-    UIView *view = [self viewForComponentTag:@(componentTag) onRootTag:@(root_id)];
-    NativeRenderViewEventType eventType = hippy::kPressIn == type ? NativeRenderViewEventType::NativeRenderViewEventTypePressIn : NativeRenderViewEventType::NativeRenderViewEventTypePressOut;
+    UIView *view = [self viewForHippyTag:@(componentTag) onRootTag:@(root_id)];
     if (view) {
         std::string block_type = type;
         __weak id weakSelf = self;
-        [view addViewEvent:eventType eventListener:^(CGPoint point,
-                                                     BOOL canCapture,
-                                                     BOOL canBubble,
-                                                     BOOL canBePreventedInCapture,
-                                                     BOOL canBePreventedInBubbling) {
+        OnTouchEventHandler eventListener = ^(CGPoint point,
+                                              BOOL canCapture,
+                                              BOOL canBubble,
+                                              BOOL canBePreventedInCapture,
+                                              BOOL canBePreventedInBubbling) {
             id strongSelf = weakSelf;
             if (strongSelf) {
                 [strongSelf domNodeForComponentTag:componentTag onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> node) {
@@ -1253,9 +1257,12 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
                     }
                 }];
             }
-        }];
-    }
-    else {
+        };
+        if (hippy::kPressIn == type) {
+            [view setOnPressIn:eventListener];
+        } else if (hippy::kPressOut == type) {
+            [view setOnPressOut:eventListener];
+        }
     }
 }
 
@@ -1268,26 +1275,15 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         return;
     }
     int32_t root_id = strongRootNode->GetId();
-    UIView *view = [self viewForComponentTag:@(componentTag) onRootTag:@(root_id)];
+    UIView *view = [self viewForHippyTag:@(componentTag) onRootTag:@(root_id)];
     if (view) {
-        // todo 默认值应该有个值代表未知
-        NativeRenderViewEventType event_type = NativeRenderViewEventType::NativeRenderViewEventTypeTouchStart;
-        if (type == hippy::kTouchStartEvent) {
-            event_type = NativeRenderViewEventType::NativeRenderViewEventTypeTouchStart;
-        } else if (type == hippy::kTouchMoveEvent) {
-            event_type = NativeRenderViewEventType::NativeRenderViewEventTypeTouchMove;
-        } else if (type == hippy::kTouchEndEvent) {
-            event_type = NativeRenderViewEventType::NativeRenderViewEventTypeTouchEnd;
-        } else if (type == hippy::kTouchCancelEvent) {
-            event_type = NativeRenderViewEventType::NativeRenderViewEventTypeTouchCancel;
-        }
         const std::string type_ = type;
         __weak id weakSelf = self;
-        [view addViewEvent:event_type eventListener:^(CGPoint point,
-                                                      BOOL canCapture,
-                                                      BOOL canBubble,
-                                                      BOOL canBePreventedInCapture,
-                                                      BOOL canBePreventedInBubbling) {
+        OnTouchEventHandler eventListener = ^(CGPoint point,
+                                              BOOL canCapture,
+                                              BOOL canBubble,
+                                              BOOL canBePreventedInCapture,
+                                              BOOL canBePreventedInBubbling) {
             id strongSelf = weakSelf;
             if (strongSelf) {
                 [strongSelf domNodeForComponentTag:componentTag onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> node) {
@@ -1303,46 +1299,24 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
                     }
                 }];
             }
-        }];
-    }
-    else {
+        };
+        if (type == hippy::kTouchStartEvent) {
+            [view setOnTouchDown:eventListener];
+        } else if (type == hippy::kTouchMoveEvent) {
+            [view setOnTouchMove:eventListener];
+        } else if (type == hippy::kTouchEndEvent) {
+            [view setOnTouchEnd:eventListener];
+        } else if (type == hippy::kTouchCancelEvent) {
+            [view setOnTouchCancel:eventListener];
+        }
     }
 }
 
 - (void)addShowEventListenerForType:(const std::string &)type
                             forView:(int32_t)componentTag
                          onRootNode:(std::weak_ptr<RootNode>)rootNode {
-    AssertMainQueue();
-    auto strongRootNode = rootNode.lock();
-    if (!strongRootNode) {
-        return;
-    }
-    int32_t root_id = strongRootNode->GetId();
-    UIView *view = [self viewForComponentTag:@(componentTag) onRootTag:@(root_id)];
-    if (view) {
-        NativeRenderViewEventType event_type = hippy::kShowEvent == type ? NativeRenderViewEventTypeShow : NativeRenderViewEventTypeDismiss;
-        __weak id weakSelf = self;
-        std::string type_ = type;
-        [view addViewEvent:event_type eventListener:^(CGPoint point,
-                                                      BOOL canCapture,
-                                                      BOOL canBubble,
-                                                      BOOL canBePreventedInCapture,
-                                                      BOOL canBePreventedInBubbling) {
-            id strongSelf = weakSelf;
-            if (strongSelf) {
-                [strongSelf domNodeForComponentTag:componentTag onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> node) {
-                    if (node) {
-                        std::shared_ptr<HippyValue> domValue = std::make_shared<HippyValue>(true);
-                        auto event = std::make_shared<DomEvent>(type_, node, canCapture, canBubble, domValue);
-                        node->HandleEvent(event);
-                        [strongSelf domEventDidHandle:type_ forNode:componentTag onRoot:root_id];
-                    }
-                }];
-            }
-        }];
-    }
-    else {
-    }
+    // Note: not implemented
+    // iOS do not have these event.
 }
 
 - (void)removeEventName:(const std::string &)eventName
@@ -1352,20 +1326,9 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     if (!strongRootNode) {
         return;
     }
-    int32_t root_id = strongRootNode->GetId();
+    
     int32_t componentTag = node_id;
-    if (eventName == hippy::kClickEvent ||
-        eventName ==hippy::kLongClickEvent ||
-        eventName == hippy::kTouchStartEvent || eventName == hippy::kTouchMoveEvent ||
-        eventName == hippy::kTouchEndEvent || eventName == hippy::kTouchCancelEvent ||
-        eventName == hippy::kShowEvent || eventName == hippy::kDismissEvent ||
-        eventName == hippy::kPressIn || eventName == hippy::kPressOut) {
-        std::string name_ = eventName;
-        [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-            UIView *view = [uiManager viewForComponentTag:@(componentTag) onRootTag:@(root_id)];
-            [view removeViewEvent:viewEventTypeFromName(name_.c_str())];
-        }];
-    } else if (eventName == kVSyncKey) {
+    if (eventName == kVSyncKey) {
        std::string name_ = eventName;
        [self domNodeForComponentTag:node_id onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> node) {
            if (node) {
@@ -1396,7 +1359,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         return;
     }
     int32_t root_id = strongRootNode->GetId();
-    UIView *view = [self viewForComponentTag:@(node_id) onRootTag:@(root_id)];
+    UIView *view = [self viewForHippyTag:@(node_id) onRootTag:@(root_id)];
     if (view) {
         std::string name_ = name;
         NSDictionary *componentDataByName = [_componentDataByName copy];
@@ -1520,6 +1483,15 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     }
     return nil;
 }
+
+- (id<HippyCustomTouchHandlerProtocol>)customTouchHandler {
+    return objc_getAssociatedObject(self, @selector(customTouchHandler));
+}
+
+- (void)setCustomTouchHandler:(id<HippyCustomTouchHandlerProtocol>)customTouchHandler {
+    objc_setAssociatedObject(self, @selector(customTouchHandler), customTouchHandler, OBJC_ASSOCIATION_RETAIN);
+}
+
 
 @end
 

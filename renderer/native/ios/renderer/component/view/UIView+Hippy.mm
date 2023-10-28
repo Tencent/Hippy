@@ -26,7 +26,50 @@
 #import "UIView+MountEvent.h"
 #import "HippyLog.h"
 
+
+#define HippyEventMethod(name, value, type)                                               \
+-(void)set##name : (type)value {                                                          \
+objc_setAssociatedObject(self, @selector(value), value, OBJC_ASSOCIATION_COPY_NONATOMIC); \
+}                                                                                         \
+-(type)value {                                                                            \
+return objc_getAssociatedObject(self, _cmd);                                              \
+}
+
+
 @implementation UIView (Hippy)
+
+
+#pragma mark - Event Related
+
+HippyEventMethod(OnClick, onClick, OnTouchEventHandler)
+HippyEventMethod(OnPressIn, onPressIn, OnTouchEventHandler)
+HippyEventMethod(OnPressOut, onPressOut, OnTouchEventHandler)
+HippyEventMethod(OnLongClick, onLongClick, OnTouchEventHandler)
+HippyEventMethod(OnTouchDown, onTouchDown, OnTouchEventHandler)
+HippyEventMethod(OnTouchMove, onTouchMove, OnTouchEventHandler)
+HippyEventMethod(OnTouchCancel, onTouchCancel, OnTouchEventHandler)
+HippyEventMethod(OnTouchEnd, onTouchEnd, OnTouchEventHandler)
+//HippyEventMethod(OnAttachedToWindow, onAttachedToWindow, HippyDirectEventBlock)
+//HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlock)
+
+- (BOOL)onInterceptTouchEvent {
+    return [objc_getAssociatedObject(self, _cmd) boolValue];
+}
+
+- (void)setOnInterceptTouchEvent:(BOOL)onInterceptTouchEvent {
+    objc_setAssociatedObject(self, @selector(onInterceptTouchEvent), @(onInterceptTouchEvent), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (BOOL)onInterceptPullUpEvent {
+    return [objc_getAssociatedObject(self, _cmd) boolValue];
+}
+
+- (void)setOnInterceptPullUpEvent:(BOOL)onInterceptPullUpEvent {
+    objc_setAssociatedObject(self, @selector(onInterceptPullUpEvent), @(onInterceptPullUpEvent), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+
+#pragma mark -
 
 - (NSNumber *)hippyTag {
     return objc_getAssociatedObject(self, _cmd);

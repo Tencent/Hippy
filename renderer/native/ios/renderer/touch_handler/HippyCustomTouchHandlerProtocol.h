@@ -20,20 +20,27 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
-#import "NativeRenderViewEventType.h"
+#import "HippyBridgeModule.h"
+#import <Foundation/Foundation.h>
 
-NS_ASSUME_NONNULL_BEGIN
+/**
+ *  used for custom touche handler
+ */
+@protocol HippyCustomTouchHandlerProtocol <HippyBridgeModule>
 
-@interface UIEvent (TouchResponder)
+/**
+ *  if The following methods return YES, HippyTouchHandler will return,
+ * see implements in HippyTouchHandler.m
+ */
+@optional
+- (BOOL)customTouchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;
 
-- (void)setResponder:(__weak id)responder forType:(NativeRenderViewEventType)type;
+- (BOOL)customTouchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;
 
-- (id)responderForType:(NativeRenderViewEventType)type;
+- (BOOL)customTouchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;
 
-- (void)removeAllResponders;
+- (BOOL)customTouchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;
+
+- (BOOL)customReset;
 
 @end
-
-NS_ASSUME_NONNULL_END
-
