@@ -176,7 +176,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
             // Check for name collisions between preregistered modules
             HippyModuleData *moduleData = moduleDataByName[moduleName];
             if (moduleData) {
-                HippyLogError(@"Attempted to register HippyBridgeModule class %@ for the "
+                HippyLogWarn(@"Attempted to register HippyBridgeModule class %@ for the "
                                "name '%@', but name was already registered by class %@",
                     moduleClass, moduleName, moduleData.moduleClass);
                 continue;
@@ -202,7 +202,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
                 continue;
             } else if ([moduleData.moduleClass new] != nil) {
                 // Both modules were non-nil, so it's unclear which should take precedence
-                HippyLogError(@"Attempted to register HippyBridgeModule class %@ for the "
+                HippyLogWarn(@"Attempted to register HippyBridgeModule class %@ for the "
                                "name '%@', but name was already registered by class %@",
                     moduleClass, moduleName, moduleData.moduleClass);
             }
