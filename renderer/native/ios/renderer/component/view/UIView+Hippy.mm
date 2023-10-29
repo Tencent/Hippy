@@ -280,23 +280,6 @@ HippyEventMethod(OnTouchEnd, onTouchEnd, OnTouchEventHandler)
 }
 
 - (void)hippySetFrame:(CGRect)frame {
-    // These frames are in terms of anchorPoint = topLeft, but internally the
-    // views are anchorPoint = center for easier scale and rotation animations.
-    // Convert the frame so it works with anchorPoint = center.
-    CGPoint position = { CGRectGetMidX(frame), CGRectGetMidY(frame) };
-    CGRect bounds = { CGPointZero, frame.size };
-
-    // Avoid crashes due to nan coords
-    if (isnan(position.x) || isnan(position.y) || isnan(bounds.origin.x) || isnan(bounds.origin.y) || isnan(bounds.size.width)
-        || isnan(bounds.size.height)) {
-        HippyLogError(
-            @"Invalid layout for (%@)%@. position: %@. bounds: %@", self.hippyTag, self, NSStringFromCGPoint(position), NSStringFromCGRect(bounds));
-        return;
-    }
-
-    //  self.center = position;
-    //  self.bounds = bounds;
-
     self.frame = frame;
 }
 
