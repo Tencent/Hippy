@@ -25,7 +25,7 @@
 #import <Foundation/Foundation.h>
 #import <QuartzCore/CADisplayLink.h>
 
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyBridgeModule.h"
 #import "HippyFrameUpdate.h"
 #import "HippyModuleData.h"

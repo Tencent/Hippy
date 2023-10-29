@@ -22,7 +22,7 @@
 
 #import "HippyKeyCommands.h"
 #import <UIKit/UIKit.h>
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyDefines.h"
 #import "HippyUtils.h"
 

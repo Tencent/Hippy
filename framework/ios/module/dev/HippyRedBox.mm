@@ -25,7 +25,7 @@
 #import "HippyRedBox.h"
 #import "HippyUtils.h"
 #import "HippyWeakProxy.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyConvert.h"
 #import "HippyJSStackFrame.h"
 #import "HippyLog.h"

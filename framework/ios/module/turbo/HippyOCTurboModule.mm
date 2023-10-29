@@ -25,7 +25,7 @@
 #import "HippyOCTurboModule+Inner.h"
 #import "HippyTurboModuleManager.h"
 #import "HippyJSExecutor.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyLog.h"
 #import "HippyUtils.h"
 #import "NSObject+CtxValue.h"

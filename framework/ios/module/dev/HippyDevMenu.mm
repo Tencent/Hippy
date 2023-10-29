@@ -24,7 +24,7 @@
 #import "HippyEventDispatcher.h"
 #import "HippyKeyCommands.h"
 #import "HippyWebSocketProxy.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyUtils.h"
 #import "HippyDefines.h"
 
