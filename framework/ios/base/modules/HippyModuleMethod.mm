@@ -24,7 +24,7 @@
 #import "HippyBridge.h"
 #import "HippyTurboModuleManager.h"
 #import "HippyUtils.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyConvert.h"
 #import "HippyLog.h"
 #import "HippyParserUtils.h"

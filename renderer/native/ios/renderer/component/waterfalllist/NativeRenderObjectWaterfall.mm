@@ -22,7 +22,7 @@
 
 #import "NativeRenderObjectWaterfall.h"
 #import "NativeRenderWaterfallView.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 
 @interface WaterfallItemChangeContext () {
     NSMutableSet<HippyShadowView *> *_deletedItems;

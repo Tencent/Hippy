@@ -23,7 +23,7 @@
 #import "HippyModuleData.h"
 #import "HippyBridge.h"
 #import "HippyModuleMethod.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyLog.h"
 #import "HippyUtils.h"
 

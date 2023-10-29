@@ -21,17 +21,17 @@
  */
 
 #import "HippyUtils.h"
-#import "NativeRenderModalHostViewController.h"
-#import "NativeRenderModalHostViewManager.h"
-#import "NativeRenderModalTransitioningDelegate.h"
+#import "HippyModalHostViewController.h"
+#import "HippyModalHostViewManager.h"
+#import "HippyModalTransitioningDelegate.h"
 #import "HippyShadowView.h"
 #import "NativeRenderUtils.h"
 
-@interface NativeRenderObjectModalHost : HippyShadowView
+@interface HippyModalHostShadowView : HippyShadowView
 
 @end
 
-@implementation NativeRenderObjectModalHost
+@implementation HippyModalHostShadowView
 
 - (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex{
     [super insertHippySubview:subview atIndex:atIndex];
@@ -46,7 +46,7 @@
 
 @end
 
-@implementation NativeRenderModalHostViewManager
+@implementation HippyModalHostViewManager
 
 HIPPY_EXPORT_MODULE(Modal)
 
@@ -61,7 +61,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(primaryKey, NSString)
 HIPPY_EXPORT_VIEW_PROPERTY(hideStatusBar, NSNumber)
 
 - (UIView *)view {
-    NativeRenderModalHostView *view = [[NativeRenderModalHostView alloc] init];
+    HippyModalHostView *view = [[HippyModalHostView alloc] initWithBridge:self.bridge];
     view.delegate = self.transitioningDelegate;
     if (!_hostViews) {
         _hostViews = [NSHashTable weakObjectsHashTable];
@@ -70,15 +70,22 @@ HIPPY_EXPORT_VIEW_PROPERTY(hideStatusBar, NSNumber)
     return view;
 }
 
-- (id<NativeRenderModalHostViewInteractor, UIViewControllerTransitioningDelegate>)transitioningDelegate {
+- (id<HippyModalHostViewInteractor, UIViewControllerTransitioningDelegate>)transitioningDelegate {
     if (!_transitioningDelegate) {
-        _transitioningDelegate = [NativeRenderModalTransitioningDelegate new];
+        _transitioningDelegate = [HippyModalTransitioningDelegate new];
     }
     return _transitioningDelegate;
 }
 
 - (HippyShadowView *)hippyShadowView {
-    return [NativeRenderObjectModalHost new];
+    return [HippyModalHostShadowView new];
+}
+
+- (void)invalidate {
+    for (HippyModalHostView *hostView in _hostViews) {
+        [hostView invalidate];
+    }
+    [_hostViews removeAllObjects];
 }
 
 @end

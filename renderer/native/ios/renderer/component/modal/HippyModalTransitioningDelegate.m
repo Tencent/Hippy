@@ -20,17 +20,17 @@
  * limitations under the License.
  */
 
-#import "NativeRenderModalTransitioningDelegate.h"
-#import "NativeRenderModalCustomPresentationController.h"
-#import "NativeRenderModalCustomAnimationTransition.h"
+#import "HippyModalTransitioningDelegate.h"
+#import "HippyModalCustomPresentationController.h"
+#import "HippyModalCustomAnimationTransition.h"
 #import "UIView+Hippy.h"
 
-@implementation NativeRenderModalTransitioningDelegate
+@implementation HippyModalTransitioningDelegate
 
 - (nullable UIPresentationController *)presentationControllerForPresentedViewController:(UIViewController *)presented
                                                                presentingViewController:(__unused UIViewController *)presenting
                                                                    sourceViewController:(__unused UIViewController *)source NS_AVAILABLE_IOS(8_0) {
-    NativeRenderModalCustomPresentationController *controller = [[NativeRenderModalCustomPresentationController alloc] initWithPresentedViewController:presented
+    HippyModalCustomPresentationController *controller = [[HippyModalCustomPresentationController alloc] initWithPresentedViewController:presented
                                                                                                                 presentingViewController:presenting];
     return controller;
 }
@@ -38,19 +38,19 @@
 - (nullable id<UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(__unused UIViewController *)presented
                                                                            presentingController:(__unused UIViewController *)presenting
                                                                                sourceController:(__unused UIViewController *)source {
-    NativeRenderModalCustomAnimationTransition *transition = [NativeRenderModalCustomAnimationTransition new];
+    HippyModalCustomAnimationTransition *transition = [HippyModalCustomAnimationTransition new];
     transition.isPresent = YES;
     return transition;
 }
 
 - (nullable id<UIViewControllerAnimatedTransitioning>)animationControllerForDismissedController:(__unused UIViewController *)dismissed {
-    NativeRenderModalCustomAnimationTransition *transition = [NativeRenderModalCustomAnimationTransition new];
+    HippyModalCustomAnimationTransition *transition = [HippyModalCustomAnimationTransition new];
     transition.isPresent = NO;
     return transition;
 }
 
-- (void)presentModalHostView:(NativeRenderModalHostView *)modalHostView
-          withViewController:(NativeRenderModalHostViewController *)viewController
+- (void)presentModalHostView:(HippyModalHostView *)modalHostView
+          withViewController:(HippyModalHostViewController *)viewController
                     animated:(BOOL)animated {
     dispatch_block_t completionBlock = ^{
         if (modalHostView.onShow) {
@@ -68,8 +68,8 @@
     }
 }
 
-- (void)dismissModalHostView:(NativeRenderModalHostView *)modalHostView
-          withViewController:(NativeRenderModalHostViewController *)viewController
+- (void)dismissModalHostView:(HippyModalHostView *)modalHostView
+          withViewController:(HippyModalHostViewController *)viewController
                     animated:(BOOL)animated {
     dispatch_block_t completionBlock = ^{
         NSDictionary *userInfo = nil;

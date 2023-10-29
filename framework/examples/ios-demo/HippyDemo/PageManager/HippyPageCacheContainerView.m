@@ -24,7 +24,7 @@
 #import "HippyPageCacheContainerView.h"
 #import "HippyPageCacheView.h"
 #import "HippyPageCache.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 
 @interface HippyPageCacheContainerView ()<HippyPageCacheManagerObserverProtocol> {
     __weak UIView *_lastPageCacheView; //never removed from superview

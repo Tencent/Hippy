@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyUtils.h"
 #import "NativeRenderImageViewManager.h"
 #import "NativeRenderImageView.h"

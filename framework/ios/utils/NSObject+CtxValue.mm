@@ -21,7 +21,7 @@
  */
 
 #import "NSObject+CtxValue.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyLog.h"
 #include "driver/napi/js_ctx.h"
 #include "driver/napi/js_ctx_value.h"
