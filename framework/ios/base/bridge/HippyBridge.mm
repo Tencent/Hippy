@@ -39,7 +39,7 @@
 #import "HippyRedBox.h"
 #import "HippyTurboModule.h"
 #import "HippyUtils.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyConvert.h"
 #import "HippyDefaultImageProvider.h"
 #import "HippyI18nUtils.h"

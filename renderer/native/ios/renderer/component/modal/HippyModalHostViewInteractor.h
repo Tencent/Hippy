@@ -1,4 +1,3 @@
-
 /*!
  * iOS SDK
  *
@@ -22,8 +21,16 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
+#import "HippyModalHostView.h"
+#import "HippyModalHostViewController.h"
 
-@interface NativeRenderModalCustomAnimationTransition : NSObject <UIViewControllerAnimatedTransitioning>
-@property (nonatomic, assign) BOOL isPresent;
+@protocol HippyModalHostViewInteractor <NSObject>
+
+- (void)presentModalHostView:(HippyModalHostView *)modalHostView
+          withViewController:(HippyModalHostViewController *)viewController
+                    animated:(BOOL)animated;
+- (void)dismissModalHostView:(HippyModalHostView *)modalHostView
+          withViewController:(HippyModalHostViewController *)viewController
+                    animated:(BOOL)animated;
+
 @end

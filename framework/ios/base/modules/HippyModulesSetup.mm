@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyBridge.h"
 #import "HippyModuleData.h"
 #import "HippyModulesSetup.h"

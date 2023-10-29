@@ -20,17 +20,14 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-#import "NativeRenderModalHostView.h"
-#import "NativeRenderModalHostViewController.h"
+#import <UIKit/UIKit.h>
 
-@protocol NativeRenderModalHostViewInteractor <NSObject>
+@interface HippyModalHostViewController : UIViewController
 
-- (void)presentModalHostView:(NativeRenderModalHostView *)modalHostView
-          withViewController:(NativeRenderModalHostViewController *)viewController
-                    animated:(BOOL)animated;
-- (void)dismissModalHostView:(NativeRenderModalHostView *)modalHostView
-          withViewController:(NativeRenderModalHostViewController *)viewController
-                    animated:(BOOL)animated;
+@property (nonatomic, copy) void (^boundsDidChangeBlock)(CGRect newBounds);
+@property (nonatomic, strong) NSNumber *hideStatusBar;
+@property (nonatomic, assign) UIInterfaceOrientationMask supportedInterfaceOrientations;
+
+- (void)setPreferredStatusBarStyle:(UIStatusBarStyle)style;
 
 @end

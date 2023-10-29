@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyConvert.h"
 #import "HippyConvert+NativeRender.h"
 #import "HippyImageProviderProtocol.h"

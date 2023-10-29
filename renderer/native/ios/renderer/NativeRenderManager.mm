@@ -24,7 +24,7 @@
 #import "NativeRenderManager.h"
 #import "NativeRenderObjectText.h"
 #import "RenderVsyncManager.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 
 #include "dom/dom_manager.h"
 #include "dom/layout_node.h"

@@ -21,7 +21,7 @@
  */
 
 #import <UIKit/UIApplication.h>
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyUtils.h"
 #import "HippyDeviceBaseInfo.h"
 #import "HippyEventDispatcher.h"
