@@ -278,21 +278,19 @@ void RootNode::CallFunction(uint32_t id, const std::string& name, const DomArgum
 }
 
 void RootNode::SyncWithRenderManager(const std::shared_ptr<RenderManager>& render_manager) {
-  HP_PERF_LOG("RootNode::SyncWithRenderManager");
-  unsigned long cnt = dom_operations_.size();
+  TDF_PERF_DO_STMT_AND_LOG(unsigned long domCnt = dom_operations_.size(); , "RootNode::SyncWithRenderManager");
   FlushDomOperations(render_manager);
-  HP_PERF_LOG("RootNode::FlushDomOperations Done, dom op count:%lld", cnt);
-  cnt = event_operations_.size();
+  TDF_PERF_DO_STMT_AND_LOG(unsigned long evCnt = event_operations_.size(); , "RootNode::FlushDomOperations Done, dom op count:%lld", domCnt);
   FlushEventOperations(render_manager);
-  HP_PERF_LOG("RootNode::FlushEventOperations Done, event op count:%d",cnt);
+  TDF_PERF_LOG("RootNode::FlushEventOperations Done, event op count:%d", evCnt);
   DoAndFlushLayout(render_manager);
-  HP_PERF_LOG("RootNode::DoAndFlushLayout Done");
+  TDF_PERF_LOG("RootNode::DoAndFlushLayout Done");
   auto dom_manager = dom_manager_.lock();
   if (dom_manager) {
     dom_manager->RecordDomEndTimePoint();
   }
   render_manager->EndBatch(GetWeakSelf());
-  HP_PERF_LOG("RootNode::SyncWithRenderManager End");
+  TDF_PERF_LOG("RootNode::SyncWithRenderManager End");
 }
 
 void RootNode::AddEvent(uint32_t id, const std::string& event_name) {
