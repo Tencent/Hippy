@@ -321,6 +321,13 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder
     }
 }
 
+- (void)hippySetFrame:(CGRect)frame {
+    // Override hippySetFrame，
+    // to prevent an endless loop when synchronizing shadowView's frame to view.
+    // HippyRootContentView's frame is the source of truth,
+    // So we do nothing here.
+}
+
 #pragma mark - HippyComponent Method
 
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
