@@ -676,8 +676,8 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     if (!strongRootNode) {
         return;
     }
-    unsigned int rand = arc4random();
-    HP_PERF_LOG("flushUIBlocksOnRootNode(random id:%u", rand);
+    
+    TDF_PERF_DO_STMT_AND_LOG(unsigned int rand = arc4random(); , "flushUIBlocksOnRootNode(random id:%u", rand);
     
     int32_t rootTag = strongRootNode->GetId();
     NSArray<HippyViewManagerUIBlock> *previousPendingUIBlocks = _pendingUIBlocks;
@@ -688,7 +688,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         dispatch_async(dispatch_get_main_queue(), ^{
             __strong __typeof(weakSelf)strongSelf = weakSelf;
             if (strongSelf) {
-                HP_PERF_LOG("flushUIBlocksOnRootNode on main thread(random id:%u)",rand);
+                TDF_PERF_LOG("flushUIBlocksOnRootNode on main thread(random id:%u)",rand);
                 NSDictionary<NSNumber *, UIView *> *viewReg = [strongSelf.viewRegistry componentsForRootTag:@(rootTag)];
                 @try {
                     for (HippyViewManagerUIBlock block in previousPendingUIBlocks) {
@@ -697,11 +697,11 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
                 } @catch (NSException *exception) {
                     HippyLogError(@"Exception thrown while executing UI block: %@", exception);
                 }
-                HP_PERF_LOG("flushUIBlocksOnRootNode on main thread done, block count:%d(random id:%u)", previousPendingUIBlocks.count, rand);
+                TDF_PERF_LOG("flushUIBlocksOnRootNode on main thread done, block count:%d(random id:%u)", previousPendingUIBlocks.count, rand);
             }
         });
     }
-    HP_PERF_LOG("flushUIBlocksOnRootNode End(random id:%u)",rand);
+    TDF_PERF_LOG("flushUIBlocksOnRootNode End(random id:%u)",rand);
 }
 
 #pragma mark -
