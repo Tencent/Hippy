@@ -343,8 +343,10 @@ void NativeRenderBoarderColorsRelease(NativeRenderBorderColors c) {
         CGSize imageSize = decodedImage.size;
         CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, [self bordersAsInsets]).size;
         CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
-        [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX,
-                                            borderInsets.top + backgroundPositionY,
+        CGPoint originOffset = CGPointMake((targetSize.width - drawSize.width) / 2.0,
+                                           (targetSize.height - drawSize.height) / 2.0);
+        [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX + originOffset.x,
+                                            borderInsets.top + backgroundPositionY + originOffset.y,
                                             drawSize.width,
                                             drawSize.height)];
         //draw border
