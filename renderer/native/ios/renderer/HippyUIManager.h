@@ -25,6 +25,7 @@
 #import "HippyInvalidating.h"
 #import "NativeRenderDefines.h"
 #import "HippyBridgeModule.h"
+#import "HippyCustomTouchHandlerProtocol.h"
 #include <memory>
 #include <unordered_map>
 #include <functional>
@@ -73,15 +74,15 @@ class HippyValue;
 /**
  * Gets the view associated with a hippyTag.
  */
-- (UIView *)viewForComponentTag:(NSNumber *)componentTag
-                      onRootTag:(NSNumber *)rootTag;
+- (UIView *)viewForHippyTag:(NSNumber *)hippyTag
+                  onRootTag:(NSNumber *)rootTag;
 
 
 /**
  * Get the shadow view associated with a hippyTag
  */
-- (HippyShadowView *)renderObjectForcomponentTag:(NSNumber *)componentTag
-                                          onRootTag:(NSNumber *)rootTag;
+- (HippyShadowView *)shadowViewForHippyTag:(NSNumber *)hippyTag
+                                 onRootTag:(NSNumber *)rootTag;
 
 /**
  * Update the frame of a view. This might be in response to a screen rotation
@@ -261,5 +262,9 @@ class HippyValue;
 
 /// The current HippyUIManager instance
 @property (nonatomic, readonly) HippyUIManager *uiManager;
+
+/// A custom touch handler for gesture special processing
+/// You can use it when you need to modify Hippy's default gesture handling logic
+@property (nonatomic, strong, readonly) id<HippyCustomTouchHandlerProtocol> customTouchHandler;
 
 @end
