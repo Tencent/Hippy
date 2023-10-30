@@ -20,30 +20,12 @@
  * limitations under the License.
  */
 
-#import "UIEvent+TouchResponder.h"
-#import "objc/runtime.h"
+#import <Foundation/Foundation.h>
 
-@implementation UIEvent (TouchResponder)
+@protocol HippyScrollProtocol <NSObject>
 
-- (NSMapTable<NSNumber *, id> *)respondersMap {
-    NSMapTable<NSNumber *, id> *map = objc_getAssociatedObject(self, _cmd);
-    if (!map) {
-        map = [NSMapTable strongToWeakObjectsMapTable];
-        objc_setAssociatedObject(self, _cmd, map, OBJC_ASSOCIATION_RETAIN);
-    }
-    return map;
-}
+@required
 
-- (void)setResponder:(__weak id)responder forType:(NativeRenderViewEventType)type {
-    [[self respondersMap] setObject:responder forKey:@(type)];
-}
-
-- (id)responderForType:(NativeRenderViewEventType)type {
-    return [[self respondersMap] objectForKey:@(type)];
-}
-
-- (void)removeAllResponders {
-    [[self respondersMap] removeAllObjects];
-}
+- (BOOL)isManualScrolling;
 
 @end

@@ -20,12 +20,20 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#import "HippyBridge.h"
 
-@protocol NativeRenderScrollProtocol <NSObject>
+/// Handles all gestures in Hippy
+@interface HippyTouchHandler : UIGestureRecognizer <UIGestureRecognizerDelegate>
 
-@required
+/// Init method
+/// - Parameters:
+///   - view: rootView for touch, currently it can be HippyRootView or HippyModalHostView
+///   - bridge: HippyBridge
+- (instancetype)initWithRootView:(UIView *)view bridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithTarget:(id)target action:(SEL)action NS_UNAVAILABLE;
 
-- (BOOL)isManualScrolling;
+/// Force cancel touch
+- (void)cancelTouch;
 
 @end
