@@ -219,12 +219,17 @@ bool ShouldCreateLogMessage(LogSeverity severity);
 #ifdef DEBUG
 
 // enable perf log output in debug mode only
-#define HP_PERF_LOG(format, ...) \
+#define TDF_PERF_LOG(format, ...) \
+footstone::LogMessage::LogWithFormat(__FILE_NAME__, __LINE__, "[HP PERF] " format,                                    \
+         ##__VA_ARGS__)
+
+#define TDF_PERF_DO_STMT_AND_LOG( STMT , format , ...)  STMT \
 footstone::LogMessage::LogWithFormat(__FILE_NAME__, __LINE__, "[HP PERF] " format,                                    \
          ##__VA_ARGS__)
 
 #else
 
-#define HP_PERF_LOG(format, ...)
+#define TDF_PERF_LOG(format, ...)
+#define TDF_PERF_DO_STMT_AND_LOG(STMT , format, ...)
 
 #endif

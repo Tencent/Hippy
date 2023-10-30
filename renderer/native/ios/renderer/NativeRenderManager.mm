@@ -111,10 +111,10 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<hippy::RootNode> root_nod
 
 void NativeRenderManager::EndBatch(std::weak_ptr<hippy::RootNode> root_node) {
     @autoreleasepool {
-        HP_PERF_LOG("NativeRenderManager::EndBatch Begin");
+        TDF_PERF_LOG("NativeRenderManager::EndBatch Begin");
         HippyAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
         [renderImpl_ batchOnRootNode:root_node];
-        HP_PERF_LOG("NativeRenderManager::EndBatch End");
+        TDF_PERF_LOG("NativeRenderManager::EndBatch End");
 
     }
 }
