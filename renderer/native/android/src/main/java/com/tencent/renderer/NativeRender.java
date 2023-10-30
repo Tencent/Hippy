@@ -93,7 +93,7 @@ public interface NativeRender extends RenderExceptionHandler {
 
     void onFirstViewAdded();
 
-    void onSizeChanged(int rootId, int width, int height);
+    void onSizeChanged(int rootId, int width, int height, int oldWidth, int oldHeight);
 
     void onSizeChanged(int rootId, int nodeId, int width, int height, boolean isSync);
 
