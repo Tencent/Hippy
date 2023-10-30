@@ -27,7 +27,7 @@
 #import "HippyUIManager.h"
 #import "HippyShadowView.h"
 #import "NativeRenderSmartViewPagerView.h"
-#import "NativeRenderScrollProtocol.h"
+#import "HippyScrollProtocol.h"
 #import "UIView+MountEvent.h"
 #import "UIView+Render.h"
 #import "UIView+Hippy.h"
