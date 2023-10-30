@@ -22,7 +22,7 @@
 
 #import "NSObject+CtxValue.h"
 #import "HippyAsserts.h"
-
+#import "HippyLog.h"
 #include "driver/napi/js_ctx.h"
 #include "driver/napi/js_ctx_value.h"
 #include "footstone/string_view.h"
@@ -32,7 +32,7 @@
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context; {
     @autoreleasepool {
-        HippyAssert(NO, @"%@ must implemente convertToCtxValue method", NSStringFromClass([self class]));
+        HippyLogWarn(@"%@ must implemente convertToCtxValue method", NSStringFromClass([self class]));
         std::unordered_map<CtxValuePtr, CtxValuePtr> valueMap;
         return context->CreateObject(valueMap);
     }
