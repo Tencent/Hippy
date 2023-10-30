@@ -492,7 +492,7 @@ void Scope::RunJS(const string_view& data,
                   bool is_copy) {
   std::weak_ptr<Ctx> weak_context = context_;
 #ifdef JS_V8
-  auto callback = [WEAK_THIS, data, name, is_copy, weak_context] {
+  auto callback = [WEAK_THIS, data, uri, name, is_copy, weak_context] {
     DEFINE_AND_CHECK_SELF(Scope)
     // perfromance start time
     auto entry = self->GetPerformance()->PerformanceNavigation("hippyInit");
@@ -507,7 +507,7 @@ void Scope::RunJS(const string_view& data,
     entry->BundleInfoOfUrl(uri).execute_source_end_ = footstone::TimePoint::SystemNow();
   };
 #elif JS_HERMES
-  auto callback = [WEAK_THIS, data, name, weak_context] {
+  auto callback = [WEAK_THIS, data, uri, name, weak_context] {
     DEFINE_AND_CHECK_SELF(Scope)
     // perfromance start time
     auto entry = self->GetPerformance()->PerformanceNavigation("hippyInit");
@@ -522,7 +522,7 @@ void Scope::RunJS(const string_view& data,
     entry->BundleInfoOfUrl(uri).execute_source_end_ = footstone::TimePoint::SystemNow();
   };
 #else
-  auto callback = [WEAK_THIS, data, name, weak_context] {
+  auto callback = [WEAK_THIS, data, uri, name, weak_context] {
     DEFINE_AND_CHECK_SELF(Scope)
     // perfromance start time
     auto entry = self->GetPerformance()->PerformanceNavigation("hippyInit");
