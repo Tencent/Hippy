@@ -698,3 +698,14 @@ NSDictionary<NSString *, id> *HippyJSErrorFromCodeMessageAndNSError(NSString *co
     
     return HippyMakeError(errorMessage, nil, errorInfo);
 }
+
+
+#pragma mark - 
+
+@implementation HippyUtils
+
++ (NSString *)sdkVersion {
+    return @(HIPPY_STR(HIPPY_VERSION));
+}
+
+@end
