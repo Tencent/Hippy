@@ -600,14 +600,14 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
       size_t argument_count,
       const std::shared_ptr<CtxValue> arguments[],
       std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
-    HP_PERF_LOG("SceneBuilder.build()");
+    TDF_PERF_LOG("SceneBuilder.build()");
     auto scope = weak_scope.lock();
     if (!scope) {
-      HP_PERF_LOG("SceneBuilder.build() exit with error");
+      TDF_PERF_LOG("SceneBuilder.build() exit with error");
       return nullptr;
     }
     SceneBuilder::Build(scope->GetDomManager(), scope->GetRootNode());
-    HP_PERF_LOG("SceneBuilder.build() End");
+    TDF_PERF_LOG("SceneBuilder.build() End");
     return nullptr;
   };
   class_template.functions.emplace_back(std::move(build_func_def));
