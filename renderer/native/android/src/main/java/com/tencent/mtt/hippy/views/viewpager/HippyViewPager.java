@@ -69,6 +69,9 @@ public class HippyViewPager extends ViewPager implements HippyViewBase, ClipChil
     private final int[] mScrollOffsetPair = new int[2];
     private int mNestedScrollOffset = 0;
 
+    protected int mScrollEventThrottle = 0;
+
+
     private void init(Context context, boolean isVertical) {
         setCallPageChangedOnFirstLayout(true);
         setEnableReLayoutOnAttachToWindow(false);
@@ -326,6 +329,10 @@ public class HippyViewPager extends ViewPager implements HippyViewBase, ClipChil
             }
         }
         invalidate();
+    }
+
+    public void setScrollEventThrottle(int scrollEventThrottle) {
+        mScrollEventThrottle = scrollEventThrottle;
     }
 
     @Override

@@ -35,6 +35,7 @@ HIPPY_EXPORT_MODULE(ViewPager)
 HIPPY_EXPORT_VIEW_PROPERTY(bounces, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(initialPage, NSInteger)
 HIPPY_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(scrollEventThrottle, double)
 
 HIPPY_EXPORT_VIEW_PROPERTY(onPageSelected, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onPageScroll, HippyDirectEventBlock)

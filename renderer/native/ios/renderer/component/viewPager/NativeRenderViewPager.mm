@@ -45,7 +45,8 @@
 
 @property (nonatomic, assign) CGFloat previousStopOffset;
 @property (nonatomic, assign) NSUInteger lastPageSelectedCallbackIndex;
-
+///用于滑动事件防抖 
+@property (nonatomic, assign) double _lastScrollDispatchTime;
 @end
 
 @implementation NativeRenderViewPager
@@ -62,6 +63,8 @@
         self.previousFrame = CGRectZero;
         self.scrollViewListener = [NSHashTable weakObjectsHashTable];
         self.lastPageIndex = NSUIntegerMax;
+        self.scrollEventThrottle = 0.0;
+        self._lastScrollDispatchTime = -1;
         self.targetContentOffsetX = CGFLOAT_MAX;
         if (@available(iOS 11.0, *)) {
             self.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
@@ -99,7 +102,7 @@
     }
     [super insertHippySubview:view atIndex:(NSInteger)atIndex];
     [self.viewPagerItems insertObject:view atIndex:atIndex];
-    
+
     if ([view isKindOfClass:[NativeRenderViewPagerItem class]]) {
         NativeRenderViewPagerItem *item = (NativeRenderViewPagerItem *)view;
         __weak NativeRenderViewPager *weakPager = self;
@@ -117,7 +120,7 @@
             return frame;
         };
     }
-    
+
     self.needsLayoutItems = YES;
     if (_itemsChangedBlock) {
         _itemsChangedBlock([self.viewPagerItems count]);
@@ -175,14 +178,14 @@
     CGFloat currentContentOffset = self.contentOffset.x;
     CGFloat offset = currentContentOffset - self.previousStopOffset;
     CGFloat offsetRatio = offset / CGRectGetWidth(self.bounds);
-    
+
     if (offsetRatio > 1) {
         offsetRatio -= floor(offsetRatio);
     }
     if (offsetRatio < -1) {
         offsetRatio -= ceil(offsetRatio);
     }
-    
+
     NSUInteger currentPageIndex = [self currentPageIndex];
     NSInteger nextPageIndex = ceil(offsetRatio) == offsetRatio ? currentPageIndex : currentPageIndex + ceil(offsetRatio);
     if (nextPageIndex < 0) {
@@ -191,14 +194,14 @@
     if (nextPageIndex >= [self.viewPagerItems count]) {
         nextPageIndex = [self.viewPagerItems count] - 1;
     }
-    
+
     if (self.onPageScroll) {
         self.onPageScroll(@{
             @"position": @(nextPageIndex),
             @"offset": @(offsetRatio),
         });
     }
-    
+
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollViewListener) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidScroll:)]) {
             [scrollViewListener scrollViewDidScroll:scrollView];
@@ -258,6 +261,8 @@
     if (self.onPageScrollStateChanged) {
         self.onPageScrollStateChanged(@{ @"pageScrollState": @"idle" });
     }
+    //停止滚动后重置时间
+    self._lastScrollDispatchTime = -1;
     self.isScrolling = NO;
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollViewListener) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDecelerating:)]) {
@@ -488,6 +493,19 @@
     if (nextPage < self.viewPagerItems.count) {
         [self setPage:nextPage animated:YES];
     }
+}
+
+/**判断是否需要发送 OnScroll事件*/
+- (bool)checkSendOnScrollEvent {
+    if (!self.scrollEnabled) {
+        return false;
+    }
+    NSTimeInterval now = CACurrentMediaTime();
+    if ((self.scrollEventThrottle > 0 && self.scrollEventThrottle < (now - self._lastScrollDispatchTime) * 1000)) {
+        self._lastScrollDispatchTime = now;
+        return true;
+    }
+    return false;
 }
 
 @end

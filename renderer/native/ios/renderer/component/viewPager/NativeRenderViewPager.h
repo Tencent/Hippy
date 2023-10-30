@@ -37,6 +37,8 @@ typedef void (^ViewPagerItemsCountChanged)(NSUInteger count);
 @property (nonatomic, strong) HippyDirectEventBlock onPageScrollStateChanged;
 
 @property (nonatomic, assign) NSInteger initialPage;
+/// 滑动事件防抖
+@property (nonatomic, assign) double scrollEventThrottle;
 @property (nonatomic, assign) CGPoint targetOffset;
 @property (nonatomic, assign, readonly) NSUInteger pageCount;
 @property (nonatomic, copy) ViewPagerItemsCountChanged itemsChangedBlock;

@@ -16,6 +16,7 @@
 
 package com.tencent.mtt.hippy.views.viewpager;
 
+import android.os.SystemClock;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -34,14 +35,30 @@ public class ViewPagerPageChangeListener implements ViewPager.OnPageChangeListen
     private int mLastPageIndex = 0;
     private int mCurrPageIndex = 0;
     private final HippyViewPager mPager;
+    private long mLastScrollEventTimeStamp = -1;
 
     public ViewPagerPageChangeListener(@NonNull HippyViewPager pager) {
         mPager = pager;
     }
 
+    /**
+     * 检查是否需要发送事件
+     * @return
+     */
+    protected boolean checkSendOnScrollEvent() {
+        if (mPager.isScrollEnabled()) {
+            long currTime = SystemClock.elapsedRealtime();
+            if (currTime - mLastScrollEventTimeStamp >= mPager.mScrollEventThrottle) {
+                mLastScrollEventTimeStamp = currTime;
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-        if (mPager != null) {
+        if (mPager != null && checkSendOnScrollEvent()) {
             Map<String, Object> params = new HashMap<>();
             params.put(PAGE_ITEM_POSITION, position);
             params.put(PAGE_ITEM_OFFSET, positionOffset);
@@ -91,6 +108,7 @@ public class ViewPagerPageChangeListener implements ViewPager.OnPageChangeListen
         params.put(PAGE_ITEM_POSITION, mLastPageIndex);
         EventUtils.sendComponentEvent(lastView, EventUtils.EVENT_PAGE_ITEM_DID_DISAPPEAR, params);
         mLastPageIndex = mCurrPageIndex;
+        mLastScrollEventTimeStamp = -1;
     }
 
     @Override

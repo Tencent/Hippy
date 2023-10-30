@@ -109,6 +109,7 @@ export default class PagerExample extends React.Component {
             onPageSelected={this.onPageSelected}
             onPageScrollStateChanged={this.onPageScrollStateChanged}
             onPageScroll={this.onPageScroll}
+            scrollEventThrottle={1000}
           >
             {
               [
