@@ -20,8 +20,18 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
+#import "HippyModalCustomPresentationController.h"
 
-@interface NativeRenderModalCustomPresentationController : UIPresentationController
+@implementation HippyModalCustomPresentationController {
+}
+
+- (void)presentationTransitionWillBegin {
+    self.presentedView.frame = self.containerView.frame;
+    [self.containerView addSubview:self.presentedView];
+}
+
+- (void)dismissalTransitionDidEnd:(__unused BOOL)completed {
+    [self.presentedView removeFromSuperview];
+}
 
 @end

@@ -24,7 +24,7 @@
 #import <SystemConfiguration/SystemConfiguration.h>
 
 #import "HippyNetInfoIntenal.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 
 #include <netinet/in.h>
 

@@ -21,16 +21,16 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "NativeRenderModalHostViewInteractor.h"
+#import "HippyModalHostViewInteractor.h"
 
-@class NativeRenderModalHostView;
-@class NativeRenderModalHostViewController;
+@class HippyModalHostView;
+@class HippyModalHostViewController;
 
-@protocol NativeRenderModalHostViewInteractor;
+@protocol HippyModalHostViewInteractor;
 typedef void (^NativeRenderModalViewInteractionBlock)(
     UIViewController *hippyViewController, UIViewController *viewController, BOOL animated, dispatch_block_t completionBlock);
 
-@interface NativeRenderModalTransitioningDelegate : NSObject <NativeRenderModalHostViewInteractor, UIViewControllerTransitioningDelegate>
+@interface HippyModalTransitioningDelegate : NSObject <HippyModalHostViewInteractor, UIViewControllerTransitioningDelegate>
 /**
  * `presentationBlock` and `dismissalBlock` allow you to control how a Modal interacts with your case,
  * e.g. in case you have a native navigator that has its own way to display a modal.
@@ -39,11 +39,11 @@ typedef void (^NativeRenderModalViewInteractionBlock)(
 @property (nonatomic, strong) NativeRenderModalViewInteractionBlock presentationBlock;
 @property (nonatomic, strong) NativeRenderModalViewInteractionBlock dismissalBlock;
 
-- (void)presentModalHostView:(NativeRenderModalHostView *)modalHostView
-          withViewController:(NativeRenderModalHostViewController *)viewController
+- (void)presentModalHostView:(HippyModalHostView *)modalHostView
+          withViewController:(HippyModalHostViewController *)viewController
                     animated:(BOOL)animated;
-- (void)dismissModalHostView:(NativeRenderModalHostView *)modalHostView
-          withViewController:(NativeRenderModalHostViewController *)viewController
+- (void)dismissModalHostView:(HippyModalHostView *)modalHostView
+          withViewController:(HippyModalHostViewController *)viewController
                     animated:(BOOL)animated;
 
 @end
