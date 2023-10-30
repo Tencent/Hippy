@@ -611,6 +611,13 @@ std::ostream& operator<<(std::ostream& os, const RefInfo& ref_info) {
   return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const DiffInfo& diff_info) {
+  os << "{";
+  os << "\"skip_style_diff\": " << diff_info.skip_style_diff << ", ";
+  os << "}";
+  return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const DomNode& dom_node) {
   os << "{";
   os << "\"id\": " << dom_node.id_ << ", ";
@@ -637,9 +644,13 @@ std::ostream& operator<<(std::ostream& os, const DomNode& dom_node) {
 std::ostream& operator<<(std::ostream& os, const DomInfo& dom_info) {
   auto dom_node = dom_info.dom_node;
   auto ref_info = dom_info.ref_info;
+  auto diff_info = dom_info.diff_info;
   os << "{";
   if (ref_info != nullptr) {
     os << "\"ref info\": " << *ref_info << ", ";
+  }
+  if (diff_info != nullptr) {
+    os << "\"diff info\": " << *diff_info << ", ";
   }
   if (dom_node != nullptr) {
     os << "\"dom node\": " << *dom_node << ", ";
