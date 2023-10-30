@@ -83,6 +83,20 @@ void HippyAddLogFunction(HippyLogFunction logFunction) {
     }
 }
 
+/**
+ * returns the topmost stacked log function for the current thread, which
+ * may not be the same as the current value of HippyCurrentLogFunction.
+ */
+static HippyLogFunction HippyGetLocalLogFunction() {
+    NSMutableDictionary *threadDictionary = [NSThread currentThread].threadDictionary;
+    NSArray<HippyLogFunction> *functionStack = threadDictionary[HippyLogFunctionStack];
+    HippyLogFunction logFunction = functionStack.lastObject;
+    if (logFunction) {
+        return logFunction;
+    }
+    return HippyGetLogFunction();
+}
+
 void HippyPerformBlockWithLogFunction(void (^block)(void), HippyLogFunction logFunction) {
     NSMutableDictionary *threadDictionary = [NSThread currentThread].threadDictionary;
     NSMutableArray<HippyLogFunction> *functionStack = threadDictionary[HippyLogFunctionStack];
@@ -96,7 +110,7 @@ void HippyPerformBlockWithLogFunction(void (^block)(void), HippyLogFunction logF
 }
 
 void HippyPerformBlockWithLogPrefix(void (^block)(void), NSString *prefix) {
-    HippyLogFunction logFunction = HippyGetLogFunction();
+    HippyLogFunction logFunction = HippyGetLocalLogFunction();
     if (logFunction) {
         HippyPerformBlockWithLogFunction(block,
                                          ^(HippyLogLevel level, HippyLogSource source,
@@ -153,7 +167,7 @@ NSString *HippyFormatLog(NSDate *timestamp, HippyLogLevel level, NSString *fileN
 }
 
 void HippyLogNativeInternal(HippyLogLevel level, const char *fileName, int lineNumber, NSString *format, ...) {
-    HippyLogFunction logFunction = HippyGetLogFunction();
+    HippyLogFunction logFunction = HippyGetLocalLogFunction();
     BOOL log = HIPPY_DEBUG || (logFunction != nil);
     if (log && level >= HippyGetLogThreshold()) {
         // Get message
