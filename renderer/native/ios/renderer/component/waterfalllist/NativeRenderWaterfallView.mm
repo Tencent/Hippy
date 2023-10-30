@@ -67,7 +67,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
         _scrollEventThrottle = 100.f;
         _weakItemMap = [NSMapTable strongToWeakObjectsMapTable];
         _cachedItems = [NSMutableDictionary dictionaryWithCapacity:32];
-        _dataSourcePool = [NSMutableArray arrayWithCapacity:8];
+        _dataSourcePool = [NSMutableArray array];
         _dataSourceSem = dispatch_semaphore_create(1);
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
         [self initCollectionView];

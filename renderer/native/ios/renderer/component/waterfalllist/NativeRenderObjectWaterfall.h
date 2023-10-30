@@ -32,7 +32,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSSet<__kindof HippyShadowView *> *)deletedItems;
 - (NSHashTable<__kindof HippyShadowView *> *)movedItems;
 
+/// Clear all items recorded.
 - (void)clear;
+
+/// Whether has changed item.
+- (BOOL)hasChanges;
+
+/// Get all chaned items.
+- (NSSet<HippyShadowView *> *)allChangedItems;
 
 @end
 
