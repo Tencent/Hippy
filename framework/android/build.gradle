@@ -185,6 +185,7 @@ dependencies {
     compileOnly project(path: ':renderer-native')
     //noinspection GradleDependency
     implementation deps.annotation
+    implementation "com.facebook.fbjni:fbjni:0.2.2"
 
     testImplementation deps.junit
     testImplementation deps.mockito_core

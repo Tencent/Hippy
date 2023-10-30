@@ -99,9 +99,10 @@ public:
     JSGlobalContextSetName(context_, js_name);
     JSStringRelease(js_name);
   }
-    
-  virtual std::shared_ptr<CtxValue> DefineProxy(const std::unique_ptr<FunctionWrapper>& wrapper) override;
-  
+
+  virtual std::shared_ptr<CtxValue> DefineProxy(const std::unique_ptr<FunctionWrapper>& wrapper,
+                                                std::vector<std::string> properties = {}) override;
+
   virtual std::shared_ptr<CtxValue> DefineClass(const string_view& name,
                                                 const std::shared_ptr<ClassDefinition>& parent,
                                                 const std::unique_ptr<FunctionWrapper>& constructor_wrapper,

@@ -228,8 +228,9 @@ function readFileToBuffer(platform, filePath) {
  *
  * @param {android|ios} platform - specific platform.
  * @param {string} buildDirPath - output directory.
+ * @param {string} buildFileName - build filename engine.
  */
-function generateCpp(platform, buildDirPath) {
+function generateCpp(platform, buildDirPath, buildFileName) {
   let code = CodePieces.header(platform);
 
   getAllRequiredFiles(platform).then((filesArr) => {
@@ -259,7 +260,7 @@ function generateCpp(platform, buildDirPath) {
 
     code += CodePieces[platform].piece2;
 
-    const targetPath = `${buildDirPath}/native_source_code_${platform}.cc`;
+    const targetPath = `${buildDirPath}/native_source_code_${buildFileName}.cc`;
     fs.writeFile(targetPath, code, (err) => {
       if (err) {
         /* eslint-disable-next-line no-console */
@@ -273,6 +274,7 @@ function generateCpp(platform, buildDirPath) {
 }
 
 // Start to work
-generateCpp('ios', getAbsolutePath('../../../driver/js/src/vm/jsc/'));
-generateCpp('android', getAbsolutePath('../../../driver/js/src/vm/v8/'));
-generateCpp('flutter', getAbsolutePath('../../../framework/voltron/core/src/bridge/'));
+generateCpp('ios', getAbsolutePath('../../../driver/js/src/vm/jsc/'), "ios");
+generateCpp('android', getAbsolutePath('../../../driver/js/src/vm/v8/'), "android");
+generateCpp('flutter', getAbsolutePath('../../../framework/voltron/core/src/bridge/'), "flutter");
+generateCpp('android', getAbsolutePath('../../../driver/js/src/vm/hermes/'), "hermes");

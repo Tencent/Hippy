@@ -276,7 +276,7 @@ jint CreateJsDriver(JNIEnv* j_env,
     FOOTSTONE_CHECK(initial_heap_size_in_bytes <= maximum_heap_size_in_bytes);
   }
 #else
-  auto param = std::make_shared<VMInitParam>();
+  auto param = std::make_shared<VM::VMInitParam>();
 #endif
 #ifdef ENABLE_INSPECTOR
   if (param->is_debug) {
@@ -533,7 +533,9 @@ static jint JNI_OnLoad(__unused JavaVM* j_vm, __unused void* reserved) {
 
 static void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
   auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+#ifdef JS_V8
   hippy::V8VM::PlatformDestroy();
+#endif
   hippy::TurboModuleManager::Destroy(j_env);
   hippy::JavaTurboModule::Destroy(j_env);
   hippy::ConvertUtils::Destroy(j_env);

@@ -115,6 +115,12 @@ if ("${JS_ENGINE}" STREQUAL "V8")
   endif ()
 elseif ("${JS_ENGINE}" STREQUAL "JSC")
   target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_JSC")
+elseif ("${JS_ENGINE}" STREQUAL "HERMES")
+  #TODO(charleeshen): Move to HIP
+  # InfraPackage_Add(HERMES LOCAL "${PROJECT_ROOT_DIR}/hermes/")
+  include(${PROJECT_ROOT_DIR}/hermes/hermes.cmake)
+  target_link_libraries(${PROJECT_NAME} PUBLIC hermes jsi)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_HERMES")
 endif ()
 # endregion
 
@@ -186,6 +192,14 @@ elseif ("${JS_ENGINE}" STREQUAL "JSC")
           src/napi/jsc/jsc_try_catch.cc
           src/vm/jsc/jsc_vm.cc
           src/vm/jsc/native_source_code_ios.cc)
+elseif("${JS_ENGINE}" STREQUAL "HERMES")
+  list(APPEND SOURCE_SET
+        src/napi/hermes/hermes_class_definition.cc
+        src/napi/hermes/hermes_ctx.cc
+        src/napi/hermes/hermes_ctx_value.cc
+        src/napi/hermes/hermes_try_catch.cc
+        src/vm/hermes/hermes_vm.cc
+        src/vm/hermes/native_source_code_hermes.cc)
 endif ()
 set(SOURCE_SET_STANDALONE
         src/modules/console_module.cc
