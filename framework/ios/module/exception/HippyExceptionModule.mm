@@ -23,7 +23,7 @@
 #import "HippyExceptionModule.h"
 #import "HippyBridge.h"
 #import "HippyDefines.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyUtils.h"
 
 @implementation HippyExceptionModule

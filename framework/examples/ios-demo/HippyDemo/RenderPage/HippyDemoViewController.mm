@@ -30,7 +30,7 @@
 #import <hippy/HippyBridge.h>
 #import <hippy/HippyRootView.h>
 #import <hippy/HippyLog.h>
-#import <hippy/HippyAsserts.h>
+#import <hippy/HippyAssert.h>
 #import <hippy/UIView+Hippy.h>
 
 static NSString *const engineKey = @"Demo";

@@ -22,7 +22,7 @@
 
 #import <Accelerate/Accelerate.h>
 
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyUtils.h"
 #import "NativeRenderImageView.h"
 #import "NativeRenderAnimatedImage.h"
