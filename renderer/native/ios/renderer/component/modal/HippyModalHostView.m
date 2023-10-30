@@ -20,23 +20,35 @@
  * limitations under the License.
  */
 
-#import "NativeRenderModalHostView.h"
-#import "NativeRenderModalHostViewController.h"
+#import "HippyModalHostView.h"
+#import "HippyModalHostViewController.h"
+#import "HippyTouchHandler.h"
 #import "UIView+Hippy.h"
+#import "HippyModalHostViewInteractor.h"
+#import "HippyAssert.h"
 #import "UIView+MountEvent.h"
-#import "NativeRenderModalHostViewInteractor.h"
 
-@implementation NativeRenderModalHostView {
+
+@implementation HippyModalHostView {
     BOOL _isPresented;
-    NativeRenderModalHostViewController *_modalViewController;
+    HippyModalHostViewController *_modalViewController;
+    UIView *_hippySubview;
     UIStatusBarStyle originStyle;
     UIInterfaceOrientation _lastKnownOrientation;
 }
 
-- (instancetype)initWithFrame:(CGRect)frame {
-    if ((self = [super initWithFrame:frame])) {
-        _modalViewController = [NativeRenderModalHostViewController new];
+HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
+HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : coder)
+
+- (instancetype)initWithBridge:(HippyBridge *)bridge {
+    if ((self = [super initWithFrame:CGRectZero])) {
+        _modalViewController = [HippyModalHostViewController new];
+        UIView *containerView = [UIView new];
+        containerView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+        _modalViewController.view = containerView;
+        _touchHandler = [[HippyTouchHandler alloc] initWithRootView:containerView bridge:bridge];
         _isPresented = NO;
+        
         __weak __typeof(self) weakSelf = self;
         _modalViewController.boundsDidChangeBlock = ^(CGRect newBounds) {
             [weakSelf notifyForBoundsChange:newBounds];
@@ -71,9 +83,21 @@
 }
 
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
+    HippyAssert(_hippySubview == nil, @"Modal view can only have one subview");
     [super insertHippySubview:subview atIndex:atIndex];
-    [_modalViewController.view insertSubview:subview atIndex:atIndex];
+    [subview addGestureRecognizer:_touchHandler];
+    subview.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    
+    [_modalViewController.view insertSubview:subview atIndex:0];
     [subview sendAttachedToWindowEvent];
+    _hippySubview = subview;
+}
+
+- (void)removeHippySubview:(UIView *)subview {
+    HippyAssert(subview == _hippySubview, @"Cannot remove view other than modal view");
+    [super removeHippySubview:subview];
+    [subview removeGestureRecognizer:_touchHandler];
+    _hippySubview = nil;
 }
 
 - (void)didUpdateHippySubviews {
@@ -116,6 +140,12 @@
     if (_isPresented && !self.superview) {
         [self dismissModalViewController];
     }
+}
+
+- (void)invalidate {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self dismissModalViewController];
+    });
 }
 
 - (BOOL)isTransparent {

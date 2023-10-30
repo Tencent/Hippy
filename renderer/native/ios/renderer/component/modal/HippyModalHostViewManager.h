@@ -21,16 +21,16 @@
  */
 
 #import "HippyViewManager.h"
-#import "NativeRenderModalHostView.h"
+#import "HippyModalHostView.h"
 
-@protocol NativeRenderModalHostViewInteractor;
+@protocol HippyModalHostViewInteractor;
 
 typedef void (^NativeRenderModalViewInteractionBlock)(
     UIViewController *reactViewController, UIViewController *viewController, BOOL animated, dispatch_block_t completionBlock);
 
-@interface NativeRenderModalHostViewManager : HippyViewManager
+@interface HippyModalHostViewManager : HippyViewManager
 
 @property (nonatomic, strong) NSHashTable *hostViews;
-@property (nonatomic, strong) id<NativeRenderModalHostViewInteractor, UIViewControllerTransitioningDelegate> transitioningDelegate;
+@property (nonatomic, strong) id<HippyModalHostViewInteractor, UIViewControllerTransitioningDelegate> transitioningDelegate;
 
 @end

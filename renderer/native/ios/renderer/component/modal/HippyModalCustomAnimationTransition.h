@@ -1,3 +1,4 @@
+
 /*!
  * iOS SDK
  *
@@ -20,14 +21,9 @@
  * limitations under the License.
  */
 
+#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-@interface NativeRenderModalHostViewController : UIViewController
-
-@property (nonatomic, copy) void (^boundsDidChangeBlock)(CGRect newBounds);
-@property (nonatomic, strong) NSNumber *hideStatusBar;
-@property (nonatomic, assign) UIInterfaceOrientationMask supportedInterfaceOrientations;
-
-- (void)setPreferredStatusBarStyle:(UIStatusBarStyle)style;
-
+@interface HippyModalCustomAnimationTransition : NSObject <UIViewControllerAnimatedTransitioning>
+@property (nonatomic, assign) BOOL isPresent;
 @end

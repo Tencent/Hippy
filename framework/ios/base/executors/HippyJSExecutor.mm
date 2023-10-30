@@ -22,7 +22,7 @@
 
 #import <UIKit/UIDevice.h>
 #import "VFSUriHandler.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyBundleURLProvider.h"
 #import "HippyContextWrapper.h"
 #import "HippyDefines.h"

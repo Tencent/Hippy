@@ -21,7 +21,7 @@
  */
 
 #import "HippyUtils.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyLog.h"
 #import <objc/message.h>
 #import <CommonCrypto/CommonCrypto.h>
