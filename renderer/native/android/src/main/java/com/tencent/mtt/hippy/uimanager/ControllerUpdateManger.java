@@ -190,13 +190,8 @@ public class ControllerUpdateManger<T> {
         }
     }
 
-    private void handleCustomProps(T t, @Nullable View g, @NonNull String key,
-            @NonNull Map<String, Object> props) {
-        if (g == null) {
-            return;
-        }
-        boolean hasCustomMethodHolder = false;
-        Object customProps = props.get(key);
+    @Nullable
+    private PropertyMethodHolder getCustomPropsMethodHolder(@NonNull String key) {
         if (mCustomPropsController != null
                 && mCustomPropsController instanceof HippyCustomPropsController) {
             Class<?> cls = mCustomPropsController.getClass();
@@ -205,15 +200,21 @@ public class ControllerUpdateManger<T> {
                 methodHolderMap = new HashMap<>();
                 findViewPropsMethod(cls, methodHolderMap);
             }
-            PropertyMethodHolder methodHolder = methodHolderMap.get(key);
-            if (methodHolder != null) {
-                invokePropMethod(mCustomPropsController, g, props, key, methodHolder);
-                hasCustomMethodHolder = true;
-            }
+            return methodHolderMap.get(key);
         }
-        if (!hasCustomMethodHolder && t instanceof HippyViewController) {
-            //noinspection unchecked
-            ((HippyViewController) t).setCustomProp(g, key, customProps);
+        return null;
+    }
+
+    private void handleCustomProps(T t, @Nullable View view, @NonNull String key,
+            @NonNull Map<String, Object> props, @Nullable PropertyMethodHolder methodHolder) {
+        if (view != null) {
+            Object customProps = props.get(key);
+            if (methodHolder != null) {
+                invokePropMethod(mCustomPropsController, view, props, key, methodHolder);
+            } else if (t instanceof HippyViewController) {
+                //noinspection unchecked
+                ((HippyViewController) t).setCustomProp(view, key, customProps);
+            }
         }
     }
 
@@ -254,7 +255,14 @@ public class ControllerUpdateManger<T> {
                             MapUtils.getIntValue(props, NodeProps.BACKGROUND_COLOR,
                                     Color.TRANSPARENT));
                 } else if (!handleComponentProps(node, key, props, skipComponentProps)) {
-                    handleCustomProps(controller, view, key, props);
+                    PropertyMethodHolder customMethodHolder = getCustomPropsMethodHolder(key);
+                    if (customMethodHolder != null && view == null) {
+                        // If the host has a custom attribute that needs to be processed, this element cannot be
+                        // flattened, otherwise, if the view is empty, custom attributes will not be passed through
+                        // to custom props controller.
+                        view = node.createView(true);
+                    }
+                    handleCustomProps(controller, view, key, props, customMethodHolder);
                 }
             }
         }
