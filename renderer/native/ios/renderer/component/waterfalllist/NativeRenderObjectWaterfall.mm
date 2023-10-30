@@ -175,10 +175,8 @@
 }
 
 - (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
-    if ([self isPropagationDirty:NativeRenderUpdateLifecycleLayoutDirtied]) {
-        if (!_itemChangeContext.hasChanges) {
-            return;
-        }
+    if ([self isPropagationDirty:NativeRenderUpdateLifecycleLayoutDirtied] &&
+        _itemChangeContext.hasChanges) {
         WaterfallItemChangeContext *context = [_itemChangeContext copy];
         NSArray<HippyShadowView *> *dataSource = [self.subcomponents copy];
         __weak __typeof(self)weakSelf = self;
@@ -196,9 +194,9 @@
             }
         };
         [blocks addObject:block];
+        [_itemChangeContext clear];
     }
     [super amendLayoutBeforeMount:blocks];
-    [_itemChangeContext clear];
 }
 
 @end
