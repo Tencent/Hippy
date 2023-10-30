@@ -157,7 +157,9 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
     if (!ext_update->empty()) {
       diff_value->insert(ext_update->begin(), ext_update->end());
     }
-    dom_node->SetStyleMap(node_info->dom_node->GetStyleMap());
+    if (!skip_style_diff) {
+      dom_node->SetStyleMap(node_info->dom_node->GetStyleMap());
+    }
     dom_node->SetExtStyleMap(node_info->dom_node->GetExtStyle());
     dom_node->SetDiffStyle(diff_value);
 
