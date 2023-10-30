@@ -71,7 +71,7 @@ module.exports = {
                   '@babel/preset-env',
                   {
                     targets: {
-                      chrome: 57,
+                      chrome: 23,
                     },
                   },
                 ],
