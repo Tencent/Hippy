@@ -38,7 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, assign)BOOL onInterceptTouchEvent;
 
-@property(nonatomic, readonly, copy)NSSet<NSString *> *propertyEventsName;
 
 /**
  * Add custom property event for view
@@ -70,7 +69,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)didRemovePropertyEvent:(const char *)name;
 
-- (void)removeAllPropertyEvents;
 
 @end
 

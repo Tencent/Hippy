@@ -25,7 +25,7 @@
 #import "NativeRenderCollectionViewWaterfallLayout.h"
 #import "HippyComponent.h"
 #import "HippyScrollableProtocol.h"
-#import "NativeRenderScrollProtocol.h"
+#import "HippyScrollProtocol.h"
 #import "NativeRenderTouchesView.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -42,7 +42,7 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
  * NativeRenderWaterfallView is a waterfall component, internal implementation is UICollectionView
  */
 @interface NativeRenderWaterfallView : NativeRenderTouchesView <UICollectionViewDataSource, UICollectionViewDelegate,
-                                        NativeRenderCollectionViewDelegateWaterfallLayout, HippyScrollableProtocol, NativeRenderScrollProtocol> {
+                                        NativeRenderCollectionViewDelegateWaterfallLayout, HippyScrollableProtocol, HippyScrollProtocol> {
 @protected
     NativeRenderWaterfallViewDataSource *_dataSource;
     NativeRenderWaterfallViewDataSource *_previousDataSource;
