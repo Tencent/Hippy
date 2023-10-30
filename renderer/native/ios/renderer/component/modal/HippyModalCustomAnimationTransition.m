@@ -20,11 +20,11 @@
  * limitations under the License.
  */
 
-#import "NativeRenderModalCustomAnimationTransition.h"
+#import "HippyModalCustomAnimationTransition.h"
 
 #define DURATION .2f
 
-@implementation NativeRenderModalCustomAnimationTransition
+@implementation HippyModalCustomAnimationTransition
 
 - (NSTimeInterval)transitionDuration:(__unused id<UIViewControllerContextTransitioning>)transitionContext {
     return DURATION;

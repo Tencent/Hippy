@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyDomUtils.h"
 #import "HippyFootstoneUtils.h"
 #import "HippyOCToDomArgument.h"

@@ -22,7 +22,7 @@
 
 #import <UIKit/NSIndexPath+UIKitAdditions.h>
 
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "NativeRenderWaterfallViewDataSource.h"
 #import "HippyShadowView.h"
 #import "NativeRenderObjectWaterfall.h"

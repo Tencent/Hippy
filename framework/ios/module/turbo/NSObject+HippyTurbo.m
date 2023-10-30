@@ -21,7 +21,7 @@
  */
 
 #import "HippyModuleMethod.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyUtils.h"
 #import "NSObject+HippyTurbo.h"
 

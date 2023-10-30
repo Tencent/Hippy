@@ -20,17 +20,17 @@
  * limitations under the License.
  */
 
-#import "NativeRenderModalHostViewController.h"
+#import "HippyModalHostViewController.h"
 #import "HippyUtils.h"
 
-@interface NativeRenderModalHostViewController () {
+@interface HippyModalHostViewController () {
     CGRect _lastViewFrame;
     UIStatusBarStyle _preferredStatusBarStyle;
 }
 
 @end
 
-@implementation NativeRenderModalHostViewController
+@implementation HippyModalHostViewController
 
 - (instancetype)init {
     self = [super init];
