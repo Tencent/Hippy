@@ -45,7 +45,6 @@
 
 @property (nonatomic, assign) CGFloat previousStopOffset;
 @property (nonatomic, assign) NSUInteger lastPageSelectedCallbackIndex;
-///用于滑动事件防抖 
 @property (nonatomic, assign) double _lastScrollDispatchTime;
 @end
 
@@ -495,7 +494,7 @@
     }
 }
 
-/**判断是否需要发送 OnScroll事件*/
+/**Check whether scroll events need to be sent*/
 - (bool)checkSendOnScrollEvent {
     if (!self.scrollEnabled) {
         return false;

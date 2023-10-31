@@ -36,13 +36,16 @@ public class ViewPagerPageChangeListener implements ViewPager.OnPageChangeListen
     private int mCurrPageIndex = 0;
     private final HippyViewPager mPager;
     private long mLastScrollEventTimeStamp = -1;
+    private boolean mHasUnsentScrollEvent;
+    private int onPageScrolledPosition = 0;
+    private float onPageScrollPositionOffset = 0;
 
     public ViewPagerPageChangeListener(@NonNull HippyViewPager pager) {
         mPager = pager;
     }
 
     /**
-     * 检查是否需要发送事件
+     * Check whether scroll events need to be sent
      * @return
      */
     protected boolean checkSendOnScrollEvent() {
@@ -58,12 +61,24 @@ public class ViewPagerPageChangeListener implements ViewPager.OnPageChangeListen
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-        if (mPager != null && checkSendOnScrollEvent()) {
-            Map<String, Object> params = new HashMap<>();
-            params.put(PAGE_ITEM_POSITION, position);
-            params.put(PAGE_ITEM_OFFSET, positionOffset);
-            EventUtils.sendComponentEvent(mPager, EventUtils.EVENT_PAGE_SCROLL, params);
+        onPageScrolledPosition = position;
+        onPageScrollPositionOffset = positionOffset;
+        if (mPager == null) {
+            return;
         }
+        if (checkSendOnScrollEvent()) {
+            sendPageScrollEvent(position, positionOffset);
+        } else {
+            mHasUnsentScrollEvent = true;
+        }
+    }
+
+    private void sendPageScrollEvent(int position, float positionOffset) {
+        mHasUnsentScrollEvent = false;
+        Map<String, Object> params = new HashMap<>();
+        params.put(PAGE_ITEM_POSITION, position);
+        params.put(PAGE_ITEM_OFFSET, positionOffset);
+        EventUtils.sendComponentEvent(mPager, EventUtils.EVENT_PAGE_SCROLL, params);
     }
 
     @Override
@@ -92,6 +107,11 @@ public class ViewPagerPageChangeListener implements ViewPager.OnPageChangeListen
         if (mPager == null || mCurrPageIndex == mLastPageIndex) {
             return;
         }
+        mLastScrollEventTimeStamp = -1;
+        // Supplementary  sending page scroll event
+        if (mHasUnsentScrollEvent) {
+            sendPageScrollEvent(onPageScrolledPosition, onPageScrollPositionOffset);
+        }
         Promise promise = mPager.getCallBackPromise();
         if (promise != null) {
             Map<String, Object> result = new HashMap<>();
@@ -108,9 +128,6 @@ public class ViewPagerPageChangeListener implements ViewPager.OnPageChangeListen
         params.put(PAGE_ITEM_POSITION, mLastPageIndex);
         EventUtils.sendComponentEvent(lastView, EventUtils.EVENT_PAGE_ITEM_DID_DISAPPEAR, params);
         mLastPageIndex = mCurrPageIndex;
-        //防抖只是针对onScroll事件。 状态事件不参与过滤，也不会被丢弃。
-        // 状态变成idle只是重置mLastScrollEventTimeStamp，以便下次滑动开始时，重新计算。
-        mLastScrollEventTimeStamp = -1;
     }
 
     @Override

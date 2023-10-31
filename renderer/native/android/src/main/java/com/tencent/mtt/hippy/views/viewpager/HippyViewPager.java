@@ -68,7 +68,7 @@ public class HippyViewPager extends ViewPager implements HippyViewBase, ClipChil
     // Reusable int array to be passed to method calls that mutate it in order to "return" two ints.
     private final int[] mScrollOffsetPair = new int[2];
     private int mNestedScrollOffset = 0;
-    //防抖时间 ms
+    //scroll throttle time ms
     protected int mScrollEventThrottle = 0;
 
     private void init(Context context, boolean isVertical) {
