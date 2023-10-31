@@ -522,6 +522,13 @@ referenceSizeForHeaderInSection:(NSInteger)section {
         UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
         layout.scrollDirection = horizontal ? UICollectionViewScrollDirectionHorizontal : UICollectionViewScrollDirectionVertical;
         [self.collectionView.collectionViewLayout invalidateLayout];
+        if (horizontal) {
+            [self.collectionView setAlwaysBounceHorizontal:YES];
+            [self.collectionView setAlwaysBounceVertical:NO];
+        } else {
+            [self.collectionView setAlwaysBounceVertical:YES];
+            [self.collectionView setAlwaysBounceHorizontal:NO];
+        }
     }
 }
 
