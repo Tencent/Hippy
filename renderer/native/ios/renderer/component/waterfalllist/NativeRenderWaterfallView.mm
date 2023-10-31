@@ -85,6 +85,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     collectionView.dataSource = self;
     collectionView.delegate = self;
     collectionView.layoutDelegate = self;
+    collectionView.alwaysBounceVertical = YES;
     collectionView.backgroundColor = [UIColor clearColor];
     _collectionView = collectionView;
     [self registerCells];
