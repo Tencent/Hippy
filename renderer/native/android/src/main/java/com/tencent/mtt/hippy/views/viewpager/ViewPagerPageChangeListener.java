@@ -108,6 +108,8 @@ public class ViewPagerPageChangeListener implements ViewPager.OnPageChangeListen
         params.put(PAGE_ITEM_POSITION, mLastPageIndex);
         EventUtils.sendComponentEvent(lastView, EventUtils.EVENT_PAGE_ITEM_DID_DISAPPEAR, params);
         mLastPageIndex = mCurrPageIndex;
+        //防抖只是针对onScroll事件。 状态事件不参与过滤，也不会被丢弃。
+        // 状态变成idle只是重置mLastScrollEventTimeStamp，以便下次滑动开始时，重新计算。
         mLastScrollEventTimeStamp = -1;
     }
 

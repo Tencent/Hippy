@@ -132,10 +132,11 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
         pager.setOverflow(overflow);
     }
 
-    @HippyControllerProps(name = "scrollEventThrottle", defaultType = HippyControllerProps.NUMBER, defaultNumber = 30.0D)
+    @HippyControllerProps(name = "scrollEventThrottle", defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
     public void setScrollEventThrottle(HippyViewPager pager,int scrollEventThrottle) {
         pager.setScrollEventThrottle(scrollEventThrottle);
     }
+
     private void resolveInvalidParams(@Nullable Promise promise) {
         if (promise != null) {
             String msg = "Invalid parameter!";
