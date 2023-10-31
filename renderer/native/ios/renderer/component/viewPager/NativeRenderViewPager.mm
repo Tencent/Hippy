@@ -514,7 +514,7 @@
     return false;
 }
 
-- (void) sendOnPageScrollEvent: (NSUInteger)position  positionOffset:(CGFloat) positionOffset{
+- (void)sendOnPageScrollEvent: (NSUInteger)position  positionOffset:(CGFloat) positionOffset{
     self.mHasUnsentScrollEvent = false;
     self.onPageScroll(@{
         @"position": @(position),
