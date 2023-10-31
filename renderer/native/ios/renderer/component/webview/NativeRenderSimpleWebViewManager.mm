@@ -26,6 +26,7 @@
 
 HIPPY_EXPORT_MODULE(WebView)
 
+HIPPY_EXPORT_VIEW_PROPERTY(userAgent, NSString)
 HIPPY_EXPORT_VIEW_PROPERTY(source, NSDictionary)
 HIPPY_EXPORT_VIEW_PROPERTY(onLoadStart, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onLoadEnd, HippyDirectEventBlock)

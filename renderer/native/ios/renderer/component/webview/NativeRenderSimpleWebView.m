@@ -38,17 +38,35 @@
     _source = source;
     if (source && [source[@"uri"] isKindOfClass:[NSString class]]) {
         NSString *urlString = source[@"uri"];
-        [self loadUrl:urlString];
+        NSString *method = source[@"method"];
+        
+        // Wait for other properties to be updated
+        dispatch_async(dispatch_get_main_queue(), ^{
+          [self loadUrl:urlString withMethod:method];
+        });
     }
 }
 
-- (void)loadUrl:(NSString *)urlString {
+- (void)loadUrl:(NSString *)urlString withMethod:(NSString*)method {
     _url = urlString;
     NSURL *url = HippyURLWithString(urlString, NULL);
     if (!url) {
         return;
     }
-    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+
+    NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:url];
+    method = [method uppercaseString];
+    if([method isEqualToString:@"GET"]){
+      request.HTTPMethod = @"GET";
+    }else if ([method isEqualToString:@"POST"]){
+      request.HTTPMethod = @"POST";
+    }else{
+      // System default is 'GET' no need to be specified explicitly
+    }
+    NSString* ua = self.userAgent;
+    if(ua){
+      self.customUserAgent = ua;
+    }
     [self loadRequest:request];
 }
 
