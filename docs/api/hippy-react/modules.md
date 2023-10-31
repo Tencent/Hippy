@@ -159,7 +159,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ### AsyncStorage.multiGet
 
-`(key: string[]) => Promise<[key: string, value: value][]>` 一次性用多个 key 值的数组去批量请求缓存数据，返回值将在回调函数以键值对的二维数组形式返回。
+`(key: string[]) => Promise<[key: string, value: string][]>` 一次性用多个 key 值的数组去批量请求缓存数据，返回值将在回调函数以键值对的二维数组形式返回。
 
 > - key: string[] - 需要获取值的目标 key 数组
 
@@ -171,9 +171,9 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ### AsyncStorage.multiSet
 
-`(keyValuePairs: [key: string, value: value][]) => void` 调用这个函数可以批量存储键值对对象。
+`(keyValuePairs: [key: string, value: string][]) => void` 调用这个函数可以批量存储键值对对象。
 
-> - keyValuePairs: [key: string, value: value][] - 需要设置的储键值二维数组
+> - keyValuePairs: [key: string, value: string][] - 需要设置的储键值二维数组
 
 ### AsyncStorage.removeItem
 
