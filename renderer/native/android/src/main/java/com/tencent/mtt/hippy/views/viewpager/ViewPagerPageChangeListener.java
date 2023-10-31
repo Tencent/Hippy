@@ -49,12 +49,10 @@ public class ViewPagerPageChangeListener implements ViewPager.OnPageChangeListen
      * @return
      */
     protected boolean checkSendOnScrollEvent() {
-        if (mPager.isScrollEnabled()) {
-            long currTime = SystemClock.elapsedRealtime();
-            if (currTime - mLastScrollEventTimeStamp >= mPager.mScrollEventThrottle) {
-                mLastScrollEventTimeStamp = currTime;
-                return true;
-            }
+        long currTime = SystemClock.elapsedRealtime();
+        if (currTime - mLastScrollEventTimeStamp >= mPager.mScrollEventThrottle) {
+            mLastScrollEventTimeStamp = currTime;
+            return true;
         }
         return false;
     }
@@ -64,6 +62,9 @@ public class ViewPagerPageChangeListener implements ViewPager.OnPageChangeListen
         onPageScrolledPosition = position;
         onPageScrollPositionOffset = positionOffset;
         if (mPager == null) {
+            return;
+        }
+        if (!mPager.isScrollEnabled()) {
             return;
         }
         if (checkSendOnScrollEvent()) {
