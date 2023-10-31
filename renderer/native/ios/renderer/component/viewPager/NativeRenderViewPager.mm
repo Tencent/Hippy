@@ -46,6 +46,9 @@
 @property (nonatomic, assign) CGFloat previousStopOffset;
 @property (nonatomic, assign) NSUInteger lastPageSelectedCallbackIndex;
 @property (nonatomic, assign) double _lastScrollDispatchTime;
+@property (nonatomic, assign) double mHasUnsentScrollEvent;
+@property (nonatomic, assign) NSUInteger onPageScrolledPosition;
+@property (nonatomic, assign) CGFloat onPageScrollPositionOffset;
 @end
 
 @implementation NativeRenderViewPager
@@ -195,10 +198,18 @@
     }
 
     if (self.onPageScroll) {
-        self.onPageScroll(@{
-            @"position": @(nextPageIndex),
-            @"offset": @(offsetRatio),
-        });
+        if ([self checkSendOnScrollEvent]) {
+            self.mHasUnsentScrollEvent = false;
+            self.onPageScrolledPosition = nextPageIndex;
+            self.onPageScrollPositionOffset = offsetRatio;
+            self.onPageScroll(@{
+                @"position": @(nextPageIndex),
+                @"offset": @(offsetRatio),
+            });
+        } else {
+            self.mHasUnsentScrollEvent = true;
+        }
+        
     }
 
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollViewListener) {
@@ -244,6 +255,9 @@
     }
     if (self.onPageScrollStateChanged) {
         NSString *state = decelerate ? @"settling" : @"idle";
+        if(!decelerate) {
+            [self supplementaryPageScrollEvent];
+        }
         self.onPageScrollStateChanged(@{ @"pageScrollState": state });
     }
 }
@@ -258,6 +272,7 @@
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     if (self.onPageScrollStateChanged) {
+        [self supplementaryPageScrollEvent];
         self.onPageScrollStateChanged(@{ @"pageScrollState": @"idle" });
     }
     //停止滚动后重置时间
@@ -496,15 +511,21 @@
 
 /**Check whether scroll events need to be sent*/
 - (bool)checkSendOnScrollEvent {
-    if (!self.scrollEnabled) {
-        return false;
-    }
     NSTimeInterval now = CACurrentMediaTime();
-    if ((self.scrollEventThrottle > 0 && self.scrollEventThrottle < (now - self._lastScrollDispatchTime) * 1000)) {
+    if (self.scrollEventThrottle < (now - self._lastScrollDispatchTime) * 1000) {
         self._lastScrollDispatchTime = now;
         return true;
     }
     return false;
+}
+
+- (void)supplementaryPageScrollEvent {
+    if(self.mHasUnsentScrollEvent) {
+        self.onPageScroll(@{
+            @"position": @(self.onPageScrolledPosition),
+            @"offset": @(self.onPageScrollPositionOffset),
+        });
+    }
 }
 
 @end
