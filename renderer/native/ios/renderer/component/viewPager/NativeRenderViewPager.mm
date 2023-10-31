@@ -249,11 +249,12 @@
     if (!decelerate) {
         self.isScrolling = NO;
     }
+
+    if(!decelerate) {
+        [self onScrollIdle];
+    }
     if (self.onPageScrollStateChanged) {
         NSString *state = decelerate ? @"settling" : @"idle";
-        if(!decelerate) {
-            [self supplementaryPageScrollEvent];
-        }
         self.onPageScrollStateChanged(@{ @"pageScrollState": state });
     }
 }
@@ -267,12 +268,10 @@
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    [self onScrollIdle];
     if (self.onPageScrollStateChanged) {
-        [self supplementaryPageScrollEvent];
         self.onPageScrollStateChanged(@{ @"pageScrollState": @"idle" });
     }
-    //停止滚动后重置时间
-    self._lastScrollDispatchTime = -1;
     self.isScrolling = NO;
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollViewListener) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDecelerating:)]) {
@@ -523,7 +522,9 @@
     });
 }
 
-- (void)supplementaryPageScrollEvent {
+- (void)onScrollIdle {
+    //reset on scroll idle
+    self._lastScrollDispatchTime = -1;
     if(self.mHasUnsentScrollEvent) {
         self.mHasUnsentScrollEvent = false;
         [self sendOnPageScrollEvent:self.onPageScrolledPosition positionOffset:self.onPageScrollPositionOffset];
