@@ -199,17 +199,13 @@
 
     if (self.onPageScroll) {
         if ([self checkSendOnScrollEvent]) {
-            self.mHasUnsentScrollEvent = false;
             self.onPageScrolledPosition = nextPageIndex;
             self.onPageScrollPositionOffset = offsetRatio;
-            self.onPageScroll(@{
-                @"position": @(nextPageIndex),
-                @"offset": @(offsetRatio),
-            });
+            [self sendOnPageScrollEvent:self.onPageScrolledPosition positionOffset:self.onPageScrollPositionOffset];
         } else {
             self.mHasUnsentScrollEvent = true;
         }
-        
+
     }
 
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollViewListener) {
@@ -519,12 +515,18 @@
     return false;
 }
 
+- (void) sendOnPageScrollEvent: (NSUInteger)position  positionOffset:(CGFloat) positionOffset{
+    self.mHasUnsentScrollEvent = false;
+    self.onPageScroll(@{
+        @"position": @(position),
+        @"offset": @(positionOffset),
+    });
+}
+
 - (void)supplementaryPageScrollEvent {
     if(self.mHasUnsentScrollEvent) {
-        self.onPageScroll(@{
-            @"position": @(self.onPageScrolledPosition),
-            @"offset": @(self.onPageScrollPositionOffset),
-        });
+        self.mHasUnsentScrollEvent = false;
+        [self sendOnPageScrollEvent:self.onPageScrolledPosition positionOffset:self.onPageScrollPositionOffset];
     }
 }
 
