@@ -154,6 +154,246 @@ const router: Router = createRouter({
 });
 ```
 
+# 自定义组件和模块
+
+@hippy/vue-next 中同样提供了 `registerElement` 来注册自定义组件，将 template 中的 tag 和原生组件映射起来，所需要注意的是，@hippy/vue
+中 `registerElement` 方法是挂在全局 Vue 中，与 Native 类似，@hippy/vue-next 中 `registerElement` 方法也是单独提供了导出
+
+```javascript
+import { registerElement } from '@hippy/vue-next';
+```
+
+## 注册自定义组件
+
+```javascript
+// custom-tag.ts
+import { registerElement } from '@hippy/vue-next'
+
+/**
+ * 注册自定义标签
+ */
+export function registerCustomTag(): void {
+  // 终端组件名称
+  const nativeComponentName = 'CustomTagView'
+  // 标签名称
+  const htmlTagName = 'h-custom-tag'
+  // 注册终端名为 CustomTagView 的自定义组件，这里终端组件名必须与终端组件一致，这里是将我们写的 h-custom-tag 和终端的 CustomTagView 建立映射
+  registerElement(htmlTagName, {
+      component: {
+          name: nativeComponentName
+      }
+  })
+}
+
+// app.ts
+import { defineComponent, ref } from 'vue';
+import { type HippyApp, createApp } from '@hippy/vue-next';
+import { registerCustomTag } from './custom-tag'
+
+// 注册自定义组件
+registerCustomTag()
+
+// 创建 Hippy App 实例，需要注意 Vue3.x 使用 Typescript，因此需要使用 defineComponent 将组件对象进行包裹
+const app: HippyApp = createApp(defineComponent({
+  setup() {
+    const counter = ref(0);
+    return {
+      counter,
+    }
+  }
+}), {
+  // Hippy App Name 必传，示例项目可以使用 Demo
+  appName: 'Demo',
+});
+
+// 此后代码省去...
+
+```
+
+## 绑定终端事件返回值
+
+因为 @hippy/vue-next 采用了和浏览器一致的事件模型，又希望能统一双端的事件（有的时候双端事件返回值不一样），所以采取了手动修改事件返回值的方案，需要显式声明每个事件的返回值。
+这一步是在注册自定义组件时通过 `processEventData` 方法进行处理的，它有两个参数
+
+- evtData 包含事件处理 handler 和 事件名 __evt
+- nativeEventParams 终端的原生事件返回体
+
+例如 @hippy/vue-next 中原生的 [swiper](https://github.com/Tencent/Hippy/blob/master/packages/hippy-vue-next/src/native-component/swiper.ts) 组件，它是 swiper 实际渲染的对应节点，这里就对事件返回值进行了处理
+
+```javascript
+  // register swiper tag
+  registerElement('hi-swiper', {
+    component: {
+      name: 'ViewPager', // 终端的组件名
+      processEventData(
+        evtData: EventsUnionType,
+        nativeEventParams: { [key: string]: NeedToTyped },
+      ) {
+        // handler 即我们收到的 event 对象，__evt 即使我们收到的终端事件名
+        const { handler: event, __evt: nativeEventName } = evtData;
+        switch (nativeEventName) {
+          case 'onPageSelected':
+            // 显式将 native 的事件参数 nativeEventParams 的值赋予 @hippy/vue-next 真正绑定的事件 event
+            // 这样我们在 swiper 组件的 pageSelected 中收到的事件参数就包含 currentSlide 了
+            event.currentSlide = nativeEventParams.position;
+            break;
+          case 'onPageScroll':
+            event.nextSlide = nativeEventParams.position;
+            event.offset = nativeEventParams.offset;
+            break;
+          case 'onPageScrollStateChanged':
+            event.state = nativeEventParams.pageScrollState;
+            break;
+          default:
+        }
+        return event;
+      },
+    },
+  });
+```
+
+## 使用 Vue 组件实现自定义组件
+
+当你的自定义组件包含了更复杂的交互、事件、声明周期的时候，单纯的 `registerElement` 就不够用了，它只能做到很基本的元素名称到组件的映射，和基本的参数映射。
+这时我们可以通过 Vue 注册单独的组件来实现这个复杂的自定义组件，关于 Vue 组件注册可以参考[组件注册](https://cn.vuejs.org/guide/components/registration.html)，注意 Vue3 和
+Vue2的组件注册有一些差异
+也可以参考 @hippy/vue [swiper](https://github.com/Tencent/Hippy/blob/master/packages/hippy-vue-next/src/native-component/swiper.ts)组件的实现
+
+### 事件处理
+
+通过 Vue 注册的组件，如果要将终端事件传给组件外层，需要做额外处理，有两种方式
+
+- 使用 `render` 函数（推荐）
+
+```javascript
+import { createApp } from 'vue'
+
+const vueApp = createApp({})
+// Vue3 中组件注册不再是通过全局 Vue 来实现了，这里注册 swiper 组件
+vueApp.component('Swiper', {
+  // ... 省去其他代码
+  render() {
+    /*
+     * 可以用 render 函数的方式
+     * 'pageScroll'是传输给终端的事件名（传输终端时会被自动转成转成onPageScroll）
+     * 'dragging' 是真正暴露给用户使用的事件名
+     */
+    const on = getEventRedirects.call(this, [
+      ['dropped', 'pageSelected'],
+      ['dragging', 'pageScroll'],
+      ['stateChanged', 'pageScrollStateChanged'],
+    ]);
+
+    return h(
+      'hi-swiper',
+      {
+        ...on,
+        ref: 'swiper',
+        initialPage: this.$initialSlide,
+      },
+      this.$slots.default ? this.$slots.default() : null,
+    );
+  },
+});
+
+// 这里注册终端自定义组件
+registerElement('hi-swiper', {
+  component: {
+    name: 'ViewPager',
+  },
+});
+```
+
+
+- 使用 Vue `SFC` 方式
+
+```javascript
+// swiper.vue
+<template>
+  <hi-swiper
+    :initialPage="$initialSlide"
+  >
+    <slot />
+  </hi-swiper>
+</template>
+<script lang="ts">
+import { defineComponent } from 'vue'
+  
+export default defineComponent({
+  props: {
+    $initialSlide: {
+      type: Number,
+      default: 0,
+    }
+  },
+  created() {
+    // 对事件进行转换，注意 Vue3 中事件也是存放在组件的 $attrs 中了，与其他属性一样，只是事件是以 onXXX 格式存储，在 Vue2 中则是存放在 on 属性中
+    // pageSelected 是传输给终端的事件名（传输终端时会被自动转成onPageSelected）
+    // dropped 是真正暴露给用户使用的事件名
+    if (this.$attrs['onDropped']) {
+        // 如果用户注册了 dropped 事件，这个事件在终端对应的是 pageSelected 事件，
+        // 将 onDropped 的处理方法赋值给 onPageSelected，这样当终端触发 pageSelected
+        // 事件时，用户侧绑定的 onDropped 方法就会被正常回调了
+        this.$attrs['onPageSelected'] = this.$attrs['onDropped']
+    }
+  }
+})
+</script>
+
+// app.ts
+import { registerElement } from '@hippy/vue-next'
+import { createApp } from 'vue'
+import Swiper from './swiper.vue'
+
+// 注册自定义终端组件
+registerElement('hi-swiper', {
+  component: {
+    name: 'ViewPager',
+  },
+});
+
+// 创建 vue 实例
+const vueApp = createApp({})
+// 注册 vue 组件
+vueApp.component('Swiper', Swiper)
+```
+
+> 使用 `SFC` 方式注册的自定义 tag 会被 Vue 作为组件来处理，但是有没有注册该组件，因此会报错，所以我们需要通过 `isCustomElement` 告诉 Vue 这是我们的
+> [自定义组件](https://cn.vuejs.org/api/application.html#app-config-compileroptions-iscustomelement)，直接渲染即可。
+> 注意 hippy-webpack.dev.js，hippy-webpack.android.js，hippy-webpack.ios.js 都需要处理，这里第一个是开发环境构建使用，后两个是生产环境构建使用
+
+```javascript
+// src/scripts/hippy-webpack.dev.js & src/scripts/hippy-webpack.android.js & src/scripts/hippy-webpack.ios.js 都需要处理
+
+/**
+ * 判断给定 tag 是否是自定义组件的 tag，这里根据实际情况处理
+ */
+function isCustomTag(tag) {
+  return tag === 'hi-swiper'
+}
+
+// vue loader 部分
+{
+  test: /\.vue$/,
+  use: [
+    {
+      loader: 'vue-loader',
+      options: {
+        compilerOptions: {
+          // disable vue3 dom patch flag，because hippy do not support innerHTML
+          hoistStatic: false,
+          // whitespace handler, default is 'condense', it can be set 'preserve'
+          whitespace: 'condense',
+          // 注册自定义组件
+          isCustomElement: tag => isCustomTag(tag)
+        },
+      },
+    },
+  ],
+}
+
+```
+
 # 其他差异说明
 
 目前 `@hippy/vue-next` 与 `@hippy/vue` 功能上基本对齐，不过在 API 方面与 @hippy/vue 有一些区别，以及还有一些问题还没有解决，这里做些说明：
@@ -166,14 +406,6 @@ const router: Router = createRouter({
   import { Native } from '@hippy/vue-next';
   
   console.log('do somethig', Native.xxx)
-  ```
-
-- registerElement
-
-  @hippy/vue 中 `registerElement` 方法是挂在全局 Vue 中，与 Native 类似，@hippy/vue-next 中 `registerElement` 方法也是单独提供了导出
-
-  ```javascript
-    import { registerElement } from '@hippy/vue-next';
   ```
 
 - 全局事件
