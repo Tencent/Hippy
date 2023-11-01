@@ -29,6 +29,7 @@
       ref="swiper"
       need-animation
       :current="currentSlide"
+      :scrollEventThrottle="1000"
       @dragging="onDragging"
       @dropped="onDropped"
       @stateChanged="onStateChanged"
