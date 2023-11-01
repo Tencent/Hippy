@@ -155,6 +155,253 @@ const router = createRouter({
 });
 ```
 
+
+# Custom Components & Modules
+
+In @hippy/vue-next, the `registerElement` method is also available for registering custom components and mapping tags in the template to native components.
+It is worth noting that, similar to Native, in @hippy/vue, the `registerElement` method is attached to the global Vue object.
+Similarly, in @hippy/vue-next, the `registerElement` method is also exported separately.
+
+```javascript
+import { registerElement } from '@hippy/vue-next';
+```
+
+## Register Custom Component
+
+```javascript
+// custom-tag.ts
+import { registerElement } from '@hippy/vue-next'
+
+/**
+ * register custom tag
+ */
+export function registerCustomTag(): void {
+  // native component name
+  const nativeComponentName = 'CustomTagView'
+  // custom tag name
+  const htmlTagName = 'h-custom-tag'
+  // register native custom component named "CustomTagView", native component name must same with native real name.
+  // this method establish mapping between our "h-custom-tag" to native "CustomTagView"
+  registerElement(htmlTagName, {
+      component: {
+          name: nativeComponentName
+      }
+  })
+}
+
+// app.ts
+import { defineComponent, ref } from 'vue';
+import { type HippyApp, createApp } from '@hippy/vue-next';
+import { registerCustomTag } from './custom-tag'
+
+// register
+registerCustomTag()
+
+// create hippy app instance
+const app: HippyApp = createApp(defineComponent({
+  setup() {
+    const counter = ref(0);
+    return {
+      counter,
+    }
+  }
+}), {
+  // Hippy App Name, required, use demo for test
+  appName: 'Demo',
+});
+
+// ...other code
+
+```
+
+## Binding Native Event Return Values
+
+Because @hippy/vue-next adopts a consistent event model with the browser and aims to unify events on both ends (sometimes the return values of events may differ),
+a solution was implemented to manually modify the event return values. This requires explicitly declaring the return values for each event.
+This step is handled during the registration of custom components using the `processEventData` method, which takes two parameters.
+
+- evtData Include event instance `handler` and event name `__evt`
+- nativeEventParams native event real return values
+
+Eg: @hippy/vue-next's [swiper](https://github.com/Tencent/Hippy/blob/master/packages/hippy-vue-next/src/native-component/swiper.ts) native component,
+it was the real rendered node by `swiper` that handle the event return values
+
+```javascript
+  // register swiper tag
+  registerElement('hi-swiper', {
+    component: {
+      name: 'ViewPager', // native component name
+      processEventData(
+        evtData: EventsUnionType,
+        nativeEventParams: { [key: string]: NeedToTyped },
+      ) {
+        // handler: event instance，__evt: native event name
+        const { handler: event, __evt: nativeEventName } = evtData;
+        switch (nativeEventName) {
+          case 'onPageSelected':
+            // Explicitly assigning the value of nativeEventParams from the native event to the event bound to the event in @hippy/vue-next
+            // This way, the event parameters received in the pageSelected event of the swiper component will include currentSlide.
+            event.currentSlide = nativeEventParams.position;
+            break;
+          case 'onPageScroll':
+            event.nextSlide = nativeEventParams.position;
+            event.offset = nativeEventParams.offset;
+            break;
+          case 'onPageScrollStateChanged':
+            event.state = nativeEventParams.pageScrollState;
+            break;
+          default:
+        }
+        return event;
+      },
+    },
+  });
+```
+
+## Use `Vue` Component Implement Custom Component
+
+When your custom component involves more complex interactions, events, and lifecycle methods, simply using `registerElement` may not be sufficient.
+It can only achieve basic mapping of element names to components and basic parameter mapping. In such cases, you can use Vue to register separate
+components to implement this complex custom component. For information on registering components in Vue, you can refer to the [Component Registration](https://cn.vuejs.org/guide/components/registration.html) guide.
+Please note that there are some differences in component registration between Vue 3 and Vue 2.
+You can also refer to the implementation of [swiper](https://github.com/Tencent/Hippy/blob/master/packages/hippy-vue-next/src/native-component/swiper.ts) components in the @hippy/vue library
+
+### Event Handle
+
+When using components registered with Vue, if you want to pass terminal events to the outer component, you need to handle it differently.
+There are two ways to achieve this.
+
+- Use `render` Function(Recommend)
+
+```javascript
+import { createApp } from 'vue'
+
+const vueApp = createApp({})
+
+// notice Vue3 register component isn't global now 
+vueApp.component('Swiper', {
+  // ... other code
+  render() {
+    /*
+     * Use "render" function
+     * "pageScroll" is the event name passed to native(automaticlly transform to "onPageScroll")
+     * "dragging" is the event name user used
+     */
+    const on = getEventRedirects.call(this, [
+      ['dropped', 'pageSelected'],
+      ['dragging', 'pageScroll'],
+      ['stateChanged', 'pageScrollStateChanged'],
+    ]);
+
+    return h(
+      'hi-swiper',
+      {
+        ...on,
+        ref: 'swiper',
+        initialPage: this.$initialSlide,
+      },
+      this.$slots.default ? this.$slots.default() : null,
+    );
+  },
+});
+
+// register native custom component "ViewPager"
+registerElement('hi-swiper', {
+  component: {
+    name: 'ViewPager',
+  },
+});
+```
+
+
+- Use Vue `SFC`
+
+```javascript
+// swiper.vue
+<template>
+  <hi-swiper
+    :initialPage="$initialSlide"
+  >
+    <slot />
+  </hi-swiper>
+</template>
+<script lang="ts">
+import { defineComponent } from 'vue'
+  
+export default defineComponent({
+  props: {
+    $initialSlide: {
+      type: Number,
+      default: 0,
+    }
+  },
+  created() {
+    // In Vue 3, events are also stored in the $attrs property of the component, just like other attributes. The only difference is
+    // that events are stored in the format of onXXX, whereas in Vue 2, they are stored in the on property.
+    if (this.$attrs['onDropped']) {
+        // The "onDropped" event is named "onPageSelected" in native side, when use register "onDropped",
+        // we should assign the handler to "onPageSelected" too.
+        // When native trigger "pageSelected" event, the "onDropped" event handler will be executed
+        this.$attrs['onPageSelected'] = this.$attrs['onDropped']
+    }
+  }
+})
+</script>
+
+// app.ts
+import { registerElement } from '@hippy/vue-next'
+import { createApp } from 'vue'
+import Swiper from './swiper.vue'
+
+// register custom native component
+registerElement('hi-swiper', {
+  component: {
+    name: 'ViewPager',
+  },
+});
+
+// create vue instance
+const vueApp = createApp({})
+// register vue component
+vueApp.component('Swiper', Swiper)
+```
+
+> When registering a custom tag using the Single File Component (SFC) approach, Vue treats it as a component. However, if the component is not explicitly registered,
+> it will result in an error. Therefore, we need to use isCustomElement to inform Vue that this is our [custom component](https://cn.vuejs.org/api/application.html#app-config-compileroptions-iscustomelement),
+> just render directly.
+> Attention, hippy-webpack.dev.js, hippy-webpack.android.js, hippy-webpack.ios.js both need to be handled, first by development builds and other for production builds.
+
+```javascript
+// src/scripts/hippy-webpack.dev.js & src/scripts/hippy-webpack.android.js & src/scripts/hippy-webpack.ios.js both need to be handled
+
+/**
+ * determine tag is custom tag or not, should handle by your project
+ */
+function isCustomTag(tag) {
+  return tag === 'hi-swiper'
+}
+
+// vue loader part
+{
+  test: /\.vue$/,
+  use: [
+    {
+      loader: 'vue-loader',
+      options: {
+        compilerOptions: {
+          // disable vue3 dom patch flag，because hippy do not support innerHTML
+          hoistStatic: false,
+          // whitespace handler, default is 'condense', it can be set 'preserve'
+          whitespace: 'condense',
+          // register custom element that won't transform as Vue component
+          isCustomElement: tag => isCustomTag(tag)
+        },
+      },
+    },
+  ],
+},
+```
+
 # Additional Differences
 
 @hippy/vue-next is basically functionally aligned with @hippy/vue now, but the APIs are slightly different from @hippy/vue, and there are still some problems that have not been solved, here is the description:
@@ -167,14 +414,6 @@ const router = createRouter({
   import { Native } from '@hippy/vue-next';
   
   console.log('do somethig', Native.xxx)
-  ```
-
-- registerElement
-
-  In @hippy/vue, method `registerElement` used by Vue.registerElement，But with the same reason with Vue.Native, `registerElement` method in @hippy/vue-next needs exported from @hippy/vue-next .
-
-  ```javascript
-  import { registerElement } from '@hippy/vue-next';
   ```
 
 - Global Event
