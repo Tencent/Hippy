@@ -48,7 +48,7 @@ public class ViewPagerPageChangeListener implements ViewPager.OnPageChangeListen
      * Check whether scroll events need to be sent
      * @return
      */
-    protected boolean checkSendOnScrollEvent() {
+    private boolean checkSendOnScrollEvent() {
         long currTime = SystemClock.elapsedRealtime();
         if (currTime - mLastScrollEventTimeStamp >= mPager.mScrollEventThrottle) {
             mLastScrollEventTimeStamp = currTime;

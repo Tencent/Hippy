@@ -482,6 +482,7 @@ import icon from './qb_icon_new.png';
 | onPageScroll             | 指定一个函数，当 page 被滑动时进行回调。回调参数是一个 event 对象，回调参数 `position: number` - 表示即将滑到的目标 page 的索引，`offset: number` - 当前被选中的 page 的相对位移，取值范围 -1 到 1 | `(obj: {position: number, offset: number}) => void` | `Android、iOS、Web-Renderer、Voltron`    |
 | onPageScrollStateChanged | 指定一个函数，当 page 的滑动状态改变时进行回调。回调参数： `pageScrollState: string` - 改变后的状态，`idle` 表示停止，`dragging` 表示用户用手拖拽，`settling` 表示 page 正在滑动 | `(pageScrollState: string) => void`          | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | direction | 设置 viewPager 滚动方向，不设置默认横向滚动，设置 `vertical` 为竖向滚动 | `string`          | `Android、hippy-react-web、Voltron` |
+| scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onPageScroll` 事件 | `number`                                                    | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 
 ## 方法
 
