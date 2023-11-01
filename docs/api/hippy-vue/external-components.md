@@ -190,7 +190,7 @@ export default {
 | needAnimation            | 切换页面时是否需要动画。                        | `boolean`                                    | `Android、iOS、Voltron`    |
 | scrollEnabled            | 指定ViewPager是否可以滑动，默认为true                        | `boolean`                                    | `Android、iOS、Web-Renderer、Voltron`    |
 | direction            | 设置viewPager滚动方向，不设置默认横向滚动，设置 `vertical` 为竖向滚动                       | `string`                                    | `Android、Voltron`    |
-| scrollEventThrottle       | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onPageScroll` 事件      | `number`              | `Android、iOS、Voltron`    |
+| scrollEventThrottle       | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onPageScroll` 事件      | `number`              | `Android、iOS`   |
 
 ## 事件
 
