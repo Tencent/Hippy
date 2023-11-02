@@ -70,6 +70,10 @@ export class ScrollView extends HippyWebView<HTMLDivElement> {
       delete newData.style.flexShrink;
       delete newData.style.flexGrow;
     }
+    if (data.style && data.style.flex === 1) {
+      delete newData.style.flex;
+      newData.style.flex = '1 1 0px';
+    }
     defaultProcess(this, newData);
   }
 
