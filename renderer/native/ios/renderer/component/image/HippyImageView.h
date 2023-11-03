@@ -23,41 +23,41 @@
 #import <UIKit/UIKit.h>
 #import "HippyComponent.h"
 #import "HippyConvert.h"
-#import "NativeRenderAnimatedImageView.h"
+#import "HippyAnimatedImageView.h"
 #import "HippyImageProviderProtocol.h"
 
-@class NativeRenderImageView;
+@class HippyImageView;
 
-@interface NativeRenderAnimatedImageOperation : NSOperation {
+@interface HippyAnimatedImageOperation : NSOperation {
     NSData *_animatedImageData;
     NSString *_url;
-    __weak NativeRenderImageView *_imageView;
+    __weak HippyImageView *_imageView;
     id<HippyImageProviderProtocol> _imageProvider;
 }
 
-- (id)initWithAnimatedImageData:(NSData *)data imageView:(NativeRenderImageView *)imageView imageURL:(NSString *)url;
-- (id)initWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider imageView:(NativeRenderImageView *)imageView imageURL:(NSString *)url;
+- (id)initWithAnimatedImageData:(NSData *)data imageView:(HippyImageView *)imageView imageURL:(NSString *)url;
+- (id)initWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider imageView:(HippyImageView *)imageView imageURL:(NSString *)url;
 
 @end
 
-typedef NS_ENUM(NSInteger, NativeRenderResizeMode) {
-    NativeRenderResizeModeCover = UIViewContentModeScaleAspectFill,
-    NativeRenderResizeModeContain = UIViewContentModeScaleAspectFit,
-    NativeRenderResizeModeStretch = UIViewContentModeScaleToFill,
-    NativeRenderResizeModeCenter = UIViewContentModeCenter,
-    NativeRenderResizeModeRepeat = -1,  // Use negative values to avoid conflicts with iOS enum values.
+typedef NS_ENUM(NSInteger, HippyResizeMode) {
+    HippyResizeModeCover = UIViewContentModeScaleAspectFill,
+    HippyResizeModeContain = UIViewContentModeScaleAspectFit,
+    HippyResizeModeStretch = UIViewContentModeScaleToFill,
+    HippyResizeModeCenter = UIViewContentModeCenter,
+    HippyResizeModeRepeat = -1,  // Use negative values to avoid conflicts with iOS enum values.
 };
 
-typedef NS_ENUM(NSInteger, NativeRenderShapeMode) {
-    NativeRenderResizeModeDefalt = 0,
-    NativeRenderResizeModeCircle,
+typedef NS_ENUM(NSInteger, HippyShapeMode) {
+    HippyResizeModeDefalt = 0,
+    HippyResizeModeCircle,
 };
 
-@interface NativeRenderImageView : NativeRenderAnimatedImageView
+@interface HippyImageView : HippyAnimatedImageView
 
 @property (nonatomic, assign) CGFloat blurRadius;
 @property (nonatomic, assign) UIEdgeInsets capInsets;
-@property (nonatomic, assign) NativeRenderResizeMode resizeMode;
+@property (nonatomic, assign) HippyResizeMode resizeMode;
 @property (nonatomic, copy) NSArray *source;
 @property (nonatomic, strong) UIImage *defaultImage;
 @property (nonatomic, assign) UIImageRenderingMode renderingMode;
@@ -67,7 +67,7 @@ typedef NS_ENUM(NSInteger, NativeRenderShapeMode) {
 @property (nonatomic, assign) CGFloat borderBottomLeftRadius;
 @property (nonatomic, assign) CGFloat borderBottomRightRadius;
 @property (nonatomic, assign) CGFloat borderRadius;
-@property (nonatomic, assign) NativeRenderShapeMode shape;
+@property (nonatomic, assign) HippyShapeMode shape;
 
 @property (nonatomic, copy) HippyDirectEventBlock onLoadStart;
 @property (nonatomic, copy) HippyDirectEventBlock onProgress;
@@ -86,9 +86,9 @@ typedef NS_ENUM(NSInteger, NativeRenderShapeMode) {
 - (BOOL)needsUpdateCornerRadiusManully;
 @end
 
-@interface HippyConvert (NativeRenderResizeMode)
+@interface HippyConvert (HippyResizeMode)
 
-+ (NativeRenderResizeMode)NativeRenderResizeMode:(id)json;
-+ (NativeRenderShapeMode)NativeRenderShapeMode:(id)json;
++ (HippyResizeMode)HippyResizeMode:(id)json;
++ (HippyShapeMode)HippyShapeMode:(id)json;
 
 @end
