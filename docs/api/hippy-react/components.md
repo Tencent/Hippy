@@ -97,7 +97,6 @@ import icon from './qb_icon_new.png';
 | 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
 | bounces | 是否开启回弹效果，默认 `true`， Android `2.14.1` 版本后支持该属性，老版本使用 `overScrollEnabled` | `boolean`                                                  | `Android`、`iOS`、`Voltron`    |
-| overScrollEnabled | 是否开启回弹效果，默认 `true`，3.0 版本后即将废弃 | `boolean`                                                  | `Android、Voltron`    |
 | getRowKey             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [React 官文](//reactjs.org/docs/lists-and-keys.html) | `(index: number) => any`                                    | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | getRowStyle           | 设置 `ListViewItem` 容器的样式。当设置了 `horizontal=true` 启用横向 `ListView` 时，需显式设置 `ListViewItem` 宽度              | `(index: number) => styleObject`                                    | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | getHeaderStyle           | 设置 `PullHeader` 容器的样式。当设置了 `horizontal=true` 启用横向 `ListView` 时，需显式设置 `PullHeader` 宽度。`最低支持版本2.14.1`              | `() => styleObject`                                    | `Android、iOS、Voltron` |
