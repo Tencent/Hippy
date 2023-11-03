@@ -512,7 +512,7 @@ class SimpleAnimation {
   }
 
   private handleAnimationEnd(event: AnimationEvent) {
-    if (!this.animationInfo.repeatCount || this.animationInfo.repeatCount < 0) {
+    if (this.animationInfo.repeatCount === undefined  || this.animationInfo.repeatCount < 0) {
       return;
     }
     if (event.animationName === this.animationName) {

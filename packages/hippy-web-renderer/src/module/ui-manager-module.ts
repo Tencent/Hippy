@@ -18,15 +18,15 @@
  * limitations under the License.
  */
 
-import { HippyWebEngineContext, HippyWebModule, HippyWebView } from '../base';
-import { HippyBaseView, HippyCallBack, InnerNodeTag, NodeData, UIProps } from '../types';
+import {HippyWebEngineContext, HippyWebModule, HippyWebView} from '../base';
+import {HippyBaseView, HippyCallBack, InnerNodeTag, NodeData, UIProps} from '../types';
 import {
-  setElementStyle,
-  warn,
+  customDataAssociate,
   error,
   positionAssociate,
+  setElementStyle,
+  warn,
   zIndexAssociate,
-  customDataAssociate,
 } from '../common';
 import { Modal } from '../component';
 import { AnimationModule } from './animation-module';
@@ -126,6 +126,24 @@ export class UIManagerModule extends HippyWebModule {
         statusBarHeight: 0,
       });
     }
+  }
+
+  public getBoundingClientRect(nodeId, params, callBack: HippyCallBack) {
+    if (!nodeId || !this.findViewById(nodeId)?.dom) {
+      return;
+    }
+    const view = this.findViewById(nodeId);
+    if (view!.dom) {
+      const res: any = view!.dom.getBoundingClientRect();
+      res.statusBarHeight = 0;
+      if (params.relToContainer) {
+        res.y = view!.dom.offsetTop;
+        res.x = view!.dom.offsetLeft;
+      }
+      callBack.resolve(res);
+      return;
+    }
+    callBack.resolve({});
   }
 
   public findViewById(id: number): HippyBaseView | null {
