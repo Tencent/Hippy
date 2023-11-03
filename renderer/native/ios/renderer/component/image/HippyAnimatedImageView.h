@@ -22,19 +22,19 @@
 
 #import <UIKit/UIKit.h>
 
-@class NativeRenderAnimatedImage;
+@class HippyAnimatedImage;
 //
-//  An `NativeRenderAnimatedImageView` can take an `NativeRenderAnimatedImage` and plays it automatically when in view hierarchy and stops when removed.
+//  An `HippyAnimatedImageView` can take an `HippyAnimatedImage` and plays it automatically when in view hierarchy and stops when removed.
 //  The animation can also be controlled with the `UIImageView` methods `-start/stop/isAnimating`.
 //  It is a fully compatible `UIImageView` subclass and can be used as a drop-in component to work with existing code paths expecting to display a
 //  `UIImage`. Under the hood it uses a `CADisplayLink` for playback, which can be inspected with `currentFrame` & `currentFrameIndex`.
 //
-@interface NativeRenderAnimatedImageView : UIImageView
+@interface HippyAnimatedImageView : UIImageView
 
 // Setting `[UIImageView.image]` to a non-`nil` value clears out existing `animatedImage`.
 // And vice versa, setting `animatedImage` will initially populate the `[UIImageView.image]` to its `posterImage` and then start animating and hold
 // `currentFrame`.
-@property (nonatomic, strong) NativeRenderAnimatedImage *animatedImage;
+@property (nonatomic, strong) HippyAnimatedImage *animatedImage;
 @property (nonatomic, copy) void (^loopCompletionBlock)(NSUInteger loopCountRemaining);
 
 @property (nonatomic, strong, readonly) UIImage *currentFrame;
