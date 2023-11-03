@@ -24,11 +24,11 @@
 
 #import "HippyAssert.h"
 #import "HippyUtils.h"
-#import "NativeRenderImageView.h"
-#import "NativeRenderAnimatedImage.h"
+#import "HippyImageView.h"
+#import "HippyAnimatedImage.h"
 #import "UIView+MountEvent.h"
 
-NSString *const NativeRenderImageErrorDomain = @"NativeRenderImageErrorDomain";
+NSString *const HippyImageErrorDomain = @"HippyImageErrorDomain";
 
 typedef NS_ENUM(NSUInteger, ImageDataError) {
     ImageDataUnavailable = 10001,
@@ -54,7 +54,7 @@ static NSOperationQueue *animated_image_queue(void) {
     return _animatedImageOQ;
 }
 
-static BOOL NativeRenderImageNeedsShrinkForSize(UIImage *inputImage, CGSize size) {
+static BOOL HippyImageNeedsShrinkForSize(UIImage *inputImage, CGSize size) {
     CGSize inputImageSize = inputImage.size;
     if (inputImageSize.width > size.width || inputImageSize.height > size.height) {
         return YES;
@@ -62,7 +62,7 @@ static BOOL NativeRenderImageNeedsShrinkForSize(UIImage *inputImage, CGSize size
     return NO;
 }
 
-UIImage *NativeRenderBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius, NSError **error) {
+UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius, NSError **error) {
     CGImageRef imageRef = inputImage.CGImage;
     CGFloat imageScale = inputImage.scale;
     UIImageOrientation imageOrientation = inputImage.imageOrientation;
@@ -187,17 +187,17 @@ UIImage *NativeRenderBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius
         }
         if (error) {
             NSDictionary *useInfo = @{NSLocalizedDescriptionKey: exception.reason ?: @""};
-            *error = [NSError errorWithDomain:NativeRenderImageErrorDomain code:ImageDataBlurredError userInfo:useInfo];
+            *error = [NSError errorWithDomain:HippyImageErrorDomain code:ImageDataBlurredError userInfo:useInfo];
         }
         return inputImage;
     }
 }
 
 NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
-    return [NSError errorWithDomain:NativeRenderImageErrorDomain code:errorCode userInfo:@ { NSLocalizedDescriptionKey: errorDescription ?: @"" }];
+    return [NSError errorWithDomain:HippyImageErrorDomain code:errorCode userInfo:@ { NSLocalizedDescriptionKey: errorDescription ?: @"" }];
 }
 
-@interface NativeRenderImageView () {
+@interface HippyImageView () {
     __weak CALayer *_borderWidthLayer;
     BOOL _needsUpdateBorderRadiusManully;
     BOOL _needsReloadImage;
@@ -205,13 +205,13 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     id<HippyImageProviderProtocol> _imageProvider;
 }
 
-@property (nonatomic) NativeRenderAnimatedImageOperation *animatedImageOperation;
+@property (nonatomic) HippyAnimatedImageOperation *animatedImageOperation;
 @property (atomic, strong) NSString *pendingImageSourceUri;  // The image source that's being loaded from the network
 @property (atomic, strong) NSString *imageSourceUri;         // The image source that's currently displayed
 
 @end
 
-@implementation NativeRenderImageView
+@implementation HippyImageView
 
 - (instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
@@ -311,19 +311,19 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     [self updateCornerRadius];
 }
 
-- (void)setShape:(NativeRenderShapeMode)shape {
+- (void)setShape:(HippyShapeMode)shape {
     if (shape != _shape) {
         _shape = shape;
-        if (shape == NativeRenderResizeModeCircle) {
+        if (shape == HippyResizeModeCircle) {
             self.contentMode = UIViewContentModeScaleAspectFit;
         }
     }
 }
 
-- (void)setResizeMode:(NativeRenderResizeMode)resizeMode {
+- (void)setResizeMode:(HippyResizeMode)resizeMode {
     if (_resizeMode != resizeMode) {
         _resizeMode = resizeMode;
-        if (_resizeMode == NativeRenderResizeModeRepeat) {
+        if (_resizeMode == HippyResizeModeRepeat) {
             self.contentMode = UIViewContentModeScaleToFill;
         } else {
             self.contentMode = (UIViewContentMode)resizeMode;
@@ -381,7 +381,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
                 [_animatedImageOperation cancel];
             }
             _animatedImageOperation =
-                [[NativeRenderAnimatedImageOperation alloc] initWithAnimatedImageProvider:_imageProvider
+                [[HippyAnimatedImageOperation alloc] initWithAnimatedImageProvider:_imageProvider
                                                                          imageView:self
                                                                           imageURL:imagePath];
             [animated_image_queue() addOperation:_animatedImageOperation];
@@ -423,7 +423,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     }
     __weak __typeof(self) weakSelf = self;
     void (^setImageBlock)(UIImage *) = ^(UIImage *image) {
-        NativeRenderImageView *strongSelf = weakSelf;
+        HippyImageView *strongSelf = weakSelf;
         if (!strongSelf) {
             return;
         }
@@ -446,7 +446,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
         // Blur on a background thread to avoid blocking interaction
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             NSError *error = nil;
-            UIImage *blurredImage = NativeRenderBlurredImageWithRadiusv(image, br, &error);
+            UIImage *blurredImage = HippyBlurredImageWithRadiusv(image, br, &error);
             if (error) {
                 NSError *finalError = HippyErrorFromErrorAndModuleName(error, @"unknown");
                 HippyFatal(finalError);
@@ -474,11 +474,11 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
         image = [image imageWithRenderingMode:_renderingMode];
     }
 
-    if (NativeRenderResizeModeRepeat == _resizeMode) {
+    if (HippyResizeModeRepeat == _resizeMode) {
         image = [image resizableImageWithCapInsets:_capInsets resizingMode:UIImageResizingModeTile];
     }
-    else if (NativeRenderResizeModeCenter == _resizeMode) {
-        if (NativeRenderImageNeedsShrinkForSize(image, self.bounds.size)) {
+    else if (HippyResizeModeCenter == _resizeMode) {
+        if (HippyImageNeedsShrinkForSize(image, self.bounds.size)) {
             self.contentMode = UIViewContentModeScaleAspectFit;
         }
     }
@@ -487,7 +487,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
         image = [image resizableImageWithCapInsets:_capInsets resizingMode:UIImageResizingModeStretch];
     }
     
-    if (_shape == NativeRenderResizeModeCircle) {
+    if (_shape == HippyResizeModeCircle) {
         image = [self circleImage:image];
     }
 
@@ -668,27 +668,27 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
 
 @end
 
-@implementation HippyConvert (NativeRenderResizeMode)
+@implementation HippyConvert (HippyResizeMode)
 
-HP_ENUM_CONVERTER(NativeRenderResizeMode, (@{
-    @"cover": @(NativeRenderResizeModeCover),
-    @"contain": @(NativeRenderResizeModeContain),
-    @"stretch": @(NativeRenderResizeModeStretch),
-    @"center": @(NativeRenderResizeModeCenter),
-    @"repeat": @(NativeRenderResizeModeRepeat),
+HP_ENUM_CONVERTER(HippyResizeMode, (@{
+    @"cover": @(HippyResizeModeCover),
+    @"contain": @(HippyResizeModeContain),
+    @"stretch": @(HippyResizeModeStretch),
+    @"center": @(HippyResizeModeCenter),
+    @"repeat": @(HippyResizeModeRepeat),
 }),
-    NativeRenderResizeModeStretch, integerValue)
+    HippyResizeModeStretch, integerValue)
 
-HP_ENUM_CONVERTER(NativeRenderShapeMode, (@{
-    @"normal": @(NativeRenderResizeModeDefalt),
-    @"circle": @(NativeRenderResizeModeCircle)
-}), NativeRenderResizeModeDefalt, integerValue)
+HP_ENUM_CONVERTER(HippyShapeMode, (@{
+    @"normal": @(HippyResizeModeDefalt),
+    @"circle": @(HippyResizeModeCircle)
+}), HippyResizeModeDefalt, integerValue)
 
 @end
 
-@implementation NativeRenderAnimatedImageOperation
+@implementation HippyAnimatedImageOperation
 
-- (id)initWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider imageView:(NativeRenderImageView *)imageView imageURL:(NSString *)url {
+- (id)initWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider imageView:(HippyImageView *)imageView imageURL:(NSString *)url {
     self = [super init];
     if (self) {
         _imageProvider = imageProvider;
@@ -698,7 +698,7 @@ HP_ENUM_CONVERTER(NativeRenderShapeMode, (@{
     return self;
 }
 
-- (id)initWithAnimatedImageData:(NSData *)data imageView:(NativeRenderImageView *)imageView imageURL:(NSString *)url {
+- (id)initWithAnimatedImageData:(NSData *)data imageView:(HippyImageView *)imageView imageURL:(NSString *)url {
     self = [super init];
     if (self) {
         _animatedImageData = data;
@@ -710,17 +710,17 @@ HP_ENUM_CONVERTER(NativeRenderShapeMode, (@{
 
 - (void)main {
     if (![self isCancelled] && (_animatedImageData || _imageProvider) && _imageView) {
-        NativeRenderAnimatedImage *animatedImage = nil;
+        HippyAnimatedImage *animatedImage = nil;
         if (_imageProvider) {
-            animatedImage = [NativeRenderAnimatedImage animatedImageWithAnimatedImageProvider:_imageProvider];
+            animatedImage = [HippyAnimatedImage animatedImageWithAnimatedImageProvider:_imageProvider];
         } else if (_animatedImageData) {
-            animatedImage = [NativeRenderAnimatedImage animatedImageWithGIFData:_animatedImageData];
+            animatedImage = [HippyAnimatedImage animatedImageWithGIFData:_animatedImageData];
         }
         if (![self isCancelled] && _imageView) {
-            __weak NativeRenderImageView *wIV = _imageView;
+            __weak HippyImageView *wIV = _imageView;
             __weak NSString *wURL = _url;
             dispatch_async(dispatch_get_main_queue(), ^{
-                NativeRenderImageView *sIV = wIV;
+                HippyImageView *sIV = wIV;
                 NSString *sURL = wURL;
                 if (sIV && sURL) {
                     [sIV loadImage:animatedImage.posterImage url:sURL error:nil needBlur:YES];

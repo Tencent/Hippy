@@ -20,10 +20,11 @@
  * limitations under the License.
  */
 
-#import "NativeRenderAnimatedImageView.h"
-#import "NativeRenderAnimatedImage.h"
+#import "HippyAnimatedImageView.h"
+#import "HippyAnimatedImage.h"
+#import "HippyWeakProxy.h"
 
-@interface NativeRenderAnimatedImageView ()
+@interface HippyAnimatedImageView ()
 
 // Override of public `readonly` properties as private `readwrite`
 @property (nonatomic, strong, readwrite) UIImage *currentFrame;
@@ -39,7 +40,7 @@
 
 @end
 
-@implementation NativeRenderAnimatedImageView
+@implementation HippyAnimatedImageView
 @synthesize runLoopMode = _runLoopMode;
 
 #pragma mark - Initializers
@@ -90,7 +91,7 @@
 #pragma mark - Accessors
 #pragma mark Public
 
-- (void)setAnimatedImage:(NativeRenderAnimatedImage *)animatedImage {
+- (void)setAnimatedImage:(HippyAnimatedImage *)animatedImage {
     if (![_animatedImage isEqual:animatedImage]) {
         if (animatedImage) {
             // Clear out the image.
@@ -268,7 +269,7 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b) {
             // will retain its target until it is invalidated. We use a weak proxy so that the image view will get deallocated
             // independent of the display link's lifetime. Upon image view deallocation, we invalidate the display
             // link which will lead to the deallocation of both the display link and the weak proxy.
-            NativeRenderWeakProxy *weakProxy = [NativeRenderWeakProxy weakProxyForObject:self];
+            HippyWeakProxy *weakProxy = [HippyWeakProxy weakProxyForObject:self];
             self.displayLink = [CADisplayLink displayLinkWithTarget:weakProxy selector:@selector(displayDidRefresh:)];
 
             [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:self.runLoopMode];
