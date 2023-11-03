@@ -22,7 +22,7 @@
 
 #import "HippyEventObserverModule.h"
 #import "HippyEventDispatcher.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 
 @implementation HippyEventObserverModule {
     NSMutableDictionary *_config;

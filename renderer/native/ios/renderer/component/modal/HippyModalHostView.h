@@ -21,14 +21,15 @@
  */
 
 #import <UIKit/UIKit.h>
-
 #import "HippyComponent.h"
+#import "HippyInvalidating.h"
 
-@class NativeRenderModalHostViewController;
+@class HippyBridge;
+@class HippyTouchHandler;
+@class HippyModalHostViewController;
+@protocol HippyModalHostViewInteractor;
 
-@protocol NativeRenderModalHostViewInteractor;
-
-@interface NativeRenderModalHostView : UIView
+@interface HippyModalHostView : UIView <HippyInvalidating>
 
 @property (nonatomic, copy) NSString *animationType;
 @property (nonatomic, copy) NSString *primaryKey;
@@ -38,14 +39,16 @@
 @property (nonatomic, copy) HippyDirectEventBlock onShow;
 @property (nonatomic, copy) HippyDirectEventBlock onRequestClose;
 
-@property (nonatomic, weak) id<NativeRenderModalHostViewInteractor, UIViewControllerTransitioningDelegate> delegate;
+@property (nonatomic, weak) id<HippyModalHostViewInteractor, UIViewControllerTransitioningDelegate> delegate;
 
 @property (nonatomic, strong) NSArray<NSString *> *supportedOrientations;
 @property (nonatomic, copy) HippyDirectEventBlock onOrientationChange;
 @property (nonatomic, strong) NSNumber *hideStatusBar;
 @property (nonatomic, readonly) BOOL isPresented;
-@property (nonatomic, strong) NativeRenderModalHostViewController *modalViewController;
+@property (nonatomic, strong) HippyModalHostViewController *modalViewController;
+@property (nonatomic, readonly) HippyTouchHandler *touchHandler;
 
+- (instancetype)initWithBridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
 - (void)notifyForBoundsChange:(CGRect)newBounds;
 
 @end

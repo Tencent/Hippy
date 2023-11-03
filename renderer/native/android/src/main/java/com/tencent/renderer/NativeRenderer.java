@@ -351,9 +351,16 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         });
     }
 
-    @Override
-    public void onSizeChanged(int rootId, int w, int h) {
+    private void onSizeChanged(int rootId, int w, int h) {
         mRenderProvider.onSizeChanged(rootId, w, h);
+    }
+
+    @Override
+    public void onSizeChanged(int rootId, int w, int h, int ow, int oh) {
+        if (mFrameworkProxy != null) {
+            mFrameworkProxy.onSizeChanged(rootId, w, h, ow, oh);
+        }
+        onSizeChanged(rootId, w, h);
     }
 
     @Override

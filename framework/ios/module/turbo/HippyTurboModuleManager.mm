@@ -23,7 +23,7 @@
 #import "HippyJSExecutor.h"
 #import "HippyModuleData.h"
 #import "HippyTurboModuleManager.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 
 #include <unordered_map>
 

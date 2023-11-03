@@ -21,7 +21,7 @@
  */
 
 #import "HippyUtils.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyLog.h"
 #import <objc/message.h>
 #import <CommonCrypto/CommonCrypto.h>
@@ -698,3 +698,14 @@ NSDictionary<NSString *, id> *HippyJSErrorFromCodeMessageAndNSError(NSString *co
     
     return HippyMakeError(errorMessage, nil, errorInfo);
 }
+
+
+#pragma mark - 
+
+@implementation HippyUtils
+
++ (NSString *)sdkVersion {
+    return @(HIPPY_STR(HIPPY_VERSION));
+}
+
+@end

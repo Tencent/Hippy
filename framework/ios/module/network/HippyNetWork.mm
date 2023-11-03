@@ -26,7 +26,7 @@
 #import "HippyBridge+VFSLoader.h"
 #import "HippyDefines.h"
 #import "HippyNetWork.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyUtils.h"
 
 static NSStringEncoding GetStringEncodingFromURLResponse(NSURLResponse *response) {

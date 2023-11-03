@@ -20,14 +20,12 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
-@interface NativeRenderModalHostViewController : UIViewController
+@protocol HippyScrollProtocol <NSObject>
 
-@property (nonatomic, copy) void (^boundsDidChangeBlock)(CGRect newBounds);
-@property (nonatomic, strong) NSNumber *hideStatusBar;
-@property (nonatomic, assign) UIInterfaceOrientationMask supportedInterfaceOrientations;
+@required
 
-- (void)setPreferredStatusBarStyle:(UIStatusBarStyle)style;
+- (BOOL)isManualScrolling;
 
 @end

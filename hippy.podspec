@@ -129,6 +129,9 @@ Pod::Spec.new do |s|
     base.source_files = ['modules/ios/base/*.{h,m,mm}', 'modules/ios/logutils/*.{h,mm}']
     base.public_header_files = ['modules/ios/base/*.h', 'modules/ios/logutils/*.h']
     base.dependency 'hippy/Footstone'
+    base.pod_target_xcconfig = {
+      'GCC_PREPROCESSOR_DEFINITIONS' => 'HIPPY_VERSION=' + s.version.to_s,
+    }
     puts 'hippy subspec \'base\' read end'
   end
 

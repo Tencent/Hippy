@@ -23,7 +23,7 @@
 #import <JavaScriptCore/JavaScriptCore.h>
 
 #import "NSObject+JSValue.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyJSCContextWrapper.h"
 #import "HippyJSStackFrame.h"
 

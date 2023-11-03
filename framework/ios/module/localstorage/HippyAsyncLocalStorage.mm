@@ -26,7 +26,7 @@
 #import "HippyBridge.h"
 #import "HippyDefines.h"
 #import "HippyUtils.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyConvert.h"
 #import "HippyLog.h"
 #import "HippyUtils.h"

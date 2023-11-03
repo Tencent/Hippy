@@ -21,7 +21,6 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "NativeRenderViewEventType.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -37,25 +36,7 @@ typedef void(^OnTouchEventHandler)(CGPoint point,
  */
 @protocol NativeRenderTouchesProtocol <NSObject>
 
-/**
- * Add an event for a view
- * @param touchEvent event type
- * @param listener event handle block
- */
-- (void)addViewEvent:(NativeRenderViewEventType)touchEvent eventListener:(OnTouchEventHandler)listener;
 
-/**
- * Get event handle block with event type
- * @param eventType event type
- * @return event handle block for eventType
- */
-- (OnTouchEventHandler)eventListenerForEventType:(NativeRenderViewEventType)eventType;
-
-/**
- * Remove event handle block
- * @param touchEvent event type
- */
-- (void)removeViewEvent:(NativeRenderViewEventType)touchEvent;
 
 /**
  * Indicate if event can be prevented in capturing process
@@ -84,8 +65,6 @@ typedef void(^OnTouchEventHandler)(CGPoint point,
  * @return YES if event can bubble
  */
 - (BOOL)canBubble:(const char *)name;
-
-- (void)resetAllEvents;
 
 @end
 

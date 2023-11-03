@@ -1,3 +1,4 @@
+
 /*!
  * iOS SDK
  *
@@ -20,17 +21,9 @@
  * limitations under the License.
  */
 
-#import "HippyViewManager.h"
-#import "NativeRenderModalHostView.h"
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
-@protocol NativeRenderModalHostViewInteractor;
-
-typedef void (^NativeRenderModalViewInteractionBlock)(
-    UIViewController *reactViewController, UIViewController *viewController, BOOL animated, dispatch_block_t completionBlock);
-
-@interface NativeRenderModalHostViewManager : HippyViewManager
-
-@property (nonatomic, strong) NSHashTable *hostViews;
-@property (nonatomic, strong) id<NativeRenderModalHostViewInteractor, UIViewControllerTransitioningDelegate> transitioningDelegate;
-
+@interface HippyModalCustomAnimationTransition : NSObject <UIViewControllerAnimatedTransitioning>
+@property (nonatomic, assign) BOOL isPresent;
 @end

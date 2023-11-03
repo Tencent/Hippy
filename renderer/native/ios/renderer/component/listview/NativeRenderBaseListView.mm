@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "NativeRenderBaseListView.h"
 #import "NativeRenderBaseListViewCell.h"
 #import "NativeRenderBaseListViewDataSource.h"
@@ -522,6 +522,13 @@ referenceSizeForHeaderInSection:(NSInteger)section {
         UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
         layout.scrollDirection = horizontal ? UICollectionViewScrollDirectionHorizontal : UICollectionViewScrollDirectionVertical;
         [self.collectionView.collectionViewLayout invalidateLayout];
+        if (horizontal) {
+            [self.collectionView setAlwaysBounceHorizontal:YES];
+            [self.collectionView setAlwaysBounceVertical:NO];
+        } else {
+            [self.collectionView setAlwaysBounceVertical:YES];
+            [self.collectionView setAlwaysBounceHorizontal:NO];
+        }
     }
 }
 

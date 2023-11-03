@@ -30,7 +30,7 @@
 #import "HippyRedBox.h"
 #import "DemoConfigs.h"
 #import "HippyMethodInterceptorProtocol.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 
 static NSString *const engineKey = @"Demo";
 

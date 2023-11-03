@@ -20,17 +20,17 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-#import "NativeRenderModalHostView.h"
-#import "NativeRenderModalHostViewController.h"
+#import "HippyViewManager.h"
+#import "HippyModalHostView.h"
 
-@protocol NativeRenderModalHostViewInteractor <NSObject>
+@protocol HippyModalHostViewInteractor;
 
-- (void)presentModalHostView:(NativeRenderModalHostView *)modalHostView
-          withViewController:(NativeRenderModalHostViewController *)viewController
-                    animated:(BOOL)animated;
-- (void)dismissModalHostView:(NativeRenderModalHostView *)modalHostView
-          withViewController:(NativeRenderModalHostViewController *)viewController
-                    animated:(BOOL)animated;
+typedef void (^NativeRenderModalViewInteractionBlock)(
+    UIViewController *reactViewController, UIViewController *viewController, BOOL animated, dispatch_block_t completionBlock);
+
+@interface HippyModalHostViewManager : HippyViewManager
+
+@property (nonatomic, strong) NSHashTable *hostViews;
+@property (nonatomic, strong) id<HippyModalHostViewInteractor, UIViewControllerTransitioningDelegate> transitioningDelegate;
 
 @end

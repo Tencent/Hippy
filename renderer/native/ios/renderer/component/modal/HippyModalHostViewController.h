@@ -20,18 +20,14 @@
  * limitations under the License.
  */
 
-#import "NativeRenderModalCustomPresentationController.h"
+#import <UIKit/UIKit.h>
 
-@implementation NativeRenderModalCustomPresentationController {
-}
+@interface HippyModalHostViewController : UIViewController
 
-- (void)presentationTransitionWillBegin {
-    self.presentedView.frame = self.containerView.frame;
-    [self.containerView addSubview:self.presentedView];
-}
+@property (nonatomic, copy) void (^boundsDidChangeBlock)(CGRect newBounds);
+@property (nonatomic, strong) NSNumber *hideStatusBar;
+@property (nonatomic, assign) UIInterfaceOrientationMask supportedInterfaceOrientations;
 
-- (void)dismissalTransitionDidEnd:(__unused BOOL)completed {
-    [self.presentedView removeFromSuperview];
-}
+- (void)setPreferredStatusBarStyle:(UIStatusBarStyle)style;
 
 @end
