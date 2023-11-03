@@ -29,6 +29,7 @@
 #import "NativeRenderTextView.h"
 #import "NativeRenderTextViewManager.h"
 #import "HippyBridgeModule.h"
+#import "NativeRenderTextSelection.h"
 
 @implementation NativeRenderTextViewManager
 

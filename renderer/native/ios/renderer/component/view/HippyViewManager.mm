@@ -524,7 +524,7 @@ HIPPY_CUSTOM_SHADOW_PROPERTY(direction, id, HippyShadowView) {
     view.layoutDirection = ConvertDirection(json);
 }
 
-HIPPY_CUSTOM_SHADOW_PROPERTY(verticalAlign, HippyTextAttachmentVerticalAlign, HippyShadowView) {
+HIPPY_CUSTOM_SHADOW_PROPERTY(verticalAlign, NativeRenderTextVerticalAlignType, HippyShadowView) {
     if (json && [json isKindOfClass:NSString.class]) {
         view.verticalAlignType = [HippyConvert NativeRenderTextVerticalAlignType:json];
     } else if ([json isKindOfClass:NSNumber.class]) {
