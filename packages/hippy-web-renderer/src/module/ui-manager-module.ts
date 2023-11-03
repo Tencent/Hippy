@@ -336,15 +336,15 @@ export class UIManagerModule extends HippyWebModule {
     let valueString = '';
     for (const item of value) {
       for (const itemKey of Object.keys(item)) {
-        if (item[itemKey].animationId) {
+        if (item[itemKey].animationId !== undefined) {
           animationModule.linkInitAnimation2Element(item[itemKey].animationId, view, itemKey);
           continue;
         }
         let transformValue = item[itemKey];
         if (itemKey.startsWith('rotate')) {
-          transformValue += 'deg';
+          transformValue +=  (!transformValue.endsWith('deg') ? 'deg' : '');
         } else if (!itemKey.startsWith('scale')) {
-          transformValue += 'px';
+          transformValue += (!transformValue.endsWith('px') ? 'px' : '');
         }
         valueString += `${itemKey}(${transformValue}) `;
       }

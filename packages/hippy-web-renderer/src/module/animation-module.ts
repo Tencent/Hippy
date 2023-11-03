@@ -512,6 +512,9 @@ class SimpleAnimation {
   }
 
   private handleAnimationEnd(event: AnimationEvent) {
+    if (!this.animationInfo.repeatCount || this.animationInfo.repeatCount < 0) {
+      return;
+    }
     if (event.animationName === this.animationName) {
       this.dispatchEvent(HippyAnimationEvent.END);
     }
