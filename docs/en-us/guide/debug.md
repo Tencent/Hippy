@@ -191,9 +191,19 @@ Hippy implements node and property mapping from front-end to native, allowing vi
   <source src="../assets/img/elements-inspect.webm" type="video/webm">
   Elements Visualization Inspection example
 </video>
+<br />
+<br />
 
-<br />
-<br />
+# Operate Mobile Phone Interface
+
+> Android SDK min supported version 2.16.0
+
+Hippy implements the `Input` interface of the `Chrome DevTools Protocol` . You can directly operate the mobile phone interface on Chrome DevTools without switching back and forth during debugging.
+
+<video width="60%" controls preload="none">
+  <source src="../assets/img/device-ctrl.webm" type="video/webm">
+  operate mobile phone interface example
+</video>
 
 # HMR & Live-Reload
 
