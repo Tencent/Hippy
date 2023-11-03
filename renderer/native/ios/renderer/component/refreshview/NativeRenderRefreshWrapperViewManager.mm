@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -22,28 +22,28 @@
 
 #import "NativeRenderRefreshWrapperViewManager.h"
 #import "NativeRenderRefreshWrapper.h"
-#import "NativeRenderImpl.h"
+#import "HippyUIManager.h"
 
 @implementation NativeRenderRefreshWrapperViewManager
 
-NATIVE_RENDER_EXPORT_VIEW(RefreshWrapper)
+HIPPY_EXPORT_MODULE(RefreshWrapper)
 
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onRefresh, NativeRenderDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onRefresh, HippyDirectEventBlock)
 
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(bounceTime, CGFloat)
+HIPPY_EXPORT_VIEW_PROPERTY(bounceTime, CGFloat)
 - (UIView *)view {
     return [NativeRenderRefreshWrapper new];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(refreshComplected:(NSNumber *__nonnull)componentTag) {
-    [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+HIPPY_EXPORT_METHOD(refreshComplected:(NSNumber *__nonnull)componentTag) {
+    [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         NativeRenderRefreshWrapper *wrapperView = viewRegistry[componentTag];
         [wrapperView refreshCompleted];
     }];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(startRefresh:(NSNumber *__nonnull)componentTag) {
-    [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+HIPPY_EXPORT_METHOD(startRefresh:(NSNumber *__nonnull)componentTag) {
+    [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         NativeRenderRefreshWrapper *wrapperView = viewRegistry[componentTag];
         [wrapperView startRefresh];
     }];

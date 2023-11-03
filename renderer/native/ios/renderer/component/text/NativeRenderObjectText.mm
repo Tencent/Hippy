@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -20,10 +20,10 @@
  * limitations under the License.
  */
 
-#import "HPConvert.h"
-#import "HPI18nUtils.h"
-#import "HPToolUtils.h"
-#import "NativeRenderFont.h"
+#import "HippyConvert.h"
+#import "HippyI18nUtils.h"
+#import "HippyUtils.h"
+#import "HippyFont.h"
 #import "NativeRenderObjectText.h"
 #import "NativeRenderText.h"
 #import "NativeRenderTextView.h"
@@ -163,7 +163,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         _fontSizeMultiplier = 1.0;
         _lineHeightMultiple = 1.0f;
         _textAlign = NSTextAlignmentLeft;
-        if (NSWritingDirectionRightToLeft ==  [[HPI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage]) {
+        if (NSWritingDirectionRightToLeft ==  [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage]) {
             self.textAlign = NSTextAlignmentRight;
         }
     }
@@ -198,13 +198,13 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     UIEdgeInsets padding = self.paddingAsInsets;
     CGFloat width = self.frame.size.width - (padding.left + padding.right);
 
-    NSNumber *parentTag = [[self parentComponent] componentTag];
+    NSNumber *parentTag = [[self parentComponent] hippyTag];
     // MTTlayout
     NSTextStorage *textStorage = [self buildTextStorageForWidth:width widthMode:hippy::LayoutMeasureMode::Exactly];
     CGRect textFrame = [self calculateTextFrame:textStorage];
     UIColor *color = self.color ?: [UIColor blackColor];
     [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        NativeRenderText *view = (NativeRenderText *)viewRegistry[self.componentTag];
+        NativeRenderText *view = (NativeRenderText *)viewRegistry[self.hippyTag];
         view.textFrame = textFrame;
         view.textStorage = textStorage;
         view.textColor = color;
@@ -236,11 +236,11 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         NSRange glyphRange = [layoutManager glyphRangeForTextContainer:textContainer];
         NSRange characterRange = [layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
         [textStorage enumerateAttribute:NativeRenderRenderObjectAttributeName inRange:characterRange options:0 usingBlock:^(
-            NativeRenderObjectView *child, NSRange range, __unused BOOL *_) {
+            HippyShadowView *child, NSRange range, __unused BOOL *_) {
             if (child) {
-                float width = child.frame.size.width, height = child.frame.size.height;
+                float width = child.width, height = child.height;
                 if (isnan(width) || isnan(height)) {
-                    HPLogError(@"Views nested within a <Text> must have a width and height");
+                    HippyLogError(@"Views nested within a <Text> must have a width and height");
                 }
                 
                 // Use line fragment's rect instead of glyph rect for calculation,
@@ -254,8 +254,8 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 
                 // take margin into account
                 // FIXME: margin currently not working, may have some bug in layout process
-                float left = child.nodeLayoutResult.left;
-                float top = child.nodeLayoutResult.top;
+                float left = 0;
+                float top = 0;
                 float marginV = child.nodeLayoutResult.marginTop + child.nodeLayoutResult.marginBottom;
                 CGFloat roundedHeightWithMargin = NativeRenderRoundPixelValue(height + marginV);
                 
@@ -373,10 +373,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     auto domManager = self.domManager.lock();
     auto weakDomManager = self.domManager;
     if (domManager) {
-        __weak NativeRenderObjectView *weakSelf = self;
+        __weak HippyShadowView *weakSelf = self;
         auto domNodeAction = [needToDoLayout, weakSelf, weakDomManager](){
             @autoreleasepool {
-                NativeRenderObjectView *strongSelf = weakSelf;
+                HippyShadowView *strongSelf = weakSelf;
                 if (!strongSelf) {
                     return;
                 }
@@ -384,7 +384,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 if (!strongDomManager) {
                     return;
                 }
-                int32_t componentTag = [[strongSelf componentTag] intValue];
+                int32_t componentTag = [[strongSelf hippyTag] intValue];
                 auto domNode = strongDomManager->GetNode(strongSelf.rootNode, componentTag);
                 if (domNode) {
                     domNode->GetLayoutNode()->MarkDirty();
@@ -469,7 +469,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         f = [UIFont fontWithName:styleInfo.fontFamily size:[styleInfo.fontSize floatValue]];
     }
 
-    UIFont *font = [NativeRenderFont updateFont:f
+    UIFont *font = [HippyFont updateFont:f
                                      withFamily:styleInfo.fontFamily
                                            size:styleInfo.fontSize
                                          weight:styleInfo.fontWeight
@@ -479,7 +479,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     CGFloat heightOfTallestSubview = 0.0;
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.text ?: @""];
-    for (NativeRenderObjectView *child in [self subcomponents]) {
+    for (HippyShadowView *child in [self subcomponents]) {
         if ([child isKindOfClass:[NativeRenderObjectText class]]) {
             NativeRenderObjectText *shadowText = (NativeRenderObjectText *)child;
             NativeRenderAttributedStringStyleInfo *childInfo = [NativeRenderAttributedStringStyleInfo new];
@@ -500,7 +500,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             float width = 0, height = 0;
             auto domManager = [child domManager].lock();
             if (domManager) {
-                int32_t componentTag = [child.componentTag intValue];
+                int32_t componentTag = [child.hippyTag intValue];
                 auto domNode = domManager->GetNode(child.rootNode, componentTag);
                 if (domNode) {
                     width = domNode->GetLayoutNode()->GetStyleWidth();
@@ -512,7 +512,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 }
             }
             if (isnan(width) || isnan(height)) {
-                HPLogError(@"Views nested within a <Text> must have a width and height");
+                HippyLogError(@"Views nested within a <Text> must have a width and height");
             }
             // take margin into account
             // FIXME: margin not working, may have bug in layout process
@@ -569,7 +569,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     [self _addAttribute:NSFontAttributeName withValue:font toAttributedString:attributedString];
     [self _addAttribute:NSKernAttributeName withValue:styleInfo.letterSpacing toAttributedString:attributedString];
-    [self _addAttribute:NativeRenderComponentTagAttributeName withValue:self.componentTag toAttributedString:attributedString];
+    [self _addAttribute:NativeRenderComponentTagAttributeName withValue:self.hippyTag toAttributedString:attributedString];
     if (NativeRenderTextVerticalAlignUndefined != self.verticalAlignType) {
         [self _addAttribute:NativeRenderTextVerticalAlignAttributeName
                   withValue:@(self.verticalAlignType)
@@ -893,7 +893,7 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     [super setDomManager:domManager];
     auto shared_domNode = domManager.lock();
     if (shared_domNode) {
-        int32_t componentTag = [self.componentTag intValue];
+        int32_t componentTag = [self.hippyTag intValue];
         auto node = shared_domNode->GetNode(self.rootNode, componentTag);
         if (node) {
             __weak NativeRenderObjectText *weakSelf = self;
@@ -945,7 +945,7 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
         return;
     }
     _allowFontScaling = allowFontScaling;
-    for (NativeRenderObjectView *child in [self subcomponents]) {
+    for (HippyShadowView *child in [self subcomponents]) {
         if ([child isKindOfClass:[NativeRenderObjectText class]]) {
             ((NativeRenderObjectText *)child).allowFontScaling = allowFontScaling;
         }
@@ -959,10 +959,10 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     }
     _fontSizeMultiplier = fontSizeMultiplier;
     if (_fontSizeMultiplier == 0) {
-        HPLogError(@"fontSizeMultiplier value must be > zero.");
+        HippyLogError(@"fontSizeMultiplier value must be > zero.");
         _fontSizeMultiplier = 1.0;
     }
-    for (NativeRenderObjectView *child in [self subcomponents]) {
+    for (HippyShadowView *child in [self subcomponents]) {
         if ([child isKindOfClass:[NativeRenderObjectText class]]) {
             ((NativeRenderObjectText *)child).fontSizeMultiplier = fontSizeMultiplier;
         }
@@ -980,11 +980,11 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     _needDirtyText = YES;
 }
 
-- (void)didUpdateNativeRenderSubviews {
-    [super didUpdateNativeRenderSubviews];
+- (void)didUpdateHippySubviews {
+    [super didUpdateHippySubviews];
     auto domManager = [self domManager].lock();
     if (domManager) {
-        int32_t componentTag = [self.componentTag intValue];
+        int32_t componentTag = [self.hippyTag intValue];
         auto node = domManager->GetNode(self.rootNode, componentTag);
         if (node) {
             node->GetLayoutNode()->MarkDirty();

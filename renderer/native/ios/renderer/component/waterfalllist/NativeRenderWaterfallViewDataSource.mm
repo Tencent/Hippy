@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -22,22 +22,22 @@
 
 #import <UIKit/NSIndexPath+UIKitAdditions.h>
 
-#import "HPAsserts.h"
+#import "HippyAssert.h"
 #import "NativeRenderWaterfallViewDataSource.h"
-#import "NativeRenderObjectView.h"
+#import "HippyShadowView.h"
 #import "NativeRenderObjectWaterfall.h"
 
 @interface NativeRenderWaterfallViewDataSource () {
     BOOL _containBannerView;
-    NSArray<NSArray<NativeRenderObjectView *> *> *_cellRenderObjectViews;
-    NativeRenderObjectView *_bannerView;
+    NSArray<NSArray<HippyShadowView *> *> *_cellRenderObjectViews;
+    HippyShadowView *_bannerView;
 }
 
 @end
 
 @implementation NativeRenderWaterfallViewDataSource
 
-- (instancetype)initWithDataSource:(NSArray<__kindof NativeRenderObjectView *> *)dataSource
+- (instancetype)initWithDataSource:(NSArray<__kindof HippyShadowView *> *)dataSource
                       itemViewName:(NSString *)itemViewName
                  containBannerView:(BOOL)containBannerView {
     self = [super init];
@@ -52,9 +52,9 @@
     NativeRenderWaterfallViewDataSource *dataSource = [[[self class] allocWithZone:zone] init];
     dataSource->_containBannerView = self.containBannerView;
     dataSource->_bannerView = _bannerView;
-    NSMutableArray<NSArray<NativeRenderObjectView *> *> *objectSectionViews = [NSMutableArray arrayWithCapacity:[_cellRenderObjectViews count]];
-    for (NSArray<NativeRenderObjectView *> *objects in _cellRenderObjectViews) {
-        NSArray<NativeRenderObjectView *> *copiedObjects = [objects copy];
+    NSMutableArray<NSArray<HippyShadowView *> *> *objectSectionViews = [NSMutableArray arrayWithCapacity:[_cellRenderObjectViews count]];
+    for (NSArray<HippyShadowView *> *objects in _cellRenderObjectViews) {
+        NSArray<HippyShadowView *> *copiedObjects = [objects copy];
         [objectSectionViews addObject:copiedObjects];
     }
     dataSource->_cellRenderObjectViews = [objectSectionViews copy];
@@ -62,11 +62,11 @@
     return dataSource;
 }
 
-- (void)setDataSource:(NSArray<NativeRenderObjectView *> *)dataSource {
+- (void)setDataSource:(NSArray<HippyShadowView *> *)dataSource {
     [self setDataSource:dataSource containBannerView:NO];
 }
 
-- (void)setDataSource:(NSArray<NativeRenderObjectView *> *)dataSource
+- (void)setDataSource:(NSArray<HippyShadowView *> *)dataSource
     containBannerView:(BOOL)containBannerView {
     _containBannerView = containBannerView;
     if ([dataSource count] > 0) {
@@ -74,20 +74,20 @@
             _bannerView = [dataSource firstObject];
         }
         NSUInteger loc = _containBannerView ? 1 : 0;
-        NSArray<NativeRenderObjectView *> *candidateRenderObjectViews = [dataSource subarrayWithRange:NSMakeRange(loc, [dataSource count] - loc)];
+        NSArray<HippyShadowView *> *candidateRenderObjectViews = [dataSource subarrayWithRange:NSMakeRange(loc, [dataSource count] - loc)];
         NSString *viewName = self.itemViewName;
         static dispatch_once_t onceToken;
         static NSPredicate *prediate = nil;
         dispatch_once(&onceToken, ^{
             prediate = [NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
-                NativeRenderObjectView *renderObjectView = (NativeRenderObjectView *)evaluatedObject;
+                HippyShadowView *renderObjectView = (HippyShadowView *)evaluatedObject;
                 if ([renderObjectView.viewName isEqualToString:viewName]) {
                     return YES;
                 }
                 return NO;
             }];
         });
-        NSArray<NativeRenderObjectView *> *objects = [candidateRenderObjectViews filteredArrayUsingPredicate:prediate];
+        NSArray<HippyShadowView *> *objects = [candidateRenderObjectViews filteredArrayUsingPredicate:prediate];
         if ([objects count]) {
             _cellRenderObjectViews = [NSArray arrayWithObject:objects];
         }
@@ -97,15 +97,15 @@
     }
 }
 
--(NativeRenderObjectView *)bannerView {
+-(HippyShadowView *)bannerView {
     return _bannerView;
 }
 
-- (NSArray<NSArray<NativeRenderObjectView *> *> *)cellRenderObjectViews {
+- (NSArray<NSArray<HippyShadowView *> *> *)cellRenderObjectViews {
     return [_cellRenderObjectViews copy];
 }
 
-- (NativeRenderObjectView *)cellForIndexPath:(NSIndexPath *)indexPath {
+- (HippyShadowView *)cellForIndexPath:(NSIndexPath *)indexPath {
     if (_containBannerView && 0 == [indexPath section]) {
         return _bannerView;
     }
@@ -114,7 +114,7 @@
     }
 }
 
-- (NativeRenderObjectView *)headerForSection:(NSInteger)section {
+- (HippyShadowView *)headerForSection:(NSInteger)section {
     return nil;
 }
 
@@ -133,7 +133,7 @@
     }
 }
 
-- (NSIndexPath *)indexPathOfCell:(NativeRenderObjectView *)cell {
+- (NSIndexPath *)indexPathOfCell:(HippyShadowView *)cell {
     NSInteger row = 0;
     NSInteger section = 0;
     if (_containBannerView) {
@@ -178,9 +178,9 @@
     return index;
 }
 
-static BOOL ObjectViewNeedReload(NativeRenderObjectView *object1,
-                                 NativeRenderObjectView *object2,
-                                 NSHashTable<__kindof NativeRenderObjectView *> *frameChangedItems) {
+static BOOL ObjectViewNeedReload(HippyShadowView *object1,
+                                 HippyShadowView *object2,
+                                 NSHashTable<__kindof HippyShadowView *> *frameChangedItems) {
     if (object1 != object2) {
         return YES;
     }
@@ -190,9 +190,9 @@ static BOOL ObjectViewNeedReload(NativeRenderObjectView *object1,
     return NO;
 }
 
-static void ObjectsArrayDiff(NSArray<NativeRenderObjectView *> *objects1,
-                             NSArray<NativeRenderObjectView *> *objects2,
-                             NSHashTable<__kindof NativeRenderObjectView *> *frameChangedItems,
+static void ObjectsArrayDiff(NSArray<HippyShadowView *> *objects1,
+                             NSArray<HippyShadowView *> *objects2,
+                             NSHashTable<__kindof HippyShadowView *> *frameChangedItems,
                              void(^result)(NSIndexSet *reloadIndex, NSIndexSet *insertedIndex, NSIndexSet *deletedIndex)) {
     NSMutableIndexSet *reloadIndex = [NSMutableIndexSet indexSet];
     NSMutableIndexSet *insertedIndex = [NSMutableIndexSet indexSet];
@@ -202,8 +202,8 @@ static void ObjectsArrayDiff(NSArray<NativeRenderObjectView *> *objects1,
     NSEnumerator *obj2Enumer = [objects2 objectEnumerator];
     NSUInteger index = 0;
     do {
-        NativeRenderObjectView *object1 = [obj1Enumer nextObject];
-        NativeRenderObjectView *object2 = [obj2Enumer nextObject];
+        HippyShadowView *object1 = [obj1Enumer nextObject];
+        HippyShadowView *object2 = [obj2Enumer nextObject];
         if (object1 && object2) {
             if (ObjectViewNeedReload(object1, object2, frameChangedItems)) {
                 [reloadIndex addIndex:index];
@@ -232,7 +232,7 @@ static NSArray<NSIndexPath *> *IndexPathForIndexSet(NSUInteger section, NSIndexS
     }
     NSUInteger indexBuffer[[indexSet count]];
     NSUInteger resultCount = [indexSet getIndexes:indexBuffer maxCount:[indexSet count] inIndexRange:nil];
-    HPAssert(resultCount == [indexSet count], @"Should get all index from indexset");
+    HippyAssert(resultCount == [indexSet count], @"Should get all index from indexset");
     NSMutableArray<NSIndexPath *> *indexPaths = [NSMutableArray arrayWithCapacity:resultCount];
     for (NSUInteger i = 0; i < resultCount; i++) {
         NSUInteger index = indexBuffer[i];
@@ -244,7 +244,7 @@ static NSArray<NSIndexPath *> *IndexPathForIndexSet(NSUInteger section, NSIndexS
 
 - (void)cellDiffFromAnother:(NativeRenderWaterfallViewDataSource *)another
              sectionStartAt:(NSUInteger)startSection
-          frameChangedItems:(NSHashTable<__kindof NativeRenderObjectView *> *)frameChangedItems
+          frameChangedItems:(NSHashTable<__kindof HippyShadowView *> *)frameChangedItems
                      result:(void(^)(NSArray<NSIndexPath *> *reloadedItemIndexPath,
                                      NSArray<NSIndexPath *> *InsertedIndexPath,
                                      NSArray<NSIndexPath *> *deletedIndexPath,
@@ -256,16 +256,16 @@ static NSArray<NSIndexPath *> *IndexPathForIndexSet(NSUInteger section, NSIndexS
     NSMutableIndexSet *insertedSecionIndexSet = [NSMutableIndexSet indexSet];
     NSMutableIndexSet *deletedSectionIndexSet = [NSMutableIndexSet indexSet];
     
-    NSArray<NSArray<NativeRenderObjectView *> *> *currenCellObjects = self.cellRenderObjectViews;
-    NSArray<NSArray<NativeRenderObjectView *> *> *anotherCellObjects = another.cellRenderObjectViews;
+    NSArray<NSArray<HippyShadowView *> *> *currenCellObjects = self.cellRenderObjectViews;
+    NSArray<NSArray<HippyShadowView *> *> *anotherCellObjects = another.cellRenderObjectViews;
     //compare sections
     //sections number equal,
     NSEnumerator *obj1Enumer = [currenCellObjects objectEnumerator];
     NSEnumerator *obj2Enumer = [anotherCellObjects objectEnumerator];
     NSUInteger section = startSection;
     do {
-        NSArray<NativeRenderObjectView *> *objects1 = [obj1Enumer nextObject];
-        NSArray<NativeRenderObjectView *> *objects2 = [obj2Enumer nextObject];
+        NSArray<HippyShadowView *> *objects1 = [obj1Enumer nextObject];
+        NSArray<HippyShadowView *> *objects2 = [obj2Enumer nextObject];
         if (objects1 && objects2) {
             ObjectsArrayDiff(objects1, objects2, frameChangedItems, ^(NSIndexSet *reloadIndex, NSIndexSet *insertedIndex, NSIndexSet *deletedIndex) {
                 NSArray<NSIndexPath *> *reloadIndics = IndexPathForIndexSet(section, reloadIndex);
@@ -367,20 +367,19 @@ static NSArray<NSIndexPath *> *IndexPathForIndexSet(NSUInteger section, NSIndexS
     }];
     BOOL success = YES;
     if ([batchUpdate count]) {
-        [UIView setAnimationsEnabled:NO];
+        [CATransaction begin];
+        [CATransaction setDisableActions:YES];
         @try {
             [view performBatchUpdates:^{
                 for (NSInvocation *invocation in batchUpdate) {
                     [invocation invoke];
                 }
-            } completion:^(BOOL finished) {
-                [UIView setAnimationsEnabled:YES];
-            }];
+            } completion:nil];
         } @catch (NSException *exception) {
-            success = NO;
             [view reloadData];
-            [UIView setAnimationsEnabled:YES];
+            success = NO;
         }
+        [CATransaction commit];
     }
     completion(success);
 }
@@ -439,7 +438,7 @@ static NSComparisonResult ContainViewComparison(NativeRenderWaterfallViewDataSou
                                               context:(WaterfallItemChangeContext *)context
                                     forCollectionView:(UICollectionView *)collectionView {
     //todo 计算太麻烦了，先直接reload all吧
-    NSHashTable<__kindof NativeRenderObjectView *> *movedItems = [context movedItems];
+    NSHashTable<__kindof HippyShadowView *> *movedItems = [context movedItems];
     if ([movedItems count]) {
         NSInvocation *invocation =
             InvocationFromSelector(collectionView, @selector(reloadData), nil);
@@ -453,8 +452,8 @@ static NSComparisonResult ContainViewComparison(NativeRenderWaterfallViewDataSou
     NSIndexSet *cellSectionIndexSet = [NSIndexSet indexSetWithIndex:self.containBannerView ? 1 : 0];
     if ([[self.cellRenderObjectViews firstObject] count] && [[another.cellRenderObjectViews firstObject] count]) {
         //get inserted items
-        NSHashTable<__kindof NativeRenderObjectView *> *addedItems = [context addedItems];
-        NSIndexSet *insertedItemsIndexSet = [[self.cellRenderObjectViews firstObject] indexesOfObjectsPassingTest:^BOOL(NativeRenderObjectView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSHashTable<__kindof HippyShadowView *> *addedItems = [context addedItems];
+        NSIndexSet *insertedItemsIndexSet = [[self.cellRenderObjectViews firstObject] indexesOfObjectsPassingTest:^BOOL(HippyShadowView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             if ([addedItems containsObject:obj]) {
                 return YES;
             }
@@ -473,10 +472,10 @@ static NSComparisonResult ContainViewComparison(NativeRenderWaterfallViewDataSou
             [invocations addObject:invocation];
         }
         //get deleteed items
-        NSSet<__kindof NativeRenderObjectView *> *deletedItems = [context deletedItems];
+        NSSet<__kindof HippyShadowView *> *deletedItems = [context deletedItems];
         if ([deletedItems count]) {
             NSMutableIndexSet *deletedItemsIndexSet = [NSMutableIndexSet indexSet];
-            [deletedItems enumerateObjectsUsingBlock:^(__kindof NativeRenderObjectView * _Nonnull obj, BOOL * _Nonnull stop) {
+            [deletedItems enumerateObjectsUsingBlock:^(__kindof HippyShadowView * _Nonnull obj, BOOL * _Nonnull stop) {
                 NSUInteger index = [[[another cellRenderObjectViews]firstObject] indexOfObject:obj];
                 if (NSNotFound != index) {
                     [deletedItemsIndexSet addIndex:index];
@@ -496,11 +495,11 @@ static NSComparisonResult ContainViewComparison(NativeRenderWaterfallViewDataSou
             }
         }
         //get frame update items
-        NSHashTable<__kindof NativeRenderObjectView *> *frameChangedItems = [context frameChangedItems];
+        NSHashTable<__kindof HippyShadowView *> *frameChangedItems = [context frameChangedItems];
         if ([frameChangedItems count]) {
             NSMutableArray<NSIndexPath *> *frameChangedIndexPaths = [NSMutableArray arrayWithCapacity:[frameChangedItems count]];
             NSEnumerator *enumerator = [frameChangedItems objectEnumerator];
-            NativeRenderObjectView *objectView = [enumerator nextObject];
+            HippyShadowView *objectView = [enumerator nextObject];
             while (objectView) {
                 NSUInteger index = [[self.cellRenderObjectViews firstObject] indexOfObject:objectView];
                 if (NSNotFound != index) {

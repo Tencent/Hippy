@@ -24,13 +24,13 @@
 #import "HippyEventDispatcher.h"
 #import "HippyKeyCommands.h"
 #import "HippyWebSocketProxy.h"
-#import "HPAsserts.h"
-#import "HPToolUtils.h"
-#import "MacroDefines.h"
+#import "HippyAssert.h"
+#import "HippyUtils.h"
+#import "HippyDefines.h"
 
 #include <objc/runtime.h>
 
-#if HP_DEV
+#if HIPPY_DEV
 
 static NSString *const HippyShowDevMenuNotification = @"HippyShowDevMenuNotification";
 static NSString *const HippyDevMenuSettingsKey = @"HippyDevMenu";
@@ -107,7 +107,7 @@ typedef NS_ENUM(NSInteger, HippyDevMenuType) { HippyDevMenuTypeButton, HippyDevM
 
 @end
 
-@interface HippyDevMenu () <HippyBridgeModule, HPInvalidating> {
+@interface HippyDevMenu () <HippyBridgeModule, HippyInvalidating> {
     __weak UIAlertController *_actionSheet;
     NSUserDefaults *_defaults;
 }
@@ -124,7 +124,7 @@ HIPPY_EXPORT_MODULE()
     // We're swizzling here because it's poor form to override methods in a category,
     // however UIWindow doesn't actually implement motionEnded:withEvent:, so there's
     // no need to call the original implementation.
-    HPSwapInstanceMethods([UIWindow class], @selector(motionEnded:withEvent:), @selector(hippy_motionEnded:withEvent:));
+    HippySwapInstanceMethods([UIWindow class], @selector(motionEnded:withEvent:), @selector(hippy_motionEnded:withEvent:));
 }
 
 - (instancetype)init {
@@ -209,7 +209,7 @@ HIPPY_EXPORT_MODULE()
 }
 
 - (void)addItem:(__unused HippyDevMenuItem *)item {
-    HPAssert(NO, @"[HippyDevMenu addItem:]方法没有实现，怎么没问题？");
+    HippyAssert(NO, @"[HippyDevMenu addItem:]方法没有实现，怎么没问题？");
 }
 
 - (NSArray<HippyDevMenuItem *> *)menuItems {
@@ -230,7 +230,7 @@ HIPPY_EXPORT_METHOD(reload) {
 }
 
 HIPPY_EXPORT_METHOD(show) {
-    if (_actionSheet || !_bridge || HPRunningInAppExtension()) {
+    if (_actionSheet || !_bridge || HippyRunningInAppExtension()) {
         return;
     }
     
@@ -264,7 +264,7 @@ HIPPY_EXPORT_METHOD(show) {
                                                    handler:^(__unused UIAlertAction *action) {
     }]];
     
-    [HPPresentedViewController() presentViewController:_actionSheet animated:YES completion:^(void){}];
+    [HippyPresentedViewController() presentViewController:_actionSheet animated:YES completion:^(void){}];
 }
 
 @end
@@ -289,7 +289,7 @@ HIPPY_EXPORT_METHOD(show) {
 @implementation HippyBridge (HippyDevMenu)
 
 - (HippyDevMenu *)devMenu {
-#if HP_DEV
+#if HIPPY_DEV
     return [self moduleForClass:[HippyDevMenu class]];
 #else
     return nil;

@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -20,17 +20,17 @@
  * limitations under the License.
  */
 
-#import "HPAsserts.h"
+#import "HippyAssert.h"
 #import "NativeRenderBaseListView.h"
 #import "NativeRenderBaseListViewCell.h"
 #import "NativeRenderBaseListViewDataSource.h"
 #import "NativeRenderCollectionViewFlowLayout.h"
 #import "NativeRenderFooterRefresh.h"
 #import "NativeRenderHeaderRefresh.h"
-#import "NativeRenderImpl.h"
-#import "NativeRenderObjectView.h"
+#import "HippyUIManager.h"
+#import "HippyShadowView.h"
 #import "UIView+DirectionalLayout.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "UIView+Render.h"
 
 static NSString *const kCellIdentifier = @"cellIdentifier";
@@ -106,12 +106,12 @@ static NSString *const kListViewItem = @"ListViewItem";
     [super setFrame:frame];
 }
 
-- (void)nativeRenderSetFrame:(CGRect)frame {
-    [super nativeRenderSetFrame:frame];
+- (void)hippySetFrame:(CGRect)frame {
+    [super hippySetFrame:frame];
     self.collectionView.frame = self.bounds;
 }
 
-- (void)setInitialListReady:(NativeRenderDirectEventBlock)initialListReady {
+- (void)setInitialListReady:(HippyDirectEventBlock)initialListReady {
     _initialListReady = initialListReady;
     _isInitialListReady = NO;
 }
@@ -146,7 +146,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     }
 }
 
-- (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex {
+- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
     if ([subview isKindOfClass:[NativeRenderHeaderRefresh class]]) {
         if (_headerRefreshView) {
             [_headerRefreshView unsetFromScrollView];
@@ -154,7 +154,7 @@ static NSString *const kListViewItem = @"ListViewItem";
         _headerRefreshView = (NativeRenderHeaderRefresh *)subview;
         [_headerRefreshView setScrollView:self.collectionView];
         _headerRefreshView.delegate = self;
-        [_weakItemMap setObject:subview forKey:[subview componentTag]];
+        [_weakItemMap setObject:subview forKey:[subview hippyTag]];
     } else if ([subview isKindOfClass:[NativeRenderFooterRefresh class]]) {
         if (_footerRefreshView) {
             [_footerRefreshView unsetFromScrollView];
@@ -162,15 +162,15 @@ static NSString *const kListViewItem = @"ListViewItem";
         _footerRefreshView = (NativeRenderFooterRefresh *)subview;
         [_footerRefreshView setScrollView:self.collectionView];
         _footerRefreshView.delegate = self;
-        [_weakItemMap setObject:subview forKey:[subview componentTag]];
+        [_weakItemMap setObject:subview forKey:[subview hippyTag]];
     }
 }
 
-- (void)didUpdateNativeRenderSubviews {
+- (void)didUpdateHippySubviews {
     self.dirtyContent = YES;
 }
 
-- (void)nativeRenderComponentDidFinishTransaction {
+- (void)hippyBridgeDidFinishTransaction {
     if (self.dirtyContent) {
         [self reloadData];
         self.dirtyContent = NO;
@@ -178,7 +178,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)refreshItemNodes {
-    NSArray<NativeRenderObjectView *> *datasource = [self popDataSource];
+    NSArray<HippyShadowView *> *datasource = [self popDataSource];
     self->_dataSource = [[NativeRenderBaseListViewDataSource alloc] initWithDataSource:datasource
                                                                           itemViewName:[self compoentItemName]
                                                                      containBannerView:NO];
@@ -232,7 +232,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout
  heightForHeaderInSection:(NSInteger)section {
-    NativeRenderObjectView *header = [self.dataSource headerForSection:section];
+    HippyShadowView *header = [self.dataSource headerForSection:section];
     if (header) {
         return CGRectGetHeight(header.frame);
     } else {
@@ -243,8 +243,8 @@ static NSString *const kListViewItem = @"ListViewItem";
 - (CGSize)collectionView:(UICollectionView *)collectionView
                   layout:(UICollectionViewLayout*)collectionViewLayout
 referenceSizeForHeaderInSection:(NSInteger)section {
-    NativeRenderObjectView *headerObjectView = [self.dataSource headerForSection:section];
-    if ([headerObjectView isKindOfClass:[NativeRenderObjectView class]]) {
+    HippyShadowView *headerObjectView = [self.dataSource headerForSection:section];
+    if ([headerObjectView isKindOfClass:[HippyShadowView class]]) {
         return headerObjectView.frame.size;
     }
     return CGSizeZero;
@@ -257,9 +257,9 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     UICollectionReusableView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind
                                                                         withReuseIdentifier:kSupplementaryIdentifier
                                                                                forIndexPath:indexPath];
-    NativeRenderObjectView *headerRenderObject = [self.dataSource headerForSection:section];
-    if (headerRenderObject && [headerRenderObject isKindOfClass:[NativeRenderObjectView class]]) {
-        UIView *headerView = [self.renderImpl viewFromRenderViewTag:headerRenderObject.componentTag onRootTag:headerRenderObject.rootTag];
+    HippyShadowView *headerRenderObject = [self.dataSource headerForSection:section];
+    if (headerRenderObject && [headerRenderObject isKindOfClass:[HippyShadowView class]]) {
+        UIView *headerView = [self.renderImpl viewFromRenderViewTag:headerRenderObject.hippyTag onRootTag:headerRenderObject.rootTag];
         if (!headerView) {
             headerView = [self.renderImpl createViewRecursivelyFromRenderObject:headerRenderObject];
         }
@@ -278,7 +278,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 
 - (void)collectionView:(UICollectionView *)collectionView
        willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-    NativeRenderObjectView *cellRenderObjectView = [self.dataSource cellForIndexPath:indexPath];
+    HippyShadowView *cellRenderObjectView = [self.dataSource cellForIndexPath:indexPath];
     [cellRenderObjectView recusivelySetCreationTypeToInstant];
     [self itemViewForCollectionViewCell:cell indexPath:indexPath];
     NSInteger index = [self.dataSource flatIndexForIndexPath:indexPath];
@@ -310,7 +310,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     if ([cell isKindOfClass:[NativeRenderBaseListViewCell class]]) {
         NativeRenderBaseListViewCell *hpCell = (NativeRenderBaseListViewCell *)cell;
         if (hpCell.cellView) {
-            [_cachedItems setObject:[hpCell.cellView componentTag] forKey:indexPath];
+            [_cachedItems setObject:[hpCell.cellView hippyTag] forKey:indexPath];
             hpCell.cellView = nil;
         }
     }
@@ -321,21 +321,21 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 }
 
 - (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
-    HPAssert(self.renderImpl, @"no rendercontext detected");
+    HippyAssert(self.renderImpl, @"no rendercontext detected");
     if (!self.renderImpl) {
         return;
     }
-    NativeRenderObjectView *cellRenderObject = [self.dataSource cellForIndexPath:indexPath];
+    HippyShadowView *cellRenderObject = [self.dataSource cellForIndexPath:indexPath];
     NativeRenderBaseListViewCell *hpCell = (NativeRenderBaseListViewCell *)cell;
     UIView *cellView = [self.renderImpl createViewRecursivelyFromRenderObject:cellRenderObject];
     if (cellView) {
         [_cachedItems removeObjectForKey:indexPath];
     }
-    HPAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
+    HippyAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of NativeRenderBaseListViewCell must conform to protocol ViewAppearStateProtocol");
     hpCell.cellView = cellView;
     cellView.parentComponent = self;
-    [_weakItemMap setObject:cellView forKey:[cellView componentTag]];
+    [_weakItemMap setObject:cellView forKey:[cellView hippyTag]];
 }
 
 - (void)tableViewDidLayoutSubviews:(NativeRenderListTableView *)tableView {
@@ -522,10 +522,17 @@ referenceSizeForHeaderInSection:(NSInteger)section {
         UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
         layout.scrollDirection = horizontal ? UICollectionViewScrollDirectionHorizontal : UICollectionViewScrollDirectionVertical;
         [self.collectionView.collectionViewLayout invalidateLayout];
+        if (horizontal) {
+            [self.collectionView setAlwaysBounceHorizontal:YES];
+            [self.collectionView setAlwaysBounceVertical:NO];
+        } else {
+            [self.collectionView setAlwaysBounceVertical:YES];
+            [self.collectionView setAlwaysBounceHorizontal:NO];
+        }
     }
 }
 
 #pragma mark NativeRenderRefresh Delegate
-- (void)refreshView:(NativeRenderRefresh *)refreshView statusChanged:(NativeRenderRefreshStatus)status {
+- (void)refreshView:(HippyRefresh *)refreshView statusChanged:(HippyRefreshStatus)status {
 }
 @end

@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -23,14 +23,14 @@
 #import <UIKit/UIKit.h>
 
 #import "NativeRenderCollectionViewWaterfallLayout.h"
-#import "NativeRenderComponentProtocol.h"
-#import "NativeRenderScrollableProtocol.h"
-#import "NativeRenderScrollProtocol.h"
+#import "HippyComponent.h"
+#import "HippyScrollableProtocol.h"
+#import "HippyScrollProtocol.h"
 #import "NativeRenderTouchesView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class NativeRenderWaterfallViewDataSource, NativeRenderHeaderRefresh, NativeRenderFooterRefresh, WaterfallItemChangeContext, NativeRenderObjectView;
+@class NativeRenderWaterfallViewDataSource, NativeRenderHeaderRefresh, NativeRenderFooterRefresh, WaterfallItemChangeContext, HippyShadowView;
 
 typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
     ScrollStateStop,
@@ -42,7 +42,7 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
  * NativeRenderWaterfallView is a waterfall component, internal implementation is UICollectionView
  */
 @interface NativeRenderWaterfallView : NativeRenderTouchesView <UICollectionViewDataSource, UICollectionViewDelegate,
-                                        NativeRenderCollectionViewDelegateWaterfallLayout, NativeRenderScrollableProtocol, NativeRenderScrollProtocol> {
+                                        NativeRenderCollectionViewDelegateWaterfallLayout, HippyScrollableProtocol, HippyScrollProtocol> {
 @protected
     NativeRenderWaterfallViewDataSource *_dataSource;
     NativeRenderWaterfallViewDataSource *_previousDataSource;
@@ -108,14 +108,14 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
 @property(nonatomic, assign) BOOL manualScroll;
 
 /**
- * NativeRender Events
+ * Hippy Events
  */
-@property (nonatomic, copy) NativeRenderDirectEventBlock onScroll;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onInitialListReady;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onEndReached;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onFooterAppeared;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onRefresh;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onExposureReport;
+@property (nonatomic, copy) HippyDirectEventBlock onScroll;
+@property (nonatomic, copy) HippyDirectEventBlock onInitialListReady;
+@property (nonatomic, copy) HippyDirectEventBlock onEndReached;
+@property (nonatomic, copy) HippyDirectEventBlock onFooterAppeared;
+@property (nonatomic, copy) HippyDirectEventBlock onRefresh;
+@property (nonatomic, copy) HippyDirectEventBlock onExposureReport;
 
 - (NSUInteger)maxCachedItemCount;
 
@@ -164,8 +164,8 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
  */
 - (void)reloadData;
 
-- (void)pushDataSource:(NSArray<NativeRenderObjectView *> *)dataSource;
-- (NSArray<NativeRenderObjectView *> *)popDataSource;
+- (void)pushDataSource:(NSArray<HippyShadowView *> *)dataSource;
+- (NSArray<HippyShadowView *> *)popDataSource;
 
 /**
  * Reserved, not implemented

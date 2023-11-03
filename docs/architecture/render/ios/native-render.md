@@ -4,9 +4,9 @@
 
 Hippy抽象了RenderManager的接口，允许接入方自行实现RenderManager接口，并实现上屏操作。其中Native Renderer由Hippy默认实现，通过Native组件构建出整个Hippy界面。
 
-NativeRenderManager负责实现Hippy::RenderManager的抽象接口，并将Render树的构建与UI上屏的行为交由NativeRenderImpl处理。
+NativeRenderManager负责实现Hippy::RenderManager的抽象接口，并将Render树的构建与UI上屏的行为交由HippyUIManager处理。
 
-NativeRenderImpl负责处理以下行为：
+HippyUIManager负责处理以下行为：
 
 - Render节点的创建与管理
 - RooView与RootNode绑定与管理（不持有）
@@ -58,7 +58,7 @@ NativeRenderImpl负责处理以下行为：
 
 为此，需要设定render节点的懒加载属性，以保证UI的懒创建。
 
-在iOS中，此能力由`[NativeRenderObjectView creationType:NativeRenderCreationType]`属性控制。
+在iOS中，此能力由`[HippyShadowView creationType:NativeRenderCreationType]`属性控制。
 ![image](../../../assets/img/lazy_load1.png)
 对于懒加载组件，需要手动调用创建方法才会创建。
 ![image](../../../assets/img/lazy_load2.png)
@@ -141,13 +141,13 @@ Text组件算是一个比较特殊的组件，相对于其他组件，其有两�
 
 各业务会选择不同的图片格式就计入，而iOS api默认支持的图片格式有限。这种情况下，需要提供接口，处理默认不支持的图片格式解码。
 
-为此我们声明了一份协议HPImageProviderProtocol，专门处理各类型Image的解码工作。
+为此我们声明了一份协议HippyImageProviderProtocol，专门处理各类型Image的解码工作。
 
 接入方如果有自定义格式，需要实现一份protocol。
 
-#### HPImageProviderProtocol
+#### HippyImageProviderProtocol
 
-`HPImageProviderProtocol`包含有两类方法：必须实现的和可选实现的。
+`HippyImageProviderProtocol`包含有两类方法：必须实现的和可选实现的。
 
 必须实现的方法负责处理图片解码的基本操作，而可选实现的用于处理动图。
 接入方可同时添加多个解码器，HippySDK 在需要时，会按照解码器添加反序询问各解码器能否处理当前数据。如果不能，则会询问下个解码器，直至获取了对应的解码器，或者使用默认解码器。
@@ -167,7 +167,7 @@ Text组件算是一个比较特殊的组件，相对于其他组件，其有两�
 | -(NSUIneger)loopCount | 返回动图循环次数 |
 | -(double)delayTimeAtFrame:(NSUInteger)frame | 返回指定帧延迟时长 |
 
-#### HPDefaultImageProvider
+#### HippyDefaultImageProvider
 
 Hippy3.0默认实现了一套decoder作为默认decoder，实现对系统支持的格式进行解码操作。任何没有decoder处理的数据，最终都会由HippyDefaultImageProvider调用系统API CGImageSource进行处理。
 
@@ -178,6 +178,6 @@ Hippy3.0默认实现了一套decoder作为默认decoder，实现对系统支持�
 - Hipp3.0SDK的动图逻辑由NativeRenderAnimatedImage和NativeRenderAnimatedImageView负责。
 - 这是一个生产者-消费者模型。NativeRenderAnimatedImage负责生产，NativeRenderAnimatedImageView负责消费。
 - NativeRenderAnimatedImageView实现一个vsync回调，每次回调向NativeRenderAnimatedImage询问当前帧对应的Image
-- NativeRenderAnimatedImage持有HPImageProviderProtocol实例，负责解析动图，并返回对应帧的Image
+- NativeRenderAnimatedImage持有HippyImageProviderProtocol实例，负责解析动图，并返回对应帧的Image
 
 ![image](../../../assets/img/animated_image.png)

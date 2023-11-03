@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -21,10 +21,10 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "NativeRenderComponentProtocol.h"
-#import "HPConvert.h"
+#import "HippyComponent.h"
+#import "HippyConvert.h"
 #import "NativeRenderAnimatedImageView.h"
-#import "HPImageProviderProtocol.h"
+#import "HippyImageProviderProtocol.h"
 
 @class NativeRenderImageView;
 
@@ -32,11 +32,11 @@
     NSData *_animatedImageData;
     NSString *_url;
     __weak NativeRenderImageView *_imageView;
-    id<HPImageProviderProtocol> _imageProvider;
+    id<HippyImageProviderProtocol> _imageProvider;
 }
 
 - (id)initWithAnimatedImageData:(NSData *)data imageView:(NativeRenderImageView *)imageView imageURL:(NSString *)url;
-- (id)initWithAnimatedImageProvider:(id<HPImageProviderProtocol>)imageProvider imageView:(NativeRenderImageView *)imageView imageURL:(NSString *)url;
+- (id)initWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider imageView:(NativeRenderImageView *)imageView imageURL:(NSString *)url;
 
 @end
 
@@ -69,24 +69,24 @@ typedef NS_ENUM(NSInteger, NativeRenderShapeMode) {
 @property (nonatomic, assign) CGFloat borderRadius;
 @property (nonatomic, assign) NativeRenderShapeMode shape;
 
-@property (nonatomic, copy) NativeRenderDirectEventBlock onLoadStart;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onProgress;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onError;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onLoad;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onLoadEnd;
+@property (nonatomic, copy) HippyDirectEventBlock onLoadStart;
+@property (nonatomic, copy) HippyDirectEventBlock onProgress;
+@property (nonatomic, copy) HippyDirectEventBlock onError;
+@property (nonatomic, copy) HippyDirectEventBlock onLoad;
+@property (nonatomic, copy) HippyDirectEventBlock onLoadEnd;
 
 - (void)reloadImage;
 
 - (void)updateImage:(UIImage *)image;
 
-- (void)setImageProvider:(id<HPImageProviderProtocol>)imageProvider;
+- (void)setImageProvider:(id<HippyImageProviderProtocol>)imageProvider;
 
 - (void)clearImageIfDetached;
 
 - (BOOL)needsUpdateCornerRadiusManully;
 @end
 
-@interface HPConvert (NativeRenderResizeMode)
+@interface HippyConvert (NativeRenderResizeMode)
 
 + (NativeRenderResizeMode)NativeRenderResizeMode:(id)json;
 + (NativeRenderShapeMode)NativeRenderShapeMode:(id)json;

@@ -21,6 +21,7 @@
 */
 
 #import "HippyPageCache.h"
+#import <hippy/HippyRootView.h>
 
 @implementation HippyPageCache
 
@@ -28,11 +29,11 @@
     if (![object isKindOfClass:[self class]]) {
         return NO;
     }
-    return _convenientBridge == [object convenientBridge];
+    return _hippyBridge == [object hippyBridge];
 }
 
 - (NSUInteger)hash {
-    return [(NSObject *)_convenientBridge hash] + [_rootView hash];
+    return [(NSObject *)_hippyBridge hash] + [_rootView hash];
 }
 
 @end

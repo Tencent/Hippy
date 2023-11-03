@@ -21,7 +21,7 @@
  */
 
 #import "HippyBridge+VFSLoader.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 
 #include "VFSUriLoader.h"
 #include "VFSUriHandler.h"
@@ -40,7 +40,7 @@
     }
     std::shared_ptr<VFSUriLoader> loader = [self VFSUriLoader].lock();
     if (loader) {
-        NSURL *url = HPURLWithString(urlString, nil);
+        NSURL *url = HippyURLWithString(urlString, nil);
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
         if (method) {
             [request setHTTPMethod:method];

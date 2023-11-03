@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -24,12 +24,13 @@
 
 @implementation NativeRenderSimpleWebViewManager
 
-NATIVE_RENDER_EXPORT_VIEW(WebView)
+HIPPY_EXPORT_MODULE(WebView)
 
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(source, NSDictionary)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoadStart, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoadEnd, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoad, NativeRenderDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(userAgent, NSString)
+HIPPY_EXPORT_VIEW_PROPERTY(source, NSDictionary)
+HIPPY_EXPORT_VIEW_PROPERTY(onLoadStart, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onLoadEnd, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onLoad, HippyDirectEventBlock)
 
 - (UIView *)view {
     return [NativeRenderSimpleWebView new];
