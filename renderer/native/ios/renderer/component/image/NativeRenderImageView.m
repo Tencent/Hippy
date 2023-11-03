@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -22,8 +22,8 @@
 
 #import <Accelerate/Accelerate.h>
 
-#import "HPAsserts.h"
-#import "HPToolUtils.h"
+#import "HippyAssert.h"
+#import "HippyUtils.h"
 #import "NativeRenderImageView.h"
 #import "NativeRenderAnimatedImage.h"
 #import "UIView+MountEvent.h"
@@ -202,7 +202,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     BOOL _needsUpdateBorderRadiusManully;
     BOOL _needsReloadImage;
     BOOL _needsUpdateImage;
-    id<HPImageProviderProtocol> _imageProvider;
+    id<HippyImageProviderProtocol> _imageProvider;
 }
 
 @property (nonatomic) NativeRenderAnimatedImageOperation *animatedImageOperation;
@@ -341,7 +341,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     }
 }
 
-- (void)setImageProvider:(id<HPImageProviderProtocol>)imageProvider {
+- (void)setImageProvider:(id<HippyImageProviderProtocol>)imageProvider {
     if (_imageProvider != imageProvider) {
         _imageProvider = imageProvider;
     }
@@ -448,15 +448,15 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
             NSError *error = nil;
             UIImage *blurredImage = NativeRenderBlurredImageWithRadiusv(image, br, &error);
             if (error) {
-                NSError *finalError = HPErrorFromErrorAndModuleName(error, @"unknown");
-                HPFatal(finalError, nil);
+                NSError *finalError = HippyErrorFromErrorAndModuleName(error, @"unknown");
+                HippyFatal(finalError);
             }
-            HPExecuteOnMainQueue(^{
+            HippyExecuteOnMainQueue(^{
                 setImageBlock(blurredImage);
             });
         });
     } else {
-        HPExecuteOnMainQueue(^{
+        HippyExecuteOnMainQueue(^{
             setImageBlock(image);
         });
     }
@@ -529,24 +529,24 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     }
     if ([self needsUpdateCornerRadiusManully] && ![self isAllCornerRadiussEqualToCornerRadius]) {
         CGRect contentRect = self.bounds;
-#ifdef HPLog
+#ifdef HippyLog
         CGFloat width = CGRectGetWidth(contentRect);
         CGFloat height = CGRectGetHeight(contentRect);
         BOOL flag1 = _borderTopLeftRadius <= MIN(width, height) / 2;
         if (!flag1) {
-            HPLog(@"[warning] _borderTopLeftRadius must be shorter than width / 2");
+            HippyLog(@"[warning] _borderTopLeftRadius must be shorter than width / 2");
         }
         BOOL flag2 = _borderTopRightRadius <= MIN(width, height) / 2;
         if (!flag2) {
-            HPLog(@"[warning] _borderTopRightRadius must be shorter than width / 2");
+            HippyLog(@"[warning] _borderTopRightRadius must be shorter than width / 2");
         }
         BOOL flag3 = _borderBottomLeftRadius <= MIN(width, height) / 2;
         if (!flag3) {
-            HPLog(@"[warning] _borderBottomLeftRadius must be shorter than width / 2");
+            HippyLog(@"[warning] _borderBottomLeftRadius must be shorter than width / 2");
         }
         BOOL flag4 = _borderBottomRightRadius <= MIN(width, height) / 2;
         if (!flag4) {
-            HPLog(@"[warning] _borderBottomRightRadius must be shorter than width / 2");
+            HippyLog(@"[warning] _borderBottomRightRadius must be shorter than width / 2");
         }
 #endif
 
@@ -567,7 +567,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     } else {
         //radius must be smaller than MIN(self.frame.size.width, self.frame.size.height) / 2.0
         CGFloat minOfRadius = MIN(self.frame.size.width, self.frame.size.height) / 2.0f;
-        double radius = HPZeroIfNaN(MIN(minOfRadius, _borderRadius));
+        double radius = HippyZeroIfNaN(MIN(minOfRadius, _borderRadius));
         self.layer.mask = nil;
         self.layer.cornerRadius = radius;
     }
@@ -668,7 +668,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
 
 @end
 
-@implementation HPConvert (NativeRenderResizeMode)
+@implementation HippyConvert (NativeRenderResizeMode)
 
 HP_ENUM_CONVERTER(NativeRenderResizeMode, (@{
     @"cover": @(NativeRenderResizeModeCover),
@@ -688,7 +688,7 @@ HP_ENUM_CONVERTER(NativeRenderShapeMode, (@{
 
 @implementation NativeRenderAnimatedImageOperation
 
-- (id)initWithAnimatedImageProvider:(id<HPImageProviderProtocol>)imageProvider imageView:(NativeRenderImageView *)imageView imageURL:(NSString *)url {
+- (id)initWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider imageView:(NativeRenderImageView *)imageView imageURL:(NSString *)url {
     self = [super init];
     if (self) {
         _imageProvider = imageProvider;

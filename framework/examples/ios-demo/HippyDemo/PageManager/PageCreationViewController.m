@@ -24,7 +24,7 @@
 #import "PageCreationCell.h"
 #import "DebugCell.h"
 #import "IconUtils.h"
-#import "NativeRenderViewController.h"
+#import "HippyDemoViewController.h"
 #import "HippyBundleURLProvider.h"
 #import "UIViewController+Title.h"
 
@@ -262,7 +262,7 @@ static NSString *const kCancel = @"取消";
         NSString *debugString = [cell2 debugURLString];
         debugURL = [NSURL URLWithString:debugString];
     }
-    NativeRenderViewController *vc = [[NativeRenderViewController alloc] initWithDriverType:driverType renderType:renderType debugURL:debugURL isDebugMode:_debugMode];
+    HippyDemoViewController *vc = [[HippyDemoViewController alloc] initWithDriverType:driverType renderType:renderType debugURL:debugURL isDebugMode:_debugMode];
     NSMutableArray<__kindof UIViewController *> *viewControllers = [[self.navigationController viewControllers] mutableCopy];
     [viewControllers removeLastObject];
     [viewControllers addObject:vc];

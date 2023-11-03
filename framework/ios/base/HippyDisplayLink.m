@@ -25,12 +25,12 @@
 #import <Foundation/Foundation.h>
 #import <QuartzCore/CADisplayLink.h>
 
-#import "HPAsserts.h"
+#import "HippyAssert.h"
 #import "HippyBridgeModule.h"
 #import "HippyFrameUpdate.h"
 #import "HippyModuleData.h"
 
-#define HPAssertRunLoop() HPAssert(_runLoop == [NSRunLoop currentRunLoop], @"This method must be called on the CADisplayLink run loop")
+#define HippyAssertRunLoop() HippyAssert(_runLoop == [NSRunLoop currentRunLoop], @"This method must be called on the CADisplayLink run loop")
 
 @implementation HippyDisplayLink {
     CADisplayLink *_jsDisplayLink;
@@ -107,7 +107,7 @@
 }
 
 - (void)_jsThreadUpdate:(CADisplayLink *)displayLink {
-    HPAssertRunLoop();
+    HippyAssertRunLoop();
 
     HippyFrameUpdate *frameUpdate = [[HippyFrameUpdate alloc] initWithDisplayLink:displayLink];
     for (HippyModuleData *moduleData in _frameUpdateObservers) {
@@ -123,7 +123,7 @@
 }
 
 - (void)updateJSDisplayLinkState {
-    HPAssertRunLoop();
+    HippyAssertRunLoop();
 
     BOOL pauseDisplayLink = YES;
     for (HippyModuleData *moduleData in _frameUpdateObservers) {

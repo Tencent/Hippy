@@ -21,7 +21,7 @@
  */
 
 #import "HippyBridge.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 
 #include "HippyFileHandler.h"
 #include "footstone/logging.h"

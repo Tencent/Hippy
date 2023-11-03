@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -26,11 +26,11 @@
 @implementation UIView (MountEvent)
 
 #define MountEvent(setter, getter)                                                      \
-    - (void)setter:(NativeRenderDirectEventBlock)getter {                                          \
+    - (void)setter:(HippyDirectEventBlock)getter {                                          \
         objc_setAssociatedObject(self, @selector(getter), getter, OBJC_ASSOCIATION_COPY);   \
     }                                                                                       \
                                                                                             \
-    - (NativeRenderDirectEventBlock)getter {                                                       \
+    - (HippyDirectEventBlock)getter {                                                       \
         return objc_getAssociatedObject(self, @selector(getter));                           \
     }
 

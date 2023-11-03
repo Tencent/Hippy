@@ -22,11 +22,11 @@
 
 #import "HippyKeyCommands.h"
 #import <UIKit/UIKit.h>
-#import "HPAsserts.h"
-#import "MacroDefines.h"
-#import "HPToolUtils.h"
+#import "HippyAssert.h"
+#import "HippyDefines.h"
+#import "HippyUtils.h"
 
-#if HP_DEV
+#if HIPPY_DEV
 
 static BOOL HippyIsIOS8OrEarlier() {
     return [UIDevice currentDevice].systemVersion.floatValue < 9;
@@ -198,12 +198,12 @@ static BOOL HippyIsIOS8OrEarlier() {
 + (void)initialize {
     if (HippyIsIOS8OrEarlier()) {
         // swizzle UIApplication
-        HPSwapInstanceMethods([UIApplication class], @selector(keyCommands), @selector(hippy_keyCommands));
+        HippySwapInstanceMethods([UIApplication class], @selector(keyCommands), @selector(hippy_keyCommands));
 
-        HPSwapInstanceMethods([UIApplication class], @selector(sendAction:to:from:forEvent:), @selector(hippy_sendAction:to:from:forEvent:));
+        HippySwapInstanceMethods([UIApplication class], @selector(sendAction:to:from:forEvent:), @selector(hippy_sendAction:to:from:forEvent:));
     } else {
         // swizzle UIResponder
-        HPSwapInstanceMethods([UIResponder class], @selector(keyCommands), @selector(hippy_keyCommands));
+        HippySwapInstanceMethods([UIResponder class], @selector(keyCommands), @selector(hippy_keyCommands));
     }
 }
 
@@ -225,7 +225,7 @@ static BOOL HippyIsIOS8OrEarlier() {
 }
 
 - (void)registerKeyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags action:(void (^)(UIKeyCommand *))block {
-    HPAssertMainQueue();
+    HippyAssertMainQueue();
 
     if (input.length && flags && HippyIsIOS8OrEarlier()) {
         // Workaround around the first cmd not working: http://openradar.appspot.com/19613391
@@ -243,7 +243,7 @@ static BOOL HippyIsIOS8OrEarlier() {
 }
 
 - (void)unregisterKeyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags {
-    HPAssertMainQueue();
+    HippyAssertMainQueue();
 
     for (HippyKeyCommand *command in _commands.allObjects) {
         if ([command matchesInput:input flags:flags]) {
@@ -254,7 +254,7 @@ static BOOL HippyIsIOS8OrEarlier() {
 }
 
 - (BOOL)isKeyCommandRegisteredForInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags {
-    HPAssertMainQueue();
+    HippyAssertMainQueue();
 
     for (HippyKeyCommand *command in _commands.allObjects) {  // add by stockGroup
         if ([command matchesInput:input flags:flags]) {
@@ -265,7 +265,7 @@ static BOOL HippyIsIOS8OrEarlier() {
 }
 
 - (void)registerDoublePressKeyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags action:(void (^)(UIKeyCommand *))block {
-    HPAssertMainQueue();
+    HippyAssertMainQueue();
 
     if (input.length && flags && HippyIsIOS8OrEarlier()) {
         // Workaround around the first cmd not working: http://openradar.appspot.com/19613391
@@ -283,7 +283,7 @@ static BOOL HippyIsIOS8OrEarlier() {
 }
 
 - (void)unregisterDoublePressKeyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags {
-    HPAssertMainQueue();
+    HippyAssertMainQueue();
 
     for (HippyKeyCommand *command in _commands.allObjects) {
         if ([command matchesInput:input flags:flags]) {
@@ -294,7 +294,7 @@ static BOOL HippyIsIOS8OrEarlier() {
 }
 
 - (BOOL)isDoublePressKeyCommandRegisteredForInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags {
-    HPAssertMainQueue();
+    HippyAssertMainQueue();
 
     for (HippyKeyCommand *command in _commands.allObjects) {  // add by stockGroup
         if ([command matchesInput:input flags:flags]) {

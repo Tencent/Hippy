@@ -141,9 +141,13 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
     if (dom_node == nullptr) {
       continue;
     }
+    auto skip_style_diff = false;
+    if (node_info->diff_info != nullptr) {
+      skip_style_diff = node_info->diff_info->skip_style_diff;
+    }
     // diff props
-    auto style_diff_value = DiffUtils::DiffProps(*dom_node->GetStyleMap(), *node_info->dom_node->GetStyleMap());
-    auto ext_diff_value = DiffUtils::DiffProps(*dom_node->GetExtStyle(), *node_info->dom_node->GetExtStyle());
+    auto style_diff_value = DiffUtils::DiffProps(*dom_node->GetStyleMap(), *node_info->dom_node->GetStyleMap(), skip_style_diff);
+    auto ext_diff_value = DiffUtils::DiffProps(*dom_node->GetExtStyle(), *node_info->dom_node->GetExtStyle(), false);
     auto style_update = std::get<0>(style_diff_value);
     auto ext_update = std::get<0>(ext_diff_value);
     std::shared_ptr<DomValueMap> diff_value = std::make_shared<DomValueMap>();
@@ -153,7 +157,9 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
     if (!ext_update->empty()) {
       diff_value->insert(ext_update->begin(), ext_update->end());
     }
-    dom_node->SetStyleMap(node_info->dom_node->GetStyleMap());
+    if (!skip_style_diff) {
+      dom_node->SetStyleMap(node_info->dom_node->GetStyleMap());
+    }
     dom_node->SetExtStyleMap(node_info->dom_node->GetExtStyle());
     dom_node->SetDiffStyle(diff_value);
 
@@ -205,7 +211,7 @@ void RootNode::MoveDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
       continue;
     }
     nodes_to_move.push_back(node);
-    parent_node->AddChildByRefInfo(std::make_shared<DomInfo>(node, node_info->ref_info));
+    parent_node->AddChildByRefInfo(std::make_shared<DomInfo>(node, node_info->ref_info, nullptr));
   }
   for (const auto& node : nodes_to_move) {
     node->SetRenderInfo({node->GetId(), node->GetPid(), node->GetSelfIndex()});
@@ -272,14 +278,19 @@ void RootNode::CallFunction(uint32_t id, const std::string& name, const DomArgum
 }
 
 void RootNode::SyncWithRenderManager(const std::shared_ptr<RenderManager>& render_manager) {
+  TDF_PERF_DO_STMT_AND_LOG(unsigned long domCnt = dom_operations_.size(); , "RootNode::SyncWithRenderManager");
   FlushDomOperations(render_manager);
+  TDF_PERF_DO_STMT_AND_LOG(unsigned long evCnt = event_operations_.size(); , "RootNode::FlushDomOperations Done, dom op count:%lld", domCnt);
   FlushEventOperations(render_manager);
+  TDF_PERF_LOG("RootNode::FlushEventOperations Done, event op count:%d", evCnt);
   DoAndFlushLayout(render_manager);
+  TDF_PERF_LOG("RootNode::DoAndFlushLayout Done");
   auto dom_manager = dom_manager_.lock();
   if (dom_manager) {
     dom_manager->RecordDomEndTimePoint();
   }
   render_manager->EndBatch(GetWeakSelf());
+  TDF_PERF_LOG("RootNode::SyncWithRenderManager End");
 }
 
 void RootNode::AddEvent(uint32_t id, const std::string& event_name) {

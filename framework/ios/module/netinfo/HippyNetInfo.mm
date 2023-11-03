@@ -26,7 +26,7 @@
 #import "HippyNetInfo.h"
 #import "HippyNetInfoIntenal.h"
 
-#import "HPAsserts.h"
+#import "HippyAssert.h"
 
 @interface HippyNetInfo ()<HippyNetworkTypeChangedDelegate> {
 }

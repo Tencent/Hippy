@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -23,7 +23,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIColor.h>
 #import <CoreGraphics/CGContext.h>
-#import "NativeRenderBorderDrawing.h"
+#import "HippyBorderDrawing.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -86,7 +86,7 @@ typedef struct _CanvasInfo {
 
 @end
 
-HP_EXTERN void NativeRenderDrawLinearGradientInContext(NativeRenderGradientObject *object, CGContextRef context, CanvasInfo canvasInfo);
-HP_EXTERN void NativeRenderDrawRadialGradientInContext(NativeRenderGradientObject *object, CGContextRef context, CGSize);
+HIPPY_EXTERN void NativeRenderDrawLinearGradientInContext(NativeRenderGradientObject *object, CGContextRef context, CanvasInfo canvasInfo);
+HIPPY_EXTERN void NativeRenderDrawRadialGradientInContext(NativeRenderGradientObject *object, CGContextRef context, CGSize);
 
 NS_ASSUME_NONNULL_END

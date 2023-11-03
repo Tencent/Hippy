@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -21,7 +21,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "NativeRenderScrollView.h"
+#import "HippyScrollView.h"
 #import "NativeRenderListTableView.h"
 #import "NativeRenderTouchesView.h"
 #import "NativeRenderWaterfallView.h"
@@ -31,15 +31,15 @@
 @interface NativeRenderBaseListView : NativeRenderWaterfallView <NativeRenderListTableViewLayoutProtocol>
 
 /**
- * NativeRender events
+ * Hippy events
  */
-@property(nonatomic, copy) NativeRenderDirectEventBlock initialListReady;
-@property(nonatomic, copy) NativeRenderDirectEventBlock onScrollBeginDrag;
-@property(nonatomic, copy) NativeRenderDirectEventBlock onScrollEndDrag;
-@property(nonatomic, copy) NativeRenderDirectEventBlock onMomentumScrollBegin;
-@property(nonatomic, copy) NativeRenderDirectEventBlock onMomentumScrollEnd;
-@property(nonatomic, copy) NativeRenderDirectEventBlock onRowWillDisplay;
-@property(nonatomic, copy) NativeRenderDirectEventBlock onDelete;
+@property(nonatomic, copy) HippyDirectEventBlock initialListReady;
+@property(nonatomic, copy) HippyDirectEventBlock onScrollBeginDrag;
+@property(nonatomic, copy) HippyDirectEventBlock onScrollEndDrag;
+@property(nonatomic, copy) HippyDirectEventBlock onMomentumScrollBegin;
+@property(nonatomic, copy) HippyDirectEventBlock onMomentumScrollEnd;
+@property(nonatomic, copy) HippyDirectEventBlock onRowWillDisplay;
+@property(nonatomic, copy) HippyDirectEventBlock onDelete;
 
 /**
  * Indication initial content offset when NativeRenderBaseListView finish loading data

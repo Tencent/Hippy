@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -20,11 +20,11 @@
  * limitations under the License.
  */
 
-#import "HPAsserts.h"
-#import "HPToolUtils.h"
+#import "HippyAssert.h"
+#import "HippyUtils.h"
 #import "NativeRenderImageViewManager.h"
 #import "NativeRenderImageView.h"
-#import "NativeRenderImpl.h"
+#import "HippyUIManager.h"
 #import "TypeConverter.h"
 
 #include "VFSUriLoader.h"
@@ -36,26 +36,26 @@
 
 @implementation NativeRenderImageViewManager
 
-NATIVE_RENDER_EXPORT_VIEW(Image);
+HIPPY_EXPORT_MODULE(Image);
 
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(blurRadius, CGFloat)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(capInsets, UIEdgeInsets)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(resizeMode, NativeRenderResizeMode)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoadStart, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onProgress, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onError, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPartialLoad, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoad, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoadEnd, NativeRenderDirectEventBlock)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(downSample, BOOL)
-NATIVE_RENDER_EXPORT_VIEW_PROPERTY(shape, NativeRenderShapeMode)
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(src, NSString, NativeRenderImageView) {
-    NSString *path = [HPConvert NSString:json];
+HIPPY_EXPORT_VIEW_PROPERTY(blurRadius, CGFloat)
+HIPPY_EXPORT_VIEW_PROPERTY(capInsets, UIEdgeInsets)
+HIPPY_EXPORT_VIEW_PROPERTY(resizeMode, NativeRenderResizeMode)
+HIPPY_EXPORT_VIEW_PROPERTY(onLoadStart, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onProgress, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onError, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onPartialLoad, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onLoad, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onLoadEnd, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(downSample, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(shape, NativeRenderShapeMode)
+HIPPY_CUSTOM_VIEW_PROPERTY(src, NSString, NativeRenderImageView) {
+    NSString *path = [HippyConvert NSString:json];
     [self loadImageSource:path forView:view];
 }
 
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
-    NSArray *pathSources = [HPConvert NSArray:json];
+HIPPY_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
+    NSArray *pathSources = [HippyConvert NSArray:json];
     if ([pathSources isKindOfClass:[NSArray class]]) {
         NSDictionary *dicSource = [pathSources firstObject];
         NSString *path = dicSource[@"uri"];
@@ -69,21 +69,23 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
     }
     NSString *standardizeAssetUrlString = path;
     __weak NativeRenderImageView *weakView = view;
-    auto loader = [[self renderImpl] VFSUriLoader].lock();
+    auto loader = [self.bridge.uiManager VFSUriLoader].lock();
     if (!loader) {
         return;
     }
+    __weak __typeof(self)weakSelf = self;
     loader->RequestUntrustedContent(path, nil, nil, ^(NSData *data, NSURLResponse *response, NSError *error) {
-        NativeRenderImpl *renderImpl = self.renderImpl;
-        id<HPImageProviderProtocol> imageProvider = nil;
+        __strong __typeof(weakSelf)strongSelf = weakSelf;
+        HippyUIManager *renderImpl = strongSelf.bridge.uiManager;
+        id<HippyImageProviderProtocol> imageProvider = nil;
         if (renderImpl) {
-            for (Class<HPImageProviderProtocol> cls in [renderImpl imageProviderClasses]) {
+            for (Class<HippyImageProviderProtocol> cls in [strongSelf.bridge imageProviderClasses]) {
                 if ([cls canHandleData:data]) {
                     imageProvider = [[(Class)cls alloc] init];
                     break;
                 }
             }
-            HPAssert(imageProvider, @"Image Provider is required");
+            HippyAssert(imageProvider, @"Image Provider is required");
             imageProvider.imageDataPath = standardizeAssetUrlString;
             [imageProvider setImageData:data];
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -97,20 +99,20 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
     });
 }
 
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, NativeRenderImageView) {
-    view.tintColor = [HPConvert UIColor:json] ?: defaultView.tintColor;
+HIPPY_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, NativeRenderImageView) {
+    view.tintColor = [HippyConvert UIColor:json] ?: defaultView.tintColor;
     view.renderingMode = json ? UIImageRenderingModeAlwaysTemplate : defaultView.renderingMode;
 }
 
-NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, NativeRenderImageView) {
-    NSString *source = [HPConvert NSString:json];
+HIPPY_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, NativeRenderImageView) {
+    NSString *source = [HippyConvert NSString:json];
     [self loadImageSource:source forView:view];
 }
 
 #define NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(SIDE)                                                                 \
-    NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Radius, CGFloat, NativeRenderImageView) {                          \
+    HIPPY_CUSTOM_VIEW_PROPERTY(border##SIDE##Radius, CGFloat, NativeRenderImageView) {                          \
         if ([view respondsToSelector:@selector(setBorder##SIDE##Radius:)]) {                                            \
-            view.border##SIDE##Radius = json ? [HPConvert CGFloat:json] : defaultView.border##SIDE##Radius;   \
+            view.border##SIDE##Radius = json ? [HippyConvert CGFloat:json] : defaultView.border##SIDE##Radius;   \
         }                                                                                                               \
     }
 

@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -21,27 +21,26 @@
  */
 
 #import <Foundation/Foundation.h>
-
-#import "MacroDefines.h"
+#import "HippyDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 // Get screen metrics in a thread-safe way
-HP_EXTERN CGFloat NativeRenderScreenScale(void);
-HP_EXTERN CGSize NativeRenderScreenSize(void);
+HIPPY_EXTERN CGFloat NativeRenderScreenScale(void);
+HIPPY_EXTERN CGSize NativeRenderScreenSize(void);
 
 // Round float coordinates to nearest whole screen pixel (not point)
-HP_EXTERN CGFloat NativeRenderRoundPixelValue(CGFloat value);
-HP_EXTERN CGFloat NativeRenderCeilPixelValue(CGFloat value);
-HP_EXTERN CGFloat NativeRenderFloorPixelValue(CGFloat value);
+HIPPY_EXTERN CGFloat NativeRenderRoundPixelValue(CGFloat value);
+HIPPY_EXTERN CGFloat NativeRenderCeilPixelValue(CGFloat value);
+HIPPY_EXTERN CGFloat NativeRenderFloorPixelValue(CGFloat value);
 
 // Convert a size in points to pixels, rounded up to the nearest integral size
-HP_EXTERN CGSize NativeRenderSizeInPixels(CGSize pointSize, CGFloat scale);
+HIPPY_EXTERN CGSize NativeRenderSizeInPixels(CGSize pointSize, CGFloat scale);
 
-HP_EXTERN BOOL NativeRenderCGRectNearlyEqual(CGRect frame1, CGRect frame2);
+HIPPY_EXTERN BOOL NativeRenderCGRectNearlyEqual(CGRect frame1, CGRect frame2);
 
-HP_EXTERN BOOL NativeRenderCGPointNearlyEqual(CGPoint point1, CGPoint point2);
+HIPPY_EXTERN BOOL NativeRenderCGPointNearlyEqual(CGPoint point1, CGPoint point2);
 
-HP_EXTERN BOOL NativeRenderCGSizeNearlyEqual(CGSize size1, CGSize size2);
+HIPPY_EXTERN BOOL NativeRenderCGSizeNearlyEqual(CGSize size1, CGSize size2);
 
 NS_ASSUME_NONNULL_END
