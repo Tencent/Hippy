@@ -458,7 +458,7 @@ static HippyWeakProxy *HippyCurrentBridgeInstance = nil;
 @end
 
 
-#else  // Disabled
+#else /* HIPPY_DEBUG */
 
 @implementation HippyRedBox
 
@@ -492,6 +492,12 @@ static HippyWeakProxy *HippyCurrentBridgeInstance = nil;
     return nil;
 }
 
++ (nullable id)currentBridge {
+    return nil;
+}
+
++ (void)setCurrentBridge:(nullable HippyBridge *)currentBridge {}
+
 @end
 
-#endif
+#endif /* HIPPY_DEBUG */
