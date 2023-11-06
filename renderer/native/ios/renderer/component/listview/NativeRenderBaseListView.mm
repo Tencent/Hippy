@@ -259,7 +259,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
                                                                                forIndexPath:indexPath];
     HippyShadowView *headerRenderObject = [self.dataSource headerForSection:section];
     if (headerRenderObject && [headerRenderObject isKindOfClass:[HippyShadowView class]]) {
-        UIView *headerView = [self.renderImpl viewFromRenderViewTag:headerRenderObject.hippyTag onRootTag:headerRenderObject.rootTag];
+        UIView *headerView = [self.renderImpl viewForHippyTag:headerRenderObject.hippyTag onRootTag:headerRenderObject.rootTag];
         if (!headerView) {
             headerView = [self.renderImpl createViewRecursivelyFromRenderObject:headerRenderObject];
         }
