@@ -30,15 +30,22 @@
 @implementation NativeRenderUITextField
 
 - (void)setKeyboardType:(UIKeyboardType)keyboardType {
+    if(self.keyboardType == keyboardType){
+      return;
+    }
     NSString *tempPwdStr = self.text;
     self.text = @"";
     if (keyboardType == UIKeyboardTypeTwitter) {
         self.secureTextEntry = true;
     } else {
         self.secureTextEntry = false;
-        [super setKeyboardType:keyboardType];
     }
+    [super setKeyboardType:keyboardType];
     self.text = tempPwdStr;
+
+    if([self isFirstResponder]){
+      [self reloadInputViews];
+    }
 }
 
 - (void)setReturnKeyType:(UIReturnKeyType) returnKeyType{
