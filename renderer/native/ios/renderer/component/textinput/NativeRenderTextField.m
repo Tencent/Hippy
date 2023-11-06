@@ -41,6 +41,13 @@
     self.text = tempPwdStr;
 }
 
+- (void)setReturnKeyType:(UIReturnKeyType) returnKeyType{
+    [super setReturnKeyType:returnKeyType];
+    if([self isFirstResponder]){
+      [self reloadInputViews];
+    }
+}
+
 - (void)setEditable:(BOOL)editable {
     _editable = editable;
     [self setEnabled:editable];
