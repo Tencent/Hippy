@@ -35,7 +35,7 @@ Pod::Spec.new do |s|
   s.homepage         = 'https://hippyjs.org'
   s.license          = { :type => 'Apache2', :file => 'LICENSE' }
   s.author           = 'OpenHippy Team'
-  s.source           = {:git => 'https://github.com/ilikethese/Hippy.git', :commit => "8737197cb82a6331945cc06c85d1a00ea9948712"}
+  s.source           = {:git => 'https://github.com/Tencent/Hippy.git', :tag => s.version}
   s.platform = :ios
   s.ios.deployment_target = '11.0'
   s.module_map = false; # hippy3暂未支持module
@@ -467,17 +467,17 @@ Pod::Spec.new do |s|
     end
   end
 
-  # TODO(charleeshen): move hermes to hip, build hermes with no rtti
-  # if js_engine == "hermes"
-  s.subspec 'hermes' do |hermes|
-    puts 'hippy subspec \'hermes\' read begin'
-    hermes.source_files = "hermesforios/ios/destroot/include/**/*.h"
-    hermes.header_mappings_dir = "hermesforios/ios/destroot/include"
+  # TODO(charleeshen): build hermes with no rtti
+  if js_engine == "hermes"
+    s.subspec 'hermes' do |hermes|
+      puts 'hippy subspec \'hermes\' read begin'
+      hermes.source_files = "hermesforios/ios/destroot/include/**/*.h"
+      hermes.header_mappings_dir = "hermesforios/ios/destroot/include"
 
-    hermes.ios.vendored_frameworks = "hermesforios/ios/destroot/Library/Frameworks/universal/hermes.xcframework"
-    hermes.osx.vendored_frameworks = "hermesforios/ios/destroot/Library/Frameworks/macosx/hermes.framework"
-    puts 'hippy subspec \'hermes\' read end'
+      hermes.ios.vendored_frameworks = "hermesforios/ios/destroot/Library/Frameworks/universal/hermes.xcframework"
+      hermes.osx.vendored_frameworks = "hermesforios/ios/destroot/Library/Frameworks/macosx/hermes.framework"
+      puts 'hippy subspec \'hermes\' read end'
+    end
   end
-  # end
 
 end
