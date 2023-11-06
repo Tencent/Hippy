@@ -22,6 +22,6 @@
 
 #import "HippyViewManager.h"
 
-@interface NativeRenderImageViewManager : HippyViewManager
+@interface HippyImageViewManager : HippyViewManager
 
 @end
