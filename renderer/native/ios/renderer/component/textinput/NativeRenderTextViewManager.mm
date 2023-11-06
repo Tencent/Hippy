@@ -170,6 +170,7 @@ HIPPY_REMAP_VIEW_PROPERTY(selectionColor, tintColor, UIColor)
 HIPPY_EXPORT_VIEW_PROPERTY(selectTextOnFocus, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(selection, NativeRenderTextSelection)
 HIPPY_EXPORT_VIEW_PROPERTY(text, NSString)
+HIPPY_REMAP_VIEW_PROPERTY(caretColor, textView.caretColor, UIColor)
 
 HIPPY_CUSTOM_SHADOW_PROPERTY(fontSize, NSNumber, NativeRenderObjectTextView) {
     view.font = [HippyFont updateFont:view.font withSize:json];
