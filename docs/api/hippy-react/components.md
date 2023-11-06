@@ -175,7 +175,6 @@ import icon from './qb_icon_new.png';
 
 | 参数                  | 描述                                                         | 类型                                                         | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | -------- |
-| animated              | 弹出时是否需要带动画                                                            | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | animationType         | 动画效果                                                            | `enum (none, slide, fade, slide_fade)` | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | supportedOrientations | 支持屏幕翻转方向                                                            | `enum (portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[]` | `iOS`    |
 | immersionStatusBar    | 是否是沉浸式状态栏。`default: false`                                        | `boolean`                                                    | `Android、Voltron`    |
