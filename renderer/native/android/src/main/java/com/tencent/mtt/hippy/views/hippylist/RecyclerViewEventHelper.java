@@ -88,7 +88,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         };
     }
 
-    void notifyInitialListReady() {
+    protected void notifyInitialListReady() {
         if (canNotifyInit()) {
             isInitialListReadyNotified = true;
             viewTreeObserver.removeOnPreDrawListener(preDrawListener);
