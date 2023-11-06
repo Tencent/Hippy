@@ -20,9 +20,10 @@
  * limitations under the License.
  */
 
-#import "NativeRenderAnimatedImage.h"
+#import "HippyAnimatedImage.h"
 #import <ImageIO/ImageIO.h>
 #import <MobileCoreServices/MobileCoreServices.h>
+#import "HippyWeakProxy.h"
 
 // From vm_param.h, define for iOS 8.0 or higher to build on device.
 #ifndef BYTE_SIZE
@@ -36,24 +37,24 @@
 const NSTimeInterval kAnimatedImageDelayTimeIntervalMinimum = 0.02;
 
 // An animated image's data size (dimensions * frameCount) category; its value is the max allowed memory (in MB).
-// E.g.: A 100x200px GIF with 30 frames is ~2.3MB in our pixel format and would fall into the `NativeRenderAnimatedImageDataSizeCategoryAll` category.
-typedef NS_ENUM(NSUInteger, NativeRenderAnimatedImageDataSizeCategory) {
-    NativeRenderAnimatedImageDataSizeCategoryAll = 10,  // All frames permanently in memory (be nice to the CPU)
-    NativeRenderAnimatedImageDataSizeCategoryDefault
+// E.g.: A 100x200px GIF with 30 frames is ~2.3MB in our pixel format and would fall into the `HippyAnimatedImageDataSizeCategoryAll` category.
+typedef NS_ENUM(NSUInteger, HippyAnimatedImageDataSizeCategory) {
+    HippyAnimatedImageDataSizeCategoryAll = 10,  // All frames permanently in memory (be nice to the CPU)
+    HippyAnimatedImageDataSizeCategoryDefault
     = 75,  // A frame cache of default size in memory (usually real-time performance and keeping low memory profile)
-    NativeRenderAnimatedImageDataSizeCategoryOnDemand = 250,  // Only keep one frame at the time in memory (easier on memory, slowest performance)
-    NativeRenderAnimatedImageDataSizeCategoryUnsupported      // Even for one frame too large, computer says no.
+    HippyAnimatedImageDataSizeCategoryOnDemand = 250,  // Only keep one frame at the time in memory (easier on memory, slowest performance)
+    HippyAnimatedImageDataSizeCategoryUnsupported      // Even for one frame too large, computer says no.
 };
 
-typedef NS_ENUM(NSUInteger, NativeRenderAnimatedImageFrameCacheSize) {
-    NativeRenderAnimatedImageFrameCacheSizeNoLimit = 0,    // 0 means no specific limit
-    NativeRenderAnimatedImageFrameCacheSizeLowMemory = 1,  // The minimum frame cache size; this will produce frames on-demand.
-    NativeRenderAnimatedImageFrameCacheSizeGrowAfterMemoryWarning
+typedef NS_ENUM(NSUInteger, HippyAnimatedImageFrameCacheSize) {
+    HippyAnimatedImageFrameCacheSizeNoLimit = 0,    // 0 means no specific limit
+    HippyAnimatedImageFrameCacheSizeLowMemory = 1,  // The minimum frame cache size; this will produce frames on-demand.
+    HippyAnimatedImageFrameCacheSizeGrowAfterMemoryWarning
     = 2,  // If we can produce the frames faster than we consume, one frame ahead will already result in a stutter-free playback.
-    NativeRenderAnimatedImageFrameCacheSizeDefault = 5  // Build up a comfy buffer window to cope with CPU hiccups etc.
+    HippyAnimatedImageFrameCacheSizeDefault = 5  // Build up a comfy buffer window to cope with CPU hiccups etc.
 };
 
-@interface NativeRenderAnimatedImage ()
+@interface HippyAnimatedImage ()
 @property (nonatomic, assign, readonly)
     NSUInteger frameCacheSizeOptimal;  // The optimal number of frames to cache based on image size & number of frames; never changes
 @property (nonatomic, assign, readonly, getter=isPredrawingEnabled) BOOL predrawingEnabled;  // Enables predrawing of images to improve performance.
@@ -71,8 +72,8 @@ typedef NS_ENUM(NSUInteger, NativeRenderAnimatedImageFrameCacheSize) {
 
 // The weak proxy is used to break retain cycles with delayed actions from memory warnings.
 // We are lying about the actual type here to gain static type checking and eliminate casts.
-// The actual type of the object is `NativeRenderWeakProxy`.
-@property (nonatomic, strong, readonly) NativeRenderAnimatedImage *weakProxy;
+// The actual type of the object is `HippyWeakProxy`.
+@property (nonatomic, strong, readonly) HippyAnimatedImage *weakProxy;
 @property (nonatomic, strong) id<HippyImageProviderProtocol> imageProvider;
 
 @end
@@ -80,7 +81,7 @@ typedef NS_ENUM(NSUInteger, NativeRenderAnimatedImageFrameCacheSize) {
 // For custom dispatching of memory warnings to avoid deallocation races since NSNotificationCenter doesn't retain objects it is notifying.
 static NSHashTable *allAnimatedImagesWeak;
 
-@implementation NativeRenderAnimatedImage
+@implementation HippyAnimatedImage
 
 #pragma mark - Accessors
 #pragma mark Public
@@ -90,11 +91,11 @@ static NSHashTable *allAnimatedImagesWeak;
     NSUInteger frameCacheSizeCurrent = self.frameCacheSizeOptimal;
 
     // If set, respect the caps.
-    if (self.frameCacheSizeMax > NativeRenderAnimatedImageFrameCacheSizeNoLimit) {
+    if (self.frameCacheSizeMax > HippyAnimatedImageFrameCacheSizeNoLimit) {
         frameCacheSizeCurrent = MIN(frameCacheSizeCurrent, self.frameCacheSizeMax);
     }
 
-    if (self.frameCacheSizeMaxInternal > NativeRenderAnimatedImageFrameCacheSizeNoLimit) {
+    if (self.frameCacheSizeMaxInternal > HippyAnimatedImageFrameCacheSizeNoLimit) {
         frameCacheSizeCurrent = MIN(frameCacheSizeCurrent, self.frameCacheSizeMaxInternal);
     }
 
@@ -134,7 +135,7 @@ static NSHashTable *allAnimatedImagesWeak;
 #pragma mark - Life Cycle
 
 + (void)initialize {
-    if (self == [NativeRenderAnimatedImage class]) {
+    if (self == [HippyAnimatedImage class]) {
         // UIKit memory warning notification handler shared by all of the instances
         allAnimatedImagesWeak = [NSHashTable weakObjectsHashTable];
 
@@ -144,7 +145,7 @@ static NSHashTable *allAnimatedImagesWeak;
                                                           // the main run loop, and we don't lock on allAnimatedImagesWeak
                                                           NSAssert([NSThread isMainThread], @"Received memory warning on non-main thread");
                                                           // Get a strong reference to all of the images. If an instance is returned in this array, it
-                                                          // is still live and has not entered dealloc. Note that NativeRenderAnimatedImages can be created
+                                                          // is still live and has not entered dealloc. Note that HippyAnimatedImages can be created
                                                           // on any thread, so the hash table must be locked.
                                                           NSArray *images = nil;
                                                           @synchronized(allAnimatedImagesWeak) {
@@ -157,10 +158,10 @@ static NSHashTable *allAnimatedImagesWeak;
 }
 
 - (instancetype)init {
-    NativeRenderAnimatedImage *animatedImage = [self initWithAnimatedGIFData:nil];
+    HippyAnimatedImage *animatedImage = [self initWithAnimatedGIFData:nil];
     if (!animatedImage) {
         RAILog(RAILogLevelError,
-            @"Use `-initWithAnimatedGIFData:` and supply the animated GIF data as an argument to initialize an object of type `NativeRenderAnimatedImage`.");
+            @"Use `-initWithAnimatedGIFData:` and supply the animated GIF data as an argument to initialize an object of type `HippyAnimatedImage`.");
     }
     return animatedImage;
 }
@@ -269,16 +270,16 @@ static NSHashTable *allAnimatedImagesWeak;
             // It's only dependent on the image size & number of frames and never changes.
             CGFloat animatedImageDataSize
                 = CGImageGetBytesPerRow(self.posterImage.CGImage) * self.size.height * (self.frameCount - skippedFrameCount) / MEGABYTE;
-            if (animatedImageDataSize <= NativeRenderAnimatedImageDataSizeCategoryAll) {
+            if (animatedImageDataSize <= HippyAnimatedImageDataSizeCategoryAll) {
                 _frameCacheSizeOptimal = self.frameCount;
-            } else if (animatedImageDataSize <= NativeRenderAnimatedImageDataSizeCategoryDefault) {
+            } else if (animatedImageDataSize <= HippyAnimatedImageDataSizeCategoryDefault) {
                 // This value doesn't depend on device memory much because if we're not keeping all frames in memory we will always be decoding 1
                 // frame up ahead per 1 frame that gets played and at this point we might as well just keep a small buffer just large enough to keep
                 // from running out of frames.
-                _frameCacheSizeOptimal = NativeRenderAnimatedImageFrameCacheSizeDefault;
+                _frameCacheSizeOptimal = HippyAnimatedImageFrameCacheSizeDefault;
             } else {
                 // The predicted size exceeds the limits to build up a cache and we go into low memory mode from the beginning.
-                _frameCacheSizeOptimal = NativeRenderAnimatedImageFrameCacheSizeLowMemory;
+                _frameCacheSizeOptimal = HippyAnimatedImageFrameCacheSizeLowMemory;
             }
         } else {
             // Use the provided value.
@@ -291,10 +292,10 @@ static NSHashTable *allAnimatedImagesWeak;
         _allFramesIndexSet = [[NSIndexSet alloc] initWithIndexesInRange:NSMakeRange(0, self.frameCount)];
 
         // See the property declarations for descriptions.
-        _weakProxy = (id)[NativeRenderWeakProxy weakProxyForObject:self];
+        _weakProxy = (id)[HippyWeakProxy weakProxyForObject:self];
 
         // Register this instance in the weak table for memory notifications. The NSHashTable will clean up after itself when we're gone.
-        // Note that NativeRenderAnimatedImages can be created on any thread, so the hash table must be locked.
+        // Note that HippyAnimatedImages can be created on any thread, so the hash table must be locked.
         @synchronized(allAnimatedImagesWeak) {
             [allAnimatedImagesWeak addObject:self];
         }
@@ -303,7 +304,7 @@ static NSHashTable *allAnimatedImagesWeak;
 }
 
 + (instancetype)animatedImageWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider {
-    NativeRenderAnimatedImage *animatedImage = [[NativeRenderAnimatedImage alloc] initWithAnimatedImageProvider:imageProvider];
+    HippyAnimatedImage *animatedImage = [[HippyAnimatedImage alloc] initWithAnimatedImageProvider:imageProvider];
     return animatedImage;
 }
 
@@ -452,16 +453,16 @@ static NSHashTable *allAnimatedImagesWeak;
             // It's only dependent on the image size & number of frames and never changes.
             CGFloat animatedImageDataSize
                 = CGImageGetBytesPerRow(self.posterImage.CGImage) * self.size.height * (self.frameCount - skippedFrameCount) / MEGABYTE;
-            if (animatedImageDataSize <= NativeRenderAnimatedImageDataSizeCategoryAll) {
+            if (animatedImageDataSize <= HippyAnimatedImageDataSizeCategoryAll) {
                 _frameCacheSizeOptimal = self.frameCount;
-            } else if (animatedImageDataSize <= NativeRenderAnimatedImageDataSizeCategoryDefault) {
+            } else if (animatedImageDataSize <= HippyAnimatedImageDataSizeCategoryDefault) {
                 // This value doesn't depend on device memory much because if we're not keeping all frames in memory we will always be decoding 1
                 // frame up ahead per 1 frame that gets played and at this point we might as well just keep a small buffer just large enough to keep
                 // from running out of frames.
-                _frameCacheSizeOptimal = NativeRenderAnimatedImageFrameCacheSizeDefault;
+                _frameCacheSizeOptimal = HippyAnimatedImageFrameCacheSizeDefault;
             } else {
                 // The predicted size exceeds the limits to build up a cache and we go into low memory mode from the beginning.
-                _frameCacheSizeOptimal = NativeRenderAnimatedImageFrameCacheSizeLowMemory;
+                _frameCacheSizeOptimal = HippyAnimatedImageFrameCacheSizeLowMemory;
             }
         } else {
             // Use the provided value.
@@ -474,10 +475,10 @@ static NSHashTable *allAnimatedImagesWeak;
         _allFramesIndexSet = [[NSIndexSet alloc] initWithIndexesInRange:NSMakeRange(0, self.frameCount)];
 
         // See the property declarations for descriptions.
-        _weakProxy = (id)[NativeRenderWeakProxy weakProxyForObject:self];
+        _weakProxy = (id)[HippyWeakProxy weakProxyForObject:self];
 
         // Register this instance in the weak table for memory notifications. The NSHashTable will clean up after itself when we're gone.
-        // Note that NativeRenderAnimatedImages can be created on any thread, so the hash table must be locked.
+        // Note that HippyAnimatedImages can be created on any thread, so the hash table must be locked.
         @synchronized(allAnimatedImagesWeak) {
             [allAnimatedImagesWeak addObject:self];
         }
@@ -486,7 +487,7 @@ static NSHashTable *allAnimatedImagesWeak;
 }
 
 + (instancetype)animatedImageWithGIFData:(NSData *)data {
-    NativeRenderAnimatedImage *animatedImage = [[NativeRenderAnimatedImage alloc] initWithAnimatedGIFData:data];
+    HippyAnimatedImage *animatedImage = [[HippyAnimatedImage alloc] initWithAnimatedGIFData:data];
     return animatedImage;
 }
 
@@ -560,7 +561,7 @@ static NSHashTable *allAnimatedImagesWeak;
 
     // Start streaming requested frames in the background into the cache.
     // Avoid capturing self in the block as there's no reason to keep doing work if the animated image went away.
-    NativeRenderAnimatedImage *__weak weakSelf = self;
+    HippyAnimatedImage *__weak weakSelf = self;
     dispatch_async(self.serialQueue, ^{
         // Produce and cache next needed frame.
         void (^frameRangeBlock)(NSRange, BOOL *) = ^(NSRange range, BOOL *stop) {
@@ -627,12 +628,12 @@ static NSHashTable *allAnimatedImagesWeak;
     if ([image isKindOfClass:[UIImage class]]) {
         UIImage *uiImage = (UIImage *)image;
         imageSize = uiImage.size;
-    } else if ([image isKindOfClass:[NativeRenderAnimatedImage class]]) {
-        NativeRenderAnimatedImage *animatedImage = (NativeRenderAnimatedImage *)image;
+    } else if ([image isKindOfClass:[HippyAnimatedImage class]]) {
+        HippyAnimatedImage *animatedImage = (HippyAnimatedImage *)image;
         imageSize = animatedImage.size;
     } else {
         // Bear trap to capture bad images; we have seen crashers cropping up on iOS 7.
-        RAILog(RAILogLevelError, @"`image` isn't of expected types `UIImage` or `NativeRenderAnimatedImage`: %@", image);
+        RAILog(RAILogLevelError, @"`image` isn't of expected types `UIImage` or `HippyAnimatedImage`: %@", image);
     }
 
     return imageSize;
@@ -728,7 +729,7 @@ static NSHashTable *allAnimatedImagesWeak;
 }
 
 - (void)resetFrameCacheSizeMaxInternal {
-    self.frameCacheSizeMaxInternal = NativeRenderAnimatedImageFrameCacheSizeNoLimit;
+    self.frameCacheSizeMaxInternal = HippyAnimatedImageFrameCacheSizeNoLimit;
     RAILog(RAILogLevelDebug, @"Reset frame cache size max (current frame cache size: %lu) for animated image: %@",
         (unsigned long)self.frameCacheSizeCurrent, self);
 }
@@ -740,15 +741,15 @@ static NSHashTable *allAnimatedImagesWeak;
 
     // If we were about to grow larger, but got rapped on our knuckles by the system again, cancel.
     [NSObject cancelPreviousPerformRequestsWithTarget:self.weakProxy selector:@selector(growFrameCacheSizeAfterMemoryWarning:)
-                                               object:@(NativeRenderAnimatedImageFrameCacheSizeGrowAfterMemoryWarning)];
+                                               object:@(HippyAnimatedImageFrameCacheSizeGrowAfterMemoryWarning)];
     [NSObject cancelPreviousPerformRequestsWithTarget:self.weakProxy selector:@selector(resetFrameCacheSizeMaxInternal) object:nil];
 
     // Go down to the minimum and by that implicitly immediately purge from the cache if needed to not get jettisoned by the system and start
     // producing frames on-demand.
     RAILog(RAILogLevelDebug, @"Attempt setting frame cache size max to %lu (previous was %lu) after memory warning #%lu for animated image: %@",
-        (unsigned long)NativeRenderAnimatedImageFrameCacheSizeLowMemory, (unsigned long)self.frameCacheSizeMaxInternal,
+        (unsigned long)HippyAnimatedImageFrameCacheSizeLowMemory, (unsigned long)self.frameCacheSizeMaxInternal,
         (unsigned long)self.memoryWarningCount, self);
-    self.frameCacheSizeMaxInternal = NativeRenderAnimatedImageFrameCacheSizeLowMemory;
+    self.frameCacheSizeMaxInternal = HippyAnimatedImageFrameCacheSizeLowMemory;
 
     // Schedule growing larger again after a while, but cap our attempts to prevent a periodic sawtooth wave (ramps upward and then sharply drops) of
     // memory usage.
@@ -767,7 +768,7 @@ static NSHashTable *allAnimatedImagesWeak;
     const NSTimeInterval kGrowDelay = 2.0;
     if ((self.memoryWarningCount - 1) <= kGrowAttemptsMax) {
         [self.weakProxy performSelector:@selector(growFrameCacheSizeAfterMemoryWarning:)
-                             withObject:@(NativeRenderAnimatedImageFrameCacheSizeGrowAfterMemoryWarning)
+                             withObject:@(HippyAnimatedImageFrameCacheSizeGrowAfterMemoryWarning)
                              afterDelay:kGrowDelay];
     }
 
@@ -870,7 +871,7 @@ static NSHashTable *allAnimatedImagesWeak;
 
 #pragma mark - Logging
 
-@implementation NativeRenderAnimatedImage (Logging)
+@implementation HippyAnimatedImage (Logging)
 
 static void (^_logBlock)(NSString *logString, RAILogLevel logLevel) = nil;
 static RAILogLevel _logLevel;
@@ -888,52 +889,3 @@ static RAILogLevel _logLevel;
 
 @end
 
-#pragma mark - NativeRenderWeakProxy
-
-@interface NativeRenderWeakProxy ()
-
-@property (nonatomic, weak) id target;
-
-@end
-
-@implementation NativeRenderWeakProxy
-
-#pragma mark Life Cycle
-
-// This is the designated creation method of an `NativeRenderWeakProxy` and
-// as a subclass of `NSProxy` it doesn't respond to or need `-init`.
-+ (instancetype)weakProxyForObject:(id)targetObject {
-    NativeRenderWeakProxy *weakProxy = [NativeRenderWeakProxy alloc];
-    weakProxy.target = targetObject;
-    return weakProxy;
-}
-
-#pragma mark Forwarding Messages
-
-- (id)forwardingTargetForSelector:(SEL)selector {
-    // Keep it lightweight: access the ivar directly
-    return _target;
-}
-
-#pragma mark - NSWeakProxy Method Overrides
-#pragma mark Handling Unimplemented Methods
-
-- (void)forwardInvocation:(NSInvocation *)invocation {
-    // Fallback for when target is nil. Don't do anything, just return 0/NULL/nil.
-    // The method signature we've received to get here is just a dummy to keep `doesNotRecognizeSelector:` from firing.
-    // We can't really handle struct return types here because we don't know the length.
-    void *nullPointer = NULL;
-    [invocation setReturnValue:&nullPointer];
-}
-
-- (NSMethodSignature *)methodSignatureForSelector:(SEL)selector {
-    // We only get here if `forwardingTargetForSelector:` returns nil.
-    // In that case, our weak target has been reclaimed. Return a dummy method signature to keep `doesNotRecognizeSelector:` from firing.
-    // We'll emulate the Obj-c messaging nil behavior by setting the return value to nil in `forwardInvocation:`, but we'll assume that the return
-    // value is `sizeof(void *)`. Other libraries handle this situation by making use of a global method signature cache, but that seems heavier than
-    // necessary and has issues as well. See https://www.mikeash.com/pyblog/friday-qa-2010-02-26-futures.html and
-    // https://github.com/steipete/PSTDelegateProxy/issues/1 for examples of using a method signature cache.
-    return [NSObject instanceMethodSignatureForSelector:@selector(init)];
-}
-
-@end

@@ -22,18 +22,18 @@
 
 #import <UIKit/UIKit.h>
 #import "HippyImageProviderProtocol.h"
-#import "NativeRenderAnimatedImageView.h"
+#import "HippyAnimatedImageView.h"
 
 extern const NSTimeInterval kAnimatedImageDelayTimeIntervalMinimum;
 
 //
-//  An `NativeRenderAnimatedImage`'s job is to deliver frames in a highly performant way and works in conjunction with `NativeRenderAnimatedImageView`.
+//  An `HippyAnimatedImage`'s job is to deliver frames in a highly performant way and works in conjunction with `HippyAnimatedImageView`.
 //  It subclasses `NSObject` and not `UIImage` because it's only an "image" in the sense that a sea lion is a lion.
 //  It tries to intelligently choose the frame cache size depending on the image and memory situation with the goal to lower CPU usage for smaller
 //  ones, lower memory usage for larger ones and always deliver frames for high performant play-back. Note: `posterImage`, `size`, `loopCount`,
 //  `delayTimes` and `frameCount` don't change after successful initialization.
 //
-@interface NativeRenderAnimatedImage : NSObject
+@interface HippyAnimatedImage : NSObject
 
 @property (nonatomic, strong, readonly) UIImage *posterImage;  // Guaranteed to be loaded; usually equivalent to `-imageLazilyCachedAtIndex:0`
 @property (nonatomic, assign, readonly) CGSize size;           // The `.posterImage`'s `.size`
@@ -51,7 +51,7 @@ extern const NSTimeInterval kAnimatedImageDelayTimeIntervalMinimum;
 // After an initial loading time, depending on `frameCacheSize`, frames should be available immediately from the cache.
 - (UIImage *)imageLazilyCachedAtIndex:(NSUInteger)index;
 
-// Pass either a `UIImage` or an `NativeRenderAnimatedImage` and get back its size
+// Pass either a `UIImage` or an `HippyAnimatedImage` and get back its size
 + (CGSize)sizeForImage:(id)image;
 
 - (UIImage *)imageAtIndex:(NSUInteger)index;
@@ -62,7 +62,7 @@ extern const NSTimeInterval kAnimatedImageDelayTimeIntervalMinimum;
                             predrawingEnabled:(BOOL)isPredrawingEnabled;
 + (instancetype)animatedImageWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider;
 
-// On success, the initializers return an `NativeRenderAnimatedImage` with all fields initialized, on failure they return `nil` and an error will be logged.
+// On success, the initializers return an `HippyAnimatedImage` with all fields initialized, on failure they return `nil` and an error will be logged.
 - (instancetype)initWithAnimatedGIFData:(NSData *)data;
 // Pass 0 for optimalFrameCacheSize to get the default, predrawing is enabled by default.
 - (instancetype)initWithAnimatedGIFData:(NSData *)data
@@ -84,7 +84,7 @@ typedef NS_ENUM(NSUInteger, RAILogLevel) {
     RAILogLevelVerbose
 };
 
-@interface NativeRenderAnimatedImage (Logging)
+@interface HippyAnimatedImage (Logging)
 
 + (void)setLogBlock:(void (^)(NSString *logString, RAILogLevel logLevel))logBlock logLevel:(RAILogLevel)logLevel;
 + (void)logStringFromBlock:(NSString * (^)(void))stringBlock withLevel:(RAILogLevel)level;
@@ -92,10 +92,5 @@ typedef NS_ENUM(NSUInteger, RAILogLevel) {
 @end
 
 #define RAILog(logLevel, format, ...)
-//[NativeRenderAnimatedImage logStringFromBlock:^NSString *{ return [NSString stringWithFormat:(format), ## __VA_ARGS__]; } withLevel:(logLevel)]
+//[HippyAnimatedImage logStringFromBlock:^NSString *{ return [NSString stringWithFormat:(format), ## __VA_ARGS__]; } withLevel:(logLevel)]
 
-@interface NativeRenderWeakProxy : NSProxy
-
-+ (instancetype)weakProxyForObject:(id)targetObject;
-
-@end
