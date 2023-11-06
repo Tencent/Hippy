@@ -61,9 +61,9 @@
         _presentationBlock([modalHostView hippyViewController], viewController, animated, completionBlock);
     } else {
         if ([modalHostView.hideStatusBar boolValue]) {
-            viewController.modalPresentationCapturesStatusBarAppearance = YES;
             viewController.hideStatusBar = [modalHostView hideStatusBar];
         }
+        viewController.modalPresentationCapturesStatusBarAppearance = YES;
         [[modalHostView hippyViewController] presentViewController:viewController animated:animated completion:completionBlock];
     }
 }
