@@ -129,7 +129,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : coder)
         [_delegate presentModalHostView:self withViewController:_modalViewController animated:[self hasAnimationType]];
         _isPresented = YES;
         originStyle = _modalViewController.preferredStatusBarStyle;
-        UIStatusBarStyle theStyle = self.darkStatusBarText ? UIStatusBarStyleDefault : UIStatusBarStyleLightContent;
+        UIStatusBarStyle theStyle;
+        if (@available(iOS 13.0, *)) {
+            theStyle = self.darkStatusBarText ? UIStatusBarStyleDarkContent : UIStatusBarStyleLightContent;
+        } else {
+            theStyle = self.darkStatusBarText ? UIStatusBarStyleDefault : UIStatusBarStyleLightContent;
+        }
         [_modalViewController setPreferredStatusBarStyle:theStyle];
     }
 }
