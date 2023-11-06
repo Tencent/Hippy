@@ -35,7 +35,7 @@ Pod::Spec.new do |s|
   s.homepage         = 'https://hippyjs.org'
   s.license          = { :type => 'Apache2', :file => 'LICENSE' }
   s.author           = 'OpenHippy Team'
-  s.source           = {:git => 'https://github.com/Tencent/Hippy.git', :tag => s.version}
+  s.source           = {:git => 'https://github.com/ilikethese/Hippy.git', :commit => "8737197cb82a6331945cc06c85d1a00ea9948712"}
   s.platform = :ios
   s.ios.deployment_target = '11.0'
   s.module_map = false; # hippy3暂未支持module
