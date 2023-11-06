@@ -1360,7 +1360,8 @@ void* V8Ctx::GetObjectExternalData(const std::shared_ptr<CtxValue>& object) {
   return handle_object->GetInternalField(kExternalIndex).As<v8::External>()->Value();
 }
 
-std::shared_ptr<CtxValue> V8Ctx::DefineProxy(const std::unique_ptr<FunctionWrapper>& constructor_wrapper) {
+std::shared_ptr<CtxValue> V8Ctx::DefineProxy(const std::unique_ptr<FunctionWrapper>& constructor_wrapper,
+                                             std::vector<std::string> properties) {
   v8::HandleScope handle_scope(isolate_);
   auto context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);

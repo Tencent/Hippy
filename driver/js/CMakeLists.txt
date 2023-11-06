@@ -117,9 +117,8 @@ elseif ("${JS_ENGINE}" STREQUAL "JSC")
   target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_JSC")
 elseif ("${JS_ENGINE}" STREQUAL "HERMES")
   #TODO(charleeshen): Move to HIP
-  # InfraPackage_Add(HERMES LOCAL "${PROJECT_ROOT_DIR}/hermes/")
-  include(${PROJECT_ROOT_DIR}/hermes/hermes.cmake)
-  target_link_libraries(${PROJECT_NAME} PUBLIC hermes jsi)
+  add_subdirectory(${PROJECT_ROOT_DIR}/hermes "${CMAKE_BINARY_DIR}/infa_packages/hermes")
+  target_link_libraries(${PROJECT_NAME} PUBLIC hermes)
   target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_HERMES")
 endif ()
 # endregion
@@ -199,7 +198,14 @@ elseif("${JS_ENGINE}" STREQUAL "HERMES")
         src/napi/hermes/hermes_ctx_value.cc
         src/napi/hermes/hermes_try_catch.cc
         src/vm/hermes/hermes_vm.cc
-        src/vm/hermes/native_source_code_hermes.cc)
+  if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Android")
+    list(APPEND SOURCE_SET src/vm/hermes/native_source_code_hermes_android.cc)
+  elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "iOS")
+    list(APPEND SOURCE_SET src/vm/hermes/native_source_code_hermes_ios.cc)
+  else()
+    message(FATAL_ERROR
+        "Unsupported system ${CMAKE_SYSTEM_NAME} by hermes engine")
+  endif()
 endif ()
 set(SOURCE_SET_STANDALONE
         src/modules/console_module.cc

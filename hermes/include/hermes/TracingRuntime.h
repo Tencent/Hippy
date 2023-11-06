@@ -75,11 +75,11 @@ class TracingRuntime : public jsi::RuntimeDecorator<jsi::Runtime> {
       override;
 
   void setPropertyValue(
-      jsi::Object &obj,
+      const jsi::Object &obj,
       const jsi::String &name,
       const jsi::Value &value) override;
   void setPropertyValue(
-      jsi::Object &obj,
+      const jsi::Object &obj,
       const jsi::PropNameID &name,
       const jsi::Value &value) override;
 
@@ -87,9 +87,11 @@ class TracingRuntime : public jsi::RuntimeDecorator<jsi::Runtime> {
 
   jsi::WeakObject createWeakObject(const jsi::Object &o) override;
 
-  jsi::Value lockWeakObject(jsi::WeakObject &wo) override;
+  jsi::Value lockWeakObject(const jsi::WeakObject &wo) override;
 
   jsi::Array createArray(size_t length) override;
+  jsi::ArrayBuffer createArrayBuffer(
+      std::shared_ptr<jsi::MutableBuffer> buffer) override;
 
   size_t size(const jsi::Array &arr) override;
   size_t size(const jsi::ArrayBuffer &buf) override;
@@ -98,8 +100,10 @@ class TracingRuntime : public jsi::RuntimeDecorator<jsi::Runtime> {
 
   jsi::Value getValueAtIndex(const jsi::Array &arr, size_t i) override;
 
-  void setValueAtIndexImpl(jsi::Array &arr, size_t i, const jsi::Value &value)
-      override;
+  void setValueAtIndexImpl(
+      const jsi::Array &arr,
+      size_t i,
+      const jsi::Value &value) override;
 
   jsi::Function createFunctionFromHostFunction(
       const jsi::PropNameID &name,
@@ -149,22 +153,6 @@ class TracingRuntime : public jsi::RuntimeDecorator<jsi::Runtime> {
       size_t count);
 
   SynthTrace::TimeSinceStart getTimeSinceStart() const;
-
-  void insertHostForwarder(const std::vector<const char *> &propertyPath);
-
-  jsi::Function *saveFunction(const std::vector<const char *> &propertyChain);
-
-  void setUpWeakRef();
-
-  void setupDate();
-
-  // This function will traverse the properties defined in propertyPath,
-  // starting from the global object in the given runtime. This function can
-  // optionally skip the last \p skipLastAmt of properties in the given path.
-  static jsi::Object walkPropertyPath(
-      jsi::Runtime &runtime,
-      const std::vector<const char *> &propertyPath,
-      size_t skipLastAmt = 0);
 
   std::unique_ptr<jsi::Runtime> runtime_;
   SynthTrace trace_;

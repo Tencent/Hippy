@@ -38,11 +38,9 @@ class ThreadSafeRuntime;
 
 namespace hermes {
 
-#ifdef HERMES_ENABLE_DEBUGGER
 namespace debugger {
 class Debugger;
 }
-#endif
 
 class HermesRuntimeImpl;
 
@@ -166,9 +164,10 @@ class HERMES_EXPORT HermesRuntime : public jsi::Runtime {
   void dumpOpcodeStats(std::ostream &os) const;
 #endif
 
-#ifdef HERMES_ENABLE_DEBUGGER
   /// \return a reference to the Debugger for this Runtime.
   debugger::Debugger &getDebugger();
+
+#ifdef HERMES_ENABLE_DEBUGGER
 
   struct DebugFlags {
     // Looking for the .lazy flag? It's no longer necessary.
@@ -189,12 +188,20 @@ class HERMES_EXPORT HermesRuntime : public jsi::Runtime {
   /// Unregister this runtime for sampling profiler.
   void unregisterForProfiling();
 
+  /// Define methods to interrupt JS execution and set time limits.
+  /// All JS compiled to bytecode via prepareJS, or evaluateJS, will support
+  /// interruption and time limit monitoring if the runtime is configured with
+  /// AsyncBreakCheckInEval. If JS prepared in other ways is executed, care must
+  /// be taken to ensure that it is compiled in a mode that supports it (i.e.,
+  /// the emitted code contains async break checks).
+
+  /// Asynchronously terminates the current execution. This can be called on
+  /// any thread.
+  void asyncTriggerTimeout();
+
   /// Register this runtime for execution time limit monitoring, with a time
   /// limit of \p timeoutInMs milliseconds.
-  /// All JS compiled to bytecode via prepareJS, or evaluateJS, will support the
-  /// time limit monitoring.  If JS prepared in other ways is executed, care
-  /// must be taken to ensure that it is compiled in a mode that supports the
-  /// monitoring (i.e., the emitted code contains async break checks).
+  /// See compilation notes above.
   void watchTimeLimit(uint32_t timeoutInMs);
   /// Unregister this runtime for execution time limit monitoring.
   void unwatchTimeLimit();
@@ -216,7 +223,7 @@ class HERMES_EXPORT HermesRuntime : public jsi::Runtime {
   friend class HermesRuntimeImpl;
 
   friend struct ::HermesTestHelper;
-  size_t rootsListLength() const;
+  size_t rootsListLengthForTests() const;
 
   // Do not add any members here.  This ensures that there are no
   // object size inconsistencies.  All data should be in the impl

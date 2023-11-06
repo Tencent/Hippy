@@ -260,7 +260,11 @@ function generateCpp(platform, buildDirPath, buildFileName) {
 
     code += CodePieces[platform].piece2;
 
-    const targetPath = `${buildDirPath}/native_source_code_${buildFileName}.cc`;
+    let targetPath = `${buildDirPath}/native_source_code_${buildFileName}.cc`;
+    if (buildFileName == "hermes") {
+      targetPath = `${buildDirPath}/native_source_code_${buildFileName}_${platform}.cc`;
+    }
+
     fs.writeFile(targetPath, code, (err) => {
       if (err) {
         /* eslint-disable-next-line no-console */
@@ -277,4 +281,5 @@ function generateCpp(platform, buildDirPath, buildFileName) {
 generateCpp('ios', getAbsolutePath('../../../driver/js/src/vm/jsc/'), "ios");
 generateCpp('android', getAbsolutePath('../../../driver/js/src/vm/v8/'), "android");
 generateCpp('flutter', getAbsolutePath('../../../framework/voltron/core/src/bridge/'), "flutter");
+generateCpp('ios', getAbsolutePath('../../../driver/js/src/vm/hermes/'), "hermes");
 generateCpp('android', getAbsolutePath('../../../driver/js/src/vm/hermes/'), "hermes");

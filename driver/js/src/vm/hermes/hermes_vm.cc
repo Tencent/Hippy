@@ -66,7 +66,7 @@ static bool JsiValueToHippyValue(Runtime& runtime, const Value& value, HippyValu
     auto object = value.asObject(runtime);
     if (object.isArray(runtime)) {
       auto jsi_array = object.asArray(runtime);
-      HippyValue::DomValueArrayType hippy_array;
+      HippyValue::HippyValueArrayType hippy_array;
       for (size_t i = 0; i < jsi_array.size(runtime); i++) {
         HippyValue val;
         auto ret = JsiValueToHippyValue(runtime, jsi_array.getValueAtIndex(runtime, i), val);

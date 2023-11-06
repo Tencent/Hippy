@@ -31,6 +31,10 @@ class FBJSRuntime;
 namespace facebook {
 namespace jsi {
 
+/// Base class for buffers of data or bytecode that need to be passed to the
+/// runtime. The buffer is expected to be fully immutable, so the result of
+/// size(), data(), and the contents of the pointer returned by data() must not
+/// change after construction.
 class JSI_EXPORT Buffer {
  public:
   virtual ~Buffer();
@@ -50,6 +54,18 @@ class JSI_EXPORT StringBuffer : public Buffer {
 
  private:
   std::string s_;
+};
+
+/// Base class for buffers of data that need to be passed to the runtime. The
+/// result of size() and data() must not change after construction. However, the
+/// region pointed to by data() may be modified by the user or the runtime. The
+/// user must ensure that access to the contents of the buffer is properly
+/// synchronised.
+class JSI_EXPORT MutableBuffer {
+ public:
+  virtual ~MutableBuffer();
+  virtual size_t size() const = 0;
+  virtual uint8_t* data() = 0;
 };
 
 /// PreparedJavaScript is a base class representing JavaScript which is in a
@@ -320,10 +336,12 @@ class JSI_EXPORT Runtime {
   virtual Value getProperty(const Object&, const String& name) = 0;
   virtual bool hasProperty(const Object&, const PropNameID& name) = 0;
   virtual bool hasProperty(const Object&, const String& name) = 0;
+  virtual void setPropertyValue(
+      const Object&,
+      const PropNameID& name,
+      const Value& value) = 0;
   virtual void
-  setPropertyValue(Object&, const PropNameID& name, const Value& value) = 0;
-  virtual void
-  setPropertyValue(Object&, const String& name, const Value& value) = 0;
+  setPropertyValue(const Object&, const String& name, const Value& value) = 0;
 
   virtual bool isArray(const Object&) const = 0;
   virtual bool isArrayBuffer(const Object&) const = 0;
@@ -333,14 +351,17 @@ class JSI_EXPORT Runtime {
   virtual Array getPropertyNames(const Object&) = 0;
 
   virtual WeakObject createWeakObject(const Object&) = 0;
-  virtual Value lockWeakObject(WeakObject&) = 0;
+  virtual Value lockWeakObject(const WeakObject&) = 0;
 
   virtual Array createArray(size_t length) = 0;
+  virtual ArrayBuffer createArrayBuffer(
+      std::shared_ptr<MutableBuffer> buffer) = 0;
   virtual size_t size(const Array&) = 0;
   virtual size_t size(const ArrayBuffer&) = 0;
   virtual uint8_t* data(const ArrayBuffer&) = 0;
   virtual Value getValueAtIndex(const Array&, size_t i) = 0;
-  virtual void setValueAtIndexImpl(Array&, size_t i, const Value& value) = 0;
+  virtual void
+  setValueAtIndexImpl(const Array&, size_t i, const Value& value) = 0;
 
   virtual Function createFunctionFromHostFunction(
       const PropNameID& name,
@@ -648,7 +669,7 @@ class JSI_EXPORT Object : public Pointer {
   }
 
   /// \return the result of `this instanceOf ctor` in JS.
-  bool instanceOf(Runtime& rt, const Function& ctor) {
+  bool instanceOf(Runtime& rt, const Function& ctor) const {
     return rt.instanceOf(*this, ctor);
   }
 
@@ -683,19 +704,19 @@ class JSI_EXPORT Object : public Pointer {
   /// used to make one: nullptr_t, bool, double, int, const char*,
   /// String, or Object.
   template <typename T>
-  void setProperty(Runtime& runtime, const char* name, T&& value);
+  void setProperty(Runtime& runtime, const char* name, T&& value) const;
 
   /// Sets the property value from a Value or anything which can be
   /// used to make one: nullptr_t, bool, double, int, const char*,
   /// String, or Object.
   template <typename T>
-  void setProperty(Runtime& runtime, const String& name, T&& value);
+  void setProperty(Runtime& runtime, const String& name, T&& value) const;
 
   /// Sets the property value from a Value or anything which can be
   /// used to make one: nullptr_t, bool, double, int, const char*,
   /// String, or Object.
   template <typename T>
-  void setProperty(Runtime& runtime, const PropNameID& name, T&& value);
+  void setProperty(Runtime& runtime, const PropNameID& name, T&& value) const;
 
   /// \return true iff JS \c Array.isArray() would return \c true.  If
   /// so, then \c getArray() will succeed.
@@ -814,15 +835,17 @@ class JSI_EXPORT Object : public Pointer {
   Array getPropertyNames(Runtime& runtime) const;
 
  protected:
-  void
-  setPropertyValue(Runtime& runtime, const String& name, const Value& value) {
+  void setPropertyValue(
+      Runtime& runtime,
+      const String& name,
+      const Value& value) const {
     return runtime.setPropertyValue(*this, name, value);
   }
 
   void setPropertyValue(
       Runtime& runtime,
       const PropNameID& name,
-      const Value& value) {
+      const Value& value) const {
     return runtime.setPropertyValue(*this, name, value);
   }
 
@@ -848,7 +871,7 @@ class JSI_EXPORT WeakObject : public Pointer {
   /// otherwise returns \c undefined.  Note that this method has nothing to do
   /// with threads or concurrency.  The name is based on std::weak_ptr::lock()
   /// which serves a similar purpose.
-  Value lock(Runtime& runtime);
+  Value lock(Runtime& runtime) const;
 
   friend class Runtime;
 };
@@ -884,7 +907,7 @@ class JSI_EXPORT Array : public Object {
   /// value behaves as with Object::setProperty().  If \c i is out of
   /// range [ 0..\c length ] throws a JSIException.
   template <typename T>
-  void setValueAtIndex(Runtime& runtime, size_t i, T&& value);
+  void setValueAtIndex(Runtime& runtime, size_t i, T&& value) const;
 
   /// There is no current API for changing the size of an array once
   /// created.  We'll probably need that eventually.
@@ -901,8 +924,10 @@ class JSI_EXPORT Array : public Object {
  private:
   friend class Object;
   friend class Value;
+  friend class Runtime;
 
-  void setValueAtIndexImpl(Runtime& runtime, size_t i, const Value& value) {
+  void setValueAtIndexImpl(Runtime& runtime, size_t i, const Value& value)
+      const {
     return runtime.setValueAtIndexImpl(*this, i, value);
   }
 
@@ -915,7 +940,11 @@ class JSI_EXPORT ArrayBuffer : public Object {
   ArrayBuffer(ArrayBuffer&&) = default;
   ArrayBuffer& operator=(ArrayBuffer&&) = default;
 
-  /// \return the size of the ArrayBuffer, according to its byteLength property.
+  ArrayBuffer(Runtime& runtime, std::shared_ptr<MutableBuffer> buffer)
+      : ArrayBuffer(runtime.createArrayBuffer(std::move(buffer))) {}
+
+  /// \return the size of the ArrayBuffer storage. This is not affected by
+  /// overriding the byteLength property.
   /// (C++ naming convention)
   size_t size(Runtime& runtime) const {
     return runtime.size(*this);
@@ -925,13 +954,14 @@ class JSI_EXPORT ArrayBuffer : public Object {
     return runtime.size(*this);
   }
 
-  uint8_t* data(Runtime& runtime) {
+  uint8_t* data(Runtime& runtime) const {
     return runtime.data(*this);
   }
 
  private:
   friend class Object;
   friend class Value;
+  friend class Runtime;
 
   ArrayBuffer(Runtime::PointerValue* value) : Object(value) {}
 };
@@ -1040,6 +1070,7 @@ class JSI_EXPORT Function : public Object {
  private:
   friend class Object;
   friend class Value;
+  friend class Runtime;
 
   Function(Runtime::PointerValue* value) : Object(value) {}
 };
@@ -1071,14 +1102,14 @@ class JSI_EXPORT Value {
   }
 
   /// Moves a Symbol, String, or Object rvalue into a new JS value.
-  template <typename T>
+  template <
+      typename T,
+      typename = std::enable_if_t<
+          std::is_base_of<Symbol, T>::value ||
+          std::is_base_of<BigInt, T>::value ||
+          std::is_base_of<String, T>::value ||
+          std::is_base_of<Object, T>::value>>
   /* implicit */ Value(T&& other) : Value(kindOf(other)) {
-    static_assert(
-        std::is_base_of<Symbol, T>::value ||
-            std::is_base_of<BigInt, T>::value ||
-            std::is_base_of<String, T>::value ||
-            std::is_base_of<Object, T>::value,
-        "Value cannot be implicitly move-constructed from this type");
     new (&data_.pointer) T(std::move(other));
   }
 
@@ -1362,7 +1393,7 @@ class JSI_EXPORT Scope {
   explicit Scope(Runtime& rt) : rt_(rt), prv_(rt.pushScope()) {}
   ~Scope() {
     rt_.popScope(prv_);
-  };
+  }
 
   Scope(const Scope&) = delete;
   Scope(Scope&&) = delete;
@@ -1384,8 +1415,8 @@ class JSI_EXPORT Scope {
 /// Base class for jsi exceptions
 class JSI_EXPORT JSIException : public std::exception {
  protected:
-  JSIException(){};
-  JSIException(std::string what) : what_(std::move(what)){};
+  JSIException() {}
+  JSIException(std::string what) : what_(std::move(what)) {}
 
  public:
   JSIException(const JSIException&) = default;
@@ -1426,7 +1457,7 @@ class JSI_EXPORT JSError : public JSIException {
   /// Creates a JSError referring to new \c Error instance capturing current
   /// JavaScript stack. The error message property is set to given \c message.
   JSError(Runtime& rt, const char* message)
-      : JSError(rt, std::string(message)){};
+      : JSError(rt, std::string(message)) {}
 
   /// Creates a JSError referring to a JavaScript Object having message and
   /// stack properties set to provided values.
@@ -1436,6 +1467,11 @@ class JSI_EXPORT JSError : public JSIException {
   /// set to provided message.  This argument order is a bit weird,
   /// but necessary to avoid ambiguity with the above.
   JSError(std::string what, Runtime& rt, Value&& value);
+
+  /// Creates a JSError referring to the provided value, message and stack. This
+  /// constructor does not take a Runtime parameter, and therefore cannot result
+  /// in recursively invoking the JSError constructor.
+  JSError(Value&& value, std::string message, std::string stack);
 
   JSError(const JSError&) = default;
 

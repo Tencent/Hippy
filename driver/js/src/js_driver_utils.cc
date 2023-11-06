@@ -74,8 +74,6 @@ using CallbackInfo = hippy::CallbackInfo;
 #ifdef JS_V8
 using V8VM = hippy::V8VM;
 using V8Ctx = hippy::V8Ctx;
-
-constexpr char kWorkerRunnerName[] = "hippy_worker";
 #endif
 
 constexpr char kBridgeName[] = "hippyBridge";
@@ -83,6 +81,7 @@ constexpr char kGlobalKey[] = "global";
 constexpr char kHippyKey[] = "Hippy";
 constexpr char kNativeGlobalKey[] = "__HIPPYNATIVEGLOBAL__";
 constexpr char kCallHostKey[] = "hippyCallNatives";
+constexpr char kWorkerRunnerName[] = "hippy_worker";
 
 #if defined(JS_V8) && defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;

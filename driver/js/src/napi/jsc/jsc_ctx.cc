@@ -240,7 +240,8 @@ static JSValueRef JSObjectGetPropertyCallback(JSContextRef ctx,
   return valueRef;
 }
 
-std::shared_ptr<CtxValue>  JSCCtx::DefineProxy(const std::unique_ptr<FunctionWrapper>& wrapper) {
+std::shared_ptr<CtxValue>  JSCCtx::DefineProxy(const std::unique_ptr<FunctionWrapper>& wrapper,
+                                               std::vector<std::string> properties) {
   JSClassDefinition cls_def = kJSClassDefinitionEmpty;
   cls_def.getProperty = JSObjectGetPropertyCallback;
   auto cls_ref = JSClassCreate(&cls_def);

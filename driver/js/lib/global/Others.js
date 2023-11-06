@@ -1,3 +1,12 @@
+"use strict";
+
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _instanceof(left, right) { if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) { return !!right[Symbol.hasInstance](left); } else { return left instanceof right; } }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _classCallCheck(instance, Constructor) { if (!_instanceof(instance, Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 /*
  * Tencent is pleased to support the open source community by making
  * Hippy available.
@@ -20,19 +29,16 @@
 
 global.__ISHIPPY__ = true;
 global.__GLOBAL__ = {
-  globalEventHandle: {},
+  globalEventHandle: {}
 };
-
-class ErrorEvent {
-  constructor(message, filename, lineno, colno, error) {
-    this.message = message;
-    this.filename = filename;
-    this.lineno = lineno;
-    this.colno = colno;
-    this.error = error;
-  }
-}
-
+var ErrorEvent = /*#__PURE__*/_createClass(function ErrorEvent(message, filename, lineno, colno, error) {
+  _classCallCheck(this, ErrorEvent);
+  this.message = message;
+  this.filename = filename;
+  this.lineno = lineno;
+  this.colno = colno;
+  this.error = error;
+});
 /**
  * Register the Hippy app entry function, the native will trigger an event to execute the function
  * and start the app.
@@ -49,7 +55,7 @@ class ErrorEvent {
 function hippyRegister(appName, entryFunc) {
   // Call the iOS native for rename the context to appName.
   __GLOBAL__.appRegister[appName] = {
-    run: entryFunc,
+    run: entryFunc
   };
 }
 
@@ -65,9 +71,8 @@ function on(eventName, listener) {
   if (typeof eventName !== 'string' || typeof listener !== 'function') {
     throw new TypeError('Hippy.on() only accept a string as event name and a function as listener');
   }
-
-  let eventListeners = __GLOBAL__.globalEventHandle[eventName];
-  if (!(eventListeners instanceof Set)) {
+  var eventListeners = __GLOBAL__.globalEventHandle[eventName];
+  if (!_instanceof(eventListeners, Set)) {
     __GLOBAL__.globalEventHandle[eventName] = new Set();
     eventListeners = __GLOBAL__.globalEventHandle[eventName];
   }
@@ -87,8 +92,8 @@ function off(eventName, listener) {
   if (typeof eventName !== 'string') {
     throw new TypeError('Hippy.off() only accept a string as event name');
   }
-  const eventListeners = __GLOBAL__.globalEventHandle[eventName];
-  if (!(eventListeners instanceof Set)) {
+  var eventListeners = __GLOBAL__.globalEventHandle[eventName];
+  if (!_instanceof(eventListeners, Set)) {
     return null;
   }
   if (listener) {
@@ -105,16 +110,18 @@ function off(eventName, listener) {
  * @param {string} eventName - The event name will be trigger.
  * @param  {any} args - Event callback arguments.
  */
-function emit(eventName, ...args) {
+function emit(eventName) {
+  for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    args[_key - 1] = arguments[_key];
+  }
   if (typeof eventName !== 'string') {
     throw new TypeError('Hippy.emit() only accept a string as event name');
   }
-
-  let isErr = eventName === 'error';
-  let errObj = new Error();
+  var isErr = eventName === 'error';
+  var errObj = new Error();
   if (isErr) {
-    let arr = args[0];
-    if (!(arr instanceof Array)) {
+    var arr = args[0];
+    if (!_instanceof(arr, Array)) {
       throw new TypeError('Hippy.emit() error event, args0 must be array');
     }
     if (arr.length !== 5) {
@@ -125,8 +132,7 @@ function emit(eventName, ...args) {
       Hippy.onerror(arr[0], arr[1], arr[2], arr[3], errObj);
     }
   }
-
-  const eventListeners = __GLOBAL__.globalEventHandle[eventName];
+  var eventListeners = __GLOBAL__.globalEventHandle[eventName];
   if (!eventListeners) {
     if (args[0]) {
       console.error(args[0].toString());
@@ -135,22 +141,25 @@ function emit(eventName, ...args) {
   }
   try {
     if (isErr) {
-      let arr = args[0];
-      let event = new ErrorEvent(arr[0], arr[1], arr[2], arr[3], errObj);
-      eventListeners.forEach(listener => listener(event));
+      var _arr = args[0];
+      var event = new ErrorEvent(_arr[0], _arr[1], _arr[2], _arr[3], errObj);
+      eventListeners.forEach(function (listener) {
+        return listener(event);
+      });
     } else {
-      eventListeners.forEach(listener => listener(...args));
+      eventListeners.forEach(function (listener) {
+        return listener.apply(void 0, args);
+      });
     }
   } catch (err) {
     /* eslint-disable-next-line no-console */
     console.error(err);
   }
 }
-
 Hippy.device = {};
 Hippy.bridge = {};
 Hippy.register = {
-  regist: hippyRegister,
+  regist: hippyRegister
 };
 Hippy.on = on;
 Hippy.off = off;

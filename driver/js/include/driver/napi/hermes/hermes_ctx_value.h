@@ -56,11 +56,11 @@ class HermesCtxValue : public CtxValue {
     UnknowKind,
   };
 
-  explicit HermesCtxValue(Runtime& runtime, const Value& value) : value_(runtime, value), type_(Type::UnknowKind) {}
-  explicit HermesCtxValue(Runtime& runtime, const Symbol& value) : value_(runtime, value), type_(Type::SymbolKind) {}
-  explicit HermesCtxValue(Runtime& runtime, const BigInt& value) : value_(runtime, value), type_(Type::BigIntKind) {}
-  explicit HermesCtxValue(Runtime& runtime, const String& value) : value_(runtime, value), type_(Type::StringKind) {}
-  explicit HermesCtxValue(Runtime& runtime, const Object& value) : value_(runtime, value), type_(Type::ObjectKind) {}
+  HermesCtxValue(Runtime& runtime, const Value& value) : value_(runtime, value), type_(Type::UnknowKind) {}
+  HermesCtxValue(Runtime& runtime, const Symbol& value) : value_(runtime, value), type_(Type::SymbolKind) {}
+  HermesCtxValue(Runtime& runtime, const BigInt& value) : value_(runtime, value), type_(Type::BigIntKind) {}
+  HermesCtxValue(Runtime& runtime, const String& value) : value_(runtime, value), type_(Type::StringKind) {}
+  HermesCtxValue(Runtime& runtime, const Object& value) : value_(runtime, value), type_(Type::ObjectKind) {}
   Value GetValue(const std::unique_ptr<HermesRuntime>& runtime);
 
  private:
