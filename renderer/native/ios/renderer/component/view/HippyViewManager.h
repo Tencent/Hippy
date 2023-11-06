@@ -72,6 +72,7 @@
  * This handles the simple case, where JS and native property names match.
  */
 #define HIPPY_EXPORT_VIEW_PROPERTY(name, type)  \
+    typedef type HippyTypeExistCheck##type;     \
     +(NSArray<NSString *> *)propConfig_##name { \
         return @[@ #type];                      \
     }
@@ -80,6 +81,7 @@
  * This macro maps a named property to an arbitrary key path in the view.
  */
 #define HIPPY_REMAP_VIEW_PROPERTY(name, keyPath, type) \
+    typedef type HippyTypeExistCheck##type;            \
     +(NSArray<NSString *> *)propConfig_##name {        \
         return @[@ #type, @ #keyPath];                 \
     }
@@ -97,6 +99,7 @@
  * This macro is used to map properties to the shadow view, instead of the view.
  */
 #define HIPPY_EXPORT_SHADOW_PROPERTY(name, type)      \
+    typedef type HippyTypeExistCheck##type;           \
     +(NSArray<NSString *> *)propConfigShadow_##name { \
         return @[@ #type];                            \
     }
@@ -105,6 +108,7 @@
  * This macro maps a named property to an arbitrary key path in the shadow view.
  */
 #define HIPPY_REMAP_SHADOW_PROPERTY(name, keyPath, type) \
+    typedef type HippyTypeExistCheck##type;              \
     +(NSArray<NSString *> *)propConfigShadow_##name {    \
         return @[@ #type, @ #keyPath];                   \
     }

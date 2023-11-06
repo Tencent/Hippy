@@ -22,6 +22,7 @@
 
 #import "NativeRenderRefreshWrapperViewManager.h"
 #import "NativeRenderRefreshWrapper.h"
+#import "HippyComponent.h"
 #import "HippyUIManager.h"
 
 @implementation NativeRenderRefreshWrapperViewManager
