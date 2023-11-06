@@ -48,6 +48,14 @@
     }
 }
 
+- (UIColor*)caretColor{
+    return self.tintColor;
+}
+
+- (void)setCaretColor:(UIColor*)color{
+    self.tintColor = color;
+}
+
 - (void)setReturnKeyType:(UIReturnKeyType) returnKeyType{
     [super setReturnKeyType:returnKeyType];
     if([self isFirstResponder]){

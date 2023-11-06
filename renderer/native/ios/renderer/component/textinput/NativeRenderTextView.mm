@@ -55,6 +55,21 @@
     return [super resignFirstResponder];
 }
 
+- (void)setKeyboardType:(UIKeyboardType)keyboardType {
+    [super setKeyboardType:keyboardType];
+
+    if([self isFirstResponder]){
+        [self reloadInputViews];
+    }
+}
+
+- (UIColor*)caretColor{
+    return self.tintColor;
+}
+
+- (void)setCaretColor:(UIColor*)color{
+    self.tintColor = color;
+}
 @end
 
 @interface NativeRenderTextView () <NativeRenderUITextViewResponseDelegate>
