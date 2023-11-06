@@ -31,6 +31,7 @@
 #import "HippyComponentData.h"
 #import "HippyComponentMap.h"
 #import "HippyUIManager.h"
+#import "HippyUIManager+Private.h"
 #import "NativeRenderObjectRootView.h"
 #import "HippyShadowView.h"
 #import "NativeRenderUtils.h"
@@ -46,6 +47,7 @@
 #import "NativeRenderManager.h"
 #include "dom/root_node.h"
 #include "objc/runtime.h"
+#include <unordered_map>
 
 using HippyValue = footstone::value::HippyValue;
 using DomArgument = hippy::dom::DomArgument;
@@ -183,6 +185,12 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     
     std::function<void(int32_t, NSDictionary *)> _rootViewSizeChangedCb;
 }
+
+#if HIPPY_DEBUG
+@property(nonatomic, assign) std::unordered_map<int32_t, std::unordered_map<int32_t, std::shared_ptr<hippy::DomNode>>> domNodesMap;
+- (std::shared_ptr<hippy::DomNode>)domNodeForTag:(int32_t)dom_tag onRootNode:(int32_t)root_tag;
+- (std::vector<std::shared_ptr<hippy::DomNode>>)childrenForNodeTag:(int32_t)tag onRootNode:(int32_t)root_tag;
+#endif
 
 @end
 
@@ -456,12 +464,6 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     for (id<HippyComponent> removedChild in children) {
         [container removeHippySubview:removedChild];
     }
-}
-
-- (UIView *)createViewRecursivelyFromcomponentTag:(NSNumber *)componentTag
-                                    onRootTag:(NSNumber *)rootTag {
-    HippyShadowView *renderObject = [_shadowViewRegistry componentForTag:componentTag onRootTag:rootTag];
-    return [self createViewRecursivelyFromRenderObject:renderObject];
 }
 
 - (UIView *)createViewFromRenderObject:(HippyShadowView *)renderObject {
