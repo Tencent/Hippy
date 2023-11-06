@@ -468,16 +468,16 @@ Pod::Spec.new do |s|
   end
 
   # TODO(charleeshen): move hermes to hip, build hermes with no rtti
-  if js_engine == "hermes"
-    s.subspec 'hermes' do |hermes|
-      puts 'hippy subspec \'hermes\' read begin'
-      hermes.source_files = "hermesforios/ios/destroot/include/**/*.h"
-      hermes.header_mappings_dir = "hermesforios/ios/destroot/include"
+  # if js_engine == "hermes"
+  s.subspec 'hermes' do |hermes|
+    puts 'hippy subspec \'hermes\' read begin'
+    hermes.source_files = "hermesforios/ios/destroot/include/**/*.h"
+    hermes.header_mappings_dir = "hermesforios/ios/destroot/include"
 
-      hermes.ios.vendored_frameworks = "hermesforios/ios/destroot/Library/Frameworks/universal/hermes.xcframework"
-      hermes.osx.vendored_frameworks = "hermesforios/ios/destroot/Library/Frameworks/macosx/hermes.framework"
-      puts 'hippy subspec \'hermes\' read end'
-    end
+    hermes.ios.vendored_frameworks = "hermesforios/ios/destroot/Library/Frameworks/universal/hermes.xcframework"
+    hermes.osx.vendored_frameworks = "hermesforios/ios/destroot/Library/Frameworks/macosx/hermes.framework"
+    puts 'hippy subspec \'hermes\' read end'
   end
+  # end
 
 end
