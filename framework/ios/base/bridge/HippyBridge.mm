@@ -79,7 +79,7 @@ NSString *const HippyReloadNotification = @"HippyReloadNotification";
 NSString *const HippyJavaScriptDidLoadNotification = @"HippyJavaScriptDidLoadNotification";
 NSString *const HippyJavaScriptDidFailToLoadNotification = @"HippyJavaScriptDidFailToLoadNotification";
 NSString *const HippyDidInitializeModuleNotification = @"HippyDidInitializeModuleNotification";
-NSString *const HippySDKVersion = @HIPPY_STR(HIPPY_VERSION);
+NSString *const _HippySDKVersion = @HIPPY_STR(HIPPY_VERSION);
 
 
 static NSString *const HippyNativeGlobalKeyOS = @"OS";
@@ -513,7 +513,7 @@ dispatch_queue_t HippyBridgeQueue() {
     NSDictionary *param = @{@"name": _moduleName,
                             @"id": rootTag,
                             @"params": props ?: @{},
-                            @"version": HippySDKVersion};
+                            @"version": _HippySDKVersion};
     footstone::value::HippyValue value = [param toHippyValue];
     std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
     self.javaScriptExecutor.pScope->LoadInstance(domValue);
@@ -991,7 +991,7 @@ dispatch_queue_t HippyBridgeQueue() {
     [deviceInfo setValue:@"ios" forKey:HippyNativeGlobalKeyOS];
     [deviceInfo setValue:iosVersion forKey:HippyNativeGlobalKeyOSVersion];
     [deviceInfo setValue:deviceModel forKey:HippyNativeGlobalKeyDevice];
-    [deviceInfo setValue:HippySDKVersion forKey:HippyNativeGlobalKeySDKVersion];
+    [deviceInfo setValue:_HippySDKVersion forKey:HippyNativeGlobalKeySDKVersion];
     
     NSString *appVer = [[NSBundle.mainBundle infoDictionary] objectForKey:@"CFBundleShortVersionString"];
     if (appVer) {

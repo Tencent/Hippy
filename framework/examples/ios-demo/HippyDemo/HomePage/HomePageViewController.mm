@@ -45,7 +45,7 @@
     
     self.imageView.image = [UIImage imageFromIconName:@"first_page_logo"];
     
-    self.verLabel.text = [NSString stringWithFormat:@"Ver:%@", HippySDKVersion];
+    self.verLabel.text = [NSString stringWithFormat:@"Ver:%@", _HippySDKVersion];
     
     self.buttonView.layer.shadowColor = [UIColor grayColor].CGColor;
     self.buttonView.layer.shadowOffset = CGSizeMake(0, -1);

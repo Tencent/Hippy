@@ -146,9 +146,12 @@ HIPPY_EXTERN NSStringEncoding HippyGetStringEncodingFromURLResponse(NSURLRespons
 #pragma mark -
 
 /// 工具类
+/// 注意，类名及方法名禁止修改
 @interface HippyUtils : NSObject
 
-/// SDK版本号
+/// HippySDK版本号
+///
+/// 注意方法名禁止修改，外部可能会动态调用，判断Hippy版本号
 + (NSString *)sdkVersion;
 
 @end
