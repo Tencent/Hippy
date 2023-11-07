@@ -163,7 +163,8 @@
         HippyLogWarn(@"Error In ViewPager setPage: pageNumber invalid");
         return;
     }
-
+    // reset time,Avoid the next event not send
+    self._lastScrollDispatchTime = -1;
     _lastPageIndex = pageNumber;
     UIView *theItem = self.viewPagerItems[pageNumber];
     self.targetContentOffsetX = CGRectGetMinX(theItem.frame);
@@ -205,7 +206,6 @@
         } else {
             self.mHasUnsentScrollEvent = true;
         }
-
     }
 
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollViewListener) {
@@ -250,7 +250,7 @@
         self.isScrolling = NO;
     }
 
-    if(!decelerate) {
+    if (!decelerate) {
         [self onScrollIdle];
     }
     if (self.onPageScrollStateChanged) {
@@ -514,21 +514,20 @@
     return false;
 }
 
-- (void)sendOnPageScrollEvent: (NSUInteger)position  positionOffset:(CGFloat) positionOffset{
+- (void)sendOnPageScrollEvent:(NSUInteger)position positionOffset:(CGFloat)positionOffset {
     self.mHasUnsentScrollEvent = false;
     self.onPageScroll(@{
-        @"position": @(position),
-        @"offset": @(positionOffset),
+        @"position" : @(position),
+        @"offset" : @(positionOffset),
     });
 }
 
 - (void)onScrollIdle {
-    //reset on scroll idle
+    // reset on scroll idle
     self._lastScrollDispatchTime = -1;
-    if(self.mHasUnsentScrollEvent) {
+    if (self.mHasUnsentScrollEvent) {
         self.mHasUnsentScrollEvent = false;
         [self sendOnPageScrollEvent:self.onPageScrolledPosition positionOffset:self.onPageScrollPositionOffset];
     }
 }
-
 @end
