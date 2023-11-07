@@ -34,8 +34,8 @@
 #include <objc/message.h>
 
 #include "footstone/string_view_utils.h"
-#include "driver/napi/jsc/jsc_ctx.h"
-#include "driver/napi/jsc/jsc_ctx_value.h"
+#include "driver/napi/js_ctx.h"
+#include "driver/napi/js_ctx_value.h"
 
 using namespace hippy;
 using namespace napi;

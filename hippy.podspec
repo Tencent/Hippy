@@ -186,7 +186,7 @@ Pod::Spec.new do |s|
       driver.exclude_files = [
         'driver/js/include/driver/napi/v8',
         'driver/js/src/napi/v8',
-        'driver/js/include/driver/vm/v8', 
+        'driver/js/include/driver/vm/v8',
         'driver/js/src/vm/v8',
         'driver/js/include/driver/napi/hermes',
         'driver/js/src/napi/hermes',
@@ -196,7 +196,7 @@ Pod::Spec.new do |s|
       driver.exclude_files = [
         'driver/js/include/driver/napi/jsc',
         'driver/js/src/napi/jsc', 
-        'driver/js/include/driver/vm/jsc', 
+        'driver/js/include/driver/vm/jsc',
         'driver/js/src/vm/jsc',
         'driver/js/include/driver/napi/hermes',
         'driver/js/src/napi/hermes',
@@ -206,26 +206,26 @@ Pod::Spec.new do |s|
       driver.exclude_files = [
         'driver/js/include/driver/napi/v8',
         'driver/js/src/napi/v8',
-        'driver/js/include/vm/v8',
+        'driver/js/include/driver/vm/v8',
         'driver/js/src/vm/v8',
         'driver/js/include/driver/napi/jsc',
         'driver/js/src/napi/jsc',
-        'driver/js/include/vm/jsc',
+        'driver/js/include/driver/vm/jsc',
         'driver/js/src/vm/jsc',
         'driver/js/src/vm/hermes/native_source_code_hermes_android.cc']
     else
       driver.exclude_files = [
         'driver/js/include/driver/napi/v8',
         'driver/js/src/napi/v8',
-        'driver/js/include/vm/v8', 
+        'driver/js/include/driver/vm/v8',
         'driver/js/src/vm/v8', 
         'driver/js/include/driver/napi/jsc',
         'driver/js/src/napi/jsc', 
-        'driver/js/include/vm/jsc', 
+        'driver/js/include/driver/vm/jsc',
         'driver/js/src/vm/jsc',
         'driver/js/include/driver/napi/hermes',
         'driver/js/src/napi/hermes',
-        'driver/js/include/vm/hermes',
+        'driver/js/include/driver/vm/hermes',
         'driver/js/src/vm/hermes']
     end
 

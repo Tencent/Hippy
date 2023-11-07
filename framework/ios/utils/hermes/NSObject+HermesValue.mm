@@ -21,7 +21,7 @@
  */
 
 #import "NSObject+HermesValue.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 
 @implementation NSObject (HermesValue)
 

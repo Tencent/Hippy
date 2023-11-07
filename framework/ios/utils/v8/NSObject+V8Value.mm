@@ -21,7 +21,7 @@
  */
 
 #import "NSObject+V8Value.h"
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 
 @implementation NSObject (V8Value)
 

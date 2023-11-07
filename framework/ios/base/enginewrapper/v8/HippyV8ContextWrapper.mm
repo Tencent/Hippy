@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HippyAsserts.h"
+#import "HippyAssert.h"
 #import "HippyLog.h"
 #import "HPDriverStackFrame.h"
 #import "HippyV8ContextWrapper.h"

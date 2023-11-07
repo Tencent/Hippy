@@ -26,8 +26,8 @@
 
 #import "HippyOCTurboModule.h"
 #include <memory>
-#include "driver/napi/jsc/jsc_ctx.h"
-#include "driver/napi/jsc/jsc_ctx_value.h"
+#include "driver/napi/js_ctx.h"
+#include "driver/napi/js_ctx_value.h"
 
 namespace hippy {
 inline namespace driver {
@@ -40,9 +40,6 @@ class HippyTurboModule;
 struct TurboWrapper;
 
 @interface HippyOCTurboModule (Inner)
-
-- (JSValueRef)getTurboHostModule;
-- (void)setTurboHostModule:(JSValueRef)turboHostModule;
 
 - (void)saveTurboWrapper:(std::shared_ptr<hippy::napi::CtxValue>)name
                    turbo:(std::unique_ptr<TurboWrapper>)wrapper;

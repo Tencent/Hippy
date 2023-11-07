@@ -51,7 +51,7 @@
 #include "driver/napi/js_ctx_value.h"
 #include "driver/napi/js_try_catch.h"
 #include "driver/napi/callback_info.h"
-#include "driver/vm/jsc/jsc_vm.h"
+#include "driver/vm/js_vm.h"
 #include "driver/scope.h"
 #include "footstone/string_view.h"
 #include "footstone/string_view_utils.h"
