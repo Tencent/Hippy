@@ -54,8 +54,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Indicate hippy sdk version
+ * 注意：为兼容2.0版本，保持的相同的下划线前缀命名，不可修改
  */
-HIPPY_EXTERN NSString *const HippySDKVersion;
+HIPPY_EXTERN NSString *const _HippySDKVersion;
 /**
  * This notification triggers a reload of all bridges currently running.
  * Deprecated, use HippyBridge::requestReload instead.
