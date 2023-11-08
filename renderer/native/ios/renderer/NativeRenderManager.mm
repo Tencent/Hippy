@@ -21,6 +21,7 @@
  */
 
 #import "HippyUIManager.h"
+#import "HippyUIManager+Private.h"
 #import "NativeRenderManager.h"
 #import "NativeRenderObjectText.h"
 #import "RenderVsyncManager.h"
