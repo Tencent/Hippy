@@ -1,3 +1,7 @@
+## 0.0.7
+
+- update ffi_manager to 0.0.6
+
 ## 0.0.6
 
 - fix build error
