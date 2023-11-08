@@ -230,6 +230,15 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
+- (void)setTintColor:(UIColor *)tintColor{
+    [super setTintColor:tintColor];
+    if(_animatedImageOperation){
+        _needsReloadImage = YES;
+    }else{
+        _needsUpdateImage = YES;
+    }
+}
+
 - (void)didMoveToWindow {
     [super didMoveToWindow];
     if (!self.window) {
