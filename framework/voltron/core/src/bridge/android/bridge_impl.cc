@@ -243,7 +243,7 @@ void BridgeImpl::Destroy(int64_t scope_id,
   voltron::EraseObject(footstone::checked_numeric_cast<
       int64_t,
       uint32_t>(scope_id));
-  JsDriverUtils::DestroyInstance(engine, scope, [callback](bool ret) {
+  JsDriverUtils::DestroyInstance(std::move(engine), std::move(scope), [callback](bool ret) {
     if (ret) {
       callback(INIT_CB_STATE::SUCCESS);
     } else {

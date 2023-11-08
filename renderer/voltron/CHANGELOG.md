@@ -1,3 +1,7 @@
+## 0.0.26
+
+- update ffi_manager to 0.0.6
+
 ## 0.0.24
 
 - fix width calculate error and add modal navigator param
