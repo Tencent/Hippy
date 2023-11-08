@@ -22,6 +22,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:voltron/voltron.dart';
 
 import 'base_voltron_page.dart';
 
@@ -35,6 +37,7 @@ void main() {
       systemNavigationBarColor: Color(0XFFE5E5E5),
     ));
   }
+
   runApp(MyApp());
 }
 
@@ -89,6 +92,18 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  @override
+  void initState() {
+    super.initState();
+    setLibrary();
+  }
+
+  void setLibrary() async {
+    // final path = (await getApplicationDocumentsDirectory()).path;
+    // 测试业务动态load library
+    // VoltronJSLoaderManager.initCustomLibrary(path: '$path/libs/arm64-v8a/', name: 'voltron_core');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
