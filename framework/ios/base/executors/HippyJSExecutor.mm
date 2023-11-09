@@ -63,6 +63,11 @@
 #include "devtools/devtools_data_source.h"
 #endif
 
+#ifdef JS_JSC
+#include "driver/napi/jsc/jsc_ctx.h"
+#include "driver/napi/jsc/jsc_ctx_value.h"
+#endif
+
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
 
 constexpr char kGlobalKey[] = "global";

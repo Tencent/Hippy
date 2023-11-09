@@ -669,11 +669,11 @@ void JsDriverUtils::UnloadInstance(const std::shared_ptr<Scope>& scope, byte_str
         Deserializer deserializer(
                 reinterpret_cast<const uint8_t*>(buffer_data_.c_str()),
                 buffer_data_.length());
-        HippyValue value;
+        footstone::value::HippyValue value;
         deserializer.ReadHeader();
         auto ret = deserializer.ReadValue(value);
         if (ret) {
-            scope->UnloadInstance(std::make_shared<HippyValue>(std::move(value)));
+            scope->UnloadInstance(std::make_shared<footstone::value::HippyValue>(std::move(value)));
         } else {
             scope->GetContext()->ThrowException("UnloadInstance param error");
         }
