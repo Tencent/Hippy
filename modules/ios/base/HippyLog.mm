@@ -23,6 +23,7 @@
 #import "HippyLog.h"
 #import "HippyBridge.h"
 #import "HippyRedBox.h"
+#include "footstone/logging.h"
 
 #pragma mark NativeLog Methods
 
@@ -62,6 +63,12 @@ HippyLogFunction HippyDefaultLogFunction = ^(HippyLogLevel level, __unused Hippy
 
 void HippySetLogFunction(HippyLogFunction logFunction) {
     HPCurrentLogFunction = logFunction;
+
+    footstone::log::LogMessage::InitializeDelegate([](const std::ostringstream& stream,
+                                                      footstone::log::LogSeverity severity) {
+        NSString* message = [NSString stringWithUTF8String:stream.str().c_str()];
+        HPCurrentLogFunction(HippyLogLevelInfo, HippyLogSourceNative, nil, nil, message);
+    });
 }
 
 HippyLogFunction HippyGetLogFunction() {

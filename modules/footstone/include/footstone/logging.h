@@ -119,7 +119,8 @@ class LogMessage {
     }
     
     std::ostringstream s;
-    s<<"thread:"<<pthread_self()<<", "<<log_msg<<std::endl;
+    s<<"["<<file<<":"<<line<<"]"
+     <<"[thread:"<<pthread_self()<<"], "<<log_msg<<std::endl;
     
     if (LogMessage::delegate_) {
       delegate_(s, TDF_LOG_WARNING);
