@@ -47,7 +47,6 @@ LooperDriver::LooperDriver(): loop_() {
 
 LooperDriver::~LooperDriver() {
   CFRunLoopTimerInvalidate(delayed_wake_timer_);
-  CFRunLoopRemoveTimer(loop_, delayed_wake_timer_, kCFRunLoopDefaultMode);
 }
 
 void LooperDriver::Notify() {
