@@ -131,10 +131,15 @@ id ObjectFromHermesValue(facebook::jsi::Runtime& runtime, facebook::jsi::Value& 
         return nil;
     } else if (value.isString()) {
         auto string = value.asString(runtime).utf8(runtime);
-        NSString *result = [[NSString alloc] initWithBytesNoCopy:string.data() length:string.size() encoding:NSUTF8StringEncoding freeWhenDone:YES];
+        void *buffer = malloc(string.size());
+        size_t len = string.size();
+        memcpy(buffer, string.data(), string.size());
+        NSString *result = [[NSString alloc] initWithBytesNoCopy:buffer length:len encoding:NSUTF8StringEncoding freeWhenDone:YES];
         return result;
     } else if (value.isBool()) {
         return @(value.asBool());
+    } else if (value.isNumber()) {
+        return @(value.asNumber());
     } else if (value.isObject()) {
         auto object = value.asObject(runtime);
         if (object.isArray(runtime)) {
@@ -148,7 +153,7 @@ id ObjectFromHermesValue(facebook::jsi::Runtime& runtime, facebook::jsi::Value& 
                     [ns_array addObject:add_element];
                 }
             }
-            return ns_array;
+            return [ns_array copy];
         } else if (object.isArrayBuffer(runtime)) {
             auto array_buffer = object.getArrayBuffer(runtime);
             size_t size = array_buffer.size(runtime);
@@ -174,6 +179,7 @@ id ObjectFromHermesValue(facebook::jsi::Runtime& runtime, facebook::jsi::Value& 
                     [kvs setObject:add_value forKey:add_key];
                 }
             }
+            return [kvs copy];
         }
     }
     return nil;

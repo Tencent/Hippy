@@ -317,7 +317,7 @@
     id blockCallback = [implementation copy];
     [_blockDic setObject:blockCallback forKey:funcName];
     void *callback_data = (__bridge void *)blockCallback;
-    
+
     auto func = facebook::jsi::Function::createFromHostFunction(*runtime, prop_name_id, 1,
           [callback_data](facebook::jsi::Runtime& runtime, const facebook::jsi::Value& this_value, const facebook::jsi::Value* args, size_t count) -> facebook::jsi::Value {
             FunctionImplementationBlock block = (__bridge FunctionImplementationBlock)callback_data;
@@ -326,7 +326,7 @@
             }
             NSMutableArray *argumentsArray = [NSMutableArray arrayWithCapacity:count];
             for (size_t i = 0; i < count; i++) {
-                auto v = facebook::jsi::Value(runtime, args + i);
+                auto v = facebook::jsi::Value(runtime, args[i]);
                 id object = ObjectFromHermesValue(runtime, v);
                 [argumentsArray addObject:object];
             }
