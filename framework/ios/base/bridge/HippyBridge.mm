@@ -414,7 +414,7 @@ dispatch_queue_t HippyBridgeQueue() {
         }
         return;
     }
-    HippyLogInfo(@"Begin loading bundle(%s) at %s", HP_CSTR_NOT_NULL(bundleURL.absoluteString.lastPathComponent.UTF8String), HP_CSTR_NOT_NULL(bundleURL.absoluteString.UTF8String));
+    HippyLogInfo(@"[HP PERF] Begin loading bundle(%s) at %s", HP_CSTR_NOT_NULL(bundleURL.absoluteString.lastPathComponent.UTF8String), HP_CSTR_NOT_NULL(bundleURL.absoluteString.UTF8String));
     [_bundleURLs addObject:bundleURL];
     dispatch_async(HippyBridgeQueue(), ^{
         [self beginLoadingBundle:bundleURL completion:completion];
@@ -509,7 +509,7 @@ dispatch_queue_t HippyBridgeQueue() {
 - (void)innerLoadInstanceForRootView:(NSNumber *)rootTag withProperties:(NSDictionary *)props {
     HippyAssert(_moduleName, @"module name must not be null");
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", _moduleName, props);
-    HippyLogInfo(@"Begin loading instance for HippyBridge(%p)", self);
+    HippyLogInfo(@"[HP PERF] Begin loading instance for HippyBridge(%p)", self);
     NSDictionary *param = @{@"name": _moduleName,
                             @"id": rootTag,
                             @"params": props ?: @{},
@@ -517,7 +517,7 @@ dispatch_queue_t HippyBridgeQueue() {
     footstone::value::HippyValue value = [param toHippyValue];
     std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
     self.javaScriptExecutor.pScope->LoadInstance(domValue);
-    HippyLogInfo(@"End loading instance for HippyBridge(%p)", self);
+    HippyLogInfo(@"[HP PERF] End loading instance for HippyBridge(%p)", self);
 }
 
 - (void)rootViewSizeChangedEvent:(NSNumber *)tag params:(NSDictionary *)params {
