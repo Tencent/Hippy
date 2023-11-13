@@ -28,7 +28,7 @@
 #ifdef DEBUG
 #define HIPPY_LOG_ENABLED 1
 #else
-#define HIPPY_LOG_ENABLED 0
+#define HIPPY_LOG_ENABLED 1
 #endif  //#ifdef DEBUG
 #endif  //#ifndef HIPPY_LOG_ENABLED
 
