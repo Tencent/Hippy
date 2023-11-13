@@ -34,7 +34,6 @@ import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.runtime.builtins.JSObject;
 import com.tencent.vfs.ResourceDataHolder;
-import com.tencent.vfs.ResourceDataHolder.TransferType;
 import com.tencent.vfs.VfsManager;
 import com.tencent.vfs.VfsManager.FetchResourceCallback;
 import java.nio.charset.StandardCharsets;
@@ -54,7 +53,7 @@ public class NetworkModule extends HippyNativeModuleBase {
     }
 
     @SuppressWarnings("deprecation")
-    private void normalizeRequestHeaders(@NonNull HippyMap headers,
+    protected void normalizeRequestHeaders(@NonNull HippyMap headers,
             @NonNull HashMap<String, String> requestHeaders) {
         Set<Entry<String, Object>> entrySet = headers.entrySet();
         for (Entry<String, Object> entry : entrySet) {
@@ -82,7 +81,7 @@ public class NetworkModule extends HippyNativeModuleBase {
     }
 
     @SuppressWarnings("deprecation")
-    private void normalizeRequest(@NonNull HippyMap request,
+    protected void normalizeRequest(@NonNull HippyMap request,
             @NonNull HashMap<String, String> requestHeaders,
             @NonNull HashMap<String, String> requestParams) throws IllegalStateException {
         Set<Entry<String, Object>> entrySet = request.entrySet();
@@ -103,7 +102,7 @@ public class NetworkModule extends HippyNativeModuleBase {
         }
     }
 
-    private void handleFetchResponse(@NonNull ResourceDataHolder dataHolder, Promise promise)
+    protected void handleFetchResponse(@NonNull ResourceDataHolder dataHolder, Promise promise)
             throws IllegalStateException {
         JSObject responseObject = new JSObject();
         int statusCode = 0;
@@ -151,12 +150,12 @@ public class NetworkModule extends HippyNativeModuleBase {
         try {
             normalizeRequest(request, requestHeaders, requestParams);
         } catch (Exception e) {
-            promise.resolve(e.getMessage());
+            promise.reject(e.getMessage());
             return;
         }
         final String uri = requestParams.get(HTTP_URL);
         if (TextUtils.isEmpty(uri)) {
-            promise.resolve("Get url parameter failed!");
+            promise.reject("Get url parameter failed!");
             return;
         }
         vfsManager.fetchResourceAsync(uri, requestHeaders, requestParams,
@@ -168,12 +167,13 @@ public class NetworkModule extends HippyNativeModuleBase {
                             try {
                                 handleFetchResponse(dataHolder, promise);
                             } catch (IllegalStateException e) {
-                                promise.resolve(
-                                        "Handle response failed: " + dataHolder.errorMessage);
+                                promise.reject(
+                                        "Handle response failed: " + e.getMessage());
                             }
                         } else {
-                            promise.resolve(
-                                    "Load remote resource failed: " + dataHolder.errorMessage);
+                            String error = TextUtils.isEmpty(dataHolder.errorMessage)
+                                    ? "Load remote resource failed!" : dataHolder.errorMessage;
+                            promise.resolve(error);
                         }
                         dataHolder.recycle();
                     }
