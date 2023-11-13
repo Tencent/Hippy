@@ -90,6 +90,7 @@ CMakeLists.txt @ilikethese @etkmao
 /framework/examples/android-demo/res/ @zealotchen0
 /framework/examples/ios-demo/ @wwwcg @ruifanyuan
 /framework/examples/ios-demo/res/ @zealotchen0
+/framework/examples/voltron-demo/ @henryjin0511
 
 # doc: pages
 /*.md @zealotchen0
