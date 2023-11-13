@@ -39,7 +39,7 @@ const char *HippyLogLevels[] = {
 #if HIPPY_DEBUG
 HippyLogLevel HPDefaultLogThreshold = HippyLogLevelTrace;
 #else
-HippyLogLevel HPDefaultLogThreshold = HippyLogLevelError;
+HippyLogLevel HPDefaultLogThreshold = HippyLogLevelTrace;
 #endif
 
 static HippyLogFunction HPCurrentLogFunction;
