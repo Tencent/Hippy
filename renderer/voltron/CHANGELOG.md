@@ -1,6 +1,14 @@
+## 0.0.27
+
+- resolve merge conflicts
+
 ## 0.0.26
 
 - update ffi_manager to 0.0.6
+
+## 0.0.25
+
+- add voltron_screen_info plugin
 
 ## 0.0.24
 

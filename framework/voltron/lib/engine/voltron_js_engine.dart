@@ -66,6 +66,8 @@ class VoltronJSEngine implements OnResumeAndPauseListener, DevServerCallback {
   // 从网络上加载jsbundle
   late bool _debugMode;
 
+  late IntegratedMode _integratedMode;
+
   // Server的jsbundle名字，调试模式下有效
   late String _serverBundleName;
 
@@ -125,16 +127,19 @@ class VoltronJSEngine implements OnResumeAndPauseListener, DevServerCallback {
     }
 
     try {
+      LogUtils.d(_kTag, "init ffi function binding start");
       _initBridge();
+      LogUtils.d(_kTag, "init ffi function binding done");
     } catch (e) {
       _currentState = EngineState.initError;
       if (e is Error) {
-        LogUtils.e(_kTag, "${e.stackTrace}");
+        LogUtils.e(_kTag, "init ffi function binding fail, error: ${e.stackTrace}");
       }
     }
-    LogUtils.d(_kTag, "initEngine initBridge done");
 
     _id = VoltronApi.getVoltronEngineIndex();
+
+    LogUtils.d(_kTag, "get voltron engine index: ${_id}");
 
     CookieManager.getInstance().setCookieDelegate(
       params.cookieDelegateType,
@@ -147,6 +152,7 @@ class VoltronJSEngine implements OnResumeAndPauseListener, DevServerCallback {
     _preloadBundleLoader = preloadBundleLoader;
     _apiProviders = params.providers;
     _debugMode = params.debugMode;
+    _integratedMode = params.integratedMode;
     _serverBundleName = params.debugMode ? params.debugBundleName : "";
     _startTimeMonitor = TimeMonitor(true);
     _engineMonitor = params.engineMonitor!;
@@ -159,16 +165,31 @@ class VoltronJSEngine implements OnResumeAndPauseListener, DevServerCallback {
   Future<dynamic> initEngine(EngineListener listener) async {
     _startTimeMonitor.startEvent(EngineMonitorEventKey.engineLoadEventInitEngine);
     try {
-      // 初始化平台相关信息和UI宽高信息， 必须放到第一位，否则可能run app之后平台信息还未初始化完成，或者没有UI界面宽高信息
-      await ScreenUtil.getInstance().ensurePhysicalSizeReady();
-      await PlatformManager.getInstance().initPlatform();
+      // 初始化UI宽高信息， 必须放到第一位，否则可能run app之后没有UI界面宽高信息
+      LogUtils.d(_kTag, "init screen info start");
+      await ScreenUtil.getInstance().initScreen(
+          screenInfoSource: _integratedMode == IntegratedMode.flutterApp
+              ? ScreenInfoSource.flutter
+              : ScreenInfoSource.native);
+      LogUtils.d(_kTag, "init screen info done");
     } catch (e) {
       _currentState = EngineState.initError;
       if (e is Error) {
-        LogUtils.e(_kTag, "${e.stackTrace}");
+        LogUtils.e(_kTag, "init screen info fail, error:${e.stackTrace}");
       }
     }
-    LogUtils.d(_kTag, "initEngine getPlatform done");
+
+    try {
+      // 初始化平台相关信息和UI宽高信息， 必须放到第一位，否则可能run app之后平台信息还未初始化完成，或者没有UI界面宽高信息
+      LogUtils.d(_kTag, "init platform info start");
+      await PlatformManager.getInstance().initPlatform();
+      LogUtils.d(_kTag, "init platform info done");
+    } catch (e) {
+      _currentState = EngineState.initError;
+      if (e is Error) {
+        LogUtils.e(_kTag, "init platform info fail, error:${e.stackTrace}");
+      }
+    }
 
     if (_currentState != EngineState.unInit) {
       _listen(listener);
@@ -294,6 +315,7 @@ class VoltronJSEngine implements OnResumeAndPauseListener, DevServerCallback {
       _coreBundleLoader,
       bridgeType,
       _debugMode,
+      _integratedMode,
       _serverHost,
       _groupId,
       _thirdPartyAdapter,
@@ -326,6 +348,7 @@ class VoltronJSEngine implements OnResumeAndPauseListener, DevServerCallback {
       var state = _currentState;
       _currentState = param ? EngineState.inited : EngineState.initError;
       if (state != EngineState.onRestart) {
+        LogUtils.d(_kTag, "restartEngineInBackground ok");
         _notifyEngineInitialized(param ? EngineInitStatus.ok : EngineInitStatus.errBridge, e);
       } else {
         LogUtils.e(_kTag, "initBridge callback error STATUS_WRONG_STATE, state=$_currentState");
@@ -511,7 +534,6 @@ class VoltronJSEngine implements OnResumeAndPauseListener, DevServerCallback {
 
   static void _initBridge() {
     if (!_hasInit) {
-      LogUtils.d(_kTag, "_initBridge");
       VoltronApi.initBridge();
       _hasInit = true;
     }

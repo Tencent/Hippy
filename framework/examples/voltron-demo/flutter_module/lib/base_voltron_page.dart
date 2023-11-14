@@ -159,6 +159,7 @@ class _BaseVoltronPageState extends State<BaseVoltronPage> {
       initParams.coreJSAssetsPath = _coreBundle;
       initParams.codeCacheTag = "common";
     }
+    initParams.integratedMode = IntegratedMode.flutterModule;
     initParams.providers = [
       MyAPIProvider(),
     ];

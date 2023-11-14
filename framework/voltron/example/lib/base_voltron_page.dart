@@ -161,6 +161,8 @@ class _BaseVoltronPageState extends State<BaseVoltronPage> {
       initParams.coreJSAssetsPath = _coreBundle;
       initParams.codeCacheTag = "common";
     }
+    // 这里可以不传，默认就是flutterApp，如果是使用flutter module，建议这里使用flutterModule以获取更快的启动速度
+    initParams.integratedMode = IntegratedMode.flutterApp;
     initParams.providers = [
       MyAPIProvider(),
     ];
