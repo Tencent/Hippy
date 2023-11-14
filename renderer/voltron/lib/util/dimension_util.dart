@@ -32,12 +32,12 @@ VoltronMap getDimensions(
   var dimensionMap = VoltronMap();
   var windowDisplayMetricsMap = VoltronMap();
 
-  final screenDensity = ScreenUtil.getInstance().screenDensity;
+  final screenDensity = ScreenUtil.getInstance().scale;
   final screenWidthPixels = (ScreenUtil.getInstance().screenWidth).floor();
   final screenHeightPixels = (ScreenUtil.getInstance().screenHeight).floor();
   // 状态栏高度这里需要传入像素值
   var statusBarHeight = ScreenUtil.getInstance().statusBarHeight;
-  var bottomBarHeight = ScreenUtil.getInstance().bottomBarHeight;
+  var bottomBarHeight = ScreenUtil.getInstance().navigationBarHeight;
 
   var screenDisplayMetricsMap = VoltronMap();
   screenDisplayMetricsMap.push("width", screenWidthPixels);

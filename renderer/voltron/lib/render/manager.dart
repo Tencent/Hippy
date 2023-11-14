@@ -278,7 +278,9 @@ class RenderManager
   }
 
   double correctPixel(double len) {
-    var density = ScreenUtil.getInstance().screenDensity;
+    var density = ScreenUtil.getInstance().scale;
+    // 兼容测试用例
+    density = density <= 0 ? 1.0 : density;
     return (len * density).roundToDouble() / density;
   }
 

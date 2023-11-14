@@ -93,6 +93,7 @@ class EngineContext with RenderContextProxy {
     VoltronBundleLoader? coreLoader,
     int bridgeType,
     bool isDevModule,
+    IntegratedMode integratedMode,
     String serverHost,
     int groupId,
     VoltronThirdPartyAdapter? thirdPartyAdapter,
@@ -155,7 +156,8 @@ class EngineContext with RenderContextProxy {
 
   void _initVfsManager() {
     _vfsManager = VfsManager();
-    DefaultProcessor processor = DefaultProcessor(VoltronResourceLoader(_globalConfigs.httpAdapter));
+    DefaultProcessor processor =
+        DefaultProcessor(VoltronResourceLoader(_globalConfigs.httpAdapter));
     _vfsManager.addProcessor(processor);
   }
 
