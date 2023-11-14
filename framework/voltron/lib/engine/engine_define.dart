@@ -47,6 +47,14 @@ enum EngineMode {
   singleThread,
 }
 
+// IntegratedMode 集成模式
+// flutterApp 如果开发的是flutter app，推荐这种方式
+// flutterModule 如果开发的是native app + flutter module，推荐这种方式，这种模式下会通过method channel获取屏幕参数，更快
+enum IntegratedMode {
+  flutterApp,
+  flutterModule,
+}
+
 /// 引擎初始化过程中的错误码，对于Voltron sdk开发者调查Voltron sdk的使用者在使用过程中遇到的问题，很必须。
 enum EngineInitStatus {
   ok, // 初始化过程，一切正常

@@ -502,7 +502,7 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
       var height = size.height;
 
       var statusBarHeight = ScreenUtil.getInstance().statusBarHeight;
-      var bottomBarHeight = ScreenUtil.getInstance().bottomBarHeight;
+      var navigationBarHeight = ScreenUtil.getInstance().navigationBarHeight;
       // We need to remove the status bar from the height.  getLocationOnScreen will include the
       // status bar.
       if (statusBarHeight > 0) {
@@ -515,7 +515,7 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
       paramsMap.push("width", width);
       paramsMap.push("height", height);
       paramsMap.push("statusBarHeight", statusBarHeight);
-      paramsMap.push("bottomBarHeight", bottomBarHeight);
+      paramsMap.push("navigationBarHeight", navigationBarHeight);
       promise.resolve(paramsMap);
     }
   }

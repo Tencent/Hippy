@@ -22,17 +22,35 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import java.util.concurrent.atomic.AtomicLong;
+
+import io.flutter.Log;
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.embedding.engine.FlutterEngineCache;
 import io.flutter.embedding.engine.dart.DartExecutor;
 
 public class MainActivity extends AppCompatActivity {
+    private final AtomicLong idCounter = new AtomicLong(0);
+    private long currentEngineId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        createNewEngine();
+
+        Button button = findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openWithNewEngine();
+            }
+        });
+    }
+
+    void createNewEngine() {
+        currentEngineId = idCounter.incrementAndGet();
 
         // Instantiate a FlutterEngine.
         FlutterEngine flutterEngine = new FlutterEngine(this);
@@ -45,16 +63,16 @@ public class MainActivity extends AppCompatActivity {
         // Cache the FlutterEngine to be used by FlutterActivity.
         FlutterEngineCache
             .getInstance()
-            .put("my_engine_id", flutterEngine);
+            .put("my_engine_id_" + currentEngineId, flutterEngine);
+    }
 
-        Button button = findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(
-                    FlutterActivity.withCachedEngine("my_engine_id").destroyEngineWithActivity(true).build(MainActivity.this)
-                );
-            }
-        });
+    void openWithNewEngine() {
+        startActivity(
+            FlutterActivity
+                .withCachedEngine("my_engine_id_" + currentEngineId)
+                .destroyEngineWithActivity(true)
+                .build(MainActivity.this)
+        );
+        createNewEngine();
     }
 }
