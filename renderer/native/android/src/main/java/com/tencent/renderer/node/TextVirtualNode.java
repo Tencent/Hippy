@@ -154,6 +154,9 @@ public class TextVirtualNode extends VirtualNode {
             defaultNumber = Color.BLACK)
     public void setColor(Integer color) {
         mColor = color;
+        if (mTextPaintInstance != null) {
+            mTextPaintInstance.setColor(color);
+        }
         markDirty();
     }
 
@@ -444,57 +447,56 @@ public class TextVirtualNode extends VirtualNode {
         int start = builder.length();
         builder.append(getEmoticonText(text));
         int end = builder.length();
-        if (start > end) {
-            return;
-        }
-        if (mHasUnderlineTextDecoration || mHasLineThroughTextDecoration) {
-            TextDecorationSpan span = new TextDecorationSpan(mHasUnderlineTextDecoration,
-                    mHasLineThroughTextDecoration, mTextDecorationColor, mTextDecorationStyle);
-            if (span.needSpecialDraw()) {
-                // inserting changes the position of SpanOperation that >= start, so it must be placed first
-                builder.insert(start, TEXT_DECORATION_MARK);
-                builder.append(TEXT_DECORATION_MARK);
-                ops.add(new SpanOperation(start, start + 1, new TextDecorationSpan.StartMark()));
-                ++start;
-                ++end;
-                ops.add(new SpanOperation(end, end + 1, new TextDecorationSpan.EndMark()));
+        if (start < end) {
+            if (mHasUnderlineTextDecoration || mHasLineThroughTextDecoration) {
+                TextDecorationSpan span = new TextDecorationSpan(mHasUnderlineTextDecoration,
+                        mHasLineThroughTextDecoration, mTextDecorationColor, mTextDecorationStyle);
+                if (span.needSpecialDraw()) {
+                    // inserting changes the position of SpanOperation that >= start, so it must be placed first
+                    builder.insert(start, TEXT_DECORATION_MARK);
+                    builder.append(TEXT_DECORATION_MARK);
+                    ops.add(new SpanOperation(start, start + 1, new TextDecorationSpan.StartMark()));
+                    ++start;
+                    ++end;
+                    ops.add(new SpanOperation(end, end + 1, new TextDecorationSpan.EndMark()));
+                }
+                ops.add(new SpanOperation(start, end, span, SpanOperation.PRIORITY_LOWEST));
             }
-            ops.add(new SpanOperation(start, end, span, SpanOperation.PRIORITY_LOWEST));
-        }
-        String verticalAlign = getVerticalAlign();
-        if (verticalAlign != null && !V_ALIGN_BASELINE.equals(verticalAlign)) {
-            TextVerticalAlignSpan span = new TextVerticalAlignSpan(verticalAlign);
-            ops.add(new SpanOperation(start, end, span, SpanOperation.PRIORITY_LOWEST));
-        }
-        float opacity = getFinalOpacity();
-        ops.add(new SpanOperation(start, end, createForegroundColorSpan(opacity)));
-        if (mBackgroundColor != Color.TRANSPARENT && mParent != null) {
-            int color = colorWithOpacity(mBackgroundColor, opacity);
-            if (color != Color.TRANSPARENT) {
-                ops.add(new SpanOperation(start, end, new BackgroundColorSpan(color)));
+            String verticalAlign = getVerticalAlign();
+            if (verticalAlign != null && !V_ALIGN_BASELINE.equals(verticalAlign)) {
+                TextVerticalAlignSpan span = new TextVerticalAlignSpan(verticalAlign);
+                ops.add(new SpanOperation(start, end, span, SpanOperation.PRIORITY_LOWEST));
             }
-        }
-        if (mLetterSpacing != 0) {
-            ops.add(new SpanOperation(start, end,
-                    new TextLetterSpacingSpan(mLetterSpacing)));
-        }
-        int size = mFontSize;
-        if (mFontAdapter != null && mEnableScale) {
-            size = (int) (size * mFontAdapter.getFontScale());
-        }
-        ops.add(new SpanOperation(start, end, new AbsoluteSizeSpan(size)));
-        ops.add(new SpanOperation(start, end, new TextStyleSpan(mItalic, mFontWeight, mFontFamily, mFontAdapter)));
-        if (mShadowOffsetDx != 0 || mShadowOffsetDy != 0) {
-            int color = colorWithOpacity(mShadowColor, opacity);
-            if (color != Color.TRANSPARENT) {
+            float opacity = getFinalOpacity();
+            ops.add(new SpanOperation(start, end, createForegroundColorSpan(opacity)));
+            if (mBackgroundColor != Color.TRANSPARENT && mParent != null) {
+                int color = colorWithOpacity(mBackgroundColor, opacity);
+                if (color != Color.TRANSPARENT) {
+                    ops.add(new SpanOperation(start, end, new BackgroundColorSpan(color)));
+                }
+            }
+            if (mLetterSpacing != 0) {
                 ops.add(new SpanOperation(start, end,
-                        new TextShadowSpan(mShadowOffsetDx, mShadowOffsetDy, mShadowRadius, color)));
+                        new TextLetterSpacingSpan(mLetterSpacing)));
             }
-        }
-        if (mEventTypes != null && mEventTypes.size() > 0) {
-            TextGestureSpan span = new TextGestureSpan(mId);
-            span.addGestureTypes(mEventTypes);
-            ops.add(new SpanOperation(start, end, span));
+            int size = mFontSize;
+            if (mFontAdapter != null && mEnableScale) {
+                size = (int) (size * mFontAdapter.getFontScale());
+            }
+            ops.add(new SpanOperation(start, end, new AbsoluteSizeSpan(size)));
+            ops.add(new SpanOperation(start, end, new TextStyleSpan(mItalic, mFontWeight, mFontFamily, mFontAdapter)));
+            if (mShadowOffsetDx != 0 || mShadowOffsetDy != 0) {
+                int color = colorWithOpacity(mShadowColor, opacity);
+                if (color != Color.TRANSPARENT) {
+                    ops.add(new SpanOperation(start, end,
+                            new TextShadowSpan(mShadowOffsetDx, mShadowOffsetDy, mShadowRadius, color)));
+                }
+            }
+            if (mEventTypes != null && mEventTypes.size() > 0) {
+                TextGestureSpan span = new TextGestureSpan(mId);
+                span.addGestureTypes(mEventTypes);
+                ops.add(new SpanOperation(start, end, span));
+            }
         }
         if (useChild) {
             createChildrenSpanOperation(ops, builder);
@@ -617,7 +619,7 @@ public class TextVirtualNode extends VirtualNode {
     }
 
     private TextPaint getTextPaint() {
-        if (TextUtils.isEmpty(mText)) {
+        if (TextUtils.isEmpty(mSpanned)) {
             if (mTextPaintForEmpty == null) {
                 mTextPaintForEmpty = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
             }
@@ -626,6 +628,7 @@ public class TextVirtualNode extends VirtualNode {
         if (mTextPaintInstance == null) {
             mTextPaintInstance = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
             mTextPaintInstance.setTextSize(mFontSize);
+            mTextPaintInstance.setColor(mColor);
         }
         return mTextPaintInstance;
     }
@@ -704,21 +707,12 @@ public class TextVirtualNode extends VirtualNode {
             }
             CharSequence lastLine;
             if (MODE_HEAD.equals(mEllipsizeMode)) {
-                float formerTextSize =
-                        numberOfLines >= 2 ? getLineHeight(preLayout, numberOfLines - 2)
-                                : paint.getTextSize();
-                float latterTextSize = Math.max(getLineHeight(preLayout, lineCount - 2),
-                        getLineHeight(preLayout, lineCount - 1));
-                measurePaint.setTextSize(Math.max(formerTextSize, latterTextSize));
-                lastLine = ellipsizeHead(origin, measurePaint, width, start);
+                lastLine = ellipsizeHead(origin, measurePaint, width, preLayout.getLineStart(lineCount - 2));
             } else if (MODE_MIDDLE.equals(mEllipsizeMode)) {
-                measurePaint.setTextSize(Math.max(getLineHeight(preLayout, numberOfLines - 1),
-                        getLineHeight(preLayout, lineCount - 1)));
-                lastLine = ellipsizeMiddle(origin, measurePaint, width, start);
+                lastLine = ellipsizeMiddle(origin, measurePaint, width, start, preLayout.getLineEnd(numberOfLines),
+                        preLayout.getLineStart(lineCount - 2));
             } else /*if (MODE_TAIL.equals(mEllipsizeMode))*/ {
-                measurePaint.setTextSize(getLineHeight(preLayout, numberOfLines - 1));
-                int end = preLayout.getLineEnd(numberOfLines - 1);
-                lastLine = ellipsizeTail(origin, measurePaint, width, start, end);
+                lastLine = ellipsizeTail(origin, measurePaint, width, start, preLayout.getLineEnd(numberOfLines));
             }
             // concat everything
             truncated = formerLines == null ? lastLine
@@ -730,12 +724,27 @@ public class TextVirtualNode extends VirtualNode {
         return buildStaticLayout(truncated, paint, width);
     }
 
-    private float getLineHeight(Layout layout, int line) {
-        return layout.getLineTop(line + 1) - layout.getLineTop(line);
+    private float chooseTextSize(float inherit, CharSequence text) {
+        float size = inherit;
+        if (text instanceof Spanned) {
+            AbsoluteSizeSpan[] spans = ((Spanned) text).getSpans(0, text.length(), AbsoluteSizeSpan.class);
+            if (spans != null && spans.length > 0) {
+                TextPaint tmp = new TextPaint();
+                tmp.setTextSize(size);
+                for (AbsoluteSizeSpan span : spans) {
+                    span.updateMeasureState(tmp);
+                    size = Math.max(size, tmp.getTextSize());
+                }
+            }
+        }
+        return size;
     }
 
     private CharSequence ellipsizeHead(CharSequence origin, TextPaint paint, int width, int start) {
-        start = Math.max(start, TextUtils.lastIndexOf(origin, '\n') + 1);
+        int index = TextUtils.lastIndexOf(origin, '\n', start, origin.length() - 1);
+        if (index != -1) {
+            start = index + 1;
+        }
         // "…${last line of the rest part}"
         CharSequence tmp;
         if (origin instanceof Spanned) {
@@ -747,6 +756,7 @@ public class TextVirtualNode extends VirtualNode {
                     .append(ELLIPSIS)
                     .append(origin, start, origin.length());
         }
+        paint.setTextSize(chooseTextSize(paint.getTextSize(), tmp));
         CharSequence result = TextUtils.ellipsize(tmp, paint, width, TextUtils.TruncateAt.START);
         if (result instanceof Spannable) {
             // make spans cover the "…"
@@ -766,11 +776,16 @@ public class TextVirtualNode extends VirtualNode {
     }
 
     private CharSequence ellipsizeMiddle(CharSequence origin, TextPaint paint, int width,
-            int start) {
-        int leftEnd, rightStart;
-        if ((leftEnd = TextUtils.indexOf(origin, '\n', start)) != -1) {
-            rightStart = TextUtils.lastIndexOf(origin, '\n') + 1;
-            assert leftEnd < rightStart;
+            int start, int leftEnd, int rightStart) {
+        int index = TextUtils.indexOf(origin, '\n', start, leftEnd);
+        if (index != -1) {
+            leftEnd = index;
+        }
+        index = TextUtils.lastIndexOf(origin, '\n', rightStart, origin.length() - 1);
+        if (index != -1) {
+            rightStart = index + 1;
+        }
+        if (leftEnd < rightStart) {
             // "${first line of the rest part}…${last line of the rest part}"
             CharSequence tmp;
             if (origin instanceof Spanned) {
@@ -793,6 +808,7 @@ public class TextVirtualNode extends VirtualNode {
                     outRange[1] = r;
                 }
             };
+            paint.setTextSize(chooseTextSize(paint.getTextSize(), tmp));
             CharSequence line = TextUtils.ellipsize(tmp, paint, width, TextUtils.TruncateAt.MIDDLE,
                     false, callback);
             if (line != tmp) {
@@ -812,15 +828,16 @@ public class TextVirtualNode extends VirtualNode {
         } else {
             // "${only one line of the rest part}"
             CharSequence tmp = origin.subSequence(start, origin.length());
+            paint.setTextSize(chooseTextSize(paint.getTextSize(), tmp));
             return TextUtils.ellipsize(tmp, paint, width, TextUtils.TruncateAt.MIDDLE);
         }
     }
 
     private CharSequence ellipsizeTail(CharSequence origin, TextPaint paint, int width, int start,
             int end) {
-        if (origin.charAt(end - 1) == '\n') {
-            // there will be an unexpected blank line, if ends with a new line char, trim it
-            --end;
+        int index = TextUtils.indexOf(origin, '\n', start, end);
+        if (index != -1) {
+            end = index;
         }
         // "${first line of the rest part}…"
         CharSequence tmp;
@@ -831,6 +848,7 @@ public class TextVirtualNode extends VirtualNode {
             tmp = new StringBuilder(end - start + ELLIPSIS.length())
                     .append(origin, start, end).append(ELLIPSIS);
         }
+        paint.setTextSize(chooseTextSize(paint.getTextSize(), tmp));
         return TextUtils.ellipsize(tmp, paint, width, TextUtils.TruncateAt.END);
     }
 
