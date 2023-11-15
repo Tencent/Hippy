@@ -303,6 +303,14 @@ static NSArray<NSIndexPath *> *IndexPathForIndexSet(NSUInteger section, NSIndexS
     changedConext:(WaterfallItemChangeContext *)context
  forWaterfallView:(UICollectionView *)view
        completion:(void(^)(BOOL success))completion{
+    [view reloadData];
+    completion(YES);
+    return;
+    
+    // 注意：
+    // FIXME: 如下代码存在BUG，会导致系统UICollectionView出现运行异常，后续删除
+    // https://bugly.woa.com/v2/exception/crash/issues/detail?productId=d591c6d8f7&pid=2&feature=073EF7E1204E4EAEB2F02B726D0FACBF
+    //
     if (!another ||
         0 == [self.cellRenderObjectViews count] ||
         0 == [another.cellRenderObjectViews count]) {
