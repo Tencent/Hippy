@@ -29,7 +29,6 @@ import com.openhippy.connector.JsDriver;
 import com.openhippy.connector.JsDriver.V8InitParams;
 import com.openhippy.connector.NativeCallback;
 import com.openhippy.framework.BuildConfig;
-import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
@@ -508,6 +507,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                     .reviseDimensionIfNeed(context, dimensionMap, false,
                             false);
         }
+        DimensionsUtil.convertDimensionsToDp(dimensionMap);
         globalParams.pushMap("Dimensions", dimensionMap);
 
         String packageName = "";
