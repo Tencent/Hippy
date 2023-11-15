@@ -159,6 +159,14 @@
     changedConext:(WaterfallItemChangeContext *)context
  forWaterfallView:(UICollectionView *)view
        completion:(void(^)(BOOL success))completion {
+    [view reloadData];
+    completion(YES);
+    return;
+    
+    // 注意，如下原增量刷新逻辑存在BUG，会导致系统UICollectionView出现运行异常，临时删除，后续重构
+    // FIXME: 需重构
+    // https://bugly.woa.com/v2/exception/crash/issues/detail?productId=d591c6d8f7&pid=2&feature=073EF7E1204E4EAEB2F02B726D0FACBF
+    
     if (!another ||
         !context ||
         ![[another cellRenderObjectViews] count]) {
@@ -265,95 +273,5 @@ static inline void EnumCellRenderObjects(NSArray<NSArray<__kindof HippyShadowVie
     }
 }
 
-- (NSArray<NSInvocation *> *)cellViewChangeInvocation:(NativeRenderWaterfallViewDataSource *)another
-                                              context:(WaterfallItemChangeContext *)context
-                                    forCollectionView:(UICollectionView *)collectionView {
-    //todo 如果包含move的item，直接返回吧，不好算
-//    if ([[context movedItems] count]) {
-//        NSInvocation *invocation = InvocationFromSelector(collectionView, @selector(reloadData), nil);
-//        return @[invocation];
-//    }
-    
-    NSMutableArray<NSInvocation *> *invocations = [NSMutableArray arrayWithCapacity:8];
-    NSHashTable<__kindof HippyShadowView *> *insertedItems = [context addedItems];
-    NSMutableSet<__kindof HippyShadowView *> *deletedItems = [[context deletedItems] mutableCopy];
-    NSHashTable<__kindof HippyShadowView *> *frameChangedItems = [context frameChangedItems];
-    //get section number change
-    //section number increased or decreased
-    NSUInteger selfSectionCount = [self.cellRenderObjectViews count];
-    NSUInteger anotherSectionCount = [another.cellRenderObjectViews count];
-    if (selfSectionCount > anotherSectionCount) {
-        NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
-        do {
-            //remove added items from [WaterfallItemChangeContext addedItems] to avoid insertItemsAtIndexes: below
-            NSArray<__kindof HippyShadowView *> *objects = [self.cellRenderObjectViews objectAtIndex:anotherSectionCount];
-            [objects enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                [insertedItems removeObject:obj];
-            }];
-            [indexSet addIndex:anotherSectionCount];
-            anotherSectionCount++;
-        } while (selfSectionCount != anotherSectionCount);
-        NSInvocation *invocation = InvocationFromSelector(collectionView, @selector(insertSections:), indexSet);
-        [invocations addObject:invocation];
-    }
-    else if (selfSectionCount < anotherSectionCount) {
-        NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
-        do {
-            anotherSectionCount--;
-            //remove deleted items from [WaterfallItemChangeContext deletedItems] to avoid deleteItemsAtIndexPaths: below
-            NSArray<__kindof HippyShadowView *> *objects = [another.cellRenderObjectViews objectAtIndex:anotherSectionCount];
-            [objects enumerateObjectsUsingBlock:^(__kindof HippyShadowView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                [deletedItems removeObject:obj];
-            }];
-            [indexSet addIndex:anotherSectionCount];
-        } while (selfSectionCount != anotherSectionCount);
-        NSInvocation *invocation = InvocationFromSelector(collectionView, @selector(deleteSections:), indexSet);
-        [invocations addObject:invocation];
-    }
-    //section number unchanged
-    else {
-        //get inserted items and frame changed items if exists
-        if ([insertedItems count] || [frameChangedItems count]) {
-            NSMutableArray<NSIndexPath *> *insertedIndexPaths = [NSMutableArray arrayWithCapacity:16];
-            NSMutableArray<NSIndexPath *> *frameChangedIndexPaths = [NSMutableArray arrayWithCapacity:16];
-            EnumCellRenderObjects(self.cellRenderObjectViews, ^(__kindof HippyShadowView *object, NSUInteger section, NSUInteger row) {
-                if ([insertedItems count] && [insertedItems containsObject:object]) {
-                    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
-                    [insertedIndexPaths addObject:indexPath];
-                }
-                if ([frameChangedItems count] && [frameChangedItems containsObject:object]) {
-                    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
-                    [frameChangedIndexPaths addObject:indexPath];
-                }
-            });
-            if ([insertedIndexPaths count]) {
-                NSInvocation *invocation =
-                    InvocationFromSelector(collectionView, @selector(insertItemsAtIndexPaths:), insertedIndexPaths);
-                [invocations addObject:invocation];
-            }
-            if ([frameChangedIndexPaths count]) {
-                NSInvocation *invocation =
-                    InvocationFromSelector(collectionView, @selector(reloadItemsAtIndexPaths:), frameChangedIndexPaths);
-                [invocations addObject:invocation];
-            }
-        }
-        //get deleted items
-        if ([deletedItems count]) {
-            NSMutableArray<NSIndexPath *> *deletedIndexPaths = [NSMutableArray arrayWithCapacity:16];
-            EnumCellRenderObjects(another.cellRenderObjectViews, ^(__kindof HippyShadowView *object, NSUInteger section, NSUInteger row) {
-                if ([deletedItems containsObject:object]) {
-                    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
-                    [deletedIndexPaths addObject:indexPath];
-                }
-            });
-            if ([deletedIndexPaths count]) {
-                NSInvocation *invocation =
-                    InvocationFromSelector(collectionView, @selector(deleteItemsAtIndexPaths:), deletedIndexPaths);
-                [invocations addObject:invocation];
-            }
-        }
-    }
-    return invocations;
-}
 
 @end
