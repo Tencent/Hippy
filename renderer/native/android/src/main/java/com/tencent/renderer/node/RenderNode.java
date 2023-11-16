@@ -41,6 +41,7 @@ import com.tencent.renderer.component.Component;
 import com.tencent.renderer.component.ComponentController;
 import com.tencent.renderer.component.image.ImageComponent;
 import com.tencent.renderer.component.image.ImageComponentController;
+import com.tencent.renderer.component.text.TextComponentController;
 import com.tencent.renderer.utils.DiffUtils;
 
 import java.lang.ref.WeakReference;
@@ -174,7 +175,7 @@ public class RenderNode {
 
     @Nullable
     public Component ensureComponentIfNeeded(Class<?> cls) {
-        if (cls == ComponentController.class) {
+        if (cls == ComponentController.class || cls == TextComponentController.class) {
             if (mComponent == null) {
                 mComponent = new Component(this);
             }
