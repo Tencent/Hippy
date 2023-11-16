@@ -35,6 +35,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 
+import android.view.inputmethod.InputMethodManager;
 import androidx.annotation.NonNull;
 
 import androidx.annotation.Nullable;
@@ -162,30 +163,26 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
                     break;
                 case "next":
                     returnKeyFlag = EditorInfo.IME_ACTION_NEXT;
-                    view.setSingleLine(true);
                     break;
                 case "none":
                     returnKeyFlag = EditorInfo.IME_ACTION_NONE;
                     break;
                 case "previous":
                     returnKeyFlag = EditorInfo.IME_ACTION_PREVIOUS;
-                    view.setSingleLine(true);
                     break;
                 case "search":
                     returnKeyFlag = EditorInfo.IME_ACTION_SEARCH;
-                    view.setSingleLine(true);
                     break;
                 case "send":
                     returnKeyFlag = EditorInfo.IME_ACTION_SEND;
-                    view.setSingleLine(true);
                     break;
                 case "done":
                     returnKeyFlag = EditorInfo.IME_ACTION_DONE;
-                    view.setSingleLine(true);
                     break;
             }
         }
         view.setImeOptions(returnKeyFlag | EditorInfo.IME_FLAG_NO_FULLSCREEN);
+        view.refreshSoftInput();
     }
 
     @HippyControllerProps(name = "keyboardType", defaultType = HippyControllerProps.STRING)
@@ -201,8 +198,14 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
             flagsToSet = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD;
             hippyTextInput.setTransformationMethod(PasswordTransformationMethod.getInstance());
         }
-
+        boolean multiline = (hippyTextInput.getInputType() & InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0;
+        if (multiline) {
+            flagsToSet |= InputType.TYPE_TEXT_FLAG_MULTI_LINE;
+        } else {
+            flagsToSet &= ~InputType.TYPE_TEXT_FLAG_MULTI_LINE;
+        }
         hippyTextInput.setInputType(flagsToSet);
+        hippyTextInput.refreshSoftInput();
     }
 
     private static int parseFontWeight(String fontWeightString) {

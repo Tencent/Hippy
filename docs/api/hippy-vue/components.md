@@ -258,7 +258,7 @@
 | placeholder           | 如果没有任何文字输入，会显示此字符串。                       | `string`                                                     | `Android、iOS、Web-Renderer、Voltron`     |
 | placeholder-text-color  | 占位字符串显示的文字颜色。（也可设置为 Style 属性）  `最低支持版本2.13.4`                                   | [`color`](api/style/color.md)                                | `Android、iOS、Web-Renderer、Voltron`     |
 | underline-color-android  | `input` 下底线的颜色。 可以设置为 'transparent' 来去掉下底线。（也可设置为 Style 属性）  `最低支持版本2.13.4`      | [`color`](api/style/color.md)                                                      | `Android` |
-| returnKeyType         | 指定软键盘的回车键显示的样式。                               | `enum(done, go, next, search, send)`              | `Android、iOS、Web-Renderer`     |
+| returnKeyType         | 指定软键盘的回车键显示的样式。（其中部分样式仅对单行文本组件有效） | `enum(done, go, next, search, send)`              | `Android、iOS、Web-Renderer`     |
 | value                 | 指定 `input` 组件的值。                                  | `string`                                                     | `Android、iOS、Web-Renderer、Voltron`     |
 | break-strategy* | 设置Android API 23及以上系统的文本换行策略。`default: simple` | `enum(simple, high_quality, balanced)` | `Android(版本 2.14.2以上)` |
 
