@@ -62,6 +62,7 @@ import java.util.Map;
 public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
         TextView.OnEditorActionListener, View.OnFocusChangeListener {
 
+    private static final String TAG = "HippyTextInput";
     boolean mHasAddWatcher = false;
     private String mPreviousText = "";
     TextWatcher mTextWatcher = null;
@@ -272,7 +273,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
             }
 
         } catch (SecurityException e) {
-            LogUtils.d("HippyTextInput", "getScreenHeight: " + e.getMessage());
+            LogUtils.d(TAG, "getScreenHeight: " + e.getMessage());
         }
         return -1;
     }
@@ -616,12 +617,25 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
                         }
                         break;
                     } catch (Throwable e) {
-                        LogUtils.d("HippyTextInput", "setCursorColor: " + e.getMessage());
+                        LogUtils.d(TAG, "setCursorColor: " + e.getMessage());
                     }
                     editorClass = editorClass.getSuperclass(); //继续往上反射父亲
                 }
             } catch (Throwable e) {
-                LogUtils.d("HippyTextInput", "setCursorColor: " + e.getMessage());
+                LogUtils.d(TAG, "setCursorColor: " + e.getMessage());
+            }
+        }
+    }
+    
+    public void refreshSoftInput() {
+        InputMethodManager imm = getInputMethodManager();
+        if (imm.isActive(this)) { // refresh the showing soft keyboard
+            try {
+                imm.hideSoftInputFromWindow(getWindowToken(), 0);
+                imm.restartInput(this);
+                imm.showSoftInput(this, 0, null);
+            } catch (Exception e) {
+                LogUtils.e(TAG, "refreshSoftInput error", e);
             }
         }
     }
