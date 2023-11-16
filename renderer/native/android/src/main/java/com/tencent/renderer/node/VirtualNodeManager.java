@@ -138,7 +138,7 @@ public class VirtualNodeManager {
     public TextRenderSupplier updateLayout(int rootId, int nodeId, float width,
             Map<String, Object> layoutInfo) {
         VirtualNode node = getVirtualNode(rootId, nodeId);
-        if (!(node instanceof TextVirtualNode) || node.mParent != null) {
+        if (!(node instanceof TextVirtualNode || node instanceof TextInputVirtualNode) || node.mParent != null) {
             return null;
         }
         float leftPadding = 0;
@@ -159,12 +159,17 @@ public class VirtualNodeManager {
             // just ignore this exception
             LogUtils.w(TAG, "VirtualNode updateLayout get padding exception: " + e.getMessage());
         }
-        Layout layout = ((TextVirtualNode) node)
-                .createLayout((width - leftPadding - rightPadding), FlexMeasureMode.EXACTLY);
-        // Layout has update here, not need to rebuild in end batch, so remove node ref from mUpdateNodes.
-        List<VirtualNode> updateNodes = mUpdateNodes.get(rootId);
-        if (updateNodes != null) {
-            updateNodes.remove(node);
+        final Layout layout;
+        if (node instanceof TextVirtualNode) {
+            layout = ((TextVirtualNode) node)
+                    .createLayout((width - leftPadding - rightPadding), FlexMeasureMode.EXACTLY);
+            // Layout has update here, not need to rebuild in end batch, so remove node ref from mUpdateNodes.
+            List<VirtualNode> updateNodes = mUpdateNodes.get(rootId);
+            if (updateNodes != null) {
+                updateNodes.remove(node);
+            }
+        } else {
+            layout = null;
         }
         return new TextRenderSupplier(layout, leftPadding, topPadding,
                 rightPadding, bottomPadding);
