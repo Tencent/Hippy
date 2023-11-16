@@ -853,7 +853,7 @@ public class TextNode extends StyleNode {
         lastLine = ellipsizeMiddle(origin, measurePaint, width, start);
       } else /*if (MODE_TAIL.equals(mEllipsizeMode))*/ {
         measurePaint.setTextSize(getLineHeight(preLayout, numberOfLines - 1));
-        int end = preLayout.getLineEnd(numberOfLines - 1);
+        int end = preLayout.getLineEnd(numberOfLines);
         lastLine = ellipsizeTail(origin, measurePaint, width, start, end);
       }
       // concat everything
@@ -949,9 +949,9 @@ public class TextNode extends StyleNode {
   }
 
   private CharSequence ellipsizeTail(CharSequence origin, TextPaint paint, int width, int start, int end) {
-    if (origin.charAt(end - 1) == '\n') {
-      // there will be an unexpected blank line, if ends with a new line char, trim it
-      --end;
+    int index = TextUtils.indexOf(origin, '\n', start, end);
+    if (index != -1) {
+      end = index;
     }
     // "${first line of the rest part}…"
     CharSequence tmp;
