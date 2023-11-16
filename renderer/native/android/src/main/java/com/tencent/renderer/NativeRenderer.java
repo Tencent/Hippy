@@ -501,16 +501,19 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 // If the node has a virtual parent, no need to create corresponding render node,
                 // but need set the node data to the parent, for render node snapshot.
                 createNodeTaskList.add(
-                        () -> mRenderManager.onCreateVirtualNode(rootId, nodeId, pid, nodeIndex, node));
+                        () -> mRenderManager.onCreateVirtualNode(rootId, nodeId, pid, nodeIndex,
+                                node));
             } else {
                 createNodeTaskList.add(
-                        () -> mRenderManager.createNode(rootId, nodeId, nodePid, nodeIndex, className,
+                        () -> mRenderManager.createNode(rootId, nodeId, nodePid, nodeIndex,
+                                className,
                                 props));
                 // Because image and text may be rendered flat, it is not necessary to pre create a view.
                 if (!className.equals(HippyImageViewController.CLASS_NAME) && !className.equals(
                         HippyTextViewController.CLASS_NAME)) {
                     createViewTaskList.add(
-                            () -> mRenderManager.preCreateView(rootId, nodeId, nodePid, className, props));
+                            () -> mRenderManager.preCreateView(rootId, nodeId, nodePid, className,
+                                    props));
                 }
             }
         }
@@ -552,8 +555,9 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             VirtualNode parent = mVirtualNodeManager.checkVirtualParent(rootId, nodeId);
             if (parent != null) {
                 final int pid = parent.getId();
-                taskList.add(() -> mRenderManager.onUpdateVirtualNode(rootId, nodeId, pid, diffProps,
-                        delProps));
+                taskList.add(
+                        () -> mRenderManager.onUpdateVirtualNode(rootId, nodeId, pid, diffProps,
+                                delProps));
             } else {
                 taskList.add(() -> mRenderManager.updateNode(rootId, nodeId, diffProps, delProps));
             }
@@ -676,6 +680,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                         TAG + ": updateEventListener: invalid negative id=" + nodeId);
             }
+            LogUtils.d(TAG,
+                    "updateEventListener: id " + nodeId + ", eventProps " + eventProps + "\n ");
             mVirtualNodeManager.updateEventListener(rootId, nodeId, eventProps);
             taskList.add(() -> mRenderManager.updateEventListener(rootId, nodeId, eventProps));
         }
@@ -716,7 +722,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         // Because call ui function will not follow with end batch,
         // can be directly post to the UI thread do execution.
         UIThreadUtils.runOnUiThread(
-                () -> mRenderManager.dispatchUIFunction(rootId, nodeId, functionName, params, promise));
+                () -> mRenderManager.dispatchUIFunction(rootId, nodeId, functionName, params,
+                        promise));
     }
 
     @Override

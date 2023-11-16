@@ -31,6 +31,7 @@ import com.tencent.renderer.component.Component;
 import com.tencent.renderer.component.ComponentController;
 import com.tencent.renderer.component.FlatViewGroup;
 import com.tencent.renderer.component.image.ImageComponentController;
+import com.tencent.renderer.component.text.TextComponentController;
 import com.tencent.renderer.node.TextRenderNode;
 import com.tencent.renderer.node.TextVirtualNode;
 import com.tencent.renderer.utils.MapUtils;
@@ -68,6 +69,8 @@ public class ControllerUpdateManger<T> {
     private ComponentController mComponentController;
     @Nullable
     private ImageComponentController mImageComponentController;
+    @Nullable
+    private TextComponentController mTextComponentController;
     @Nullable
     private T mCustomPropsController;
 
@@ -120,6 +123,7 @@ public class ControllerUpdateManger<T> {
     private static void initComponentPropsMap() {
         collectMethodHolder(ComponentController.class, sComponentPropsMethodMap);
         collectMethodHolder(ImageComponentController.class, sComponentPropsMethodMap);
+        collectMethodHolder(TextComponentController.class, sComponentPropsMethodMap);
         Method[] methods = TextVirtualNode.class.getMethods();
         for (Method method : methods) {
             HippyControllerProps controllerProps = method
@@ -281,6 +285,12 @@ public class ControllerUpdateManger<T> {
                 mImageComponentController = new ImageComponentController();
             }
             return mImageComponentController;
+        }
+        if (cls == TextComponentController.class) {
+            if (mTextComponentController == null) {
+                mTextComponentController = new TextComponentController();
+            }
+            return mTextComponentController;
         }
         return null;
     }
