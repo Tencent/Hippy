@@ -645,6 +645,7 @@ public class RenderNode {
             component.setTextLayout(object);
             setNodeFlag(FLAG_UPDATE_EXTRA);
         }
+        mExtra = object;
     }
 
     public boolean isDeleted() {
