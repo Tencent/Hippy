@@ -49,6 +49,29 @@ interface ScrollViewPropsAndroid {
    */
   showScrollIndicator?: boolean;
 }
+
+export interface ScrollEvent {
+  contentInset: {
+    right: number;
+    top: number;
+    left: number;
+    bottom: number;
+  };
+  contentOffset: {
+    x: number;
+    y: number;
+  };
+  contentSize: {
+    width: number;
+    height: number;
+  };
+  layoutMeasurement: {
+    width: number;
+    height: number;
+  };
+  zoomScale: number;
+}
+
 export interface ScrollViewProps extends ScrollViewPropsAndroid, ScrollViewPropsIOS {
   // TODO: allow HippyTypes.Style[]
   style?: HippyTypes.Style;
@@ -110,32 +133,32 @@ export interface ScrollViewProps extends ScrollViewPropsAndroid, ScrollViewProps
   /**
    * Called when the momentum scroll starts (scroll which occurs as the ScrollView starts gliding).
    */
-  onMomentumScrollBegin?: () => void;
+  onMomentumScrollBegin?: (event: ScrollEvent) => void;
 
   /**
    * Called when the momentum scroll ends (scroll which occurs as the ScrollView glides to a stop).
    */
-  onMomentumScrollEnd?: () => void;
+  onMomentumScrollEnd?: (event: ScrollEvent) => void;
 
   /**
    * Fires at most once per frame during scrolling.
    * The frequency of the events can be controlled using the `scrollEventThrottle` prop.
    *
-   * @param {Object} evt - Scroll event data.
-   * @param {number} evt.contentOffset.x - Offset X of scrolling.
-   * @param {number} evt.contentOffset.y - Offset Y of scrolling.
+   * @param {Object} event - Scroll event data.
+   * @param {number} event.contentOffset.x - Offset X of scrolling.
+   * @param {number} event.contentOffset.y - Offset Y of scrolling.
    */
-  onScroll?: (evt: { contentOffset: { x: number, y: number }}) => void;
+  onScroll?: (event: ScrollEvent) => void;
 
   /**
    * Called when the user begins to drag the scroll view.
    */
-  onScrollBeginDrag?: () => void;
+  onScrollBeginDrag?: (event: ScrollEvent) => void;
 
   /**
    * Called when the user stops dragging the scroll view and it either stops or begins to glide.
    */
-  onScrollEndDrag?: () => void;
+  onScrollEndDrag?: (event: ScrollEvent) => void;
 }
 
 const styles = StyleSheet.create({
