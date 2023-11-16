@@ -64,7 +64,7 @@ export interface WebViewProps {
    * @param {Object} evt - Load event data
    * @param {string} evt.url - Web page url
    */
-  onLoadEnd: (evt: LoadEvent) => void;
+  onLoadEnd?: (evt: LoadEvent) => void;
 }
 
 /**
