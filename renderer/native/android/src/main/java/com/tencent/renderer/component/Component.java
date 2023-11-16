@@ -306,6 +306,10 @@ public class Component implements Drawable.Callback {
         return mTextDrawable;
     }
 
+    public void setFakeBoldText(boolean isFakeBoldText) {
+        ensureTextDrawable().setFakeBoldText(isFakeBoldText);
+    }
+
     public void setGestureEnable(boolean enable) {
         if (enable) {
             setComponentFlag(FLAG_GESTURE_ENABLE);

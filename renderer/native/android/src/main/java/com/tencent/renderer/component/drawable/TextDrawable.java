@@ -49,7 +49,7 @@ import com.tencent.renderer.component.text.TextRenderSupplier;
 
 public class TextDrawable extends Drawable {
 
-    private boolean mTextBold = false;
+    private boolean mFakeBoldText = false;
     private int mCustomTextColor = 0;
     private float mLeftPadding;
     private float mRightPadding;
@@ -117,7 +117,7 @@ public class TextDrawable extends Drawable {
         canvas.translate(getTextLayoutOffsetX(), getTextLayoutOffsetY());
         Paint paint = mLayout.getPaint();
         if (paint != null) {
-            paint.setFakeBoldText(mTextBold);
+            paint.setFakeBoldText(mFakeBoldText);
         }
         mLayout.draw(canvas);
         canvas.restore();
@@ -131,6 +131,10 @@ public class TextDrawable extends Drawable {
     @Override
     public void setAlpha(int alpha) {
 
+    }
+
+    public void setFakeBoldText(boolean isFakeBoldText) {
+        mFakeBoldText = isFakeBoldText;
     }
 
     @Override
