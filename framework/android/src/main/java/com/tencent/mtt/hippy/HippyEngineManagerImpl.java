@@ -270,6 +270,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                         systemUiVisibilityChanged);
             }
         }
+        DimensionsUtil.convertDimensionsToDp(dimensionMap);
         if (mEngineContext.getModuleManager() != null) {
             mEngineContext.getModuleManager().getJavaScriptModule(Dimensions.class)
                     .set(dimensionMap);

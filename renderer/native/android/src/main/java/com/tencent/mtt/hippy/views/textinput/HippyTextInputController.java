@@ -51,6 +51,7 @@ import com.tencent.mtt.hippy.views.hippypager.HippyPager;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.NativeRendererManager;
+import com.tencent.renderer.component.text.TextRenderSupplier;
 import com.tencent.renderer.node.TextVirtualNode;
 import com.tencent.renderer.utils.ArrayUtils;
 
@@ -88,14 +89,14 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     protected void updateExtra(@NonNull View view, Object object) {
         super.updateExtra(view, object);
 
-//        if (object instanceof TextExtra) {
-//            TextExtra textExtra = (TextExtra) object;
-//            HippyTextInput hippyTextInput = (HippyTextInput) view;
-//            hippyTextInput.setPadding((int) Math.ceil(textExtra.mLeftPadding),
-//                    (int) Math.ceil(textExtra.mTopPadding),
-//                    (int) Math.ceil(textExtra.mRightPadding),
-//                    (int) Math.ceil(textExtra.mBottomPadding));
-//        }
+        if (object instanceof TextRenderSupplier) {
+            TextRenderSupplier supplier = (TextRenderSupplier) object;
+            HippyTextInput hippyTextInput = (HippyTextInput) view;
+            hippyTextInput.setPadding((int) Math.ceil(supplier.leftPadding),
+                    (int) Math.ceil(supplier.topPadding),
+                    (int) Math.ceil(supplier.rightPadding),
+                    (int) Math.ceil(supplier.bottomPadding));
+        }
     }
 
     @HippyControllerProps(name = NodeProps.FONT_SIZE, defaultType = HippyControllerProps.NUMBER, defaultNumber = 14)
