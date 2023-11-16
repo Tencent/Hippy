@@ -162,26 +162,21 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
                     break;
                 case "next":
                     returnKeyFlag = EditorInfo.IME_ACTION_NEXT;
-                    // view.setSingleLine(true);
                     break;
                 case "none":
                     returnKeyFlag = EditorInfo.IME_ACTION_NONE;
                     break;
                 case "previous":
                     returnKeyFlag = EditorInfo.IME_ACTION_PREVIOUS;
-                    // view.setSingleLine(true);
                     break;
                 case "search":
                     returnKeyFlag = EditorInfo.IME_ACTION_SEARCH;
-                    // view.setSingleLine(true);
                     break;
                 case "send":
                     returnKeyFlag = EditorInfo.IME_ACTION_SEND;
-                    // view.setSingleLine(true);
                     break;
                 case "done":
                     returnKeyFlag = EditorInfo.IME_ACTION_DONE;
-                    // view.setSingleLine(true);
                     break;
             }
         }
