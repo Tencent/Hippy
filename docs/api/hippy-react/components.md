@@ -337,7 +337,7 @@ import icon from './qb_icon_new.png';
 | onSelectionChange     | 当输入框选择文字的范围被改变时调用。返回参数的样式如 `nativeEvent: { selection: { start, end } }`。 | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`     |
 | placeholder           | 如果没有任何文字输入，会显示此字符串。                       | `string`                                                     | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | placeholderTextColor  | 占位字符串显示的文字颜色。（也可设置为 Style 属性）`最低支持版本2.13.4`                | [`color`](api/style/color.md)                                | `Android、iOS、Web-Renderer、Voltron`     |
-| returnKeyType         | 指定软键盘的回车键显示的样式。                               | `enum (done, go, next, search, send)`              | `Android、iOS、Web-Renderer、Voltron`     |
+| returnKeyType         | 指定软键盘的回车键显示的样式。（其中部分样式仅`multiline=false`时有效） | `enum (done, go, next, search, send)`              | `Android、iOS、Web-Renderer、Voltron`     |
 | underlineColorAndroid | `TextInput` 下底线的颜色。 可以设置为 'transparent' 来去掉下底线。（也可设置为 Style 属性） | [`color`](api/style/color.md)                                                      | `Android` |
 | value                 | 指定 `TextInput` 组件的值。                                  | `string`                                                     | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | autoFocus             | 组件渲染时自动获得焦点。                                       | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
