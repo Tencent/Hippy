@@ -394,8 +394,8 @@ public class TextVirtualNode extends VirtualNode {
         }
     }
 
-    protected TextForegroundColorSpan createForegroundColorSpan() {
-        return new TextForegroundColorSpan(mColor);
+    protected TextForegroundColorSpan createForegroundColorSpan(float opacity) {
+        return new TextForegroundColorSpan(colorWithOpacity(mColor, opacity));
     }
 
     protected void createSpanOperationImpl(@NonNull List<SpanOperation> ops,
@@ -412,9 +412,13 @@ public class TextVirtualNode extends VirtualNode {
             TextVerticalAlignSpan span = new TextVerticalAlignSpan(verticalAlign);
             ops.add(new SpanOperation(start, end, span, SpanOperation.PRIORITY_LOWEST));
         }
-        ops.add(new SpanOperation(start, end, createForegroundColorSpan()));
+        float opacity = getFinalOpacity();
+        ops.add(new SpanOperation(start, end, createForegroundColorSpan(opacity)));
         if (mBackgroundColor != Color.TRANSPARENT && mParent != null) {
-            ops.add(new SpanOperation(start, end, new BackgroundColorSpan(mBackgroundColor)));
+            int color = colorWithOpacity(mBackgroundColor, opacity);
+            if (color != Color.TRANSPARENT) {
+                ops.add(new SpanOperation(start, end, new BackgroundColorSpan(color)));
+            }
         }
         if (mLetterSpacing != 0) {
             ops.add(new SpanOperation(start, end,
@@ -434,9 +438,11 @@ public class TextVirtualNode extends VirtualNode {
             ops.add(new SpanOperation(start, end, new StrikethroughSpan()));
         }
         if (mShadowOffsetDx != 0 || mShadowOffsetDy != 0) {
-            ops.add(new SpanOperation(start, end,
-                    new TextShadowSpan(mShadowOffsetDx, mShadowOffsetDy, mShadowRadius,
-                            mShadowColor)));
+            int color = colorWithOpacity(mShadowColor, opacity);
+            if (color != Color.TRANSPARENT) {
+                ops.add(new SpanOperation(start, end,
+                        new TextShadowSpan(mShadowOffsetDx, mShadowOffsetDy, mShadowRadius, color)));
+            }
         }
         if (mGestureTypes != null && mGestureTypes.size() > 0) {
             TextGestureSpan span = new TextGestureSpan(mId);
@@ -458,6 +464,16 @@ public class TextVirtualNode extends VirtualNode {
                 ops.add(new SpanOperation(paragraphStart, paragraphEnd, new TextLineHeightSpan(lh)));
             }
         }
+    }
+
+    public static int colorWithOpacity(int color, float opacity) {
+        if (opacity >= 1) {
+            return color;
+        } else if (opacity > 0) {
+            int alpha = (color >> 24) & 0xFF;
+            return (Math.round(alpha * opacity) << 24) | (color & 0xFFFFFF);
+        }
+        return Color.TRANSPARENT;
     }
 
     protected float getLineSpacingMultiplier() {
@@ -778,4 +794,13 @@ public class TextVirtualNode extends VirtualNode {
         }
         return null;
     }
+
+    @HippyControllerProps(name = NodeProps.OPACITY, defaultType = HippyControllerProps.NUMBER, defaultNumber = 1f)
+    public void setOpacity(float opacity) {
+        // top-level opacity will be handled by HippyViewController, so only sub-level opacity needs to be considered
+        if (mParent != null) {
+            super.setOpacity(opacity);
+        }
+    }
+
 }

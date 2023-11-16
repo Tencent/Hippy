@@ -307,6 +307,11 @@ public class ImageVirtualNode extends VirtualNode {
         markDirty();
     }
 
+    @HippyControllerProps(name = NodeProps.OPACITY, defaultType = HippyControllerProps.NUMBER, defaultNumber = 1f)
+    public void setOpacity(float opacity) {
+        super.setOpacity(opacity);
+    }
+
     @SuppressWarnings("unused")
     @HippyControllerProps(name = "defaultSource", defaultType = HippyControllerProps.STRING)
     public void setDefaultSource(String defaultSource) {
