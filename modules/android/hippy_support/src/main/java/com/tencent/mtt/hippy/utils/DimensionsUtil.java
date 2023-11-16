@@ -184,27 +184,19 @@ public class DimensionsUtil {
 
         // construct param
         HippyMap dimensionMap = new HippyMap();
-        getStatusBarHeight();
+        int statusBarHeight = getStatusBarHeight();
         int navigationBarHeight = getNavigationBarHeight(context);
-        int statusBarHeight =
-                STATUS_BAR_HEIGHT > 0 ? Math.round(PixelUtil.px2dp(STATUS_BAR_HEIGHT)) : -1;
-        float windowWidth = (ww >= 0) ? PixelUtil.px2dp(ww) : ww;
-        float windowHeight = (wh >= 0) ? PixelUtil.px2dp(wh) : wh;
-        float screenDisplayWidth = PixelUtil.px2dp(screenDisplayMetrics.widthPixels);
-        float screenDisplayHeight = PixelUtil.px2dp(screenDisplayMetrics.heightPixels);
-        float windowDisplayWidth = PixelUtil.px2dp(windowDisplayMetrics.widthPixels);
-        float windowDisplayHeight = PixelUtil.px2dp(windowDisplayMetrics.heightPixels);
-        navigationBarHeight = Math.round(PixelUtil.px2dp(navigationBarHeight));
+
         HippyMap windowDisplayMetricsMap = new HippyMap();
         if (shouldUseScreenDisplay) {
-            windowDisplayMetricsMap.pushDouble("width", windowWidth >= 0.0f ? windowWidth : screenDisplayWidth);
-            windowDisplayMetricsMap.pushDouble("height", windowHeight >= 0.0f ? windowHeight : screenDisplayHeight);
+            windowDisplayMetricsMap.pushDouble("width", ww >= 0 ? ww : screenDisplayMetrics.widthPixels);
+            windowDisplayMetricsMap.pushDouble("height", wh >= 0 ? wh : screenDisplayMetrics.heightPixels);
             windowDisplayMetricsMap.pushDouble("scale", screenDisplayMetrics.density);
             windowDisplayMetricsMap.pushDouble("fontScale", screenDisplayMetrics.scaledDensity);
             windowDisplayMetricsMap.pushDouble("densityDpi", screenDisplayMetrics.densityDpi);
         } else {
-            windowDisplayMetricsMap.pushDouble("width", windowWidth >= 0.0f ? windowWidth : windowDisplayWidth);
-            windowDisplayMetricsMap.pushDouble("height", windowHeight >= 0.0f ? windowHeight : windowDisplayHeight);
+            windowDisplayMetricsMap.pushDouble("width", ww >= 0 ? ww : windowDisplayMetrics.widthPixels);
+            windowDisplayMetricsMap.pushDouble("height", wh >= 0 ? wh : windowDisplayMetrics.heightPixels);
             windowDisplayMetricsMap.pushDouble("scale", windowDisplayMetrics.density);
             windowDisplayMetricsMap.pushDouble("fontScale", windowDisplayMetrics.scaledDensity);
             windowDisplayMetricsMap.pushDouble("densityDpi", windowDisplayMetrics.densityDpi);
@@ -212,15 +204,43 @@ public class DimensionsUtil {
         windowDisplayMetricsMap.pushDouble("statusBarHeight", statusBarHeight);
         windowDisplayMetricsMap.pushDouble("navigationBarHeight", navigationBarHeight);
         dimensionMap.pushMap("windowPhysicalPixels", windowDisplayMetricsMap);
+
         HippyMap screenDisplayMetricsMap = new HippyMap();
-        screenDisplayMetricsMap.pushDouble("width", screenDisplayWidth);
-        screenDisplayMetricsMap.pushDouble("height", screenDisplayHeight);
+        screenDisplayMetricsMap.pushDouble("width", screenDisplayMetrics.widthPixels);
+        screenDisplayMetricsMap.pushDouble("height", screenDisplayMetrics.heightPixels);
         screenDisplayMetricsMap.pushDouble("scale", screenDisplayMetrics.density);
         screenDisplayMetricsMap.pushDouble("fontScale", screenDisplayMetrics.scaledDensity);
         screenDisplayMetricsMap.pushDouble("densityDpi", screenDisplayMetrics.densityDpi);
         screenDisplayMetricsMap.pushDouble("statusBarHeight", statusBarHeight);
         screenDisplayMetricsMap.pushDouble("navigationBarHeight", navigationBarHeight);
         dimensionMap.pushMap("screenPhysicalPixels", screenDisplayMetricsMap);
+
         return dimensionMap;
     }
+
+    public static void convertDimensionsToDp(HippyMap dimensionMap) {
+        if (dimensionMap != null) {
+            convertPhysicalPixelsToDp(dimensionMap.getMap("windowPhysicalPixels"));
+            convertPhysicalPixelsToDp(dimensionMap.getMap("screenPhysicalPixels"));
+        }
+    }
+
+    private static void convertPhysicalPixelsToDp(HippyMap map) {
+        if (map != null) {
+            double scale = map.getDouble("scale");
+            assert scale != 0;
+            divideByScale(map, "width", scale);
+            divideByScale(map, "height", scale);
+            divideByScale(map, "statusBarHeight", scale);
+            divideByScale(map, "navigationBarHeight", scale);
+        }
+    }
+
+    private static void divideByScale(HippyMap map, String key, double scale) {
+        double value = map.getDouble(key);
+        if (value > 0) {
+            map.pushDouble(key, value / scale);
+        }
+    }
+
 }
