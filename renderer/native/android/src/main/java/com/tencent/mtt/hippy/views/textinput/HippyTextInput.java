@@ -19,10 +19,17 @@ package com.tencent.mtt.hippy.views.textinput;
 import android.graphics.BlendMode;
 import android.graphics.BlendModeColorFilter;
 
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
+import com.tencent.renderer.NativeRender;
+import com.tencent.renderer.NativeRendererManager;
+import com.tencent.renderer.component.text.FontAdapter;
+import com.tencent.renderer.component.text.TypeFaceUtil;
 import com.tencent.renderer.node.RenderNode;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -57,6 +64,7 @@ import com.tencent.renderer.utils.EventUtils;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
@@ -75,6 +83,11 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
     private int mLastRootViewVisibleHeight = -1;      //当前RootView的上一次大小
     private boolean mIsKeyBoardShow = false;    //键盘是否在显示
     private ReactContentSizeWatcher mReactContentSizeWatcher = null;
+    private boolean mItalic = false;
+    private int mFontWeight = TypeFaceUtil.WEIGHT_NORMAL;
+    @Nullable
+    private String mFontFamily;
+    private Paint mTextPaint;
 
     public HippyTextInput(Context context) {
         super(context);
@@ -639,4 +652,53 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
             }
         }
     }
+
+    public void setFontStyle(String style) {
+        if (TypeFaceUtil.TEXT_FONT_STYLE_ITALIC.equals(style) != mItalic) {
+            mItalic = !mItalic;
+            updateTypeface();
+        }
+    }
+
+    public void setFontFamily(String family) {
+        if (!Objects.equals(mFontFamily, family)) {
+            mFontFamily = family;
+            updateTypeface();
+        }
+    }
+
+    public void setFontWeight(String weight) {
+        int fontWeight;
+        if (TextUtils.isEmpty(weight) || TypeFaceUtil.TEXT_FONT_STYLE_NORMAL.equals(weight)) {
+            // case normal
+            fontWeight = TypeFaceUtil.WEIGHT_NORMAL;
+        } else if (TypeFaceUtil.TEXT_FONT_STYLE_BOLD.equals(weight)) {
+            // case bold
+            fontWeight = TypeFaceUtil.WEIGHT_BOLE;
+        } else {
+            // case number
+            try {
+                fontWeight = Math.min(Math.max(1, Integer.parseInt(weight)), 1000);
+            } catch (NumberFormatException ignored) {
+                fontWeight = TypeFaceUtil.WEIGHT_NORMAL;
+            }
+        }
+        if (fontWeight != mFontWeight) {
+            mFontWeight = fontWeight;
+            updateTypeface();
+        }
+    }
+
+    private void updateTypeface() {
+        if (mTextPaint == null) {
+            mTextPaint = new Paint();
+        } else {
+            mTextPaint.reset();
+        }
+        NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(getContext());
+        FontAdapter fontAdapter = nativeRenderer == null ? null : nativeRenderer.getFontAdapter();
+        TypeFaceUtil.apply(mTextPaint, mItalic, mFontWeight, mFontFamily, fontAdapter);
+        setTypeface(mTextPaint.getTypeface(), mTextPaint.isFakeBoldText() ? Typeface.BOLD : Typeface.NORMAL);
+    }
+
 }

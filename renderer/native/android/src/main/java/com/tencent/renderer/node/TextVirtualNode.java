@@ -57,6 +57,7 @@ import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class TextVirtualNode extends VirtualNode {
 
@@ -69,9 +70,6 @@ public class TextVirtualNode extends VirtualNode {
     public final static String V_ALIGN_BOTTOM = "bottom";
 
     private static final int TEXT_SHADOW_COLOR_DEFAULT = 0x55000000;
-    private static final String TEXT_FONT_STYLE_ITALIC = "italic";
-    private static final String TEXT_FONT_STYLE_BOLD = "bold";
-    private static final String TEXT_FONT_STYLE_NORMAL = "normal";
     private static final String TEXT_DECORATION_UNDERLINE = "underline";
     private static final String TEXT_DECORATION_LINE_THROUGH = "line-through";
     private static final String MODE_HEAD = "head";
@@ -137,7 +135,7 @@ public class TextVirtualNode extends VirtualNode {
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.FONT_STYLE, defaultType = HippyControllerProps.STRING)
     public void setFontStyle(String style) {
-        if (TEXT_FONT_STYLE_ITALIC.equals(style) != mItalic) {
+        if (TypeFaceUtil.TEXT_FONT_STYLE_ITALIC.equals(style) != mItalic) {
             mItalic = !mItalic;
             markDirty();
         }
@@ -172,18 +170,20 @@ public class TextVirtualNode extends VirtualNode {
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.FONT_FAMILY, defaultType = HippyControllerProps.STRING)
     public void setFontFamily(String family) {
-        mFontFamily = family;
-        markDirty();
+        if (!Objects.equals(mFontFamily, family)) {
+            mFontFamily = family;
+            markDirty();
+        }
     }
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.FONT_WEIGHT, defaultType = HippyControllerProps.STRING)
     public void setFontWeight(String weight) {
         int fontWeight;
-        if (TextUtils.isEmpty(weight) || TEXT_FONT_STYLE_NORMAL.equals(weight)) {
+        if (TextUtils.isEmpty(weight) || TypeFaceUtil.TEXT_FONT_STYLE_NORMAL.equals(weight)) {
             // case normal
             fontWeight = TypeFaceUtil.WEIGHT_NORMAL;
-        } else if (TEXT_FONT_STYLE_BOLD.equals(weight)) {
+        } else if (TypeFaceUtil.TEXT_FONT_STYLE_BOLD.equals(weight)) {
             // case bold
             fontWeight = TypeFaceUtil.WEIGHT_BOLE;
         } else {

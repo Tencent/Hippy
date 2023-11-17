@@ -35,6 +35,9 @@ public class TypeFaceUtil {
 
     public static final int WEIGHT_NORMAL = 400;
     public static final int WEIGHT_BOLE = 700;
+    public static final String TEXT_FONT_STYLE_ITALIC = "italic";
+    public static final String TEXT_FONT_STYLE_BOLD = "bold";
+    public static final String TEXT_FONT_STYLE_NORMAL = "normal";
     private static final String TAG = "TypeFaceUtil";
     private static final String[] EXTENSIONS = {"", "_bold", "_italic", "_bold_italic"};
     private static final String[] FONT_EXTENSIONS = {".ttf", ".otf"};
@@ -174,7 +177,9 @@ public class TypeFaceUtil {
         } else {
             typeface = getTypeface(familyName, weight, italic, fontAdapter);
         }
-        paint.setFakeBoldText(weight >= WEIGHT_BOLE && typeface != null && !typeface.isBold());
+        if (weight >= WEIGHT_BOLE && typeface != null && !typeface.isBold()) {
+            paint.setFakeBoldText(true);
+        }
         paint.setTypeface(typeface);
     }
 }
