@@ -39,7 +39,7 @@ static NSString *kCellIdentifier = @"HippyWaterfallCellIdentifier";
 static NSString *kWaterfallItemName = @"WaterfallItem";
 static const NSTimeInterval delayForPurgeView = 1.f;
 
-@interface NativeRenderWaterfallView () <HippyInvalidating, NativeRenderRefreshDelegate, NativeRenderListTableViewLayoutProtocol> {
+@interface NativeRenderWaterfallView () <HippyInvalidating, NativeRenderRefreshDelegate, HippyListTableViewLayoutProtocol> {
     NSHashTable<id<UIScrollViewDelegate>> *_scrollListeners;
     BOOL _isInitialListReady;
     UIColor *_backgroundColor;
@@ -549,6 +549,12 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     _allowNextScrollNoMatterWhat = YES; // Ensure next scroll event is recorded, regardless of throttle
     _manualScroll = YES;
     [self cancelTouch];
+    
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginDragging:)]) {
+            [scrollViewListener scrollViewWillBeginDragging:scrollView];
+        }
+    }
 }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView
@@ -566,6 +572,12 @@ static const NSTimeInterval delayForPurgeView = 1.f;
             self.onExposureReport(exposureInfo);
         }
     }
+    
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillEndDragging:withVelocity:targetContentOffset:)]) {
+            [scrollViewListener scrollViewWillEndDragging:scrollView withVelocity:velocity targetContentOffset:targetContentOffset];
+        }
+    }
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
@@ -580,7 +592,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
         _allowNextScrollNoMatterWhat = YES;
         [self scrollViewDidScroll:scrollView];
     }
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDragging:willDecelerate:)]) {
             [scrollViewListener scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
         }
@@ -591,7 +603,11 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 }
 
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
-    // noop
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginDecelerating:)]) {
+            [scrollViewListener scrollViewWillBeginDecelerating:scrollView];
+        }
+    }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
@@ -599,9 +615,18 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     _allowNextScrollNoMatterWhat = YES;
     [self scrollViewDidScroll:scrollView];
     
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        self->_manualScroll = NO;
+    });
+    
     if (self.onExposureReport) {
         NSDictionary *exposureInfo = [self scrollEventDataWithState:ScrollStateStop];
         self.onExposureReport(exposureInfo);
+    }
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDecelerating:)]) {
+            [scrollViewListener scrollViewDidEndDecelerating:scrollView];
+        }
     }
 }
 
@@ -609,21 +634,39 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     // Fire a final scroll event
     _allowNextScrollNoMatterWhat = YES;
     [self scrollViewDidScroll:scrollView];
+    
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndScrollingAnimation:)]) {
+            [scrollViewListener scrollViewDidEndScrollingAnimation:scrollView];
+        }
+    }
 }
 
 - (nullable UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView;
 { return nil; }
 
 - (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(nullable UIView *)view {
-    // noop
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginZooming:withView:)]) {
+            [scrollViewListener scrollViewWillBeginZooming:scrollView withView:view];
+        }
+    }
 }
 
 - (void)scrollViewDidZoom:(UIScrollView *)scrollView {
-    // noop
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidZoom:)]) {
+            [scrollViewListener scrollViewDidZoom:scrollView];
+        }
+    }
 }
 
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(nullable UIView *)view atScale:(CGFloat)scale {
-    // noop
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndZooming:withView:atScale:)]) {
+            [scrollViewListener scrollViewDidEndZooming:scrollView withView:view atScale:scale];
+        }
+    }
 }
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollViewxt {
@@ -698,8 +741,9 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     if ([view isKindOfClass:[HippyRootView class]]) {
         _rootView = (HippyRootView *)view;
         return _rootView;
-    } else
+    } else {
         return nil;
+    }
 }
 
 - (void)cancelTouch {

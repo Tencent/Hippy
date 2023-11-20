@@ -28,7 +28,7 @@
 
 @class NativeRenderBaseListViewCell;
 
-@interface NativeRenderBaseListView : NativeRenderWaterfallView <NativeRenderListTableViewLayoutProtocol>
+@interface NativeRenderBaseListView : NativeRenderWaterfallView <HippyListTableViewLayoutProtocol>
 
 /**
  * Hippy events

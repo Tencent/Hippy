@@ -46,7 +46,8 @@ static NSString *const kListViewItem = @"ListViewItem";
 
 @implementation NativeRenderBaseListView
 
-#pragma mark Life Cycle
+#pragma mark - Life Cycle
+
 - (instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
         _isInitialListReady = NO;
@@ -56,13 +57,13 @@ static NSString *const kListViewItem = @"ListViewItem";
     return self;
 }
 
-
 - (void)dealloc {
     [_headerRefreshView unsetFromScrollView];
     [_footerRefreshView unsetFromScrollView];
 }
 
-#pragma mark Setter & Getter
+#pragma mark - Setter & Getter
+
 - (NSString *)compoentItemName {
     return kListViewItem;
 }
@@ -342,13 +343,9 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
     // override, should call super
     [super scrollViewWillBeginDragging:scrollView];
+    
     if (self.onScrollBeginDrag) {
         self.onScrollBeginDrag([self scrollEventDataWithState:ScrollStateDraging]);
-    }
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginDragging:)]) {
-            [scrollViewListener scrollViewWillBeginDragging:scrollView];
-        }
     }
 }
 
@@ -362,12 +359,6 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     
     if (self.onScrollEndDrag) {
         self.onScrollEndDrag([self scrollEventDataWithState:ScrollStateDraging]);
-    }
-    
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillEndDragging:withVelocity:targetContentOffset:)]) {
-            [scrollViewListener scrollViewWillEndDragging:scrollView withVelocity:velocity targetContentOffset:targetContentOffset];
-        }
     }
 }
 
@@ -383,11 +374,6 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     if (self.onMomentumScrollBegin) {
         self.onMomentumScrollBegin([self scrollEventDataWithState:ScrollStateScrolling]);
     }
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginDecelerating:)]) {
-            [scrollViewListener scrollViewWillBeginDecelerating:scrollView];
-        }
-    }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
@@ -396,56 +382,6 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 
     if (self.onMomentumScrollEnd) {
         self.onMomentumScrollEnd([self scrollEventDataWithState:ScrollStateStop]);
-    }
-
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDecelerating:)]) {
-            [scrollViewListener scrollViewDidEndDecelerating:scrollView];
-        }
-    }
-}
-
-- (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view {
-    // override, should call super
-    [super scrollViewWillBeginZooming:scrollView withView:view];
-    
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginZooming:withView:)]) {
-            [scrollViewListener scrollViewWillBeginZooming:scrollView withView:view];
-        }
-    }
-}
-
-- (void)scrollViewDidZoom:(UIScrollView *)scrollView {
-    // override, should call super
-    [super scrollViewDidZoom:scrollView];
-    
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidZoom:)]) {
-            [scrollViewListener scrollViewDidZoom:scrollView];
-        }
-    }
-}
-
-- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale {
-    // override, should call super
-    [super scrollViewDidEndZooming:scrollView withView:view atScale:scale];
-    
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndZooming:withView:atScale:)]) {
-            [scrollViewListener scrollViewDidEndZooming:scrollView withView:view atScale:scale];
-        }
-    }
-}
-
-- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
-    // override, should call super
-    [super scrollViewDidEndScrollingAnimation:scrollView];
-    
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndScrollingAnimation:)]) {
-            [scrollViewListener scrollViewDidEndScrollingAnimation:scrollView];
-        }
     }
 }
 
