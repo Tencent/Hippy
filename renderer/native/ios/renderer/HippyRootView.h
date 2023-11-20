@@ -113,7 +113,7 @@ extern NSString *const HippySecondaryBundleDidLoadNotification;
 - (void)runHippyApplication;
 
 
-#pragma mark -
+#pragma mark - Others
 
 /// This method should be called when the host controller's view's size is changed
 ///  (i.e. for the root view controller when its window rotates or is resized).
@@ -124,5 +124,17 @@ extern NSString *const HippySecondaryBundleDidLoadNotification;
 /// - Parameter size: the new size
 - (void)onHostControllerTransitionedToSize:(CGSize)size;
 
+/// Calling this will result in emitting a "touches cancelled" event to js,
+/// which effectively cancels all js "gesture recognizers" such as as touchable
+/// (unless they explicitely ignore cancellation events, but noone should do that).
+///
+/// This API is exposed for integration purposes where you embed Hippy rootView
+/// in a native view with a native gesture recognizer,
+/// whose activation should prevent any in-flight js "gesture recognizer" from activating.
+///
+/// * An example would be RN rootView embedded in an UIScrollView.
+/// When you touch down on a touchable component and drag your finger up,
+/// you don't want any touch to be registered as soon as the UIScrollView starts scrolling.
+- (void)cancelTouches;
 
 @end

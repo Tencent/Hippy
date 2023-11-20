@@ -33,15 +33,13 @@
 #import "UIView+Hippy.h"
 #import "UIView+Render.h"
 
-static NSString *const kCellIdentifier = @"cellIdentifier";
+static NSString *const kCellIdentifier = @"HippyListCellIdentifier";
 static NSString *const kSupplementaryIdentifier = @"SupplementaryIdentifier";
 static NSString *const kListViewItem = @"ListViewItem";
 
 @interface NativeRenderBaseListView () <NativeRenderRefreshDelegate> {
-    __weak UIView *_rootView;
     BOOL _isInitialListReady;
     NSArray<UICollectionViewCell *> *_previousVisibleCells;
-    BOOL _manualScroll;
 }
 
 @end
@@ -92,7 +90,8 @@ static NSString *const kListViewItem = @"ListViewItem";
 
 - (void)registerCells {
     Class cls = [self listItemClass];
-    NSAssert([cls isSubclassOfClass:[NativeRenderBaseListViewCell class]], @"list item class must be a subclass of NativeRenderBaseListViewCell");
+    HippyAssert([cls isSubclassOfClass:[NativeRenderBaseListViewCell class]],
+                @"list item class must be subclass of NativeRenderBaseListViewCell");
     [self.collectionView registerClass:cls forCellWithReuseIdentifier:kCellIdentifier];
 }
 
@@ -102,19 +101,31 @@ static NSString *const kListViewItem = @"ListViewItem";
                    withReuseIdentifier:kSupplementaryIdentifier];
 }
 
-- (void)setFrame:(CGRect)frame {
-    [super setFrame:frame];
-}
-
-- (void)hippySetFrame:(CGRect)frame {
-    [super hippySetFrame:frame];
-    self.collectionView.frame = self.bounds;
-}
-
 - (void)setInitialListReady:(HippyDirectEventBlock)initialListReady {
     _initialListReady = initialListReady;
     _isInitialListReady = NO;
 }
+
+- (void)setBounces:(BOOL)bounces {
+    [self.collectionView setBounces:bounces];
+}
+
+- (BOOL)bounces {
+    return [self.collectionView bounces];
+}
+
+- (void)setShowScrollIndicator:(BOOL)show {
+    [self.collectionView setShowsVerticalScrollIndicator:show];
+}
+
+- (BOOL)showScrollIndicator {
+    return [self.collectionView showsVerticalScrollIndicator];
+}
+
+- (void)setScrollEnabled:(BOOL)value {
+    [self.collectionView setScrollEnabled:value];
+}
+
 
 #pragma mark Data Load
  
@@ -184,40 +195,6 @@ static NSString *const kListViewItem = @"ListViewItem";
                                                                      containBannerView:NO];
 }
 
-#pragma mark -Scrollable
-
-- (void)setScrollEnabled:(BOOL)value {
-    [self.collectionView setScrollEnabled:value];
-}
-
-- (void)scrollToOffset:(__unused CGPoint)offset {
-}
-
-- (void)scrollToOffset:(__unused CGPoint)offset animated:(__unused BOOL)animated {
-}
-
-- (void)zoomToRect:(__unused CGRect)rect animated:(__unused BOOL)animated {
-}
-
-- (UIScrollView *)realScrollView {
-    return self.collectionView;
-}
-
-- (CGSize)contentSize {
-    return self.collectionView.contentSize;
-}
-
-- (void)scrollToContentOffset:(CGPoint)offset animated:(BOOL)animated {
-    [self.collectionView setContentOffset:offset animated:animated];
-}
-
-- (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated {
-    NSIndexPath *indexPath = [self.dataSource indexPathForFlatIndex:index];
-    if (indexPath != nil) {
-        [self.collectionView scrollToItemAtIndexPath:indexPath
-                                    atScrollPosition:UITableViewScrollPositionTop animated:animated];
-    }
-}
 
 #pragma mark - Delegate & Datasource
 
@@ -359,13 +336,15 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     _previousVisibleCells = visibleCells;
 }
 
-#pragma mark - Scroll
+
+#pragma mark - UIScrollViewDelegate
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    // override, should call super
+    [super scrollViewWillBeginDragging:scrollView];
     if (self.onScrollBeginDrag) {
         self.onScrollBeginDrag([self scrollEventDataWithState:ScrollStateDraging]);
     }
-    _manualScroll = YES;
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginDragging:)]) {
             [scrollViewListener scrollViewWillBeginDragging:scrollView];
@@ -373,7 +352,34 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     }
 }
 
+- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView
+                     withVelocity:(CGPoint)velocity
+              targetContentOffset:(inout CGPoint *)targetContentOffset {
+    // override, should call super
+    [super scrollViewWillEndDragging:scrollView
+                        withVelocity:velocity
+                 targetContentOffset:targetContentOffset];
+    
+    if (self.onScrollEndDrag) {
+        self.onScrollEndDrag([self scrollEventDataWithState:ScrollStateDraging]);
+    }
+    
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillEndDragging:withVelocity:targetContentOffset:)]) {
+            [scrollViewListener scrollViewWillEndDragging:scrollView withVelocity:velocity targetContentOffset:targetContentOffset];
+        }
+    }
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    // override, should call super
+    [super scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
+}
+
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
+    // override, should call super
+    [super scrollViewWillBeginDecelerating:scrollView];
+    
     if (self.onMomentumScrollBegin) {
         self.onMomentumScrollBegin([self scrollEventDataWithState:ScrollStateScrolling]);
     }
@@ -384,42 +390,9 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     }
 }
 
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
-    if (!decelerate) {
-        _manualScroll = NO;
-    }
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDragging:willDecelerate:)]) {
-            [scrollViewListener scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
-        }
-    }
-    [_headerRefreshView scrollViewDidEndDragging];
-    [_footerRefreshView scrollViewDidEndDragging];
-}
-
-- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
-    if (velocity.y == 0 && velocity.x == 0) {
-        dispatch_after(
-            dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                self->_manualScroll = NO;
-            });
-    }
-
-    if (self.onScrollEndDrag) {
-        self.onScrollEndDrag([self scrollEventDataWithState:ScrollStateDraging]);
-    }
-
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillEndDragging:withVelocity:targetContentOffset:)]) {
-            [scrollViewListener scrollViewWillEndDragging:scrollView withVelocity:velocity targetContentOffset:targetContentOffset];
-        }
-    }
-}
-
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        self->_manualScroll = NO;
-    });
+    // override, should call super
+    [super scrollViewDidEndDecelerating:scrollView];
 
     if (self.onMomentumScrollEnd) {
         self.onMomentumScrollEnd([self scrollEventDataWithState:ScrollStateStop]);
@@ -433,6 +406,9 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 }
 
 - (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view {
+    // override, should call super
+    [super scrollViewWillBeginZooming:scrollView withView:view];
+    
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginZooming:withView:)]) {
             [scrollViewListener scrollViewWillBeginZooming:scrollView withView:view];
@@ -441,6 +417,9 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 }
 
 - (void)scrollViewDidZoom:(UIScrollView *)scrollView {
+    // override, should call super
+    [super scrollViewDidZoom:scrollView];
+    
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidZoom:)]) {
             [scrollViewListener scrollViewDidZoom:scrollView];
@@ -449,6 +428,9 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 }
 
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale {
+    // override, should call super
+    [super scrollViewDidEndZooming:scrollView withView:view atScale:scale];
+    
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndZooming:withView:atScale:)]) {
             [scrollViewListener scrollViewDidEndZooming:scrollView withView:view atScale:scale];
@@ -457,6 +439,9 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
+    // override, should call super
+    [super scrollViewDidEndScrollingAnimation:scrollView];
+    
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndScrollingAnimation:)]) {
             [scrollViewListener scrollViewDidEndScrollingAnimation:scrollView];
@@ -465,34 +450,13 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 }
 
 - (NSDictionary *)scrollEventDataWithState:(NativeRenderScrollState)state {
-    return @{ @"contentOffset": @ { @"x": @(self.collectionView.contentOffset.x), @"y": @(self.collectionView.contentOffset.y) } };
+    return @{ @"contentOffset": @{ @"x": @(self.collectionView.contentOffset.x),
+                                   @"y": @(self.collectionView.contentOffset.y)}
+    };
 }
 
-- (void)didMoveToSuperview {
-    _rootView = nil;
-}
 
-- (BOOL)isManualScrolling {
-    return _manualScroll;
-}
-
-- (void)setBounces:(BOOL)bounces {
-    [self.collectionView setBounces:bounces];
-}
-
-- (BOOL)bounces {
-    return [self.collectionView bounces];
-}
-
-- (void)setShowScrollIndicator:(BOOL)show {
-    [self.collectionView setShowsVerticalScrollIndicator:show];
-}
-
-- (BOOL)showScrollIndicator {
-    return [self.collectionView showsVerticalScrollIndicator];
-}
-
-#pragma mark UICollectionViewLayout Delegate
+#pragma mark - UICollectionViewLayout Delegate
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView
                      layout:(UICollectionViewLayout *)collectionViewLayout columnCountForSection:(NSInteger)section {
@@ -532,7 +496,4 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     }
 }
 
-#pragma mark NativeRenderRefresh Delegate
-- (void)refreshView:(HippyRefresh *)refreshView statusChanged:(HippyRefreshStatus)status {
-}
 @end
