@@ -56,7 +56,10 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 
 @end
 
-@implementation NativeRenderWaterfallView
+@implementation NativeRenderWaterfallView {
+    BOOL _allowNextScrollNoMatterWhat;
+    CFTimeInterval _lastOnScrollEventTimeInterval;
+}
 
 @synthesize contentSize;
 
@@ -465,12 +468,13 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     if (_onScroll) {
-        double ti = CACurrentMediaTime();
-        double timeDiff = (ti - _lastOnScrollEventTimeInterval) * 1000.f;
-        if (timeDiff > _scrollEventThrottle) {
+        CFTimeInterval now = CACurrentMediaTime();
+        CFTimeInterval ti = (now - _lastOnScrollEventTimeInterval) * 1000.0;
+        if (ti > _scrollEventThrottle || _allowNextScrollNoMatterWhat) {
             NSDictionary *eventData = [self scrollEventDataWithState:ScrollStateScrolling];
-            _lastOnScrollEventTimeInterval = ti;
+            _lastOnScrollEventTimeInterval = now;
             _onScroll(eventData);
+            _allowNextScrollNoMatterWhat = NO;
         }
     }
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
@@ -545,6 +549,9 @@ static const NSTimeInterval delayForPurgeView = 1.f;
             NSDictionary *exposureInfo = [self scrollEventDataWithState:state];
             self.onExposureReport(exposureInfo);
         }
+        // Fire a final scroll event
+        _allowNextScrollNoMatterWhat = YES;
+        [self scrollViewDidScroll:scrollView];
     }
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDragging:willDecelerate:)]) {
@@ -561,12 +568,14 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    _allowNextScrollNoMatterWhat = YES; // Ensure next scroll event is recorded, regardless of throttle
+    
     _manualScroll = YES;
 }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView
                      withVelocity:(CGPoint)velocity
-              targetContentOffset:(inout CGPoint *)targetContentOffset NS_AVAILABLE_IOS(5_0) {
+              targetContentOffset:(inout CGPoint *)targetContentOffset {
     if (velocity.y == 0 && velocity.x == 0) {
         dispatch_after(
             dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -581,8 +590,11 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     }
 }
 
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView;
-{
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    // Fire a final scroll event
+    _allowNextScrollNoMatterWhat = YES;
+    [self scrollViewDidScroll:scrollView];
+    
     if (self.onExposureReport) {
         NSDictionary *exposureInfo = [self scrollEventDataWithState:ScrollStateStop];
         self.onExposureReport(exposureInfo);
@@ -590,6 +602,9 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
+    // Fire a final scroll event
+    _allowNextScrollNoMatterWhat = YES;
+    [self scrollViewDidScroll:scrollView];
 }
 
 - (nullable UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView;
@@ -636,10 +651,16 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 }
 
 - (void)scrollToOffset:(CGPoint)point animated:(BOOL)animated {
+    // Ensure at least one scroll event will fire
+    _allowNextScrollNoMatterWhat = YES;
+    
     [self.collectionView setContentOffset:point animated:animated];
 }
 
 - (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated {
+    // Ensure at least one scroll event will fire
+    _allowNextScrollNoMatterWhat = YES;
+    
     NSInteger section = _containBannerView ? 1 : 0;
     [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:index inSection:section]
                                 atScrollPosition:UICollectionViewScrollPositionTop
