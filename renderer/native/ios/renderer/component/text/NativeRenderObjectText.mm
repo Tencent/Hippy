@@ -612,13 +612,18 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                       heightOfTallestSubview:(CGFloat)heightOfTallestSubview
                                 isNestedText:(BOOL)isNestedText {
     NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:attributedString];
-    if (fabs(_lineHeight - 0) < DBL_EPSILON) {
-        _lineHeight = fontLineHeight;
+    BOOL hasSetLineHeight = NO;
+    if (fabs(self.lineHeight - 0) < DBL_EPSILON) {
+        // If no fixed lineHeight is set, fontLineHeight is used.
+        self.lineHeight = fontLineHeight;
+    } else if (!self.adjustsFontSizeToFit) {
+        // Only when adjustsFontSizeToFit is not set, the fixed lineHeight can be used.
+        hasSetLineHeight = YES;
     }
     
     // check if we have lineHeight set on self
     __block BOOL hasParagraphStyle = NO;
-    if (_lineHeight || _textAlignSet || 1.f != _lineHeightMultiple) {
+    if (hasSetLineHeight || _textAlignSet || 1.0 != _lineHeightMultiple) {
         hasParagraphStyle = YES;
     }
 
@@ -644,8 +649,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         self.lineHeight = newLineHeight;
     }
 
-    __block CGFloat maximumFontLineHeight = 0;
-
+    __block CGFloat maximumFontLineHeight = 0.0;
     [textStorage enumerateAttribute:NSFontAttributeName
                             inRange:NSMakeRange(0, attributedString.length)
                             options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired
@@ -671,7 +675,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         paragraphStyle.lineHeightMultiple = _lineHeightMultiple;
         maxHeight = MAX(maxHeight, maximumFontLineHeight);
         paragraphStyle.minimumLineHeight = lineHeight;
-        paragraphStyle.maximumLineHeight = maxHeight;
+        paragraphStyle.maximumLineHeight = hasSetLineHeight ? self.lineHeight : maxHeight;
         [attributedString addAttribute:NSParagraphStyleAttributeName
                                  value:paragraphStyle
                                  range:(NSRange) { 0, attributedString.length }];
