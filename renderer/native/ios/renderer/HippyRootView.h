@@ -132,7 +132,7 @@ extern NSString *const HippySecondaryBundleDidLoadNotification;
 /// in a native view with a native gesture recognizer,
 /// whose activation should prevent any in-flight js "gesture recognizer" from activating.
 ///
-/// * An example would be RN rootView embedded in an UIScrollView.
+/// * An example would be a Hippy rootView embedded in an UIScrollView.
 /// When you touch down on a touchable component and drag your finger up,
 /// you don't want any touch to be registered as soon as the UIScrollView starts scrolling.
 - (void)cancelTouches;
