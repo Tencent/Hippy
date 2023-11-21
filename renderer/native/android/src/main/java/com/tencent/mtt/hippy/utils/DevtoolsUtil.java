@@ -251,7 +251,7 @@ public class DevtoolsUtil {
     }
 
     private static String bitmapToBase64Str(Bitmap bitmap, float scale, int viewWidth, int viewHeight) {
-        String result = null;
+        String result = "";
         ByteArrayOutputStream outputStream = null;
         try {
             if (bitmap != null) {
@@ -269,6 +269,8 @@ public class DevtoolsUtil {
                 byte[] bitmapBytes = outputStream.toByteArray();
                 result = Base64.encodeToString(bitmapBytes, Base64.NO_WRAP);
             }
+        } catch (IllegalArgumentException e) {
+            sCacheBitmapRef.clear();
         } catch (IOException e) {
             LogUtils.e(TAG, "bitmapToBase64Str, scale exception:", e);
         } finally {
