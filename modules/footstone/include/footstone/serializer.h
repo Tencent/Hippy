@@ -69,6 +69,15 @@ enum class SerializationTag : uint8_t {
   kEndDenseJSArray = '$',
 };
 
+class SerializerHelper {
+ public:
+  static void DestroyBuffer(const std::pair<uint8_t*, size_t>& pair) {
+    if (pair.first) {
+      free(pair.first);
+    }
+  }
+};
+
 class Serializer {
  public:
   Serializer();
@@ -80,7 +89,11 @@ class Serializer {
 
   void WriteValue(const HippyValue& hippy_value);
 
+  /**
+   * @brief 获取 HippyValue 对应序列化数据，注意 Release 后指针交给外部管理，需要自行释放
+   */
   std::pair<uint8_t*, size_t> Release();
+
  private:
 
   void WriteOddball(Oddball oddball);

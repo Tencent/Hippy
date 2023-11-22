@@ -223,8 +223,10 @@ DomManager::byte_string DomManager::GetSnapShot(const std::shared_ptr<RootNode>&
   Serializer serializer;
   serializer.WriteHeader();
   serializer.WriteValue(HippyValue(array));
-  auto ret = serializer.Release();
-  return {reinterpret_cast<const char*>(ret.first), ret.second};
+  auto buffer_pair = serializer.Release();
+  byte_string bs =  {reinterpret_cast<const char*>(buffer_pair.first), buffer_pair.second};
+  footstone::value::SerializerHelper::DestroyBuffer(buffer_pair);
+  return bs;
 }
 
 bool DomManager::SetSnapShot(const std::shared_ptr<RootNode>& root_node, const byte_string& buffer) {

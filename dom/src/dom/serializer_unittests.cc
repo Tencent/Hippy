@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #define private public
 #define protected public
 
@@ -124,7 +144,7 @@ void CheckString(footstone::value::Serializer& serializer, std::string value, si
 
 TEST(SerializerTest, Release) {
   footstone::value::Serializer serializer;
-  serializer.Release();
+  footstone::value::SerializerHelper(serializer.Release());
   EXPECT_EQ(serializer.buffer_ == nullptr, true) << "Serializer buffer is not equal to nullptr.";
   EXPECT_EQ(serializer.buffer_size_, 0) << "Serializer buffer_size is not equal to 0.";
   EXPECT_EQ(serializer.buffer_capacity_, 0) << "Serializer buffer_capacity is not equal to 0.";
