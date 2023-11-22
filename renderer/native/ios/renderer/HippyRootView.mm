@@ -132,6 +132,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
         } else {
             __weak __typeof(self)weakSelf = self;
             [bridge loadBundleURL:businessURL completion:^(NSURL * _Nullable url, NSError * _Nullable error) {
+                // Execute loadInstance first and then do call back, maintain compatibility with hippy2
+                if (!error) {
+                    [weakSelf runHippyApplication];
+                }
                 dispatch_async(dispatch_get_main_queue(), ^{
                     __strong __typeof(weakSelf)strongSelf = weakSelf;
                     // 抛出业务包(BusinessBundle aka SecondaryBundle)加载完成通知, for hippy2兼容
@@ -145,9 +149,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
                         [delegate rootView:strongSelf didLoadFinish:(error == nil)];
                     }
                 });
-                if (!error) {
-                    [weakSelf runHippyApplication];
-                }
             }];
         }
     }
