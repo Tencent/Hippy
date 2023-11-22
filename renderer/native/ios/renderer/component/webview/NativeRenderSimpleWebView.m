@@ -36,38 +36,79 @@
 
 - (void)setSource:(NSDictionary *)source {
     _source = source;
-    if (source && [source[@"uri"] isKindOfClass:[NSString class]]) {
-        NSString *urlString = source[@"uri"];
+    if(source == nil){
+        return;
+    }
+    
+    if ([source[@"uri"] isKindOfClass:[NSString class]]) {
+        // load uri
+        NSString *uri = source[@"uri"];
         NSString *method = source[@"method"];
+        NSDictionary* headers = source[@"headers"];
+        NSString* body = source[@"body"];
         
         // Wait for other properties to be updated
         dispatch_async(dispatch_get_main_queue(), ^{
-          [self loadUrl:urlString withMethod:method];
+          //[self loadUrl:urlString withMethod:method];
+            [self loadURI:uri method:method headers:headers body:body];
+        });
+    }else if([source[@"html"] isKindOfClass:[NSString class]]){
+        // load html
+        NSString* html = source[@"html"];
+        NSString* baseUrl = source[@"baseUrl"];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self loadHtml:html baseUrl:baseUrl];
         });
     }
 }
 
-- (void)loadUrl:(NSString *)urlString withMethod:(NSString*)method {
-    _url = urlString;
-    NSURL *url = HippyURLWithString(urlString, NULL);
+- (void)loadURI:(NSString*)uri method:(NSString*)method headers:(NSDictionary*)headers body:(NSString*)body{
+    _url = uri;
+    NSURL *url = HippyURLWithString(uri, NULL);
     if (!url) {
         return;
     }
 
     NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:url];
+    
+    // set request method
     method = [method uppercaseString];
     if([method isEqualToString:@"GET"]){
-      request.HTTPMethod = @"GET";
+        request.HTTPMethod = @"GET";
     }else if ([method isEqualToString:@"POST"]){
-      request.HTTPMethod = @"POST";
+        request.HTTPMethod = @"POST";
+        if(body){
+            [request setHTTPBody:[body dataUsingEncoding:kCFStringEncodingUTF8]];
+        }
     }else{
       // System default is 'GET' no need to be specified explicitly
     }
+    
+    // set request headers
+    // FIXME: temporary disabled because we don't have the support in our android counterpart
+    //  if(headers){
+    //      [request setAllHTTPHeaderFields:headers];
+    //  }
+
+    // set user agent
     NSString* ua = self.userAgent;
     if(ua){
       self.customUserAgent = ua;
     }
+    
     [self loadRequest:request];
+}
+
+- (void)loadHtml:(NSString*)html baseUrl:(NSString*)baseUrl{
+    _url = baseUrl;
+    NSURL *url = HippyURLWithString(baseUrl, NULL);
+    if (url) {
+        if(self.userAgent){
+          self.customUserAgent = self.userAgent;
+        }
+        [self loadHTMLString:html baseURL:url];
+    }
 }
 
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation {
