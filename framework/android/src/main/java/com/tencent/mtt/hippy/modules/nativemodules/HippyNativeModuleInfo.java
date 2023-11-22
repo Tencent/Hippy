@@ -26,6 +26,7 @@ import com.tencent.mtt.hippy.annotation.HippyNativeModule;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule.Thread;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.Provider;
+import com.tencent.mtt.hippy.modules.HippyModulePromise;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.PromiseImpl;
 import com.tencent.mtt.hippy.runtime.builtins.array.JSDenseArray;
@@ -208,7 +209,11 @@ public final class HippyNativeModuleInfo {
             int size = mUseJSValueType ? ((JSDenseArray) args).size() : ((HippyArray) args).size();
             for (int i = 0; i < mParamTypes.length; i++) {
                 Type paramCls = mParamTypes[i];
-                if (paramCls == Promise.class) {
+                // It is necessary to be compatible with the HippyModulePromise type here,
+                // as some host custom modules interface promise parameters are directly defined
+                // using the HippyModulePromise type, resulting in parameter mismatches when
+                // calling the interface.
+                if (paramCls == Promise.class || paramCls == HippyModulePromise.class) {
                     params[i] = promise;
                     promise.setNeedResolveBySelf(false);
                 } else {
