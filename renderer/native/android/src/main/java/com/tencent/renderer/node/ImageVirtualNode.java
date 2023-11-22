@@ -175,9 +175,9 @@ public class ImageVirtualNode extends VirtualNode {
         builder.append(IMAGE_SPAN_TEXT);
         int end = start + IMAGE_SPAN_TEXT.length();
         ops.add(new SpanOperation(start, end, mImageSpan));
-        if (mGestureTypes != null && mGestureTypes.size() > 0) {
+        if (mEventTypes != null && mEventTypes.size() > 0) {
             TextGestureSpan span = new TextGestureSpan(mId);
-            span.addGestureTypes(mGestureTypes);
+            span.addGestureTypes(mEventTypes);
             ops.add(new SpanOperation(start, end, span));
         }
     }

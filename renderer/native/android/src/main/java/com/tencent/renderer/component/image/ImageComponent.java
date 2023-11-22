@@ -186,9 +186,10 @@ public class ImageComponent extends Component {
     }
 
     protected void onFetchImageStart() {
-        if (mHostRef.get() != null) {
+        final RenderNode host = mHostRef.get();
+        if (host != null) {
             // send onLoadStart event
-            EventUtils.sendComponentEvent(mHostRef.get(), EVENT_IMAGE_LOAD_START, null);
+            EventUtils.sendComponentEvent(host, EVENT_IMAGE_LOAD_START, null);
         }
     }
 
@@ -217,17 +218,28 @@ public class ImageComponent extends Component {
             mImageHolder = imageHolder;
             mImageFetchState = ImageFetchState.LOADED;
             setImageData(imageHolder);
-            if (mHostRef.get() != null && !loadFromCache) {
+            final RenderNode host = mHostRef.get();
+            if (host != null) {
+                final int width = imageHolder.getImageWidth();
+                final int height = imageHolder.getImageHeight();
                 // send onLoad event
-                EventUtils.sendComponentEvent(mHostRef.get(), EVENT_IMAGE_ON_LOAD, null);
-                HashMap<String, Object> params = new HashMap<>();
-                params.put("success", 1);
-                HashMap<String, Object> imageSize = new HashMap<>();
-                imageSize.put("width", imageHolder.getImageWidth());
-                imageSize.put("height", imageHolder.getImageHeight());
-                params.put("image", imageSize);
+                HashMap<String, Object> onLoad = new HashMap<>();
+                onLoad.put("width", width);
+                onLoad.put("height", height);
+                onLoad.put("url", uri);
+                EventUtils.sendComponentEvent(host, EVENT_IMAGE_ON_LOAD, onLoad);
                 // send onLoadEnd event
-                EventUtils.sendComponentEvent(mHostRef.get(), EVENT_IMAGE_LOAD_END, params);
+                HashMap<String, Object> onLoadEnd = new HashMap<>();
+                onLoadEnd.put("success", 1);
+                onLoadEnd.put("width", width);
+                onLoadEnd.put("height", height);
+                onLoadEnd.put("url", uri);
+                @Deprecated
+                HashMap<String, Object> imageSize = new HashMap<>();
+                imageSize.put("width", width);
+                imageSize.put("height", height);
+                onLoadEnd.put("image", imageSize);
+                EventUtils.sendComponentEvent(host, EVENT_IMAGE_LOAD_END, onLoadEnd);
             }
         } else if (sourceType == ImageSourceType.DEFAULT) {
             if (!uri.equals(mDefaultUri)) {
@@ -247,35 +259,45 @@ public class ImageComponent extends Component {
         postInvalidateDelayed(0);
     }
 
-    private void onFetchImageFail() {
+    private void onFetchImageFail(String url, Throwable throwable) {
         mImageFetchState = ImageFetchState.UNLOAD;
-        if (mHostRef.get() == null) {
+        final RenderNode host = mHostRef.get();
+        if (host == null) {
             return;
         }
         // send onError event
-        EventUtils.sendComponentEvent(mHostRef.get(), EVENT_IMAGE_LOAD_ERROR, null);
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("success", 0);
+        HashMap<String, Object> onError = new HashMap<>();
+        onError.put("error", String.valueOf(throwable));
+        onError.put("errorCode", -1);
+        onError.put("errorURL", url);
+        EventUtils.sendComponentEvent(host, EVENT_IMAGE_LOAD_ERROR, onError);
         // send onLoadEnd event
-        EventUtils.sendComponentEvent(mHostRef.get(), EVENT_IMAGE_LOAD_END, params);
+        HashMap<String, Object> onLoadEnd = new HashMap<>();
+        onLoadEnd.put("success", 0);
+        onLoadEnd.put("error", String.valueOf(throwable));
+        onLoadEnd.put("errorCode", -1);
+        onLoadEnd.put("url", url);
+        EventUtils.sendComponentEvent(host, EVENT_IMAGE_LOAD_END, onLoadEnd);
     }
 
     protected void onFetchImageProgress(float total, float loaded) {
-        if (mHostRef.get() == null) {
+        final RenderNode host = mHostRef.get();
+        if (host == null) {
             return;
         }
         HashMap<String, Object> params = new HashMap<>();
         params.put("loaded", loaded);
         params.put("total", total);
-        EventUtils.sendComponentEvent(mHostRef.get(), EVENT_IMAGE_LOAD_PROGRESS, params);
+        EventUtils.sendComponentEvent(host, EVENT_IMAGE_LOAD_PROGRESS, params);
     }
 
     private void doFetchImage(final String uri, final ImageSourceType sourceType) {
-        int width = (mHostRef.get() != null) ? mHostRef.get().getWidth() : 0;
-        int height = (mHostRef.get() != null) ? mHostRef.get().getHeight() : 0;
+        final RenderNode host = mHostRef.get();
+        int width = (host != null) ? host.getWidth() : 0;
+        int height = (host != null) ? host.getHeight() : 0;
         Map<String, Object> params = new HashMap<>();
-        if (mHostRef.get() != null) {
-            params.put("props", mHostRef.get().getProps());
+        if (host != null) {
+            params.put("props", host.getProps());
         }
         assert mImageLoader != null;
         mImageLoader.fetchImageAsync(uri, new ImageRequestListener() {
@@ -298,7 +320,7 @@ public class ImageComponent extends Component {
             @Override
             public void onRequestFail(Throwable throwable) {
                 if (sourceType == ImageSourceType.SRC) {
-                    onFetchImageFail();
+                    onFetchImageFail(uri, throwable);
                 } else {
                     mDefaultImageFetchState = ImageFetchState.UNLOAD;
                 }
@@ -311,16 +333,16 @@ public class ImageComponent extends Component {
             return;
         }
         LogUtils.d(TAG, "fetchImageWithUrl: host id " + getHostId() + ", uri " + uri);
-        ImageDataSupplier imageData = mImageLoader.getImageFromCache(uri);
-        if (imageData != null && imageData.checkImageData()) {
-            onFetchImageSuccess(uri, sourceType, imageData, true);
-            return;
-        }
         if (sourceType == ImageSourceType.SRC) {
             mImageFetchState = ImageFetchState.LOADING;
             onFetchImageStart();
         } else {
             mDefaultImageFetchState = ImageFetchState.LOADING;
+        }
+        ImageDataSupplier imageData = mImageLoader.getImageFromCache(uri);
+        if (imageData != null && imageData.checkImageData()) {
+            onFetchImageSuccess(uri, sourceType, imageData, true);
+            return;
         }
         if (UrlUtils.isWebUrl(uri)) {
             uri = uri.trim().replaceAll(" ", "%20");
