@@ -395,8 +395,9 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         if (lowerCaseEventName.startsWith(EVENT_PREFIX)) {
             lowerCaseEventName = lowerCaseEventName.substring(EVENT_PREFIX.length());
         }
-        if (eventType != EventType.EVENT_TYPE_GESTURE && !mRenderManager.checkRegisteredEvent(
-                rootId, nodeId, lowerCaseEventName)) {
+        if (eventType != EventType.EVENT_TYPE_GESTURE
+                && !mRenderManager.checkRegisteredEvent(rootId, nodeId, lowerCaseEventName)
+                && !mVirtualNodeManager.checkRegisteredEvent(rootId, nodeId, lowerCaseEventName)) {
             return;
         }
         LogUtils.d(TAG, "dispatchEvent: id " + nodeId + ", eventName " + eventName
