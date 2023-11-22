@@ -44,6 +44,7 @@ void CheckUint32(uint32_t value) {
 
   footstone::value::HippyValue hippy_value;
   deserializer.ReadObject(hippy_value);
+  footstone::value::SerializerHelper::DestroyBuffer(buffer);
   EXPECT_TRUE(hippy_value.GetType() == footstone::value::HippyValue::Type::kNumber);
   EXPECT_TRUE(hippy_value.GetNumberType() == footstone::value::HippyValue::NumberType::kUInt32);
   EXPECT_TRUE(hippy_value.ToUint32Checked() == value);
@@ -60,6 +61,7 @@ void CheckInt32(int32_t value) {
 
   footstone::value::HippyValue hippy_value;
   deserializer.ReadObject(hippy_value);
+  footstone::value::SerializerHelper::DestroyBuffer(buffer);
   EXPECT_TRUE(hippy_value.GetType() == footstone::value::HippyValue::Type::kNumber);
   EXPECT_TRUE(hippy_value.GetNumberType() == footstone::value::HippyValue::NumberType::kInt32);
   EXPECT_TRUE(hippy_value.ToInt32Checked() == value);
@@ -76,6 +78,7 @@ void CheckDouble(double value) {
 
   footstone::value::HippyValue hippy_value;
   deserializer.ReadObject(hippy_value);
+  footstone::value::SerializerHelper::DestroyBuffer(buffer);
   EXPECT_TRUE(hippy_value.GetType() == footstone::value::HippyValue::Type::kNumber);
   EXPECT_TRUE(hippy_value.GetNumberType() == footstone::value::HippyValue::NumberType::kDouble);
   EXPECT_TRUE(hippy_value.ToDoubleChecked() == value);
@@ -92,6 +95,7 @@ void CheckString(std::string value) {
 
   footstone::value::HippyValue hippy_value;
   deserializer.ReadObject(hippy_value);
+  footstone::value::SerializerHelper::DestroyBuffer(buffer);
   EXPECT_TRUE(hippy_value.GetType() == footstone::value::HippyValue::Type::kString);
   EXPECT_TRUE(hippy_value.ToStringChecked() == value);
   EXPECT_TRUE(hippy_value.ToStringChecked().length() == value.length());
@@ -108,6 +112,7 @@ void CheckMap(footstone::value::HippyValue::HippyValueObjectType value) {
 
   footstone::value::HippyValue hippy_value;
   deserializer.ReadObject(hippy_value);
+  footstone::value::SerializerHelper::DestroyBuffer(buffer);
   EXPECT_TRUE(hippy_value.GetType() == footstone::value::HippyValue::Type::kObject);
   EXPECT_TRUE(hippy_value.IsObject());
   EXPECT_TRUE(hippy_value.ToObjectChecked().size() == value.size());
@@ -134,6 +139,7 @@ void CheckArray(footstone::value::HippyValue::HippyValueArrayType value) {
 
   footstone::value::HippyValue hippy_value;
   deserializer.ReadObject(hippy_value);
+  footstone::value::SerializerHelper::DestroyBuffer(buffer);
   EXPECT_TRUE(hippy_value.GetType() == footstone::value::HippyValue::Type::kArray);
   EXPECT_TRUE(hippy_value.IsArray());
   EXPECT_TRUE(hippy_value.ToArrayChecked().size() == value.size());
@@ -157,6 +163,7 @@ TEST(DeserializerTest, ReadHeader) {
   footstone::value::Deserializer deserializer(buffer.first, buffer.second);
   deserializer.ReadHeader();
   EXPECT_EQ(deserializer.version_, tdf::base::kLatestVersion);
+  footstone::value::SerializerHelper::DestroyBuffer(buffer);
 }
 
 TEST(DeserializerTest, Uint32) {
