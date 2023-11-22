@@ -113,9 +113,9 @@ public class VirtualNodeManager {
                 continue;
             }
             if ((Boolean) value) {
-                node.addGesture(key);
+                node.addEventType(key);
             } else {
-                node.removeGesture(key);
+                node.removeEventType(key);
             }
             isChanged = true;
         }
@@ -445,5 +445,10 @@ public class VirtualNodeManager {
         }
         updateNodes.clear();
         return layoutToUpdate;
+    }
+
+    public boolean checkRegisteredEvent(int rootId, int nodeId, String eventName) {
+        VirtualNode node = getVirtualNode(rootId, nodeId);
+        return node != null && node.hasEventType(eventName);
     }
 }
