@@ -421,7 +421,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
             _onError(@{ @"error": error.localizedDescription, @"errorCode": @(error.code), @"errorURL": url });
         }
         if (_onLoadEnd) {
-            _onLoadEnd(nil);
+            _onLoadEnd(@{ @"success": @0 });
         }
         return;
     }
@@ -443,7 +443,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
         if (strongSelf.onLoad)
             strongSelf.onLoad(@{ @"width": @(image.size.width), @"height": @(image.size.height), @"url": url ?: @"" });
         if (strongSelf.onLoadEnd)
-            strongSelf.onLoadEnd(nil);
+            strongSelf.onLoadEnd(@{ @"success": @1, @"width": @(image.size.width), @"height": @(image.size.height) });
     };
 
     if (_blurRadius > 100 && [NSProcessInfo processInfo].physicalMemory <= 1024 * 1024 * 1000) {

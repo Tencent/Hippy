@@ -52,15 +52,6 @@ NS_ASSUME_NONNULL_BEGIN
  forWaterfallView:(UICollectionView *)view
        completion:(void(^)(BOOL success))completion;
 
-- (void)cellDiffFromAnother:(NativeRenderWaterfallViewDataSource *)another
-             sectionStartAt:(NSUInteger)startSection
-          frameChangedItems:(NSHashTable<__kindof HippyShadowView *> *)frameChangedItems
-                     result:(void(^)(NSArray<NSIndexPath *> *reloadedItemIndexPath,
-                                     NSArray<NSIndexPath *> *InsertedIndexPath,
-                                     NSArray<NSIndexPath *> *deletedIndexPath,
-                                     NSIndexSet *insertedSecionIndexSet,
-                                     NSIndexSet *deletedSectionIndexSet))result;
-
 @end
 
 NS_ASSUME_NONNULL_END

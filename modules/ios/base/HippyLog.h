@@ -24,14 +24,6 @@
 #import <Foundation/Foundation.h>
 #import "HippyDefines.h"
 
-#ifndef HIPPY_LOG_ENABLED
-#ifdef DEBUG
-#define HIPPY_LOG_ENABLED 1
-#else
-#define HIPPY_LOG_ENABLED 0
-#endif  //#ifdef DEBUG
-#endif  //#ifndef HIPPY_LOG_ENABLED
-
 /**
  * Thresholds for logs to display a redbox. You can override these values when debugging
  * in order to tweak the default logging behavior.
@@ -125,13 +117,7 @@ HIPPY_EXTERN void HippyPerformBlockWithLogPrefix(void (^block)(void), NSString *
 /**
  * Private logging function - ignore this.
  */
-#if HIPPY_LOG_ENABLED
 #define _HippyLog(lvl, ...) HippyLogNativeInternal(lvl, __FILE__, __LINE__, __VA_ARGS__);
-#else
-#define _HippyLog(lvl, ...) \
-    do {                    \
-    } while (0)
-#endif
 
 HIPPY_EXTERN void HippyLogNativeInternal(HippyLogLevel, const char *, int, NSString *, ...) NS_FORMAT_FUNCTION(4, 5);
 
