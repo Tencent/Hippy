@@ -793,7 +793,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateObject(const std::unordered_map<std::sha
     auto object_key = JSCVM::CreateJSCString(key);
     auto ctx_value = std::static_pointer_cast<JSCCtxValue>(it.second);
     if (!ctx_value) {
-      auto error = CreateException("CreateObject2");
+      auto error = CreateException("CreateObject ctx_value is nullptr");
       return nullptr;
     }
     JSObjectSetProperty(context_, obj, object_key, ctx_value->value_, kJSPropertyAttributeNone, &exception);
