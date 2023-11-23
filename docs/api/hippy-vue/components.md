@@ -186,7 +186,7 @@
 | layout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置 | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
 | load        | 加载成功完成时调用此回调函数。                               | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
 | loadStart   | 加载开始时调用。 | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
-| loadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。               | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
+| loadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。参数为：`nativeEvent: { success: number, width: number, height: number}`       | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
 | error       | 当加载错误的时候调用此回调函数。| `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
 | progress    | 在加载过程中不断调用，参数为 `nativeEvent: { loaded: number, total: number }`, `loaded` 表示加载中的图片大小， `total` 表示图片总大小 | `Function`                                                   | `iOS、Voltron`    |
 | touchstart  | 触屏开始事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、Web-Renderer、Voltron`    |
