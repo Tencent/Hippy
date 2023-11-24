@@ -39,6 +39,7 @@ public abstract class VirtualNode {
     protected VirtualNode mParent;
     @Nullable
     protected List<String> mEventTypes;
+    protected float mOpacity = 1f;
 
     public VirtualNode(int rootId, int id, int pid, int index) {
         mRootId = rootId;
@@ -135,6 +136,18 @@ public abstract class VirtualNode {
             return 0;
         }
         return mChildren.size();
+    }
+
+    public void setOpacity(float opacity) {
+        opacity = Math.min(Math.max(0, opacity), 1);
+        if (opacity != mOpacity) {
+            mOpacity = opacity;
+            markDirty();
+        }
+    }
+
+    public float getFinalOpacity() {
+        return mParent == null ? mOpacity : mParent.getFinalOpacity() * mOpacity;
     }
 
     protected static class SpanOperation {
