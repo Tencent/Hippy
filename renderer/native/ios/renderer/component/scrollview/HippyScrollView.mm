@@ -55,6 +55,7 @@
 - (BOOL)_shouldDisableScrollInteraction {
     // Since this may be called on every pan, we need to make sure to only climb
     // the hierarchy on rare occasions.
+    // FIXME: 此处存在破窗，待修复
     UIView *JSResponder = nil;
     if (JSResponder && JSResponder != self.superview) {
         BOOL superviewHasResponder = [self isDescendantOfView:JSResponder];
@@ -77,8 +78,19 @@
     }
 }
 
-- (void)scrollRectToVisible:(__unused CGRect)rect animated:(__unused BOOL)animated {
-    // noop
+- (void)scrollRectToVisible:(CGRect)rect animated:(BOOL)animated {
+    // Limiting scroll area to an area where we actually have content.
+    CGSize contentSize = self.contentSize;
+    UIEdgeInsets contentInset = self.contentInset;
+    CGSize fullSize = CGSizeMake(contentSize.width + contentInset.left + contentInset.right,
+                                 contentSize.height + contentInset.top + contentInset.bottom);
+    
+    rect = CGRectIntersection((CGRect){CGPointZero, fullSize}, rect);
+    if (CGRectIsNull(rect)) {
+        return;
+    }
+    
+    [super scrollRectToVisible:rect animated:animated];
 }
 
 /**
@@ -124,7 +136,8 @@
  * (which is the not the `UIKit` default).
  */
 - (BOOL)touchesShouldCancelInContentView:(__unused UIView *)view {
-    // TODO: shouldn't this call super if _shouldDisableScrollInteraction returns NO?
+    // UIKit default returns YES if view isn't a UIControl
+    // According to the above explanation, we explicitly returning `YES` when need scroll.
     return ![self _shouldDisableScrollInteraction];
 }
 
@@ -488,6 +501,11 @@ static inline BOOL CGPointIsNull(CGPoint point) {
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    if (!decelerate) {
+        // Fire a final scroll event
+        _allowNextScrollNoMatterWhat = YES;
+        [self scrollViewDidScroll:scrollView];
+    }
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDragging:willDecelerate:)]) {
             [scrollViewListener scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
