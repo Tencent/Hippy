@@ -41,7 +41,7 @@
 - (HippyCustomScrollView *)loadScrollView;
 
 /**
- * The `NativeRenderScrollView` may have at most one single subview. This will ensure
+ * The `HippyScrollView` may have at most one single subview. This will ensure
  * that the scroll view's `contentSize` will be efficiently set to the size of
  * the single subview's frame. That frame size will be determined somewhat
  * efficiently since it will have already been computed by the off-main-thread
