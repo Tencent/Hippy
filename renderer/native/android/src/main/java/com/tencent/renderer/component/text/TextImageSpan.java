@@ -16,7 +16,10 @@
 
 package com.tencent.renderer.component.text;
 
+import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_LOAD_END;
 import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_LOAD_ERROR;
+import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_LOAD_PROGRESS;
+import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_LOAD_START;
 import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_ON_LOAD;
 
 import android.annotation.SuppressLint;
@@ -50,9 +53,9 @@ import com.tencent.renderer.component.image.ImageRequestListener;
 import com.tencent.renderer.node.ImageVirtualNode;
 import com.tencent.renderer.node.TextVirtualNode;
 import com.tencent.renderer.utils.EventUtils.EventType;
-import com.tencent.vfs.UrlUtils;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
+import java.util.HashMap;
 
 public class TextImageSpan extends ImageSpan {
 
@@ -88,7 +91,7 @@ public class TextImageSpan extends ImageSpan {
     private Movie mGifMovie;
     @Deprecated
     @Nullable
-    private LegacyIAlignConfig mAlignConfig;
+    private final LegacyIAlignConfig mAlignConfig;
     @Nullable
     private Paint mGifPaint;
     private float mHeightRate = 0;
@@ -164,11 +167,12 @@ public class TextImageSpan extends ImageSpan {
             return super.getSize(paint, text, start, end, fm);
         }
         Drawable drawable = getDrawable();
+        assert mAlignConfig != null;
         return mAlignConfig.getSize(paint, text, start, end, fm, drawable);
     }
 
-    public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y,
-            int bottom, Paint paint) {
+    public void draw(@NonNull Canvas canvas, CharSequence text, int start, int end, float x, int top, int y,
+            int bottom, @NonNull Paint paint) {
         if (mUseLegacy) {
             legacyDraw(canvas, text, start, end, x, top, y, bottom, paint);
             return;
@@ -231,6 +235,7 @@ public class TextImageSpan extends ImageSpan {
             legacyDrawGIF(canvas, x + mLeft, transY + mTop, width, height);
         } else {
             Drawable drawable = getDrawable();
+            assert mAlignConfig != null;
             mAlignConfig.draw(canvas, text, start, end, x, top, y, bottom, paint, drawable, mBackgroundPaint);
         }
     }
@@ -239,6 +244,7 @@ public class TextImageSpan extends ImageSpan {
     @SuppressWarnings("unused")
     public void setDesiredSize(int width, int height) {
         if (mUseLegacy) {
+            assert mAlignConfig != null;
             mAlignConfig.setDesiredSize(width, height);
         }
     }
@@ -247,6 +253,7 @@ public class TextImageSpan extends ImageSpan {
     public void setActiveSizeWithRate(float heightRate) {
         mHeightRate = heightRate;
         if (mUseLegacy) {
+            assert mAlignConfig != null;
             mAlignConfig.setActiveSizeWithRate(heightRate);
         }
     }
@@ -255,39 +262,40 @@ public class TextImageSpan extends ImageSpan {
     @SuppressWarnings("unused")
     public void setMargin(int marginLeft, int marginRight) {
         if (mUseLegacy) {
+            assert mAlignConfig != null;
             mAlignConfig.setMargin(marginLeft, marginRight);
         }
     }
 
-    protected boolean shouldUseFetchImageMode(String url) {
-        return UrlUtils.isWebUrl(url) || UrlUtils.isFileUrl(url);
-    }
-
     @MainThread
     private void loadImageWithUrl(@NonNull final String url) {
-        NativeRender nativeRender = mNativeRendererRef.get();
-        ImageLoaderAdapter imageLoader = nativeRender != null ? nativeRender.getImageLoader() : null;
+        final NativeRender nativeRenderer = mNativeRendererRef.get();
+        final ImageLoaderAdapter imageLoader = nativeRenderer != null ? nativeRenderer.getImageLoader() : null;
         if (mImageLoadState == STATE_LOADING || imageLoader == null) {
             return;
         }
+        nativeRenderer.dispatchEvent(mRootId, mId, EVENT_IMAGE_LOAD_START, null, false, false,
+                EventType.EVENT_TYPE_COMPONENT);
         mImageLoadState = STATE_LOADING;
         imageLoader.fetchImageAsync(url, new ImageRequestListener() {
             @Override
             public void onRequestStart(ImageDataSupplier imageData) {
+                handleFetchImageStart();
             }
 
             @Override
             public void onRequestProgress(long total, long loaded) {
+                handleFetchImageProgress(total, loaded);
             }
 
             @Override
             public void onRequestSuccess(final ImageDataSupplier imageData) {
-                handleFetchImageResult(imageData);
+                handleFetchImageResult(url, imageData, null);
             }
 
             @Override
             public void onRequestFail(Throwable throwable) {
-                handleFetchImageResult(null);
+                handleFetchImageResult(url, null, throwable);
             }
         }, null, mWidth, mHeight);
     }
@@ -411,23 +419,74 @@ public class TextImageSpan extends ImageSpan {
         postInvalidateDelayed(0);
     }
 
-    private void handleFetchImageResult(@Nullable final ImageDataSupplier imageHolder) {
-        String eventName;
+    private void handleFetchImageStart() {
+        NativeRender nativeRenderer = mNativeRendererRef.get();
+        if (nativeRenderer != null) {
+            // send onLoadStart event
+            nativeRenderer.dispatchEvent(mRootId, mId, EVENT_IMAGE_LOAD_START, null, false, false,
+                    EventType.EVENT_TYPE_COMPONENT);
+        }
+    }
+
+    private void handleFetchImageProgress(float total, float loaded) {
+        NativeRender nativeRenderer = mNativeRendererRef.get();
+        if (nativeRenderer != null) {
+            // send onProgress event
+            HashMap<String, Object> onProgress = new HashMap<>();
+            onProgress.put("loaded", loaded);
+            onProgress.put("total", total);
+            nativeRenderer.dispatchEvent(mRootId, mId, EVENT_IMAGE_LOAD_PROGRESS, onProgress, false, false,
+                    EventType.EVENT_TYPE_COMPONENT);
+        }
+    }
+
+    private void handleFetchImageResult(@NonNull final String url, @Nullable final ImageDataSupplier imageHolder,
+            final @Nullable Throwable throwable) {
+        NativeRender nativeRenderer = mNativeRendererRef.get();
         if (imageHolder == null || !imageHolder.checkImageData()) {
             mImageLoadState = STATE_UNLOAD;
-            eventName = EVENT_IMAGE_LOAD_ERROR;
+            if (nativeRenderer != null) {
+                // send onError event
+                HashMap<String, Object> onError = new HashMap<>();
+                onError.put("error", String.valueOf(throwable));
+                onError.put("errorCode", -1);
+                onError.put("errorURL", url);
+                nativeRenderer.dispatchEvent(mRootId, mId, EVENT_IMAGE_LOAD_ERROR, onError, false, false,
+                        EventType.EVENT_TYPE_COMPONENT);
+                // send onLoadEnd event
+                HashMap<String, Object> onLoadEnd = new HashMap<>();
+                onLoadEnd.put("url", url);
+                onLoadEnd.put("success", 0);
+                onLoadEnd.put("error", String.valueOf(throwable));
+                onLoadEnd.put("errorCode", -1);
+                nativeRenderer.dispatchEvent(mRootId, mId, EVENT_IMAGE_LOAD_END, onLoadEnd, false, false,
+                        EventType.EVENT_TYPE_COMPONENT);
+            }
         } else {
             if (imageHolder instanceof ImageDataHolder) {
                 shouldReplaceDrawable((ImageDataHolder) imageHolder);
             }
             mImageLoadState = STATE_LOADED;
-            eventName = EVENT_IMAGE_ON_LOAD;
-        }
-        NativeRender nativeRender = mNativeRendererRef.get();
-        if (nativeRender != null) {
-            nativeRender.dispatchEvent(mRootId, mId, eventName, null, false, false,
-                    EventType.EVENT_TYPE_COMPONENT);
-        }
+            if (nativeRenderer != null) {
+                int width = imageHolder.getImageWidth();
+                int height = imageHolder.getImageHeight();
+                // send onLoad event
+                HashMap<String, Object> onLoad = new HashMap<>();
+                onLoad.put("width", width);
+                onLoad.put("height", height);
+                onLoad.put("url", url);
+                nativeRenderer.dispatchEvent(mRootId, mId, EVENT_IMAGE_ON_LOAD, onLoad, false, false,
+                        EventType.EVENT_TYPE_COMPONENT);
+                // send onLoadEnd event
+                HashMap<String, Object> onLoadEnd = new HashMap<>();
+                onLoadEnd.put("success", 1);
+                onLoadEnd.put("width", width);
+                onLoadEnd.put("height", height);
+                onLoadEnd.put("url", url);
+                nativeRenderer.dispatchEvent(mRootId, mId, EVENT_IMAGE_LOAD_END, onLoadEnd, false, false,
+                        EventType.EVENT_TYPE_COMPONENT);
+                }
+            }
     }
 
     public void setTintColor(final int tintColor) {

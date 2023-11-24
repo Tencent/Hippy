@@ -65,6 +65,7 @@ bool DomArgument::ConvertObjectToBson(const footstone::value::HippyValue& hippy_
   std::pair<uint8_t*, size_t> pair = serializer.Release();
   bson.resize(pair.second);
   memcpy(&bson[0], pair.first, sizeof(uint8_t) * pair.second);
+  footstone::value::SerializerHelper::DestroyBuffer(pair);
   return true;
 }
 

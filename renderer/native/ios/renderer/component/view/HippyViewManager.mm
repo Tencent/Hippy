@@ -392,10 +392,21 @@ HIPPY_CUSTOM_VIEW_PROPERTY(borderRadius, CGFloat, HippyView) {
     }
 }
 HIPPY_CUSTOM_VIEW_PROPERTY(borderColor, CGColor, HippyView) {
+    CGColorRef color = nil;
     if ([view respondsToSelector:@selector(setBorderColor:)]) {
-        view.borderColor = json ? [HippyConvert CGColor:json] : defaultView.borderColor;
+        if (json) {
+            color = [HippyConvert CGColor:json];
+        } else {
+            color = defaultView ? defaultView.borderColor : [UIColor clearColor].CGColor;
+        }
+        view.borderColor = color;
     } else {
-        view.layer.borderColor = json ? [HippyConvert CGColor:json] : defaultView.layer.borderColor;
+        if (json) {
+            color = [HippyConvert CGColor:json];
+        } else {
+            color = defaultView ? defaultView.layer.borderColor : [UIColor clearColor].CGColor;
+        }
+        view.layer.borderColor = color;
     }
 }
 

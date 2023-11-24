@@ -38,7 +38,7 @@ public abstract class VirtualNode {
     @Nullable
     protected VirtualNode mParent;
     @Nullable
-    protected List<String> mGestureTypes;
+    protected List<String> mEventTypes;
     protected float mOpacity = 1f;
 
     public VirtualNode(int rootId, int id, int pid, int index) {
@@ -69,17 +69,21 @@ public abstract class VirtualNode {
     protected abstract void createSpanOperation(List<SpanOperation> ops,
             SpannableStringBuilder builder, boolean useChild);
 
-    public void addGesture(String event) {
-        if (mGestureTypes == null) {
-            mGestureTypes = new ArrayList<>();
+    public void addEventType(String event) {
+        if (mEventTypes == null) {
+            mEventTypes = new ArrayList<>();
         }
-        mGestureTypes.add(event);
+        mEventTypes.add(event);
     }
 
-    public void removeGesture(String event) {
-        if (mGestureTypes != null) {
-            mGestureTypes.remove(event);
+    public void removeEventType(String event) {
+        if (mEventTypes != null) {
+            mEventTypes.remove(event);
         }
+    }
+
+    public boolean hasEventType(String event) {
+        return mEventTypes != null && mEventTypes.contains(event);
     }
 
     public boolean isDirty() {
