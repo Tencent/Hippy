@@ -35,7 +35,7 @@ public @interface HippyControllerProps {
   String ARRAY = "array";
   String MAP = "map";
 
-  String name() default "name";
+  String name();
 
   /*
    * defaultType Number boolean string else default is do not check

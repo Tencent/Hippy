@@ -98,6 +98,7 @@ public class TextImageSpan extends ImageSpan {
     @Nullable
     private Paint mBackgroundPaint = null;
     private int mTintColor;
+    private final int mAlpha;
 
     public TextImageSpan(Drawable drawable, String source, @NonNull ImageVirtualNode node,
             @NonNull NativeRender nativeRenderer) {
@@ -123,6 +124,8 @@ public class TextImageSpan extends ImageSpan {
             mBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             mBackgroundPaint.setColor(node.getBackgroundColor());
         }
+        // multiple alpha bits (0xFF) to convert opacity into alpha
+        mAlpha = Math.round(node.getFinalOpacity() * 255);
         setUrl(source);
     }
 
@@ -177,7 +180,7 @@ public class TextImageSpan extends ImageSpan {
         if (mMeasuredWidth == 0 || mMeasuredHeight == 0) {
             return;
         }
-        canvas.save();
+        int count = canvas.save();
         int transY;
         assert mVerticalAlign != null;
         switch (mVerticalAlign) {
@@ -197,6 +200,9 @@ public class TextImageSpan extends ImageSpan {
         }
 
         canvas.translate(x + mMarginLeft, transY);
+        if (mAlpha < 255) {
+            canvas.saveLayerAlpha(0, 0, mMeasuredWidth, mMeasuredHeight, mAlpha);
+        }
         if (mBackgroundPaint != null) {
             canvas.drawRect(0, 0, mMeasuredWidth, mMeasuredHeight, mBackgroundPaint);
         }
@@ -215,7 +221,7 @@ public class TextImageSpan extends ImageSpan {
             canvas.scale(scaleX, scaleY, 0, 0);
             drawable.draw(canvas);
         }
-        canvas.restore();
+        canvas.restoreToCount(count);
     }
 
     private void legacyDraw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y,
