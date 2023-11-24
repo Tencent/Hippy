@@ -28,7 +28,7 @@
 
 @class NativeRenderBaseListViewCell;
 
-@interface NativeRenderBaseListView : NativeRenderWaterfallView <NativeRenderListTableViewLayoutProtocol>
+@interface NativeRenderBaseListView : NativeRenderWaterfallView <HippyListTableViewLayoutProtocol>
 
 /**
  * Hippy events
@@ -72,21 +72,5 @@
  * Reload data
  */
 - (void)reloadData;
-
-/**
- * Scroll to offset
- *
- * @param point Offset point
- * @param animated Indicate whether scroll to point with animation effects
- */
-- (void)scrollToContentOffset:(CGPoint)point animated:(BOOL)animated;
-
-/**
- * Scroll to index of item
- *
- * @param index Index of items
- * @param animated Indicate whether scroll to point with animation effects
- */
-- (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated;
 
 @end
