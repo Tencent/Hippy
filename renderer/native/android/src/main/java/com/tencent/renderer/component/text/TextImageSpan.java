@@ -51,7 +51,7 @@ import com.tencent.renderer.component.image.ImageDataSupplier;
 import com.tencent.renderer.component.image.ImageLoaderAdapter;
 import com.tencent.renderer.component.image.ImageRequestListener;
 import com.tencent.renderer.node.ImageVirtualNode;
-import com.tencent.renderer.node.TextVirtualNode;
+import com.tencent.renderer.node.VirtualNode;
 import com.tencent.renderer.utils.EventUtils.EventType;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
@@ -184,16 +184,16 @@ public class TextImageSpan extends ImageSpan {
         int transY;
         assert mVerticalAlign != null;
         switch (mVerticalAlign) {
-            case TextVirtualNode.V_ALIGN_TOP:
+            case VirtualNode.V_ALIGN_TOP:
                 transY = top + mMarginTop;
                 break;
-            case TextVirtualNode.V_ALIGN_MIDDLE:
+            case VirtualNode.V_ALIGN_MIDDLE:
                 transY = top + (bottom - top) / 2 - mMeasuredHeight / 2;
                 break;
-            case TextVirtualNode.V_ALIGN_BOTTOM:
+            case VirtualNode.V_ALIGN_BOTTOM:
                 transY = bottom - mMeasuredHeight - mMarginBottom;
                 break;
-            case TextVirtualNode.V_ALIGN_BASELINE:
+            case VirtualNode.V_ALIGN_BASELINE:
             default:
                 transY = y - mMeasuredHeight - mMarginBottom;
                 break;

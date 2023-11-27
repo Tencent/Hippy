@@ -107,6 +107,8 @@ public class NodeProps {
     public static final String TEXT_ALIGN = "textAlign";
     public static final String TEXT_ALIGN_VERTICAL = "textAlignVertical";
     public static final String TEXT_DECORATION_LINE = "textDecorationLine";
+    public static final String TEXT_DECORATION_COLOR = "textDecorationColor";
+    public static final String TEXT_DECORATION_STYLE = "textDecorationStyle";
     public static final String TEXT_SHADOW_OFFSET = "textShadowOffset";
     public static final String TEXT_SHADOW_RADIUS = "textShadowRadius";
     public static final String TEXT_SHADOW_COLOR = "textShadowColor";
