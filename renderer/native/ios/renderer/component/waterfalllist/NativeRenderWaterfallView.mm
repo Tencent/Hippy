@@ -369,18 +369,14 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    return [self collectionView:collectionView itemViewForItemAtIndexPath:indexPath];
-}
-
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView itemViewForItemAtIndexPath:(NSIndexPath *)indexPath {
     NativeRenderWaterfallViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
+    [self addCellViewToCollectionViewCell:cell atIndexPath:indexPath];
     return cell;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView
        willDisplayCell:(UICollectionViewCell *)cell
     forItemAtIndexPath:(NSIndexPath *)indexPath {
-    [self itemViewForCollectionViewCell:cell indexPath:indexPath];
     if (0 == [indexPath section] && _containBannerView) {
         return;
     }
@@ -410,7 +406,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     }
 }
 
-- (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
+- (void)addCellViewToCollectionViewCell:(UICollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath {
     NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
     HippyShadowView *renderObjectView = [_dataSource cellForIndexPath:indexPath];
     [renderObjectView recusivelySetCreationTypeToInstant];

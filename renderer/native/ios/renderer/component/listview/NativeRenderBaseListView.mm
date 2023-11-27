@@ -257,8 +257,6 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 - (void)collectionView:(UICollectionView *)collectionView
        willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
     HippyShadowView *cellRenderObjectView = [self.dataSource cellForIndexPath:indexPath];
-    [cellRenderObjectView recusivelySetCreationTypeToInstant];
-    [self itemViewForCollectionViewCell:cell indexPath:indexPath];
     NSInteger index = [self.dataSource flatIndexForIndexPath:indexPath];
     if (self.onRowWillDisplay) {
         self.onRowWillDisplay(@{
@@ -295,15 +293,21 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    return [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
+    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
+    
+    // Create and Add real Hippy cell content
+    [self addCellViewToCollectionViewCell:cell atIndexPath:indexPath];
+    return cell;
 }
 
-- (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
+- (void)addCellViewToCollectionViewCell:(UICollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath {
     HippyAssert(self.renderImpl, @"no rendercontext detected");
     if (!self.renderImpl) {
         return;
     }
     HippyShadowView *cellRenderObject = [self.dataSource cellForIndexPath:indexPath];
+    [cellRenderObject recusivelySetCreationTypeToInstant];
+    
     NativeRenderBaseListViewCell *hpCell = (NativeRenderBaseListViewCell *)cell;
     UIView *cellView = [self.renderImpl createViewRecursivelyFromRenderObject:cellRenderObject];
     if (cellView) {
