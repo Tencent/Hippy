@@ -18,12 +18,13 @@ package com.tencent.renderer.component.text;
 import android.text.TextPaint;
 import android.text.style.CharacterStyle;
 
-public class TextShadowSpan extends CharacterStyle {
+public class TextShadowSpan extends CharacterStyle implements TextLineMetricsHelper.LineMetrics {
 
     private final float mDx;
     private final float mDy;
     private final float mRadius;
     private final int mColor;
+    private TextLineMetricsHelper mHelper;
 
     public TextShadowSpan(float dx, float dy, float radius, int color) {
         mDx = dx;
@@ -35,5 +36,13 @@ public class TextShadowSpan extends CharacterStyle {
     @Override
     public void updateDrawState(TextPaint textPaint) {
         textPaint.setShadowLayer(mRadius, mDx, mDy, mColor);
+        if (mHelper != null) {
+            mHelper.markShadow(mRadius, mDx, mDy, mColor);
+        }
+    }
+
+    @Override
+    public void setLineMetrics(TextLineMetricsHelper helper) {
+        mHelper = helper;
     }
 }

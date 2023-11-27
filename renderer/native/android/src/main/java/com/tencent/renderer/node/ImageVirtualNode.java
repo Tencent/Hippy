@@ -25,23 +25,19 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.SpannableStringBuilder;
-
 import android.text.style.ImageSpan;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.NativeRender;
-
 import com.tencent.renderer.component.image.ImageDataSupplier;
 import com.tencent.renderer.component.image.ImageLoaderAdapter;
 import com.tencent.renderer.component.text.TextGestureSpan;
 import com.tencent.renderer.component.text.TextImageSpan;
 import java.util.List;
-import java.util.Objects;
 
 public class ImageVirtualNode extends VirtualNode {
 
@@ -60,8 +56,6 @@ public class ImageVirtualNode extends VirtualNode {
     protected float mMarginTop = Float.NaN;
     protected float mMarginRight = Float.NaN;
     protected float mMarginBottom = Float.NaN;
-    @Nullable
-    protected String mVerticalAlign;
     protected int mTintColor = Color.TRANSPARENT;
     protected int mBackgroundColor = Color.TRANSPARENT;
     @Nullable
@@ -132,17 +126,6 @@ public class ImageVirtualNode extends VirtualNode {
             return Math.round(tertiary);
         }
         return 0;
-    }
-
-    @Nullable
-    public String getVerticalAlign() {
-        if (mVerticalAlign != null) {
-            return mVerticalAlign;
-        }
-        if (mParent instanceof TextVirtualNode) {
-            return ((TextVirtualNode) mParent).getVerticalAlign();
-        }
-        return null;
     }
 
     @NonNull
@@ -286,25 +269,7 @@ public class ImageVirtualNode extends VirtualNode {
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.VERTICAL_ALIGN, defaultType = HippyControllerProps.STRING)
     public void setVerticalAlign(String align) {
-        if (Objects.equals(mVerticalAlign, align)) {
-            return;
-        }
-        switch (align) {
-            case HippyControllerProps.DEFAULT:
-                // reset to default
-                mVerticalAlign = null;
-                break;
-            case TextVirtualNode.V_ALIGN_TOP:
-            case TextVirtualNode.V_ALIGN_MIDDLE:
-            case TextVirtualNode.V_ALIGN_BASELINE:
-            case TextVirtualNode.V_ALIGN_BOTTOM:
-                mVerticalAlign = align;
-                break;
-            default:
-                mVerticalAlign = TextVirtualNode.V_ALIGN_BASELINE;
-                break;
-        }
-        markDirty();
+        super.setVerticalAlign(align);
     }
 
     @HippyControllerProps(name = NodeProps.OPACITY, defaultType = HippyControllerProps.NUMBER, defaultNumber = 1f)
