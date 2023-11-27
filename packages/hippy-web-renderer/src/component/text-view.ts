@@ -41,7 +41,8 @@ export class TextView extends HippyWebView<HTMLSpanElement> {
   }
 
   public defaultStyle(): { [p: string]: any } {
-    return { boxSizing: 'border-box', zIndex: 0, ...HippyEllipsizeModeMap[this.ellipsizeMode],
+    return { boxSizing: 'border-box', zIndex: 0, whiteSpace: 'pre-line',
+      ...HippyEllipsizeModeMap[this.ellipsizeMode],
       overflow: 'hidden' };
   }
 
@@ -70,7 +71,8 @@ export class TextView extends HippyWebView<HTMLSpanElement> {
       this.dom && setElementStyle(this.dom, { 'white-space': 'nowrap', 'word-break': 'keep-all', display: 'initial',
         '-webkit-box-orient': '', '-webkit-line-clamp': '' });
     } else {
-      this.dom && setElementStyle(this.dom, { 'white-space': 'normal', 'word-break': 'break-all', display: '-webkit-box',
+      const whiteSpace = this.props.style.whiteSpace ?? 'pre-line';
+      this.dom && setElementStyle(this.dom, { 'white-space': whiteSpace, 'word-break': 'break-all', display: '-webkit-box',
         '-webkit-box-orient': 'vertical', '-webkit-line-clamp': `${value}`, overflow: 'hidden' });
     }
   }
