@@ -71,7 +71,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
         _scrollListeners = [NSHashTable weakObjectsHashTable];
         _scrollEventThrottle = 100.f;
         _weakItemMap = [NSMapTable strongToWeakObjectsMapTable];
-        _cachedItems = [NSMutableDictionary dictionaryWithCapacity:32];
+        _cachedItems = [NSMutableDictionary dictionary];
         _dataSourcePool = [NSMutableArray array];
         _dataSourceSem = dispatch_semaphore_create(1);
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
@@ -396,12 +396,13 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     }
 }
 
-- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+- (void)collectionView:(UICollectionView *)collectionView
+  didEndDisplayingCell:(UICollectionViewCell *)cell
+    forItemAtIndexPath:(NSIndexPath *)indexPath {
     if ([cell isKindOfClass:[NativeRenderWaterfallViewCell class]]) {
         NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
         if (hpCell.cellView) {
             [_cachedItems setObject:[hpCell.cellView hippyTag] forKey:indexPath];
-            hpCell.cellView = nil;
         }
     }
 }

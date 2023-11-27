@@ -282,12 +282,13 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     }
 }
 
-- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+- (void)collectionView:(UICollectionView *)collectionView
+  didEndDisplayingCell:(UICollectionViewCell *)cell
+    forItemAtIndexPath:(NSIndexPath *)indexPath {
     if ([cell isKindOfClass:[NativeRenderBaseListViewCell class]]) {
         NativeRenderBaseListViewCell *hpCell = (NativeRenderBaseListViewCell *)cell;
         if (hpCell.cellView) {
             [_cachedItems setObject:[hpCell.cellView hippyTag] forKey:indexPath];
-            hpCell.cellView = nil;
         }
     }
 }
