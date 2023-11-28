@@ -32,6 +32,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
+import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
 import androidx.annotation.ColorInt;
@@ -180,6 +181,9 @@ public class ContentDrawable extends Drawable {
             drawable.setColorFilter(mColorFilter);
         } else {
             clearColorFilter = false;
+        }
+        if (drawable instanceof Animatable && !((Animatable) drawable).isRunning()) {
+            ((Animatable) drawable).start();
         }
         if (mNinePatchInsets != null && !mNinePatchInsets.equals(Insets.NONE)
                 && !(drawable instanceof NinePatchDrawable)
