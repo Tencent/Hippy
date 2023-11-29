@@ -27,7 +27,7 @@
 #import "HippyModalHostViewInteractor.h"
 #import "HippyAssert.h"
 #import "UIView+MountEvent.h"
-
+#import "HippyUIManager.h"
 
 @implementation HippyModalHostView {
     BOOL _isPresented;
@@ -35,6 +35,7 @@
     UIView *_hippySubview;
     UIStatusBarStyle originStyle;
     UIInterfaceOrientation _lastKnownOrientation;
+    HippyBridge *_bridge;
 }
 
 HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
@@ -42,6 +43,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : coder)
 
 - (instancetype)initWithBridge:(HippyBridge *)bridge {
     if ((self = [super initWithFrame:CGRectZero])) {
+        _bridge = bridge;
         _modalViewController = [HippyModalHostViewController new];
         UIView *containerView = [UIView new];
         containerView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
@@ -60,6 +62,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : coder)
 
 - (void)notifyForBoundsChange:(CGRect)newBounds {
     if (_isPresented) {
+        [[_bridge uiManager] setFrame:newBounds forView:_hippySubview];
         [self notifyForOrientationChange];
     }
 }
