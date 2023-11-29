@@ -62,11 +62,11 @@ function hippyVueCSSLoader(this: any, source: any) {
       };
     }),
   }));
-  const code = `(function() {
-    if (!global['${GLOBAL_STYLE_NAME}']) {
-      global['${GLOBAL_STYLE_NAME}'] = [];
+  const code = `(function(n) {
+    if (!global[n]) {
+      global[n] = [];
     }
-    global['${GLOBAL_STYLE_NAME}'] = global['${GLOBAL_STYLE_NAME}'].concat(${JSON.stringify(rulesAst)});
+    global[n] = global[n].concat(${JSON.stringify(rulesAst)});
 
     if(module.hot) {
       module.hot.dispose(() => {
@@ -77,7 +77,7 @@ function hippyVueCSSLoader(this: any, source: any) {
         global['${GLOBAL_DISPOSE_STYLE_NAME}'] = global['${GLOBAL_DISPOSE_STYLE_NAME}'].concat('${contentHash}');
       })
     }
-  })()`;
+  })('${GLOBAL_STYLE_NAME}')`;
   return `module.exports=${code}`;
 }
 
