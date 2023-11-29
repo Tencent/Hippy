@@ -228,10 +228,16 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)handleBuffer:(id _Nullable)buffer batchEnded:(BOOL)batchEnded;
 
 
-/// <#Description#>
-/// - Parameter isInspectable: <#isInspectable description#>
+#pragma mark - Inspector Related Functions
+
+/// Sets whether the context is inspectable in Web Inspector.
+/// Default value is NO.
+///
+/// - Parameter isInspectable: BOOL
 - (void)setInspectable:(BOOL)isInspectable;
 
+
+#pragma mark -
 
 /// All registered bridge module classes.
 @property (nonatomic, copy, readonly) NSArray<Class> *moduleClasses;
@@ -294,8 +300,15 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 @property (nonatomic, weak) id<HippyMethodInterceptorProtocol> methodInterceptor;
 
-
 @property (nonatomic, assign) BOOL enableTurbo;
+
+/// Shared data between different rootViews on same bridge.
+/// Set by HippyRootView when runHippyApplication.
+/// Reserved for compatible with hippy2.
+///
+/// Note: Deprecated property.
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, NSDictionary *> *shareOptions;
+
 /**
  * Get  the turbo module for a given name.
  */
