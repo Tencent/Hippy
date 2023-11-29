@@ -63,12 +63,19 @@ NSNumber *AllocRootViewTag(void) {
 @end
 
 
+#pragma mark - HippyRootView
+
 @interface HippyRootView () {
     BOOL _contentHasAppeared;
+    BOOL _hasBusinessBundleToLoad;
 }
 
+/// ContentView for HippyRootView
 @property (nonatomic, strong) HippyRootContentView *contentView;
-@property (nonatomic, strong) NSDictionary *shareOptions;
+
+/// Shared data between different rootViews on the same bridge.
+/// This property is reserved for hippy2 compatibility
+@property (nonatomic, strong) NSDictionary *sharedOptions;
 
 @end
 
@@ -82,7 +89,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
                     moduleName:(NSString *)moduleName
              initialProperties:(NSDictionary *)initialProperties
                       delegate:(id<HippyRootViewDelegate>)delegate {
-    //HippyAssertMainQueue();
+    HippyAssertMainQueue();
     HippyAssert(bridge, @"A bridge instance is required to create an HippyRootView");
     HippyAssert(moduleName, @"A moduleName is required to create an HippyRootView");
     
@@ -98,18 +105,28 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
         _delegate = delegate;
         self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         
-        //        [[NSNotificationCenter defaultCenter] addObserver:self
-        //                                                 selector:@selector(javaScriptDidLoad:)
-        //                                                     name:HippyJavaScriptDidLoadNotification
-        //                                                   object:_bridge];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(javaScriptDidLoad:)
+                                                     name:HippyJavaScriptDidLoadNotification
+                                                   object:_bridge];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(javaScriptDidFailToLoad:)
                                                      name:HippyJavaScriptDidFailToLoadNotification
                                                    object:nil];
-        
-        // [_bridge.performanceLogger markStartForTag:HippyPLTTI];
         HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyRootView Init %p", self);
+    }
+    return self;
+}
+
+- (instancetype)initWithBridge:(HippyBridge *)bridge
+                    moduleName:(NSString *)moduleName
+             initialProperties:(NSDictionary *)initialProperties
+                  shareOptions:(NSDictionary *)shareOptions
+                      delegate:(id<HippyRootViewDelegate>)delegate {
+    self = [self initWithBridge:bridge moduleName:moduleName initialProperties:initialProperties delegate:delegate];
+    if (self) {
+        _sharedOptions = shareOptions;
     }
     return self;
 }
@@ -120,7 +137,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
              initialProperties:(NSDictionary *)initialProperties
                       delegate:(id<HippyRootViewDelegate>)delegate {
     NSParameterAssert(businessURL);
-    
+    if (businessURL.absoluteString.length > 0) {
+        _hasBusinessBundleToLoad = YES;
+    }
     if (self = [self initWithBridge:bridge
                          moduleName:moduleName
                   initialProperties:initialProperties
@@ -133,11 +152,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
             __weak __typeof(self)weakSelf = self;
             [bridge loadBundleURL:businessURL completion:^(NSURL * _Nullable url, NSError * _Nullable error) {
                 // Execute loadInstance first and then do call back, maintain compatibility with hippy2
-                if (!error) {
-                    [weakSelf runHippyApplication];
-                }
                 dispatch_async(dispatch_get_main_queue(), ^{
                     __strong __typeof(weakSelf)strongSelf = weakSelf;
+                    if (!error && !strongSelf.disableAutoRunApplication) {
+                        [strongSelf runHippyApplication];
+                    }
                     // 抛出业务包(BusinessBundle aka SecondaryBundle)加载完成通知, for hippy2兼容
                     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] initWithDictionary:@{ @"url": url,
                                                                                                        @"bridge": strongSelf.bridge }];
@@ -151,6 +170,23 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
                 });
             }];
         }
+    }
+    return self;
+}
+
+- (instancetype)initWithBridge:(HippyBridge *)bridge
+                   businessURL:(NSURL *)businessURL
+                    moduleName:(NSString *)moduleName
+             initialProperties:(NSDictionary *)initialProperties
+                  shareOptions:(NSDictionary *)shareOptions
+                      delegate:(id<HippyRootViewDelegate>)delegate {
+    self = [self initWithBridge:bridge
+                    businessURL:businessURL
+                     moduleName:moduleName
+              initialProperties:initialProperties
+                       delegate:delegate];
+    if (self) {
+        _sharedOptions = shareOptions;
     }
     return self;
 }
@@ -170,27 +206,31 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 
+#pragma mark - Public
+
 - (void)runHippyApplication {
-    // [_bridge.performanceLogger markStartForTag:HippyPLRunApplication];
+    HippyAssertMainQueue();
+    if (!self.bridge.isValid) {
+        return;
+    }
+    if (self.sharedOptions) {
+        [self.bridge.shareOptions setObject:self.sharedOptions forKey:self.hippyTag];
+    }
     
-    __weak __typeof(self)weakSelf = self;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        __strong __typeof(weakSelf)strongSelf = weakSelf;
-        
-        [strongSelf.contentView removeFromSuperview];
-        // todo: ContentRootView sizeFlexibility feature
-        HippyRootContentView *contentView = [[HippyRootContentView alloc] initWithFrame:strongSelf.bounds
-                                                                                 bridge:strongSelf.bridge
-                                                                               hippyTag:strongSelf.hippyTag
-                                                                         sizeFlexiblity:HippyRootViewSizeFlexibilityWidthAndHeight];
-        
-        // 注册RootView
-        [strongSelf.bridge setRootView:contentView];
-        [strongSelf.bridge loadInstanceForRootView:strongSelf.hippyTag withProperties:strongSelf.appProperties];
-        strongSelf.contentView = contentView;
-        [strongSelf insertSubview:contentView atIndex:0];
-        HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", strongSelf.moduleName, strongSelf.appProperties);
-    });
+    [self.contentView removeFromSuperview];
+    // todo: ContentRootView sizeFlexibility feature
+    HippyRootContentView *contentView = [[HippyRootContentView alloc] initWithFrame:self.bounds
+                                                                             bridge:self.bridge
+                                                                           hippyTag:self.hippyTag
+                                                                     sizeFlexiblity:HippyRootViewSizeFlexibilityWidthAndHeight];
+    
+    // Register RootView
+    [self.bridge setRootView:contentView];
+    [self.bridge loadInstanceForRootView:self.hippyTag withProperties:self.appProperties];
+    self.contentView = contentView;
+    [self insertSubview:contentView atIndex:0];
+    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", self.moduleName, self.appProperties);
+
 }
 
 - (UIViewController *)hippyViewController {
@@ -221,6 +261,17 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 
 #pragma mark - Notification Handlers
+
+- (void)javaScriptDidLoad:(NSNotification *)notification {
+    HippyAssertMainQueue();
+    
+    // Use the bridge that's sent in the notification payload
+    // Call runHippyApplication only if the RootView is initialized without a business bundle.
+    HippyBridge *bridge = notification.userInfo[@"bridge"];
+    if (!self.disableAutoRunApplication && bridge == self.bridge && !_hasBusinessBundleToLoad) {
+        [self runHippyApplication];
+    }
+}
 
 - (void)javaScriptDidFailToLoad:(NSNotification *)notification {
     HippyBridge *bridge = notification.userInfo[@"bridge"];
