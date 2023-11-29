@@ -139,6 +139,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     NSParameterAssert(businessURL);
     if (businessURL.absoluteString.length > 0) {
         _hasBusinessBundleToLoad = YES;
+        
+        // Set the default sandbox directory
+        [bridge setSandboxDirectory:[businessURL URLByDeletingLastPathComponent]];
     }
     if (self = [self initWithBridge:bridge
                          moduleName:moduleName
