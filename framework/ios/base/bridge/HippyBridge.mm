@@ -209,6 +209,9 @@ dispatch_queue_t HippyBridgeQueue() {
         [HippyBridge setCurrentBridge:self];
         
         [self loadPendingVendorBundleURLIfNeeded];
+        
+        // Set the default sandbox directory
+        [self setSandboxDirectory:[bundleURL URLByDeletingLastPathComponent]];
         HippyLogInfo(@"HippyBridge init end, self:%p", self);
     }
     return self;
