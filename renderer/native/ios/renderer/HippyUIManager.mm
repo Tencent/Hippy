@@ -416,10 +416,10 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     }
     __weak id weakSelf = self;
     std::vector<std::function<void()>> ops_ = {[hippyTag, rootTag, weakSelf, frame]() {
-        if (!weakSelf) {
+        HippyUIManager *strongSelf = weakSelf;
+        if (!strongSelf) {
             return;
         }
-        HippyUIManager *strongSelf = weakSelf;
         HippyShadowView *renderObject = [strongSelf->_shadowViewRegistry componentForTag:hippyTag onRootTag:rootTag];
         if (renderObject == nil) {
             return;
@@ -444,10 +444,10 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     }
     __weak id weakSelf = self;
     std::vector<std::function<void()>> ops_ = {[componentTag, weakSelf, frame]() {
-        if (!weakSelf) {
+        HippyUIManager *strongSelf = weakSelf;
+        if (!strongSelf) {
             return;
         }
-        HippyUIManager *strongSelf = weakSelf;
         HippyShadowView *renderObject = [strongSelf->_shadowViewRegistry rootComponentForTag:componentTag];
         if (renderObject == nil) {
             return;
