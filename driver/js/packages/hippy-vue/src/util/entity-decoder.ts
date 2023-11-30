@@ -19,7 +19,6 @@
  */
 
 function decode(html: any) {
-  // TODO: decode html
   return html;
 }
 

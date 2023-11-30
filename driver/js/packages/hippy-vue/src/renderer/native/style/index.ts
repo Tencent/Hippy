@@ -20,18 +20,7 @@
 
 import { getBeforeLoadStyle, isDev } from '../../../util';
 import parseSelector from './parser';
-import {
-  RuleSet,
-  InvalidSelector,
-  UniversalSelector,
-  IdSelector,
-  TypeSelector,
-  ClassSelector,
-  PseudoClassSelector,
-  AttributeSelector,
-  SimpleSelectorSequence,
-  Selector,
-} from './css-selectors';
+
 
 function isDeclaration(node: any) {
   return node.type === 'declaration';

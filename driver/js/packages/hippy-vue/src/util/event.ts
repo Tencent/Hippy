@@ -26,8 +26,6 @@ const EventHandlerType = {
 const NativeEventMap = {
   onClick: 'click',
   onLongClick: 'longclick',
-  // onPressIn: 'touchstart', // normalization
-  // onPressOut: 'touchend', // normalization
   onPressIn: 'pressin',
   onPressOut: 'pressout',
   onTouchDown: 'touchstart', // compatible with w3c standard name touchstart
@@ -44,8 +42,7 @@ const DOMEventPhase = {
   BUBBLING_PHASE: 3,
 };
 
-function isNativeGesture(name: any) {
-  // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+function isNativeGesture(name: string) {
   return !!NativeEventMap[name];
 }
 

@@ -18,17 +18,36 @@
  * limitations under the License.
  */
 
-import Vue from './runtime/index';
-import { setVue } from './util/index';
-import WebSocket from './runtime/websocket';
+import { SimpleSelector } from './simple-selector';
 
-global.process = global.process || {};
-global.process.env = global.process.env || {};
-// @ts-ignore
-global.WebSocket = WebSocket;
+/**
+ * Invalid Selector
+ */
+export class InvalidSelector extends SimpleSelector {
+  err: any;
 
-Vue.config.silent = false;
-Vue.config.trimWhitespace = true;
-setVue(Vue);
+  public constructor(err: any) {
+    super();
+    this.specificity = 0x00000000;
+    this.rarity = 4;
+    this.dynamic = false;
+    this.combinator = undefined;
+    this.err = err;
+  }
 
-export default Vue;
+  toString() {
+    return `<error: ${this.err}>`;
+  }
+
+  public match() {
+    return false;
+  }
+
+  public lookupSort() {
+    return null;
+  }
+
+  public removeSort() {
+    return null;
+  }
+}

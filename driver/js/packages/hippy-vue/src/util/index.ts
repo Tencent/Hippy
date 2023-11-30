@@ -87,14 +87,14 @@ function isDev() {
 
 function isTraceEnabled() {
   return !(!isDev()
-    || (process && process.release)
-    || (_Vue && _Vue.config.silent));
+    || (process?.release)
+    || (_Vue?.config.silent));
 }
 
 function trace(...context: any[]) {
   if (isTraceEnabled()) {
     console.log(...context);
-  } else if (_Vue && _Vue.config.silent) {
+  } else if (_Vue?.config.silent) {
     infoTrace();
   }
 }

@@ -26,8 +26,6 @@ import Native from './native';
 
 export default Vue;
 
-export as namespace Vue;
-
 declare module 'vue/types/vue' {
   interface VueConstructor {
     Native: Native;

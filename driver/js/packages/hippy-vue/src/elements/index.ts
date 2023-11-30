@@ -90,7 +90,7 @@ function getViewMeta(elementName: any) {
   const normalizedName = normalizeElementName(elementName);
   let viewMeta = defaultViewMeta;
   const entry = elementMap.get(normalizedName);
-  if (entry && entry.meta) {
+  if (entry?.meta) {
     viewMeta = entry.meta;
   }
   return viewMeta;

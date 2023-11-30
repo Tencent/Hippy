@@ -18,17 +18,37 @@
  * limitations under the License.
  */
 
-import Vue from './runtime/index';
-import { setVue } from './util/index';
-import WebSocket from './runtime/websocket';
+import { wrap } from '../util';
+import { SimpleSelector } from './simple-selector';
 
-global.process = global.process || {};
-global.process.env = global.process.env || {};
-// @ts-ignore
-global.WebSocket = WebSocket;
+/**
+ * Pseudo Class Selector
+ */
+export class PseudoClassSelector extends SimpleSelector {
+  cssPseudoClass: any;
 
-Vue.config.silent = false;
-Vue.config.trimWhitespace = true;
-setVue(Vue);
+  public constructor(cssPseudoClass: any) {
+    super();
+    this.specificity = 0x00000100;
+    this.rarity = 0;
+    this.dynamic = false;
+    this.cssPseudoClass = cssPseudoClass;
+  }
 
-export default Vue;
+  toString() {
+    return `:${this.cssPseudoClass}${wrap(this.combinator)}`;
+  }
+
+  public match(node: any) {
+    return !!node;
+  }
+
+  public mayMatch() {
+    return true;
+  }
+
+  public trackChanges(node: any, map: any) {
+    map.addPseudoClass(node, this.cssPseudoClass);
+  }
+}
+

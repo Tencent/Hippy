@@ -19,9 +19,7 @@
  */
 
 import crypto from 'crypto';
-// @ts-expect-error TS(7016): Could not find a declaration file for module 'load... Remove this comment to see the full error message
 import { getOptions } from 'loader-utils';
-// @ts-expect-error TS(2307): Cannot find module '@vue/runtime/constants' or its... Remove this comment to see the full error message
 import { GLOBAL_STYLE_NAME, GLOBAL_DISPOSE_STYLE_NAME } from '@vue/runtime/constants';
 import parseCSS from './css-parser';
 import translateColor, { names as colorNames } from './color-parser';

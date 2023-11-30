@@ -18,17 +18,24 @@
  * limitations under the License.
  */
 
-import Vue from './runtime/index';
-import { setVue } from './util/index';
-import WebSocket from './runtime/websocket';
+export function wrap(text: any) {
+  return text ? ` ${text} ` : '';
+}
 
-global.process = global.process || {};
-global.process.env = global.process.env || {};
-// @ts-ignore
-global.WebSocket = WebSocket;
 
-Vue.config.silent = false;
-Vue.config.trimWhitespace = true;
-setVue(Vue);
+/**
+ * get node attribute or styleScopeId value
+ * @param node
+ * @param attribute
+ * @returns {*}
+ */
+export const getNodeAttrVal = (node: any, attribute: any) => {
+  const attr = node.attributes[attribute];
+  if (typeof attr !== 'undefined') {
+    return attr;
+  }
+  if (Array.isArray(node.styleScopeId) && node.styleScopeId.includes(attribute)) {
+    return attribute;
+  }
+};
 
-export default Vue;

@@ -20,14 +20,18 @@
 
 import Native from '../runtime/native';
 
+export enum TextDirection {
+  RTL = 1
+}
+
 /**
  * is right to left display
  * @returns {boolean}
  */
-export function isRTL() {
+export function isRTL(): boolean {
   const localization = Native.Localization;
   if (localization) {
-    return localization.direction === 1;
+    return localization.direction === TextDirection.RTL;
   }
   return false;
 }

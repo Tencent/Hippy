@@ -18,6 +18,7 @@
  * limitations under the License.
  */
 
+import { CallbackType, NeedToTyped } from '../types/native';
 import {
   getApp,
   warn,
@@ -35,6 +36,13 @@ const WEB_SOCKET_NATIVE_EVENT = 'hippyWebsocketEvents';
 
 let app: any;
 
+export interface WebsocketCallback {
+  onOpen?: CallbackType[];
+  onClose?: CallbackType[];
+  onError?: CallbackType[];
+  onMessage?: CallbackType[];
+}
+
 /**
  * The WebSocket API is an advanced technology that makes it possible to open a two-way
  * interactive communication session between the user's browser and a server. With this API,
@@ -42,10 +50,17 @@ let app: any;
  * poll the server for a reply.
  */
 class WebSocket {
-  readyState: any;
-  url: any;
-  webSocketCallbacks: any;
-  webSocketId: any;
+  // status code of websocket
+  public readyState: number;
+
+  // websocket link to access
+  public url: string;
+
+  // callback of websocket
+  public webSocketCallbacks: any;
+
+  // webSocketId
+  public webSocketId = -1;
   /**
    * Returns a newly created WebSocket object.
    *
@@ -62,7 +77,11 @@ class WebSocket {
    *                                          string is assumed.
    * @param {Object} extrasHeaders - Http headers will append to connection.
    */
-  constructor(url: any, protocols: any, extrasHeaders: any) {
+  constructor(
+    url: string,
+    protocols?: string | string[],
+    extrasHeaders?: { [key: string]: NeedToTyped },
+  ) {
     app = getApp();
     this.url = url;
     this.readyState = READY_STATE_CONNECTING;

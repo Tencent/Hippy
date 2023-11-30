@@ -148,6 +148,10 @@ interface Native {
   UIManagerModule: UIManagerModule;
 }
 
+export type NeedToTyped = any;
+
+export type CallbackType = Function;
+
 interface UIManagerModule {
   createNode: (rootViewId: any, queue: any) => void;
   updateNode: (rootViewId: any, queue: any) => void;

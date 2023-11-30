@@ -31,7 +31,7 @@ const REGEXP_SUPPORTING_STICKY_FLAG = (() => {
 
 
 // Regexp strings
-const REGEXP_STRINGS = {
+const REGEXP_STRINGS: { [key: string]: string } = {
   whiteSpaceRegEx: '\\s*',
   universalSelectorRegEx: '\\*',
   simpleIdentifierSelectorRegEx: '(#|\\.|:|\\b)([_-\\w][_-\\w\\d]*)',
@@ -39,27 +39,51 @@ const REGEXP_STRINGS = {
   combinatorRegEx: '\\s*(\\+|~|>)?\\s*',
 };
 
+export interface SelectorParsedType {
+  start: number | undefined;
+  end: number | undefined;
+  value: ParsedSelectorValueType;
+}
+
+export type PairValueType = [SelectorType[] | undefined, undefined | string];
+
+export interface CombinatorType {
+  start: number | undefined;
+  end: number  | undefined;
+  value: string;
+}
+export interface SelectorType {
+  type: string;
+  identifier?: string;
+  property?: string;
+  test?: string;
+  value?: string;
+}
+
+export type ParsedSelectorValueType = (SelectorType[][] | PairValueType)[];
+
 // RegExp instance cache
-const REGEXPS = {};
+const REGEXPS: { [key: string]: RegExp } = {};
 
 // Execute the RegExp
-function execRegExp(regexpKey: any, text: any, start: any) {
+function execRegExp(
+  regexpKey: string,
+  text: string,
+  start: number | undefined,
+) {
   let flags = '';
   // Check the sticky flag supporting, and cache the RegExp instance.
   if (REGEXP_SUPPORTING_STICKY_FLAG) {
     flags = 'gy';
   }
-  // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   if (!REGEXPS[regexpKey]) {
-    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     REGEXPS[regexpKey] = new RegExp(REGEXP_STRINGS[regexpKey], flags);
   }
-  // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   const regexp = REGEXPS[regexpKey];
   let result;
   // Fallback to split the text if sticky is not supported.
   if (REGEXP_SUPPORTING_STICKY_FLAG) {
-    regexp.lastIndex = start;
+    regexp.lastIndex = start || 0;
     result = regexp.exec(text);
   } else {
     text = text.slice(start, text.length);
@@ -71,7 +95,7 @@ function execRegExp(regexpKey: any, text: any, start: any) {
       };
     }
     // add start index to prevent infinite loop caused by class name like .aa_bb.aa
-    regexp.lastIndex = start + result[0].length;
+    regexp.lastIndex = start || 0 + result[0].length;
   }
   return {
     result,
@@ -79,7 +103,10 @@ function execRegExp(regexpKey: any, text: any, start: any) {
   };
 }
 
-function parseUniversalSelector(text: any, start: any) {
+function parseUniversalSelector(
+  text: string,
+  start: number | undefined,
+) {
   const { result, regexp } = execRegExp('universalSelectorRegEx', text, start);
   if (!result) {
     return null;
@@ -94,7 +121,10 @@ function parseUniversalSelector(text: any, start: any) {
   };
 }
 
-function parseSimpleIdentifierSelector(text: any, start: any) {
+function parseSimpleIdentifierSelector(
+  text: string,
+  start: number | undefined,
+) {
   const { result, regexp } = execRegExp('simpleIdentifierSelectorRegEx', text, start);
   if (!result) {
     return null;
@@ -110,7 +140,10 @@ function parseSimpleIdentifierSelector(text: any, start: any) {
   };
 }
 
-function parseAttributeSelector(text: any, start: any) {
+function parseAttributeSelector(
+  text: string,
+  start: number | undefined,
+) {
   const { result, regexp } = execRegExp('attributeSelectorRegEx', text, start);
   if (!result) {
     return null;
@@ -141,13 +174,19 @@ function parseAttributeSelector(text: any, start: any) {
   };
 }
 
-function parseSimpleSelector(text: any, start: any) {
+function parseSimpleSelector(
+  text: string,
+  start: number | undefined,
+) {
   return parseUniversalSelector(text, start)
     || parseSimpleIdentifierSelector(text, start)
     || parseAttributeSelector(text, start);
 }
 
-function parseSimpleSelectorSequence(text: any, start: any) {
+function parseSimpleSelectorSequence(
+  text: string,
+  start: number | undefined,
+) {
   let simpleSelector = parseSimpleSelector(text, start);
   if (!simpleSelector) {
     return null;
@@ -166,7 +205,10 @@ function parseSimpleSelectorSequence(text: any, start: any) {
   };
 }
 
-function parseCombinator(text: any, start: any) {
+function parseCombinator(
+  text: string,
+  start: number | undefined,
+): CombinatorType | null {
   const { result, regexp } = execRegExp('combinatorRegEx', text, start);
   if (!result) {
     return null;
@@ -185,23 +227,26 @@ function parseCombinator(text: any, start: any) {
   };
 }
 
-function parseSelector(text: any, start: any) {
+function parseSelector(
+  text: string,
+  start: number | undefined,
+): SelectorParsedType {
   let end = start;
   const { result, regexp } = execRegExp('whiteSpaceRegEx', text, start);
   if (result) {
     end = regexp.lastIndex;
   }
-  const value: any = [];
-  let combinator: any;
+  const value: ParsedSelectorValueType = [];
+  let combinator: CombinatorType | null;
   let expectSimpleSelector = true;
-  let pair = [];
+  let pair: PairValueType = [undefined, undefined];
   let cssText;
   if (REGEXP_SUPPORTING_STICKY_FLAG) {
     cssText = [text];
   } else {
     cssText = text.split(' ');
   }
-  cssText.forEach((text: any) => {
+  cssText.forEach((text: string) => {
     if (!REGEXP_SUPPORTING_STICKY_FLAG) {
       if (text === '') {
         return;
@@ -227,7 +272,7 @@ function parseSelector(text: any, start: any) {
       if (combinator) {
         ({ end } = combinator);
       }
-      expectSimpleSelector = combinator && combinator.value !== ' ';
+      expectSimpleSelector = !!(combinator && combinator.value !== ' ');
     } while (combinator);
   });
   return {

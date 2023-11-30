@@ -1,3 +1,6 @@
+import { wrap } from '../util';
+import { SimpleSelector } from './simple-selector';
+
 /*
  * Tencent is pleased to support the open source community by making
  * Hippy available.
@@ -18,17 +21,34 @@
  * limitations under the License.
  */
 
-import Vue from './runtime/index';
-import { setVue } from './util/index';
-import WebSocket from './runtime/websocket';
+/**
+ * Id Selector
+ */
+export class IdSelector extends SimpleSelector {
+  id: any;
 
-global.process = global.process || {};
-global.process.env = global.process.env || {};
-// @ts-ignore
-global.WebSocket = WebSocket;
+  constructor(id: any) {
+    super();
+    this.specificity = 0x00010000;
+    this.rarity = 3;
+    this.dynamic = false;
+    this.id = id;
+  }
 
-Vue.config.silent = false;
-Vue.config.trimWhitespace = true;
-setVue(Vue);
+  toString() {
+    return `#${this.id}${wrap(this.combinator)}`;
+  }
 
-export default Vue;
+  match(node: any) {
+    if (!node) return false;
+    return node.id === this.id;
+  }
+
+  lookupSort(sorter: any, base: any) {
+    sorter.sortById(this.id, base || this);
+  }
+
+  removeSort(sorter: any, base: any) {
+    sorter.removeById(this.id, base || this);
+  }
+}

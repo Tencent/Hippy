@@ -18,38 +18,37 @@
  * limitations under the License.
  */
 
-/* eslint-disable no-param-reassign */
+import { wrap } from '../util';
+import { SimpleSelector } from './simple-selector';
 
 /**
- * Selector Map
+ * Class Selector
  */
-export class SelectorsMatch {
-  changeMap: any;
-  constructor() {
-    this.changeMap = new Map();
+export class ClassSelector extends SimpleSelector {
+  className: string;
+
+  constructor(className: string) {
+    super();
+    this.specificity = 0x00000100;
+    this.rarity = 2;
+    this.dynamic = false;
+    this.className = className;
   }
 
-  addAttribute(node: any, attribute: any) {
-    const deps = this.properties(node);
-    if (!deps.attributes) {
-      deps.attributes = new Set();
-    }
-    deps.attributes.add(attribute);
+  toString() {
+    return `.${this.className}${wrap(this.combinator)}`;
   }
 
-  addPseudoClass(node: any, pseudoClass: any) {
-    const deps = this.properties(node);
-    if (!deps.pseudoClasses) {
-      deps.pseudoClasses = new Set();
-    }
-    deps.pseudoClasses.add(pseudoClass);
+  public match(node: any) {
+    if (!node) return false;
+    return node.classList?.size && node.classList.has(this.className);
   }
 
-  properties(node: any) {
-    let set = this.changeMap.get(node);
-    if (!set) {
-      this.changeMap.set(node, set = {});
-    }
-    return set;
+  public lookupSort(sorter: any, base: any) {
+    sorter.sortByClass(this.className, base || this);
+  }
+
+  public removeSort(sorter: any, base: any) {
+    sorter.removeByClass(this.className, base || this);
   }
 }

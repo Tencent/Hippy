@@ -70,7 +70,7 @@ function recursivelyUnCacheNode(node: any) {
     unCacheNode(node);
   } else if (node) {
     unCacheNode(node.nodeId);
-    node.childNodes && node.childNodes.forEach((node: any) => recursivelyUnCacheNode(node));
+    node.childNodes?.forEach((node: any) => recursivelyUnCacheNode(node));
   }
 }
 

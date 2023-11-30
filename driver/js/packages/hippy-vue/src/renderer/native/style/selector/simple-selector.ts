@@ -18,17 +18,33 @@
  * limitations under the License.
  */
 
-import Vue from './runtime/index';
-import { setVue } from './util/index';
-import WebSocket from './runtime/websocket';
+import { SelectorCore } from './core-selector';
 
-global.process = global.process || {};
-global.process.env = global.process.env || {};
-// @ts-ignore
-global.WebSocket = WebSocket;
+export class SimpleSelector extends SelectorCore {
+  // rarity of style
+  public rarity = 0;
 
-Vue.config.silent = false;
-Vue.config.trimWhitespace = true;
-setVue(Vue);
+  public combinator?: string;
 
-export default Vue;
+  public accumulateChanges(node: any, map: any) {
+    if (!this.dynamic) {
+      return this.match(node);
+    }
+    if (this.mayMatch(node)) {
+      this.trackChanges(node, map);
+      return true;
+    }
+    return false;
+  }
+
+  public mayMatch(node: any) {
+    return this.match(node);
+  }
+
+  public match(node: any) {
+    return false;
+  }
+
+  public trackChanges(node, map) {
+  }
+}

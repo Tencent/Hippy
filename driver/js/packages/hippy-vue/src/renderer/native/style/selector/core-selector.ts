@@ -18,17 +18,26 @@
  * limitations under the License.
  */
 
-import Vue from './runtime/index';
-import { setVue } from './util/index';
-import WebSocket from './runtime/websocket';
+import { RuleSet } from '../ruleset';
 
-global.process = global.process || {};
-global.process.env = global.process.env || {};
-// @ts-ignore
-global.WebSocket = WebSocket;
+/**
+ * Base classes
+ */
+export class SelectorCore {
+  // is it a dynamic style
+  public dynamic?: boolean;
 
-Vue.config.silent = false;
-Vue.config.trimWhitespace = true;
-setVue(Vue);
+  // style weight
+  public specificity = 0;
 
-export default Vue;
+  // rule set
+  public ruleSet?: RuleSet;
+
+  lookupSort(sorter: any, base: any) {
+    sorter.sortAsUniversal(base || this);
+  }
+
+  removeSort(sorter: any, base: any) {
+    sorter.removeAsUniversal(base || this);
+  }
+}

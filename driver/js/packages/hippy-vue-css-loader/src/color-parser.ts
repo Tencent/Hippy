@@ -189,7 +189,7 @@ const matchers = {
   hex8: /^#([0-9a-fA-F]{8})$/,
 };
 
-const parse255 = (str: any) => {
+const parse255 = (str: string) => {
   const int = parseInt(str, 10);
   if (int < 0) {
     return 0;
@@ -200,7 +200,7 @@ const parse255 = (str: any) => {
   return int;
 };
 
-const parse1 = (str: any) => {
+const parse1 = (str: string) => {
   const num = parseFloat(str);
   if (num < 0) {
     return 0;
@@ -211,7 +211,7 @@ const parse1 = (str: any) => {
   return Math.round(num * 255);
 };
 
-const hue2rgb = (p: any, q: any, tx: any) => {
+const hue2rgb = (p: number, q: number, tx: number) => {
   let t = tx;
   if (t < 0) {
     t += 1;
@@ -231,7 +231,7 @@ const hue2rgb = (p: any, q: any, tx: any) => {
   return p;
 };
 
-const hslToRgb = (h: any, s: any, l: any) => {
+const hslToRgb = (h: number, s: number, l: number) => {
   const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
   const p = 2 * l - q;
   const r = hue2rgb(p, q, h + 1 / 3);
@@ -244,12 +244,12 @@ const hslToRgb = (h: any, s: any, l: any) => {
   );
 };
 
-const parse360 = (str: any) => {
+const parse360 = (str: string) => {
   const int = parseFloat(str);
   return (((int % 360) + 360) % 360) / 360;
 };
 
-const parsePercentage = (str: any) => {
+const parsePercentage = (str: string) => {
   // @ts-expect-error TS(2554): Expected 1 arguments, but got 2.
   const int = parseFloat(str, 10);
   if (int < 0) {
@@ -261,7 +261,7 @@ const parsePercentage = (str: any) => {
   return int / 100;
 };
 
-function baseColor(color: any) {
+function baseColor(color: number | string) {
   let match;
   if (typeof color === 'number') {
     if (color >>> 0 === color && color >= 0 && color <= 0xffffffff) {
@@ -274,7 +274,6 @@ function baseColor(color: any) {
     return parseInt(`${match[1]}ff`, 16) >>> 0;
   }
   if (Object.hasOwnProperty.call(names, color)) {
-    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     return names[color];
   }
   match = matchers.rgb.exec(color);
@@ -347,7 +346,7 @@ function baseColor(color: any) {
 /**
  * Translate the color to make sure native understood.
  */
-function translateColor(color: any) {
+function translateColor(color: string | number) {
   if (typeof color === 'string' && color.indexOf('var(') !== -1) return color;
   let int32Color = baseColor(color);
   if (int32Color === null) {
