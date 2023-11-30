@@ -91,7 +91,6 @@ module.exports = {
     globalObject: '(0, eval)("this")',
   },
   plugins: [
-    new webpack.NamedModulesPlugin(),
     new HtmlWebpackPlugin({
       inject: true,
       scriptLoading: 'blocking',
