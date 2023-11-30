@@ -329,10 +329,10 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
         __weak HippyShadowView *weakSelf = self;
         std::vector<std::function<void()>> ops = {[weakSelf, domManager, frame, dirtyPropagation](){
             @autoreleasepool {
-                if (!weakSelf) {
+                HippyShadowView *strongSelf = weakSelf;
+                if (!strongSelf) {
                     return;
                 }
-                HippyShadowView *strongSelf = weakSelf;
                 int32_t componentTag = [[strongSelf hippyTag] intValue];
                 auto node = domManager->GetNode(strongSelf.rootNode, componentTag);
                 auto renderManager = domManager->GetRenderManager().lock();
