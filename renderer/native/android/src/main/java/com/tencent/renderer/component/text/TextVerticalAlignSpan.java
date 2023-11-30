@@ -19,45 +19,45 @@ package com.tencent.renderer.component.text;
 import android.graphics.Paint.FontMetricsInt;
 import android.text.TextPaint;
 import android.text.style.CharacterStyle;
-import com.tencent.renderer.node.TextVirtualNode;
+import com.tencent.renderer.node.VirtualNode;
 
-public class TextVerticalAlignSpan extends CharacterStyle {
+public class TextVerticalAlignSpan extends CharacterStyle implements TextLineMetricsHelper.LineMetrics {
 
     private final FontMetricsInt mReusableFontMetricsInt = new FontMetricsInt();
     private final String mVerticalAlign;
-    private int mLineTop;
-    private int mLineBottom;
+    private TextLineMetricsHelper mHelper;
 
     public TextVerticalAlignSpan(String verticalAlign) {
         this.mVerticalAlign = verticalAlign;
     }
 
-    public void setLineMetrics(int top, int bottom) {
-        mLineTop = top;
-        mLineBottom = bottom;
+    @Override
+    public void setLineMetrics(TextLineMetricsHelper helper) {
+        mHelper = helper;
     }
 
     @Override
     public void updateDrawState(TextPaint tp) {
-        if (mLineTop != 0 || mLineBottom != 0) {
+        if (mHelper != null && (mHelper.getLineTop() != 0 || mHelper.getLineBottom() != 0)) {
             final FontMetricsInt fmi = mReusableFontMetricsInt;
             switch (mVerticalAlign) {
-                case TextVirtualNode.V_ALIGN_TOP:
+                case VirtualNode.V_ALIGN_TOP:
                     tp.getFontMetricsInt(fmi);
-                    tp.baselineShift = mLineTop - fmi.top;
+                    tp.baselineShift = mHelper.getLineTop() - fmi.top;
                     break;
-                case TextVirtualNode.V_ALIGN_MIDDLE:
+                case VirtualNode.V_ALIGN_MIDDLE:
                     tp.getFontMetricsInt(fmi);
-                    tp.baselineShift = (mLineTop + mLineBottom - fmi.top - fmi.bottom) / 2;
+                    tp.baselineShift = (mHelper.getLineTop() + mHelper.getLineBottom() - fmi.top - fmi.bottom) / 2;
                     break;
-                case TextVirtualNode.V_ALIGN_BOTTOM:
+                case VirtualNode.V_ALIGN_BOTTOM:
                     tp.getFontMetricsInt(fmi);
-                    tp.baselineShift = mLineBottom - fmi.bottom;
+                    tp.baselineShift = mHelper.getLineBottom() - fmi.bottom;
                     break;
-                case TextVirtualNode.V_ALIGN_BASELINE:
+                case VirtualNode.V_ALIGN_BASELINE:
                 default:
                     break;
             }
+            mHelper.markVerticalOffset(tp.baselineShift);
         }
     }
 }

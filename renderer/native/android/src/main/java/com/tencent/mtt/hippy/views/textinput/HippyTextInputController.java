@@ -208,66 +208,19 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
         hippyTextInput.refreshSoftInput();
     }
 
-    private static int parseFontWeight(String fontWeightString) {
-        // This should be much faster than using regex to verify input and Integer.parseInt
-        return fontWeightString.length() == 3 && fontWeightString.endsWith("00")
-                && fontWeightString.charAt(0) <= '9'
-                && fontWeightString.charAt(0) >= '1' ? 100 * (fontWeightString.charAt(0) - '0')
-                : -1;
-    }
-
-    @HippyControllerProps(name = NodeProps.FONT_STYLE, defaultType = HippyControllerProps.STRING, defaultString = "normal")
+    @HippyControllerProps(name = NodeProps.FONT_STYLE, defaultType = HippyControllerProps.STRING)
     public void setFontStyle(HippyTextInput view, String fontStyleString) {
-        if (TextUtils.isEmpty(fontStyleString)) {
-            return;
-        }
-        int fontStyle = -1;
-        if ("italic".equals(fontStyleString)) {
-            fontStyle = Typeface.ITALIC;
-        } else if ("normal".equals(fontStyleString)) {
-            fontStyle = Typeface.NORMAL;
-        }
-
-        Typeface currentTypeface = view.getTypeface();
-        if (currentTypeface == null) {
-            currentTypeface = Typeface.DEFAULT;
-        }
-        if (fontStyle != currentTypeface.getStyle()) {
-            view.setTypeface(currentTypeface, fontStyle);
-        }
+        view.setFontStyle(fontStyleString);
     }
 
-    @HippyControllerProps(name = NodeProps.FONT_WEIGHT, defaultType = HippyControllerProps.STRING, defaultString = "normal")
+    @HippyControllerProps(name = NodeProps.FONT_WEIGHT, defaultType = HippyControllerProps.STRING)
     public void setFontWeight(HippyTextInput view, String fontWeightString) {
-        int fontWeightNumeric = fontWeightString != null ? parseFontWeight(fontWeightString) : -1;
-        int fontWeight = -1;
-        if (fontWeightNumeric >= 500 || "bold".equals(fontWeightString)) {
-            fontWeight = Typeface.BOLD;
-        } else //noinspection ConstantConditions
-            if ("normal".equals(fontWeightString) || (fontWeightNumeric != -1
-                    && fontWeightNumeric < 500)) {
-                fontWeight = Typeface.NORMAL;
-            }
-        Typeface currentTypeface = view.getTypeface();
-        if (currentTypeface == null) {
-            currentTypeface = Typeface.DEFAULT;
-        }
-        if (fontWeight != currentTypeface.getStyle()) {
-            view.setTypeface(currentTypeface, fontWeight);
-        }
+        view.setFontWeight(fontWeightString);
     }
 
-    @HippyControllerProps(name = NodeProps.FONT_FAMILY, defaultType = HippyControllerProps.STRING, defaultString = "normal")
+    @HippyControllerProps(name = NodeProps.FONT_FAMILY, defaultType = HippyControllerProps.STRING)
     public void setFontFamily(HippyTextInput view, String fontFamily) {
-        if (TextUtils.isEmpty(fontFamily)) {
-            return;
-        }
-        int style = Typeface.NORMAL;
-        if (view.getTypeface() != null) {
-            style = view.getTypeface().getStyle();
-        }
-        Typeface newTypeface = Typeface.create(fontFamily, style);
-        view.setTypeface(newTypeface);
+        view.setFontFamily(fontFamily);
     }
 
     private static final InputFilter[] EMPTY_FILTERS = new InputFilter[0];
@@ -379,12 +332,6 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     @HippyControllerProps(name = "numberOfLines", defaultType = HippyControllerProps.NUMBER, defaultNumber = Integer.MAX_VALUE)
     public void setMaxLines(HippyTextInput input, int numberOfLine) {
         input.setMaxLines(numberOfLine);
-    }
-
-
-    @HippyControllerProps(name = "underlineColorAndroid", defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
-    public void setUnderlineColor(HippyTextInput hippyTextInput, int underlineColor) {
-        //hippyTextInput.setUnderlineColor(underlineColor);
     }
 
     @HippyControllerProps(name = "changetext", defaultType = HippyControllerProps.BOOLEAN)

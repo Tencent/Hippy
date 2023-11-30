@@ -97,78 +97,27 @@
 
 -keep class **JNI* {*;}
 
--keep class com.tencent.mtt.hippy.*{*;}
-
-
--keep class com.tencent.mtt.hippy.common.* {*;}
-
--keep class com.tencent.mtt.hippy.annotation.* {*;}
-
--keep class com.tencent.mtt.hippy.adapter.** {*;}
-
--keep class com.tencent.mtt.hippy.modules.* {*;}
-
-
 -keep class * extends com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase{   public *;}
 
--keep class com.tencent.mtt.hippy.modules.nativemodules.* {*;}
+-keep interface com.tencent.mtt.hippy.adapter.HippyLogAdapter{*;}
 
--keep class com.tencent.mtt.hippy.modules.javascriptmodules.* {*;}
+-keep class com.openhippy.**{*;}
 
--keep class com.tencent.mtt.hippy.bridge.bundleloader.* {*;}
+-keep class com.tencent.vfs.**{*;}
 
-#-keep class com.tencent.mtt.hippy.uimanager.* {*;}
--keep class com.tencent.mtt.hippy.uimanager.DiffUtils {*;}
--keep class com.tencent.mtt.hippy.uimanager.DiffUtils$* {*;}
--keep class com.tencent.mtt.hippy.uimanager.HippyCustomViewCreator {*;}
--keep class com.tencent.mtt.hippy.uimanager.HippyViewController {*;}
--keep class com.tencent.mtt.hippy.uimanager.HippyViewBase {*;}
--keep class com.tencent.mtt.hippy.uimanager.HippyGroupController {*;}
--keep class com.tencent.mtt.hippy.uimanager.HippyViewEvent {*;}
--keep class com.tencent.mtt.hippy.uimanager.RenderNode {*;}
--keepclasseswithmembers class com.tencent.mtt.hippy.uimanager.RenderManager {
-public com.tencent.mtt.hippy.uimanager.RenderNode getRenderNode(int);
-public com.tencent.mtt.hippy.uimanager.ControllerManager getControllerManager();
-public void addUpdateNodeIfNeeded(com.tencent.mtt.hippy.uimanager.RenderNode);
-}
--keep class com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher {*;}
--keep class com.tencent.mtt.hippy.uimanager.ListItemRenderNode{
-public boolean shouldSticky();
-}
--keepclasseswithmembers class com.tencent.mtt.hippy.uimanager.ControllerManager {
-public android.view.View findView(int);
-public void deleteChild(int ,int );
-}
--keepclasseswithmembers class com.tencent.mtt.hippy.dom.DomManager {
-public void updateNodeSize(int,int,int);
-public void forceUpdateNode(int);
-public void addActionInterceptor(com.tencent.mtt.hippy.dom.node.DomActionInterceptor);
-public void removeActionInterceptor(com.tencent.mtt.hippy.dom.node.DomActionInterceptor);
+-keep class com.tencent.devtools.**{*;}
 
-}
--keepclasseswithmembers class com.tencent.mtt.hippy.bridge.HippyBridgeImpl {
-*;
-}
+-keep class com.tencent.renderer.**{*;}
 
--keepclasseswithmembers class com.tencent.mtt.hippy.bridge.NativeCallback {
-*;
-}
+-keep class com.tencent.mtt.hippy.**{*;}
 
 -keep public interface com.tencent.mtt.hippy.modules.nativemodules.deviceevent.DeviceEventModule$InvokeDefaultBackPress {*;}
 
--keep class com.tencent.mtt.hippy.utils.* {*;}
--keep class com.tencent.mtt.hippy.dom.node.NodeProps {*;}
--keep class com.tencent.mtt.hippy.dom.node.TextExtra {*;}
--keep class * extends com.tencent.mtt.hippy.dom.node.DomNode {*;}
-
--keep class com.tencent.mtt.hippy.views.** {*;}
--keep interface com.tencent.mtt.hippy.bridge.HippyBridge {*;}
-
 -keep class com.tencent.mtt.supportui.views.** {*;}
--keep class com.tencent.mtt.hippy.utils.** {*;}
--keep class com.tencent.mtt.hippy.dom.node.TypeFaceUtil {*;}
--keep class com.tencent.mtt.hippy.adapter.image.HippyImageLoader {*;}
--keep class com.tencent.mtt.hippy.dom.node.DomActionInterceptor {*;}
+
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
 
 -keepclasseswithmembers class com.tencent.mtt.supportui.** {
 public <methods>;

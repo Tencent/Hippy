@@ -129,13 +129,25 @@ public class ControllerUpdateManger<T> {
             HippyControllerProps controllerProps = method
                     .getAnnotation(HippyControllerProps.class);
             if (controllerProps != null) {
-                if (!sComponentPropsMethodMap.containsKey(controllerProps.name())) {
-                    sTextPropsSet.add(controllerProps.name());
+                String name = controllerProps.name();
+                if (!isComponentProps(name)) {
+                    sTextPropsSet.add(name);
                 }
-                sRenderPropsList.add(controllerProps.name());
+                sRenderPropsList.add(name);
             }
         }
         Collections.addAll(sRenderPropsList, sLayoutStyleList);
+    }
+
+    private static boolean isComponentProps(String name) {
+        if (sComponentPropsMethodMap.containsKey(name)) {
+            return true;
+        }
+        // Special case: property "opacity" in TextVirtualNode also need to process in HippyViewController
+        if (NodeProps.OPACITY.equals(name)) {
+            return true;
+        }
+        return false;
     }
 
     void findViewPropsMethod(Class<?> cls,

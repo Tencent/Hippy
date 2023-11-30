@@ -69,12 +69,19 @@
 ///   - rootTag: NSNumber
 - (HippyShadowView *)shadowViewForHippyTag:(NSNumber *)hippyTag onRootTag:(NSNumber *)rootTag;
 
-/// Update the frame of a view. This might be in response to a screen rotation
+/// Update the frame of a root view. This might be in response to a screen rotation
 /// or some other layout event outside of the Hippy-managed view hierarchy.
 /// - Parameters:
 ///   - frame: new frame
 ///   - view: target view
 - (void)setFrame:(CGRect)frame forRootView:(UIView *)view;
+
+/// Update the frame of a view. This might be in response to a screen rotation
+/// or some other layout event outside of the Hippy-managed view hierarchy.
+/// - Parameters:
+///   - frame: new frame
+///   - view: target view
+- (void)setFrame:(CGRect)frame forView:(UIView *)view;
 
 /// Schedule a block to be executed on the UI thread. Useful if you need to execute
 /// view logic after all currently queued view updates have completed.
