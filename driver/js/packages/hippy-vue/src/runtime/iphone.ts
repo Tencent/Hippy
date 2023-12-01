@@ -19,13 +19,13 @@
  */
 
 import ElementNode from '../renderer/element-node';
+import { NeedToTyped } from '../types/native';
 import Native from './native';
 
-function drawStatusBar(appOptions = {}) {
-  // @ts-expect-error TS(2339): Property 'iPhone' does not exist on type '{}'.
+function drawStatusBar(appOptions: NeedToTyped = {}) {
   const { iPhone } = appOptions;
-  let statusBarOpts = {};
-  if (iPhone && iPhone.statusBar) {
+  let statusBarOpts: NeedToTyped = {};
+  if (iPhone?.statusBar) {
     statusBarOpts = iPhone.statusBar;
   }
   if ((statusBarOpts as any).disabled) {
@@ -45,7 +45,6 @@ function drawStatusBar(appOptions = {}) {
   let backgroundColor = 4282431619; // Vue green
   // FIXME: Use Number.isInteger to check backgroundColor type.
   if (typeof (statusBarOpts as any).backgroundColor === 'number') {
-    // @ts-expect-error TS(2339): Property 'backgroundColor' does not exist on type ... Remove this comment to see the full error message
     ({ backgroundColor } = statusBarOpts);
   }
   statusBar.setStyle('backgroundColor', backgroundColor);
@@ -60,7 +59,6 @@ function drawStatusBar(appOptions = {}) {
   }
 
   // Listen the screen rotate event
-  // @ts-expect-error TS(2554): Expected 3 arguments, but got 2.
   statusBar.addEventListener('layout', () => {
     if (Native.screenIsVertical) {
       statusBar.setStyle('height', statusBarHeight);

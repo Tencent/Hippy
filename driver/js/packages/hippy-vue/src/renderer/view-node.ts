@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-this-alias */
 /*
  * Tencent is pleased to support the open source community by making
  * Hippy available.
@@ -22,13 +23,12 @@
 /* eslint-disable no-param-reassign */
 
 import { RelativeToRefType, findNotToSkipNode } from '../util/node';
-import { insertChild, removeChild, moveChild } from './native';
+import { insertChild, removeChild, moveChild } from '../native';
+import { CallbackType, NeedToTyped } from '../types/native';
 
 const ROOT_VIEW_ID = 0;
 let currentNodeId = 0;
-// @ts-expect-error TS(7017): Element implicitly has an 'any' type because type ... Remove this comment to see the full error message
 if (global.__GLOBAL__ && Number.isInteger(global.__GLOBAL__.nodeId)) {
-  // @ts-expect-error TS(7017): Element implicitly has an 'any' type because type ... Remove this comment to see the full error message
   currentNodeId = global.__GLOBAL__.nodeId;
 }
 function getNodeId() {
@@ -43,15 +43,16 @@ function getNodeId() {
 }
 
 class ViewNode {
-  _isMounted: any;
-  _meta: any;
-  _ownerDocument: any;
-  childNodes: any;
-  index: any;
-  nextSibling: any;
-  nodeId: any;
-  parentNode: any;
-  prevSibling: any;
+  public childNodes: NeedToTyped;
+  public index: NeedToTyped;
+  public nextSibling: NeedToTyped;
+  public nodeId: NeedToTyped;
+  public parentNode: NeedToTyped;
+  public prevSibling: NeedToTyped;
+  protected _meta: NeedToTyped;
+  private _isMounted: NeedToTyped;
+  private _ownerDocument: NeedToTyped;
+
   constructor() {
     // Point to root document element.
     this._ownerDocument = null;
@@ -116,7 +117,7 @@ class ViewNode {
     this._isMounted = isMounted;
   }
 
-  insertBefore(childNode: any, referenceNode: any) {
+  insertBefore(childNode: NeedToTyped, referenceNode: NeedToTyped) {
     if (!childNode) {
       throw new Error('Can\'t insert child.');
     }
@@ -162,7 +163,7 @@ class ViewNode {
     );
   }
 
-  moveChild(childNode: any, referenceNode: any) {
+  moveChild(childNode: NeedToTyped, referenceNode: NeedToTyped) {
     if (!childNode) {
       throw new Error('Can\'t move child.');
     }
@@ -218,7 +219,7 @@ class ViewNode {
     );
   }
 
-  appendChild(childNode: any) {
+  appendChild(childNode: NeedToTyped) {
     if (!childNode) {
       throw new Error('Can\'t append child.');
     }
@@ -243,7 +244,7 @@ class ViewNode {
     );
   }
 
-  removeChild(childNode: any) {
+  removeChild(childNode: NeedToTyped) {
     if (!childNode) {
       throw new Error('Can\'t remove child.');
     }
@@ -272,8 +273,7 @@ class ViewNode {
   /**
    * Find a specific target with condition
    */
-  // @ts-expect-error TS(7023): 'findChild' implicitly has return type 'any' becau... Remove this comment to see the full error message
-  findChild(condition: any) {
+  public findChild(condition: CallbackType): NeedToTyped {
     const yes = condition(this);
     if (yes) {
       return this;
@@ -281,7 +281,6 @@ class ViewNode {
     if (this.childNodes.length) {
       for (let i = 0; i < this.childNodes.length; i += 1) {
         const childNode = this.childNodes[i];
-        // @ts-expect-error TS(7022): 'targetChild' implicitly has type 'any' because it... Remove this comment to see the full error message
         const targetChild = this.findChild.call(childNode, condition);
         if (targetChild) {
           return targetChild;
@@ -294,11 +293,11 @@ class ViewNode {
   /**
    * Traverse the children and execute callback
    */
-  traverseChildren(callback: any, refInfo: any) {
+  traverseChildren(callback: NeedToTyped, refInfo: NeedToTyped) {
     callback(this, refInfo);
     // Find the children
     if (this.childNodes.length) {
-      this.childNodes.forEach((childNode: any) => {
+      this.childNodes.forEach((childNode: NeedToTyped) => {
         this.traverseChildren.call(childNode, callback, {});
       });
     }

@@ -20,6 +20,8 @@
 
 import document from '../renderer/document-node';
 import { unCacheNodeOnIdle } from '../util/node';
+import { NeedToTyped } from '../types/native';
+import ElementNode from '../renderer/element-node';
 import { setAttrs } from './modules/attrs';
 import { setStyle } from './modules/style';
 import { setClass } from './modules/class';
@@ -27,7 +29,7 @@ import { ROOT_VIEW_ID } from './constants';
 
 const namespaceMap = {};
 
-function setRootViewAttr(elm: any, vnode: any) {
+function setRootViewAttr(elm: ElementNode, vnode: NeedToTyped) {
   // If it is root container, Vue would not call createElement, which resulted in attributes missed to set.
   // So set root view attributes explicitly.
   let isRootView = false;
@@ -41,25 +43,25 @@ function setRootViewAttr(elm: any, vnode: any) {
   }
 }
 
-function createElement(name: any, vnode: any) {
+function createElement(name: string, vnode: NeedToTyped) {
   const elm = document.createElement(name);
   setRootViewAttr(elm, vnode);
   return elm;
 }
 
-function createElementNS(namespace: any, name: any) {
+function createElementNS(namespace: string, name: string) {
   return document.createElementNS(namespace, name);
 }
 
-function createTextNode(text: any) {
+function createTextNode(text: string) {
   return document.createTextNode(text);
 }
 
-function createComment(text: any) {
+function createComment(text: string) {
   return document.createComment(text);
 }
 
-function insertBefore(pNode: any, newNode: any, referenceNode: any) {
+function insertBefore(pNode: NeedToTyped, newNode: NeedToTyped, referenceNode: NeedToTyped) {
   if (pNode.childNodes.indexOf(newNode) >= 0) {
     // move it if the node has existed
     pNode.moveChild(newNode, referenceNode);
@@ -68,36 +70,36 @@ function insertBefore(pNode: any, newNode: any, referenceNode: any) {
   }
 }
 
-function removeChild(node: any, child: any) {
+function removeChild(node: ElementNode, child: ElementNode) {
   node.removeChild(child);
   unCacheNodeOnIdle(child);
 }
 
-function appendChild(node: any, child: any) {
+function appendChild(node: ElementNode, child: ElementNode) {
   node.appendChild(child);
 }
 
-function parentNode(node: any) {
+function parentNode(node: ElementNode) {
   return node.parentNode;
 }
 
-function nextSibling(node: any) {
+function nextSibling(node: ElementNode) {
   return node.nextSibling;
 }
 
-function tagName(elementNode: any) {
+function tagName(elementNode: ElementNode) {
   return elementNode.tagName;
 }
 
-function setTextContent(node: any, text: any) {
+function setTextContent(node: ElementNode, text: string) {
   node.setText(text);
 }
 
-function setAttribute(node: any, key: any, val: any) {
+function setAttribute(node: ElementNode, key: string, val: NeedToTyped) {
   node.setAttribute(key, val);
 }
 
-function setStyleScope(node: any, styleScopeId: any) {
+function setStyleScope(node: ElementNode, styleScopeId: string) {
   // Just ignore it so far.
   node.setStyleScope(styleScopeId);
 }

@@ -18,17 +18,18 @@
  * limitations under the License.
  */
 
+import { NeedToTyped } from '../types/native';
 import { getApp, warn } from '../util';
 import Native from './native';
-let app: any;
+let app: NeedToTyped;
 
 const DEVICE_CONNECTIVITY_EVENT = 'networkStatusDidChange';
 const subscriptions = new Map();
 
 class NetInfoRevoker {
-  eventName: any;
-  listener: any;
-  constructor(eventName: any, listener: any) {
+  eventName: string;
+  listener: NeedToTyped;
+  constructor(eventName: string, listener: NeedToTyped) {
     this.eventName = eventName;
     this.listener = listener;
   }
@@ -49,7 +50,7 @@ class NetInfoRevoker {
  * @param {function} listener - Event status event callback
  * @returns {object} NetInfoRevoker - The event revoker for destroy the network info event listener.
  */
-function addEventListener(eventName: any, listener: any) {
+function addEventListener(eventName: string, listener: NeedToTyped) {
   if (typeof listener !== 'function') {
     warn('NetInfo listener is not a function');
     return;
@@ -79,7 +80,7 @@ function addEventListener(eventName: any, listener: any) {
  *                             use `change` for listen network change.
  * @param {NetInfoRevoker} [listener] - The specific event listener will remove.
  */
-function removeEventListener(eventName: any, listener: any) {
+function removeEventListener(eventName: string, listener: NeedToTyped) {
   if (listener instanceof NetInfoRevoker) {
     listener.remove();
     return;
@@ -111,7 +112,7 @@ function removeEventListener(eventName: any, listener: any) {
 function fetch() {
   return Native
     .callNativeWithPromise('NetInfo', 'getCurrentConnectivity')
-    .then((resp: any) => resp.network_info);
+    .then((resp: NeedToTyped) => resp.network_info);
 }
 
 export {

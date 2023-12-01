@@ -22,18 +22,17 @@
 
 import { warn, convertImageLocalPath } from '../util';
 import { HIPPY_DEBUG_ADDRESS } from '../runtime/constants';
-import NATIVE_COMPONENT_NAME_MAP, * as components from '../renderer/native/components';
+import NATIVE_COMPONENT_NAME_MAP, * as components from '../native/components';
+import { NeedToTyped } from '../types/native';
 
-function mapEvent(...args: any[]) {
+function mapEvent(...args: NeedToTyped[]) {
   const map = {};
   if (Array.isArray(args[0])) {
     args[0].forEach(([vueEventName, nativeEventName]) => {
-      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       map[map[vueEventName] = nativeEventName] = vueEventName;
     });
   } else {
     const [vueEventName, nativeEventName] = args;
-    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     map[map[vueEventName] = nativeEventName] = vueEventName;
   }
   return map;
@@ -101,15 +100,15 @@ const div = {
     attributeMaps: {
       ...accessibilityAttrMaps,
     },
-    processEventData(event: any, nativeEventName: any, nativeEventParams: any) {
+    processEventData(event: NeedToTyped, nativeEventName: NeedToTyped, nativeEventParams: NeedToTyped) {
       switch (nativeEventName) {
         case 'onScroll':
         case 'onScrollBeginDrag':
         case 'onScrollEndDrag':
         case 'onMomentumScrollBegin':
         case 'onMomentumScrollEnd':
-          event.offsetX = nativeEventParams.contentOffset && nativeEventParams.contentOffset.x;
-          event.offsetY = nativeEventParams.contentOffset && nativeEventParams.contentOffset.y;
+          event.offsetX = nativeEventParams.contentOffset?.x;
+          event.offsetY = nativeEventParams.contentOffset?.y;
           break;
         case 'onTouchDown':
         case 'onTouchMove':
@@ -161,7 +160,7 @@ const img = {
     attributeMaps: {
       placeholder: {
         name: 'defaultSource',
-        propsValue(value: any) {
+        propsValue(value: NeedToTyped) {
           const url = convertImageLocalPath(value);
           if (url
               && url.indexOf(HIPPY_DEBUG_ADDRESS) < 0
@@ -175,12 +174,12 @@ const img = {
        * For Android, will use src property
        * For iOS, will convert to use source property
        */
-      src(value: any) {
+      src(value: NeedToTyped) {
         return convertImageLocalPath(value);
       },
       ...accessibilityAttrMaps,
     },
-    processEventData(event: any, nativeEventName: any, nativeEventParams: any) {
+    processEventData(event: NeedToTyped, nativeEventName: NeedToTyped, nativeEventParams: NeedToTyped) {
       switch (nativeEventName) {
         case 'onTouchDown':
         case 'onTouchMove':
@@ -223,15 +222,15 @@ const ul = {
       ...accessibilityAttrMaps,
     },
     eventNamesMap: mapEvent('listReady', 'initialListReady'),
-    processEventData(event: any, nativeEventName: any, nativeEventParams: any) {
+    processEventData(event: NeedToTyped, nativeEventName: NeedToTyped, nativeEventParams: NeedToTyped) {
       switch (nativeEventName) {
         case 'onScroll':
         case 'onScrollBeginDrag':
         case 'onScrollEndDrag':
         case 'onMomentumScrollBegin':
         case 'onMomentumScrollEnd':
-          event.offsetX = nativeEventParams.contentOffset && nativeEventParams.contentOffset.x;
-          event.offsetY = nativeEventParams.contentOffset && nativeEventParams.contentOffset.y;
+          event.offsetX = nativeEventParams.contentOffset?.x;
+          event.offsetY = nativeEventParams.contentOffset?.y;
           break;
         case 'onDelete':
           event.index = nativeEventParams.index;
@@ -284,7 +283,7 @@ const a = {
     attributeMaps: {
       href: {
         name: 'href',
-        propsValue(value: any) {
+        propsValue(value: NeedToTyped) {
           if (['//', 'http://', 'https://'].filter(url => value.indexOf(url) === 0).length) {
             warn(`href attribute can't apply effect in native with url: ${value}`);
             return '';
@@ -304,8 +303,7 @@ const input = {
     attributeMaps: {
       type: {
         name: 'keyboardType',
-        propsValue(value: any) {
-          // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+        propsValue(value: NeedToTyped) {
           const newValue = INPUT_VALUE_MAP[value];
           if (!newValue) {
             return value;
@@ -315,7 +313,7 @@ const input = {
       },
       disabled: {
         name: 'editable',
-        propsValue(value: any) {
+        propsValue(value: NeedToTyped) {
           return !value;
         },
       },
@@ -338,7 +336,7 @@ const input = {
       ['change', 'onChangeText'],
       ['select', 'onSelectionChange'],
     ]),
-    processEventData(event: any, nativeEventName: any, nativeEventParams: any) {
+    processEventData(event: NeedToTyped, nativeEventName: NeedToTyped, nativeEventParams: NeedToTyped) {
       switch (nativeEventName) {
         case 'onChangeText':
         case 'onEndEditing':
@@ -397,14 +395,14 @@ const iframe = {
     attributeMaps: {
       src: {
         name: 'source',
-        propsValue(value: any) {
+        propsValue(value: NeedToTyped) {
           return {
             uri: value,
           };
         },
       },
     },
-    processEventData(event: any, nativeEventName: any, nativeEventParams: any) {
+    processEventData(event: NeedToTyped, nativeEventName: NeedToTyped, nativeEventParams: NeedToTyped) {
       switch (nativeEventName) {
         case 'onLoad':
         case 'onLoadStart':

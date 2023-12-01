@@ -42,11 +42,11 @@ const DOMEventPhase = {
   BUBBLING_PHASE: 3,
 };
 
-function isNativeGesture(name: string) {
+function isNativeGesture(name: keyof typeof NativeEventMap) {
   return !!NativeEventMap[name];
 }
 
-function translateToNativeEventName(name: any) {
+function translateToNativeEventName(name: string) {
   return name.replace(/^(on)?/g, '').toLocaleLowerCase();
 }
 

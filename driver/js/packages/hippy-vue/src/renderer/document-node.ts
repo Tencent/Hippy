@@ -18,35 +18,20 @@
  * limitations under the License.
  */
 
+import { Event } from '../event';
 import CommentNode from './comment-node';
 import ElementNode from './element-node';
 import ViewNode from './view-node';
 import TextNode from './text-node';
 import InputNode from './input-node';
 import ListNode from './list-node';
-import { Event } from './native/event';
 
-class DocumentNode extends ViewNode {
-  documentElement: any;
-  constructor() {
-    super();
-    this.documentElement = new ElementNode('document');
-    // make static methods accessible via this
-    // @ts-expect-error TS(2576): Property 'createComment' does not exist on type 'D... Remove this comment to see the full error message
-    this.createComment = (this.constructor as any).createComment;
-    // @ts-expect-error TS(2576): Property 'createElement' does not exist on type 'D... Remove this comment to see the full error message
-    this.createElement = (this.constructor as any).createElement;
-    // @ts-expect-error TS(2576): Property 'createElementNS' does not exist on type ... Remove this comment to see the full error message
-    this.createElementNS = (this.constructor as any).createElementNS;
-    // @ts-expect-error TS(2576): Property 'createTextNode' does not exist on type '... Remove this comment to see the full error message
-    this.createTextNode = (this.constructor as any).createTextNode;
-  }
-
-  static createComment(text: any) {
+export class DocumentNode extends ViewNode {
+  static createComment(text: string) {
     return new CommentNode(text);
   }
 
-  static createElement(tagName: any) {
+  static createElement(tagName: string) {
     switch (tagName) {
       case 'input':
       case 'textarea':
@@ -58,16 +43,21 @@ class DocumentNode extends ViewNode {
     }
   }
 
-  static createElementNS(namespace: any, tagName: any) {
+  static createElementNS(namespace: string, tagName: string) {
     return new ElementNode(`${namespace}:${tagName}`);
   }
 
-  static createTextNode(text: any) {
+  static createTextNode(text: string) {
     return new TextNode(text);
   }
 
-  static createEvent(eventName: any) {
+  static createEvent(eventName: string) {
     return new Event(eventName);
+  }
+  public documentElement: ElementNode;
+  constructor() {
+    super();
+    this.documentElement = new ElementNode('document');
   }
 }
 

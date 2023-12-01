@@ -18,24 +18,5 @@
  * limitations under the License.
  */
 
-/* eslint-disable no-underscore-dangle */
-
-import { Text } from '../native/components';
-import { NeedToTyped } from '../types/native';
-import ElementNode from './element-node';
-
-export class CommentNode extends ElementNode {
-  _meta: NeedToTyped;
-  text: string;
-
-  constructor(text: string) {
-    super('comment');
-    this.text = text;
-    this._meta = {
-      symbol: Text,
-      skipAddToDom: true,
-    };
-  }
-}
-
-export default CommentNode;
+export * from './ast-parser';
+export * from './css-selectors-map';

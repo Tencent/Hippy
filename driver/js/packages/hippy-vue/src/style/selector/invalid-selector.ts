@@ -18,32 +18,28 @@
  * limitations under the License.
  */
 
-import Native from '../runtime/native';
-import ElementNode from './element-node';
+import { SimpleSelector } from './simple-selector';
 
 /**
- * List element
+ * 解析失败的无效选择器
  */
-class ListNode extends ElementNode {
-  /**
-   * Scroll to child node with index
-   */
-  scrollToIndex(indexLeft = 0, indexTop = 0, needAnimation = true) {
-    if (typeof indexLeft !== 'number' || typeof indexTop !== 'number') {
-      return;
-    }
-    Native.callUIFunction(this, 'scrollToIndex', [indexLeft, indexTop, needAnimation]);
+export class InvalidSelector extends SimpleSelector {
+  public err: Error;
+
+  public constructor(err: Error) {
+    super();
+    this.specificity = 0x00000000;
+    this.rarity = 4;
+    this.dynamic = false;
+    this.combinator = undefined;
+    this.err = err;
   }
 
-  /**
-   * Scroll children to specific position.
-   */
-  scrollToPosition(posX = 0, posY = 0, needAnimation = true) {
-    if (typeof posX !== 'number' || typeof posY !== 'number') {
-      return;
-    }
-    Native.callUIFunction(this, 'scrollToContentOffset', [posX, posY, needAnimation]);
+  public toString(): string {
+    return `<error: ${this.err}>`;
+  }
+
+  public match(): boolean {
+    return false;
   }
 }
-
-export default ListNode;

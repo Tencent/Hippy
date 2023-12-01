@@ -22,24 +22,30 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-// @ts-expect-error TS(2307): Cannot find module 'core/vdom/helpers/update-liste... Remove this comment to see the full error message
 import { updateListeners } from 'core/vdom/helpers/update-listeners';
+import { NeedToTyped } from '../../types/native';
 
-let target: any;
+let target: NeedToTyped;
 
-function remove(event: any, handler: any, capture: any, _target: any) {
+function remove(event: NeedToTyped, handler: NeedToTyped, capture: NeedToTyped, _target: NeedToTyped) {
   (_target || target).removeEventListener(event);
 }
 
 // eslint-disable-next-line no-unused-vars
-function add(event: any, handler: any, capture: any, passive: any, params: any) {
+function add(
+  event: NeedToTyped,
+  handler: NeedToTyped,
+  capture: NeedToTyped,
+  passive: NeedToTyped,
+  params: NeedToTyped,
+) {
   if (capture) {
     return;
   }
   target.addEventListener(event, handler);
 }
 
-function createOnceHandler(event: any, handler: any, capture: any) {
+function createOnceHandler(event: NeedToTyped, handler: NeedToTyped, capture: NeedToTyped) {
   const _target = target; // save current target element in closure
   return function onceHandler() {
     const res = handler(...arguments);
@@ -49,7 +55,7 @@ function createOnceHandler(event: any, handler: any, capture: any) {
   };
 }
 
-function updateDOMListeners(oldVNode: any, vNode: any) {
+function updateDOMListeners(oldVNode: NeedToTyped, vNode: NeedToTyped) {
   if (!oldVNode.data.on && !vNode.data.on) {
     return;
   }

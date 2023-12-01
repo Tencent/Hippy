@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-this-alias */
 /*
  * Tencent is pleased to support the open source community by making
  * Hippy available.
@@ -21,15 +22,10 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-// @ts-expect-error TS(2307): Cannot find module 'core/index' or its correspondi... Remove this comment to see the full error message
 import Vue from 'core/index';
-// @ts-expect-error TS(2307): Cannot find module 'core/instance/state' or its co... Remove this comment to see the full error message
 import { defineComputed, proxy } from 'core/instance/state';
-// @ts-expect-error TS(2307): Cannot find module 'shared/constants' or its corre... Remove this comment to see the full error message
 import { ASSET_TYPES } from 'shared/constants';
-// @ts-expect-error TS(2307): Cannot find module 'core/instance/lifecycle' or it... Remove this comment to see the full error message
 import { mountComponent } from 'core/instance/lifecycle';
-// @ts-expect-error TS(2307): Cannot find module 'web/compiler/index' or its cor... Remove this comment to see the full error message
 import { compileToFunctions } from 'web/compiler/index';
 import {
   warn,
@@ -37,9 +33,7 @@ import {
   mergeOptions,
   extend,
   devtools,
-// @ts-expect-error TS(2307): Cannot find module 'core/util/index' or its corres... Remove this comment to see the full error message
 } from 'core/util/index';
-// @ts-expect-error TS(2307): Cannot find module 'core/config' or its correspond... Remove this comment to see the full error message
 import config from 'core/config';
 import {
   registerBuiltinElements,
@@ -59,7 +53,8 @@ import {
   setBeforeRenderToNative,
 } from '../util';
 import DocumentNode from '../renderer/document-node';
-import { Event } from '../renderer/native/event';
+import { Event } from '../event';
+import { NeedToTyped } from '../types/native';
 import { patch } from './patch';
 import Native, { HippyRegister } from './native';
 import * as iPhone from './iphone';
@@ -91,7 +86,7 @@ extend(Vue.options.directives, platformDirectives);
 Vue.prototype.__patch__ = patch;
 
 // Override $mount for attend the compiler.
-Vue.prototype.$mount = function $mount(el: any, hydrating: any) {
+Vue.prototype.$mount = function $mount(el: NeedToTyped, hydrating: NeedToTyped) {
   const options = this.$options;
   // resolve template/el and convert to render function
   if (!options.render) {
@@ -123,7 +118,7 @@ Vue.prototype.$mount = function $mount(el: any, hydrating: any) {
  * @param {function} afterCallback - Callback after register completed.
  * @param {function} beforeCallback - Callback before register completed.
  */
-Vue.prototype.$start = function $start(afterCallback: any, beforeCallback: any) {
+Vue.prototype.$start = function $start(afterCallback: NeedToTyped, beforeCallback: NeedToTyped) {
   setApp(this);
 
   // beforeLoadStyle is a hidden option for pre-process
@@ -140,7 +135,7 @@ Vue.prototype.$start = function $start(afterCallback: any, beforeCallback: any) 
   // Register the entry point into Hippy
   // The callback will be executed when Native trigger loadInstance
   // or runApplication event.
-  HippyRegister.regist(this.$options.appName, (superProps: any) => {
+  HippyRegister.regist(this.$options.appName, (superProps: NeedToTyped) => {
     const { __instanceId__: rootViewId } = superProps;
     this.$options.$superProps = superProps;
     this.$options.rootViewId = rootViewId;
@@ -180,18 +175,18 @@ Vue.prototype.$start = function $start(afterCallback: any, beforeCallback: any) 
 // Override component and extend of avoid built-in component warning.
 let cid = 1;
 
-function initProps(Comp: any) {
+function initProps(Comp: NeedToTyped) {
   const { props } = Comp.options;
   Object.keys(props).forEach(key => proxy(Comp.prototype, '_props', key));
 }
 
-function initComputed(Comp: any) {
+function initComputed(Comp: NeedToTyped) {
   const { computed } = Comp.options;
   Object.keys(computed).forEach(key => defineComputed(Comp.prototype, key, computed[key]));
 }
 
 // Override component for avoid built-in component warning.
-Vue.component = function component(id: any, definition: any) {
+Vue.component = function component(id: NeedToTyped, definition: NeedToTyped) {
   if (!definition) {
     return this.options.components[id];
   }
@@ -204,7 +199,7 @@ Vue.component = function component(id: any, definition: any) {
 };
 
 // Override extend for avoid built-in component warning.
-Vue.extend = function hippyExtend(extendOptions: any) {
+Vue.extend = function hippyExtend(extendOptions: NeedToTyped) {
   extendOptions = extendOptions || {};
   const Super = this;
   const SuperId = Super.cid;
@@ -213,7 +208,7 @@ Vue.extend = function hippyExtend(extendOptions: any) {
     return cachedCtors[SuperId];
   }
   const name = extendOptions.name || Super.options.name;
-  const Sub = function VueComponent(this: any, options: any) {
+  const Sub: NeedToTyped = function VueComponent(this: NeedToTyped, options: NeedToTyped) {
     this._init(options);
   };
   Sub.prototype = Object.create(Super.prototype);
@@ -237,8 +232,7 @@ Vue.extend = function hippyExtend(extendOptions: any) {
   Sub.use = Super.use;
   // create asset registers, so extended classes
   // can have their private assets too.
-  ASSET_TYPES.forEach((type: any) => {
-    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+  ASSET_TYPES.forEach((type: NeedToTyped) => {
     Sub[type] = Super[type];
   });
   // enable recursive self-lookup
@@ -274,7 +268,7 @@ if (config.devtools && devtools) {
  * beforeRenderToNative hook
  */
 const BEFORE_RENDER_TO_NATIVE_HOOK_VERSION = 1;
-Vue.config._setBeforeRenderToNative = (hook: any, version: any) => {
+Vue.config._setBeforeRenderToNative = (hook: NeedToTyped, version: NeedToTyped) => {
   if (isFunction(hook)) {
     if (BEFORE_RENDER_TO_NATIVE_HOOK_VERSION === version) {
       setBeforeRenderToNative(hook);
@@ -289,13 +283,10 @@ const VueProxy = new Proxy(Vue, {
   construct(Target, args) {
     const vm = new Target(...args);
     if (isDev()) {
-      // @ts-expect-error TS(7017): Element implicitly has an 'any' type because type ... Remove this comment to see the full error message
       if (!global.__VUE_ROOT_INSTANCES__) {
-        // @ts-expect-error TS(7017): Element implicitly has an 'any' type because type ... Remove this comment to see the full error message
         global.__VUE_ROOT_INSTANCES__ = [];
       }
-      if (args && args.length && args[0].appName) {
-        // @ts-expect-error TS(7017): Element implicitly has an 'any' type because type ... Remove this comment to see the full error message
+      if (args?.length && args[0].appName) {
         global.__VUE_ROOT_INSTANCES__.push(vm);
       }
     }

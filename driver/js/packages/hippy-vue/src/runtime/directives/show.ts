@@ -18,10 +18,12 @@
  * limitations under the License.
  */
 
+import { NeedToTyped } from '../../types/native';
+
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-function toggle(el: any, value: any, vNode: any, originalDisplay: any) {
+function toggle(el: NeedToTyped, value: NeedToTyped, vNode: NeedToTyped, originalDisplay: NeedToTyped) {
   if (value) {
     vNode.data.show = true;
     el.setStyle('display', originalDisplay);
@@ -31,9 +33,9 @@ function toggle(el: any, value: any, vNode: any, originalDisplay: any) {
 }
 
 const show = {
-  bind(el: any, {
+  bind(el: NeedToTyped, {
     value,
-  }: any, vNode: any) {
+  }: NeedToTyped, vNode: NeedToTyped) {
     // Set the display to 'block' when undefined
     if (el.style.display === undefined) {
       el.style.display = 'block';
@@ -42,16 +44,16 @@ const show = {
     el.__vOriginalDisplay = originalDisplay;
     toggle(el, value, vNode, originalDisplay);
   },
-  update(el: any, {
+  update(el: NeedToTyped, {
     value,
     oldValue,
-  }: any, vNode: any) {
+  }: NeedToTyped, vNode: NeedToTyped) {
     if (!value === !oldValue) {
       return;
     }
     toggle(el, value, vNode, el.__vOriginalDisplay);
   },
-  unbind(el: any, binding: any, vNode: any, oldVNode: any, isDestroy: any) {
+  unbind(el: NeedToTyped, binding: NeedToTyped, vNode: NeedToTyped, oldVNode: NeedToTyped, isDestroy: NeedToTyped) {
     if (!isDestroy) {
       el.style.display = el.__vOriginalDisplay;
     }

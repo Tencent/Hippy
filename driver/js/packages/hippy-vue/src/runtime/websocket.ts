@@ -34,7 +34,7 @@ const READY_STATE_CLOSED = 3;
 const WEB_SOCKET_MODULE_NAME = 'websocket';
 const WEB_SOCKET_NATIVE_EVENT = 'hippyWebsocketEvents';
 
-let app: any;
+let app: NeedToTyped;
 
 export interface WebsocketCallback {
   onOpen?: CallbackType[];
@@ -57,7 +57,7 @@ class WebSocket {
   public url: string;
 
   // callback of websocket
-  public webSocketCallbacks: any;
+  public webSocketCallbacks: NeedToTyped;
 
   // webSocketId
   public webSocketId = -1;
@@ -103,7 +103,7 @@ class WebSocket {
       headers,
       url,
     };
-    Native.callNativeWithPromise(WEB_SOCKET_MODULE_NAME, 'connect', params).then((resp: any) => {
+    Native.callNativeWithPromise(WEB_SOCKET_MODULE_NAME, 'connect', params).then((resp: NeedToTyped) => {
       if (!resp || resp.code !== 0 || typeof resp.id !== 'number') {
         warn('Fail to create websocket connection', resp);
         return;
@@ -124,7 +124,7 @@ class WebSocket {
    *                            is closing. This string must be no longer than 123 bytes
    *                            of UTF-8 text (not characters).
    */
-  close(code: any, reason: any) {
+  close(code: NeedToTyped, reason: NeedToTyped) {
     if (this.readyState !== READY_STATE_OPEN) {
       return;
     }
@@ -141,7 +141,7 @@ class WebSocket {
    *
    * @param {string} data - The data to send to the server. Hippy supports string type only.
    */
-  send(data: any) {
+  send(data: NeedToTyped) {
     if (this.readyState !== READY_STATE_OPEN) {
       warn('WebSocket is not connected');
       return;
@@ -158,7 +158,7 @@ class WebSocket {
   /**
    * Set an EventHandler that is called when the WebSocket connection's readyState changes to OPEN;
    */
-  set onopen(callback: any) {
+  set onopen(callback: CallbackType) {
     this.webSocketCallbacks.onOpen = callback;
   }
 
@@ -166,14 +166,14 @@ class WebSocket {
    * Set an EventHandler that is called when the WebSocket connection's readyState
    * changes to CLOSED.
    */
-  set onclose(callback: any) {
+  set onclose(callback: CallbackType) {
     this.webSocketCallbacks.onClose = callback;
   }
 
   /**
    * Set an EventHandler that is called when a message is received from the server.
    */
-  set onerror(callback: any) {
+  set onerror(callback: CallbackType) {
     this.webSocketCallbacks.onError = callback;
   }
 
@@ -181,7 +181,7 @@ class WebSocket {
    * Set an event handler property is a function which gets called when an error
    * occurs on the WebSocket.
    */
-  set onmessage(callback: any) {
+  set onmessage(callback: CallbackType) {
     this.webSocketCallbacks.onMessage = callback;
   }
 
@@ -190,7 +190,7 @@ class WebSocket {
    *
    * @param {Object} param - Native response.
    */
-  onWebSocketEvent(param: any) {
+  onWebSocketEvent(param: NeedToTyped) {
     if (typeof param !== 'object' || param.id !== this.webSocketId) {
       return;
     }

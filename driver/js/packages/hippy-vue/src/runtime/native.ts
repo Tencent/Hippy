@@ -18,16 +18,16 @@
  * limitations under the License.
  */
 
-// @ts-expect-error TS(2307): Cannot find module '@css-loader/color-parser' or i... Remove this comment to see the full error message
 import colorParser from '@css-loader/color-parser';
-// @ts-expect-error TS(2307): Cannot find module 'shared/util' or its correspond... Remove this comment to see the full error message
 import { isDef } from 'shared/util';
 import {
   HIPPY_VUE_VERSION,
   warn,
   trace,
 } from '../util';
-import { getElemCss } from '../renderer/native/index';
+import { getElemCss } from '../native/index';
+import ElementNode from '../renderer/element-node';
+import { NeedToTyped } from '../types/native';
 import BackAndroid from './backAndroid';
 import * as NetInfo from './netInfo';
 
@@ -52,14 +52,13 @@ const {
   device: Dimensions,
   document: UIManagerModule,
   register: HippyRegister,
-// @ts-expect-error TS(2304): Cannot find name 'Hippy'.
 } = Hippy;
 
 const CACHE = {};
 
 const LOG_TYPE = ['%c[native]%c', 'color: red', 'color: auto'];
 
-const measureInWindowByMethod = function measureInWindowByMethod(el: any, method: any) {
+const measureInWindowByMethod = function measureInWindowByMethod(el: ElementNode, method: string) {
   const empty = {
     top: -1,
     left: -1,
@@ -73,7 +72,7 @@ const measureInWindowByMethod = function measureInWindowByMethod(el: any, method
   }
   const { nodeId } = el;
   trace(...LOG_TYPE, 'callUIFunction', { nodeId, funcName: method, params: [] });
-  return new Promise(resolve => UIManagerModule.callUIFunction(nodeId, method, [], (pos: any) => {
+  return new Promise(resolve => UIManagerModule.callUIFunction(nodeId, method, [], (pos: NeedToTyped) => {
     if (!pos || typeof pos !== 'object' || typeof nodeId === 'undefined') {
       return resolve(empty);
     }
@@ -92,8 +91,7 @@ const measureInWindowByMethod = function measureInWindowByMethod(el: any, method
 /**
  * Native communication module
  */
-// @ts-expect-error TS(7022): 'Native' implicitly has type 'any' because it does... Remove this comment to see the full error message
-const Native = {
+const Native: NeedToTyped = {
   /**
    * Class native methods
    */
@@ -117,7 +115,6 @@ const Native = {
   /**
    * console log to native
    */
-  // @ts-expect-error TS(7017): Element implicitly has an 'any' type because type ... Remove this comment to see the full error message
   ConsoleModule: global.ConsoleModule || global.console,
 
   /**
@@ -156,7 +153,7 @@ const Native = {
      * @param {string} url - Get the cookies by specific url.
      * @return {Promise<string>} - Cookie string, like `name=someone;gender=female`.
      */
-    getAll(url: any) {
+    getAll(url: NeedToTyped) {
       if (!url) {
         throw new TypeError('Vue.Native.Cookie.getAll() must have url argument');
       }
@@ -168,7 +165,7 @@ const Native = {
      * @param {string} keyValue - Full of key values, like `name=someone;gender=female`.
      * @param {Date} expireDate - Specific date of expiration.
      */
-    set(url: any, keyValue: any, expireDate: any) {
+    set(url: NeedToTyped, keyValue: NeedToTyped, expireDate: NeedToTyped) {
       if (!url) {
         throw new TypeError('Vue.Native.Cookie.getAll() must have url argument');
       }
@@ -194,7 +191,7 @@ const Native = {
     getString() {
       return callNativeWithPromise.call(this, 'ClipboardModule', 'getString');
     },
-    setString(content: any) {
+    setString(content: NeedToTyped) {
       callNative.call(this, 'ClipboardModule', 'setString', content);
     },
   },
@@ -229,9 +226,7 @@ const Native = {
   get Device() {
     if (!isDef((CACHE as any).Device)) {
       if (Platform === 'ios') {
-        // @ts-expect-error TS(7017): Element implicitly has an 'any' type because type ... Remove this comment to see the full error message
-        if (global.__HIPPYNATIVEGLOBAL__ && global.__HIPPYNATIVEGLOBAL__.Device) {
-          // @ts-expect-error TS(7017): Element implicitly has an 'any' type because type ... Remove this comment to see the full error message
+        if (global.__HIPPYNATIVEGLOBAL__?.Device) {
           (CACHE as any).Device = global.__HIPPYNATIVEGLOBAL__.Device;
         } else {
           (CACHE as any).Device = 'iPhone';
@@ -254,12 +249,10 @@ const Native = {
       warn('Vue.Native.OSVersion is available in iOS only');
       return null;
     }
-    // @ts-expect-error TS(7017): Element implicitly has an 'any' type because type ... Remove this comment to see the full error message
     if (!global.__HIPPYNATIVEGLOBAL__ || !global.__HIPPYNATIVEGLOBAL__.OSVersion) {
       warn('Vue.Native.OSVersion is only available for iOS SDK > 0.2.0');
       return null;
     }
-    // @ts-expect-error TS(7017): Element implicitly has an 'any' type because type ... Remove this comment to see the full error message
     return global.__HIPPYNATIVEGLOBAL__.OSVersion;
   },
 
@@ -271,12 +264,10 @@ const Native = {
       warn('Vue.Native.SDKVersion is available in iOS only');
       return null;
     }
-    // @ts-expect-error TS(7017): Element implicitly has an 'any' type because type ... Remove this comment to see the full error message
     if (!global.__HIPPYNATIVEGLOBAL__ || !global.__HIPPYNATIVEGLOBAL__.OSVersion) {
       warn('Vue.Native.SDKVersion is only available for iOS SDK > 0.2.0');
       return null;
     }
-    // @ts-expect-error TS(7017): Element implicitly has an 'any' type because type ... Remove this comment to see the full error message
     return global.__HIPPYNATIVEGLOBAL__.SDKVersion;
   },
 
@@ -288,12 +279,10 @@ const Native = {
       warn('Vue.Native.APIVersion is available in Android only');
       return null;
     }
-    // @ts-expect-error TS(7017): Element implicitly has an 'any' type because type ... Remove this comment to see the full error message
     if (!global.__HIPPYNATIVEGLOBAL__ || !global.__HIPPYNATIVEGLOBAL__.Platform.APILevel) {
       warn('Vue.Native.APILevel needs higher Android SDK version to retrieve');
       return null;
     }
-    // @ts-expect-error TS(7017): Element implicitly has an 'any' type because type ... Remove this comment to see the full error message
     return global.__HIPPYNATIVEGLOBAL__.Platform.APILevel;
   },
 
@@ -330,7 +319,7 @@ const Native = {
   /**
    * Call native UI methods.
    */
-  callUIFunction(...args: any[]) {
+  callUIFunction(...args: NeedToTyped[]) {
     const [el, funcName, ...options] = args;
     const { nodeId } = el;
     let [params = [], callback] = options;
@@ -346,31 +335,31 @@ const Native = {
    * Measure the component size and position.
    * @deprecated
    */
-  measureInWindow(el: any) {
+  measureInWindow(el: NeedToTyped) {
     return measureInWindowByMethod(el, 'measureInWindow');
   },
 
   /**
    * Measure the component size and position.
    */
-  measureInAppWindow(el: any) {
+  measureInAppWindow(el: NeedToTyped) {
     if (Native.Platform === 'android') {
       return measureInWindowByMethod(el, 'measureInWindow');
     }
     return measureInWindowByMethod(el, 'measureInAppWindow');
   },
 
-  getBoundingClientRect(el: any, options: any) {
+  getBoundingClientRect(el: NeedToTyped, options: NeedToTyped) {
     const { nodeId } = el;
     return new Promise((resolve, reject) => {
       if (!el.isMounted || !nodeId) {
         return reject(new Error(`getBoundingClientRect cannot get nodeId of ${el} or ${el} is not mounted`));
       }
       trace(...LOG_TYPE, 'UIManagerModule', { nodeId, funcName: 'getBoundingClientRect', params: options });
-      UIManagerModule.callUIFunction(nodeId, 'getBoundingClientRect', [options], (res: any) => {
+      UIManagerModule.callUIFunction(nodeId, 'getBoundingClientRect', [options], (res: NeedToTyped) => {
         // Android error handler.
         if (!res || res.errMsg) {
-          return reject(new Error((res && res.errMsg) || 'getBoundingClientRect error with no response'));
+          return reject(new Error((res?.errMsg) || 'getBoundingClientRect error with no response'));
         }
         const { x, y, width, height } = res;
         let bottom = undefined;
@@ -401,7 +390,7 @@ const Native = {
    * @param { {platform: "ios" | "android"} } options
    * @returns { Number } int32Color
    */
-  parseColor(color: any, options = { platform: Native.Platform }) {
+  parseColor(color: NeedToTyped, options = { platform: Native.Platform }) {
     if (Number.isInteger(color)) {
       return color;
     }
@@ -416,7 +405,6 @@ const Native = {
   /**
    * Key-Value storage system
    */
-  // @ts-expect-error TS(7017): Element implicitly has an 'any' type because type ... Remove this comment to see the full error message
   AsyncStorage: global.Hippy.asyncStorage,
   /**
    * Android hardware back button event listener.
@@ -431,7 +419,7 @@ const Native = {
      *
      * @param {string} url - Get image url.
      */
-    getSize(url: any) {
+    getSize(url: NeedToTyped) {
       return callNativeWithPromise.call(this, 'ImageLoaderModule', 'getSize', url);
     },
 
@@ -440,7 +428,7 @@ const Native = {
      *
      * @param {string} url - Prefetch image url.
      */
-    prefetch(url: any) {
+    prefetch(url: NeedToTyped) {
       callNative.call(this, 'ImageLoaderModule', 'prefetch', url);
     },
   },

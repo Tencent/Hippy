@@ -21,15 +21,15 @@
 /* eslint-disable prefer-destructuring */
 /* eslint-disable no-underscore-dangle */
 
-// @ts-expect-error TS(2307): Cannot find module 'shared/util' or its correspond... Remove this comment to see the full error message
 import { once } from 'shared/util';
 import { HIPPY_DEBUG_ADDRESS, HIPPY_STATIC_PROTOCOL } from '../runtime/constants';
+import { NeedToTyped } from '../types/native';
 
 const VUE_VERSION = process.env.VUE_VERSION;
 const HIPPY_VUE_VERSION = process.env.HIPPY_VUE_VERSION;
 
-let _App: any;
-let _Vue: any;
+let _App: NeedToTyped;
+let _Vue: NeedToTyped;
 
 /**
  * Style pre-process hook
@@ -42,10 +42,10 @@ let _Vue: any;
  * @param {string|number} decl.value - Style property value.
  * @returns {Object} decl - Processed declaration, original declaration by default.
  */
-let _beforeLoadStyle = (decl: any) => decl;
+let _beforeLoadStyle = (decl: NeedToTyped) => decl;
 let _beforeRenderToNative = () => {};
 
-function setVue(Vue: any) {
+function setVue(Vue: NeedToTyped) {
   _Vue = Vue;
 }
 
@@ -53,7 +53,7 @@ function getVue() {
   return _Vue;
 }
 
-function setApp(app: any) {
+function setApp(app: NeedToTyped) {
   _App = app;
 }
 
@@ -61,7 +61,7 @@ function getApp() {
   return _App;
 }
 
-function setBeforeLoadStyle(beforeLoadStyle: any) {
+function setBeforeLoadStyle(beforeLoadStyle: NeedToTyped) {
   _beforeLoadStyle = beforeLoadStyle;
 }
 
@@ -69,7 +69,7 @@ function getBeforeLoadStyle() {
   return _beforeLoadStyle;
 }
 
-function setBeforeRenderToNative(beforeRenderToNative: any) {
+function setBeforeRenderToNative(beforeRenderToNative: NeedToTyped) {
   _beforeRenderToNative = beforeRenderToNative;
 }
 
@@ -91,7 +91,7 @@ function isTraceEnabled() {
     || (_Vue?.config.silent));
 }
 
-function trace(...context: any[]) {
+function trace(...context: NeedToTyped[]) {
   if (isTraceEnabled()) {
     console.log(...context);
   } else if (_Vue?.config.silent) {
@@ -99,14 +99,14 @@ function trace(...context: any[]) {
   }
 }
 
-function warn(...context: any[]) {
+function warn(...context: NeedToTyped[]) {
   if (!isDev()) {
     return null;
   }
   return console.warn(...context);
 }
 
-function capitalizeFirstLetter(str: any) {
+function capitalizeFirstLetter(str: NeedToTyped) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
@@ -114,7 +114,7 @@ function capitalizeFirstLetter(str: any) {
  * Convert string to number as possible
  */
 const numberRegEx = new RegExp('^(?=.+)[+-]?\\d*\\.?\\d*([Ee][+-]?\\d+)?$');
-function tryConvertNumber(str: any) {
+function tryConvertNumber(str: NeedToTyped) {
   if (typeof str === 'number') {
     return str;
   }
@@ -128,11 +128,11 @@ function tryConvertNumber(str: any) {
   return str;
 }
 
-function unicodeToChar(text: any) {
-  return text.replace(/\\u[\dA-F]{4}|\\x[\dA-F]{2}/gi, (match: any) => String.fromCharCode(parseInt(match.replace(/\\u|\\x/g, ''), 16)));
+function unicodeToChar(text: NeedToTyped) {
+  return text.replace(/\\u[\dA-F]{4}|\\x[\dA-F]{2}/gi, (match: NeedToTyped) => String.fromCharCode(parseInt(match.replace(/\\u|\\x/g, ''), 16)));
 }
 
-function arrayCount(arr: any, iterator: any) {
+function arrayCount(arr: NeedToTyped, iterator: NeedToTyped) {
   let count = 0;
   for (let i = 0; i < arr.length; i += 1) {
     if (iterator(arr[i])) {
@@ -145,14 +145,14 @@ function arrayCount(arr: any, iterator: any) {
 /**
  * Better function checking
  */
-function isFunction(func: any) {
+function isFunction(func: NeedToTyped) {
   return Object.prototype.toString.call(func) === '[object Function]';
 }
 
 /**
  * Compare two sets
  */
-function setsAreEqual(as: any, bs: any) {
+function setsAreEqual(as: NeedToTyped, bs: NeedToTyped) {
   if (as.size !== bs.size) return false;
   const values = as.values();
   let a = values.next().value;
@@ -175,9 +175,8 @@ function setsAreEqual(as: any, bs: any) {
  * @param {number} length - If provided, it is used as the length of str. Defaults to str.length.
  * @return {boolean}
  */
-function endsWith(str: any, search: any, length: any) {
-  // @ts-expect-error TS(2774): This condition will always return true since this ... Remove this comment to see the full error message
-  if (String.prototype.endsWith) {
+function endsWith(str: NeedToTyped, search: NeedToTyped, length?: NeedToTyped) {
+  if (str.endsWith) {
     return str.endsWith(search, length);
   }
   let strLen = length;
@@ -192,7 +191,7 @@ function endsWith(str: any, search: any, length: any) {
  * @param {string} originalUrl
  * @returns {string}
  */
-function convertImageLocalPath(originalUrl: any) {
+function convertImageLocalPath(originalUrl: NeedToTyped) {
   let url = originalUrl;
   if (/^assets/.test(url)) {
     if (isDev()) {
@@ -204,7 +203,7 @@ function convertImageLocalPath(originalUrl: any) {
   return url;
 }
 
-function deepCopy(data: any, hash = new WeakMap()) {
+function deepCopy(data: NeedToTyped, hash = new WeakMap()) {
   if (typeof data !== 'object' || data === null) {
     throw new TypeError('deepCopy data is object');
   }
@@ -212,36 +211,31 @@ function deepCopy(data: any, hash = new WeakMap()) {
   if (hash.has(data)) {
     return hash.get(data);
   }
-  const newData = {};
+  let newData: NeedToTyped;
   const dataKeys = Object.keys(data);
   dataKeys.forEach((value) => {
     const currentDataValue = data[value];
     if (typeof currentDataValue !== 'object' || currentDataValue === null) {
-      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       newData[value] = currentDataValue;
     } else if (Array.isArray(currentDataValue)) {
-      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       newData[value] = [...currentDataValue];
     } else if (currentDataValue instanceof Set) {
-      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       newData[value] = new Set([...currentDataValue]);
     } else if (currentDataValue instanceof Map) {
-      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       newData[value] = new Map([...currentDataValue]);
     } else {
       hash.set(data, data);
-      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       newData[value] = deepCopy(currentDataValue, hash);
     }
   });
   return newData;
 }
 
-function isNullOrUndefined(value: any) {
+function isNullOrUndefined(value: NeedToTyped) {
   return typeof value === 'undefined' || value === null;
 }
 
-function whitespaceFilter(str: any) {
+function whitespaceFilter(str: NeedToTyped) {
   if (typeof str !== 'string') return str;
   // Adjusts template whitespace handling behavior.
   // "trimWhitespace": default behavior is true.

@@ -21,10 +21,10 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-// @ts-expect-error TS(2307): Cannot find module 'web/util/index' or its corresp... Remove this comment to see the full error message
 import { genClassForVnode, concat, stringifyClass } from 'web/util/index';
+import { NeedToTyped } from '../../types/native';
 
-function updateClass(oldVNode: any, vNode: any) {
+function updateClass(oldVNode: NeedToTyped, vNode: NeedToTyped) {
   const { elm, data } = vNode;
   const oldData = oldVNode.data;
   if (
@@ -47,7 +47,7 @@ function updateClass(oldVNode: any, vNode: any) {
   }
 }
 
-export function setClass(vNode: any, customElem: any, options = {}) {
+export function setClass(vNode: NeedToTyped, customElem: NeedToTyped, options = {}) {
   if (!vNode || !vNode.data) {
     return;
   }

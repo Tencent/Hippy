@@ -21,13 +21,13 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-// @ts-expect-error TS(2307): Cannot find module 'shared/util' or its correspond... Remove this comment to see the full error message
 import { extend, cached, camelize } from 'shared/util';
 import { isNullOrUndefined } from '../../util';
+import { NeedToTyped } from '../../types/native';
 
 const normalize = cached(camelize);
 
-function toObject(arr: any) {
+function toObject(arr: NeedToTyped) {
   const res = {};
   for (let i = 0; i < arr.length; i += 1) {
     if (arr[i]) {
@@ -37,7 +37,7 @@ function toObject(arr: any) {
   return res;
 }
 
-function isStyleExisted(oldVNode: any, vNode: any) {
+function isStyleExisted(oldVNode: NeedToTyped, vNode: NeedToTyped) {
   if (!oldVNode.data && !vNode.data) {
     return false;
   }
@@ -50,13 +50,12 @@ function isStyleExisted(oldVNode: any, vNode: any) {
   return true;
 }
 
-function mergeStyle(oldStyle: any, newStyle: any) {
-  const mergedStyle = {};
+function mergeStyle(oldStyle: NeedToTyped, newStyle: NeedToTyped) {
+  const mergedStyle: NeedToTyped = {};
   Object.keys(oldStyle).forEach((name) => {
     const oldStyleValue = oldStyle[name];
     const newStyleValue = newStyle[name];
     if (!isNullOrUndefined(oldStyleValue) && isNullOrUndefined(newStyleValue)) {
-      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       mergedStyle[normalize(name)] = undefined;
     }
   });
@@ -64,14 +63,13 @@ function mergeStyle(oldStyle: any, newStyle: any) {
     const oldStyleValue = oldStyle[name];
     const newStyleValue = newStyle[name];
     if (!isNullOrUndefined(newStyleValue) && newStyleValue !== oldStyleValue) {
-      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       mergedStyle[normalize(name)] = newStyleValue;
     }
   });
   return mergedStyle;
 }
 
-function patchStyle(oldVNode: any, vNode: any) {
+function patchStyle(oldVNode: NeedToTyped, vNode: NeedToTyped) {
   if (!vNode.elm || !isStyleExisted(oldVNode, vNode)) return;
 
   // get static style, i.e. style defined in the component, style="background-color: red"
@@ -100,7 +98,7 @@ function patchStyle(oldVNode: any, vNode: any) {
   vNode.elm.setStyles({ ...batchedStaticStyle, ...batchedStyle });;
 }
 
-export function setStyle(vNode: any, customElem: any, options = {}) {
+export function setStyle(vNode: NeedToTyped, customElem: NeedToTyped, options = {}) {
   if (!vNode || !vNode.data) {
     return;
   }

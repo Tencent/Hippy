@@ -21,14 +21,14 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-// @ts-expect-error TS(2307): Cannot find module 'shared/util' or its correspond... Remove this comment to see the full error message
 import { extend } from 'shared/util';
+import { NeedToTyped } from '../../types/native';
 
-function updateAttrs(oldVNode: any, vNode: any) {
+function updateAttrs(oldVNode: NeedToTyped, vNode: NeedToTyped) {
   if (!oldVNode.data.attrs && !vNode.data.attrs) {
     return;
   }
-  const updatePayload = {};
+  const updatePayload: NeedToTyped = {};
   const { elm } = vNode;
   const oldAttrs = oldVNode.data.attrs || {};
   let attrs = vNode.data.attrs || {};
@@ -42,7 +42,6 @@ function updateAttrs(oldVNode: any, vNode: any) {
     const newPropValue = attrs[key];
     if ((oldPropValue !== null && oldPropValue !== undefined)
     && (newPropValue === null || newPropValue === undefined)) {
-      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       updatePayload[key] = undefined;
     }
   });
@@ -50,17 +49,15 @@ function updateAttrs(oldVNode: any, vNode: any) {
     const oldPropValue = oldAttrs[key];
     const newPropValue = attrs[key];
     if (oldPropValue !== newPropValue) {
-      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       updatePayload[key] = newPropValue;
     }
   });
   Object.keys(updatePayload).forEach((key) => {
-    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     elm.setAttribute(key, updatePayload[key]);
   });
 }
 
-export function setAttrs(vNode: any, customElem: any, options = {}) {
+export function setAttrs(vNode: NeedToTyped, customElem: NeedToTyped, options = {}) {
   if (!vNode || !vNode.data) {
     return;
   }
@@ -69,7 +66,7 @@ export function setAttrs(vNode: any, customElem: any, options = {}) {
     elm = customElem;
   }
   if (!elm) return;
-  let attrs = (vNode.data && vNode.data.attrs) || {};
+  let attrs = (vNode.data?.attrs) || {};
   // clone observed objects, as the user probably wants to mutate it
   if (attrs.__ob__) {
     attrs = extend({}, attrs);

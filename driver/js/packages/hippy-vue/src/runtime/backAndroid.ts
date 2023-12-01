@@ -18,11 +18,12 @@
  * limitations under the License.
  */
 
+import { NeedToTyped } from '../types/native';
 import { getApp } from '../util';
 import Native from './native';
 
 const backPressSubscriptions = new Set();
-let app: any;
+let app: NeedToTyped;
 let hasInitialized = false;
 /**
  * Android hardware back button event listener.
@@ -36,7 +37,7 @@ const realBackAndroid = {
    * @param handler
    * @returns {{remove(): void}}
    */
-  addListener(handler: any) {
+  addListener(handler: NeedToTyped) {
     if (!hasInitialized) {
       hasInitialized = true;
       realBackAndroid.initEventListener();
@@ -54,7 +55,7 @@ const realBackAndroid = {
    * removeBackPressListener
    * @param handler
    */
-  removeListener(handler: any) {
+  removeListener(handler: NeedToTyped) {
     backPressSubscriptions.delete(handler);
     if (backPressSubscriptions.size === 0) {
       Native.callNative('DeviceEventModule', 'setListenBackPress', false);
@@ -105,7 +106,6 @@ const fakeBackAndroid = {
 };
 
 const BackAndroid = (() => {
-  // @ts-expect-error TS(2304): Cannot find name 'Hippy'.
   if (Hippy.device.platform.OS === 'android') {
     return realBackAndroid;
   }

@@ -97,15 +97,15 @@ interface Native {
    * @param {string} eventName - The event name will be trigger.
    * @param  {any} args - Event callback arguments.
    */
-  emit: (eventName: string, ...args: any[]) => void;
+  emit: (eventName: string, ...args: NeedToTyped[]) => void;
 
   /**
    * Call native UI methods.
    */
   callUIFunction: (
     el: Record<string, any>,
-    funcName: any,
-    ...args: any[]
+    funcName: NeedToTyped,
+    ...args: NeedToTyped[]
   ) => void;
 
   /**
@@ -121,7 +121,7 @@ interface Native {
   callNative: (
     moduleName: CallNativeModuleName,
     methodName: CallNativeMethodName,
-    ...args: any[]
+    ...args: NeedToTyped[]
   ) => void;
 
   /**
@@ -130,7 +130,7 @@ interface Native {
   callNativeWithPromise: (
     moduleName: CallNativeModuleName,
     methodName: CallNativeMethodName,
-    ...args: any[]
+    ...args: NeedToTyped[]
   ) => Promise<any>;
 
   /**
@@ -139,7 +139,7 @@ interface Native {
   callNativeWithCallbackId: (
     moduleName: CallNativeModuleName,
     methodName: CallNativeMethodName,
-    ...args: any[]
+    ...args: NeedToTyped[]
   ) => any;
 
   /**
@@ -148,28 +148,36 @@ interface Native {
   UIManagerModule: UIManagerModule;
 }
 
+export interface NativeNodeProps {
+  [key: string]: NeedToTyped;
+}
+
 export type NeedToTyped = any;
 
 export type CallbackType = Function;
 
+export interface CommonMapParams {
+  [key: string]: NeedToTyped;
+}
+
 interface UIManagerModule {
-  createNode: (rootViewId: any, queue: any) => void;
-  updateNode: (rootViewId: any, queue: any) => void;
-  deleteNode: (rootViewId: any, queue: any) => void;
-  flushBatch: (rootViewId: any, queue: any) => void;
-  setNodeTree: (rootViewId: any, newNodeTree: any) => void;
-  setNodeId: (rootViewId: any, cacheIdList: any) => void;
-  getNodeById: (nodeId: any) => any;
-  getNodeIdByRef: (ref: any) => any;
+  createNode: (rootViewId: NeedToTyped, queue: NeedToTyped) => void;
+  updateNode: (rootViewId: NeedToTyped, queue: NeedToTyped) => void;
+  deleteNode: (rootViewId: NeedToTyped, queue: NeedToTyped) => void;
+  flushBatch: (rootViewId: NeedToTyped, queue: NeedToTyped) => void;
+  setNodeTree: (rootViewId: NeedToTyped, newNodeTree: NeedToTyped) => void;
+  setNodeId: (rootViewId: NeedToTyped, cacheIdList: NeedToTyped) => void;
+  getNodeById: (nodeId: NeedToTyped) => any;
+  getNodeIdByRef: (ref: NeedToTyped) => any;
   callUIFunction: (
-    node: any,
-    funcName: any,
-    paramList?: any,
-    callback?: any
+    node: NeedToTyped,
+    funcName: NeedToTyped,
+    paramList?: NeedToTyped,
+    callback?: NeedToTyped
   ) => void;
-  measureInWindow: (node: any, callBack: any) => void;
-  startBatch: (renderId: any) => void;
-  endBatch: (renderId: any) => void;
+  measureInWindow: (node: NeedToTyped, callBack: NeedToTyped) => void;
+  startBatch: (renderId: NeedToTyped) => void;
+  endBatch: (renderId: NeedToTyped) => void;
   sendRenderError: (error: Error) => void;
 }
 

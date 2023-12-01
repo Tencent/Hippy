@@ -18,32 +18,26 @@
  * limitations under the License.
  */
 
-import Native from '../runtime/native';
-import ElementNode from './element-node';
+import ElementNode from '../renderer/element-node';
 
-/**
- * List element
- */
-class ListNode extends ElementNode {
-  /**
-   * Scroll to child node with index
-   */
-  scrollToIndex(indexLeft = 0, indexTop = 0, needAnimation = true) {
-    if (typeof indexLeft !== 'number' || typeof indexTop !== 'number') {
-      return;
-    }
-    Native.callUIFunction(this, 'scrollToIndex', [indexLeft, indexTop, needAnimation]);
-  }
-
-  /**
-   * Scroll children to specific position.
-   */
-  scrollToPosition(posX = 0, posY = 0, needAnimation = true) {
-    if (typeof posX !== 'number' || typeof posY !== 'number') {
-      return;
-    }
-    Native.callUIFunction(this, 'scrollToContentOffset', [posX, posY, needAnimation]);
-  }
+export function wrap(text: string) {
+  return text ? ` ${text} ` : '';
 }
 
-export default ListNode;
+
+/**
+ * get node attribute or styleScopeId value
+ * @param node
+ * @param attribute
+ * @returns {*}
+ */
+export const getNodeAttrVal = (node: ElementNode, attribute: string) => {
+  const attr = node.attributes[attribute];
+  if (typeof attr !== 'undefined') {
+    return attr;
+  }
+  if (Array.isArray(node.styleScopeId) && node.styleScopeId.includes(attribute)) {
+    return attribute;
+  }
+};
+

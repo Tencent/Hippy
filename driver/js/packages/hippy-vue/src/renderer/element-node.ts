@@ -21,7 +21,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-// @ts-expect-error TS(2307): Cannot find module '@css-loader/css-parser' or its... Remove this comment to see the full error message
 import { PROPERTIES_MAP } from '@css-loader/css-parser';
 import { getViewMeta, normalizeElementName } from '../elements';
 import {
@@ -37,13 +36,14 @@ import {
 } from '../util';
 import { EventMethod, EventHandlerType } from '../util/event';
 import Native from '../runtime/native';
-import { updateChild, updateWithChildren, updateEvent } from './native';
-import { Event, EventDispatcher, EventEmitter } from './native/event';
-import { Text } from './native/components';
+import { updateChild, updateWithChildren, updateEvent } from '../native';
+import { Event, EventDispatcher, EventEmitter } from '../event';
+import { Text } from '../native/components';
+import { CallbackType, NativeNodeProps, NeedToTyped } from '../types/native';
 import ViewNode from './view-node';
 
 // linear-gradient direction description map
-const LINEAR_GRADIENT_DIRECTION_MAP = {
+const LINEAR_GRADIENT_DIRECTION_MAP: NeedToTyped = {
   totop: '0',
   totopright: 'totopright',
   toright: '90',
@@ -65,7 +65,7 @@ const DEGREE_UNIT = {
  * @param {string} value
  * @param {string} unit
  */
-function convertToDegree(value: any, unit = DEGREE_UNIT.DEG) {
+function convertToDegree(value: NeedToTyped, unit = DEGREE_UNIT.DEG) {
   const convertedNumValue = parseFloat(value);
   let result = value || '';
   const [, decimals] = value.split('.');
@@ -90,7 +90,7 @@ function convertToDegree(value: any, unit = DEGREE_UNIT.DEG) {
  * parse gradient angle or direction
  * @param {string} value
  */
-function getLinearGradientAngle(value: any) {
+function getLinearGradientAngle(value: string) {
   const processedValue = (value || '').replace(/\s*/g, '').toLowerCase();
   const reg = /^([+-]?(?=(?<digit>\d+))\k<digit>\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
   const valueList = reg.exec(processedValue);
@@ -100,9 +100,7 @@ function getLinearGradientAngle(value: any) {
   const [direction, angleValue, angleUnit] = valueList;
   if (angleValue && angleUnit) { // angle value
     angle = convertToDegree(angleValue, angleUnit);
-  // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   } else if (direction && typeof LINEAR_GRADIENT_DIRECTION_MAP[direction] !== 'undefined') { // direction description
-    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     angle = LINEAR_GRADIENT_DIRECTION_MAP[direction];
   } else {
     warn('linear-gradient direction or angle is invalid, default value [to bottom] would be used');
@@ -114,7 +112,7 @@ function getLinearGradientAngle(value: any) {
  * parse gradient color stop
  * @param {string} value
  */
-function getLinearGradientColorStop(value: any) {
+function getLinearGradientColorStop(value: NeedToTyped) {
   const processedValue = (value || '').replace(/\s+/g, ' ').trim();
   const [color, percentage] = processedValue.split(/\s+(?![^(]*?\))/);
   const percentageCheckReg = /^([+-]?\d+\.?\d*)%$/g;
@@ -139,7 +137,7 @@ function getLinearGradientColorStop(value: any) {
  * @param {string|Object|number|boolean} value
  * @returns {(string|{})[]}
  */
-function parseBackgroundImage(property: any, value: any, style: any) {
+function parseBackgroundImage(property: NeedToTyped, value: NeedToTyped, style: NeedToTyped) {
   // reset the backgroundImage and linear gradient property
   delete style[property];
   removeLinearGradient(property, value, style);
@@ -149,9 +147,9 @@ function parseBackgroundImage(property: any, value: any, style: any) {
     processedProperty = 'linearGradient';
     const valueString = value.substring(value.indexOf('(') + 1, value.lastIndexOf(')'));
     const tokens = valueString.split(/,(?![^(]*?\))/);
-    const colorStopList: any = [];
+    const colorStopList: NeedToTyped = [];
     processedValue = {};
-    tokens.forEach((value: any, index: any) => {
+    tokens.forEach((value: NeedToTyped, index: NeedToTyped) => {
       if (index === 0) {
         // the angle of linear-gradient parameter can be optional
         const angle = getLinearGradientAngle(value);
@@ -185,13 +183,13 @@ function parseBackgroundImage(property: any, value: any, style: any) {
  * @param value
  * @param style
  */
-function removeLinearGradient(property: any, value: any, style: any) {
+function removeLinearGradient(property: NeedToTyped, value: NeedToTyped, style: NeedToTyped) {
   if (property === 'backgroundImage' && style.linearGradient) {
     delete style.linearGradient;
   }
 }
 
-const offsetMap = {
+const offsetMap: NeedToTyped = {
   textShadowOffsetX: 'width',
   textShadowOffsetY: 'height',
 };
@@ -202,10 +200,9 @@ const offsetMap = {
  * @param style
  * @returns {(*|number)[]}
  */
-function parseTextShadowOffset(property: any, value = 0, style: any) {
+function parseTextShadowOffset(property: NeedToTyped, value = 0, style: NeedToTyped) {
   style.textShadowOffset = style.textShadowOffset || {};
   Object.assign(style.textShadowOffset, {
-    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     [offsetMap[property]]: value,
   });
   return ['textShadowOffset', style.textShadowOffset];
@@ -217,9 +214,8 @@ function parseTextShadowOffset(property: any, value = 0, style: any) {
  * @param value
  * @param style
  */
-function removeTextShadowOffset(property: any, value: any, style: any) {
+function removeTextShadowOffset(property: NeedToTyped, value: NeedToTyped, style: NeedToTyped) {
   if ((property === 'textShadowOffsetX' || property === 'textShadowOffsetY') && style.textShadowOffset) {
-    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     delete style.textShadowOffset[offsetMap[property]];
     if (Object.keys(style.textShadowOffset).length === 0) {
       delete style.textShadowOffset;
@@ -233,7 +229,7 @@ function removeTextShadowOffset(property: any, value: any, style: any) {
  * @param value
  * @param style
  */
-function removeStyle(property: any, value: any, style: any) {
+function removeStyle(property: NeedToTyped, value: NeedToTyped, style: NeedToTyped) {
   if (value === undefined) {
     delete style[property];
     removeLinearGradient(property, value, style);
@@ -241,7 +237,7 @@ function removeStyle(property: any, value: any, style: any) {
   }
 }
 
-function transverseEventNames(eventNames: any, callback: any) {
+function transverseEventNames(eventNames: NeedToTyped, callback: NeedToTyped) {
   if (typeof eventNames !== 'string') return;
   const events = eventNames.split(',');
   for (let i = 0, l = events.length; i < l; i += 1) {
@@ -250,8 +246,8 @@ function transverseEventNames(eventNames: any, callback: any) {
   }
 }
 
-function createEventListener(nativeName: any, originalName: any) {
-  return (event: any) => {
+function createEventListener(nativeName: NeedToTyped, originalName: NeedToTyped) {
+  return (event: NeedToTyped) => {
     const { id, currentId, params, eventPhase } = event;
     const dispatcherEvent = {
       id,
@@ -265,20 +261,31 @@ function createEventListener(nativeName: any, originalName: any) {
   };
 }
 
-class ElementNode extends ViewNode {
-  _emitter: any;
-  _meta: any;
-  _tagName: any;
-  attributes: any;
-  beforeLoadStyle: any;
-  classList: any;
-  events: any;
-  filterAttribute: any;
-  id: any;
-  polyfillNativeEvents: any;
-  scopeIdList: any;
-  style: any;
-  constructor(tagName: any) {
+export class ElementNode extends ViewNode {
+  // id
+  public id = '';
+  // style list, such as class="wrapper red" => ['wrapper', 'red']
+  public classList: Set<string>;
+  // attributes
+  public attributes: NativeNodeProps;
+  // style
+  public style: NativeNodeProps;
+  // events map
+  public events: NativeNodeProps;
+  // element content for text element
+  public value?: string;
+  // additional processing of properties
+  public filterAttribute?: CallbackType;
+  // style preprocessor
+  public beforeLoadStyle: CallbackType;
+  public polyfillNativeEvents: NeedToTyped;
+  public scopeIdList: NeedToTyped;
+  protected _meta: NeedToTyped;
+  private _emitter: NeedToTyped;
+  // element tag name, such as div, ul, hi-swiper, etc.
+  private _tagName = '';
+
+  constructor(tagName: string) {
     super();
     // Tag name
     this.tagName = tagName;
@@ -300,19 +307,19 @@ class ElementNode extends ViewNode {
     this.beforeLoadStyle = getBeforeLoadStyle();
   }
 
-  toString() {
+  public toString() {
     return `${this.constructor.name}(${this._tagName})`;
   }
 
-  set tagName(name) {
+  public set tagName(name) {
     this._tagName = normalizeElementName(name);
   }
 
-  get tagName() {
+  public get tagName() {
     return this._tagName;
   }
 
-  get meta() {
+  public get meta() {
     if (this._meta) {
       return this._meta;
     }
@@ -320,19 +327,19 @@ class ElementNode extends ViewNode {
     return this._meta;
   }
 
-  get emitter() {
+  public get emitter() {
     return this._emitter;
   }
 
-  hasAttribute(key: any) {
+  public hasAttribute(key: string) {
     return !!this.attributes[key];
   }
 
-  getAttribute(key: any) {
+  public getAttribute(key: string) {
     return this.attributes[key];
   }
 
-  setAttribute(rawKey: any, rawValue: any, options = {}) {
+  public setAttribute(rawKey: string, rawValue: NeedToTyped, options = {}) {
     try {
       let key = rawKey;
       let value = rawValue;
@@ -347,7 +354,7 @@ class ElementNode extends ViewNode {
       }
       switch (key) {
         case 'class': {
-          const newClassList = new Set(value.split(' ').filter((x: any) => x.trim()));
+          const newClassList = new Set(value.split(' ').filter((x: NeedToTyped) => x.trim()) as string);
           if (setsAreEqual(this.classList, newClassList)) {
             return;
           }
@@ -431,11 +438,11 @@ class ElementNode extends ViewNode {
     }
   }
 
-  removeAttribute(key: any) {
+  public removeAttribute(key: NeedToTyped) {
     delete this.attributes[key];
   }
 
-  setStyles(batchStyles: any) {
+  public setStyles(batchStyles: NeedToTyped) {
     if (!batchStyles || typeof batchStyles !== 'object' || Object.keys(batchStyles).length === 0) {
       return;
     }
@@ -446,7 +453,7 @@ class ElementNode extends ViewNode {
     updateChild(this);
   }
 
-  setStyle(rawKey: any, rawValue: any, notToNative = false) {
+  public setStyle(rawKey: NeedToTyped, rawValue: NeedToTyped, notToNative = false) {
     // Preprocess the style
     let {
       value,
@@ -495,7 +502,6 @@ class ElementNode extends ViewNode {
           if (key.toLowerCase().indexOf('color') >= 0) {
             value = Native.parseColor(value);
             // Convert inline length style, drop the px unit
-          // @ts-expect-error TS(2554): Expected 3 arguments, but got 2.
           } else if (endsWith(value, 'px')) {
             value = parseFloat(value.slice(0, value.length - 2));
           } else {
@@ -516,7 +522,7 @@ class ElementNode extends ViewNode {
   /**
    * set native style props
    */
-  setNativeProps(nativeProps: any) {
+  public setNativeProps(nativeProps: NeedToTyped) {
     if (nativeProps) {
       const { style } = nativeProps;
       this.setStyles(style);
@@ -526,11 +532,11 @@ class ElementNode extends ViewNode {
   /**
    * repaint element with the latest style map, which maybe loaded from HMR chunk or dynamic chunk
    */
-  repaintWithChildren() {
+  public repaintWithChildren() {
     updateWithChildren(this);
   }
 
-  setStyleScope(styleScopeId: any) {
+  public setStyleScope(styleScopeId: NeedToTyped) {
     if (typeof styleScopeId !== 'string') {
       styleScopeId = styleScopeId.toString();
     }
@@ -539,39 +545,39 @@ class ElementNode extends ViewNode {
     }
   }
 
-  get styleScopeId() {
+  public get styleScopeId() {
     return this.scopeIdList;
   }
 
-  appendChild(childNode: any) {
+  public appendChild(childNode: NeedToTyped) {
     if (childNode && childNode.meta.symbol === Text) {
       this.setText(childNode.text, { notToNative: true });
     }
     super.appendChild(childNode);
   }
 
-  insertBefore(childNode: any, referenceNode: any) {
+  public insertBefore(childNode: NeedToTyped, referenceNode: NeedToTyped) {
     if (childNode && childNode.meta.symbol === Text) {
       this.setText(childNode.text, { notToNative: true });
     }
     super.insertBefore(childNode, referenceNode);
   }
 
-  moveChild(childNode: any, referenceNode: any) {
+  public moveChild(childNode: NeedToTyped, referenceNode: NeedToTyped) {
     if (childNode && childNode.meta.symbol === Text) {
       this.setText(childNode.text, { notToNative: true });
     }
     super.moveChild(childNode, referenceNode);
   }
 
-  removeChild(childNode: any) {
+  public removeChild(childNode: NeedToTyped) {
     if (childNode && childNode.meta.symbol === Text) {
       this.setText('', { notToNative: true });
     }
     super.removeChild(childNode);
   }
 
-  setText(text: any, options = {}) {
+  public setText(text: NeedToTyped, options = {}) {
     // Hacking for textarea, use value props to instance text props
     if (this.tagName === 'textarea') {
       return this.setAttribute('value', text, { notToNative: !!(options as any).notToNative });
@@ -579,13 +585,13 @@ class ElementNode extends ViewNode {
     return this.setAttribute('text', text, { notToNative: !!(options as any).notToNative });
   }
 
-  setListenerHandledType(key: any, type: any) {
+  public setListenerHandledType(key: NeedToTyped, type: NeedToTyped) {
     if (this.events[key]) {
       this.events[key].handledType = type;
     }
   }
 
-  isListenerHandled(key: any, type: any) {
+  public isListenerHandled(key: NeedToTyped, type: NeedToTyped) {
     if (this.events[key] && type !== this.events[key].handledType) {
       // if handledType not equals type params, this event needs updated
       // if handledType equals undefined, this event needs created
@@ -595,18 +601,18 @@ class ElementNode extends ViewNode {
     return true;
   }
 
-  getNativeEventName(eventName: any) {
+  public getNativeEventName(eventName: NeedToTyped) {
     let nativeEventName = `on${capitalizeFirstLetter(eventName)}`;
     if (this.meta.component) {
       const { eventNamesMap } = this.meta.component;
-      if (eventNamesMap && eventNamesMap[eventName]) {
+      if (eventNamesMap?.[eventName]) {
         nativeEventName = eventNamesMap[eventName];
       }
     }
     return nativeEventName;
   }
 
-  addEventListener(eventNames: any, callback: any, options: any) {
+  public addEventListener(eventNames: NeedToTyped, callback: NeedToTyped, options?: NeedToTyped) {
     if (!this._emitter) {
       this._emitter = new EventEmitter(this);
     }
@@ -626,7 +632,7 @@ class ElementNode extends ViewNode {
       ));
     }
     this._emitter.addEventListener(eventNames, callback, options);
-    transverseEventNames(eventNames, (eventName: any) => {
+    transverseEventNames(eventNames, (eventName: NeedToTyped) => {
       const nativeEventName = this.getNativeEventName(eventName);
       if (!this.events[nativeEventName]) {
         this.events[nativeEventName] = {
@@ -642,7 +648,7 @@ class ElementNode extends ViewNode {
     updateEvent(this);
   }
 
-  removeEventListener(eventNames: any, callback: any, options: any) {
+  public removeEventListener(eventNames: NeedToTyped, callback: NeedToTyped, options: NeedToTyped) {
     if (!this._emitter) {
       return null;
     }
@@ -655,7 +661,7 @@ class ElementNode extends ViewNode {
       ));
     }
     const observer = this._emitter.removeEventListener(eventNames, callback, options);
-    transverseEventNames(eventNames, (eventName: any) => {
+    transverseEventNames(eventNames, (eventName: NeedToTyped) => {
       const nativeEventName = this.getNativeEventName(eventName);
       if (this.events[nativeEventName]) {
         this.events[nativeEventName].type = EventHandlerType.REMOVE;
@@ -665,7 +671,7 @@ class ElementNode extends ViewNode {
     return observer;
   }
 
-  dispatchEvent(eventInstance: any, targetNode: any, domEvent: any) {
+  public dispatchEvent(eventInstance: NeedToTyped, targetNode: NeedToTyped, domEvent: NeedToTyped) {
     if (!(eventInstance instanceof Event)) {
       throw new Error('dispatchEvent method only accept Event instance');
     }
@@ -677,8 +683,8 @@ class ElementNode extends ViewNode {
     if (!eventInstance.target) {
       eventInstance.target = targetNode || this;
       // IMPORTANT: It's important for vnode diff and directive trigger.
-      if (typeof (eventInstance as any).value === 'string') {
-        eventInstance.target.value = (eventInstance as any).value;
+      if (typeof eventInstance.value === 'string' && eventInstance.target) {
+        eventInstance.target.value = eventInstance.value;
       }
     }
     if (this._emitter) {
@@ -697,18 +703,23 @@ class ElementNode extends ViewNode {
    *
    * And if the element is out of visible area, result will be none.
    */
-  getBoundingClientRect() {
+  public getBoundingClientRect() {
     return Native.measureInWindow(this);
   }
 
   /**
    * Scroll children to specific position.
    */
-  scrollToPosition(x = 0, y = 0, duration = 1000) {
+  public scrollToPosition(
+    x: number | undefined = 0,
+    y: number | undefined = 0,
+    rawDuration: number | boolean = 1000,
+  ): void {
     if (typeof x !== 'number' || typeof y !== 'number') {
       return;
     }
-    // @ts-expect-error TS(2367): This condition will always return 'false' since th... Remove this comment to see the full error message
+    let duration = rawDuration;
+
     if (duration === false) {
       duration = 0;
     }
@@ -718,7 +729,18 @@ class ElementNode extends ViewNode {
   /**
    * Native implementation for the Chrome/Firefox Element.scrollTop method
    */
-  scrollTo(x: any, y: any, duration: any) {
+  public scrollTo(
+    x:
+    | number
+    | {
+      left: number;
+      top: number;
+      behavior: string;
+      duration: number | boolean;
+    },
+    y?: number,
+    duration?: number | boolean,
+  ): void {
     let animationDuration = duration;
     if (typeof x === 'object' && x) {
       const { left, top, behavior = 'auto' } = x;
@@ -729,11 +751,21 @@ class ElementNode extends ViewNode {
     }
   }
 
-  setPressed(pressed: any) {
+  /**
+   * Set pressed state
+   * @param pressed - whether to press
+   */
+  public setPressed(pressed: boolean): void {
     Native.callUIFunction(this, 'setPressed', [pressed]);
   }
 
-  setHotspot(x: any, y: any) {
+  /**
+   * Set hot zone
+   *
+   * @param x - x coordinate
+   * @param y - y coordinate
+   */
+  public setHotspot(x: number, y: number): void {
     Native.callUIFunction(this, 'setHotspot', [x, y]);
   }
 }

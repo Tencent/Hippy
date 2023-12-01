@@ -18,9 +18,9 @@
  * limitations under the License.
  */
 
-// @ts-expect-error TS(2307): Cannot find module 'shared/util' or its correspond... Remove this comment to see the full error message
 import { makeMap, camelize } from 'shared/util';
 import { capitalizeFirstLetter, warn } from '../util';
+import { NeedToTyped } from '../types/native';
 import * as BUILT_IN_ELEMENTS from './built-in';
 
 const isReservedTag = makeMap(
@@ -41,25 +41,25 @@ const defaultViewMeta = {
   component: null,
 };
 
-function getDefaultComponent(elementName: any, meta: any, normalizedName: any) {
+function getDefaultComponent(elementName: NeedToTyped, meta: NeedToTyped, normalizedName: NeedToTyped) {
   return {
     name: elementName,
     functional: true,
     model: meta.model,
-    render(h: any, {
+    render(h: NeedToTyped, {
       data,
       children,
-    }: any) {
+    }: NeedToTyped) {
       return h(normalizedName, data, children);
     },
   };
 }
 
-function normalizeElementName(elementName: any) {
+function normalizeElementName(elementName: string) {
   return elementName.toLowerCase();
 }
 
-function registerElement(elementName: any, oldMeta: any) {
+function registerElement(elementName: string, oldMeta: NeedToTyped) {
   if (!elementName) {
     throw new Error('RegisterElement cannot set empty name');
   }
@@ -86,7 +86,7 @@ function getElementMap() {
   return elementMap;
 }
 
-function getViewMeta(elementName: any) {
+function getViewMeta(elementName: NeedToTyped) {
   const normalizedName = normalizeElementName(elementName);
   let viewMeta = defaultViewMeta;
   const entry = elementMap.get(normalizedName);
@@ -96,39 +96,37 @@ function getViewMeta(elementName: any) {
   return viewMeta;
 }
 
-function isKnownView(elementName: any) {
+function isKnownView(elementName: NeedToTyped) {
   return elementMap.has(normalizeElementName(elementName));
 }
 
-function canBeLeftOpenTag(el: any) {
+function canBeLeftOpenTag(el: NeedToTyped) {
   return getViewMeta(el).canBeLeftOpenTag;
 }
 
-function isUnaryTag(el: any) {
+function isUnaryTag(el: NeedToTyped) {
   return getViewMeta(el).isUnaryTag;
 }
 
-function mustUseProp(el: any, type: any, attr: any) {
+function mustUseProp(el: NeedToTyped, type: NeedToTyped, attr: NeedToTyped) {
   const viewMeta = getViewMeta(el);
   if (!viewMeta.mustUseProp) {
     return false;
   }
-  // @ts-expect-error TS(2349): This expression is not callable.
   return viewMeta.mustUseProp(type, attr);
 }
 
-function getTagNamespace(el: any) {
+function getTagNamespace(el: NeedToTyped) {
   return getViewMeta(el).tagNamespace;
 }
 
-function isUnknownElement(el: any) {
+function isUnknownElement(el: NeedToTyped) {
   return !isKnownView(el);
 }
 
 // Register components
 function registerBuiltinElements() {
   Object.keys(BUILT_IN_ELEMENTS).forEach((tagName) => {
-    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     const meta = BUILT_IN_ELEMENTS[tagName];
     registerElement(tagName, meta);
   });

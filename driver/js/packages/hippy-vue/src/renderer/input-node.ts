@@ -19,23 +19,24 @@
  */
 
 import Native from '../runtime/native';
+import { NeedToTyped } from '../types/native';
 import ElementNode from './element-node';
 
 /**
  * Input and Textarea Element
  */
-class InputNode extends ElementNode {
+export class InputNode extends ElementNode {
   /**
    * Get text input value
    */
-  getValue() {
-    return new Promise(resolve => Native.callUIFunction(this, 'getValue', (r: any) => resolve(r.text)));
+  public getValue() {
+    return new Promise(resolve => Native.callUIFunction(this, 'getValue', (r: NeedToTyped) => resolve(r.text)));
   }
 
   /**
    * Set text input value
    */
-  setValue(value: any) {
+  public setValue(value: NeedToTyped) {
     Native.callUIFunction(this, 'setValue', [value]);
   }
 
@@ -43,28 +44,28 @@ class InputNode extends ElementNode {
   /**
    * Focus
    */
-  focus() {
+  public focus() {
     Native.callUIFunction(this, 'focusTextInput', []);
   }
 
   /**
    * Blur
    */
-  blur() {
+  public blur() {
     Native.callUIFunction(this, 'blurTextInput', []);
   }
 
   /**
    * Get text input focus status
    */
-  isFocused() {
-    return new Promise(resolve => Native.callUIFunction(this, 'isFocused', (r: any) => resolve(r.value)));
+  public isFocused() {
+    return new Promise(resolve => Native.callUIFunction(this, 'isFocused', (r: NeedToTyped) => resolve(r.value)));
   }
 
   /**
    * Clear
    */
-  clear() {
+  public clear() {
     Native.callUIFunction(this, 'clear', []);
   }
 
@@ -72,7 +73,7 @@ class InputNode extends ElementNode {
    * Show input method selection dialog.
    * @deprecated
    */
-  showInputMethod() {
+  public showInputMethod() {
     // noop
   }
 
@@ -80,7 +81,7 @@ class InputNode extends ElementNode {
    * hideInputMethod
    * @deprecated
    */
-  hideInputMethod() {
+  public hideInputMethod() {
     // noop
   }
 }

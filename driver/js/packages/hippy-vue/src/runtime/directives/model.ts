@@ -21,16 +21,18 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-import { Event } from '../../renderer/native/event';
+import { Event } from '../../event';
+import ElementNode from '../../renderer/element-node';
+import { NeedToTyped } from '../../types/native';
 import Native from '../native';
 
-function androidUpdate(el: any, value: any, oldValue: any) {
+function androidUpdate(el: ElementNode, value: NeedToTyped, oldValue: NeedToTyped) {
   if (value !== oldValue) {
     el.setAttribute('defaultValue', value, { textUpdate: true });
   }
 }
 
-function iOSUpdate(el: any, value: any) {
+function iOSUpdate(el: ElementNode, value: NeedToTyped) {
   if (value !== el.attributes.defaultValue) {
     el.attributes.defaultValue = value;
     el.setAttribute('text', value, { textUpdate: true });
@@ -41,7 +43,7 @@ function iOSUpdate(el: any, value: any) {
 let update = androidUpdate;
 
 const model = {
-  inserted(el: any, binding: any) {
+  inserted(el: NeedToTyped, binding: NeedToTyped) {
     // Update the specific platform update function.
     if (Native.Platform === 'ios' && update !== iOSUpdate) {
       update = iOSUpdate;
@@ -52,7 +54,7 @@ const model = {
       el.attributes.defaultValue = binding.value;
       // Binding event when typing
       if (!binding.modifiers.lazy) {
-        el.addEventListener('change', ({ value }: any) => {
+        el.addEventListener('change', ({ value }: NeedToTyped) => {
           const event = new Event('input');
           (event as any).value = value;
           el.dispatchEvent(event);
@@ -60,10 +62,10 @@ const model = {
       }
     }
   },
-  update(el: any, {
+  update(el: NeedToTyped, {
     value,
     oldValue,
-  }: any) {
+  }: NeedToTyped) {
     el.value = value;
     update(el, value, oldValue);
   },

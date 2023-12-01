@@ -18,9 +18,7 @@
  * limitations under the License.
  */
 
-// @ts-expect-error TS(2307): Cannot find module 'core/vdom/patch' or its corres... Remove this comment to see the full error message
 import { createPatchFunction } from 'core/vdom/patch';
-// @ts-expect-error TS(2307): Cannot find module 'core/vdom/modules/index' or it... Remove this comment to see the full error message
 import baseModules from 'core/vdom/modules/index';
 import platformModules from './modules/index';
 import * as nodeOps from './node-ops';

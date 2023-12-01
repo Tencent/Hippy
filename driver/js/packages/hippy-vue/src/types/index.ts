@@ -22,7 +22,7 @@
 
 import Vue from 'vue';
 // eslint-disable-next-line import/no-unresolved
-import Native from './native';
+import Native, { NeedToTyped } from './native';
 
 export default Vue;
 
@@ -30,4 +30,21 @@ declare module 'vue/types/vue' {
   interface VueConstructor {
     Native: Native;
   }
+}
+
+declare global {
+  // eslint-disable-next-line no-var,@typescript-eslint/naming-convention,vars-on-top
+  var Hippy: NeedToTyped;
+  // eslint-disable-next-line no-var,@typescript-eslint/naming-convention,vars-on-top
+  var __HIPPYNATIVEGLOBAL__: NeedToTyped;
+  // eslint-disable-next-line no-var,@typescript-eslint/naming-convention,vars-on-top
+  var __VUE_ROOT_INSTANCES__: NeedToTyped;
+  // eslint-disable-next-line no-var,@typescript-eslint/naming-convention,vars-on-top
+  var ConsoleModule: NeedToTyped;
+  // eslint-disable-next-line no-var,@typescript-eslint/naming-convention,vars-on-top
+  var __HIPPYNATIVEGLOBAL__: NeedToTyped;
+  // eslint-disable-next-line no-var,@typescript-eslint/naming-convention,vars-on-top
+  var __GLOBAL__: NeedToTyped;
+  // eslint-disable-next-line no-var,vars-on-top
+  var localStorage: Storage;
 }
