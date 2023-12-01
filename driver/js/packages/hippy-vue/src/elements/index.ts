@@ -109,7 +109,7 @@ function isUnaryTag(el: NeedToTyped) {
 }
 
 function mustUseProp(el: NeedToTyped, type: NeedToTyped, attr: NeedToTyped) {
-  const viewMeta = getViewMeta(el);
+  const viewMeta: NeedToTyped = getViewMeta(el);
   if (!viewMeta.mustUseProp) {
     return false;
   }
@@ -127,7 +127,7 @@ function isUnknownElement(el: NeedToTyped) {
 // Register components
 function registerBuiltinElements() {
   Object.keys(BUILT_IN_ELEMENTS).forEach((tagName) => {
-    const meta = BUILT_IN_ELEMENTS[tagName];
+    const meta = (BUILT_IN_ELEMENTS as NeedToTyped)[tagName];
     registerElement(tagName, meta);
   });
 }

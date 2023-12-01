@@ -26,7 +26,7 @@ import NATIVE_COMPONENT_NAME_MAP, * as components from '../native/components';
 import { NeedToTyped } from '../types/native';
 
 function mapEvent(...args: NeedToTyped[]) {
-  const map = {};
+  const map: NeedToTyped = {};
   if (Array.isArray(args[0])) {
     args[0].forEach(([vueEventName, nativeEventName]) => {
       map[map[vueEventName] = nativeEventName] = vueEventName;
@@ -38,7 +38,7 @@ function mapEvent(...args: NeedToTyped[]) {
   return map;
 }
 
-const INPUT_VALUE_MAP = {
+const INPUT_VALUE_MAP: NeedToTyped = {
   number: 'numeric',
   text: 'default',
   search: 'web-search',

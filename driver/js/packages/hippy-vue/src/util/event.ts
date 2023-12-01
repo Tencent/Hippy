@@ -18,12 +18,14 @@
  * limitations under the License.
  */
 
+import { NeedToTyped } from '../types/native';
+
 const EventHandlerType = {
   ADD: 0,
   REMOVE: 1,
 };
 
-const NativeEventMap = {
+const NativeEventMap: NeedToTyped = {
   onClick: 'click',
   onLongClick: 'longclick',
   onPressIn: 'pressin',
