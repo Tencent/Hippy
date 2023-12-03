@@ -24,7 +24,7 @@
  */
 import { HIPPY_GLOBAL_DISPOSE_STYLE_NAME, HIPPY_GLOBAL_STYLE_NAME } from '../../../src/config';
 import { HippyElement } from '../../../src/runtime/element/hippy-element';
-import { fromAstNodes, SelectorsMap } from '../../../src/runtime/style';
+import { fromAstNodes, SelectorsMap, type ASTRule } from '../../../src/runtime/style';
 import { SimpleSelectorSequence } from '../../../src/runtime/style/css-selectors';
 import { getCssMap } from '../../../src/runtime/style/css-map';
 import { registerElement } from '../../../src/runtime/component';
@@ -243,6 +243,16 @@ const testAst = [
   },
 ];
 
+type ASTItem = typeof testAst[1];
+
+function minifyAst(rules: ASTItem[]): ASTRule[] {
+  return rules.map(r => ([
+    r.hash,
+    r.selectors,
+    r.declarations.filter(d => d.type !== 'comment').map(d => ([d.property, d.value])),
+  ] as ASTRule)).filter(r => r[2].length > 0);
+}
+
 /**
  * @author birdguo
  * @priority P0
@@ -252,7 +262,7 @@ describe('runtime/style/index.ts', () => {
   let cssMap;
 
   beforeAll(() => {
-    global[HIPPY_GLOBAL_STYLE_NAME] = testAst;
+    global[HIPPY_GLOBAL_STYLE_NAME] = minifyAst(testAst);
     cssMap = getCssMap();
     registerElement('div', { component: { name: 'View' } });
     const root = new HippyElement('div');
@@ -326,7 +336,7 @@ describe('runtime/style/index.ts', () => {
       },
     ];
 
-    const appendRules = fromAstNodes(appendAst);
+    const appendRules = fromAstNodes(minifyAst(appendAst));
     cssMap.append(appendRules);
 
     const divElement = new HippyElement('div');
@@ -365,7 +375,7 @@ describe('runtime/style/index.ts', () => {
       },
     ];
 
-    const appendRules = fromAstNodes(appendAst);
+    const appendRules = fromAstNodes(minifyAst(appendAst));
     cssMap.append(appendRules);
 
     const divElement = new HippyElement('div');
@@ -411,7 +421,7 @@ describe('runtime/style/index.ts', () => {
       ],
     }];
 
-    const cssRules = fromAstNodes(ast);
+    const cssRules = fromAstNodes(minifyAst(ast));
     const cssMap = new SelectorsMap(cssRules);
     const divElement = new HippyElement('div');
     divElement.setAttribute('id', 'id1');
@@ -442,7 +452,7 @@ describe('runtime/style/index.ts', () => {
       ],
     }];
 
-    const cssRules = fromAstNodes(ast);
+    const cssRules = fromAstNodes(minifyAst(ast));
     const cssMap = new SelectorsMap(cssRules);
     const divElement = new HippyElement('div');
     divElement.setAttribute('id', 'id');
@@ -470,7 +480,7 @@ describe('runtime/style/index.ts', () => {
       ],
     }];
 
-    const cssRules = fromAstNodes(ast);
+    const cssRules = fromAstNodes(minifyAst(ast));
     const cssMap = new SelectorsMap(cssRules);
     const divElement = new HippyElement('div');
     divElement.setAttribute('id', 'id');
@@ -498,7 +508,7 @@ describe('runtime/style/index.ts', () => {
       ],
     }];
 
-    const cssRules = fromAstNodes(ast);
+    const cssRules = fromAstNodes(minifyAst(ast));
     const cssMap = new SelectorsMap(cssRules);
     const divElement = new HippyElement('div');
     divElement.setAttribute('id', 'id');
@@ -526,7 +536,7 @@ describe('runtime/style/index.ts', () => {
       ],
     }];
 
-    const cssRules = fromAstNodes(ast);
+    const cssRules = fromAstNodes(minifyAst(ast));
     const cssMap = new SelectorsMap(cssRules);
     const divElement = new HippyElement('div');
     divElement.setAttribute('id', 'id');
@@ -554,7 +564,7 @@ describe('runtime/style/index.ts', () => {
       ],
     }];
 
-    const cssRules = fromAstNodes(ast);
+    const cssRules = fromAstNodes(minifyAst(ast));
     const cssMap = new SelectorsMap(cssRules);
     const divElement = new HippyElement('div');
     divElement.setAttribute('id', 'id');

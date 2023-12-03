@@ -20,10 +20,9 @@
 
 import { CallbackType, NeedToTyped } from '../types/native';
 import { getBeforeLoadStyle, isDev } from '../util';
-import { CssAttribute } from './css-selectors-map';
 import { SimpleSelectorSequence } from './group/simple-selector-sequence';
 import parseSelector, { ParsedSelectorValueType, SelectorType } from './parser';
-import { RuleSet } from './ruleset';
+import { CssDeclarationType, RuleSet, RuleSetSelector } from './ruleset';
 import { AttributeSelector } from './selector/attribute-selector';
 import { ClassSelector } from './selector/class-selector';
 import { IdSelector } from './selector/ids-selector';
@@ -36,14 +35,16 @@ import { UniversalSelector } from './selector/universal-selector';
 
 // ast 核心解析逻辑处理
 
+type Declaration = [property: string, value: string | number];
+export type ASTRule = [hash: string, selectors: string[], declarations: Declaration[]];
 
 export function isDeclaration(node: NeedToTyped) {
   return node.type === 'declaration';
 }
 
 export function createDeclaration(beforeLoadStyle: CallbackType) {
-  return (decl: NeedToTyped) => {
-    const newDecl = beforeLoadStyle(decl);
+  return (decl: NeedToTyped): CssDeclarationType => {
+    const newDecl = beforeLoadStyle({ type: 'declaration', property: decl[0], value: decl[1] });
     if (isDev()) {
       if (!newDecl) {
         throw new Error('beforeLoadStyle hook must returns the processed style object');
@@ -109,15 +110,14 @@ export function createSelector(text: string) {
   }
 }
 
-export function fromAstNodes(astRules: CssAttribute[] = []): RuleSet[] {
+export function fromAstNodes(astRules: ASTRule[] = []): RuleSet[] {
   const beforeLoadStyle = getBeforeLoadStyle();
-
-  return astRules.map((rule) => {
-    const declarations = rule.declarations
-      .filter(isDeclaration)
-      .map(createDeclaration(beforeLoadStyle));
-    const selectors = rule.selectors.map(createSelector);
-    return new RuleSet(selectors, declarations, rule.hash);
+  return astRules.map(([hash, selectors, declarations]) => {
+    return new RuleSet(
+      selectors.map(createSelector) as RuleSetSelector[],
+      declarations.map(createDeclaration(beforeLoadStyle)),
+      hash,
+    );
   });
 }
 

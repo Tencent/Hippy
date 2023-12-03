@@ -805,4 +805,5 @@ export {
   Selector,
   RuleSet,
   SelectorCore,
+  type RuleSetSelector,
 };
