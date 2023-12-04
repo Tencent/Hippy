@@ -27,7 +27,7 @@ Pod::Spec.new do |s|
   end
   
   s.name             = 'hippy'
-  s.version          = '3.0.0-hermes'
+  s.version          = '3.1.1-hermes'
   s.summary          = 'Hippy Cross Platform Framework'
   s.description      = <<-DESC
                         Hippy is designed for developers to easily build cross-platform and high-performance awesome apps.
