@@ -105,6 +105,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 }
 
 - (void)setup {
+    HippyLogInfo(@"[Hippy_OC_Log], == HippyJSCExecutor create engine begin.");
     auto engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:self.enginekey];
     const char *pName = [self.enginekey UTF8String] ?: "";
     footstone::TimePoint startPoint = footstone::TimePoint::SystemNow();
@@ -222,6 +223,8 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
             auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
             entry->SetHippyJsEngineInitStart(startPoint);
             entry->SetHippyJsEngineInitEnd(footstone::TimePoint::SystemNow());
+
+            HippyLogInfo(@"[Hippy_OC_Log], == HippyJSCExecutor create engine end.");
         }
     });
     self.pScope = scope;
@@ -549,7 +552,16 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
             auto entry = strongSelf.pScope->GetPerformance()->PerformanceNavigation("hippyInit");
             string_view url = [[sourceURL absoluteString] UTF8String]?:"";
             entry->BundleInfoOfUrl(url).execute_source_start_ = footstone::TimePoint::SystemNow();
+            // auto file_name = [sourceURL lastPathComponent];
+            NSURL *parentDirectoryURL = [sourceURL URLByDeletingLastPathComponent];
+            NSURL *grandParentDirectoryURL = [parentDirectoryURL URLByDeletingLastPathComponent];
+            NSString *lastDirectoryName = [grandParentDirectoryURL lastPathComponent];
+            NSString *directoryName = [parentDirectoryURL lastPathComponent];
+            NSString *file_name = [NSString stringWithFormat:@"%@/%@", lastDirectoryName, directoryName];
+
+            HippyLogInfo(@"[Hippy_OC_Log], == HippyJSCExecutor runscript begin %@", file_name);
             id result = executeApplicationScript(script, sourceURL, strongSelf.pScope->GetContext(), &error);
+            HippyLogInfo(@"[Hippy_OC_Log], == HippyJSCExecutor runscript end %@", file_name);
             entry->BundleInfoOfUrl(url).execute_source_end_ = footstone::TimePoint::SystemNow();
             if (onComplete) {
                 onComplete(result, error);

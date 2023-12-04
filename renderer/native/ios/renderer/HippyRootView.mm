@@ -171,7 +171,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 - (void)runHippyApplication {
     // [_bridge.performanceLogger markStartForTag:HippyPLRunApplication];
-    
+    HippyLogInfo(@"[Hippy_OC_Log], == HippyJSCExecutor runHippyApplication");
+
     __weak __typeof(self)weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         __strong __typeof(weakSelf)strongSelf = weakSelf;
@@ -339,6 +340,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder
         __strong __typeof(weakSelf)strongSelf = weakSelf;
         if (strongSelf && !strongSelf->_contentHasAppeared) {
             strongSelf->_contentHasAppeared = YES;
+            HippyLogInfo(@"[Hippy_OC_Log], == HippyJSCExecutor add view");
             // int64_t cost = [strongSelf.bridge.performanceLogger durationForTag:HippyPLTTI];
             [[NSNotificationCenter defaultCenter] postNotificationName:HippyContentDidAppearNotification
                                                                 object:self userInfo:@{
