@@ -24,7 +24,7 @@ import { trace, getApp, warn } from '../util';
 import { getNodeById } from '../util/node';
 import { DOMEventPhase } from '../util/event';
 import { NeedToTyped } from '../types/native';
-import { Event } from './event';
+import { LayoutEvent } from './layout-event';
 
 const LOG_TYPE = ['%c[event]%c', 'color: green', 'color: auto'];
 
@@ -84,16 +84,16 @@ const EventDispatcher = {
     }
     try {
       if ([DOMEventPhase.AT_TARGET, DOMEventPhase.BUBBLING_PHASE].indexOf(eventPhase) > -1) {
-        const targetEvent = new Event(originalName);
+        const targetEvent = new LayoutEvent(originalName);
         Object.assign(targetEvent, { eventPhase, nativeParams: params || {} });
         if (nativeName === 'onLayout') {
           const { layout: { x, y, height, width } } = params;
-          (targetEvent as any).top = y;
-          (targetEvent as any).left = x;
-          (targetEvent as any).bottom = y + height;
-          (targetEvent as any).right = x + width;
-          (targetEvent as any).width = width;
-          (targetEvent as any).height = height;
+          targetEvent.top = y;
+          targetEvent.left = x;
+          targetEvent.bottom = y + height;
+          targetEvent.right = x + width;
+          targetEvent.width = width;
+          targetEvent.height = height;
         } else {
           const { processEventData } = currentTargetNode._meta.component;
           if (processEventData) {

@@ -22,6 +22,7 @@ import Vue from './runtime/index';
 import { setVue } from './util/index';
 import WebSocket from './runtime/websocket';
 
+// @ts-ignore
 global.process = global.process || {};
 global.process.env = global.process.env || {};
 // @ts-ignore

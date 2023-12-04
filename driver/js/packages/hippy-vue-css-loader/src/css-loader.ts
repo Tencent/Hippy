@@ -53,8 +53,7 @@ function hippyVueCSSLoader(this: any, source: any) {
           || value.trim() in colorNames
         );
       if (dec.property && (dec.property.toLowerCase().indexOf('color') > -1 || isVariableColor)) {
-        // @ts-expect-error TS(2554): Expected 1 arguments, but got 2.
-        value = translateColor(value, options);
+        value = translateColor(value);
       }
       return {
         type: dec.type,

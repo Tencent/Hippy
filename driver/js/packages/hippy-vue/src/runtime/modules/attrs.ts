@@ -57,7 +57,7 @@ function updateAttrs(oldVNode: NeedToTyped, vNode: NeedToTyped) {
   });
 }
 
-export function setAttrs(vNode: NeedToTyped, customElem: NeedToTyped, options = {}) {
+export function setAttrs(vNode: NeedToTyped, customElem: NeedToTyped, options: NeedToTyped = {}) {
   if (!vNode || !vNode.data) {
     return;
   }
@@ -73,7 +73,7 @@ export function setAttrs(vNode: NeedToTyped, customElem: NeedToTyped, options = 
     vNode.data.attrs = attrs;
   }
   Object.keys(attrs).forEach((key) => {
-    elm.setAttribute(key, attrs[key], { notToNative: !!(options as any).notToNative });
+    elm.setAttribute(key, attrs[key], { notToNative: !!options.notToNative });
   });
 }
 

@@ -28,7 +28,7 @@ function drawStatusBar(appOptions: NeedToTyped = {}) {
   if (iPhone?.statusBar) {
     statusBarOpts = iPhone.statusBar;
   }
-  if ((statusBarOpts as any).disabled) {
+  if (statusBarOpts.disabled) {
     return null;
   }
   const statusBar = new ElementNode('div');
@@ -44,17 +44,17 @@ function drawStatusBar(appOptions: NeedToTyped = {}) {
   // Set safe area background color
   let backgroundColor = 4282431619; // Vue green
   // FIXME: Use Number.isInteger to check backgroundColor type.
-  if (typeof (statusBarOpts as any).backgroundColor === 'number') {
+  if (typeof statusBarOpts.backgroundColor === 'number') {
     ({ backgroundColor } = statusBarOpts);
   }
   statusBar.setStyle('backgroundColor', backgroundColor);
 
   // Set safe area background image if defined
-  if (typeof (statusBarOpts as any).backgroundImage === 'string') {
+  if (typeof statusBarOpts.backgroundImage === 'string') {
     const statusBarImage = new ElementNode('img');
     statusBarImage.setStyle('width', Native.Dimensions.screen.width);
     statusBarImage.setStyle('height', statusBarHeight);
-    statusBarImage.setAttribute('src', (appOptions as any).statusBarOpts.backgroundImage);
+    statusBarImage.setAttribute('src', appOptions.statusBarOpts.backgroundImage);
     statusBar.appendChild(statusBarImage);
   }
 

@@ -18,16 +18,12 @@
  * limitations under the License.
  */
 
-/* eslint-disable no-use-before-define */
-/* eslint-disable no-param-reassign */
 
-// @ts-expect-error TS(2307): Cannot find module 'shared/util' or its correspond... Remove this comment to see the full error message
 import { camelize } from 'shared/util';
-// @ts-expect-error TS(2307): Cannot find module '@vue/util/index' or its corres... Remove this comment to see the full error message
 import { tryConvertNumber, warn } from '@vue/util/index';
 import translateColor from './color-parser';
 
-const PROPERTIES_MAP = {
+const PROPERTIES_MAP: any = {
   textDecoration: 'textDecorationLine',
   boxShadowOffset: 'shadowOffset',
   boxShadowOffsetX: 'shadowOffsetX',
@@ -40,7 +36,7 @@ const PROPERTIES_MAP = {
 };
 
 // linear-gradient direction description map
-const LINEAR_GRADIENT_DIRECTION_MAP = {
+const LINEAR_GRADIENT_DIRECTION_MAP: any = {
   totop: '0',
   totopright: 'totopright',
   toright: '90',
@@ -105,8 +101,7 @@ function convertPxUnitToPt(value: any) {
   }
   // If value unit is px, change to use pt as 1:1.
   if (typeof value === 'string' && value.endsWith('px')) {
-    // @ts-expect-error TS(2554): Expected 1 arguments, but got 2.
-    const num = parseFloat(value.slice(0, value.indexOf('px')), 10);
+    const num = parseFloat(value.slice(0, value.indexOf('px')));
     if (!Number.isNaN(num)) {
       value = num;
     }
@@ -254,12 +249,11 @@ function parseCSS(css: any, options: any) {
   /**
    * Parse comments;
    */
-  function comments(rules = []) {
+  function comments(rules: any[] = []): any[] {
     let c;
     rules = rules || [];
     while ((c = comment()) !== null) {
       if (c !== false) {
-        // @ts-expect-error TS(2345): Argument of type 'any' is not assignable to parame... Remove this comment to see the full error message
         rules.push(c);
       }
     }
@@ -351,9 +345,7 @@ function parseCSS(css: any, options: any) {
     const [direction, angleValue, angleUnit] = valueList;
     if (angleValue && angleUnit) { // angle value
       angle = convertToDegree(angleValue, angleUnit);
-    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     } else if (direction && typeof LINEAR_GRADIENT_DIRECTION_MAP[direction] !== 'undefined') { // direction description
-      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       angle = LINEAR_GRADIENT_DIRECTION_MAP[direction];
     } else {
       warn('linear-gradient direction or angle is invalid, default value [to bottom] would be used');
@@ -446,7 +438,6 @@ function parseCSS(css: any, options: any) {
     const propertyName = prop.replace(commentRegexp, '');
     const camelizedProperty = camelize(propertyName);
     let property = (() => {
-      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       const property = PROPERTIES_MAP[camelizedProperty];
       if (property) {
         return property;
@@ -473,12 +464,10 @@ function parseCSS(css: any, options: any) {
           }
 
           if (parseFloat(v).toString() === v) {
-            // @ts-expect-error TS(2322): Type 'number' is not assignable to type 'string'.
             v = parseFloat(v);
           }
 
-          const transform = {};
-          // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+          const transform: any = {};
           transform[key] = v;
           value.push(transform);
         };
@@ -566,7 +555,7 @@ function parseCSS(css: any, options: any) {
    */
   function keyframe() {
     let m;
-    const vals = [];
+    const vals: any[] = [];
     const pos = position();
     while ((m = match(/^((\d+\.\d+|\.\d+|\d+)%?|[a-z]+)\s*/)) !== null) {
       vals.push(m[1]);
@@ -602,7 +591,6 @@ function parseCSS(css: any, options: any) {
     let frame;
     let frames = comments();
     while ((frame = keyframe()) !== null) {
-      // @ts-expect-error TS(2345): Argument of type 'any' is not assignable to parame... Remove this comment to see the full error message
       frames.push(frame);
       frames = frames.concat(comments());
     }
@@ -716,7 +704,6 @@ function parseCSS(css: any, options: any) {
     // declarations
     let decl;
     while ((decl = declaration()) !== null) {
-      // @ts-expect-error TS(2345): Argument of type 'any' is not assignable to parame... Remove this comment to see the full error message
       decls.push(decl);
       decls = decls.concat(comments());
     }
@@ -772,7 +759,6 @@ function parseCSS(css: any, options: any) {
     // declarations
     let decl;
     while ((decl = declaration()) !== null) {
-      // @ts-expect-error TS(2345): Argument of type 'any' is not assignable to parame... Remove this comment to see the full error message
       decls.push(decl);
       decls = decls.concat(comments());
     }
@@ -811,8 +797,7 @@ function parseCSS(css: any, options: any) {
       if (!m) {
         return null;
       }
-      const ret = { type: name };
-      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+      const ret: any = { type: name };
       ret[name] = m[1].trim();
       return pos(ret);
     };

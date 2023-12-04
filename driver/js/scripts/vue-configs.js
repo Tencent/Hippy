@@ -57,14 +57,14 @@ const aliases = {
 
 const builds = {
   '@hippy/vue': {
-    entry: resolvePackage('hippy-vue', 'src/index.js'),
+    entry: resolvePackage('hippy-vue', 'src/index.ts'),
     dest: resolvePackage('hippy-vue', 'dist/index.js'),
     format: 'es',
     banner: banner('@hippy/vue', hippyVuePackage.version, bannerStr),
   },
   '@hippy/vue-css-loader': {
     entry: {
-      index: resolvePackage('hippy-vue-css-loader', 'src/index.js'),
+      index: resolvePackage('hippy-vue-css-loader', 'src/index.ts'),
       'css-loader': resolvePackage('hippy-vue-css-loader', 'src/css-loader.js'),
     },
     dir: resolvePackage('hippy-vue-css-loader', 'dist'),
@@ -132,7 +132,8 @@ function genConfig(name) {
           },
           exclude: ['**/__tests__/*.test.*'],
           include: [
-            'packages/hippy-vue-*/src',
+            'packages/hippy-vue/src',
+            'packages/hippy-vue-css-loader/src',
             'packages/global.d.ts',
             'node_modules/@types/web/index.d.ts',
             'node_modules/@types/node/index.d.ts',

@@ -220,8 +220,10 @@ function deepCopy(data: NeedToTyped, hash = new WeakMap()) {
     } else if (Array.isArray(currentDataValue)) {
       newData[value] = [...currentDataValue];
     } else if (currentDataValue instanceof Set) {
+      // @ts-ignore
       newData[value] = new Set([...currentDataValue]);
     } else if (currentDataValue instanceof Map) {
+      // @ts-ignore
       newData[value] = new Map([...currentDataValue]);
     } else {
       hash.set(data, data);

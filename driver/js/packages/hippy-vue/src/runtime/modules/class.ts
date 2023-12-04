@@ -47,7 +47,7 @@ function updateClass(oldVNode: NeedToTyped, vNode: NeedToTyped) {
   }
 }
 
-export function setClass(vNode: NeedToTyped, customElem: NeedToTyped, options = {}) {
+export function setClass(vNode: NeedToTyped, customElem: NeedToTyped, options: NeedToTyped = {}) {
   if (!vNode || !vNode.data) {
     return;
   }
@@ -68,7 +68,7 @@ export function setClass(vNode: NeedToTyped, customElem: NeedToTyped, options = 
   }
   // set the class
   if (cls !== elm._prevClass) {
-    elm.setAttribute('class', cls, { notToNative: !!(options as any).notToNative });
+    elm.setAttribute('class', cls, { notToNative: !!options.notToNative });
     elm._prevClass = cls;
   }
 }

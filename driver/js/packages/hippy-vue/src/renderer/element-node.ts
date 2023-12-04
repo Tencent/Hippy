@@ -261,6 +261,12 @@ function createEventListener(nativeName: NeedToTyped, originalName: NeedToTyped)
   };
 }
 
+interface OptionMapType {
+  notToNative?: boolean;
+  textUpdate?: boolean;
+  notUpdateStyle?: boolean;
+}
+
 export class ElementNode extends ViewNode {
   // id
   public id = '';
@@ -339,7 +345,7 @@ export class ElementNode extends ViewNode {
     return this.attributes[key];
   }
 
-  public setAttribute(rawKey: string, rawValue: NeedToTyped, options = {}) {
+  public setAttribute(rawKey: string, rawValue: NeedToTyped, options: OptionMapType = {}) {
     try {
       let key = rawKey;
       let value = rawValue;
@@ -349,7 +355,7 @@ export class ElementNode extends ViewNode {
         value = true;
       }
       if (key === undefined) {
-        !(options as any).notToNative && updateChild(this);
+        !options.notToNative && updateChild(this);
         return;
       }
       switch (key) {
@@ -360,7 +366,7 @@ export class ElementNode extends ViewNode {
           }
           this.classList = newClassList;
           // update current node and child nodes
-          !(options as any).notToNative && updateWithChildren(this);
+          !options.notToNative && updateWithChildren(this);
           return;
         }
         case 'id':
@@ -369,7 +375,7 @@ export class ElementNode extends ViewNode {
           }
           this.id = value;
           // update current node and child nodes
-          !(options as any).notToNative && updateWithChildren(this);
+          !options.notToNative && updateWithChildren(this);
           return;
         // Convert text related to character for interface.
         case 'text':
@@ -380,10 +386,10 @@ export class ElementNode extends ViewNode {
             try {
               value = value.toString();
             } catch (err) {
-              warn(`Property ${key} must be string：${(err as any).message}`);
+              warn(`Property ${key} must be string：${(err as Error).message}`);
             }
           }
-          if (!options || !(options as any).textUpdate) {
+          if (!options || !options.textUpdate) {
             // white space handler
             value = whitespaceFilter(value);
           }
@@ -429,7 +435,7 @@ export class ElementNode extends ViewNode {
       if (typeof this.filterAttribute === 'function') {
         this.filterAttribute(this.attributes);
       }
-      !(options as any).notToNative && updateChild(this, (options as any).notUpdateStyle);
+      !options.notToNative && updateChild(this, options.notUpdateStyle);
     } catch (err) {
       // Throw error in development mode
       if (isDev()) {
@@ -577,12 +583,12 @@ export class ElementNode extends ViewNode {
     super.removeChild(childNode);
   }
 
-  public setText(text: NeedToTyped, options = {}) {
+  public setText(text: NeedToTyped, options: OptionMapType = {}) {
     // Hacking for textarea, use value props to instance text props
     if (this.tagName === 'textarea') {
-      return this.setAttribute('value', text, { notToNative: !!(options as any).notToNative });
+      return this.setAttribute('value', text, { notToNative: !!options.notToNative });
     }
-    return this.setAttribute('text', text, { notToNative: !!(options as any).notToNative });
+    return this.setAttribute('text', text, { notToNative: !!options.notToNative });
   }
 
   public setListenerHandledType(key: NeedToTyped, type: NeedToTyped) {
@@ -747,7 +753,7 @@ export class ElementNode extends ViewNode {
       ({ duration: animationDuration } = x);
       this.scrollToPosition(left, top, behavior === 'none' ? 0 : animationDuration);
     } else {
-      this.scrollToPosition(x, y, duration);
+      this.scrollToPosition(x as number, y, duration);
     }
   }
 

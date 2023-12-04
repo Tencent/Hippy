@@ -4,8 +4,10 @@
   "description": "Vue binding for Hippy native framework",
   "author": "OpenHippy Team",
   "license": "Apache-2.0",
-  "main": "dist/index.js",
-  "types": "types/index.d.ts",
+  "entry": "./src/index.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "homepage": "https://hippyjs.org",
   "repository": "https://github.com/Tencent/Hippy",
   "bugs": {

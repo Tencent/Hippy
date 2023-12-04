@@ -251,6 +251,7 @@ declare namespace HippyTypes {
     animationId?: number;
   }
 
+
   export interface Attributes {
     [key: string]: any;
   }

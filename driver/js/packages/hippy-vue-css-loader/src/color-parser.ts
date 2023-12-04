@@ -19,8 +19,11 @@
  */
 
 /* eslint-disable no-mixed-operators */
+type NameMapType = {
+  [key: string]: number;
+};
 
-export const names = {
+export const names: NameMapType  = {
   transparent: 0x00000000,
   aliceblue: 0xf0f8ffff,
   antiquewhite: 0xfaebd7ff,
@@ -250,8 +253,7 @@ const parse360 = (str: string) => {
 };
 
 const parsePercentage = (str: string) => {
-  // @ts-expect-error TS(2554): Expected 1 arguments, but got 2.
-  const int = parseFloat(str, 10);
+  const int = parseFloat(str);
   if (int < 0) {
     return 0;
   }

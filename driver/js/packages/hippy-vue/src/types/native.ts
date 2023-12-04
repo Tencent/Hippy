@@ -103,7 +103,7 @@ interface Native {
    * Call native UI methods.
    */
   callUIFunction: (
-    el: Record<string, any>,
+    el: Record<string, NeedToTyped>,
     funcName: NeedToTyped,
     ...args: NeedToTyped[]
   ) => void;
@@ -131,7 +131,7 @@ interface Native {
     moduleName: CallNativeModuleName,
     methodName: CallNativeMethodName,
     ...args: NeedToTyped[]
-  ) => Promise<any>;
+  ) => Promise<NeedToTyped>;
 
   /**
    * Call native with callId returns
@@ -140,7 +140,7 @@ interface Native {
     moduleName: CallNativeModuleName,
     methodName: CallNativeMethodName,
     ...args: NeedToTyped[]
-  ) => any;
+  ) => NeedToTyped;
 
   /**
    * Draw UI with native language.
@@ -167,8 +167,8 @@ interface UIManagerModule {
   flushBatch: (rootViewId: NeedToTyped, queue: NeedToTyped) => void;
   setNodeTree: (rootViewId: NeedToTyped, newNodeTree: NeedToTyped) => void;
   setNodeId: (rootViewId: NeedToTyped, cacheIdList: NeedToTyped) => void;
-  getNodeById: (nodeId: NeedToTyped) => any;
-  getNodeIdByRef: (ref: NeedToTyped) => any;
+  getNodeById: (nodeId: NeedToTyped) => NeedToTyped;
+  getNodeIdByRef: (ref: NeedToTyped) => NeedToTyped;
   callUIFunction: (
     node: NeedToTyped,
     funcName: NeedToTyped,

@@ -100,7 +100,7 @@ function chunkNodes(batchNodes: NeedToTyped) {
   return result;
 }
 
-function handleEventListeners(eventNodes = [], sceneBuilder: NeedToTyped) {
+function handleEventListeners(eventNodes: HippyTypes.EventNode[] = [], sceneBuilder: NeedToTyped) {
   eventNodes.forEach((eventNode) => {
     if (eventNode) {
       const { id, eventList } = eventNode;
@@ -134,7 +134,7 @@ let cssMap: NeedToTyped;
  * @param {HippyTypes.PrintedNode[]} printedNodes
  * @param {string} nodeType
  */
-function printNodeOperation(printedNodes: NeedToTyped, nodeType: NeedToTyped) {
+function printNodeOperation(printedNodes: HippyTypes.PrintedNode[], nodeType: NeedToTyped) {
   if (isTraceEnabled()) {
     trace(...LOG_TYPE, nodeType, printedNodes);
   }

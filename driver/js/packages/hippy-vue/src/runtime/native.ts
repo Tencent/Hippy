@@ -54,7 +54,18 @@ const {
   register: HippyRegister,
 } = Hippy;
 
-const CACHE = {};
+interface CacheType {
+  // color parser map
+  COLOR_PARSER?: {
+    [key: string]: number;
+  };
+  // one pixel size
+  OnePixel?: number;
+  isIPhoneX?: boolean;
+  Device?: string;
+}
+
+const CACHE: CacheType = {};
 
 const LOG_TYPE = ['%c[native]%c', 'color: red', 'color: auto'];
 
@@ -200,16 +211,16 @@ const Native: NeedToTyped = {
    * Determine the device is iPhone X
    */
   get isIPhoneX() {
-    if (!isDef((CACHE as any).isIPhoneX)) {
+    if (!isDef(CACHE.isIPhoneX)) {
       // Assume false in most cases.
       let isIPhoneX = false;
       if (Native.Platform === 'ios') {
         // iOS12 - iPhone11: 48 Phone12/12 pro/12 pro max: 47 other: 44
         isIPhoneX = Native.Dimensions.screen.statusBarHeight !== 20;
       }
-      (CACHE as any).isIPhoneX = isIPhoneX;
+      CACHE.isIPhoneX = isIPhoneX;
     }
-    return (CACHE as any).isIPhoneX;
+    return CACHE.isIPhoneX;
   },
 
   /**
@@ -224,21 +235,21 @@ const Native: NeedToTyped = {
    * Get the device information
    */
   get Device() {
-    if (!isDef((CACHE as any).Device)) {
+    if (!isDef(CACHE.Device)) {
       if (Platform === 'ios') {
         if (global.__HIPPYNATIVEGLOBAL__?.Device) {
-          (CACHE as any).Device = global.__HIPPYNATIVEGLOBAL__.Device;
+          CACHE.Device = global.__HIPPYNATIVEGLOBAL__.Device;
         } else {
-          (CACHE as any).Device = 'iPhone';
+          CACHE.Device = 'iPhone';
         }
       } else if (Platform === 'android') {
         // TODO: Need android native fill the information
-        (CACHE as any).Device = 'Android device';
+        CACHE.Device = 'Android device';
       } else {
-        (CACHE as any).Device = 'Unknown device';
+        CACHE.Device = 'Unknown device';
       }
     }
-    return (CACHE as any).Device;
+    return CACHE.Device;
   },
 
   /**
@@ -305,15 +316,15 @@ const Native: NeedToTyped = {
    * Get the one pixel size of device
    */
   get OnePixel() {
-    if (!isDef((CACHE as any).OnePixel)) {
+    if (!isDef(CACHE.OnePixel)) {
       const ratio = Native.PixelRatio;
       let onePixel = Math.round(0.4 * ratio) / ratio;
       if (!onePixel) { // Assume 0 is false
         onePixel = 1 / ratio;
       }
-      (CACHE as any).OnePixel = onePixel;
+      CACHE.OnePixel = onePixel;
     }
-    return (CACHE as any).OnePixel;
+    return CACHE.OnePixel;
   },
 
   /**
@@ -394,7 +405,7 @@ const Native: NeedToTyped = {
     if (Number.isInteger(color)) {
       return color;
     }
-    const cache = (CACHE as any).COLOR_PARSER || ((CACHE as any).COLOR_PARSER = Object.create(null));
+    const cache = CACHE.COLOR_PARSER || (CACHE.COLOR_PARSER = Object.create(null));
     if (!cache[color]) {
       // cache the calculation result
       cache[color] = colorParser(color, options);

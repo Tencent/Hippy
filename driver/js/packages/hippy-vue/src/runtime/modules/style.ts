@@ -98,7 +98,7 @@ function patchStyle(oldVNode: NeedToTyped, vNode: NeedToTyped) {
   vNode.elm.setStyles({ ...batchedStaticStyle, ...batchedStyle });;
 }
 
-export function setStyle(vNode: NeedToTyped, customElem: NeedToTyped, options = {}) {
+export function setStyle(vNode: NeedToTyped, customElem: NeedToTyped, options: NeedToTyped = {}) {
   if (!vNode || !vNode.data) {
     return;
   }
@@ -112,7 +112,7 @@ export function setStyle(vNode: NeedToTyped, customElem: NeedToTyped, options = 
     Object.keys(staticStyle).forEach((name) => {
       const value = staticStyle[name];
       if (value) {
-        elm.setStyle(normalize(name), value, !!(options as any).notToNative);
+        elm.setStyle(normalize(name), value, !!options.notToNative);
       }
     });
   }
@@ -132,7 +132,7 @@ export function setStyle(vNode: NeedToTyped, customElem: NeedToTyped, options = 
     }
     // Then set the new styles.
     Object.keys(style).forEach((name) => {
-      elm.setStyle(normalize(name), style[name], !!(options as any).notToNative);
+      elm.setStyle(normalize(name), style[name], !!options.notToNative);
     });
   }
 }
