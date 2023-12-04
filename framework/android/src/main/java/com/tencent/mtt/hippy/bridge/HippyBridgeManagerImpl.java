@@ -155,11 +155,20 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                 serializer.writeValue(msg.obj);
                 buffer = safeDirectWriter.chunked();
             } else {
-                mStringBuilder.setLength(0);
-                byte[] bytes = ArgumentUtils.objectToJsonOpt(msg.obj, mStringBuilder).getBytes(
+                if (msg.obj instanceof JSValue) {
+                    try {
+                        String str = ((JSValue) msg.obj).dump().toString();
+                        byte[] bytes = str.getBytes(StandardCharsets.UTF_16LE);
+                        mHippyBridge.callFunction(functionId, mCallFunctionCallback, bytes);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    mStringBuilder.setLength(0);
+                    byte[] bytes = ArgumentUtils.objectToJsonOpt(msg.obj, mStringBuilder).getBytes(
                         StandardCharsets.UTF_16LE);
-                buffer = ByteBuffer.allocateDirect(bytes.length);
-                buffer.put(bytes);
+                    mHippyBridge.callFunction(functionId, mCallFunctionCallback, bytes);
+                }
             }
 
             mHippyBridge.callFunction(functionId, mCallFunctionCallback, buffer);

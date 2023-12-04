@@ -22,12 +22,6 @@
 
 #include "driver/napi/hermes/hermes_try_catch.h"
 
-// #include "footstone/string_view.h"
-// #include "footstone/string_view_utils.h"
-// #include "driver/napi/v8/v8_ctx.h"
-// #include "driver/napi/v8/v8_ctx_value.h"
-// #include "driver/vm/v8/v8_vm.h"
-
 namespace hippy {
 inline namespace driver {
 inline namespace napi {
@@ -38,91 +32,64 @@ std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable, std::shared_ptr<Ctx> 
   return std::make_shared<HermesTryCatch>(enable, ctx);
 }
 
-HermesTryCatch::HermesTryCatch(bool enable, const std::shared_ptr<Ctx>& ctx)
-    : TryCatch(enable, ctx) {
-  //   if (enable) {
-  //     std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx);
-  //     if (v8_ctx) {
-  //       try_catch_ = std::make_shared<v8::TryCatch>(v8_ctx->isolate_);
-  //     }
-  //   }
+HermesTryCatch::HermesTryCatch(bool enable, std::shared_ptr<Ctx>& ctx) : TryCatch(enable, ctx) { is_verbose_ = false; }
+
+HermesTryCatch::~HermesTryCatch() {
+  if (HasCaught()) {
+    std::shared_ptr<HermesCtx> ctx = std::static_pointer_cast<HermesCtx>(ctx_);
+    if (is_rethrow_ || is_verbose_) {
+      ctx->SetException(exception_);
+      if (is_rethrow_) {
+        ctx->SetExceptionHandled(false);
+      } else {
+        ctx->SetExceptionHandled(true);
+      }
+    } else {
+      ctx->SetException(nullptr);
+      ctx->SetExceptionHandled(false);
+    }
+  }
 }
 
-HermesTryCatch::~HermesTryCatch() = default;
-
-void HermesTryCatch::ReThrow() {
-  //   if (try_catch_) {
-  //     try_catch_->ReThrow();
-  //   }
-}
+void HermesTryCatch::ReThrow() { is_rethrow_ = true; }
 
 bool HermesTryCatch::HasCaught() {
-  //   if (try_catch_) {
-  //     return try_catch_->HasCaught();
-  //   }
-  //   return false;
+  if (enable_) {
+    std::shared_ptr<HermesCtx> ctx = std::static_pointer_cast<HermesCtx>(ctx_);
+    return !!ctx->GetException();
+  }
   return false;
 }
 
 bool HermesTryCatch::CanContinue() {
-  //   if (try_catch_) {
-  //     return try_catch_->CanContinue();
-  //   }
-  //   return true;
-  return true;
+  return false;
 }
 
 bool HermesTryCatch::HasTerminated() {
-  //   if (try_catch_) {
-  //     return try_catch_->HasTerminated();
-  //   }
-  //   return false;
-  return false;
+  return true;
 }
 
-bool HermesTryCatch::IsVerbose() {
-  //   if (try_catch_) {
-  //     return try_catch_->IsVerbose();
-  //   }
-  //   return false;
-  return false;
-}
+bool HermesTryCatch::IsVerbose() { return is_verbose_; }
 
-void HermesTryCatch::SetVerbose(bool verbose) {
-  //   if (try_catch_) {
-  //     try_catch_->SetVerbose(verbose);
-  //   }
-}
+void HermesTryCatch::SetVerbose(bool is_verbose) { is_verbose_ = is_verbose; }
 
 std::shared_ptr<CtxValue> HermesTryCatch::Exception() {
-  //   if (try_catch_) {
-  //     FOOTSTONE_CHECK(ctx_);
-  //     auto v8_ctx = std::static_pointer_cast<V8Ctx>(ctx_);
-  //     v8::HandleScope handle_scope(v8_ctx->isolate_);
-  //     auto context = v8_ctx->context_persistent_.Get(v8_ctx->isolate_);
-  //     v8::Context::Scope context_scope(context);
-  //     auto exception = try_catch_->Exception();
-  //     return std::make_shared<V8CtxValue>(v8_ctx->isolate_, exception);
-  //   }
-  //   return nullptr;
+  if (enable_) {
+    std::shared_ptr<HermesCtx> ctx = std::static_pointer_cast<HermesCtx>(ctx_);
+    if (!ctx->IsExceptionHandled()) {
+      return ctx->GetException();
+    }
+  }
   return nullptr;
 }
 
 string_view HermesTryCatch::GetExceptionMessage() {
-  //   if (!try_catch_) {
-  //     return {};
-  //   }
-
-  //   auto v8_ctx = std::static_pointer_cast<V8Ctx>(ctx_);
-  //   auto isolate = v8_ctx->isolate_;
-  //   v8::HandleScope handle_scope(isolate);
-  //   auto context = v8_ctx->context_persistent_.Get(isolate);
-  //   v8::Context::Scope context_scope(context);
-
-  //   auto message = try_catch_->Message();
-  //   auto desc = V8VM::GetMessageDescription(isolate, context, message);
-  //   auto stack = V8VM::GetStackTrace(isolate, context, message->GetStackTrace());
-  //   return string_view("message: ") + desc + string_view(", stack: ") + stack;
+  if (enable_) {
+    std::shared_ptr<HermesCtx> ctx = std::static_pointer_cast<HermesCtx>(ctx_);
+    if (!ctx->IsExceptionHandled()) {
+      return ctx->GetExceptionMessage(ctx->GetException());
+    }
+  }
   return "";
 }
 

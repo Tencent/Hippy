@@ -276,6 +276,8 @@ HermesCtx::HermesCtx() {
   runtime_ = facebook::hermes::makeHermesRuntime(config);
   global_native_state_ = std::make_shared<GlobalNativeState>();
   runtime_->global().setNativeState(*runtime_, global_native_state_);
+  exception_ = nullptr;
+  is_exception_handled_ = false;
 
   // Hermes doesn't support the console object, so we implement a console module
   BuiltinModule();
@@ -487,8 +489,7 @@ std::shared_ptr<CtxValue> HermesCtx::CreateBoolean(bool b) {
 
 std::shared_ptr<CtxValue> HermesCtx::CreateString(const string_view& string_view) {
   auto u8_string = StringViewUtils::CovertToUtf8(string_view, string_view.encoding());
-  auto jsi_string =
-      facebook::jsi::String::createFromUtf8(*runtime_, u8_string.utf8_value().c_str(), u8_string.utf8_value().size());
+  auto jsi_string = String::createFromUtf8(*runtime_, u8_string.utf8_value().c_str(), u8_string.utf8_value().size());
   return std::make_shared<HermesCtxValue>(*runtime_, jsi_string);
 }
 
@@ -502,6 +503,15 @@ std::shared_ptr<CtxValue> HermesCtx::CreateNull() {
   return std::make_shared<HermesCtxValue>(*runtime_, value);
 }
 
+std::shared_ptr<CtxValue> HermesCtx::CreateFunction(const std::unique_ptr<FunctionWrapper>& wrapper) {
+  auto func = facebook::jsi::Function::createFromHostFunction(
+      *runtime_, PropNameID::forAscii(*runtime_, ""), 0,
+      [pointer = wrapper.get()](Runtime& runtime, const Value& this_value, const Value* args, size_t count) -> Value {
+        return InvokeJsCallback(runtime, this_value, args, count, pointer);
+      });
+  return std::make_shared<HermesCtxValue>(*runtime_, func);
+}
+
 std::shared_ptr<CtxValue> HermesCtx::CreateObject(
     const std::unordered_map<string_view, std::shared_ptr<CtxValue>>& kvs) {
   facebook::jsi::Object obj = facebook::jsi::Object(*runtime_);
@@ -512,7 +522,7 @@ std::shared_ptr<CtxValue> HermesCtx::CreateObject(
 
     auto u8_string = StringViewUtils::CovertToUtf8(k, k.encoding());
     auto key_jsi_string =
-        facebook::jsi::String::createFromUtf8(*runtime_, u8_string.utf8_value().c_str(), u8_string.utf8_value().size());
+        String::createFromUtf8(*runtime_, u8_string.utf8_value().c_str(), u8_string.utf8_value().size());
     std::shared_ptr<HermesCtxValue> ctx_value = std::static_pointer_cast<HermesCtxValue>(v);
 
     obj.setProperty(*runtime_, key_jsi_string, ctx_value->GetValue(runtime_));
@@ -534,18 +544,6 @@ std::shared_ptr<CtxValue> HermesCtx::CreateObject(
     obj.setProperty(*runtime_, jsi_key, jsi_val);
   }
   return std::make_shared<HermesCtxValue>(*runtime_, obj);
-}
-
-std::shared_ptr<CtxValue> HermesCtx::CreateArray(size_t count, std::shared_ptr<CtxValue> values[]) {
-  if (count <= 0) {
-    return nullptr;
-  }
-  facebook::jsi::Array array = facebook::jsi::Array(*runtime_, count);
-  for (size_t i = 0; i < count; i++) {
-    std::shared_ptr<HermesCtxValue> value = std::static_pointer_cast<HermesCtxValue>(values[i]);
-    array.setValueAtIndex(*runtime_, i, value->GetValue(runtime_));
-  }
-  return std::make_shared<HermesCtxValue>(*runtime_, array);
 }
 
 std::shared_ptr<CtxValue> HermesCtx::CreateMap(
@@ -573,8 +571,27 @@ std::shared_ptr<CtxValue> HermesCtx::CreateMap(
   return std::make_shared<HermesCtxValue>(*runtime_, instance.asObject(*runtime_));
 }
 
-std::shared_ptr<CtxValue> HermesCtx::CreateException(const string_view& msg) { return nullptr; }
+std::shared_ptr<CtxValue> HermesCtx::CreateArray(size_t count, std::shared_ptr<CtxValue> values[]) {
+  if (count <= 0) {
+    return nullptr;
+  }
+  facebook::jsi::Array array = facebook::jsi::Array(*runtime_, count);
+  for (size_t i = 0; i < count; i++) {
+    std::shared_ptr<HermesCtxValue> value = std::static_pointer_cast<HermesCtxValue>(values[i]);
+    array.setValueAtIndex(*runtime_, i, value->GetValue(runtime_));
+  }
+  return std::make_shared<HermesCtxValue>(*runtime_, array);
+}
 
+std::shared_ptr<CtxValue> HermesCtx::CreateException(const string_view& msg) {
+  FOOTSTONE_DLOG(INFO) << "HermesCtx::CreateException msg = " << msg;
+  auto u8_msg = StringViewUtils::CovertToUtf8(msg, msg.encoding());
+  auto str = StringViewUtils::ToStdString(u8_msg.utf8_value());
+  auto exptr = std::make_exception_ptr(facebook::jsi::JSINativeException(str));
+  return std::make_shared<HermesExceptionCtxValue>(exptr, str);
+}
+
+// TODO: add create byte buffer
 std::shared_ptr<CtxValue> HermesCtx::CreateByteBuffer(void* buffer, size_t length) { return nullptr; }
 
 std::shared_ptr<CtxValue> HermesCtx::CallFunction(const std::shared_ptr<CtxValue>& function,
@@ -660,7 +677,7 @@ bool HermesCtx::GetValueString(const std::shared_ptr<CtxValue>& value, string_vi
     result = nullptr;
     return false;
   }
-  facebook::jsi::String jsi_str = ctx_value->GetValue(runtime_).asString(*runtime_);
+  String jsi_str = ctx_value->GetValue(runtime_).asString(*runtime_);
   const std::string utf8_string = jsi_str.utf8(*runtime_);
   *result = hippy::string_view ::new_from_utf8(utf8_string.data(), utf8_string.size());
   return true;
@@ -831,13 +848,10 @@ bool HermesCtx::IsArray(const std::shared_ptr<CtxValue>& value) {
   return false;
 }
 
-bool HermesCtx::IsByteBuffer(const std::shared_ptr<CtxValue>& value) {
-  //    if (!value) return false;
-  //    std::shared_ptr<HermesCtxValue> ctx_value = std::static_pointer_cast<HermesCtxValue>(value);
-  //    return ctx_value->GetValue().isObject();
-  return false;
-}
+// TODO: add is byte buffer
+bool HermesCtx::IsByteBuffer(const std::shared_ptr<CtxValue>& value) { return false; }
 
+// TODO: add get byte buffer
 bool HermesCtx::GetByteBuffer(const std::shared_ptr<CtxValue>& value, void** out_data, size_t& out_length,
                               uint32_t& out_type) {
   return false;
@@ -867,7 +881,6 @@ std::shared_ptr<CtxValue> HermesCtx::CopyArrayElement(const std::shared_ptr<CtxV
 
   auto arr = val.asObject(*runtime_).asArray(*runtime_);
   Value index_val = arr.getValueAtIndex(*runtime_, index);
-  //  return std::make_shared<HermesCtxValue>(std::move(Value(*runtime_, index_val)));
   return std::make_shared<HermesCtxValue>(*runtime_, index_val);
 }
 
@@ -876,17 +889,16 @@ std::shared_ptr<CtxValue> HermesCtx::CopyArrayElement(const std::shared_ptr<CtxV
 // std::shared_ptr<CtxValue> HermesCtx::ConvertMapToArray(const std::shared_ptr<CtxValue>& value) {}
 
 // Object Helpers
+// TODO: add has named property
 bool HermesCtx::HasNamedProperty(const std::shared_ptr<CtxValue>& value, const string_view& name) { return false; }
 
+// TODO: add copy named property
 std::shared_ptr<CtxValue> HermesCtx::CopyNamedProperty(const std::shared_ptr<CtxValue>& value,
                                                        const string_view& name) {
   return nullptr;
 }
 
-// std::shared_ptr<CtxValue> HermesCtx::GetPropertyNames(const std::shared_ptr<CtxValue>& value) {}
-
-// std::shared_ptr<CtxValue> HermesCtx::GetOwnPropertyNames(const std::shared_ptr<CtxValue>& value) {}
-
+// TODO: add copy function name
 string_view HermesCtx::CopyFunctionName(const std::shared_ptr<CtxValue>& function) { return ""; }
 
 bool HermesCtx::Equals(const std::shared_ptr<CtxValue>& lhs, const std::shared_ptr<CtxValue>& rhs) {
@@ -906,50 +918,65 @@ std::shared_ptr<CtxValue> HermesCtx::RunScript(const string_view& data, const st
       reinterpret_cast<const uint8_t*>(u8_script.utf8_value().data()), u8_script.utf8_value().size());
   FOOTSTONE_DLOG(INFO) << "is hbc file " << is_hbc << ", file name " << u8_file_name.utf8_value().c_str();
   if (is_hbc) {
-    auto jsi_file_name = facebook::jsi::String::createFromUtf8(*runtime_, u8_file_name.utf8_value().c_str(),
-                                                               u8_file_name.utf8_value().size());
-    auto jsi_script = std::make_shared<HippyJsiBuffer>(static_cast<const uint8_t *>(u8_script.utf8_value().c_str()), u8_script.utf8_value().size());
-    facebook::jsi::Value value = runtime_->evaluateJavaScript(jsi_script, jsi_file_name.utf8(*runtime_));
-    return std::make_shared<HermesCtxValue>(*runtime_, value);
+    auto jsi_file_name =
+        String::createFromUtf8(*runtime_, u8_file_name.utf8_value().c_str(), u8_file_name.utf8_value().size());
+    auto jsi_script = std::make_shared<HippyJsiBuffer>(static_cast<const uint8_t*>(u8_script.utf8_value().c_str()),
+                                                       u8_script.utf8_value().size());
+    try {
+      facebook::jsi::Value value = runtime_->evaluateJavaScript(jsi_script, jsi_file_name.utf8(*runtime_));
+      return std::make_shared<HermesCtxValue>(*runtime_, value);
+    } catch (facebook::jsi::JSIException& err) {
+      FOOTSTONE_DLOG(ERROR) << "JSI Exception: " << err.what();
+      auto exptr = std::current_exception();
+      std::string message(err.what());
+      SetException(std::make_shared<HermesExceptionCtxValue>(exptr, message));
+    }
+    return nullptr;
   } else {
     auto jsi_file_name = facebook::jsi::String::createFromUtf8(*runtime_, u8_file_name.utf8_value().c_str(),
                                                                u8_file_name.utf8_value().size());
     std::shared_ptr<const facebook::jsi::PreparedJavaScript> prepare_js = nullptr;
-    auto jsi_script =
-        facebook::jsi::String::createFromUtf8(*runtime_, u8_script.utf8_value().c_str(), u8_script.utf8_value().size());
+    auto jsi_script = String::createFromUtf8(*runtime_, u8_script.utf8_value().c_str(), u8_script.utf8_value().size());
     auto buffer = std::make_shared<facebook::jsi::StringBuffer>(jsi_script.utf8(*runtime_));
-    prepare_js = runtime_->prepareJavaScript(buffer, jsi_file_name.utf8(*runtime_));
-    auto value = runtime_->evaluatePreparedJavaScript(prepare_js);
-    return std::make_shared<HermesCtxValue>(*runtime_, value);
+    try {
+      prepare_js = runtime_->prepareJavaScript(buffer, jsi_file_name.utf8(*runtime_));
+      auto value = runtime_->evaluatePreparedJavaScript(prepare_js);
+      return std::make_shared<HermesCtxValue>(*runtime_, value);
+    } catch (facebook::jsi::JSIException& err) {
+      FOOTSTONE_DLOG(ERROR) << "JSI Exception: " << err.what();
+      auto exptr = std::current_exception();
+      std::string message(err.what());
+      SetException(std::make_shared<HermesExceptionCtxValue>(exptr, message));
+    }
+    return nullptr;
   }
 }
 
 // void HermesCtx::SetDefaultContext(const std::shared_ptr<v8::SnapshotCreator>& creator) {}
-
+// TODO: add throw exception
 void HermesCtx::ThrowException(const std::shared_ptr<CtxValue>& exception) {}
 
+// TODO: add throw exception
 void HermesCtx::ThrowException(const string_view& exception) {}
-
-std::shared_ptr<CtxValue> HermesCtx::CreateFunction(const std::unique_ptr<FunctionWrapper>& wrapper) {
-  auto func = facebook::jsi::Function::createFromHostFunction(
-      *runtime_, PropNameID::forAscii(*runtime_, ""), 0,
-      [pointer = wrapper.get()](Runtime& runtime, const Value& this_value, const Value* args, size_t count) -> Value {
-        return InvokeJsCallback(runtime, this_value, args, count, pointer);
-      });
-  return std::make_shared<HermesCtxValue>(*runtime_, func);
-}
-
-void HermesCtx::SetWeak(std::shared_ptr<CtxValue> value, const std::unique_ptr<WeakCallbackWrapper>& wrapper) {}
-
-// std::shared_ptr<CtxValue> HermesCtx::GetPropertyNames(const std::shared_ptr<CtxValue>& value);
-
-// std::shared_ptr<CtxValue> HermesCtx::GetOwnPropertyNames(const std::shared_ptr<CtxValue>& value);
 
 void HermesCtx::SetExternalData(void* address) { global_native_state_->Set(kScopeWrapperIndex, address); }
 
 std::shared_ptr<ClassDefinition> HermesCtx::GetClassDefinition(const string_view& name) {
   FOOTSTONE_DCHECK(template_map_.find(name) != template_map_.end());
   return template_map_[name];
+}
+
+// TODO: add set weak
+void HermesCtx::SetWeak(std::shared_ptr<CtxValue> value, const std::unique_ptr<WeakCallbackWrapper>& wrapper) {}
+
+string_view HermesCtx::GetExceptionMessage(const std::shared_ptr<CtxValue>& exception) {
+  if (!exception) {
+    return string_view();
+  }
+  auto hermes_exception = std::static_pointer_cast<HermesExceptionCtxValue>(exception);
+  std::string message = hermes_exception->Message();
+  FOOTSTONE_DLOG(ERROR) << "GetExceptionMessage msg = " << message;
+  return string_view(message);
 }
 
 Value HermesCtx::Eval(const char* code) {

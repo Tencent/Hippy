@@ -24,12 +24,9 @@
 
 #include "driver/napi/js_try_catch.h"
 
+#include "driver/napi/hermes/hermes_ctx.h"
+#include "driver/napi/hermes/hermes_ctx_value.h"
 #include "footstone/string_view.h"
-
-// #pragma clang diagnostic push
-// #pragma clang diagnostic ignored "-Wconversion"
-// #include "v8/v8.h"
-// #pragma clang diagnostic pop
 
 namespace hippy {
 inline namespace driver {
@@ -37,7 +34,7 @@ inline namespace napi {
 
 class HermesTryCatch : public TryCatch {
  public:
-  explicit HermesTryCatch(bool enable = false, const std::shared_ptr<Ctx>& ctx = nullptr);
+  explicit HermesTryCatch(bool enable, std::shared_ptr<Ctx>& ctx);
   virtual ~HermesTryCatch();
 
   virtual void ReThrow();
@@ -48,6 +45,11 @@ class HermesTryCatch : public TryCatch {
   virtual void SetVerbose(bool verbose);
   virtual std::shared_ptr<CtxValue> Exception();
   virtual footstone::string_view GetExceptionMessage();
+
+ private:
+  std::shared_ptr<HermesExceptionCtxValue> exception_;
+  bool is_verbose_;
+  bool is_rethrow_;
 };
 
 }  // namespace napi

@@ -27,6 +27,7 @@ require('../../global/Platform.js'); // Hippy.device.platform
 require('../../global/UIManagerModule.js'); // Hippy.document
 require('../../bridge/android/js2native.js');
 require('../../global/TimerModule.js'); // setTimeout clearTimeout setInterval clearInterval
+require('../../global/android/promise.js'); // TODO herme needs but v8 not need
 require('../../global/ConsoleModule.js'); // console
 require('../../global/Network.js'); // Headers fetch Response
 require('../../global/Storage.js'); // localStorageAsync

@@ -197,7 +197,7 @@ elseif("${JS_ENGINE}" STREQUAL "HERMES")
         src/napi/hermes/hermes_ctx.cc
         src/napi/hermes/hermes_ctx_value.cc
         src/napi/hermes/hermes_try_catch.cc
-        src/vm/hermes/hermes_vm.cc
+        src/vm/hermes/hermes_vm.cc)
   if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Android")
     list(APPEND SOURCE_SET src/vm/hermes/native_source_code_hermes_android.cc)
   elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "iOS")

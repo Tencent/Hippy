@@ -35,9 +35,12 @@ inline namespace vm {
 
 using HippyValue = footstone::value::HippyValue;
 
+struct HermesVMInitParam : public VM::VMInitParam {
+};
+
 class HermesVM : public VM {
  public:
-  HermesVM() : VM() {}
+  HermesVM(const std::shared_ptr<HermesVMInitParam>& param) : VM(param) {}
   ~HermesVM() = default;
 
   virtual std::shared_ptr<CtxValue> ParseJson(const std::shared_ptr<Ctx>& ctx, const string_view& json) override;

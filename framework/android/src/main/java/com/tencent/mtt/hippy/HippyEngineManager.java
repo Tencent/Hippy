@@ -82,7 +82,7 @@ public abstract class HippyEngineManager extends HippyEngine {
     private List<HippyAPIProvider> mPackages;
     private boolean mSupportDev = false;
     private String mDebugJs;
-    private boolean enableV8Serialization = true;
+    private boolean enableV8Serialization = false;
     private int mGroupId = -1;
     private String mRemoteServerUrl;
 

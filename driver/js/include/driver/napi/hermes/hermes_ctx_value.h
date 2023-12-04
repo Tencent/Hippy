@@ -68,6 +68,15 @@ class HermesCtxValue : public CtxValue {
   Type type_;
 };
 
+class HermesExceptionCtxValue : public CtxValue {
+ public:
+  HermesExceptionCtxValue(std::exception_ptr exception, std::string& message) : exception_(exception), message_(message) {}
+  std::string Message() const { return message_; }
+ private:
+  std::exception_ptr exception_;
+  std::string message_;
+};
+
 }  // namespace napi
 }  // namespace driver
 }  // namespace hippy
