@@ -37,7 +37,7 @@ Pod::Spec.new do |s|
   s.author           = 'OpenHippy Team'
   s.source           = {:git => 'https://github.com/Tencent/Hippy.git', :tag => s.version}
   s.platform = :ios
-  s.ios.deployment_target = '11.0'
+  s.ios.deployment_target = '12.0'
   s.module_map = false; # hippy3暂未支持module
 
   #prepare_command not working for subspecs,so we remove devtools script from devtools subspec to root

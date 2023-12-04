@@ -384,6 +384,8 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
     auto context = scope->GetContext();
     callback(scope->GetBridge(), "Hermes Exception", error_message);
   }
+#else
+  auto ret = scope->GetContext()->RunScript(script_content, file_name);
 #endif
 
   // perfromance end time
