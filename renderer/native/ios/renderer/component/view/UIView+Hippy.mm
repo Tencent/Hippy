@@ -280,6 +280,13 @@ HippyEventMethod(OnTouchEnd, onTouchEnd, OnTouchEventHandler)
 }
 
 - (void)hippySetFrame:(CGRect)frame {
+    // Avoid crashes due to NaN values
+    if (isnan(frame.origin.x) || isnan(frame.origin.y) ||
+        isnan(frame.size.width) || isnan(frame.size.height)) {
+        HippyLogError(@"Invalid layout for (%@)%@. frame: %@", self.hippyTag, self, NSStringFromCGRect(frame));
+        return;
+    }
+    
     self.frame = frame;
 }
 
