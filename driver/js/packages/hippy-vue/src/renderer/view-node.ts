@@ -31,6 +31,7 @@ let currentNodeId = 0;
 if (global.__GLOBAL__ && Number.isInteger(global.__GLOBAL__.nodeId)) {
   currentNodeId = global.__GLOBAL__.nodeId;
 }
+
 function getNodeId() {
   currentNodeId += 1;
   if (currentNodeId % 10 === 0) {
@@ -42,15 +43,19 @@ function getNodeId() {
   return currentNodeId;
 }
 
+export type Meta = {
+  [key: string]: NeedToTyped;
+};
+
 class ViewNode {
-  public childNodes: NeedToTyped;
-  public index: NeedToTyped;
-  public nextSibling: NeedToTyped;
-  public nodeId: NeedToTyped;
-  public parentNode: NeedToTyped;
-  public prevSibling: NeedToTyped;
-  protected _meta: NeedToTyped;
-  private _isMounted: NeedToTyped;
+  public childNodes: ViewNode[];
+  public index: number;
+  public nextSibling: ViewNode;
+  public nodeId: number;
+  public parentNode: ViewNode;
+  public prevSibling: ViewNode;
+  protected _meta: Meta;
+  private _isMounted: boolean;
   private _ownerDocument: NeedToTyped;
 
   constructor() {
@@ -98,7 +103,7 @@ class ViewNode {
       return this._ownerDocument;
     }
 
-    let el = this;
+    let el: any = this;
     while (el.constructor.name !== 'DocumentNode') {
       el = el.parentNode;
       if (!el) {
@@ -117,7 +122,7 @@ class ViewNode {
     this._isMounted = isMounted;
   }
 
-  insertBefore(childNode: NeedToTyped, referenceNode: NeedToTyped) {
+  insertBefore(childNode: ViewNode, referenceNode: ViewNode) {
     if (!childNode) {
       throw new Error('Can\'t insert child.');
     }
@@ -163,7 +168,7 @@ class ViewNode {
     );
   }
 
-  moveChild(childNode: NeedToTyped, referenceNode: NeedToTyped) {
+  moveChild(childNode: ViewNode, referenceNode: ViewNode) {
     if (!childNode) {
       throw new Error('Can\'t move child.');
     }
@@ -219,7 +224,7 @@ class ViewNode {
     );
   }
 
-  appendChild(childNode: NeedToTyped) {
+  appendChild(childNode: ViewNode) {
     if (!childNode) {
       throw new Error('Can\'t append child.');
     }
@@ -244,7 +249,7 @@ class ViewNode {
     );
   }
 
-  removeChild(childNode: NeedToTyped) {
+  removeChild(childNode: ViewNode) {
     if (!childNode) {
       throw new Error('Can\'t remove child.');
     }
@@ -273,7 +278,7 @@ class ViewNode {
   /**
    * Find a specific target with condition
    */
-  public findChild(condition: CallbackType): NeedToTyped {
+  public findChild(condition: CallbackType): ViewNode | null {
     const yes = condition(this);
     if (yes) {
       return this;
@@ -293,11 +298,11 @@ class ViewNode {
   /**
    * Traverse the children and execute callback
    */
-  traverseChildren(callback: NeedToTyped, refInfo: NeedToTyped) {
+  traverseChildren(callback: CallbackType, refInfo: NeedToTyped) {
     callback(this, refInfo);
     // Find the children
     if (this.childNodes.length) {
-      this.childNodes.forEach((childNode: NeedToTyped) => {
+      this.childNodes.forEach((childNode: ViewNode) => {
         this.traverseChildren.call(childNode, callback, {});
       });
     }

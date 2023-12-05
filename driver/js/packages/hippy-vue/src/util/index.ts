@@ -23,7 +23,7 @@
 
 import { once } from 'shared/util';
 import { HIPPY_DEBUG_ADDRESS, HIPPY_STATIC_PROTOCOL } from '../runtime/constants';
-import { NeedToTyped } from '../types/native';
+import { CallbackType, NeedToTyped } from '../types/native';
 
 const VUE_VERSION = process.env.VUE_VERSION;
 const HIPPY_VUE_VERSION = process.env.HIPPY_VUE_VERSION;
@@ -114,7 +114,7 @@ function capitalizeFirstLetter(str: NeedToTyped) {
  * Convert string to number as possible
  */
 const numberRegEx = new RegExp('^(?=.+)[+-]?\\d*\\.?\\d*([Ee][+-]?\\d+)?$');
-function tryConvertNumber(str: NeedToTyped) {
+function tryConvertNumber(str: string) {
   if (typeof str === 'number') {
     return str;
   }
@@ -128,7 +128,7 @@ function tryConvertNumber(str: NeedToTyped) {
   return str;
 }
 
-function unicodeToChar(text: NeedToTyped) {
+function unicodeToChar(text: string) {
   return text.replace(/\\u[\dA-F]{4}|\\x[\dA-F]{2}/gi, (match: NeedToTyped) => String.fromCharCode(parseInt(match.replace(/\\u|\\x/g, ''), 16)));
 }
 
@@ -145,7 +145,7 @@ function arrayCount(arr: NeedToTyped, iterator: NeedToTyped) {
 /**
  * Better function checking
  */
-function isFunction(func: NeedToTyped) {
+function isFunction(func: CallbackType) {
   return Object.prototype.toString.call(func) === '[object Function]';
 }
 
@@ -175,7 +175,7 @@ function setsAreEqual(as: NeedToTyped, bs: NeedToTyped) {
  * @param {number} length - If provided, it is used as the length of str. Defaults to str.length.
  * @return {boolean}
  */
-function endsWith(str: NeedToTyped, search: NeedToTyped, length?: NeedToTyped) {
+function endsWith(str: string, search: string, length?: number) {
   if (str.endsWith) {
     return str.endsWith(search, length);
   }
@@ -191,7 +191,7 @@ function endsWith(str: NeedToTyped, search: NeedToTyped, length?: NeedToTyped) {
  * @param {string} originalUrl
  * @returns {string}
  */
-function convertImageLocalPath(originalUrl: NeedToTyped) {
+function convertImageLocalPath(originalUrl: string) {
   let url = originalUrl;
   if (/^assets/.test(url)) {
     if (isDev()) {
@@ -237,7 +237,7 @@ function isNullOrUndefined(value: NeedToTyped) {
   return typeof value === 'undefined' || value === null;
 }
 
-function whitespaceFilter(str: NeedToTyped) {
+function whitespaceFilter(str: string) {
   if (typeof str !== 'string') return str;
   // Adjusts template whitespace handling behavior.
   // "trimWhitespace": default behavior is true.

@@ -1,4 +1,4 @@
-import ElementNode from '../../renderer/element-node';
+import ViewNode from '../../renderer/view-node';
 import { SelectorsMatch } from '../css-selectors-match';
 import { SimpleSelector } from '../selector/simple-selector';
 
@@ -11,7 +11,7 @@ export class SiblingGroup {
     this.dynamic = selectors.some((sel: SimpleSelector) => sel.dynamic);
   }
 
-  public match(matchNode: ElementNode): ElementNode | null {
+  public match(matchNode: ViewNode): ViewNode | null {
     let node = matchNode;
     if (!node) return null;
     const pass = this.selectors.every((sel: SimpleSelector, i: number) => {
@@ -23,7 +23,7 @@ export class SiblingGroup {
     return pass ? node : null;
   }
 
-  public mayMatch(matchNode: ElementNode): ElementNode | null {
+  public mayMatch(matchNode: ViewNode): ViewNode | null {
     let node = matchNode;
     if (!node) return null;
     const pass = this.selectors.every((sel: SimpleSelector, i: number) => {
@@ -35,7 +35,7 @@ export class SiblingGroup {
     return pass ? node : null;
   }
 
-  public trackChanges(matchNode: ElementNode, map: SelectorsMatch) {
+  public trackChanges(matchNode: ViewNode, map: SelectorsMatch) {
     let node = matchNode;
     this.selectors.forEach((sel: SimpleSelector, i: number) => {
       if (i !== 0) {

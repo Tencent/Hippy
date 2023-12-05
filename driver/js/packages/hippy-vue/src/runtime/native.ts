@@ -26,8 +26,8 @@ import {
   trace,
 } from '../util';
 import { getElemCss } from '../native/index';
-import ElementNode from '../renderer/element-node';
 import { NeedToTyped } from '../types/native';
+import ViewNode from '../renderer/view-node';
 import BackAndroid from './backAndroid';
 import * as NetInfo from './netInfo';
 
@@ -69,7 +69,7 @@ const CACHE: CacheType = {};
 
 const LOG_TYPE = ['%c[native]%c', 'color: red', 'color: auto'];
 
-const measureInWindowByMethod = function measureInWindowByMethod(el: ElementNode, method: string) {
+const measureInWindowByMethod = function measureInWindowByMethod(el: ViewNode, method: string) {
   const empty = {
     top: -1,
     left: -1,

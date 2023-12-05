@@ -54,6 +54,7 @@ import { isStyleMatched, preCacheNode } from '../util/node';
 import { fromAstNodes, SelectorsMap } from '../style';
 import { CallbackType, NeedToTyped } from '../types/native';
 import ElementNode from '../renderer/element-node';
+import ViewNode from '../renderer/view-node';
 
 const LOG_TYPE = ['%c[native]%c', 'color: red', 'color: auto'];
 
@@ -445,7 +446,7 @@ function getNativeNode(rootViewId: NeedToTyped, targetNode: ElementNode, refInfo
 /**
  * Render Element to native
  */
-function renderToNative(rootViewId: NeedToTyped, targetNode: NeedToTyped, refInfo = {}) {
+function renderToNative(rootViewId: NeedToTyped, targetNode: ElementNode, refInfo = {}) {
   if (targetNode.meta.skipAddToDom) {
     return [];
   }
@@ -545,7 +546,7 @@ function isLayout(node: NeedToTyped, rootView: NeedToTyped) {
   return node.id === rootView.slice(1 - rootView.length);
 }
 
-function insertChild(parentNode: NeedToTyped, childNode: NeedToTyped, refInfo = {}) {
+function insertChild(parentNode: ViewNode, childNode: ViewNode, refInfo = {}) {
   if (!parentNode || !childNode) {
     return;
   }
@@ -565,7 +566,7 @@ function insertChild(parentNode: NeedToTyped, childNode: NeedToTyped, refInfo = 
     const [nativeLanguages, eventLanguages, printedLanguages] = renderToNativeWithChildren(
       rootViewId,
       renderRootNodeCondition ? parentNode : childNode,
-      (node: NeedToTyped) => {
+      (node: ViewNode) => {
         if (!node.isMounted) {
           node.isMounted = true;
         }

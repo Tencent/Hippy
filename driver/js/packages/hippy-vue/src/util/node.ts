@@ -18,6 +18,8 @@
  * limitations under the License.
  */
 
+import ElementNode from '../renderer/element-node';
+import ViewNode from '../renderer/view-node';
 import { NeedToTyped } from '../types/native';
 
 /* eslint-disable no-param-reassign */
@@ -29,7 +31,7 @@ const nodeCache = new Map();
  * @param {ViewNode} targetNode
  * @param {number} nodeId
  */
-function preCacheNode(targetNode: NeedToTyped, nodeId: NeedToTyped) {
+function preCacheNode(targetNode: ViewNode, nodeId: number) {
   nodeCache.set(nodeId, targetNode);
 }
 
@@ -37,7 +39,7 @@ function preCacheNode(targetNode: NeedToTyped, nodeId: NeedToTyped) {
  * unCacheNode - delete ViewNode from cache
  * @param {number} nodeId
  */
-function unCacheNode(nodeId: NeedToTyped) {
+function unCacheNode(nodeId: number) {
   nodeCache.delete(nodeId);
 }
 
@@ -45,7 +47,7 @@ function unCacheNode(nodeId: NeedToTyped) {
  * getNodeById - get ViewNode by nodeId
  * @param {number} nodeId
  */
-function getNodeById(nodeId: NeedToTyped) {
+function getNodeById(nodeId: number) {
   return nodeCache.get(nodeId) || null;
 }
 
@@ -53,8 +55,8 @@ function getNodeById(nodeId: NeedToTyped) {
  * unCacheViewNodeOnIdle - recursively delete ViewNode cache on idle
  * @param {ViewNode|number} node
  */
-function unCacheNodeOnIdle(node: NeedToTyped) {
-  requestIdleCallback((deadline: NeedToTyped) => {
+function unCacheNodeOnIdle(node: ViewNode) {
+  requestIdleCallback((deadline) => {
     // if idle time exists or callback invoked when timeout
     if (deadline.timeRemaining() > 0 || deadline.didTimeout) {
       recursivelyUnCacheNode(node);
@@ -66,14 +68,9 @@ function unCacheNodeOnIdle(node: NeedToTyped) {
  * recursivelyUnCacheNode - delete ViewNode cache recursively
  * @param {ViewNode|number} node
  */
-function recursivelyUnCacheNode(node: NeedToTyped) {
-  if (typeof node === 'number') {
-    // if leaf node (e.g. text node)
-    unCacheNode(node);
-  } else if (node) {
-    unCacheNode(node.nodeId);
-    node.childNodes?.forEach((node: NeedToTyped) => recursivelyUnCacheNode(node));
-  }
+function recursivelyUnCacheNode(node: ViewNode) {
+  unCacheNode(node.nodeId);
+  node.childNodes?.forEach((node: ViewNode) => recursivelyUnCacheNode(node));
 }
 
 /**
@@ -81,10 +78,10 @@ function recursivelyUnCacheNode(node: NeedToTyped) {
  * @param {Function} cb
  * @param {{timeout: number}} [options]
  */
-function requestIdleCallback(cb: NeedToTyped, options: NeedToTyped) {
+function requestIdleCallback(callback: IdleRequestCallback, options?: IdleRequestOptions) {
   if (!global.requestIdleCallback) {
     return setTimeout(() => {
-      cb({
+      callback({
         didTimeout: false,
         timeRemaining() {
           return Infinity;
@@ -92,14 +89,14 @@ function requestIdleCallback(cb: NeedToTyped, options: NeedToTyped) {
       });
     }, 1);
   }
-  return global.requestIdleCallback(cb, options);
+  return global.requestIdleCallback(callback, options);
 }
 
 /**
  * cancelIdleCallback polyfill
  * @param {ReturnType<typeof setTimeout>} id
  */
-function cancelIdleCallback(id: NeedToTyped) {
+function cancelIdleCallback(id: number) {
   if (!global.cancelIdleCallback) {
     clearTimeout(id);
   } else {
@@ -113,7 +110,7 @@ function cancelIdleCallback(id: NeedToTyped) {
  * @param targetNode
  * @returns {boolean|*}
  */
-function isStyleMatched(matchedSelector: NeedToTyped, targetNode: NeedToTyped) {
+function isStyleMatched(matchedSelector: NeedToTyped, targetNode: ViewNode) {
   if (!targetNode || !matchedSelector) return false;
   return matchedSelector.match(targetNode);
 }

@@ -22,14 +22,14 @@
 
 import { looseEqual } from 'shared/util';
 import { isDev, isFunction, warn } from '../util';
-import ElementNode from '../renderer/element-node';
 import { CallbackType, NeedToTyped } from '../types/native';
+import ViewNode from '../renderer/view-node';
 
 export class EventEmitter {
-  element: ElementNode;
+  element: ViewNode;
   observers: NeedToTyped;
 
-  public constructor(element: ElementNode) {
+  public constructor(element: ViewNode) {
     this.element = element;
     this.observers = {};
   }

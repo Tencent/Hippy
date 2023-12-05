@@ -28,7 +28,7 @@ class ListNode extends ElementNode {
   /**
    * Scroll to child node with index
    */
-  scrollToIndex(indexLeft = 0, indexTop = 0, needAnimation = true) {
+  public scrollToIndex(indexLeft = 0, indexTop = 0, needAnimation = true) {
     if (typeof indexLeft !== 'number' || typeof indexTop !== 'number') {
       return;
     }
@@ -38,7 +38,7 @@ class ListNode extends ElementNode {
   /**
    * Scroll children to specific position.
    */
-  scrollToPosition(posX = 0, posY = 0, needAnimation = true) {
+  public scrollToPosition(posX = 0, posY = 0, needAnimation = true) {
     if (typeof posX !== 'number' || typeof posY !== 'number') {
       return;
     }

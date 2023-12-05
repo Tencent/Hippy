@@ -54,7 +54,7 @@ export class DocumentNode extends ViewNode {
   static createEvent(eventName: string) {
     return new Event(eventName);
   }
-  public documentElement: ElementNode;
+  public documentElement: ViewNode;
   constructor() {
     super();
     this.documentElement = new ElementNode('document');

@@ -1,4 +1,4 @@
-import ElementNode from '../../renderer/element-node';
+import ViewNode from '../../renderer/view-node';
 import { SelectorsMap } from '../css-selectors-map';
 import { SelectorsMatch } from '../css-selectors-match';
 import { SelectorCore } from '../selector/core-selector';
@@ -27,17 +27,17 @@ export class SimpleSelectorSequence extends SimpleSelector {
     return `${this.selectors.join('')}${wrap(this.combinator || '')}`;
   }
 
-  public match(node: ElementNode): boolean {
+  public match(node: ViewNode): boolean {
     if (!node) return false;
     return this.selectors.every((sel: SimpleSelector) => sel.match(node));
   }
 
-  public mayMatch(node: ElementNode): boolean {
+  public mayMatch(node: ViewNode): boolean {
     if (!node) return false;
     return this.selectors.every((sel: SimpleSelector) => sel.mayMatch(node));
   }
 
-  public trackChanges(node: ElementNode, match: SelectorsMatch) {
+  public trackChanges(node: ViewNode, match: SelectorsMatch) {
     this.selectors.forEach((sel: SimpleSelector) => sel.trackChanges(node, match));
   }
 

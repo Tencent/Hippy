@@ -19,6 +19,7 @@
  */
 
 import ElementNode from '../../renderer/element-node';
+import ViewNode from '../../renderer/view-node';
 import { SelectorsMap } from '../css-selectors-map';
 import { SelectorsMatch } from '../css-selectors-match';
 import { ChildGroup } from '../group/child-group';
@@ -61,8 +62,8 @@ export class Selector extends SelectorCore {
     return this.selectors.join('');
   }
 
-  public match(matchNode: ElementNode): boolean {
-    let node: ElementNode | null = matchNode;
+  public match(matchNode: ViewNode): boolean {
+    let node: ViewNode | null = matchNode;
     return this.groups.every((group: ChildGroup, i: number) => {
       if (i === 0) {
         node = group.match(matchNode);
@@ -86,15 +87,15 @@ export class Selector extends SelectorCore {
     this.last.removeSort(sorter, this);
   }
 
-  public accumulateChanges(matchNode: ElementNode, map: SelectorsMatch): boolean {
-    let node: ElementNode | null = matchNode;
+  public accumulateChanges(matchNode: ViewNode, map: SelectorsMatch): boolean {
+    let node: ViewNode | null = matchNode;
     if (!this.dynamic) {
       return this.match(node);
     }
 
     const bounds: {
-      left: ElementNode;
-      right: ElementNode | null;
+      left: ViewNode;
+      right: ViewNode | null;
     }[] = [];
     const mayMatch = this.groups.every((group: ChildGroup, i: number) => {
       if (i === 0) {

@@ -39,11 +39,13 @@ import Native from '../runtime/native';
 import { updateChild, updateWithChildren, updateEvent } from '../native';
 import { Event, EventDispatcher, EventEmitter } from '../event';
 import { Text } from '../native/components';
-import { CallbackType, NativeNodeProps, NeedToTyped } from '../types/native';
+import { CallbackType, CommonMapParams, NativeNodeProps, NeedToTyped } from '../types/native';
 import ViewNode from './view-node';
+import TextNode from './text-node';
+
 
 // linear-gradient direction description map
-const LINEAR_GRADIENT_DIRECTION_MAP: NeedToTyped = {
+const LINEAR_GRADIENT_DIRECTION_MAP: CommonMapParams = {
   totop: '0',
   totopright: 'totopright',
   toright: '90',
@@ -65,7 +67,7 @@ const DEGREE_UNIT = {
  * @param {string} value
  * @param {string} unit
  */
-function convertToDegree(value: NeedToTyped, unit = DEGREE_UNIT.DEG) {
+function convertToDegree(value: string, unit = DEGREE_UNIT.DEG) {
   const convertedNumValue = parseFloat(value);
   let result = value || '';
   const [, decimals] = value.split('.');
@@ -112,7 +114,7 @@ function getLinearGradientAngle(value: string) {
  * parse gradient color stop
  * @param {string} value
  */
-function getLinearGradientColorStop(value: NeedToTyped) {
+function getLinearGradientColorStop(value: string) {
   const processedValue = (value || '').replace(/\s+/g, ' ').trim();
   const [color, percentage] = processedValue.split(/\s+(?![^(]*?\))/);
   const percentageCheckReg = /^([+-]?\d+\.?\d*)%$/g;
@@ -149,7 +151,7 @@ function parseBackgroundImage(property: NeedToTyped, value: NeedToTyped, style: 
     const tokens = valueString.split(/,(?![^(]*?\))/);
     const colorStopList: NeedToTyped = [];
     processedValue = {};
-    tokens.forEach((value: NeedToTyped, index: NeedToTyped) => {
+    tokens.forEach((value: string, index: number) => {
       if (index === 0) {
         // the angle of linear-gradient parameter can be optional
         const angle = getLinearGradientAngle(value);
@@ -189,7 +191,12 @@ function removeLinearGradient(property: NeedToTyped, value: NeedToTyped, style: 
   }
 }
 
-const offsetMap: NeedToTyped = {
+interface OffsetMapType {
+  textShadowOffsetX: string;
+  textShadowOffsetY: string;
+}
+
+const offsetMap: OffsetMapType = {
   textShadowOffsetX: 'width',
   textShadowOffsetY: 'height',
 };
@@ -237,7 +244,7 @@ function removeStyle(property: NeedToTyped, value: NeedToTyped, style: NeedToTyp
   }
 }
 
-function transverseEventNames(eventNames: NeedToTyped, callback: NeedToTyped) {
+function transverseEventNames(eventNames: NeedToTyped, callback: CallbackType) {
   if (typeof eventNames !== 'string') return;
   const events = eventNames.split(',');
   for (let i = 0, l = events.length; i < l; i += 1) {
@@ -284,10 +291,20 @@ export class ElementNode extends ViewNode {
   public filterAttribute?: CallbackType;
   // style preprocessor
   public beforeLoadStyle: CallbackType;
-  public polyfillNativeEvents: NeedToTyped;
-  public scopeIdList: NeedToTyped;
-  protected _meta: NeedToTyped;
-  private _emitter: NeedToTyped;
+  // polyFill of native event
+  public polyfillNativeEvents?: (
+    method: string,
+    eventNames: string,
+    callback: CallbackType,
+    options?: EventListenerOptions
+  ) => {
+    eventNames: string,
+    callback: CallbackType,
+    options?: EventListenerOptions
+  };
+  // style scoped id for element
+  public scopeIdList = [];
+  private _emitter: EventEmitter;
   // element tag name, such as div, ul, hi-swiper, etc.
   private _tagName = '';
 
@@ -444,7 +461,7 @@ export class ElementNode extends ViewNode {
     }
   }
 
-  public removeAttribute(key: NeedToTyped) {
+  public removeAttribute(key: string) {
     delete this.attributes[key];
   }
 
@@ -459,7 +476,7 @@ export class ElementNode extends ViewNode {
     updateChild(this);
   }
 
-  public setStyle(rawKey: NeedToTyped, rawValue: NeedToTyped, notToNative = false) {
+  public setStyle(rawKey: string, rawValue: NeedToTyped, notToNative = false) {
     // Preprocess the style
     let {
       value,
@@ -555,35 +572,39 @@ export class ElementNode extends ViewNode {
     return this.scopeIdList;
   }
 
-  public appendChild(childNode: NeedToTyped) {
-    if (childNode && childNode.meta.symbol === Text) {
+  public isTextNode(childNode: ViewNode) {
+    return childNode?.meta.symbol === Text;
+  }
+
+  public appendChild(childNode: ViewNode) {
+    if (childNode?.meta.symbol === Text && childNode instanceof TextNode) {
       this.setText(childNode.text, { notToNative: true });
     }
     super.appendChild(childNode);
   }
 
-  public insertBefore(childNode: NeedToTyped, referenceNode: NeedToTyped) {
-    if (childNode && childNode.meta.symbol === Text) {
+  public insertBefore(childNode: ViewNode, referenceNode: ViewNode) {
+    if (this.isTextNode(childNode) && childNode instanceof TextNode) {
       this.setText(childNode.text, { notToNative: true });
     }
     super.insertBefore(childNode, referenceNode);
   }
 
-  public moveChild(childNode: NeedToTyped, referenceNode: NeedToTyped) {
-    if (childNode && childNode.meta.symbol === Text) {
+  public moveChild(childNode: ViewNode, referenceNode: ViewNode) {
+    if (this.isTextNode(childNode) && childNode instanceof TextNode) {
       this.setText(childNode.text, { notToNative: true });
     }
     super.moveChild(childNode, referenceNode);
   }
 
-  public removeChild(childNode: NeedToTyped) {
-    if (childNode && childNode.meta.symbol === Text) {
+  public removeChild(childNode: ViewNode) {
+    if (this.isTextNode(childNode) && childNode instanceof TextNode) {
       this.setText('', { notToNative: true });
     }
     super.removeChild(childNode);
   }
 
-  public setText(text: NeedToTyped, options: OptionMapType = {}) {
+  public setText(text: string, options: OptionMapType = {}) {
     // Hacking for textarea, use value props to instance text props
     if (this.tagName === 'textarea') {
       return this.setAttribute('value', text, { notToNative: !!options.notToNative });
@@ -591,13 +612,13 @@ export class ElementNode extends ViewNode {
     return this.setAttribute('text', text, { notToNative: !!options.notToNative });
   }
 
-  public setListenerHandledType(key: NeedToTyped, type: NeedToTyped) {
+  public setListenerHandledType(key: string, type: string) {
     if (this.events[key]) {
       this.events[key].handledType = type;
     }
   }
 
-  public isListenerHandled(key: NeedToTyped, type: NeedToTyped) {
+  public isListenerHandled(key: string, type: string) {
     if (this.events[key] && type !== this.events[key].handledType) {
       // if handledType not equals type params, this event needs updated
       // if handledType equals undefined, this event needs created
@@ -607,7 +628,7 @@ export class ElementNode extends ViewNode {
     return true;
   }
 
-  public getNativeEventName(eventName: NeedToTyped) {
+  public getNativeEventName(eventName: string) {
     let nativeEventName = `on${capitalizeFirstLetter(eventName)}`;
     if (this.meta.component) {
       const { eventNamesMap } = this.meta.component;
@@ -618,7 +639,7 @@ export class ElementNode extends ViewNode {
     return nativeEventName;
   }
 
-  public addEventListener(eventNames: NeedToTyped, callback: NeedToTyped, options?: NeedToTyped) {
+  public addEventListener(eventNames: string, callback: CallbackType, options?: EventListenerOptions) {
     if (!this._emitter) {
       this._emitter = new EventEmitter(this);
     }
@@ -638,7 +659,7 @@ export class ElementNode extends ViewNode {
       ));
     }
     this._emitter.addEventListener(eventNames, callback, options);
-    transverseEventNames(eventNames, (eventName: NeedToTyped) => {
+    transverseEventNames(eventNames, (eventName: string) => {
       const nativeEventName = this.getNativeEventName(eventName);
       if (!this.events[nativeEventName]) {
         this.events[nativeEventName] = {
@@ -654,7 +675,7 @@ export class ElementNode extends ViewNode {
     updateEvent(this);
   }
 
-  public removeEventListener(eventNames: NeedToTyped, callback: NeedToTyped, options: NeedToTyped) {
+  public removeEventListener(eventNames: string, callback: CallbackType, options: EventListenerOptions) {
     if (!this._emitter) {
       return null;
     }
@@ -667,7 +688,7 @@ export class ElementNode extends ViewNode {
       ));
     }
     const observer = this._emitter.removeEventListener(eventNames, callback, options);
-    transverseEventNames(eventNames, (eventName: NeedToTyped) => {
+    transverseEventNames(eventNames, (eventName: string) => {
       const nativeEventName = this.getNativeEventName(eventName);
       if (this.events[nativeEventName]) {
         this.events[nativeEventName].type = EventHandlerType.REMOVE;
@@ -677,7 +698,7 @@ export class ElementNode extends ViewNode {
     return observer;
   }
 
-  public dispatchEvent(eventInstance: NeedToTyped, targetNode: NeedToTyped, domEvent: NeedToTyped) {
+  public dispatchEvent(eventInstance: Event, targetNode: ElementNode, domEvent: HippyTypes.DOMEvent): void {
     if (!(eventInstance instanceof Event)) {
       throw new Error('dispatchEvent method only accept Event instance');
     }

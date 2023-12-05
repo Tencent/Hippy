@@ -21,14 +21,13 @@
 /* eslint-disable no-underscore-dangle */
 
 import { Text } from '../native/components';
-import { NeedToTyped } from '../types/native';
 import ViewNode from './view-node';
 
 export default class TextNode extends ViewNode {
-  _meta: NeedToTyped;
-  parentNode: NeedToTyped;
+  parentNode: TextNode;
   text: string;
-  constructor(text: string) {
+
+  public constructor(text: string) {
     super();
     this.text = text;
     this._meta = {
@@ -37,7 +36,7 @@ export default class TextNode extends ViewNode {
     };
   }
 
-  setText(text: string) {
+  public setText(text: string) {
     this.text = text;
     if (typeof this.parentNode.setText === 'function') {
       this.parentNode.setText(text);

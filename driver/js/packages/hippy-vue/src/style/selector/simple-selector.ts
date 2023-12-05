@@ -19,6 +19,7 @@
  */
 
 import ElementNode from '../../renderer/element-node';
+import ViewNode from '../../renderer/view-node';
 import { SelectorsMatch } from '../css-selectors-match';
 import { SelectorCore } from './core-selector';
 
@@ -43,7 +44,7 @@ export class SimpleSelector extends SelectorCore {
    * determine if the node matches
    * @param node - target node
    */
-  public mayMatch(node: ElementNode): boolean {
+  public mayMatch(node: ViewNode): boolean {
     return this.match(node);
   }
 
@@ -51,7 +52,7 @@ export class SimpleSelector extends SelectorCore {
    * prejudgment
    * @param _node - target node
    */
-  public match(_node?: ElementNode): boolean {
+  public match(_node?: ViewNode): boolean {
     return false;
   }
 }
