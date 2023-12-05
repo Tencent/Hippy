@@ -437,4 +437,20 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     }
 }
 
+#pragma mark - HippyScrollableProtocol
+
+// override
+- (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated {
+    // Ensure at least one scroll event will fire
+    _allowNextScrollNoMatterWhat = YES;
+    
+    NSIndexPath *indexPath = [self.dataSource indexPathForFlatIndex:index];
+    if (indexPath != nil) {
+        UICollectionViewScrollPosition position = self.horizontal ? UICollectionViewScrollPositionLeft : UICollectionViewScrollPositionTop;
+        [self.collectionView scrollToItemAtIndexPath:indexPath
+                                    atScrollPosition:position
+                                            animated:animated];
+    }
+}
+
 @end
