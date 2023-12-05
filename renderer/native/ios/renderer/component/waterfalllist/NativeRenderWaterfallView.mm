@@ -71,7 +71,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
         _scrollListeners = [NSHashTable weakObjectsHashTable];
         _scrollEventThrottle = 100.f;
         _weakItemMap = [NSMapTable strongToWeakObjectsMapTable];
-        _cachedItems = [NSMutableDictionary dictionaryWithCapacity:32];
+        _cachedItems = [NSMutableDictionary dictionary];
         _dataSourcePool = [NSMutableArray array];
         _dataSourceSem = dispatch_semaphore_create(1);
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
@@ -369,18 +369,14 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    return [self collectionView:collectionView itemViewForItemAtIndexPath:indexPath];
-}
-
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView itemViewForItemAtIndexPath:(NSIndexPath *)indexPath {
     NativeRenderWaterfallViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
+    [self addCellViewToCollectionViewCell:cell atIndexPath:indexPath];
     return cell;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView
        willDisplayCell:(UICollectionViewCell *)cell
     forItemAtIndexPath:(NSIndexPath *)indexPath {
-    [self itemViewForCollectionViewCell:cell indexPath:indexPath];
     if (0 == [indexPath section] && _containBannerView) {
         return;
     }
@@ -400,17 +396,18 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     }
 }
 
-- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+- (void)collectionView:(UICollectionView *)collectionView
+  didEndDisplayingCell:(UICollectionViewCell *)cell
+    forItemAtIndexPath:(NSIndexPath *)indexPath {
     if ([cell isKindOfClass:[NativeRenderWaterfallViewCell class]]) {
         NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
         if (hpCell.cellView) {
             [_cachedItems setObject:[hpCell.cellView hippyTag] forKey:indexPath];
-            hpCell.cellView = nil;
         }
     }
 }
 
-- (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
+- (void)addCellViewToCollectionViewCell:(UICollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath {
     NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
     HippyShadowView *renderObjectView = [_dataSource cellForIndexPath:indexPath];
     [renderObjectView recusivelySetCreationTypeToInstant];

@@ -409,6 +409,11 @@ public class RenderNode {
     @Nullable
     public View prepareHostView(boolean skipComponentProps, PoolType poolType) {
         if (isLazyLoad()) {
+            if (!skipComponentProps) {
+                // component props may changed here,
+                // reset FLAG_ALREADY_UPDATED to pass check in {@link #prepareHostViewRecursive} later.
+                resetNodeFlag(FLAG_ALREADY_UPDATED);
+            }
             return null;
         }
         mPoolInUse = poolType;
