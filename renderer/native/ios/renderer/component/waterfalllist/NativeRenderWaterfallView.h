@@ -48,7 +48,7 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
     NativeRenderWaterfallViewDataSource *_previousDataSource;
     NSMapTable<NSNumber *, UIView *> *_weakItemMap;
     NSMutableDictionary<NSIndexPath *, NSNumber *> *_cachedItems;
-    double _lastOnScrollEventTimeInterval;
+
     NativeRenderHeaderRefresh *_headerRefreshView;
     NativeRenderFooterRefresh *_footerRefreshView;
 }

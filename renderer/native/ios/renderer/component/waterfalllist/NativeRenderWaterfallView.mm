@@ -32,12 +32,14 @@
 #import "UIView+Render.h"
 #import "NativeRenderListTableView.h"
 #import "NativeRenderWaterfallViewCell.h"
+#import "HippyRootView.h"
 
-static NSString *kCellIdentifier = @"cellIdentifier";
+
+static NSString *kCellIdentifier = @"HippyWaterfallCellIdentifier";
 static NSString *kWaterfallItemName = @"WaterfallItem";
 static const NSTimeInterval delayForPurgeView = 1.f;
 
-@interface NativeRenderWaterfallView () <HippyInvalidating, NativeRenderRefreshDelegate, NativeRenderListTableViewLayoutProtocol> {
+@interface NativeRenderWaterfallView () <HippyInvalidating, NativeRenderRefreshDelegate, HippyListTableViewLayoutProtocol> {
     NSHashTable<id<UIScrollViewDelegate>> *_scrollListeners;
     BOOL _isInitialListReady;
     UIColor *_backgroundColor;
@@ -51,12 +53,15 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 @property (nonatomic, assign) NSInteger initialListSize;
 @property (nonatomic, assign) BOOL containBannerView;
 
-@property (nonatomic, weak) UIView *rootView;
+@property (nonatomic, weak) HippyRootView *rootView;
 @property (nonatomic, strong) UIView *loadingView;
 
 @end
 
-@implementation NativeRenderWaterfallView
+@implementation NativeRenderWaterfallView {
+    BOOL _allowNextScrollNoMatterWhat;
+    CFTimeInterval _lastOnScrollEventTimeInterval;
+}
 
 @synthesize contentSize;
 
@@ -66,7 +71,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
         _scrollListeners = [NSHashTable weakObjectsHashTable];
         _scrollEventThrottle = 100.f;
         _weakItemMap = [NSMapTable strongToWeakObjectsMapTable];
-        _cachedItems = [NSMutableDictionary dictionaryWithCapacity:32];
+        _cachedItems = [NSMutableDictionary dictionary];
         _dataSourcePool = [NSMutableArray array];
         _dataSourceSem = dispatch_semaphore_create(1);
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
@@ -102,6 +107,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     Class cls = [self listItemClass];
     [_collectionView registerClass:cls forCellWithReuseIdentifier:kCellIdentifier];
 }
+
 - (void)registerSupplementaryViews {
     
 }
@@ -363,18 +369,14 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    return [self collectionView:collectionView itemViewForItemAtIndexPath:indexPath];
-}
-
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView itemViewForItemAtIndexPath:(NSIndexPath *)indexPath {
     NativeRenderWaterfallViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
+    [self addCellViewToCollectionViewCell:cell atIndexPath:indexPath];
     return cell;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView
        willDisplayCell:(UICollectionViewCell *)cell
     forItemAtIndexPath:(NSIndexPath *)indexPath {
-    [self itemViewForCollectionViewCell:cell indexPath:indexPath];
     if (0 == [indexPath section] && _containBannerView) {
         return;
     }
@@ -394,17 +396,18 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     }
 }
 
-- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+- (void)collectionView:(UICollectionView *)collectionView
+  didEndDisplayingCell:(UICollectionViewCell *)cell
+    forItemAtIndexPath:(NSIndexPath *)indexPath {
     if ([cell isKindOfClass:[NativeRenderWaterfallViewCell class]]) {
         NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
         if (hpCell.cellView) {
             [_cachedItems setObject:[hpCell.cellView hippyTag] forKey:indexPath];
-            hpCell.cellView = nil;
         }
     }
 }
 
-- (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
+- (void)addCellViewToCollectionViewCell:(UICollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath {
     NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
     HippyShadowView *renderObjectView = [_dataSource cellForIndexPath:indexPath];
     [renderObjectView recusivelySetCreationTypeToInstant];
@@ -465,12 +468,13 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     if (_onScroll) {
-        double ti = CACurrentMediaTime();
-        double timeDiff = (ti - _lastOnScrollEventTimeInterval) * 1000.f;
-        if (timeDiff > _scrollEventThrottle) {
+        CFTimeInterval now = CACurrentMediaTime();
+        CFTimeInterval ti = (now - _lastOnScrollEventTimeInterval) * 1000.0;
+        if (ti > _scrollEventThrottle || _allowNextScrollNoMatterWhat) {
             NSDictionary *eventData = [self scrollEventDataWithState:ScrollStateScrolling];
-            _lastOnScrollEventTimeInterval = ti;
+            _lastOnScrollEventTimeInterval = now;
             _onScroll(eventData);
+            _allowNextScrollNoMatterWhat = NO;
         }
     }
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
@@ -537,36 +541,22 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     return sortedItems;
 }
 
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
-    if (!decelerate) {
-        _manualScroll = NO;
-        if (self.onExposureReport) {
-            NativeRenderScrollState state = scrollView.decelerating ? ScrollStateScrolling : ScrollStateStop;
-            NSDictionary *exposureInfo = [self scrollEventDataWithState:state];
-            self.onExposureReport(exposureInfo);
-        }
-    }
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDragging:willDecelerate:)]) {
-            [scrollViewListener scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
-        }
-    }
-
-    [_headerRefreshView scrollViewDidEndDragging];
-    [_footerRefreshView scrollViewDidEndDragging];
-}
-
-- (void)scrollViewDidZoom:(UIScrollView *)scrollView {
-
-}
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    _allowNextScrollNoMatterWhat = YES; // Ensure next scroll event is recorded, regardless of throttle
     _manualScroll = YES;
+    [self cancelTouch];
+    
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginDragging:)]) {
+            [scrollViewListener scrollViewWillBeginDragging:scrollView];
+        }
+    }
 }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView
                      withVelocity:(CGPoint)velocity
-              targetContentOffset:(inout CGPoint *)targetContentOffset NS_AVAILABLE_IOS(5_0) {
+              targetContentOffset:(inout CGPoint *)targetContentOffset {
     if (velocity.y == 0 && velocity.x == 0) {
         dispatch_after(
             dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -579,26 +569,101 @@ static const NSTimeInterval delayForPurgeView = 1.f;
             self.onExposureReport(exposureInfo);
         }
     }
+    
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillEndDragging:withVelocity:targetContentOffset:)]) {
+            [scrollViewListener scrollViewWillEndDragging:scrollView withVelocity:velocity targetContentOffset:targetContentOffset];
+        }
+    }
 }
 
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView;
-{
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    if (!decelerate) {
+        _manualScroll = NO;
+        if (self.onExposureReport) {
+            NativeRenderScrollState state = scrollView.decelerating ? ScrollStateScrolling : ScrollStateStop;
+            NSDictionary *exposureInfo = [self scrollEventDataWithState:state];
+            self.onExposureReport(exposureInfo);
+        }
+        // Fire a final scroll event
+        _allowNextScrollNoMatterWhat = YES;
+        [self scrollViewDidScroll:scrollView];
+    }
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDragging:willDecelerate:)]) {
+            [scrollViewListener scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
+        }
+    }
+    
+    [_headerRefreshView scrollViewDidEndDragging];
+    [_footerRefreshView scrollViewDidEndDragging];
+}
+
+- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginDecelerating:)]) {
+            [scrollViewListener scrollViewWillBeginDecelerating:scrollView];
+        }
+    }
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    // Fire a final scroll event
+    _allowNextScrollNoMatterWhat = YES;
+    [self scrollViewDidScroll:scrollView];
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        self->_manualScroll = NO;
+    });
+    
     if (self.onExposureReport) {
         NSDictionary *exposureInfo = [self scrollEventDataWithState:ScrollStateStop];
         self.onExposureReport(exposureInfo);
     }
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDecelerating:)]) {
+            [scrollViewListener scrollViewDidEndDecelerating:scrollView];
+        }
+    }
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
+    // Fire a final scroll event
+    _allowNextScrollNoMatterWhat = YES;
+    [self scrollViewDidScroll:scrollView];
+    
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndScrollingAnimation:)]) {
+            [scrollViewListener scrollViewDidEndScrollingAnimation:scrollView];
+        }
+    }
 }
 
 - (nullable UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView;
 { return nil; }
 
-- (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(nullable UIView *)view NS_AVAILABLE_IOS(3_2) {
+- (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(nullable UIView *)view {
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginZooming:withView:)]) {
+            [scrollViewListener scrollViewWillBeginZooming:scrollView withView:view];
+        }
+    }
+}
+
+- (void)scrollViewDidZoom:(UIScrollView *)scrollView {
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidZoom:)]) {
+            [scrollViewListener scrollViewDidZoom:scrollView];
+        }
+    }
 }
 
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(nullable UIView *)view atScale:(CGFloat)scale {
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndZooming:withView:atScale:)]) {
+            [scrollViewListener scrollViewDidEndZooming:scrollView withView:view atScale:scale];
+        }
+    }
 }
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollViewxt {
@@ -635,39 +700,63 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     }
 }
 
-- (void)scrollToOffset:(CGPoint)point animated:(BOOL)animated {
-    [self.collectionView setContentOffset:point animated:animated];
+
+#pragma mark - HippyScrollableProtocol
+
+- (void)scrollToOffset:(CGPoint)offset animated:(BOOL)animated {
+    // Ensure at least one scroll event will fire
+    _allowNextScrollNoMatterWhat = YES;
+    
+    [self.collectionView setContentOffset:offset animated:animated];
 }
 
 - (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated {
-    NSInteger section = _containBannerView ? 1 : 0;
-    [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:index inSection:section]
-                                atScrollPosition:UICollectionViewScrollPositionTop
-                                        animated:animated];
+    // Ensure at least one scroll event will fire
+    _allowNextScrollNoMatterWhat = YES;
+    
+    NSIndexPath *indexPath = [self.dataSource indexPathForFlatIndex:index];
+    if (indexPath != nil) {
+        [self.collectionView scrollToItemAtIndexPath:indexPath
+                                    atScrollPosition:UITableViewScrollPositionTop
+                                            animated:animated];
+    }
 }
 
-#pragma mark touch conflict
-- (UIView *)rootView {
+
+#pragma mark - Touch conflict
+
+- (HippyRootView *)rootView {
     if (_rootView) {
         return _rootView;
     }
+    
     UIView *view = [self superview];
-    while (view) {
-        if (0 == [[view hippyTag] intValue] % 10) {
-            _rootView = view;
-            return view;
-        }
-        else {
-            view = [view superview];
-        }
+    while (view && ![view isKindOfClass:[HippyRootView class]]) {
+        view = [view superview];
     }
-    return view;
+    
+    if ([view isKindOfClass:[HippyRootView class]]) {
+        _rootView = (HippyRootView *)view;
+        return _rootView;
+    } else {
+        return nil;
+    }
+}
+
+- (void)cancelTouch {
+    HippyRootView *view = [self rootView];
+    if (view) {
+        [view cancelTouches];
+    }
 }
 
 - (void)didMoveToSuperview {
     [super didMoveToSuperview];
     _rootView = nil;
 }
+
+
+#pragma mark -
 
 - (void)didReceiveMemoryWarning {
     [self cleanUpCachedItems];

@@ -334,12 +334,6 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
         input.setMaxLines(numberOfLine);
     }
 
-
-    @HippyControllerProps(name = "underlineColorAndroid", defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
-    public void setUnderlineColor(HippyTextInput hippyTextInput, int underlineColor) {
-        //hippyTextInput.setUnderlineColor(underlineColor);
-    }
-
     @HippyControllerProps(name = "changetext", defaultType = HippyControllerProps.BOOLEAN)
     public void setOnChangeText(HippyTextInput hippyTextInput, boolean change) {
         hippyTextInput.setOnChangeListener(change);
