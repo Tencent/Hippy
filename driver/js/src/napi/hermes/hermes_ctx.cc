@@ -922,15 +922,15 @@ std::shared_ptr<CtxValue> HermesCtx::RunScript(const string_view& data, const st
         String::createFromUtf8(*runtime_, u8_file_name.utf8_value().c_str(), u8_file_name.utf8_value().size());
     auto jsi_script = std::make_shared<HippyJsiBuffer>(static_cast<const uint8_t*>(u8_script.utf8_value().c_str()),
                                                        u8_script.utf8_value().size());
-//    try {
+   try {
       facebook::jsi::Value value = runtime_->evaluateJavaScript(jsi_script, jsi_file_name.utf8(*runtime_));
       return std::make_shared<HermesCtxValue>(*runtime_, value);
-//    } catch (facebook::jsi::JSIException& err) {
-//      FOOTSTONE_DLOG(ERROR) << "JSI Exception: " << err.what();
-//      auto exptr = std::current_exception();
-//      std::string message(err.what());
-//      SetException(std::make_shared<HermesExceptionCtxValue>(exptr, message));
-//    }
+   } catch (facebook::jsi::JSIException& err) {
+     FOOTSTONE_DLOG(ERROR) << "JSI Exception: " << err.what();
+     auto exptr = std::current_exception();
+     std::string message(err.what());
+     SetException(std::make_shared<HermesExceptionCtxValue>(exptr, message));
+   }
     return nullptr;
   } else {
     auto jsi_file_name = facebook::jsi::String::createFromUtf8(*runtime_, u8_file_name.utf8_value().c_str(),
@@ -938,16 +938,16 @@ std::shared_ptr<CtxValue> HermesCtx::RunScript(const string_view& data, const st
     std::shared_ptr<const facebook::jsi::PreparedJavaScript> prepare_js = nullptr;
     auto jsi_script = String::createFromUtf8(*runtime_, u8_script.utf8_value().c_str(), u8_script.utf8_value().size());
     auto buffer = std::make_shared<facebook::jsi::StringBuffer>(jsi_script.utf8(*runtime_));
-//    try {
+   try {
       prepare_js = runtime_->prepareJavaScript(buffer, jsi_file_name.utf8(*runtime_));
       auto value = runtime_->evaluatePreparedJavaScript(prepare_js);
       return std::make_shared<HermesCtxValue>(*runtime_, value);
-//    } catch (facebook::jsi::JSIException& err) {
-//      FOOTSTONE_DLOG(ERROR) << "JSI Exception: " << err.what();
-//      auto exptr = std::current_exception();
-//      std::string message(err.what());
-//      SetException(std::make_shared<HermesExceptionCtxValue>(exptr, message));
-//    }
+   } catch (facebook::jsi::JSIException& err) {
+     FOOTSTONE_DLOG(ERROR) << "JSI Exception: " << err.what();
+     auto exptr = std::current_exception();
+     std::string message(err.what());
+     SetException(std::make_shared<HermesExceptionCtxValue>(exptr, message));
+   }
     return nullptr;
   }
 }
