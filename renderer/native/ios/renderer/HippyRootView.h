@@ -73,10 +73,16 @@ extern NSString *const HippySecondaryBundleDidLoadNotification;
 /// application properties and rerender the view. Initialized with
 /// initialProperties argument of the initializer.
 /// Set this property only on the main thread.
+///
+/// Note: `runHippyApplication` is automatically called internally.
 @property (nonatomic, copy, readwrite) NSDictionary *appProperties;
 
 /// The backing view controller of the root view.
 @property (nonatomic, weak) UIViewController *hippyViewController;
+
+/// Whether to disable automatic RunHippyApplication execution after loading.
+/// By default, the runHippyApplication is automatically called after resources have loaded.
+@property (nonatomic, assign) BOOL disableAutoRunApplication;
 
 
 /// Create HippyRootView instance
@@ -88,6 +94,20 @@ extern NSString *const HippySecondaryBundleDidLoadNotification;
 - (instancetype)initWithBridge:(HippyBridge *)bridge
                     moduleName:(NSString *)moduleName
              initialProperties:(NSDictionary *)initialProperties
+                      delegate:(id<HippyRootViewDelegate>)delegate;
+
+/// Create HippyRootView instance,
+/// As above, add shareOptions parameters, compatible with hippy2
+///
+/// @param bridge the hippyBridge instance
+/// @param moduleName module name
+/// @param initialProperties application properties, see appProperties property.
+/// @param shareOptions Shared data between different rootViews on same bridge.
+/// @param delegate HippyRootViewDelegate
+- (instancetype)initWithBridge:(HippyBridge *)bridge
+                    moduleName:(NSString *)moduleName
+             initialProperties:(NSDictionary *)initialProperties
+                  shareOptions:(NSDictionary *)shareOptions
                       delegate:(id<HippyRootViewDelegate>)delegate;
 
 /// Create HippyRootView instance
@@ -105,11 +125,37 @@ extern NSString *const HippySecondaryBundleDidLoadNotification;
              initialProperties:(NSDictionary *)initialProperties
                       delegate:(id<HippyRootViewDelegate>)delegate;
 
+/// Create HippyRootView instance
+/// & Load the business BundleURL
+/// & Run application
+///
+/// As above, add shareOptions parameters, compatible with hippy2
+///
+/// @param bridge the hippyBridge instance
+/// @param businessURL the bundleURL to load
+/// @param moduleName module name
+/// @param initialProperties application properties, see appProperties property.
+/// @param shareOptions Shared data between different rootViews on same bridge.
+/// @param delegate HippyRootViewDelegate
+///
+/// Note: shareOptions will not sent to the front end.
+///
+- (instancetype)initWithBridge:(HippyBridge *)bridge
+                   businessURL:(NSURL *)businessURL
+                    moduleName:(NSString *)moduleName
+             initialProperties:(NSDictionary *)initialProperties
+                  shareOptions:(NSDictionary *)shareOptions
+                      delegate:(id<HippyRootViewDelegate>)delegate;
+
 
 /// Run Hippy!
 /// This is the Hippy program entry.
 ///
-/// Note: If init with businessURL, not need to call this method again.
+/// Note: If init without `disableAutoRunApplication`, not need to call this method again.
+/// In general, you do not need to call this interface when initializing HippyRootView using the init api.
+/// You need to call it at the appropriate time only when you set `disableAutoRunApplication` to YES.
+///
+/// For example, in scenarios where you want to load ahead of time, but don't want to execute ahead of time.
 - (void)runHippyApplication;
 
 
