@@ -104,6 +104,8 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
                 ViewGroup.LayoutParams.MATCH_PARENT));
         setPadding(0, 0, 0, 0);
         setGravityVertical(Gravity.CENTER_VERTICAL);
+        setHintTextColor(HippyTextInputController.DEFAULT_PLACEHOLDER_TEXT_COLOR);
+        setTextColor(HippyTextInputController.DEFAULT_TEXT_COLOR);
         setBackground(null);
     }
 
