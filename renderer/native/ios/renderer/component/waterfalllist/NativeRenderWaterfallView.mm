@@ -59,7 +59,6 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 @end
 
 @implementation NativeRenderWaterfallView {
-    BOOL _allowNextScrollNoMatterWhat;
     CFTimeInterval _lastOnScrollEventTimeInterval;
 }
 
@@ -717,7 +716,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     NSIndexPath *indexPath = [self.dataSource indexPathForFlatIndex:index];
     if (indexPath != nil) {
         [self.collectionView scrollToItemAtIndexPath:indexPath
-                                    atScrollPosition:UITableViewScrollPositionTop
+                                    atScrollPosition:UICollectionViewScrollPositionTop
                                             animated:animated];
     }
 }

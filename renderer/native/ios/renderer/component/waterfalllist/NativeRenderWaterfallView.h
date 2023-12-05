@@ -51,6 +51,8 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
 
     NativeRenderHeaderRefresh *_headerRefreshView;
     NativeRenderFooterRefresh *_footerRefreshView;
+    
+    BOOL _allowNextScrollNoMatterWhat;
 }
 
 @property(nonatomic, assign) BOOL dirtyContent;
