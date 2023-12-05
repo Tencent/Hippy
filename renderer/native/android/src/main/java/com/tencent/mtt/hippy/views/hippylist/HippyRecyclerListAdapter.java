@@ -264,7 +264,10 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
     public ListItemRenderNode getChildNode(int position) {
         RenderNode parentNode = getParentNode();
         if (parentNode != null && position < parentNode.getChildCount() && position >= 0) {
-            return (ListItemRenderNode) parentNode.getChildAt(position);
+            RenderNode childNode = parentNode.getChildAt(position);
+            if (childNode instanceof ListItemRenderNode) {
+                return (ListItemRenderNode) childNode;
+            }
         }
         return null;
     }
