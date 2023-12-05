@@ -64,6 +64,8 @@ import static com.tencent.renderer.NativeRenderException.ExceptionCode.HANDLE_CA
 public class HippyTextInputController extends HippyViewController<HippyTextInput> {
 
     public static final String CLASS_NAME = "TextInput";
+    public static final int DEFAULT_TEXT_COLOR = Color.BLACK;
+    public static final int DEFAULT_PLACEHOLDER_TEXT_COLOR = Color.GRAY;
     private static final String TAG = "HippyTextInputControlle";
     private static final int INPUT_TYPE_KEYBOARD_NUMBERED =
             InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL
@@ -324,7 +326,8 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
         view.setHint(placeholder);
     }
 
-    @HippyControllerProps(name = "placeholderTextColor", defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.GRAY)
+    @HippyControllerProps(name = "placeholderTextColor", defaultType = HippyControllerProps.NUMBER, defaultNumber =
+            DEFAULT_PLACEHOLDER_TEXT_COLOR)
     public void setTextHitColor(HippyTextInput input, int color) {
         input.setHintTextColor(color);
     }
@@ -360,11 +363,10 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     }
 
     @HippyControllerProps(name = NodeProps.COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber =
-            Color.BLACK)
+            DEFAULT_TEXT_COLOR)
     public void setColor(HippyTextInput hippyTextInput, int change) {
         hippyTextInput.setTextColor(change);
     }
-
 
     @HippyControllerProps(name = NodeProps.TEXT_ALIGN, defaultType = HippyControllerProps.STRING)
     public void setTextAlign(HippyTextInput view, String textAlign) {
