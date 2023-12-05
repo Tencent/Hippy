@@ -34,7 +34,7 @@
 #import "UIView+Render.h"
 
 static NSString *const kCellIdentifier = @"HippyListCellIdentifier";
-static NSString *const kSupplementaryIdentifier = @"SupplementaryIdentifier";
+static NSString *const kSupplementaryIdentifier = @"HippySupplementaryIdentifier";
 static NSString *const kListViewItem = @"ListViewItem";
 
 @interface NativeRenderBaseListView () <NativeRenderRefreshDelegate> {
@@ -237,10 +237,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
                                                                                forIndexPath:indexPath];
     HippyShadowView *headerRenderObject = [self.dataSource headerForSection:section];
     if (headerRenderObject && [headerRenderObject isKindOfClass:[HippyShadowView class]]) {
-        UIView *headerView = [self.renderImpl viewForHippyTag:headerRenderObject.hippyTag onRootTag:headerRenderObject.rootTag];
-        if (!headerView) {
-            headerView = [self.renderImpl createViewRecursivelyFromRenderObject:headerRenderObject];
-        }
+        UIView *headerView = [self.renderImpl createViewRecursivelyFromRenderObject:headerRenderObject];
         CGRect frame = headerView.frame;
         frame.origin = CGPointZero;
         headerView.frame = frame;
