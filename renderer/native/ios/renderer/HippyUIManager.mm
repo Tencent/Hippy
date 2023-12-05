@@ -274,11 +274,6 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         _viewRegistry = [[HippyComponentMap alloc] init];
      }
     return _viewRegistry;
- }
-
-- (__kindof UIView *)viewFromRenderViewTag:(NSNumber *)componentTag
-                                 onRootTag:(NSNumber *)rootTag {
-    return [self viewForHippyTag:componentTag onRootTag:rootTag];
 }
 
 - (UIView *)viewForHippyTag:(NSNumber *)hippyTag onRootTag:(NSNumber *)rootTag {
