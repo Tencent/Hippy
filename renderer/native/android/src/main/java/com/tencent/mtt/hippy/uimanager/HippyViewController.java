@@ -58,6 +58,8 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     private static final String GET_BOUNDING_CLIENT_RECT = "getBoundingClientRect";
     public static final String KEY_REL_TO_CONTAINER = "relToContainer";
     public static final String KEY_ERR_MSG = "errMsg";
+    private static final int PERSPECTIVE_ARRAY_INVERTED_CAMERA_DISTANCE_INDEX = 2;
+    private static final float CAMERA_DISTANCE_NORMALIZATION_MULTIPLIER = (float) Math.sqrt(5);
     private static final MatrixUtil.MatrixDecompositionContext sMatrixDecompositionContext = new MatrixUtil.MatrixDecompositionContext();
     private static final double[] sTransformDecompositionArray = new double[16];
     private boolean bUserChangeFocus = false;
@@ -412,6 +414,27 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         view.setRotationY((float) sMatrixDecompositionContext.rotationDegrees[1]);
         view.setScaleX((float) sMatrixDecompositionContext.scale[0]);
         view.setScaleY((float) sMatrixDecompositionContext.scale[1]);
+
+        double[] perspectiveArray = sMatrixDecompositionContext.perspective;
+
+        if (perspectiveArray.length > PERSPECTIVE_ARRAY_INVERTED_CAMERA_DISTANCE_INDEX) {
+            float invertedCameraDistance = (float) perspectiveArray[PERSPECTIVE_ARRAY_INVERTED_CAMERA_DISTANCE_INDEX];
+            if (invertedCameraDistance == 0) {
+                // Default camera distance, before scale multiplier (1280)
+                invertedCameraDistance = 0.00078125f;
+            }
+            float cameraDistance = -1 / invertedCameraDistance;
+            float scale = PixelUtil.getDensity();
+
+            // The following converts the matrix's perspective to a camera distance
+            // such that the camera perspective looks the same on Android and iOS.
+            // The native Android implementation removed the screen density from the
+            // calculation, so squaring and a normalization value of
+            // sqrt(5) produces an exact replica with iOS.
+            // For more information, see https://github.com/facebook/react-native/pull/18302
+            float normalizedCameraDistance = scale * scale * cameraDistance * CAMERA_DISTANCE_NORMALIZATION_MULTIPLIER;
+            view.setCameraDistance(normalizedCameraDistance);
+        }
     }
 
     public static void resetTransform(View view) {
@@ -422,6 +445,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         view.setRotationY(0);
         view.setScaleX(1);
         view.setScaleY(1);
+        view.setCameraDistance(0);
     }
 
     @SuppressWarnings("deprecation")
