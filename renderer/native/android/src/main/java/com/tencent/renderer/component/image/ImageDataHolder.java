@@ -19,6 +19,7 @@ package com.tencent.renderer.component.image;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.IMAGE_DATA_DECODE_ERR;
 
 import android.graphics.ImageDecoder;
+import android.graphics.drawable.Animatable;
 import android.os.Build.VERSION_CODES;
 
 import androidx.annotation.RequiresApi;
@@ -149,7 +150,13 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
     }
 
     private void clear() {
-        if (checkStateFlag(FLAG_CACHED) || mRefCount.get() > 0) {
+        if (mRefCount.get() > 0) {
+            return;
+        }
+        if (mDrawable instanceof Animatable && ((Animatable) mDrawable).isRunning()) {
+            ((Animatable) mDrawable).stop();
+        }
+        if (checkStateFlag(FLAG_CACHED)) {
             return;
         }
         if (mBitmap != null) {
