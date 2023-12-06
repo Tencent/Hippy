@@ -87,13 +87,15 @@ global.__localStorage = global.localStorage;
 
 global.turboPromise = Hippy.turboPromise;
 
-Object.defineProperty(global.console, 'reportUncaughtException', {
-  value: (error) => {
-    if (error && error instanceof Error) {
-      throw error;
-    }
-  },
-});
+if (!global.console['reportUncaughtException']) {
+  Object.defineProperty(global.console, 'reportUncaughtException', {
+    value: (error) => {
+      if (error && error instanceof Error) {
+        throw error;
+      }
+    },
+  });
+}
 
 global.addEventListener('unhandledrejection', (event) => {
   global.Hippy.emit('unhandledRejection', event?.reason, event?.promise);
