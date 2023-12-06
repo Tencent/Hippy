@@ -317,3 +317,13 @@ task dealAfterAssembleRelease() {
         }
     }
 }
+
+project.afterEvaluate {
+    project.android.libraryVariants.all { variant ->
+        def variantName = variant.name.capitalize()
+        def taskMergeClasses = project.tasks.named("mergeClasses${variantName}")
+        project.tasks.named("bundleLibCompileToJar${variantName}").configure {
+            dependsOn(taskMergeClasses)
+        }
+    }
+}
