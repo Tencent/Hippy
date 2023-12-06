@@ -106,6 +106,9 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
                 ViewGroup.LayoutParams.MATCH_PARENT));
         setPadding(0, 0, 0, 0);
         setGravityVertical(Gravity.CENTER_VERTICAL);
+        setHintTextColor(HippyTextInputController.DEFAULT_PLACEHOLDER_TEXT_COLOR);
+        setTextColor(HippyTextInputController.DEFAULT_TEXT_COLOR);
+        setBackground(null);
     }
 
     @Override
@@ -517,16 +520,6 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
             mHasAddWatcher = false;
             removeTextChangedListener(mTextWatcher);
         }
-    }
-
-    @Override
-    public void setBackgroundColor(int color) {
-        int paddingBottom = getPaddingBottom();
-        int paddingTop = getPaddingTop();
-        int paddingLeft = getPaddingLeft();
-        int paddingRight = getPaddingRight();
-        // Android这个EditText控件默认带有内边距，设置背景时系统也可能会再把它默认的内边距给加上去。这里强制去掉内边距
-        setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
     }
 
     @Override

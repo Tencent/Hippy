@@ -42,9 +42,11 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 
 import android.text.Layout;
+import android.text.Spanned;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.tencent.renderer.component.text.TextLineMetricsHelper;
 import com.tencent.renderer.component.text.TextRenderSupplier;
 
 public class TextDrawable extends Drawable {
@@ -60,8 +62,10 @@ public class TextDrawable extends Drawable {
     private Layout mLayout;
     @Nullable
     private BackgroundHolder mBackgroundHolder;
+    private TextLineMetricsHelper mHelper;
 
     public void setTextLayout(@NonNull Object obj) {
+        Layout oldLayout = mLayout;
         if (obj instanceof TextRenderSupplier) {
             mLayout = ((TextRenderSupplier) obj).layout;
             mLeftPadding = ((TextRenderSupplier) obj).leftPadding;
@@ -71,6 +75,22 @@ public class TextDrawable extends Drawable {
         } else if (obj instanceof Layout) {
             mLayout = (Layout) obj;
         }
+        if (mLayout != oldLayout) {
+            mHelper = getTextLineMetricsHelper(mLayout);
+        }
+    }
+
+    private TextLineMetricsHelper getTextLineMetricsHelper(Layout layout) {
+        if (layout != null) {
+            CharSequence text = layout.getText();
+            if (text instanceof Spanned) {
+                TextLineMetricsHelper[] spans = ((Spanned) text).getSpans(0, 0, TextLineMetricsHelper.class);
+                if (spans != null && spans.length > 0) {
+                    return spans[0];
+                }
+            }
+        }
+        return null;
     }
 
     public void setBackgroundHolder(@Nullable BackgroundHolder holder) {
@@ -119,7 +139,13 @@ public class TextDrawable extends Drawable {
         if (paint != null) {
             paint.setFakeBoldText(mFakeBoldText);
         }
-        mLayout.draw(canvas);
+        if (mHelper != null) {
+            mHelper.initialize();
+            mLayout.draw(canvas);
+            mHelper.drawTextDecoration(canvas, mLayout);
+        } else {
+            mLayout.draw(canvas);
+        }
         canvas.restore();
     }
 

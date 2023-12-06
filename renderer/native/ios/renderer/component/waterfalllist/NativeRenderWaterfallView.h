@@ -48,9 +48,11 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
     NativeRenderWaterfallViewDataSource *_previousDataSource;
     NSMapTable<NSNumber *, UIView *> *_weakItemMap;
     NSMutableDictionary<NSIndexPath *, NSNumber *> *_cachedItems;
-    double _lastOnScrollEventTimeInterval;
+
     NativeRenderHeaderRefresh *_headerRefreshView;
     NativeRenderFooterRefresh *_footerRefreshView;
+    
+    BOOL _allowNextScrollNoMatterWhat;
 }
 
 @property(nonatomic, assign) BOOL dirtyContent;
