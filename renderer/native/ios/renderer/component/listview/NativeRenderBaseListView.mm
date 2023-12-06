@@ -257,8 +257,6 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 - (void)collectionView:(UICollectionView *)collectionView
        willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
     HippyShadowView *cellRenderObjectView = [self.dataSource cellForIndexPath:indexPath];
-    [cellRenderObjectView recusivelySetCreationTypeToInstant];
-    [self itemViewForCollectionViewCell:cell indexPath:indexPath];
     NSInteger index = [self.dataSource flatIndexForIndexPath:indexPath];
     if (self.onRowWillDisplay) {
         self.onRowWillDisplay(@{
@@ -284,26 +282,33 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     }
 }
 
-- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+- (void)collectionView:(UICollectionView *)collectionView
+  didEndDisplayingCell:(UICollectionViewCell *)cell
+    forItemAtIndexPath:(NSIndexPath *)indexPath {
     if ([cell isKindOfClass:[NativeRenderBaseListViewCell class]]) {
         NativeRenderBaseListViewCell *hpCell = (NativeRenderBaseListViewCell *)cell;
         if (hpCell.cellView) {
             [_cachedItems setObject:[hpCell.cellView hippyTag] forKey:indexPath];
-            hpCell.cellView = nil;
         }
     }
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    return [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
+    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
+    
+    // Create and Add real Hippy cell content
+    [self addCellViewToCollectionViewCell:cell atIndexPath:indexPath];
+    return cell;
 }
 
-- (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
+- (void)addCellViewToCollectionViewCell:(UICollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath {
     HippyAssert(self.renderImpl, @"no rendercontext detected");
     if (!self.renderImpl) {
         return;
     }
     HippyShadowView *cellRenderObject = [self.dataSource cellForIndexPath:indexPath];
+    [cellRenderObject recusivelySetCreationTypeToInstant];
+    
     NativeRenderBaseListViewCell *hpCell = (NativeRenderBaseListViewCell *)cell;
     UIView *cellView = [self.renderImpl createViewRecursivelyFromRenderObject:cellRenderObject];
     if (cellView) {
@@ -429,6 +434,22 @@ referenceSizeForHeaderInSection:(NSInteger)section {
             [self.collectionView setAlwaysBounceVertical:YES];
             [self.collectionView setAlwaysBounceHorizontal:NO];
         }
+    }
+}
+
+#pragma mark - HippyScrollableProtocol
+
+// override
+- (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated {
+    // Ensure at least one scroll event will fire
+    _allowNextScrollNoMatterWhat = YES;
+    
+    NSIndexPath *indexPath = [self.dataSource indexPathForFlatIndex:index];
+    if (indexPath != nil) {
+        UICollectionViewScrollPosition position = self.horizontal ? UICollectionViewScrollPositionLeft : UICollectionViewScrollPositionTop;
+        [self.collectionView scrollToItemAtIndexPath:indexPath
+                                    atScrollPosition:position
+                                            animated:animated];
     }
 }
 

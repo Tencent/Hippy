@@ -18,7 +18,6 @@ package com.tencent.mtt.hippy.views.textinput;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Looper;
@@ -38,7 +37,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import androidx.annotation.NonNull;
 
-import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
@@ -47,7 +45,6 @@ import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
-import com.tencent.mtt.hippy.views.hippypager.HippyPager;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.NativeRendererManager;
@@ -64,6 +61,8 @@ import static com.tencent.renderer.NativeRenderException.ExceptionCode.HANDLE_CA
 public class HippyTextInputController extends HippyViewController<HippyTextInput> {
 
     public static final String CLASS_NAME = "TextInput";
+    public static final int DEFAULT_TEXT_COLOR = Color.BLACK;
+    public static final int DEFAULT_PLACEHOLDER_TEXT_COLOR = Color.GRAY;
     private static final String TAG = "HippyTextInputControlle";
     private static final int INPUT_TYPE_KEYBOARD_NUMBERED =
             InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL
@@ -324,7 +323,8 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
         view.setHint(placeholder);
     }
 
-    @HippyControllerProps(name = "placeholderTextColor", defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.GRAY)
+    @HippyControllerProps(name = "placeholderTextColor", defaultType = HippyControllerProps.NUMBER, defaultNumber =
+            DEFAULT_PLACEHOLDER_TEXT_COLOR)
     public void setTextHitColor(HippyTextInput input, int color) {
         input.setHintTextColor(color);
     }
@@ -332,12 +332,6 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     @HippyControllerProps(name = "numberOfLines", defaultType = HippyControllerProps.NUMBER, defaultNumber = Integer.MAX_VALUE)
     public void setMaxLines(HippyTextInput input, int numberOfLine) {
         input.setMaxLines(numberOfLine);
-    }
-
-
-    @HippyControllerProps(name = "underlineColorAndroid", defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
-    public void setUnderlineColor(HippyTextInput hippyTextInput, int underlineColor) {
-        //hippyTextInput.setUnderlineColor(underlineColor);
     }
 
     @HippyControllerProps(name = "changetext", defaultType = HippyControllerProps.BOOLEAN)
@@ -351,13 +345,23 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     }
 
     @HippyControllerProps(name = "focus", defaultType = HippyControllerProps.BOOLEAN)
-    public void setOnFocus(HippyTextInput hippyTextInput, boolean change) {
-        hippyTextInput.setBlurOrOnFocus(change);
+    public void setOnFocus(HippyTextInput hippyTextInput, boolean enable) {
+        hippyTextInput.setEventListener(enable, HippyTextInput.EVENT_FOCUS);
     }
 
     @HippyControllerProps(name = "blur", defaultType = HippyControllerProps.BOOLEAN)
-    public void setBlur(HippyTextInput hippyTextInput, boolean change) {
-        hippyTextInput.setBlurOrOnFocus(change);
+    public void setBlur(HippyTextInput hippyTextInput, boolean enable) {
+        hippyTextInput.setEventListener(enable, HippyTextInput.EVENT_BLUR);
+    }
+
+    @HippyControllerProps(name = "keyboardwillshow", defaultType = HippyControllerProps.BOOLEAN)
+    public void setOnKeyboardWillShow(HippyTextInput hippyTextInput, boolean enable) {
+        hippyTextInput.setEventListener(enable, HippyTextInput.EVENT_KEYBOARD_SHOW);
+    }
+
+    @HippyControllerProps(name = "keyboardwillhide", defaultType = HippyControllerProps.BOOLEAN)
+    public void setOnKeyboardWillHide(HippyTextInput hippyTextInput, boolean enable) {
+        hippyTextInput.setEventListener(enable, HippyTextInput.EVENT_KEYBOARD_HIDE);
     }
 
     @HippyControllerProps(name = "contentSizeChange", defaultType = HippyControllerProps.BOOLEAN)
@@ -366,11 +370,10 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     }
 
     @HippyControllerProps(name = NodeProps.COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber =
-            Color.BLACK)
+            DEFAULT_TEXT_COLOR)
     public void setColor(HippyTextInput hippyTextInput, int change) {
         hippyTextInput.setTextColor(change);
     }
-
 
     @HippyControllerProps(name = NodeProps.TEXT_ALIGN, defaultType = HippyControllerProps.STRING)
     public void setTextAlign(HippyTextInput view, String textAlign) {

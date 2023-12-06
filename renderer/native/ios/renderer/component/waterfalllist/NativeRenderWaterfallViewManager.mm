@@ -107,9 +107,9 @@ HIPPY_EXPORT_METHOD(callExposureReport:(nonnull NSNumber *)reactTag) {
 }
 
 HIPPY_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)reactTag
-                               xIndex:(nonnull NSNumber *)xIndex
-                               yIndex:(nonnull NSNumber *)yIndex
-                               animation:(nonnull NSNumber *)animation) {
+                    xIndex:(nonnull NSNumber *)xIndex
+                    yIndex:(nonnull NSNumber *)yIndex
+                    animation:(nonnull NSNumber *)animation) {
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
@@ -122,9 +122,9 @@ HIPPY_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)reactTag
 }
 
 HIPPY_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)reactTag
-                               x:(nonnull NSNumber *)x
-                               y:(nonnull NSNumber *)y
-                               animation:(nonnull NSNumber *)animation) {
+                    x:(nonnull NSNumber *)x
+                    y:(nonnull NSNumber *)y
+                    animation:(nonnull NSNumber *)animation) {
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
