@@ -176,22 +176,22 @@ declare namespace HippyTypes {
   }
 
   export interface Transform {
-    perspective?: number | Animation;
-    rotate?: string | Animation;
-    rotateX?: string | Animation;
-    rotateY?: string | Animation;
-    rotateZ?: string | Animation;
-    scale?: number | Animation;
-    scaleX?: number | Animation;
-    scaleY?: number | Animation;
-    translateX?: number | Animation;
-    translateY?: number | Animation;
-    skewX?: string | Animation;
-    skewY?: string | Animation;
+    perspective?: number | Animation | AnimationSet;
+    rotate?: string | Animation | AnimationSet;
+    rotateX?: string | Animation | AnimationSet;
+    rotateY?: string | Animation | AnimationSet;
+    rotateZ?: string | Animation | AnimationSet;
+    scale?: number | Animation | AnimationSet;
+    scaleX?: number | Animation | AnimationSet;
+    scaleY?: number | Animation | AnimationSet;
+    translateX?: number | Animation | AnimationSet;
+    translateY?: number | Animation | AnimationSet;
+    skewX?: string | Animation | AnimationSet;
+    skewY?: string | Animation | AnimationSet;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
   export interface TransformsStyle {
+    transform?: Transform[];
   }
 
   export type BorderStyle = 'solid' | 'dotted' | 'dashed' | 'none';
