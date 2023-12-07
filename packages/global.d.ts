@@ -307,7 +307,8 @@ declare namespace HippyTypes {
     [props: string]: any
   }
   export type Falsy = undefined | null | false;
-  type RecursiveArray<T> = Array<T | ReadonlyArray<T> | RecursiveArray<T>>;
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface RecursiveArray<T> extends Array<T | ReadonlyArray<T> | RecursiveArray<T>> {}
   export type GenericStyleProp<T> =
   | T
   | RecursiveArray<T | Falsy>
