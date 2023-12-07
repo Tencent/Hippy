@@ -24,12 +24,15 @@ import android.text.StaticLayout;
 import com.tencent.mtt.hippy.common.HippyHandlerThread;
 import com.tencent.mtt.hippy.common.HippyThreadRunnable;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings({"unused"})
 public class LayoutHelper {
 
+  private static final int MAX_QUEUE_SIZE = 200;
   private HippyHandlerThread mHandlerThread;
   private final Picture mPicture = new Picture();
+  private final AtomicInteger mQueueSize = new AtomicInteger(0);
 
   public LayoutHelper() {
     mHandlerThread = new HippyHandlerThread("text-warm-thread");
@@ -43,11 +46,13 @@ public class LayoutHelper {
   }
 
   public void postWarmLayout(Layout layout) {
-    if (mHandlerThread != null && mHandlerThread.isThreadAlive()) {
+    if (mHandlerThread != null && mHandlerThread.isThreadAlive() && mQueueSize.get() < MAX_QUEUE_SIZE) {
+      mQueueSize.getAndIncrement();
       mHandlerThread.runOnQueue(new HippyThreadRunnable<Layout>(layout) {
         @Override
         public void run(Layout param) {
           warmUpLayout(param);
+          mQueueSize.getAndDecrement();
         }
       });
     }
