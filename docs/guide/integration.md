@@ -12,7 +12,13 @@ Demo代码位于examples目录，如果你对阅读代码更感兴趣，可直�
 
 ### macOS开发环境
 
-可以在macOS上开发iOS，Android应用，请求根据需要进行环境准备。
+可以在macOS上开发iOS，Android应用，请求根据需要进行环境配置。
+
+首先，通过Homebrew包管理工具安装git, git-lfs, node(v16) and npm(v7)
+
+```shell
+brew install git git-lfs node@16
+```
 
 #### 编译iOS Demo环境准备
 
@@ -20,11 +26,7 @@ Demo代码位于examples目录，如果你对阅读代码更感兴趣，可直�
 
     通过Apple App Store安装[Xcode](https://apps.apple.com/cn/app/xcode/id497799835?l=en-GB&mt=12)
 
-2. 通过Homebrew包管理工具安装git, git-lfs, node and npm
-
-    `brew install git git-lfs node@16`
-
-3. 通过gem命令安装Cocoapods
+2. 通过gem命令安装Cocoapods
 
     `sudo gem install cocoapods`
 
@@ -57,7 +59,7 @@ Demo代码位于examples目录，如果你对阅读代码更感兴趣，可直�
 
 4. Node和NPM
 
-    通过指引安装[nodejs和npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+    通过指引安装[nodejs和npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)，建议使用Node v16，NPM v7版本
 
 
 ## 代码拉取
