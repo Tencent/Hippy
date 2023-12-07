@@ -20,6 +20,14 @@
 @hippy/vue-next 支持的能力与 @hippy/vue 基本一致。因此关于 Hippy-Vue 的组件、模块、样式等就不做额外声明了，可以直接参考 [Hippy-Vue](hippy-vue/introduction)
 中的相关内容，本文档仅对差异部分进行说明：
 
+demo 参考：https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo
+
+```javascript
+  "@hippy/vue-next": "v2.17-latest",
+  "@hippy/vue-router-next-history": "latest",
+```
+
+
 ## 初始化
 
 ```javascript

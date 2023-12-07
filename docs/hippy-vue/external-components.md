@@ -124,7 +124,7 @@ export default {
 
 ### start
 
-`() => void` 手动触发动画开始（`playing`属性置为`true`也会自动触发`start`函数调用）
+`() => void` 手动触发动画开始（`playing`属性置为`true`也会自动触发`start`函数调用, 首次触发动画）
 
 ### pause
 
@@ -134,11 +134,11 @@ export default {
 
 `() => void` 手动触发动画继续（`playing`属性置为`false`后再置为`true`会自动触发`resume`函数调用）
 
-### create
+### create 
 
-`() => void` 手动触发动画创建
+`() => void` 手动触发动画创建（首次创建动画，或在 destroy 后重新创建动画调用）
 
-### reset
+### reset 
 
 `() => void` 重置开始标记
 
