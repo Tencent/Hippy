@@ -17,32 +17,24 @@
 package com.tencent.mtt.hippy.views.hippylist;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static com.tencent.renderer.node.RenderNode.FLAG_LAZY_LOAD;
 
-import android.view.MotionEvent;
-import android.view.View.OnTouchListener;
-import android.view.ViewParent;
+import android.view.View;
+import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.HippyItemTypeHelper;
 import androidx.recyclerview.widget.ItemLayoutParams;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.LayoutParams;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import com.tencent.renderer.node.ListItemRenderNode;
-import com.tencent.renderer.node.PullFooterRenderNode;
-import com.tencent.renderer.node.PullHeaderRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
-import com.tencent.renderer.node.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IStickyItemsProvider;
 import com.tencent.mtt.hippy.views.list.IRecycleItemTypeChange;
 import com.tencent.mtt.hippy.views.refresh.HippyPullFooterView;
 import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderView;
-import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IStickyItemsProvider;
-import com.tencent.renderer.NativeRender;
-import com.tencent.renderer.NativeRenderException;
-import com.tencent.renderer.NativeRendererManager;
+import com.tencent.renderer.node.ListItemRenderNode;
+import com.tencent.renderer.node.PullFooterRenderNode;
+import com.tencent.renderer.node.PullHeaderRenderNode;
+import com.tencent.renderer.node.RenderNode;
 
 /**
  * Created on 2020/12/22.
@@ -135,6 +127,12 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         if (holder.itemView != null) {
             LogUtils.d(TAG, "onViewAttachedToWindow itemView id " + holder.itemView.getId());
         }
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(@NonNull HippyRecyclerViewHolder holder) {
+        holder.bindNode.onViewHolderDetached();
+        super.onViewDetachedFromWindow(holder);
     }
 
     public void onFooterRefreshCompleted() {
