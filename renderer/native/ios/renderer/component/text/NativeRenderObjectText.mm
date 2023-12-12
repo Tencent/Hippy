@@ -297,10 +297,19 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 }
             }
         }];
-        [super amendLayoutBeforeMount:blocks];
-    }
-    @catch (NSException *exception) {
-        [super amendLayoutBeforeMount:blocks];
+        
+        // Nested <Text> inside <Text> should not call amendLayoutBeforeMount again,
+        // so only call amendXxx when subcomponent is not a <Text>.
+        if (NativeRenderUpdateLifecycleComputed != _propagationLifecycle) {
+            _propagationLifecycle = NativeRenderUpdateLifecycleComputed;
+            for (HippyShadowView *shadowView in self.subcomponents) {
+                if (![shadowView isKindOfClass:NativeRenderObjectText.class]) {
+                    [shadowView amendLayoutBeforeMount:blocks];
+                }
+            }
+        }
+    } @catch (NSException *exception) {
+        HippyLogError(@"Exception while doing %s: %@, %@", __func__, exception.description, self);
     }
     [self processUpdatedProperties:blocks parentProperties:nil];
 }
