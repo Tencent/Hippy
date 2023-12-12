@@ -38,7 +38,6 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.refresh.HippyPullFooterView;
 import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderView;
-import com.tencent.mtt.hippy.views.scroll.HippyScrollViewEventHelper;
 import com.tencent.mtt.supportui.views.recyclerview.BaseLayoutManager;
 import com.tencent.mtt.supportui.views.recyclerview.LinearLayoutManager;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerAdapter;
@@ -562,30 +561,30 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
 
         if (myEnd <= (visibleStart + correctingValueForDisappear) || myStart >= (visibleEnd
                 - correctingValueForDisappear)) {
-            if (itemView.getExposureState() != HippyListItemView.EXPOSURE_STATE_DISAPPEAR) {
-                if (itemView.getExposureState() == HippyListItemView.EXPOSURE_STATE_APPEAR) {
+            if (itemView.getExposureState() != HippyListItemView.EXPOSURE_STATE_INVISIBLE) {
+                if (itemView.getExposureState() == HippyListItemView.EXPOSURE_STATE_FULL_VISIBLE) {
                     sendExposureEvent(view, EVENT_LIST_ITEM_WILL_DISAPPEAR, props);
                 }
                 sendExposureEvent(view, EVENT_LIST_ITEM_DISAPPEAR, props);
-                itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_DISAPPEAR);
+                itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_INVISIBLE);
             }
         } else if ((myStart < visibleStart && myEnd > visibleStart) || (myStart < visibleEnd
                 && myEnd > visibleEnd)) {
-            if (currentExposureState == HippyListItemView.EXPOSURE_STATE_APPEAR) {
+            if (currentExposureState == HippyListItemView.EXPOSURE_STATE_FULL_VISIBLE) {
                 sendExposureEvent(view, EVENT_LIST_ITEM_WILL_DISAPPEAR, props);
-                itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_WILL_DISAPPEAR);
-            } else if (currentExposureState == HippyListItemView.EXPOSURE_STATE_DISAPPEAR) {
+                itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_PART_VISIBLE);
+            } else if (currentExposureState == HippyListItemView.EXPOSURE_STATE_INVISIBLE) {
                 sendExposureEvent(view, EVENT_LIST_ITEM_WILL_APPEAR, props);
-                itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_WILL_APPEAR);
+                itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_PART_VISIBLE);
             }
         } else if ((myStart >= visibleStart && myEnd <= visibleEnd) || (myStart <= visibleStart
                 && myEnd > visibleEnd)) {
-            if (itemView.getExposureState() != HippyListItemView.EXPOSURE_STATE_APPEAR) {
-                if (itemView.getExposureState() == HippyListItemView.EXPOSURE_STATE_DISAPPEAR) {
+            if (itemView.getExposureState() != HippyListItemView.EXPOSURE_STATE_FULL_VISIBLE) {
+                if (itemView.getExposureState() == HippyListItemView.EXPOSURE_STATE_INVISIBLE) {
                     sendExposureEvent(view, EVENT_LIST_ITEM_WILL_APPEAR, props);
                 }
                 sendExposureEvent(view, EVENT_LIST_ITEM_APPEAR, props);
-                itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_APPEAR);
+                itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_FULL_VISIBLE);
             }
         }
     }
