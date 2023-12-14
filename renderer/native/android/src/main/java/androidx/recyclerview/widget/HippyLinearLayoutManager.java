@@ -127,11 +127,10 @@ public class HippyLinearLayoutManager extends LinearLayoutManager {
             if (size == null) {
                 size = getItemSizeFromAdapter(i);
             }
-            if (size != null && size != INVALID_SIZE) {
-                totalSize += size;
-            } else {
+            if (size == INVALID_SIZE) {
                 return INVALID_SIZE;
             }
+            totalSize += size;
         }
         return totalSize;
     }
