@@ -171,6 +171,7 @@ public class ListItemRenderNode extends RenderNode {
         mLeft = x;
         mTop = y;
         View view = mControllerManager.findView(mRootId, mId);
+        mX = view != null ? view.getLeft() : 0;
         mY = view != null ? view.getTop() : 0;
         if (getParent() != null) {
             RenderManager renderManager = mControllerManager.getRenderManager();

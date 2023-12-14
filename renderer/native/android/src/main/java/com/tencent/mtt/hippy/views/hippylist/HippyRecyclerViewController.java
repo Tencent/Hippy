@@ -35,6 +35,7 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
+import com.tencent.mtt.hippy.uimanager.ControllerRegistry;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.node.ListViewRenderNode;
@@ -142,6 +143,17 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     public RenderNode createRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
             @NonNull String className, @NonNull ControllerManager controllerManager, boolean isLazyLoad) {
         return new ListViewRenderNode(rootId, id, props, className, controllerManager, isLazyLoad);
+    }
+
+    @Override
+    public void updateLayout(int rootId, int id, int x, int y, int width, int height,
+            ControllerRegistry componentHolder) {
+        super.updateLayout(rootId, id, x, y, width, height, componentHolder);
+        // nested list may not receive onBatchComplete, so we have to call dispatchLayout here
+        View view = componentHolder.getView(rootId, id);
+        if (view instanceof HippyRecyclerViewWrapper) {
+            ((HippyRecyclerViewWrapper<?>) view).getRecyclerView().dispatchLayout();
+        }
     }
 
     @HippyControllerProps(name = "horizontal", defaultType = HippyControllerProps.BOOLEAN)

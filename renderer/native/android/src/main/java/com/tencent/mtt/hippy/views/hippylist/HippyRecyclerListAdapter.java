@@ -306,11 +306,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
     }
 
     public int getItemHeight(int position) {
-        Integer itemHeight = getRenderNodeHeight(position);
-        if (itemHeight != null) {
-            return itemHeight;
-        }
-        return 0;
+        return getRenderNodeHeight(position);
     }
 
     public int getRenderNodeHeight(int position) {
@@ -336,11 +332,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
     }
 
     public int getItemWidth(int position) {
-        Integer renderNodeWidth = getRenderNodeWidth(position);
-        if (renderNodeWidth != null) {
-            return renderNodeWidth;
-        }
-        return 0;
+        return getRenderNodeWidth(position);
     }
 
     public int getRenderNodeWidth(int position) {
@@ -406,6 +398,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
             return;
         }
         lp.height = getItemHeight(position);
+        lp.width = getItemWidth(position);
     }
 
     /*package*/ boolean hasHeader() {
