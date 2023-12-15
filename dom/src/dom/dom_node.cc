@@ -328,8 +328,8 @@ void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode
 
   layout_.left = std::isnan(layout_node_->GetLeft()) ? 0 : layout_node_->GetLeft();
   layout_.top = std::isnan(layout_node_->GetTop()) ? 0 : layout_node_->GetTop();
-  layout_.width = std::isnan(layout_node_->GetWidth()) ? 0 : layout_node_->GetWidth();
-  layout_.height = std::isnan(layout_node_->GetHeight()) ? 0 : layout_node_->GetHeight();
+  layout_.width = std::isnan(layout_node_->GetWidth()) ? 0 : std::max<float>(layout_node_->GetWidth(), .0);
+  layout_.height = std::isnan(layout_node_->GetHeight()) ? 0 : std::max<float>(layout_node_->GetHeight(), .0);
   layout_.marginLeft = layout_node_->GetMargin(Edge::EdgeLeft);
   layout_.marginTop = layout_node_->GetMargin(Edge::EdgeTop);
   layout_.marginRight = layout_node_->GetMargin(Edge::EdgeRight);
