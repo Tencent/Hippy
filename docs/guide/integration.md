@@ -186,10 +186,9 @@ examples/hippy-react-demo/dist
 
 ### 运行前端编译产物
 
-把examples/hippy-react-demo/dist/ios目录内容整体拷贝到ios demo的res目录
+把examples/hippy-react-demo/dist/ios目录内容整体拷贝到ios demo的res目录，当用Android来跑时拷贝到Android对应的目录。
 
 ```shell
-# TODO: verify this command
 cp -R examples/hippy-react-demo/dist/ios/*  examples/ios-demo/res/
 cp -R examples/hippy-react-demo/dist/android/*  examples/android-demo/res/
 ```
