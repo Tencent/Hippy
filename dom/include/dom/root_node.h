@@ -22,12 +22,36 @@
 
 #include <stack>
 
+#include "dom/diff_utils.h"
 #include "dom/dom_node.h"
-#include "footstone/task_runner.h"
 #include "footstone/persistent_object_map.h"
+#include "footstone/task_runner.h"
 
 namespace hippy {
 inline namespace dom {
+
+class RootNode;
+
+/**
+ * In HippyVue/HippyReact, updating node styles can be intricate.
+ * This class is specifically designed to compute the differences when updating DOM node styles.
+ */
+class DomNodeStyleDiffer {
+ public:
+  DomNodeStyleDiffer() = default;
+  ~DomNodeStyleDiffer() = default;
+
+  bool Calculate(const std::shared_ptr<hippy::dom::RootNode>& root_node, const std::shared_ptr<DomInfo>& dom_info,
+                 hippy::dom::DiffValue& style_diff, hippy::dom::DiffValue& ext_style_diff);
+  void Reset() {
+    node_ext_style_map_.clear();
+    node_style_map_.clear();
+  }
+
+ private:
+  std::unordered_map<uint32_t, std::unordered_map<std::string, std::shared_ptr<HippyValue>>> node_style_map_;
+  std::unordered_map<uint32_t, std::unordered_map<std::string, std::shared_ptr<HippyValue>>> node_ext_style_map_;
+};
 
 class RootNode : public DomNode {
  public:
@@ -71,7 +95,6 @@ class RootNode : public DomNode {
   void Traverse(const std::function<void(const std::shared_ptr<DomNode>&)>& on_traverse);
   void AddInterceptor(const std::shared_ptr<DomActionInterceptor>& interceptor);
 
-
   static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<RootNode>>& PersistentMap() {
     return persistent_map_;
   }
@@ -80,16 +103,12 @@ class RootNode : public DomNode {
   static void MarkLayoutNodeDirty(const std::vector<std::shared_ptr<DomNode>>& nodes);
 
   struct DomOperation {
-    enum class Op {
-      kOpCreate, kOpUpdate, kOpDelete, kOpMove
-    } op;
+    enum class Op { kOpCreate, kOpUpdate, kOpDelete, kOpMove } op;
     std::vector<std::shared_ptr<DomNode>> nodes;
   };
 
   struct EventOperation {
-    enum class Op {
-      kOpAdd, kOpRemove
-    } op;
+    enum class Op { kOpAdd, kOpRemove } op;
     uint32_t id;
     std::string name;
   };
@@ -107,6 +126,7 @@ class RootNode : public DomNode {
   std::weak_ptr<DomManager> dom_manager_;
   std::vector<std::shared_ptr<DomActionInterceptor>> interceptors_;
   std::shared_ptr<AnimationManager> animation_manager_;
+  std::unique_ptr<DomNodeStyleDiffer> style_differ_;
 
   static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<RootNode>> persistent_map_;
 };
