@@ -262,17 +262,6 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     }
 }
 
-- (void)collectionView:(UICollectionView *)collectionView
-  didEndDisplayingCell:(UICollectionViewCell *)cell
-    forItemAtIndexPath:(NSIndexPath *)indexPath {
-    if ([cell isKindOfClass:[NativeRenderBaseListViewCell class]]) {
-        NativeRenderBaseListViewCell *hpCell = (NativeRenderBaseListViewCell *)cell;
-        if (hpCell.cellView) {
-            [_cachedItems setObject:[hpCell.cellView hippyTag] forKey:indexPath];
-        }
-    }
-}
-
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     NativeRenderBaseListViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
     
@@ -290,9 +279,6 @@ referenceSizeForHeaderInSection:(NSInteger)section {
         [_cachedVisibleCellViews setObject:cellView forKey:shadowView.hippyTag];
     }
     
-    if (cellView) {
-        [_cachedItems removeObjectForKey:indexPath];
-    }
     HippyAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of NativeRenderBaseListViewCell must conform to protocol ViewAppearStateProtocol");
     cell.cellView = cellView;

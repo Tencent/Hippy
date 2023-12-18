@@ -46,7 +46,6 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
 @protected
     NativeRenderWaterfallViewDataSource *_dataSource;
     
-    NSMutableDictionary<NSIndexPath *, NSNumber *> *_cachedItems;
     NSMapTable<NSNumber *, UIView *> *_cachedVisibleCellViews;
 
     NativeRenderHeaderRefresh *_headerRefreshView;
@@ -114,10 +113,6 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
 @property (nonatomic, copy) HippyDirectEventBlock onFooterAppeared;
 @property (nonatomic, copy) HippyDirectEventBlock onRefresh;
 @property (nonatomic, copy) HippyDirectEventBlock onExposureReport;
-
-- (NSUInteger)maxCachedItemCount;
-
-- (NSArray<NSIndexPath *> *)findFurthestIndexPathsFromScreen;
 
 /**
  * Initial collection view
