@@ -69,6 +69,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
         _scrollListeners = [NSHashTable weakObjectsHashTable];
         _scrollEventThrottle = 100.f;
         _cachedItems = [NSMutableDictionary dictionary];
+        _cachedVisibleCellViews = [NSMapTable strongToWeakObjectsMapTable];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
         [self initCollectionView];
         if (@available(iOS 11.0, *)) {
@@ -339,7 +340,18 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     NativeRenderWaterfallViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
     HippyShadowView *shadowView = [_dataSource cellForIndexPath:indexPath];
     [shadowView recusivelySetCreationTypeToInstant];
-    UIView *cellView = [self.renderImpl createViewForShadowListItem:shadowView];
+    
+    UIView *cellView = nil;
+    UIView *cachedVisibleCellView = [_cachedVisibleCellViews objectForKey:shadowView.hippyTag];
+    if (cachedVisibleCellView &&
+        [shadowView isKindOfClass:NativeRenderObjectWaterfallItem.class] &&
+        !((NativeRenderObjectWaterfallItem *)shadowView).layoutDirty) {
+        cellView = cachedVisibleCellView;
+    } else {
+        cellView = [self.renderImpl createViewForShadowListItem:shadowView];
+        [_cachedVisibleCellViews setObject:cellView forKey:shadowView.hippyTag];
+    }
+    
     if (cellView) {
         [_cachedItems removeObjectForKey:indexPath];
     }

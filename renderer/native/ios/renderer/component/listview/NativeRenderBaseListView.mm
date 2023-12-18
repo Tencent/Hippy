@@ -278,7 +278,18 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     
     HippyShadowView *shadowView = [self.dataSource cellForIndexPath:indexPath];
     [shadowView recusivelySetCreationTypeToInstant];
-    UIView *cellView = [self.renderImpl createViewForShadowListItem:shadowView];
+    
+    UIView *cellView = nil;
+    UIView *cachedVisibleCellView = [_cachedVisibleCellViews objectForKey:shadowView.hippyTag];
+    if (cachedVisibleCellView &&
+        [shadowView isKindOfClass:NativeRenderObjectWaterfallItem.class] &&
+        !((NativeRenderObjectWaterfallItem *)shadowView).layoutDirty) {
+        cellView = cachedVisibleCellView;
+    } else {
+        cellView = [self.renderImpl createViewForShadowListItem:shadowView];
+        [_cachedVisibleCellViews setObject:cellView forKey:shadowView.hippyTag];
+    }
+    
     if (cellView) {
         [_cachedItems removeObjectForKey:indexPath];
     }

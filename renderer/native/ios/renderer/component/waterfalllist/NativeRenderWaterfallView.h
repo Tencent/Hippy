@@ -47,6 +47,7 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
     NativeRenderWaterfallViewDataSource *_dataSource;
     
     NSMutableDictionary<NSIndexPath *, NSNumber *> *_cachedItems;
+    NSMapTable<NSNumber *, UIView *> *_cachedVisibleCellViews;
 
     NativeRenderHeaderRefresh *_headerRefreshView;
     NativeRenderFooterRefresh *_footerRefreshView;
