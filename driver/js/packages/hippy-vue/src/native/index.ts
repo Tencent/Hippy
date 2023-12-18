@@ -58,14 +58,14 @@ import ViewNode from '../renderer/view-node';
 
 const LOG_TYPE = ['%c[native]%c', 'color: red', 'color: auto'];
 
-if (typeof global.Symbol !== 'function') {
-  global.Symbol = str => str;
+interface BatchType {
+  [key: string]: any;
 }
 
 /**
  * UI Operations
  */
-const NODE_OPERATION_TYPES = {
+const NODE_OPERATION_TYPES: BatchType = {
   createNode: Symbol('createNode'),
   updateNode: Symbol('updateNode'),
   deleteNode: Symbol('deleteNode'),
@@ -80,7 +80,7 @@ let batchNodes: NeedToTyped = [];
  * Convert an ordered node array into multiple fragments
  */
 function chunkNodes(batchNodes: NeedToTyped) {
-  const result = [];
+  const result: NeedToTyped = [];
   for (let i = 0; i < batchNodes.length; i += 1) {
     const chunk = batchNodes[i];
     const { type, nodes, eventNodes, printedNodes } = chunk;
@@ -223,7 +223,7 @@ function getCssMap() {
  */
 function getNativeProps(node: ElementNode) {
   // Initial the props with empty
-  let props: NeedToTyped;
+  const props: NeedToTyped = {};
   // Get the default native props from meta
   if (node.meta.component.defaultNativeProps) {
     Object.keys(node.meta.component.defaultNativeProps).forEach((key) => {
@@ -403,7 +403,7 @@ If you want to make dialog cover fullscreen, please use { flex: 1 } or set heigh
  * @param targetNode
  */
 function getEventNode(targetNode: NeedToTyped) {
-  let eventNode = undefined;
+  let eventNode: NeedToTyped = undefined;
   const eventsAttributes = targetNode.events;
   if (eventsAttributes) {
     const eventList: NeedToTyped = [];
@@ -446,7 +446,7 @@ function getNativeNode(rootViewId: NeedToTyped, targetNode: ElementNode, refInfo
 /**
  * Render Element to native
  */
-function renderToNative(rootViewId: NeedToTyped, targetNode: ElementNode, refInfo = {}) {
+function renderToNative(rootViewId: NeedToTyped, targetNode: NeedToTyped, refInfo = {}) {
   if (targetNode.meta.skipAddToDom) {
     return [];
   }
@@ -463,7 +463,7 @@ function renderToNative(rootViewId: NeedToTyped, targetNode: ElementNode, refInf
     style = { ...targetNode.meta.component.defaultNativeStyle, ...style };
   }
   // Translate to native node
-  const nativeNode = {
+  const nativeNode: NeedToTyped = {
     id: targetNode.nodeId,
     pId: (targetNode.parentNode?.nodeId) || rootViewId,
     name: targetNode.meta.component.name,
@@ -478,8 +478,8 @@ function renderToNative(rootViewId: NeedToTyped, targetNode: ElementNode, refInf
   parseViewComponent(targetNode, nativeNode, style);
   parseTextInputComponent(targetNode, style);
   // Convert to real native event
-  const eventNode = getEventNode(targetNode);
-  let printedNode = undefined;
+  const eventNode: NeedToTyped = getEventNode(targetNode);
+  let printedNode: NeedToTyped = undefined;
   // Add nativeNode attributes info for Element debugging
   if (isDev()) {
     // generate printedNode for debugging

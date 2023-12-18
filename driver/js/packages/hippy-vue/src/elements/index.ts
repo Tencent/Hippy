@@ -55,11 +55,11 @@ function getDefaultComponent(elementName: NeedToTyped, meta: NeedToTyped, normal
   };
 }
 
-function normalizeElementName(elementName: string) {
+function normalizeElementName(elementName: any) {
   return elementName.toLowerCase();
 }
 
-function registerElement(elementName: string, oldMeta: NeedToTyped) {
+function registerElement(elementName: any, oldMeta: NeedToTyped) {
   if (!elementName) {
     throw new Error('RegisterElement cannot set empty name');
   }

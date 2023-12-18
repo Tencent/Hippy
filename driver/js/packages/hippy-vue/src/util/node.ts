@@ -18,7 +18,6 @@
  * limitations under the License.
  */
 
-import ElementNode from '../renderer/element-node';
 import ViewNode from '../renderer/view-node';
 import { NeedToTyped } from '../types/native';
 
@@ -78,7 +77,7 @@ function recursivelyUnCacheNode(node: ViewNode) {
  * @param {Function} cb
  * @param {{timeout: number}} [options]
  */
-function requestIdleCallback(callback: IdleRequestCallback, options?: IdleRequestOptions) {
+function requestIdleCallback(callback: any, options?: any) {
   if (!global.requestIdleCallback) {
     return setTimeout(() => {
       callback({
@@ -121,7 +120,7 @@ function isStyleMatched(matchedSelector: NeedToTyped, targetNode: ViewNode) {
  * @param startIndex
  * @returns {*}
  */
-function findNotToSkipNode(nodes = [], startIndex = 0) {
+function findNotToSkipNode(nodes: ViewNode[] = [], startIndex = 0) {
   let targetNode = nodes[startIndex];
   for (let i = startIndex; i < nodes.length; i++) {
     const node = nodes[i];

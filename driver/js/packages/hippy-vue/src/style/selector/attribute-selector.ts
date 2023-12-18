@@ -48,7 +48,7 @@ export class AttributeSelector extends SimpleSelector {
   }
 
   public match(node: ElementNode) {
-    if (!test) {
+    if (!this.test) {
       // HasAttribute
       if (!node || !node.attributes) return false;
       return !isNullOrUndefined(getNodeAttrVal(node, this.attribute));

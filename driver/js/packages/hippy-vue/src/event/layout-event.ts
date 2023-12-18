@@ -1,3 +1,4 @@
+import { Event  } from './event';
 /**
  * layout event
  */

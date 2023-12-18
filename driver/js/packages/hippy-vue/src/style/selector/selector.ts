@@ -18,7 +18,6 @@
  * limitations under the License.
  */
 
-import ElementNode from '../../renderer/element-node';
 import ViewNode from '../../renderer/view-node';
 import { SelectorsMap } from '../css-selectors-map';
 import { SelectorsMatch } from '../css-selectors-match';
@@ -62,14 +61,14 @@ export class Selector extends SelectorCore {
     return this.selectors.join('');
   }
 
-  public match(matchNode: ViewNode): boolean {
-    let node: ViewNode | null = matchNode;
+  public match(matchNode?: ViewNode): boolean {
+    let node: ViewNode | undefined = matchNode;
     return this.groups.every((group: ChildGroup, i: number) => {
       if (i === 0) {
         node = group.match(matchNode);
         return !!node;
       }
-      let ancestor = node;
+      let ancestor: ViewNode | undefined = node;
       while (ancestor = ancestor?.parentNode) {
         if (node = group.match(ancestor)) {
           return true;
@@ -88,14 +87,14 @@ export class Selector extends SelectorCore {
   }
 
   public accumulateChanges(matchNode: ViewNode, map: SelectorsMatch): boolean {
-    let node: ViewNode | null = matchNode;
+    let node: ViewNode | undefined = matchNode;
     if (!this.dynamic) {
       return this.match(node);
     }
 
     const bounds: {
       left: ViewNode;
-      right: ViewNode | null;
+      right: ViewNode | undefined;
     }[] = [];
     const mayMatch = this.groups.every((group: ChildGroup, i: number) => {
       if (i === 0) {
@@ -104,11 +103,11 @@ export class Selector extends SelectorCore {
         node = nextNode;
         return !!node;
       }
-      let ancestor = matchNode;
+      let ancestor: ViewNode | undefined = matchNode;
       while (ancestor = ancestor.parentNode) {
         const nextNode = group.mayMatch(ancestor);
         if (nextNode) {
-          bounds.push({ left: ancestor, right: null });
+          bounds.push({ left: ancestor, right: undefined });
           node = nextNode;
           return true;
         }
@@ -131,7 +130,7 @@ export class Selector extends SelectorCore {
         continue;
       }
       const bound = bounds[i];
-      let leftBound = bound.left;
+      let leftBound: ViewNode | undefined = bound.left;
       do {
         if (group.mayMatch(leftBound)) {
           group.trackChanges(leftBound, map);

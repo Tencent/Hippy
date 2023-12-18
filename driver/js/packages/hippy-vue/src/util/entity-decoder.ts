@@ -18,7 +18,15 @@
  * limitations under the License.
  */
 
-export function decode(html: string) {
+function decode(html) {
   return html;
 }
+
+export default {
+  decode,
+};
+export {
+  decode,
+};
+
 

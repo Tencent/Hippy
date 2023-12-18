@@ -22,7 +22,7 @@ import ElementNode from '../renderer/element-node';
 import { NeedToTyped } from '../types/native';
 
 
-export class Event {
+class Event {
   // event name
   public type: string;
 
@@ -93,3 +93,6 @@ export class Event {
   }
 }
 
+export {
+  Event,
+};

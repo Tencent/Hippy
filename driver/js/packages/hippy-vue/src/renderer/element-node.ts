@@ -280,7 +280,7 @@ export class ElementNode extends ViewNode {
   // style list, such as class="wrapper red" => ['wrapper', 'red']
   public classList: Set<string>;
   // attributes
-  public attributes: NativeNodeProps;
+  public attributes: any;
   // style
   public style: NativeNodeProps;
   // events map
@@ -303,8 +303,8 @@ export class ElementNode extends ViewNode {
     options?: EventListenerOptions
   };
   // style scoped id for element
-  public scopeIdList = [];
-  private _emitter: EventEmitter;
+  public scopeIdList: NeedToTyped = [];
+  private _emitter: EventEmitter | null;
   // element tag name, such as div, ul, hi-swiper, etc.
   private _tagName = '';
 
@@ -675,7 +675,7 @@ export class ElementNode extends ViewNode {
     updateEvent(this);
   }
 
-  public removeEventListener(eventNames: string, callback: CallbackType, options: EventListenerOptions) {
+  public removeEventListener(eventNames: string, callback: CallbackType, options?: EventListenerOptions) {
     if (!this._emitter) {
       return null;
     }

@@ -18,6 +18,8 @@
  * limitations under the License.
  */
 
+import { NeedToTyped } from '../types/native';
+
 /* eslint-disable no-param-reassign */
 
 // Check the Regexp is support sticky flag.
@@ -192,7 +194,7 @@ function parseSimpleSelectorSequence(
     return null;
   }
   let { end } = simpleSelector;
-  const value = [];
+  const value: NeedToTyped[] = [];
   while (simpleSelector) {
     value.push(simpleSelector.value);
     ({ end } = simpleSelector);

@@ -26,7 +26,7 @@ import TextNode from './text-node';
 import InputNode from './input-node';
 import ListNode from './list-node';
 
-export class DocumentNode extends ViewNode {
+class DocumentNode extends ViewNode {
   static createComment(text: string) {
     return new CommentNode(text);
   }

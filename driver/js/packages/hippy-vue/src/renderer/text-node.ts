@@ -24,8 +24,7 @@ import { Text } from '../native/components';
 import ViewNode from './view-node';
 
 export default class TextNode extends ViewNode {
-  parentNode: TextNode;
-  text: string;
+  public text: string;
 
   public constructor(text: string) {
     super();
@@ -38,8 +37,8 @@ export default class TextNode extends ViewNode {
 
   public setText(text: string) {
     this.text = text;
-    if (typeof this.parentNode.setText === 'function') {
-      this.parentNode.setText(text);
+    if (typeof (this.parentNode as TextNode).setText === 'function') {
+      (this.parentNode as TextNode).setText(text);
     }
   }
 }

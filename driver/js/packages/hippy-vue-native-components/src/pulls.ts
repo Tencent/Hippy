@@ -103,17 +103,13 @@ function registerPull(Vue: any) {
              */
         [`on${capitalCase}Pulling`](evt: any) {
           if (evt.contentOffset > this.$contentHeight) {
-            // @ts-expect-error TS(2367): This condition will always return 'true' since the... Remove this comment to see the full error message
-            if (this.$lastEvent !== PULLING_EVENT) {
-              // @ts-expect-error TS(2322): Type 'string' is not assignable to type '(options:... Remove this comment to see the full error message
-              this.$lastEvent = PULLING_EVENT;
+            if ((this as any).$lastEvent !== PULLING_EVENT) {
+              (this as any).$lastEvent = PULLING_EVENT;
               // @ts-expect-error TS(2554): Expected 1 arguments, but got 2.
               this.$emit(PULLING_EVENT, evt);
             }
-          // @ts-expect-error TS(2367): This condition will always return 'true' since the... Remove this comment to see the full error message
-          } else if (this.$lastEvent !== IDLE_EVENT) {
-            // @ts-expect-error TS(2322): Type 'string' is not assignable to type '(options:... Remove this comment to see the full error message
-            this.$lastEvent = IDLE_EVENT;
+          } else if ((this as any).$lastEvent !== IDLE_EVENT) {
+            (this as any).$lastEvent = IDLE_EVENT;
             // @ts-expect-error TS(2554): Expected 1 arguments, but got 2.
             this.$emit(IDLE_EVENT, evt);
           }
@@ -125,11 +121,9 @@ function registerPull(Vue: any) {
           layout: this.onLayout,
         };
         if (typeof released === 'function') {
-          // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
           on[`${lowerCase}Released`] = this[`on${capitalCase}Released`];
         }
         if (typeof pulling === 'function' || typeof idle === 'function') {
-          // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
           on[`${lowerCase}Pulling`] = this[`on${capitalCase}Pulling`];
         }
         return h(`hi-pull-${lowerCase}`, {

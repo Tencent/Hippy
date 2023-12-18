@@ -60,10 +60,8 @@ function getEventRedirector(this: any, events: any) {
       }
     } else if (Object.prototype.hasOwnProperty.call(this.$listeners, event)) {
       if (this[`on${capitalize(event)}`]) {
-        // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         on[event] = this[`on${capitalize(event)}`];
       } else {
-        // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         on[event] = (evt: any) => this.$emit(event, evt);
       }
     }

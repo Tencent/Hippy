@@ -67,7 +67,6 @@ function registerAnimation(Vue: any) {
     fullOption.toValue = parseValue(fullOption.valueType, toValue);
     fullOption.repeatCount = repeatCountDict(fullOption.repeatCount);
     fullOption.mode = mode;
-    // @ts-expect-error TS(2304): Cannot find name 'global'.
     const animation = new global.Hippy.Animation(fullOption);
     const animationId = animation.getId();
     return {
@@ -80,7 +79,6 @@ function registerAnimation(Vue: any) {
    * Create the animationSet
    */
   function createAnimationSet(children: any, repeatCount = 0) {
-    // @ts-expect-error TS(2304): Cannot find name 'global'.
     const animation = new global.Hippy.AnimationSet({
       children,
       repeatCount,
@@ -117,7 +115,6 @@ function registerAnimation(Vue: any) {
           return { animationId, follow: true };
         });
         const { animationId, animation } = createAnimationSet(animationSetActions, repeatCountDict(repeatCount));
-        // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         style[key] = {
           animationId,
         };
@@ -131,7 +128,6 @@ function registerAnimation(Vue: any) {
         Object.assign(animationIdsMap, {
           [animationId]: animation,
         });
-        // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         style[key] = {
           animationId,
         };
@@ -240,7 +236,6 @@ function registerAnimation(Vue: any) {
         if (transform) {
           const transformAnimations = createStyle(transform, (this as any).animationIdsMap);
           (style as any).transform = Object.keys(transformAnimations).map(key => ({
-            // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
             [key]: transformAnimations[key],
           }));
         }
@@ -253,11 +248,9 @@ function registerAnimation(Vue: any) {
         (this as any).animationIds.forEach((animationId: any) => {
           const animation = (this as any).animationIdsMap[animationId];
           if (!animation) return;
-          // @ts-expect-error TS(2551): Property 'animationEventMap' does not exist on typ... Remove this comment to see the full error message
-          Object.keys(this.animationEventMap).forEach((key) => {
+          Object.keys((this as any).animationEventMap).forEach((key) => {
             if (typeof (this as any).$listeners[key] !== 'function') return;
-            // @ts-expect-error TS(2551): Property 'animationEventMap' does not exist on typ... Remove this comment to see the full error message
-            const eventName = this.animationEventMap[key];
+            const eventName = (this as any).animationEventMap[key];
             if (!eventName) return;
             animation.removeEventListener(eventName);
           });
@@ -267,11 +260,9 @@ function registerAnimation(Vue: any) {
         (this as any).animationIds.forEach((animationId: any) => {
           const animation = (this as any).animationIdsMap[animationId];
           if (!animation) return;
-          // @ts-expect-error TS(2551): Property 'animationEventMap' does not exist on typ... Remove this comment to see the full error message
-          Object.keys(this.animationEventMap).forEach((key) => {
+          Object.keys((this as any).animationEventMap).forEach((key) => {
             if (typeof (this as any).$listeners[key] !== 'function') return;
-            // @ts-expect-error TS(2551): Property 'animationEventMap' does not exist on typ... Remove this comment to see the full error message
-            const eventName = this.animationEventMap[key];
+            const eventName = (this as any).animationEventMap[key];
             if (!eventName) return;
             animation.addEventListener(eventName, () => {
               (this as any).$emit(key);
@@ -290,7 +281,7 @@ function registerAnimation(Vue: any) {
           this.addAnimationEvent();
           (this as any).animationIds.forEach((animationId: any) => {
             const animation = (this as any).animationIdsMap[animationId];
-            animation && animation.start();
+            animation?.start();
           });
         } else {
           this.resume();
@@ -300,7 +291,7 @@ function registerAnimation(Vue: any) {
         const animationIds = getAnimationIds((this as any).style);
         animationIds.forEach((animationId) => {
           const animation = (this as any).animationIdsMap[animationId];
-          animation && animation.resume();
+          animation?.resume();
         });
       },
       pause() {
@@ -310,7 +301,7 @@ function registerAnimation(Vue: any) {
         const animationIds = getAnimationIds((this as any).style);
         animationIds.forEach((animationId) => {
           const animation = (this as any).animationIdsMap[animationId];
-          animation && animation.pause();
+          animation?.pause();
         });
       },
       destroy() {
@@ -319,7 +310,7 @@ function registerAnimation(Vue: any) {
         const animationIds = getAnimationIds((this as any).style);
         animationIds.forEach((animationId) => {
           const animation = (this as any).animationIdsMap[animationId];
-          animation && animation.destroy();
+          animation?.destroy();
         });
       },
     },

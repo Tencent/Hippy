@@ -29,24 +29,16 @@ interface InputValueMapType {
   [key: string]: string;
 }
 
-export function mapEvent(
-  generalEventParams: string | string[][],
-  rawNativeEventName?: string,
-): Map<string, string> {
-  const map = new Map();
-
-  if (Array.isArray(generalEventParams)) {
-    // vue EventName means click, change the name of the event monitored by vue
-    // The native event name is in onXxx format
-    generalEventParams.forEach(([vueEventName, nativeEventName]) => {
-      map.set(vueEventName, nativeEventName);
-      map.set(nativeEventName, vueEventName);
+function mapEvent(...args) {
+  const map = {};
+  if (Array.isArray(args[0])) {
+    args[0].forEach(([vueEventName, nativeEventName]) => {
+      map[map[vueEventName] = nativeEventName] = vueEventName;
     });
   } else {
-    map.set(generalEventParams, rawNativeEventName);
-    map.set(rawNativeEventName, generalEventParams);
+    const [vueEventName, nativeEventName] = args;
+    map[map[vueEventName] = nativeEventName] = vueEventName;
   }
-
   return map;
 }
 

@@ -11,35 +11,35 @@ export class ChildGroup {
     this.dynamic = selectors.some((sel: SiblingGroup) => sel.dynamic);
   }
 
-  public match(matchNode: ViewNode): ViewNode | null {
-    let node = matchNode;
-    if (!node) return null;
+  public match(matchNode?: ViewNode): ViewNode | undefined {
+    let node: ViewNode | undefined = matchNode;
+    if (!node) return undefined;
     const pass = this.selectors.every((sel: SiblingGroup, i: number) => {
       if (i !== 0) {
-        node = node.parentNode;
+        node = node?.parentNode;
       }
       return !!node && !!sel.match(node);
     });
-    return pass ? node : null;
+    return pass ? node : undefined;
   }
 
-  public mayMatch(matchNode: ViewNode): ViewNode | null {
-    let node = matchNode;
-    if (!node) return null;
+  public mayMatch(matchNode?: ViewNode): ViewNode | undefined {
+    let node: ViewNode | undefined = matchNode;
+    if (!node) return undefined;
     const pass = this.selectors.every((sel: SiblingGroup, i: number) => {
       if (i !== 0) {
-        node = node.parentNode;
+        node = node?.parentNode;
       }
       return !!node && !!sel.mayMatch(node);
     });
-    return pass ? node : null;
+    return pass ? node : undefined;
   }
 
   public trackChanges(matchNode: ViewNode, map: SelectorsMatch) {
-    let node = matchNode;
+    let node: ViewNode | undefined = matchNode;
     this.selectors.forEach((sel: SiblingGroup, i: number) => {
       if (i !== 0) {
-        node = node.parentNode;
+        node = node?.parentNode;
       }
       if (!node) {
         return;

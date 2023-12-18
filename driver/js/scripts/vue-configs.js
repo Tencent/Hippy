@@ -65,7 +65,7 @@ const builds = {
   '@hippy/vue-css-loader': {
     entry: {
       index: resolvePackage('hippy-vue-css-loader', 'src/index.ts'),
-      'css-loader': resolvePackage('hippy-vue-css-loader', 'src/css-loader.js'),
+      'css-loader': resolvePackage('hippy-vue-css-loader', 'src/css-loader.ts'),
     },
     dir: resolvePackage('hippy-vue-css-loader', 'dist'),
     entryFileNames: '[name].js',
@@ -77,7 +77,7 @@ const builds = {
     },
   },
   '@hippy/vue-native-components': {
-    entry: resolvePackage('hippy-vue-native-components', 'src/index.js'),
+    entry: resolvePackage('hippy-vue-native-components', 'src/index.ts'),
     dest: resolvePackage('hippy-vue-native-components', 'dist/index.js'),
     format: 'es',
     moduleName: 'hippy-vue-native-components',
@@ -120,7 +120,7 @@ function genConfig(name) {
             plugins: [
               // only deal with d.ts，ignore js
               // do not transform external npm package path in d.ts
-              { transform: 'typescript-transform-paths', afterDeclarations: true, exclude: ['**/@vue/runtime-core/**'] },
+              { transform: 'typescript-transform-paths', afterDeclarations: true, exclude: ['**/vue/src/**'] },
             ],
           },
         },

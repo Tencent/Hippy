@@ -50,11 +50,11 @@ export type Meta = {
 class ViewNode {
   public childNodes: ViewNode[];
   public index: number;
-  public nextSibling: ViewNode;
+  public nextSibling?: ViewNode;
   public nodeId: number;
-  public parentNode: ViewNode;
-  public prevSibling: ViewNode;
-  protected _meta: Meta;
+  public parentNode?: ViewNode;
+  public prevSibling?: ViewNode;
+  protected _meta?: Meta;
   private _isMounted: boolean;
   private _ownerDocument: NeedToTyped;
 
@@ -62,7 +62,6 @@ class ViewNode {
     // Point to root document element.
     this._ownerDocument = null;
     // Component meta information, such as native component will use.
-    this._meta = null;
     // Will change to be true after insert into Native dom.
     this._isMounted = false;
     // Virtual DOM node id, will be used in native to identify.
@@ -71,9 +70,6 @@ class ViewNode {
     this.index = 0;
     // Relation nodes.
     this.childNodes = [];
-    this.parentNode = null;
-    this.prevSibling = null;
-    this.nextSibling = null;
   }
 
   /* istanbul ignore next */
@@ -268,8 +264,8 @@ class ViewNode {
     if (childNode.nextSibling) {
       childNode.nextSibling.prevSibling = childNode.prevSibling;
     }
-    childNode.prevSibling = null;
-    childNode.nextSibling = null;
+    childNode.prevSibling = undefined;
+    childNode.nextSibling = undefined;
     const index = this.childNodes.indexOf(childNode);
     this.childNodes.splice(index, 1);
     removeChild(this, childNode);

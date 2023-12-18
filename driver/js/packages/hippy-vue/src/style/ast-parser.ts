@@ -30,6 +30,7 @@ import { IdSelector } from './selector/ids-selector';
 import { InvalidSelector } from './selector/invalid-selector';
 import { PseudoClassSelector } from './selector/pseudo-class-selector';
 import { Selector } from './selector/selector';
+import { SimpleSelector } from './selector/simple-selector';
 import { TypeSelector } from './selector/type-selector';
 import { UniversalSelector } from './selector/universal-selector';
 
@@ -52,10 +53,7 @@ export function createDeclaration(beforeLoadStyle: CallbackType) {
   };
 }
 
-export function createSimpleSelectorFromAst(ast?: SelectorType) {
-  if (!ast || !ast.identifier || !ast.property) {
-    return new InvalidSelector(new Error('createSimpleSelectorFromAst ast is null'));
-  }
+export function createSimpleSelectorFromAst(ast: any) {
   switch (ast.type) {
     case '*': return new UniversalSelector();
     case '#': return new IdSelector(ast.identifier);
@@ -85,7 +83,7 @@ export function createSelectorFromAst(ast: ParsedSelectorValueType) {
   if (ast.length === 1) {
     return createSimpleSelectorSequenceFromAst(ast[0][0]);
   }
-  const simpleSelectorSequences = [];
+  const simpleSelectorSequences: SimpleSelector[] = [];
   for (let i = 0; i < ast.length; i += 1) {
     const simpleSelectorSequence = createSimpleSelectorSequenceFromAst(ast[i][0]);
     const combinator = ast[i][1];

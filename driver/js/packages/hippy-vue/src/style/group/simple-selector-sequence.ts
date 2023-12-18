@@ -1,3 +1,4 @@
+import ElementNode from '../../renderer/element-node';
 import ViewNode from '../../renderer/view-node';
 import { SelectorsMap } from '../css-selectors-map';
 import { SelectorsMatch } from '../css-selectors-match';
@@ -38,7 +39,7 @@ export class SimpleSelectorSequence extends SimpleSelector {
   }
 
   public trackChanges(node: ViewNode, match: SelectorsMatch) {
-    this.selectors.forEach((sel: SimpleSelector) => sel.trackChanges(node, match));
+    this.selectors.forEach((sel: SimpleSelector) => sel.trackChanges(node as ElementNode, match));
   }
 
   public lookupSort(sorter: SelectorsMap, base: SelectorCore) {

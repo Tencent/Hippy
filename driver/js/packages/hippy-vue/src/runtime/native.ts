@@ -373,8 +373,8 @@ const Native: NeedToTyped = {
           return reject(new Error((res?.errMsg) || 'getBoundingClientRect error with no response'));
         }
         const { x, y, width, height } = res;
-        let bottom = undefined;
-        let right = undefined;
+        let bottom = 0;
+        let right = 0;
         if (typeof y === 'number' && typeof height === 'number') {
           bottom = y + height;
         }
@@ -408,7 +408,7 @@ const Native: NeedToTyped = {
     const cache = CACHE.COLOR_PARSER || (CACHE.COLOR_PARSER = Object.create(null));
     if (!cache[color]) {
       // cache the calculation result
-      cache[color] = colorParser(color, options);
+      cache[color] = colorParser(color);
     }
     return cache[color];
   },

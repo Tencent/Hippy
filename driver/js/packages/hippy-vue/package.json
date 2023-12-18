@@ -1,6 +1,6 @@
 {
   "name": "@hippy/vue",
-  "version": "unspecified",
+  "version": "0.0.1",
   "description": "Vue binding for Hippy native framework",
   "author": "OpenHippy Team",
   "license": "Apache-2.0",
@@ -27,6 +27,7 @@
     "lodash": "~4.17.21",
     "minimist": "^1.2.6",
     "normalize-url": "^4.5.1",
+    "typescript": "^3.2.2",
     "y18n": "^4.0.1"
   }
 }
