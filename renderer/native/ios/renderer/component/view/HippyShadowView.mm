@@ -39,6 +39,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 
 
 @interface HippyShadowView () {
+    __weak HippyShadowView *_superview;
     NSMutableArray<HippyShadowView *> *_objectSubviews;
     BOOL _recomputePadding;
     BOOL _recomputeMargin;
@@ -56,7 +57,8 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 @synthesize hippyTag = _hippyTag;
 @synthesize props = _props;
 @synthesize rootTag = _rootTag;
-@synthesize tagName =_tagName;
+@synthesize tagName = _tagName;
+@synthesize viewName = _viewName;
 
 - (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
     if (NativeRenderUpdateLifecycleComputed == _propagationLifecycle) {
@@ -73,16 +75,16 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     if (_didUpdateSubviews) {
         _didUpdateSubviews = NO;
         [self didUpdateHippySubviews];
-        [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-            UIView *view = viewRegistry[self->_hippyTag];
+        [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry, UIView * _Nullable lazyCreatedView) {
+            UIView *view = lazyCreatedView ?: viewRegistry[self->_hippyTag];
             [view clearSortedSubviews];
             [view didUpdateHippySubviews];
         }];
     }
     if (_confirmedLayoutDirectionDidUpdated) {
         hippy::Direction direction = [self confirmedLayoutDirection];
-        [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-            UIView *view = viewRegistry[self->_hippyTag];
+        [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry, UIView * _Nullable lazyCreatedView) {
+            UIView *view = lazyCreatedView ?: viewRegistry[self->_hippyTag];
             [view applyLayoutDirectionFromParent:direction];
         }];
         _confirmedLayoutDirectionDidUpdated = NO;
@@ -90,8 +92,8 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     if (!_backgroundColor) {
         UIColor *parentBackgroundColor = parentProperties[NativeRenderBackgroundColorProp];
         if (parentBackgroundColor) {
-            [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-                UIView *view = viewRegistry[self->_hippyTag];
+            [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry, UIView * _Nullable lazyCreatedView) {
+                UIView *view = lazyCreatedView ?: viewRegistry[self->_hippyTag];
                 [view hippySetInheritedBackgroundColor:parentBackgroundColor];
             }];
         }
@@ -154,8 +156,8 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 }
 
 - (void)dirtyText:(BOOL)needToDoLayout {
-    if ([self parentComponent]) {
-        [[self parentComponent] dirtyText:needToDoLayout];
+    if ([self parent]) {
+        [(HippyShadowView *)[self parent] dirtyText:needToDoLayout];
     }
 }
 
@@ -165,7 +167,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 
 - (NativeRenderCreationType)creationType {
     if (NativeRenderCreationTypeUndetermined == _creationType) {
-        HippyShadowView *superRenderObject = [self parentComponent];
+        HippyShadowView *superRenderObject = [self parent];
         if (superRenderObject && ![superRenderObject isHippyRootView]) {
             _creationType = [superRenderObject creationType];
         }
@@ -247,7 +249,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 }
 
 - (void)removeFromHippySuperview {
-    id superview = [self parentComponent];
+    id superview = [self parent];
     [superview removeHippySubview:self];
 }
 
@@ -255,12 +257,12 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     return _objectSubviews;
 }
 
-- (HippyShadowView *)parentComponent {
+- (HippyShadowView *)parent {
     return _superview;
 }
 
-- (void)setParentComponent:(__kindof id<HippyComponent>)parentComponent {
-    _superview = parentComponent;
+- (void)setParent:(id<HippyComponent>)parent {
+    _superview = parent;
 }
 
 - (NSNumber *)hippyTagAtPoint:(CGPoint)point {
@@ -462,7 +464,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 - (void)checkLayoutDirection:(NSMutableSet<HippyShadowView *> *)viewsSet direction:(hippy::Direction *)direction{
     if (hippy::Direction::Inherit == self.confirmedLayoutDirection) {
         [viewsSet addObject:self];
-        HippyShadowView *shadowSuperview = [self parentComponent];
+        HippyShadowView *shadowSuperview = [self parent];
         if (!shadowSuperview) {
             if (direction) {
                 NSWritingDirection writingDirection =
@@ -481,7 +483,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 
 - (void)superviewLayoutDirectionChangedTo:(hippy::Direction)direction {
     if (hippy::Direction::Inherit == self.layoutDirection) {
-        self.confirmedLayoutDirection = [self superview].confirmedLayoutDirection;
+        self.confirmedLayoutDirection = ((HippyShadowView *)[self parent]).confirmedLayoutDirection;
         for (HippyShadowView *subview in self.subcomponents) {
             [subview superviewLayoutDirectionChangedTo:self.confirmedLayoutDirection];
         }

@@ -43,7 +43,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface NativeRenderObjectWaterfall : HippyShadowView<NativeRenderObjectWaterfallItemFrameChangedProtocol>
+@interface HippyShadowListView : HippyShadowView <NativeRenderObjectWaterfallItemFrameChangedProtocol>
+
+///// Whether current ShadowList is dirty.
+//@property (nonatomic, assign) BOOL isDirty;
 
 @property(nonatomic, readonly, strong)WaterfallItemChangeContext *itemChangeContext;
 

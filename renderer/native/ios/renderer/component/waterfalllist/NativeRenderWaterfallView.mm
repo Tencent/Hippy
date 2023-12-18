@@ -33,6 +33,7 @@
 #import "NativeRenderListTableView.h"
 #import "NativeRenderWaterfallViewCell.h"
 #import "HippyRootView.h"
+#import "HippyShadowListView.h"
 
 
 static NSString *kCellIdentifier = @"HippyWaterfallCellIdentifier";
@@ -44,8 +45,6 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     BOOL _isInitialListReady;
     UIColor *_backgroundColor;
     BOOL _manualScroll;
-    NSMutableArray<NSArray<HippyShadowView *> *> *_dataSourcePool;
-    dispatch_semaphore_t _dataSourceSem;
 }
 
 @property (nonatomic, strong) NativeRenderCollectionViewWaterfallLayout *layout;
@@ -69,10 +68,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
         self.backgroundColor = [UIColor clearColor];
         _scrollListeners = [NSHashTable weakObjectsHashTable];
         _scrollEventThrottle = 100.f;
-        _weakItemMap = [NSMapTable strongToWeakObjectsMapTable];
         _cachedItems = [NSMutableDictionary dictionary];
-        _dataSourcePool = [NSMutableArray array];
-        _dataSourceSem = dispatch_semaphore_create(1);
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
         [self initCollectionView];
         if (@available(iOS 11.0, *)) {
@@ -169,26 +165,8 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 - (void)zoomToRect:(CGRect)rect animated:(BOOL)animated {
 }
 
-- (void)didUpdateHippySubviews {
-    self.dirtyContent = YES;
-}
-
-- (void)hippyBridgeDidFinishTransaction {
-    if (self.dirtyContent) {
-        [self reloadData];
-        self.dirtyContent = NO;
-    }
-}
-
 - (void)setContainBannerView:(BOOL)containBannerView {
     _containBannerView = containBannerView;
-}
-
-- (void)refreshItemNodes {
-    NSArray<HippyShadowView *> *datasource = [self popDataSource];
-    _dataSource = [[NativeRenderWaterfallViewDataSource alloc] initWithDataSource:datasource
-                                                                     itemViewName:[self compoentItemName]
-                                                                    containBannerView:_containBannerView];
 }
 
 #pragma mark Setter & Getter
@@ -282,39 +260,31 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     return _manualScroll;
 }
 
+
+#pragma mark - Data Reload
+
+- (void)hippyBridgeDidFinishTransaction {
+    HippyShadowListView *listNode = self.hippyShadowView;
+    if (listNode.itemChangeContext.hasChanges) {
+        [self reloadData];
+        [listNode.itemChangeContext clear];
+    }
+}
+
 - (void)reloadData {
-    [self refreshItemNodes];
-    [_dataSource applyDiff:_previousDataSource
-             changedConext:self.changeContext
-          forWaterfallView:self.collectionView
-                completion:^(BOOL success) {
-        if (success) {
-            self->_previousDataSource = [self->_dataSource copy];
-        }
-        else {
-            self->_previousDataSource = nil;
-        }
-    }];
+    NSArray<HippyShadowView *> *datasource = [self.hippyShadowView.subcomponents copy];
+    _dataSource = [[NativeRenderWaterfallViewDataSource alloc] initWithDataSource:datasource
+                                                                     itemViewName:[self compoentItemName]
+                                                                containBannerView:_containBannerView];
+    
+    [self.collectionView reloadData];
+    
     if (!_isInitialListReady) {
         _isInitialListReady = YES;
         if (self.onInitialListReady) {
             self.onInitialListReady(@{});
         }
     }
-}
-
-- (void)pushDataSource:(NSArray<HippyShadowView *> *)dataSource {
-    dispatch_semaphore_wait(_dataSourceSem, DISPATCH_TIME_FOREVER);
-    [_dataSourcePool addObject:dataSource];
-    dispatch_semaphore_signal(_dataSourceSem);
-}
-
-- (NSArray<HippyShadowView *> *)popDataSource {
-    dispatch_semaphore_wait(_dataSourceSem, DISPATCH_TIME_FOREVER);
-    NSArray<HippyShadowView *> *datasource = [_dataSourcePool lastObject];
-    [_dataSourcePool removeLastObject];
-    dispatch_semaphore_signal(_dataSourceSem);
-    return datasource;
 }
 
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
@@ -326,7 +296,6 @@ static const NSTimeInterval delayForPurgeView = 1.f;
         [_headerRefreshView setScrollView:self.collectionView];
         _headerRefreshView.delegate = self;
         _headerRefreshView.frame = subview.hippyShadowView.frame;
-        [_weakItemMap setObject:subview forKey:[subview hippyTag]];
     } else if ([subview isKindOfClass:[NativeRenderFooterRefresh class]]) {
         if (_footerRefreshView) {
             [_footerRefreshView removeFromSuperview];
@@ -337,12 +306,11 @@ static const NSTimeInterval delayForPurgeView = 1.f;
         _footerRefreshView.frame = subview.hippyShadowView.frame;
         UIEdgeInsets insets = self.collectionView.contentInset;
         self.collectionView.contentInset = UIEdgeInsetsMake(insets.top, insets.left, _footerRefreshView.frame.size.height, insets.right);
-        [_weakItemMap setObject:subview forKey:[subview hippyTag]];
     }
 }
 
-- (NSArray<UIView *> *)subcomponents {
-    return [[_weakItemMap dictionaryRepresentation] allValues];
+- (void)didUpdateHippySubviews {
+    // Do nothing, as subviews is managed by `insertHippySubview:atIndex:` or lazy-created
 }
 
 - (void)removeFromHippySuperview {
@@ -369,7 +337,15 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     NativeRenderWaterfallViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
-    [self addCellViewToCollectionViewCell:cell atIndexPath:indexPath];
+    HippyShadowView *shadowView = [_dataSource cellForIndexPath:indexPath];
+    [shadowView recusivelySetCreationTypeToInstant];
+    UIView *cellView = [self.renderImpl createViewForShadowListItem:shadowView];
+    if (cellView) {
+        [_cachedItems removeObjectForKey:indexPath];
+    }
+    cell.cellView = cellView;
+    cellView.parent = self;
+    
     return cell;
 }
 
@@ -404,19 +380,6 @@ static const NSTimeInterval delayForPurgeView = 1.f;
             [_cachedItems setObject:[hpCell.cellView hippyTag] forKey:indexPath];
         }
     }
-}
-
-- (void)addCellViewToCollectionViewCell:(UICollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath {
-    NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
-    HippyShadowView *renderObjectView = [_dataSource cellForIndexPath:indexPath];
-    [renderObjectView recusivelySetCreationTypeToInstant];
-    UIView *cellView = [self.renderImpl createViewRecursivelyFromRenderObject:renderObjectView];
-    if (cellView) {
-        [_cachedItems removeObjectForKey:indexPath];
-    }
-    hpCell.cellView = cellView;
-    cellView.parentComponent = self;
-    [_weakItemMap setObject:cellView forKey:[cellView hippyTag]];
 }
 
 #pragma mark - NativeRenderCollectionViewDelegateWaterfallLayout

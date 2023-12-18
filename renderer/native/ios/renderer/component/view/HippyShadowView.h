@@ -24,6 +24,8 @@
 #import "HippyComponent.h"
 #import "HippyConvert+NativeRender.h"
 
+#ifdef __cplusplus
+
 #include <memory>
 
 namespace hippy {
@@ -35,6 +37,7 @@ struct LayoutResult;
 enum class Direction;
 }
 }
+#endif /* __cplusplus */
 
 typedef NS_ENUM(NSUInteger, NativeRenderUpdateLifecycle) {
     NativeRenderUpdateLifecycleUninitialized = 0,
@@ -52,7 +55,7 @@ typedef NS_ENUM(NSUInteger, NativeRenderCreationType) {
 
 @class HippyShadowView;
 
-typedef void (^NativeRenderApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegistry);
+typedef void (^NativeRenderApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegistry, UIView * _Nullable lazyCreatedView);
 
 typedef UIView *(^NativeRenderViewCreationBlock)(HippyShadowView *renderObject);
 typedef void (^NativeRenderViewInsertionBlock)(UIView *container, NSArray<UIView *> *children);
@@ -76,38 +79,7 @@ extern NSString *const NativeRenderShadowViewDiffTag;
     NativeRenderUpdateLifecycle _propagationLifecycle;
 }
 
-/**
- * NativeRenderComponent interface.
- */
 
-/**
- * Get all native render object
- */
-- (NSArray<HippyShadowView *> *)subcomponents;
-
-/**
- * Get super render object
- */
-- (HippyShadowView *)parentComponent;
-
-/**
- * Insert native render object at index.
- *
- * @param subview A render object subview to insert
- * @param atIndex position for hippy subview to insert
- * @discussion atIndex must not exceed range of current index
- */
-- (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex;
-
-/**
- * Remove render object
- *
- * @param subview A render object to delete
- */
-- (void)removeHippySubview:(HippyShadowView *)subview;
-
-@property(nonatomic, weak, readonly) HippyShadowView *superview;
-@property(nonatomic, copy) NSString *viewName;
 @property(nonatomic, strong) UIColor *backgroundColor;  // Used to propagate to children
 @property(nonatomic, copy) HippyDirectEventBlock onLayout;
 @property(nonatomic, readonly) BOOL confirmedLayoutDirectionDidUpdated;
@@ -176,11 +148,14 @@ extern NSString *const NativeRenderShadowViewDiffTag;
  */
 @property (nonatomic, assign) NativeRenderCreationType creationType;
 
+#ifdef __cplusplus
 @property (nonatomic, assign) std::weak_ptr<hippy::DomManager> domManager;
 
 @property (nonatomic, assign) std::weak_ptr<hippy::DomNode> domNode;
 
 @property (nonatomic, assign) std::weak_ptr<hippy::RootNode> rootNode;
+
+#endif
 
 /**
  * set create type of itself and its all descendants to NativeRenderCreationTypeInstantly
@@ -234,6 +209,7 @@ extern NSString *const NativeRenderShadowViewDiffTag;
 
 - (NSDictionary *)mergeProps:(NSDictionary *)props;
 
+#ifdef __cplusplus
 /**
  * Add event to NativeRenderObject
  * @param name event name
@@ -254,11 +230,14 @@ extern NSString *const NativeRenderShadowViewDiffTag;
  */
 - (void)clearEventNames;
 
+
 @property(nonatomic, assign) hippy::LayoutResult nodeLayoutResult;
 
 @property(nonatomic, assign) hippy::Direction layoutDirection;
 @property(nonatomic, assign) hippy::Direction confirmedLayoutDirection;
 - (void)applyConfirmedLayoutDirectionToSubviews:(hippy::Direction)confirmedLayoutDirection;
 - (BOOL)isLayoutSubviewsRTL;
+
+#endif
 
 @end
