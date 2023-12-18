@@ -68,7 +68,6 @@ static const NSTimeInterval delayForPurgeView = 1.f;
         self.backgroundColor = [UIColor clearColor];
         _scrollListeners = [NSHashTable weakObjectsHashTable];
         _scrollEventThrottle = 100.f;
-        _cachedItems = [NSMutableDictionary dictionary];
         _cachedVisibleCellViews = [NSMapTable strongToWeakObjectsMapTable];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
         [self initCollectionView];
@@ -172,65 +171,6 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 
 #pragma mark Setter & Getter
 
-- (NSUInteger)maxCachedItemCount {
-    return NSUIntegerMax;
-}
-
-- (NSUInteger)differenceFromIndexPath:(NSIndexPath *)indexPath1 againstAnother:(NSIndexPath *)indexPath2 {
-    NSAssert([NSThread mainThread], @"must be in main thread");
-    long diffCount = 0;
-    for (NSUInteger index = MIN([indexPath1 section], [indexPath2 section]); index < MAX([indexPath1 section], [indexPath2 section]); index++) {
-        diffCount += [_collectionView numberOfItemsInSection:index];
-    }
-    diffCount = diffCount + [indexPath1 row] - [indexPath2 row];
-    return abs(diffCount);
-}
-
-- (NSInteger)differenceFromIndexPath:(NSIndexPath *)indexPath againstVisibleIndexPaths:(NSArray<NSIndexPath *> *)visibleIndexPaths {
-    NSIndexPath *firstIndexPath = [visibleIndexPaths firstObject];
-    NSIndexPath *lastIndexPath = [visibleIndexPaths lastObject];
-    NSUInteger diffFirst = [self differenceFromIndexPath:indexPath againstAnother:firstIndexPath];
-    NSUInteger diffLast = [self differenceFromIndexPath:indexPath againstAnother:lastIndexPath];
-    return MIN(diffFirst, diffLast);
-}
-
-- (NSArray<NSIndexPath *> *)findFurthestIndexPathsFromScreen {
-    NSUInteger visibleItemsCount = [[self.collectionView visibleCells] count];
-    NSUInteger maxCachedItemCount = [self maxCachedItemCount] == NSUIntegerMax ? visibleItemsCount * 3 : [self maxCachedItemCount];
-    NSUInteger cachedCount = [_cachedItems count];
-    NSInteger cachedCountToRemove = cachedCount > maxCachedItemCount ? cachedCount - maxCachedItemCount : 0;
-    if (0 != cachedCountToRemove) {
-        NSArray<NSIndexPath *> *visibleIndexPaths = [_collectionView indexPathsForVisibleItems];
-        NSArray<NSIndexPath *> *sortedCachedItemKey = [[_cachedItems allKeys] sortedArrayUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
-            NSIndexPath *ip1 = obj1;
-            NSIndexPath *ip2 = obj2;
-            NSUInteger ip1Diff = [self differenceFromIndexPath:ip1 againstVisibleIndexPaths:visibleIndexPaths];
-            NSUInteger ip2Diff = [self differenceFromIndexPath:ip2 againstVisibleIndexPaths:visibleIndexPaths];
-            if (ip1Diff > ip2Diff) {
-                return NSOrderedAscending;
-            }
-            else if (ip1Diff < ip2Diff) {
-                return NSOrderedDescending;
-            }
-            else {
-                return NSOrderedSame;
-            }
-        }];
-        NSArray<NSIndexPath *> *result = [sortedCachedItemKey subarrayWithRange:NSMakeRange(0, cachedCountToRemove)];
-        return result;
-    }
-    return nil;
-}
-
-- (void)purgeFurthestIndexPathsFromScreen {
-    NSArray<NSIndexPath *> *furthestIndexPaths = [self findFurthestIndexPathsFromScreen];
-    //purge view
-    NSArray<NSNumber *> *objects = [_cachedItems objectsForKeys:furthestIndexPaths notFoundMarker:@(-1)];
-    [self.renderImpl purgeViewsFromComponentTags:objects onRootTag:self.rootTag];
-    //purge cache
-    [_cachedItems removeObjectsForKeys:furthestIndexPaths];
-}
-
 - (void)setContentInset:(UIEdgeInsets)contentInset {
     _contentInset = contentInset;
 
@@ -314,19 +254,6 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     // Do nothing, as subviews is managed by `insertHippySubview:atIndex:` or lazy-created
 }
 
-- (void)removeFromHippySuperview {
-    [super removeFromHippySuperview];
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
-    [self purgeFurthestIndexPathsFromScreen];
-}
-
-- (void)didMoveToWindow {
-    if (!self.window) {
-        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
-        [self purgeFurthestIndexPathsFromScreen];
-    }
-}
-
 #pragma mark - UICollectionViewDataSource
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
     return [_dataSource numberOfSection];
@@ -352,12 +279,8 @@ static const NSTimeInterval delayForPurgeView = 1.f;
         [_cachedVisibleCellViews setObject:cellView forKey:shadowView.hippyTag];
     }
     
-    if (cellView) {
-        [_cachedItems removeObjectForKey:indexPath];
-    }
     cell.cellView = cellView;
     cellView.parent = self;
-    
     return cell;
 }
 
@@ -379,17 +302,6 @@ static const NSTimeInterval delayForPurgeView = 1.f;
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 self.onFooterAppeared(@ {});
             });
-        }
-    }
-}
-
-- (void)collectionView:(UICollectionView *)collectionView
-  didEndDisplayingCell:(UICollectionViewCell *)cell
-    forItemAtIndexPath:(NSIndexPath *)indexPath {
-    if ([cell isKindOfClass:[NativeRenderWaterfallViewCell class]]) {
-        NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
-        if (hpCell.cellView) {
-            [_cachedItems setObject:[hpCell.cellView hippyTag] forKey:indexPath];
         }
     }
 }
@@ -462,8 +374,6 @@ static const NSTimeInterval delayForPurgeView = 1.f;
             [scrollViewListener scrollViewDidScroll:scrollView];
         }
     }
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
-    [self performSelector:@selector(purgeFurthestIndexPathsFromScreen) withObject:nil afterDelay:delayForPurgeView];
     [_headerRefreshView scrollViewDidScroll];
     [_footerRefreshView scrollViewDidScroll];
 }
@@ -743,11 +653,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 }
 
 - (void)cleanUpCachedItems {
-    //purge view
-    NSArray<NSNumber *> *objects = [_cachedItems allValues];
-    [self.renderImpl purgeViewsFromComponentTags:objects onRootTag:self.rootTag];
-    //purge cache
-    [_cachedItems removeAllObjects];
+    // nop
 }
 
 @end

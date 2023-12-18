@@ -96,9 +96,6 @@
 /// Get all rootView
 - (NSArray<__kindof UIView *> *)rootViews;
 
-/// Purge view from superView
-- (void)purgeViewsFromComponentTags:(NSArray<NSNumber *> *)componentTag onRootTag:(NSNumber *)rootTag;
-
 /// Update view with props
 - (void)updateView:(NSNumber *)componentTag onRootTag:(NSNumber *)rootTag props:(NSDictionary *)pros;
 

@@ -474,17 +474,6 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     }
 }
 
-- (void)purgeViewsFromComponentTags:(NSArray<NSNumber *> *)componentTags onRootTag:(NSNumber *)rootTag {
-    for (NSNumber *componentTag in componentTags) {
-        UIView *view = [self viewForHippyTag:componentTag onRootTag:rootTag];
-        HippyComponentMap *componentMap = _viewRegistry;
-        NativeRenderTraverseViewNodes(view, ^(id<HippyComponent> subview) {
-            NSAssert(![subview isHippyRootView], @"Root views should not be unregistered");
-            [componentMap removeComponent:subview forRootTag:rootTag];
-        });
-    }
-}
-
 - (void)removeChildren:(NSArray<id<HippyComponent>> *)children fromContainer:(id<HippyComponent>)container {
     for (id<HippyComponent> removedChild in children) {
         [container removeHippySubview:removedChild];
