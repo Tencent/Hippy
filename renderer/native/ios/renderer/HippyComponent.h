@@ -30,9 +30,9 @@
 typedef void (^HippyDirectEventBlock)(NSDictionary *body);
 
 /**
- * Logical node in a tree of application components. Both `NativeRenderObject` and
- * `UIView` conforms to this. Allows us to write utilities that reason about
- * trees generally.
+ * Logical node in a tree of application components.
+ * Both `HippyShadowView` and `UIView` conforms to this.
+ * Allows us to write utilities that reason about trees generally.
  */
 @protocol HippyComponent <NSObject>
 
@@ -43,35 +43,37 @@ typedef void (^HippyDirectEventBlock)(NSDictionary *body);
 @property (nonatomic, copy) NSDictionary *props;
 @property (nonatomic, assign) CGRect frame;
 
-@property(nonatomic, readwrite)__kindof id<HippyComponent> parentComponent;
+/// The parent of current component
+@property (nonatomic, weak) id<HippyComponent> parent;
 
-- (NSArray<__kindof id<HippyComponent>> *)subcomponents;
+/// Subviews of current component
+- (NSArray<id<HippyComponent>> *)subcomponents;
 
-/// <#Description#>
+/// Inset
 /// - Parameters:
-///   - subview: <#subview description#>
-///   - atIndex: <#atIndex description#>
+///   - subview: id
+///   - atIndex: NSInteger
 - (void)insertHippySubview:(id<HippyComponent>)subview atIndex:(NSInteger)atIndex;
 
-/// <#Description#>
-/// - Parameter subview: <#subview description#>
+/// Remove
+/// - Parameter subview: id
 - (void)removeHippySubview:(id<HippyComponent>)subview;
 
-/// <#Description#>
+/// Move
 /// - Parameters:
-///   - subview: <#subview description#>
-///   - atIndex: <#atIndex description#>
+///   - subview: id
+///   - atIndex: NSInteger
 - (void)moveHippySubview:(id<HippyComponent>)subview toIndex:(NSInteger)atIndex;
 
-/// <#Description#>
+/// Remove from superview
 - (void)removeFromHippySuperview;
 
-/// <#Description#>
-/// - Parameter frame: <#frame description#>
+/// Set Frame
+/// - Parameter frame: CGRect
 - (void)hippySetFrame:(CGRect)frame;
 
-/// <#Description#>
-/// - Parameter point: <#point description#>
+/// Get accurate tag in special cases such as subviews
+/// - Parameter point: CGPoint
 - (NSNumber *)hippyTagAtPoint:(CGPoint)point;
 
 /// View/ShadowView is a root view

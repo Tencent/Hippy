@@ -357,9 +357,9 @@ static NSString *const kListViewItem = @"ListViewItem";
     NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
     HippyShadowView *renderObject = [_dataSource cellForIndexPath:adjustIndexPath];
     [renderObject recusivelySetCreationTypeToInstant];
-    UIView *cellView = [self.renderImpl createViewRecursivelyFromRenderObject:renderObject];
+    UIView *cellView = [self.renderImpl createViewForShadowListItem:renderObject];
     hpCell.cellView = cellView;
-    cellView.parentComponent = self;
+    cellView.parent = self;
 }
 
 - (void)tableViewDidLayoutSubviews:(NativeRenderListTableView *)tableView {

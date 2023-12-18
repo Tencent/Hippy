@@ -32,6 +32,7 @@
 #import "UIView+DirectionalLayout.h"
 #import "UIView+Hippy.h"
 #import "UIView+Render.h"
+#import "HippyShadowListView.h"
 
 static NSString *const kCellIdentifier = @"HippyListCellIdentifier";
 static NSString *const kSupplementaryIdentifier = @"HippySupplementaryIdentifier";
@@ -128,21 +129,23 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 
-#pragma mark Data Load
+#pragma mark - Data Load
+
+- (void)hippyBridgeDidFinishTransaction {
+    HippyShadowListView *listNode = self.hippyShadowView;
+    if (listNode && listNode.itemChangeContext.hasChanges) {
+        [self reloadData];
+        [listNode.itemChangeContext clear];
+    }
+}
  
 - (void)reloadData {
-    [self refreshItemNodes];
-    [_dataSource applyDiff:_previousDataSource
-             changedConext:self.changeContext
-          forWaterfallView:self.collectionView
-                completion:^(BOOL success) {
-        if (success) {
-            self->_previousDataSource = [self->_dataSource copy];
-        }
-        else {
-            self->_previousDataSource = nil;
-        }
-    }];
+    NSArray<HippyShadowView *> *datasource = [self.hippyShadowView.subcomponents copy];
+    self->_dataSource = [[NativeRenderBaseListViewDataSource alloc] initWithDataSource:datasource
+                                                                          itemViewName:[self compoentItemName]
+                                                                     containBannerView:NO];
+    [self.collectionView reloadData];
+    
     if (self.initialContentOffset) {
         CGFloat initialContentOffset = self.initialContentOffset;
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -166,7 +169,6 @@ static NSString *const kListViewItem = @"ListViewItem";
         _headerRefreshView = (NativeRenderHeaderRefresh *)subview;
         [_headerRefreshView setScrollView:self.collectionView];
         _headerRefreshView.delegate = self;
-        [_weakItemMap setObject:subview forKey:[subview hippyTag]];
     } else if ([subview isKindOfClass:[NativeRenderFooterRefresh class]]) {
         if (_footerRefreshView) {
             [_footerRefreshView unsetFromScrollView];
@@ -174,28 +176,8 @@ static NSString *const kListViewItem = @"ListViewItem";
         _footerRefreshView = (NativeRenderFooterRefresh *)subview;
         [_footerRefreshView setScrollView:self.collectionView];
         _footerRefreshView.delegate = self;
-        [_weakItemMap setObject:subview forKey:[subview hippyTag]];
     }
 }
-
-- (void)didUpdateHippySubviews {
-    self.dirtyContent = YES;
-}
-
-- (void)hippyBridgeDidFinishTransaction {
-    if (self.dirtyContent) {
-        [self reloadData];
-        self.dirtyContent = NO;
-    }
-}
-
-- (void)refreshItemNodes {
-    NSArray<HippyShadowView *> *datasource = [self popDataSource];
-    self->_dataSource = [[NativeRenderBaseListViewDataSource alloc] initWithDataSource:datasource
-                                                                          itemViewName:[self compoentItemName]
-                                                                     containBannerView:NO];
-}
-
 
 #pragma mark - Delegate & Datasource
 
@@ -237,10 +219,11 @@ referenceSizeForHeaderInSection:(NSInteger)section {
                                                                                forIndexPath:indexPath];
     HippyShadowView *headerRenderObject = [self.dataSource headerForSection:section];
     if (headerRenderObject && [headerRenderObject isKindOfClass:[HippyShadowView class]]) {
-        UIView *headerView = [self.renderImpl createViewRecursivelyFromRenderObject:headerRenderObject];
+        UIView *headerView = [self.renderImpl createViewForShadowListItem:headerRenderObject];
         CGRect frame = headerView.frame;
         frame.origin = CGPointZero;
         headerView.frame = frame;
+        
         [view addSubview:headerView];
     }
     return view;
@@ -291,31 +274,20 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
+    NativeRenderBaseListViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
     
-    // Create and Add real Hippy cell content
-    [self addCellViewToCollectionViewCell:cell atIndexPath:indexPath];
-    return cell;
-}
-
-- (void)addCellViewToCollectionViewCell:(UICollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath {
-    HippyAssert(self.renderImpl, @"no rendercontext detected");
-    if (!self.renderImpl) {
-        return;
-    }
-    HippyShadowView *cellRenderObject = [self.dataSource cellForIndexPath:indexPath];
-    [cellRenderObject recusivelySetCreationTypeToInstant];
-    
-    NativeRenderBaseListViewCell *hpCell = (NativeRenderBaseListViewCell *)cell;
-    UIView *cellView = [self.renderImpl createViewRecursivelyFromRenderObject:cellRenderObject];
+    HippyShadowView *shadowView = [self.dataSource cellForIndexPath:indexPath];
+    [shadowView recusivelySetCreationTypeToInstant];
+    UIView *cellView = [self.renderImpl createViewForShadowListItem:shadowView];
     if (cellView) {
         [_cachedItems removeObjectForKey:indexPath];
     }
     HippyAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of NativeRenderBaseListViewCell must conform to protocol ViewAppearStateProtocol");
-    hpCell.cellView = cellView;
-    cellView.parentComponent = self;
-    [_weakItemMap setObject:cellView forKey:[cellView hippyTag]];
+    cell.cellView = cellView;
+    cellView.parent = self;
+    
+    return cell;
 }
 
 - (void)tableViewDidLayoutSubviews:(NativeRenderListTableView *)tableView {

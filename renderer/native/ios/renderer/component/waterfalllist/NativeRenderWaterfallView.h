@@ -45,8 +45,7 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
                                         NativeRenderCollectionViewDelegateWaterfallLayout, HippyScrollableProtocol, HippyScrollProtocol> {
 @protected
     NativeRenderWaterfallViewDataSource *_dataSource;
-    NativeRenderWaterfallViewDataSource *_previousDataSource;
-    NSMapTable<NSNumber *, UIView *> *_weakItemMap;
+    
     NSMutableDictionary<NSIndexPath *, NSNumber *> *_cachedItems;
 
     NativeRenderHeaderRefresh *_headerRefreshView;
@@ -54,10 +53,6 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
     
     BOOL _allowNextScrollNoMatterWhat;
 }
-
-@property(nonatomic, assign) BOOL dirtyContent;
-
-@property(nonatomic, strong) WaterfallItemChangeContext *changeContext;
 
 /**
  * Content inset for NativeRenderWaterfallView
@@ -165,9 +160,6 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
  * Reload data
  */
 - (void)reloadData;
-
-- (void)pushDataSource:(NSArray<HippyShadowView *> *)dataSource;
-- (NSArray<HippyShadowView *> *)popDataSource;
 
 /**
  * Reserved, not implemented

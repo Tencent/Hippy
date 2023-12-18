@@ -40,7 +40,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addRootComponent:(id<HippyComponent>)component
                 rootNode:(std::weak_ptr<hippy::RootNode>)rootNode
-                  forTag:(NSNumber *)tag;
+                  forTag:(NSNumber *)tag
+    strongHoldComponents:(BOOL)shouldStrongHoldAllComponents;
+
 
 - (void)removeRootComponentWithTag:(NSNumber *)tag;
 

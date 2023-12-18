@@ -112,16 +112,20 @@ HippyEventMethod(OnTouchEnd, onTouchEnd, OnTouchEventHandler)
 }
 
 - (__kindof HippyShadowView *)hippyShadowView {
-    NSHashTable *hashTable = objc_getAssociatedObject(self, _cmd);
-    return [hashTable anyObject];
+    @synchronized (self) {
+        NSHashTable *hashTable = objc_getAssociatedObject(self, _cmd);
+        return [hashTable anyObject];
+    }
 }
 
 - (void)setHippyShadowView:(__kindof HippyShadowView *)renderObject {
-    NSHashTable *hashTable = [NSHashTable weakObjectsHashTable];
-    if (renderObject) {
-        [hashTable addObject:renderObject];
+    @synchronized (self) {
+        NSHashTable *hashTable = [NSHashTable weakObjectsHashTable];
+        if (renderObject) {
+            [hashTable addObject:renderObject];
+        }
+        objc_setAssociatedObject(self, @selector(hippyShadowView), hashTable, OBJC_ASSOCIATION_RETAIN);
     }
-    objc_setAssociatedObject(self, @selector(hippyShadowView), hashTable, OBJC_ASSOCIATION_RETAIN);
 }
 
 - (BOOL)isHippyRootView {
@@ -140,18 +144,17 @@ HippyEventMethod(OnTouchEnd, onTouchEnd, OnTouchEventHandler)
     return objc_getAssociatedObject(self, _cmd);
 }
 
-- (UIView *)parentComponent {
+- (UIView *)parent {
     return [objc_getAssociatedObject(self, _cmd) anyObject];
 }
 
-- (void)setParentComponent:(__kindof id<HippyComponent>)parentComponent {
-    if (parentComponent) {
+- (void)setParent:(id<HippyComponent>)parent {
+    if (parent) {
         NSHashTable *hashTable = [NSHashTable weakObjectsHashTable];
-        [hashTable addObject:parentComponent];
-        objc_setAssociatedObject(self, @selector(parentComponent), hashTable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-    else {
-        objc_setAssociatedObject(self, @selector(parentComponent), nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        [hashTable addObject:parent];
+        objc_setAssociatedObject(self, @selector(parent), hashTable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    } else {
+        objc_setAssociatedObject(self, @selector(parent), nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 }
 
@@ -173,7 +176,7 @@ HippyEventMethod(OnTouchEnd, onTouchEnd, OnTouchEventHandler)
     else {
         [subviews addObject:subview];
     }
-    subview.parentComponent = self;
+    subview.parent = self;
 }
 
 - (void)moveHippySubview:(UIView *)subview toIndex:(NSInteger)atIndex {
@@ -197,11 +200,11 @@ HippyEventMethod(OnTouchEnd, onTouchEnd, OnTouchEventHandler)
     [subviews removeObject:subview];
     [subview sendDetachedFromWindowEvent];
     [subview removeFromSuperview];
-    subview.parentComponent = nil;
+    subview.parent = nil;
 }
 
 - (void)removeFromHippySuperview {
-    [(UIView *)self.parentComponent removeHippySubview:self];
+    [(UIView *)self.parent removeHippySubview:self];
 }
 
 - (void)resetHippySubviews {
@@ -218,7 +221,7 @@ HippyEventMethod(OnTouchEnd, onTouchEnd, OnTouchEventHandler)
     UIView *candidateRootView = self;
     BOOL isRootView = [candidateRootView isHippyRootView];
     while (!isRootView && candidateRootView) {
-        candidateRootView = [candidateRootView parentComponent];
+        candidateRootView = [candidateRootView parent];
         isRootView = [candidateRootView isHippyRootView];
     }
     return candidateRootView;
