@@ -149,7 +149,7 @@ constexpr char kVSyncKey[] = "frameupdate";
 @end
 
 static void NativeRenderTraverseViewNodes(id<HippyComponent> view, void (^block)(id<HippyComponent>)) {
-    if (view.hippyTag) {
+    if (view.hippyTag != nil) {
         block(view);
         for (id<HippyComponent> subview in view.subcomponents) {
             NativeRenderTraverseViewNodes(subview, block);
@@ -789,6 +789,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         }
         [superRenderObject didUpdateHippySubviews];
     }];
+    __block NSMutableArray *tempCreatedViews = [NSMutableArray arrayWithCapacity:nodes.size()]; // Used to temporarily hold views objects.
     for (const std::shared_ptr<DomNode> &node : nodes) {
         NSNumber *componentTag = @(node->GetId());
         HippyShadowView *shadowView = [_shadowViewRegistry componentForTag:componentTag onRootTag:rootNodeTag];
@@ -804,6 +805,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
                         [uiManager->_componentTransactionListeners addObject:view];
                     }
                     [uiManager.viewRegistry addComponent:view forRootTag:shadowView.rootTag];
+                    [tempCreatedViews addObject:view];
                     
                     // TODO: hippy3 events binding handling, performance needs to be improved here.
                     const std::vector<std::string> &eventNames = [shadowView allEventNames];
