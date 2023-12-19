@@ -262,7 +262,6 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     NativeRenderWaterfallViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
     HippyShadowView *shadowView = [_dataSource cellForIndexPath:indexPath];
-    [shadowView recusivelySetCreationTypeToInstant];
     
     UIView *cellView = nil;
     UIView *cachedCellView = [_cachedWeakCellViews objectForKey:shadowView.hippyTag];

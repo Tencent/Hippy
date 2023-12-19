@@ -182,24 +182,6 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 //    _textLifecycle = NativeRenderUpdateLifecycleComputed;
 }
 
-- (void)recusivelySetCreationTypeToInstant {
-    auto domManager = self.domManager.lock();
-    if (domManager) {
-        __weak HippyShadowView *weakSelf = self;
-        
-        std::vector<std::function<void()>> ops = {[weakSelf](){
-            if (weakSelf) {
-                HippyShadowView *strongSelf = weakSelf;
-                strongSelf.creationType = NativeRenderCreationTypeInstantly;
-                for (HippyShadowView *subRenderObject in strongSelf.subcomponents) {
-                    [subRenderObject synchronousRecusivelySetCreationTypeToInstant];
-                }
-            }
-        }};
-        domManager->PostTask(hippy::dom::Scene(std::move(ops)));
-    }
-}
-
 - (void)synchronousRecusivelySetCreationTypeToInstant {
     self.creationType = NativeRenderCreationTypeInstantly;
     for (HippyShadowView *subShadowView in self.subcomponents) {

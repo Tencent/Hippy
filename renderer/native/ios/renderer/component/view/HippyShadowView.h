@@ -160,7 +160,8 @@ extern NSString *const NativeRenderShadowViewDiffTag;
 /**
  * set create type of itself and its all descendants to NativeRenderCreationTypeInstantly
  */
-- (void)recusivelySetCreationTypeToInstant;
+- (void)synchronousRecusivelySetCreationTypeToInstant;
+
 
 - (UIView *)createView:(NativeRenderViewCreationBlock)creationBlock insertChildren:(NativeRenderViewInsertionBlock)insertionBlock;
 

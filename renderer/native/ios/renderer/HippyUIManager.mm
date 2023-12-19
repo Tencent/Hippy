@@ -526,6 +526,13 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 - (UIView *)createViewForShadowListItem:(HippyShadowView *)renderObject {
     AssertMainQueue();
     std::lock_guard<std::mutex> lock([self renderQueueLock]);
+    // There was a timing problem here:
+    // If a batch of subviews of the cell has already been `created` before
+    // update to CreationTypeInstantly, then this batch of views will not be created
+    // until the next `cellForItemAtIndexPath` call.
+    // we currently resolve this issue by setting the CreationType synchronously.
+    // TODO: CreationType's further optimization is needed in the future
+    [renderObject synchronousRecusivelySetCreationTypeToInstant];
     return [self createViewRecursiveFromRenderObjectWithNOLock:renderObject];
 }
 

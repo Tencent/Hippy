@@ -21,7 +21,7 @@
  */
 
 #import "HippyComponentMap.h"
-
+#import "HippyLog.h"
 #include "dom/root_node.h"
 
 using RootNode = hippy::RootNode;
@@ -139,12 +139,13 @@ using RootNode = hippy::RootNode;
 }
 
 - (__kindof id<HippyComponent>)componentForTag:(NSNumber *)componentTag
-                                                    onRootTag:(NSNumber *)tag {
-    NSAssert(componentTag && tag, @"componentTag && tag must not be null in method %@", NSStringFromSelector(_cmd));
+                                     onRootTag:(NSNumber *)tag {
     NSAssert([self threadCheck], @"%@ method needs run in main thread", NSStringFromSelector(_cmd));
     if (componentTag && tag) {
         id map = [_componentsMap objectForKey:tag];
         return [map objectForKey:componentTag];
+    } else {
+        HippyLogError(@"componentTag && tag must not be null");
     }
     return nil;
 }
