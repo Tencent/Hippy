@@ -259,9 +259,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     NativeRenderBaseListViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
-    
     HippyShadowView *shadowView = [self.dataSource cellForIndexPath:indexPath];
-    [shadowView recusivelySetCreationTypeToInstant];
     
     UIView *cellView = nil;
     UIView *cachedVisibleCellView = [_cachedWeakCellViews objectForKey:shadowView.hippyTag];
