@@ -69,7 +69,6 @@ static const NSTimeInterval delayForPurgeView = 1.f;
         _scrollListeners = [NSHashTable weakObjectsHashTable];
         _scrollEventThrottle = 100.f;
         _cachedWeakCellViews = [NSMapTable strongToWeakObjectsMapTable];
-        _visibleCellViewsBeforeReload = [NSMutableArray array];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
         [self initCollectionView];
         if (@available(iOS 11.0, *)) {
@@ -655,17 +654,18 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     // Before reload, cache the current visible cellViews temporarily,
     // because cells can potentially be reused.
     // And remove them when the reload is complete in `tableViewDidLayoutSubviews` method.
-    [_visibleCellViewsBeforeReload removeAllObjects];
     NSArray<UICollectionViewCell *> *visibleCells = [self.collectionView visibleCells];
+    NSMutableArray *visibleCellViews = [NSMutableArray arrayWithCapacity:visibleCells.count];
     for (UICollectionViewCell *cell in visibleCells) {
         if ([cell isKindOfClass:NativeRenderWaterfallViewCell.class]) {
-            [_visibleCellViewsBeforeReload addObject:((NativeRenderWaterfallViewCell *)cell).cellView];
+            [visibleCellViews addObject:((NativeRenderWaterfallViewCell *)cell).cellView];
         }
     }
+    _visibleCellViewsBeforeReload = visibleCellViews;
 }
 
 - (void)clearVisibleCellViewsCacheBeforeReload {
-    [_visibleCellViewsBeforeReload removeAllObjects];
+    _visibleCellViewsBeforeReload = nil;
 }
 
 @end
