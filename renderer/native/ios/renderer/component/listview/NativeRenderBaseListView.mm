@@ -264,7 +264,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     [shadowView recusivelySetCreationTypeToInstant];
     
     UIView *cellView = nil;
-    UIView *cachedVisibleCellView = [_cachedVisibleCellViews objectForKey:shadowView.hippyTag];
+    UIView *cachedVisibleCellView = [_cachedWeakCellViews objectForKey:shadowView.hippyTag];
     if (cachedVisibleCellView &&
         [shadowView isKindOfClass:NativeRenderObjectWaterfallItem.class] &&
         !((NativeRenderObjectWaterfallItem *)shadowView).layoutDirty) {
@@ -272,7 +272,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
         HippyLogTrace(@"🟢 use cached visible cellView at %@ for %@", indexPath, shadowView.hippyTag);
     } else {
         cellView = [self.renderImpl createViewForShadowListItem:shadowView];
-        [_cachedVisibleCellViews setObject:cellView forKey:shadowView.hippyTag];
+        [_cachedWeakCellViews setObject:cellView forKey:shadowView.hippyTag];
         HippyLogTrace(@"🟡 create cellView at %@ for %@", indexPath, shadowView.hippyTag);
     }
     
@@ -284,6 +284,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 }
 
 - (void)tableViewDidLayoutSubviews:(NativeRenderListTableView *)tableView {
+    [super tableViewDidLayoutSubviews:tableView];
     NSArray<UICollectionViewCell *> *visibleCells = [self.collectionView visibleCells];
     for (NativeRenderBaseListViewCell *cell in visibleCells) {
         CGRect cellRectInTableView = [self.collectionView convertRect:[cell bounds] fromView:cell];
