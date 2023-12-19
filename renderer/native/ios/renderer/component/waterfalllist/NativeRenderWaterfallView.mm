@@ -206,7 +206,8 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 
 - (void)hippyBridgeDidFinishTransaction {
     HippyShadowListView *listNode = self.hippyShadowView;
-    if (listNode.itemChangeContext.hasChanges) {
+    if (!_dataSource || (listNode && listNode.itemChangeContext.hasChanges)) {
+        HippyLogTrace(@"🔥 %@ Reload %@", self.hippyTag, [[listNode itemChangeContext] description]);
         [self reloadData];
         [listNode.itemChangeContext clear];
     }
