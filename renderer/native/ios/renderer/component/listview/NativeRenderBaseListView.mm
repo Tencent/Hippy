@@ -131,14 +131,9 @@ static NSString *const kListViewItem = @"ListViewItem";
 
 #pragma mark - Data Load
 
-- (void)hippyBridgeDidFinishTransaction {
-    HippyShadowListView *listNode = self.hippyShadowView;
-    if (listNode && listNode.itemChangeContext.hasChanges) {
-        [self reloadData];
-        [listNode.itemChangeContext clear];
-    }
-}
- 
+// BaseListview's super is WaterfallView
+// here we use super's hippyBridgeDidFinishTransaction imp to trigger reload,
+// and override reloadData to handle special logic
 - (void)reloadData {
     NSArray<HippyShadowView *> *datasource = [self.hippyShadowView.subcomponents copy];
     self->_dataSource = [[NativeRenderBaseListViewDataSource alloc] initWithDataSource:datasource
@@ -274,16 +269,17 @@ referenceSizeForHeaderInSection:(NSInteger)section {
         [shadowView isKindOfClass:NativeRenderObjectWaterfallItem.class] &&
         !((NativeRenderObjectWaterfallItem *)shadowView).layoutDirty) {
         cellView = cachedVisibleCellView;
+        HippyLogTrace(@"🟢 use cached visible cellView at %@ for %@", indexPath, shadowView.hippyTag);
     } else {
         cellView = [self.renderImpl createViewForShadowListItem:shadowView];
         [_cachedVisibleCellViews setObject:cellView forKey:shadowView.hippyTag];
+        HippyLogTrace(@"🟡 create cellView at %@ for %@", indexPath, shadowView.hippyTag);
     }
     
     HippyAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of NativeRenderBaseListViewCell must conform to protocol ViewAppearStateProtocol");
     cell.cellView = cellView;
     cellView.parent = self;
-    
     return cell;
 }
 
