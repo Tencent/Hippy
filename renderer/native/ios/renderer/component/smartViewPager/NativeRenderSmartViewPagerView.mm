@@ -363,6 +363,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)tableViewDidLayoutSubviews:(NativeRenderListTableView *)tableView {
+    [super tableViewDidLayoutSubviews:tableView];
     NSArray<UICollectionViewCell *> *visibleCells = [self.collectionView visibleCells];
     for (NativeRenderBaseListViewCell *cell in visibleCells) {
         CGRect cellRectInTableView = [self.collectionView convertRect:[cell bounds] fromView:cell];

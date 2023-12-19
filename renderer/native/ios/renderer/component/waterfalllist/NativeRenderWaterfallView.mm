@@ -30,7 +30,6 @@
 #import "HippyShadowView.h"
 #import "HippyUIManager.h"
 #import "UIView+Render.h"
-#import "NativeRenderListTableView.h"
 #import "NativeRenderWaterfallViewCell.h"
 #import "HippyRootView.h"
 #import "HippyShadowListView.h"
@@ -40,7 +39,7 @@ static NSString *kCellIdentifier = @"HippyWaterfallCellIdentifier";
 static NSString *kWaterfallItemName = @"WaterfallItem";
 static const NSTimeInterval delayForPurgeView = 1.f;
 
-@interface NativeRenderWaterfallView () <HippyInvalidating, NativeRenderRefreshDelegate, HippyListTableViewLayoutProtocol> {
+@interface NativeRenderWaterfallView () <HippyInvalidating, NativeRenderRefreshDelegate> {
     NSHashTable<id<UIScrollViewDelegate>> *_scrollListeners;
     BOOL _isInitialListReady;
     UIColor *_backgroundColor;
@@ -59,6 +58,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 
 @implementation NativeRenderWaterfallView {
     CFTimeInterval _lastOnScrollEventTimeInterval;
+    NSMutableArray *_visibleCellViewsBeforeReload;
 }
 
 @synthesize contentSize;
@@ -68,7 +68,8 @@ static const NSTimeInterval delayForPurgeView = 1.f;
         self.backgroundColor = [UIColor clearColor];
         _scrollListeners = [NSHashTable weakObjectsHashTable];
         _scrollEventThrottle = 100.f;
-        _cachedVisibleCellViews = [NSMapTable strongToWeakObjectsMapTable];
+        _cachedWeakCellViews = [NSMapTable strongToWeakObjectsMapTable];
+        _visibleCellViewsBeforeReload = [NSMutableArray array];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
         [self initCollectionView];
         if (@available(iOS 11.0, *)) {
@@ -91,11 +92,6 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     [self registerCells];
     [self registerSupplementaryViews];
     [self addSubview:_collectionView];
-}
-
-- (void)dealloc {
-    [NSObject cancelPreviousPerformRequestsWithTarget:self];
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)registerCells {
@@ -137,8 +133,6 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 }
 
 - (void)invalidate {
-    [NSObject cancelPreviousPerformRequestsWithTarget:self];
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [_scrollListeners removeAllObjects];
 }
 
@@ -208,6 +202,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     HippyShadowListView *listNode = self.hippyShadowView;
     if (!_dataSource || (listNode && listNode.itemChangeContext.hasChanges)) {
         HippyLogTrace(@"🔥 %@ Reload %@", self.hippyTag, [[listNode itemChangeContext] description]);
+        [self cacheVisibleCellViewsForReuse];
         [self reloadData];
         [listNode.itemChangeContext clear];
     }
@@ -270,14 +265,14 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     [shadowView recusivelySetCreationTypeToInstant];
     
     UIView *cellView = nil;
-    UIView *cachedVisibleCellView = [_cachedVisibleCellViews objectForKey:shadowView.hippyTag];
-    if (cachedVisibleCellView &&
+    UIView *cachedCellView = [_cachedWeakCellViews objectForKey:shadowView.hippyTag];
+    if (cachedCellView &&
         [shadowView isKindOfClass:NativeRenderObjectWaterfallItem.class] &&
         !((NativeRenderObjectWaterfallItem *)shadowView).layoutDirty) {
-        cellView = cachedVisibleCellView;
+        cellView = cachedCellView;
     } else {
         cellView = [self.renderImpl createViewForShadowListItem:shadowView];
-        [_cachedVisibleCellViews setObject:cellView forKey:shadowView.hippyTag];
+        [_cachedWeakCellViews setObject:cellView forKey:shadowView.hippyTag];
     }
     
     cell.cellView = cellView;
@@ -565,7 +560,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 }
 
 - (void)tableViewDidLayoutSubviews:(NativeRenderListTableView *)tableView {
-    
+    [self clearVisibleCellViewsCacheBeforeReload];
 }
 
 - (void)refreshCompleted:(NSInteger)status text:(NSString *)text {
@@ -647,7 +642,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 }
 
 
-#pragma mark -
+#pragma mark - Memory optimization
 
 - (void)didReceiveMemoryWarning {
     [self cleanUpCachedItems];
@@ -655,6 +650,23 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 
 - (void)cleanUpCachedItems {
     // nop
+}
+
+- (void)cacheVisibleCellViewsForReuse {
+    // Before reload, cache the current visible cellViews temporarily,
+    // because cells can potentially be reused.
+    // And remove them when the reload is complete in `tableViewDidLayoutSubviews` method.
+    [_visibleCellViewsBeforeReload removeAllObjects];
+    NSArray<UICollectionViewCell *> *visibleCells = [self.collectionView visibleCells];
+    for (UICollectionViewCell *cell in visibleCells) {
+        if ([cell isKindOfClass:NativeRenderWaterfallViewCell.class]) {
+            [_visibleCellViewsBeforeReload addObject:((NativeRenderWaterfallViewCell *)cell).cellView];
+        }
+    }
+}
+
+- (void)clearVisibleCellViewsCacheBeforeReload {
+    [_visibleCellViewsBeforeReload removeAllObjects];
 }
 
 @end
