@@ -136,6 +136,15 @@ class unicode_string_view final {
 }  // namespace base
 }  // namespace tdf
 
+#ifdef __APPLE__
+#if defined(__clang__) && __clang_major__ >= 15
+template<>
+struct std::hash<tdf::base::unicode_string_view::u8string> {
+  std::size_t operator()(const tdf::base::unicode_string_view::u8string& value) const noexcept;
+};
+#endif
+#endif
+
 template <>
 struct std::hash<tdf::base::unicode_string_view> {
   std::size_t operator()(const tdf::base::unicode_string_view& value) const noexcept;

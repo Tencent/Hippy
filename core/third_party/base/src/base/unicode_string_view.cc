@@ -4,6 +4,15 @@
 
 using unicode_string_view = tdf::base::unicode_string_view;
 
+#ifdef __APPLE__
+#if defined(__clang__) && __clang_major__ >= 15
+std::size_t std::hash<unicode_string_view::u8string>::operator()(
+  const unicode_string_view::u8string& value) const noexcept {
+  return std::hash<std::string>()(std::string(value.begin(), value.end()));
+}
+#endif
+#endif
+
 std::size_t std::hash<unicode_string_view>::operator()(
     const unicode_string_view& value) const noexcept {
   switch (value.encoding_) {
