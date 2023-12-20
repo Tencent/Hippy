@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.11](https://github.com/Tencent/Hippy/compare/2.14.10...2.14.11) (2023-12-20)
+
+
+### Bug Fixes
+
+* **core:** fix std hash for xcode15 ([0d98153](https://github.com/Tencent/Hippy/commit/0d98153fadeb249757f40f19906c933b79d3cc27))
+
+
+
+
+
 ## [2.14.10](https://github.com/Tencent/Hippy/compare/2.14.9...2.14.10) (2023-02-08)
 
 
