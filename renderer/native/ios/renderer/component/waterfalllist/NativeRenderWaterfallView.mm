@@ -420,11 +420,17 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 }
 
 #pragma mark - NativeRenderCollectionViewDelegateWaterfallLayout
+
 - (CGSize)collectionView:(UICollectionView *)collectionView
                   layout:(UICollectionViewLayout *)collectionViewLayout
-    sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    HippyShadowView *renderObjectView = [_dataSource cellForIndexPath:indexPath];
-    return renderObjectView.frame.size;
+  sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    HippyShadowView *shadowView = [_dataSource cellForIndexPath:indexPath];
+    CGSize itemSize = shadowView.frame.size;
+    if (itemSize.width < .0 || itemSize.height < .0) {
+        HippyLogError(@"Negative item size for %@ at %@ of %@", shadowView, indexPath, self);
+        return CGSizeZero;
+    }
+    return shadowView.frame.size;
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView

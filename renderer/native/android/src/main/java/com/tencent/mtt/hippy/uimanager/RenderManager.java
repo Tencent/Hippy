@@ -153,8 +153,7 @@ public class RenderManager {
                     "appendVirtualChild: rootNode=" + rootNode + " parentNode=" + parentNode);
             return;
         }
-        RenderNode node = mControllerManager.createRenderNode(rootId, id, props, className,
-                isLazy || parentNode.checkNodeFlag(FLAG_LAZY_LOAD));
+        RenderNode node = mControllerManager.createRenderNode(rootId, id, props, className, isLazy);
         if (node == null) {
             LogUtils.w(TAG, "createNode: node == null");
             return;
