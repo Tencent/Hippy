@@ -70,7 +70,8 @@ static NSString * const HippyViewManagerGetBoundingErrMsgrKey = @"errMsg";
 HIPPY_EXPORT_METHOD(getBoundingClientRect:(nonnull NSNumber *)hippyTag
                     options:(nullable NSDictionary *)options
                     callback:(HippyPromiseResolveBlock)callback ) {
-    if (options && [[options objectForKey:HippyViewManagerGetBoundingRelToContainerKey] boolValue]) {
+    if (options && [options isKindOfClass:NSDictionary.class] &&
+        [[options objectForKey:HippyViewManagerGetBoundingRelToContainerKey] boolValue]) {
         [self measureInWindow:hippyTag withErrMsg:YES callback:callback];
     } else {
         [self measureInAppWindow:hippyTag withErrMsg:YES callback:callback];
@@ -118,7 +119,7 @@ HIPPY_EXPORT_METHOD(measureInWindow:(NSNumber *)componentTag
 }
 
 HIPPY_EXPORT_METHOD(measureInAppWindow:(NSNumber *)componentTag
-                                      callback:(HippyPromiseResolveBlock)callback) {
+                    callback:(HippyPromiseResolveBlock)callback) {
     [self measureInAppWindow:componentTag withErrMsg:NO callback:callback];
 }
 
@@ -141,8 +142,8 @@ HIPPY_EXPORT_METHOD(measureInAppWindow:(NSNumber *)componentTag
 }
 
 HIPPY_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)componentTag
-                                      params:(NSDictionary *__nonnull)params
-                                    callback:(HippyPromiseResolveBlock)callback) {
+                    params:(NSDictionary *__nonnull)params
+                    callback:(HippyPromiseResolveBlock)callback) {
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[componentTag];
         if (view == nil) {
@@ -181,8 +182,8 @@ HIPPY_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)componentTag
 }
 
 HIPPY_EXPORT_METHOD(getLocationOnScreen:(nonnull NSNumber *)componentTag
-                                      params:(NSDictionary *__nonnull)params
-                                    callback:(HippyPromiseResolveBlock)callback) {
+                    params:(NSDictionary *__nonnull)params
+                    callback:(HippyPromiseResolveBlock)callback) {
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[componentTag];
         if (view == nil) {
