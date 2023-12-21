@@ -34,15 +34,31 @@ class RootNode;
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSUInteger, HippyComponentReferenceType) {
+    HippyComponentReferenceTypeStrong,
+    HippyComponentReferenceTypeWeak,
+};
+
 @interface HippyComponentMap : NSObject
 
+/// Whether all recorded elements are strongly referenced,
+///
+/// Attention, Attention, Attention:
+/// All UI views are weakly referenced!
+/// All Shadowviews are strongly referenced!
+@property (nonatomic, assign, readonly) BOOL isStrongHoldAllComponents;
+
+/// Whether access is required from the main thread
 @property(nonatomic, assign) BOOL requireInMainThread;
+
+/// Init Method
+- (instancetype)initWithComponentsReferencedType:(HippyComponentReferenceType)type;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 - (void)addRootComponent:(id<HippyComponent>)component
                 rootNode:(std::weak_ptr<hippy::RootNode>)rootNode
-                  forTag:(NSNumber *)tag
-    strongHoldComponents:(BOOL)shouldStrongHoldAllComponents;
-
+                  forTag:(NSNumber *)tag;
 
 - (void)removeRootComponentWithTag:(NSNumber *)tag;
 
@@ -62,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)removeComponentByComponentTag:(NSNumber *)componentTag onRootTag:(NSNumber *)rootTag;
 
-- (NSMutableDictionary<NSNumber *, __kindof id<HippyComponent>> *)componentsForRootTag:(NSNumber *)tag;
+- (NSDictionary<NSNumber *, __kindof id<HippyComponent>> *)componentsForRootTag:(NSNumber *)tag;
 
 - (__kindof id<HippyComponent>)componentForTag:(NSNumber *)componentTag
                                                     onRootTag:(NSNumber *)tag;

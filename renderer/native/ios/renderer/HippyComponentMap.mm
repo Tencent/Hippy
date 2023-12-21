@@ -36,9 +36,10 @@ using RootNode = hippy::RootNode;
 
 @implementation HippyComponentMap
 
-- (instancetype)init {
+- (instancetype)initWithComponentsReferencedType:(HippyComponentReferenceType)type {
     self = [super init];
     if (self) {
+        _isStrongHoldAllComponents = (HippyComponentReferenceTypeStrong == type);
         _rootComponentsMap = [NSMapTable strongToWeakObjectsMapTable];
         _componentsMap = [NSMutableDictionary dictionary];
         _rootNodesMap.reserve(8);
@@ -52,13 +53,12 @@ using RootNode = hippy::RootNode;
 
 - (void)addRootComponent:(id<HippyComponent>)component
                 rootNode:(std::weak_ptr<hippy::RootNode>)rootNode
-                  forTag:(NSNumber *)tag
-    strongHoldComponents:(BOOL)shouldStrongHoldAllComponents {
+                  forTag:(NSNumber *)tag {
     NSAssert(component && tag, @"component &&tag must not be null in method %@", NSStringFromSelector(_cmd));
     NSAssert([self threadCheck], @"%@ method needs run in main thread", NSStringFromSelector(_cmd));
     if (component && tag && ![_componentsMap objectForKey:tag]) {
         id dic = nil;
-        if (shouldStrongHoldAllComponents) {
+        if (_isStrongHoldAllComponents) {
             dic = [NSMutableDictionary dictionary];
         } else {
             dic = [NSMapTable strongToWeakObjectsMapTable];
@@ -128,12 +128,16 @@ using RootNode = hippy::RootNode;
     }
 }
 
-- (NSMutableDictionary<NSNumber * ,__kindof id<HippyComponent>> *)componentsForRootTag:(NSNumber *)tag {
+- (NSDictionary<NSNumber * ,__kindof id<HippyComponent>> *)componentsForRootTag:(NSNumber *)tag {
     NSAssert(tag, @"tag must not be null in method %@", NSStringFromSelector(_cmd));
     NSAssert([self threadCheck], @"%@ method needs run in main thread", NSStringFromSelector(_cmd));
     if (tag) {
         id map = [_componentsMap objectForKey:tag];
-        return map;
+        if (_isStrongHoldAllComponents) {
+            return map;
+        } else {
+            return ((NSMapTable *)map).dictionaryRepresentation;
+        }
     }
     return nil;
 }

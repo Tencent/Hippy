@@ -214,8 +214,8 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 }
 
 - (void)initContext {
-    _shadowViewRegistry = [[HippyComponentMap alloc] init];
-    _viewRegistry = [[HippyComponentMap alloc] init];
+    _shadowViewRegistry = [[HippyComponentMap alloc] initWithComponentsReferencedType:HippyComponentReferenceTypeStrong];
+    _viewRegistry = [[HippyComponentMap alloc] initWithComponentsReferencedType:HippyComponentReferenceTypeWeak];
     _viewRegistry.requireInMainThread = YES;
     _pendingUIBlocks = [NSMutableArray new];
     _componentTransactionListeners = [NSHashTable weakObjectsHashTable];
@@ -261,20 +261,6 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
             domManager->PostTask(hippy::dom::Scene(std::move(ops_)));
         }
     }
-}
-
-- (HippyComponentMap *)renderObjectRegistry {
-     if (!_shadowViewRegistry) {
-        _shadowViewRegistry = [[HippyComponentMap alloc] init];
-     }
-     return _shadowViewRegistry;
- }
-
-- (HippyComponentMap *)viewRegistry {
-     if (!_viewRegistry) {
-        _viewRegistry = [[HippyComponentMap alloc] init];
-     }
-    return _viewRegistry;
 }
 
 - (UIView *)viewForHippyTag:(NSNumber *)hippyTag onRootTag:(NSNumber *)rootTag {
@@ -323,7 +309,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     NSAssert(![_viewRegistry containRootComponentWithTag:componentTag], @"RootView Tag already exists. Added %@ twice", componentTag);
 #endif
     // Register view
-    [_viewRegistry addRootComponent:rootView rootNode:rootNode forTag:componentTag strongHoldComponents:NO];
+    [_viewRegistry addRootComponent:rootView rootNode:rootNode forTag:componentTag];
     
     [rootView addObserver:self forKeyPath:@"frame" options:(NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew) context:NULL];
     rootView.renderManager = [self renderManager];
@@ -347,7 +333,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
             renderObject.viewName = rootViewClassName;
             renderObject.rootNode = rootNode;
             renderObject.domNode = rootNode;
-            [strongSelf->_shadowViewRegistry addRootComponent:renderObject rootNode:rootNode forTag:componentTag strongHoldComponents:YES];
+            [strongSelf->_shadowViewRegistry addRootComponent:renderObject rootNode:rootNode forTag:componentTag];
             NSDictionary *userInfo = @{ NativeRenderUIManagerRootViewTagKey: componentTag,
                                         NativeRenderUIManagerKey: strongSelf};
             [[NSNotificationCenter defaultCenter] postNotificationName:NativeRenderUIManagerDidRegisterRootViewNotification
@@ -462,14 +448,15 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
  */
 - (void)purgeChildren:(NSArray<id<HippyComponent>> *)children
             onRootTag:(NSNumber *)rootTag
-         fromRegistry:(NSMutableDictionary<NSNumber *, __kindof id<HippyComponent>> *)registry {
+         fromRegistry:(HippyComponentMap *)registryMap {
+    NSDictionary *currentRegistry = [registryMap componentsForRootTag:rootTag];
     for (id<HippyComponent> child in children) {
-        NativeRenderTraverseViewNodes(registry[child.hippyTag], ^(id<HippyComponent> subview) {
+        NativeRenderTraverseViewNodes(currentRegistry[child.hippyTag], ^(id<HippyComponent> subview) {
             NSAssert(![subview isHippyRootView], @"Root views should not be unregistered");
             if ([subview respondsToSelector:@selector(invalidate)]) {
                 [subview performSelector:@selector(invalidate)];
             }
-            [registry removeObjectForKey:subview.hippyTag];
+            [registryMap removeComponent:subview forRootTag:rootTag];
         });
     }
 }
@@ -588,8 +575,10 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         NSMutableSet<NativeRenderApplierBlock> *applierBlocks = [NSMutableSet set];
         [shadowView amendLayoutBeforeMount:applierBlocks];
         if (applierBlocks.count) {
-            NSDictionary<NSNumber *, UIView *> *viewRegistry = [self.viewRegistry componentsForRootTag:shadowView.rootTag];
             for (NativeRenderApplierBlock block in applierBlocks) {
+                // Note: viewRegistry may be modified in the block, and it may be stored internally as NSMapTable
+                // so to ensure that it is up-to-date, it can only be retrieved each time.
+                NSDictionary<NSNumber *, UIView *> *viewRegistry = [self.viewRegistry componentsForRootTag:shadowView.rootTag];
                 block(viewRegistry, view);
             }
         }
@@ -739,9 +728,11 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
             __strong __typeof(weakSelf)strongSelf = weakSelf;
             if (strongSelf) {
                 TDF_PERF_LOG("flushUIBlocksOnRootNode on main thread(random id:%u)",rand);
-                NSDictionary<NSNumber *, UIView *> *viewReg = [strongSelf.viewRegistry componentsForRootTag:@(rootTag)];
                 for (HippyViewManagerUIBlock block in previousPendingUIBlocks) {
                     @try {
+                        // Note: viewRegistry may be modified in the block, and it may be stored internally as NSMapTable
+                        // so to ensure that it is up-to-date, it can only be retrieved each time.
+                        NSDictionary* viewReg = [strongSelf.viewRegistry componentsForRootTag:@(rootTag)];
                         block(strongSelf, viewReg);
                     } @catch (NSException *exception) {
                         HippyLogError(@"Exception thrown while executing UI block: %@", exception);
@@ -843,6 +834,9 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
             }];
         }
     }];
+    [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+        HippyLogInfo(@"Created views: %lu, full registry: %lu", (unsigned long)tempCreatedViews.count, viewRegistry.count);
+    }];
 }
 
 - (void)updateRenderNodes:(std::vector<std::shared_ptr<DomNode>>&&)nodes
@@ -891,7 +885,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 #endif
     std::lock_guard<std::mutex> lock([self renderQueueLock]);
     NSNumber *rootTag = @(strongRootNode->GetId());
-    NSMutableDictionary *currentRegistry = [_shadowViewRegistry componentsForRootTag:rootTag];
+    NSDictionary *currentRegistry = [_shadowViewRegistry componentsForRootTag:rootTag];
     
     for (auto dom_node : nodes) {
         int32_t tag = dom_node->GetRenderInfo().id;
@@ -899,7 +893,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         [renderObject dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
         if (renderObject) {
             [renderObject removeFromHippySuperview];
-            [self purgeChildren:@[renderObject] onRootTag:rootTag fromRegistry:currentRegistry];
+            [self purgeChildren:@[renderObject] onRootTag:rootTag fromRegistry:_shadowViewRegistry];
         }
     }
     __weak HippyUIManager *weakSelf = self;
@@ -924,8 +918,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
             [view removeFromHippySuperview];
             [views addObject:view];
         }
-        NSMutableDictionary *currentViewRegistry = [strongSelf.viewRegistry componentsForRootTag:rootTag];
-        [strongSelf purgeChildren:views onRootTag:rootTag fromRegistry:currentViewRegistry];
+        [strongSelf purgeChildren:views onRootTag:rootTag fromRegistry:strongSelf.viewRegistry];
         for (UIView *view in parentViews) {
             [view clearSortedSubviews];
             [view didUpdateHippySubviews];
