@@ -100,6 +100,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
         if (!_bridge.moduleName) {
             _bridge.moduleName = moduleName;
         }
+        if (!_bridge.contextName) {
+            _bridge.contextName = moduleName;
+        }
         _moduleName = moduleName;
         _appProperties = [initialProperties copy];
         _delegate = delegate;

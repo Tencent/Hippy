@@ -63,7 +63,7 @@ NSString *const HippyDevWebSocketInfoDebugURL = @"debugUrl=";
     _wsURL = [debugWsURL substringFromIndex:range.location + range.length];
 }
 
-- (NSString *)assembleFullWSURLWithClientId:(NSString *)clientId contextName:(NSString *) contextName{
+- (NSString *)assembleFullWSURLWithClientId:(NSString *)clientId contextName:(NSString *)contextName {
   if (self.port.length <= 0) {
     self.port = [self.scheme isEqualToString:HippyDevWebSocketSchemeWs] ? @"80" : @"443";
   }

@@ -363,10 +363,14 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     if (!contextName) {
         return;
     }
-    WeakCtxPtr weak_ctx = self.pScope->GetContext();
+    __weak __typeof(self)weakSelf = self;
     [self executeBlockOnJavaScriptQueue:^{
         @autoreleasepool {
-            SharedCtxPtr context = weak_ctx.lock();
+            __strong __typeof(weakSelf)strongSelf = weakSelf;
+            if (!strongSelf.pScope) {
+                return;
+            }
+            SharedCtxPtr context = strongSelf.pScope->GetContext();
             if (!context) {
                 return;
             }
