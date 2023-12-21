@@ -52,6 +52,8 @@ class DevToolsUtil {
 
   static void PostDomTask(const std::weak_ptr<DomManager>& weak_dom_manager, std::function<void()> func);
 
+  static bool ShouldAvoidPostDomManagerTask(const std::string& event_name);
+
  private:
   static std::shared_ptr<DomNode> GetHitNode(const std::shared_ptr<DomNode>& root_node, const std::shared_ptr<DomNode>& node, double x, double y);
   static bool IsLocationHitNode(const std::shared_ptr<DomNode>& root_node, const std::shared_ptr<DomNode>& dom_node, double x, double y);

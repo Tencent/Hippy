@@ -33,6 +33,9 @@
 #include "jni/jni_env.h"
 #include "renderer/native_render_manager.h"
 
+#ifdef ENABLE_INSPECTOR
+#include "devtools/devtools_utils.h"
+#endif
 
 using DomArgument = hippy::dom::DomArgument;
 using DomEvent = hippy::dom::DomEvent;
@@ -291,6 +294,12 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
 
     callback(std::make_shared<DomArgument>(*params));
   }};
+#ifdef ENABLE_INSPECTOR
+  if (hippy::devtools::DevToolsUtil::ShouldAvoidPostDomManagerTask(func_name)) {
+    ops[0]();
+    return;
+  }
+#endif
   dom_manager->PostTask(Scene(std::move(ops)));
 }
 
