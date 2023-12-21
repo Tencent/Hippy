@@ -211,7 +211,7 @@ function deepCopy(data: NeedToTyped, hash = new WeakMap()) {
   if (hash.has(data)) {
     return hash.get(data);
   }
-  let newData: NeedToTyped;
+  const newData = {};
   const dataKeys = Object.keys(data);
   dataKeys.forEach((value) => {
     const currentDataValue = data[value];

@@ -50,6 +50,11 @@ import {
 import {
   isRTL,
 } from '../util/i18n';
+import {
+  setCacheNodeStyle,
+  deleteCacheNodeStyle,
+  getCacheNodeStyle,
+} from '../util/node-style';
 import { isStyleMatched, preCacheNode } from '../util/node';
 import { fromAstNodes, SelectorsMap } from '../style';
 import { CallbackType, NeedToTyped } from '../types/native';
@@ -426,27 +431,9 @@ function getEventNode(targetNode: NeedToTyped) {
 }
 
 /**
- * getEventNode - translate to native node.
- * @param targetNode
- */
-function getNativeNode(rootViewId: NeedToTyped, targetNode: ElementNode, refInfo = {}, style?: NeedToTyped) {
-  const nativeNode = {
-    id: targetNode.nodeId,
-    pId: (targetNode.parentNode?.nodeId) || rootViewId,
-    name: targetNode.meta.component.name,
-    props: {
-      ...getNativeProps(targetNode),
-      style,
-    },
-    tagName: targetNode.tagName,
-  };
-  return [nativeNode, refInfo, { skipStyleDiff: true }];
-}
-
-/**
  * Render Element to native
  */
-function renderToNative(rootViewId: NeedToTyped, targetNode: NeedToTyped, refInfo = {}) {
+function renderToNative(rootViewId, targetNode, refInfo = {}, notUpdateStyle = false) {
   if (targetNode.meta.skipAddToDom) {
     return [];
   }
@@ -454,13 +441,38 @@ function renderToNative(rootViewId: NeedToTyped, targetNode: NeedToTyped, refInf
     throw new Error(`Specific tag is not supported yet: ${targetNode.tagName}`);
   }
 
-  let style = getElemCss(targetNode);
-  style = { ...style, ...targetNode.style };
-  getBeforeRenderToNative()();
-  // use defaultNativeStyle later to avoid incorrect compute style from inherit node
-  // in beforeRenderToNative hook
-  if (targetNode.meta.component.defaultNativeStyle) {
-    style = { ...targetNode.meta.component.defaultNativeStyle, ...style };
+  let style;
+  if (notUpdateStyle) {
+    // 不用更新 CSS，直接使用缓存
+    style = getCacheNodeStyle(targetNode.nodeId);
+  } else {
+    // 重新计算 CSS 样式
+    style = getElemCss(targetNode);
+    // 样式合并
+    style = { ...style, ...targetNode.style };
+    // CSS 预处理，该函数目前没被使用
+    getBeforeRenderToNative()();
+
+    if (targetNode.parentNode) {
+      // 属性继承逻辑实现
+      // 只继承 color 和 font属性
+      const parentNodeStyle = getCacheNodeStyle(targetNode.parentNode.nodeId);
+      const styleAttributes = ['color', 'fontSize', 'fontWeight', 'fontFamily', 'fontStyle', 'textAlign', 'lineHeight'];
+
+      styleAttributes.forEach((attribute) => {
+        if (!style[attribute] && parentNodeStyle[attribute]) {
+          style[attribute] = parentNodeStyle[attribute];
+        }
+      });
+    }
+    // use defaultNativeStyle later to avoid incorrect compute style from inherit node
+    // in beforeRenderToNative hook
+    if (targetNode.meta.component.defaultNativeStyle) {
+      style = { ...targetNode.meta.component.defaultNativeStyle, ...style };
+    }
+
+    // 缓存 CSS 结果
+    setCacheNodeStyle(targetNode.nodeId, style);
   }
   // Translate to native node
   const nativeNode: NeedToTyped = {
@@ -665,14 +677,7 @@ function updateChild(parentNode: NeedToTyped, notUpdateStyle = false) {
   }
   const app = getApp();
   const { $options: { rootViewId } } = app;
-  let nativeNode;
-  let eventNode;
-  let printedNode;
-  if (notUpdateStyle) {
-    nativeNode = getNativeNode(rootViewId, parentNode);
-  } else {
-    [nativeNode, eventNode, printedNode] = renderToNative(rootViewId, parentNode);
-  }
+  const [nativeNode, eventNode, printedNode] = renderToNative(rootViewId, parentNode, {}, notUpdateStyle);
   if (nativeNode) {
     batchNodes.push({
       type: NODE_OPERATION_TYPES.updateNode,
