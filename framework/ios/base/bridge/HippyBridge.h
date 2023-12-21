@@ -139,7 +139,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  * @discussion Context name will be shown on safari development menu.
  * only for JSC engine
  */
-@property(nonatomic, copy)NSString *contextName;
+@property (nonatomic, copy) NSString *contextName;
 
 /**
  * Set module name
