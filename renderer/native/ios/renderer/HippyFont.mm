@@ -48,73 +48,82 @@ static NSCache *fontCache;
 
 typedef CGFloat NativeRenderFontWeight;
 static NativeRenderFontWeight weightOfFont(UIFont *font) {
-    static NSDictionary *nameToWeight;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        nameToWeight = @{
-            @"normal": @(UIFontWeightRegular),
-            @"bold": @(UIFontWeightBold),
-            @"ultralight": @(UIFontWeightUltraLight),
-            @"thin": @(UIFontWeightThin),
-            @"light": @(UIFontWeightLight),
-            @"regular": @(UIFontWeightRegular),
-            @"medium": @(UIFontWeightMedium),
-            @"semibold": @(UIFontWeightSemibold),
-            @"heavy": @(UIFontWeightHeavy),
-            @"black": @(UIFontWeightBlack),
-        };
-    });
+    static const struct SuffixWeight{
+        NSString *suffix;
+        UIFontWeight weight;
+    } suffixToWeight[] = {
+        {@"normal",     UIFontWeightRegular},
+        {@"bold",       UIFontWeightBold},
+        {@"ultralight", UIFontWeightUltraLight},
+        {@"thin",       UIFontWeightThin},
+        {@"light",      UIFontWeightLight},
+        {@"regular",    UIFontWeightRegular},
+        {@"medium",     UIFontWeightMedium},
+        {@"semibold",   UIFontWeightSemibold},
+        {@"heavy",      UIFontWeightHeavy},
+        {@"black",      UIFontWeightBlack},
+    };
 
-    NSDictionary *traits = [font.fontDescriptor objectForKey:UIFontDescriptorTraitsAttribute];
-    NativeRenderFontWeight weight = [traits[UIFontWeightTrait] doubleValue];
-    if (weight == 0.0) {
-        @autoreleasepool {
-            for (NSString *name in nameToWeight) {
-                if ([font.fontName.lowercaseString hasSuffix:name]) {
-                    return [nameToWeight[name] doubleValue];
-                }
-            }
+    NSString *fontName = font.fontName;
+    CFStringCompareFlags options = kCFCompareCaseInsensitive | kCFCompareAnchored | kCFCompareBackwards;
+    for(int i = 0; i < sizeof(suffixToWeight) / sizeof(suffixToWeight[0]); ++i){
+        struct SuffixWeight item = suffixToWeight[i];
+        if(CFStringFind((CFStringRef)fontName, (CFStringRef)item.suffix, options).location != kCFNotFound){
+            return item.weight;
         }
     }
-    return weight;
+
+    NSDictionary *traits = (__bridge_transfer NSDictionary *)CTFontCopyTraits((CTFontRef)font);
+    return (NativeRenderFontWeight)[traits[UIFontWeightTrait] doubleValue];
 }
 
 static BOOL isItalicFont(UIFont *font) {
-    NSDictionary *traits = [font.fontDescriptor objectForKey:UIFontDescriptorTraitsAttribute];
-    UIFontDescriptorSymbolicTraits symbolicTraits = [traits[UIFontSymbolicTrait] unsignedIntValue];
-    return (symbolicTraits & UIFontDescriptorTraitItalic) != 0;
+    return (CTFontGetSymbolicTraits((CTFontRef)font) & kCTFontTraitItalic) != 0;
 }
 
 static BOOL isCondensedFont(UIFont *font) {
-    NSDictionary *traits = [font.fontDescriptor objectForKey:UIFontDescriptorTraitsAttribute];
-    UIFontDescriptorSymbolicTraits symbolicTraits = [traits[UIFontSymbolicTrait] unsignedIntValue];
-    return (symbolicTraits & UIFontDescriptorTraitCondensed) != 0;
+    return (CTFontGetSymbolicTraits((CTFontRef)font) & kCTFontTraitCondensed) != 0;
 }
 
 static UIFont *cachedSystemFont(CGFloat size, NativeRenderFontWeight weight) {
-    NSString *cacheKey = [NSString stringWithFormat:@"%.1f/%.2f", size, weight];
+    struct __attribute__((__packed__)) CacheKey {
+        CGFloat size;
+        NativeRenderFontWeight weight;
+    };
+    CacheKey key{size, weight};
+    NSValue *cacheKey = [[NSValue alloc] initWithBytes:&key objCType:@encode(CacheKey)];
     UIFont *font = [fontCache objectForKey:cacheKey];
 
     if (!font) {
-        // Only supported on iOS8.2 and above
-        if (@available(iOS 8.2, *)) {
-            font = [UIFont systemFontOfSize:size weight:weight];
-        } else {
-            if (weight >= UIFontWeightBold) {
-                font = [UIFont boldSystemFontOfSize:size];
-            } else if (weight >= UIFontWeightMedium) {
-                font = [UIFont fontWithName:@"HelveticaNeue-Medium" size:size];
-            } else if (weight <= UIFontWeightLight) {
-                font = [UIFont fontWithName:@"HelveticaNeue-Light" size:size];
-            } else {
-                font = [UIFont systemFontOfSize:size];
-            }
-        }
-
+        font = [UIFont systemFontOfSize:size weight:weight];
         [fontCache setObject:font forKey:cacheKey];
     }
 
     return font;
+}
+
+// Caching wrapper around expensive +[UIFont fontNamesForFamilyName:]
+static NSArray<NSString *> *fontNamesForFamilyName(NSString *familyName)
+{
+    static NSCache<NSString *, NSArray<NSString *> *> *cache;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        cache = [NSCache new];
+        [NSNotificationCenter.defaultCenter
+         addObserverForName:(NSNotificationName)kCTFontManagerRegisteredFontsChangedNotification
+         object:nil
+         queue:nil
+         usingBlock:^(NSNotification *) {
+            [cache removeAllObjects];
+        }];
+    });
+    
+    NSArray<NSString *> *names = [cache objectForKey:familyName];
+    if (!names) {
+        names = [UIFont fontNamesForFamilyName:familyName] ?: [NSArray new];
+        [cache setObject:names forKey:familyName];
+    }
+    return names;
 }
 
 @implementation HippyConvert (NativeRenderFont)
@@ -182,14 +191,14 @@ typedef NSDictionary NativeRenderFontVariantDescriptor;
     NativeRenderFontVariantDescriptor *value = mapping[json];
     if (HIPPY_DEBUG && !value && [json description].length > 0) {
         HippyLogError(@"Invalid NativeRenderFontVariantDescriptor '%@'. should be one of: %@", json,
-            [[mapping allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)]);
+                      [[mapping allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)]);
     }
     return value;
 }
 
 HP_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
+@end
 
-    @end
 
 @implementation HippyFont
 
@@ -265,7 +274,7 @@ HP_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
 
     // Gracefully handle being given a font name rather than font family, for
     // example: "Helvetica Light Oblique" rather than just "Helvetica".
-    if (!didFindFont && [familyName length] > 0 && [UIFont fontNamesForFamilyName:familyName].count == 0) {
+    if (!didFindFont && familyName.length > 0 && fontNamesForFamilyName(familyName).count == 0) {
         familyName = font.familyName;
         fontWeight = weight ? fontWeight : weightOfFont(font);
         isItalic = style ? isItalic : isItalicFont(font);
@@ -291,22 +300,18 @@ HP_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
         } else {
             // Not a valid font or family
             HippyLogError(@"Unrecognized font family '%@'", familyName);
-            if (@available(iOS 8.2, *)) {
-                font = [UIFont systemFontOfSize:fontSize weight:fontWeight];
-            } else if (fontWeight > UIFontWeightRegular) {
-                font = [UIFont boldSystemFontOfSize:fontSize];
-            } else {
-                font = [UIFont systemFontOfSize:fontSize];
-            }
+            font = [UIFont systemFontOfSize:fontSize weight:fontWeight];
         }
     }
 
-    // Get the closest font that matches the given weight for the fontFamily
-    CGFloat closestWeight = INFINITY;
-    if ([familyName length] > 0) {
-        for (NSString *name in [UIFont fontNamesForFamilyName:familyName]) {
+    NSArray<NSString *> *names;
+    if (!didFindFont && familyName.length > 0) {
+        names = fontNamesForFamilyName(familyName);
+        // Get the closest font that matches the given weight for the fontFamily
+        CGFloat closestWeight = INFINITY;
+        for (NSString *name in names) {
             UIFont *match = [UIFont fontWithName:name size:fontSize];
-            if (isItalic == isItalicFont(match) && (isCondensed == isCondensedFont(match) || !font)) {
+            if (isItalic == isItalicFont(match) && isCondensed == isCondensedFont(match)) {
                 CGFloat testWeight = weightOfFont(match);
                 if (ABS(testWeight - fontWeight) < ABS(closestWeight - fontWeight)) {
                     font = match;
@@ -315,13 +320,20 @@ HP_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
             }
         }
     }
+
+    if (!font && names.count > 0) {
+        font = [UIFont fontWithName:names[0] size:fontSize];
+    }
+    
     // Apply font variants to font object
     if (variant) {
         NSArray *fontFeatures = [HippyConvert NativeRenderFontVariantDescriptorArray:variant];
         UIFontDescriptor *fontDescriptor =
-            [font.fontDescriptor fontDescriptorByAddingAttributes:@{ UIFontDescriptorFeatureSettingsAttribute: fontFeatures }];
+            [font.fontDescriptor fontDescriptorByAddingAttributes:
+             @{UIFontDescriptorFeatureSettingsAttribute: fontFeatures}];
         font = [UIFont fontWithDescriptor:fontDescriptor size:fontSize];
     }
+
     return font;
 }
 
