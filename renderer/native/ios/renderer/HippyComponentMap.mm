@@ -21,14 +21,14 @@
  */
 
 #import "HippyComponentMap.h"
-
+#import "HippyLog.h"
 #include "dom/root_node.h"
 
 using RootNode = hippy::RootNode;
 
 @interface HippyComponentMap () {
     NSMapTable<NSNumber *, id<HippyComponent>> *_rootComponentsMap;
-    NSMutableDictionary<NSNumber *, NSMutableDictionary<NSNumber *, id<HippyComponent>> *> *_componentsMap;
+    NSMutableDictionary<NSNumber *, id> *_componentsMap;
     std::unordered_map<int32_t, std::weak_ptr<RootNode>> _rootNodesMap;
 }
 
@@ -36,9 +36,10 @@ using RootNode = hippy::RootNode;
 
 @implementation HippyComponentMap
 
-- (instancetype)init {
+- (instancetype)initWithComponentsReferencedType:(HippyComponentReferenceType)type {
     self = [super init];
     if (self) {
+        _isStrongHoldAllComponents = (HippyComponentReferenceTypeStrong == type);
         _rootComponentsMap = [NSMapTable strongToWeakObjectsMapTable];
         _componentsMap = [NSMutableDictionary dictionary];
         _rootNodesMap.reserve(8);
@@ -56,7 +57,12 @@ using RootNode = hippy::RootNode;
     NSAssert(component && tag, @"component &&tag must not be null in method %@", NSStringFromSelector(_cmd));
     NSAssert([self threadCheck], @"%@ method needs run in main thread", NSStringFromSelector(_cmd));
     if (component && tag && ![_componentsMap objectForKey:tag]) {
-        NSMutableDictionary *dic = [NSMutableDictionary dictionary];
+        id dic = nil;
+        if (_isStrongHoldAllComponents) {
+            dic = [NSMutableDictionary dictionary];
+        } else {
+            dic = [NSMapTable strongToWeakObjectsMapTable];
+        }
         [dic setObject:component forKey:tag];
         [_componentsMap setObject:dic forKey:tag];
         [_rootComponentsMap setObject:component forKey:tag];
@@ -122,23 +128,28 @@ using RootNode = hippy::RootNode;
     }
 }
 
-- (NSMutableDictionary<NSNumber * ,__kindof id<HippyComponent>> *)componentsForRootTag:(NSNumber *)tag {
+- (NSDictionary<NSNumber * ,__kindof id<HippyComponent>> *)componentsForRootTag:(NSNumber *)tag {
     NSAssert(tag, @"tag must not be null in method %@", NSStringFromSelector(_cmd));
     NSAssert([self threadCheck], @"%@ method needs run in main thread", NSStringFromSelector(_cmd));
     if (tag) {
         id map = [_componentsMap objectForKey:tag];
-        return map;
+        if (_isStrongHoldAllComponents) {
+            return map;
+        } else {
+            return ((NSMapTable *)map).dictionaryRepresentation;
+        }
     }
     return nil;
 }
 
 - (__kindof id<HippyComponent>)componentForTag:(NSNumber *)componentTag
-                                                    onRootTag:(NSNumber *)tag {
-    NSAssert(componentTag && tag, @"componentTag && tag must not be null in method %@", NSStringFromSelector(_cmd));
+                                     onRootTag:(NSNumber *)tag {
     NSAssert([self threadCheck], @"%@ method needs run in main thread", NSStringFromSelector(_cmd));
     if (componentTag && tag) {
         id map = [_componentsMap objectForKey:tag];
         return [map objectForKey:componentTag];
+    } else {
+        HippyLogError(@"componentTag && tag must not be null");
     }
     return nil;
 }

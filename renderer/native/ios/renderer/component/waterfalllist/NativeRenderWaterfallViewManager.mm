@@ -22,7 +22,7 @@
 
 #import "NativeRenderWaterfallViewManager.h"
 #import "NativeRenderWaterfallView.h"
-#import "NativeRenderObjectWaterfall.h"
+#import "HippyShadowListView.h"
 #import "HippyUIManager.h"
 
 @implementation NativeRenderWaterfallViewManager
@@ -50,7 +50,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(onScroll, HippyDirectEventBlock)
 }
 
 - (HippyShadowView *)hippyShadowView {
-    return [[NativeRenderObjectWaterfall alloc] init];
+    return [[HippyShadowListView alloc] init];
 }
 
 HIPPY_EXPORT_METHOD(refreshCompleted:(nonnull NSNumber *)reactTag
