@@ -67,6 +67,18 @@ if [[ "v8" == ${2} ]]; then
 	#merge libraries
 	lipo -create v8forios/arm64/lib/libv8_monolith.a v8forios/x64/lib/libv8_monolith.a -output v8forios/v8/libv8.a
 
+elif [[ "hermes" == ${2} ]]; then
+	echo "use hermes js engine"
+	cd ${root_dir}
+	rm -rf hermesforios
+	mkdir hermesforios
+
+	#download hermes
+	curl https://infra-packages.openhippy.com/hippy/global_packages/hermes/hermes-2023-09-26-RNv0.73.0-ee2922a50fb719bdb378025d95dbd32ad93cd679/ios.tgz --output hermesforios/ios.tgz
+	tar zxvf hermesforios/ios.tgz -C ./hermesforios/
+	rm -f hermesforios/ios.tgz
+
+	cd ${root_dir}
 elif [[ "custom" == ${2} ]]; then
 	echo "use custom js engine"
 else

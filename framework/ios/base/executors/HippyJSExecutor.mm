@@ -51,7 +51,7 @@
 #include "driver/napi/js_ctx_value.h"
 #include "driver/napi/js_try_catch.h"
 #include "driver/napi/callback_info.h"
-#include "driver/vm/jsc/jsc_vm.h"
+#include "driver/vm/js_vm.h"
 #include "driver/scope.h"
 #include "footstone/string_view.h"
 #include "footstone/string_view_utils.h"
@@ -61,6 +61,11 @@
 
 #ifdef ENABLE_INSPECTOR
 #include "devtools/devtools_data_source.h"
+#endif
+
+#ifdef JS_JSC
+#include "driver/napi/jsc/jsc_ctx.h"
+#include "driver/napi/jsc/jsc_ctx_value.h"
 #endif
 
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";

@@ -37,6 +37,11 @@
 #include "driver/napi/jsc/jsc_ctx_value.h"
 #endif
 
+#ifdef JS_HERMES
+#include "driver/napi/hermes/hermes_ctx.h"
+#include "driver/napi/hermes/hermes_ctx_value.h"
+#endif
+
 namespace hippy {
 inline namespace driver {
 inline namespace base {
@@ -56,7 +61,7 @@ static std::string IntToString(int v) {
   return buf;
 }
 
-bool IsEqualCtxValue(const std::shared_ptr<CtxValue>& value1, const std::shared_ptr<CtxValue>& value2) {
+bool IsEqualCtxValue(const std::shared_ptr<CtxValue>& value1, const std::shared_ptr<CtxValue>& value2, const std::shared_ptr<Ctx>& ctx) {
 #ifdef JS_V8
   auto v1 = std::static_pointer_cast<V8CtxValue>(value1);
   auto v2 = std::static_pointer_cast<V8CtxValue>(value2);
@@ -65,6 +70,12 @@ bool IsEqualCtxValue(const std::shared_ptr<CtxValue>& value1, const std::shared_
   auto v1 = std::static_pointer_cast<JSCCtxValue>(value1);
   auto v2 = std::static_pointer_cast<JSCCtxValue>(value2);
   return v1->value_ == v2->value_;
+#elif JS_HERMES
+  auto v1 = std::static_pointer_cast<HermesCtxValue>(value1);
+  auto v2 = std::static_pointer_cast<HermesCtxValue>(value2);
+  auto hermes_ctx = std::static_pointer_cast<HermesCtx>(ctx);
+  const std::unique_ptr<HermesRuntime>& runtime = hermes_ctx->GetRuntime();
+  return Value::strictEquals(*runtime, v1->GetValue(runtime), v2->GetValue(runtime));
 #else
   FOOTSTONE_UNREACHABLE();
 #endif
@@ -76,7 +87,7 @@ std::shared_ptr<HippyValue> ToDomValueWithCycleCheck(const std::shared_ptr<Ctx>&
                                                      std::vector<std::shared_ptr<CtxValue>>& value_stack) {
   int stack_len = static_cast<int>(value_stack.size());
   for (int i = 0; i < stack_len - 1; i++) {
-    if(IsEqualCtxValue(value, value_stack[static_cast<uint32_t>(i)])) {
+    if(IsEqualCtxValue(value, value_stack[static_cast<uint32_t>(i)], ctx)) {
       std::string str = "value stack: ";
       for (int t = 0; t < stack_len; t++) {
         str.append(IntToString(t));

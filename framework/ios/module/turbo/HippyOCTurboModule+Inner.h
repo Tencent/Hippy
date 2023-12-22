@@ -26,8 +26,8 @@
 
 #import "HippyOCTurboModule.h"
 #include <memory>
-#include "driver/napi/jsc/jsc_ctx.h"
-#include "driver/napi/jsc/jsc_ctx_value.h"
+#include "driver/napi/js_ctx.h"
+#include "driver/napi/js_ctx_value.h"
 
 namespace hippy {
 inline namespace driver {

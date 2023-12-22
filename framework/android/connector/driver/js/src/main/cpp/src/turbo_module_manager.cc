@@ -33,12 +33,10 @@
 #include "footstone/logging.h"
 #include "footstone/string_view.h"
 #include "footstone/string_view_utils.h"
-#include "driver/napi/v8/v8_ctx.h"
 
 using namespace hippy::napi;
 using string_view = footstone::string_view;
 using StringViewUtils = footstone::StringViewUtils;
-using V8Ctx = hippy::V8Ctx;
 
 constexpr char kTurboKey[] = "getTurboModule";
 

@@ -49,7 +49,7 @@ function isNativeGesture(name) {
 }
 
 function translateToNativeEventName(name) {
-  return name.replace(/^(on)?/g, '').toLocaleLowerCase();
+  return name.replace(/^(on)?/g, '').toLowerCase();
 }
 
 // event method constant

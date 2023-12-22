@@ -247,7 +247,7 @@ public abstract class HippyEngine {
     public List<HippyAPIProvider> providers;
     public List<Processor> processors;
     //Optional  is use V8 serialization or json
-    public boolean enableV8Serialization = true;
+    public boolean enableV8Serialization = false;
     // 可选参数 是否打印引擎的完整的log。默认为false
     public boolean enableLog = false;
     // 可选参数 code cache的名字，如果设置为空，则不启用code cache，默认为 ""

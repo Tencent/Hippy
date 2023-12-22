@@ -194,7 +194,12 @@ JavaTurboModule::JavaTurboModule(const std::string& name,
     module->func_map[name] = func_object;
     info.GetReturnValue()->Set(func_object);
   }, this);
-  constructor = ctx->DefineProxy(getter);
+
+  std::vector<std::string> props;
+  for (const auto &kv : method_map_) {
+    props.push_back(kv.first);
+  }
+  constructor = ctx->DefineProxy(getter, props);
   constructor_wrapper = std::move(getter);
 }
 
