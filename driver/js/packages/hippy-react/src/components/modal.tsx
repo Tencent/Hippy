@@ -78,6 +78,13 @@ interface ModalProps {
   autoHideStatusBar?: boolean;
 
   /**
+   * Hide navigation bar when Modal is showing
+   *
+   * Default: false
+   */
+  autoHideNavigationBar?: boolean;
+
+  /**
    * The animation effect when toggle
    *
    * Default: 'slide'
