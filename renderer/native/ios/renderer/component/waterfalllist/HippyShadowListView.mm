@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "NativeRenderObjectWaterfall.h"
+#import "HippyShadowListView.h"
 #import "NativeRenderWaterfallView.h"
 #import "HippyAssert.h"
 
@@ -43,7 +43,7 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _deletedItems = [NSMutableSet setWithCapacity:8];
+        _deletedItems = [NSMutableSet set];
         _addedItems = [NSHashTable weakObjectsHashTable];
         _movedItems = [NSHashTable weakObjectsHashTable];
         _frameChangedItems = [NSHashTable weakObjectsHashTable];
@@ -127,13 +127,16 @@
 
 @end
 
-@interface NativeRenderObjectWaterfall () {
+
+#pragma mark - 
+
+@interface HippyShadowListView () {
     WaterfallItemChangeContext *_itemChangeContext;
 }
 
 @end
 
-@implementation NativeRenderObjectWaterfall
+@implementation HippyShadowListView
 
 - (instancetype)init{
     self = [super init];
@@ -174,29 +177,5 @@
     [_itemChangeContext appendFrameChangedItem:item];
 }
 
-- (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
-    if ([self isPropagationDirty:NativeRenderUpdateLifecycleLayoutDirtied] &&
-        _itemChangeContext.hasChanges) {
-        WaterfallItemChangeContext *context = [_itemChangeContext copy];
-        NSArray<HippyShadowView *> *dataSource = [self.subcomponents copy];
-        __weak __typeof(self)weakSelf = self;
-        NativeRenderApplierBlock block = ^void(NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-            __strong __typeof(weakSelf)strongSelf = weakSelf;
-            if (!strongSelf) {
-                return;
-            }
-            NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)[viewRegistry objectForKey:[strongSelf hippyTag]];
-            HippyAssert([view isKindOfClass:[NativeRenderWaterfallView class]], @"view must be kind of NativeRenderWaterfallView");
-            if ([view isKindOfClass:[NativeRenderWaterfallView class]]) {
-                view.dirtyContent = YES;
-                view.changeContext = context;
-                [view pushDataSource:dataSource];
-            }
-        };
-        [blocks addObject:block];
-        [_itemChangeContext clear];
-    }
-    [super amendLayoutBeforeMount:blocks];
-}
 
 @end

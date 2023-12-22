@@ -25,7 +25,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class HippyShadowView, WaterfallItemChangeContext;
+@class HippyShadowView;
 
 @interface NativeRenderWaterfallViewDataSource : NSObject<NSCopying>
 
@@ -47,10 +47,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSIndexPath *)indexPathForFlatIndex:(NSInteger)index;
 - (NSInteger)flatIndexForIndexPath:(NSIndexPath *)indexPath;
 
-- (void)applyDiff:(NativeRenderWaterfallViewDataSource *)another
-    changedConext:(WaterfallItemChangeContext *)context
- forWaterfallView:(UICollectionView *)view
-       completion:(void(^)(BOOL success))completion;
 
 @end
 
