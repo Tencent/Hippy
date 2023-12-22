@@ -240,7 +240,7 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     _scrollView.contentSize = _contentView.frame.size;
     [view onAttachedToWindow];
     [_scrollView addSubview:view];
-    view.parentComponent = self;
+    view.parent = self;
     if (_didSetContentOffset) {
         _didSetContentOffset = NO;
         return;
@@ -279,7 +279,7 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     [super removeHippySubview:subview];
     NSAssert(_contentView == subview, @"Attempted to remove non-existent subview");
     [_contentView removeObserver:self forKeyPath:@"frame"];
-    _contentView.parentComponent = nil;
+    _contentView.parent = nil;
     _contentView = nil;
 }
 

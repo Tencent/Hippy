@@ -27,6 +27,7 @@
 #import "HippyScrollableProtocol.h"
 #import "HippyScrollProtocol.h"
 #import "NativeRenderTouchesView.h"
+#import "NativeRenderListTableView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -42,22 +43,18 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
  * NativeRenderWaterfallView is a waterfall component, internal implementation is UICollectionView
  */
 @interface NativeRenderWaterfallView : NativeRenderTouchesView <UICollectionViewDataSource, UICollectionViewDelegate,
-                                        NativeRenderCollectionViewDelegateWaterfallLayout, HippyScrollableProtocol, HippyScrollProtocol> {
+                                        NativeRenderCollectionViewDelegateWaterfallLayout, HippyScrollableProtocol,
+                                        HippyListTableViewLayoutProtocol, HippyScrollProtocol> {
 @protected
     NativeRenderWaterfallViewDataSource *_dataSource;
-    NativeRenderWaterfallViewDataSource *_previousDataSource;
-    NSMapTable<NSNumber *, UIView *> *_weakItemMap;
-    NSMutableDictionary<NSIndexPath *, NSNumber *> *_cachedItems;
+    
+    NSMapTable<NSNumber *, UIView *> *_cachedWeakCellViews;
 
     NativeRenderHeaderRefresh *_headerRefreshView;
     NativeRenderFooterRefresh *_footerRefreshView;
     
     BOOL _allowNextScrollNoMatterWhat;
 }
-
-@property(nonatomic, assign) BOOL dirtyContent;
-
-@property(nonatomic, strong) WaterfallItemChangeContext *changeContext;
 
 /**
  * Content inset for NativeRenderWaterfallView
@@ -119,10 +116,6 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
 @property (nonatomic, copy) HippyDirectEventBlock onRefresh;
 @property (nonatomic, copy) HippyDirectEventBlock onExposureReport;
 
-- (NSUInteger)maxCachedItemCount;
-
-- (NSArray<NSIndexPath *> *)findFurthestIndexPathsFromScreen;
-
 /**
  * Initial collection view
  */
@@ -165,9 +158,6 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
  * Reload data
  */
 - (void)reloadData;
-
-- (void)pushDataSource:(NSArray<HippyShadowView *> *)dataSource;
-- (NSArray<HippyShadowView *> *)popDataSource;
 
 /**
  * Reserved, not implemented
