@@ -1,9 +1,3 @@
-import ElementNode from '../../renderer/element-node';
-import { SelectorsMap } from '../css-selectors-map';
-import { wrap } from '../util';
-import { SelectorCore } from './core-selector';
-import { SimpleSelector } from './simple-selector';
-
 /*
  * Tencent is pleased to support the open source community by making
  * Hippy available.
@@ -23,6 +17,12 @@ import { SimpleSelector } from './simple-selector';
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import ElementNode from '../../renderer/element-node';
+import { SelectorsMap } from '../css-selectors-map';
+import { wrap } from '../util';
+import { SelectorCore } from './core-selector';
+import { SimpleSelector } from './simple-selector';
 
 /**
  * id 选择器实现
