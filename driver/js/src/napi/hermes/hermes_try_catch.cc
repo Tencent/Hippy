@@ -22,6 +22,8 @@
 
 #include "driver/napi/hermes/hermes_try_catch.h"
 
+#include "footstone/logging.h"
+
 namespace hippy {
 inline namespace driver {
 inline namespace napi {
@@ -29,69 +31,26 @@ inline namespace napi {
 using string_view = footstone::string_view;
 
 std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable, std::shared_ptr<Ctx> ctx) {
-  return std::make_shared<HermesTryCatch>(enable, ctx);
-}
-
-HermesTryCatch::HermesTryCatch(bool enable, std::shared_ptr<Ctx>& ctx) : TryCatch(enable, ctx) { is_verbose_ = false; }
-
-HermesTryCatch::~HermesTryCatch() {
-  if (HasCaught()) {
-    std::shared_ptr<HermesCtx> ctx = std::static_pointer_cast<HermesCtx>(ctx_);
-    if (is_rethrow_ || is_verbose_) {
-      ctx->SetException(exception_);
-      if (is_rethrow_) {
-        ctx->SetExceptionHandled(false);
-      } else {
-        ctx->SetExceptionHandled(true);
-      }
-    } else {
-      ctx->SetException(nullptr);
-      ctx->SetExceptionHandled(false);
-    }
-  }
-}
-
-void HermesTryCatch::ReThrow() { is_rethrow_ = true; }
-
-bool HermesTryCatch::HasCaught() {
-  if (enable_) {
-    std::shared_ptr<HermesCtx> ctx = std::static_pointer_cast<HermesCtx>(ctx_);
-    return !!ctx->GetException();
-  }
-  return false;
-}
-
-bool HermesTryCatch::CanContinue() {
-  return false;
-}
-
-bool HermesTryCatch::HasTerminated() {
-  return true;
-}
-
-bool HermesTryCatch::IsVerbose() { return is_verbose_; }
-
-void HermesTryCatch::SetVerbose(bool is_verbose) { is_verbose_ = is_verbose; }
-
-std::shared_ptr<CtxValue> HermesTryCatch::Exception() {
-  if (enable_) {
-    std::shared_ptr<HermesCtx> ctx = std::static_pointer_cast<HermesCtx>(ctx_);
-    if (!ctx->IsExceptionHandled()) {
-      return ctx->GetException();
-    }
-  }
   return nullptr;
 }
 
-string_view HermesTryCatch::GetExceptionMessage() {
-  if (enable_) {
-    std::shared_ptr<HermesCtx> ctx = std::static_pointer_cast<HermesCtx>(ctx_);
-    if (!ctx->IsExceptionHandled()) {
-      return ctx->GetExceptionMessage(ctx->GetException());
-    }
-  }
-  return "";
-}
+HermesTryCatch::HermesTryCatch(bool enable, std::shared_ptr<Ctx>& ctx) : TryCatch(enable, ctx) {}
+
+void HermesTryCatch::ReThrow() { FOOTSTONE_UNIMPLEMENTED(); }
+
+bool HermesTryCatch::HasCaught() { return false; }
+
+bool HermesTryCatch::CanContinue() { return false; }
+
+bool HermesTryCatch::HasTerminated() { return false; }
+
+bool HermesTryCatch::IsVerbose() { return false; }
+
+void HermesTryCatch::SetVerbose(bool is_verbose) { FOOTSTONE_UNIMPLEMENTED(); }
+
+std::shared_ptr<CtxValue> HermesTryCatch::Exception() { return nullptr; }
+
+string_view HermesTryCatch::GetExceptionMessage() { return ""; }
 
 }  // namespace napi
 }  // namespace driver

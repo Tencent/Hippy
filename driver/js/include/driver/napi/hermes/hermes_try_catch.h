@@ -22,11 +22,9 @@
 
 #pragma once
 
-#include "driver/napi/js_try_catch.h"
-
 #include "driver/napi/hermes/hermes_ctx.h"
 #include "driver/napi/hermes/hermes_ctx_value.h"
-#include "footstone/string_view.h"
+#include "driver/napi/js_try_catch.h"
 
 namespace hippy {
 inline namespace driver {
@@ -34,8 +32,7 @@ inline namespace napi {
 
 class HermesTryCatch : public TryCatch {
  public:
-  explicit HermesTryCatch(bool enable, std::shared_ptr<Ctx>& ctx);
-  virtual ~HermesTryCatch();
+  virtual ~HermesTryCatch() = default;
 
   virtual void ReThrow();
   virtual bool HasCaught();
@@ -47,9 +44,7 @@ class HermesTryCatch : public TryCatch {
   virtual footstone::string_view GetExceptionMessage();
 
  private:
-  std::shared_ptr<HermesExceptionCtxValue> exception_;
-  bool is_verbose_;
-  bool is_rethrow_;
+  explicit HermesTryCatch(bool enable, std::shared_ptr<Ctx>& ctx);
 };
 
 }  // namespace napi

@@ -28,7 +28,6 @@
 #include "jsi/jsi-inl.h"
 #pragma clang diagnostic pop
 
-//#include "driver/napi/hermes/hermes_dynamic.h"
 #include "driver/scope.h"
 #include "footstone/string_view_utils.h"
 
@@ -73,6 +72,18 @@ HippyJsiBuffer::HippyJsiBuffer(const uint8_t* data, size_t len) {
 }
 
 HippyJsiBuffer::~HippyJsiBuffer() { delete data_; }
+
+static void HandleJsException(std::shared_ptr<Scope> scope, std::shared_ptr<HermesExceptionCtxValue> exception) {
+  VM::HandleException(scope->GetContext(), "uncaughtException", exception);
+  auto engine = scope->GetEngine().lock();
+  FOOTSTONE_CHECK(engine);
+  auto callback = engine->GetVM()->GetUncaughtExceptionCallback();
+  auto context = scope->GetContext();
+  footstone::string_view description("Hermes Engine JS Exception");
+  footstone::string_view stack(exception->Message());
+  callback(scope->GetBridge(), description, stack);
+}
+
 
 static Value InvokePropertyCallback(Runtime& runtime, const Value& this_value, const std::string& property,
                                     void* function_pointer) {
@@ -253,16 +264,11 @@ static Value InvokeJsCallback(Runtime& runtime, const Value& this_value, const V
   auto js_cb = function_wrapper->callback;
   auto external_data = function_wrapper->data;
   js_cb(cb_info, external_data);
-
-  // TODO exception
-  // auto exception = std::static_pointer_cast<V8CtxValue>(cb_info.GetExceptionValue()->Get());
-  // if (exception) {
-  //   const auto& global_value = exception->global_value_;
-  //   auto handle_value = v8::Local<v8::Value>::New(isolate, global_value);
-  //   isolate->ThrowException(handle_value);
-  //   info.GetReturnValue().SetUndefined();
-  //   return;
-  // }
+  auto exception = std::static_pointer_cast<HermesExceptionCtxValue>(cb_info.GetExceptionValue()->Get());
+  if (exception) {
+    HandleJsException(scope, exception);
+    return Value::undefined();
+  }
 
   auto ret_value = std::static_pointer_cast<HermesCtxValue>(cb_info.GetReturnValue()->Get());
   if (!ret_value) {
@@ -276,8 +282,6 @@ HermesCtx::HermesCtx() {
   runtime_ = facebook::hermes::makeHermesRuntime(config);
   global_native_state_ = std::make_shared<GlobalNativeState>();
   runtime_->global().setNativeState(*runtime_, global_native_state_);
-  exception_ = nullptr;
-  is_exception_handled_ = false;
 
   // Hermes doesn't support the console object, so we implement a console module
   BuiltinModule();
@@ -922,33 +926,17 @@ std::shared_ptr<CtxValue> HermesCtx::RunScript(const string_view& data, const st
         String::createFromUtf8(*runtime_, u8_file_name.utf8_value().c_str(), u8_file_name.utf8_value().size());
     auto jsi_script = std::make_shared<HippyJsiBuffer>(static_cast<const uint8_t*>(u8_script.utf8_value().c_str()),
                                                        u8_script.utf8_value().size());
-    try {
-      facebook::jsi::Value value = runtime_->evaluateJavaScript(jsi_script, jsi_file_name.utf8(*runtime_));
-      return std::make_shared<HermesCtxValue>(*runtime_, value);
-    } catch (facebook::jsi::JSIException& err) {
-      FOOTSTONE_DLOG(ERROR) << "JSI Exception: " << err.what();
-      auto exptr = std::current_exception();
-      std::string message(err.what());
-      SetException(std::make_shared<HermesExceptionCtxValue>(exptr, message));
-    }
-    return nullptr;
+    facebook::jsi::Value value = runtime_->evaluateJavaScript(jsi_script, jsi_file_name.utf8(*runtime_));
+    return std::make_shared<HermesCtxValue>(*runtime_, value);
   } else {
     auto jsi_file_name = facebook::jsi::String::createFromUtf8(*runtime_, u8_file_name.utf8_value().c_str(),
                                                                u8_file_name.utf8_value().size());
     std::shared_ptr<const facebook::jsi::PreparedJavaScript> prepare_js = nullptr;
     auto jsi_script = String::createFromUtf8(*runtime_, u8_script.utf8_value().c_str(), u8_script.utf8_value().size());
     auto buffer = std::make_shared<facebook::jsi::StringBuffer>(jsi_script.utf8(*runtime_));
-    try {
-      prepare_js = runtime_->prepareJavaScript(buffer, jsi_file_name.utf8(*runtime_));
-      auto value = runtime_->evaluatePreparedJavaScript(prepare_js);
-      return std::make_shared<HermesCtxValue>(*runtime_, value);
-    } catch (facebook::jsi::JSIException& err) {
-      FOOTSTONE_DLOG(ERROR) << "JSI Exception: " << err.what();
-      auto exptr = std::current_exception();
-      std::string message(err.what());
-      SetException(std::make_shared<HermesExceptionCtxValue>(exptr, message));
-    }
-    return nullptr;
+    prepare_js = runtime_->prepareJavaScript(buffer, jsi_file_name.utf8(*runtime_));
+    auto value = runtime_->evaluatePreparedJavaScript(prepare_js);
+    return std::make_shared<HermesCtxValue>(*runtime_, value);
   }
 }
 

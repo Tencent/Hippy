@@ -189,18 +189,6 @@ class HermesCtx : public Ctx {
 
  public:
   const std::unique_ptr<HermesRuntime>& GetRuntime() { return runtime_; }
-  inline std::shared_ptr<HermesExceptionCtxValue> GetException() { return exception_; }
-  inline void SetException(std::shared_ptr<HermesExceptionCtxValue> exception) {
-    if (is_exception_handled_) {
-      return;
-    }
-    exception_ = exception;
-    if (exception) {
-      is_exception_handled_ = false;
-    }
-  }
-  inline bool IsExceptionHandled() { return is_exception_handled_; }
-  inline void SetExceptionHandled(bool is_exception_handled) { is_exception_handled_ = is_exception_handled; }
 
  private:
   Value Eval(const char* code);
@@ -215,8 +203,6 @@ class HermesCtx : public Ctx {
   std::unique_ptr<HermesRuntime> runtime_;
   std::shared_ptr<GlobalNativeState> global_native_state_;
   std::unordered_map<string_view, std::shared_ptr<HermesClassDefinition>> template_map_;
-  std::shared_ptr<HermesExceptionCtxValue> exception_;
-  bool is_exception_handled_;
 
   friend class hippy::driver::vm::HermesVM;
 };

@@ -51,6 +51,11 @@
 
 #ifdef JS_HERMES
 #include "driver/vm/hermes/hermes_vm.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wextra-semi"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#include "hermes/hermes.h"
+#pragma clang diagnostic pop
 #endif
 
 namespace hippy {
@@ -74,6 +79,10 @@ using CallbackInfo = hippy::CallbackInfo;
 #ifdef JS_V8
 using V8VM = hippy::V8VM;
 using V8Ctx = hippy::V8Ctx;
+#endif
+
+#ifdef JS_HERMES
+using HermesVM = hippy::HermesVM;
 #endif
 
 constexpr char kBridgeName[] = "hippyBridge";
@@ -374,15 +383,15 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
     }
   }
 #elifdef JS_HERMES
-  auto try_catch = hippy::napi::CreateTryCatchScope(true, scope->GetContext());
-  auto ret = scope->GetContext()->RunScript(script_content, file_name);
-  if (try_catch->HasCaught()) {
-    auto error_message = std::move(try_catch->GetExceptionMessage());
+  std::shared_ptr<CtxValue> ret = nullptr;
+  try {
+    ret = scope->GetContext()->RunScript(script_content, file_name);
+  } catch (facebook::jsi::JSIException& err) {
     auto engine = scope->GetEngine().lock();
     FOOTSTONE_CHECK(engine);
     auto callback = engine->GetVM()->GetUncaughtExceptionCallback();
     auto context = scope->GetContext();
-    callback(scope->GetBridge(), "Hermes Exception", error_message);
+    callback(scope->GetBridge(), "Hermes Exception", err.what());
   }
 #else
   auto ret = scope->GetContext()->RunScript(script_content, file_name);
