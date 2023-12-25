@@ -54,9 +54,70 @@
     }
 }
 
+- (dispatch_queue_t)prepareQueue{
+    return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+}
+
+- (void)prepareForDisplay:(void (^)(UIImage *_Nullable))completionHandler{
+    UIImage *theImage = [self image];
+    BOOL fallback = YES;
+    
+    if(theImage){
+        __weak typeof(self) weakSelf = self;
+        if (@available(iOS 15.0, *)) {
+            CFStringRef ut = CGImageGetUTType(theImage.CGImage);
+            // prepareForDisplayWithCompletionHandler support jpeg and heif only
+            if(ut != nil && (kCFCompareEqualTo == CFStringCompare(ut, kUTTypeJPEG, 0) ||
+                             kCFCompareEqualTo == CFStringCompare(ut, (__bridge CFStringRef)@"public.heif", 0))){
+                fallback = NO;
+                
+                [theImage prepareForDisplayWithCompletionHandler:^(UIImage * _Nullable prepared) {
+                    typeof(self) strongSelf = weakSelf;
+                    if(strongSelf){
+                        @synchronized(strongSelf){
+                            if(prepared){
+                                strongSelf->_image = prepared;
+                            }
+                            completionHandler(prepared);
+                        }
+                    }
+                }];
+                return;
+            }
+        }
+        
+        
+        dispatch_async([self prepareQueue], ^{
+            UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc]
+                                                 initWithSize:theImage.size
+                                                 format:[UIGraphicsImageRendererFormat preferredFormat]];
+            UIImage *prepared = [renderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
+                [theImage drawAtPoint:CGPointZero];
+            }];
+            
+            typeof(self) strongSelf = weakSelf;
+            if(strongSelf){
+                @synchronized(strongSelf){
+                    if(prepared){
+                        strongSelf->_image = prepared;
+                    }
+                    completionHandler(prepared);
+                }
+            }
+        });
+        return;
+    }
+    
+    
+    if(fallback){
+        completionHandler(nil);
+    }
+}
+
 - (UIImage *)image {
     CGFloat scale = [UIScreen mainScreen].scale;
     if (!_image) {
+        UIImage *tmp;
         if (_data) {
             CGFloat view_width = _imageViewSize.width;
             CGFloat view_height = _imageViewSize.height;
@@ -82,7 +143,7 @@
                                 (NSString *)kCGImageSourceThumbnailMaxPixelSize: @(maxDimensionInPixels)
                             };
                             CGImageRef downsampleImageRef = CGImageSourceCreateThumbnailAtIndex(ref, 0, (__bridge CFDictionaryRef)downsampleOptions);
-                            _image = [UIImage imageWithCGImage:downsampleImageRef scale:scale orientation:UIImageOrientationUp];
+                            tmp = [UIImage imageWithCGImage:downsampleImageRef scale:scale orientation:UIImageOrientationUp];
                             CGImageRelease(downsampleImageRef);
                         }
                         CFRelease(properties);
@@ -91,13 +152,20 @@
                 }
             }
         } else {
-            _image = [self imageAtFrame:0];
+            tmp = [self imageAtFrame:0];
+        }
+        if(!tmp){
+            tmp = [UIImage imageWithData:_data scale:scale];
+        }
+        @synchronized (self) {
+            if(_image == nil){
+                _image = tmp;
+            }
         }
     }
-    if (!_image) {
-        _image = [UIImage imageWithData:_data scale:scale];
+    @synchronized (self) {
+        return _image;
     }
-    return _image;
 }
 
 - (UIImage *)imageAtFrame:(NSUInteger)index {

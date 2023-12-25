@@ -49,6 +49,9 @@
  */
 - (UIImage *)image;
 
+/** prepare the image for display */
+- (void)prepareForDisplay:(void (^_Nullable)(UIImage *_Nullable))completionHandler;
+
 // for animated Image
 @optional
 
