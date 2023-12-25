@@ -23,6 +23,7 @@ import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.view.KeyEvent;
 import android.view.View;
@@ -34,6 +35,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.DisplayCutoutCompat;
 
 import com.openhippy.renderer.R;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
@@ -59,6 +61,8 @@ public class HippyModalHostView extends HippyViewGroup implements
     private static final String ANIMATION_TYPE_SLIDE_FADE = "slide_fade";
     private static final String ANIMATION_PROPERTY_ALPHA = "alpha";
     private static final String ANIMATION_PROPERTY_TRANSLATION_Y = "translationY";
+    private boolean mAutoHideStatusBar = false;
+    private boolean mAutoHideNavigationBar = false;
     private boolean mEnterImmersionStatusBar = false;
     private boolean mStatusBarTextDarkColor = false;
     private boolean mTransparent = true;
@@ -203,6 +207,14 @@ public class HippyModalHostView extends HippyViewGroup implements
         return mAnimationType;
     }
 
+    protected void autoHideStatusBar(boolean hide) {
+        mAutoHideStatusBar = hide;
+    }
+
+    protected void autoHideNavigationBar(boolean hide) {
+        mAutoHideNavigationBar = hide;
+    }
+
     protected void setEnterImmersionStatusBar(boolean fullScreen) {
         mEnterImmersionStatusBar = fullScreen;
     }
@@ -225,20 +237,33 @@ public class HippyModalHostView extends HippyViewGroup implements
                 return;
             }
             int sysUI = window.getDecorView().getSystemUiVisibility();
-            sysUI = sysUI & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-            sysUI = sysUI & ~View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-            int extra;
-            if (isDarkIcon) {
-                extra = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-            } else {
-                extra = View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+
+            if (mAutoHideStatusBar && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                WindowManager.LayoutParams lp = window.getAttributes();
+                lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+                window.setAttributes(lp);
+                sysUI = sysUI | View.SYSTEM_UI_FLAG_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+            } else if (mEnterImmersionStatusBar) {
+                sysUI = sysUI & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+                sysUI = sysUI & ~View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+                int extra;
+                if (isDarkIcon) {
+                    extra = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+                } else {
+                    extra = View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+                }
+                sysUI = sysUI | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | extra;
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+                window.setStatusBarColor(Color.TRANSPARENT);
             }
-            window.getDecorView()
-                    .setSystemUiVisibility(sysUI | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | extra);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(Color.TRANSPARENT);
+
+            if (mAutoHideNavigationBar) {
+                sysUI = sysUI | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+            }
+
+            window.getDecorView().setSystemUiVisibility(sysUI);
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -256,7 +281,7 @@ public class HippyModalHostView extends HippyViewGroup implements
         if (mDialog == null) {
             return;
         }
-        if (mDialog.getWindow() != null && mEnterImmersionStatusBar) {
+        if (mDialog.getWindow() != null) {
             setDialogBar(mStatusBarTextDarkColor);
         }
         switch (mAnimationStyleTheme) {

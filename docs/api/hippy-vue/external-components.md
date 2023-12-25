@@ -162,6 +162,9 @@ export default {
 | supportedOrientations | 支持屏幕翻转方向                                                       | `enum(portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[]` | `iOS`    |
 | immersionStatusBar    | 是否是沉浸式状态栏。`default: true`                                         | `boolean`                                                    | `Android、Voltron`    |
 | darkStatusBarText     | 是否是亮色主体文字，默认字体是黑色的，改成 true 后会认为 Modal 背景为暗色调，字体就会改成白色。 | `boolean`                                                    | `Android、iOS、Voltron`    |
+| autoHideStatusBar     | 是否在`Modal`显示时自动隐藏状态栏。<strong>Android 中仅 api28 以上生效。</strong> `default: false` | `boolean` | `Android` |
+| autoHideNavigationBar | 是否在`Modal`显示时自动隐藏导航栏。 `default: false` | `boolean` | `Android` |
+
 | transparent | 背景是否是透明的。`default: true` | `boolean`                                                    | `Android、iOS、Web-Renderer、Voltron`    |
 
 ## 事件
