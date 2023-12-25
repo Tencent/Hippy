@@ -73,30 +73,30 @@ typedef NS_ENUM(NSInteger, NativeRenderBorderStyle) {
 
 @end
 
-typedef NS_ENUM(NSInteger, NativeRenderTextDecorationLineType) {
-    NativeRenderTextDecorationLineTypeNone = 0,
-    NativeRenderTextDecorationLineTypeUnderline,
-    NativeRenderTextDecorationLineTypeStrikethrough,
-    NativeRenderTextDecorationLineTypeUnderlineStrikethrough,
+typedef NS_ENUM(NSInteger, HippyTextDecorationLineType) {
+    HippyTextDecorationLineTypeNone = 0,
+    HippyTextDecorationLineTypeUnderline,
+    HippyTextDecorationLineTypeStrikethrough,
+    HippyTextDecorationLineTypeUnderlineStrikethrough,
 };
 
 /// Vertical alignment enum for text attachment,
 /// similar to vertical-align in CSS (layout is different)
 ///
 /// Default（Undefined）is baseline
-typedef NS_ENUM(NSInteger, NativeRenderTextVerticalAlignType) {
-    NativeRenderTextVerticalAlignUndefined = 0,
-    NativeRenderTextVerticalAlignBaseline = 1,
-    NativeRenderTextVerticalAlignBottom = 2,
-    NativeRenderTextVerticalAlignMiddle = 3,
-    NativeRenderTextVerticalAlignTop = 4,
+typedef NS_ENUM(NSInteger, HippyTextVerticalAlignType) {
+    HippyTextVerticalAlignUndefined = 0,
+    HippyTextVerticalAlignBaseline = 1,
+    HippyTextVerticalAlignBottom = 2,
+    HippyTextVerticalAlignMiddle = 3,
+    HippyTextVerticalAlignTop = 4,
 };
 
 @interface HippyConvert (NativeRenderTextEnumDefines)
 
-+ (NativeRenderTextDecorationLineType)NativeRenderTextDecorationLineType:(id)json;
++ (HippyTextDecorationLineType)HippyTextDecorationLineType:(id)json;
 
-+ (NativeRenderTextVerticalAlignType)NativeRenderTextVerticalAlignType:(id)json;
++ (HippyTextVerticalAlignType)HippyTextVerticalAlignType:(id)json;
 
 @end
 

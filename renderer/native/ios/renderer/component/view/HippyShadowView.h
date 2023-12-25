@@ -132,7 +132,7 @@ extern NSString *const NativeRenderShadowViewDiffTag;
 
 /// Vertical Alignment for Text / Text Attachment,
 /// Note that this property only takes effect for Text Element.
-@property (nonatomic, assign) NativeRenderTextVerticalAlignType verticalAlignType;
+@property (nonatomic, assign) HippyTextVerticalAlignType verticalAlignType;
 
 /// Vertical Align Offset for Text / Text Attachment,
 /// Note that this property only takes effect for Text Element.
@@ -190,7 +190,7 @@ extern NSString *const NativeRenderShadowViewDiffTag;
 
 /**
  * Return whether or not this node acts as a leaf node in the eyes of CSSLayout. For example
- * NativeRenderShadowText has children which it does not want CSSLayout to lay out so in the eyes of
+ * HippyShadowText has children which it does not want CSSLayout to lay out so in the eyes of
  * CSSLayout it is a leaf node.
  */
 - (BOOL)isCSSLeafNode;

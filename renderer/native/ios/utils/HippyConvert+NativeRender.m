@@ -201,19 +201,19 @@ NativeRenderBorderStyleSolid, integerValue)
 
 @implementation HippyConvert (NativeRenderTextEnumDefines)
 
-HP_ENUM_CONVERTER(NativeRenderTextDecorationLineType, (@{
-    @"none": @(NativeRenderTextDecorationLineTypeNone),
-    @"underline": @(NativeRenderTextDecorationLineTypeUnderline),
-    @"line-through": @(NativeRenderTextDecorationLineTypeStrikethrough),
-    @"underline line-through": @(NativeRenderTextDecorationLineTypeUnderlineStrikethrough),
+HP_ENUM_CONVERTER(HippyTextDecorationLineType, (@{
+    @"none": @(HippyTextDecorationLineTypeNone),
+    @"underline": @(HippyTextDecorationLineTypeUnderline),
+    @"line-through": @(HippyTextDecorationLineTypeStrikethrough),
+    @"underline line-through": @(HippyTextDecorationLineTypeUnderlineStrikethrough),
 }),
-NativeRenderTextDecorationLineTypeNone, integerValue)
+HippyTextDecorationLineTypeNone, integerValue)
 
-HP_ENUM_CONVERTER(NativeRenderTextVerticalAlignType, (@{
-    @"middle": @(NativeRenderTextVerticalAlignMiddle),
-    @"top": @(NativeRenderTextVerticalAlignTop),
-    @"bottom": @(NativeRenderTextVerticalAlignBottom),
-    @"baseline": @(NativeRenderTextVerticalAlignBaseline),
-}), NativeRenderTextVerticalAlignUndefined, integerValue)
+HP_ENUM_CONVERTER(HippyTextVerticalAlignType, (@{
+    @"middle": @(HippyTextVerticalAlignMiddle),
+    @"top": @(HippyTextVerticalAlignTop),
+    @"bottom": @(HippyTextVerticalAlignBottom),
+    @"baseline": @(HippyTextVerticalAlignBaseline),
+}), HippyTextVerticalAlignUndefined, integerValue)
 
 @end

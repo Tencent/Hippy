@@ -20,38 +20,38 @@
  * limitations under the License.
  */
 
-#import "NativeRenderTextManager.h"
+#import "HippyTextManager.h"
+#import "HippyAssert.h"
 #import "HippyConvert.h"
-#import "NativeRenderObjectText.h"
-#import "NativeRenderText.h"
-#import "NativeRenderTextView.h"
+#import "HippyShadowText.h"
+#import "HippyText.h"
 #import "UIView+Hippy.h"
 
-static void collectDirtyNonTextDescendants(NativeRenderObjectText *renderObject, NSMutableArray *nonTextDescendants) {
+static void collectDirtyNonTextDescendants(HippyShadowText *renderObject, NSMutableArray *nonTextDescendants) {
     for (HippyShadowView *child in renderObject.subcomponents) {
-        if ([child isKindOfClass:[NativeRenderObjectText class]]) {
-            collectDirtyNonTextDescendants((NativeRenderObjectText *)child, nonTextDescendants);
+        if ([child isKindOfClass:[HippyShadowText class]]) {
+            collectDirtyNonTextDescendants((HippyShadowText *)child, nonTextDescendants);
         } else if ([child isTextDirty]) {
             [nonTextDescendants addObject:child];
         }
     }
 }
 
-@interface NativeRenderObjectText (Private)
+@interface HippyShadowText (Private)
 // hplayout
 - (NSTextStorage *)buildTextStorageForWidth:(CGFloat)width widthMode:(hippy::LayoutMeasureMode)widthMode;
 @end
 
-@implementation NativeRenderTextManager
+@implementation HippyTextManager
 
 HIPPY_EXPORT_MODULE(Text)
 
 - (UIView *)view {
-    return [NativeRenderText new];
+    return [HippyText new];
 }
 
 - (HippyShadowView *)hippyShadowView {
-    return [NativeRenderObjectText new];
+    return [HippyShadowText new];
 }
 
 #pragma mark - Shadow properties
@@ -72,7 +72,7 @@ HIPPY_EXPORT_SHADOW_PROPERTY(ellipsizeMode, NSLineBreakMode)
 HIPPY_EXPORT_SHADOW_PROPERTY(textAlign, NSTextAlignment)
 HIPPY_EXPORT_SHADOW_PROPERTY(textDecorationStyle, NSUnderlineStyle)
 HIPPY_EXPORT_SHADOW_PROPERTY(textDecorationColor, UIColor)
-HIPPY_EXPORT_SHADOW_PROPERTY(textDecorationLine, NativeRenderTextDecorationLineType)
+HIPPY_EXPORT_SHADOW_PROPERTY(textDecorationLine, HippyTextDecorationLineType)
 HIPPY_EXPORT_SHADOW_PROPERTY(allowFontScaling, BOOL)
 HIPPY_EXPORT_SHADOW_PROPERTY(opacity, CGFloat)
 HIPPY_EXPORT_SHADOW_PROPERTY(textShadowOffset, CGSize)
@@ -97,38 +97,38 @@ HIPPY_EXPORT_SHADOW_PROPERTY(autoLetterSpacing, BOOL)
 
         NSMutableArray<HippyShadowView *> *queue = [NSMutableArray arrayWithObject:rootView];
         for (NSInteger i = 0; i < queue.count; i++) {
-            HippyShadowView *renderObject = queue[i];
-            if (!renderObject) {
-                HippyLogWarn(@"renderObject is nil, please remain xcode state and call rainywan");
+            HippyShadowView *shadowView = queue[i];
+            if (!shadowView) {
+                HippyLogWarn(@"shadowView is nil");
                 continue;
             }
-//            NSAssert([renderObject isTextDirty], @"Don't process any nodes that don't have dirty text");
+            HippyAssert([shadowView isTextDirty], @"Don't process any nodes that don't have dirty text");
 
-            if ([renderObject isKindOfClass:[NativeRenderObjectText class]]) {
-                ((NativeRenderObjectText *)renderObject).fontSizeMultiplier = 1.0;
-                [(NativeRenderObjectText *)renderObject recomputeText];
-                collectDirtyNonTextDescendants((NativeRenderObjectText *)renderObject, queue);
+            if ([shadowView isKindOfClass:[HippyShadowText class]]) {
+                ((HippyShadowText *)shadowView).fontSizeMultiplier = 1.0;
+                [(HippyShadowText *)shadowView recomputeText];
+                collectDirtyNonTextDescendants((HippyShadowText *)shadowView, queue);
             } else {
-                for (HippyShadowView *child in [renderObject subcomponents]) {
+                for (HippyShadowView *child in [shadowView subcomponents]) {
                     if ([child isTextDirty]) {
                         [queue addObject:child];
                     }
                 }
             }
 
-            [renderObject setTextComputed];
+            [shadowView setTextComputed];
         }
     }
 
     return nil;
 }
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowView:(NativeRenderObjectText *)renderObjectText {
-    NSNumber *componentTag = renderObjectText.hippyTag;
-    UIEdgeInsets padding = renderObjectText.paddingAsInsets;
+- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowView:(HippyShadowText *)shadowView {
+    NSNumber *componentTag = shadowView.hippyTag;
+    UIEdgeInsets padding = shadowView.paddingAsInsets;
 
-    return ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, NativeRenderText *> *viewRegistry) {
-        NativeRenderText *text = viewRegistry[componentTag];
+    return ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, HippyText *> *viewRegistry) {
+        HippyText *text = viewRegistry[componentTag];
         text.contentInset = padding;
     };
 }
