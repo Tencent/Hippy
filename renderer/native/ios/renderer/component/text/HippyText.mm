@@ -20,23 +20,23 @@
  * limitations under the License.
  */
 
-#import "NativeRenderText.h"
-#import "NativeRenderObjectText.h"
+#import "HippyText.h"
+#import "HippyShadowText.h"
 #import "HippyUtils.h"
 #import "UIView+Hippy.h"
 #import "HippyLog.h"
 
-static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *nonTextDescendants) {
+static void collectNonTextDescendants(HippyText *view, NSMutableArray *nonTextDescendants) {
     for (UIView *child in view.subcomponents) {
-        if ([child isKindOfClass:[NativeRenderText class]]) {
-            collectNonTextDescendants((NativeRenderText *)child, nonTextDescendants);
+        if ([child isKindOfClass:[HippyText class]]) {
+            collectNonTextDescendants((HippyText *)child, nonTextDescendants);
         } else {
             [nonTextDescendants addObject:child];
         }
     }
 }
 
-@implementation NativeRenderText
+@implementation HippyText
 
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
@@ -132,7 +132,7 @@ static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *no
 
     __block UIBezierPath *highlightPath = nil;
     NSRange characterRange = [layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
-    [layoutManager.textStorage enumerateAttribute:NativeRenderIsHighlightedAttributeName inRange:characterRange options:0 usingBlock:^(
+    [layoutManager.textStorage enumerateAttribute:HippyIsHighlightedAttributeName inRange:characterRange options:0 usingBlock:^(
         NSNumber *value, NSRange range, __unused BOOL *_) {
         if (!value.boolValue) {
             return;
@@ -176,7 +176,7 @@ static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *no
     // If the point is not before (fraction == 0.0) the first character and not
     // after (fraction == 1.0) the last character, then the attribute is valid.
     if (_textStorage.length > 0 && (fraction > 0 || characterIndex > 0) && (fraction < 1 || characterIndex < _textStorage.length - 1)) {
-        componentTag = [_textStorage attribute:NativeRenderComponentTagAttributeName atIndex:characterIndex effectiveRange:NULL];
+        componentTag = [_textStorage attribute:HippyTagAttributeName atIndex:characterIndex effectiveRange:NULL];
     }
     return componentTag;
 }
@@ -222,7 +222,7 @@ static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *no
 }
 
 - (void)setBackgroundImageUrl:(NSString *)backgroundImageUrl {
-    HippyLogWarn(@"Warning: backgroundImage is not available in NativeRenderText.");
+    HippyLogWarn(@"Warning: backgroundImage is not available in HippyText.");
 }
 
 @end

@@ -23,10 +23,10 @@
 #import "HippyConvert+NativeRender.h"
 #import "HippyShadowView.h"
 
-typedef NS_ENUM(NSInteger, NativeRenderSizeComparison) {
-    NativeRenderSizeTooLarge,
-    NativeRenderSizeTooSmall,
-    NativeRenderSizeWithinRange,
+typedef NS_ENUM(NSInteger, HippySizeComparison) {
+    HippySizeTooLarge,
+    HippySizeTooSmall,
+    HippySizeWithinRange,
 };
 
 namespace hippy {
@@ -36,16 +36,16 @@ struct LayoutSize;
 }
 }
 
-extern NSAttributedStringKey const NativeRenderIsHighlightedAttributeName;
-extern NSAttributedStringKey const NativeRenderComponentTagAttributeName;
-extern NSAttributedStringKey const NativeRenderRenderObjectAttributeName;
+extern NSAttributedStringKey const HippyIsHighlightedAttributeName;
+extern NSAttributedStringKey const HippyTagAttributeName;
+extern NSAttributedStringKey const HippyShadowViewAttributeName;
 
 hippy::LayoutSize textMeasureFunc(float width, hippy::LayoutMeasureMode widthMeasureMode,
                                             __unused float height,
                                             __unused hippy::LayoutMeasureMode heightMeasureMode,
                                             void *layoutContext);
 
-@interface NativeRenderObjectText : HippyShadowView {
+@interface HippyShadowText : HippyShadowView {
 @protected
     NSTextStorage *_cachedTextStorage;
     CGFloat _cachedTextStorageWidth;
@@ -73,7 +73,7 @@ hippy::LayoutSize textMeasureFunc(float width, hippy::LayoutMeasureMode widthMea
 @property (nonatomic, assign) NSTextAlignment textAlign;
 @property (nonatomic, strong) UIColor *textDecorationColor;
 @property (nonatomic, assign) NSUnderlineStyle textDecorationStyle;
-@property (nonatomic, assign) NativeRenderTextDecorationLineType textDecorationLine;
+@property (nonatomic, assign) HippyTextDecorationLineType textDecorationLine;
 @property (nonatomic, assign) CGFloat fontSizeMultiplier;
 @property (nonatomic, assign) BOOL allowFontScaling;
 @property (nonatomic, assign) CGFloat opacity;
@@ -90,7 +90,7 @@ hippy::LayoutSize textMeasureFunc(float width, hippy::LayoutMeasureMode widthMea
 @end
 
 /// Style information passed when generating attributedString
-@interface NativeRenderAttributedStringStyleInfo : NSObject
+@interface HippyAttributedStringStyleInfo : NSObject
 
 @property (nonatomic, strong) NSString *fontFamily;
 @property (nonatomic, strong) NSNumber *fontSize;
