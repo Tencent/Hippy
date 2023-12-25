@@ -18,16 +18,16 @@
  * limitations under the License.
  */
 
+import { NeedToTyped } from '../types/native';
+
 const EventHandlerType = {
   ADD: 0,
   REMOVE: 1,
 };
 
-const NativeEventMap = {
+const NativeEventMap: NeedToTyped = {
   onClick: 'click',
   onLongClick: 'longclick',
-  // onPressIn: 'touchstart', // normalization
-  // onPressOut: 'touchend', // normalization
   onPressIn: 'pressin',
   onPressOut: 'pressout',
   onTouchDown: 'touchstart', // compatible with w3c standard name touchstart
@@ -44,18 +44,13 @@ const DOMEventPhase = {
   BUBBLING_PHASE: 3,
 };
 
-function isNativeGesture(name: string) {
+function isNativeGesture(name: keyof typeof NativeEventMap) {
   return !!NativeEventMap[name];
 }
 
 function translateToNativeEventName(name: string) {
   return name.replace(/^(on)?/g, '').toLocaleLowerCase();
 }
-
-const RelativeToRefType = {
-  BEFORE: -1,
-  AFTER: 1,
-};
 
 // event method constant
 const EventMethod = {
@@ -65,7 +60,6 @@ const EventMethod = {
 
 export {
   EventMethod,
-  RelativeToRefType,
   EventHandlerType,
   NativeEventMap,
   DOMEventPhase,
