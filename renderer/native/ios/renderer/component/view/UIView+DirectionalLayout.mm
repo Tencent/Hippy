@@ -57,7 +57,7 @@
 - (void)checkLayoutDirection:(NSMutableSet<UIView *> *)viewsSet direction:(hippy::Direction *)direction{
     if (hippy::Direction::Inherit == self.confirmedLayoutDirection) {
         [viewsSet addObject:self];
-        [(UIView *)[self parentComponent] checkLayoutDirection:viewsSet direction:direction];
+        [(UIView *)[self parent] checkLayoutDirection:viewsSet direction:direction];
     }
     else if (direction) {
         *direction = self.confirmedLayoutDirection;

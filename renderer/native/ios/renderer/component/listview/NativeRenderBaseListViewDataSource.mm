@@ -23,7 +23,7 @@
 #import <UIKit/UIKit.h>
 #import "NativeRenderBaseListViewDataSource.h"
 #import "HippyShadowView.h"
-#import "NativeRenderObjectWaterfall.h"
+#import "HippyShadowListView.h"
 
 @interface NativeRenderBaseListViewDataSource () {
     NSMutableArray *_headerRenderObjects;
@@ -153,16 +153,6 @@
 
 - (UIView *)bannerView {
     return nil;
-}
-
-- (void)applyDiff:(NativeRenderBaseListViewDataSource *)another
-    changedConext:(WaterfallItemChangeContext *)context
- forWaterfallView:(UICollectionView *)view
-       completion:(void(^)(BOOL success))completion {
-    [view reloadData];
-    completion(YES);
-    return;
-    // Note：原增量刷新代码存在大量问题，已删除
 }
 
 

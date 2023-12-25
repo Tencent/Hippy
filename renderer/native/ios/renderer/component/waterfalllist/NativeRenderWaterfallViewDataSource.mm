@@ -25,7 +25,7 @@
 #import "HippyAssert.h"
 #import "NativeRenderWaterfallViewDataSource.h"
 #import "HippyShadowView.h"
-#import "NativeRenderObjectWaterfall.h"
+#import "HippyShadowListView.h"
 
 @interface NativeRenderWaterfallViewDataSource () {
     BOOL _containBannerView;
@@ -178,14 +178,5 @@
     return index;
 }
 
-- (void)applyDiff:(NativeRenderWaterfallViewDataSource *)another
-    changedConext:(WaterfallItemChangeContext *)context
- forWaterfallView:(UICollectionView *)view
-       completion:(void(^)(BOOL success))completion{
-    [view reloadData];
-    completion(YES);
-    return;
-    // Note：原增量刷新代码存在大量问题，已删除
-}
 
 @end
