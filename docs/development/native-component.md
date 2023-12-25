@@ -131,6 +131,7 @@ protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 
 但一些业务场景中，自定义组件需要挂载一些非前端节点映射的纯native view，常见的比如video view，lottie view等，由于我们拦截了onMeasure和onLayout，这些视图无法获取到正确的显示尺寸和位置，导致显示异常，所以需要开发者自己手动调用measure和layout来解决这个问题，可以参考以下示例：
 在自定义组件的Controller中Override onBatchComplete接口，在非前端节点映射的纯native view的父容器调用measure和layout
+
 ```java
 private final Handler mHandler = new Handler(Looper.getMainLooper());
 
