@@ -10,8 +10,14 @@ module.exports = function (source, inMap) {
     source,
     filename: this.resourcePath,
     id: `data-v-${query.id}`,
+    postcssPlugins: [...(() => {
+      const query = qs.parse(this.resourceQuery.slice(1));
+      const { id, scoped } = query;
+      if (!scoped) return [];
+      return [require('postcss-class-prefix')(`v${id}.`)];
+    })()],
     map: inMap,
-    scoped: !!query.scoped,
+    scoped: false,
     trim: true,
   });
 

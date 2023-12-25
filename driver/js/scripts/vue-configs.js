@@ -24,6 +24,7 @@ const { babel } = require('@rollup/plugin-babel');
 const cjs = require('@rollup/plugin-commonjs');
 const replace = require('@rollup/plugin-replace');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
+const typescript = require('rollup-plugin-typescript2');
 const flow = require('rollup-plugin-flow-no-whitespace');
 
 const VueVersion = require('vue/package.json').version;
@@ -56,15 +57,15 @@ const aliases = {
 
 const builds = {
   '@hippy/vue': {
-    entry: resolvePackage('hippy-vue', 'src/index.js'),
+    entry: resolvePackage('hippy-vue', 'src/index.ts'),
     dest: resolvePackage('hippy-vue', 'dist/index.js'),
     format: 'es',
     banner: banner('@hippy/vue', hippyVuePackage.version, bannerStr),
   },
   '@hippy/vue-css-loader': {
     entry: {
-      index: resolvePackage('hippy-vue-css-loader', 'src/index.js'),
-      'css-loader': resolvePackage('hippy-vue-css-loader', 'src/css-loader.js'),
+      index: resolvePackage('hippy-vue-css-loader', 'src/index.ts'),
+      'css-loader': resolvePackage('hippy-vue-css-loader', 'src/css-loader.ts'),
     },
     dir: resolvePackage('hippy-vue-css-loader', 'dist'),
     entryFileNames: '[name].js',
@@ -76,7 +77,7 @@ const builds = {
     },
   },
   '@hippy/vue-native-components': {
-    entry: resolvePackage('hippy-vue-native-components', 'src/index.js'),
+    entry: resolvePackage('hippy-vue-native-components', 'src/index.ts'),
     dest: resolvePackage('hippy-vue-native-components', 'dist/index.js'),
     format: 'es',
     moduleName: 'hippy-vue-native-components',
@@ -110,6 +111,33 @@ function genConfig(name) {
           'process.env.HIPPY_VUE_VERSION': `"${hippyVuePackage.version}"`,
           // enable vue-devtools if __VUE_DEVTOOLS_GLOBAL_HOOK__ exist
           'inBrowser && window.__VUE_DEVTOOLS_GLOBAL_HOOK__': 'global.__VUE_DEVTOOLS_GLOBAL_HOOK__',
+        },
+      }),
+      typescript({
+        typescript: require('ttypescript'),
+        tsconfigDefaults: {
+          compilerOptions: {
+            plugins: [
+              // only deal with d.ts，ignore js
+              // do not transform external npm package path in d.ts
+              { transform: 'typescript-transform-paths', afterDeclarations: true, exclude: ['**/vue/src/**'] },
+            ],
+          },
+        },
+        tsconfig: path.resolve(__dirname, '../tsconfig.json'),
+        tsconfigOverride: {
+          compilerOptions: {
+            declaration: true,
+            declarationMap: false,
+          },
+          exclude: ['**/__tests__/*.test.*'],
+          include: [
+            'packages/hippy-vue/src',
+            'packages/hippy-vue-css-loader/src',
+            'packages/global.d.ts',
+            'node_modules/@types/web/index.d.ts',
+            'node_modules/@types/node/index.d.ts',
+          ],
         },
       }),
       flow(),
