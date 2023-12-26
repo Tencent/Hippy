@@ -148,6 +148,107 @@ HIPPY_EXPORT_TURBO_METHOD(setInfo:(NSString *)string) {
 
 更多示例可参考类[DemoIOSTurboModule](https://github.com/Tencent/Hippy/blob/master/examples/ios-demo/HippyDemo/turbomodule/TurboBaseModule.mm)
 
+## 鸿蒙
+
+* 通过设置引擎初始化参数开启JSI能力
+
+```typescript
+initParams.enableTurbo = true
+```
+
+* 定义Module
+
+> 跟普通NativeModule类似，区别在于需要设置 isTurbo 为 true
+
+```typescript
+export class ExampleNativeTurboModule extends HippyNativeModuleBase {
+  public static readonly NAME = 'demoTurbo'
+
+  constructor(ctx: HippyEngineContext) {
+    super(ctx)
+  }
+
+  isTurbo(): boolean {
+    return true
+  }
+
+  public getString(info: string): string {
+    return 'demoTurbo' + info;
+  }
+
+  public getNum(num: number): number {
+    return num;
+  }
+
+  public getBoolean(b: boolean): boolean {
+    return b;
+  }
+
+  public getMap(map: HippyMap): HippyMap {
+    return map
+  }
+
+  public getArray(array: HippyArray): HippyArray {
+    return array
+  }
+
+  public getObject(obj: HippyAny): HippyAny {
+    return obj
+  }
+
+  public getTurboConfig(): TurboConfig {
+    return new TurboConfig();
+  }
+
+  public printTurboConfig(turboConfig: TurboConfig): string {
+    return turboConfig.info;
+  }
+}
+```
+
+> 嵌套 turbo 对象需要设置注解@HippyTurboObject, 否则会当作普通对象解析
+
+``` typescript
+@HippyTurboObject()
+export class TurboConfig {
+  public static readonly NAME = 'turboConfig'
+  public info = "info from turboConfig"
+  private static instance: TurboConfig;
+
+  public static getInstance() {
+    if (!TurboConfig.instance) {
+      TurboConfig.instance = new TurboConfig();
+    }
+    return TurboConfig.instance;
+  }
+
+  public toString() {
+    return this.info;
+  }
+
+  public getTestString() {
+    return 'test' + this.info;
+  }
+}
+```
+
+> 支持的数据类型说明：
+
+| Objec类型  | Js类型  |
+|:----------|:----------|
+| napi_boolean    | Bool    |
+| napi_number    | Number    |
+| napi_bigint    | Number    |
+| napi_string    | String    |
+| napi_object    | Array    |
+| napi_object    | Object    |
+| NULL    | null    |
+
+更多示例可参考类[DemoTurboModule](https://github.com/sohotz/Hippy/blob/main/framework/examples/ohos-demo/src/main/ets/hippy_extend/ExampleNativeTurboModule.ets)
+
+* 注册TurboModule模块，跟NativeModule注册方法完全一致
+
+
 
 # 使用例子
 

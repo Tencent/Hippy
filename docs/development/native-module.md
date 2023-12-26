@@ -274,6 +274,141 @@ HIPPY_EXPORT_METHOD(click) {
 @end
 ```
 
+# 鸿蒙
+
+很多时候 `JS` 需要访问对应终端的一些能力模块，比如数据库、下载、网络请求等，这时候就需要使用 `Module` 来暴露接口给JS使用。Voltron SDK 中默认实现了部分 `Module`，但这极有可能无法满足你的需求，这就需要你对 `Module` 进行扩展封装。
+
+---
+
+## Module扩展
+
+我们将以 `TestModule` 为例，从头扩展一个 `Module`，这个 `Module` 将展示前端如何调用终端能力，并且把结果返回给前端
+
+终端扩展 `Module` 包括四步：
+
+1. 创建 `TestModule`
+2. 实现导出给 `JS` 的方法。
+3. 注册 `Module`。
+
+## 1. 创建 `TestModule`，并且继承 HippyNativeModuleBase
+
+```typescript
+export class ExampleNativeModule extends HippyNativeModuleBase {
+  public static readonly NAME = 'ExampleNativeModule'
+
+  constructor(ctx: HippyEngineContext) {
+    super(ctx)
+  }
+
+  public call(method: string, params: Array<HippyAny>, promise: HippyModulePromise): HippyAny {
+    switch (method) {
+      case 'test': {
+        this.test();
+        break;
+      }
+      case 'testPromise': {
+        this.testPromise(params, promise);
+        break;
+      }
+      case 'testSendEvent': {
+        this.testSendEvent(params, promise);
+      }
+      default:
+        super.call(method, params, promise);
+    }
+    return null;
+  }
+
+  public test() {
+    LogUtils.i(ExampleNativeModule.NAME, 'module test');
+  }
+
+  public testPromise(params: Array<HippyAny>, promise: HippyModulePromise) {
+    promise.resolve('test');
+  }
+
+  public testSendEvent(params: Array<HippyAny>, promise: HippyModulePromise) {
+    LogUtils.i(ExampleNativeModule.NAME, 'testSendEvent');
+    if (this.ctx != null && this.ctx.getModuleManager() != null) {
+      const eventModule = this.ctx.getModuleManager().getJavaScriptModule(EventDispatcher.MODULE_NAME);
+      if (eventModule != null) {
+        const event = 'testEvent';
+        const params = new Map<string, HippyAny>();
+        params.set('testString', 'testStringValue');
+
+        const valueMap = new Map<string, HippyAny>();
+        valueMap.set('testString2', 'testStringValue2');
+        params.set('testMap', valueMap);
+
+        const array: HippyArray = [];
+        array.push(valueMap);
+        params.set('testArray', array);
+
+        (eventModule as EventDispatcher).receiveNativeEvent(event, params);
+      }
+    }
+  }
+
+}
+
+```
+
+需要注意的是，这里与Android、iOS有几处不同。
+
+1. 需要指定 NAME，设置为前端调用的 module name
+
+2. 需要实现 call 方法
+
+## Turbo Module扩展
+
+和 Module 的扩展一致，不过还需要配置 isTurbo 方法，且不需要实现 call 方法，参考如下：
+
+```typescript
+export class ExampleNativeTurboModule extends HippyNativeModuleBase {
+  public static readonly NAME = 'demoTurbo'
+
+  constructor(ctx: HippyEngineContext) {
+    super(ctx)
+  }
+
+  isTurbo(): boolean {
+    return true
+  }
+
+  public getString(info: string): string {
+    return 'demoTurbo' + info;
+  }
+
+  public getNum(num: number): number {
+    return num;
+  }
+
+  public getBoolean(b: boolean): boolean {
+    return b;
+  }
+
+  public getMap(map: HippyMap): HippyMap {
+    return map
+  }
+
+  public getArray(array: HippyArray): HippyArray {
+    return array
+  }
+
+  public getObject(obj: HippyAny): HippyAny {
+    return obj
+  }
+
+  public getTurboConfig(): TurboConfig {
+    return new TurboConfig();
+  }
+
+  public printTurboConfig(turboConfig: TurboConfig): string {
+    return turboConfig.info;
+  }
+}
+
+```
 
 
 # Voltron

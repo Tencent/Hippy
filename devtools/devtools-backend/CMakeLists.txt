@@ -50,7 +50,11 @@ endif ()
 # endregion
 
 # region footstone
-GlobalPackages_Add(footstone)
+if (OHOS)
+  GlobalPackages_Add_footstone()
+else ()
+  GlobalPackages_Add(footstone)
+endif ()
 target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 

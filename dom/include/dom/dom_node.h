@@ -243,6 +243,10 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   bool is_virtual_{};
   bool layout_only_ = false;
 
+  // support root wrap_content, invoke SetRootSize with param NAN
+  bool is_layout_width_nan_ = false;
+  bool is_layout_height_nan_ = false;
+
   // Node can only be eliminated for the first time,
   // and if they cannot be eliminated for the first time, they cannot be eliminated at all times.
   bool enable_eliminated_ = true;

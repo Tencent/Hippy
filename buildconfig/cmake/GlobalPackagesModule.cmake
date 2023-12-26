@@ -45,6 +45,13 @@ function(GlobalPackages_Add_jni)
   endif()
 endfunction()
 
+function(GlobalPackages_Add_oh_napi)
+  if (NOT TARGET oh_napi)
+    InfraPackage_Add(OH_NAPI
+            LOCAL "${PROJECT_ROOT_DIR}/modules/ohos/oh_napi")
+  endif()
+endfunction()
+
 function(GlobalPackages_Add_vfs)
   if (NOT TARGET vfs)
     InfraPackage_Add(VFS

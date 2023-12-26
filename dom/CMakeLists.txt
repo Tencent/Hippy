@@ -37,7 +37,12 @@ target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 # endregion
 
 # region footstone
-GlobalPackages_Add(footstone)
+if (OHOS)
+  GlobalPackages_Add_footstone()
+else ()
+  GlobalPackages_Add(footstone)
+endif ()
+
 target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
@@ -47,10 +52,17 @@ if (NOT DEFINED LAYOUT_ENGINE)
 endif ()
 
 if ("${LAYOUT_ENGINE}" STREQUAL "Yoga")
-  InfraPackage_Add(yoga
-      REMOTE "dom/third_party/yoga/1.19.0/git-repo.tgz"
-      LOCAL "third_party/yoga"
-      )
+  if (ANDROID)
+    InfraPackage_Add(yoga
+        REMOTE "dom/third_party/yoga/1.19.0/git-repo.tgz"
+        LOCAL "third_party/yoga"
+    )
+  else ()
+    InfraPackage_Add(yoga
+        REMOTE "dom/third_party/yoga_ohos/1.19.0/git-repo.tgz"
+        LOCAL "third_party/yoga"
+    )
+  endif ()
   target_compile_definitions(${PROJECT_NAME} PRIVATE "USE_YOGA")
   target_link_libraries(${PROJECT_NAME} PRIVATE yogacore)
 elseif ("${LAYOUT_ENGINE}" STREQUAL "Taitank")

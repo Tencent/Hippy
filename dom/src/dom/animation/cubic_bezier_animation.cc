@@ -51,22 +51,32 @@ CubicBezier CubicBezierAnimation::ParseCubicBezierStr(const std::string& str) {
 
 double CubicBezierAnimation::CalculateColor(double start_color, double to_color, double scale) {
   auto start_value = static_cast<uint32_t>(start_color);
-  auto start_red = static_cast<uint8_t>(((start_value >> 24) & 0xff));
-  auto start_green = static_cast<uint8_t>(((start_value >> 16) & 0xff));
-  auto start_blue = static_cast<uint8_t>(((start_value >> 8) & 0xff));
-  auto start_alpha = static_cast<uint8_t>((start_value & 0xff));
+  if (start_color < 0) {
+    auto start_int_value = static_cast<int32_t>(start_color);
+    start_value = static_cast<uint32_t>(start_int_value);
+  } 
 
+  auto start_alpha = ((start_value >> 24) & 0xff);
+  auto start_red = ((start_value >> 16) & 0xff);
+  auto start_green = ((start_value >> 8) & 0xff);
+  auto start_blue = (start_value & 0xff);
+  
   auto to_value = static_cast<uint32_t>(to_color);
-  auto to_red = static_cast<uint8_t>(((to_value >> 24) & 0xff));
-  auto to_green = static_cast<uint8_t>(((to_value >> 16) & 0xff));
-  auto to_blue = static_cast<uint8_t>(((to_value >> 8) & 0xff));
-  auto to_alpha = static_cast<uint8_t>((to_value & 0xff));
+  if (to_color < 0) {
+    auto to_int_value = static_cast<int32_t>(to_color);
+    to_value = static_cast<uint32_t>(to_int_value);
+  }
 
-  auto red = static_cast<uint8_t>(start_red + (to_red - start_red) * scale);
-  auto green = static_cast<uint8_t>(start_green + (to_green - start_green) * scale);
-  auto blue = static_cast<uint8_t>(start_blue + (to_blue - start_blue) * scale);
-  auto alpha = static_cast<uint8_t>(start_alpha + (to_alpha - start_alpha) * scale);
-  auto ret = (static_cast<uint32_t>(red) << 24) + (static_cast<uint32_t>(green) << 16) + (static_cast<uint32_t>(blue) << 8) + alpha;
+  auto to_alpha = ((to_value >> 24) & 0xff);
+  auto to_red = ((to_value >> 16) & 0xff);
+  auto to_green = ((to_value >> 8) & 0xff);
+  auto to_blue = (to_value & 0xff);
+  
+  auto red = static_cast<int32_t>(start_red + static_cast<int32_t>(to_red - start_red) * scale);
+  auto green = static_cast<int32_t>(start_green + static_cast<int32_t>(to_green - start_green) * scale);
+  auto blue = static_cast<int32_t>(start_blue + static_cast<int32_t>(to_blue - start_blue) * scale);
+  auto alpha = static_cast<int32_t>(start_alpha + static_cast<int32_t>(to_alpha - start_alpha) * scale);
+  auto ret = (static_cast<uint32_t>(alpha) << 24) + (static_cast<uint32_t>(red) << 16) + (static_cast<uint32_t>(green) << 8) + static_cast<uint32_t>(blue);
   return static_cast<double>(ret);
 }
 

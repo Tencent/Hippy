@@ -338,10 +338,9 @@ export default {
       mode: 'no-cors', // 2.14.0 or above supports other options(not only method/headers/url/body)
     }).then((responseJson) => {
       this.fetchText = `成功状态: ${responseJson.status}`;
-    })
-      .catch((error) => {
+    }).catch((error) => {
         this.fetchText =  `收到错误: ${error}`;
-      });
+    });
   },
   async mounted() {
     this.app = getApp();
@@ -398,7 +397,10 @@ export default {
       }
     },
     async getSize() {
-      const result = await Vue.Native.ImageLoader.getSize('https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png');
+      // const result = await Vue.Native.ImageLoader.getSize('https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png');
+      // 更换小图测试
+      const result = await Vue.Native.ImageLoader.getSize('https://hippyjs.org/assets/img/tv.png');
+      
       console.log('ImageLoader getSize', result);
       this.imageSize = `${result.width}x${result.height}`;
     },

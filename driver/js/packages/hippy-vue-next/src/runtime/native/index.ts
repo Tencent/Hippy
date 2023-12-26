@@ -36,6 +36,12 @@ declare global {
   var localStorage: Storage;
 }
 
+export enum PlatformType {
+  ANDROID = 'android',
+  iOS = 'ios',
+  OHOS = 'ohos',
+}
+
 // screen dimension information
 interface ScreenInfo {
   width: number;
@@ -270,6 +276,8 @@ export interface NativeApiType {
   isAndroid: () => boolean;
 
   isIOS: () => boolean;
+
+  isOhos: () => boolean;
 
   // measure the position of an element within the rootView(container)
   measureInWindow: (el: HippyNode) => Promise<MeasurePosition>;
@@ -547,6 +555,8 @@ export const Native: NativeApiType = {
       } else if (Native.isAndroid()) {
         // currently the Android terminal has not filled the details here
         CACHE.Device = 'Android device';
+      } else if (Native.isOhos()) {
+        CACHE.Device = 'Ohos device';
       } else {
         CACHE.Device = 'Unknown device';
       }
@@ -563,11 +573,15 @@ export const Native: NativeApiType = {
   },
 
   isAndroid(): boolean {
-    return Native.Platform === 'android';
+    return Native.Platform === PlatformType.ANDROID;
   },
 
   isIOS(): boolean {
-    return Native.Platform === 'ios';
+    return Native.Platform === PlatformType.iOS;
+  },
+
+  isOhos(): boolean {
+    return Native.Platform === PlatformType.OHOS;
   },
 
   /**

@@ -91,6 +91,7 @@ class Worker {
  private:
   friend class WorkerManager;
   friend class TaskRunner;
+  friend class Scheduler;
 
   static uint32_t GetCurrentWorkerId();
   // 该方法只允许在task运行中调用，如果在task之外调用则会返回nullptr

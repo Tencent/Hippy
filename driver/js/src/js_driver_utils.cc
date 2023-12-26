@@ -48,6 +48,11 @@
 #include "driver/napi/v8/v8_try_catch.h"
 #include "driver/vm/v8/v8_vm.h"
 #include "driver/napi/v8/serializer.h"
+#elif JS_JSH
+#include "driver/napi/jsh/jsh_ctx.h"
+#include "driver/napi/jsh/jsh_ctx_value.h"
+#include "driver/napi/jsh/jsh_try_catch.h"
+#include "driver/vm/jsh/jsh_vm.h"
 #endif
 
 namespace hippy {
@@ -127,6 +132,36 @@ void AsyncInitializeEngine(const std::shared_ptr<Engine>& engine,
         v8_vm->SetInspectorClient(std::make_shared<V8InspectorClientImpl>());
       }
       v8_vm->GetInspectorClient()->SetJsRunner(engine->GetJsTaskRunner());
+    }
+#endif
+#elif JS_JSH
+    auto jsh_vm = std::static_pointer_cast<JSHVM>(engine->GetVM());
+    auto wrapper = std::make_unique<FunctionWrapper>([](CallbackInfo& info, void* data) {
+      auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+      auto scope = scope_wrapper->scope.lock();
+      FOOTSTONE_CHECK(scope);
+      auto exception = info[0];
+      JSHVM::HandleException(scope->GetContext(), "uncaughtException", exception);
+      auto engine = scope->GetEngine().lock();
+      FOOTSTONE_CHECK(engine);
+      auto callback = engine->GetVM()->GetUncaughtExceptionCallback();
+      auto context = scope->GetContext();
+      string_view description;
+      auto flag = context->GetValueString(info[1], &description);
+      FOOTSTONE_CHECK(flag);
+      string_view stack;
+      flag = context->GetValueString(info[2], &stack);
+      FOOTSTONE_CHECK(flag);
+      callback(scope->GetBridge(), description, stack);
+    }, nullptr);
+    jsh_vm->AddUncaughtExceptionMessageListener(wrapper);
+    jsh_vm->SaveUncaughtExceptionCallback(std::move(wrapper));
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+    if (jsh_vm->IsDebug()) {
+      if (!jsh_vm->GetInspectorClient()) {
+        jsh_vm->SetInspectorClient(std::make_shared<JSHInspectorClientImpl>());
+      }
+      jsh_vm->GetInspectorClient()->SetJsRunner(engine->GetJsTaskRunner());
     }
 #endif
 #endif
@@ -369,7 +404,7 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
   }
 
   FOOTSTONE_DLOG(INFO) << "uri = " << uri
-                       << "read_script_flag = " << read_script_flag
+                       << ", read_script_flag = " << read_script_flag
                        << ", script content = " << script_content;
 
   if (!read_script_flag || StringViewUtils::IsEmpty(script_content)) {
@@ -385,10 +420,15 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
   // perfromance start time
   auto entry = scope->GetPerformance()->PerformanceNavigation(kPerfNavigationHippyInit);
   entry->BundleInfoOfUrl(uri).execute_source_start_ = footstone::TimePoint::SystemNow();
-
-#ifdef JS_V8
+  
+#if (defined JS_V8) || (defined JS_JSH)
+#if (defined JS_V8)
   auto ret = std::static_pointer_cast<V8Ctx>(scope->GetContext())->RunScript(
-      script_content, file_name, is_use_code_cache,&code_cache_content, true);
+      script_content, file_name, is_use_code_cache, &code_cache_content, true);
+#elif (defined JS_JSH)
+  auto ret = std::static_pointer_cast<JSHCtx>(scope->GetContext())->RunScript(
+      script_content, file_name, is_use_code_cache, &code_cache_content, true);
+#endif
   if (is_use_code_cache) {
     if (!StringViewUtils::IsEmpty(code_cache_content)) {
       auto func = [code_cache_path, code_cache_dir, code_cache_content] {
@@ -481,6 +521,7 @@ void JsDriverUtils::DestroyInstance(std::shared_ptr<Engine>&& engine,
       scope->WillExit();
     }
 #else
+    (void)is_reload;
     scope->WillExit();
 #endif
     FOOTSTONE_LOG(INFO) << "js destroy end";
@@ -494,7 +535,8 @@ void JsDriverUtils::CallJs(const string_view& action,
                            const std::shared_ptr<Scope>& scope,
                            std::function<void(CALL_FUNCTION_CB_STATE, string_view)> cb,
                            byte_string buffer_data,
-                           std::function<void()> on_js_runner) {
+                           std::function<void()> on_js_runner
+                           ) {
   auto runner = scope->GetTaskRunner();
   std::weak_ptr<Scope> weak_scope = scope;
   auto callback = [weak_scope, cb = std::move(cb), action,
@@ -526,7 +568,6 @@ void JsDriverUtils::CallJs(const string_view& action,
         scope->SetBridgeObject(function);
       }
     }
-    FOOTSTONE_DCHECK(action.encoding() == string_view::Encoding::Utf16);
     std::shared_ptr<CtxValue> action_value = context->CreateString(action);
     std::shared_ptr<CtxValue> params;
     auto vm = engine->GetVM();
@@ -547,8 +588,14 @@ void JsDriverUtils::CallJs(const string_view& action,
       }
     } else {
 #endif
+
+#ifdef __OHOS__
+      string_view::u8string str(reinterpret_cast<const uint8_t*>(&buffer_data_[0]),
+                         buffer_data_.length());
+#else
       std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]),
                          buffer_data_.length() / sizeof(char16_t));
+#endif
       string_view buf_str(std::move(str));
       FOOTSTONE_DLOG(INFO) << "action = " << action << ", buf_str = " << buf_str;
       params = vm->ParseJson(context, buf_str);
@@ -627,6 +674,15 @@ void JsDriverUtils::CallNative(hippy::napi::CallbackInfo& info, const std::funct
     if (v8_vm->IsEnableV8Serialization()) {
       auto v8_ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(context);
       buffer_data = v8_ctx->GetSerializationBuffer(info[3], v8_vm->GetBuffer());
+#elif JS_JSH
+    auto engine = scope->GetEngine().lock();
+    FOOTSTONE_DCHECK(engine);
+    if (!engine) {
+      return;
+    }
+    auto vm = engine->GetVM();
+    auto jsh_vm = std::static_pointer_cast<JSHVM>(vm);
+    if (jsh_vm->enable_v8_serialization_) {
 #endif
     } else {
       string_view json;
@@ -636,6 +692,8 @@ void JsDriverUtils::CallNative(hippy::napi::CallbackInfo& info, const std::funct
       buffer_data = StringViewUtils::ToStdString(
           StringViewUtils::ConvertEncoding(json, string_view::Encoding::Utf8).utf8_value());
 #ifdef JS_V8
+    }
+#elif JS_JSH
     }
 #endif
   }

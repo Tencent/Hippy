@@ -432,7 +432,7 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
       const std::shared_ptr<CtxValue> arguments[],
       std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
-    if (!scope) {
+    if (!scope || scope->GetRootNode().expired() || scope->GetDomManager().expired()) {
       return nullptr;
     }
     auto nodes = HandleJsValue(scope->GetContext(), arguments[0], scope);
@@ -453,7 +453,7 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
       const std::shared_ptr<CtxValue> arguments[],
       std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
-    if (!scope) {
+    if (!scope || scope->GetRootNode().expired() || scope->GetDomManager().expired()) {
       return nullptr;
     }
     auto ret = HandleJsValue(scope->GetContext(), arguments[0], scope);
@@ -470,7 +470,7 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
                                         std::shared_ptr<CtxValue>&)
       -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
-    if (!scope) {
+    if (!scope || scope->GetRootNode().expired() || scope->GetDomManager().expired()) {
       return nullptr;
     }
     auto weak_dom_manager = scope->GetDomManager();
@@ -520,7 +520,7 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
       std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
 
     auto scope = weak_scope.lock();
-    if (!scope) {
+    if (!scope || scope->GetRootNode().expired() || scope->GetDomManager().expired()) {
       return nullptr;
     }
     auto nodes = arguments[0];
@@ -565,7 +565,7 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
       const std::shared_ptr<CtxValue> arguments[],
       std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
-    if (!scope) {
+    if (!scope || scope->GetRootNode().expired() || scope->GetDomManager().expired()) {
       return nullptr;
     }
     Scope::EventListenerInfo listener_info;
@@ -585,7 +585,7 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
       std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
 
     auto scope = weak_scope.lock();
-    if (!scope) {
+    if (!scope || scope->GetRootNode().expired() || scope->GetDomManager().expired()) {
       return nullptr;
     }
     Scope::EventListenerInfo listener_info;
@@ -606,7 +606,7 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
       std::shared_ptr<CtxValue>&) -> std::shared_ptr<CtxValue> {
     TDF_PERF_LOG("SceneBuilder.build()");
     auto scope = weak_scope.lock();
-    if (!scope) {
+    if (!scope || scope->GetRootNode().expired() || scope->GetDomManager().expired()) {
       TDF_PERF_LOG("SceneBuilder.build() exit with error");
       return nullptr;
     }
