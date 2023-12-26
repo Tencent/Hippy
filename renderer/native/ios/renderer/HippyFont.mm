@@ -65,6 +65,9 @@ static NativeRenderFontWeight weightOfFont(UIFont *font) {
     };
 
     NSString *fontName = font.fontName;
+    if(fontName == nil){
+        return 0.0;
+    }
     CFStringCompareFlags options = kCFCompareCaseInsensitive | kCFCompareAnchored | kCFCompareBackwards;
     for(int i = 0; i < sizeof(suffixToWeight) / sizeof(suffixToWeight[0]); ++i){
         struct SuffixWeight item = suffixToWeight[i];
@@ -78,11 +81,11 @@ static NativeRenderFontWeight weightOfFont(UIFont *font) {
 }
 
 static BOOL isItalicFont(UIFont *font) {
-    return (CTFontGetSymbolicTraits((CTFontRef)font) & kCTFontTraitItalic) != 0;
+    return font != nil && (CTFontGetSymbolicTraits((CTFontRef)font) & kCTFontTraitItalic) != 0;
 }
 
 static BOOL isCondensedFont(UIFont *font) {
-    return (CTFontGetSymbolicTraits((CTFontRef)font) & kCTFontTraitCondensed) != 0;
+    return font != nil && (CTFontGetSymbolicTraits((CTFontRef)font) & kCTFontTraitCondensed) != 0;
 }
 
 static UIFont *cachedSystemFont(CGFloat size, NativeRenderFontWeight weight) {
