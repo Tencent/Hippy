@@ -25,6 +25,8 @@ import android.view.ViewConfiguration;
 import android.view.animation.DecelerateInterpolator;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
+import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerView;
+import com.tencent.mtt.hippy.views.hippylist.RecyclerViewEventHelper;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.AnimatorListenerBase;
 
 /**
@@ -240,6 +242,9 @@ public class HippyOverPullHelper {
         animator.addListener(new AnimatorListenerBase() {
             @Override
             public void onAnimationEnd(Animator animation) {
+                if (overPullListener != null) {
+                    overPullListener.onOverPullAnimationUpdate(true);
+                }
                 setOverPullState(OVER_PULL_NONE);
                 isRollBacking = false;
             }
@@ -350,12 +355,14 @@ public class HippyOverPullHelper {
             recyclerView.scrollStep(0, dy, consumed);
             int consumedY = consumed[1];
             totalConsumedY += consumedY;
-
             //consumedY是排版view消耗的Y的距离,没有内容填充，即consumedY为0，需要强行offsetChildrenVertical
             int leftOffset = consumedY - dy;
             if (leftOffset != 0) {
                 //leftOffset<0 向上回弹，leftOffset>0  向下回弹
                 recyclerView.offsetChildrenVertical(leftOffset);
+            }
+            if (overPullListener != null) {
+                overPullListener.onOverPullAnimationUpdate(false);
             }
             setOverPullState(OVER_PULL_SETTLING);
             currentValue = value;
