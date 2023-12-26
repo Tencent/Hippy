@@ -28,4 +28,6 @@ public interface HippyOverPullListener {
      */
 
     void onOverPullStateChanged(int oldState, int newState, int offset);
+
+    void onOverPullAnimationUpdate(boolean isAnimationEnd);
 }
