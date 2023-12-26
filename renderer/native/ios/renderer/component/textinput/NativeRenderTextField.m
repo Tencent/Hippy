@@ -183,15 +183,6 @@
 }
 
 - (void)textFieldDidChange {
-    UITextRange *selectedRange = [_textView markedTextRange];
-    NSString *newText = [_textView textInRange:selectedRange];
-    /**获取中文输入法下高亮部分并直接返回不做_onChangeText */
-    if (newText.length > 0) {
-        return;
-    }
-    // selectedTextRange observer isn't triggered when you type even though the
-    // cursor position moves, so we send event again here.
-
     if (!self.hippyTag || !_onChangeText) {
         return;
     }
