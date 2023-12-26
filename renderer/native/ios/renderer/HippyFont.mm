@@ -259,7 +259,7 @@ HP_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
 
     // Gracefully handle being given a font name rather than font family, for
     // example: "Helvetica Light Oblique" rather than just "Helvetica".
-    if (font && !didFindFont && familyName.length > 0 && fontNamesForFamilyName(familyName).count == 0) {
+    if (!didFindFont && familyName.length > 0 && fontNamesForFamilyName(familyName).count == 0) {
         familyName = font.familyName;
         fontWeight = weight ? fontWeight : weightOfFont(font);
         isItalic = style ? isItalic : isItalicFont(font);
@@ -311,7 +311,7 @@ HP_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
     }
     
     // Apply font variants to font object
-    if (font && variant) {
+    if (variant) {
         NSArray *fontFeatures = [HippyConvert NativeRenderFontVariantDescriptorArray:variant];
         UIFontDescriptor *fontDescriptor =
             [font.fontDescriptor fontDescriptorByAddingAttributes:
