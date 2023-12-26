@@ -40,7 +40,8 @@
     "postcss": "^8.4.5",
     "vue": "^2.5.16",
     "vue-template-compiler": "^2.5.16",
-    "webpack": "^4.1.0"
+    "webpack": "^4.1.0",
+    "postcss-class-prefix": "~0.3.0"
   },
   "directories": {
     "lib": "lib",

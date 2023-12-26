@@ -142,6 +142,18 @@ hippyEngine.sendEvent("rotate", hippyMap);
 - (void)sendEvent:(NSString *)eventName params:(NSDictionary *_Nullable)params;
 ```
 
+# Ohos
+
+鸿蒙平台接口和安卓相似。
+
+终端在需要发送事件的地方调用代码：
+
+```typescript
+const map = new Map();
+map.pushString("result", "hello i am from native");
+hippyEngine.sendEvent("rotate", map);
+```
+
 # Voltron
 
 ```dart

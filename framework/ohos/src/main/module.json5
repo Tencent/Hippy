@@ -1,0 +1,25 @@
+{
+  "module": {
+    "name": "hippy",
+    "type": "har",
+    "deviceTypes": [
+      "default",
+      "tablet",
+      "2in1"
+    ],
+    "requestPermissions": [
+      {
+        "name": "ohos.permission.INTERNET",
+      },
+      {
+        "name": "ohos.permission.GET_NETWORK_INFO",
+      }
+    ],
+    "metadata": [
+      {
+        "name": "half_leading", // 用来解决 Text 组件设置 lineHeight 后文字不能垂直居中的问题。
+        "value": "true",
+      },
+    ]
+  }
+}

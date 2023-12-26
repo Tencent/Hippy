@@ -91,3 +91,10 @@ foreach (MODULE IN LISTS MODULES)
   endif()
 endforeach()
 # endregion
+
+#region link VectorLayout
+if ("${LINK_VECTOR_LAYOUT}" STREQUAL "true")
+  add_subdirectory("${PROJECT_ROOT_DIR}/framework/vectorlayout/android/library/src/main/jni" vectorlayout)
+  target_link_libraries(${PROJECT_NAME} PRIVATE vectorlayout)
+endif ()
+# endregion

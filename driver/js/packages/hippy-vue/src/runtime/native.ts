@@ -31,6 +31,12 @@ import ViewNode from '../renderer/view-node';
 import BackAndroid from './backAndroid';
 import * as NetInfo from './netInfo';
 
+export enum PlatformType {
+  ANDROID = 'android',
+  iOS = 'ios',
+  OHOS = 'ohos',
+}
+
 const {
   on,
   off,
@@ -236,15 +242,17 @@ const Native: NeedToTyped = {
    */
   get Device() {
     if (!isDef(CACHE.Device)) {
-      if (Platform === 'ios') {
+      if (Platform === PlatformType.iOS) {
         if (global.__HIPPYNATIVEGLOBAL__?.Device) {
           CACHE.Device = global.__HIPPYNATIVEGLOBAL__.Device;
         } else {
           CACHE.Device = 'iPhone';
         }
-      } else if (Platform === 'android') {
+      } else if (Platform === PlatformType.ANDROID) {
         // TODO: Need android native fill the information
         CACHE.Device = 'Android device';
+      } else if (Platform === PlatformType.OHOS) {
+        CACHE.Device = 'Ohos device';
       } else {
         CACHE.Device = 'Unknown device';
       }

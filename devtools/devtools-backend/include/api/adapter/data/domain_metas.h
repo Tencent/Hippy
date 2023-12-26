@@ -22,7 +22,11 @@
 
 #include <string>
 #include <vector>
+// nlohmann/json.hpp:3177:30: error: out-of-line definition of constexpr static data member is redundant in C++17 and is deprecated [-Werror,-Wdeprecated]
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
 #include "nlohmann/json.hpp"
+#pragma clang diagnostic pop
 
 namespace hippy::devtools {
 

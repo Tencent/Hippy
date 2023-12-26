@@ -58,6 +58,9 @@
 #include "driver/vm/v8/memory_module.h"
 #include "driver/napi/v8/v8_ctx.h"
 #include "driver/vm/v8/v8_vm.h"
+#elif JS_JSH
+#include "driver/napi/jsh/jsh_ctx.h"
+#include "driver/vm/jsh/jsh_vm.h"
 #endif
 
 #ifdef ENABLE_INSPECTOR
@@ -132,7 +135,11 @@ Scope::Scope(std::weak_ptr<Engine> engine,
 
 Scope::~Scope() {
   FOOTSTONE_DLOG(INFO) << "~Scope";
+#ifdef JS_JSH
+  context_->InvalidWeakCallbackWrapper();
+#else
   context_ = nullptr;
+#endif
   auto engine = engine_.lock();
   FOOTSTONE_DCHECK(engine);
   if (engine) {
@@ -494,6 +501,11 @@ void Scope::RunJS(const string_view& data,
 
 #ifdef JS_V8
     auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
+    if (context) {
+      context->RunScript(data, name, false, nullptr, is_copy);
+    }
+#elif JS_JSH
+    auto context = std::static_pointer_cast<hippy::napi::JSHCtx>(weak_context.lock());
     if (context) {
       context->RunScript(data, name, false, nullptr, is_copy);
     }

@@ -115,6 +115,9 @@ class TaskRunner {
   friend class WorkerManager;
   friend class IdleTimer;
 
+  inline const std::weak_ptr<Worker>& GetWorker() {
+    return worker_;
+  }
   void NotifyWorker();
   std::unique_ptr<Task> popTaskFromDelayedQueueNoLock(TimePoint now);
   std::unique_ptr<Task> PopTask();

@@ -65,7 +65,7 @@
 | scrollEnabled                  | 当值为 `false` 的时候，内容不能滚动。`default: true` `（仅在 overflow-y/x: scroll 时适用）` | `boolean`                                                    | `Android、iOS、Web-Renderer、Voltron`    |
 | showScrollIndicator            | 是否显示滚动条。 `default: false`（仅在 overflow-y/x: scroll 时适用） | `boolean`  | `Android、Voltron`    |
 | showsHorizontalScrollIndicator | 当此值设为 `false` 的时候，`ScrollView` 会隐藏水平的滚动条。`default: true` `（仅在 overflow-y/x: scroll 时适用）`| `boolean`                                                    | `iOS、Voltron`    |
-| showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` `（仅在 overflow-y/x: scroll 时适用）`| `boolean`  | `iOS、Voltron`   | 
+| showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` `（仅在 overflow-y/x: scroll 时适用）`| `boolean`  | `iOS、Voltron`   |
 | nativeBackgroundAndroid        | 配置水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: number }`； `borderless` 表示波纹是否有边界，默认false；`color` 波纹颜色；`rippleRadius` 波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用 setPressed 和 setHotspot 方法进行水波纹展示，详情参考相关`[demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue) | `Object`| `Android`    |
 | pointerEvents | 用于控制视图是否可以成为触摸事件的目标。 | `enum('box-none', 'none', 'box-only', 'auto')` | `iOS` |
 | nestedScrollPriority* | 嵌套滚动事件处理优先级，`default:self`。相当于同时设置 `nestedScrollLeftPriority`、 `nestedScrollTopPriority`、 `nestedScrollRightPriority`、 `nestedScrollBottomPriority`。 `Android最低支持版本 2.16.0，iOS最低支持版本3.3.3` | `enum(self,parent,none)`    | `Android、iOS` |
@@ -184,17 +184,17 @@
 
 | 参数               | 描述                                                         | 类型                                 | 支持平台  |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
-| src | 内嵌用的网址 | `string`                               | `Android、iOS、Web-Renderer、Voltron`     |
-| method | 请求方式，`get`、`post` | `string`   | `Android、iOS`    |
-| userAgent | Webview userAgent | `string` | `Android、iOS、Voltron`|
+| src | 内嵌用的网址 | `string`                               | `Android、iOS、Web-Renderer、Voltron、Ohos` |
+| method | 请求方式，`get`、`post` | `string`   | `Android、iOS、Ohos` |
+| userAgent | Webview userAgent | `string` | `Android、iOS、Voltron、Ohos` |
 
 ## 事件
 
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| load           | 网页加载成功后会触发 | `(object: { url: string }) => void`    | `Android、iOS、Web-Renderer、Voltron`     |
-| loadStart           | 网页开始加载时触发 | `(object: { url: string }) => void`    | `Android、iOS、Web-Renderer、Voltron`     |
-| loadEnd           | 网页加载结束时触发 (`success`与`error`参数仅`Android`、`iOS`上可用，最低支持版本`2.15.3`)  | `(object: { url: string, success: boolean, error: string }) => void` | `Android、iOS、Web-Renderer、Voltron`     |
+| load           | 网页加载成功后会触发 | `(object: { url: string }) => void`    | `Android、iOS、Web-Renderer、Voltron、Ohos` |
+| loadStart           | 网页开始加载时触发 | `(object: { url: string }) => void`    | `Android、iOS、Web-Renderer、Voltron、Ohos` |
+| loadEnd           | 网页加载结束时触发 (`success`与`error`参数仅`Android`、`iOS`上可用，最低支持版本`2.15.3`)  | `(object: { url: string, success: boolean, error: string }) => void` | `Android、iOS、Web-Renderer、Voltron、Ohos` |
 
 ---
 
@@ -211,9 +211,9 @@
 
 | 参数          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| src        | 图片地址。现在支持的图片格式有 png , jpg , jpeg , bmp , gif 。 | string                                | `Android、iOS、Web-Renderer、Voltron`    |
-| capInsets | 当调整 img 大小的时候，由 capInsets 指定的边角尺寸会被固定而不进行缩放，而中间和边上其他的部分则会被拉伸。这在制作一些可变大小的圆角按钮、阴影、以及其它资源的时候非常有用。 |  `{ top: number, left: number, bottom: number, right: number }` | `Android、iOS、Voltron` | 
-| placeholder | 指定当 `img` 组件还没加载出 `src` 属性指定的图片或者图片加载出错时的占位符图片 | `string`: 图片 base64 字符串                                     | `Android、iOS、Web-Renderer、Voltron`    |
+| src        | 图片地址。现在支持的图片格式有 png , jpg , jpeg , bmp , gif 。 | string                                | `Android、iOS、Web-Renderer、Voltron、Ohos` |
+| capInsets | 当调整 img 大小的时候，由 capInsets 指定的边角尺寸会被固定而不进行缩放，而中间和边上其他的部分则会被拉伸。这在制作一些可变大小的圆角按钮、阴影、以及其它资源的时候非常有用。 |  `{ top: number, left: number, bottom: number, right: number }` | `Android、iOS、Voltron` |
+| placeholder | 指定当 `img` 组件还没加载出 `src` 属性指定的图片或者图片加载出错时的占位符图片 | `string`: 图片 base64 字符串                                     | `Android、iOS、Web-Renderer、Voltron、Ohos` |
 
 > `2.8.1` 版本后支持终端本地图片能力，可通过 webpack `file-loader` 加载。
 
@@ -221,17 +221,17 @@
 
 | 参数               | 描述                                                         | 类型                                 | 支持平台  |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
-| resize-mode        |  决定当组件尺寸和图片尺寸不成比例的时候如何调整图片的大小。(`Web-Renderer 不支持 repeat`)   |  `enum (cover, contain, stretch, repeat, center)` | `Android、iOS、Web-Renderer、Voltron`    |
+| resize-mode        |  决定当组件尺寸和图片尺寸不成比例的时候如何调整图片的大小。(`Web-Renderer 不支持 repeat`)   |  `enum (cover, contain, stretch, repeat, center)` | `Android、iOS、Web-Renderer、Voltron、Ohos` |
 
 ## 事件
 
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | layout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置 | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
-| load        | 加载成功完成时调用此回调函数。                               | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
+| load        | 加载成功完成时调用此回调函数。                               | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron、Ohos` |
 | loadStart   | 加载开始时调用。 | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
-| loadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。参数为：`nativeEvent: { success: number, width: number, height: number}`       | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
-| error       | 当加载错误的时候调用此回调函数。| `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
+| loadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。参数为：`nativeEvent: { success: number, width: number, height: number}`       | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron、Ohos` |
+| error       | 当加载错误的时候调用此回调函数。| `Function`                                                   | `Android、iOS、Web-Renderer、Voltron、Ohos` |
 | progress    | 在加载过程中不断调用，参数为 `nativeEvent: { loaded: number, total: number }`, `loaded` 表示加载中的图片大小， `total` 表示图片总大小 | `Function`                                                   | `iOS、Voltron`    |
 | touchstart  | 触屏开始事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、Web-Renderer、Voltron`    |
 | touchmove   | 触屏移动事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、Web-Renderer、Voltron`    |
@@ -293,15 +293,15 @@
 
 | 参数                  | 描述                                                         | 类型                                                         | 支持平台  |
 | --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------- |
-| caret-color           | 输入光标颜色。(也可设置为 Style 属性) `最低支持版本2.11.5` | [`color`](api/style/color.md)        | `Android、Voltron`     |
-| defaultValue          | 提供一个文本框中的初始值。当用户开始输入的时候，值就可以改变。  在一些简单的使用情形下，如果你不想用监听消息然后更新 value 属性的方法来保持属性和状态同步的时候，就可以用 defaultValue 来代替。 | `string`                                                     | `Android、iOS、Voltron`     |
+| caret-color           | 输入光标颜色。(也可设置为 Style 属性) `最低支持版本2.11.5` | [`color`](api/style/color.md)        | `Android、Voltron、Ohos` |
+| defaultValue          | 提供一个文本框中的初始值。当用户开始输入的时候，值就可以改变。  在一些简单的使用情形下，如果你不想用监听消息然后更新 value 属性的方法来保持属性和状态同步的时候，就可以用 defaultValue 来代替。 | `string`                                                     | `Android、iOS、Voltron、Ohos` |
 | editable              | 如果为 false，文本框是不可编辑的。`default: true`                        | `boolean`                                                    | `Android、iOS、Web-Renderer、Voltron`     |
-| type          | 决定弹出的何种软键盘的。 注意，`password`仅在属性 `multiline=false` 单行文本框时生效。 | `enum(default, numeric, password, email, phone-pad)` | `Android、iOS、Web-Renderer、Voltron`     |
-| maxlength             | 限制文本框中最多的字符数。使用这个属性而不用JS 逻辑去实现，可以避免闪烁的现象。 | `numbers`                                                    | `Android、iOS、Web-Renderer、Voltron`     |
+| type          | 决定弹出的何种软键盘的。 注意，`password`仅在属性 `multiline=false` 单行文本框时生效。 | `enum(default, numeric, password, email, phone-pad)` | `Android、iOS、Web-Renderer、Voltron、Ohos` |
+| maxlength             | 限制文本框中最多的字符数。使用这个属性而不用JS 逻辑去实现，可以避免闪烁的现象。 | `numbers`                                                    | `Android、iOS、Web-Renderer、Voltron、Ohos` |
 | numberOfLines         | 设置 `input` 最大显示行数，如果 `input` 没有显式设置高度，会根据 `numberOfLines` 来计算高度撑开。在使用的时候必需同时设置 `multiline` 参数为 `true`。 | `number`                                                     | `Android、Voltron、Web-Renderer`     |
-| placeholder           | 如果没有任何文字输入，会显示此字符串。                       | `string`                                                     | `Android、iOS、Web-Renderer、Voltron`     |
-| placeholder-text-color  | 占位字符串显示的文字颜色。（也可设置为 Style 属性）  `最低支持版本2.13.4`                                   | [`color`](api/style/color.md)                                | `Android、iOS、Web-Renderer、Voltron`     |
-| returnKeyType         | 指定软键盘的回车键显示的样式。（其中部分样式仅对单行文本组件有效） | `enum(done, go, next, search, send)`              | `Android、iOS、Web-Renderer`     |
+| placeholder           | 如果没有任何文字输入，会显示此字符串。                       | `string`                                                     | `Android、iOS、Web-Renderer、Voltron、Ohos` |
+| placeholder-text-color  | 占位字符串显示的文字颜色。（也可设置为 Style 属性）  `最低支持版本2.13.4`                                   | [`color`](api/style/color.md)                                | `Android、iOS、Web-Renderer、Voltron、Ohos` |
+| returnKeyType         | 指定软键盘的回车键显示的样式。（其中部分样式仅对单行文本组件有效） | `enum(done, go, next, search, send)`              | `Android、iOS、Web-Renderer`、Ohos |
 | value                 | 指定 `input` 组件的值。                                  | `string`                                                     | `Android、iOS、Web-Renderer、Voltron`     |
 | break-strategy* | 设置Android API 23及以上系统的文本换行策略。`default: simple` | `enum(simple, high_quality, balanced)` | `Android(版本 2.14.2以上)` |
 
@@ -316,13 +316,13 @@
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | blur                | 当文本框失去焦点的时候调用此回调函数。                       | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`     |
 | focus | 当文本框获得焦点的时候调用此回调函数。 | `Function` | `Android、iOS、Voltron` |
-| change          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `Android、iOS、Voltron`     |
+| change          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `Android、iOS、Voltron、Ohos` |
 | keyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`。                                     | `Function`                                                   | `Android、iOS、Voltron`     |
 | keyboardWillHide     | 在隐藏输入法键盘时候会触发此回调函数 | `Function`                                                   | `Android、iOS、Voltron`     |
-| keyboardHeightChanged | 在输入法键盘高度改变时触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`, `最低支持版本2.14.0`。 | `Function` | `iOS、Voltron` |                                 
-| endEditing          | 当文本输入结束后调用此回调函数。                             | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`     |
+| keyboardHeightChanged | 在输入法键盘高度改变时触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`, `最低支持版本2.14.0`。 | `Function` | `iOS、Voltron` |
+| endEditing          | 当文本输入结束后调用此回调函数。                             | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron、Ohos` |
 | layout              | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`     |
-| selectionChange     | 当输入框选择文字的范围被改变时调用。返回参数的样式如 `{ nativeEvent: { selection: { start, end } } }`。 | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`     |
+| selectionChange     | 当输入框选择文字的范围被改变时调用。返回参数的样式如 `{ nativeEvent: { selection: { start, end } } }`。 | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron、Ohos` |
 
 ## 方法
 
@@ -385,15 +385,15 @@ Hippy 的重点功能，高性能的可复用列表组件，在终端侧会被�
 
 | 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
-| horizontal       | 指定 `ul` 是否采用横向布局。`default: undefined` 纵向布局，Android `2.14.1` 版本后可设置 `false` 显式固定纵向布局；iOS 暂不支持横向 `ul` | `boolean \| undefined` | `Android、Voltron`    |
-| initialContentOffset  | 初始位移值。在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。Android 在 `2.8.0` 版本后支持    | `number`  | `Android、iOS、Web-Renderer、Voltron` |
+| horizontal       | 指定 `ul` 是否采用横向布局。`default: undefined` 纵向布局，Android `2.14.1` 版本后可设置 `false` 显式固定纵向布局；iOS 暂不支持横向 `ul` | `boolean \| undefined` | `Android、Voltron、Ohos` |
+| initialContentOffset  | 初始位移值。在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。Android 在 `2.8.0` 版本后支持    | `number`  | `Android、iOS、Web-Renderer、Voltron、Ohos` |
 | bounces | 是否开启回弹效果，默认 `true`， Android `2.14.1` 版本后支持该属性，老版本使用 `overScrollEnabled` | `boolean`                                                  | `Android、iOS、Voltron` |
 | rowShouldSticky  | 设置 `ul` 是否需要开启悬停效果能力，与 `li` 的 `sticky` 配合使用。 `default: false` | `boolean`  | `Android、iOS、Web-Renderer、Voltron`|
-| scrollEnabled    | 滑动是否开启。`default: true` | `boolean` | `Android、iOS、Web-Renderer、Voltron` |
-| scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件，默认 200ms | `number`                                                    | `Android、iOS、Web-Renderer、Voltron`    |
+| scrollEnabled    | 滑动是否开启。`default: true` | `boolean` | `Android、iOS、Web-Renderer、Voltron、Ohos` |
+| scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件，默认 200ms | `number`                                                    | `Android、iOS、Web-Renderer、Voltron、Ohos` |
 | showScrollIndicator   | 是否显示滚动条。`default: true` | `boolean`                                                   | `iOS、Voltron`    |
-| preloadItemNumber     | 指定当列表滚动至倒数第几行时触发 `endReached` 回调。 | `number` | `Android、iOS、Web-Renderer、Voltron` |
-| exposureEventEnabled | Android 曝光能力启用开关，如果要使用 `appear`、`disappear` 相关事件，Android 需要设置该开关（iOS无需设置）, `default: true` | `boolean` | `Android、Voltron`|
+| preloadItemNumber     | 指定当列表滚动至倒数第几行时触发 `endReached` 回调。 | `number` | `Android、iOS、Web-Renderer、Voltron、Ohos` |
+| exposureEventEnabled | Android 曝光能力启用开关，如果要使用 `appear`、`disappear` 相关事件，Android 需要设置该开关（iOS无需设置）, `default: true` | `boolean` | `Android、Voltron、Ohos` |
 | endReached | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `endReached` 回调。 | `Function`                                                  | `Android、iOS、Web-Renderer、Voltron`    |
 | editable | 是否可编辑，开启侧滑删除时需要设置为 `true`。`最低支持版本2.9.0` | `boolean`                                                  | `iOS`    |
 | delText | 侧滑删除文本。`最低支持版本2.9.0` | `string`                                                  | `iOS`    |
@@ -420,12 +420,12 @@ Hippy 的重点功能，高性能的可复用列表组件，在终端侧会被�
 
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| endReached          | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。 | `Function`                                                  | `Android、iOS、Web-Renderer、Voltron`    |
-| momentumScrollBegin | 在 `ListView` 开始滑动的时候调起，`2.14.6` 版本后支持 `offset` 相关参数      | `(event: { offsetX: number, offsetY: number }) => any`                                                  | `Android、iOS、Web-Renderer、Voltron`    |
-| momentumScrollEnd   | 在 `ListView` 结束滑动的时候调起，`2.14.6` 版本后支持 `offset` 相关参数   | `(event: { offsetX: number, offsetY: number }) => any`                                                  | `Android、iOS、Web-Renderer、Voltron`    |
-| scroll              | 当触发 `ListView` 的滑动事件时回调。由于在 `ListView` 滑动时回调，调用会非常频繁，请使用 `scrollEventThrottle` 进行频率控制。 注意：ListView 在滚动时会进行组件回收，不要在滚动时对 renderRow() 生成的 ListItemView 做任何 ref 节点级的操作（例如：所有 callUIFunction 和 measureInAppWindow 方法），回收后的节点将无法再进行操作而报错。横向ListView时，Android在 `2.8.0` 版本后支持 | `(event: { offsetX: number, offsetY: number }) => any` | `Android、iOS、Web-Renderer、Voltron`    |
-| scrollBeginDrag     | 当用户开始拖拽 `ListView` 时调用，`2.14.6` 版本后支持 `offset` 相关参数   | `(event: { offsetX: number, offsetY: number }) => any`                                                  | `Android、iOS、Web-Renderer、Voltron`    |
-| scrollEndDrag       | 当用户停止拖拽 `ListView` 或者放手让 `ListView` 开始滑动的时候调用，`2.14.6` 版本后支持 `offset` 相关参数 | `(event: { offsetX: number, offsetY: number }) => any`                                                  | `Android、iOS、Web-Renderer、Voltron`    |
+| endReached          | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。 | `Function`                                                  | `Android、iOS、Web-Renderer、Voltron、Ohos` |
+| momentumScrollBegin | 在 `ListView` 开始滑动的时候调起，`2.14.6` 版本后支持 `offset` 相关参数      | `(event: { offsetX: number, offsetY: number }) => any`                                                  | `Android、iOS、Web-Renderer、Voltron、Ohos` |
+| momentumScrollEnd   | 在 `ListView` 结束滑动的时候调起，`2.14.6` 版本后支持 `offset` 相关参数   | `(event: { offsetX: number, offsetY: number }) => any`                                                  | `Android、iOS、Web-Renderer、Voltron、Ohos` |
+| scroll              | 当触发 `ListView` 的滑动事件时回调。由于在 `ListView` 滑动时回调，调用会非常频繁，请使用 `scrollEventThrottle` 进行频率控制。 注意：ListView 在滚动时会进行组件回收，不要在滚动时对 renderRow() 生成的 ListItemView 做任何 ref 节点级的操作（例如：所有 callUIFunction 和 measureInAppWindow 方法），回收后的节点将无法再进行操作而报错。横向ListView时，Android在 `2.8.0` 版本后支持 | `(event: { offsetX: number, offsetY: number }) => any` | `Android、iOS、Web-Renderer、Voltron、Ohos` |
+| scrollBeginDrag     | 当用户开始拖拽 `ListView` 时调用，`2.14.6` 版本后支持 `offset` 相关参数   | `(event: { offsetX: number, offsetY: number }) => any`                                                  | `Android、iOS、Web-Renderer、Voltron、Ohos` |
+| scrollEndDrag       | 当用户停止拖拽 `ListView` 或者放手让 `ListView` 开始滑动的时候调用，`2.14.6` 版本后支持 `offset` 相关参数 | `(event: { offsetX: number, offsetY: number }) => any`                                                  | `Android、iOS、Web-Renderer、Voltron、Ohos` |
 | layout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                | `Android、iOS、Web-Renderer、Voltron`    |
 | delete      | 在列表项侧滑删除时调起。`最低支持版本2.9.0` | `(nativeEvent: { index: number}) => void`                                | `iOS`    |
 

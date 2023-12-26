@@ -81,6 +81,8 @@ class LayoutNode {
 
   virtual void SetWidth(float width) = 0;
   virtual void SetHeight(float height) = 0;
+  virtual void SetMaxWidth(float width) = 0;
+  virtual void SetMaxHeight(float height) = 0;
   virtual void SetPosition(Edge edge, float position) = 0;
   virtual void SetScaleFactor(float scale_factor) = 0;
   virtual bool HasNewLayout() = 0;

@@ -108,6 +108,40 @@
         </p>
       </div>
     </div>
+
+    <div
+      v-if="Vue.Native.Platform === 'ohos'"
+      :style="{
+        position: 'absolute',
+        right: 20,
+        bottom: 20,
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        boxShadowOpacity: 0.6,
+        boxShadowRadius: 5,
+        boxShadowOffsetX: 3,
+        boxShadowOffsetY: 3,
+        boxShadowColor: '#40b883' }"
+      @click="changeDirection"
+    >
+      <div
+        :style="{
+          width: 60,
+          height: 60,
+          borderRadius: 30,
+          backgroundColor: '#40b883',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }"
+      >
+        <p :style="{color: 'white' }">
+          切换方向
+        </p>
+      </div>
+    </div>
+
   </div>
 </template>
 
