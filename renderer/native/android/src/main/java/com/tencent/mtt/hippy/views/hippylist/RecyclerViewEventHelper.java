@@ -398,6 +398,15 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     }
 
     @Override
+    public void onOverPullAnimationUpdate(boolean isAnimationEnd) {
+        if (isAnimationEnd) {
+            sendOnScrollEvent();
+        } else {
+            checkSendOnScrollEvent();
+        }
+    }
+
+    @Override
     public void onOverPullStateChanged(int oldState, int newState, int offset) {
         LogUtils.d("QBRecyclerViewEventHelper", "oldState:" + oldState + ",newState:" + newState);
         if (oldState == HippyOverPullHelper.OVER_PULL_NONE && (isOverPulling(newState)
