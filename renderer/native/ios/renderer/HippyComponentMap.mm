@@ -30,6 +30,9 @@ using RootNode = hippy::RootNode;
     NSMapTable<NSNumber *, id<HippyComponent>> *_rootComponentsMap;
     NSMutableDictionary<NSNumber *, id> *_componentsMap;
     std::unordered_map<int32_t, std::weak_ptr<RootNode>> _rootNodesMap;
+    
+    BOOL _enableWeakComponentsTempCache;
+    NSDictionary *_cacheDictionaryForWeakComponents;
 }
 
 @end
@@ -105,6 +108,10 @@ using RootNode = hippy::RootNode;
     if (component && tag) {
         id map = [_componentsMap objectForKey:tag];
         [map setObject:component forKey:[component hippyTag]];
+        if (!_isStrongHoldAllComponents && _enableWeakComponentsTempCache && _cacheDictionaryForWeakComponents) {
+            // see `generateTempCacheBeforeAcquireAllStoredWeakComponents`
+            _cacheDictionaryForWeakComponents = nil;
+        }
     }
 }
 
@@ -115,16 +122,10 @@ using RootNode = hippy::RootNode;
     if (component && tag) {
         id map = [_componentsMap objectForKey:tag];
         [map removeObjectForKey:[component hippyTag]];
-    }
-}
-
-- (void)removeComponentByComponentTag:(NSNumber *)componentTag onRootTag:(NSNumber *)rootTag {
-    NSAssert(componentTag, @"component and tag must not be null in method %@", NSStringFromSelector(_cmd));
-    NSAssert(rootTag, @"component's tag must not be null in %@", NSStringFromSelector(_cmd));
-    NSAssert([self threadCheck], @"%@ method needs run in main thread", NSStringFromSelector(_cmd));
-    if (componentTag && rootTag) {
-        id map = [_componentsMap objectForKey:rootTag];
-        [map removeObjectForKey:componentTag];
+        if (!_isStrongHoldAllComponents && _enableWeakComponentsTempCache && _cacheDictionaryForWeakComponents) {
+            // see `generateTempCacheBeforeAcquireAllStoredWeakComponents`
+            _cacheDictionaryForWeakComponents = nil;
+        }
     }
 }
 
@@ -136,7 +137,21 @@ using RootNode = hippy::RootNode;
         if (_isStrongHoldAllComponents) {
             return map;
         } else {
-            return ((NSMapTable *)map).dictionaryRepresentation;
+            // Note: Performance optimization:
+            // Calling dictionaryRepresentation methods is time-consuming,
+            // and in particular, outside may call this in the loop,
+            // so we optimize this with a temporary cache.
+            // Remember:
+            // 1. The cache is automatically removed when a new component is inserted.
+            // 2. The cache must exist only temporarily, otherwise it will affect the lifecycle of the component.
+            if (_enableWeakComponentsTempCache) {
+                if (!_cacheDictionaryForWeakComponents) {
+                    _cacheDictionaryForWeakComponents = ((NSMapTable *)map).dictionaryRepresentation;
+                }
+                return _cacheDictionaryForWeakComponents;
+            } else {
+                return ((NSMapTable *)map).dictionaryRepresentation;
+            }
         }
     }
     return nil;
@@ -169,6 +184,18 @@ using RootNode = hippy::RootNode;
     }
     [description appendString:@">"];
     return [description copy];
+}
+
+
+#pragma mark -
+
+- (void)generateTempCacheBeforeAcquireAllStoredWeakComponents {
+    _enableWeakComponentsTempCache = YES;
+}
+
+- (void)clearTempCacheAfterAcquireAllStoredWeakComponents {
+    _enableWeakComponentsTempCache = NO;
+    _cacheDictionaryForWeakComponents = nil;
 }
 
 @end
