@@ -56,6 +56,8 @@ typedef NS_ENUM(NSUInteger, HippyComponentReferenceType) {
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 
+#pragma mark - Root Component
+
 - (void)addRootComponent:(id<HippyComponent>)component
                 rootNode:(std::weak_ptr<hippy::RootNode>)rootNode
                   forTag:(NSNumber *)tag;
@@ -70,18 +72,33 @@ typedef NS_ENUM(NSUInteger, HippyComponentReferenceType) {
 
 - (std::weak_ptr<hippy::RootNode>)rootNodeForTag:(NSNumber *)tag;
 
-- (void)addComponent:(__kindof id<HippyComponent>)component
-          forRootTag:(NSNumber *)tag;
 
-- (void)removeComponent:(__kindof id<HippyComponent>)component
-             forRootTag:(NSNumber *)tag;
+#pragma mark -
 
-- (void)removeComponentByComponentTag:(NSNumber *)componentTag onRootTag:(NSNumber *)rootTag;
+/// Add a component to ComponentMap
+- (void)addComponent:(__kindof id<HippyComponent>)component forRootTag:(NSNumber *)tag;
+
+/// Remove one component from ComponentMap
+- (void)removeComponent:(__kindof id<HippyComponent>)component forRootTag:(NSNumber *)tag;
 
 - (NSDictionary<NSNumber *, __kindof id<HippyComponent>> *)componentsForRootTag:(NSNumber *)tag;
 
-- (__kindof id<HippyComponent>)componentForTag:(NSNumber *)componentTag
-                                                    onRootTag:(NSNumber *)tag;
+- (__kindof id<HippyComponent>)componentForTag:(NSNumber *)componentTag onRootTag:(NSNumber *)tag;
+
+
+#pragma mark - Performance optimization
+
+/// Generate a dictionary cache for all the weak components.
+///
+/// Calling componentsForRootTag methods is time-consuming,
+/// and in particular, outside may call this in the loop,
+/// so we optimize this with a temporary cache.
+///
+/// The cache must be actively cleared after acquiring components
+- (void)generateTempCacheBeforeAcquireAllStoredWeakComponents;
+
+/// Clear the temp dictionary cache for weak components.
+- (void)clearTempCacheAfterAcquireAllStoredWeakComponents;
 
 @end
 

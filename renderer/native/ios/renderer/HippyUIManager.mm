@@ -575,12 +575,14 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         NSMutableSet<NativeRenderApplierBlock> *applierBlocks = [NSMutableSet set];
         [shadowView amendLayoutBeforeMount:applierBlocks];
         if (applierBlocks.count) {
+            [self.viewRegistry generateTempCacheBeforeAcquireAllStoredWeakComponents];
             for (NativeRenderApplierBlock block in applierBlocks) {
                 // Note: viewRegistry may be modified in the block, and it may be stored internally as NSMapTable
                 // so to ensure that it is up-to-date, it can only be retrieved each time.
                 NSDictionary<NSNumber *, UIView *> *viewRegistry = [self.viewRegistry componentsForRootTag:shadowView.rootTag];
                 block(viewRegistry, view);
             }
+            [self.viewRegistry clearTempCacheAfterAcquireAllStoredWeakComponents];
         }
     }
     return view;
@@ -728,6 +730,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
             __strong __typeof(weakSelf)strongSelf = weakSelf;
             if (strongSelf) {
                 TDF_PERF_LOG("flushUIBlocksOnRootNode on main thread(random id:%u)",rand);
+                [strongSelf.viewRegistry generateTempCacheBeforeAcquireAllStoredWeakComponents];
                 for (HippyViewManagerUIBlock block in previousPendingUIBlocks) {
                     @try {
                         // Note: viewRegistry may be modified in the block, and it may be stored internally as NSMapTable
@@ -738,6 +741,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
                         HippyLogError(@"Exception thrown while executing UI block: %@", exception);
                     }
                 }
+                [strongSelf.viewRegistry clearTempCacheAfterAcquireAllStoredWeakComponents];
                 TDF_PERF_LOG("flushUIBlocksOnRootNode done, block count:%d(random id:%u)", previousPendingUIBlocks.count, rand);
             }
         });
@@ -802,7 +806,6 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
                     if ([view respondsToSelector:@selector(hippyBridgeDidFinishTransaction)]) {
                         [uiManager->_componentTransactionListeners addObject:view];
                     }
-                    [uiManager.viewRegistry addComponent:view forRootTag:shadowView.rootTag];
                     [tempCreatedViews addObject:view];
                     
                     // TODO: hippy3 events binding handling, performance needs to be improved here.
@@ -816,6 +819,11 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
             }];
         }
     }
+    [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+        for (UIView *view in tempCreatedViews) {
+            [uiManager.viewRegistry addComponent:view forRootTag:rootNodeTag];
+        }
+    }];
     [manager enumerateViewsHierarchy:^(int32_t tag, const std::vector<int32_t> &subviewTags, const std::vector<int32_t> &subviewIndices) {
         auto subViewTags_ = subviewTags;
         auto subViewIndices_ = subviewIndices;
