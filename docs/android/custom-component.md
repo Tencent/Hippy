@@ -105,6 +105,46 @@ public List<Class<? extends HippyViewController>> getControllers()
 
 # 更多特性
 
+## 自定义组件挂载纯native view的适配
+
+在Hippy框架中，会将前端节点映射为终端的natvie view，view的显示尺寸和位置由框架自带的排版引擎根据前端设置的css计算得出，不需要走系统默认的measure和layout流程，所以我们在HippyRootView中对onMeasure和onLayout两个回调做了拦截：
+
+```java
+@Override
+protected void onLayout(boolean changed, int left, int top, int right, int bottom) 
+{
+    // No-op since UIManagerModule handles actually laying out children.
+}
+
+@Override
+protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) 
+{
+    setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec));
+}
+```
+
+但一些业务场景中，自定义组件需要挂载一些非前端节点映射的纯native view，常见的比如video view，lottie view等，由于我们拦截了onMeasure和onLayout，这些视图无法获取到正确的显示尺寸和位置，导致显示异常，所以需要开发者自己手动调用measure和layout来解决这个问题，可以参考以下示例：
+在自定义组件的Controller中Override onBatchComplete接口，在非前端节点映射的纯native view的父容器调用measure和layout
+
+```java
+private final Handler mHandler = new Handler(Looper.getMainLooper());
+
+@Override
+public void onBatchComplete(@NonNull View view) 
+{
+    super.onBatchComplete(view);
+    mHandler.post(new Runnable() {
+        @Override
+        public void run() 
+        {
+            view.measure(View.MeasureSpec.makeMeasureSpec(view.getWidth(), View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(view.getHeight(), View.MeasureSpec.EXACTLY));
+            view.layout(view.getLeft(), view.getTop(), view.getRight(), view.getBottom());
+        }
+    });
+}
+```
+
 ## 处理组件方法调用
 
 在有些场景，JS需要调用组件的一些方法，比如 `MyView` 的 `changeColor`。这个时候需要在 `HippyViewController`重载 `dispatchFunction` 方法来处理JS的方法调用。
