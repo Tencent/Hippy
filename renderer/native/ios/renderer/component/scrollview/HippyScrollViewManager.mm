@@ -78,6 +78,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(zoomScale, CGFloat)
 HIPPY_EXPORT_VIEW_PROPERTY(scrollIndicatorInsets, UIEdgeInsets)
 HIPPY_EXPORT_VIEW_PROPERTY(snapToInterval, int)
 HIPPY_EXPORT_VIEW_PROPERTY(snapToAlignment, NSString)
+HIPPY_REMAP_VIEW_PROPERTY(contentInset, _scrollView.contentInset, UIEdgeInsets)
 HIPPY_REMAP_VIEW_PROPERTY(contentOffset, scrollView.contentOffset, CGPoint)
 HIPPY_EXPORT_VIEW_PROPERTY(onScrollBeginDrag, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onScroll, HippyDirectEventBlock)
@@ -86,47 +87,36 @@ HIPPY_EXPORT_VIEW_PROPERTY(onMomentumScrollBegin, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onMomentumScrollEnd, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onScrollAnimationEnd, HippyDirectEventBlock)
 
-HIPPY_REMAP_VIEW_PROPERTY(contentInset, _scrollView.contentInset, UIEdgeInsets)
 
-// overflow is used both in css-layout as well as by reac-native. In css-layout
-// we always want to treat overflow as scroll but depending on what the overflow
-// is set to from js we want to clip drawing or not. This piece of code ensures
-// that css-layout is always treating the contents of a scroll container as
-// overflow: 'scroll'.
-//HIPPY_CUSTOM_SHADOW_PROPERTY(overflow, OverflowType, HippyShadowView) {
-//    (void)json;
-//    view.overflow = OverflowScroll;
-//}
-
-HIPPY_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)componentTag
+HIPPY_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
                     callback:(HippyPromiseResolveBlock)callback) {
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-        HippyScrollView *view = viewRegistry[componentTag];
+        HippyScrollView *view = viewRegistry[hippyTag];
         CGSize size = view.scrollView.contentSize;
         callback(@{@"width" : @(size.width),@"height" : @(size.height)});
     }];
 }
 
-HIPPY_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)componentTag
+HIPPY_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)hippyTag
                     offsetX:(NSNumber *)x
                     offsetY:(NSNumber *)y
                     animated:(NSNumber *)animated) {
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
-        UIView *view = viewRegistry[componentTag];
+        UIView *view = viewRegistry[hippyTag];
         if (view == nil) return ;
         if ([view conformsToProtocol:@protocol(HippyScrollableProtocol)]) {
             [(id<HippyScrollableProtocol>)view scrollToOffset:(CGPoint){[x floatValue], [y floatValue]} animated:[animated boolValue]];
         } else {
-            HippyLogError(@"tried to scrollTo: on non-NativeRenderScrollableProtocol view %@ "
-                          "with tag #%@", view, componentTag);
+            HippyLogError(@"tried to scrollTo: on non-HippyScrollableProtocol view %@ "
+                          "with tag #%@", view, hippyTag);
         }
     }];
 }
 
-HIPPY_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)componentTag
+HIPPY_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)hippyTag
                     options:(NSDictionary *)options) {
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
-        UIView *view = viewRegistry[componentTag];
+        UIView *view = viewRegistry[hippyTag];
         if (view == nil) return ;
         if ([view conformsToProtocol:@protocol(HippyScrollableProtocol)]) {
             CGFloat duration = 1.0;
@@ -145,8 +135,8 @@ HIPPY_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)componentTag
                 [(id<HippyScrollableProtocol>)view scrollToOffset:(CGPoint){x,y} animated:NO];
             }];
         } else {
-            HippyLogError(@"tried to scrollTo: on non-NativeRenderScrollableProtocol view %@ "
-                          "with tag #%@", view, componentTag);
+            HippyLogError(@"tried to scrollTo: on non-HippyScrollableProtocol view %@ "
+                          "with tag #%@", view, hippyTag);
         }
     }];
 }

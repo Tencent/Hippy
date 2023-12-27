@@ -34,6 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 
+import androidx.core.graphics.Insets;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.component.drawable.BackgroundDrawable;
 import com.tencent.renderer.component.drawable.BackgroundDrawable.BorderArc;
@@ -79,7 +80,8 @@ public class Component implements Drawable.Callback {
     }
 
     public int getHostId() {
-        return (mHostRef.get() != null) ? mHostRef.get().getId() : -1;
+        final RenderNode host = mHostRef.get();
+        return (host != null) ? host.getId() : -1;
     }
 
     protected boolean checkComponentFlag(int flag) {
@@ -129,14 +131,16 @@ public class Component implements Drawable.Callback {
     }
 
     protected void invalidate() {
-        if (mHostRef.get() != null) {
-            mHostRef.get().invalidate();
+        final RenderNode host = mHostRef.get();
+        if (host != null) {
+            host.invalidate();
         }
     }
 
     protected void postInvalidateDelayed(long delayMilliseconds) {
-        if (mHostRef.get() != null) {
-            mHostRef.get().postInvalidateDelayed(delayMilliseconds);
+        final RenderNode host = mHostRef.get();
+        if (host != null) {
+            host.postInvalidateDelayed(delayMilliseconds);
         }
     }
 
@@ -347,8 +351,9 @@ public class Component implements Drawable.Callback {
 
     public void setZIndex(int zIndex) {
         mZIndex = zIndex;
-        if (mHostRef.get() != null) {
-            mHostRef.get().onZIndexChanged();
+        final RenderNode host = mHostRef.get();
+        if (host != null) {
+            host.onZIndexChanged();
         }
     }
 
@@ -466,5 +471,9 @@ public class Component implements Drawable.Callback {
 
     public void setShadowColor(@ColorInt int color) {
         ensureBackgroundDrawable().setShadowColor(color);
+    }
+
+    public void setNinePatchCoordinate(Insets insets) {
+        ensureContentDrawable().setNinePatchCoordinate(insets);
     }
 }

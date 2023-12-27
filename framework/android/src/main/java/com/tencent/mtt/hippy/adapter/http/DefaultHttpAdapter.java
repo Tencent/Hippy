@@ -337,6 +337,7 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
         @Override
         public void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response)
                 throws Exception {
+            mDataHolder.resultCode = FetchResultCode.OK.ordinal();
             mDataHolder.addResponseHeaderProperty(HTTP_RESPONSE_STATUS_CODE,
                     response.getStatusCode().toString());
             mDataHolder.addResponseHeaderProperty(HTTP_RESPONSE_RESPONSE_MESSAGE,
@@ -355,7 +356,6 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
                     }
                     mDataHolder.errorMessage = sb.toString();
                 }
-                mDataHolder.resultCode = FetchResultCode.ERR_REMOTE_REQUEST_FAILED.ordinal();
                 mCallback.onHandleCompleted();
                 return;
             }
@@ -365,7 +365,6 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
                 }
                 mDataHolder.readResourceDataFromStream(inputStream);
             } catch (IOException e) {
-                mDataHolder.resultCode = FetchResultCode.ERR_REMOTE_REQUEST_FAILED.ordinal();
                 mDataHolder.errorMessage = e.getMessage();
                 mCallback.onHandleCompleted();
                 return;
@@ -397,7 +396,6 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
                     cookieManager.flush();
                 }
             }
-            mDataHolder.resultCode = FetchResultCode.OK.ordinal();
             mCallback.onHandleCompleted();
         }
 

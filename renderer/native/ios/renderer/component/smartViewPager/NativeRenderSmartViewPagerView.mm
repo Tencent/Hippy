@@ -356,13 +356,13 @@ static NSString *const kListViewItem = @"ListViewItem";
     NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
     NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
     HippyShadowView *renderObject = [_dataSource cellForIndexPath:adjustIndexPath];
-    [renderObject recusivelySetCreationTypeToInstant];
-    UIView *cellView = [self.renderImpl createViewRecursivelyFromRenderObject:renderObject];
+    UIView *cellView = [self.renderImpl createViewForShadowListItem:renderObject];
     hpCell.cellView = cellView;
-    cellView.parentComponent = self;
+    cellView.parent = self;
 }
 
 - (void)tableViewDidLayoutSubviews:(NativeRenderListTableView *)tableView {
+    [super tableViewDidLayoutSubviews:tableView];
     NSArray<UICollectionViewCell *> *visibleCells = [self.collectionView visibleCells];
     for (NativeRenderBaseListViewCell *cell in visibleCells) {
         CGRect cellRectInTableView = [self.collectionView convertRect:[cell bounds] fromView:cell];
@@ -536,7 +536,4 @@ static NSString *const kListViewItem = @"ListViewItem";
     return 1;
 }
 
-#pragma mark NativeRenderRefresh Delegate
-- (void)refreshView:(HippyRefresh *)refreshView statusChanged:(HippyRefreshStatus)status {
-}
 @end

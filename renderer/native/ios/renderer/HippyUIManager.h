@@ -69,12 +69,19 @@
 ///   - rootTag: NSNumber
 - (HippyShadowView *)shadowViewForHippyTag:(NSNumber *)hippyTag onRootTag:(NSNumber *)rootTag;
 
-/// Update the frame of a view. This might be in response to a screen rotation
+/// Update the frame of a root view. This might be in response to a screen rotation
 /// or some other layout event outside of the Hippy-managed view hierarchy.
 /// - Parameters:
 ///   - frame: new frame
 ///   - view: target view
 - (void)setFrame:(CGRect)frame forRootView:(UIView *)view;
+
+/// Update the frame of a view. This might be in response to a screen rotation
+/// or some other layout event outside of the Hippy-managed view hierarchy.
+/// - Parameters:
+///   - frame: new frame
+///   - view: target view
+- (void)setFrame:(CGRect)frame forView:(UIView *)view;
 
 /// Schedule a block to be executed on the UI thread. Useful if you need to execute
 /// view logic after all currently queued view updates have completed.
@@ -89,9 +96,6 @@
 /// Get all rootView
 - (NSArray<__kindof UIView *> *)rootViews;
 
-/// Purge view from superView
-- (void)purgeViewsFromComponentTags:(NSArray<NSNumber *> *)componentTag onRootTag:(NSNumber *)rootTag;
-
 /// Update view with props
 - (void)updateView:(NSNumber *)componentTag onRootTag:(NSNumber *)rootTag props:(NSDictionary *)pros;
 
@@ -105,7 +109,7 @@
  * @param renderObject HippyShadowView corresponding to UIView
  * @return view created by HippyShadowView
  */
-- (UIView *)createViewRecursivelyFromRenderObject:(HippyShadowView *)renderObject;
+- (UIView *)createViewForShadowListItem:(HippyShadowView *)renderObject;
 
 /// Register extra components
 /// @param extraComponents extra components classes

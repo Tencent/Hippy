@@ -22,7 +22,7 @@
 
 #import "NativeRenderBaseListViewManager.h"
 #import "NativeRenderBaseListView.h"
-#import "NativeRenderObjectWaterfall.h"
+#import "HippyShadowListView.h"
 #import "HippyUIManager.h"
 
 @implementation NativeRenderBaseListViewManager
@@ -52,22 +52,22 @@ HIPPY_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
 }
 
 - (HippyShadowView *)hippyShadowView {
-    return [[NativeRenderObjectWaterfall alloc] init];
+    return [[HippyShadowListView alloc] init];
 }
 
 HIPPY_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)componentTag
                     xIndex:(__unused NSNumber *)xIndex
 					yIndex:(NSNumber *)yIndex
 					animation:(nonnull NSNumber *)animation) {
-	[self.bridge.uiManager addUIBlock:
-	 ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
-		 NativeRenderBaseListView *view = (NativeRenderBaseListView *)viewRegistry[componentTag];
-		 if (view == nil) return ;
-		 if (![view isKindOfClass:[NativeRenderBaseListView class]]) {
-			 HippyLogError(@"Invalid view returned from registry, expecting NativeRenderBaseListView, got: %@", view);
-		 }
-		 [view scrollToIndex: yIndex.integerValue animated: [animation boolValue]];
-	 }];
+    [self.bridge.uiManager addUIBlock:
+     ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+        NativeRenderBaseListView *view = (NativeRenderBaseListView *)viewRegistry[componentTag];
+        if (view == nil) return;
+        if (![view isKindOfClass:[NativeRenderBaseListView class]]) {
+            HippyLogError(@"Invalid view returned from registry, expecting NativeRenderBaseListView, got: %@", view);
+        }
+        [view scrollToIndex:view.horizontal ? xIndex.integerValue : yIndex.integerValue animated:[animation boolValue]];
+    }];
 }
 
 HIPPY_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)componentTag
@@ -81,7 +81,7 @@ HIPPY_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)componentTag
 		 if (![view isKindOfClass:[NativeRenderBaseListView class]]) {
 			 HippyLogError(@"Invalid view returned from registry, expecting NativeRenderBaseListView, got: %@", view);
 		 }
-		 [view scrollToContentOffset:CGPointMake([x floatValue], [y floatValue]) animated: [animation boolValue]];
+		 [view scrollToOffset:CGPointMake([x floatValue], [y floatValue]) animated:[animation boolValue]];
 	 }];
 }
 

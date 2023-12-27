@@ -73,10 +73,16 @@ extern NSString *const HippySecondaryBundleDidLoadNotification;
 /// application properties and rerender the view. Initialized with
 /// initialProperties argument of the initializer.
 /// Set this property only on the main thread.
+///
+/// Note: `runHippyApplication` is automatically called internally.
 @property (nonatomic, copy, readwrite) NSDictionary *appProperties;
 
 /// The backing view controller of the root view.
 @property (nonatomic, weak) UIViewController *hippyViewController;
+
+/// Whether to disable automatic RunHippyApplication execution after loading.
+/// By default, the runHippyApplication is automatically called after resources have loaded.
+@property (nonatomic, assign) BOOL disableAutoRunApplication;
 
 
 /// Create HippyRootView instance
@@ -88,6 +94,20 @@ extern NSString *const HippySecondaryBundleDidLoadNotification;
 - (instancetype)initWithBridge:(HippyBridge *)bridge
                     moduleName:(NSString *)moduleName
              initialProperties:(NSDictionary *)initialProperties
+                      delegate:(id<HippyRootViewDelegate>)delegate;
+
+/// Create HippyRootView instance,
+/// As above, add shareOptions parameters, compatible with hippy2
+///
+/// @param bridge the hippyBridge instance
+/// @param moduleName module name
+/// @param initialProperties application properties, see appProperties property.
+/// @param shareOptions Shared data between different rootViews on same bridge.
+/// @param delegate HippyRootViewDelegate
+- (instancetype)initWithBridge:(HippyBridge *)bridge
+                    moduleName:(NSString *)moduleName
+             initialProperties:(NSDictionary *)initialProperties
+                  shareOptions:(NSDictionary *)shareOptions
                       delegate:(id<HippyRootViewDelegate>)delegate;
 
 /// Create HippyRootView instance
@@ -105,15 +125,41 @@ extern NSString *const HippySecondaryBundleDidLoadNotification;
              initialProperties:(NSDictionary *)initialProperties
                       delegate:(id<HippyRootViewDelegate>)delegate;
 
+/// Create HippyRootView instance
+/// & Load the business BundleURL
+/// & Run application
+///
+/// As above, add shareOptions parameters, compatible with hippy2
+///
+/// @param bridge the hippyBridge instance
+/// @param businessURL the bundleURL to load
+/// @param moduleName module name
+/// @param initialProperties application properties, see appProperties property.
+/// @param shareOptions Shared data between different rootViews on same bridge.
+/// @param delegate HippyRootViewDelegate
+///
+/// Note: shareOptions will not sent to the front end.
+///
+- (instancetype)initWithBridge:(HippyBridge *)bridge
+                   businessURL:(NSURL *)businessURL
+                    moduleName:(NSString *)moduleName
+             initialProperties:(NSDictionary *)initialProperties
+                  shareOptions:(NSDictionary *)shareOptions
+                      delegate:(id<HippyRootViewDelegate>)delegate;
+
 
 /// Run Hippy!
 /// This is the Hippy program entry.
 ///
-/// Note: If init with businessURL, not need to call this method again.
+/// Note: If init without `disableAutoRunApplication`, not need to call this method again.
+/// In general, you do not need to call this interface when initializing HippyRootView using the init api.
+/// You need to call it at the appropriate time only when you set `disableAutoRunApplication` to YES.
+///
+/// For example, in scenarios where you want to load ahead of time, but don't want to execute ahead of time.
 - (void)runHippyApplication;
 
 
-#pragma mark -
+#pragma mark - Others
 
 /// This method should be called when the host controller's view's size is changed
 ///  (i.e. for the root view controller when its window rotates or is resized).
@@ -124,5 +170,17 @@ extern NSString *const HippySecondaryBundleDidLoadNotification;
 /// - Parameter size: the new size
 - (void)onHostControllerTransitionedToSize:(CGSize)size;
 
+/// Calling this will result in emitting a "touches cancelled" event to js,
+/// which effectively cancels all js "gesture recognizers" such as as touchable
+/// (unless they explicitely ignore cancellation events, but noone should do that).
+///
+/// This API is exposed for integration purposes where you embed Hippy rootView
+/// in a native view with a native gesture recognizer,
+/// whose activation should prevent any in-flight js "gesture recognizer" from activating.
+///
+/// * An example would be a Hippy rootView embedded in an UIScrollView.
+/// When you touch down on a touchable component and drag your finger up,
+/// you don't want any touch to be registered as soon as the UIScrollView starts scrolling.
+- (void)cancelTouches;
 
 @end

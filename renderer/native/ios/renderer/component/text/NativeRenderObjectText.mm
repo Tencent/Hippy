@@ -189,7 +189,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
 - (NSDictionary<NSString *, id> *)processUpdatedProperties:(NSMutableSet<NativeRenderApplierBlock> *)applierBlocks
                                           parentProperties:(NSDictionary<NSString *, id> *)parentProperties {
-    if ([[self parentComponent] isKindOfClass:[NativeRenderObjectText class]]) {
+    if ([[self parent] isKindOfClass:[NativeRenderObjectText class]]) {
         return parentProperties;
     }
 
@@ -198,13 +198,16 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     UIEdgeInsets padding = self.paddingAsInsets;
     CGFloat width = self.frame.size.width - (padding.left + padding.right);
 
-    NSNumber *parentTag = [[self parentComponent] hippyTag];
+    NSNumber *parentTag = [[self parent] hippyTag];
     // MTTlayout
     NSTextStorage *textStorage = [self buildTextStorageForWidth:width widthMode:hippy::LayoutMeasureMode::Exactly];
     CGRect textFrame = [self calculateTextFrame:textStorage];
     UIColor *color = self.color ?: [UIColor blackColor];
-    [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        NativeRenderText *view = (NativeRenderText *)viewRegistry[self.hippyTag];
+    [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry, UIView * _Nullable lazyCreatedView) {
+        NativeRenderText *view = (NativeRenderText *)(lazyCreatedView ?: viewRegistry[self.hippyTag]);
+        if (![view isKindOfClass:NativeRenderText.class]) {
+            return;
+        }
         view.textFrame = textFrame;
         view.textStorage = textStorage;
         view.textColor = color;
@@ -297,10 +300,19 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 }
             }
         }];
-        [super amendLayoutBeforeMount:blocks];
-    }
-    @catch (NSException *exception) {
-        [super amendLayoutBeforeMount:blocks];
+        
+        // Nested <Text> inside <Text> should not call amendLayoutBeforeMount again,
+        // so only call amendXxx when subcomponent is not a <Text>.
+        if (NativeRenderUpdateLifecycleComputed != _propagationLifecycle) {
+            _propagationLifecycle = NativeRenderUpdateLifecycleComputed;
+            for (HippyShadowView *shadowView in self.subcomponents) {
+                if (![shadowView isKindOfClass:NativeRenderObjectText.class]) {
+                    [shadowView amendLayoutBeforeMount:blocks];
+                }
+            }
+        }
+    } @catch (NSException *exception) {
+        HippyLogError(@"Exception while doing %s: %@, %@", __func__, exception.description, self);
     }
     [self processUpdatedProperties:blocks parentProperties:nil];
 }
