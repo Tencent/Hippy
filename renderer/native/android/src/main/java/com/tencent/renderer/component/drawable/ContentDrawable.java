@@ -136,11 +136,7 @@ public class ContentDrawable extends Drawable {
 
     private void updateContentRegionIfNeeded() {
         if (mBackgroundHolder != null) {
-            mContentRegion.set(mBackgroundHolder.getContentRectF());
-            float borderWidth = mBackgroundHolder.getBorderWidth();
-            if (borderWidth > 1.0f) {
-                mContentRegion.inset(borderWidth - 0.5f, borderWidth - 0.5f);
-            }
+            mContentRegion.set(mBackgroundHolder.getContentRegion());
         }
     }
 
@@ -150,11 +146,10 @@ public class ContentDrawable extends Drawable {
             return;
         }
         updateContentRegionIfNeeded();
-        final Path borderRadiusPath =
-                (mBackgroundHolder != null) ? mBackgroundHolder.getBorderRadiusPath() : null;
+        final Path contentPath = (mBackgroundHolder != null) ? mBackgroundHolder.getContentPath() : null;
         canvas.save();
-        if (borderRadiusPath != null) {
-            canvas.clipPath(borderRadiusPath);
+        if (contentPath != null) {
+            canvas.clipPath(contentPath);
         } else {
             canvas.clipRect(mContentRegion);
         }
