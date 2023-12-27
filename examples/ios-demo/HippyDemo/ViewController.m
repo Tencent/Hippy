@@ -40,13 +40,45 @@
 
 @end
 
+static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fileName, NSNumber *lineNumber, NSString *message) {
+    NSArray *logLevelMap = @[@"TRACE", @"INFO", @"WARN", @"ERROR", @"FATAL"];
+    static NSDateFormatter *formatter;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        formatter = [NSDateFormatter new];
+        formatter.dateFormat = formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss.SSS";
+    });
+
+    NSString *levelStr = level < 0 || level > logLevelMap.count ? logLevelMap[1] : logLevelMap[level];
+
+    if(fileName){
+        return [[NSString alloc] initWithFormat:@"[%@][%@:%d][%@]%@",
+                [formatter stringFromDate:timestamp],
+                fileName.lastPathComponent,
+                lineNumber.intValue,
+                levelStr,
+                message
+        ];
+    }else{
+        return [[NSString alloc] initWithFormat:@"[%@]%@",
+                [formatter stringFromDate:timestamp],
+                message
+        ];
+    }
+}
+
 @implementation ViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
 
     HippySetLogFunction(^(HippyLogLevel level, HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message) {
-        NSLog(@"hippy says:%@ in file [%@:%d]", message, fileName, lineNumber.intValue);
+        NSString *log = formatLog([NSDate date], level, fileName, lineNumber, message);
+        if([log hasSuffix:@"\n"]){
+            fprintf(stderr, "%s", log.UTF8String);
+        }else{
+            fprintf(stderr, "%s\n", log.UTF8String);
+        }
     });
 
     
