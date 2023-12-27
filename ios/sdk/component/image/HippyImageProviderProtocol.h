@@ -50,6 +50,10 @@
  */
 - (UIImage *)image;
 
+/** return an image that is ready for display.If it is an animated image,return first frame
+ */
+- (UIImage *)preparedImage;
+
 // for animated Image
 @optional
 

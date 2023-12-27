@@ -653,28 +653,26 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
             if (!decodedImage) {
                 contentBlock(nil);
             }
+            UIGraphicsImageRendererFormat *rendererFormat = [UIGraphicsImageRendererFormat preferredFormat];
+            rendererFormat.scale = image.scale;
+            UIGraphicsImageRenderer *imageRenderer = [[UIGraphicsImageRenderer alloc] initWithSize:theFrame.size format:rendererFormat];
+            UIImage *renderedImage = [imageRenderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
+                CGSize imageSize = decodedImage.size;
+                CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, [self bordersAsInsets]).size;
 
-            UIGraphicsBeginImageContextWithOptions(theFrame.size, NO, image.scale);
-            //draw background image
-            CGSize imageSize = decodedImage.size;
-            CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, [self bordersAsInsets]).size;
+                CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
 
-            CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
-
-            CGPoint originOffset = CGPointMake((targetSize.width - drawSize.width) / 2.f, (targetSize.height - drawSize.height) / 2.f);
-            
-            [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX + originOffset.x,
-                                                borderInsets.top + backgroundPositionY + originOffset.y,
-                                                drawSize.width,
-                                                drawSize.height)];
-            //draw border
-            CGSize size = theFrame.size;
-            [image drawInRect:(CGRect) { CGPointZero, size }];
-            
-            //output image
-            UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
-            UIGraphicsEndImageContext();
-            contentBlock(resultingImage);
+                CGPoint originOffset = CGPointMake((targetSize.width - drawSize.width) / 2.f, (targetSize.height - drawSize.height) / 2.f);
+                
+                [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX + originOffset.x,
+                                                    borderInsets.top + backgroundPositionY + originOffset.y,
+                                                    drawSize.width,
+                                                    drawSize.height)];
+                //draw border
+                CGSize size = theFrame.size;
+                [image drawInRect:(CGRect) { CGPointZero, size }];
+            }];
+            contentBlock(renderedImage);
         }];
         return NO;
     }

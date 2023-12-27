@@ -385,7 +385,7 @@ static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProv
         [hippy_image_queue() addOperationWithBlock:^{
             __strong __typeof(weakSelf)strongSelf = weakSelf;
             if (!strongSelf) return;
-            UIImage *image = [instance image];
+            UIImage *image = [instance preparedImage];
             if (image) {
                 if (imgDataToBeCached) {
                     [[HippyImageCacheManager sharedInstance] setImageCacheData:imgDataToBeCached forURLString:imageUrl];
