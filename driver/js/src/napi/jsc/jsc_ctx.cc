@@ -240,8 +240,7 @@ static JSValueRef JSObjectGetPropertyCallback(JSContextRef ctx,
   return valueRef;
 }
 
-std::shared_ptr<CtxValue>  JSCCtx::DefineProxy(const std::unique_ptr<FunctionWrapper>& wrapper,
-                                               std::vector<std::string> properties) {
+std::shared_ptr<CtxValue>  JSCCtx::DefineProxy(const std::unique_ptr<FunctionWrapper>& wrapper) {
   JSClassDefinition cls_def = kJSClassDefinitionEmpty;
   cls_def.getProperty = JSObjectGetPropertyCallback;
   auto cls_ref = JSClassCreate(&cls_def);
@@ -249,6 +248,10 @@ std::shared_ptr<CtxValue>  JSCCtx::DefineProxy(const std::unique_ptr<FunctionWra
   JSObjectRef fn_obj = JSObjectMake(context_, cls_ref, private_data.get());
   SaveConstructorData(std::move(private_data));
   return std::make_shared<JSCCtxValue>(context_, fn_obj);
+}
+
+std::shared_ptr<CtxValue> JSCCtx::DefineProxyHandler(const std::unique_ptr<FunctionWrapper>& proxy_handler) {
+  return nullptr;
 }
 
 std::shared_ptr<CtxValue> JSCCtx::DefineClass(const string_view& name,

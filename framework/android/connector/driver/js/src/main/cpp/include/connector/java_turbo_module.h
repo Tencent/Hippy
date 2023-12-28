@@ -73,6 +73,8 @@ class JavaTurboModule {
   std::unordered_map<std::string, MethodInfo> method_map_;
 
   std::shared_ptr<CtxValue> constructor;
+  //Hermes 引擎没有提供类似于 V8 ObjectTemplate 的 SetHandler 接口，因此通过 Proxy 进行模拟实现
+  std::shared_ptr<CtxValue> proxy_handler;
   std::unique_ptr<FunctionWrapper> constructor_wrapper;
   std::unordered_map<std::shared_ptr<CtxValue>, std::unique_ptr<TurboWrapper>> turbo_wrapper_map;
   std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>> func_map;

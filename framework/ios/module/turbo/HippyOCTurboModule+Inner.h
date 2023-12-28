@@ -25,6 +25,7 @@
 #ifdef __cplusplus
 
 #import "HippyOCTurboModule.h"
+#import <JavaScriptCore/JavaScriptCore.h>
 #include <memory>
 #include "driver/napi/js_ctx.h"
 #include "driver/napi/js_ctx_value.h"

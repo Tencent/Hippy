@@ -112,8 +112,9 @@ class Ctx {
   Ctx() {}
   virtual ~Ctx() { FOOTSTONE_LOG(INFO) << "~Ctx"; }
 
-  virtual std::shared_ptr<CtxValue> DefineProxy(const std::unique_ptr<FunctionWrapper>& constructor_wrapper,
-                                                std::vector<std::string> properties = {}) = 0;
+  virtual std::shared_ptr<CtxValue> DefineProxy(const std::unique_ptr<FunctionWrapper>& constructor_wrapper) = 0;
+
+  virtual std::shared_ptr<CtxValue> DefineProxyHandler(const std::unique_ptr<FunctionWrapper>& proxy_handler) = 0;
 
   virtual std::shared_ptr<CtxValue> DefineClass(const string_view& name,
                                                 const std::shared_ptr<ClassDefinition>& parent,

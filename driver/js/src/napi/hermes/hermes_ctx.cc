@@ -43,8 +43,10 @@ using HermesRuntime = facebook::hermes::HermesRuntime;
 
 constexpr static int kScopeWrapperIndex = 5;
 
-constexpr char kConstructor[] = "function() {  this.call_hostfuncion.apply(this, arguments); return this; }";
-constexpr char kHostConstructor[] = "function() {}";
+constexpr char kConstructor[] = "function() {  this.hostfunction_constructor.apply(this, arguments); return this; }";
+constexpr char kProxyFunction[] = "function(handler) { return new Proxy(this, handler); }";
+constexpr char kProxyTargetObject[] = "proxy_target_object";
+constexpr char kIsProxyObject[] = "is_proxy_object";
 constexpr char kJsonStringify[] = "function(obj) { return JSON.stringify(obj); }";
 
 // 确保返回数据以空字符结尾
@@ -84,7 +86,6 @@ static void HandleJsException(std::shared_ptr<Scope> scope, std::shared_ptr<Herm
   callback(scope->GetBridge(), description, stack);
 }
 
-
 static Value InvokePropertyCallback(Runtime& runtime, const Value& this_value, const std::string& property,
                                     void* function_pointer) {
   auto global_native_state = runtime.global().getNativeState<GlobalNativeState>(runtime);
@@ -106,15 +107,11 @@ static Value InvokePropertyCallback(Runtime& runtime, const Value& this_value, c
   auto* func_wrapper = reinterpret_cast<FunctionWrapper*>(function_pointer);
   FOOTSTONE_CHECK(func_wrapper && func_wrapper->callback);
   (func_wrapper->callback)(cb_info, func_wrapper->data);
-
-  // auto exception = std::static_pointer_cast<V8CtxValue>(cb_info.GetExceptionValue()->Get());
-  // if (exception) {
-  //   const auto& global_value = exception->global_value_;
-  //   auto handle_value = v8::Local<v8::Value>::New(isolate, global_value);
-  //   isolate->ThrowException(handle_value);
-  //   info.GetReturnValue().SetUndefined();
-  //   return;
-  // }
+  auto exception = std::static_pointer_cast<HermesExceptionCtxValue>(cb_info.GetExceptionValue()->Get());
+  if (exception) {
+    HandleJsException(scope, exception);
+    return Value::undefined();
+  }
 
   auto ret_value = std::static_pointer_cast<HermesCtxValue>(cb_info.GetReturnValue()->Get());
   if (!ret_value) {
@@ -151,7 +148,6 @@ static Value InvokeConstructorJsCallback(Runtime& runtime, const Value& this_val
     }
   }
 
-  // TODO construct call
   if (this_value.isObject()) {
     cb_info.SetReceiver(std::make_shared<HermesCtxValue>(runtime, this_value.asObject(runtime)));
   } else {
@@ -175,18 +171,13 @@ static Value InvokeConstructorJsCallback(Runtime& runtime, const Value& this_val
   auto js_cb = function_wrapper->callback;
   auto external_data = function_wrapper->data;
   js_cb(cb_info, external_data);
+  auto exception = std::static_pointer_cast<HermesExceptionCtxValue>(cb_info.GetExceptionValue()->Get());
+  if (exception) {
+    HandleJsException(scope, exception);
+    return Value::undefined();
+  }
 
-  // TODO exception
-  // auto exception = std::static_pointer_cast<V8CtxValue>(cb_info.GetExceptionValue()->Get());
-  // if (exception) {
-  //   const auto& global_value = exception->global_value_;
-  //   auto handle_value = v8::Local<v8::Value>::New(isolate, global_value);
-  //   isolate->ThrowException(handle_value);
-  //   info.GetReturnValue().SetUndefined();
-  //   return;
-  // }
-
-  // biding new constructor return value in proto
+  // binding new constructor return value in proto
   if (this_value.isObject()) {
     auto prototype = this_value.asObject(runtime).getProperty(runtime, "__proto__");
     if (prototype.isObject()) {
@@ -287,29 +278,46 @@ HermesCtx::HermesCtx() {
   BuiltinModule();
 }
 
-std::shared_ptr<CtxValue> HermesCtx::DefineProxy(const std::unique_ptr<FunctionWrapper>& getter,
-                                                 std::vector<std::string> properties) {
-  auto constructor = EvalFunction(kHostConstructor);
-  auto prototype = constructor.getProperty(*runtime_, "prototype").asObject(*runtime_);
-  for (const auto& property : properties) {
-    auto func_name = PropNameID::forAscii(*runtime_, property.data(), property.size());
-    auto property_callback = facebook::jsi::Function::createFromHostFunction(
-        *runtime_, func_name, 0,
-        [property = property, function_pointer = getter.get()](Runtime& runtime, const Value& this_value,
-                                                               const Value* args, size_t count) -> Value {
-          // get call java method
-          auto call_java = InvokePropertyCallback(runtime, this_value, property, function_pointer);
-
-          // call java method to get property value
-          if (call_java.isObject() && call_java.asObject(runtime).isFunction(runtime)) {
-            return call_java.asObject(runtime).asFunction(runtime).callWithThis(runtime, this_value.asObject(runtime),
-                                                                                args, count);
-          }
-          return Value::undefined();
-        });
-    prototype.setProperty(*runtime_, func_name, property_callback);
-  }
+std::shared_ptr<CtxValue> HermesCtx::DefineProxy(const std::unique_ptr<FunctionWrapper>& getter) {
+  auto constructor = EvalFunction(kProxyFunction);
   return std::make_shared<HermesCtxValue>(*runtime_, constructor);
+}
+
+std::shared_ptr<CtxValue> HermesCtx::DefineProxyHandler(const std::unique_ptr<FunctionWrapper>& proxy_handler) {
+  auto proxy_getter = facebook::jsi::Function::createFromHostFunction(
+      *runtime_, PropNameID::forAscii(*runtime_, ""), 3,
+      [proxy_handler_pointer = proxy_handler.get()](Runtime& runtime, const Value& this_value, const Value* args,
+                                                    size_t count) -> Value {
+        // proxy get method argument (target, property, receiver)
+        if (count != 3) return Value::undefined();
+        if (!args[1].isString()) return Value::undefined();
+        std::string method_name = args[1].toString(runtime).utf8(runtime);
+
+        // 获取 Proxy 对象的原始 target 对象
+        if (method_name == kProxyTargetObject) return Value(runtime, args[0]);
+        // 判断是否是 Proxy 对象
+        if (method_name == kIsProxyObject) return Value(true);
+
+        // 返回 jsi 需要的函数, 现在只支持了函数的返回
+        return facebook::jsi::Function::createFromHostFunction(
+            runtime, PropNameID::forAscii(runtime, ""), 1,
+            [proxy_handler_pointer = proxy_handler_pointer, method_name](Runtime& runtime, const Value& this_value,
+                                                                         const Value* args, size_t count) -> Value {
+              auto jsi_call_method = InvokePropertyCallback(runtime, this_value, method_name, proxy_handler_pointer);
+              if (jsi_call_method.isObject() && jsi_call_method.asObject(runtime).isFunction(runtime)) {
+                auto f = jsi_call_method.asObject(runtime).asFunction(runtime);
+                if (this_value.isObject()) {
+                  return f.callWithThis(runtime, this_value.asObject(runtime), args, count);
+                } else {
+                  return f.call(runtime, args, count);
+                }
+              }
+              return Value::undefined();
+            });
+      });
+  facebook::jsi::Object handler = facebook::jsi::Object(*runtime_);
+  handler.setProperty(*runtime_, "get", proxy_getter);
+  return std::make_shared<HermesCtxValue>(*runtime_, handler);
 }
 
 std::shared_ptr<CtxValue> HermesCtx::DefineClass(const string_view& name,
@@ -325,10 +333,10 @@ std::shared_ptr<CtxValue> HermesCtx::DefineClass(const string_view& name,
       [pointer = constructor_wrapper.get()](Runtime& runtime, const Value& this_value, const Value* args, size_t count)
           -> Value { return InvokeConstructorJsCallback(runtime, this_value, args, count, pointer); });
 
-  // constructor function wrapper for function
+  // hermes 引擎中 hostfunction 不能成为构造函数，通过一个函数包裹来实现构造函数的目的
   auto ctor_function = EvalFunction(kConstructor);
   auto ctor_prototype = ctor_function.getProperty(*runtime_, "prototype").asObject(*runtime_);
-  ctor_prototype.setProperty(*runtime_, "call_hostfuncion", func_tpl);
+  ctor_prototype.setProperty(*runtime_, "hostfunction_constructor", func_tpl);
 
   // proto for function
   for (size_t i = 0; i < property_count; i++) {
@@ -384,54 +392,76 @@ std::shared_ptr<CtxValue> HermesCtx::DefineClass(const string_view& name,
   return std::make_shared<HermesCtxValue>(*runtime_, ctor_function);
 }
 
-std::shared_ptr<CtxValue> HermesCtx::NewFromConstructorFunction(Function& function, size_t argc, const Value* args,
-                                                                void* external) {
-  auto local_state = std::make_shared<LocalNativeState>();
-  local_state->Set(external);
-  function.setNativeState(*runtime_, local_state);
+std::shared_ptr<CtxValue> HermesCtx::NewInstance(const std::shared_ptr<CtxValue>& cls, int argc,
+                                                 std::shared_ptr<CtxValue> argv[], void* external) {
+  auto hermes_ctx = std::static_pointer_cast<HermesCtxValue>(cls);
+  auto value = hermes_ctx->GetValue(runtime_);
+  if (!value.isObject()) return nullptr;
 
-  Value instance;
-  if (argc == 0) {
-    instance = function.callAsConstructor(*runtime_);
-  } else {
-    instance = function.callAsConstructor(*runtime_, args, argc);
+  auto object = value.asObject(*runtime_);
+  bool is_function = object.isFunction(*runtime_);
+  if (!is_function) return nullptr;
+
+  auto function = object.asFunction(*runtime_);
+  auto local_native_state = std::make_shared<LocalNativeState>();
+  local_native_state->Set(external);
+  // 提供 external 指针给构造函数使用
+  function.setNativeState(*runtime_, local_native_state);
+
+  std::vector<Value> arguments;
+  size_t len = static_cast<size_t>(argc);
+  arguments.reserve(len);
+  for (size_t i = 0; i < len; ++i) {
+    auto arg = std::static_pointer_cast<HermesCtxValue>(argv[i]);
+    arguments.push_back(arg->GetValue(runtime_));
+  }
+  const Value* val = &arguments[0];
+
+  Value instance = argc == 0 ? function.callAsConstructor(*runtime_) : function.callAsConstructor(*runtime_, val, len);
+
+  // 构造函数中使用完成后删除 external 指针，并且给实例对象绑定对应的 external 指针
+  function.setNativeState(*runtime_, nullptr);
+  if (instance.isObject()) {
+    // 为了统一所有函数接口，Hermes 通过 Proxy 对象来实现 JSI 的拦截, 但 setNativeState 函数不能在作用在 Proxy 和 Host
+    // Object 上。 因此对于 Proxy 对象，需要将 external 指针绑定在 Proxy 的 target 对象上。并且获取 external
+    // 指针也需要从 Proxy 的 target 对象上获取。
+    auto is_proxy = instance.asObject(*runtime_).getProperty(*runtime_, kIsProxyObject);
+    if (is_proxy.isBool() && is_proxy.asBool()) {
+      auto target_object = instance.asObject(*runtime_).getProperty(*runtime_, kProxyTargetObject);
+      if (target_object.isObject()) target_object.asObject(*runtime_).setNativeState(*runtime_, local_native_state);
+    } else {
+      instance.asObject(*runtime_).setNativeState(*runtime_, local_native_state);
+    }
   }
   return std::make_shared<HermesCtxValue>(*runtime_, instance);
 }
 
-std::shared_ptr<CtxValue> HermesCtx::NewInstance(const std::shared_ptr<CtxValue>& cls, int argc,
-                                                 std::shared_ptr<CtxValue> argv[], void* external) {
-  std::shared_ptr<HermesCtxValue> hermes_ctx = std::static_pointer_cast<HermesCtxValue>(cls);
-  if (!hermes_ctx->GetValue(runtime_).isObject()) return nullptr;
-
-  bool is_constructor_function = hermes_ctx->GetValue(runtime_).asObject(*runtime_).isFunction(*runtime_);
-
-  // new from constructor function
-  if (is_constructor_function) {
-    auto function = hermes_ctx->GetValue(runtime_).asObject(*runtime_).asFunction(*runtime_);
-    size_t len = static_cast<size_t>(argc);
-    const Value* val = nullptr;
-    if (len > 0) {
-      std::vector<Value> arguments;
-      arguments.resize(len);
-      for (size_t i = 0; i < len; i++) {
-        auto arg = std::static_pointer_cast<HermesCtxValue>(argv[i]);
-        arguments[i] = arg->GetValue(runtime_);
-      }
-      val = &arguments[0];
-    }
-    return NewFromConstructorFunction(function, len, val, external);
-  }
-  return nullptr;
-}
-
 void* HermesCtx::GetObjectExternalData(const std::shared_ptr<CtxValue>& object) {
-  auto hermes_object = std::static_pointer_cast<HermesCtxValue>(object);
-  auto jsi_object = hermes_object->GetValue(runtime_).asObject(*runtime_);
-  if (jsi_object.hasNativeState<LocalNativeState>(*runtime_)) {
-    auto local_native_state = jsi_object.getNativeState<LocalNativeState>(*runtime_);
-    return local_native_state->Get();
+  auto hermes_ctx = std::static_pointer_cast<HermesCtxValue>(object);
+  auto value = hermes_ctx->GetValue(runtime_);
+
+  if (!value.isObject()) {
+    return nullptr;
   }
+
+  auto hermes_object = value.asObject(*runtime_);
+  auto is_proxy = hermes_object.getProperty(*runtime_, kIsProxyObject);
+
+  // hermes jsi 通过 Proxy 对象实现， Proxy 对象的 external 指针绑定在 target 对象上
+  if (is_proxy.isBool() && is_proxy.asBool()) {
+    auto target_object = hermes_object.getProperty(*runtime_, kProxyTargetObject);
+    if (target_object.isObject() && target_object.asObject(*runtime_).hasNativeState<LocalNativeState>(*runtime_)) {
+      auto state = target_object.asObject(*runtime_).getNativeState<LocalNativeState>(*runtime_);
+      return state->Get();
+    }
+    return nullptr;
+  }
+
+  if (hermes_object.hasNativeState<LocalNativeState>(*runtime_)) {
+    auto state = hermes_object.getNativeState<LocalNativeState>(*runtime_);
+    return state->Get();
+  }
+
   return nullptr;
 }
 
@@ -553,13 +583,7 @@ std::shared_ptr<CtxValue> HermesCtx::CreateObject(
 std::shared_ptr<CtxValue> HermesCtx::CreateMap(
     const std::map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) {
   auto js_map = runtime_->global().getProperty(*runtime_, "Map");
-  auto map_constructor = js_map.asObject(*runtime_)
-                             .getProperty(*runtime_, "prototype")
-                             .asObject(*runtime_)
-                             .getProperty(*runtime_, "constructor")
-                             .asObject(*runtime_)
-                             .asFunction(*runtime_);
-  auto instance = map_constructor.callAsConstructor(*runtime_);
+  auto instance = js_map.asObject(*runtime_).asFunction(*runtime_).callAsConstructor(*runtime_);
   auto set_function = js_map.asObject(*runtime_)
                           .getProperty(*runtime_, "prototype")
                           .asObject(*runtime_)
@@ -569,8 +593,8 @@ std::shared_ptr<CtxValue> HermesCtx::CreateMap(
   for (const auto& kv : map) {
     auto ctx_k = std::static_pointer_cast<HermesCtxValue>(kv.first);
     auto ctx_v = std::static_pointer_cast<HermesCtxValue>(kv.second);
-    set_function.callWithThis(*runtime_, instance.asObject(*runtime_), ctx_k->GetValue(runtime_),
-                              ctx_v->GetValue(runtime_));
+    set_function.callWithThis(*runtime_, instance.asObject(*runtime_),
+                              {ctx_k->GetValue(runtime_), ctx_v->GetValue(runtime_)});
   }
   return std::make_shared<HermesCtxValue>(*runtime_, instance.asObject(*runtime_));
 }

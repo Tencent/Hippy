@@ -94,8 +94,9 @@ class HermesCtx : public Ctx {
   HermesCtx();
   ~HermesCtx() = default;
 
-  virtual std::shared_ptr<CtxValue> DefineProxy(const std::unique_ptr<FunctionWrapper>& constructor_wrapper,
-                                                std::vector<std::string> properties = {}) override;
+  virtual std::shared_ptr<CtxValue> DefineProxy(const std::unique_ptr<FunctionWrapper>& constructor_wrapper) override;
+
+  virtual std::shared_ptr<CtxValue> DefineProxyHandler(const std::unique_ptr<FunctionWrapper>& proxy_handler) override;
 
   virtual std::shared_ptr<CtxValue> DefineClass(const string_view& name, const std::shared_ptr<ClassDefinition>& parent,
                                                 const std::unique_ptr<FunctionWrapper>& constructor_wrapper,
@@ -195,9 +196,6 @@ class HermesCtx : public Ctx {
   Function EvalFunction(const std::string& code);
   void BuiltinModule();
   void BuiltinFunction(facebook::jsi::Object& module, const std::string& name);
-
-  std::shared_ptr<CtxValue> NewFromConstructorFunction(Function& function, size_t argc, const Value* args,
-                                                       void* external);
 
  private:
   std::unique_ptr<HermesRuntime> runtime_;
