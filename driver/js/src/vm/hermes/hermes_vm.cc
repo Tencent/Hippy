@@ -35,6 +35,11 @@ namespace hippy {
 inline namespace driver {
 inline namespace vm {
 
+HermesVM::HermesVM(const std::shared_ptr<HermesVMInitParam>& param) : VM(param) {
+  FOOTSTONE_DLOG(INFO) << "HermesVM begin";
+  FOOTSTONE_DLOG(INFO) << "HermesVM end";
+}
+
 std::shared_ptr<CtxValue> HermesVM::ParseJson(const std::shared_ptr<Ctx>& ctx, const string_view& json) {
   if (footstone::StringViewUtils::IsEmpty(json)) {
     return nullptr;

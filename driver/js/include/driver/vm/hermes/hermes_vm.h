@@ -40,7 +40,7 @@ struct HermesVMInitParam : public VM::VMInitParam {
 
 class HermesVM : public VM {
  public:
-  HermesVM(const std::shared_ptr<HermesVMInitParam>& param) : VM(param) {}
+  HermesVM(const std::shared_ptr<HermesVMInitParam>& param);
   ~HermesVM() = default;
 
   virtual std::shared_ptr<CtxValue> ParseJson(const std::shared_ptr<Ctx>& ctx, const string_view& json) override;

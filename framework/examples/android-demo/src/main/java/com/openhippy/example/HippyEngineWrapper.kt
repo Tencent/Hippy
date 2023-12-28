@@ -66,6 +66,7 @@ class HippyEngineWrapper//TODO: Coming soon
         initParams.debugMode = isDebug
         initParams.enableLog = true
         initParams.logAdapter = DefaultLogAdapter()
+        initParams.enableV8Serialization = false;
         when(driverMode) {
             PageConfiguration.DriverMode.JS_REACT -> {
                 initParams.coreJSAssetsPath = "react/vendor.android.js"

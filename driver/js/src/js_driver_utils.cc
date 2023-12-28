@@ -382,7 +382,7 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
       worker_task_runner->PostTask(std::move(func));
     }
   }
-#elifdef JS_HERMES
+#elif defined(JS_HERMES)
   std::shared_ptr<CtxValue> ret = nullptr;
   try {
     ret = scope->GetContext()->RunScript(script_content, file_name);
@@ -613,7 +613,7 @@ void JsDriverUtils::CallNative(hippy::napi::CallbackInfo& info, const std::funct
           StringViewUtils::ConvertEncoding(json, string_view::Encoding::Utf8).utf8_value());
     }
   }
-#elifdef JS_HERMES
+#elif defined(JS_HERMES)
   if (info[3] && context->IsObject(info[3])) {
     string_view json;
     auto flag = context->GetValueJson(info[3], &json);
@@ -661,7 +661,7 @@ void JsDriverUtils::LoadInstance(const std::shared_ptr<Scope>& scope, byte_strin
     } else {
       scope->GetContext()->ThrowException("LoadInstance param error");
     }
-#elifdef JS_HERMES
+ #elif defined(JS_HERMES)
     std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]), buffer_data_.length() / sizeof(char16_t));
     string_view buf_str(std::move(str));
     auto engine = scope->GetEngine().lock();

@@ -95,7 +95,7 @@ void ContextifyModule::RunInThisContext(hippy::napi::CallbackInfo& info, void* d
   } else {
     info.GetReturnValue()->Set(ret);
   }
-#elifdef JS_HERMES
+#elif defined(JS_HERMES)
   try {
     auto ret = context->RunScript(str_view, key);
     info.GetReturnValue()->Set(ret);

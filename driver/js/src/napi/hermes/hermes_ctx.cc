@@ -231,7 +231,6 @@ static Value InvokeJsCallback(Runtime& runtime, const Value& this_value, const V
     }
   }
 
-  // TODO construct call
   if (this_value.isObject()) {
     cb_info.SetReceiver(std::make_shared<HermesCtxValue>(runtime, this_value.asObject(runtime)));
   } else {
@@ -964,7 +963,7 @@ std::shared_ptr<CtxValue> HermesCtx::RunScript(const string_view& data, const st
   }
 }
 
-// void HermesCtx::SetDefaultContext(const std::shared_ptr<v8::SnapshotCreator>& creator) {}
+
 // TODO: add throw exception
 void HermesCtx::ThrowException(const std::shared_ptr<CtxValue>& exception) {}
 
