@@ -95,20 +95,27 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 @interface HippyBridge : NSObject <HippyInvalidating>
 
-/**
- * Creates a new bridge with a custom HippyBridgeDelegate.
- *
- * All the interaction with the JavaScript context should be done using the bridge
- * instance of the HippyBridgeModules. Modules will be automatically instantiated
- * using the default contructor, but you can optionally pass in an array of
- * pre-initialized module instances if they require additional init parameters
- * or configuration.
- */
+/// Create A HippyBridge instance with a common js bundle.
+///
+/// @param delegate bridge delegate
+/// @param bundleURL the
+/// @param block for user-defined module
+/// @param launchOptions launch options, will not be sent to frontend
+/// @param executorKey key to engine instance. HippyBridge with same engine key will share same engine intance.
+///
+/// Note: 多个bridge使用相同的共享engineKey时，只有全部bridge实例销毁时engine资源才将释放，因此，请注意合理使用，避免出现意外的内存泄漏。
+/// 传空时默认不共享，SDK内部默认分配一随机key。
+///
+/// * All the interaction with the JavaScript context should be done using the bridge
+/// * instance of the HippyBridgeModules. Modules will be automatically instantiated
+/// * using the default contructor, but you can optionally pass in an array of
+/// * pre-initialized module instances if they require additional init parameters
+/// * or configuration.
 - (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
-                       bundleURL:(NSURL *)bundleURL
+                       bundleURL:(nullable NSURL *)bundleURL
                   moduleProvider:(nullable HippyBridgeModuleProviderBlock)block
-                   launchOptions:(NSDictionary *)launchOptions
-                     executorKey:(NSString *)executorKey;
+                   launchOptions:(nullable NSDictionary *)launchOptions
+                     executorKey:(nullable NSString *)executorKey;
 
 
 #pragma mark -
