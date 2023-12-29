@@ -134,7 +134,6 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
                    businessURL:(NSURL *)businessURL
                     moduleName:(NSString *)moduleName
              initialProperties:(NSDictionary *)initialProperties
-                 launchOptions:(NSDictionary *)launchOptions
                   shareOptions:(NSDictionary *)shareOptions
                       delegate:(id<HippyRootViewDelegate>)delegate {
     NSParameterAssert(bridge);
@@ -173,6 +172,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 - (UIViewController *)hippyViewController {
     return _hippyViewController ?: [super hippyViewController];
+}
+
+- (UIView *)contentView {
+    return _contentView;
 }
 
 - (BOOL)canBecomeFirstResponder {
