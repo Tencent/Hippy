@@ -21,10 +21,11 @@
  */
 
 #import <UIKit/UIKit.h>
-
 #import "HippyBridge.h"
 
 @protocol HippyRootViewDelegate;
+
+NS_ASSUME_NONNULL_BEGIN
 
 /**
  * This enum is used to define size flexibility type of the root view.
@@ -54,22 +55,42 @@ extern NSString *const HippyContentDidAppearNotification;
  */
 @interface HippyRootView : UIView
 
+/// Create HippyRootView instance
+///
+/// @param bridge the hippyBridge instance
+/// @param moduleName module name
+/// @param initialProperties application properties, see appProperties property.
+/// @param shareOptions Shared data between different rootViews on same bridge.
+/// @param delegate HippyRootViewDelegate
+///
+/// Note: shareOptions will not sent to the front end.
+///
 - (instancetype)initWithBridge:(HippyBridge *)bridge
                     moduleName:(NSString *)moduleName
-             initialProperties:(NSDictionary *)initialProperties
-                  shareOptions:(NSDictionary *)shareOptions
-                      delegate:(id<HippyRootViewDelegate>)delegate;
+             initialProperties:(nullable NSDictionary *)initialProperties
+                  shareOptions:(nullable NSDictionary *)shareOptions
+                      delegate:(nullable id<HippyRootViewDelegate>)delegate;
 
-/**
- * - Convenience initializer
- */
+
+/// Create HippyRootView instance
+/// & Load the business BundleURL
+/// & Run application
+///
+/// @param bridge the hippyBridge instance
+/// @param businessURL the bundleURL to load
+/// @param moduleName module name
+/// @param initialProperties application properties, see appProperties property.
+/// @param shareOptions Shared data between different rootViews on same bridge.
+/// @param delegate HippyRootViewDelegate
+///
+/// Note: shareOptions will not sent to the front end.
+///
 - (instancetype)initWithBridge:(HippyBridge *)bridge
                    businessURL:(NSURL *)businessURL
                     moduleName:(NSString *)moduleName
-             initialProperties:(NSDictionary *)initialProperties
-                 launchOptions:(NSDictionary *)launchOptions
-                  shareOptions:(NSDictionary *)shareOptions
-                      delegate:(id<HippyRootViewDelegate>)delegate;
+             initialProperties:(nullable NSDictionary *)initialProperties
+                  shareOptions:(nullable NSDictionary *)shareOptions
+                      delegate:(nullable id<HippyRootViewDelegate>)delegate;
 
 /**
  * The name of the JavaScript module to execute within the
@@ -180,3 +201,5 @@ extern NSString *const HippyContentDidAppearNotification;
 
 
 @end
+
+NS_ASSUME_NONNULL_END
