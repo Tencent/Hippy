@@ -116,7 +116,6 @@ static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fil
                                                         businessURL:[NSURL fileURLWithPath:businessBundlePath]
                                                          moduleName:@"Demo"
                                                   initialProperties:@{@"isSimulator": @(isSimulator)}
-                                                      launchOptions:nil
                                                        shareOptions:nil
                                                            delegate:nil];
 #endif
