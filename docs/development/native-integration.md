@@ -62,435 +62,195 @@
 
 >注：以下文档都是假设您已经具备一定的 iOS 开发经验。
 
-这篇教程，讲述了如何将 Hippy 集成到 iOS 工程。
+这篇教程，讲述了如何将 Hippy 集成到一个现有的 iOS 工程。
 
 ---
 
-## 使用 CocoaPods 集成
+## 一、环境准备
 
-### 安装必要环境
+- 安装 Xcode
 
-使用`brew install cmake`安转[cmake](https://cmake.org/)
+- 安装 [CMake](https://cmake.org/)
 
-使用`sudo gem install cocoapods`命令安装 [CocoaPods](https://cocoapods.org/)
+  推荐使用Homebrew安装CMake，安装命令如下：
 
-### 在用户自定义工程目录下创建 podfile 文件
+  ```shell
+  brew install cmake
+  ```
+
+- 安装 [CocoaPods](https://cocoapods.org/)
+  
+  [CocoaPods](https://cocoapods.org/) 是一个iOS和macOS开发中流行的包管理工具。我们将使用它把Hippy的iOS Framework添加到现有iOS项目中。
+
+  推荐使用Homebrew安装CocoaPods，安装命令如下：
+
+  ```shell
+  brew install cocoapods
+  ```
+
+ > 若想快速体验，可以直接基于Hippy仓库中的 [iOS Demo](https://github.com/Tencent/Hippy/tree/main/framework/examples/ios-demo) 来开发
+
+## 二、使用 Cocoapods 集成 iOS SDK
+
+具体的操作步骤如下：
+
+1. 首先，确定要集成的Hippy iOS SDK版本，如3.2.0，将其记录下来，接下来将在Podfile中用到。
+   > 可到「[版本查询地址](https://github.com/Tencent/Hippy/releases)」查询最新的版本信息
+
+2. 其次，准备好现有iOS工程的 Podfile 文件
+
+    Podfile 文件是CocoaPods包管理工具的配置文件，如果当前工程还没有该文件，最简单的创建方式是通过CocoaPods init命令，在iOS工程文件目录下执行如下命令：
+
+    ```shell
+    pod init
+    ```
+
+    生成的Podfile将包含一些demo设置，您可以根据集成的目的对其进行调整。
+
+    为了将Hippy SDK集成到工程，我们需要修改Podfile，将 hippy 添加到其中，并指定集成的版本。修改后的Podfile应该看起来像这样:
+
+    ```text
+    #use_frameworks!
+    platform :ios, '11.0'
+
+    # TargetName大概率是您的项目名称
+    target TargetName do
+
+        # 在此指定步骤1中记录的hippy版本号，可访问 https://github.com/Tencent/Hippy/releases 查询更多版本信息
+        pod 'hippy', '3.2.0'
+
+    end
+    ```
+
+    !> 请注意，由于hippy3.x中大量使用了 #include"path/to/file.h" 的方式引用C++头文件，因此如果开启了 CocoaPods 的 framework 格式集成选项（即Podfile中 `use_frameworks!` 配置为开启状态），则必须在 Podfile 文件中加入如下配置：
+
+    ```text
+    # 工程开启 use_frameworks! 后需添加此环境变量，用于hippy使用正确设置项
+    ENV["use_frameworks"] = "true"
+    ```
+
+    > 默认配置下，Hippy SDK使用布局引擎是[Taitank](https://github.com/Tencent/Taitank)，JS引擎是系统的`JavaScriptCore`，如需切换使用其他引擎，请参照下文[《引擎切换（可选）》](#四引擎切换可选)一节调整配置。
+
+3. 最后，在命令行中执行
+
+    ```shell
+    pod install
+    ```
+
+    命令成功执行后，使用 CocoaPods 生成的 `.xcworkspace` 后缀名的工程文件来打开工程。
+
+## 三、编写SDK接入代码，加载本地或远程的Hippy资源包
+
+Hippy SDK的代码接入简单来说只需两步：
+
+1、初始化一个HippyBridge实例，HippyBridge是Hippy最重要的概念，它是终端渲染侧与前端驱动侧进行通信的`桥梁`，同时也承载了Hippy应用的主要上下文信息。
+
+2、通过HippyBridge实例初始化一个HippyRootView实例，HippyRootView是Hippy应用另一个重要概念，Hippy应用将由它显示出来，因此可以说创建业务也就是创建一个 `HippyRootView`。
+
+目前，Hippy 提供了分包加载接口以及不分包加载接口,使用方式分别如下：
+
+### 方式1. 使用分包加载接口
+
+``` objectivec
+/** 此方法适用于以下场景：
+ * 在业务还未启动时先准备好JS环境，并加载包1，当业务启动时加载包2，减少包加载时间
+ * 我们建议包1作为基础包，与业务无关，只包含一些通用基础组件，所有业务通用
+ * 包2作为业务代码加载
+*/
+
+// 先加载包1，创建出一个HippyBridge实例
+// 假设commonBundlePath为包1的路径
+// Tips：详细参数说明请查阅头文件: HippyBridge.h
+NSURL *commonBundlePath = getCommonBundlePath();
+HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self
+                                                  bundleURL:commonBundlePath
+                                             moduleProvider:nil
+                                              launchOptions:your_launchOptions
+                                                executorKey:nil];
+
+// 再通过上述bridge以及包2地址创建HippyRootView实例
+// 假设businessBundlePath为包2的路径
+// Tips：详细参数说明请查阅头文件: HippyRootView.h
+HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge
+                                                    businessURL:businessBundlePath
+                                                     moduleName:@"Your_Hippy_App_Name"
+                                              initialProperties:@{}
+                                                   shareOptions:nil
+                                                       delegate:nil];
+
+// 最后，给生成的rootView设置好frame，并将其挂载到指定的VC上。
+rootView.frame = self.view.bounds;
+rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+[self.view addSubview:rootView];
+
+// 至此，您已经完成一个Hippy应用的初始化，SDK内部将自动加载资源并开始运行Hippy应用。
+```
+
+### 方式2. 使用不分包加载接口
+
+``` objectivec
+// 与上述使用分包加载接口类似，首先需要创建一个HippyBridge实例，
+// 区别是在创建HippyRootView实例时，无需再传入业务包，即businessBundlePath，直接使用如下接口创建即可
+// Tips：详细参数说明请查阅头文件: HippyRootView.h
+- (instancetype)initWithBridge:(HippyBridge *)bridge
+                    moduleName:(NSString *)moduleName
+             initialProperties:(nullable NSDictionary *)initialProperties
+                  shareOptions:(nullable NSDictionary *)shareOptions
+                      delegate:(nullable id<HippyRootViewDelegate>)delegate;
+```
+
+> 在Hippy仓库中提供了一个简易示例项目，包含上述全部接入代码，以及更多注意事项。
+>
+> 建议参考该示例完成SDK到已有项目的集成：[iOS Demo](https://github.com/Tencent/Hippy/tree/main/framework/examples/ios-demo)，更多设置项及使用方式请查阅上述头文件中的具体API说明。
+
+!> 使用分包加载可以结合一系列策略，比如提前预加载bridge, 全局单bridge等来优化页面打开速度。
+
+到这里，您已经完成了接入一个默认配置下的Hippy iOS SDK的全部过程。
+
+## 四、引擎切换（可选）
+
+Hippy 3.x的一个重要特性是支持了多引擎的便捷切换，目前，可切换的引擎有两个，一是布局引擎，二是JS引擎。默认配置下，Hippy使用布局引擎是[Taitank](https://github.com/Tencent/Taitank)，JS引擎是iOS系统内置的`JavaScriptCore`。
+
+如需使用其他布局引擎，如[Yoga](https://github.com/facebook/yoga)，或使用其他JS引擎，如V8，可参考如下指引调整Hippy接入配置。
+
+> Hippy3.x提供了iOS环境下默认的v8引擎实现，如需使用其他JS引擎需用户自行实现相关napi接口。
+
+### 4.1 切换JS引擎
+
+如需使用V8引擎，在Podfile文件中添加如下环境变量即可：
 
 ```ruby
-
-install! "cocoapods", :generate_multiple_pod_projects => true, :deterministic_uuids => false
-#hippy仅支持ios11及以上版本
-platform :ios, '11.0'
-#TargetName替换成用户工程名
-target TargetName do
-#使用hippy最新版本
-pod 'hippy'
-#若想指定使用的hippy版本号，比如3.0.0版，请使用
-#pod 'hippy', '2.0.0'
-end
-
-```
-
-### Cocoapods接入可选参数
-
-> hippy3.0模式使用了Taitank布局引擎，JavaScriptCore JS引擎，使用static library方式接入。
-
-接入方可以自定义如下参数接入。
-
-```ruby
-
-#使用Yoga布局引擎
-ENV["layout_engine"]="Yoga" 
-#使用v8引擎或者其他第三方js引擎
-ENV["js_engine"] = "{v8/other}"
-#使用framework模式集成hippy
-ENV["use_frameworks"] = "true"
-
-```
-
-其中如果用户选择使用第三方js引擎，还需要额外实现对应js napi接口，以便hippy访问对应的实现逻辑。
-
->由于hippy3.0中使用了大量#include"path/to/file.h"方式引用c++头文件，因此如果选择使用framework方式接入，必须在podfile文件中指定 `ENV["use_frameworks"] = "true"`
-
-### 配置 force load 选项
-
-Hippy中大量使用了反射调用。若以静态链接库形式编译Hippy代码，其中未显式调用的代码将会被编译器 dead code strip。
-因此若 App 使用静态链接库接入 hippy，务必设置 `force load` 强制加载 hippy 静态链接库所有符号。
-
-> 2.13.0版本开始删除了 force load。若使用静态链接库接入，需要 app 自行配置。
-
-App可使用多种方式达到 `force load` 目的,下列方式自行选择合适的一项进行配置。并要根据实际情况自行适配
-
-- 直接在主工程对应的 target 的 Build Settings 中的 `Other Linker Flags` 配置中设置 `*-force_load "${PODS_CONFIGURATION_BUILD_DIR}/hippy/libhippy.a"*`。
-
-- 在App工程的 Podfile 配置文件中添加 `post_install hook`，自行给 xcconfig 添加 `force load`。
-
-- fork一份Hippy源码，并修改对应的 `hippy.podspec` 配置文件，并给 `user_target` 添加如下配置，再引用此源码。
-
-```ruby
-
-s.user_target_xcconfig = {'OTHER_LDFLAGS' => '-force_load "${PODS_CONFIGURATION_BUILD_DIR}/hippy/libhippy.a"'}
-
-```
-
-### 执行集成命令
-
-完成以上工作，直接执行`pod update`即可完成集成
-
-## 代码接入
-
-相较于Hippy2.x版本，Hippy3.0支持了多driver与多render能力，用户可以根据需要自行选择driver与renderer。为此，与driver和renderer相关的模块，需要用户自行创建及持有。
-
-当然，Hippy3.0提供了默认的JS Driver以及Native Render模块。
-
-### 核心概念
-
-把Hippy3.0组件集成到iOS应用中有如下几个主要步骤：
-
-1. 配置好集成Hippy3.0所需的依赖项，并选定集成方式
-2. 按需集成Hippy3.0所有模块，包括自定义模块与组件
-3. 准备好对应的业务代码 
-4. 加载业务代码并执行
-
-### 使用Hippy3.0默认组件接入
-
-Hippy3.0默认提供了JS Driver驱动层以及Native Render渲染层。目前大部分业务也是使用这种方式接入。
-
-### 代码集成
-
-#### 1.创建HipppyBridge实例
-
-我们根据HippyBridge的构造方法，创建一个HippyBridge实例
-
-```objectivec
-
-//HippyBridge.h
-/**
- *  Create A HippyBridge instance
- *
- *  @param delegate HippyBridge代理对象
- *  @param block 用于用户指定自定义模块
- *  @param launchOptions Hippy实例初始化参数
- *  @param engineKey JS引擎标识符，相同的参数将使对应JS引擎使用同一个JS VM
- *  @return HippyBridge实例
- */
-- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
-                  moduleProvider:(HippyBridgeModuleProviderBlock)block
-                   launchOptions:(NSDictionary *)launchOptions
-                       engineKey:(NSString *)engineKey;
-                       
-//调用方
-HippyBridgeModuleProviderBlock block = ^NSArray<id<HippyBridgeModule>> *{
-    return nil;
-};
-NSDictioanry *launchOptions = @{@"key": @"value"};
-HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self 
-                                             moduleProvider:block
-                                              launchOptions:launchOptions
-                                                  engineKey:@"Demo"]    
-
-```
-
->HippyBridge是Hippy3.0默认提供的入口类，自动构建了JS Driver与Native Render的关联。
-
-#### 2.为HippyBridge配置必要的属性
-
-HippyBridge中有些必须属性，需要调用方设置。如果不设置，将会导致功能不完善。
-
-```objectivec
-
-//HippyBridge.h
-
-//业务模块名。前端将校验此模块名。如果不匹配，Hippy实例无法启动。
-@property (nonatomic, strong) NSString *moduleName;
-
-//Hippy业务沙盒目录。Hippy业务方的资源相对路径。
-@property (nonatomic, strong) NSURL *sandboxDirectory;
-
-//VFS模块，负责Hippy实例的所有网络模块。用户可自行实现，或者使用默认
-@property(nonatomic, assign)std::weak_ptr<VFSUriLoader> VFSUriLoader;
-
-//添加Image
-- (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls;
-
-//调用方代码
-_bridge.moduleName = @"Demo"
-_bridge.sandboxDirectory = [NSURL fileURLWithString:@"path/to/your/directory"];
-
-//使用Hippy3.0系统默认的VFSLoader
-auto demoHandler = std::make_shared<VFSUriHandler>();
-auto demoLoader = std::make_shared<VFSUriLoader>();
-demoLoader->PushDefaultHandler(demoHandler);
-demoLoader->AddConvenientDefaultHandler(demoHandler);
-auto fileHandler = std::make_shared<HippyFileHandler>(_bridge);
-demoLoader->RegisterConvenientUriHandler(@"hpfile", fileHandler);
-
-_bridge.VFSUriLoader = demoLoader; //使用Hippy默认的vfs
-
-//使用系统默认的image解码器
-[_bridge addImageProviderClass:[HippyDefaultImageProvider class]];
-
-```
-
-#### 3.创建DomManager
-
-```objectivec
-
-//可以使用下面的方法，根据engineKey获取对应的DomManager.EngineKey相同的实例获取同一个DomManager
-auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:_engineKey];
-auto domManager = engineResource->GetDomManager();
-
-```
-
-#### 4.创建NativeRender模块及其属性并设置给HippyBridge实例
-
-```objectivec
-
-//先获取第三步创建的DomManager
-auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:_engineKey];
-auto domManager = engineResource->GetDomManager();
-
-auto nativeRenderManager = std::make_shared<NativeRenderManager>();
-nativeRenderManager->SetDomManager(domManager);
-
-//设置Image解码类
-nativeRenderManager->AddImageProviderClass([HippyDefaultImageProvider class]);
-//设置额外的自定义组件
-nativeRenderManager->RegisterExtraComponent(_extraComponents);
-//设置vfs系统
-nativeRenderManager->SetVFSUriLoader([self URILoader]);
-domManager->SetRenderManager(nativeRenderManager);
-
-```
-
-#### 5.创建指定RootView与RootNode，并赋予NativeRenderManager
-
-RootView可以是任意UIView实例
-
-```objectivec
-
-//创建RootView，RootView可以是任意view实例
-UIView *rootView = [[UIView alloc] initWithFrame:frame];
-//获取第三步创建的DomManager
-auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:_engineKey];
-auto domManager = engineResource->GetDomManager();
-//获取rootview的componentTag，rootview必须实现此方法。
-NSNumber *rootTag = [rootView componentTag];
-//创建隶属于dom层的RootNode
-auto rootNode = std::make_shared<hippy::RootNode>([rootTag unsignedIntValue]);
-//设置动画管理模块的root node属性
-rootNode->GetAnimationManager()->SetRootNode(rootNode);
-rootNode->SetDomManager(domManager);
-//设置root node的布局节点的屏幕缩放尺度
-rootNode->GetLayoutNode()->SetScaleFactor([UIScreen mainScreen].scale);
-//设置root node大小
-rootNode->SetRootSize(rootView.frame.size.width, rootView.frame.size.height);
-
-//给第四部创建的NativeRenderManager设置rootnode与rootview
-nativeRenderManager->RegisterRootView(rootView, _rootNode);
-
-//设置rootview大小改变事件回调
-auto cb = [](int32_t tag, NSDictionary *params){
-};
-_nativeRenderManager->SetRootViewSizeChangedEvent(cb);
-
-```
-
-#### 6.为HippyBridge设置DomManager实例与RootNode实例
-
-当DomManager和RootNode实例都创建完毕，并且所有属性都设置之后，直接调用下列方法即可绑定HippyBridge,DomManager,RootNode三者
-
-```objectivec
-
-[_bridge setupDomManager:domManager rootNode:_rootNode];
-
-```
-
-#### 7.加载JS bundle业务代码
-
-当设置完HippyBridge所有配置项之后，就可以加载JS Bundle包了
-
-```objectivec
-
-NSURL *bundleURL = yourBundlePathURL;
-//此方法可多次调用，加载不同的bundle包。且保证bundle包的加载顺序。
-[_bridge loadBundleURL:bundleUrl completion:completion];
-
-```
-
-#### 8.加载Hippy实例
-
-之后，使用下列方法即可加载Hippy实例
-
-```objectivec
-
-NSNumber *rootViewTag = xxx;
-NSDictionary *props = xxx;//初始化配置属性
-[_bridge loadInstanceForRootView:rootViewTag withProperties:props];
-
-```
-
-### 使用简化方法进行代码集成
-
-HippyBridge提供了丰富的接口方便接入方使用各种自定义模块进行接入，当然过程也稍微繁琐一些。
-但我们预测，大部分接入方其实只会使用默认的模块接入，并不会进行自定义配置。为此我们使用HippyConvenientBridge类简化接入流程。满足条件的接入方，直接使用HippyConvenientBridge接口即可进行接入。
-
->HippyConvenient类将封装NativeRenderManager，RootNode，DomManager的创建，直接使用默认类型，接入方无需自定义。以牺牲灵活性为代价，简化接入流程。
-
-#### 1.创建HippyConvenientBridge实例并配置必要的属性
-
-HippyConvenientBridge封装了HippyBridge，NativeRenderManager,DomManager,RootNode之间的关系。
-
-```objectivec
-
-//HippyConvenient.h
-/**
- *  Create A HippyConvenient instance
- *
- *  @param delegate HippyBridge代理对象
- *  @param block 用于用户指定自定义模块
- *  @param extraComponents 用于用户指定自定义组件
- *  @param launchOptions Hippy实例初始化参数
- *  @param engineKey JS引擎标识符，相同的参数将使对应JS引擎使用同一个JS VM
- *  @return HippyBridge实例
- */
-- (instancetype)initWithDelegate:(id<HippyBridgeDelegate> _Nullable)delegate
-                  moduleProvider:(HippyBridgeModuleProviderBlock _Nullable)block
-                 extraComponents:(NSArray<Class> * _Nullable)extraComponents
-                   launchOptions:(NSDictionary * _Nullable)launchOptions
-                       engineKey:(NSString *_Nullable)engineKey;
-
-//接入方代码
-//构建HippyConvenientBridge实例
-HippyConvenientBridge *connector = [[HippyConvenientBridge alloc] initWithDelegate:self 
-                                                                    moduleProvider:nil 
-                                                                   extraComponents:nil 
-                                                                     launchOptions:launchOptions 
-                                                                         engineKey:engineKey];
-//设置沙盒目录
-connector.sandboxDirectory = sandboxDirectory;
-//设置模块名
-connector.moduleName = @"Demo";
-
-```
-
-#### 2.构建RootView并赋值给HippyConvenientBridge
-
-````objectivec
-
-//创建UIView实例作为RootView
-//RootView实例必须实现componentTag方法
-UIView *rootView = [[UIView alloc] initWithFrame:frame];
-
-//并赋值给convenientBridge
-[convenientBridge setRootView:rootView];
-
-````
-
-#### 3.HippyConvenientBridge实例加载JS bundle包
-
->HippyConvenientBridge确保bundle加载顺序
-
-```objectivec
-
-[convenientBridge loadBundleURL:bundleURL1 completion:^(NSURL * _Nullable, NSError * _Nullable) {
-    NSLog(@"url %@ load finish", commonBundlePath);
-}];
-[convenientBridge loadBundleURL:bundleURL2 completion:^(NSURL * _Nullable, NSError * _Nullable) {
-    NSLog(@"url %@ load finish", businessBundlePath);
-}];
-
-```
-
-#### 4.HippyConvenientBridge实例加载Hippy业务实例
-
-```objectivec
-
-[convenientBridge loadInstanceForRootViewTag:rootTag props:@{@"isSimulator": @(isSimulator)}];
-
-```
-
-## 使用自定义模块接入
-
-Hippy3.0同样支持使用自定义Driver与Render层接入，接入方只需要调用对应接口或者实现对应的抽象方法即可。
-
-
-### 自定义driver层
-
-driver层负责驱动dom层构建Dom树结构，Dom将继续驱动Render层构建Render树，以及最终上屏结果。
-
-其中Dom层并不关心driver的实现逻辑，它只会遵照driver层的命令，最终构建出UI树。
-
-因此，接入方实现driver层的目标，就是驱动Dom层逻辑。
-
-```c++
-
-//dom_manager.h
-class DomManager : public std::enable_shared_from_this<DomManager> {
-    static void CreateDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
-                               std::vector<std::shared_ptr<DomInfo>>&& nodes);
-    static void UpdateDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
-                               std::vector<std::shared_ptr<DomInfo>>&& nodes);
-    static void MoveDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
-                             std::vector<std::shared_ptr<DomInfo>>&& nodes);
-    static void DeleteDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
-                               std::vector<std::shared_ptr<DomInfo>>&& nodes);
-};
-
-```
-
-上面列出的是DomManager几个比较有代表性的方法，driver层通过调用上述方法来对Dom树进行增删改操作，并最终驱动UI进行更新。
-
-### 自定义render层
-
-render层负责UI上渲染行为。同driver一样，Hippy并不关心render层的具体实现逻辑。它只负责将dom层的信息发送给render层，由render层自行负责渲染。
-
-接入方自定义的render manager只需要继承自抽象类RenderManager，并实现其虚方法，实现自定义的UI渲染能力。
-
-接入方首先要做的，就是使用dom manager实例，注册自定义的render manager
-
-```c++
-
-DomManager::SetRenderManager(const std::weak_ptr<RenderManager>& render_manager);
-
-```
-
->注意，RenderManager实例由接入方持有。DomManager只保持弱引用。
-
-之后，dom manager会将dom层的所有改变行为发送给render manager，由render manager负责渲染。
-
-## 切换JS引擎接入
-
-Hippy3.0默认使用JSC引擎。通过修改Podfile文件配置，[可以实现JS引擎的切换](#使用-cocoapods-集成)。
-
->Hippy3.0提供了v8引擎的实现，其他引擎需要用户实现napi接口。
->Hippy同一时间只支持使用一种JS引擎。
-
-### 切换为V8引擎
-
-用户若想使用V8引擎，直接在Podfile文件中指定js_engine为V8即可
-
-```ruby
-
 ENV['js_engine'] = 'v8'
-
 ```
 
-### 切换为自定义JS引擎
+修改后的Podfile应该看起来像这样:
 
-用户若需要使用其他第三方JS引擎，需要做如下操作：
+```text
+#use_frameworks!
+platform :ios, '11.0'
+ENV['js_engine'] = 'v8' #切换为V8引擎
+
+# TargetName大概率是您的项目名称
+target TargetName do
+
+    pod 'hippy', 'your_specified_version'
+
+end
+```
+
+之后，重新执行`pod install`命令更新项目依赖即可。
+
+如需使用其他第三方JS引擎，需要做如下操作：
 
 #### 1.修改Podfile配置为第三方JS引擎
 
-将Podfile中的js_engine配置为other，这样在拉取代码时，不过将jsc或者v8的代码添加到工程中。
+将Podfile中的js_engine环境变量配置为other，这样在拉取代码时，jsc或者v8的代码将不会被添加到工程中。
 
 ```ruby
-
 ENV['js_engine'] = 'other'
-
 ```
 
-> Hippy3.0中使用napi抽象了不同JS引擎的接口。其中，JSC与V8的接口进行了实现。用户若使用JSC或者V8，直接切换就好，Hippy默认进行了实现。
+> Hippy3.0中使用napi抽象了不同JS引擎的接口。其中，JSC与V8的接口进行了实现。用户若使用JSC或者V8，可直接切换，Hippy默认进行了实现。
 
 #### 2.自行实现napi抽象接口
 
@@ -502,25 +262,15 @@ napi文件位于 `/driver/js/napi*` 目录下。
 
 接入方自行将对应的napi实现文件添加到工程中。
 
-## 切换布局引擎接入
+## 4.2 切换布局引擎
 
-Hippy3.0默认使用Taitank布局引擎。通过修改Podfile文件配置，[可以切换使用Yoga引擎](#使用-cocoapods-集成)。
-
-### 切换为Yoga引擎
-
-用户若想使用Yoga布局引擎，直接在Podfile文件中指定layout_engine为Yoga即可
+用户若想使用Yoga布局引擎，直接在Podfile文件中指定layout_engine为Yoga即可：
 
 ```ruby
-
 ENV['layout_engine'] = 'Yoga'
-
 ```
 
-之后，直接执行`pod update`命令更新代码即可。
-
-<br/>
-<br/>
-<br/>
+之后，重新执行`pod install`命令更新项目依赖即可。
 
 # Voltron/Flutter 
 
