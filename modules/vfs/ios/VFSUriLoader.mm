@@ -129,8 +129,7 @@ void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request, NSOperationQue
             auto &scheme_handler_list = find->second;
             cur_convenient_it = scheme_handler_list.begin();
             end_convenient_it = scheme_handler_list.end();
-        }
-        else {
+        } else {
             cur_convenient_it = default_convenient_handlers_.begin();
             end_convenient_it = default_convenient_handlers_.end();
         }
@@ -156,8 +155,7 @@ void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request, NSOperationQue
             }
         };
         cur_convenient->RequestUntrustedContent(request, operationQueue, progress, callback, block);
-    }
-    else {
+    } else {
         string_view uri = NSStringToU8StringView([requestURL absoluteString]);
         auto meta = NSDictionaryToStringUnorderedMap([request allHTTPHeaderFields]);
         auto progressCallback = [progress, operationQueue](int64_t current, int64_t total){
