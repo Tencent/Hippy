@@ -47,12 +47,6 @@ typedef void (^NativeRenderApplierBlock)(NSDictionary<NSNumber *, UIView *> *vie
 typedef UIView *_Nullable(^HippyViewCreationBlock)(HippyShadowView *renderObject);
 typedef void (^HippyViewInsertionBlock)(UIView *container, NSArray<UIView *> *children);
 
-//TODO remove unused string
-extern NSString *const NativeRenderShadowViewDiffInsertion;
-extern NSString *const NativeRenderShadowViewDiffRemove;
-extern NSString *const NativeRenderShadowViewDiffUpdate;
-extern NSString *const NativeRenderShadowViewDiffTag;
-
 /**
  * ShadowView tree mirrors Hippy view tree. Every node is highly stateful.
  * 1. A node is in one of three lifecycles: uninitialized, computed, dirtied.

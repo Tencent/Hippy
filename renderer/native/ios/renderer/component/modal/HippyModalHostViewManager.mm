@@ -28,6 +28,10 @@
 #import "HippyShadowView+Internal.h"
 #import "NativeRenderUtils.h"
 
+
+NSString * const HippyModalHostViewDismissNotification = @"HippyModalHostViewDismissNotification";
+
+
 @interface HippyModalHostShadowView : HippyShadowView
 
 @end

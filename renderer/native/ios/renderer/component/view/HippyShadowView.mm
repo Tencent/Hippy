@@ -28,13 +28,8 @@
 #import "UIView+Hippy.h"
 #import "HippyShadowView+Internal.h"
 
-static NSString *const NativeRenderBackgroundColorProp = @"backgroundColor";
 
-NSString *const NativeRenderShadowViewDiffInsertion = @"NativeRenderShadowViewDiffInsertion";
-NSString *const NativeRenderShadowViewDiffRemove = @"NativeRenderShadowViewDiffRemove";
-NSString *const NativeRenderShadowViewDiffUpdate = @"NativeRenderShadowViewDiffUpdate";
-NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag";
-
+static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
 
 @implementation HippyShadowView
 
@@ -74,7 +69,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
         _confirmedLayoutDirectionDidUpdated = NO;
     }
     if (!_backgroundColor) {
-        UIColor *parentBackgroundColor = parentProperties[NativeRenderBackgroundColorProp];
+        UIColor *parentBackgroundColor = parentProperties[HippyBackgroundColorPropKey];
         if (parentBackgroundColor) {
             [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry, UIView * _Nullable lazyCreatedView) {
                 UIView *view = lazyCreatedView ?: viewRegistry[self->_hippyTag];
@@ -87,9 +82,9 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
         CGFloat alpha = CGColorGetAlpha(_backgroundColor.CGColor);
         if (alpha < 1.0) {
             // If bg is non-opaque, don't propagate further
-            properties[NativeRenderBackgroundColorProp] = [UIColor clearColor];
+            properties[HippyBackgroundColorPropKey] = [UIColor clearColor];
         } else {
-            properties[NativeRenderBackgroundColorProp] = _backgroundColor;
+            properties[HippyBackgroundColorPropKey] = _backgroundColor;
         }
         return properties;
     }
@@ -103,7 +98,6 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     if ((self = [super init])) {
         _propagationLifecycle = NativeRenderUpdateLifecycleUninitialized;
         _frame = CGRectMake(0, 0, NAN, NAN);
-        _isDecendantOfLazilyRenderObject = -1;
         _objectSubviews = [NSMutableArray arrayWithCapacity:8];
         _confirmedLayoutDirection = hippy::Direction::Inherit;
         _layoutDirection = hippy::Direction::Inherit;
