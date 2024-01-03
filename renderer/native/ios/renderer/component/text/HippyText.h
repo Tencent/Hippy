@@ -20,8 +20,25 @@
  * limitations under the License.
  */
 
-#import "HippyViewManager.h"
+#import <UIKit/UIKit.h>
+#import "NativeRenderTouchesView.h"
 
-@interface NativeRenderTextManager : HippyViewManager
+@interface HippyText : NativeRenderTouchesView {
+@protected
+    NSTextStorage *_textStorage;
+    CAShapeLayer *_highlightLayer;
+}
+
+@property (nonatomic, assign) UIEdgeInsets contentInset;
+@property (nonatomic, strong) NSTextStorage *textStorage;
+@property (nonatomic, assign) CGRect textFrame;
+@property (nonatomic, assign) CGColorRef borderColor;
+@property (nonatomic, strong) UIColor *textColor;
+
+@property (nonatomic, strong) NSString *backgroundImageUrl;
+@property (nonatomic, assign) CGFloat backgroundPositionX;
+@property (nonatomic, assign) CGFloat backgroundPositionY;
+
+@property (nonatomic, copy) NSDictionary *extraInfo;
 
 @end
