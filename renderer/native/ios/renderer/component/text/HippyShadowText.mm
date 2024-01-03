@@ -26,7 +26,7 @@
 #import "HippyFont.h"
 #import "HippyShadowText.h"
 #import "HippyText.h"
-#import "NativeRenderTextView.h"
+#import "HippyTextView.h"
 #import "NativeRenderUtils.h"
 
 #include "dom/dom_manager.h"
@@ -222,7 +222,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
          */
         UIView *parentView = viewRegistry[parentTag];
         if ([parentView respondsToSelector:@selector(performTextUpdate)]) {
-            [(NativeRenderTextView *)parentView performTextUpdate];
+            [(HippyTextView *)parentView performTextUpdate];
         }
     }];
     return parentProperties;
