@@ -26,6 +26,8 @@
 #import "HippyBridgeModule.h"
 #import "HippyErrorCustomizer.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface HippyRedBox : NSObject <HippyBridgeModule>
 
 @property (nonatomic, assign) BOOL showEnabled;
@@ -59,4 +61,4 @@
 
 @end
 
-
+NS_ASSUME_NONNULL_END

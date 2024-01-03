@@ -34,6 +34,7 @@
 #import "HippyUIManager+Private.h"
 #import "NativeRenderObjectRootView.h"
 #import "HippyShadowView.h"
+#import "HippyShadowView+Internal.h"
 #import "NativeRenderUtils.h"
 #import "HippyView.h"
 #import "HippyViewManager.h"

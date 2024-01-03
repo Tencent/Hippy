@@ -25,6 +25,7 @@
 #import "HippyModalHostViewManager.h"
 #import "HippyModalTransitioningDelegate.h"
 #import "HippyShadowView.h"
+#import "HippyShadowView+Internal.h"
 #import "NativeRenderUtils.h"
 
 @interface HippyModalHostShadowView : HippyShadowView
@@ -38,6 +39,7 @@
     CGRect frame = { .origin = CGPointZero, .size = NativeRenderScreenSize() };
     [subview setLayoutFrame:frame];
 }
+
 - (void)setDomManager:(std::weak_ptr<hippy::DomManager>)domManager {
     [super setDomManager:domManager];
     CGRect frame = { .origin = CGPointZero, .size = NativeRenderScreenSize() };

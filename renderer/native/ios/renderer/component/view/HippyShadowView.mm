@@ -26,9 +26,7 @@
 #import "HippyShadowView.h"
 #import "UIView+DirectionalLayout.h"
 #import "UIView+Hippy.h"
-
-#include "dom/layout_node.h"
-#include "dom/render_manager.h"
+#import "HippyShadowView+Internal.h"
 
 static NSString *const NativeRenderBackgroundColorProp = @"backgroundColor";
 
@@ -37,20 +35,6 @@ NSString *const NativeRenderShadowViewDiffRemove = @"NativeRenderShadowViewDiffR
 NSString *const NativeRenderShadowViewDiffUpdate = @"NativeRenderShadowViewDiffUpdate";
 NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag";
 
-
-@interface HippyShadowView () {
-    __weak HippyShadowView *_superview;
-    NSMutableArray<HippyShadowView *> *_objectSubviews;
-    BOOL _recomputePadding;
-    BOOL _recomputeMargin;
-    BOOL _recomputeBorder;
-    BOOL _didUpdateSubviews;
-    //TODO remove it
-    NSInteger _isDecendantOfLazilyRenderObject;
-    std::vector<std::string> _eventNames;
-}
-
-@end
 
 @implementation HippyShadowView
 
@@ -189,7 +173,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
     }
 }
 
-- (UIView *)createView:(NativeRenderViewCreationBlock)creationBlock insertChildren:(NativeRenderViewInsertionBlock)insertionBlock {
+- (UIView *)createView:(HippyViewCreationBlock)creationBlock insertChildren:(HippyViewInsertionBlock)insertionBlock {
     UIView *container = creationBlock(self);
     NSMutableArray *children = [NSMutableArray arrayWithCapacity:[self.subcomponents count]];
     for (HippyShadowView *subviews in self.subcomponents) {
