@@ -48,8 +48,7 @@ enum class Direction;
     BOOL _recomputeMargin;
     BOOL _recomputeBorder;
     BOOL _didUpdateSubviews;
-    //TODO remove it
-    NSInteger _isDecendantOfLazilyRenderObject;
+    
     std::vector<std::string> _eventNames;
 }
 
