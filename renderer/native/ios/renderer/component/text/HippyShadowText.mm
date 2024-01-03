@@ -24,8 +24,8 @@
 #import "HippyI18nUtils.h"
 #import "HippyUtils.h"
 #import "HippyFont.h"
-#import "NativeRenderObjectText.h"
-#import "NativeRenderText.h"
+#import "HippyShadowText.h"
+#import "HippyText.h"
 #import "NativeRenderTextView.h"
 #import "NativeRenderUtils.h"
 
@@ -33,22 +33,23 @@
 #include "dom/dom_node.h"
 #include "dom/layout_node.h"
 
+
 // Text Attachment use this key to ref shadow view, HippyShadowView value
-NSAttributedStringKey const NativeRenderRenderObjectAttributeName = @"NativeRenderRenderObjectAttributeName";
+NSAttributedStringKey const HippyShadowViewAttributeName = @"HippyShadowViewAttributeName";
 // Highlighted or not
-NSAttributedStringKey const NativeRenderIsHighlightedAttributeName = @"IsHighlightedAttributeName";
+NSAttributedStringKey const HippyIsHighlightedAttributeName = @"IsHighlightedAttributeName";
 // Hippy Tag Key
-NSAttributedStringKey const NativeRenderComponentTagAttributeName = @"NativeRenderTagAttributeName";
+NSAttributedStringKey const HippyTagAttributeName = @"HippyTagAttributeName";
 // VerticalAlign of Text or nested Text, NSNumber value
-NSAttributedStringKey const NativeRenderTextVerticalAlignAttributeName = @"NativeRenderTextVerticalAlignAttributeName";
+NSAttributedStringKey const HippyTextVerticalAlignAttributeName = @"HippyTextVerticalAlignAttributeName";
 // Distance to the bottom of the baseline, for text attachment baseline layout, NSNumber value
-NSAttributedStringKey const NativeRenderVerticalAlignBaselineOffsetAttributeName = @"NativeRenderVerticalAlignBaselineOffsetAttributeName";
+NSAttributedStringKey const HippyVerticalAlignBaselineOffsetAttributeName = @"HippyVerticalAlignBaselineOffsetAttributeName";
 
 
-CGFloat const NativeRenderTextAutoSizeWidthErrorMargin = 0.05f;
-CGFloat const NativeRenderTextAutoSizeHeightErrorMargin = 0.025f;
-CGFloat const NativeRenderTextAutoSizeGranularity = 0.001f;
-static const CGFloat gDefaultFontSize = 14.f;
+CGFloat const HippyTextAutoSizeWidthErrorMargin = 0.05;
+CGFloat const HippyTextAutoSizeHeightErrorMargin = 0.025;
+CGFloat const HippyTextAutoSizeGranularity = 0.001;
+static const CGFloat gDefaultFontSize = 14.0;
 
 static BOOL DirtyTextEqual(BOOL v1, BOOL v2) {
     return v1 == v2;
@@ -74,16 +75,16 @@ static BOOL DirtyTextEqual(NSObject *v1, NSObject *v2) {
     return [v1 isEqual:v2];
 }
 
-#pragma mark - NativeRenderAttributedStringStyleInfo
+#pragma mark - HippyAttributedStringStyleInfo
 
-@implementation NativeRenderAttributedStringStyleInfo
+@implementation HippyAttributedStringStyleInfo
 
 @end
 
 
 #pragma mark - HippyShadowText
 
-@interface NativeRenderObjectText () <NSLayoutManagerDelegate>
+@interface HippyShadowText () <NSLayoutManagerDelegate>
 {
     BOOL _isNestedText; // Indicates whether Text is nested, for speeding up typesetting calculations
     BOOL _needRelayoutText; // special styles require two layouts, eg. verticalAlign etc
@@ -92,13 +93,13 @@ static BOOL DirtyTextEqual(NSObject *v1, NSObject *v2) {
 @end
 
 
-@implementation NativeRenderObjectText
+@implementation HippyShadowText
 
 hippy::LayoutSize textMeasureFunc(
-    NativeRenderObjectText *weakShadowText, float width,hippy::LayoutMeasureMode widthMeasureMode,
+    HippyShadowText *weakShadowText, float width,hippy::LayoutMeasureMode widthMeasureMode,
                                  float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext) {
     hippy::LayoutSize retSize;
-    NativeRenderObjectText *strongShadowText = weakShadowText;
+    HippyShadowText *strongShadowText = weakShadowText;
     if (strongShadowText) {
         NSTextStorage *textStorage = [strongShadowText buildTextStorageForWidth:width widthMode:widthMeasureMode];
         [strongShadowText calculateTextFrame:textStorage];
@@ -189,7 +190,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
 - (NSDictionary<NSString *, id> *)processUpdatedProperties:(NSMutableSet<NativeRenderApplierBlock> *)applierBlocks
                                           parentProperties:(NSDictionary<NSString *, id> *)parentProperties {
-    if ([[self parent] isKindOfClass:[NativeRenderObjectText class]]) {
+    if ([[self parent] isKindOfClass:[HippyShadowText class]]) {
         return parentProperties;
     }
 
@@ -204,8 +205,8 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     CGRect textFrame = [self calculateTextFrame:textStorage];
     UIColor *color = self.color ?: [UIColor blackColor];
     [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry, UIView * _Nullable lazyCreatedView) {
-        NativeRenderText *view = (NativeRenderText *)(lazyCreatedView ?: viewRegistry[self.hippyTag]);
-        if (![view isKindOfClass:NativeRenderText.class]) {
+        HippyText *view = (HippyText *)(lazyCreatedView ?: viewRegistry[self.hippyTag]);
+        if (![view isKindOfClass:HippyText.class]) {
             return;
         }
         view.textFrame = textFrame;
@@ -214,10 +215,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         /**
          * NOTE: this logic is included to support rich text editing inside multiline
          * `<TextInput>` controls. It is required in order to ensure that the
-         * textStorage (aka attributed string) is copied over from the NativeRenderShadowText
-         * to the NativeRenderText view in time to be used to update the editable text content.
+         * textStorage (aka attributed string) is copied over from the HippyShadowText
+         * to the HippyText view in time to be used to update the editable text content.
          * TODO: we should establish a delegate relationship betweeen NativeRenderTextView
-         * and its contaned NativeRenderText element when they get inserted and get rid of this
+         * and its contaned HippyText element when they get inserted and get rid of this
          */
         UIView *parentView = viewRegistry[parentTag];
         if ([parentView respondsToSelector:@selector(performTextUpdate)]) {
@@ -238,7 +239,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         NSTextContainer *textContainer = layoutManager.textContainers.firstObject;
         NSRange glyphRange = [layoutManager glyphRangeForTextContainer:textContainer];
         NSRange characterRange = [layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
-        [textStorage enumerateAttribute:NativeRenderRenderObjectAttributeName inRange:characterRange options:0 usingBlock:^(
+        [textStorage enumerateAttribute:HippyShadowViewAttributeName inRange:characterRange options:0 usingBlock:^(
             HippyShadowView *child, NSRange range, __unused BOOL *_) {
             if (child) {
                 float width = child.width, height = child.height;
@@ -263,26 +264,26 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 CGFloat roundedHeightWithMargin = NativeRenderRoundPixelValue(height + marginV);
                 
                 CGFloat positionY = .0f;
-                NSNumber *verticalAlignType = [textStorage attribute:NativeRenderTextVerticalAlignAttributeName
+                NSNumber *verticalAlignType = [textStorage attribute:HippyTextVerticalAlignAttributeName
                                                              atIndex:range.location effectiveRange:nil];
                 switch (verticalAlignType.integerValue) {
-                    case NativeRenderTextVerticalAlignBottom: {
+                    case HippyTextVerticalAlignBottom: {
                         positionY = CGRectGetMaxY(lineRect) - roundedHeightWithMargin;
                         break;
                     }
-                    case NativeRenderTextVerticalAlignUndefined:
-                    case NativeRenderTextVerticalAlignBaseline: {
-                        // get baseline-bottom distance from NativeRenderVerticalAlignBaselineOffsetAttributeName
-                        NSNumber *baselineToBottom = [textStorage attribute:NativeRenderVerticalAlignBaselineOffsetAttributeName
+                    case HippyTextVerticalAlignUndefined:
+                    case HippyTextVerticalAlignBaseline: {
+                        // get baseline-bottom distance from HippyVerticalAlignBaselineOffsetAttributeName
+                        NSNumber *baselineToBottom = [textStorage attribute:HippyVerticalAlignBaselineOffsetAttributeName
                                                                     atIndex:range.location effectiveRange:nullptr];
                         positionY = CGRectGetMaxY(lineRect) - roundedHeightWithMargin - baselineToBottom.doubleValue;
                         break;
                     }
-                    case NativeRenderTextVerticalAlignTop: {
+                    case HippyTextVerticalAlignTop: {
                         positionY = CGRectGetMinY(lineRect);
                         break;
                     }
-                    case NativeRenderTextVerticalAlignMiddle: {
+                    case HippyTextVerticalAlignMiddle: {
                         positionY = CGRectGetMinY(lineRect) +
                         (CGRectGetHeight(lineRect) - roundedHeightWithMargin) / 2.0f - child.verticalAlignOffset;
                         break;
@@ -306,7 +307,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         if (NativeRenderUpdateLifecycleComputed != _propagationLifecycle) {
             _propagationLifecycle = NativeRenderUpdateLifecycleComputed;
             for (HippyShadowView *shadowView in self.subcomponents) {
-                if (![shadowView isKindOfClass:NativeRenderObjectText.class]) {
+                if (![shadowView isKindOfClass:HippyShadowText.class]) {
                     [shadowView amendLayoutBeforeMount:blocks];
                 }
             }
@@ -431,7 +432,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 #pragma mark - AttributeString
 
 - (NSAttributedString *)attributedString {
-    NativeRenderAttributedStringStyleInfo *info = [NativeRenderAttributedStringStyleInfo new];
+    HippyAttributedStringStyleInfo *info = [HippyAttributedStringStyleInfo new];
     info.foregroundColor = self.color ?: [UIColor blackColor];
     info.backgroundColor = self.backgroundColor;
     info.opacity = self.opacity;
@@ -440,7 +441,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     return [self _attributedStringWithStyleInfo:info];
 }
 
-- (NSAttributedString *)_attributedStringWithStyleInfo:(NativeRenderAttributedStringStyleInfo *)styleInfo {
+- (NSAttributedString *)_attributedStringWithStyleInfo:(HippyAttributedStringStyleInfo *)styleInfo {
     if (!_textAlignSet) {
         if ([self isLayoutSubviewsRTL]) {
             self.textAlign = NSTextAlignmentRight;
@@ -492,9 +493,9 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     CGFloat heightOfTallestSubview = 0.0;
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.text ?: @""];
     for (HippyShadowView *child in [self subcomponents]) {
-        if ([child isKindOfClass:[NativeRenderObjectText class]]) {
-            NativeRenderObjectText *shadowText = (NativeRenderObjectText *)child;
-            NativeRenderAttributedStringStyleInfo *childInfo = [NativeRenderAttributedStringStyleInfo new];
+        if ([child isKindOfClass:[HippyShadowText class]]) {
+            HippyShadowText *shadowText = (HippyShadowText *)child;
+            HippyAttributedStringStyleInfo *childInfo = [HippyAttributedStringStyleInfo new];
             childInfo.fontFamily = styleInfo.fontFamily;
             childInfo.fontSize = styleInfo.fontSize;
             childInfo.fontWeight = styleInfo.fontWeight;
@@ -547,11 +548,11 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             [attachmentString addAttribute:NSFontAttributeName
                                      value:[UIFont systemFontOfSize:0]
                                      range:(NSRange) { 0, attachmentString.length }];
-            [attachmentString addAttribute:NativeRenderRenderObjectAttributeName
+            [attachmentString addAttribute:HippyShadowViewAttributeName
                                      value:child
                                      range:(NSRange) { 0, attachmentString.length }];
-            if (NativeRenderTextVerticalAlignUndefined != child.verticalAlignType) {
-                [attachmentString addAttribute:NativeRenderTextVerticalAlignAttributeName
+            if (HippyTextVerticalAlignUndefined != child.verticalAlignType) {
+                [attachmentString addAttribute:HippyTextVerticalAlignAttributeName
                                          value:@(child.verticalAlignType)
                                          range:(NSRange) { 0, attachmentString.length }];
             }
@@ -559,7 +560,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             if (height > heightOfTallestSubview) {
                 heightOfTallestSubview = height;
             }
-            // Don't call setTextComputed on this child. NativeRenderTextManager takes care of
+            // Don't call setTextComputed on this child. HippyTextManager takes care of
             // processing inline UIViews.
         }
     }
@@ -570,7 +571,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
      toAttributedString:attributedString];
 
     if (_isHighlighted) {
-        [self _addAttribute:NativeRenderIsHighlightedAttributeName withValue:@YES toAttributedString:attributedString];
+        [self _addAttribute:HippyIsHighlightedAttributeName withValue:@YES toAttributedString:attributedString];
     }
     if (styleInfo.useBackgroundColor && styleInfo.backgroundColor) {
         [self _addAttribute:NSBackgroundColorAttributeName
@@ -581,9 +582,9 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     [self _addAttribute:NSFontAttributeName withValue:font toAttributedString:attributedString];
     [self _addAttribute:NSKernAttributeName withValue:styleInfo.letterSpacing toAttributedString:attributedString];
-    [self _addAttribute:NativeRenderComponentTagAttributeName withValue:self.hippyTag toAttributedString:attributedString];
-    if (NativeRenderTextVerticalAlignUndefined != self.verticalAlignType) {
-        [self _addAttribute:NativeRenderTextVerticalAlignAttributeName
+    [self _addAttribute:HippyTagAttributeName withValue:self.hippyTag toAttributedString:attributedString];
+    if (HippyTextVerticalAlignUndefined != self.verticalAlignType) {
+        [self _addAttribute:HippyTextVerticalAlignAttributeName
                   withValue:@(self.verticalAlignType)
          toAttributedString:attributedString];
     }
@@ -698,7 +699,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
          * is in NSLayoutManagerDelegate's imp
          */
         if (!isNestedText && (lineHeight > fontLineHeight)
-            && NativeRenderTextVerticalAlignUndefined == self.verticalAlignType) {
+            && HippyTextVerticalAlignUndefined == self.verticalAlignType) {
             CGFloat baselineOffset = (newLineHeight - maximumFontLineHeight) / 2.0f;
             if (baselineOffset > .0f) {
                 [attributedString addAttribute:NSBaselineOffsetAttributeName
@@ -709,12 +710,12 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     }
     
     // Text decoration
-    if (_textDecorationLine == NativeRenderTextDecorationLineTypeUnderline ||
-        _textDecorationLine == NativeRenderTextDecorationLineTypeUnderlineStrikethrough) {
+    if (_textDecorationLine == HippyTextDecorationLineTypeUnderline ||
+        _textDecorationLine == HippyTextDecorationLineTypeUnderlineStrikethrough) {
         [self _addAttribute:NSUnderlineStyleAttributeName withValue:@(_textDecorationStyle) toAttributedString:attributedString];
     }
-    if (_textDecorationLine == NativeRenderTextDecorationLineTypeStrikethrough ||
-        _textDecorationLine == NativeRenderTextDecorationLineTypeUnderlineStrikethrough) {
+    if (_textDecorationLine == HippyTextDecorationLineTypeStrikethrough ||
+        _textDecorationLine == HippyTextDecorationLineTypeUnderlineStrikethrough) {
         [self _addAttribute:NSStrikethroughStyleAttributeName withValue:@(_textDecorationStyle) toAttributedString:attributedString];
     }
     if (_textDecorationColor) {
@@ -775,24 +776,24 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                               maxScale:(CGFloat)maxScale
                                prevMid:(CGFloat)prevMid {
     CGFloat midScale = (minScale + maxScale) / 2.0f;
-    if (round((prevMid / NativeRenderTextAutoSizeGranularity)) == round((midScale / NativeRenderTextAutoSizeGranularity))) {
+    if (round((prevMid / HippyTextAutoSizeGranularity)) == round((midScale / HippyTextAutoSizeGranularity))) {
         // Bail because we can't meet error margin.
         return [self calculateSize:textStorage];
     } else {
-        NativeRenderSizeComparison comparison = [self attemptScale:midScale inStorage:textStorage forFrame:frame];
-        if (comparison == NativeRenderSizeWithinRange) {
+        HippySizeComparison comparison = [self attemptScale:midScale inStorage:textStorage forFrame:frame];
+        if (comparison == HippySizeWithinRange) {
             return [self calculateSize:textStorage];
-        } else if (comparison == NativeRenderSizeTooLarge) {
-            return [self calculateOptimumScaleInFrame:frame forStorage:textStorage minScale:minScale maxScale:midScale - NativeRenderTextAutoSizeGranularity
+        } else if (comparison == HippySizeTooLarge) {
+            return [self calculateOptimumScaleInFrame:frame forStorage:textStorage minScale:minScale maxScale:midScale - HippyTextAutoSizeGranularity
                                               prevMid:midScale];
         } else {
-            return [self calculateOptimumScaleInFrame:frame forStorage:textStorage minScale:midScale + NativeRenderTextAutoSizeGranularity maxScale:maxScale
+            return [self calculateOptimumScaleInFrame:frame forStorage:textStorage minScale:midScale + HippyTextAutoSizeGranularity maxScale:maxScale
                                               prevMid:midScale];
         }
     }
 }
 
-- (NativeRenderSizeComparison)attemptScale:(CGFloat)scale inStorage:(NSTextStorage *)textStorage forFrame:(CGRect)frame {
+- (HippySizeComparison)attemptScale:(CGFloat)scale inStorage:(NSTextStorage *)textStorage forFrame:(CGRect)frame {
     NSLayoutManager *layoutManager = [textStorage.layoutManagers firstObject];
     NSTextContainer *textContainer = [layoutManager.textContainers firstObject];
 
@@ -817,14 +818,14 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     BOOL fitLines = linesRequired <= textContainer.maximumNumberOfLines || textContainer.maximumNumberOfLines == 0;
 
     if (fitLines && fitSize) {
-        if ((requiredSize.width + (CGRectGetWidth(frame) * NativeRenderTextAutoSizeWidthErrorMargin)) > CGRectGetWidth(frame)
-            && (requiredSize.height + (CGRectGetHeight(frame) * NativeRenderTextAutoSizeHeightErrorMargin)) > CGRectGetHeight(frame)) {
-            return NativeRenderSizeWithinRange;
+        if ((requiredSize.width + (CGRectGetWidth(frame) * HippyTextAutoSizeWidthErrorMargin)) > CGRectGetWidth(frame)
+            && (requiredSize.height + (CGRectGetHeight(frame) * HippyTextAutoSizeHeightErrorMargin)) > CGRectGetHeight(frame)) {
+            return HippySizeWithinRange;
         } else {
-            return NativeRenderSizeTooSmall;
+            return HippySizeTooSmall;
         }
     } else {
-        return NativeRenderSizeTooLarge;
+        return HippySizeTooLarge;
     }
 }
 
@@ -886,7 +887,7 @@ NATIVE_RENDER_TEXT_PROPERTY(LineHeightMultiple, _lineHeightMultiple, CGFloat)
 NATIVE_RENDER_TEXT_PROPERTY(NumberOfLines, _numberOfLines, NSUInteger)
 NATIVE_RENDER_TEXT_PROPERTY(EllipsizeMode, _ellipsizeMode, NSLineBreakMode)
 NATIVE_RENDER_TEXT_PROPERTY(TextDecorationColor, _textDecorationColor, UIColor *);
-NATIVE_RENDER_TEXT_PROPERTY(TextDecorationLine, _textDecorationLine, NativeRenderTextDecorationLineType);
+NATIVE_RENDER_TEXT_PROPERTY(TextDecorationLine, _textDecorationLine, HippyTextDecorationLineType);
 NATIVE_RENDER_TEXT_PROPERTY(TextDecorationStyle, _textDecorationStyle, NSUnderlineStyle);
 NATIVE_RENDER_TEXT_PROPERTY(Opacity, _opacity, CGFloat)
 NATIVE_RENDER_TEXT_PROPERTY(TextShadowOffset, _textShadowOffset, CGSize);
@@ -912,7 +913,7 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
         int32_t componentTag = [self.hippyTag intValue];
         auto node = shared_domNode->GetNode(self.rootNode, componentTag);
         if (node) {
-            __weak NativeRenderObjectText *weakSelf = self;
+            __weak HippyShadowText *weakSelf = self;
             hippy::MeasureFunction measureFunc =
                 [weakSelf](float width, hippy::LayoutMeasureMode widthMeasureMode,
                                      float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext){
@@ -962,8 +963,8 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     }
     _allowFontScaling = allowFontScaling;
     for (HippyShadowView *child in [self subcomponents]) {
-        if ([child isKindOfClass:[NativeRenderObjectText class]]) {
-            ((NativeRenderObjectText *)child).allowFontScaling = allowFontScaling;
+        if ([child isKindOfClass:[HippyShadowText class]]) {
+            ((HippyShadowText *)child).allowFontScaling = allowFontScaling;
         }
     }
     _needDirtyText = YES;
@@ -979,8 +980,8 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
         _fontSizeMultiplier = 1.0;
     }
     for (HippyShadowView *child in [self subcomponents]) {
-        if ([child isKindOfClass:[NativeRenderObjectText class]]) {
-            ((NativeRenderObjectText *)child).fontSizeMultiplier = fontSizeMultiplier;
+        if ([child isKindOfClass:[HippyShadowText class]]) {
+            ((HippyShadowText *)child).fontSizeMultiplier = fontSizeMultiplier;
         }
     }
     [self dirtyText:NO];
@@ -1015,7 +1016,7 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
  lineFragmentUsedRect:(inout CGRect *)lineFragmentUsedRect baselineOffset:(inout CGFloat *)baselineOffset
       inTextContainer:(NSTextContainer *)textContainer forGlyphRange:(NSRange)glyphRange {
     NSTextStorage *textStorage = layoutManager.textStorage;
-    if (_isNestedText || NativeRenderTextVerticalAlignUndefined != self.verticalAlignType) {
+    if (_isNestedText || HippyTextVerticalAlignUndefined != self.verticalAlignType) {
         __block CGFloat maxAttachmentHeight = .0f;
         __block BOOL hasAttachment = NO;
         NSRange storageRange = [layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:nil];
@@ -1032,11 +1033,11 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
         }];
         
         __block BOOL hasBaselineAlign = NO;
-        [textStorage enumerateAttribute:NativeRenderTextVerticalAlignAttributeName
+        [textStorage enumerateAttribute:HippyTextVerticalAlignAttributeName
                                 inRange:storageRange options:0
                              usingBlock:^(NSNumber *type, NSRange range, BOOL * _Nonnull stop) {
-            if (NativeRenderTextVerticalAlignBaseline == type.integerValue ||
-                NativeRenderTextVerticalAlignUndefined == type.integerValue) {
+            if (HippyTextVerticalAlignBaseline == type.integerValue ||
+                HippyTextVerticalAlignUndefined == type.integerValue) {
                 hasBaselineAlign = YES;
                 *stop = YES;
             }
@@ -1061,7 +1062,7 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
             CGFloat maxTotalHeight = MAX((maxAttachmentHeight + textBaselineToBottom), maxFont.lineHeight);
             realBaselineOffset = (CGRectGetHeight(*lineFragmentUsedRect) - maxTotalHeight) / 2.f;
             if (hasAttachment) {
-                [textStorage addAttribute:NativeRenderVerticalAlignBaselineOffsetAttributeName
+                [textStorage addAttribute:HippyVerticalAlignBaselineOffsetAttributeName
                                     value:@(realBaselineOffset + textBaselineToBottom)
                                     range:storageRange];
             }
@@ -1071,7 +1072,7 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
                                         options:kNilOptions
                                      usingBlock:^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs,
                                                   NSRange range, BOOL * _Nonnull stop) {
-            NSNumber *verticalAlignValue = attrs[NativeRenderTextVerticalAlignAttributeName];
+            NSNumber *verticalAlignValue = attrs[HippyTextVerticalAlignAttributeName];
             // Calculate position of text
             id offsetValue = [textStorage attribute:NSBaselineOffsetAttributeName
                                             atIndex:range.location effectiveRange:nil];
@@ -1080,23 +1081,23 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
                 CGFloat lineHeight = CGRectGetHeight(*lineFragmentUsedRect);
                 CGFloat baselineToBottom = lineHeight - *baselineOffset;
                 switch (verticalAlignValue.integerValue) {
-                    case NativeRenderTextVerticalAlignTop: {
+                    case HippyTextVerticalAlignTop: {
                         UIFont *font = attrs[NSFontAttributeName];
                         offset = lineHeight - font.ascender - baselineToBottom;
                         break;
                     }
-                    case NativeRenderTextVerticalAlignMiddle: {
+                    case HippyTextVerticalAlignMiddle: {
                         UIFont *font = attrs[NSFontAttributeName];
                         offset = (lineHeight - font.lineHeight) / 2.f - baselineToBottom
                         + abs(font.descender) + abs(font.leading) + self.verticalAlignOffset;
                         break;
                     }
-                    case NativeRenderTextVerticalAlignUndefined:
-                    case NativeRenderTextVerticalAlignBaseline: {
+                    case HippyTextVerticalAlignUndefined:
+                    case HippyTextVerticalAlignBaseline: {
                         offset = realBaselineOffset;
                         break;
                     }
-                    case NativeRenderTextVerticalAlignBottom: {
+                    case HippyTextVerticalAlignBottom: {
                         UIFont *font = attrs[NSFontAttributeName];
                         offset = abs(font.descender) + abs(font.leading) - baselineToBottom;
                         break;
@@ -1104,7 +1105,7 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
                     default:
                         break;
                 }
-                if (abs(offset) > .0f && !attrs[NativeRenderRenderObjectAttributeName]) {
+                if (abs(offset) > .0f && !attrs[HippyShadowViewAttributeName]) {
                     // only set for Text
                     [textStorage addAttribute:NSBaselineOffsetAttributeName value:@(offset) range:range];
                     _needRelayoutText = YES;

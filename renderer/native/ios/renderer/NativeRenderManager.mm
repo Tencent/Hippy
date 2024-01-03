@@ -23,7 +23,7 @@
 #import "HippyUIManager.h"
 #import "HippyUIManager+Private.h"
 #import "NativeRenderManager.h"
-#import "NativeRenderObjectText.h"
+#import "HippyShadowText.h"
 #import "RenderVsyncManager.h"
 #import "HippyAssert.h"
 

@@ -536,11 +536,11 @@ HIPPY_CUSTOM_SHADOW_PROPERTY(direction, id, HippyShadowView) {
     view.layoutDirection = ConvertDirection(json);
 }
 
-HIPPY_CUSTOM_SHADOW_PROPERTY(verticalAlign, NativeRenderTextVerticalAlignType, HippyShadowView) {
+HIPPY_CUSTOM_SHADOW_PROPERTY(verticalAlign, HippyTextVerticalAlignType, HippyShadowView) {
     if (json && [json isKindOfClass:NSString.class]) {
-        view.verticalAlignType = [HippyConvert NativeRenderTextVerticalAlignType:json];
+        view.verticalAlignType = [HippyConvert HippyTextVerticalAlignType:json];
     } else if ([json isKindOfClass:NSNumber.class]) {
-        view.verticalAlignType = NativeRenderTextVerticalAlignMiddle;
+        view.verticalAlignType = HippyTextVerticalAlignMiddle;
         view.verticalAlignOffset = [HippyConvert CGFloat:json];
     } else {
         HippyLogError(@"Unsupported value for verticalAlign of Text: %@, type: %@", json, [json classForCoder]);

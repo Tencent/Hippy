@@ -23,8 +23,8 @@
 #import "NativeRenderTextView.h"
 
 #import "HippyConvert.h"
-#import "NativeRenderObjectText.h"
-#import "NativeRenderText.h"
+#import "HippyShadowText.h"
+#import "HippyText.h"
 #import "HippyUtils.h"
 #import "NativeRenderTextSelection.h"
 #import "UIView+Hippy.h"
@@ -78,7 +78,7 @@
 @implementation NativeRenderTextView {
     NSString *_placeholder;
     UITextView *_placeholderView;
-    NativeRenderText *_richTextView;
+    HippyText *_richTextView;
     NSAttributedString *_pendingAttributedText;
     UIScrollView *_scrollView;
 
@@ -143,11 +143,11 @@
 
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)index {
     [super insertHippySubview:subview atIndex:index];
-    if ([subview isKindOfClass:[NativeRenderText class]]) {
+    if ([subview isKindOfClass:[HippyText class]]) {
         if (_richTextView) {
             HippyLogError(@"Tried to insert a second <Text> into <TextInput> - there can only be one.");
         }
-        _richTextView = (NativeRenderText *)subview;
+        _richTextView = (HippyText *)subview;
 
         if (subview.backgroundColor) {
             NSMutableDictionary<NSString *, id> *attrs = [_textView.typingAttributes mutableCopy];
@@ -196,7 +196,7 @@ static NSAttributedString *removeComponentTagFromString(NSAttributedString *stri
         return string;
     } else {
         NSMutableAttributedString *mutableString = [[NSMutableAttributedString alloc] initWithAttributedString:string];
-        [mutableString removeAttribute:NativeRenderComponentTagAttributeName range:NSMakeRange(0, mutableString.length)];
+        [mutableString removeAttribute:HippyTagAttributeName range:NSMakeRange(0, mutableString.length)];
         return mutableString;
     }
 }
