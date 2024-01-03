@@ -510,7 +510,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     return view;
 }
 
-- (UIView *)createViewForShadowListItem:(HippyShadowView *)renderObject {
+- (UIView *)createViewForShadowListItem:(HippyShadowView *)shadowView {
     AssertMainQueue();
     std::lock_guard<std::mutex> lock([self renderQueueLock]);
     // There was a timing problem here:
@@ -519,13 +519,32 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     // until the next `cellForItemAtIndexPath` call.
     // we currently resolve this issue by setting the CreationType synchronously.
     // TODO: CreationType's further optimization is needed in the future
-    [renderObject synchronousRecusivelySetCreationTypeToInstant];
-    return [self createViewRecursiveFromRenderObjectWithNOLock:renderObject];
+    [shadowView synchronousRecusivelySetCreationTypeToInstant];
+    UIView *listItemView = [self createViewRecursiveFromRenderObjectWithNOLock:shadowView];
+    
+    [self.viewRegistry generateTempCacheBeforeAcquireAllStoredWeakComponents];
+    NSMutableSet<NativeRenderApplierBlock> *applierBlocks = [NSMutableSet set];
+    [shadowView amendLayoutBeforeMount:applierBlocks];
+    if (applierBlocks.count) {
+        for (NativeRenderApplierBlock block in applierBlocks) {
+            // Note: viewRegistry may be modified in the block, and it may be stored internally as NSMapTable
+            // so to ensure that it is up-to-date, it can only be retrieved each time.
+            NSDictionary<NSNumber *, UIView *> *viewRegistry = [self.viewRegistry componentsForRootTag:shadowView.rootTag];
+            block(viewRegistry, nil);
+        }
+    }
+    [self.viewRegistry clearTempCacheAfterAcquireAllStoredWeakComponents];
+    
+    return listItemView;
 }
 
 - (UIView *)createViewRecursiveFromRenderObjectWithNOLock:(HippyShadowView *)shadowView {
     UIView *view = [self createViewFromShadowView:shadowView];
     if (view) {
+        // First of all, mark shadowView as dirty recursively,
+        // so that we can collect ui blocks to amend correctly.
+        [shadowView dirtyPropagation:NativeRenderUpdateLifecycleAllDirtied];
+        
         // Special handling of lazy list, which is a cellView
         // because lazy loading list needs to be re-layout
         if ([shadowView isKindOfClass:HippyShadowListView.class]) {
@@ -571,19 +590,6 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         
         [view clearSortedSubviews];
         [view didUpdateHippySubviews];
-        
-        NSMutableSet<NativeRenderApplierBlock> *applierBlocks = [NSMutableSet set];
-        [shadowView amendLayoutBeforeMount:applierBlocks];
-        if (applierBlocks.count) {
-            [self.viewRegistry generateTempCacheBeforeAcquireAllStoredWeakComponents];
-            for (NativeRenderApplierBlock block in applierBlocks) {
-                // Note: viewRegistry may be modified in the block, and it may be stored internally as NSMapTable
-                // so to ensure that it is up-to-date, it can only be retrieved each time.
-                NSDictionary<NSNumber *, UIView *> *viewRegistry = [self.viewRegistry componentsForRootTag:shadowView.rootTag];
-                block(viewRegistry, view);
-            }
-            [self.viewRegistry clearTempCacheAfterAcquireAllStoredWeakComponents];
-        }
     }
     return view;
 }
