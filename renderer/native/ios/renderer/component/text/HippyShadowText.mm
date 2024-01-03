@@ -206,7 +206,11 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     UIColor *color = self.color ?: [UIColor blackColor];
     [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry, UIView * _Nullable lazyCreatedView) {
         HippyText *view = (HippyText *)(lazyCreatedView ?: viewRegistry[self.hippyTag]);
+        if (!view) { return; }
         if (![view isKindOfClass:HippyText.class]) {
+            // Going here indicates that there is a repeated refresh,
+            // Check the refresh logic to eliminate duplicates.
+            HippyLogError(@"Invalid View Type, Please Check!");
             return;
         }
         view.textFrame = textFrame;
