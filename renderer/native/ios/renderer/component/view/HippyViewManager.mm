@@ -28,6 +28,7 @@
 #import "NativeRenderGradientObject.h"
 #import "HippyUIManager.h"
 #import "HippyShadowView.h"
+#import "HippyShadowView+Internal.h"
 #import "HippyViewManager.h"
 #import "HippyView.h"
 #import "UIView+DirectionalLayout.h"

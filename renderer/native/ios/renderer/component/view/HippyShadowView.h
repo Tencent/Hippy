@@ -24,20 +24,7 @@
 #import "HippyComponent.h"
 #import "HippyConvert+NativeRender.h"
 
-#ifdef __cplusplus
-
-#include <memory>
-
-namespace hippy {
-inline namespace dom {
-class DomManager;
-class DomNode;
-class RootNode;
-struct LayoutResult;
-enum class Direction;
-}
-}
-#endif /* __cplusplus */
+NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSUInteger, NativeRenderUpdateLifecycle) {
     NativeRenderUpdateLifecycleUninitialized = 0,
@@ -57,8 +44,8 @@ typedef NS_ENUM(NSUInteger, NativeRenderCreationType) {
 
 typedef void (^NativeRenderApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegistry, UIView * _Nullable lazyCreatedView);
 
-typedef UIView *(^NativeRenderViewCreationBlock)(HippyShadowView *renderObject);
-typedef void (^NativeRenderViewInsertionBlock)(UIView *container, NSArray<UIView *> *children);
+typedef UIView *_Nullable(^HippyViewCreationBlock)(HippyShadowView *renderObject);
+typedef void (^HippyViewInsertionBlock)(UIView *container, NSArray<UIView *> *children);
 
 //TODO remove unused string
 extern NSString *const NativeRenderShadowViewDiffInsertion;
@@ -148,22 +135,13 @@ extern NSString *const NativeRenderShadowViewDiffTag;
  */
 @property (nonatomic, assign) NativeRenderCreationType creationType;
 
-#ifdef __cplusplus
-@property (nonatomic, assign) std::weak_ptr<hippy::DomManager> domManager;
-
-@property (nonatomic, assign) std::weak_ptr<hippy::DomNode> domNode;
-
-@property (nonatomic, assign) std::weak_ptr<hippy::RootNode> rootNode;
-
-#endif
-
 /**
  * set create type of itself and its all descendants to NativeRenderCreationTypeInstantly
  */
 - (void)synchronousRecusivelySetCreationTypeToInstant;
 
 
-- (UIView *)createView:(NativeRenderViewCreationBlock)creationBlock insertChildren:(NativeRenderViewInsertionBlock)insertionBlock;
+- (UIView *)createView:(HippyViewCreationBlock)creationBlock insertChildren:(HippyViewInsertionBlock)insertionBlock;
 
 /**
  * reset layout frame to mark dirty and re-layout
@@ -184,7 +162,7 @@ extern NSString *const NativeRenderShadowViewDiffTag;
  * that add additional propagating properties should override this method.
  */
 - (NSDictionary<NSString *, id> *)processUpdatedProperties:(NSMutableSet<NativeRenderApplierBlock> *)applierBlocks
-                                          parentProperties:(NSDictionary<NSString *, id> *)parentProperties;
+                                          parentProperties:(nullable NSDictionary<NSString *, id> *)parentProperties;
 
 - (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks;
 
@@ -210,35 +188,6 @@ extern NSString *const NativeRenderShadowViewDiffTag;
 
 - (NSDictionary *)mergeProps:(NSDictionary *)props;
 
-#ifdef __cplusplus
-/**
- * Add event to NativeRenderObject
- * @param name event name
- * @discussion In general, events are mounted directly on UIViews.
- * But for the lazy loading UIViews, UIViews may not be created when events requires to mount on UIViews.
- * So we have to mount on RenderObject temparily, and mount on UIViews when UIViews are created by NativeRenderObject
- */
-- (void)addEventName:(const std::string &)name;
-
-/**
- * Get all events name
- * @return all events name
- */
-- (const std::vector<std::string> &)allEventNames;
-
-/**
- * clear all event names
- */
-- (void)clearEventNames;
-
-
-@property(nonatomic, assign) hippy::LayoutResult nodeLayoutResult;
-
-@property(nonatomic, assign) hippy::Direction layoutDirection;
-@property(nonatomic, assign) hippy::Direction confirmedLayoutDirection;
-- (void)applyConfirmedLayoutDirectionToSubviews:(hippy::Direction)confirmedLayoutDirection;
-- (BOOL)isLayoutSubviewsRTL;
-
-#endif
-
 @end
+
+NS_ASSUME_NONNULL_END

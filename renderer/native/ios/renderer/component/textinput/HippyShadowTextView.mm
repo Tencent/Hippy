@@ -22,6 +22,7 @@
 
 #import "HippyUtils.h"
 #import "HippyShadowTextView.h"
+#import "HippyShadowView+Internal.h"
 
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
