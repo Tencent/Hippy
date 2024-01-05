@@ -31,8 +31,8 @@ using RootNode = hippy::RootNode;
     NSMutableDictionary<NSNumber *, id> *_componentsMap;
     std::unordered_map<int32_t, std::weak_ptr<RootNode>> _rootNodesMap;
     
-    BOOL _enableWeakComponentsTempCache;
-    NSDictionary *_cacheDictionaryForWeakComponents;
+    NSMutableDictionary<NSNumber *, NSNumber *> *_enableWeakComponentsTempCache;
+    NSMutableDictionary<NSNumber *, NSMutableDictionary *> *_cacheDictionaryForWeakComponentsMap;
 }
 
 @end
@@ -46,6 +46,8 @@ using RootNode = hippy::RootNode;
         _rootComponentsMap = [NSMapTable strongToWeakObjectsMapTable];
         _componentsMap = [NSMutableDictionary dictionary];
         _rootNodesMap.reserve(8);
+        _enableWeakComponentsTempCache = [NSMutableDictionary dictionary];
+        _cacheDictionaryForWeakComponentsMap = [NSMutableDictionary dictionary];
     }
     return self;
 }
@@ -108,9 +110,9 @@ using RootNode = hippy::RootNode;
     if (component && tag) {
         id map = [_componentsMap objectForKey:tag];
         [map setObject:component forKey:[component hippyTag]];
-        if (!_isStrongHoldAllComponents && _enableWeakComponentsTempCache && _cacheDictionaryForWeakComponents) {
+        if (!_isStrongHoldAllComponents && _cacheDictionaryForWeakComponentsMap[tag]) {
             // see `generateTempCacheBeforeAcquireAllStoredWeakComponents`
-            _cacheDictionaryForWeakComponents = nil;
+            [_cacheDictionaryForWeakComponentsMap[tag] setObject:component forKey:[component hippyTag]];
         }
     }
 }
@@ -122,9 +124,9 @@ using RootNode = hippy::RootNode;
     if (component && tag) {
         id map = [_componentsMap objectForKey:tag];
         [map removeObjectForKey:[component hippyTag]];
-        if (!_isStrongHoldAllComponents && _enableWeakComponentsTempCache && _cacheDictionaryForWeakComponents) {
+        if (!_isStrongHoldAllComponents && _cacheDictionaryForWeakComponentsMap[tag]) {
             // see `generateTempCacheBeforeAcquireAllStoredWeakComponents`
-            _cacheDictionaryForWeakComponents = nil;
+            [_cacheDictionaryForWeakComponentsMap[tag] removeObjectForKey:[component hippyTag]];
         }
     }
 }
@@ -144,11 +146,11 @@ using RootNode = hippy::RootNode;
             // Remember:
             // 1. The cache is automatically removed when a new component is inserted.
             // 2. The cache must exist only temporarily, otherwise it will affect the lifecycle of the component.
-            if (_enableWeakComponentsTempCache) {
-                if (!_cacheDictionaryForWeakComponents) {
-                    _cacheDictionaryForWeakComponents = ((NSMapTable *)map).dictionaryRepresentation;
+            if (_enableWeakComponentsTempCache[tag]) {
+                if (!_cacheDictionaryForWeakComponentsMap[tag]) {
+                    _cacheDictionaryForWeakComponentsMap[tag] = ((NSMapTable *)map).dictionaryRepresentation.mutableCopy;
                 }
-                return _cacheDictionaryForWeakComponents;
+                return _cacheDictionaryForWeakComponentsMap[tag];
             } else {
                 return ((NSMapTable *)map).dictionaryRepresentation;
             }
@@ -189,13 +191,23 @@ using RootNode = hippy::RootNode;
 
 #pragma mark -
 
-- (void)generateTempCacheBeforeAcquireAllStoredWeakComponents {
-    _enableWeakComponentsTempCache = YES;
+- (void)generateTempCacheBeforeAcquireAllStoredWeakComponentsForRootTag:(NSNumber *)rootTag {
+    NSAssert([self threadCheck], @"%@ method needs run in main thread", NSStringFromSelector(_cmd));
+    _enableWeakComponentsTempCache[rootTag] = @YES;
 }
 
-- (void)clearTempCacheAfterAcquireAllStoredWeakComponents {
-    _enableWeakComponentsTempCache = NO;
-    _cacheDictionaryForWeakComponents = nil;
+- (void)clearTempCacheAfterAcquireAllStoredWeakComponentsForRootTag:(NSNumber *)rootTag {
+    NSAssert([self threadCheck], @"%@ method needs run in main thread", NSStringFromSelector(_cmd));
+    [_enableWeakComponentsTempCache removeObjectForKey:rootTag];
+    static BOOL pendingClear = NO;
+    if (pendingClear) {
+        return;
+    }
+    pendingClear = YES;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self->_cacheDictionaryForWeakComponentsMap removeObjectForKey:rootTag];
+        pendingClear = NO;
+    });
 }
 
 @end
