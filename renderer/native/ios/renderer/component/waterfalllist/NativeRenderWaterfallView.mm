@@ -21,8 +21,8 @@
  */
 
 #import "NativeRenderWaterfallView.h"
-#import "NativeRenderHeaderRefresh.h"
-#import "NativeRenderFooterRefresh.h"
+#import "HippyHeaderRefresh.h"
+#import "HippyFooterRefresh.h"
 #import "NativeRenderWaterfallItemView.h"
 #import "UIView+Hippy.h"
 #import "HippyRefresh.h"
@@ -224,19 +224,19 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 }
 
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
-    if ([subview isKindOfClass:[NativeRenderHeaderRefresh class]]) {
+    if ([subview isKindOfClass:[HippyHeaderRefresh class]]) {
         if (_headerRefreshView) {
             [_headerRefreshView removeFromSuperview];
         }
-        _headerRefreshView = (NativeRenderHeaderRefresh *)subview;
+        _headerRefreshView = (HippyHeaderRefresh *)subview;
         [_headerRefreshView setScrollView:self.collectionView];
         _headerRefreshView.delegate = self;
         _headerRefreshView.frame = subview.hippyShadowView.frame;
-    } else if ([subview isKindOfClass:[NativeRenderFooterRefresh class]]) {
+    } else if ([subview isKindOfClass:[HippyFooterRefresh class]]) {
         if (_footerRefreshView) {
             [_footerRefreshView removeFromSuperview];
         }
-        _footerRefreshView = (NativeRenderFooterRefresh *)subview;
+        _footerRefreshView = (HippyFooterRefresh *)subview;
         [_footerRefreshView setScrollView:self.collectionView];
         _footerRefreshView.delegate = self;
         _footerRefreshView.frame = subview.hippyShadowView.frame;
