@@ -31,7 +31,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class NativeRenderWaterfallViewDataSource, NativeRenderHeaderRefresh, NativeRenderFooterRefresh, WaterfallItemChangeContext, HippyShadowView;
+@class NativeRenderWaterfallViewDataSource, HippyHeaderRefresh, HippyFooterRefresh, WaterfallItemChangeContext, HippyShadowView;
 
 typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
     ScrollStateStop,
@@ -50,8 +50,8 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
     
     NSMapTable<NSNumber *, UIView *> *_cachedWeakCellViews;
 
-    NativeRenderHeaderRefresh *_headerRefreshView;
-    NativeRenderFooterRefresh *_footerRefreshView;
+    HippyHeaderRefresh *_headerRefreshView;
+    HippyFooterRefresh *_footerRefreshView;
     
     BOOL _allowNextScrollNoMatterWhat;
 }
