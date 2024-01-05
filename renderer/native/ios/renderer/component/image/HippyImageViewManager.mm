@@ -70,7 +70,6 @@ HIPPY_CUSTOM_VIEW_PROPERTY(source, NSArray, HippyImageView) {
     }
     __weak __typeof(self)weakSelf = self;
     static NSOperationQueue *opQueue = [[NSOperationQueue alloc] init];
-    opQueue.maxConcurrentOperationCount = NSIntegerMax;
     loader->RequestUntrustedContent(path, opQueue, nil, ^(NSData *data, NSURLResponse *response, NSError *error) {
         __strong __typeof(weakSelf)strongSelf = weakSelf;
         HippyUIManager *renderImpl = strongSelf.bridge.uiManager;
