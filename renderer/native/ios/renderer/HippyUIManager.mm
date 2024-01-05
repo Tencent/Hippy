@@ -522,7 +522,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     [shadowView synchronousRecusivelySetCreationTypeToInstant];
     UIView *listItemView = [self createViewRecursiveFromRenderObjectWithNOLock:shadowView];
     
-    [self.viewRegistry generateTempCacheBeforeAcquireAllStoredWeakComponents];
+    [self.viewRegistry generateTempCacheBeforeAcquireAllStoredWeakComponentsForRootTag:shadowView.rootTag];
     NSMutableSet<NativeRenderApplierBlock> *applierBlocks = [NSMutableSet set];
     [shadowView amendLayoutBeforeMount:applierBlocks];
     if (applierBlocks.count) {
@@ -533,7 +533,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
             block(viewRegistry, nil);
         }
     }
-    [self.viewRegistry clearTempCacheAfterAcquireAllStoredWeakComponents];
+    [self.viewRegistry clearTempCacheAfterAcquireAllStoredWeakComponentsForRootTag:shadowView.rootTag];
     
     return listItemView;
 }
@@ -736,7 +736,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
             __strong __typeof(weakSelf)strongSelf = weakSelf;
             if (strongSelf) {
                 TDF_PERF_LOG("flushUIBlocksOnRootNode on main thread(random id:%u)",rand);
-                [strongSelf.viewRegistry generateTempCacheBeforeAcquireAllStoredWeakComponents];
+                [strongSelf.viewRegistry generateTempCacheBeforeAcquireAllStoredWeakComponentsForRootTag:@(rootTag)];
                 for (HippyViewManagerUIBlock block in previousPendingUIBlocks) {
                     @try {
                         // Note: viewRegistry may be modified in the block, and it may be stored internally as NSMapTable
@@ -747,7 +747,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
                         HippyLogError(@"Exception thrown while executing UI block: %@", exception);
                     }
                 }
-                [strongSelf.viewRegistry clearTempCacheAfterAcquireAllStoredWeakComponents];
+                [strongSelf.viewRegistry clearTempCacheAfterAcquireAllStoredWeakComponentsForRootTag:@(rootTag)];
                 TDF_PERF_LOG("flushUIBlocksOnRootNode done, block count:%d(random id:%u)", previousPendingUIBlocks.count, rand);
             }
         });
