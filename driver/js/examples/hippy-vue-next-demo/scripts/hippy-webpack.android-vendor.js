@@ -23,6 +23,7 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('production'),
       __PLATFORM__: JSON.stringify(platform),
+      __VUE_PROD_DEVTOOLS__: false,
     }),
     new CaseSensitivePathsPlugin(),
     new VueLoaderPlugin(),
