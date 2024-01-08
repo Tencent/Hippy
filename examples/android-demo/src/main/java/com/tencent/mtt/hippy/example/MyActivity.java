@@ -171,7 +171,7 @@ public class MyActivity extends Activity
 
                     }
                     list[1] = sb.toString();
-                    LibraryLoader.loadLibraryIfNeed(initParams.soLoader);
+                    LibraryLoader.loadLibraryIfNeeded(initParams.soLoader);
                     HippyBridgeImpl.createSnapshotFromScript(list,
                         basePath,
                         snapshotPath,
