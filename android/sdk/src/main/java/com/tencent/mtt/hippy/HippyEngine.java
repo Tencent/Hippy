@@ -43,6 +43,7 @@ import com.tencent.mtt.hippy.adapter.storage.HippyStorageAdapter;
 import com.tencent.mtt.hippy.bridge.HippyCoreAPI;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.bridge.libraryloader.LibraryLoader;
+import com.tencent.mtt.hippy.utils.BuglyUtils;
 import com.tencent.mtt.hippy.v8.V8;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -84,11 +85,12 @@ public abstract class HippyEngine {
     if (params == null) {
       throw new RuntimeException("Hippy: initParams must no be null");
     }
-    LibraryLoader.loadLibraryIfNeed(params.soLoader);
+    LibraryLoader.loadLibraryIfNeeded(params.soLoader);
     if (sLogAdapter == null && params.logAdapter != null) {
       setNativeLogHandler(params.logAdapter);
     }
     ContextHolder.initAppContext(params.context);
+    BuglyUtils.registerSdkAppIdIfNeeded(params.context);
     params.check();
     LogUtils.enableDebugLog(params.enableLog);
     HippyEngine hippyEngine;

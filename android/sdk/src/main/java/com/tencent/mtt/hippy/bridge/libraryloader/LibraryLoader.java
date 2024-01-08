@@ -27,7 +27,7 @@ public class LibraryLoader {
       "hippy", "flexbox"
   };
 
-  public static void loadLibraryIfNeed(HippySoLoaderAdapter soLoaderAdapter) {
+  public static void loadLibraryIfNeeded(HippySoLoaderAdapter soLoaderAdapter) {
     if (hasLoaded || BuildConfig.ENABLE_SO_DOWNLOAD) {
       return;
     }
