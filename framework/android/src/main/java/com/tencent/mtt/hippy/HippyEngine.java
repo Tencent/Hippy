@@ -52,6 +52,7 @@ import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.HippyModulePromise.BridgeTransferType;
+import com.tencent.mtt.hippy.utils.BuglyUtils;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
@@ -89,11 +90,12 @@ public abstract class HippyEngine {
       throw new RuntimeException("Hippy: initParams must no be null");
     }
     LogUtils.enableDebugLog(BuildConfig.DEBUG);
-    LibraryLoader.loadLibraryIfNeed(params.soLoader);
+    LibraryLoader.loadLibraryIfNeeded(params.soLoader);
     if (sLogAdapter == null && params.logAdapter != null) {
       setNativeLogHandler(params.logAdapter);
     }
     ContextHolder.initAppContext(params.context);
+    BuglyUtils.registerSdkAppIdIfNeeded(params.context);
     params.check();
     HippyEngine hippyEngine;
     if (params.groupId == -1) {
