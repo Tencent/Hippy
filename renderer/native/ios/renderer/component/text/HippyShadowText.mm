@@ -26,7 +26,7 @@
 #import "HippyFont.h"
 #import "HippyShadowText.h"
 #import "HippyText.h"
-#import "NativeRenderTextView.h"
+#import "HippyTextView.h"
 #import "NativeRenderUtils.h"
 
 #include "dom/dom_manager.h"
@@ -206,7 +206,11 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     UIColor *color = self.color ?: [UIColor blackColor];
     [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry, UIView * _Nullable lazyCreatedView) {
         HippyText *view = (HippyText *)(lazyCreatedView ?: viewRegistry[self.hippyTag]);
+        if (!view) { return; }
         if (![view isKindOfClass:HippyText.class]) {
+            // Going here indicates that there is a repeated refresh,
+            // Check the refresh logic to eliminate duplicates.
+            HippyLogError(@"Invalid View Type, Please Check!");
             return;
         }
         view.textFrame = textFrame;
@@ -222,7 +226,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
          */
         UIView *parentView = viewRegistry[parentTag];
         if ([parentView respondsToSelector:@selector(performTextUpdate)]) {
-            [(NativeRenderTextView *)parentView performTextUpdate];
+            [(HippyTextView *)parentView performTextUpdate];
         }
     }];
     return parentProperties;
