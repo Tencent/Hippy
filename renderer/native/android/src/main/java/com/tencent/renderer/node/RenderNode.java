@@ -501,6 +501,11 @@ public class RenderNode {
         for (RenderNode renderNode : mChildren) {
             renderNode.mountHostViewRecursive();
         }
+        // Due to the delayed loading of list view items and their child elements, non first screen elements
+        // may need to manually call batch complete when created, such as nested view pagers within list view items
+        if (shouldNotifyNonBatchingChange()) {
+            batchComplete();
+        }
     }
 
     public boolean shouldSticky() {
@@ -737,10 +742,19 @@ public class RenderNode {
         }
     }
 
+    public boolean isBatching() {
+        RenderManager renderManager = mControllerManager.getRenderManager();
+        return renderManager != null && renderManager.isBatching();
+    }
+
     public void batchStart() {
         if (!isDeleted() && !isLazyLoad()) {
             mControllerManager.onBatchStart(mRootId, mId, mClassName);
         }
+    }
+
+    protected boolean shouldNotifyNonBatchingChange() {
+        return false;
     }
 
     public void batchComplete() {
