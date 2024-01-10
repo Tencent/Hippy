@@ -83,13 +83,24 @@ HIPPY_CUSTOM_VIEW_PROPERTY(source, NSArray, HippyImageView) {
             HippyAssert(imageProvider, @"Image Provider is required");
             imageProvider.imageDataPath = standardizeAssetUrlString;
             [imageProvider setImageData:data];
-            dispatch_async(dispatch_get_main_queue(), ^{
+            
+            void (^reloadImageInMain)(void) = ^{
                 HippyImageView *strongView = weakView;
                 if (strongView) {
                     [strongView setImageProvider:imageProvider];
                     [strongView reloadImage];
                 }
-            });
+            };
+            
+            if([imageProvider imageCount] <= 1){
+                // prepare the still image for display before setting it to the imageview
+                [imageProvider prepareForDisplay:^(UIImage * _Nullable _) {
+                    // subsequent call to the image provider will return the prepared image
+                    dispatch_async(dispatch_get_main_queue(), reloadImageInMain);
+                }];
+            }else{
+                dispatch_async(dispatch_get_main_queue(), reloadImageInMain);
+            }
         }
     });
 }
