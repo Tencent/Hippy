@@ -21,6 +21,7 @@ import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
+import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
@@ -32,7 +33,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.tencent.mtt.hippy.views.hippypager.HippyPager;
+import com.tencent.renderer.node.RenderNode;
+import com.tencent.renderer.node.ViewPagerRenderNode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +69,12 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
             }
         }
         return buildViewPager(context, isVertical);
+    }
+
+    @Override
+    public RenderNode createRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
+            @NonNull String className, @NonNull ControllerManager controllerManager, boolean isLazy) {
+        return new ViewPagerRenderNode(rootId, id, props, className, controllerManager, isLazy);
     }
 
     protected HippyViewPager buildViewPager(@NonNull Context context, boolean isVertical) {
