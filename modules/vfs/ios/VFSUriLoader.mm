@@ -142,7 +142,7 @@ void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request, NSOperationQue
     if (cur_convenient) {
         auto startPoint = footstone::TimePoint::SystemNow();
         auto weak_this = weak_from_this();
-        VFSHandlerCompletionBlock callback = ^(NSData *data, NSURLResponse *response, NSError *error) {
+        VFSHandlerCompletionBlock callback = ^(NSData *data, NSDictionary *userInfo, NSURLResponse *response, NSError *error) {
             auto endPoint = footstone::TimePoint::SystemNow();
             string_view uri(NSStringToU16StringView([[response URL] absoluteString]));
             string_view msg([error.localizedDescription UTF8String]?:"");
@@ -151,7 +151,7 @@ void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request, NSOperationQue
                 DoRequestResultCallback(uri, startPoint, endPoint, static_cast<int32_t>(error.code), msg);
             }
             if (completion) {
-                completion(data, response, error);
+                completion(data, userInfo, response, error);
             }
         };
         cur_convenient->RequestUntrustedContent(request, operationQueue, progress, callback, block);
@@ -182,7 +182,7 @@ void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request, NSOperationQue
                     NSInteger code = static_cast<NSInteger>(cb->GetRetCode());
                     error = [NSError errorWithDomain:NSURLErrorDomain code:code userInfo:userInfo];
                 }
-                completion(data, response, error);
+                completion(data, nil, response, error);
             }
         };
         RequestUntrustedContent(requestJob, responseCallback);

@@ -32,7 +32,7 @@ void HippyBase64DataHandler::RequestUntrustedContent(NSURLRequest *request,
     }
     NSURL *url = [request URL];
     if (!url) {
-        completion(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
+        completion(nil, nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
         return;
     }
     
@@ -43,7 +43,7 @@ void HippyBase64DataHandler::RequestUntrustedContent(NSURLRequest *request,
                                                        MIMEType:nil
                                           expectedContentLength:fileData.length
                                                textEncodingName:nil];
-        completion(fileData, rsp, error);
+        completion(fileData, nil, rsp, error);
     };
     if (queue) {
         [queue addOperationWithBlock:opBlock];

@@ -20,9 +20,10 @@
  *
  */
 
-#ifndef VFSDefines_h
-#define VFSDefines_h
+#ifndef HippyVFSDefines_h
+#define HippyVFSDefines_h
 
+#import <Foundation/Foundation.h>
 #include <functional>
 #include <memory>
 
@@ -33,10 +34,16 @@ constexpr char kRequestFromOC[] = "kRequestFromOC";
 constexpr char kHeaderBody[] = "kHeaderBody";
 constexpr char kHeaderMethod[] = "kHeaderMethod";
 
+// The image returned in userInfo of VFSHandlerCompletionBlock
+FOUNDATION_EXPORT NSString *_Nonnull const HippyVFSHandlerUserInfoImageKey;
+
+typedef void(^VFSHandlerProgressBlock)(NSUInteger current, NSUInteger total);
+typedef void(^VFSHandlerCompletionBlock)(NSData *_Nullable data,
+                                         NSDictionary *_Nullable userInfo,
+                                         NSURLResponse *_Nullable response,
+                                         NSError * _Nullable error);
+
 class VFSUriHandler;
+typedef std::shared_ptr<VFSUriHandler>(^VFSGetNextHandlerBlock)(void);
 
-typedef void(^VFSHandlerProgressBlock)(NSUInteger, NSUInteger);
-typedef void(^VFSHandlerCompletionBlock)(NSData *, NSURLResponse *, NSError *);
-typedef std::shared_ptr<VFSUriHandler>(^VFSGetNextHandlerBlock)();
-
-#endif /* VFSDefines_h */
+#endif /* HippyVFSDefines_h */

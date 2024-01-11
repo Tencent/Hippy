@@ -58,6 +58,15 @@ HIPPY_CUSTOM_VIEW_PROPERTY(source, NSArray, HippyImageView) {
     }
 }
 
+static NSOperationQueue *imageLoadOperationQueue(void) {
+    static NSOperationQueue *opQueue = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        opQueue = [[NSOperationQueue alloc] init];
+    });
+    return opQueue;
+}
+
 - (void)loadImageSource:(NSString *)path forView:(HippyImageView *)view {
     if (!path || !view) {
         return;
@@ -69,13 +78,13 @@ HIPPY_CUSTOM_VIEW_PROPERTY(source, NSArray, HippyImageView) {
         return;
     }
     __weak __typeof(self)weakSelf = self;
-    static NSOperationQueue *opQueue = [[NSOperationQueue alloc] init];
-    loader->RequestUntrustedContent(path, opQueue, nil, ^(NSData *data, NSURLResponse *response, NSError *error) {
+    loader->RequestUntrustedContent(path, imageLoadOperationQueue(), nil,
+                                    ^(NSData *data, NSDictionary *userInfo, NSURLResponse *response, NSError *error) {
         __strong __typeof(weakSelf)strongSelf = weakSelf;
-        HippyUIManager *renderImpl = strongSelf.bridge.uiManager;
-        id<HippyImageProviderProtocol> imageProvider = nil;
-        if (renderImpl) {
-            for (Class<HippyImageProviderProtocol> cls in [strongSelf.bridge imageProviderClasses]) {
+        HippyBridge *bridge = strongSelf.bridge;
+        if (bridge) {
+            id<HippyImageProviderProtocol> imageProvider = nil;
+            for (Class<HippyImageProviderProtocol> cls in [bridge imageProviderClasses]) {
                 if ([cls canHandleData:data]) {
                     imageProvider = [[(Class)cls alloc] init];
                     break;
@@ -84,6 +93,12 @@ HIPPY_CUSTOM_VIEW_PROPERTY(source, NSArray, HippyImageView) {
             HippyAssert(imageProvider, @"Image Provider is required");
             imageProvider.imageDataPath = standardizeAssetUrlString;
             [imageProvider setImageData:data];
+            // It is possible for User to return the image directly in userInfo,
+            // So we need to check and skip the data decoding process if needed.
+            UIImage *resultImage = userInfo ? userInfo[HippyVFSHandlerUserInfoImageKey] : nil;
+            if (resultImage) {
+                [imageProvider setDecodedImage:resultImage];
+            }
             
             void (^reloadImageInMain)(void) = ^{
                 HippyImageView *strongView = weakView;

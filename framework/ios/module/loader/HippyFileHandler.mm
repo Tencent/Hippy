@@ -52,12 +52,12 @@ void HippyFileHandler::RequestUntrustedContent(NSURLRequest *request,
     }
     HippyBridge *bridge = bridge_;
     if (!bridge || !request) {
-        completion(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
+        completion(nil, nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
         return;
     }
     NSURL *url = [request URL];
     if (!url) {
-        completion(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
+        completion(nil, nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
         return;
     }
     
@@ -75,7 +75,7 @@ void HippyFileHandler::RequestUntrustedContent(NSURLRequest *request,
                                                            MIMEType:nil
                                               expectedContentLength:fileData.length
                                                    textEncodingName:nil];
-            completion(fileData, rsp, error);
+            completion(fileData, nil, rsp, error);
         };
         if (queue) {
             [queue addOperationWithBlock:opBlock];
@@ -84,6 +84,6 @@ void HippyFileHandler::RequestUntrustedContent(NSURLRequest *request,
         }
     } else {
         FOOTSTONE_DLOG(ERROR) << "HippyFileHandler cannot load url " << [[absoluteURL absoluteString] UTF8String];
-        completion(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
+        completion(nil, nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
     }
 }
