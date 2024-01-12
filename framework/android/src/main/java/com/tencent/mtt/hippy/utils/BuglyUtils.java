@@ -28,7 +28,7 @@ public class BuglyUtils {
     private static boolean sHasCommitted = false;
 
     public static void registerSdkAppIdIfNeeded(@Nullable Context context) {
-        if (sHasCommitted || context == null) {
+        if (!BuildConfig.ENABLE_BUGLY_REPORT || sHasCommitted || context == null) {
             return;
         }
         Context appContext = context.getApplicationContext();
