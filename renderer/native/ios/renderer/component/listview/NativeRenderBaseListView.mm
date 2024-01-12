@@ -117,11 +117,19 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)setShowScrollIndicator:(BOOL)show {
-    [self.collectionView setShowsVerticalScrollIndicator:show];
+    if (self.horizontal) {
+        [self.collectionView setShowsHorizontalScrollIndicator:show];
+    } else {
+        [self.collectionView setShowsVerticalScrollIndicator:show];
+    }
 }
 
 - (BOOL)showScrollIndicator {
-    return [self.collectionView showsVerticalScrollIndicator];
+    if (self.horizontal) {
+        return [self.collectionView showsHorizontalScrollIndicator];
+    } else {
+        return [self.collectionView showsVerticalScrollIndicator];
+    }
 }
 
 - (void)setScrollEnabled:(BOOL)value {
@@ -384,6 +392,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 
 - (void)setHorizontal:(BOOL)horizontal {
     if (_horizontal != horizontal) {
+        BOOL previousShowScrollIndicator = self.showScrollIndicator;
         _horizontal = horizontal;
         UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
         layout.scrollDirection = horizontal ? UICollectionViewScrollDirectionHorizontal : UICollectionViewScrollDirectionVertical;
@@ -394,6 +403,9 @@ referenceSizeForHeaderInSection:(NSInteger)section {
         } else {
             [self.collectionView setAlwaysBounceVertical:YES];
             [self.collectionView setAlwaysBounceHorizontal:NO];
+        }
+        if (self.showScrollIndicator != previousShowScrollIndicator) {
+            [self setShowScrollIndicator:previousShowScrollIndicator];
         }
     }
 }
