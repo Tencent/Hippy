@@ -78,7 +78,8 @@ HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromise
                                               body:data
                                              queue:nil
                                           progress:nil
-                                 completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                                 completionHandler:^(NSData *data, NSDictionary *userInfo,
+                                                     NSURLResponse *response, NSError *error) {
         NSStringEncoding encoding = GetStringEncodingFromURLResponse(response);
         NSString *dataStr = [[NSString alloc] initWithData:data encoding:encoding];
         NSUInteger statusCode = 0;
