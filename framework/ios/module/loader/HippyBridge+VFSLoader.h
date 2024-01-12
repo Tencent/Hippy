@@ -21,6 +21,7 @@
  */
 
 #import "HippyBridge.h"
+#import "HippyVFSDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,8 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
                                    params:(NSDictionary<NSString *, NSString *> *_Nullable)httpHeaders
                                      body:(NSData *_Nullable)body
                                     queue:(NSOperationQueue *_Nullable)queue
-                                 progress:(void(^ _Nullable)(NSUInteger current, NSUInteger total))progress
-                        completionHandler:(void (^)(NSData *_Nullable data, NSURLResponse *_Nullable response, NSError *_Nullable error))completionHandler;
+                                 progress:(VFSHandlerProgressBlock _Nullable)progress
+                        completionHandler:(VFSHandlerCompletionBlock)completionHandler;
 @end
 
 NS_ASSUME_NONNULL_END

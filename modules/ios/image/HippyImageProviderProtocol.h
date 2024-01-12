@@ -45,6 +45,18 @@
  */
 - (void)setImageData:(NSData *)data;
 
+/** 
+ * Set the decoded image
+ * image is returned by the `- (UIImage *)image` method
+ *
+ * When using third-party component to download the image, such as `SDWebImage`,
+ * the third-party component usually returns the final image, not just the raw data.
+ *
+ * In this scenario, hippyImageView calls this method to set the image directly
+ * and skip all other processing logic.
+ */
+- (void)setDecodedImage:(UIImage *)image;
+
 /** return image.If it is an animated image,return first frame
  */
 - (UIImage *)image;

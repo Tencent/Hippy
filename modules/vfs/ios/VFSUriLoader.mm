@@ -129,8 +129,7 @@ void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request, NSOperationQue
             auto &scheme_handler_list = find->second;
             cur_convenient_it = scheme_handler_list.begin();
             end_convenient_it = scheme_handler_list.end();
-        }
-        else {
+        } else {
             cur_convenient_it = default_convenient_handlers_.begin();
             end_convenient_it = default_convenient_handlers_.end();
         }
@@ -143,7 +142,7 @@ void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request, NSOperationQue
     if (cur_convenient) {
         auto startPoint = footstone::TimePoint::SystemNow();
         auto weak_this = weak_from_this();
-        VFSHandlerCompletionBlock callback = ^(NSData *data, NSURLResponse *response, NSError *error) {
+        VFSHandlerCompletionBlock callback = ^(NSData *data, NSDictionary *userInfo, NSURLResponse *response, NSError *error) {
             auto endPoint = footstone::TimePoint::SystemNow();
             string_view uri(NSStringToU16StringView([[response URL] absoluteString]));
             string_view msg([error.localizedDescription UTF8String]?:"");
@@ -152,12 +151,11 @@ void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request, NSOperationQue
                 DoRequestResultCallback(uri, startPoint, endPoint, static_cast<int32_t>(error.code), msg);
             }
             if (completion) {
-                completion(data, response, error);
+                completion(data, userInfo, response, error);
             }
         };
         cur_convenient->RequestUntrustedContent(request, operationQueue, progress, callback, block);
-    }
-    else {
+    } else {
         string_view uri = NSStringToU8StringView([requestURL absoluteString]);
         auto meta = NSDictionaryToStringUnorderedMap([request allHTTPHeaderFields]);
         auto progressCallback = [progress, operationQueue](int64_t current, int64_t total){
@@ -184,7 +182,7 @@ void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request, NSOperationQue
                     NSInteger code = static_cast<NSInteger>(cb->GetRetCode());
                     error = [NSError errorWithDomain:NSURLErrorDomain code:code userInfo:userInfo];
                 }
-                completion(data, response, error);
+                completion(data, nil, response, error);
             }
         };
         RequestUntrustedContent(requestJob, responseCallback);

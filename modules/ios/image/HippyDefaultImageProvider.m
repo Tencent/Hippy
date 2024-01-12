@@ -54,6 +54,12 @@
     }
 }
 
+- (void)setDecodedImage:(UIImage *)image {
+    if (_image != image) {
+        _image = image;
+    }
+}
+
 - (dispatch_queue_t)prepareQueue{
     return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 }
