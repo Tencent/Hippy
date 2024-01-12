@@ -69,8 +69,6 @@ hippy::vfs::UriHandler::RetCode RetCodeFromNSError(NSError *error) {
     return retCode;
 }
 
-typedef void (^URLSessionDataProgress)(NSUInteger, NSUInteger);
-typedef void (^URLSessionDataResult)(NSData *, NSURLResponse *, NSError *);
 
 @interface NSURLSessionDataProgress () {
     NSUInteger _totalCount;
@@ -80,8 +78,8 @@ typedef void (^URLSessionDataResult)(NSData *, NSURLResponse *, NSError *);
     std::function<void(std::shared_ptr<hippy::JobResponse>)> _cb;
     
     NSMutableData *_currentReceivedData;
-    URLSessionDataProgress _progress;
-    URLSessionDataResult _result;
+    VFSHandlerProgressBlock _progress;
+    VFSHandlerCompletionBlock _result;
     
     BOOL _cxxType;
 }
@@ -130,7 +128,7 @@ didCompleteWithError:(nullable NSError *)error {
     }
     else {
         if (_result) {
-            _result(_currentReceivedData, task.response, error);
+            _result(_currentReceivedData, nil, task.response, error);
         }
     }
     [session finishTasksAndInvalidate];
