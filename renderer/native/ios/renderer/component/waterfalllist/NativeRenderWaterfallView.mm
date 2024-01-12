@@ -37,7 +37,6 @@
 
 static NSString *kCellIdentifier = @"HippyWaterfallCellIdentifier";
 static NSString *kWaterfallItemName = @"WaterfallItem";
-static const NSTimeInterval delayForPurgeView = 1.f;
 
 @interface NativeRenderWaterfallView () <HippyInvalidating, NativeRenderRefreshDelegate> {
     NSHashTable<id<UIScrollViewDelegate>> *_scrollListeners;

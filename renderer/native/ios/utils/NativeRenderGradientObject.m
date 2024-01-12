@@ -293,15 +293,14 @@ static LinearGradientPoints pointsFromDirection(NativeRenderGradientObject *obje
 }
 
 - (LinearGradientPoints)linearGradientPointsFromSize:(CGSize)size {
-    LinearGradientPoints points = {CGPointZero, CGPointZero};
+    LinearGradientPoints points;
     if (self.drawnByDegree) {
         self.degree %= 360;
         if (self.degree < 0) {
             self.degree += 360;
         }
         points = gradientPointsWithSizeAndDegree(size, self.degree);
-    }
-    else {
+    } else {
         points = pointsFromDirection(self, size);
     }
     return points;

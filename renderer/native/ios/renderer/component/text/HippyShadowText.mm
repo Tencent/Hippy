@@ -25,6 +25,7 @@
 #import "HippyUtils.h"
 #import "HippyFont.h"
 #import "HippyShadowText.h"
+#import "HippyShadowView+Internal.h"
 #import "HippyText.h"
 #import "HippyTextView.h"
 #import "NativeRenderUtils.h"
