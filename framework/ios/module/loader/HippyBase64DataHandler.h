@@ -20,23 +20,19 @@
  *
  */
 
-#ifndef VFSDefines_h
-#define VFSDefines_h
+#import <Foundation/Foundation.h>
+#import "VFSUriHandler.h"
 
-#include <functional>
-#include <memory>
+NS_ASSUME_NONNULL_BEGIN
 
-constexpr char kRequestOrigin[] = "kRequestOrigin";
-constexpr char kRequestFromCPP[] = "kRequestFromCPP";
-constexpr char kRequestFromOC[] = "kRequestFromOC";
+class HippyBase64DataHandler : public VFSUriHandler {
+    
+public:
+    void RequestUntrustedContent(NSURLRequest *request,
+                                 NSOperationQueue *queue,
+                                 VFSHandlerProgressBlock progress,
+                                 VFSHandlerCompletionBlock completion, VFSGetNextHandlerBlock next) override;
+    
+};
 
-constexpr char kHeaderBody[] = "kHeaderBody";
-constexpr char kHeaderMethod[] = "kHeaderMethod";
-
-class VFSUriHandler;
-
-typedef void(^VFSHandlerProgressBlock)(NSUInteger, NSUInteger);
-typedef void(^VFSHandlerCompletionBlock)(NSData *, NSURLResponse *, NSError *);
-typedef std::shared_ptr<VFSUriHandler>(^VFSGetNextHandlerBlock)();
-
-#endif /* VFSDefines_h */
+NS_ASSUME_NONNULL_END

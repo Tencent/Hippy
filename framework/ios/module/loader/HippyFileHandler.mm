@@ -52,27 +52,38 @@ void HippyFileHandler::RequestUntrustedContent(NSURLRequest *request,
     }
     HippyBridge *bridge = bridge_;
     if (!bridge || !request) {
-        completion(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
+        completion(nil, nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
         return;
     }
     NSURL *url = [request URL];
     if (!url) {
-        completion(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
+        completion(nil, nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
         return;
     }
-    static NSString *defaultHippyLocalFileURLPrefixString = @"hpfile://.";
-    NSURL *absoluteURL = nil;
-    if ([[url absoluteString] hasPrefix:defaultHippyLocalFileURLPrefixString]) {
-        NSString *path = [[url absoluteString] substringFromIndex:[defaultHippyLocalFileURLPrefixString length] - 1];
-        absoluteURL = [NSURL fileURLWithPath:path
-                               relativeToURL:bridge.sandboxDirectory];
+    
+    NSURL *absoluteURL = url;
+    static NSString *defaultHippyLocalFileURLPrefix = @"hpfile://.";
+    if ([[url absoluteString] hasPrefix:defaultHippyLocalFileURLPrefix]) {
+        NSString *path = [[url absoluteString] substringFromIndex:[defaultHippyLocalFileURLPrefix length] - 1];
+        absoluteURL = [NSURL fileURLWithPath:path relativeToURL:bridge.sandboxDirectory];
     }
-    else {
-        FOOTSTONE_DLOG(ERROR) << "HippyFileHandler cannot load url " << [[url absoluteString] UTF8String];
-        completion(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
-        return;
+    if ([absoluteURL isFileURL] || [absoluteURL isFileReferenceURL]) {
+        void (^opBlock)() = ^{
+            NSError *error;
+            NSData *fileData = [NSData dataWithContentsOfURL:absoluteURL options:kNilOptions error:&error];
+            NSURLResponse *rsp = [[NSURLResponse alloc] initWithURL:url
+                                                           MIMEType:nil
+                                              expectedContentLength:fileData.length
+                                                   textEncodingName:nil];
+            completion(fileData, nil, rsp, error);
+        };
+        if (queue) {
+            [queue addOperationWithBlock:opBlock];
+        } else {
+            opBlock();
+        }
+    } else {
+        FOOTSTONE_DLOG(ERROR) << "HippyFileHandler cannot load url " << [[absoluteURL absoluteString] UTF8String];
+        completion(nil, nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
     }
-    NSMutableURLRequest *req = [request mutableCopy];
-    [req setURL:absoluteURL];
-    VFSUriHandler::RequestUntrustedContent(req, queue, progress, completion, next);
 }
