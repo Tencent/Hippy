@@ -25,6 +25,8 @@
 
 @class HippyBridge;
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  * This enum is used to define size flexibility type of the root view.
  * If a dimension is flexible, the view will recalculate that dimension
@@ -75,7 +77,7 @@ extern NSString *const HippySecondaryBundleDidLoadNotification;
 /// Set this property only on the main thread.
 ///
 /// Note: `runHippyApplication` is automatically called internally.
-@property (nonatomic, copy, readwrite) NSDictionary *appProperties;
+@property (nonatomic, copy, nullable) NSDictionary *appProperties;
 
 /// The backing view controller of the root view.
 @property (nonatomic, weak) UIViewController *hippyViewController;
@@ -93,8 +95,8 @@ extern NSString *const HippySecondaryBundleDidLoadNotification;
 /// @param delegate HippyRootViewDelegate
 - (instancetype)initWithBridge:(HippyBridge *)bridge
                     moduleName:(NSString *)moduleName
-             initialProperties:(NSDictionary *)initialProperties
-                      delegate:(id<HippyRootViewDelegate>)delegate;
+             initialProperties:(nullable NSDictionary *)initialProperties
+                      delegate:(nullable id<HippyRootViewDelegate>)delegate;
 
 /// Create HippyRootView instance,
 /// As above, add shareOptions parameters, compatible with hippy2
@@ -106,9 +108,9 @@ extern NSString *const HippySecondaryBundleDidLoadNotification;
 /// @param delegate HippyRootViewDelegate
 - (instancetype)initWithBridge:(HippyBridge *)bridge
                     moduleName:(NSString *)moduleName
-             initialProperties:(NSDictionary *)initialProperties
-                  shareOptions:(NSDictionary *)shareOptions
-                      delegate:(id<HippyRootViewDelegate>)delegate;
+             initialProperties:(nullable NSDictionary *)initialProperties
+                  shareOptions:(nullable NSDictionary *)shareOptions
+                      delegate:(nullable id<HippyRootViewDelegate>)delegate;
 
 /// Create HippyRootView instance
 /// & Load the business BundleURL
@@ -122,8 +124,8 @@ extern NSString *const HippySecondaryBundleDidLoadNotification;
 - (instancetype)initWithBridge:(HippyBridge *)bridge
                    businessURL:(NSURL *)businessURL
                     moduleName:(NSString *)moduleName
-             initialProperties:(NSDictionary *)initialProperties
-                      delegate:(id<HippyRootViewDelegate>)delegate;
+             initialProperties:(nullable NSDictionary *)initialProperties
+                      delegate:(nullable id<HippyRootViewDelegate>)delegate;
 
 /// Create HippyRootView instance
 /// & Load the business BundleURL
@@ -143,9 +145,9 @@ extern NSString *const HippySecondaryBundleDidLoadNotification;
 - (instancetype)initWithBridge:(HippyBridge *)bridge
                    businessURL:(NSURL *)businessURL
                     moduleName:(NSString *)moduleName
-             initialProperties:(NSDictionary *)initialProperties
-                  shareOptions:(NSDictionary *)shareOptions
-                      delegate:(id<HippyRootViewDelegate>)delegate;
+             initialProperties:(nullable NSDictionary *)initialProperties
+                  shareOptions:(nullable NSDictionary *)shareOptions
+                      delegate:(nullable id<HippyRootViewDelegate>)delegate;
 
 
 /// Run Hippy!
@@ -184,3 +186,5 @@ extern NSString *const HippySecondaryBundleDidLoadNotification;
 - (void)cancelTouches;
 
 @end
+
+NS_ASSUME_NONNULL_END

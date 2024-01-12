@@ -34,6 +34,7 @@
 #import "HippyUIManager+Private.h"
 #import "NativeRenderObjectRootView.h"
 #import "HippyShadowView.h"
+#import "HippyShadowView+Internal.h"
 #import "NativeRenderUtils.h"
 #import "HippyView.h"
 #import "HippyViewManager.h"
@@ -639,10 +640,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         return;
     }
     HippyComponentData *componentData = [self componentDataForViewName:renderObject.viewName];
-    NSDictionary *newProps = props;
-    NSDictionary *virtualProps = props;
-    newProps = [renderObject mergeProps:props];
-    virtualProps = renderObject.props;
+    NSDictionary *newProps = [renderObject mergeProps:props];
     [componentData setProps:newProps forShadowView:renderObject];
     [renderObject dirtyPropagation:NativeRenderUpdateLifecyclePropsDirtied];
     [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {

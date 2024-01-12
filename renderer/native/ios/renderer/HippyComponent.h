@@ -44,10 +44,10 @@ typedef void (^HippyDirectEventBlock)(NSDictionary *body);
 @property (nonatomic, assign) CGRect frame;
 
 /// The parent of current component
-@property (nonatomic, weak) id<HippyComponent> parent;
+@property (nonatomic, weak) __kindof id<HippyComponent> parent;
 
 /// Subviews of current component
-- (NSArray<id<HippyComponent>> *)subcomponents;
+- (NSArray<__kindof id<HippyComponent>> *)subcomponents;
 
 /// Inset
 /// - Parameters:
