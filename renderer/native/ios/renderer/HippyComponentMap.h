@@ -95,10 +95,12 @@ typedef NS_ENUM(NSUInteger, HippyComponentReferenceType) {
 /// so we optimize this with a temporary cache.
 ///
 /// The cache must be actively cleared after acquiring components
-- (void)generateTempCacheBeforeAcquireAllStoredWeakComponents;
+/// - Parameter rootTag: Root component's tag
+- (void)generateTempCacheBeforeAcquireAllStoredWeakComponentsForRootTag:(NSNumber *)rootTag;
 
 /// Clear the temp dictionary cache for weak components.
-- (void)clearTempCacheAfterAcquireAllStoredWeakComponents;
+/// - Parameter rootTag: Root component's tag
+- (void)clearTempCacheAfterAcquireAllStoredWeakComponentsForRootTag:(NSNumber *)rootTag;
 
 @end
 
