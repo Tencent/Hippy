@@ -18,17 +18,30 @@ package com.tencent.renderer.component.drawable;
 
 import android.graphics.Path;
 import android.graphics.RectF;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public interface BackgroundHolder {
 
+    /**
+     * the content region rect that excluded border width
+     */
+    @NonNull
+    RectF getContentRegion();
+
+    /**
+     * the content path that excluded border width
+     *
+     * @return a rectangle with rounded corners, or null if there are no rounded corners
+     */
     @Nullable
-    RectF getContentRectF();
+    Path getContentPath();
 
+    /**
+     * the component path that included border width
+     *
+     * @returna a rectangle with rounded corners, or null if there are no rounded corners
+     */
     @Nullable
-    Path getBorderRadiusPath();
-
-    int getBorderWidth();
-
-    boolean hasBorderRadius();
+    Path getBorderPath();
 }

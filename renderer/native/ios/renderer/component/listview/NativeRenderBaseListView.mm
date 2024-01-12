@@ -25,8 +25,8 @@
 #import "NativeRenderBaseListViewCell.h"
 #import "NativeRenderBaseListViewDataSource.h"
 #import "NativeRenderCollectionViewFlowLayout.h"
-#import "NativeRenderFooterRefresh.h"
-#import "NativeRenderHeaderRefresh.h"
+#import "HippyFooterRefresh.h"
+#import "HippyHeaderRefresh.h"
 #import "HippyUIManager.h"
 #import "HippyShadowView.h"
 #import "UIView+DirectionalLayout.h"
@@ -165,18 +165,18 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
-    if ([subview isKindOfClass:[NativeRenderHeaderRefresh class]]) {
+    if ([subview isKindOfClass:[HippyHeaderRefresh class]]) {
         if (_headerRefreshView) {
             [_headerRefreshView unsetFromScrollView];
         }
-        _headerRefreshView = (NativeRenderHeaderRefresh *)subview;
+        _headerRefreshView = (HippyHeaderRefresh *)subview;
         [_headerRefreshView setScrollView:self.collectionView];
         _headerRefreshView.delegate = self;
-    } else if ([subview isKindOfClass:[NativeRenderFooterRefresh class]]) {
+    } else if ([subview isKindOfClass:[HippyFooterRefresh class]]) {
         if (_footerRefreshView) {
             [_footerRefreshView unsetFromScrollView];
         }
-        _footerRefreshView = (NativeRenderFooterRefresh *)subview;
+        _footerRefreshView = (HippyFooterRefresh *)subview;
         [_footerRefreshView setScrollView:self.collectionView];
         _footerRefreshView.delegate = self;
     }

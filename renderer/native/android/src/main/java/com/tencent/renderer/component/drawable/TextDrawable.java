@@ -14,22 +14,6 @@
  * limitations under the License.
  */
 
-/* Tencent is pleased to support the open source community by making Hippy available.
- * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.tencent.renderer.component.drawable;
 
 import android.graphics.Canvas;
@@ -110,11 +94,7 @@ public class TextDrawable extends Drawable {
 
     private void updateContentRegionIfNeeded() {
         if (mBackgroundHolder != null) {
-            mContentRegion.set(mBackgroundHolder.getContentRectF());
-            float borderWidth = mBackgroundHolder.getBorderWidth();
-            if (borderWidth > 1.0f) {
-                mContentRegion.inset(borderWidth, borderWidth);
-            }
+            mContentRegion.set(mBackgroundHolder.getContentRegion());
         }
     }
 
@@ -126,11 +106,10 @@ public class TextDrawable extends Drawable {
             return;
         }
         updateContentRegionIfNeeded();
-        final Path borderRadiusPath =
-                (mBackgroundHolder != null) ? mBackgroundHolder.getBorderRadiusPath() : null;
+        final Path contentPath = (mBackgroundHolder != null) ? mBackgroundHolder.getContentPath() : null;
         canvas.save();
-        if (borderRadiusPath != null) {
-            canvas.clipPath(borderRadiusPath);
+        if (contentPath != null) {
+            canvas.clipPath(contentPath);
         } else {
             canvas.clipRect(mContentRegion);
         }
@@ -172,15 +151,13 @@ public class TextDrawable extends Drawable {
         if (mLayout == null) {
             return 0;
         }
-        final int width = getBounds().width();
-        final float borderWidth = (mBackgroundHolder != null) ? mBackgroundHolder.getBorderWidth() : 0.0f;
         switch (mLayout.getAlignment()) {
             case ALIGN_CENTER:
-                return (width - mLayout.getWidth()) / 2.0f;
+                return mContentRegion.centerX() - mLayout.getWidth() * 0.5f;
             case ALIGN_OPPOSITE:
-                return width - mRightPadding - borderWidth - mLayout.getWidth();
+                return mContentRegion.right - mRightPadding - mLayout.getWidth();
             default:
-                return mLeftPadding + borderWidth;
+                return mLeftPadding + mContentRegion.left;
         }
     }
 
@@ -188,7 +165,6 @@ public class TextDrawable extends Drawable {
         if (mLayout == null) {
             return 0;
         }
-        final float borderWidth = (mBackgroundHolder != null) ? mBackgroundHolder.getBorderWidth() : 0.0f;
-        return mTopPadding + borderWidth;
+        return mTopPadding + mContentRegion.top;
     }
 }

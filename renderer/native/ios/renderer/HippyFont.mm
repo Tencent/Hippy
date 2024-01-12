@@ -25,24 +25,6 @@
 #import "HippyFont.h"
 #import "HippyLog.h"
 
-#if !defined(__IPHONE_8_2) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_2
-
-// These constants are defined in iPhone SDK 8.2, but the app cannot run on
-// iOS < 8.2 unless we redefine them here. If you target iOS 8.2 or above
-// as a base target, the standard constants will be used instead.
-// These constants can only be removed when Hippy Native drops iOS8 support.
-
-#define UIFontWeightUltraLight -0.8
-#define UIFontWeightThin -0.6
-#define UIFontWeightLight -0.4
-#define UIFontWeightRegular 0
-#define UIFontWeightMedium 0.23
-#define UIFontWeightSemibold 0.3
-#define UIFontWeightBold 0.4
-#define UIFontWeightHeavy 0.56
-#define UIFontWeightBlack 0.62
-
-#endif
 
 static NSCache *fontCache;
 
@@ -65,6 +47,9 @@ static NativeRenderFontWeight weightOfFont(UIFont *font) {
     };
 
     NSString *fontName = font.fontName;
+    if(fontName == nil){
+        return 0.0;
+    }
     CFStringCompareFlags options = kCFCompareCaseInsensitive | kCFCompareAnchored | kCFCompareBackwards;
     for(int i = 0; i < sizeof(suffixToWeight) / sizeof(suffixToWeight[0]); ++i){
         struct SuffixWeight item = suffixToWeight[i];
@@ -78,11 +63,11 @@ static NativeRenderFontWeight weightOfFont(UIFont *font) {
 }
 
 static BOOL isItalicFont(UIFont *font) {
-    return (CTFontGetSymbolicTraits((CTFontRef)font) & kCTFontTraitItalic) != 0;
+    return font != nil && (CTFontGetSymbolicTraits((CTFontRef)font) & kCTFontTraitItalic) != 0;
 }
 
 static BOOL isCondensedFont(UIFont *font) {
-    return (CTFontGetSymbolicTraits((CTFontRef)font) & kCTFontTraitCondensed) != 0;
+    return font != nil && (CTFontGetSymbolicTraits((CTFontRef)font) & kCTFontTraitCondensed) != 0;
 }
 
 static UIFont *cachedSystemFont(CGFloat size, NativeRenderFontWeight weight) {
@@ -113,7 +98,7 @@ static NSArray<NSString *> *fontNamesForFamilyName(NSString *familyName)
          addObserverForName:(NSNotificationName)kCTFontManagerRegisteredFontsChangedNotification
          object:nil
          queue:nil
-         usingBlock:^(NSNotification *) {
+         usingBlock:^(NSNotification *note) {
             [cache removeAllObjects];
         }];
     });
