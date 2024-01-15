@@ -72,6 +72,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     private OnPreDrawListener preDrawListener;
     private boolean isLastTimeReachEnd;
     private int preloadItemNumber;
+    private Rect reusableExposureStateRect = new Rect();
 
     public RecyclerViewEventHelper(HippyRecyclerView recyclerView) {
         this.hippyRecyclerView = recyclerView;
@@ -88,7 +89,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         };
     }
 
-    void notifyInitialListReady() {
+    protected void notifyInitialListReady() {
         if (canNotifyInit()) {
             isInitialListReadyNotified = true;
             viewTreeObserver.removeOnPreDrawListener(preDrawListener);
@@ -328,42 +329,32 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     /**
      * 可视面积小于10%，任务view当前已经不在可视区域
      */
-    private boolean isViewVisible(View view) {
+    private int calculateExposureState(View view) {
         if (view == null) {
-            return false;
+            return HippyListItemView.EXPOSURE_STATE_INVISIBLE;
         }
-        Rect rect = new Rect();
-        boolean visibility = view.getGlobalVisibleRect(rect);
+        boolean visibility = view.getGlobalVisibleRect(reusableExposureStateRect);
         if (!visibility) {
-            return false;
+            return HippyListItemView.EXPOSURE_STATE_INVISIBLE;
+        }
+        // visible area size of view
+        float visibleArea = reusableExposureStateRect.height() * reusableExposureStateRect.width();
+        // total area size of view
+        float viewArea = view.getMeasuredWidth() * view.getMeasuredHeight();
+        if (visibleArea >= viewArea) {
+            return HippyListItemView.EXPOSURE_STATE_FULL_VISIBLE;
+        } else if (visibleArea > viewArea * 0.1f) {
+            return HippyListItemView.EXPOSURE_STATE_PART_VISIBLE;
         } else {
-            float visibleArea = rect.height() * rect.width(); //可见区域的面积
-            float viewArea = view.getMeasuredWidth() * view.getMeasuredHeight();//当前view的总面积
-            return visibleArea > viewArea * 0.1f;
+            return HippyListItemView.EXPOSURE_STATE_INVISIBLE;
         }
     }
 
     protected void checkExposureView(View view) {
         if (view instanceof HippyListItemView) {
             HippyListItemView itemView = (HippyListItemView) view;
-            if (isViewVisible(view)) {
-                if (itemView.getExposureState() != HippyListItemView.EXPOSURE_STATE_APPEAR) {
-                    sendExposureEvent(view, EventUtils.EVENT_LIST_ITEM_APPEAR);
-                    itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_APPEAR);
-                }
-            } else {
-                if (itemView.getExposureState() != HippyListItemView.EXPOSURE_STATE_DISAPPEAR) {
-                    sendExposureEvent(view, EventUtils.EVENT_LIST_ITEM_DISAPPEAR);
-                    itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_DISAPPEAR);
-                }
-            }
-        }
-    }
-
-    protected void sendExposureEvent(View view, String eventName) {
-        if (eventName.equals(EventUtils.EVENT_LIST_ITEM_APPEAR) || eventName
-                .equals(EventUtils.EVENT_LIST_ITEM_DISAPPEAR)) {
-            new HippyViewEvent(eventName).send(view, null);
+            int newState = calculateExposureState(view);
+            itemView.moveToExposureState(newState);
         }
     }
 
@@ -403,6 +394,15 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     public void onViewDetachedFromWindow(View v) {
         if (!isInitialListReadyNotified && viewTreeObserver != null) {
             viewTreeObserver.removeOnPreDrawListener(preDrawListener);
+        }
+    }
+
+    @Override
+    public void onOverPullAnimationUpdate(boolean isAnimationEnd) {
+        if (isAnimationEnd) {
+            sendOnScrollEvent();
+        } else {
+            checkSendOnScrollEvent();
         }
     }
 

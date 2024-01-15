@@ -60,6 +60,9 @@ class EngineInitParams {
   // 可选参数 引擎模式 默认为NORMAL
   EngineMode engineMode = EngineMode.normal;
 
+  // 可选参数
+  IntegratedMode integratedMode = IntegratedMode.flutterApp;
+
   // 可选参数 自定义的，用来提供Native modules、JavaScript modules、View controllers的管理器。1个或多个
   List<APIProvider>? providers;
 

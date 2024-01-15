@@ -18,16 +18,20 @@ package com.tencent.renderer.node;
 
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-
 import android.text.style.ImageSpan;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
+import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class VirtualNode {
 
+    public static final String V_ALIGN_TOP = "top";
+    public static final String V_ALIGN_MIDDLE = "middle";
+    public static final String V_ALIGN_BASELINE = "baseline";
+    public static final String V_ALIGN_BOTTOM = "bottom";
     protected final int mRootId;
     protected final int mId;
     protected final int mPid;
@@ -38,7 +42,10 @@ public abstract class VirtualNode {
     @Nullable
     protected VirtualNode mParent;
     @Nullable
-    protected List<String> mGestureTypes;
+    protected List<String> mEventTypes;
+    @Nullable
+    protected String mVerticalAlign;
+    protected float mOpacity = 1f;
 
     public VirtualNode(int rootId, int id, int pid, int index) {
         mRootId = rootId;
@@ -68,17 +75,21 @@ public abstract class VirtualNode {
     protected abstract void createSpanOperation(List<SpanOperation> ops,
             SpannableStringBuilder builder, boolean useChild);
 
-    public void addGesture(String event) {
-        if (mGestureTypes == null) {
-            mGestureTypes = new ArrayList<>();
+    public void addEventType(String event) {
+        if (mEventTypes == null) {
+            mEventTypes = new ArrayList<>();
         }
-        mGestureTypes.add(event);
+        mEventTypes.add(event);
     }
 
-    public void removeGesture(String event) {
-        if (mGestureTypes != null) {
-            mGestureTypes.remove(event);
+    public void removeEventType(String event) {
+        if (mEventTypes != null) {
+            mEventTypes.remove(event);
         }
+    }
+
+    public boolean hasEventType(String event) {
+        return mEventTypes != null && mEventTypes.contains(event);
     }
 
     public boolean isDirty() {
@@ -133,6 +144,51 @@ public abstract class VirtualNode {
         return mChildren.size();
     }
 
+    public void setVerticalAlign(String align) {
+        if (Objects.equals(mVerticalAlign, align)) {
+            return;
+        }
+        switch (align) {
+            case HippyControllerProps.DEFAULT:
+                // reset to default
+                mVerticalAlign = null;
+                break;
+            case V_ALIGN_TOP:
+            case V_ALIGN_MIDDLE:
+            case V_ALIGN_BASELINE:
+            case V_ALIGN_BOTTOM:
+                mVerticalAlign = align;
+                break;
+            default:
+                mVerticalAlign = V_ALIGN_BASELINE;
+                break;
+        }
+        markDirty();
+    }
+
+    @Nullable
+    public String getVerticalAlign() {
+        if (mVerticalAlign != null) {
+            return mVerticalAlign;
+        }
+        if (mParent != null) {
+            return mParent.getVerticalAlign();
+        }
+        return null;
+    }
+
+    public void setOpacity(float opacity) {
+        opacity = Math.min(Math.max(0, opacity), 1);
+        if (opacity != mOpacity) {
+            mOpacity = opacity;
+            markDirty();
+        }
+    }
+
+    public float getFinalOpacity() {
+        return mParent == null ? mOpacity : mParent.getFinalOpacity() * mOpacity;
+    }
+
     protected static class SpanOperation {
 
         public static final int PRIORITY_DEFAULT = 1;
@@ -152,6 +208,10 @@ public abstract class VirtualNode {
             mEnd = end;
             mWhat = what;
             mPriority = priority;
+        }
+
+        public Object getSpan() {
+            return mWhat;
         }
 
         public void execute(SpannableStringBuilder builder) {

@@ -23,21 +23,19 @@
 #import "AppDelegate.h"
 #import "TestModule.h"
 #import "HippyBundleURLProvider.h"
-#import "HippyDemoLoader.h"
 #import "HippyJSEnginesMapper.h"
-#import "NativeRenderRootView.h"
-#import "UIView+NativeRender.h"
-#import "HippyConvenientBridge.h"
-#import "HPLog.h"
+#import "HippyRootView.h"
+#import "UIView+Hippy.h"
+#import "HippyLog.h"
 #import "HippyRedBox.h"
 #import "DemoConfigs.h"
 #import "HippyMethodInterceptorProtocol.h"
-#import "HPAsserts.h"
+#import "HippyAssert.h"
 
 static NSString *const engineKey = @"Demo";
 
-@interface TestModule ()<HippyMethodInterceptorProtocol, HippyBridgeDelegate> {
-    HippyConvenientBridge *_connector;
+@interface TestModule () <HippyMethodInterceptorProtocol, HippyBridgeDelegate> {
+    HippyBridge *_connector;
 }
 
 @end
@@ -69,7 +67,10 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     NSURL *url = [NSURL URLWithString:bundleUrl];
     NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": url};
     NSURL *sandboxDirectory = [url URLByDeletingLastPathComponent];
-    _connector = [[HippyConvenientBridge alloc] initWithDelegate:self moduleProvider:nil extraComponents:nil launchOptions:launchOptions engineKey:engineKey];
+    _connector = [[HippyBridge alloc] initWithDelegate:self
+                                        moduleProvider:nil
+                                         launchOptions:launchOptions
+                                           executorKey:engineKey];
     [_connector setInspectable:YES];
     //set custom vfs loader
     _connector.sandboxDirectory = sandboxDirectory;
@@ -81,7 +82,7 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     [rootViewController presentViewController:vc animated:YES completion:NULL];
 }
 
-- (void)mountConnector:(HippyConvenientBridge *)connector onView:(UIView *)view {
+- (void)mountConnector:(HippyBridge *)connector onView:(UIView *)view {
     BOOL isSimulator = NO;
 #if TARGET_IPHONE_SIMULATOR
         isSimulator = YES;
@@ -90,13 +91,13 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
     NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
 
-    NativeRenderRootView *rootView = [[NativeRenderRootView alloc] initWithFrame:view.bounds];
+    HippyRootView *rootView = [[HippyRootView alloc] initWithFrame:view.bounds];
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [_connector setRootView:rootView];
-    NSNumber *rootTag = [rootView componentTag];
+    NSNumber *rootTag = [rootView hippyTag];
     [connector loadBundleURL:bundleUrl completion:^(NSURL * _Nullable, NSError * _Nullable) {
         NSLog(@"url %@ load finish", bundleStr);
-        [connector loadInstanceForRootViewTag:rootTag props:@{@"isSimulator": @(isSimulator)}];
+        [connector loadInstanceForRootView:rootTag withProperties:@{@"isSimulator": @(isSimulator)}];
     }];
     [view addSubview:rootView];
 }
@@ -120,14 +121,14 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
 }
 
 - (BOOL)shouldInvokeWithModuleName:(NSString *)moduleName methodName:(NSString *)methodName arguments:(NSArray<id<HippyBridgeArgument>> *)arguments argumentsValues:(NSArray *)argumentsValue containCallback:(BOOL)containCallback {
-    HPAssert(moduleName, @"module name must not be null");
-    HPAssert(methodName, @"method name must not be null");
+    HippyAssert(moduleName, @"module name must not be null");
+    HippyAssert(methodName, @"method name must not be null");
     return YES;
 }
 
 - (BOOL)shouldCallbackBeInvokedWithModuleName:(NSString *)moduleName methodName:(NSString *)methodName callbackId:(NSNumber *)cbId arguments:(id)arguments {
-    HPAssert(moduleName, @"module name must not be null");
-    HPAssert(methodName, @"method name must not be null");
+    HippyAssert(moduleName, @"module name must not be null");
+    HippyAssert(methodName, @"method name must not be null");
     return YES;
 }
 @end

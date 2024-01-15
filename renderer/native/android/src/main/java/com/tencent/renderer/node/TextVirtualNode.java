@@ -21,7 +21,6 @@ import static com.tencent.mtt.hippy.dom.node.NodeProps.TEXT_SHADOW_OFFSET;
 import static com.tencent.mtt.hippy.dom.node.NodeProps.TEXT_SHADOW_RADIUS;
 
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Build;
 import android.text.BidiFormatter;
 import android.text.BoringLayout;
@@ -35,8 +34,6 @@ import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ImageSpan;
-import android.text.style.StrikethroughSpan;
-import android.text.style.UnderlineSpan;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -46,34 +43,36 @@ import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.component.text.FontAdapter;
+import com.tencent.renderer.component.text.TextDecorationSpan;
 import com.tencent.renderer.component.text.TextForegroundColorSpan;
 import com.tencent.renderer.component.text.TextGestureSpan;
 import com.tencent.renderer.component.text.TextLetterSpacingSpan;
 import com.tencent.renderer.component.text.TextLineHeightSpan;
+import com.tencent.renderer.component.text.TextLineMetricsHelper;
 import com.tencent.renderer.component.text.TextShadowSpan;
 import com.tencent.renderer.component.text.TextStyleSpan;
 import com.tencent.renderer.component.text.TextVerticalAlignSpan;
+import com.tencent.renderer.component.text.TypeFaceUtil;
 import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class TextVirtualNode extends VirtualNode {
 
     public static final String STRATEGY_SIMPLE = "simple";
     public static final String STRATEGY_HIGH_QUALITY = "high_quality";
     public static final String STRATEGY_BALANCED = "balanced";
-    public final static String V_ALIGN_TOP = "top";
-    public final static String V_ALIGN_MIDDLE = "middle";
-    public final static String V_ALIGN_BASELINE = "baseline";
-    public final static String V_ALIGN_BOTTOM = "bottom";
 
-    private static final int TEXT_BOLD_MIN_VALUE = 500;
     private static final int TEXT_SHADOW_COLOR_DEFAULT = 0x55000000;
-    private static final String TEXT_FONT_STYLE_ITALIC = "italic";
-    private static final String TEXT_FONT_STYLE_BOLD = "bold";
     private static final String TEXT_DECORATION_UNDERLINE = "underline";
     private static final String TEXT_DECORATION_LINE_THROUGH = "line-through";
+    private static final String TEXT_DECORATION_DOUBLE = "double";
+    private static final String TEXT_DECORATION_DOTTED = "dotted";
+    private static final String TEXT_DECORATION_DASHED = "dashed";
+    // an invisible mark for text decoration metrics
+    private static final String TEXT_DECORATION_MARK = "\u200b";
     private static final String MODE_HEAD = "head";
     private static final String MODE_MIDDLE = "middle";
     private static final String MODE_TAIL = "tail";
@@ -88,8 +87,8 @@ public class TextVirtualNode extends VirtualNode {
 
     protected int mColor = Color.BLACK;
     protected int mNumberOfLines;
-    protected int mFontStyle = Typeface.NORMAL;
-    protected int mFontWeight = Typeface.NORMAL;
+    protected boolean mItalic = false;
+    protected int mFontWeight = TypeFaceUtil.WEIGHT_NORMAL;
     protected int mFontSize = (int) Math.ceil(PixelUtil.dp2px(NodeProps.FONT_SIZE_SP));
     protected int mShadowColor = TEXT_SHADOW_COLOR_DEFAULT;
     protected float mShadowOffsetDx = 0.0f;
@@ -102,6 +101,8 @@ public class TextVirtualNode extends VirtualNode {
     protected float mLastLayoutWidth = 0.0f;
     protected boolean mHasUnderlineTextDecoration = false;
     protected boolean mHasLineThroughTextDecoration = false;
+    protected int mTextDecorationColor = Color.TRANSPARENT;
+    protected int mTextDecorationStyle = TextDecorationSpan.STYLE_SOLID;
     protected boolean mEnableScale = false;
     protected String mEllipsizeMode = MODE_TAIL;
     protected String mBreakStrategy = STRATEGY_SIMPLE;
@@ -121,8 +122,6 @@ public class TextVirtualNode extends VirtualNode {
     protected final FontAdapter mFontAdapter;
     @Nullable
     protected Layout mLayout;
-    @Nullable
-    protected String mVerticalAlign;
     protected int mBackgroundColor = Color.TRANSPARENT;
 
     public TextVirtualNode(int rootId, int id, int pid, int index,
@@ -137,12 +136,10 @@ public class TextVirtualNode extends VirtualNode {
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.FONT_STYLE, defaultType = HippyControllerProps.STRING)
     public void setFontStyle(String style) {
-        if (TEXT_FONT_STYLE_ITALIC.equals(style)) {
-            mFontStyle = Typeface.ITALIC;
-        } else {
-            mFontStyle = Typeface.NORMAL;
+        if (TypeFaceUtil.TEXT_FONT_STYLE_ITALIC.equals(style) != mItalic) {
+            mItalic = !mItalic;
+            markDirty();
         }
-        markDirty();
     }
 
     @SuppressWarnings("unused")
@@ -174,26 +171,34 @@ public class TextVirtualNode extends VirtualNode {
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.FONT_FAMILY, defaultType = HippyControllerProps.STRING)
     public void setFontFamily(String family) {
-        mFontFamily = family;
-        markDirty();
+        if (!Objects.equals(mFontFamily, family)) {
+            mFontFamily = family;
+            markDirty();
+        }
     }
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.FONT_WEIGHT, defaultType = HippyControllerProps.STRING)
     public void setFontWeight(String weight) {
-        int fontWeight = 0;
-        if (!TextUtils.isEmpty(weight) && weight.length() == 3
-                && weight.endsWith("00")
-                && weight.charAt(0) <= '9'
-                && weight.charAt(0) >= '1') {
-            fontWeight = 100 * (weight.charAt(0) - '0');
-        }
-        if (fontWeight >= TEXT_BOLD_MIN_VALUE || TEXT_FONT_STYLE_BOLD.equals(weight)) {
-            mFontWeight = Typeface.BOLD;
+        int fontWeight;
+        if (TextUtils.isEmpty(weight) || TypeFaceUtil.TEXT_FONT_STYLE_NORMAL.equals(weight)) {
+            // case normal
+            fontWeight = TypeFaceUtil.WEIGHT_NORMAL;
+        } else if (TypeFaceUtil.TEXT_FONT_STYLE_BOLD.equals(weight)) {
+            // case bold
+            fontWeight = TypeFaceUtil.WEIGHT_BOLE;
         } else {
-            mFontWeight = Typeface.NORMAL;
+            // case number
+            try {
+                fontWeight = Math.min(Math.max(1, Integer.parseInt(weight)), 1000);
+            } catch (NumberFormatException ignored) {
+                fontWeight = TypeFaceUtil.WEIGHT_NORMAL;
+            }
         }
-        markDirty();
+        if (fontWeight != mFontWeight) {
+            mFontWeight = fontWeight;
+            markDirty();
+        }
     }
 
     @SuppressWarnings("unused")
@@ -211,6 +216,41 @@ public class TextVirtualNode extends VirtualNode {
                 mHasLineThroughTextDecoration = true;
             }
         }
+        markDirty();
+    }
+
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.TEXT_DECORATION_COLOR, defaultType = HippyControllerProps.NUMBER)
+    public void setTextDecorationColor(int color) {
+        if (mTextDecorationColor == color) {
+            return;
+        }
+        mTextDecorationColor = color;
+        markDirty();
+    }
+
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.TEXT_DECORATION_STYLE, defaultType = HippyControllerProps.STRING)
+    public void setTextDecorationStyle(String style) {
+        int styleFlag;
+        switch (style) {
+            case TEXT_DECORATION_DOUBLE:
+                styleFlag = TextDecorationSpan.STYLE_DOUBLE;
+                break;
+            case TEXT_DECORATION_DOTTED:
+                styleFlag = TextDecorationSpan.STYLE_DOTTED;
+                break;
+            case TEXT_DECORATION_DASHED:
+                styleFlag = TextDecorationSpan.STYLE_DASHED;
+                break;
+            default:
+                styleFlag = TextDecorationSpan.STYLE_SOLID;
+                break;
+        }
+        if (mTextDecorationStyle == styleFlag) {
+            return;
+        }
+        mTextDecorationStyle = styleFlag;
         markDirty();
     }
 
@@ -394,8 +434,8 @@ public class TextVirtualNode extends VirtualNode {
         }
     }
 
-    protected TextForegroundColorSpan createForegroundColorSpan() {
-        return new TextForegroundColorSpan(mColor);
+    protected TextForegroundColorSpan createForegroundColorSpan(float opacity) {
+        return new TextForegroundColorSpan(colorWithOpacity(mColor, opacity));
     }
 
     protected void createSpanOperationImpl(@NonNull List<SpanOperation> ops,
@@ -407,14 +447,32 @@ public class TextVirtualNode extends VirtualNode {
         if (start > end) {
             return;
         }
+        if (mHasUnderlineTextDecoration || mHasLineThroughTextDecoration) {
+            TextDecorationSpan span = new TextDecorationSpan(mHasUnderlineTextDecoration,
+                    mHasLineThroughTextDecoration, mTextDecorationColor, mTextDecorationStyle);
+            if (span.needSpecialDraw()) {
+                // inserting changes the position of SpanOperation that >= start, so it must be placed first
+                builder.insert(start, TEXT_DECORATION_MARK);
+                builder.append(TEXT_DECORATION_MARK);
+                ops.add(new SpanOperation(start, start + 1, new TextDecorationSpan.StartMark()));
+                ++start;
+                ++end;
+                ops.add(new SpanOperation(end, end + 1, new TextDecorationSpan.EndMark()));
+            }
+            ops.add(new SpanOperation(start, end, span, SpanOperation.PRIORITY_LOWEST));
+        }
         String verticalAlign = getVerticalAlign();
         if (verticalAlign != null && !V_ALIGN_BASELINE.equals(verticalAlign)) {
             TextVerticalAlignSpan span = new TextVerticalAlignSpan(verticalAlign);
             ops.add(new SpanOperation(start, end, span, SpanOperation.PRIORITY_LOWEST));
         }
-        ops.add(new SpanOperation(start, end, createForegroundColorSpan()));
+        float opacity = getFinalOpacity();
+        ops.add(new SpanOperation(start, end, createForegroundColorSpan(opacity)));
         if (mBackgroundColor != Color.TRANSPARENT && mParent != null) {
-            ops.add(new SpanOperation(start, end, new BackgroundColorSpan(mBackgroundColor)));
+            int color = colorWithOpacity(mBackgroundColor, opacity);
+            if (color != Color.TRANSPARENT) {
+                ops.add(new SpanOperation(start, end, new BackgroundColorSpan(color)));
+            }
         }
         if (mLetterSpacing != 0) {
             ops.add(new SpanOperation(start, end,
@@ -425,22 +483,17 @@ public class TextVirtualNode extends VirtualNode {
             size = (int) (size * mFontAdapter.getFontScale());
         }
         ops.add(new SpanOperation(start, end, new AbsoluteSizeSpan(size)));
-        ops.add(new SpanOperation(start, end,
-                new TextStyleSpan(mFontStyle, mFontWeight, mFontFamily, mFontAdapter)));
-        if (mHasUnderlineTextDecoration) {
-            ops.add(new SpanOperation(start, end, new UnderlineSpan()));
-        }
-        if (mHasLineThroughTextDecoration) {
-            ops.add(new SpanOperation(start, end, new StrikethroughSpan()));
-        }
+        ops.add(new SpanOperation(start, end, new TextStyleSpan(mItalic, mFontWeight, mFontFamily, mFontAdapter)));
         if (mShadowOffsetDx != 0 || mShadowOffsetDy != 0) {
-            ops.add(new SpanOperation(start, end,
-                    new TextShadowSpan(mShadowOffsetDx, mShadowOffsetDy, mShadowRadius,
-                            mShadowColor)));
+            int color = colorWithOpacity(mShadowColor, opacity);
+            if (color != Color.TRANSPARENT) {
+                ops.add(new SpanOperation(start, end,
+                        new TextShadowSpan(mShadowOffsetDx, mShadowOffsetDy, mShadowRadius, color)));
+            }
         }
-        if (mGestureTypes != null && mGestureTypes.size() > 0) {
+        if (mEventTypes != null && mEventTypes.size() > 0) {
             TextGestureSpan span = new TextGestureSpan(mId);
-            span.addGestureTypes(mGestureTypes);
+            span.addGestureTypes(mEventTypes);
             ops.add(new SpanOperation(start, end, span));
         }
         if (useChild) {
@@ -457,7 +510,30 @@ public class TextVirtualNode extends VirtualNode {
                 }
                 ops.add(new SpanOperation(paragraphStart, paragraphEnd, new TextLineHeightSpan(lh)));
             }
+            if (needLineMetrics(ops)) {
+                ops.add(new SpanOperation(paragraphStart, paragraphEnd, new TextLineMetricsHelper()));
+            }
         }
+    }
+
+    private boolean needLineMetrics(@NonNull List<SpanOperation> ops) {
+        for (SpanOperation op : ops) {
+            Object span = op.getSpan();
+            if (span instanceof TextVerticalAlignSpan || span instanceof TextDecorationSpan.StartMark) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static int colorWithOpacity(int color, float opacity) {
+        if (opacity >= 1) {
+            return color;
+        } else if (opacity > 0) {
+            int alpha = (color >> 24) & 0xFF;
+            return (Math.round(alpha * opacity) << 24) | (color & 0xFFFFFF);
+        }
+        return Color.TRANSPARENT;
     }
 
     protected float getLineSpacingMultiplier() {
@@ -511,17 +587,33 @@ public class TextVirtualNode extends VirtualNode {
         CharSequence layoutText = layout.getText();
         if (layoutText instanceof Spanned) {
             Spanned spanned = (Spanned) layoutText;
-            TextVerticalAlignSpan[] spans = spanned.getSpans(0, spanned.length(), TextVerticalAlignSpan.class);
-            for (TextVerticalAlignSpan span : spans) {
-                int offset = spanned.getSpanStart(span);
-                int line = layout.getLineForOffset(offset);
-                int baseline = layout.getLineBaseline(line);
-                span.setLineMetrics(layout.getLineTop(line) - baseline, layout.getLineBottom(line) - baseline);
+            TextLineMetricsHelper helper = getTextLineMetricsHelper(spanned);
+            if (helper != null) {
+                setTextLineMetricsHelper(spanned, TextVerticalAlignSpan.class, helper);
+                setTextLineMetricsHelper(spanned, TextDecorationSpan.StartMark.class, helper);
+                setTextLineMetricsHelper(spanned, TextDecorationSpan.class, helper);
+                setTextLineMetricsHelper(spanned, TextDecorationSpan.EndMark.class, helper);
+                setTextLineMetricsHelper(spanned, TextShadowSpan.class, helper);
             }
         }
         mLayout = layout;
         mLastLayoutWidth = layout.getWidth();
         return layout;
+    }
+
+    private TextLineMetricsHelper getTextLineMetricsHelper(Spanned spanned) {
+        TextLineMetricsHelper[] spans = spanned.getSpans(0, 0, TextLineMetricsHelper.class);
+        return spans != null && spans.length > 0 ? spans[0] : null;
+    }
+
+    private <T extends TextLineMetricsHelper.LineMetrics> void setTextLineMetricsHelper(Spanned spanned,
+            Class<T> type, TextLineMetricsHelper helper) {
+        T[] spans = spanned.getSpans(0, spanned.length(), type);
+        if (spans != null) {
+            for (T span : spans) {
+                span.setLineMetrics(helper);
+            }
+        }
     }
 
     private TextPaint getTextPaint() {
@@ -750,32 +842,15 @@ public class TextVirtualNode extends VirtualNode {
 
     @HippyControllerProps(name = NodeProps.VERTICAL_ALIGN, defaultType = HippyControllerProps.STRING)
     public void setVerticalAlign(String align) {
-        switch (align) {
-            case HippyControllerProps.DEFAULT:
-                // reset to default
-                mVerticalAlign = null;
-                break;
-            case V_ALIGN_TOP:
-            case V_ALIGN_MIDDLE:
-            case V_ALIGN_BASELINE:
-            case V_ALIGN_BOTTOM:
-                mVerticalAlign = align;
-                break;
-            default:
-                mVerticalAlign = V_ALIGN_BASELINE;
-                break;
-        }
-        markDirty();
+        super.setVerticalAlign(align);
     }
 
-    @Nullable
-    public String getVerticalAlign() {
-        if (mVerticalAlign != null) {
-            return mVerticalAlign;
+    @HippyControllerProps(name = NodeProps.OPACITY, defaultType = HippyControllerProps.NUMBER, defaultNumber = 1f)
+    public void setOpacity(float opacity) {
+        // top-level opacity will be handled by HippyViewController, so only sub-level opacity needs to be considered
+        if (mParent != null) {
+            super.setOpacity(opacity);
         }
-        if (mParent instanceof TextVirtualNode) {
-            return ((TextVirtualNode) mParent).getVerticalAlign();
-        }
-        return null;
     }
+
 }

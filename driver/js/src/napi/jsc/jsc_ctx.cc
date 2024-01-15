@@ -30,6 +30,7 @@
 #include "driver/vm/native_source_code.h"
 #include "driver/vm/jsc/jsc_vm.h"
 
+
 namespace hippy {
 inline namespace driver {
 inline namespace napi {
@@ -665,8 +666,8 @@ bool JSCCtx::IsObject(const std::shared_ptr<CtxValue>& value) {
 }
 
 string_view JSCCtx::CopyFunctionName(const std::shared_ptr<CtxValue>& function) {
-  FOOTSTONE_UNIMPLEMENTED();
-  return "";
+    FOOTSTONE_UNIMPLEMENTED();
+    return "";
 }
 
 bool JSCCtx::GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
@@ -791,6 +792,10 @@ std::shared_ptr<CtxValue> JSCCtx::CreateObject(const std::unordered_map<std::sha
     }
     auto object_key = JSCVM::CreateJSCString(key);
     auto ctx_value = std::static_pointer_cast<JSCCtxValue>(it.second);
+    if (!ctx_value) {
+      auto error = CreateException("CreateObject ctx_value is nullptr");
+      return nullptr;
+    }
     JSObjectSetProperty(context_, obj, object_key, ctx_value->value_, kJSPropertyAttributeNone, &exception);
     if (exception) {
       SetException(std::make_shared<JSCCtxValue>(context_, exception));
@@ -895,6 +900,7 @@ std::shared_ptr<CtxValue> JSCCtx::CallFunction(const std::shared_ptr<CtxValue>& 
   auto function_object = JSValueToObject(context_, function_value->value_, &exception);
   if (exception) {
     SetException(std::make_shared<JSCCtxValue>(context_, exception));
+
     return nullptr;
   }
 
@@ -1145,7 +1151,6 @@ std::shared_ptr<CtxValue> JSCCtx::RunScript(const string_view& data,
   if (!value) {
     return nullptr;
   }
-
   return std::make_shared<JSCCtxValue>(context_, value);
 }
 

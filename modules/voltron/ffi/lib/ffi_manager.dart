@@ -30,6 +30,8 @@ import 'global_callback.dart';
 enum _DefaultRegisterFuncType { globalCallback }
 
 class FfiManager {
+  static String libPath = '';
+  static String libraryName = 'voltron_core';
   static const String _kDefaultRegisterHeader = 'default';
   final _interactiveCppRequests = ReceivePort()..listen(requestExecuteCallback);
 
@@ -49,7 +51,7 @@ class FfiManager {
 
   String get registerFuncName => 'AddCallFunc';
 
-  final DynamicLibrary _library = loadLibrary('voltron_core', isStatic: false);
+  final DynamicLibrary _library = loadLibrary(libraryName, isStatic: false, path: libPath);
 
   FfiManager._internal() {
     _initFfi = _library.lookupFunction<

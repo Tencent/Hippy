@@ -232,6 +232,22 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
+    public void onSizeChanged(int rootId, int w, int h, int ow, int oh) {
+        if (mEngineContext != null) {
+            HippyModuleManager manager = mEngineContext.getModuleManager();
+            if (manager != null) {
+                HippyMap hippyMap = new HippyMap();
+                hippyMap.pushDouble("width", PixelUtil.px2dp(w));
+                hippyMap.pushDouble("height", PixelUtil.px2dp(h));
+                hippyMap.pushDouble("oldWidth", PixelUtil.px2dp(ow));
+                hippyMap.pushDouble("oldHeight", PixelUtil.px2dp(oh));
+                manager.getJavaScriptModule(EventDispatcher.class)
+                        .receiveNativeEvent("onSizeChanged", hippyMap);
+            }
+        }
+    }
+
+    @Override
     public void updateDimension(int width, int height, boolean shouldUseScreenDisplay,
             boolean systemUiVisibilityChanged) {
         if (mEngineContext == null) {
@@ -254,6 +270,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                         systemUiVisibilityChanged);
             }
         }
+        DimensionsUtil.convertDimensionsToDp(dimensionMap);
         if (mEngineContext.getModuleManager() != null) {
             mEngineContext.getModuleManager().getJavaScriptModule(Dimensions.class)
                     .set(dimensionMap);

@@ -137,20 +137,6 @@ void DomManager::EndBatch(const std::weak_ptr<RootNode>& weak_root_node) {
   root_node->SyncWithRenderManager(render_manager);
 }
 
-void DomManager::EndBatchOnRelease(const std::weak_ptr<RootNode>& weak_root_node) {
-  auto render_manager = render_manager_.lock();
-  FOOTSTONE_DCHECK(render_manager);
-  if (!render_manager) {
-    return;
-  }
-  auto root_node = weak_root_node.lock();
-  if (!root_node) {
-    return;
-  }
-  FOOTSTONE_DLOG(INFO) << "[Hippy Statistic] total node size = " << root_node->GetChildCount();
-  root_node->SyncWithRenderManagerOnRelease(render_manager);
-}
-
 void DomManager::AddEventListener(const std::weak_ptr<RootNode>& weak_root_node, uint32_t dom_id,
                                   const std::string& name, uint64_t listener_id, bool use_capture,
                                   const EventCallback& cb) {
@@ -237,8 +223,10 @@ DomManager::byte_string DomManager::GetSnapShot(const std::shared_ptr<RootNode>&
   Serializer serializer;
   serializer.WriteHeader();
   serializer.WriteValue(HippyValue(array));
-  auto ret = serializer.Release();
-  return {reinterpret_cast<const char*>(ret.first), ret.second};
+  auto buffer_pair = serializer.Release();
+  byte_string bs =  {reinterpret_cast<const char*>(buffer_pair.first), buffer_pair.second};
+  footstone::value::SerializerHelper::DestroyBuffer(buffer_pair);
+  return bs;
 }
 
 bool DomManager::SetSnapShot(const std::shared_ptr<RootNode>& root_node, const byte_string& buffer) {
@@ -276,7 +264,7 @@ bool DomManager::SetSnapShot(const std::shared_ptr<RootNode>& root_node, const b
     if (dom_node->GetPid() == orig_root_id) {
       dom_node->SetPid(root_node->GetId());
     }
-    nodes.push_back(std::make_shared<DomInfo>(dom_node, nullptr));
+    nodes.push_back(std::make_shared<DomInfo>(dom_node, nullptr, nullptr));
   }
 
   CreateDomNodes(root_node, std::move(nodes));

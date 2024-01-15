@@ -22,7 +22,7 @@
 
 #import <Foundation/Foundation.h>
 
-#include "VFSDefines.h"
+#include "HippyVFSDefines.h"
 #include "vfs/uri_loader.h"
 
 extern NSString *const VFSErrorDomain;

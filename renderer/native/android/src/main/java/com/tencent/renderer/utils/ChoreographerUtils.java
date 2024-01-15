@@ -42,13 +42,10 @@ public class ChoreographerUtils {
     }
 
     private static void doPostFrame() {
-        Choreographer.FrameCallback frameCallback = new Choreographer.FrameCallback() {
-            @Override
-            public void doFrame(long frameTimeNanos) {
+        Choreographer.FrameCallback frameCallback = frameTimeNanos -> {
+            if (sEnablePostFrame) {
                 handleDoFrameCallback();
-                if (sEnablePostFrame) {
-                    doPostFrame();
-                }
+                doPostFrame();
             }
         };
         Choreographer.getInstance().postFrameCallback(frameCallback);

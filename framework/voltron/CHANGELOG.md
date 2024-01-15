@@ -1,3 +1,19 @@
+## 0.0.37
+
+- resolve merge conflicts
+
+## 0.0.36
+
+- update ffi_manager
+
+## 0.0.35
+
+- update voltron_render to 0.0.25 to make flutter module faster
+
+## 0.0.34
+
+- support voltron dynamic library load
+
 ## 0.0.34
 
 - update voltron_render to 0.0.24 to fix width calculate error and add modal navigator param

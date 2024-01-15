@@ -22,13 +22,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import "HPInvalidating.h"
+#import "HippyInvalidating.h"
 
 @protocol HippyBridgeMethod;
 @protocol HippyBridgeModule;
 @class HippyBridge;
 
-@interface HippyModuleData : NSObject <HPInvalidating>
+@interface HippyModuleData : NSObject <HippyInvalidating>
 
 - (instancetype)initWithModuleClass:(Class)moduleClass bridge:(HippyBridge *)bridge;
 

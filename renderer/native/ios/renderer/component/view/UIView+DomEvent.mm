@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -23,25 +23,12 @@
 #import "UIView+DomEvent.h"
 #import <objc/runtime.h>
 #import "UIView+MountEvent.h"
-#import "UIView+NativeRender.h"
-#import "UIEvent+TouchResponder.h"
+#import "UIView+Hippy.h"
 
 #include "dom/dom_listener.h"
 
 @implementation UIView(DomEvent)
 
-+ (void)load {
-    if (self == [UIView self]) {
-        Method originMethod = class_getInstanceMethod([UIView class], @selector(hitTest:withEvent:));
-        Method exchangeMethod = class_getInstanceMethod([UIView class], @selector(hippy_domEvent_hitTest:withEvent:));
-        method_exchangeImplementations(originMethod, exchangeMethod);
-    }
-}
-
-- (UIView *)hippy_domEvent_hitTest:(CGPoint)point withEvent:(UIEvent *)event {
-    [event removeAllResponders];
-    return [self hippy_domEvent_hitTest:point withEvent:event];
-}
 
 - (void)setOnInterceptTouchEvent:(BOOL)onInterceptTouchEvent {
     objc_setAssociatedObject(self, @selector(onInterceptTouchEvent), @(onInterceptTouchEvent), OBJC_ASSOCIATION_RETAIN);
@@ -58,10 +45,6 @@
         objc_setAssociatedObject(self, @selector(_propertyEventsName), names, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     return names;
-}
-
-- (NSSet<NSString *> *)propertyEventsName {
-    return [[self _propertyEventsName] copy];
 }
 
 static SEL SelectorFromCName(const char *name) {
@@ -82,7 +65,7 @@ static SEL SelectorFromCName(const char *name) {
     return selector;
 }
 
-- (void)addPropertyEvent:(const char *)name eventCallback:(NativeRenderDirectEventBlock)callback {
+- (void)addPropertyEvent:(const char *)name eventCallback:(HippyDirectEventBlock)callback {
     @try {
         SEL selector = SelectorFromCName(name);
         if ([self respondsToSelector:selector]) {
@@ -100,7 +83,7 @@ static SEL SelectorFromCName(const char *name) {
     }
 }
 
-- (void)didAddPropertyEvent:(const char *)name eventCallback:(NativeRenderDirectEventBlock)callback {
+- (void)didAddPropertyEvent:(const char *)name eventCallback:(HippyDirectEventBlock)callback {
     if (!name) {
         return;
     }
@@ -123,7 +106,7 @@ static SEL SelectorFromCName(const char *name) {
     SEL selector = SelectorFromCName(name);
     @try {
         if ([self respondsToSelector:selector]) {
-            NativeRenderDirectEventBlock cb = NULL;
+            HippyDirectEventBlock cb = NULL;
             NSMethodSignature *methodSign = [self methodSignatureForSelector:selector];
             NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSign];
             [invocation setTarget:self];
@@ -141,22 +124,9 @@ static SEL SelectorFromCName(const char *name) {
     [[self _propertyEventsName] removeObject:@(name)];
 }
 
-- (void)removeAllPropertyEvents {
-    NSSet<NSString *> *set = [self propertyEventsName];
-    for (NSString *name in set) {
-        [self removePropertyEvent:[name UTF8String]];
-    }
-}
 
 #pragma mark NativeRenderTouchesProtocol Methods
-- (void)addViewEvent:(NativeRenderViewEventType)touchEvent eventListener:(OnTouchEventHandler)listener {}
 
-- (OnTouchEventHandler)eventListenerForEventType:(NativeRenderViewEventType)eventType {
-    return NULL;
-}
-
-- (void)removeViewEvent:(NativeRenderViewEventType)touchEvent {
-}
 
 - (BOOL)canBePreventedByInCapturing:(const char *)name {
     return NO;
@@ -196,7 +166,5 @@ static BOOL IsGestureEvent(const char *name) {
     }
     return IsGestureEvent(name);
 }
-
-- (void)resetAllEvents {}
 
 @end

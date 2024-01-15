@@ -379,28 +379,10 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
   return flag;
 }
 
-void JsDriverUtils::DestroyInstance(const std::shared_ptr<Engine>& engine,
-                                    const std::shared_ptr<Scope>& scope,
+void JsDriverUtils::DestroyInstance(std::shared_ptr<Engine>&& engine,
+                                    std::shared_ptr<Scope>&& scope,
                                     const std::function<void(bool)>& callback,
                                     bool is_reload) {
-  auto scope_destroy_callback = [engine, scope, is_reload, callback] {
-#if defined(JS_V8) && defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
-    auto v8_vm = std::static_pointer_cast<V8VM>(engine->GetVM());
-    if (v8_vm->IsDebug()) {
-      auto inspector_client = v8_vm->GetInspectorClient();
-      if (inspector_client) {
-        auto inspector_context = scope->GetInspectorContext();
-        inspector_client->DestroyInspectorContext(is_reload, inspector_context);
-      }
-    } else {
-      scope->WillExit();
-    }
-#else
-    scope->WillExit();
-#endif
-    FOOTSTONE_LOG(INFO) << "js destroy end";
-    callback(true);
-  };
   auto vm = engine->GetVM();
   auto group = vm->GetGroupId();
   if (vm->IsDebug()) {
@@ -423,6 +405,33 @@ void JsDriverUtils::DestroyInstance(const std::shared_ptr<Engine>& engine,
     }
   }
   auto runner = engine->GetJsTaskRunner();
+
+  // DestroyInstance is called in the bridge thread, while the
+  // scope_destroy_callback is pushed into the task_runner to run in the DOM
+  // thread. When DestroyInstance is called, it holds the scope and engine.
+  // However, executing scope_destroy_callback may add tasks (e.g., setTimeout)
+  // holding the scope, even when the engine is destroyed. To prevent this, move
+  // the scope and engine into the scope_destroy_callback, which will be released
+  // when the callback is executed, ensuring no other tasks can be added to the
+  // task runner.
+  auto scope_destroy_callback = [engine = std::move(engine), scope = std::move(scope), is_reload, callback] {
+#if defined(JS_V8) && defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+    auto v8_vm = std::static_pointer_cast<V8VM>(engine->GetVM());
+    if (v8_vm->IsDebug()) {
+      auto inspector_client = v8_vm->GetInspectorClient();
+      if (inspector_client) {
+        auto inspector_context = scope->GetInspectorContext();
+        inspector_client->DestroyInspectorContext(is_reload, inspector_context);
+      }
+    } else {
+      scope->WillExit();
+    }
+#else
+    scope->WillExit();
+#endif
+    FOOTSTONE_LOG(INFO) << "js destroy end";
+    callback(true);
+  };
   runner->PostTask(std::move(scope_destroy_callback));
   FOOTSTONE_DLOG(INFO) << "destroy, group = " << group;
 }

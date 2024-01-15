@@ -25,7 +25,7 @@
 #include <functional>
 #include <memory>
 
-#include "VFSDefines.h"
+#include "HippyVFSDefines.h"
 #include "vfs/handler/uri_handler.h"
 
 NS_ASSUME_NONNULL_BEGIN

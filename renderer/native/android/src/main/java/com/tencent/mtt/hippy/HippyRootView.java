@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.dom.node.NodeProps;
@@ -84,14 +85,12 @@ public class HippyRootView extends FrameLayout {
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        if (w != oldw || h != oldh) {
-            getGlobalLayoutListener().checkUpdateDimension(w, h, false, false);
-            NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(getContext());
-            if (nativeRenderer != null) {
-                nativeRenderer.onSizeChanged(getId(), w, h);
-            }
+    protected void onSizeChanged(int w, int h, int ow, int oh) {
+        super.onSizeChanged(w, h, ow, oh);
+        NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(getContext());
+        if ((w != ow || h != oh) && nativeRenderer != null) {
+            nativeRenderer.updateDimension(w, h, false, false);
+            nativeRenderer.onSizeChanged(getId(), w, h, ow, oh);
         }
     }
 
@@ -156,14 +155,9 @@ public class HippyRootView extends FrameLayout {
 
         private void checkUpdateDimension(boolean shouldUseScreenDisplay,
                 boolean systemUiVisibilityChanged) {
-            checkUpdateDimension(-1, -1, shouldUseScreenDisplay, systemUiVisibilityChanged);
-        }
-
-        private void checkUpdateDimension(int width, int height, boolean shouldUseScreenDisplay,
-                boolean systemUiVisibilityChanged) {
             NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(getContext());
             if (nativeRenderer != null) {
-                nativeRenderer.updateDimension(width, height, shouldUseScreenDisplay,
+                nativeRenderer.updateDimension(-1, -1, shouldUseScreenDisplay,
                         systemUiVisibilityChanged);
             }
         }

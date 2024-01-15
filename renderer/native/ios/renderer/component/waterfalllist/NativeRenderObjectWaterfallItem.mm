@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -42,6 +42,10 @@
 }
 
 - (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
+    if (NativeRenderCreationTypeLazily == self.creationType) {
+        // If item has not yet been created, then no need to collect blocks.
+        return;
+    }
     _layoutDirty = NO;
     if (NativeRenderUpdateLifecycleComputed == _propagationLifecycle) {
         return;
@@ -50,7 +54,7 @@
         _layoutDirty = YES;
     }
     _propagationLifecycle = NativeRenderUpdateLifecycleComputed;
-    for (NativeRenderObjectView *renderObjectView in self.subcomponents) {
+    for (HippyShadowView *renderObjectView in self.subcomponents) {
         [renderObjectView amendLayoutBeforeMount:blocks];
     }
 }

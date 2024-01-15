@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "VFSDefines.h"
+#include "HippyVFSDefines.h"
 #include "vfs/handler/uri_handler.h"
 
 class VFSUriLoader;

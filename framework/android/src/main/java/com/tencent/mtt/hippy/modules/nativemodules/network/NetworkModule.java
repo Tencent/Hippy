@@ -34,7 +34,6 @@ import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.runtime.builtins.JSObject;
 import com.tencent.vfs.ResourceDataHolder;
-import com.tencent.vfs.ResourceDataHolder.TransferType;
 import com.tencent.vfs.VfsManager;
 import com.tencent.vfs.VfsManager.FetchResourceCallback;
 import java.nio.charset.StandardCharsets;
@@ -54,7 +53,7 @@ public class NetworkModule extends HippyNativeModuleBase {
     }
 
     @SuppressWarnings("deprecation")
-    private void normalizeRequestHeaders(@NonNull HippyMap headers,
+    protected void normalizeRequestHeaders(@NonNull HippyMap headers,
             @NonNull HashMap<String, String> requestHeaders) {
         Set<Entry<String, Object>> entrySet = headers.entrySet();
         for (Entry<String, Object> entry : entrySet) {
@@ -82,7 +81,7 @@ public class NetworkModule extends HippyNativeModuleBase {
     }
 
     @SuppressWarnings("deprecation")
-    private void normalizeRequest(@NonNull HippyMap request,
+    protected void normalizeRequest(@NonNull HippyMap request,
             @NonNull HashMap<String, String> requestHeaders,
             @NonNull HashMap<String, String> requestParams) throws IllegalStateException {
         Set<Entry<String, Object>> entrySet = request.entrySet();
@@ -103,10 +102,11 @@ public class NetworkModule extends HippyNativeModuleBase {
         }
     }
 
-    private void handleFetchResponse(@NonNull ResourceDataHolder dataHolder, Promise promise)
+    @NonNull
+    protected JSObject handleFetchResponse(@NonNull ResourceDataHolder dataHolder)
             throws IllegalStateException {
         JSObject responseObject = new JSObject();
-        int statusCode = 0;
+        int statusCode = -1;
         String responseMessage = null;
         JSObject headerObject = new JSObject();
         if (dataHolder.responseHeaders != null) {
@@ -114,7 +114,7 @@ public class NetworkModule extends HippyNativeModuleBase {
                 statusCode = Integer.parseInt(
                         dataHolder.responseHeaders.get(HTTP_RESPONSE_STATUS_CODE));
             } catch (NumberFormatException e) {
-                throw new IllegalStateException(e.getMessage());
+                throw new IllegalStateException("parse status code error!");
             }
             responseMessage = dataHolder.responseHeaders.get(HTTP_RESPONSE_RESPONSE_MESSAGE);
             for (Entry<String, String> entry : dataHolder.responseHeaders.entrySet()) {
@@ -126,8 +126,11 @@ public class NetworkModule extends HippyNativeModuleBase {
                 headerObject.set(key, value);
             }
         }
+        if (responseMessage == null) {
+            responseMessage = (dataHolder.errorMessage == null) ? "" : dataHolder.errorMessage;
+        }
         responseObject.set(HTTP_RESPONSE_STATUS_CODE, statusCode);
-        responseObject.set("statusLine", (responseMessage == null) ? "" : responseMessage);
+        responseObject.set("statusLine", responseMessage);
         responseObject.set("respHeaders", headerObject);
         String body = "";
         try {
@@ -139,7 +142,22 @@ public class NetworkModule extends HippyNativeModuleBase {
             throw new IllegalStateException(e.getMessage());
         }
         responseObject.set("respBody", body);
-        promise.resolve(responseObject);
+        return responseObject;
+    }
+
+    protected void handleFetchResult(@NonNull ResourceDataHolder dataHolder, final Promise promise) {
+        try {
+            if (dataHolder.resultCode == ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE) {
+                JSObject responseObject = handleFetchResponse(dataHolder);
+                promise.resolve(responseObject);
+            } else {
+                String errorMessage =
+                        (dataHolder.errorMessage == null) ? "Load remote resource failed!" : dataHolder.errorMessage;
+                promise.reject(errorMessage);
+            }
+        } catch (IllegalStateException e) {
+            promise.reject("Handle response failed: " + e.getMessage());
+        }
     }
 
     @SuppressWarnings("deprecation")
@@ -151,30 +169,19 @@ public class NetworkModule extends HippyNativeModuleBase {
         try {
             normalizeRequest(request, requestHeaders, requestParams);
         } catch (Exception e) {
-            promise.resolve(e.getMessage());
+            promise.reject(e.getMessage());
             return;
         }
         final String uri = requestParams.get(HTTP_URL);
         if (TextUtils.isEmpty(uri)) {
-            promise.resolve("Get url parameter failed!");
+            promise.reject("Get url parameter failed!");
             return;
         }
         vfsManager.fetchResourceAsync(uri, requestHeaders, requestParams,
                 new FetchResourceCallback() {
                     @Override
                     public void onFetchCompleted(@NonNull ResourceDataHolder dataHolder) {
-                        if (dataHolder.resultCode
-                                == ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE) {
-                            try {
-                                handleFetchResponse(dataHolder, promise);
-                            } catch (IllegalStateException e) {
-                                promise.resolve(
-                                        "Handle response failed: " + dataHolder.errorMessage);
-                            }
-                        } else {
-                            promise.resolve(
-                                    "Load remote resource failed: " + dataHolder.errorMessage);
-                        }
+                        handleFetchResult(dataHolder, promise);
                         dataHolder.recycle();
                     }
 

@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -20,35 +20,35 @@
  * limitations under the License.
  */
 
-#import "HPAsserts.h"
+#import "HippyAssert.h"
 #import "NativeRenderBaseListView.h"
 #import "NativeRenderBaseListViewCell.h"
 #import "NativeRenderBaseListViewDataSource.h"
 #import "NativeRenderCollectionViewFlowLayout.h"
-#import "NativeRenderFooterRefresh.h"
-#import "NativeRenderHeaderRefresh.h"
-#import "NativeRenderImpl.h"
-#import "NativeRenderObjectView.h"
+#import "HippyFooterRefresh.h"
+#import "HippyHeaderRefresh.h"
+#import "HippyUIManager.h"
+#import "HippyShadowView.h"
 #import "UIView+DirectionalLayout.h"
-#import "UIView+NativeRender.h"
+#import "UIView+Hippy.h"
 #import "UIView+Render.h"
+#import "HippyShadowListView.h"
 
-static NSString *const kCellIdentifier = @"cellIdentifier";
-static NSString *const kSupplementaryIdentifier = @"SupplementaryIdentifier";
+static NSString *const kCellIdentifier = @"HippyListCellIdentifier";
+static NSString *const kSupplementaryIdentifier = @"HippySupplementaryIdentifier";
 static NSString *const kListViewItem = @"ListViewItem";
 
 @interface NativeRenderBaseListView () <NativeRenderRefreshDelegate> {
-    __weak UIView *_rootView;
     BOOL _isInitialListReady;
     NSArray<UICollectionViewCell *> *_previousVisibleCells;
-    BOOL _manualScroll;
 }
 
 @end
 
 @implementation NativeRenderBaseListView
 
-#pragma mark Life Cycle
+#pragma mark - Life Cycle
+
 - (instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
         _isInitialListReady = NO;
@@ -58,13 +58,13 @@ static NSString *const kListViewItem = @"ListViewItem";
     return self;
 }
 
-
 - (void)dealloc {
     [_headerRefreshView unsetFromScrollView];
     [_footerRefreshView unsetFromScrollView];
 }
 
-#pragma mark Setter & Getter
+#pragma mark - Setter & Getter
+
 - (NSString *)compoentItemName {
     return kListViewItem;
 }
@@ -92,7 +92,8 @@ static NSString *const kListViewItem = @"ListViewItem";
 
 - (void)registerCells {
     Class cls = [self listItemClass];
-    NSAssert([cls isSubclassOfClass:[NativeRenderBaseListViewCell class]], @"list item class must be a subclass of NativeRenderBaseListViewCell");
+    HippyAssert([cls isSubclassOfClass:[NativeRenderBaseListViewCell class]],
+                @"list item class must be subclass of NativeRenderBaseListViewCell");
     [self.collectionView registerClass:cls forCellWithReuseIdentifier:kCellIdentifier];
 }
 
@@ -102,35 +103,52 @@ static NSString *const kListViewItem = @"ListViewItem";
                    withReuseIdentifier:kSupplementaryIdentifier];
 }
 
-- (void)setFrame:(CGRect)frame {
-    [super setFrame:frame];
-}
-
-- (void)nativeRenderSetFrame:(CGRect)frame {
-    [super nativeRenderSetFrame:frame];
-    self.collectionView.frame = self.bounds;
-}
-
-- (void)setInitialListReady:(NativeRenderDirectEventBlock)initialListReady {
+- (void)setInitialListReady:(HippyDirectEventBlock)initialListReady {
     _initialListReady = initialListReady;
     _isInitialListReady = NO;
 }
 
-#pragma mark Data Load
- 
+- (void)setBounces:(BOOL)bounces {
+    [self.collectionView setBounces:bounces];
+}
+
+- (BOOL)bounces {
+    return [self.collectionView bounces];
+}
+
+- (void)setShowScrollIndicator:(BOOL)show {
+    if (self.horizontal) {
+        [self.collectionView setShowsHorizontalScrollIndicator:show];
+    } else {
+        [self.collectionView setShowsVerticalScrollIndicator:show];
+    }
+}
+
+- (BOOL)showScrollIndicator {
+    if (self.horizontal) {
+        return [self.collectionView showsHorizontalScrollIndicator];
+    } else {
+        return [self.collectionView showsVerticalScrollIndicator];
+    }
+}
+
+- (void)setScrollEnabled:(BOOL)value {
+    [self.collectionView setScrollEnabled:value];
+}
+
+
+#pragma mark - Data Load
+
+// BaseListview's super is WaterfallView
+// here we use super's hippyBridgeDidFinishTransaction imp to trigger reload,
+// and override reloadData to handle special logic
 - (void)reloadData {
-    [self refreshItemNodes];
-    [_dataSource applyDiff:_previousDataSource
-             changedConext:self.changeContext
-          forWaterfallView:self.collectionView
-                completion:^(BOOL success) {
-        if (success) {
-            self->_previousDataSource = [self->_dataSource copy];
-        }
-        else {
-            self->_previousDataSource = nil;
-        }
-    }];
+    NSArray<HippyShadowView *> *datasource = [self.hippyShadowView.subcomponents copy];
+    self->_dataSource = [[NativeRenderBaseListViewDataSource alloc] initWithDataSource:datasource
+                                                                          itemViewName:[self compoentItemName]
+                                                                     containBannerView:NO];
+    [self.collectionView reloadData];
+    
     if (self.initialContentOffset) {
         CGFloat initialContentOffset = self.initialContentOffset;
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -146,76 +164,21 @@ static NSString *const kListViewItem = @"ListViewItem";
     }
 }
 
-- (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex {
-    if ([subview isKindOfClass:[NativeRenderHeaderRefresh class]]) {
+- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
+    if ([subview isKindOfClass:[HippyHeaderRefresh class]]) {
         if (_headerRefreshView) {
             [_headerRefreshView unsetFromScrollView];
         }
-        _headerRefreshView = (NativeRenderHeaderRefresh *)subview;
+        _headerRefreshView = (HippyHeaderRefresh *)subview;
         [_headerRefreshView setScrollView:self.collectionView];
         _headerRefreshView.delegate = self;
-        [_weakItemMap setObject:subview forKey:[subview componentTag]];
-    } else if ([subview isKindOfClass:[NativeRenderFooterRefresh class]]) {
+    } else if ([subview isKindOfClass:[HippyFooterRefresh class]]) {
         if (_footerRefreshView) {
             [_footerRefreshView unsetFromScrollView];
         }
-        _footerRefreshView = (NativeRenderFooterRefresh *)subview;
+        _footerRefreshView = (HippyFooterRefresh *)subview;
         [_footerRefreshView setScrollView:self.collectionView];
         _footerRefreshView.delegate = self;
-        [_weakItemMap setObject:subview forKey:[subview componentTag]];
-    }
-}
-
-- (void)didUpdateNativeRenderSubviews {
-    self.dirtyContent = YES;
-}
-
-- (void)nativeRenderComponentDidFinishTransaction {
-    if (self.dirtyContent) {
-        [self reloadData];
-        self.dirtyContent = NO;
-    }
-}
-
-- (void)refreshItemNodes {
-    NSArray<NativeRenderObjectView *> *datasource = [self popDataSource];
-    self->_dataSource = [[NativeRenderBaseListViewDataSource alloc] initWithDataSource:datasource
-                                                                          itemViewName:[self compoentItemName]
-                                                                     containBannerView:NO];
-}
-
-#pragma mark -Scrollable
-
-- (void)setScrollEnabled:(BOOL)value {
-    [self.collectionView setScrollEnabled:value];
-}
-
-- (void)scrollToOffset:(__unused CGPoint)offset {
-}
-
-- (void)scrollToOffset:(__unused CGPoint)offset animated:(__unused BOOL)animated {
-}
-
-- (void)zoomToRect:(__unused CGRect)rect animated:(__unused BOOL)animated {
-}
-
-- (UIScrollView *)realScrollView {
-    return self.collectionView;
-}
-
-- (CGSize)contentSize {
-    return self.collectionView.contentSize;
-}
-
-- (void)scrollToContentOffset:(CGPoint)offset animated:(BOOL)animated {
-    [self.collectionView setContentOffset:offset animated:animated];
-}
-
-- (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated {
-    NSIndexPath *indexPath = [self.dataSource indexPathForFlatIndex:index];
-    if (indexPath != nil) {
-        [self.collectionView scrollToItemAtIndexPath:indexPath
-                                    atScrollPosition:UITableViewScrollPositionTop animated:animated];
     }
 }
 
@@ -232,7 +195,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout
  heightForHeaderInSection:(NSInteger)section {
-    NativeRenderObjectView *header = [self.dataSource headerForSection:section];
+    HippyShadowView *header = [self.dataSource headerForSection:section];
     if (header) {
         return CGRectGetHeight(header.frame);
     } else {
@@ -243,8 +206,8 @@ static NSString *const kListViewItem = @"ListViewItem";
 - (CGSize)collectionView:(UICollectionView *)collectionView
                   layout:(UICollectionViewLayout*)collectionViewLayout
 referenceSizeForHeaderInSection:(NSInteger)section {
-    NativeRenderObjectView *headerObjectView = [self.dataSource headerForSection:section];
-    if ([headerObjectView isKindOfClass:[NativeRenderObjectView class]]) {
+    HippyShadowView *headerObjectView = [self.dataSource headerForSection:section];
+    if ([headerObjectView isKindOfClass:[HippyShadowView class]]) {
         return headerObjectView.frame.size;
     }
     return CGSizeZero;
@@ -257,15 +220,13 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     UICollectionReusableView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind
                                                                         withReuseIdentifier:kSupplementaryIdentifier
                                                                                forIndexPath:indexPath];
-    NativeRenderObjectView *headerRenderObject = [self.dataSource headerForSection:section];
-    if (headerRenderObject && [headerRenderObject isKindOfClass:[NativeRenderObjectView class]]) {
-        UIView *headerView = [self.renderImpl viewFromRenderViewTag:headerRenderObject.componentTag onRootTag:headerRenderObject.rootTag];
-        if (!headerView) {
-            headerView = [self.renderImpl createViewRecursivelyFromRenderObject:headerRenderObject];
-        }
+    HippyShadowView *headerRenderObject = [self.dataSource headerForSection:section];
+    if (headerRenderObject && [headerRenderObject isKindOfClass:[HippyShadowView class]]) {
+        UIView *headerView = [self.renderImpl createViewForShadowListItem:headerRenderObject];
         CGRect frame = headerView.frame;
         frame.origin = CGPointZero;
         headerView.frame = frame;
+        
         [view addSubview:headerView];
     }
     return view;
@@ -278,9 +239,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 
 - (void)collectionView:(UICollectionView *)collectionView
        willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-    NativeRenderObjectView *cellRenderObjectView = [self.dataSource cellForIndexPath:indexPath];
-    [cellRenderObjectView recusivelySetCreationTypeToInstant];
-    [self itemViewForCollectionViewCell:cell indexPath:indexPath];
+    HippyShadowView *cellRenderObjectView = [self.dataSource cellForIndexPath:indexPath];
     NSInteger index = [self.dataSource flatIndexForIndexPath:indexPath];
     if (self.onRowWillDisplay) {
         self.onRowWillDisplay(@{
@@ -306,39 +265,32 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     }
 }
 
-- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-    if ([cell isKindOfClass:[NativeRenderBaseListViewCell class]]) {
-        NativeRenderBaseListViewCell *hpCell = (NativeRenderBaseListViewCell *)cell;
-        if (hpCell.cellView) {
-            [_cachedItems setObject:[hpCell.cellView componentTag] forKey:indexPath];
-            hpCell.cellView = nil;
-        }
-    }
-}
-
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    return [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
-}
-
-- (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
-    HPAssert(self.renderImpl, @"no rendercontext detected");
-    if (!self.renderImpl) {
-        return;
+    NativeRenderBaseListViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
+    HippyShadowView *shadowView = [self.dataSource cellForIndexPath:indexPath];
+    
+    UIView *cellView = nil;
+    UIView *cachedVisibleCellView = [_cachedWeakCellViews objectForKey:shadowView.hippyTag];
+    if (cachedVisibleCellView &&
+        [shadowView isKindOfClass:NativeRenderObjectWaterfallItem.class] &&
+        !((NativeRenderObjectWaterfallItem *)shadowView).layoutDirty) {
+        cellView = cachedVisibleCellView;
+        HippyLogTrace(@"🟢 use cached visible cellView at %@ for %@", indexPath, shadowView.hippyTag);
+    } else {
+        cellView = [self.renderImpl createViewForShadowListItem:shadowView];
+        [_cachedWeakCellViews setObject:cellView forKey:shadowView.hippyTag];
+        HippyLogTrace(@"🟡 create cellView at %@ for %@", indexPath, shadowView.hippyTag);
     }
-    NativeRenderObjectView *cellRenderObject = [self.dataSource cellForIndexPath:indexPath];
-    NativeRenderBaseListViewCell *hpCell = (NativeRenderBaseListViewCell *)cell;
-    UIView *cellView = [self.renderImpl createViewRecursivelyFromRenderObject:cellRenderObject];
-    if (cellView) {
-        [_cachedItems removeObjectForKey:indexPath];
-    }
-    HPAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
+    
+    HippyAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of NativeRenderBaseListViewCell must conform to protocol ViewAppearStateProtocol");
-    hpCell.cellView = cellView;
-    cellView.parentComponent = self;
-    [_weakItemMap setObject:cellView forKey:[cellView componentTag]];
+    cell.cellView = cellView;
+    cellView.parent = self;
+    return cell;
 }
 
 - (void)tableViewDidLayoutSubviews:(NativeRenderListTableView *)tableView {
+    [super tableViewDidLayoutSubviews:tableView];
     NSArray<UICollectionViewCell *> *visibleCells = [self.collectionView visibleCells];
     for (NativeRenderBaseListViewCell *cell in visibleCells) {
         CGRect cellRectInTableView = [self.collectionView convertRect:[cell bounds] fromView:cell];
@@ -359,140 +311,62 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     _previousVisibleCells = visibleCells;
 }
 
-#pragma mark - Scroll
+
+#pragma mark - UIScrollViewDelegate
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    // override, should call super
+    [super scrollViewWillBeginDragging:scrollView];
+    
     if (self.onScrollBeginDrag) {
         self.onScrollBeginDrag([self scrollEventDataWithState:ScrollStateDraging]);
     }
-    _manualScroll = YES;
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginDragging:)]) {
-            [scrollViewListener scrollViewWillBeginDragging:scrollView];
-        }
-    }
 }
 
-- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
-    if (self.onMomentumScrollBegin) {
-        self.onMomentumScrollBegin([self scrollEventDataWithState:ScrollStateScrolling]);
-    }
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginDecelerating:)]) {
-            [scrollViewListener scrollViewWillBeginDecelerating:scrollView];
-        }
+- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView
+                     withVelocity:(CGPoint)velocity
+              targetContentOffset:(inout CGPoint *)targetContentOffset {
+    // override, should call super
+    [super scrollViewWillEndDragging:scrollView
+                        withVelocity:velocity
+                 targetContentOffset:targetContentOffset];
+    
+    if (self.onScrollEndDrag) {
+        self.onScrollEndDrag([self scrollEventDataWithState:ScrollStateDraging]);
     }
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
-    if (!decelerate) {
-        _manualScroll = NO;
-    }
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDragging:willDecelerate:)]) {
-            [scrollViewListener scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
-        }
-    }
-    [_headerRefreshView scrollViewDidEndDragging];
-    [_footerRefreshView scrollViewDidEndDragging];
+    // override, should call super
+    [super scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
 }
 
-- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
-    if (velocity.y == 0 && velocity.x == 0) {
-        dispatch_after(
-            dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                self->_manualScroll = NO;
-            });
-    }
-
-    if (self.onScrollEndDrag) {
-        self.onScrollEndDrag([self scrollEventDataWithState:ScrollStateDraging]);
-    }
-
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillEndDragging:withVelocity:targetContentOffset:)]) {
-            [scrollViewListener scrollViewWillEndDragging:scrollView withVelocity:velocity targetContentOffset:targetContentOffset];
-        }
+- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
+    // override, should call super
+    [super scrollViewWillBeginDecelerating:scrollView];
+    
+    if (self.onMomentumScrollBegin) {
+        self.onMomentumScrollBegin([self scrollEventDataWithState:ScrollStateScrolling]);
     }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        self->_manualScroll = NO;
-    });
+    // override, should call super
+    [super scrollViewDidEndDecelerating:scrollView];
 
     if (self.onMomentumScrollEnd) {
         self.onMomentumScrollEnd([self scrollEventDataWithState:ScrollStateStop]);
     }
-
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDecelerating:)]) {
-            [scrollViewListener scrollViewDidEndDecelerating:scrollView];
-        }
-    }
-}
-
-- (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view {
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginZooming:withView:)]) {
-            [scrollViewListener scrollViewWillBeginZooming:scrollView withView:view];
-        }
-    }
-}
-
-- (void)scrollViewDidZoom:(UIScrollView *)scrollView {
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidZoom:)]) {
-            [scrollViewListener scrollViewDidZoom:scrollView];
-        }
-    }
-}
-
-- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale {
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndZooming:withView:atScale:)]) {
-            [scrollViewListener scrollViewDidEndZooming:scrollView withView:view atScale:scale];
-        }
-    }
-}
-
-- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndScrollingAnimation:)]) {
-            [scrollViewListener scrollViewDidEndScrollingAnimation:scrollView];
-        }
-    }
 }
 
 - (NSDictionary *)scrollEventDataWithState:(NativeRenderScrollState)state {
-    return @{ @"contentOffset": @ { @"x": @(self.collectionView.contentOffset.x), @"y": @(self.collectionView.contentOffset.y) } };
+    return @{ @"contentOffset": @{ @"x": @(self.collectionView.contentOffset.x),
+                                   @"y": @(self.collectionView.contentOffset.y)}
+    };
 }
 
-- (void)didMoveToSuperview {
-    _rootView = nil;
-}
 
-- (BOOL)isManualScrolling {
-    return _manualScroll;
-}
-
-- (void)setBounces:(BOOL)bounces {
-    [self.collectionView setBounces:bounces];
-}
-
-- (BOOL)bounces {
-    return [self.collectionView bounces];
-}
-
-- (void)setShowScrollIndicator:(BOOL)show {
-    [self.collectionView setShowsVerticalScrollIndicator:show];
-}
-
-- (BOOL)showScrollIndicator {
-    return [self.collectionView showsVerticalScrollIndicator];
-}
-
-#pragma mark UICollectionViewLayout Delegate
+#pragma mark - UICollectionViewLayout Delegate
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView
                      layout:(UICollectionViewLayout *)collectionViewLayout columnCountForSection:(NSInteger)section {
@@ -518,14 +392,38 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 
 - (void)setHorizontal:(BOOL)horizontal {
     if (_horizontal != horizontal) {
+        BOOL previousShowScrollIndicator = self.showScrollIndicator;
         _horizontal = horizontal;
         UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
         layout.scrollDirection = horizontal ? UICollectionViewScrollDirectionHorizontal : UICollectionViewScrollDirectionVertical;
         [self.collectionView.collectionViewLayout invalidateLayout];
+        if (horizontal) {
+            [self.collectionView setAlwaysBounceHorizontal:YES];
+            [self.collectionView setAlwaysBounceVertical:NO];
+        } else {
+            [self.collectionView setAlwaysBounceVertical:YES];
+            [self.collectionView setAlwaysBounceHorizontal:NO];
+        }
+        if (self.showScrollIndicator != previousShowScrollIndicator) {
+            [self setShowScrollIndicator:previousShowScrollIndicator];
+        }
     }
 }
 
-#pragma mark NativeRenderRefresh Delegate
-- (void)refreshView:(NativeRenderRefresh *)refreshView statusChanged:(NativeRenderRefreshStatus)status {
+#pragma mark - HippyScrollableProtocol
+
+// override
+- (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated {
+    // Ensure at least one scroll event will fire
+    _allowNextScrollNoMatterWhat = YES;
+    
+    NSIndexPath *indexPath = [self.dataSource indexPathForFlatIndex:index];
+    if (indexPath != nil) {
+        UICollectionViewScrollPosition position = self.horizontal ? UICollectionViewScrollPositionLeft : UICollectionViewScrollPositionTop;
+        [self.collectionView scrollToItemAtIndexPath:indexPath
+                                    atScrollPosition:position
+                                            animated:animated];
+    }
 }
+
 @end

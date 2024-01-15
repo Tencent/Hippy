@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -28,7 +28,7 @@
 
 #include "dom/render_manager.h"
 
-@class UIView, NativeRenderImpl;
+@class UIView, HippyUIManager;
 
 class VFSUriLoader;
 namespace hippy {
@@ -37,7 +37,7 @@ class RootNode;
 }
 }
 
-@protocol HPImageProviderProtocol;
+@protocol HippyImageProviderProtocol;
 
 /**
  * NativeRenderManager is used to manager view creation, update and delete for Native UI
@@ -46,7 +46,7 @@ class NativeRenderManager : public hippy::RenderManager ,public std::enable_shar
     
 public:
     NativeRenderManager();
-    NativeRenderManager(NativeRenderImpl *uiManager): hippy::RenderManager("NativeRenderManager"), renderImpl_(uiManager){}
+    NativeRenderManager(HippyUIManager *uiManager): hippy::RenderManager("NativeRenderManager"), renderImpl_(uiManager){}
     
     ~NativeRenderManager();
     
@@ -128,6 +128,11 @@ public:
     void RemoveEventListener(std::weak_ptr<hippy::RootNode> root_node, std::weak_ptr<hippy::DomNode> dom_node, const std::string &name) override;
 
     /**
+     * unregister vsync event
+     */
+    void RemoveVSyncEventListener(std::weak_ptr<hippy::RootNode> root_node);
+    
+    /**
      * invoke function of view
      *
      * @param dom_node A dom node whose function to be invoked
@@ -186,19 +191,18 @@ public:
     void SetUICreationLazilyEnabled(bool enabled);
     
     /**
-     * Image provider method
-     * Users adds or obtains image providers in the following methods
-     */
-    void AddImageProviderClass(Class<HPImageProviderProtocol> cls);
-    
-    NSArray<Class<HPImageProviderProtocol>> *GetImageProviderClasses();
-    
-    /**
      * Set vfs uri loader of CPP version
      *
      *@param loader vfs url loader instance
      */
     void SetVFSUriLoader(std::shared_ptr<VFSUriLoader> loader);
+    
+    /**
+     * Set HippyBridge pointer to renderManager
+     *
+     *@param bridge HippyBridge instance
+     */
+    void SetHippyBridge(HippyBridge *bridge);
         
     /**
      * Set root view size changed event callback
@@ -208,14 +212,14 @@ public:
     void SetRootViewSizeChangedEvent(std::function<void(int32_t rootTag, NSDictionary *)> cb);
     
     /**
-     * Get NativeRenderImpl variable
+     * Get HippyUIManager variable
      *
-     * @return A NativeRenderImpl instance
+     * @return A HippyUIManager instance
      */
-    NativeRenderImpl *GetNativeRenderImpl();
+    HippyUIManager *GetHippyUIManager();
     
 private:
-    NativeRenderImpl *renderImpl_;
+    HippyUIManager *renderImpl_;
 };
 
 #endif /* NativeRenderManager_h */

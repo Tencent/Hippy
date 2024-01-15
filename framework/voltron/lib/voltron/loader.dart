@@ -18,9 +18,7 @@
 // limitations under the License.
 //
 
-import 'package:voltron_renderer/voltron_renderer.dart';
-
-import '../engine.dart';
+import 'package:voltron/voltron.dart';
 
 typedef ModuleExecutor = Function();
 
@@ -32,6 +30,19 @@ class VoltronJSLoaderManager {
 
   VoltronJSLoaderManager._internal(EngineInitParams params) {
     _engine = VoltronJSEngine.create(params);
+  }
+
+  /// 自定义so或者dylib库路径和名称，可用于动态加载library库
+  /// 此方法需要在创建引擎前调用
+  /// 注意，调用此方法需要自己判断当前机器的cpu架构，否则会导致加载失败
+  /// 另外调用此方法需要保证路径和名称正确性，否则会导致加载失败
+  static void initCustomLibrary({required String path, required String name}) {
+    if (path.isNotEmpty) {
+      FfiManager.libPath = path;
+    }
+    if (name.isNotEmpty) {
+      FfiManager.libraryName = name;
+    }
   }
 
   // 框架初始化

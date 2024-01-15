@@ -23,6 +23,7 @@
 #include "connector/js_driver_jni.h"
 
 #include <android/asset_manager_jni.h>
+#include <condition_variable>
 
 #include "connector/bridge.h"
 #include "connector/convert_utils.h"
@@ -49,6 +50,8 @@
 #include "vfs/uri_loader.h"
 #include "vfs/uri.h"
 #include "vfs/vfs_resource_holder.h"
+
+#include <unistd.h>
 
 #ifdef JS_V8
 #include "driver/vm/v8/v8_vm.h"
@@ -139,6 +142,14 @@ constexpr char kHippyCurDirKey[] = "__HIPPYCURDIR__";
 constexpr char kAssetSchema[] = "asset";
 
 static std::mutex holder_mutex;
+static std::mutex scope_mutex;
+// scope has two phases:
+// 1. create scope object.
+// 2. Initializing scope object in JS thread.
+// scope_initialized true means scope finished in js thread.
+// destroy js driver should wait after scope initialization.
+static std::unordered_map<uint32_t, bool> scope_initialized_map;
+static std::unordered_map<uint32_t, std::unique_ptr<std::condition_variable>> scope_cv_map;
 static std::unordered_map<void*, std::shared_ptr<Engine>> engine_holder;
 
 std::shared_ptr<Scope> GetScope(jint j_scope_id) {
@@ -288,6 +299,9 @@ jint CreateJsDriver(JNIEnv* j_env,
   auto dom_task_runner = dom_manager_object->GetTaskRunner();
   auto bridge = std::make_shared<Bridge>(j_env, j_object);
   auto scope_id = hippy::global_data_holder_key.fetch_add(1);
+  scope_initialized_map.insert({scope_id, false});
+  scope_cv_map.insert({scope_id, std::make_unique<std::condition_variable>()});
+
   auto scope_initialized_callback = [perf_start_time,
       scope_id, java_callback, bridge, &holder = hippy::global_data_holder](std::shared_ptr<Scope> scope) {
     scope->SetBridge(bridge);
@@ -300,6 +314,11 @@ jint CreateJsDriver(JNIEnv* j_env,
 
     FOOTSTONE_LOG(INFO) << "run scope cb";
     hippy::bridge::CallJavaMethod(java_callback->GetObj(), INIT_CB_STATE::SUCCESS);
+    {
+      std::unique_lock<std::mutex> lock(scope_mutex);
+      scope_initialized_map[scope_id] = true;
+      scope_cv_map[scope_id]->notify_all();
+    }
   };
   auto engine = JsDriverUtils::CreateEngineAndAsyncInitialize(
       dom_task_runner, param, static_cast<int64_t>(j_group_id));
@@ -323,6 +342,21 @@ void DestroyJsDriver(__unused JNIEnv* j_env,
                      jboolean j_is_reload,
                      jobject j_callback) {
   auto bridge_callback_object = std::make_shared<JavaRef>(j_env, j_callback);
+  {
+    std::unique_lock<std::mutex> lock(scope_mutex);
+    auto scope_id = footstone::checked_numeric_cast<jint, uint32_t>(j_scope_id);
+    if (!scope_initialized_map[scope_id]) {
+      auto iter = scope_cv_map.find(scope_id);
+      if (iter != scope_cv_map.end()) {
+        auto& cv = iter->second;
+        cv->wait(lock, [scope_id]{
+          return scope_initialized_map[scope_id];
+        });
+      }
+    }
+    scope_initialized_map.erase(scope_id);
+    scope_cv_map.erase(scope_id);
+  }
   auto scope = GetScope(j_scope_id);
   auto engine = scope->GetEngine().lock();
   FOOTSTONE_CHECK(engine);
@@ -336,14 +370,13 @@ void DestroyJsDriver(__unused JNIEnv* j_env,
   auto scope_id = footstone::checked_numeric_cast<jint, uint32_t>(j_scope_id);
   auto flag = hippy::global_data_holder.Erase(scope_id);
   FOOTSTONE_CHECK(flag);
-  JsDriverUtils::DestroyInstance(engine, scope, [bridge_callback_object](bool ret) {
+  JsDriverUtils::DestroyInstance(std::move(engine), std::move(scope), [bridge_callback_object](bool ret) {
       if (ret) {
         hippy::bridge::CallJavaMethod(bridge_callback_object->GetObj(),INIT_CB_STATE::SUCCESS);
       } else {
         hippy::bridge::CallJavaMethod(bridge_callback_object->GetObj(),INIT_CB_STATE::DESTROY_ERROR);
       }
     }, static_cast<bool>(j_is_reload));
-  scope = nullptr;
 }
 
 void LoadInstance(JNIEnv* j_env,

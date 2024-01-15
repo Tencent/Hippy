@@ -326,10 +326,10 @@ void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode
       not_equal(layout_.left, layout_node_->GetLeft()) || not_equal(layout_.top, layout_node_->GetTop()) ||
       not_equal(layout_.width, layout_node_->GetWidth()) || not_equal(layout_.height, layout_node_->GetHeight());
 
-  layout_.left = layout_node_->GetLeft();
-  layout_.top = layout_node_->GetTop();
-  layout_.width = layout_node_->GetWidth();
-  layout_.height = layout_node_->GetHeight();
+  layout_.left = std::isnan(layout_node_->GetLeft()) ? 0 : layout_node_->GetLeft();
+  layout_.top = std::isnan(layout_node_->GetTop()) ? 0 : layout_node_->GetTop();
+  layout_.width = std::isnan(layout_node_->GetWidth()) ? 0 : std::max<float>(layout_node_->GetWidth(), .0);
+  layout_.height = std::isnan(layout_node_->GetHeight()) ? 0 : std::max<float>(layout_node_->GetHeight(), .0);
   layout_.marginLeft = layout_node_->GetMargin(Edge::EdgeLeft);
   layout_.marginTop = layout_node_->GetMargin(Edge::EdgeTop);
   layout_.marginRight = layout_node_->GetMargin(Edge::EdgeRight);
@@ -490,8 +490,8 @@ void DomNode::UpdateDiff(const std::unordered_map<std::string,
                                                   std::shared_ptr<HippyValue>>& update_style,
                          const std::unordered_map<std::string,
                                                   std::shared_ptr<HippyValue>>& update_dom_ext) {
-  auto style_diff_value = DiffUtils::DiffProps(*this->GetStyleMap(), update_style);
-  auto ext_diff_value = DiffUtils::DiffProps(*this->GetExtStyle(), update_dom_ext);
+  auto style_diff_value = DiffUtils::DiffProps(*this->GetStyleMap(), update_style, false);
+  auto ext_diff_value = DiffUtils::DiffProps(*this->GetExtStyle(), update_dom_ext, false);
   auto style_update = std::get<0>(style_diff_value);
   auto ext_update = std::get<0>(ext_diff_value);
   std::shared_ptr<DomValueMap> diff_value = std::make_shared<DomValueMap>();
@@ -607,6 +607,13 @@ std::ostream& operator<<(std::ostream& os, const RefInfo& ref_info) {
   return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const DiffInfo& diff_info) {
+  os << "{";
+  os << "\"skip_style_diff\": " << diff_info.skip_style_diff << ", ";
+  os << "}";
+  return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const DomNode& dom_node) {
   os << "{";
   os << "\"id\": " << dom_node.id_ << ", ";
@@ -633,9 +640,13 @@ std::ostream& operator<<(std::ostream& os, const DomNode& dom_node) {
 std::ostream& operator<<(std::ostream& os, const DomInfo& dom_info) {
   auto dom_node = dom_info.dom_node;
   auto ref_info = dom_info.ref_info;
+  auto diff_info = dom_info.diff_info;
   os << "{";
   if (ref_info != nullptr) {
     os << "\"ref info\": " << *ref_info << ", ";
+  }
+  if (diff_info != nullptr) {
+    os << "\"diff info\": " << *diff_info << ", ";
   }
   if (dom_node != nullptr) {
     os << "\"dom node\": " << *dom_node << ", ";

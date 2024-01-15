@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -23,14 +23,15 @@
 #import <UIKit/UIKit.h>
 
 #import "NativeRenderCollectionViewWaterfallLayout.h"
-#import "NativeRenderComponentProtocol.h"
-#import "NativeRenderScrollableProtocol.h"
-#import "NativeRenderScrollProtocol.h"
+#import "HippyComponent.h"
+#import "HippyScrollableProtocol.h"
+#import "HippyScrollProtocol.h"
 #import "NativeRenderTouchesView.h"
+#import "NativeRenderListTableView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class NativeRenderWaterfallViewDataSource, NativeRenderHeaderRefresh, NativeRenderFooterRefresh, WaterfallItemChangeContext, NativeRenderObjectView;
+@class NativeRenderWaterfallViewDataSource, HippyHeaderRefresh, HippyFooterRefresh, WaterfallItemChangeContext, HippyShadowView;
 
 typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
     ScrollStateStop,
@@ -42,20 +43,18 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
  * NativeRenderWaterfallView is a waterfall component, internal implementation is UICollectionView
  */
 @interface NativeRenderWaterfallView : NativeRenderTouchesView <UICollectionViewDataSource, UICollectionViewDelegate,
-                                        NativeRenderCollectionViewDelegateWaterfallLayout, NativeRenderScrollableProtocol, NativeRenderScrollProtocol> {
+                                        NativeRenderCollectionViewDelegateWaterfallLayout, HippyScrollableProtocol,
+                                        HippyListTableViewLayoutProtocol, HippyScrollProtocol> {
 @protected
     NativeRenderWaterfallViewDataSource *_dataSource;
-    NativeRenderWaterfallViewDataSource *_previousDataSource;
-    NSMapTable<NSNumber *, UIView *> *_weakItemMap;
-    NSMutableDictionary<NSIndexPath *, NSNumber *> *_cachedItems;
-    double _lastOnScrollEventTimeInterval;
-    NativeRenderHeaderRefresh *_headerRefreshView;
-    NativeRenderFooterRefresh *_footerRefreshView;
+    
+    NSMapTable<NSNumber *, UIView *> *_cachedWeakCellViews;
+
+    HippyHeaderRefresh *_headerRefreshView;
+    HippyFooterRefresh *_footerRefreshView;
+    
+    BOOL _allowNextScrollNoMatterWhat;
 }
-
-@property(nonatomic, assign) BOOL dirtyContent;
-
-@property(nonatomic, strong) WaterfallItemChangeContext *changeContext;
 
 /**
  * Content inset for NativeRenderWaterfallView
@@ -108,18 +107,14 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
 @property(nonatomic, assign) BOOL manualScroll;
 
 /**
- * NativeRender Events
+ * Hippy Events
  */
-@property (nonatomic, copy) NativeRenderDirectEventBlock onScroll;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onInitialListReady;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onEndReached;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onFooterAppeared;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onRefresh;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onExposureReport;
-
-- (NSUInteger)maxCachedItemCount;
-
-- (NSArray<NSIndexPath *> *)findFurthestIndexPathsFromScreen;
+@property (nonatomic, copy) HippyDirectEventBlock onScroll;
+@property (nonatomic, copy) HippyDirectEventBlock onInitialListReady;
+@property (nonatomic, copy) HippyDirectEventBlock onEndReached;
+@property (nonatomic, copy) HippyDirectEventBlock onFooterAppeared;
+@property (nonatomic, copy) HippyDirectEventBlock onRefresh;
+@property (nonatomic, copy) HippyDirectEventBlock onExposureReport;
 
 /**
  * Initial collection view
@@ -163,9 +158,6 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
  * Reload data
  */
 - (void)reloadData;
-
-- (void)pushDataSource:(NSArray<NativeRenderObjectView *> *)dataSource;
-- (NSArray<NativeRenderObjectView *> *)popDataSource;
 
 /**
  * Reserved, not implemented

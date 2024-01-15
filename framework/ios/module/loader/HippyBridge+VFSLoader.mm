@@ -21,7 +21,7 @@
  */
 
 #import "HippyBridge+VFSLoader.h"
-#import "HPToolUtils.h"
+#import "HippyUtils.h"
 
 #include "VFSUriLoader.h"
 #include "VFSUriHandler.h"
@@ -33,14 +33,14 @@
                                    params:(NSDictionary<NSString *, NSString *> *)httpHeaders
                                      body:(NSData *)body
                                     queue:(NSOperationQueue *_Nullable)queue
-                                 progress:(void(^)(NSUInteger current, NSUInteger total))progress
-                        completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
+                                 progress:(VFSHandlerProgressBlock)progress
+                        completionHandler:(VFSHandlerCompletionBlock)completionHandler {
     if (!urlString || !completionHandler) {
         return;
     }
     std::shared_ptr<VFSUriLoader> loader = [self VFSUriLoader].lock();
     if (loader) {
-        NSURL *url = HPURLWithString(urlString, nil);
+        NSURL *url = HippyURLWithString(urlString, nil);
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
         if (method) {
             [request setHTTPMethod:method];

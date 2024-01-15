@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -23,7 +23,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "NativeRenderComponentProtocol.h"
+#import "HippyComponent.h"
 
 /**
  * A Callback block to indicate view pager's item count changed
@@ -32,9 +32,9 @@
 typedef void (^ViewPagerItemsCountChanged)(NSUInteger count);
 
 @interface NativeRenderViewPager : UIScrollView <UIScrollViewDelegate>
-@property (nonatomic, strong) NativeRenderDirectEventBlock onPageSelected;
-@property (nonatomic, strong) NativeRenderDirectEventBlock onPageScroll;
-@property (nonatomic, strong) NativeRenderDirectEventBlock onPageScrollStateChanged;
+@property (nonatomic, strong) HippyDirectEventBlock onPageSelected;
+@property (nonatomic, strong) HippyDirectEventBlock onPageScroll;
+@property (nonatomic, strong) HippyDirectEventBlock onPageScrollStateChanged;
 
 @property (nonatomic, assign) NSInteger initialPage;
 @property (nonatomic, assign) CGPoint targetOffset;

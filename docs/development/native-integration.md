@@ -58,31 +58,6 @@
 
 4. 在宿主 APP 工程中增加引擎初始化与 `hippyRootView` 挂载逻辑，具体可以参考 [Demo](https://github.com/Tencent/Hippy/tree/v3.0-dev/framework/examples/android-demo) 工程中 `HippyEngineWrapper` 实现
 
-## 3.0与2.0的接入区别
-
-1. 引擎初始化参数
-
-    HippyImageLoader在2.0中是必设项，在最新3.0版本中由于图片数据的网络拉取和图片解码解耦为不同的子模块，HippyImageLoader已经被移除，新增加ImageDecoderAdapter可选项设置，用于支持开发者有自定义格式图片的解码需求，ImageDecoderAdapter的具体接口用法可以参考native renderer文档介绍
-
-2. 引擎初始化完成callback线程变更
-
-    2.0中initEngine初始化结果SDK内部会切换到UI线程再callback给宿主，但我们发现在部分APP启动就使用Hippy的场景下，callback切UI线程执行具有很大的延迟，所以3.0中callback直接在子线程回调，之前2.0在callback中对hippyRootView相关的UI操作需要开发者自己来切UI线程保证
-
-3. 引擎销毁
-
-    3.0中destroyModule增加了回调接口，destroyEngine需要等destroyModule执行完成回调以后才能调用，否则可能有CRASH的风险
-
-4. HippyEngine中不再直接引用HippyRootView
-
-    destroyModule接口参数以及loadModule接口返回值均使用系统ViewGroup类型替代，尽量减少对SDK的耦合
-
-5. loadModule接口参数ModuleListener接口有所变更
-   - onLoadCompleted回调接口remove root view参数
-   - 增加onFirstViewAdded接口回调
-  
-<br/>
-<br/>
-
 # iOS 
 
 >注：以下文档都是假设您已经具备一定的 iOS 开发经验。
@@ -236,7 +211,7 @@ HippyBridge中有些必须属性，需要调用方设置。如果不设置，将
 @property(nonatomic, assign)std::weak_ptr<VFSUriLoader> VFSUriLoader;
 
 //添加Image
-- (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls;
+- (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls;
 
 //调用方代码
 _bridge.moduleName = @"Demo"
@@ -253,7 +228,7 @@ demoLoader->RegisterConvenientUriHandler(@"hpfile", fileHandler);
 _bridge.VFSUriLoader = demoLoader; //使用Hippy默认的vfs
 
 //使用系统默认的image解码器
-[_bridge addImageProviderClass:[HPDefaultImageProvider class]];
+[_bridge addImageProviderClass:[HippyDefaultImageProvider class]];
 
 ```
 
@@ -279,7 +254,7 @@ auto nativeRenderManager = std::make_shared<NativeRenderManager>();
 nativeRenderManager->SetDomManager(domManager);
 
 //设置Image解码类
-nativeRenderManager->AddImageProviderClass([HPDefaultImageProvider class]);
+nativeRenderManager->AddImageProviderClass([HippyDefaultImageProvider class]);
 //设置额外的自定义组件
 nativeRenderManager->RegisterExtraComponent(_extraComponents);
 //设置vfs系统
@@ -777,4 +752,3 @@ engine.start({
   },
 });
 ```
-

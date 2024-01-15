@@ -35,6 +35,7 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
+import com.tencent.mtt.hippy.uimanager.ControllerRegistry;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.node.ListViewRenderNode;
@@ -144,6 +145,17 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
         return new ListViewRenderNode(rootId, id, props, className, controllerManager, isLazyLoad);
     }
 
+    @Override
+    public void updateLayout(int rootId, int id, int x, int y, int width, int height,
+            ControllerRegistry componentHolder) {
+        super.updateLayout(rootId, id, x, y, width, height, componentHolder);
+        // nested list may not receive onBatchComplete, so we have to call dispatchLayout here
+        View view = componentHolder.getView(rootId, id);
+        if (view instanceof HippyRecyclerViewWrapper) {
+            ((HippyRecyclerViewWrapper<?>) view).getRecyclerView().dispatchLayout();
+        }
+    }
+
     @HippyControllerProps(name = "horizontal", defaultType = HippyControllerProps.BOOLEAN)
     public void setHorizontalEnable(final HRW viewWrapper, boolean flag) {
         LayoutManager layoutManager = viewWrapper.getRecyclerView().getLayoutManager();
@@ -223,18 +235,14 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
 
     @HippyControllerProps(name = "overScrollEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
     public void setOverScrollEnable(HRW viewWrapper, boolean flag) {
-        if (flag) {
-            viewWrapper.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
-        } else {
-            viewWrapper.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        }
         setBounces(viewWrapper, flag);
     }
 
     @HippyControllerProps(name = OVER_PULL, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
     public void setBounces(HRW viewWrapper, boolean flag) {
-        HippyRecyclerView recyclerView = viewWrapper.getRecyclerView();
+        HippyRecyclerView<?> recyclerView = viewWrapper.getRecyclerView();
         if (recyclerView != null) {
+            recyclerView.setOverScrollMode(flag ? View.OVER_SCROLL_ALWAYS : View.OVER_SCROLL_NEVER);
             recyclerView.setEnableOverPull(flag);
         }
     }

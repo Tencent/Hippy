@@ -186,7 +186,7 @@
 | layout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置 | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
 | load        | 加载成功完成时调用此回调函数。                               | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
 | loadStart   | 加载开始时调用。 | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
-| loadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。               | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
+| loadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。参数为：`nativeEvent: { success: number, width: number, height: number}`       | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
 | error       | 当加载错误的时候调用此回调函数。| `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
 | progress    | 在加载过程中不断调用，参数为 `nativeEvent: { loaded: number, total: number }`, `loaded` 表示加载中的图片大小， `total` 表示图片总大小 | `Function`                                                   | `iOS、Voltron`    |
 | touchstart  | 触屏开始事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、Web-Renderer、Voltron`    |
@@ -257,8 +257,7 @@
 | numberOfLines         | 设置 `input` 最大显示行数，如果 `input` 没有显式设置高度，会根据 `numberOfLines` 来计算高度撑开。在使用的时候必需同时设置 `multiline` 参数为 `true`。 | `number`                                                     | `Android、Voltron、Web-Renderer`     |
 | placeholder           | 如果没有任何文字输入，会显示此字符串。                       | `string`                                                     | `Android、iOS、Web-Renderer、Voltron`     |
 | placeholder-text-color  | 占位字符串显示的文字颜色。（也可设置为 Style 属性）  `最低支持版本2.13.4`                                   | [`color`](api/style/color.md)                                | `Android、iOS、Web-Renderer、Voltron`     |
-| underline-color-android  | `input` 下底线的颜色。 可以设置为 'transparent' 来去掉下底线。（也可设置为 Style 属性）  `最低支持版本2.13.4`      | [`color`](api/style/color.md)                                                      | `Android` |
-| returnKeyType         | 指定软键盘的回车键显示的样式。                               | `enum(done, go, next, search, send)`              | `Android、iOS、Web-Renderer`     |
+| returnKeyType         | 指定软键盘的回车键显示的样式。（其中部分样式仅对单行文本组件有效） | `enum(done, go, next, search, send)`              | `Android、iOS、Web-Renderer`     |
 | value                 | 指定 `input` 组件的值。                                  | `string`                                                     | `Android、iOS、Web-Renderer、Voltron`     |
 | break-strategy* | 设置Android API 23及以上系统的文本换行策略。`default: simple` | `enum(simple, high_quality, balanced)` | `Android(版本 2.14.2以上)` |
 
@@ -344,14 +343,13 @@ Hippy 的重点功能，高性能的可复用列表组件，在终端侧会被�
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
 | horizontal       | 指定 `ul` 是否采用横向布局。`default: undefined` 纵向布局，Android `2.14.1` 版本后可设置 `false` 显式固定纵向布局；iOS 暂不支持横向 `ul` | `boolean \| undefined` | `Android、Voltron`    |
 | initialContentOffset  | 初始位移值。在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。Android 在 `2.8.0` 版本后支持    | `number`  | `Android、iOS、Web-Renderer、Voltron` |
-| bounces | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `iOS、Voltron`    |
-| overScrollEnabled | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `Android、Voltron`    |
-| rowShouldSticky  | 设置 `ul` 是否需要开启悬停效果能力，与 `li` 的 `sticky` 配合使用。 `default: false` | `boolean`  | `Android、iOS、Web-Renderer、Voltron`
+| bounces | 是否开启回弹效果，默认 `true`， Android `2.14.1` 版本后支持该属性，老版本使用 `overScrollEnabled` | `boolean`                                                  | `Android、iOS、Voltron` |
+| rowShouldSticky  | 设置 `ul` 是否需要开启悬停效果能力，与 `li` 的 `sticky` 配合使用。 `default: false` | `boolean`  | `Android、iOS、Web-Renderer、Voltron`|
 | scrollEnabled    | 滑动是否开启。`default: true` | `boolean` | `Android、iOS、Web-Renderer、Voltron` |
 | scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件，默认 200ms | `number`                                                    | `Android、iOS、Web-Renderer、Voltron`    |
 | showScrollIndicator   | 是否显示滚动条。`default: true` | `boolean`                                                   | `iOS、Voltron`    |
 | preloadItemNumber     | 指定当列表滚动至倒数第几行时触发 `endReached` 回调。 | `number` | `Android、iOS、Web-Renderer、Voltron` |
-| exposureEventEnabled | Android 曝光能力启用开关，如果要使用 `appear`、`disappear` 相关事件，Android 需要设置该开关（iOS无需设置）, `default: true` | `boolean` | `Android、Voltron`
+| exposureEventEnabled | Android 曝光能力启用开关，如果要使用 `appear`、`disappear` 相关事件，Android 需要设置该开关（iOS无需设置）, `default: true` | `boolean` | `Android、Voltron`|
 | endReached | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `endReached` 回调。 | `Function`                                                  | `Android、iOS、Web-Renderer、Voltron`    |
 | editable | 是否可编辑，开启侧滑删除时需要设置为 `true`。`最低支持版本2.9.0` | `boolean`                                                  | `iOS`    |
 | delText | 侧滑删除文本。`最低支持版本2.9.0` | `string`                                                  | `iOS`    |

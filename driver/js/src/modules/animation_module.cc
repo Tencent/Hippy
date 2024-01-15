@@ -166,6 +166,7 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
                                                      const std::shared_ptr<CtxValue> arguments[],
                                                      std::shared_ptr<CtxValue>& exception) {
   if (argument_count != kAnimationUpdateArgc) {
+    exception = context->CreateException("animation argument count error");
     return nullptr;
   }
 
@@ -306,11 +307,13 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
     auto weak_dom_manager = scope->GetDomManager();
     auto dom_manager = weak_dom_manager.lock();
     if (!dom_manager) {
+      exception = scope->GetContext()->CreateException("dom_manager null error");
       return nullptr;
     }
     auto weak_root_node = scope->GetRootNode();
     auto root_node = weak_root_node.lock();
     if (!root_node) {
+      exception = scope->GetContext()->CreateException("root_node null error");
       return nullptr;
     }
     auto result = ParseAnimation(scope->GetContext(), argument_count, arguments, exception);
@@ -619,15 +622,18 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
     auto weak_dom_manager = scope->GetDomManager();
     auto dom_manager = weak_dom_manager.lock();
     if (!dom_manager) {
+      exception = scope->GetContext()->CreateException("dom_manager null error");
       return nullptr;
     }
     auto weak_root_node = scope->GetRootNode();
     auto root_node = weak_root_node.lock();
     if (!root_node) {
+      exception = scope->GetContext()->CreateException("root_node null error");
       return nullptr;
     }
     auto animation_manager = root_node->GetAnimationManager();
     if (!animation_manager) {
+      exception = scope->GetContext()->CreateException("animation_manager null error");
       return nullptr;
     }
     auto set = ParseAnimationSet(scope->GetContext(), argument_count, arguments, exception);
