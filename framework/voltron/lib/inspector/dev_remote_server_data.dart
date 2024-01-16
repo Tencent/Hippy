@@ -53,12 +53,10 @@ class DevRemoteServerData {
       _wsUrl = url.queryParameters['debugUrl'];
       var tempPath = _path;
       if (tempPath != null && tempPath.startsWith("/")) {
-        if (tempPath.startsWith("/")) {
-          _path = tempPath.substring(1); // remove first character /
-        }
-        int index = tempPath.indexOf("/");
+        _path = tempPath.substring(1); // remove first character /
+        int index = _path?.indexOf("/") ?? -1;
         if (index >= 0) {
-          _versionId = tempPath.substring(0, index);
+          _versionId = _path?.substring(0, index);
         }
       }
       LogUtils.i(
