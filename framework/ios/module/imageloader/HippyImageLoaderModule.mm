@@ -26,6 +26,7 @@
 #import "HippyImageLoaderModule.h"
 #import "HippyUtils.h"
 #import "HippyDefines.h"
+#import "HippyLog.h"
 
 static NSString *const kImageLoaderModuleErrorDomain = @"kImageLoaderModuleErrorDomain";
 static NSUInteger const ImageLoaderErrorParseError = 2;
@@ -62,7 +63,7 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
                                               body:nil
                                              queue:nil
                                           progress:nil
-                                 completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                                 completionHandler:^(NSData *data, NSDictionary *userInfo, NSURLResponse *response, NSError *error) {
         if (!error) {
             id<HippyImageProviderProtocol> imageProvider = [self imageProviderForData:data];
             if (!imageProvider) {
@@ -78,15 +79,13 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
             if (retImage) {
                 NSDictionary *dic = @{@"width": @(retImage.size.width), @"height": @(retImage.size.height)};
                 resolve(dic);
-            }
-            else {
+            } else {
                 NSError *error = [NSError errorWithDomain:kImageLoaderModuleErrorDomain
                                                      code:ImageLoaderErrorParseError userInfo:@{@"reason": @"image parse error"}];
                 NSString *errorKey = [NSString stringWithFormat:@"%lu", ImageLoaderErrorParseError];
                 reject(errorKey, @"image parse error", error);
             }
-        }
-        else {
+        } else {
             NSString *errorKey = [NSString stringWithFormat:@"%lu", ImageLoaderErrorRequestError];
             reject(errorKey, @"image request error", error);
         }
@@ -100,8 +99,8 @@ HIPPY_EXPORT_METHOD(prefetch:(NSString *)urlString) {
                                               body:nil
                                              queue:nil
                                           progress:nil
-                                 completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-
+                                 completionHandler:^(NSData *data, NSDictionary *userInfo, NSURLResponse *response, NSError *error) {
+        HippyLogInfo(@"prefetch %@ complete, err? %@", urlString, error.description);
     }];
 }
 

@@ -21,10 +21,26 @@ module.exports = function (source) {
   // allow using custom compiler via options
   const compiler = options.compiler || require('vue-template-compiler');
 
+  options.compilerOptions = {
+    modules: [{
+      postTransformNode: (el, options) => {
+        if (!options.scopeId) {
+          return;
+        }
+        const id = options.scopeId.replace('data-v-', 'v');
+        if (el.staticClass) {
+          el.staticClass = `"${id} ${el.staticClass.replace(/"/g, '')}"`;
+        } else {
+          el.staticClass = `"${id}"`;
+        }
+      },
+    }],
+  };
+
   const compilerOptions = Object.assign({
     outputSourceRange: true,
   }, options.compilerOptions, {
-    scopeId: query.scoped ? `data-v-${id}` : null,
+    scopeId: query.scoped ? `v${id}` : null,
     comments: query.comments,
   });
 

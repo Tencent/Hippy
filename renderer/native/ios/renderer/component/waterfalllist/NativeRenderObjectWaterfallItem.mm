@@ -42,6 +42,10 @@
 }
 
 - (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
+    if (NativeRenderCreationTypeLazily == self.creationType) {
+        // If item has not yet been created, then no need to collect blocks.
+        return;
+    }
     _layoutDirty = NO;
     if (NativeRenderUpdateLifecycleComputed == _propagationLifecycle) {
         return;

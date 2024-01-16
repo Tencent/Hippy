@@ -24,17 +24,7 @@
 #import "HippyComponent.h"
 #import "HippyConvert+NativeRender.h"
 
-#include <memory>
-
-namespace hippy {
-inline namespace dom {
-class DomManager;
-class DomNode;
-class RootNode;
-struct LayoutResult;
-enum class Direction;
-}
-}
+NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSUInteger, NativeRenderUpdateLifecycle) {
     NativeRenderUpdateLifecycleUninitialized = 0,
@@ -52,16 +42,10 @@ typedef NS_ENUM(NSUInteger, NativeRenderCreationType) {
 
 @class HippyShadowView;
 
-typedef void (^NativeRenderApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegistry);
+typedef void (^NativeRenderApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegistry, UIView * _Nullable lazyCreatedView);
 
-typedef UIView *(^NativeRenderViewCreationBlock)(HippyShadowView *renderObject);
-typedef void (^NativeRenderViewInsertionBlock)(UIView *container, NSArray<UIView *> *children);
-
-//TODO remove unused string
-extern NSString *const NativeRenderShadowViewDiffInsertion;
-extern NSString *const NativeRenderShadowViewDiffRemove;
-extern NSString *const NativeRenderShadowViewDiffUpdate;
-extern NSString *const NativeRenderShadowViewDiffTag;
+typedef UIView *_Nullable(^HippyViewCreationBlock)(HippyShadowView *renderObject);
+typedef void (^HippyViewInsertionBlock)(UIView *container, NSArray<UIView *> *children);
 
 /**
  * ShadowView tree mirrors Hippy view tree. Every node is highly stateful.
@@ -76,38 +60,7 @@ extern NSString *const NativeRenderShadowViewDiffTag;
     NativeRenderUpdateLifecycle _propagationLifecycle;
 }
 
-/**
- * NativeRenderComponent interface.
- */
 
-/**
- * Get all native render object
- */
-- (NSArray<HippyShadowView *> *)subcomponents;
-
-/**
- * Get super render object
- */
-- (HippyShadowView *)parentComponent;
-
-/**
- * Insert native render object at index.
- *
- * @param subview A render object subview to insert
- * @param atIndex position for hippy subview to insert
- * @discussion atIndex must not exceed range of current index
- */
-- (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex;
-
-/**
- * Remove render object
- *
- * @param subview A render object to delete
- */
-- (void)removeHippySubview:(HippyShadowView *)subview;
-
-@property(nonatomic, weak, readonly) HippyShadowView *superview;
-@property(nonatomic, copy) NSString *viewName;
 @property(nonatomic, strong) UIColor *backgroundColor;  // Used to propagate to children
 @property(nonatomic, copy) HippyDirectEventBlock onLayout;
 @property(nonatomic, readonly) BOOL confirmedLayoutDirectionDidUpdated;
@@ -160,7 +113,7 @@ extern NSString *const NativeRenderShadowViewDiffTag;
 
 /// Vertical Alignment for Text / Text Attachment,
 /// Note that this property only takes effect for Text Element.
-@property (nonatomic, assign) NativeRenderTextVerticalAlignType verticalAlignType;
+@property (nonatomic, assign) HippyTextVerticalAlignType verticalAlignType;
 
 /// Vertical Align Offset for Text / Text Attachment,
 /// Note that this property only takes effect for Text Element.
@@ -176,18 +129,13 @@ extern NSString *const NativeRenderShadowViewDiffTag;
  */
 @property (nonatomic, assign) NativeRenderCreationType creationType;
 
-@property (nonatomic, assign) std::weak_ptr<hippy::DomManager> domManager;
-
-@property (nonatomic, assign) std::weak_ptr<hippy::DomNode> domNode;
-
-@property (nonatomic, assign) std::weak_ptr<hippy::RootNode> rootNode;
-
 /**
  * set create type of itself and its all descendants to NativeRenderCreationTypeInstantly
  */
-- (void)recusivelySetCreationTypeToInstant;
+- (void)synchronousRecusivelySetCreationTypeToInstant;
 
-- (UIView *)createView:(NativeRenderViewCreationBlock)creationBlock insertChildren:(NativeRenderViewInsertionBlock)insertionBlock;
+
+- (UIView *)createView:(HippyViewCreationBlock)creationBlock insertChildren:(HippyViewInsertionBlock)insertionBlock;
 
 /**
  * reset layout frame to mark dirty and re-layout
@@ -208,13 +156,13 @@ extern NSString *const NativeRenderShadowViewDiffTag;
  * that add additional propagating properties should override this method.
  */
 - (NSDictionary<NSString *, id> *)processUpdatedProperties:(NSMutableSet<NativeRenderApplierBlock> *)applierBlocks
-                                          parentProperties:(NSDictionary<NSString *, id> *)parentProperties;
+                                          parentProperties:(nullable NSDictionary<NSString *, id> *)parentProperties;
 
 - (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks;
 
 /**
  * Return whether or not this node acts as a leaf node in the eyes of CSSLayout. For example
- * NativeRenderShadowText has children which it does not want CSSLayout to lay out so in the eyes of
+ * HippyShadowText has children which it does not want CSSLayout to lay out so in the eyes of
  * CSSLayout it is a leaf node.
  */
 - (BOOL)isCSSLeafNode;
@@ -234,31 +182,6 @@ extern NSString *const NativeRenderShadowViewDiffTag;
 
 - (NSDictionary *)mergeProps:(NSDictionary *)props;
 
-/**
- * Add event to NativeRenderObject
- * @param name event name
- * @discussion In general, events are mounted directly on UIViews.
- * But for the lazy loading UIViews, UIViews may not be created when events requires to mount on UIViews.
- * So we have to mount on RenderObject temparily, and mount on UIViews when UIViews are created by NativeRenderObject
- */
-- (void)addEventName:(const std::string &)name;
-
-/**
- * Get all events name
- * @return all events name
- */
-- (const std::vector<std::string> &)allEventNames;
-
-/**
- * clear all event names
- */
-- (void)clearEventNames;
-
-@property(nonatomic, assign) hippy::LayoutResult nodeLayoutResult;
-
-@property(nonatomic, assign) hippy::Direction layoutDirection;
-@property(nonatomic, assign) hippy::Direction confirmedLayoutDirection;
-- (void)applyConfirmedLayoutDirectionToSubviews:(hippy::Direction)confirmedLayoutDirection;
-- (BOOL)isLayoutSubviewsRTL;
-
 @end
+
+NS_ASSUME_NONNULL_END

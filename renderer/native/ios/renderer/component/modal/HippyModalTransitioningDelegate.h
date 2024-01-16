@@ -27,7 +27,7 @@
 @class HippyModalHostViewController;
 
 @protocol HippyModalHostViewInteractor;
-typedef void (^NativeRenderModalViewInteractionBlock)(
+typedef void (^HippyModalViewInteractionBlock)(
     UIViewController *hippyViewController, UIViewController *viewController, BOOL animated, dispatch_block_t completionBlock);
 
 @interface HippyModalTransitioningDelegate : NSObject <HippyModalHostViewInteractor, UIViewControllerTransitioningDelegate>
@@ -36,8 +36,8 @@ typedef void (^NativeRenderModalViewInteractionBlock)(
  * e.g. in case you have a native navigator that has its own way to display a modal.
  * If these are not specified, it falls back to the UIViewController standard way of presenting.
  */
-@property (nonatomic, strong) NativeRenderModalViewInteractionBlock presentationBlock;
-@property (nonatomic, strong) NativeRenderModalViewInteractionBlock dismissalBlock;
+@property (nonatomic, strong) HippyModalViewInteractionBlock presentationBlock;
+@property (nonatomic, strong) HippyModalViewInteractionBlock dismissalBlock;
 
 - (void)presentModalHostView:(HippyModalHostView *)modalHostView
           withViewController:(HippyModalHostViewController *)viewController

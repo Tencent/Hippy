@@ -50,6 +50,7 @@
 #import "NSObject+Render.h"
 #import "TypeConverter.h"
 #import "VFSUriLoader.h"
+#import "HippyBase64DataHandler.h"
 
 #include <objc/runtime.h>
 #include <sys/utsname.h>
@@ -274,7 +275,10 @@ dispatch_queue_t HippyBridgeQueue() {
         uriLoader->PushDefaultHandler(uriHandler);
         uriLoader->AddConvenientDefaultHandler(uriHandler);
         auto fileHandler = std::make_shared<HippyFileHandler>(self);
+        auto base64DataHandler = std::make_shared<HippyBase64DataHandler>();
+        uriLoader->RegisterConvenientUriHandler(@"file", fileHandler);
         uriLoader->RegisterConvenientUriHandler(@"hpfile", fileHandler);
+        uriLoader->RegisterConvenientUriHandler(@"data", base64DataHandler);
         _uriLoader = uriLoader;
     }
     return _uriLoader;
