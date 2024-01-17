@@ -1,3 +1,4 @@
+<!-- docs/hippy-vue-next/_sidebar.md -->
 * hippy-react
   * [介绍](api/hippy-react/introduction.md)
   * [组件](api/hippy-react/components.md)

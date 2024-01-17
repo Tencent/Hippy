@@ -1,13 +1,17 @@
-# Hippy-Vue-Next (基于Vue3)
 
-<br />
+# hippy-vue-next 介绍
 
-# 介绍
+@hippy/vue-next 基于 @hippy/vue 的已有逻辑。通过 Vue3.x 提供的 [createRenderer()](//github.com/vuejs/vue-next/blob/v3.0.0-alpha.0/packages/runtime-core/src/renderer.ts#L154)来实现自定义渲染相关逻辑。相比@hippy/vue，@hippy/vue-next有如下几点优势：
 
-@hippy/vue-next 基于 @hippy/vue 的已有逻辑。通过 Vue3.x 提供的 [createRenderer()](//github.com/vuejs/vue-next/blob/v3.0.0-alpha.0/packages/runtime-core/src/renderer.ts#L154)，无需侵入 Vue 代码直接通过外部库的方式引用 Vue，
-可以及时跟随 Vue 生态，在实现原理上与 @hippy/vue 基本一致。
+**性能更好：**得益于Vue3.x的性能提升，使用@hippy/vue-next在性能方便相比@hippy/vue有不小的提升
 
-@hippy/vue-next 全部代码采用 typescript 进行编写，可以拥有更好的程序健壮性和类型提示，并且 @hippy/vue-next 在整体架构上也进行了一定程度的优化。
+**实现优雅：**无需侵入 Vue 代码直接通过外部库的方式引用 Vue，因此可以及时跟随 Vue 生态，享受 Vue 相关生态带来的好处
+
+**使用方便：**在实现上与 @hippy/vue 基本一致，用户@hippy/vue的相关代码只需要做不大的改动即可升级
+
+**开发效率更高：** @hippy/vue-next 全部代码采用 typescript 进行编写，可以拥有更好的程序健壮性和类型提示，并且 @hippy/vue-next 在整体架构上也进行了一定程度的优化。
+
+---
 
 # 架构图
 
@@ -15,12 +19,7 @@
 <br />
 <br />
 
-# 如何使用
-
-@hippy/vue-next 支持的能力与 @hippy/vue 基本一致。因此关于 Hippy-Vue 的组件、模块、样式等就不做额外声明了，可以直接参考 [Hippy-Vue](api/hippy-vue/introduction)
-中的相关内容，本文档仅对差异部分进行说明：
-
-## 初始化
+# 初始化
 
 ```javascript
 // app.ts
@@ -154,49 +153,13 @@ const router: Router = createRouter({
 });
 ```
 
-# 其他差异说明
+# 注意事项 
 
-目前 `@hippy/vue-next` 与 `@hippy/vue` 功能上基本对齐，不过在 API 方面与 @hippy/vue 有一些区别，以及还有一些问题还没有解决，这里做些说明：
-
-- Vue.Native
-
-  在 @hippy/vue 中，Native 提供的能力是通过挂载在全局 Vue 对象的 Native 属性来提供的，在 Vue3.x 中这种实现方式不再可行，因此现在 Native 属性需通过 @hippy/vue-next 导出来使用
-
-  ```javascript
-  import { Native } from '@hippy/vue-next';
-  
-  console.log('do somethig', Native.xxx)
-  ```
-
-- registerElement
-
-  @hippy/vue 中 `registerElement` 方法是挂在全局 Vue 中，与 Native 类似，@hippy/vue-next 中 `registerElement` 方法也是单独提供了导出
-
-  ```javascript
-    import { registerElement } from '@hippy/vue-next';
-  ```
-
-- 全局事件
-
-  在 @hippy/vue 中，全局事件是挂载在 Vue 上的，在 @hippy/vue-next 中，提供了单独的 `EventBus` 事件总线来处理该问题
-
-  ```javascript
-  import { EventBus } from '@hippy/vue-next';
-  
-  // 监听容器大小改变事件
-  EventBus.$on('onSizeChanged', ({ oldWidth, oldHeight, width, height }) => {
-    // oldWidth: 旧的宽度；oldHeight: 旧的高度；width: 新的宽度; height: 新的高度
-    console.log('size', oldWidth, oldHeight, width, height);
-  });
-  // 触发全局事件
-  EventBus.$emit('eventName', {
-    ...args, // 事件参数
-  });
-  ```
+目前 `@hippy/vue-next` 与 `@hippy/vue` 功能上基本对齐，不过在 API 方面与 @hippy/vue 有一些区别，统一在这里说明：
 
 - v-model 指令
 
-  因为 Vue3.x 中内置指令的实现采用的是编译时插入代码的方式，目前 v-model 指令还没有找到很好的办法去处理，这里可以先使用临时解决办法实现对应功能
+  因为 Vue3.x 中内置指令的实现采用的是编译时插入代码的方式，目前 v-model 指令暂不支持，这里我们可以先用如下方法来实现对应功能
 
   ```javascript
   // 具体的可以参考 demo 中的 demo-input.vue 中的示例
@@ -222,12 +185,7 @@ const router: Router = createRouter({
   </script>
   ```
 
-- Keep-Alive HMR 问题
-
-  在示例代码中，我们的路由组件是包裹在 Keep-Alive 组件内的，但是目前使用 Keep-Alive 包裹的路由组件无法实现开发时热更新，需要刷新整个实例才能完成刷新。
-  如果是不包裹在 Keep-Alive 中则没有这个问题。目前官方[该问题](https://github.com/vuejs/core/pull/5165)也尚未解决，等待官方解决后升级 Vue 即可解决该问题。
-
-  !> vue@3.2.45+ 已经修复了该[问题](https://github.com/vuejs/core/pull/7049)，使用3.2.45及以上版本进行开发时，keep-alive内的组件也可以热更新了
+  v-model指令待我们后续开发支持
 
 - Vue3.x 变量 Proxy 问题
 
@@ -235,8 +193,8 @@ const router: Router = createRouter({
 
 - Native 接口和自定义组件的类型提示
 
-    @hippy/vue-next 提供了 Native 模块接口的 Typescript 类型提示，如果有业务自定义的 Native 接口，也可以采用类似的方式进行扩展
-  
+  @hippy/vue-next 提供了 Native 模块接口的 Typescript 类型提示，如果有业务自定义的 Native 接口，也可以采用类似的方式进行扩展
+
     ```javascript
     declare module '@hippy/vue-next' {
       export interface NativeInterfaceMap {
@@ -245,7 +203,7 @@ const router: Router = createRouter({
     }
     ```
 
-    @hippy/vue-next 也参考 `lib.dom.d.ts` 的事件声明提供了事件类型，具体可以参考 hippy-event.ts 文件。如果需要在内置的事件上进行扩展，可以采用类似方式
+  @hippy/vue-next 也参考 `lib.dom.d.ts` 的事件声明提供了事件类型，具体可以参考 hippy-event.ts 文件。如果需要在内置的事件上进行扩展，可以采用类似方式
 
     ```javascript
       declare module '@hippy/vue-next' {
@@ -255,7 +213,7 @@ const router: Router = createRouter({
       }
     ```
 
-    在使用 `registerElement` 去注册组件的时候，利用了 typescript 的 `type narrowing`，在 switch case 中提供了准确的类型提示。如果在业务注册自定义组件的时候也需要类型提示，可以采用如下方式:
+  在使用 `registerElement` 去注册组件的时候，利用了 typescript 的 `type narrowing`，在 switch case 中提供了准确的类型提示。如果在业务注册自定义组件的时候也需要类型提示，可以采用如下方式:
 
     ```javascript
       export interface HippyGlobalEventHandlersEventMap {
@@ -266,45 +224,8 @@ const router: Router = createRouter({
       }
     ```
 
-    更多信息可以参考 demo 里的 [extend.ts](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/extend.ts).
-  
-- whitespace 处理
-
-  Vue2.x Vue-Loader `compilerOptions.whitespace` 默认值为 `preserve`， Vue3.x 默认值为 `condense`（可参考 [Vue3 whitespace说明](https://cn.vuejs.org/api/application.html#app-config-compileroptions-whitespace)）。
-
-  关闭 `trim` 能力的配置方式也有所不同，改在了 `createApp` 的参数中进行设置。
-
-  ```javascript
-    // entry file
-    const app: HippyApp = createApp(App, {
-     // hippy native module name
-     appName: 'Demo',
-     // trimWhitespace default is true
-     trimWhitespace: false,
-    });
-
-    //  webpack script
-    rules: [
-    {
-        test: /\.vue$/,
-        use: [
-        {
-          loader: vueLoader,
-          options: {
-              compilerOptions: {
-                // whitespace handler, default is 'condense'
-                whitespace: 'condense',
-              },
-          },
-        }],
-     },
-    ]
-  ```
+  更多信息可以参考 demo 里的 [extend.ts](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/extend.ts).
 
 - dialog 差异
 
   `<dialog>` 组件的第一个子元素不能设置  `{ position: absolute }` 样式，如果想将 `<dialog>` 内容铺满全屏，可以给第一个子元素设置 `{ flex: 1 }` 样式或者显式设置 width 和 height 数值。这与 Hippy3.0 的逻辑保持一致。
-
-# 示例
-
-更多使用请参考 [示例项目](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo).

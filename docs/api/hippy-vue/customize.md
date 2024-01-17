@@ -68,7 +68,7 @@ component: {
 
 当你需要处理更加复杂的交互、事件、生命周期的时候，需要通过 `Vue.component` 注册一个单独的组件，registerElement 只能做到很基本的元素名称到组件的映射，和基本的参数映射。
 
-详情参考：//cn.vuejs.org/v2/guide/components-registration.html
+[详情参考](//v2.cn.vuejs.org/v2/guide/components-registration.html)
 
 ## 事件处理
 
