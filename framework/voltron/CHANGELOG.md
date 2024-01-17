@@ -1,5 +1,9 @@
 ## 0.0.38
 
+- resolve remoteServerUrl connect without '/'
+
+## 0.0.38
+
 - resolve remoteServerUrl parse version id failed
 
 ## 0.0.37
