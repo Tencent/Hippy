@@ -1,4 +1,4 @@
-## 0.0.38
+## 0.0.39
 
 - resolve remoteServerUrl connect without '/'
 
