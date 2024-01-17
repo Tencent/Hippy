@@ -21,27 +21,33 @@
  */
 
 #import "HippyComponentMap.h"
-
+#import "HippyLog.h"
 #include "dom/root_node.h"
 
 using RootNode = hippy::RootNode;
 
 @interface HippyComponentMap () {
     NSMapTable<NSNumber *, id<HippyComponent>> *_rootComponentsMap;
-    NSMutableDictionary<NSNumber *, NSMutableDictionary<NSNumber *, id<HippyComponent>> *> *_componentsMap;
+    NSMutableDictionary<NSNumber *, id> *_componentsMap;
     std::unordered_map<int32_t, std::weak_ptr<RootNode>> _rootNodesMap;
+    
+    NSMutableDictionary<NSNumber *, NSNumber *> *_enableWeakComponentsTempCache;
+    NSMutableDictionary<NSNumber *, NSMutableDictionary *> *_cacheDictionaryForWeakComponentsMap;
 }
 
 @end
 
 @implementation HippyComponentMap
 
-- (instancetype)init {
+- (instancetype)initWithComponentsReferencedType:(HippyComponentReferenceType)type {
     self = [super init];
     if (self) {
+        _isStrongHoldAllComponents = (HippyComponentReferenceTypeStrong == type);
         _rootComponentsMap = [NSMapTable strongToWeakObjectsMapTable];
         _componentsMap = [NSMutableDictionary dictionary];
         _rootNodesMap.reserve(8);
+        _enableWeakComponentsTempCache = [NSMutableDictionary dictionary];
+        _cacheDictionaryForWeakComponentsMap = [NSMutableDictionary dictionary];
     }
     return self;
 }
@@ -56,7 +62,12 @@ using RootNode = hippy::RootNode;
     NSAssert(component && tag, @"component &&tag must not be null in method %@", NSStringFromSelector(_cmd));
     NSAssert([self threadCheck], @"%@ method needs run in main thread", NSStringFromSelector(_cmd));
     if (component && tag && ![_componentsMap objectForKey:tag]) {
-        NSMutableDictionary *dic = [NSMutableDictionary dictionary];
+        id dic = nil;
+        if (_isStrongHoldAllComponents) {
+            dic = [NSMutableDictionary dictionary];
+        } else {
+            dic = [NSMapTable strongToWeakObjectsMapTable];
+        }
         [dic setObject:component forKey:tag];
         [_componentsMap setObject:dic forKey:tag];
         [_rootComponentsMap setObject:component forKey:tag];
@@ -99,6 +110,10 @@ using RootNode = hippy::RootNode;
     if (component && tag) {
         id map = [_componentsMap objectForKey:tag];
         [map setObject:component forKey:[component hippyTag]];
+        if (!_isStrongHoldAllComponents && _cacheDictionaryForWeakComponentsMap[tag]) {
+            // see `generateTempCacheBeforeAcquireAllStoredWeakComponents`
+            [_cacheDictionaryForWeakComponentsMap[tag] setObject:component forKey:[component hippyTag]];
+        }
     }
 }
 
@@ -109,36 +124,49 @@ using RootNode = hippy::RootNode;
     if (component && tag) {
         id map = [_componentsMap objectForKey:tag];
         [map removeObjectForKey:[component hippyTag]];
+        if (!_isStrongHoldAllComponents && _cacheDictionaryForWeakComponentsMap[tag]) {
+            // see `generateTempCacheBeforeAcquireAllStoredWeakComponents`
+            [_cacheDictionaryForWeakComponentsMap[tag] removeObjectForKey:[component hippyTag]];
+        }
     }
 }
 
-- (void)removeComponentByComponentTag:(NSNumber *)componentTag onRootTag:(NSNumber *)rootTag {
-    NSAssert(componentTag, @"component and tag must not be null in method %@", NSStringFromSelector(_cmd));
-    NSAssert(rootTag, @"component's tag must not be null in %@", NSStringFromSelector(_cmd));
-    NSAssert([self threadCheck], @"%@ method needs run in main thread", NSStringFromSelector(_cmd));
-    if (componentTag && rootTag) {
-        id map = [_componentsMap objectForKey:rootTag];
-        [map removeObjectForKey:componentTag];
-    }
-}
-
-- (NSMutableDictionary<NSNumber * ,__kindof id<HippyComponent>> *)componentsForRootTag:(NSNumber *)tag {
+- (NSDictionary<NSNumber * ,__kindof id<HippyComponent>> *)componentsForRootTag:(NSNumber *)tag {
     NSAssert(tag, @"tag must not be null in method %@", NSStringFromSelector(_cmd));
     NSAssert([self threadCheck], @"%@ method needs run in main thread", NSStringFromSelector(_cmd));
     if (tag) {
         id map = [_componentsMap objectForKey:tag];
-        return map;
+        if (_isStrongHoldAllComponents) {
+            return map;
+        } else {
+            // Note: Performance optimization:
+            // Calling dictionaryRepresentation methods is time-consuming,
+            // and in particular, outside may call this in the loop,
+            // so we optimize this with a temporary cache.
+            // Remember:
+            // 1. The cache is automatically removed when a new component is inserted.
+            // 2. The cache must exist only temporarily, otherwise it will affect the lifecycle of the component.
+            if (_enableWeakComponentsTempCache[tag]) {
+                if (!_cacheDictionaryForWeakComponentsMap[tag]) {
+                    _cacheDictionaryForWeakComponentsMap[tag] = ((NSMapTable *)map).dictionaryRepresentation.mutableCopy;
+                }
+                return _cacheDictionaryForWeakComponentsMap[tag];
+            } else {
+                return ((NSMapTable *)map).dictionaryRepresentation;
+            }
+        }
     }
     return nil;
 }
 
 - (__kindof id<HippyComponent>)componentForTag:(NSNumber *)componentTag
-                                                    onRootTag:(NSNumber *)tag {
-    NSAssert(componentTag && tag, @"componentTag && tag must not be null in method %@", NSStringFromSelector(_cmd));
+                                     onRootTag:(NSNumber *)tag {
     NSAssert([self threadCheck], @"%@ method needs run in main thread", NSStringFromSelector(_cmd));
     if (componentTag && tag) {
         id map = [_componentsMap objectForKey:tag];
         return [map objectForKey:componentTag];
+    } else {
+        HippyLogError(@"componentTag && tag must not be null");
     }
     return nil;
 }
@@ -158,6 +186,28 @@ using RootNode = hippy::RootNode;
     }
     [description appendString:@">"];
     return [description copy];
+}
+
+
+#pragma mark -
+
+- (void)generateTempCacheBeforeAcquireAllStoredWeakComponentsForRootTag:(NSNumber *)rootTag {
+    NSAssert([self threadCheck], @"%@ method needs run in main thread", NSStringFromSelector(_cmd));
+    _enableWeakComponentsTempCache[rootTag] = @YES;
+}
+
+- (void)clearTempCacheAfterAcquireAllStoredWeakComponentsForRootTag:(NSNumber *)rootTag {
+    NSAssert([self threadCheck], @"%@ method needs run in main thread", NSStringFromSelector(_cmd));
+    [_enableWeakComponentsTempCache removeObjectForKey:rootTag];
+    static BOOL pendingClear = NO;
+    if (pendingClear) {
+        return;
+    }
+    pendingClear = YES;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self->_cacheDictionaryForWeakComponentsMap removeObjectForKey:rootTag];
+        pendingClear = NO;
+    });
 }
 
 @end

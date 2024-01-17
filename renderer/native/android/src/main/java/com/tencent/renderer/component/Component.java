@@ -182,7 +182,7 @@ public class Component implements Drawable.Callback {
 
     @Nullable
     public Path getContentRegionPath() {
-        return (mBackgroundDrawable != null) ? mBackgroundDrawable.getBorderRadiusPath() : null;
+        return (mBackgroundDrawable != null) ? mBackgroundDrawable.getBorderPath() : null;
     }
 
     /**

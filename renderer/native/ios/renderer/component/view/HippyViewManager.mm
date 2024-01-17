@@ -28,6 +28,7 @@
 #import "NativeRenderGradientObject.h"
 #import "HippyUIManager.h"
 #import "HippyShadowView.h"
+#import "HippyShadowView+Internal.h"
 #import "HippyViewManager.h"
 #import "HippyView.h"
 #import "UIView+DirectionalLayout.h"
@@ -37,11 +38,6 @@
 #import "VFSUriLoader.h"
 #import "dom/layout_node.h"
 
-@interface HippyViewManager () {
-    NSUInteger _sequence;
-}
-
-@end
 
 @implementation HippyViewManager
 
@@ -70,7 +66,8 @@ static NSString * const HippyViewManagerGetBoundingErrMsgrKey = @"errMsg";
 HIPPY_EXPORT_METHOD(getBoundingClientRect:(nonnull NSNumber *)hippyTag
                     options:(nullable NSDictionary *)options
                     callback:(HippyPromiseResolveBlock)callback ) {
-    if (options && [[options objectForKey:HippyViewManagerGetBoundingRelToContainerKey] boolValue]) {
+    if (options && [options isKindOfClass:NSDictionary.class] &&
+        [[options objectForKey:HippyViewManagerGetBoundingRelToContainerKey] boolValue]) {
         [self measureInWindow:hippyTag withErrMsg:YES callback:callback];
     } else {
         [self measureInAppWindow:hippyTag withErrMsg:YES callback:callback];
@@ -118,7 +115,7 @@ HIPPY_EXPORT_METHOD(measureInWindow:(NSNumber *)componentTag
 }
 
 HIPPY_EXPORT_METHOD(measureInAppWindow:(NSNumber *)componentTag
-                                      callback:(HippyPromiseResolveBlock)callback) {
+                    callback:(HippyPromiseResolveBlock)callback) {
     [self measureInAppWindow:componentTag withErrMsg:NO callback:callback];
 }
 
@@ -141,8 +138,8 @@ HIPPY_EXPORT_METHOD(measureInAppWindow:(NSNumber *)componentTag
 }
 
 HIPPY_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)componentTag
-                                      params:(NSDictionary *__nonnull)params
-                                    callback:(HippyPromiseResolveBlock)callback) {
+                    params:(NSDictionary *__nonnull)params
+                    callback:(HippyPromiseResolveBlock)callback) {
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[componentTag];
         if (view == nil) {
@@ -181,8 +178,8 @@ HIPPY_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)componentTag
 }
 
 HIPPY_EXPORT_METHOD(getLocationOnScreen:(nonnull NSNumber *)componentTag
-                                      params:(NSDictionary *__nonnull)params
-                                    callback:(HippyPromiseResolveBlock)callback) {
+                    params:(NSDictionary *__nonnull)params
+                    callback:(HippyPromiseResolveBlock)callback) {
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[componentTag];
         if (view == nil) {
@@ -219,8 +216,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(visibility, NSString, HippyView) {
     if (json) {
         NSString *status = [HippyConvert NSString:json];
         view.hidden = [status isEqualToString:@"hidden"];
-    }
-    else {
+    } else {
         view.hidden = NO;
     }
 }
@@ -229,10 +225,18 @@ HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
     if (json) {
         NSString *imagePath = [HippyConvert NSString:json];
         [self loadImageSource:imagePath forView:view];
-    }
-    else {
+    } else {
         view.backgroundImage = nil;
     }
+}
+
+static NSOperationQueue *imageLoadOperationQueue(void) {
+    static NSOperationQueue *opQueue = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        opQueue = [[NSOperationQueue alloc] init];
+    });
+    return opQueue;
 }
 
 - (void)loadImageSource:(NSString *)path forView:(HippyView *)view {
@@ -246,26 +250,39 @@ HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
         return;
     }
     __weak __typeof(self)weakSelf = self;
-    loader->RequestUntrustedContent(path, nil, nil, ^(NSData *data, NSURLResponse *response, NSError *error) {
-        __strong __typeof(weakSelf)strongSelf = weakSelf;
-        HippyUIManager *renderImpl = strongSelf.bridge.uiManager;
-        id<HippyImageProviderProtocol> imageProvider = nil;
-        if (renderImpl) {
-            for (Class<HippyImageProviderProtocol> cls in [strongSelf.bridge imageProviderClasses]) {
-                if ([cls canHandleData:data]) {
-                    imageProvider = [[(Class)cls alloc] init];
-                    break;
-                }
-            }
-            imageProvider.imageDataPath = standardizeAssetUrlString;
-            [imageProvider setImageData:data];
-            UIImage *backgroundImage = [imageProvider image];
+    loader->RequestUntrustedContent(path, imageLoadOperationQueue(), nil,
+                                    ^(NSData *data, NSDictionary *userInfo, NSURLResponse *response, NSError *error) {
+        // It is possible for User to return the image directly in userInfo,
+        // So we need to check and skip the data decoding process if needed.
+        UIImage *resultImage = userInfo ? userInfo[HippyVFSHandlerUserInfoImageKey] : nil;
+        if (resultImage) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                HippyView *strongView = weakView;
+                __strong HippyView *strongView = weakView;
                 if (strongView) {
-                    strongView.backgroundImage = backgroundImage;
+                    strongView.backgroundImage = resultImage;
                 }
             });
+        } else {
+            __strong __typeof(weakSelf)strongSelf = weakSelf;
+            HippyBridge *bridge = strongSelf.bridge;
+            if (bridge) {
+                id<HippyImageProviderProtocol> imageProvider = nil;
+                for (Class<HippyImageProviderProtocol> cls in [bridge imageProviderClasses]) {
+                    if ([cls canHandleData:data]) {
+                        imageProvider = [[(Class)cls alloc] init];
+                        break;
+                    }
+                }
+                imageProvider.imageDataPath = standardizeAssetUrlString;
+                [imageProvider setImageData:data];
+                UIImage *backgroundImage = [imageProvider image];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    HippyView *strongView = weakView;
+                    if (strongView) {
+                        strongView.backgroundImage = backgroundImage;
+                    }
+                });
+            }
         }
     });
 }
@@ -535,11 +552,11 @@ HIPPY_CUSTOM_SHADOW_PROPERTY(direction, id, HippyShadowView) {
     view.layoutDirection = ConvertDirection(json);
 }
 
-HIPPY_CUSTOM_SHADOW_PROPERTY(verticalAlign, NativeRenderTextVerticalAlignType, HippyShadowView) {
+HIPPY_CUSTOM_SHADOW_PROPERTY(verticalAlign, HippyTextVerticalAlignType, HippyShadowView) {
     if (json && [json isKindOfClass:NSString.class]) {
-        view.verticalAlignType = [HippyConvert NativeRenderTextVerticalAlignType:json];
+        view.verticalAlignType = [HippyConvert HippyTextVerticalAlignType:json];
     } else if ([json isKindOfClass:NSNumber.class]) {
-        view.verticalAlignType = NativeRenderTextVerticalAlignMiddle;
+        view.verticalAlignType = HippyTextVerticalAlignMiddle;
         view.verticalAlignOffset = [HippyConvert CGFloat:json];
     } else {
         HippyLogError(@"Unsupported value for verticalAlign of Text: %@, type: %@", json, [json classForCoder]);

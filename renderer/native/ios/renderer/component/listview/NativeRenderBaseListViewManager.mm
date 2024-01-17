@@ -22,7 +22,7 @@
 
 #import "NativeRenderBaseListViewManager.h"
 #import "NativeRenderBaseListView.h"
-#import "NativeRenderObjectWaterfall.h"
+#import "HippyShadowListView.h"
 #import "HippyUIManager.h"
 
 @implementation NativeRenderBaseListViewManager
@@ -52,7 +52,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
 }
 
 - (HippyShadowView *)hippyShadowView {
-    return [[NativeRenderObjectWaterfall alloc] init];
+    return [[HippyShadowListView alloc] init];
 }
 
 HIPPY_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)componentTag

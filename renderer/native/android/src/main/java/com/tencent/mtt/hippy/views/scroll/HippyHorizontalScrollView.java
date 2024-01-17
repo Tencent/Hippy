@@ -238,17 +238,6 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
     }
 
     @Override
-    public int getOverScrollMode() {
-        // If nested scrolling occurs, remove the overScrollMode to avoid triggering the rebound effect
-        // by mistake
-        if (!hasNestedScrollingParent() || getNestedScrollPriority(DIRECTION_LEFT) == Priority.NONE
-                && getNestedScrollPriority(DIRECTION_RIGHT) == Priority.NONE) {
-            return super.getOverScrollMode();
-        }
-        return OVER_SCROLL_NEVER;
-    }
-
-    @Override
     protected boolean overScrollBy(int deltaX, int deltaY, int scrollX, int scrollY, int scrollRangeX,
             int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean isTouchEvent) {
         if (!isTouchEvent || !hasNestedScrollingParent()

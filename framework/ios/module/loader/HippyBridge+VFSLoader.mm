@@ -33,8 +33,8 @@
                                    params:(NSDictionary<NSString *, NSString *> *)httpHeaders
                                      body:(NSData *)body
                                     queue:(NSOperationQueue *_Nullable)queue
-                                 progress:(void(^)(NSUInteger current, NSUInteger total))progress
-                        completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
+                                 progress:(VFSHandlerProgressBlock)progress
+                        completionHandler:(VFSHandlerCompletionBlock)completionHandler {
     if (!urlString || !completionHandler) {
         return;
     }

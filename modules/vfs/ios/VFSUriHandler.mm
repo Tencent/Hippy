@@ -35,6 +35,7 @@
 #include "vfs/uri_loader.h"
 
 static char *progressKey = nullptr;
+NSString *const HippyVFSHandlerUserInfoImageKey = @"HippyVFSHandlerUserInfoImageKey";
 
 static bool CheckRequestFromCPP(const std::unordered_map<std::string, std::string> &headers) {
     auto find = headers.find(kRequestOrigin);
@@ -100,7 +101,7 @@ void VFSUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob> r
         return;
     }
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-    VFSHandlerCompletionBlock rsp = ^(NSData * data, NSURLResponse *resp, NSError *error){
+    VFSHandlerCompletionBlock rsp = ^(NSData * data, NSDictionary *userInfo, NSURLResponse *resp, NSError *error){
         if (error) {
             response->SetRetCode(RetCodeFromNSError(error));
             NSString *errorMsg = [error localizedFailureReason];
@@ -115,7 +116,12 @@ void VFSUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob> r
         }
         dispatch_semaphore_signal(sem);
     };
-    NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:req completionHandler:rsp];
+    NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:req 
+                                                                     completionHandler:^(NSData * _Nullable data,
+                                                                                         NSURLResponse * _Nullable response,
+                                                                                         NSError * _Nullable error) {
+        rsp(data, nil, response, error);
+    }];
     [dataTask resume];
     dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
 }
@@ -151,7 +157,7 @@ void VFSUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob> r
             }
             loader->RequestUntrustedContent(req, nil, ^(NSUInteger current, NSUInteger total) {
                 request->GetProgressCallback()(current, total);
-            }, ^(NSData *data, NSURLResponse *resp, NSError *error) {
+            }, ^(NSData *data, NSDictionary *userInfo, NSURLResponse *resp, NSError *error) {
                 RetCode code = RetCodeFromNSError(error);
                 string_view errMsg = NSStringToU8StringView([error localizedFailureReason]);
                 auto map = [resp toUnorderedMap];
@@ -186,7 +192,7 @@ void VFSUriHandler::RequestUntrustedContent(NSURLRequest *request,
                                    @"NSURLErrorFailingInfo": @"scheme not registered"};
         NSInteger code = static_cast<NSInteger>(hippy::JobResponse::RetCode::SchemeNotRegister);
         NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:code userInfo:userInfo];
-        completion(nil, nil, error);
+        completion(nil, nil, nil, error);
         return;
     }
     NSURLSessionDataProgress *dataProgress = [[NSURLSessionDataProgress alloc] initWithProgress:progress result:completion];
@@ -206,7 +212,7 @@ void VFSUriHandler::RequestUntrustedContent(NSURLRequest *request,
                                            @"NSURLErrorFailingInfo": @"loader not found"};
                 NSInteger code = static_cast<NSInteger>(hippy::JobResponse::RetCode::ResourceNotFound);
                 NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:code userInfo:userInfo];
-                completion(nil, nil, error);
+                completion(nil, nil, nil, error);
                 return;
             }
             auto progressCallback = [progress](int64_t current, int64_t total){
@@ -233,7 +239,7 @@ void VFSUriHandler::RequestUntrustedContent(NSURLRequest *request,
                         NSInteger code = static_cast<NSInteger>(cb->GetRetCode());
                         error = [NSError errorWithDomain:NSURLErrorDomain code:code userInfo:userInfo];
                     }
-                    completion(data, response, error);
+                    completion(data, nil, response, error);
                 }
             };
             loader->hippy::UriLoader::RequestUntrustedContent(requestJob, responseCallback);
