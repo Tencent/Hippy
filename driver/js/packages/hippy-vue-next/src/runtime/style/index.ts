@@ -33,17 +33,17 @@ import {
   AttributeSelector,
   SimpleSelectorSequence,
   Selector,
+  RuleSetSelector,
 } from './css-selectors';
-import type { CssAttribute } from './css-selectors-match';
 import { parseSelector } from './parser';
+import { CssDeclarationType } from '@hippy-vue-next-style-parser/index';
 
-function isDeclaration(node) {
-  return node.type === 'declaration';
-}
+type Declaration = [property: string, value: string | number];
+export type ASTRule = [hash: string, selectors: string[], declarations: Declaration[]];
 
 function createDeclaration(beforeLoadStyle) {
-  return (decl) => {
-    const newDecl = beforeLoadStyle(decl);
+  return (decl: Declaration): CssDeclarationType => {
+    const newDecl = beforeLoadStyle({ type: 'declaration', property: decl[0], value: decl[1] });
     if (!IS_PROD) {
       if (!newDecl) {
         throw new Error('beforeLoadStyle hook must returns the processed style object');
@@ -70,7 +70,7 @@ function createSimpleSelectorFromAst(ast) {
         ? new AttributeSelector(ast.property, ast.test, ast.value)
         : new AttributeSelector(ast.property);
     default:
-      return null;
+      return new InvalidSelector(new Error('Unknown selector.'));
   }
 }
 
@@ -120,16 +120,15 @@ function createSelector(sel) {
   }
 }
 
-export function fromAstNodes(astRules: CssAttribute[] = []): RuleSet[] {
+export function fromAstNodes(astRules: ASTRule[] = []): RuleSet[] {
   const beforeLoadStyle = getBeforeLoadStyle();
 
-  return astRules.map((rule) => {
-    const declarations = rule.declarations
-      .filter(isDeclaration)
-      .map(createDeclaration(beforeLoadStyle));
-    const selectors = rule.selectors.map(createSelector);
-
-    return new RuleSet(selectors, declarations, rule.hash);
+  return astRules.map(([hash, selectors, declarations]) => {
+    return new RuleSet(
+      selectors.map(createSelector) as RuleSetSelector[],
+      declarations.map(createDeclaration(beforeLoadStyle)),
+      hash,
+    );
   });
 }
 

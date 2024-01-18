@@ -32,7 +32,7 @@ export interface CssDeclarationType {
   value: string | number;
 }
 
-type RuleSetSelector = SelectorCore & { ruleSet: RuleSet };
+export type RuleSetSelector = SelectorCore & { ruleSet: RuleSet };
 
 /**
  * Rule Set

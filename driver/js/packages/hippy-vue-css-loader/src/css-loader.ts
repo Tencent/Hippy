@@ -38,11 +38,10 @@ function hippyVueCSSLoader(this: any, source: any) {
   const hash = crypto.createHash(hashType);
   const contentHash = hash.update(source).digest('hex');
   sourceId += 1;
-  const rulesAst = parsed.stylesheet.rules.filter((n: any) => n.type === 'rule').map((n: any) => ({
-    hash: contentHash,
-    selectors: n.selectors,
-
-    declarations: n.declarations.map((dec: any) => {
+  const rulesAst = parsed.stylesheet.rules.filter(n => n.type === 'rule').map(n => ([
+    contentHash,
+    n.selectors,
+    n.declarations.filter(dec => dec.type !== 'comment').map((dec) => {
       let { value } = dec;
       const isVariableColor = dec.property?.startsWith('-') && typeof value === 'string'
         && (
@@ -55,18 +54,14 @@ function hippyVueCSSLoader(this: any, source: any) {
       if (dec.property && (dec.property.toLowerCase().indexOf('color') > -1 || isVariableColor)) {
         value = translateColor(value);
       }
-      return {
-        type: dec.type,
-        property: dec.property,
-        value,
-      };
+      return [dec.property, value];
     }),
-  }));
-  const code = `(function() {
-    if (!global['${GLOBAL_STYLE_NAME}']) {
-      global['${GLOBAL_STYLE_NAME}'] = [];
+  ])).filter(rule => rule[2].length > 0);
+  const code = `(function(n) {
+    if (!global[n]) {
+      global[n] = [];
     }
-    global['${GLOBAL_STYLE_NAME}'] = global['${GLOBAL_STYLE_NAME}'].concat(${JSON.stringify(rulesAst)});
+    global[n] = global[n].concat(${JSON.stringify(rulesAst)});
 
     if(module.hot) {
       module.hot.dispose(() => {
@@ -77,7 +72,7 @@ function hippyVueCSSLoader(this: any, source: any) {
         global['${GLOBAL_DISPOSE_STYLE_NAME}'] = global['${GLOBAL_DISPOSE_STYLE_NAME}'].concat('${contentHash}');
       })
     }
-  })()`;
+  })('${GLOBAL_STYLE_NAME}')`;
   return `module.exports=${code}`;
 }
 
