@@ -27,9 +27,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-
 // Check is we are currently on the main queue (not to be confused with
-// the main thread, which is not neccesarily the same thing)
+// the main thread, which is not necessarily the same thing)
 // https://twitter.com/olebegemann/status/738656134731599872
 HIPPY_EXTERN BOOL HippyIsMainQueue(void);
 
