@@ -34,6 +34,7 @@ const app: HippyApp = createApp(App, {
       backgroundColor: 4283416717,
 
       // 状态栏背景图，要注意这个会根据容器尺寸拉伸。
+      // background image of status bar, scale with wrapper size
       // backgroundImage: 'https://user-images.githubusercontent.com/12878546/148737148-d0b227cb-69c8-4b21-bf92-739fb0c3f3aa.png',
     },
   },

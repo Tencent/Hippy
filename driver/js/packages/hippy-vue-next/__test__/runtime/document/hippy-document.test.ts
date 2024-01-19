@@ -18,15 +18,10 @@
  * limitations under the License.
  */
 
-/**
- * runtime/document/hippy-document unit test
- */
 import { HippyDocument } from '../../../src/runtime/document/hippy-document';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * hippy-document.ts unit test case
  */
 describe('runtime/document/hippy-document.ts', () => {
   it('HippyDocument should contain required function', async () => {
