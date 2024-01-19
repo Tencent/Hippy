@@ -71,6 +71,8 @@ constexpr char kGlobalKey[] = "global";
 constexpr char kNativeGlobalKey[] = "__HIPPYNATIVEGLOBAL__";
 constexpr char kCallNativesKey[] = "hippyCallNatives";
 constexpr char kCurDir[] = "__HIPPYCURDIR__";
+constexpr char kCodeCacheFailCountFilePostfix[] = "_fail_count";
+const uint8_t kCodeCacheMaxFailCount = 3;
 
 std::vector<intptr_t> external_references{};
 
@@ -158,6 +160,7 @@ static std::unordered_map<int64_t, std::pair<std::shared_ptr<Engine>, uint32_t>>
     reuse_engine_map;
 static std::mutex engine_mutex;
 static std::mutex log_mutex;
+static std::mutex code_cache_file_mutex;
 static bool is_inited = false;
 
 constexpr int64_t kDefaultEngineId = -1;
@@ -239,6 +242,38 @@ void RunScript(JNIEnv* j_env, __unused jobject, jlong j_runtime_id, jstring j_sc
   runner->PostTask(task);
 }
 
+// Code cache file corruption prevention strategy:
+// Record count before RunScript, clean count after RunScript, and if only start recording three times in a row, clean the code cache file.
+bool CheckUseCodeCacheBeforeRunScript(const unicode_string_view& code_cache_path) {
+  unicode_string_view fail_count_path = code_cache_path + unicode_string_view(kCodeCacheFailCountFilePostfix);
+  u8string content;
+  HippyFile::ReadFile(fail_count_path, content, false);
+  if (content.length() == 1) {
+    uint8_t count = content[0];
+    if (count >= kCodeCacheMaxFailCount) {
+      TDF_BASE_DLOG(INFO) << "Check code cache, count >= 3";
+      // need to remove code cache file
+      return false;
+    } else {
+      TDF_BASE_DLOG(INFO) << "Check code cache, count = " << static_cast<int>(count);
+      ++count;
+      content[0] = count;
+      HippyFile::SaveFile(fail_count_path, content);
+    }
+  } else {
+    TDF_BASE_DLOG(INFO) << "Check code cache, no count";
+    content.clear();
+    content.push_back(1);
+    HippyFile::SaveFile(fail_count_path, content);
+  }
+  return true;
+}
+
+void CheckUseCodeCacheAfterRunScript(const unicode_string_view& code_cache_path) {
+  unicode_string_view fail_count_path = code_cache_path + unicode_string_view(kCodeCacheFailCountFilePostfix);
+  HippyFile::RmFile(fail_count_path);
+}
+
 bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
                        const unicode_string_view& file_name,
                        bool is_use_code_cache,
@@ -274,6 +309,7 @@ bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
     auto task = std::make_unique<CommonTask>();
     task->func_ = hippy::base::MakeCopyable([p = std::move(read_file_promise),
                                              code_cache_path, code_cache_dir]() mutable {
+      std::lock_guard<std::mutex> lock(code_cache_file_mutex);
       u8string content;
       HippyFile::ReadFile(code_cache_path, content, true);
       if (content.empty()) {
@@ -283,6 +319,12 @@ bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
         HIPPY_USE(ret);
       } else {
         TDF_BASE_DLOG(INFO) << "Read code cache succ";
+        if (!CheckUseCodeCacheBeforeRunScript(code_cache_path)) {
+          int ret = HippyFile::RmFullPath(code_cache_dir);
+          TDF_BASE_DLOG(INFO) << "RmFullPath on check, ret = " << ret;
+          HIPPY_USE(ret);
+          content.clear();
+        }
       }
       p.set_value(std::move(content));
     });
@@ -309,6 +351,10 @@ bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
   if (!read_script_flag || StringViewUtils::IsEmpty(script_content)) {
     TDF_BASE_LOG(WARNING) << "read_script_flag = " << read_script_flag
                           << ", script content empty, uri = " << uri;
+    if (is_use_code_cache) {
+      std::lock_guard<std::mutex> lock(code_cache_file_mutex);
+      CheckUseCodeCacheAfterRunScript(code_cache_path);
+    }
     return false;
   }
 
@@ -319,6 +365,7 @@ bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
     if (!StringViewUtils::IsEmpty(code_cache_content)) {
       std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
       task->func_ = [code_cache_path, code_cache_dir, code_cache_content] {
+        std::lock_guard<std::mutex> lock(code_cache_file_mutex);
         int check_dir_ret = HippyFile::CheckDir(code_cache_dir, F_OK);
         TDF_BASE_DLOG(INFO) << "check_parent_dir_ret = " << check_dir_ret;
         if (check_dir_ret) {
@@ -340,6 +387,8 @@ bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
         bool save_file_ret = HippyFile::SaveFile(code_cache_path, u8_code_cache_content);
         TDF_BASE_LOG(INFO) << "code cache save_file_ret = " << save_file_ret;
         HIPPY_USE(save_file_ret);
+
+        CheckUseCodeCacheAfterRunScript(code_cache_path);
       };
       task_runner->PostTask(std::move(task));
     }

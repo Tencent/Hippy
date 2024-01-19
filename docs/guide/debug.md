@@ -191,9 +191,20 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
   <source src="../assets/img/elements-inspect.webm" type="video/webm">
   Elements 可视化审查示例(您的浏览器不支持webm视频格式)
 </video>
+<br />
+<br />
 
-<br />
-<br />
+# 操作手机界面能力
+
+> Android SDK 最低支持版本 2.16.0
+
+Hippy 实现了 `Chrome DevTools Protocol` 协议的 `Input` 接口，可以在 Chrome DevTools 上直接操作手机界面，调试时无需来回切换。
+
+<video width="60%" controls preload="none">
+  <source src="../assets/img/device-ctrl.webm" type="video/webm">
+  操作手机界面能力示例(您的浏览器不支持webm视频格式)
+</video>
+
 
 # HMR & Live-Reload 能力
 
@@ -645,7 +656,7 @@ webpack(webpackConfig, (err, stats) => {
           LogUtils.e("MyActivity", "loadModule failed code:" + statusCode + ", msg=" + msg);
         }
       }
-
+  
       @Override
       public boolean onJsException(HippyJsException exception) {
         return true;
