@@ -21,10 +21,14 @@
 import { HippyText } from '../../../src/runtime/text/hippy-text';
 import { HippyElement } from '../../../src/runtime/element/hippy-element';
 
+/**
+ * hippy-text.ts unit test case
+ */
 describe('runtime/text/hippy-text.ts', () => {
   it('hippy text node should set correct attribute', () => {
     const textNode = new HippyText('hello');
     expect(textNode.text).toEqual('hello');
+    expect(textNode.data).toEqual('hello');
     textNode.setText('world');
     expect(textNode.text).toEqual('world');
   });

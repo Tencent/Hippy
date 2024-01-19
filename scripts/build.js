@@ -61,7 +61,6 @@ function cleanTypescriptDeclarationFiles(filePath) {
     let isDir = fs.statSync(filePath);
     const dir = isDir.isDirectory() ? filePath : path.dirname(filePath);
     const subDirs = fs.readdirSync(dir);
-
     if (subDirs.length) {
       for (let i = 0; i <= subDirs.length; i++) {
         if (subDirs[i]) {

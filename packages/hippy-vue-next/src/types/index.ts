@@ -53,3 +53,35 @@ export {
   AnimationStyle,
   NativeInterfaceMap,
 } from './native-modules';
+
+/**
+ * SSR common type
+ *
+ * @public
+ */
+export interface SsrCommonParams {
+  // props perhaps have any type, include string，number，boolean，object，function，array. etc
+  [key: string]: NeedToTyped;
+}
+
+/**
+ * SSR Node props type
+ *
+ * @public
+ */
+export type SsrNodeProps = SsrCommonParams;
+
+/**
+ * SSR Node type
+ *
+ * @public
+ */
+export interface SsrNode {
+  id: number;
+  pId?: number;
+  index: number;
+  name: string;
+  props: SsrNodeProps;
+  tagName?: string;
+  children?: SsrNode[];
+}

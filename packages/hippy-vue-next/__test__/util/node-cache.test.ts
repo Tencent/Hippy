@@ -29,9 +29,7 @@ import {
 } from '../../src/util/node-cache';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * node-cache.ts unit test case
  */
 describe('util/index.ts', () => {
   jest.useFakeTimers();

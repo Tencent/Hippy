@@ -21,6 +21,9 @@
 import { HippyInputElement } from '../../../src/runtime/element/hippy-input-element';
 import { Native } from '../../../src/runtime/native/index';
 
+/**
+ * hippy-input-element.ts unit test case
+ */
 describe('runtime/element/hippy-input-element', () => {
   it('should invoke callUIFunction when get value of the input element.', async () => {
     const getValueMock = jest
