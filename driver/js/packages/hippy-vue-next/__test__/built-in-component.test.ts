@@ -18,10 +18,6 @@
  * limitations under the License.
  */
 
-/**
- * built-in-component unit test
- */
-
 import type { NeedToTyped } from '../src/types';
 import { NATIVE_COMPONENT_MAP, HIPPY_DEBUG_ADDRESS } from '../src/config';
 import { Native } from '../src/runtime/native';
@@ -36,9 +32,7 @@ import '../src/runtime/event/hippy-event-dispatcher';
 import { preCacheNode } from '../src/util/node';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * built-in-component.ts unit test case
  */
 describe('built-in-component', () => {
   const { EventDispatcher: eventDispatcher } = global.__GLOBAL__.jsModuleList;

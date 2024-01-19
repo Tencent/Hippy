@@ -18,17 +18,12 @@
  * limitations under the License.
  */
 
-/**
- * util/rem unit test
- */
 import * as rem from '../../src/util/rem';
 import { setHippyCachedInstance } from '../../src/util/instance';
 import { HippyElement } from '../../src/runtime/element/hippy-element';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * rem.ts unit test case
  */
 describe('src/util/rem', () => {
   it('non rem value should return old value', () => {
