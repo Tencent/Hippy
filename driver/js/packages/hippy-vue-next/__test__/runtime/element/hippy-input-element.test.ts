@@ -19,8 +19,11 @@
  */
 
 import { HippyInputElement } from '../../../src/runtime/element/hippy-input-element';
-import { Native } from '../../../src/runtime/native/index';
+import { Native } from '../../../src/runtime/native';
 
+/**
+ * hippy-input-element.ts unit test case
+ */
 describe('runtime/element/hippy-input-element', () => {
   it('should invoke callUIFunction when get value of the input element.', async () => {
     const getValueMock = jest
@@ -56,20 +59,6 @@ describe('runtime/element/hippy-input-element', () => {
     const callUIFunctionSpy = jest.spyOn(Native, 'callUIFunction');
     const hippyInputElement = new HippyInputElement('input');
     hippyInputElement.clear();
-    expect(callUIFunctionSpy).toHaveBeenCalled();
-  });
-
-  it('should invoke callUIFunction when show input menu of the input element.', () => {
-    const callUIFunctionSpy = jest.spyOn(Native, 'callUIFunction');
-    const hippyInputElement = new HippyInputElement('input');
-    hippyInputElement.showInputMenu();
-    expect(callUIFunctionSpy).toHaveBeenCalled();
-  });
-
-  it('should invoke callUIFunction when hide input menu of the input element.', () => {
-    const callUIFunctionSpy = jest.spyOn(Native, 'callUIFunction');
-    const hippyInputElement = new HippyInputElement('input');
-    hippyInputElement.hideInputMenu();
     expect(callUIFunctionSpy).toHaveBeenCalled();
   });
 

@@ -18,14 +18,10 @@
  * limitations under the License.
  */
 
-/**
- * util/event test
- */
 import { EventMethod } from '../../src/util/event';
 
 /**
- * @priority P0
- * @casetype unit
+ * event.ts unit test case
  */
 describe('src/util/event', () => {
   it('event method names should be valid', () => {
