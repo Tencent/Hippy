@@ -40,6 +40,7 @@ import com.tencent.mtt.hippy.bridge.bundleloader.HippyRemoteBundleLoader;
 import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.common.LogAdapter;
 import com.tencent.mtt.hippy.common.ThreadExecutor;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
@@ -280,6 +281,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     @Override
     public FontAdapter getFontAdapter() {
         return mEngineContext.getGlobalConfigs().getFontScaleAdapter();
+    }
+
+    @Override
+    public LogAdapter getLogAdapter() {
+        return mEngineContext.getGlobalConfigs().getLogAdapter();
     }
 
     @Override

@@ -14,10 +14,18 @@
  * limitations under the License.
  */
 
-package com.tencent.mtt.hippy.adapter;
+package com.tencent.renderer;
 
+import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.common.LogAdapter;
 
-public interface HippyLogAdapter extends LogAdapter {
-
+public interface RenderLogHandler {
+    /**
+     * Output render log to host
+     *
+     * @param level {@link LogAdapter} the render log level
+     * @param tag the render log tag
+     * @param msg the render log message
+     */
+    void onReceiveRenderLogMessage(int level, @NonNull String tag, @NonNull String msg);
 }
