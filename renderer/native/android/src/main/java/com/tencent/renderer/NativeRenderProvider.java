@@ -16,6 +16,7 @@
 
 package com.tencent.renderer;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -24,6 +25,7 @@ import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
 import com.tencent.mtt.hippy.serialization.nio.writer.SafeHeapWriter;
 import com.tencent.mtt.hippy.serialization.string.InternalizedStringTable;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.annotation.CalledByNative;
 import com.tencent.renderer.serialization.Deserializer;
 import com.tencent.renderer.serialization.Serializer;
@@ -351,7 +353,18 @@ public class NativeRenderProvider {
      * @param nodeId the dom node id
      * @param params parameters to be return to js
      */
-    public void doPromiseCallBack(int result, long callbackId, @NonNull String functionName,
+    public void doPromiseCallBack(final int result, final long callbackId, @NonNull final String functionName,
+            final int rootId, final int nodeId, @Nullable final Object params) {
+        if (UIThreadUtils.isOnUiThread()) {
+            doPromiseCallBackImpl(result, callbackId, functionName, rootId, nodeId, params);
+        } else {
+            UIThreadUtils.runOnUiThread(
+                    () -> doPromiseCallBackImpl(result, callbackId, functionName, rootId, nodeId, params));
+        }
+    }
+
+    @MainThread
+    private void doPromiseCallBackImpl(int result, long callbackId, @NonNull String functionName,
             int rootId, int nodeId, @Nullable Object params) {
         byte[] bytes = null;
         int offset = 0;
@@ -375,7 +388,17 @@ public class NativeRenderProvider {
                 length);
     }
 
-    public void dispatchEvent(int rootId, int nodeId, @NonNull String eventName,
+    public void dispatchEvent(final int rootId, final int nodeId, @NonNull final String eventName,
+            @Nullable final Object params, final boolean useCapture, final boolean useBubble) {
+        if (UIThreadUtils.isOnUiThread()) {
+            dispatchEventImpl(rootId, nodeId, eventName, params, useCapture, useBubble);
+        } else {
+            UIThreadUtils.runOnUiThread(
+                    () -> dispatchEventImpl(rootId, nodeId, eventName, params, useCapture, useBubble));
+        }
+    }
+
+    private void dispatchEventImpl(int rootId, int nodeId, @NonNull String eventName,
             @Nullable Object params, boolean useCapture, boolean useBubble) {
         byte[] bytes = null;
         int offset = 0;
