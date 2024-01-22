@@ -122,6 +122,7 @@ public class NodeProps {
     public static final String ON_TOUCH_CANCEL = "touchcancel";
     public static final String ON_INTERCEPT_TOUCH_EVENT = "onInterceptTouchEvent";
     public static final String ON_INTERCEPT_PULL_UP_EVENT = "onInterceptPullUpEvent";
+    public static final String DISALLOW_INTERCEPT_TOUCH_EVENT = "disallowInterceptTouchEvent";
     public static final String ON_ATTACHED_TO_WINDOW = "attachedtowindow";
     public static final String ON_DETACHED_FROM_WINDOW = "detachedfromwindow";
 
