@@ -130,8 +130,18 @@ public class TextImageSpan extends ImageSpan {
     }
 
     public void setUrl(@Nullable final String url) {
-        if (!TextUtils.isEmpty(url)) {
+        if (TextUtils.isEmpty(url)) {
+            return;
+        }
+        if (UIThreadUtils.isOnUiThread()) {
             loadImageWithUrl(url);
+        } else {
+            UIThreadUtils.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    loadImageWithUrl(url);
+                }
+            });
         }
     }
 
