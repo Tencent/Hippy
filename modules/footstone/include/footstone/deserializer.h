@@ -93,6 +93,7 @@ class Deserializer {
   const uint8_t* position_;
   const uint8_t* const end_;
   uint32_t version_ = 0;
+  size_t length_ = 0;
 };
 }  // namespace base
 }  // namespace tdf
