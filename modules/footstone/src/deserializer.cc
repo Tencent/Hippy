@@ -36,9 +36,9 @@ using StringViewUtils = footstone::stringview::StringViewUtils;
 constexpr uint32_t kSupportedVersion = 15;
 
 Deserializer::Deserializer(const std::vector<const uint8_t>& data)
-    : position_(&data[0]), end_(&data[0] + data.size()) {}
+    : position_(&data[0]), end_(&data[0] + data.size()), length_(data.size()) {}
 
-Deserializer::Deserializer(const uint8_t* data, size_t size) : position_(data), end_(data + size) {}
+Deserializer::Deserializer(const uint8_t* data, size_t size) : position_(data), end_(data + size), length_(size) {}
 
 Deserializer::~Deserializer() = default;
 
@@ -62,7 +62,7 @@ void Deserializer::ReadHeaderChecked() {
     SerializationTag tag;
     ReadTag(tag);
     version_ = ReadVarint<uint32_t>();
-    FOOTSTONE_CHECK(version_ <= kSupportedVersion);
+    FOOTSTONE_CHECK(version_ <= kSupportedVersion) << "deserializer version is " << version_ << ", buffer size" << length_;
   }
 }
 
