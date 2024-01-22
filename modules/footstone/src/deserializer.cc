@@ -47,7 +47,17 @@ bool Deserializer::ReadValue(HippyValue& value) {
   return ret;
 }
 
-void Deserializer::ReadHeader() {
+bool Deserializer::ReadHeader() {
+  if (position_ < end_ && *position_ == static_cast<uint8_t>(SerializationTag::kVersion)) {
+    SerializationTag tag;
+    ReadTag(tag);
+    version_ = ReadVarint<uint32_t>();
+    if (version_ <= kSupportedVersion) return true;
+  }
+  return false;
+}
+
+void Deserializer::ReadHeaderChecked() {
   if (position_ < end_ && *position_ == static_cast<uint8_t>(SerializationTag::kVersion)) {
     SerializationTag tag;
     ReadTag(tag);
