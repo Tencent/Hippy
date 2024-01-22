@@ -17,6 +17,7 @@
 package com.tencent.mtt.hippy.views.view;
 
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
@@ -36,6 +37,7 @@ public class HippyViewGroup extends FlatViewGroup implements HippyViewBase {
     float mDownX = 0;
     float mDownY = 0;
     boolean isHandlePullUp = false;
+    private boolean mDisallowInterceptTouchEvent = false;
     private ViewConfiguration mViewConfiguration;
     @Nullable
     protected NativeGestureDispatcher mGestureDispatcher;
@@ -73,6 +75,10 @@ public class HippyViewGroup extends FlatViewGroup implements HippyViewBase {
         setOverflow(overflow, this);
     }
 
+    public void setDisallowInterceptTouchEvent(boolean disallow) {
+        mDisallowInterceptTouchEvent = disallow;
+    }
+
     public static void setOverflow(@NonNull String overflow, @NonNull ViewGroup viewGroup) {
         switch (overflow) {
             case NodeProps.VISIBLE:
@@ -91,6 +97,12 @@ public class HippyViewGroup extends FlatViewGroup implements HippyViewBase {
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         int action = ev.getAction() & MotionEvent.ACTION_MASK;
         if (action == MotionEvent.ACTION_DOWN) {
+            if (mDisallowInterceptTouchEvent) {
+                ViewParent parent = getParent();
+                if (parent != null) {
+                    parent.requestDisallowInterceptTouchEvent(true);
+                }
+            }
             mDownX = ev.getX();
             mDownY = ev.getY();
             isHandlePullUp = false;
