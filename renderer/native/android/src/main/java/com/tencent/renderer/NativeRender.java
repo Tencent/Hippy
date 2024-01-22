@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
+import com.tencent.mtt.hippy.common.LogAdapter;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 
 import com.tencent.renderer.component.image.ImageDecoderAdapter;
@@ -35,7 +36,7 @@ import com.tencent.vfs.VfsManager;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-public interface NativeRender extends RenderExceptionHandler {
+public interface NativeRender extends RenderExceptionHandler, RenderLogHandler {
 
     @NonNull
     RenderManager getRenderManager();

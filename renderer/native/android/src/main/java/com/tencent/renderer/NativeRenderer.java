@@ -36,6 +36,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.common.Callback;
+import com.tencent.mtt.hippy.common.LogAdapter;
 import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
 import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
 import com.tencent.mtt.hippy.serialization.nio.writer.SafeHeapWriter;
@@ -222,6 +223,11 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         return (mFrameworkProxy != null) ? mFrameworkProxy.getFontAdapter() : null;
     }
 
+    @Nullable
+    public LogAdapter getLogAdapter() {
+        return (mFrameworkProxy != null) ? mFrameworkProxy.getLogAdapter() : null;
+    }
+
     @Override
     @Nullable
     public Executor getBackgroundExecutor() {
@@ -254,6 +260,14 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         LogUtils.e(TAG, msg);
         if (mFrameworkProxy != null) {
             mFrameworkProxy.handleNativeException(exception);
+        }
+    }
+
+    @Override
+    public void onReceiveRenderLogMessage(int level, @NonNull String tag, @NonNull String msg) {
+        LogAdapter logAdapter = getLogAdapter();
+        if (logAdapter != null) {
+            logAdapter.onReceiveLogMessage(level, tag, msg);
         }
     }
 
