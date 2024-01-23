@@ -224,9 +224,18 @@ HIPPY_CUSTOM_VIEW_PROPERTY(visibility, NSString, HippyView) {
 HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
     if (json) {
         NSString *imagePath = [HippyConvert NSString:json];
-        [self loadImageSource:imagePath forView:view];
+        // Old background image need to be cleaned up in time due to view's reuse
+        NSUInteger oldHash = view.backgroundImageUrlHashValue;
+        if (oldHash != imagePath.hash) {
+            if (oldHash > 0) {
+                view.backgroundImage = nil;
+            }
+            view.backgroundImageUrlHashValue = imagePath.hash;
+            [self loadImageSource:imagePath forView:view];
+        }
     } else {
-        view.backgroundImage = nil;
+        view.backgroundImageUrlHashValue = 0;
+        view.backgroundImage = defaultView.backgroundImage;
     }
 }
 

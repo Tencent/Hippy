@@ -122,8 +122,10 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
 }
 
 - (void)setBackgroundImage:(UIImage *)backgroundImage {
-    _backgroundImage = backgroundImage;
-    [self.layer setNeedsDisplay];
+    if (_backgroundImage != backgroundImage) {
+        _backgroundImage = backgroundImage;
+        [self.layer setNeedsDisplay];
+    }
 }
 
 - (UIEdgeInsets)bordersAsInsets {
@@ -249,6 +251,9 @@ void NativeRenderBoarderColorsRelease(HippyBorderColors c) {
     BOOL isBorderInsetsEqual = HippyBorderInsetsAreEqual(borderInsets);
     BOOL isBorderColorsEqual = HippyBorderColorsAreEqual(borderColors);
     BOOL borderStyle = (_borderStyle == HippyBorderStyleSolid || _borderStyle == HippyBorderStyleNone);
+    // iOS draws borders in front of the content whereas CSS draws them behind
+    // the content. For this reason, only use iOS border drawing when clipping
+    // or when the border is hidden.
     BOOL borderColorCheck = (borderInsets.top == 0 || (borderColors.top && CGColorGetAlpha(borderColors.top) == 0) || self.clipsToBounds);
     
     BOOL useIOSBorderRendering = !isRunningInTest && isCornerEqual && isBorderInsetsEqual && isBorderColorsEqual && borderStyle && borderColorCheck;
@@ -338,27 +343,27 @@ void NativeRenderBoarderColorsRelease(HippyBorderColors c) {
         UIImage *decodedImage = self.backgroundImage;
         CGFloat backgroundPositionX = self.backgroundPositionX;
         CGFloat backgroundPositionY = self.backgroundPositionY;
-        UIGraphicsBeginImageContextWithOptions(theFrame.size, NO, 0);
-        //draw background image
-        CGSize imageSize = decodedImage.size;
-        CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, [self bordersAsInsets]).size;
-        CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
-        CGPoint originOffset = CGPointMake((targetSize.width - drawSize.width) / 2.0,
-                                           (targetSize.height - drawSize.height) / 2.0);
-        [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX + originOffset.x,
-                                            borderInsets.top + backgroundPositionY + originOffset.y,
-                                            drawSize.width,
-                                            drawSize.height)];
-        //draw border
-        if (borderImage) {
-            CGSize size = theFrame.size;
-            [borderImage drawInRect:(CGRect) { CGPointZero, size }];
-        }
         
-        //output image
-        UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-        contentBlock(resultingImage);
+        UIGraphicsImageRendererFormat *rendererFormat = [UIGraphicsImageRendererFormat preferredFormat];
+        rendererFormat.scale = borderImage.scale;
+        UIGraphicsImageRenderer *imageRenderer = [[UIGraphicsImageRenderer alloc] initWithSize:theFrame.size format:rendererFormat];
+        UIImage *renderedImage = [imageRenderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
+            // draw background image
+            CGSize imageSize = decodedImage.size;
+            CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, borderInsets).size;
+            CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
+            CGPoint originOffset = CGPointMake((targetSize.width - drawSize.width) / 2.0, (targetSize.height - drawSize.height) / 2.0);
+            [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX + originOffset.x,
+                                                borderInsets.top + backgroundPositionY + originOffset.y,
+                                                drawSize.width,
+                                                drawSize.height)];
+            // draw border
+            if (borderImage) {
+                CGSize size = theFrame.size;
+                [borderImage drawInRect:(CGRect) { CGPointZero, size }];
+            }
+        }];
+        contentBlock(renderedImage);
     }
     else if (self.gradientObject) {
         CGSize size = theFrame.size;

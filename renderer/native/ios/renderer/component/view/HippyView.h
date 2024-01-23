@@ -86,7 +86,8 @@
 /**
  * BackgroundImage styles.
  */
-@property(nonatomic, strong) UIImage *backgroundImage;
+@property (nonatomic, strong) UIImage *backgroundImage;
+@property (nonatomic, assign) NSUInteger backgroundImageUrlHashValue;
 @property (nonatomic, strong) NSString *backgroundSize;
 @property (nonatomic, assign) CGFloat backgroundPositionX;
 @property (nonatomic, assign) CGFloat backgroundPositionY;
