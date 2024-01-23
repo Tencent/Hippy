@@ -137,7 +137,7 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
     };
 }
 
-- (NativeRenderCornerRadii)cornerRadii {
+- (HippyCornerRadii)cornerRadii {
     // Get corner radii
     const CGFloat radius = MAX(0, _borderRadius);
     const CGFloat topLeftRadius = _borderTopLeftRadius >= 0 ? _borderTopLeftRadius : radius;
@@ -153,7 +153,7 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
     const CGFloat leftScaleFactor = HippyZeroIfNaN(MIN(1, size.height / (topLeftRadius + bottomLeftRadius)));
 
     // Return scaled radii
-    return (NativeRenderCornerRadii) {
+    return (HippyCornerRadii) {
         topLeftRadius * MIN(topScaleFactor, leftScaleFactor),
         topRightRadius * MIN(topScaleFactor, rightScaleFactor),
         bottomLeftRadius * MIN(bottomScaleFactor, leftScaleFactor),
@@ -176,8 +176,8 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
     [super setFrame:frame];
 }
 
-- (NativeRenderBorderColors)borderColors {
-    return (NativeRenderBorderColors) {
+- (HippyBorderColors)borderColors {
+    return (HippyBorderColors) {
         _borderTopColor ?: _borderColor,
         _borderLeftColor ?: _borderColor,
         _borderBottomColor ?: _borderColor,
@@ -185,7 +185,7 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
     };
 }
 
-void NativeRenderBoarderColorsRetain(NativeRenderBorderColors c) {
+void NativeRenderBoarderColorsRetain(HippyBorderColors c) {
     if (c.top) {
         CGColorRetain(c.top);
     }
@@ -200,7 +200,7 @@ void NativeRenderBoarderColorsRetain(NativeRenderBorderColors c) {
     }
 }
 
-void NativeRenderBoarderColorsRelease(NativeRenderBorderColors c) {
+void NativeRenderBoarderColorsRelease(HippyBorderColors c) {
     if (c.top) {
         CGColorRelease(c.top);
     }
@@ -239,16 +239,16 @@ void NativeRenderBoarderColorsRelease(NativeRenderBorderColors c) {
 
     [self drawShadowForLayer];
 
-    const NativeRenderCornerRadii cornerRadii = [self cornerRadii];
+    const HippyCornerRadii cornerRadii = [self cornerRadii];
     const UIEdgeInsets borderInsets = [self bordersAsInsets];
-    const NativeRenderBorderColors borderColors = [self borderColors];
+    const HippyBorderColors borderColors = [self borderColors];
     UIColor *backgroundColor = self.backgroundColor;
 
     BOOL isRunningInTest = HippyRunningInTestEnvironment();
-    BOOL isCornerEqual = NativeRenderCornerRadiiAreEqual(cornerRadii);
-    BOOL isBorderInsetsEqual = NativeRenderBorderInsetsAreEqual(borderInsets);
-    BOOL isBorderColorsEqual = NativeRenderBorderColorsAreEqual(borderColors);
-    BOOL borderStyle = (_borderStyle == NativeRenderBorderStyleSolid || _borderStyle == NativeRenderBorderStyleNone);
+    BOOL isCornerEqual = HippyCornerRadiiAreEqual(cornerRadii);
+    BOOL isBorderInsetsEqual = HippyBorderInsetsAreEqual(borderInsets);
+    BOOL isBorderColorsEqual = HippyBorderColorsAreEqual(borderColors);
+    BOOL borderStyle = (_borderStyle == HippyBorderStyleSolid || _borderStyle == HippyBorderStyleNone);
     BOOL borderColorCheck = (borderInsets.top == 0 || (borderColors.top && CGColorGetAlpha(borderColors.top) == 0) || self.clipsToBounds);
     
     BOOL useIOSBorderRendering = !isRunningInTest && isCornerEqual && isBorderInsetsEqual && isBorderColorsEqual && borderStyle && borderColorCheck;
@@ -312,9 +312,9 @@ void NativeRenderBoarderColorsRelease(NativeRenderBorderColors c) {
 }
 
 - (BOOL)getLayerContentForColor:(UIColor *)color completionBlock:(void (^)(UIImage *))contentBlock {
-    const NativeRenderCornerRadii cornerRadii = [self cornerRadii];
+    const HippyCornerRadii cornerRadii = [self cornerRadii];
     const UIEdgeInsets borderInsets = [self bordersAsInsets];
-    const NativeRenderBorderColors borderColors = [self borderColors];
+    const HippyBorderColors borderColors = [self borderColors];
     UIColor *backgroundColor = color?:self.backgroundColor;
     
     CGRect theFrame = self.frame;
@@ -328,7 +328,7 @@ void NativeRenderBoarderColorsRelease(NativeRenderBorderColors c) {
     }
     NSInteger clipToBounds = self.clipsToBounds;
     NSString *backgroundSize = self.backgroundSize;
-    UIImage *borderImage = NativeRenderGetBorderImage(self.borderStyle, theFrame.size, cornerRadii, borderInsets,
+    UIImage *borderImage = HippyGetBorderImage(self.borderStyle, theFrame.size, cornerRadii, borderInsets,
                                                borderColors, backgroundColor.CGColor, clipToBounds, !self.gradientObject);
     if (!self.backgroundImage && !self.gradientObject) {
         contentBlock(borderImage);
@@ -395,13 +395,13 @@ static BOOL NativeRenderLayerHasShadow(CALayer *layer) {
     CGFloat cornerRadius = 0;
 
     if (self.clipsToBounds) {
-        const NativeRenderCornerRadii cornerRadii = [self cornerRadii];
-        if (NativeRenderCornerRadiiAreEqual(cornerRadii)) {
+        const HippyCornerRadii cornerRadii = [self cornerRadii];
+        if (HippyCornerRadiiAreEqual(cornerRadii)) {
             cornerRadius = cornerRadii.topLeft;
 
         } else {
             CAShapeLayer *shapeLayer = [CAShapeLayer layer];
-            CGPathRef path = NativeRenderPathCreateWithRoundedRect(self.bounds, NativeRenderGetCornerInsets(cornerRadii, UIEdgeInsetsZero), NULL);
+            CGPathRef path = HippyPathCreateWithRoundedRect(self.bounds, HippyGetCornerInsets(cornerRadii, UIEdgeInsetsZero), NULL);
             shapeLayer.path = path;
             CGPathRelease(path);
             mask = shapeLayer;
@@ -467,7 +467,7 @@ setBorderRadius(BottomRight)
 #pragma mark - Border Style
 
 #define setBorderStyle(side)                                  \
-    -(void)setBorder##side##Style : (NativeRenderBorderStyle)style { \
+    -(void)setBorder##side##Style : (HippyBorderStyle)style { \
         if (_border##side##Style == style) {                  \
             return;                                           \
         }                                                     \

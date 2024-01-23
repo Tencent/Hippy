@@ -81,7 +81,7 @@
 /**
  * Border styles.
  */
-@property (nonatomic, assign) NativeRenderBorderStyle borderStyle;
+@property (nonatomic, assign) HippyBorderStyle borderStyle;
 
 /**
  * BackgroundImage styles.

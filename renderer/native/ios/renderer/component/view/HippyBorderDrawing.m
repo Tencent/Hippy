@@ -23,27 +23,27 @@
 #import "HippyBorderDrawing.h"
 #import "HippyLog.h"
 
-static const CGFloat NativeRenderViewBorderThreshold = 0.001;
+static const CGFloat HippyViewBorderThreshold = 0.001;
 
-BOOL NativeRenderBorderInsetsAreEqual(UIEdgeInsets borderInsets) {
-    return ABS(borderInsets.left - borderInsets.right) < NativeRenderViewBorderThreshold
-           && ABS(borderInsets.left - borderInsets.bottom) < NativeRenderViewBorderThreshold
-           && ABS(borderInsets.left - borderInsets.top) < NativeRenderViewBorderThreshold;
+BOOL HippyBorderInsetsAreEqual(UIEdgeInsets borderInsets) {
+    return ABS(borderInsets.left - borderInsets.right) < HippyViewBorderThreshold
+           && ABS(borderInsets.left - borderInsets.bottom) < HippyViewBorderThreshold
+           && ABS(borderInsets.left - borderInsets.top) < HippyViewBorderThreshold;
 }
 
-BOOL NativeRenderCornerRadiiAreEqual(NativeRenderCornerRadii cornerRadii) {
-    return ABS(cornerRadii.topLeft - cornerRadii.topRight) < NativeRenderViewBorderThreshold
-           && ABS(cornerRadii.topLeft - cornerRadii.bottomLeft) < NativeRenderViewBorderThreshold
-           && ABS(cornerRadii.topLeft - cornerRadii.bottomRight) < NativeRenderViewBorderThreshold;
+BOOL HippyCornerRadiiAreEqual(HippyCornerRadii cornerRadii) {
+    return ABS(cornerRadii.topLeft - cornerRadii.topRight) < HippyViewBorderThreshold
+           && ABS(cornerRadii.topLeft - cornerRadii.bottomLeft) < HippyViewBorderThreshold
+           && ABS(cornerRadii.topLeft - cornerRadii.bottomRight) < HippyViewBorderThreshold;
 }
 
-BOOL NativeRenderBorderColorsAreEqual(NativeRenderBorderColors borderColors) {
+BOOL HippyBorderColorsAreEqual(HippyBorderColors borderColors) {
     return CGColorEqualToColor(borderColors.left, borderColors.right) && CGColorEqualToColor(borderColors.left, borderColors.top)
            && CGColorEqualToColor(borderColors.left, borderColors.bottom);
 }
 
-NativeRenderCornerInsets NativeRenderGetCornerInsets(NativeRenderCornerRadii cornerRadii, UIEdgeInsets edgeInsets) {
-    return (NativeRenderCornerInsets) { {
+HippyCornerInsets HippyGetCornerInsets(HippyCornerRadii cornerRadii, UIEdgeInsets edgeInsets) {
+    return (HippyCornerInsets) { {
                                      MAX(0, cornerRadii.topLeft - edgeInsets.left),
                                      MAX(0, cornerRadii.topLeft - edgeInsets.top),
                                  },
@@ -61,7 +61,7 @@ NativeRenderCornerInsets NativeRenderGetCornerInsets(NativeRenderCornerRadii cor
         } };
 }
 
-static void NativeRenderPathAddEllipticArc(
+static void HippyPathAddEllipticArc(
     CGMutablePathRef path, const CGAffineTransform *m, CGPoint origin, CGSize size, CGFloat startAngle, CGFloat endAngle, BOOL clockwise) {
     CGFloat xScale = 1, yScale = 1, radius = 0;
     if (size.width != 0) {
@@ -83,7 +83,7 @@ static void NativeRenderPathAddEllipticArc(
     CGPathAddArc(path, &t, 0, 0, radius, startAngle, endAngle, clockwise);
 }
 
-CGPathRef NativeRenderPathCreateWithRoundedRect(CGRect bounds, NativeRenderCornerInsets cornerInsets, const CGAffineTransform *transform) {
+CGPathRef HippyPathCreateWithRoundedRect(CGRect bounds, HippyCornerInsets cornerInsets, const CGAffineTransform *transform) {
     const CGFloat minX = CGRectGetMinX(bounds);
     const CGFloat minY = CGRectGetMinY(bounds);
     const CGFloat maxX = CGRectGetMaxX(bounds);
@@ -107,15 +107,15 @@ CGPathRef NativeRenderPathCreateWithRoundedRect(CGRect bounds, NativeRenderCorne
     };
 
     CGMutablePathRef path = CGPathCreateMutable();
-    NativeRenderPathAddEllipticArc(path, transform, (CGPoint) { minX + topLeft.width, minY + topLeft.height }, topLeft, M_PI, 3 * M_PI_2, NO);
-    NativeRenderPathAddEllipticArc(path, transform, (CGPoint) { maxX - topRight.width, minY + topRight.height }, topRight, 3 * M_PI_2, 0, NO);
-    NativeRenderPathAddEllipticArc(path, transform, (CGPoint) { maxX - bottomRight.width, maxY - bottomRight.height }, bottomRight, 0, M_PI_2, NO);
-    NativeRenderPathAddEllipticArc(path, transform, (CGPoint) { minX + bottomLeft.width, maxY - bottomLeft.height }, bottomLeft, M_PI_2, M_PI, NO);
+    HippyPathAddEllipticArc(path, transform, (CGPoint) { minX + topLeft.width, minY + topLeft.height }, topLeft, M_PI, 3 * M_PI_2, NO);
+    HippyPathAddEllipticArc(path, transform, (CGPoint) { maxX - topRight.width, minY + topRight.height }, topRight, 3 * M_PI_2, 0, NO);
+    HippyPathAddEllipticArc(path, transform, (CGPoint) { maxX - bottomRight.width, maxY - bottomRight.height }, bottomRight, 0, M_PI_2, NO);
+    HippyPathAddEllipticArc(path, transform, (CGPoint) { minX + bottomLeft.width, maxY - bottomLeft.height }, bottomLeft, M_PI_2, M_PI, NO);
     CGPathCloseSubpath(path);
     return path;
 }
 
-static void NativeRenderEllipseGetIntersectionsWithLine(CGRect ellipseBounds, CGPoint lineStart, CGPoint lineEnd, CGPoint intersections[2]) {
+static void HippyEllipseGetIntersectionsWithLine(CGRect ellipseBounds, CGPoint lineStart, CGPoint lineEnd, CGPoint intersections[2]) {
     const CGPoint ellipseCenter = { CGRectGetMidX(ellipseBounds), CGRectGetMidY(ellipseBounds) };
 
     lineStart.x -= ellipseCenter.x;
@@ -141,30 +141,30 @@ static void NativeRenderEllipseGetIntersectionsWithLine(CGRect ellipseBounds, CG
     intersections[1] = (CGPoint) { x2 + ellipseCenter.x, y2 + ellipseCenter.y };
 }
 
-NS_INLINE BOOL NativeRenderCornerRadiiAreAboveThreshold(NativeRenderCornerRadii cornerRadii) {
-    return (cornerRadii.topLeft > NativeRenderViewBorderThreshold || cornerRadii.topRight > NativeRenderViewBorderThreshold
-            || cornerRadii.bottomLeft > NativeRenderViewBorderThreshold || cornerRadii.bottomRight > NativeRenderViewBorderThreshold);
+NS_INLINE BOOL HippyCornerRadiiAreAboveThreshold(HippyCornerRadii cornerRadii) {
+    return (cornerRadii.topLeft > HippyViewBorderThreshold || cornerRadii.topRight > HippyViewBorderThreshold
+            || cornerRadii.bottomLeft > HippyViewBorderThreshold || cornerRadii.bottomRight > HippyViewBorderThreshold);
 }
 
-CGPathRef NativeRenderPathCreateOuterOutline(BOOL drawToEdge, CGRect rect, NativeRenderCornerRadii cornerRadii) {
+CGPathRef HippyPathCreateOuterOutline(BOOL drawToEdge, CGRect rect, HippyCornerRadii cornerRadii) {
     if (drawToEdge) {
         return CGPathCreateWithRect(rect, NULL);
     }
 
-    return NativeRenderPathCreateWithRoundedRect(rect, NativeRenderGetCornerInsets(cornerRadii, UIEdgeInsetsZero), NULL);
+    return HippyPathCreateWithRoundedRect(rect, HippyGetCornerInsets(cornerRadii, UIEdgeInsetsZero), NULL);
 }
 
-static CGContextRef NativeRenderUIGraphicsBeginImageContext(CGSize size, CGColorRef backgroundColor, BOOL hasCornerRadii, BOOL drawToEdge) {
+static CGContextRef HippyUIGraphicsBeginImageContext(CGSize size, CGColorRef backgroundColor, BOOL hasCornerRadii, BOOL drawToEdge) {
     const CGFloat alpha = CGColorGetAlpha(backgroundColor);
     const BOOL opaque = (drawToEdge || !hasCornerRadii) && alpha == 1.0;
     UIGraphicsBeginImageContextWithOptions(size, opaque, 0.0);
     return UIGraphicsGetCurrentContext();
 }
 
-static UIImage *NativeRenderGetSolidBorderImage(NativeRenderCornerRadii cornerRadii, CGSize viewSize, UIEdgeInsets borderInsets, NativeRenderBorderColors borderColors,
+static UIImage *HippyGetSolidBorderImage(HippyCornerRadii cornerRadii, CGSize viewSize, UIEdgeInsets borderInsets, HippyBorderColors borderColors,
     CGColorRef backgroundColor, BOOL drawToEdge, BOOL drawBackgrondColor) {
-    const BOOL hasCornerRadii = NativeRenderCornerRadiiAreAboveThreshold(cornerRadii);
-    const NativeRenderCornerInsets cornerInsets = NativeRenderGetCornerInsets(cornerRadii, borderInsets);
+    const BOOL hasCornerRadii = HippyCornerRadiiAreAboveThreshold(cornerRadii);
+    const HippyCornerInsets cornerInsets = HippyGetCornerInsets(cornerRadii, borderInsets);
 
     const BOOL makeStretchable
         = (borderInsets.left + cornerInsets.topLeft.width + borderInsets.right + cornerInsets.bottomRight.width <= viewSize.width)
@@ -183,9 +183,9 @@ static UIImage *NativeRenderGetSolidBorderImage(NativeRenderCornerRadii cornerRa
     edgeInsets.top + 1 + edgeInsets.bottom
   } : viewSize;
 
-    CGContextRef ctx = NativeRenderUIGraphicsBeginImageContext(size, backgroundColor, hasCornerRadii, drawToEdge);
+    CGContextRef ctx = HippyUIGraphicsBeginImageContext(size, backgroundColor, hasCornerRadii, drawToEdge);
     const CGRect rect = { .size = size };
-    CGPathRef path = NativeRenderPathCreateOuterOutline(drawToEdge, rect, cornerRadii);
+    CGPathRef path = HippyPathCreateOuterOutline(drawToEdge, rect, cornerRadii);
 
     if (backgroundColor) {
         if (!drawBackgrondColor) {
@@ -199,12 +199,12 @@ static UIImage *NativeRenderGetSolidBorderImage(NativeRenderCornerRadii cornerRa
     CGContextAddPath(ctx, path);
     CGPathRelease(path);
 
-    CGPathRef insetPath = NativeRenderPathCreateWithRoundedRect(UIEdgeInsetsInsetRect(rect, borderInsets), cornerInsets, NULL);
+    CGPathRef insetPath = HippyPathCreateWithRoundedRect(UIEdgeInsetsInsetRect(rect, borderInsets), cornerInsets, NULL);
 
     CGContextAddPath(ctx, insetPath);
     CGContextEOClip(ctx);
 
-    BOOL hasEqualColors = NativeRenderBorderColorsAreEqual(borderColors);
+    BOOL hasEqualColors = HippyBorderColorsAreEqual(borderColors);
     if ((drawToEdge || !hasCornerRadii) && hasEqualColors) {
         CGContextSetFillColorWithColor(ctx, borderColors.left);
         CGContextAddRect(ctx, rect);
@@ -215,7 +215,7 @@ static UIImage *NativeRenderGetSolidBorderImage(NativeRenderCornerRadii cornerRa
         CGPoint topLeft = (CGPoint) { borderInsets.left, borderInsets.top };
         if (cornerInsets.topLeft.width > 0 && cornerInsets.topLeft.height > 0) {
             CGPoint points[2];
-            NativeRenderEllipseGetIntersectionsWithLine(
+            HippyEllipseGetIntersectionsWithLine(
                 (CGRect) { topLeft, { 2 * cornerInsets.topLeft.width, 2 * cornerInsets.topLeft.height } }, CGPointZero, topLeft, points);
             if (!isnan(points[1].x) && !isnan(points[1].y)) {
                 topLeft = points[1];
@@ -225,7 +225,7 @@ static UIImage *NativeRenderGetSolidBorderImage(NativeRenderCornerRadii cornerRa
         CGPoint bottomLeft = (CGPoint) { borderInsets.left, size.height - borderInsets.bottom };
         if (cornerInsets.bottomLeft.width > 0 && cornerInsets.bottomLeft.height > 0) {
             CGPoint points[2];
-            NativeRenderEllipseGetIntersectionsWithLine((CGRect) { { bottomLeft.x, bottomLeft.y - 2 * cornerInsets.bottomLeft.height },
+            HippyEllipseGetIntersectionsWithLine((CGRect) { { bottomLeft.x, bottomLeft.y - 2 * cornerInsets.bottomLeft.height },
                                                      { 2 * cornerInsets.bottomLeft.width, 2 * cornerInsets.bottomLeft.height } },
                 (CGPoint) { 0, size.height }, bottomLeft, points);
             if (!isnan(points[1].x) && !isnan(points[1].y)) {
@@ -236,7 +236,7 @@ static UIImage *NativeRenderGetSolidBorderImage(NativeRenderCornerRadii cornerRa
         CGPoint topRight = (CGPoint) { size.width - borderInsets.right, borderInsets.top };
         if (cornerInsets.topRight.width > 0 && cornerInsets.topRight.height > 0) {
             CGPoint points[2];
-            NativeRenderEllipseGetIntersectionsWithLine((CGRect) { { topRight.x - 2 * cornerInsets.topRight.width, topRight.y },
+            HippyEllipseGetIntersectionsWithLine((CGRect) { { topRight.x - 2 * cornerInsets.topRight.width, topRight.y },
                                                      { 2 * cornerInsets.topRight.width, 2 * cornerInsets.topRight.height } },
                 (CGPoint) { size.width, 0 }, topRight, points);
             if (!isnan(points[0].x) && !isnan(points[0].y)) {
@@ -247,7 +247,7 @@ static UIImage *NativeRenderGetSolidBorderImage(NativeRenderCornerRadii cornerRa
         CGPoint bottomRight = (CGPoint) { size.width - borderInsets.right, size.height - borderInsets.bottom };
         if (cornerInsets.bottomRight.width > 0 && cornerInsets.bottomRight.height > 0) {
             CGPoint points[2];
-            NativeRenderEllipseGetIntersectionsWithLine(
+            HippyEllipseGetIntersectionsWithLine(
                 (CGRect) { { bottomRight.x - 2 * cornerInsets.bottomRight.width, bottomRight.y - 2 * cornerInsets.bottomRight.height },
                     { 2 * cornerInsets.bottomRight.width, 2 * cornerInsets.bottomRight.height } },
                 (CGPoint) { size.width, size.height }, bottomRight, points);
@@ -398,11 +398,11 @@ static UIImage *NativeRenderGetSolidBorderImage(NativeRenderCornerRadii cornerRa
 // of gradients _along_ a path (NB: clipping a path and drawing a linear gradient
 // is _not_ equivalent).
 
-static UIImage *NativeRenderGetDashedOrDottedBorderImage(NativeRenderBorderStyle borderStyle, NativeRenderCornerRadii cornerRadii, CGSize viewSize,
-    UIEdgeInsets borderInsets, NativeRenderBorderColors borderColors, CGColorRef backgroundColor, BOOL drawToEdge, BOOL drawBackgrondColor) {
-    NSCParameterAssert(borderStyle == NativeRenderBorderStyleDashed || borderStyle == NativeRenderBorderStyleDotted);
+static UIImage *HippyGetDashedOrDottedBorderImage(HippyBorderStyle borderStyle, HippyCornerRadii cornerRadii, CGSize viewSize,
+    UIEdgeInsets borderInsets, HippyBorderColors borderColors, CGColorRef backgroundColor, BOOL drawToEdge, BOOL drawBackgrondColor) {
+    NSCParameterAssert(borderStyle == HippyBorderStyleDashed || borderStyle == HippyBorderStyleDotted);
 
-    if (!NativeRenderBorderColorsAreEqual(borderColors) || !NativeRenderBorderInsetsAreEqual(borderInsets)) {
+    if (!HippyBorderColorsAreEqual(borderColors) || !HippyBorderInsetsAreEqual(borderInsets)) {
         HippyLogWarn(@"Unsupported dashed / dotted border style");
         return nil;
     }
@@ -412,12 +412,12 @@ static UIImage *NativeRenderGetDashedOrDottedBorderImage(NativeRenderBorderStyle
         return nil;
     }
 
-    const BOOL hasCornerRadii = NativeRenderCornerRadiiAreAboveThreshold(cornerRadii);
-    CGContextRef ctx = NativeRenderUIGraphicsBeginImageContext(viewSize, backgroundColor, hasCornerRadii, drawToEdge);
+    const BOOL hasCornerRadii = HippyCornerRadiiAreAboveThreshold(cornerRadii);
+    CGContextRef ctx = HippyUIGraphicsBeginImageContext(viewSize, backgroundColor, hasCornerRadii, drawToEdge);
     const CGRect rect = { .size = viewSize };
 
     if (backgroundColor) {
-        CGPathRef outerPath = NativeRenderPathCreateOuterOutline(drawToEdge, rect, cornerRadii);
+        CGPathRef outerPath = HippyPathCreateOuterOutline(drawToEdge, rect, cornerRadii);
         CGContextAddPath(ctx, outerPath);
         CGPathRelease(outerPath);
         if (!drawBackgrondColor) {
@@ -431,10 +431,10 @@ static UIImage *NativeRenderGetDashedOrDottedBorderImage(NativeRenderBorderStyle
     // perpendicular to the path, that's why we inset by half the width, so that it
     // reaches the edge of the rect.
     CGRect pathRect = CGRectInset(rect, lineWidth / 2.0, lineWidth / 2.0);
-    CGPathRef path = NativeRenderPathCreateWithRoundedRect(pathRect, NativeRenderGetCornerInsets(cornerRadii, UIEdgeInsetsZero), NULL);
+    CGPathRef path = HippyPathCreateWithRoundedRect(pathRect, HippyGetCornerInsets(cornerRadii, UIEdgeInsetsZero), NULL);
 
     CGFloat dashLengths[2];
-    dashLengths[0] = dashLengths[1] = (borderStyle == NativeRenderBorderStyleDashed ? 3 : 1) * lineWidth;
+    dashLengths[0] = dashLengths[1] = (borderStyle == HippyBorderStyleDashed ? 3 : 1) * lineWidth;
 
     CGContextSetLineWidth(ctx, lineWidth);
     CGContextSetLineDash(ctx, 0, dashLengths, sizeof(dashLengths) / sizeof(*dashLengths));
@@ -453,15 +453,15 @@ static UIImage *NativeRenderGetDashedOrDottedBorderImage(NativeRenderBorderStyle
     return image;
 }
 
-UIImage *NativeRenderGetBorderImage(NativeRenderBorderStyle borderStyle, CGSize viewSize, NativeRenderCornerRadii cornerRadii, UIEdgeInsets borderInsets,
-    NativeRenderBorderColors borderColors, CGColorRef backgroundColor, BOOL drawToEdge, BOOL drawBackgrondColor) {
+UIImage *HippyGetBorderImage(HippyBorderStyle borderStyle, CGSize viewSize, HippyCornerRadii cornerRadii, UIEdgeInsets borderInsets,
+    HippyBorderColors borderColors, CGColorRef backgroundColor, BOOL drawToEdge, BOOL drawBackgrondColor) {
     switch (borderStyle) {
-        case NativeRenderBorderStyleSolid:
-            return NativeRenderGetSolidBorderImage(cornerRadii, viewSize, borderInsets, borderColors, backgroundColor, drawToEdge, drawBackgrondColor);
-        case NativeRenderBorderStyleDashed:
-        case NativeRenderBorderStyleDotted:
-            return NativeRenderGetDashedOrDottedBorderImage(borderStyle, cornerRadii, viewSize, borderInsets, borderColors, backgroundColor, drawToEdge, drawBackgrondColor);
-        case NativeRenderBorderStyleNone:
+        case HippyBorderStyleSolid:
+            return HippyGetSolidBorderImage(cornerRadii, viewSize, borderInsets, borderColors, backgroundColor, drawToEdge, drawBackgrondColor);
+        case HippyBorderStyleDashed:
+        case HippyBorderStyleDotted:
+            return HippyGetDashedOrDottedBorderImage(borderStyle, cornerRadii, viewSize, borderInsets, borderColors, backgroundColor, drawToEdge, drawBackgrondColor);
+        case HippyBorderStyleNone:
             break;
     }
 

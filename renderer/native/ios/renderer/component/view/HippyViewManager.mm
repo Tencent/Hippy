@@ -372,9 +372,9 @@ HIPPY_CUSTOM_VIEW_PROPERTY(transform, CATransform3D, HippyView) {
     view.layer.transform = json ? [HippyConvert CATransform3D:json] : defaultView.layer.transform;
     view.layer.allowsEdgeAntialiasing = !CATransform3DIsIdentity(view.layer.transform);
 }
-HIPPY_CUSTOM_VIEW_PROPERTY(pointerEvents, NativeRenderPointerEvents, HippyView) {
+HIPPY_CUSTOM_VIEW_PROPERTY(pointerEvents, HippyPointerEvents, HippyView) {
     if ([view respondsToSelector:@selector(setPointerEvents:)]) {
-        view.pointerEvents = json ? [HippyConvert NativeRenderPointerEvents:json] : defaultView.pointerEvents;
+        view.pointerEvents = json ? [HippyConvert HippyPointerEvents:json] : defaultView.pointerEvents;
         return;
     }
 
@@ -383,8 +383,8 @@ HIPPY_CUSTOM_VIEW_PROPERTY(pointerEvents, NativeRenderPointerEvents, HippyView) 
         return;
     }
 
-    switch ([HippyConvert NativeRenderPointerEvents:json]) {
-        case NativeRenderPointerEventsUnspecified:
+    switch ([HippyConvert HippyPointerEvents:json]) {
+        case HippyPointerEventsUnspecified:
             // Pointer events "unspecified" acts as if a stylesheet had not specified,
             // which is different than "auto" in CSS (which cannot and will not be
             // supported in `Hippy`. "auto" may override a parent's "none".
@@ -392,7 +392,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(pointerEvents, NativeRenderPointerEvents, HippyView) 
             // This wouldn't override a container view's `userInteractionEnabled = NO`
             view.userInteractionEnabled = YES;
             break;
-        case NativeRenderPointerEventsNone:
+        case HippyPointerEventsNone:
             view.userInteractionEnabled = NO;
             break;
         default:
@@ -434,9 +434,9 @@ HIPPY_CUSTOM_VIEW_PROPERTY(borderWidth, CGFloat, HippyView) {
         view.layer.borderWidth = json ? [HippyConvert CGFloat:json] : defaultView.layer.borderWidth;
     }
 }
-HIPPY_CUSTOM_VIEW_PROPERTY(borderStyle, NativeRenderBorderStyle, HippyView) {
+HIPPY_CUSTOM_VIEW_PROPERTY(borderStyle, HippyBorderStyle, HippyView) {
     if ([view respondsToSelector:@selector(setBorderStyle:)]) {
-        view.borderStyle = json ? [HippyConvert NativeRenderBorderStyle:json] : defaultView.borderStyle;
+        view.borderStyle = json ? [HippyConvert HippyBorderStyle:json] : defaultView.borderStyle;
     }
 }
 
