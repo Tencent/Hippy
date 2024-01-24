@@ -62,8 +62,8 @@ typedef struct _LinearGradientPoints {
 
 typedef struct _CanvasInfo {
     CGSize size;
-    NativeRenderCornerRadii cornerRadii;
-    NativeRenderCornerInsets insets;
+    HippyCornerRadii cornerRadii;
+    HippyCornerInsets insets;
 }CanvasInfo;
 
 @interface NativeRenderGradientObject : NSObject

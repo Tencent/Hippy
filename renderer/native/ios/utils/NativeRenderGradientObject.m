@@ -337,7 +337,7 @@ void NativeRenderDrawLinearGradientInContext(NativeRenderGradientObject *object,
     
     CGContextSaveGState(context);
     CGSize size = canvasInfo.size;
-    CGPathRef pathRef = NativeRenderPathCreateOuterOutline(NO, CGRectMake(0, 0, size.width, size.height), canvasInfo.cornerRadii);
+    CGPathRef pathRef = HippyPathCreateOuterOutline(NO, CGRectMake(0, 0, size.width, size.height), canvasInfo.cornerRadii);
     CGContextAddPath(context, pathRef);
     CGContextClip(context);
     LinearGradientPoints points = [object linearGradientPointsFromSize:size];

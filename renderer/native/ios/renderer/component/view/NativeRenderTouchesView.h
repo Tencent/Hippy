@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Used to control how touch events are processed.
  */
-@property (nonatomic, assign) NativeRenderPointerEvents pointerEvents;
+@property (nonatomic, assign) HippyPointerEvents pointerEvents;
 
 @end
 
