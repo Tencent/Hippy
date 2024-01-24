@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
-package com.tencent.mtt.hippy.adapter;
+package com.tencent.mtt.hippy.common;
 
-import com.tencent.mtt.hippy.common.LogAdapter;
+import androidx.annotation.NonNull;
 
-public interface HippyLogAdapter extends LogAdapter {
+public interface LogAdapter {
 
+    int LOG_SEVERITY_DEBUG = -1;
+    int LOG_SEVERITY_INFO = 0;
+    int LOG_SEVERITY_WARNING = 1;
+    int LOG_SEVERITY_ERROR = 2;
+    int LOG_SEVERITY_FATAL = 3;
+
+    void onReceiveLogMessage(int level, @NonNull String tag, @NonNull String msg);
 }

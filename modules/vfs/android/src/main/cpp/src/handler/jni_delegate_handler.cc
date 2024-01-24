@@ -124,7 +124,9 @@ std::shared_ptr<UriLoader> GetUriLoader(jint j_id) {
   bool flag = hippy::global_data_holder.Find(
       footstone::checked_numeric_cast<jint, uint32_t>(j_id),
       loader_object);
-  FOOTSTONE_CHECK(flag);
+  if (!flag) {
+    return nullptr;
+  }
   return std::any_cast<std::shared_ptr<UriLoader>>(loader_object);
 }
 
@@ -252,6 +254,10 @@ void OnJniDelegateInvokeAsync(JNIEnv* j_env, __unused jobject j_object, jint j_i
     JNIEnvironment::ClearJEnvException(j_env);
   };
   auto loader = GetUriLoader(j_id);
+  if (loader == nullptr) {
+    FOOTSTONE_LOG(ERROR) << "uri loader is null, uri loader id " << j_id;
+    return;
+  }
   loader->RequestUntrustedContent(uri, req_meta, cb);
 }
 
@@ -265,6 +271,11 @@ void OnJniDelegateInvokeSync(JNIEnv* j_env, __unused jobject j_object, jint j_id
   UriLoader::bytes content;
   req_meta[kCallFromKey] = kCallFromJavaValue;
   auto loader = GetUriLoader(j_id);
+  if (loader == nullptr) {
+    FOOTSTONE_LOG(ERROR) << "uri loader is null, uri loader id " << j_id;
+    JNIEnvironment::ClearJEnvException(j_env);
+    return;
+  }
   loader->RequestUntrustedContent(uri, req_meta, code, rsp_meta, content);
   resource_holder->SetRspMeta(j_env, rsp_meta);
   resource_holder->SetContent(j_env, content);

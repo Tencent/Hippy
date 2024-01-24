@@ -53,6 +53,11 @@ public class HippyViewGroupController extends HippyGroupController<HippyViewGrou
         viewGroup.setOverflow(overflow);
     }
 
+    @HippyControllerProps(name = NodeProps.DISALLOW_INTERCEPT_TOUCH_EVENT, defaultType = HippyControllerProps.BOOLEAN)
+    public void setDisallowInterceptTouchEvent(HippyViewGroup view, boolean disallow) {
+        view.setDisallowInterceptTouchEvent(disallow);
+    }
+
     @SuppressWarnings("deprecation")
     @Override
     public void dispatchFunction(@NonNull HippyViewGroup viewGroup, @NonNull String functionName,
