@@ -231,8 +231,8 @@ HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
                 view.backgroundImage = nil;
             }
             view.backgroundImageUrlHashValue = imagePath.hash;
-            [self loadImageSource:imagePath forView:view];
         }
+        [self loadImageSource:imagePath forView:view];
     } else {
         view.backgroundImageUrlHashValue = 0;
         view.backgroundImage = defaultView.backgroundImage;
