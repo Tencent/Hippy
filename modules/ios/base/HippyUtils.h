@@ -145,12 +145,18 @@ HIPPY_EXTERN NSStringEncoding HippyGetStringEncodingFromURLResponse(NSURLRespons
 #pragma mark -
 
 /// 工具类
+/// Utility class
+///
 /// 注意，类名及方法名禁止修改
+/// Note that modifying the class name and method name is prohibited!
 @interface HippyUtils : NSObject
 
 /// HippySDK版本号
+/// HippySDK version number
 ///
-/// 注意方法名禁止修改，外部可能会动态调用，判断Hippy版本号
+/// 注意方法名禁止修改，外部可能会动态调用，来判断Hippy版本号
+/// Note that the method name cannot be modified,
+/// users may call it dynamically to determine the Hippy version number.
 + (NSString *)sdkVersion;
 
 @end
