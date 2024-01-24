@@ -41,10 +41,10 @@
 }
 
 
-- (void)setPointerEvents:(NativeRenderPointerEvents)pointerEvents {
+- (void)setPointerEvents:(HippyPointerEvents)pointerEvents {
     _pointerEvents = pointerEvents;
-    self.userInteractionEnabled = (pointerEvents != NativeRenderPointerEventsNone);
-    if (pointerEvents == NativeRenderPointerEventsBoxNone) {
+    self.userInteractionEnabled = (pointerEvents != HippyPointerEventsNone);
+    if (pointerEvents == HippyPointerEventsBoxNone) {
         self.accessibilityViewIsModal = NO;
     }
 }
@@ -59,7 +59,7 @@
     // be outside the bounds of `view` (e.g., if -clipsToBounds is NO).
     UIView *hitSubview = nil;
     BOOL isPointInside = [self pointInside:point withEvent:event];
-    BOOL needsHitSubview = !(_pointerEvents == NativeRenderPointerEventsNone || _pointerEvents == NativeRenderPointerEventsBoxOnly);
+    BOOL needsHitSubview = !(_pointerEvents == HippyPointerEventsNone || _pointerEvents == HippyPointerEventsBoxOnly);
     if (needsHitSubview && (![self clipsToBounds] || isPointInside)) {
         // The default behaviour of UIKit is that if a view does not contain a point,
         // then no subviews will be returned from hit testing, even if they contain
@@ -79,13 +79,13 @@
     UIView *hitView = (isPointInside ? self : nil);
 
     switch (_pointerEvents) {
-        case NativeRenderPointerEventsNone:
+        case HippyPointerEventsNone:
             return nil;
-        case NativeRenderPointerEventsUnspecified:
+        case HippyPointerEventsUnspecified:
             return hitSubview ?: hitView;
-        case NativeRenderPointerEventsBoxOnly:
+        case HippyPointerEventsBoxOnly:
             return hitView;
-        case NativeRenderPointerEventsBoxNone:
+        case HippyPointerEventsBoxNone:
             return hitSubview;
         default:
             HippyLogError(@"Invalid pointer-events specified %ld on %@", (long)_pointerEvents, self);
