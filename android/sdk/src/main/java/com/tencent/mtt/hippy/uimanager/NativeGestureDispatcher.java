@@ -39,8 +39,8 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
   private static final String KEY_PAGE_X = "page_x";
   private static final String KEY_PAGE_Y = "page_y";
 
-  private static final String KEY_RAW_X = "rawx";
-  private static final String KEY_RAW_Y = "rawy";
+  private static final String KEY_WINDOW_X = "window_x";
+  private static final String KEY_WINDOW_Y = "window_y";
 
   private static final int TAP_TIMEOUT = ViewConfiguration.getTapTimeout();
 
@@ -231,8 +231,8 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
     HippyMap params = new HippyMap();
     params.pushString(KEY_EVENT_NAME, NodeProps.ON_TOUCH_DOWN);
     params.pushInt(KEY_TAG_ID, mTagId);
-    params.pushDouble(KEY_RAW_X, PixelUtil.px2dp(event.getRawX()));
-    params.pushDouble(KEY_RAW_Y, PixelUtil.px2dp(event.getRawY()));
+    params.pushDouble(KEY_WINDOW_X, PixelUtil.px2dp(event.getRawX()));
+    params.pushDouble(KEY_WINDOW_Y, PixelUtil.px2dp(event.getRawY()));
     params.pushDouble(KEY_PAGE_X, PixelUtil.px2dp(viewCoords[0] + event.getX()));
     params.pushDouble(KEY_PAGE_Y, PixelUtil.px2dp(viewCoords[1] + event.getY()));
     context.getModuleManager().getJavaScriptModule(EventDispatcher.class)
@@ -259,8 +259,8 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
     HippyMap params = new HippyMap();
     params.pushString(KEY_EVENT_NAME, NodeProps.ON_TOUCH_MOVE);
     params.pushInt(KEY_TAG_ID, mTagId);
-    params.pushDouble(KEY_RAW_X, PixelUtil.px2dp(event.getRawX()));
-    params.pushDouble(KEY_RAW_Y, PixelUtil.px2dp(event.getRawY()));
+    params.pushDouble(KEY_WINDOW_X, PixelUtil.px2dp(event.getRawX()));
+    params.pushDouble(KEY_WINDOW_Y, PixelUtil.px2dp(event.getRawY()));
     params.pushDouble(KEY_PAGE_X, PixelUtil.px2dp(viewCoords[0] + event.getX()));
     params.pushDouble(KEY_PAGE_Y, PixelUtil.px2dp(viewCoords[1] + event.getY()));
     context.getModuleManager().getJavaScriptModule(EventDispatcher.class)
@@ -287,8 +287,8 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
     HippyMap params = new HippyMap();
     params.pushString(KEY_EVENT_NAME, NodeProps.ON_TOUCH_END);
     params.pushInt(KEY_TAG_ID, mTagId);
-    params.pushDouble(KEY_RAW_X, PixelUtil.px2dp(event.getRawX()));
-    params.pushDouble(KEY_RAW_Y, PixelUtil.px2dp(event.getRawY()));
+    params.pushDouble(KEY_WINDOW_X, PixelUtil.px2dp(event.getRawX()));
+    params.pushDouble(KEY_WINDOW_Y, PixelUtil.px2dp(event.getRawY()));
     params.pushDouble(KEY_PAGE_X, PixelUtil.px2dp(viewCoords[0] + event.getX()));
     params.pushDouble(KEY_PAGE_Y, PixelUtil.px2dp(viewCoords[1] + event.getY()));
     context.getModuleManager().getJavaScriptModule(EventDispatcher.class)
@@ -315,8 +315,8 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
     HippyMap params = new HippyMap();
     params.pushString(KEY_EVENT_NAME, NodeProps.ON_TOUCH_CANCEL);
     params.pushInt(KEY_TAG_ID, mTagId);
-    params.pushDouble(KEY_RAW_X, PixelUtil.px2dp(event.getRawX()));
-    params.pushDouble(KEY_RAW_Y, PixelUtil.px2dp(event.getRawY()));
+    params.pushDouble(KEY_WINDOW_X, PixelUtil.px2dp(event.getRawX()));
+    params.pushDouble(KEY_WINDOW_Y, PixelUtil.px2dp(event.getRawY()));
     params.pushDouble(KEY_PAGE_X, PixelUtil.px2dp(viewCoords[0] + event.getX()));
     params.pushDouble(KEY_PAGE_Y, PixelUtil.px2dp(viewCoords[1] + event.getY()));
     context.getModuleManager().getJavaScriptModule(EventDispatcher.class)
