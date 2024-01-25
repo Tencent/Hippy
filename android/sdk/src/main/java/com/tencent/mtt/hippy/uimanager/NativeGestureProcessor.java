@@ -70,7 +70,7 @@ public class NativeGestureProcessor {
         }
 
         if (mCallback.needHandle(NodeProps.ON_TOUCH_DOWN)) {
-          mCallback.handle(NodeProps.ON_TOUCH_DOWN, event.getX(), event.getY());
+          mCallback.handle(NodeProps.ON_TOUCH_DOWN, event);
           handle = true;
         }
 
@@ -89,7 +89,7 @@ public class NativeGestureProcessor {
       }
       case MotionEvent.ACTION_MOVE: {
         if (mCallback.needHandle(NodeProps.ON_TOUCH_MOVE)) {
-          mCallback.handle(NodeProps.ON_TOUCH_MOVE, event.getX(), event.getY());
+          mCallback.handle(NodeProps.ON_TOUCH_MOVE, event);
           handle = true;
         }
 
@@ -114,12 +114,12 @@ public class NativeGestureProcessor {
       }
       case MotionEvent.ACTION_UP: {
         if (mCallback.needHandle(NodeProps.ON_TOUCH_END)) {
-          mCallback.handle(NodeProps.ON_TOUCH_END, event.getX(), event.getY());
+          mCallback.handle(NodeProps.ON_TOUCH_END, event);
           handle = true;
         }
 
         if (mNoPressIn && mCallback.needHandle(NodeProps.ON_PRESS_OUT)) {
-          mCallback.handle(NodeProps.ON_PRESS_OUT, event.getX(), event.getY());
+          mCallback.handle(NodeProps.ON_PRESS_OUT, event);
           handle = true;
         } else if (!mNoPressIn && mCallback.needHandle(NodeProps.ON_PRESS_OUT)) {
           getGestureHandler().sendEmptyMessageDelayed(PRESS_OUT, TAP_TIMEOUT);
@@ -131,12 +131,12 @@ public class NativeGestureProcessor {
       case MotionEvent.ACTION_CANCEL:
       case MotionEvent.ACTION_OUTSIDE: {
         if (mCallback.needHandle(NodeProps.ON_TOUCH_CANCEL)) {
-          mCallback.handle(NodeProps.ON_TOUCH_CANCEL, event.getX(), event.getY());
+          mCallback.handle(NodeProps.ON_TOUCH_CANCEL, event);
           handle = true;
         }
 
         if (mNoPressIn && mCallback.needHandle(NodeProps.ON_PRESS_OUT)) {
-          mCallback.handle(NodeProps.ON_PRESS_OUT, event.getX(), event.getY());
+          mCallback.handle(NodeProps.ON_PRESS_OUT, event);
           handle = true;
         } else if (!mNoPressIn && mCallback.needHandle(NodeProps.ON_PRESS_OUT)) {
           if (getGestureHandler().hasMessages(PRESS_IN)) {
@@ -155,6 +155,8 @@ public class NativeGestureProcessor {
   public interface Callback {
 
     boolean needHandle(String type);
+
+    void handle(String type, MotionEvent event);
 
     void handle(String type, float x, float y);
   }
