@@ -645,8 +645,9 @@ static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProv
         return;
     }
     NSDictionary *source = [self.source firstObject];
-    NSString *currentImageURLString = [source objectForKey:@"uri"];
-    BOOL shouldContinue = url && currentImageURLString && [url isEqualToString:currentImageURLString];
+    NSString *sourceURL = [source objectForKey:@"uri"];
+    NSString *encodedSourceURL = [[NSURL URLWithString:sourceURL] absoluteString];
+    BOOL shouldContinue = url && sourceURL && ([url isEqualToString:encodedSourceURL] || [url isEqualToString:sourceURL]);
     if (!shouldContinue) {
         return;
     }
