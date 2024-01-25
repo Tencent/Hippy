@@ -245,14 +245,16 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (NSSet<Class<HippyImageProviderProtocol>> *)imageProviders {
-    if (!_imageProviders) {
-        NSMutableSet *set = [NSMutableSet setWithCapacity:8];
-        for (Class moduleClass in self.moduleClasses) {
-            if ([moduleClass conformsToProtocol:@protocol(HippyImageProviderProtocol)]) {
-                [set addObject:moduleClass];
+    @synchronized (self) {
+        if (!_imageProviders) {
+            NSMutableSet *set = [NSMutableSet set];
+            for (Class moduleClass in self.moduleClasses) {
+                if ([moduleClass conformsToProtocol:@protocol(HippyImageProviderProtocol)]) {
+                    [set addObject:moduleClass];
+                }
             }
+            _imageProviders = [NSSet setWithSet:set];
         }
-        _imageProviders = [NSSet setWithSet:set];
     }
     return _imageProviders;
 }
