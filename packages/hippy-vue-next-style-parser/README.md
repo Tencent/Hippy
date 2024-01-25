@@ -1,11 +1,6 @@
-# `hippy-css-loader`
+# @hippy/vue-next-style-parser
 
-> TODO: description
+### Introduction
 
-## Usage
+This package is provided style parser, style match and ssr style insert function for @hippy/vue-next 
 
-```
-const hippyCssLoader = require('hippy-css-loader');
-
-// TODO: DEMONSTRATE API
-```

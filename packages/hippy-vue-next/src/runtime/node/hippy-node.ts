@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { CallbackType, NativeNode } from '../../types';
+import type { CallbackType, NativeNode, SsrNode } from '../../types';
 import { getUniqueId, DEFAULT_ROOT_ID } from '../../util';
 import { getHippyCachedInstance } from '../../util/instance';
 import { preCacheNode } from '../../util/node-cache';
@@ -29,11 +29,12 @@ import {
   renderUpdateChildNativeNode,
 } from '../render';
 
+// NodeType, same with vue
 export enum NodeType {
   ElementNode = 1, // element node
-  TextNode, // text node
-  CommentNode, // comment node
-  DocumentNode, // document node
+  TextNode = 3, // text node
+  CommentNode = 8, // comment node
+  DocumentNode = 4, // document node
 }
 
 /**
@@ -86,11 +87,18 @@ export class HippyNode extends HippyEventTarget {
   // native component information corresponding to the node
   protected tagComponent: TagComponent | null = null;
 
-  constructor(nodeType: NodeType) {
+  constructor(nodeType: NodeType, ssrNode?: SsrNode) {
     super();
-    this.nodeId = HippyNode.getUniqueNodeId();
+    // ssr node has already created node id in server side, we just used it
+    this.nodeId = ssrNode?.id ?? HippyNode.getUniqueNodeId();
+
     this.nodeType = nodeType;
+
     this.isNeedInsertToNative = needInsertToNative(nodeType);
+    // ssr node has been inserted to native, so we direct set isMounted true
+    if (ssrNode?.id) {
+      this.isMounted = true;
+    }
   }
 
   /**
@@ -136,6 +144,13 @@ export class HippyNode extends HippyEventTarget {
    */
   public isRootNode(): boolean {
     return this.nodeId === DEFAULT_ROOT_ID;
+  }
+
+  /**
+   * has child nodes or not, used for hydrate
+   */
+  public hasChildNodes(): boolean {
+    return !!this.childNodes.length;
   }
 
   /**
@@ -275,8 +290,9 @@ export class HippyNode extends HippyEventTarget {
    * append child node
    *
    * @param rawChild - child node to be added
+   * @param isHydrate - is hydrate operate or not
    */
-  public appendChild(rawChild: HippyNode): void {
+  public appendChild(rawChild: HippyNode, isHydrate = false): void {
     const child = rawChild;
 
     if (!child) {
@@ -292,8 +308,9 @@ export class HippyNode extends HippyEventTarget {
       child.parentNode.removeChild(child);
     }
 
-    // If the node is already mounted, remove it first
-    if (child.isMounted) {
+    // If the node is already mounted, remove it first, but do not remove when is hydrate.
+    // Because hydrate node just rendered in native, but do not add to hippy node list
+    if (child.isMounted && !isHydrate) {
       this.removeChild(child);
     }
 
@@ -309,8 +326,14 @@ export class HippyNode extends HippyEventTarget {
     // add node
     this.childNodes.push(child);
 
-    // call the native interface to insert a node
-    this.insertChildNativeNode(child);
+    if (!isHydrate) {
+      // call the native interface to insert a node
+      this.insertChildNativeNode(child);
+    } else {
+      // for hydrate case, node has been inserted to native. so we do not need to insert to native
+      // just pre cache the node
+      preCacheNode(child, child.nodeId);
+    }
   }
 
   /**

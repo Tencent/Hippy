@@ -73,7 +73,7 @@ export interface CssNodeType {
  */
 export interface ColorObject {
   // color value
-  color: number;
+  color: number | string;
   // color contrast
   ratio?: number | undefined;
 }
@@ -134,15 +134,19 @@ const LINEAR_GRADIENT_DIRECTION_MAP = {
   totopleft: 'totopleft',
 };
 
-// degree unit
-const DEGREE_UNIT = {
+/**
+ * degree unit
+ *
+ * @public
+ */
+export const DEGREE_UNIT = {
   TURN: 'turn',
   RAD: 'rad',
   DEG: 'deg',
 };
 
 // regular expression of comment
-const commentRegexp = /\/\*.{0,1000}?\*\//gms;
+const commentRegexp = /\/\*[^*]*\*+([^/*][^*]*\*+)*\//g;
 
 /**
  * Output warning debug information to console
@@ -330,7 +334,7 @@ function parseBackgroundImage(
     });
     processedValue.colorStopList = colorStopList;
   } else {
-    const regexp = /(?:\(['"]?).{0,500}?(?:['"]?\))/;
+    const regexp = /(?:\(['"]?)(.*?)(?:['"]?\))/;
     const executed = regexp.exec(value);
     if (executed && executed.length > 1) {
       [, processedValue] = executed;
@@ -602,7 +606,7 @@ function parseCSS(
       }
       return camelizeProperty;
     })();
-    const val = match(/^((?:'(?:\\'|.)*?'|"(?:\\"|.)*?"|\([^)]{0,500}?\)|[^};])+)/);
+    const val = match(/^((?:'(?:\\'|.)*?'|"(?:\\"|.)*?"|\([^)]*?\)|[^};])+)/);
     let value = val ? val[0].trim().replace(commentRegexp, '') : '';
 
     switch (property) {
@@ -611,39 +615,25 @@ function parseCSS(
         break;
       }
       case 'transform': {
-        const keyReg = /((\w+)\s*\()/;
-        const valueReg = /(?:\(['"]?)(.*?)(?:['"]?\))/;
+        const regex = /(\w+\s*)(?:\(['"]?)(.*?)(?:['"]?\))/g;
         const oldValue = value;
         value = [];
-        oldValue.split(' ').forEach((transformKeyValue) => {
-          if (keyReg.test(transformKeyValue)) {
-            let key;
-            let v;
-
-            const matchedKey = keyReg.exec(transformKeyValue);
-            const matchedValue = valueReg.exec(transformKeyValue);
-
-            if (matchedKey) {
-              [, , key] = matchedKey;
-            }
-
-            if (matchedValue) {
-              [, v] = matchedValue;
-            }
-
-            if (v.indexOf('.') === 0) {
-              v = `0${v}`;
-            }
-            if (parseFloat(v).toString() === v) {
-              v = parseFloat(v);
-            }
-            const transform = {};
-            transform[key] = v;
-            value.push(transform);
-          } else {
-            error('missing \'(\'');
+        let group;
+        while (group = regex.exec(oldValue)) {
+          const key = group[1];
+          let v = group[2];
+          if (v.indexOf('.') === 0) {
+            v = `0${v}`;
           }
-        });
+
+          if (parseFloat(v).toString() === v) {
+            v = parseFloat(v);
+          }
+
+          const transform = {};
+          transform[key] = v;
+          value.push(transform);
+        }
         break;
       }
       case 'fontWeight':
@@ -667,31 +657,12 @@ function parseCSS(
         break;
       }
       case 'collapsable':
-        value = Boolean(value);
+        value = value !== 'false';
         break;
       default: {
         value = tryConvertNumber(value);
         // Convert the px to pt for specific properties
-        const sizeProperties = [
-          'top',
-          'left',
-          'right',
-          'bottom',
-          'height',
-          'width',
-          'size',
-          'padding',
-          'margin',
-          'ratio',
-          'radius',
-          'offset',
-          'spread',
-        ];
-        if (
-          sizeProperties.find(size => property.toLowerCase().indexOf(size) > -1)
-        ) {
-          value = convertPxUnitToPt(value);
-        }
+        value = convertPxUnitToPt(value);
       }
     }
 
@@ -897,7 +868,7 @@ function parseCSS(
    */
   function atcustommedia() {
     const pos = position();
-    const m = match(/^@custom-media\s+(--[^\s]+)\s*([^{;]{1,200}?);/);
+    const m = match(/^@custom-media\s+(--[^\s]+)\s*([^{;]+);/);
     if (!m) {
       return null;
     }

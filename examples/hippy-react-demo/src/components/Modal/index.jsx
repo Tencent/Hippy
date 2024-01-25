@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'flex-start',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   buttonView: {
     borderColor: SKIN_COLOR.mainLight,
@@ -95,18 +95,24 @@ export default class ModalExpo extends React.Component {
             <Text style={[styles.buttonText, { color: SKIN_COLOR.mainLight }]}>点击弹出浮层</Text>
           </View>
         </View>
-        <View style={{flexDirection: 'row', justifyContent: 'center', marginTop: 20}}>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 20 }}>
           <Text
-            onClick={() => {this.setState({animationType: 'fade'})}}
-            style={[styles.selectionText, {backgroundColor: this.state.animationType === 'fade' ? 'rgba(255, 0, 0, 0.5)' : '#FFFFFF'}]}
+            onClick={() => {
+              this.setState({ animationType: 'fade' });
+            }}
+            style={[styles.selectionText, { backgroundColor: this.state.animationType === 'fade' ? 'rgba(255, 0, 0, 0.5)' : '#FFFFFF' }]}
           >fade</Text>
           <Text
-            onClick={() => {this.setState({animationType: 'slide'})}}
-            style={[styles.selectionText, {backgroundColor: this.state.animationType === 'slide' ? 'rgba(255, 0, 0, 0.5)' : '#FFFFFF'}]}
+            onClick={() => {
+              this.setState({ animationType: 'slide' });
+            }}
+            style={[styles.selectionText, { backgroundColor: this.state.animationType === 'slide' ? 'rgba(255, 0, 0, 0.5)' : '#FFFFFF' }]}
           >slide</Text>
           <Text
-            onClick={() => {this.setState({animationType: 'slide_fade'})}}
-            style={[styles.selectionText, {backgroundColor: this.state.animationType === 'slide_fade' ? 'rgba(255, 0, 0, 0.5)' : '#FFFFFF'}]}
+            onClick={() => {
+              this.setState({ animationType: 'slide_fade' });
+            }}
+            style={[styles.selectionText, { backgroundColor: this.state.animationType === 'slide_fade' ? 'rgba(255, 0, 0, 0.5)' : '#FFFFFF' }]}
           >slide_fade</Text>
         </View>
         <Modal

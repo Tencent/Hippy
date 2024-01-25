@@ -18,11 +18,15 @@
  * limitations under the License.
  */
 
+import { getNodeById } from '../../../src/util/node-cache';
 import { registerElement } from '../../../src/runtime/component';
 import { HippyElement } from '../../../src/runtime/element/hippy-element';
 import { HippyNode, NodeType } from '../../../src/runtime/node/hippy-node';
 import { setHippyCachedInstance } from '../../../src/util/instance';
 
+/**
+ * hippy-node.ts unit test case
+ */
 describe('runtime/node/hippy-node', () => {
   describe('test the default value of class members.', () => {
     it('should be 1.', () => {
@@ -54,6 +58,12 @@ describe('runtime/node/hippy-node', () => {
     it('should be empty array [].', () => {
       const hippyNode = new HippyNode(NodeType.ElementNode);
       expect(hippyNode.childNodes.length).toBe(0);
+    });
+
+    it('ssr node init value test', () => {
+      const hippyNode = new HippyNode(NodeType.ElementNode, { id: 1001, index: 0, name: 'View', props: {} });
+      expect(hippyNode.nodeId).toEqual(1001);
+      expect(hippyNode.isMounted).toBeTruthy();
     });
   });
 
@@ -92,6 +102,16 @@ describe('runtime/node/hippy-node', () => {
         expect(parentHippyNode.lastChild === childHippyNodeNext).toBeTruthy();
         expect(childHippyNodePre.nextSibling === childHippyNodeNext).toBeTruthy();
         expect(childHippyNodeNext.prevSibling === childHippyNodePre).toBeTruthy();
+      });
+
+      it('hydrate node will precache directly', () => {
+        const ssrNode = new HippyNode(NodeType.ElementNode, { id: 1001, index: 0, name: 'View', props: {} });
+        const childSsrNode = new HippyNode(NodeType.ElementNode, { id: 1002, index: 0, name: 'View', props: {} });
+        ssrNode.appendChild(childSsrNode, true);
+        let cachedNode = getNodeById(1002);
+        expect(childSsrNode).toEqual(cachedNode);
+        cachedNode = getNodeById(1001);
+        expect(cachedNode).toBeNull();
       });
     });
 
@@ -276,6 +296,18 @@ describe('runtime/node/hippy-node', () => {
       it('return is or not root node', () => {
         const node = new HippyNode(NodeType.ElementNode);
         expect(node.isRootNode()).toBeFalsy();
+      });
+    });
+    describe('child nodes count check', () => {
+      it('hasChildNodes should return true when has child', () => {
+        const node = new HippyNode(NodeType.ElementNode);
+        expect(node.hasChildNodes()).toBeFalsy();
+        const childNodeOne = new HippyNode(NodeType.ElementNode);
+        node.appendChild(childNodeOne);
+        expect(node.hasChildNodes()).toBeTruthy();
+        const childNodeTwo = new HippyNode(NodeType.ElementNode);
+        childNodeOne.appendChild(childNodeTwo);
+        expect(childNodeOne.hasChildNodes()).toBeTruthy();
       });
     });
   });

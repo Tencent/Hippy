@@ -18,10 +18,6 @@
  * limitations under the License.
  */
 
-/**
- * runtime/native unit test
- */
-
 import { nextTick } from '@vue/runtime-core';
 
 import { registerElement } from '../../../src/runtime/component';
@@ -35,9 +31,7 @@ import {
 import { setHippyCachedInstance } from '../../../src/util/instance';
 
 /**
- * @author mitnickliu
- * @priority P0
- * @casetype unit
+ * render/index.ts unit test case
  */
 describe('runtime/render.ts', () => {
   beforeAll(() => {

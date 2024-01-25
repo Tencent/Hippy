@@ -68,6 +68,7 @@ module.exports = {
         '@typescript-eslint/consistent-type-assertions': 'off',
         '@typescript-eslint/naming-convention': 'off',
         '@typescript-eslint/prefer-for-of': 'off',
+        '@typescript-eslint/no-require-imports': 'off',
       },
       parserOptions: {
         project: ['./**/tsconfig.json'],
@@ -169,6 +170,8 @@ module.exports = {
           ['sfc', resolveVue('sfc')],
           ['he', path.resolve(__dirname, './packages/hippy-vue/src/util/entity-decoder')],
           ['@hippy-vue-next-style-parser', resolvePackage('hippy-vue-next-style-parser')],
+          ['@hippy-vue-next', resolvePackage('hippy-vue-next')],
+          ['@hippy-vue-next-server-renderer', resolvePackage('hippy-vue-next-server-renderer')],
         ],
       },
     },

@@ -18,16 +18,11 @@
  * limitations under the License.
  */
 
-/**
- * util/screen unit test
- */
 import { setScreenSize } from '../../src/util/screen';
 import { Native } from '../../src/runtime/native';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * screen.ts unit test case
  */
 describe('src/util/i18n', () => {
   it('setScreenSize should work correct', () => {

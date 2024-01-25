@@ -20,11 +20,15 @@
 
 import { registerElement, type ElementComponent } from '../../../src/runtime/component';
 import { HippyElement } from '../../../src/runtime/element/hippy-element';
-import { Native } from '../../../src/runtime/native/index';
+import { NodeType } from '../../../src/runtime/node/hippy-node';
+import { Native } from '../../../src/runtime/native';
 import * as Render from '../../../src/runtime/render';
 import { setHippyCachedInstance } from '../../../src/util/instance';
 import { setTrimWhitespace } from '../../../src/util';
 
+/**
+ * hippy-element.ts unit test case
+ */
 describe('runtime/element/hippy-element', () => {
   beforeAll(() => {
     registerElement('div', { component: { name: 'View' } });
@@ -590,5 +594,72 @@ describe('runtime/element/hippy-element', () => {
     expect(element.styleScopeId).toEqual(['style-scoped-id', '[object Object]']);
     element.setStyleScope(12345);
     expect(element.styleScopeId).toEqual(['style-scoped-id', '[object Object]', '12345']);
+  });
+
+  describe('ssr node should work correctly', () => {
+    it('ssr node should init correctly', () => {
+      const commentElement = new HippyElement('comment');
+      expect(commentElement.nodeType).toEqual(NodeType.CommentNode);
+      const ssrElement = new HippyElement('div', {
+        id: 1001,
+        index: 0,
+        name: 'View',
+        props: {
+          attributes: {
+            id: 'root',
+            class: 'classA  classB',
+          },
+          text: 'hello',
+          inlineStyle: {
+            fontSize: 24,
+          },
+        },
+      });
+
+      expect(ssrElement.nodeId).toEqual(1001);
+      expect(ssrElement.id).toEqual('root');
+      expect(ssrElement.classList).toEqual(new Set(['classA', 'classB']));
+      expect(ssrElement.nodeId).toEqual(1001);
+      expect(ssrElement.value).toEqual('hello');
+      expect(ssrElement.textContent).toEqual('hello');
+      expect(ssrElement.ssrInlineStyle).toEqual({
+        fontSize: 24,
+      });
+      expect(ssrElement.attributes).toEqual({
+        text: 'hello',
+      });
+    });
+    it('ssr node event handle correctly', () => {
+      const element = new HippyElement('div', {
+        id: 1001,
+        index: 0,
+        name: 'View',
+        props: {
+          attributes: {
+            id: 'root',
+            class: 'classA  classB',
+          },
+          text: 'hello',
+          inlineStyle: {
+            fontSize: 24,
+          },
+          onClick: true,
+        },
+      });
+      expect(element.attributes.onClick).toBeTruthy();
+      const callUIFunctionSpy = jest.spyOn(element, 'updateNativeNode');
+      // add event listener, ssr props exist event listener, should not update native
+      element.addEventListener('click', () => {});
+      expect(callUIFunctionSpy).toHaveBeenCalledTimes(0);
+      // add event listener, new event listener, should update native
+      element.addEventListener('drop', () => {});
+      expect(callUIFunctionSpy).toHaveBeenCalledTimes(1);
+      // add event listener, new event listener, should update native
+      element.addEventListener('touchmove', () => {});
+      expect(callUIFunctionSpy).toHaveBeenCalledTimes(2);
+      // remove event listener
+      element.removeEventListener('click', () => {});
+      expect(element.attributes.onClick).toBeUndefined();
+    });
   });
 });

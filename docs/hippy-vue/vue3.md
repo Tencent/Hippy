@@ -27,7 +27,6 @@ demo 参考：https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-ne
   "@hippy/vue-router-next-history": "latest",
 ```
 
-
 ## 初始化
 
 ```javascript
@@ -402,6 +401,107 @@ function isCustomTag(tag) {
 
 ```
 
+# 服务端渲染
+
+@hippy/vue-next 现已支持服务端渲染，具体代码可以查看[示例项目](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-ssr-demo)中的 SSR
+部分，关于 Vue SSR 的实现及原理，可以参考[官方文档](https://cn.vuejs.org/guide/scaling-up/ssr.html)。
+
+## 如何使用SSR
+
+请参考[示例项目](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-ssr-demo)说明文档中的 How To Use SSR
+
+## 实现原理
+
+### SSR 架构图
+
+<img src="assets/img/hippy-vue-next-ssr-arch-cn.png" alt="hippy-vue-next SSR 架构图" width="80%"/>
+
+### 详细说明
+
+@hippy/vue-next SSR 的实现涉及到了编译时，客户端运行时，以及服务端运行时三个运行环境。在 vue-next ssr的基础上，我们开发了 @hippy/vue-next-server-renderer
+用于服务端运行时节点的渲染，开发了 @hippy/vue-next-compiler-ssr 用于编译时 vue 模版文件的编译。以及 @hippy/vue-next-style-parser 用于服务端渲染得到的
+Native Node List 的样式插入。下面我们通过一个模版的编译和运行时过程来说明 @hippy/vue-next SSR 做了哪些事情
+
+我们有形如`<div id="test" class="test-class"></div>`的一段模版
+
+- 编译时
+
+  模版经过 @hippy/vue-next-compiler-ssr 的处理，得到了形如
+
+  ```javascript
+  _push(`{"id":${ssrGetUniqueId()},"index":0,"name":"View","tagName":"div","props":{"class":"test-class","id": "test",},"children":[]},`)
+  ```
+
+  的 render function
+
+- 服务端运行时
+
+  在服务端运行时，编译时得到的 render function 执行后得到了对应节点的 json object。注意 render function 中的
+  ssrGetUniqueId 方法，是在 @hippy/vue-next-server-renderer 中提供的，在这里 server-renderer 还会对
+  节点的属性值等进行处理，最后得到 Native Node 的 json object
+
+  ```javascript
+  { "id":1,"index":0,"name":"View","tagName":"div","props":{"class":"test-class","id": "test",},"children":[] }
+  ```
+
+  > 对于手写的非 sfc 模版的渲染函数，在 compiler 中无法处理，也是在 server-renderer 中执行的
+
+- 客户端运行时
+
+  在客户端运行时，通过 @hippy/vue-next-style-parser，给服务端返回的节点插入样式，并直接调用 hippy native 提供的
+  native API，将返回的 Native Node 对象作为参数传入，并完成节点的渲染上屏。 完成节点上屏之后，再通过系统提供的
+  global.dynamicLoad 异步加载客户端异步版 jsBundle，完成客户端 Hydrate 并执行后续流程。
+
+## 初始化差异
+
+SSR 版本的 Demo 初始化与异步版的初始化有一些差异部分，这里对其中的差异部分做一个详细的说明
+
+- src/main-native.ts 变更
+
+1. 使用 createSSRApp 替换之前的 createApp，createApp 仅支持 CSR 渲染，而 createSSRApp 同时支持 CSR 和 SSR
+2. 在初始化时候新增了 ssrNodeList 参数，作为 Hydrate 的初始化节点列表。这里我们服务端返回的初始化节点列表保存在了 global.hippySSRNodes 中，并将其作为参数在createSSRApp时传入
+3. 将 app.mount 放到 router.isReady 完成后调用，因为如果不等待路由完成，会与服务端渲染的节点有所不同，导致 Hydrate 时报错
+
+```javascript
+- import { createApp } from '@hippy/vue-next';
++ import { createSSRApp } from '@hippy/vue-next';
+- const app: HippyApp = createApp(App, {
++ const app: HippyApp = createSSRApp(App, {
+    // ssr rendered node list, use for hydration
++   ssrNodeList: global.hippySSRNodes,
+});
++ router.isReady().then(() => {
++   // mount app
++   app.mount('#root');
++ });
+```
+
+- src/main-server.ts 新增
+
+main-server.ts 是在服务端运行的业务 jsBundle，因此不需要做代码分割。整体构建为一个 bundle 即可。其核心功能就是在服务端完成首屏渲染逻辑，并将得到的首屏 Hippy 节点进行处理，插入节点属性和 store（如果存在）后返回，
+以及返回当前已生成节点的最大 uniqueId 供客户端后续使用。
+
+>注意，服务端代码是同步执行的，如果有数据请求走了异步方式，可能会出现还没有拿到数据，请求就已经返回了的情况。对于这个问题，Vue SSR 提供了专用 API 来处理这个问题:
+>[onServerPrefetch](https://cn.vuejs.org/api/composition-api-lifecycle.html#onserverprefetch)。
+>在 [Demo](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-ssr-demo/src/app.vue) 的 app.vue 中也有 onServerPrefetch 的使用示例
+
+- server.ts 新增
+
+server.ts 是服务端执行的入口文件，其作用是提供 Web Server，接收客户端的 SSR CGI 请求，并将结果作为响应数据返回给客户端，包括了渲染节点列表，store，以及全局的样式列表。
+
+- src/main-client.ts 新增
+
+main-client.ts 是客户端执行的入口文件，与之前纯客户端渲染不同，SSR的客户端入口文件仅包含了获取首屏节点请求、插入首屏节点样式、以及将节点插入终端完成渲染的相关逻辑。
+
+- src/ssr-node-ops.ts 新增
+
+ssr-node-ops.ts 封装了不依赖 @hippy/vue-next 运行时的 SSR 节点的插入，更新，删除等操作逻辑
+
+- src/webpack-plugin.ts 新增
+
+webpack-plugin.ts 封装了 SSR 渲染所需 Hippy App 的初始化逻辑
+
+
 # 其他差异说明
 
 目前 `@hippy/vue-next` 与 `@hippy/vue` 功能上基本对齐，不过在 API 方面与 @hippy/vue 有一些区别，以及还有一些问题还没有解决，这里做些说明：
@@ -475,8 +575,8 @@ function isCustomTag(tag) {
 
 - Native 接口和自定义组件的类型提示
 
-    @hippy/vue-next 提供了 Native 模块接口的 Typescript 类型提示，如果有业务自定义的 Native 接口，也可以采用类似的方式进行扩展
-  
+  @hippy/vue-next 提供了 Native 模块接口的 Typescript 类型提示，如果有业务自定义的 Native 接口，也可以采用类似的方式进行扩展
+
     ```javascript
     declare module '@hippy/vue-next' {
       export interface NativeInterfaceMap {
@@ -485,7 +585,7 @@ function isCustomTag(tag) {
     }
     ```
 
-    @hippy/vue-next 也参考 `lib.dom.d.ts` 的事件声明提供了事件类型，具体可以参考 hippy-event.ts 文件。如果需要在内置的事件上进行扩展，可以采用类似方式
+  @hippy/vue-next 也参考 `lib.dom.d.ts` 的事件声明提供了事件类型，具体可以参考 hippy-event.ts 文件。如果需要在内置的事件上进行扩展，可以采用类似方式
 
     ```javascript
       declare module '@hippy/vue-next' {
@@ -495,7 +595,7 @@ function isCustomTag(tag) {
       }
     ```
 
-    在使用 `registerElement` 去注册组件的时候，利用了 typescript 的 `type narrowing`，在 switch case 中提供了准确的类型提示。如果在业务注册自定义组件的时候也需要类型提示，可以采用如下方式:
+  在使用 `registerElement` 去注册组件的时候，利用了 typescript 的 `type narrowing`，在 switch case 中提供了准确的类型提示。如果在业务注册自定义组件的时候也需要类型提示，可以采用如下方式:
 
     ```javascript
       export interface HippyGlobalEventHandlersEventMap {
@@ -506,8 +606,8 @@ function isCustomTag(tag) {
       }
     ```
 
-    更多信息可以参考 demo 里的 [extend.ts](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/extend.ts).
-  
+  更多信息可以参考 demo 里的 [extend.ts](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/extend.ts).
+
 - whitespace 处理
 
   Vue2.x Vue-Loader `compilerOptions.whitespace` 默认值为 `preserve`， Vue3.x 默认值为 `condense`（可参考 [Vue3 whitespace说明](https://cn.vuejs.org/api/application.html#app-config-compileroptions-whitespace)）。
