@@ -491,7 +491,7 @@ public class TextVirtualNode extends VirtualNode {
                         new TextShadowSpan(mShadowOffsetDx, mShadowOffsetDy, mShadowRadius, color)));
             }
         }
-        if (mEventTypes != null && mEventTypes.size() > 0) {
+        if (containGestureEvent()) {
             TextGestureSpan span = new TextGestureSpan(mId);
             span.addGestureTypes(mEventTypes);
             ops.add(new SpanOperation(start, end, span));
