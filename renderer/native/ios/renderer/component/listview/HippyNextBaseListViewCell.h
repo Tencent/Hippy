@@ -20,35 +20,33 @@
  * limitations under the License.
  */
 
-#import "HippyShadowView.h"
-#import "HippyShadowWaterfallItem.h"
+#import <UIKit/UIKit.h>
+#import "HippyWaterfallView.h"
+#import "HippyWaterfallViewCell.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface WaterfallItemChangeContext : NSObject<NSCopying>
+typedef NS_ENUM(NSUInteger, CellAppearState) {
+    CellInitialState,
+    CellWillAppearState,
+    CellDidAppearState,
+    CellWillDisappearState,
+    CellDidDisappearState
+};
 
-- (NSHashTable<__kindof HippyShadowView *> *)addedItems;
-- (NSHashTable<__kindof HippyShadowView *> *)frameChangedItems;
-- (NSSet<__kindof HippyShadowView *> *)deletedItems;
-- (NSHashTable<__kindof HippyShadowView *> *)movedItems;
+typedef NS_ENUM(NSUInteger, CellShowState) { CellNotShowState, CellHalfShowState, CellFullShowState };
 
-/// Clear all items recorded.
-- (void)clear;
+@protocol ViewAppearStateProtocol <NSObject>
 
-/// Whether has changed item.
-- (BOOL)hasChanges;
-
-/// Get all chaned items.
-- (NSSet<HippyShadowView *> *)allChangedItems;
+- (void)cellAppearStateChanged:(CellAppearState)state;
 
 @end
 
-@interface HippyShadowListView : HippyShadowView <HippyShadowWaterfallItemFrameChangedProtocol>
+@interface HippyNextBaseListViewCell : HippyWaterfallViewCell
 
-///// Whether current ShadowList is dirty.
-//@property (nonatomic, assign) BOOL isDirty;
+- (void)setCellShowState:(CellShowState)cellShowState NS_REQUIRES_SUPER;
 
-@property(nonatomic, readonly, strong)WaterfallItemChangeContext *itemChangeContext;
+- (CellShowState)cellShowState;
 
 @end
 

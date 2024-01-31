@@ -22,7 +22,7 @@
 
 #import <Foundation/Foundation.h>
 #import "HippyComponent.h"
-#import "NativeRenderDefines.h"
+#import "HippyViewManager.h"
 
 @class HippyShadowView, HippyViewManager;
 @class UIView;

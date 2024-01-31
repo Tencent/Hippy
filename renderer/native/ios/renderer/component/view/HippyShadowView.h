@@ -34,10 +34,10 @@ typedef NS_ENUM(NSUInteger, NativeRenderUpdateLifecycle) {
     NativeRenderUpdateLifecycleAllDirtied = 4,
 };
 
-typedef NS_ENUM(NSUInteger, NativeRenderCreationType) {
-    NativeRenderCreationTypeUndetermined = 0,
-    NativeRenderCreationTypeInstantly,
-    NativeRenderCreationTypeLazily,
+typedef NS_ENUM(NSUInteger, HippyCreationType) {
+    HippyCreationTypeUndetermined = 0,
+    HippyCreationTypeInstantly,
+    HippyCreationTypeLazily,
 };
 
 @class HippyShadowView;
@@ -124,13 +124,13 @@ typedef void (^HippyViewInsertionBlock)(UIView *container, NSArray<UIView *> *ch
 
 /**
  * Indicate how we create coresponding UIView
- * NativeRenderCreationTypeInstantly : create views instantly when NativeRenderObject is created
- * NativeRenderCreationTypeLazily: create views when UIView is needed
+ * HippyCreationTypeInstantly : create views instantly when NativeRenderObject is created
+ * HippyCreationTypeLazily: create views when UIView is needed
  */
-@property (nonatomic, assign) NativeRenderCreationType creationType;
+@property (nonatomic, assign) HippyCreationType creationType;
 
 /**
- * set create type of itself and its all descendants to NativeRenderCreationTypeInstantly
+ * set create type of itself and its all descendants to HippyCreationTypeInstantly
  */
 - (void)synchronousRecusivelySetCreationTypeToInstant;
 

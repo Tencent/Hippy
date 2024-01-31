@@ -21,34 +21,22 @@
  */
 
 #import "HippyShadowView.h"
-#import "HippyShadowWaterfallItem.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface WaterfallItemChangeContext : NSObject<NSCopying>
+@class HippyShadowWaterfallItem;
 
-- (NSHashTable<__kindof HippyShadowView *> *)addedItems;
-- (NSHashTable<__kindof HippyShadowView *> *)frameChangedItems;
-- (NSSet<__kindof HippyShadowView *> *)deletedItems;
-- (NSHashTable<__kindof HippyShadowView *> *)movedItems;
+@protocol HippyShadowWaterfallItemFrameChangedProtocol <NSObject>
 
-/// Clear all items recorded.
-- (void)clear;
-
-/// Whether has changed item.
-- (BOOL)hasChanges;
-
-/// Get all chaned items.
-- (NSSet<HippyShadowView *> *)allChangedItems;
+@required
+- (void)itemFrameChanged:(__kindof HippyShadowWaterfallItem *)item;
 
 @end
 
-@interface HippyShadowListView : HippyShadowView <HippyShadowWaterfallItemFrameChangedProtocol>
+@interface HippyShadowWaterfallItem : HippyShadowView
 
-///// Whether current ShadowList is dirty.
-//@property (nonatomic, assign) BOOL isDirty;
-
-@property(nonatomic, readonly, strong)WaterfallItemChangeContext *itemChangeContext;
+@property(nonatomic, assign, getter=isLayoutDirty) BOOL layoutDirty;
+@property(nonatomic, weak) id<HippyShadowWaterfallItemFrameChangedProtocol> observer;
 
 @end
 
