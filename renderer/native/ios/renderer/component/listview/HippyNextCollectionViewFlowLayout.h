@@ -20,35 +20,23 @@
  * limitations under the License.
  */
 
-#import "HippyShadowView.h"
-#import "HippyShadowWaterfallItem.h"
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface WaterfallItemChangeContext : NSObject<NSCopying>
+@interface HippyCollectionViewFlowLayoutRTLStack : NSObject
 
-- (NSHashTable<__kindof HippyShadowView *> *)addedItems;
-- (NSHashTable<__kindof HippyShadowView *> *)frameChangedItems;
-- (NSSet<__kindof HippyShadowView *> *)deletedItems;
-- (NSHashTable<__kindof HippyShadowView *> *)movedItems;
++ (HippyCollectionViewFlowLayoutRTLStack *)sharedInstance;
 
-/// Clear all items recorded.
-- (void)clear;
-
-/// Whether has changed item.
-- (BOOL)hasChanges;
-
-/// Get all chaned items.
-- (NSSet<HippyShadowView *> *)allChangedItems;
+- (void)pushRTLConfig:(BOOL)isRTL;
+- (BOOL)popRTLConfig;
 
 @end
 
-@interface HippyShadowListView : HippyShadowView <HippyShadowWaterfallItemFrameChangedProtocol>
+@interface HippyNextCollectionViewFlowLayout : UICollectionViewFlowLayout
 
-///// Whether current ShadowList is dirty.
-//@property (nonatomic, assign) BOOL isDirty;
-
-@property(nonatomic, readonly, strong)WaterfallItemChangeContext *itemChangeContext;
+@property(nonatomic, assign) BOOL layoutDirectionRTL;
+@property(nonatomic, assign) BOOL flipsHorizontallyInOppositeLayoutDirection;
 
 @end
 

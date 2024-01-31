@@ -21,15 +21,14 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "HippyComponent.h"
+#import "HippyScrollView.h"
 #import "HippyNextListTableView.h"
+#import "NativeRenderTouchesView.h"
 #import "HippyWaterfallView.h"
-
-NS_ASSUME_NONNULL_BEGIN
 
 @class HippyNextBaseListViewCell;
 
-@interface NativeRenderSmartViewPagerView : HippyWaterfallView <HippyListTableViewLayoutProtocol>
+@interface HippyNextBaseListView : HippyWaterfallView <HippyListTableViewLayoutProtocol>
 
 /**
  * Hippy events
@@ -37,47 +36,37 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy) HippyDirectEventBlock initialListReady;
 @property(nonatomic, copy) HippyDirectEventBlock onScrollBeginDrag;
 @property(nonatomic, copy) HippyDirectEventBlock onScrollEndDrag;
-@property(nonatomic, strong) HippyDirectEventBlock onPageSelected;
-@property(nonatomic, strong) HippyDirectEventBlock onPageScrollStateChanged;
+@property(nonatomic, copy) HippyDirectEventBlock onMomentumScrollBegin;
+@property(nonatomic, copy) HippyDirectEventBlock onMomentumScrollEnd;
+@property(nonatomic, copy) HippyDirectEventBlock onRowWillDisplay;
+@property(nonatomic, copy) HippyDirectEventBlock onDelete;
 
 /**
- *  Indicate view pager view scroll circule, default is NO
+ * Indication initial content offset when HippyNextBaseListView finish loading data
+ *
+ * @discuss This variable will be set to 0 after HippyNextBaseListView finish loading data
  */
-@property(nonatomic, assign) BOOL circular;
+@property(nonatomic, assign) CGFloat initialContentOffset;
 
 /**
- *  view pager view scroll auto, default is NO
+ * Indicate whether bounces past edge of content and back again
  */
-@property(nonatomic, assign) BOOL autoplay;
+@property(nonatomic, assign) BOOL bounces;
 
 /**
- *  view pager view scroll auto play time, default is 3 second
+ * Indicate whether compoents can show scroll indicator when tracking
  */
-@property(nonatomic, assign) CGFloat autoplayTimeInterval;
+@property(nonatomic, assign) BOOL showScrollIndicator;
 
 /**
- *  view pager view item space, default is 0
+ * Indicate whether item is editable
  */
-@property(nonatomic, assign) CGFloat pageGap;
+@property(nonatomic, assign) BOOL editable;
 
 /**
- *  view pager previous item show width, default is 0
+ * Indicate list view scrolls horizontally, defualt is NO
  */
-@property(nonatomic, assign) CGFloat previousMargin;
-
-/**
- *  view pager next item show width, default is 0
- */
-@property(nonatomic, assign) CGFloat nextMargin;
-
-/**
- *  first item show, default is 0
- */
-@property(nonatomic, assign) NSInteger initialPage;
-
-- (void)setPage:(NSInteger)page animated:(BOOL)animated;
-
-- (NSInteger)getCurrentPage;
+@property(nonatomic, assign) BOOL horizontal;
 
 /**
  * Reload data
@@ -85,5 +74,3 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)reloadData;
 
 @end
-
-NS_ASSUME_NONNULL_END

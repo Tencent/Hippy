@@ -25,7 +25,7 @@
 #import "HippyConvert+NativeRender.h"
 #import "HippyImageProviderProtocol.h"
 #import "HippyUtils.h"
-#import "NativeRenderGradientObject.h"
+#import "HippyGradientObject.h"
 #import "HippyUIManager.h"
 #import "HippyShadowView.h"
 #import "HippyShadowView+Internal.h"
@@ -299,7 +299,7 @@ static NSOperationQueue *imageLoadOperationQueue(void) {
 HIPPY_CUSTOM_VIEW_PROPERTY(linearGradient, NSDictionary, HippyView) {
     if (json) {
         NSDictionary *linearGradientObject = [HippyConvert NSDictionary:json];
-        view.gradientObject = [[NativeRenderGradientObject alloc] initWithGradientObject:linearGradientObject];
+        view.gradientObject = [[HippyGradientObject alloc] initWithGradientObject:linearGradientObject];
         [view.layer setNeedsDisplay];
     }
     else {

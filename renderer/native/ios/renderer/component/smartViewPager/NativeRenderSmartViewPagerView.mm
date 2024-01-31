@@ -20,8 +20,8 @@
  * limitations under the License.
  */
 
-#import "NativeRenderBaseListViewCell.h"
-#import "NativeRenderBaseListViewDataSource.h"
+#import "HippyNextBaseListViewCell.h"
+#import "HippyNextBaseListViewDataSource.h"
 #import "HippyFooterRefresh.h"
 #import "HippyHeaderRefresh.h"
 #import "HippyUIManager.h"
@@ -62,7 +62,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 - (instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
         _isInitialListReady = NO;
-        _dataSource = [[NativeRenderBaseListViewDataSource alloc] init];
+        _dataSource = [[HippyNextBaseListViewDataSource alloc] init];
         self.dataSource.itemViewName = [self compoentItemName];
         [self initialization];
         self.collectionView.alwaysBounceVertical = NO;
@@ -238,7 +238,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (Class)listItemClass {
-    return [NativeRenderBaseListViewCell class];
+    return [HippyNextBaseListViewCell class];
 }
 
 - (__kindof UICollectionViewLayout *)collectionViewLayout {
@@ -252,7 +252,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 
 - (void)registerCells {
     Class cls = [self listItemClass];
-    NSAssert([cls isSubclassOfClass:[NativeRenderBaseListViewCell class]], @"list item class must be a subclass of NativeRenderBaseListViewCell");
+    NSAssert([cls isSubclassOfClass:[HippyNextBaseListViewCell class]], @"list item class must be a subclass of NativeRenderBaseListViewCell");
     [self.collectionView registerClass:cls forCellWithReuseIdentifier:kCellIdentifier];
 }
 
@@ -336,7 +336,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     NSInteger cellIndex = _itemIndexArray[indexPath.row].integerValue;
     NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
-    NativeRenderBaseListViewCell *cell = (NativeRenderBaseListViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:adjustIndexPath];
+    HippyNextBaseListViewCell *cell = (HippyNextBaseListViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:adjustIndexPath];
     return cell;
 }
 
@@ -354,17 +354,17 @@ static NSString *const kListViewItem = @"ListViewItem";
     forItemAtIndexPath:(NSIndexPath *)indexPath {
     NSInteger cellIndex = _itemIndexArray[indexPath.row].integerValue;
     NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
-    NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
+    HippyWaterfallViewCell *hpCell = (HippyWaterfallViewCell *)cell;
     HippyShadowView *renderObject = [_dataSource cellForIndexPath:adjustIndexPath];
     UIView *cellView = [self.renderImpl createViewForShadowListItem:renderObject];
     hpCell.cellView = cellView;
     cellView.parent = self;
 }
 
-- (void)tableViewDidLayoutSubviews:(NativeRenderListTableView *)tableView {
+- (void)tableViewDidLayoutSubviews:(HippyNextListTableView *)tableView {
     [super tableViewDidLayoutSubviews:tableView];
     NSArray<UICollectionViewCell *> *visibleCells = [self.collectionView visibleCells];
-    for (NativeRenderBaseListViewCell *cell in visibleCells) {
+    for (HippyNextBaseListViewCell *cell in visibleCells) {
         CGRect cellRectInTableView = [self.collectionView convertRect:[cell bounds] fromView:cell];
         CGRect intersection = CGRectIntersection(cellRectInTableView, [self.collectionView bounds]);
         if (CGRectEqualToRect(cellRectInTableView, intersection)) {
@@ -376,7 +376,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     if (_previousVisibleCells && ![_previousVisibleCells isEqualToArray:visibleCells]) {
         NSMutableArray<UICollectionViewCell *> *diff = [_previousVisibleCells mutableCopy];
         [diff removeObjectsInArray:visibleCells];
-        for (NativeRenderBaseListViewCell *cell in diff) {
+        for (HippyNextBaseListViewCell *cell in diff) {
             [cell setCellShowState:CellNotShowState];
         }
     }

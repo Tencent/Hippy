@@ -20,35 +20,24 @@
  * limitations under the License.
  */
 
-#import "HippyShadowView.h"
-#import "HippyShadowWaterfallItem.h"
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface WaterfallItemChangeContext : NSObject<NSCopying>
+@class HippyNextListTableView;
 
-- (NSHashTable<__kindof HippyShadowView *> *)addedItems;
-- (NSHashTable<__kindof HippyShadowView *> *)frameChangedItems;
-- (NSSet<__kindof HippyShadowView *> *)deletedItems;
-- (NSHashTable<__kindof HippyShadowView *> *)movedItems;
+@protocol HippyListTableViewLayoutProtocol <NSObject>
 
-/// Clear all items recorded.
-- (void)clear;
-
-/// Whether has changed item.
-- (BOOL)hasChanges;
-
-/// Get all chaned items.
-- (NSSet<HippyShadowView *> *)allChangedItems;
+/**
+ * Invoke when HippyNextListTableView layout its subviews
+ */
+- (void)tableViewDidLayoutSubviews:(HippyNextListTableView *)tableView;
 
 @end
 
-@interface HippyShadowListView : HippyShadowView <HippyShadowWaterfallItemFrameChangedProtocol>
+@interface HippyNextListTableView : UICollectionView
 
-///// Whether current ShadowList is dirty.
-//@property (nonatomic, assign) BOOL isDirty;
-
-@property(nonatomic, readonly, strong)WaterfallItemChangeContext *itemChangeContext;
+@property (nonatomic, weak) id<HippyListTableViewLayoutProtocol> layoutDelegate;
 
 @end
 
