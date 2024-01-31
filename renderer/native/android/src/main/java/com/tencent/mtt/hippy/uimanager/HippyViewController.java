@@ -37,6 +37,7 @@ import com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent;
 import com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent.Priority;
 import com.tencent.mtt.hippy.views.common.HippyNestedScrollHelper;
 import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
+import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.Renderer;
 import com.tencent.renderer.NativeRender;
@@ -452,15 +453,14 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     @Deprecated
     public void dispatchFunction(@NonNull T view, @NonNull String functionName,
             @NonNull HippyArray params) {
-        // Stub method.
+        dispatchFunction(view, functionName, params.getInternalArray());
     }
 
     @SuppressWarnings("deprecation")
     @Deprecated
     public void dispatchFunction(@NonNull T view, @NonNull String functionName,
             @NonNull HippyArray params, @NonNull Promise promise) {
-        // Stub method.
-        DevtoolsUtil.dispatchDevtoolsFunction(view, functionName, params, promise);
+        dispatchFunction(view, functionName, params.getInternalArray(), promise);
     }
 
     @Nullable
