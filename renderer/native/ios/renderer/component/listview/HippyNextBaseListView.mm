@@ -222,7 +222,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
                                                                                forIndexPath:indexPath];
     HippyShadowView *headerRenderObject = [self.dataSource headerForSection:section];
     if (headerRenderObject && [headerRenderObject isKindOfClass:[HippyShadowView class]]) {
-        UIView *headerView = [self.renderImpl createViewForShadowListItem:headerRenderObject];
+        UIView *headerView = [self.uiManager createViewForShadowListItem:headerRenderObject];
         CGRect frame = headerView.frame;
         frame.origin = CGPointZero;
         headerView.frame = frame;
@@ -277,7 +277,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
         cellView = cachedVisibleCellView;
         HippyLogTrace(@"🟢 use cached visible cellView at %@ for %@", indexPath, shadowView.hippyTag);
     } else {
-        cellView = [self.renderImpl createViewForShadowListItem:shadowView];
+        cellView = [self.uiManager createViewForShadowListItem:shadowView];
         [_cachedWeakCellViews setObject:cellView forKey:shadowView.hippyTag];
         HippyLogTrace(@"🟡 create cellView at %@ for %@", indexPath, shadowView.hippyTag);
     }

@@ -356,7 +356,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
     HippyWaterfallViewCell *hpCell = (HippyWaterfallViewCell *)cell;
     HippyShadowView *renderObject = [_dataSource cellForIndexPath:adjustIndexPath];
-    UIView *cellView = [self.renderImpl createViewForShadowListItem:renderObject];
+    UIView *cellView = [self.uiManager createViewForShadowListItem:renderObject];
     hpCell.cellView = cellView;
     cellView.parent = self;
 }

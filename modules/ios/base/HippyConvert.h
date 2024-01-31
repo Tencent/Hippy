@@ -21,7 +21,6 @@
  */
 
 #import <UIKit/UIKit.h>
-
 #import "HippyLog.h"
 
 /**
@@ -132,12 +131,12 @@ HIPPY_EXTERN SEL HippyConvertSelectorForType(NSString *type);
  * This macro is used for creating simple converter functions that just call
  * the specified getter method on the json value.
  */
-#define HP_CONVERTER(type, name, getter) HP_CUSTOM_CONVERTER(type, name, [json getter])
+#define HIPPY_CONVERTER(type, name, getter) HIPPY_CUSTOM_CONVERTER(type, name, [json getter])
 
 /**
  * This macro is used for creating converter functions with arbitrary logic.
  */
-#define HP_CUSTOM_CONVERTER(type, name, code)     \
+#define HIPPY_CUSTOM_CONVERTER(type, name, code)     \
     +(type)name : (id)json {                         \
         if (!HIPPY_DEBUG) {                          \
             return code;                             \
@@ -153,17 +152,17 @@ HIPPY_EXTERN SEL HippyConvertSelectorForType(NSString *type);
     }
 
 /**
- * This macro is similar to HP_CONVERTER, but specifically geared towards
+ * This macro is similar to HIPPY_CONVERTER, but specifically geared towards
  * numeric types. It will handle string input correctly, and provides more
  * detailed error reporting if an invalid value is passed in.
  */
-#define HP_NUMBER_CONVERTER(type, getter) \
-    HP_CUSTOM_CONVERTER(type, type, [HIPPY_DEBUG ? [self NSNumber:json] : json getter])
+#define HIPPY_NUMBER_CONVERTER(type, getter) \
+    HIPPY_CUSTOM_CONVERTER(type, type, [HIPPY_DEBUG ? [self NSNumber:json] : json getter])
 
 /**
  * This macro is used for creating converters for enum types.
  */
-#define HP_ENUM_CONVERTER(type, values, default, getter)                           \
+#define HIPPY_ENUM_CONVERTER(type, values, default, getter)                                   \
     +(type)type : (id)json {                                                                  \
         static NSDictionary *mapping;                                                         \
         static dispatch_once_t onceToken;                                                     \
@@ -177,7 +176,7 @@ HIPPY_EXTERN SEL HippyConvertSelectorForType(NSString *type);
  * This macro is used for creating converters for enum types for
  * multiple enum values combined with | operator
  */
-#define HP_MULTI_ENUM_CONVERTER(type, values, default, getter)                     \
+#define HIPPY_MULTI_ENUM_CONVERTER(type, values, default, getter)                             \
     +(type)type : (id)json {                                                                  \
         static NSDictionary *mapping;                                                         \
         static dispatch_once_t onceToken;                                                     \
@@ -190,7 +189,18 @@ HIPPY_EXTERN SEL HippyConvertSelectorForType(NSString *type);
 /**
  * This macro is used for creating converter functions for typed arrays.
  */
-#define HP_ARRAY_CONVERTER(type)                             \
+#define HIPPY_ARRAY_CONVERTER(type)                                     \
     +(NSArray<type *> *)type##Array : (id)json {                        \
-        return HippyConvertArrayValue(@selector(type:), json);   \
+        return HippyConvertArrayValue(@selector(type:), json);          \
     }
+
+
+/**
+ * Those macros are used for older version compatibility.
+ */
+#define Hippy_CONVERTER HIPPY_CONVERTER
+#define Hippy_CUSTOM_CONVERTER HIPPY_CUSTOM_CONVERTER
+#define Hippy_NUMBER_CONVERTER HIPPY_NUMBER_CONVERTER
+#define Hippy_MULTI_ENUM_CONVERTER HIPPY_MULTI_ENUM_CONVERTER
+#define Hippy_ARRAY_CONVERTER HIPPY_ARRAY_CONVERTER
+

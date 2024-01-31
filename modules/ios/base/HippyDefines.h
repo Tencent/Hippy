@@ -20,6 +20,9 @@
  * limitations under the License.
  */
 
+#ifndef __HIPPY_DEFINES__
+#define __HIPPY_DEFINES__
+
 #if __OBJC__
 #import <Foundation/Foundation.h>
 #endif
@@ -80,3 +83,9 @@ method NS_UNAVAILABLE {                                                         
 @throw _HippyNotImplementedException(_cmd, [self class]);                                                                       \
 }                                                                                                                                   \
 _Pragma("clang diagnostic pop")
+
+
+#define HIPPY_VERSION_3_0      300
+
+
+#endif /* __HIPPY_DEFINES__ */
