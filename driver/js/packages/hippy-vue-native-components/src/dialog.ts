@@ -48,6 +48,14 @@ function registerDialog(Vue: any) {
         type: Boolean,
         default: true,
       },
+      autoHideStatusBar: {
+        type: Boolean,
+        default: false,
+      },
+      autoHideNavigationBar: {
+        type: Boolean,
+        default: false,
+      },
     },
     render(h: any) {
       const firstChild = getFirstComponent(this.$slots.default);
@@ -63,7 +71,7 @@ function registerDialog(Vue: any) {
           });
         }
       }
-      const { collapsable, transparent, immersionStatusBar } = this;
+      const { collapsable, transparent, immersionStatusBar, autoHideStatusBar, autoHideNavigationBar } = this;
       return h(
         'hi-dialog',
         {
@@ -72,6 +80,8 @@ function registerDialog(Vue: any) {
             collapsable,
             transparent,
             immersionStatusBar,
+            autoHideStatusBar,
+            autoHideNavigationBar,
           },
         },
         this.$slots.default,

@@ -70,6 +70,16 @@ public class HippyModalHostManager extends HippyGroupController<HippyModalHostVi
         view.setAnimationType(animationType);
     }
 
+    @HippyControllerProps(name = "autoHideStatusBar", defaultType = HippyControllerProps.BOOLEAN)
+    public void autoHideStatusBar(HippyModalHostView view, boolean fullScreen) {
+        view.autoHideStatusBar(fullScreen);
+    }
+
+    @HippyControllerProps(name = "autoHideNavigationBar", defaultType = HippyControllerProps.BOOLEAN)
+    public void autoHideNavigationBar(HippyModalHostView view, boolean fullScreen) {
+        view.autoHideNavigationBar(fullScreen);
+    }
+
     @HippyControllerProps(name = "immersionStatusBar", defaultType = HippyControllerProps.BOOLEAN)
     public void setEnterImmersionStatusBar(HippyModalHostView view, boolean fullScreen) {
         view.setEnterImmersionStatusBar(fullScreen);
