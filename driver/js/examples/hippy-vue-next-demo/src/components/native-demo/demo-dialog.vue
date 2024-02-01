@@ -19,6 +19,27 @@
     >
       <span class="button-text">显示对话框--slide_fade</span>
     </button>
+    <button
+      :style="[{ borderColor: autoHideStatusBar ? '#FF0000' : '#40b883'}]"
+      class="dialog-demo-button-1"
+      @click.stop="() => onClickDialogConfig('hideStatusBar')"
+    >
+      <span class="button-text">隐藏状态栏</span>
+    </button>
+    <button
+      :style="[{ borderColor: immersionStatusBar ? '#FF0000' : '#40b883'}]"
+      class="dialog-demo-button-1"
+      @click.stop="() => onClickDialogConfig('immerseStatusBar')"
+    >
+      <span class="button-text">沉浸式状态栏</span>
+    </button>
+    <button
+      :style="[{ borderColor: autoHideNavigationBar ? '#FF0000' : '#40b883'}]"
+      class="dialog-demo-button-1"
+      @click.stop="() => onClickDialogConfig('hideNavigationBar')"
+    >
+      <span class="button-text">隐藏导航栏</span>
+    </button>
     <!-- dialog can't support v-show, can only use v-if for explicit switching -->
 
     <dialog
@@ -26,6 +47,9 @@
       :animationType="dialogAnimationType"
       :transparent="true"
       :supportedOrientations="supportedOrientations"
+      :immersionStatusBar="immersionStatusBar"
+      :autoHideStatusBar="autoHideStatusBar"
+      :autoHideNavigationBar="autoHideNavigationBar"
       @show="onShow"
       @requestClose="onClose"
     >
@@ -93,10 +117,31 @@ export default defineComponent({
     const dialog2IsVisible = ref(false);
     // dialog 动画效果
     const dialogAnimationType = ref('fade');
+    // 是否沉浸式状态栏
+    const immersionStatusBar = ref(false);
+    // 是否隐藏状态栏
+    const autoHideStatusBar = ref(false);
+    // 是否隐藏导航栏
+    const autoHideNavigationBar = ref(false);
 
     const onClickView = (type = '') => {
       dialogIsVisible.value = !dialogIsVisible.value;
       dialogAnimationType.value = type;
+    };
+    const onClickDialogConfig = (option) => {
+      switch (option) {
+        case 'hideStatusBar':
+          autoHideStatusBar.value = !autoHideStatusBar.value;
+          break;
+        case 'immerseStatusBar':
+          immersionStatusBar.value = !immersionStatusBar.value;
+          break;
+        case 'hideNavigationBar':
+          autoHideNavigationBar.value = !autoHideNavigationBar.value;
+          break;
+        default:
+          break;
+      }
     };
     const onClickOpenSecond = (evt) => {
       evt.stopPropagation();
@@ -139,11 +184,15 @@ export default defineComponent({
       dialogIsVisible,
       dialog2IsVisible,
       dialogAnimationType,
+      immersionStatusBar,
+      autoHideStatusBar,
+      autoHideNavigationBar,
       stopPropagation,
       onClose,
       onShow,
       onClickView,
       onClickOpenSecond,
+      onClickDialogConfig,
     };
   },
 });
