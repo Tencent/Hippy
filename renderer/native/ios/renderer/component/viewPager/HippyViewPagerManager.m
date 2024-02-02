@@ -21,15 +21,15 @@
  */
 
 #import "HippyUIManager.h"
-#import "NativeRenderViewPagerManager.h"
-#import "NativeRenderViewPager.h"
+#import "HippyViewPagerManager.h"
+#import "HippyViewPager.h"
 
-@implementation NativeRenderViewPagerManager
+@implementation HippyViewPagerManager
 
 HIPPY_EXPORT_MODULE(ViewPager)
 
 - (UIView *)view {
-    return [NativeRenderViewPager new];
+    return [HippyViewPager new];
 }
 
 HIPPY_EXPORT_VIEW_PROPERTY(bounces, BOOL)
@@ -45,11 +45,11 @@ HIPPY_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, HippyDirectEventBlock)
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager,
                                   NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
-        if (![view isKindOfClass:[NativeRenderViewPager class]]) {
+        if (![view isKindOfClass:[HippyViewPager class]]) {
             HippyLogError(@"tried to setPage: on an error viewPager %@ with tag #%@", view, componentTag);
         }
         NSInteger pageNumberInteger = pageNumber.integerValue;
-        [(NativeRenderViewPager *)view setPage:pageNumberInteger animated:animated];
+        [(HippyViewPager *)view setPage:pageNumberInteger animated:animated];
     }];
 }
 

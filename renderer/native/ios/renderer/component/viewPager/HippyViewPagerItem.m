@@ -20,14 +20,16 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "HippyViewPagerItem.h"
 
-#import "NativeRenderTouchesView.h"
+@implementation HippyViewPagerItem
 
-typedef CGRect(^FrameSetBlock)(CGRect frame);
-
-@interface NativeRenderViewPagerItem : NativeRenderTouchesView
-
-@property (nonatomic, copy)FrameSetBlock frameSetBlock;
+- (void)setFrame:(CGRect)frame {
+    CGRect finalFrame = frame;
+    if (self.frameSetBlock) {
+        finalFrame = self.frameSetBlock(frame);
+    }
+    [super setFrame:finalFrame];
+}
 
 @end

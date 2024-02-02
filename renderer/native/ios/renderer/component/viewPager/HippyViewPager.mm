@@ -20,8 +20,8 @@
  * limitations under the License.
  */
 
-#import "NativeRenderViewPager.h"
-#import "NativeRenderViewPagerItem.h"
+#import "HippyViewPager.h"
+#import "HippyViewPagerItem.h"
 #import "UIView+Hippy.h"
 #import "UIView+DirectionalLayout.h"
 #import "UIView+MountEvent.h"
@@ -29,7 +29,7 @@
 
 #include "float.h"
 
-@interface NativeRenderViewPager ()
+@interface HippyViewPager ()
 @property (nonatomic, strong) NSMutableArray<UIView *> *viewPagerItems;
 @property (nonatomic, assign) BOOL isScrolling;
 @property (nonatomic, assign) BOOL loadOnce;
@@ -48,7 +48,7 @@
 
 @end
 
-@implementation NativeRenderViewPager
+@implementation HippyViewPager
 #pragma mark life cycle
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
@@ -100,13 +100,13 @@
     [super insertHippySubview:view atIndex:(NSInteger)atIndex];
     [self.viewPagerItems insertObject:view atIndex:atIndex];
     
-    if ([view isKindOfClass:[NativeRenderViewPagerItem class]]) {
-        NativeRenderViewPagerItem *item = (NativeRenderViewPagerItem *)view;
-        __weak NativeRenderViewPager *weakPager = self;
+    if ([view isKindOfClass:[HippyViewPagerItem class]]) {
+        HippyViewPagerItem *item = (HippyViewPagerItem *)view;
+        __weak HippyViewPager *weakPager = self;
         __weak UIView *weakItem = item;
         item.frameSetBlock = ^CGRect(CGRect frame) {
             if (weakPager) {
-                NativeRenderViewPager *strongPager = weakPager;
+                HippyViewPager *strongPager = weakPager;
                 UIView *strongItem = weakItem;
                 if (strongItem) {
                     NSUInteger index = [strongPager.viewPagerItems indexOfObject:strongItem];

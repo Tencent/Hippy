@@ -22,8 +22,12 @@
 
 #import <Foundation/Foundation.h>
 
-#import "HippyViewManager.h"
+#import "NativeRenderTouchesView.h"
 
-@interface NativeRenderViewPagerItemManager : HippyViewManager
+typedef CGRect(^FrameSetBlock)(CGRect frame);
+
+@interface HippyViewPagerItem : NativeRenderTouchesView
+
+@property (nonatomic, copy)FrameSetBlock frameSetBlock;
 
 @end
