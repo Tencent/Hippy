@@ -24,6 +24,6 @@
 
 #import "HippyViewManager.h"
 
-@interface NativeRenderViewPagerManager : HippyViewManager
+@interface HippyViewPagerManager : HippyViewManager
 
 @end

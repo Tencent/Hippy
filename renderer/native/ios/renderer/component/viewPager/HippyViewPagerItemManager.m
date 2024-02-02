@@ -20,15 +20,15 @@
  * limitations under the License.
  */
 
-#import "NativeRenderViewPagerItemManager.h"
-#import "NativeRenderViewPagerItem.h"
+#import "HippyViewPagerItemManager.h"
+#import "HippyViewPagerItem.h"
 
-@implementation NativeRenderViewPagerItemManager
+@implementation HippyViewPagerItemManager
 
 HIPPY_EXPORT_MODULE(ViewPagerItem)
 
 - (UIView *)view {
-    return [NativeRenderViewPagerItem new];
+    return [HippyViewPagerItem new];
 }
 
 @end

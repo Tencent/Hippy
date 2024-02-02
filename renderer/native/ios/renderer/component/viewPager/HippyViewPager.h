@@ -31,7 +31,7 @@
  */
 typedef void (^ViewPagerItemsCountChanged)(NSUInteger count);
 
-@interface NativeRenderViewPager : UIScrollView <UIScrollViewDelegate>
+@interface HippyViewPager : UIScrollView <UIScrollViewDelegate>
 @property (nonatomic, strong) HippyDirectEventBlock onPageSelected;
 @property (nonatomic, strong) HippyDirectEventBlock onPageScroll;
 @property (nonatomic, strong) HippyDirectEventBlock onPageScrollStateChanged;

@@ -20,16 +20,10 @@
  * limitations under the License.
  */
 
-#import "NativeRenderViewPagerItem.h"
+#import <Foundation/Foundation.h>
 
-@implementation NativeRenderViewPagerItem
+#import "HippyViewManager.h"
 
-- (void)setFrame:(CGRect)frame {
-    CGRect finalFrame = frame;
-    if (self.frameSetBlock) {
-        finalFrame = self.frameSetBlock(frame);
-    }
-    [super setFrame:finalFrame];
-}
+@interface HippyViewPagerItemManager : HippyViewManager
 
 @end
