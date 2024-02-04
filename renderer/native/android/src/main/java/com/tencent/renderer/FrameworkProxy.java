@@ -18,6 +18,7 @@ package com.tencent.renderer;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.tencent.mtt.hippy.common.LogAdapter;
 import com.tencent.renderer.component.image.ImageDecoderAdapter;
 import com.tencent.renderer.component.text.FontAdapter;
 import com.tencent.vfs.VfsManager;
@@ -30,6 +31,9 @@ public interface FrameworkProxy {
 
     @Nullable
     FontAdapter getFontAdapter();
+
+    @Nullable
+    LogAdapter getLogAdapter();
 
     @NonNull
     VfsManager getVfsManager();

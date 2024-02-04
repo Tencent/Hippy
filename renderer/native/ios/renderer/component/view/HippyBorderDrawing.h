@@ -30,40 +30,40 @@ typedef struct {
     CGFloat topRight;
     CGFloat bottomLeft;
     CGFloat bottomRight;
-} NativeRenderCornerRadii;
+} HippyCornerRadii;
 
 typedef struct {
     CGSize topLeft;
     CGSize topRight;
     CGSize bottomLeft;
     CGSize bottomRight;
-} NativeRenderCornerInsets;
+} HippyCornerInsets;
 
 typedef struct {
     CGColorRef top;
     CGColorRef left;
     CGColorRef bottom;
     CGColorRef right;
-} NativeRenderBorderColors;
+} HippyBorderColors;
 
 /**
  * Determine if the border widths, colors and radii are all equal.
  */
-HIPPY_EXTERN BOOL NativeRenderBorderInsetsAreEqual(UIEdgeInsets borderInsets);
-HIPPY_EXTERN BOOL NativeRenderCornerRadiiAreEqual(NativeRenderCornerRadii cornerRadii);
-HIPPY_EXTERN BOOL NativeRenderBorderColorsAreEqual(NativeRenderBorderColors borderColors);
+HIPPY_EXTERN BOOL HippyBorderInsetsAreEqual(UIEdgeInsets borderInsets);
+HIPPY_EXTERN BOOL HippyCornerRadiiAreEqual(HippyCornerRadii cornerRadii);
+HIPPY_EXTERN BOOL HippyBorderColorsAreEqual(HippyBorderColors borderColors);
 
 /**
- * Convert NativeRenderCornerRadii to NativeRenderCornerInsets by applying border insets.
+ * Convert HippyCornerRadii to HippyCornerInsets by applying border insets.
  * Effectively, returns radius - inset, with a lower bound of 0.0.
  */
-HIPPY_EXTERN NativeRenderCornerInsets NativeRenderGetCornerInsets(NativeRenderCornerRadii cornerRadii, UIEdgeInsets borderInsets);
+HIPPY_EXTERN HippyCornerInsets HippyGetCornerInsets(HippyCornerRadii cornerRadii, UIEdgeInsets borderInsets);
 
 /**
  * Create a CGPath representing a rounded rectangle with the specified bounds
  * and corner insets. Note that the CGPathRef must be released by the caller.
  */
-HIPPY_EXTERN CGPathRef NativeRenderPathCreateWithRoundedRect(CGRect bounds, NativeRenderCornerInsets cornerInsets, const CGAffineTransform *transform);
+HIPPY_EXTERN CGPathRef HippyPathCreateWithRoundedRect(CGRect bounds, HippyCornerInsets cornerInsets, const CGAffineTransform *transform);
 
 /**
  * Draw a CSS-compliant border as an image. You can determine if it's scalable
@@ -71,7 +71,7 @@ HIPPY_EXTERN CGPathRef NativeRenderPathCreateWithRoundedRect(CGRect bounds, Nati
  *
  * `borderInsets` defines the border widths for each edge.
  */
-HIPPY_EXTERN UIImage *NativeRenderGetBorderImage(NativeRenderBorderStyle borderStyle, CGSize viewSize, NativeRenderCornerRadii cornerRadii, UIEdgeInsets borderInsets,
-    NativeRenderBorderColors borderColors, CGColorRef backgroundColor, BOOL drawToEdge, BOOL drawBackgroundColor);
+HIPPY_EXTERN UIImage *HippyGetBorderImage(HippyBorderStyle borderStyle, CGSize viewSize, HippyCornerRadii cornerRadii, UIEdgeInsets borderInsets,
+    HippyBorderColors borderColors, CGColorRef backgroundColor, BOOL drawToEdge, BOOL drawBackgroundColor);
 
-HIPPY_EXTERN CGPathRef NativeRenderPathCreateOuterOutline(BOOL drawToEdge, CGRect rect, NativeRenderCornerRadii cornerRadii);
+HIPPY_EXTERN CGPathRef HippyPathCreateOuterOutline(BOOL drawToEdge, CGRect rect, HippyCornerRadii cornerRadii);

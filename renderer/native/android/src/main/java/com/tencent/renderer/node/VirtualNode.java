@@ -22,7 +22,9 @@ import android.text.style.ImageSpan;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
+import com.tencent.mtt.hippy.dom.node.NodeProps;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -46,6 +48,17 @@ public abstract class VirtualNode {
     @Nullable
     protected String mVerticalAlign;
     protected float mOpacity = 1f;
+
+    public static final HashSet<String> GESTURE_EVENTS = new HashSet<String>() {{
+        add(NodeProps.ON_LONG_CLICK);
+        add(NodeProps.ON_CLICK);
+        add(NodeProps.ON_PRESS_IN);
+        add(NodeProps.ON_PRESS_OUT);
+        add(NodeProps.ON_TOUCH_DOWN);
+        add(NodeProps.ON_TOUCH_MOVE);
+        add(NodeProps.ON_TOUCH_END);
+        add(NodeProps.ON_TOUCH_CANCEL);
+    }};
 
     public VirtualNode(int rootId, int id, int pid, int index) {
         mRootId = rootId;
@@ -92,6 +105,17 @@ public abstract class VirtualNode {
         return mEventTypes != null && mEventTypes.contains(event);
     }
 
+    public boolean containGestureEvent() {
+        if (mEventTypes != null) {
+            for (String event : mEventTypes) {
+                if (GESTURE_EVENTS.contains(event)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public boolean isDirty() {
         return mDirty;
     }
@@ -104,7 +128,7 @@ public abstract class VirtualNode {
     }
 
     public void resetChildIndex(@NonNull VirtualNode child, int index) {
-        if (mChildren.contains(child)) {
+        if (mChildren != null && mChildren.contains(child)) {
             removeChild(child);
             addChildAt(child, index);
         }

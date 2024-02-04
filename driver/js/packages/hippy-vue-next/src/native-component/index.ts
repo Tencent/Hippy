@@ -27,6 +27,24 @@ import { registerSwiper } from './swiper';
 import { registerUlRefresh } from './ul-refresh';
 import { registerWaterfall } from './waterfall';
 
+// native component interface export
+export interface AnimationInstance {
+  create: () => void;
+  start: () => void;
+  reset: () => void;
+  resume: () => void;
+  pause: () => void;
+  destroy: () => void;
+  addAnimationEvent: () => void;
+  removeAnimationEvent: () => void;
+}
+
+// native tag list
+const nativeTags = [
+  'dialog', 'hi-pull-header', 'hi-pull-footer', 'hi-swiper', 'hi-swiper-slider',
+  'hi-waterfall', 'hi-waterfall-item', 'hi-ul-refresh-wrapper', 'hi-refresh-wrapper-item',
+];
+
 /**
  * install native components uniformly
  */
@@ -41,3 +59,12 @@ export default {
     registerSwiper(vueApp);
   },
 };
+
+/**
+ * return tag is native tag or not
+ *
+ * @param tag - tag name
+ */
+export function isNativeTag(tag: string): boolean {
+  return nativeTags.includes(tag);
+}

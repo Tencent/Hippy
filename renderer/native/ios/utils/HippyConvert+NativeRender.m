@@ -161,45 +161,45 @@ static const NSUInteger kMatrixArrayLength = 4 * 4;
 
 @end
 
-@implementation HippyConvert (NativeRenderAnimationType)
+@implementation HippyConvert (HippyAnimationType)
 
-HP_ENUM_CONVERTER(NativeRenderAnimationType, (@{
-    @"spring": @(NativeRenderAnimationTypeSpring),
-    @"linear": @(NativeRenderAnimationTypeLinear),
-    @"easeIn": @(NativeRenderAnimationTypeEaseIn),
-    @"easeOut": @(NativeRenderAnimationTypeEaseOut),
-    @"easeInEaseOut": @(NativeRenderAnimationTypeEaseInEaseOut),
-    @"keyboard": @(NativeRenderAnimationTypeKeyboard),
+HP_ENUM_CONVERTER(HippyAnimationType, (@{
+    @"spring": @(HippyAnimationTypeSpring),
+    @"linear": @(HippyAnimationTypeLinear),
+    @"easeIn": @(HippyAnimationTypeEaseIn),
+    @"easeOut": @(HippyAnimationTypeEaseOut),
+    @"easeInEaseOut": @(HippyAnimationTypeEaseInEaseOut),
+    @"keyboard": @(HippyAnimationTypeKeyboard),
 }),
-NativeRenderAnimationTypeEaseInEaseOut, integerValue)
+HippyAnimationTypeEaseInEaseOut, integerValue)
 
 @end
 
-@implementation HippyConvert (NativeRenderPointerEvents)
+@implementation HippyConvert (HippyPointerEvents)
 
-HP_ENUM_CONVERTER(NativeRenderPointerEvents, (@{
-    @"none": @(NativeRenderPointerEventsNone),
-    @"box-only": @(NativeRenderPointerEventsBoxOnly),
-    @"box-none": @(NativeRenderPointerEventsBoxNone),
-    @"auto": @(NativeRenderPointerEventsUnspecified)
+HP_ENUM_CONVERTER(HippyPointerEvents, (@{
+    @"none": @(HippyPointerEventsNone),
+    @"box-only": @(HippyPointerEventsBoxOnly),
+    @"box-none": @(HippyPointerEventsBoxNone),
+    @"auto": @(HippyPointerEventsUnspecified)
 }),
-NativeRenderPointerEventsUnspecified, integerValue)
+HippyPointerEventsUnspecified, integerValue)
 
 @end
 
-@implementation HippyConvert (NativeRenderBorderStyle)
+@implementation HippyConvert (HippyBorderStyle)
 
-HP_ENUM_CONVERTER(NativeRenderBorderStyle, (@{
-    @"solid": @(NativeRenderBorderStyleSolid),
-    @"dotted": @(NativeRenderBorderStyleDotted),
-    @"dashed": @(NativeRenderBorderStyleDashed),
-    @"none": @(NativeRenderBorderStyleNone),
+HP_ENUM_CONVERTER(HippyBorderStyle, (@{
+    @"solid": @(HippyBorderStyleSolid),
+    @"dotted": @(HippyBorderStyleDotted),
+    @"dashed": @(HippyBorderStyleDashed),
+    @"none": @(HippyBorderStyleNone),
 }),
-NativeRenderBorderStyleSolid, integerValue)
+HippyBorderStyleSolid, integerValue)
 
 @end
 
-@implementation HippyConvert (NativeRenderTextEnumDefines)
+@implementation HippyConvert (HippyTextEnumDefines)
 
 HP_ENUM_CONVERTER(HippyTextDecorationLineType, (@{
     @"none": @(HippyTextDecorationLineTypeNone),

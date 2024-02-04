@@ -18,11 +18,6 @@
  * limitations under the License.
  */
 
-/**
- * runtime/event/hippy-event-dispatcher unit test
- * event-dispatcher is mounted on global.__GLOBAL__，which can be mocked to trigger native events
- */
-
 import '../../../src/runtime/event/hippy-event-dispatcher';
 import { createRenderer } from '@vue/runtime-core';
 
@@ -42,9 +37,7 @@ import { EventsUnionType } from '../../../src/runtime/event/hippy-event';
 import BuiltInComponent from '../../../src/built-in-component';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * hippy-event-dispatcher.ts unit test case
  */
 describe('runtime/event/hippy-event-dispatcher.ts', () => {
   beforeAll(() => {

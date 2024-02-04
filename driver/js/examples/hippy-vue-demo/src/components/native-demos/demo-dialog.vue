@@ -19,12 +19,36 @@
     >
       <span class="button-text">显示对话框--slide_fade</span>
     </button>
+    <button
+      :style="[{ borderColor: autoHideStatusBar ? '#FF0000' : '#40b883'}]"
+      class="dialog-demo-button-1"
+      @click="() => clickDialogConfig('hideStatusBar')"
+    >
+      <span class="button-text">隐藏状态栏</span>
+    </button>
+    <button
+      :style="[{ borderColor: immersionStatusBar ? '#FF0000' : '#40b883'}]"
+      class="dialog-demo-button-1"
+      @click="() => clickDialogConfig('immerseStatusBar')"
+    >
+      <span class="button-text">沉浸式状态栏</span>
+    </button>
+    <button
+      :style="[{ borderColor: autoHideNavigationBar ? '#FF0000' : '#40b883'}]"
+      class="dialog-demo-button-1"
+      @click="() => clickDialogConfig('hideNavigationBar')"
+    >
+      <span class="button-text">隐藏导航栏</span>
+    </button>
     <!-- dialog 无法支持 v-show，只能使用 v-if 进行显式切换 -->
     <dialog
       v-if="dialogIsVisible"
       :animationType="dialogAnimationType"
       :transparent="true"
       :supportedOrientations="supportedOrientations"
+      :immersionStatusBar="immersionStatusBar"
+      :autoHideStatusBar="autoHideStatusBar"
+      :autoHideNavigationBar="autoHideNavigationBar"
       @show="onShow"
       @requestClose="onClose"
     >
@@ -52,6 +76,9 @@
             v-if="dialog2IsVisible"
             :animationType="dialogAnimationType"
             :transparent="true"
+            :immersionStatusBar="immersionStatusBar"
+            :autoHideStatusBar="autoHideStatusBar"
+            :autoHideNavigationBar="autoHideNavigationBar"
             @requestClose="onClose"
           >
             <div
@@ -93,6 +120,9 @@ export default {
       dialogIsVisible: false,
       dialog2IsVisible: false,
       dialogAnimationType: '',
+      immersionStatusBar: false,
+      autoHideStatusBar: false,
+      autoHideNavigationBar: false,
     };
   },
   methods: {
@@ -105,6 +135,21 @@ export default {
     clickOpenSecond(evt) {
       evt.stopPropagation(); // 二级弹窗关闭时会冒泡到这里，所以也要阻止一下冒泡防止一级 dialog 消失
       this.dialog2IsVisible = !this.dialog2IsVisible;
+    },
+    clickDialogConfig(option) {
+      switch (option) {
+        case 'hideStatusBar':
+          this.autoHideStatusBar = !this.autoHideStatusBar;
+          break;
+        case 'immerseStatusBar':
+          this.immersionStatusBar = !this.immersionStatusBar;
+          break;
+        case 'hideNavigationBar':
+          this.autoHideNavigationBar = !this.autoHideNavigationBar;
+          break;
+        default:
+          break;
+      }
     },
     onShow() {
       console.log('Dialog is opening');

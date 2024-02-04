@@ -54,6 +54,8 @@
       "sfc/*": ["node_modules/vue/src/sfc/*"],
       "he": ["packages/hippy-vue/src/util/entity-decoder"],
       "@hippy-vue-next-style-parser/*": ["packages/hippy-vue-next-style-parser/src/*"],
+      "@hippy-vue-next/*": ["packages/hippy-vue-next/src/*"],
+      "@hippy-vue-next-server-renderer/*": ["packages/hippy-vue-next-server-renderer/src/*"]
     },
     // "rootDirs": [],                        /* List of root folders whose combined content represents the structure of the project at runtime. */
     // "typeRoots": [],                       /* List of folders to include type definitions from. */

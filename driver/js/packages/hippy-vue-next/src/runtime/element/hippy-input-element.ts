@@ -29,22 +29,6 @@ import { HippyElement } from './hippy-element';
  */
 export class HippyInputElement extends HippyElement {
   /**
-   * show input menu
-   * @deprecated
-   */
-  public showInputMenu(): void {
-    // noop
-  }
-
-  /**
-   * hide input menu
-   * @deprecated
-   */
-  public hideInputMenu(): void {
-    // noop
-  }
-
-  /**
    * set text content of input element
    *
    * @param text - text content
