@@ -108,7 +108,7 @@ HIPPY_EXPORT_SHADOW_PROPERTY(autoLetterSpacing, BOOL)
         for (NSInteger i = 0; i < queue.count; i++) {
             HippyShadowView *shadowView = queue[i];
             if (!shadowView) {
-                HippyLogWarn(@"shadowView is nil, please remain xcode state and call rainywan");
+                HippyLogWarn(@"shadowView is nil");
                 continue;
             }
             HippyAssert([shadowView isTextDirty], @"Don't process any nodes that don't have dirty text");
