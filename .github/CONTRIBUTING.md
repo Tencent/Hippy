@@ -14,13 +14,13 @@ Hi! I'm really excited that you are interested in contributing to Hippy. Before 
 
 ## Pull Request Guidelines
 
-- Setting up your local environment to get started. You will need have [git](https://git-scm.com/) and [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) installed locally, then run `npm install` to download all needed dependencies. These are detailed in the [Development Setup guide](https://github.com/Tencent/Hippy#-getting-started). 
+- Setting up your local environment to get started. You will need to have [git](https://git-scm.com/) and [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) installed locally, then run `npm install` to download all needed dependencies. These are detailed in the [Development Setup guide](https://github.com/Tencent/Hippy#-getting-started). 
 
 - Checkout a topic branch from the relevant branch, e.g. `master`, and merge back against that branch.
 
 - Test cases have been added/updated/passed for the code you will submit.
 
-- Documentation has added or updated.
+- Documentation has been added or updated.
 
 - Commit message is following the [Convention Commit](https://conventionalcommits.org/) guideline with maximum 72 characters.
 
