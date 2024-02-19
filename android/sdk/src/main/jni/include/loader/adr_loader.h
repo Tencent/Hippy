@@ -108,4 +108,5 @@ class ADRLoader : public hippy::base::UriLoader {
   std::shared_ptr<JavaRef> bridge_;
   std::weak_ptr<WorkerTaskRunner> runner_;
   std::unordered_map<int64_t, std::function<void(u8string)>> request_map_;
+  std::mutex mutex_;
 };
