@@ -241,11 +241,13 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err5
              OnResourceReady)
 
 std::function<void(u8string)> ADRLoader::GetRequestCB(int64_t request_id) {
+  std::lock_guard<std::mutex> lock(mutex_);
   auto it = request_map_.find(request_id);
   return it != request_map_.end() ? it->second : nullptr;
 }
 
 int64_t ADRLoader::SetRequestCB(const std::function<void(u8string)>& cb) {
+  std::lock_guard<std::mutex> lock(mutex_);
   int64_t id = global_request_id.fetch_add(1);
   request_map_.insert({id, cb});
   return id;
