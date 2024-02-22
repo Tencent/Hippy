@@ -2,7 +2,7 @@
 * [Demo体验](development/demo.md)
 * [前端接入](development/web-integration.md)
 * [环境搭建](development/native-integration.md)
-* [3.0升级指引](development/android-3.0-upgrade-guidelines.md)
+* [3.0升级指引](development/3.0-upgrade-guidelines.md)
 * [自定义组件](development/native-component.md)
 * [自定义模块](development/native-module.md)
 * [事件](development/native-event.md)
