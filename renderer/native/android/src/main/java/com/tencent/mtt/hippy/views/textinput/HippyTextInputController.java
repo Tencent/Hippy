@@ -77,7 +77,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     private static final String FUNC_IS_FOCUSED = "isFocused";
     private static final String FUNC_GET_VALUE = "getValue";
     private static final String FUNC_SET_VALUE = "setValue";
-    private static final String FUNC_KEYBOARD_DISMISS = "dissmiss";
+    private static final String FUNC_KEYBOARD_DISMISS = "dismiss";
 
     @Override
     protected View createViewImpl(Context context) {
