@@ -19,6 +19,15 @@ HippyVue 提供了 `beforeLoadStyle` 的 Vue options 勾子函数，供开发者
     });
 ```
 
+beforeLoadStyle 默认是对全局节点生效的，针对不需要执行 beforeLoadStyle 的节点，可以对节点设置属性 beforeLoadStyleDisabled。
+对于所有节点（如 div、p、button等均可使用）
+
+```js
+    <div 
+        :beforeLoadStyleDisabled = "true">
+    </div> 
+```
+
 # CSS 选择器
 
 目前已经实现了基本的 `Universal`、`Type`、`ID`、`Class`、`Grouping` 选择器，而且可以支持除兄弟组合器以外的基本组合关系。
