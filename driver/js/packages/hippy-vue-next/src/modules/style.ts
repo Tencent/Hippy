@@ -28,6 +28,17 @@ import { isNullOrUndefined } from '../util';
 // type of style
 type Style = string | Record<string, string | string[]> | null | undefined;
 
+function isStyleExisted(
+  el: HippyElement,
+  prev: Style,
+  next: Style,
+) {
+  const isElementNull = !el;
+  const isPrevAndNextNull = !prev && !next;
+  const isPrevEqualToNext = JSON.stringify(prev) === JSON.stringify(next);
+  return isElementNull || isPrevAndNextNull || isPrevEqualToNext;
+}
+
 /**
  * set the Style property
  *
@@ -43,6 +54,10 @@ export function patchStyle(
   const el = rawEl;
   const batchedStyles: NeedToTyped = {};
 
+  if (isStyleExisted(el, prev, next)) {
+    // 如果前后属性相同, 则跳过patch计算
+    return;
+  }
   if (prev && !next) {
     // clear style
     el.removeStyle();
