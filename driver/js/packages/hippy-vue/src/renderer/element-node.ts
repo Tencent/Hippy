@@ -62,6 +62,35 @@ const DEGREE_UNIT = {
   DEG: 'deg',
 };
 
+const ATTRIBUTE_KEY_MAP = {
+  BEFORE_LOAD_STYLE_DISABLED: 'beforeLoadStyleDisabled',
+  CLASS: 'class',
+  ID: 'id',
+  TEXT: 'text',
+  VALUE: 'value',
+  DEFAULT_VALUE: 'defaultValue',
+  PLACEHOLDER: 'placeholder',
+  NUMBER_OF_ROWS: 'numberOfRows',
+  CARET_COLOR: 'caretColor',
+  CARET_DASH_COLOR: 'caret-color',
+  BREAK_STRATEGY: 'break-strategy',
+  PLACEHOLDER_TEXT_COLOR: 'placeholderTextColor',
+  PLACEHOLDER_DASH_TEXT_DASH_COLOR: 'placeholder-text-color',
+  UNDERLINE_COLOR_ANDROID: 'underlineColorAndroid',
+  UNDERLINE_DASH_COLOR_DASH_ANDROID: 'underline-color-android',
+  NATIVE_BACKGROUND_ANDROID: 'nativeBackgroundAndroid',
+};
+
+interface OffsetMapType {
+  textShadowOffsetX: string;
+  textShadowOffsetY: string;
+}
+
+const offsetMap: OffsetMapType = {
+  textShadowOffsetX: 'width',
+  textShadowOffsetY: 'height',
+};
+
 /**
  * convert string value to string degree
  * @param {string} value
@@ -191,15 +220,6 @@ function removeLinearGradient(property: NeedToTyped, value: NeedToTyped, style: 
   }
 }
 
-interface OffsetMapType {
-  textShadowOffsetX: string;
-  textShadowOffsetY: string;
-}
-
-const offsetMap: OffsetMapType = {
-  textShadowOffsetX: 'width',
-  textShadowOffsetY: 'height',
-};
 /**
  * parse text shadow offset
  * @param property
@@ -376,7 +396,7 @@ export class ElementNode extends ViewNode {
         return;
       }
       switch (key) {
-        case 'class': {
+        case ATTRIBUTE_KEY_MAP.CLASS: {
           const newClassList = new Set(value.split(' ').filter((x: NeedToTyped) => x.trim()) as string);
           if (setsAreEqual(this.classList, newClassList)) {
             return;
@@ -386,7 +406,7 @@ export class ElementNode extends ViewNode {
           !options.notToNative && updateWithChildren(this);
           return;
         }
-        case 'id':
+        case ATTRIBUTE_KEY_MAP.ID:
           if (value === this.id) {
             return;
           }
@@ -395,10 +415,10 @@ export class ElementNode extends ViewNode {
           !options.notToNative && updateWithChildren(this);
           return;
         // Convert text related to character for interface.
-        case 'text':
-        case 'value':
-        case 'defaultValue':
-        case 'placeholder': {
+        case ATTRIBUTE_KEY_MAP.TEXT:
+        case ATTRIBUTE_KEY_MAP.VALUE:
+        case ATTRIBUTE_KEY_MAP.DEFAULT_VALUE:
+        case ATTRIBUTE_KEY_MAP.PLACEHOLDER: {
           if (typeof value !== 'string') {
             try {
               value = value.toString();
@@ -413,30 +433,30 @@ export class ElementNode extends ViewNode {
           value = unicodeToChar(value);
           break;
         }
-        case 'numberOfRows':
+        case ATTRIBUTE_KEY_MAP.NUMBER_OF_ROWS:
           if (Native.Platform !== 'ios') {
             return;
           }
           break;
-        case 'caretColor':
-        case 'caret-color':
+        case ATTRIBUTE_KEY_MAP.CARET_COLOR:
+        case ATTRIBUTE_KEY_MAP.CARET_DASH_COLOR:
           key = 'caret-color';
           value = Native.parseColor(value);
           break;
-        case 'break-strategy':
+        case ATTRIBUTE_KEY_MAP.BREAK_STRATEGY:
           key = 'breakStrategy';
           break;
-        case 'placeholderTextColor':
-        case 'placeholder-text-color':
+        case ATTRIBUTE_KEY_MAP.PLACEHOLDER_TEXT_COLOR:
+        case ATTRIBUTE_KEY_MAP.PLACEHOLDER_DASH_TEXT_DASH_COLOR:
           key = 'placeholderTextColor';
           value = Native.parseColor(value);
           break;
-        case 'underlineColorAndroid':
-        case 'underline-color-android':
+        case ATTRIBUTE_KEY_MAP.UNDERLINE_COLOR_ANDROID:
+        case ATTRIBUTE_KEY_MAP.UNDERLINE_DASH_COLOR_DASH_ANDROID:
           key = 'underlineColorAndroid';
           value = Native.parseColor(value);
           break;
-        case 'nativeBackgroundAndroid': {
+        case ATTRIBUTE_KEY_MAP.NATIVE_BACKGROUND_ANDROID: {
           const nativeBackgroundAndroid = value;
           if (typeof nativeBackgroundAndroid.color !== 'undefined') {
             nativeBackgroundAndroid.color = Native.parseColor(nativeBackgroundAndroid.color);
@@ -478,13 +498,11 @@ export class ElementNode extends ViewNode {
 
   public setStyle(rawKey: string, rawValue: NeedToTyped, notToNative = false) {
     // Preprocess the style
-    let {
-      value,
-      property: key,
-    } = this.beforeLoadStyle({
-      property: rawKey,
-      value: rawValue,
-    });
+    let key = rawKey;
+    let value = rawValue;
+    if (!this.getAttribute(ATTRIBUTE_KEY_MAP.BEFORE_LOAD_STYLE_DISABLED)) {
+      ({ value, property: key } = this.beforeLoadStyle({ property: rawKey, value: rawValue }));
+    }
     if (rawValue === undefined) {
       removeStyle(key, value, this.style);
       if (!notToNative) {
