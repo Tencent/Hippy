@@ -33,6 +33,9 @@
 #include "jni/jni_env.h"
 #include "renderer/native_render_manager.h"
 
+#ifdef ENABLE_INSPECTOR
+#include "devtools/devtools_utils.h"
+#endif
 
 using DomArgument = hippy::dom::DomArgument;
 using DomEvent = hippy::dom::DomEvent;
@@ -262,9 +265,12 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
   if (j_buffer != nullptr && j_length > 0) {
     jbyte params_buffer[j_length];
     j_env->GetByteArrayRegion(j_buffer, j_offset, j_length, params_buffer);
-    footstone::value::Deserializer deserializer((const uint8_t*) params_buffer,
-                                        footstone::check::checked_numeric_cast<jlong, size_t>(j_length));
-    deserializer.ReadHeader();
+    footstone::value::Deserializer deserializer((const uint8_t*)params_buffer,
+                                                footstone::check::checked_numeric_cast<jlong, size_t>(j_length));
+    ret = deserializer.ReadHeader();
+    FOOTSTONE_CHECK(ret) << "Deserializer read header failed. function name " << func_name << ", root id " << root_id
+                        << ", node id " << node_id << "callback id " << cb_id << ", offset " << j_offset << ", length "
+                        << j_length;
     deserializer.ReadValue(*params);
   }
 
@@ -291,6 +297,12 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
 
     callback(std::make_shared<DomArgument>(*params));
   }};
+#ifdef ENABLE_INSPECTOR
+  if (hippy::devtools::DevToolsUtil::ShouldAvoidPostDomManagerTask(func_name)) {
+    ops[0]();
+    return;
+  }
+#endif
   dom_manager->PostTask(Scene(std::move(ops)));
 }
 
@@ -325,9 +337,12 @@ void OnReceivedEvent(JNIEnv* j_env, jobject j_object, jint j_render_manager_id, 
     jbyte params_buffer[j_length];
     j_env->GetByteArrayRegion(j_buffer, j_offset, j_length, params_buffer);
     params = std::make_shared<HippyValue>();
-    footstone::value::Deserializer deserializer((const uint8_t*) params_buffer,
-                                         footstone::check::checked_numeric_cast<jlong, size_t>(j_length));
-    deserializer.ReadHeader();
+    footstone::value::Deserializer deserializer((const uint8_t*)params_buffer,
+                                                footstone::check::checked_numeric_cast<jlong, size_t>(j_length));
+    ret = deserializer.ReadHeader();
+    FOOTSTONE_CHECK(ret) << "Deserializer read header failed. event name " << event_name << ", root id " << root_id
+                        << ", node id " << dom_id << ", offset " << j_offset << ", length "
+                        << j_length;
     deserializer.ReadValue(*params);
   }
 

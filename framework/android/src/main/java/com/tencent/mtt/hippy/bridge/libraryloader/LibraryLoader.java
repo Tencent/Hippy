@@ -25,7 +25,7 @@ public class LibraryLoader {
     private static boolean hasLoaded = false;
     private final static String[] SO_NAME_LIST = new String[]{ "hippy" };
 
-    public static void loadLibraryIfNeed(HippySoLoaderAdapter soLoaderAdapter) {
+    public static void loadLibraryIfNeeded(HippySoLoaderAdapter soLoaderAdapter) {
         if (hasLoaded || BuildConfig.ENABLE_SO_LOAD_EXTERNAL) {
             return;
         }

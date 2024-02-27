@@ -34,9 +34,29 @@ class RootNode;
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSUInteger, HippyComponentReferenceType) {
+    HippyComponentReferenceTypeStrong,
+    HippyComponentReferenceTypeWeak,
+};
+
 @interface HippyComponentMap : NSObject
 
+/// Whether all recorded elements are strongly referenced,
+///
+/// Attention, Attention, Attention:
+/// All UI views are weakly referenced!
+/// All Shadowviews are strongly referenced!
+@property (nonatomic, assign, readonly) BOOL isStrongHoldAllComponents;
+
+/// Whether access is required from the main thread
 @property(nonatomic, assign) BOOL requireInMainThread;
+
+/// Init Method
+- (instancetype)initWithComponentsReferencedType:(HippyComponentReferenceType)type;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+#pragma mark - Root Component
 
 - (void)addRootComponent:(id<HippyComponent>)component
                 rootNode:(std::weak_ptr<hippy::RootNode>)rootNode
@@ -52,18 +72,35 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (std::weak_ptr<hippy::RootNode>)rootNodeForTag:(NSNumber *)tag;
 
-- (void)addComponent:(__kindof id<HippyComponent>)component
-          forRootTag:(NSNumber *)tag;
 
-- (void)removeComponent:(__kindof id<HippyComponent>)component
-             forRootTag:(NSNumber *)tag;
+#pragma mark -
 
-- (void)removeComponentByComponentTag:(NSNumber *)componentTag onRootTag:(NSNumber *)rootTag;
+/// Add a component to ComponentMap
+- (void)addComponent:(__kindof id<HippyComponent>)component forRootTag:(NSNumber *)tag;
 
-- (NSMutableDictionary<NSNumber *, __kindof id<HippyComponent>> *)componentsForRootTag:(NSNumber *)tag;
+/// Remove one component from ComponentMap
+- (void)removeComponent:(__kindof id<HippyComponent>)component forRootTag:(NSNumber *)tag;
 
-- (__kindof id<HippyComponent>)componentForTag:(NSNumber *)componentTag
-                                                    onRootTag:(NSNumber *)tag;
+- (NSDictionary<NSNumber *, __kindof id<HippyComponent>> *)componentsForRootTag:(NSNumber *)tag;
+
+- (__kindof id<HippyComponent>)componentForTag:(NSNumber *)componentTag onRootTag:(NSNumber *)tag;
+
+
+#pragma mark - Performance optimization
+
+/// Generate a dictionary cache for all the weak components.
+///
+/// Calling componentsForRootTag methods is time-consuming,
+/// and in particular, outside may call this in the loop,
+/// so we optimize this with a temporary cache.
+///
+/// The cache must be actively cleared after acquiring components
+/// - Parameter rootTag: Root component's tag
+- (void)generateTempCacheBeforeAcquireAllStoredWeakComponentsForRootTag:(NSNumber *)rootTag;
+
+/// Clear the temp dictionary cache for weak components.
+/// - Parameter rootTag: Root component's tag
+- (void)clearTempCacheAfterAcquireAllStoredWeakComponentsForRootTag:(NSNumber *)rootTag;
 
 @end
 

@@ -1,0 +1,49 @@
+{
+  "name": "@hippy/vue-next-compiler-ssr",
+  "version": "unspecified",
+  "description": "Vue-Next server render compiler for Hippy native framework",
+  "author": "OpenHippy Team",
+  "homepage": "https://hippyjs.org",
+  "license": "Apache-2.0",
+  "entry": "./src/index.ts",
+  "repository": "https://github.com/Tencent/Hippy",
+  "bugs": {
+    "url": "https://github.com/Tencent/Hippy/issues"
+  },
+  "keywords": [
+    "hippy",
+    "hippy-vue-next",
+    "server-renderer",
+    "compiler"
+  ],
+  "main": "./dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/index.js",
+    "dist/index.d.ts",
+    "README.md"
+  ],
+  "dependencies": {
+    "@vue/compiler-core": "^3.2.46",
+    "@vue/compiler-dom": "^3.2.46",
+    "@vue/shared": "^3.2.46"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/src/$1",
+      "@hippy-vue-next-server-renderer/(.*)$": "<rootDir>/../hippy-vue-next-server-renderer/src/$1"
+    },
+    "modulePaths": [
+      "<rootDir>"
+    ],
+    "preset": "ts-jest",
+    "setupFiles": [
+      "<rootDir>/__test__/setup.ts"
+    ],
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/*.test.ts"
+    ],
+    "verbose": true
+  }
+}

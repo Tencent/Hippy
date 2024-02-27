@@ -187,7 +187,7 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     CGFloat _lastNonZeroTranslationAlongAxis;
     NSMutableDictionary *_contentOffsetCache;
     BOOL _didSetContentOffset;
-    BOOL _showScrollIndicator[2];
+    int _recordedScrollIndicatorSwitchValue[2]; // default -1
 }
 
 @end
@@ -201,6 +201,8 @@ static inline BOOL CGPointIsNull(CGPoint point) {
 
         _scrollEventThrottle = 0.0;
         _lastScrollDispatchTime = 0;
+        _recordedScrollIndicatorSwitchValue[0] = -1;
+        _recordedScrollIndicatorSwitchValue[1] = -1;
 
         _scrollListeners = [NSHashTable weakObjectsHashTable];
         _contentOffsetCache = [NSMutableDictionary dictionaryWithCapacity:32];
@@ -240,7 +242,7 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     _scrollView.contentSize = _contentView.frame.size;
     [view onAttachedToWindow];
     [_scrollView addSubview:view];
-    view.parentComponent = self;
+    view.parent = self;
     if (_didSetContentOffset) {
         _didSetContentOffset = NO;
         return;
@@ -279,7 +281,7 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     [super removeHippySubview:subview];
     NSAssert(_contentView == subview, @"Attempted to remove non-existent subview");
     [_contentView removeObserver:self forKeyPath:@"frame"];
-    _contentView.parentComponent = nil;
+    _contentView.parent = nil;
     _contentView = nil;
 }
 
@@ -679,16 +681,19 @@ static inline BOOL CGPointIsNull(CGPoint point) {
 - (void)applyLayoutDirectionIfNeeded {
     if ([self isLayoutSubviewsRTL]) {
         _scrollView.transform = CGAffineTransformRotate(CGAffineTransformIdentity, M_PI);
-        _showScrollIndicator[0] = _scrollView.showsHorizontalScrollIndicator;
-        _showScrollIndicator[1] = _scrollView.showsVerticalScrollIndicator;
+        _recordedScrollIndicatorSwitchValue[0] = _scrollView.showsHorizontalScrollIndicator ? 1 : 0;
+        _recordedScrollIndicatorSwitchValue[1] = _scrollView.showsVerticalScrollIndicator ? 1 : 0;
         _scrollView.showsVerticalScrollIndicator = NO;
         _scrollView.showsHorizontalScrollIndicator = NO;
         _contentView.transform = CGAffineTransformRotate(CGAffineTransformIdentity, M_PI);
-    }
-    else {
+    } else {
         _scrollView.transform = CGAffineTransformIdentity;
-        _scrollView.showsHorizontalScrollIndicator = _showScrollIndicator[0];
-        _scrollView.showsVerticalScrollIndicator = _showScrollIndicator[1];
+        if (_recordedScrollIndicatorSwitchValue[0] > -1) {
+            _scrollView.showsHorizontalScrollIndicator = _recordedScrollIndicatorSwitchValue[0];
+        }
+        if (_recordedScrollIndicatorSwitchValue[1] > -1) {
+            _scrollView.showsVerticalScrollIndicator = _recordedScrollIndicatorSwitchValue[1];
+        }
         _contentView.transform = CGAffineTransformIdentity;
     }
     [self applyContentViewFrame];

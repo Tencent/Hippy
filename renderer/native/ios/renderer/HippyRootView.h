@@ -25,6 +25,8 @@
 
 @class HippyBridge;
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  * This enum is used to define size flexibility type of the root view.
  * If a dimension is flexible, the view will recalculate that dimension
@@ -73,10 +75,16 @@ extern NSString *const HippySecondaryBundleDidLoadNotification;
 /// application properties and rerender the view. Initialized with
 /// initialProperties argument of the initializer.
 /// Set this property only on the main thread.
-@property (nonatomic, copy, readwrite) NSDictionary *appProperties;
+///
+/// Note: `runHippyApplication` is automatically called internally.
+@property (nonatomic, copy, nullable) NSDictionary *appProperties;
 
 /// The backing view controller of the root view.
 @property (nonatomic, weak) UIViewController *hippyViewController;
+
+/// Whether to disable automatic RunHippyApplication execution after loading.
+/// By default, the runHippyApplication is automatically called after resources have loaded.
+@property (nonatomic, assign) BOOL disableAutoRunApplication;
 
 
 /// Create HippyRootView instance
@@ -87,8 +95,22 @@ extern NSString *const HippySecondaryBundleDidLoadNotification;
 /// @param delegate HippyRootViewDelegate
 - (instancetype)initWithBridge:(HippyBridge *)bridge
                     moduleName:(NSString *)moduleName
-             initialProperties:(NSDictionary *)initialProperties
-                      delegate:(id<HippyRootViewDelegate>)delegate;
+             initialProperties:(nullable NSDictionary *)initialProperties
+                      delegate:(nullable id<HippyRootViewDelegate>)delegate;
+
+/// Create HippyRootView instance,
+/// As above, add shareOptions parameters, compatible with hippy2
+///
+/// @param bridge the hippyBridge instance
+/// @param moduleName module name
+/// @param initialProperties application properties, see appProperties property.
+/// @param shareOptions Shared data between different rootViews on same bridge.
+/// @param delegate HippyRootViewDelegate
+- (instancetype)initWithBridge:(HippyBridge *)bridge
+                    moduleName:(NSString *)moduleName
+             initialProperties:(nullable NSDictionary *)initialProperties
+                  shareOptions:(nullable NSDictionary *)shareOptions
+                      delegate:(nullable id<HippyRootViewDelegate>)delegate;
 
 /// Create HippyRootView instance
 /// & Load the business BundleURL
@@ -102,14 +124,40 @@ extern NSString *const HippySecondaryBundleDidLoadNotification;
 - (instancetype)initWithBridge:(HippyBridge *)bridge
                    businessURL:(NSURL *)businessURL
                     moduleName:(NSString *)moduleName
-             initialProperties:(NSDictionary *)initialProperties
-                      delegate:(id<HippyRootViewDelegate>)delegate;
+             initialProperties:(nullable NSDictionary *)initialProperties
+                      delegate:(nullable id<HippyRootViewDelegate>)delegate;
+
+/// Create HippyRootView instance
+/// & Load the business BundleURL
+/// & Run application
+///
+/// As above, add shareOptions parameters, compatible with hippy2
+///
+/// @param bridge the hippyBridge instance
+/// @param businessURL the bundleURL to load
+/// @param moduleName module name
+/// @param initialProperties application properties, see appProperties property.
+/// @param shareOptions Shared data between different rootViews on same bridge.
+/// @param delegate HippyRootViewDelegate
+///
+/// Note: shareOptions will not sent to the front end.
+///
+- (instancetype)initWithBridge:(HippyBridge *)bridge
+                   businessURL:(NSURL *)businessURL
+                    moduleName:(NSString *)moduleName
+             initialProperties:(nullable NSDictionary *)initialProperties
+                  shareOptions:(nullable NSDictionary *)shareOptions
+                      delegate:(nullable id<HippyRootViewDelegate>)delegate;
 
 
 /// Run Hippy!
 /// This is the Hippy program entry.
 ///
-/// Note: If init with businessURL, not need to call this method again.
+/// Note: If init without `disableAutoRunApplication`, not need to call this method again.
+/// In general, you do not need to call this interface when initializing HippyRootView using the init api.
+/// You need to call it at the appropriate time only when you set `disableAutoRunApplication` to YES.
+///
+/// For example, in scenarios where you want to load ahead of time, but don't want to execute ahead of time.
 - (void)runHippyApplication;
 
 
@@ -138,3 +186,5 @@ extern NSString *const HippySecondaryBundleDidLoadNotification;
 - (void)cancelTouches;
 
 @end
+
+NS_ASSUME_NONNULL_END

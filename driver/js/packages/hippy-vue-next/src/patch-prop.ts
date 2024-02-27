@@ -21,7 +21,7 @@
 /**
  * Implement the patch props method required for Vue3 VNode mount
  */
-import type { ComponentInternalInstance, VNode } from '@vue/runtime-core';
+import type { ComponentInternalInstance, VNode, ElementNamespace } from '@vue/runtime-core';
 import { isOn } from '@vue/shared';
 import type { NeedToTyped } from './types';
 
@@ -37,7 +37,7 @@ export function patchProp(
   key: string,
   prevValue: NeedToTyped,
   nextValue: NeedToTyped,
-  isSVG: boolean,
+  namespace: ElementNamespace,
   prevChildren: VNode<HippyNode, HippyElement>[] | undefined,
   parentComponent: ComponentInternalInstance | null,
 ): void {

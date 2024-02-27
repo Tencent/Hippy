@@ -23,9 +23,11 @@
 #import "HippyViewManager.h"
 #import "HippyModalHostView.h"
 
+HIPPY_EXTERN NSString * const HippyModalHostViewDismissNotification;
+
 @protocol HippyModalHostViewInteractor;
 
-typedef void (^NativeRenderModalViewInteractionBlock)(
+typedef void (^HippyModalViewInteractionBlock)(
     UIViewController *reactViewController, UIViewController *viewController, BOOL animated, dispatch_block_t completionBlock);
 
 @interface HippyModalHostViewManager : HippyViewManager

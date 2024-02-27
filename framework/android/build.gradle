@@ -66,6 +66,7 @@ android {
         consumerProguardFiles 'proguard-rules.pro'
 
         buildConfigField("boolean", "ENABLE_SO_LOAD_EXTERNAL", ENABLE_SO_LOAD_EXTERNAL)
+        buildConfigField("boolean", "ENABLE_BUGLY_REPORT", ENABLE_BUGLY_REPORT)
         buildConfigField("String", "LIBRARY_VERSION", "String.valueOf(\"$VERSION_NAME\")")
 
         packagingOptions {
@@ -314,6 +315,16 @@ task dealAfterAssembleRelease() {
         copy {
             from fileName
             into "$projectDir.absolutePath/../examples/android-demo/libs"
+        }
+    }
+}
+
+project.afterEvaluate {
+    project.android.libraryVariants.all { variant ->
+        def variantName = variant.name.capitalize()
+        def taskMergeClasses = project.tasks.named("mergeClasses${variantName}")
+        project.tasks.named("bundleLibCompileToJar${variantName}").configure {
+            dependsOn(taskMergeClasses)
         }
     }
 }

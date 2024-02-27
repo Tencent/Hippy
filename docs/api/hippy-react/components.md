@@ -179,6 +179,8 @@ import icon from './qb_icon_new.png';
 | supportedOrientations | 支持屏幕翻转方向                                                            | `enum (portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[]` | `iOS`    |
 | immersionStatusBar    | 是否是沉浸式状态栏。`default: false`                                        | `boolean`                                                    | `Android、Voltron`    |
 | darkStatusBarText     | 是否是亮色主体文字，默认字体是黑色的，改成 true 后会认为 Modal 背景为暗色调，字体就会改成白色。 | `boolean`                                                    | `Android、iOS、Voltron`    |
+| autoHideStatusBar     | 是否在`Modal`显示时自动隐藏状态栏。<strong>Android 中仅 api28 以上生效。</strong> `default: false` | `boolean` | `Android` |
+| autoHideNavigationBar | 是否在`Modal`显示时自动隐藏导航栏。 `default: false` | `boolean` | `Android` |
 | onShow                | 在`Modal`显示时会执行此回调函数。                            | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | onOrientationChange   | 屏幕旋转方向改变时执行会回调                       | `Function`                                                   | `Android、iOS`    |
 | onRequestClose        | 在 `Modal` 请求关闭时会执行此回调函数，一般时在 Android 系统里按下硬件返回按钮时触发，一般要在里面处理关闭弹窗。 | `Function`                                                   | `Android、hippy-react-web、Voltron` |
@@ -338,7 +340,6 @@ import icon from './qb_icon_new.png';
 | placeholder           | 如果没有任何文字输入，会显示此字符串。                       | `string`                                                     | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | placeholderTextColor  | 占位字符串显示的文字颜色。（也可设置为 Style 属性）`最低支持版本2.13.4`                | [`color`](api/style/color.md)                                | `Android、iOS、Web-Renderer、Voltron`     |
 | returnKeyType         | 指定软键盘的回车键显示的样式。（其中部分样式仅`multiline=false`时有效） | `enum (done, go, next, search, send)`              | `Android、iOS、Web-Renderer、Voltron`     |
-| underlineColorAndroid | `TextInput` 下底线的颜色。 可以设置为 'transparent' 来去掉下底线。（也可设置为 Style 属性） | [`color`](api/style/color.md)                                                      | `Android` |
 | value                 | 指定 `TextInput` 组件的值。                                  | `string`                                                     | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | autoFocus             | 组件渲染时自动获得焦点。                                       | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | breakStrategy* | 设置Android API 23及以上系统的文本折行策略。`default: simple` | `enum(simple, high_quality, balanced)` | `Android(版本 2.14.2以上)` |

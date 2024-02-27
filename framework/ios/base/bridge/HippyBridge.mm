@@ -50,6 +50,7 @@
 #import "NSObject+Render.h"
 #import "TypeConverter.h"
 #import "VFSUriLoader.h"
+#import "HippyBase64DataHandler.h"
 
 #include <objc/runtime.h>
 #include <sys/utsname.h>
@@ -184,6 +185,7 @@ dispatch_queue_t HippyBridgeQueue() {
         _moduleProvider = block;
         _pendingLoadingVendorBundleURL = bundleURL;
         _bundleURLs = [NSMutableArray array];
+        _shareOptions = [NSMutableDictionary dictionary];
         _debugMode = [launchOptions[@"DebugMode"] boolValue];
         _enableTurbo = !!launchOptions[@"EnableTurbo"] ? [launchOptions[@"EnableTurbo"] boolValue] : YES;
         _engineKey = executorKey.length > 0 ? executorKey : [NSString stringWithFormat:@"%p", self];
@@ -208,6 +210,9 @@ dispatch_queue_t HippyBridgeQueue() {
         [HippyBridge setCurrentBridge:self];
         
         [self loadPendingVendorBundleURLIfNeeded];
+        
+        // Set the default sandbox directory
+        [self setSandboxDirectory:[bundleURL URLByDeletingLastPathComponent]];
         HippyLogInfo(@"HippyBridge init end, self:%p", self);
     }
     return self;
@@ -270,7 +275,10 @@ dispatch_queue_t HippyBridgeQueue() {
         uriLoader->PushDefaultHandler(uriHandler);
         uriLoader->AddConvenientDefaultHandler(uriHandler);
         auto fileHandler = std::make_shared<HippyFileHandler>(self);
+        auto base64DataHandler = std::make_shared<HippyBase64DataHandler>();
+        uriLoader->RegisterConvenientUriHandler(@"file", fileHandler);
         uriLoader->RegisterConvenientUriHandler(@"hpfile", fileHandler);
+        uriLoader->RegisterConvenientUriHandler(@"data", base64DataHandler);
         _uriLoader = uriLoader;
     }
     return _uriLoader;
@@ -437,8 +445,7 @@ dispatch_queue_t HippyBridgeQueue() {
     fetchOp.onLoad = ^(NSData *source, NSError *error) {
         if (error) {
             HippyBridgeFatal(error, weakSelf);
-        }
-        else {
+        } else {
             script = source;
         }
         dispatch_group_leave(group);
@@ -451,9 +458,12 @@ dispatch_queue_t HippyBridgeQueue() {
             dispatch_group_leave(group);
             return;
         }
+        __weak __typeof(strongSelf)weakSelf = strongSelf;
         [strongSelf executeJSCode:script sourceURL:bundleURL onCompletion:^(id result, NSError *error) {
-            HippyLogInfo(@"End loading bundle(%s) at %s", HP_CSTR_NOT_NULL(bundleURL.absoluteString.lastPathComponent.UTF8String), HP_CSTR_NOT_NULL(bundleURL.absoluteString.UTF8String));
-          
+            HippyLogInfo(@"End loading bundle(%s) at %s",
+                         HP_CSTR_NOT_NULL(bundleURL.absoluteString.lastPathComponent.UTF8String),
+                         HP_CSTR_NOT_NULL(bundleURL.absoluteString.UTF8String));
+
             if (completion) {
                 completion(bundleURL, error);
             }
@@ -463,18 +473,18 @@ dispatch_queue_t HippyBridgeQueue() {
                 return;
             }
             if (error) {
-                HippyBridgeFatal(error, weakSelf);
+                HippyBridgeFatal(error, strongSelf);
             }
             dispatch_group_leave(group);
         }];
     } queue:bundleQueue];
+    
     //set dependency
     [executeOp addDependency:fetchOp];
     if (_lastOperation) {
         [executeOp addDependency:_lastOperation];
         _lastOperation = executeOp;
-    }
-    else {
+    } else {
         _lastOperation = executeOp;
     }
     [_bundlesQueue addOperations:@[fetchOp, executeOp]];

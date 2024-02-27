@@ -293,15 +293,14 @@ static LinearGradientPoints pointsFromDirection(NativeRenderGradientObject *obje
 }
 
 - (LinearGradientPoints)linearGradientPointsFromSize:(CGSize)size {
-    LinearGradientPoints points = {CGPointZero, CGPointZero};
+    LinearGradientPoints points;
     if (self.drawnByDegree) {
         self.degree %= 360;
         if (self.degree < 0) {
             self.degree += 360;
         }
         points = gradientPointsWithSizeAndDegree(size, self.degree);
-    }
-    else {
+    } else {
         points = pointsFromDirection(self, size);
     }
     return points;
@@ -338,7 +337,7 @@ void NativeRenderDrawLinearGradientInContext(NativeRenderGradientObject *object,
     
     CGContextSaveGState(context);
     CGSize size = canvasInfo.size;
-    CGPathRef pathRef = NativeRenderPathCreateOuterOutline(NO, CGRectMake(0, 0, size.width, size.height), canvasInfo.cornerRadii);
+    CGPathRef pathRef = HippyPathCreateOuterOutline(NO, CGRectMake(0, 0, size.width, size.height), canvasInfo.cornerRadii);
     CGContextAddPath(context, pathRef);
     CGContextClip(context);
     LinearGradientPoints points = [object linearGradientPointsFromSize:size];

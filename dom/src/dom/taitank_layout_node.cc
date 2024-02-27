@@ -81,7 +81,7 @@ const std::map<std::string, CSSDirection> kPositionMap = {{kLeft, CSSDirection::
                                                           {kTop, CSSDirection::CSS_TOP},
                                                           {kBottom, CSSDirection::CSS_BOTTOM}};
 
-const std::map<std::string, CSSDirection> kBorderMap = {{kBorderWidth, CSSDirection::CSS_LEFT},
+const std::map<std::string, CSSDirection> kBorderMap = {{kBorderWidth, CSSDirection::CSS_ALL},
                                                         {kBorderLeftWidth, CSSDirection::CSS_LEFT},
                                                         {kBorderTopWidth, CSSDirection::CSS_TOP},
                                                         {kBorderRightWidth, CSSDirection::CSS_RIGHT},

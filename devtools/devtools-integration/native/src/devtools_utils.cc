@@ -413,4 +413,13 @@ void DevToolsUtil::PostDomTask(const std::weak_ptr<DomManager>& weak_dom_manager
     dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));
   }
 }
+
+/**
+ * Specific methods like getLocationOnScreen should wait in the dom manager task runner. To avoid a deadlock, the
+ * callback must not be posted in the same task runner.
+ */
+bool DevToolsUtil::ShouldAvoidPostDomManagerTask(const std::string& event_name) {
+  return event_name == kGetLocationOnScreen;
+}
+
 }  // namespace hippy::devtools

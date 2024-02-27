@@ -24,10 +24,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
-import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.views.list.HippyListItemView;
 import com.tencent.mtt.hippy.views.list.IRecycleItemTypeChange;
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.utils.MapUtils;
@@ -92,6 +91,13 @@ public class ListItemRenderNode extends RenderNode {
                     ON_CREATE_VIEW_HOLDER_ERR, "View creation failed!");
         }
         return view;
+    }
+
+    public void onViewHolderDetached() {
+        View hostView = getHostView();
+        if (hostView instanceof HippyListItemView) {
+            ((HippyListItemView) hostView).moveToExposureState(HippyListItemView.EXPOSURE_STATE_INVISIBLE);
+        }
     }
 
     public void onViewHolderAbandoned() {
@@ -165,6 +171,7 @@ public class ListItemRenderNode extends RenderNode {
         mLeft = x;
         mTop = y;
         View view = mControllerManager.findView(mRootId, mId);
+        mX = view != null ? view.getLeft() : 0;
         mY = view != null ? view.getTop() : 0;
         if (getParent() != null) {
             RenderManager renderManager = mControllerManager.getRenderManager();

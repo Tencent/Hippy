@@ -91,6 +91,10 @@ public class RenderNode {
      * Mark should update children drawing order.
      */
     public static final int FLAG_UPDATE_DRAWING_ORDER = 0x00000100;
+    /**
+     * Mark node has lazy parent node, which means there is an ancestor node has flag {@link #FLAG_LAZY_LOAD}.
+     */
+    public static final int FLAG_PARENT_LAZY_LOAD = 0x00000200;
     private int mNodeFlags = 0;
     private PoolType mPoolInUse = PoolType.NONE;
     protected int mX;
@@ -280,6 +284,7 @@ public class RenderNode {
         index = (index < 0) ? 0 : Math.min(index, mChildren.size());
         mChildren.add(index, node);
         node.mParent = this;
+        node.onParentLazyChanged(isLazyLoad());
         // If has set z index in the child nodes, the rendering order needs to be rearranged
         // after adding nodes
         if (mDrawingOrder != null) {
@@ -288,15 +293,38 @@ public class RenderNode {
     }
 
     public void setLazy(boolean isLazy) {
+        if (isLazy == checkNodeFlag(FLAG_LAZY_LOAD)) {
+            return;
+        }
+        boolean oldLazy = isLazyLoad();
         if (isLazy) {
             setNodeFlag(FLAG_LAZY_LOAD);
         } else {
             resetNodeFlag(FLAG_LAZY_LOAD);
         }
-        for (int i = 0; i < getChildCount(); i++) {
-            RenderNode child = getChildAt(i);
-            if (child != null) {
-                child.setLazy(isLazy);
+        notifyLazyChanged(oldLazy, isLazyLoad());
+    }
+
+    public void onParentLazyChanged(boolean isLazy) {
+        if (isLazy == checkNodeFlag(FLAG_PARENT_LAZY_LOAD)) {
+            return;
+        }
+        boolean oldLazy = isLazyLoad();
+        if (isLazy) {
+            setNodeFlag(FLAG_PARENT_LAZY_LOAD);
+        } else {
+            resetNodeFlag(FLAG_PARENT_LAZY_LOAD);
+        }
+        notifyLazyChanged(oldLazy, isLazyLoad());
+    }
+
+    private void notifyLazyChanged(boolean oldLazy, boolean newLazy) {
+        if (oldLazy != newLazy) {
+            for (int i = 0; i < getChildCount(); i++) {
+                RenderNode child = getChildAt(i);
+                if (child != null) {
+                    child.onParentLazyChanged(newLazy);
+                }
             }
         }
     }
@@ -409,6 +437,11 @@ public class RenderNode {
     @Nullable
     public View prepareHostView(boolean skipComponentProps, PoolType poolType) {
         if (isLazyLoad()) {
+            if (!skipComponentProps) {
+                // component props may changed here,
+                // reset FLAG_ALREADY_UPDATED to pass check in {@link #prepareHostViewRecursive} later.
+                resetNodeFlag(FLAG_ALREADY_UPDATED);
+            }
             return null;
         }
         mPoolInUse = poolType;
@@ -467,6 +500,11 @@ public class RenderNode {
         mountHostView();
         for (RenderNode renderNode : mChildren) {
             renderNode.mountHostViewRecursive();
+        }
+        // Due to the delayed loading of list view items and their child elements, non first screen elements
+        // may need to manually call batch complete when created, such as nested view pagers within list view items
+        if (shouldNotifyNonBatchingChange()) {
+            batchComplete();
         }
     }
 
@@ -654,7 +692,7 @@ public class RenderNode {
     }
 
     public boolean isLazyLoad() {
-        return checkNodeFlag(FLAG_LAZY_LOAD);
+        return checkNodeFlag(FLAG_LAZY_LOAD) || checkNodeFlag(FLAG_PARENT_LAZY_LOAD);
     }
 
     public boolean checkRegisteredEvent(@NonNull String eventName) {
@@ -704,10 +742,19 @@ public class RenderNode {
         }
     }
 
+    public boolean isBatching() {
+        RenderManager renderManager = mControllerManager.getRenderManager();
+        return renderManager != null && renderManager.isBatching();
+    }
+
     public void batchStart() {
         if (!isDeleted() && !isLazyLoad()) {
             mControllerManager.onBatchStart(mRootId, mId, mClassName);
         }
+    }
+
+    protected boolean shouldNotifyNonBatchingChange() {
+        return false;
     }
 
     public void batchComplete() {

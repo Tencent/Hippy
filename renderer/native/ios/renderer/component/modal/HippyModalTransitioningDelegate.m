@@ -24,12 +24,14 @@
 #import "HippyModalCustomPresentationController.h"
 #import "HippyModalCustomAnimationTransition.h"
 #import "UIView+Hippy.h"
+#import "HippyModalHostViewManager.h"
+
 
 @implementation HippyModalTransitioningDelegate
 
 - (nullable UIPresentationController *)presentationControllerForPresentedViewController:(UIViewController *)presented
                                                                presentingViewController:(__unused UIViewController *)presenting
-                                                                   sourceViewController:(__unused UIViewController *)source NS_AVAILABLE_IOS(8_0) {
+                                                                   sourceViewController:(__unused UIViewController *)source {
     HippyModalCustomPresentationController *controller = [[HippyModalCustomPresentationController alloc] initWithPresentedViewController:presented
                                                                                                                 presentingViewController:presenting];
     return controller;
@@ -76,6 +78,7 @@
         if (modalHostView.primaryKey.length != 0) {
             userInfo = @{ @"primaryKey": modalHostView.primaryKey };
         }
+        [[NSNotificationCenter defaultCenter] postNotificationName:HippyModalHostViewDismissNotification object:self userInfo:userInfo];
         if (modalHostView.onRequestClose) {
             modalHostView.onRequestClose(nil);
         }

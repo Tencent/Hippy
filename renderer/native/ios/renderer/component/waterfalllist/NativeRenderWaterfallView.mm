@@ -21,8 +21,8 @@
  */
 
 #import "NativeRenderWaterfallView.h"
-#import "NativeRenderHeaderRefresh.h"
-#import "NativeRenderFooterRefresh.h"
+#import "HippyHeaderRefresh.h"
+#import "HippyFooterRefresh.h"
 #import "NativeRenderWaterfallItemView.h"
 #import "UIView+Hippy.h"
 #import "HippyRefresh.h"
@@ -30,22 +30,19 @@
 #import "HippyShadowView.h"
 #import "HippyUIManager.h"
 #import "UIView+Render.h"
-#import "NativeRenderListTableView.h"
 #import "NativeRenderWaterfallViewCell.h"
 #import "HippyRootView.h"
+#import "HippyShadowListView.h"
 
 
 static NSString *kCellIdentifier = @"HippyWaterfallCellIdentifier";
 static NSString *kWaterfallItemName = @"WaterfallItem";
-static const NSTimeInterval delayForPurgeView = 1.f;
 
-@interface NativeRenderWaterfallView () <HippyInvalidating, NativeRenderRefreshDelegate, HippyListTableViewLayoutProtocol> {
+@interface NativeRenderWaterfallView () <HippyInvalidating, NativeRenderRefreshDelegate> {
     NSHashTable<id<UIScrollViewDelegate>> *_scrollListeners;
     BOOL _isInitialListReady;
     UIColor *_backgroundColor;
     BOOL _manualScroll;
-    NSMutableArray<NSArray<HippyShadowView *> *> *_dataSourcePool;
-    dispatch_semaphore_t _dataSourceSem;
 }
 
 @property (nonatomic, strong) NativeRenderCollectionViewWaterfallLayout *layout;
@@ -59,8 +56,8 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 @end
 
 @implementation NativeRenderWaterfallView {
-    BOOL _allowNextScrollNoMatterWhat;
     CFTimeInterval _lastOnScrollEventTimeInterval;
+    NSMutableArray *_visibleCellViewsBeforeReload;
 }
 
 @synthesize contentSize;
@@ -70,10 +67,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
         self.backgroundColor = [UIColor clearColor];
         _scrollListeners = [NSHashTable weakObjectsHashTable];
         _scrollEventThrottle = 100.f;
-        _weakItemMap = [NSMapTable strongToWeakObjectsMapTable];
-        _cachedItems = [NSMutableDictionary dictionaryWithCapacity:32];
-        _dataSourcePool = [NSMutableArray array];
-        _dataSourceSem = dispatch_semaphore_create(1);
+        _cachedWeakCellViews = [NSMapTable strongToWeakObjectsMapTable];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
         [self initCollectionView];
         if (@available(iOS 11.0, *)) {
@@ -96,11 +90,6 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     [self registerCells];
     [self registerSupplementaryViews];
     [self addSubview:_collectionView];
-}
-
-- (void)dealloc {
-    [NSObject cancelPreviousPerformRequestsWithTarget:self];
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)registerCells {
@@ -142,8 +131,6 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 }
 
 - (void)invalidate {
-    [NSObject cancelPreviousPerformRequestsWithTarget:self];
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [_scrollListeners removeAllObjects];
 }
 
@@ -170,88 +157,11 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 - (void)zoomToRect:(CGRect)rect animated:(BOOL)animated {
 }
 
-- (void)didUpdateHippySubviews {
-    self.dirtyContent = YES;
-}
-
-- (void)hippyBridgeDidFinishTransaction {
-    if (self.dirtyContent) {
-        [self reloadData];
-        self.dirtyContent = NO;
-    }
-}
-
 - (void)setContainBannerView:(BOOL)containBannerView {
     _containBannerView = containBannerView;
 }
 
-- (void)refreshItemNodes {
-    NSArray<HippyShadowView *> *datasource = [self popDataSource];
-    _dataSource = [[NativeRenderWaterfallViewDataSource alloc] initWithDataSource:datasource
-                                                                     itemViewName:[self compoentItemName]
-                                                                    containBannerView:_containBannerView];
-}
-
 #pragma mark Setter & Getter
-
-- (NSUInteger)maxCachedItemCount {
-    return NSUIntegerMax;
-}
-
-- (NSUInteger)differenceFromIndexPath:(NSIndexPath *)indexPath1 againstAnother:(NSIndexPath *)indexPath2 {
-    NSAssert([NSThread mainThread], @"must be in main thread");
-    long diffCount = 0;
-    for (NSUInteger index = MIN([indexPath1 section], [indexPath2 section]); index < MAX([indexPath1 section], [indexPath2 section]); index++) {
-        diffCount += [_collectionView numberOfItemsInSection:index];
-    }
-    diffCount = diffCount + [indexPath1 row] - [indexPath2 row];
-    return abs(diffCount);
-}
-
-- (NSInteger)differenceFromIndexPath:(NSIndexPath *)indexPath againstVisibleIndexPaths:(NSArray<NSIndexPath *> *)visibleIndexPaths {
-    NSIndexPath *firstIndexPath = [visibleIndexPaths firstObject];
-    NSIndexPath *lastIndexPath = [visibleIndexPaths lastObject];
-    NSUInteger diffFirst = [self differenceFromIndexPath:indexPath againstAnother:firstIndexPath];
-    NSUInteger diffLast = [self differenceFromIndexPath:indexPath againstAnother:lastIndexPath];
-    return MIN(diffFirst, diffLast);
-}
-
-- (NSArray<NSIndexPath *> *)findFurthestIndexPathsFromScreen {
-    NSUInteger visibleItemsCount = [[self.collectionView visibleCells] count];
-    NSUInteger maxCachedItemCount = [self maxCachedItemCount] == NSUIntegerMax ? visibleItemsCount * 3 : [self maxCachedItemCount];
-    NSUInteger cachedCount = [_cachedItems count];
-    NSInteger cachedCountToRemove = cachedCount > maxCachedItemCount ? cachedCount - maxCachedItemCount : 0;
-    if (0 != cachedCountToRemove) {
-        NSArray<NSIndexPath *> *visibleIndexPaths = [_collectionView indexPathsForVisibleItems];
-        NSArray<NSIndexPath *> *sortedCachedItemKey = [[_cachedItems allKeys] sortedArrayUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
-            NSIndexPath *ip1 = obj1;
-            NSIndexPath *ip2 = obj2;
-            NSUInteger ip1Diff = [self differenceFromIndexPath:ip1 againstVisibleIndexPaths:visibleIndexPaths];
-            NSUInteger ip2Diff = [self differenceFromIndexPath:ip2 againstVisibleIndexPaths:visibleIndexPaths];
-            if (ip1Diff > ip2Diff) {
-                return NSOrderedAscending;
-            }
-            else if (ip1Diff < ip2Diff) {
-                return NSOrderedDescending;
-            }
-            else {
-                return NSOrderedSame;
-            }
-        }];
-        NSArray<NSIndexPath *> *result = [sortedCachedItemKey subarrayWithRange:NSMakeRange(0, cachedCountToRemove)];
-        return result;
-    }
-    return nil;
-}
-
-- (void)purgeFurthestIndexPathsFromScreen {
-    NSArray<NSIndexPath *> *furthestIndexPaths = [self findFurthestIndexPathsFromScreen];
-    //purge view
-    NSArray<NSNumber *> *objects = [_cachedItems objectsForKeys:furthestIndexPaths notFoundMarker:@(-1)];
-    [self.renderImpl purgeViewsFromComponentTags:objects onRootTag:self.rootTag];
-    //purge cache
-    [_cachedItems removeObjectsForKeys:furthestIndexPaths];
-}
 
 - (void)setContentInset:(UIEdgeInsets)contentInset {
     _contentInset = contentInset;
@@ -283,19 +193,27 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     return _manualScroll;
 }
 
+
+#pragma mark - Data Reload
+
+- (void)hippyBridgeDidFinishTransaction {
+    HippyShadowListView *listNode = self.hippyShadowView;
+    if (!_dataSource || (listNode && listNode.itemChangeContext.hasChanges)) {
+        HippyLogTrace(@"🔥 %@ Reload %@", self.hippyTag, [[listNode itemChangeContext] description]);
+        [self cacheVisibleCellViewsForReuse];
+        [self reloadData];
+        [listNode.itemChangeContext clear];
+    }
+}
+
 - (void)reloadData {
-    [self refreshItemNodes];
-    [_dataSource applyDiff:_previousDataSource
-             changedConext:self.changeContext
-          forWaterfallView:self.collectionView
-                completion:^(BOOL success) {
-        if (success) {
-            self->_previousDataSource = [self->_dataSource copy];
-        }
-        else {
-            self->_previousDataSource = nil;
-        }
-    }];
+    NSArray<HippyShadowView *> *datasource = [self.hippyShadowView.subcomponents copy];
+    _dataSource = [[NativeRenderWaterfallViewDataSource alloc] initWithDataSource:datasource
+                                                                     itemViewName:[self compoentItemName]
+                                                                containBannerView:_containBannerView];
+    
+    [self.collectionView reloadData];
+    
     if (!_isInitialListReady) {
         _isInitialListReady = YES;
         if (self.onInitialListReady) {
@@ -304,59 +222,30 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     }
 }
 
-- (void)pushDataSource:(NSArray<HippyShadowView *> *)dataSource {
-    dispatch_semaphore_wait(_dataSourceSem, DISPATCH_TIME_FOREVER);
-    [_dataSourcePool addObject:dataSource];
-    dispatch_semaphore_signal(_dataSourceSem);
-}
-
-- (NSArray<HippyShadowView *> *)popDataSource {
-    dispatch_semaphore_wait(_dataSourceSem, DISPATCH_TIME_FOREVER);
-    NSArray<HippyShadowView *> *datasource = [_dataSourcePool lastObject];
-    [_dataSourcePool removeLastObject];
-    dispatch_semaphore_signal(_dataSourceSem);
-    return datasource;
-}
-
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
-    if ([subview isKindOfClass:[NativeRenderHeaderRefresh class]]) {
+    if ([subview isKindOfClass:[HippyHeaderRefresh class]]) {
         if (_headerRefreshView) {
             [_headerRefreshView removeFromSuperview];
         }
-        _headerRefreshView = (NativeRenderHeaderRefresh *)subview;
+        _headerRefreshView = (HippyHeaderRefresh *)subview;
         [_headerRefreshView setScrollView:self.collectionView];
         _headerRefreshView.delegate = self;
         _headerRefreshView.frame = subview.hippyShadowView.frame;
-        [_weakItemMap setObject:subview forKey:[subview hippyTag]];
-    } else if ([subview isKindOfClass:[NativeRenderFooterRefresh class]]) {
+    } else if ([subview isKindOfClass:[HippyFooterRefresh class]]) {
         if (_footerRefreshView) {
             [_footerRefreshView removeFromSuperview];
         }
-        _footerRefreshView = (NativeRenderFooterRefresh *)subview;
+        _footerRefreshView = (HippyFooterRefresh *)subview;
         [_footerRefreshView setScrollView:self.collectionView];
         _footerRefreshView.delegate = self;
         _footerRefreshView.frame = subview.hippyShadowView.frame;
         UIEdgeInsets insets = self.collectionView.contentInset;
         self.collectionView.contentInset = UIEdgeInsetsMake(insets.top, insets.left, _footerRefreshView.frame.size.height, insets.right);
-        [_weakItemMap setObject:subview forKey:[subview hippyTag]];
     }
 }
 
-- (NSArray<UIView *> *)subcomponents {
-    return [[_weakItemMap dictionaryRepresentation] allValues];
-}
-
-- (void)removeFromHippySuperview {
-    [super removeFromHippySuperview];
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
-    [self purgeFurthestIndexPathsFromScreen];
-}
-
-- (void)didMoveToWindow {
-    if (!self.window) {
-        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
-        [self purgeFurthestIndexPathsFromScreen];
-    }
+- (void)didUpdateHippySubviews {
+    // Do nothing, as subviews is managed by `insertHippySubview:atIndex:` or lazy-created
 }
 
 #pragma mark - UICollectionViewDataSource
@@ -369,18 +258,28 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    return [self collectionView:collectionView itemViewForItemAtIndexPath:indexPath];
-}
-
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView itemViewForItemAtIndexPath:(NSIndexPath *)indexPath {
     NativeRenderWaterfallViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
+    HippyShadowView *shadowView = [_dataSource cellForIndexPath:indexPath];
+    
+    UIView *cellView = nil;
+    UIView *cachedCellView = [_cachedWeakCellViews objectForKey:shadowView.hippyTag];
+    if (cachedCellView &&
+        [shadowView isKindOfClass:NativeRenderObjectWaterfallItem.class] &&
+        !((NativeRenderObjectWaterfallItem *)shadowView).layoutDirty) {
+        cellView = cachedCellView;
+    } else {
+        cellView = [self.renderImpl createViewForShadowListItem:shadowView];
+        [_cachedWeakCellViews setObject:cellView forKey:shadowView.hippyTag];
+    }
+    
+    cell.cellView = cellView;
+    cellView.parent = self;
     return cell;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView
        willDisplayCell:(UICollectionViewCell *)cell
     forItemAtIndexPath:(NSIndexPath *)indexPath {
-    [self itemViewForCollectionViewCell:cell indexPath:indexPath];
     if (0 == [indexPath section] && _containBannerView) {
         return;
     }
@@ -400,35 +299,18 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     }
 }
 
-- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-    if ([cell isKindOfClass:[NativeRenderWaterfallViewCell class]]) {
-        NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
-        if (hpCell.cellView) {
-            [_cachedItems setObject:[hpCell.cellView hippyTag] forKey:indexPath];
-            hpCell.cellView = nil;
-        }
-    }
-}
-
-- (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
-    NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
-    HippyShadowView *renderObjectView = [_dataSource cellForIndexPath:indexPath];
-    [renderObjectView recusivelySetCreationTypeToInstant];
-    UIView *cellView = [self.renderImpl createViewRecursivelyFromRenderObject:renderObjectView];
-    if (cellView) {
-        [_cachedItems removeObjectForKey:indexPath];
-    }
-    hpCell.cellView = cellView;
-    cellView.parentComponent = self;
-    [_weakItemMap setObject:cellView forKey:[cellView hippyTag]];
-}
-
 #pragma mark - NativeRenderCollectionViewDelegateWaterfallLayout
+
 - (CGSize)collectionView:(UICollectionView *)collectionView
                   layout:(UICollectionViewLayout *)collectionViewLayout
-    sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    HippyShadowView *renderObjectView = [_dataSource cellForIndexPath:indexPath];
-    return renderObjectView.frame.size;
+  sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    HippyShadowView *shadowView = [_dataSource cellForIndexPath:indexPath];
+    CGSize itemSize = shadowView.frame.size;
+    if (itemSize.width < .0 || itemSize.height < .0) {
+        HippyLogError(@"Negative item size for %@ at %@ of %@", shadowView, indexPath, self);
+        return CGSizeZero;
+    }
+    return shadowView.frame.size;
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView
@@ -485,8 +367,6 @@ static const NSTimeInterval delayForPurgeView = 1.f;
             [scrollViewListener scrollViewDidScroll:scrollView];
         }
     }
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
-    [self performSelector:@selector(purgeFurthestIndexPathsFromScreen) withObject:nil afterDelay:delayForPurgeView];
     [_headerRefreshView scrollViewDidScroll];
     [_footerRefreshView scrollViewDidScroll];
 }
@@ -677,7 +557,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 }
 
 - (void)tableViewDidLayoutSubviews:(NativeRenderListTableView *)tableView {
-    
+    [self clearVisibleCellViewsCacheBeforeReload];
 }
 
 - (void)refreshCompleted:(NSInteger)status text:(NSString *)text {
@@ -720,7 +600,7 @@ static const NSTimeInterval delayForPurgeView = 1.f;
     NSIndexPath *indexPath = [self.dataSource indexPathForFlatIndex:index];
     if (indexPath != nil) {
         [self.collectionView scrollToItemAtIndexPath:indexPath
-                                    atScrollPosition:UITableViewScrollPositionTop
+                                    atScrollPosition:UICollectionViewScrollPositionTop
                                             animated:animated];
     }
 }
@@ -759,18 +639,32 @@ static const NSTimeInterval delayForPurgeView = 1.f;
 }
 
 
-#pragma mark -
+#pragma mark - Memory optimization
 
 - (void)didReceiveMemoryWarning {
     [self cleanUpCachedItems];
 }
 
 - (void)cleanUpCachedItems {
-    //purge view
-    NSArray<NSNumber *> *objects = [_cachedItems allValues];
-    [self.renderImpl purgeViewsFromComponentTags:objects onRootTag:self.rootTag];
-    //purge cache
-    [_cachedItems removeAllObjects];
+    // nop
+}
+
+- (void)cacheVisibleCellViewsForReuse {
+    // Before reload, cache the current visible cellViews temporarily,
+    // because cells can potentially be reused.
+    // And remove them when the reload is complete in `tableViewDidLayoutSubviews` method.
+    NSArray<UICollectionViewCell *> *visibleCells = [self.collectionView visibleCells];
+    NSMutableArray *visibleCellViews = [NSMutableArray arrayWithCapacity:visibleCells.count];
+    for (UICollectionViewCell *cell in visibleCells) {
+        if ([cell isKindOfClass:NativeRenderWaterfallViewCell.class]) {
+            [visibleCellViews addObject:((NativeRenderWaterfallViewCell *)cell).cellView];
+        }
+    }
+    _visibleCellViewsBeforeReload = visibleCellViews;
+}
+
+- (void)clearVisibleCellViewsCacheBeforeReload {
+    _visibleCellViewsBeforeReload = nil;
 }
 
 @end

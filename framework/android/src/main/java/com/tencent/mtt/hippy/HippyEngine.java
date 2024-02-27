@@ -52,6 +52,7 @@ import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.HippyModulePromise.BridgeTransferType;
+import com.tencent.mtt.hippy.utils.BuglyUtils;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
@@ -89,11 +90,12 @@ public abstract class HippyEngine {
       throw new RuntimeException("Hippy: initParams must no be null");
     }
     LogUtils.enableDebugLog(BuildConfig.DEBUG);
-    LibraryLoader.loadLibraryIfNeed(params.soLoader);
+    LibraryLoader.loadLibraryIfNeeded(params.soLoader);
     if (sLogAdapter == null && params.logAdapter != null) {
       setNativeLogHandler(params.logAdapter);
     }
     ContextHolder.initAppContext(params.context);
+    BuglyUtils.registerSdkAppIdIfNeeded(params.context);
     params.check();
     HippyEngine hippyEngine;
     if (params.groupId == -1) {
@@ -238,7 +240,7 @@ public abstract class HippyEngine {
     public boolean debugMode = false;
     // 可选参数 是否开启调试模式，默认为false，不开启
     // 可选参数 Hippy Server的jsbundle名字，默认为"index.bundle"。debugMode = true时有效
-    public final String debugBundleName = "index.bundle";
+    public String debugBundleName = "index.bundle";
     // 可选参数 Hippy Server的Host。默认为"localhost:38989"。debugMode = true时有效
     public String debugServerHost = "localhost:38989";
     // optional args, Hippy Server url using remote debug in no usb (if not empty will replace debugServerHost and debugBundleName). debugMode = true take effect

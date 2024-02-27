@@ -32,71 +32,71 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-typedef NS_ENUM(NSInteger, NativeRenderAnimationType) {
-    NativeRenderAnimationTypeSpring = 0,
-    NativeRenderAnimationTypeLinear,
-    NativeRenderAnimationTypeEaseIn,
-    NativeRenderAnimationTypeEaseOut,
-    NativeRenderAnimationTypeEaseInEaseOut,
-    NativeRenderAnimationTypeKeyboard,
+typedef NS_ENUM(NSInteger, HippyAnimationType) {
+    HippyAnimationTypeSpring = 0,
+    HippyAnimationTypeLinear,
+    HippyAnimationTypeEaseIn,
+    HippyAnimationTypeEaseOut,
+    HippyAnimationTypeEaseInEaseOut,
+    HippyAnimationTypeKeyboard,
 };
 
-@interface HippyConvert (NativeRenderAnimationType)
+@interface HippyConvert (HippyAnimationType)
 
-+ (NativeRenderAnimationType)NativeRenderAnimationType:(id)json;
++ (HippyAnimationType)HippyAnimationType:(id)json;
 
 @end
 
-typedef NS_ENUM(NSInteger, NativeRenderPointerEvents) {
-    NativeRenderPointerEventsUnspecified = 0,  // Default
-    NativeRenderPointerEventsNone,
-    NativeRenderPointerEventsBoxNone,
-    NativeRenderPointerEventsBoxOnly,
+typedef NS_ENUM(NSInteger, HippyPointerEvents) {
+    HippyPointerEventsUnspecified = 0,  // Default
+    HippyPointerEventsNone,
+    HippyPointerEventsBoxNone,
+    HippyPointerEventsBoxOnly,
 };
 
-@interface HippyConvert (NativeRenderPointerEvents)
+@interface HippyConvert (HippyPointerEvents)
 
-+ (NativeRenderPointerEvents)NativeRenderPointerEvents:(id)json;
++ (HippyPointerEvents)HippyPointerEvents:(id)json;
 
 @end
 
-typedef NS_ENUM(NSInteger, NativeRenderBorderStyle) {
-    NativeRenderBorderStyleSolid,
-    NativeRenderBorderStyleDotted,
-    NativeRenderBorderStyleDashed,
-    NativeRenderBorderStyleNone,
+typedef NS_ENUM(NSInteger, HippyBorderStyle) {
+    HippyBorderStyleSolid,
+    HippyBorderStyleDotted,
+    HippyBorderStyleDashed,
+    HippyBorderStyleNone,
 };
 
-@interface HippyConvert (NativeRenderBorderStyle)
+@interface HippyConvert (HippyBorderStyle)
 
-+ (NativeRenderBorderStyle)NativeRenderBorderStyle:(id)json;
++ (HippyBorderStyle)HippyBorderStyle:(id)json;
 
 @end
 
-typedef NS_ENUM(NSInteger, NativeRenderTextDecorationLineType) {
-    NativeRenderTextDecorationLineTypeNone = 0,
-    NativeRenderTextDecorationLineTypeUnderline,
-    NativeRenderTextDecorationLineTypeStrikethrough,
-    NativeRenderTextDecorationLineTypeUnderlineStrikethrough,
+typedef NS_ENUM(NSInteger, HippyTextDecorationLineType) {
+    HippyTextDecorationLineTypeNone = 0,
+    HippyTextDecorationLineTypeUnderline,
+    HippyTextDecorationLineTypeStrikethrough,
+    HippyTextDecorationLineTypeUnderlineStrikethrough,
 };
 
 /// Vertical alignment enum for text attachment,
 /// similar to vertical-align in CSS (layout is different)
 ///
 /// Default（Undefined）is baseline
-typedef NS_ENUM(NSInteger, NativeRenderTextVerticalAlignType) {
-    NativeRenderTextVerticalAlignUndefined = 0,
-    NativeRenderTextVerticalAlignBaseline = 1,
-    NativeRenderTextVerticalAlignBottom = 2,
-    NativeRenderTextVerticalAlignMiddle = 3,
-    NativeRenderTextVerticalAlignTop = 4,
+typedef NS_ENUM(NSInteger, HippyTextVerticalAlignType) {
+    HippyTextVerticalAlignUndefined = 0,
+    HippyTextVerticalAlignBaseline = 1,
+    HippyTextVerticalAlignBottom = 2,
+    HippyTextVerticalAlignMiddle = 3,
+    HippyTextVerticalAlignTop = 4,
 };
 
-@interface HippyConvert (NativeRenderTextEnumDefines)
+@interface HippyConvert (HippyTextEnumDefines)
 
-+ (NativeRenderTextDecorationLineType)NativeRenderTextDecorationLineType:(id)json;
++ (HippyTextDecorationLineType)HippyTextDecorationLineType:(id)json;
 
-+ (NativeRenderTextVerticalAlignType)NativeRenderTextVerticalAlignType:(id)json;
++ (HippyTextVerticalAlignType)HippyTextVerticalAlignType:(id)json;
 
 @end
 

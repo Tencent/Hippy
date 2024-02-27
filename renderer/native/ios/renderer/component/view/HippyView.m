@@ -122,8 +122,10 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
 }
 
 - (void)setBackgroundImage:(UIImage *)backgroundImage {
-    _backgroundImage = backgroundImage;
-    [self.layer setNeedsDisplay];
+    if (_backgroundImage != backgroundImage) {
+        _backgroundImage = backgroundImage;
+        [self.layer setNeedsDisplay];
+    }
 }
 
 - (UIEdgeInsets)bordersAsInsets {
@@ -137,7 +139,7 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
     };
 }
 
-- (NativeRenderCornerRadii)cornerRadii {
+- (HippyCornerRadii)cornerRadii {
     // Get corner radii
     const CGFloat radius = MAX(0, _borderRadius);
     const CGFloat topLeftRadius = _borderTopLeftRadius >= 0 ? _borderTopLeftRadius : radius;
@@ -153,7 +155,7 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
     const CGFloat leftScaleFactor = HippyZeroIfNaN(MIN(1, size.height / (topLeftRadius + bottomLeftRadius)));
 
     // Return scaled radii
-    return (NativeRenderCornerRadii) {
+    return (HippyCornerRadii) {
         topLeftRadius * MIN(topScaleFactor, leftScaleFactor),
         topRightRadius * MIN(topScaleFactor, rightScaleFactor),
         bottomLeftRadius * MIN(bottomScaleFactor, leftScaleFactor),
@@ -176,8 +178,8 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
     [super setFrame:frame];
 }
 
-- (NativeRenderBorderColors)borderColors {
-    return (NativeRenderBorderColors) {
+- (HippyBorderColors)borderColors {
+    return (HippyBorderColors) {
         _borderTopColor ?: _borderColor,
         _borderLeftColor ?: _borderColor,
         _borderBottomColor ?: _borderColor,
@@ -185,7 +187,7 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
     };
 }
 
-void NativeRenderBoarderColorsRetain(NativeRenderBorderColors c) {
+void NativeRenderBoarderColorsRetain(HippyBorderColors c) {
     if (c.top) {
         CGColorRetain(c.top);
     }
@@ -200,7 +202,7 @@ void NativeRenderBoarderColorsRetain(NativeRenderBorderColors c) {
     }
 }
 
-void NativeRenderBoarderColorsRelease(NativeRenderBorderColors c) {
+void NativeRenderBoarderColorsRelease(HippyBorderColors c) {
     if (c.top) {
         CGColorRelease(c.top);
     }
@@ -239,16 +241,19 @@ void NativeRenderBoarderColorsRelease(NativeRenderBorderColors c) {
 
     [self drawShadowForLayer];
 
-    const NativeRenderCornerRadii cornerRadii = [self cornerRadii];
+    const HippyCornerRadii cornerRadii = [self cornerRadii];
     const UIEdgeInsets borderInsets = [self bordersAsInsets];
-    const NativeRenderBorderColors borderColors = [self borderColors];
+    const HippyBorderColors borderColors = [self borderColors];
     UIColor *backgroundColor = self.backgroundColor;
 
     BOOL isRunningInTest = HippyRunningInTestEnvironment();
-    BOOL isCornerEqual = NativeRenderCornerRadiiAreEqual(cornerRadii);
-    BOOL isBorderInsetsEqual = NativeRenderBorderInsetsAreEqual(borderInsets);
-    BOOL isBorderColorsEqual = NativeRenderBorderColorsAreEqual(borderColors);
-    BOOL borderStyle = (_borderStyle == NativeRenderBorderStyleSolid || _borderStyle == NativeRenderBorderStyleNone);
+    BOOL isCornerEqual = HippyCornerRadiiAreEqual(cornerRadii);
+    BOOL isBorderInsetsEqual = HippyBorderInsetsAreEqual(borderInsets);
+    BOOL isBorderColorsEqual = HippyBorderColorsAreEqual(borderColors);
+    BOOL borderStyle = (_borderStyle == HippyBorderStyleSolid || _borderStyle == HippyBorderStyleNone);
+    // iOS draws borders in front of the content whereas CSS draws them behind
+    // the content. For this reason, only use iOS border drawing when clipping
+    // or when the border is hidden.
     BOOL borderColorCheck = (borderInsets.top == 0 || (borderColors.top && CGColorGetAlpha(borderColors.top) == 0) || self.clipsToBounds);
     
     BOOL useIOSBorderRendering = !isRunningInTest && isCornerEqual && isBorderInsetsEqual && isBorderColorsEqual && borderStyle && borderColorCheck;
@@ -312,9 +317,9 @@ void NativeRenderBoarderColorsRelease(NativeRenderBorderColors c) {
 }
 
 - (BOOL)getLayerContentForColor:(UIColor *)color completionBlock:(void (^)(UIImage *))contentBlock {
-    const NativeRenderCornerRadii cornerRadii = [self cornerRadii];
+    const HippyCornerRadii cornerRadii = [self cornerRadii];
     const UIEdgeInsets borderInsets = [self bordersAsInsets];
-    const NativeRenderBorderColors borderColors = [self borderColors];
+    const HippyBorderColors borderColors = [self borderColors];
     UIColor *backgroundColor = color?:self.backgroundColor;
     
     CGRect theFrame = self.frame;
@@ -328,7 +333,7 @@ void NativeRenderBoarderColorsRelease(NativeRenderBorderColors c) {
     }
     NSInteger clipToBounds = self.clipsToBounds;
     NSString *backgroundSize = self.backgroundSize;
-    UIImage *borderImage = NativeRenderGetBorderImage(self.borderStyle, theFrame.size, cornerRadii, borderInsets,
+    UIImage *borderImage = HippyGetBorderImage(self.borderStyle, theFrame.size, cornerRadii, borderInsets,
                                                borderColors, backgroundColor.CGColor, clipToBounds, !self.gradientObject);
     if (!self.backgroundImage && !self.gradientObject) {
         contentBlock(borderImage);
@@ -338,27 +343,27 @@ void NativeRenderBoarderColorsRelease(NativeRenderBorderColors c) {
         UIImage *decodedImage = self.backgroundImage;
         CGFloat backgroundPositionX = self.backgroundPositionX;
         CGFloat backgroundPositionY = self.backgroundPositionY;
-        UIGraphicsBeginImageContextWithOptions(theFrame.size, NO, 0);
-        //draw background image
-        CGSize imageSize = decodedImage.size;
-        CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, [self bordersAsInsets]).size;
-        CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
-        CGPoint originOffset = CGPointMake((targetSize.width - drawSize.width) / 2.0,
-                                           (targetSize.height - drawSize.height) / 2.0);
-        [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX + originOffset.x,
-                                            borderInsets.top + backgroundPositionY + originOffset.y,
-                                            drawSize.width,
-                                            drawSize.height)];
-        //draw border
-        if (borderImage) {
-            CGSize size = theFrame.size;
-            [borderImage drawInRect:(CGRect) { CGPointZero, size }];
-        }
         
-        //output image
-        UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-        contentBlock(resultingImage);
+        UIGraphicsImageRendererFormat *rendererFormat = [UIGraphicsImageRendererFormat preferredFormat];
+        rendererFormat.scale = borderImage.scale;
+        UIGraphicsImageRenderer *imageRenderer = [[UIGraphicsImageRenderer alloc] initWithSize:theFrame.size format:rendererFormat];
+        UIImage *renderedImage = [imageRenderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
+            // draw background image
+            CGSize imageSize = decodedImage.size;
+            CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, borderInsets).size;
+            CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
+            CGPoint originOffset = CGPointMake((targetSize.width - drawSize.width) / 2.0, (targetSize.height - drawSize.height) / 2.0);
+            [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX + originOffset.x,
+                                                borderInsets.top + backgroundPositionY + originOffset.y,
+                                                drawSize.width,
+                                                drawSize.height)];
+            // draw border
+            if (borderImage) {
+                CGSize size = theFrame.size;
+                [borderImage drawInRect:(CGRect) { CGPointZero, size }];
+            }
+        }];
+        contentBlock(renderedImage);
     }
     else if (self.gradientObject) {
         CGSize size = theFrame.size;
@@ -395,13 +400,13 @@ static BOOL NativeRenderLayerHasShadow(CALayer *layer) {
     CGFloat cornerRadius = 0;
 
     if (self.clipsToBounds) {
-        const NativeRenderCornerRadii cornerRadii = [self cornerRadii];
-        if (NativeRenderCornerRadiiAreEqual(cornerRadii)) {
+        const HippyCornerRadii cornerRadii = [self cornerRadii];
+        if (HippyCornerRadiiAreEqual(cornerRadii)) {
             cornerRadius = cornerRadii.topLeft;
 
         } else {
             CAShapeLayer *shapeLayer = [CAShapeLayer layer];
-            CGPathRef path = NativeRenderPathCreateWithRoundedRect(self.bounds, NativeRenderGetCornerInsets(cornerRadii, UIEdgeInsetsZero), NULL);
+            CGPathRef path = HippyPathCreateWithRoundedRect(self.bounds, HippyGetCornerInsets(cornerRadii, UIEdgeInsetsZero), NULL);
             shapeLayer.path = path;
             CGPathRelease(path);
             mask = shapeLayer;
@@ -467,7 +472,7 @@ setBorderRadius(BottomRight)
 #pragma mark - Border Style
 
 #define setBorderStyle(side)                                  \
-    -(void)setBorder##side##Style : (NativeRenderBorderStyle)style { \
+    -(void)setBorder##side##Style : (HippyBorderStyle)style { \
         if (_border##side##Style == style) {                  \
             return;                                           \
         }                                                     \

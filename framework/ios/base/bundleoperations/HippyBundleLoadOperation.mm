@@ -77,7 +77,10 @@
                                          body:nil
                                         queue:_finishQueue
                                      progress:nil
-                            completionHandler:^(NSData * _Nonnull data, NSURLResponse * _Nonnull response, NSError * _Nonnull error) {
+                            completionHandler:^(NSData * _Nullable data,
+                                                NSDictionary * _Nullable userInfo,
+                                                NSURLResponse * _Nullable response,
+                                                NSError * _Nullable error) {
         HippyBundleLoadOperation *strongSelf = weakSelf;
         if (!strongSelf || strongSelf.cancelled) {
             strongSelf.finished = YES;
