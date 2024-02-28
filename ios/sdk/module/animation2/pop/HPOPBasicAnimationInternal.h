@@ -108,6 +108,9 @@ struct _POPBasicAnimationState : _POPPropertyAnimationState
     }
 
     // interpolate and advance
+    if (!fromVec || !toVec || !currentVec) {
+        return false;
+    }
     interpolate(valueType, valueCount, fromVec->data(), toVec->data(), currentVec->data(), p);
     progress = p;
     clampCurrentValue();
