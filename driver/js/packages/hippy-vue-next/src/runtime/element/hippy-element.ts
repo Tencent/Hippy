@@ -332,7 +332,7 @@ export class HippyElement extends HippyNode {
    * @param child - child node
    * @param isHydrate - is hydrate or not
    */
-  public appendChild(child: HippyNode, isHydrate: boolean = false): void {
+  public appendChild(child: HippyNode, isHydrate = false): void {
     // If the node type is text node, call setText method to set the text property
     if (child instanceof HippyText) {
       this.setText(child.text, { notToNative: true });
@@ -1025,26 +1025,6 @@ export class HippyElement extends HippyNode {
   }
 
   /**
-   * When generating props for Native Node, some additional logic needs to be hacked
-   *
-   * @param rawProps - original props
-   */
-  private hackNativeProps(rawProps: NativeNodeProps) {
-    const props = rawProps;
-
-    // solve the problem of src props of iOS image, which should be repaired by native
-    if (this.tagName === 'img' && Native.isIOS()) {
-      props.source = [
-        {
-          uri: props.src,
-        },
-      ];
-
-      props.src = undefined;
-    }
-  }
-
-  /**
    * get the props of the Native node, the properties include the properties of the node and
    * the default properties of the component to which the node belongs
    */
@@ -1112,9 +1092,6 @@ export class HippyElement extends HippyNode {
         props[key] = toRaw(nativeProps[key]);
       });
     }
-
-    // Finally handle the hack logic
-    this.hackNativeProps(props);
 
     return props;
   }
