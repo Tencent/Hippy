@@ -262,7 +262,7 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
         NSNumber *animationId = p.animationIdWithPropDictionary[prop];
         HippyNextAnimation *anim = self.animationById[animationId];
         if (HippyNextAnimationReadyState != anim.state) {
-            return;
+            continue;
         }
         
         // TODO: use contains rotateY to judge
@@ -270,6 +270,9 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
             // connect to ShadowView object
             __weak __typeof(self)weakSelf = self;
             [self.bridge.uiManager executeBlockOnUIManagerQueue:^{
+                if (HippyNextAnimationStartedState == anim.state) {
+                    return;
+                }
                 __strong __typeof(weakSelf)strongSelf = weakSelf;
                 HippyShadowView *shadowView = [strongSelf.bridge.uiManager shadowViewForHippyTag:hippyTag];
                 if (!shadowView) return;
@@ -282,7 +285,7 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
         } else {
             // connect to UIView object
             if (![anim prepareForTarget:view withType:prop]) {
-                return;
+                continue;
             }
             [anim startAnimation];
             anim.state = HippyNextAnimationStartedState;
@@ -327,14 +330,14 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
         // merge all nextFrameProps
         HippyShadowView *shadowView = anim.targetObject;
         NSMutableDictionary *mutableProps = _updatedPropsForNextFrameDict[shadowView.hippyTag].mutableCopy;
-        NSString *propKey = nextFrameProp.allKeys.firstObject;
         
         if (!mutableProps) {
-            // first set, add original props if has
-            id originalPropObj = shadowView.props[propKey];
-            if (originalPropObj) {
-                mutableProps = [NSMutableDictionary dictionaryWithObject:originalPropObj forKey:propKey];
-            }
+            // Note that we do not need to get the original props from `shadowView.props`,
+            // because the raw data might also be animated, it may be outdated,
+            // but at the same time, doing so limits some possible scenarios,
+            // such as the original props value is an array, and the effects are not superimposed.
+            // Because Transform Animations are superimposed, they are not affected by this restriction.
+            mutableProps = [NSMutableDictionary dictionary];
         }
         
         // then we merge original props with the new nextFrameProp
