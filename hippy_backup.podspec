@@ -40,7 +40,7 @@ Pod::Spec.new do |s|
   s.platform = :ios
   s.ios.deployment_target = '11.0'
 
-  #prepare_command not working for subspecs,so we remove devtools script from devtools subspec to root
+  # prepare_command not working for subspecs,so we remove devtools script from devtools subspec to root
   s.prepare_command = <<-CMD
       ./xcodeinitscript.sh "#{layout_engine}" "#{js_engine}"
   CMD
