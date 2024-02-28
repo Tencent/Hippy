@@ -55,7 +55,7 @@ export function patchStyle(
   const batchedStyles: NeedToTyped = {};
 
   if (isStyleExisted(el, prev, next)) {
-    // 如果前后属性相同, 则跳过patch计算
+    // if the previous and next attributes are the same, skip the patch calculation.
     return;
   }
   if (prev && !next) {
