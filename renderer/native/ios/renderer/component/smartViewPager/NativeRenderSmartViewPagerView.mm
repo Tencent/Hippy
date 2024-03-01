@@ -39,7 +39,7 @@ static NSString *const kCellIdentifier = @"cellIdentifier";
 static NSString *const kSupplementaryIdentifier = @"SupplementaryIdentifier";
 static NSString *const kListViewItem = @"ListViewItem";
 
-@interface NativeRenderSmartViewPagerView () <NativeRenderRefreshDelegate> {
+@interface NativeRenderSmartViewPagerView () <HippyRefreshDelegate> {
     __weak UIView *_rootView;
     BOOL _isInitialListReady;
     NSTimeInterval _lastScrollDispatchTime;
@@ -62,8 +62,9 @@ static NSString *const kListViewItem = @"ListViewItem";
 - (instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
         _isInitialListReady = NO;
-        _dataSource = [[HippyNextBaseListViewDataSource alloc] init];
-        self.dataSource.itemViewName = [self compoentItemName];
+        _dataSource = [[HippyNextBaseListViewDataSource alloc] initWithDataSource:nil 
+                                                                     itemViewName:[self compoentItemName]
+                                                                containBannerView:NO];
         [self initialization];
         self.collectionView.alwaysBounceVertical = NO;
         self.collectionView.alwaysBounceHorizontal = YES;

@@ -38,6 +38,8 @@ typedef NS_ENUM(NSUInteger, CellShowState) { CellNotShowState, CellHalfShowState
 
 @protocol ViewAppearStateProtocol <NSObject>
 
+/// Called when cell appear state changed
+/// - Parameter state: CellAppearState
 - (void)cellAppearStateChanged:(CellAppearState)state;
 
 @end
