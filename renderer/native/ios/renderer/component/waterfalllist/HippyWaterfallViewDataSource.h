@@ -27,18 +27,43 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class HippyShadowView;
 
-@interface HippyWaterfallViewDataSource : NSObject<NSCopying>
+/// The DataSource of Waterfall and ListView component
+@interface HippyWaterfallViewDataSource : NSObject<NSCopying> {
+@protected
+    NSArray<NSArray<HippyShadowView *> *> *_shadowCellViews;
+    
+}
 
-- (instancetype)initWithDataSource:(NSArray<__kindof HippyShadowView *> *)dataSource
+/// Init Method.
+/// - Parameters:
+///   - dataSource: shadowView array
+///   - itemViewName: view name
+///   - containBannerView: bool value
+- (instancetype)initWithDataSource:(nullable NSArray<__kindof HippyShadowView *> *)dataSource
                       itemViewName:(NSString *)itemViewName
-                 containBannerView:(BOOL)containBannerView;
+                 containBannerView:(BOOL)containBannerView NS_DESIGNATED_INITIALIZER;
 
+/// Use initWithDataSource instead
++ (instancetype)new NS_UNAVAILABLE;
+/// Use initWithDataSource instead
+- (instancetype)init NS_UNAVAILABLE;
+
+/// Whether contain bannerView, currently used by the waterfall component.
 @property(nonatomic, readonly) BOOL containBannerView;
+/// The BannerView, currently waterfall component has.
 @property(nonatomic, readonly) HippyShadowView *bannerView;
-@property(nonatomic, copy) NSArray<NSArray<HippyShadowView *> *> *cellRenderObjectViews;
-@property(nonatomic, copy) NSString *itemViewName;
+/// The shadowViews of Cells
+@property(nonatomic, readonly) NSArray<NSArray<HippyShadowView *> *> *shadowCellViews;
+/// The view name of cell item
+@property(nonatomic, readonly) NSString *itemViewName;
 
-- (void)setDataSource:(NSArray<__kindof HippyShadowView *> *)dataSource containBannerView:(BOOL)containBannerView;
+/// Update datasource
+/// - Parameters:
+///   - dataSource: shadowView array
+///   - containBannerView: BOOL
+- (void)setDataSource:(NSArray<__kindof HippyShadowView *> *)dataSource
+    containBannerView:(BOOL)containBannerView;
+
 - (HippyShadowView *)cellForIndexPath:(NSIndexPath *)indexPath;
 - (HippyShadowView *)headerForSection:(NSInteger)section;
 - (NSInteger)numberOfSection;

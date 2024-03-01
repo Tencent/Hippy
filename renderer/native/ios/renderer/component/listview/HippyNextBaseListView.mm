@@ -38,7 +38,7 @@ static NSString *const kCellIdentifier = @"HippyListCellIdentifier";
 static NSString *const kSupplementaryIdentifier = @"HippySupplementaryIdentifier";
 static NSString *const kListViewItem = @"ListViewItem";
 
-@interface HippyNextBaseListView () <NativeRenderRefreshDelegate> {
+@interface HippyNextBaseListView () <HippyRefreshDelegate> {
     BOOL _isInitialListReady;
     NSArray<UICollectionViewCell *> *_previousVisibleCells;
 }
@@ -53,7 +53,6 @@ static NSString *const kListViewItem = @"ListViewItem";
     if (self = [super initWithFrame:frame]) {
         _isInitialListReady = NO;
         self.preloadItemNumber = 1;
-        self.dataSource.itemViewName = [self compoentItemName];
     }
     return self;
 }
@@ -145,8 +144,8 @@ static NSString *const kListViewItem = @"ListViewItem";
 - (void)reloadData {
     NSArray<HippyShadowView *> *datasource = [self.hippyShadowView.subcomponents copy];
     self->_dataSource = [[HippyNextBaseListViewDataSource alloc] initWithDataSource:datasource
-                                                                          itemViewName:[self compoentItemName]
-                                                                     containBannerView:NO];
+                                                                       itemViewName:[self compoentItemName]
+                                                                  containBannerView:NO];
     [self.collectionView reloadData];
     
     if (self.initialContentOffset) {
@@ -245,10 +244,10 @@ referenceSizeForHeaderInSection:(NSInteger)section {
         self.onRowWillDisplay(@{
             @"index": @(index),
             @"frame": @ {
-                @"x": @(CGRectGetMinX(cellRenderObjectView.frame)),
-                @"y": @(CGRectGetMinY(cellRenderObjectView.frame)),
-                @"width": @(CGRectGetWidth(cellRenderObjectView.frame)),
-                @"height": @(CGRectGetHeight(cellRenderObjectView.frame))
+                @"x": @(CGRectGetMinX(cell.frame)),
+                @"y": @(CGRectGetMinY(cell.frame)),
+                @"width": @(CGRectGetWidth(cell.frame)),
+                @"height": @(CGRectGetHeight(cell.frame))
             }
         });
     }

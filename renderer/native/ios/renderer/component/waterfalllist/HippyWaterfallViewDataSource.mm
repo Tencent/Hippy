@@ -29,8 +29,8 @@
 
 @interface HippyWaterfallViewDataSource () {
     BOOL _containBannerView;
-    NSArray<NSArray<HippyShadowView *> *> *_cellRenderObjectViews;
     HippyShadowView *_bannerView;
+    NSString *_itemViewName;
 }
 
 @end
@@ -42,7 +42,7 @@
                  containBannerView:(BOOL)containBannerView {
     self = [super init];
     if (self) {
-        self.itemViewName = itemViewName;
+        _itemViewName = itemViewName;
         [self setDataSource:dataSource containBannerView:containBannerView];
     }
     return self;
@@ -52,13 +52,13 @@
     HippyWaterfallViewDataSource *dataSource = [[[self class] allocWithZone:zone] init];
     dataSource->_containBannerView = self.containBannerView;
     dataSource->_bannerView = _bannerView;
-    NSMutableArray<NSArray<HippyShadowView *> *> *objectSectionViews = [NSMutableArray arrayWithCapacity:[_cellRenderObjectViews count]];
-    for (NSArray<HippyShadowView *> *objects in _cellRenderObjectViews) {
+    NSMutableArray<NSArray<HippyShadowView *> *> *objectSectionViews = [NSMutableArray arrayWithCapacity:[_shadowCellViews count]];
+    for (NSArray<HippyShadowView *> *objects in _shadowCellViews) {
         NSArray<HippyShadowView *> *copiedObjects = [objects copy];
         [objectSectionViews addObject:copiedObjects];
     }
-    dataSource->_cellRenderObjectViews = [objectSectionViews copy];
-    dataSource.itemViewName = [self.itemViewName copy];
+    dataSource->_shadowCellViews = [objectSectionViews copy];
+    dataSource->_itemViewName = [self.itemViewName copy];
     return dataSource;
 }
 
@@ -89,10 +89,10 @@
         });
         NSArray<HippyShadowView *> *objects = [candidateRenderObjectViews filteredArrayUsingPredicate:prediate];
         if ([objects count]) {
-            _cellRenderObjectViews = [NSArray arrayWithObject:objects];
+            _shadowCellViews = [NSArray arrayWithObject:objects];
         }
         else {
-            _cellRenderObjectViews = nil;
+            _shadowCellViews = nil;
         }
     }
 }
@@ -101,8 +101,8 @@
     return _bannerView;
 }
 
-- (NSArray<NSArray<HippyShadowView *> *> *)cellRenderObjectViews {
-    return [_cellRenderObjectViews copy];
+- (NSArray<NSArray<HippyShadowView *> *> *)shadowCellViews {
+    return [_shadowCellViews copy];
 }
 
 - (HippyShadowView *)cellForIndexPath:(NSIndexPath *)indexPath {
@@ -110,7 +110,7 @@
         return _bannerView;
     }
     else {
-        return [[_cellRenderObjectViews firstObject] objectAtIndex:[indexPath row]];
+        return [[_shadowCellViews firstObject] objectAtIndex:[indexPath row]];
     }
 }
 
@@ -120,16 +120,16 @@
 
 - (NSInteger)numberOfSection {
     NSInteger count = _containBannerView ? 1  : 0;
-    count += [[_cellRenderObjectViews firstObject] count] ? 1 : 0;
+    count += [[_shadowCellViews firstObject] count] ? 1 : 0;
     return count;
 }
 
 - (NSInteger)numberOfCellForSection:(NSInteger)section {
     if (_containBannerView) {
-        return 0 == section ? 1 : [[_cellRenderObjectViews firstObject] count];
+        return 0 == section ? 1 : [[_shadowCellViews firstObject] count];
     }
     else {
-        return [[_cellRenderObjectViews firstObject] count];
+        return [[_shadowCellViews firstObject] count];
     }
 }
 
@@ -139,11 +139,11 @@
     if (_containBannerView) {
         if (_bannerView != cell) {
             section = 1;
-            row = [[_cellRenderObjectViews firstObject] indexOfObject:cell];
+            row = [[_shadowCellViews firstObject] indexOfObject:cell];
         }
     }
     else {
-        row = [[_cellRenderObjectViews firstObject] indexOfObject:cell];
+        row = [[_shadowCellViews firstObject] indexOfObject:cell];
     }
     return [NSIndexPath indexPathForRow:row inSection:section];
 }

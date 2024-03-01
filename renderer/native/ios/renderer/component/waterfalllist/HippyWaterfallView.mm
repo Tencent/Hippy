@@ -38,7 +38,7 @@
 static NSString *kCellIdentifier = @"HippyWaterfallCellIdentifier";
 static NSString *kWaterfallItemName = @"WaterfallItem";
 
-@interface HippyWaterfallView () <HippyInvalidating, NativeRenderRefreshDelegate> {
+@interface HippyWaterfallView () <HippyInvalidating, HippyRefreshDelegate> {
     NSHashTable<id<UIScrollViewDelegate>> *_scrollListeners;
     BOOL _isInitialListReady;
     UIColor *_backgroundColor;

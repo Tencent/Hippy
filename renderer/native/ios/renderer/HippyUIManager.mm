@@ -341,14 +341,17 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 - (void)unregisterRootViewFromTag:(NSNumber *)rootTag {
     AssertMainQueue();
     UIView *rootView = [_viewRegistry rootComponentForTag:rootTag];
+    NSDictionary *userInfo;
     if (rootView) {
         [rootView removeObserver:self forKeyPath:@"frame"];
+        userInfo = @{ HippyUIManagerRootViewKey: rootView, 
+                      HippyUIManagerRootViewTagKey: rootTag };
+    } else {
+        userInfo = @{ HippyUIManagerRootViewTagKey: rootTag };
     }
     std::lock_guard<std::mutex> lock([self renderQueueLock]);
     [_viewRegistry removeRootComponentWithTag:rootTag];
     [_shadowViewRegistry removeRootComponentWithTag:rootTag];
-    
-    NSDictionary *userInfo = @{ HippyUIManagerRootViewKey: rootView, HippyUIManagerRootViewTagKey: rootTag };
     [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerDidRemoveRootViewNotification
                                                         object:self
                                                       userInfo:userInfo];
