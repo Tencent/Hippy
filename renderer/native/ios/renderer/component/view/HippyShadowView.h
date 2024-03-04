@@ -124,7 +124,7 @@ typedef void (^HippyViewInsertionBlock)(UIView *container, NSArray<UIView *> *ch
 
 /**
  * Indicate how we create coresponding UIView
- * HippyCreationTypeInstantly : create views instantly when NativeRenderObject is created
+ * HippyCreationTypeInstantly : create views instantly when HippyShadowView is created
  * HippyCreationTypeLazily: create views when UIView is needed
  */
 @property (nonatomic, assign) HippyCreationType creationType;

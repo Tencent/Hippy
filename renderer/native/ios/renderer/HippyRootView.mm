@@ -160,6 +160,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
                 // Execute loadInstance first and then do call back, maintain compatibility with hippy2
                 dispatch_async(dispatch_get_main_queue(), ^{
                     __strong __typeof(weakSelf)strongSelf = weakSelf;
+                    if (!strongSelf) {
+                        return;
+                    }
                     if (!error && !strongSelf.disableAutoRunApplication) {
                         [strongSelf runHippyApplication];
                     }
@@ -408,7 +411,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder
             strongSelf->_contentHasAppeared = YES;
             // int64_t cost = [strongSelf.bridge.performanceLogger durationForTag:HippyPLTTI];
             [[NSNotificationCenter defaultCenter] postNotificationName:HippyContentDidAppearNotification
-                                                                object:self userInfo:@{
+                                                                object:self.superview userInfo:@{
                 // @"cost": @(cost)
             }];
         }
