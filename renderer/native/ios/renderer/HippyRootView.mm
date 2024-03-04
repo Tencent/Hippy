@@ -29,6 +29,7 @@
 #import "HippyUIManager.h"
 #import "HippyDeviceBaseInfo.h"
 #import "HippyTouchHandler.h"
+#import "HippyJSExecutor.h"
 #include <objc/runtime.h>
 
 // Sent when the first subviews are added to the root view
@@ -231,7 +232,16 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     
     // Register RootView
     [self.bridge setRootView:contentView];
+    // Run Application
     [self.bridge loadInstanceForRootView:self.hippyTag withProperties:self.appProperties];
+    // Call callback if needed
+    if ([self.delegate respondsToSelector:@selector(rootViewRunApplicationFinished:)]) {
+        __weak __typeof(self)weakSelf = self;
+        [self.bridge.javaScriptExecutor executeBlockOnJavaScriptQueue:^{
+            __strong __typeof(weakSelf)strongSelf = weakSelf;
+            [strongSelf.delegate rootViewRunApplicationFinished:strongSelf];
+        }];
+    }
     self.contentView = contentView;
     [self insertSubview:contentView atIndex:0];
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", self.moduleName, self.appProperties);
