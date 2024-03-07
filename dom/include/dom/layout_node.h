@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <functional>
 #include <unordered_map>
 #include "footstone/hippy_value.h"
 

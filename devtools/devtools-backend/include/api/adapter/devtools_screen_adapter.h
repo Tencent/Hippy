@@ -22,6 +22,7 @@
 
 #include <chrono>
 #include <string>
+#include <functional>
 
 namespace hippy::devtools {
 /**
