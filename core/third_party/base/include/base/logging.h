@@ -25,6 +25,7 @@
 #include <codecvt>
 #include <sstream>
 #include <mutex>
+#include <functional>
 
 #include "log_level.h"
 #include "macros.h"
