@@ -80,9 +80,9 @@
     }
     id<HippyImageViewCustomLoader> imageLoader = self.bridge.imageLoader;
     if (imageLoader) {
-        [imageLoader loadImage:imageURL completed:^(NSData *imgData, NSURL *url, NSError *error, BOOL cached) {
-            UIImage *image = [UIImage imageWithData:imgData scale:[UIScreen mainScreen].scale];
-            completionHandler(image, error);
+        [imageLoader loadImage:imageURL completed:^(NSData *imgData, NSURL *url, NSError *error, UIImage *image, BOOL cached) {
+            UIImage *img = image ?: [UIImage imageWithData:imgData scale:[UIScreen mainScreen].scale];
+            completionHandler(img, error);
         }];
     } else {
         if ([uri hasPrefix:@"http://"] || [uri hasPrefix:@"https://"]) {

@@ -40,12 +40,19 @@ typedef void(^HippyImageLoaderCompletionBlock)(NSData *_Nullable data,
                                                UIImage *_Nullable image,
                                                HippyImageCustomLoaderControlOptions options);
 
+typedef void(^HippyImageLoaderLoadURLCompletionBlock)(NSData *_Nullable data,
+                                               NSURL * _Nonnull url,
+                                               NSError *_Nullable error,
+                                               UIImage *_Nullable image,
+                                               BOOL cached);
 
 @protocol HippyImageViewCustomLoader <HippyBridgeModule>
 
 @optional
 
 - (BOOL)canHandleImageURL:(NSURL *)url;
+
++ (NSData *)convertImageToData:(UIImage *)image;
 
 @required
 
@@ -57,7 +64,7 @@ typedef void(^HippyImageLoaderCompletionBlock)(NSData *_Nullable data,
 
 - (void)cancelImageDownload:(UIImageView *)imageView withUrl:(NSURL *)url;
 
-- (void)loadImage:(NSURL *)url completed:(void (^)(NSData *, NSURL *, NSError *, BOOL cached))completedBlock;
+- (void)loadImage:(NSURL *)url completed:(HippyImageLoaderLoadURLCompletionBlock)completedBlock;
 
 @end
 

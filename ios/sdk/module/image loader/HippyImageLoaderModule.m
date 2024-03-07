@@ -71,8 +71,17 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
     };
     
     if (_bridge.imageLoader && [_bridge.imageLoader respondsToSelector: @selector(loadImage:completed:)]) {
-        [_bridge.imageLoader loadImage: source_url completed:^(NSData *data, NSURL *url, NSError *error, BOOL cached) {
-            completedBlock(cached, data, url, error);
+        __weak typeof(self) weakSelf = self;
+        [_bridge.imageLoader loadImage: source_url completed:^(NSData *data, NSURL *url, NSError *error, UIImage *image, BOOL cached) {
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (data) {
+                completedBlock(cached, data, url, error);
+                return;
+            }
+            
+            if (image && [strongSelf.bridge.imageLoader respondsToSelector: @selector(convertImageToData:)]) {
+                completedBlock(cached, [strongSelf.bridge.imageLoader convertImageToData:image], url, error);
+            }
         }];
     } else {
         [[[NSURLSession sharedSession] dataTaskWithURL:source_url completionHandler:^(NSData * _Nullable data, __unused NSURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -104,8 +113,18 @@ HIPPY_EXPORT_METHOD(prefetch:(NSString *)urlString) {
         };
         
         if (_bridge.imageLoader && [_bridge.imageLoader respondsToSelector: @selector(loadImage:completed:)]) {
-            [_bridge.imageLoader loadImage: source_url completed:^(NSData *data, NSURL *url, NSError *error, BOOL cached) {
-                completedBlock(cached, data);
+            __weak typeof(self) weakSelf = self;
+            [_bridge.imageLoader loadImage: source_url completed:^(NSData *data, NSURL *url, NSError *error, UIImage *image, BOOL cached) {
+                __strong typeof(weakSelf) strongSelf = weakSelf;
+                if (data) {
+                    completedBlock(cached, data);
+                    return;
+                }
+                
+                if (image && [strongSelf.bridge.imageLoader respondsToSelector: @selector(convertImageToData:)]) {
+                    completedBlock(cached, [strongSelf.bridge.imageLoader convertImageToData:image]);
+                }
+                
             }];
         } else {
             [[[NSURLSession sharedSession] dataTaskWithURL:source_url completionHandler:^(NSData * _Nullable data, __unused NSURLResponse * _Nullable response, NSError * _Nullable error) {
