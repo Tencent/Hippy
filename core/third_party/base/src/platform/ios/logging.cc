@@ -23,7 +23,6 @@
 #include "base/logging.h"
 
 #include <syslog.h>
-
 #include <algorithm>
 #include <iostream>
 
