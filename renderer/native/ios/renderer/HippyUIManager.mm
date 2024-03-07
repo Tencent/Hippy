@@ -612,7 +612,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     NSString *tagName = [NSString stringWithUTF8String:domNode->GetTagName().c_str()];
     NSMutableDictionary *props = [StylesFromDomNode(domNode) mutableCopy];
     HippyComponentData *componentData = [self componentDataForViewName:viewName];
-    HippyShadowView *renderObject = [componentData createRenderObjectViewWithTag:componentTag];
+    HippyShadowView *renderObject = [componentData createShadowViewWithTag:componentTag];
     renderObject.rootNode = rootNode;
     NSAssert(componentData && renderObject, @"componentData and renderObject must not be nil");
     [props setValue: rootTag forKey: @"rootTag"];

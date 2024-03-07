@@ -238,7 +238,6 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 
 - (void)collectionView:(UICollectionView *)collectionView
        willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-    HippyShadowView *cellRenderObjectView = [self.dataSource cellForIndexPath:indexPath];
     NSInteger index = [self.dataSource flatIndexForIndexPath:indexPath];
     if (self.onRowWillDisplay) {
         self.onRowWillDisplay(@{
