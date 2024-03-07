@@ -69,7 +69,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
   protected int mScrollEventThrottle = 10;
   private long mLastScrollEventTimeStamp = -1;
   private boolean mHasUnsentScrollEvent;
-
+  private int mScrollRange = 0;
   protected int mScrollMinOffset = 0;
   private int startScrollX = 0;
   private int mLastX = 0;
@@ -484,7 +484,15 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 
   @Override
   public void scrollToInitContentOffset() {
+    int scrollRange = mScrollRange;
+    View firstChild = getChildAt(0);
+    if (firstChild != null) {
+      mScrollRange = firstChild.getWidth();
+    }
     if (hasCompleteFirstBatch) {
+      if (mScrollRange < scrollRange) {
+        scrollTo(getScrollX(), getScrollY());
+      }
       return;
     }
 

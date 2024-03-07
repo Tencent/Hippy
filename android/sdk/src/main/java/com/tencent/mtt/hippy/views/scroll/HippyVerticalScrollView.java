@@ -67,6 +67,7 @@ public class HippyVerticalScrollView extends NestedScrollView implements HippyVi
   private boolean mHasUnsentScrollEvent;
 
   protected int mScrollMinOffset = 0;
+  private int mScrollRange = 0;
   private int startScrollY = 0;
   private int mLastY = 0;
   private int initialContentOffset = 0;
@@ -352,7 +353,15 @@ public class HippyVerticalScrollView extends NestedScrollView implements HippyVi
 
   @Override
   public void scrollToInitContentOffset() {
+    int scrollRange = mScrollRange;
+    View firstChild = getChildAt(0);
+    if (firstChild != null) {
+      mScrollRange = firstChild.getHeight();
+    }
     if (hasCompleteFirstBatch) {
+      if (mScrollRange < scrollRange) {
+        scrollTo(getScrollX(), getScrollY());
+      }
       return;
     }
 
