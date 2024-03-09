@@ -66,6 +66,41 @@ HIPPY_EXPORT_MODULE(defaultImageProvider)
     return self;
 }
 
+- (UIImage *)preparedImage{
+    UIImage *img = [self image];
+    if (img.CGImage == nil){
+        return nil;
+    }
+    
+    // prepareForDisplayWithCompletionHandler support jpeg and heif only
+    if(@available(iOS 15.0, *)){
+        CFStringRef ut = CGImageGetUTType(img.CGImage);
+        if(ut == nil){
+            return img;
+        }
+        
+        if(kCFCompareEqualTo == CFStringCompare(ut, kUTTypeJPEG, 0) ||
+           kCFCompareEqualTo == CFStringCompare(ut, (__bridge CFStringRef)@"public.heif", 0)){
+            UIImage * prepared = [img imageByPreparingForDisplay];
+            if (prepared){
+                return prepared;
+            }
+        }
+    }
+    
+    UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc]
+                                         initWithSize:img.size
+                                         format:[UIGraphicsImageRendererFormat preferredFormat]];
+    UIImage *prepared = [renderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
+        [img drawAtPoint:CGPointZero];
+    }];
+    if(prepared){
+        return prepared;
+    }
+    
+    return img;
+}
+
 - (UIImage *)image {
     if (nil == _image) {
         if (_data) {

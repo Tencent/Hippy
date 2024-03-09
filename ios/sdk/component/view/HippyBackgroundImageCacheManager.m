@@ -48,6 +48,10 @@
     return NO;
 }
 
+- (dispatch_queue_t)imageQueue{
+    return dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0);
+}
+
 - (void)imageWithUrl:(NSString *)uri completionHandler:(HippyBackgroundImageCompletionHandler)completionHandler {
     if (!completionHandler) {
         return;
@@ -65,17 +69,20 @@
     }
     if ([HippyBridge isHippyLocalFileURLString:uri]) {
         NSString *localPath = [self.bridge absoluteStringFromHippyLocalFileURLString:uri];
-        BOOL isDirectory = NO;
-        BOOL fileExist = [[NSFileManager defaultManager] fileExistsAtPath:localPath isDirectory:&isDirectory];
-        if (fileExist && !isDirectory) {
-            NSData *imageData = [NSData dataWithContentsOfFile:localPath];
-            UIImage *image = [UIImage imageWithData:imageData scale:[UIScreen mainScreen].scale];
-            completionHandler(image, nil);
-        }
-        else {
-            NSString *errorString = [NSString stringWithFormat:@"file not exists in path %@", uri];
-            completionHandler(nil, HippyErrorWithMessage(errorString));
-        }
+        dispatch_async([self imageQueue], ^{
+            BOOL isDirectory = NO;
+            BOOL fileExist = [[NSFileManager defaultManager] fileExistsAtPath:localPath isDirectory:&isDirectory];
+            if (fileExist && !isDirectory) {
+                NSData *imageData = [NSData dataWithContentsOfFile:localPath];
+                UIImage *image = [UIImage imageWithData:imageData scale:[UIScreen mainScreen].scale];
+                completionHandler(image, nil);
+            }
+            else {
+                NSString *errorString = [NSString stringWithFormat:@"file not exists in path %@", uri];
+                completionHandler(nil, HippyErrorWithMessage(errorString));
+            }
+        });
+
         return;
     }
     id<HippyImageViewCustomLoader> imageLoader = self.bridge.imageLoader;
@@ -85,14 +92,16 @@
             completionHandler(image, error);
         }];
     } else {
-        if ([uri hasPrefix:@"http://"] || [uri hasPrefix:@"https://"]) {
-            [self loadHTTPURL:imageURL completionHandler:completionHandler];
-        } else if ([uri hasPrefix:@"data:image/"]) {
-            [self loadBase64URL:imageURL completionHandler:completionHandler];
-        }
-        else {
-            completionHandler(nil, nil);
-        }
+        dispatch_async([self imageQueue], ^{
+            if ([uri hasPrefix:@"http://"] || [uri hasPrefix:@"https://"]) {
+                [self loadHTTPURL:imageURL completionHandler:completionHandler];
+            } else if ([uri hasPrefix:@"data:image/"]) {
+                [self loadBase64URL:imageURL completionHandler:completionHandler];
+            }
+            else {
+                completionHandler(nil, nil);
+            }
+        });
     }
 }
 
