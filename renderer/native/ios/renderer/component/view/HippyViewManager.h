@@ -22,11 +22,16 @@
 
 #import <UIKit/UIKit.h>
 #import "HippyConvert.h"
-#import "NativeRenderDefines.h"
 #import "HippyBridgeModule.h"
 
 @class HippyBridge;
 @class HippyShadowView;
+@class HippyUIManager;
+
+
+typedef void (^HippyViewManagerUIBlock)(HippyUIManager *uiManager,
+                                        NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry);
+
 
 @interface HippyViewManager : NSObject <HippyBridgeModule>
 
@@ -72,7 +77,7 @@
  * This handles the simple case, where JS and native property names match.
  */
 #define HIPPY_EXPORT_VIEW_PROPERTY(name, type)  \
-    typedef type HippyTypeExistCheck##type;     \
+    typedef type HIPPY_CONCAT(HippyTypeExistCheck, __COUNTER__);     \
     +(NSArray<NSString *> *)propConfig_##name { \
         return @[@ #type];                      \
     }

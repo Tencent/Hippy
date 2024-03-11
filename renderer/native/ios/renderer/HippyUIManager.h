@@ -22,18 +22,45 @@
 
 #import <UIKit/UIKit.h>
 #import "HippyBridge.h"
+#import "HippyViewManager.h"
 #import "HippyInvalidating.h"
-#import "NativeRenderDefines.h"
 #import "HippyBridgeModule.h"
 #import "HippyCustomTouchHandlerProtocol.h"
 
-@class NativeRenderAnimationViewParams;
 @class HippyShadowView;
 @class HippyUIManager;
 @class HippyViewManager;
-@class NativeRenderReusePool;
 @class HippyComponentMap;
 @protocol HippyImageProviderProtocol;
+
+
+/**
+ * Posted whenever a new root view is registered with HippyUIManager. The userInfo property
+ * will contain a HippyUIManagerRootViewKey with the registered root view.
+ */
+HIPPY_EXTERN NSString *const HippyUIManagerDidRegisterRootViewNotification;
+
+/**
+ * Posted whenever a root view is removed from the HippyUIManager. The userInfo property
+ * will contain a HippyUIManagerRootViewKey with the removed root view.
+ */
+HIPPY_EXTERN NSString *const HippyUIManagerDidRemoveRootViewNotification;
+
+/**
+ * Key for the root view in the above notifications
+ */
+HIPPY_EXTERN NSString *const HippyUIManagerRootViewKey;
+
+/**
+ * Key for the root view's HippyTag in the above notifications
+ */
+HIPPY_EXTERN NSString *const HippyUIManagerRootViewTagKey;
+
+/**
+ * Posted whenever endBatch is called
+ */
+HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
+
 
 
 /// The HippyUIManager responsible for updating the view hierarchy.

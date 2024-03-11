@@ -122,7 +122,7 @@ static NSArray<NSString *> *fontNamesForFamilyName(NSString *familyName)
                  scaleMultiplier:1];
 }
 
-HP_ENUM_CONVERTER(NativeRenderFontWeight, (@{
+HIPPY_ENUM_CONVERTER(NativeRenderFontWeight, (@{
     @"normal": @(UIFontWeightRegular),
     @"bold": @(UIFontWeightBold),
     @"100": @(UIFontWeightUltraLight),
@@ -138,7 +138,7 @@ HP_ENUM_CONVERTER(NativeRenderFontWeight, (@{
     UIFontWeightRegular, doubleValue)
 
 typedef BOOL NativeRenderFontStyle;
-HP_ENUM_CONVERTER(NativeRenderFontStyle, (@{
+HIPPY_ENUM_CONVERTER(NativeRenderFontStyle, (@{
     @"normal": @NO,
     @"italic": @YES,
     @"oblique": @YES,
@@ -181,7 +181,7 @@ typedef NSDictionary NativeRenderFontVariantDescriptor;
     return value;
 }
 
-HP_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
+HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
 @end
 
 

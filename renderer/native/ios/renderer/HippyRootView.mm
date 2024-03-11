@@ -24,7 +24,6 @@
 #import "HippyAssert.h"
 #import "HippyView.h"
 #import "UIView+Hippy.h"
-#import "NativeRenderDefines.h"
 #import "HippyInvalidating.h"
 #import "HippyBridge.h"
 #import "HippyUIManager.h"

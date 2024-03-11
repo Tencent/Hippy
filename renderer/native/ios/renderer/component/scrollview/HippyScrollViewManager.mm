@@ -28,7 +28,7 @@
 
 @implementation HippyConvert (UIScrollView)
 
-HP_ENUM_CONVERTER(UIScrollViewKeyboardDismissMode, (@{
+HIPPY_ENUM_CONVERTER(UIScrollViewKeyboardDismissMode, (@{
     @"none": @(UIScrollViewKeyboardDismissModeNone),
     @"on-drag": @(UIScrollViewKeyboardDismissModeOnDrag),
     @"interactive": @(UIScrollViewKeyboardDismissModeInteractive),
@@ -37,7 +37,7 @@ HP_ENUM_CONVERTER(UIScrollViewKeyboardDismissMode, (@{
 }),
     UIScrollViewKeyboardDismissModeNone, integerValue)
 
-HP_ENUM_CONVERTER(UIScrollViewIndicatorStyle, (@{
+HIPPY_ENUM_CONVERTER(UIScrollViewIndicatorStyle, (@{
     @"default": @(UIScrollViewIndicatorStyleDefault),
     @"black": @(UIScrollViewIndicatorStyleBlack),
     @"white": @(UIScrollViewIndicatorStyleWhite),
