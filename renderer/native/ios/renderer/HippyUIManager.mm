@@ -341,14 +341,17 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 - (void)unregisterRootViewFromTag:(NSNumber *)rootTag {
     AssertMainQueue();
     UIView *rootView = [_viewRegistry rootComponentForTag:rootTag];
+    NSDictionary *userInfo;
     if (rootView) {
         [rootView removeObserver:self forKeyPath:@"frame"];
+        userInfo = @{ HippyUIManagerRootViewKey: rootView, 
+                      HippyUIManagerRootViewTagKey: rootTag };
+    } else {
+        userInfo = @{ HippyUIManagerRootViewTagKey: rootTag };
     }
     std::lock_guard<std::mutex> lock([self renderQueueLock]);
     [_viewRegistry removeRootComponentWithTag:rootTag];
     [_shadowViewRegistry removeRootComponentWithTag:rootTag];
-    
-    NSDictionary *userInfo = @{ HippyUIManagerRootViewKey: rootView, HippyUIManagerRootViewTagKey: rootTag };
     [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerDidRemoveRootViewNotification
                                                         object:self
                                                       userInfo:userInfo];
@@ -609,7 +612,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     NSString *tagName = [NSString stringWithUTF8String:domNode->GetTagName().c_str()];
     NSMutableDictionary *props = [StylesFromDomNode(domNode) mutableCopy];
     HippyComponentData *componentData = [self componentDataForViewName:viewName];
-    HippyShadowView *renderObject = [componentData createRenderObjectViewWithTag:componentTag];
+    HippyShadowView *renderObject = [componentData createShadowViewWithTag:componentTag];
     renderObject.rootNode = rootNode;
     NSAssert(componentData && renderObject, @"componentData and renderObject must not be nil");
     [props setValue: rootTag forKey: @"rootTag"];

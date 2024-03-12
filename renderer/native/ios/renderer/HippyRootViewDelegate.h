@@ -34,6 +34,11 @@
 - (void)rootView:(HippyRootView *)rootView didLoadFinish:(BOOL)success;
 
 /**
+ * Called after the JSAPI runApplication finished.
+ */
+- (void)rootViewRunApplicationFinished:(HippyRootView *)rootView;
+
+/**
  * Called when rootview dealloc.
  */
 - (void)rootViewWillBePurged:(HippyRootView *)rootView;

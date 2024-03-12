@@ -44,7 +44,7 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
  */
 @interface HippyWaterfallView : NativeRenderTouchesView <UICollectionViewDataSource, UICollectionViewDelegate,
                                         HippyCollectionViewDelegateWaterfallLayout, HippyScrollableProtocol,
-                                        HippyListTableViewLayoutProtocol, HippyScrollProtocol> {
+                                        HippyNextListTableViewLayoutProtocol, HippyScrollProtocol> {
 @protected
     HippyWaterfallViewDataSource *_dataSource;
     

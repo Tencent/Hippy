@@ -24,24 +24,48 @@
 #import "HippyComponent.h"
 #import "HippyViewManager.h"
 
-@class HippyShadowView, HippyViewManager;
+@class HippyShadowView;
 @class UIView;
 
 @interface HippyComponentData : NSObject
 
 @property (nonatomic, readonly) Class managerClass;
+/// The viewName
 @property (nonatomic, copy, readonly) NSString *name;
+/// The corresponding viewManager
 @property (nonatomic, weak, readonly) HippyViewManager *manager;
 
+/// Init method
+/// - Parameters:
+///   - viewManager: the corresponding viewManager
+///   - viewName: name
 - (instancetype)initWithViewManager:(HippyViewManager *)viewManager viewName:(NSString *)viewName;
 
+/// Create a view with the given HippyTag.
+/// - Parameter tag: HippyTag
 - (UIView *)createViewWithTag:(NSNumber *)tag;
 
+/// Similar to createViewWithTag, but with initialization props.
+/// - Parameters:
+///   - tag: hippyTag
+///   - props: initial props
 - (UIView *)createViewWithTag:(NSNumber *)tag initProps:(NSDictionary *)props;
 
-- (HippyShadowView *)createRenderObjectViewWithTag:(NSNumber *)tag;
+/// Create a shadowView with a given tag.
+/// - Parameter tag: hippyTag
+- (HippyShadowView *)createShadowViewWithTag:(NSNumber *)tag;
+
+/// Set props for given view.
+/// - Parameters:
+///   - props: dictionary object
+///   - view: UIView object
 - (void)setProps:(NSDictionary<NSString *, id> *)props forView:(id<HippyComponent>)view;
-- (void)setProps:(NSDictionary<NSString *, id> *)props forShadowView:(HippyShadowView *)renderObject;
+
+/// Set props for given shadowView.
+/// - Parameters:
+///   - props: dictionary object
+///   - shadowView: shadowView object
+- (void)setProps:(NSDictionary<NSString *, id> *)props forShadowView:(HippyShadowView *)shadowView;
 
 - (NSDictionary<NSString *, NSString *> *)eventNameMap;
 

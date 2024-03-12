@@ -28,7 +28,7 @@
 
 @class HippyNextBaseListViewCell;
 
-@interface HippyNextBaseListView : HippyWaterfallView <HippyListTableViewLayoutProtocol>
+@interface HippyNextBaseListView : HippyWaterfallView <HippyNextListTableViewLayoutProtocol>
 
 /**
  * Hippy events

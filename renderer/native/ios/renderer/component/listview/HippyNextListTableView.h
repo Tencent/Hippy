@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class HippyNextListTableView;
 
-@protocol HippyListTableViewLayoutProtocol <NSObject>
+@protocol HippyNextListTableViewLayoutProtocol <NSObject>
 
 /**
  * Invoke when HippyNextListTableView layout its subviews
@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface HippyNextListTableView : UICollectionView
 
-@property (nonatomic, weak) id<HippyListTableViewLayoutProtocol> layoutDelegate;
+@property (nonatomic, weak) id<HippyNextListTableViewLayoutProtocol> layoutDelegate;
 
 @end
 

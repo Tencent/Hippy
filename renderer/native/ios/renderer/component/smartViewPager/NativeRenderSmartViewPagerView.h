@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class HippyNextBaseListViewCell;
 
-@interface NativeRenderSmartViewPagerView : HippyWaterfallView <HippyListTableViewLayoutProtocol>
+@interface NativeRenderSmartViewPagerView : HippyWaterfallView <HippyNextListTableViewLayoutProtocol>
 
 /**
  * Hippy events
