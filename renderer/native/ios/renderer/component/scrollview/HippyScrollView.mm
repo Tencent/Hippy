@@ -233,7 +233,7 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     if (view == _contentView && 0 == atIndex) {
         return;
     }
-    NSAssert(0 == atIndex, @"NativeRenderScrollView only contain one subview at index 0");
+    NSAssert(0 == atIndex, @"HippyScrollView only contain one subview at index 0");
     if (_contentView) {
         [self removeHippySubview:_contentView];
     }
@@ -327,7 +327,7 @@ static inline BOOL CGPointIsNull(CGPoint point) {
         _scrollView.frame = self.bounds;
         if (CGRectGetWidth(originFrame) > 0) {
             NSInteger currIndex = _scrollView.contentOffset.x / CGRectGetWidth(originFrame);
-            //解决NativeRenderScrollView横竖屏切换时 didScrollView没有回调onScroll的问题
+            // 解决HippyScrollView横竖屏切换时 didScrollView没有回调onScroll的问题
             _allowNextScrollNoMatterWhat = YES;
             _scrollView.contentOffset = CGPointMake(currIndex * CGRectGetWidth(_scrollView.frame), 0);
         }

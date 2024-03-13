@@ -27,8 +27,8 @@
 #import "HippyTurboModule.h"
 #import "HippyLog.h"
 #import "HippyUtils.h"
+#import <objc/runtime.h>
 
-#include "objc/runtime.h"
 
 static NSMutableArray<Class> *HippyModuleClasses;
 NSArray<Class> *HippyGetModuleClasses(void) {
@@ -129,13 +129,14 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
     NSArray<Class> *_moduleClassesByID;
 }
 
-@property(readwrite, assign) BOOL moduleSetupComplete;
+@property(readwrite, assign) BOOL isModuleSetupComplete;
 
 @end
 
 @implementation HippyModulesSetup
 
-- (instancetype)initWithBridge:(HippyBridge *)bridge extraProviderModulesBlock:(HippyBridgeModuleProviderBlock)moduleProvider {
+- (instancetype)initWithBridge:(HippyBridge *)bridge 
+     extraProviderModulesBlock:(HippyBridgeModuleProviderBlock)moduleProvider {
     self = [super init];
     if (self) {
         _bridge = bridge;
@@ -145,18 +146,14 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
 }
 
 - (void)invalidate {
-    
-}
-
-- (void)dealloc {
-    
+    // do nothing
 }
 
 - (HippyBridgeModuleProviderBlock)moduleProvider {
     return [_providerBlock copy];
 }
 
-- (void)setupModulesCompletion:(dispatch_block_t)completion {
+- (void)setupModulesWithCompletionBlock:(dispatch_block_t)completion {
     HippyLogInfo(@"Begin Modules Setup");
     NSArray<id<HippyBridgeModule>> *extraModules = _providerBlock ? _providerBlock() : @[];
 #if HIPPY_DEBUG
@@ -165,8 +162,8 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
         HippyVerifyAllModulesExported(extraModules);
     });
 #endif //HIPPY_DEBUG
-    NSMutableArray<Class> *moduleClassesByID = [NSMutableArray new];
-    NSMutableArray<HippyModuleData *> *moduleDataByID = [NSMutableArray new];
+    NSMutableArray<Class> *moduleClasses = [NSMutableArray new];
+    NSMutableArray<HippyModuleData *> *moduleDataArr = [NSMutableArray new];
     NSMutableDictionary<NSString *, HippyModuleData *> *moduleDataByName = [NSMutableDictionary new];
 
     for (id<HippyBridgeModule> extraModule in extraModules) {
@@ -185,8 +182,8 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
         // Instantiate moduleData container
         HippyModuleData *moduleData = [[HippyModuleData alloc] initWithModuleInstance:extraModule bridge:_bridge];
         moduleDataByName[moduleName] = moduleData;
-        [moduleClassesByID addObject:moduleClass];
-        [moduleDataByID addObject:moduleData];
+        [moduleClasses addObject:moduleClass];
+        [moduleDataArr addObject:moduleData];
     }
     for (Class moduleClass in HippyGetModuleClasses()) {
         NSString *moduleName = HippyBridgeModuleNameForClass(moduleClass);
@@ -211,15 +208,15 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
         // Instantiate moduleData (TODO: can we defer this until config generation?)
         moduleData = [[HippyModuleData alloc] initWithModuleClass:moduleClass bridge:_bridge];
         moduleDataByName[moduleName] = moduleData;
-        [moduleClassesByID addObject:moduleClass];
-        [moduleDataByID addObject:moduleData];
+        [moduleClasses addObject:moduleClass];
+        [moduleDataArr addObject:moduleData];
     }
     // Store modules
-    _moduleDataByID = [moduleDataByID copy];
+    _moduleDataByID = [moduleDataArr copy];
     _moduleDataByName = [moduleDataByName copy];
-    _moduleClassesByID = [moduleClassesByID copy];
+    _moduleClassesByID = [moduleClasses copy];
     [self prepareModules];
-    self.moduleSetupComplete = YES;
+    self.isModuleSetupComplete = YES;
     HippyLogInfo(@"End Modules Setup");
     if (completion) {
         completion();
@@ -277,7 +274,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
     return [self moduleForName:HippyBridgeModuleNameForClass(cls)];
 }
 
-- (BOOL)moduleIsInitialized:(Class)moduleClass {
+- (BOOL)isModuleInitialized:(Class)moduleClass {
     HippyModuleData *module = _moduleDataByName[HippyBridgeModuleNameForClass(moduleClass)];
     return module.hasInstance;
 }
