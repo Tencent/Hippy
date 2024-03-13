@@ -360,7 +360,7 @@ dispatch_queue_t HippyBridgeQueue() {
 }
 
 - (BOOL)moduleIsInitialized:(Class)moduleClass {
-    return [_moduleSetup moduleIsInitialized:moduleClass];
+    return [_moduleSetup isModuleInitialized:moduleClass];
 }
 
 
@@ -412,7 +412,7 @@ dispatch_queue_t HippyBridgeQueue() {
         _displayLink = [[HippyDisplayLink alloc] init];
 
         // Setup all extra and internal modules
-        [_moduleSetup setupModulesCompletion:^{
+        [_moduleSetup setupModulesWithCompletionBlock:^{
             HippyBridge *strongSelf = weakSelf;
             if (strongSelf) {
                 dispatch_semaphore_signal(strongSelf.moduleSemaphore);
@@ -942,7 +942,7 @@ dispatch_queue_t HippyBridgeQueue() {
 }
 
 - (BOOL)moduleSetupComplete {
-    return _moduleSetup.moduleSetupComplete;
+    return _moduleSetup.isModuleSetupComplete;
 }
 
 - (void)invalidate {

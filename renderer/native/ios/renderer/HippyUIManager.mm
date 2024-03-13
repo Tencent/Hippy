@@ -65,9 +65,9 @@ using DomEvent = hippy::DomEvent;
 using RootNode = hippy::RootNode;
 
 static NSMutableArray<Class> *HippyViewManagerClasses = nil;
-NSArray<Class> *HippyGetViewManagerClasses(void) {
+NSArray<Class> *HippyGetViewManagerClasses(HippyBridge *bridge) {
     if (!HippyViewManagerClasses) {
-        NSArray<Class> *classes = HippyGetModuleClasses();
+        NSArray<Class> *classes = bridge.moduleClasses;
         NSMutableArray<Class> *viewManagerClasses = [NSMutableArray array];
         for (id aClass in classes) {
             if ([aClass isSubclassOfClass:HippyViewManager.class]) {
@@ -79,7 +79,7 @@ NSArray<Class> *HippyGetViewManagerClasses(void) {
     return HippyViewManagerClasses;
 }
 
-static NSString *GetViewNameFromViewManagerClass(Class cls) {
+static NSString *viewNameFromViewManagerClass(Class cls) {
     HippyAssert([cls respondsToSelector:@selector(moduleName)],
                 @"%@ must respond to selector moduleName", NSStringFromClass(cls));
     NSString *viewName = [cls performSelector:@selector(moduleName)];
@@ -221,7 +221,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     _viewRegistry.requireInMainThread = YES;
     _pendingUIBlocks = [NSMutableArray new];
     _componentTransactionListeners = [NSHashTable weakObjectsHashTable];
-    _componentDataByName = [NSMutableDictionary dictionaryWithCapacity:64];
+    _componentDataByName = [NSMutableDictionary dictionary];
     HippyScreenScale();
     HippyScreenSize();
 }
@@ -289,7 +289,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     if (viewName) {
         HippyComponentData *componentData = _componentDataByName[viewName];
         if (!componentData) {
-            HippyViewManager *viewManager = [self renderViewManagerForViewName:viewName];
+            HippyViewManager *viewManager = [self viewManagerForViewName:viewName];
             NSAssert(viewManager, @"No view manager found for %@", viewName);
             if (viewManager) {
                 componentData = [[HippyComponentData alloc] initWithViewManager:viewManager viewName:viewName];
@@ -650,14 +650,14 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     }];
 }
 
-#pragma mark Render Context Implementation
+#pragma mark - Render Context Implementation
 
-- (__kindof HippyViewManager *)renderViewManagerForViewName:(NSString *)viewName {
+- (__kindof HippyViewManager *)viewManagerForViewName:(NSString *)viewName {
     if (!_viewManagers) {
-        _viewManagers = [NSMutableDictionary dictionaryWithCapacity:64];
+        _viewManagers = [NSMutableDictionary dictionary];
         if (_extraComponents) {
             for (Class cls in _extraComponents) {
-                NSString *viewName = GetViewNameFromViewManagerClass(cls);
+                NSString *viewName = viewNameFromViewManagerClass(cls);
                 HippyAssert(![_viewManagers objectForKey:viewName],
                          @"duplicated component %@ for class %@ and %@", viewName,
                          NSStringFromClass(cls),
@@ -665,10 +665,10 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
                 [_viewManagers setObject:cls forKey:viewName];
             }
         }
-        NSArray<Class> *classes = HippyGetViewManagerClasses();
+        NSArray<Class> *classes = HippyGetViewManagerClasses(self.bridge);
         NSMutableDictionary *defaultViewManagerClasses = [NSMutableDictionary dictionaryWithCapacity:[classes count]];
         for (Class cls in classes) {
-            NSString *viewName = GetViewNameFromViewManagerClass(cls);
+            NSString *viewName = viewNameFromViewManagerClass(cls);
             if ([_viewManagers objectForKey:viewName]) {
                 continue;
             }
@@ -676,11 +676,12 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
         }
         [_viewManagers addEntriesFromDictionary:defaultViewManagerClasses];
     }
+    // Get and instantiate the class
     id object = [_viewManagers objectForKey:viewName];
     if (object_isClass(object)) {
         HippyViewManager *viewManager = [object new];
         viewManager.bridge = self.bridge;
-        NSAssert([viewManager isKindOfClass:[HippyViewManager class]], @"It must be a HippyViewManager instance");
+        NSAssert([viewManager isKindOfClass:[HippyViewManager class]], @"Must be a HippyViewManager instance");
         [_viewManagers setObject:viewManager forKey:viewName];
         object = viewManager;
     }
@@ -1105,7 +1106,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     }
     NSString *nativeModuleName = [NSString stringWithUTF8String:viewName.c_str()];
 
-    HippyViewManager *viewManager = [self renderViewManagerForViewName:nativeModuleName];
+    HippyViewManager *viewManager = [self viewManagerForViewName:nativeModuleName];
     HippyComponentData *componentData = [self componentDataForViewName:nativeModuleName];
     NSValue *selectorPointer = [componentData.methodsByName objectForKey:name];
     SEL selector = (SEL)[selectorPointer pointerValue];
