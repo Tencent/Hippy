@@ -64,7 +64,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
 
     @Override
     public void onViewDestroy(HRW viewGroup) {
-        ((HRW) viewGroup).getRecyclerView().onDestroy();
+        ((HRW) viewGroup).onDestroy();
     }
 
     @Override
@@ -84,8 +84,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
      */
     @Override
     protected void deleteChild(ViewGroup parentView, View childView) {
-        super.deleteChild(parentView, childView);
-        ((HRW) parentView).getRecyclerView().disableRecycle(childView);
+        ((HRW) parentView).getRecyclerView().deleteChild(childView);
     }
 
     @Override
@@ -102,6 +101,11 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     }
 
     @Override
+    public boolean isRecyclable() {
+        return false;
+    }
+
+    @Override
     protected View createViewImpl(Context context) {
         return createViewImpl(context, null);
     }
@@ -115,6 +119,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     protected HippyRecyclerView initDefault(@NonNull Context context,
             @Nullable Map<String, Object> props, HippyRecyclerView recyclerView) {
         LinearLayoutManager layoutManager = new HippyLinearLayoutManager(context);
+        layoutManager.setItemPrefetchEnabled(false);
         recyclerView.setItemAnimator(null);
         boolean enableOverPull = true;
         boolean hasStableIds = true;
