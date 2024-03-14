@@ -142,6 +142,10 @@ public class HippyRecyclerViewWrapper<HRCV extends HippyRecyclerView> extends Fr
         recyclerView.onBatchComplete();
     }
 
+    public void onDestroy() {
+        recyclerView.onDestroy();
+    }
+
     @Override
     public void setNestedScrollPriority(int direction, Priority priority) {
         recyclerView.setNestedScrollPriority(direction, priority);
