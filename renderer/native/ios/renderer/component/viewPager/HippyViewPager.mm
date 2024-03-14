@@ -87,7 +87,7 @@
 
 - (void)insertHippySubview:(UIView *)view atIndex:(NSInteger)atIndex {
     if (atIndex > self.viewPagerItems.count) {
-        HippyLogWarn(@"Error In NativeRenderViewPager: addSubview —— out of bound of array");
+        HippyLogWarn(@"Error In HippyViewPager: addSubview —— out of bound of array");
         return;
     }
     if (atIndex < [self.viewPagerItems count]) {
@@ -413,14 +413,14 @@
     }
 
     if (self.initialPage >= self.viewPagerItems.count) {
-        HippyLogWarn(@"Error In NativeRenderViewPager: layoutSubviews");
+        HippyLogWarn(@"Error In HippyViewPager: layoutSubviews");
         self.contentSize = CGSizeZero;
         return;
     }
 
     UIView *lastViewPagerItem = self.viewPagerItems.lastObject;
     if (!lastViewPagerItem) {
-        HippyLogWarn(@"Error In NativeRenderViewPager: addSubview");
+        HippyLogWarn(@"Error In HippyViewPager: addSubview");
         self.contentSize = CGSizeZero;
         return;
     }
