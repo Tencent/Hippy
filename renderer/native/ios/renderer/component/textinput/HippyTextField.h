@@ -25,15 +25,15 @@
 #import "HippyComponent.h"
 #import "HippyBaseTextInput.h"
 
-@protocol NativeRenderUITextFieldResponseDelegate <NSObject>
+@protocol HippyUITextFieldResponseDelegate <NSObject>
 @required
 - (void)textview_becomeFirstResponder;
 - (void)textview_resignFirstResponder;
 @end
 
-@interface NativeRenderUITextField : UITextField
+@interface HippyUITextField : UITextField
 @property (nonatomic, assign) BOOL textWasPasted;
-@property (nonatomic, weak) id<NativeRenderUITextFieldResponseDelegate> responderDelegate;
+@property (nonatomic, weak) id<HippyUITextFieldResponseDelegate> responderDelegate;
 
 @property (nonatomic, copy) HippyDirectEventBlock onBlur;
 @property (nonatomic, copy) HippyDirectEventBlock onFocus;

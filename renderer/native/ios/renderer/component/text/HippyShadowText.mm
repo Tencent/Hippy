@@ -28,7 +28,7 @@
 #import "HippyShadowView+Internal.h"
 #import "HippyText.h"
 #import "HippyTextView.h"
-#import "NativeRenderUtils.h"
+#import "HippyRenderUtils.h"
 
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
@@ -258,15 +258,15 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                                                                   effectiveRange:nil
                                                          withoutAdditionalLayout:YES];
                 CGPoint location = [layoutManager locationForGlyphAtIndex:range.location];
-                CGFloat roundedHeight = NativeRenderRoundPixelValue(height);
-                CGFloat roundedWidth = NativeRenderRoundPixelValue(width);
+                CGFloat roundedHeight = HippyRoundPixelValue(height);
+                CGFloat roundedWidth = HippyRoundPixelValue(width);
                 
                 // take margin into account
                 // FIXME: margin currently not working, may have some bug in layout process
                 float left = 0;
                 float top = 0;
                 float marginV = child.nodeLayoutResult.marginTop + child.nodeLayoutResult.marginBottom;
-                CGFloat roundedHeightWithMargin = NativeRenderRoundPixelValue(height + marginV);
+                CGFloat roundedHeightWithMargin = HippyRoundPixelValue(height + marginV);
                 
                 CGFloat positionY = .0f;
                 NSNumber *verticalAlignType = [textStorage attribute:HippyTextVerticalAlignAttributeName
@@ -301,7 +301,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                                                     textFrame.origin.y + positionY + top,
                                                     roundedWidth, roundedHeight);
                 CGRect childFrame = child.frame;
-                if (!NativeRenderCGRectNearlyEqual(childFrame, childFrameToSet)) {
+                if (!HippyCGRectNearlyEqual(childFrame, childFrameToSet)) {
                     [child setLayoutFrame:childFrameToSet dirtyPropagation:NO];
                 }
             }
@@ -771,7 +771,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     }
 
     // Vertically center draw position for new text sizing.
-    frame.origin.y = self.paddingAsInsets.top + NativeRenderRoundPixelValue((CGRectGetHeight(frame) - requiredSize.height) / 2.0f);
+    frame.origin.y = self.paddingAsInsets.top + HippyRoundPixelValue((CGRectGetHeight(frame) - requiredSize.height) / 2.0f);
     return frame;
 }
 

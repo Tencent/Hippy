@@ -21,7 +21,7 @@
  */
 
 #import "HippyShadowListView.h"
-#import "NativeRenderWaterfallView.h"
+#import "HippyWaterfallView.h"
 #import "HippyAssert.h"
 
 @interface WaterfallItemChangeContext () {
@@ -152,8 +152,8 @@
 
 - (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex {
     [super insertHippySubview:subview atIndex:atIndex];
-    if ([subview isKindOfClass:[NativeRenderObjectWaterfallItem class]]) {
-        NativeRenderObjectWaterfallItem *objectItem = (NativeRenderObjectWaterfallItem *)subview;
+    if ([subview isKindOfClass:[HippyShadowWaterfallItem class]]) {
+        HippyShadowWaterfallItem *objectItem = (HippyShadowWaterfallItem *)subview;
         objectItem.observer = self;
     }
     [_itemChangeContext appendAddedItem:subview];
@@ -161,8 +161,8 @@
 
 - (void)removeHippySubview:(HippyShadowView *)subview {
     [super removeHippySubview:subview];
-    if ([subview isKindOfClass:[NativeRenderObjectWaterfallItem class]]) {
-        NativeRenderObjectWaterfallItem *objectItem = (NativeRenderObjectWaterfallItem *)subview;
+    if ([subview isKindOfClass:[HippyShadowWaterfallItem class]]) {
+        HippyShadowWaterfallItem *objectItem = (HippyShadowWaterfallItem *)subview;
         objectItem.observer = nil;
     }
     [_itemChangeContext appendDeletedItem:subview];
@@ -173,7 +173,7 @@
     [_itemChangeContext appendMovedItem:subview];
 }
 
-- (void)itemFrameChanged:(__kindof NativeRenderObjectWaterfallItem *)item {
+- (void)itemFrameChanged:(__kindof HippyShadowWaterfallItem *)item {
     [_itemChangeContext appendFrameChangedItem:item];
 }
 

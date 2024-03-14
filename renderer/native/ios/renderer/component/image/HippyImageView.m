@@ -679,7 +679,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
 
 @implementation HippyConvert (HippyResizeMode)
 
-HP_ENUM_CONVERTER(HippyResizeMode, (@{
+HIPPY_ENUM_CONVERTER(HippyResizeMode, (@{
     @"cover": @(HippyResizeModeCover),
     @"contain": @(HippyResizeModeContain),
     @"stretch": @(HippyResizeModeStretch),
@@ -688,7 +688,7 @@ HP_ENUM_CONVERTER(HippyResizeMode, (@{
 }),
     HippyResizeModeStretch, integerValue)
 
-HP_ENUM_CONVERTER(HippyShapeMode, (@{
+HIPPY_ENUM_CONVERTER(HippyShapeMode, (@{
     @"normal": @(HippyResizeModeDefalt),
     @"circle": @(HippyResizeModeCircle)
 }), HippyResizeModeDefalt, integerValue)

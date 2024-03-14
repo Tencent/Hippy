@@ -163,7 +163,7 @@ static const NSUInteger kMatrixArrayLength = 4 * 4;
 
 @implementation HippyConvert (HippyAnimationType)
 
-HP_ENUM_CONVERTER(HippyAnimationType, (@{
+HIPPY_ENUM_CONVERTER(HippyAnimationType, (@{
     @"spring": @(HippyAnimationTypeSpring),
     @"linear": @(HippyAnimationTypeLinear),
     @"easeIn": @(HippyAnimationTypeEaseIn),
@@ -177,7 +177,7 @@ HippyAnimationTypeEaseInEaseOut, integerValue)
 
 @implementation HippyConvert (HippyPointerEvents)
 
-HP_ENUM_CONVERTER(HippyPointerEvents, (@{
+HIPPY_ENUM_CONVERTER(HippyPointerEvents, (@{
     @"none": @(HippyPointerEventsNone),
     @"box-only": @(HippyPointerEventsBoxOnly),
     @"box-none": @(HippyPointerEventsBoxNone),
@@ -189,7 +189,7 @@ HippyPointerEventsUnspecified, integerValue)
 
 @implementation HippyConvert (HippyBorderStyle)
 
-HP_ENUM_CONVERTER(HippyBorderStyle, (@{
+HIPPY_ENUM_CONVERTER(HippyBorderStyle, (@{
     @"solid": @(HippyBorderStyleSolid),
     @"dotted": @(HippyBorderStyleDotted),
     @"dashed": @(HippyBorderStyleDashed),
@@ -201,7 +201,7 @@ HippyBorderStyleSolid, integerValue)
 
 @implementation HippyConvert (HippyTextEnumDefines)
 
-HP_ENUM_CONVERTER(HippyTextDecorationLineType, (@{
+HIPPY_ENUM_CONVERTER(HippyTextDecorationLineType, (@{
     @"none": @(HippyTextDecorationLineTypeNone),
     @"underline": @(HippyTextDecorationLineTypeUnderline),
     @"line-through": @(HippyTextDecorationLineTypeStrikethrough),
@@ -209,7 +209,7 @@ HP_ENUM_CONVERTER(HippyTextDecorationLineType, (@{
 }),
 HippyTextDecorationLineTypeNone, integerValue)
 
-HP_ENUM_CONVERTER(HippyTextVerticalAlignType, (@{
+HIPPY_ENUM_CONVERTER(HippyTextVerticalAlignType, (@{
     @"middle": @(HippyTextVerticalAlignMiddle),
     @"top": @(HippyTextVerticalAlignTop),
     @"bottom": @(HippyTextVerticalAlignBottom),

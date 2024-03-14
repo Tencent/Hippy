@@ -26,7 +26,7 @@
 #import "HippyModalTransitioningDelegate.h"
 #import "HippyShadowView.h"
 #import "HippyShadowView+Internal.h"
-#import "NativeRenderUtils.h"
+#import "HippyRenderUtils.h"
 
 
 NSString * const HippyModalHostViewDismissNotification = @"HippyModalHostViewDismissNotification";
@@ -40,13 +40,13 @@ NSString * const HippyModalHostViewDismissNotification = @"HippyModalHostViewDis
 
 - (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex{
     [super insertHippySubview:subview atIndex:atIndex];
-    CGRect frame = { .origin = CGPointZero, .size = NativeRenderScreenSize() };
+    CGRect frame = { .origin = CGPointZero, .size = HippyScreenSize() };
     [subview setLayoutFrame:frame];
 }
 
 - (void)setDomManager:(std::weak_ptr<hippy::DomManager>)domManager {
     [super setDomManager:domManager];
-    CGRect frame = { .origin = CGPointZero, .size = NativeRenderScreenSize() };
+    CGRect frame = { .origin = CGPointZero, .size = HippyScreenSize() };
     [self setLayoutFrame:frame];
 }
 
