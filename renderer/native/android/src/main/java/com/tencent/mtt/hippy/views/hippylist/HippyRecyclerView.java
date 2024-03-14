@@ -90,6 +90,11 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         }
     }
 
+    protected void deleteChild(View childView) {
+        removeView(childView);
+        disableRecycle(childView);
+    }
+
     public ADP getAdapter() {
         return listAdapter;
     }
