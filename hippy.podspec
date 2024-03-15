@@ -343,7 +343,31 @@ Pod::Spec.new do |s|
       puts 'hippy subspec \'yoga\' read end'
     end
   end
-  
+
+
+  # Dependencies of devtools
+  devtools_deps_path = 'devtools/devtools-integration/ios/DevtoolsBackend/_deps'
+  s.subspec 'AsioForDevTools' do |ss|
+    ss.libraries = 'c++'
+    ss.public_header_files = ["#{devtools_deps_path}/asio-src/asio/include/**/*.{hpp,ipp}",]
+    ss.source_files = ["#{devtools_deps_path}/asio-src/asio/include/**/*.{hpp,ipp}",]
+    ss.header_mappings_dir = "#{devtools_deps_path}/asio-src/asio/include/"
+  end
+
+  s.subspec 'JsonForDevTools' do |ss|
+    ss.libraries = 'c++'
+    ss.public_header_files = ["#{devtools_deps_path}/json-src/include/*.{hpp}",]
+    ss.source_files = ["#{devtools_deps_path}/json-src/include/**/*.{hpp,ipp}",]
+    ss.header_mappings_dir = "#{devtools_deps_path}/json-src/include/"
+  end
+
+  s.subspec 'WebsocketForDevTools' do |ss|
+    ss.libraries = 'c++'
+    ss.public_header_files = ["#{devtools_deps_path}/websocketpp-src/websocketpp/**/*.{hpp}",]
+    ss.source_files = ["#{devtools_deps_path}/websocketpp-src/websocketpp/**/*.{hpp,ipp}",]
+    ss.header_mappings_dir = "#{devtools_deps_path}/websocketpp-src/"
+  end
+
   #devtools subspec
   s.subspec 'DevTools' do |devtools|
     puts 'hippy subspec \'devtools\' read begin'
@@ -355,61 +379,29 @@ Pod::Spec.new do |s|
     else
       devtools_exclude_files += ['devtools/devtools-integration/native/include/devtools/v8', 'devtools/devtools-integration/native/src/v8']
     end
-    devtools.exclude_files = [
-      #test files
-      'devtools/devtools-integration/ios/DevtoolsBackend/_deps/**/*test*/**/*',
-      'devtools/devtools-integration/ios/DevtoolsBackend/_deps/**/*test*',
-      #benchmark files
-      'devtools/devtools-integration/ios/DevtoolsBackend/_deps/**/benchmark/**',
-      #js files
-      'devtools/devtools-integration/ios/DevtoolsBackend/_deps/**/javascript/**',
-      #Dom includes all taitank or yoga files, and Devtools dependends on Dom, so let Dom does the including work, otherwise, 'duplicated symbols' error occurs
-      #taitank or yoga files
-      #currently Devtools specify taitank layout 
-      'devtools/devtools-integration/ios/DevtoolsBackend/_deps/taitank-*/**/*',
-      #other files
-      'devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/lib/lib_openmp.c',
-      'devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/lib/tables/table_generator.c',
-      'devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/lib/arch/**/{dec,enc}_*.c',
-      'devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/bin/base64.c',
-    ] + devtools_exclude_files
+    devtools.exclude_files = devtools_exclude_files
     devtools.public_header_files = [
-      'devtools/devtools-integration/native/include/devtools/devtools_data_source.h',
       #devtools_integration/native
       'devtools/devtools-integration/native/**/*.h', 
+      'devtools/devtools-integration/native/include/devtools/devtools_data_source.h',
       #devtools_backend
       'devtools/devtools-backend/**/*.{h,hpp}',
-      'devtools/devtools-integration/ios/DevtoolsBackend/_deps/*-src/**/*.{h,hpp,ipp}',
-      'devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/lib/tables/*.h',
-      'devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-build/config.h',
     ]
     devtools.source_files = [
       #devtools_integration/native
       'devtools/devtools-integration/native/**/*.{h,cc}',
-      #devtools_integration/ios
-      'devtools/devtools-integration/ios/DevtoolsBackend/_deps/*-src/**/*.{h,hpp,c,cc,ipp}',
-      'devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-build/config.h',
       #devtools_backend
       'devtools/devtools-backend/**/*.{h,hpp,cc}',
     ]
     if use_frameworks
-      pod_search_path = "#{framework_header_path}/devtools-integration/ios/DevtoolsBackend/_deps/asio-src/asio/include" +
-      " #{framework_header_path}/devtools-integration/ios/DevtoolsBackend/_deps/json-src/include" +
-      " #{framework_header_path}/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/include" +
-      " #{framework_header_path}/devtools-integration/ios/DevtoolsBackend/_deps/websocketpp-src" +
+      pod_search_path =
       " #{framework_header_path}/devtools-integration/native/include" +
-      " #{framework_header_path}/devtools-backend/include" +
-      " #{framework_header_path}/devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/lib/arch"
-      
+      " #{framework_header_path}/devtools-backend/include"
       devtools.header_mappings_dir = 'devtools'
     else
-      pod_search_path = '$(PODS_TARGET_SRCROOT)/devtools/devtools-integration/ios/DevtoolsBackend/_deps/asio-src/asio/include' +
-      ' $(PODS_TARGET_SRCROOT)/devtools/devtools-integration/ios/DevtoolsBackend/_deps/json-src/include' +
-      ' $(PODS_TARGET_SRCROOT)/devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/include' +
-      ' $(PODS_TARGET_SRCROOT)/devtools/devtools-integration/ios/DevtoolsBackend/_deps/websocketpp-src' +
+      pod_search_path =
       ' $(PODS_TARGET_SRCROOT)/devtools/devtools-integration/native/include' +
-      ' $(PODS_TARGET_SRCROOT)/devtools/devtools-backend/include' +
-      ' $(PODS_TARGET_SRCROOT)/devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/lib/arch'
+      ' $(PODS_TARGET_SRCROOT)/devtools/devtools-backend/include'
     end
     devtools.header_mappings_dir = 'devtools/'
     devtools.pod_target_xcconfig = {
@@ -422,6 +414,9 @@ Pod::Spec.new do |s|
     devtools.user_target_xcconfig = {
       'GCC_PREPROCESSOR_DEFINITIONS' => 'ENABLE_INSPECTOR=1'
     }
+    devtools.dependency 'hippy/JsonForDevTools'
+    devtools.dependency 'hippy/AsioForDevTools'
+    devtools.dependency 'hippy/WebsocketForDevTools'
     devtools.dependency 'hippy/Footstone'
     devtools.dependency 'hippy/Dom'
     devtools.dependency 'hippy/VFS'
