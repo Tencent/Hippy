@@ -270,12 +270,15 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
                               bool is_use_code_cache,
                               const string_view& code_cache_dir,
                               const string_view& uri,
-                              bool is_local_file) {
+                              bool is_local_file,
+                              std::chrono::time_point<std::chrono::system_clock> &load_start,
+                              std::chrono::time_point<std::chrono::system_clock> &load_end) {
   FOOTSTONE_LOG(INFO) << "RunScript begin, file_name = " << file_name
                       << ", is_use_code_cache = " << is_use_code_cache
                       << ", code_cache_dir = " << code_cache_dir
                       << ", uri = " << uri
                       << ", is_local_file = " << is_local_file;
+  load_start = std::chrono::system_clock::now();
   string_view code_cache_content;
   uint64_t modify_time = 0;
   string_view code_cache_path;
@@ -320,6 +323,7 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
   if (is_use_code_cache) {
     code_cache_content = read_file_future.get();
   }
+  load_end = std::chrono::system_clock::now();
 
   FOOTSTONE_DLOG(INFO) << "uri = " << uri
                        << "read_script_flag = " << read_script_flag
@@ -593,12 +597,13 @@ void JsDriverUtils::CallNative(hippy::napi::CallbackInfo& info, const std::funct
   callback(scope, module_name, fn_name, cb_id_str, transfer_type != 0, buffer_data);
 }
 
-void JsDriverUtils::LoadInstance(const std::shared_ptr<Scope>& scope, byte_string&& buffer_data) {
+void JsDriverUtils::LoadInstance(const std::shared_ptr<Scope>& scope, byte_string&& buffer_data, std::function<void(bool)> cb) {
   auto runner = scope->GetTaskRunner();
   std::weak_ptr<Scope> weak_scope = scope;
-  auto callback = [weak_scope, buffer_data_ = std::move(buffer_data)] {
+  auto callback = [weak_scope, buffer_data_ = std::move(buffer_data), cb = std::move(cb)] {
     std::shared_ptr<Scope> scope = weak_scope.lock();
     if (!scope) {
+      cb(false);
       return;
     }
     Deserializer deserializer(
@@ -612,6 +617,7 @@ void JsDriverUtils::LoadInstance(const std::shared_ptr<Scope>& scope, byte_strin
     } else {
       scope->GetContext()->ThrowException("LoadInstance param error");
     }
+    cb(ret);
   };
   runner->PostTask(std::move(callback));
 }

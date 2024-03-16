@@ -388,7 +388,15 @@ void LoadInstance(JNIEnv* j_env,
                   jobject j_callback) {
   auto buffer_data = JniUtils::AppendJavaByteArrayToBytes(j_env, j_byte_array, j_offset, j_length);
   auto scope = GetScope(j_scope_id);
-  JsDriverUtils::LoadInstance(scope, std::move(buffer_data));
+  auto callback_object = std::make_shared<JavaRef>(j_env, j_callback);
+  auto cb = [scope, callback_object = std::move(callback_object)](bool ret) {
+    if (ret) {
+      hippy::bridge::CallJavaMethod(callback_object->GetObj(),INIT_CB_STATE::SUCCESS);
+    } else {
+      hippy::bridge::CallJavaMethod(callback_object->GetObj(),INIT_CB_STATE::RUN_SCRIPT_ERROR);
+    }
+  };
+  JsDriverUtils::LoadInstance(scope, std::move(buffer_data), cb);
 }
 
 void UnloadInstance(JNIEnv* j_env,
@@ -468,22 +476,35 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
       j_can_use_code_cache, code_cache_dir, uri, is_local_file,
       time_begin] {
     FOOTSTONE_DLOG(INFO) << "runScriptFromUri enter";
+    std::chrono::time_point<std::chrono::system_clock> load_start;
+    std::chrono::time_point<std::chrono::system_clock> load_end;
     bool flag = JsDriverUtils::RunScript(scope, script_name, j_can_use_code_cache,
-                                         code_cache_dir, uri, is_local_file);
+                                         code_cache_dir, uri, is_local_file, load_start, load_end);
     auto time_end = std::chrono::time_point_cast<std::chrono::microseconds>(
         std::chrono::system_clock::now())
         .time_since_epoch()
         .count();
 
     FOOTSTONE_DLOG(INFO) << "runScriptFromUri time = " << (time_end - time_begin) << ", uri = " << uri;
+
+    JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+    auto load_start_millis = std::chrono::time_point_cast<std::chrono::milliseconds>(load_start)
+        .time_since_epoch()
+        .count();
+    auto load_end_millis = std::chrono::time_point_cast<std::chrono::milliseconds>(load_end)
+        .time_since_epoch()
+        .count();
+    std::string payload = "{\"load_start_millis\":" + std::to_string(load_start_millis)
+        + ", \"load_end_millis\": "+ std::to_string(load_end_millis) + "}";
+    jstring j_payload = j_env->NewStringUTF(payload.c_str());
     if (flag) {
-      hippy::bridge::CallJavaMethod(callback_object->GetObj(), INIT_CB_STATE::SUCCESS);
+      CallJavaMethod(callback_object->GetObj(), INIT_CB_STATE::SUCCESS,nullptr, j_payload);
     } else {
-      JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
       jstring j_msg = JniUtils::StrViewToJString(j_env, u"run script error");
-      CallJavaMethod(callback_object->GetObj(), INIT_CB_STATE::RUN_SCRIPT_ERROR, j_msg);
+      CallJavaMethod(callback_object->GetObj(), INIT_CB_STATE::RUN_SCRIPT_ERROR, j_msg, j_payload);
       j_env->DeleteLocalRef(j_msg);
     }
+    j_env->DeleteLocalRef(j_payload);
     return flag;
   };
 

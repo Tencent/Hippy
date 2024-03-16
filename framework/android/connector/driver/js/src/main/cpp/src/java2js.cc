@@ -89,10 +89,12 @@ void CallFunction(JNIEnv* j_env,
   }
   auto scope = std::any_cast<std::shared_ptr<Scope>>(scope_object);
   JsDriverUtils::CallJs(action_name, scope,
-                        [callback](CALLFUNCTION_CB_STATE state, const string_view& msg) {
+                        [callback, action_name](CALLFUNCTION_CB_STATE state, const string_view& msg) {
                           auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+                          auto j_action = JniUtils::StrViewToJString(j_env, action_name);
                           auto j_msg = JniUtils::StrViewToJString(j_env, msg);
-                          CallJavaMethod(callback->GetObj(), static_cast<jlong>(state), j_msg);
+                          CallJavaMethod(callback->GetObj(), static_cast<jlong>(state), j_msg, j_action);
+                          j_env->DeleteLocalRef(j_action);
                           j_env->DeleteLocalRef(j_msg);
                         },
                         std::move(buffer_data),
@@ -128,7 +130,10 @@ void CallFunctionByDirectBuffer(JNIEnv* j_env,
                std::make_shared<JavaRef>(j_env, j_buffer));
 }
 
-void CallJavaMethod(jobject j_obj, jlong j_value, jstring j_msg) {
+void CallJavaMethod(jobject j_obj,
+                    jlong j_ret_code,
+                    jstring j_ret_content,
+                    jstring j_payload) {
   if (!j_obj) {
     FOOTSTONE_DLOG(INFO) << "CallJavaMethod j_obj is nullptr";
     return;
@@ -141,13 +146,13 @@ void CallJavaMethod(jobject j_obj, jlong j_value, jstring j_msg) {
     return;
   }
 
-  auto j_cb_id = j_env->GetMethodID(j_class, "Callback", "(JLjava/lang/String;)V");
+  auto j_cb_id = j_env->GetMethodID(j_class, "nativeCallback", "(JLjava/lang/String;Ljava/lang/String;)V");
   if (!j_cb_id) {
     FOOTSTONE_LOG(ERROR) << "CallJavaMethod j_cb_id error";
     return;
   }
 
-  j_env->CallVoidMethod(j_obj, j_cb_id, j_value, j_msg);
+  j_env->CallVoidMethod(j_obj, j_cb_id, j_ret_code, j_ret_content, j_payload);
   JNIEnvironment::ClearJEnvException(j_env);
   j_env->DeleteLocalRef(j_class);
 }

@@ -26,6 +26,7 @@ import com.openhippy.connector.NativeCallback;
 import com.openhippy.connector.JsDriver.V8InitParams;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
+import com.tencent.mtt.hippy.utils.HippyEngineMonitorPoint;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorGroupType;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
@@ -241,7 +242,9 @@ public class HippyBridgeImpl implements HippyBridge, JSBridgeProxy, DevRemoteDeb
             final WeakReference<HippyEngineContext> contextWeakRef = new WeakReference<>(mContext);
             callback = new NativeCallback(callback.getHandler()) {
                 @Override
-                public void Call(long result, Message message, String action, String reason) {
+                public void callback(long result, String reason, @Nullable String payload) {
+                    TimeMonitor monitor = mContext.getMonitor();
+                    monitor.addPoint(HippyEngineMonitorPoint.RUN_APPLICATION_END);
                     if (contextWeakRef.get() != null) {
                         contextWeakRef.get().onLoadInstanceCompleted(result, reason);
                     }
