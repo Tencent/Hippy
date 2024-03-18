@@ -409,6 +409,19 @@ webpack-plugin.ts 封装了 SSR 渲染所需 Hippy App 的初始化逻辑
 
   因 SSR 的渲染方式和生命周期等与客户端渲染方式有一些差异，因此需要在代码编写过程中注意，这里可以参考[Vue官方的SSR指引](https://cn.vuejs.org/guide/scaling-up/ssr.html#writing-ssr-friendly-code)
 
+- Vue 构建结果体积问题
+
+  因为 @hippy/vue-next 项目使用的是已编译的 Vue 组件，所以并不依赖于 Vue 的编译器，而默认的 webpack 打包会使用完整版本的 Vue 进行构建，会将不需要的编译器也打包在构建产物中，因此需要指定使用运行时版本的 Vue 产物
+
+  ```javascript
+  // scripts/hippy-webpack.android.js
+    const aliases = {
+      // ...other options
+      // hippy 仅需要运行时的 Vue，在这里指定
+      vue$: 'vue/dist/vue.runtime.esm-bundler.js',
+    };
+  ```
+
 # 示例
 
 更多使用请参考 [示例项目](https://github.com/Tencent/Hippy/tree/main/examples/hippy-vue-next-demo).
