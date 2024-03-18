@@ -18,17 +18,17 @@
  * limitations under the License.
  */
 
-export const dynamicLoad = (path: string, cb) => {
-  const s = document.createElement('script');
-  s.async = true;
-  s.setAttribute('src', path);
-  if (cb) {
-    s.onload = () => {
-      cb();
+export const dynamicLoad = (path: string, callback: Function): void => {
+  const script = document.createElement('script');
+  script.async = true;
+  script.setAttribute('src', path);
+  if (typeof callback === 'function') {
+    script.onload = () => {
+      callback();
     };
-    s.onerror = () => {
-      cb('load script error');
+    script.onerror = () => {
+      callback(`load script "${path}" error`);
     };
   }
-  document.head.appendChild(s);
+  document.head.appendChild(script);
 };
