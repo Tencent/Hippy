@@ -262,6 +262,14 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
         viewWrapper.getRecyclerView().setItemViewCacheSize(Math.max(size, 2));
     }
 
+    @HippyControllerProps(name = "enableScrollDirectionFix", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    public void setFixScrollDirection(HRW viewWrapper, boolean flag) {
+        HippyRecyclerView<?> recyclerView = viewWrapper.getRecyclerView();
+        if (recyclerView != null) {
+            recyclerView.setFixScrollDirection(flag);
+        }
+    }
+
     @Override
     public void onAfterUpdateProps(@NonNull HRW viewWrapper) {
         super.onAfterUpdateProps(viewWrapper);
