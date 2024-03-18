@@ -20,6 +20,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -47,6 +48,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         implements IHeaderAttachListener, HippyViewHolderAbandonListener, HippyNestedScrollTarget2 {
 
     private static int DEFAULT_ITEM_VIEW_CACHE_SIZE = 4;
+    private static final int INVALID_POINTER = -1;
     protected ADP listAdapter;
     protected boolean isEnableScroll = true;    //使能ListView的滚动功能
     protected StickyHeaderHelper stickyHeaderHelper;        //支持吸顶
@@ -64,6 +66,11 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
             Priority.NOT_SET, Priority.NOT_SET, Priority.NOT_SET};
     private int mNestedScrollAxesTouch;
     private int mNestedScrollAxesNonTouch;
+    private int mTouchSlop;
+    private int mInitialTouchX;
+    private int mInitialTouchY;
+    private int mScrollPointerId = INVALID_POINTER;
+    private boolean mFixScrollDirection = false;
 
     public HippyRecyclerView(Context context) {
         super(context);
@@ -82,6 +89,8 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         super.init();
         // enable nested scrolling
         setNestedScrollingEnabled(true);
+        final ViewConfiguration vc = ViewConfiguration.get(getContext());
+        mTouchSlop = vc.getScaledTouchSlop();
     }
 
     public void onDestroy() {
@@ -129,7 +138,22 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     }
 
     @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
+    public void setScrollingTouchSlop(int slopConstant) {
+        super.setScrollingTouchSlop(slopConstant);
+        final ViewConfiguration vc = ViewConfiguration.get(getContext());
+        switch (slopConstant) {
+            case TOUCH_SLOP_DEFAULT:
+                mTouchSlop = vc.getScaledTouchSlop();
+                break;
+
+            case TOUCH_SLOP_PAGING:
+                mTouchSlop = vc.getScaledPagingTouchSlop();
+                break;
+        }
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent e) {
         if (!isEnableScroll || mNestedScrollAxesTouch != SCROLL_AXIS_NONE) {
             // We want to prevent the same direction intercepts only, so we can't use
             // `requestDisallowInterceptTouchEvent` for this purpose.
@@ -137,7 +161,51 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
             // need to intercept
             return false;
         }
-        return super.onInterceptTouchEvent(ev);
+        if (!mFixScrollDirection) {
+            return super.onInterceptTouchEvent(e);
+        }
+        final boolean canScrollVertically = getLayoutManager().canScrollVertically();
+        final boolean canScrollHorizontally = getLayoutManager().canScrollHorizontally();
+        final int action = e.getActionMasked();
+        final int actionIndex = e.getActionIndex();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                mScrollPointerId = e.getPointerId(0);
+                mInitialTouchX = (int) (e.getX() + 0.5f);
+                mInitialTouchY = (int) (e.getY() + 0.5f);
+                return super.onInterceptTouchEvent(e);
+
+            case MotionEvent.ACTION_POINTER_DOWN:
+                mScrollPointerId = e.getPointerId(actionIndex);
+                mInitialTouchX = (int) (e.getX(actionIndex) + 0.5f);
+                mInitialTouchY = (int) (e.getY(actionIndex) + 0.5f);
+                return super.onInterceptTouchEvent(e);
+
+            case MotionEvent.ACTION_MOVE: {
+                final int index = e.findPointerIndex(mScrollPointerId);
+                if (index < 0) {
+                    return false;
+                }
+                final int x = (int) (e.getX(index) + 0.5f);
+                final int y = (int) (e.getY(index) + 0.5f);
+                if (getScrollState() != SCROLL_STATE_DRAGGING) {
+                    final int dx = x - mInitialTouchX;
+                    final int dy = y - mInitialTouchY;
+                    boolean startScroll = false;
+                    if (canScrollHorizontally && Math.abs(dx) > mTouchSlop && (Math.abs(dx) > Math.abs(dy))) {
+                        startScroll = true;
+                    }
+                    if (canScrollVertically && Math.abs(dy) > mTouchSlop && (Math.abs(dy) > Math.abs(dx))) {
+                        startScroll = true;
+                    }
+                    return startScroll && super.onInterceptTouchEvent(e);
+                }
+                return super.onInterceptTouchEvent(e);
+            }
+
+            default:
+                return super.onInterceptTouchEvent(e);
+        }
     }
 
     @Override
@@ -146,6 +214,10 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
             return false;
         }
         return super.onTouchEvent(e);
+    }
+
+    public void setFixScrollDirection(boolean enable) {
+        mFixScrollDirection = enable;
     }
 
     public void setInitialContentOffset(int initialContentOffset) {
