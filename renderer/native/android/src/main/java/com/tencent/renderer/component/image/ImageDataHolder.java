@@ -75,7 +75,6 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
     private Bitmap mBitmap;
     @Nullable
     private BitmapFactory.Options mOptions;
-    private final AtomicInteger mRefCount = new AtomicInteger(0);
 
     public ImageDataHolder(@NonNull String source) {
         init(source, null, 0, 0);
@@ -129,13 +128,12 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
 
     @Override
     public void attached() {
-        mRefCount.incrementAndGet();
+
     }
 
     @Override
     public void detached() {
-        mRefCount.decrementAndGet();
-        clear();
+
     }
 
     @Override
@@ -146,33 +144,6 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
     @Override
     public void evicted() {
         resetStateFlag(FLAG_CACHED);
-        clear();
-    }
-
-    private void clear() {
-        if (mRefCount.get() > 0) {
-            return;
-        }
-        if (mDrawable instanceof Animatable && ((Animatable) mDrawable).isRunning()) {
-            ((Animatable) mDrawable).stop();
-        }
-        if (checkStateFlag(FLAG_CACHED)) {
-            return;
-        }
-        if (mBitmap != null) {
-            if (checkStateFlag(FLAG_RECYCLABLE)) {
-                // If the bitmap is created locally, we need to manage its life cycle ourselves.
-                mBitmap.recycle();
-            }
-            mBitmap = null;
-        }
-        mGifMovie = null;
-        mDrawable = null;
-        mOptions = null;
-        mSource = null;
-        mKey = null;
-        mStateFlags = 0;
-        recycle();
     }
 
     @Override
