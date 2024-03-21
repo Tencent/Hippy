@@ -356,9 +356,9 @@ Pod::Spec.new do |s|
 
   s.subspec 'JsonForDevTools' do |ss|
     ss.libraries = 'c++'
-    ss.public_header_files = ["#{devtools_deps_path}/json-src/include/*.{hpp}",]
-    ss.source_files = ["#{devtools_deps_path}/json-src/include/**/*.{hpp,ipp}",]
-    ss.header_mappings_dir = "#{devtools_deps_path}/json-src/include/"
+    ss.public_header_files = ["#{devtools_deps_path}/json-src/single_include/**/*.{hpp}",]
+    ss.source_files = ["#{devtools_deps_path}/json-src/single_include/**/*.{hpp}",]
+    ss.header_mappings_dir = "#{devtools_deps_path}/json-src/single_include/"
   end
 
   s.subspec 'WebsocketForDevTools' do |ss|
