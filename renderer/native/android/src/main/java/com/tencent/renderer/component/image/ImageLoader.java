@@ -105,12 +105,7 @@ public class ImageLoader implements ImageLoaderAdapter {
         byte[] bytes = dataHolder.getBytes();
         if (dataHolder.resultCode
                 == ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE && bytes != null) {
-            imageHolder = ImageDataHolder.obtain();
-            if (imageHolder != null) {
-                imageHolder.init(url, urlKey, width, height);
-            } else {
-                imageHolder = new ImageDataHolder(url, urlKey, width, height);
-            }
+            imageHolder = new ImageDataHolder(url, urlKey, width, height);
             try {
                 imageHolder.decodeImageData(bytes, initProps, mImageDecoderAdapter);
                 // Should check the request data returned from the host, if the data is
