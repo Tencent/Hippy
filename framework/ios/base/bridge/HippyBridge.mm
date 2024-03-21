@@ -327,6 +327,13 @@ dispatch_queue_t HippyBridgeQueue() {
     return [_moduleSetup moduleForClass:moduleClass];
 }
 
+- (HippyModuleData *)moduleDataForName:(NSString *)moduleName {
+    if (moduleName) {
+        return _moduleSetup.moduleDataByName[moduleName];
+    }
+    return nil;
+}
+
 - (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls {
     HippyAssertParam(cls);
     @synchronized (self) {

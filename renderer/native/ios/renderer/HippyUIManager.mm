@@ -51,6 +51,9 @@
 #include "objc/runtime.h"
 #include <unordered_map>
 
+#import "HippyModuleData.h"
+#import "HippyModuleMethod.h"
+
 using HippyValue = footstone::value::HippyValue;
 using DomArgument = hippy::dom::DomArgument;
 using DomManager = hippy::DomManager;
@@ -1070,15 +1073,15 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     }
 }
 
-- (id)dispatchFunction:(const std::string &)functionName
-              viewName:(const std::string &)viewName
-               viewTag:(int32_t)componentTag
-            onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode
-                params:(const HippyValue &)params
-              callback:(CallFunctionCallback)cb {
+- (void)dispatchFunction:(const std::string &)functionName
+                viewName:(const std::string &)viewName
+                 viewTag:(int32_t)componentTag
+              onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode
+                  params:(const HippyValue &)params
+                callback:(CallFunctionCallback)cb {
     NSString *name = [NSString stringWithUTF8String:functionName.c_str()];
     DomValueType type = params.GetType();
-    NSMutableArray *finalParams = [NSMutableArray arrayWithCapacity:8];
+    NSMutableArray *finalParams = [NSMutableArray array];
     [finalParams addObject:@(componentTag)];
     if (DomValueType::kArray == type) {
         NSArray * paramsArray = DomValueToOCType(&params);
@@ -1088,15 +1091,12 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
                 [finalParams addObject:param];
             }
         }
+    } else if (DomValueType::kNull == type) {
+        // no op
+    } else {
+        NSAssert(NO, @"Unsupported params type");
     }
-    else if (DomValueType::kNull == type) {
-
-    }
-    else {
-        //TODO
-        NSAssert(NO, @"目前hippy底层会封装DomValue为Array类型。可能第三方接入者不一定会将其封装为Array");
-        [finalParams addObject:[NSNull null]];
-    }
+    
     if (cb) {
         HippyPromiseResolveBlock senderBlock = ^(id senderParams) {
             std::shared_ptr<DomArgument> domArgument = std::make_shared<DomArgument>([senderParams toDomArgument]);
@@ -1104,37 +1104,24 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
         };
         [finalParams addObject:senderBlock];
     }
+    
     NSString *nativeModuleName = [NSString stringWithUTF8String:viewName.c_str()];
-
-    HippyViewManager *viewManager = [self viewManagerForViewName:nativeModuleName];
     HippyComponentData *componentData = [self componentDataForViewName:nativeModuleName];
-    NSValue *selectorPointer = [componentData.methodsByName objectForKey:name];
-    SEL selector = (SEL)[selectorPointer pointerValue];
-    if (!selector) {
-        return nil;
-    }
-    @try {
-        NSMethodSignature *methodSignature = [viewManager methodSignatureForSelector:selector];
-        NSAssert(methodSignature, @"method signature creation failure");
-        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
-        [invocation setSelector:selector];
-        for (NSInteger i = 0; i < [finalParams count]; i++) {
-            id object = finalParams[i];
-            [invocation setArgument:&object atIndex:i+2];
+    HippyModuleData *moduleData = [self.bridge moduleDataForName:nativeModuleName];
+    id<HippyBridgeMethod> method = moduleData.methodsByName[name];
+    if (method) {
+        @try {
+            [method invokeWithBridge:_bridge module:componentData.manager arguments:finalParams];
+        } @catch (NSException *exception) {
+            NSString *errMsg = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on component %@ with params %@",
+                                exception, name, nativeModuleName, finalParams];
+            HippyFatal(HippyErrorWithMessage(errMsg));
         }
-        [invocation invokeWithTarget:viewManager];
-        void *returnValue = nil;
-        if (strcmp(invocation.methodSignature.methodReturnType, "@") == 0) {
-            [invocation getReturnValue:&returnValue];
-            return (__bridge id)returnValue;
-        }
-        return nil;
-    } @catch (NSException *exception) {
-        NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on component target %@ with params %@", exception, name, nativeModuleName, finalParams];
-        NSError *error = HippyErrorWithMessage(message);
-        HippyFatal(error);
-        return nil;
+    } else {
+        NSString *errMsg = [NSString stringWithFormat:@"No corresponding method(%@ of %@) was found!", name, nativeModuleName];
+        HippyFatal(HippyErrorWithMessage(errMsg));
     }
+    return;
 }
 
 - (void)registerExtraComponent:(NSArray<Class> *)extraComponents {
