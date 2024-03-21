@@ -65,6 +65,7 @@
 #include "footstone/worker_manager.h"
 #include "vfs/uri_loader.h"
 #include "VFSUriHandler.h"
+#include "footstone/logging.h"
 
 #import "NativeRenderManager.h"
 #import "HippyRootView.h"
@@ -99,6 +100,35 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     HippyBridgeFieldParams,
     HippyBridgeFieldCallID,
 };
+
+/// Set the log delegate for hippy core module
+static inline void registerLogDelegateToHippyCore() {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        footstone::LogMessage::InitializeDelegate([](const std::ostringstream& stream, footstone::LogSeverity severity) {
+            HippyLogLevel logLevel = HippyLogLevelInfo;
+            
+            switch (severity) {
+                case footstone::TDF_LOG_INFO:
+                    logLevel = HippyLogLevelInfo;
+                    break;
+                case footstone::TDF_LOG_WARNING:
+                    logLevel = HippyLogLevelWarning;
+                    break;
+                case footstone::TDF_LOG_ERROR:
+                    logLevel = HippyLogLevelError;
+                    break;
+                case footstone::TDF_LOG_FATAL:
+                    logLevel = HippyLogLevelFatal;
+                    break;
+                default:
+                    break;
+            }
+            HippyLogNativeInternal(logLevel, "tdf", 0, @"%s", stream.str().c_str());
+        });
+    });
+}
+
 
 @interface HippyBridge() {
     NSMutableArray<Class<HippyImageProviderProtocol>> *_imageProviders;
@@ -194,6 +224,7 @@ dispatch_queue_t HippyBridgeQueue() {
         _bundlesQueue = [[HippyBundleOperationQueue alloc] init];
         _startTime = footstone::TimePoint::SystemNow();
         HippyLogInfo(@"HippyBridge init begin, self:%p", self);
+        registerLogDelegateToHippyCore();
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rootViewContentDidAppear:)
                                                      name:HippyContentDidAppearNotification object:nil];
         HippyExecuteOnMainThread(^{
