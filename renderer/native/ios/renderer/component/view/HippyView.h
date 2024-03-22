@@ -21,11 +21,12 @@
  */
 
 #import <UIKit/UIKit.h>
-
 #import "HippyComponent.h"
 #import "NativeRenderTouchesView.h"
 
 @class HippyGradientObject;
+
+NS_ASSUME_NONNULL_BEGIN
 
 @interface HippyView : NativeRenderTouchesView
 
@@ -42,7 +43,7 @@
  * get content for layer
  * return YES if getting content synchronized,else return NO
  */
-- (BOOL)getLayerContentForColor:(UIColor *)color completionBlock:(void (^)(UIImage *))contentBlock;
+- (BOOL)getLayerContentForColor:(UIColor *)color completionBlock:(void (^)(UIImage *_Nullable))contentBlock;
 
 /**
  * CALayerContents Filter
@@ -50,6 +51,9 @@
  */
 - (CALayerContentsFilter)minificationFilter;
 - (CALayerContentsFilter)magnificationFilter;
+
+
+#pragma mark - Border Related
 
 /**
  * Border radii.
@@ -83,13 +87,25 @@
  */
 @property (nonatomic, assign) HippyBorderStyle borderStyle;
 
-/**
- * BackgroundImage styles.
- */
-@property (nonatomic, strong) UIImage *backgroundImage;
-@property (nonatomic, assign) NSUInteger backgroundImageUrlHashValue;
+
+#pragma mark - Background Styles
+
+/// The backgroundImage
+@property (nonatomic, strong, nullable) UIImage * backgroundImage;
+
+/// Hash value of Background Image Path,
+/// Used to eliminate duplication and ensure timing when updating images.
+@property (nonatomic, assign) NSUInteger backgroundImageUrlHash;
+
+/// The fail error of background image if any
+@property (nonatomic, strong, nullable) NSError *backgroundImageFailError;
+
 @property (nonatomic, strong) NSString *backgroundSize;
 @property (nonatomic, assign) CGFloat backgroundPositionX;
 @property (nonatomic, assign) CGFloat backgroundPositionY;
 @property (nonatomic, strong) HippyGradientObject *gradientObject;
+
+
 @end
+
+NS_ASSUME_NONNULL_END
