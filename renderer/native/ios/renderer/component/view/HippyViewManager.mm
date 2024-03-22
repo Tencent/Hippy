@@ -225,16 +225,26 @@ HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
     if (json) {
         NSString *imagePath = [HippyConvert NSString:json];
         // Old background image need to be cleaned up in time due to view's reuse
-        NSUInteger oldHash = view.backgroundImageUrlHashValue;
+        NSUInteger oldHash = view.backgroundImageUrlHash;
+        BOOL shouldLoadImage = NO;
         if (oldHash != imagePath.hash) {
             if (oldHash > 0) {
                 view.backgroundImage = nil;
             }
-            view.backgroundImageUrlHashValue = imagePath.hash;
+            view.backgroundImageUrlHash = imagePath.hash;
+            shouldLoadImage = YES;
+        } else if (view.backgroundImageFailError) {
+            // Same image, check whether the last loading was successful.
+            // If it failed, load it again.
+            shouldLoadImage = YES;
         }
-        [self loadImageSource:imagePath forView:view];
+        if (shouldLoadImage) {
+            view.backgroundImageFailError = nil;
+            [self loadImageSource:imagePath forView:view];
+        }
     } else {
-        view.backgroundImageUrlHashValue = 0;
+        view.backgroundImageUrlHash = 0;
+        view.backgroundImageFailError = nil;
         view.backgroundImage = defaultView.backgroundImage;
     }
 }
@@ -253,25 +263,27 @@ static NSOperationQueue *imageLoadOperationQueue(void) {
         return;
     }
     NSString *standardizeAssetUrlString = path;
-    __weak HippyView *weakView = view;
     auto loader = [self.bridge.uiManager VFSUriLoader].lock();
     if (!loader) {
         return;
     }
     __weak __typeof(self)weakSelf = self;
+    __weak HippyView *weakView = view;
     loader->RequestUntrustedContent(path, imageLoadOperationQueue(), nil,
                                     ^(NSData *data, NSDictionary *userInfo, NSURLResponse *response, NSError *error) {
+        HippyLogTrace(@"%@ load bgImg finish:%@, hash:%lu record:%lu error?%@",
+                      weakView.hippyTag, path, path.hash, weakView.backgroundImageUrlHash, error.description);
         // It is possible for User to return the image directly in userInfo,
         // So we need to check and skip the data decoding process if needed.
         UIImage *resultImage = userInfo ? userInfo[HippyVFSHandlerUserInfoImageKey] : nil;
         if (resultImage) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 __strong HippyView *strongView = weakView;
-                if (strongView) {
+                if (strongView && strongView.backgroundImageUrlHash == path.hash) {
                     strongView.backgroundImage = resultImage;
                 }
             });
-        } else {
+        } else if (data) {
             __strong __typeof(weakSelf)strongSelf = weakSelf;
             HippyBridge *bridge = strongSelf.bridge;
             if (bridge) {
@@ -287,11 +299,21 @@ static NSOperationQueue *imageLoadOperationQueue(void) {
                 UIImage *backgroundImage = [imageProvider image];
                 dispatch_async(dispatch_get_main_queue(), ^{
                     HippyView *strongView = weakView;
-                    if (strongView) {
+                    if (strongView && strongView.backgroundImageUrlHash == path.hash) {
+                        // Check the hash value of image's path before assignment
+                        // to avoid situations where the old path callback is later than the new path.
                         strongView.backgroundImage = backgroundImage;
                     }
                 });
             }
+        } else if (error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                __strong HippyView *strongView = weakView;
+                if (strongView && strongView.backgroundImageUrlHash == path.hash) {
+                    strongView.backgroundImageFailError = error;
+                    HippyLogError(@"%@ load bgImg error:%@ %@", strongView.hippyTag, path, error.description);
+                }
+            });
         }
     });
 }
