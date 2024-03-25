@@ -1,9 +1,7 @@
 #ENV["layout_engine"]="Taitank"
 #ENV["js_engine"] = "v8"
 
-install! 'cocoapods',
-         :deterministic_uuids => true,
-         :generate_multiple_pod_projects => true
+install! 'cocoapods'
 
 use_frameworks! :linkage => :static  # 静态库framework格式
 ENV["use_frameworks"] = "true" # for hippy when set use_frameworks!
@@ -13,7 +11,7 @@ workspace 'HippyDemo.xcworkspace'
 target "HippyDemo" do
   platform :ios, '11.0'
   
-  pod 'hippy', :path => '../../..'
+  pod 'hippy', :path => '../../..', :testspecs => ['UnitTests']
   
 end
 

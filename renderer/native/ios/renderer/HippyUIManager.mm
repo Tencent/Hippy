@@ -186,6 +186,8 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     NSHashTable<id<HippyComponent>> *_componentTransactionListeners;
 
     std::weak_ptr<DomManager> _domManager;
+    std::weak_ptr<hippy::RenderManager> _renderManager;
+    
     std::mutex _renderQueueLock;
     NSMutableDictionary<NSString *, id> *_viewManagers;
     NSArray<Class> *_extraComponents;
@@ -210,10 +212,9 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 
 #pragma mark Life cycle
 
-- (instancetype)initWithRenderManager:(std::weak_ptr<hippy::RenderManager>)renderManager {
+- (instancetype)init {
     self = [super init];
     if (self) {
-        _renderManager = renderManager;
         [self initContext];
     }
     return self;
@@ -247,6 +248,14 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 }
 
 #pragma mark Setter & Getter
+
+- (void)registRenderManager:(std::weak_ptr<hippy::RenderManager>)renderManager {
+    _renderManager = renderManager;
+}
+
+- (std::weak_ptr<hippy::RenderManager>)renderManager {
+    return _renderManager;
+}
 
 - (void)setDomManager:(std::weak_ptr<DomManager>)domManager {
     _domManager = domManager;
@@ -283,10 +292,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     return [_shadowViewRegistry componentForTag:hippyTag onRootTag:rootTag];
 }
 
-- (std::weak_ptr<hippy::RenderManager>)renderManager {
-    return _renderManager;
-}
-
 - (std::mutex &)renderQueueLock {
     return _renderQueueLock;
 }
@@ -302,7 +307,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     HippyComponentData *componentData = _componentDataByName[viewName];
     if (!componentData) {
         HippyViewManager *viewManager = [self viewManagerForViewName:viewName];
-        NSAssert(viewManager, @"No view manager found for %@", viewName);
+        HippyAssert(viewManager, @"No view manager found for %@", viewName);
         if (viewManager) {
             componentData = [[HippyComponentData alloc] initWithViewManager:viewManager viewName:viewName];
             _componentDataByName[viewName] = componentData;
