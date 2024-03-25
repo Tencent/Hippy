@@ -43,7 +43,8 @@ NativeRenderManager::NativeRenderManager(): hippy::RenderManager("NativeRenderMa
 }
 
 void NativeRenderManager::Initialize() {
-    renderImpl_ = [[HippyUIManager alloc] initWithRenderManager:weak_from_this()];
+    renderImpl_ = [[HippyUIManager alloc] init];
+    [renderImpl_ registRenderManager:weak_from_this()];
 }
 
 void NativeRenderManager::CreateRenderNode(std::weak_ptr<hippy::RootNode> root_node,

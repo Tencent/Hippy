@@ -442,4 +442,9 @@ Pod::Spec.new do |s|
     end
   end
 
+  s.test_spec 'UnitTests' do |test_spec|
+    test_spec.source_files = 'tests/ios/**/*.{h,m,mm}'
+    test_spec.dependency 'OCMock'
+  end
+  
 end
