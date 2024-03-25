@@ -708,19 +708,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     [_pendingUIBlocks addObject:block];
 }
 
-- (void)amendPendingUIBlocksWithStylePropagationUpdateForRenderObject:(HippyShadowView *)topView {
-    NSMutableSet<NativeRenderApplierBlock> *applierBlocks = [NSMutableSet setWithCapacity:256];
-
-    [topView collectUpdatedProperties:applierBlocks parentProperties:@{}];
-    if (applierBlocks.count) {
-        [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-            for (NativeRenderApplierBlock block in applierBlocks) {
-                block(viewRegistry, nil);
-            }
-        }];
-    }
-}
-
 - (void)flushUIBlocksOnRootNode:(std::weak_ptr<RootNode>)rootNode {
     // First copy the previous blocks into a temporary variable, then reset the
     // pending blocks to a new array. This guards against mutation while
@@ -1486,8 +1473,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
         }];
     }
     [self addUIBlock:^(HippyUIManager *uiManager, __unused NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        NSSet<id<HippyComponent>> *nodes = [uiManager->_componentTransactionListeners copy];
-        for (id<HippyComponent> node in nodes) {
+        for (id<HippyComponent> node in uiManager->_componentTransactionListeners) {
             [node hippyBridgeDidFinishTransaction];
         }
     }];
