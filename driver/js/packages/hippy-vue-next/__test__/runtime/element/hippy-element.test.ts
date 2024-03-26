@@ -528,7 +528,8 @@ describe('runtime/element/hippy-element', () => {
       registerElement('p', p);
       const element = new HippyElement('p');
       element.isNeedInsertToNative = false;
-      expect(element.convertToNativeNodes(false)).toEqual([]);
+      const [nativeNode] = element.convertToNativeNodes(false);
+      expect(nativeNode).toEqual([]);
     });
 
     it('registered tag should return correct native node', () => {
@@ -547,10 +548,9 @@ describe('runtime/element/hippy-element', () => {
       const element = new HippyElement('span');
       const childElement = new HippyElement('span');
       element.appendChild(childElement);
-      const [nativeNode] = element.convertToNativeNodes(false);
+      const [[[nativeNode]]] = element.convertToNativeNodes(false);
       expect(nativeNode).toEqual(expect.objectContaining({
         pId: 1,
-        index: 0,
         name: 'Text',
         id: 62,
         props: {
@@ -565,7 +565,77 @@ describe('runtime/element/hippy-element', () => {
         tagName: 'span',
       }));
       const nativeNodeList = element.convertToNativeNodes(true);
-      expect(nativeNodeList.length).toEqual(2);
+      expect(nativeNodeList.length).toEqual(3);
+    });
+    it('registered camelize custom tag should return correct native node', () => {
+      // custom component
+      const customElement: ElementComponent = {
+        component: {
+          name: 'Text',
+          attributeMaps: {},
+          eventNamesMap: new Map(),
+          defaultNativeProps: {
+            text: '',
+          },
+        },
+      };
+      registerElement('CustomTag', customElement);
+      const element = new HippyElement('custom-tag');
+      const childElement = new HippyElement('custom-tag');
+      element.appendChild(childElement);
+      const [[[nativeNode]]] = element.convertToNativeNodes(false);
+      expect(nativeNode).toEqual(expect.objectContaining({
+        pId: 1,
+        name: 'Text',
+        id: 64,
+        props: {
+          text: '',
+          style: {},
+          attributes: {
+            id: '',
+            class: '',
+            hippyNodeId: '64',
+          },
+        },
+        tagName: 'custom-tag',
+      }));
+      const nativeNodeList = element.convertToNativeNodes(true);
+      expect(nativeNodeList.length).toEqual(3);
+    });
+    it('registered hyphenate custom tag should return correct native node', () => {
+      // custom component
+      const customElement: ElementComponent = {
+        component: {
+          name: 'Text',
+          attributeMaps: {},
+          eventNamesMap: new Map(),
+          defaultNativeProps: {
+            text: '',
+          },
+        },
+      };
+      registerElement('Custom-Tag', customElement);
+      const element = new HippyElement('custom-tag');
+      const childElement = new HippyElement('custom-tag');
+      element.appendChild(childElement);
+      const [[[nativeNode]]] = element.convertToNativeNodes(false);
+      expect(nativeNode).toEqual(expect.objectContaining({
+        pId: 1,
+        name: 'Text',
+        id: 66,
+        props: {
+          text: '',
+          style: {},
+          attributes: {
+            id: '',
+            class: '',
+            hippyNodeId: '66',
+          },
+        },
+        tagName: 'custom-tag',
+      }));
+      const nativeNodeList = element.convertToNativeNodes(true);
+      expect(nativeNodeList.length).toEqual(3);
     });
   });
 
