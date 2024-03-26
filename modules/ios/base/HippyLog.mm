@@ -40,15 +40,11 @@ const char *HippyLogLevels[] = {
 #if HIPPY_DEBUG
 HippyLogLevel HPDefaultLogThreshold = HippyLogLevelTrace;
 #else
-HippyLogLevel HPDefaultLogThreshold = HippyLogLevelError;
+HippyLogLevel HPDefaultLogThreshold = HippyLogLevelInfo;
 #endif
 
 static HippyLogFunction HPCurrentLogFunction;
 static HippyLogLevel HPCurrentLogThreshold = HPDefaultLogThreshold;
-
-static void doLog(HippyLogLevel level, HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message){
-    HippyGetLogFunction()(level, source, fileName, lineNumber, message);
-}
 
 HippyLogLevel HippyGetLogThreshold() {
     return HPCurrentLogThreshold;
@@ -67,15 +63,6 @@ HippyLogFunction HippyDefaultLogFunction = ^(HippyLogLevel level, __unused Hippy
 
 void HippySetLogFunction(HippyLogFunction logFunction) {
     HPCurrentLogFunction = logFunction;
-
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        footstone::log::LogMessage::InitializeDelegate([](const std::ostringstream& stream,
-                                                          footstone::log::LogSeverity severity) {
-            NSString* message = [NSString stringWithUTF8String:stream.str().c_str()];
-            doLog(HippyLogLevelInfo, HippyLogSourceNative, nil, nil, message);
-        });
-    });
 }
 
 HippyLogFunction HippyGetLogFunction() {
