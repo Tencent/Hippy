@@ -330,7 +330,7 @@ function parseBackgroundImage(
     });
     processedValue.colorStopList = colorStopList;
   } else {
-    const regexp = /(?:\(['"]?).{0,500}?(?:['"]?\))/;
+    const regexp = /(?:\(['"]?)(.*?)(?:['"]?\))/;
     const executed = regexp.exec(value);
     if (executed && executed.length > 1) {
       [, processedValue] = executed;
