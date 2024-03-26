@@ -86,7 +86,7 @@ static NSString *viewNameFromViewManagerClass(Class cls) {
     return viewName;
 }
 
-using HPViewBinding = std::unordered_map<int32_t, std::tuple<std::vector<int32_t>, std::vector<int32_t>>>;
+using HPViewBinding = std::map<int32_t, std::tuple<std::vector<int32_t>, std::vector<int32_t>>>;
 
 constexpr char kVSyncKey[] = "frameupdate";
 
