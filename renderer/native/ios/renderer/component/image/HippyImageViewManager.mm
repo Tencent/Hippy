@@ -26,24 +26,28 @@
 #import "HippyImageView.h"
 #import "HippyUIManager.h"
 #import "TypeConverter.h"
-#include "VFSUriLoader.h"
+#import "VFSUriLoader.h"
 
 
 @implementation HippyImageViewManager
 
 HIPPY_EXPORT_MODULE(Image);
 
+#pragma mark - Props
+
 HIPPY_EXPORT_VIEW_PROPERTY(blurRadius, CGFloat)
 HIPPY_EXPORT_VIEW_PROPERTY(capInsets, UIEdgeInsets)
 HIPPY_EXPORT_VIEW_PROPERTY(resizeMode, HippyResizeMode)
+HIPPY_EXPORT_VIEW_PROPERTY(shape, HippyShapeMode)
+HIPPY_EXPORT_VIEW_PROPERTY(downSample, BOOL)
+
+HIPPY_EXPORT_VIEW_PROPERTY(onLoad, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onLoadStart, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onProgress, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onError, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onPartialLoad, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onLoad, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onLoadEnd, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(downSample, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(shape, HippyShapeMode)
+
 HIPPY_CUSTOM_VIEW_PROPERTY(src, NSString, HippyImageView) {
     NSString *path = [HippyConvert NSString:json];
     [self loadImageSource:path forView:view];
@@ -57,6 +61,34 @@ HIPPY_CUSTOM_VIEW_PROPERTY(source, NSArray, HippyImageView) {
         [self loadImageSource:path forView:view];
     }
 }
+
+HIPPY_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, HippyImageView) {
+    view.tintColor = [HippyConvert UIColor:json] ?: defaultView.tintColor;
+    view.renderingMode = json ? UIImageRenderingModeAlwaysTemplate : defaultView.renderingMode;
+}
+
+HIPPY_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, HippyImageView) {
+    NSString *source = [HippyConvert NSString:json];
+    auto loader = [self.bridge.uiManager VFSUriLoader].lock();
+    if (!loader) {
+        return;
+    }
+    __weak HippyImageView *weakView = view;
+    loader->RequestUntrustedContent(source, imageLoadOperationQueue(),
+                                    nil, ^(NSData * _Nullable data, NSDictionary * _Nullable userInfo,
+                                           NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            HippyImageView *strongView = weakView;
+            if (strongView) {
+                UIImage *image = [UIImage imageWithData:data];
+                strongView.defaultImage = image;
+            }
+        });
+    });
+}
+
+
+#pragma mark - Internal
 
 static NSOperationQueue *imageLoadOperationQueue(void) {
     static NSOperationQueue *opQueue = nil;
@@ -121,15 +153,7 @@ static NSOperationQueue *imageLoadOperationQueue(void) {
     });
 }
 
-HIPPY_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, HippyImageView) {
-    view.tintColor = [HippyConvert UIColor:json] ?: defaultView.tintColor;
-    view.renderingMode = json ? UIImageRenderingModeAlwaysTemplate : defaultView.renderingMode;
-}
-
-HIPPY_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, HippyImageView) {
-    NSString *source = [HippyConvert NSString:json];
-    [self loadImageSource:source forView:view];
-}
+#pragma mark - Border Related
 
 #define HIPPY_VIEW_BORDER_RADIUS_PROPERTY(SIDE)                                                                \
     HIPPY_CUSTOM_VIEW_PROPERTY(border##SIDE##Radius, CGFloat, HippyImageView) {                                \
@@ -142,6 +166,9 @@ HIPPY_VIEW_BORDER_RADIUS_PROPERTY(TopLeft)
 HIPPY_VIEW_BORDER_RADIUS_PROPERTY(TopRight)
 HIPPY_VIEW_BORDER_RADIUS_PROPERTY(BottomLeft)
 HIPPY_VIEW_BORDER_RADIUS_PROPERTY(BottomRight)
+
+
+#pragma mark - ViewManager's Override Methods
 
 - (UIView *)view {
     return [[HippyImageView alloc] init];
