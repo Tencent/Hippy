@@ -34,11 +34,14 @@ export class HippyText extends HippyNode {
     super(NodeType.TextNode, ssrNode);
     this.text = text;
     this.data = text;
+
+    // text nodes do not need to be inserted into Native
+    this.isNeedInsertToNative = false;
   }
 
   public setText(text: string): void {
     this.text = text;
-    if (this.parentNode && this.nodeType === NodeType.ElementNode) {
+    if (this.parentNode && this.parentNode.nodeType === NodeType.ElementNode) {
       (this.parentNode as HippyElement).setText(text);
     }
   }
