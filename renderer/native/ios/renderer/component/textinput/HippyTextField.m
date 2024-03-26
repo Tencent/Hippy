@@ -27,7 +27,7 @@
 #import "HippyTextSelection.h"
 #import "UIView+Hippy.h"
 
-@implementation NativeRenderUITextField
+@implementation HippyUITextField
 
 - (void)setKeyboardType:(UIKeyboardType)keyboardType {
     if(self.keyboardType == keyboardType){
@@ -111,12 +111,12 @@
 
 @end
 
-@interface HippyTextField () <NativeRenderUITextFieldResponseDelegate>
+@interface HippyTextField () <HippyUITextFieldResponseDelegate>
 @end
 
 @implementation HippyTextField {
     UITextRange *_previousSelectionRange;
-    NativeRenderUITextField *_textView;
+    HippyUITextField *_textView;
 }
 
 - (void)keyboardWillShow:(NSNotification *)aNotification {
@@ -140,7 +140,7 @@
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
         [self setContentInset:UIEdgeInsetsZero];
-        _textView = [[NativeRenderUITextField alloc] initWithFrame:CGRectZero];
+        _textView = [[HippyUITextField alloc] initWithFrame:CGRectZero];
         _textView.responderDelegate = self;
         _textView.backgroundColor = [UIColor clearColor];
         _textView.textColor = [UIColor blackColor];

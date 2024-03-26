@@ -25,7 +25,7 @@
 #import "HippyComponent.h"
 #import "NativeRenderTouchesView.h"
 
-@class NativeRenderGradientObject;
+@class HippyGradientObject;
 
 @interface HippyView : NativeRenderTouchesView
 
@@ -91,5 +91,5 @@
 @property (nonatomic, strong) NSString *backgroundSize;
 @property (nonatomic, assign) CGFloat backgroundPositionX;
 @property (nonatomic, assign) CGFloat backgroundPositionY;
-@property (nonatomic, strong) NativeRenderGradientObject *gradientObject;
+@property (nonatomic, strong) HippyGradientObject *gradientObject;
 @end

@@ -24,12 +24,12 @@
 #import "HippyAssert.h"
 #import "HippyView.h"
 #import "UIView+Hippy.h"
-#import "NativeRenderDefines.h"
 #import "HippyInvalidating.h"
 #import "HippyBridge.h"
 #import "HippyUIManager.h"
 #import "HippyDeviceBaseInfo.h"
 #import "HippyTouchHandler.h"
+#import "HippyJSExecutor.h"
 #include <objc/runtime.h>
 
 // Sent when the first subviews are added to the root view
@@ -160,6 +160,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
                 // Execute loadInstance first and then do call back, maintain compatibility with hippy2
                 dispatch_async(dispatch_get_main_queue(), ^{
                     __strong __typeof(weakSelf)strongSelf = weakSelf;
+                    if (!strongSelf) {
+                        return;
+                    }
                     if (!error && !strongSelf.disableAutoRunApplication) {
                         [strongSelf runHippyApplication];
                     }
@@ -232,7 +235,16 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     
     // Register RootView
     [self.bridge setRootView:contentView];
+    // Run Application
     [self.bridge loadInstanceForRootView:self.hippyTag withProperties:self.appProperties];
+    // Call callback if needed
+    if ([self.delegate respondsToSelector:@selector(rootViewRunApplicationFinished:)]) {
+        __weak __typeof(self)weakSelf = self;
+        [self.bridge.javaScriptExecutor executeBlockOnJavaScriptQueue:^{
+            __strong __typeof(weakSelf)strongSelf = weakSelf;
+            [strongSelf.delegate rootViewRunApplicationFinished:strongSelf];
+        }];
+    }
     self.contentView = contentView;
     [self insertSubview:contentView atIndex:0];
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", self.moduleName, self.appProperties);
@@ -399,7 +411,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder
             strongSelf->_contentHasAppeared = YES;
             // int64_t cost = [strongSelf.bridge.performanceLogger durationForTag:HippyPLTTI];
             [[NSNotificationCenter defaultCenter] postNotificationName:HippyContentDidAppearNotification
-                                                                object:self userInfo:@{
+                                                                object:self.superview userInfo:@{
                 // @"cost": @(cost)
             }];
         }

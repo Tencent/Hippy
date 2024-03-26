@@ -29,7 +29,7 @@
 
 @implementation UIView (Render)
 
-- (HippyUIManager *)renderImpl {
+- (HippyUIManager *)uiManager {
     auto renderManager = [self renderManager].lock();
     if (renderManager) {
         auto nativeRenderManager = std::static_pointer_cast<NativeRenderManager>(renderManager);

@@ -21,14 +21,13 @@
  */
 
 #import <Foundation/Foundation.h>
-
 #import "HippyBridgeModule.h"
 #import "HippyDefines.h"
 #import "HippyInvalidating.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@class HippyBridge, HippyModuleData, HippyModuleData;
 
-HIPPY_EXTERN NSArray<Class> *HippyGetModuleClasses(void);
+NS_ASSUME_NONNULL_BEGIN
 
 #if HIPPY_DEBUG
 HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
@@ -44,31 +43,44 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
  */
 typedef NSArray<id<HippyBridgeModule>> *_Nullable(^HippyBridgeModuleProviderBlock)(void);
 
-@class HippyBridge, HippyModuleData, HippyModuleData;
 
+/// Helper class responsible for managing Modules
 @interface HippyModulesSetup : NSObject<HippyInvalidating>
 
-@property(nonatomic, copy, readonly) HippyBridgeModuleProviderBlock moduleProvider;
+/// All Module Classes
+@property (nonatomic, copy, readonly) NSArray<Class> *moduleClasses;
 
-@property(nonatomic, copy, readonly) NSArray<Class> *moduleClasses;
+/// Is Module setup somplete
+@property (nonatomic, readonly) BOOL isModuleSetupComplete;
 
-@property(readonly, assign) BOOL moduleSetupComplete;
-
+/// Init Method
+/// - Parameters:
+///   - bridge: HippyBridge
+///   - moduleProvider: provider block
 - (instancetype)initWithBridge:(HippyBridge *)bridge extraProviderModulesBlock:(HippyBridgeModuleProviderBlock)moduleProvider;
 
-- (void)setupModulesCompletion:(dispatch_block_t)completion;
+/// Setup Modules
+/// - Parameter completion: block
+- (void)setupModulesWithCompletionBlock:(dispatch_block_t)completion;
 
+/// Get module data dictionary
 - (NSDictionary<NSString *, HippyModuleData *> *)moduleDataByName;
 
+/// Get module data array
 - (NSArray<HippyModuleData *> *)moduleDataByID;
 
+/// Get module object with given name
+/// - Parameter moduleName: string
 - (id)moduleForName:(NSString *)moduleName;
 
+/// Get module with given class
+/// - Parameter cls: Class
 - (id)moduleForClass:(Class)cls;
 
-- (BOOL)moduleIsInitialized:(Class)moduleClass;
+/// Whether module is Initialized
+/// - Parameter moduleClass: Class
+- (BOOL)isModuleInitialized:(Class)moduleClass;
 
-- (void)invalidate;
 
 @end
 

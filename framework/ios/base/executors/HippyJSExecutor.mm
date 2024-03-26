@@ -193,6 +193,9 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                 @autoreleasepool {
                     //todo
                     HippyJSExecutor *strongSelf = (__bridge HippyJSExecutor*)data;
+                    if (!strongSelf) {
+                        return;
+                    }
                     const auto &context = strongSelf.pScope->GetContext();
                     if (context->IsString(info[0])) {
                         NSString *name = ObjectFromCtxValue(context, info[0]);
@@ -275,7 +278,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 }
 
 - (SharedCtxValuePtr)JSTurboObjectWithName:(NSString *)name {
-    //create HostObject by name
+    // create HostObject by name
     HippyOCTurboModule *turboModule = [self->_bridge turboModuleWithName:name];
     auto scope = self->_pScope;
     auto context = scope->GetContext();
@@ -286,37 +289,42 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     // create jsProxy
     std::string turbo_name([name UTF8String]);
     if (scope->HasTurboInstance(turbo_name)) {
-      return scope->GetTurboInstance(turbo_name);
+        return scope->GetTurboInstance(turbo_name);
     }
+    
+    CFTypeRef retainedTurboModule = CFBridgingRetain(turboModule);
     auto wrapper = std::make_unique<hippy::FunctionWrapper>([](hippy::CallbackInfo& info, void* data) {
-      auto name = info[0];
-      if (!name) {
-        return;
-      }
-      HippyOCTurboModule *turbo = (__bridge HippyOCTurboModule*) data;
-      auto turbo_wrapper = std::make_unique<TurboWrapper>(turbo, info[0]);
-      auto func_wrapper = std::make_unique<hippy::FunctionWrapper>([](hippy::CallbackInfo& info, void* data) {
-        std::vector<std::shared_ptr<hippy::CtxValue>> argv;
-        for (size_t i = 0; i < info.Length(); ++i) {
-          argv.push_back(info[i]);
+        auto name = info[0];
+        if (!name) {
+            CFRelease(data);
+            return;
         }
+        HippyOCTurboModule *turbo = (__bridge HippyOCTurboModule*)data;
+        auto turbo_wrapper = std::make_unique<TurboWrapper>(turbo, info[0]);
+        auto func_wrapper = std::make_unique<hippy::FunctionWrapper>([](hippy::CallbackInfo& info, void* data) {
+            std::vector<std::shared_ptr<hippy::CtxValue>> argv;
+            for (size_t i = 0; i < info.Length(); ++i) {
+                argv.push_back(info[i]);
+            }
+            auto scope_wrapper = reinterpret_cast<hippy::ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+            auto scope = scope_wrapper->scope.lock();
+            FOOTSTONE_CHECK(scope);
+            auto turbo_wrapper = reinterpret_cast<TurboWrapper*>(data);
+            HippyOCTurboModule *turbo = turbo_wrapper->module;
+            auto name = turbo_wrapper->name;
+            auto result = [turbo invokeOCMethod:scope->GetContext() this_val:name args:argv.data() count:argv.size()];
+            info.GetReturnValue()->Set(result);
+        }, turbo_wrapper.get());
+        [turbo saveTurboWrapper:name turbo:std::move(turbo_wrapper)];
         auto scope_wrapper = reinterpret_cast<hippy::ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
         auto scope = scope_wrapper->scope.lock();
         FOOTSTONE_CHECK(scope);
-        auto turbo_wrapper = reinterpret_cast<TurboWrapper*>(data);
-        HippyOCTurboModule *turbo = turbo_wrapper->module;
-        auto name = turbo_wrapper->name;
-        auto result = [turbo invokeOCMethod:scope->GetContext() this_val:name args:argv.data() count:argv.size()];
-        info.GetReturnValue()->Set(result);
-      }, turbo_wrapper.get());
-      [turbo saveTurboWrapper:name turbo:std::move(turbo_wrapper)];
-      auto scope_wrapper = reinterpret_cast<hippy::ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
-      auto scope = scope_wrapper->scope.lock();
-      FOOTSTONE_CHECK(scope);
-      auto func = scope->GetContext()->CreateFunction(func_wrapper);
-      scope->SaveFunctionWrapper(std::move(func_wrapper));
-      info.GetReturnValue()->Set(func);
-    }, (__bridge void*)turboModule);
+        auto func = scope->GetContext()->CreateFunction(func_wrapper);
+        scope->SaveFunctionWrapper(std::move(func_wrapper));
+        info.GetReturnValue()->Set(func);
+        CFRelease(data);
+    }, (void *)retainedTurboModule);
+    
     auto obj = scope->GetContext()->DefineProxy(wrapper);
     scope->SaveFunctionWrapper(std::move(wrapper));
     scope->SetTurboInstance(turbo_name, obj);

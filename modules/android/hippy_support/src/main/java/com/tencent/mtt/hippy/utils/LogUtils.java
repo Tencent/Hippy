@@ -27,6 +27,10 @@ public class LogUtils {
         DEBUG_ENABLE = debuggable;
     }
 
+    public static boolean isDebugMode() {
+        return DEBUG_ENABLE;
+    }
+
     public static void d(String tag, String msg) {
         if (DEBUG_ENABLE) {
             Log.d(tag, msg);

@@ -23,6 +23,7 @@
 #ifndef HippyUIManager_Private_h
 #define HippyUIManager_Private_h
 
+#import "HippyUIManager.h"
 #include <memory>
 #include <unordered_map>
 #include <functional>

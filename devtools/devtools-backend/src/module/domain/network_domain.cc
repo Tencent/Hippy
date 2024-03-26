@@ -23,7 +23,7 @@
 #include "footstone/logging.h"
 #include "module/domain_register.h"
 #include "nlohmann/json.hpp"
-#include "libbase64.h"
+#include "websocketpp/base64/base64.hpp"
 
 namespace hippy::devtools {
 constexpr char kResponseBody[] = "body";
@@ -53,9 +53,7 @@ void NetworkDomain::GetResponseBody(const NetworkResponseBodyRequest& request) {
       auto body_data = response.GetBodyData();
       response_json[kResponseBase64Encoded] = is_encode_base64;
       if (is_encode_base64) {
-        size_t out_len = 4 * ((body_data.length() + 2) / 3);
-        std::string encode_body(out_len, '\0');
-        base64_encode(body_data.c_str(), body_data.length(), encode_body.data(), &out_len, 0);
+        std::string encode_body = websocketpp::base64_encode(body_data);
         response_json[kResponseBody] = encode_body;
       } else {
         response_json[kResponseBody] = body_data;

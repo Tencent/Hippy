@@ -23,7 +23,7 @@
 #import "HippyConvert.h"
 #import "HippyUtils.h"
 #import "HippyBorderDrawing.h"
-#import "NativeRenderGradientObject.h"
+#import "HippyGradientObject.h"
 #import "HippyView.h"
 #import "UIView+DomEvent.h"
 #import "UIView+Hippy.h"
