@@ -126,9 +126,6 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 /// Update view with props
 - (void)updateView:(NSNumber *)componentTag onRootTag:(NSNumber *)rootTag props:(NSDictionary *)pros;
 
-/// Get viewManager Name
-/// @param viewName NSString
-- (__kindof HippyViewManager *)renderViewManagerForViewName:(NSString *)viewName;
 
 /**
  * Manully create views recursively from renderObject
