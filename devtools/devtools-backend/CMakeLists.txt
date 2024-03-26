@@ -75,6 +75,8 @@ add_compile_definitions(
     # no exception
     "_WEBSOCKETPP_NO_EXCEPTIONS_")
 target_include_directories(${PROJECT_NAME} PRIVATE ${websocketpp_SOURCE_DIR})
+# websocketpp/base64/base64.hpp has some implicit conversion warnings currently
+target_compile_options(${PROJECT_NAME} PRIVATE -Wno-error)
 # endregion
 
 # region nlohmann_json
