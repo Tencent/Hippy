@@ -567,6 +567,78 @@ describe('runtime/element/hippy-element', () => {
       const nativeNodeList = element.convertToNativeNodes(true);
       expect(nativeNodeList.length).toEqual(2);
     });
+    it('registered camelize tag should return correct native node', () => {
+      // custom component
+      const customElement: ElementComponent = {
+        component: {
+          name: 'Text',
+          attributeMaps: {},
+          eventNamesMap: new Map(),
+          defaultNativeProps: {
+            text: '',
+          },
+        },
+      };
+      registerElement('CustomTag', customElement);
+      const element = new HippyElement('custom-tag');
+      const childElement = new HippyElement('custom-tag');
+      element.appendChild(childElement);
+      const [nativeNode] = element.convertToNativeNodes(false);
+      expect(nativeNode).toEqual(expect.objectContaining({
+        pId: 1,
+        index: 0,
+        name: 'Text',
+        id: 64,
+        props: {
+          text: '',
+          style: {},
+          attributes: {
+            id: '',
+            class: '',
+            hippyNodeId: '64',
+          },
+        },
+        tagName: 'custom-tag',
+      }));
+      const nativeNodeList = element.convertToNativeNodes(true);
+      expect(nativeNodeList.length).toEqual(2);
+    });
+    it('registered hyphenate tag should return correct native node', () => {
+      // custom component
+      const customElement: ElementComponent = {
+        component: {
+          name: 'Text',
+          attributeMaps: {},
+          eventNamesMap: new Map(),
+          defaultNativeProps: {
+            text: '',
+          },
+        },
+      };
+      registerElement('Custom-Tag', customElement);
+      const element = new HippyElement('custom-tag');
+      const childElement = new HippyElement('custom-tag');
+      element.appendChild(childElement);
+      const [nativeNode] = element.convertToNativeNodes(false);
+      expect(nativeNode).toEqual(expect.objectContaining({
+        pId: 1,
+        index: 0,
+        name: 'Text',
+        id: 66,
+        props: {
+          text: '',
+          style: {},
+          attributes: {
+            id: '',
+            class: '',
+            hippyNodeId: '66',
+          },
+        },
+        tagName: 'custom-tag',
+      }));
+      const nativeNodeList = element.convertToNativeNodes(true);
+      expect(nativeNodeList.length).toEqual(2);
+    });
   });
 
   describe('root node id check', () => {
