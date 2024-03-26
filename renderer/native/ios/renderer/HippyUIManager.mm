@@ -1433,17 +1433,18 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
             BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:name.c_str()];
             BOOL canBePreventedInBubbling = [view canBePreventInBubbling:name.c_str()];
             __weak id weakSelf = self;
+            std::string name_ = name;
             [view addPropertyEvent:[mapToEventName UTF8String] eventCallback:^(NSDictionary *body) {
                 id strongSelf = weakSelf;
                 if (strongSelf) {
                     [strongSelf domNodeForComponentTag:node_id onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> domNode) {
-                        if (domNode) {
+                        if (domNode && name_.length() > 0) {
                             HippyValue value = [body toHippyValue];
                             std::shared_ptr<HippyValue> domValue = std::make_shared<HippyValue>(std::move(value));
-                            auto event = std::make_shared<DomEvent>(name, domNode, canBePreventedInCapturing,
+                            auto event = std::make_shared<DomEvent>(name_, domNode, canBePreventedInCapturing,
                                                                     canBePreventedInBubbling, domValue);
                             domNode->HandleEvent(event);
-                            [strongSelf domEventDidHandle:name forNode:node_id onRoot:root_id];
+                            [strongSelf domEventDidHandle:name_ forNode:node_id onRoot:root_id];
                         }
                     }];
                 }
