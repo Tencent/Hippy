@@ -27,6 +27,7 @@
  * TODO Is it better to obtain component information in the node or where it is used?
  *
  */
+import { camelize } from '@vue/shared'
 import type { NeedToTyped, NativeNodeProps } from '../../types';
 import { normalizeTagName } from '../../util';
 import type { EventsUnionType, HippyEvent } from '../event/hippy-event';
@@ -92,5 +93,11 @@ export function registerElement(
 export function getTagComponent(tagName: string): TagComponent {
   // normalize tag name
   const normalizedTagName = normalizeTagName(tagName);
-  return tagMap.get(normalizedTagName);
+  // lowerCase camelize tag name, compatible vue2 component tag name
+  const lowerCamelizedTagName = camelize(tagName).toLowerCase()
+  // first, get normal tag name. second get lower camelized name
+  // eg. register hippy custom element: registerElement('CustomTag', xxx).
+  // vue tepmlate: vue2 <custom-tag> -> customtag, vue3 <custom-tag> -> custom-tag
+  // so we compatible tag name at here
+  return tagMap.get(normalizedTagName) || tagMap.get(lowerCamelizedTagName);
 }
