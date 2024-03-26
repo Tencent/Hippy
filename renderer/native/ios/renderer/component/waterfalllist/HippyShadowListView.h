@@ -21,7 +21,7 @@
  */
 
 #import "HippyShadowView.h"
-#import "NativeRenderObjectWaterfallItem.h"
+#import "HippyShadowWaterfallItem.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface HippyShadowListView : HippyShadowView <NativeRenderObjectWaterfallItemFrameChangedProtocol>
+@interface HippyShadowListView : HippyShadowView <HippyShadowWaterfallItemFrameChangedProtocol>
 
 ///// Whether current ShadowList is dirty.
 //@property (nonatomic, assign) BOOL isDirty;

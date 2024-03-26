@@ -20,6 +20,7 @@
 
 #pragma once
 #include <string>
+#include <functional>
 #include "api/devtools_config.h"
 #include "api/devtools_define.h"
 

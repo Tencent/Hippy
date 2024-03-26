@@ -2,7 +2,7 @@
 #ENV["js_engine"] = "v8"
 
 install! 'cocoapods',
-         :deterministic_uuids => false,
+         :deterministic_uuids => true,
          :generate_multiple_pod_projects => true
 
 use_frameworks! :linkage => :static  # 静态库framework格式

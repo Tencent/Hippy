@@ -22,14 +22,14 @@
 
 #import <UIKit/UIKit.h>
 #import "HippyComponent.h"
-#import "NativeRenderListTableView.h"
-#import "NativeRenderWaterfallView.h"
+#import "HippyNextListTableView.h"
+#import "HippyWaterfallView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class NativeRenderBaseListViewCell;
+@class HippyNextBaseListViewCell;
 
-@interface NativeRenderSmartViewPagerView : NativeRenderWaterfallView <HippyListTableViewLayoutProtocol>
+@interface NativeRenderSmartViewPagerView : HippyWaterfallView <HippyNextListTableViewLayoutProtocol>
 
 /**
  * Hippy events

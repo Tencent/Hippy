@@ -31,7 +31,7 @@ typedef NS_ENUM(NSUInteger, HippyRefreshStatus) {
 };
 
 @class HippyRefresh;
-@protocol NativeRenderRefreshDelegate <NSObject>
+@protocol HippyRefreshDelegate <NSObject>
 
 @optional
 - (void)refreshView:(HippyRefresh *)refreshView statusChanged:(HippyRefreshStatus)status;
@@ -42,12 +42,12 @@ typedef NS_ENUM(NSUInteger, HippyRefreshStatus) {
 @protected
     __weak UIScrollView *_scrollView;
     HippyRefreshStatus _status;
-    __weak id<NativeRenderRefreshDelegate> _delegate;
+    __weak id<HippyRefreshDelegate> _delegate;
 }
 
 @property (nonatomic, weak) UIScrollView *scrollView;
 @property (nonatomic, readonly) HippyRefreshStatus status;
-@property (nonatomic, weak) id<NativeRenderRefreshDelegate> delegate;
+@property (nonatomic, weak) id<HippyRefreshDelegate> delegate;
 
 - (void)unsetFromScrollView;
 

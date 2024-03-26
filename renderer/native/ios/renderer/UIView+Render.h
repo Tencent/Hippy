@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UIView (Render)
 
-- (HippyUIManager *)renderImpl;
+- (HippyUIManager *)uiManager;
 
 @end
 

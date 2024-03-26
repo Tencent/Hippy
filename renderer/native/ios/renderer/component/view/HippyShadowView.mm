@@ -143,14 +143,14 @@ static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
     return NO;
 }
 
-- (NativeRenderCreationType)creationType {
-    if (NativeRenderCreationTypeUndetermined == _creationType) {
+- (HippyCreationType)creationType {
+    if (HippyCreationTypeUndetermined == _creationType) {
         HippyShadowView *superRenderObject = [self parent];
         if (superRenderObject && ![superRenderObject isHippyRootView]) {
             _creationType = [superRenderObject creationType];
         }
         else {
-            _creationType = NativeRenderCreationTypeInstantly;
+            _creationType = HippyCreationTypeInstantly;
         }
     }
     return _creationType;
@@ -161,7 +161,7 @@ static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
 }
 
 - (void)synchronousRecusivelySetCreationTypeToInstant {
-    self.creationType = NativeRenderCreationTypeInstantly;
+    self.creationType = HippyCreationTypeInstantly;
     for (HippyShadowView *subShadowView in self.subcomponents) {
         [subShadowView synchronousRecusivelySetCreationTypeToInstant];
     }

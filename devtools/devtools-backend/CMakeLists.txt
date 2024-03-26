@@ -54,13 +54,6 @@ GlobalPackages_Add(footstone)
 target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
-# region base64
-InfraPackage_Add(base64
-        REMOTE "global_packages/base64/v0.5.0/git-repo.tgz"
-        LOCAL "third_party/base64")
-target_link_libraries(${PROJECT_NAME} PRIVATE base64)
-# endregion
-
 # region asio
 InfraPackage_Add(asio
     REMOTE "devtools/backend/third_party/asio/1.22.1/asio.tar.gz"

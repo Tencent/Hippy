@@ -26,6 +26,7 @@
 #include <codecvt>
 #include <mutex>
 #include <sstream>
+#include <functional>
 
 #include "footstone/log_level.h"
 #include "footstone/macros.h"

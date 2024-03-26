@@ -29,15 +29,15 @@
 @implementation HippyConvert
 
 
-HP_CONVERTER(id, id, self)
-HP_CONVERTER(BOOL, BOOL, boolValue)
-HP_NUMBER_CONVERTER(double, doubleValue)
-HP_NUMBER_CONVERTER(float, floatValue)
-HP_NUMBER_CONVERTER(int, intValue)
-HP_NUMBER_CONVERTER(int64_t, longLongValue)
-HP_NUMBER_CONVERTER(uint64_t, unsignedLongLongValue)
-HP_NUMBER_CONVERTER(NSInteger, integerValue)
-HP_NUMBER_CONVERTER(NSUInteger, unsignedIntegerValue)
+HIPPY_CONVERTER(id, id, self)
+HIPPY_CONVERTER(BOOL, BOOL, boolValue)
+HIPPY_NUMBER_CONVERTER(double, doubleValue)
+HIPPY_NUMBER_CONVERTER(float, floatValue)
+HIPPY_NUMBER_CONVERTER(int, intValue)
+HIPPY_NUMBER_CONVERTER(int64_t, longLongValue)
+HIPPY_NUMBER_CONVERTER(uint64_t, unsignedLongLongValue)
+HIPPY_NUMBER_CONVERTER(NSInteger, integerValue)
+HIPPY_NUMBER_CONVERTER(NSUInteger, unsignedIntegerValue)
 /**
  * This macro is used for creating converter functions for directly
  * representable json values that require no conversion.
@@ -64,7 +64,7 @@ HP_JSON_CONVERTER(NSDictionary)
 HP_JSON_CONVERTER(NSString)
 HP_JSON_CONVERTER(NSNumber)
             
-HP_CUSTOM_CONVERTER(NSSet *, NSSet, [NSSet setWithArray:json])
+HIPPY_CUSTOM_CONVERTER(NSSet *, NSSet, [NSSet setWithArray:json])
 
 + (NSData*)NSData:(id)json {
     if([json isKindOfClass:[NSString class]]) {
@@ -217,10 +217,10 @@ HP_CUSTOM_CONVERTER(NSSet *, NSSet, [NSSet setWithArray:json])
 }
 
 // JS Standard for time is milliseconds
-HP_CUSTOM_CONVERTER(NSTimeInterval, NSTimeInterval, [self double:json] / 1000.0)
+HIPPY_CUSTOM_CONVERTER(NSTimeInterval, NSTimeInterval, [self double:json] / 1000.0)
 
 // JS standard for time zones is minutes.
-HP_CUSTOM_CONVERTER(NSTimeZone *, NSTimeZone, [NSTimeZone timeZoneForSecondsFromGMT:[self double:json] * 60.0])
+HIPPY_CUSTOM_CONVERTER(NSTimeZone *, NSTimeZone, [NSTimeZone timeZoneForSecondsFromGMT:[self double:json] * 60.0])
 
 NSNumber *HippyConvertEnumValue(__unused const char *typeName, NSDictionary *mapping, NSNumber *defaultValue, id json) {
     if (!json) {
@@ -260,7 +260,7 @@ NSNumber *HippyConvertMultiEnumValue(const char *typeName, NSDictionary *mapping
     return HippyConvertEnumValue(typeName, mapping, defaultValue, json);
 }
 
-HP_ENUM_CONVERTER(NSLineBreakMode, (@{
+HIPPY_ENUM_CONVERTER(NSLineBreakMode, (@{
     @"clip": @(NSLineBreakByClipping),
     @"head": @(NSLineBreakByTruncatingHead),
     @"tail": @(NSLineBreakByTruncatingTail),
@@ -269,7 +269,7 @@ HP_ENUM_CONVERTER(NSLineBreakMode, (@{
 }),
 NSLineBreakByTruncatingTail, integerValue)
 
-HP_ENUM_CONVERTER(NSTextAlignment, (@{
+HIPPY_ENUM_CONVERTER(NSTextAlignment, (@{
     @"auto": @(NSTextAlignmentNatural),
     @"left": @(NSTextAlignmentLeft),
     @"center": @(NSTextAlignmentCenter),
@@ -278,7 +278,7 @@ HP_ENUM_CONVERTER(NSTextAlignment, (@{
 }),
 NSTextAlignmentNatural, integerValue)
 
-HP_ENUM_CONVERTER(NSUnderlineStyle, (@{
+HIPPY_ENUM_CONVERTER(NSUnderlineStyle, (@{
     @"solid": @(NSUnderlineStyleSingle),
     @"double": @(NSUnderlineStyleDouble),
     @"dotted": @(NSUnderlinePatternDot | NSUnderlineStyleSingle),
@@ -286,14 +286,14 @@ HP_ENUM_CONVERTER(NSUnderlineStyle, (@{
 }),
 NSUnderlineStyleSingle, integerValue)
 
-HP_ENUM_CONVERTER(NSWritingDirection, (@{
+HIPPY_ENUM_CONVERTER(NSWritingDirection, (@{
     @"auto": @(NSWritingDirectionNatural),
     @"ltr": @(NSWritingDirectionLeftToRight),
     @"rtl": @(NSWritingDirectionRightToLeft),
 }),
 NSWritingDirectionNatural, integerValue)
 
-HP_ENUM_CONVERTER(UITextAutocapitalizationType, (@{
+HIPPY_ENUM_CONVERTER(UITextAutocapitalizationType, (@{
     @"none": @(UITextAutocapitalizationTypeNone),
     @"words": @(UITextAutocapitalizationTypeWords),
     @"sentences": @(UITextAutocapitalizationTypeSentences),
@@ -301,7 +301,7 @@ HP_ENUM_CONVERTER(UITextAutocapitalizationType, (@{
 }),
 UITextAutocapitalizationTypeSentences, integerValue)
 
-HP_ENUM_CONVERTER(UITextFieldViewMode, (@{
+HIPPY_ENUM_CONVERTER(UITextFieldViewMode, (@{
     @"never": @(UITextFieldViewModeNever),
     @"while-editing": @(UITextFieldViewModeWhileEditing),
     @"unless-editing": @(UITextFieldViewModeUnlessEditing),
@@ -309,7 +309,7 @@ HP_ENUM_CONVERTER(UITextFieldViewMode, (@{
 }),
 UITextFieldViewModeNever, integerValue)
 
-HP_ENUM_CONVERTER(UIKeyboardType, (@{
+HIPPY_ENUM_CONVERTER(UIKeyboardType, (@{
     @"default": @(UIKeyboardTypeDefault),
     @"phone-pad": @(UIKeyboardTypePhonePad),
     @"email": @(UIKeyboardTypeEmailAddress),
@@ -329,7 +329,7 @@ HP_ENUM_CONVERTER(UIKeyboardType, (@{
 }),
 UIKeyboardTypeDefault, integerValue)
 
-HP_MULTI_ENUM_CONVERTER(UIDataDetectorTypes, (@{
+HIPPY_MULTI_ENUM_CONVERTER(UIDataDetectorTypes, (@{
     @"phoneNumber": @(UIDataDetectorTypePhoneNumber),
     @"link": @(UIDataDetectorTypeLink),
     @"address": @(UIDataDetectorTypeAddress),
@@ -339,14 +339,14 @@ HP_MULTI_ENUM_CONVERTER(UIDataDetectorTypes, (@{
 }),
 UIDataDetectorTypePhoneNumber, unsignedIntegerValue)
 
-HP_ENUM_CONVERTER(UIKeyboardAppearance, (@{
+HIPPY_ENUM_CONVERTER(UIKeyboardAppearance, (@{
     @"default": @(UIKeyboardAppearanceDefault),
     @"light": @(UIKeyboardAppearanceLight),
     @"dark": @(UIKeyboardAppearanceDark),
 }),
 UIKeyboardAppearanceDefault, integerValue)
 
-HP_ENUM_CONVERTER(UIReturnKeyType, (@{
+HIPPY_ENUM_CONVERTER(UIReturnKeyType, (@{
     @"default": @(UIReturnKeyDefault),
     @"go": @(UIReturnKeyGo),
     @"google": @(UIReturnKeyGoogle),
@@ -361,7 +361,7 @@ HP_ENUM_CONVERTER(UIReturnKeyType, (@{
 }),
 UIReturnKeyDefault, integerValue)
 
-HP_ENUM_CONVERTER(UIViewContentMode, (@{
+HIPPY_ENUM_CONVERTER(UIViewContentMode, (@{
     @"scale-to-fill": @(UIViewContentModeScaleToFill),
     @"scale-aspect-fit": @(UIViewContentModeScaleAspectFit),
     @"scale-aspect-fill": @(UIViewContentModeScaleAspectFill),
@@ -382,7 +382,7 @@ HP_ENUM_CONVERTER(UIViewContentMode, (@{
 }),
 UIViewContentModeScaleAspectFill, integerValue)
 
-HP_ENUM_CONVERTER(UIBarStyle, (@{
+HIPPY_ENUM_CONVERTER(UIBarStyle, (@{
     @"default": @(UIBarStyleDefault),
     @"black": @(UIBarStyleBlack),
 }),
@@ -434,19 +434,19 @@ static void HippyConvertCGStructValue(__unused const char *type, NSArray *fields
         return result;                                                                      \
     }
 
-HP_CUSTOM_CONVERTER(CGFloat, CGFloat, [self double:json])
+HIPPY_CUSTOM_CONVERTER(CGFloat, CGFloat, [self double:json])
 HP_CGSTRUCT_CONVERTER(CGPoint, (@[@"x", @"y"]), (@{ @"l": @"x", @"t": @"y" }))
 HP_CGSTRUCT_CONVERTER(CGSize, (@[@"width", @"height"]), (@{ @"w": @"width", @"h": @"height" }))
 HP_CGSTRUCT_CONVERTER(CGRect, (@[@"x", @"y", @"width", @"height"]), (@{ @"l": @"x", @"t": @"y", @"w": @"width", @"h": @"height" }))
 HP_CGSTRUCT_CONVERTER(UIEdgeInsets, (@[@"top", @"left", @"bottom", @"right"]), nil)
-HP_ENUM_CONVERTER(CGLineJoin, (@{
+HIPPY_ENUM_CONVERTER(CGLineJoin, (@{
     @"miter": @(kCGLineJoinMiter),
     @"round": @(kCGLineJoinRound),
     @"bevel": @(kCGLineJoinBevel),
 }),
 kCGLineJoinMiter, intValue)
 
-HP_ENUM_CONVERTER(CGLineCap, (@{
+HIPPY_ENUM_CONVERTER(CGLineCap, (@{
     @"butt": @(kCGLineCapButt),
     @"round": @(kCGLineCapRound),
     @"square": @(kCGLineCapSquare),
@@ -520,15 +520,15 @@ SEL HippyConvertSelectorForType(NSString *type) {
     return NSSelectorFromString([HippyParseType(&input) stringByAppendingString:@":"]);
 }
 
-HP_ARRAY_CONVERTER(NSURL)
-HP_ARRAY_CONVERTER(UIColor)
+HIPPY_ARRAY_CONVERTER(NSURL)
+HIPPY_ARRAY_CONVERTER(UIColor)
 
 /**
  * This macro is used for creating converter functions for directly
  * representable json array values that require no conversion.
  */
 #if HIPPY_DEBUG
-#define HP_JSON_ARRAY_CONVERTER(type) HP_ARRAY_CONVERTER(type)
+#define HP_JSON_ARRAY_CONVERTER(type) HIPPY_ARRAY_CONVERTER(type)
 #else
 #define HP_JSON_ARRAY_CONVERTER(type)    \
     +(NSArray *)type##Array : (id)json {            \
@@ -544,7 +544,7 @@ HP_JSON_ARRAY_CONVERTER(NSString)
 HP_JSON_ARRAY_CONVERTER(NSDictionary)
 HP_JSON_ARRAY_CONVERTER(NSNumber)
 
-// Can't use HP_ARRAY_CONVERTER due to bridged cast
+// Can't use HIPPY_ARRAY_CONVERTER due to bridged cast
 + (NSArray *)CGColorArray : (id)json {
     NSMutableArray *colors = [NSMutableArray new];
     for (id value in [self NSArray:json]) {
@@ -603,6 +603,6 @@ static id HippyConvertPropertyListValue(id json) {
     return HippyConvertPropertyListValue(json);
 }
 
-HP_ENUM_CONVERTER(css_backface_visibility_t, (@{ @"hidden": @NO, @"visible": @YES }), YES, boolValue)
+HIPPY_ENUM_CONVERTER(css_backface_visibility_t, (@{ @"hidden": @NO, @"visible": @YES }), YES, boolValue)
 
 @end
