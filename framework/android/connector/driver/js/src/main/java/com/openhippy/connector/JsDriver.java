@@ -73,8 +73,12 @@ public class JsDriver implements Connector {
         onNativeInitEnd(mInstanceId, startTime, endTime);
     }
 
-    public void recordFirstFrameEndTime(long time) {
-        onFirstFrameEnd(mInstanceId, time);
+    public void recordFirstPaintEndTime(long time) {
+        onFirstPaintEnd(mInstanceId, time);
+    }
+
+    public void recordFirstContentfulPaintEndTime(long time) {
+        onFirstContentfulPaintEnd(mInstanceId, time);
     }
 
     public void doRecordResourceLoadResult(@NonNull String uri, long startTime, long endTime,
@@ -166,7 +170,9 @@ public class JsDriver implements Connector {
 
     private native void onNativeInitEnd(int instanceId, long startTime, long endTime);
 
-    private native void onFirstFrameEnd(int instanceId, long time);
+    private native void onFirstPaintEnd(int instanceId, long time);
+
+    private native void onFirstContentfulPaintEnd(int instanceId, long time);
 
     private native void onResourceLoadEnd(int instanceId, String uri, long startTime, long endTime,
             long retCode, String errorMsg);

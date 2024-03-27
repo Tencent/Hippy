@@ -188,6 +188,7 @@ export class Gallery extends Component {
         renderRow={this.renderRow}
         getRowType={this.getRowType}
         getRowKey={this.getRowKey}
+        paintType="fcp"
       />
     );
   }

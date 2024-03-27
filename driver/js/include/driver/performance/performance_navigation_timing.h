@@ -64,6 +64,8 @@ class PerformanceNavigationTiming : public PerformanceEntry {
   DEFINE_SET_AND_GET_METHOD(HippyDomEnd, TimePoint, hippy_dom_end_)
   DEFINE_SET_AND_GET_METHOD(HippyFirstFrameStart, TimePoint, hippy_first_frame_start_)
   DEFINE_SET_AND_GET_METHOD(HippyFirstFrameEnd, TimePoint, hippy_first_frame_end_)
+  DEFINE_SET_AND_GET_METHOD(HippyFirstContentfulPaintEnd, TimePoint, hippy_first_contentful_paint_end_)
+
 #undef DEFINE_SET_AND_GET_METHOD
 
   inline const std::vector<BundleInfo>& GetBundleInfoArray() const {
@@ -86,6 +88,7 @@ class PerformanceNavigationTiming : public PerformanceEntry {
   TimePoint hippy_dom_end_;
   TimePoint hippy_first_frame_start_;
   TimePoint hippy_first_frame_end_;
+  TimePoint hippy_first_contentful_paint_end_;
 };
 
 }
