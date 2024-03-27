@@ -31,7 +31,7 @@
       </router-link>
     </li>
     <li v-if="nativeFeatureList.length">
-      <p class="feature-title">
+      <p class="feature-title" paintType="fcp">
         终端组件 Demos
       </p>
     </li>
