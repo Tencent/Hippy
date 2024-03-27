@@ -108,7 +108,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     private static final String EVENT_PREFIX = "on";
     private static final String SNAPSHOT_CREATE_NODE = "createNode";
     private static final String SNAPSHOT_UPDATE_LAYOUT = "updateLayout";
-    private static final String FCP_KEY = "paintType";
+    private static final String PAINT_TYPE_KEY = "paintType";
     private static final String FCP_VALUE = "fcp";
     /**
      * The max capacity of UI task queue
@@ -494,7 +494,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     private void updateFcpStateIfNeeded(int rootId, @Nullable Map<String, Object> props) {
         if (mFcpBatchState == FCPBatchState.WATCHING && props != null && rootId != SCREEN_SNAPSHOT_ROOT_ID) {
-            if (MapUtils.getStringValue(props, FCP_KEY, "").equalsIgnoreCase(FCP_VALUE)) {
+            if (MapUtils.getStringValue(props, PAINT_TYPE_KEY, "").equalsIgnoreCase(FCP_VALUE)) {
                 mFcpBatchState = FCPBatchState.DETECTED;
             }
         }
