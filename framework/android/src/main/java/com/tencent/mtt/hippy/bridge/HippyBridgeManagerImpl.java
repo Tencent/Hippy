@@ -49,7 +49,6 @@ import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
-import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorGroupType;
 
 import java.lang.ref.WeakReference;
 import org.json.JSONObject;
@@ -225,6 +224,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
     @Override
     public boolean handleMessage(Message msg) {
+        final TimeMonitor timeMonitor = mContext.getMonitor();
         try {
             switch (msg.what) {
                 case MSG_CODE_INIT_BRIDGE: {
@@ -253,9 +253,8 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                                     mThirdPartyAdapter.onRuntimeInit(runtimeId);
                                 }
                                 if (mCoreBundleLoader != null) {
-                                    final TimeMonitor timeMonitor = mContext.getMonitor();
-                                    timeMonitor.startPoint(MonitorGroupType.ENGINE_INITIALIZE,
-                                            TimeMonitor.MONITOR_POINT_LOAD_COMMON_JS);
+                                    timeMonitor.addPoint(TimeMonitor.MONITOR_GROUP_INIT_ENGINE,
+                                            TimeMonitor.MONITOR_POINT_LOAD_VENDOR_JS);
                                     mCoreBundleLoader
                                             .load(mHippyBridge, new NativeCallback(mHandler) {
                                                 @Override
@@ -272,10 +271,8 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                                                                 "load coreJsBundle failed, check your core jsBundle:"
                                                                         + reason);
                                                     }
-                                                    timeMonitor.startPoint(
-                                                            MonitorGroupType.ENGINE_INITIALIZE,
-                                                            TimeMonitor.MONITOR_POINT_NOTIFY_ENGINE_INITIALIZED);
                                                     callback.callback((result == 0), exception);
+                                                    timeMonitor.endGroup(TimeMonitor.MONITOR_GROUP_INIT_ENGINE);
                                                 }
                                             });
                                 } else {
@@ -304,8 +301,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                     }
                     final String bundleUniKey = loader.getBundleUniKey();
                     if (mLoadedBundleInfo != null && !TextUtils.isEmpty(bundleUniKey)
-                            && mLoadedBundleInfo
-                            .contains(bundleUniKey)) {
+                            && mLoadedBundleInfo.contains(bundleUniKey)) {
                         mContext.onLoadModuleCompleted(ModuleLoadStatus.STATUS_REPEAT_LOAD,
                                 "repeat load module. loader.getBundleUniKey=" + bundleUniKey);
                         return true;
@@ -332,6 +328,9 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                                                 "load module error. loader.load failed. check the file!!");
                                     }
                                 }
+                                timeMonitor.endGroup(TimeMonitor.MONITOR_GROUP_RUN_BUNDLE);
+                                timeMonitor.beginGroup(TimeMonitor.MONITOR_GROUP_PAINT);
+                                timeMonitor.addPoint(TimeMonitor.MONITOR_GROUP_PAINT, TimeMonitor.MONITOR_POINT_FIRST_PAINT);
                             }
                         });
                     } else {
@@ -371,8 +370,9 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     @Override
     public void runBundle(int id, HippyBundleLoader loader) {
         if (mHandler != null) {
-            mContext.getMonitor().startPoint(MonitorGroupType.RUN_JS_BUNDLE,
-                    TimeMonitor.MONITOR_POINT_LOAD_BUSINESS_JS);
+            mContext.getMonitor().beginGroup(TimeMonitor.MONITOR_GROUP_RUN_BUNDLE);
+            mContext.getMonitor().addPoint(TimeMonitor.MONITOR_GROUP_RUN_BUNDLE,
+                    TimeMonitor.MONITOR_POINT_LOAD_MAIN_JS);
             Message message = mHandler.obtainMessage(MSG_CODE_RUN_BUNDLE, 0, id, loader);
             mHandler.sendMessage(message);
         }
@@ -381,8 +381,8 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     @Override
     public void loadInstance(String name, int id, HippyMap params) {
         if (mHandler != null) {
-            mContext.getMonitor().startPoint(MonitorGroupType.LOAD_INSTANCE,
-                    TimeMonitor.MONITOR_POINT_LOAD_INSTANCE);
+            mContext.getMonitor().beginGroup(TimeMonitor.MONITOR_GROUP_PAINT);
+            mContext.getMonitor().addPoint(TimeMonitor.MONITOR_GROUP_PAINT, TimeMonitor.MONITOR_POINT_FIRST_PAINT);
             HippyMap map = new HippyMap();
             map.pushString("name", name);
             map.pushInt("id", id);

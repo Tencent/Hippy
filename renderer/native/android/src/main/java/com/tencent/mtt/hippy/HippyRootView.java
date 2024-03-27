@@ -63,7 +63,7 @@ public class HippyRootView extends FrameLayout {
             firstViewAdded = true;
             NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(getContext());
             if (nativeRenderer != null) {
-                nativeRenderer.onFirstViewAdded();
+                nativeRenderer.onFirstPaint();
             }
         }
     }
