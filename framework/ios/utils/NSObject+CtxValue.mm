@@ -32,7 +32,7 @@
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context; {
     @autoreleasepool {
-        HippyLogWarn(@"%@ must implemente convertToCtxValue method", NSStringFromClass([self class]));
+        HippyLogWarn(@"%@ No convertToCtxValue method", NSStringFromClass([self class]));
         std::unordered_map<CtxValuePtr, CtxValuePtr> valueMap;
         return context->CreateObject(valueMap);
     }
@@ -87,7 +87,9 @@
             id value = [self objectForKey:key];
             auto keyPtr = [key convertToCtxValue:context];
             auto valuePtr = [value convertToCtxValue:context];
-            valueMap[keyPtr] = valuePtr;
+            if (keyPtr && valuePtr) {
+                valueMap[keyPtr] = valuePtr;
+            }
         }
         return context->CreateObject(valueMap);
     }
@@ -99,6 +101,9 @@
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
     size_t bufferLength = [self length];
+    if (bufferLength == 0) {
+        return context->CreateNull();
+    }
     void *buffer = malloc(bufferLength);
     if (buffer) {
         [self getBytes:buffer length:bufferLength];
