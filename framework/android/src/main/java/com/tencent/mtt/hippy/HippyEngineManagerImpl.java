@@ -855,6 +855,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
 
         @Override
+        @Nullable
+        public HippyMap getJsParams() {
+            return moduleLoadParams != null ? moduleLoadParams.jsParams : null;
+        }
+
+        @Override
         public HippyGlobalConfigs getGlobalConfigs() {
             return mGlobalConfigs;
         }
