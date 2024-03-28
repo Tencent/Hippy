@@ -106,15 +106,13 @@ class HippyValue;
  * @param hippyTag id of target view whose function invokes
  * @param params parameters of function to be invoked
  * @param cb A callback for the return value of function
- *
- * @result Function return result
  */
-- (id)dispatchFunction:(const std::string &)functionName
-              viewName:(const std::string &)viewName
-               viewTag:(int32_t)hippyTag
-            onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode
-                params:(const footstone::value::HippyValue &)params
-              callback:(hippy::CallFunctionCallback)cb;
+- (void)dispatchFunction:(const std::string &)functionName
+                viewName:(const std::string &)viewName
+                 viewTag:(int32_t)hippyTag
+              onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode
+                  params:(const footstone::value::HippyValue &)params
+                callback:(hippy::CallFunctionCallback)cb;
 
 
 /**
