@@ -360,7 +360,10 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
                                                       userInfo:userInfo];
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+- (void)observeValueForKeyPath:(NSString *)keyPath 
+                      ofObject:(id)object
+                        change:(NSDictionary<NSKeyValueChangeKey,id> *)change
+                       context:(void *)context {
     if ([keyPath isEqualToString:@"frame"] && [object isKindOfClass:[UIView class]]) {
         CGRect curFrame = [change[NSKeyValueChangeNewKey] CGRectValue];
         CGRect oriFrame = [change[NSKeyValueChangeOldKey] CGRectValue];
@@ -705,19 +708,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     [_pendingUIBlocks addObject:block];
 }
 
-- (void)amendPendingUIBlocksWithStylePropagationUpdateForRenderObject:(HippyShadowView *)topView {
-    NSMutableSet<NativeRenderApplierBlock> *applierBlocks = [NSMutableSet setWithCapacity:256];
-
-    [topView collectUpdatedProperties:applierBlocks parentProperties:@{}];
-    if (applierBlocks.count) {
-        [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-            for (NativeRenderApplierBlock block in applierBlocks) {
-                block(viewRegistry, nil);
-            }
-        }];
-    }
-}
-
 - (void)flushUIBlocksOnRootNode:(std::weak_ptr<RootNode>)rootNode {
     // First copy the previous blocks into a temporary variable, then reset the
     // pending blocks to a new array. This guards against mutation while
@@ -762,7 +752,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 #pragma mark - NativeRenderManager implementation
 
 /**
- * When NativeRenderUIManager received command to create view by node, NativeRenderUIManager must get all new created view ordered by index, set frames,
+ * When HippyUIManager received command to create view by node, it gets all new created view ordered by index, set frames,
  * then insert them into superview one by one.
  * Step:
  * 1.create shadow views;
@@ -828,7 +818,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
             }];
         }
     }
-    [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+    [self addUIBlock:^(HippyUIManager *uiManager, __unused NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         for (UIView *view in tempCreatedViews) {
             [uiManager.viewRegistry addComponent:view forRootTag:rootNodeTag];
         }
@@ -838,7 +828,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
         auto subViewIndices_ = subviewIndices;
         HippyShadowView *renderObject = [self->_shadowViewRegistry componentForTag:@(tag) onRootTag:rootNodeTag];
         if (HippyCreationTypeInstantly == [renderObject creationType] && !self->_uiCreationLazilyEnabled) {
-            [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
                 UIView *superView = viewRegistry[@(tag)];
                 for (NSUInteger index = 0; index < subViewTags_.size(); index++) {
                     UIView *subview = viewRegistry[@(subViewTags_[index])];
@@ -851,7 +841,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
             }];
         }
     }];
-    [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+    [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyLogInfo(@"Created views: %lu, full registry: %lu", (unsigned long)tempCreatedViews.count, viewRegistry.count);
     }];
 }
@@ -915,7 +905,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     }
     __weak HippyUIManager *weakSelf = self;
     auto strongNodes = std::move(nodes);
-    [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+    [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyUIManager *strongSelf = weakSelf;
         if (!strongSelf) {
             return;
@@ -969,7 +959,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     [fromObjectView didUpdateHippySubviews];
     [toObjectView didUpdateHippySubviews];
     auto strongTags = std::move(ids);
-    [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+    [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         UIView *fromView = [viewRegistry objectForKey:@(fromContainer)];
         UIView *toView = [viewRegistry objectForKey:@(toContainer)];
         for (int32_t tag : strongTags) {
@@ -1010,7 +1000,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     }
     [parentObjectView didUpdateHippySubviews];
     auto strongNodes = std::move(nodes);
-    [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+    [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         UIView *superView = nil;
         for (auto node : strongNodes) {
             int32_t index = node->GetIndex();
@@ -1048,7 +1038,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
             [renderObject dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
             renderObject.frame = frame;
             renderObject.nodeLayoutResult = layoutResult;
-            [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
                 UIView *view = viewRegistry[componentTag];
                 /* do not use frame directly, because shadow view's frame possibly changed manually in
                  * [HippyShadowView collectRenderObjectHaveNewLayoutResults]
@@ -1404,7 +1394,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
        }];
    } else {
         std::string name_ = eventName;
-        [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+        [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
             UIView *view = [viewRegistry objectForKey:@(componentTag)];
             [view removePropertyEvent:name_.c_str()];
         }];
@@ -1483,8 +1473,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
         }];
     }
     [self addUIBlock:^(HippyUIManager *uiManager, __unused NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        NSSet<id<HippyComponent>> *nodes = [uiManager->_componentTransactionListeners copy];
-        for (id<HippyComponent> node in nodes) {
+        for (id<HippyComponent> node in uiManager->_componentTransactionListeners) {
             [node hippyBridgeDidFinishTransaction];
         }
     }];

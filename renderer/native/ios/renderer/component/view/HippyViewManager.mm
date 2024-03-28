@@ -74,7 +74,7 @@ HIPPY_EXPORT_METHOD(getBoundingClientRect:(nonnull NSNumber *)hippyTag
     }
 }
 
-HIPPY_EXPORT_METHOD(measureInWindow:(NSNumber *)componentTag
+HIPPY_EXPORT_METHOD(measureInWindow:(nonnull NSNumber *)componentTag
                     callback:(HippyPromiseResolveBlock)callback) {
     [self measureInWindow:componentTag withErrMsg:NO callback:callback];
 }
@@ -114,7 +114,7 @@ HIPPY_EXPORT_METHOD(measureInWindow:(NSNumber *)componentTag
     }];
 }
 
-HIPPY_EXPORT_METHOD(measureInAppWindow:(NSNumber *)componentTag
+HIPPY_EXPORT_METHOD(measureInAppWindow:(nonnull NSNumber *)componentTag
                     callback:(HippyPromiseResolveBlock)callback) {
     [self measureInAppWindow:componentTag withErrMsg:NO callback:callback];
 }
