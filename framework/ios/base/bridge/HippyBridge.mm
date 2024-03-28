@@ -70,6 +70,7 @@
 #import "NativeRenderManager.h"
 #import "HippyRootView.h"
 #import "UIView+Hippy.h"
+#import "UIView+MountEvent.h"
 
 
 #ifdef ENABLE_INSPECTOR
@@ -227,6 +228,8 @@ dispatch_queue_t HippyBridgeQueue() {
         registerLogDelegateToHippyCore();
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rootViewContentDidAppear:)
                                                      name:HippyContentDidAppearNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onFirstContentfulPaintEnd:)
+                                                     name:HippyFirstContentfulPaintEndNotification object:nil];
         HippyExecuteOnMainThread(^{
             self->_isOSNightMode = [HippyDeviceBaseInfo isUIScreenInOSDarkMode];
             self.cachedDimensionsInfo = hippyExportedDimensions(self);
@@ -261,6 +264,20 @@ dispatch_queue_t HippyBridgeQueue() {
                 entry->SetHippyDomEnd(domManager->GetDomEndTimePoint());
                 entry->SetHippyFirstFrameStart(domManager->GetDomEndTimePoint());
                 entry->SetHippyFirstFrameEnd(footstone::TimePoint::SystemNow());
+            }
+        }
+    }
+}
+
+- (void)onFirstContentfulPaintEnd:(NSNotification *)noti {
+    UIView *fcpView = [noti object];
+    if (fcpView) {
+        auto domManager = _javaScriptExecutor.pScope->GetDomManager().lock();
+        if (domManager) {
+            auto viewRenderManager = [fcpView renderManager];
+            if (_renderManager == viewRenderManager.lock()) {
+                auto entry = _javaScriptExecutor.pScope->GetPerformance()->PerformanceNavigation("hippyInit");
+                entry->SetHippyFirstContentfulPaintEnd(footstone::TimePoint::SystemNow());
             }
         }
     }
