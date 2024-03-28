@@ -47,12 +47,13 @@
 #import "HippyModulesSetup.h"
 #import "NativeRenderManager.h"
 #import "HippyShadowListView.h"
-#include "dom/root_node.h"
-#include "objc/runtime.h"
-#include <unordered_map>
-
+#import "dom/root_node.h"
+#import "objc/runtime.h"
+#import <unordered_map>
 #import "HippyModuleData.h"
 #import "HippyModuleMethod.h"
+#import <os/lock.h>
+
 
 using HippyValue = footstone::value::HippyValue;
 using DomArgument = hippy::dom::DomArgument;
@@ -175,6 +176,8 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     HippyComponentMap *_viewRegistry;
     HippyComponentMap *_shadowViewRegistry;
 
+    // lock for componentDataByName
+    os_unfair_lock _componentDataLock;
     // Keyed by viewName
     NSMutableDictionary<NSString *, HippyComponentData *> *_componentDataByName;
 
@@ -188,9 +191,10 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     NSArray<Class> *_extraComponents;
     
     NSMutableArray<Class<HippyImageProviderProtocol>> *_imageProviders;
-    
     std::function<void(int32_t, NSDictionary *)> _rootViewSizeChangedCb;
 }
+
+
 
 #if HIPPY_DEBUG
 @property(nonatomic, assign) std::unordered_map<int32_t, std::unordered_map<int32_t, std::shared_ptr<hippy::DomNode>>> domNodesMap;
@@ -225,6 +229,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     _pendingUIBlocks = [NSMutableArray new];
     _componentTransactionListeners = [NSHashTable weakObjectsHashTable];
     _componentDataByName = [NSMutableDictionary dictionary];
+    _componentDataLock = OS_UNFAIR_LOCK_INIT;
     HippyScreenScale();
     HippyScreenSize();
 }
@@ -286,22 +291,25 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     return _renderQueueLock;
 }
 
-#pragma mark -
-#pragma mark View Manager
+
+#pragma mark - View Manager
+
 - (HippyComponentData *)componentDataForViewName:(NSString *)viewName {
-    if (viewName) {
-        HippyComponentData *componentData = _componentDataByName[viewName];
-        if (!componentData) {
-            HippyViewManager *viewManager = [self viewManagerForViewName:viewName];
-            NSAssert(viewManager, @"No view manager found for %@", viewName);
-            if (viewManager) {
-                componentData = [[HippyComponentData alloc] initWithViewManager:viewManager viewName:viewName];
-                _componentDataByName[viewName] = componentData;
-            }
-        }
-        return componentData;
+    if (!viewName) {
+        return nil;
     }
-    return nil;
+    os_unfair_lock_lock(&_componentDataLock);
+    HippyComponentData *componentData = _componentDataByName[viewName];
+    if (!componentData) {
+        HippyViewManager *viewManager = [self viewManagerForViewName:viewName];
+        NSAssert(viewManager, @"No view manager found for %@", viewName);
+        if (viewManager) {
+            componentData = [[HippyComponentData alloc] initWithViewManager:viewManager viewName:viewName];
+            _componentDataByName[viewName] = componentData;
+        }
+    }
+    os_unfair_lock_unlock(&_componentDataLock);
+    return componentData;
 }
 
 - (void)registerRootView:(UIView *)rootView asRootNode:(std::weak_ptr<RootNode>)rootNode {
@@ -1417,21 +1425,20 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     int32_t root_id = strongRootNode->GetId();
     int32_t node_id = view.hippyTag.intValue;
     if (view) {
-        std::string name_ = name;
-        NSDictionary *componentDataByName = [_componentDataByName copy];
         NSString *viewName = view.viewName;
-        HippyComponentData *component = componentDataByName[viewName];
+        HippyComponentData *component = [self componentDataForViewName:viewName];
         NSDictionary<NSString *, NSString *> *eventMap = [component eventNameMap];
-        NSString *mapToEventName = [eventMap objectForKey:[NSString stringWithUTF8String:name_.c_str()]];
+        NSString *mapToEventName = [eventMap objectForKey:[NSString stringWithUTF8String:name.c_str()]];
         if (mapToEventName) {
-            BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:name_.c_str()];
-            BOOL canBePreventedInBubbling = [view canBePreventInBubbling:name_.c_str()];
+            BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:name.c_str()];
+            BOOL canBePreventedInBubbling = [view canBePreventInBubbling:name.c_str()];
             __weak id weakSelf = self;
+            std::string name_ = name;
             [view addPropertyEvent:[mapToEventName UTF8String] eventCallback:^(NSDictionary *body) {
                 id strongSelf = weakSelf;
                 if (strongSelf) {
                     [strongSelf domNodeForComponentTag:node_id onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> domNode) {
-                        if (domNode) {
+                        if (domNode && name_.length() > 0) {
                             HippyValue value = [body toHippyValue];
                             std::shared_ptr<HippyValue> domValue = std::make_shared<HippyValue>(std::move(value));
                             auto event = std::make_shared<DomEvent>(name_, domNode, canBePreventedInCapturing,
