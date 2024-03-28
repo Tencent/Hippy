@@ -144,14 +144,6 @@ typedef void (^HippyViewInsertionBlock)(UIView *container, NSArray<UIView *> *ch
 - (void)setLayoutFrame:(CGRect)frame dirtyPropagation:(BOOL)dirtyPropagation;
 
 /**
- * Calculate property changes that need to be propagated to the view.
- * The applierBlocks set contains NativeRenderApplierBlock functions that must be applied
- * on the main thread in order to update the view.
- */
-- (void)collectUpdatedProperties:(NSMutableSet<NativeRenderApplierBlock> *)applierBlocks
-                parentProperties:(NSDictionary<NSString *, id> *)parentProperties;
-
-/**
  * Process the updated properties and apply them to view. Shadow view classes
  * that add additional propagating properties should override this method.
  */
