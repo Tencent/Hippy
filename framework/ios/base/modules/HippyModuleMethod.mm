@@ -293,14 +293,26 @@ static void enqueueBlockCallback(HippyBridge *bridge, HippyModuleMethod *moduleM
                 }
             }
         } else if ([typeName isEqualToString:@"HippyResponseSenderBlock"]) {
-            HIPPY_ARG_BLOCK(if (HIPPY_DEBUG && json && ![json isKindOfClass:[NSNumber class]]) {
-                HippyLogArgumentError(weakSelf, index, json, "should be a function");
-                return NO;
-            }
-            __weak HippyBridge *weakBridge = bridge;
-            Hippy_BLOCK_ARGUMENT(^(NSArray *args) {
-                enqueueBlockCallback(weakBridge, weakSelf, json, args);
-            });)
+            HIPPY_ARG_BLOCK(
+                if (!json) {
+                    HippyLogArgumentError(weakSelf, index, json, "should be a response sender function");
+                    return NO;
+                }
+                id blockArg = nil;
+                if (![json isKindOfClass:[NSNumber class]]) {
+                    // In Hippy3.0, Dom Nodes call function by method name directly,
+                    // so it is not a Number anymore.
+                    // See NativeRenderManager::CallFunction() for more.
+                    // TODO: add more type check for safe
+                    blockArg = json;
+                } else {
+                    __weak HippyBridge *weakBridge = bridge;
+                    blockArg = ^(NSArray *args){
+                        enqueueBlockCallback(weakBridge, weakSelf, json, args);
+                    };
+                }
+                Hippy_BLOCK_ARGUMENT(blockArg);
+            )
         } else if ([typeName isEqualToString:@"HippyResponseErrorBlock"]) {
             HIPPY_ARG_BLOCK(if (HIPPY_DEBUG && json && ![json isKindOfClass:[NSNumber class]]) {
                 HippyLogArgumentError(weakSelf, index, json, "should be a function");
@@ -325,6 +337,7 @@ static void enqueueBlockCallback(HippyBridge *bridge, HippyModuleMethod *moduleM
                     // In Hippy3.0, Dom Nodes call function by method name directly,
                     // so it is not a Number anymore.
                     // See NativeRenderManager::CallFunction() for more.
+                    // TODO: add more type check for safe
                     blockArg = json;
                 } else {
                     __weak HippyBridge *weakBridge = bridge;
