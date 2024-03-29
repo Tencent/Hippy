@@ -49,6 +49,14 @@ class HippyValue;
 
 @interface HippyUIManager (Private)
 
+/// Set hippy::RenderManager
+/// - Parameter renderManager: hippy::RenderManager
+- (void)registRenderManager:(std::weak_ptr<hippy::RenderManager>)renderManager;
+
+/// Get hippy::RenderManager
+- (std::weak_ptr<hippy::RenderManager>)renderManager;
+
+
 - (void)registerRootView:(UIView *)rootView asRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
 
 - (void)unregisterRootViewFromTag:(NSNumber *)rootTag;

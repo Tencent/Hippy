@@ -66,16 +66,8 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 /// The HippyUIManager responsible for updating the view hierarchy.
 @interface HippyUIManager : NSObject <HippyInvalidating>
 
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)init NS_UNAVAILABLE;
-
 #ifdef __cplusplus
-/// Init method
-/// - Parameter renderManager: the hippy::RenderManager
-- (instancetype)initWithRenderManager:(std::weak_ptr<hippy::RenderManager>)renderManager NS_DESIGNATED_INITIALIZER;
-
 @property (nonatomic, assign) std::weak_ptr<VFSUriLoader> VFSUriLoader;
-@property (nonatomic, assign) std::weak_ptr<hippy::RenderManager> renderManager;
 @property (nonatomic, readonly) std::weak_ptr<hippy::DomManager> domManager;
 #endif
 
