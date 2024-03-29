@@ -34,6 +34,7 @@ namespace hippy {
 inline namespace driver {
 inline namespace performance {
 
+const char* kPerfNavigationHippyInit = "hippyInit";
 constexpr uint32_t kMaxSize = 250;
 
 Performance::Performance(): resource_timing_current_buffer_size_(0),

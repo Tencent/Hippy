@@ -255,11 +255,19 @@ dispatch_queue_t HippyBridgeQueue() {
 - (void)rootViewContentDidAppear:(NSNotification *)noti {
     UIView *rootView = [noti object];
     if (rootView) {
-        auto domManager = _javaScriptExecutor.pScope->GetDomManager().lock();
-        if (domManager) {
-            auto viewRenderManager = [rootView renderManager];
-            if (_renderManager == viewRenderManager.lock()) {
-                auto entry = _javaScriptExecutor.pScope->GetPerformance()->PerformanceNavigation("hippyInit");
+        auto viewRenderManager = [rootView renderManager];
+        if (_renderManager && _renderManager == viewRenderManager.lock()) {
+            std::shared_ptr<hippy::Scope> scope = _javaScriptExecutor.pScope;
+            if (!scope) {
+                return;
+            }
+            auto domManager = scope->GetDomManager().lock();
+            auto performance = scope->GetPerformance();
+            if (domManager && performance) {
+                auto entry = performance->PerformanceNavigation(hippy::kPerfNavigationHippyInit);
+                if (!entry) {
+                    return;
+                }
                 entry->SetHippyDomStart(domManager->GetDomStartTimePoint());
                 entry->SetHippyDomEnd(domManager->GetDomEndTimePoint());
                 entry->SetHippyFirstFrameStart(domManager->GetDomEndTimePoint());
@@ -272,11 +280,19 @@ dispatch_queue_t HippyBridgeQueue() {
 - (void)onFirstContentfulPaintEnd:(NSNotification *)noti {
     UIView *fcpView = [noti object];
     if (fcpView) {
-        auto domManager = _javaScriptExecutor.pScope->GetDomManager().lock();
-        if (domManager) {
-            auto viewRenderManager = [fcpView renderManager];
-            if (_renderManager == viewRenderManager.lock()) {
-                auto entry = _javaScriptExecutor.pScope->GetPerformance()->PerformanceNavigation("hippyInit");
+        auto viewRenderManager = [fcpView renderManager];
+        if (_renderManager && _renderManager == viewRenderManager.lock()) {
+            std::shared_ptr<hippy::Scope> scope = _javaScriptExecutor.pScope;
+            if (!scope) {
+                return;
+            }
+            auto domManager = scope->GetDomManager().lock();
+            auto performance = scope->GetPerformance();
+            if (domManager && performance) {
+                auto entry = performance->PerformanceNavigation(hippy::kPerfNavigationHippyInit);
+                if (!entry) {
+                    return;
+                }
                 entry->SetHippyFirstContentfulPaintEnd(footstone::TimePoint::SystemNow());
             }
         }
@@ -441,7 +457,7 @@ dispatch_queue_t HippyBridgeQueue() {
             if (strongSelf) {
                 dispatch_semaphore_signal(strongSelf.moduleSemaphore);
                 footstone::TimePoint endTime = footstone::TimePoint::SystemNow();
-                auto enty = strongSelf.javaScriptExecutor.pScope->GetPerformance()->PerformanceNavigation("hippyInit");
+                auto enty = strongSelf.javaScriptExecutor.pScope->GetPerformance()->PerformanceNavigation(hippy::kPerfNavigationHippyInit);
                 enty->SetHippyNativeInitStart(strongSelf->_startTime);
                 enty->SetHippyNativeInitEnd(endTime);
             }
