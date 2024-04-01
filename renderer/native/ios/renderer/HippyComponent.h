@@ -101,5 +101,5 @@ typedef void (^HippyDirectEventBlock)(NSDictionary *body);
 /// Hippy use multiple of 10 as tag of root view
 /// - Parameter hippyTag: hippy tag
 static inline BOOL HippyIsHippyRootView(NSNumber *hippyTag) {
-    return hippyTag.integerValue % 10 == 0;
+    return hippyTag ? hippyTag.integerValue % 10 == 0 : false;
 }
