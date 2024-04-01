@@ -1,7 +1,9 @@
 # Hippy Android 3.x SDK升级指引
 
->这篇教程，主要介绍Hippy Android SDK 从2.x升级3.x版本如何进行适配以及2.x和3.x在使用上的一些差异化。
+> 这篇教程，主要介绍Hippy Android SDK 从2.x升级3.x版本如何进行适配以及2.x和3.x在使用上的一些差异化。
 </br>
+
+---
 
 1. 废弃HippyImageLoader相关实现
 

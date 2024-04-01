@@ -1,6 +1,6 @@
 # Hippy React&Vue 3.x SDK升级指引
 
->这篇教程，主要介绍Hippy React&Vue 如何升级3.0版本以及升级后的相关验证关注点。
+> 这篇教程，主要介绍Hippy React&Vue 如何升级3.0版本以及升级后的相关验证关注点。
 
 ---
 
