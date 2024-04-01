@@ -102,7 +102,7 @@ import icon from './qb_icon_new.png';
 | getHeaderStyle           | 设置 `PullHeader` 容器的样式。当设置了 `horizontal=true` 启用横向 `ListView` 时，需显式设置 `PullHeader` 宽度。`最低支持版本2.14.1`              | `() => styleObject`                                    | `Android、iOS、Voltron` |
 | getFooterStyle           | 设置 `PullFooter` 容器的样式。当设置了 `horizontal=true` 启用横向 `ListView` 时，需显式设置 `PullFooter` 宽度。`最低支持版本2.14.1`              | `() => styleObject`                                    | `Android、iOS、Voltron` |
 | getRowType            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。`注意：同一 type 的 item 组件由于复用可能不会走完整组件创建生命周期` | `(index: number) => number`                                    | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
-| horizontal       | 指定 `ListView` 是否采用横向布局。`default: undefined` 纵向布局，Android `2.14.1` 版本后可设置 `false` 显式固定纵向布局；iOS 暂不支持横向 `ListView`| `boolean \| undefined`   | `Android、hippy-react-web、Voltron` |
+| horizontal       | 指定 `ListView` 是否采用横向布局。`default: undefined` 纵向布局，Android `2.14.1` 版本后可设置 `false` 显式固定纵向布局；iOS 从 `3.0` 开始支持横向 `ListView`| `boolean \| undefined`   | `Android、iOS、hippy-react-web、Voltron` |
 | initialListSize       | 指定在组件刚挂载的时候渲染多少行数据。用这个属性来确保首屏显示合适数量的数据，而不是花费太多帧时间逐步显示出来。 | `number`                                                    | `Android、iOS、Web-Renderer、Voltron` |
 | initialContentOffset  | 初始位移值。在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。Android 在 `2.8.0` 版本后支持        | `number`                                             | `Android、iOS、Web-Renderer、Voltron`    |
 | onAppear     | 当有`ListViewItem`滑动进入屏幕时（曝光）触发，入参返回曝光的`ListViewItem`对应索引值。 | `(index) => void` | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |

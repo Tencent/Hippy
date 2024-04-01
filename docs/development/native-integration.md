@@ -122,14 +122,14 @@
     end
     ```
 
+    > 默认配置下，Hippy SDK使用布局引擎是[Taitank](https://github.com/Tencent/Taitank)，JS引擎是系统的`JavaScriptCore`，如需切换使用其他引擎，请参照下文[《引擎切换（可选）》](#四引擎切换可选)一节调整配置。
+
     !> 请注意，由于hippy3.x中大量使用了 #include"path/to/file.h" 的方式引用C++头文件，因此如果开启了 CocoaPods 的 framework 格式集成选项（即Podfile中 `use_frameworks!` 配置为开启状态），则必须在 Podfile 文件中加入如下配置：
 
     ```text
     # 工程开启 use_frameworks! 后需添加此环境变量，用于hippy使用正确设置项
     ENV["use_frameworks"] = "true"
     ```
-
-    > 默认配置下，Hippy SDK使用布局引擎是[Taitank](https://github.com/Tencent/Taitank)，JS引擎是系统的`JavaScriptCore`，如需切换使用其他引擎，请参照下文[《引擎切换（可选）》](#四引擎切换可选)一节调整配置。
 
 3. 最后，在命令行中执行
 
