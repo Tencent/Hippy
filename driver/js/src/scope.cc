@@ -489,7 +489,7 @@ void Scope::RunJS(const string_view& data,
   auto callback = [WEAK_THIS, data, uri, name, is_copy, weak_context] {
     DEFINE_AND_CHECK_SELF(Scope)
     // perfromance start time
-    auto entry = self->GetPerformance()->PerformanceNavigation("hippyInit");
+    auto entry = self->GetPerformance()->PerformanceNavigation(kPerfNavigationHippyInit);
     entry->BundleInfoOfUrl(uri).execute_source_start_ = footstone::TimePoint::SystemNow();
 
 #ifdef JS_V8
@@ -526,7 +526,7 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
 #endif
     DEFINE_AND_CHECK_SELF(Scope)
     // perfromance start time
-    auto entry = self->GetPerformance()->PerformanceNavigation("hippyInit");
+    auto entry = self->GetPerformance()->PerformanceNavigation(kPerfNavigationHippyInit);
     entry->SetHippyRunApplicationStart(footstone::TimePoint::SystemNow());
 
     std::shared_ptr<Ctx> context = weak_context.lock();

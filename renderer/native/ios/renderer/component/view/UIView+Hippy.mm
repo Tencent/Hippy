@@ -217,14 +217,14 @@ HippyEventMethod(OnTouchEnd, onTouchEnd, OnTouchEventHandler)
     [self clearSortedSubviews];
 }
 
-- (UIView *)NativeRenderRootView {
+- (HippyRootView *)hippyRootView {
     UIView *candidateRootView = self;
     BOOL isRootView = [candidateRootView isHippyRootView];
     while (!isRootView && candidateRootView) {
         candidateRootView = [candidateRootView parent];
         isRootView = [candidateRootView isHippyRootView];
     }
-    return candidateRootView;
+    return isRootView ? (HippyRootView *)candidateRootView.superview : nil;
 }
 
 - (NSInteger)hippyZIndex {
