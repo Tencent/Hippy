@@ -35,6 +35,8 @@ namespace hippy {
 inline namespace driver {
 inline namespace performance {
 
+extern const char* kPerfNavigationHippyInit;
+
 class Performance {
  public:
   using string_view = footstone::string_view;

@@ -217,7 +217,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                 [strongSelf executeBlockOnJavaScriptQueue:obj];
             }];
             [strongSelf->_pendingCalls removeAllObjects];
-            auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
+            auto entry = scope->GetPerformance()->PerformanceNavigation(hippy::kPerfNavigationHippyInit);
             entry->SetHippyJsEngineInitStart(startPoint);
             entry->SetHippyJsEngineInitEnd(footstone::TimePoint::SystemNow());
         }
@@ -553,7 +553,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                 return;
             }
             NSError *error = nil;
-            auto entry = strongSelf.pScope->GetPerformance()->PerformanceNavigation("hippyInit");
+            auto entry = strongSelf.pScope->GetPerformance()->PerformanceNavigation(hippy::kPerfNavigationHippyInit);
             string_view url = [[sourceURL absoluteString] UTF8String]?:"";
             entry->BundleInfoOfUrl(url).execute_source_start_ = footstone::TimePoint::SystemNow();
             id result = executeApplicationScript(script, sourceURL, strongSelf.pScope->GetContext(), &error);

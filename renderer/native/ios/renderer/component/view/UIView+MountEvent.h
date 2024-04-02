@@ -22,8 +22,18 @@
 
 #import <UIKit/UIKit.h>
 #import "HippyComponent.h"
+#import "HippyConvert+NativeRender.h"
+
+/// FCP Notification
+HIPPY_EXTERN const NSNotificationName HippyFirstContentfulPaintEndNotification;
+
 
 @interface UIView (MountEvent)
+
+/// Paint Type of `View` node
+/// Used to calculate rendering time, etc
+/// e.g. fcp...
+@property (nonatomic, assign) HippyPaintType paintType;
 
 @property (nonatomic, copy) HippyDirectEventBlock onAppear;
 @property (nonatomic, copy) HippyDirectEventBlock onDisappear;
