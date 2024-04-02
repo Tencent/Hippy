@@ -25,6 +25,7 @@
 #import "HippyViewEventProtocol.h"
 
 @class HippyShadowView;
+@class HippyRootView;
 
 @interface UIView (Hippy) <HippyComponent, HippyViewEventProtocol>
 
@@ -39,9 +40,9 @@
 - (void)clearSortedSubviews;
 
 /**
- * TODO: remove
+ * Get HippyRootView of current view
  */
-- (UIView *)NativeRenderRootView;
+- (nullable HippyRootView *)hippyRootView;
 
 /**
  * z-index, used to override sibling order in didUpdateHippySubviews.

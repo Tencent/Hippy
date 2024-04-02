@@ -100,4 +100,18 @@ typedef NS_ENUM(NSInteger, HippyTextVerticalAlignType) {
 
 @end
 
+
+typedef NS_ENUM(NSInteger, HippyPaintType) {
+    HippyPaintTypeUndefined = 0,
+    HippyPaintTypeFCP = 1,
+};
+
+@interface HippyConvert (HippyPaintType)
+
+/// Convert PaintTypeString to enum
+/// - Parameter json: string
++ (HippyPaintType)HippyPaintType:(id)json;
+
+@end
+
 NS_ASSUME_NONNULL_END

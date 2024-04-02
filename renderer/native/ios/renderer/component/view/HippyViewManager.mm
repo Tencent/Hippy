@@ -555,6 +555,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(onDidMount, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onDidUnmount, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onAttachedToWindow, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onDetachedFromWindow, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(paintType, HippyPaintType)
 
 HIPPY_EXPORT_SHADOW_PROPERTY(zIndex, NSInteger)
 
