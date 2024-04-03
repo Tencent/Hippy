@@ -3,6 +3,7 @@
   - [Layout 引擎切换](feature/feature3.0/layout.md)
   - [Snapshot](feature/feature3.0/render-node-snapshot.md)
   - [双端一致性](feature/feature3.0/cross-platform-consistency.md)
+  - [Performance API](feature/feature3.0/performance.md)
 - 2.0+
   - [动画](feature/feature2.0/animation.md)
   - [日志](feature/feature2.0/console.md)
