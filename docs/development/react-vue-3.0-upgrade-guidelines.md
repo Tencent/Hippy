@@ -6,7 +6,7 @@
 
 # 依赖升级
 
-### hippy-react
+## hippy-react
 
 >如果业务目前使用 React 来开发 Hippy，可以参考当前章节升级指引。
 </br>
@@ -31,7 +31,7 @@
 
 Hippy-React 在升级3.0可以完全兼容之前的版本，除了升级如上依赖，业务代码不需要做修改。
 
-### hippy-vue
+## hippy-vue
 
 >如果业务目前使用 Vue 2.x 来开发 Hippy，可以参考当前章节升级指引。
 </br>
@@ -51,7 +51,7 @@ Hippy-Vue 在升级3.0可以完全兼容之前的版本，除了升级如上依�
 
 
 
-### hippy-vue-next
+## hippy-vue-next
 
 >如果业务目前使用 Vue 3.x 来开发 Hippy，可以参考当前章节升级指引。
 </br>
@@ -74,6 +74,7 @@ Hippy-Vue-Next 在升级3.0可以完全兼容之前的版本，除了升级如�
 
 一、Hippy 3.0 前端架构升级主要有如下改动点：
 </br>
+
 1. JS 驱动上屏的方式由 UIManagerModule 变为了 SceneBuilder。
 2. Node API 重新实现了 Move 计算逻辑。
 3. Event 由前端分发变为 DOM 分发。
@@ -81,6 +82,7 @@ Hippy-Vue-Next 在升级3.0可以完全兼容之前的版本，除了升级如�
 
 二、需要验证关注点：
 </br>
+
 1. 界面的UI视图渲染正常 （UI结构、样式属性等），特别关注 Hippy-React/Vue 中因为条件渲染语句，产生的节点`Move`操作，表现是否正常。
 2. UI事件（点击、滑动）等表现正常，特别关注事件`冒泡`、`捕获`等表现是否正常。
 3. 关注`动画`表现是否正常。
@@ -90,8 +92,10 @@ Hippy-Vue-Next 在升级3.0可以完全兼容之前的版本，除了升级如�
 
 # 新特性
 
-### Performance API
+## Performance API
+
 Hippy 3.0 我们实现了基于前端规范设计的性能 API，接入方式可参考 [performance](feature/feature3.0/performance.md)。
 
-### Layout 引擎支持切换
+## Layout 引擎支持切换
+
 Hippy 3.0 我们支持了 Layout 引擎的无缝切换，项目可保持`Yoga`引擎，也可以选择Hippy自研的`Taitank`引擎。详情可参考 [layout](feature/feature3.0/layout.md)
