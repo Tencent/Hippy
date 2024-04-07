@@ -178,7 +178,7 @@ public abstract class PullRefreshHelper {
             lpContainer = new StaggeredGridLayoutManager.LayoutParams(width, height);
             ((StaggeredGridLayoutManager.LayoutParams) lpContainer).setFullSpan(true);
         } else {
-            lpContainer = new RecyclerView.LayoutParams(MATCH_PARENT, MATCH_PARENT);
+            lpContainer = new RecyclerView.LayoutParams(width, height);
         }
         mContainer.setLayoutParams(lpContainer);
     }

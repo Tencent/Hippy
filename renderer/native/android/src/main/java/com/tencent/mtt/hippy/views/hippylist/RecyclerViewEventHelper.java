@@ -198,9 +198,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
             checkSendOnScrollEvent();
         }
         checkSendExposureEvent();
-        if (scrollHappened(dx, dy)) {
-            checkSendReachEndEvent();
-        }
+        checkSendReachEndEvent();
     }
 
     protected boolean scrollHappened(int dx, int dy) {

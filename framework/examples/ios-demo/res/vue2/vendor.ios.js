@@ -2,7 +2,7 @@ var hippyVueBase=function(e){var t={};function n(r){if(t[r])return t[r].exports;
 /*!
  * @hippy/vue-native-components vunspecified
  * (Using Vue v2.6.14 and Hippy-Vue vunspecified)
- * Build at: Wed Apr 03 2024 18:09:14 GMT+0800 (中国标准时间)
+ * Build at: Sun Apr 07 2024 19:11:31 GMT+0800 (中国标准时间)
  *
  * Tencent is pleased to support the open source community by making
  * Hippy available.
@@ -25,7 +25,7 @@ var hippyVueBase=function(e){var t={};function n(r){if(t[r])return t[r].exports;
 /*!
  * @hippy/vue vunspecified
  * (Using Vue v2.6.14)
- * Build at: Wed Apr 03 2024 18:09:14 GMT+0800 (中国标准时间)
+ * Build at: Sun Apr 07 2024 19:11:31 GMT+0800 (中国标准时间)
  *
  * Tencent is pleased to support the open source community by making
  * Hippy available.
