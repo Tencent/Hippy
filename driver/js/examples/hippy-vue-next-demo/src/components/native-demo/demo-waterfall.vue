@@ -257,6 +257,8 @@ export default defineComponent({
       headerRefreshText,
       footerRefreshText,
       loadMoreDataFlag,
+      pullHeader,
+      pullFooter,
     };
   },
 });
