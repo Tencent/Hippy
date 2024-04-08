@@ -71,7 +71,7 @@
     NSMutableDictionary<NSNumber *, HippyExtAnimation *> *_animationById;
     NSMutableDictionary<NSNumber *, NSMutableArray<HippyExtAnimationViewParams *> *> *_paramsByAnimationId;
     NSMutableDictionary<NSNumber *, HippyExtAnimationViewParams *> *_paramsByHippyTag;
-    NSLock *_lock;
+    NSRecursiveLock *_lock;
     HippyExtAnimationIdCount *_virtualAnimations;
 }
 
@@ -88,7 +88,7 @@ HIPPY_EXPORT_MODULE(AnimationModule)
         _animationById = [NSMutableDictionary new];
         _paramsByHippyTag = [NSMutableDictionary new];
         _paramsByAnimationId = [NSMutableDictionary new];
-        _lock = [[NSLock alloc] init];
+        _lock = [[NSRecursiveLock alloc] init];
         _virtualAnimations = [[HippyExtAnimationIdCount alloc] init];
     }
     return self;
