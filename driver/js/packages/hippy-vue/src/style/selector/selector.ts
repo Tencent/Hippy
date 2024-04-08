@@ -135,7 +135,7 @@ export class Selector extends SelectorCore {
         if (group.mayMatch(leftBound)) {
           group.trackChanges(leftBound, map);
         }
-      } while ((leftBound !== bound.right) && (leftBound = node.parentNode));
+      } while ((leftBound !== bound.right) && (leftBound = leftBound.parentNode));
     }
 
     return mayMatch;

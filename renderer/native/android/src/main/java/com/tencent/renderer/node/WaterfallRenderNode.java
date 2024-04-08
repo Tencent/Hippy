@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.views.waterfalllist;
 
-class WaterFallComponentName {
+package com.tencent.renderer.node;
 
-  public static final String CONTAINER = "WaterfallView";
-  public static final String ITEM = "WaterfallItem";
+import androidx.annotation.Nullable;
+import com.tencent.mtt.hippy.uimanager.ControllerManager;
+import java.util.Map;
 
-  public static final String PROPERTY_COLUMNS = "numberOfColumns";
-  public static final String PROPERTY_ITEM_SPACING = "interItemSpacing";
-  public static final String PROPERTY_COLUMN_SPACING = "columnSpacing";
-  public static final String PROPERTY_CONTENT_INSET = "contentInset";
+public class WaterfallRenderNode extends ListViewRenderNode {
 
+    public WaterfallRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
+            String className, ControllerManager componentManager, boolean isLazyLoad) {
+        super(rootId, id, props, className, componentManager, isLazyLoad);
+    }
 }
