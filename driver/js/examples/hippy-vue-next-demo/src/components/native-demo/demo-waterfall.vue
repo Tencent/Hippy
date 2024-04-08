@@ -1,67 +1,74 @@
 <template>
   <div id="demo-waterfall">
-    <ul-refresh-wrapper
-      ref="header"
-      style="flex:1;"
-      @refresh="onRefresh"
+    <waterfall
+      ref="gridView"
+      :content-inset="contentInset"
+      :column-spacing="columnSpacing"
+      :contain-banner-view="true"
+      :contain-pull-footer="true"
+      :inter-item-spacing="interItemSpacing"
+      :number-of-columns="numberOfColumns"
+      :preload-item-number="4"
+      :style="{flex: 1}"
+      @endReached="onEndReached"
+      @scroll="onScroll"
     >
-      <ul-refresh class="refresh-header">
-        <p class="refresh-text">
-          {{ refreshText }}
-        </p>
-      </ul-refresh>
-      <waterfall
-        ref="gridView"
-        :content-inset="contentInset"
-        :column-spacing="columnSpacing"
-        :contain-banner-view="true"
-        :contain-pull-footer="true"
-        :inter-item-spacing="interItemSpacing"
-        :number-of-columns="numberOfColumns"
-        :preload-item-number="0"
-        :style="{flex: 1}"
-        @endReached="onEndReached"
-        @scroll="onScroll"
+      <pull-header
+        ref="pullHeader"
+        class="ul-refresh"
+        @idle="onHeaderIdle"
+        @pulling="onHeaderPulling"
+        @released="onHeaderReleased"
       >
-        <div
-          class="banner-view"
-        >
-          <span>BannerView</span>
-        </div>
-        <waterfall-item
-          v-for="(ui, index) in dataSource"
-          :key="index"
-          :style="{width: itemWidth}"
-          :type="ui.style"
-          @click.stop="() => onClickItem(index)"
-        >
-          <style-one
-            v-if="ui.style === 1"
-            :item-bean="ui.itemBean"
-          />
-          <style-two
-            v-if="ui.style === 2"
-            :item-bean="ui.itemBean"
-          />
-          <style-five
-            v-if="ui.style === 5"
-            :item-bean="ui.itemBean"
-          />
-        </waterfall-item>
-        <pull-footer>
-          <div class="pull-footer">
-            <span
-              style="
-                color: white;
-                text-align: center;
-                height: 40px;
-                line-height: 40px;
-              "
-            >{{ loadingState }}</span>
-          </div>
-        </pull-footer>
-      </waterfall>
-    </ul-refresh-wrapper>
+        <p class="ul-refresh-text">
+          {{ headerRefreshText }}
+        </p>
+      </pull-header>
+      <div
+        v-if="isIos"
+        class="banner-view"
+      >
+        <span>BannerView</span>
+      </div>
+      <waterfall-item
+        v-else
+        :full-span="true"
+        class="banner-view"
+      >
+        <span>BannerView</span>
+      </waterfall-item>
+      <waterfall-item
+        v-for="(ui, index) in dataSource"
+        :key="index"
+        :style="{width: itemWidth}"
+        :type="ui.style"
+        @click.stop="() => onClickItem(index)"
+      >
+        <style-one
+          v-if="ui.style === 1"
+          :item-bean="ui.itemBean"
+        />
+        <style-two
+          v-if="ui.style === 2"
+          :item-bean="ui.itemBean"
+        />
+        <style-five
+          v-if="ui.style === 5"
+          :item-bean="ui.itemBean"
+        />
+      </waterfall-item>
+      <pull-footer
+        ref="pullFooter"
+        class="pull-footer"
+        @idle="onFooterIdle"
+        @pulling="onFooterPulling"
+        @released="onEndReached"
+      >
+        <p class="pull-footer-text">
+          {{ footerRefreshText }}
+        </p>
+      </pull-footer>
+    </waterfall>
   </div>
 </template>
 
@@ -87,6 +94,7 @@ const interItemSpacing = 6;
 const numberOfColumns = 2;
 // inner content padding
 const contentInset = { top: 0, left: 5, bottom: 0, right: 5 };
+const isIos = Native.Platform === 'ios';
 
 const mockFetchData = async (): Promise<any> => new Promise((resolve) => {
   setTimeout(() => {
@@ -113,9 +121,14 @@ export default defineComponent({
       ...mockData,
     ]);
 
-    let isLoading = false;
+    let loadMoreDataFlag = false;
+    let fetchingDataFlag = false;
     const isRefreshing = ref(false);
     const loadingState = ref('正在加载...');
+    const pullHeader = ref(null);
+    const pullFooter = ref(null);
+    let headerRefreshText = '继续下拉触发刷新';
+    let footerRefreshText = '正在加载...';
     const refreshText = computed(() => (isRefreshing.value ? '正在刷新' : '下拉刷新'));
     const gridView = ref(null);
     const header = ref(null);
@@ -141,26 +154,62 @@ export default defineComponent({
       }
     };
 
+    const onHeaderPulling = (evt) => {
+      if (fetchingDataFlag) {
+        return;
+      }
+      console.log('onHeaderPulling', evt.contentOffset);
+      if (evt.contentOffset > 30) {
+        headerRefreshText = '松手，即可触发刷新';
+      } else {
+        headerRefreshText = '继续下拉，触发刷新';
+      }
+    };
+    const onFooterPulling = (evt) => {
+      console.log('onFooterPulling', evt);
+    };
+    const onHeaderIdle = () => {};
+    const onFooterIdle = () => {};
+    const onHeaderReleased =  async () => {
+      if (fetchingDataFlag) {
+        return;
+      }
+      fetchingDataFlag = true;
+      console.log('onHeaderReleased');
+      headerRefreshText = '刷新数据中，请稍等';
+      fetchingDataFlag = false;
+      headerRefreshText = '2秒后收起';
+      // 要主动调用collapsePullHeader关闭pullHeader，否则可能会导致released事件不能再次触发
+      if (pullHeader.value) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        pullHeader.value.collapsePullHeader({ time: 2000 });
+      }
+    };
+
     // scroll to bottom callback
     const onEndReached = async () => {
       console.log('end Reached');
 
-      if (isLoading) {
+      if (loadMoreDataFlag) {
         return;
       }
 
-      isLoading = true;
-      loadingState.value = '正在加载...';
+      loadMoreDataFlag = true;
+      footerRefreshText = '加载更多...';
 
       const newData = await mockFetchData();
-      if (!newData) {
-        loadingState.value = '没有更多数据';
-        isLoading = false;
-        return;
+      if (newData.length === 0) {
+        footerRefreshText = '没有更多数据';
       }
 
       dataSource.value = [...dataSource.value, ...newData];
-      isLoading = false;
+      loadMoreDataFlag = false;
+      if (pullFooter.value) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        pullFooter.value.collapsePullFooter();
+      }
     };
 
     const onClickItem = (index) => {
@@ -199,6 +248,17 @@ export default defineComponent({
       onRefresh,
       onEndReached,
       onClickItem,
+      isIos,
+      onHeaderPulling,
+      onFooterPulling,
+      onHeaderIdle,
+      onFooterIdle,
+      onHeaderReleased,
+      headerRefreshText,
+      footerRefreshText,
+      loadMoreDataFlag,
+      pullHeader,
+      pullFooter,
     };
   },
 });
@@ -209,8 +269,24 @@ export default defineComponent({
   flex: 1;
 }
 
-#demo-waterfall .refresh-header {
+#demo-waterfall .ul-refresh {
   background-color: #40b883;
+}
+
+#demo-waterfall .ul-refresh-text {
+  color: white;
+  height: 50px;
+  line-height: 50px;
+  text-align: center;
+}
+#demo-waterfall .pull-footer {
+  background-color: #40b883;
+  height: 40px;
+}
+#demo-waterfall .pull-footer-text {
+  color: white;
+  line-height: 40px;
+  text-align: center;
 }
 
 #demo-waterfall .refresh-text {

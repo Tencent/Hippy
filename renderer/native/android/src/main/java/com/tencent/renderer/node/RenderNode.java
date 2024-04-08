@@ -208,6 +208,10 @@ public class RenderNode {
         return mProps;
     }
 
+    public boolean containProperty(@NonNull String key) {
+        return (mProps != null) ? mProps.containsKey(key) : false;
+    }
+
     @Nullable
     public Map<String, Object> getEvents() {
         return mEvents;

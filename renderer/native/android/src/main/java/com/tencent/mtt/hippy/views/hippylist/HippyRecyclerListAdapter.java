@@ -35,6 +35,7 @@ import com.tencent.renderer.node.ListItemRenderNode;
 import com.tencent.renderer.node.PullFooterRenderNode;
 import com.tencent.renderer.node.PullHeaderRenderNode;
 import com.tencent.renderer.node.RenderNode;
+import com.tencent.renderer.node.WaterfallItemRenderNode;
 
 /**
  * Created on 2020/12/22.
@@ -124,9 +125,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
 
     @Override
     public void onViewAttachedToWindow(@NonNull HippyRecyclerViewHolder holder) {
-        if (holder.itemView != null) {
-            LogUtils.d(TAG, "onViewAttachedToWindow itemView id " + holder.itemView.getId());
-        }
+        LogUtils.d(TAG, "onViewAttachedToWindow itemView id " + holder.itemView.getId());
     }
 
     @Override
@@ -176,6 +175,23 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         }
         hippyRecyclerView.onLayoutOrientationChanged();
         hippyRecyclerView.enableOverPullIfNeeded();
+    }
+
+    public boolean hasPullHeader() {
+        return headerRefreshHelper != null;
+    }
+
+    public boolean hasBannerView() {
+        ListItemRenderNode node;
+        if (hasPullHeader()) {
+            node = getChildNodeByAdapterPosition(1);
+        } else {
+            node = getChildNodeByAdapterPosition(0);
+        }
+        if (node instanceof WaterfallItemRenderNode) {
+            return ((WaterfallItemRenderNode) node).isFullSpan();
+        }
+        return false;
     }
 
     private void initHeaderRefreshHelper(View itemView, RenderNode node) {
@@ -309,52 +325,68 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         return getRenderNodeHeight(position);
     }
 
-    public int getRenderNodeHeight(int position) {
-        ListItemRenderNode childNode = getChildNode(position);
-        if (childNode != null) {
-            if (childNode.isPullHeader()) {
-                if (headerRefreshHelper != null) {
-                    return headerRefreshHelper.getVisibleHeight();
-                }
+    public int getItemHeight(View itemView) {
+        return getRenderNodeHeight(itemView);
+    }
 
-                return 0;
+    private int getRenderNodeHeight(@NonNull ListItemRenderNode childNode) {
+        if (childNode.isPullHeader()) {
+            if (headerRefreshHelper != null) {
+                return headerRefreshHelper.getVisibleHeight();
             }
-            if (childNode.isPullFooter()) {
-                if (footerRefreshHelper != null) {
-                    return footerRefreshHelper.getVisibleHeight();
-                }
-
-                return 0;
-            }
-            return childNode.getHeight();
+            return 0;
         }
-        return 0;
+        if (childNode.isPullFooter()) {
+            if (footerRefreshHelper != null) {
+                return footerRefreshHelper.getVisibleHeight();
+            }
+            return 0;
+        }
+        return childNode.getHeight();
+    }
+
+    public int getRenderNodeHeight(View itemView) {
+        RenderNode node = RenderManager.getRenderNode(itemView);
+        return (node instanceof ListItemRenderNode) ? getRenderNodeHeight((ListItemRenderNode) node) : 0;
+    }
+
+    public int getRenderNodeHeight(int position) {
+        ListItemRenderNode node = getChildNode(position);
+        return (node != null) ? getRenderNodeHeight(node) : 0;
     }
 
     public int getItemWidth(int position) {
         return getRenderNodeWidth(position);
     }
 
-    public int getRenderNodeWidth(int position) {
-        ListItemRenderNode childNode = getChildNode(position);
-        if (childNode != null) {
-            if (childNode.isPullHeader()) {
-                if (headerRefreshHelper != null) {
-                    return headerRefreshHelper.getVisibleWidth();
-                }
+    public int getItemWidth(View itemView) {
+        return getRenderNodeWidth(itemView);
+    }
 
-                return 0;
+    private int getRenderNodeWidth(@NonNull ListItemRenderNode childNode) {
+        if (childNode.isPullHeader()) {
+            if (headerRefreshHelper != null) {
+                return headerRefreshHelper.getVisibleWidth();
             }
-            if (childNode.isPullFooter()) {
-                if (footerRefreshHelper != null) {
-                    return footerRefreshHelper.getVisibleWidth();
-                }
-
-                return 0;
-            }
-            return childNode.getWidth();
+            return 0;
         }
-        return 0;
+        if (childNode.isPullFooter()) {
+            if (footerRefreshHelper != null) {
+                return footerRefreshHelper.getVisibleWidth();
+            }
+            return 0;
+        }
+        return childNode.getWidth();
+    }
+
+    public int getRenderNodeWidth(View itemView) {
+        RenderNode node = RenderManager.getRenderNode(itemView);
+        return (node instanceof ListItemRenderNode) ? getRenderNodeWidth((ListItemRenderNode) node) : 0;
+    }
+
+    public int getRenderNodeWidth(int position) {
+        ListItemRenderNode node = getChildNode(position);
+        return (node != null) ? getRenderNodeWidth(node) : 0;
     }
 
     protected RenderNode getParentNode() {
@@ -394,18 +426,25 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
 
     @Override
     public void getItemLayoutParams(int position, LayoutParams lp) {
-        if (lp == null) {
-            return;
+        if (lp != null) {
+            lp.height = getItemHeight(position);
+            lp.width = getItemWidth(position);
         }
-        lp.height = getItemHeight(position);
-        lp.width = getItemWidth(position);
     }
 
-    /*package*/ boolean hasHeader() {
+    @Override
+    public void getItemLayoutParams(ListItemRenderNode node, LayoutParams lp) {
+        if (lp != null || node != null) {
+            lp.height = getRenderNodeHeight(node);
+            lp.width = getRenderNodeWidth(node);
+        }
+    }
+
+    public boolean hasHeader() {
         return getRenderNodeCount() > 0 && getChildNode(0).isPullHeader();
     }
 
-    /*package*/ boolean hasFooter() {
+    public boolean hasFooter() {
         int count = getRenderNodeCount();
         return count > 0 && getChildNode(count - 1).isPullFooter();
     }

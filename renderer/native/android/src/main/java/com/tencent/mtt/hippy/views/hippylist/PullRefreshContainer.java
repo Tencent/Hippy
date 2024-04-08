@@ -13,22 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.views.list;
 
-import com.tencent.renderer.node.RenderNode;
-import com.tencent.mtt.supportui.views.recyclerview.ContentHolder;
-import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
+package com.tencent.mtt.hippy.views.hippylist;
 
-public class NodeHolder extends ContentHolder {
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.widget.LinearLayout;
 
-  public RenderNode mBindNode;
-  public boolean isCreated = true;
+@SuppressLint("ViewConstructor")
+public class PullRefreshContainer extends LinearLayout {
 
-  @Override
-  public void inTraversals(int traversalPurpose, int position, RecyclerViewBase recyclerView) {
-    super.inTraversals(traversalPurpose, position, recyclerView);
-    if (recyclerView != null) {
-      recyclerView.handleInTraversal(traversalPurpose, position, mContentView);
+    private final boolean mPullHeader;
+
+    public PullRefreshContainer(Context context, boolean isPullHeader) {
+        super(context);
+        mPullHeader = isPullHeader;
     }
-  }
+
+    public boolean isPullHeader() {
+        return mPullHeader;
+    }
+
 }

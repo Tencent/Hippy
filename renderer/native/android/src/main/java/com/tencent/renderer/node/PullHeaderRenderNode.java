@@ -22,7 +22,7 @@ import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import java.util.Map;
 
-public class PullHeaderRenderNode extends ListItemRenderNode {
+public class PullHeaderRenderNode extends WaterfallItemRenderNode {
 
     public PullHeaderRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
             @NonNull String className, @NonNull ControllerManager componentManager, boolean isLazyLoad) {
@@ -41,6 +41,11 @@ public class PullHeaderRenderNode extends ListItemRenderNode {
 
     @Override
     public boolean isPullHeader() {
+        return true;
+    }
+
+    @Override
+    public boolean isFullSpan() {
         return true;
     }
 }
