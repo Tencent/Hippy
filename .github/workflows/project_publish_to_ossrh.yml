@@ -1,4 +1,4 @@
-name: '[project] artifact snapshot'
+name: '[project] publish to ossrh'
 
 on:
   workflow_dispatch:
