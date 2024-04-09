@@ -45,5 +45,8 @@
       "**/*.test.ts"
     ],
     "verbose": true
+  },
+    "publishConfig": {
+    "access": "public"
   }
 }
