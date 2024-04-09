@@ -293,32 +293,6 @@
           <span>{{ cookiesValue }}</span>
         </div>
       </div>
-      <!-- Clipboard -->
-      <div
-        v-if="Native.Clipboard"
-        class="native-block"
-      >
-        <label class="vue-native-title">Clipboard 使用</label>
-        <div class="item-wrapper">
-          <button
-            class="item-button"
-            @click="setString"
-          >
-            <span>setString</span>
-          </button>
-          <span>{{ clipboardString }}</span>
-        </div>
-        <div class="item-wrapper">
-          <button
-            class="item-button"
-            @click="getString"
-          >
-            <span>getString</span>
-          </button>
-          <span>{{ clipboardValue }}</span>
-        </div>
-      </div>
-
       <!-- iOS platform  -->
       <div
         v-if="Native.isIOS()"
@@ -351,8 +325,6 @@ const TEST_EVENT_NAME = 'testEvent';
 
 export default defineComponent({
   setup() {
-    const clipboardString = ref('ready to set');
-    const clipboardValue = ref('');
     const storageSetStatus = ref('ready to set');
     const storageValue = ref('');
     const imageSize = ref('');
@@ -413,26 +385,6 @@ export default defineComponent({
       });
     };
 
-    /**
-       * set content to clipboard
-       */
-    const setString = () => {
-      Native.Clipboard.setString('hippy');
-      clipboardString.value = 'clipboard set "hippy" value succeed';
-    };
-
-    /**
-       * get content of clipboard
-       */
-    const getString = async () => {
-      const value = await Native.Clipboard.getString();
-      if (value) {
-        clipboardValue.value = value;
-      } else {
-        clipboardValue.value = 'undefined';
-      }
-    };
-
     const getBoundingClientRect = async (relToContainer = false) => {
       try {
         const rect = await Native.getBoundingClientRect(rectRef.value as HippyNode, { relToContainer });
@@ -482,8 +434,6 @@ export default defineComponent({
       rectRef,
       storageValue,
       storageSetStatus,
-      clipboardString,
-      clipboardValue,
       imageSize,
       netInfoText,
       superProps,
@@ -494,8 +444,6 @@ export default defineComponent({
       setItem,
       getItem,
       removeItem,
-      setString,
-      getString,
       setCookie,
       getCookie,
       getBoundingClientRect,
