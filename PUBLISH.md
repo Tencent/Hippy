@@ -44,6 +44,12 @@ Android
 
 * [gradle.properties](https://github.com/Tencent/Hippy/blob/master/android/sdk/gradle.properties#L25)
 
+修改安卓的abi配置，支持armeabi-v7a和arm64-v8a
+```
+INCLUDE_ABI_ARMEABI_V7A=true
+INCLUDE_ABI_ARM64_V8A=true
+```
+
 ## 4. Update built-in packages and verify functionality
 
 The new front-end SDK is then compiled with
@@ -93,8 +99,8 @@ git tag -a [VERSION] -m "version release xxx"
 Commit the code and prepare to publish the PR merge into the master branch.
 
 ```bash
-git push        # 提交代码
-git push --tags # 提交 tag
+git push origin branch       # 提交代码
+git push origin tag          # 提交 tag
 ```
 
 ## 6. Publish
