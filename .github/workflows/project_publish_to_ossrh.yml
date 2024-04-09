@@ -1,0 +1,69 @@
+name: '[project] artifact snapshot'
+
+on:
+  workflow_dispatch:
+    inputs:
+      git_ref:
+        description: 'Git Ref'
+        type: string
+        required: true
+      version_name:
+        description: 'Version name'
+        type: string
+        required: true
+      registry_choice:
+        description: 'Registry choice'
+        type: choice
+        required: true
+        default: 'Both'
+        options:
+          - Default
+          - Github
+          - Both
+      is_release_for_android:
+        description: 'Release for Android'
+        type: boolean
+        default: true
+        required: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  context_in_lowercase:
+    if: github.event.inputs.is_release_for_android == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      repository_owner: ${{ steps.get_owner.outputs.lowercase }}
+    steps:
+      - name: Get repo owner(in lowercase)
+        id: get_owner
+        uses: ASzc/change-string-case-action@v2
+        with:
+          string: ${{ github.repository_owner }}
+
+  android_release:
+    if: github.event.inputs.is_release_for_android == 'true'
+    needs: context_in_lowercase
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build_type: [Release]
+        include:
+        - build_type: Release
+          artifact_id: hippy-release
+    container:
+      image: ghcr.io/${{ needs.context_in_lowercase.outputs.repository_owner }}/android-release:latest
+    steps:
+    - name: Publish to OSSRH
+      if: github.event.inputs.registry_choice == 'Both' || github.event.inputs.registry_choice == 'Default'
+      env:
+        SIGNING_KEY_ID: ${{ secrets.ANDROID_SIGNING_KEY_ID }}
+        SIGNING_PASSWORD: ${{ secrets.ANDROID_SIGNING_PASSWORD }}
+        SIGNING_SECRET_KEY: ${{ secrets.ANDROID_SIGNING_SECRET_KEY }}
+        MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+        MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+      run: |
+        ./gradlew publish -PVERSION_NAME='3.2.0' -PPUBLISH_ARTIFACT_ID='hippy-release' -PINCLUDE_ABI_X86=true -PINCLUDE_ABI_X86_64=true
+
