@@ -1,6 +1,6 @@
 {
   "name": "@hippy/vue-next-compiler-ssr",
-  "version": "3.2.0",
+  "version": "3.2.0-beta",
   "description": "Vue-Next server render compiler for Hippy native framework",
   "author": "OpenHippy Team",
   "homepage": "https://hippyjs.org",
