@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.2.0](https://github.com/Tencent/Hippy/compare/3.1.0-beta...3.2.0) (2024-04-09)
+
+
+### Features
+
+* **vue-loader:** css scoped compile to class selector ([#3679](https://github.com/Tencent/Hippy/issues/3679)) ([e9198be](https://github.com/Tencent/Hippy/commit/e9198be38bef1b59da7ba62d35725aa66a6b727e))
+* **vue:** update postcss dependencies ([#3723](https://github.com/Tencent/Hippy/issues/3723)) ([9e150d6](https://github.com/Tencent/Hippy/commit/9e150d6c762fee6e904a813125d3157a004b60fe))
+
+
+
+
+
 ## [3.0.2-beta](https://github.com/Tencent/Hippy/compare/3.0.1...3.0.2-beta) (2023-08-22)
 
 **Note:** Version bump only for package @hippy/vue-loader

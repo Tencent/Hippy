@@ -1,6 +1,6 @@
 {
   "name": "@hippy/vue-next-server-renderer",
-  "version": "unspecified",
+  "version": "3.2.0",
   "description": "Vue-Next server renderer for Hippy native framework",
   "author": "OpenHippy Team",
   "homepage": "https://hippyjs.org",
@@ -15,7 +15,6 @@
     "hippy-vue-next",
     "server-renderer"
   ],
-
   "main": "./dist/index.js",
   "module": "./dist/index.esm.js",
   "types": "dist/index.d.ts",
@@ -26,8 +25,8 @@
     "README.md"
   ],
   "dependencies": {
-    "@vue/server-renderer": "^3.2.46",
     "@vue/runtime-core": "^3.2.46",
+    "@vue/server-renderer": "^3.2.46",
     "@vue/shared": "^3.2.46"
   },
   "devDependencies": {

@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.2.0](https://github.com/Tencent/Hippy/compare/3.1.0-beta...3.2.0) (2024-04-09)
+
+
+### Bug Fixes
+
+* **js:** skip css preudo class check ([e88b67f](https://github.com/Tencent/Hippy/commit/e88b67f8719bbe1fb44c1028b41d9784818bafdb))
+* **vue:** fix not update style diff crash ([ecf6c8a](https://github.com/Tencent/Hippy/commit/ecf6c8a263c82ec2887319e238e57c01d4ca6c3c))
+
+
+### Features
+
+* **android:** refactoring WaterfallView ([#3809](https://github.com/Tencent/Hippy/issues/3809)) ([8dad9f2](https://github.com/Tencent/Hippy/commit/8dad9f2463bd5bf4f2718f2249aaf56591420729))
+* **vue:** add style diff perf ([#3553](https://github.com/Tencent/Hippy/issues/3553)) ([4e61294](https://github.com/Tencent/Hippy/commit/4e612941b98518fb74351bd6bb34a612531f11ed))
+* **vue:** hippy vue css style refactor ([#3671](https://github.com/Tencent/Hippy/issues/3671)) ([38ff0dd](https://github.com/Tencent/Hippy/commit/38ff0dd6214cc92ef85e5ba47b448911a7436c1e))
+* **vue:** not update node when add/remove listener ([#3520](https://github.com/Tencent/Hippy/issues/3520)) ([19b99ac](https://github.com/Tencent/Hippy/commit/19b99ac7672d42e594053d3c0c924c83502f0edc))
+* **vue:** remove updateEvent params ([86a1aff](https://github.com/Tencent/Hippy/commit/86a1aff6aed4a804063109254d78b18c3b825859))
+* **vue:** revert css match ([#3528](https://github.com/Tencent/Hippy/issues/3528)) ([c797576](https://github.com/Tencent/Hippy/commit/c797576580bb05b50dfab0dbbeebc0e75a34abda))
+* **vue:** vue component support beforeLoadStyle disabled ([1bb582b](https://github.com/Tencent/Hippy/commit/1bb582ba973508507e26acb4987c32d5602caa0f))
+
+
+
+
+
 ## [3.0.2-beta](https://github.com/Tencent/Hippy/compare/3.0.1...3.0.2-beta) (2023-08-22)
 
 

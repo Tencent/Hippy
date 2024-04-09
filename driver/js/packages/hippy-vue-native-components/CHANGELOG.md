@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.2.0](https://github.com/Tencent/Hippy/compare/3.1.0-beta...3.2.0) (2024-04-09)
+
+
+### Features
+
+* **android:** add modal features ([#3680](https://github.com/Tencent/Hippy/issues/3680)) ([98df553](https://github.com/Tencent/Hippy/commit/98df55325540c7b74bad27d3a93c56f6cec9d630))
+* **vue:** hippy vue css style refactor ([#3671](https://github.com/Tencent/Hippy/issues/3671)) ([38ff0dd](https://github.com/Tencent/Hippy/commit/38ff0dd6214cc92ef85e5ba47b448911a7436c1e))
+
+
+
+
+
 ## [3.0.2-beta](https://github.com/Tencent/Hippy/compare/3.0.1...3.0.2-beta) (2023-08-22)
 
 **Note:** Version bump only for package @hippy/vue-native-components
