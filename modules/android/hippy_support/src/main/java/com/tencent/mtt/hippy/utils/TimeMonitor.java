@@ -24,83 +24,101 @@ import java.util.HashMap;
 
 public class TimeMonitor {
 
-    public enum MonitorGroupType {
-        ENGINE_INITIALIZE,
-        RUN_JS_BUNDLE,
-        LOAD_INSTANCE,
-        VFS_RESOURCE_LOAD
-    }
+    private static final String TAG = "HippyTimeMonitor";
+
+    public static final String MONITOR_GROUP_INIT_ENGINE = "initEngine";
+    public static final String MONITOR_GROUP_RUN_BUNDLE = "runBundle";
+    public static final String MONITOR_GROUP_PAINT = "paint";
 
     public static final String MONITOR_POINT_INIT_NATIVE_ENGINE = "initNativeEngine";
-    public static final String MONITOR_POINT_INIT_JS_ENGINE = "initJSEngine";
-    public static final String MONITOR_POINT_LOAD_COMMON_JS = "loadCommonJs";
-    public static final String MONITOR_POINT_NOTIFY_ENGINE_INITIALIZED = "notifyEngineInitialized";
-    public static final String MONITOR_POINT_LOAD_BUSINESS_JS = "loadBusinessJs";
-    public static final String MONITOR_POINT_LOAD_INSTANCE = "loadInstance";
-    public static final String MONITOR_POINT_FIRST_FRAME = "firstFrame";
+    public static final String MONITOR_POINT_LOAD_VENDOR_JS = "loadVendorJs";
+    public static final String MONITOR_POINT_LOAD_MAIN_JS = "loadMainJs";
+    public static final String MONITOR_POINT_FIRST_PAINT = "firstPaint";
+    public static final String MONITOR_POINT_FIRST_CONTENTFUL_PAINT = "firstContentfulPaint";
     @Nullable
-    HashMap<MonitorGroupType, MonitorGroup> mMonitorGroups;
+    HashMap<String, MonitorGroup> mMonitorGroups;
 
-    public synchronized void startPoint(@NonNull MonitorGroupType groupType,
-            @NonNull String point) {
+    public synchronized void beginGroup(@NonNull String groupName) {
         if (mMonitorGroups == null) {
             mMonitorGroups = new HashMap<>();
         }
-        MonitorGroup monitorGroup = mMonitorGroups.get(groupType);
+        MonitorGroup monitorGroup = mMonitorGroups.get(groupName);
         if (monitorGroup == null) {
-            monitorGroup = new MonitorGroup(groupType);
-            mMonitorGroups.put(groupType, monitorGroup);
+            monitorGroup = new MonitorGroup(groupName);
+            mMonitorGroups.put(groupName, monitorGroup);
+        } else {
+            monitorGroup.reset();
         }
-        monitorGroup.startPoint(point);
     }
 
-    @Nullable
-    public synchronized MonitorGroup endGroup(@NonNull MonitorGroupType groupType) {
+    public synchronized void addPoint(@NonNull String groupName, @NonNull String point) {
         if (mMonitorGroups == null) {
-            return null;
+            return;
         }
-        MonitorGroup monitorGroup = mMonitorGroups.get(groupType);
+        MonitorGroup monitorGroup = mMonitorGroups.get(groupName);
+        if (monitorGroup != null) {
+            monitorGroup.addPoint(point);
+        }
+    }
+
+    public synchronized void endGroup(@NonNull String groupName) {
+        if (mMonitorGroups == null) {
+            return;
+        }
+        MonitorGroup monitorGroup = mMonitorGroups.get(groupName);
         if (monitorGroup != null) {
             monitorGroup.end();
         }
-        return monitorGroup;
     }
 
-    @Nullable
-    public synchronized MonitorGroup getMonitorGroup (@NonNull MonitorGroupType groupType) {
+    public synchronized void printGroup(@NonNull String groupName) {
         if (mMonitorGroups == null) {
-            return null;
+            return;
         }
-        return (mMonitorGroups == null) ? null : mMonitorGroups.get(groupType);
+        MonitorGroup monitorGroup = mMonitorGroups.get(groupName);
+        if (monitorGroup != null) {
+            monitorGroup.print();
+        }
     }
 
-    public static class MonitorGroup {
+    private static class MonitorGroup {
 
-        public final MonitorGroupType type;
+        public final String name;
         public long beginTime = -1;
         public long totalTime = -1;
-        public boolean isActive;
+        public boolean isActive = true;
         @Nullable
         private ArrayList<MonitorPoint> mMonitorPoints;
         @Nullable
         private MonitorPoint mLastPoint;
 
-        public MonitorGroup(@NonNull MonitorGroupType type) {
-            this.type = type;
-            isActive = true;
+        public MonitorGroup(@NonNull String name) {
+            this.name = name;
         }
 
         @Nullable
         private MonitorPoint checkMonitorPoint(@NonNull String pointKey) {
-            for (MonitorPoint monitorPoint : mMonitorPoints) {
-                if (monitorPoint.key.equals(pointKey)) {
-                    return monitorPoint;
+            if (mMonitorPoints != null) {
+                for (MonitorPoint monitorPoint : mMonitorPoints) {
+                    if (monitorPoint.key.equals(pointKey)) {
+                        return monitorPoint;
+                    }
                 }
             }
             return null;
         }
 
-        void startPoint(@NonNull String pointKey) {
+        void reset() {
+            beginTime = -1;
+            totalTime = -1;
+            isActive = true;
+            mLastPoint = null;
+            if (mMonitorPoints != null) {
+                mMonitorPoints.clear();
+            }
+        }
+
+        void addPoint(@NonNull String pointKey) {
             if (!isActive) {
                 return;
             }
@@ -108,10 +126,11 @@ public class TimeMonitor {
                 mMonitorPoints = new ArrayList<>();
             }
             MonitorPoint monitorPoint = checkMonitorPoint(pointKey);
-            if (monitorPoint == null) {
-                monitorPoint = new MonitorPoint(pointKey);
-                mMonitorPoints.add(monitorPoint);
+            if (monitorPoint != null) {
+                return;
             }
+            monitorPoint = new MonitorPoint(pointKey);
+            mMonitorPoints.add(monitorPoint);
             long currentTime = System.currentTimeMillis();
             monitorPoint.startTime = currentTime;
             if (mLastPoint != null) {
@@ -131,6 +150,18 @@ public class TimeMonitor {
                 }
                 if (beginTime != -1) {
                     totalTime = (int) (System.currentTimeMillis() - beginTime);
+                }
+                print();
+            }
+        }
+
+        void print() {
+            if (mMonitorPoints != null) {
+                LogUtils.i(TAG, "group " + name + ", totalTime " + totalTime + "ms");
+                for (MonitorPoint monitorPoint : mMonitorPoints) {
+                    LogUtils.i(TAG,
+                            monitorPoint.key + ": " + (monitorPoint.endTime - monitorPoint.startTime)
+                                    + "ms");
                 }
             }
         }

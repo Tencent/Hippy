@@ -25,6 +25,8 @@ import com.openhippy.connector.JsDriver;
 import com.tencent.devtools.DevtoolsManager;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManager;
+import com.tencent.mtt.hippy.common.BaseEngineContext;
+import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.common.ThreadExecutor;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
@@ -32,12 +34,15 @@ import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.vfs.VfsManager;
 import java.util.HashMap;
 
-public interface HippyEngineContext {
+public interface HippyEngineContext extends BaseEngineContext {
 
     String getComponentName();
 
     @Nullable
     HashMap<String, Object> getNativeParams();
+
+    @Nullable
+    HippyMap getJsParams();
 
     @NonNull
     VfsManager getVfsManager();
@@ -72,8 +77,6 @@ public interface HippyEngineContext {
     void removeEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
 
     void handleException(Throwable throwable);
-
-    int getEngineId();
 
     int getDomManagerId();
 

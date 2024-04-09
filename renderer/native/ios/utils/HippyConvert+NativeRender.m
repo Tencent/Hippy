@@ -217,3 +217,11 @@ HIPPY_ENUM_CONVERTER(HippyTextVerticalAlignType, (@{
 }), HippyTextVerticalAlignUndefined, integerValue)
 
 @end
+
+@implementation HippyConvert (HippyPaintType)
+
+HIPPY_ENUM_CONVERTER(HippyPaintType, (@{
+    @"fcp": @(HippyPaintTypeFCP),
+}), HippyPaintTypeUndefined, integerValue)
+
+@end

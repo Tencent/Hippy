@@ -217,14 +217,14 @@ HippyEventMethod(OnTouchEnd, onTouchEnd, OnTouchEventHandler)
     [self clearSortedSubviews];
 }
 
-- (UIView *)NativeRenderRootView {
+- (HippyRootView *)hippyRootView {
     UIView *candidateRootView = self;
     BOOL isRootView = [candidateRootView isHippyRootView];
     while (!isRootView && candidateRootView) {
         candidateRootView = [candidateRootView parent];
         isRootView = [candidateRootView isHippyRootView];
     }
-    return candidateRootView;
+    return isRootView ? (HippyRootView *)candidateRootView.superview : nil;
 }
 
 - (NSInteger)hippyZIndex {
@@ -235,15 +235,15 @@ HippyEventMethod(OnTouchEnd, onTouchEnd, OnTouchEventHandler)
     objc_setAssociatedObject(self, @selector(hippyZIndex), @(zIndex), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (BOOL)isNativeRenderSubviewsUpdated {
+- (BOOL)isHippySubviewsUpdated {
     return [objc_getAssociatedObject(self, _cmd) integerValue];
 }
 
-- (void)setNativeRenderSubviewsUpdated:(BOOL)subViewsUpdated {
-    objc_setAssociatedObject(self, @selector(isNativeRenderSubviewsUpdated), @(subViewsUpdated), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (void)setHippySubviewsUpdated:(BOOL)subViewsUpdated {
+    objc_setAssociatedObject(self, @selector(isHippySubviewsUpdated), @(subViewsUpdated), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (NSArray<UIView *> *)sortedNativeRenderSubviews {
+- (NSArray<UIView *> *)sortedHippySubviews {
     NSArray *subviews = objc_getAssociatedObject(self, _cmd);
     if (!subviews) {
         // Check if sorting is required - in most cases it won't be
@@ -269,11 +269,11 @@ HippyEventMethod(OnTouchEnd, onTouchEnd, OnTouchEventHandler)
 }
 
 - (void)clearSortedSubviews {
-    objc_setAssociatedObject(self, @selector(sortedNativeRenderSubviews), nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, @selector(sortedHippySubviews), nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (void)didUpdateHippySubviews {
-    for (UIView *subview in self.sortedNativeRenderSubviews) {
+    for (UIView *subview in self.sortedHippySubviews) {
         if (subview.superview != self) {
             [subview sendAttachedToWindowEvent];
         }

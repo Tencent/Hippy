@@ -1,9 +1,10 @@
-- 3.0+
+- 3.x
   - [VFS](feature/feature3.0/vfs.md)
   - [Layout 引擎切换](feature/feature3.0/layout.md)
   - [Snapshot](feature/feature3.0/render-node-snapshot.md)
   - [双端一致性](feature/feature3.0/cross-platform-consistency.md)
-- 2.0+
+  - [Performance API](feature/feature3.0/performance.md)
+- 2.x
   - [动画](feature/feature2.0/animation.md)
   - [日志](feature/feature2.0/console.md)
   - [自定义字体](feature/feature2.0/custom-font.md)

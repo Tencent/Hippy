@@ -35,6 +35,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.tencent.mtt.hippy.common.BaseEngineContext;
 import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.LogAdapter;
 import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
@@ -108,6 +109,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     private static final String EVENT_PREFIX = "on";
     private static final String SNAPSHOT_CREATE_NODE = "createNode";
     private static final String SNAPSHOT_UPDATE_LAYOUT = "updateLayout";
+    private static final String PAINT_TYPE_KEY = "paintType";
+    private static final String FCP_VALUE = "fcp";
     /**
      * The max capacity of UI task queue
      */
@@ -115,6 +118,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     private static final int ROOT_VIEW_ID_INCREMENT = 10;
     private static final int INVALID_NODE_ID = -1;
     private static final AtomicInteger sRootIdCounter = new AtomicInteger(0);
+    private FCPBatchState mFcpBatchState = FCPBatchState.WATCHING;
     @Nullable
     private FrameworkProxy mFrameworkProxy;
     @Nullable
@@ -131,6 +135,12 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     private ExecutorService mBackgroundExecutor;
     @Nullable
     private ImageLoaderAdapter mImageLoader;
+
+    public enum FCPBatchState {
+        WATCHING,
+        DETECTED,
+        MARKED,
+    }
 
     public NativeRenderer() {
         mRenderProvider = new NativeRenderProvider(this);
@@ -272,11 +282,14 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
+    @Nullable
+    public BaseEngineContext getEngineContext() {
+        return (mFrameworkProxy != null) ? mFrameworkProxy.getEngineContext() : null;
+    }
+
+    @Override
     public int getEngineId() {
-        if (mFrameworkProxy != null) {
-            return mFrameworkProxy.getEngineId();
-        }
-        return -1;
+        return (mFrameworkProxy != null) ? mFrameworkProxy.getEngineId() : -1;
     }
 
     @Override
@@ -345,9 +358,16 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
-    public void onFirstViewAdded() {
+    public void onFirstPaint() {
         if (mFrameworkProxy != null) {
-            mFrameworkProxy.onFirstViewAdded();
+            mFrameworkProxy.onFirstPaint();
+        }
+    }
+
+    @Override
+    public void onFirstContentfulPaint() {
+        if (mFrameworkProxy != null) {
+            mFrameworkProxy.onFirstContentfulPaint();
         }
     }
 
@@ -476,6 +496,14 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         };
     }
 
+    private void updateFcpStateIfNeeded(int rootId, @Nullable Map<String, Object> props) {
+        if (mFcpBatchState == FCPBatchState.WATCHING && props != null && rootId != SCREEN_SNAPSHOT_ROOT_ID) {
+            if (MapUtils.getStringValue(props, PAINT_TYPE_KEY, "").equalsIgnoreCase(FCP_VALUE)) {
+                mFcpBatchState = FCPBatchState.DETECTED;
+            }
+        }
+    }
+
     @SuppressWarnings({"unchecked"})
     @Override
     public void createNode(final int rootId, @NonNull List<Object> nodeList)
@@ -504,6 +532,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                         + ", index " + nodeIndex + ", name " + className + "\n  props " + props
                         + "\n ");
             }
+            updateFcpStateIfNeeded(rootId, props);
             mVirtualNodeManager.createNode(rootId, nodeId, nodePid, nodeIndex, className, props);
             // If multiple level are nested, the parent is outermost text node.
             VirtualNode parent = mVirtualNodeManager.checkVirtualParent(rootId, nodeId);
@@ -571,6 +600,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                         "updateNode: id " + nodeId + ", diff " + diffProps + ", delete " + delProps
                                 + "\n ");
             }
+            updateFcpStateIfNeeded(rootId, diffProps);
             mVirtualNodeManager.updateNode(rootId, nodeId, diffProps, delProps);
             // If multiple level are nested, the parent is outermost text node.
             VirtualNode parent = mVirtualNodeManager.checkVirtualParent(rootId, nodeId);
@@ -783,7 +813,16 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         if (rootId == SCREEN_SNAPSHOT_ROOT_ID) {
             mRenderManager.batch(rootId);
         } else {
-            addUITask(() -> mRenderManager.batch(rootId));
+            final boolean isFcp = (mFcpBatchState == FCPBatchState.DETECTED);
+            addUITask(() -> {
+                mRenderManager.batch(rootId);
+                if (isFcp) {
+                    onFirstContentfulPaint();
+                }
+            });
+            if (isFcp) {
+                mFcpBatchState = FCPBatchState.MARKED;
+            }
             executeUITask();
         }
     }

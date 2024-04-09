@@ -13,14 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.views.list;
 
-@SuppressWarnings({"unused"})
-public interface HippyRecycler {
+package com.tencent.mtt.hippy.views.hippylist;
 
-  //恢复默认的时候使用
-  void resetProps();
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.widget.LinearLayout;
 
-  //replace id 的时候清除不需要的属性
-  void clear();
+@SuppressLint("ViewConstructor")
+public class PullRefreshContainer extends LinearLayout {
+
+    private final boolean mPullHeader;
+
+    public PullRefreshContainer(Context context, boolean isPullHeader) {
+        super(context);
+        mPullHeader = isPullHeader;
+    }
+
+    public boolean isPullHeader() {
+        return mPullHeader;
+    }
+
 }

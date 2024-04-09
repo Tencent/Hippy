@@ -55,8 +55,6 @@ import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
-import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorGroup;
-import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorGroupType;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.FrameworkProxy;
 import com.tencent.renderer.component.image.ImageDecoderAdapter;
@@ -219,17 +217,21 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
-    public void onFirstViewAdded() {
-        mEngineContext.getJsDriver().recordFirstFrameEndTime(System.currentTimeMillis());
-        MonitorGroup monitorGroup = mEngineContext.getMonitor()
-                .endGroup(MonitorGroupType.LOAD_INSTANCE);
-        if (monitorGroup != null) {
-            mGlobalConfigs.getEngineMonitorAdapter()
-                    .onLoadInstanceCompleted(mEngineContext.getComponentName(), monitorGroup);
-        }
+    public void onFirstPaint() {
+        mEngineContext.getJsDriver().recordFirstPaintEndTime(System.currentTimeMillis());
+        mEngineContext.getMonitor().addPoint(TimeMonitor.MONITOR_GROUP_PAINT,
+                TimeMonitor.MONITOR_POINT_FIRST_CONTENTFUL_PAINT);
+        mGlobalConfigs.getEngineMonitorAdapter().onFirstPaintCompleted(mEngineContext.getComponentName());
         if (mModuleListener != null) {
             mModuleListener.onFirstViewAdded();
         }
+    }
+
+    @Override
+    public void onFirstContentfulPaint() {
+        mEngineContext.getJsDriver().recordFirstContentfulPaintEndTime(System.currentTimeMillis());
+        mEngineContext.getMonitor().endGroup(TimeMonitor.MONITOR_GROUP_PAINT);
+        mGlobalConfigs.getEngineMonitorAdapter().onFirstContentfulPaintCompleted(mEngineContext.getComponentName());
     }
 
     @Override
@@ -582,12 +584,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
     private void onEngineInitialized(EngineInitStatus statusCode, Throwable error) {
         mEngineContext.getJsDriver().recordNativeInitEndTime(mInitStartTime, System.currentTimeMillis());
-        MonitorGroup monitorGroup = mEngineContext.getMonitor()
-                .endGroup(MonitorGroupType.ENGINE_INITIALIZE);
-        if (monitorGroup != null) {
-            mGlobalConfigs.getEngineMonitorAdapter()
-                    .onEngineInitialized(statusCode, monitorGroup);
-        }
+        mGlobalConfigs.getEngineMonitorAdapter().onEngineInitialized(statusCode);
         for (EngineListener listener : mEventListeners) {
             listener.onInitialized(statusCode, error == null ? null : error.toString());
         }
@@ -595,8 +592,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     private synchronized void restartEngineInBackground(boolean onReLoad) {
-        mMonitor.startPoint(MonitorGroupType.ENGINE_INITIALIZE,
-                TimeMonitor.MONITOR_POINT_INIT_NATIVE_ENGINE);
+        mMonitor.beginGroup(TimeMonitor.MONITOR_GROUP_INIT_ENGINE);
+        mMonitor.addPoint(TimeMonitor.MONITOR_GROUP_INIT_ENGINE, TimeMonitor.MONITOR_POINT_INIT_NATIVE_ENGINE);
         if (mCurrentState == EngineState.DESTROYED) {
             String errorMsg =
                     "restartEngineInBackground... error STATUS_WRONG_STATE, state=" + mCurrentState;
@@ -858,6 +855,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
 
         @Override
+        @Nullable
+        public HippyMap getJsParams() {
+            return moduleLoadParams != null ? moduleLoadParams.jsParams : null;
+        }
+
+        @Override
         public HippyGlobalConfigs getGlobalConfigs() {
             return mGlobalConfigs;
         }
@@ -1041,19 +1044,13 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         @Override
         public void onLoadModuleCompleted(ModuleLoadStatus statusCode, @Nullable String msg) {
             notifyModuleLoaded(statusCode, msg);
-            MonitorGroup monitorGroup = mEngineContext.getMonitor()
-                    .endGroup(MonitorGroupType.RUN_JS_BUNDLE);
-            if (monitorGroup != null) {
-                mGlobalConfigs.getEngineMonitorAdapter()
-                        .onLoadModuleCompleted(statusCode, mEngineContext.getComponentName(),
-                                monitorGroup);
-            }
+            mGlobalConfigs.getEngineMonitorAdapter()
+                    .onLoadModuleCompleted(statusCode, mEngineContext.getComponentName());
         }
 
         @Override
         public void onLoadInstanceCompleted(long result, String reason) {
-            mEngineContext.getMonitor().startPoint(MonitorGroupType.LOAD_INSTANCE,
-                    TimeMonitor.MONITOR_POINT_FIRST_FRAME);
+
         }
 
         public void destroyBridge(boolean isReload) {

@@ -122,3 +122,6 @@ CMakeLists.txt @ilikethese @etkmao
 /.markdownlintrc.json @zealotchen0
 /PUBLISH.md @zealotchen0
 /README.md @zealotchen0
+
+# test
+/tests/ios/ @wwwcg @ruifanyuan

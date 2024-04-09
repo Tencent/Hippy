@@ -91,9 +91,6 @@ static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
     return parentProperties;
 }
 
-- (void)collectUpdatedProperties:(NSMutableSet<NativeRenderApplierBlock> *)applierBlocks parentProperties:(NSDictionary<NSString *, id> *)parentProperties {
-}
-
 - (instancetype)init {
     if ((self = [super init])) {
         _propagationLifecycle = NativeRenderUpdateLifecycleUninitialized;

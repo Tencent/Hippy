@@ -13,26 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.views.waterfalllist;
+
+package androidx.recyclerview.widget;
 
 import android.content.Context;
-import com.tencent.mtt.hippy.views.view.HippyViewGroup;
+import androidx.recyclerview.widget.GridLayoutManager;
 
-public class HippyWaterfallItemView extends HippyViewGroup {
+public class HippyGridLayoutManager extends GridLayoutManager {
 
-  static final String TAG = "HippyWaterfallItemView";
-  private int mType;
+    public HippyGridLayoutManager(Context context, int spanCount) {
+        super(context, spanCount);
+    }
 
-  public HippyWaterfallItemView(Context context) {
-    super(context);
-  }
-
-  public void setType(int type) {
-    mType = type;
-  }
-
-  public int getType() {
-    return mType;
-  }
 
 }

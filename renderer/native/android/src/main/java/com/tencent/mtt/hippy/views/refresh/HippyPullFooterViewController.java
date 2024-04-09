@@ -32,8 +32,6 @@ import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.renderer.node.PullFooterRenderNode;
 import com.tencent.renderer.node.RenderNode;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerView;
-import com.tencent.mtt.hippy.views.hippypager.HippyPager;
-import com.tencent.mtt.hippy.views.list.HippyListView;
 
 import java.util.List;
 import java.util.Map;
@@ -79,8 +77,6 @@ public class HippyPullFooterViewController extends HippyViewController<HippyPull
         if (COLLAPSE_PULL_FOOTER.equals(functionName)) {
             if (recyclerView instanceof HippyRecyclerView) {
                 ((HippyRecyclerView) recyclerView).getAdapter().onFooterRefreshCompleted();
-            } else if (recyclerView instanceof HippyListView) {
-                ((HippyListView) recyclerView).onFooterRefreshFinish();
             } else if (recyclerView instanceof IFooterContainer) {
                 ((IFooterContainer) recyclerView).onFooterRefreshFinish();
             }

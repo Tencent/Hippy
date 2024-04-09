@@ -50,7 +50,7 @@
 }
 
 - (void)setLocationValue:(NSNumber *)value atLocation:(NSUInteger)location {
-    NSAssert(location < _locationsCount, @"NativeRenderGradientLocationParser location out of range,try to insert value at %lu, but count is %lu", location, _locationsCount);
+    NSAssert(location < _locationsCount, @" location out of range, try to insert value at %lu, but count is %lu", location, _locationsCount);
     [_locations replacePointerAtIndex:location withPointer:(__bridge void *)value];
 }
 
@@ -356,5 +356,5 @@ void HippyDrawLinearGradientInContext(HippyGradientObject *object, CGContextRef 
 
 HIPPY_EXTERN void HippyDrawRadialGradientInContext(HippyGradientObject *object, CGContextRef context, CGSize size) {
     NSCAssert(context, @"context cannot be null for drawing radial gradient");
-    NSCAssert(NO, @"NativeRenderDrawRadialGradientInContext not implemented");
+    NSCAssert(NO, @"HippyDrawRadialGradientInContext not implemented");
 }

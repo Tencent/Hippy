@@ -332,7 +332,7 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
   }
 
   // perfromance start time
-  auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
+  auto entry = scope->GetPerformance()->PerformanceNavigation(kPerfNavigationHippyInit);
   entry->BundleInfoOfUrl(uri).execute_source_start_ = footstone::TimePoint::SystemNow();
 
 #ifdef JS_V8

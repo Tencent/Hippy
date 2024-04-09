@@ -26,8 +26,6 @@ import com.openhippy.connector.NativeCallback;
 import com.openhippy.connector.JsDriver.V8InitParams;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
-import com.tencent.mtt.hippy.utils.TimeMonitor;
-import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorGroupType;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
 import com.tencent.vfs.ResourceDataHolder;
@@ -99,7 +97,6 @@ public class HippyBridgeImpl implements HippyBridge, JSBridgeProxy, DevRemoteDeb
     }
 
     private void initJSEngine(int groupId, NativeCallback callback) {
-        mContext.getMonitor().startPoint(MonitorGroupType.ENGINE_INITIALIZE, TimeMonitor.MONITOR_POINT_INIT_JS_ENGINE);
         synchronized (HippyBridgeImpl.class) {
             try {
                 String localCachePath = mContext.getGlobalConfigs().getContext().getCacheDir()

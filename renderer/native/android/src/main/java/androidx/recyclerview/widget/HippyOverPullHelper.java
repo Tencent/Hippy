@@ -23,16 +23,18 @@ import android.animation.ValueAnimator;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 import android.view.animation.DecelerateInterpolator;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
+
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerView;
 import com.tencent.mtt.hippy.views.hippylist.RecyclerViewEventHelper;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.AnimatorListenerBase;
+import com.tencent.mtt.hippy.views.waterfall.HippyWaterfallView;
 
 /**
- * Created on 2021/3/15.
- * Description
- * 原生recyclerView是不支持拉到最顶部，还可以继续拉动，要实现继续拉动，并且松手回弹的效果
+ * Created on 2021/3/15. Description 原生recyclerView是不支持拉到最顶部，还可以继续拉动，要实现继续拉动，并且松手回弹的效果
  * recyclerView上拉回弹和下拉回弹的效果实现
  */
 public class HippyOverPullHelper {
@@ -114,8 +116,9 @@ public class HippyOverPullHelper {
                 downRawY = event.getRawY();
                 break;
             case MotionEvent.ACTION_MOVE:
-                boolean overPullDown = isOverPullDown(event);
-                boolean overScrollUp = isOverPullUp(event);
+                int offset = recyclerView.computeVerticalScrollOffset();
+                boolean overPullDown = isOverPullDown(event, offset);
+                boolean overScrollUp = isOverPullUp(event, offset);
                 if ((overPullDown || overScrollUp)) {
                     recyclerView.setOverScrollMode(OVER_SCROLL_NEVER);
                     recyclerView.invalidateGlows();
@@ -124,32 +127,29 @@ public class HippyOverPullHelper {
                     } else {
                         setOverPullState(OVER_PULL_UP_ING);
                     }
-                    int deltaY = (int) (event.getRawY() - lastRawY) / 2;
-//                    if (deltaY > 0) {
-//                        //下拉的时候除以2，放慢拉动的速度，调节拉动的手感
-//                        deltaY = deltaY / 2;
-//                    }
-                    recyclerView.offsetChildrenVertical(deltaY);
+                    Number deltaY = (event.getRawY() - lastRawY) / 3.0f;
+                    LogUtils.e("maxli", "checkOverDrag: deltaY " + deltaY + ", offset " + offset);
+                    recyclerView.offsetChildrenVertical(deltaY.intValue());
                     if (overPullListener != null) {
-                        overPullListener.onOverPullStateChanged(overPullState, overPullState, getOverPullOffset());
+                        overPullListener.onOverPullStateChanged(overPullState, overPullState,
+                                getOverPullOffset());
                     }
                 } else {
                     setOverPullState(OVER_PULL_NORMAL);
                 }
                 lastRawY = event.getRawY();
+                if (overPullState == OVER_PULL_DOWN_ING || overPullState == OVER_PULL_UP_ING) {
+                    return true;
+                }
                 break;
             default:
                 reset();
-        }
-        if (overPullState == OVER_PULL_DOWN_ING || overPullState == OVER_PULL_UP_ING) {
-            return true;
         }
         return false;
     }
 
     /**
-     * 在松开手后，
-     * 1、如果当前处于fling状态，scrollState的值是SCROLL_STATE_SETTLING，先不做rollbackToBottomOrTop
+     * 在松开手后， 1、如果当前处于fling状态，scrollState的值是SCROLL_STATE_SETTLING，先不做rollbackToBottomOrTop
      * 等到onScrollStateChanged 变成 IDLE的时候，再做rollbackToBottomOrTop
      * 2、如果当前处于非fling状态，scrollState的值不是SCROLL_STATE_SETTLING，就立即做rollbackToBottomOrTop
      */
@@ -179,7 +179,8 @@ public class HippyOverPullHelper {
 
     void setOverPullState(int newOverPullState) {
         if (overPullListener != null) {
-            overPullListener.onOverPullStateChanged(overPullState, newOverPullState, getOverPullOffset());
+            overPullListener.onOverPullStateChanged(overPullState, newOverPullState,
+                    getOverPullOffset());
         }
         overPullState = newOverPullState;
     }
@@ -202,8 +203,7 @@ public class HippyOverPullHelper {
     }
 
     /**
-     * 计算底部被overPull的偏移，需要向下回滚的距离
-     * 要么出现底部内容顶满distanceToBottom，要么出现顶部内容顶满distanceToTop，取最小的那一个
+     * 计算底部被overPull的偏移，需要向下回滚的距离 要么出现底部内容顶满distanceToBottom，要么出现顶部内容顶满distanceToTop，取最小的那一个
      *
      * @return
      */
@@ -218,7 +218,8 @@ public class HippyOverPullHelper {
     }
 
     private boolean isActionUpOrCancel(MotionEvent event) {
-        return event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL;
+        return event.getAction() == MotionEvent.ACTION_UP
+                || event.getAction() == MotionEvent.ACTION_CANCEL;
     }
 
     private void endAnimation() {
@@ -257,22 +258,20 @@ public class HippyOverPullHelper {
         revertOverScrollMode();
         lastRawY = -1;
         downRawY = -1;
-        setOverPullState(OVER_PULL_NONE);
     }
 
     /**
      * 顶部是否可以越界下拉，拉出一段空白区域，越界的部分最多不能超过RecyclerView高度+1
      */
-    private boolean isOverPullDown(MotionEvent event) {
+    private boolean isOverPullDown(MotionEvent event, int offset) {
         if (!enableOverPullDown) {
             return false;
         }
         //常规情况，内容在顶部offset为0，异常情况，内容被完全拉到最底部，看不见内容的时候，offset也为0
-        int offset = recyclerView.computeVerticalScrollOffset();
         int dy = Math.abs((int) (event.getRawY() - lastRawY)) + 1;
         //不能把内容完全拉得看不见
         if (Math.abs(offset) + dy < recyclerView.getHeight()) {
-            return isMoving(event) && isPullDownAction(event) && !canOverPullDown();
+            return isMoving(event) && isPullDownAction(event, offset) && !canOverPullDown();
         }
         return false;
     }
@@ -280,25 +279,33 @@ public class HippyOverPullHelper {
     /**
      * 底部是否可以越界上拉，拉出一段空白区域，越界的部分最多不能超过RecyclerView高度的一般
      */
-    private boolean isOverPullUp(MotionEvent event) {
+    private boolean isOverPullUp(MotionEvent event, int offset) {
         if (!enableOverPullUp) {
             return false;
         }
         int dy = Math.abs((int) (event.getRawY() - lastRawY)) + 1;
         //不能让内容完全被滚出屏幕，否则computeVerticalScrollOffset为0是一个无效的值
-        int distanceToBottom = recyclerView.computeVerticalScrollOffset() + recyclerView.getHeight() - recyclerView
-                .computeVerticalScrollRange();
+        int distanceToBottom =
+                offset + recyclerView.getHeight() - recyclerView.computeVerticalScrollRange();
         if (distanceToBottom + dy < recyclerView.getHeight()) {
-            return isMoving(event) && isPullUpAction(event) && !canOverPullUp();
+            return isMoving(event) && isPullUpAction(event, offset) && !canOverPullUp();
         }
         return false;
     }
 
-    boolean isPullDownAction(MotionEvent event) {
+    boolean isPullDownAction(MotionEvent event, int offset) {
+        if (overPullState == OVER_PULL_DOWN_ING && offset < 0
+                && recyclerView instanceof HippyWaterfallView) {
+            return true;
+        }
         return event.getRawY() - lastRawY > 0;
     }
 
-    boolean isPullUpAction(MotionEvent event) {
+    boolean isPullUpAction(MotionEvent event, int offset) {
+        if (overPullState == OVER_PULL_UP_ING && offset > 0
+                && recyclerView instanceof HippyWaterfallView) {
+            return true;
+        }
         return event.getRawY() - lastRawY <= 0;
     }
 

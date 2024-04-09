@@ -256,6 +256,10 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (id)moduleForName:(NSString *)moduleName;
 - (id)moduleForClass:(Class)moduleClass;
 
+/// Get ModuleData by name
+/// - Parameter moduleName: JS name of module
+- (nullable HippyModuleData *)moduleDataForName:(NSString *)moduleName;
+
 /**
  * Convenience method for retrieving all modules conforming to a given protocol.
  * Modules will be sychronously instantiated if they haven't already been,

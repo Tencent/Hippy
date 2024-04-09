@@ -22,10 +22,13 @@ import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_SETTLING;
 
 import android.graphics.Rect;
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.HippyLinearLayoutManager;
 import androidx.recyclerview.widget.HippyOverPullHelper;
 import androidx.recyclerview.widget.HippyOverPullListener;
+import androidx.recyclerview.widget.HippyStaggeredGridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.LayoutManager;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 
 import android.os.SystemClock;
@@ -35,16 +38,20 @@ import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnPreDrawListener;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.list.HippyListItemView;
 import com.tencent.renderer.utils.EventUtils;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
- * Created  on 2020/12/24. Description
- * 各种事件的通知，通知前端view的曝光事件，用于前端的统计上报
+ * Created  on 2020/12/24. Description 各种事件的通知，通知前端view的曝光事件，用于前端的统计上报
  */
 public class RecyclerViewEventHelper extends OnScrollListener implements OnLayoutChangeListener,
         OnAttachStateChangeListener, HippyOverPullListener {
@@ -191,9 +198,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
             checkSendOnScrollEvent();
         }
         checkSendExposureEvent();
-        if (scrollHappened(dx, dy)) {
-            checkSendReachEndEvent();
-        }
+        checkSendReachEndEvent();
     }
 
     protected boolean scrollHappened(int dx, int dy) {
@@ -201,8 +206,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     }
 
     /**
-     * 检查是否已经触底，发生onEndReached事件给前端
-     * 如果上次是没有到底，这次滑动底了，需要发事件通知，如果上一次已经是到底了，这次到底不会发事件
+     * 检查是否已经触底，发生onEndReached事件给前端 如果上次是没有到底，这次滑动底了，需要发事件通知，如果上一次已经是到底了，这次到底不会发事件
      */
     private void checkSendReachEndEvent() {
         boolean isThisTimeReachEnd;
@@ -217,14 +221,35 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         isLastTimeReachEnd = isThisTimeReachEnd;
     }
 
+    private int findLastVisibleItemMaxPosition() {
+        RecyclerView.LayoutManager layoutManager = hippyRecyclerView.getLayoutManager();
+        int[] positions = ((HippyStaggeredGridLayoutManager) layoutManager).findLastVisibleItemPositions(
+                null);
+        int maxPos = positions[0];
+        for (int i = 1; i < positions.length; i++) {
+            if (positions[i] > maxPos) {
+                maxPos = positions[i];
+            }
+        }
+        return maxPos;
+    }
+
     /**
      * 竖向滑动，内容已经到达最下边
      */
     private boolean isVerticalReachEnd() {
-        RecyclerView.LayoutManager manager;
-        if (preloadItemNumber > 0 && (manager = hippyRecyclerView.getLayoutManager()) instanceof LinearLayoutManager) {
-            return ((LinearLayoutManager) manager).findLastVisibleItemPosition()
-                    >= manager.getItemCount() - preloadItemNumber;
+        RecyclerView.LayoutManager layoutManager = hippyRecyclerView.getLayoutManager();
+        if (preloadItemNumber > 0) {
+            if (layoutManager instanceof LinearLayoutManager) {
+                return ((LinearLayoutManager) layoutManager).findLastVisibleItemPosition()
+                        >= layoutManager.getItemCount() - preloadItemNumber;
+            } else if (layoutManager instanceof HippyStaggeredGridLayoutManager) {
+                try {
+                    return findLastVisibleItemMaxPosition() >= layoutManager.getItemCount() - preloadItemNumber;
+                } catch (IllegalArgumentException e) {
+                    return !hippyRecyclerView.canScrollVertically(1);
+                }
+            }
         }
         return !hippyRecyclerView.canScrollVertically(1);
     }
@@ -233,10 +258,18 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
      * 水平滑动，内容已经到达最右边
      */
     private boolean isHorizontalReachEnd() {
-        RecyclerView.LayoutManager manager;
-        if (preloadItemNumber > 0 && (manager = hippyRecyclerView.getLayoutManager()) instanceof LinearLayoutManager) {
-            return ((LinearLayoutManager) manager).findLastVisibleItemPosition()
-                    >= manager.getItemCount() - preloadItemNumber;
+        RecyclerView.LayoutManager layoutManager = hippyRecyclerView.getLayoutManager();
+        if (preloadItemNumber > 0) {
+            if (layoutManager instanceof LinearLayoutManager) {
+                return ((LinearLayoutManager) layoutManager).findLastVisibleItemPosition()
+                        >= layoutManager.getItemCount() - preloadItemNumber;
+            } else if (layoutManager instanceof HippyStaggeredGridLayoutManager) {
+                try {
+                    return findLastVisibleItemMaxPosition() >= layoutManager.getItemCount() - preloadItemNumber;
+                } catch (IllegalArgumentException e) {
+                    return !hippyRecyclerView.canScrollHorizontally(1);
+                }
+            }
         }
         return !hippyRecyclerView.canScrollHorizontally(1);
     }
@@ -313,13 +346,69 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         this.scrollEventThrottle = scrollEventThrottle;
     }
 
-    public final HippyMap generateScrollEvent() {
-        HippyMap contentOffset = new HippyMap();
-        contentOffset.pushDouble("x", PixelUtil.px2dp(hippyRecyclerView.getContentOffsetX()));
-        contentOffset.pushDouble("y", PixelUtil.px2dp(hippyRecyclerView.getContentOffsetY()));
-        HippyMap event = new HippyMap();
-        event.pushMap("contentOffset", contentOffset);
+    @NonNull
+    public HashMap<String, Object> generateScrollEvent() {
+        LayoutManager layoutManager = hippyRecyclerView.getLayoutManager();
+        return (layoutManager instanceof HippyStaggeredGridLayoutManager) ? generateWaterfallViewScrollEvent()
+                : generateRecyclerViewScrollEvent();
+    }
+
+    public HashMap<String, Object> generateRecyclerViewScrollEvent() {
+        HashMap<String, Object> contentOffset = new HashMap<>();
+        contentOffset.put("x", PixelUtil.px2dp(hippyRecyclerView.getContentOffsetX()));
+        contentOffset.put("y", PixelUtil.px2dp(hippyRecyclerView.getContentOffsetY()));
+        HashMap<String, Object> event = new HashMap<>();
+        event.put("contentOffset", contentOffset);
         return event;
+    }
+
+    public HashMap<String, Object> generateWaterfallViewScrollEvent() {
+        HashMap<String, Object> scrollEvent = new HashMap<>();
+        HippyStaggeredGridLayoutManager layoutManager =
+                (HippyStaggeredGridLayoutManager) hippyRecyclerView.getLayoutManager();
+        boolean isVertical = HippyListUtils.isVerticalLayout(hippyRecyclerView);
+        int contentOffset;
+        if (isVertical) {
+            contentOffset = hippyRecyclerView.getContentOffsetY();
+            scrollEvent.put("startEdgePos", PixelUtil.px2dp(contentOffset));
+            scrollEvent.put("endEdgePos", PixelUtil.px2dp(contentOffset + hippyRecyclerView.getHeight()));
+        } else {
+            contentOffset = hippyRecyclerView.getContentOffsetX();
+            scrollEvent.put("startEdgePos", PixelUtil.px2dp(contentOffset));
+            scrollEvent.put("endEdgePos", PixelUtil.px2dp(contentOffset + hippyRecyclerView.getWidth()));
+        }
+        int[] positions = layoutManager.findFirstVisibleItemPositions(null);
+        int first = positions[0];
+        for (int i = 0; i < positions.length; ++i) {
+            if (first > positions[i]) {
+                first = positions[i];
+            }
+        }
+        scrollEvent.put("firstVisibleRowIndex", first);
+        positions = layoutManager.findLastVisibleItemPositions(null);
+        int end = positions[0];
+        for (int i = 0; i < positions.length; ++i) {
+            if (end < positions[i]) {
+                end = positions[i];
+            }
+        }
+        scrollEvent.put("lastVisibleRowIndex", end);
+        ArrayList<Object> rowFrames = new ArrayList<>();
+        int total = hippyRecyclerView.getChildCount();
+        for (int i = 0; i < total; ++i) {
+            View child = hippyRecyclerView.getChildAt(i);
+            if (child == null) {
+                continue;
+            }
+            HashMap<String, Object> row = new HashMap<>();
+            row.put("x", PixelUtil.px2dp(child.getX()));
+            row.put("y", PixelUtil.px2dp(child.getY()));
+            row.put("width", PixelUtil.px2dp(child.getWidth()));
+            row.put("height", PixelUtil.px2dp(child.getHeight()));
+            rowFrames.add(row);
+        }
+        scrollEvent.put("visibleRowFrames", rowFrames);
+        return scrollEvent;
     }
 
     public void setExposureEventEnable(boolean enable) {
@@ -369,8 +458,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     }
 
     /**
-     * 由于挂载到RecyclerView到子View可能不是HippyListItemView，比如对于stickyItem，我们会包一层
-     * ViewGroup，所以这里拿HippyListItemView，需要做两层的判断
+     * 由于挂载到RecyclerView到子View可能不是HippyListItemView，比如对于stickyItem，我们会包一层 ViewGroup，所以这里拿HippyListItemView，需要做两层的判断
      */
     private View findHippyListItemView(ViewGroup viewGroup) {
         if (viewGroup instanceof HippyListItemView) {
@@ -410,14 +498,14 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     public void onOverPullStateChanged(int oldState, int newState, int offset) {
         LogUtils.d("QBRecyclerViewEventHelper", "oldState:" + oldState + ",newState:" + newState);
         if (oldState == HippyOverPullHelper.OVER_PULL_NONE && (isOverPulling(newState)
-            || newState == HippyOverPullHelper.OVER_PULL_NORMAL) && scrollBeginDragEventEnable) {
+                || newState == HippyOverPullHelper.OVER_PULL_NORMAL) && scrollBeginDragEventEnable) {
             getOnScrollDragStartedEvent().send(getParentView(), generateScrollEvent());
         }
         if (isOverPulling(oldState) && isOverPulling(newState) && onScrollEventEnable) {
             sendOnScrollEvent();
         }
         if (newState == HippyOverPullHelper.OVER_PULL_SETTLING &&
-            oldState != HippyOverPullHelper.OVER_PULL_SETTLING && scrollEndDragEventEnable) {
+                oldState != HippyOverPullHelper.OVER_PULL_SETTLING && scrollEndDragEventEnable) {
             getOnScrollDragEndedEvent().send(getParentView(), generateScrollEvent());
         }
     }

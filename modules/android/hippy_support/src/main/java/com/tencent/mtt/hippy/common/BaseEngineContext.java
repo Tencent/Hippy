@@ -13,22 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.views.list;
 
-import com.tencent.renderer.node.RenderNode;
-import com.tencent.mtt.supportui.views.recyclerview.ContentHolder;
-import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
+package com.tencent.mtt.hippy.common;
 
-public class NodeHolder extends ContentHolder {
+public interface BaseEngineContext {
 
-  public RenderNode mBindNode;
-  public boolean isCreated = true;
-
-  @Override
-  public void inTraversals(int traversalPurpose, int position, RecyclerViewBase recyclerView) {
-    super.inTraversals(traversalPurpose, position, recyclerView);
-    if (recyclerView != null) {
-      recyclerView.handleInTraversal(traversalPurpose, position, mContentView);
-    }
-  }
+    int getEngineId();
 }

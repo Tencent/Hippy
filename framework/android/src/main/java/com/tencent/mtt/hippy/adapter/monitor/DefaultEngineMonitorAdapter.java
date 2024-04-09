@@ -23,46 +23,32 @@ import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.bridge.HippyCallNativeParams;
 import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorGroup;
-import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorPoint;
-import java.util.ArrayList;
 
 public class DefaultEngineMonitorAdapter implements HippyEngineMonitorAdapter {
 
     private static final String TAG = "DefaultEngineMonitorAdapter";
 
-    protected void printGroupTime(@NonNull MonitorGroup monitorGroup) {
-        ArrayList<MonitorPoint> monitorPoints = monitorGroup.getMonitorPoints();
-        if (monitorPoints != null) {
-            for (MonitorPoint monitorPoint : monitorPoints) {
-                LogUtils.i(TAG,
-                        monitorPoint.key + ": " + (monitorPoint.endTime - monitorPoint.startTime)
-                                + "ms");
-            }
-        }
-        LogUtils.i(TAG, "total time: " + monitorGroup.totalTime);
-    }
-
     @Override
-    public void onEngineInitialized(EngineInitStatus statusCode, @NonNull MonitorGroup monitorGroup) {
+    public void onEngineInitialized(EngineInitStatus statusCode) {
         LogUtils.i(TAG, "engine initialization completed with result: " + statusCode);
-        printGroupTime(monitorGroup);
     }
 
     @Override
-    public void onLoadModuleCompleted(ModuleLoadStatus statusCode, @NonNull String componentName,
-            @NonNull MonitorGroup monitorGroup) {
+    public void onLoadModuleCompleted(ModuleLoadStatus statusCode, @NonNull String componentName) {
         LogUtils.i(TAG,
                 componentName + " load module completed with result: " + statusCode);
-        printGroupTime(monitorGroup);
     }
 
     @Override
-    public void onLoadInstanceCompleted(@NonNull String componentName,
-            @NonNull MonitorGroup monitorGroup) {
+    public void onFirstPaintCompleted(@NonNull String componentName) {
         LogUtils.i(TAG,
-                componentName + " load instance completed with first view added");
-        printGroupTime(monitorGroup);
+                componentName + " first paint completed with first view added");
+    }
+
+    @Override
+    public void onFirstContentfulPaintCompleted(@NonNull String componentName) {
+        LogUtils.i(TAG,
+                componentName + " first contentful paint completed last content view added");
     }
 
     @Override

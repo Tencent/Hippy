@@ -25,6 +25,7 @@
 #import "HippyViewEventProtocol.h"
 
 @class HippyShadowView;
+@class HippyRootView;
 
 @interface UIView (Hippy) <HippyComponent, HippyViewEventProtocol>
 
@@ -39,9 +40,9 @@
 - (void)clearSortedSubviews;
 
 /**
- * TODO: remove
+ * Get HippyRootView of current view
  */
-- (UIView *)NativeRenderRootView;
+- (nullable HippyRootView *)hippyRootView;
 
 /**
  * z-index, used to override sibling order in didUpdateHippySubviews.
@@ -52,13 +53,13 @@
  * set true when hippy subviews changed, but subviews does not.
  * set false after subviews does.
  */
-@property (nonatomic, assign, getter=isNativeRenderSubviewsUpdated) BOOL nativeRenderSubviewsUpdated;
+@property (nonatomic, assign, getter=isHippySubviewsUpdated) BOOL hippySubviewsUpdated;
 
 /**
  * The hippySubviews array, sorted by zIndex. This value is cached and
  * automatically recalculated if views are added or removed.
  */
-@property (nonatomic, copy, readonly) NSArray<UIView *> *sortedNativeRenderSubviews;
+@property (nonatomic, copy, readonly) NSArray<UIView *> *sortedHippySubviews;
 
 /**
  * Updates the subviews array based on the hippySubviews. Default behavior is

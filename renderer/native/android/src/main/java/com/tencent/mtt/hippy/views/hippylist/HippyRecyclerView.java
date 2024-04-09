@@ -32,6 +32,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent.HippyNestedScrollTarget2;
@@ -39,6 +40,7 @@ import com.tencent.mtt.hippy.views.common.HippyNestedScrollHelper;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IHeaderAttachListener;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IHeaderHost;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.StickyHeaderHelper;
+import androidx.recyclerview.widget.HippyStaggeredGridLayoutManager;
 import java.util.ArrayList;
 
 /**
@@ -251,10 +253,15 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
      */
     public void setListData() {
         LogUtils.d("HippyRecyclerView", "itemCount =" + listAdapter.getItemCount());
-        listAdapter.notifyDataSetChanged();
+        LayoutManager layoutManager = getLayoutManager();
+        if (layoutManager instanceof StaggeredGridLayoutManager) {
+            listAdapter.notifyItemRangeChanged(renderNodeCount, listAdapter.getRenderNodeCount() - renderNodeCount);
+        } else {
+            listAdapter.notifyDataSetChanged();
+        }
         if (overPullHelper != null) {
-            overPullHelper.enableOverPullUp(!listAdapter.hasHeader());
-            overPullHelper.enableOverPullDown(!listAdapter.hasFooter());
+            overPullHelper.enableOverPullUp(!listAdapter.hasFooter());
+            overPullHelper.enableOverPullDown(!listAdapter.hasHeader());
         }
         renderNodeCount = listAdapter.getRenderNodeCount();
         if (renderNodeCount > 0 && mInitialContentOffset > 0) {
@@ -439,11 +446,11 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
      *
      * @return
      */
-    private boolean canScrollToContentOffset() {
+    protected boolean canScrollToContentOffset() {
         return renderNodeCount == getAdapter().getRenderNodeCount();
     }
 
-    private void doSmoothScrollBy(int dx, int dy, int duration) {
+    protected void doSmoothScrollBy(int dx, int dy, int duration) {
         if (dx == 0 && dy == 0) {
             return;
         }
@@ -458,7 +465,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         }
     }
 
-    private void postDispatchLayout() {
+    protected void postDispatchLayout() {
         post(new Runnable() {
             @Override
             public void run() {

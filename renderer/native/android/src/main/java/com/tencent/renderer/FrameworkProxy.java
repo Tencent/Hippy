@@ -18,6 +18,7 @@ package com.tencent.renderer;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.tencent.mtt.hippy.common.BaseEngineContext;
 import com.tencent.mtt.hippy.common.LogAdapter;
 import com.tencent.renderer.component.image.ImageDecoderAdapter;
 import com.tencent.renderer.component.text.FontAdapter;
@@ -47,9 +48,14 @@ public interface FrameworkProxy {
     @Nullable
     String getBundlePath();
 
+    @NonNull
+    BaseEngineContext getEngineContext();
+
     int getEngineId();
 
-    void onFirstViewAdded();
+    void onFirstPaint();
+
+    void onFirstContentfulPaint();
 
     void handleNativeException(Exception exception);
 
