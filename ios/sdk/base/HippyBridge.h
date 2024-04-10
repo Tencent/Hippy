@@ -259,8 +259,6 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 @property (nonatomic, assign) BOOL debugMode;
 
-@property (nonatomic, assign) BOOL enableTurbo;
-
 @property (nonatomic, strong) NSMutableDictionary *shareOptions;
 
 @property (nonatomic, strong) NSString *moduleName;
@@ -279,11 +277,17 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 #pragma mark - Turbo Module
 
-/**
- * Get the turbo module for a given name.
- */
-- (HippyOCTurboModule *)turboModuleWithName:(NSString *)name;
+/// Whether TurboModule is enabled,
+/// default YES.
+@property (nonatomic, assign, readonly) BOOL enableTurbo;
 
+/// Turn on/off turbo module
+/// - Parameter enabled: YES or NO
+- (void)setTurboModuleEnabled:(BOOL)enabled;
+
+/// Get the turbo module for a given name.
+/// - Parameter name: module name
+- (HippyOCTurboModule *)turboModuleWithName:(NSString *)name;
 
 @end
 

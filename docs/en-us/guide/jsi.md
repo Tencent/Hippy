@@ -103,7 +103,7 @@ HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:nil
                                                    shareOptions:nil 
                                                       debugMode:YES 
                                                        delegate:nil];
-rootView.bridge.enableTurbo = YES;
+[rootView.bridge setTurboModuleEnabled:YES];
 
 ```
 
