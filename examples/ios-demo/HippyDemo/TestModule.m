@@ -79,12 +79,20 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
 
     NSURL *url = [NSURL URLWithString:urlString];
     NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES)};
-    HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self bundleURL:url moduleProvider:nil launchOptions:launchOptions executorKey:@"Demo"];
-    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge moduleName:@"Demo" initialProperties:@{@"isSimulator": @(isSimulator)} shareOptions:nil delegate:nil];
+    HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self 
+                                                      bundleURL:url
+                                                 moduleProvider:nil
+                                                  launchOptions:launchOptions
+                                                    executorKey:@"Demo"];
+    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge 
+                                                         moduleName:@"Demo"
+                                                  initialProperties:@{@"isSimulator": @(isSimulator)}
+                                                       shareOptions:nil
+                                                           delegate:nil];
     rootView.backgroundColor = [UIColor whiteColor];
     rootView.frame = vc.view.bounds;
     [vc.view addSubview:rootView];
-    vc.modalPresentationStyle = UIModalPresentationFullScreen;
+    vc.modalPresentationStyle = UIModalPresentationPageSheet;
     [nav presentViewController:vc animated:YES completion:NULL];
 }
 

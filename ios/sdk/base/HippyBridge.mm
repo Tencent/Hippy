@@ -415,7 +415,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     [self.batchedBridge setOSNightMode:isOSNightMode withRootViewTag:rootViewTag];
 }
 
-#pragma mark -
+#pragma mark - Turbo Module
+
+- (void)setTurboModuleEnabled:(BOOL)enabled {
+    _enableTurbo = enabled;
+    [self.batchedBridge setTurboModuleEnabled:enabled];
+}
 
 - (HippyOCTurboModule *)turboModuleWithName:(NSString *)name {
     return [self.batchedBridge turboModuleWithName:name];
