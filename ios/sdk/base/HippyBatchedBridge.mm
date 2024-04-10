@@ -717,10 +717,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     return _parentBridge.debugMode ?: NO;
 }
 
-- (BOOL)enableTurbo {
-    return _parentBridge.enableTurbo;
-}
-
 - (void)setExecutorClass:(Class)executorClass {
     HippyAssertMainQueue();
     _parentBridge.executorClass = executorClass;
