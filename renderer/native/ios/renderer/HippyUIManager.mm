@@ -1485,7 +1485,8 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
         }];
     }
     [self addUIBlock:^(HippyUIManager *uiManager, __unused NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        for (id<HippyComponent> node in uiManager->_componentTransactionListeners) {
+        NSArray *transactionListeners = [uiManager->_componentTransactionListeners allObjects];
+        for (id<HippyComponent> node in transactionListeners) {
             [node hippyBridgeDidFinishTransaction];
         }
     }];
