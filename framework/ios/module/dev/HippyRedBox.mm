@@ -30,7 +30,6 @@
 #import "HippyJSStackFrame.h"
 #import "HippyLog.h"
 #import "HippyUtils.h"
-
 #import "HippyDefines.h"
 
 #if HIPPY_DEBUG
@@ -452,6 +451,9 @@ static HippyWeakProxy *HippyCurrentBridgeInstance = nil;
 
 + (void)setCurrentBridge:(nullable HippyBridge *)currentBridge {
     HippyCurrentBridgeInstance = [HippyWeakProxy weakProxyForObject:currentBridge];
+    HippySetRedBoxFunction(^(NSString *errMsg, NSMutableArray<NSDictionary *> *stacks) {
+        [([HippyBridge currentBridge]).redBox showErrorMessage:errMsg withStack:stacks];
+    });
 }
 
 
