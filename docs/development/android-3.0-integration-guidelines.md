@@ -29,8 +29,7 @@
      下面引用Hippy最新版本号可在上述链接中查询
 
    ```java
-    // implementation 'com.tencent.hippy:hippy-debug:3.2.0-beta'
-    implementation 'com.tencent.hippy:hippy-release:3.2.0-beta'
+    implementation 'com.tencent.hippy:hippy-snapshot:3.2.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.viewpager:viewpager:1.0.0'
