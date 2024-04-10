@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) HippyRedBox *redBox;
 
 /// The last current active bridge instance.
-+ (nullable id)currentBridge;
++ (nullable instancetype)currentBridge;
 
 /// Record the last active bridge instance.
 /// - Parameter currentBridge: bridge instance, pass nil to reset.

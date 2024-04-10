@@ -42,7 +42,7 @@
 #import "UIView+DomEvent.h"
 #import "UIView+Hippy.h"
 #import "UIView+Render.h"
-#import "NSObject+Render.h"
+#import "UIView+RenderManager.h"
 #import "HippyBridgeModule.h"
 #import "HippyModulesSetup.h"
 #import "NativeRenderManager.h"
