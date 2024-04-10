@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.17.3](https://github.com/Tencent/Hippy/compare/2.17.2...2.17.3) (2024-04-10)
+
+
+### Bug Fixes
+
+* **ios:** a rare multithreaded race crash when getting  imageProviders ([c04affe](https://github.com/Tencent/Hippy/commit/c04affed14250c81dbbe6fe695970268d85e4511))
+* **ios:** add a null protection to animator ([84b391b](https://github.com/Tencent/Hippy/commit/84b391bbf9aa9d8a7bbbf39e4158aa3a4a44b8f0))
+* **ios:** animation state of some scenes might be out of sync ([14b3ab1](https://github.com/Tencent/Hippy/commit/14b3ab13d64018ea78436925abbe1cb58bdcb703))
+* **ios:** images with non-encoded urls are not displayed ([b0fed38](https://github.com/Tencent/Hippy/commit/b0fed3835c123bb02f9fe2ed1b5d2b9c64a857c3))
+* **ios:** remove the invalid log message ([b414e78](https://github.com/Tencent/Hippy/commit/b414e786c7b8f333d1fa5e6b3aad609088e8708a))
+* **ios:** remove unused initialization param of HippyRootView ([0f4445e](https://github.com/Tencent/Hippy/commit/0f4445e990c7c435ff9c6d1b9748775c71028275))
+
+
+### Features
+
+* **android:** add raw point for touch event dispatch ([175ed15](https://github.com/Tencent/Hippy/commit/175ed15777de30bad42c5dddfc23dc3534aa5b4d))
+
+
+
+
+
 ## [2.17.2](https://github.com/Tencent/Hippy/compare/2.17.1...2.17.2) (2023-10-27)
 
 
