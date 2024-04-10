@@ -21,8 +21,6 @@
  */
 
 #import "HippyLog.h"
-#import "HippyBridge.h"
-#import "HippyRedBox.h"
 #include "footstone/logging.h"
 
 #pragma mark NativeLog Methods
@@ -42,6 +40,13 @@ HippyLogLevel HPDefaultLogThreshold = HippyLogLevelTrace;
 #else
 HippyLogLevel HPDefaultLogThreshold = HippyLogLevelInfo;
 #endif
+
+#if HIPPY_DEBUG
+static HippyRedBoxFunction hippyCurrentRedBoxFunction;
+void HippySetRedBoxFunction(HippyRedBoxFunction redBoxFunction) {
+    hippyCurrentRedBoxFunction = redBoxFunction;
+}
+#endif /* HIPPY_DEBUG */
 
 static HippyLogFunction HPCurrentLogFunction;
 static HippyLogLevel HPCurrentLogThreshold = HPDefaultLogThreshold;
@@ -200,9 +205,9 @@ void HippyLogNativeInternal(HippyLogLevel level, const char *fileName, int lineN
                 }
             }];
             dispatch_async(dispatch_get_main_queue(), ^{
-                // red box is thread safe, but by deferring to main queue we avoid a startup
-                // race condition that causes the module to be accessed before it has loaded
-                [((HippyBridge *)[HippyBridge currentBridge]).redBox showErrorMessage:message withStack:stack];
+                if (hippyCurrentRedBoxFunction) {
+                    hippyCurrentRedBoxFunction(message, stack);
+                }
             });
         }
 #endif
