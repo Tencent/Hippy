@@ -47,7 +47,7 @@
 #import "HippyLog.h"
 #import "HippyOCToHippyValue.h"
 #import "HippyUtils.h"
-#import "NSObject+Render.h"
+#import "UIView+RenderManager.h"
 #import "TypeConverter.h"
 #import "VFSUriLoader.h"
 #import "HippyBase64DataHandler.h"

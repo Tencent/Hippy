@@ -28,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UIView (Render)
 
+/// Convenient method to get HippyUIManager instance
 - (HippyUIManager *)uiManager;
 
 @end
