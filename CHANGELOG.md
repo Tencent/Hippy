@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.15.8](https://github.com/Tencent/Hippy/compare/2.15.7...2.15.8) (2024-04-11)
+
+
+### Bug Fixes
+
+* **android:** fix default value for several properties ([78eb741](https://github.com/Tencent/Hippy/commit/78eb741619413e51a67304c0ee3f8fbf866d303b))
+* **android:** prevent unnecessary requestLayout ([#3410](https://github.com/Tencent/Hippy/issues/3410)) ([2c06981](https://github.com/Tencent/Hippy/commit/2c069811882cbfb2f02ac832f4066eafff8abaaf))
+* **core:** fix ADRLoader multithread bug ([79869b8](https://github.com/Tencent/Hippy/commit/79869b8cb618e9efbc2deacba362a723dee1a4b7))
+* **core:** fix std hash for xcode15 ([00ac2a4](https://github.com/Tencent/Hippy/commit/00ac2a4776cc0eaf2acbf52ee8a32775cefbd7d4))
+* **ios:** avoid deadlock in special scenarios in animation module ([#3812](https://github.com/Tencent/Hippy/issues/3812)) ([2ce9bcf](https://github.com/Tencent/Hippy/commit/2ce9bcf28ec97e9b48ef4e0bf7af999b26f9951f))
+* **ios:** fix context leak when using shared engine ([#3451](https://github.com/Tencent/Hippy/issues/3451)) ([194b598](https://github.com/Tencent/Hippy/commit/194b59848fcfedb36e602a1b0797140899245681))
+* **v8:** v8 code cache file broken protect ([6e89510](https://github.com/Tencent/Hippy/commit/6e895108941e7102cfdc853314296bf77153f167))
+* **v8:** v8 code cache file broken protect ([#3538](https://github.com/Tencent/Hippy/issues/3538)) ([34aca84](https://github.com/Tencent/Hippy/commit/34aca84b363d331059066b73f914bfee09aeb686))
+
+
+
+
+
 ## [2.15.7](https://github.com/Tencent/Hippy/compare/2.15.6...2.15.7) (2023-02-24)
 
 
