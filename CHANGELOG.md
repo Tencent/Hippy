@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.16.6](https://github.com/Tencent/Hippy/compare/2.16.5...2.16.6) (2024-04-11)
+
+
+### Bug Fixes
+
+* **core:** fix std hash for xcode15 ([82e26bb](https://github.com/Tencent/Hippy/commit/82e26bb4a9031788dc9b7d4c0722a0d6cb77b3c9))
+* **ios:** avoid deadlock in special scenarios in animation module ([d7bb254](https://github.com/Tencent/Hippy/commit/d7bb254a2d93195ac340a5662b235dca7f4bbfd4))
+* **release:** fix js release action install error ([5ba3bc1](https://github.com/Tencent/Hippy/commit/5ba3bc172bd205d3787fbf5b5bed9330a1315232))
+
+
+
+
+
 ## [2.16.5](https://github.com/Tencent/Hippy/compare/2.16.4...2.16.5) (2023-07-21)
 
 
