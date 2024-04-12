@@ -15,18 +15,18 @@
 
 ``` javascript
 （1）删除 react-reconciler 依赖
-（2）@hippy/react 升级到 3.0.2-beta 以上
-（3）新增 @hippy/react-reconciler 依赖，使用react17的tag，即 @hippy/react-reconciler: react17
+（2）@hippy/react 升级到 3.2.0-beta 及以上
+（3）新增 @hippy/react-reconciler 依赖，使用react17的tag，即 @hippy/react-reconciler: "react17"
 （4）React 版本升级到 17，即 react: "^17.0.2"
-（5）如果使用了 @hippy/react-web 包做h5同构，则需要升级 @hippy/react-web 到 3.0.2-beta 以上
+（5）如果使用了 @hippy/react-web 包做h5同构，则需要升级 @hippy/react-web 到 3.2.0-beta 及以上
 ```
 
 如果当前 @hippy/react 版本大于 2.12.0, 且 React 使用的 17 的版本，则需要升级如下版本：
 
 ``` javascript
-（1）@hippy/react 升级到 3.0.2-beta 以上
-（2）升级 @hippy/react-reconciler 依赖，使用react17的tag，即 @hippy/react-reconciler: react17
-（3）如果使用了 @hippy/react-web 包做h5同构，则需要升级 @hippy/react-web 到 3.0.2-beta 以上
+（1）@hippy/react 升级到 3.2.0-beta 及以上
+（2）升级 @hippy/react-reconciler 依赖，使用react17的tag，即 @hippy/react-reconciler: "react17"
+（3）如果使用了 @hippy/react-web 包做h5同构，则需要升级 @hippy/react-web 到 3.2.0-beta 及以上
 ```
 
 Hippy-React 在升级3.0可以完全兼容之前的版本，除了升级如上依赖，业务代码不需要做修改。
@@ -39,12 +39,12 @@ Hippy-React 在升级3.0可以完全兼容之前的版本，除了升级如上�
 需要升级如下版本依赖：
 
 ``` javascript
-（1）@hippy/vue 升级到 3.0.2-beta 以上
-（2）@hippy/vue-native-components 升级到 3.0.2-beta 以上
-（3）@hippy/vue-router 升级到 3.0.2-beta 以上
-（4）@hippy/vue-css-loader 升级到 3.0.2-beta 以上
-（5）@hippy/vue-loader 升级到 3.0.2-beta 以上
-（6）vue 和 vue-router等vue相关依赖无需升级
+（1）@hippy/vue 升级到 3.2.0-beta 及以上
+（2）@hippy/vue-native-components 升级到 3.2.0-beta 及以上
+（3）@hippy/vue-router 升级到 3.2.0-beta 及以上
+（4）@hippy/vue-css-loader 升级到 3.2.0-beta 及以上
+（5）@hippy/vue-loader 升级到 3.2.0-beta 及以上
+（6）vue 和 vue-router 等vue相关依赖无需升级
 ```
 
 Hippy-Vue 在升级3.0可以完全兼容之前的版本，除了升级如上依赖，业务代码不需要做修改。
@@ -59,9 +59,9 @@ Hippy-Vue 在升级3.0可以完全兼容之前的版本，除了升级如上依�
 需要升级如下版本依赖：
 
 ``` javascript
-（1）@hippy/vue-next 升级到 3.0.2-beta 以上
-（2）@hippy/vue-router-next-history 升级到 3.0.2-beta 以上
-（3）@hippy/vue-css-loader 升级到 3.0.2-beta 以上
+（1）@hippy/vue-next 升级到 3.2.0-beta 及以上
+（2）@hippy/vue-css-loader 升级到 3.2.0-beta 及以上
+（3）@hippy/vue-router-next-history 升级到 0.0.1
 （4）vue 和 vue-router 等vue相关依赖无需升级
 ```
 
@@ -94,8 +94,8 @@ Hippy-Vue-Next 在升级3.0可以完全兼容之前的版本，除了升级如�
 
 ## Performance API
 
-Hippy 3.0 我们实现了基于前端规范设计的性能 API，接入方式可参考 [performance](feature/feature3.0/performance.md)。
+Hippy 3.0 我们实现了基于前端规范设计的性能 API，接入方式可参考 [Performance](feature/feature3.0/performance.md)。
 
 ## Layout 引擎支持切换
 
-Hippy 3.0 我们支持了 Layout 引擎的无缝切换，项目可保持`Yoga`引擎，也可以选择Hippy自研的`Taitank`引擎。详情可参考 [layout](feature/feature3.0/layout.md)
+Hippy 3.0 我们支持了 Layout 引擎的无缝切换，项目可保持`Yoga`引擎，也可以选择Hippy自研的`Taitank`引擎。详情可参考 [Layout](feature/feature3.0/layout.md)

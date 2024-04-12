@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.views.list;
 
-@SuppressWarnings({"unused"})
-public interface HippyRecycler {
+package androidx.recyclerview.widget;
 
-  //恢复默认的时候使用
-  void resetProps();
+import android.content.Context;
+import androidx.recyclerview.widget.GridLayoutManager;
 
-  //replace id 的时候清除不需要的属性
-  void clear();
+public class HippyGridLayoutManager extends GridLayoutManager {
+
+    public HippyGridLayoutManager(Context context, int spanCount) {
+        super(context, spanCount);
+    }
+
+
 }

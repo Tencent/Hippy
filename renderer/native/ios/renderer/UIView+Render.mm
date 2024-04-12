@@ -22,10 +22,11 @@
 
 #import "UIView+Render.h"
 #import "HippyUIManager.h"
-#import "NSObject+Render.h"
+#import "UIView+RenderManager.h"
 #import "NativeRenderManager.h"
-
+#import "dom/render_manager.h"
 #include <objc/runtime.h>
+
 
 @implementation UIView (Render)
 
@@ -36,6 +37,35 @@
         return nativeRenderManager->GetHippyUIManager();
     }
     return nil;
+}
+
+@end
+
+
+#pragma mark -
+
+@interface RenderManagerWrapper : NSObject
+
+/// holds weak_ptr of hippy::RenderManager
+@property (nonatomic, assign) std::weak_ptr<hippy::RenderManager> renderManager;
+
+@end
+
+@implementation RenderManagerWrapper
+
+@end
+
+@implementation UIView (HippyRenderManager)
+
+- (void)setRenderManager:(std::weak_ptr<hippy::RenderManager>)renderManager {
+    RenderManagerWrapper *wrapper = [[RenderManagerWrapper alloc] init];
+    wrapper.renderManager = renderManager;
+    objc_setAssociatedObject(self, @selector(renderManager), wrapper, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (std::weak_ptr<hippy::RenderManager>)renderManager {
+    RenderManagerWrapper *wrapper = objc_getAssociatedObject(self, _cmd);
+    return wrapper.renderManager;
 }
 
 @end
