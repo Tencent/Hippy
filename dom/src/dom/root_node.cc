@@ -150,7 +150,10 @@ void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes, boo
     // https://doc.weixin.qq.com/doc/w3_ANsAsgZ1ACckOPazHXERJqKHOCbP1?scode=AJEAIQdfAAogJJ2RicAMgAvQZ1ACc
     // 排序要保证两个原则：1. 父节点在子节点前；2. 同一父节点的子节点，必须按照 index 从小到大的顺序排序
     // 同一层级，不同父节点的子节点，位置可以交叉，但要保证原则2，即同一父节点子节点 index 是从小到大的顺序
-    std::stable_sort(nodes_to_create.begin(), nodes_to_create.end(), [](const std::shared_ptr<hippy::DomNode>& a, const std::shared_ptr<hippy::DomNode>& b)
+    std::stable_sort(
+        nodes_to_create.begin(),
+        nodes_to_create.end(),
+        [](const std::shared_ptr<hippy::DomNode>& a, const std::shared_ptr<hippy::DomNode>& b)
     {
       auto render_info_a = a->GetRenderInfo();
       auto render_info_b = b->GetRenderInfo();
