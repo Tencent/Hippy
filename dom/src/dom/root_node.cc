@@ -142,7 +142,12 @@ void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes, boo
     OnDomNodeCreated(node);
   }
   for (const auto& node : nodes_to_create) {
-    node->SetRenderInfo({node->GetId(), node->GetPid(), node->GetSelfIndex(), node->GetSelfDepth()});
+    if (needSortByIndex) {
+      node->SetRenderInfo({node->GetId(), node->GetPid(), node->GetSelfIndex(), node->GetSelfDepth()});
+    } else {
+      // 如果不需要对 index 排序，其他场景目前没有用到 depth，避免冗余计算
+      node->SetRenderInfo({node->GetId(), node->GetPid(), node->GetSelfIndex(), -1});
+    }
   }
 
   if (needSortByIndex) {
