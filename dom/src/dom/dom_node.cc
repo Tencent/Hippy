@@ -169,6 +169,13 @@ int32_t DomNode::GetSelfIndex() {
   return -1;
 }
 
+int32_t DomNode::GetSelfDepth() {
+  if (auto parent = parent_.lock()) {
+    return 1 + parent->GetSelfDepth();
+  }
+  return 1;
+}
+
 std::shared_ptr<DomNode> DomNode::RemoveChildAt(int32_t index) {
   auto child = children_[footstone::check::checked_numeric_cast<int32_t, unsigned long>(index)];
   child->SetParent(nullptr);

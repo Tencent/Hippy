@@ -134,7 +134,7 @@ TEST(DomManagerTest, CreateDomNodes) {
   std::shared_ptr<hippy::DomNode> root_node = manager->GetNode(10);
   root_node->SetDomManager(manager);
   std::vector<std::shared_ptr<hippy::DomInfo>> infos = ParserFile("create_node.json", manager);
-  manager->CreateDomNodes(std::move(infos));
+  manager->CreateDomNodes(std::move(infos), false);
 
   ASSERT_EQ(root_node->GetChildren().size(), 1);
   auto child = root_node->GetChildren();
@@ -156,7 +156,7 @@ TEST(DomManagerTest, UpdateDomNodes) {
   std::shared_ptr<hippy::DomNode> root_node = manager->GetNode(10);
   root_node->SetDomManager(manager);
   std::vector<std::shared_ptr<hippy::DomInfo>> infos = ParserFile("create_node.json", manager);
-  manager->CreateDomNodes(std::move(infos));
+  manager->CreateDomNodes(std::move(infos), false);
   std::string json =
       "[[{\"id\":59,\"pId\":61,\"name\":\"Text\",\"props\":{\"numberOfLines\":1,\"text\":\"本地调试\","
       "\"style\":{\"color\":4280558628,\"fontSize\":26}}},{}]]";
@@ -174,7 +174,7 @@ TEST(DomManagerTest, DeleteDomNodes) {
   std::shared_ptr<hippy::DomNode> root_node = manager->GetNode(10);
   root_node->SetDomManager(manager);
   std::vector<std::shared_ptr<hippy::DomInfo>> infos = ParserFile("create_node.json", manager);
-  manager->CreateDomNodes(std::move(infos));
+  manager->CreateDomNodes(std::move(infos), false);
 
   std::string json = "[[{\"id\":63,\"pId\":10,\"name\":\"View\"},{}]]";
   std::vector<std::shared_ptr<hippy::DomInfo>> delete_nodes = ParserJson(json, manager);

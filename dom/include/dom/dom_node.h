@@ -106,6 +106,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
     uint32_t id = kInvalidId;       // RenderNode的id
     uint32_t pid = kInvalidId;      // 父RenderNode的id
     int32_t index = kInvalidIndex;  // 本节点在父RenderNode上的索引
+    int32_t depth = kInvalidIndex;  // 本节点在父RenderNode上的深度
   };
 
   inline std::shared_ptr<DomNode> GetParent() { return parent_.lock(); }
@@ -142,6 +143,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void MarkWillChange(bool flag);
   int32_t GetSelfIndex();
   int32_t GetChildIndex(uint32_t id);
+  int32_t GetSelfDepth();
 
   int32_t IndexOf(const std::shared_ptr<DomNode>& child);
   std::shared_ptr<DomNode> GetChildAt(size_t index);
