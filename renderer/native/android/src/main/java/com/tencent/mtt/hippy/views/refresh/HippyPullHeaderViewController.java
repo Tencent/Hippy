@@ -33,7 +33,6 @@ import com.tencent.renderer.node.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerListAdapter;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerView;
-import com.tencent.mtt.hippy.views.list.HippyListView;
 
 import com.tencent.renderer.utils.ArrayUtils;
 import com.tencent.renderer.utils.MapUtils;
@@ -63,40 +62,6 @@ public class HippyPullHeaderViewController extends HippyViewController<HippyPull
     @Override
     public void onViewDestroy(HippyPullHeaderView pullHeaderView) {
         pullHeaderView.onDestroy();
-    }
-
-    private void execListViewFunction(@NonNull final HippyListView listView,
-            @NonNull String functionName, @NonNull List params) {
-        switch (functionName) {
-            case COLLAPSE_PULL_HEADER: {
-                listView.onHeaderRefreshFinish();
-                break;
-            }
-            case EXPAND_PULL_HEADER: {
-                listView.onHeaderRefresh();
-                break;
-            }
-            case COLLAPSE_PULL_HEADER_WITH_OPTIONS: {
-                Map element = ArrayUtils.getMapValue(params, 0);
-                if (element == null) {
-                    return;
-                }
-                final int time = MapUtils.getIntValue(element, "time");
-                if (time > 0) {
-                    listView.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            listView.onHeaderRefreshFinish();
-                        }
-                    }, time);
-                } else {
-                    listView.onHeaderRefreshFinish();
-                }
-            }
-            default: {
-                LogUtils.w(TAG, "Unknown function name: " + functionName);
-            }
-        }
     }
 
     private void execRecyclerViewFunction(@NonNull HippyRecyclerView recyclerView,
@@ -148,9 +113,7 @@ public class HippyPullHeaderViewController extends HippyViewController<HippyPull
             @NonNull String functionName, @NonNull List params) {
         super.dispatchFunction(pullHeaderView, functionName, params);
         View parent = pullHeaderView.getRecyclerView();
-        if (parent instanceof HippyListView) {
-            execListViewFunction((HippyListView) parent, functionName, params);
-        } else if (parent instanceof HippyRecyclerView) {
+        if (parent instanceof HippyRecyclerView) {
             execRecyclerViewFunction((HippyRecyclerView) parent, functionName, params);
         }
     }

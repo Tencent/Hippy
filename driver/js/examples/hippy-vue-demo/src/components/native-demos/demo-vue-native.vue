@@ -294,32 +294,6 @@
           <span>{{ cookiesValue }}</span>
         </div>
       </div>
-
-      <!-- Clipboard使用 -->
-      <div
-        v-if="Vue.Native.Clipboard"
-        class="native-block"
-      >
-        <label class="vue-native-title">Clipboard 使用</label>
-        <div class="item-wrapper">
-          <button
-            class="item-button"
-            @click="setString"
-          >
-            <span>setString</span>
-          </button>
-          <span>{{ clipboardString }}</span>
-        </div>
-        <div class="item-wrapper">
-          <button
-            class="item-button"
-            @click="getString"
-          >
-            <span>getString</span>
-          </button>
-          <span>{{ clipboardValue }}</span>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -343,8 +317,6 @@ export default {
       screenIsVertical,
       storageValue: '',
       storageSetStatus: 'ready to set',
-      clipboardString: 'ready to set',
-      clipboardValue: '',
       imageSize: '',
       netInfoText: '正在获取...',
       fetchText: '请求网址中...',
@@ -438,18 +410,6 @@ export default {
       Vue.Native.Cookie.getAll('https://hippyjs.org').then((cookies) => {
         this.cookiesValue = cookies;
       });
-    },
-    setString() {
-      Vue.Native.Clipboard.setString('hippy');
-      this.clipboardString = 'copy "hippy" value succeed';
-    },
-    async getString() {
-      const value = await Vue.Native.Clipboard.getString();
-      if (value) {
-        this.clipboardValue = value;
-      } else {
-        this.clipboardValue = 'undefined';
-      }
     },
   },
 };

@@ -26,7 +26,6 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.ClipChildrenView;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewWrapper;
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
-import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
 import com.tencent.renderer.utils.EventUtils;
 import java.util.HashMap;
 import java.util.Map;
@@ -106,9 +105,6 @@ public class RefreshWrapper extends HippyViewGroup implements ClipChildrenView {
 
 
     float getCompactScrollY() {
-        if (mContentView instanceof RecyclerViewBase) {
-            return ((RecyclerViewBase) mContentView).getOffsetY();
-        }
         if (mContentView instanceof HippyRecyclerViewWrapper) {
             return ((HippyRecyclerViewWrapper) mContentView).getRecyclerView().getContentOffsetY();
         }

@@ -20,8 +20,10 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#ifndef UIView_RenderManager_h
+#define UIView_RenderManager_h
 
+#import <Foundation/Foundation.h>
 #include <memory>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -32,11 +34,14 @@ class RenderManager;
 };
 };
 
-// FIXME: remove this category
+
 @interface UIView (HippyRenderManager)
 
+/// Get the hippy::RenderManager instance
 @property(nonatomic, assign) std::weak_ptr<hippy::RenderManager> renderManager;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif /* UIView_RenderManager_h */

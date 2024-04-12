@@ -29,5 +29,8 @@
     "normalize-url": "^4.5.1",
     "typescript": "^3.2.2",
     "y18n": "^4.0.1"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

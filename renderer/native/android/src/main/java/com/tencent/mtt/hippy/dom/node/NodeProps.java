@@ -167,4 +167,8 @@ public class NodeProps {
     public static final String BACKGROUND_RIPPLE = "nativeBackgroundAndroid";
     public static final String OVER_PULL = "bounces";
     public static final String HAS_STABLE_IDS = "hasStableIds";
+    public static final String NUMBER_OF_COLUMNS = "numberOfColumns";
+    public static final String COLUMN_SPACING = "columnSpacing";
+    public static final String ITEM_SPACING = "interItemSpacing";
+    public static final String FULL_SPAN = "fullSpan";
 }

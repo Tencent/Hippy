@@ -47,8 +47,8 @@ Pod::Spec.new do |s|
 
   s.subspec 'Framework' do |framework|
     puts 'hippy subspec \'framework\' read begin'
-    framework.source_files = 'framework/ios/**/*.{h,m,c,mm,s,cpp,cc}'
-    framework.public_header_files = 'framework/ios/**/*.h'
+    framework.source_files = ['framework/ios/**/*.{h,m,c,mm,s,cpp,cc}', 'renderer/native/ios/**/*.{h,m,mm}']
+    framework.public_header_files = ['framework/ios/**/*.h', 'renderer/native/ios/**/*.h']
     if js_engine == "jsc"
       framework.exclude_files = ['framework/ios/base/enginewrapper/v8', 'framework/ios/utils/v8']
     elsif js_engine == "v8" 
@@ -66,7 +66,7 @@ Pod::Spec.new do |s|
     framework.dependency 'hippy/JSDriver'
     framework.dependency 'hippy/Image'
     framework.dependency 'hippy/iOSVFS'
-    framework.dependency 'hippy/NativeRenderer'
+    framework.dependency 'hippy/DomUtils'
     puts 'hippy subspec \'framework\' read end'
   end
 
@@ -234,18 +234,6 @@ Pod::Spec.new do |s|
     puts 'hippy subspec \'driver\' read end'
   end 
 
-  s.subspec 'NativeRenderer' do |renderer|
-    puts 'hippy subspec \'nativerenderer\' read begin'
-    renderer.libraries = 'c++'
-    renderer.source_files = 'renderer/native/ios/**/*.{h,m,mm}'
-    renderer.public_header_files = 'renderer/native/ios/**/*.h'
-    renderer.dependency 'hippy/Base'
-    renderer.dependency 'hippy/DomUtils'
-    renderer.dependency 'hippy/Image'
-    renderer.dependency 'hippy/iOSVFS'
-    puts 'hippy subspec \'nativerenderer\' read end'
-  end 
-
   s.subspec 'Dom' do |dom|
     puts 'hippy subspec \'dom\' read begin'
     dom_source_files = Array['dom/include/**/*.h', 'dom/src/**/*.cc']
@@ -306,7 +294,7 @@ Pod::Spec.new do |s|
     s.subspec 'Taitank' do |taitank|
       puts 'hippy subspec \'Taitank\' read begin'
       taitank.source_files = ['dom/dom_project/_deps/taitank-src/src/*.{h,cc}']
-      taitank.public_header_files = ['dom/include/dom/taitank_layout_node.h', 'dom/dom_project/_deps/taitank-src/src/*.h']
+      taitank.public_header_files = ['dom/dom_project/_deps/taitank-src/src/*.h']
       if use_frameworks
         header_search_paths = framework_header_path
       else
