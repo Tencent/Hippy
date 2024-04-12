@@ -42,27 +42,9 @@ void LayerOptimizedRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_
       nodes_to_create.push_back(node);
     }
   }
-
   FOOTSTONE_DLOG(INFO) << "[Hippy Statistic] create node size before optimize = " << nodes.size()
                        << ", create node size after optimize  = " << nodes_to_create.size();
   if (!nodes_to_create.empty()) {
-    std::stable_sort(nodes_to_create.begin(), nodes_to_create.end(), [](const std::shared_ptr<hippy::DomNode>& a, const std::shared_ptr<hippy::DomNode>& b)
-    {
-      auto render_info_a = a->GetRenderInfo();
-      auto render_info_b = b->GetRenderInfo();
-      if (render_info_a.pid == 10) {
-        render_info_a.pid = 0;
-      }
-      if (render_info_b.pid == 10) {
-        render_info_b.pid = 0;
-      }
-      FOOTSTONE_DLOG(INFO) << "render_info_b index = " << render_info_b.index
-          << "render_info_b id = " << render_info_b.id;
-      if (render_info_a.pid == render_info_b.pid) {
-        return render_info_a.index < render_info_b.index;
-      }
-      return render_info_a.pid < render_info_b.pid;
-    });
     render_manager_->CreateRenderNode(root_node, std::move(nodes_to_create));
   }
 }

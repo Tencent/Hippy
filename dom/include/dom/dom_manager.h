@@ -96,7 +96,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
                                    uint32_t id) ;
 
   static void CreateDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
-                      std::vector<std::shared_ptr<DomInfo>>&& nodes);
+                      std::vector<std::shared_ptr<DomInfo>>&& nodes, bool needSortByIndex);
   static void UpdateDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
                       std::vector<std::shared_ptr<DomInfo>>&& nodes);
   static void MoveDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
