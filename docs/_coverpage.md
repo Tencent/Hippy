@@ -13,6 +13,6 @@
 * iOS 增量 1MB，Android 增量最小 2.5MB
 
 [GitHub](//github.com/Tencent/Hippy)
-[快速开始](/README.md)
+[快速开始](/index.md)
 
 ![color](#fff)
