@@ -26,29 +26,14 @@
 #import "HippyMethodInterceptorProtocol.h"
 #import "HippyModulesSetup.h"
 #import "HippyImageProviderProtocol.h"
+#import "HippyImageViewCustomLoader.h"
 #import "HippyInvalidating.h"
 #import "HippyDefines.h"
-
-#ifdef __cplusplus
-#include <memory>
-#endif
 
 @class HippyJSExecutor;
 @class HippyModuleData;
 @class HippyRootView;
 
-#ifdef __cplusplus
-class VFSUriLoader;
-class NativeRenderManager;
-
-namespace hippy {
-inline namespace dom {
-class DomManager;
-class RootNode;
-class RenderManager;
-};
-};
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -167,9 +152,23 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)loadBundleURL:(NSURL *)bundleURL
            completion:(void (^_Nullable)(NSURL * _Nullable, NSError * _Nullable))completion;
 
-#ifdef __cplusplus
-@property(nonatomic, assign)std::weak_ptr<VFSUriLoader> VFSUriLoader;
-#endif
+
+#pragma mark - Image Related
+
+/// Get the custom Image Loader
+///
+/// Note that A custom ImageLoader can be registered in two ways:
+/// One is through the registration method provided below,
+/// The other is to register globally with the HIPPY_EXPORT_MODULE macro.
+///
+/// Only one image loader can take effect at a time.
+@property (nonatomic, strong, nullable, readonly) id<HippyImageCustomLoaderProtocol> imageLoader;
+
+/// Set a custom Image Loader for current `hippyBridge`
+/// The globally registered ImageLoader is ignored when set by this method.
+///
+/// - Parameter imageLoader: id
+- (void)setCustomImageLoader:(id<HippyImageCustomLoaderProtocol>)imageLoader;
 
 /**
  * Image provider method
@@ -178,15 +177,8 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls;
 - (NSArray<Class<HippyImageProviderProtocol>> *)imageProviderClasses;
 
-#ifdef __cplusplus
-/**
- * Set basic configuration for native render
- * @param domManager DomManager
- * @param rootNode RootNode
- */
-- (void)setupDomManager:(std::shared_ptr<hippy::DomManager>)domManager
-               rootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
-#endif
+
+#pragma mark -
 
 /**
  *  Load instance for root view and show views
@@ -205,12 +197,6 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  * JS VM outside of Hippy Native. Use with care!
  */
 @property (nonatomic, readonly) HippyJSExecutor *javaScriptExecutor;
-
-
-#ifdef __cplusplus
-/// The C++ version of RenderManager instance, bridge holds
-@property (nonatomic, assign) std::shared_ptr<NativeRenderManager> renderManager;
-#endif
 
 
 /**

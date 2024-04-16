@@ -50,6 +50,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(onLoadEnd, HippyDirectEventBlock)
 
 HIPPY_CUSTOM_VIEW_PROPERTY(src, NSString, HippyImageView) {
     NSString *path = [HippyConvert NSString:json];
+    view.source = @[@{@"uri": path}]; // for compatible with Hippy2
     [self loadImageSource:path forView:view];
 }
 
@@ -73,8 +74,15 @@ HIPPY_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, HippyImageView) {
     if (!loader) {
         return;
     }
+    id<HippyImageCustomLoaderProtocol> customLoader = self.bridge.imageLoader;
+    NSDictionary *extraReqInfo;
+    if (customLoader) {
+        extraReqInfo = @{ kHippyVFSRequestResTypeKey:@(HippyVFSRscTypeImage),
+                          kHippyVFSRequestCustomImageLoaderKey: customLoader};
+    }
+    
     __weak HippyImageView *weakView = view;
-    loader->RequestUntrustedContent(source, imageLoadOperationQueue(),
+    loader->RequestUntrustedContent(source, extraReqInfo, imageLoadOperationQueue(),
                                     nil, ^(NSData * _Nullable data, NSDictionary * _Nullable userInfo,
                                            NSURLResponse * _Nullable response, NSError * _Nullable error) {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -109,8 +117,17 @@ static NSOperationQueue *imageLoadOperationQueue(void) {
     if (!loader) {
         return;
     }
+    id<HippyImageCustomLoaderProtocol> customLoader = self.bridge.imageLoader;
+    NSDictionary *extraReqInfo;
+    if (customLoader) {
+        NSDictionary *infoForLoader = @{ @(HIPPY_CUSTOMLOADER_IMAGEVIEW_IN_EXTRA_KEY): view };
+        extraReqInfo = @{ kHippyVFSRequestResTypeKey:@(HippyVFSRscTypeImage),
+                          kHippyVFSRequestCustomImageLoaderKey: customLoader,
+                          kHippyVFSRequestExtraInfoForCustomImageLoaderKey: infoForLoader };
+    }
+    
     __weak __typeof(self)weakSelf = self;
-    loader->RequestUntrustedContent(path, imageLoadOperationQueue(), nil,
+    loader->RequestUntrustedContent(path, extraReqInfo, imageLoadOperationQueue(), nil,
                                     ^(NSData *data, NSDictionary *userInfo, NSURLResponse *response, NSError *error) {
         __strong __typeof(weakSelf)strongSelf = weakSelf;
         HippyBridge *bridge = strongSelf.bridge;
@@ -127,7 +144,7 @@ static NSOperationQueue *imageLoadOperationQueue(void) {
             [imageProvider setImageData:data];
             // It is possible for User to return the image directly in userInfo,
             // So we need to check and skip the data decoding process if needed.
-            UIImage *resultImage = userInfo ? userInfo[HippyVFSHandlerUserInfoImageKey] : nil;
+            UIImage *resultImage = userInfo ? userInfo[HippyVFSResponseDecodedImageKey] : nil;
             if (resultImage) {
                 [imageProvider setDecodedImage:resultImage];
             }

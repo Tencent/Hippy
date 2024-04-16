@@ -43,6 +43,7 @@ void HippyFileHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob
 }
 
 void HippyFileHandler::RequestUntrustedContent(NSURLRequest *request,
+                                               NSDictionary *extraInfo,
                                                NSOperationQueue *queue,
                                                VFSHandlerProgressBlock progress,
                                                VFSHandlerCompletionBlock completion,

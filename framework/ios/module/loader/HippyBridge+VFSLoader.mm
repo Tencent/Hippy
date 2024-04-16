@@ -53,7 +53,7 @@
         if (body) {
             [request setHTTPBody:body];
         }
-        loader->RequestUntrustedContent(request, queue, progress, completionHandler);
+        loader->RequestUntrustedContent(request, nil, queue, progress, completionHandler);
     }
 }
 
