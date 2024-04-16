@@ -1,5 +1,5 @@
 * 起步
-  * [Hippy 概述](/README?id=hippy-%e6%a6%82%e8%bf%b0)
+  * [Hippy 概述](/index?id=hippy-%e6%a6%82%e8%bf%b0)
   * [开始接入](guide/integration.md)
   * [架构](structure/introduction.md)
   * [调试](guide/debug.md)
