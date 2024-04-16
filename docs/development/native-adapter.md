@@ -65,52 +65,86 @@ Hippy SDK 提供默认空实现 `DefaultEngineMonitorAdapter`。当你需要查�
 
 ---
 
-## HippyImageViewCustomLoader
+## HippyImageCustomLoaderProtocol
 
-在Hippy SDK中, 前端 `<Image>` 组件默认对应的 HippyImageView 会根据 source 属性使用默认行为下载图片数据并显示。但是某些情况下，业务方希望使用自定义的图片加载逻辑（比如业务使用了缓存，或者拦截特定URL的数据），为此 SDK 提供了`HippyImageViewCustomLoader` 协议。
+在Hippy SDK中, 前端 `<Image>` 组件默认对应的 HippyImageView 会根据 src 属性使用默认行为下载图片数据并显示。但是某些情况下，业务方希望使用自定义的图片加载逻辑（比如业务使用了缓存，或者拦截特定URL的数据），为此 SDK 提供了`HippyImageCustomLoaderProtocol` 协议。
 
-用户实现此协议，自行根据图片的URL返回数据即可，HippyImageView将根据返回的数据展示图片。
+用户实现此协议，自行根据图片的URL返回数据即可，HippyImageView将根据返回的数据展示图片。注意该支持返回待解码的NSData类型图片数据，也支持直接返回解码后的UIImage图片，请根据需要选择合适方案。
 
 ```objectivec
-@protocol HippyImageViewCustomLoader<HippyBridgeModule>
-@required
-/**
-* imageView:
-*/
-- (void)imageView:(HippyImageView *)imageView
-        loadAtUrl:(NSURL *)url
- placeholderImage:(UIImage *)placeholderImage
-        context:(void *)context
-        progress:(void (^)(long long, long long))progressBlock
-        completed:(void (^)(NSData *, NSURL *, NSError *))completedBlock;
+/// A Resource Loader for custom image loading
+@protocol HippyImageCustomLoaderProtocol <HippyBridgeModule>
 
-- (void)cancelImageDownload:(HippyImageView *)imageView withUrl:(NSURL *)url;
+@required
+
+/// Load Image with given URL
+/// Note that If you want to skip the decoding process lately,
+/// such as using a third-party SDWebImage to decode,
+/// Just set the ControlOptions parameters in the CompletionBlock.
+/// 
+/// - Parameters:
+///   - imageUrl: image url
+///   - extraInfo: extraInfo
+///   - progressBlock: progress block
+///   - completedBlock: completion block
+- (void)loadImageAtUrl:(NSURL *)imageUrl
+             extraInfo:(nullable NSDictionary *)extraInfo
+              progress:(nullable HippyImageLoaderProgressBlock)progressBlock
+             completed:(nullable HippyImageLoaderCompletionBlock)completedBlock;
+
 @end
 ```
 
 ## 协议实现
 
 ```objectivec
-@interface CustomImageLoader : NSObject <HippyImageViewCustomLoader>
+@interface CustomImageLoader : NSObject <HippyImageCustomLoaderProtocol>
 
 @end
 
 @implementation CustomImageLoader
-HIPPY_EXPORT_MODULE()
-- (void)imageView:(HippyImageView *)imageView loadAtUrl:(NSURL *)url placeholderImage:(UIImage *)placeholderImage context:(void *)context progress:(void (^)(long long, long long))progressBlock completed:(void (^)(NSData *, NSURL *, NSError *))completedBlock {
 
-    NSError *error = NULL;
+HIPPY_EXPORT_MODULE() // 全局注册该模块至Hippy
+
+- (void)loadImageAtUrl:(NSURL *)url
+             extraInfo:(NSDictionary *)extraInfo
+              progress:(HippyImageLoaderProgressBlock)progressBlock
+             completed:(HippyImageLoaderCompletionBlock)completedBlock {
+
+    // 1、如果获取的是NSData数据：
     // 业务方自行获取图片数据，返回数据或者错误
+    NSError *error = NULL;
     NSData *imageData = getImageData(url, &error);
-    // 将结果通过block通知
-    completedBlock(imageData, url, error);
+    // 将结果通过block回调
+    completedBlock(imageData, url, error, nil, kNilOptions);
+
+    // 2、如果可以直接获取UIImage数据，可跳过Hippy内置解码过程，避免重复解码：
+    UIImage *image = getImage(xxx);
+    // 传入控制参数，跳过内部解码
+    HippyImageLoaderControlOptions options = HippyImageLoaderControl_SkipDecodeOrDownsample;
+    // 将结果通过block回调
+    completedBlock(nil, url, error, image, options);
 }
 @end
 ```
 
-业务方需要务必添加 `HIPPY_EXPORT_MODULE()` 代码以便在 Hippy 框架中注册此 ImageLoader 模块，系统将自动寻找实现了`HippyImageViewCustomLoader` 协议的模块当做 ImageLoader。
+## 协议注册
 
-PS: 若有多个模块实现 `HippyImageViewCustomLoader` 协议，系统只会使用其中一个作为默认 ImageLoader
+与Hippy框架注册其他模块的方法一样，ImageLoader同样既可以选择通过Hippy框架提供的 `HIPPY_EXPORT_MODULE()` 宏注册到App全局（注意，全局注册的含义是App内的所有HippyBridge实例均会获取和使用该模块），又可通过 `HippyBridge` 初始化参数列表中的 `moduleProvider` 参数来注册到特定bridge。
+
+除此之外，`HippyBridge` 还提供了一个注册方法，便于业务注册ImageLoader实例：
+
+```objectivec
+/// Set a custom Image Loader for current `hippyBridge`
+/// The globally registered ImageLoader is ignored when set by this method.
+///
+/// - Parameter imageLoader: id
+- (void)setCustomImageLoader:(id<HippyImageCustomLoaderProtocol>)imageLoader;
+```
+
+在上述实现代码中，我们使用了 `HIPPY_EXPORT_MODULE()` 宏来实现将此 ImageLoader 模块自动注册至 Hippy 框架中，框架内部将自动寻找实现了`HippyImageCustomLoaderProtocol` 协议的模块作为 ImageLoader。
+
+!> 注意，同时只可有一个ImageLoader生效。若有多个模块实现了 `HippyImageCustomLoaderProtocol` 协议，框架使用最后一个作为生效的 ImageLoader。Hippy框架优先使用通过 `setCustomImageLoader:` 方法注册的ImageLoader。
 
 
 

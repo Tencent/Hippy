@@ -34,8 +34,25 @@ constexpr char kRequestFromOC[] = "kRequestFromOC";
 constexpr char kHeaderBody[] = "kHeaderBody";
 constexpr char kHeaderMethod[] = "kHeaderMethod";
 
-// The image returned in userInfo of VFSHandlerCompletionBlock
-FOUNDATION_EXPORT NSString *_Nonnull const HippyVFSHandlerUserInfoImageKey;
+enum HippyVFSRscType {
+    HippyVFSRscTypeOther = 0,
+    HippyVFSRscTypeImage,
+};
+
+
+// Resource Type Key for VFS Request in `extraInfo` parameter,
+// Value is defined in HippyVFSRscType
+FOUNDATION_EXPORT NSString *_Nonnull const kHippyVFSRequestResTypeKey;
+
+// Custom Image Loader (id<HippyImageCustomLoaderProtocol>) instance for Image request
+FOUNDATION_EXPORT NSString *_Nonnull const kHippyVFSRequestCustomImageLoaderKey;
+
+// Store `ExtraInfo` dictionary for Custom Image Loader
+FOUNDATION_EXPORT NSString *_Nonnull const kHippyVFSRequestExtraInfoForCustomImageLoaderKey;
+
+// The image returned in `userInfo` parameter of VFSHandlerCompletionBlock
+FOUNDATION_EXPORT NSString *_Nonnull const HippyVFSResponseDecodedImageKey;
+
 
 typedef void(^VFSHandlerProgressBlock)(NSUInteger current, NSUInteger total);
 typedef void(^VFSHandlerCompletionBlock)(NSData *_Nullable data,

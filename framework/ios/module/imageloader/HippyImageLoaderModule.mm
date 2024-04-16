@@ -21,12 +21,14 @@
 */
 
 #import <UIKit/UIKit.h>
-
+#import "HippyBridge+Private.h"
 #import "HippyBridge+VFSLoader.h"
 #import "HippyImageLoaderModule.h"
 #import "HippyUtils.h"
 #import "HippyDefines.h"
 #import "HippyLog.h"
+#import "VFSUriLoader.h"
+
 
 static NSString *const kImageLoaderModuleErrorDomain = @"kImageLoaderModuleErrorDomain";
 static NSUInteger const ImageLoaderErrorParseError = 2;
@@ -93,15 +95,25 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
 }
 
 HIPPY_EXPORT_METHOD(prefetch:(NSString *)urlString) {
-    [self.bridge loadContentsAsynchronouslyFromUrl:urlString
-                                            method:@"Get"
-                                            params:nil
-                                              body:nil
-                                             queue:nil
-                                          progress:nil
-                                 completionHandler:^(NSData *data, NSDictionary *userInfo, NSURLResponse *response, NSError *error) {
-        HippyLogInfo(@"prefetch %@ complete, err? %@", urlString, error.description);
-    }];
+    if (!urlString || !self.bridge) {
+        return;
+    }
+    id<HippyImageCustomLoaderProtocol> customLoader = self.bridge.imageLoader;
+    NSDictionary *extraReqInfo;
+    if (customLoader) {
+        extraReqInfo = @{ kHippyVFSRequestResTypeKey:@(HippyVFSRscTypeImage),
+                          kHippyVFSRequestCustomImageLoaderKey: customLoader };
+    }
+    
+    auto loader = [self.bridge vfsUriLoader].lock();
+    if (loader) {
+        NSURL *url = HippyURLWithString(urlString, nil);
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+        loader->RequestUntrustedContent(request, extraReqInfo, nil, nil,
+                                        ^(NSData *data, NSDictionary *userInfo, NSURLResponse *response, NSError *error) {
+            HippyLogInfo(@"prefetch %@ complete, err? %@", urlString, error.description);
+        });
+    }
 }
 
 @end

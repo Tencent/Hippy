@@ -173,6 +173,9 @@ static inline void registerLogDelegateToHippyCore() {
 
 @implementation HippyBridge
 
+@synthesize renderManager = _renderManager;
+@synthesize imageLoader = _imageLoader;
+
 dispatch_queue_t HippyJSThread;
 
 dispatch_queue_t HippyBridgeQueue() {
@@ -401,6 +404,33 @@ dispatch_queue_t HippyBridgeQueue() {
 
 - (BOOL)moduleIsInitialized:(Class)moduleClass {
     return [_moduleSetup isModuleInitialized:moduleClass];
+}
+
+
+#pragma mark - Image Config Related
+
+- (id<HippyImageCustomLoaderProtocol>)imageLoader {
+    @synchronized (self) {
+        if (!_imageLoader) {
+            // TODO: 增加优先级设计，优先使用bridge moduleProvider提供的模块。
+            
+            // Only the last imageloader takes effect,
+            // compatible with Hippy 2.x
+            _imageLoader = [[self modulesConformingToProtocol:@protocol(HippyImageCustomLoaderProtocol)] lastObject];
+        }
+    }
+    return _imageLoader;
+}
+
+- (void)setCustomImageLoader:(id<HippyImageCustomLoaderProtocol>)imageLoader {
+    @synchronized (self) {
+        if (imageLoader != _imageLoader) {
+            if (_imageLoader) {
+                HippyLogWarn(@"ImageLoader change from %@ to %@", _imageLoader, imageLoader);
+            }
+            _imageLoader = imageLoader;
+        }
+    }
 }
 
 
