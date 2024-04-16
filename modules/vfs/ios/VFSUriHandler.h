@@ -39,6 +39,7 @@ class VFSUriHandler : public hippy::vfs::UriHandler {
         std::function<std::shared_ptr<UriHandler>()> next) override;
 
     virtual void RequestUntrustedContent(NSURLRequest *request,
+                                         NSDictionary *extraInfo,
                                          NSOperationQueue *queue,
                                          VFSHandlerProgressBlock progress,
                                          VFSHandlerCompletionBlock completion,
