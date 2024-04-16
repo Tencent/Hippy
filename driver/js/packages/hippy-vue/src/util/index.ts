@@ -243,9 +243,9 @@ function whitespaceFilter(str: string) {
   // "trimWhitespace": default behavior is true.
   // It will trim leading / ending whitespace including all special unicode such as \xA0(&nbsp;).
   if (!_Vue || typeof _Vue.config.trimWhitespace === 'undefined' || _Vue.config.trimWhitespace) {
-    return str.trim().replace(/Â/g, ' ');
+    return str.trim().replace(/(&nbsp;|Â)/g, ' ');
   }
-  return str.replace(/Â/g, ' ');
+  return str.replace(/(&nbsp;|Â)/g, ' ');
 }
 
 export {
