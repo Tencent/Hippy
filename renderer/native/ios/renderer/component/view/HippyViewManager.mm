@@ -34,6 +34,7 @@
 #import "UIView+DirectionalLayout.h"
 #import "UIView+Hippy.h"
 #import "HippyBridgeModule.h"
+#import "HippyBridge+Private.h"
 #import <objc/runtime.h>
 #import "VFSUriLoader.h"
 #import "dom/layout_node.h"
@@ -263,7 +264,7 @@ static NSOperationQueue *imageLoadOperationQueue(void) {
         return;
     }
     NSString *standardizeAssetUrlString = path;
-    auto loader = [self.bridge.uiManager VFSUriLoader].lock();
+    auto loader = [self.bridge vfsUriLoader].lock();
     if (!loader) {
         return;
     }
