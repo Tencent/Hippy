@@ -47,7 +47,19 @@ class HippyValue;
 }
 }
 
-@interface HippyUIManager (Private)
+
+@protocol HippyUIManagerInternal <NSObject>
+
+/// DomManager instance
+@property (nonatomic, readonly) std::weak_ptr<hippy::DomManager> domManager;
+
+/// VFSUriLoader instance
+@property (nonatomic, assign) std::weak_ptr<VFSUriLoader> vfsUriLoader;
+
+@end
+
+
+@interface HippyUIManager (Private) <HippyUIManagerInternal>
 
 /// Set hippy::RenderManager
 /// - Parameter renderManager: hippy::RenderManager

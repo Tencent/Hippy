@@ -27,6 +27,7 @@
 #import "HippyUIManager.h"
 #import "TypeConverter.h"
 #import "VFSUriLoader.h"
+#import "HippyBridge+Private.h"
 
 
 @implementation HippyImageViewManager
@@ -70,7 +71,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, HippyImageView) {
 
 HIPPY_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, HippyImageView) {
     NSString *source = [HippyConvert NSString:json];
-    auto loader = [self.bridge.uiManager VFSUriLoader].lock();
+    auto loader = [self.bridge vfsUriLoader].lock();
     if (!loader) {
         return;
     }
@@ -113,7 +114,7 @@ static NSOperationQueue *imageLoadOperationQueue(void) {
     }
     NSString *standardizeAssetUrlString = path;
     __weak HippyImageView *weakView = view;
-    auto loader = [self.bridge.uiManager VFSUriLoader].lock();
+    auto loader = [self.bridge vfsUriLoader].lock();
     if (!loader) {
         return;
     }
