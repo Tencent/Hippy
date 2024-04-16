@@ -102,7 +102,7 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
 - (NSString *)description {
     NSString *superDescription = super.description;
     NSRange semicolonRange = [superDescription rangeOfString:@";"];
-    NSString *replacement = [NSString stringWithFormat:@"; componentTag: %@;", self.hippyTag];
+    NSString *replacement = [NSString stringWithFormat:@"; hippyTag: %@;", self.hippyTag];
     return [superDescription stringByReplacingCharactersInRange:semicolonRange withString:replacement];
 }
 

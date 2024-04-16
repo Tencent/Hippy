@@ -66,11 +66,6 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 /// The HippyUIManager responsible for updating the view hierarchy.
 @interface HippyUIManager : NSObject <HippyInvalidating>
 
-#ifdef __cplusplus
-@property (nonatomic, assign) std::weak_ptr<VFSUriLoader> VFSUriLoader;
-@property (nonatomic, readonly) std::weak_ptr<hippy::DomManager> domManager;
-#endif
-
 @property (nonatomic, weak) HippyBridge *bridge;
 @property (nonatomic, readonly) HippyComponentMap *viewRegistry;
 @property (nonatomic, assign) BOOL uiCreationLazilyEnabled;

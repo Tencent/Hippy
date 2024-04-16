@@ -47,12 +47,13 @@
 #import "HippyModulesSetup.h"
 #import "NativeRenderManager.h"
 #import "HippyShadowListView.h"
-#import "dom/root_node.h"
-#import "objc/runtime.h"
-#import <unordered_map>
 #import "HippyModuleData.h"
 #import "HippyModuleMethod.h"
+#import "HippyBridge+Private.h"
+#import "dom/root_node.h"
+#import "objc/runtime.h"
 #import <os/lock.h>
+#import <unordered_map>
 
 
 using HippyValue = footstone::value::HippyValue;
@@ -185,7 +186,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     // The implementation here needs to be improved to provide a registration mechanism.
     NSHashTable<id<HippyComponent>> *_componentTransactionListeners;
 
-    std::weak_ptr<DomManager> _domManager;
     std::weak_ptr<hippy::RenderManager> _renderManager;
     
     std::mutex _renderQueueLock;
@@ -209,6 +209,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 @implementation HippyUIManager
 
 @synthesize domManager = _domManager;
+@synthesize vfsUriLoader = _vfsUriLoader;
 
 #pragma mark Life cycle
 
