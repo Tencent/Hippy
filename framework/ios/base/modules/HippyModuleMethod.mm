@@ -464,23 +464,22 @@ static void enqueueBlockCallback(HippyBridge *bridge, HippyModuleMethod *moduleM
                   %@ on a module of class %@", [self methodName], [module class]);
 
         // Safety check
-        if (arguments.count != _argumentBlocks.count) {
-            NSInteger actualCount = arguments.count;
-            NSInteger expectedCount = _argumentBlocks.count;
-
-            // Subtract the implicit Promise resolver and rejecter functions for implementations of async functions
-            if (self.functionType == HippyFunctionTypePromise) {
-                actualCount -= 2;
-                expectedCount -= 2;
-            }
-
-            HippyLogError(@"%@.%@ was called with %ld arguments, but expects %ld. \
-                        If you haven\'t changed this method "
-                          @"yourself, this usually means that \
-                        your versions of the native code and JavaScript code are out "
-                          @"of sync. \
-                        Updating both should make this error go away.",
-                HippyBridgeModuleNameForClass(_moduleClass), self.JSMethodName, (long)actualCount, (long)expectedCount);
+        NSInteger actualCount = arguments.count;
+        NSInteger expectedCount = _argumentBlocks.count;
+        BOOL isArgumentsMismatch = NO;
+        if (actualCount > expectedCount ||
+            (self.functionType == HippyFunctionTypePromise && actualCount < expectedCount - 2)) {
+            isArgumentsMismatch = YES;
+        }
+        if (isArgumentsMismatch) {
+            HippyLogError(@"%@.%@ was called with %lld arguments but expects %lld arguments. "
+                          @"If you haven\'t changed this method yourself, this usually means that "
+                          @"your versions of the native code and JavaScript code are out of sync. "
+                          @"Updating both should make this error go away.",
+                          HippyBridgeModuleNameForClass(_moduleClass),
+                          self.JSMethodName,
+                          (long long)actualCount,
+                          (long long)expectedCount);
         }
     }
 
