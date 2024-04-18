@@ -296,7 +296,7 @@ static NSOperationQueue *imageLoadOperationQueue(void) {
             HippyBridge *bridge = strongSelf.bridge;
             if (bridge) {
                 id<HippyImageProviderProtocol> imageProvider = nil;
-                for (Class<HippyImageProviderProtocol> cls in [bridge imageProviderClasses]) {
+                for (Class<HippyImageProviderProtocol> cls in [bridge imageProviders]) {
                     if ([cls canHandleData:data]) {
                         imageProvider = [[(Class)cls alloc] init];
                         break;

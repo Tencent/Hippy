@@ -170,12 +170,12 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 /// - Parameter imageLoader: id
 - (void)setCustomImageLoader:(id<HippyImageCustomLoaderProtocol>)imageLoader;
 
-/**
- * Image provider method
- * Users adds or obtains image providers in the following methods
- */
+/// Get all classes that confirms to HippyImageProviderProtocol
+@property (nonatomic, strong, nonnull, readonly) NSArray<Class<HippyImageProviderProtocol>> *imageProviders;
+
+/// Add a custom ImageProvider class.
+/// - Parameter cls: class confirms to HippyImageProviderProtocol
 - (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls;
-- (NSArray<Class<HippyImageProviderProtocol>> *)imageProviderClasses;
 
 
 #pragma mark -
