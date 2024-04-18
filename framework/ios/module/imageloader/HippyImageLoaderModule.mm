@@ -47,7 +47,7 @@ HIPPY_EXPORT_MODULE(ImageLoaderModule)
 @synthesize bridge = _bridge;
 
 - (id<HippyImageProviderProtocol>)imageProviderForData:(NSData *)data {
-    NSArray<Class<HippyImageProviderProtocol>> *providers = [self.bridge imageProviderClasses];
+    NSArray<Class<HippyImageProviderProtocol>> *providers = [self.bridge imageProviders];
     for (Class<HippyImageProviderProtocol> cls in providers) {
         if ([cls canHandleData:data]) {
             id<HippyImageProviderProtocol> object = [[(Class)cls alloc] init];
