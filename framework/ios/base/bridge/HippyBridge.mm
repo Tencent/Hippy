@@ -133,7 +133,6 @@ static inline void registerLogDelegateToHippyCore() {
 
 
 @interface HippyBridge() {
-    NSMutableArray<Class<HippyImageProviderProtocol>> *_imageProviders;
     __weak id<HippyMethodInterceptorProtocol> _methodInterceptor;
     HippyModulesSetup *_moduleSetup;
     __weak NSOperation *_lastOperation;
@@ -176,6 +175,7 @@ static inline void registerLogDelegateToHippyCore() {
 
 @synthesize renderManager = _renderManager;
 @synthesize imageLoader = _imageLoader;
+@synthesize imageProviders = _imageProviders;
 
 dispatch_queue_t HippyJSThread;
 
@@ -371,25 +371,6 @@ dispatch_queue_t HippyBridgeQueue() {
     return nil;
 }
 
-- (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls {
-    HippyAssertParam(cls);
-    @synchronized (self) {
-        if (!_imageProviders) {
-            _imageProviders = [NSMutableArray array];
-        }
-        [_imageProviders addObject:cls];
-    }
-}
-
-- (NSArray<Class<HippyImageProviderProtocol>> *)imageProviderClasses {
-    @synchronized (self) {
-        if (!_imageProviders) {
-            _imageProviders = [NSMutableArray array];
-        }
-        return [_imageProviders copy];
-    }
-}
-
 - (NSArray *)modulesConformingToProtocol:(Protocol *)protocol {
     NSMutableArray *modules = [NSMutableArray new];
     for (Class moduleClass in self.moduleClasses) {
@@ -434,6 +415,27 @@ dispatch_queue_t HippyBridgeQueue() {
     }
 }
 
+- (NSArray<Class<HippyImageProviderProtocol>> *)imageProviders {
+    @synchronized (self) {
+        if (!_imageProviders) {
+            NSMutableArray *moduleClasses = [NSMutableArray new];
+            for (Class moduleClass in self.moduleClasses) {
+                if ([moduleClass conformsToProtocol:@protocol(HippyImageProviderProtocol)]) {
+                    [moduleClasses addObject:moduleClass];
+                }
+            }
+            _imageProviders = moduleClasses;
+        }
+        return [_imageProviders copy];
+    }
+}
+
+- (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls {
+    HippyAssertParam(cls);
+    @synchronized (self) {
+        _imageProviders = [self.imageProviders arrayByAddingObject:cls];
+    }
+}
 
 #pragma mark - Debug Reload
 
