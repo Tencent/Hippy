@@ -25,10 +25,9 @@
 #import "TypeConverter.h"
 #import "VFSUriLoader.h"
 #import "VFSUriHandler.h"
-
+#import "HippyAssert.h"
 #include <functional>
 #include <unordered_map>
-
 #include "footstone/string_view_utils.h"
 
 NSString *const VFSErrorDomain = @"VFSErrorDomain";
@@ -91,7 +90,9 @@ void VFSUriLoader::RequestUntrustedContent(NSString *urlString,
                                            NSOperationQueue *operationQueue,
                                            VFSHandlerProgressBlock progress,
                                            VFSHandlerCompletionBlock completion) {
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]];
+    NSURL *url = HippyURLWithString(urlString, nil);
+    HippyAssert(url, @"Invalid URL! %@", urlString);
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
     RequestUntrustedContent(request, extraInfo, operationQueue, progress, completion);
 }
 

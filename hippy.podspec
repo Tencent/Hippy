@@ -167,6 +167,7 @@ Pod::Spec.new do |s|
       'GCC_ENABLE_CPP_EXCEPTIONS' => false,
       'GCC_ENABLE_CPP_RTTI' => false,
     }
+    iosvfs.dependency 'hippy/Base'
     iosvfs.dependency 'hippy/VFS'
     iosvfs.dependency 'hippy/Footstone'
     iosvfs.dependency 'hippy/FootstoneUtils'
