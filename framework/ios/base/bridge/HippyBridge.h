@@ -94,7 +94,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 ///
 /// Note: 多个bridge使用相同的共享engineKey时，只有全部bridge实例销毁时engine资源才将释放，因此，请注意合理使用，避免出现意外的内存泄漏。
 /// 传空时默认不共享，SDK内部默认分配一随机key。
-- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
+- (instancetype)initWithDelegate:(nullable id<HippyBridgeDelegate>)delegate
                   moduleProvider:(nullable HippyBridgeModuleProviderBlock)block
                    launchOptions:(nullable NSDictionary *)launchOptions
                      executorKey:(nullable NSString *)executorKey;
@@ -112,7 +112,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 ///
 /// Note: 多个bridge使用相同的共享engineKey时，只有全部bridge实例销毁时engine资源才将释放，因此，请注意合理使用，避免出现意外的内存泄漏。
 /// 传空时默认不共享，SDK内部默认分配一随机key。
-- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
+- (instancetype)initWithDelegate:(nullable id<HippyBridgeDelegate>)delegate
                        bundleURL:(nullable NSURL *)bundleURL
                   moduleProvider:(nullable HippyBridgeModuleProviderBlock)block
                    launchOptions:(nullable NSDictionary *)launchOptions

@@ -85,6 +85,16 @@ method NS_UNAVAILABLE {                                                         
 _Pragma("clang diagnostic pop")
 
 
+#pragma mark - Clang Warnings
+
+// warning list ref:https://clang.llvm.org/docs/DiagnosticsReference.html
+#define HIPPY_CLANG_WARN_CONCAT(warning_name) HIPPY_STR_EXPAND(clang diagnostic ignored warning_name)
+#define HIPPY_IGNORE_WARNING_BEGIN(warningName) _Pragma("clang diagnostic push") _Pragma(HIPPY_CLANG_WARN_CONCAT(#warningName))
+#define HIPPY_IGNORE_WARNING_END _Pragma("clang diagnostic pop")
+
+
+#pragma mark -
+
 #define HIPPY_VERSION_3_0      300
 
 
