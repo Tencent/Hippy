@@ -23,7 +23,12 @@
     "dist/index.d.ts",
     "README.md"
   ],
-  "dependencies": {
+  "peerDependencies": {
+    "@vue/compiler-core": "^3.2.46",
+    "@vue/compiler-dom": "^3.2.46",
+    "@vue/shared": "^3.2.46"
+  },
+  "devDependencies": {
     "@vue/compiler-core": "^3.2.46",
     "@vue/compiler-dom": "^3.2.46",
     "@vue/shared": "^3.2.46"

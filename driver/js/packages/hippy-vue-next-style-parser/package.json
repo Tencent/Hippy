@@ -23,7 +23,10 @@
   "bugs": {
     "url": "https://github.com/Tencent/Hippy/issues"
   },
-  "dependencies": {
+  "peerDependencies": {
+    "@vue/shared": "^3.2.46"
+  },
+  "devDependencies": {
     "@vue/shared": "^3.2.46"
   },
   "entry": "./src/index.ts",
