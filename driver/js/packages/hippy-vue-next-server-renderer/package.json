@@ -25,12 +25,16 @@
     "dist/index.d.ts",
     "README.md"
   ],
-  "dependencies": {
+  "peerDependencies": {
     "@vue/server-renderer": "^3.2.46",
-    "@vue/runtime-core": "^3.2.46",
+    "@vue/runtime-core": "^3.2.46"
+  },
+  "dependencies": {
     "@vue/shared": "^3.2.46"
   },
   "devDependencies": {
+    "@vue/server-renderer": "^3.2.46",
+    "@vue/runtime-core": "^3.2.46",
     "vue": "^3.2.46"
   },
   "jest": {

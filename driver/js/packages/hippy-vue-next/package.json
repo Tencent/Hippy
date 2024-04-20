@@ -27,9 +27,14 @@
     "dist/index.d.ts",
     "README.md"
   ],
+  "peerDependencies": {
+    "@vue/runtime-core": "^3.2.46"
+  },
   "dependencies": {
-    "@vue/runtime-core": "^3.2.46",
     "@vue/shared": "^3.2.46"
+  },
+  "devDependencies": {
+    "@vue/runtime-core": "^3.2.46"
   },
   "jest": {
     "moduleNameMapper": {
