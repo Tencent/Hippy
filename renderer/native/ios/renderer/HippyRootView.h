@@ -47,11 +47,6 @@ typedef NS_ENUM(NSInteger, HippyRootViewSizeFlexibility) {
 /// is a good indicator that the application is ready to use.
 extern NSString *const HippyContentDidAppearNotification;
 
-/// Business bundle loading completion notification
-/// This notification is for compatibility with hippy2 and is not recommended for further use
-extern NSString *const HippySecondaryBundleDidLoadNotification;
-
-
 
 /// Native view used to host Hippy-managed views within the app.
 /// Can be used just like any ordinary UIView.

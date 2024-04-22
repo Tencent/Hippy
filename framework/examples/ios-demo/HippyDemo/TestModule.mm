@@ -95,7 +95,9 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [_connector setRootView:rootView];
     NSNumber *rootTag = [rootView hippyTag];
-    [connector loadBundleURL:bundleUrl completion:^(NSURL * _Nullable, NSError * _Nullable) {
+    [connector loadBundleURL:bundleUrl 
+                  bundleType:HippyBridgeBundleTypeBusiness
+                  completion:^(NSURL * _Nullable bundleURL, NSError * _Nullable error) {
         NSLog(@"url %@ load finish", bundleStr);
         [connector loadInstanceForRootView:rootTag withProperties:@{@"isSimulator": @(isSimulator)}];
     }];
