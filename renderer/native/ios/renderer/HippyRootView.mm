@@ -35,11 +35,6 @@
 // Sent when the first subviews are added to the root view
 NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotification";
 
-// In hippy2 there are two concepts: common package and business package;
-// After the success of the business package loading will send a `SecondaryBundleDidLoad` notification;
-// For compatibility, hippy3 retains this notice and its actual meaning.
-NSString *const HippySecondaryBundleDidLoadNotification = @"HippySecondaryBundleDidLoadNotification";
-
 NSNumber *AllocRootViewTag(void) {
     static NSString * const token = @"allocateRootTag";
     @synchronized (token) {
@@ -156,7 +151,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
             }
         } else {
             __weak __typeof(self)weakSelf = self;
-            [bridge loadBundleURL:businessURL completion:^(NSURL * _Nullable url, NSError * _Nullable error) {
+            [bridge loadBundleURL:businessURL
+                       bundleType:HippyBridgeBundleTypeBusiness
+                       completion:^(NSURL * _Nullable url, NSError * _Nullable error) {
                 // Execute loadInstance first and then do call back, maintain compatibility with hippy2
                 dispatch_async(dispatch_get_main_queue(), ^{
                     __strong __typeof(weakSelf)strongSelf = weakSelf;
@@ -166,13 +163,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
                     if (!error && !strongSelf.disableAutoRunApplication) {
                         [strongSelf runHippyApplication];
                     }
-                    // 抛出业务包(BusinessBundle aka SecondaryBundle)加载完成通知, for hippy2兼容
-                    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] initWithDictionary:@{ @"url": url,
-                                                                                                       @"bridge": strongSelf.bridge }];
-                    if (error) [userInfo setObject:error forKey:@"error"];
-                    [[NSNotificationCenter defaultCenter] postNotificationName:HippySecondaryBundleDidLoadNotification
-                                                                        object:strongSelf.bridge userInfo:userInfo];
-                    
                     if ([delegate respondsToSelector:@selector(rootView:didLoadFinish:)]) {
                         [delegate rootView:strongSelf didLoadFinish:(error == nil)];
                     }
@@ -285,15 +275,15 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     
     // Use the bridge that's sent in the notification payload
     // Call runHippyApplication only if the RootView is initialized without a business bundle.
-    HippyBridge *bridge = notification.userInfo[@"bridge"];
+    HippyBridge *bridge = notification.userInfo[kHippyNotiBridgeKey];
     if (!self.disableAutoRunApplication && bridge == self.bridge && !_hasBusinessBundleToLoad) {
         [self runHippyApplication];
     }
 }
 
 - (void)javaScriptDidFailToLoad:(NSNotification *)notification {
-    HippyBridge *bridge = notification.userInfo[@"bridge"];
-    NSError *error = notification.userInfo[@"error"];
+    HippyBridge *bridge = notification.userInfo[kHippyNotiBridgeKey];
+    NSError *error = notification.userInfo[kHippyNotiErrorKey];
     if (bridge == self.bridge && error) {
         NSError *retError = HippyErrorFromErrorAndModuleName(error, self.bridge.moduleName);
         HippyFatal(retError);
