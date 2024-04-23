@@ -41,9 +41,11 @@ public:
         std::function<std::shared_ptr<UriHandler>()> next) override;
 
     virtual void RequestUntrustedContent(NSURLRequest *request,
+                                         NSDictionary *extraInfo,
                                          NSOperationQueue *queue,
                                          VFSHandlerProgressBlock progress,
-                                         VFSHandlerCompletionBlock completion, VFSGetNextHandlerBlock next) override;
+                                         VFSHandlerCompletionBlock completion, 
+                                         VFSGetNextHandlerBlock next) override;
 private:
     __weak HippyBridge *bridge_;
 };

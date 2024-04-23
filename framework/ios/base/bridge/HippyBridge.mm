@@ -21,6 +21,7 @@
  */
 
 #import "HippyBridge.h"
+#import "HippyBridge+Private.h"
 #import "HippyBundleLoadOperation.h"
 #import "HippyBundleExecutionOperation.h"
 #import "HippyBundleOperationQueue.h"
@@ -173,6 +174,9 @@ static inline void registerLogDelegateToHippyCore() {
 
 @implementation HippyBridge
 
+@synthesize renderManager = _renderManager;
+@synthesize imageLoader = _imageLoader;
+
 dispatch_queue_t HippyJSThread;
 
 dispatch_queue_t HippyBridgeQueue() {
@@ -238,7 +242,7 @@ dispatch_queue_t HippyBridgeQueue() {
         [self setUp];
         
         [self addImageProviderClass:[HippyDefaultImageProvider class]];
-        [self setVFSUriLoader:[self createURILoaderIfNeeded]];
+        [self setVfsUriLoader:[self createURILoaderIfNeeded]];
         [self setUpNativeRenderManager];
         
         [HippyBridge setCurrentBridge:self];
@@ -401,6 +405,31 @@ dispatch_queue_t HippyBridgeQueue() {
 
 - (BOOL)moduleIsInitialized:(Class)moduleClass {
     return [_moduleSetup isModuleInitialized:moduleClass];
+}
+
+
+#pragma mark - Image Config Related
+
+- (id<HippyImageCustomLoaderProtocol>)imageLoader {
+    @synchronized (self) {
+        if (!_imageLoader) {
+            // Only the last imageloader takes effect,
+            // compatible with Hippy 2.x
+            _imageLoader = [[self modulesConformingToProtocol:@protocol(HippyImageCustomLoaderProtocol)] lastObject];
+        }
+    }
+    return _imageLoader;
+}
+
+- (void)setCustomImageLoader:(id<HippyImageCustomLoaderProtocol>)imageLoader {
+    @synchronized (self) {
+        if (imageLoader != _imageLoader) {
+            if (_imageLoader) {
+                HippyLogWarn(@"ImageLoader change from %@ to %@", _imageLoader, imageLoader);
+            }
+            _imageLoader = imageLoader;
+        }
+    }
 }
 
 
@@ -607,7 +636,7 @@ dispatch_queue_t HippyBridgeQueue() {
     [self sendEvent:@"onSizeChanged" params:dic];
 }
 
-- (void)setVFSUriLoader:(std::weak_ptr<VFSUriLoader>)uriLoader {
+- (void)setVfsUriLoader:(std::weak_ptr<VFSUriLoader>)uriLoader {
     [_javaScriptExecutor setUriLoader:uriLoader];
 #ifdef ENABLE_INSPECTOR
     auto devtools_data_source = _javaScriptExecutor.pScope->GetDevtoolsDataSource();
@@ -621,7 +650,7 @@ dispatch_queue_t HippyBridgeQueue() {
 #endif
 }
 
-- (std::weak_ptr<VFSUriLoader>)VFSUriLoader {
+- (std::weak_ptr<VFSUriLoader>)vfsUriLoader {
     return _uriLoader;
 }
 

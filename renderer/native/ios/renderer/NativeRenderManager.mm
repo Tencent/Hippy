@@ -222,7 +222,7 @@ void NativeRenderManager::SetUICreationLazilyEnabled(bool enabled) {
 void NativeRenderManager::SetVFSUriLoader(std::shared_ptr<VFSUriLoader> loader) {
     @autoreleasepool {
         HippyAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
-        renderImpl_.VFSUriLoader = loader;
+        renderImpl_.vfsUriLoader = loader;
     }
 }
 

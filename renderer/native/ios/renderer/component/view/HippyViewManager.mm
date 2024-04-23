@@ -34,6 +34,7 @@
 #import "UIView+DirectionalLayout.h"
 #import "UIView+Hippy.h"
 #import "HippyBridgeModule.h"
+#import "HippyBridge+Private.h"
 #import <objc/runtime.h>
 #import "VFSUriLoader.h"
 #import "dom/layout_node.h"
@@ -263,19 +264,26 @@ static NSOperationQueue *imageLoadOperationQueue(void) {
         return;
     }
     NSString *standardizeAssetUrlString = path;
-    auto loader = [self.bridge.uiManager VFSUriLoader].lock();
+    auto loader = [self.bridge vfsUriLoader].lock();
     if (!loader) {
         return;
     }
+    id<HippyImageCustomLoaderProtocol> customLoader = self.bridge.imageLoader;
+    NSDictionary *extraReqInfo;
+    if (customLoader) {
+        extraReqInfo = @{ kHippyVFSRequestResTypeKey:@(HippyVFSRscTypeImage),
+                          kHippyVFSRequestCustomImageLoaderKey: customLoader };
+    }
+    
     __weak __typeof(self)weakSelf = self;
     __weak HippyView *weakView = view;
-    loader->RequestUntrustedContent(path, imageLoadOperationQueue(), nil,
+    loader->RequestUntrustedContent(path, extraReqInfo, imageLoadOperationQueue(), nil,
                                     ^(NSData *data, NSDictionary *userInfo, NSURLResponse *response, NSError *error) {
         HippyLogTrace(@"%@ load bgImg finish:%@, hash:%lu record:%lu error?%@",
                       weakView.hippyTag, path, path.hash, weakView.backgroundImageUrlHash, error.description);
         // It is possible for User to return the image directly in userInfo,
         // So we need to check and skip the data decoding process if needed.
-        UIImage *resultImage = userInfo ? userInfo[HippyVFSHandlerUserInfoImageKey] : nil;
+        UIImage *resultImage = userInfo ? userInfo[HippyVFSResponseDecodedImageKey] : nil;
         if (resultImage) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 __strong HippyView *strongView = weakView;
