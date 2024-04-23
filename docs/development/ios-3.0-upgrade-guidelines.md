@@ -45,6 +45,12 @@
 
    由于3.0中关于image source的调用约定发生了变化（从 `NSArray` 类型的 `source` 调整为了 `NSString` 类型的 `src`），因此，如自定义了Image组件，请注意在对应的ViewManager中补充实现 `src` 属性，否则图片可能无法正常显示。
 
-4. 删除Image组件的内置图片缓存：
+4. 删除了Image组件的内置图片缓存：
 
    3.0中删除了2.0内置的背景图片缓存管理类，即`HippyBackgroundImageCacheManager`，图片缓存逻辑交由业务方自行定制。如果您有缓存图片的需求，请通过自定义ImageLoader来实现。
+
+5. 自定义ImageLoader的协议和实现变更：
+
+   Hippy 2.0提供了`HippyImageViewCustomLoader`协议，用于业务按需定制图片资源加载器。通常，App一般使用第三方图片库实现该协议，如SDWebImage等，从而实现更灵活的图片加载和支持更多图片类型的解码。然而，2.0中的这一协议约定存在些许问题，无法达到最佳的性能表现，而且已经与3.0的VFS模块设计不再兼容，因此在3.0中我们更新了该协议的约定。
+
+   注意，为便于及时发现该变更，在3.0中该协议名从`HippyImageViewCustomLoader`调整为了`HippyImageCustomLoaderProtocol`，协议方法也有一些变化，因此如果您使用了该协议，升级时将遇到少许编译问题，但其基本功能依旧保持不变。

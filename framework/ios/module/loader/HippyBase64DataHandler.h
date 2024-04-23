@@ -29,9 +29,11 @@ class HippyBase64DataHandler : public VFSUriHandler {
     
 public:
     void RequestUntrustedContent(NSURLRequest *request,
+                                 NSDictionary *extraInfo,
                                  NSOperationQueue *queue,
                                  VFSHandlerProgressBlock progress,
-                                 VFSHandlerCompletionBlock completion, VFSGetNextHandlerBlock next) override;
+                                 VFSHandlerCompletionBlock completion, 
+                                 VFSGetNextHandlerBlock next) override;
     
 };
 

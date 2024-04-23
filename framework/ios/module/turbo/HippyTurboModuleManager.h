@@ -21,9 +21,9 @@
  */
 
 #import <Foundation/Foundation.h>
-
 #import "HippyBridge.h"
 #import "HippyOCTurboModule.h"
+#import <memory>
 
 namespace hippy {
 inline namespace driver {

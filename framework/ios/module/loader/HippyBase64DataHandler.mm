@@ -23,6 +23,7 @@
 #import "HippyBase64DataHandler.h"
 
 void HippyBase64DataHandler::RequestUntrustedContent(NSURLRequest *request,
+                                                     NSDictionary *extraInfo,
                                                      NSOperationQueue *queue,
                                                      VFSHandlerProgressBlock progress,
                                                      VFSHandlerCompletionBlock completion,

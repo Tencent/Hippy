@@ -21,21 +21,24 @@
  */
 
 #import <Foundation/Foundation.h>
-
 #import "HippyFootstoneUtils.h"
 #import "NSURLResponse+ToUnorderedMap.h"
 #import "NSURLSessionDataProgress.h"
 #import "TypeConverter.h"
 #import "VFSUriHandler.h"
 #import "VFSUriLoader.h"
-
-#include <objc/runtime.h>
-
+#import "HippyImageViewCustomLoader.h"
 #include "footstone/string_view_utils.h"
 #include "vfs/uri_loader.h"
+#include <objc/runtime.h>
+
 
 static char *progressKey = nullptr;
-NSString *const HippyVFSHandlerUserInfoImageKey = @"HippyVFSHandlerUserInfoImageKey";
+NSString *const kHippyVFSRequestResTypeKey = @"kHippyVFSRequestResTypeKey";
+NSString *const kHippyVFSRequestCustomImageLoaderKey = @"kHippyVFSRequestCustomImageLoaderKey";
+NSString *const kHippyVFSRequestExtraInfoForCustomImageLoaderKey = @"kHippyVFSRequestExtraInfoForCustomImageLoaderKey";
+NSString *const HippyVFSResponseDecodedImageKey = @"HippyVFSResponseDecodedImageKey";
+
 
 static bool CheckRequestFromCPP(const std::unordered_map<std::string, std::string> &headers) {
     auto find = headers.find(kRequestOrigin);
@@ -155,7 +158,7 @@ void VFSUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob> r
                 cb(job_resp);
                 return;
             }
-            loader->RequestUntrustedContent(req, nil, ^(NSUInteger current, NSUInteger total) {
+            loader->RequestUntrustedContent(req, nil, nil, ^(NSUInteger current, NSUInteger total) {
                 request->GetProgressCallback()(current, total);
             }, ^(NSData *data, NSDictionary *userInfo, NSURLResponse *resp, NSError *error) {
                 RetCode code = RetCodeFromNSError(error);
@@ -176,6 +179,7 @@ void VFSUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob> r
 }
 
 void VFSUriHandler::RequestUntrustedContent(NSURLRequest *request,
+                                            NSDictionary *extraInfo,
                                             NSOperationQueue *queue,
                                             VFSHandlerProgressBlock progress,
                                             VFSHandlerCompletionBlock completion,
@@ -185,6 +189,37 @@ void VFSUriHandler::RequestUntrustedContent(NSURLRequest *request,
         return;
     }
     NSURL *requestURL = [request URL];
+    
+    // If it is an image request,
+    // we need to determine whether the user has a custom ImageLoader,
+    // if so, we need to request data through the custom ImageLoader.
+    if (extraInfo &&
+        extraInfo[kHippyVFSRequestCustomImageLoaderKey] &&
+        [extraInfo[kHippyVFSRequestResTypeKey] integerValue] == HippyVFSRscTypeImage) {
+        id<HippyImageCustomLoaderProtocol> customLoader = extraInfo[kHippyVFSRequestCustomImageLoaderKey];
+        NSDictionary *extraForCustomLoader = extraInfo[kHippyVFSRequestExtraInfoForCustomImageLoaderKey];
+        
+        [customLoader loadImageAtUrl:requestURL
+                           extraInfo:extraForCustomLoader
+                            progress:progress
+                           completed:^(NSData * _Nullable data, 
+                                       NSURL * _Nonnull url,
+                                       NSError * _Nullable error,
+                                       UIImage * _Nullable image,
+                                       HippyImageLoaderControlOptions options) {
+            NSDictionary *dict = nil;
+            if (image && (options & HippyImageLoaderControl_SkipDecodeOrDownsample)) {
+                dict = @{ HippyVFSResponseDecodedImageKey: image };
+            }
+            NSURLResponse *rsp = [[NSURLResponse alloc] initWithURL:url
+                                                           MIMEType:nil
+                                              expectedContentLength:data.length
+                                                   textEncodingName:nil];
+            completion(data, dict, rsp, error);
+        }];
+        return;
+    }
+    
     NSDictionary<NSString *, NSString *> *httpHeaders = [request allHTTPHeaderFields];
     if ([httpHeaders[@(kRequestOrigin)] isEqualToString:@(kRequestFromOC)]) {
         NSDictionary *userInfo = @{NSURLErrorFailingURLErrorKey: requestURL,
@@ -201,7 +236,7 @@ void VFSUriHandler::RequestUntrustedContent(NSURLRequest *request,
     if (!dataTask) {
         auto nextHandler = next();
         if (nextHandler) {
-            nextHandler->RequestUntrustedContent(request, queue, progress, completion, next);
+            nextHandler->RequestUntrustedContent(request, extraInfo, queue, progress, completion, next);
         }
         else {
             //try to forward to cpp uri handler
