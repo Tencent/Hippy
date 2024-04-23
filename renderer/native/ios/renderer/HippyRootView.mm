@@ -35,6 +35,12 @@
 // Sent when the first subviews are added to the root view
 NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotification";
 
+// In hippy2 there are two concepts: common package and business package;
+// After the success of the business package loading will send a `SecondaryBundleDidLoad` notification;
+// For compatibility, hippy3 retains this notice and its actual meaning.
+NSString *const HippySecondaryBundleDidLoadNotification = @"HippySecondaryBundleDidLoadNotification";
+
+
 NSNumber *AllocRootViewTag(void) {
     static NSString * const token = @"allocateRootTag";
     @synchronized (token) {
@@ -163,6 +169,17 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
                     if (!error && !strongSelf.disableAutoRunApplication) {
                         [strongSelf runHippyApplication];
                     }
+                    
+                    // 抛出业务包(BusinessBundle aka SecondaryBundle)加载完成通知，for hippy2兼容
+                    NSMutableDictionary *userInfo = @{ kHippyNotiBundleUrlKey: url,
+                                                       kHippyNotiBridgeKey: strongSelf.bridge }.mutableCopy;
+                    if (error) { [userInfo setObject:error forKey:kHippyNotiErrorKey]; }
+                    HIPPY_IGNORE_WARNING_BEGIN(-Wdeprecated)
+                    [[NSNotificationCenter defaultCenter] postNotificationName:HippySecondaryBundleDidLoadNotification
+                                                                        object:strongSelf.bridge 
+                                                                      userInfo:userInfo];
+                    HIPPY_IGNORE_WARNING_END
+                    
                     if ([delegate respondsToSelector:@selector(rootView:didLoadFinish:)]) {
                         [delegate rootView:strongSelf didLoadFinish:(error == nil)];
                     }
