@@ -480,9 +480,15 @@ static void enqueueBlockCallback(HippyBridge *bridge, HippyModuleMethod *moduleM
         NSInteger actualCount = arguments.count;
         NSInteger expectedCount = _argumentBlocks.count;
         BOOL isArgumentsMismatch = NO;
-        if (actualCount > expectedCount ||
-            (self.functionType == HippyFunctionTypePromise && actualCount < expectedCount - 2)) {
+        if (actualCount > expectedCount) {
             isArgumentsMismatch = YES;
+        } else if (self.functionType == HippyFunctionTypePromise && actualCount < expectedCount - 2) {
+            for (NSInteger index = actualCount; index < expectedCount - 2; index++) {
+                id<HippyBridgeArgument> arg = self.arguments[index];
+                if (arg.nullability != HippyNullable) {
+                    isArgumentsMismatch = YES;
+                }
+            }
         }
         if (isArgumentsMismatch) {
             HippyLogError(@"%@.%@ was called with %lld arguments but expects %lld arguments. "
@@ -499,8 +505,7 @@ static void enqueueBlockCallback(HippyBridge *bridge, HippyModuleMethod *moduleM
     // Set arguments
     NSUInteger index = 0;
     for (id json in arguments) {
-        // release模式下，如果前端给的参数多于终端所需参数，那会造成数组越界，引起整个逻辑return。
-        //这里做个修改，如果前端给的参数过多，那忽略多余的参数。
+        // 如果前端给的参数过多，忽略多余的参数
         if ([_argumentBlocks count] <= index) {
             break;
         }
