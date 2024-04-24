@@ -42,6 +42,7 @@ HIPPY_EXTERN void HippyExecuteOnMainThread(dispatch_block_t block, BOOL sync);
 // Method swizzling
 HIPPY_EXTERN void HippySwapClassMethods(Class cls, SEL original, SEL replacement);
 HIPPY_EXTERN void HippySwapInstanceMethods(Class cls, SEL original, SEL replacement);
+HIPPY_EXTERN void HippySwapInstanceMethodWithBlock(Class cls, SEL original, id replacementBlock, SEL replacementSelector);
 
 // Module subclass support
 HIPPY_EXTERN BOOL HippyClassOverridesClassMethod(Class cls, SEL selector);
