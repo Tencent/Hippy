@@ -52,8 +52,8 @@ typedef void (^HippyDirectEventBlock)(NSDictionary *body);
 /// Inset
 /// - Parameters:
 ///   - subview: id
-///   - atIndex: NSInteger
-- (void)insertHippySubview:(id<HippyComponent>)subview atIndex:(NSInteger)atIndex;
+///   - atIndex: NSUInteger
+- (void)insertHippySubview:(id<HippyComponent>)subview atIndex:(NSUInteger)atIndex;
 
 /// Remove
 /// - Parameter subview: id
@@ -62,8 +62,8 @@ typedef void (^HippyDirectEventBlock)(NSDictionary *body);
 /// Move
 /// - Parameters:
 ///   - subview: id
-///   - atIndex: NSInteger
-- (void)moveHippySubview:(id<HippyComponent>)subview toIndex:(NSInteger)atIndex;
+///   - atIndex: NSUInteger
+- (void)moveHippySubview:(id<HippyComponent>)subview toIndex:(NSUInteger)atIndex;
 
 /// Remove from superview
 - (void)removeFromHippySuperview;
