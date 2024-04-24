@@ -108,6 +108,7 @@ class LogMessage {
     }
     delegate_ = delegate;
   }
+
   inline static void LogWithFormat(const char * file, int line, const char *format, ...){
     char *log_msg = NULL;
     va_list args;
@@ -124,9 +125,9 @@ class LogMessage {
      <<"[thread:"<<pthread_self()<<"], "<<log_msg<<std::endl;
     
     if (LogMessage::delegate_) {
-      delegate_(s, TDF_LOG_WARNING);
+      delegate_(s, TDF_LOG_INFO);
     } else {
-      default_delegate_(s, TDF_LOG_WARNING);
+      default_delegate_(s, TDF_LOG_INFO);
     }
     
     free(log_msg);
