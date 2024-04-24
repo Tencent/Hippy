@@ -222,8 +222,11 @@ export class HippyElement extends HippyNode {
   // attributes
   public attributes: NativeNodeProps;
 
-  // style
+  // TODO style
   public style: NativeNodeProps;
+
+  // 包含了 className 解析后的完整属性，待重构
+  public cssStyle: NativeNodeProps = {};
 
   // events map
   public events: NativeNodeProps;
@@ -874,6 +877,19 @@ export class HippyElement extends HippyNode {
     // get styles
     let style: NativeNodeProps = this.getNativeStyles();
 
+    if (this.parentNode && this.parentNode instanceof HippyElement) {
+      // 属性继承逻辑实现
+      // 只继承 color 和 font属性
+      const parentNodeStyle = this.parentNode.cssStyle;
+      const styleAttributes = ['color', 'fontSize', 'fontWeight', 'fontFamily', 'fontStyle', 'textAlign', 'lineHeight'];
+
+      styleAttributes.forEach((attribute) => {
+        if (!style[attribute] && parentNodeStyle[attribute]) {
+          style[attribute] = parentNodeStyle[attribute];
+        }
+      });
+    }
+
     getBeforeRenderToNative()(this, style);
 
     /*
@@ -891,6 +907,8 @@ export class HippyElement extends HippyNode {
       });
       style = { ...updateStyle, ...style };
     }
+
+    this.cssStyle = style;
 
     const elementExtraAttributes: Partial<NativeNode> = {
       name: this.component.name,
