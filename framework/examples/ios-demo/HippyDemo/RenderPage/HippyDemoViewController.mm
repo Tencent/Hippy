@@ -263,10 +263,6 @@ static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fil
     return _isDebugMode;
 }
 
-- (void)reload:(HippyBridge *)bridge {
-    [self mountConnector:_hippyBridge];
-}
-
 - (void)removeRootView:(NSNumber *)rootTag bridge:(HippyBridge *)bridge {
     [[[self.contentAreaView subviews] firstObject] removeFromSuperview];
 }
