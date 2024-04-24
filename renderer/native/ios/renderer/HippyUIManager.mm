@@ -1015,7 +1015,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         UIView *superView = nil;
         for (auto node : strongNodes) {
-            int32_t index = node->GetIndex();
+            int32_t index = node->GetRenderInfo().index;
             int32_t componentTag = node->GetId();
             UIView *view = [viewRegistry objectForKey:@(componentTag)];
             if (!view) {
