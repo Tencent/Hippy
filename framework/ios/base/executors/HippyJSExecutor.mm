@@ -228,9 +228,11 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     HippyBridge *bridge = self.bridge;
     if (bridge && bridge.debugMode) {
         NSString *wsURL = [self completeWSURLWithBridge:bridge];
-        auto workerManager = std::make_shared<footstone::WorkerManager>(1);
-        auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>([wsURL UTF8String], workerManager);
-        self.pScope->SetDevtoolsDataSource(devtools_data_source);
+        if (wsURL.length > 0) {
+            auto workerManager = std::make_shared<footstone::WorkerManager>(1);
+            auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>([wsURL UTF8String], workerManager);
+            self.pScope->SetDevtoolsDataSource(devtools_data_source);
+        }
     }
 #endif
 }
@@ -329,9 +331,6 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     scope->SaveFunctionWrapper(std::move(wrapper));
     scope->SetTurboInstance(turbo_name, obj);
     return obj;
-}
-
-- (void)setUp {
 }
 
 - (void)invalidate {
