@@ -87,6 +87,18 @@ void HippySwapInstanceMethods(Class cls, SEL original, SEL replacement) {
     }
 }
 
+void HippySwapInstanceMethodWithBlock(Class cls, SEL original, id replacementBlock, SEL replacementSelector) {
+    Method originalMethod = class_getInstanceMethod(cls, original);
+    if (!originalMethod) {
+        return;
+    }
+    
+    IMP implementation = imp_implementationWithBlock(replacementBlock);
+    class_addMethod(cls, replacementSelector, implementation, method_getTypeEncoding(originalMethod));
+    Method newMethod = class_getInstanceMethod(cls, replacementSelector);
+    method_exchangeImplementations(originalMethod, newMethod);
+}
+
 BOOL HippyClassOverridesClassMethod(Class cls, SEL selector) {
     return HippyClassOverridesInstanceMethod(object_getClass(cls), selector);
 }

@@ -25,12 +25,21 @@
 #import "HippyAssert.h"
 #import "HippyDefines.h"
 #import "HippyUtils.h"
+#import "HippyRootView.h"
+#import <objc/message.h>
+#import <objc/runtime.h>
 
 #if HIPPY_DEV
 
-static BOOL HippyIsIOS8OrEarlier() {
-    return [UIDevice currentDevice].systemVersion.floatValue < 9;
-}
+@interface UIEvent (UIPhysicalKeyboardEvent)
+
+@property (nonatomic) NSString *_modifiedInput;
+@property (nonatomic) NSString *_unmodifiedInput;
+@property (nonatomic) UIKeyModifierFlags _modifierFlags;
+@property (nonatomic) BOOL _isKeyDown;
+@property (nonatomic) long _keyCode;
+
+@end
 
 @interface HippyKeyCommand : NSObject <NSCopying>
 
@@ -49,6 +58,8 @@ static BOOL HippyIsIOS8OrEarlier() {
     return self;
 }
 
+HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
+
 - (id)copyWithZone:(__unused NSZone *)zone {
     return self;
 }
@@ -65,15 +76,18 @@ static BOOL HippyIsIOS8OrEarlier() {
 }
 
 - (BOOL)matchesInput:(NSString *)input flags:(UIKeyModifierFlags)flags {
-    return [_keyCommand.input isEqual:input] && _keyCommand.modifierFlags == flags;
+    return [_keyCommand.input isEqual:input] && (_keyCommand.modifierFlags == flags || flags == 0);
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"<%@:%p input=\"%@\" flags=%zd hasBlock=%@>", [self class], self, _keyCommand.input,
-                     (long)_keyCommand.modifierFlags, _block ? @"YES" : @"NO"];
+    return [NSString stringWithFormat:@"<%@:%p input=\"%@\" flags=%zd hasBlock=%@>",
+            [self class], self, _keyCommand.input, (long)_keyCommand.modifierFlags, _block ? @"YES" : @"NO"];
 }
 
 @end
+
+
+#pragma mark -
 
 @interface HippyKeyCommands ()
 
@@ -81,131 +95,95 @@ static BOOL HippyIsIOS8OrEarlier() {
 
 @end
 
-@implementation UIResponder (HippyKeyCommands)
-
-+ (UIResponder *)hippy_getFirstResponder:(UIResponder *)view {
-    UIResponder *firstResponder = nil;
-
-    if (view.isFirstResponder) {
-        return view;
-    } else if ([view isKindOfClass:[UIViewController class]]) {
-        if ([(UIViewController *)view parentViewController]) {
-            firstResponder = [UIResponder hippy_getFirstResponder:[(UIViewController *)view parentViewController]];
-        }
-        return firstResponder ? firstResponder : [UIResponder hippy_getFirstResponder:[(UIViewController *)view view]];
-    } else if ([view isKindOfClass:[UIView class]]) {
-        for (UIView *subview in [(UIView *)view subviews]) {
-            firstResponder = [UIResponder hippy_getFirstResponder:subview];
-            if (firstResponder) {
-                return firstResponder;
-            }
-        }
-    }
-
-    return firstResponder;
-}
-
-- (NSArray<UIKeyCommand *> *)hippy_keyCommands {
-    NSSet<HippyKeyCommand *> *commands = [HippyKeyCommands sharedInstance].commands;
-    return [[commands valueForKeyPath:@"keyCommand"] allObjects];
-}
-
-/**
- * Single Press Key Command Response
- * Command + KeyEvent (Command + R/D, etc.)
- */
-- (void)hippy_handleKeyCommand:(UIKeyCommand *)key {
-    // NOTE: throttle the key handler because on iOS 9 the handleKeyCommand:
-    // method gets called repeatedly if the command key is held down.
-    static NSTimeInterval lastCommand = 0;
-    if (HippyIsIOS8OrEarlier() || CACurrentMediaTime() - lastCommand > 0.5) {
-        for (HippyKeyCommand *command in [HippyKeyCommands sharedInstance].commands.allObjects) {  // add by stockGroup
-            if ([command.keyCommand.input isEqualToString:key.input] && command.keyCommand.modifierFlags == key.modifierFlags) {
-                if (command.block) {
-                    command.block(key);
-                    lastCommand = CACurrentMediaTime();
-                }
-            }
-        }
-    }
-}
-
-/**
- * Double Press Key Command Response
- * Double KeyEvent (Double R, etc.)
- */
-- (void)hippy_handleDoublePressKeyCommand:(UIKeyCommand *)key {
-    static BOOL firstPress = YES;
-    static NSTimeInterval lastCommand = 0;
-    static NSTimeInterval lastDoubleCommand = 0;
-    static NSString *lastInput = nil;
-    static UIKeyModifierFlags lastModifierFlags = 0;
-
-    if (firstPress) {
-        for (HippyKeyCommand *command in [HippyKeyCommands sharedInstance].commands.allObjects) {  // add by stockGroup
-            if ([command.keyCommand.input isEqualToString:key.input] && command.keyCommand.modifierFlags == key.modifierFlags && command.block) {
-                firstPress = NO;
-                lastCommand = CACurrentMediaTime();
-                lastInput = key.input;
-                lastModifierFlags = key.modifierFlags;
-                return;
-            }
-        }
-    } else {
-        // Second keyevent within 0.2 second,
-        // with the same key as the first one.
-        if (CACurrentMediaTime() - lastCommand < 0.2 && lastInput == key.input && lastModifierFlags == key.modifierFlags) {
-            for (HippyKeyCommand *command in [HippyKeyCommands sharedInstance].commands.allObjects) {  // add by stockGroup
-                if ([command.keyCommand.input isEqualToString:key.input] && command.keyCommand.modifierFlags == key.modifierFlags && command.block) {
-                    // NOTE: throttle the key handler because on iOS 9 the handleKeyCommand:
-                    // method gets called repeatedly if the command key is held down.
-                    if (HippyIsIOS8OrEarlier() || CACurrentMediaTime() - lastDoubleCommand > 0.5) {
-                        command.block(key);
-                        lastDoubleCommand = CACurrentMediaTime();
-                    }
-                    firstPress = YES;
-                    return;
-                }
-            }
-        }
-
-        lastCommand = CACurrentMediaTime();
-        lastInput = key.input;
-        lastModifierFlags = key.modifierFlags;
-    }
-}
-
-@end
-
-@implementation UIApplication (HippyKeyCommands)
-
-// Required for iOS 8.x
-- (BOOL)hippy_sendAction:(SEL)action to:(id)target from:(id)sender forEvent:(UIEvent *)event {
-    if (action == @selector(hippy_handleKeyCommand:)) {
-        [self hippy_handleKeyCommand:sender];
-        return YES;
-    } else if (action == @selector(hippy_handleDoublePressKeyCommand:)) {
-        [self hippy_handleDoublePressKeyCommand:sender];
-        return YES;
-    }
-    return [self hippy_sendAction:action to:target from:sender forEvent:event];
-}
-
-@end
 
 @implementation HippyKeyCommands
 
 + (void)initialize {
-    if (HippyIsIOS8OrEarlier()) {
-        // swizzle UIApplication
-        HippySwapInstanceMethods([UIApplication class], @selector(keyCommands), @selector(hippy_keyCommands));
+    SEL originalKeyEventSelector = NSSelectorFromString(@"handleKeyUIEvent:");
+    SEL swizzledKeyEventSelector = NSSelectorFromString(
+                                                        [NSString stringWithFormat:@"_hippy_swizzle_%x_%@",
+                                                         arc4random(), NSStringFromSelector(originalKeyEventSelector)]);
+    
+    void (^handleKeyUIEventSwizzleBlock)(UIApplication *, UIEvent *) = ^(UIApplication *slf, UIEvent *event) {
+        [[[self class] sharedInstance] handleKeyUIEventSwizzle:event];
+        ((void (*)(id, SEL, id))objc_msgSend)(slf, swizzledKeyEventSelector, event);
+    };
+    
+    HippySwapInstanceMethodWithBlock([UIApplication class], originalKeyEventSelector,
+                                     handleKeyUIEventSwizzleBlock, swizzledKeyEventSelector);
+}
 
-        HippySwapInstanceMethods([UIApplication class], @selector(sendAction:to:from:forEvent:), @selector(hippy_sendAction:to:from:forEvent:));
-    } else {
-        // swizzle UIResponder
-        HippySwapInstanceMethods([UIResponder class], @selector(keyCommands), @selector(hippy_keyCommands));
+- (void)handleKeyUIEventSwizzle:(UIEvent *)event {
+    NSString *modifiedInput = nil;
+    UIKeyModifierFlags modifierFlags = 0;
+    BOOL isKeyDown = NO;
+    
+    if ([event respondsToSelector:@selector(_modifiedInput)]) {
+        modifiedInput = [event _modifiedInput];
+    }
+    
+    if ([event respondsToSelector:@selector(_modifierFlags)]) {
+        modifierFlags = [event _modifierFlags];
+    }
+    
+    if ([event respondsToSelector:@selector(_isKeyDown)]) {
+        isKeyDown = [event _isKeyDown];
+    }
+    
+    BOOL interactionEnabled = !UIApplication.sharedApplication.isIgnoringInteractionEvents;
+    BOOL hasFirstResponder = NO;
+    if (isKeyDown && modifiedInput.length > 0 && interactionEnabled) {
+        UIResponder *firstResponder = nil;
+        for (UIWindow *window in [self allWindows]) {
+            firstResponder = [window valueForKey:@"firstResponder"];
+            if (firstResponder) {
+                hasFirstResponder = YES;
+                break;
+            }
+        }
+        
+        // Ignore key commands (except escape) when there's an active responder
+        if (!firstResponder || [firstResponder isKindOfClass:HippyRootView.class]) {
+            [self hippy_handleKeyCommand:modifiedInput flags:modifierFlags];
+        }
+    }
+};
+
+- (NSArray<UIWindow *> *)allWindows {
+    BOOL includeInternalWindows = YES;
+    BOOL onlyVisibleWindows = NO;
+    
+    // Obfuscating selector allWindowsIncludingInternalWindows:onlyVisibleWindows:
+    NSArray<NSString *> *allWindowsComponents =
+    @[ @"al", @"lWindo", @"wsIncl", @"udingInt", @"ernalWin", @"dows:o", @"nlyVisi", @"bleWin", @"dows:" ];
+    SEL allWindowsSelector = NSSelectorFromString([allWindowsComponents componentsJoinedByString:@""]);
+    
+    NSMethodSignature *methodSignature = [[UIWindow class] methodSignatureForSelector:allWindowsSelector];
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
+    
+    invocation.target = [UIWindow class];
+    invocation.selector = allWindowsSelector;
+    [invocation setArgument:&includeInternalWindows atIndex:2];
+    [invocation setArgument:&onlyVisibleWindows atIndex:3];
+    [invocation invoke];
+    
+    __unsafe_unretained NSArray<UIWindow *> *windows = nil;
+    [invocation getReturnValue:&windows];
+    return windows;
+}
+
+- (void)hippy_handleKeyCommand:(NSString *)input flags:(UIKeyModifierFlags)modifierFlags {
+    for (HippyKeyCommand *command in [HippyKeyCommands sharedInstance].commands) {
+        if ([command matchesInput:input flags:modifierFlags]) {
+            if (command.block) {
+                command.block(nil);
+            }
+        }
     }
 }
+
+
+#pragma mark -
 
 + (instancetype)sharedInstance {
     static HippyKeyCommands *sharedInstance;
@@ -213,7 +191,7 @@ static BOOL HippyIsIOS8OrEarlier() {
     dispatch_once(&onceToken, ^{
         sharedInstance = [self new];
     });
-
+    
     return sharedInstance;
 }
 
@@ -224,19 +202,12 @@ static BOOL HippyIsIOS8OrEarlier() {
     return self;
 }
 
-- (void)registerKeyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags action:(void (^)(UIKeyCommand *))block {
+- (void)registerKeyCommandWithInput:(NSString *)input
+                      modifierFlags:(UIKeyModifierFlags)flags
+                             action:(void (^)(UIKeyCommand *))block {
     HippyAssertMainQueue();
-
-    if (input.length && flags && HippyIsIOS8OrEarlier()) {
-        // Workaround around the first cmd not working: http://openradar.appspot.com/19613391
-        // You can register just the cmd key and do nothing. This ensures that
-        // command-key modified commands will work first time. Fixed in iOS 9.
-
-        [self registerKeyCommandWithInput:@"" modifierFlags:flags action:nil];
-    }
-
-    UIKeyCommand *command = [UIKeyCommand keyCommandWithInput:input modifierFlags:flags action:@selector(hippy_handleKeyCommand:)];
-
+    
+    UIKeyCommand *command = [UIKeyCommand keyCommandWithInput:input modifierFlags:flags action:@selector(description)];
     HippyKeyCommand *keyCommand = [[HippyKeyCommand alloc] initWithKeyCommand:command block:block];
     [_commands removeObject:keyCommand];
     [_commands addObject:keyCommand];
@@ -244,7 +215,7 @@ static BOOL HippyIsIOS8OrEarlier() {
 
 - (void)unregisterKeyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags {
     HippyAssertMainQueue();
-
+    
     for (HippyKeyCommand *command in _commands.allObjects) {
         if ([command matchesInput:input flags:flags]) {
             [_commands removeObject:command];
@@ -255,8 +226,8 @@ static BOOL HippyIsIOS8OrEarlier() {
 
 - (BOOL)isKeyCommandRegisteredForInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags {
     HippyAssertMainQueue();
-
-    for (HippyKeyCommand *command in _commands.allObjects) {  // add by stockGroup
+    
+    for (HippyKeyCommand *command in _commands.allObjects) {
         if ([command matchesInput:input flags:flags]) {
             return YES;
         }
@@ -264,19 +235,12 @@ static BOOL HippyIsIOS8OrEarlier() {
     return NO;
 }
 
-- (void)registerDoublePressKeyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags action:(void (^)(UIKeyCommand *))block {
+- (void)registerDoublePressKeyCommandWithInput:(NSString *)input
+                                 modifierFlags:(UIKeyModifierFlags)flags
+                                        action:(void (^)(UIKeyCommand *))block {
     HippyAssertMainQueue();
-
-    if (input.length && flags && HippyIsIOS8OrEarlier()) {
-        // Workaround around the first cmd not working: http://openradar.appspot.com/19613391
-        // You can register just the cmd key and do nothing. This ensures that
-        // command-key modified commands will work first time. Fixed in iOS 9.
-
-        [self registerDoublePressKeyCommandWithInput:@"" modifierFlags:flags action:nil];
-    }
-
-    UIKeyCommand *command = [UIKeyCommand keyCommandWithInput:input modifierFlags:flags action:@selector(hippy_handleDoublePressKeyCommand:)];
-
+    
+    UIKeyCommand *command = [UIKeyCommand keyCommandWithInput:input modifierFlags:flags action:@selector(description)];
     HippyKeyCommand *keyCommand = [[HippyKeyCommand alloc] initWithKeyCommand:command block:block];
     [_commands removeObject:keyCommand];
     [_commands addObject:keyCommand];
@@ -284,7 +248,7 @@ static BOOL HippyIsIOS8OrEarlier() {
 
 - (void)unregisterDoublePressKeyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags {
     HippyAssertMainQueue();
-
+    
     for (HippyKeyCommand *command in _commands.allObjects) {
         if ([command matchesInput:input flags:flags]) {
             [_commands removeObject:command];
@@ -295,8 +259,8 @@ static BOOL HippyIsIOS8OrEarlier() {
 
 - (BOOL)isDoublePressKeyCommandRegisteredForInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags {
     HippyAssertMainQueue();
-
-    for (HippyKeyCommand *command in _commands.allObjects) {  // add by stockGroup
+    
+    for (HippyKeyCommand *command in _commands.allObjects) {
         if ([command matchesInput:input flags:flags]) {
             return YES;
         }
@@ -319,10 +283,12 @@ static BOOL HippyIsIOS8OrEarlier() {
                              action:(__unused void (^)(UIKeyCommand *))block {
 }
 
-- (void)unregisterKeyCommandWithInput:(__unused NSString *)input modifierFlags:(__unused UIKeyModifierFlags)flags {
+- (void)unregisterKeyCommandWithInput:(__unused NSString *)input
+                        modifierFlags:(__unused UIKeyModifierFlags)flags {
 }
 
-- (BOOL)isKeyCommandRegisteredForInput:(__unused NSString *)input modifierFlags:(__unused UIKeyModifierFlags)flags {
+- (BOOL)isKeyCommandRegisteredForInput:(__unused NSString *)input
+                         modifierFlags:(__unused UIKeyModifierFlags)flags {
     return NO;
 }
 
@@ -331,10 +297,12 @@ static BOOL HippyIsIOS8OrEarlier() {
                                         action:(__unused void (^)(UIKeyCommand *))block {
 }
 
-- (void)unregisterDoublePressKeyCommandWithInput:(__unused NSString *)input modifierFlags:(__unused UIKeyModifierFlags)flags {
+- (void)unregisterDoublePressKeyCommandWithInput:(__unused NSString *)input
+                                   modifierFlags:(__unused UIKeyModifierFlags)flags {
 }
 
-- (BOOL)isDoublePressKeyCommandRegisteredForInput:(__unused NSString *)input modifierFlags:(__unused UIKeyModifierFlags)flags {
+- (BOOL)isDoublePressKeyCommandRegisteredForInput:(__unused NSString *)input
+                                    modifierFlags:(__unused UIKeyModifierFlags)flags {
     return NO;
 }
 
