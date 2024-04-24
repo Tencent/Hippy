@@ -163,7 +163,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     }
 }
 
-- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
+- (void)insertHippySubview:(UIView *)subview atIndex:(NSUInteger)atIndex {
     if ([subview isKindOfClass:[HippyHeaderRefresh class]]) {
         if (_headerRefreshView) {
             [_headerRefreshView unsetFromScrollView];

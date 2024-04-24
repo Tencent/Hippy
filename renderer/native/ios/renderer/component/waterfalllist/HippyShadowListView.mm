@@ -150,7 +150,7 @@
     return _itemChangeContext;
 }
 
-- (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex {
+- (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSUInteger)atIndex {
     [super insertHippySubview:subview atIndex:atIndex];
     if ([subview isKindOfClass:[HippyShadowWaterfallItem class]]) {
         HippyShadowWaterfallItem *objectItem = (HippyShadowWaterfallItem *)subview;
@@ -168,7 +168,7 @@
     [_itemChangeContext appendDeletedItem:subview];
 }
 
-- (void)moveHippySubview:(id<HippyComponent>)subview toIndex:(NSInteger)atIndex {
+- (void)moveHippySubview:(id<HippyComponent>)subview toIndex:(NSUInteger)atIndex {
     [super moveHippySubview:subview toIndex:atIndex];
     [_itemChangeContext appendMovedItem:subview];
 }
