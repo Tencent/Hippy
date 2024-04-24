@@ -85,7 +85,7 @@
 
 #pragma mark native render native methods
 
-- (void)insertHippySubview:(UIView *)view atIndex:(NSInteger)atIndex {
+- (void)insertHippySubview:(UIView *)view atIndex:(NSUInteger)atIndex {
     if (atIndex > self.viewPagerItems.count) {
         HippyLogWarn(@"Error In HippyViewPager: addSubview —— out of bound of array");
         return;
