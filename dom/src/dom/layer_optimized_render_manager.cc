@@ -113,7 +113,7 @@ void LayerOptimizedRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_no
   }
   FOOTSTONE_DLOG(INFO) << "[Hippy Statistic] move node size before optimize = " << nodes.size()
                        << ", move node size after optimize  = " << nodes_to_move.size();
-  render_manager_->MoveRenderNode(root_node, std::move(nodes));
+  render_manager_->MoveRenderNode(root_node, std::move(nodes_to_move));
 }
 
 void LayerOptimizedRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
