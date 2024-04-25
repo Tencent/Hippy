@@ -78,6 +78,7 @@ void LayerOptimizedRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_
         std::vector<int32_t> moved_ids;
         moved_ids.reserve(moved_children.size());
         for (const auto& moved_node : moved_children) {
+          UpdateRenderInfo(moved_node);
           moved_ids.push_back(footstone::check::checked_numeric_cast<uint32_t, int32_t>(moved_node->GetId()));
         }
         MoveRenderNode(root_node, std::move(moved_ids),
