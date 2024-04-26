@@ -29,6 +29,7 @@ import {
   renderRemoveChildNativeNode,
   renderUpdateChildNativeNode,
   renderMoveChildNativeNode,
+  renderUpdateChildNativeEvent,
 } from '../render';
 import { EventHandlerType } from '../../util/event';
 
@@ -581,6 +582,22 @@ export class HippyNode extends HippyEventTarget {
     // get native nodes
     const updateNodes: convertToNativeNodesReturnedVal = this.convertToNativeNodes(isIncludeChildren, {});
     renderUpdateChildNativeNode(updateNodes);
+  }
+
+  /**
+   * update native event
+   *
+   * @param isIncludeChildren - whether to update all descendant nodes at the same time
+   */
+  public updateNativeEvent(): void {
+    // nodes that are not inserted into Native do not need to be processed
+    if (!this.isMounted) {
+      return;
+    }
+
+    // get native nodes
+    const eventNode = getEventNode(this);
+    renderUpdateChildNativeEvent(eventNode);
   }
 
   /**

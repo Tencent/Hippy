@@ -34,6 +34,7 @@ enum NodeOperateType {
   UPDATE,
   DELETE,
   MOVE,
+  UPDATE_EVENT,
 }
 
 // batch operation of native node
@@ -166,6 +167,9 @@ function endBatch() {
           printNodeOperation(chunk.printedNodes, 'moveNode');
           sceneBuilder.move(chunk.nodes);
           break;
+        case NodeOperateType.UPDATE_EVENT:
+          handleEventListeners(chunk.eventNodes, sceneBuilder);
+          break;
         default:
           break;
       }
@@ -243,4 +247,19 @@ export function renderUpdateChildNativeNode([nativeLanguages, eventLanguages, pr
     });
     endBatch();
   }
+}
+
+/**
+ * update native event
+ *
+ * @param updateNodes - nodes list
+ */
+export function renderUpdateChildNativeEvent(eventNode): void {
+  batchNativeNodes.push({
+    type: NodeOperateType.UPDATE_EVENT,
+    nodes: [],
+    eventNodes: [eventNode],
+    printedNodes: [],
+  });
+  endBatch();
 }
