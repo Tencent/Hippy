@@ -23,7 +23,7 @@ public class PixelUtil {
 
     private static DisplayMetrics sDisplayMetrics = null;
 
-    private static DisplayMetrics getMetrics() {
+    public static DisplayMetrics getMetrics() {
         if (sDisplayMetrics == null) {
             sDisplayMetrics = ContextHolder.getAppContext().getResources().getDisplayMetrics();
         }
