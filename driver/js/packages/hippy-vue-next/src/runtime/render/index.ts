@@ -252,7 +252,7 @@ export function renderUpdateChildNativeNode([nativeLanguages, eventLanguages, pr
 /**
  * update native event
  *
- * @param updateNodes - nodes list
+ * @param eventNode
  */
 export function renderUpdateChildNativeEvent(eventNode): void {
   batchNativeNodes.push({

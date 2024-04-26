@@ -586,8 +586,6 @@ export class HippyNode extends HippyEventTarget {
 
   /**
    * update native event
-   *
-   * @param isIncludeChildren - whether to update all descendant nodes at the same time
    */
   public updateNativeEvent(): void {
     // nodes that are not inserted into Native do not need to be processed
@@ -595,7 +593,7 @@ export class HippyNode extends HippyEventTarget {
       return;
     }
 
-    // get native nodes
+    // get event nodes
     const eventNode = getEventNode(this);
     renderUpdateChildNativeEvent(eventNode);
   }
