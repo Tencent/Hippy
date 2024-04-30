@@ -21,13 +21,7 @@
  */
 
 apply plugin: 'com.android.library'
-apply from: './mavencentral.gradle'
-
-ext {
-  CMAKE_PATH = "$projectDir.absolutePath/src/main/jni/CMakeLists.txt"
-  OUTPUT_PATH = "$buildDir/outputs/aar"
-  skipCmakeAndNinja = System.getenv('skipCmakeAndNinja') != null
-}
+apply from: './publish.gradle'
 
 buildscript {
   repositories {
@@ -35,31 +29,14 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:7.2.0'
+    classpath "com.android.tools.build:gradle:$AGP_VERSION"
     // NOTE: Do not place your application dependencies here; they belong
     // in the individual module build.gradle files
   }
 }
 
 allprojects {
-  ext {
-    MAVEN_USER = System.getenv('maven_username')
-    MAVEN_PWD = System.getenv('maven_password')
-    MAVEN_URL = System.getenv('maven_url')
-
-    println("MAVEN_USER=" + MAVEN_USER + ", MAVEN_PWD=" + MAVEN_PWD)
-  }
-
   repositories {
-    if (MAVEN_URL != null) {
-      maven {
-        url MAVEN_URL
-        credentials {
-          username MAVEN_USER
-          password MAVEN_PWD
-        }
-      }
-    }
     google()
     mavenCentral()
   }
@@ -67,18 +44,19 @@ allprojects {
 
 android {
   archivesBaseName = ARCHIVES_BASE_NAME
-  compileSdkVersion COMPILE_SDK_VERSION as int
+  compileSdkVersion COMPILE_VERSION as int
   ndkVersion = NDK_VERSION
   defaultConfig {
-    minSdkVersion MIN_SDK_VERSION as int
-    targetSdkVersion TARGET_SDK_VERSION as int
-    versionCode VERSION_CODE as int
+    minSdkVersion MIN_VERSION as int
+    targetSdkVersion TARGET_VERSION as int
     versionName VERSION_NAME
 
     // 保证app使用aar时，会自动将该proguard文件添加到本身的proguard规则中
     consumerProguardFiles 'proguard-rules.pro'
 
     buildConfigField("boolean", "ENABLE_SO_DOWNLOAD", ENABLE_SO_DOWNLOAD)
+    buildConfigField("boolean", "ENABLE_BUGLY_REPORT", ENABLE_BUGLY_REPORT)
+    buildConfigField("String", "LIBRARY_VERSION", "String.valueOf(\"$VERSION_NAME\")")
 
     packagingOptions {
       if (!INCLUDE_ABI_ARMEABI.toBoolean()) {
@@ -111,6 +89,7 @@ android {
                   "-DANDROID_ARM_NEON=${INCLUDE_ABI_ARMEABI.toBoolean() ? 'FALSE' : 'TRUE'}",
                   "-DCMAKE_BUILD_TYPE=Release",
                   "-DANDROID_STL=$ANDROID_STL",
+                  "-DVERSION_NAME=$VERSION_NAME",
                   "-DV8_COMPONENT=$V8_COMPONENT",
                   "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
 
@@ -139,6 +118,7 @@ android {
                   "-DANDROID_ARM_NEON=${INCLUDE_ABI_ARMEABI.toBoolean() ? 'FALSE' : 'TRUE'}",
                   "-DCMAKE_BUILD_TYPE=Debug",
                   "-DANDROID_STL=$ANDROID_STL",
+                  "-DVERSION_NAME=$VERSION_NAME",
                   "-DV8_COMPONENT=$V8_COMPONENT",
                   "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
 
@@ -159,10 +139,11 @@ android {
     }
   }
 
-  if (!SKIP_CMAKE_AND_NINJA.toBoolean() || !skipCmakeAndNinja) {
+  if (!SKIP_CMAKE_AND_NINJA.toBoolean() && System.getenv('skipCmakeAndNinja') == null) {
     externalNativeBuild {
       cmake {
-        path CMAKE_PATH
+        path "src/main/jni/CMakeLists.txt"
+        version CMAKE_VERSION
       }
     }
   }
@@ -272,36 +253,37 @@ task dealAfterStripDebugDebugSymbols() {
   }
 }
 
-def dealAfterAssemble(buildType) {
-  file("$OUTPUT_PATH/$buildType").deleteDir()
-  File target = file("$OUTPUT_PATH/$ARCHIVES_BASE_NAME" + ".aar")
+def dealAfterAssemble(outputPath, buildType) {
+  file("$outputPath/$buildType").deleteDir()
+  File target = file("$outputPath/$ARCHIVES_BASE_NAME" + ".aar")
   delete target
-  file(OUTPUT_PATH).list().each{fileName ->
+  file(outputPath).list().each{fileName ->
     if (fileName.contains(buildType + ".aar")) {
       copy {
-        from zipTree("$OUTPUT_PATH/$fileName")
-        into "$OUTPUT_PATH/$buildType"
+        from zipTree("$outputPath/$fileName")
+        into "$outputPath/$buildType"
       }
       copy {
-        from "$OUTPUT_PATH/$buildType"
-        into OUTPUT_PATH
+        from "$outputPath/$buildType"
+        into outputPath
         include 'classes.jar'
         rename 'classes.jar', 'hippy.jar'
       }
-      file("$OUTPUT_PATH/$fileName").renameTo(target)
+      file("$outputPath/$fileName").renameTo(target)
     }
   }
 }
 
+def OUTPUT_PATH = "$buildDir/outputs/aar"
 task dealAfterAssembleDebug() {
   doLast {
-    dealAfterAssemble("debug")
+    dealAfterAssemble(OUTPUT_PATH, "debug")
   }
 }
 
 task dealAfterAssembleRelease() {
   doLast {
-    dealAfterAssemble("release")
+    dealAfterAssemble(OUTPUT_PATH, "release")
     copy {
       from "$OUTPUT_PATH/$ARCHIVES_BASE_NAME-release.aar"
       into "$projectDir.absolutePath/../../examples/android-demo/example/libs"

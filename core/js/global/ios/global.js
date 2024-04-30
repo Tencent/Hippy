@@ -1,22 +1,43 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-undef */
 /* eslint-disable no-underscore-dangle */
 
 __GLOBAL__.appRegister = {};
-__GLOBAL__.nodeIdCache = {};
-__GLOBAL__.nodeTreeCache = {};
 __GLOBAL__.IosNodeTree = {};
-__GLOBAL__.nodeParamCache = {};
 __GLOBAL__.moduleCallId = 0;
 __GLOBAL__.moduleCallList = {};
 __GLOBAL__.canRequestAnimationFrame = true;
 __GLOBAL__.requestAnimationFrameId = 0;
 __GLOBAL__.requestAnimationFrameQueue = {};
-__GLOBAL__.destroyInstanceList = {};
 __GLOBAL__._callID = 0;
 __GLOBAL__._callbackID = 0;
 __GLOBAL__._callbacks = {};
 __GLOBAL__._notDeleteCallbackIds = {};
 __GLOBAL__._queue = [[], [], [], __GLOBAL__._callID];
+// compatible for hippy1.x
+__GLOBAL__.nodeIdCache = {};
+__GLOBAL__.nodeTreeCache = {};
+__GLOBAL__.nodeParamCache = {};
+__GLOBAL__.destroyInstanceList = {};
 
 __GLOBAL__.arrayContains = (array, value) => array.indexOf(value) !== -1;
 
@@ -45,7 +66,6 @@ __GLOBAL__.defineLazyObjectProperty = (object, name, descriptor) => {
     }
     return value;
   };
-
   Object.defineProperty(object, name, {
     get: getValue,
     set: setValue,
@@ -177,13 +197,11 @@ if (typeof nativeModuleProxy !== 'undefined') {
   __GLOBAL__.NativeModules = nativeModuleProxy;
 } else {
   const bridgeConfig = __fbBatchedBridgeConfig;
-
   ((bridgeConfig && bridgeConfig.remoteModuleConfig) || []).forEach((config, moduleID) => {
     const info = __GLOBAL__.genModule(config, moduleID);
     if (!info) {
       return;
     }
-
     if (info.module) {
       __GLOBAL__.NativeModules[info.name] = info.module;
     } else {

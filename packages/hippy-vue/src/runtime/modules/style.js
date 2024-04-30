@@ -22,6 +22,7 @@
 /* eslint-disable no-param-reassign */
 
 import { extend, cached, camelize } from 'shared/util';
+import { isNullOrUndefined } from '../../util';
 
 const normalize = cached(camelize);
 
@@ -35,13 +36,47 @@ function toObject(arr) {
   return res;
 }
 
-
-function updateStyle(oldVNode, vNode) {
-  if (!oldVNode.data.style && !vNode.data.style) {
-    return;
+function isStyleExisted(oldVNode, vNode) {
+  if (!oldVNode.data && !vNode.data) {
+    return false;
   }
-  let cur;
-  const { elm } = vNode;
+  if (!oldVNode.data.style
+    && !vNode.data.style
+    && !oldVNode.data.staticStyle
+    && !vNode.data.staticStyle) {
+    return false;
+  };
+  return true;
+}
+
+function mergeStyle(oldStyle, newStyle) {
+  const mergedStyle = {};
+  Object.keys(oldStyle).forEach((name) => {
+    const oldStyleValue = oldStyle[name];
+    const newStyleValue = newStyle[name];
+    if (!isNullOrUndefined(oldStyleValue) && isNullOrUndefined(newStyleValue)) {
+      mergedStyle[normalize(name)] = undefined;
+    }
+  });
+  Object.keys(newStyle).forEach((name) => {
+    const oldStyleValue = oldStyle[name];
+    const newStyleValue = newStyle[name];
+    if (!isNullOrUndefined(newStyleValue) && newStyleValue !== oldStyleValue) {
+      mergedStyle[normalize(name)] = newStyleValue;
+    }
+  });
+  return mergedStyle;
+}
+
+function patchStyle(oldVNode, vNode) {
+  if (!vNode.elm || !isStyleExisted(oldVNode, vNode)) return;
+
+  // get static style, i.e. style defined in the component, style="background-color: red"
+  const oldStaticStyle = oldVNode.data.staticStyle || {};
+  const newStaticStyle = vNode.data.staticStyle || {};
+  const batchedStaticStyle = mergeStyle(oldStaticStyle, newStaticStyle);
+
+  // get dynamic style
   const oldStyle = oldVNode.data.style || {};
   let style = vNode.data.style || {};
   const needClone = style.__ob__;
@@ -56,37 +91,52 @@ function updateStyle(oldVNode, vNode) {
     style = extend({}, style);
     vNode.data.style = style;
   }
-  // Remove the removed styles at first
-  Object.keys(oldStyle).forEach((name) => {
-    if (style[name] === undefined) {
-      elm.setStyle(normalize(name), undefined);
-    }
-  });
-  // Then set the new styles.
-  Object.keys(style).forEach((name) => {
-    cur = style[name];
-    elm.setStyle(normalize(name), cur);
-  });
+  const batchedStyle = mergeStyle(oldStyle, style);
+
+  // set merged styles
+  vNode.elm.setStyles({ ...batchedStaticStyle, ...batchedStyle });;
 }
 
-
-function createStyle(oldVNode, vNode) {
-  // console.log(`\t\t ===> createStyle(${oldVNode}, ${vNode})`)
-  if (!vNode.data.staticStyle) {
-    updateStyle(oldVNode, vNode);
+export function setStyle(vNode, customElem, options = {}) {
+  if (!vNode || !vNode.data) {
     return;
   }
-  const { elm } = vNode;
+  let { elm } = vNode;
+  if (customElem) {
+    elm = customElem;
+  }
+  if (!elm) return;
   const { staticStyle } = vNode.data;
-  Object.keys(staticStyle).forEach((name) => {
-    if (staticStyle[name]) {
-      elm.setStyle(normalize(name), staticStyle[name]);
+  if (staticStyle) {
+    Object.keys(staticStyle).forEach((name) => {
+      const value = staticStyle[name];
+      if (value) {
+        elm.setStyle(normalize(name), value, !!options.notToNative);
+      }
+    });
+  }
+  let { style } = vNode.data;
+  if (style) {
+    const needClone = style.__ob__;
+    // handle array syntax
+    if (Array.isArray(style)) {
+      style = toObject(style);
+      vNode.data.style = style;
     }
-  });
-  updateStyle(oldVNode, vNode);
+    // clone the style for future updates,
+    // in case the user mutates the style object in-place.
+    if (needClone) {
+      style = extend({}, style);
+      vNode.data.style = style;
+    }
+    // Then set the new styles.
+    Object.keys(style).forEach((name) => {
+      elm.setStyle(normalize(name), style[name], !!options.notToNative);
+    });
+  }
 }
 
 export default {
-  create: createStyle,
-  update: updateStyle,
+  create: patchStyle,
+  update: patchStyle,
 };

@@ -55,6 +55,7 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
         return ref.first;
     } else {
         std::shared_ptr<Engine> engine = std::make_shared<Engine>();
+        engine->AsyncInit();
         [self setEngine:engine forKey:key];
         return engine;
     }

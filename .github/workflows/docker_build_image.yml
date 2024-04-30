@@ -1,0 +1,88 @@
+name: '[docker] build docker image'
+
+on:
+  workflow_dispatch:
+    inputs:
+      images:
+        description: 'Images (separated by commas)'
+        required: true
+      tag:
+        description: 'TAG'
+        default: 'latest'
+        required: true
+  push:
+    branches:
+      - master
+      - main
+    tags-ignore:
+      - '**'
+    paths:
+      - 'buildconfig/docker/**'
+
+jobs:
+  changed_images:
+    runs-on: ubuntu-latest
+    outputs:
+      changed_images: ${{ steps.changed_images.outputs.changed_images }}
+    steps:
+      - name: Get changed images
+        id: changed_images
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { basename, sep } = require('path');
+            const { appendFileSync } = require('fs');
+            const { EOL } = require('os');
+            const { eventName } = context;
+            const { repos } = github.rest;
+            const push = context.payload;
+
+            const changedImages = new Set();
+
+            if (eventName === 'workflow_dispatch') {
+              '${{ github.event.inputs.images }}'.split(',').forEach(image => changedImages.add(image.trim()));
+            } else if (eventName === 'push') {
+              const files = await github.paginate(repos.compareCommits, {
+                ...context.repo,
+                base: push.before,
+                head: push.after,
+                per_page: 100
+              });
+
+              files.filter(({ status, filename }) =>
+                (status === 'added' || status === 'modified' || status === 'changed' || status === 'copied' || status === 'renamed')
+                && basename(filename) === 'Dockerfile').forEach(({ filename }) => {
+                  changedImages.add(filename.split(sep).slice(-2)[0]);
+              });
+            }
+
+            appendFileSync(process.env.GITHUB_OUTPUT, `changed_images=${JSON.stringify(Array.from(changedImages))}${EOL}`, { encoding: 'utf8' });
+
+  build_images:
+    needs: changed_images
+    runs-on: ${{ github.repository == 'Tencent/Hippy' && fromJson('[''self-hosted'', ''linux'', ''shared'']') || 'ubuntu-latest' }}
+    strategy:
+      matrix:
+        images: ${{ fromJson(needs.changed_images.outputs.changed_images) }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Log in
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get repo owner(in lowercase)
+        id: get_owner
+        uses: ASzc/change-string-case-action@v2
+        with:
+          string: ${{ github.repository_owner }}
+      - name: Make & Push to ghcr.io
+        uses: docker/build-push-action@v4
+        with:
+          context: buildconfig/docker/${{ matrix.images }}
+          push: true
+          tags: ghcr.io/${{ steps.get_owner.outputs.lowercase }}/${{ matrix.images }}:${{ github.event.inputs.tag || 'latest' }}

@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +28,7 @@ import { View } from './view';
 import { ViewPager, ViewPagerItem } from './view-pager';
 import { WebView } from './web-view';
 import { TextView } from './text-view';
-import { HippyView } from './hippy-view';
+import { HippyWebView } from './hippy-web-view';
 
 export {
   Image,
@@ -44,6 +44,6 @@ export {
   ListViewItem,
   ViewPagerItem,
   RefreshWrapperItemView,
-  HippyView,
+  HippyWebView,
 };
 

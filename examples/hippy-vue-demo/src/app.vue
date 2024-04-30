@@ -1,13 +1,18 @@
 <template>
   <div id="root">
     <div id="header">
-      <img
-        v-show="!['/', '/debug', '/remote-debug'].includes($router.history.current.path)"
-        id="back-btn"
-        :src="imgs.backButtonImg"
-        @click="goToHome"
-      >
-      <label class="title">Hippy Vue 示例</label>
+      <div class="left-title">
+        <img
+          v-show="!['/', '/debug', '/remote-debug'].includes($router.history.current.path)"
+          id="back-btn"
+          :src="imgs.backButtonImg"
+          @click="goToHome"
+        >
+        <label
+          v-if="['/', '/debug', '/remote-debug'].includes($router.history.current.path)"
+          class="title"
+        >Hippy Vue</label>
+      </div>
       <label
         class="title"
       >{{ subtitle }}</label>
@@ -82,8 +87,7 @@ export default {
   },
 };
 </script>
-
-<style scoped>
+<style>
   #root {
     flex: 1;
     background-color: white;
@@ -95,18 +99,23 @@ export default {
     background-color: #40b883;
     display: flex;
     flex-direction: row;
-    align-content: center;
+    align-items: center;
     justify-content: space-between;
+    padding-horizontal: 10px;
   }
-  #back-btn {
-    height: 24px;
+  #root .left-title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  #root #back-btn {
+    height: 20px;
     width: 24px;
-    marginTop: 18px;
+    margin-top: 18px;
     margin-bottom: 18px;
-    margin-left: 18px;
-    margin-right: 0;
   }
-  .body-container {
+  #root .body-container {
     flex: 1;
   }
   .row {
@@ -121,21 +130,6 @@ export default {
   }
   .fullscreen {
     flex: 1;
-  }
-  .toolbar {
-    display: flex;
-    height: 40px;
-    flex-direction: row;
-  }
-  .toolbar .toolbar-btn {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    justify-content: center;
-    margin: 3px;
-    border-style: solid;
-    border-color: blue;
-    border-width: 1px;
   }
   .row {
     flex-direction: row;
@@ -193,6 +187,7 @@ export default {
     justify-content: center;
     background-color: #fff;
     border-top-width: 1px;
+    border-style: solid;
     border-top-color: #eee;
   }
   .bottom-tab {
@@ -204,10 +199,6 @@ export default {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-  }
-  .bottom-tab:not(:last-child) {
-    border-right-width: 1px;
-    border-right-color: #eee;
   }
   .bottom-tab.activated .bottom-tab-text {
     color: #4c9afa;

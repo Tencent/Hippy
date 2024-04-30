@@ -26,19 +26,22 @@
  */
 
 import Native, { UIManagerModule } from '../../runtime/native';
-import { GLOBAL_STYLE_NAME, GLOBAL_DISPOSE_STYLE_NAME } from '../../runtime/constants';
+import { GLOBAL_STYLE_NAME, GLOBAL_DISPOSE_STYLE_NAME, ROOT_VIEW_ID } from '../../runtime/constants';
 import {
+  isDev,
   getApp,
   trace,
   warn,
+  deepCopy,
   isFunction,
   capitalizeFirstLetter,
   convertImageLocalPath,
+  getBeforeRenderToNative,
 } from '../../util';
 import {
   isRTL,
 } from '../../util/i18n';
-import { preCacheNode } from '../../util/node';
+import { isStyleMatched, preCacheNode } from '../../util/node';
 import { fromAstNodes, SelectorsMap } from './style';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
@@ -55,8 +58,9 @@ const NODE_OPERATION_TYPES = {
   updateNode: Symbol('updateNode'),
   deleteNode: Symbol('deleteNode'),
 };
-let __batchIdle = true;
-let __batchNodes = [];
+
+let batchIdle = true;
+let batchNodes = [];
 
 /**
  * Convert an ordered node array into multiple fragments
@@ -82,13 +86,13 @@ function chunkNodes(batchNodes) {
 /**
  * Initial CSS Map;
  */
-let __cssMap;
+let cssMap;
 
 function endBatch(app) {
-  if (!__batchIdle) return;
-  __batchIdle = false;
-  if (__batchNodes.length === 0) {
-    __batchIdle = true;
+  if (!batchIdle) return;
+  batchIdle = false;
+  if (batchNodes.length === 0) {
+    batchIdle = true;
     return;
   }
   const {
@@ -99,7 +103,7 @@ function endBatch(app) {
   } = app;
   UIManagerModule.startBatch();
   $nextTick(() => {
-    const chunks = chunkNodes(__batchNodes);
+    const chunks = chunkNodes(batchNodes);
     chunks.forEach((chunk) => {
       switch (chunk.type) {
         case NODE_OPERATION_TYPES.createNode:
@@ -131,38 +135,38 @@ function endBatch(app) {
       }
     });
     UIManagerModule.endBatch();
-    __batchIdle = true;
-    __batchNodes = [];
+    batchIdle = true;
+    batchNodes = [];
   });
 }
 
 function getCssMap() {
   /**
-   * To support dynamic import, __cssMap can be loaded from different js file.
-   * __cssMap should be create/append if global[GLOBAL_STYLE_NAME] exists;
+   * To support dynamic import, cssMap can be loaded from different js file.
+   * cssMap should be 'create/append' if global[GLOBAL_STYLE_NAME] exists;
    */
-  if (!__cssMap || global[GLOBAL_STYLE_NAME]) {
+  if (!cssMap || global[GLOBAL_STYLE_NAME]) {
     /**
      *  Here is a secret startup option: beforeStyleLoadHook.
      *  Usage for process the styles while styles loading.
      */
     const cssRules = fromAstNodes(global[GLOBAL_STYLE_NAME]);
-    if (__cssMap) {
-      __cssMap.append(cssRules);
+    if (cssMap) {
+      cssMap.append(cssRules);
     } else {
-      __cssMap = new SelectorsMap(cssRules);
+      cssMap = new SelectorsMap(cssRules);
     }
     global[GLOBAL_STYLE_NAME] = undefined;
   }
 
   if (global[GLOBAL_DISPOSE_STYLE_NAME]) {
     global[GLOBAL_DISPOSE_STYLE_NAME].forEach((id) => {
-      __cssMap.delete(id);
+      cssMap.delete(id);
     });
     global[GLOBAL_DISPOSE_STYLE_NAME] = undefined;
   }
 
-  return __cssMap;
+  return cssMap;
 }
 
 /**
@@ -187,7 +191,7 @@ function getNativeProps(node) {
       }
     });
   }
-  // Get the proceed props from node attributes
+  // Get the processed props from node attributes
   Object.keys(node.attributes).forEach((key) => {
     let value = node.getAttribute(key);
     // No defined map
@@ -222,12 +226,11 @@ function getNativeProps(node) {
     }
   });
 
-  // Get the force props from meta, it's can't be override
+  // Get the force props from meta, it can't be overridden
   if (node.meta.component.nativeProps) {
     Object.assign(props, node.meta.component.nativeProps);
   }
 
-  // FIXME: Workaround for Image src props, should unify to use src.
   if (node.tagName === 'img' && (__PLATFORM__ === 'ios' || Native.Platform === 'ios')) {
     props.source = [{
       uri: props.src,
@@ -277,19 +280,40 @@ function parseViewComponent(targetNode, nativeNode, style) {
     }
     // Change the ScrollView child collapsable attribute
     if (nativeNode.name === 'ScrollView') {
-      if (targetNode.childNodes.length !== 1) {
+      const realNodes = targetNode.childNodes.filter(child => !child.meta.skipAddToDom);
+      if (realNodes.length !== 1) {
         warn('Only one child node is acceptable for View with overflow');
       }
-      if (targetNode.childNodes.length) {
-        targetNode.childNodes[0].setStyle('collapsable', false);
+      if (realNodes.length) {
+        realNodes[0].setStyle('collapsable', false);
       }
     }
-    // TODO backgroundImage would use local path if webpack file-loader active, which needs native support
     if (style.backgroundImage) {
       style.backgroundImage = convertImageLocalPath(style.backgroundImage);
     }
   }
 }
+
+
+/**
+ * getElemCss
+ * @param {ElementNode} element
+ * @returns {{}}
+ */
+function getElemCss(element) {
+  const style = Object.create(null);
+  try {
+    getCssMap().query(element).selectors.forEach((matchedSelector) => {
+      if (!isStyleMatched(matchedSelector, element)) return;
+      matchedSelector.ruleSet.declarations.forEach((cssStyle) => {
+        style[cssStyle.property] = cssStyle.value;
+      });
+    });
+  } catch (err) {
+    console.error('getDomCss Error:', err);
+  }
+  return style;
+};
 
 /**
  * Get target node attributes, use to chrome devTool tag attribute show while debugging
@@ -298,10 +322,12 @@ function parseViewComponent(targetNode, nativeNode, style) {
  */
 function getTargetNodeAttributes(targetNode) {
   try {
-    const targetNodeAttributes = JSON.parse(JSON.stringify(targetNode.attributes));
+    const targetNodeAttributes = deepCopy(targetNode.attributes);
     const classInfo = Array.from(targetNode.classList || []).join(' ');
+    const { id, nodeId } = targetNode;
     const attributes = {
-      id: targetNode.id,
+      id,
+      hippyNodeId: `${nodeId}`,
       class: classInfo,
       ...targetNodeAttributes,
     };
@@ -324,19 +350,8 @@ function renderToNative(rootViewId, targetNode) {
   if (!targetNode.meta.component) {
     throw new Error(`Specific tag is not supported yet: ${targetNode.tagName}`);
   }
-  let style = {};
-  // Apply styles when the targetNode attach to document at first time.
-  if (targetNode.meta.component.defaultNativeStyle) {
-    style = { ...targetNode.meta.component.defaultNativeStyle };
-  }
-  // Apply styles from CSS
-  const matchedSelectors = getCssMap().query(targetNode);
-  matchedSelectors.selectors.forEach((matchedSelector) => {
-    matchedSelector.ruleSet.declarations.forEach((cssStyle) => {
-      style[cssStyle.property] = cssStyle.value;
-    });
-  });
-  // Apply style from style attribute.
+
+  let style = getElemCss(targetNode);
   style = { ...style, ...targetNode.style };
 
   // Convert to real native event
@@ -357,6 +372,15 @@ function renderToNative(rootViewId, targetNode) {
       }
     });
   }
+
+  getBeforeRenderToNative()(targetNode, style);
+
+  // use defaultNativeStyle later to avoid incorrect compute style from inherit node
+  // in beforeRenderToNative hook
+  if (targetNode.meta.component.defaultNativeStyle) {
+    style = { ...targetNode.meta.component.defaultNativeStyle, ...style };
+  }
+
   // Translate to native node
   const nativeNode = {
     id: targetNode.nodeId,
@@ -368,10 +392,10 @@ function renderToNative(rootViewId, targetNode) {
       ...events,
       style,
     },
+    tagName: targetNode.tagName,
   };
   // Add nativeNode attributes info for Element debugging
-  if (process.env.NODE_ENV !== 'production') {
-    nativeNode.tagName = targetNode.tagName;
+  if (isDev()) {
     nativeNode.props.attributes = getTargetNodeAttributes(targetNode);
   }
   parseViewComponent(targetNode, nativeNode, style);
@@ -401,12 +425,11 @@ function renderToNativeWithChildren(rootViewId, node, callback) {
 }
 
 function isLayout(node, rootView) {
-  // First time init rootViewId always be 3.
-  if (node.nodeId === 3) {
+  if (node.nodeId === ROOT_VIEW_ID) {
     return true;
   }
   // Check the id is specific for rootView.
-  if (process.env.NODE_ENV !== 'production') {
+  if (isDev()) {
     if (!rootView) {
       warn('rootView option is necessary for new HippyVue()');
     }
@@ -446,7 +469,7 @@ function insertChild(parentNode, childNode, atIndex = -1) {
         preCacheNode(node, node.nodeId);
       },
     );
-    __batchNodes.push({
+    batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
     });
@@ -470,7 +493,7 @@ function removeChild(parentNode, childNode, index) {
     pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
     index: childNode.index,
   }];
-  __batchNodes.push({
+  batchNodes.push({
     type: NODE_OPERATION_TYPES.deleteNode,
     nodes: deleteNodeIds,
   });
@@ -485,7 +508,7 @@ function updateChild(parentNode) {
   const { $options: { rootViewId } } = app;
   const translated = renderToNative(rootViewId, parentNode);
   if (translated) {
-    __batchNodes.push({
+    batchNodes.push({
       type: NODE_OPERATION_TYPES.updateNode,
       nodes: [translated],
     });
@@ -500,7 +523,7 @@ function updateWithChildren(parentNode) {
   const app = getApp();
   const { $options: { rootViewId } } = app;
   const translated = renderToNativeWithChildren(rootViewId, parentNode);
-  __batchNodes.push({
+  batchNodes.push({
     type: NODE_OPERATION_TYPES.updateNode,
     nodes: translated,
   });
@@ -515,4 +538,5 @@ export {
   removeChild,
   updateChild,
   updateWithChildren,
+  getElemCss,
 };

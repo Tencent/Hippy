@@ -25,7 +25,6 @@ import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.modules.nativemodules.animation.AnimationFrameModule;
 import com.tencent.mtt.hippy.modules.nativemodules.animation.AnimationModule;
 import com.tencent.mtt.hippy.modules.nativemodules.audio.AudioPlayerModule;
-import com.tencent.mtt.hippy.modules.nativemodules.clipboard.ClipboardModule;
 import com.tencent.mtt.hippy.modules.nativemodules.debug.DevMenu;
 import com.tencent.mtt.hippy.modules.nativemodules.console.ConsoleModule;
 import com.tencent.mtt.hippy.modules.nativemodules.deviceevent.DeviceEventModule;
@@ -34,6 +33,7 @@ import com.tencent.mtt.hippy.modules.nativemodules.image.ImageLoaderModule;
 import com.tencent.mtt.hippy.modules.nativemodules.netinfo.NetInfoModule;
 import com.tencent.mtt.hippy.modules.nativemodules.network.NetworkModule;
 import com.tencent.mtt.hippy.modules.nativemodules.network.WebSocketModule;
+import com.tencent.mtt.hippy.modules.nativemodules.performance.PerformanceModule;
 import com.tencent.mtt.hippy.modules.nativemodules.storage.StorageModule;
 import com.tencent.mtt.hippy.modules.nativemodules.timer.TimerModule;
 import com.tencent.mtt.hippy.modules.nativemodules.uimanager.UIManagerModule;
@@ -150,12 +150,6 @@ public class HippyCoreAPI implements HippyAPIProvider {
         return new UtilsModule(context);
       }
     });
-    modules.put(ClipboardModule.class, new Provider<HippyNativeModuleBase>() {
-      @Override
-      public HippyNativeModuleBase get() {
-        return new ClipboardModule(context);
-      }
-    });
     modules.put(DevMenu.class, new Provider<HippyNativeModuleBase>() {
       @Override
       public HippyNativeModuleBase get() {
@@ -167,6 +161,12 @@ public class HippyCoreAPI implements HippyAPIProvider {
       public HippyNativeModuleBase get() {
         return new AudioPlayerModule(context);
       }
+    });
+    modules.put(PerformanceModule.class, new Provider<HippyNativeModuleBase>() {
+        @Override
+        public HippyNativeModuleBase get() {
+            return new PerformanceModule(context);
+        }
     });
     return modules;
   }

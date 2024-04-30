@@ -30,29 +30,55 @@
 namespace hippy {
 namespace base {
 
-bool HippyFile::SaveFile(const unicode_string_view& file_path,
-                         const std::string& content,
-                         std::ios::openmode mode) {
-  TDF_BASE_DLOG(INFO) << "SaveFile file_path = " << file_path;
-  unicode_string_view owner(""_u8s);
-  const char* path = StringViewUtils::ToConstCharPointer(file_path, owner);
-  std::ofstream file(path, mode);
-  if (file.is_open()) {
-    std::streamsize len;
-    bool is_success = numeric_cast<size_t, std::streamsize>(content.length(), len);
-    if (is_success) {
-      file.write(content.c_str(), len);
+using unicode_string_view = tdf::base::unicode_string_view;
+
+bool HippyFile::ReadFile(const unicode_string_view& file_path,
+                         const std::function<void*(size_t)>& realloc,
+                         bool is_auto_fill) {
+  auto path_str = StringViewUtils::Convert(
+      file_path, unicode_string_view::Encoding::Utf8).utf8_value();
+  std::ifstream file(reinterpret_cast<const char*>(path_str.c_str()));
+  if (!file.fail()) {
+    file.ignore(std::numeric_limits<std::streamsize>::max());
+    std::streamsize size = file.gcount();
+    file.clear();
+    file.seekg(0, std::ios_base::beg);
+    size_t data_size;
+    if (!numeric_cast<std::streamsize, size_t>(size + (is_auto_fill ? 1 : 0), data_size)) {
+      file.close();
+      return false;
+    }
+    auto pointer = realloc(data_size);
+    auto read_size = file.read(reinterpret_cast<char*>(pointer), size).gcount();
+    if (size != read_size) {
+      TDF_BASE_DLOG(WARNING)
+      << "ReadFile file_path = " << file_path << ", size = " << size
+      << ", read_size = " << read_size;
+    }
+    if (is_auto_fill) {
+      *(reinterpret_cast<char*>(pointer) + data_size) = '\0';
     }
     file.close();
-    return is_success;
-  } else {
-    return false;
+    TDF_BASE_DLOG(INFO) << "ReadFile succ, file_path = " << file_path
+                        << ", size = " << size
+                        << ", read_size = " << read_size;
+    return true;
   }
+  TDF_BASE_DLOG(INFO) << "ReadFile fail, file_path = " << file_path;
+  return false;
+}
+
+int HippyFile::RmFile(const unicode_string_view& file_path) {
+  TDF_BASE_DLOG(INFO) << "RmFile file_path = " << file_path;
+  unicode_string_view owner(u8""_u8s);
+  const char* path = StringViewUtils::ToConstCharPointer(file_path, owner);
+  unlink(path);
+  return 0;
 }
 
 int HippyFile::RmFullPath(const unicode_string_view& dir_full_path) {
   TDF_BASE_DLOG(INFO) << "RmFullPath dir_full_path = " << dir_full_path;
-  unicode_string_view owner(""_u8s);
+  unicode_string_view owner(u8""_u8s);
   const char* path = StringViewUtils::ToConstCharPointer(dir_full_path, owner);
   DIR* dir_parent = opendir(path);
   if (!dir_parent) {
@@ -97,21 +123,21 @@ int HippyFile::RmFullPath(const unicode_string_view& dir_full_path) {
 
 int HippyFile::CreateDir(const unicode_string_view& path, mode_t mode) {
   TDF_BASE_DLOG(INFO) << "CreateDir path = " << path;
-  unicode_string_view owner(""_u8s);
+  unicode_string_view owner(u8""_u8s);
   const char* dir_path = StringViewUtils::ToConstCharPointer(path, owner);
   return mkdir(dir_path, mode);
 }
 
 int HippyFile::CheckDir(const unicode_string_view& path, int mode) {
   TDF_BASE_DLOG(INFO) << "CheckDir path = " << path;
-  unicode_string_view owner(""_u8s);
+  unicode_string_view owner(u8""_u8s);
   const char* dir_path = StringViewUtils::ToConstCharPointer(path, owner);
   return access(dir_path, mode);
 }
 
 uint64_t HippyFile::GetFileModifytime(const unicode_string_view& file_path) {
   TDF_BASE_DLOG(INFO) << "GetFileModifytime file_path = " << file_path;
-  unicode_string_view view_owner(""_u8s);
+  unicode_string_view view_owner(u8""_u8s);
   const char* path = StringViewUtils::ToConstCharPointer(file_path, view_owner);
   struct stat statInfo{};
   FILE* fp = fopen(path, "r");

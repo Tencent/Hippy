@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29  Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,14 +19,14 @@
  */
 import { EllipsizeMode, InnerNodeTag, NodeProps } from '../types';
 import { setElementStyle } from '../common';
-import { HippyView } from './hippy-view';
+import { HippyWebView } from './hippy-web-view';
 const HippyEllipsizeModeMap = {
   head: { 'text-overflow': 'ellipsis', direction: 'rtl' },
   clip: { 'text-overflow': 'clip' },
   middle: { 'text-overflow': 'ellipsis' },
   tail: { 'text-overflow': 'ellipsis' },
 };
-export class TextView extends HippyView<HTMLSpanElement> {
+export class TextView extends HippyWebView<HTMLSpanElement> {
   public constructor(context, id, pId) {
     super(context, id, pId);
     this.tagName = InnerNodeTag.TEXT;
@@ -40,9 +40,11 @@ export class TextView extends HippyView<HTMLSpanElement> {
   public set numberOfLines(value: number|undefined) {
     this.props[NodeProps.NUMBER_OF_LINES] = value;
     if (value === 1) {
-      this.dom && setElementStyle(this.dom, { 'white-space': 'nowrap', 'word-break': 'keep-all' });
+      this.dom && setElementStyle(this.dom, { 'white-space': 'nowrap', 'word-break': 'keep-all', display: 'initial',
+        '-webkit-box-orient': '', '-webkit-line-clamp': '', overflow: '' });
     } else {
-      this.dom && setElementStyle(this.dom, { 'white-space': 'normal', 'word-break': 'break-all' });
+      this.dom && setElementStyle(this.dom, { 'white-space': 'normal', 'word-break': 'break-all', display: '-webkit-box',
+        '-webkit-box-orient': 'vertical', '-webkit-line-clamp': `${value}`, overflow: 'hidden' });
     }
   }
 
@@ -52,8 +54,8 @@ export class TextView extends HippyView<HTMLSpanElement> {
 
   public set ellipsizeMode(value) {
     this.props[NodeProps.ELLIPSIZE_MODE] = value;
-
-    if (this.dom && value) setElementStyle(this.dom, { ...HippyEllipsizeModeMap[value], overflow: 'hidden' });
+    if (this.dom && value) setElementStyle(this.dom, { ...HippyEllipsizeModeMap[value],
+      overflow: 'hidden', 'white-space': 'nowrap' });
   }
 
   public get ellipsizeMode() {

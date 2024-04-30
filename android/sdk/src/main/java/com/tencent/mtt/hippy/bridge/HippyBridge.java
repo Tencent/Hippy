@@ -1,5 +1,5 @@
 /* Tencent is pleased to support the open source community by making Hippy available.
- * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2018-2022 THL A29 Limited, a Tencent company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,8 @@ package com.tencent.mtt.hippy.bridge;
 import android.content.res.AssetManager;
 
 import androidx.annotation.NonNull;
-import com.tencent.mtt.hippy.common.HippyArray;
+
+import com.tencent.mtt.hippy.common.Callback;
 
 import java.nio.ByteBuffer;
 
@@ -28,16 +29,18 @@ public interface HippyBridge {
     String URI_SCHEME_ASSETS = "asset:";
     String URI_SCHEME_FILE = "file:";
 
-    void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
+    void initJSBridge(String globalConfig, NativeCallback callback, int groupId);
 
     void runScript(@NonNull String script);
+
+    void runInJsThread(Callback<Void> callback);
 
     boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
             String codeCacheTag, NativeCallback callback);
 
-    void onDestroy();
+    void onDestroy(boolean isReload);
 
-    void destroy(NativeCallback callback);
+    void destroy(NativeCallback callback, boolean isReload);
 
     void callFunction(String action, NativeCallback callback, ByteBuffer buffer);
 
@@ -56,4 +59,5 @@ public interface HippyBridge {
 
         void reportException(Throwable e);
     }
+    public void connectDebugUrl(String wsDebugUrl);
 }

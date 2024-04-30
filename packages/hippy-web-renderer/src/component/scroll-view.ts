@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +18,9 @@
  * limitations under the License.
  */
 
-import { NodeProps, HippyBaseView, InnerNodeTag, UIProps } from '../types';
+import { NodeProps, HippyBaseView, InnerNodeTag, UIProps, DefaultPropsProcess } from '../types';
 import { setElementStyle } from '../common';
-import { HippyView } from './hippy-view';
+import { HippyWebView } from './hippy-web-view';
 import {
   eventThrottle,
   GESTURE_CAPTURE_THRESHOLD,
@@ -42,7 +42,7 @@ interface HippyScrollEvent {
 
 const ANIMATION_TIME = 100;
 
-export class ScrollView extends HippyView<HTMLDivElement> {
+export class ScrollView extends HippyWebView<HTMLDivElement> {
   private lastPosition: [number, number] = [0, 0];
   private lastTimestamp = 0;
   private scrollCaptureState = false;
@@ -57,11 +57,11 @@ export class ScrollView extends HippyView<HTMLDivElement> {
     this[NodeProps.SCROLL_ENABLED] = true;
   }
 
-  public defaultStyle(): { [p: string]: any } {
+  public defaultStyle(): { [p: string]: string|number } {
     return { display: 'flex', flexDirection: 'column', overflowX: 'hidden', overflowY: 'scroll' };
   }
 
-  public updateProps(data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) {
+  public updateProps(data: UIProps, defaultProcess: DefaultPropsProcess) {
     if (this.firstUpdateStyle) {
       defaultProcess(this, { style: this.defaultStyle() });
     }
@@ -133,12 +133,23 @@ export class ScrollView extends HippyView<HTMLDivElement> {
     // TODO to implement
   }
 
-  public get scrollEnabled() {
+  public get contentContainerStyle() {
     return this.props[NodeProps.CONTENT_CONTAINER_STYLE];
   }
 
-  public set scrollEnabled(value) {
+  public set contentContainerStyle(value) {
     this.props[NodeProps.CONTENT_CONTAINER_STYLE] = value;
+    if (this.dom?.childNodes.length === 1) {
+      setElementStyle(this.dom?.childNodes[0] as HTMLElement, this.contentContainerStyle);
+    }
+  }
+
+  public get scrollEnabled() {
+    return this.props[NodeProps.SCROLL_ENABLED];
+  }
+
+  public set scrollEnabled(value) {
+    this.props[NodeProps.SCROLL_ENABLED] = value;
     setElementStyle(this.dom!, this.scrollStyle());
   }
 
@@ -172,12 +183,18 @@ export class ScrollView extends HippyView<HTMLDivElement> {
     this.init();
   }
 
+  public async beforeChildMount(child: HippyBaseView, childPosition: number) {
+    if (childPosition === 0 && this.contentContainerStyle) {
+      setElementStyle(child.dom!, this.contentContainerStyle);
+    }
+  }
+
   public async beforeRemove(): Promise<void> {
     await super.beforeRemove();
     this.touchListenerRelease?.();
   }
 
-  public async scrollTo(x: number, y: number, animated: boolean) {
+  public scrollTo(x: number, y: number, animated: boolean) {
     if (!this.pagingEnabled) {
       this.dom?.scrollTo({ top: this.horizontal ? 0 : y, left: this.horizontal ? x : 0, behavior: animated ? 'smooth' : 'auto' });
     } else {
@@ -198,7 +215,7 @@ export class ScrollView extends HippyView<HTMLDivElement> {
       onBeginDrag: this.handleBeginDrag.bind(this),
       onEndDrag: this.handleEndDrag.bind(this),
       onScroll: this.handleScroll.bind(this),
-      onTouchMove: this.handleScroll.bind(this),
+      onTouchMove: this.handleTouchMove.bind(this),
       onBeginSliding: this.handleBeginSliding.bind(this),
       onEndSliding: this.handleEndSliding.bind(this),
       updatePosition: this.updatePositionInfo.bind(this),
@@ -208,14 +225,14 @@ export class ScrollView extends HippyView<HTMLDivElement> {
     });
   }
 
-  private async pagingModeScroll(offset: number, animationTime = ANIMATION_TIME) {
+  private pagingModeScroll(offset: number, animationTime = ANIMATION_TIME) {
     this.onMomentumScrollBegin(this.buildScrollEvent(this.dom!));
     const toPosition: [number, number] = [offset * -1, 0];
     const scrollCallBack = (position) => {
       this.updatePositionInfo(position);
       this.onScroll(this.buildScrollEvent(this.dom!));
     };
-    await virtualSmoothScroll(
+    virtualSmoothScroll(
       this.dom!, scrollCallBack, this.lastPosition, toPosition,
       animationTime,
     );
@@ -277,11 +294,19 @@ export class ScrollView extends HippyView<HTMLDivElement> {
     return calculateScrollEndPagePosition(pageUnitSize, scrollSize, originOffset);
   }
 
-  private handleScroll() {
-    this.dom && eventThrottle(this.lastTimestamp, this.scrollEventThrottle, () => {
+  private handleTouchMove() {
+    this.handleScroll();
+  }
+
+  private handleScroll(force = false) {
+    if (!this.dom) {
+      return;
+    }
+    !force && eventThrottle(this.lastTimestamp, this.scrollEventThrottle, () => {
       this.onScroll(this.buildScrollEvent(this.dom!));
       this.lastTimestamp = Date.now();
     });
+    force && this.onScroll(this.buildScrollEvent(this.dom!));
   }
 
   private handleBeginSliding() {

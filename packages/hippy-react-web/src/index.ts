@@ -20,11 +20,14 @@
 
 import './global';
 import {
-  Device,
+  Dimensions,
+  Platform,
+  PixelRatio,
+  ConsoleModule,
 } from './native';
 import { BackAndroid, Focusable, callNativeWithPromise, HippyEventEmitter } from './modules/unsupported-module';
 import callNative from './modules/call-native';
-import HippyReact from './hippy';
+import Hippy from './hippy';
 import View from './components/view';
 import Text from './components/text';
 import Image from './components/image';
@@ -51,38 +54,9 @@ import AsyncStorage from './modules/async-storage';
 import * as NetworkModule from './modules/cookie-module';
 import { ImageLoaderModule } from './adapters/image-loader';
 
-const Hippy = HippyReact;
-const ConsoleModule = console;
-
-const Platform = Device.platform;
-
-const Dimensions = {
-  get(name: 'window' | 'screen') {
-    return Device[name];
-  },
-  set(dimensions: { window?: typeof Device['window']; screen?: typeof Device['screen'] }) {
-    if (typeof window === 'object') {
-      /* eslint-disable-next-line no-console */
-      console.error('Dimensions cannot be set in the browser');
-      return;
-    }
-    if (dimensions.window) {
-      Device.window = dimensions.window;
-    }
-    if (dimensions.screen) {
-      Device.screen = dimensions.screen;
-    }
-  },
-};
-
-const PixelRatio = {
-  get() {
-    return window.devicePixelRatio;
-  },
-};
-
 const ImageBackground = Image;
-export default HippyReact;
+
+export default Hippy;
 export {
   Hippy,
   View,

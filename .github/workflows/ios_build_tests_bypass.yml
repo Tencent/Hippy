@@ -9,10 +9,18 @@ on:
       - 'ios/**'
       - 'core/**'
       - 'hippy.podspec'
+      - 'examples/ios-demo/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   ios_build_tests:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest # use ubuntu to replace macos in order to save macos resources and improve efficiency
+    strategy:
+      matrix:
+        type: [debug, release]
     steps:
     - name: Build Test Bypass
       run: |

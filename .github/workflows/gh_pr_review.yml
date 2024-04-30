@@ -1,0 +1,21 @@
+name: '[gh] pull request review'
+
+on:
+  pull_request_review:
+    types: [ submitted, edit ]
+
+jobs:
+  pull_request_review:
+    if: github.repository == 'Tencent/Hippy'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Commit
+      env:
+        DATA: ${{ toJSON(github.event) }}
+      run: |
+        echo $DATA > ./data
+    - name: Push
+      uses: actions/upload-artifact@v3
+      with:
+        name: data
+        path: ./data

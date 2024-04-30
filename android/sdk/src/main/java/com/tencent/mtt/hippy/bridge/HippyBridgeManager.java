@@ -1,5 +1,5 @@
 /* Tencent is pleased to support the open source community by making Hippy available.
- * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2018-2022 THL A29 Limited, a Tencent company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,16 @@ import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 
+import java.nio.ByteBuffer;
+
 @SuppressWarnings({"deprecation", "unused"})
 public interface HippyBridgeManager {
 
   void initBridge(Callback<Boolean> callback);
 
   void runScript(@NonNull String script);
+
+  void runInJsThread(Callback<Void> callback);
 
   void runBundle(int id, HippyBundleLoader loader, HippyEngine.ModuleListener listener,
       HippyRootView hippyRootView);
@@ -47,7 +51,7 @@ public interface HippyBridgeManager {
 
   void execCallback(Object params, BridgeTransferType transferType);
 
-  void destroyBridge(Callback<Boolean> callback);
+  void destroyBridge(Callback<Boolean> callback, boolean isReload);
 
   void destroy();
 
@@ -55,4 +59,8 @@ public interface HippyBridgeManager {
       BridgeTransferType transferType);
 
   HippyThirdPartyAdapter getThirdPartyAdapter();
+
+  long getV8RuntimeId();
+
+  void connectDebugUrl(String wsDebugUrl);
 }

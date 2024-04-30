@@ -121,6 +121,7 @@ public class NodeProps {
   public static final String TEXT_ALIGN = "textAlign";
   public static final String TEXT_ALIGN_VERTICAL = "textAlignVertical";
   public static final String TEXT_DECORATION_LINE = "textDecorationLine";
+  public static final String BREAK_STRATEGY = "breakStrategy";
   public static final String ON_CLICK = "onClick";
   public static final String ON_LONG_CLICK = "onLongClick";
   public static final String ON_PRESS_IN = "onPressIn";
@@ -165,6 +166,7 @@ public class NodeProps {
   public static final String REQUEST_FOCUS = "requestFocus";
 
   public static final String VISIBLE = "visible";
+  public static final String HIDDEN = "hidden";
   public static final String REPEAT_COUNT = "repeatCount";
   public static final String ATTRIBUTES	= "attributes";
   public static final String BACKGROUND_RIPPLE	= "nativeBackgroundAndroid";

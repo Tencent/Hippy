@@ -1,0 +1,67 @@
+name: '[reuse] get workflow output'
+
+on:
+  workflow_call:
+    inputs:
+      workflow_run:
+        description: 'A workflow run id'
+        required: true
+        type: number
+    outputs:
+      action:
+        description: "A workflow run action field"
+        value: ${{ jobs.get_workflow_output.outputs.action }}
+      sender:
+        description: "A workflow run sender.login field"
+        value: ${{ jobs.get_workflow_output.outputs.sender }}
+      raw:
+        description: "A workflow run raw output"
+        value: ${{ jobs.get_workflow_output.outputs.raw }}
+
+jobs:
+  get_workflow_output:
+    runs-on: ubuntu-latest
+    outputs: 
+      action: ${{ steps.parse.outputs.action }}
+      sender: ${{ steps.parse.outputs.sender }}
+      raw: ${{ steps.parse.outputs.raw }}
+    steps:
+    - name: Pull
+      uses: actions/github-script@v6.3.3
+      with:
+        script: |
+          const { actions } = github.rest;
+          const fs = require('fs');
+
+          const { data: { artifacts } } = await actions.listWorkflowRunArtifacts({
+             run_id: ${{ inputs.workflow_run }},
+             ...context.repo
+          });
+          const [ artifact ] = artifacts.filter((artifact) => {
+            return artifact.name == "data"
+          });
+          if (!artifact) {
+            throw new Error("Missing data artifact generated in parent workflow(${{ inputs.workflow_run }})");
+          }
+
+          const download = await actions.downloadArtifact({
+             artifact_id: artifact.id,
+             archive_format: 'zip',
+             ...context.repo
+          });
+          fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/data.zip`, Buffer.from(download.data));
+    - name: Parse
+      id: parse
+      shell: python
+      run: |
+        import zipfile
+        import json
+        import os
+
+        with zipfile.ZipFile("data.zip", "r") as zip_ref:
+          buf = zip_ref.read("data")
+          data = json.loads(buf)
+          with open(os.getenv("GITHUB_OUTPUT"), 'w', encoding='utf-8') as file:
+            file.write("action=%s\n" % data["action"])
+            file.write("sender=%s\n" % data["sender"]["login"])
+            file.write("raw=%s\n" % json.dumps(data))

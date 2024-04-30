@@ -19,42 +19,61 @@
  */
 
 // @ts-nocheck
-import React from 'react';
-import { formatWebStyle } from '../adapters/transfer';
-import View from './view';
+import React, { createContext, useRef } from 'react';
+import { normalizeStyle, formatWebStyle } from '../adapters/transfer';
+import { LayoutableProps, TouchableProps, ClickableProps } from '../types';
+import useResponderEvents from '../modules/use-responder-events';
+import useElementLayout from '../modules/use-element-layout';
+import { DEFAULT_CONTAINER_STYLE } from '../constants';
+
+const baseTextStyle = {
+  ...DEFAULT_CONTAINER_STYLE,
+  backgroundColor: 'transparent',
+  border: '0 solid black',
+  boxSizing: 'border-box',
+  listStyle: 'none',
+  margin: 0,
+  padding: 0,
+  textAlign: 'inherit',
+  textDecoration: 'none',
+  whiteSpace: 'pre-wrap',
+  wordWrap: 'break-word',
+};
 
 const styles = {
-  initial: {
-    borderWidth: 0,
-    boxSizing: 'border-box',
-    color: 'inherit',
-    fontFamily: 'System',
-    fontSize: 14,
-    fontStyle: 'inherit',
-    fontVariant: ['inherit'],
-    fontWeight: 'inherit',
-    lineHeight: 'inherit',
-    margin: 0,
-    padding: 0,
-    textDecorationLine: 'none',
-    whiteSpace: 'pre-wrap',
-    wordWrap: 'break-word',
+  text: {
+    ...baseTextStyle,
   },
-  isInAParentTextFontStyle: {
-    // inherit parent font styles
+  textHasParent: {
+    ...baseTextStyle,
     fontFamily: 'inherit',
     fontSize: 'inherit',
     whiteSpace: 'inherit',
   },
-  singleLineStyle: {
+  singleText: {
     maxWidth: '100%',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-    display: 'block',
+    wordWrap: 'normal',
+  },
+  multiText: {
+    display: '-webkit-box',
+    maxWidth: '100%',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    WebkitBoxOrient: 'vertical',
   },
 };
 
+const TextAncestorContext = createContext(false);
+
+interface TextProps extends LayoutableProps, TouchableProps, ClickableProps {
+  style?: HippyTypes.TextStyleProp;
+  numberOfLines?: number;
+  opacity?: number;
+  ellipsizeMode?: 'clip' | 'ellipsis';
+}
 
 /**
  * A React component for displaying text.
@@ -62,54 +81,72 @@ const styles = {
  * `Text` doesn't support nesting.
  * @noInheritDoc
  */
-export class Text extends React.Component {
-  private static childContextTypes = {
-    isInAParentText: () => {},
-  };
+const Text: React.FC<TextProps> = React.forwardRef((props: TextProps, ref) => {
+  const hasTextAncestor = React.useContext(TextAncestorContext);
+  const {
+    style = {},
+    ellipsizeMode = 'ellipsis',
+    onTouchDown,
+    onTouchEnd,
+    onTouchCancel,
+    onTouchMove,
+    onLayout,
+    numberOfLines,
+    enableScale,
+    opacity,
+    ...restProps
+  } = props;
 
-  public constructor(props) {
-    super(props);
-    this.state = {};
+  const hostRef: any = useRef(null);
+  React.useImperativeHandle(ref, () => hostRef.current, [hostRef.current]);
+
+  useResponderEvents(hostRef, { onTouchDown, onTouchEnd, onTouchCancel, onTouchMove });
+  useElementLayout(hostRef, onLayout);
+
+  const newProps = { ...restProps };
+  const nStyle = normalizeStyle(style);
+
+  // Align with the implementation of hippy
+  if (typeof nStyle.color === 'undefined' && !nStyle.colors?.length) {
+    baseTextStyle.color = 'black';
   }
-
-  public getChildContext() {
-    return { isInAParentText: true };
+  let newStyle: HippyTypes.Style = {};
+  if (hasTextAncestor) {
+    newStyle = { ...newStyle, ...styles.textHasParent };
+  } else {
+    newStyle = { ...newStyle, ...styles.text };
   }
-
-  public render() {
-    let { style } = this.props;
-    const { isInAParentText } = this.context;
-    const { numberOfLines, ellipsizeMode } = this.props;
-    if (style) {
-      style = formatWebStyle(style);
-    }
-
-    const textOverflow = ellipsizeMode === 'clip' ? 'clip' : 'ellipsis';
-    const baseStyle = {
-      textOverflow,
-      overflow: 'hidden',
-      display: numberOfLines > 1 ? '-webkit-box' : 'inline',
-      WebkitBoxOrient: 'vertical',
-      WebkitLineClamp: numberOfLines ? numberOfLines.toString() : '0',
+  if (numberOfLines === 1) {
+    newStyle = { ...newStyle, ...styles.singleText };
+  } else {
+    newStyle = {
+      ...newStyle,
+      ...styles.multiText,
+      WebkitLineClamp: numberOfLines > 1 ? numberOfLines : 1,
     };
-    const newStyle = Object.assign({}, style, baseStyle);
-    const newProps = Object.assign({}, this.props, {
-      style: formatWebStyle([styles.initial,
-        isInAParentText === true && styles.isInAParentText,
-        newStyle,
-        numberOfLines === 1 && Object.assign({}, styles.singleLineStyle, { textOverflow }),
-        isInAParentText === true && { display: 'inline' },
-      ]),
-    });
-    delete newProps.numberOfLines;
-    delete newProps.ellipsizeMode;
-    delete newProps.enableScale;
-
-    if (isInAParentText) return <View {...newProps} />;
-    return (
-      <View {...newProps} />
-    );
   }
-}
+  // Ellipsis should be set to 'display' not equal to 'flex'
+  if (typeof newStyle.display === 'undefined' && typeof nStyle.display === 'undefined' && numberOfLines > 0) {
+    newStyle.display = 'inline-block';
+  }
+
+  if (opacity) {
+    newStyle.opacity = opacity;
+  }
+  newProps.style = formatWebStyle({ ...newStyle, ...nStyle, textOverflow: ellipsizeMode });
+
+  return hasTextAncestor ? (
+    <span data-1={String(hasTextAncestor)} ref={hostRef} {...newProps} />
+  ) : (
+    <TextAncestorContext.Provider value={true}>
+      <span ref={hostRef} data-1={String(hasTextAncestor)} {...newProps} />
+    </TextAncestorContext.Provider>
+  );
+});
+Text.displayName = 'Text';
+export {
+  Text,
+  TextProps,
+};
 
 export default Text;

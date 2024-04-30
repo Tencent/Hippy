@@ -24,6 +24,7 @@ const navStyles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderBottomColor: '#E5E5E5',
     borderBottomWidth: 1,
+    borderStyle: 'solid',
   },
   scroll: {
     flex: 1,

@@ -239,7 +239,7 @@ const ScrollView: React.FC<ScrollViewProps> = React.forwardRef((props, ref) => {
       const scrollElement = getViewRefNode(scrollRef);
       if (animated) {
         animateScrollTo([x, y], {
-          elementToScroll: scrollElement || undefined,
+          elementToScroll: scrollElement || window,
         });
       } else {
         scrollElement?.scrollTo(x, y);
@@ -250,7 +250,7 @@ const ScrollView: React.FC<ScrollViewProps> = React.forwardRef((props, ref) => {
       const scrollElement = getViewRefNode(scrollRef);
       // minDuration 250, maxDuration 3000
       animateScrollTo([x, y], {
-        elementToScroll: scrollElement || undefined,
+        elementToScroll: scrollElement || window,
         minDuration: duration,
         maxDuration: duration,
       });
@@ -264,7 +264,7 @@ const ScrollView: React.FC<ScrollViewProps> = React.forwardRef((props, ref) => {
       onTouchDown={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
-      className={!showScrollIndicator && HIDE_SCROLLBAR_CLASS}
+      className={ !showScrollIndicator ? HIDE_SCROLLBAR_CLASS : ''}
       ref={scrollRef}
       style={[
         directionStyle,

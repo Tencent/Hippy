@@ -25,24 +25,28 @@
 #include <jni.h>
 #include <stdint.h>
 
+#include <any>
 #include <memory>
 
 #include "core/core.h"
-#include "jni/turbo_module_runtime.h"
+#include "jni/java_turbo_module.h"
 #include "jni/scoped_java_ref.h"
-#ifndef V8_WITHOUT_INSPECTOR
-#include "inspector/v8_inspector_client_impl.h"
-#endif
+#include "v8/interrupt_queue.h"
 
 class Runtime {
  public:
-  Runtime(std::shared_ptr<JavaRef> bridge, bool enable_v8_serialization, bool is_dev);
+  using Bridge = hippy::Bridge;
+  using CtxValue = hippy::napi::CtxValue;
+#ifndef V8_WITHOUT_INSPECTOR
+  using V8InspectorContext = hippy::inspector::V8InspectorContext;
+#endif
+  Runtime(std::shared_ptr<Bridge> bridge, bool enable_v8_serialization, bool is_dev);
 
   inline bool IsEnableV8Serialization() { return enable_v8_serialization_; }
   inline bool IsDebug() { return is_debug_; }
   inline int32_t GetId() { return id_; }
   inline int64_t GetGroupId() { return group_id_; }
-  inline std::shared_ptr<JavaRef> GetBridge() { return bridge_; }
+  inline std::shared_ptr<Bridge> GetBridge() { return bridge_; }
   inline std::shared_ptr<Engine> GetEngine() { return engine_; }
   inline std::shared_ptr<Scope> GetScope() { return scope_; }
   inline std::shared_ptr<hippy::napi::CtxValue> GetBridgeFunc() {
@@ -56,13 +60,40 @@ class Runtime {
   }
   inline void SetEngine(std::shared_ptr<Engine> engine) { engine_ = engine; }
   inline void SetScope(std::shared_ptr<Scope> scope) { scope_ = scope; }
-
-  inline std::shared_ptr<TurboModuleRuntime> GetTurboModuleRuntime() {
-    return turbo_module_runtime_;
+#ifndef V8_WITHOUT_INSPECTOR
+  inline void SetInspectorContext(std::shared_ptr<V8InspectorContext> inspector_context) {
+    inspector_context_ = inspector_context;
   }
-  inline void SetTurboModuleRuntime(
-      std::shared_ptr<TurboModuleRuntime> turbo_module_runtime) {
-    turbo_module_runtime_ = turbo_module_runtime;
+  inline std::shared_ptr<V8InspectorContext> GetInspectorContext() { return inspector_context_; }
+#endif
+  inline std::shared_ptr<JavaRef> GetTurboManager() {
+    return turbo_manager_;
+  }
+
+  inline void SetTurboModuleManager(std::shared_ptr<JavaRef> turbo_manager) {
+    turbo_manager_ = turbo_manager;
+  }
+
+  inline std::any GetData(uint8_t slot) {
+    return slot_[slot];
+  }
+  inline bool HasData(uint8_t slot) {
+    return slot_.find(slot) != slot_.end();
+  }
+  inline void SetData(uint8_t slot, std::any data) {
+    slot_[slot] = data;
+  }
+  inline void SetInterruptQueue(std::shared_ptr<hippy::InterruptQueue> queue) {
+    interrupt_queue_ = queue;
+  }
+  inline std::shared_ptr<hippy::InterruptQueue> GetInterruptQueue() {
+    return interrupt_queue_;
+  }
+  inline auto GetNearHeapLimitCallback() {
+    return near_heap_limit_cb_;
+  }
+  inline void SetNearHeapLimitCallback(std::function<size_t(void*, size_t, size_t)> cb) {
+    near_heap_limit_cb_ = cb;
   }
 
   static void Insert(const std::shared_ptr<Runtime>& runtime);
@@ -75,11 +106,17 @@ class Runtime {
   bool enable_v8_serialization_;
   bool is_debug_;
   int64_t group_id_;
-  std::shared_ptr<JavaRef> bridge_;
+  std::shared_ptr<Bridge> bridge_;
   std::string serializer_reused_buffer_;
   std::shared_ptr<Engine> engine_;
   std::shared_ptr<Scope> scope_;
   std::shared_ptr<hippy::napi::CtxValue> bridge_func_;
   int32_t id_;
-  std::shared_ptr<TurboModuleRuntime> turbo_module_runtime_;
+  std::unordered_map<uint32_t, std::any> slot_;
+  std::shared_ptr<hippy::InterruptQueue> interrupt_queue_;
+  std::function<size_t(void*, size_t, size_t)> near_heap_limit_cb_;
+#ifndef V8_WITHOUT_INSPECTOR
+  std::shared_ptr<V8InspectorContext> inspector_context_;
+#endif
+  std::shared_ptr<JavaRef> turbo_manager_;
 };

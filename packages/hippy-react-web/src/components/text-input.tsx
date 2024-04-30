@@ -21,7 +21,7 @@
 /* eslint-disable no-unneeded-ternary */
 
 import React, { useImperativeHandle, useEffect, useRef } from 'react';
-
+import { LayoutableProps, ClickableProps } from '../types';
 import { formatWebStyle } from '../adapters/transfer';
 import useElementLayout from '../modules/use-element-layout';
 import { isFunc } from '../utils';
@@ -32,8 +32,8 @@ import { isFunc } from '../utils';
  * placeholder text, and different keyboard types, such as a numeric keypad.
  * @noInheritDoc
  */
-export interface TextInputProps {
-  style?: HippyTypes.Style;
+export interface TextInputProps extends LayoutableProps, ClickableProps {
+  style?: HippyTypes.TextStyleProp;
   caretColor?: string;
   defaultValue?: string;
   editable?: boolean;
@@ -52,7 +52,6 @@ export interface TextInputProps {
   onChangeText?: any;
   onKeyboardWillShow?: any;
   onEndEditing?: any;
-  onLayout?: any;
   onSelectionChange?: any;
 };
 const TextInput: React.FC<TextInputProps> = React.forwardRef<any, TextInputProps>((props, ref) => {
@@ -66,9 +65,9 @@ const TextInput: React.FC<TextInputProps> = React.forwardRef<any, TextInputProps
   const copyProps = { ...props };
   const setStyle = (property: string, value: any) => {
     if (Array.isArray(style)) {
-      style.push({ property: value });
+      style.push({ [property]: value });
     } else {
-      style[property] = value;
+      (style as HippyTypes.Style)[property] = value;
     }
   };
 

@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29  Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,11 +17,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { KeyboardType, NodeProps, ReturnKeyType, HippyBaseView, HippyCallBack, InnerNodeTag, UIProps } from '../types';
+import {
+  KeyboardType,
+  NodeProps,
+  ReturnKeyType,
+  HippyCallBack,
+  InnerNodeTag,
+  UIProps,
+  DefaultPropsProcess,
+} from '../types';
 import { convertHexToRgba } from '../common';
-import { HippyView } from './hippy-view';
+import { UIManagerModule } from '../module/ui-manager-module';
+import { HippyWebView } from './hippy-web-view';
 
-export class TextInput extends HippyView<HTMLInputElement | HTMLTextAreaElement> {
+export class TextInput extends HippyWebView<HTMLInputElement | HTMLTextAreaElement> {
   private placeholderTextColorStyle;
   public constructor(context, id, pId) {
     super(context, id, pId);
@@ -30,7 +39,11 @@ export class TextInput extends HippyView<HTMLInputElement | HTMLTextAreaElement>
     this.init();
   }
 
-  public updateProps(data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) {
+  public defaultStyle() {
+    return { ...super.defaultStyle(), outline: 'none', fontFamily: '' };
+  }
+
+  public updateProps(data: UIProps, defaultProcess: DefaultPropsProcess) {
     if (this.firstUpdateStyle) {
       defaultProcess(this, { style: this.defaultStyle() });
     }
@@ -252,13 +265,14 @@ export class TextInput extends HippyView<HTMLInputElement | HTMLTextAreaElement>
     this.dom!.addEventListener('keypress', this.handleKeyPress.bind(this));
   }
 
-  private changeToDomMode(isMultiline: boolean) {
+  private async changeToDomMode(isMultiline: boolean) {
+    const uiManagerModule = this.context.getModuleByName('UIManagerModule') as UIManagerModule;
     let isMounted = false;
     if (this.dom?.parentNode) {
       isMounted = true;
     }
     if (isMounted) {
-      (this.context.getModuleByName('UIManagerModule') as any).componentDeleteProcess(this);
+      uiManagerModule.viewDelete(this);
     }
     if (isMultiline) {
       this.dom = document.createElement('textarea');
@@ -267,9 +281,9 @@ export class TextInput extends HippyView<HTMLInputElement | HTMLTextAreaElement>
     }
     this.init();
     if (isMounted) {
-      (this.context.getModuleByName('UIManagerModule') as any).componentInitProcess(this, this.props, this.index);
+      uiManagerModule.viewInit(this, this.props, this.index);
     } else {
-      (this.context.getModuleByName('UIManagerModule') as any).updateComponentProps(this, this.props);
+      uiManagerModule.updateViewProps(this, this.props);
     }
   }
 

@@ -33,6 +33,7 @@ const styles = StyleSheet.create({
     borderRadius: 64,
   },
   triangle: {
+    borderStyle: 'solid',
     borderTopWidth: 0,
     borderRightWidth: 70,
     borderBottomWidth: 128,

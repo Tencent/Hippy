@@ -35,4 +35,6 @@ public interface DevServerInterface {
   void detachFromHost(HippyRootView view);
 
   void handleException(Throwable throwable);
+
+  void setRemoteServerData(String wsDebugUrl);
 }

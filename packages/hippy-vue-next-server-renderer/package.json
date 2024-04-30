@@ -1,0 +1,54 @@
+{
+  "name": "@hippy/vue-next-server-renderer",
+  "version": "unspecified",
+  "description": "Vue-Next server renderer for Hippy native framework",
+  "author": "OpenHippy Team",
+  "homepage": "https://hippyjs.org",
+  "license": "Apache-2.0",
+  "entry": "./src/index.ts",
+  "repository": "https://github.com/Tencent/Hippy",
+  "bugs": {
+    "url": "https://github.com/Tencent/Hippy/issues"
+  },
+  "keywords": [
+    "hippy",
+    "hippy-vue-next",
+    "server-renderer"
+  ],
+
+  "main": "./dist/index.js",
+  "module": "./dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/index.js",
+    "dist/index.esm.js",
+    "dist/index.d.ts",
+    "README.md"
+  ],
+  "dependencies": {
+    "@vue/server-renderer": "^3.2.46",
+    "@vue/runtime-core": "^3.2.46",
+    "@vue/shared": "^3.2.46"
+  },
+  "devDependencies": {
+    "vue": "^3.2.46"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/src/$1",
+      "@hippy-vue-next-style-parser/(.*)$": "<rootDir>/src/$1"
+    },
+    "modulePaths": [
+      "<rootDir>"
+    ],
+    "preset": "ts-jest",
+    "setupFiles": [
+      "<rootDir>/__test__/setup.ts"
+    ],
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/*.test.ts"
+    ],
+    "verbose": true
+  }
+}

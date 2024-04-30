@@ -31,7 +31,6 @@ namespace base {
 class ThreadId {
  public:
   constexpr ThreadId() noexcept = default;
-  ~ThreadId();
 
   bool operator==(const ThreadId& other) const { return id_ == other.id_; }
   bool operator!=(const ThreadId& other) const { return id_ != other.id_; }

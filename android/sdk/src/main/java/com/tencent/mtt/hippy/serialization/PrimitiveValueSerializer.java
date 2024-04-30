@@ -21,6 +21,7 @@ import com.tencent.mtt.hippy.serialization.utils.IntegerPolyfill;
 import com.tencent.mtt.hippy.serialization.nio.writer.BinaryWriter;
 
 import java.math.BigInteger;
+import java.util.Date;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -34,6 +35,10 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
    * Writer used for write buffer.
    */
   protected BinaryWriter writer;
+  /**
+   * The version of the data used for the serialization.
+   */
+  private final int version;
   /**
    * ID of the next serialized object.
    **/
@@ -63,10 +68,11 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
    */
   private static final char ISO_8859_1_MAX_CHAR = 0xff;
 
-  protected PrimitiveValueSerializer(BinaryWriter writer) {
+  protected PrimitiveValueSerializer(BinaryWriter writer, int version) {
     super();
 
     this.writer = writer;
+    this.version = version;
   }
 
   /**
@@ -101,19 +107,11 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
    */
   public void writeHeader() {
     writeTag(SerializationTag.VERSION);
-    writer.putVarint(LATEST_VERSION);
+    writer.putVarint(version);
   }
 
-  protected void writeTag(SerializationTag tag) {
-    writer.putByte(tag.getTag());
-  }
-
-  protected void writeTag(ArrayBufferViewTag tag) {
-    writer.putVarint(tag.getTag());
-  }
-
-  protected void writeTag(ErrorTag tag) {
-    writer.putVarint(tag.getTag());
+  protected void writeTag(byte tag) {
+    writer.putByte(tag);
   }
 
   /**
@@ -159,6 +157,9 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
       if (id != null) {
         writeTag(SerializationTag.OBJECT_REFERENCE);
         writer.putVarint(id);
+      } else if (value instanceof Date) {
+        assignId(value);
+        writeDate((Date) value);
       } else {
         return false;
       }
@@ -369,7 +370,21 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
     }
   }
 
+  private void writeDate(@NonNull Date date) {
+    writeTag(SerializationTag.DATE);
+    writer.putDouble(date.getTime());
+  }
+
   protected void assignId(Object object) {
     objectMap.put(object, nextId++);
+  }
+
+  /**
+   * Get the version of the data used for the serialization.
+   *
+   * @return version
+   */
+  public int getVersion() {
+    return version;
   }
 }

@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29  Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,7 +51,7 @@ export default class SizePositionManager {
    */
   getSizeAndPositionForIndex(index) {
     if (index < 0 || index >= this._itemCount&& this._itemCount!==0) {
-      console.log( Error(`Requested index ${index} is outside of range 0..${this._itemCount}`));
+      throw Error(`Requested index ${index} is outside of range 0..${this._itemCount}`);
     }
     if(index === 0 && this._itemCount===0){
       return 0;
@@ -107,6 +107,7 @@ export default class SizePositionManager {
    *
    * @param align Desired alignment within container; one of "start" (default), "center", or "end"
    * @param containerSize Size (width or height) of the container viewport
+   * @param targetIndex index  target item
    * @return Offset to use to ensure the specified item is visible
    */
   getUpdatedOffsetForIndex({

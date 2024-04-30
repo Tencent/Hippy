@@ -43,6 +43,30 @@
             }
         }
     }
+    // Section cell will stick in wrong position while header is still refresh. in this scenario，the scrollview inset need to be reset.
+    if ([self status] == HippyRefreshStatusFinishLoading || [self status] == HippyRefreshStatusStartLoading) {
+        [self resetInset];
+    }
+}
+
+- (void)resetInset
+{
+    CGFloat insetT = - self.scrollView.contentOffset.y > 0 ? - self.scrollView.contentOffset.y : 0;
+    insetT = insetT > self.frame.size.height ? self.frame.size.height : insetT;
+
+    if (self.scrollView.contentInset.top != insetT) {
+        UIEdgeInsets inset = self.scrollView.contentInset;
+        inset.top = insetT;
+        self.scrollView.contentInset = inset;
+    }
+}
+
+- (void)refresh {
+    [UIView animateWithDuration:.2f animations:^{
+        self.scrollView.contentOffset = CGPointMake(0, -self.bounds.size.height);
+    } completion:^(BOOL finished) {
+        self.status = HippyRefreshStatusStartLoading;
+    }];
 }
 
 - (void)scrollViewDidEndDragging {

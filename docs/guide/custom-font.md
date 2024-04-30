@@ -2,6 +2,8 @@
 
 # 自定义字体
 
+---
+
 # 前端
 
 前端使用自定义字体非常简单，和浏览器一样，使用 [font-family](https://www.w3schools.com/cssref/pr_font_font-family.asp) 样式即可。
@@ -62,5 +64,14 @@ for (NSString* family in [UIFont familyNames])
 Android 只需要在静态资源 `assets` 目录中建立 `fonts` 目录，然后把字体文件拷贝进去即可。
 
 需要注意的是，字体文件名需要和 FontFamily 一致，因为 Android 虽然也可以做字体文件名映射，但是字体和文件名一致无疑是最简单的办法。
+
+如果有将自定义字体和`粗体 (fontWeight: 'bold')` 或`斜体 (fontStyle: 'italic')` 等属性一同使用的场景，SDK 会优先匹配在 `fonts` 目录下以<strong>字体名+后缀</strong>的形式存放的字体文件。如：
+
+- style={ { fontFamily: 'TTTGB' } } 对应 TTTGB.ttf 或 TTTGB.otf
+- style={ { fontFamily: 'TTTGB', fontWeight: 'bold' } } 对应 TTTGB_bold.ttf 或 TTTGB_bold.otf
+- style={ { fontFamily: 'TTTGB', fontStyle: 'italic' } } 对应 TTTGB_italic.ttf 或 TTTGB_italic.otf
+- style={ { fontFamily: 'TTTGB', fontWeight: 'bold', fontStyle: 'italic' } } 对应 TTTGB_bold_italic.ttf 或 TTTGB_bold_italic.otf
+
+<strong>2.16.0版本后，如果匹配不到对应的带后缀的文件，SDK 会再尝试匹配不带后缀的自定义字体文件，结合 Android 的 [Typeface](https://developer.android.com/reference/android/graphics/Typeface) 的对应风格进行展示。</strong>
 
 > 官方 demo 的字体放在 [res/fonts](https://github.com/Tencent/Hippy/tree/master/examples/android-demo/res) 目录下，是因为编译脚本[将 `res` 目录下的文件直接拷贝到 `assets` 目录](https://github.com/Tencent/Hippy/blob/master/examples/android-demo/build.gradle#L35)下了，所以 `res/assets` 就变成 `assets/assets` 目录，为了让字体目录正确拷贝进 `assets` 静态资源目录，只能让它放在 `res` 下。

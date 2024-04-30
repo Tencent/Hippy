@@ -119,43 +119,42 @@ static const void *HippyBridgeLoadedBundlesKey = &HippyBridgeLoadedBundlesKey;
             [self.pendingLoadBundles addObject:bundle];
         }
     } else {
-        [self.performanceLogger markStartForTag:HippySecondaryStartup];
-
+        [self.performanceLogger markStartForTag:HippyPLSecondaryStartup];
         batchedBridge.isSecondaryBundleLoading = YES;
 
         [[NSNotificationCenter defaultCenter] postNotificationName:HippySecondaryBundleDidStartLoadNotification object:self
                                                           userInfo:@{ @"url": key }];
-
-        dispatch_queue_t bridgeQueue = dispatch_queue_create("mtt.bussiness.HippyBridgeQueue", DISPATCH_QUEUE_CONCURRENT);
+        dispatch_queue_attr_t queueAttr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_DEFAULT, 0);
+        dispatch_queue_t bridgeQueue = dispatch_queue_create("mtt.bussiness.HippyBridgeQueue", queueAttr);
         dispatch_group_t initModulesAndLoadSource = dispatch_group_create();
         dispatch_group_enter(initModulesAndLoadSource);
         __block NSData *sourceCode = nil;
-        [self.performanceLogger markStartForTag:HippySecondaryLoadSource];
+        [self.performanceLogger markStartForTag:HippyPLSecondaryLoadSource];
         [HippyJavaScriptLoader loadBundleAtURL:secondaryBundleURL onProgress:nil
-                                    onComplete:^(NSError *error, NSData *source, __unused int64_t sourceLength) {
-                                        if (!error) {
-                                            sourceCode = source;
-                                        } else {
-                                            batchedBridge.isSecondaryBundleLoading = NO;
-                                        }
+                                    onComplete:^(NSError *error, NSData *source, int64_t sourceLength) {
+            if (!error) {
+                sourceCode = source;
+            } else {
+                batchedBridge.isSecondaryBundleLoading = NO;
+            }
 
-                                        NSMutableDictionary *userInfo =
-                                            [[NSMutableDictionary alloc] initWithDictionary:@ { @"url": key, @"bridge": self }];
-                                        if (error) {
-                                            [userInfo setObject:error forKey:@"error"];
-                                        }
+            NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] initWithDictionary:@ { @"url": key, @"bridge": self }];
+            if (error) {
+                [userInfo setObject:error forKey:@"error"];
+            }
 
-                                        [[NSNotificationCenter defaultCenter] postNotificationName:HippySecondaryBundleDidLoadSourceCodeNotification
-                                                                                            object:self
-                                                                                          userInfo:userInfo];
+            [[NSNotificationCenter defaultCenter] postNotificationName:HippySecondaryBundleDidLoadSourceCodeNotification
+                                                                object:self
+                                                              userInfo:userInfo];
 
-                                        if (loadBundleCompletion) {
-                                            loadBundleCompletion(error);
-                                        }
+            if (loadBundleCompletion) {
+                loadBundleCompletion(error);
+            }
 
-                                        [self.performanceLogger markStopForTag:HippySecondaryLoadSource];
-                                        dispatch_group_leave(initModulesAndLoadSource);
-                                    }];
+            [self.performanceLogger setValue:sourceLength forTag:HippyPLSecondaryBundleSize];
+            [self.performanceLogger markStopForTag:HippyPLSecondaryLoadSource];
+            dispatch_group_leave(initModulesAndLoadSource);
+        }];
 
         dispatch_group_notify(initModulesAndLoadSource, bridgeQueue, ^{
             HippyBatchedBridge *strongBridge = batchedBridge;
@@ -170,8 +169,11 @@ static const void *HippyBridgeLoadedBundlesKey = &HippyBridgeLoadedBundlesKey;
                 if ([self.batchedBridge.javaScriptExecutor respondsToSelector:@selector(updateGlobalObjectBeforeExcuteSecondary)]) {
                     [self.batchedBridge.javaScriptExecutor updateGlobalObjectBeforeExcuteSecondary];
                 }
-                [self.performanceLogger markStartForTag:HippySecondaryExecuteSource];
-                [strongBridge enqueueApplicationScript:sourceCode url:secondaryBundleURL onComplete:^(NSError *error) {
+                [self.performanceLogger markStartForTag:HippyPLSecondaryExecuteSource];
+                [strongBridge enqueueApplicationScript:sourceCode
+                                                   url:secondaryBundleURL
+                                        isCommonBundle:NO
+                                            onComplete:^(NSError *error) {
                     if (enqueueScriptCompletion) {
                         enqueueScriptCompletion(error);
                     }
@@ -196,8 +198,8 @@ static const void *HippyBridgeLoadedBundlesKey = &HippyBridgeLoadedBundlesKey;
 
                     batchedBridge.isSecondaryBundleLoading = NO;
                     
-                    [self.performanceLogger markStopForTag:HippySecondaryExecuteSource];
-                    [self.performanceLogger markStopForTag:HippySecondaryStartup];
+                    [self.performanceLogger markStopForTag:HippyPLSecondaryExecuteSource];
+                    [self.performanceLogger markStopForTag:HippyPLSecondaryStartup];
 
                     if (completion) {
                         if ([self.batchedBridge.javaScriptExecutor respondsToSelector:@selector(secondBundleLoadCompleted:)]) {

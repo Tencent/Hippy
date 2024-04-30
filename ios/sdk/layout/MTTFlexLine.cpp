@@ -223,7 +223,7 @@ void FlexLine::alignItems() {
   // because 'alignItems' calculate item's positions
   // which influenced by node's layout direction property.
   FlexDirection mainAxis = flexContainer->resolveMainAxis();
-  int itemsSize = items.size();
+  unsigned long itemsSize = items.size();
   // get autoMargin count,assure remainingFreeSpace Calculate again
   remainingFreeSpace = containerMainInnerSize;
   int autoMarginCount = 0;

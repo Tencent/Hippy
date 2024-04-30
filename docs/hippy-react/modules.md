@@ -1,5 +1,4 @@
 <!-- markdownlint-disable no-duplicate-header  -->
-<!-- markdownlint-disable no-blacks-blockquote -->
 
 # 模块
 
@@ -16,6 +15,8 @@
 - 通过 Animation 的 start 接口启动动画，或是通过 destroy 停止并销毁动画。
 
 > 注意，转 Web 需要用 setRef 方法手动传入 ref 才可以正常运行动画，hippy-react-web 不支持颜色渐变动画。
+>
+> 注意，2.17.1版本对iOS动画进行了较大升级，修复了历史版本与Android端动画表现不一致的问题，升级时请关注兼容性。
 
 ## 构造参数
 
@@ -25,16 +26,16 @@
 | delay            | `number`           | 是   | -      | 动画延迟开始的时间，单位为毫秒，默认为 0，即动画 start 之后立即执行 |
 | startValue       | `number`, `string`,  [color](style/color.md) | 是   | -      | 动画开始时的值，可为 Number 类型、String 类型，颜色值 [color](style/color.md) 类型                                  |
 | toValue          | `number`, `string`,  [color](style/color.md) | 是   | -      | 动画结束时候的值；如果为颜色值参考 [color](style/color.md)                                                                |
-| valueType\*      | `enum(undefined,rad,deg,color)` | 否   | undefined   | 动画的开始和结束值的类型，默认为空，代表动画起止的单位是普通数值。 PS: Web 平台此接口只支持 number 类型传参            |
+| valueType\*      | `enum(undefined,rad,deg,color)` | 否   | undefined `(rotate 动画默认单位为 rad)`  | 动画的开始和结束值的类型，默认为空，代表动画起止的单位是普通数值。 PS: Web 平台此接口只支持 number 类型传参            |
 | duration         | `number`           | 否   | 0     | 动画时长，单位为毫秒(ms)                                                                                                  |
 | timingFunction\* | `string`    | 否   | linear | 动画插值器类型, 支持 `linear`，`ease-in`， `ease-out`，`ease-in-out`，`cubic-bezier`                                                                                                       |
 | repeatCount      | `number`, `loop`   | 否   | -      | 动画的重复次数，默认为 0，即只播放一次；为 -1 或者 "loop" 时代表无限循环播放； repeatCount 设为 n 时，则动画会播放 n 次             |
 
 - valueType 的额外参数选项：
 
-  - `rad`：代表动画参数的起止值为弧度；
+  - `rad`：代表动画参数的起止值为弧度， `这是 rotate 动画的默认单位`；
   - `deg`：代表动画参数的起止值为度数；
-  - `color`：代表动画参数的起止值为颜色值，可修饰背景色 `backgroundColor` 和文字颜色 `color`(仅 Android 支持)，参考 [例子](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx) `最低支持版本2.6.0`
+  - `color`：代表动画参数的起止值为颜色值，可修饰背景色 `backgroundColor` 和文字颜色 `color`(iOS 2.17.1版本开始支持)，参考 [例子](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx) `最低支持版本2.6.0`
 
 - timingFunction 的参数选项：
   - `linear`：使用线性插值器，动画将匀速进行；
@@ -63,7 +64,7 @@
 
 ### updateAnimation
 
-`(options: Object) => void` 修改动画的配置参数，只需要填入需要修改的配置项即可，不需要重复填入所有的动画参数
+`(options: Object) => void` 修改动画的配置参数，只需要填入需要修改的配置项即可，不需要重复填入所有的动画参数。注意，如果动画已经 start 或 destroy，更新操作将不会生效
 
 > - options: Object: 实例化参数
 
@@ -75,7 +76,7 @@
 
 `(callback: () => void) => void` 注册一个动画的监听回调，在动画结束时将会回调 callback。
 
-### onAnimationRepeat（仅 Android 支持）
+### onAnimationRepeat（iOS 2.17.1版本开始支持）
 
 `(callback: () => void) => void` 注册一个动画的监听回调，当动画开始下一次重复播放时 callback 将被回调。
 
@@ -219,26 +220,6 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ---
 
-# Clipboard
-
-[[Clipboard 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/Clipboard)
-
-模块提供了 iOS/Android 双端的剪贴板能力，开发者可使用其来读取或写入剪贴板，目前仅支持字符串作为存取类型。
-
-## 方法
-
-### Clipboard.getString
-
-`() => string` 获取剪贴板的内容。 `hippy-react-web: () => Promise<string>`
-
-### Clipboard.setString
-
-`(value: string) => void` 设置剪贴板的内容。 `hippy-react-web: () => Promise<void>`
-
-> - value: string - 需要设置到剪贴板中的内容。
-
----
-
 # ConsoleModule
 
 提供了将前端日志输出到 iOS 终端日志和 [Android logcat](//developer.android.com/studio/command-line/logcat) 的能力
@@ -306,7 +287,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 [[NetInfo 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/NetInfo)
 
-通过该接口可以获得当前设备的网络状态，也可以注册一个监听器，当系统网络切换的时候，得到一个通知。
+通过该接口可以获得当前设备的网络状态；也可以注册一个监听器，当系统网络切换的时候，得到网络变化通知。
 
 安卓的开发者，在请求网络状态之前，你需要在 app 的 `AndroidManifest.xml` 加入以下配置 :
 
@@ -336,7 +317,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ### NetInfo.fetch
 
-`() => Promise<NetInfo>` 用于获取当前的网络状态。
+`() => Promise<string>` 用于获取当前的网络状态。
 
 ### NetInfo.removeEventListener
 
@@ -357,17 +338,18 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ### NetworkModule.getCookies
 
-`(url: string) => Promise<string>` 获取指定 url 的所有 cookie
+`(url: string) => Promise<string>` 获取指定 url 下的所有 cookies
 
 > - url: string - 需要获取 cookie 的目标 url
+> - 返回值：`Prmoise<string>`，获取到诸如 `name=hippy;network=mobile` 的字符串，`2.14.0` 版本后过期的 Cookies 将不再返回。
 
 ### NetworkModule.setCookie
 
-`(url: string, keyValue: string, expires?: string) => Promise<void>` 设置 Cookie
+`(url: string, keyValue: string, expires?: Date) => Promise<void>` 设置 Cookie
 
-> - url: string - 需要获取 cookie 的目标 url
-> - keyValue: string - 需要设置的键值对
-> - expires?: string - 设置 Cookie 的超市时间
+> - url: string - 需要设置 cookie 的目标 url
+> - keyValue: string - 需要设置的键值对，如 `name=hippy;network=mobile`，`2.14.0` 版本后设置 `空字符串` 会强制清除（过期）指定域名下的所有 Cookies。
+> - expires?: Date - 设置 Cookie 的过期时间，默认为空，会通过 `toUTCString` 转成 `String` 传给客户端
 
 ---
 
@@ -468,4 +450,18 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 `(ref, callback: Function) => Promise`
 
-> - callback: ({ x, y, width, height } | string | -1) => void - 回调函数, 参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错或者 [节点被优化（仅在Android）](hippy-react/components?id=样式内特殊属性)可能返回 -1 或者 `this view is null` 字符串
+> - callback: ({ x, y, width, height } | string | -1) => void - 回调函数, 参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错或者 [节点被优化（仅在Android）](style/layout?id=collapsable)可能返回 -1 或者 `this view is null` 字符串
+
+### UIManagerModule.getBoundingClientRect
+
+[[getBoundingClientRect 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/UIManagerModule/index.jsx)
+
+> 最低支持版本 `2.15.3`，原有 `measureInWindow` 和 `measureInAppWindow` 将逐渐废弃
+
+测量元素在宿主容器（RootView) 或 App 窗口（屏幕）范围内的尺寸和位置。
+
+`(instance: ref, options: { relToContainer: boolean }) => Promise<DOMRect: { x: number, y: number, width: number, height: number, bottom: number, right: number, left: number, top: number }>`
+
+> - instance: 元素或组件的引用 Ref。
+> - options: 可选参数，`relToContainer` 表示是否相对宿主容器（RootView）进行测量，默认 `false` 相对 App 窗口或屏幕进行测量。当对宿主容器（RootView）进行测量时，`iOS` 包含顶部状态栏高度，`Android` 不包含。
+> - DOMRect: 与 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Element/getBoundingClientRect) 一致的返回参数, 可以获取元素相应的位置信息和尺寸，如果出错或者 [节点被优化（仅在Android）](style/layout?id=collapsable)，会触发 `Promise.reject`。

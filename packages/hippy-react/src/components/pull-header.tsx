@@ -22,15 +22,15 @@ import React from 'react';
 import { Fiber } from '@hippy/react-reconciler';
 import { LayoutableProps } from '../types';
 import { callUIFunction } from '../modules/ui-manager-module';
-import { Device } from '../native';
 import Element from '../dom/element-node';
 
-interface CollapsePullHeaderOptions {
+export interface CollapsePullHeaderOptions {
   // time left to hide pullHeader after collapsePullHeader() is called, unit is ms
   time?: number,
 }
 
-interface PullHeaderProps extends LayoutableProps {
+export interface PullHeaderProps extends LayoutableProps {
+  style?: HippyTypes.StyleProp;
   /**
    * Trigger when release the finger after pulling distance larger than the content height
    */
@@ -45,7 +45,7 @@ interface PullHeaderProps extends LayoutableProps {
   onHeaderPulling?: (evt: HippyTypes.PullingEvent) => void;
 }
 
-class PullHeader extends React.Component<PullHeaderProps, {}> {
+export class PullHeader extends React.Component<PullHeaderProps, {}> {
   private instance: Element | Fiber | HTMLDivElement | null = null;
 
   /**
@@ -60,26 +60,23 @@ class PullHeader extends React.Component<PullHeaderProps, {}> {
    * @param {CollapsePullHeaderOptions} [options] - additional config for pull header
    */
   public collapsePullHeader(options: CollapsePullHeaderOptions) {
-    if (Device.platform.OS === 'android') {
-      callUIFunction(this.instance as Fiber, 'collapsePullHeader', [options]);
+    if (typeof options !== 'undefined') {
+      callUIFunction(this.instance as Element, 'collapsePullHeaderWithOptions', [options]);
     } else {
-      // iOS is not supported if param invalid, so create a new function name for compatibility
-      if (typeof options !== 'undefined') {
-        callUIFunction(this.instance as Element, 'collapsePullHeaderWithOptions', [options]);
-      } else {
-        callUIFunction(this.instance as Element, 'collapsePullHeader', []);
-      }
+      callUIFunction(this.instance as Element, 'collapsePullHeader', []);
     }
   }
 
   public render() {
-    const { children, ...nativeProps } = this.props;
+    const { children, style, ...nativeProps } = this.props;
     return (
       <div
         nativeName="PullHeaderView"
         ref={(ref) => {
           this.instance = ref;
         }}
+        // @ts-ignore
+        style={style}
         {...nativeProps}
       >
         { children }

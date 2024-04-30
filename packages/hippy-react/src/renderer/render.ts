@@ -25,7 +25,8 @@ import Element from '../dom/element-node';
 import * as UIManagerModule from '../modules/ui-manager-module';
 import { Device } from '../global';
 import { getRootViewId, getRootContainer } from '../utils/node';
-import { trace, warn } from '../utils';
+import { deepCopy, isDev, trace, warn } from '../utils';
+import { Platform } from '../types';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
 
@@ -82,7 +83,7 @@ function batchUpdate(rootViewId: number): void {
         break;
       case NODE_OPERATION_TYPES.updateNode:
         trace(...componentName, 'updateNode', chunk.nodes);
-        if (__PLATFORM__ === 'ios' || Device.platform.OS === 'ios') {
+        if (__PLATFORM__ === Platform.ios || Device.platform.OS === Platform.ios) {
           chunk.nodes.forEach(node => (
             UIManagerModule.updateNode(rootViewId, [node])
           ));
@@ -92,7 +93,7 @@ function batchUpdate(rootViewId: number): void {
         break;
       case NODE_OPERATION_TYPES.deleteNode:
         trace(...componentName, 'deleteNode', chunk.nodes);
-        if (__PLATFORM__ === 'ios' || Device.platform.OS === 'ios') {
+        if (__PLATFORM__ === Platform.ios || Device.platform.OS === Platform.ios) {
           chunk.nodes.forEach(node => (
             UIManagerModule.deleteNode(rootViewId, [node])
           ));
@@ -148,9 +149,11 @@ function getNativeProps(node: Element) {
  */
 function getTargetNodeAttributes(targetNode: Element) {
   try {
-    const targetNodeAttributes = JSON.parse(JSON.stringify(targetNode.attributes));
+    const targetNodeAttributes = deepCopy(targetNode.attributes);
+    const { id, nodeId } = targetNode;
     const attributes = {
-      id: targetNode.id,
+      id,
+      hippyNodeId: `${nodeId}`,
       ...targetNodeAttributes,
     };
     delete attributes.text;
@@ -186,13 +189,11 @@ function renderToNative(rootViewId: number, targetNode: Element): HippyTypes.Nat
       ...getNativeProps(targetNode),
       style: targetNode.style,
     },
+    tagName: targetNode.nativeName,
   };
   // Add nativeNode attributes info for debugging
-  if (process.env.NODE_ENV !== 'production') {
-    nativeNode.tagName = targetNode.nativeName;
-    if (nativeNode.props) {
-      nativeNode.props.attributes = getTargetNodeAttributes(targetNode);
-    }
+  if (isDev()) {
+    nativeNode.props!.attributes = getTargetNodeAttributes(targetNode);
   }
   return nativeNode;
 }

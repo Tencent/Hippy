@@ -57,6 +57,16 @@ static CGSize makeSizeConstrainWithType(CGSize originSize, CGSize constrainSize,
     return originSize;
 }
 
+static bool isPointInsideView(UIView *view, CGPoint point) {
+    // use presentationLayer to adapt the view with animation
+    CALayer *presentationLayer = view.layer.presentationLayer;
+    if (presentationLayer) {
+        CGPoint layerPoint = [presentationLayer convertPoint:point fromLayer:view.layer];
+        return [presentationLayer containsPoint:layerPoint];
+    }
+    return false;
+}
+
 dispatch_queue_t global_hpview_queue(void) {
     static dispatch_queue_t g_background_queue = nil;
     static dispatch_once_t onceToken;
@@ -133,7 +143,7 @@ dispatch_queue_t global_hpview_queue(void) {
             for (NSInteger i = index - 1; i >= 0; i--) {
                 UIView *siblingView = subviews[i];
                 CGPoint pointInsiblingView = [self convertPoint:point toView:siblingView];
-                BOOL pointInside = [siblingView pointInside:pointInsiblingView withEvent:nil];
+                BOOL pointInside = isPointInsideView(siblingView, pointInsiblingView);
                 if (pointInside) {
                     UIView *hitTestView = [siblingView hitTest:pointInsiblingView withEvent:nil];
                     return hitTestView ? hitTestView : siblingView;
@@ -222,7 +232,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
     // `hitSubview` is the topmost subview which was hit. The hit point can
     // be outside the bounds of `view` (e.g., if -clipsToBounds is NO).
     UIView *hitSubview = nil;
-    BOOL isPointInside = [self pointInside:point withEvent:event];
+    BOOL isPointInside = isPointInsideView(self, point);
+    
     BOOL needsHitSubview = !(_pointerEvents == HippyPointerEventsNone || _pointerEvents == HippyPointerEventsBoxOnly);
     if (needsHitSubview && (![self clipsToBounds] || isPointInside)) {
         // The default behaviour of UIKit is that if a view does not contain a point,
@@ -255,19 +266,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
             HippyLogError(@"Invalid pointer-events specified %ld on %@", (long)_pointerEvents, self);
             return hitSubview ?: hitView;
     }
-}
-
-- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event {
-    //require clickable when animating.
-    //we check presentationLayer frame.
-    //point inside presentationLayer means point inside view
-    if ([[self.layer animationKeys] count] > 0) {
-        CGRect presentationLayerFrame = self.layer.presentationLayer.frame;
-        CGRect convertPresentationLayerFrame = [self.superview convertRect:presentationLayerFrame toView:self];
-        return CGRectContainsPoint(convertPresentationLayerFrame, point);
-    }
-    BOOL pointInside = [super pointInside:point withEvent:event];
-    return pointInside;
 }
 
 - (NSString *)description {
@@ -313,7 +311,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
     while (view) {
         UIViewController *controller = view.hippyViewController;
         if (controller) {
-            return (UIEdgeInsets) { controller.topLayoutGuide.length, 0, controller.bottomLayoutGuide.length, 0 };
+            return controller.view.safeAreaInsets;
         }
         view = view.superview;
     }
@@ -535,6 +533,14 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     }
 }
 
+- (CALayerContentsFilter)minificationFilter {
+    return kCAFilterLinear;
+}
+
+- (CALayerContentsFilter)magnificationFilter {
+    return kCAFilterNearest;
+}
+
 - (void)displayLayer:(CALayer *)layer {
     if (CGSizeEqualToSize(layer.bounds.size, CGSizeZero)) {
         return;
@@ -572,13 +578,16 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
         return;
     }
     
-    __weak typeof(self) weakSelf = self;
+    __weak __typeof(self) weakSelf = self;
     [self getLayerContentForColor:nil completionBlock:^(UIImage *contentImage) {
         if (nil == contentImage) {
             return;
         }
         dispatch_async(dispatch_get_main_queue(), ^{
-            typeof(weakSelf) strongSelf = weakSelf;
+            __strong __typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) {
+                return;
+            }
             CALayer *strongLayer = strongSelf.layer;
             CGRect contentsCenter = ({
                 CGSize size = contentImage.size;
@@ -593,7 +602,8 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
             //  weakLayer.contents = (id)image.CGImage;
             strongLayer.contentsScale = contentImage.scale;
             strongLayer.needsDisplayOnBoundsChange = YES;
-            strongLayer.magnificationFilter = kCAFilterNearest;
+            strongLayer.magnificationFilter = [strongSelf magnificationFilter];
+            strongLayer.minificationFilter = [strongSelf minificationFilter];
 
             const BOOL isResizable = !UIEdgeInsetsEqualToEdgeInsets(contentImage.capInsets, UIEdgeInsetsZero);
 
@@ -645,16 +655,23 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
             }
 
             UIGraphicsBeginImageContextWithOptions(theFrame.size, NO, image.scale);
-            CGSize size = theFrame.size;
-
-            [image drawInRect:(CGRect) { CGPointZero, size }];
+            //draw background image
             CGSize imageSize = decodedImage.size;
             CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, [self bordersAsInsets]).size;
 
             CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
 
-            [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX, borderInsets.top + backgroundPositionY, drawSize.width,
-                                         drawSize.height)];
+            CGPoint originOffset = CGPointMake((targetSize.width - drawSize.width) / 2.f, (targetSize.height - drawSize.height) / 2.f);
+            
+            [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX + originOffset.x,
+                                                borderInsets.top + backgroundPositionY + originOffset.y,
+                                                drawSize.width,
+                                                drawSize.height)];
+            //draw border
+            CGSize size = theFrame.size;
+            [image drawInRect:(CGRect) { CGPointZero, size }];
+            
+            //output image
             UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
             UIGraphicsEndImageContext();
             contentBlock(resultingImage);
@@ -723,7 +740,6 @@ static BOOL HippyLayerHasShadow(CALayer *layer) {
 
 #pragma mark Border Color
 
-// clang-format off
 #define setBorderColor(side)                                    \
     -(void)setBorder##side##Color : (CGColorRef)color {         \
         if (CGColorEqualToColor(_border##side##Color, color)) { \
@@ -786,7 +802,6 @@ setBorderRadius(BottomRight)
     }
 
 setBorderStyle()
-// clang-format on
 
 - (void)dealloc {
     CGColorRelease(_borderColor);

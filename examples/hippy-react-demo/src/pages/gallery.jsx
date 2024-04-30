@@ -29,6 +29,7 @@ const styles = StyleSheet.create({
     width: 250,
     height: 50,
     marginTop: 30,
+    borderStyle: 'solid',
   },
   buttonText: {
     fontSize: 20,

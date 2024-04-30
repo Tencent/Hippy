@@ -126,7 +126,6 @@ public class FlexNodeStyle {
   protected void finalize() throws Throwable {
     try {
       nativeFlexNodeStyleFree(mNativePointer);
-      mNativePointer = 0;
     } finally {
       super.finalize();
     }
@@ -194,6 +193,10 @@ public class FlexNodeStyle {
       }
       case 4: {//SPACE_AROUND;
         order = 7;
+        break;
+      }
+      case 5: {//SPACE_EVENLY;
+        order = 8;
         break;
       }
       case 0:

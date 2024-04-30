@@ -9,7 +9,7 @@
           v-if="Vue.Native"
           class="feature-title"
         >
-          Hippy-Vue: {{ Vue.Native.version !== '2.2.1' ? Vue.Native.version : 'master' }}
+          Hippy-Vue: {{ Vue.Native.version !== 'unspecified' ? Vue.Native.version : 'master' }}
         </p>
       </div>
     </li>
@@ -129,6 +129,7 @@ export default {
   padding-bottom: 10px;
   margin-bottom: 10px;
   border-bottom-width: 1px;
+  border-style: solid;
   border-bottom-color: gainsboro;
 }
 </style>

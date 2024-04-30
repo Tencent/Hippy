@@ -1,15 +1,21 @@
-# 终端事件
+# Events
 
-有一些事件不是发给单个 UI，而是发给整个业务的，例如屏幕的翻转、网络的变化等等，我们称之它为 `终端事件`。
+Some events are not sent to a single UI, but to the whole business, such as the flip of the screen, the change of the network, etc., we call it `native events`.
 
-在 hippy-vue 中，所有终端事件都是分发到 Vue 的实例上（范例中实例名为 `app`），通过 Vue 的内部事件机制进行分发的。
+Hippy provides two methods to manage global events:
 
-# 事件监听器
++ `Hippy.on`, `Hippy.off`, `Hippy.emit` is framework-less EventBus, mainly to listen to some special C++ events such as `dealloc`, `destroyInstance`. It can be also used to customize JS global events.
 
-这里监听 rotate 的事件，里面有回调参数 result。
++ `app.$on`, `app.$off`, `app.$emit` is Vue EventBus, which not only being used to customize JS global events, but also to handle all `NativeEvent` dispatching, such as `rotate` event.
+
+---
+
+# Event Listener
+
+Listen for the rotate event here, which has the callback parameter result.
 
 ```js
-// 将入口文件中 setApp() 时保存的 Vue 实例取出来。
+// Take out the Vue instance saved in the entry file setApp().
 const app = getApp();
 
 export default {
@@ -19,52 +25,77 @@ export default {
     }
   },
   mounted() {
-    // 通过 app 监听 rotate 事件，并通过 this.listener 在事件发生时触发回调。
+    // Listen to the rotate event through the app, and call a callback through this.listener when the event occurs.
     app.$on('rotate', this.listener);
   }
 }
 
 ```
 
-# 事件触发
+# Event emit
 
-如果需要手动发送事件，可以通过 `app.$emit` 触发。
+If you need to send events manually, you can call through `app.$`.
 
 ```js
 const app = getApp();
 app.$emit('rotate', { width: 100, height: 100 });
 ```
 
-# 事件卸载
+# Event remove
 
-如果不需要使用的时候记得调用一下移除监听的方法，一般放在组件的卸载生命周期中执行。
+If you don't need to use, please remember to call the listening remove method. It is typically executed during the component's unload life cycle.
 
 ```js
 const app = getApp();
 app.$off('rotate', this.listener);
 ```
 
-# 实例销毁事件
+# JS Engine Destroy Event
 
-`最低支持版本 2.3.4`
+`Minimum supported version 2.3.4`
 
-当 hippy js 引擎或者 context 被销毁时会触发该事件，hippy 业务可以通过监听 `destroyInstance` 事件做一些离开时的操作，但回调函数不能使用 `async`
+This event will be triggered before the hippy js engine is destroyed to ensure that the last js code in the callback function is executed. The hippy business can do some operations when leaving by monitoring the `dealloc` event, but the callback function cannot use `async`
 
 ```jsx
-Hippy.on('destroyInstance', () => {
+Hippy.on('dealloc', () => {
     // do something
 });
 ```
 
-# 容器大小改变事件
+# RootView Destroy Event
 
-`只有 Android 支持`
+`Minimum supported version 2.3.4`
 
-当容器大小改变时，如屏幕旋转、折叠屏切换等，会触发该事件
+This event is triggered when RootView is unloaded. unlike `dealloc`,  `destroyInstance` is triggered earlier than `dealloc`, but does not block the JS thread.
+
+```jsx
+Hippy.on('destroyInstance', () => {
+  // do something
+});
+```
+
+# Container Size Change Event
+
+`Android all versions supported, iOS minimum supported version 2.16.0`
+
+When the container size changes, such as screen rotation, folding screen switch, etc., this event will be called.
 
 ```jsx
 app.$on('onSizeChanged', ({ oldWidth, oldHeight, width, height }) => {
-    // oldWidth: 旧的宽度；oldHeight: 旧的高度；width: 新的宽度; height: 新的高度
+    // oldWidth: old width；oldHeight: old height；width: new width; height: new height
     console.log('size', oldWidth, oldHeight, width, height);
+});
+```
+
+# System night mode change event
+
+`Only supported by iOS, the minimum supported version is 2.16.6, (Note: The page will be recreated when Android modifies the night mode)`
+
+This event is triggered when the system night mode changes
+
+```jsx
+app.$on('onNightModeChanged', ({ NightMode, RootViewTag }) => {
+     // NightMode: whether the current night mode, the value is 0 or 1; RootViewTag: the Tag of the HippyRootView that sends the event
+     console.log(`onDarkModeChanged: ${NightMode}, rootViewTag: ${RootViewTag}`);
 });
 ```

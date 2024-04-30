@@ -12,6 +12,7 @@ const styles = StyleSheet.create({
     height: 100,
     lineHeight: 100,
     borderWidth: 1,
+    borderStyle: 'solid',
     borderColor: '#4c9afa',
     fontSize: 80,
     margin: 20,
@@ -24,12 +25,14 @@ const styles = StyleSheet.create({
     margin: 20,
     borderColor: '#eee',
     borderWidth: 1,
+    borderStyle: 'solid',
   },
   itemTitle: {
     alignItems: 'flex-start',
     justifyContent: 'center',
     height: 40,
     borderWidth: 1,
+    borderStyle: 'solid',
     borderColor: '#e0e0e0',
     borderRadius: 2,
     backgroundColor: '#fafafa',
@@ -50,6 +53,11 @@ export default function ScrollExpo() {
             bounces={true}
             showsHorizontalScrollIndicator={false} // only iOS support
             showScrollIndicator={false} // only Android support
+            onScroll={params => console.log('onScroll', params)}
+            onMomentumScrollBegin={params => console.log('onMomentumScrollBegin', params)}
+            onMomentumScrollEnd={params => console.log('onMomentumScrollEnd', params)}
+            onScrollBeginDrag={params => console.log('onScrollBeginDrag', params)}
+            onScrollEndDrag={params => console.log('onScrollEndDrag', params)}
         >
           <Text style={styles.itemStyle}>A</Text>
           <Text style={styles.itemStyle}>B</Text>

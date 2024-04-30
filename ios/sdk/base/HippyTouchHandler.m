@@ -71,6 +71,7 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
     BOOL _bLongClick;
 
     __weak UIView *_rootView;
+    __weak UIView *_touchBeganView;
 
     CGPoint _startPoint;
     HippyBridge *_bridge;
@@ -100,8 +101,7 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
     return self;
 }
 
-- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;
-{
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     [super touchesBegan:touches withEvent:event];
     if ([_bridge.customTouchHandler respondsToSelector:@selector(customTouchesBegan:withEvent:)]) {
         BOOL shouldRecursive = [_bridge.customTouchHandler customTouchesBegan:touches withEvent:event];
@@ -112,9 +112,13 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 
     UITouch *touch = [touches anyObject];
     _startPoint = [touch locationInView:touch.view];
-    for (UITouch *touch in touches) {
-        NSDictionary *result = [self responseViewForAction:@[@"onPressIn", @"onTouchDown", @"onClick", @"onLongClick"] inView:touch.view
-                                                   atPoint:[touch locationInView:touch.view]];
+    {
+        UIView *touchView = [touch view];
+        CGPoint locationPoint = [touch locationInView:touchView];
+        touchView = touchView?:[self.view.window hitTest:locationPoint withEvent:event];
+        _touchBeganView = touchView;
+        NSDictionary *result = [self responseViewForAction:@[@"onPressIn", @"onTouchDown", @"onClick", @"onLongClick"] inView:touchView
+                                                   atPoint:locationPoint];
 
         UIView *view = result[@"onTouchDown"][@"view"];
         UIView *clickView = result[@"onClick"][@"view"];
@@ -169,9 +173,13 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
         }
     }
 
-    for (UITouch *touch in touches) {
-        NSDictionary *result = [self responseViewForAction:@[@"onTouchEnd", @"onPressOut", @"onClick"] inView:touch.view
-                                                   atPoint:[touch locationInView:touch.view]];
+    UITouch *touch = [touches anyObject];
+    {
+        UIView *touchView = [touch view]?:_touchBeganView;
+        CGPoint locationPoint = [touch locationInView:touchView];
+        touchView = touchView?:[self.view.window hitTest:locationPoint withEvent:event];
+        NSDictionary *result = [self responseViewForAction:@[@"onTouchEnd", @"onPressOut", @"onClick"] inView:touchView
+                                                   atPoint:locationPoint];
 
         UIView *view = result[@"onTouchEnd"][@"view"];
         UIView *clickView = result[@"onClick"][@"view"];
@@ -248,10 +256,14 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 
     [_moveViews removeAllObjects];
     [_moveTouches removeAllObjects];
-
-    for (UITouch *touch in touches) {
-        NSDictionary *result = [self responseViewForAction:@[@"onTouchCancel", @"onPressOut", @"onClick"] inView:touch.view
-                                                   atPoint:[touch locationInView:touch.view]];
+    
+    UITouch *touch = [touches anyObject];
+    {
+        UIView *touchView = [touch view]?:_touchBeganView;
+        CGPoint locationPoint = [touch locationInView:touchView];
+        touchView = touchView?:[self.view.window hitTest:locationPoint withEvent:event];
+        NSDictionary *result = [self responseViewForAction:@[@"onTouchCancel", @"onPressOut", @"onClick"] inView:touchView
+                                                   atPoint:locationPoint];
         UIView *clickView = result[@"onClick"][@"view"];
         UIView *view = result[@"onTouchCancel"][@"view"];
         if (view) {
@@ -307,14 +319,17 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
     [self clearTimer];
     _onClickView = nil;
 
-    for (UITouch *touch in touches) {
+    {
         NSInteger index = [_moveTouches indexOfObject:touch];
         NSDictionary *result = nil;
         if (index != NSNotFound) {
             result = _moveViews[index];
         } else {
-            NSDictionary *result = [self responseViewForAction:@[@"onTouchMove", @"onPressOut", @"onClick"] inView:touch.view
-                                                       atPoint:[touch locationInView:touch.view]];
+            UIView *touchView = [touch view]?:_touchBeganView;
+            CGPoint locationPoint = [touch locationInView:touchView];
+            touchView = touchView?:[self.view.window hitTest:locationPoint withEvent:event];
+            NSDictionary *result = [self responseViewForAction:@[@"onTouchMove", @"onPressOut", @"onClick"] inView:touchView
+                                                       atPoint:locationPoint];
             [_moveTouches addObject:touch];
             [_moveViews addObject:result];
         }

@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-undef */
 /* eslint-disable no-underscore-dangle */
 
@@ -7,10 +27,8 @@ global.__fbBatchedBridge = {};
 
 __fbBatchedBridge.flushedQueue = () => {
   JSTimersExecution.callImmediates();
-
   const queue = __GLOBAL__._queue;
   __GLOBAL__._queue = [[], [], [], __GLOBAL__._callID];
-
   return queue[0].length ? queue : null;
 };
 
@@ -23,17 +41,14 @@ __fbBatchedBridge.invokeCallbackAndReturnFlushedQueue = (cbID, args) => {
 __fbBatchedBridge.__invokeCallback = (cbID, args) => {
   const callback = __GLOBAL__._callbacks[cbID];
   if (!callback) return;
-
   if (!__GLOBAL__._notDeleteCallbackIds[cbID & ~1]
      && !__GLOBAL__._notDeleteCallbackIds[cbID | 1]) {
     delete __GLOBAL__._callbacks[cbID & ~1];
     delete __GLOBAL__._callbacks[cbID | 1];
   }
-
   if (args && args.length > 1 && (args[0] === null || args[0] === undefined)) {
     args.splice(0, 1);
   }
-
   callback(...args);
 };
 
@@ -65,23 +80,23 @@ __fbBatchedBridge.callFunctionReturnFlushedQueue = (module, method, args) => {
 
         __GLOBAL__.appRegister[callObj.name].run(callObj.params);
       } else {
-        throw Error(`error: ${callObj.name} is not regist in js`);
+        throw Error(`native2js error: native ${callObj.name} is not registered in js`);
       }
     } else if (method === 'unmountApplicationComponentAtRootTag') {
-      global.Hippy.emit('destroyInstance', args[0]);
+      const rootViewId = args[0];
+      global.Hippy.emit('destroyInstance', rootViewId);
       Hippy.bridge.callNative('UIManagerModule', 'startBatch');
-      Hippy.bridge.callNative('UIManagerModule', 'removeRootView', args[0]);
+      Hippy.bridge.callNative('UIManagerModule', 'removeRootView', rootViewId);
       Hippy.bridge.callNative('UIManagerModule', 'endBatch');
-      delete __GLOBAL__.nodeIdCache[args[0]];
-      delete __GLOBAL__.nodeTreeCache[args[0]];
-      delete __GLOBAL__.nodeParamCache[args[0]];
-      __GLOBAL__.destroyInstanceList[args[0]] = true;
+      // compatible for hippy1.x
+      delete __GLOBAL__.nodeIdCache[rootViewId];
+      delete __GLOBAL__.nodeTreeCache[rootViewId];
+      delete __GLOBAL__.nodeParamCache[rootViewId];
+      __GLOBAL__.destroyInstanceList[rootViewId] = true;
     }
   } else if (module === 'EventDispatcher' || module === 'Dimensions') {
     const targetModule = __GLOBAL__.jsModuleList[module];
-    if (!targetModule || !targetModule[method] || typeof targetModule[method] !== 'function') {
-      // console.error("no module or no function");
-    } else {
+    if (targetModule && typeof targetModule[method] === 'function') {
       targetModule[method].call(targetModule, args[1].params);
     }
   } else if (module === 'JSTimersExecution') {
@@ -100,8 +115,6 @@ __fbBatchedBridge.callFunctionReturnFlushedQueue = (module, method, args) => {
       });
     }
   }
-
   JSTimersExecution.callImmediates();
-
   return __fbBatchedBridge.flushedQueue();
 };

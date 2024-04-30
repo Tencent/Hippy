@@ -1,0 +1,66 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+ext["signing.keyId"] = project.findProperty("signing.keyId") ?: System.getenv("SIGNING_KEY_ID")
+ext["signing.password"] = project.findProperty("signing.password") ?: System.getenv("SIGNING_PASSWORD")
+ext["signing.secretKeyRingFile"] = project.findProperty("signing.secretKeyRingFile") ?: System.getenv("SIGNING_SECRET_KEY_RING_FILE")
+
+task androidSourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+publishing {
+    publications {
+        mavenAar(MavenPublication) {
+            artifact(androidSourcesJar)
+            artifact("$buildDir/outputs/aar/android-sdk.aar")
+            groupId PUBLISH_GROUP_ID
+            artifactId PUBLISH_ARTIFACT_ID
+            version VERSION_NAME
+            pom {
+                name = PUBLISH_ARTIFACT_ID
+                description = "Hippy Cross Platform Framework"
+                url = "https://hippyjs.org"
+                licenses {
+                    license {
+                        name = "The Apache Software License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+                developers {
+                    developer {
+                        id = PUBLISH_ARTIFACT_ID
+                        name = "OpenHippy Team"
+                    }
+                }
+                scm {
+                    connection = "scm:git@github.com:Tencent/Hippy.git"
+                    developerConnection = "scm:git@github.com:Tencent/Hippy.git"
+                    url = "https://github.com/Tencent/Hippy.git"
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url project.findProperty("maven.url")
+                    ?: System.getenv("MAVEN_URL")
+                    ?: (VERSION_NAME.endsWith('SNAPSHOT')
+                    ? "https://oss.sonatype.org/content/repositories/snapshots"
+                    : "https://oss.sonatype.org/service/local/staging/deploy/maven2")
+            credentials {
+                username project.findProperty("maven.username") ?: System.getenv("MAVEN_USERNAME")
+                password project.findProperty("maven.password") ?: System.getenv("MAVEN_PASSWORD")
+            }
+        }
+    }
+}
+
+signing {
+    def secretKey = project.findProperty("secretKey") ?: System.getenv("SIGNING_SECRET_KEY")
+    if (secretKey) {
+        useInMemoryPgpKeys(project.findProperty("signing.keyId"), secretKey, project.findProperty("signing.password"))
+    }
+    sign publishing.publications.mavenAar
+}

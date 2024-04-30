@@ -54,7 +54,6 @@ HIPPY_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
     return [HippyVirtualList createNode:tag viewName:name props:props];
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)hippyTag
 									xIndex:(__unused NSNumber *)xIndex
 									yIndex:(__unused NSNumber *)yIndex
@@ -69,9 +68,7 @@ HIPPY_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)hippyTag
 		 [view scrollToIndex: yIndex.integerValue animated: [animation boolValue]];
 	 }];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)hippyTag
 									x:(nonnull NSNumber *)x
 									y:(nonnull NSNumber *)y
@@ -86,6 +83,5 @@ HIPPY_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)hippyTag
 		 [view scrollToContentOffset:CGPointMake([x floatValue], [y floatValue]) animated: [animation boolValue]];
 	 }];
 }
-// clang-format on
 
 @end

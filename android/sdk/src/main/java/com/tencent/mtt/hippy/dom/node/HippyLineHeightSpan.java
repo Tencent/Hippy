@@ -43,8 +43,8 @@ public class HippyLineHeightSpan implements LineHeightSpan {
       fm.top = fm.bottom - mHeight;
     } else {
       final int additional = mHeight - (-fm.top + fm.bottom);
-      fm.top -= Math.ceil(additional / 2.0f);
-      fm.bottom += Math.floor(additional / 2.0f);
+      fm.top -= (int) Math.ceil(additional / 2.0f);
+      fm.bottom += (int) Math.floor(additional / 2.0f);
       fm.ascent = fm.top;
       fm.descent = fm.bottom;
     }

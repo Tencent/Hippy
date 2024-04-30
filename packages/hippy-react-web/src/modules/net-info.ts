@@ -74,16 +74,24 @@ const NetInfo: NetInfoModule = {
     }
     eventListenerList.push(listener);
     if (eventName === 'change') {
-      window.addEventListener('online', () => {
-        eventListenerList.forEach((handler) => {
-          handler({ network_info: getCurrentState() });
+      if (connection) {
+        connection.addEventListener('change', () => {
+          eventListenerList.forEach((handler) => {
+            handler({ network_info: getCurrentState() });
+          });
         });
-      });
-      window.addEventListener('offline', () => {
-        eventListenerList.forEach((handler) => {
-          handler({ network_info: getCurrentState() });
+      } else {
+        window.addEventListener('online', () => {
+          eventListenerList.forEach((handler) => {
+            handler({ network_info: getCurrentState() });
+          });
         });
-      });
+        window.addEventListener('offline', () => {
+          eventListenerList.forEach((handler) => {
+            handler({ network_info: getCurrentState() });
+          });
+        });
+      }
     }
     return {
       remove: () => {

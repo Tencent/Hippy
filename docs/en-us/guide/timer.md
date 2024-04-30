@@ -4,7 +4,9 @@
 
 The Hippy timer usage is consistent with the Web Javascript usage and can be used directly.
 
-## Method
+---
+
+# Method
 
 * [setTimeout](//developer.mozilla.org/zh-CN/docs/Web/API/Window/setTimeout)
 * [clearTimeout](//developer.mozilla.org/zh-CN/docs/Web/API/WindowTimers/clearTimeout)

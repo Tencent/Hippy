@@ -26,14 +26,6 @@ export default [
     },
   },
   {
-    path: '/Clipboard',
-    name: 'Clipboard 组件',
-    component: PAGE_LIST.Clipboard,
-    meta: {
-      style: 1,
-    },
-  },
-  {
     path: '/Text',
     name: 'Text 组件',
     component: PAGE_LIST.Text,
@@ -67,8 +59,8 @@ export default [
   },
   {
     path: '/PullHeader',
-    name: 'PullHeader 组件',
-    component: PAGE_LIST.PullHeader,
+    name: 'PullHeader/Footer组件',
+    component: PAGE_LIST.PullHeaderFooter,
     meta: {
       style: 1,
     },
@@ -130,6 +122,14 @@ export default [
     },
   },
   {
+    path: '/NestedScroll',
+    name: 'Nested Scroll 示例',
+    component: PAGE_LIST.NestedScroll,
+    meta: {
+      style: 1,
+    },
+  },
+  {
     path: '/WebView',
     name: 'WebView 组件',
     component: PAGE_LIST.WebView,
@@ -163,7 +163,7 @@ export default [
   },
   {
     path: '/NetInfo',
-    name: 'NetInfo 能力',
+    name: 'Network 能力',
     component: PAGE_LIST.NetInfo,
     meta: {
       style: 2,

@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 global.hippyBridge = (_action, _callObj) => {
   let resp = 'success';
 
@@ -43,48 +63,48 @@ global.hippyBridge = (_action, _callObj) => {
 
         __GLOBAL__.appRegister[callObj.name].run(callObj.params);
       } else {
-        resp = `error: ${callObj.name} is not regist in js`;
+        resp = `native2js error: ${callObj.name} is not registered in js`;
         throw Error(resp);
       }
       break;
     }
     case 'callBack': {
-      if (callObj.result === 1) {
-        resp = 'error: native no modules';
-      } else if (callObj.callId && callObj.moduleName === 'AnimationFrameModule' && callObj.moduleFunc === 'requestAnimationFrame') {
+      if (callObj.moduleName === 'AnimationFrameModule' && callObj.moduleFunc === 'requestAnimationFrame') {
+        if (callObj.result !== 0) {
+          resp = 'native2js error: native failed to call AnimationFrameModule requestAnimationFrame()';
+          break;
+        }
         __GLOBAL__.canRequestAnimationFrame = true;
-
         if (__GLOBAL__.requestAnimationFrameQueue[callObj.callId]) {
           __GLOBAL__.requestAnimationFrameQueue[callObj.callId].forEach((cb) => {
             if (typeof cb === 'function') {
               cb(callObj.params);
             }
           });
-
           delete __GLOBAL__.requestAnimationFrameQueue[callObj.callId];
         }
-      } else if (callObj.callId && __GLOBAL__.moduleCallList[callObj.callId]) {
+      } else if (__GLOBAL__.moduleCallList[callObj.callId]) {
         const callbackObj = __GLOBAL__.moduleCallList[callObj.callId];
         if (callObj.result !== 0 && typeof callbackObj.reject === 'function') {
           callbackObj.reject(callObj.params);
         } else {
-          callbackObj.cb(callObj.params);
+          typeof callbackObj.cb === 'function' && callbackObj.cb(callObj.params);
         }
         if (callbackObj.type === 0 || callbackObj.type === 1) {
           delete __GLOBAL__.moduleCallList[callObj.callId];
         }
       } else {
-        resp = 'error: calljs id is not regist in js';
+        resp = 'native2js error: native callback id is not registered in js';
       }
       break;
     }
     case 'callJsModule': {
       if (!callObj || !callObj.moduleName || !callObj.methodName) {
-        resp = 'error: callJsModule param invalid';
+        resp = 'native2js error: callJsModule param is invalid';
       } else {
         const targetModule = __GLOBAL__.jsModuleList[callObj.moduleName];
         if (!targetModule || typeof targetModule[callObj.methodName] !== 'function') {
-          resp = 'error: callJsModule targetting an undefined module or method';
+          resp = 'native2js error: callJsModule is targeting an undefined module or method';
         } else {
           targetModule[callObj.methodName](callObj.params);
         }
@@ -92,20 +112,21 @@ global.hippyBridge = (_action, _callObj) => {
       break;
     }
     case 'destroyInstance': {
-      global.Hippy.emit('destroyInstance', callObj);
+      const rootViewId = callObj;
+      global.Hippy.emit('destroyInstance', rootViewId);
       Hippy.bridge.callNative('UIManagerModule', 'startBatch');
-      Hippy.bridge.callNative('UIManagerModule', 'deleteNode', callObj, [{ id: callObj }]);
+      Hippy.bridge.callNative('UIManagerModule', 'deleteNode', rootViewId, [{ id: rootViewId }]);
       Hippy.bridge.callNative('UIManagerModule', 'endBatch');
-      delete __GLOBAL__.nodeIdCache[callObj];
-      delete __GLOBAL__.nodeTreeCache[callObj];
-      __GLOBAL__.destroyInstanceList[callObj] = true;
+      // compatible for hippy1.x
+      delete __GLOBAL__.nodeIdCache[rootViewId];
+      delete __GLOBAL__.nodeTreeCache[rootViewId];
+      __GLOBAL__.destroyInstanceList[rootViewId] = true;
       break;
     }
     default: {
-      resp = 'error: action not define';
+      resp = 'native2js error: native2js action is not defined';
       break;
     }
   }
-
   return resp;
 };

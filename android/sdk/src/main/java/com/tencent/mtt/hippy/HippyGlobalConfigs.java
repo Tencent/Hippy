@@ -251,7 +251,6 @@ public class HippyGlobalConfigs {
 
     private HippyLogAdapter mLogAdapter;
 
-
     public HippyLogAdapter getLogAdapter() {
       return mLogAdapter;
     }

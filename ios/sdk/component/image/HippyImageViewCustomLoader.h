@@ -23,6 +23,24 @@
 #import "HippyBridgeModule.h"
 @class HippyImageView;
 
+NS_ASSUME_NONNULL_BEGIN
+
+typedef NS_OPTIONS(NSUInteger, HippyImageCustomLoaderControlOptions) {
+    /**
+     * This flag controls the HippyImageView from doing image data decoding or downsampling,
+     * Only takes effect when image is not null in the completion block.
+     */
+    HippyImageCustomLoaderControl_SkipDecodeOrDownsample = 1 << 0,
+};
+
+typedef void(^HippyImageLoaderProgressBlock)(long long currentLength, long long totalLength);
+typedef void(^HippyImageLoaderCompletionBlock)(NSData *_Nullable data,
+                                               NSURL * _Nonnull url,
+                                               NSError *_Nullable error,
+                                               UIImage *_Nullable image,
+                                               HippyImageCustomLoaderControlOptions options);
+
+
 @protocol HippyImageViewCustomLoader <HippyBridgeModule>
 
 @optional
@@ -32,13 +50,15 @@
 @required
 
 - (void)imageView:(HippyImageView *)imageView
-           loadAtUrl:(NSURL *)url
-    placeholderImage:(UIImage *)placeholderImage
-             context:(void *)context
-            progress:(void (^)(long long, long long))progressBlock
-           completed:(void (^)(NSData *, NSURL *, NSError *))completedBlock;
+        loadAtUrl:(NSURL *)url
+ placeholderImage:(UIImage *)placeholderImage
+         progress:(HippyImageLoaderProgressBlock)progressBlock
+        completed:(HippyImageLoaderCompletionBlock)completedBlock;
 
 - (void)cancelImageDownload:(UIImageView *)imageView withUrl:(NSURL *)url;
 
 - (void)loadImage:(NSURL *)url completed:(void (^)(NSData *, NSURL *, NSError *, BOOL cached))completedBlock;
+
 @end
+
+NS_ASSUME_NONNULL_END

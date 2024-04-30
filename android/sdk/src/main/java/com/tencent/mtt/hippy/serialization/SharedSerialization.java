@@ -20,12 +20,10 @@ package com.tencent.mtt.hippy.serialization;
  */
 @SuppressWarnings({"unused"})
 public abstract class SharedSerialization {
-
-  static protected final byte LATEST_VERSION = (byte) 13; // kLatestVersion
-
   protected final Object Null;
   protected final Object Undefined;
   protected final Object Hole;
+  protected static final Object Nothing = new Object();
 
   SharedSerialization() {
     Null = getNull();

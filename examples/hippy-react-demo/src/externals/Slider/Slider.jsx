@@ -112,7 +112,7 @@ export default class Slider extends React.Component {
     const idx = Math.round(offset / this.width);
     const count = images ? React.Children.count(images) : 0;
     if (idx < 0 || idx >= count) return;
-    this.indicator.update(idx);
+    this.indicator && this.indicator.update(idx);
     this.currentIndex = idx;
   }
 

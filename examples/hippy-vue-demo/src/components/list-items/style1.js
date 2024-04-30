@@ -11,7 +11,7 @@ export default Vue.component('StyleOne', {
     <div class="style-one-image-container">
       <img v-for="(pic, index) in itemBean.picList" :key="index" :src="pic" class="image style-one-image" />
     </div>
-    <div class="tag-line">
+    <div :style="{ alignSelf: 'flex-start', marginTop: '5px' }">
       <p class="normal-text">
         {{ itemBean.subInfo.join('') }}
       </p>

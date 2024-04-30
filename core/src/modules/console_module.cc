@@ -26,22 +26,22 @@
 
 #include "base/logging.h"
 #include "core/base/string_view_utils.h"
-#include "core/modules/module_register.h"
-#include "core/napi/js_native_api.h"
 #include "core/scope.h"
+
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using Ctx = hippy::napi::Ctx;
+using CtxValue = hippy::napi::CtxValue;
 using StringViewUtils = hippy::base::StringViewUtils;
 
-REGISTER_MODULE(ConsoleModule, Log) // NOLINT(cert-err58-cpp)
+GEN_INVOKE_CB(ConsoleModule, Log) // NOLINT(cert-err58-cpp)
 
 namespace {
 
 unicode_string_view EscapeMessage(const unicode_string_view& str_view) {
-  std::string u8_str = StringViewUtils::ToU8StdStr(str_view);
+  unicode_string_view::u8string u8_str = StringViewUtils::Convert(str_view, unicode_string_view::Encoding::Utf8).utf8_value();
   size_t len = u8_str.length();
-  std::string ret;
+  unicode_string_view::u8string ret;
   for (size_t i = 0; i < len; i++) {
     auto c = u8_str[i];
     ret += c;
@@ -55,15 +55,16 @@ unicode_string_view EscapeMessage(const unicode_string_view& str_view) {
 
 }  // namespace
 
-void ConsoleModule::Log(const hippy::napi::CallbackInfo& info) { // NOLINT(readability-convert-member-functions-to-static)
-  std::shared_ptr<Scope> scope = info.GetScope();
-  std::shared_ptr<Ctx> context = scope->GetContext();
+void ConsoleModule::Log(const hippy::napi::CallbackInfo& info, void* data) { // NOLINT(readability-convert-member-functions-to-static)
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+  auto scope = scope_wrapper->scope.lock();
+  TDF_BASE_CHECK(scope);
+  auto context = scope->GetContext();
   TDF_BASE_CHECK(context);
 
   unicode_string_view message;
   if (!context->GetValueString(info[0], &message)) {
-    info.GetExceptionValue()->Set(context,
-                                  "The first argument must be string.");
+    info.GetExceptionValue()->Set(context,"The first argument must be string.");
     return;
   }
 
@@ -94,4 +95,19 @@ void ConsoleModule::Log(const hippy::napi::CallbackInfo& info) { // NOLINT(reada
   }
 
   info.GetReturnValue()->SetUndefined();
+}
+
+std::shared_ptr<CtxValue> ConsoleModule::BindFunction(std::shared_ptr<Scope> scope,
+                                                      std::shared_ptr<CtxValue>* rest_args) {
+  auto context = scope->GetContext();
+  auto object = context->CreateObject();
+
+  auto key = context->CreateString("Log");
+  auto wrapper = std::make_unique<hippy::napi::FuncWrapper>(
+      InvokeConsoleModuleLog,nullptr);
+  auto value = context->CreateFunction(wrapper);
+  scope->SaveFuncWrapper(std::move(wrapper));
+  context->SetProperty(object, key, value);
+
+  return object;
 }

@@ -46,7 +46,6 @@ const model = {
     if (Native.Platform === 'ios' && update !== iOSUpdate) {
       update = iOSUpdate;
     }
-
     if (el.meta.component.name === 'TextInput') {
       el._vModifiers = binding.modifiers;
       // Initial value

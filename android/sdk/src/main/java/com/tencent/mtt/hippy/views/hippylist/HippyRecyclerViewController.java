@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import androidx.recyclerview.widget.HippyLinearLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.View;
+import androidx.recyclerview.widget.RecyclerView.LayoutManager;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.annotation.HippyController;
@@ -48,9 +49,6 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     public static final String SCROLL_TO_INDEX = "scrollToIndex";
     public static final String SCROLL_TO_CONTENT_OFFSET = "scrollToContentOffset";
     public static final String SCROLL_TO_TOP = "scrollToTop";
-    public static final String COLLAPSE_PULL_HEADER = "collapsePullHeader";
-    public static final String COLLAPSE_PULL_HEADER_WITH_OPTIONS = "collapsePullHeaderWithOptions";
-    public static final String EXPAND_PULL_HEADER = "expandPullHeader";
     public static final String HORIZONTAL = "horizontal";
 
     public HippyRecyclerViewController() {
@@ -65,6 +63,11 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     @Override
     public View getChildAt(HRW viewGroup, int index) {
         return viewGroup.getChildAtWithCaches(index);
+    }
+
+    @Override
+    public void onViewDestroy(HRW viewGroup) {
+        ((HRW) viewGroup).getRecyclerView().onDestroy();
     }
 
     /**
@@ -129,6 +132,28 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
         return new ListViewRenderNode(id, props, className, hippyRootView, controllerManager, lazy);
     }
 
+    @HippyControllerProps(name = "horizontal", defaultType = HippyControllerProps.BOOLEAN)
+    public void setHorizontalEnable(final HRW viewWrapper, boolean flag) {
+        LayoutManager layoutManager = viewWrapper.getRecyclerView().getLayoutManager();
+        if (!(layoutManager instanceof LinearLayoutManager)) {
+            return;
+        }
+        int orientation = ((LinearLayoutManager) layoutManager).getOrientation();
+        if (flag) {
+            if (orientation != LinearLayoutManager.HORIZONTAL) {
+                ((LinearLayoutManager) layoutManager).setOrientation(
+                        LinearLayoutManager.HORIZONTAL);
+                viewWrapper.getRecyclerView().getAdapter().onLayoutOrientationChanged();
+            }
+        } else {
+            if (orientation == LinearLayoutManager.HORIZONTAL) {
+                ((LinearLayoutManager) layoutManager).setOrientation(
+                        LinearLayoutManager.VERTICAL);
+                viewWrapper.getRecyclerView().getAdapter().onLayoutOrientationChanged();
+            }
+        }
+    }
+
     @HippyControllerProps(name = "rowShouldSticky")
     public void setRowShouldSticky(HRW view, boolean enable) {
         view.setRowShouldSticky(enable);
@@ -176,7 +201,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
 
     @HippyControllerProps(name = "preloadItemNumber")
     public void setPreloadItemNumber(HRW view, int preloadItemNumber) {
-        getAdapter(view).setPreloadItemNumber(preloadItemNumber);
+        view.getRecyclerViewEventHelper().setPreloadItemNumber(preloadItemNumber);
     }
 
     @HippyControllerProps(name = "suspendViewListener", defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
@@ -186,17 +211,21 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
 
     @HippyControllerProps(name = "overScrollEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
     public void setOverScrollEnable(HRW viewWrapper, boolean flag) {
-        if (flag) {
-            viewWrapper.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
-        } else {
-            viewWrapper.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        HippyRecyclerView<?> recyclerView = viewWrapper.getRecyclerView();
+        if (recyclerView != null) {
+            if (flag) {
+                recyclerView.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
+            } else {
+                recyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+            }
         }
+        setBounces(viewWrapper, flag);
     }
 
     @HippyControllerProps(name = OVER_PULL, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
     public void setBounces(HRW viewWrapper, boolean flag) {
         HippyRecyclerView recyclerView = viewWrapper.getRecyclerView();
-        if (recyclerView != null && HippyListUtils.isVerticalLayout(recyclerView)) {
+        if (recyclerView != null) {
             recyclerView.setEnableOverPull(flag);
         }
     }
@@ -204,6 +233,11 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     @HippyControllerProps(name = "initialContentOffset", defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
     public void setInitialContentOffset(HRW viewWrapper, int offset) {
         viewWrapper.getRecyclerView().setInitialContentOffset((int) PixelUtil.dp2px(offset));
+    }
+
+    @HippyControllerProps(name = "itemViewCacheSize", defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+    public void setItemViewCacheSize(HRW viewWrapper, int size) {
+        viewWrapper.getRecyclerView().setItemViewCacheSize(Math.max(size, 2));
     }
 
     @Override
@@ -236,38 +270,6 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
             }
             case SCROLL_TO_TOP: {
                 view.scrollToTop();
-                break;
-            }
-            case COLLAPSE_PULL_HEADER: {
-                getAdapter(view).getHeaderEventHelper().onHeaderRefreshFinish();
-                break;
-            }
-            case COLLAPSE_PULL_HEADER_WITH_OPTIONS: {
-                HippyMap valueMap = dataArray.getMap(0);
-                if (valueMap == null) {
-                    return;
-                }
-                final int time = valueMap.getInt("time");
-                final HippyRecyclerListAdapter adapter = getAdapter(view);
-                if (adapter == null) {
-                    return;
-                }
-                if (time > 0) {
-                    view.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            PullHeaderEventHelper helper = adapter.getHeaderEventHelper();
-                            if (helper != null) {
-                                helper.onHeaderRefreshFinish();
-                            }
-                        }
-                    }, time);
-                } else {
-                    adapter.getHeaderEventHelper().onHeaderRefreshFinish();
-                }
-            }
-            case EXPAND_PULL_HEADER: {
-                getAdapter(view).getHeaderEventHelper().onHeaderRefresh();
                 break;
             }
         }

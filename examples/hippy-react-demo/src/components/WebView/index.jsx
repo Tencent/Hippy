@@ -12,6 +12,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 40,
     borderWidth: 1,
+    borderStyle: 'solid',
     borderColor: '#e0e0e0',
     borderRadius: 2,
     backgroundColor: '#fafafa',
@@ -28,7 +29,7 @@ const styles = StyleSheet.create({
 
 export default function WebViewExample() {
   return (
-    <View style={{ padding: 10,  flex: 1 }}>
+    <View style={{ paddingHorizontal: 10,  flex: 1 }}>
       <View style={styles.itemTitle}>
         <Text>WebView 示例</Text>
       </View>
@@ -43,7 +44,7 @@ export default function WebViewExample() {
         style={styles.webViewStyle}
         onLoad={({ url }) => console.log('webview onload', url)}
         onLoadStart={({ url }) => console.log('webview onLoadStart', url)}
-        onLoadEnd={({ url }) => console.log('webview onLoadEnd', url)}
+        onLoadEnd={({ url, success, error }) => console.log('webview onLoadEnd', url, success, error)}
       />
     </View>
   );

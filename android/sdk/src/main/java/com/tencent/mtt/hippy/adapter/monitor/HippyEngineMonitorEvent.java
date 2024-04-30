@@ -27,6 +27,7 @@ public class HippyEngineMonitorEvent {
   public static final String MODULE_LOAD_EVENT_LOAD_BUNDLE = "loadBundle";
   public static final String MODULE_LOAD_EVENT_RUN_BUNDLE = "runBundle";
   public static final String MODULE_LOAD_EVENT_CREATE_VIEW = "createView";
+  public static final String MODULE_LOAD_EVENT_RESTORE_INSTANCE_STATE = "restoreInstanceState";
   public String eventName;
   public long startTime;
   public long endTime;

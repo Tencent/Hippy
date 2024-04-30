@@ -3119,7 +3119,7 @@ public abstract class RecyclerViewBase extends ViewGroup
 			smoothScrollBy(dx, dy, computeScrollDuration(dx, dy, vx, vy), careSpringBackMaxDistance);
 		}
 
-		/* private */float distanceInfluenceForSnapDuration(float f)
+		/* private */float distanceInfluenceForSnapDuration(double f)
 		{
 			f -= 0.5f; // center the values about 0.
 			f *= 0.3f * Math.PI / 2.0f;

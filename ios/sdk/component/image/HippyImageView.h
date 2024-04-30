@@ -59,6 +59,7 @@ typedef NS_ENUM(NSInteger, HippyResizeMode) {
 @property (nonatomic, strong) UIImage *defaultImage;
 @property (nonatomic, assign) UIImageRenderingMode renderingMode;
 @property (nonatomic, weak) HippyBridge *bridge;
+/// Indicate whether to do image downsampling
 @property (nonatomic, assign) BOOL downSample;
 @property (nonatomic, assign) CGFloat borderTopLeftRadius;
 @property (nonatomic, assign) CGFloat borderTopRightRadius;

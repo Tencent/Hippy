@@ -10,7 +10,7 @@ import Gallery from './gallery';
 
 const ALL_ROUTES = [{
   path: '/Gallery',
-  name: 'Hippy React 示例',
+  name: 'Hippy React',
   component: Gallery,
   meta: {
     style: 1,

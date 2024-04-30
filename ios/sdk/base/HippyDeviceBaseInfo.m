@@ -26,22 +26,28 @@
 #import "HippyAssert.h"
 #import "HippyUtils.h"
 
-static BOOL isiPhoneX() {
-    if (@available(iOS 11.0, *)) {
-        CGFloat height = [[UIApplication sharedApplication] delegate].window.safeAreaInsets.bottom;
-        return (height > 0);
+BOOL isHippyScreenInOSDarkMode(void) {
+    if (@available(iOS 12.0, *)) {
+        return (UIUserInterfaceStyleDark == [UIScreen mainScreen].traitCollection.userInterfaceStyle);
     } else {
         return NO;
     }
 }
 
-NSDictionary *hippyExportedDimensions() {
+NSDictionary *hippyExportedDimensions(HippyBridge *bridge) {
     NSCAssert([NSThread mainThread], @"this function can only be called in main thread");
     CGSize screenSize = [UIScreen mainScreen].bounds.size;
     CGSize windowSize = HippyKeyWindow() ? HippyKeyWindow().bounds.size : screenSize;
+    // To be replace by HippyKeyWindow().windowScene.statusBarManager.statusBarFrame;
     CGFloat statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
     if (statusBarHeight == 0) {
-        statusBarHeight = isiPhoneX() ? 44 : 20;
+        // Since different devices have different statusbar height values,
+        // It is not recommended to use it for layout,
+        // but, it has been used in some scenarios,
+        // To reduce the impact of the problem, provide a default value when not available.
+        if ([bridge.delegate respondsToSelector:@selector(defaultStatusBarHeightNoMatterHiddenOrNot)]) {
+            statusBarHeight = bridge.delegate.defaultStatusBarHeightNoMatterHiddenOrNot ?: 0.0;
+        }
     }
     static NSNumber *screenScale = nil;
     static dispatch_once_t onceToken;
@@ -49,10 +55,13 @@ NSDictionary *hippyExportedDimensions() {
         screenScale = @([UIScreen mainScreen].scale);
     });
     NSDictionary *dimensions = @{
-        // 备注，window和screen的区别在于有没有底bar虚拟导航栏，而iOS没有这个东西，所以window和screen是一样的
-        @"window":
-            @ { @"width": @(windowSize.width), @"height": @(windowSize.height), @"scale": screenScale, @"statusBarHeight": @(statusBarHeight) },
-        @"screen": @ {
+        @"window" : @{
+            @"width": @(windowSize.width),
+            @"height": @(windowSize.height),
+            @"scale": screenScale,
+            @"statusBarHeight": @(statusBarHeight)
+        },
+        @"screen" : @{
             @"width": @(screenSize.width),
             @"height": @(screenSize.height),
             @"scale": screenScale,
@@ -64,6 +73,7 @@ NSDictionary *hippyExportedDimensions() {
 }
 
 @interface HippyDeviceBaseInfo () {
+    __weak HippyBridge *_bridge;
     id<NSObject> _statusBarOrientationNotificationObserver;
     id<NSObject> _applicationDidBecomeActiveNotificationObserver;
 
@@ -74,27 +84,36 @@ NSDictionary *hippyExportedDimensions() {
 
 @implementation HippyDeviceBaseInfo
 
-HIPPY_EXPORT_MODULE(DeviceBaseInfo)
+NSString *const HippyDimensionsShouldUpdateNotification = @"HippyDimensionsShouldUpdateNotification";
 
-@synthesize bridge = _bridge;
+static UIInterfaceOrientation getStatusBarOrientation(void) {
+    return [[UIApplication sharedApplication] statusBarOrientation];
+}
 
-- (instancetype)init {
+- (instancetype)initWithHippyBridge:(HippyBridge *)bridge  {
     self = [super init];
     if (self) {
+        _bridge = bridge;
         __weak HippyDeviceBaseInfo *devInfo = self;
+        NSString *notificationName;
+        if ([_bridge.delegate respondsToSelector:@selector(shouldUseViewWillTransitionMethodToMonitorOrientation)]
+            && _bridge.delegate.shouldUseViewWillTransitionMethodToMonitorOrientation) {
+            notificationName = HippyDimensionsShouldUpdateNotification;
+        } else {
+            notificationName = UIApplicationDidChangeStatusBarOrientationNotification;
+        }
         _statusBarOrientationNotificationObserver = [[NSNotificationCenter defaultCenter]
-            addObserverForName:UIApplicationDidChangeStatusBarOrientationNotification
+            addObserverForName:notificationName
                         object:nil
                          queue:[NSOperationQueue mainQueue]
                     usingBlock:^(NSNotification *_Nonnull note) {
                         if (devInfo) {
                             HippyDeviceBaseInfo *strongSelf = devInfo;
-                            UIInterfaceOrientation previousInterfaceOrientation
-                                = (UIInterfaceOrientation)[note.userInfo[UIApplicationStatusBarOrientationUserInfoKey] integerValue];
-                            UIInterfaceOrientation currentInterfaceOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+                            UIInterfaceOrientation previousInterfaceOrientation = strongSelf->_currentInterfaceOrientation;
+                            UIInterfaceOrientation currentInterfaceOrientation = getStatusBarOrientation();
                             if (previousInterfaceOrientation != currentInterfaceOrientation) {
-                                NSDictionary *dim = hippyExportedDimensions();
-                                [[strongSelf bridge].eventDispatcher dispatchEvent:@"Dimensions" methodName:@"set" args:dim];
+                                NSDictionary *dim = hippyExportedDimensions(strongSelf->_bridge);
+                                [strongSelf->_bridge.eventDispatcher dispatchEvent:@"Dimensions" methodName:@"set" args:dim];
                             }
                             strongSelf->_currentInterfaceOrientation = currentInterfaceOrientation;
                         }
@@ -108,10 +127,10 @@ HIPPY_EXPORT_MODULE(DeviceBaseInfo)
                         if (devInfo) {
                             HippyDeviceBaseInfo *strongSelf = devInfo;
                             UIInterfaceOrientation currentInterfaceOrientation = strongSelf->_currentInterfaceOrientation;
-                            UIInterfaceOrientation activeStatusBarOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+                            UIInterfaceOrientation activeStatusBarOrientation = getStatusBarOrientation();
                             if (currentInterfaceOrientation != activeStatusBarOrientation) {
-                                NSDictionary *dim = hippyExportedDimensions();
-                                [[strongSelf bridge].eventDispatcher dispatchEvent:@"Dimensions" methodName:@"set" args:dim];
+                                NSDictionary *dim = hippyExportedDimensions(strongSelf->_bridge);
+                                [strongSelf->_bridge.eventDispatcher dispatchEvent:@"Dimensions" methodName:@"set" args:dim];
                             }
                             strongSelf->_currentInterfaceOrientation = activeStatusBarOrientation;
                         }

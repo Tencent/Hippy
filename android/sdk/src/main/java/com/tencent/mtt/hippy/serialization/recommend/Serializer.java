@@ -97,6 +97,21 @@ public class Serializer extends PrimitiveValueSerializer {
      * @return ID
      */
     int getWasmModuleTransferId(Serializer serializer, WasmModule module);
+
+    /**
+     * Called when the first shared value is serialized. All subsequent shared
+     * values will use the same conveyor.
+     *
+     * The implement must ensure the lifetime of the conveyor matches the
+     * lifetime of the serialized data.
+     *
+     * This method is called at most once per serializer.
+     *
+     * @param serializer current serializer
+     * @param conveyor   SharedValueConveyor
+     * @return return true if supports serializing shared values, otherwise return false.
+     */
+    boolean adoptSharedValueConveyor(Serializer serializer, SharedValueConveyor conveyor);
   }
 
   /**
@@ -111,21 +126,17 @@ public class Serializer extends PrimitiveValueSerializer {
    * Determines whether {@link JSArrayBuffer}s should be serialized as host objects.
    */
   private boolean treatArrayBufferViewsAsHostObjects;
+  /**
+   * Shared value conveyors to keep JS shared values alive in transit when serialized.
+   */
+  private SharedValueConveyor sharedObjectConveyor;
 
   public Serializer() {
-    this(null, null);
+    this(null, null, 13);
   }
 
-  public Serializer(Delegate delegate) {
-    this(null, delegate);
-  }
-
-  public Serializer(BinaryWriter writer) {
-    this(writer, null);
-  }
-
-  public Serializer(BinaryWriter writer, Delegate delegate) {
-    super(writer);
+  public Serializer(BinaryWriter writer, Delegate delegate, int version) {
+    super(writer, version);
     this.delegate = delegate;
   }
 
@@ -161,6 +172,12 @@ public class Serializer extends PrimitiveValueSerializer {
       return true;
     }
 
+    if (getVersion() >= 15 && object instanceof SharedValueConveyor.SharedValue) {
+      assignId(object);
+      writeSharedObject((SharedValueConveyor.SharedValue) object);
+      return true;
+    }
+
     if (!treatArrayBufferViewsAsHostObjects && JSValue.is(object) && ((JSValue) object)
         .isDataView()) {
       JSDataView<?> view = (JSDataView<?>) object;
@@ -172,11 +189,7 @@ public class Serializer extends PrimitiveValueSerializer {
       }
     }
 
-    if (object instanceof Date) {
-      assignId(object);
-      writeTag(SerializationTag.DATE);
-      writeDate((Date) object);
-    } else if (JSValue.is(object)) {
+    if (JSValue.is(object)) {
       assignId(object);
       JSValue value = (JSValue) object;
 
@@ -218,6 +231,14 @@ public class Serializer extends PrimitiveValueSerializer {
       }
     }
     return true;
+  }
+
+  private void writeTag(ArrayBufferViewTag tag) {
+    writer.putVarint(tag.getTag());
+  }
+
+  private void writeTag(ErrorTag tag) {
+    writer.putVarint(tag.getTag());
   }
 
   private void writeDate(@NonNull Date date) {
@@ -356,6 +377,14 @@ public class Serializer extends PrimitiveValueSerializer {
           tag = ArrayBufferViewTag.DATA_VIEW;
           break;
         }
+        case BIGINT64_ARRAY: {
+          tag = ArrayBufferViewTag.BIGINT64_ARRAY;
+          break;
+        }
+        case BIGUINT64_ARRAY: {
+          tag = ArrayBufferViewTag.BIGUINT64_ARRAY;
+          break;
+        }
         case FLOAT32_ARRAY: {
           tag = ArrayBufferViewTag.FLOAT32_ARRAY;
           break;
@@ -399,6 +428,9 @@ public class Serializer extends PrimitiveValueSerializer {
       writeTag(tag);
       writer.putVarint(value.getByteOffset());
       writer.putVarint(value.getByteLength());
+      if (getVersion() >= 14) {
+        writer.putVarint(value.getFlags());
+      }
     }
   }
 
@@ -468,6 +500,21 @@ public class Serializer extends PrimitiveValueSerializer {
       throw new DataCloneException(object);
     }
     return delegate.writeHostObject(this, object);
+  }
+
+  private void writeSharedObject(SharedValueConveyor.SharedValue object) {
+    if (delegate == null) {
+      throw new DataCloneException(object);
+    }
+    if (sharedObjectConveyor == null) {
+      sharedObjectConveyor = new SharedValueConveyor();
+      if (!delegate.adoptSharedValueConveyor(this, sharedObjectConveyor)) {
+        sharedObjectConveyor = null;
+        return;
+      }
+    }
+    writeTag(SerializationTag.SHARED_OBJECT);
+    writer.putVarint(sharedObjectConveyor.persist(object));
   }
 
   /**

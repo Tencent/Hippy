@@ -1,22 +1,22 @@
-# HippyCore 架构
+# HippyCore Architecture
 
-Hippy 开发的时候，前端 JS 经常需要访问一些双端（Android 和 iOS）通用能力，Hippy 推荐使用 `internalBinding` 来实现底层能力扩展（我们将这项能力称为 [Core 架构](//github.com/Tencent/Hippy/tree/master/core)），它和 Node.js 的 internalBinding 一样，使用 C++ 进行开发，直接共享 JS 和 C++ 运行环境和数据，提供了非常高的 JS 和终端通信性能。
+During developed Hippy, JS often needs to access some dual-native (Android and iOS) general capabilities. Hippy recommends using `internalBinding` to realize the basic capability extension (we call this capability [Core architecture](//github.com/Tencent/Hippy/tree/master/core)). Like the internalBinding of Node.js, it uses C++ for development, directly shares JS and C++ running environment and data, and provides very high communication performance between JS and native.
 
-它的原理是在 JS 环境中直接插入函数、类等方式，JS 使用这些函数或方法，可以直接访问 C++ 代码。
+Its principle is directly insert functions, classes, etc in JS context. With these functions or methods, JS can directly access the C++ code.
 
-但如果涉及到平台相关，依然需要分平台桥接。
+However, if platform dependency is involved, sub-platform bridging is still required.
 
-目前 Hippy 里的[定时器](../guide/timer.md)和[日志](../guide/console.md)模块都是使用 Core 实现。
+At present, the [Timer](../guide/timer.md) and [Log](../guide/console.md) module in Hippy are implemented by Hippy Core.
 
-![Core 架构对比](../assets/img/hippy-core.png)
+![Core architecture comparison](../assets/img/hippy-core.png)
 
-# C++ 模块扩展
+# C++ Module Extension
 
-我们将以 TestModule 为例，从头扩展一个 Module，这个 Module 将展示前端如何调用终端能力，并且把结果返回给前端。
+We'll use TestModule as an example, extending a Module that will show how JS can invoke the native capabilities and return the results to JS.
 
-## 继承 ModuleBase
+## Inherit ModuleBase
 
-在 [core/modules/](//github.com/Tencent/Hippy/tree/master/core/modules) 下创建 test-module.h
+Create test-module.h under [core/modules/](//github.com/Tencent/Hippy/tree/master/core/modules)
 
 ```cpp
 #ifndef CORE_MODULES_TEST_MODULE_H_
@@ -35,7 +35,7 @@ class TestModule : public ModuleBase {
 #endif // CORE_MODULES_TEST_MODULE_H_
 ```
 
-在 [core/modules/](//github.com/Tencent/Hippy/tree/master/core/modules) 下创建 test-module.cc
+Create test-module.cc under [core/modules/](//github.com/Tencent/Hippy/tree/master/core/modules)
 
 ```cpp
 #include "core/modules/module-register.h"
@@ -64,9 +64,9 @@ void TestModule::Print(const hippy::napi::CallbackInfo& info) {
 
 ```
 
-# JS 桥接
+# JS Bridge
 
-双平台通用模块一般放在 [core/js/global](//github.com/Tencent/Hippy/tree/master/core/js/global) 下，我们在 global 下 增加 TestModule.js
+Dual-platform general module is generally placed under [core/js/global](//github.com/Tencent/Hippy/tree/master/core/js/global), and we add TestModule.js under global
 
 ```js
 const TestModule = internalBinding('TestModule');
@@ -74,22 +74,22 @@ const TestModule = internalBinding('TestModule');
 global.TestModule = TestModule;
 ```
 
-[core/js/entry/](//github.com/Tencent/Hippy/tree/master/core/js/entry) 下双平台 hippy.js 里增加
+[core/js/entry/](//github.com/Tencent/Hippy/tree/master/core/js/entry)
 
 ```js
 require('../../global/TestModule.js');
 ```
 
-在 Hippy 目录下运行 `npm run buildcore`，会生成对应双平台的 C++ 源代码：
+Run `npm run buildcore` in the Hippy directory, which will generate the corresponding dual-platform C source code:
 
 * [native-source-code-android.cc](//github.com/Tencent/Hippy/blob/master/core/napi/v8/native-source-code-android.cc)
 * [native-source-code-ios.cc](//github.com/Tencent/Hippy/blob/master/core/napi/jsc/native-source-code-ios.cc)
 
-# 重新编译 Core
+# Recompile Core
 
-无需做别的改动，重新编译终端 SDK 即可，终端 SDK 能够链接到 `core` 目录中的对应 C++ 代码，需要注意 Android 需要准备好 cmake、ndk 等等编译环境。
+There is no need to make other changes, just recompile the native SDK. The native SDK can link to `core` corresponding C++ code in the core directory. It is necessary to pay attention to the compilation environment of cmake, ndk, etc. For Android.
 
-# 效果
+# Effects
 
 ```js
 global.TestModule.Print();

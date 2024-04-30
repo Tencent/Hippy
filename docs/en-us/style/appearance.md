@@ -2,7 +2,11 @@
 
 Includes foreground, background, border, opacity, font and other appearance styles.
 
+---
+
 # borderColor
+
+> Android default value is `transparent`，iOS default value is `black`
 
 | Type               | Required| Supported Platforms
 | ------------------ | -------- | --- |
@@ -10,11 +14,15 @@ Includes foreground, background, border, opacity, font and other appearance styl
 
 # borderTopColor
 
+> Android default value is `transparent`，iOS default value is `black`
+
 | Type               | Required| Supported Platforms
 | ------------------ | -------- | --- |
 | [color](style/color.md) |No|   Android,iOS
 
 # borderBottomColor
+
+> Android default value is `transparent`，iOS default value is `black`
 
 | Type               | Required| Supported Platforms
 | ------------------ | -------- | --- |
@@ -22,11 +30,15 @@ Includes foreground, background, border, opacity, font and other appearance styl
 
 # borderLeftColor
 
+> Android default value is `transparent`，iOS default value is `black`
+
 | Type               | Required| Supported Platforms
 | ------------------ | -------- | --- |
 | [color](style/color.md) |No|   Android,iOS
 
 # borderRightColor
+
+> Android default value is `transparent`，iOS default value is `black`
 
 | Type               | Required| Supported Platforms
 | ------------------ | -------- | --- |
@@ -100,6 +112,8 @@ Includes foreground, background, border, opacity, font and other appearance styl
 
 # borderStyle
 
+> Default value is `solid`
+
 | Type                              | Required| Supported Platforms
 | --------------------------------- | -------- | --- |
 | enum('solid', 'dotted', 'dashed') |No   |  Android,iOS.'dotted' and 'dashed' only support iOS for the time being
@@ -129,14 +143,26 @@ For custom fonts, refer to [custom font instructions](guide/custom-font)
 | Type               | Required| Supported Platforms
 | ------ | -------- | --- |
 | string |No|  Android,iOS
- 
+
 # fontSize
 
 Font size
 
+> Default value is `14`
+
 | Type   | Required| Supported Platforms
 | ------ | -------- | --- |
 | number |No|  Android,iOS
+
+# fontStyle
+
+Font style
+
+> Default value is `normal`
+
+| Type                     | Required | Supported Platforms |
+| ------------------------ | -------- | ------------------- |
+| enum('normal', 'italic') | No       | Android、iOS        |
 
 # fontWeight
 
@@ -147,6 +173,20 @@ Font weight
 | Type               | Required| Supported Platforms
 | ------ | -------- | --- |
 | number \| string |No|  Android,iOS
+
+# letterSpacing
+
+The horizontal spacing behavior between text characters
+
+[[MDN 文档]](//developer.mozilla.org/en-US/docs/Web/CSS/letter-spacing)
+
+!> hippy-vue should use @hippy/vue-css-loader `2.14.1` or above version
+
+!> On some Android devices, setting a negative value for letterSpacing has compatibility issues, which may cause line breaks at unexpected positions
+
+| Type   | Required | Supported Platforms
+| ------ | -------- | --- |
+| number | No | Android、iOS
 
 # opacity
 
@@ -287,5 +327,5 @@ Tint the image (When tinting the non-solid color image with transparency, there 
 
 | Type                               | Required| Supported Platforms
 |------------------------------------| -------- | --- |
-| enum('visible'[default], 'hidden') | No | iOS（2.9.0）
+| enum('visible'[default], 'hidden') | No | Android(2.14.5)、iOS（2.9.0）
 

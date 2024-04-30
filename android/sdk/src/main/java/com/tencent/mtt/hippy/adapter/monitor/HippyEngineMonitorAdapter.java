@@ -54,4 +54,6 @@ public interface HippyEngineMonitorAdapter {
 
     boolean onInterceptPromiseCallback(@NonNull String componentName, @NonNull String moduleName,
             @NonNull String funcName, @NonNull String callbackId, @Nullable Object callbackResult);
+
+    void reportCustomMonitorPoint(HippyRootView rootView, String eventName, long timeMillis);
 }

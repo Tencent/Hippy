@@ -555,6 +555,12 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
     return false;
   }
 
+  public HippyMap jsIsFocused() {
+    HippyMap hippyMap = new HippyMap();
+    hippyMap.pushBoolean("value", hasFocus());
+    return hippyMap;
+  }
+
   public void setBlurOrOnFocus(boolean blur) {
     if (blur) {
       setOnFocusChangeListener(this);

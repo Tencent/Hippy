@@ -45,7 +45,9 @@ public abstract class HippyImageLoader implements IImageLoaderAdapter<HippyImage
       }
     }
     HippyDrawable drawable = new HippyDrawable();
-    drawable.setData(source);
+    if (!drawable.setData(source)) {
+      return null;
+    }
     if (canCacheImage) {
       mWeakImageCache.put(imageCacheCode, new WeakReference<>(drawable));
     }

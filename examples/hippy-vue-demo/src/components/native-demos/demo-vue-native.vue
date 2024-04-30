@@ -2,7 +2,6 @@
   <div
     id="demo-vue-native"
     ref="rect"
-    @layout="onLayout"
   >
     <div>
       <!-- 操作系统平台 -->
@@ -171,13 +170,30 @@
         </div>
       </div>
 
-      <!-- 测量一个元素尺寸的范例，其实它是 measureInWindow 的封装 -->
+      <!-- 测量一个元素尺寸的范例 -->
       <div
-        v-if="Vue.Native.measureInAppWindow"
+        v-if="Vue.Native.getBoundingClientRect"
         class="native-block"
       >
-        <label class="vue-native-title">Vue.Native.measureInAppWindow</label>
-        <p>{{ rect }}</p>
+        <label class="vue-native-title">Vue.Native.getBoundingClientRect</label>
+        <div class="item-wrapper">
+          <button
+            class="item-button"
+            @click="() => getBoundingClientRect(false)"
+          >
+            <span>relative to App</span>
+          </button>
+          <span style="max-width: 200px">{{ rect1 }}</span>
+        </div>
+        <div class="item-wrapper">
+          <button
+            class="item-button"
+            @click="() => getBoundingClientRect(true)"
+          >
+            <span>relative to container</span>
+          </button>
+          <span style="max-width: 200px">{{ rect2 }}</span>
+        </div>
       </div>
 
       <!-- 本地存储使用 -->
@@ -232,6 +248,16 @@
         </div>
       </div>
 
+      <!-- Fetch使用 -->
+      <div
+        class="native-block"
+      >
+        <label class="vue-native-title">Fetch 使用</label>
+        <div class="item-wrapper">
+          <span>{{ fetchText }}</span>
+        </div>
+      </div>
+
       <!-- NetInfo使用 -->
       <div
         v-if="Vue.Native.NetInfo"
@@ -243,29 +269,29 @@
         </div>
       </div>
 
-      <!-- Clipboard使用 -->
+      <!-- Cookie 使用 -->
       <div
-        v-if="Vue.Native.Clipboard"
+        v-if="Vue.Native.Cookie"
         class="native-block"
       >
-        <label class="vue-native-title">Clipboard 使用</label>
+        <label class="vue-native-title">Cookie 使用</label>
         <div class="item-wrapper">
           <button
             class="item-button"
-            @click="setString"
+            @click="setCookie"
           >
-            <span>setString</span>
+            <span>setCookie</span>
           </button>
-          <span>{{ clipboardString }}</span>
+          <span>{{ cookieString }}</span>
         </div>
         <div class="item-wrapper">
           <button
             class="item-button"
-            @click="getString"
+            @click="getCookie"
           >
-            <span>getString</span>
+            <span>getCookie</span>
           </button>
-          <span>{{ clipboardValue }}</span>
+          <span>{{ cookiesValue }}</span>
         </div>
       </div>
     </div>
@@ -285,7 +311,8 @@ export default {
     return {
       app: this.app,
       eventTriggeredTimes: 0,
-      rect: null,
+      rect1: null,
+      rect2: null,
       Vue,
       screenIsVertical,
       storageValue: '',
@@ -293,7 +320,10 @@ export default {
       clipboardString: 'ready to set',
       clipboardValue: '',
       imageSize: '',
-      netInfoText: '正在获取..',
+      netInfoText: '正在获取...',
+      fetchText: '请求网址中...',
+      cookieString: 'ready to set',
+      cookiesValue: '',
       hasLayout: false,
     };
   },
@@ -305,8 +335,15 @@ export default {
     this.netInfoText = await Vue.Native.NetInfo.fetch();
     this.netInfoListener = Vue.Native.NetInfo.addEventListener('change', (info) => {
       this.netInfoText = `收到通知: ${info.network_info}`;
-      console.log('this.netInfoText change', this.netInfoText);
     });
+    fetch('https://hippyjs.org', {
+      mode: 'no-cors', // 2.14.0 or above supports other options(not only method/headers/url/body)
+    }).then((responseJson) => {
+      this.fetchText = `成功状态: ${responseJson.status}`;
+    })
+      .catch((error) => {
+        this.fetchText =  `收到错误: ${error}`;
+      });
   },
   async mounted() {
     this.app = getApp();
@@ -324,11 +361,16 @@ export default {
     delete this.app;
   },
   methods: {
-    async onLayout() {
-      if (!this.hasLayout) {
-        this.hasLayout = true;
-        const rect = await Vue.Native.measureInAppWindow(this.$refs.rect);
-        this.rect = `Container rect: ${JSON.stringify(rect)}`;
+    async getBoundingClientRect(relToContainer = false) {
+      try {
+        const rect = await Vue.Native.getBoundingClientRect(this.$refs.rect, { relToContainer });
+        if (!relToContainer) {
+          this.rect1 = `${JSON.stringify(rect)}`;
+        } else {
+          this.rect2 = `${JSON.stringify(rect)}`;
+        }
+      } catch (err) {
+        console.error('getBoundingClientRect error', err);
       }
     },
     triggerAppEvent() {
@@ -342,12 +384,12 @@ export default {
       this.screenIsVertical = Vue.Native.screenIsVertical;
     },
     setItem() {
-      Vue.Native.AsyncStorage.setItem('itemKey', 'storageValue');
-      this.storageSetStatus = 'set "storageValue" succeed';
+      Vue.Native.AsyncStorage.setItem('itemKey', 'hippy');
+      this.storageSetStatus = 'set "hippy" value succeed';
     },
     removeItem() {
       Vue.Native.AsyncStorage.removeItem('itemKey');
-      this.storageSetStatus = 'remove "storageValue" succeed';
+      this.storageSetStatus = 'remove "hippy" value succeed';
     },
     async getItem() {
       const storageValue = await Vue.Native.AsyncStorage.getItem('itemKey');
@@ -362,9 +404,18 @@ export default {
       console.log('ImageLoader getSize', result);
       this.imageSize = `${result.width}x${result.height}`;
     },
+    setCookie() {
+      Vue.Native.Cookie.set('https://hippyjs.org', 'name=hippy;network=mobile');
+      this.cookieString = '\'name=hippy;network=mobile\' is set';
+    },
+    getCookie() {
+      Vue.Native.Cookie.getAll('https://hippyjs.org').then((cookies) => {
+        this.cookiesValue = cookies;
+      });
+    },
     setString() {
-      Vue.Native.Clipboard.setString('clipboardValue');
-      this.clipboardString = 'clipboard set "clipboardValue" succeed';
+      Vue.Native.Clipboard.setString('hippy');
+      this.clipboardString = 'copy "hippy" value succeed';
     },
     async getString() {
       const value = await Vue.Native.Clipboard.getString();
@@ -391,7 +442,7 @@ export default {
   }
 
   .native-block p {
-    marginVertical: 5px;
+    margin-vertical: 5px;
   }
 
   .vue-native-title {
@@ -440,5 +491,6 @@ export default {
   }
   .item-button span {
     color: white;
+    text-align: center;
   }
 </style>

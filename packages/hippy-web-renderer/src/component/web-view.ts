@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29  Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +18,9 @@
  * limitations under the License.
  */
 import {  NodeProps, HippyBaseView, InnerNodeTag  } from '../types';
-import { HippyView } from './hippy-view';
+import { HippyWebView } from './hippy-web-view';
 
-export class WebView extends HippyView<HTMLIFrameElement> {
+export class WebView extends HippyWebView<HTMLIFrameElement> {
   private isMounted = false;
   public constructor(context, id, pId) {
     super(context, id, pId);

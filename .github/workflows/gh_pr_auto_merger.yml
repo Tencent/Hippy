@@ -1,0 +1,206 @@
+name: '[gh] pull request auto merger'
+
+on:
+  workflow_run:
+    workflows:
+      - \[gh\] pull request review
+    types: [ completed ]
+
+env:
+ GREETINGS_MESSAGE: ':tada: It seems that this pull request has been approved by all required reviewers.'
+ AUTO_MERGE_MESSAGE: As it only contains one normal commit, I will rebase and merge it automatically via add `action(rebase-merge)` label.
+ MANUAL_MERGE_MESSAGE: But it has more than one normal commit, I will notify admin team member to merge it manually, please wait a moment.
+ MERGE_SHA_MESSAGE: |
+  <details>
+
+    * SHA: {0}
+
+  </details>
+
+jobs:
+  call_get_workflow_output:
+    if: github.repository == 'Tencent/Hippy' && github.event.action == 'completed' && github.event.workflow_run.conclusion == 'success'
+    uses: ./.github/workflows/reuse_get_workflow_output.yml
+    with:
+      workflow_run: ${{ github.event.workflow_run.id }}
+
+  get_decision:
+    needs: call_get_workflow_output
+    runs-on: ubuntu-latest
+    outputs:
+      review_decision: ${{ steps.decision.outputs.review_decision }}
+      pull_request_number: ${{ steps.parse_workflow_output.outputs.pull_request_number }}
+      pull_request_title: ${{ steps.parse_workflow_output.outputs.pull_request_title }}
+      pull_request_url: ${{ steps.parse_workflow_output.outputs.pull_request_url }}
+      pull_request_sha: ${{ steps.parse_workflow_output.outputs.pull_request_sha }}
+    steps:
+    - name: Parse
+      id: parse_workflow_output
+      env:
+        RAW: ${{ needs.call_get_workflow_output.outputs.raw }}
+      shell: python
+      run: |
+        import json
+        import os
+
+        raw = os.getenv("RAW")
+        data = json.loads(raw)
+        with open(os.getenv("GITHUB_OUTPUT"), 'w', encoding='utf-8') as file:
+          file.write("review_state=%s\n" % data["review"]["state"])
+          file.write("pull_request_number=%s\n" % data["pull_request"]["number"])
+          file.write("pull_request_title=%s\n" % data["pull_request"]["title"])
+          file.write("pull_request_url=%s\n" % data["pull_request"]["html_url"])
+          file.write("pull_request_sha=%s\n" % data["pull_request"]["head"]["sha"])
+    - name: Decision
+      id: decision
+      if: steps.parse_workflow_output.outputs.review_state == 'approved'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const os = require('os');
+
+          const query = `query($owner:String!, $repo:String!, $number:Int!) {
+              repository(name: $repo, owner: $owner) {
+                pullRequest(number: $number) {
+                  reviewDecision
+                }
+              }
+          }`;
+          const variables = {
+            ...context.repo,
+            number: ${{ steps.parse_workflow_output.outputs.pull_request_number }}
+          };
+          const { repository: { pullRequest: { reviewDecision } } } = await github.graphql(query, variables);
+          if (reviewDecision === 'APPROVED' || !reviewDecision) {
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `review_decision=APPROVED${os.EOL}`, { encoding: 'utf8' });
+          }
+
+  call_classify_commits:
+    needs: get_decision
+    if: needs.get_decision.outputs.review_decision == 'APPROVED'
+    uses: ./.github/workflows/reuse_classify_commits.yml
+    with:
+      pull_request_number: ${{ fromJSON(needs.get_decision.outputs.pull_request_number) }}
+
+  auto_merge:
+    needs: [ get_decision, call_classify_commits ]
+    if: needs.call_classify_commits.outputs.normal_commits_count == 1
+    runs-on: ubuntu-latest
+    steps:
+    - name: Token
+      uses: navikt/github-app-token-generator@v1
+      id: get-token
+      with:
+        private-key: ${{ secrets.BOT_APP_KEY }}
+        app-id: ${{ secrets.BOT_APP_ID }}
+    - name: Auto
+      uses: actions/github-script@v6
+      env:
+        COMMENT_MESSAGE: ${{ env.GREETINGS_MESSAGE }} ${{ env.AUTO_MERGE_MESSAGE }} ${{ format(env.MERGE_SHA_MESSAGE, needs.get_decision.outputs.pull_request_sha) }}
+      with:
+        github-token: ${{ steps.get-token.outputs.token }}
+        script: |
+          const { issues } = github.rest;
+
+          const comments = await github.paginate(issues.listComments, {
+            ...context.repo,
+            per_page: 100,
+            issue_number: ${{ needs.get_decision.outputs.pull_request_number }}
+          });
+          if (comments.some((comment) => comment.body.includes(process.env.COMMENT_MESSAGE))) {
+            return;
+          }
+
+          const p = [];
+
+          p.push(issues.addLabels({
+            ...context.repo,
+            issue_number: ${{ needs.get_decision.outputs.pull_request_number }},
+            labels: [ 'action(rebase-merge)' ]
+          }));
+
+          p.push(issues.createComment({
+            ...context.repo,
+            issue_number: ${{ needs.get_decision.outputs.pull_request_number }},
+            body: process.env.COMMENT_MESSAGE
+          }));
+
+          await Promise.all(p);
+
+  manual_merge:
+    needs: [ get_decision, call_classify_commits ]
+    if: needs.call_classify_commits.outputs.normal_commits_count > 1 || !needs.call_classify_commits.outputs.normal_commits_count
+    runs-on: ubuntu-latest
+    steps:
+    - name: Token
+      uses: navikt/github-app-token-generator@v1
+      id: get-token
+      with:
+        private-key: ${{ secrets.BOT_APP_KEY }}
+        app-id: ${{ secrets.BOT_APP_ID }}
+    - name: Manual
+      uses: actions/github-script@v6
+      env:
+        WECHAT_WORK_MESSAGE: |
+          [#${{ needs.get_decision.outputs.pull_request_number }}](${{ needs.get_decision.outputs.pull_request_url }}) pull request is met merge requirements.
+          > ${{ needs.get_decision.outputs.pull_request_title }}
+          > <font color="warning">%s</font> normal commits ahead
+        COMMENT_MESSAGE: ${{ env.GREETINGS_MESSAGE }} ${{ env.MANUAL_MERGE_MESSAGE }} ${{ format(env.MERGE_SHA_MESSAGE, needs.get_decision.outputs.pull_request_sha) }}
+      with:
+        github-token: ${{ steps.get-token.outputs.token }}
+        script: |
+          const util = require('util');
+          const { issues } = github.rest;
+
+          const comments = await github.paginate(issues.listComments, {
+            ...context.repo,
+            per_page: 100,
+            issue_number: ${{ needs.get_decision.outputs.pull_request_number }}
+          });
+          if (comments.some((comment) => comment.body.includes(process.env.COMMENT_MESSAGE))) {
+            return;
+          }
+
+          const p = [];
+
+          p.push(issues.createComment({
+            ...context.repo,
+            issue_number: ${{ needs.get_decision.outputs.pull_request_number }},
+            body: process.env.COMMENT_MESSAGE
+          }));
+
+          p.push(github.request("POST ${{ secrets.WECHAT_WORK_BOT_WEBHOOK }}", {
+            headers: {
+              "content-type": "application/json"
+            },
+            data: {
+              chatid: "${{ secrets.WECHAT_WORK_ADMIN_CHAT_ID }}",
+              msgtype: "markdown",
+              markdown: {
+                content: util.format(process.env.WECHAT_WORK_MESSAGE, (Number.parseInt("${{ needs.call_classify_commits.outputs.normal_commits_count }}") || Infinity).toLocaleString()),
+                attachments: [{
+                  callback_id: "merge",
+                  actions: [{
+                    name: "merge_btn",
+                    text: "Mark as Merged",
+                    type: "button",
+                    value: "Mark as Merged",
+                    replace_text: "Already merged",
+                    border_color: "2c974b",
+                    text_color: "2c974b"
+                  }, {
+                    name: "ignore_btn",
+                    text: "Mark as Ignored",
+                    type: "button",
+                    value: "Mark as Ignored",
+                    replace_text: "Already ignored",
+                    border_color: "6e7781",
+                    text_color: "6e7781"
+                  }]
+                }]
+              }
+            }
+          }));
+
+          await Promise.all(p);

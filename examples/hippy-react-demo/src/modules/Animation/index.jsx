@@ -31,6 +31,7 @@ const styles = StyleSheet.create({
   button: {
     borderColor: SKIN_COLOR.mainLight,
     borderWidth: 2,
+    borderStyle: 'solid',
     justifyContent: 'center',
     alignItems: 'center',
     width: 70,
@@ -114,6 +115,92 @@ export default class AnimationExample extends React.Component {
       ],
       repeatCount: 'loop',
     });
+    this.rotateAnimationSet = new AnimationSet({
+      children: [
+        {
+          animation: new Animation({
+            startValue: 0,
+            toValue: 180,
+            duration: 2000,
+            delay: 0,
+            valueType: 'deg',
+            mode: 'timing',
+            timingFunction: 'linear',
+          }),
+          follow: false, // 配置子动画的执行是否跟随执行
+        },
+        {
+          animation: new Animation({
+            startValue: 180,
+            toValue: 360,
+            duration: 2000,
+            delay: 0,
+            valueType: 'deg',
+            mode: 'timing',
+            timingFunction: 'linear',
+          }),
+          follow: true,
+        },
+      ],
+      repeatCount: 'loop',
+    });
+    // iOS support skew animation after 2.14.1
+    this.skewXAnimationSet = new AnimationSet({
+      children: [
+        {
+          animation: new Animation({
+            startValue: 0,
+            toValue: 20,
+            duration: 2000,
+            delay: 0,
+            mode: 'timing',
+            timingFunction: 'linear',
+          }),
+          follow: false, // 配置子动画的执行是否跟随执行
+        },
+        {
+          animation: new Animation({
+            startValue: 20,
+            toValue: 0,
+            duration: 2000,
+            delay: 0,
+            mode: 'timing',
+            timingFunction: 'linear',
+          }),
+          follow: true,
+        },
+      ],
+      repeatCount: 'loop',
+    });
+    // iOS support skew animation after 2.14.1
+    this.skewYAnimationSet = new AnimationSet({
+      children: [
+        {
+          animation: new Animation({
+            startValue: 0,
+            toValue: 20,
+            duration: 2000,
+            delay: 0,
+            mode: 'timing',
+            timingFunction: 'linear',
+          }),
+          follow: false, // 配置子动画的执行是否跟随执行
+        },
+        {
+          animation: new Animation({
+            startValue: 20,
+            toValue: 0,
+            duration: 2000,
+            delay: 0,
+            mode: 'timing',
+            timingFunction: 'linear',
+          }),
+          follow: true,
+        },
+      ],
+      repeatCount: 'loop',
+    });
+
     this.bgColorAnimationSet = new AnimationSet({
       children: [
         {
@@ -143,7 +230,7 @@ export default class AnimationExample extends React.Component {
       ],
       repeatCount: 'loop',
     });
-    // TODO iOS暂不支持文字颜色渐变动画
+    // iOS support text color animation since 2.17.1
     this.txtColorAnimationSet = new AnimationSet({
       children: [
         {
@@ -211,38 +298,57 @@ export default class AnimationExample extends React.Component {
       this.scaleAnimationSet.setRef(this.scaleRef);
       this.bgColorAnimationSet.setRef(this.bgColorRef);
       this.txtColorAnimationSet.setRef(this.textColorRef);
+      this.txtColorAnimationSet.setRef(this.textColorRef);
       this.cubicBezierScaleAnimationSet.setRef(this.cubicBezierScaleRef);
+      this.rotateAnimationSet.setRef(this.rotateRef);
+      this.skewXAnimationSet.setRef(this.skewRef);
+      this.skewYAnimationSet.setRef(this.skewRef);
     }
-    this.horizonAnimation.onHippyAnimationStart(() => {
+    this.horizonAnimation.onAnimationStart(() => {
       /* eslint-disable-next-line no-console */
       console.log('on animation start!!!');
     });
-    this.horizonAnimation.onHippyAnimationEnd(() => {
+    this.horizonAnimation.onAnimationEnd(() => {
       /* eslint-disable-next-line no-console */
       console.log('on animation end!!!');
     });
-    this.horizonAnimation.onHippyAnimationCancel(() => {
+    this.horizonAnimation.onAnimationCancel(() => {
       /* eslint-disable-next-line no-console */
       console.log('on animation cancel!!!');
     });
-    this.horizonAnimation.onHippyAnimationRepeat(() => {
+    this.horizonAnimation.onAnimationRepeat(() => {
       /* eslint-disable-next-line no-console */
-      console.log('on animation end!!!');
+      console.log('on animation repeat!!!');
     });
   }
 
   componentWillUnmount() { // 如果动画没有销毁，需要在此处保证销毁动画，以免动画后台运行耗电
-    if (this.scaleAnimationSet) {
-      this.scaleAnimationSet.destroy();
-    }
     if (this.horizonAnimation) {
       this.horizonAnimation.destroy();
     }
     if (this.verticalAnimation) {
       this.verticalAnimation.destroy();
     }
+    if (this.scaleAnimationSet) {
+      this.scaleAnimationSet.destroy();
+    }
+    if (this.bgColorAnimationSet) {
+      this.bgColorAnimationSet.destroy();
+    }
+    if (this.txtColorAnimationSet) {
+      this.txtColorAnimationSet.destroy();
+    }
     if (this.cubicBezierScaleAnimationSet) {
       this.cubicBezierScaleAnimationSet.destroy();
+    }
+    if (this.rotateAnimationSet) {
+      this.rotateAnimationSet.destroy();
+    }
+    if (this.skewXAnimationSet) {
+      this.skewXAnimationSet.destroy();
+    }
+    if (this.skewYAnimationSet) {
+      this.skewYAnimationSet.destroy();
     }
   }
 
@@ -333,7 +439,90 @@ export default class AnimationExample extends React.Component {
             }]}
           />
         </View>
-        <Text style={styles.title}>组合形变动画</Text>
+        <Text style={styles.title}>旋转动画</Text>
+        <View style={styles.buttonContainer}>
+          <View
+            style={styles.button}
+            onClick={() => {
+              this.rotateAnimationSet.start();
+            }}
+          >
+            <Text style={styles.buttonText}>开始</Text>
+          </View>
+          <View
+            style={[styles.button]}
+            onClick={() => {
+              this.rotateAnimationSet.pause();
+            }}
+          >
+            <Text style={styles.buttonText}>暂停</Text>
+          </View>
+          <View
+            style={styles.button}
+            onClick={() => {
+              this.rotateAnimationSet.resume();
+            }}
+          >
+            <Text style={styles.buttonText}>继续</Text>
+          </View>
+        </View>
+        <View style={styles.showArea}>
+          <View
+            ref={(ref) => {
+              this.rotateRef = ref;
+            }}
+            style={[styles.square, {
+              transform: [{
+                rotate: this.rotateAnimationSet,
+              }],
+            }]}
+          />
+        </View>
+        <Text style={styles.title}>倾斜动画</Text>
+        <View style={styles.buttonContainer}>
+          <View
+            style={styles.button}
+            onClick={() => {
+              this.skewXAnimationSet.start();
+              this.skewYAnimationSet.start();
+            }}
+          >
+            <Text style={styles.buttonText}>开始</Text>
+          </View>
+          <View
+            style={[styles.button]}
+            onClick={() => {
+              this.skewXAnimationSet.pause();
+              this.skewYAnimationSet.pause();
+            }}
+          >
+            <Text style={styles.buttonText}>暂停</Text>
+          </View>
+          <View
+            style={styles.button}
+            onClick={() => {
+              this.skewXAnimationSet.resume();
+              this.skewYAnimationSet.resume();
+            }}
+          >
+            <Text style={styles.buttonText}>继续</Text>
+          </View>
+        </View>
+        <View style={styles.showArea}>
+          <View
+            ref={(ref) => {
+              this.skewRef = ref;
+            }}
+            style={[styles.square, {
+              transform: [{
+                skewX: this.skewXAnimationSet,
+              }, {
+                skewY: this.skewYAnimationSet,
+              }],
+            }]}
+          />
+        </View>
+        <Text style={styles.title}>缩放动画</Text>
         <View style={styles.buttonContainer}>
           <View
             style={styles.button}
@@ -372,7 +561,7 @@ export default class AnimationExample extends React.Component {
             }]}
           />
         </View>
-        <Text style={styles.title}>颜色渐变动画（文字渐变仅Android支持）</Text>
+        <Text style={styles.title}>颜色渐变动画</Text>
         <View style={styles.buttonContainer}>
           <View
               style={styles.button}
@@ -418,8 +607,8 @@ export default class AnimationExample extends React.Component {
           ><Text ref={(ref) => {
             this.textColorRef = ref;
           }} style={[styles.colorText, {
-            // TODO iOS暂不支持文字颜色渐变动画
-            color: Platform.OS === 'android' ? this.txtColorAnimationSet : 'white',
+            // iOS support text color animation since 2.17.1
+            color: this.txtColorAnimationSet,
           }]}>颜色渐变背景和文字</Text></View>
         </View>
 

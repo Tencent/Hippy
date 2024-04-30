@@ -16,11 +16,21 @@
 
 package com.tencent.mtt.hippy.bridge;
 
+import android.content.Context;
+import android.content.res.AssetManager;
+import android.text.TextUtils;
+
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngine.V8InitParams;
 import com.tencent.mtt.hippy.HippyEngineContext;
+import com.tencent.mtt.hippy.common.Callback;
+import com.tencent.mtt.hippy.common.HippyArray;
+import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.devsupport.DebugWebSocketClient;
+import com.tencent.mtt.hippy.devsupport.DevRemoteDebugProxy;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
+import com.tencent.mtt.hippy.devsupport.inspector.Inspector;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleInfo;
 import com.tencent.mtt.hippy.serialization.PrimitiveValueDeserializer;
@@ -29,33 +39,23 @@ import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
 import com.tencent.mtt.hippy.serialization.nio.reader.SafeDirectReader;
 import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
 import com.tencent.mtt.hippy.serialization.string.InternalizedStringTable;
-import com.tencent.mtt.hippy.devsupport.inspector.Inspector;
+import com.tencent.mtt.hippy.utils.ArgumentUtils;
+import com.tencent.mtt.hippy.utils.FileUtils;
+import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
-import com.tencent.mtt.hippy.utils.UrlUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import android.content.Context;
-import android.content.res.AssetManager;
-import android.text.TextUtils;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import com.tencent.mtt.hippy.common.HippyArray;
-import com.tencent.mtt.hippy.devsupport.DebugWebSocketClient;
-import com.tencent.mtt.hippy.devsupport.DevRemoteDebugProxy;
-import com.tencent.mtt.hippy.utils.ArgumentUtils;
-import com.tencent.mtt.hippy.utils.FileUtils;
-import com.tencent.mtt.hippy.utils.LogUtils;
-
-import java.nio.ByteOrder;
 
 @SuppressWarnings({"unused", "JavaJniMissingFunction"})
 public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnReceiveDataListener {
@@ -70,13 +70,12 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     private long mV8RuntimeId = 0;
     private BridgeCallback mBridgeCallback;
     private boolean mInit = false;
-    private final boolean mIsDevModule;
+    private final HippyEngine.DebugMode mDebugMode;
     private String mDebugServerHost;
     private final boolean mSingleThreadMode;
     private final boolean enableV8Serialization;
     private DebugWebSocketClient mDebugWebSocketClient;
     private String mDebugGlobalConfig;
-    private NativeCallback mDebugInitJSFrameworkCallback;
     private HippyEngineContext mContext;
     @Nullable
     private Deserializer mCompatibleDeserializer;
@@ -88,16 +87,15 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     private Inspector mInspector;
 
     public HippyBridgeImpl(HippyEngineContext engineContext, BridgeCallback callback,
-            boolean singleThreadMode, boolean enableV8Serialization, boolean isDevModule,
+            boolean singleThreadMode, boolean enableV8Serialization, HippyEngine.DebugMode debugMode,
             String debugServerHost, V8InitParams v8InitParams) {
         this.mBridgeCallback = callback;
         this.mSingleThreadMode = singleThreadMode;
         this.enableV8Serialization = enableV8Serialization;
-        this.mIsDevModule = isDevModule;
+        this.mDebugMode = debugMode;
         this.mDebugServerHost = debugServerHost;
         this.mContext = engineContext;
         this.v8InitParams = v8InitParams;
-
         synchronized (sBridgeSyncLock) {
             if (mCodeCacheRootDir == null) {
                 Context context = mContext.getGlobalConfigs().getContext();
@@ -117,48 +115,82 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
         }
     }
 
-    @Override
-    public void initJSBridge(String globalConfig, NativeCallback callback, final int groupId) {
-        mDebugGlobalConfig = globalConfig;
-        mDebugInitJSFrameworkCallback = callback;
+    public static int createSnapshotFromScript(String[] script, String basePath, String uri, Context context) {
+        HippyMap globalParams = new HippyMap();
+        assert (context != null);
+        HippyMap dimensionMap = DimensionsUtil.getDimensions(-1, -1, context, false);
+        globalParams.pushMap("Dimensions", dimensionMap);
+        HippyMap platformParams = new HippyMap();
+        platformParams.pushString("OS", "android");
+        globalParams.pushMap("Platform", platformParams);
+        return createSnapshot(script, basePath, uri, ArgumentUtils.objectToJson(globalParams));
+    };
 
-        if (this.mIsDevModule) {
-            mDebugWebSocketClient = new DebugWebSocketClient();
-            mDebugWebSocketClient.setOnReceiveDataCallback(this);
-            if (TextUtils.isEmpty(mDebugServerHost)) {
-                mDebugServerHost = "localhost:38989";
-            }
-            DevSupportManager devSupportManager = mContext.getDevSupportManager();
-            mInspector = devSupportManager.getInspector()
-                    .setEngineContext(mContext, mDebugWebSocketClient);
-            String debugUrl = devSupportManager.createDebugUrl(mDebugServerHost);
-            mDebugWebSocketClient.connect(debugUrl, new DebugWebSocketClient.JSDebuggerCallback() {
+    @Override
+    public void initJSBridge(String globalConfig, final NativeCallback callback, final int groupId) {
+        mDebugGlobalConfig = globalConfig;
+
+        if (mDebugMode == HippyEngine.DebugMode.Dev) {
+            createDebugSocketClient("", new DebugWebSocketClient.JSDebuggerCallback() {
                 @SuppressWarnings("unused")
                 @Override
                 public void onSuccess(String response) {
                     LogUtils.d("hippyCore", "js debug socket connect success");
-                    initJSEngine(groupId);
+                    initJSEngine(groupId, callback);
                 }
 
                 @SuppressWarnings("unused")
                 @Override
                 public void onFailure(final Throwable cause) {
                     LogUtils.e("hippyCore", "js debug socket connect failed");
-                    initJSEngine(groupId);
+                    initJSEngine(groupId, callback);
                 }
             });
         } else {
-            initJSEngine(groupId);
+            initJSEngine(groupId, callback);
         }
     }
 
-    private void initJSEngine(int groupId) {
+    private void createDebugSocketClient(String wsDebugUrl, DebugWebSocketClient.JSDebuggerCallback cb) {
+        mDebugWebSocketClient = new DebugWebSocketClient();
+        mDebugWebSocketClient.setOnReceiveDataCallback(this);
+        if (TextUtils.isEmpty(mDebugServerHost)) {
+          mDebugServerHost = "localhost:38989";
+        }
+        DevSupportManager devSupportManager = mContext.getDevSupportManager();
+        if (!"".equals(wsDebugUrl)) {
+          devSupportManager.setRemoteServerData(wsDebugUrl);
+        }
+        mInspector = devSupportManager.getInspector()
+                .setEngineContext(mContext, mDebugWebSocketClient);
+        String debugUrl = devSupportManager.createDebugUrl(mDebugServerHost);
+        mDebugWebSocketClient.connect(debugUrl, cb);
+    }
+
+    public void connectDebugUrl(String wsDebugUrl) {
+        createDebugSocketClient(wsDebugUrl, new DebugWebSocketClient.JSDebuggerCallback() {
+            @SuppressWarnings("unused")
+            @Override
+            public void onSuccess(String response) {
+                LogUtils.d("hippyCore", "js debug socket connect success; from business");
+            }
+
+            @SuppressWarnings("unused")
+            @Override
+            public void onFailure(final Throwable cause) {
+                LogUtils.e("hippyCore", "js debug socket connect failed; from business");
+            }
+        });
+    }
+
+    private void initJSEngine(int groupId, final NativeCallback callback) {
         synchronized (HippyBridgeImpl.class) {
             try {
                 byte[] globalConfig = mDebugGlobalConfig.getBytes(StandardCharsets.UTF_16LE);
                 mV8RuntimeId = initJSFramework(globalConfig, mSingleThreadMode,
                         enableV8Serialization,
-                        mIsDevModule, mDebugInitJSFrameworkCallback, groupId, v8InitParams);
+                        mDebugMode == HippyEngine.DebugMode.Dev || mDebugMode == HippyEngine.DebugMode.UserLocal,
+                        callback, groupId, v8InitParams);
                 mInit = true;
             } catch (Throwable e) {
                 if (mBridgeCallback != null) {
@@ -255,9 +287,9 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     }
 
     @Override
-    public void onDestroy() {
+    public void onDestroy(boolean isReload) {
         if (mDebugWebSocketClient != null) {
-            mDebugWebSocketClient.closeQuietly();
+            mDebugWebSocketClient.close(isReload ? Inspector.CLOSE_RELOAD : Inspector.CLOSE_DESTROY, "");
             mDebugWebSocketClient = null;
         }
         if (mInspector != null) {
@@ -281,8 +313,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     }
 
     @Override
-    public void destroy(NativeCallback callback) {
-        destroy(mV8RuntimeId, mSingleThreadMode, callback);
+    public void destroy(NativeCallback callback, boolean isReload) {
+        destroy(mV8RuntimeId, mSingleThreadMode, isReload, callback);
     }
 
     @Override
@@ -290,7 +322,14 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
         runScript(mV8RuntimeId, script);
     }
 
-    public native long initJSFramework(byte[] gobalConfig, boolean useLowMemoryMode,
+    @Override
+    public void runInJsThread(Callback<Void> callback) {
+      runInJsThread(mV8RuntimeId, callback);
+    }
+
+    public static native int createSnapshot(String[] script, String path, String uri, String config);
+
+    public native long initJSFramework(byte[] globalConfig, boolean useLowMemoryMode,
             boolean enableV8Serialization, boolean isDevModule, NativeCallback callback,
             long groupId, V8InitParams v8InitParams);
 
@@ -299,7 +338,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     public native boolean runScriptFromUri(String uri, AssetManager assetManager,
             boolean canUseCodeCache, String codeCacheDir, long V8RuntimeId, NativeCallback callback);
 
-    public native void destroy(long runtimeId, boolean useLowMemoryMode, NativeCallback callback);
+    public native void destroy(long runtimeId, boolean useLowMemoryMode, boolean isReload, NativeCallback callback);
 
     public native void callFunction(String action, long runtimeId, NativeCallback callback,
             ByteBuffer buffer, int offset, int length);
@@ -308,6 +347,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
             byte[] buffer, int offset, int length);
 
     public native void onResourceReady(ByteBuffer output, long runtimeId, long resId);
+
+    private native void runInJsThread(long runtimeId, Callback<Void> callback);
 
     public void callNatives(String moduleName, String moduleFunc, String callId, byte[] buffer) {
         callNatives(moduleName, moduleFunc, callId, ByteBuffer.wrap(buffer));
@@ -341,7 +382,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
                     return;
                 }
                 DevSupportManager devManager = mContext.getDevSupportManager();
-                if (TextUtils.isEmpty(uri) || !UrlUtils.isWebUrl(uri) || devManager == null) {
+                if (TextUtils.isEmpty(uri) || devManager == null) {
                     LogUtils.e("HippyBridgeImpl",
                             "fetchResourceWithUri: can not call loadRemoteResource with " + uri);
                     return;
@@ -456,7 +497,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
     @Override
     public void onReceiveData(String msg) {
-        if (this.mIsDevModule) {
+        if (mDebugMode == HippyEngine.DebugMode.Dev || mDebugMode == HippyEngine.DebugMode.UserLocal) {
             boolean isInspectMsg =
                     mInspector != null && mInspector.dispatchReqFromFrontend(mContext, msg);
             if (!isInspectMsg) {

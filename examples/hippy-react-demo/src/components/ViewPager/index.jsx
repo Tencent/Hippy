@@ -64,6 +64,7 @@ export default class PagerExample extends React.Component {
     constructor(props) {
       super(props);
       this.onPageSelected = this.onPageSelected.bind(this);
+      this.onPageScrollStateChanged = this.onPageScrollStateChanged.bind(this);
     }
 
     onPageSelected(pageData) {
@@ -106,6 +107,7 @@ export default class PagerExample extends React.Component {
             keyboardDismissMode="none"
             scrollEnabled
             onPageSelected={this.onPageSelected}
+            onPageScrollStateChanged={this.onPageScrollStateChanged}
             onPageScroll={this.onPageScroll}
           >
             {

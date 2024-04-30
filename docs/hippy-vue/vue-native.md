@@ -6,6 +6,8 @@ hippy-vue 通过在 Vue 上绑定了一个 `Native` 属性，实现获取终端�
 
 > 对应 Demo: [demo-vue-native.vue](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-vue-native.vue)
 
+---
+
 # 获取终端信息
 
 它无需任何方法，直接取值即可。
@@ -194,26 +196,6 @@ Vue.Native.AsyncStorage.getItem('itemKey');
 
 ---
 
-# Clipboard
-
-剪贴板读写模块，但是目前只支持纯文本。
-
-## 方法
-
-### getString()
-
-返回值：
-
-* string
-
-### setString(content)
-
-| 参数 | 类型     | 必需 | 参数意义 |
-| --------  | -------- | -------- |  -------- |
-| content | string | 是       | 保存进入剪贴板的内容 |
-
----
-
 # ConsoleModule
 
 > 最低支持版本 2.10.0
@@ -245,7 +227,7 @@ Vue.Native.AsyncStorage.getItem('itemKey');
 
 # Cookie
 
-Hippy 中通过 fetch 服务返回的 `set-cookie` Header 会自动将 Cookie 保存起来，下次再发出请求的时候就会带上，然后终端提供了这个界面让 业务可以获取或者修改保存好的 Cookie。
+Hippy 中通过 fetch 服务返回的 `set-cookie` Header 会自动将 Cookie 保存起来，下次再发出请求的时候就会带上，业务可以获取或者修改保存好的 Cookie。
 
 ## 方法
 
@@ -253,11 +235,11 @@ Hippy 中通过 fetch 服务返回的 `set-cookie` Header 会自动将 Cookie �
 
 | 参数 | 类型     | 必需 | 参数意义 |
 | --------  | -------- | -------- |  -------- |
-| url | string | 是       | 获取指定 URL 下设置的 cookie |
+| url | string | 是       | 获取指定 url 下的所有 cookies，`2.14.0` 版本后过期的 Cookies 将不再返回。 |
 
 返回值：
 
-* `Prmoise<string>`，类似 `name=someone;gender=female` 的字符串，需要业务自己手工解析一下。
+* `Prmoise<string>`，获取到诸如 `name=hippy;network=mobile` 的字符串。
 
 ### set(url, keyValue, expireDate)
 
@@ -265,9 +247,9 @@ Hippy 中通过 fetch 服务返回的 `set-cookie` Header 会自动将 Cookie �
 
 | 参数 | 类型     | 必需 | 参数意义 |
 | -------- | -------- | -------- |  -------- |
-| url | string | 是       | 设置指定 URL 下设置的 cookie |
-| keyValue | string | 是       | 需要设置成 Cookie 的完整字符串，例如`name=someone;gender=female` |
-| expireDate | Date | 否 | Date 类型的过期时间，不填不过期 |
+| url | string | 是   | 设置指定 URL 下设置的 cookie |
+| keyValue | string | 是   | 需要设置成 cookie 的完整字符串，例如 `name=hippy;network=mobile`，`2.14.0` 版本后设置 `空字符串` 会强制清除（过期）指定域名下的所有 Cookies |
+| expireDate | Date | 否 | Date 类型的过期时间，不填不过期, 内部会通过 `toUTCString` 转成 `String` 传给客户端 |
 
 ---
 
@@ -275,7 +257,7 @@ Hippy 中通过 fetch 服务返回的 `set-cookie` Header 会自动将 Cookie �
 
 获取具体节点的 CSS 样式。
 
-> 最低支持版本 2.10.1
+> 最低支持版本 `2.10.1`
 
 `(ref: ElementNode) => {}`
 
@@ -288,21 +270,21 @@ console.log(Vue.Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0
 
 ---
 
-# ImageLoaderModule
+# ImageLoader
 
 通过该模块可以对远程图片进行相应操作
 
-> 最低支持版本 2.7.0
+> 最低支持版本 `2.7.0`
 
 ## 方法
 
-### ImageLoaderModule.getSize
+### ImageLoader.getSize
 
 `(url: string) => Promise<{width, height}>` 获取图片大小（会同时预加载图片）。
 
 > * url - 图片地址
 
-### ImageLoaderModule.prefetch
+### ImageLoader.prefetch
 
 `(url: string) => void` 用于预加载图片。
 
@@ -312,21 +294,35 @@ console.log(Vue.Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0
 
 # measureInAppWindow
 
-> 最低支持版本 2.11.0
+> 最低支持版本 `2.11.0`
 
 测量在 App 窗口范围内某个组件的尺寸和位置，注意需要保证节点实例真正上屏后（layout事件后）才能调用该方法。
 
 `(ref) => Promise<{top: number, left: number, right: number, bottom: number, width: number, height: number}>`
 
-> * Promise resolve 的参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错或 [节点被优化（仅在Android）](hippy-vue/components?id=样式内特殊属性) 会返回 { top: -1, left: -1, right: -1, bottom: -1, width: -1, height: -1 }
+> * Promise resolve 的参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错或 [节点被优化（仅在Android）](style/layout?id=collapsable) 会返回 { top: -1, left: -1, right: -1, bottom: -1, width: -1, height: -1 }
+
+---
+
+# getBoundingClientRect
+
+> 最低支持版本 `2.15.3`，原有 `measureInWindow` 和 `measureInAppWindow` 将逐渐废弃
+
+测量元素在宿主容器（RootView）或者 App 窗口（屏幕）范围内的尺寸和位置。
+
+`(instance: ref, options: { relToContainer: boolean }) => Promise<DOMRect: { x: number, y: number, width: number, height: number, bottom: number, right: number, left: number, top: number }>`
+
+> * instance: 元素或组件的引用 Ref。
+> * options: 可选参数，`relToContainer` 表示是否相对宿主容器（RootView）进行测量，默认 `false` 相对 App 窗口或屏幕进行测量。当对宿主容器（RootView）进行测量时，`iOS` 包含顶部状态栏高度，`Android` 不包含。
+> * DOMRect: 与 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Element/getBoundingClientRect) 一致的返回参数, 可以获取元素相应的位置信息和尺寸，如果出错或者 [节点被优化（仅在Android）](style/layout?id=collapsable)，会触发 `Promise.reject`。
 
 ---
 
 # NetInfo
 
-通过该接口可以获得当前设备的网络状态，也可以注册一个监听器，当系统网络切换的时候，得到一个通知。
+通过该接口可以获得当前设备的网络状态；也可以注册一个监听器，当系统网络切换的时候，得到网络变化通知。
 
-> 最低支持版本 2.7.0
+> 最低支持版本 `2.7.0`
 
 安卓的开发者，在请求网络状态之前，你需要在app的 `AndroidManifest.xml` 加入以下配置 :
 

@@ -3,7 +3,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2019-2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,13 +26,14 @@
 #include "bridge/java2js.h"
 #include "bridge/js2java.h"
 #include "bridge/runtime.h"
-#include "bridge/serializer.h"
+#include "core/vm/v8/serializer.h"
 #include "jni/exception_handler.h"
 #include "jni/jni_env.h"
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
 #include "jni/scoped_java_ref.h"
 #include "loader/adr_loader.h"
+#include "performance/memory.h"
 #ifndef V8_WITHOUT_INSPECTOR
 #include "inspector/v8_channel_impl.h"
 #include "inspector/v8_inspector_client_impl.h"

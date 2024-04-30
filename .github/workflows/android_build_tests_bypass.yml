@@ -14,9 +14,18 @@ on:
       - 'settings.gradle'
       - 'gradlew'
       - 'gradlew.bat'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   android_build_tests:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        type: [debug, release]
+        v8: [v8_min, v8_target]
     steps:
     - name: Build Test Bypass
       run: |

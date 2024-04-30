@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29  Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@
 import { NodeProps, HippyBaseView, InnerNodeTag } from '../types';
 
 import { setElementStyle } from '../common';
-import { HippyView } from './hippy-view';
+import { HippyWebView } from './hippy-web-view';
 
 const BounceBackTime = 200;
 const BounceBackEasingFunction = 'cubic-bezier(0.645, 0.045, 0.355, 1)';
@@ -31,7 +31,7 @@ const PullOverStage = [
   { threshold: [100, Number.MAX_SAFE_INTEGER], damp: 0.2 },
 ];
 
-export class RefreshWrapper extends HippyView<HTMLDivElement> {
+export class RefreshWrapper extends HippyWebView<HTMLDivElement> {
   private pullRefresh!: PullRefresh;
   public constructor(context, id, pId) {
     super(context, id, pId);
@@ -91,7 +91,7 @@ export class RefreshWrapper extends HippyView<HTMLDivElement> {
     }, 500);
   }
 }
-export class RefreshWrapperItemView extends HippyView<HTMLDivElement> {
+export class RefreshWrapperItemView extends HippyWebView<HTMLDivElement> {
   public constructor(context, id, pId) {
     super(context, id, pId);
     this.tagName = InnerNodeTag.REFRESH_ITEM;
@@ -126,15 +126,33 @@ class PullRefresh {
     return this.refreshHeadHeight > PullOverThreshold ? this.refreshHeadHeight : PullOverThreshold;
   }
 
+  public get endYOffset() {
+    return 0 - this.refreshContent?.clientHeight;
+  }
+
   public init() {
     this.contentStyleCache = this.scrollContent.style;
     this.scrollContent.addEventListener('touchstart', this.handleTouchStart);
     this.scrollContent.addEventListener('touchmove', this.handlerTouchMove);
     this.scrollContent.addEventListener('touchend', this.handlerTouchEnd);
+    this.resetRefreshContentTop();
+  }
+
+  public resetRefreshContentTop() {
+    setElementsStyle([this.refreshContent], { transform:
+        buildTranslate(0, `${(-this.refreshContent.clientHeight) ?? 0}px`) });
   }
 
   public finish() {
-    setElementsStyle([this.scrollContent, this.refreshContent], {
+    setElementsStyle([this.refreshContent], {
+      transform: buildTranslate(0, `${this.endYOffset}px`),
+      transition: buildTransition(
+        'transform',
+        `${BounceBackTime / 1000}`,
+        BounceBackEasingFunction,
+      ),
+    });
+    setElementsStyle([this.scrollContent], {
       transform: buildTranslate(0, 0),
       transition: buildTransition(
         'transform',
@@ -181,7 +199,8 @@ class PullRefresh {
         this.refreshHeadHeight = this.refreshContent.clientHeight;
         setElementStyle(this.refreshContent, { top: -this.refreshContent.clientHeight });
       }
-      setElementStyle(this.refreshContent, { transform: buildTranslate(0, `${(realMove - this.refreshContent.clientHeight) ?? 0}px`) });
+      setElementStyle(this.refreshContent, { transform:
+          buildTranslate(0, `${(realMove - this.refreshContent.clientHeight) ?? 0}px`) });
       this.refreshStatus = this.moveLengthRecord >= this.overScrollThreshold;
     }
     return realMove;
@@ -231,9 +250,7 @@ class PullRefresh {
           transform: buildTranslate(0, `${(this.overScrollThreshold - this.refreshContent.clientHeight) ?? 0}px`),
         });
       } else {
-        setElementsStyle([this.scrollContent, this.refreshContent], {
-          transform: buildTranslate(0, 0),
-        });
+        this.finish();
         setTimeout(() => {
           this.moveLengthRecord = 0;
           this.touchMove = 0;

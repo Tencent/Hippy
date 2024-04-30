@@ -27,6 +27,7 @@ import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.PullFooterRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerView;
 import com.tencent.mtt.hippy.views.list.HippyListView;
 
 @SuppressWarnings({"deprecation", "unused"})
@@ -52,17 +53,21 @@ public class HippyPullFooterViewController extends HippyViewController<HippyPull
   }
 
   @Override
+  public void onViewDestroy(HippyPullFooterView pullFooterView) {
+    pullFooterView.onDestroy();
+  }
+
+  @Override
   public void dispatchFunction(HippyPullFooterView view, String functionName, HippyArray dataArray) {
     super.dispatchFunction(view, functionName, dataArray);
-    View parent = view.getParentView();
-    switch (functionName) {
-      case "collapsePullFooter": {
-        if (parent instanceof HippyListView) {
-          ((HippyListView) parent).onFooterRefreshFinish();
-        } else if (parent instanceof IFooterContainer) {
-          ((IFooterContainer) parent).onFooterRefreshFinish();
-        }
-        break;
+    View recyclerView = view.getRecyclerView();
+    if (functionName.equals("collapsePullFooter")) {
+      if (recyclerView instanceof HippyRecyclerView) {
+        ((HippyRecyclerView) recyclerView).getAdapter().onFooterRefreshCompleted();
+      } else if (recyclerView instanceof HippyListView) {
+        ((HippyListView) recyclerView).onFooterRefreshFinish();
+      } else if (recyclerView instanceof IFooterContainer) {
+        ((IFooterContainer) recyclerView).onFooterRefreshFinish();
       }
     }
   }

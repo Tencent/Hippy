@@ -97,4 +97,6 @@ public abstract class InspectorDomain {
   public void onFrontendClosed(HippyEngineContext context) {
   }
 
+  public void onDestroy() {}
+
 }

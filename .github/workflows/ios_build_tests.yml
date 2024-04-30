@@ -9,10 +9,23 @@ on:
       - 'ios/**'
       - 'core/**'
       - 'hippy.podspec'
+      - 'examples/ios-demo/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   ios_build_tests:
     runs-on: macos-latest
+    strategy:
+      matrix:
+        type: [debug, release]
+        include:
+          - type: debug
+            configuration: Debug
+          - type: release
+            configuration: Release
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -20,4 +33,22 @@ jobs:
           lfs: true
       - name: Build
         run: |
-          pushd examples/ios-demo && xcodebuild build -destination 'name=iPhone 11' -scheme 'HippyDemo' && popd
+          pushd examples/ios-demo
+          pod install
+          xcodebuild -workspace 'HippyDemo.xcworkspace' -list | \
+          sed -n '/Schemes/,/^$/p' | \
+          grep -v "Schemes:" | \
+          grep -v '^\s*$' | \
+          while read scheme; do
+            echo "Building ${scheme}…"
+
+            xcodebuild build \
+              -destination "generic/platform=iOS" \
+              -workspace "HippyDemo.xcworkspace" \
+              -scheme "${scheme}" \
+              -configuration "${{ matrix.configuration }}" \
+              CODE_SIGN_IDENTITY="" \
+              CODE_SIGNING_REQUIRED=NO \
+              CODE_SIGNING_ALLOWED=NO
+          done
+          popd

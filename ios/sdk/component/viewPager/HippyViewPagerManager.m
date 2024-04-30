@@ -31,44 +31,35 @@ HIPPY_EXPORT_MODULE(ViewPager)
     return [HippyViewPager new];
 }
 
+HIPPY_EXPORT_VIEW_PROPERTY(bounces, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(initialPage, NSInteger)
 HIPPY_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(loop, BOOL)
 
 HIPPY_EXPORT_VIEW_PROPERTY(onPageSelected, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onPageScroll, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(bounces, BOOL)
 
-// clang-format off
+
+- (void)setPage:(NSNumber *)pageNumber withTag:(NSNumber * _Nonnull)hippyTag animated:(BOOL)animated {
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager,
+                                        NSDictionary<NSNumber *, UIView *> *viewRegistry){
+        UIView *view = viewRegistry[hippyTag];
+        if (![view isKindOfClass:[HippyViewPager class]]) {
+            HippyLogError(@"tried to setPage: on an error viewPager %@ with tag #%@", view, hippyTag);
+        }
+        NSInteger pageNumberInteger = pageNumber.integerValue;
+        [(HippyViewPager *)view setPage:pageNumberInteger animated:animated];
+    }];
+}
+
 HIPPY_EXPORT_METHOD(setPage:(nonnull NSNumber *)hippyTag
-        pageNumber:(__unused NSNumber *)pageNumber) {
-    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
-        UIView *view = viewRegistry[hippyTag];
-
-        if (view == nil || ![view isKindOfClass:[HippyViewPager class]]) {
-            HippyLogError(@"tried to setPage: on an error viewPager %@ "
-                        "with tag #%@", view, hippyTag);
-        }
-        NSInteger pageNumberInteger = pageNumber.integerValue;
-        [(HippyViewPager *)view setPage:pageNumberInteger animated:YES];
-    }];
+                    pageNumber:(__unused NSNumber *)pageNumber) {
+    [self setPage:pageNumber withTag:hippyTag animated:YES];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)hippyTag
-        pageNumber:(__unused NSNumber *)pageNumber) {
-    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
-        UIView *view = viewRegistry[hippyTag];
-        if (view == nil || ![view isKindOfClass:[HippyViewPager class]]) {
-            HippyLogError(@"tried to setPage: on an error viewPager %@ "
-                        "with tag #%@", view, hippyTag);
-        }
-        NSInteger pageNumberInteger = pageNumber.integerValue;
-        [(HippyViewPager *)view setPage:pageNumberInteger animated:NO];
-    }];
+                    pageNumber:(__unused NSNumber *)pageNumber) {
+    [self setPage:pageNumber withTag:hippyTag animated:NO];
 }
-// clang-format on
 
 @end

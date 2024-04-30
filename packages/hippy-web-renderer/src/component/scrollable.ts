@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29  Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +24,7 @@ const TIME_CHECK_LONG = 100;
 export const GESTURE_CAPTURE_THRESHOLD = 5;
 export interface TouchMoveListenerConfig {
   onBeginDrag?: (position: [number, number]) => void;
-  onEndDrag?: (position: [number, number]) => void;
+  onEndDrag?: (position: [number, number]) => Promise<void>;
   onScroll?: () => void;
   onBeginSliding?: () => void;
   onEndSliding?: () => void;
@@ -270,7 +270,7 @@ export function updateTransform(el: HTMLElement, position: Array<number>) {
 
 export function eventThrottle(lastExecuteTime: number, throttle: number, action: Function) {
   const timeStamp = 1000 / throttle;
-  const overThreshold = Date.now() - lastExecuteTime > timeStamp;
+  const overThreshold = Date.now() - lastExecuteTime >= timeStamp;
   if (overThreshold) {
     action?.();
   }

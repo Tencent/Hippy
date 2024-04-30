@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "esnext",
+    "module": "esnext",
+    "lib": [
+      "esnext",
+      "dom"
+    ],
+    "declaration": true,
+    "rootDir": ".",
+    "baseUrl": "./",
+    "outDir": "dist",
+    "jsx": "preserve",
+    "moduleResolution": "node",
+    "allowJs": false,
+    "esModuleInterop": true,
+    "noImplicitAny": false
+  },
+  "include": [
+    "src/*.ts",
+    "src/*.vue",
+    "src/**/*.ts",
+    "src/**/*.vue",
+    "test",
+    "app.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/dist",
+    "**/node_modules"
+  ]
+}

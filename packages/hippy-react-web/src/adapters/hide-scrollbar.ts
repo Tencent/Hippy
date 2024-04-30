@@ -18,17 +18,21 @@
  * limitations under the License.
  */
 
-import { canUseDOM } from '../utils';
+import { canUseDOM, error } from '../utils';
 
 export const HIDE_SCROLLBAR_CLASS = '__hippy-react-hide-scrollbar';
 const hideScrollbarKey = '__hippyReactHideScrollbarActive';
 
-export const shouldHideScrollBar = (isHideScrollBar: boolean) => {
+export const shouldHideScrollBar = (isShowScrollBar: boolean) => {
   if (canUseDOM) {
-    if (isHideScrollBar && !window[hideScrollbarKey]) {
+    if (!isShowScrollBar && !window[hideScrollbarKey]) {
       window[hideScrollbarKey] = true;
-      document.styleSheets[0].addRule(`.${HIDE_SCROLLBAR_CLASS}::-webkit-scrollbar`, 'display: none');
-      document.styleSheets[0].addRule(`.${HIDE_SCROLLBAR_CLASS}`, '-ms-overflow-style: none; scrollbar-width: none;');
+      try {
+        document.styleSheets[0].insertRule(`.${HIDE_SCROLLBAR_CLASS} { -ms-overflow-style: none; scrollbar-width: none; }`, 1);
+        document.styleSheets[0].insertRule(`.${HIDE_SCROLLBAR_CLASS}::-webkit-scrollbar { display: none }`, 0);
+      } catch (err) {
+        error(err);
+      }
     }
   }
 };

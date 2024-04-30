@@ -1,0 +1,282 @@
+name: '[gh] issue crash report'
+
+on:
+  issues:
+    types:
+      - opened
+
+env:
+  greetings_message: |
+    🙇 Thank you for making us aware of the issue.
+
+    Don\'t worry about it, our collaborators will handle it asap.
+
+    If you have any additional information, you can add a new comment in this issue.
+  translates_addresses_message: |
+    I will try to translate addresses to human readable format, please wait a moment.
+  fetch_symbol_failed_message: |
+    I have searched the artifacts store database, but found no artifacts with version %s and %s architecture.
+  no_backtrace_message: |
+    It looks like there is no backtrace addresses in the crash log that needs to be translated.
+  translate_success_message: |
+    After my translation, the result is as follows.
+    ```
+    %s
+    ```
+  translate_failed_message: |
+    Sorry, the addresses translation encountered an error.
+
+jobs:
+  triage:
+    if: github.repository == 'Tencent/Hippy' && contains(github.event.issue.title, 'crash')
+    runs-on: [self-hosted, linux, shared]
+    container:
+      image: node:latest
+    outputs:
+      version: ${{ steps.triage-result.outputs.version }}
+      platform: ${{ steps.triage-result.outputs.platform }}
+      architecture: ${{ steps.triage-result.outputs.architecture }}
+      logs: ${{ steps.triage-result.outputs.logs }}
+      setps: ${{ steps.triage-result.outputs.setps }}
+      additional: ${{ steps.triage-result.outputs.additional }}
+      repository_owner: ${{ steps.triage-result.outputs.repository_owner }}
+    steps:
+    - name: Greetings
+      uses: actions/github-script@v6.3.3
+      with:
+        script: |
+          const { owner, repo } = context.repo;
+          const { issues, reactions } = github.rest;
+
+          const { data: { id } } = await issues.createComment({
+            owner,
+            repo,
+            issue_number: ${{ github.event.issue.number }},
+            body: process.env.greetings_message
+          });
+          await reactions.createForIssue({
+            owner,
+            repo,
+            issue_number: ${{ github.event.issue.number }},
+            content: '+1'
+          });
+    - run: npm install markdown-it
+    - name: Triage
+      id: triage-result
+      uses: actions/github-script@v6.3.3
+      env:
+        issue_body: ${{ github.event.issue.body }}
+      with:
+        script: |
+          const MarkdownIt = require('markdown-it');
+          const os = require('os');
+          const path = require('path');
+          const fs = require('fs');
+
+          function parse(markdown) {
+            const tokens = (new MarkdownIt()).parse(markdown, {});
+            const result = {};
+
+            let inHeading = true;
+            let key = [];
+            let value = [];
+            tokens.forEach((token, index) => {
+              if (token.type === 'heading_open' && token.markup === '###') {
+                if (key.length > 0) {
+                  result[key.join(os.EOL)] = value.join(os.EOL);
+                }
+                key = [];
+                value = [];
+                inHeading = true;
+              } else if (token.type === 'heading_close' && token.markup === '###') {
+                inHeading = false;
+              } else {
+                const { content } = token;
+                if (content) {
+                  if (inHeading) {
+                    key.push(content);
+                  } else {
+                    value.push(content);
+                  }
+                }
+              }
+
+              if (index === tokens.length - 1) {
+                result[key.join(os.EOL)] = value.join(os.EOL);
+              }
+            });
+            return result;
+          }
+
+          const info = parse(process.env.issue_body);
+          ['Version', 'Platform', 'Architecture', 'Logs', 'Reproduce Condition', 'Additional Information'].forEach(key => {
+            let value = info[key];
+            if (value) {
+              if (['Version', 'Platform', 'Architecture'].includes(key)) {
+                value = value.replaceAll(/[^0-9a-z\-_\.]/ig, '');
+              }
+              fs.appendFileSync(process.env.GITHUB_OUTPUT, `${key.toLowerCase()}<<EOF${os.EOL}`, { encoding: 'utf8' });
+              fs.appendFileSync(process.env.GITHUB_OUTPUT, value + os.EOL, { encoding: 'utf8' });
+              fs.appendFileSync(process.env.GITHUB_OUTPUT, `EOF${os.EOL}`, { encoding: 'utf8' });
+            }
+          });
+
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `repository_owner=${'${{ github.repository_owner }}'.toLowerCase()}${os.EOL}`, { encoding: 'utf8' });
+
+  android-translates-addresses:
+    needs:
+      - triage
+    if: |
+      needs.triage.outputs.platform == 'Android'
+      && needs.triage.outputs.version
+      && needs.triage.outputs.logs
+      && (needs.triage.outputs.architecture == 'arm'
+        || needs.triage.outputs.architecture == 'arm64'
+        || needs.triage.outputs.architecture == 'x86'
+        || needs.triage.outputs.architecture == 'x86_64')
+    runs-on: [self-hosted, linux, shared]
+    container:
+      image: ghcr.io/${{ needs.triage.outputs.repository_owner }}/android-release:latest
+    steps:
+    - name: Token
+      uses: navikt/github-app-token-generator@v1
+      id: get-token
+      with:
+        private-key: ${{ secrets.BOT_APP_KEY }}
+        app-id: ${{ secrets.BOT_APP_ID }}
+    - name: Backtrace
+      id: backtrace_parsed
+      uses: actions/github-script@v6.3.3
+      env:
+        triage_logs: ${{ needs.triage.outputs.logs }}
+      with:
+        github-token: ${{ steps.get-token.outputs.token }}
+        script: |
+          const { owner, repo } = context.repo;
+          const { issues } = github.rest;
+          const { appendFileSync } = require('fs');
+          const { EOL } = require('os');
+
+          function parse(log) {
+            const stack = [];
+            for (const [_, pc, file, func] of log.matchAll(/#[0-9a-f]+\s+pc\s+(?:0x)?([0-9a-f]{${{ contains(needs.triage.outputs.architecture, '64') && 16 || 8}}})\s+([^\s]+)(?:\s+\(([^\+]+\+[0-9]+)\))*/ig)) {
+              stack.push({pc, func, file});
+            }
+            return stack;
+          }
+
+          const backtrace = parse(process.env.triage_logs);
+          if (backtrace.length > 0) {
+            appendFileSync(process.env.GITHUB_OUTPUT, `backtrace=${JSON.stringify(backtrace)}${EOL}`, { encoding: 'utf8' });
+          }
+
+          await issues.createComment({
+            owner,
+            repo,
+            issue_number: ${{ github.event.issue.number }},
+            body: process.env[backtrace.length > 0 ? 'translates_addresses_message' : 'no_backtrace_message']
+          });
+    - name: Symbols
+      id: symbols_fetched
+      if: steps.backtrace_parsed.outputs.backtrace
+      continue-on-error: true
+      shell: bash
+      run: |
+        if [[ "${{ needs.triage.outputs.architecture }}" == "arm" ]]; then
+          ZIP_FILE="armeabi-v7a.zip"
+        elif [[ "${{ needs.triage.outputs.architecture }}" == "arm64" ]]; then
+          ZIP_FILE="arm64-v8a.zip"
+        elif [[ "${{ needs.triage.outputs.architecture }}" == "x86" ]]; then
+          ZIP_FILE="x86.zip"
+        elif [[ "${{ needs.triage.outputs.architecture }}" == "x86_64" ]]; then
+          ZIP_FILE="x86_64.zip"
+        else
+          echo "Unknown architecture(${{ needs.triage.outputs.architecture }})"
+          exit 1
+        fi
+        curl -Of https://artifacts-store.openhippy.com/hippy/android/hippy-common/${{ needs.triage.outputs.version }}/symbols/$ZIP_FILE
+        mkdir symbols
+        unzip -d symbols $ZIP_FILE
+        rm $ZIP_FILE
+        echo "success=1" >> $GITHUB_OUTPUT
+    - uses: actions/github-script@v6.3.3
+      if: steps.symbols_fetched.result == 'success' && !steps.symbols_fetched.outputs.success
+      with:
+        github-token: ${{ steps.get-token.outputs.token }}
+        script: |
+          const { owner, repo } = context.repo;
+          const { issues } = github.rest;
+          const util = require('util');
+
+          await issues.createComment({
+            owner,
+            repo,
+            issue_number: ${{ github.event.issue.number }},
+            body: util.format(process.env.fetch_symbol_failed_message, '${{ needs.triage.outputs.version }}', '${{ needs.triage.outputs.architecture }}')
+          });
+    - name: Translates
+      if: steps.symbols_fetched.outputs.success
+      uses: actions/github-script@v6.3.3
+      with:
+        github-token: ${{ steps.get-token.outputs.token }}
+        script: |
+          const { owner, repo } = context.repo;
+          const { issues, reactions } = github.rest;
+          const { execSync } = require('child_process');
+          const path = require('path');
+          const fs = require('fs');
+          const os = require('os');
+          const util = require('util');
+
+          const bin = path.join(process.env['ANDROID_NDK_HOME'], 'toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-addr2line');
+          function addr2line(lib, pc) {
+            const [ func, source ] = execSync(`${bin} -C -f -e ${lib} ${pc}`, { encoding: 'utf8' }).split(os.EOL);
+            return { func, source };
+          }
+
+          const backtrace = JSON.parse('${{ steps.backtrace_parsed.outputs.backtrace }}');
+
+          let body;
+          let error;
+          try {
+            const symbols = fs.readdirSync('symbols');
+            const formatted = backtrace.map(stack => {
+              const lib = path.basename(stack.file);
+              if (symbols.includes(lib)) {
+                const { func, source} = addr2line(path.join("symbols", lib), stack.pc);
+                return {
+                  pc: stack.pc,
+                  file: stack.file,
+                  func,
+                  source
+                }
+              }
+
+              return stack;
+            }).map(({ pc, func, file, source }, i) => {
+              return `#${i} PC ${pc}  ${file} ${func ? `(${func})` : ''}${source ? ` [${source}]` : ''}`;
+            });
+
+            body = util.format(process.env.translate_success_message, [`translated backtrace:`, ...formatted.map(line => `  ${line}`)].join(os.EOL));
+          } catch (e) {
+            body = process.env.translate_failed_message;
+            error = e;
+          }
+
+          const { data: { id } } = await issues.createComment({
+            owner,
+            repo,
+            issue_number: ${{ github.event.issue.number }},
+            body
+          });
+
+          if (error) {
+            throw error;
+          }
+
+          await reactions.createForIssueComment({
+            owner,
+            repo,
+            comment_id: id,
+            content: 'eyes'
+          });

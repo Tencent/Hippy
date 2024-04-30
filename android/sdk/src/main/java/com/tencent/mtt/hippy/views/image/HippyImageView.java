@@ -20,7 +20,9 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Movie;
+import android.graphics.Path;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.text.TextUtils;
@@ -44,6 +46,7 @@ import com.tencent.mtt.hippy.views.common.CommonBackgroundDrawable;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
 import com.tencent.mtt.hippy.views.list.HippyRecycler;
 import com.tencent.mtt.supportui.adapters.image.IDrawableTarget;
+import com.tencent.mtt.supportui.utils.CommonTool;
 import com.tencent.mtt.supportui.views.asyncimage.AsyncImageView;
 import com.tencent.mtt.supportui.views.asyncimage.BackgroundDrawable;
 import com.tencent.mtt.supportui.views.asyncimage.ContentDrawable;
@@ -62,9 +65,6 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
   public static final String IMAGE_VIEW_OBJ = "viewobj";
 
   private HippyMap initProps = new HippyMap();
-  private boolean mHasSetTempBackgroundColor = false;
-  private boolean mUserHasSetBackgroudnColor = false;
-  private int mUserSetBackgroundColor = Color.TRANSPARENT;
 
   /**
    * 播放GIF动画的关键类
@@ -74,8 +74,9 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
   private int mGifStartY = 0;
   private float mGifScaleX = 1;
   private float mGifScaleY = 1;
+  private Path mGifPath;
   private boolean mGifMatrixComputed = false;
-  private int mGifProgress = 0;
+  private long mGifProgress = 0;
   private long mGifLastPlayTime = -1;
 
   @Override
@@ -92,6 +93,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     mImageType = null;
     setBackgroundDrawable(null);
     Arrays.fill(mShouldSendImageEvent, false);
+    mGifMatrixComputed = false;
   }
 
   @Override
@@ -155,10 +157,11 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 
   @Override
   protected void resetContent() {
-    super.resetContent();
     mGifMovie = null;
+    mGifMatrixComputed = false;
     mGifProgress = 0;
     mGifLastPlayTime = -1;
+    super.resetContent();
   }
 
   @Override
@@ -239,68 +242,13 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     }
   }
 
-  public void setBackgroundColor(int backgroundColor) {
-    mUserHasSetBackgroudnColor = true;
-    mUserSetBackgroundColor = backgroundColor;
-    super.setBackgroundColor(backgroundColor);
-  }
-
-  @Override
-  protected void onFetchImage(String url) {
-    if (mContentDrawable instanceof ContentDrawable &&
-        ((ContentDrawable) mContentDrawable).getSourceType() == SOURCE_TYPE_DEFAULT_SRC) {
-      return;
-    }
-
-    Drawable oldBGDrawable = getBackground();
-    resetContent();
-
-    if (url != null && (UrlUtils.isWebUrl(url) || UrlUtils.isFileUrl(url))) {
-      int defaultBackgroundColor = Color.LTGRAY;
-      if (mUserHasSetBackgroudnColor) {
-        defaultBackgroundColor = mUserSetBackgroundColor;
-      }
-
-      if (oldBGDrawable instanceof CommonBackgroundDrawable) {
-        ((CommonBackgroundDrawable) oldBGDrawable).setBackgroundColor(defaultBackgroundColor);
-        setCustomBackgroundDrawable((CommonBackgroundDrawable) oldBGDrawable);
-      } else if (oldBGDrawable instanceof LayerDrawable) {
-        LayerDrawable layerDrawable = (LayerDrawable) oldBGDrawable;
-        int numberOfLayers = layerDrawable.getNumberOfLayers();
-
-        if (numberOfLayers > 0) {
-          Drawable bgDrawable = layerDrawable.getDrawable(0);
-          if (bgDrawable instanceof CommonBackgroundDrawable) {
-            ((CommonBackgroundDrawable) bgDrawable).setBackgroundColor(defaultBackgroundColor);
-            setCustomBackgroundDrawable((CommonBackgroundDrawable) bgDrawable);
-          }
-        }
-      }
-      super.setBackgroundColor(defaultBackgroundColor);
-      mHasSetTempBackgroundColor = true;
-    }
-  }
-
-  @Override
-  protected void afterSetContent(String url) {
-    restoreBackgroundColorAfterSetContent();
-  }
-
-  @Override
-  protected void restoreBackgroundColorAfterSetContent() {
-    if (mBGDrawable != null && mHasSetTempBackgroundColor) {
-      int defaultBackgroundColor = Color.TRANSPARENT;
-      mBGDrawable.setBackgroundColor(defaultBackgroundColor);
-      mHasSetTempBackgroundColor = false;
-    }
-  }
-
   @Override
   protected void updateContentDrawableProperty(int sourceType) {
     super.updateContentDrawableProperty(sourceType);
     if (mContentDrawable instanceof HippyContentDrawable && sourceType == SOURCE_TYPE_SRC) {
       ((HippyContentDrawable) mContentDrawable).setNinePatchCoordinate(mNinePatchRect);
     }
+    mGifMatrixComputed = false;
   }
 
   @Override
@@ -344,7 +292,21 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
   protected void handleGetImageSuccess() {
     // send onLoad event
     if (mShouldSendImageEvent[ImageEvent.ONLOAD.ordinal()]) {
-      getOnLoadEvent().send(this, null);
+      HippyMap map = new HippyMap();
+      if (mSourceDrawable != null) {
+        if (mSourceDrawable instanceof HippyDrawable) {
+          HippyDrawable hippyTarget = (HippyDrawable) mSourceDrawable;
+          map.pushInt("width", hippyTarget.getWidth());
+          map.pushInt("height", hippyTarget.getHeight());
+          map.pushString("url", mUrl != null ? mUrl : "");
+        } else if (mSourceDrawable.getBitmap() != null) {
+          Bitmap bitmap = mSourceDrawable.getBitmap();
+          map.pushInt("width", bitmap.getWidth());
+          map.pushInt("height", bitmap.getHeight());
+          map.pushString("url", mUrl != null ? mUrl : "");
+        }
+      }
+      getOnLoadEvent().send(this, map);
     }
     // send onLoadEnd event
     if (mShouldSendImageEvent[ImageEvent.ONLOAD_END.ordinal()]) {
@@ -367,7 +329,11 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
   protected void handleGetImageFail(Throwable throwable) {
     // send onError event
     if (mShouldSendImageEvent[ImageEvent.ONERROR.ordinal()]) {
-      getOnErrorEvent().send(this, null);
+      HippyMap map = new HippyMap();
+      map.pushString("error", String.valueOf(throwable));
+      map.pushInt("errorCode", -1);
+      map.pushString("errorURL", mUrl != null ? mUrl : "");
+      getOnErrorEvent().send(this, map);
     }
     // send onLoadEnd event
     if (mShouldSendImageEvent[ImageEvent.ONLOAD_END.ordinal()]) {
@@ -429,8 +395,36 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
         mGifStartX = (int) ((getWidth() / mGifScaleX - mGifMovie.width()) / 2f);
         mGifStartY = (int) ((getHeight() / mGifScaleY - mGifMovie.height()) / 2f);
       }
+      if (mGifPath == null) {
+        mGifPath = new Path();
+      } else {
+        mGifPath.rewind();
+      }
+      if (mBGDrawable != null) {
+        float[] borderWidthArray = mBGDrawable.getBorderWidthArray();
+        float fullBorderWidth = borderWidthArray == null ? 0 : borderWidthArray[0];
+        RectF bounds = new RectF(fullBorderWidth, fullBorderWidth, getWidth() - fullBorderWidth,
+          getHeight() - fullBorderWidth);
+        float[] borderRadiusArray = mBGDrawable.getBorderRadiusArray();
+        if (CommonTool.hasPositiveItem(borderRadiusArray)) {
+          float fullRadius = borderRadiusArray[0];
+          float topLeftRadius = calculateBorderRadius(borderRadiusArray[1], fullRadius, fullBorderWidth);
+          float topRightRadius = calculateBorderRadius(borderRadiusArray[2], fullRadius, fullBorderWidth);
+          float bottomRightRadius = calculateBorderRadius(borderRadiusArray[3], fullRadius, fullBorderWidth);
+          float bottomLeftRadius = calculateBorderRadius(borderRadiusArray[4], fullRadius, fullBorderWidth);
+          float[] radii = new float[] { topLeftRadius, topLeftRadius, topRightRadius, topRightRadius,
+            bottomRightRadius, bottomRightRadius, bottomLeftRadius, bottomLeftRadius };
+          mGifPath.addRoundRect(bounds, radii, Path.Direction.CW);
+        } else {
+          mGifPath.addRect(bounds, Path.Direction.CW);
+        }
+      }
       mGifMatrixComputed = true;
     }
+  }
+
+  private static float calculateBorderRadius(float value, float fullValue, float inset) {
+    return Math.max(0, (value != 0 ? value : fullValue) - inset * .5f);
   }
 
   @Override
@@ -441,6 +435,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 
     if (target instanceof HippyDrawable && ((HippyDrawable)target).isAnimated()) {
       mGifMovie = ((HippyDrawable) target).getGIF();
+      mGifMatrixComputed = false;
       setLayerType(View.LAYER_TYPE_SOFTWARE, null);
     }
 
@@ -465,6 +460,43 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     }
   }
 
+  @Override
+  protected boolean hasImage(IDrawableTarget resultDrawable) {
+    return (resultDrawable != null && resultDrawable.getBitmap() != null)
+            || (resultDrawable != null && resultDrawable.getDrawable() != null)
+            || (resultDrawable instanceof HippyDrawable && ((HippyDrawable) resultDrawable).getGIF() != null);
+  }
+
+  @Override
+  public void setBorderRadius(float radius, int position) {
+    super.setBorderRadius(radius, position);
+    mGifMatrixComputed = false;
+  }
+
+  @Override
+  public void setBorderWidth(float width, int position) {
+    super.setBorderWidth(width, position);
+    mGifMatrixComputed = false;
+  }
+
+  @Override
+  public void setBorderColor(int color, int position) {
+    super.setBorderColor(color, position);
+    mGifMatrixComputed = false;
+  }
+
+  @Override
+  public void setBorderStyle(int borderStyle) {
+    super.setBorderStyle(borderStyle);
+    mGifMatrixComputed = false;
+  }
+
+  @Override
+  protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+    super.onSizeChanged(w, h, oldw, oldh);
+    mGifMatrixComputed = false;
+  }
+
   protected boolean drawGIF(Canvas canvas) {
     if (mGifMovie == null) {
       return false;
@@ -479,7 +511,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 
     if (!isGifPaused) {
       if (mGifLastPlayTime != -1) {
-        mGifProgress += now - mGifLastPlayTime;
+        mGifProgress += (now - mGifLastPlayTime);
 
         if (mGifProgress > duration) {
           mGifProgress = 0;
@@ -489,8 +521,12 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     }
 
     computeMatrixParams();
-    mGifMovie.setTime(mGifProgress);
+    int progress = mGifProgress > Integer.MAX_VALUE ? 0 : (int) mGifProgress;
+    mGifMovie.setTime(progress);
     canvas.save(); // 保存变换矩阵
+    if (!mGifPath.isEmpty()) {
+      canvas.clipPath(mGifPath);
+    }
     canvas.scale(mGifScaleX, mGifScaleY);
     mGifMovie.draw(canvas, mGifStartX, mGifStartY);
     canvas.restore(); // 恢复变换矩阵

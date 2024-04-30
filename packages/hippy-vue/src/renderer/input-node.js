@@ -55,6 +55,13 @@ class InputNode extends ElementNode {
   }
 
   /**
+   * Get text input focus status
+   */
+  isFocused() {
+    return new Promise(resolve => Native.callUIFunction(this, 'isFocused', r => resolve(r.value)));
+  }
+
+  /**
    * Clear
    */
   clear() {

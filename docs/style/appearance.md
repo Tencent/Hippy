@@ -2,7 +2,11 @@
 
 包含了前景、背景、边框、透明度、字体等外观样式
 
+---
+
 # borderColor
+
+> Android 默认值为 `transparent`，iOS 默认值为 `black`
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
@@ -10,11 +14,15 @@
 
 # borderTopColor
 
+> Android 默认值为 `transparent`，iOS 默认值为 `black`
+
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
 | [color](style/color.md) | 否  |  Android、iOS
 
 # borderBottomColor
+
+> Android 默认值为 `transparent`，iOS 默认值为 `black`
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
@@ -22,11 +30,15 @@
 
 # borderLeftColor
 
+> Android 默认值为 `transparent`，iOS 默认值为 `black`
+
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
 | [color](style/color.md) | 否  |  Android、iOS
 
 # borderRightColor
+
+> Android 默认值为 `transparent`，iOS 默认值为 `black`
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
@@ -100,6 +112,8 @@
 
 # borderStyle
 
+> 默认值为 `solid`
+
 | 类型                              | 必需 | 支持平台
 | --------------------------------- | -------- | --- |
 | enum('solid', 'dotted', 'dashed') | 否   | Android、iOS。dotted、dashed 暂仅支持 iOS
@@ -134,9 +148,21 @@
 
 字体大小
 
+> 默认值为 `14`
+
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
 | number | 否  | Android、iOS
+
+# fontStyle
+
+字体样式
+
+> 默认值为 `normal`
+
+| 类型                     | 必需 | 支持平台     |
+| ------------------------ | ---- | ------------ |
+| enum('normal', 'italic') | 否   | Android、iOS |
 
 # fontWeight
 
@@ -147,6 +173,20 @@
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
 | number \| string | 否 | Android、iOS
+
+# letterSpacing
+
+文本字符间距
+
+[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/letter-spacing)
+
+!> hippy-vue 需采用 @hippy/vue-css-loader `2.14.1` 以上版本
+
+!> 在部分 Android 设备上，letterSpacing 设置负值有兼容性问题，可能会导致在非预期的位置换行
+
+| 类型   | 必需 | 支持平台
+| ------ | -------- | --- |
+| number | 否 | Android、iOS
 
 # opacity
 
@@ -286,5 +326,5 @@
 
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
-| enum('visible'[default]， 'hidden') | 否 | iOS（2.9.0）
+| enum('visible'[default]， 'hidden') | 否 | Android(2.14.5)、iOS（2.9.0）
 

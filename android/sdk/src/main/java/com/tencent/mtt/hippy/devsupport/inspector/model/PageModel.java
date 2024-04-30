@@ -35,6 +35,7 @@ public class PageModel {
   private Bitmap screenBitmap;
   private WeakReference<FrameUpdateListener> mFrameUpdateListenerRef;
   private ViewTreeObserver.OnDrawListener mOnDrawListener;
+  private static float MINI_SCALE = 0.4f;
 
   public JSONObject startScreenCast(HippyEngineContext context, final JSONObject paramsObj) {
     isFramingScreenCast = true;
@@ -143,7 +144,7 @@ public class PageModel {
       if (paramObj != null) {
         float scaleX = (float) this.maxWidth / (float) viewWidth;
         float scaleY = (float) this.maxHeight / (float) viewHeight;
-        scale = Math.min(scaleX, scaleY);
+        scale = Math.max(Math.min(scaleX, scaleY), MINI_SCALE); // select the proper scale which not less than MINI_SCALE
       }
       Bitmap bitmap = screenBitmap;
       if (bitmap == null) {

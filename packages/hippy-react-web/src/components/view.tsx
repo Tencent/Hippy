@@ -21,20 +21,16 @@ import React, { useEffect, useRef, useImperativeHandle } from 'react';
 import { formatWebStyle } from '../adapters/transfer';
 import useResponderEvents from '../modules/use-responder-events';
 import useElementLayout from '../modules/use-element-layout';
-import { TouchEvent } from '../modules/use-responder-events/types';
-import { LayoutEvent } from '../types';
+import { LayoutableProps, TouchableProps, ClickableProps } from '../types';
 import { warn } from '../utils';
+import { DEFAULT_CONTAINER_STYLE } from '../constants';
 
 const styles = {
   root: {
-    alignItems: 'stretch',
+    ...DEFAULT_CONTAINER_STYLE,
     borderWidth: 0,
     borderStyle: 'solid',
     boxSizing: 'border-box',
-    display: 'flex',
-    flexBasis: 'auto',
-    flexDirection: 'column',
-    flexShrink: 0,
     margin: 0,
     padding: 0,
     position: 'relative',
@@ -43,27 +39,22 @@ const styles = {
   },
 };
 
-interface ViewProps {
+interface ViewProps extends LayoutableProps, TouchableProps, ClickableProps {
   [key: string]: any;
   ref?: any;
   accessible?: boolean;
   accessibilityLabel?: string;
-  style?: HippyTypes.Style;
+  style?: HippyTypes.ViewStyleProp;
   opacity?: number;
   overflow?: 'visible' | 'hidden';
   className?: any;
   nativeBackgroundAndroid?: {
     borderless: boolean;
-    color: HippyTypes.color;
+    color: HippyTypes.Color;
     rippleRadius: number;
   };
   onScroll?: (e: any) => void;
-  onLayout?: (e: LayoutEvent) => void;
   onAttachedToWindow?: Function;
-  onTouchDown?: (e: TouchEvent) => void;
-  onTouchMove?: (e: TouchEvent) => void;
-  onTouchEnd?: (e: TouchEvent) => void;
-  onTouchCancel?: (e: TouchEvent) => void;
 }
 
 /**

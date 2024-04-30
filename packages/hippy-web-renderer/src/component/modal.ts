@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,11 +23,11 @@ import {
   ModalOrientations,
   InnerNodeTag,
   HippyBaseView,
-  UIProps,
+  UIProps, DefaultPropsProcess,
 } from '../types';
 
 import {  setElementStyle } from '../common';
-import { HippyView } from './hippy-view';
+import { HippyWebView } from './hippy-web-view';
 
 export const ANIMATION_TIME = 200;
 interface ModalAnimationData {
@@ -92,7 +92,7 @@ const DefaultLeaveAnimationMap = {
     newState: {},
   },
 };
-export class Modal extends HippyView<HTMLDivElement> {
+export class Modal extends HippyWebView<HTMLDivElement> {
   public static buildModalEntryAnimation(animationType: ModalAnimationType): ModalAnimationData {
     return DefaultEntryAnimationMap[animationType];
   }
@@ -127,7 +127,7 @@ export class Modal extends HippyView<HTMLDivElement> {
     };
   }
 
-  public updateProps(data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) {
+  public updateProps(data: UIProps, defaultProcess: DefaultPropsProcess) {
     if (this.firstUpdateStyle) {
       defaultProcess(this, { style: this.defaultStyle() });
     }

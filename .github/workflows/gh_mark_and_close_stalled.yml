@@ -1,0 +1,59 @@
+name: '[gh] mark and close stale issues and PRs'
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run every day at 19:00 UTC(03:00 UTC+08:00).
+    - cron: '0 19 * * *'
+
+env:
+  CLOSE_PR_MESSAGE: |
+    Sorry, closing this PR because it has stalled for over 4 months.
+    Feel free to reopen if this PR is still relevant, or to ping the collaborator if you have any questions.
+  CLOSE_ISSUE_MESSAGE: |
+    Sorry, closing this issue because it has stalled for over 3 months.
+    Feel free to reopen if this issue is still relevant, or to ping the collaborator if you have any questions.
+  STALE_PR_MESSAGE: |
+    Pay attention 🛎️ !!
+    There has been no activity on this PR for 2 months, so I will label it stalled.
+    It will be automatically closed in 30 days if no more activity. Feel free to leave a comment if you have any questions.
+  STALE_ISSUE_MESSAGE: |
+    Pay attention 🛎️ !!
+    There has been no activity on this issue for 2 months, so I will label it stalled.
+    It will be automatically closed in 60 days if no more activity. Feel free to leave a comment if you have any questions.
+
+jobs:
+  stale:
+    if: github.repository == 'Tencent/Hippy'
+    permissions:
+        issues: write
+        pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Token
+        uses: navikt/github-app-token-generator@v1
+        id: get-token
+        with:
+          private-key: ${{ secrets.BOT_APP_KEY }}
+          app-id: ${{ secrets.BOT_APP_ID }}
+      - uses: actions/stale@v6.0.1
+        with:
+          repo-token: ${{ steps.get-token.outputs.token }}
+          # pr related
+          days-before-pr-stale: 60
+          days-before-pr-close: 60
+          stale-pr-message: ${{ env.STALE_PR_MESSAGE }}
+          close-pr-message: ${{ env.CLOSE_PR_MESSAGE }}
+          stale-pr-label: 'stale: 60d'
+          close-pr-label: 'stale: closed'
+          exempt-pr-labels: 'stale: never'
+          # issue related
+          days-before-issue-stale: 60
+          days-before-issue-close: 30
+          stale-issue-message: ${{ env.STALE_ISSUE_MESSAGE }}
+          close-issue-message: ${{ env.CLOSE_ISSUE_MESSAGE }}
+          stale-issue-label: 'stale: 30d'
+          close-issue-label: 'stale: closed'
+          exempt-issue-labels: 'stale: never'
+          # max requests it will send per run to the GitHub API before it deliberately exits to avoid hitting API rate limits
+          operations-per-run: 500

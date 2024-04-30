@@ -33,12 +33,6 @@
 #import "HippyI18nUtils.h"
 #import "objc/runtime.h"
 
-@interface HippyCustomScrollView : UIScrollView <UIGestureRecognizerDelegate>
-
-@property (nonatomic, assign) BOOL centerContent;
-
-@end
-
 @implementation HippyCustomScrollView
 
 - (instancetype)initWithFrame:(CGRect)frame {
@@ -137,6 +131,10 @@
     return ![self _shouldDisableScrollInteraction];
 }
 
+static inline BOOL CGPointIsNull(CGPoint point) {
+    return (isnan(point.x) || isnan(point.y));
+}
+
 /*
  * Automatically centers the content such that if the content is smaller than the
  * ScrollView, we force it to be centered, but when you zoom or the content otherwise
@@ -155,12 +153,16 @@
             contentOffset.y = -(scrollViewSize.height - subviewSize.height) / 2.0;
         }
     }
+    NSAssert(!CGPointIsNull(contentOffset), @"contentoffset can't be null, check call stack symbols!!!");
+    if (CGPointIsNull(contentOffset)) {
+        return;
+    }
     super.contentOffset = contentOffset;
 }
 
 @end
 
-@implementation HippyScrollView {
+@interface HippyScrollView() {
     HippyCustomScrollView *_scrollView;
     UIView *_contentView;
     NSTimeInterval _lastScrollDispatchTime;
@@ -176,13 +178,14 @@
     __weak HippyRootView *_rootView;
 }
 
+@end
+
+@implementation HippyScrollView
+
 - (instancetype)initWithEventDispatcher:(HippyEventDispatcher *)eventDispatcher {
     HippyAssertParam(eventDispatcher);
 
     if ((self = [super initWithFrame:CGRectZero])) {
-        _scrollView = [[HippyCustomScrollView alloc] initWithFrame:CGRectZero];
-        _scrollView.delegate = self;
-        _scrollView.delaysContentTouches = NO;
         _automaticallyAdjustContentInsets = YES;
         _contentInset = UIEdgeInsetsZero;
         _contentSize = CGSizeZero;
@@ -194,12 +197,20 @@
         _scrollListeners = [NSHashTable weakObjectsHashTable];
         _contentOffsetCache = [NSMutableDictionary dictionaryWithCapacity:32];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+        _scrollView = [self loadScrollView];
         [self addSubview:_scrollView];
         if ([self needsLayoutForRTL]) {
             _scrollView.transform = CGAffineTransformMakeRotation(M_PI);
         }
     }
     return self;
+}
+
+- (HippyCustomScrollView *)loadScrollView {
+    HippyCustomScrollView *scrollview = [[HippyCustomScrollView alloc] initWithFrame:CGRectZero];
+    scrollview.delegate = self;
+    scrollview.delaysContentTouches = NO;
+    return scrollview;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -226,6 +237,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
         [self removeHippySubview:_contentView];
     }
     _contentView = view;
+    if ([self needsLayoutForRTL]) {
+        _contentView.transform = CGAffineTransformRotate(CGAffineTransformIdentity, M_PI);
+    }
     [_contentView addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
     [view onAttachedToWindow];
     [_scrollView addSubview:view];
@@ -261,7 +275,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
         if (object == _contentView) {
             [self hippyBridgeDidFinishTransaction];
             if ([self needsLayoutForRTL]) {
-                _contentView.transform = CGAffineTransformMakeRotation(M_PI);
+                _contentView.transform = CGAffineTransformRotate(CGAffineTransformIdentity, M_PI);
             }
         }
     }
@@ -436,15 +450,14 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     [self updateClippedSubviews];
 
-    NSTimeInterval now = CACurrentMediaTime();
-
     /**
      * TODO: this logic looks wrong, and it may be because it is. Currently, if _scrollEventThrottle
      * is set to zero (the default), the "didScroll" event is only sent once per scroll, instead of repeatedly
      * while scrolling as expected. However, if you "fix" that bug, ScrollView will generate repeated
      * warnings, and behave strangely (ListView works fine however), so don't fix it unless you fix that too!
      */
-    NSTimeInterval ti = now - _lastScrollDispatchTime;
+    CFTimeInterval now = CACurrentMediaTime();
+    CFTimeInterval ti = now - _lastScrollDispatchTime;
     BOOL flag = (_scrollEventThrottle > 0 && _scrollEventThrottle < ti);
     if (_allowNextScrollNoMatterWhat || flag) {
         if (self.onScroll) {
@@ -538,6 +551,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    if (!decelerate) {
+        // Fire a final scroll event
+        _allowNextScrollNoMatterWhat = YES;
+        [self scrollViewDidScroll:scrollView];
+    }
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDragging:willDecelerate:)]) {
             [scrollViewListener scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
@@ -690,8 +708,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     CGSize viewportSize = self.bounds.size;
     if (_automaticallyAdjustContentInsets) {
         UIEdgeInsets contentInsets = [HippyView contentInsetsForView:self];
-        viewportSize = CGSizeMake(
-            self.bounds.size.width - contentInsets.left - contentInsets.right, self.bounds.size.height - contentInsets.top - contentInsets.bottom);
+        viewportSize = CGSizeMake(self.bounds.size.width - contentInsets.left - contentInsets.right,
+                                  self.bounds.size.height - contentInsets.top - contentInsets.bottom);
     }
     return viewportSize;
 }

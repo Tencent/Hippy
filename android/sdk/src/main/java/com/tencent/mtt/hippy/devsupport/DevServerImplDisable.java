@@ -57,6 +57,11 @@ public class DevServerImplDisable implements DevServerInterface {
     }, url);
   }
 
+    @Override
+    public void setRemoteServerData(String wsDebugUrl) {
+
+    }
+
   @Override
   public String createDebugUrl(String host, String debugClientId, String componentName) {
     return null;

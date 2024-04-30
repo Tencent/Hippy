@@ -25,10 +25,12 @@
 #include "core/modules/module_base.h"
 #include "core/napi/callback_info.h"
 
-class Scope;
-
 class ConsoleModule : public ModuleBase {
  public:
+  using CtxValue = hippy::napi::CtxValue;
+
   ConsoleModule() {}
-  void Log(const hippy::napi::CallbackInfo& info);
+  void Log(const hippy::napi::CallbackInfo& info, void* data);
+
+  virtual std::shared_ptr<CtxValue> BindFunction(std::shared_ptr<Scope> scope, std::shared_ptr<CtxValue> rest_args[]) override;
 };

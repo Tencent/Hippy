@@ -138,9 +138,13 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
 - (void)_immediatelyCallTimer:(NSNumber *)timer;
 
 /**
- * Get  the turbo module for a given name.
+ * Get the turbo module for a given name.
  */
 - (HippyOCTurboModule *)turboModuleWithName:(NSString *)name;
+
+/// update info to hippy js native global
+/// - Parameter nativeInfo: info dict
+- (void)updateNativeInfoToHippyGlobalObject:(NSDictionary *)nativeInfo;
 
 @end
 
@@ -155,6 +159,9 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
 
 - (instancetype)initWithParentBridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
 - (void)start;
-- (void)enqueueApplicationScript:(NSData *)script url:(NSURL *)url onComplete:(HippyJavaScriptCompleteBlock)onComplete;
+- (void)enqueueApplicationScript:(NSData *)script
+                             url:(NSURL *)url
+                  isCommonBundle:(BOOL)isCommonBundle
+                      onComplete:(HippyJavaScriptCompleteBlock)onComplete;
 
 @end

@@ -121,42 +121,24 @@ public class HippyWaterfallLayoutManager extends BaseLayoutManager {
   int[] calculateColumnHeightsBefore(int position, boolean caculateOffsetmap) {
     // #lizard forgives
     int[] columnHeights = new int[mColumns];
-    SparseArray<List<Integer>> items = new SparseArray<>();
-    int n = 0;
+    // SparseArray<List<Integer>> items = new SparseArray<>();
 
     HippyWaterfallAdapter adapter = (HippyWaterfallAdapter) mRecyclerView.getAdapter();
 
-    if (mHasContainBannerView) {
-      position += 1;
-    }
-
     for (int i = 0; i < position; i++) {
-      int targetColumnIndex = 0;
-      for (int j = 0; j < columnHeights.length; j++) {
-        if (columnHeights[targetColumnIndex] > columnHeights[j]) {
-          targetColumnIndex = j;
-        }
+      int myHeight = adapter.getItemHeight(i) + adapter.getItemMaigin(RecyclerAdapter.LOCATION_TOP, i)
+              + adapter.getItemMaigin(RecyclerAdapter.LOCATION_BOTTOM, i);
+
+      if (i == 0 && mHasContainBannerView) {
+        Arrays.fill(columnHeights, myHeight);
+        continue;
       }
-
-      if (mHasContainBannerView) {
-        if (i == 0 || i == 1) {
-          n = 0;
-        } else if (i > 1) {
-          n = i - 1;
-        }
-      } else {
-        n = i;
-      }
-
-      int myHeight = adapter.getItemHeight(n) + adapter
-        .getItemMaigin(RecyclerAdapter.LOCATION_TOP, n)
-        + adapter.getItemMaigin(RecyclerAdapter.LOCATION_BOTTOM, n);
-
       RenderNode node = adapter.getItemNode(i);
       if (node instanceof PullFooterRenderNode) {
         int height = getHightestColumnHeight(columnHeights) + myHeight;
         Arrays.fill(columnHeights, height);
       } else {
+        int targetColumnIndex = getShortestColumnIndex(columnHeights);
         columnHeights[targetColumnIndex] += myHeight;
       }
     }
@@ -166,51 +148,12 @@ public class HippyWaterfallLayoutManager extends BaseLayoutManager {
   // calculate the height of every column after the item with index position.
   public int[] calculateColumnHeightsAfter(int position) {
     // #lizard forgives
-    int[] columnHeights = new int[mColumns];
-    SparseArray<List<Integer>> items = new SparseArray<>();
-    int n = 0;
-    HippyWaterfallAdapter adapter = (HippyWaterfallAdapter) mRecyclerView.getAdapter();
-
-    if (mHasContainBannerView) {
-      position += 1;
-    }
-
-    for (int i = 0; i <= position; i++) {
-      int targetColumnIndex = 0;
-      for (int j = 0; j < columnHeights.length; j++) {
-        if (columnHeights[targetColumnIndex] > columnHeights[j]) {
-          targetColumnIndex = j;
-        }
-      }
-
-      if (mHasContainBannerView) {
-        if (i == 0 || i == 1) {
-          n = 0;
-        } else if (i > 1) {
-          n = i - 1;
-        }
-      } else {
-        n = i;
-      }
-
-      int myHeight = adapter.getItemHeight(n) + adapter
-        .getItemMaigin(RecyclerAdapter.LOCATION_TOP, n)
-        + adapter.getItemMaigin(RecyclerAdapter.LOCATION_BOTTOM, n);
-
-      RenderNode node = adapter.getItemNode(i);
-      if (node instanceof PullFooterRenderNode) {
-        int height = getHightestColumnHeight(columnHeights) + myHeight;
-        Arrays.fill(columnHeights, height);
-      } else {
-        columnHeights[targetColumnIndex] += myHeight;
-      }
-    }
-    return columnHeights;
+    return calculateColumnHeightsBefore(position + 1, false);
   }
 
   public static int getShortestColumnIndex(int[] columnHeights) {
     int shortestColumnIndex = 0;
-    for (int j = 0; j < columnHeights.length; ++j) {
+    for (int j = 1; j < columnHeights.length; ++j) {
       if (columnHeights[shortestColumnIndex] > columnHeights[j]) {
         shortestColumnIndex = j;
       }
@@ -375,7 +318,7 @@ public class HippyWaterfallLayoutManager extends BaseLayoutManager {
       int index = renderState.mCurrentPosition;
       int firstItemWidth = itemWidth;
       if (mHasContainBannerView && index == 0) {
-        firstItemWidth = (getWidth() - getPaddingLeft() - getPaddingRight());
+        firstItemWidth = getWidth();
       }
       //            int currentRenderState = renderState.hasMore(state);
       View view = getNextView(recycler, renderState, state);
@@ -414,7 +357,9 @@ public class HippyWaterfallLayoutManager extends BaseLayoutManager {
         if (params instanceof LayoutParams) {
           int targetColumn = ((WaterFallRenderState) mRenderState).targetColumn;
           ((LayoutParams) params).mLocateAtColumn = targetColumn;
-          if (!isFooterView(view)) {
+          if (mHasContainBannerView && index == 0) {
+            setChildPadding(0, index, view, targetColumn);
+          } else if (!isFooterView(view)) {
             setChildPadding(itemGapH, index, view, targetColumn);
           }
         }
@@ -436,7 +381,7 @@ public class HippyWaterfallLayoutManager extends BaseLayoutManager {
               contentLayout = new ViewGroup.LayoutParams(params);
             }
             if (!mHasContainBannerView || index != 0 || !mBannerViewMatch) {
-              if (!isFooterView(view)) {
+              if (!isFooterView(view) && !(mHasContainBannerView && index == 0)) {
                 if (contentLayout.width > 0) {
                   contentLayout.width -= itemGapH;
                 }
@@ -518,8 +463,12 @@ public class HippyWaterfallLayoutManager extends BaseLayoutManager {
         } else {
           // the layout derection of waterfall will not care about
           // left-hander.
-          left = ((WaterFallRenderState) mRenderState).targetColumn * itemWidth
-            + getPaddingLeft();
+          if (mHasContainBannerView && index == 0) {
+              left = 0;
+          } else {
+              left = ((WaterFallRenderState) mRenderState).targetColumn * itemWidth
+                  + getPaddingLeft();
+          }
           right = left + mOrientationHelper.getDecoratedMeasurementInOther(view);
           if (renderState.mLayoutDirection == RenderState.LAYOUT_START) {
             // renderState.mOffset = a;

@@ -9,12 +9,28 @@ import { setApp } from './util';
 // Vue.config.silent = true;
 
 Vue.config.productionTip = false;
+// 是否开启scoped支持
+Vue.config.scoped = true;
+/**
+ * whether to trim whitespace on text element,
+ * default is true, if set false, it will follow vue-loader compilerOptions whitespace setting
+ */
+Vue.config.trimWhitespace = true;
 
 // Hippy 终端组件扩展中间件，可以使用 modal、view-pager、tab-host、ul-refresh 等原生组件。
 Vue.use(HippyVueNativeComponents);
 Vue.use(VueRouter);
 
 const router = new VueRouter(routes);
+
+global.Hippy.on('uncaughtException', (err) => {
+  console.error('uncaughtException error', err.stack, err.message);
+});
+
+// only supported in iOS temporarily
+global.Hippy.on('unhandledRejection', (reason) => {
+  console.error('unhandledRejection reason', reason);
+});
 
 /**
  * 声明一个 app

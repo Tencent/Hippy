@@ -23,7 +23,7 @@ import { Fiber } from '@hippy/react-reconciler';
 import { getNodeIdByRef } from '../modules/ui-manager-module';
 import View from './view';
 
-interface FocusableProps {
+export interface FocusableProps {
   requestFocus?: boolean;
   style?: HippyTypes.Style;
   noFocusStyle?: HippyTypes.Style;
@@ -36,14 +36,14 @@ interface FocusableProps {
   onFocus?: (evt: HippyTypes.FocusEvent) => void;
 }
 
-interface FocusableState {
+export interface FocusableState {
   isFocus: boolean;
 }
 
 /**
  * @noInheritDoc
  */
-class Focusable extends React.Component<FocusableProps, FocusableState> {
+export class Focusable extends React.Component<FocusableProps, FocusableState> {
   /**
    * @ignore
    */
@@ -96,7 +96,7 @@ class Focusable extends React.Component<FocusableProps, FocusableState> {
       const childStyle = child.memoizedProps.style;
       nativeStyle = { ...nativeStyle, ...childStyle };
     }
-    Object.assign(nativeStyle, isFocus ? focusStyle : noFocusStyle);
+    Object.assign(nativeStyle as any, isFocus ? focusStyle : noFocusStyle);
 
     if (type === 'Text') {
       return (

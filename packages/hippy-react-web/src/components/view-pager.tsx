@@ -55,9 +55,15 @@ export const ViewPager: React.FC<ViewPagerProps> = React.forwardRef((props, ref)
 
   const renderViewPagerItem = () => {
     if (!children || (children as React.ReactNodeArray).length === 0) return null;
+    const swiperSlideStyle: React.CSSProperties = {
+      height: '100%',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+    };
     return children.map((item: any, index: number) => {
       const keyParam = index;
-      return <SwiperSlide key={`ViewPager-${keyParam}`}>{item}</SwiperSlide>;
+      return <SwiperSlide style={swiperSlideStyle} key={`ViewPager-${keyParam}`}>{item}</SwiperSlide>;
     });
   };
 

@@ -84,7 +84,7 @@
     if (_onLoadEnd) {
         NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithCapacity:3];
         NSString *url = [[webView URL] absoluteString];
-        NSString *errString = [error localizedFailureReason];
+        NSString *errString = [error localizedDescription];
         if (url) {
             [dic setObject:url forKey:@"url"];
         }
@@ -100,7 +100,7 @@
     if (_onLoadEnd) {
         NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithCapacity:3];
         NSString *url = [[webView URL] absoluteString];
-        NSString *errString = [error localizedFailureReason];
+        NSString *errString = [error localizedDescription];
         if (url) {
             [dic setObject:url forKey:@"url"];
         }

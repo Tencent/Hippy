@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +18,16 @@
  * limitations under the License.
  */
 import * as Hammer from 'hammerjs';
-import { NodeProps, SCROLL_STATE, HippyBaseView, InnerNodeTag, UIProps } from '../types';
+import {
+  NodeProps,
+  SCROLL_STATE,
+  HippyBaseView,
+  InnerNodeTag,
+  UIProps,
+  DefaultPropsProcess,
+} from '../types';
 import { setElementStyle } from '../common';
-import { HippyView } from './hippy-view';
+import { HippyWebView } from './hippy-web-view';
 import {
   GESTURE_CAPTURE_THRESHOLD,
   mountTouchListener, calculateScrollEndPagePosition,
@@ -30,14 +37,13 @@ import {
 
 const ANIMATION_TIME = 200;
 
-export class ViewPager extends HippyView<HTMLDivElement> {
-  private pageIndex =0;
+export class ViewPager extends HippyWebView<HTMLDivElement> {
+  private pageIndex = 0;
   private scrollCaptureState = false;
   private lastPosition: [number, number] = [0, 0];
-  private childViewItem: ViewPagerItem[] = [];
+  private children: ViewPagerItem[] = [];
   private swipeRecognize: any = null;
   private touchListenerRelease;
-  private hammer ;
 
   public constructor(context, id, pId) {
     super(context, id, pId);
@@ -99,14 +105,14 @@ export class ViewPager extends HippyView<HTMLDivElement> {
   public async beforeChildMount(child: HippyBaseView, childPosition: number): Promise<any> {
     await super.beforeChildMount(child, childPosition);
     if (child instanceof ViewPagerItem) {
-      this.childViewItem.push(child);
+      this.children.push(child);
     }
   }
 
   public beforeChildRemove(child: HippyBaseView): void {
     super.beforeChildRemove(child);
     if (child instanceof ViewPagerItem) {
-      this.childViewItem = this.childViewItem.filter(item => item !== child);
+      this.children = this.children.filter(item => item !== child);
     }
   }
 
@@ -116,10 +122,16 @@ export class ViewPager extends HippyView<HTMLDivElement> {
     this.touchListenerRelease?.();
   }
 
+  public endBatch() {
+    if (this.initialPage !== 0 && this.initialPage !== this.pageIndex) {
+      this.scrollToPageByIndex(this.initialPage, false);
+    }
+  }
+
   public init() {
     this.props[NodeProps.INITIAL_PAGE] = 0;
     this.props[NodeProps.SCROLL_ENABLED] = true;
-    this.hammer =  new Hammer.Manager(this.dom!, { inputClass: Hammer.TouchInput });
+    this.hammer =  new Hammer.Manager(this.dom!, { inputClass: Hammer.TouchInput, touchAction: 'auto' });
     const swipe = new Hammer.Swipe();
     this.hammer.add(swipe);
     this.hammer.on('swipe', (e) => {
@@ -177,7 +189,7 @@ export class ViewPager extends HippyView<HTMLDivElement> {
       if (this.swipeRecognize.offsetDirection === Hammer.DIRECTION_RIGHT && this.pageIndex > 0) {
         nextPage -= 1;
       } else if (this.swipeRecognize.offsetDirection === Hammer.DIRECTION_LEFT
-        && this.pageIndex < this.childViewItem.length - 1) {
+        && this.pageIndex < this.children.length - 1) {
         nextPage += 1;
       }
       this.scrollPage(nextPage, true);
@@ -261,7 +273,7 @@ function buildPageScrollEvent(
   };
 }
 
-export class ViewPagerItem extends HippyView<HTMLDivElement> {
+export class ViewPagerItem extends HippyWebView<HTMLDivElement> {
   public constructor(context, id, pId) {
     super(context, id, pId);
     this.tagName = InnerNodeTag.VIEW_PAGER_ITEM;
@@ -272,7 +284,7 @@ export class ViewPagerItem extends HippyView<HTMLDivElement> {
     return { flexShrink: 0, display: 'flex', boxSizing: 'border-box', position: 'static' };
   }
 
-  public updateProps(data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) {
+  public updateProps(data: UIProps, defaultProcess: DefaultPropsProcess) {
     const newData = { ...data };
     if (data.style && data.style.position === 'absolute') {
       delete newData.style.position;

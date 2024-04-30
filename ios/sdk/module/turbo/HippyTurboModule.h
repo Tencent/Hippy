@@ -36,11 +36,11 @@
 @protocol HippyTurboModule <NSObject>
 
 // Implemented by HIPPY_EXPORT_TURBO_MODULE
-+ (NSString *)turoboModuleName;
++ (NSString *)turboModuleName;
 
 #define HIPPY_EXPORT_TURBO_MODULE(js_name)                          \
     HIPPY_EXTERN void HippyRegisterTurboModule(NSString *, Class);  \
-    +(NSString *)turoboModuleName {                                 \
+    +(NSString *)turboModuleName {                                  \
         return @ #js_name;                                          \
     }                                                               \
     +(void)load {                                                   \

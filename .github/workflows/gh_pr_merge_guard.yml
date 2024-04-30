@@ -1,0 +1,34 @@
+name: '[gh] pull request merge guard'
+
+on:
+  pull_request_target:
+    types:
+      - auto_merge_enabled
+      - auto_merge_disabled
+      - synchronize
+
+jobs:
+  merge_guard:
+    if: github.repository == 'Tencent/Hippy'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Goalkeeper
+      env:
+        AUTO_MERGE_ENABLED: ${{ !!github.event.pull_request.auto_merge }}
+        AUTO_MERGE_USER: ${{ github.event.pull_request.auto_merge.enabled_by.login }}
+        AUTO_MERGE_TYPE: ${{ github.event.pull_request.auto_merge.enabled_by.type }}
+      run: |
+        if [[ "$AUTO_MERGE_ENABLED" == "false" ]]; then
+          echo "Auto-merge is disabled."
+          echo "> Blocking ..."
+          exit -1
+        fi
+
+        echo "Auto-merge is enabled by a $AUTO_MERGE_USER."
+        if [[ "$AUTO_MERGE_TYPE" == "Bot" ]]; then
+          echo "> Passing ..."
+          exit 0
+        else
+          echo "> Blocking ..."
+          exit -1
+        fi

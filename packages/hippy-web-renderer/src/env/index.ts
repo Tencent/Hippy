@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,7 +32,6 @@ import { nativeBridge } from './native2js';
 import { device } from './device';
 import { getTurboModule, turboPromise } from './turbo';
 import { dynamicLoad } from './dynamic-load';
-import './global';
 
 const global = getGlobal();
 
@@ -95,6 +94,19 @@ Object.defineProperty(global, 'localStorage', {
   value: Hippy.asyncStorage as any,
 });
 global.turboPromise = Hippy.turboPromise;
+
+Object.defineProperty(global.console, 'reportUncaughtException', {
+  value: (error) => {
+    if (error && error instanceof Error) {
+      throw error;
+    }
+  },
+});
+
+global.addEventListener('unhandledrejection', (event) => {
+  global.Hippy.emit('unhandledRejection', event?.reason, event?.promise);
+});
+
 
 // init
 

@@ -45,6 +45,10 @@ public class DevSupportManager {
     mDevImp.setDevServerCallback(devCallback);
   }
 
+  public void setRemoteServerData(String wsDebugUrl) {
+      mDevImp.setRemoteServerData(wsDebugUrl);
+  }
+
   public void attachToHost(HippyRootView view) {
     mDevImp.attachToHost(view);
   }

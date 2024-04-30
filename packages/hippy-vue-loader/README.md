@@ -7,7 +7,7 @@ Add [style hot reload hook](./lib/codegen/hotReload.js) and [repaint API](./lib/
 
 
 # How to use
-This loader should be used together with [hippy hmr plugin](https://github.com/hippy-contrib/hippy-hmr-plugin) and [hipp debug server](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server), an example webpack config like this:
+This loader should be used together with [hippy hmr plugin](https://github.com/hippy-contrib/hippy-hmr-plugin) and [hipp debug server](https://www.npmjs.com/package/@hippy/debug-server-next), an example webpack config like this:
 
 ```js
 const HippyHMRPlugin = require('@hippy/hippy-hmr-plugin');

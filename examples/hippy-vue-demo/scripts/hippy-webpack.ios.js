@@ -8,7 +8,7 @@ const manifest = require('../dist/ios/vendor-manifest.json');
 
 const platform = 'ios';
 let cssLoader = '@hippy/vue-css-loader';
-const hippyVueCssLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-css-loader/dist/index.js');
+const hippyVueCssLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-css-loader/dist/css-loader.js');
 if (fs.existsSync(hippyVueCssLoaderPath)) {
   console.warn(`* Using the @hippy/vue-css-loader in ${hippyVueCssLoaderPath}`);
   cssLoader = hippyVueCssLoaderPath;
@@ -19,7 +19,8 @@ if (fs.existsSync(hippyVueCssLoaderPath)) {
 let vueLoader = '@hippy/vue-loader';
 let VueLoaderPlugin;
 const hippyVueLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-loader/lib');
-if (fs.existsSync(hippyVueLoaderPath)) {
+const hippyVueLoaderNodeModulesPath = path.resolve(__dirname, '../../../packages/hippy-vue-loader/node_modules');
+if (fs.existsSync(hippyVueLoaderNodeModulesPath) && fs.existsSync(hippyVueLoaderPath)) {
   console.warn(`* Using the @hippy/vue-loader in ${hippyVueLoaderPath}`);
   vueLoader = hippyVueLoaderPath;
   VueLoaderPlugin = require(path.resolve(__dirname, '../../../packages/hippy-vue-loader/lib/plugin'));
@@ -32,7 +33,7 @@ module.exports = {
   mode: 'production',
   bail: true,
   entry: {
-    index: [path.resolve(pkg.nativeMain)],
+    index: ['@hippy/rejection-tracking-polyfill', path.resolve(pkg.nativeMain)],
   },
   output: {
     filename: `[name].${platform}.js`,
@@ -70,7 +71,15 @@ module.exports = {
       {
         test: /\.vue$/,
         use: [
-          vueLoader,
+          {
+            loader: vueLoader,
+            options: {
+              compilerOptions: {
+                // whitespace handler, default is 'preserve'
+                whitespace: 'condense',
+              },
+            },
+          },
         ],
       },
       {

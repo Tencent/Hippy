@@ -24,6 +24,7 @@ import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,8 @@ import java.util.Map;
 public interface HippyEngineContext {
 
   String getComponentName();
+
+  boolean isRunningOnTVPlatform();
 
   @Nullable
   Map<String, Object> getNativeParams();
@@ -49,7 +52,10 @@ public interface HippyEngineContext {
 
   RenderManager getRenderManager();
 
+  @Deprecated
   HippyRootView getInstance(int id);
+
+  HippyRootView getInstance();
 
   void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
 

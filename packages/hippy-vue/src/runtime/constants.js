@@ -37,7 +37,13 @@ const HIPPY_DEBUG_ADDRESS = `http://127.0.0.1:${process.env.PORT}/`;
  */
 const HIPPY_STATIC_PROTOCOL = 'hpfile://';
 
+/**
+ * First time init rootViewId always be 3
+ */
+const ROOT_VIEW_ID = 3;
+
 export {
+  ROOT_VIEW_ID,
   GLOBAL_STYLE_NAME,
   GLOBAL_DISPOSE_STYLE_NAME,
   HIPPY_DEBUG_ADDRESS,

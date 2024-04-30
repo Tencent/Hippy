@@ -45,9 +45,11 @@ import {
 import {
   getApp,
   setApp,
+  isDev,
   isFunction,
   trace,
   setBeforeLoadStyle,
+  setBeforeRenderToNative,
 } from '../util';
 import DocumentNode from '../renderer/document-node';
 import { Event } from '../renderer/native/event';
@@ -105,7 +107,6 @@ Vue.prototype.$mount = function $mount(el, hydrating) {
       options.staticRenderFns = staticRenderFns;
     }
   }
-
   return mountComponent(this, el, hydrating);
 };
 
@@ -130,7 +131,7 @@ Vue.prototype.$start = function $start(afterCallback, beforeCallback) {
   });
 
   // Register the entry point into Hippy
-  // The callback will be execute when Native trigger loadInstance
+  // The callback will be executed when Native trigger loadInstance
   // or runApplication event.
   HippyRegister.regist(this.$options.appName, (superProps) => {
     const { __instanceId__: rootViewId } = superProps;
@@ -259,15 +260,35 @@ if (config.devtools && devtools) {
   devtools.emit('init', Vue);
 }
 
+/*
+ * used to validate beforeRenderToNative hook
+ * when ElementNode or ViewNode have breaking changes, add version number to disable
+ * beforeRenderToNative hook
+ */
+const BEFORE_RENDER_TO_NATIVE_HOOK_VERSION = 1;
+Vue.config._setBeforeRenderToNative = (hook, version) => {
+  if (isFunction(hook)) {
+    if (BEFORE_RENDER_TO_NATIVE_HOOK_VERSION === version) {
+      setBeforeRenderToNative(hook);
+    } else {
+      console.error('_setBeforeRenderToNative API had changed, the hook function will be ignored!');
+    }
+  }
+};
+
 // proxy Vue constructor to add Hippy Vue instance to global.__VUE_ROOT_INSTANCES__
-const ProxyedVue = new Proxy(Vue, {
+const VueProxy = new Proxy(Vue, {
   construct(Target, args) {
     const vm = new Target(...args);
-    if (process.env.NODE_ENV === 'development') {
-      if (!global.__VUE_ROOT_INSTANCES__) global.__VUE_ROOT_INSTANCES__ = [];
-      if (args && args.length && args[0].appName) global.__VUE_ROOT_INSTANCES__.push(vm);
+    if (isDev()) {
+      if (!global.__VUE_ROOT_INSTANCES__) {
+        global.__VUE_ROOT_INSTANCES__ = [];
+      }
+      if (args && args.length && args[0].appName) {
+        global.__VUE_ROOT_INSTANCES__.push(vm);
+      }
     }
     return vm;
   },
 });
-export default ProxyedVue;
+export default VueProxy;

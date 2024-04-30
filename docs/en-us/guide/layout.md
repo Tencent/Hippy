@@ -1,3 +1,7 @@
+# Layout & Unit
+
+---
+
 # Box model
 
 In order to facilitate front-end developer to understand, Hippy also uses CSS-Box model to build the style. When Hippy is laying out, the rendering engine will represent all elements as a rectangular box according to the CSS-Box model, and the style configuration determines the size, location, and attributes (color, background, border size ...) of these boxes.

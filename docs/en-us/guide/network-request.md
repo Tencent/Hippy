@@ -4,6 +4,8 @@
 
 Hippy directly supports the `fetch` and `WebSocket` interfaces of the W3C standard, and can access the server through these two methods.
 
+---
+
 # fetch
 
 Hippy provides a [fetch](//developer.mozilla.org/zh-CN/docs/Web/API/Fetch_API) method that is basically consistent with the W3C standard. You can directly refer to [MDN](//developer.mozilla.org/zh-CN/docs/Web/API/Fetch_API).
@@ -20,6 +22,8 @@ fetch('//mywebsite.com/mydata.json');
 
 The `fetch` function also supports the configuration of HTTP requests.
 
+> only support `method | headers | body` parameters at lower version, version `2.14.0` or above support any customized parameters, e.g. `redirect: 'follow'`
+
 ```javascript
 fetch('//mywebsite.com/endpoint/', {
   method: 'POST',
@@ -31,6 +35,7 @@ fetch('//mywebsite.com/endpoint/', {
     firstParam: 'yourValue',
     secondParam: 'yourOtherValue',
   }),
+  redirect: 'follow', // version `2.14.0` or above 
 });
 ```
 

@@ -8,7 +8,8 @@ const platform = 'android';
 let vueLoader = '@hippy/vue-loader';
 let VueLoaderPlugin;
 const hippyVueLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-loader/lib');
-if (fs.existsSync(hippyVueLoaderPath)) {
+const hippyVueLoaderNodeModulesPath = path.resolve(__dirname, '../../../packages/hippy-vue-loader/node_modules');
+if (fs.existsSync(hippyVueLoaderNodeModulesPath) && fs.existsSync(hippyVueLoaderPath)) {
   console.warn(`* Using the @hippy/vue-loader in ${hippyVueLoaderPath}`);
   vueLoader = hippyVueLoaderPath;
   VueLoaderPlugin = require(path.resolve(__dirname, '../../../packages/hippy-vue-loader/lib/plugin'));
@@ -48,7 +49,15 @@ module.exports = {
       {
         test: /\.vue$/,
         use: [
-          vueLoader,
+          {
+            loader: vueLoader,
+            options: {
+              compilerOptions: {
+                // whitespace handler, default is 'preserve'
+                whitespace: 'condense',
+              },
+            },
+          },
         ],
       },
       {

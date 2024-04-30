@@ -70,14 +70,10 @@ function registerPull(Vue) {
         [`collapsePull${capitalCase}`](options) {
           if (capitalCase === 'Header') {
             // options: { time }
-            if (Vue.Native.Platform === 'android') {
-              callUIFunction(this.$refs.instance, `collapsePull${capitalCase}`, [options]);
+            if (typeof options !== 'undefined') {
+              callUIFunction(this.$refs.instance, `collapsePull${capitalCase}WithOptions`, [options]);
             } else {
-              if (typeof options !== 'undefined') {
-                callUIFunction(this.$refs.instance, `collapsePull${capitalCase}WithOptions`, [options]);
-              } else {
-                callUIFunction(this.$refs.instance, `collapsePull${capitalCase}`);
-              }
+              callUIFunction(this.$refs.instance, `collapsePull${capitalCase}`);
             }
           } else {
             callUIFunction(this.$refs.instance, `collapsePull${capitalCase}`);

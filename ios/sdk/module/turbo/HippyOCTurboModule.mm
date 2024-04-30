@@ -21,23 +21,25 @@
  */
 
 #import "HippyOCTurboModule.h"
+#import "HippyOCTurboModule+Inner.h"
 #import <objc/message.h>
 #import "HippyBridgeMethod.h"
 #import "HippyAssert.h"
 #import "HippyUtils.h"
 #import "HippyLog.h"
 #import "HippyModuleMethod.h"
-#include <core/napi/jsc/js_native_turbo_jsc.h>
-#include "core/napi/jsc/js_native_jsc_helper.h"
-#include "core/napi/jsc/js_native_api_jsc.h"
-#include <JavaScriptCore/JavaScriptCore.h>
-#include <JavaScriptCore/JSObjectRef.h>
 #import "NSObject+HippyTurbo.h"
 #import "HippyLog.h"
-#include "core/base/string_view_utils.h"
 #import "HippyBridge+Private.h"
 #import "HippyJSCExecutor.h"
 #import "HippyTurboModuleManager.h"
+
+#include <JavaScriptCore/JavaScriptCore.h>
+#include <JavaScriptCore/JSObjectRef.h>
+
+#include "core/base/string_view_utils.h"
+#include "core/napi/jsc/jsc_ctx.h"
+#include "core/napi/jsc/jsc_ctx_value.h"
 
 using namespace hippy;
 using namespace napi;
@@ -46,9 +48,9 @@ using unicode_string_view = tdf::base::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 
 @interface HippyOCTurboModule () {
-    std::shared_ptr<HippyTurboModule> _turboModule;
-
+  std::unordered_map<std::shared_ptr<CtxValue>, std::unique_ptr<TurboWrapper>> turbo_wrapper_map;
 }
+
 @property(nonatomic, weak, readwrite) HippyBridge *bridge;
 @end
 
@@ -57,49 +59,45 @@ using StringViewUtils = hippy::base::StringViewUtils;
 HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
 
 - (void)dealloc {
-    _turboModule->callback_ = nullptr;
-    _turboModule = nullptr;
+
 }
 
 - (instancetype)initWithName:(NSString *)moduleName bridge:(HippyBridge *)bridge {
-    if (self = [self init]) {
-        _bridge = bridge;
-        _turboModule = std::make_shared<HippyTurboModule>(std::string([moduleName UTF8String]));
-        
-        __weak HippyOCTurboModule *weakSelf = self;
-        _turboModule->callback_ = [weakSelf](const TurboEnv& env,
-                                             const std::shared_ptr<napi::CtxValue> &thisVal,
-                                             const std::shared_ptr<napi::CtxValue> *args,
-                                             size_t count) -> std::shared_ptr<napi::CtxValue> {
-            std::shared_ptr<napi::Ctx> context = env.context_;
-
-            // get method name
-            unicode_string_view name;
-            if (!context->GetValueString(thisVal, &name)) {
-                return context->CreateNull();
-            }
-            std::string methodName = StringViewUtils::ToU8StdStr(name);
-
-            // get argument
-            NSInteger argumentCount = static_cast<long>(count);
-            NSMutableArray *argumentArray = @[].mutableCopy;
-            for (NSInteger i = 0; i < argumentCount; i++) {
-                std::shared_ptr<napi::CtxValue> ctxValue = *(args + i);
-                [argumentArray addObject:convertCtxValueToObjcObject(context, ctxValue, weakSelf)?: [NSNull null]];
-            }
-
-            id objcRes = [weakSelf invokeObjCMethodWithName:[NSString stringWithUTF8String:methodName.c_str()]
-                                              argumentCount:argumentCount
-                                              argumentArray:argumentArray];
-            std::shared_ptr<napi::CtxValue> result = convertObjcObjectToCtxValue(context, objcRes, weakSelf);
-            return result;
-        };
-    }
-    return self;
+  if (self = [self init]) {
+    _bridge = bridge;
+  }
+  return self;
 }
 
-- (std::shared_ptr<HippyTurboModule>)getTurboModule {
-    return _turboModule;
+- (void)saveTurboWrapper:(std::shared_ptr<CtxValue>)name turbo:(std::unique_ptr<TurboWrapper>)wrapper {
+  turbo_wrapper_map[name] = std::move(wrapper);
+}
+
+- (std::shared_ptr<CtxValue>) invokeOCMethod:(const std::shared_ptr<Ctx>&) ctx
+                              this_val:(const std::shared_ptr<CtxValue>&) this_val
+                              args:(const std::shared_ptr<CtxValue>*) args
+                              count:(size_t) count {
+  // get method name
+  unicode_string_view name;
+  if (!ctx->GetValueString(this_val, &name)) {
+      return ctx->CreateNull();
+  }
+  std::string methodName = StringViewUtils::ToU8StdStr(name);
+  
+  __weak HippyOCTurboModule *weakSelf = self;
+
+  // get argument
+  NSMutableArray *argumentArray = @[].mutableCopy;
+  for (NSInteger i = 0; i < count; ++i) {
+      std::shared_ptr<napi::CtxValue> ctxValue = *(args + i);
+      [argumentArray addObject:convertCtxValueToObjcObject(ctx, ctxValue, weakSelf)?: [NSNull null]];
+  }
+
+  id objcRes = [weakSelf invokeObjCMethodWithName:[NSString stringWithUTF8String:methodName.c_str()]
+                                    argumentCount:count
+                                    argumentArray:argumentArray];
+  std::shared_ptr<napi::CtxValue> result = convertObjcObjectToCtxValue(ctx, objcRes, weakSelf);
+  return result;
 }
 
 - (id)invokeObjCMethodWithName:(NSString *)methodName
@@ -140,7 +138,7 @@ HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
 
         NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on target %@ with params %@", exception,
                                       method.JSMethodName, NSStringFromClass([self class]) ,argumentArray];
-        NSError *error = HippyErrorWithMessageAndModuleName(message, NSStringFromClass([self class]));
+        NSError *error = HippyErrorWithMessageAndModuleName(message, self.bridge.moduleName);
         HippyFatal(error);
         return nil;
     }
@@ -155,7 +153,9 @@ static std::shared_ptr<napi::CtxValue> convertObjcObjectToCtxValue(const std::sh
     std::shared_ptr<napi::CtxValue> result;
 
     if ([objcObject isKindOfClass:[NSString class]]) {
-        result = context->CreateString([((NSString *)objcObject) UTF8String]);
+        std::string str = [((NSString *)objcObject) UTF8String];
+        unicode_string_view str_view(StringViewUtils::ToU8Pointer(str.c_str()));
+        result = context->CreateString(str_view);
     } else if ([objcObject isKindOfClass:[NSNumber class]]) {
       if ([objcObject isKindOfClass:[@YES class]]) {
           result = context->CreateBoolean(((NSNumber *)objcObject).boolValue);
@@ -205,7 +205,7 @@ static std::shared_ptr<napi::CtxValue> convertNSDictionaryToCtxValue(const std::
     JSObjectRef jsObj = JSObjectMake(jscCtx->context_, cls_ref, (__bridge void *)dict);
     JSClassRelease(cls_ref);
     for (NSString *propertyName in dict) {
-        id propValue = [dict valueForKey:propertyName];
+        id propValue = [dict objectForKey:propertyName];
         std::shared_ptr<napi::CtxValue> propRef = convertObjcObjectToCtxValue(jscCtx, propValue, module);
         std::shared_ptr<JSCCtxValue> ctx_value =
             std::static_pointer_cast<JSCCtxValue>(propRef);
@@ -244,7 +244,7 @@ static std::shared_ptr<napi::CtxValue> convertNSObjectToCtxValue(const std::shar
                                                                 HippyOCTurboModule *module) {
     std::shared_ptr<napi::JSCCtx> jscCtx = std::static_pointer_cast<napi::JSCCtx>(context);
     if ([objcObject isKindOfClass:[HippyOCTurboModule class]]) {
-        NSString *name = [[objcObject class] turoboModuleName];
+        NSString *name = [[objcObject class] turboModuleName];
         HippyJSCExecutor *jsExecutor = (HippyJSCExecutor *)module.bridge.javaScriptExecutor;
         JSValueRef jsValueObj = [jsExecutor JSTurboObjectWithName:name];
         JSObjectRef jsObj = JSValueToObject(jscCtx->context_, jsValueObj, NULL);

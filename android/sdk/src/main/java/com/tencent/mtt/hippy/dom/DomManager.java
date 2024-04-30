@@ -16,6 +16,7 @@
 package com.tencent.mtt.hippy.dom;
 
 
+import android.os.SystemClock;
 import android.text.Layout;
 import android.text.TextUtils;
 import android.util.SparseBooleanArray;
@@ -30,6 +31,7 @@ import com.tencent.mtt.hippy.dom.flex.FlexSpacing;
 import com.tencent.mtt.hippy.dom.node.*;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
+import com.tencent.mtt.hippy.runtime.builtins.JSObject;
 import com.tencent.mtt.hippy.uimanager.DiffUtils;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -46,6 +48,8 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
     HippyEngineLifecycleEventListener {
 
   private static final String TAG = "DomManager";
+  private static final long FRAME_TIME_LIMIT_FOREGROUND_MILLIS = 500;
+  private static final long FRAME_TIME_LIMIT_BACKGROUND_MILLIS = 4000;
   protected final DispatchUIFrameCallback mDispatchUIFrameCallback;
   private final SparseBooleanArray mTagsWithLayoutVisited = new SparseBooleanArray();
   protected volatile boolean mIsDispatchUIFrameCallbackEnqueued;
@@ -81,13 +85,23 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
 
   }
 
+  private static boolean hasCollapsable(HippyMap props) {
+    if (props == null) {
+      return false;
+    }
+    if (props.get(NodeProps.COLLAPSABLE) != null && !((Boolean) props
+            .get(NodeProps.COLLAPSABLE))) {
+      return true;
+    }
+    return false;
+  }
+
   private static boolean jsJustLayout(HippyMap props) {
     if (props == null) {
       return true;
     }
 
-    if (props.get(NodeProps.COLLAPSABLE) != null && !((Boolean) props
-        .get(NodeProps.COLLAPSABLE))) {
+    if (hasCollapsable(props)) {
       return false;
     }
 
@@ -308,14 +322,12 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
           .isControllerLazy(className));
       node.setProps(map);
 
-      if (mContext.getDevSupportManager().isSupportDev()) {
-        node.setDomNodeRecord(new DomDomainData(rootId, id, pid, index, className, tagName, map));
-      }
+      node.setDomNodeRecord(new DomDomainData(rootId, id, pid, index, className, tagName, map));
 
       //		boolean isLayoutOnly=false;
       boolean isLayoutOnly =
           (NodeProps.VIEW_CLASS_NAME.equals(node.getViewClass())) && jsJustLayout(
-              (HippyMap) props.get(NodeProps.STYLE))
+              (HippyMap) props.get(NodeProps.STYLE)) && !hasCollapsable(props)
               && !isTouchEvent(props);
       LogUtils.d(TAG,
           "dom create node id: " + id + " mClassName " + className + " pid " + pid + " mIndex:"
@@ -467,7 +479,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
       mDomStyleUpdateManager.updateStyle(node, hippyMap);
 
       boolean layoutOnlyHasChanged =
-          node.isJustLayout() && (!jsJustLayout((HippyMap) props.get(NodeProps.STYLE))
+          node.isJustLayout() && (!jsJustLayout((HippyMap) props.get(NodeProps.STYLE)) || hasCollapsable(props)
               || isTouchEvent(props));
 
       if (layoutOnlyHasChanged) {
@@ -872,7 +884,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
     synchronized (mDispatchLock) {
       Iterator<IDomExecutor> iterator = mDispatchRunnable.iterator();
       boolean shouldBatch = mDispatchRunnable.size() > 0;
-      long startTime = System.currentTimeMillis();
+      long startTime = SystemClock.elapsedRealtime();
       while (iterator.hasNext()) {
         IDomExecutor iDomExecutor = iterator.next();
         if (iDomExecutor != null && !mIsDestroyed) {
@@ -885,7 +897,13 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
         }
         iterator.remove();
         if (mIsDispatchUIFrameCallbackEnqueued) {
-          if (System.currentTimeMillis() - startTime > 500) {
+          if (SystemClock.elapsedRealtime() - startTime > FRAME_TIME_LIMIT_FOREGROUND_MILLIS) {
+            break;
+          }
+        } else {
+          if (SystemClock.elapsedRealtime() - startTime > FRAME_TIME_LIMIT_BACKGROUND_MILLIS) {
+            mIsDispatchUIFrameCallbackEnqueued = true;
+            HippyChoreographer.getInstance().postFrameCallback(mDispatchUIFrameCallback);
             break;
           }
         }
@@ -907,11 +925,11 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
     });
   }
 
-  public void measureInWindow(final int id, final Promise promise) {
+  public void measureInWindow(final int id, final JSObject options, final Promise promise) {
     addNulUITask(new IDomExecutor() {
       @Override
       public void exec() {
-        mRenderManager.measureInWindow(id, promise);
+        mRenderManager.measureInWindow(id, options, promise);
       }
     });
   }

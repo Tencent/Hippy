@@ -27,10 +27,9 @@ let defaultBubbles = false;
  */
 function trace(...context: any[]) {
   // In production build or silent
-  if (process.env.NODE_ENV === 'production' || silent) {
-    return;
+  if (isTraceEnabled()) {
+    console.log(...context);
   }
-  console.log(...context);
 }
 
 /**
@@ -38,7 +37,7 @@ function trace(...context: any[]) {
  */
 function warn(...context: any[]) {
   // In production build
-  if (process.env.NODE_ENV === 'production') {
+  if (!isDev()) {
     return;
   }
   console.warn(...context);
@@ -112,6 +111,21 @@ function setSilent(silentArg: boolean): void {
 }
 
 /**
+ * is development environment
+ */
+function isDev(): boolean {
+  return process.env.NODE_ENV !== 'production';
+}
+
+/**
+ * is Trace silent
+ * @returns {boolean}
+ */
+function isTraceEnabled(): boolean {
+  return isDev() && !silent;
+}
+
+/**
  * set bubbles config, default is false
  * @param bubbles
  */
@@ -133,7 +147,7 @@ function isGlobalBubble(): boolean {
  */
 function convertImgUrl(url: string): string {
   if (url && !/^(http|https):\/\//.test(url) && url.indexOf('assets') > -1) {
-    if (process.env.NODE_ENV !== 'production') {
+    if (isDev()) {
       const addStr1 = 'http://';
       return `${addStr1}127.0.0.1:${process.env.PORT}/${url}`;
     }
@@ -151,17 +165,49 @@ function isHostComponent(tag: number) {
   return tag === 5;
 }
 
+function deepCopy(data, hash = new WeakMap()) {
+  if (typeof data !== 'object' || data === null) {
+    throw new TypeError('deepCopy data is object');
+  }
+  // is it data existed in WeakMap
+  if (hash.has(data)) {
+    return hash.get(data);
+  }
+  const newData = {};
+  const dataKeys = Object.keys(data);
+  dataKeys.forEach((value) => {
+    const currentDataValue = data[value];
+    if (typeof currentDataValue !== 'object' || currentDataValue === null) {
+      newData[value] = currentDataValue;
+    } else if (Array.isArray(currentDataValue)) {
+      newData[value] = [...currentDataValue];
+    } else if (currentDataValue instanceof Set) {
+      newData[value] = new Set([...currentDataValue]);
+    } else if (currentDataValue instanceof Map) {
+      newData[value] = new Map([...currentDataValue]);
+    } else {
+      hash.set(data, data);
+      newData[value] = deepCopy(currentDataValue, hash);
+    }
+  });
+  return newData;
+}
+
+
 export {
   trace,
   warn,
   unicodeToChar,
   tryConvertNumber,
+  isDev,
   isCaptureEvent,
   isFunction,
   isNumber,
   setSilent,
+  isTraceEnabled,
   setBubbles,
   isGlobalBubble,
   convertImgUrl,
   isHostComponent,
+  deepCopy,
 };

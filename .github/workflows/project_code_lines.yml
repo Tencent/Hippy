@@ -1,0 +1,32 @@
+name: "[project] code lines"
+
+on:
+  workflow_dispatch:
+    inputs:
+      git_ref:
+        description: 'Git Ref'
+        type: string
+        default: 'master'
+        required: true
+      exclude_files:
+        description: 'Exclude files(split by |)'
+        type: string
+        default: 'yarn.lock|package-lock.json|pnpm-lock.yaml'
+        required: false
+
+jobs:
+  cloc:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install
+      run: sudo apt-get install cloc
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.inputs.git_ref }}
+        lfs: true
+    - name: Cloc
+      env:
+        EXCLUDE_FILES: ${{ github.event.inputs.exclude_files }}
+      run: |
+        cloc . --md --not-match-f="$EXCLUDE_FILES" | sed -E '1,4d' >> $GITHUB_STEP_SUMMARY

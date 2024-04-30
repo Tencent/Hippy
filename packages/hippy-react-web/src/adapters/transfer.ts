@@ -33,7 +33,7 @@ function hasOwnProperty(obj: Object, name: string | number | symbol) {
   return Object.prototype.hasOwnProperty.call(obj, name);
 }
 
-const processColor = (color?: HippyTypes.color): string | number | undefined => {
+const processColor = (color?: HippyTypes.Color): string | number | undefined => {
   if (!color) return color;
 
   let int32Color: any = normalizeCSSColor(color);
@@ -46,7 +46,7 @@ const processColor = (color?: HippyTypes.color): string | number | undefined => 
   return int32Color;
 };
 
-export const normalizeColor = (color?: HippyTypes.color, opacity = 1): void | string => {
+export const normalizeColor = (color?: HippyTypes.Color, opacity = 1): void | string => {
   if (!color) return;
 
   if (typeof color === 'string') {
@@ -136,31 +136,31 @@ interface WebStyle {
   marginVertical?: number | string;
   paddingHorizontal?: number | string;
   paddingVertical?: number | string;
-  color?: HippyTypes.color;
-  colors?: HippyTypes.colors;
-  borderColor?: HippyTypes.color;
-  borderColors?: HippyTypes.colors;
-  borderTopColor?: HippyTypes.color;
-  borderTopColors?: HippyTypes.colors;
-  borderBottomColor?: HippyTypes.color;
-  borderBottomColors?: HippyTypes.colors;
-  borderLeftColor?: HippyTypes.color;
-  borderLeftColors?: HippyTypes.colors;
-  borderRightColor?: HippyTypes.color;
-  borderRightColors?: HippyTypes.colors;
-  backgroundColor?: HippyTypes.color;
-  backgroundColors?: HippyTypes.colors;
+  color?: HippyTypes.Color;
+  colors?: HippyTypes.Colors;
+  borderColor?: HippyTypes.Color;
+  borderColors?: HippyTypes.Colors;
+  borderTopColor?: HippyTypes.Color;
+  borderTopColors?: HippyTypes.Colors;
+  borderBottomColor?: HippyTypes.Color;
+  borderBottomColors?: HippyTypes.Colors;
+  borderLeftColor?: HippyTypes.Color;
+  borderLeftColors?: HippyTypes.Colors;
+  borderRightColor?: HippyTypes.Color;
+  borderRightColors?: HippyTypes.Colors;
+  backgroundColor?: HippyTypes.Color;
+  backgroundColors?: HippyTypes.Colors;
   backgroundImage?: string;
   boxShadow?: string;
   boxShadowRadius?: number | string;
   boxShadowOffsetX?: number | string;
   boxShadowOffsetY?: number | string;
   boxShadowSpread?: number | string;
-  boxShadowColor?: HippyTypes.color;
+  boxShadowColor?: HippyTypes.Color;
   textShadow?: string;
   textShadowOffset?: { x: number, y: number };
   textShadowRadius?: number | string;
-  textShadowColor?: HippyTypes.color;
+  textShadowColor?: HippyTypes.Color;
 }
 
 function handleBoxStyle(webStyle: WebStyle) {
@@ -368,22 +368,25 @@ function hackWebStyle(webStyle_: any) {
   handleLinearBackground(webStyle);
 }
 
-function formatWebStyle(style: any) {
+function normalizeStyle(style: any) {
   const webStyle: Record<string, any> = {};
 
   if (Array.isArray(style)) {
     style.forEach((itemStyle) => {
       Object.assign(webStyle, itemStyle);
     });
-    hackWebStyle(webStyle);
   } else {
     Object.assign(webStyle, style);
-
-    hackWebStyle(webStyle);
   }
 
   return webStyle;
 }
 
+function formatWebStyle(style: any) {
+  const webStyle = normalizeStyle(style);
+  hackWebStyle(webStyle);
+  return webStyle;
+}
+
 export default formatWebStyle;
-export { formatWebStyle };
+export { normalizeStyle, formatWebStyle };

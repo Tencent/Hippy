@@ -1,0 +1,123 @@
+name: '[gh] pull request checks approval'
+
+on:
+  pull_request_target:
+    branches:
+      - master
+      - main
+      - v3.0-dev
+      - v3.0
+    types: [ opened, reopened ]
+  workflow_run:
+    workflows:
+      - \[gh\] pull request review
+    types: [ completed ]
+
+jobs:
+  pull_request_opened:
+    if: github.repository == 'Tencent/Hippy' && contains(github.event.action, 'opened')
+    outputs:
+      pull_request_number: ${{ github.event.pull_request.number }}
+      pull_request_head_sha: ${{ github.event.pull_request.head.sha }}
+      run: 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Pull request opened"
+
+  call_get_workflow_output:
+    if: github.repository == 'Tencent/Hippy' && github.event.action == 'completed' && github.event.workflow_run.conclusion == 'success'
+    uses: ./.github/workflows/reuse_get_workflow_output.yml
+    with:
+      workflow_run: ${{ github.event.workflow_run.id }}
+
+  pull_request_approved:
+    needs: call_get_workflow_output
+    if: needs.call_get_workflow_output.outputs.action == 'submitted'
+    outputs:
+      pull_request_number: ${{ steps.parse_workflow_output.outputs.pull_request_number }}
+      pull_request_head_sha: ${{ steps.parse_workflow_output.outputs.pull_request_head_sha }}
+      run: ${{ steps.parse_workflow_output.outputs.run }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Parse
+      id: parse_workflow_output
+      env:
+        RAW: ${{ needs.call_get_workflow_output.outputs.raw }}
+      shell: python
+      run: |
+        import json
+        import os
+
+        raw = os.getenv("RAW")
+        data = json.loads(raw)
+        with open(os.getenv("GITHUB_OUTPUT"), 'w', encoding='utf-8') as file:
+          file.write('run=%s\n' % 'true' if data["review"]["state"] == 'approved' else 'false')
+          file.write("pull_request_number=%s\n" % data["pull_request"]["number"])
+          file.write("pull_request_head_sha=%s\n" % data["pull_request"]["head"]["sha"])
+
+  call_approval_checks_run:
+    needs: [ pull_request_opened, pull_request_approved ]
+    if: always() && contains(needs.*.result, 'success') && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && contains(needs.*.outputs.run, 'true')
+    uses: ./.github/workflows/reuse_approve_checks_run.yml
+    with:
+      pull_request_number: ${{ fromJSON(needs.pull_request_opened.outputs.pull_request_number || needs.pull_request_approved.outputs.pull_request_number) }}
+      pull_request_head_sha: ${{ needs.pull_request_opened.outputs.pull_request_head_sha || needs.pull_request_approved.outputs.pull_request_head_sha }}
+
+  checks_approval_comment:
+    needs: call_approval_checks_run
+    if: always() && needs.call_approval_checks_run.outputs.action_required == 'true'
+    runs-on: ubuntu-latest
+    env:
+      safety_changes_message: |
+        After a quick scan, I have approved workflow to run.
+      risky_changes_message: |
+        Sorry, due to risky changes, I can\'t approve workflow to run, our collaborators will handle it asap.
+      details_message: |
+        <details>
+
+        * SHA: ${{ needs.call_approval_checks_run.outputs.pull_request_head_sha }}
+
+        </details>
+      tips_message: |
+        :label: **New commits in this PR would not be tested automatically** until this pull request is reviewed by our collaborators.
+        :label: **No need to worry about the status of `merge_guard ` and `[gh] pull request merge guard / merge_guard (pull_request_target)` checks**, once this pull request is met merge requirements, it will be automatically converted to successful status.
+    steps:
+    - name: Message
+      id: generate_message
+      run: |
+        message="$${{ needs.call_approval_checks_run.outputs.included_risk_files == 'true' && 'risky_changes_message' || 'safety_changes_message' }}"
+
+        echo "comment_message<<EOF" >> $GITHUB_OUTPUT
+        echo "$message" >> $GITHUB_OUTPUT
+        echo "$details_message" >> $GITHUB_OUTPUT
+        if [[ "${{ github.event.action }}" == *"opened"* ]]; then
+          echo >> $GITHUB_OUTPUT
+          echo "$tips_message" >> $GITHUB_OUTPUT
+        fi
+        echo "EOF" >> $GITHUB_OUTPUT
+
+        echo "search_message<<EOF" >> $GITHUB_OUTPUT
+        echo "$message" >> $GITHUB_OUTPUT
+        echo "$details_message" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+    - name: Find
+      uses: peter-evans/find-comment@v2.1.0
+      id: find_comment
+      with:
+        issue-number: ${{ needs.call_approval_checks_run.outputs.pull_request_number }}
+        body-includes: ${{ steps.generate_message.outputs.search_message }}
+        direction: last
+    - name: Token
+      id: get-token
+      if: steps.find_comment.outputs.comment-id == ''
+      uses: navikt/github-app-token-generator@v1
+      with:
+        private-key: ${{ secrets.BOT_APP_KEY }}
+        app-id: ${{ secrets.BOT_APP_ID }}
+    - name: Comment
+      uses: peter-evans/create-or-update-comment@v2
+      if: steps.get-token.outputs.token != ''
+      with:
+        token: ${{ steps.get-token.outputs.token }}
+        issue-number: ${{ needs.call_approval_checks_run.outputs.pull_request_number }}
+        body: ${{ steps.generate_message.outputs.comment_message }}

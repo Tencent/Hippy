@@ -9,15 +9,16 @@ on:
         options:
         - Git
         - URL
-        default: 'Git'
+        default: 'URL'
         required: true
       source_url:
         description: 'URL or Git <repository>'
         type: string
         required: true
       git_revision:
-        description: 'Git <tag>|<branch>|<commit>, Git available'
+        description: 'Git ref(only Git source available)'
         type: string
+        required: false
       hip_domain:
         description: 'HIP <domain>'
         type: choice
@@ -29,6 +30,14 @@ on:
       hip_artifact_path:
         description: 'HIP artifact <full path>(without domain)'
         type: string
+        required: true
+      hip_writing_mode:
+        description: 'HIP writing mode'
+        type: choice
+        options:
+        - preserve
+        - overwrite
+        default: 'preserve'
         required: true
 
 jobs:
@@ -48,7 +57,7 @@ jobs:
         git clone ${{ github.event.inputs.source_url }} artifact
         pushd artifact
         git checkout ${{ github.event.inputs.git_revision }}
-        echo "::set-output name=git-head::$(git rev-parse HEAD)"
+        echo "git-head=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
         rm -rf .git
         popd
         tar -zcvf $name -C artifact .
@@ -86,9 +95,18 @@ jobs:
 
         config = CosConfig(Region="${{ secrets.COS_REGION }}", SecretId="${{ secrets.TC_SECRET_ID }}", SecretKey="${{ secrets.TC_SECRET_KEY }}")
         client = CosS3Client(config)
+
+        cos_key = "${{ github.event.inputs.hip_domain }}/${{ github.event.inputs.hip_artifact_path }}"
+
+        if "${{ github.event.inputs.hip_writing_mode }}" == "preserve" and client.object_exists(
+          Bucket="${{ secrets.COS_BUCKET }}",
+          Key=cos_key
+        ):
+          raise Exception("Package already exists")
+
         response = client.upload_file(
             Bucket="${{ secrets.COS_BUCKET }}",
-            Key="${{ github.event.inputs.hip_domain }}/${{ github.event.inputs.hip_artifact_path }}",
+            Key=cos_key,
             LocalFilePath=artifact,
             EnableMD5=True,
             ContentMD5=metadata["artifact-md5"],

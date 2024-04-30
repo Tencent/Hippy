@@ -1,12 +1,14 @@
-# 技术支持
+# Tech Support
+
+---
 
 # Github
 
-我们鼓励在 [Issue](//github.com/Tencent/Hippy/issues) 里汇报使用问题。
-或者在提交 [Pull Request](//github.com/Tencent/Hippy/pulls)，一起来建设Hippy。
+It is encouraged to report problems in [Issue](//github.com/Tencent/Hippy/issues),
+or commit [Pull Request](//github.com/Tencent/Hippy/pulls) to build Hippy together.
 
-# QQ 群
+# WeCom Group
 
-也可以加入 QQ 群 [784894901](//shang.qq.com/wpa/qunwpa?idkey=ce9cd2eb06fd6da26a1a63b70da82edd132964d22998e5154e533822f7b757cc)
+Use WeChat or WeCom scan to join.
 
-[![QQ群](../assets/img/qq-group.png)](//shang.qq.com/wpa/qunwpa?idkey=ce9cd2eb06fd6da26a1a63b70da82edd132964d22998e5154e533822f7b757cc)
+![WeCom Group QR code](../assets/img/wechat-group.jpeg)

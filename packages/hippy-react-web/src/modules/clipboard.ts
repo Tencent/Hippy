@@ -37,8 +37,8 @@ const Clipboard = {
     });
   },
   setString(text: string): Promise<void> {
-    const setStringNotSupportWarn = () => {
-      warn('Clipboard setString is unsupported');
+    const setStringNotSupportWarn = (error = '') => {
+      warn('Clipboard setString is unsupported', error);
     };
     return new Promise((resolve) => {
       if (canUseClipboard) {
@@ -57,8 +57,8 @@ const Clipboard = {
         try {
           document.execCommand('copy');
           resolve();
-        } catch {
-          setStringNotSupportWarn();
+        } catch (error) {
+          setStringNotSupportWarn(String(error));
           resolve();
         } finally {
           document.body.removeChild(textarea);

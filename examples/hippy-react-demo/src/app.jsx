@@ -3,6 +3,7 @@ import {
   StyleSheet,
   View,
   Text,
+  ConsoleModule,
 } from '@hippy/react';
 import HomeEntry from './pages/entry';
 import RemoteDebug from './pages/remote-debug';
@@ -21,6 +22,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#fff',
     borderTopWidth: 1,
+    borderStyle: 'solid',
     borderTopColor: '#eee',
   },
   buttonText: {
@@ -39,6 +41,10 @@ export default class App extends Component {
     this.state = ({
       pageIndex: 0,
     });
+  }
+
+  componentDidMount() {
+    ConsoleModule.log('~~~~~~~~~~~~~~~~~ This is a log from ConsoleModule ~~~~~~~~~~~~~~~~~');
   }
 
   render() {

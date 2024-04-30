@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -65,6 +65,7 @@ export enum NodeProps {
   ON_SCROLL_BEGIN_DRAG = 'onScrollBeginDrag',
   ON_SCROLL_END_DRAG = 'onScrollEndDrag',
   ROW_SHOULD_STICKY = 'rowShouldSticky',
+  STICKY = 'sticky',
   ON_HEADER_PULLING = 'onHeaderPulling',
   ON_HEADER_RELEASED = 'onHeaderReleased',
   SCROLL_EVENT_THROTTLE = 'scrollEventThrottle',
@@ -135,6 +136,7 @@ export enum NodeProps {
   SET_PAGE = 'setPage',
   SET_PAGE_WITHOUT_ANIMATION = 'setPageWithoutAnimation',
   ON_CLICK = 'onClick',
+  ON_LONG_CLICK = 'onLongClick',
 }
 export enum KeyboardType {
   default = 'default',

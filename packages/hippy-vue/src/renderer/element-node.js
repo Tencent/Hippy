@@ -21,9 +21,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-import colorParser from '@css-loader/color-parser';
 import { PROPERTIES_MAP } from '@css-loader/css-parser';
 import { getViewMeta, normalizeElementName } from '../elements';
+import { EventMethod } from '../util/event';
 import {
   unicodeToChar,
   tryConvertNumber,
@@ -31,6 +31,8 @@ import {
   endsWith,
   getBeforeLoadStyle,
   warn,
+  isDev,
+  whitespaceFilter,
 } from '../util';
 import Native from '../runtime/native';
 import { updateChild, updateWithChildren } from './native';
@@ -88,7 +90,7 @@ function convertToDegree(value, unit = DEGREE_UNIT.DEG) {
  */
 function getLinearGradientAngle(value) {
   const processedValue = (value || '').replace(/\s*/g, '').toLowerCase();
-  const reg = /^([+-]?\d+\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
+  const reg = /^([+-]?(?=(?<digit>\d+))\k<digit>\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
   const valueList = reg.exec(processedValue);
   if (!Array.isArray(valueList)) return;
   // if default direction is to bottom, i.e. 180degree
@@ -114,14 +116,14 @@ function getLinearGradientColorStop(value) {
   const percentageCheckReg = /^([+-]?\d+\.?\d*)%$/g;
   if (color && !percentageCheckReg.exec(color) && !percentage) {
     return {
-      color: colorParser(color),
+      color: Native.parseColor(color),
     };
   }
   if (color && percentageCheckReg.exec(percentage)) {
     return {
       // color stop ratio
       ratio: parseFloat(percentage.split('%')[0]) / 100,
-      color: colorParser(color),
+      color: Native.parseColor(color),
     };
   }
   warn('linear-gradient color stop is invalid');
@@ -133,7 +135,10 @@ function getLinearGradientColorStop(value) {
  * @param {string|Object|number|boolean} value
  * @returns {(string|{})[]}
  */
-function parseBackgroundImage(property, value) {
+function parseBackgroundImage(property, value, style) {
+  // reset the backgroundImage and linear gradient property
+  delete style[property];
+  removeLinearGradient(property, value, style);
   let processedValue = value;
   let processedProperty = property;
   if (value.indexOf('linear-gradient') === 0) {
@@ -171,6 +176,22 @@ function parseBackgroundImage(property, value) {
 }
 
 /**
+ * remove linear gradient
+ * @param property
+ * @param value
+ * @param style
+ */
+function removeLinearGradient(property, value, style) {
+  if (property === 'backgroundImage' && style.linearGradient) {
+    delete style.linearGradient;
+  }
+}
+
+const offsetMap = {
+  textShadowOffsetX: 'width',
+  textShadowOffsetY: 'height',
+};
+/**
  * parse text shadow offset
  * @param property
  * @param value
@@ -178,15 +199,40 @@ function parseBackgroundImage(property, value) {
  * @returns {(*|number)[]}
  */
 function parseTextShadowOffset(property, value = 0, style) {
-  const offsetMap = {
-    textShadowOffsetX: 'width',
-    textShadowOffsetY: 'height',
-  };
   style.textShadowOffset = style.textShadowOffset || {};
   Object.assign(style.textShadowOffset, {
     [offsetMap[property]]: value,
   });
   return ['textShadowOffset', style.textShadowOffset];
+}
+
+/**
+ * remove text shadow offset
+ * @param property
+ * @param value
+ * @param style
+ */
+function removeTextShadowOffset(property, value, style) {
+  if ((property === 'textShadowOffsetX' || property === 'textShadowOffsetY') && style.textShadowOffset) {
+    delete style.textShadowOffset[offsetMap[property]];
+    if (Object.keys(style.textShadowOffset).length === 0) {
+      delete style.textShadowOffset;
+    }
+  }
+}
+
+/**
+ * remove empty style
+ * @param property
+ * @param value
+ * @param style
+ */
+function removeStyle(property, value, style) {
+  if (value === undefined) {
+    delete style[property];
+    removeLinearGradient(property, value, style);
+    removeTextShadowOffset(property, value, style);
+  }
 }
 
 class ElementNode extends ViewNode {
@@ -198,8 +244,8 @@ class ElementNode extends ViewNode {
     this.id = '';
     // style attribute in template.
     this.style = {};
-    // Vue style scope id.
-    this._styleScopeId = null;
+    // Vue style scope id list.
+    this.scopeIdList = [];
     // Class attribute in template.
     this.classList = new Set(); // Fake DOMTokenLis
     // Other attributes in template.
@@ -242,8 +288,10 @@ class ElementNode extends ViewNode {
     return this.attributes[key];
   }
 
-  setAttribute(key, value, options = {}) {
+  setAttribute(rawKey, rawValue, options = {}) {
     try {
+      let key = rawKey;
+      let value = rawValue;
       // detect expandable attrs for boolean values
       // See https://vuejs.org/v2/guide/components-props.html#Passing-a-Boolean
       if (typeof (this.attributes[key]) === 'boolean' && value === '') {
@@ -281,51 +329,59 @@ class ElementNode extends ViewNode {
             try {
               value = value.toString();
             } catch (err) {
-              throw new TypeError(`Property ${key} must be string：${err.message}`);
+              warn(`Property ${key} must be string：${err.message}`);
             }
           }
           if (!options || !options.textUpdate) {
-            value = value.trim().replace(/(&nbsp;|Â)/g, ' ');
+            // white space handler
+            value = whitespaceFilter(value);
           }
-          this.attributes[key] = unicodeToChar(value);
+          value = unicodeToChar(value);
           break;
         }
         case 'numberOfRows':
-          this.attributes[key] = value;
           if (Native.Platform !== 'ios') {
             return;
           }
           break;
         case 'caretColor':
         case 'caret-color':
-          this.attributes['caret-color'] = Native.parseColor(value);
+          key = 'caret-color';
+          value = Native.parseColor(value);
+          break;
+        case 'break-strategy':
+          key = 'breakStrategy';
           break;
         case 'placeholderTextColor':
         case 'placeholder-text-color':
-          this.attributes.placeholderTextColor = Native.parseColor(value);
+          key = 'placeholderTextColor';
+          value = Native.parseColor(value);
           break;
         case 'underlineColorAndroid':
         case 'underline-color-android':
-          this.attributes.underlineColorAndroid = Native.parseColor(value);
+          key = 'underlineColorAndroid';
+          value = Native.parseColor(value);
           break;
         case 'nativeBackgroundAndroid': {
           const nativeBackgroundAndroid = value;
           if (typeof nativeBackgroundAndroid.color !== 'undefined') {
             nativeBackgroundAndroid.color = Native.parseColor(nativeBackgroundAndroid.color);
           }
-          this.attributes.nativeBackgroundAndroid = nativeBackgroundAndroid;
+          key = 'nativeBackgroundAndroid';
+          value = nativeBackgroundAndroid;
           break;
         }
         default:
-          this.attributes[key] = value;
       }
+      if (this.attributes[key] === value) return;
+      this.attributes[key] = value;
       if (typeof this.filterAttribute === 'function') {
         this.filterAttribute(this.attributes);
       }
       !options.notToNative && updateChild(this);
     } catch (err) {
       // Throw error in development mode
-      if (process.env.NODE_ENV !== 'production') {
+      if (isDev()) {
         throw err;
       }
     }
@@ -335,64 +391,78 @@ class ElementNode extends ViewNode {
     delete this.attributes[key];
   }
 
-  setStyle(property, value, notToNative = false) {
-    if (value === undefined) {
-      delete this.style[property];
+  setStyles(batchStyles) {
+    if (!batchStyles || typeof batchStyles !== 'object' || Object.keys(batchStyles).length === 0) {
       return;
     }
+    Object.keys(batchStyles).forEach((styleKey) => {
+      const styleValue = batchStyles[styleKey];
+      this.setStyle(styleKey, styleValue, true);
+    });
+    updateChild(this);
+  }
+
+  setStyle(rawKey, rawValue, notToNative = false) {
     // Preprocess the style
     let {
-      property: p,
-      value: v,
-    } = this.beforeLoadStyle({
-      property,
       value,
+      property: key,
+    } = this.beforeLoadStyle({
+      property: rawKey,
+      value: rawValue,
     });
+    if (rawValue === undefined) {
+      removeStyle(key, value, this.style);
+      if (!notToNative) {
+        updateChild(this);
+      }
+      return;
+    }
     // Process the specific style value
-    switch (p) {
+    switch (key) {
       case 'fontWeight':
-        if (typeof v !== 'string') {
-          v = v.toString();
+        if (typeof value !== 'string') {
+          value = value.toString();
         }
         break;
       case 'backgroundImage': {
-        [p, v] = parseBackgroundImage(p, v);
+        [key, value] = parseBackgroundImage(key, value, this.style);
         break;
       }
       case 'textShadowOffsetX':
       case 'textShadowOffsetY': {
-        [p, v] = parseTextShadowOffset(p, v, this.style);
+        [key, value] = parseTextShadowOffset(key, value, this.style);
         break;
       }
       case 'textShadowOffset': {
-        const { x = 0, width = 0, y = 0, height = 0 } = v || {};
-        v = { width: x || width, height: y || height };
+        const { x = 0, width = 0, y = 0, height = 0 } = value || {};
+        value = { width: x || width, height: y || height };
         break;
       }
       default: {
         // Convert the property to W3C standard.
-        if (Object.prototype.hasOwnProperty.call(PROPERTIES_MAP, p)) {
-          p = PROPERTIES_MAP[p];
+        if (Object.prototype.hasOwnProperty.call(PROPERTIES_MAP, key)) {
+          key = PROPERTIES_MAP[key];
         }
         // Convert the value
-        if (typeof v === 'string') {
-          v = v.trim();
+        if (typeof value === 'string') {
+          value = value.trim();
           // Convert inline color style to int
-          if (p.toLowerCase().indexOf('color') >= 0) {
-            v = colorParser(v, Native.Platform);
-          // Convert inline length style, drop the px unit
-          } else if (endsWith(v, 'px')) {
-            v = parseFloat(v.slice(0, v.length - 2));
+          if (key.toLowerCase().indexOf('color') >= 0) {
+            value = Native.parseColor(value);
+            // Convert inline length style, drop the px unit
+          } else if (endsWith(value, 'px')) {
+            value = parseFloat(value.slice(0, value.length - 2));
           } else {
-            v = tryConvertNumber(v);
+            value = tryConvertNumber(value);
           }
         }
       }
     }
-    if (v === undefined || v === null || this.style[p] === v) {
+    if (value === undefined || value === null || this.style[key] === value) {
       return;
     }
-    this.style[p] = v;
+    this.style[key] = value;
     if (!notToNative) {
       updateChild(this);
     }
@@ -404,17 +474,12 @@ class ElementNode extends ViewNode {
   setNativeProps(nativeProps) {
     if (nativeProps) {
       const { style } = nativeProps;
-      if (style) {
-        Object.keys(style).forEach((key) => {
-          this.setStyle(key, style[key], true);
-        });
-        updateChild(this);
-      }
+      this.setStyles(style);
     }
   }
 
   /**
-   * repaint element with latest style map, which maybe loaded from HMR chunk or dynamic chunk
+   * repaint element with the latest style map, which maybe loaded from HMR chunk or dynamic chunk
    */
   repaintWithChildren() {
     updateWithChildren(this);
@@ -424,7 +489,13 @@ class ElementNode extends ViewNode {
     if (typeof styleScopeId !== 'string') {
       styleScopeId = styleScopeId.toString();
     }
-    this._styleScopeId = styleScopeId;
+    if (styleScopeId && !this.scopeIdList.includes(styleScopeId)) {
+      this.scopeIdList.push(styleScopeId);
+    }
+  }
+
+  get styleScopeId() {
+    return this.scopeIdList;
   }
 
   appendChild(childNode) {
@@ -475,7 +546,12 @@ class ElementNode extends ViewNode {
       }
     }
     if (typeof this.polyfillNativeEvents === 'function') {
-      ({ eventNames, callback, options } = this.polyfillNativeEvents('addEventListener', eventNames, callback, options));
+      ({ eventNames, callback, options } = this.polyfillNativeEvents(
+        EventMethod.ADD,
+        eventNames,
+        callback,
+        options,
+      ));
     }
     this._emitter.addEventListener(eventNames, callback, options);
     updateChild(this);
@@ -486,7 +562,12 @@ class ElementNode extends ViewNode {
       return null;
     }
     if (typeof this.polyfillNativeEvents === 'function') {
-      ({ eventNames, callback, options } = this.polyfillNativeEvents('removeEventListener', eventNames, callback, options));
+      ({ eventNames, callback, options } = this.polyfillNativeEvents(
+        EventMethod.REMOVE,
+        eventNames,
+        callback,
+        options,
+      ));
     }
     const observer = this._emitter.removeEventListener(eventNames, callback, options);
     updateChild(this);
@@ -500,8 +581,8 @@ class ElementNode extends ViewNode {
     // Current Target always be the event listener.
     eventInstance.currentTarget = this;
     // But target be the first target.
-    // Be careful, here's different than Browser,
-    // because Hippy can't callback without element _emitter.
+    // Be careful, here's different from Browser,
+    // because Hippy can't call back without element _emitter.
     if (!eventInstance.target) {
       eventInstance.target = this;
       // IMPORTANT: It's important for vnode diff and directive trigger.
@@ -519,12 +600,13 @@ class ElementNode extends ViewNode {
 
   /**
    * getBoundingClientRect
-   *
+   * @deprecated
    * Get the position and size of element
    * Because it's a async function, need await prefix.
    *
    * And if the element is out of visible area, result will be none.
    */
+
   getBoundingClientRect() {
     return Native.measureInWindow(this);
   }

@@ -158,6 +158,14 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
         @Override
         public void run() {
           dispatchLayout();
+          // check end reached
+          int itemCount = mLayout.getItemCount();
+          boolean hasContent = itemCount > 1
+                  || (itemCount == 1 && !(mAdapter.getItemNode(0) instanceof PullFooterRenderNode));
+          if (hasContent) {
+            mEndChecker.reset();
+            mEndChecker.check(HippyWaterfallView.this);
+          }
         }
       };
     }
@@ -264,7 +272,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
   @Override
   public void onScrolled(int x, int y) {
     super.onScrolled(x, y);
-    mEndChecker.onScroll(this, y);
+    mEndChecker.check(this);
   }
 
   public void startRefresh(int type) {
@@ -458,9 +466,14 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
       NodeHolder contentHolder = new NodeHolder();
       RenderNode contentViewRenderNode = mHippyContext.getRenderManager()
         .getRenderNode(getId()).getChildAt(position);
-      contentViewRenderNode.setLazy(false);
 
-      contentHolder.mContentView = contentViewRenderNode.createViewRecursive();
+      if (!contentViewRenderNode.isIsLazyLoad()) {
+        int id = contentViewRenderNode.getId();
+        contentHolder.mContentView = mHippyContext.getRenderManager().getControllerManager().findView(id); // contentViewRenderNode.findView(id);
+      } else {
+        contentViewRenderNode.setLazy(false);
+        contentHolder.mContentView = contentViewRenderNode.createViewRecursive();
+      }
       FooterUtil.checkFooterBinding(mParentRecyclerView, contentHolder.mContentView);
 
       contentHolder.mBindNode = contentViewRenderNode;

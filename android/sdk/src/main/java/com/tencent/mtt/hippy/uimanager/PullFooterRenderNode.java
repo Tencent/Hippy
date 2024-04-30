@@ -28,6 +28,11 @@ public class PullFooterRenderNode extends ListItemRenderNode {
     super(mId, mPropsToUpdate, className, mRootView, componentManager, isLazyLoad);
   }
 
+  @Override
+  public boolean shouldSticky() {
+    return false;
+  }
+
   /**
    * 通过类名的hashCode来定义type，计算出来是一个很大的值，几乎不会和前端类型重复
    */

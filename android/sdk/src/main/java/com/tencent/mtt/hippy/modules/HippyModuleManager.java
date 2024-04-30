@@ -47,4 +47,10 @@ public interface HippyModuleManager {
     * @param apiProviders API providers need to be added.
     */
     void addModules(List<HippyAPIProvider> apiProviders);
+
+    /**
+     * Get the number of native module, use for data report
+     * @return native module count
+     */
+    int getNativeModuleCount();
 }

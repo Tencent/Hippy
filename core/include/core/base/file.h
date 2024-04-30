@@ -41,52 +41,76 @@ namespace base {
 class HippyFile {
  public:
   using unicode_string_view = tdf::base::unicode_string_view;
-  static bool SaveFile(const unicode_string_view& file_name,
-                       const std::string& content,
-                       std::ios::openmode mode = std::ios::out |
-                                                 std::ios::binary |
-                                                 std::ios::trunc);
+  static int RmFile(const unicode_string_view& file_path);
   static int RmFullPath(const unicode_string_view& dir_full_path);
   static int CreateDir(const unicode_string_view& path, mode_t mode);
   static int CheckDir(const unicode_string_view& path, int mode);
   static uint64_t GetFileModifytime(const unicode_string_view& file_path);
 
+  static bool ReadFile(const unicode_string_view& file_path,
+                       const std::function<void*(size_t)>& realloc,
+                       bool is_auto_fill);
+
   template <typename CharType>
   static bool ReadFile(const unicode_string_view& file_path,
-                       std::basic_string<CharType>& bytes,
+                       std::basic_string<CharType>& buffer,
                        bool is_auto_fill) {
-    unicode_string_view owner(""_u8s);
-    const char* path = StringViewUtils::ToConstCharPointer(file_path, owner);
-    std::ifstream file(path);
-    if (!file.fail()) {
-      file.ignore(std::numeric_limits<std::streamsize>::max());
-      std::streamsize size = file.gcount();
-      file.clear();
-      file.seekg(0, std::ios_base::beg);
-      size_t data_size;
-      if (!numeric_cast<std::streamsize, size_t>(size + (is_auto_fill ? 1:0), data_size)) {
-        file.close();
-        return false;
-      }
-      bytes.resize(data_size);
-      auto read_size =
-          file.read(reinterpret_cast<char *>(&bytes[0]), size).gcount();
-      if (size != read_size) {
-        TDF_BASE_DLOG(WARNING)
-            << "ReadFile file_path = " << file_path << ", size = " << size
-            << ", read_size = " << read_size;
-      }
-      if (is_auto_fill) {
-        bytes.back() = '\0';
+    return ReadFile(file_path, [&buffer](size_t length) {
+      buffer.resize(length);
+      return &buffer[0];
+    }, is_auto_fill);
+  }
+
+  template <typename CharType>
+  static bool ReadFile(const unicode_string_view& file_path,
+                       std::vector<CharType>& buffer,
+                       bool is_auto_fill) {
+    return ReadFile(file_path, [&buffer](size_t length) {
+      buffer.resize(length);
+      return &buffer[0];
+    }, is_auto_fill);
+  }
+
+  template <typename CharType>
+  static bool SaveFile(const unicode_string_view& file_path,
+                       const CharType* pointer,
+                       size_t length,
+                       std::ios::openmode mode = std::ios::out |
+                           std::ios::binary |
+                           std::ios::trunc) {
+    TDF_BASE_DLOG(INFO) << "SaveFile file_path = " << file_path;
+    auto path_str = StringViewUtils::Convert(
+        file_path, unicode_string_view::Encoding::Utf8).utf8_value();
+    std::ofstream file(reinterpret_cast<const char*>(path_str.c_str()), mode);
+    if (file.is_open()) {
+      std::streamsize len;
+      bool is_success = numeric_cast<size_t, std::streamsize>(length, len);
+      if (is_success) {
+        file.write(reinterpret_cast<const char*>(pointer), len);
       }
       file.close();
-      TDF_BASE_DLOG(INFO) << "ReadFile succ, file_path = " << file_path
-                          << ", size = " << size
-                          << ", read_size = " << read_size;
-      return true;
+      return is_success;
+    } else {
+      return false;
     }
-    TDF_BASE_DLOG(INFO) << "ReadFile fail, file_path = " << file_path;
-    return false;
+  }
+
+  template<typename CharType>
+  static bool SaveFile(const unicode_string_view& file_name,
+                       const std::basic_string<CharType>& content,
+                       std::ios::openmode mode = std::ios::out |
+                           std::ios::binary |
+                           std::ios::trunc) {
+    return SaveFile(file_name, content.c_str(), content.length(), mode);
+  }
+
+  template<typename CharType>
+  static bool SaveFile(const unicode_string_view& file_name,
+                       const std::vector<CharType>& content,
+                       std::ios::openmode mode = std::ios::out |
+                           std::ios::binary |
+                           std::ios::trunc) {
+    return SaveFile(file_name, content.data(), content.size(), mode);
   }
 };
 }  // namespace base

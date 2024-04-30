@@ -22,9 +22,6 @@
 
 #import <UIKit/UIKit.h>
 
-#include "MTTNode.h"
-#include "MTTFlex.h"
-#include "MTTLayout.h"
 #import "HippyComponent.h"
 #import "HippyRootView.h"
 
@@ -61,8 +58,6 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
 - (void)removeHippySubview:(HippyShadowView *)subview NS_REQUIRES_SUPER;
 
 @property (nonatomic, weak, readonly) HippyShadowView *superview;
-//@property (nonatomic, assign, readonly) CSSNodeRef cssNode;
-@property (nonatomic, assign, readonly) MTTNodeRef nodeRef;
 @property (nonatomic, copy) NSString *viewName;
 @property (nonatomic, strong) UIColor *backgroundColor;  // Used to propagate to children
 @property (nonatomic, copy) HippyDirectEventBlock onLayout;
@@ -173,6 +168,20 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
  */
 @property (nonatomic, assign) OverflowType overflow;
 
+
+#pragma mark - Text Attachment Properties
+
+/// Vertical Alignment for Text / Text Attachment,
+/// Note that this property only takes effect for Nested Text.
+@property (nonatomic, assign) HippyTextVerticalAlignType verticalAlignType;
+
+/// Vertical Align Offset for Text / Text Attachment,
+/// Note that this property only takes effect for Nested Text.
+@property (nonatomic, assign) CGFloat verticalAlignOffset;
+
+
+#pragma mark -
+
 /**
  * Calculate property changes that need to be propagated to the view.
  * The applierBlocks set contains HippyApplierBlock functions that must be applied
@@ -207,22 +216,6 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
                       hidden:(BOOL)hidden
             absolutePosition:(CGPoint)absolutePosition;
 
-/**
- * Apply the CSS layout.
- * This method also calls `applyLayoutToChildren:` internally. The functionality
- * is split into two methods so subclasses can override `applyLayoutToChildren:`
- * while using default implementation of `applyLayoutNode:`.
- */
-- (void)applyLayoutNode:(MTTNodeRef)node
-      viewsWithNewFrame:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
-       absolutePosition:(CGPoint)absolutePosition NS_REQUIRES_SUPER;
-
-/**
- * Enumerate the child nodes and tell them to apply layout.
- */
-- (void)applyLayoutToChildren:(MTTNodeRef)node
-            viewsWithNewFrame:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
-             absolutePosition:(CGPoint)absolutePosition;
 
 /**
  * Return whether or not this node acts as a leaf node in the eyes of CSSLayout. For example

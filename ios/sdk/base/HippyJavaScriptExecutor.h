@@ -26,12 +26,14 @@
 
 #import "HippyBridgeModule.h"
 #import "HippyInvalidating.h"
+
+#ifdef __cplusplus
 #include <memory>
+class Scope;
+#endif
 
 typedef void (^HippyJavaScriptCompleteBlock)(NSError *error);
 typedef void (^HippyJavaScriptCallback)(id result, NSError *error);
-
-class Scope;
 
 /**
  * Abstracts away a JavaScript execution context - we may be running code in a
@@ -52,47 +54,62 @@ class Scope;
 @property (nonatomic, readonly, getter=isValid) BOOL valid;
 
 @property (nonatomic, copy) NSString *executorkey;
-/*
- *hippy-core js engine
- */
+
+#ifdef __cplusplus
 @property (atomic, assign) std::shared_ptr<Scope> pScope;
+#endif
+
+
+/// hippy-core js engine
 @property (readonly) JSGlobalContextRef JSGlobalContextRef;
-/**
- * Executes BatchedBridge.flushedQueue on JS thread and calls the given callback
- * with JSValue, containing the next queue, and JSContext.
- */
+
+/// Executes BatchedBridge.flushedQueue on JS thread and calls the given callback
+/// with JSValue, containing the next queue, and JSContext.
+///
+/// - Parameter onComplete: callback
 - (void)flushedQueue:(HippyJavaScriptCallback)onComplete;
 
-/**
- * called when second bundle load
- */
+/// Controls whether this JSContext is inspectable in Web Inspector. iOS 16.4 added
+/// - Parameter inspectable: bool value
+- (void)setInspectable:(BOOL)inspectable;
+
+/// called when second bundle load
+/// - Parameter success: load result
 - (void)secondBundleLoadCompleted:(BOOL)success;
 
-/**
- * called before excute secondary js bundle
- */
+/// called before excute secondary js bundle
 - (void)updateGlobalObjectBeforeExcuteSecondary;
 
-/**
- * Executes BatchedBridge.callFunctionReturnFlushedQueue with the module name,
- * method name and optional additional arguments on the JS thread and calls the
- * given callback with JSValue, containing the next queue, and JSContext.
- */
-- (void)callFunctionOnModule:(NSString *)module method:(NSString *)method arguments:(NSArray *)args callback:(HippyJavaScriptCallback)onComplete;
+/// Updated hippy global info
+/// - Parameter dict: updated info
+- (void)updateNativeInfoToHippyGlobalObject:(NSDictionary *)dict;
 
-/**
- * Executes BatchedBridge.invokeCallbackAndReturnFlushedQueue with the cbID,
- * and optional additional arguments on the JS thread and calls the
- * given callback with JSValue, containing the next queue, and JSContext.
- */
-- (void)invokeCallbackID:(NSNumber *)cbID arguments:(NSArray *)args callback:(HippyJavaScriptCallback)onComplete;
+/// Executes BatchedBridge.callFunctionReturnFlushedQueue with the module name,
+/// method name and optional additional arguments on the JS thread and calls the
+/// given callback with JSValue, containing the next queue, and JSContext.
+- (void)callFunctionOnModule:(NSString *)moduleName
+                      method:(NSString *)method
+                   arguments:(NSArray *)args
+                    callback:(HippyJavaScriptCallback)onComplete;
+
+/// Executes BatchedBridge.invokeCallbackAndReturnFlushedQueue with the cbID,
+/// and optional additional arguments on the JS thread and calls the
+/// given callback with JSValue, containing the next queue, and JSContext.
+- (void)invokeCallbackID:(NSNumber *)cbID
+               arguments:(NSArray *)args
+                callback:(HippyJavaScriptCallback)onComplete;
 
 /**
  * Runs an application script, and notifies of the script load being complete via `onComplete`.
  */
-- (void)executeApplicationScript:(NSData *)script sourceURL:(NSURL *)sourceURL onComplete:(HippyJavaScriptCompleteBlock)onComplete;
+- (void)executeApplicationScript:(NSData *)script
+                       sourceURL:(NSURL *)sourceURL
+                  isCommonBundle:(BOOL)isCommonBundle
+                      onComplete:(HippyJavaScriptCompleteBlock)onComplete;
 
-- (void)injectJSONText:(NSString *)script asGlobalObjectNamed:(NSString *)objectName callback:(HippyJavaScriptCompleteBlock)onComplete;
+- (void)injectJSONText:(NSString *)script
+   asGlobalObjectNamed:(NSString *)objectName
+              callback:(HippyJavaScriptCompleteBlock)onComplete;
 
 /**
  * Enqueue a block to run in the executors JS thread. Fallback to `dispatch_async`

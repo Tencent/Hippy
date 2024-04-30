@@ -223,7 +223,7 @@ NSString *HippyMD5Hash(NSString *string) {
                      result[15]];
 }
 
-BOOL HippyIsMainQueue() {
+BOOL HippyIsMainQueue(void) {
     static void *mainQueueKey = &mainQueueKey;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -250,7 +250,7 @@ void HippyExecuteOnMainThread(dispatch_block_t block, BOOL sync) {
     }
 }
 
-CGFloat HippyScreenScale() {
+CGFloat HippyScreenScale(void) {
     static CGFloat scale = CGFLOAT_MAX;
     static dispatch_once_t onceToken;
     if (CGFLOAT_MAX == scale) {
@@ -265,7 +265,7 @@ CGFloat HippyScreenScale() {
     return scale;
 }
 
-CGSize HippyScreenSize() {
+CGSize HippyScreenSize(void) {
     static CGSize size = { 0, 0 };
     static dispatch_once_t onceToken;
     if (CGSizeEqualToSize(CGSizeZero, size)) {
@@ -332,6 +332,19 @@ void HippySwapInstanceMethods(Class cls, SEL original, SEL replacement) {
     } else {
         method_exchangeImplementations(originalMethod, replacementMethod);
     }
+}
+
+void HippySwapInstanceMethodWithBlock(Class cls, SEL original, id replacementBlock, SEL replacementSelector)
+{
+  Method originalMethod = class_getInstanceMethod(cls, original);
+  if (!originalMethod) {
+    return;
+  }
+
+  IMP implementation = imp_implementationWithBlock(replacementBlock);
+  class_addMethod(cls, replacementSelector, implementation, method_getTypeEncoding(originalMethod));
+  Method newMethod = class_getInstanceMethod(cls, replacementSelector);
+  method_exchangeImplementations(originalMethod, newMethod);
 }
 
 BOOL HippyClassOverridesClassMethod(Class cls, SEL selector) {
@@ -418,7 +431,42 @@ UIWindow *__nullable HippyKeyWindow(void) {
     if (HippyRunningInAppExtension()) {
         return nil;
     }
-    return HippySharedApplication().keyWindow;
+    UIWindow *keyWindow = nil;
+    UIApplication *application = HippySharedApplication();
+    if (@available(iOS 13.0, *)) {
+        NSArray<UIScene *> *scenes = [[application connectedScenes] allObjects];
+        BOOL keyWindowFound = NO;
+        for (UIScene *obj in scenes) {
+            if (UISceneActivationStateForegroundActive != obj.activationState) {
+                continue;
+            }
+            if ([obj isKindOfClass:[UIWindowScene class]]) {
+                UIWindowScene *windowScene = (UIWindowScene *)obj;
+                if (@available(iOS 15.0, *)) {
+                    keyWindow = windowScene.keyWindow;
+                    break;
+                }
+                else {
+                    NSArray<UIWindow *> *windows = [windowScene windows];
+                    for (UIWindow *window in windows) {
+                        if (![window isKeyWindow]) {
+                            continue;
+                        }
+                        keyWindow = window;
+                        keyWindowFound = YES;
+                        break;
+                    }
+                }
+                if (keyWindowFound) {
+                    break;
+                }
+            }
+        }
+    }
+    if (!keyWindow && [application respondsToSelector:@selector(keyWindow)]) {
+        keyWindow = [application keyWindow];
+    }
+    return keyWindow;
 }
 
 UIViewController *__nullable HippyPresentedViewController(void) {
@@ -764,8 +812,13 @@ NSURL *__nullable HippyURLByReplacingQueryParam(NSURL *__nullable URL, NSString 
 
 NSURL *__nullable HippyURLWithString(NSString *URLString, NSString *baseURLString) {
     if (URLString) {
-        NSURL *baseURL = HippyURLWithString(baseURLString, NULL);
-        CFURLRef URLRef = CFURLCreateWithString(NULL, (CFStringRef)URLString, (CFURLRef)baseURL);
+        NSURL *baseURL = nil;
+        if (baseURLString) {
+            baseURL = HippyURLWithString(baseURLString, NULL);
+            HippyAssert(baseURL, @"base url creation failed, may be contain Chinese character");
+        }
+        CFURLRef URLRef = CFURLCreateWithString(kCFAllocatorDefault, (CFStringRef)URLString, (CFURLRef)baseURL);
+        HippyAssert(URLRef, @"url creation failed, may be contain Chinese character");
         if (URLRef) {
             return CFBridgingRelease(URLRef);
         }

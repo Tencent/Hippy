@@ -61,7 +61,7 @@ const commentRegexp = /\/\*[^*]*\*+([^/*][^*]*\*+)*\//g;
  * Trim `str`.
  */
 function trim(str) {
-  return str ? str.replace(/^\s+|\s+$/g, '') : '';
+  return str ? str.trim() : '';
 }
 
 
@@ -102,7 +102,7 @@ function convertPxUnitToPt(value) {
     return value;
   }
   // If value unit is px, change to use pt as 1:1.
-  if (value.endsWith('px')) {
+  if (typeof value === 'string' && value.endsWith('px')) {
     const num = parseFloat(value.slice(0, value.indexOf('px')), 10);
     if (!Number.isNaN(num)) {
       value = num;
@@ -335,7 +335,7 @@ function parseCSS(css, options) {
    */
   function getLinearGradientAngle(value) {
     const processedValue = (value || '').replace(/\s*/g, '').toLowerCase();
-    const reg = /^([+-]?\d+\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
+    const reg = /^([+-]?(?=(?<digit>\d+))\k<digit>\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
     const valueList = reg.exec(processedValue);
     if (!Array.isArray(valueList)) return;
     // default direction is to bottom, i.e. 180degree
@@ -450,27 +450,25 @@ function parseCSS(css, options) {
         break;
       }
       case 'transform': {
-        const keyReg = /((\w+)\s*\()/;
-        const valueReg = /(?:\(['"]?)(.*?)(?:['"]?\))/;
+        const regex = /(\w+\s*)(?:\(['"]?)(.*?)(?:['"]?\))/g;
         const oldValue = value;
         value = [];
-        oldValue.split(' ').forEach((transformKeyValue) => {
-          if (keyReg.test(transformKeyValue)) {
-            const key = keyReg.exec(transformKeyValue)[2];
-            let v = valueReg.exec(transformKeyValue)[1];
-            if (v.indexOf('.') === 0) {
-              v = `0${v}`;
-            }
-            if (parseFloat(v).toString() === v) {
-              v = parseFloat(v);
-            }
-            const transform = {};
-            transform[key] = v;
-            value.push(transform);
-          } else {
-            error('missing \'(\'');
+        let group;
+        while (group = regex.exec(oldValue)) {
+          const key = group[1];
+          let v = group[2];
+          if (v.indexOf('.') === 0) {
+            v = `0${v}`;
           }
-        });
+
+          if (parseFloat(v).toString() === v) {
+            v = parseFloat(v);
+          }
+
+          const transform = {};
+          transform[key] = v;
+          value.push(transform);
+        };
         break;
       }
       case 'fontWeight':
@@ -508,15 +506,12 @@ function parseCSS(css, options) {
         break;
       }
       case 'collapsable':
-        value = Boolean(value);
+        value = value !== 'false';
         break;
       default: {
         value = tryConvertNumber(value);
         // Convert the px to pt for specific properties
-        const sizeProperties = ['top', 'left', 'right', 'bottom', 'height', 'width', 'size', 'padding', 'margin', 'ratio', 'radius', 'offset', 'spread'];
-        if (sizeProperties.find(size => property.toLowerCase().indexOf(size) > -1)) {
-          value = convertPxUnitToPt(value);
-        }
+        value = convertPxUnitToPt(value);
       }
     }
 

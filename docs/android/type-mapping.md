@@ -9,7 +9,9 @@ Hippy 在 Java 中提供了两套类型系统：
 * Recommend Type System: 全新设计的类型系统，可以双向表达所有[HTML structured clone algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm) 中支持的类型（推荐）。
 * Compatible Type System: 旧类型系统，结构简单但无法完整（双向）表达类型，仅存量代码使用（不推荐）。
 
-## 类型映射关系
+---
+
+# 类型映射关系
 
 | ECMAScript Type Category  | ECMAScript Type              | Recommend(New) Type in Java       | Compatible(Old) Type in Java           |
 |---------------------------|------------------------------|-----------------------------------|----------------------------------------|
@@ -51,7 +53,7 @@ Hippy 在 Java 中提供了两套类型系统：
 1. com.tencent.mtt.hippy.runtime.builtins
 2. com.tencent.mtt.hippy.common
 
-## 类型纠正
+# 类型纠正
 
 由于 ECMAScript 标准未定义 [number](https://262.ecma-international.org/#sec-ecmascript-language-types-number-type) 类型在 VM 内的存储（表达）方式，不同 VM 引擎实现对于相同值的存储实现有可能不同，从而引发类型偏差。
 
@@ -63,7 +65,7 @@ Hippy 在 Java 中提供了两套类型系统：
 > 例如:
 > 当 `double` 类型可以表达为 `int` 类型时，系统会自动转换为 `int` 类型
 
-## 新旧类型互转
+# 新旧类型互转
 
 新旧类型系统间的类型互转可通过调用下述方法实现：
 
@@ -75,18 +77,18 @@ Hippy 在 Java 中提供了两套类型系统：
 
 一般情况下，用户无需进行新旧类型系统间的互转。模块在注册到 Bridge 时，可以指定所需使用的类型系统。
 
-## Recommend(New) Type in Java
+# Java 中的推荐类型
 
 所有新类型系统中的类型，均定义在 `com.tencent.mtt.hippy.runtime.builtins` 这个包中。
 
-### JSValue
+## JSValue
 
 所有类型均派生于 `JSValue` 基类，主要提供了：
 
 * 对象实例类型判定：可调用 `is##Name()` 方法来确认实际类型。
 * 原始对象取值：可调用 `to##Name()` 方法得到 (wrapped)Primitives 的实际值。
 
-### JSArray
+## JSArray
 
 所有类型数组（包括密集 `JSDenseArray` 与稀疏 `JSSparseArray` 数组）均派生于 `JSAbstractArray`。
 
@@ -97,11 +99,11 @@ Hippy 在 Java 中提供了两套类型系统：
 
 如您仅想遍历获取数组内的值，可调用 `items()` 方法。
 
-### JSRegExp
+## JSRegExp
 
 由于 `java.util.regex.Pattern` 与 ECMAScript `RegExp` 对象的差异，故不支持全局（`g`）标志位与粘性匹配（`y`）标志位，而 Unicode 字符（`u`）标志位则始终启用。
 
-## 使用 Demo
+# 使用 Demo
 
 以传输给前端 `ArrayBuffer` 为例：
 

@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,7 @@ import { HippyTransferData } from './hippy-internal-types';
 export interface UIProps {
   [key: string]: any
 }
-
+export type DefaultPropsProcess = (component: HippyBaseView, data: UIProps) => void;
 export interface HippyBaseView {
   tagName: InnerNodeTag|string;
   id: number;
@@ -33,7 +33,8 @@ export interface HippyBaseView {
   dom: HTMLElement|null;
   onAttachedToWindow?: () => void;
   onLayout?: boolean;
-  updateProps?: (data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) => void;
+  updateProps?: (data: UIProps, defaultProcess: DefaultPropsProcess) => void;
+  updateProperty?: (key: string, value: any) => void;
   beforeMount?: (parent: HippyBaseView, position: number) => Promise<void>;
   beforeChildMount?: (child: HippyBaseView, childPosition: number) => Promise<void>;
   beforeRemove?: () => Promise<void>;

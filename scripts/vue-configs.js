@@ -1,36 +1,8 @@
-const path = require('path');
-const alias = require('@rollup/plugin-alias');
-const { babel } = require('@rollup/plugin-babel');
-const cjs = require('@rollup/plugin-commonjs');
-const replace = require('@rollup/plugin-replace');
-const { nodeResolve } = require('@rollup/plugin-node-resolve');
-const flow = require('rollup-plugin-flow-no-whitespace');
-
-const VueVersion = require('vue/package.json').version;
-const hippyVuePackage = require('../packages/hippy-vue/package.json');
-const cssLoaderPackage = require('../packages/hippy-vue-css-loader/package.json');
-const nativeComponentsPackage = require('../packages/hippy-vue-native-components/package.json');
-const routerPackage = require('../packages/hippy-vue-router/package.json');
-
-const andHippyVueString = ` and Hippy-Vue v${hippyVuePackage.version}`;
-
-function banner(name, version) {
-  const startYear = 2017;
-  const thisYear = new Date().getFullYear();
-  let copyRightYears = thisYear;
-  if (startYear !== thisYear) {
-    copyRightYears = `${startYear}-${thisYear}`;
-  }
-
-  return `/*!
- * ${name} v${version}
- * (Using Vue v${VueVersion}${name !== '@hippy/vue' ? andHippyVueString : ''})
- * Build at: ${new Date()}
- *
+/*
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) ${copyRightYears} THL A29 Limited, a Tencent company.
+ * Copyright (C) 2017-2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,15 +17,27 @@ function banner(name, version) {
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-`;
-}
+
+const path = require('path');
+const alias = require('@rollup/plugin-alias');
+const { babel } = require('@rollup/plugin-babel');
+const cjs = require('@rollup/plugin-commonjs');
+const replace = require('@rollup/plugin-replace');
+const { nodeResolve } = require('@rollup/plugin-node-resolve');
+const flow = require('rollup-plugin-flow-no-whitespace');
+
+const VueVersion = require('vue/package.json').version;
+const hippyVuePackage = require('../packages/hippy-vue/package.json');
+const cssLoaderPackage = require('../packages/hippy-vue-css-loader/package.json');
+const nativeComponentsPackage = require('../packages/hippy-vue-native-components/package.json');
+const routerPackage = require('../packages/hippy-vue-router/package.json');
+const { banner, resolvePackage } = require('./utils');
+const bannerStr = `\n * (Using Vue v${VueVersion})`;
+const bannerStrAndHippyVueString = `\n * (Using Vue v${VueVersion} and Hippy-Vue v${hippyVuePackage.version})`;
+
 
 function resolveVue(p) {
   return path.resolve(__dirname, '../node_modules/vue/src/', p);
-}
-
-function resolvePackage(src, extra = 'src') {
-  return path.resolve(__dirname, '../packages/', src, extra);
 }
 
 const aliases = {
@@ -75,14 +59,18 @@ const builds = {
     entry: resolvePackage('hippy-vue', 'src/index.js'),
     dest: resolvePackage('hippy-vue', 'dist/index.js'),
     format: 'es',
-    banner: banner('@hippy/vue', hippyVuePackage.version),
+    banner: banner('@hippy/vue', hippyVuePackage.version, bannerStr),
   },
   '@hippy/vue-css-loader': {
-    entry: resolvePackage('hippy-vue-css-loader', 'src/index.js'),
-    dest: resolvePackage('hippy-vue-css-loader', 'dist/index.js'),
+    entry: {
+      index: resolvePackage('hippy-vue-css-loader', 'src/index.js'),
+      'css-loader': resolvePackage('hippy-vue-css-loader', 'src/css-loader.js'),
+    },
+    dir: resolvePackage('hippy-vue-css-loader', 'dist'),
+    entryFileNames: '[name].js',
     format: 'cjs',
     moduleName: 'hippy-vue-css-loader',
-    banner: banner('@hippy/vue-css-loader', cssLoaderPackage.version),
+    banner: banner('@hippy/vue-css-loader', cssLoaderPackage.version, bannerStrAndHippyVueString),
     external(id) {
       return id in Object.keys(cssLoaderPackage.dependencies);
     },
@@ -92,14 +80,14 @@ const builds = {
     dest: resolvePackage('hippy-vue-native-components', 'dist/index.js'),
     format: 'es',
     moduleName: 'hippy-vue-native-components',
-    banner: banner('@hippy/vue-native-components', nativeComponentsPackage.version),
+    banner: banner('@hippy/vue-native-components', nativeComponentsPackage.version, bannerStrAndHippyVueString),
   },
   '@hippy/vue-router': {
     entry: resolvePackage('hippy-vue-router', 'src/index.js'),
     dest: resolvePackage('hippy-vue-router', 'dist/index.js'),
     format: 'es',
     moduleName: 'hippy-vue-router',
-    banner: banner('@hippy/vue-router', routerPackage.version),
+    banner: banner('@hippy/vue-router', routerPackage.version, bannerStrAndHippyVueString),
   },
 };
 
@@ -155,6 +143,8 @@ function genConfig(name) {
       }),
     ].concat(opts.plugins || []),
     output: {
+      entryFileNames: opts.entryFileNames,
+      dir: opts.dir,
       file: opts.dest,
       format: opts.format,
       banner: opts.banner,

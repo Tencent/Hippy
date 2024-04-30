@@ -120,7 +120,7 @@ function convertToDegree(value: string, unit = DEGREE_UNIT.DEG): string {
  */
 function getLinearGradientAngle(value: string): string | undefined {
   const processedValue = (value || '').replace(/\s*/g, '').toLowerCase();
-  const reg = /^([+-]?\d+\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
+  const reg = /^([+-]?(?=(?<digit>\d+))\k<digit>\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
   const valueList = reg.exec(processedValue);
   if (!Array.isArray(valueList)) return;
   // default direction is to bottom, i.e. 180degree
@@ -357,6 +357,8 @@ class ElementNode extends ViewNode {
         (this.style as any)[styleKey] = colorArrayParse((styleValue as Color[]));
       } else if (styleKey.toLowerCase().indexOf('color') > -1) {
         (this.style as any)[styleKey] = colorParse((styleValue as Color));
+      } else if (styleKey === 'fontWeight' && styleValue) {
+        (this.style as any)[styleKey] = typeof styleValue !== 'string' ? styleValue.toString() : styleValue;
       } else if (styleKey === 'backgroundImage' && styleValue) {
         this.style = parseBackgroundImage(styleKey, styleValue, this.style);
       } else if (styleKey === 'textShadowOffset') {

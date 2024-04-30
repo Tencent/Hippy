@@ -31,8 +31,6 @@
 #import "HippyBaseListViewCell.h"
 #import "HippyVirtualList.h"
 
-#define kCellZIndexConst 10000.f
-
 @interface HippyBaseListView () <HippyScrollProtocol, HippyRefreshDelegate>
 
 @end
@@ -43,11 +41,13 @@
     NSHashTable *_scrollListeners;
     BOOL _isInitialListReady;
     NSUInteger _preNumberOfRows;
+    BOOL _allowNextScrollNoMatterWhat;
     NSTimeInterval _lastScrollDispatchTime;
     NSArray<HippyVirtualNode *> *_subNodes;
     HippyHeaderRefresh *_headerRefreshView;
     HippyFooterRefresh *_footerRefreshView;
     NSArray<HippyBaseListViewCell *> *_previousVisibleCells;
+    NSMutableDictionary<NSIndexPath *, NSNumber *> *_cachedItems;
 }
 
 @synthesize node = _node;
@@ -60,6 +60,10 @@
         _isInitialListReady = NO;
         _preNumberOfRows = 0;
         _preloadItemNumber = 1;
+        _cachedItems = [NSMutableDictionary dictionaryWithCapacity:64];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didReceiveMemoryWarning)
+                                                     name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
         [self initTableView];
     }
 
@@ -130,7 +134,10 @@
     [_tableView reloadData];
 
     if (self.initialContentOffset) {
-        [_tableView setContentOffset:CGPointMake(0, self.initialContentOffset) animated:NO];
+        CGFloat initialContentOffset = self.initialContentOffset;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.tableView setContentOffset:CGPointMake(0, initialContentOffset) animated:NO];
+        });
         self.initialContentOffset = 0;
     }
 
@@ -165,6 +172,13 @@
         _footerRefreshView.delegate = self;
         _footerRefreshView.frame = [self.node.subNodes[atIndex] frame];
     }
+}
+
+- (void)removeHippySubview:(UIView *)subview {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self
+                                             selector:@selector(purgeFurthestIndexPathsFromScreen)
+                                               object:nil];
+    [self purgeFurthestIndexPathsFromScreen];
 }
 
 #pragma mark -Scrollable
@@ -203,12 +217,16 @@
 }
 
 - (void)scrollToContentOffset:(CGPoint)offset animated:(BOOL)animated {
+    // Ensure at least one scroll event will fire
+    _allowNextScrollNoMatterWhat = YES;
+    
     [self.tableView setContentOffset:offset animated:animated];
 }
 
 - (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated {
     NSIndexPath *indexPath = [self.dataSource indexPathForFlatIndex:index];
     if (indexPath != nil) {
+        _allowNextScrollNoMatterWhat = YES;
         [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:animated];
     }
 }
@@ -254,8 +272,6 @@
         NSString *type = header.itemViewType;
         UIView *headerView = [tableView dequeueReusableHeaderFooterViewWithIdentifier:type];
         headerView = [_bridge.uiManager createViewFromNode:header];
-        //make sure section view's zPosition is higher than last cell's in section {section}
-        headerView.layer.zPosition = [self zPositionOfSectionView:headerView forSection:section];
         return headerView;
     } else {
         return nil;
@@ -265,7 +281,7 @@
 - (CGFloat)tableView:(__unused UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
 {
     HippyVirtualCell *cell = [_dataSource cellForIndexPath:indexPath];
-    return ceil(CGRectGetHeight(cell.frame));
+    return CGRectGetHeight(cell.frame);
 }
 
 - (NSInteger)tableView:(__unused UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -306,6 +322,7 @@
     NSAssert([cell isKindOfClass:[HippyBaseListViewCell class]], @"cell must be subclass of HippyBaseListViewCell");
     if ([cell isKindOfClass:[HippyBaseListViewCell class]]) {
         HippyBaseListViewCell *hippyCell = (HippyBaseListViewCell *)cell;
+        [_cachedItems setObject:[hippyCell.cellView hippyTag] forKey:indexPath];
         hippyCell.node.cell = nil;
     }
 }
@@ -320,21 +337,15 @@
         cell = [[cls alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
         cell.tableView = tableView;
     }
-    UIView *cellView = nil;
-    if (cell.node.cell) {
-        cellView = [_bridge.uiManager createViewFromNode:indexNode];
-    } else {
-        cellView = [_bridge.uiManager updateNode:cell.node withNode:indexNode];
-        if (nil == cellView) {
-            cellView = [_bridge.uiManager createViewFromNode:indexNode];
-        }
-    }
-    cell.layer.zPosition = [self zPositionOfCell:cell forRowAtIndexPath:indexPath];
+    UIView *cellView = [_bridge.uiManager createViewFromNode:indexNode];
     HippyAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of HippyBaseListViewCell must conform to protocol ViewAppearStateProtocol");
     cell.cellView = (UIView<ViewAppearStateProtocol> *)cellView;
     cell.node = indexNode;
     cell.node.cell = cell;
+    if (cellView) {
+        [_cachedItems removeObjectForKey:indexPath];
+    }
     return cell;
 }
 
@@ -359,27 +370,17 @@
     _previousVisibleCells = visibleCells;
 }
 
-- (CGFloat)zPositionOfCell:(HippyBaseListViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
-    return [indexPath section] * kCellZIndexConst + [indexPath row];
-}
-
-- (CGFloat)zPositionOfSectionView:(UIView *)sectionView forSection:(NSInteger)section {
-    CGFloat zPositionForFirstCellInSection = section * kCellZIndexConst;
-    NSInteger numberOfRowsInSection = [self.tableView numberOfRowsInSection:section];
-    //make sure section view's zPosition is higher than last cell's in section {section}
-    return zPositionForFirstCellInSection + numberOfRowsInSection;
-}
-
 #pragma mark - Scroll
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     if (self.onScroll) {
-        double ti = CACurrentMediaTime();
-        double timeDiff = (ti - _lastScrollDispatchTime) * 1000.f;
-        if (timeDiff > self.scrollEventThrottle) {
+        CFTimeInterval now = CACurrentMediaTime();
+        CFTimeInterval ti = (now - _lastScrollDispatchTime) * 1000.f;
+        if (ti > _scrollEventThrottle || _allowNextScrollNoMatterWhat) {
             NSDictionary *eventData = [self scrollBodyData];
-            _lastScrollDispatchTime = ti;
+            _lastScrollDispatchTime = now;
             self.onScroll(eventData);
+            _allowNextScrollNoMatterWhat = NO;
         }
     }
 
@@ -388,12 +389,15 @@
             [scrollViewListener scrollViewDidScroll:scrollView];
         }
     }
-
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
+    [self performSelector:@selector(purgeFurthestIndexPathsFromScreen) withObject:nil afterDelay:.5f];
     [_headerRefreshView scrollViewDidScroll];
     [_footerRefreshView scrollViewDidScroll];
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    // Ensure next scroll event is recorded, regardless of throttle
+    _allowNextScrollNoMatterWhat = YES;
     if (self.onScrollBeginDrag) {
         self.onScrollBeginDrag([self scrollBodyData]);
     }
@@ -420,6 +424,10 @@
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
     if (!decelerate) {
         _manualScroll = NO;
+        
+        // Fire a final scroll event
+        _allowNextScrollNoMatterWhat = YES;
+        [self scrollViewDidScroll:scrollView];
     }
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDragging:willDecelerate:)]) {
@@ -450,6 +458,10 @@
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    // Fire a final scroll event
+    _allowNextScrollNoMatterWhat = YES;
+    [self scrollViewDidScroll:scrollView];
+    
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         self->_manualScroll = NO;
     });
@@ -490,6 +502,10 @@
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
+    // Fire a final scroll event
+    _allowNextScrollNoMatterWhat = YES;
+    [self scrollViewDidScroll:scrollView];
+    
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndScrollingAnimation:)]) {
             [scrollViewListener scrollViewDidEndScrollingAnimation:scrollView];
@@ -531,6 +547,13 @@
     _rootView = nil;
 }
 
+- (void)didMoveToWindow {
+    if (!self.window) {
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
+        [self purgeFurthestIndexPathsFromScreen];
+    }
+}
+
 - (BOOL)isManualScrolling {
     return _manualScroll;
 }
@@ -551,7 +574,82 @@
     return [_tableView showsVerticalScrollIndicator];
 }
 
+- (NSUInteger)maxCachedItemCount {
+    return NSUIntegerMax;
+}
+
+- (NSUInteger)differenceFromIndexPath:(NSIndexPath *)indexPath1 againstAnother:(NSIndexPath *)indexPath2 {
+    NSAssert([NSThread mainThread], @"must be in main thread");
+    long diffCount = 0;
+    for (NSUInteger index = MIN([indexPath1 section], [indexPath2 section]); index < MAX([indexPath1 section], [indexPath2 section]); index++) {
+        diffCount += [_tableView numberOfRowsInSection:index];
+    }
+    diffCount = diffCount + [indexPath1 row] - [indexPath2 row];
+    return labs(diffCount);
+}
+
+- (NSInteger)differenceFromIndexPath:(NSIndexPath *)indexPath
+            againstVisibleIndexPaths:(NSArray<NSIndexPath *> *)visibleIndexPaths {
+    NSIndexPath *firstIndexPath = [visibleIndexPaths firstObject];
+    NSIndexPath *lastIndexPath = [visibleIndexPaths lastObject];
+    NSUInteger diffFirst = [self differenceFromIndexPath:indexPath againstAnother:firstIndexPath];
+    NSUInteger diffLast = [self differenceFromIndexPath:indexPath againstAnother:lastIndexPath];
+    return MIN(diffFirst, diffLast);
+}
+
+- (NSArray<NSIndexPath *> *)findFurthestIndexPathsFromScreen {
+    NSUInteger visibleItemsCount = [[self.tableView visibleCells] count];
+    NSUInteger maxCachedItemCount = [self maxCachedItemCount] == NSUIntegerMax ? visibleItemsCount * 2 : [self maxCachedItemCount];
+    NSUInteger cachedCount = [_cachedItems count];
+    NSInteger cachedCountToRemove = cachedCount > maxCachedItemCount ? cachedCount - maxCachedItemCount : 0;
+    if (0 != cachedCountToRemove) {
+        NSArray<NSIndexPath *> *visibleIndexPaths = [_tableView indexPathsForVisibleRows];
+        NSArray<NSIndexPath *> *sortedCachedItemKey = [[_cachedItems allKeys] sortedArrayUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+            NSIndexPath *ip1 = obj1;
+            NSIndexPath *ip2 = obj2;
+            NSUInteger ip1Diff = [self differenceFromIndexPath:ip1 againstVisibleIndexPaths:visibleIndexPaths];
+            NSUInteger ip2Diff = [self differenceFromIndexPath:ip2 againstVisibleIndexPaths:visibleIndexPaths];
+            if (ip1Diff > ip2Diff) {
+                return NSOrderedAscending;
+            }
+            else if (ip1Diff < ip2Diff) {
+                return NSOrderedDescending;
+            }
+            else {
+                return NSOrderedSame;
+            }
+        }];
+        NSArray<NSIndexPath *> *result = [sortedCachedItemKey subarrayWithRange:NSMakeRange(0, cachedCountToRemove)];
+        return result;
+    }
+    return nil;
+}
+
+- (void)purgeFurthestIndexPathsFromScreen {
+    NSArray<NSIndexPath *> *furthestIndexPaths = [self findFurthestIndexPathsFromScreen];
+    if (furthestIndexPaths) {
+        //purge view
+        NSArray<NSNumber *> *objects = [_cachedItems objectsForKeys:furthestIndexPaths notFoundMarker:@(-1)];
+        [_bridge.uiManager removeNativeViewFromTags:objects];
+        //purge cache
+        [_cachedItems removeObjectsForKeys:furthestIndexPaths];
+    }
+}
+
+
+- (void)didReceiveMemoryWarning {
+    [self cleanUpCachedItems];
+}
+
+- (void)cleanUpCachedItems {
+    //purge view
+    NSArray<NSNumber *> *objects = [_cachedItems allValues];
+    [_bridge.uiManager removeNativeViewFromTags:objects];
+    [_cachedItems removeAllObjects];
+}
+
 - (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [_headerRefreshView unsetFromScrollView];
     [_footerRefreshView unsetFromScrollView];
 }

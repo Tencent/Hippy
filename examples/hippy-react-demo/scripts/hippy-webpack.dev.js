@@ -36,7 +36,7 @@ module.exports = {
     },
   },
   entry: {
-    index: ['regenerator-runtime', path.resolve(pkg.main)],
+    index: ['@hippy/rejection-tracking-polyfill', 'regenerator-runtime', path.resolve(pkg.main)],
   },
   output: {
     filename: 'index.bundle',

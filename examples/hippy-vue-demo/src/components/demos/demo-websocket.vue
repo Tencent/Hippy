@@ -117,6 +117,7 @@ export default {
   font-size: 14px;
   border-bottom-color: #40b883;
   border-bottom-width: 1px;
+  border-style: solid;
   padding: 0;
 }
 </style>

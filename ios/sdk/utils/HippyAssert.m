@@ -67,7 +67,7 @@ void HippyAddAssertFunction(HippyAssertFunction assertFunction) {
  * returns the topmost stacked assert function for the current thread, which
  * may not be the same as the current value of HippyCurrentAssertFunction.
  */
-static HippyAssertFunction HippyGetLocalAssertFunction() {
+static HippyAssertFunction HippyGetLocalAssertFunction(void) {
     NSMutableDictionary *threadDictionary = [NSThread currentThread].threadDictionary;
     NSArray<HippyAssertFunction> *functionStack = threadDictionary[HippyAssertFunctionStack];
     HippyAssertFunction assertFunction = functionStack.lastObject;

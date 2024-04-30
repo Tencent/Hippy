@@ -35,6 +35,7 @@
 #import "HippyVirtualNode.h"
 #import "HippyConvert+Transform.h"
 #import "HippyGradientObject.h"
+#import "HippyTextEnumDefines.h"
 
 @implementation HippyViewManager
 
@@ -102,6 +103,9 @@ HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
             }
         }
     }
+    else {
+        view.backgroundImageUrl = defaultView.backgroundImageUrl;
+    }
 }
 
 HIPPY_CUSTOM_VIEW_PROPERTY(linearGradient, NSDictionary, HippyView) {
@@ -112,8 +116,11 @@ HIPPY_CUSTOM_VIEW_PROPERTY(linearGradient, NSDictionary, HippyView) {
             [object addEntriesFromDictionary:linearGradientObject];
         }
         view.gradientObject = [[HippyGradientObject alloc] initWithGradientObject:object];
-        [view.layer setNeedsDisplay];
     }
+    else {
+        view.gradientObject = defaultView.gradientObject;
+    }
+    [view.layer setNeedsDisplay];
 }
 
 HIPPY_CUSTOM_VIEW_PROPERTY(backgroundSize, NSString, HippyView) {
@@ -129,24 +136,30 @@ HIPPY_CUSTOM_VIEW_PROPERTY(shadowColor, UIColor, HippyView) {
     if (json) {
         view.layer.shadowColor = [HippyConvert UIColor:json].CGColor;
     } else {
-        view.layer.shadowColor = [UIColor blackColor].CGColor;
+        view.layer.shadowColor = defaultView.layer.shadowColor;
     }
 }
 
 HIPPY_CUSTOM_VIEW_PROPERTY(shadowOffsetX, CGFloat, HippyView) {
+    CGSize shadowOffset = view.layer.shadowOffset;
     if (json) {
-        CGSize shadowOffset = view.layer.shadowOffset;
         shadowOffset.width = [HippyConvert CGFloat:json];
-        view.layer.shadowOffset = shadowOffset;
     }
+    else {
+        shadowOffset.width = defaultView.layer.shadowOffset.width;
+    }
+    view.layer.shadowOffset = shadowOffset;
 }
 
 HIPPY_CUSTOM_VIEW_PROPERTY(shadowOffsetY, CGFloat, HippyView) {
+    CGSize shadowOffset = view.layer.shadowOffset;
     if (json) {
-        CGSize shadowOffset = view.layer.shadowOffset;
         shadowOffset.height = [HippyConvert CGFloat:json];
-        view.layer.shadowOffset = shadowOffset;
     }
+    else {
+        shadowOffset.height = defaultView.layer.shadowOffset.height;
+    }
+    view.layer.shadowOffset = shadowOffset;
 }
 
 HIPPY_CUSTOM_VIEW_PROPERTY(shadowOffset, NSDictionary, HippyView) {
@@ -161,6 +174,9 @@ HIPPY_CUSTOM_VIEW_PROPERTY(shadowOffset, NSDictionary, HippyView) {
             height = offset[@"y"];
         }
         view.layer.shadowOffset = CGSizeMake([width floatValue], [height floatValue]);
+    }
+    else {
+        view.layer.shadowOffset = defaultView.layer.shadowOffset;
     }
 }
 
@@ -178,7 +194,6 @@ HIPPY_CUSTOM_VIEW_PROPERTY(shouldRasterizeIOS, BOOL, HippyView) {
 
 HIPPY_CUSTOM_VIEW_PROPERTY(transform, CATransform3D, HippyView) {
     view.layer.transform = json ? [HippyConvert CATransform3D:json] : defaultView.layer.transform;
-    // TODO: Improve this by enabling edge antialiasing only for transforms with rotation or skewing
     view.layer.allowsEdgeAntialiasing = !CATransform3DIsIdentity(view.layer.transform);
 }
 HIPPY_CUSTOM_VIEW_PROPERTY(pointerEvents, HippyPointerEvents, HippyView) {
@@ -337,10 +352,34 @@ HIPPY_EXPORT_VIEW_PROPERTY(onTouchCancel, HippyDirectEventBlock)
 
 HIPPY_EXPORT_SHADOW_PROPERTY(zIndex, NSInteger)
 
-HIPPY_CUSTOM_VIEW_PROPERTY(direction, MTTDirection, HippyShadowView) {
+HIPPY_CUSTOM_SHADOW_PROPERTY(direction, MTTDirection, HippyShadowView) {
     if (json) {
         MTTDirection dir = (MTTDirection)[HippyConvert int:json];
         view.layoutDirection = dir;
+    }
+    else {
+        view.layoutDirection = DirectionInherit;
+    }
+}
+
+HIPPY_CUSTOM_SHADOW_PROPERTY(verticalAlign, HippyTextAttachmentVerticalAlign, HippyShadowView) {
+    if (json && [json isKindOfClass:NSString.class]) {
+        if ([json isEqualToString:@"middle"]) {
+            view.verticalAlignType = HippyTextVerticalAlignMiddle;
+        } else if ([json isEqualToString:@"bottom"]) {
+            view.verticalAlignType = HippyTextVerticalAlignBottom;
+        } else if ([json isEqualToString:@"top"]) {
+            view.verticalAlignType = HippyTextVerticalAlignTop;
+        } else if ([json isEqualToString:@"baseline"]) {
+            view.verticalAlignType = HippyTextVerticalAlignBaseline;
+        } else {
+            HippyLogError(@"Unsupported value for verticalAlign of Text Attachment: %@, type: %@", json, [json classForCoder]);
+        }
+    } else if ([json isKindOfClass:NSNumber.class]) {
+        view.verticalAlignType = HippyTextVerticalAlignMiddle;
+        view.verticalAlignOffset = [HippyConvert CGFloat:json];
+    } else {
+        HippyLogError(@"Unsupported value for verticalAlign of Text Attachment: %@, type: %@", json, [json classForCoder]);
     }
 }
 

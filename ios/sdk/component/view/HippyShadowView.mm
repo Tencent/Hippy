@@ -21,7 +21,7 @@
  */
 
 #import "HippyShadowView.h"
-
+#import "HippyShadowView+MTTLayout.h"
 #import "HippyConvert.h"
 #import "HippyLog.h"
 #import "HippyUtils.h"
@@ -62,12 +62,7 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
 @synthesize rootTag = _rootTag;
 @synthesize parent = _parent;
 
-// not used function
-// static void HippyPrint(void *context)
-//{
-//  HippyShadowView *shadowView = (__bridge HippyShadowView *)context;
-//  printf("%s(%zd), ", shadowView.viewName.UTF8String, shadowView.hippyTag.integerValue);
-//}
+
 #define DEFINE_PROCESS_META_PROPS(type)                                                                \
     static void HippyProcessMetaProps##type(const float metaProps[META_PROP_COUNT], MTTNodeRef node) { \
         if (!isnan(metaProps[META_PROP_LEFT])) {                                                       \
@@ -324,12 +319,10 @@ DEFINE_PROCESS_META_PROPS(Border);
         MTTNodeStyleSetPosition(_nodeRef, CSSTop, frame.origin.y);
     }
 
-    //  CSSNodeCalculateLayout(_cssNode, frame.size.width, frame.size.height, CSSDirectionInherit);
     NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
     MTTDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
     nodeDirection = self.layoutDirection != DirectionInherit ? self.layoutDirection : nodeDirection;
     MTTNodeDoLayout(_nodeRef, frame.size.width, frame.size.height, nodeDirection);
-    //  [self applyLayoutNode:_cssNode viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
     [self applyLayoutNode:_nodeRef viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
 }
 
@@ -727,10 +720,10 @@ X5_STYLE_PROPERTY(DisplayType, displayType, Display, DisplayType)
     NSMutableDictionary *needUpdatedProps = [[NSMutableDictionary alloc] initWithDictionary:props];
     NSMutableArray<NSString *> *sameKeys = [NSMutableArray new];
     [self.props enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, id _Nonnull obj, __unused BOOL *stop) {
+        if ([key isEqualToString:@"rootTag"]) {
+            return;
+        }
         if (needUpdatedProps[key] == nil) {
-            // HippyNilIfNull方法会将NULL转化为nil,对于数字类型属性则为0，导致实际上为kCFNull的属性，最终会转化为0
-            //比如view长宽属性，前端并没有设置其具体数值，而使用css需要终端计算大小，但由于上述机制，导致MTT排版引擎将其宽高设置为0，0，引发bug
-            //因此这里做个判断，遇到mergeprops时，如果需要删除的属性是布局相关类型，那一律将新值设置为默认值
             needUpdatedProps[key] = [self defaultValueForKey:key];
         } else {
             if ([needUpdatedProps[key] isEqual:obj]) {

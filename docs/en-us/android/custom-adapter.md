@@ -16,6 +16,8 @@ Hippy SDK now provides these Adapters:
 - `HippyExecutorSupplierAdapter`: thread pool Adapter.
 - `HippyEngineMonitorAdapter`: Hippy engine state monitor Adapter.
 
+---
+
 # HippyImageLoaderAdapter
 
 Due to the high complexity of image loading, the implementation will increase the size of the SDK package. As each App has its own image loading mechanism, **SDK does not provide a default implementation**.

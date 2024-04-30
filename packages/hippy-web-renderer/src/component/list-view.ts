@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@
 import { VirtualizedList } from '../third-lib/virtual-list.js';
 import { NodeProps, InnerNodeTag } from '../types';
 import { setElementStyle } from '../common';
-import { HippyView } from './hippy-view';
+import { HippyWebView } from './hippy-web-view';
 import {
   eventThrottle,
   GESTURE_CAPTURE_THRESHOLD,
@@ -28,7 +28,7 @@ import {
   touchMoveCalculate,
 } from './scrollable';
 
-export class ListView extends HippyView<HTMLDivElement> {
+export class ListView extends HippyWebView<HTMLDivElement> {
   public static intersectionObserverElement(
     parentElement: Element,
     callBack: (entries: Array<IntersectionObserverEntry>) => void,
@@ -126,7 +126,7 @@ export class ListView extends HippyView<HTMLDivElement> {
 
   public set scrollEnabled(value: boolean) {
     this.props[NodeProps.SCROLL_ENABLED] = value;
-    setElementStyle(this.dom!, { overflow: this.scrollEnabled ? 'hidden' : 'scroll' });
+    setElementStyle(this.dom!, { overflow: !this.scrollEnabled ? 'hidden' : 'scroll' });
   }
 
   public get showScrollIndicator() {
@@ -219,7 +219,7 @@ export class ListView extends HippyView<HTMLDivElement> {
       if (!uiManagerModule.findViewById(itemData.id)) {
         continue;
       }
-      await uiManagerModule.componentDeleteProcess(itemData);
+      await uiManagerModule.viewDelete(itemData);
     }
   }
 
@@ -324,7 +324,6 @@ export class ListView extends HippyView<HTMLDivElement> {
       scrollEnable: this.checkScrollEnable.bind(this),
       onBeginDrag: this.handleBeginDrag.bind(this),
       onEndDrag: this.handleEndDrag.bind(this),
-      onScroll: this.handleScroll.bind(this),
       onBeginSliding: this.handleBeginSliding.bind(this),
       onEndSliding: this.handleEndSliding.bind(this),
     });
@@ -449,14 +448,17 @@ export class ListView extends HippyView<HTMLDivElement> {
     this.dom && this.onScrollBeginDrag(this.buildScrollEvent());
   }
 
-  private handleEndDrag() {
+  private async handleEndDrag() {
     this.scrollCaptureState = false;
     this.dom && this.onScrollEndDrag(this.buildScrollEvent());
   }
 
-  private handleScroll() {
+  private handleScroll(force = false) {
     window.requestAnimationFrame(this.listStickyCheck.bind(this));
-    this.dom && eventThrottle(
+    if (!this.dom) {
+      return;
+    }
+    !force && eventThrottle(
       this.lastTimestamp,
       this.scrollEventThrottle,
       () => {
@@ -464,6 +466,7 @@ export class ListView extends HippyView<HTMLDivElement> {
         this.lastTimestamp = Date.now();
       },
     );
+    force && this.onScroll(this.buildScrollEvent());
   }
 
   private handleBeginSliding() {
@@ -474,7 +477,7 @@ export class ListView extends HippyView<HTMLDivElement> {
     this.dirtyListItems.length > 0 && requestAnimationFrame(() => {
       this.checkDirtyChild();
     });
-    this.handleScroll();
+    this.handleScroll(true);
     this.dom && this.onMomentumScrollEnd(this.buildScrollEvent());
   }
 
@@ -510,6 +513,7 @@ export class ListView extends HippyView<HTMLDivElement> {
     setElementStyle(child.dom!, { visibility: 'visible', position: 'static', zIndex: 0 });
     return height;
   }
+
   private buildScrollEvent() {
     return { contentOffset: { x: 0, y: this.virtualList.getOffset() } };
   }
@@ -531,7 +535,7 @@ export class ListView extends HippyView<HTMLDivElement> {
   }
 }
 
-export class ListViewItem extends HippyView<HTMLDivElement> {
+export class ListViewItem extends HippyWebView<HTMLDivElement> {
   public height = 0;
   public isDirty = false;
   private dirtyListener: ((component: ListViewItem) => void) | null = null;
@@ -541,6 +545,14 @@ export class ListViewItem extends HippyView<HTMLDivElement> {
     this.tagName = InnerNodeTag.LIST_ITEM;
     this.dom = document.createElement('div');
     this.onLayout = true;
+  }
+
+  public set sticky(value: boolean) {
+    this.props[NodeProps.STICKY] = value;
+  }
+
+  public get sticky() {
+    return this.props[NodeProps.STICKY];
   }
 
   public addDirtyListener(callBack: ((component: ListViewItem) => void) | null) {

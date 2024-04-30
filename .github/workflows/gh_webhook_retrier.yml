@@ -1,0 +1,74 @@
+name: '[gh] webhook retrier'
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run every 10th minute.
+    - cron: '*/10 * * * *'
+
+jobs:
+  webhook_retrier:
+    if: github.repository == 'Tencent/Hippy'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Action
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.BOT_PAT }}
+        script: |
+          const { repos } = github.rest;
+          const os = require('os');
+          const fs = require('fs');
+
+          const per_page = 100;
+
+          const hooks = (await github.paginate(repos.listWebhooks, {
+            per_page,
+            ...context.repo
+          })).filter((hook) => hook.last_response && hook.active);
+
+          const retriedDeliveries = (await Promise.all(hooks.map((hook) => repos.listWebhookDeliveries({
+            per_page,
+            ...context.repo,
+            hook_id: hook.id
+          })))).map(({ data: deliveries }) => {
+            const indexed = {};
+            const failedList = new Set();
+            deliveries.forEach((delivery) => {
+              (indexed[delivery.guid] ||= []).push(delivery);
+              if (delivery.status != 'OK') {
+                failedList.add(delivery.guid);
+              }
+            });
+
+            return Array.from(failedList).filter((guid) => {
+              const failedGroup = indexed[guid];
+              return failedGroup.every((delivery) => delivery.status != 'OK') && failedGroup.length <= 4; // maximum attempts(origin included)
+            }).map((guid) => indexed[guid][0]);
+          });
+
+          (await Promise.all(retriedDeliveries.map((deliveries, hooksIndex) =>
+            Promise.allSettled(deliveries.map((delivery) =>
+              repos.redeliverWebhookDelivery({
+                ...context.repo,
+                hook_id: hooks[hooksIndex].id,
+                delivery_id: delivery.id
+              })
+            ))
+          ))).forEach((results, hooksIndex) => {
+            if (results.length > 0) {
+              const summary = [];
+
+              const hook = hooks[hooksIndex];
+              summary.push(`## ${hook.config.url} (#${hook.id})`);
+              summary.push('| guid | event | action | redelivery |');
+              summary.push('| ---- | ----- | ------ | ---------- |');
+              results.forEach((result, deliveriesIndex) => {
+                const delivery = retriedDeliveries[hooksIndex][deliveriesIndex];
+                summary.push(`| ${delivery.guid} | ${delivery.event} | ${delivery.action || ''} | ${result.status === 'fulfilled' ? ':white_check_mark:' : ':x:'} |`);
+              });
+              summary.push(os.EOL);
+
+              fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary.join(os.EOL), { encoding: 'utf8' });
+            }
+          });

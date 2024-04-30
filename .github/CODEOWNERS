@@ -8,46 +8,68 @@
 #  https://help.github.com/en/articles/about-code-owners
 #
 
-* @ilikethese @churchill-zhang @zoomchan-cxj @siguangli @ozonelmy @medns
+# universal files
+* @ilikethese @etkmao
 
-*.js @zoomchan-cxj
-*.java @siguangli
-*.cc @churchill-zhang @medns
-*.h @ozonelmy
-*.m @ozonelmy
-*.mm @ozonelmy
+# cmake related
+*.cmake @ilikethese @etkmao
+CMakeLists.txt @ilikethese @etkmao
 
-/.github/ @zoomchan-cxj
-/.husky/ @zoomchan-cxj
-/docker/ @medns
-/docs/ @zoomchan-cxj
-/package.json @zoomchan-cxj
-/package-lock.json @zoomchan-cxj
-/.nycrc @zoomchan-cxj
-/.npmignore @zoomchan-cxj
-/.editorconfig @zoomchan-cxj
-/.eslintignore @zoomchan-cxj
-/.npmignore @zoomchan-cxj
-/lerna.json @zoomchan-cxj
-/tsconfig.json @zoomchan-cxj
+# driver: js
+/.eslintignore @zealotchen0
+/.eslintrc.js @zealotchen0
+/.nycrc @zealotchen0
+/package.json @zealotchen0
+/package-lock.json @zealotchen0
+/ava.config.js @zealotchen0
+/core/ @ilikethese @etkmao
+/core/js/ @zealotchen0
+/packages/ @zealotchen0
+/packages/hippy-web-renderer/ @pba-cra @zealotchen0
 
-/core/ @churchill-zhang @zoomchan-cxj
-/core/js/ @zoomchan-cxj
+# framework: android
+/android/ @siguangli
+/android/**/src/main/jni/ @ilikethese @etkmao
 
-/android/ @siguangli @churchill-zhang
-/ios/ @ozonelmy @churchill-zhang
+# framework: ios
+/ios/ @wwwcg @ruifanyuan
 
-/examples/android-demo/ @siguangli
-/examples/android-demo/res/ @zoomchan-cxj
-/examples/ios-demo/ @ozonelmy
-/examples/ios-demo/res/ @zoomchan-cxj
-/examples/hippy-react-demo/ @zoomchan-cxj
-/examples/hippy-vue-demo/ @zoomchan-cxj
-
+# dom: layout
 /layout/ @ilikethese
 
-/packages/ @zoomchan-cxj
-/scripts/ @zoomchan-cxj
+# gh: config
+/.github/ @zealotchen0
 
+# doc: example
+/examples/ @zealotchen0
+/examples/hippy-*-demo/ @zealotchen0
+/examples/android-demo/ @siguangli
+/examples/android-demo/res/ @zealotchen0
+/examples/ios-demo/ @wwwcg @ruifanyuan
+/examples/ios-demo/res/ @zealotchen0
+/static/ @zealotchen0
 
+# doc: pages
+/*.md @zealotchen0
+/docs/ @zealotchen0
 
+# build: gradle
+/gradle.properties @siguangli
+/gradlew @siguangli
+/gradlew.bat @siguangli
+/settings.gradle @siguangli
+/build.gradle @siguangli
+/gradle/ @siguangli
+
+# build: xcode
+/hippy.podspec @wwwcg @ruifanyuan
+/_Pods.xcodeproj/ @wwwcg @ruifanyuan
+
+# build: config
+/buildconfig/ @ilikethese @etkmao
+
+# build: js
+/tsdoc.json @zealotchen0
+/tsconfig.json @zealotchen0
+/lerna.json @zealotchen0
+/scripts/ @zealotchen0

@@ -6,8 +6,6 @@ In addition to the UI, there will also be scenarios in APP development to call d
 
 >The export of classes and methods in module extensions is very similar to the export of classes and methods in UI components. It is recommended to read UI component extensions first and then read the module extensions article.
 
----
-
 After using `HIPPY_EXPORT_MODULE()`  to extended custom module, a module instance will be created every time the APP is started, and this instance will be used by the front-end to call component modules all the time. You can understand it as a single instance.
 >modules don't have the concept of attributes, so don't try to bind attributes to modules.
 
@@ -17,6 +15,8 @@ We divide the SDK modules into two types:
 
 * Non-Event: When the business needs some information or needs the native to execute some instruction, just need to call the native code directly through the interface.
 * Event: When the business needs the native to monitor certain event. The native notifies the front-end when an event is triggered.
+
+---
 
 # Non-Event Module Extension
 

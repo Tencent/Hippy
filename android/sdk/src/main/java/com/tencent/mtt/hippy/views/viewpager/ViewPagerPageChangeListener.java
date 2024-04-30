@@ -46,7 +46,27 @@ public class ViewPagerPageChangeListener implements ViewPager.OnPageChangeListen
 
   @Override
   public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-    mPageScrollEmitter.send(position, positionOffset);
+    // compute totalOffset from current position/offset to mLastPageIndex
+    float totalOffset = position - mLastPageIndex + positionOffset;
+    int toPosition;
+    if (totalOffset > 0) {
+      // scrolling forward, convert totalOffset into target position, and offset from (0, 1]
+      int pageDelta = (int) Math.ceil(totalOffset);
+      toPosition = mLastPageIndex + pageDelta;
+      if (pageDelta > 1) {
+        totalOffset -= pageDelta - 1;
+      }
+    } else if (totalOffset < 0) {
+      // scrolling backward, convert totalOffset into target position, and offset from [-1, 0)
+      int pageDelta = (int) Math.floor(totalOffset);
+      toPosition = mLastPageIndex + pageDelta;
+      if (pageDelta < -1) {
+        totalOffset -= pageDelta + 1;
+      }
+    } else { // not scrolled
+      toPosition = mLastPageIndex;
+    }
+    mPageScrollEmitter.send(toPosition, totalOffset);
   }
 
   @Override

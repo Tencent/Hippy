@@ -154,7 +154,7 @@ function doCaptureAndBubbleLoop(originalEventName: string, nativeEvent: NativeEv
           }
         }
       } catch (err) {
-        (console as any).reportUncaughtException(err);
+        console.error(err);
       }
     }
   }
@@ -189,7 +189,7 @@ function doBubbleLoop(originalEventName: string, nativeEvent: NativeEvent, nodeI
           isStopBubble = true;
         }
       } catch (err) {
-        (console as any).reportUncaughtException(err);
+        console.error(err);
       }
     }
     if (isStopBubble === false) {

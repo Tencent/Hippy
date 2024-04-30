@@ -32,6 +32,9 @@
 - (void)clearText {
     // base method, should be override
 }
+- (void)keyboardWillHide:(NSNotification *)aNotification {
+    // base method, should be override
+}
 - (void)keyboardWillShow:(NSNotification *)aNotification {
     // base method, should be override
 }

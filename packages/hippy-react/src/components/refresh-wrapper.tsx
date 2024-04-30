@@ -23,7 +23,7 @@ import { Fiber } from '@hippy/react-reconciler';
 import { callUIFunction } from '../modules/ui-manager-module';
 import Element from '../dom/element-node';
 
-interface RefreshWrapperProps {
+export interface RefreshWrapperProps {
   bounceTime?: number;
   onRefresh?: () => void;
   getRefresh?: () => ReactElement;
@@ -35,7 +35,7 @@ interface RefreshWrapperProps {
  * @deprecated
  * @noInheritDoc
  */
-class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
+export class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
   private instance: Element | Fiber | HTMLDivElement | null = null;
   private refreshComplected: () => void;
 
@@ -63,7 +63,7 @@ class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
    */
   public render() {
     const { children, ...nativeProps } = this.props;
-    const style = { left: 0, right: 0, position: 'absolute' } as CSSProperties;
+    const style: CSSProperties = { left: 0, right: 0, position: 'absolute' };
     return (
       <div nativeName="RefreshWrapper" ref={(ref) => {
         this.instance = ref;

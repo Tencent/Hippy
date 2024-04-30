@@ -29,7 +29,7 @@
 namespace hippy {
 namespace bridge {
 
-void CallJava(hippy::napi::CBDataTuple* data);
+void CallJava(const hippy::napi::CallbackInfo& info, int32_t runtime_id);
 
 }  // namespace bridge
 }  // namespace hippy

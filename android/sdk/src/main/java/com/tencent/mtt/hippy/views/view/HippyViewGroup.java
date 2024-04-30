@@ -15,9 +15,12 @@
  */
 package com.tencent.mtt.hippy.views.view;
 
+import android.view.ViewGroup;
+import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.uimanager.IHippyZIndexViewGroup;
 import com.tencent.mtt.hippy.uimanager.ViewGroupDrawingOrderHelper;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.image.HippyImageView;
 
 import android.content.Context;
@@ -33,13 +36,12 @@ import android.view.ViewConfiguration;
 @SuppressWarnings({"unused"})
 public class HippyViewGroup extends HippyImageView implements IHippyZIndexViewGroup {
 
+  private static final String TAG = "HippyViewGroup";
   private static final int LAYER_TYPE_NOT_SET = -1;
   private final ViewGroupDrawingOrderHelper mDrawingOrderHelper;
   float mDownX = 0;
   float mDownY = 0;
   boolean isHandlePullUp = false;
-  //	private CommonBackgroundDrawable			mBGDrawable;
-  //	private NativeGestureDispatcher				mGestureDispatcher;
   private String mOverflow;
   private Path mOverflowPath;
   private RectF mOverflowRect;
@@ -51,19 +53,8 @@ public class HippyViewGroup extends HippyImageView implements IHippyZIndexViewGr
     mDrawingOrderHelper = new ViewGroupDrawingOrderHelper(this);
     mOldLayerType = LAYER_TYPE_NOT_SET;
     setScaleType(ScaleType.ORIGIN);
+    //setClipChildren(false);
   }
-
-  //	@Override
-  //	protected void onLayout(boolean changed, int l, int t, int r, int b)
-  //	{
-  //
-  //	}
-
-  //	@Override
-  //	public void requestLayout()
-  //	{
-  //		//super.requestLayout();
-  //	}
 
   @SuppressWarnings("SuspiciousNameCombination")
   @Override
@@ -125,17 +116,6 @@ public class HippyViewGroup extends HippyImageView implements IHippyZIndexViewGr
       }
     }
     super.dispatchDraw(canvas);
-    //        String testString = "View ID:" + this.getId();
-    //        Paint mPaint = new Paint();
-    //        mPaint.setStrokeWidth(3);
-    //        mPaint.setTextSize(40);
-    //        mPaint.setColor(Color.RED);
-    //        mPaint.setTextAlign(Paint.Align.LEFT);
-    //        Rect bounds = new Rect();
-    //        mPaint.getTextBounds(testString, 0, testString.length(), bounds);
-    //        Paint.FontMetricsInt fontMetrics = mPaint.getFontMetricsInt();
-    //        int baseline = (getMeasuredHeight() - fontMetrics.bottom + fontMetrics.top) / 2 - fontMetrics.top;
-    //        canvas.drawText(testString, getMeasuredWidth() / 2 - bounds.width() / 2, baseline, mPaint);
   }
 
   private void restoreLayerType() {
@@ -144,74 +124,28 @@ public class HippyViewGroup extends HippyImageView implements IHippyZIndexViewGr
     }
   }
 
-  //	public void setBorderRadius(float radius, int position)
-  //	{
-  //		getBackGround().setBorderRadius(radius, position);
-  //	}
-  //
-  //	public void setBorderWidth(float width, int position)
-  //	{
-  //		getBackGround().setBorderWidth(width, position);
-  //	}
-  //
-  //	public void setBorderColor(int color, int position)
-  //	{
-  //		getBackGround().setBorderColor(color, position);
-  //	}
-  //
-  //	private CommonBackgroundDrawable getBackGround()
-  //	{
-  //		if (mBGDrawable == null)
-  //		{
-  //			mBGDrawable = new CommonBackgroundDrawable();
-  //			Drawable currBGDrawable = getBackground();
-  //			super.setBackgroundDrawable(null);
-  //			if (currBGDrawable == null)
-  //			{
-  //				super.setBackgroundDrawable(mBGDrawable);
-  //			}
-  //			else
-  //			{
-  //				LayerDrawable layerDrawable = new LayerDrawable(new Drawable[] { mBGDrawable, currBGDrawable });
-  //				super.setBackgroundDrawable(layerDrawable);
-  //			}
-  //		}
-  //		return mBGDrawable;
-  //	}
-
   public void setOverflow(String overflow) {
     mOverflow = overflow;
-    //robinsli Android 支持 overflow: visible，超出容器之外的属性节点也可以正常显示
-    if (!TextUtils.isEmpty(mOverflow)) {
-      switch (mOverflow) {
-        case "visible":
-          setClipChildren(false); //可以超出父亲区域
-          break;
-        case "hidden": {
-          setClipChildren(true); //默认值是false
-          break;
-        }
-      }
-    }
-    invalidate();
+    setOverflow(overflow, this);
   }
 
-  //	@Override
-  //	public void setBackgroundColor(int color)
-  //	{
-  //		getBackGround().setBackgroundColor(color);
-  //	}
-
-  //	@Override
-  //	public boolean onTouchEvent(MotionEvent event)
-  //	{
-  //		boolean result = super.onTouchEvent(event);
-  //		if (mGestureDispatcher != null)
-  //		{
-  //			result |= mGestureDispatcher.handleTouchEvent(event);
-  //		}
-  //		return result;
-  //	}
+  public static void setOverflow(String overflow, @NonNull ViewGroup viewGroup) {
+    if (!TextUtils.isEmpty(overflow)) {
+      switch (overflow) {
+        case "visible":
+          viewGroup.setClipChildren(false);
+          viewGroup.invalidate();
+          break;
+        case "hidden": {
+          viewGroup.setClipChildren(true);
+          viewGroup.invalidate();
+          break;
+        }
+        default:
+          LogUtils.w(TAG, "setOverflow: Unknown overflow type =" + overflow);
+      }
+    }
+  }
 
   @Override
   public boolean onInterceptTouchEvent(MotionEvent ev) {
@@ -254,18 +188,6 @@ public class HippyViewGroup extends HippyImageView implements IHippyZIndexViewGr
     }
     return result;
   }
-
-  //	@Override
-  //	public NativeGestureDispatcher getGestureDispatcher()
-  //	{
-  //		return mGestureDispatcher;
-  //	}
-
-  //	@Override
-  //	public void setGestureDispatcher(NativeGestureDispatcher dispatcher)
-  //	{
-  //		mGestureDispatcher = dispatcher;
-  //	}
 
   @Override
   protected int getChildDrawingOrder(int childCount, int index) {
@@ -314,10 +236,4 @@ public class HippyViewGroup extends HippyImageView implements IHippyZIndexViewGr
     setClipChildren(true); //默认值是false
     //		setAlpha(1.0f);
   }
-
-  //	@Override
-  //	public void clear()
-  //	{
-  //
-  //	}
 }
