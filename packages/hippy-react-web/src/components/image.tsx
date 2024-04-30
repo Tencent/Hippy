@@ -21,18 +21,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { formatWebStyle } from '../adapters/transfer';
 import ImageLoader, { LoadError } from '../adapters/image-loader';
-import { LayoutEvent } from '../types';
-import { TouchEvent } from '../modules/use-responder-events/types';
+import { LayoutableProps, TouchableProps, ClickableProps } from '../types';
 import useResponderEvents from '../modules/use-responder-events';
 import useElementLayout from '../modules/use-element-layout';
 import { isFunc, noop } from '../utils';
 
 
 type ImageResizeMode = 'cover' | 'contain' | 'stretch' | 'center' | 'none';
-export interface ImageProps {
+export interface ImageProps extends LayoutableProps, TouchableProps, ClickableProps {
   [key: string]: any;
-  style: HippyTypes.Style;
-  tintColor?: HippyTypes.color;
+  style: HippyTypes.ImageStyleProp;
+  tintColor?: HippyTypes.tintColor;
   children?: any;
   onError?: LoadError;
   defaultSource?: string;
@@ -40,14 +39,9 @@ export interface ImageProps {
   capInsets?: any;
   resizeMode?: ImageResizeMode;
   onLoad?: (e: { width: number; height: number; url: string }) => void;
-  onLayout?: (e: LayoutEvent) => void;
   onLoadStart?: Function;
   onLoadEnd?: Function;
   onProgress?: Function;
-  onTouchDown?: (e: TouchEvent) => void;
-  onTouchMove?: (e: TouchEvent) => void;
-  onTouchEnd?: (e: TouchEvent) => void;
-  onTouchCancel?: (e: TouchEvent) => void;
 }
 
 const ImageResizeMode = {
@@ -137,6 +131,7 @@ const Image: React.FC<ImageProps> = React.forwardRef((props: ImageProps, ref) =>
   useElementLayout(imgRef, onLayout);
 
   const [imgSource, setImgSource] = useState(defaultSource ? { uri: defaultSource } : source);
+  const [loadedSource, setLoadedSource] = useState('');
 
   const onImageLoad = () => {
     if (onLoad && isFunc(onLoad)) {
@@ -160,10 +155,11 @@ const Image: React.FC<ImageProps> = React.forwardRef((props: ImageProps, ref) =>
       });
     }
     onLoadEnd();
+    setLoadedSource(source.uri);
   };
 
-  // load source url when provide defaultSource
-  if (imgSource.uri !== source.uri) {
+  // first load source url when provide defaultSource
+  if (imgSource.uri !== source.uri && loadedSource !== source.uri) {
     ImageLoader.load(source.uri, () => {
       setImgSource(source);
       onImageLoad();

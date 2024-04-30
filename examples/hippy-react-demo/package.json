@@ -14,7 +14,7 @@
     "hippy:dev": "node ./scripts/env-polyfill.js hippy-dev -c ./scripts/hippy-webpack.dev.js",
     "hippy:vendor": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.ios-vendor.js --config ./scripts/hippy-webpack.android-vendor.js",
     "hippy:build": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.ios.js --config ./scripts/hippy-webpack.android.js",
-    "web:dev": "npm run hippy:dev & node ./scripts/env-polyfill.js webpack serve --config ./scripts/hippy-webpack.web-renderer.dev.js",
+    "web:dev": "node ./scripts/env-polyfill.js webpack serve --config ./scripts/hippy-webpack.web-renderer.dev.js",
     "web:build": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.web-renderer.js"
   },
   "keywords": [
@@ -22,12 +22,12 @@
     "React"
   ],
   "dependencies": {
-    "@hippy/react": "latest",
+    "@hippy/react": "v2.17-latest",
     "@hippy/react-reconciler": "react17",
-    "@hippy/react-web": "latest",
+    "@hippy/react-web": "v2.17-latest",
     "@hippy/rmc-list-view": "latest",
     "@hippy/rmc-pull-to-refresh": "latest",
-    "@hippy/web-renderer": "latest",
+    "@hippy/web-renderer": "v2.17-latest",
     "animated-scroll-to": "^2.2.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",

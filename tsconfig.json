@@ -21,7 +21,7 @@
     "importHelpers": true,                    /* Import emit helpers from 'tslib'. */
     // "downlevelIteration": true,            /* Provide full support for iterables in 'for-of', spread, and destructuring when targeting 'ES5' or 'ES3'. */
     // "isolatedModules": true,               /* Transpile each file as a separate module (similar to 'ts.transpileModule'). */
-
+    "skipLibCheck": true,
     /* Strict Type-Checking Options */
     "strict": true,                           /* Enable all strict type-checking options. */
     "noImplicitAny": false,                 /* Raise error on expressions and declarations with an implied 'any' type. */
@@ -54,6 +54,8 @@
       "sfc/*": ["node_modules/vue/src/sfc/*"],
       "he": ["packages/hippy-vue/src/util/entity-decoder"],
       "@hippy-vue-next-style-parser/*": ["packages/hippy-vue-next-style-parser/src/*"],
+      "@hippy-vue-next/*": ["packages/hippy-vue-next/src/*"],
+      "@hippy-vue-next-server-renderer/*": ["packages/hippy-vue-next-server-renderer/src/*"]
     },
     // "rootDirs": [],                        /* List of root folders whose combined content represents the structure of the project at runtime. */
     // "typeRoots": [],                       /* List of folders to include type definitions from. */

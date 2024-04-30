@@ -16,7 +16,6 @@
 
 package com.tencent.mtt.hippy.views.hippylist;
 
-import android.view.MotionEvent;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
@@ -32,6 +31,50 @@ public class PullHeaderRefreshHelper extends PullRefreshHelper {
     }
 
     @Override
+    protected int handleDrag(int distance) {
+        int consumed = 0;
+        int size = 0;
+        switch (mRefreshStatus) {
+            case PULL_STATUS_FOLDED:
+                if (distance < 0) { // down towards
+                    // make sure edge reached, aka distance + getOffset() < 0
+                    consumed = Math.min(0, distance + getOffset());
+                    if (consumed != 0) {
+                        mRefreshStatus = PullRefreshStatus.PULL_STATUS_DRAGGING;
+                        size = getVisibleSize() - Math.round(consumed / PULL_RATIO);
+                        setVisibleSize(size);
+                    }
+                }
+                break;
+            case PULL_STATUS_DRAGGING:
+            case PULL_STATUS_REFRESHING:
+                if (distance < 0) { // down towards
+                    // make sure edge reached, aka distance + getOffset() < 0
+                    consumed = Math.min(0, distance + getOffset());
+                } else { // up towards
+                    // make sure consume no more than header size (converted by PULL_RATIO)
+                    consumed = Math.min(Math.round(getVisibleSize() * PULL_RATIO), distance);
+                }
+                if (consumed != 0) {
+                    size = getVisibleSize() - Math.round(consumed / PULL_RATIO);
+                    setVisibleSize(size);
+                }
+                break;
+            default:
+                break;
+        }
+        if (consumed != 0) {
+            endAnimation();
+            sendPullingEvent(size);
+            // when header not visible, reduce value of changed size to scroll the header out
+            if (mRecyclerView.getFirstChildPosition() > 0) {
+                consumed -= Math.round(consumed / PULL_RATIO);
+            }
+        }
+        return consumed;
+    }
+
+    @Override
     protected void sendReleasedEvent() {
         new HippyViewEvent(EVENT_TYPE_HEADER_RELEASED).send(mItemView, null);
     }
@@ -44,46 +87,27 @@ public class PullHeaderRefreshHelper extends PullRefreshHelper {
     }
 
     @Override
-    protected void handleTouchMoveEvent(MotionEvent event) {
-        boolean isVertical = isVertical();
-        if (isVertical && mRecyclerView.canScrollVertically(-1)
-                && mRefreshStatus == PullRefreshStatus.PULL_STATUS_FOLDED) {
-            return;
-        }
-        if (!isVertical) {
-            int scrollOffset = mRecyclerView.computeHorizontalScrollOffset();
-            int scrollExtent = mRecyclerView.computeHorizontalScrollExtent();
-            if (scrollOffset - scrollExtent > 0 && mRefreshStatus == PullRefreshStatus.PULL_STATUS_FOLDED) {
-                return;
-            }
-        }
-        float current = isVertical ? event.getRawY() : event.getRawX();
-        if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_FOLDED) {
-            boolean isOnMove = Math.abs(current - mStartPosition - getTouchSlop()) > 0;
-            if (!isOnMove) {
-                return;
-            }
-            mRefreshStatus = PullRefreshStatus.PULL_STATUS_DRAGGING;
-        }
-        endAnimation();
-        int nodeSize = isVertical ? mRenderNode.getHeight() : mRenderNode.getWidth();
-        int distance = ((int) ((current - mLastPosition) / PULL_RATIO)) + getVisibleSize();
-        if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_REFRESHING) {
-            setVisibleSize(Math.max(distance, nodeSize));
+    public void enableRefresh() {
+        mRefreshStatus = PullRefreshStatus.PULL_STATUS_REFRESHING;
+        int nodeSize = isVertical() ? mRenderNode.getHeight() : mRenderNode.getWidth();
+        if (mRecyclerView.getFirstChildPosition() > 0) {
+            endAnimation();
+            setVisibleSize(nodeSize);
+            mRecyclerView.smoothScrollToPosition(0);
         } else {
-            setVisibleSize(distance);
+            int visibleSize = getVisibleSize();
+            if (visibleSize < nodeSize) {
+                smoothResizeTo(visibleSize, nodeSize, DURATION);
+            }
         }
-        if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_DRAGGING) {
-            sendPullingEvent(Math.max(getVisibleSize(), 0));
-        }
-        mLastPosition = current;
     }
 
-    @Override
-    public void enableRefresh() {
-        super.enableRefresh();
-        if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_REFRESHING) {
-            mRecyclerView.smoothScrollToPosition(0);
-        }
+    /**
+     * scrollable distance from list start, value greater than or equal to 0
+     */
+    protected int getOffset() {
+        return isVertical() ? mRecyclerView.computeVerticalScrollOffset()
+            : mRecyclerView.computeHorizontalScrollOffset();
     }
+
 }

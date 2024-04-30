@@ -65,9 +65,6 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
   public static final String IMAGE_VIEW_OBJ = "viewobj";
 
   private HippyMap initProps = new HippyMap();
-  private boolean mHasSetTempBackgroundColor = false;
-  private boolean mUserHasSetBackgroudnColor = false;
-  private int mUserSetBackgroundColor = Color.TRANSPARENT;
 
   /**
    * 播放GIF动画的关键类
@@ -160,11 +157,11 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 
   @Override
   protected void resetContent() {
-    super.resetContent();
     mGifMovie = null;
     mGifMatrixComputed = false;
     mGifProgress = 0;
     mGifLastPlayTime = -1;
+    super.resetContent();
   }
 
   @Override
@@ -245,62 +242,6 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     }
   }
 
-  public void setBackgroundColor(int backgroundColor) {
-    mUserHasSetBackgroudnColor = true;
-    mUserSetBackgroundColor = backgroundColor;
-    super.setBackgroundColor(backgroundColor);
-  }
-
-  @Override
-  protected void onFetchImage(String url) {
-    if (mContentDrawable instanceof ContentDrawable &&
-        ((ContentDrawable) mContentDrawable).getSourceType() == SOURCE_TYPE_DEFAULT_SRC) {
-      return;
-    }
-
-    Drawable oldBGDrawable = getBackground();
-    resetContent();
-
-    if (url != null && (UrlUtils.isWebUrl(url) || UrlUtils.isFileUrl(url))) {
-      int defaultBackgroundColor = Color.TRANSPARENT;
-      if (mUserHasSetBackgroudnColor) {
-        defaultBackgroundColor = mUserSetBackgroundColor;
-      }
-
-      if (oldBGDrawable instanceof CommonBackgroundDrawable) {
-        ((CommonBackgroundDrawable) oldBGDrawable).setBackgroundColor(defaultBackgroundColor);
-        setCustomBackgroundDrawable((CommonBackgroundDrawable) oldBGDrawable);
-      } else if (oldBGDrawable instanceof LayerDrawable) {
-        LayerDrawable layerDrawable = (LayerDrawable) oldBGDrawable;
-        int numberOfLayers = layerDrawable.getNumberOfLayers();
-
-        if (numberOfLayers > 0) {
-          Drawable bgDrawable = layerDrawable.getDrawable(0);
-          if (bgDrawable instanceof CommonBackgroundDrawable) {
-            ((CommonBackgroundDrawable) bgDrawable).setBackgroundColor(defaultBackgroundColor);
-            setCustomBackgroundDrawable((CommonBackgroundDrawable) bgDrawable);
-          }
-        }
-      }
-      super.setBackgroundColor(defaultBackgroundColor);
-      mHasSetTempBackgroundColor = true;
-    }
-  }
-
-  @Override
-  protected void afterSetContent(String url) {
-    restoreBackgroundColorAfterSetContent();
-  }
-
-  @Override
-  protected void restoreBackgroundColorAfterSetContent() {
-    if (mBGDrawable != null && mHasSetTempBackgroundColor) {
-      int defaultBackgroundColor = Color.TRANSPARENT;
-      mBGDrawable.setBackgroundColor(defaultBackgroundColor);
-      mHasSetTempBackgroundColor = false;
-    }
-  }
-
   @Override
   protected void updateContentDrawableProperty(int sourceType) {
     super.updateContentDrawableProperty(sourceType);
@@ -351,7 +292,21 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
   protected void handleGetImageSuccess() {
     // send onLoad event
     if (mShouldSendImageEvent[ImageEvent.ONLOAD.ordinal()]) {
-      getOnLoadEvent().send(this, null);
+      HippyMap map = new HippyMap();
+      if (mSourceDrawable != null) {
+        if (mSourceDrawable instanceof HippyDrawable) {
+          HippyDrawable hippyTarget = (HippyDrawable) mSourceDrawable;
+          map.pushInt("width", hippyTarget.getWidth());
+          map.pushInt("height", hippyTarget.getHeight());
+          map.pushString("url", mUrl != null ? mUrl : "");
+        } else if (mSourceDrawable.getBitmap() != null) {
+          Bitmap bitmap = mSourceDrawable.getBitmap();
+          map.pushInt("width", bitmap.getWidth());
+          map.pushInt("height", bitmap.getHeight());
+          map.pushString("url", mUrl != null ? mUrl : "");
+        }
+      }
+      getOnLoadEvent().send(this, map);
     }
     // send onLoadEnd event
     if (mShouldSendImageEvent[ImageEvent.ONLOAD_END.ordinal()]) {
@@ -374,7 +329,11 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
   protected void handleGetImageFail(Throwable throwable) {
     // send onError event
     if (mShouldSendImageEvent[ImageEvent.ONERROR.ordinal()]) {
-      getOnErrorEvent().send(this, null);
+      HippyMap map = new HippyMap();
+      map.pushString("error", String.valueOf(throwable));
+      map.pushInt("errorCode", -1);
+      map.pushString("errorURL", mUrl != null ? mUrl : "");
+      getOnErrorEvent().send(this, map);
     }
     // send onLoadEnd event
     if (mShouldSendImageEvent[ImageEvent.ONLOAD_END.ordinal()]) {
@@ -499,6 +458,13 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     } else {
       super.handleImageRequest(target, sourceType, requestInfo);
     }
+  }
+
+  @Override
+  protected boolean hasImage(IDrawableTarget resultDrawable) {
+    return (resultDrawable != null && resultDrawable.getBitmap() != null)
+            || (resultDrawable != null && resultDrawable.getDrawable() != null)
+            || (resultDrawable instanceof HippyDrawable && ((HippyDrawable) resultDrawable).getGIF() != null);
   }
 
   @Override

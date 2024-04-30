@@ -1,0 +1,196 @@
+name: '[gh] pull review notification'
+
+on:
+  pull_request_target:
+    types: [ review_requested ]
+  workflow_run:
+    workflows:
+      - \[gh\] pull request review
+    types: [ completed ]
+  workflow_dispatch:
+  schedule:
+    # Run every day at 23:30 UTC(07:30 UTC+08:00).
+    - cron: '30 23 * * *'
+
+jobs:
+  request_notification:
+    if: github.repository == 'Tencent/Hippy' && github.event.action == 'review_requested' && github.event.requested_reviewer.type == 'User'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Notice
+      uses: actions/github-script@v6.3.3
+      env:
+        MESSAGE: |
+          [${{ github.event.sender.login }}](https://github.com/${{ github.event.sender.login }}) requested your review on [#${{ github.event.pull_request.number }}](${{ github.event.pull_request.html_url }}) pull request.
+          > ${{ github.event.pull_request.title }}
+          > [${{ github.event.pull_request.html_url }}](${{ github.event.pull_request.html_url }})
+          > [%s changed files](${{ github.event.pull_request.html_url }}/files) with <font color="info">%s additions</font> and <font color="warning">%s deletions</font>
+
+          <@%s>
+        WECHAT_WORK_USERS: ${{ secrets.WECHAT_WORK_USERS }}
+      with:
+        script: |
+          const { format } = require("util");
+
+          const userid = JSON.parse(process.env.WECHAT_WORK_USERS)["${{ github.event.requested_reviewer.login }}"];
+          if (!userid) {
+            console.log("The reviewer ${{ github.event.requested_reviewer.login }} not found in secrets.WECHAT_WORK_USERS");
+            return;
+          }
+
+          await github.request("POST ${{ secrets.WECHAT_WORK_BOT_WEBHOOK }}", {
+            headers: {
+              "content-type": "application/json"
+            },
+            data: {
+              chatid: "${{ secrets.WECHAT_WORK_CHAT_ID }}",
+              visible_to_user: userid,
+              msgtype: "markdown",
+              markdown: {
+                content: format(process.env.MESSAGE, (${{ github.event.pull_request.changed_files }}).toLocaleString(), (${{ github.event.pull_request.additions }}).toLocaleString(), (${{ github.event.pull_request.deletions }}).toLocaleString(), userid),
+                attachments: [{
+                  callback_id: "review",
+                  actions: [{
+                    name: "review_btn",
+                    text: "Mark as Reviewed",
+                    type: "button",
+                    value: "Mark as Reviewed",
+                    replace_text: "Already reviewed",
+                    border_color: "2c974b",
+                    text_color: "2c974b"
+                  }, {
+                    name: "ignore_btn",
+                    text: "Mark as Ignored",
+                    type: "button",
+                    value: "Mark as Ignored",
+                    replace_text: "Already ignored",
+                    border_color: "6e7781",
+                    text_color: "6e7781"
+                  }]
+                }]
+              }
+            }
+          });
+
+  call_get_workflow_output:
+    if: github.repository == 'Tencent/Hippy' && github.event.action == 'completed' && github.event.workflow_run.conclusion == 'success'
+    uses: ./.github/workflows/reuse_get_workflow_output.yml
+    with:
+      workflow_run: ${{ github.event.workflow_run.id }}
+
+  changes_requested_comment:
+    needs: call_get_workflow_output
+    if: needs.call_get_workflow_output.outputs.action == 'submitted'
+    runs-on: ubuntu-latest
+    env:
+      MESSAGE: |
+        Hi, @{0}, I noticed that our reviewers requested changes to this pull request.
+        When you're done, **click the `Re-request review` button in the right sidebar(shown below)** to notify the reviewer.
+        ![Re-request review button in the right sidebar](https://docs.github.com/assets/cb-4714/images/help/pull_requests/request-re-review.png)
+    steps:
+    - name: Parse
+      id: parse_workflow_output
+      env:
+        RAW: ${{ needs.call_get_workflow_output.outputs.raw }}
+      shell: python
+      run: |
+        import json
+        import os
+
+        raw = os.getenv("RAW")
+        data = json.loads(raw)
+        with open(os.getenv("GITHUB_OUTPUT"), 'w', encoding='utf-8') as file:
+          file.write("review_state=%s\n" % data["review"]["state"])
+          file.write("pull_request_number=%s\n" % data["pull_request"]["number"])
+          file.write("pull_request_user=%s\n" % data["pull_request"]["user"]["login"])
+    - name: Find
+      id: find_comment
+      if: steps.parse_workflow_output.outputs.review_state == 'changes_requested'
+      uses: peter-evans/find-comment@v2.1.0
+      with:
+        issue-number: ${{ steps.parse_workflow_output.outputs.pull_request_number }}
+        body-includes: ${{ format(env.MESSAGE, steps.parse_workflow_output.outputs.pull_request_user) }}
+    - name: Token
+      id: get-token
+      if: steps.find_comment.outputs.comment-id == '' && steps.parse_workflow_output.outputs.review_state == 'changes_requested'
+      uses: navikt/github-app-token-generator@v1
+      with:
+        private-key: ${{ secrets.BOT_APP_KEY }}
+        app-id: ${{ secrets.BOT_APP_ID }}
+    - name: Comment
+      uses: peter-evans/create-or-update-comment@v2
+      if: steps.get-token.outputs.token != ''
+      with:
+        token: ${{ steps.get-token.outputs.token }}
+        issue-number: ${{ steps.parse_workflow_output.outputs.pull_request_number }}
+        body: ${{ format(env.MESSAGE, steps.parse_workflow_output.outputs.pull_request_user) }}
+        reactions: eyes
+
+  requested_reviewers_notification:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Notice
+      uses: actions/github-script@v6.3.3
+      env:
+        WECHAT_WORK_USERS: ${{ secrets.WECHAT_WORK_USERS }}
+      with:
+        script: |
+          const { pulls } = github.rest;
+          const os = require('os');
+
+          const pull_requests = (await github.paginate(pulls.list, {
+            per_page: 100,
+            state: 'open',
+            ...context.repo
+          })).filter(pull => pull.draft === false);
+
+          const requested_reviewers = await Promise.all(
+            pull_requests.map(
+              pull => pulls.listRequestedReviewers({
+                per_page: 100,
+                pull_number: pull.number,
+                ...context.repo
+              }).then(({ data }) => data)
+            )
+          );
+
+          if (pull_requests.length !== requested_reviewers.length) {
+            throw new Error("The length of pull_requests and requested_reviewers is not equal");
+          }
+
+          const wechat_work_users = JSON.parse(process.env.WECHAT_WORK_USERS);
+          const notification_users = {};
+
+          pull_requests.forEach((pull, index) => {
+            requested_reviewers[index].users.forEach(reviewer => {
+              if (reviewer.type === 'User') {
+                const user_id = wechat_work_users[reviewer.login];
+                if (user_id) {
+                  (notification_users[user_id] ||= []).push(pull);
+                }
+              }
+            });
+          });
+
+          await Promise.all(Object.entries(notification_users).map(([user_id, pulls]) => {
+            const content = [];
+            content.push(`<font color="warning">${pulls.length}</font> pull requests are waiting on your review.`);
+            content.push(...pulls.map(pull => `> [#${pull.number}](${pull.html_url}) ${pull.title}`));
+            content.push('');
+            content.push(`<@${user_id}>`);
+
+            return github.request("POST ${{ secrets.WECHAT_WORK_BOT_WEBHOOK }}", {
+              headers: {
+                "content-type": "application/json"
+              },
+              data: {
+                chatid: "${{ secrets.WECHAT_WORK_CHAT_ID }}",
+                visible_to_user: user_id,
+                msgtype: "markdown",
+                markdown: {
+                  content: content.join(os.EOL)
+                }
+              }
+            });
+          }));

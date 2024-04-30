@@ -23,6 +23,7 @@ import { Bridge, Device } from '../native';
 import { warn } from '../utils';
 import { repeatCountDict } from '../utils/animation';
 import { colorParse } from '../color';
+import { Platform } from '../types';
 
 type AnimationValue = number | { animationId: number} | string;
 type AnimationCallback = () => void;
@@ -58,7 +59,7 @@ interface AnimationOptions {
    * Value type, leave it blank in most case, except use rotate/color related
    * animation, set it to be 'deg' or 'color'.
    */
-  valueType?: 'deg'; // TODO: fill more options
+  valueType?: 'deg' | 'rad' | 'color'; // TODO: fill more options
 
   /**
    * Animation start position
@@ -73,7 +74,7 @@ interface AnimationOptions {
   /**
    * Animation repeat times, use 'loop' to be always repeating.
    */
-  repeatCount?: number;
+  repeatCount?: number | 'loop';
 
   inputRange?: any[];
   outputRange?: any[];
@@ -195,7 +196,7 @@ class Animation implements Animation {
     // Set as iOS default
     let animationEventName = 'onAnimation';
     // If running in Android, change it.
-    if (__PLATFORM__ === 'android' || Device.platform.OS === 'android') {
+    if (__PLATFORM__ === Platform.android || Device.platform.OS === Platform.android) {
       animationEventName = 'onHippyAnimation';
     }
 
@@ -276,7 +277,7 @@ class Animation implements Animation {
    *
    * @param {Object} newConfig - new animation schema
    */
-  public updateAnimation(newConfig: AnimationOptions) {
+  public updateAnimation(newConfig: Partial<AnimationOptions>) {
     if (typeof newConfig !== 'object') {
       throw new TypeError('Invalid arguments');
     }

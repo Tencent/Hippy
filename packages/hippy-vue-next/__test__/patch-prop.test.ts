@@ -18,9 +18,6 @@
  * limitations under the License.
  */
 
-/**
- * patch-prop  Vue custom renderer patch prop unit case
- */
 import { patchProp } from '../src/patch-prop';
 import { nodeOps } from '../src/node-ops';
 import '../src/runtime/event/hippy-event-dispatcher';
@@ -28,9 +25,7 @@ import { preCacheNode } from '../src/util/node-cache';
 import { registerElement, type ElementComponent } from '../src/runtime/component';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * patch-prop.ts unit test case
  */
 describe('patch-prop.ts', () => {
   it('patch class prop', () => {
@@ -73,8 +68,13 @@ describe('patch-prop.ts', () => {
     patchProp(element, 'style', { width: 100 }, { height: 100, width: null }, false, undefined, null);
     expect(element.style).toEqual({
       height: 100,
-      width: '',
     });
+
+    patchProp(element, 'style', { width: 100 }, {}, false, undefined, null);
+    expect(element.style).toEqual({});
+
+    patchProp(element, 'style', { width: 100 }, null, false, undefined, null);
+    expect(element.style).toEqual({});
   });
 
   it('patch event prop', () => {

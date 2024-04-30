@@ -117,7 +117,10 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 			if (isAttached())
 			{
 				onDrawableDetached();
+				resetContent();
 				fetchImageByUrl(mUrl, SOURCE_TYPE_SRC);
+			} else {
+				mSourceDrawable = null;
 			}
 		}
 	}
@@ -189,6 +192,16 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 		if (!TextUtils.equals(mDefaultSourceUrl, defaultSource))
 		{
 			mDefaultSourceUrl = defaultSource;
+            if (mDefaultSourceDrawable != null) {
+                if (isAttached()) {
+                    mDefaultSourceDrawable.onDrawableDetached();
+                }
+                mDefaultSourceDrawable = null;
+            }
+            if (mSourceDrawable == null) {
+                mContentDrawable = null;
+                resetBackgroundDrawable();
+            }
 			fetchImageByUrl(mDefaultSourceUrl, SOURCE_TYPE_DEFAULT_SRC);
 		}
 	}
@@ -324,7 +337,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 	}
 
 	protected void handleImageRequest(IDrawableTarget resultDrawable, int sourceType, Object requestInfo) {
-		if (resultDrawable == null) {
+		if (!hasImage(resultDrawable)) {
 			if (sourceType == SOURCE_TYPE_SRC) {
 				mSourceDrawable = null;
 				if (mDefaultSourceDrawable != null) {
@@ -349,6 +362,10 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 			}
 			setContent(sourceType);
 		}
+	}
+
+	protected boolean hasImage(IDrawableTarget resultDrawable) {
+		return resultDrawable != null;
 	}
 
 	protected ContentDrawable generateContentDrawable()
@@ -391,11 +408,12 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 	{
 		mIsAttached = true;
 		super.onAttachedToWindow();
-		if (mDefaultSourceDrawable != null && shouldFetchImage())
-		{
-			mDefaultSourceDrawable.onDrawableAttached();
-			setContent(SOURCE_TYPE_DEFAULT_SRC);
-		}
+        if (mDefaultSourceDrawable != null) {
+            mDefaultSourceDrawable.onDrawableAttached();
+        }
+        if (shouldFetchImage()) {
+            resetContent();
+        }
 
 		fetchImageByUrl(mUrl, SOURCE_TYPE_SRC);
 		onDrawableAttached();
@@ -419,9 +437,13 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 
 	protected void resetContent()
 	{
-		mContentDrawable = null;
-		mBGDrawable = null;
-		super.setBackgroundDrawable(null);
+        mSourceDrawable = null;
+        if (mDefaultSourceDrawable != null) {
+            updateContentDrawableProperty(SOURCE_TYPE_DEFAULT_SRC);
+        } else {
+            mContentDrawable = null;
+        }
+        resetBackgroundDrawable();
 	}
 
 	protected void onSetContent(String url)
@@ -638,7 +660,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 	public void setShadowRadius(float radius)
 	{
 		getBackGround().setShadowRadius(Math.abs(radius));
-		
+
 		invalidate();
 	}
 
@@ -712,13 +734,14 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 			drawableList.add(mRippleDrawable);
 		}
 		if (drawableList.size() > 0) {
-			super.setBackground(null);
 			Drawable[] drawables = new Drawable[drawableList.size()];
 			for (int i = 0; i < drawableList.size(); i++) {
 				drawables[i] = drawableList.get(i);
 			}
 			LayerDrawable layerDrawable = new LayerDrawable(drawables);
 			super.setBackground(layerDrawable);
+		} else {
+			super.setBackground(null);
 		}
 	}
 }

@@ -23,6 +23,7 @@ import { Bridge, Device, UIManager } from '../global';
 import { getRootViewId, findNodeById, findNodeByCondition } from '../utils/node';
 import { isFunction, warn, trace } from '../utils';
 import Element from '../dom/element-node';
+import { Platform } from '../types';
 
 const {
   createNode,
@@ -134,12 +135,12 @@ function callUIFunction(ref: Element | Fiber, funcName: string, ...options: any[
     return;
   }
   trace('callUIFunction', { nodeId, funcName, paramList });
-  if (Device.platform.OS === 'ios') {
+  if (Device.platform.OS === Platform.ios) {
     if (isFunction(callback) && Array.isArray(paramList)) {
       paramList.push(callback);
     }
     Bridge.callNative('UIManagerModule', 'callUIFunction', [componentName, nodeId, funcName, paramList]);
-  } else if (Device.platform.OS === 'android') {
+  } else if (Device.platform.OS === Platform.android) {
     if (isFunction(callback)) {
       Bridge.callNative('UIManagerModule', 'callUIFunction', [nodeId, funcName, paramList], callback);
     } else {
@@ -175,8 +176,8 @@ function measureInWindowByMethod(
       if (callback && isFunction(callback)) {
         callback(layout);
       }
-      if (layout === 'this view is null') {
-        return reject(new Error('Android cannot get the node'));
+      if (!layout || typeof layout !== 'object') {
+        return reject(new Error(`${method} error with response: ${layout}`));
       }
       return resolve(layout);
     });
@@ -186,7 +187,7 @@ function measureInWindowByMethod(
 /**
  * Get the ref position and size in the visible window.
  * > For the position and size in the layout, use onLayout event.
- * P.S. iOS can only obtains the layout of rootView container,
+ * P.S. iOS can only obtain the layout of rootView container,
  * so measureInAppWindow method is recommended
  *
  * @deprecated
@@ -208,8 +209,47 @@ function measureInAppWindow(ref: Fiber, callback?: (layout: HippyTypes.LayoutEve
   if (Device.platform.OS === 'android') {
     return measureInWindowByMethod('measureInWindow', ref, callback);
   }
-
   return measureInWindowByMethod('measureInAppWindow', ref, callback);
+}
+
+/**
+ * Returns a Promise with DOMRect object providing
+ * information about the size of an element and its position relative to the RootView or Container
+ * @param ref
+ * @param options
+ */
+function getBoundingClientRect(ref: Fiber, options: { relToContainer?: boolean }): Promise<HippyTypes.DOMRect> {
+  const nodeId = getNodeIdByRef(ref);
+  return new Promise((resolve, reject) => {
+    if (!nodeId) {
+      return reject(new Error(`getBoundingClientRect cannot get nodeId of ${ref}`));
+    }
+    trace('UIManagerModule', { nodeId, funcName: 'getBoundingClientRect', params: options });
+    return Bridge.callNative('UIManagerModule', 'getBoundingClientRect', nodeId, options, (res: HippyTypes.LayoutEvent) => {
+      if (!res || res.errMsg) {
+        return reject(new Error((res?.errMsg) || 'getBoundingClientRect error with no response'));
+      }
+      const { x, y, width, height } = res;
+      let bottom: undefined | number = undefined;
+      let right: undefined | number = undefined;
+      if (typeof y === 'number' && typeof height === 'number') {
+        bottom = y + height;
+      }
+      if (typeof x === 'number' && typeof width === 'number') {
+        right = x + width;
+      }
+      return resolve({
+        x,
+        y,
+        width,
+        height,
+        bottom,
+        right,
+        left: x,
+        top: y,
+      });
+    });
+  });
 }
 
 export {
@@ -224,6 +264,7 @@ export {
   getNodeIdByRef,
   getElementFromFiberRef,
   callUIFunction,
+  getBoundingClientRect,
   measureInWindow,
   measureInAppWindow,
 };

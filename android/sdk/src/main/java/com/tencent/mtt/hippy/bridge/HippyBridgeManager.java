@@ -25,6 +25,8 @@ import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 
+import java.nio.ByteBuffer;
+
 @SuppressWarnings({"deprecation", "unused"})
 public interface HippyBridgeManager {
 
@@ -59,4 +61,6 @@ public interface HippyBridgeManager {
   HippyThirdPartyAdapter getThirdPartyAdapter();
 
   long getV8RuntimeId();
+
+  void connectDebugUrl(String wsDebugUrl);
 }

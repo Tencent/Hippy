@@ -17,7 +17,7 @@
     "webpack"
   ],
   "dependencies": {
-    "loader-utils": "^1.0.2"
+    "loader-utils": "^2.0.4"
   },
   "devDependencies": {
     "ansi-regex": "^5.0.1",

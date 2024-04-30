@@ -10,114 +10,146 @@ on:
       - main
       - master
   schedule:
+    # Run every day at 20:00 UTC(04:00 UTC+08:00).
     - cron: '0 20 * * *'
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
 jobs:
-  analyze:
-    runs-on: ${{ github.repository == 'Tencent/Hippy' && fromJson('[''self-hosted'', ''linux'']') || 'ubuntu-latest' }}
-    container:
-      image: ghcr.io/tencent/android-release:latest # repository name must be lowercase(${{ github.repository_owner }})
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'cpp', 'java', 'javascript', 'typescript' ]
+  triage:
+    runs-on: ubuntu-latest
+    outputs:
+      languages: ${{ steps.action.outputs.languages }}
+      group: ${{ steps.action.outputs.group }}
     steps:
-    - name: Detect Languages
-      id: detect_languages
-      uses: actions/github-script@v6.1.0
+    - name: Action
+      id: action
+      uses: actions/github-script@v6.3.3
       with:
         script: |
-          const { owner, repo } = context.repo;
           const { pull_request } = context.payload;
           const { pulls } = github.rest;
           const path = require('path');
-
-          if (pull_request === undefined) { // Push
-            console.log("::set-output name=language::${{ matrix.language }}");
-            return;
-          }
+          const fs = require('fs');
+          const os = require('os');
 
           // Ref: https://codeql.github.com/docs/codeql-overview/supported-languages-and-frameworks/#languages-and-compilers
-          const languages  = {
+          const mappings  = {
             "cpp": [".cpp", ".c++", ".cxx", ".hpp", ".hh", ".h++", ".hxx", ".c", ".cc", ".h"],
-            "java": [".java"],
-            "javascript": [".js", ".jsx", ".mjs", ".es", ".es6", ".htm", ".html", ".xhtm", ".xhtml", ".vue", ".hbs", ".ejs", ".njk", ".json", ".yaml", ".yml", ".raml", ".xml"],
-            "typescript": [".ts", ".tsx"]
+            // Use only 'java' to analyze code written in Java, Kotlin or both
+            "java": [".java", ".kt"], // written in Java, Kotlin or both
+            // Use only 'javascript' to analyze code written in JavaScript, TypeScript or both
+            "javascript": [".ts", ".tsx", ".js", ".jsx", ".mjs", ".es", ".es6", ".htm", ".html", ".xhtm", ".xhtml", ".vue", ".hbs", ".ejs", ".njk", ".json", ".yaml", ".yml", ".raml", ".xml"]
           };
-          const all_exts = Object.values(languages).flat();
-          const cur_exts = languages["${{ matrix.language }}"];
 
-          let has_hit = false;
+          const languages = new Set();
 
-          try {
-            await github.paginate(pulls.listFiles, {
-              owner,
-              repo,
-              per_page: 100,
-              pull_number: pull_request.number,
-            }, ({ data: files }, done) => {
-              for (const { filename } of files) {
-                const ext = path.extname(filename);
-                if (cur_exts.includes(ext)) {
-                  console.log("::set-output name=language::${{ matrix.language }}");
-                  done();
-                } else {
-                  has_hit |= all_exts.includes(ext);
-                }
-                return [];
+          if (pull_request) {
+            try {
+              const files = await github.paginate(pulls.listFiles, {
+                ...context.repo,
+                per_page: 100,
+                pull_number: pull_request.number
+              });
+
+              if (files.length > 3_000) { // The paginated response include a maximum of 3000 files
+                Object.keys(mappings).forEach(languages.add, languages);
+              } else {
+                files.forEach(({ filename }) => {
+                  const ext = path.extname(filename);
+                  Object.keys(mappings).some((name) => {
+                    if (mappings[name].includes(ext)) {
+                      languages.add(name);
+                      return true;
+                    }
+                    return false;
+                  });
+                });
               }
-            });
-          } catch (e) {
-            console.error(e);
-            console.log("::set-output name=language::${{ matrix.language }}"); // Fallback to all language
-            return;
+            } catch (e) {
+              console.error(e);
+              Object.keys(mappings).forEach(languages.add, languages);
+            }
+          } else {
+            Object.keys(mappings).forEach(languages.add, languages);
           }
 
-          if (!has_hit && "${{ matrix.language }}" === "typescript") { // Default Run
-            console.log("::set-output name=default-run::1");
+          if (languages.size > 0) {
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `languages=${JSON.stringify(Array.from(languages))}${os.EOL}`, { encoding: 'utf8' });
           }
+
+  analyze:
+    needs: triage
+    if: needs.triage.outputs.languages
+    runs-on: ${{ github.repository == 'Tencent/Hippy' && fromJson('[''self-hosted'', ''linux'', ''codeql'']') || 'ubuntu-latest' }}
+    container:
+      image: ghcr.io/tencent/android-release:latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ${{ fromJSON(needs.triage.outputs.languages) }}
+    steps:
     - name: Checkout
-      if: steps.detect_languages.outputs.language
       uses: actions/checkout@v3
       with:
         lfs: true
     - name: Initialize CodeQL
-      if: steps.detect_languages.outputs.language
       uses: github/codeql-action/init@v2
       with:
-        languages: ${{ steps.detect_languages.outputs.language }}
+        languages: ${{ matrix.language }}
     - name: Setup Node.js
-      if: steps.detect_languages.outputs.language == 'javascript' || steps.detect_languages.outputs.language == 'typescript'
+      if: matrix.language == 'javascript'
       uses: actions/setup-node@v3
       with:
         node-version: latest
     - name: Build Java
-      if: steps.detect_languages.outputs.language == 'java'
+      if: matrix.language == 'java'
       env:
         skipCmakeAndNinja: 1
       run: |
-        ./gradlew example::assembleDebug
+        ./gradlew assembleDebug
     - name: Build C++
-      if: steps.detect_languages.outputs.language == 'cpp'
+      if: matrix.language == 'cpp'
       run: |
-        ./gradlew android-sdk::buildCMakeRelease
+        ./gradlew buildCMakeDebug -PINCLUDE_ABI_X86=true -PINCLUDE_ABI_X86_64=true
     - name: Perform CodeQL Analysis
-      if: steps.detect_languages.outputs.language
       uses: github/codeql-action/analyze@v2
+
+  fallback:
+    needs: triage
+    if: ${{ !needs.triage.outputs.languages }}
+    runs-on: ubuntu-latest
+    steps:
     - name: Generate Fake SARIF
-      if: steps.detect_languages.outputs.default-run
       run:
         echo '{"version":"2.1.0","runs":[{"tool":{"driver":{"name":"CodeQL"}},"results":[]}]}' > ./fake.sarif
       # The following step will output a lot of errors(like `The process '/usr/bin/git' failed with exit code 128`),
       # don't worry it's NORMAL because we don't checkout repository.
     - name: Upload Fake SARIF
-      if: steps.detect_languages.outputs.default-run
       uses: github/codeql-action/upload-sarif@v2
       with:
         sarif_file: ./fake.sarif
         category: fake_results_do_not_care
+
+  codeql_finalize:
+    needs: [ analyze, fallback ]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+    - name: Success
+      if: contains(needs.*.result, 'success')
+      run: |
+        echo "CodeQL analysis completed successfully!"
+    - name: Failure
+      if: ${{ !contains(needs.*.result, 'success') }}
+      run: |
+        echo "CodeQL analysis completed with errors!"
+        exit -1

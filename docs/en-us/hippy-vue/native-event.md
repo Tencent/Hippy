@@ -76,7 +76,7 @@ Hippy.on('destroyInstance', () => {
 
 # Container Size Change Event
 
-`Android only`
+`Android all versions supported, iOS minimum supported version 2.16.0`
 
 When the container size changes, such as screen rotation, folding screen switch, etc., this event will be called.
 
@@ -84,5 +84,18 @@ When the container size changes, such as screen rotation, folding screen switch,
 app.$on('onSizeChanged', ({ oldWidth, oldHeight, width, height }) => {
     // oldWidth: old width；oldHeight: old height；width: new width; height: new height
     console.log('size', oldWidth, oldHeight, width, height);
+});
+```
+
+# System night mode change event
+
+`Only supported by iOS, the minimum supported version is 2.16.6, (Note: The page will be recreated when Android modifies the night mode)`
+
+This event is triggered when the system night mode changes
+
+```jsx
+app.$on('onNightModeChanged', ({ NightMode, RootViewTag }) => {
+     // NightMode: whether the current night mode, the value is 0 or 1; RootViewTag: the Tag of the HippyRootView that sends the event
+     console.log(`onDarkModeChanged: ${NightMode}, rootViewTag: ${RootViewTag}`);
 });
 ```

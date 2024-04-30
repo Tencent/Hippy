@@ -34,7 +34,7 @@ let _Vue;
  * Style pre-process hook
  *
  * Use for hack the style processing, update the property
- * or value mannuly.
+ * or value manually.
  *
  * @param {Object} decl - Style declaration.
  * @param {string} decl.property - Style property name.
@@ -42,6 +42,17 @@ let _Vue;
  * @returns {Object} decl - Processed declaration, original declaration by default.
  */
 let _beforeLoadStyle = decl => decl;
+
+/**
+ * before render ElementNode hook
+ *
+ * Use for do some hack to dom tree, such as fixed position, style inherit
+ * percentage unit, style variables etc.
+ *
+ * @param {Object} el - ElementNode
+ * @param {Object} style - computed style sheet
+ */
+let _beforeRenderToNative = () => {};
 
 function setVue(Vue) {
   _Vue = Vue;
@@ -65,6 +76,14 @@ function setBeforeLoadStyle(beforeLoadStyle) {
 
 function getBeforeLoadStyle() {
   return _beforeLoadStyle;
+}
+
+function setBeforeRenderToNative(beforeRenderToNative) {
+  _beforeRenderToNative = beforeRenderToNative;
+}
+
+function getBeforeRenderToNative() {
+  return _beforeRenderToNative;
 }
 
 const infoTrace = once(() => {
@@ -221,17 +240,6 @@ function deepCopy(data, hash = new WeakMap()) {
   return newData;
 }
 
-/**
- * Detect if the param is falsy or empty
- * @param {any} any
- */
-function isEmpty(any) {
-  if (!any || typeof any !== 'object') {
-    return true;
-  }
-  return Object.keys(any).length === 0;
-}
-
 function isNullOrUndefined(value) {
   return typeof value === 'undefined' || value === null;
 }
@@ -240,10 +248,20 @@ function isScopedEnabled() {
   return !!(_Vue && _Vue.config.scoped);
 }
 
+function whitespaceFilter(str) {
+  if (typeof str !== 'string') return str;
+  // Adjusts template whitespace handling behavior.
+  // "trimWhitespace": default behavior is true.
+  // It will trim leading / ending whitespace including all special unicode such as \xA0(&nbsp;).
+  if (!_Vue || typeof _Vue.config.trimWhitespace === 'undefined' || _Vue.config.trimWhitespace) {
+    return str.trim().replace(/Â/g, ' ');
+  }
+  return str.replace(/Â/g, ' ');
+}
+
 export {
   VUE_VERSION,
   HIPPY_VUE_VERSION,
-  isEmpty,
   isDev,
   setVue,
   getVue,
@@ -251,6 +269,8 @@ export {
   getApp,
   setBeforeLoadStyle,
   getBeforeLoadStyle,
+  setBeforeRenderToNative,
+  getBeforeRenderToNative,
   trace,
   warn,
   isTraceEnabled,
@@ -265,4 +285,5 @@ export {
   endsWith,
   convertImageLocalPath,
   deepCopy,
+  whitespaceFilter,
 };

@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.dom.node;
 import android.text.TextPaint;
 import android.text.style.MetricAffectingSpan;
 import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
+import java.lang.ref.WeakReference;
 
 @SuppressWarnings({"unused"})
 public class HippyStyleSpan extends MetricAffectingSpan {
@@ -25,24 +26,24 @@ public class HippyStyleSpan extends MetricAffectingSpan {
   private final int mStyle;
   private final int mWeight;
   private final String mFontFamily;
-  private final HippyFontScaleAdapter fontAdapter;
+  private final WeakReference<HippyFontScaleAdapter> fontAdapterRef;
 
   public HippyStyleSpan(int fontStyle, int fontWeight, String fontFamily,
       HippyFontScaleAdapter adapter) {
     mStyle = fontStyle;
     mWeight = fontWeight;
     mFontFamily = fontFamily;
-    fontAdapter = adapter;
+    fontAdapterRef = new WeakReference<>(adapter);
   }
 
   @Override
   public void updateDrawState(TextPaint ds) {
-    TypeFaceUtil.apply(ds, mStyle, mWeight, mFontFamily, fontAdapter);
+    TypeFaceUtil.apply(ds, mStyle, mWeight, mFontFamily, fontAdapterRef.get());
   }
 
   @Override
   public void updateMeasureState(TextPaint paint) {
-    TypeFaceUtil.apply(paint, mStyle, mWeight, mFontFamily, fontAdapter);
+    TypeFaceUtil.apply(paint, mStyle, mWeight, mFontFamily, fontAdapterRef.get());
   }
 
   public int getStyle() {

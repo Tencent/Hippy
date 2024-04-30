@@ -163,7 +163,36 @@ const img: ElementComponent = {
   component: {
     name: NATIVE_COMPONENT_MAP.Image,
     eventNamesMap: div.component.eventNamesMap,
-    processEventData: div.component.processEventData,
+    processEventData(evtData: EventsUnionType, nativeEventParams: NeedToTyped) {
+      const { handler: event, __evt: nativeEventName } = evtData;
+
+      switch (nativeEventName) {
+        case 'onTouchDown':
+        case 'onTouchMove':
+        case 'onTouchEnd':
+        case 'onTouchCancel':
+          event.touches = {
+            0: {
+              clientX: nativeEventParams.page_x,
+              clientY: nativeEventParams.page_y,
+            },
+            length: 1,
+          };
+          break;
+        case 'onFocus':
+          event.isFocused = nativeEventParams.focus;
+          break;
+        case 'onLoad': {
+          const { width, height, url } = nativeEventParams;
+          event.width = width;
+          event.height = height;
+          event.url = url;
+          break;
+        }
+        default:
+      }
+      return event;
+    },
     defaultNativeStyle: {
       backgroundColor: 0,
     },
@@ -430,6 +459,8 @@ const iframe: ElementComponent = {
       evtData: EventsUnionType,
       nativeEventParams: {
         url: string;
+        success?: boolean;
+        error?: string;
       },
     ) {
       const { handler: event, __evt: nativeEventName } = evtData;
@@ -437,8 +468,12 @@ const iframe: ElementComponent = {
       switch (nativeEventName) {
         case 'onLoad':
         case 'onLoadStart':
+          event.url = nativeEventParams.url;
+          break;
         case 'onLoadEnd':
           event.url = nativeEventParams.url;
+          event.success = nativeEventParams.success;
+          event.error = nativeEventParams.error;
           break;
 
         default:

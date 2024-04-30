@@ -182,6 +182,8 @@
 
 !> hippy-vue 需采用 @hippy/vue-css-loader `2.14.1` 以上版本
 
+!> 在部分 Android 设备上，letterSpacing 设置负值有兼容性问题，可能会导致在非预期的位置换行
+
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
 | number | 否 | Android、iOS

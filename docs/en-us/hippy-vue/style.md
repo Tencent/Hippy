@@ -28,11 +28,13 @@ At present, the basic `Universal`, `Type`, `ID`, `Class`, `Grouping` selectors h
 
 ## Scoped & Attribute
 
-> `2.15.0+` support Vue `scoped` and `Attribute` Selector
+> `2.15.0` support Vue `scoped` style, `2.15.2` support to merge styles on root element of child component.
+
+> `2.15.1` support `Attribute` selector and Vue `deep` selector.
 
 How to use?
 
-1. Update `@hippy/vue` and  `@hippy/vue-css-loader` to `2.15.0+` version.
+1. Update `@hippy/vue` and  `@hippy/vue-css-loader` to `2.15.1+` version.
 2. Vue2.0 set `Vue.config.scoped = true;`（Vue2.0 `scoped` and `Attribute` disabled by default，Vue3.0 enabled by default）
 
 

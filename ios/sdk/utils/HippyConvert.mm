@@ -32,7 +32,6 @@
 
 @implementation HippyConvert
 
-// clang-format off
 
 Hippy_CONVERTER(id, id, self)
 Hippy_CONVERTER(BOOL, BOOL, boolValue)
@@ -738,5 +737,5 @@ HippyAnimationTypeEaseInEaseOut, integerValue)
 + (CGImageRef)CGImage:(id)json {
     return [self UIImage:json].CGImage;
 }
-// clang-format on
+
 @end

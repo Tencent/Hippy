@@ -26,7 +26,7 @@
 #include "MTTFlex.h"
 #import "HippyAnimationType.h"
 #import "HippyBorderStyle.h"
-#import "HippyTextDecorationLineType.h"
+#import "HippyTextEnumDefines.h"
 #import "HippyDefines.h"
 #import "HippyLog.h"
 #import "HippyPointerEvents.h"
@@ -93,7 +93,6 @@ typedef NSURL HippyFileURL;
 + (CGLineCap)CGLineCap:(id)json;
 + (CGLineJoin)CGLineJoin:(id)json;
 
-//+ (CATransform3D)CATransform3D:(id)json;
 + (CGAffineTransform)CGAffineTransform:(id)json;
 
 + (UIColor *)UIColor:(id)json;

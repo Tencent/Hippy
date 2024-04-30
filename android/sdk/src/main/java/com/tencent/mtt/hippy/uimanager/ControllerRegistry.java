@@ -48,6 +48,10 @@ public class ControllerRegistry {
     return mControllers.get(className);
   }
 
+  public int getControllersCount() {
+      return mControllers.size();
+  }
+
   @SuppressWarnings({"rawtypes"})
   public HippyViewController getViewController(String className) {
     try {

@@ -25,6 +25,7 @@ import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.devsupport.DebugWebSocketClient;
 import com.tencent.mtt.hippy.devsupport.inspector.domain.CSSDomain;
 import com.tencent.mtt.hippy.devsupport.inspector.domain.DomDomain;
+import com.tencent.mtt.hippy.devsupport.inspector.domain.InputDomain;
 import com.tencent.mtt.hippy.devsupport.inspector.domain.InspectorDomain;
 import com.tencent.mtt.hippy.devsupport.inspector.domain.PageDomain;
 import com.tencent.mtt.hippy.devsupport.inspector.model.InspectEvent;
@@ -40,7 +41,7 @@ import org.json.JSONObject;
 public class Inspector implements BatchListener {
 
   private static final String TAG = "Inspector";
-
+  private static final String RENDERER_TYPE = "Native";
   private static final String CHROME_SOCKET_CLOSED = "chrome_socket_closed";
 
   public static int CLOSE_DESTROY = 4003;
@@ -55,9 +56,11 @@ public class Inspector implements BatchListener {
     DomDomain domDomain = new DomDomain(this);
     CSSDomain cssDomain = new CSSDomain(this);
     PageDomain pageDomain = new PageDomain(this);
+    InputDomain inputDomain = new InputDomain(this);
     mDomainMap.put(domDomain.getDomainName(), domDomain);
     mDomainMap.put(cssDomain.getDomainName(), cssDomain);
     mDomainMap.put(pageDomain.getDomainName(), pageDomain);
+    mDomainMap.put(inputDomain.getDomainName(), inputDomain);
   }
 
   public Inspector setEngineContext(HippyEngineContext context, DebugWebSocketClient client) {
@@ -163,11 +166,17 @@ public class Inspector implements BatchListener {
   }
 
   public void updateContextName(String name) {
+    if (getContext() == null) {
+      return;
+    }
     try {
       JSONObject contextObj = new JSONObject();
       contextObj.put("contextName", name);
 
-      Context context = mContextRef.get().getGlobalConfigs().getContext();
+      Context context = getContext().getGlobalConfigs().getContext();
+      int moduleCount = getContext().getModuleManager().getNativeModuleCount();
+      int viewCount = getContext().getRenderManager().getControllerManager().getControllerCount();
+
       String packageName = "";
       String versionName = "";
       if (context != null) {
@@ -179,6 +188,9 @@ public class Inspector implements BatchListener {
       contextObj.put("bundleId", packageName);
       contextObj.put("hostVersion", versionName);
       contextObj.put("sdkVersion", BuildConfig.LIBRARY_VERSION);
+      contextObj.put("rendererType", RENDERER_TYPE);
+      contextObj.put("viewCount", viewCount);
+      contextObj.put("moduleCount", moduleCount);
       sendEventToFrontend(new InspectEvent("TDFRuntime.updateContextInfo", contextObj));
     } catch (Exception e) {
       LogUtils.e(TAG, "updateContextName, exception:", e);

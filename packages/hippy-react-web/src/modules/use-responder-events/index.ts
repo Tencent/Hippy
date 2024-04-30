@@ -20,16 +20,12 @@
 
 import React from 'react';
 import { useStable } from '../../utils';
+import { TouchableProps } from '../../types';
 import ResponderEvent from './responder-events';
-import { TouchEvent } from './types';
 
 let idCounter = 0;
 
-export interface ResponderConfig {
-  onTouchDown?: (e: TouchEvent) => void;
-  onTouchMove?: (e: TouchEvent) => void;
-  onTouchEnd?: (e: TouchEvent) => void;
-  onTouchCancel?: (e: TouchEvent) => void;
+export interface ResponderConfig extends TouchableProps {
   onScroll?: (e: any) => void;
 };
 

@@ -21,13 +21,59 @@
 /* eslint-disable no-underscore-dangle */
 
 import React from 'react';
-import * as StyleSheet from '../modules/stylesheet';
+import StyleSheet from '../modules/stylesheet';
 import { callUIFunction } from '../modules/ui-manager-module';
 import Element from '../dom/element-node';
 import { isRTL } from '../utils/i18n';
 import View from './view';
 
-interface ScrollViewProps {
+interface ScrollViewPropsIOS {
+
+  /**
+   * When `true`, shows a horizontal scroll indicator.
+   * Default: true
+   */
+  showsHorizontalScrollIndicator?: boolean;
+
+  /**
+   * When `true`, shows a vertical scroll indicator.
+   * Default: true
+   */
+  showsVerticalScrollIndicator?: boolean;
+}
+
+interface ScrollViewPropsAndroid {
+  /**
+   * When false, the scroll view will hide scroll indicator
+   * @default false
+   */
+  showScrollIndicator?: boolean;
+}
+
+export interface ScrollEvent {
+  contentInset: {
+    right: number;
+    top: number;
+    left: number;
+    bottom: number;
+  };
+  contentOffset: {
+    x: number;
+    y: number;
+  };
+  contentSize: {
+    width: number;
+    height: number;
+  };
+  layoutMeasurement: {
+    width: number;
+    height: number;
+  };
+  zoomScale: number;
+}
+
+export interface ScrollViewProps extends ScrollViewPropsAndroid, ScrollViewPropsIOS {
+  // TODO: allow HippyTypes.Style[]
   style?: HippyTypes.Style;
   /**
    * When true, the scroll view's children are arranged horizontally in a row
@@ -52,22 +98,10 @@ interface ScrollViewProps {
   scrollEnabled?: boolean;
 
   /**
-   * When `true`, shows a horizontal scroll indicator.
-   * Default: true
-   */
-  showsHorizontalScrollIndicator?: boolean;
-
-  /**
-   * When `true`, shows a vertical scroll indicator.
-   * Default: true
-   */
-  showsVerticalScrollIndicator?: boolean;
-
-  /**
    * These styles will be applied to the scroll view content container which wraps all
    * of the child views.
    */
-  contentContainerStyle?: HippyTypes.Style;
+  contentContainerStyle?: HippyTypes.StyleProp;
 
   /**
    * This controls how often the scroll event will be fired while scrolling
@@ -99,32 +133,32 @@ interface ScrollViewProps {
   /**
    * Called when the momentum scroll starts (scroll which occurs as the ScrollView starts gliding).
    */
-  onMomentumScrollBegin?: () => void;
+  onMomentumScrollBegin?: (event: ScrollEvent) => void;
 
   /**
    * Called when the momentum scroll ends (scroll which occurs as the ScrollView glides to a stop).
    */
-  onMomentumScrollEnd?: () => void;
+  onMomentumScrollEnd?: (event: ScrollEvent) => void;
 
   /**
    * Fires at most once per frame during scrolling.
    * The frequency of the events can be controlled using the `scrollEventThrottle` prop.
    *
-   * @param {Object} evt - Scroll event data.
-   * @param {number} evt.contentOffset.x - Offset X of scrolling.
-   * @param {number} evt.contentOffset.y - Offset Y of scrolling.
+   * @param {Object} event - Scroll event data.
+   * @param {number} event.contentOffset.x - Offset X of scrolling.
+   * @param {number} event.contentOffset.y - Offset Y of scrolling.
    */
-  onScroll?: (evt: { contentOffset: { x: number, y: number }}) => void;
+  onScroll?: (event: ScrollEvent) => void;
 
   /**
    * Called when the user begins to drag the scroll view.
    */
-  onScrollBeginDrag?: () => void;
+  onScrollBeginDrag?: (event: ScrollEvent) => void;
 
   /**
    * Called when the user stops dragging the scroll view and it either stops or begins to glide.
    */
-  onScrollEndDrag?: () => void;
+  onScrollEndDrag?: (event: ScrollEvent) => void;
 }
 
 const styles = StyleSheet.create({
@@ -156,7 +190,7 @@ const styles = StyleSheet.create({
  * If you need to implement a long list, use `ListView`.
  * @noInheritDoc
  */
-class ScrollView extends React.Component<ScrollViewProps, {}> {
+export class ScrollView extends React.Component<ScrollViewProps, {}> {
   private instance: Element | HTMLDivElement | null = null;
 
   /**
@@ -189,7 +223,7 @@ class ScrollView extends React.Component<ScrollViewProps, {}> {
    * @param {number} x - Scroll to horizon position X.
    * @param {number} y - Scroll To vertical position Y.
    * @param {number} duration - Duration of animation execution time, with ms unit.
-   *                            By default is 1000ms.
+   *                            Default is 1000ms.
    */
   public scrollToWithDuration(x = 0, y = 0, duration = 1000) {
     callUIFunction(this.instance as Element, 'scrollToWithOptions', [{ x, y, duration }]);
@@ -209,7 +243,7 @@ class ScrollView extends React.Component<ScrollViewProps, {}> {
       horizontal ? styles.contentContainerHorizontal : styles.contentContainerVertical,
       contentContainerStyle,
     ];
-    const newStyle = horizontal
+    const newStyle: HippyTypes.Style = horizontal
       ? Object.assign({}, styles.baseHorizontal, style)
       : Object.assign({}, styles.baseVertical, style);
 

@@ -25,7 +25,7 @@ const ContextifyModule = internalBinding('ContextifyModule');
 
 global.dynamicLoad = (path, encode, cb) => {
   let requestPath = path || '';
-  const isSchema = ['https://', 'http://', '//'].some(schema => requestPath.indexOf(schema) === 0);
+  const isSchema = /^(.+:\/\/)|^(\/\/)/.test(path);
   if (!isSchema) {
     requestPath = global.__HIPPYCURDIR__ + path;
   }

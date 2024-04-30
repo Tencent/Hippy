@@ -21,9 +21,6 @@
  */
 
 #import "HippyLog.h"
-
-#include <asl.h>
-
 #import "HippyAssert.h"
 #import "HippyBridge.h"
 #import "HippyBridge+Private.h"
@@ -51,7 +48,6 @@ HippyLogLevel HippyDefaultLogThreshold = HippyLogLevelError;
 static HippyLogFunction HippyCurrentLogFunction;
 static HippyLogLevel HippyCurrentLogThreshold = HippyDefaultLogThreshold;
 
-static BOOL getFileNameAndLineNumberFromLogMessage(NSString *message, NSString **fileName, int *lineNumber);
 static void registerTDFLogHandler() {
     static std::once_flag flag;
     std::call_once(flag, [](){
@@ -60,37 +56,15 @@ static void registerTDFLogHandler() {
                 std::string string = stream.str();
                 if (string.length()) {
                     NSString *message = [NSString stringWithUTF8String:string.c_str()];
-                    NSString *fileName = nil;
-                    int lineNumber = 0;
-                    if (getFileNameAndLineNumberFromLogMessage(message, &fileName, &lineNumber)) {
-                        _HippyLogNativeInternal(HippyLogLevelInfo, [fileName UTF8String], lineNumber, @"%@", message);
+                    if (message == nil) { // fixme: deal with unicode characters
+                        message = [NSString stringWithCString:string.c_str() encoding:NSASCIIStringEncoding];
                     }
+                    _HippyLogNativeInternal(HippyLogLevelInfo, "TDFCore", 0, @"%@", message);
                 }
             }
         };
         tdf::base::LogMessage::InitializeDelegate(logFunction);
     });
-}
-
-static BOOL getFileNameAndLineNumberFromLogMessage(NSString *message, NSString **fileName, int *lineNumber) {
-    //[VERBOSE0:worker_task_runner.cc(84)] WorkerThread create
-    static NSString *prefixString = @"[VERBOSE0:";
-    @try {
-        if ([message hasPrefix:prefixString] && fileName && lineNumber) {
-            NSUInteger messageLength = [message length];
-            NSUInteger fileNameStartLocation = [prefixString length];
-            NSUInteger firstParenthesisPosition = [message rangeOfString:@"(" options:(0) range:NSMakeRange(fileNameStartLocation, messageLength - fileNameStartLocation)].location;
-            NSUInteger secondParenthesisPosition = [message rangeOfString:@")" options:(0) range:NSMakeRange(fileNameStartLocation, messageLength - fileNameStartLocation)].location;
-            NSString *name = [message substringWithRange:NSMakeRange(fileNameStartLocation, firstParenthesisPosition - fileNameStartLocation)];
-            NSString *line = [message substringWithRange:NSMakeRange(firstParenthesisPosition + 1, secondParenthesisPosition - firstParenthesisPosition - 1)];
-            *fileName = [name copy];
-            *lineNumber = [line intValue];
-            return YES;
-        }
-    } @catch (NSException *exception) {
-        return NO;
-    }
-    return NO;
 }
 
 HippyLogLevel HippyGetLogThreshold() {
@@ -101,32 +75,13 @@ void HippySetLogThreshold(HippyLogLevel threshold) {
     HippyCurrentLogThreshold = threshold;
 }
 
-HippyLogFunction HippyDefaultLogFunction
-    = ^(HippyLogLevel level, __unused HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message) {
-          NSString *log = HippyFormatLog([NSDate date], level, fileName, lineNumber, message);
-          fprintf(stderr, "%s\n", log.UTF8String);
-          fflush(stderr);
-
-          int aslLevel;
-          switch (level) {
-              case HippyLogLevelTrace:
-                  aslLevel = ASL_LEVEL_DEBUG;
-                  break;
-              case HippyLogLevelInfo:
-                  aslLevel = ASL_LEVEL_NOTICE;
-                  break;
-              case HippyLogLevelWarning:
-                  aslLevel = ASL_LEVEL_WARNING;
-                  break;
-              case HippyLogLevelError:
-                  aslLevel = ASL_LEVEL_ERR;
-                  break;
-              case HippyLogLevelFatal:
-                  aslLevel = ASL_LEVEL_CRIT;
-                  break;
-          }
-          asl_log(NULL, NULL, aslLevel, "%s", message.UTF8String);
-      };
+HippyLogFunction HippyDefaultLogFunction =
+    ^(HippyLogLevel level, __unused HippyLogSource source,
+      NSString *fileName, NSNumber *lineNumber, NSString *message) {
+        NSString *log = HippyFormatLog([NSDate date], level, fileName, lineNumber, message);
+        fprintf(stderr, "%s\n", log.UTF8String);
+        fflush(stderr);
+    };
 
 void HippySetLogFunction(HippyLogFunction logFunction) {
     HippyCurrentLogFunction = logFunction;

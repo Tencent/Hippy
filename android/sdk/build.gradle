@@ -55,6 +55,7 @@ android {
     consumerProguardFiles 'proguard-rules.pro'
 
     buildConfigField("boolean", "ENABLE_SO_DOWNLOAD", ENABLE_SO_DOWNLOAD)
+    buildConfigField("boolean", "ENABLE_BUGLY_REPORT", ENABLE_BUGLY_REPORT)
     buildConfigField("String", "LIBRARY_VERSION", "String.valueOf(\"$VERSION_NAME\")")
 
     packagingOptions {
@@ -88,6 +89,7 @@ android {
                   "-DANDROID_ARM_NEON=${INCLUDE_ABI_ARMEABI.toBoolean() ? 'FALSE' : 'TRUE'}",
                   "-DCMAKE_BUILD_TYPE=Release",
                   "-DANDROID_STL=$ANDROID_STL",
+                  "-DVERSION_NAME=$VERSION_NAME",
                   "-DV8_COMPONENT=$V8_COMPONENT",
                   "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
 
@@ -116,6 +118,7 @@ android {
                   "-DANDROID_ARM_NEON=${INCLUDE_ABI_ARMEABI.toBoolean() ? 'FALSE' : 'TRUE'}",
                   "-DCMAKE_BUILD_TYPE=Debug",
                   "-DANDROID_STL=$ANDROID_STL",
+                  "-DVERSION_NAME=$VERSION_NAME",
                   "-DV8_COMPONENT=$V8_COMPONENT",
                   "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
 

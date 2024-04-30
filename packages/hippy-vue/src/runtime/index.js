@@ -49,6 +49,7 @@ import {
   isFunction,
   trace,
   setBeforeLoadStyle,
+  setBeforeRenderToNative,
 } from '../util';
 import DocumentNode from '../renderer/document-node';
 import { Event } from '../renderer/native/event';
@@ -258,6 +259,22 @@ Vue.use(registerBuiltinElements);
 if (config.devtools && devtools) {
   devtools.emit('init', Vue);
 }
+
+/*
+ * used to validate beforeRenderToNative hook
+ * when ElementNode or ViewNode have breaking changes, add version number to disable
+ * beforeRenderToNative hook
+ */
+const BEFORE_RENDER_TO_NATIVE_HOOK_VERSION = 1;
+Vue.config._setBeforeRenderToNative = (hook, version) => {
+  if (isFunction(hook)) {
+    if (BEFORE_RENDER_TO_NATIVE_HOOK_VERSION === version) {
+      setBeforeRenderToNative(hook);
+    } else {
+      console.error('_setBeforeRenderToNative API had changed, the hook function will be ignored!');
+    }
+  }
+};
 
 // proxy Vue constructor to add Hippy Vue instance to global.__VUE_ROOT_INSTANCES__
 const VueProxy = new Proxy(Vue, {

@@ -21,13 +21,14 @@
 /* eslint-disable no-mixed-operators */
 
 import { Device } from '../native';
+import { Platform } from '../types';
 import { warn } from '../utils';
 import baseColor from './color-parser';
 
 type Color = string | number;
 
 interface ColorParserOption {
-  platform?: HippyTypes.Platform
+  platform?: HippyTypes.Platform['OS']
 }
 
 /**
@@ -50,7 +51,7 @@ function colorParse(color: Color, options: ColorParserOption = {}) {
   }
 
   int32Color = (int32Color << 24 | int32Color >>> 8) >>> 0;
-  if (options.platform === 'android') {
+  if (options.platform === Platform.android) {
     int32Color |= 0;
   }
   return int32Color;

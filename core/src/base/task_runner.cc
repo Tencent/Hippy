@@ -27,7 +27,6 @@
 #include "core/base/macros.h"
 #include "core/base/task.h"
 #include "core/base/thread_id.h"
-#include "core/napi/js_native_api.h"
 
 namespace hippy {
 namespace base {

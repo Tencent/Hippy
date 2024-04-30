@@ -31,8 +31,8 @@ import { DEFAULT_DISTANCE_TO_REFRESH, REFRESH_DISTANCE_SCREEN_Y_OFFSET } from '.
 import View from './view';
 
 interface ListViewItemProps {
-  style?: any;
-  height: any;
+  style?: HippyTypes.StyleProp;
+  height?: any;
   children?: any;
   type?: any;
   observer?: IntersectionObserver | null;
@@ -142,6 +142,7 @@ function ListViewItem(props: ListViewItemProps) {
   delete liElementProps.rowShouldSticky;
 
   return (
+    // @ts-ignore
     <li {...liElementProps} ref={listItemRef} rowid={getRowKey()} />
   );
 }
@@ -351,7 +352,8 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
       }
     }, [pullHeaderRef]);
     return (
-      <div ref={pullHeaderRef} style={{  ...styles.pullHeaderContainer }}>
+      // @ts-ignore
+      <div ref={pullHeaderRef} style={styles.pullHeaderContainer}>
         {renderPullHeader()}
       </div>
     );
@@ -368,6 +370,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
       }
     }, [pullFooterRef]);
     return (
+      // @ts-ignore
       <div ref={pullFooterRef} style={styles.pullHeaderContainer}>
         { renderPullFooter() }
       </div>

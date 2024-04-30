@@ -196,26 +196,6 @@ Invoke a native method defined by a component
 
 ---
 
-# Clipboard
-
-Clipboard read-write module, but currently only supports plain text.
-
-## Methods
-
-### getString()
-
-return value:
-
-* string
-
-### setString(content)
-
-| Props | Type     | Require | Description |
-| --------  | -------- | -------- |  -------- |
-| content | string | yes       | Saved contents of the clipboard |
-
----
-
 # ConsoleModule
 
 > Minimum Supported Version 2.10.0
@@ -277,7 +257,7 @@ Attributes:
 
 Gets the CSS style for a concrete node.
 
-> Minimum Supported Version 2.10.1
+> Minimum Supported Version `2.10.1`
 
 `(ref: ElementNode) => {}`
 
@@ -294,7 +274,7 @@ console.log(Vue.Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0
 
 Can do the corresponding operations to the remote image through this module. 
 
-> Minimum Supported Version 2.7.0
+> Minimum Supported Version `2.7.0`
 
 ## Methods
 
@@ -314,13 +294,27 @@ Can do the corresponding operations to the remote image through this module.
 
 # measureInAppWindow
 
-> Minimum Supported Version 2.11.0
+> Minimum Supported Version `2.11.0`
 
 Measure the size and position of a component within the scope of the App window. Note that this method can be called only after the node instance is actually displayed (after the layout event).
 
 `(ref) => Promise<{top: number, left: number, right: number, bottom: number, width: number, height: number}>`
 
 > * Promise resolve parameters can get the coordinates and width and height of the reference component within the scope of the App window, if an error occurs or [node is optimized (only in Android)](hippy-vue/components?id=special prop within that style) return {top: -1, left: -1, right: -1, bottom: -1, width: -1, height: -1}
+
+---
+
+# getBoundingClientRect
+
+> Minimum supported version `2.15.3`, `measureInWindow` and `measureInAppWindow` will be deprecated soon.
+
+Measure the size and position of a component within the scope of the App Container(RootView) or App Window(Screen).
+
+`(instance: ref, options: { relToContainer: boolean }) => Promise<DOMRect: { x: number, y: number, width: number, height: number, bottom: number, right: number, left: number, top: number }>`
+
+> * instance: reference of the element of component.
+> * options: optional，`relToContainer` indicates whether to be measured relative to the App Container(RootView). Default is `false`, meaning relative to App Window(Screen). When measured relative to the App Container(RootView), status bar is included in `iOS`, but `Android` not.
+> * DOMRect: same with [MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Element/getBoundingClientRect) introduction, which can get the size and position of a component. If something goes wrong or [the node is optimized (Android only)](style/layout?id=collapsable), `Promise.reject` error will be thrown.
 
 ---
 

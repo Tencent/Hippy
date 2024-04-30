@@ -30,10 +30,10 @@ Hippy 中运行的 JS 代码可以来源于本地文件(local file)，或者远�
    ```java
         // 初始化 hippy 引擎
         HippyEngine.EngineInitParams initParams = new HippyEngine.EngineInitParams();
-        // 可选：是否设置为 debug 模式，默认为 false。设置 true 为调试模式，所有 jsbundle 都将从 debug server 上下载
-        initParams.debugMode = true;
+        // 可选：是否设置为 debug 模式，默认为 DebugMode.None。设置 DebugMode.Dev 为调试模式，所有 jsbundle 都将从 debug server 上下载
+        initParams.debugMode = HippyEngine.DebugMode.Dev; // 2.16.0 以下版本 debugMode 使用 boolean 类型 => initParams.debugMode = true;
         initParams.debugServerHost = "localhost:38989";
-        // 可选参数 Hippy Server 的 jsbundle 名字，默认为 "index.bundle"。debugMode = true 时有效
+        // 可选参数 Hippy Server 的 jsbundle 名字，默认为 "index.bundle"。debugMode = DebugMode.Dev 时有效
         initParams.debugBundleName = "index.bundle";
    ```
 
@@ -119,13 +119,13 @@ Hippy 中运行的 JS 代码可以来源于本地文件(local file)，或者远�
 
 6. 使用调试器开始调试
    - Safari DevTools：在 Mac 上打开 Safari 的开发菜单（`预置` -> `高级` -> `显示开发菜单`），然后按下图指引开始调试。Safari 调试器支持 iOS 设备，支持 `HMR & Live-Reload, Log, Sources, Memory` 等能力。
-   
+
       <img src="../assets/img/safari-dev-process.png" alt="Safari 调试器" width="80%"/>
-   
+
    - Chrome DevTools：访问第 4 步打印的调试首页地址开始调试。Chrome 调试器支持 Android & iOS 设备，支持 `HMR & Live-Reload, Elements, Log, Sources, Memory` 等能力。
-      
+
       <img src="../assets/img/chrome-inspect.png" alt="Chrome 调试器" width="60%"/>
-   
+
       如果不使用我们的调试主页，也可以主动在 `chrome://inspect` 打开 DevTools，首先确保 `Discover USB devices` 的复选框呈`未选中状态`，然后确保 `Discover network targets` 选中，并在右侧 `Configure` 按钮的弹窗中包含了 `localhost:38989` 调试服务地址，下方的 `Remote Target` 中应该会出现 `Hippy debug tools for V8` 字样，点击下方的 `inspect` 链接即可打开 Chrome 调试器。
 
    ![Chrome inspect](../assets/img/chrome-inspect-process.png)
@@ -191,9 +191,20 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
   <source src="../assets/img/elements-inspect.webm" type="video/webm">
   Elements 可视化审查示例(您的浏览器不支持webm视频格式)
 </video>
+<br />
+<br />
 
-<br />
-<br />
+# 操作手机界面能力
+
+> Android SDK 最低支持版本 2.16.0
+
+Hippy 实现了 `Chrome DevTools Protocol` 协议的 `Input` 接口，可以在 Chrome DevTools 上直接操作手机界面，调试时无需来回切换。
+
+<video width="60%" controls preload="none">
+  <source src="../assets/img/device-ctrl.webm" type="video/webm">
+  操作手机界面能力示例(您的浏览器不支持webm视频格式)
+</video>
+
 
 # HMR & Live-Reload 能力
 
@@ -270,7 +281,7 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
 5. **如果安卓设备断连，需要手动用 adb 转发端口：**`adb reverse tcp:38989 tcp:38989`。
 
 6. iOS 的热更新：iOS 设备需要代理到开发机上，或处于同一网段，才能使用 HMR 能力。Webpack 配置修改如下所示，对于模拟器，本就和开发机处于同一网段，IP 写 `localhost` 就能访问到。
- 
+
     ```javascript
     module.exports = {
       devServer: {
@@ -278,7 +289,6 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
       },
     }
     ```
-
 
 ## Hippy-React
 
@@ -364,7 +374,7 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
 5. **如果安卓设备断连，需要手动用adb转发端口：** `adb reverse tcp:38989 tcp:38989`。
 
 6. iOS的热更新：iOS 设备需要代理到开发机上，或处于同一网段，才能使用 HMR 能力。Webpack 配置修改如下所示，对于模拟器，本就和开发机处于同一网段，IP 写 `localhost` 就能访问到。
- 
+
     ```javascript
     module.exports = {
       devServer: {
@@ -500,6 +510,13 @@ webpack(webpackConfig, (err, stats) => {
 
 # 远程调试
 
+远程调试目前已支持两种模式，【开发环境远程调试】模式和【生产环境远程调试】模式
+
+- 【开发环境远程调试】模式需要加载远程 bundle 包进行调试，适用于开发场景
+- 【生产环境远程调试】模式使用本地缓存 bundle 包替代远程 bundle 包，更适用于线上环境，无此需求的也可使用上述【开发环境远程调试】模式
+
+## 开发环境远程调试
+
 本地调试存在两个痛点：
 
    1. 无法覆盖所有机型，测试反馈的问题难以定位；
@@ -512,12 +529,11 @@ webpack(webpackConfig, (err, stats) => {
   远程调试实例(您的浏览器不支持webm视频格式)
 </video>
 
-
-## 前端接入配置
+### 前端接入配置
 
 1. 安装新一代调试工具： `npm i -D @hippy/debug-server-next@latest`
 
-2. 修改 Webpack 配置，添加 `remote` 字段来配置编译产物上传地址和调试服务地址（默认为 http://127.0.0.1:38989 ）。考虑到安全因素，官方不提供公网的远程调试服务，你需要自己[私有化部署](https://github.com/hippy-contrib/debug-server-next/blob/main/doc/deploy.md)。
+2. 修改 Webpack 配置，添加 `remote` 字段来配置编译产物上传地址和调试服务地址（默认为 <http://127.0.0.1:38989> ）。考虑到安全因素，官方不提供公网的远程调试服务，你需要自己[私有化部署](https://github.com/hippy-contrib/debug-server-next/blob/main/doc/deploy.md)。
 
    ```js
    module.exports = {
@@ -558,17 +574,16 @@ webpack(webpackConfig, (err, stats) => {
    - debug page：PC 端调试首页
    - bundleUrl scheme：宿主 App 扫码的 scheme
 
+### 宿主 App 接入配置
 
-## 宿主 App 接入配置
-
-宿主 App 设置 debugMode 为 true，并把前端 webpack 生成远程无线调试的 bundleUrl 传入，推荐宿主使用输入框或扫描二维码的方式传入。
+宿主 App 设置 debugMode 为 DebugMode.Dev，并把前端 webpack 生成远程无线调试的 bundleUrl 传入，推荐宿主使用输入框或扫描二维码的方式传入。
 
 1. **Android**：
 
    ```java
     // 初始化 hippy 引擎
     HippyEngine.EngineInitParams initParams = new HippyEngine.EngineInitParams();
-    initParams.debugMode = true;
+    initParams.debugMode = HippyEngine.DebugMode.Dev; // 2.16.0 以下版本 debugMode 使用 boolean 类型 => initParams.debugMode = true;
     initParams.remoteServerUrl = "";  // 远程调试 bundleUrl
    ```
 
@@ -596,14 +611,71 @@ webpack(webpackConfig, (err, stats) => {
    }
    ```
 
+## 生产环境远程调试
+
+生产环境下开发者可直接对本地 bundle 进行调试，还原线上用户真实运行的环境，提高问题定位的效率
+
+### 前端接入
+
+无相关调整
+
+### 宿主 App 接入
+
+1. **Android**：
+
+> 最低支持版本 2.16.0
+
+安卓对于 debugMode 进行了改造，原本的 boolean 类型改为了枚举类型
+
+```java
+  public enum DebugMode {
+    None, // 生产环境
+    Dev, // 开发环境
+    UserLocal, // 生产环境下开启远程调试，直接使用本地包发起调试
+  }
+```
+
+- **第一步**：
+
+  ```java
+  // 初始化 hippy 引擎
+    HippyEngine.EngineInitParams initParams = new HippyEngine.EngineInitParams();
+    initParams.debugMode = HippyEngine.DebugMode.UserLocal; // 外网调试选项开启
+  ```
+
+- **第二步**：
+  由于不少业务场景下引擎启动与业务分离，因此我们将调试选项开启和 debug server 连接两个时机分开，使用上更加灵活，局限性小
+
+  ```java
+  // 在业务启动前后发起 debug server 连接
+  mHippyEngine.getEngineContext().getBridgeManager().connectDebugUrl("ws://${ip}:${port}/debugger-proxy");
+  mHippyView = mHippyEngine.loadModule(loadParams, new HippyEngine.ModuleListener() {
+      @Override
+      public void onLoadCompleted(ModuleLoadStatus statusCode, String msg, HippyRootView hippyRootView) {
+        if (statusCode != ModuleLoadStatus.STATUS_OK) {
+          LogUtils.e("MyActivity", "loadModule failed code:" + statusCode + ", msg=" + msg);
+        }
+      }
+  
+      @Override
+      public boolean onJsException(HippyJsException exception) {
+        return true;
+      }
+  });
+  ```
+
+1. **iOS**
+
+（待支持）
+
 ## 远程调试支持能力列表
 
 > 最低支持版本 2.13.1
 
-|  平台   | HMR & Live-Reload | React Devtools | Vue Devtools | Elements | Log | Sources | Memory |
-|:-------:|:---:|:-------:| :-: | :-: |:---:|:------:|:------:|
-| Android |  ✅  |    ✅    |    ✅    |    ✅    |  ✅  |   ✅    |   ✅    |
-|   iOS   |  ✅  |    ✅    |    ✅    |    ✅    |  ❌  |   ❌    |   ❌    |
+|  平台   | HMR & Live-Reload | React Devtools | Vue Devtools | Elements |  Log  | Sources | Memory |
+| :-----: | :---------------: | :------------: | :----------: | :------: | :---: | :-----: | :----: |
+| Android |         ✅         |       ✅        |      ✅       |    ✅     |   ✅   |    ✅    |   ✅    |
+|   iOS   |         ✅         |       ✅        |      ✅       |    ✅     |   ❌   |    ❌    |   ❌    |
 
 <br />
 <br />

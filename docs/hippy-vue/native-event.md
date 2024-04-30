@@ -76,7 +76,7 @@ Hippy.on('destroyInstance', () => {
 
 # 容器大小改变事件
 
-`只有 Android 支持`
+`Android 全版本支持，iOS 最低支持版本 2.16.0`
 
 当容器大小改变时，如屏幕旋转、折叠屏切换等，会触发该事件
 
@@ -84,5 +84,18 @@ Hippy.on('destroyInstance', () => {
 app.$on('onSizeChanged', ({ oldWidth, oldHeight, width, height }) => {
     // oldWidth: 旧的宽度；oldHeight: 旧的高度；width: 新的宽度; height: 新的高度
     console.log('size', oldWidth, oldHeight, width, height);
+});
+```
+
+# 系统夜间模式改变事件
+
+`仅iOS支持，最低支持版本 2.16.6，（注：Android修改夜间模式时页面将被重新创建）`
+
+在当系统夜间模式发生改变时，会触发该事件
+
+```jsx
+app.$on('onNightModeChanged', ({ NightMode, RootViewTag }) => {
+    // NightMode: 当前是否夜间模式，取值0或1；RootViewTag: 发送事件的HippyRootView的Tag
+    console.log(`onDarkModeChanged: ${NightMode}, rootViewTag: ${RootViewTag}`);
 });
 ```

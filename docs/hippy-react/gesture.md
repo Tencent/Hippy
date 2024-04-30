@@ -47,9 +47,7 @@ render()
 1. onTouchDown(event)：当用户开始在控件上按下手指时，将回调此函数，并将触屏点信息作为参数传递进来；
 2. onTouchMove(event)：当用户在控件移动手指时，此函数会持续收到回调，并通过 event 参数告知控件的触屏点信息；
 3. onTouchEnd(event)：当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event 参数也会通知当前的触屏点信息；
-4. onTouchCancel(event)：当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为 hidden）、其他组件的滑动手势，此函数会收到回调，触屏点信息也会通过 event 参数告知前端；
-
-注意：若 onTouchCancel 被触发，则 onTouchEnd 不会被触发
+4. onTouchCancel(event)：当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为 hidden）、其他组件的滑动手势，此函数会收到回调，触屏点信息也会通过 event 参数告知前端； `注意：若 onTouchCancel 被触发，则 onTouchEnd 不会被触发`
 
 以上回调函数均带有一个参数 event，该数据包含以下结构：
 
@@ -58,7 +56,7 @@ render()
 - page_x：触屏点相对于根元素的横坐标；
 - page_y：触屏点相对于根元素的纵坐标；
 
-以上结构中的 x 和 y 坐标已经经过转换，与屏幕分辨率无关的单位，例如 onTouchDonw 回调的 event 参数结构如下：
+以上结构中的 x 和 y 坐标已经经过转换，与屏幕分辨率无关的单位，例如 onTouchDown 回调的 event 参数结构如下：
 
 ```json
 {
@@ -131,7 +129,7 @@ render()
 }
 ```
 
-> 2.10.1 版本开始支持在 Hippy 初始化时通过 `bubbles` 参数设置默认冒泡（即事件处理return没有返回值，也会向上传递事件），默认 `false`
+> 2.10.1 版本开始支持在 Hippy 初始化时通过 `bubbles` 参数设置默认冒泡（即如果事件处理 return 没有返回值，也会向上传递事件），默认 `false`
 
 ```js
 new Hippy({

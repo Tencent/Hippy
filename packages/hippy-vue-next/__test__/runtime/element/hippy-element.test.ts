@@ -20,10 +20,15 @@
 
 import { registerElement, type ElementComponent } from '../../../src/runtime/component';
 import { HippyElement } from '../../../src/runtime/element/hippy-element';
-import { Native } from '../../../src/runtime/native/index';
+import { NodeType } from '../../../src/runtime/node/hippy-node';
+import { Native } from '../../../src/runtime/native';
 import * as Render from '../../../src/runtime/render';
 import { setHippyCachedInstance } from '../../../src/util/instance';
+import { setTrimWhitespace } from '../../../src/util';
 
+/**
+ * hippy-element.ts unit test case
+ */
 describe('runtime/element/hippy-element', () => {
   beforeAll(() => {
     registerElement('div', { component: { name: 'View' } });
@@ -180,9 +185,12 @@ describe('runtime/element/hippy-element', () => {
 
     it('should convert the empty character.', () => {
       const hippyElement = new HippyElement('div');
-      hippyElement.setAttribute('value', 'hello&nbsp;world');
-
-      expect(hippyElement.getAttribute('value')).toBe('hello world');
+      setTrimWhitespace(true);
+      hippyElement.setAttribute('value', ' hello&nbsp;world ');
+      expect(hippyElement.getAttribute('value')).toBe('hello&nbsp;world');
+      setTrimWhitespace(false);
+      hippyElement.setAttribute('value', ' hello&nbsp;world ');
+      expect(hippyElement.getAttribute('value')).toBe(' hello&nbsp;world ');
     });
 
     it('should not take effect if set the numberOfRows attribute on ios.', () => {
@@ -544,15 +552,89 @@ describe('runtime/element/hippy-element', () => {
         pId: 1,
         index: 0,
         name: 'Text',
+        id: 62,
         props: {
           text: '',
           style: {},
           attributes: {
             id: '',
             class: '',
+            hippyNodeId: '62',
           },
         },
         tagName: 'span',
+      }));
+      const nativeNodeList = element.convertToNativeNodes(true);
+      expect(nativeNodeList.length).toEqual(2);
+    });
+    it('registered camelize tag should return correct native node', () => {
+      // custom component
+      const customElement: ElementComponent = {
+        component: {
+          name: 'Text',
+          attributeMaps: {},
+          eventNamesMap: new Map(),
+          defaultNativeProps: {
+            text: '',
+          },
+        },
+      };
+      registerElement('CustomTag', customElement);
+      const element = new HippyElement('custom-tag');
+      const childElement = new HippyElement('custom-tag');
+      element.appendChild(childElement);
+      const [nativeNode] = element.convertToNativeNodes(false);
+      expect(nativeNode).toEqual(expect.objectContaining({
+        pId: 1,
+        index: 0,
+        name: 'Text',
+        id: 64,
+        props: {
+          text: '',
+          style: {},
+          attributes: {
+            id: '',
+            class: '',
+            hippyNodeId: '64',
+          },
+        },
+        tagName: 'custom-tag',
+      }));
+      const nativeNodeList = element.convertToNativeNodes(true);
+      expect(nativeNodeList.length).toEqual(2);
+    });
+    it('registered hyphenate tag should return correct native node', () => {
+      // custom component
+      const customElement: ElementComponent = {
+        component: {
+          name: 'Text',
+          attributeMaps: {},
+          eventNamesMap: new Map(),
+          defaultNativeProps: {
+            text: '',
+          },
+        },
+      };
+      registerElement('Custom-Tag', customElement);
+      const element = new HippyElement('custom-tag');
+      const childElement = new HippyElement('custom-tag');
+      element.appendChild(childElement);
+      const [nativeNode] = element.convertToNativeNodes(false);
+      expect(nativeNode).toEqual(expect.objectContaining({
+        pId: 1,
+        index: 0,
+        name: 'Text',
+        id: 66,
+        props: {
+          text: '',
+          style: {},
+          attributes: {
+            id: '',
+            class: '',
+            hippyNodeId: '66',
+          },
+        },
+        tagName: 'custom-tag',
       }));
       const nativeNodeList = element.convertToNativeNodes(true);
       expect(nativeNodeList.length).toEqual(2);
@@ -579,10 +661,77 @@ describe('runtime/element/hippy-element', () => {
   it('setStyleScopedId method should work correct', () => {
     const element = new HippyElement('div');
     element.setStyleScope('style-scoped-id');
-    expect(element.styleScopeId).toEqual('style-scoped-id');
+    expect(element.styleScopeId).toEqual(['style-scoped-id']);
     element.setStyleScope({});
-    expect(element.styleScopeId).toEqual('[object Object]');
+    expect(element.styleScopeId).toEqual(['style-scoped-id', '[object Object]']);
     element.setStyleScope(12345);
-    expect(element.styleScopeId).toEqual('12345');
+    expect(element.styleScopeId).toEqual(['style-scoped-id', '[object Object]', '12345']);
+  });
+
+  describe('ssr node should work correctly', () => {
+    it('ssr node should init correctly', () => {
+      const commentElement = new HippyElement('comment');
+      expect(commentElement.nodeType).toEqual(NodeType.CommentNode);
+      const ssrElement = new HippyElement('div', {
+        id: 1001,
+        index: 0,
+        name: 'View',
+        props: {
+          attributes: {
+            id: 'root',
+            class: 'classA  classB',
+          },
+          text: 'hello',
+          inlineStyle: {
+            fontSize: 24,
+          },
+        },
+      });
+
+      expect(ssrElement.nodeId).toEqual(1001);
+      expect(ssrElement.id).toEqual('root');
+      expect(ssrElement.classList).toEqual(new Set(['classA', 'classB']));
+      expect(ssrElement.nodeId).toEqual(1001);
+      expect(ssrElement.value).toEqual('hello');
+      expect(ssrElement.textContent).toEqual('hello');
+      expect(ssrElement.ssrInlineStyle).toEqual({
+        fontSize: 24,
+      });
+      expect(ssrElement.attributes).toEqual({
+        text: 'hello',
+      });
+    });
+    it('ssr node event handle correctly', () => {
+      const element = new HippyElement('div', {
+        id: 1001,
+        index: 0,
+        name: 'View',
+        props: {
+          attributes: {
+            id: 'root',
+            class: 'classA  classB',
+          },
+          text: 'hello',
+          inlineStyle: {
+            fontSize: 24,
+          },
+          onClick: true,
+        },
+      });
+      expect(element.attributes.onClick).toBeTruthy();
+      const callUIFunctionSpy = jest.spyOn(element, 'updateNativeNode');
+      // add event listener, ssr props exist event listener, should not update native
+      element.addEventListener('click', () => {});
+      expect(callUIFunctionSpy).toHaveBeenCalledTimes(0);
+      // add event listener, new event listener, should update native
+      element.addEventListener('drop', () => {});
+      expect(callUIFunctionSpy).toHaveBeenCalledTimes(1);
+      // add event listener, new event listener, should update native
+      element.addEventListener('touchmove', () => {});
+      expect(callUIFunctionSpy).toHaveBeenCalledTimes(2);
+      // remove event listener
+      element.removeEventListener('click', () => {});
+      expect(element.attributes.onClick).toBeUndefined();
+    });
   });
 });

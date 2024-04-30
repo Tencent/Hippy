@@ -19,14 +19,16 @@
  */
 
 import {
+  getCssMap,
   parseBackgroundImage,
   PROPERTIES_MAP,
   type PropertiesMapType,
+  type StyleNode,
 } from '@hippy-vue-next-style-parser/index';
 import { toRaw } from '@vue/runtime-core';
 import { isFunction, isString } from '@vue/shared';
 
-import type { CallbackType, NeedToTyped, NativeNode, NativeNodeProps } from '../../types';
+import type { CallbackType, NativeNode, NativeNodeProps, NeedToTyped, SsrNode } from '../../types';
 import { IS_PROD, NATIVE_COMPONENT_MAP } from '../../config';
 import {
   capitalizeFirstLetter,
@@ -35,11 +37,15 @@ import {
   tryConvertNumber,
   unicodeToChar,
   warn,
-  isEmpty,
   deepCopy,
   isStyleMatched,
+  whitespaceFilter,
+  getBeforeRenderToNative,
+  getStyleClassList,
+  getBeforeLoadStyle,
 } from '../../util';
 import { isRTL } from '../../util/i18n';
+import { EventMethod } from '../../util/event';
 import { getHippyCachedInstance } from '../../util/instance';
 import { parseRemStyle } from '../../util/rem';
 import { getTagComponent, type TagComponent } from '../component';
@@ -47,7 +53,6 @@ import { eventIsKeyboardEvent, type HippyEvent } from '../event/hippy-event';
 import type { EventListenerOptions } from '../event/hippy-event-target';
 import { Native } from '../native';
 import { HippyNode, NodeType } from '../node/hippy-node';
-import { getCssMap } from '../style/css-map';
 import { HippyText } from '../text/hippy-text';
 
 interface OffsetMapType {
@@ -201,26 +206,73 @@ export class HippyElement extends HippyNode {
   // additional processing of properties
   public filterAttribute?: CallbackType;
 
+  // vue ssr text content
+  public textContent?: string;
+
+  // ssr inline style
+  public ssrInlineStyle?: NativeNodeProps;
+
+  // style preprocessor
+  public beforeLoadStyle: CallbackType;
+
   // polyFill of native event
-  protected polyFillNativeEvents?: (type: string) => string;
+  protected polyfillNativeEvents?: (
+    method: string,
+    eventNames: string,
+    callback: CallbackType,
+    options?: EventListenerOptions
+  ) => {
+    eventNames: string,
+    callback: CallbackType,
+    options?: EventListenerOptions
+  };
 
   // style scoped id for element
-  private scopedId = '';
+  private scopedIdList: NeedToTyped[] = [];
 
-  constructor(tagName: string) {
-    super(NodeType.ElementNode);
+  constructor(tagName: string, ssrNode?: SsrNode) {
+    super(tagName === 'comment' ? NodeType.CommentNode : NodeType.ElementNode, ssrNode);
+
 
     // tag name should be lowercase
     this.tagName = tagName.toLowerCase();
-    this.classList = new Set();
-    this.attributes = {};
     this.style = {};
+    this.beforeLoadStyle = getBeforeLoadStyle();
+
+    if (ssrNode) {
+      // assign ssr node exist attributes for element init
+      const { props } = ssrNode;
+      const text = props?.text ?? '';
+      // assign class name list
+      this.classList = new Set(getStyleClassList(props?.attributes?.class ?? ''));
+      // assign dom id
+      this.id = props?.attributes?.id ?? '';
+      // assign inline style
+      if (props.inlineStyle) {
+        this.ssrInlineStyle = props.inlineStyle;
+        delete props.inlineStyle;
+      }
+      // remove unnecessary attr
+      delete props.attributes;
+      delete props.style;
+      // fix iOS image source problem
+      if (props?.source?.length) {
+        props.src = props.source[0].uri;
+        delete props.source;
+      }
+      // assign element attributes
+      this.attributes = props;
+      // assign text content
+      this.value = text;
+      this.textContent = text;
+    } else {
+      this.classList = new Set();
+      this.attributes = {};
+    }
+
     // hack special problems
     this.hackSpecialIssue();
   }
-
-  // style preprocessor
-  public beforeLoadStyle: CallbackType = val => val;
 
   /**
    * get component info
@@ -237,6 +289,9 @@ export class HippyElement extends HippyNode {
     return this.tagComponent;
   }
 
+  /**
+   * determine whether the current node is the root node
+   */
   public isRootNode(): boolean {
     const { rootContainer } = getHippyCachedInstance();
     return super.isRootNode() || this.id === rootContainer;
@@ -246,14 +301,15 @@ export class HippyElement extends HippyNode {
    * append child node
    *
    * @param child - child node
+   * @param isHydrate - is hydrate render or not
    */
-  public appendChild(child: HippyNode): void {
+  public appendChild(child: HippyNode, isHydrate = false): void {
     // If the node type is text node, call setText method to set the text property
     if (child instanceof HippyText) {
       this.setText(child.text, { notToNative: true });
     }
 
-    super.appendChild(child);
+    super.appendChild(child, isHydrate);
   }
 
   /**
@@ -351,8 +407,8 @@ export class HippyElement extends HippyNode {
       }
       switch (key) {
         case 'class': {
-          const newClassList = new Set(value.split(' ').filter((x: string) => x.trim()) as string);
-          // If classList is still the same, return directly
+          const newClassList = new Set(getStyleClassList(value));
+          // If classList is not change, return directly
           if (setsAreEqual(this.classList, newClassList)) {
             return;
           }
@@ -383,8 +439,7 @@ export class HippyElement extends HippyNode {
           }
           if (!options || !options.textUpdate) {
             // Only when non-text nodes are automatically updated,
-            // need to deal with leading and trailing whitespace characters, etc.
-            value = value.trim().replace(/(&nbsp;|Â)/g, ' ');
+            value = whitespaceFilter(value);
           }
           value = unicodeToChar(value);
           break;
@@ -453,10 +508,12 @@ export class HippyElement extends HippyNode {
   /**
    * remove style attr
    */
-  public removeStyle(): void {
+  public removeStyle(notToNative = false): void {
     // remove all style
     this.style = {};
-    this.updateNativeNode();
+    if (!notToNative) {
+      this.updateNativeNode();
+    }
   }
 
   /**
@@ -465,7 +522,9 @@ export class HippyElement extends HippyNode {
    * @param batchStyles - batched style to set
    */
   public setStyles(batchStyles) {
-    if (isEmpty(batchStyles)) return;
+    if (!batchStyles || typeof batchStyles !== 'object') {
+      return;
+    }
     Object.keys(batchStyles).forEach((styleKey) => {
       const styleValue = batchStyles[styleKey];
       this.setStyle(styleKey, styleValue, true);
@@ -613,62 +672,76 @@ export class HippyElement extends HippyNode {
   /**
    * add element event listener
    *
-   * @param type - event type
-   * @param callback - callback
-   * @param options - options
+   * @param rawEventNames - event names
+   * @param rawCallback - callback
+   * @param rawOptions - options
    */
   public addEventListener(
-    type: string,
-    callback: CallbackType,
-    options?: EventListenerOptions,
+    rawEventNames: string,
+    rawCallback: CallbackType,
+    rawOptions?: EventListenerOptions,
   ): void {
-    let eventName = type;
+    let eventNames = rawEventNames;
+    let callback = rawCallback;
+    let options = rawOptions;
+    let isNeedUpdate = true;
     // Added default scrollEventThrottle when scroll event is added.
-    if (
-      eventName === 'scroll'
-      && !(this.getAttribute('scrollEventThrottle') > 0)
-    ) {
+    if (eventNames === 'scroll' && !(this.getAttribute('scrollEventThrottle') > 0)) {
       this.attributes.scrollEventThrottle = 200;
     }
-
-    // If there is an event polyfill, bind the corresponding event callback to the event that needs polyfill
-    if (typeof this.polyFillNativeEvents === 'function') {
-      const polyfillEventName = this.polyFillNativeEvents(type);
-
-      if (polyfillEventName) {
-        eventName = polyfillEventName;
-      }
+    // get the native event name
+    const ssrEventName = this.getNativeEventName(eventNames);
+    if (this.attributes[ssrEventName]) {
+      // ssrEventName attribute exist means this is ssrNode, the native event props has been
+      // set before, unnecessary to update
+      isNeedUpdate = false;
     }
 
-    super.addEventListener(eventName, callback, options);
+    // If there is an event polyfill, override the event names, callback and options
+    if (typeof this.polyfillNativeEvents === 'function') {
+      ({ eventNames, callback, options } = this.polyfillNativeEvents(
+        EventMethod.ADD,
+        eventNames,
+        callback,
+        options,
+      ));
+    }
+    super.addEventListener(eventNames, callback, options);
     // update native node
-    this.updateNativeNode();
+    isNeedUpdate && this.updateNativeNode();
   }
 
   /**
    * remove event listener
    *
-   * @param type - event type
-   * @param callback - callback
-   * @param options - options
+   * @param rawEventNames - event type
+   * @param rawCallback - callback
+   * @param rawOptions - options
    */
   public removeEventListener(
-    type: string,
-    callback: CallbackType,
-    options?: EventListenerOptions,
+    rawEventNames: string,
+    rawCallback: CallbackType,
+    rawOptions?: EventListenerOptions,
   ): void {
-    let eventName = type;
-    // If there is an event polyfill, remove the corresponding event callback for events that require polyfill
-    if (typeof this.polyFillNativeEvents === 'function') {
-      const polyfillEventName = this.polyFillNativeEvents(type);
-
-      if (polyfillEventName) {
-        eventName = polyfillEventName;
-      }
+    let eventNames = rawEventNames;
+    let callback = rawCallback;
+    let options = rawOptions;
+    // If there is an event polyfill, override the event names, callback and options
+    if (typeof this.polyfillNativeEvents === 'function') {
+      ({ eventNames, callback, options } = this.polyfillNativeEvents(
+        EventMethod.REMOVE,
+        eventNames,
+        callback,
+        options,
+      ));
     }
-
-    super.removeEventListener(eventName, callback, options);
-
+    super.removeEventListener(eventNames, callback, options);
+    // get the native event insert before
+    const ssrEventName = this.getNativeEventName(eventNames);
+    if (this.attributes[ssrEventName]) {
+      // remove exist ssr native event attr
+      delete this.attributes[ssrEventName];
+    }
     // update native node
     this.updateNativeNode();
   }
@@ -696,7 +769,7 @@ export class HippyElement extends HippyNode {
 
     // event bubbling
     if (this.parentNode && event.bubbles) {
-      this.parentNode.dispatchEvent.call(this.parentNode, event);
+      (this.parentNode as HippyElement).dispatchEvent.call(this.parentNode, event);
     }
   }
 
@@ -716,7 +789,25 @@ export class HippyElement extends HippyNode {
     }
 
     // get styles
-    const style: NativeNodeProps = this.getNativeStyles();
+    let style: NativeNodeProps = this.getNativeStyles();
+
+    getBeforeRenderToNative()(this, style);
+
+    /*
+     * append defaultNativeStyle later to avoid incorrect compute style from
+     * inherit node in beforeRenderToNative hook
+     */
+    if (this.component.defaultNativeStyle) {
+      const { defaultNativeStyle } = this.component;
+      const updateStyle: NativeNodeProps = {};
+      Object.keys(defaultNativeStyle).forEach((key) => {
+        if (!this.getAttribute(key)) {
+          // save no default value style
+          updateStyle[key] = defaultNativeStyle[key];
+        }
+      });
+      style = { ...updateStyle, ...style };
+    }
 
     const elementExtraAttributes: Partial<NativeNode> = {
       name: this.component.name,
@@ -728,11 +819,11 @@ export class HippyElement extends HippyNode {
         // node style
         style,
       },
+      tagName: this.tagName,
     };
 
     // hack in dev environment, added properties for chrome inspector debugging
     if (!IS_PROD) {
-      elementExtraAttributes.tagName = this.tagName;
       if (elementExtraAttributes.props) {
         elementExtraAttributes.props.attributes = this.getNodeAttributes();
       }
@@ -789,14 +880,17 @@ export class HippyElement extends HippyNode {
    * @param scopeStyleId - scoped style id
    */
   public setStyleScope(scopeStyleId: NeedToTyped): void {
-    this.scopedId = typeof scopeStyleId !== 'string' ? scopeStyleId.toString() : scopeStyleId;
+    const scopedId = typeof scopeStyleId !== 'string' ? scopeStyleId.toString() : scopeStyleId;
+    if (scopedId && !this.scopedIdList.includes(scopedId)) {
+      this.scopedIdList.push(scopedId);
+    }
   }
 
   /**
    * get style scoped id
    */
   public get styleScopeId() {
-    return this.scopedId;
+    return this.scopedIdList;
   }
 
   /**
@@ -816,19 +910,14 @@ export class HippyElement extends HippyNode {
   }
 
   /**
-   * get the style attribute of the node according to the node attribute and the global style sheet
+   * get the style attribute of the node according to the global style sheet
    */
   private getNativeStyles(): NativeNodeProps {
     let style: NativeNodeProps = {};
 
-    // first add default style
-    if (this.component.defaultNativeStyle) {
-      style = { ...this.component.defaultNativeStyle };
-    }
-
-    // then get the styles from the global CSS stylesheet
+    // get the styles from the global CSS stylesheet
     // rem needs to be processed here
-    const matchedSelectors = getCssMap().query(this);
+    const matchedSelectors = getCssMap(undefined, getBeforeLoadStyle()).query(this as unknown as StyleNode);
     matchedSelectors.selectors.forEach((matchedSelector) => {
       // if current element do not match style rule, return
       if (!isStyleMatched(matchedSelector, this)) {
@@ -836,12 +925,17 @@ export class HippyElement extends HippyNode {
       }
       if (matchedSelector.ruleSet?.declarations?.length) {
         matchedSelector.ruleSet.declarations.forEach((cssStyle) => {
-          if (cssStyle) {
+          if (cssStyle.property) {
             style[cssStyle.property] = cssStyle.value;
           }
         });
       }
     });
+
+    // add ssr inline style
+    if (this.ssrInlineStyle) {
+      style = { ...style, ...this.ssrInlineStyle };
+    }
 
     // finally, get the style from the style attribute of the node and process the rem unit
     style = HippyElement.parseRem({ ...style, ...this.getInlineStyle() });
@@ -953,6 +1047,7 @@ export class HippyElement extends HippyNode {
       const classInfo = Array.from(this.classList ?? []).join(' ');
       const attributes = {
         id: this.id,
+        hippyNodeId: `${this.nodeId}`,
         class: classInfo,
         ...nodeAttributes,
       };
@@ -960,6 +1055,13 @@ export class HippyElement extends HippyNode {
       // remove unwanted properties
       delete attributes.text;
       delete attributes.value;
+
+      Object.keys(attributes).forEach((key) => {
+        if (key.toLowerCase().includes('color')) {
+          // color value may big int that iOS do not support, should delete
+          delete attributes[key];
+        }
+      });
 
       return attributes;
     } catch (error) {
@@ -1028,5 +1130,29 @@ export class HippyElement extends HippyNode {
         this.updateNativeNode();
       },
     });
+  }
+
+  /**
+   * parse vue event name to native event name and return
+   *
+   * @param eventName - vue event name
+   */
+  private getNativeEventName(eventName: string): string {
+    let ssrEventName = '';
+    const { eventNamesMap } = this.component;
+    if (eventNamesMap) {
+      // if event names map exist, get the real native event name
+      const nativeEventName = eventNamesMap.get(eventName);
+      if (nativeEventName) {
+        ssrEventName = nativeEventName;
+      }
+    }
+
+    if (!ssrEventName) {
+      // if no match native event name, then use default native event name format
+      ssrEventName = `on${capitalizeFirstLetter(eventName)}`;
+    }
+
+    return ssrEventName;
   }
 }

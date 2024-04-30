@@ -17,6 +17,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export interface TouchEvent {
+  pageX: number;
+  pageY: number;
+  target: any;
+  currentTarget: any;
+  force: number;
+  identifier: number;
+  stopPropagation: () => void;
+};
 
 export interface LayoutValue {
   x: number,
@@ -50,3 +59,21 @@ export interface NetInfoModule {
   removeEventListener: (eventName: string, listener?: NetworkInfoCallback) => void;
   fetch: () => Promise<NetworkChangeEventData>;
 };
+
+export interface LayoutableProps {
+  onLayout?: (evt: LayoutEvent) => void;
+}
+
+export interface ClickableProps {
+  /**
+   * Called when the touch is released.
+   */
+  onClick?: () => void;
+}
+
+export interface TouchableProps {
+  onTouchDown?: (e: TouchEvent) => void;
+  onTouchMove?: (e: TouchEvent) => void;
+  onTouchEnd?: (e: TouchEvent) => void;
+  onTouchCancel?: (e: TouchEvent) => void;
+}

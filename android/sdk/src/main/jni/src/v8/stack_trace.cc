@@ -24,15 +24,16 @@
 
 #include "bridge/runtime.h"
 #include "jni/jni_utils.h"
+#include "jni/jni_env.h"
 #include "v8/v8.h"
 
 namespace hippy {
 inline namespace driver {
 inline namespace v8_engine {
 
-using V8VM = hippy::napi::V8VM;
+using V8VM = hippy::vm::V8VM;
 
-#ifdef V8_X5_LITE
+#if V8_MAJOR_VERSION < 9
 constexpr int kFrameLimit = 20;
 #endif
 
@@ -52,7 +53,7 @@ void GetCurrentStackTrace(JNIEnv *j_env,
   auto ctx = std::static_pointer_cast<hippy::napi::V8Ctx>( runtime->GetScope()->GetContext());
   v8::Isolate *isolate = ctx->isolate_;
   v8::HandleScope handle_scope(isolate);
-#ifndef V8_X5_LITE
+#if V8_MAJOR_VERSION >= 9
   std::ostringstream trace;
   v8::Message::PrintCurrentStackTrace(isolate, trace);
   auto trace_str = trace.str();

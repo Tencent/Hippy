@@ -153,6 +153,11 @@ public class HippyNativeGestureSpan implements NativeGestureProcessor.Callback {
   }
 
   @Override
+  public void handle(String type, MotionEvent event) {
+
+  }
+
+  @Override
   public void handle(String type, float x, float y) {
     if (TextUtils.equals(type, NodeProps.ON_PRESS_IN)) {
       NativeGestureDispatcher.handlePressIn(mContext, mTagId);

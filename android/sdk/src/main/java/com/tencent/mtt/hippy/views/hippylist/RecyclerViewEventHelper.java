@@ -260,8 +260,10 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     }
 
     private void observePreDraw() {
-        if (!isInitialListReadyNotified && viewTreeObserver == null) {
-            viewTreeObserver = hippyRecyclerView.getViewTreeObserver();
+        if (!isInitialListReadyNotified) {
+            if (viewTreeObserver == null) {
+                viewTreeObserver = hippyRecyclerView.getViewTreeObserver();
+            }
             viewTreeObserver.addOnPreDrawListener(preDrawListener);
         }
     }
@@ -309,7 +311,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
 
     public final HippyMap generateScrollEvent() {
         HippyMap contentOffset = new HippyMap();
-        contentOffset.pushDouble("x", PixelUtil.px2dp(0));
+        contentOffset.pushDouble("x", PixelUtil.px2dp(hippyRecyclerView.getContentOffsetX()));
         contentOffset.pushDouble("y", PixelUtil.px2dp(hippyRecyclerView.getContentOffsetY()));
         HippyMap event = new HippyMap();
         event.pushMap("contentOffset", contentOffset);
@@ -396,7 +398,9 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
 
     @Override
     public void onViewDetachedFromWindow(View v) {
-
+        if (!isInitialListReadyNotified && viewTreeObserver != null) {
+            viewTreeObserver.removeOnPreDrawListener(preDrawListener);
+        }
     }
 
     @Override

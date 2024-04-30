@@ -21,6 +21,7 @@
  */
 
 #pragma once
+#ifdef __cplusplus
 
 #include "core/core.h"
 
@@ -48,3 +49,5 @@ class IOSLoader : public hippy::base::UriLoader {
   RequestUntrustedContentPtr loader_;
   CFTypeRef userData_;
 };
+
+#endif /* __cplusplus */

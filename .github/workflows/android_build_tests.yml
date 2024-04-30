@@ -14,20 +14,31 @@ on:
       - 'settings.gradle'
       - 'gradlew'
       - 'gradlew.bat'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   android_build_tests:
-    runs-on: ${{ github.repository == 'Tencent/Hippy' && fromJson('[''self-hosted'', ''linux'']') || 'ubuntu-latest' }}
+    runs-on: ${{ github.repository == 'Tencent/Hippy' && fromJson('[''self-hosted'', ''linux'', ''shared'']') || 'ubuntu-latest' }}
     container:
       image: ghcr.io/tencent/android-release:latest # repository name must be lowercase(${{ github.repository_owner }})
+    strategy:
+      matrix:
+        type: [debug, release]
+        v8: [v8_min, v8_target]
+        include:
+          - type: debug
+            task: assembleDebug
+          - type: release
+            task: assembleRelease
     timeout-minutes: 10
     steps:
     - name: Checkout repo
       uses: actions/checkout@v3
       with:
         lfs: true
-    - name: Debug Build
+    - name: Run ${{ matrix.task }}
       run: |
-        ./gradlew example::assembleDebug
-    - name: Release Build
-      run: |
-        ./gradlew example::assembleRelease
+        ./gradlew ${{ matrix.task }} -PINCLUDE_ABI_X86=true -PINCLUDE_ABI_X86_64=true ${{ (matrix.v8 == 'v8_min') && '-PV8_COMPONENT=7.7.299.15' || '' }}

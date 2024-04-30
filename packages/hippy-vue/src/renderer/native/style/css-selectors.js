@@ -242,9 +242,24 @@ class PseudoClassSelector extends SimpleSelector {
 }
 
 /**
+ * get node attribute or styleScopeId value
+ * @param node
+ * @param attribute
+ * @returns {*}
+ */
+const getNodeAttrVal = (node, attribute) => {
+  const attr = node.attributes[attribute];
+  if (typeof attr !== 'undefined') {
+    return attr;
+  }
+  if (Array.isArray(node.styleScopeId) && node.styleScopeId.includes(attribute)) {
+    return attribute;
+  }
+};
+
+/**
  * Attribute Selector
  */
-
 class AttributeSelector extends SimpleSelector {
   constructor(attribute, test, value) {
     super();
@@ -259,7 +274,7 @@ class AttributeSelector extends SimpleSelector {
       // HasAttribute
       this.match = (node) => {
         if (!node || !node.attributes) return false;
-        return !isNullOrUndefined(node.attributes[attribute]);
+        return !isNullOrUndefined(getNodeAttrVal(node, attribute));
       };
       return;
     }
@@ -272,7 +287,7 @@ class AttributeSelector extends SimpleSelector {
     this.match = (node) => {
       if (!node || !node.attributes) return false;
       // const escapedValue = value.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
-      const attr = `${node.attributes[attribute]}`;
+      const attr = `${getNodeAttrVal(node, attribute)}`;
 
       if (test === '=') {
         // Equals
@@ -447,24 +462,36 @@ class Selector extends SelectorCore {
     let siblingGroup = [];
     let lastGroup = [];
     const groups = [];
-    const reverseSelectors = [...selectors].reverse();
-    reverseSelectors.forEach((sel) => {
+    const selectorList = [...selectors];
+    const length = selectorList.length - 1;
+    this.specificity = 0;
+    this.dynamic = false;
+
+    for (let i = length; i >= 0; i--) {
+      const sel = selectorList[i];
       if (supportedCombinator.indexOf(sel.combinator) === -1) {
         console.error(`Unsupported combinator "${sel.combinator}".`);
         throw new Error(`Unsupported combinator "${sel.combinator}".`);
       }
+
       if (sel.combinator === undefined || sel.combinator === ' ') {
         groups.push(lastGroup = [(siblingGroup = [])]);
       }
       if (sel.combinator === '>') {
-        lastGroup.push(siblingGroup = []);
+        lastGroup.push((siblingGroup = []));
       }
+
+      this.specificity += sel.specificity;
+
+      if (sel.dynamic) {
+        this.dynamic = true;
+      }
+
       siblingGroup.push(sel);
-    });
-    this.groups = groups.map(g => new Selector.ChildGroup(g.map(sg => new Selector.SiblingGroup(sg))));
-    this.last = reverseSelectors[0];
-    this.specificity = reverseSelectors.reduce((sum, sel) => sel.specificity + sum, 0);
-    this.dynamic = reverseSelectors.some(sel => sel.dynamic);
+    }
+
+    this.groups = groups.map(g => new ChildGroup(g.map(sg => new SiblingGroup(sg))));
+    this.last = selectorList[length];
   }
 
   toString() {
@@ -521,7 +548,7 @@ class Selector extends SelectorCore {
       return false;
     });
 
-    // Calculating the right bounds for each selectors won't save much
+    // Calculating the right bounds for each selector won't save much
     if (!mayMatch) {
       return false;
     }
@@ -536,12 +563,12 @@ class Selector extends SelectorCore {
         continue;
       }
       const bound = bounds[i];
-      let leftBound = bound.left;
+      let node = bound.left;
       do {
-        if (group.mayMatch(leftBound)) {
-          group.trackChanges(leftBound, map);
+        if (group.mayMatch(node)) {
+          group.trackChanges(node, map);
         }
-      } while ((leftBound !== bound.right) && (leftBound = node.parentNode));
+      } while ((node !== bound.right) && (node = node.parentNode));
     }
 
     return mayMatch;

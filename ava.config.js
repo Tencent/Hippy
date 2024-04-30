@@ -32,6 +32,9 @@ export default {
   babel: false,
   extensions: false,
   compileEnhancements: false,
+  nonSemVerExperiments: {
+    tryAssertion: true,
+  },
   files: [
     'packages/**/__tests__/*.test.js',
   ],

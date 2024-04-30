@@ -36,26 +36,30 @@
 #include "core/modules/console_module.h"
 #include "core/modules/contextify_module.h"
 #include "core/modules/module_base.h"
-#include "core/modules/module_register.h"
 #include "core/modules/timer_module.h"
 #include "core/napi/callback_info.h"
-#include "core/napi/js_native_api.h"
-#include "core/napi/js_native_api_types.h"
-#include "core/napi/native_source_code.h"
+#include "core/napi/js_ctx.h"
+#include "core/napi/js_ctx_value.h"
+#include "core/napi/js_try_catch.h"
 #include "core/scope.h"
+#include "core/vm/js_vm.h"
+#include "core/vm/native_source_code.h"
 
 #ifdef JS_V8
-#include "core/napi/v8/js_native_api_v8.h"
-#include "core/napi/v8/js_native_turbo_v8.h"
-#include "core/napi/v8/memory_module.h"
+#include "core/napi/v8/v8_ctx.h"
+#include "core/napi/v8/v8_ctx_value.h"
+#include "core/napi/v8/v8_try_catch.h"
 #include "core/inspector/bridge.h"
+#include "core/vm/v8/v8_vm.h"
+#include "core/vm/v8/memory_module.h"
 #ifndef V8_WITHOUT_INSPECTOR
 #include "core/inspector/v8_inspector_client_impl.h"
 #endif
 #else
-#include "core/napi/jsc/js_native_api_jsc.h"
-#include "core/napi/jsc/js_native_jsc_helper.h"
-#include "core/napi/jsc/js_native_turbo_jsc.h"
+#include "core/napi/jsc/jsc_ctx.h"
+#include "core/napi/jsc/jsc_ctx_value.h"
+#include "core/napi/jsc/jsc_try_catch.h"
+#include "core/vm/jsc/jsc_vm.h"
 #endif
 
 #include "core/task/common_task.h"

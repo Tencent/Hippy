@@ -22,16 +22,39 @@
 
 #ifndef HippyOCTurboModule_Inner_h
 #define HippyOCTurboModule_Inner_h
+#ifdef __cplusplus
 
-#import <core/napi/jsc/js_native_turbo_jsc.h>
 #import "HippyOCTurboModule.h"
+#include <memory>
+#include "core/napi/jsc/jsc_ctx.h"
+#include "core/napi/jsc/jsc_ctx_value.h"
+
+struct TurboWrapper;
 
 @interface HippyOCTurboModule (Inner)
 
-- (std::shared_ptr<hippy::napi::HippyTurboModule>)getTurboModule;
 - (JSValueRef)getTurboHostModule;
 - (void)setTurboHostModule:(JSValueRef)turboHostModule;
 
+- (void)saveTurboWrapper:(std::shared_ptr<hippy::napi::CtxValue>)name
+                   turbo:(std::unique_ptr<TurboWrapper>)wrapper;
+
+- (std::shared_ptr<hippy::napi::CtxValue>)invokeOCMethod:(const std::shared_ptr<hippy::napi::Ctx>&) ctx                                                            this_val:(const std::shared_ptr<hippy::napi::CtxValue>&)this_val
+                                                    args:(const std::shared_ptr<hippy::napi::CtxValue>*) args
+                                                   count:(size_t) count;
+
 @end
 
+struct TurboWrapper {
+  HippyOCTurboModule* module;
+  std::shared_ptr<hippy::napi::CtxValue> name;
+
+  TurboWrapper(HippyOCTurboModule* module, const std::shared_ptr<hippy::napi::CtxValue>& name) {
+    this->module = module;
+    this->name = name;
+  }
+};
+
+
+#endif /* __cplusplus */
 #endif /* HippyOCTurboModule_Inner_h */

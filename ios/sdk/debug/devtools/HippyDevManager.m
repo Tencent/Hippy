@@ -28,9 +28,12 @@
 #import "HippyBridge.h"
 #import "HippyUIManager.h"
 #import "HippyInspector.h"
+#import "HippyBridge+Private.h"
 
 NSString *const HippyRuntimeDomainName = @"TDFRuntime";
 NSString *const HippyRuntimeMethodUpdateContextInfo = @"updateContextInfo";
+NSString *const HippyRendererType = @"Native";
+
 
 @interface HippyDevManager ()<HippyDevClientProtocol> {
     HippyDevWebSocketClient *_devWSClient;
@@ -65,15 +68,27 @@ NSString *const HippyRuntimeMethodUpdateContextInfo = @"updateContextInfo";
     NSString *methodName = [NSString stringWithFormat:@"%@.%@", HippyRuntimeDomainName, HippyRuntimeMethodUpdateContextInfo];
     NSString *bundleId = [[NSBundle mainBundle] bundleIdentifier];
     NSString *hostVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+    
+    // Get ViewManagers' number
+    NSArray<Class>* allModules = HippyGetModuleClasses();
+    int viewManagerCount = 0;
+    for (Class module in allModules) {
+        if ([module isSubclassOfClass:HippyViewManager.class]) {
+            viewManagerCount ++;
+        }
+    }
 
     NSDictionary *params = @{
         @"contextName": contextName ? : @"",
         @"bundleId": bundleId ? : @"Unknown",
         @"hostVersion": hostVersion ? : @"",
-        @"sdkVersion": _HippySDKVersion
+        @"sdkVersion": _HippySDKVersion,
+        @"rendererType": HippyRendererType,
+        @"viewCount": @(viewManagerCount),
+        @"moduleCount": @([allModules count] - viewManagerCount),
     };
-    [_inspector sendDataToFrontendWithMethod:methodName
-                                          params:params];
+    
+    [_inspector sendDataToFrontendWithMethod:methodName params:params];
 }
 
 - (void)sendDataToFrontendWithData:(NSString *)dataString {

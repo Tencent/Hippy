@@ -48,7 +48,7 @@ class StringViewUtils {
   inline static bool IsEmpty(const unicode_string_view &str_view) {
     unicode_string_view::Encoding encoding = str_view.encoding();
     switch (encoding) {
-      case unicode_string_view::Encoding::Unkown: {
+      case unicode_string_view::Encoding::Unknown: {
         return true;
       }
       case unicode_string_view::Encoding::Latin1: {
@@ -219,8 +219,7 @@ class StringViewUtils {
       case unicode_string_view::Encoding::Utf16:
       case unicode_string_view::Encoding::Utf32: {
         unicode_string_view::u8string &ref = view_owner.utf8_value();
-        ref =
-            Convert(str_view, unicode_string_view::Encoding::Utf8).utf8_value();
+        ref = Convert(str_view, unicode_string_view::Encoding::Utf8).utf8_value();
         return U8ToConstCharPointer(ref.c_str());
       }
       default: {
@@ -243,9 +242,8 @@ class StringViewUtils {
   }
 
   inline static std::string ToU8StdStr(const unicode_string_view &str_view) {
-    unicode_string_view::u8string str =
-        Convert(str_view, unicode_string_view::Encoding::Utf8).utf8_value();
-    return std::string(U8ToConstCharPointer(str.c_str()), str.length());
+    auto str = Convert(str_view, unicode_string_view::Encoding::Utf8).utf8_value();
+    return { U8ToConstCharPointer(str.c_str()), str.length()};
   }
 
   static const size_t npos = static_cast<size_t>(-1);

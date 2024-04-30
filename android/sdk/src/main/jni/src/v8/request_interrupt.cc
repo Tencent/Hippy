@@ -23,13 +23,14 @@
 #include "v8/request_interrupt.h"
 
 #include "bridge/runtime.h"
+#include "jni/jni_env.h"
 #include "v8/v8.h"
 
 namespace hippy {
 inline namespace driver {
 inline namespace v8_engine {
 
-using V8VM = hippy::napi::V8VM;
+using V8VM = hippy::vm::V8VM;
 
 REGISTER_JNI("com/tencent/mtt/hippy/v8/V8", // NOLINT(cert-err58-cpp)
              "requestInterrupt",

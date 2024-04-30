@@ -18,17 +18,12 @@
  * limitations under the License.
  */
 
-/**
- * node-ops  Vue custom renderer node operations unit test
- */
 import { nodeOps } from '../src/node-ops';
 import { registerElement } from '../src/runtime/component';
 import { setHippyCachedInstance } from '../src/util/instance';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * node-ops.ts unit test case
  */
 describe('node-ops.ts', () => {
   beforeAll(() => {
@@ -240,10 +235,10 @@ describe('node-ops.ts', () => {
   it('setScopeId method should work correct', () => {
     const element = nodeOps.createElement('div');
     element.setStyleScope('style-scoped-id-1');
-    expect(element.styleScopeId).toEqual('style-scoped-id-1');
+    expect(element.styleScopeId).toEqual(['style-scoped-id-1']);
     element.setStyleScope({});
-    expect(element.styleScopeId).toEqual('[object Object]');
+    expect(element.styleScopeId).toEqual(['style-scoped-id-1', '[object Object]']);
     element.setStyleScope(123456);
-    expect(element.styleScopeId).toEqual('123456');
+    expect(element.styleScopeId).toEqual(['style-scoped-id-1', '[object Object]', '123456']);
   });
 });

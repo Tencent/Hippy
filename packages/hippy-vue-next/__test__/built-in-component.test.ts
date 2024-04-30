@@ -18,10 +18,6 @@
  * limitations under the License.
  */
 
-/**
- * built-in-component unit test
- */
-
 import type { NeedToTyped } from '../src/types';
 import { NATIVE_COMPONENT_MAP, HIPPY_DEBUG_ADDRESS } from '../src/config';
 import { Native } from '../src/runtime/native';
@@ -29,7 +25,6 @@ import BuiltInComponent from '../src/built-in-component';
 import { getTagComponent, registerElement } from '../src/runtime/component';
 import { HippyElement } from '../src/runtime/element/hippy-element';
 import { HippyListElement } from '../src/runtime/element/hippy-list-element';
-import { HippyListItemElement } from '../src/runtime/element/hippy-list-item-element';
 import { HippyInputElement } from '../src/runtime/element/hippy-input-element';
 import { HippyText } from '../src/runtime/text/hippy-text';
 import { setHippyCachedInstance } from '../src/util/instance';
@@ -37,9 +32,7 @@ import '../src/runtime/event/hippy-event-dispatcher';
 import { preCacheNode } from '../src/util/node-cache';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * built-in-component.ts unit test case
  */
 describe('built-in-component', () => {
   const { EventDispatcher: eventDispatcher } = global.__GLOBAL__.jsModuleList;
@@ -274,7 +267,7 @@ describe('built-in-component', () => {
 
     it('li tag test', () => {
       const listElement = new HippyListElement('ul');
-      const listItemElement = new HippyListItemElement('li');
+      const listItemElement = new HippyElement('li');
       expect(listItemElement.component.name).toEqual(NATIVE_COMPONENT_MAP.ListViewItem);
       listElement.appendChild(listItemElement);
       const textElement = new HippyText('hello');

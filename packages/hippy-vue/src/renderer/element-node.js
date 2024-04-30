@@ -23,6 +23,7 @@
 
 import { PROPERTIES_MAP } from '@css-loader/css-parser';
 import { getViewMeta, normalizeElementName } from '../elements';
+import { EventMethod } from '../util/event';
 import {
   unicodeToChar,
   tryConvertNumber,
@@ -31,7 +32,7 @@ import {
   getBeforeLoadStyle,
   warn,
   isDev,
-  isEmpty,
+  whitespaceFilter,
 } from '../util';
 import Native from '../runtime/native';
 import { updateChild, updateWithChildren } from './native';
@@ -134,7 +135,10 @@ function getLinearGradientColorStop(value) {
  * @param {string|Object|number|boolean} value
  * @returns {(string|{})[]}
  */
-function parseBackgroundImage(property, value) {
+function parseBackgroundImage(property, value, style) {
+  // reset the backgroundImage and linear gradient property
+  delete style[property];
+  removeLinearGradient(property, value, style);
   let processedValue = value;
   let processedProperty = property;
   if (value.indexOf('linear-gradient') === 0) {
@@ -172,6 +176,22 @@ function parseBackgroundImage(property, value) {
 }
 
 /**
+ * remove linear gradient
+ * @param property
+ * @param value
+ * @param style
+ */
+function removeLinearGradient(property, value, style) {
+  if (property === 'backgroundImage' && style.linearGradient) {
+    delete style.linearGradient;
+  }
+}
+
+const offsetMap = {
+  textShadowOffsetX: 'width',
+  textShadowOffsetY: 'height',
+};
+/**
  * parse text shadow offset
  * @param property
  * @param value
@@ -179,15 +199,40 @@ function parseBackgroundImage(property, value) {
  * @returns {(*|number)[]}
  */
 function parseTextShadowOffset(property, value = 0, style) {
-  const offsetMap = {
-    textShadowOffsetX: 'width',
-    textShadowOffsetY: 'height',
-  };
   style.textShadowOffset = style.textShadowOffset || {};
   Object.assign(style.textShadowOffset, {
     [offsetMap[property]]: value,
   });
   return ['textShadowOffset', style.textShadowOffset];
+}
+
+/**
+ * remove text shadow offset
+ * @param property
+ * @param value
+ * @param style
+ */
+function removeTextShadowOffset(property, value, style) {
+  if ((property === 'textShadowOffsetX' || property === 'textShadowOffsetY') && style.textShadowOffset) {
+    delete style.textShadowOffset[offsetMap[property]];
+    if (Object.keys(style.textShadowOffset).length === 0) {
+      delete style.textShadowOffset;
+    }
+  }
+}
+
+/**
+ * remove empty style
+ * @param property
+ * @param value
+ * @param style
+ */
+function removeStyle(property, value, style) {
+  if (value === undefined) {
+    delete style[property];
+    removeLinearGradient(property, value, style);
+    removeTextShadowOffset(property, value, style);
+  }
 }
 
 class ElementNode extends ViewNode {
@@ -199,8 +244,8 @@ class ElementNode extends ViewNode {
     this.id = '';
     // style attribute in template.
     this.style = {};
-    // Vue style scope id.
-    this._styleScopeId = null;
+    // Vue style scope id list.
+    this.scopeIdList = [];
     // Class attribute in template.
     this.classList = new Set(); // Fake DOMTokenLis
     // Other attributes in template.
@@ -288,7 +333,8 @@ class ElementNode extends ViewNode {
             }
           }
           if (!options || !options.textUpdate) {
-            value = value.trim().replace(/(&nbsp;|Â)/g, ' ');
+            // white space handler
+            value = whitespaceFilter(value);
           }
           value = unicodeToChar(value);
           break;
@@ -346,7 +392,9 @@ class ElementNode extends ViewNode {
   }
 
   setStyles(batchStyles) {
-    if (isEmpty(batchStyles)) return;
+    if (!batchStyles || typeof batchStyles !== 'object' || Object.keys(batchStyles).length === 0) {
+      return;
+    }
     Object.keys(batchStyles).forEach((styleKey) => {
       const styleValue = batchStyles[styleKey];
       this.setStyle(styleKey, styleValue, true);
@@ -355,13 +403,6 @@ class ElementNode extends ViewNode {
   }
 
   setStyle(rawKey, rawValue, notToNative = false) {
-    if (rawValue === undefined) {
-      delete this.style[rawKey];
-      if (!notToNative) {
-        updateChild(this);
-      }
-      return;
-    }
     // Preprocess the style
     let {
       value,
@@ -370,6 +411,13 @@ class ElementNode extends ViewNode {
       property: rawKey,
       value: rawValue,
     });
+    if (rawValue === undefined) {
+      removeStyle(key, value, this.style);
+      if (!notToNative) {
+        updateChild(this);
+      }
+      return;
+    }
     // Process the specific style value
     switch (key) {
       case 'fontWeight':
@@ -378,7 +426,7 @@ class ElementNode extends ViewNode {
         }
         break;
       case 'backgroundImage': {
-        [key, value] = parseBackgroundImage(key, value);
+        [key, value] = parseBackgroundImage(key, value, this.style);
         break;
       }
       case 'textShadowOffsetX':
@@ -441,11 +489,13 @@ class ElementNode extends ViewNode {
     if (typeof styleScopeId !== 'string') {
       styleScopeId = styleScopeId.toString();
     }
-    this._styleScopeId = styleScopeId;
+    if (styleScopeId && !this.scopeIdList.includes(styleScopeId)) {
+      this.scopeIdList.push(styleScopeId);
+    }
   }
 
   get styleScopeId() {
-    return this._styleScopeId;
+    return this.scopeIdList;
   }
 
   appendChild(childNode) {
@@ -496,7 +546,12 @@ class ElementNode extends ViewNode {
       }
     }
     if (typeof this.polyfillNativeEvents === 'function') {
-      ({ eventNames, callback, options } = this.polyfillNativeEvents('addEventListener', eventNames, callback, options));
+      ({ eventNames, callback, options } = this.polyfillNativeEvents(
+        EventMethod.ADD,
+        eventNames,
+        callback,
+        options,
+      ));
     }
     this._emitter.addEventListener(eventNames, callback, options);
     updateChild(this);
@@ -507,7 +562,12 @@ class ElementNode extends ViewNode {
       return null;
     }
     if (typeof this.polyfillNativeEvents === 'function') {
-      ({ eventNames, callback, options } = this.polyfillNativeEvents('removeEventListener', eventNames, callback, options));
+      ({ eventNames, callback, options } = this.polyfillNativeEvents(
+        EventMethod.REMOVE,
+        eventNames,
+        callback,
+        options,
+      ));
     }
     const observer = this._emitter.removeEventListener(eventNames, callback, options);
     updateChild(this);
@@ -540,12 +600,13 @@ class ElementNode extends ViewNode {
 
   /**
    * getBoundingClientRect
-   *
+   * @deprecated
    * Get the position and size of element
    * Because it's a async function, need await prefix.
    *
    * And if the element is out of visible area, result will be none.
    */
+
   getBoundingClientRect() {
     return Native.measureInWindow(this);
   }

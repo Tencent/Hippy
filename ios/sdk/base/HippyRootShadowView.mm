@@ -24,6 +24,7 @@
 #import "HippyUtils.h"
 #include "MTTLayout.h"
 #import "HippyI18nUtils.h"
+#import "HippyShadowView+MTTLayout.h"
 
 @implementation HippyRootShadowView
 

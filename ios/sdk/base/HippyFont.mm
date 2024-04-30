@@ -98,21 +98,7 @@ static UIFont *cachedSystemFont(CGFloat size, HippyFontWeight weight) {
     UIFont *font = [fontCache objectForKey:cacheKey];
 
     if (!font) {
-        // Only supported on iOS8.2 and above
-        if (@available(iOS 8.2, *)) {
-            font = [UIFont systemFontOfSize:size weight:weight];
-        } else {
-            if (weight >= UIFontWeightBold) {
-                font = [UIFont boldSystemFontOfSize:size];
-            } else if (weight >= UIFontWeightMedium) {
-                font = [UIFont fontWithName:@"HelveticaNeue-Medium" size:size];
-            } else if (weight <= UIFontWeightLight) {
-                font = [UIFont fontWithName:@"HelveticaNeue-Light" size:size];
-            } else {
-                font = [UIFont systemFontOfSize:size];
-            }
-        }
-
+        font = [UIFont systemFontOfSize:size weight:weight];
         [fontCache setObject:font forKey:cacheKey];
     }
 
@@ -293,13 +279,7 @@ Hippy_ARRAY_CONVERTER(HippyFontVariantDescriptor)
         } else {
             // Not a valid font or family
             HippyLogError(@"Unrecognized font family '%@'", familyName);
-            if (@available(iOS 8.2, *)) {
-                font = [UIFont systemFontOfSize:fontSize weight:fontWeight];
-            } else if (fontWeight > UIFontWeightRegular) {
-                font = [UIFont boldSystemFontOfSize:fontSize];
-            } else {
-                font = [UIFont systemFontOfSize:fontSize];
-            }
+            font = [UIFont systemFontOfSize:fontSize weight:fontWeight];
         }
     }
 

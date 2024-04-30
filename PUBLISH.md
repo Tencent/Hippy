@@ -37,12 +37,12 @@ The native version number is mainly located in the following files, which need t
 
 iOS
 
-* [hippy.podspec](https://github.com/Tencent/Hippy/blob/master/hippy.podspec#L11)
-* [HippyBridge.mm](https://github.com/Tencent/Hippy/blob/master/ios/sdk/base/HippyBridge.mm#L45)
+* [hippy.podspec](https://github.com/Tencent/Hippy/blob/master/hippy.podspec) [s.version]
+* [HippyBridge.mm](https://github.com/Tencent/Hippy/blob/master/ios/sdk/base/HippyBridge.mm) [_HippySDKVersion]
 
 Android
 
-* [gradle.properties](https://github.com/Tencent/Hippy/blob/master/android/sdk/gradle.properties#L25)
+* [gradle.properties](https://github.com/Tencent/Hippy/blob/master/android/sdk/gradle.properties)  [VERSION_NAME]
 
 ## 4. Update built-in packages and verify functionality
 
@@ -90,71 +90,19 @@ tag
 git tag [VERSION]
 ```
 
-Commit the code and prepare to publish the PR merge into the master branch.
+Commit the code and tag.
 
 ```bash
-git push        # 提交代码
-git push --tags # 提交 tag
+git push origin vxxx - branch
+git push origin [VERSION] - tag
 ```
 
 ## 6. Publish
 
-* Front End Publishing to npmjs.com
+Run [Release Workflow](https://github.com/Tencent/Hippy/actions/workflows/project_artifact_release.yml) to publish all packages.
 
-  ```bash
-  npx lerna exec "npm publish"
-  ```
+### Android
 
-  > If npm secondary authentication is active, you will be asked to input a one-time password.
-
-* iOS published to CocoaPods.org
-
-  * If you do not have a CocoaPod account, register first
-
-  ```bash
-    pod trunk register [EMAIL] [NAME]
-  ```
-
-  * Then publish
-
-  ```bash
-   pod trunk push hippy.podspec
-  ```
-
-  > If the parameter check fails when publishing, you can prefix the `pod` command `COCOAPODS_VALIDATOR_SKIP_XCODEBUILD=1` parameter
-
-* Android released to Maven Central, the original jCenter repository has been abandoned [version query](https://search.maven.org/search?q=com.tencent.hippy).
-
-  * Follow [the steps for publishing Maven Central](https://zhuanlan.zhihu.com/p/362205023) and sign up for [sonatype](https://oss.sonatype.org).
-  * Increase the system environment variable configuration
-
-    ```bash
-    SIGNING_KEY_ID=gpg公钥key后8位
-    SIGNING_PASSWORD=gpg密钥对密码
-    SIGNING_SECRET_KEY_RING_FILE=gpg文件存放路径, 如/Users/user/.gnupg/secring.gpg
-    OSSRH_USERNAME=sonatype账号
-    OSSRH_PASSWORD=sonatype密码
-    ```
-
-  * Run build `Clean Project`
-  * `Android gradle.properties` turns on the `#PUBLISH_ARTIFACT_ID=hippy-debug` comment, and the Gradle Task executes `other` => `assembleDebug` before `publishing` => `publish`
-  * `Android gradle.properties` turns on the `#PUBLISH_ARTIFACT_ID=hippy-common` comment, and the Gradle Task executes `other` => `assembleRelease` before `publishing` => `publish`
-  * After the success of the release of the SDK will be in the `staging` state of Sonatype, in the left side `Staging Repositories` of the Sonatype Staging Repositories to find just released repository, if you want to test before Release, can be under the `Content` will `aar` download, replace `examples` => `android-demo` => `example` => `libs` under the aar(name to `android-sdk-release.aar`)
-
-    ```bash
-      // annotation local reference in `setting.gradle` 
-      // include 'android-sdk'
-      // project(':android-sdk').projectDir = new File('../../ android/sdk')
-
-      --------------
-
-      // `android-demo` => `example` => `build.gradle` dependencies can be changed as follow to use local aar file
-      if (1) {
-        api (name: 'android-sdk-release', ext: 'aar')
-      } else {
-         api project(path: ':android-sdk')
-      }
-    ```
-
-  * After successful verification, Close the repository of `Staging Repositories``Close` and click `Release`.
-  * After the success of the Release can be searched in the Repository to the corresponding version of aar, Maven home page need to wait for more than 2 hours to synchronize
+* sign up for [sonatype](https://oss.sonatype.org).
+* After successful verification, Close the repository of `Staging Repositories` through clicking `Close` and then click `Release` to release hippy maven packages.
+* After the success of the Release can be searched in the Repository to the corresponding version of aar, Maven home page need to wait for more than 2 hours to synchronize

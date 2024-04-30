@@ -77,8 +77,8 @@ class ADRLoader : public hippy::base::UriLoader {
   using unicode_string_view = tdf::base::unicode_string_view;
   using u8string = unicode_string_view::u8string;
 
-  ADRLoader();
-  virtual ~ADRLoader() {}
+  ADRLoader() = default;
+  virtual ~ADRLoader() = default;
 
   virtual bool RequestUntrustedContent(const unicode_string_view& uri,
                                        std::function<void(u8string)> cb);
@@ -86,26 +86,27 @@ class ADRLoader : public hippy::base::UriLoader {
                                        u8string& str);
 
   inline void SetBridge(std::shared_ptr<JavaRef> bridge) { bridge_ = bridge; }
-  inline void SetAAssetManager(AAssetManager* aasset_manager) {
-    aasset_manager_ = aasset_manager;
-  }
   inline void SetWorkerTaskRunner(std::weak_ptr<WorkerTaskRunner> runner) {
     runner_ = runner;
   }
   std::function<void(u8string)> GetRequestCB(int64_t request_id);
   int64_t SetRequestCB(const std::function<void(u8string)>& cb);
 
+  static void Init();
+  static void Destroy();
+
  private:
+  static AAssetManager* GetAAssetManager();
   bool LoadByFile(const unicode_string_view& path,
                   const std::function<void(u8string)>& cb);
   bool LoadByAsset(const unicode_string_view& file_path,
                    const std::function<void(u8string)>& cb,
                    bool is_auto_fill = false);
-  bool LoadByHttp(const unicode_string_view& uri,
-                  const std::function<void(u8string)>& cb);
+  bool LoadByJni(const unicode_string_view& uri,
+                 const std::function<void(u8string)>& cb);
 
   std::shared_ptr<JavaRef> bridge_;
-  AAssetManager* aasset_manager_;
   std::weak_ptr<WorkerTaskRunner> runner_;
   std::unordered_map<int64_t, std::function<void(u8string)>> request_map_;
+  std::mutex mutex_;
 };

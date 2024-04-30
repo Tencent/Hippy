@@ -79,8 +79,8 @@ export default defineComponent({
     };
 
     const onLoadEnd = (evt: HippyLoadResourceEvent) => {
-      const { url } = evt;
-      console.log('onLoadEnd', url);
+      const { url, success, error } = evt;
+      console.log('onLoadEnd', url, success, error);
     };
 
     return {

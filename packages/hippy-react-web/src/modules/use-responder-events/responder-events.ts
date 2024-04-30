@@ -19,11 +19,11 @@
  */
 
 import { canUseDOM } from '../../utils';
+import { TouchEvent } from '../../types';
 import {
   getResponderPaths, setResponderId, TOUCH_CANCEL, TOUCH_END, TOUCH_MOVE, TOUCH_START, SCROLL_EVENT,
   isScrollEvent,
 } from './utils';
-import { TouchEvent } from './types';
 import { ResponderConfig } from './index';
 
 interface ResponderEvent {

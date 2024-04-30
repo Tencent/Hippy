@@ -15,6 +15,8 @@
 - 通过 Animation 的 start 接口启动动画，或是通过 destroy 停止并销毁动画。
 
 > 注意，转 Web 需要用 setRef 方法手动传入 ref 才可以正常运行动画，hippy-react-web 不支持颜色渐变动画。
+>
+> 注意，2.17.1版本对iOS动画进行了较大升级，修复了历史版本与Android端动画表现不一致的问题，升级时请关注兼容性。
 
 ## 构造参数
 
@@ -33,7 +35,7 @@
 
   - `rad`：代表动画参数的起止值为弧度， `这是 rotate 动画的默认单位`；
   - `deg`：代表动画参数的起止值为度数；
-  - `color`：代表动画参数的起止值为颜色值，可修饰背景色 `backgroundColor` 和文字颜色 `color`(仅 Android 支持)，参考 [例子](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx) `最低支持版本2.6.0`
+  - `color`：代表动画参数的起止值为颜色值，可修饰背景色 `backgroundColor` 和文字颜色 `color`(iOS 2.17.1版本开始支持)，参考 [例子](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx) `最低支持版本2.6.0`
 
 - timingFunction 的参数选项：
   - `linear`：使用线性插值器，动画将匀速进行；
@@ -74,7 +76,7 @@
 
 `(callback: () => void) => void` 注册一个动画的监听回调，在动画结束时将会回调 callback。
 
-### onAnimationRepeat（仅 Android 支持）
+### onAnimationRepeat（iOS 2.17.1版本开始支持）
 
 `(callback: () => void) => void` 注册一个动画的监听回调，当动画开始下一次重复播放时 callback 将被回调。
 
@@ -215,26 +217,6 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 `(handler: () => boolean) => void` 移除 BackAndroid 关于 Android 实体健回退事件的监听器。
 
 - handler: Function - 建议使用 `addListener` 返回的包含 `remove()` 方法的对象，也可以是之前 BackAndroid 的回调函数。
-
----
-
-# Clipboard
-
-[[Clipboard 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/Clipboard)
-
-模块提供了 iOS/Android 双端的剪贴板能力，开发者可使用其来读取或写入剪贴板，目前仅支持字符串作为存取类型。
-
-## 方法
-
-### Clipboard.getString
-
-`() => string` 获取剪贴板的内容。 `hippy-react-web: () => Promise<string>`
-
-### Clipboard.setString
-
-`(value: string) => void` 设置剪贴板的内容。 `hippy-react-web: () => Promise<void>`
-
-> - value: string - 需要设置到剪贴板中的内容。
 
 ---
 
@@ -469,3 +451,17 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 `(ref, callback: Function) => Promise`
 
 > - callback: ({ x, y, width, height } | string | -1) => void - 回调函数, 参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错或者 [节点被优化（仅在Android）](style/layout?id=collapsable)可能返回 -1 或者 `this view is null` 字符串
+
+### UIManagerModule.getBoundingClientRect
+
+[[getBoundingClientRect 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/UIManagerModule/index.jsx)
+
+> 最低支持版本 `2.15.3`，原有 `measureInWindow` 和 `measureInAppWindow` 将逐渐废弃
+
+测量元素在宿主容器（RootView) 或 App 窗口（屏幕）范围内的尺寸和位置。
+
+`(instance: ref, options: { relToContainer: boolean }) => Promise<DOMRect: { x: number, y: number, width: number, height: number, bottom: number, right: number, left: number, top: number }>`
+
+> - instance: 元素或组件的引用 Ref。
+> - options: 可选参数，`relToContainer` 表示是否相对宿主容器（RootView）进行测量，默认 `false` 相对 App 窗口或屏幕进行测量。当对宿主容器（RootView）进行测量时，`iOS` 包含顶部状态栏高度，`Android` 不包含。
+> - DOMRect: 与 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Element/getBoundingClientRect) 一致的返回参数, 可以获取元素相应的位置信息和尺寸，如果出错或者 [节点被优化（仅在Android）](style/layout?id=collapsable)，会触发 `Promise.reject`。

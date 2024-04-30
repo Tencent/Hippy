@@ -1,0 +1,105 @@
+name: '[gh] pull request guide'
+
+on:
+  pull_request_target:
+    branches:
+      - master
+      - main
+      - v3.0-dev
+      - v3.0
+    types:
+      - opened
+  issue_comment:
+    types:
+      - created
+
+jobs:
+  pull_request_greetings:
+    if: github.event.action == 'opened' && github.repository == 'Tencent/Hippy'
+    runs-on: ubuntu-latest
+    env:
+      MESSAGE: |
+        Hi, @${{ github.event.sender.login }}. Thanks for your PR! :clap:
+
+        :label: You can leave a comment in this PR with **`#help`** tag when you need help (e.g. some status checks run failed due to internal issue), admin team members will help asap.
+    steps:
+    - name: Token
+      uses: navikt/github-app-token-generator@v1
+      id: get-token
+      with:
+        private-key: ${{ secrets.BOT_APP_KEY }}
+        app-id: ${{ secrets.BOT_APP_ID }}
+    - name: Greetings
+      uses: actions/github-script@v6.1.0
+      with:
+        github-token: ${{ steps.get-token.outputs.token }}
+        script: |
+          const { owner, repo } = context.repo;
+          const { pull_request } = context.payload;
+          const { issues } = github.rest;
+
+          await issues.createComment({
+            owner,
+            repo,
+            issue_number: pull_request.number,
+            body: process.env.MESSAGE,
+          });
+
+  pull_request_help_needed:
+    if: github.event.sender.type == 'User' && github.event.issue.pull_request && contains(github.event.comment.body, '#help') && github.repository == 'Tencent/Hippy'
+    runs-on: ubuntu-latest
+    env:
+      MESSAGE: |
+        [${{ github.event.sender.login }}](https://github.com/${{ github.event.sender.login }}) needs help on [#${{ github.event.issue.number }}](${{ github.event.comment.html_url }}) pull request.
+        > [${{ github.event.comment.html_url }}](${{ github.event.comment.html_url }})
+        > ${{ github.event.comment.body }}
+    steps:
+    - name: Token
+      uses: navikt/github-app-token-generator@v1
+      id: get-token
+      with:
+        private-key: ${{ secrets.BOT_APP_KEY }}
+        app-id: ${{ secrets.BOT_APP_ID }}
+    - name: Action
+      uses: actions/github-script@v6.3.3
+      with:
+        github-token: ${{ steps.get-token.outputs.token }}
+        script: |
+          const { owner, repo } = context.repo;
+          const { issue } = context.payload;
+          const { issues } = github.rest;
+
+          const p = [];
+
+          p.push(issues.addLabels({
+            issue_number: issue.number,
+            labels: [ 'need: help' ],
+            ...context.repo,
+          }));
+
+          p.push(github.request("POST ${{ secrets.WECHAT_WORK_BOT_WEBHOOK }}", {
+            headers: {
+              "content-type": "application/json"
+            },
+            data: {
+              chatid: "${{ secrets.WECHAT_WORK_ADMIN_CHAT_ID }}",
+              msgtype: "markdown",
+              markdown: {
+                content: process.env.MESSAGE,
+                attachments: [{
+                  callback_id: "help_needed",
+                  actions: [{
+                    name: "help_needed_btn",
+                    text: "Mark as Resolved",
+                    type: "button",
+                    value: "Mark as Resolved",
+                    replace_text: "Already resolved",
+                    border_color: "2c974b",
+                    text_color: "2c974b"
+                  }]
+                }]
+              }
+            }
+          }));
+
+          await Promise.all(p);

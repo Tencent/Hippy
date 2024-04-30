@@ -18,16 +18,15 @@
  * limitations under the License.
  */
 
-import { translateColor } from '@hippy-vue-next-style-parser/index';
+import { translateColor, getCssMap, type StyleNode } from '@hippy-vue-next-style-parser/index';
 import { isFunction } from '@vue/shared';
 
 import type { NeedToTyped, CallbackType, NativeInterfaceMap } from '../../types';
 import { NATIVE_COMPONENT_MAP, HIPPY_VUE_VERSION } from '../../config';
-import { isStyleMatched, trace, warn } from '../../util';
+import { isStyleMatched, trace, warn, getBeforeLoadStyle } from '../../util';
 import { type HippyElement } from '../element/hippy-element';
 import { EventBus } from '../event/event-bus';
 import { type HippyNode } from '../node/hippy-node';
-import { getCssMap } from '../style/css-map';
 
 // Extend the global interface definition
 declare global {
@@ -55,13 +54,25 @@ interface Dimensions {
 }
 
 // Element position information type
-interface MeasurePosition {
+export interface MeasurePosition {
   top: number;
   left: number;
   bottom: number;
   right: number;
   width: number;
   height: number;
+}
+
+// DOM Bounding Rect
+export interface DOMRect {
+  x: number | undefined;
+  y: number | undefined;
+  top: number | undefined;
+  left: number | undefined;
+  bottom: number | undefined;
+  right: number | undefined;
+  width: number | undefined;
+  height: number | undefined;
 }
 
 // Native location information type
@@ -275,6 +286,9 @@ export interface NativeApiType {
   // measure the position of an element within the window
   measureInAppWindow: (el: HippyNode) => Promise<MeasurePosition>;
 
+  // measure the position of an element within the window
+  getBoundingClientRect: (el: HippyNode, options?: { relToContainer?: boolean }) => Promise<DOMRect>;
+
   // convert the given color string to int32 recognized by Native
   parseColor: (color: string, options?: { platform: string }) => number;
   // get the style of the specified element
@@ -300,6 +314,21 @@ interface CacheType {
 
 export const CACHE: CacheType = {};
 
+// faked hippy global object. avoid error in server side execute
+const ssrFakeHippy = {
+  device: {
+    platform: {
+      Localization: {},
+    },
+    window: {},
+    screen: {},
+  },
+  bridge: {},
+  register: {},
+  document: {},
+  asyncStorage: {},
+};
+
 // deconstruct the required properties and methods from the native injected global Hippy object
 export const {
   bridge: { callNative, callNativeWithPromise, callNativeWithCallbackId },
@@ -310,7 +339,8 @@ export const {
   device,
   document: hippyNativeDocument,
   register: hippyNativeRegister,
-} = global.Hippy;
+  asyncStorage,
+} = global.Hippy ?? ssrFakeHippy;
 
 /**
  * Call the Native interface to measure the location information of the node
@@ -330,38 +360,27 @@ export const measureInWindowByMethod = async (
     width: -1,
     height: -1,
   };
-
   if (!el.isMounted || !el.nodeId) {
     return Promise.resolve(empty);
   }
-
   const { nodeId } = el;
   return new Promise(resolve => Native.callNative(
     'UIManagerModule',
     method,
     nodeId,
     (pos: NativePosition | string) => {
-      // Android error handler.
-      if (
-        !pos
-          || pos === 'this view is null'
-          || typeof nodeId === 'undefined'
-      ) {
+      if (!pos || typeof pos !== 'object' || typeof nodeId === 'undefined') {
         return resolve(empty);
       }
-
-      if (typeof pos !== 'string') {
-        return resolve({
-          top: pos.y,
-          left: pos.x,
-          bottom: pos.y + pos.height,
-          right: pos.x + pos.width,
-          width: pos.width,
-          height: pos.height,
-        });
-      }
-
-      return resolve(empty);
+      const { x, y, height, width } = pos;
+      return resolve({
+        top: y,
+        left: x,
+        width,
+        height,
+        bottom: y + height,
+        right: x + width,
+      });
     },
   ));
 };
@@ -397,9 +416,7 @@ export const Native: NativeApiType = {
 
   callNativeWithCallbackId,
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  AsyncStorage: global.Hippy.asyncStorage,
+  AsyncStorage: asyncStorage,
 
   callUIFunction(...args) {
     const [el, funcName, ...options] = args;
@@ -618,6 +635,46 @@ export const Native: NativeApiType = {
     }
     return measureInWindowByMethod(el, 'measureInAppWindow');
   },
+
+  /**
+   * Returns a Promise with DOMRect object providing information
+   * about the size of an element and its position relative to the RootView or Container
+   * @param el
+   * @param options
+   */
+  getBoundingClientRect(el, options): Promise<DOMRect> {
+    const { nodeId } = el;
+    return new Promise((resolve, reject) => {
+      if (!el.isMounted || !nodeId) {
+        return reject(new Error(`getBoundingClientRect cannot get nodeId of ${el} or ${el} is not mounted`));
+      }
+      trace('UIManagerModule', { nodeId, funcName: 'getBoundingClientRect', params: options });
+      Native.callNative('UIManagerModule', 'getBoundingClientRect', nodeId, options, (res) => {
+        if (!res || res.errMsg) {
+          return reject(new Error((res?.errMsg) || 'getBoundingClientRect error with no response'));
+        }
+        const { x, y, width, height } = res;
+        let bottom: undefined | number = undefined;
+        let right: undefined | number = undefined;
+        if (typeof y === 'number' && typeof height === 'number') {
+          bottom = y + height;
+        }
+        if (typeof x === 'number' && typeof width === 'number') {
+          right = x + width;
+        }
+        return resolve({
+          x,
+          y,
+          width,
+          height,
+          bottom,
+          right,
+          left: x,
+          top: y,
+        });
+      });
+    });
+  },
   NetInfo: {
     /**
      * get current network status, return with promise
@@ -778,8 +835,8 @@ export const Native: NativeApiType = {
   getElemCss(element: HippyElement) {
     const style = Object.create(null);
     try {
-      getCssMap()
-        .query(element)
+      getCssMap(undefined, getBeforeLoadStyle())
+        .query(element as unknown as StyleNode)
         .selectors.forEach((matchedSelector) => {
           if (!isStyleMatched(matchedSelector, element)) {
             return;

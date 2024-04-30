@@ -43,8 +43,8 @@ public class TimingAnimation extends Animation implements ValueAnimator.Animator
   private static final String TIMING_FUNCTION_EASE_IN_OUT = "ease-in-out";
   private static final String TIMING_FUNCTION_EASE_BEZIER = "ease_bezier";
   private static final Pattern TIMING_FUNCTION_CUBIC_BEZIER_PATTERN = Pattern.compile("^cubic-bezier\\(([^,]*),([^,]*),([^,]*),([^,]*)\\)$");
-  protected float mStartValue;
-  protected float mToValue;
+  protected Number mStartValue = 0;
+  protected Number mToValue = 0;
   protected int mDuration;
   protected String mTimingFunction;
   protected final ValueAnimator mAnimator;
@@ -140,12 +140,14 @@ public class TimingAnimation extends Animation implements ValueAnimator.Animator
     }
 
     if (param.containsKey("startValue")) {
-      mStartValue = (float) param.getDouble("startValue");
+      Object value = param.get("startValue");
+      mStartValue = value instanceof Number ? (Number) value : 0;
     }
     mAnimationValue = mStartValue;
 
     if (param.containsKey("toValue")) {
-      mToValue = (float) param.getDouble("toValue");
+      Object value = param.get("toValue");
+      mToValue = value instanceof Number ? (Number) value : 0;
     }
 
     if (param.containsKey("duration")) {
@@ -174,10 +176,10 @@ public class TimingAnimation extends Animation implements ValueAnimator.Animator
     }
 
     if (!TextUtils.isEmpty(mValueType) && mValueType.equals(VALUE_TYPE_COLOR)) {
-      mAnimator.setIntValues((int) mStartValue, (int) mToValue);
+      mAnimator.setIntValues(mStartValue.intValue(), mToValue.intValue());
       mAnimator.setEvaluator(new ArgbEvaluator());
     } else {
-      mAnimator.setFloatValues(mStartValue, mToValue);
+      mAnimator.setFloatValues(mStartValue.floatValue(), mToValue.floatValue());
     }
 
     mAnimator.setDuration(mDuration);

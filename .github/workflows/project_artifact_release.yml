@@ -25,6 +25,26 @@ on:
         type: boolean
         default: true
         required: false
+      is_release_for_ios:
+        description: 'Release for iOS'
+        type: boolean
+        default: true
+        required: false
+      is_release_for_js:
+        description: 'Release for JS'
+        type: boolean
+        default: true
+        required: false
+      js_npm_dist_tag_name:
+        description: 'NPM dist tag name to release'
+        type: string
+        required: false
+      is_npm_version_to_latest_tag:
+        description: 'Set current version to npm latest tag'
+        type: boolean
+        default: true
+        required: false
+
 
 jobs:
   context_in_lowercase:
@@ -129,3 +149,59 @@ jobs:
         MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
       run: |
         ./gradlew publish -PVERSION_NAME=${{ github.event.inputs.version_name }} -PPUBLISH_ARTIFACT_ID=${{ matrix.artifact_id }} -PINCLUDE_ABI_X86=true -PINCLUDE_ABI_X86_64=true
+
+  ios_release:
+    if: github.event.inputs.is_release_for_ios == 'true'
+    runs-on: macos-latest
+    steps:
+      - name: Checkout (${{ github.event.inputs.git_ref }})
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.git_ref }}
+          lfs: true
+      - name: Publish to Cocoapods
+        if: github.event.inputs.registry_choice == 'Both' || github.event.inputs.registry_choice == 'Default'
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+        run: |
+          pod trunk push hippy.podspec --allow-warnings --use-libraries --verbose
+
+  js_release:
+    if: github.event.inputs.is_release_for_js == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (${{ github.event.inputs.git_ref }})
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.git_ref }}
+          lfs: true
+      - name: setup-node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          registry-url: https://npm.pkg.github.com
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+      - name: Install dependencies
+        run: npm ci && lerna bootstrap --no-ci
+      - name: Build packages
+        run: npm run build
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          registry-url: 'https://registry.npmjs.org'
+      - name: Publish to NPM
+        if: github.event.inputs.js_npm_dist_tag_name != null && (github.event.inputs.registry_choice == 'Both' || github.event.inputs.registry_choice == 'Default')
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          echo "released js_npm_dist_tag_name is '${{ github.event.inputs.js_npm_dist_tag_name }}'"
+          npx lerna publish from-package --ignore-scripts --yes --dist-tag ${{ github.event.inputs.js_npm_dist_tag_name }}
+      - name: Change tag to latest
+        if: github.event.inputs.is_npm_version_to_latest_tag == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm run release:tag-to-latest ${{ github.event.inputs.version_name }}  
+        
+        

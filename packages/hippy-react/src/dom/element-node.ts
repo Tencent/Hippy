@@ -357,6 +357,8 @@ class ElementNode extends ViewNode {
         (this.style as any)[styleKey] = colorArrayParse((styleValue as Color[]));
       } else if (styleKey.toLowerCase().indexOf('color') > -1) {
         (this.style as any)[styleKey] = colorParse((styleValue as Color));
+      } else if (styleKey === 'fontWeight' && styleValue) {
+        (this.style as any)[styleKey] = typeof styleValue !== 'string' ? styleValue.toString() : styleValue;
       } else if (styleKey === 'backgroundImage' && styleValue) {
         this.style = parseBackgroundImage(styleKey, styleValue, this.style);
       } else if (styleKey === 'textShadowOffset') {

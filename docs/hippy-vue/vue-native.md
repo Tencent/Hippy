@@ -196,26 +196,6 @@ Vue.Native.AsyncStorage.getItem('itemKey');
 
 ---
 
-# Clipboard
-
-剪贴板读写模块，但是目前只支持纯文本。
-
-## 方法
-
-### getString()
-
-返回值：
-
-* string
-
-### setString(content)
-
-| 参数 | 类型     | 必需 | 参数意义 |
-| --------  | -------- | -------- |  -------- |
-| content | string | 是       | 保存进入剪贴板的内容 |
-
----
-
 # ConsoleModule
 
 > 最低支持版本 2.10.0
@@ -277,7 +257,7 @@ Hippy 中通过 fetch 服务返回的 `set-cookie` Header 会自动将 Cookie �
 
 获取具体节点的 CSS 样式。
 
-> 最低支持版本 2.10.1
+> 最低支持版本 `2.10.1`
 
 `(ref: ElementNode) => {}`
 
@@ -294,7 +274,7 @@ console.log(Vue.Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0
 
 通过该模块可以对远程图片进行相应操作
 
-> 最低支持版本 2.7.0
+> 最低支持版本 `2.7.0`
 
 ## 方法
 
@@ -314,13 +294,27 @@ console.log(Vue.Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0
 
 # measureInAppWindow
 
-> 最低支持版本 2.11.0
+> 最低支持版本 `2.11.0`
 
 测量在 App 窗口范围内某个组件的尺寸和位置，注意需要保证节点实例真正上屏后（layout事件后）才能调用该方法。
 
 `(ref) => Promise<{top: number, left: number, right: number, bottom: number, width: number, height: number}>`
 
 > * Promise resolve 的参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错或 [节点被优化（仅在Android）](style/layout?id=collapsable) 会返回 { top: -1, left: -1, right: -1, bottom: -1, width: -1, height: -1 }
+
+---
+
+# getBoundingClientRect
+
+> 最低支持版本 `2.15.3`，原有 `measureInWindow` 和 `measureInAppWindow` 将逐渐废弃
+
+测量元素在宿主容器（RootView）或者 App 窗口（屏幕）范围内的尺寸和位置。
+
+`(instance: ref, options: { relToContainer: boolean }) => Promise<DOMRect: { x: number, y: number, width: number, height: number, bottom: number, right: number, left: number, top: number }>`
+
+> * instance: 元素或组件的引用 Ref。
+> * options: 可选参数，`relToContainer` 表示是否相对宿主容器（RootView）进行测量，默认 `false` 相对 App 窗口或屏幕进行测量。当对宿主容器（RootView）进行测量时，`iOS` 包含顶部状态栏高度，`Android` 不包含。
+> * DOMRect: 与 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Element/getBoundingClientRect) 一致的返回参数, 可以获取元素相应的位置信息和尺寸，如果出错或者 [节点被优化（仅在Android）](style/layout?id=collapsable)，会触发 `Promise.reject`。
 
 ---
 

@@ -65,8 +65,21 @@ This component is mapped to the View component, and the container can be used to
 | scrollEnabled                  | When the value is `false`, the content cannot scroll. `default: true` `(only applicable to overflow-y/x: scroll)` | `boolean`                                                    | `Android、iOS、Web-Renderer`    |
 | showScrollIndicator            | Whether scroll bars are displayed. `default: false` `(only applicable to overflow-y/x: scroll)` | `boolean`  | `Android`    |
 | showsHorizontalScrollIndicator | When set to `false`, `ScrollView` hides the horizontal scroll bar.  `default: true` `(only applies to overflow-y/x: scroll)`| `boolean`                                                    | `iOS`    |
-| showsVerticalScrollIndicator   | When set to `false`, 'ScrollView' hides the vertical scroll bar.  `default: true` `(only applicable to overflow-y/x: scroll)`| `boolean`  | `iOS`   | 
+| showsVerticalScrollIndicator   | When set to `false`, 'ScrollView' hides the vertical scroll bar.  `default: true` `(only applicable to overflow-y/x: scroll)`| `boolean`  | `iOS`   |
 | nativeBackgroundAndroid        | Configure water ripple effect, `minimum supported version 2.13.1`; The configuration item is  `{borderless: Boolean, color: color, rippleRadius: number}`; `Borderless` indicates whether the ripple has borders. Default is false; `color` ripple color; `rippleRadius` ripple radius, if not set, the container border is the border by default;  ` note:  The water ripple is not displayed by default. You need to call setPressed and setHotspot methods in the corresponding touch event to display the water ripple.  Details refer to the relevant `[demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue) | `Object`| `Android`    |
+| nestedScrollPriority* | Nested scroll event processing priority, `default:self`. Equivalent to setting `nestedScrollLeftPriority`, `nestedScrollTopPriority`, `nestedScrollRightPriority` and  `nestedScrollBottomPriority` at the same time. `Minimum supported version 2.16.0.`                                                                                                                                                                                                                                                                 | `enum(self,parent,none)` | `Android` |
+| nestedScrollLeftPriority | Nested scroll event that set priority of direction **from right to left**, which will overwrite corresponding value of `nestedScrollPriority` .                                                                                                                                                                                                                                                                                                                                                                           | `enum(self,parent,none)` | `Android` |
+| nestedScrollTopPriority | Nested scroll event that set priority of direction **from bottom to top**, which will overwrite corresponding value of `nestedScrollPriority`. `Minimum supported version 2.16.0.`                                                                                                                                                                                                                                                                                                                                         | `enum(self,parent,none)` | `Android` |
+| nestedScrollRightPriority | Nested scroll event that set priority of direction **from left to right**, which will overwrite corresponding value of `nestedScrollPriority`.`Minimum supported version 2.16.0.`                                                                                                                                                                                                                                                                                                                                | `enum(self,parent,none)` | `Android` |
+| nestedScrollBottomPriority | Nested scroll event that set priority of direction **from top to bottom**, which will overwrite corresponding value of `nestedScrollPriority`. `Minimum supported version 2.16.0.`                                                                                                                                                                                                                                                                                                                                         | `enum(self,parent,none)` | `Android` |
+
+* Attributes meaning of nestedScrollPriority: 
+
+  * `self`(default value): the current component takes priority, the scroll event will be consumed by the current component first, and the rest will be passed to the parent component for consumption;
+
+  * `parent`: the parent component takes priority, the scroll event will be consumed by the parent component first, and the rest will be consumed by the current component;
+
+  * `none`: nested scrolling is not allowed, scroll events will not be dispatched to the parent component.
 
 ---
 
@@ -95,11 +108,11 @@ This component is mapped to the View component, and the container can be used to
 
 > This parameter is applicable only to overflow-y/x: scroll
 
-`(x: number, y: number, duration: boolean) => void` Scroll to the specified X, Y offset, and the third parameter is whether to enable smooth scrolling animation.
+`(x: number, y: number, duration: number) => void` Scroll to the specified X, Y offset, and the third parameter is the duration of scrolling animation.
 
 > * x: number - X offset
 > * y: number - Y offset
-> * duration: number | boolean - The scroll time is in milliseconds. Default: 1000ms. False: 0ms
+> * duration: number - The scroll time is in milliseconds. Default: 1000ms.
 
 
 ### setPressed
@@ -148,9 +161,9 @@ Embedded web page container.
 
 | Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| load           | Called when the web page is successfully loaded | `(object: { url:string }) => void`    | `Android、iOS、Web-Renderer`     |
-| loadStart           | Called when the web page starts loading | `(object: { url:string }) => void`    | `Android、iOS、Web-Renderer`     |
-| loadEnd           | Called when the page ends loading | `(object: { url:string }) => void`    | `Android、iOS、Web-Renderer`     |
+| load           | Called when the web page is successfully loaded | `(object: { url: string }) => void`    | `Android、iOS、Web-Renderer`     |
+| loadStart           | Called when the web page starts loading | `(object: { url: string }) => void`    | `Android、iOS、Web-Renderer`     |
+| loadEnd           | Called when the page ends loading (`success` and `error` parameters are available only on `Android` and `iOS` since version `2.15.3`) | `(object: { url: string, success: boolean, error: string }) => void` | `Android、iOS、Web-Renderer`     |
 
 ---
 
@@ -181,17 +194,17 @@ Image component, same as browser.
 
 ## Events
 
-| Event Name          | Description                                                         | Type                                      | Supported Platforms |
-| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| layout      | Called when an element is mounted or the layout changes. The argument is: `nativeEvent: { layout: { x, y, width, height } }`, where `x` and `y` are coordinates relative to the parent element | `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| load        | Called when the web page is successfully loaded                | `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| loadStart   | Called when the web page starts loading | `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| loadEnd     | After loading, whether it successes or nor, this callback function is called with or without success    | `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| error       | Called when loading errors occur.| `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| progress    | In the process of loading calls, parameters `nativeEvent: { loaded: number, total: number }`, `loaded` indicate the size of the loading image, `total` indicates the total size of the image.                                    | `iOS`    |
-| touchstart  | Called when screen touch starts, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS、Web-Renderer`    |
-| touchmove   | Called when screen touch moves, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS、Web-Renderer`    |
-| touchend    | Called when screen touch ends, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS、Web-Renderer`    |
+| Event Name          | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Type                                      | Supported Platforms |
+| ------------- |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ----------------------------------------- | -------- |
+| layout      | Called when an element is mounted or the layout changes. The argument is: `nativeEvent: { layout: { x, y, width, height } }`, where `x` and `y` are coordinates relative to the parent element                                                                                                                                                                                                                                                                                                          | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| load        | Called when the image is successfully loaded. Argument will be returned after version `2.16.0`, which is `evt: { width: number, height: number, url: string }`                                                                                                                                                                                                                                                                                                                                          | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| loadStart   | Called when the image starts loading                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| loadEnd     | After loading, whether it successes or nor, this callback function is called with or without success                                                                                                                                                                                                                                                                                                                                                                                                    | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| error       | Called when loading errors occur.                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| progress    | In the process of loading calls, parameters `nativeEvent: { loaded: number, total: number }`, `loaded` indicate the size of the loading image, `total` indicates the total size of the image.                                                                                                                                                                                                                                                                                                           | `iOS`    |
+| touchstart  | Called when screen touch starts, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen.                                                                                                                                                                                                                                                    | `Function`                                | `Android、iOS、Web-Renderer`    |
+| touchmove   | Called when screen touch moves, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen.                                                                                                                                                                                                                                                     | `Function`                                | `Android、iOS、Web-Renderer`    |
+| touchend    | Called when screen touch ends, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen.                                                                                                                                                                                                                                                      | `Function`                                | `Android、iOS、Web-Renderer`    |
 | touchcancel | Called when screen touch cancels. When a system event interrupts the touch screen when the user touches the screen, such as an incoming phone call, a component change (e.g., set to hidden), or a sliding gesture of another component, this function will receive a callback. The minimum supported version is 2.6.2. The parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY`  respectively represent the absolute position of the click on the screen. | `Function`                                | `Android、iOS、Web-Renderer`    |
 
 ---
@@ -276,7 +289,7 @@ Please refer to the Android development documentation for details.
 | focus | Called when the text box is focused. | `Function` | `Android、iOS` |
 | change          | Called when the contents of the text box change. The changed text is passed as a parameter. | `Function`                                                   | `Android、iOS、Web-Renderer`     |
 | keyboardWillShow    | Called when the input keyboard pops-up, the return value contains the keyboard height `keyboardHeight`, style such as `{keyboardHeight: 260 }`| `Function`                                                   | `Android、iOS`     |
-| keyboardWillHide     | Called when hiding input keyboard.| `Function`                                                   | `Android`     |
+| keyboardWillHide     | Called when hiding input keyboard. `Supported from version 2.16.0 on iOS`| `Function`                                                   | `Android、iOS`     |
 | endEditing          | Called when the text input is complete.    | `Function`                                                   | `Android、iOS、Web-Renderer`     |
 | layout              |  Called when an element is mounted or the layout changes. The argument is: `nativeEvent: { layout: { x, y, width, height } }`, where `x` and `y` are coordinates relative to the parent element | `Function`                                                   | `Android、iOS、Web-Renderer`     |
 | selectionChange     | Called when the range of the input box selection text is changed.The style of the return parameters such as `{nativeEvent: { selection: { start, end } } }` | `Function`                                                   | `Android、iOS、Web-Renderer`     |
@@ -346,15 +359,28 @@ Hippy's key features, high performance reusable list components, on the native s
 | initialContentOffset  | The initial offset value. In the list of initialization can specify the scroll distance, avoid flashing caused by series method of scrollT after oinitialization. Android supports after version ` 2.8.0 `  | `number`  | `Android、iOS、Web-Renderer` |
 | bounces | Whether to open the rebound effect, default `true` | `boolean`                                                  | `iOS`    |
 | overScrollEnabled | Whether to open the rebound effect, default `true` | `boolean`                                                  | `Android`    |
-| rowShouldSticky  | Sets whether `ul` needs to turn on the hover ability, used in conjunction with `li` 's `sticky`. `default: false` | `boolean`  | `Android、iOS、Web-Renderer`
+| rowShouldSticky  | Sets whether `ul` needs to turn on the hover ability, used in conjunction with `li` 's `sticky`. `default: false` | `boolean`  | `Android、iOS、Web-Renderer`|
 | scrollEnabled    | Whether the slide function is on.`default: true` | `boolean` | `Android、iOS、Web-Renderer` |
 | scrollEventThrottle   | Specify the sliding event callback frequency, the incoming value specifies how many milliseconds (ms) components will call a `onScroll` callback event, the default is 200 ms | `number`                                                    | `Android、 iOS、Web-Renderer`    |
 | showScrollIndicator   | Whether scroll bars are displayed. `default: true` | `boolean`                                                   | `iOS`    |
 | preloadItemNumber     | Specifies the number of rows that will call the `endReached` function when the list scrolls.| `number` | `Android、iOS、Web-Renderer` |
-| exposureEventEnabled | The switch to enable Android exposure ability, if you want to use the `appear` and `disappear` related events, Android needs to set the switch (iOS need not set), `default: true` | `boolean` | `Android`
+| exposureEventEnabled | The switch to enable Android exposure ability, if you want to use the `appear` and `disappear` related events, Android needs to set the switch (iOS need not set), `default: true` | `boolean` | `Android`|
 | endReached | When all the data has been rendered and the list is scrolled to the last one, the `endReached` callback is called. | `Function`                                                  | `Android、iOS、Web-Renderer`    |
 | editable | Whether it is editable or not, set to `true` when sideslip deletion is enabled. ` minimum support version 2.9.0 `| `boolean`                                                  | `iOS`    |
 | delText | Sideslip to delete text. `minimum support version 2.9.0` | `string`                                                  | `iOS`    |
+| nestedScrollPriority* | Nested scroll event processing priority, `default:self`. Equivalent to setting `nestedScrollLeftPriority`, `nestedScrollTopPriority`, `nestedScrollRightPriority` and  `nestedScrollBottomPriority` at the same time. `Minimum supported version 2.16.0.`                                                                                                                                                                                                                                                                 | `enum(self,parent,none)` | `Android` |
+| nestedScrollLeftPriority | Nested scroll event that set priority of direction **from right to left**, which will overwrite corresponding value of `nestedScrollPriority` .                                                                                                                                                                                                                                                                                                                                                                           | `enum(self,parent,none)` | `Android` |
+| nestedScrollTopPriority | Nested scroll event that set priority of direction **from bottom to top**, which will overwrite corresponding value of `nestedScrollPriority`. `Minimum supported version 2.16.0.`                                                                                                                                                                                                                                                                                                                                         | `enum(self,parent,none)` | `Android` |
+| nestedScrollRightPriority | Nested scroll event that set priority of direction **from left to right**, which will overwrite corresponding value of `nestedScrollPriority`.`Minimum supported version 2.16.0.`                                                                                                                                                                                                                                                                                                                                | `enum(self,parent,none)` | `Android` |
+| nestedScrollBottomPriority | Nested scroll event that set priority of direction **from top to bottom**, which will overwrite corresponding value of `nestedScrollPriority`. `Minimum supported version 2.16.0.`                                                                                                                                                                                                                                                                                                                                         | `enum(self,parent,none)` | `Android` |
+
+* Attributes meaning of nestedScrollPriority: 
+
+  * `self`(default value): the current component takes priority, the scroll event will be consumed by the current component first, and the rest will be passed to the parent component for consumption;
+
+  * `parent`: the parent component takes priority, the scroll event will be consumed by the parent component first, and the rest will be consumed by the current component;
+
+  * `none`: nested scrolling is not allowed, scroll events will not be dispatched to the parent component.
 
 ## Events
 
@@ -399,15 +425,15 @@ ul's child nodes, the minimum granularity of the native layer node recycling and
 
 > When setting `ul`: `horizontal=true` When enabling horizontal infinite lists, explicitly set the `li` style width.
 
-| Props                  | Description                                                         | Type                                                        | Supported Platforms |
-| --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
-| type            | Specify a function, return the corresponding entry destination type (return the natural number of Number type, and the default value is 0). List will reuse the entries of the same type, so reasonable type splitting can improve the performance of List. `Note: item components of the same type may not go through the complete component creation life cycle due to reuse.` | `number`              | `Android、iOS、Web-Renderer`    |
-| key             | Specify a function, and return the corresponding bar to the key value. See [Vue Official Document](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS、Web-Renderer`    |
-| sticky       | Whether the corresponding item needs to use the hover effect (scroll to the top, will hover at the top of the ListView, won't roll out of the screen), with `ul` `rowShouldSticky`| `boolean`                                | `Android、iOS、Web-Renderer`
-| appear       | Called when a `li` node slides into the screen (exposure), the parameter returns the index value corresponding to the `li` node of the exposure. | `(index) => any` | `Android、iOS、Web-Renderer` |
-| disappear       | Called when a `li` node slides away from the screen, and the parameter returns the index value corresponding to the `li` node that left. | `(index) => any` | `Android、iOS、Web-Renderer` |
-| willAppear       | Called when at least one pixel of the `li` node slides into the screen (exposure), the input parameter returns the index value corresponding to the `li` node of the exposure. `minimum support version 2.3.0` | `(index) => any` | `Android、iOS` |
-| willDisappear       | Called when a `li` node slides off the screen by at least one pixel. The parameter returns the index of the `li` node that left. `Minimum support version 2.3.0` | `(index) => any` | `Android、iOS` |
+| Props         | Description                                                                                                                                                                                                                                                                                                                                                                      | Type             | Supported Platforms        |
+|---------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------|----------------------------|
+| type          | Specify a function, return the corresponding entry destination type (return the natural number of Number type, and the default value is 0). List will reuse the entries of the same type, so reasonable type splitting can improve the performance of List. `Note: item components of the same type may not go through the complete component creation life cycle due to reuse.` | `number`         | `Android、iOS、Web-Renderer` |
+| key           | Specify a function, and return the corresponding bar to the key value. See [Vue Official Document](//cn.vuejs.org/v2/guide/list.html)                                                                                                                                                                                                                                            | `string`         | `Android、iOS、Web-Renderer` |
+| sticky        | Whether the corresponding item needs to use the hover effect (scroll to the top, will hover at the top of the ListView, won't roll out of the screen), with `ul` `rowShouldSticky`                                                                                                                                                                                               | `boolean`        | `Android、iOS、Web-Renderer` |
+| appear        | Called when a `li` node slides into the screen (exposure), the parameter returns the index value corresponding to the `li` node of the exposure.                                                                                                                                                                                                                                 | `(index) => any` | `Android、iOS、Web-Renderer` |
+| disappear     | Called when a `li` node slides away from the screen, and the parameter returns the index value corresponding to the `li` node that left.                                                                                                                                                                                                                                         | `(index) => any` | `Android、iOS、Web-Renderer` |
+| willAppear    | Called when at least one pixel of the `li` node slides into the screen (exposure), the input parameter returns the index value corresponding to the `li` node of the exposure. `minimum support version 2.3.0`                                                                                                                                                                   | `(index) => any` | `Android、iOS`              |
+| willDisappear | Called when a `li` node slides off the screen by at least one pixel. The parameter returns the index of the `li` node that left. `Minimum support version 2.3.0`                                                                                                                                                                                                                 | `(index) => any` | `Android、iOS`              |
 
 ---
 
@@ -434,6 +460,7 @@ Display text, but because there is no `display: Inline` display mode, the defaul
 | opacity       | Configure the transparency of the `View`, at the same time will affect the transparency of the child nodes.             | `number`                                  | `Android、iOS、Web-Renderer`    |
 | ellipsizeMode* | When set the `numberOfLines` value, this parameter specifies how the string is truncated. So when using `ellipsizeMode`, `numberOfLines` value must be specified at the same time. `default: tail` | `enum(head, middle, tail, clip)` | `Android( minimum supported version 2.14.1, earlier version only supported tail)、iOS(full supported)、hippy-react-web(clip、ellipsis)` |
 | break-strategy* | Set text break strategy on Android API 23 and above. `default: simple` | `enum(simple, high_quality, balanced)` | `Android(minimum supported version 2.14.2)` |
+| verticalAlign* | Sets the alignment strategy when text components are nested within text components or image components are nested within text components. `default: baseline` | `enum(top, middle, baseline, bottom)` | `Android, iOS (minimum supported version 2.16.0)` |
 
 * The meaning of parameters of ellipsizeMode：
   * `clip` - Texts that exceed the specified number of lines will be truncated directly, "..." will not shows;(Android  2.14.1+, iOS full supported)
@@ -444,6 +471,43 @@ Display text, but because there is no `display: Inline` display mode, the defaul
   * `simple`(default value): strategy indicating simple line breaking, automatic hyphens are not added, and modifying text generally doesn't affect the layout before it (which yields a more consistent user experience when editing), but layout may not be the highest quality;
   * `high_quality`: strategy indicating high quality line breaking, including automatic hyphenation and doing whole-paragraph optimization of line breaks;
   * `balanced`: strategy indicating balanced line breaking, the breaks are chosen to make all lines as close to the same length as possible, including automatic hyphenation.
+* Parameter meaning of verticalAlign:
+  * `top`: line top alignment
+  * `middle`: center alignment
+  * `baseline`: baseline alignment
+  * `bottom`: line bottom alignment
+
+## whitespace handler
+
+Before `2.15.3`, Hippy default whitespace handling is to `trim`, which will remove leading / ending whitespace characters(including special `&nbsp;`).
+
+After `2.15.3`, setting `Vue.config.trimWhitespace` to `false` will disable `trim`. Other handling depends on [Vue-Loader compilerOptions](https://cn.vuejs.org/api/application.html#app-config-compileroptions-whitespace) setting.
+
+!> P.S.：Vue2.x compilerOptions.whitespace default value is `preserve`
+
+```javascript
+// entry file
+// trimWhitespace default is  true
+Vue.config.trimWhitespace = false; // close trim handler
+
+// webpack script
+rules: [
+  {
+    test: /\.vue$/,
+    use: [
+      {
+        loader: vueLoader,
+        options: {
+          compilerOptions: {
+            // whitespace handler, default is 'preserve'
+            whitespace: 'condense',
+          },
+        },
+      },
+    ],
+  },
+]
+```
 
 ---
 

@@ -1,5 +1,5 @@
 * 起步
-  * [Hippy 概述](/README?id=hippy-%e6%a6%82%e8%bf%b0)
+  * [Hippy 概述](/index?id=hippy-%e6%a6%82%e8%bf%b0)
   * [开始接入](guide/integration.md)
   * [架构](structure/introduction.md)
   * [调试](guide/debug.md)
@@ -25,6 +25,7 @@
   * [节点缓存](android/dom-cache.md)
   * [ECMAScript 与 Java 类型映射](android/type-mapping.md)
   * [V8 API](android/v8-api.md)
+  * [Snapshot](android/snapshot.md)
 
 * iOS
   * [iOS 集成](ios/integration.md)
@@ -56,6 +57,7 @@
   * [模块](hippy-vue/vue-native.md)
   * [样式](hippy-vue/style.md)
   * [事件](hippy-vue/native-event.md)
+  * [手势系统](hippy-vue/gesture.md)
   * [自定义组件和模块](hippy-vue/customize.md)
   * [路由](hippy-vue/router.md)
   * [转 Web](hippy-vue/web.md)

@@ -23,9 +23,10 @@ import { isString } from '@vue/shared';
 
 import { type HippyElement } from '../runtime/element/hippy-element';
 import type { NeedToTyped } from '../types';
+import { isNullOrUndefined } from '../util';
 
 // type of style
-type Style = string | Record<string, string | string[]> | null;
+type Style = string | Record<string, string | string[]> | null | undefined;
 
 /**
  * set the Style property
@@ -42,27 +43,22 @@ export function patchStyle(
   const el = rawEl;
   const batchedStyles: NeedToTyped = {};
 
-  if (!next) {
+  if (prev && !next) {
     // clear style
     el.removeStyle();
   } else if (isString(next)) {
     // in hippy, the styles are all array or Object types, and if it is a string, thrown an exception
     throw new Error('Style is Not Object');
-  } else {
+  } else if (next) {
     // the new style is an array or Object, apply the new style to all
     // style is an array, so we do not update native instantly, we will update at the end
     Object.keys(next).forEach((key) => {
-      batchedStyles[camelize(key)] = next[key];
+      const value = next[key];
+      if (!isNullOrUndefined(value)) {
+        batchedStyles[camelize(key)] = value;
+      }
     });
-
-    // old style if exists and is an array, traverse to remove
-    if (prev && !isString(prev)) {
-      Object.keys(prev).forEach((key) => {
-        if (next[key] === null) {
-          batchedStyles[camelize(key)] = '';
-        }
-      });
-    }
+    el.removeStyle(true);
     // update native node
     el.setStyles(batchedStyles);
   }

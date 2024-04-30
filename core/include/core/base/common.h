@@ -31,6 +31,10 @@
 namespace hippy {
 namespace base {
 
+constexpr int KB = 1024;
+constexpr int MB = KB * 1024;
+constexpr int GB = MB * 1024;
+constexpr char kUseSnapshot[] = "USE_SNAPSHOT";
 constexpr char kVMCreateCBKey[] = "VM_CREATED";
 constexpr char kContextCreatedCBKey[] = "CONTEXT_CREATED";
 constexpr char KScopeInitializedCBKey[] = "SCOPE_INITIALIZED";

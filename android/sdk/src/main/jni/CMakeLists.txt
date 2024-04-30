@@ -45,6 +45,9 @@ if (${ANDROID_STL} STREQUAL "c++_static")
       "-Wl,--exclude-libs,libc++_static.a"
       "-Wl,--exclude-libs,libc++abi.a")
 endif ()
+# enable Safe ICF (Identical Code Folding) to optimize binary size
+target_link_options(${PROJECT_NAME} PRIVATE
+      "-Wl,--icf=safe")
 # endregion
 
 # region core
@@ -68,7 +71,6 @@ set(SOURCE_SET
     src/bridge/java2js.cc
     src/bridge/js2java.cc
     src/bridge/runtime.cc
-    src/bridge/serializer.cc
     src/jni/convert_utils.cc
     src/jni/exception_handler.cc
     src/jni/java_turbo_module.cc

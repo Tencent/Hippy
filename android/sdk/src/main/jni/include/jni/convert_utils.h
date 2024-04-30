@@ -50,7 +50,6 @@ class ConvertUtils {
  public:
   using Ctx = hippy::napi::Ctx;
   using CtxValue = hippy::napi::CtxValue;
-  using TurboEnv = hippy::napi::TurboEnv;
 
   static bool Init();
 
@@ -60,50 +59,51 @@ class ConvertUtils {
       const std::string &method_signature);
 
   static std::tuple<bool, std::string, std::shared_ptr<JNIArgs>> ConvertJSIArgsToJNIArgs(
-      TurboEnv &turbo_env,
+      const std::shared_ptr<Ctx>& ctx,
       const std::string &module_name,
       const std::string &method_name,
       const std::vector<std::string> &method_arg_types,
       const std::vector<std::shared_ptr<CtxValue>> &arg_values);
 
   static std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ConvertMethodResultToJSValue(
-      TurboEnv &turbo_env,
-      const jobject &obj,
+      const std::shared_ptr<Ctx>& ctx,
+      const std::shared_ptr<JavaRef> &obj,
       const MethodInfo &method_info,
-      const jvalue *args);
+      const jvalue *args,
+      const std::shared_ptr<Scope>& scope);
 
-  static std::tuple<bool, std::string, jobject> ToJObject(TurboEnv &turbo_env,
+  static std::tuple<bool, std::string, jobject> ToJObject(const std::shared_ptr<Ctx>& ctx,
                                                           const std::shared_ptr<CtxValue> &value);
 
   static std::tuple<bool, std::string, jobject> ToHippyMap(
-      TurboEnv &turbo_env,
+      const std::shared_ptr<Ctx>& ctx,
       const std::shared_ptr<CtxValue> &value);
 
   static std::tuple<bool, std::string, jobject> ToHippyArray(
-      TurboEnv &turbo_env,
+      const std::shared_ptr<Ctx>& ctx,
       const std::shared_ptr<CtxValue> &value);
 
   static std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ToJsValueInArray(
-      TurboEnv &turbo_env,
+      const std::shared_ptr<Ctx>& ctx,
       jobject array,
       int index);
 
   static std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ToJsArray(
-      TurboEnv &turbo_env,
+      const std::shared_ptr<Ctx>& ctx,
       jobject array);
 
   static std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ToJsMap(
-      TurboEnv &turbo_env,
+      const std::shared_ptr<Ctx>& ctx,
       jobject map);
 
   static std::tuple<bool, std::string, bool> HandleBasicType(
-      TurboEnv &turbo_env,
+      const std::shared_ptr<Ctx>& ctx,
       const std::string &type,
       jvalue &j_args,
       const std::shared_ptr<CtxValue> &value);
 
   static std::tuple<bool, std::string, bool> HandleObjectType(
-      TurboEnv &turbo_env,
+      const std::shared_ptr<Ctx>& ctx,
       const std::string &module_name,
       const std::string &method_name,
       const std::string &type,
@@ -115,9 +115,10 @@ class ConvertUtils {
       const std::string &method_map_str);
 
   static std::shared_ptr<CtxValue> ToHostObject(
-      TurboEnv &turbo_env,
+      const std::shared_ptr<Ctx>& ctx,
       jobject &j_obj,
-      std::string name);
+      std::string name,
+      std::shared_ptr<Scope> scope);
 };
 
 static jclass hippy_array_clazz;

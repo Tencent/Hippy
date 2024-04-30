@@ -29,8 +29,8 @@
 #include "core/base/task.h"
 #include "core/modules/module_base.h"
 #include "core/napi/callback_info.h"
-#include "core/napi/js_native_api.h"
-#include "core/napi/js_native_api_types.h"
+#include "core/napi/js_ctx.h"
+#include "core/napi/js_ctx_value.h"
 
 class JavaScriptTask;
 class JavaScriptTaskRunner;
@@ -40,10 +40,12 @@ class TimerModule : public ModuleBase {
   TimerModule();
   ~TimerModule();
 
-  void SetTimeout(const hippy::napi::CallbackInfo& info);
-  void ClearTimeout(const hippy::napi::CallbackInfo& info);
-  void SetInterval(const hippy::napi::CallbackInfo& info);
-  void ClearInterval(const hippy::napi::CallbackInfo& info);
+  void SetTimeout(const hippy::napi::CallbackInfo& info, void* data);
+  void ClearTimeout(const hippy::napi::CallbackInfo& info, void* data);
+  void SetInterval(const hippy::napi::CallbackInfo& info, void* data);
+  void ClearInterval(const hippy::napi::CallbackInfo& info, void* data);
+
+  virtual std::shared_ptr<CtxValue> BindFunction(std::shared_ptr<Scope> scope, std::shared_ptr<CtxValue> rest_args[]) override;
 
  private:
   using TaskId = hippy::base::Task::TaskId;

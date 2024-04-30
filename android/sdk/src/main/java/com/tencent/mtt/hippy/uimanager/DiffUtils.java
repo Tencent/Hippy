@@ -164,61 +164,32 @@ public class DiffUtils {
       Object fromValue = from.get(fromKey);
       Object toValue = to.get(fromKey);
       if (fromValue instanceof Boolean) {
-        boolean fromBool = (boolean) fromValue;
-        if (toValue != null && fromBool == (boolean) toValue) {
-          LogUtils.d("DiffUtils", "don't do anything for bool value");
-        } else {
+        if (!equalsBoolean((Boolean) fromValue, toValue)) {
           updateProps.pushObject(fromKey, toValue);
         }
       } else if (fromValue instanceof Number) {
-        boolean isSame = false;
-        double fromDoubleValue = ((Number) fromValue).doubleValue();
-        if (toValue instanceof Number) {
-          double toDoubleValue = ((Number) toValue).doubleValue();
-          isSame = (fromDoubleValue == toDoubleValue);
-        }
-        // if toValue is null, push null to trigger default value
-        if (!isSame) {
+        if (!equalsNumber((Number) fromValue, toValue)) {
           updateProps.pushObject(fromKey, toValue);
         }
       } else if (fromValue instanceof String) {
-        if (toValue != null && TextUtils.equals(fromValue.toString(), toValue.toString())) {
-          LogUtils.d("DiffUtils", "don't do anything for same value");
-        } else {
+        if (toValue == null || !equalsString((String) fromValue, toValue.toString())) {
           updateProps.pushObject(fromKey, toValue);
         }
       } else if (fromValue instanceof HippyArray) {
-        if (toValue instanceof HippyArray) {
-          HippyArray diffResult = diffArray((HippyArray) fromValue, (HippyArray) toValue,
-              diffLevel + 1);
-          //tintColor复用的时候必须要强制更新
-          if (fromKey.equals("tintColors") || fromKey.equals("tintColor")) {
-            diffResult = (HippyArray) toValue;
-          }
-          //这里diffResult == null标识属性没有更新
-          if (diffResult != null /* && diffResult.size() > 0*/) {
-            updateProps.pushObject(fromKey, toValue);
-          }
-        } else { // toValue(Array)没有的时候，要给个默认值
-          updateProps.pushObject(fromKey, null);
+        //tintColor复用的时候必须要强制更新
+        if (fromKey.equals("tintColors") || fromKey.equals("tintColor") ||
+            !equalsArray((HippyArray) fromValue, toValue)) {
+          updateProps.pushObject(fromKey, toValue);
         }
       } else if (fromValue instanceof HippyMap) {
-        if (toValue instanceof HippyMap) {
-
-          HippyMap diffResult = diffProps((HippyMap) fromValue, (HippyMap) toValue, diffLevel + 1);
-          if (diffResult != null && diffResult.size() > 0) {
-            if (diffLevel == 0 && fromKey.equals(NodeProps.STYLE)) {
-              updateProps.pushObject(fromKey, diffResult);
-            } else {
-              updateProps.pushObject(fromKey, toValue);
-            }
+        if (diffLevel == 0 && fromKey.equals(NodeProps.STYLE)) {
+          if (!(toValue instanceof HippyMap)) {
+            toValue = new HippyMap();
           }
-        } else if (diffLevel == 0 && fromKey.equals(NodeProps.STYLE)) {
-          //style is null
-          HippyMap diffResult = diffProps((HippyMap) fromValue, new HippyMap(), diffLevel + 1);
+          HippyMap diffResult = diffProps((HippyMap) fromValue, (HippyMap) toValue, diffLevel + 1);
           updateProps.pushMap(fromKey, diffResult);
-        } else { // toValue没有的时候，要给个默认值
-          updateProps.pushObject(fromKey, null);
+        } else if (!equalsMap((HippyMap) fromValue, toValue)) {
+          updateProps.pushObject(fromKey, toValue);
         }
       }
     }
@@ -240,60 +211,76 @@ public class DiffUtils {
     return updateProps;
   }
 
-
-  private static HippyArray diffArray(HippyArray fromValue, HippyArray toValue, int diffLevel) {
-
-    if (fromValue.size() != toValue.size()) {
-      return toValue;
-    }
-    int size = fromValue.size();
-
-    for (int i = 0; i < size; i++) {
-      Object from = fromValue.getObject(i);
-      Object to = toValue.getObject(i);
-      // 这里默认from & to的类型相同
-      if (from instanceof Boolean) {
-        if ((boolean) from != (boolean) to) {
-          return toValue;
-        }
-      } else if (from instanceof Number) {
-
-        boolean isSame = false;
-
-        double fromDoubleValue = ((Number) from).doubleValue();
-        if (to instanceof Number) {
-          double toDoubleValue = ((Number) to).doubleValue();
-          isSame = (fromDoubleValue == toDoubleValue);
-        }
-        // if to is null, push null to trigger default value
-
-        if (!isSame) {
-          return toValue;
-        }
-
-      } else if (from instanceof String) {
-        if (!TextUtils.equals((String) from, (String) to)) {
-          return toValue;
-        }
-      } else if (from instanceof HippyArray) {
-        if (to instanceof HippyArray) {
-          HippyArray diffResult = diffArray((HippyArray) from, (HippyArray) to, diffLevel);
-          if (diffResult != null) {
-            return toValue;
-          }
-        }
-      } else if (from instanceof HippyMap) {
-        if (to instanceof HippyMap) {
-          HippyMap diffResult = diffProps((HippyMap) from, (HippyMap) to, diffLevel);
-          if (diffResult != null) {
-            return toValue;
-          }
-        }
-      }
-    }
-    return null;
+  private static boolean equalsBoolean(Boolean from, Object to) {
+      return from.equals(to);
   }
 
+  private static boolean equalsNumber(Number from, Object to) {
+      return to instanceof Number && from.doubleValue() == ((Number) to).doubleValue();
+  }
+
+  private static boolean equalsString(String from, Object to) {
+      return from.equals(to);
+  }
+
+  private static boolean equalsObject(Object from, Object to) {
+      if (from == to) {
+          return true;
+      }
+      if (from instanceof Boolean) {
+          return equalsBoolean((Boolean) from, to);
+      } else if (from instanceof Number) {
+          return equalsNumber((Number) from, to);
+      } else if (from instanceof String) {
+          return equalsString((String) from, to);
+      } else if (from instanceof HippyArray) {
+          return equalsArray((HippyArray) from, to);
+      } else if (from instanceof HippyMap) {
+          return equalsMap((HippyMap) from, to);
+      }
+      return false;
+  }
+
+  private static boolean equalsArray(HippyArray from, Object to) {
+    if (from == to) {
+      return true;
+    }
+    int size = from.size();
+    if (!(to instanceof HippyArray) || size != ((HippyArray) to).size()) {
+      return false;
+    }
+
+    for (int i = 0; i < size; i++) {
+      Object fromValue = from.getObject(i);
+      Object toValue = ((HippyArray) to).getObject(i);
+      if (!equalsObject(fromValue, toValue)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private static boolean equalsMap(HippyMap from, Object to) {
+    if (from == to) {
+      return true;
+    }
+    if (!(to instanceof HippyMap) || from.size() != ((HippyMap) to).size()) {
+      return false;
+    }
+    for (String fromKey : from.keySet()) {
+      Object fromValue = from.get(fromKey);
+      Object toValue = ((HippyMap) to).get(fromKey);
+      if (!equalsObject(fromValue, toValue)) {
+        return false;
+      }
+      if (fromValue == null && !((HippyMap) to).containsKey(fromKey)) {
+        // since null could be either a null value or a non-existent key,
+        // let's confirm that it's the former case.
+        return false;
+      }
+    }
+    return true;
+  }
 
   public static class CreatePatch extends Patch {
 

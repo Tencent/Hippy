@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { HippyWebModule } from '../base/base-unit';
+import { HippyWebModule } from '../base';
 
 export const getTurboModule = <T extends HippyWebModule>(moduleName): T | undefined => {
   const { engine } = Hippy.web;

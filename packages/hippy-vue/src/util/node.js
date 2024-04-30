@@ -116,17 +116,7 @@ function cancelIdleCallback(id) {
 function isStyleMatched(matchedSelector, targetNode) {
   if (!isScopedEnabled()) return true;
   if (!targetNode || !matchedSelector) return false;
-  const nodeScopeId = targetNode.styleScopeId;
-  // set scopeId as element node attribute for style matching
-  if (nodeScopeId) {
-    targetNode.attributes[nodeScopeId] = true;
-  }
-  const isMatched = matchedSelector.match(targetNode);
-  // delete scopeId attr after selector matching check
-  if (nodeScopeId) {
-    delete targetNode.attributes[nodeScopeId];
-  }
-  return isMatched;
+  return matchedSelector.match(targetNode);
 }
 
 export {

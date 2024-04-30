@@ -53,8 +53,8 @@ export default {
       console.log('onLoadStart', url);
     },
     onLoadEnd(evt) {
-      const { url } = evt;
-      console.log('onLoadEnd', url);
+      const { url, success, error } = evt;
+      console.log('onLoadEnd', url, success, error);
     },
     // Web compatible
     onKeyUp(evt) {

@@ -80,7 +80,7 @@ public class BackgroundDrawable extends BaseDrawable
 	{
 		mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 	}
-  
+
   @Override
   public void setBounds(int left, int top, int right, int bottom)
   {
@@ -168,7 +168,7 @@ public class BackgroundDrawable extends BaseDrawable
 			mBitmapCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 
 			drawBGShadow(mBitmapCanvas);
-      
+
 			if (!hasBorderRadius)
 			{
 				drawBG(mBitmapCanvas);
@@ -183,7 +183,7 @@ public class BackgroundDrawable extends BaseDrawable
 		else
 		{
 			drawBGShadow(canvas);
-		  
+
 			if (!hasBorderRadius)
 			{
 				drawBG(canvas);
@@ -200,7 +200,7 @@ public class BackgroundDrawable extends BaseDrawable
 	}
 
 	public void setGradientColors(ArrayList<Integer> colors) {
-		int size = colors.size();
+		int size = colors == null ? 0 : colors.size();
 		if (size > 0) {
 			gradientColors = new int[size];
 			for (int i = 0; i < size; i++) {
@@ -212,7 +212,7 @@ public class BackgroundDrawable extends BaseDrawable
 	}
 
 	public void setGradientPositions(ArrayList<Float> positions) {
-		int size = positions.size();
+		int size = positions == null ? 0 : positions.size();
 		if (size > 0) {
 			int lastPos = 0;
 			float lastValue = 0.0f;
@@ -423,7 +423,7 @@ public class BackgroundDrawable extends BaseDrawable
 	{
 		// updateStyle border with radius path
 		updatePath();
-
+		assert mPathForBorderRadius != null;
 		// draw bg color
 		boolean useGradientPaint = initGradientPaint();
 		if (useGradientPaint) {
@@ -801,19 +801,15 @@ public class BackgroundDrawable extends BaseDrawable
 
 	private void updatePath()
 	{
-		if (!mNeedUpdateBorderPath)
-		{
-			return;
-		}
-		mNeedUpdateBorderPath = false;
-		if (mPathForBorderRadius == null)
-		{
+		if (mPathForBorderRadius == null) {
 			mPathForBorderRadius = new Path();
 			mTempRectForBorderRadius = new RectF();
 		}
-
+		if (!mNeedUpdateBorderPath) {
+			return;
+		}
+		mNeedUpdateBorderPath = false;
 		mPathForBorderRadius.reset();
-
 		mTempRectForBorderRadius.set(mRect);
 		float fullBorderWidth = mBorderWidthArray == null ? 0 : mBorderWidthArray[0];
 		if (fullBorderWidth > 1)

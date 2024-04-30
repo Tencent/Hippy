@@ -22,7 +22,6 @@ import { HippyCommentElement } from '../element/hippy-comment-element';
 import { HippyElement } from '../element/hippy-element';
 import { HippyInputElement } from '../element/hippy-input-element';
 import { HippyListElement } from '../element/hippy-list-element';
-import { HippyListItemElement } from '../element/hippy-list-item-element';
 import { HippyNode, NodeType } from '../node/hippy-node';
 import { HippyText } from '../text/hippy-text';
 
@@ -47,16 +46,13 @@ export class HippyDocument extends HippyNode {
   static createElement(tagName: string):
   | HippyElement
   | HippyInputElement
-  | HippyListElement
-  | HippyListItemElement {
+  | HippyListElement {
     switch (tagName) {
       case 'input':
       case 'textarea':
         return new HippyInputElement(tagName);
       case 'ul':
         return new HippyListElement(tagName);
-      case 'li':
-        return new HippyListItemElement(tagName);
       // use tagName to create element
       default:
         return new HippyElement(tagName);

@@ -35,14 +35,12 @@ public class HippyLinearLayoutManager extends LinearLayoutManager {
     /**
      * 无效的高度
      */
-    public static final int INVALID_HEIGHT = -1;
+    public static final int INVALID_SIZE = -1;
     private static final LayoutParams ITEM_LAYOUT_PARAMS = new LayoutParams(0, 0);
     /**
-     * 由于排版后才知道对应item的高度，topMargin和bottomMargin，所以这里缓存一下这些值
+     * 由于排版后才知道对应item的宽高，所以这里缓存一下这些值
      */
-    protected HashMap<Integer, Integer> itemHeightMaps = new HashMap<>();
-    protected HashMap<Integer, Integer> itemTopMarginMaps = new HashMap<>();
-    protected HashMap<Integer, Integer> itemBottomMarginMaps = new HashMap<>();
+    protected HashMap<Integer, Integer> itemSizeMaps = new HashMap<>();
 
     public HippyLinearLayoutManager(Context context) {
         super(context);
@@ -62,45 +60,56 @@ public class HippyLinearLayoutManager extends LinearLayoutManager {
     @Override
     public void layoutDecoratedWithMargins(@NonNull View child, int left, int top, int right, int bottom) {
         super.layoutDecoratedWithMargins(child, left, top, right, bottom);
-        cacheItemLayoutParams(bottom - top, (LayoutParams) child.getLayoutParams(), getPosition(child));
+        LayoutParams lp = (LayoutParams) child.getLayoutParams();
+        int size = mOrientation == RecyclerView.VERTICAL
+            ? bottom - top + lp.topMargin + lp.bottomMargin
+            : right - left + lp.leftMargin + lp.rightMargin;
+        cacheItemLayoutParams(size, getPosition(child));
     }
 
     /**
      * 缓存Item排版信息，缓存信息有两种来源
      * 一种是排版过程中的得到实际上屏的排版信息 {@link #layoutDecoratedWithMargins(View, int, int, int, int)}
-     * 一种是从adapter获取的item的预排版信息 {@link #getItemHeightFromAdapter(int)}
+     * 一种是从adapter获取的item的预排版信息 {@link #getItemSizeFromAdapter(int)}
      *
-     * @param height item的高度
-     * @param layoutParams 排版参数
+     * @param size item height (for vertical list) or width (for horizontal list)
      * @param position 位置
      */
-    private void cacheItemLayoutParams(int height, LayoutParams layoutParams, int position) {
-        itemBottomMarginMaps.put(position, layoutParams.bottomMargin);
-        itemTopMarginMaps.put(position, layoutParams.topMargin);
-        itemHeightMaps.put(position, height);
+    private void cacheItemLayoutParams(int size, int position) {
+        itemSizeMaps.put(position, size);
     }
 
     /**
-     * 从adapter 获取position对应的排版信息，这里不需要排版，是item预先指定的高度
+     * 从adapter 获取position对应的排版信息，这里不需要排版，是item预先指定的size
      */
-    int getItemHeightFromAdapter(int position) {
+    int getItemSizeFromAdapter(int position) {
         Adapter adapter = mRecyclerView.getAdapter();
         if (adapter instanceof ItemLayoutParams) {
             ItemLayoutParams layoutInfo = (ItemLayoutParams) adapter;
             resetLayoutParams();
             layoutInfo.getItemLayoutParams(position, ITEM_LAYOUT_PARAMS);
-            if (ITEM_LAYOUT_PARAMS.height >= 0) {
-                cacheItemLayoutParams(ITEM_LAYOUT_PARAMS.height, ITEM_LAYOUT_PARAMS, position);
-                return ITEM_LAYOUT_PARAMS.height + ITEM_LAYOUT_PARAMS.bottomMargin + ITEM_LAYOUT_PARAMS.topMargin;
+            if (mOrientation == RecyclerView.VERTICAL) {
+                if (ITEM_LAYOUT_PARAMS.height >= 0) {
+                    int size = ITEM_LAYOUT_PARAMS.height + ITEM_LAYOUT_PARAMS.bottomMargin + ITEM_LAYOUT_PARAMS.topMargin;
+                    cacheItemLayoutParams(size, position);
+                    return size;
+                }
+            } else {
+                if (ITEM_LAYOUT_PARAMS.width >= 0) {
+                    int size = ITEM_LAYOUT_PARAMS.width + ITEM_LAYOUT_PARAMS.leftMargin + ITEM_LAYOUT_PARAMS.rightMargin;
+                    cacheItemLayoutParams(size, position);
+                    return size;
+                }
             }
         }
-        return INVALID_HEIGHT;
+        return INVALID_SIZE;
     }
 
     /**
      * 清除之前的缓存数据,ITEM_LAYOUT_PARAMS 不是最终用来排版的，只是一个参数的载体
      */
     private static void resetLayoutParams() {
+        ITEM_LAYOUT_PARAMS.width = 0;
         ITEM_LAYOUT_PARAMS.height = 0;
         ITEM_LAYOUT_PARAMS.topMargin = 0;
         ITEM_LAYOUT_PARAMS.rightMargin = 0;
@@ -109,22 +118,22 @@ public class HippyLinearLayoutManager extends LinearLayoutManager {
     }
 
     /**
-     * 计算position以前（包含position）的高度，如果发现其中有一个没有缓存，那么得出来的值是无效的
+     * 计算position以前（包含position）的size，如果发现其中有一个没有缓存，那么得出来的值是无效的
      */
-    int getHeightUntilPosition(int position) {
-        int totalHeight = 0;
+    int getSizeUntilPosition(int position) {
+        int totalSize = 0;
         for (int i = 0; i <= position; i++) {
-            Integer height = itemHeightMaps.get(i);
-            if (height == null) {
-                height = getItemHeightFromAdapter(i);
+            Integer size = itemSizeMaps.get(i);
+            if (size == null) {
+                size = getItemSizeFromAdapter(i);
             }
-            if (height != null && height != INVALID_HEIGHT) {
-                totalHeight += height;
+            if (size != null && size != INVALID_SIZE) {
+                totalSize += size;
             } else {
-                return INVALID_HEIGHT;
+                return INVALID_SIZE;
             }
         }
-        return totalHeight;
+        return totalSize;
     }
 
     /**
@@ -140,8 +149,8 @@ public class HippyLinearLayoutManager extends LinearLayoutManager {
         }
         int firstVisiblePosition = findFirstVisibleItemPosition();
         View firstVisibleView = findViewByPosition(firstVisiblePosition);
-        int heightUntilPosition = getHeightUntilPosition(firstVisiblePosition);
-        if (firstVisibleView != null && heightUntilPosition != INVALID_HEIGHT) {
+        int heightUntilPosition = getSizeUntilPosition(firstVisiblePosition);
+        if (firstVisibleView != null && heightUntilPosition != INVALID_SIZE) {
             return heightUntilPosition - mOrientationHelper.getDecoratedEnd(firstVisibleView);
         }
         return super.computeVerticalScrollOffset(state);
@@ -155,10 +164,37 @@ public class HippyLinearLayoutManager extends LinearLayoutManager {
      **/
     @Override
     public int computeVerticalScrollRange(State state) {
-        int heightUntilPosition = getHeightUntilPosition(getItemCount() - 1);
-        if (heightUntilPosition != INVALID_HEIGHT) {
+        int heightUntilPosition = getSizeUntilPosition(getItemCount() - 1);
+        if (heightUntilPosition != INVALID_SIZE) {
             return heightUntilPosition;
         }
         return super.computeVerticalScrollRange(state);
+    }
+
+    @Override
+    public int computeHorizontalScrollOffset(State state) {
+        if (getChildCount() <= 0 || getItemCount() <= 0) {
+            return 0;
+        }
+        int firstVisiblePosition = findFirstVisibleItemPosition();
+        View firstVisibleView = findViewByPosition(firstVisiblePosition);
+        int widthUntilPosition = getSizeUntilPosition(firstVisiblePosition);
+        if (firstVisibleView != null && widthUntilPosition != INVALID_SIZE) {
+            return widthUntilPosition - mOrientationHelper.getDecoratedEnd(firstVisibleView);
+        }
+        return super.computeHorizontalScrollOffset(state);
+    }
+
+    @Override
+    public int computeHorizontalScrollRange(State state) {
+        int widthUntilPosition = getSizeUntilPosition(getItemCount() - 1);
+        if (widthUntilPosition != INVALID_SIZE) {
+            return widthUntilPosition;
+        }
+        return super.computeHorizontalScrollRange(state);
+    }
+
+    public void resetCache() {
+        itemSizeMaps.clear();
     }
 }

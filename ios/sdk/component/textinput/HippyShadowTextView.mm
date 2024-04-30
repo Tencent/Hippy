@@ -23,6 +23,8 @@
 #import "HippyShadowTextView.h"
 #import "MTTLayout.h"
 #import "x5LayoutUtil.h"
+#import "HippyShadowView+MTTLayout.h"
+
 @interface HippyShadowTextView ()
 @property (nonatomic, strong) NSDictionary *dicAttributes;
 @end

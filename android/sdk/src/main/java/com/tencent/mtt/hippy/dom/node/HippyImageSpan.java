@@ -20,12 +20,17 @@ import static com.tencent.mtt.hippy.views.image.HippyImageView.ImageEvent.ONLOAD
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.Movie;
 import android.graphics.Paint;
 import android.graphics.Paint.FontMetricsInt;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.text.style.DynamicDrawableSpan;
 import android.text.style.ImageSpan;
@@ -40,75 +45,88 @@ import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.utils.UrlUtils;
 import com.tencent.mtt.hippy.views.image.HippyImageView.ImageEvent;
+import com.tencent.smtt.flexbox.FlexNodeStyle.Edge;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
 @SuppressWarnings("deprecation")
 public class HippyImageSpan extends ImageSpan {
 
-  public static final int ALIGN_BOTTOM = 0;
-  public static final int ALIGN_BASELINE = 1;
-  public static final int ALIGN_CENTER = 2;
-  public static final int ALIGN_TOP = 3;
-
   public final static int STATE_UNLOAD = 0;
   public final static int STATE_LOADING = 1;
   public final static int STATE_LOADED = 2;
 
+  private final boolean mUseLegacy;
+  private final String mVerticalAlign;
+  @Deprecated
   private int mLeft;
+  @Deprecated
   private int mTop;
   private int mWidth;
   private int mHeight;
+  private int mMeasuredWidth;
+  private int mMeasuredHeight;
   private String mUrl;
   private final WeakReference<ImageNode> mImageNodeWeakRefrence;
   private int mImageLoadState = STATE_UNLOAD;
-  private int mVerticalAlignment;
-  private final HippyImageLoader mImageAdapter;
-  private final HippyEngineContext engineContext;
+  private final WeakReference<HippyImageLoader> mImageAdapterRef;
+  private final WeakReference<HippyEngineContext> engineContextRef;
+  private Drawable mSrcDrawable = null;
   private Movie mGifMovie = null;
+  private Paint mGifPaint = null;
   private long mGifProgress = 0;
   private long mGifLastPlayTime = -1;
+  private float mHeightRate = 0;
+  private Paint mBackgroundPaint = null;
+  private int mMarginLeft;
+  private int mMarginTop;
+  private int mMarginRight;
+  private int mMarginBottom;
 
-  private IAlignConfig alignConfig;
+  @Deprecated
+  private LegacyIAlignConfig alignConfig;
 
   public HippyImageSpan(Drawable d, String source, ImageNode node,
       HippyImageLoader imageAdapter, HippyEngineContext context) {
     super(d, source, node.getVerticalAlignment());
-    engineContext = context;
+    engineContextRef = new WeakReference<>(context);
     mImageNodeWeakRefrence = new WeakReference<>(node);
-    mImageAdapter = imageAdapter;
+    mImageAdapterRef = new WeakReference<>(imageAdapter);
+    mVerticalAlign = node.getVerticalAlign();
+    mUseLegacy = TextUtils.isEmpty(mVerticalAlign);
+    mWidth = Math.round(node.getStyleWidth());
+    mHeight = Math.round(node.getStyleHeight());
     setUrl(source);
-    initAlignConfig(node.getVerticalAlignment());
-  }
-
-  private void initAlignConfig(int verticalAlignment) {
-    switch (verticalAlignment) {
-      case ALIGN_BASELINE:
-        alignConfig = new AlignBaselineConfig();
-        break;
-      case ALIGN_CENTER:
-        alignConfig = new AlignCenterConfig();
-        break;
-      case ALIGN_TOP:
-        alignConfig = new AlignTopConfig();
-        break;
-      case ALIGN_BOTTOM:
-      default:
-        alignConfig = new AlignBottomConfig();
-        break;
+    if (node.hasBackgroundColor()) {
+      mBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+      mBackgroundPaint.setColor(node.getBackgroundColor());
+    }
+    if (mUseLegacy) {
+        alignConfig = LegacyIAlignConfig.fromVerticalAlignment(node.getVerticalAlignment());
+    } else {
+        initMargin(node);
     }
   }
 
+  @Deprecated
   public void setDesiredSize(int width, int height) {
-    alignConfig.setDesiredSize(width, height);
+      if (mUseLegacy) {
+          alignConfig.setDesiredSize(width, height);
+      }
   }
 
   public void setActiveSizeWithRate(float heightRate) {
-    alignConfig.setActiveSizeWithRate(heightRate);
+      mHeightRate = heightRate;
+      if (mUseLegacy) {
+          alignConfig.setActiveSizeWithRate(heightRate);
+      }
   }
 
+  @Deprecated
   public void setMargin(int marginLeft, int marginRight) {
-    alignConfig.setMargin(marginLeft, marginRight);
+      if (mUseLegacy) {
+          alignConfig.setMargin(marginLeft, marginRight);
+      }
   }
 
   private void updateBoundsAttribute() {
@@ -126,7 +144,6 @@ public class HippyImageSpan extends ImageSpan {
         mTop = top;
         mWidth = width;
         mHeight = height;
-        mVerticalAlignment = node.getVerticalAlignment();
       }
     }
   }
@@ -143,18 +160,21 @@ public class HippyImageSpan extends ImageSpan {
     mUrl = url;
     mImageLoadState = STATE_UNLOAD;
 
-    updateBoundsAttribute();
+    if (mUseLegacy) {
+        updateBoundsAttribute();
+    }
 
-    if (mImageAdapter != null) {
+    HippyImageLoader imageAdapter = mImageAdapterRef.get();
+    if (imageAdapter != null) {
       if (shouldUseFetchImageMode(mUrl)) {
         final HippyMap props = new HippyMap();
         props.pushBoolean(NodeProps.CUSTOM_PROP_ISGIF, false);
         props.pushInt(NodeProps.WIDTH, mWidth);
         props.pushInt(NodeProps.HEIGHT, mHeight);
 
-        doFetchImage(mUrl, props, mImageAdapter);
+        doFetchImage(mUrl, props, imageAdapter);
       } else {
-        HippyDrawable hippyDrawable = mImageAdapter.getImage(mUrl, null);
+        HippyDrawable hippyDrawable = imageAdapter.getImage(mUrl, null);
         shouldReplaceDrawable(hippyDrawable);
       }
     }
@@ -177,7 +197,7 @@ public class HippyImageSpan extends ImageSpan {
     }
   }
 
-  private void drawGIF(Canvas canvas, float left, float top, int width, int height) {
+  private void updateGifTime() {
     if (mGifMovie == null) {
       return;
     }
@@ -187,7 +207,7 @@ public class HippyImageSpan extends ImageSpan {
       duration = 1000;
     }
 
-    long now = System.currentTimeMillis();
+    long now = SystemClock.elapsedRealtime();
 
     if (mGifLastPlayTime != -1) {
       mGifProgress += (now - mGifLastPlayTime);
@@ -198,21 +218,57 @@ public class HippyImageSpan extends ImageSpan {
     }
     mGifLastPlayTime = now;
 
+    int progress = mGifProgress > Integer.MAX_VALUE ? 0 : (int) mGifProgress;
+    mGifMovie.setTime(progress);
+  }
+
+  private void legacyDrawGIF(Canvas canvas, float left, float top, int width, int height) {
+    if (mGifMovie == null) {
+      return;
+    }
+    updateGifTime();
+
+    if (mBackgroundPaint != null) {
+      canvas.drawRect(left, top, left + width, top + height, mBackgroundPaint);
+    }
     float mGifScaleX = width / (float) mGifMovie.width();
     float mGifScaleY = height / (float) mGifMovie.height();
     float x = (mGifScaleX != 0) ? left / mGifScaleX : left;
     float y = (mGifScaleY != 0) ? top / mGifScaleY : top;
-    int progress = mGifProgress > Integer.MAX_VALUE ? 0 : (int) mGifProgress;
-    mGifMovie.setTime(progress);
     canvas.save();
     canvas.scale(mGifScaleX, mGifScaleY);
-    mGifMovie.draw(canvas, x, y);
+    mGifMovie.draw(canvas, x, y, mGifPaint);
     canvas.restore();
     postInvalidateDelayed(40);
   }
 
   @Override
   public int getSize(@NonNull Paint paint, CharSequence text, int start, int end,
+    @Nullable FontMetricsInt fm) {
+      if (mUseLegacy) {
+          return legacyGetSize(paint, text, start, end, fm);
+      }
+      if (mHeightRate > 0) {
+          if (mHeight == 0) {
+              mMeasuredWidth = mMeasuredHeight = 0;
+          } else {
+              int textSize = (int) paint.getTextSize();
+              mMeasuredHeight = (int) (textSize * mHeightRate);
+              mMeasuredWidth = mWidth * mMeasuredHeight / mHeight;
+          }
+      } else {
+          mMeasuredWidth = mWidth;
+          mMeasuredHeight = mHeight;
+      }
+      if (fm != null) {
+          fm.top = fm.ascent = -(mMeasuredHeight + mMarginTop + mMarginBottom);
+          fm.leading = fm.bottom = fm.descent = 0;
+      }
+
+      return mMeasuredWidth + mMarginLeft + mMarginRight;
+  }
+
+  private int legacyGetSize(@NonNull Paint paint, CharSequence text, int start, int end,
     @Nullable FontMetricsInt fm) {
     if (mGifMovie!=null) {
       return super.getSize(paint, text, start, end, fm);
@@ -228,6 +284,56 @@ public class HippyImageSpan extends ImageSpan {
   public void draw(Canvas canvas, CharSequence text,
       int start, int end, float x,
       int top, int y, int bottom, Paint paint) {
+      if (mUseLegacy) {
+          legacyDraw(canvas, text, start, end, x, top, y, bottom, paint);
+          return;
+      }
+      if (mMeasuredWidth == 0 || mMeasuredHeight == 0) {
+          return;
+      }
+      canvas.save();
+      int transY;
+      switch (mVerticalAlign) {
+          case TextNode.V_ALIGN_TOP:
+              transY = top + mMarginTop;
+              break;
+          case TextNode.V_ALIGN_MIDDLE:
+              transY = top + (bottom - top) / 2 - mMeasuredHeight / 2;
+              break;
+          case TextNode.V_ALIGN_BOTTOM:
+              transY = bottom - mMeasuredHeight - mMarginBottom;
+              break;
+          case TextNode.V_ALIGN_BASELINE:
+          default:
+              transY = y - mMeasuredHeight - mMarginBottom;
+              break;
+      }
+
+      canvas.translate(x + mMarginLeft, transY);
+      if (mBackgroundPaint != null) {
+          canvas.drawRect(0, 0, mMeasuredWidth, mMeasuredHeight, mBackgroundPaint);
+      }
+      if (mGifMovie != null) {
+          updateGifTime();
+          float scaleX = mMeasuredWidth / (float) mGifMovie.width();
+          float scaleY = mMeasuredHeight / (float) mGifMovie.height();
+          canvas.scale(scaleX, scaleY, 0, 0);
+          mGifMovie.draw(canvas, 0, 0, mGifPaint);
+          postInvalidateDelayed(40);
+      } else {
+          Drawable drawable = mSrcDrawable == null ? super.getDrawable() : mSrcDrawable;
+          Rect rect = drawable.getBounds();
+          float scaleX = mMeasuredWidth / (float) rect.right;
+          float scaleY = mMeasuredHeight / (float) rect.bottom;
+          canvas.scale(scaleX, scaleY, 0, 0);
+          drawable.draw(canvas);
+      }
+      canvas.restore();
+  }
+
+  private void legacyDraw(Canvas canvas, CharSequence text,
+      int start, int end, float x,
+      int top, int y, int bottom, Paint paint) {
     int transY;
     Paint.FontMetricsInt fm = paint.getFontMetricsInt();
     if (mGifMovie != null) {
@@ -235,14 +341,14 @@ public class HippyImageSpan extends ImageSpan {
       int height = (mHeight == 0) ? mGifMovie.height() : mHeight;
 
       transY = (y + fm.descent + y + fm.ascent) / 2 - height / 2;
-      drawGIF(canvas, x + mLeft, transY + mTop, width, height);
+      legacyDrawGIF(canvas, x + mLeft, transY + mTop, width, height);
     } else {
       Drawable drawable = getDrawable();
       alignConfig.draw(canvas,
         text, start, end,
         x, top, y, bottom,
         paint,
-        drawable);
+        drawable, mBackgroundPaint);
     }
   }
 
@@ -259,10 +365,50 @@ public class HippyImageSpan extends ImageSpan {
   }
 
   private void shouldReplaceDrawable(HippyDrawable hippyDrawable) {
+      if (mUseLegacy) {
+          legacyShouldReplaceDrawable(hippyDrawable);
+          return;
+      }
+      mSrcDrawable = null;
+      mGifMovie = null;
+      mGifPaint = null;
+      if (hippyDrawable != null) {
+          Bitmap bitmap = hippyDrawable.getBitmap();
+          if (bitmap != null) {
+              BitmapDrawable drawable = new BitmapDrawable(bitmap);
+              ImageNode node = mImageNodeWeakRefrence.get();
+              if (node != null && node.hasTintColor()) {
+                  drawable.setColorFilter(new PorterDuffColorFilter(node.getTintColor(), PorterDuff.Mode.SRC_ATOP));
+              }
+              drawable.setBounds(0, 0, mWidth, mHeight);
+              mSrcDrawable = drawable;
+              mImageLoadState = STATE_LOADED;
+          } else if (hippyDrawable.isAnimated()) {
+              mGifMovie = hippyDrawable.getGIF();
+              ImageNode node = mImageNodeWeakRefrence.get();
+              if (node != null && node.hasTintColor()) {
+                  mGifPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                  mGifPaint.setColorFilter(new PorterDuffColorFilter(node.getTintColor(), PorterDuff.Mode.SRC_ATOP));
+              }
+              mImageLoadState = STATE_LOADED;
+          } else {
+              mImageLoadState = STATE_UNLOAD;
+          }
+          postInvalidateDelayed(0);
+      } else {
+          mImageLoadState = STATE_UNLOAD;
+      }
+  }
+
+  private void legacyShouldReplaceDrawable(HippyDrawable hippyDrawable) {
     if (hippyDrawable != null) {
       Bitmap bitmap = hippyDrawable.getBitmap();
       if (bitmap != null) {
         BitmapDrawable drawable = new BitmapDrawable(bitmap);
+        ImageNode node = mImageNodeWeakRefrence.get();
+        if (node != null && node.hasTintColor()) {
+          drawable.setColorFilter(new PorterDuffColorFilter(node.getTintColor(), PorterDuff.Mode.SRC_ATOP));
+        }
 
         int w = (mWidth == 0) ? drawable.getIntrinsicWidth() : mWidth;
         int h = (mHeight == 0) ? drawable.getIntrinsicHeight() : mHeight;
@@ -286,6 +432,11 @@ public class HippyImageSpan extends ImageSpan {
         mImageLoadState = STATE_LOADED;
       } else if (hippyDrawable.isAnimated()) {
         mGifMovie = hippyDrawable.getGIF();
+        ImageNode node = mImageNodeWeakRefrence.get();
+        if (node != null && node.hasTintColor()) {
+            mGifPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            mGifPaint.setColorFilter(new PorterDuffColorFilter(node.getTintColor(), PorterDuff.Mode.SRC_ATOP));
+        }
         mImageLoadState = STATE_LOADED;
       } else {
         mImageLoadState = STATE_UNLOAD;
@@ -315,7 +466,7 @@ public class HippyImageSpan extends ImageSpan {
 
     if (!TextUtils.isEmpty(eventName) && node.isEnableImageEvent(eventType)) {
       HippyViewEvent event = new HippyViewEvent(eventName);
-      event.send(node.getId(), engineContext, null);
+      event.send(node.getId(), engineContextRef.get(), null);
     }
   }
 
@@ -341,273 +492,56 @@ public class HippyImageSpan extends ImageSpan {
     }, props);
   }
 
-  private interface IAlignConfig {
-
-    void setDesiredSize(int desiredDrawableWidth, int desiredDrawableHeight);
-
-    void setActiveSizeWithRate(float heightRate);
-
-    void setMargin(int marginLeft, int marginRight);
-
-    int getSize(@NonNull Paint paint,
-      CharSequence text, int start, int end,
-      @Nullable FontMetricsInt fm,
-      Drawable drawable);
-
-    void draw(@NonNull Canvas canvas,
-      CharSequence text, int start, int end,
-      float baseLineX, int lineTop, int baselineY, int lintBottom,
-      @NonNull Paint paint,
-      Drawable drawable);
-  }
-
-  private abstract static class BaseAlignConfig implements IAlignConfig {
-
-    private int desiredDrawableWidth;
-    private int desiredDrawableHeight;
-
-    private float heightRate;
-
-    private final int[] size = new int[2];
-
-    private int marginLeft;
-    private int marginRight;
-
-    @Override
-    public void setDesiredSize(int desiredDrawableWidth, int desiredDrawableHeight) {
-      this.desiredDrawableWidth = desiredDrawableWidth;
-      this.desiredDrawableHeight = desiredDrawableHeight;
-
-      heightRate = 0;
-    }
-
-    @Override
-    public void setActiveSizeWithRate(float heightRate) {
-      this.heightRate = heightRate;
-
-      desiredDrawableWidth = 0;
-      desiredDrawableHeight = 0;
-    }
-
-    @Override
-    public void setMargin(int marginLeft, int marginRight) {
-      this.marginLeft = marginLeft;
-      this.marginRight = marginRight;
-    }
-
-    private void calDrawableSize(Rect drawableBounds, Paint paint) {
-      int dWidth;
-      int dHeight;
-      if (heightRate > 0) {
-        int textSize = (int) paint.getTextSize();
-        dHeight = (int) (textSize * heightRate);
-        dWidth = drawableBounds.right * dHeight / drawableBounds.bottom;
+  public void setTintColor(int tintColor) {
+      Runnable action = () -> {
+          ColorFilter colorFilter = tintColor == Color.TRANSPARENT ? null
+                : new PorterDuffColorFilter(tintColor, PorterDuff.Mode.SRC_ATOP);
+          if (mSrcDrawable != null) {
+              mSrcDrawable.setColorFilter(colorFilter);
+          } else if (mGifMovie != null) {
+              mGifPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+              mGifPaint.setColorFilter(colorFilter);
+          } else if (mUseLegacy) {
+              Drawable drawable = getDrawable();
+              drawable.setColorFilter(colorFilter);
+          }
+      };
+      if (UIThreadUtils.isOnUiThread()) {
+          action.run();
       } else {
-        dHeight = desiredDrawableHeight;
-        dWidth = desiredDrawableWidth;
+          UIThreadUtils.runOnUiThread(action);
       }
-
-      if (dWidth <= 0 || dHeight <= 0) {
-        dWidth = drawableBounds.right;
-        dHeight = drawableBounds.bottom;
-      }
-
-      size[0] = dWidth;
-      size[1] = dHeight;
-    }
-
-    @Override
-    public int getSize(@NonNull Paint paint,
-      CharSequence text, int start, int end,
-      @Nullable FontMetricsInt fm,
-      Drawable drawable) {
-
-      calDrawableSize(drawable.getBounds(), paint);
-      int dWidth = size[0];
-      int dHeight = size[1];
-
-      int deltaTop = 0;
-      int deltaBottom = 0;
-      if (fm != null) {
-        deltaTop = fm.top - fm.ascent;
-        deltaBottom = fm.bottom - fm.descent;
-      }
-
-      int size = getCustomSize(paint,
-        text, start, end,
-        fm, dWidth, dHeight);
-      if (fm != null) {
-        fm.top = fm.ascent + deltaTop;
-        fm.bottom = fm.descent + deltaBottom;
-      }
-      return marginLeft + size + marginRight;
-    }
-
-    @Override
-    public void draw(@NonNull Canvas canvas,
-      CharSequence text, int start, int end,
-      float baseLineX, int lineTop, int baselineY, int lineBottom,
-      @NonNull Paint paint,
-      Drawable drawable) {
-      Rect drawableBounds = drawable.getBounds();
-
-      int dWidth = size[0];
-      int dHeight = size[1];
-
-      FontMetricsInt fontMetricsInt = paint.getFontMetricsInt();
-
-      int transY = getTransY(canvas,
-        text, start, end,
-        baseLineX, lineTop, baselineY, lineBottom,
-        paint, fontMetricsInt,
-        dWidth, dHeight);
-      transY = adjustTransY(transY, lineTop, lineBottom, dHeight);
-
-      float scaleX = (float) dWidth / drawableBounds.right;
-      float scaleY = (float) dHeight / drawableBounds.bottom;
-
-      canvas.save();
-      canvas.translate(baseLineX + marginLeft, transY);
-      canvas.scale(scaleX, scaleY);
-      drawable.draw(canvas);
-      canvas.restore();
-    }
-
-    private static int adjustTransY(
-      int transY,
-      int lineTop,
-      int lineBottom,
-      int drawableHeight
-    ) {
-      if (drawableHeight + transY > lineBottom) {
-        transY = lineBottom - drawableHeight;
-      }
-      if (transY < lineTop) {
-        transY = lineTop;
-      }
-      return transY;
-    }
-
-    abstract int getCustomSize(@NonNull Paint paint,
-      CharSequence text, int start, int end,
-      @Nullable FontMetricsInt fm,
-      int drawableWidth, int drawableHeight);
-
-    abstract int getTransY(@NonNull Canvas canvas,
-      CharSequence text, int start, int end,
-      float baseLineX, int lineTop, int baselineY, int lineBottom,
-      @NonNull Paint paint, FontMetricsInt fontMetricsInt,
-      int drawableWidth, int drawableHeight);
   }
 
-  private static class AlignBaselineConfig extends BaseAlignConfig {
-
-    @Override
-    public int getCustomSize(@NonNull Paint paint,
-      CharSequence text, int start, int end,
-      @Nullable FontMetricsInt fm,
-      int drawableWidth, int drawableHeight) {
-      if (fm != null) {
-        fm.ascent = -drawableHeight;
+  public void setBackgroundColor(int color) {
+      Runnable action = () -> {
+          if (color == Color.TRANSPARENT) {
+              mBackgroundPaint = null;
+          } else {
+              if (mBackgroundPaint == null) {
+                  mBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+              }
+              mBackgroundPaint.setColor(color);
+          }
+      };
+      if (UIThreadUtils.isOnUiThread()) {
+          action.run();
+      } else {
+          UIThreadUtils.runOnUiThread(action);
       }
-      return drawableWidth;
-    }
-
-    @Override
-    public int getTransY(@NonNull Canvas canvas,
-      CharSequence text, int start, int end,
-      float baseLineX, int lineTop, int baselineY, int lineBottom,
-      @NonNull Paint paint, FontMetricsInt fontMetricsInt,
-      int drawableWidth, int drawableHeight) {
-      return baselineY - drawableHeight;
-    }
   }
 
-  private static class AlignBottomConfig extends AlignBaselineConfig {
-
-    @Override
-    public int getCustomSize(@NonNull Paint paint,
-      CharSequence text, int start, int end,
-      @Nullable FontMetricsInt fm,
-      int drawableWidth, int drawableHeight) {
-      if (fm != null) {
-        fm.ascent = fm.descent - drawableHeight;
-      }
-      return drawableWidth;
-    }
-
-    @Override
-    public int getTransY(@NonNull Canvas canvas,
-      CharSequence text, int start, int end,
-      float baseLineX, int lineTop, int baselineY, int lineBottom,
-      @NonNull Paint paint, FontMetricsInt fontMetricsInt,
-      int drawableWidth, int drawableHeight) {
-      return super.getTransY(canvas,
-        text, start, end,
-        baseLineX, lineTop, baselineY, lineBottom,
-        paint, fontMetricsInt,
-        drawableWidth, drawableHeight) + fontMetricsInt.descent;
-    }
+  private void initMargin(ImageNode node) {
+      int margin = Math.round(node.getMargin(Edge.EDGE_ALL.ordinal()));
+      int marginHorizontal = getValue(Math.round(node.getMargin(Edge.EDGE_HORIZONTAL.ordinal())), margin);
+      int marginVertical = getValue(Math.round(node.getMargin(Edge.EDGE_VERTICAL.ordinal())), margin);
+      mMarginLeft = getValue(Math.round(node.getMargin(Edge.EDGE_LEFT.ordinal())), marginHorizontal);
+      mMarginRight = getValue(Math.round(node.getMargin(Edge.EDGE_RIGHT.ordinal())), marginHorizontal);
+      mMarginTop = getValue(Math.round(node.getMargin(Edge.EDGE_TOP.ordinal())), marginVertical);
+      mMarginBottom = getValue(Math.round(node.getMargin(Edge.EDGE_BOTTOM.ordinal())), marginVertical);
   }
 
-  private static class AlignCenterConfig extends AlignBottomConfig {
-
-    @Override
-    public int getCustomSize(@NonNull Paint paint,
-      CharSequence text, int start, int end,
-      @Nullable FontMetricsInt fm,
-      int drawableWidth, int drawableHeight) {
-      if (fm != null) {
-        int textAreaHeight = fm.descent - fm.ascent;
-        if (textAreaHeight < drawableHeight) {
-          int oldSumOfAscentAndDescent = fm.ascent + fm.descent;
-          fm.ascent = oldSumOfAscentAndDescent - drawableHeight >> 1;
-          fm.descent = oldSumOfAscentAndDescent + drawableHeight >> 1;
-        }
-
-      }
-      return drawableWidth;
-    }
-
-    @Override
-    public int getTransY(@NonNull Canvas canvas,
-      CharSequence text, int start, int end,
-      float baseLineX, int lineTop, int baselineY, int lineBottom,
-      @NonNull Paint paint, FontMetricsInt fontMetricsInt,
-      int drawableWidth, int drawableHeight) {
-      int transY = super.getTransY(canvas,
-        text, start, end,
-        baseLineX, lineTop, baselineY, lineBottom,
-        paint, fontMetricsInt,
-        drawableWidth, drawableHeight);
-
-      int fontHeight = fontMetricsInt.descent - fontMetricsInt.ascent;
-      transY = transY - (fontHeight >> 1) + (drawableHeight >> 1);
-
-      return transY;
-    }
-  }
-
-  private static class AlignTopConfig extends BaseAlignConfig {
-
-    @Override
-    public int getCustomSize(@NonNull Paint paint,
-      CharSequence text, int start, int end,
-      @Nullable FontMetricsInt fm,
-      int drawableWidth, int drawableHeight) {
-      if (fm != null) {
-        fm.descent = drawableHeight + fm.ascent;
-      }
-      return drawableWidth;
-    }
-
-    @Override
-    public int getTransY(@NonNull Canvas canvas,
-      CharSequence text, int start, int end,
-      float baseLineX, int lineTop, int baselineY, int lintBottom,
-      @NonNull Paint paint, FontMetricsInt fontMetricsInt,
-      int drawableWidth, int drawableHeight) {
-      return baselineY + fontMetricsInt.ascent;
-    }
+  private static int getValue(int primary, int secondary) {
+      return primary == 0 ? secondary : primary;
   }
 }

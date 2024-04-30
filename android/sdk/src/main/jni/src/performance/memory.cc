@@ -23,6 +23,7 @@
 #include "performance/memory.h"
 
 #include "bridge/runtime.h"
+#include "jni/jni_env.h"
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
 
@@ -53,10 +54,10 @@ jint ThrowNoSuchMethodError(JNIEnv* j_env, const char* msg){
   return j_env->ThrowNew(j_class, msg);
 }
 
-#ifndef V8_X5_LITE
-
 using unicode_string_view = tdf::base::unicode_string_view;
-using V8VM = hippy::napi::V8VM;
+using V8VM = hippy::vm::V8VM;
+
+#ifndef V8_X5_LITE
 
 // [Heap] write result code
 enum HEAP_WRITE : int8_t {
@@ -131,7 +132,6 @@ jboolean GetHeapStatistics(__unused JNIEnv *j_env,
                            __unused jobject j_object,
                            jlong j_runtime_id,
                            jobject j_callback) {
-#ifndef V8_X5_LITE
   TDF_BASE_DLOG(INFO) << "GetHeapStatistics begin, j_runtime_id = " << j_runtime_id;
   auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   // callback
@@ -169,15 +169,13 @@ jboolean GetHeapStatistics(__unused JNIEnv *j_env,
                                                                   heap_statistics->total_heap_size_executable(),
                                                                   heap_statistics->total_physical_size(),
                                                                   heap_statistics->total_available_size(),
-#endif
 #if (V8_MAJOR_VERSION == 9 && V8_MINOR_VERSION == 8 && V8_BUILD_NUMBER >= 124) || (V8_MAJOR_VERSION == 9 && V8_MINOR_VERSION > 8) || (V8_MAJOR_VERSION > 9)
                                                                   heap_statistics->total_global_handles_size(),
                                                                   heap_statistics->used_global_handles_size(),
-#elifndef V8_X5_LITE
+#else
                                                                   -1,
                                                                   -1,
 #endif
-#ifndef V8_X5_LITE
                                                                   heap_statistics->used_heap_size(),
                                                                   heap_statistics->heap_size_limit(),
                                                                   heap_statistics->malloced_memory(),
@@ -189,17 +187,12 @@ jboolean GetHeapStatistics(__unused JNIEnv *j_env,
   JNIEnvironment::ClearJEnvException(j_env);
   TDF_BASE_DLOG(INFO) << "GetHeapStatistics thread end";
   return JNI_TRUE;
-#else
-  ThrowNoSuchMethodError(j_env, "X5 lite has no GetHeapStatistics method");
-  return JNI_FALSE;
-#endif
 }
 // [Heap] GetHeapCodeStatistics
 jboolean GetHeapCodeStatistics(__unused JNIEnv *j_env,
                                __unused jobject j_object,
                                jlong j_runtime_id,
                                jobject j_callback) {
-#ifndef V8_X5_LITE
   TDF_BASE_DLOG(INFO) << "GetHeapCodeStatistics begin, j_runtime_id = " << j_runtime_id;
   auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   // callback
@@ -240,17 +233,12 @@ jboolean GetHeapCodeStatistics(__unused JNIEnv *j_env,
   JNIEnvironment::ClearJEnvException(j_env);
   TDF_BASE_DLOG(INFO) << "GetHeapCodeStatistics thread end";
   return JNI_TRUE;
-#else
-  ThrowNoSuchMethodError(j_env, "X5 lite has no GetHeapCodeStatistics method");
-  return JNI_FALSE;
-#endif
 }
 // [Heap] GetHeapSpaceStatistics
 jboolean GetHeapSpaceStatistics(__unused JNIEnv *j_env,
                                 __unused jobject j_object,
                                 jlong j_runtime_id,
                                 jobject j_callback) {
-#ifndef V8_X5_LITE
   TDF_BASE_DLOG(INFO) << "GetHeapSpaceStatistics begin, j_runtime_id = " << j_runtime_id;
   auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   // callback
@@ -318,10 +306,6 @@ jboolean GetHeapSpaceStatistics(__unused JNIEnv *j_env,
   JNIEnvironment::ClearJEnvException(j_env);
   TDF_BASE_DLOG(INFO) << "GetHeapSpaceStatistics thread end";
   return JNI_TRUE;
-#else
-  ThrowNoSuchMethodError(j_env, "X5 lite has no GetHeapSpaceStatistics method");
-  return JNI_FALSE;
-#endif
 }
 // [Heap] WriteHeapSnapshot
 jboolean WriteHeapSnapshot(__unused JNIEnv *j_env,

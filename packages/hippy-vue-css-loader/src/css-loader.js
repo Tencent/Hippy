@@ -22,7 +22,7 @@ import crypto from 'crypto';
 import { getOptions } from 'loader-utils';
 import { GLOBAL_STYLE_NAME, GLOBAL_DISPOSE_STYLE_NAME } from '@vue/runtime/constants';
 import parseCSS from './css-parser';
-import translateColor from './color-parser';
+import translateColor, { names as colorNames } from './color-parser';
 
 let sourceId = 0;
 
@@ -43,7 +43,15 @@ function hippyVueCSSLoader(source) {
     selectors: n.selectors,
     declarations: n.declarations.map((dec) => {
       let { value } = dec;
-      if (dec.property && dec.property.toLowerCase().indexOf('color') > -1) {
+      const isVariableColor = dec.property && dec.property.startsWith('-') && typeof value === 'string'
+        && (
+          value.includes('#')
+          || value.includes('rgb')
+          || value.includes('hls')
+          || value.includes('hue')
+          || value.trim() in colorNames
+        );
+      if (dec.property && (dec.property.toLowerCase().indexOf('color') > -1 || isVariableColor)) {
         value = translateColor(value, options);
       }
       return {

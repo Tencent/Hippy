@@ -1,0 +1,95 @@
+name: '[gh] self-hosted runners monitor'
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run every 30th minute.
+    - cron: '*/30 * * * *'
+
+jobs:
+  runners_monitor:
+    if: github.repository == 'Tencent/Hippy'
+    runs-on: ubuntu-latest
+    env:
+      cache_file: /tmp/gh_runners_monitor.data
+      cache_key: gh_runners_monitor
+    steps:
+    - name: Token
+      uses: navikt/github-app-token-generator@v1
+      id: get-token
+      with:
+        private-key: ${{ secrets.BOT_APP_KEY }}
+        app-id: ${{ secrets.BOT_APP_ID }}
+    - name: Check
+      id: check
+      uses: actions/github-script@v6.3.3
+      with:
+        github-token: ${{ steps.get-token.outputs.token }}
+        script: |
+          const { actions } = github.rest;
+          const os = require('os');
+          const fs = require('fs');
+
+          const runners = await github.paginate(actions.listSelfHostedRunnersForRepo, {
+            per_page: 100,
+            ...context.repo
+          });
+          const offline_runners = runners.filter(runner => runner.status === 'offline');
+
+          if (offline_runners.length > 0) {
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `total_runners=${runners.length}${os.EOL}`, { encoding: 'utf8' });
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `offline_runners=${JSON.stringify(offline_runners)}${os.EOL}`, { encoding: 'utf8' });
+          }
+    - name: Cache
+      if: steps.check.outputs.offline_runners
+      uses: actions/cache@v3
+      env:
+        prefix: gh_runners_monitor
+      with:
+        path: ${{ env.cache_file }}
+        key: ${{ env.prefix }}-${{ github.run_id }}
+        restore-keys: ${{ env.prefix }}
+    - name: Notification
+      if: steps.check.outputs.offline_runners
+      uses: actions/github-script@v6.3.3
+      env:
+        offline_runners: ${{ steps.check.outputs.offline_runners }}
+      with:
+        script: |
+          const fs = require('fs');
+          const os = require('os');
+
+          const offline_runners = JSON.parse(process.env.offline_runners);
+          if (offline_runners.length === 0) {
+            throw new Error('offline_runners is empty');
+          }
+
+          const message = [
+            `<font color="warning">${offline_runners.length}/${{ steps.check.outputs.total_runners }}</font> self-hosted runners are offline.`,
+            ...offline_runners.map(runner => `> ${runner.name}`)
+          ].join(os.EOL);
+
+          try {
+            const stored_data = JSON.parse(fs.readFileSync(process.env.cache_file, { encoding: 'utf8'}));
+            if (stored_data.message === message && Date.now() - stored_data.timestamp < 6_60_60_000 /* every 6th hour */) {
+              return;
+            }
+          } catch(e) {}
+
+          await github.request("POST ${{ secrets.WECHAT_WORK_BOT_WEBHOOK }}", {
+            headers: {
+              "content-type": "application/json"
+            },
+            data: {
+              chatid: "${{ secrets.WECHAT_WORK_ADMIN_CHAT_ID }}",
+              msgtype: "markdown",
+              markdown: {
+                content: message
+              }
+            }
+          });
+
+          fs.writeFileSync(process.env.cache_file, JSON.stringify({
+            message,
+            timestamp: Date.now()
+          }), { encoding: 'utf8' });

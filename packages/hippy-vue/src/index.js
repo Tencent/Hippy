@@ -28,6 +28,7 @@ global.WebSocket = WebSocket;
 
 Vue.config.silent = false;
 Vue.config.scoped = false;
+Vue.config.trimWhitespace = true;
 setVue(Vue);
 
 export default Vue;

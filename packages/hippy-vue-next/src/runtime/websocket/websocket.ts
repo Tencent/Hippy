@@ -52,9 +52,6 @@ const WEB_SOCKET_MODULE_NAME = 'websocket';
 // native event name for websocket
 const WEB_SOCKET_NATIVE_EVENT = 'hippyWebsocketEvents';
 
-// whether the websocket event listener has been bound
-let isBindWebsocketEvent = false;
-
 /**
  * determine whether it is a legitimate websocket event
  *
@@ -116,11 +113,8 @@ class WebSocket {
       ...extrasHeaders,
     };
 
-    if (!isBindWebsocketEvent) {
-      // The bus is global, if it is multi-instance, there may be problems, to be verified fixme
-      isBindWebsocketEvent = true;
-      EventBus.$on(WEB_SOCKET_NATIVE_EVENT, this.onWebSocketEvent);
-    }
+    // add websocket event listener to event bus
+    EventBus.$on(WEB_SOCKET_NATIVE_EVENT, this.onWebSocketEvent);
 
     if (!url) {
       throw new TypeError('Invalid WebSocket url');
@@ -282,7 +276,6 @@ class WebSocket {
     }
   }
 }
-
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 global.WebSocket = WebSocket;

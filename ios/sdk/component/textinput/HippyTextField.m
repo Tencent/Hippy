@@ -99,11 +99,6 @@
     }
 }
 
-- (void)dealloc {
-    _responderDelegate = nil;
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
 @end
 
 @interface HippyTextField () <HippyUITextFieldResponseDelegate>
@@ -122,6 +117,13 @@
     CGFloat keyboardHeight = keyboardRect.size.height;
     if (_textView.isFirstResponder && _onKeyboardWillShow) {
         _onKeyboardWillShow(@{ @"keyboardHeight": @(keyboardHeight) });
+    }
+}
+
+- (void)keyboardWillHide:(NSNotification *)aNotification {
+    [super keyboardWillHide:aNotification];
+    if (_onKeyboardWillHide) {
+        _onKeyboardWillHide(@{});
     }
 }
 
@@ -185,15 +187,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 - (void)textFieldDidChange {
-    UITextRange *selectedRange = [_textView markedTextRange];
-    NSString *newText = [_textView textInRange:selectedRange];
-    /**获取中文输入法下高亮部分并直接返回不做_onChangeText */
-    if (newText.length > 0) {
-        return;
-    }
-    // selectedTextRange observer isn't triggered when you type even though the
-    // cursor position moves, so we send event again here.
-
     if (!self.hippyTag || !_onChangeText) {
         return;
     }

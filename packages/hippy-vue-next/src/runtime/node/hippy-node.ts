@@ -17,12 +17,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { CallbackType, NativeNode } from '../../types';
+import type { CallbackType, NativeNode, SsrNode } from '../../types';
 import { getUniqueId, DEFAULT_ROOT_ID } from '../../util';
 import { getHippyCachedInstance } from '../../util/instance';
 import { preCacheNode } from '../../util/node-cache';
 import type { TagComponent } from '../component';
-import type { HippyEvent } from '../event/hippy-event';
 import { HippyEventTarget } from '../event/hippy-event-target';
 import {
   renderInsertChildNativeNode,
@@ -30,11 +29,12 @@ import {
   renderUpdateChildNativeNode,
 } from '../render';
 
+// NodeType, same with vue
 export enum NodeType {
   ElementNode = 1, // element node
-  TextNode, // text node
-  CommentNode, // comment node
-  DocumentNode, // document node
+  TextNode = 3, // text node
+  CommentNode = 8, // comment node
+  DocumentNode = 4, // document node
 }
 
 /**
@@ -87,14 +87,18 @@ export class HippyNode extends HippyEventTarget {
   // native component information corresponding to the node
   protected tagComponent: TagComponent | null = null;
 
-  constructor(nodeType: NodeType) {
+  constructor(nodeType: NodeType, ssrNode?: SsrNode) {
     super();
-
-    this.nodeId = HippyNode.getUniqueNodeId();
+    // ssr node has already created node id in server side, we just used it
+    this.nodeId = ssrNode?.id ?? HippyNode.getUniqueNodeId();
 
     this.nodeType = nodeType;
 
     this.isNeedInsertToNative = needInsertToNative(nodeType);
+    // ssr node has been inserted to native, so we direct set isMounted true
+    if (ssrNode?.id) {
+      this.isMounted = true;
+    }
   }
 
   /**
@@ -109,7 +113,6 @@ export class HippyNode extends HippyEventTarget {
    */
   public get lastChild(): HippyNode | null {
     const len = this.childNodes.length;
-
     return len ? this.childNodes[len - 1] : null;
   }
 
@@ -144,43 +147,10 @@ export class HippyNode extends HippyEventTarget {
   }
 
   /**
-   * append child node
-   *
-   * @param rawChild - child node to be added
+   * has child nodes or not, used for hydrate
    */
-  public appendChild(rawChild: HippyNode): void {
-    const child = rawChild;
-
-    if (!child) {
-      throw new Error('No child to append');
-    }
-
-    // If the node to be added has a parent node and
-    // the parent node is not the current node, remove it from the container first
-    // In the case of keep-alive, the node still exists and will be moved to the virtual container
-    if (child.parentNode && child.parentNode !== this) {
-      child.parentNode.removeChild(child);
-    }
-
-    // If the node is already mounted, remove it first
-    if (child.isMounted) {
-      this.removeChild(child);
-    }
-
-    // save the parent node of the node
-    child.parentNode = this;
-
-    // modify the pointer of the last child
-    if (this.lastChild) {
-      child.prevSibling = this.lastChild;
-      this.lastChild.nextSibling = child;
-    }
-
-    // add node
-    this.childNodes.push(child);
-
-    // call the native interface to insert a node
-    this.insertChildNativeNode(child);
+  public hasChildNodes(): boolean {
+    return !!this.childNodes.length;
   }
 
   /**
@@ -317,6 +287,56 @@ export class HippyNode extends HippyEventTarget {
   }
 
   /**
+   * append child node
+   *
+   * @param rawChild - child node to be added
+   * @param isHydrate - is hydrate operate or not
+   */
+  public appendChild(rawChild: HippyNode, isHydrate = false): void {
+    const child = rawChild;
+
+    if (!child) {
+      throw new Error('No child to append');
+    }
+
+    // if childNode is the same as the last child, skip appending
+    if (this.lastChild === child) return;
+    // If the node to be added has a parent node and
+    // the parent node is not the current node, remove it from the container first
+    // In the case of keep-alive, the node still exists and will be moved to the virtual container
+    if (child.parentNode && child.parentNode !== this) {
+      child.parentNode.removeChild(child);
+    }
+
+    // If the node is already mounted, remove it first, but do not remove when is hydrate.
+    // Because hydrate node just rendered in native, but do not add to hippy node list
+    if (child.isMounted && !isHydrate) {
+      this.removeChild(child);
+    }
+
+    // save the parent node of the node
+    child.parentNode = this;
+
+    // modify the pointer of the last child
+    if (this.lastChild) {
+      child.prevSibling = this.lastChild;
+      this.lastChild.nextSibling = child;
+    }
+
+    // add node
+    this.childNodes.push(child);
+
+    if (!isHydrate) {
+      // call the native interface to insert a node
+      this.insertChildNativeNode(child);
+    } else {
+      // for hydrate case, node has been inserted to native. so we do not need to insert to native
+      // just pre cache the node
+      preCacheNode(child, child.nodeId);
+    }
+  }
+
+  /**
    * remove child node
    *
    * @param rawChild - child node to be removed
@@ -418,42 +438,6 @@ export class HippyNode extends HippyEventTarget {
   }
 
   /**
-   * dispatch event
-   *
-   * @param rawEvent - event object
-   */
-  public dispatchEvent(rawEvent: HippyEvent): void {
-    const event = rawEvent;
-    const { type: eventName } = event;
-
-    // get the list of event callbacks registered by the current event
-    const listeners = this.listeners[eventName];
-
-    // return if without callback
-    if (!listeners) {
-      return;
-    }
-
-    event.currentTarget = this;
-
-    // from back to front, execute the event callback method
-    for (let i = listeners.length - 1; i >= 0; i -= 1) {
-      const listener = listeners[i];
-      // for the once method, remove it after executing it once
-      if (listener?.options?.once) {
-        listeners.splice(i, 1);
-      }
-
-      // If this context is specified in the callback, use apply to pass the context to execute the callback
-      if (listener?.options?.thisArg) {
-        listener.callback.apply(listener.options.thisArg, [event]);
-      } else {
-        listener.callback(event);
-      }
-    }
-  }
-
-  /**
    * insert native node
    *
    * @param child - to be inserted node
@@ -470,7 +454,7 @@ export class HippyNode extends HippyEventTarget {
 
       // if the root node is not rendered on the screen, start rendering from the root node first
       // render the child node if the child node is not rendered
-      renderInsertChildNativeNode(parentNode.convertToNativeNodes(true));
+      const nodeList = parentNode.convertToNativeNodes(true);
       // update the isMounted flag
       parentNode.eachNode((rawNode: HippyNode) => {
         const node = rawNode;
@@ -480,6 +464,7 @@ export class HippyNode extends HippyEventTarget {
         // cache the nodes inserted into the native to improve the search speed
         preCacheNode(node, node.nodeId);
       });
+      renderInsertChildNativeNode(nodeList);
     }
   }
 

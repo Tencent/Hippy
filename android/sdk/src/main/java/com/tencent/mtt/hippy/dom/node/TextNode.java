@@ -22,23 +22,36 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.text.*;
-import android.text.style.*;
-
+import android.text.BidiFormatter;
+import android.text.BoringLayout;
+import android.text.Layout;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.SpannedString;
+import android.text.StaticLayout;
+import android.text.TextPaint;
+import android.text.TextUtils;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ImageSpan;
+import android.text.style.StrikethroughSpan;
+import android.text.style.UnderlineSpan;
 import androidx.annotation.RequiresApi;
-
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
 import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
 import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.dom.flex.*;
+import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
+import com.tencent.mtt.hippy.dom.flex.FlexNodeAPI;
+import com.tencent.mtt.hippy.dom.flex.FlexOutput;
+import com.tencent.mtt.hippy.dom.flex.FlexSpacing;
 import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.text.HippyTextView;
-
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +69,13 @@ public class TextNode extends StyleNode {
   public final static String STRATEGY_SIMPLE = "simple";
   public final static String STRATEGY_HIGH_QUALITY = "high_quality";
   public final static String STRATEGY_BALANCED = "balanced";
+  public static final String PROP_VERTICAL_ALIGN = "verticalAlign";
+
+  /*package*/ final static String V_ALIGN_TOP = "top";
+  /*package*/ final static String V_ALIGN_MIDDLE = "middle";
+  /*package*/ final static String V_ALIGN_BASELINE = "baseline";
+  /*package*/ final static String V_ALIGN_BOTTOM = "bottom";
+
   CharSequence mText;
   protected int mNumberOfLines = UNSET;
   private String mEllipsizeMode = MODE_TAIL;
@@ -68,8 +88,7 @@ public class TextNode extends StyleNode {
   protected float mLineSpacingExtra;
 
   protected int mColor = Color.BLACK;
-  private final boolean mIsBackgroundColorSet = false;
-  private int mBackgroundColor;
+  private int mBackgroundColor = Color.TRANSPARENT;
   private String mFontFamily = null;
 
   public static final int DEFAULT_TEXT_SHADOW_COLOR = 0x55000000;
@@ -108,7 +127,7 @@ public class TextNode extends StyleNode {
   protected boolean mEnableScale = false;
 
   private WeakReference<HippyTextView> mTextViewWeakRefrence = null;
-
+  private String mVerticalAlign;
 
   public TextNode(boolean mIsVirtual) {
     this.mIsVirtual = mIsVirtual;
@@ -162,7 +181,7 @@ public class TextNode extends StyleNode {
   }
 
   @SuppressWarnings("unused")
-  @HippyControllerProps(name = NodeProps.COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+  @HippyControllerProps(name = NodeProps.COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.BLACK)
   public void color(Integer color) {
     mColor = color;
     markUpdated();
@@ -190,15 +209,6 @@ public class TextNode extends StyleNode {
   public void fontFamily(String fontFamily) {
     mFontFamily = fontFamily;
     markUpdated();
-  }
-
-  @Override
-  public void updateProps(HippyMap props) {
-    super.updateProps(props);
-    HippyMap styleMap = (HippyMap) props.get(NodeProps.STYLE);
-    if (styleMap != null && styleMap.get(NodeProps.COLOR) == null) {
-      styleMap.pushInt(NodeProps.COLOR, Color.BLACK);
-    }
   }
 
   private static int parseArgument(String wight) {
@@ -462,35 +472,30 @@ public class TextNode extends StyleNode {
     }
   }
 
-  protected HippyFontScaleAdapter mFontScaleAdapter;
-  protected HippyEngineContext engineContext;
-  protected HippyImageLoader mImageAdapter;
+  @HippyControllerProps(name = NodeProps.BACKGROUND_COLOR, defaultType = HippyControllerProps.NUMBER)
+  public void setBackgroundColor(int backgroundColor) {
+      mBackgroundColor = backgroundColor;
+  }
 
   @Override
   public void layoutBefore(HippyEngineContext context) {
     super.layoutBefore(context);
 
-    engineContext = context;
-    if (mFontScaleAdapter == null) {
-      mFontScaleAdapter = context.getGlobalConfigs().getFontScaleAdapter();
-    }
-
-    if (mImageAdapter == null) {
-      mImageAdapter = context.getGlobalConfigs().getImageLoaderAdapter();
-    }
+    HippyFontScaleAdapter fontScaleAdapter = context.getGlobalConfigs().getFontScaleAdapter();
+    HippyImageLoader imageAdapter = context.getGlobalConfigs().getImageLoaderAdapter();
 
     if (mIsVirtual) {
       return;
     }
 
-    if (mFontScaleAdapter != null && !TextUtils.isEmpty(mText)) {
-      CharSequence s = mFontScaleAdapter.getEmoticonText(mText, mFontSize);
+    if (fontScaleAdapter != null && !TextUtils.isEmpty(mText)) {
+      CharSequence s = fontScaleAdapter.getEmoticonText(mText, mFontSize);
       if (s != null) {
         mText = s;
       }
     }
 
-    mSpanned = createSpan(mText, true);
+    mSpanned = createSpan(mText, true, context, fontScaleAdapter, imageAdapter);
   }
 
   @SuppressWarnings({"EmptyMethod", "unused"})
@@ -498,11 +503,12 @@ public class TextNode extends StyleNode {
 
   }
 
-  private SpannableStringBuilder createSpan(CharSequence text, boolean useChild) {
+  private SpannableStringBuilder createSpan(CharSequence text, boolean useChild, HippyEngineContext context,
+          HippyFontScaleAdapter fontScaleAdapter, HippyImageLoader imageAdapter) {
     if (text != null) {
       SpannableStringBuilder spannable = new SpannableStringBuilder();
       List<SpanOperation> ops = new ArrayList<>();
-      createSpanOperations(ops, spannable, this, text, useChild);
+      createSpanOperations(ops, spannable, this, text, useChild, context, fontScaleAdapter, imageAdapter);
 
       for (int i = ops.size() - 1; i >= 0; i--) {
         SpanOperation op = ops.get(i);
@@ -518,7 +524,7 @@ public class TextNode extends StyleNode {
   }
 
   private void createImageSpanOperation(List<SpanOperation> ops, SpannableStringBuilder sb,
-      ImageNode imageNode) {
+          ImageNode imageNode, HippyEngineContext context, HippyImageLoader imageAdapter) {
     String url = null;
     String defaultSource = null;
     HippyMap props = imageNode.getTotalProps();
@@ -528,9 +534,9 @@ public class TextNode extends StyleNode {
     }
 
     Drawable drawable = null;
-    if (!TextUtils.isEmpty(defaultSource) && mImageAdapter != null) {
+    if (!TextUtils.isEmpty(defaultSource) && imageAdapter != null) {
       assert defaultSource != null;
-      HippyDrawable hippyDrawable = mImageAdapter.getImage(defaultSource, null);
+      HippyDrawable hippyDrawable = imageAdapter.getImage(defaultSource, null);
       Bitmap bitmap = hippyDrawable.getBitmap();
       if (bitmap != null) {
         drawable = new BitmapDrawable(bitmap);
@@ -545,8 +551,7 @@ public class TextNode extends StyleNode {
     int height = Math.round(imageNode.getStyleHeight());
     drawable.setBounds(0, 0, width, height);
 
-    HippyImageSpan imageSpan = new HippyImageSpan(drawable, url, imageNode, mImageAdapter,
-        engineContext);
+    HippyImageSpan imageSpan = new HippyImageSpan(drawable, url, imageNode, imageAdapter, context);
     imageNode.setImageSpan(imageSpan);
 
     int start = sb.length();
@@ -562,14 +567,21 @@ public class TextNode extends StyleNode {
   }
 
   private void createSpanOperations(List<SpanOperation> ops, SpannableStringBuilder sb,
-      TextNode textNode, CharSequence text, boolean useChild) {
+          TextNode textNode, CharSequence text, boolean useChild, HippyEngineContext context,
+          HippyFontScaleAdapter fontScaleAdapter, HippyImageLoader imageAdapter) {
     int start = sb.length();
     sb.append(text);
     int end = sb.length();
     if (start <= end) {
+      String verticalAlign = textNode.getVerticalAlign();
+      if (verticalAlign != null) {
+        HippyVerticalAlignSpan span = new HippyVerticalAlignSpan(verticalAlign);
+        ops.add(new SpanOperation(start, end, span, SpanOperation.PRIORITY_LOWEST));
+      }
+
       ops
         .add(new SpanOperation(start, end, createForegroundColorSpan(textNode.mColor, textNode)));
-      if (textNode.mIsBackgroundColorSet) {
+      if (textNode.isVirtual() && textNode.mBackgroundColor != Color.TRANSPARENT) {
         ops.add(new SpanOperation(start, end, new BackgroundColorSpan(textNode.mBackgroundColor)));
       }
       if (textNode.mLetterSpacing != UNSET) {
@@ -581,19 +593,18 @@ public class TextNode extends StyleNode {
       if (textNode.mFontSize != UNSET) {
         int fontSize = textNode.mFontSize;
 
-        if (textNode.mFontScaleAdapter != null && textNode.mEnableScale) {
-          fontSize = (int) (fontSize * textNode.mFontScaleAdapter.getFontScale());
+        if (fontScaleAdapter != null && textNode.mEnableScale) {
+          fontSize = (int) (fontSize * fontScaleAdapter.getFontScale());
         }
         ops.add(new SpanOperation(start, end, new AbsoluteSizeSpan(fontSize)));
       }
       String fontFamily = textNode.mFontFamily;
-      if (fontFamily == null && mFontScaleAdapter != null) {
-        fontFamily = mFontScaleAdapter.getCustomDefaultFontFamily();
+      if (fontFamily == null && fontScaleAdapter != null) {
+        fontFamily = fontScaleAdapter.getCustomDefaultFontFamily();
       }
       if (textNode.mFontStyle != UNSET || textNode.mFontWeight != UNSET || fontFamily != null) {
         ops.add(new SpanOperation(start, end,
-            new HippyStyleSpan(textNode.mFontStyle, textNode.mFontWeight, fontFamily,
-                mFontScaleAdapter)));
+            new HippyStyleSpan(textNode.mFontStyle, textNode.mFontWeight, fontFamily, fontScaleAdapter)));
       }
       if (textNode.mIsUnderlineTextDecorationSet) {
         ops.add(new SpanOperation(start, end, new UnderlineSpan()));
@@ -611,8 +622,8 @@ public class TextNode extends StyleNode {
         && mLineSpacingExtra == 0) {
         float lineHeight = textNode.mLineHeight;
 
-        if (textNode.mFontScaleAdapter != null && textNode.mEnableScale) {
-          lineHeight = (lineHeight * textNode.mFontScaleAdapter.getFontScale());
+        if (fontScaleAdapter != null && textNode.mEnableScale) {
+          lineHeight = (lineHeight * fontScaleAdapter.getFontScale());
         }
         ops.add(new SpanOperation(start, end, new HippyLineHeightSpan(lineHeight)));
       }
@@ -630,16 +641,16 @@ public class TextNode extends StyleNode {
         if (domNode instanceof TextNode) {
           TextNode tempNode = (TextNode) domNode;
           CharSequence tempText = tempNode.mText;
-          if (mFontScaleAdapter != null && !TextUtils.isEmpty(tempText)) {
-            CharSequence s = mFontScaleAdapter.getEmoticonText(tempText, tempNode.mFontSize);
+          if (fontScaleAdapter != null && !TextUtils.isEmpty(tempText)) {
+            CharSequence s = fontScaleAdapter.getEmoticonText(tempText, tempNode.mFontSize);
             if (s != null) {
               tempText = s;
             }
           }
           //noinspection ConstantConditions
-          createSpanOperations(ops, sb, tempNode, tempText, useChild);
+          createSpanOperations(ops, sb, tempNode, tempText, useChild, context, fontScaleAdapter, imageAdapter);
         } else if (domNode instanceof ImageNode) {
-          createImageSpanOperation(ops, sb, (ImageNode) domNode);
+          createImageSpanOperation(ops, sb, (ImageNode) domNode, context, imageAdapter);
         } else {
           throw new RuntimeException(domNode.getViewClass() + "is not support in Text");
         }
@@ -749,29 +760,40 @@ public class TextNode extends StyleNode {
     } catch (Throwable e) {
       LogUtils.d("TextNode", "createLayout: " + e.getMessage());
     }
-    float desiredWidth = boring == null ? Layout.getDesiredWidth(text, textPaint) : Float.NaN;
 
     boolean unconstrainedWidth = widthMode == FlexMeasureMode.UNDEFINED || width < 0;
-    if (boring == null && (unconstrainedWidth || (!FlexConstants.isUndefined(desiredWidth)
-        && desiredWidth <= width))) {
-      layout = buildStaticLayout(text, textPaint, (int)Math.ceil(desiredWidth));
-    } else if (boring != null && (unconstrainedWidth || boring.width <= width)) {
+    if (boring != null && (unconstrainedWidth || boring.width <= width)) {
       layout = BoringLayout.make(text, textPaint, boring.width, mTextAlign, getLineSpacingMultiplier(), mLineSpacingExtra, boring, true);
     } else {
-      layout = buildStaticLayout(text, textPaint, (int)Math.ceil(width));
-    }
-    if (mNumberOfLines != UNSET && mNumberOfLines > 0) {
-      if (layout.getLineCount() > mNumberOfLines) {
-        int lastLineStart = layout.getLineStart(mNumberOfLines - 1);
-        int lastLineEnd = layout.getLineEnd(mNumberOfLines - 1);
-        if (lastLineStart < lastLineEnd) {
-          int measureWidth = (int)Math.ceil(unconstrainedWidth ? desiredWidth : width);
-          layout = truncateLayoutWithNumberOfLine(layout, measureWidth, mNumberOfLines);
+      float desiredWidth = Layout.getDesiredWidth(text, textPaint);
+      if (!unconstrainedWidth && (widthMode == FlexMeasureMode.EXACTLY || desiredWidth > width)) {
+          desiredWidth = width;
+      }
+      layout = buildStaticLayout(text, textPaint, (int) Math.ceil(desiredWidth));
+      if (mNumberOfLines != UNSET && mNumberOfLines > 0) {
+        if (layout.getLineCount() > mNumberOfLines) {
+          int lastLineStart = layout.getLineStart(mNumberOfLines - 1);
+          int lastLineEnd = layout.getLineEnd(mNumberOfLines - 1);
+          if (lastLineStart < lastLineEnd) {
+            int measureWidth = (int)Math.ceil(unconstrainedWidth ? desiredWidth : width);
+            layout = truncateLayoutWithNumberOfLine(layout, measureWidth, mNumberOfLines);
+          }
         }
       }
     }
 
     assert layout != null;
+    CharSequence layoutText = layout.getText();
+    if (layoutText instanceof Spanned) {
+        Spanned spanned = (Spanned) layoutText;
+        HippyVerticalAlignSpan[] spans = spanned.getSpans(0, spanned.length(), HippyVerticalAlignSpan.class);
+        for (HippyVerticalAlignSpan span : spans) {
+            int offset = spanned.getSpanStart(span);
+            int line = layout.getLineForOffset(offset);
+            int baseline = layout.getLineBaseline(line);
+            span.setLineMetrics(layout.getLineTop(line) - baseline, layout.getLineBottom(line) - baseline);
+        }
+    }
     return layout;
   }
 
@@ -803,8 +825,23 @@ public class TextNode extends StyleNode {
       TextPaint measurePaint = new TextPaint();
       measurePaint.set(paint);
       int start = preLayout.getLineStart(numberOfLines - 1);
-      CharSequence formerLines = start > 0 ? origin.subSequence(0, start) : null;
-      boolean newLine = formerLines != null && formerLines.charAt(formerLines.length() - 1) != '\n';
+      CharSequence formerLines;
+      if (start > 0) {
+        boolean newline = origin.charAt(start - 1) != '\n';
+        if (origin instanceof Spanned) {
+          formerLines = new SpannableStringBuilder().append(origin, 0, start);
+          if (newline) {
+            ((SpannableStringBuilder) formerLines).append('\n');
+          }
+        } else {
+          formerLines = new StringBuilder().append(origin, 0, start);
+          if (newline) {
+            ((StringBuilder) formerLines).append('\n');
+          }
+        }
+      } else {
+        formerLines = null;
+      }
       CharSequence lastLine;
       if (MODE_HEAD.equals(mEllipsizeMode)) {
         float formerTextSize = numberOfLines >= 2 ? getLineHeight(preLayout, numberOfLines - 2) : paint.getTextSize();
@@ -816,11 +853,13 @@ public class TextNode extends StyleNode {
         lastLine = ellipsizeMiddle(origin, measurePaint, width, start);
       } else /*if (MODE_TAIL.equals(mEllipsizeMode))*/ {
         measurePaint.setTextSize(getLineHeight(preLayout, numberOfLines - 1));
-        int end = preLayout.getLineEnd(numberOfLines - 1);
+        int end = preLayout.getLineEnd(numberOfLines);
         lastLine = ellipsizeTail(origin, measurePaint, width, start, end);
       }
       // concat everything
-      truncated = formerLines == null ? lastLine : TextUtils.concat(formerLines, newLine ? "\n" : "", lastLine);
+      truncated = formerLines == null ? lastLine : formerLines instanceof SpannableStringBuilder
+          ? ((SpannableStringBuilder) formerLines).append(lastLine)
+          : ((StringBuilder) formerLines).append(lastLine);
     }
 
     return buildStaticLayout(truncated, paint, width);
@@ -833,8 +872,32 @@ public class TextNode extends StyleNode {
   private CharSequence ellipsizeHead(CharSequence origin, TextPaint paint, int width, int start) {
     start = Math.max(start, TextUtils.lastIndexOf(origin, '\n') + 1);
     // "…${last line of the rest part}"
-    CharSequence tmp = TextUtils.concat(ELLIPSIS, origin.subSequence(start, origin.length()));
-    return TextUtils.ellipsize(tmp, paint, width, TextUtils.TruncateAt.START);
+    CharSequence tmp;
+    if (origin instanceof Spanned) {
+      tmp = new SpannableStringBuilder()
+          .append(ELLIPSIS)
+          .append(origin, start, origin.length());
+    } else {
+      tmp = new StringBuilder(ELLIPSIS.length() + origin.length() - start)
+          .append(ELLIPSIS)
+          .append(origin, start, origin.length());
+    }
+    CharSequence result = TextUtils.ellipsize(tmp, paint, width, TextUtils.TruncateAt.START);
+    if (result instanceof Spannable) {
+      // make spans cover the "…"
+      Spannable sp = (Spannable) result;
+      int spanStart = ELLIPSIS.length();
+      Object[] spans = sp.getSpans(spanStart, spanStart, Object.class);
+      for (Object span : spans) {
+        if (!(span instanceof ImageSpan) && sp.getSpanStart(span) == spanStart) {
+          int flag = sp.getSpanFlags(span);
+          int spanEnd = sp.getSpanEnd(span);
+          sp.removeSpan(span);
+          sp.setSpan(span, 0, spanEnd, flag);
+        }
+      }
+    }
+    return result;
   }
 
   private CharSequence ellipsizeMiddle(CharSequence origin, TextPaint paint, int width, int start) {
@@ -843,7 +906,18 @@ public class TextNode extends StyleNode {
       rightStart = TextUtils.lastIndexOf(origin, '\n') + 1;
       assert leftEnd < rightStart;
       // "${first line of the rest part}…${last line of the rest part}"
-      CharSequence tmp = TextUtils.concat(origin.subSequence(start, leftEnd), ELLIPSIS, origin.subSequence(rightStart, origin.length()));
+      CharSequence tmp;
+      if (origin instanceof Spanned) {
+        tmp = new SpannableStringBuilder()
+            .append(origin, start, leftEnd)
+            .append(ELLIPSIS)
+            .append(origin, rightStart, origin.length());
+      } else {
+        tmp = new StringBuilder(leftEnd - start + ELLIPSIS.length() + origin.length() - rightStart)
+            .append(origin, start, leftEnd)
+            .append(ELLIPSIS)
+            .append(origin, rightStart, origin.length());
+      }
       final int[] outRange = new int[2];
       TextUtils.EllipsizeCallback callback = new TextUtils.EllipsizeCallback() {
         @Override
@@ -857,9 +931,13 @@ public class TextNode extends StyleNode {
         int pos0 = leftEnd - start;
         int pos1 = pos0 + ELLIPSIS.length();
         if (outRange[0] > pos0) {
-          line = new SpannableStringBuilder(tmp).replace(pos0, outRange[1], ELLIPSIS);
+          line = tmp instanceof SpannableStringBuilder
+              ? ((SpannableStringBuilder) tmp).replace(pos0, outRange[1], ELLIPSIS)
+              : ((StringBuilder) tmp).replace(pos0, outRange[1], ELLIPSIS);
         } else if (outRange[1] < pos1) {
-          line = new SpannableStringBuilder(tmp).replace(outRange[0], pos1, ELLIPSIS);
+          line = tmp instanceof SpannableStringBuilder
+              ? ((SpannableStringBuilder) tmp).replace(outRange[0], pos1, ELLIPSIS)
+              : ((StringBuilder) tmp).replace(outRange[0], pos1, ELLIPSIS);
         }
       }
       return line;
@@ -871,28 +949,76 @@ public class TextNode extends StyleNode {
   }
 
   private CharSequence ellipsizeTail(CharSequence origin, TextPaint paint, int width, int start, int end) {
-    if (origin.charAt(end - 1) == '\n') {
-      // there will be an unexpected blank line, if ends with a new line char, trim it
-      --end;
+    int index = TextUtils.indexOf(origin, '\n', start, end);
+    if (index != -1) {
+      end = index;
     }
     // "${first line of the rest part}…"
-    CharSequence tmp = TextUtils.concat(origin.subSequence(start, end), ELLIPSIS);
+    CharSequence tmp;
+    if (origin instanceof Spanned) {
+      tmp = new SpannableStringBuilder()
+          .append(origin, start, end).append(ELLIPSIS);
+    } else {
+      tmp = new StringBuilder(end - start + ELLIPSIS.length())
+          .append(origin, start, end).append(ELLIPSIS);
+    }
     return TextUtils.ellipsize(tmp, paint, width, TextUtils.TruncateAt.END);
+  }
+
+  @HippyControllerProps(name = PROP_VERTICAL_ALIGN, defaultType = HippyControllerProps.STRING)
+  public void setVerticalAlign(String align) {
+      switch (align) {
+          case HippyControllerProps.DEFAULT:
+              // reset to default
+              mVerticalAlign = null;
+              break;
+          case TextNode.V_ALIGN_TOP:
+          case TextNode.V_ALIGN_MIDDLE:
+          case TextNode.V_ALIGN_BASELINE:
+          case TextNode.V_ALIGN_BOTTOM:
+              mVerticalAlign = align;
+              break;
+          default:
+              mVerticalAlign = TextNode.V_ALIGN_BASELINE;
+              break;
+      }
+  }
+
+  public String getVerticalAlign() {
+      if (mVerticalAlign != null) {
+          return mVerticalAlign;
+      }
+      DomNode parent = getParent();
+      if (parent instanceof TextNode) {
+          return ((TextNode) parent).getVerticalAlign();
+      }
+      return null;
   }
 
   private static final String ELLIPSIS = "\u2026";
 
   private static class SpanOperation {
 
+    public static final int PRIORITY_DEFAULT = 1;
+    public static final int PRIORITY_LOWEST = 0;
     protected final int start;
     protected final int end;
     protected final Object what;
+    protected final int priority;
 
     @SuppressWarnings("unused")
     SpanOperation(int start, int end, Object what) {
       this.start = start;
       this.end = end;
       this.what = what;
+      this.priority = PRIORITY_DEFAULT;
+    }
+
+    SpanOperation(int start, int end, Object what, int priority) {
+      this.start = start;
+      this.end = end;
+      this.what = what;
+      this.priority = priority;
     }
 
     public void execute(SpannableStringBuilder sb) {
@@ -904,6 +1030,7 @@ public class TextNode extends StyleNode {
       } else {
         spanFlags = Spannable.SPAN_EXCLUSIVE_INCLUSIVE;
       }
+      spanFlags |= (priority << Spannable.SPAN_PRIORITY_SHIFT) & Spannable.SPAN_PRIORITY;
 
       try {
         sb.setSpan(what, start, end, spanFlags);

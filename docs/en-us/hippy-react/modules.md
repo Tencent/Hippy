@@ -15,6 +15,8 @@
 - Start the animation through the start interface of Animation, or stop and destroy the animation through destroy.
 
 > Note that when switching to the web, you need to use the setRef method to manually pass in the ref to run the animation normally. hippy-react-web does not support color gradient animation.
+>
+> Note that version 2.17.1 greatly upgraded iOS animation, fixing the inconsistency between the historical version and the Android animation performance. Please pay attention to compatibility when upgrading.
 
 ## Construction Attributes
 
@@ -33,7 +35,7 @@
 
   - `rad`: Indicates that the starting and ending values of the animation parameters are in radians, `this is default unit of rotate`.
   - `deg`: Indicates that the starting and ending values of the animation parameters are in degrees.
-  - `color`: Indicates that the starting and ending values of the animation parameters are color values, which can modify the background color `backgroundColor` and text color `color` (only supported by Android), refer to [examples.](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx) `Minimum supported version 2.6.0`
+  - `color`: Indicates that the starting and ending values of the animation parameters are color values, which can modify the background color `backgroundColor` and text color `color` (Supported by iOS since version 2.17.1), refer to [examples.](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx) `Minimum supported version 2.6.0`
 
 - Other options for timingFunction:
   - `linear`: With a linear interpolator, the animation will proceed at a constant speed.
@@ -74,7 +76,7 @@
 
 `(callback: () => void) => void` Register an animation listener callback, which will be called back when the animation ends.
 
-### onAnimationRepeat (Android only)
+### onAnimationRepeat (Supported by iOS since version 2.17.1)
 
 `(callback: () => void) => void` Register an animation listener callback, which will be called back when the animation starts to repeat the next time.
 
@@ -215,26 +217,6 @@ You can listen to the fallback of the Android entity key, and perform operations
 `(handler: () => boolean) => void` Removed BackAndroid listener for Android entity key back events.
 
 >- handle: Function - It is recommended to use the object returned by `addListener` that contains the `remove()` method, or the previous BackAndroid callback function.
-
----
-
-# Clipboard
-
-[[Clipboard example]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/Clipboard)
-
-The module provides the clipboard capability on both sides of iOS/Android, and developers can use it to read or write to the clipboard. Currently, only string types are supported.
-
-## Methods
-
-### Clipboard.getString
-
-`() => string` Get the contents of the clipboard. `hippy-react-web: () => Promise<string>`
-
-### Clipboard.setString
-
-`(value: string) => void` Set the contents of the clipboard. `hippy-react-web: () => Promise<void>`
-
->- value: string - Content that needs to be set to the clipboard.
 
 ---
 
@@ -468,4 +450,18 @@ Measure the size and position of a component within the scope of the App window.
 
 `(ref, callback: Function) => Promise`
 
->- callback: ({ x, y, width, height }|  string |-1) => void - Callback function, its parameters can get the coordinate value, width and height of the referenced component within the scope of the App window. May return -1 or a string with `this view is null` in case of error or [node is optimized (Android only)](hippy-react/components?id=样式内特殊属性).
+>- callback: ({ x, y, width, height }|  string |-1) => void - Callback function, its parameters can get the coordinate value, width and height of the referenced component within the scope of the App window. May return -1 or a string with `this view is null` in case of error or [node is optimized (Android only)](style/layout?id=collapsable).
+
+### UIManagerModule.getBoundingClientRect
+
+[[getBoundingClientRect example]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/UIManagerModule/index.jsx)
+
+> Minimum supported version `2.15.3`, `measureInWindow` and `measureInAppWindow` will be deprecated soon.
+
+Measure the size and position of a component within the scope of the App Container(RootView) or App Window(Screen).
+
+`(instance: ref, options: { relToContainer: boolean }) => Promise<DOMRect: { x: number, y: number, width: number, height: number, bottom: number, right: number, left: number, top: number }>`
+
+> - instance: reference of the element of component.
+> - options: optional，`relToContainer` indicates whether to be measured relative to the App Container(RootView), default is `false`, meaning relative to App Window(Screen). When measured relative to the App Container(RootView), status bar is included in `iOS`, but `Android` not.
+> - DOMRect: same with [MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Element/getBoundingClientRect) introduction, which can get the size and position of a component. If something goes wrong or [the node is optimized (Android only)](style/layout?id=collapsable), `Promise.reject` error will be thrown.

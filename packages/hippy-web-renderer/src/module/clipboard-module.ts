@@ -20,7 +20,7 @@
 
 import { HippyWebModule } from '../base';
 import { HippyCallBack } from '../types';
-import {warn} from "../common";
+import { warn } from '../common';
 
 export class ClipboardModule extends HippyWebModule {
   public name = 'ClipboardModule';

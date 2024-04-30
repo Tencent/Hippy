@@ -36,6 +36,9 @@ import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
+import com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent;
+import com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent.Priority;
+import com.tencent.mtt.hippy.views.common.HippyNestedScrollHelper;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewWrapper;
 import com.tencent.mtt.hippy.views.list.HippyListView;
 import com.tencent.mtt.hippy.views.scroll.HippyScrollView;
@@ -378,7 +381,14 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
   @HippyControllerProps(name = NodeProps.LINEAR_GRADIENT, defaultType = HippyControllerProps.MAP)
   public void setLinearGradient(T view, HippyMap linearGradient) {
-    if (linearGradient != null && view instanceof IGradient) {
+    if (view instanceof IGradient) {
+      if (linearGradient == null) {
+        // reset linear gradient
+        ((IGradient)view).setGradientAngle(null);
+        ((IGradient)view).setGradientColors(null);
+        ((IGradient)view).setGradientPositions(null);
+        return;
+      }
       String angle = linearGradient.getString("angle");
       HippyArray colorStopList = linearGradient.getArray("colorStopList");
 
@@ -638,6 +648,55 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
   @HippyControllerProps(name = "renderToHardwareTextureAndroid", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
   public void setRenderToHardwareTexture(T view, boolean useHWTexture) {
     view.setLayerType(useHWTexture ? View.LAYER_TYPE_HARDWARE : View.LAYER_TYPE_NONE, null);
+  }
+
+  @HippyControllerProps(name = HippyNestedScrollComponent.PROP_PRIORITY, defaultType =
+    HippyControllerProps.STRING, defaultString = HippyNestedScrollComponent.PRIORITY_SELF)
+  public void setNestedScrollPriority(T view, String priorityName) {
+    if (view instanceof HippyNestedScrollComponent) {
+      HippyNestedScrollComponent sc = (HippyNestedScrollComponent) view;
+      HippyNestedScrollComponent.Priority priority = HippyNestedScrollHelper.priorityOf(priorityName);
+      if (priority == Priority.NOT_SET) {
+          priority = Priority.SELF;
+      }
+      sc.setNestedScrollPriority(HippyNestedScrollComponent.DIRECTION_ALL, priority);
+    }
+  }
+
+  @HippyControllerProps(name = HippyNestedScrollComponent.PROP_LEFT_PRIORITY, defaultType =
+    HippyControllerProps.STRING)
+  public void setNestedScrollLeftPriority(T view, String priorityName) {
+    if (view instanceof HippyNestedScrollComponent) {
+      HippyNestedScrollComponent.Priority priority = HippyNestedScrollHelper.priorityOf(priorityName);
+      ((HippyNestedScrollComponent) view).setNestedScrollPriority(HippyNestedScrollComponent.DIRECTION_LEFT, priority);
+    }
+  }
+
+  @HippyControllerProps(name = HippyNestedScrollComponent.PROP_TOP_PRIORITY, defaultType =
+    HippyControllerProps.STRING)
+  public void setNestedScrollTopPriority(T view, String priorityName) {
+    if (view instanceof HippyNestedScrollComponent) {
+      HippyNestedScrollComponent.Priority priority = HippyNestedScrollHelper.priorityOf(priorityName);
+      ((HippyNestedScrollComponent) view).setNestedScrollPriority(HippyNestedScrollComponent.DIRECTION_TOP, priority);
+    }
+  }
+
+  @HippyControllerProps(name = HippyNestedScrollComponent.PROP_RIGHT_PRIORITY, defaultType =
+    HippyControllerProps.STRING)
+  public void setNestedScrollRightPriority(T view, String priorityName) {
+    if (view instanceof HippyNestedScrollComponent) {
+      HippyNestedScrollComponent.Priority priority = HippyNestedScrollHelper.priorityOf(priorityName);
+      ((HippyNestedScrollComponent) view).setNestedScrollPriority(HippyNestedScrollComponent.DIRECTION_RIGHT, priority);
+    }
+  }
+
+  @HippyControllerProps(name = HippyNestedScrollComponent.PROP_BOTTOM_PRIORITY, defaultType =
+    HippyControllerProps.STRING)
+  public void setNestedScrollBottomPriority(T view, String priorityName) {
+    if (view instanceof HippyNestedScrollComponent) {
+      HippyNestedScrollComponent.Priority priority = HippyNestedScrollHelper.priorityOf(priorityName);
+      ((HippyNestedScrollComponent) view).setNestedScrollPriority(HippyNestedScrollComponent.DIRECTION_BOTTOM, priority);
+    }
   }
 
   @SuppressWarnings("EmptyMethod")

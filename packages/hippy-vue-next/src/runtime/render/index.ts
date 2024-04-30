@@ -121,11 +121,11 @@ function renderToNative(
     chunks.forEach((chunk) => {
       switch (chunk.type) {
         case NodeOperateType.CREATE:
-          trace(...componentName, 'createNode', Date.now(), chunk.nodes);
+          trace(...componentName, 'createNode', chunk.nodes);
           Native.hippyNativeDocument.createNode(rootViewId, chunk.nodes);
           break;
         case NodeOperateType.UPDATE:
-          trace(...componentName, 'updateNode', Date.now(), chunk.nodes);
+          trace(...componentName, 'updateNode', chunk.nodes);
           // iOS currently cannot update nodes in batches, this requires ios client repair
           if (Native.isIOS()) {
             chunk.nodes.forEach((node) => {
@@ -136,7 +136,7 @@ function renderToNative(
           }
           break;
         case NodeOperateType.DELETE:
-          trace(...componentName, 'deleteNode', Date.now(), chunk.nodes);
+          trace(...componentName, 'deleteNode', chunk.nodes);
           // iOS currently cannot delete nodes in batches, this requires ios client repair
           if (Native.isIOS()) {
             chunk.nodes.forEach((node) => {

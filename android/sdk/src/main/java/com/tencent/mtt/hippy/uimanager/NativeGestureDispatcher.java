@@ -38,6 +38,10 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
   private static final String KEY_TAG_ID = "id";
   private static final String KEY_PAGE_X = "page_x";
   private static final String KEY_PAGE_Y = "page_y";
+
+  private static final String KEY_WINDOW_X = "window_x";
+  private static final String KEY_WINDOW_Y = "window_y";
+
   private static final int TAP_TIMEOUT = ViewConfiguration.getTapTimeout();
 
   private static final View.OnClickListener mOnClickListener = new View.OnClickListener() {
@@ -208,7 +212,7 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
   }
 
   public static void handleTouchDown(HippyEngineContext context, int mTagId, float x, float y,
-      int viewId) {
+          int viewId) {
     int[] viewCoords = new int[2];
     getLocationInWindow(context, viewId, viewCoords);
     HippyMap params = new HippyMap();
@@ -217,11 +221,26 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
     params.pushDouble(KEY_PAGE_X, PixelUtil.px2dp(viewCoords[0] + x));
     params.pushDouble(KEY_PAGE_Y, PixelUtil.px2dp(viewCoords[1] + y));
     context.getModuleManager().getJavaScriptModule(EventDispatcher.class)
+            .receiveNativeGesture(params);
+  }
+
+  public static void handleTouchDown(HippyEngineContext context, int mTagId, MotionEvent event,
+      int viewId) {
+    int[] viewCoords = new int[2];
+    getLocationInWindow(context, viewId, viewCoords);
+    HippyMap params = new HippyMap();
+    params.pushString(KEY_EVENT_NAME, NodeProps.ON_TOUCH_DOWN);
+    params.pushInt(KEY_TAG_ID, mTagId);
+    params.pushDouble(KEY_WINDOW_X, PixelUtil.px2dp(event.getRawX()));
+    params.pushDouble(KEY_WINDOW_Y, PixelUtil.px2dp(event.getRawY()));
+    params.pushDouble(KEY_PAGE_X, PixelUtil.px2dp(viewCoords[0] + event.getX()));
+    params.pushDouble(KEY_PAGE_Y, PixelUtil.px2dp(viewCoords[1] + event.getY()));
+    context.getModuleManager().getJavaScriptModule(EventDispatcher.class)
         .receiveNativeGesture(params);
   }
 
   public static void handleTouchMove(HippyEngineContext context, int mTagId, float x, float y,
-      int viewId) {
+          int viewId) {
     int[] viewCoords = new int[2];
     getLocationInWindow(context, viewId, viewCoords);
     HippyMap params = new HippyMap();
@@ -230,11 +249,26 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
     params.pushDouble(KEY_PAGE_X, PixelUtil.px2dp(viewCoords[0] + x));
     params.pushDouble(KEY_PAGE_Y, PixelUtil.px2dp(viewCoords[1] + y));
     context.getModuleManager().getJavaScriptModule(EventDispatcher.class)
+            .receiveNativeGesture(params);
+  }
+
+  public static void handleTouchMove(HippyEngineContext context, int mTagId, MotionEvent event,
+      int viewId) {
+    int[] viewCoords = new int[2];
+    getLocationInWindow(context, viewId, viewCoords);
+    HippyMap params = new HippyMap();
+    params.pushString(KEY_EVENT_NAME, NodeProps.ON_TOUCH_MOVE);
+    params.pushInt(KEY_TAG_ID, mTagId);
+    params.pushDouble(KEY_WINDOW_X, PixelUtil.px2dp(event.getRawX()));
+    params.pushDouble(KEY_WINDOW_Y, PixelUtil.px2dp(event.getRawY()));
+    params.pushDouble(KEY_PAGE_X, PixelUtil.px2dp(viewCoords[0] + event.getX()));
+    params.pushDouble(KEY_PAGE_Y, PixelUtil.px2dp(viewCoords[1] + event.getY()));
+    context.getModuleManager().getJavaScriptModule(EventDispatcher.class)
         .receiveNativeGesture(params);
   }
 
   public static void handleTouchEnd(HippyEngineContext context, int mTagId, float x, float y,
-      int viewId) {
+          int viewId) {
     int[] viewCoords = new int[2];
     getLocationInWindow(context, viewId, viewCoords);
     HippyMap params = new HippyMap();
@@ -243,11 +277,26 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
     params.pushDouble(KEY_PAGE_X, PixelUtil.px2dp(viewCoords[0] + x));
     params.pushDouble(KEY_PAGE_Y, PixelUtil.px2dp(viewCoords[1] + y));
     context.getModuleManager().getJavaScriptModule(EventDispatcher.class)
+            .receiveNativeGesture(params);
+  }
+
+  public static void handleTouchEnd(HippyEngineContext context, int mTagId, MotionEvent event,
+      int viewId) {
+    int[] viewCoords = new int[2];
+    getLocationInWindow(context, viewId, viewCoords);
+    HippyMap params = new HippyMap();
+    params.pushString(KEY_EVENT_NAME, NodeProps.ON_TOUCH_END);
+    params.pushInt(KEY_TAG_ID, mTagId);
+    params.pushDouble(KEY_WINDOW_X, PixelUtil.px2dp(event.getRawX()));
+    params.pushDouble(KEY_WINDOW_Y, PixelUtil.px2dp(event.getRawY()));
+    params.pushDouble(KEY_PAGE_X, PixelUtil.px2dp(viewCoords[0] + event.getX()));
+    params.pushDouble(KEY_PAGE_Y, PixelUtil.px2dp(viewCoords[1] + event.getY()));
+    context.getModuleManager().getJavaScriptModule(EventDispatcher.class)
         .receiveNativeGesture(params);
   }
 
   public static void handleTouchCancel(HippyEngineContext context, int mTagId, float x, float y,
-      int viewId) {
+          int viewId) {
     int[] viewCoords = new int[2];
     getLocationInWindow(context, viewId, viewCoords);
     HippyMap params = new HippyMap();
@@ -255,6 +304,21 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
     params.pushInt(KEY_TAG_ID, mTagId);
     params.pushDouble(KEY_PAGE_X, PixelUtil.px2dp(viewCoords[0] + x));
     params.pushDouble(KEY_PAGE_Y, PixelUtil.px2dp(viewCoords[1] + y));
+    context.getModuleManager().getJavaScriptModule(EventDispatcher.class)
+            .receiveNativeGesture(params);
+  }
+
+  public static void handleTouchCancel(HippyEngineContext context, int mTagId, MotionEvent event,
+      int viewId) {
+    int[] viewCoords = new int[2];
+    getLocationInWindow(context, viewId, viewCoords);
+    HippyMap params = new HippyMap();
+    params.pushString(KEY_EVENT_NAME, NodeProps.ON_TOUCH_CANCEL);
+    params.pushInt(KEY_TAG_ID, mTagId);
+    params.pushDouble(KEY_WINDOW_X, PixelUtil.px2dp(event.getRawX()));
+    params.pushDouble(KEY_WINDOW_Y, PixelUtil.px2dp(event.getRawY()));
+    params.pushDouble(KEY_PAGE_X, PixelUtil.px2dp(viewCoords[0] + event.getX()));
+    params.pushDouble(KEY_PAGE_Y, PixelUtil.px2dp(viewCoords[1] + event.getY()));
     context.getModuleManager().getJavaScriptModule(EventDispatcher.class)
         .receiveNativeGesture(params);
   }
@@ -328,16 +392,42 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
       handlePressOut(mEngineContext, mTargetView.getId());
     } else if (TextUtils.equals(type, NodeProps.ON_TOUCH_DOWN)) {
       NativeGestureDispatcher
-          .handleTouchDown(mEngineContext, mTargetView.getId(), x, y, mTargetView.getId());
+              .handleTouchDown(mEngineContext, mTargetView.getId(), x, y, mTargetView.getId());
     } else if (TextUtils.equals(type, NodeProps.ON_TOUCH_MOVE)) {
       NativeGestureDispatcher
-          .handleTouchMove(mEngineContext, mTargetView.getId(), x, y, mTargetView.getId());
+              .handleTouchMove(mEngineContext, mTargetView.getId(), x, y, mTargetView.getId());
     } else if (TextUtils.equals(type, NodeProps.ON_TOUCH_END)) {
       NativeGestureDispatcher
-          .handleTouchEnd(mEngineContext, mTargetView.getId(), x, y, mTargetView.getId());
+              .handleTouchEnd(mEngineContext, mTargetView.getId(), x, y, mTargetView.getId());
     } else if (TextUtils.equals(type, NodeProps.ON_TOUCH_CANCEL)) {
       NativeGestureDispatcher
-          .handleTouchCancel(mEngineContext, mTargetView.getId(), x, y, mTargetView.getId());
+              .handleTouchCancel(mEngineContext, mTargetView.getId(), x, y, mTargetView.getId());
+    }
+  }
+
+  @Override
+  public void handle(String type, MotionEvent event) {
+    if (mTargetView == null) {
+      LogUtils.e("NativeGestureDispatcher", "handle!!! but view is null!!!!");
+      return;
+    }
+
+    if (TextUtils.equals(type, NodeProps.ON_PRESS_IN)) {
+      handlePressIn(mEngineContext, mTargetView.getId());
+    } else if (TextUtils.equals(type, NodeProps.ON_PRESS_OUT)) {
+      handlePressOut(mEngineContext, mTargetView.getId());
+    } else if (TextUtils.equals(type, NodeProps.ON_TOUCH_DOWN)) {
+      NativeGestureDispatcher
+          .handleTouchDown(mEngineContext, mTargetView.getId(), event, mTargetView.getId());
+    } else if (TextUtils.equals(type, NodeProps.ON_TOUCH_MOVE)) {
+      NativeGestureDispatcher
+          .handleTouchMove(mEngineContext, mTargetView.getId(), event, mTargetView.getId());
+    } else if (TextUtils.equals(type, NodeProps.ON_TOUCH_END)) {
+      NativeGestureDispatcher
+          .handleTouchEnd(mEngineContext, mTargetView.getId(), event, mTargetView.getId());
+    } else if (TextUtils.equals(type, NodeProps.ON_TOUCH_CANCEL)) {
+      NativeGestureDispatcher
+          .handleTouchCancel(mEngineContext, mTargetView.getId(), event, mTargetView.getId());
     }
   }
 }

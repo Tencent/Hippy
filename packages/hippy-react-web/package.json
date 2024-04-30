@@ -2,7 +2,9 @@
   "name": "@hippy/react-web",
   "version": "unspecified",
   "description": "Web Adapter for Hippy React",
-  "main": "dist/index.js",
+  "main": "dist/cjs/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "homepage": "https://hippyjs.org",
   "repository": "https://github.com/Tencent/Hippy",
   "author": "OpenHippy Team",
@@ -16,14 +18,15 @@
     "Hippy-React",
     "Web"
   ],
+  "peerDependencies": {
+    "react": ">=16.8.0 && <18.0.0"
+  },
   "dependencies": {
     "@hippy/rmc-list-view": "^1.0.0",
-    "@hippy/rmc-pull-to-refresh": "^1.1.0",
+    "@hippy/rmc-pull-to-refresh": "^1.1.1",
     "animated-scroll-to": "^2.2.0",
     "bezier-easing": "^2.1.0",
     "normalize-css-color": "^1.0.2",
-    "react": "^16.11.0",
-    "react-dom": "^16.11.0",
     "swiper": "^6.7.0",
     "ua-parser-js": "~0.7.28"
   },

@@ -8,66 +8,68 @@
 #  https://help.github.com/en/articles/about-code-owners
 #
 
-* @ilikethese @churchill-zhang @zoomchan-cxj @siguangli @ozonelmy @medns
+# universal files
+* @ilikethese @etkmao
 
-*.js @zoomchan-cxj
-*.ts @zoomchan-cxj
-*.java @siguangli
-*.cc @churchill-zhang @ilikethese @medns
-*.h @ozonelmy
-*.m @ozonelmy
-*.mm @ozonelmy
+# cmake related
+*.cmake @ilikethese @etkmao
+CMakeLists.txt @ilikethese @etkmao
 
-CMakeLists.txt @medns
-*.cmake @medns
+# driver: js
+/.eslintignore @zealotchen0
+/.eslintrc.js @zealotchen0
+/.nycrc @zealotchen0
+/package.json @zealotchen0
+/package-lock.json @zealotchen0
+/ava.config.js @zealotchen0
+/core/ @ilikethese @etkmao
+/core/js/ @zealotchen0
+/packages/ @zealotchen0
+/packages/hippy-web-renderer/ @pba-cra @zealotchen0
 
-# ci, build & doc related
-/.github/ @zoomchan-cxj
-/.gitattributes @zoomchan-cxj
-/.husky/ @zoomchan-cxj
-/docker/ @medns
-/buildconfig/ @medns
-/docs/ @zoomchan-cxj
-/.editorconfig @zoomchan-cxj
-/.gitignore @zoomchan-cxj
-/.markdownlintrc.json @zoomchan-cxj
-
-# core related
-/core/ @churchill-zhang
-/core/js/ @zoomchan-cxj
-
-# android related
+# framework: android
 /android/ @siguangli
-/gradle/ @siguangli
+/android/**/src/main/jni/ @ilikethese @etkmao
+
+# framework: ios
+/ios/ @wwwcg @ruifanyuan
+
+# dom: layout
+/layout/ @ilikethese
+
+# gh: config
+/.github/ @zealotchen0
+
+# doc: example
+/examples/ @zealotchen0
+/examples/hippy-*-demo/ @zealotchen0
+/examples/android-demo/ @siguangli
+/examples/android-demo/res/ @zealotchen0
+/examples/ios-demo/ @wwwcg @ruifanyuan
+/examples/ios-demo/res/ @zealotchen0
+/static/ @zealotchen0
+
+# doc: pages
+/*.md @zealotchen0
+/docs/ @zealotchen0
+
+# build: gradle
 /gradle.properties @siguangli
 /gradlew @siguangli
 /gradlew.bat @siguangli
-/setting.gradle @siguangli
+/settings.gradle @siguangli
 /build.gradle @siguangli
+/gradle/ @siguangli
 
-# iOS related
-/ios/ @ozonelmy
-/hippy.podspec @ozonelmy
+# build: xcode
+/hippy.podspec @wwwcg @ruifanyuan
+/_Pods.xcodeproj/ @wwwcg @ruifanyuan
 
-# examples related
-/examples/android-demo/ @siguangli
-/examples/android-demo/res/ @zoomchan-cxj
-/examples/ios-demo/ @ozonelmy
-/examples/ios-demo/res/ @zoomchan-cxj
-/examples/hippy-react-demo/ @zoomchan-cxj
-/examples/hippy-vue-demo/ @zoomchan-cxj
+# build: config
+/buildconfig/ @ilikethese @etkmao
 
-# layout related
-/layout/ @ilikethese @churchill-zhang
-
-# js sdk related
-/packages/ @zoomchan-cxj
-/scripts/ @zoomchan-cxj
-/tsconfig.json @zoomchan-cxj
-/package.json @zoomchan-cxj
-/package-lock.json @zoomchan-cxj
-/.eslintignore @zoomchan-cxj
-/.nycrc @zoomchan-cxj
-/lerna.json @zoomchan-cxj
-
-
+# build: js
+/tsdoc.json @zealotchen0
+/tsconfig.json @zealotchen0
+/lerna.json @zealotchen0
+/scripts/ @zealotchen0

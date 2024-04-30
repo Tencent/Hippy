@@ -19,18 +19,18 @@
  */
 
 import React from 'react';
+import { LayoutableProps } from '../types';
 
-interface ListViewItemProps {
+export interface ListViewItemProps extends LayoutableProps {
   [props: string]: any;
   type?: number | string | undefined;
   key?: string;
   itemViewType?: string;
   sticky?: boolean;
-  style?: HippyTypes.Style;
-  onLayout?: (evt: any) => void;
+  style?:  HippyTypes.StyleProp;
 }
 
-function ListViewItem(props: ListViewItemProps) {
+export function ListViewItem(props: ListViewItemProps) {
   return (
     // @ts-ignore
     <li nativeName="ListViewItem" {...props} />
@@ -38,6 +38,3 @@ function ListViewItem(props: ListViewItemProps) {
 }
 
 export default ListViewItem;
-export {
-  ListViewItemProps,
-};

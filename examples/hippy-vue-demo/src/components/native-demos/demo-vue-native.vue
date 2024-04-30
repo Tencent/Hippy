@@ -2,7 +2,6 @@
   <div
     id="demo-vue-native"
     ref="rect"
-    @layout="onLayout"
   >
     <div>
       <!-- 操作系统平台 -->
@@ -171,13 +170,30 @@
         </div>
       </div>
 
-      <!-- 测量一个元素尺寸的范例，其实它是 measureInWindow 的封装 -->
+      <!-- 测量一个元素尺寸的范例 -->
       <div
-        v-if="Vue.Native.measureInAppWindow"
+        v-if="Vue.Native.getBoundingClientRect"
         class="native-block"
       >
-        <label class="vue-native-title">Vue.Native.measureInAppWindow</label>
-        <p>{{ rect }}</p>
+        <label class="vue-native-title">Vue.Native.getBoundingClientRect</label>
+        <div class="item-wrapper">
+          <button
+            class="item-button"
+            @click="() => getBoundingClientRect(false)"
+          >
+            <span>relative to App</span>
+          </button>
+          <span style="max-width: 200px">{{ rect1 }}</span>
+        </div>
+        <div class="item-wrapper">
+          <button
+            class="item-button"
+            @click="() => getBoundingClientRect(true)"
+          >
+            <span>relative to container</span>
+          </button>
+          <span style="max-width: 200px">{{ rect2 }}</span>
+        </div>
       </div>
 
       <!-- 本地存储使用 -->
@@ -278,32 +294,6 @@
           <span>{{ cookiesValue }}</span>
         </div>
       </div>
-
-      <!-- Clipboard使用 -->
-      <div
-        v-if="Vue.Native.Clipboard"
-        class="native-block"
-      >
-        <label class="vue-native-title">Clipboard 使用</label>
-        <div class="item-wrapper">
-          <button
-            class="item-button"
-            @click="setString"
-          >
-            <span>setString</span>
-          </button>
-          <span>{{ clipboardString }}</span>
-        </div>
-        <div class="item-wrapper">
-          <button
-            class="item-button"
-            @click="getString"
-          >
-            <span>getString</span>
-          </button>
-          <span>{{ clipboardValue }}</span>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -321,7 +311,8 @@ export default {
     return {
       app: this.app,
       eventTriggeredTimes: 0,
-      rect: null,
+      rect1: null,
+      rect2: null,
       Vue,
       screenIsVertical,
       storageValue: '',
@@ -370,11 +361,16 @@ export default {
     delete this.app;
   },
   methods: {
-    async onLayout() {
-      if (!this.hasLayout) {
-        this.hasLayout = true;
-        const rect = await Vue.Native.measureInAppWindow(this.$refs.rect);
-        this.rect = `Container rect: ${JSON.stringify(rect)}`;
+    async getBoundingClientRect(relToContainer = false) {
+      try {
+        const rect = await Vue.Native.getBoundingClientRect(this.$refs.rect, { relToContainer });
+        if (!relToContainer) {
+          this.rect1 = `${JSON.stringify(rect)}`;
+        } else {
+          this.rect2 = `${JSON.stringify(rect)}`;
+        }
+      } catch (err) {
+        console.error('getBoundingClientRect error', err);
       }
     },
     triggerAppEvent() {
@@ -495,5 +491,6 @@ export default {
   }
   .item-button span {
     color: white;
+    text-align: center;
   }
 </style>

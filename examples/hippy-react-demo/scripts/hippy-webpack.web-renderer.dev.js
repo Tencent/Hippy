@@ -36,7 +36,11 @@ module.exports = {
       template: path.resolve('./public/index.html'),
     }),
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('development'),
+      'process.env': {
+        NODE_ENV: JSON.stringify('development'),
+        HOST: JSON.stringify(process.env.DEV_HOST || '127.0.0.1'),
+        PORT: JSON.stringify(process.env.DEV_PORT || 3000),
+      },
       __PLATFORM__: JSON.stringify(platform),
     }),
     new CaseSensitivePathsPlugin(),

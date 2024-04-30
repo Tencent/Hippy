@@ -182,6 +182,8 @@ The horizontal spacing behavior between text characters
 
 !> hippy-vue should use @hippy/vue-css-loader `2.14.1` or above version
 
+!> On some Android devices, setting a negative value for letterSpacing has compatibility issues, which may cause line breaks at unexpected positions
+
 | Type   | Required | Supported Platforms
 | ------ | -------- | --- |
 | number | No | Android、iOS

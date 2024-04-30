@@ -53,6 +53,7 @@ public class HippyWebView extends FrameLayout implements HippyViewBase {
       final HippyViewEvent mEventonLoadEnd = new HippyViewEvent("onLoadEnd");
       final HippyViewEvent mEventonLoadStart = new HippyViewEvent("onLoadStart");
       final String mMessageUrlPre = "hippy://postMessage?data=";
+      private boolean mLoadEndTriggered;
 
       @Override
       public void onReceivedError(WebView view, WebResourceRequest request,
@@ -66,7 +67,16 @@ public class HippyWebView extends FrameLayout implements HippyViewBase {
           event.pushInt("errorCode", Integer.MAX_VALUE);
         }
         mEventOnError.send(HippyWebView.this, event);
-        super.onReceivedError(view, request, error);
+        if (request.isForMainFrame()) {
+            String msg = error.getErrorCode() + "," + error.getDescription().toString();
+            notifyLoadEnd(request.getUrl().toString(), false, msg);
+        }
+      }
+
+      @Override
+      public void onReceivedError(WebView view, int errorCode, String description,
+          String failingUrl) {
+        notifyLoadEnd(failingUrl, false, errorCode + "," + description);
       }
 
       @Override
@@ -100,16 +110,27 @@ public class HippyWebView extends FrameLayout implements HippyViewBase {
         HippyMap event = new HippyMap();
         event.pushString("url", url);
         mEventonLoad.send(HippyWebView.this, event);
-        mEventonLoadEnd.send(HippyWebView.this, event);
-        super.onPageFinished(view, url);
+        notifyLoadEnd(url, true, "");
+      }
+
+      private void notifyLoadEnd(String url, boolean success, String msg) {
+          if (mLoadEndTriggered) {
+              return;
+          }
+          mLoadEndTriggered = true;
+          HippyMap event = new HippyMap();
+          event.pushString("url", url);
+          event.pushBoolean("success", success);
+          event.pushString("error", msg);
+          mEventonLoadEnd.send(HippyWebView.this, event);
       }
 
       @Override
       public void onPageStarted(WebView view, String url, Bitmap favicon) {
+        mLoadEndTriggered = false;
         HippyMap event = new HippyMap();
         event.pushString("url", url);
         mEventonLoadStart.send(HippyWebView.this, event);
-        super.onPageStarted(view, url, favicon);
       }
     });
     mWebView.setWebChromeClient(new WebChromeClient());

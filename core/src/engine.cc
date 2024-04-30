@@ -26,44 +26,55 @@
 #include "core/task/javascript_task.h"
 
 constexpr uint32_t Engine::kDefaultWorkerPoolSize = 1;
+constexpr char kUseSnapshotStringValue[] = "1";
 
-Engine::Engine(std::unique_ptr<RegisterMap> map, const std::shared_ptr<VMInitParam>& init_param)
-    : vm_(nullptr), map_(std::move(map)), scope_cnt_(0) {
-  SetupThreads();
-
-  std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-  task->callback = [=] { CreateVM(init_param); };
-  js_runner_->PostTask(task);
-}
+Engine::Engine() : vm_(nullptr) {}
 
 Engine::~Engine() {
   TDF_BASE_DLOG(INFO) << "~Engine";
-  std::lock_guard<std::mutex> lock(cnt_mutex_);
-  TDF_BASE_DCHECK(scope_cnt_ == 0) << "this engine is in use";
 }
 
 void Engine::TerminateRunner() {
   TDF_BASE_DLOG(INFO) << "~TerminateRunner";
-  js_runner_->Terminate();
   worker_task_runner_->Terminate();
+  js_runner_->Terminate();
 }
 
-std::shared_ptr<Scope> Engine::CreateScope(const std::string& name,
-                                           std::unique_ptr<RegisterMap> map) {
-  TDF_BASE_DLOG(INFO) << "Engine CreateScope";
-  std::shared_ptr<Scope> scope =
-      std::make_shared<Scope>(this, name, std::move(map));
+std::shared_ptr<Scope> Engine::AsyncCreateScope(const std::string& name,
+                                                std::unordered_map<std::string, std::string> init_param,
+                                                std::unique_ptr<RegisterMap> map) {
+  TDF_BASE_DLOG(INFO) << "Engine AsyncCreateScope";
+  std::shared_ptr<Scope> scope = std::make_shared<Scope>(weak_from_this(), name, std::move(map));
   scope->wrapper_ = std::make_unique<ScopeWrapper>(scope);
-
-  JavaScriptTask::Function cb = [scope_ = scope] { scope_->Initialized(); };
-  if (js_runner_->IsJsThread()) {
-    cb();
-  } else {
-    std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-    task->callback = cb;
-    js_runner_->PostTask(std::move(task));
+  bool use_snapshot = false;
+  if (init_param[hippy::base::kUseSnapshot] == kUseSnapshotStringValue) {
+    use_snapshot = true;
   }
+  auto task = std::make_shared<JavaScriptTask>();
+  task->callback = [scope, use_snapshot] {
+    TDF_BASE_DLOG(INFO) << "js CreateScope use_snapshot = " << use_snapshot;
+    scope->Init(use_snapshot);
+  };
+  js_runner_->PostTask(std::move(task));
 
+  return scope;
+}
+
+std::shared_ptr<Scope> Engine::SyncCreateScope(std::unique_ptr<RegisterMap> map) {
+  return SyncCreateScope("", {}, std::move(map));
+}
+
+std::shared_ptr<Scope> Engine::SyncCreateScope(const std::string& name,
+                                           std::unordered_map<std::string, std::string> init_param,
+                                           std::unique_ptr<RegisterMap> map) {
+  TDF_BASE_DLOG(INFO) << "Engine SyncCreateScope";
+  auto scope = std::make_shared<Scope>(weak_from_this(), name, std::move(map));
+  scope->wrapper_ = std::make_unique<ScopeWrapper>(scope);
+  bool use_snapshot = false;
+  if (init_param[hippy::base::kUseSnapshot] == kUseSnapshotStringValue) {
+    use_snapshot = true;
+  }
+  scope->Init(use_snapshot);
   return scope;
 }
 
@@ -77,11 +88,10 @@ void Engine::SetupThreads() {
 
 void Engine::CreateVM(const std::shared_ptr<VMInitParam>& param) {
   TDF_BASE_DLOG(INFO) << "Engine CreateVM";
-  vm_ = hippy::napi::CreateVM(param);
-
-  RegisterMap::const_iterator it = map_->find(hippy::base::kVMCreateCBKey);
+  vm_ = hippy::vm::CreateVM(param);
+  auto it = map_->find(hippy::base::kVMCreateCBKey);
   if (it != map_->end()) {
-    RegisterFunction f = it->second;
+    auto f = it->second;
     if (f) {
       TDF_BASE_DLOG(INFO) << "run VMCreatedCB begin";
       f(vm_.get());
@@ -91,14 +101,24 @@ void Engine::CreateVM(const std::shared_ptr<VMInitParam>& param) {
   }
 }
 
-void Engine::Enter() {
-  TDF_BASE_DLOG(INFO) << "Engine Enter";
-  std::lock_guard<std::mutex> lock(cnt_mutex_);
-  ++scope_cnt_;
+void Engine::AsyncInit(const std::shared_ptr<VMInitParam>& param, std::unique_ptr<RegisterMap> map) {
+  SetupThreads();
+
+  map_ = std::move(map);
+  auto weak_engine = weak_from_this();
+  auto task = std::make_shared<JavaScriptTask>();
+  task->callback = [weak_engine, param] {
+    auto engine = weak_engine.lock();
+    TDF_BASE_DCHECK(engine);
+    if (!engine) {
+      return;
+    }
+    engine->CreateVM(param);
+  };
+  js_runner_->PostTask(task);
 }
 
-void Engine::Exit() {
-  TDF_BASE_DLOG(INFO) << "Engine Exit";
-  std::lock_guard<std::mutex> lock(cnt_mutex_);
-  --scope_cnt_;
+int32_t Engine::SyncInit(const std::shared_ptr<VM>& vm) {
+  vm_ = vm;
+  return 0;
 }

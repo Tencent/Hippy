@@ -1,0 +1,355 @@
+name: '[gh] action merge'
+
+on:
+  pull_request_target:
+    branches:
+      - master
+      - main
+      - v3.0-dev
+      - v3.0
+    types:
+      - labeled
+
+env:
+  OUTPUT_FUNCTION: |
+    function output {
+      if [ $1 -ne 0 ]; then
+          if [[ -z "$2" ]]; then
+            echo "failed_result=(empty response)" >> $GITHUB_OUTPUT
+          else
+            echo "failed_result<<EOF" >> $GITHUB_OUTPUT
+            echo "$2" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
+          exit 0
+      fi
+    }
+
+jobs:
+  call_classify_commits:
+    if: github.repository == 'Tencent/Hippy' && (github.event.label.name == 'action(squash-merge)' || github.event.label.name == 'action(rebase-merge)')
+    uses: ./.github/workflows/reuse_classify_commits.yml
+    with:
+      pull_request_number: ${{ github.event.pull_request.number }}
+
+  squash_merge_action:
+    needs: call_classify_commits
+    if: github.event.label.name == 'action(squash-merge)'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Token
+      uses: navikt/github-app-token-generator@v1
+      id: get-token
+      with:
+        private-key: ${{ secrets.ACTION_PRIVATE_KEY }}
+        app-id: ${{ secrets.ACTION_APP_ID }}
+    - name: Reset
+      if: "contains(github.event.pull_request.labels.*.name, 'action(squash-merge): failed')"
+      uses: actions-ecosystem/action-remove-labels@v1.3.0
+      with:
+        github_token: ${{ steps.get-token.outputs.token }}
+        labels: "action(squash-merge): failed"
+    - name: Checkout
+      if: needs.call_classify_commits.outputs.normal_commits_count > 1
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Setup
+      if: needs.call_classify_commits.outputs.normal_commits_count > 1
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+        cache: 'npm'
+        cache-dependency-path: package-lock.json
+    - name: Install
+      if: needs.call_classify_commits.outputs.normal_commits_count > 1
+      run: |
+        npm install commitlint-plugin-function-rules@1.6.0 @commitlint/cli@16.2.1 @commitlint/config-conventional@16.2.1 @commitlint/lint@16.2.1 @commitlint/prompt-cli@16.2.1
+    - name: Commitlint
+      id: commitlint
+      env:
+        PULL_REQUEST_TITLE: ${{ github.event.pull_request.title }}
+      shell: bash {0}
+      run: |
+        ${{ env.OUTPUT_FUNCTION }}
+        if [ ${{ needs.call_classify_commits.outputs.normal_commits_count }} -gt 1 ]; then
+          result=`echo $PULL_REQUEST_TITLE | npx commitlint -c false 2>&1`
+          output $? "$result"
+        fi
+    - name: Squash
+      id: squash
+      if: ${{ !steps.commitlint.outputs.failed_result && github.event.pull_request.user.login != github.event.sender.login }}
+      env:
+        GH_TOKEN: ${{ steps.get-token.outputs.token }}
+      shell: bash {0}
+      run: |
+        ${{ env.OUTPUT_FUNCTION }}
+        result=`gh pr merge ${{ github.event.pull_request.number }} --disable-auto --repo $GITHUB_REPOSITORY 2>&1`
+        output $? "$result"
+        result=`gh pr merge ${{ github.event.pull_request.number }} --squash --auto --repo $GITHUB_REPOSITORY 2>&1`
+        output $? "$result"
+    - name: Comment
+      uses: actions/github-script@v6.3.3
+      env:
+        SQUASH_RESULT: ${{ steps.squash.outputs.failed_result }}
+        CHECK_RESULT: ${{ steps.commitlint.outputs.failed_result }}
+        FAILED_MESSAGE: |
+          :warning: `squash-merge` action execution failed, because of **%s**.
+
+          Please check the following details:
+          <details open>
+
+          ```
+          %s
+          ```
+
+          </details>
+
+          ${{ github.event.sender.type == 'User' && format('@{0}', github.event.sender.login) || '#help' }}
+      with:
+        github-token: ${{ steps.get-token.outputs.token }}
+        script: |
+          const { pull_request, sender } = context.payload;
+          const { issues } = github.rest;
+          const util = require('util');
+          const os = require('os');
+
+          let body;
+          if (process.env.CHECK_RESULT) {
+            body = util.format(process.env.FAILED_MESSAGE, 'pull request title does not meet the [Convention Commit](https://conventionalcommits.org/) guideline', process.env.CHECK_RESULT);
+          } else if (process.env.SQUASH_RESULT) {
+            body = util.format(process.env.FAILED_MESSAGE, 'auto squash and merge failed', process.env.SQUASH_RESULT);
+          } else if (pull_request.user.login === sender.login) {
+            body = util.format(process.env.FAILED_MESSAGE, 'cannot squash and merge your own pull request', `(empty response)`);
+          }
+
+          const p = [];
+          p.push(issues.removeLabel({
+            issue_number: pull_request.number,
+            name: 'action(squash-merge)',
+            ...context.repo,
+          }).catch(e => {
+            console.log('issues.removeLabel', e);
+          }));
+          if (body) {
+            p.push(issues.createComment({
+              issue_number: pull_request.number,
+              body: body,
+              ...context.repo
+            }));
+            p.push(issues.addLabels({
+              issue_number: pull_request.number,
+              labels: [ 'action(squash-merge): failed' ],
+              ...context.repo
+            }));
+          }
+          await Promise.all(p);
+
+  rebase_merge_action_preparation:
+    needs: call_classify_commits
+    if: github.event.label.name == 'action(rebase-merge)'
+    runs-on: ubuntu-latest
+    outputs:
+      permission: ${{ steps.get-permission.outputs.permission }}
+    steps:
+    - name: Permission
+      id: get-permission
+      uses: actions/github-script@v6.3.3
+      with:
+        script: |
+          const { repos } = github.rest;
+          const fs = require('fs');
+          const os = require('os');
+
+          const { data: { permission } } = await repos.getCollaboratorPermissionLevel({
+            ...context.repo,
+            username: "${{ github.event.sender.login }}"
+          });
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `permission=${permission}${os.EOL}`, { encoding: 'utf8' });
+    - name: Token
+      uses: navikt/github-app-token-generator@v1
+      if: steps.get-permission.outputs.permission != 'admin' && needs.call_classify_commits.outputs.normal_commits_count > 1
+      id: get-token
+      with:
+        private-key: ${{ secrets.ACTION_PRIVATE_KEY }}
+        app-id: ${{ secrets.ACTION_APP_ID }}
+    - name: Comment
+      if: steps.get-token.outputs.token
+      env:
+        COMMENT_MESSAGE: |
+          :lock: `rebase-merge` action execution needs privilege escalation.
+
+          Please wait for admin team member approval ...
+
+          ${{ github.event.sender.type == 'User' && format('@{0}', github.event.sender.login) || '' }}
+        WECHAT_WORK_MESSAGE: |
+          [${{ github.event.sender.login }}](https://github.com/${{ github.event.sender.login }}) requested privilege escalation action on [#${{ github.event.pull_request.number }}](${{ github.event.pull_request.html_url }}) pull request.
+          > ${{ github.event.pull_request.title }}
+          > [${{ github.event.pull_request.html_url }}](${{ github.event.pull_request.html_url }})
+      uses: actions/github-script@v6.3.3
+      with:
+        github-token: ${{ steps.get-token.outputs.token }}
+        script: |
+          const { pull_request } = context.payload;
+          const { issues } = github.rest;
+          const util = require('util');
+
+          const p = [];
+
+          p.push(issues.createComment({
+            issue_number: pull_request.number,
+            body: process.env.COMMENT_MESSAGE,
+            ...context.repo
+          }));
+
+          p.push(github.request("POST ${{ secrets.WECHAT_WORK_BOT_WEBHOOK }}", {
+            headers: {
+              "content-type": "application/json"
+            },
+            data: {
+              chatid: "${{ secrets.WECHAT_WORK_ADMIN_CHAT_ID }}",
+              msgtype: "markdown",
+              markdown: {
+                content: process.env.WECHAT_WORK_MESSAGE,
+                attachments: [{
+                  callback_id: "approve",
+                  actions: [{
+                    name: "approve_btn",
+                    text: "Mark as Approved",
+                    type: "button",
+                    value: "Mark as Approved",
+                    replace_text: "Already approved",
+                    border_color: "2c974b",
+                    text_color: "2c974b"
+                  }, {
+                    name: "reject_btn",
+                    text: "Mark as Rejected",
+                    type: "button",
+                    value: "Mark as Rejected",
+                    replace_text: "Already Rejected",
+                    border_color: "cf222e",
+                    text_color: "cf222e"
+                  }, {
+                    name: "ignored_btn",
+                    text: "Mark as Ignored",
+                    type: "button",
+                    value: "Mark as Ignored",
+                    replace_text: "Already Ignored",
+                    border_color: "6e7781",
+                    text_color: "6e7781"
+                  }]
+                }]
+              }
+            }
+          }));
+
+          await Promise.all(p);
+
+  rebase_merge_action:
+    needs: [ rebase_merge_action_preparation, call_classify_commits ]
+    runs-on: ubuntu-latest
+    environment: ${{ (needs.rebase_merge_action_preparation.outputs.permission != 'admin' && needs.call_classify_commits.outputs.normal_commits_count > 1) && 'github-actions-privileged' || '' }}
+    steps:
+    - name: Token
+      uses: navikt/github-app-token-generator@v1
+      id: get-token
+      with:
+        private-key: ${{ secrets.ACTION_PRIVATE_KEY }}
+        app-id: ${{ secrets.ACTION_APP_ID }}
+    - name: Check
+      if: "contains(github.event.pull_request.labels.*.name, 'action(rebase-merge): failed')"
+      uses: actions-ecosystem/action-remove-labels@v1.3.0
+      with:
+        github_token: ${{ steps.get-token.outputs.token }}
+        labels: "action(rebase-merge): failed"
+    - name: Rebase
+      id: rebase
+      env:
+        GH_TOKEN: ${{ steps.get-token.outputs.token }}
+      shell: bash {0}
+      run: |
+        ${{ env.OUTPUT_FUNCTION }}
+        result=`gh pr merge ${{ github.event.pull_request.number }} --disable-auto --repo $GITHUB_REPOSITORY 2>&1`
+        output $? "$result"
+        result=`gh pr merge ${{ github.event.pull_request.number }} --rebase --auto --repo $GITHUB_REPOSITORY 2>&1`
+        output $? "$result"
+    - name: Comment
+      uses: actions/github-script@v6.3.3
+      env:
+        REBASE_RESULT: ${{ steps.rebase.outputs.failed_result }}
+        FAILED_MESSAGE: |
+          :warning: `rebase-merge` action execution failed, because of **%s**.
+
+          Please check the following details:
+          <details open>
+
+          ```
+          %s
+          ```
+
+          </details>
+
+          ${{ github.event.sender.type == 'User' && format('@{0}', github.event.sender.login) || '#help' }}
+      with:
+        github-token: ${{ steps.get-token.outputs.token }}
+        script: |
+          const { pull_request } = context.payload;
+          const { issues } = github.rest;
+          const util = require('util');
+
+          const p = [];
+          p.push(issues.removeLabel({
+            issue_number: pull_request.number,
+            name: 'action(rebase-merge)',
+            ...context.repo,
+          }).catch(e => {
+            console.log('issues.removeLabel', e);
+          }));
+          if (process.env.REBASE_RESULT) {
+            p.push(issues.createComment({
+              issue_number: pull_request.number,
+              body: util.format(process.env.FAILED_MESSAGE, 'auto rebase and merge failed', process.env.REBASE_RESULT),
+              ...context.repo
+            }));
+            p.push(issues.addLabels({
+              issue_number: pull_request.number,
+              labels: [ 'action(rebase-merge): failed' ],
+              ...context.repo
+            }));
+          }
+          await Promise.all(p);
+
+  rebase_merge_action_rejected:
+    needs: [ rebase_merge_action ]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+    - name: Token
+      uses: navikt/github-app-token-generator@v1
+      id: get-token
+      with:
+        private-key: ${{ secrets.ACTION_PRIVATE_KEY }}
+        app-id: ${{ secrets.ACTION_APP_ID }}
+    - name: Label
+      uses: actions/github-script@v6.3.3
+      with:
+        github-token: ${{ steps.get-token.outputs.token }}
+        script: |
+          const { pull_request } = context.payload;
+          const { issues } = github.rest;
+
+          const p = [];
+          p.push(issues.removeLabel({
+            issue_number: pull_request.number,
+            name: 'action(rebase-merge)',
+            ...context.repo,
+          }).catch(e => {
+            console.log('issues.removeLabel', e);
+          }));
+          p.push(issues.addLabels({
+            issue_number: pull_request.number,
+            labels: [ 'action(rebase-merge): failed' ],
+            ...context.repo
+          }));
+
+          await Promise.all(p);

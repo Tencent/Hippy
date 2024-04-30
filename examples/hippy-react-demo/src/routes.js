@@ -26,14 +26,6 @@ export default [
     },
   },
   {
-    path: '/Clipboard',
-    name: 'Clipboard 组件',
-    component: PAGE_LIST.Clipboard,
-    meta: {
-      style: 1,
-    },
-  },
-  {
     path: '/Text',
     name: 'Text 组件',
     component: PAGE_LIST.Text,
@@ -125,6 +117,14 @@ export default [
     path: '/TabHost',
     name: 'TabHost 组件',
     component: PAGE_LIST.TabHost,
+    meta: {
+      style: 1,
+    },
+  },
+  {
+    path: '/NestedScroll',
+    name: 'Nested Scroll 示例',
+    component: PAGE_LIST.NestedScroll,
     meta: {
       style: 1,
     },

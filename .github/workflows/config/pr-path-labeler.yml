@@ -1,0 +1,41 @@
+"framework: android":
+  - android/**/*
+"framework: ios":
+  - ios/**/*
+"driver: js":
+  - core/**/*
+  - packages/**/*
+  - .eslintignore
+  - .eslintrc.js
+  - .nycrc
+  - ava.config.js
+"dom: layout":
+  - layout/**/*
+"doc: example":
+  - examples/**/*
+"doc: pages":
+  - docs/**/*
+"gh: workflow":
+  - .github/workflows/**/*
+"gh: template":
+  - .github/ISSUE_TEMPLATE/**/*
+  - .github/PULL_REQUEST_TEMPLATE.md
+"gh: owner":
+  - .github/CODEOWNERS
+"build: gradle":
+  - gradle/**/*
+  - build.gradle
+  - gradle.properties
+  - gradlew
+  - gradlew.bat
+  - settings.gradle
+"build: xcode":
+  - Hippy.xcworkspace/**/*
+  - hippy.podspec
+"build: cmake":
+  - buildconfig/cmake/**/*
+"build: js":
+  - scripts/**/*
+  - tsdoc.json
+  - tsconfig.json
+  - lerna.json

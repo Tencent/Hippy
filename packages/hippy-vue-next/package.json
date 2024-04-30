@@ -7,7 +7,7 @@
   "license": "Apache-2.0",
   "entry": "./src/index.ts",
   "main": "./dist/index.js",
-  "module": "./dist/index.js",
+  "module": "./dist/index.esm.js",
   "types": "./dist/index.d.ts",
   "repository": "https://github.com/Tencent/Hippy",
   "bugs": {
@@ -23,12 +23,13 @@
   ],
   "files": [
     "dist/index.js",
+    "dist/index.esm.js",
     "dist/index.d.ts",
     "README.md"
   ],
   "dependencies": {
-    "@vue/runtime-core": "^3.2.21",
-    "@vue/shared": "^3.2.21"
+    "@vue/runtime-core": "^3.2.46",
+    "@vue/shared": "^3.2.46"
   },
   "jest": {
     "moduleNameMapper": {

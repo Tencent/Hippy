@@ -14,15 +14,15 @@
     "markdownlint": "markdownlint --config .markdownlintrc.json \"./@(README|README.zh_CN|PUBLISH.zh_CN).md\" \"./docs/**/*.md\"",
     "coverage": "nyc ava",
     "codecov": "cat ./coverage/lcov.info | codecov",
-    "lint": "eslint --fix \"packages/**/*.@(js|ts|tsx|vue)\" \"examples/hippy-react-demo/**/*.@(js|jsx)\" \"examples/hippy-vue-demo/**/*.@(js|vue)\" \"examples/hippy-vue-next-demo/**/*.@(js|ts|vue)\" \"./scripts/**/*.js\" \"./core/js/**/*.js\"",
+    "lint": "npx eslint --config .eslintrc.js --ignore-path .eslintignore --fix \"packages/**/*.@(js|ts|tsx|vue)\" \"examples/hippy-react-demo/**/*.@(js|ts|jsx)\" \"examples/hippy-vue-demo/**/*.@(js|ts|vue)\" \"examples/hippy-vue-next-demo/**/*.@(js|ts|vue)\" \"examples/hippy-vue-next-ssr-demo/**/*.@(js|ts|vue)\" \"./scripts/**/*.js\" \"./core/js/**/*.js\"",
     "clean": "rimraf ./packages/*/node_modules ./examples/hippy-react-demo/node_modules ./examples/hippy-vue-demo/node_modules ./examples/hippy-vue-next-demo/node_modules",
     "init": "npm install && npx lerna bootstrap && npm run build",
     "init:example": "node ./scripts/init-example.js",
     "test": "ava && jest",
     "watch": "watch \"npm run build\" ./packages --ignoreDotFiles --ignoreUnreadable --ignoreDirectoryPattern '/dist/'",
-    "publish": "npx lerna version patch --conventional-commits --sign-git-commit",
     "doc": "docsify serve docs",
     "prepare": "is-ci || husky install",
+    "release:tag-to-latest": "node ./scripts/release-to-latest.js",
     "test:jest": "jest --detectOpenHandles --coverage"
   },
   "devDependencies": {
@@ -47,6 +47,7 @@
     "@typescript-eslint/parser": "^5.38.0",
     "ansi-regex": "^6.0.1",
     "ava": "^2.4.0",
+    "chalk": "^4.1.2",
     "codecov": "^3.8.3",
     "commitlint-plugin-function-rules": "^1.6.0",
     "core-js": "^3.20.2",
@@ -62,11 +63,12 @@
     "eslint-plugin-vue": "^9.5.1",
     "esm": "^3.2.25",
     "flow-remove-types": "^1.2.3",
+    "fs-extra": "^11.1.1",
     "got": "^12.1.0",
     "husky": "^7.0.4",
     "is-ci": "^2.0.0",
     "jest": "^27.3.1",
-    "lerna": "^5.5.2",
+    "lerna": "^6.0.3",
     "lint-staged": "^12.1.7",
     "markdown-it": "^12.3.2",
     "markdownlint-cli": "^0.31.1",
@@ -80,6 +82,8 @@
     "rimraf": "^2.6.3",
     "rollup": "^2.79.1",
     "rollup-plugin-api-extractor": "^0.2.5",
+    "rollup-plugin-copy": "^3.4.0",
+    "rollup-plugin-dts": "^4.2.3",
     "rollup-plugin-flow-no-whitespace": "^1.0.0",
     "rollup-plugin-typescript2": "^0.34.0",
     "shelljs": "^0.8.5",
@@ -109,7 +113,10 @@
   },
   "jest": {
     "projects": [
-      "<rootDir>/packages/hippy-vue-next"
+      "<rootDir>/packages/hippy-vue-next",
+      "<rootDir>/packages/hippy-vue-next-style-parser",
+      "<rootDir>/packages/hippy-vue-next-server-renderer",
+      "<rootDir>/packages/hippy-vue-next-compiler-ssr"
     ]
   }
 }

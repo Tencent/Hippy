@@ -74,7 +74,7 @@ const CodePieces = {
 
 #include <unordered_map>
 
-#include "core/napi/native_source_code.h"
+#include "core/vm/native_source_code.h"
 #include "core/base/macros.h"
 
 // clang-format off
@@ -238,5 +238,5 @@ function generateCpp(platform, buildDirPath) {
 }
 
 // Start to work
-generateCpp('ios', getAbsolutePath('../core/src/napi/jsc/'));
-generateCpp('android', getAbsolutePath('../core/src/napi/v8/'));
+generateCpp('ios', getAbsolutePath('../core/src/vm/jsc/'));
+generateCpp('android', getAbsolutePath('../core/src/vm/v8/'));

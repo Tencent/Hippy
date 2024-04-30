@@ -17,7 +17,6 @@ package com.tencent.mtt.hippy.uimanager;
 
 import android.text.TextUtils;
 import android.util.SparseArray;
-
 import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyRootView;
@@ -26,8 +25,8 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.DomNode;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
+import com.tencent.mtt.hippy.runtime.builtins.JSObject;
 import com.tencent.mtt.hippy.utils.LogUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,10 +103,16 @@ public class RenderManager {
 
   public void updateLayout(int id, int x, int y, int w, int h) {
     LogUtils.d("RenderManager", "updateLayout ID " + id);
-    RenderNode uiNode = mNodes.get(id);
-    uiNode.updateLayout(x, y, w, h);
-
-    addUpdateNodeIfNeeded(uiNode);
+    RenderNode node = mNodes.get(id);
+    if (node != null) {
+      node.updateLayout(x, y, w, h);
+      addUpdateNodeIfNeeded(node);
+      if (node.getParent() instanceof ScrollViewRenderNode) {
+        // ScrollView doesn't receive updateLayout when its content changes,
+        // so we specifically call addUpdateNodeIfNeeded()
+        addUpdateNodeIfNeeded(node.getParent());
+      }
+    }
   }
 
   public void updateNode(int id, HippyMap map) {
@@ -252,12 +257,18 @@ public class RenderManager {
   }
 
 
-  public void measureInWindow(int id, Promise promise) {
+  public void measureInWindow(int id, JSObject options, Promise promise) {
     RenderNode renderNode = mNodes.get(id);
     if (renderNode == null) {
-      promise.reject("this view is null");
+        if (options.get(RenderNode.KEY_COMPATIBLE) == Boolean.TRUE) {
+            promise.resolve("this view is null");
+        } else {
+            JSObject result = new JSObject();
+            result.set(RenderNode.KEY_ERR_MSG, "this node is null");
+            promise.resolve(result);
+        }
     } else {
-      renderNode.measureInWindow(promise);
+      renderNode.measureInWindow(options, promise);
 
       addNullUINodeIfNeeded(renderNode);
     }

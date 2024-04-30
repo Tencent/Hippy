@@ -24,7 +24,6 @@
 #import "HippyCollectionViewWaterfallLayout.h"
 #import "HippyHeaderRefresh.h"
 #import "HippyFooterRefresh.h"
-#import "HippyReusableNodeCache.h"
 #import "HippyWaterfallItemView.h"
 #import "HippyVirtualList.h"
 
@@ -61,7 +60,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     BOOL _isInitialListReady;
     HippyHeaderRefresh *_headerRefreshView;
     HippyFooterRefresh *_footerRefreshView;
-    HippyReusableNodeCache *_reusableNodeCache;
+    NSMutableDictionary<NSIndexPath *, NSNumber *> *_cachedItems;
 }
 
 @property (nonatomic, strong) HippyCollectionViewWaterfallLayout *layout;
@@ -94,9 +93,12 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
         self.bridge = bridge;
         _scrollListeners = [NSMutableArray array];
         _scrollEventThrottle = 100.f;
-
+        _cachedItems = [NSMutableDictionary dictionaryWithCapacity:64];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didReceiveMemoryWarning)
+                                                     name:UIApplicationDidReceiveMemoryWarningNotification
+                                                   object:nil];
         [self initCollectionView];
-        _reusableNodeCache = [[HippyReusableNodeCache alloc] init];
         if (@available(iOS 11.0, *)) {
             self.collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         }
@@ -126,6 +128,10 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 - (void)removeHippySubview:(UIView *)subview {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self
+                                             selector:@selector(purgeFurthestIndexPathsFromScreen)
+                                               object:nil];
+    [self purgeFurthestIndexPathsFromScreen];
 }
 
 - (void)hippySetFrame:(CGRect)frame {
@@ -343,30 +349,22 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
     HippyCollectionViewCell *hpCell = (HippyCollectionViewCell *)cell;
+    [_cachedItems setObject:[hpCell.cellView hippyTag] forKey:indexPath];
     [hpCell.cellView removeFromSuperview];
     HippyVirtualNode *cellNode = hpCell.node;
     NSString *reuseIdentifier = [self reuseIdentifierForIndexPath:indexPath];
     if (cellNode && reuseIdentifier) {
-        [_reusableNodeCache enqueueItemNode:cellNode forIdentifier:reuseIdentifier];
         hpCell.node = nil;
     }
 }
 
 - (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
-    NSString *reuseIdentifier = [self reuseIdentifierForIndexPath:indexPath];
     HippyVirtualNode *cellNode = [self nodeAtIndexPath:indexPath];
-    [_reusableNodeCache removeNode:cellNode forIdentifier:reuseIdentifier];
-    HippyVirtualNode *reusedNode = [_reusableNodeCache dequeueItemNodeForIdentifier:reuseIdentifier];
     HippyCollectionViewCell *hpCell = (HippyCollectionViewCell *)cell;
-    HippyWaterfallItemView *cellView = nil;
-    if (reusedNode) {
-        cellView = (HippyWaterfallItemView *)[self.bridge.uiManager updateNode:reusedNode withNode:cellNode];
-    }
-    if (!cellView) {
-        cellView = (HippyWaterfallItemView *)[self.bridge.uiManager createViewFromNode:cellNode];
-    }
+    HippyWaterfallItemView *cellView = (HippyWaterfallItemView *)[self.bridge.uiManager createViewFromNode:cellNode];
     hpCell.cellView = cellView;
     hpCell.node = cellNode;
+    [_cachedItems removeObjectForKey:indexPath];
 }
 
 #pragma mark - HippyCollectionViewDelegateWaterfallLayout
@@ -441,7 +439,8 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
             _allowNextScrollNoMatterWhat = NO;
         }
     }
-
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
+    [self performSelector:@selector(purgeFurthestIndexPathsFromScreen) withObject:nil afterDelay:.5f];
     [_headerRefreshView scrollViewDidScroll];
     [_footerRefreshView scrollViewDidScroll];
 }
@@ -574,6 +573,81 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView {
 }
 
+- (NSUInteger)maxCachedItemCount {
+    return NSUIntegerMax;
+}
+
+- (NSUInteger)differenceFromIndexPath:(NSIndexPath *)indexPath1 againstAnother:(NSIndexPath *)indexPath2 {
+    NSAssert([NSThread mainThread], @"must be in main thread");
+    long diffCount = 0;
+    for (NSUInteger index = MIN([indexPath1 section], [indexPath2 section]); index < MAX([indexPath1 section], [indexPath2 section]); index++) {
+        diffCount += [_collectionView numberOfItemsInSection:index];
+    }
+    diffCount = diffCount + [indexPath1 row] - [indexPath2 row];
+    return labs(diffCount);
+}
+
+- (NSInteger)differenceFromIndexPath:(NSIndexPath *)indexPath
+            againstVisibleIndexPaths:(NSArray<NSIndexPath *> *)visibleIndexPaths {
+    NSIndexPath *firstIndexPath = [visibleIndexPaths firstObject];
+    NSIndexPath *lastIndexPath = [visibleIndexPaths lastObject];
+    NSUInteger diffFirst = [self differenceFromIndexPath:indexPath againstAnother:firstIndexPath];
+    NSUInteger diffLast = [self differenceFromIndexPath:indexPath againstAnother:lastIndexPath];
+    return MIN(diffFirst, diffLast);
+}
+
+- (NSArray<NSIndexPath *> *)findFurthestIndexPathsFromScreen {
+    NSUInteger visibleItemsCount = [[self.collectionView visibleCells] count];
+    NSUInteger maxCachedItemCount = [self maxCachedItemCount] == NSUIntegerMax ? visibleItemsCount * 2 : [self maxCachedItemCount];
+    NSUInteger cachedCount = [_cachedItems count];
+    NSInteger cachedCountToRemove = cachedCount > maxCachedItemCount ? cachedCount - maxCachedItemCount : 0;
+    if (0 != cachedCountToRemove) {
+        NSArray<NSIndexPath *> *visibleIndexPaths = [_collectionView indexPathsForVisibleItems];
+        NSArray<NSIndexPath *> *sortedCachedItemKey = [[_cachedItems allKeys] sortedArrayUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+            NSIndexPath *ip1 = obj1;
+            NSIndexPath *ip2 = obj2;
+            NSUInteger ip1Diff = [self differenceFromIndexPath:ip1 againstVisibleIndexPaths:visibleIndexPaths];
+            NSUInteger ip2Diff = [self differenceFromIndexPath:ip2 againstVisibleIndexPaths:visibleIndexPaths];
+            if (ip1Diff > ip2Diff) {
+                return NSOrderedAscending;
+            }
+            else if (ip1Diff < ip2Diff) {
+                return NSOrderedDescending;
+            }
+            else {
+                return NSOrderedSame;
+            }
+        }];
+        NSArray<NSIndexPath *> *result = [sortedCachedItemKey subarrayWithRange:NSMakeRange(0, cachedCountToRemove)];
+        return result;
+    }
+    return nil;
+}
+
+- (void)purgeFurthestIndexPathsFromScreen {
+    NSArray<NSIndexPath *> *furthestIndexPaths = [self findFurthestIndexPathsFromScreen];
+    if (furthestIndexPaths) {
+        //purge view
+        NSArray<NSNumber *> *objects = [_cachedItems objectsForKeys:furthestIndexPaths notFoundMarker:@(-1)];
+        [self.bridge.uiManager removeNativeViewFromTags:objects];
+        //purge cache
+        [_cachedItems removeObjectsForKeys:furthestIndexPaths];
+    }
+}
+
+
+- (void)didReceiveMemoryWarning {
+    [self cleanUpCachedItems];
+}
+
+- (void)cleanUpCachedItems {
+    //purge view
+    NSArray<NSNumber *> *objects = [_cachedItems allValues];
+    [self.bridge.uiManager removeNativeViewFromTags:objects];
+    [_cachedItems removeAllObjects];
+}
+
+
 #pragma mark -
 #pragma mark JS CALL Native
 - (void)refreshCompleted:(NSInteger)status text:(NSString *)text {
@@ -644,6 +718,17 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 
 - (void)didMoveToSuperview {
     _rootView = nil;
+}
+
+- (void)didMoveToWindow {
+    if (!self.window) {
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
+        [self purgeFurthestIndexPathsFromScreen];
+    }
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 @end

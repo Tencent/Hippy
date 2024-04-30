@@ -215,7 +215,9 @@ function registerAnimation(Vue) {
     mounted() {
       const { playing } = this.$props;
       if (playing) {
-        this.start();
+        setTimeout(() => {
+          this.start();
+        }, 0);
       }
     },
     beforeDestroy() {

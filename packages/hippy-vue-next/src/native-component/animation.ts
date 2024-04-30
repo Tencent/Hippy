@@ -226,7 +226,7 @@ export function registerAnimation(vueApp: App): void {
         });
       },
     },
-    created() {
+    beforeMount() {
       let animationEventName = 'onAnimation';
       // If running in Android, change it.
       if (Native.isAndroid()) {
@@ -239,18 +239,26 @@ export function registerAnimation(vueApp: App): void {
         repeat: `${animationEventName}Repeat`,
         cancel: `${animationEventName}Cancel`,
       };
-    },
-    beforeMount() {
       this.create();
     },
     mounted() {
       const { playing } = this.$props;
       if (playing) {
-        this.start();
+        setTimeout(() => {
+          this.start();
+        }, 0);
       }
     },
     beforeDestroy() {
       this.destroy();
+    },
+    deactivated() {
+      // for keep-alive deactivated
+      this.pause();
+    },
+    activated() {
+      // for keep-alive activated
+      this.resume();
     },
     methods: {
       create() {
@@ -342,7 +350,6 @@ export function registerAnimation(vueApp: App): void {
           useAnimation: true,
           style: this.style,
           tag: this.$props.tag,
-          playing: this.$props.playing,
           ...this.$props.props,
         },
         this.$slots.default ? this.$slots.default() : null,

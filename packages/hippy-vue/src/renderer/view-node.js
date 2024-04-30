@@ -69,9 +69,8 @@ class ViewNode {
   }
 
   get lastChild() {
-    return this.childNodes.length
-      ? this.childNodes[this.childNodes.length - 1]
-      : null;
+    const len = this.childNodes.length;
+    return len ? this.childNodes[len - 1] : null;
   }
 
   get meta() {
@@ -182,6 +181,8 @@ class ViewNode {
     if (childNode.parentNode && childNode.parentNode !== this) {
       throw new Error('Can\'t append child, because it already has a different parent.');
     }
+    // if childNode is the same as the last child, skip appending
+    if (this.lastChild === childNode) return;
     // remove childNode if exist
     if (childNode.isMounted) {
       this.removeChild(childNode);

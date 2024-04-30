@@ -18,18 +18,13 @@
  * limitations under the License.
  */
 
-/**
- * util/index unit test
- */
 import type { ComponentPublicInstance } from '@vue/runtime-core';
 import * as index from '../../src/util/index';
-import {  HIPPY_DEBUG_ADDRESS } from '../../src/config';
+import {  HIPPY_DEBUG_ADDRESS, HIPPY_UNIQUE_ID_KEY } from '../../src/config';
 import { getEventRedirects } from '../../src/util/index';
 
 /**
- * @author birdguo
- * @priority P0
- * @casetype unit
+ * index.ts unit test case
  */
 describe('util/index.ts', () => {
   it('tryConvertNumber should return right value when params give', async () => {
@@ -74,6 +69,9 @@ describe('util/index.ts', () => {
     expect(index.getUniqueId()).toEqual(9);
     // should not equal 10, id multiples of 10 is used by native
     expect(index.getUniqueId()).toEqual(11);
+
+    global[HIPPY_UNIQUE_ID_KEY] = 20;
+    expect(index.getUniqueId()).toEqual(21);
   });
 
   it('unicodeToChar', async () => {
@@ -192,5 +190,11 @@ describe('util/index.ts', () => {
     expect(newData.d).toEqual([1]);
     expect(newData.e).toEqual(new Set([1]));
     expect(newData.f).toEqual(new Map().set('a', 1));
+  });
+
+  it('getStyleClassList should work correctly', () => {
+    expect(index.getStyleClassList('')).toEqual([]);
+    expect(index.getStyleClassList('a b c')).toEqual(['a', 'b', 'c']);
+    expect(index.getStyleClassList(' a   b c ')).toEqual(['a', 'b', 'c']);
   });
 });

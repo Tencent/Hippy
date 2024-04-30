@@ -43,6 +43,7 @@ import com.tencent.mtt.hippy.adapter.storage.HippyStorageAdapter;
 import com.tencent.mtt.hippy.bridge.HippyCoreAPI;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.bridge.libraryloader.LibraryLoader;
+import com.tencent.mtt.hippy.utils.BuglyUtils;
 import com.tencent.mtt.hippy.v8.V8;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -52,6 +53,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +72,7 @@ public abstract class HippyEngine {
   // Engine所属的分组ID，同一个组共享线程和isolate，不同context
   protected int mGroupId;
   ModuleListener mModuleListener;
+  DebugMode mDebugMode;
 
   private static HippyLogAdapter sLogAdapter = null;
   @SuppressWarnings("JavaJniMissingFunction")
@@ -82,11 +85,12 @@ public abstract class HippyEngine {
     if (params == null) {
       throw new RuntimeException("Hippy: initParams must no be null");
     }
-    LibraryLoader.loadLibraryIfNeed(params.soLoader);
+    LibraryLoader.loadLibraryIfNeeded(params.soLoader);
     if (sLogAdapter == null && params.logAdapter != null) {
       setNativeLogHandler(params.logAdapter);
     }
     ContextHolder.initAppContext(params.context);
+    BuglyUtils.registerSdkAppIdIfNeeded(params.context);
     params.check();
     LogUtils.enableDebugLog(params.enableLog);
     HippyEngine hippyEngine;
@@ -153,9 +157,13 @@ public abstract class HippyEngine {
 
   public abstract void initEngine(EngineListener listener);
 
-  // 是否调试模式
-  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-  public abstract boolean isDebugMode();
+  // debug mode is including DebugMode.Dev mode and DebugMode.UserLocal mode
+  public boolean isDebugMode() { return mDebugMode != DebugMode.None; }
+
+  // Dev mode is one of the debug mode
+  public boolean isDevMode() {
+    return mDebugMode == DebugMode.Dev;
+  }
 
   /**
    * destroy the hippy engine All hippy instance will be destroyed
@@ -171,6 +179,9 @@ public abstract class HippyEngine {
   public abstract HippyRootView loadModule(ModuleLoadParams loadParams);
 
   public abstract HippyRootView loadModule(ModuleLoadParams loadParams, ModuleListener listener);
+
+  public abstract HippyRootView loadInstance(ModuleLoadParams loadParams, ModuleListener listener,
+                                    HippyRootView.OnLoadCompleteListener onLoadCompleteListener);
 
   @SuppressWarnings("unused")
   public abstract HippyRootView loadModule(ModuleLoadParams loadParams, ModuleListener listener,
@@ -227,9 +238,22 @@ public abstract class HippyEngine {
     DESTROYED
   }
 
+  public enum DebugMode {
+    None, // production
+    Dev,
+    UserLocal, // open Hippy remote debug in production. just like debugMode=None but use local bundle, not from remote server
+  }
+
+  public enum V8SnapshotType {
+    NoSnapshot, CreateSnapshot, UseSnapshot
+  }
+
   public static class V8InitParams {
     public long initialHeapSize;
     public long maximumHeapSize;
+    public int type;
+    public String uri; // blob_uri, Currently only supports the file protocol
+    public ByteBuffer blob;
   }
 
   // Hippy 引擎初始化时的参数设置
@@ -249,7 +273,7 @@ public abstract class HippyEngine {
     public HippyBundleLoader jsPreloadAssetsPath;
     // 可选参数 指定需要预加载的业务模块bundle 文件路径
     public HippyBundleLoader jsPreloadFilePath;
-    public boolean debugMode = false;
+    public DebugMode debugMode = DebugMode.None;
     // 可选参数 是否开启调试模式，默认为false，不开启
     // 可选参数 Hippy Server的jsbundle名字，默认为"index.bundle"。debugMode = true时有效
     public String debugBundleName = "index.bundle";
@@ -342,7 +366,7 @@ public abstract class HippyEngine {
         providers = new ArrayList<>();
       }
       providers.add(0, new HippyCoreAPI());
-      if (!debugMode) {
+      if (debugMode != DebugMode.Dev && v8InitParams.type == V8SnapshotType.NoSnapshot.ordinal()) {
         if (TextUtils.isEmpty(coreJSAssetsPath) && TextUtils.isEmpty(coreJSFilePath)) {
           throw new RuntimeException(
               "Hippy: debugMode=true, initParams.coreJSAssetsPath and coreJSFilePath both null!");
@@ -469,6 +493,8 @@ public abstract class HippyEngine {
 
   @SuppressWarnings("unused")
   public interface ModuleListener {
+
+    default void onLoadCompletedInCurrentThread(ModuleLoadStatus statusCode, String msg, HippyRootView hippyRootView) {}
 
     void onLoadCompleted(ModuleLoadStatus statusCode, String msg, HippyRootView hippyRootView);
 

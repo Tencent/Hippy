@@ -26,7 +26,7 @@
 #include "bridge/java2js.h"
 #include "bridge/js2java.h"
 #include "bridge/runtime.h"
-#include "bridge/serializer.h"
+#include "core/vm/v8/serializer.h"
 #include "jni/exception_handler.h"
 #include "jni/jni_env.h"
 #include "jni/jni_register.h"

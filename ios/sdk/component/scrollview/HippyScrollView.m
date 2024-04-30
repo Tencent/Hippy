@@ -33,12 +33,6 @@
 #import "HippyI18nUtils.h"
 #import "objc/runtime.h"
 
-@interface HippyCustomScrollView : UIScrollView <UIGestureRecognizerDelegate>
-
-@property (nonatomic, assign) BOOL centerContent;
-
-@end
-
 @implementation HippyCustomScrollView
 
 - (instancetype)initWithFrame:(CGRect)frame {
@@ -168,7 +162,7 @@ static inline BOOL CGPointIsNull(CGPoint point) {
 
 @end
 
-@implementation HippyScrollView {
+@interface HippyScrollView() {
     HippyCustomScrollView *_scrollView;
     UIView *_contentView;
     NSTimeInterval _lastScrollDispatchTime;
@@ -184,13 +178,14 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     __weak HippyRootView *_rootView;
 }
 
+@end
+
+@implementation HippyScrollView
+
 - (instancetype)initWithEventDispatcher:(HippyEventDispatcher *)eventDispatcher {
     HippyAssertParam(eventDispatcher);
 
     if ((self = [super initWithFrame:CGRectZero])) {
-        _scrollView = [[HippyCustomScrollView alloc] initWithFrame:CGRectZero];
-        _scrollView.delegate = self;
-        _scrollView.delaysContentTouches = NO;
         _automaticallyAdjustContentInsets = YES;
         _contentInset = UIEdgeInsetsZero;
         _contentSize = CGSizeZero;
@@ -202,12 +197,20 @@ static inline BOOL CGPointIsNull(CGPoint point) {
         _scrollListeners = [NSHashTable weakObjectsHashTable];
         _contentOffsetCache = [NSMutableDictionary dictionaryWithCapacity:32];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+        _scrollView = [self loadScrollView];
         [self addSubview:_scrollView];
         if ([self needsLayoutForRTL]) {
             _scrollView.transform = CGAffineTransformMakeRotation(M_PI);
         }
     }
     return self;
+}
+
+- (HippyCustomScrollView *)loadScrollView {
+    HippyCustomScrollView *scrollview = [[HippyCustomScrollView alloc] initWithFrame:CGRectZero];
+    scrollview.delegate = self;
+    scrollview.delaysContentTouches = NO;
+    return scrollview;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -705,8 +708,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     CGSize viewportSize = self.bounds.size;
     if (_automaticallyAdjustContentInsets) {
         UIEdgeInsets contentInsets = [HippyView contentInsetsForView:self];
-        viewportSize = CGSizeMake(
-            self.bounds.size.width - contentInsets.left - contentInsets.right, self.bounds.size.height - contentInsets.top - contentInsets.bottom);
+        viewportSize = CGSizeMake(self.bounds.size.width - contentInsets.left - contentInsets.right,
+                                  self.bounds.size.height - contentInsets.top - contentInsets.bottom);
     }
     return viewportSize;
 }

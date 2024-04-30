@@ -22,19 +22,21 @@
 
 #include "core/napi/callback_info.h"
 
-#include "core/napi/js_native_api.h"
+#include "core/scope.h"
 
 namespace hippy {
 namespace napi {
 
-CallbackInfo::CallbackInfo(std::shared_ptr<Scope> scope) : scope_(std::move(scope)) {
+CallbackInfo::CallbackInfo() {
   ret_value_ = std::make_unique<ReturnValue>();
   exception_value_ = std::make_unique<ExceptionValue>();
+  receiver_ = nullptr;
 }
 
 void CallbackInfo::AddValue(const std::shared_ptr<CtxValue>& value) {
-  if (!value)
+  if (!value) {
     return;
+  }
   values_.push_back(value);
 }
 

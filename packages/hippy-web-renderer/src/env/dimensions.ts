@@ -18,16 +18,6 @@
  * limitations under the License.
  */
 
-declare global {
-  interface HippyDeviceInfo {
-    platform: any,
-    window: any,
-    screen: any,
-    pixelRatio: any,
-  }
-}
-
-
 export const Dimensions = {
   get(key: keyof HippyDeviceInfo) {
     const device = Hippy.device || {};

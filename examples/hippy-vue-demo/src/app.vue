@@ -131,21 +131,6 @@ export default {
   .fullscreen {
     flex: 1;
   }
-  .toolbar {
-    display: flex;
-    height: 40px;
-    flex-direction: row;
-  }
-  .toolbar .toolbar-btn {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    justify-content: center;
-    margin: 3px;
-    border-style: solid;
-    border-color: blue;
-    border-width: 1px;
-  }
   .row {
     flex-direction: row;
   }

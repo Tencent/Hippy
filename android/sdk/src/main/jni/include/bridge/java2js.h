@@ -27,7 +27,10 @@
 namespace hippy {
 namespace bridge {
 
-void CallJavaMethod(jobject j_obj, jlong j_value, jstring j_msg = nullptr);
+void CallJavaMethod(jobject j_obj,
+                    jlong j_ret_code,
+                    jstring j_ret_content = nullptr,
+                    jstring j_payload = nullptr);
 
 void CallFunctionByHeapBuffer(JNIEnv* j_env,
                               jobject j_obj,
