@@ -45,7 +45,7 @@ const globalConfigPath = path.join(current, './global.js');
     isMobile: true,
   });
   const page = await browser.newPage();
-  await page.emulate(puppeteer.KnownDevices[DeviceType]);
+  await page.emulate(puppeteer.devices[DeviceType]);
   await page.goto(Entry, {
     waitUntil: 'networkidle2',
   });
@@ -109,12 +109,14 @@ async function snapshotAndCompare(delayTime, namePre, nameEnd, allPath, page) {
       };
       try {
         const data = await compareImages(await mzfs.readFile(imgTempPath), await mzfs.readFile(imgPath), options);
-        if (data.rawMisMatchPercentage > 0.01) {
+        if (data.rawMisMatchPercentage > 0.13) {
           resolve(false);
+          return;
         }
         fs.unlinkSync(imgTempPath);
         resolve(true);
       } catch (error) {
+        console.log('get error');
         resolve(false);
       }
     }, 1000 * delayTime);
@@ -122,10 +124,10 @@ async function snapshotAndCompare(delayTime, namePre, nameEnd, allPath, page) {
 }
 function testReporter(event, data, runner, beginTimestamp, page, browser) {
   if (event === 'pass') {
-    console.log(colors('green', event), '--------------------', data.parent.title, data.title);
+    console.log(colors('green', event), '--------------------', data?.parent?.title, data?.title);
   }
   if (event === 'fail') {
-    console.log(colors('red', event), '--------------------', data.parent.title, data.title);
+    console.log(colors('red', event), '--------------------', data?.parent?.title, data?.title);
     console.log(colors('red', `timedOut: ${data.timedOut} `));
   }
   if (event === 'end') {

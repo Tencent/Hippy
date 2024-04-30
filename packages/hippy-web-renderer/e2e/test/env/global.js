@@ -29,6 +29,7 @@
   };
   const beforeEach = function () {
     root.__e2e__.route.replace('/blank');
+    console.log(`next test case:${this.currentTest.title}`);
   };
   mocha.rootHooks({
     beforeEach,

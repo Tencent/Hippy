@@ -4,7 +4,7 @@ import {
   Text,
 } from '@hippy/react';
 
-export default function TextWeightCase() {
+export function TextColor() {
   return (<View>
     <Text style={[{ color: '#de4040', fontSize: 16 }]}>
       Text is with color #de4040

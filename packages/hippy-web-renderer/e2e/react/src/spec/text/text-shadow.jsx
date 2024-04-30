@@ -3,7 +3,7 @@ import {
   Text,
 } from '@hippy/react';
 
-export default function TextShadowCase() {
+export function TextShadow() {
   return (<Text style={[{ color: '#242424', fontSize: 16,
     textShadowColor: 'grey',
     textShadowRadius: 3,

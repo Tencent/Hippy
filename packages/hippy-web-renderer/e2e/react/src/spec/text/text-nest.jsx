@@ -3,7 +3,7 @@ import {
   Text,
 } from '@hippy/react';
 
-export default function TextNestCase() {
+export function TextNest() {
   return (
     <Text numberOfLines={3}>
       <Text numberOfLines={3} style={[{ color: '#4c9afa' }]}>#SpiderMan#</Text>
